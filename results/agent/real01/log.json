@@ -1,0 +1,4058 @@
+{
+ "schema_version": "0.1",
+ "kind": "agent_log",
+ "project": "real01",
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+ "started_utc": "2026-10-10T00:19:08Z",
+ "finished_utc": "2026-10-10T00:51:19Z",
+ "stop": {
+  "round": 5,
+  "reason": "final round for critical findings done",
+  "seq": 129
+ },
+ "events": [
+  {
+   "seq": 1,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "plausibility",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 3,
+    "minor": 3
+   }
+  },
+  {
+   "seq": 2,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "exterior",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 3,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "views",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 4,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_bed_room",
+   "status": "ok",
+   "counts": {
+    "kept": 0,
+    "dropped": 2
+   },
+   "call_id": "r1-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r1_001_critic_r_L0_bed_room.png",
+     "../agent/previews/cam_r_L0_bed_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bed_room_2_preview.jpg",
+     "../check/cam_r_L0_bed_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 5,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_bath_toilet",
+   "status": "ok",
+   "counts": {
+    "kept": 0,
+    "dropped": 2
+   },
+   "call_id": "r1-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r1_002_critic_r_L0_bath_toilet.png",
+     "../agent/previews/cam_r_L0_bath_toilet_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bath_toilet_2_preview.jpg",
+     "../check/cam_r_L0_bath_toilet_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 6,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_drawing_room",
+   "status": "ok",
+   "counts": {
+    "kept": 1,
+    "dropped": 2
+   },
+   "call_id": "r1-v3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r1_003_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 7,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_room",
+   "status": "ok",
+   "counts": {
+    "kept": 0,
+    "dropped": 1
+   },
+   "call_id": "r1-v4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r1_004_critic_r_L0_room.png",
+     "../agent/previews/cam_r_L0_room_1_preview.jpg",
+     "../check/cam_r_L0_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 8,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_bed_room_2",
+   "status": "ok",
+   "counts": {
+    "kept": 0,
+    "dropped": 0
+   },
+   "call_id": "r1-v5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r1_005_critic_r_L0_bed_room_2.png",
+     "../agent/previews/cam_r_L0_bed_room_2_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bed_room_2_2_preview.jpg",
+     "../check/cam_r_L0_bed_room_2_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 9,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_kitchen",
+   "status": "ok",
+   "counts": {
+    "kept": 0,
+    "dropped": 3
+   },
+   "call_id": "r1-v6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r1_006_critic_r_L0_kitchen.png",
+     "../agent/previews/cam_r_L0_kitchen_1_preview.jpg",
+     "../agent/previews/cam_r_L0_kitchen_2_preview.jpg",
+     "../check/cam_r_L0_kitchen_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 10,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_dining",
+   "status": "ok",
+   "counts": {
+    "kept": 1,
+    "dropped": 2
+   },
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 11,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F3",
+   "severity": "minor",
+   "target": "f_L0_008",
+   "room_id": "r_L0_bed_room",
+   "finding": "nightstand: its back is not on a wall (0.16 m off)",
+   "evidence": {
+    "metrics": {
+     "back_wall_m": 0.159,
+     "back_on_wall_share": 0.0,
+     "parallel_deg": 90.0,
+     "front_deg": 270.0,
+     "front_assumed": true
+    }
+   }
+  },
+  {
+   "seq": 12,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F3",
+   "severity": "minor",
+   "target": "f_L0_023",
+   "room_id": "r_L0_bed_room",
+   "finding": "nightstand: its back is not on a wall (0.15 m off)",
+   "evidence": {
+    "metrics": {
+     "back_wall_m": 0.155,
+     "back_on_wall_share": 0.0,
+     "parallel_deg": 0.0,
+     "front_deg": 0.0
+    }
+   }
+  },
+  {
+   "seq": 13,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_008",
+   "room_id": "r_L0_bed_room",
+   "finding": "nightstand faces a wall 0.05 m in front of it",
+   "evidence": {
+    "metrics": {
+     "front_deg": 270.0,
+     "front_wall_m": 0.05,
+     "front_assumed": true
+    }
+   }
+  },
+  {
+   "seq": 14,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F9",
+   "severity": "minor",
+   "target": "f_L0_009",
+   "room_id": "r_L0_bed_room",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "evidence": {
+    "metrics": {
+     "area_m2": 0.221
+    }
+   }
+  },
+  {
+   "seq": 15,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_024",
+   "room_id": "r_L0_drawing_room",
+   "finding": "tv_unit does not face its group (f_L0_017)",
+   "evidence": {
+    "metrics": {
+     "front_deg": 0.0,
+     "targets": [
+      "f_L0_017"
+     ],
+     "angles_deg": {
+      "f_L0_017": 71.0
+     }
+    }
+   }
+  },
+  {
+   "seq": 16,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F9",
+   "severity": "major",
+   "target": "f_L0_018",
+   "room_id": "r_L0_drawing_room",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "evidence": {
+    "metrics": {
+     "area_m2": 1.334
+    }
+   }
+  },
+  {
+   "seq": 17,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_019",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The coffee table is positioned behind the sofa, blocking the path between the sofa and the TV unit, which is an incorrect orientation for a coffee table.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v3",
+    "images": [
+     "images/r1_003_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "call_id": "r1-v3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 18,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_027",
+   "room_id": "r_L0_dining",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v7",
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   },
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 19,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F7",
+   "severity": "major",
+   "target": "f_L0_007",
+   "room_id": "r_L0_bed_room",
+   "finding": "The bed is placed directly in front of the window (win_L0_001), blocking the view and light.",
+   "evidence": {
+    "image": 3,
+    "call_id": "r1-v1",
+    "images": [
+     "images/r1_001_critic_r_L0_bed_room.png",
+     "../agent/previews/cam_r_L0_bed_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bed_room_2_preview.jpg",
+     "../check/cam_r_L0_bed_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F7 measured by code without a violation on f_L0_007",
+   "call_id": "r1-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 20,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F6",
+   "severity": "major",
+   "target": "f_L0_007",
+   "room_id": "r_L0_bed_room",
+   "finding": "The clearance beside the bed is less than 0.7m, making it difficult to access the nightstand or move around the bed.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v1",
+    "images": [
+     "images/r1_001_critic_r_L0_bed_room.png",
+     "../agent/previews/cam_r_L0_bed_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bed_room_2_preview.jpg",
+     "../check/cam_r_L0_bed_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F6 measured by code without a violation on f_L0_007",
+   "call_id": "r1-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 21,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_021",
+   "room_id": "r_L0_bath_toilet",
+   "finding": "The toilet is not placed against a wall. In the top-down plan, it is floating in the middle of the room, and in the renders, it is clearly visible that the back of the toilet is not touching the wall.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v2",
+    "images": [
+     "images/r1_002_critic_r_L0_bath_toilet.png",
+     "../agent/previews/cam_r_L0_bath_toilet_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bath_toilet_2_preview.jpg",
+     "../check/cam_r_L0_bath_toilet_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_021",
+   "call_id": "r1-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 22,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_022",
+   "room_id": "r_L0_bath_toilet",
+   "finding": "The washbasin is not placed against a wall. In the top-down plan, it is floating in the middle of the room, and in the renders, it is clearly visible that the back of the washbasin is not touching the wall.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v2",
+    "images": [
+     "images/r1_002_critic_r_L0_bath_toilet.png",
+     "../agent/previews/cam_r_L0_bath_toilet_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bath_toilet_2_preview.jpg",
+     "../check/cam_r_L0_bath_toilet_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_022",
+   "call_id": "r1-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 23,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F9",
+   "severity": "major",
+   "target": "f_L0_018",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The object f_L0_018 is rendered as a large, undefined green box in the plan and is completely missing from the 3D renders, indicating a failed or unexplained geometry build.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v3",
+    "images": [
+     "images/r1_003_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "duplicate of a code finding",
+   "call_id": "r1-v3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 24,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_017",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The sofa is placed in the middle of the room with its back facing the coffee table and the TV unit, rather than being positioned against a wall or facing the TV as a standard living room arrangement.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v3",
+    "images": [
+     "images/r1_003_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_017",
+   "call_id": "r1-v3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 25,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "R3",
+   "severity": "critical",
+   "target": "d_L0_001",
+   "room_id": "r_L0_room",
+   "finding": "The door swing for d_L0_001 is blocked by the stair (f_L0_003). The orange swing arc overlaps directly with the green stair footprint, meaning the door cannot open fully into the room.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v4",
+    "images": [
+     "images/r1_004_critic_r_L0_room.png",
+     "../agent/previews/cam_r_L0_room_1_preview.jpg",
+     "../check/cam_r_L0_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: R3 measured by code without a violation on d_L0_001",
+   "call_id": "r1-v4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 26,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_025",
+   "room_id": "r_L0_kitchen",
+   "finding": "The tall cabinet (f_L0_025) is placed in the middle of the room, not against a wall.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v6",
+    "images": [
+     "images/r1_006_critic_r_L0_kitchen.png",
+     "../agent/previews/cam_r_L0_kitchen_1_preview.jpg",
+     "../agent/previews/cam_r_L0_kitchen_2_preview.jpg",
+     "../check/cam_r_L0_kitchen_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_025",
+   "call_id": "r1-v6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 27,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F8",
+   "severity": "major",
+   "target": "f_L0_025",
+   "room_id": "r_L0_kitchen",
+   "finding": "The tall cabinet is a floating piece, not part of a furniture group or against a wall.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v6",
+    "images": [
+     "images/r1_006_critic_r_L0_kitchen.png",
+     "../agent/previews/cam_r_L0_kitchen_1_preview.jpg",
+     "../agent/previews/cam_r_L0_kitchen_2_preview.jpg",
+     "../check/cam_r_L0_kitchen_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F8 measured by code without a violation on f_L0_025",
+   "call_id": "r1-v6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 28,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F6",
+   "severity": "major",
+   "target": "f_L0_025",
+   "room_id": "r_L0_kitchen",
+   "finding": "The tall cabinet blocks the main walkway in the kitchen, reducing the clearance to less than 0.9m.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v6",
+    "images": [
+     "images/r1_006_critic_r_L0_kitchen.png",
+     "../agent/previews/cam_r_L0_kitchen_1_preview.jpg",
+     "../agent/previews/cam_r_L0_kitchen_2_preview.jpg",
+     "../check/cam_r_L0_kitchen_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F6 measured by code without a violation on f_L0_025",
+   "call_id": "r1-v6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 29,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_027",
+   "room_id": "r_L0_dining",
+   "finding": "The sideboard is floating in the middle of the room, not placed against a wall.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v7",
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_027",
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 30,
+   "round": 1,
+   "t": "2026-10-10T00:19:42Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F6",
+   "severity": "major",
+   "target": "f_L0_027",
+   "room_id": "r_L0_dining",
+   "finding": "The sideboard is blocking the walkway to the door.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v7",
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F6 measured by code without a violation on f_L0_027",
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 31,
+   "round": 1,
+   "t": "2026-10-10T00:19:49Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-p3-t1",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_018",
+    "type": "tall_cabinet",
+    "reason": "Plan crop shows a tall cabinet with three doors along the right wall, matching a tall_cabinet footprint (1.9 x 0.7 m)."
+   },
+   "target": "f_L0_018",
+   "checklist": "F9",
+   "severity": "major",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "room_type: tall_cabinet is not a piece a living room may hold here"
+    ],
+    "score_before": 80.0,
+    "score_after": 80.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Plan crop shows a tall cabinet with three doors along the right wall, matching a tall_cabinet footprint (1.9 x 0.7 m).",
+   "before": "images/r1_009_change_type_before_r_L0_drawing_room.png",
+   "note": "tall_cabinet is not a piece a living room may hold here"
+  },
+  {
+   "seq": 32,
+   "round": 1,
+   "t": "2026-10-10T00:19:52Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-p4-t1",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_018",
+    "type": "display_cabinet",
+    "reason": "Plan crop shows a tall cabinet with three doors along the right wall; display_cabinet fits the living room and the 1.9 x 0.7 m footprint."
+   },
+   "target": "f_L0_018",
+   "checklist": "F9",
+   "severity": "major",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "product_size: f_L0_018: 1.90 x 0.70 m does not fit a display_cabinet (size table)"
+    ],
+    "score_before": 80.0,
+    "score_after": 80.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Plan crop shows a tall cabinet with three doors along the right wall; display_cabinet fits the living room and the 1.9 x 0.7 m footprint.",
+   "before": "images/r1_010_change_type_before_r_L0_drawing_room.png",
+   "note": "f_L0_018: 1.90 x 0.70 m does not fit a display_cabinet (size table)"
+  },
+  {
+   "seq": 33,
+   "round": 1,
+   "t": "2026-10-10T00:19:54Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-p5-t1",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_018",
+    "type": "sideboard",
+    "reason": "Plan crop shows a long cabinet with three doors along the right wall; a sideboard fits the living room and the 1.9 x 0.7 m footprint."
+   },
+   "target": "f_L0_018",
+   "checklist": "F9",
+   "severity": "major",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "product_size: f_L0_018: 1.90 x 0.70 m does not fit a sideboard (size table)"
+    ],
+    "score_before": 80.0,
+    "score_after": 80.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Plan crop shows a long cabinet with three doors along the right wall; a sideboard fits the living room and the 1.9 x 0.7 m footprint.",
+   "before": "images/r1_011_change_type_before_r_L0_drawing_room.png",
+   "note": "f_L0_018: 1.90 x 0.70 m does not fit a sideboard (size table)"
+  },
+  {
+   "seq": 34,
+   "round": 1,
+   "t": "2026-10-10T00:19:56Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-p6-t1",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_018",
+    "type": "sofa",
+    "reason": "Plan crop shows a long three-seat sofa along the right wall; a 1.9 m sofa fits the living room and the footprint."
+   },
+   "target": "f_L0_018",
+   "checklist": "F9",
+   "severity": "major",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "max_tries: f_L0_018 was edited 3 times in this round"
+    ],
+    "score_before": null,
+    "score_after": null
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Plan crop shows a long three-seat sofa along the right wall; a 1.9 m sofa fits the living room and the footprint."
+  },
+  {
+   "seq": 35,
+   "round": 1,
+   "t": "2026-10-10T00:19:58Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-p7-t1",
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_024",
+    "front_deg": 90,
+    "reason": "Turn the tv_unit so its front faces the sofa group (f_L0_017) across the room."
+   },
+   "target": "f_L0_024",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "tv_unit does not face its group (f_L0_017)",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_017: clearance_ok",
+     "f_L0_019: no_overlap",
+     "f_L0_024: inside_room",
+     "f_L0_024: no_overlap",
+     "score: plausibility 80 -> 40 (F3 f_L0_024: tv_unit: its back is not on a wall (0.15 m off); F4 f_L0_017: sofa stands behind the back of f_L0_024, looking at it; F6 f_L0_017: sofa: the free zone in front of it is blocked by f_L0_024; F9 f_L0_024: tv_unit reaches 0.25 m² through the room outline)"
+    ],
+    "score_before": 80.0,
+    "score_after": 40.0
+   },
+   "label": "added_by_ai",
+   "reason": "Turn the tv_unit so its front faces the sofa group (f_L0_017) across the room.",
+   "before": "images/r1_012_rotate_piece_before_r_L0_drawing_room.png",
+   "note": "rotate rejected: f_L0_017: clearance_ok; f_L0_019: no_overlap; f_L0_024: inside_room"
+  },
+  {
+   "seq": 36,
+   "round": 1,
+   "t": "2026-10-10T00:20:01Z",
+   "kind": "edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-p8-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_024",
+    "snap_wall_id": "w_L0_006",
+    "offset": 1.5,
+    "reason": "Move the tv_unit to the north wall so its front faces the sofa group (f_L0_017) and it no longer blocks the coffee table."
+   },
+   "target": "f_L0_024",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "tv_unit does not face its group (f_L0_017)",
+   "validation": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 80.0,
+    "score_after": 90.0
+   },
+   "label": "added_by_ai",
+   "reason": "Move the tv_unit to the north wall so its front faces the sofa group (f_L0_017) and it no longer blocks the coffee table.",
+   "before": "images/r1_013_move_piece_before_r_L0_drawing_room.png",
+   "after": "images/r1_014_move_piece_after_r_L0_drawing_room.png",
+   "rerun_from": "refit",
+   "overrides_id": 1,
+   "note": "move accepted: score 80 -> 90"
+  },
+  {
+   "seq": 37,
+   "round": 1,
+   "t": "2026-10-10T00:20:16Z",
+   "kind": "edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s2-p3-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_008",
+    "snap_wall_id": "w_L0_008",
+    "offset": 0.523,
+    "reason": "Snap the nightstand's back onto the west wall to clear the 0.05 m wall in front and the 0.16 m back gap."
+   },
+   "target": "f_L0_008",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "nightstand faces a wall 0.05 m in front of it",
+   "validation": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 81.0,
+    "score_after": 94.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Snap the nightstand's back onto the west wall to clear the 0.05 m wall in front and the 0.16 m back gap.",
+   "before": "images/r1_016_move_piece_before_r_L0_bed_room.png",
+   "after": "images/r1_017_move_piece_after_r_L0_bed_room.png",
+   "rerun_from": "refit",
+   "overrides_id": 2,
+   "note": "move accepted: score 81 -> 94"
+  },
+  {
+   "seq": 38,
+   "round": 1,
+   "t": "2026-10-10T00:20:16Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s2-p3-t2",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_023",
+    "snap_wall_id": "w_L0_008",
+    "offset": 1.12,
+    "reason": "Snap the AI nightstand's back onto the west wall to close the 0.15 m gap."
+   },
+   "target": "f_L0_023",
+   "checklist": "F3",
+   "severity": "minor",
+   "finding": "nightstand: its back is not on a wall (0.15 m off)",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_007: doors_free",
+     "f_L0_023: doors_free",
+     "score: plausibility 94 -> 87 (F6 f_L0_007: no 0.9 m walkway from d_L0_001 to win_L0_007 (blocked by f_L0_007, f_L0_023))"
+    ],
+    "score_before": 94.0,
+    "score_after": 87.0
+   },
+   "label": "added_by_ai",
+   "reason": "Snap the AI nightstand's back onto the west wall to close the 0.15 m gap.",
+   "before": "images/r1_018_move_piece_before_r_L0_bed_room.png",
+   "note": "move rejected: f_L0_007: doors_free; f_L0_023: doors_free; score: plausibility 94 -> 87 (F6 f_L0_007: no 0.9 m walkway from d_L0_001 to win_L0_007 (blocked by f_L0_007, f_L0_023))"
+  },
+  {
+   "seq": 39,
+   "round": 1,
+   "t": "2026-10-10T00:20:16Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s2-p3-t3",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_009",
+    "type": "nightstand",
+    "reason": "The drawn box is a 0.50x0.45 m bedside table at the foot-side of the bed, matching the twin of f_L0_008."
+   },
+   "target": "f_L0_009",
+   "checklist": "F9",
+   "severity": "minor",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "score: plausibility 94 -> 84 (F3 f_L0_009: nightstand: its back is not on a wall (0.17 m off); F4 f_L0_009: nightstand faces a wall 0.05 m in front of it)"
+    ],
+    "score_before": 94.0,
+    "score_after": 84.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "The drawn box is a 0.50x0.45 m bedside table at the foot-side of the bed, matching the twin of f_L0_008.",
+   "before": "images/r1_019_change_type_before_r_L0_bed_room.png",
+   "note": "change_type rejected: score: plausibility 94 -> 84 (F3 f_L0_009: nightstand: its back is not on a wall (0.17 m off); F4 f_L0_009: nightstand faces a wall 0.05 m in front of it)"
+  },
+  {
+   "seq": 40,
+   "round": 1,
+   "t": "2026-10-10T00:20:20Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s2-p4-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_009",
+    "snap_wall_id": "w_L0_008",
+    "offset": 0.5,
+    "reason": "Snap the bedside table's back onto the west wall so it reads as a proper nightstand against the wall."
+   },
+   "target": "f_L0_009",
+   "checklist": "F9",
+   "severity": "minor",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "snap: f_L0_009: no free place on wall w_L0_008 (doors, windows, at most 1.2 m from the drawn place)"
+    ],
+    "score_before": 94.0,
+    "score_after": 94.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Snap the bedside table's back onto the west wall so it reads as a proper nightstand against the wall.",
+   "before": "images/r1_020_move_piece_before_r_L0_bed_room.png",
+   "note": "f_L0_009: no free place on wall w_L0_008 (doors, windows, at most 1.2 m from the drawn place)"
+  },
+  {
+   "seq": 41,
+   "round": 1,
+   "t": "2026-10-10T00:20:21Z",
+   "kind": "edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s2-p4-t2",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_023",
+    "center": [
+     0.61,
+     1.35
+    ],
+    "reason": "Shift the AI nightstand up along the west wall to keep the 0.9 m door walkway clear while staying close to the wall."
+   },
+   "target": "f_L0_023",
+   "checklist": "F3",
+   "severity": "minor",
+   "finding": "nightstand: its back is not on a wall (0.15 m off)",
+   "validation": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 94.0,
+    "score_after": 94.0
+   },
+   "label": "added_by_ai",
+   "reason": "Shift the AI nightstand up along the west wall to keep the 0.9 m door walkway clear while staying close to the wall.",
+   "before": "images/r1_021_move_piece_before_r_L0_bed_room.png",
+   "after": "images/r1_022_move_piece_after_r_L0_bed_room.png",
+   "rerun_from": "refit",
+   "overrides_id": 3,
+   "note": "move accepted: score 94 -> 94"
+  },
+  {
+   "seq": 42,
+   "round": 1,
+   "t": "2026-10-10T00:20:23Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s2-p5-t1",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_009",
+    "type": "nightstand",
+    "reason": "The drawn box is a 0.50x0.45 m bedside table at the foot-side of the bed, matching the twin of f_L0_008."
+   },
+   "target": "f_L0_009",
+   "checklist": "F9",
+   "severity": "minor",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "score: plausibility 94 -> 84 (F3 f_L0_009: nightstand: its back is not on a wall (0.17 m off); F4 f_L0_009: nightstand faces a wall 0.05 m in front of it)"
+    ],
+    "score_before": 94.0,
+    "score_after": 84.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "The drawn box is a 0.50x0.45 m bedside table at the foot-side of the bed, matching the twin of f_L0_008.",
+   "before": "images/r1_023_change_type_before_r_L0_bed_room.png",
+   "note": "change_type rejected: score: plausibility 94 -> 84 (F3 f_L0_009: nightstand: its back is not on a wall (0.17 m off); F4 f_L0_009: nightstand faces a wall 0.05 m in front of it)"
+  },
+  {
+   "seq": 43,
+   "round": 1,
+   "t": "2026-10-10T00:20:25Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s2-p6-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_009",
+    "center": [
+     0.61,
+     0.5
+    ],
+    "reason": "Move the bedside table to the west wall beside the bed so its back is on the wall and it is not facing a wall."
+   },
+   "target": "f_L0_009",
+   "checklist": "F9",
+   "severity": "minor",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "max_tries: f_L0_009 was edited 3 times in this round"
+    ],
+    "score_before": null,
+    "score_after": null
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Move the bedside table to the west wall beside the bed so its back is on the wall and it is not facing a wall."
+  },
+  {
+   "seq": 44,
+   "round": 1,
+   "t": "2026-10-10T00:20:32Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s3-p3-t1",
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "front_deg": 180,
+    "reason": "Sideboard was facing the west wall; rotate so its front faces into the room (east) away from the wall."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+    ],
+    "score_before": 100.0,
+    "score_after": 80.0
+   },
+   "label": "added_by_ai",
+   "reason": "Sideboard was facing the west wall; rotate so its front faces into the room (east) away from the wall.",
+   "before": "images/r1_025_rotate_piece_before_r_L0_dining.png",
+   "note": "rotate rejected: score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+  },
+  {
+   "seq": 45,
+   "round": 1,
+   "t": "2026-10-10T00:20:35Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s3-p4-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "snap_wall_id": "w_L0_006",
+    "offset": 1,
+    "reason": "Move the sideboard to the south wall (w_L0_006) so its back is on a wall and its front faces into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "snap: f_L0_027: no free place on wall w_L0_006 (doors, windows)"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "added_by_ai",
+   "reason": "Move the sideboard to the south wall (w_L0_006) so its back is on a wall and its front faces into the room.",
+   "before": "images/r1_026_move_piece_before_r_L0_dining.png",
+   "note": "f_L0_027: no free place on wall w_L0_006 (doors, windows)"
+  },
+  {
+   "seq": 46,
+   "round": 1,
+   "t": "2026-10-10T00:20:37Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s3-p5-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     6.782,
+     6.815
+    ],
+    "reason": "Place the sideboard against the south wall under the window so its back is on the wall and its front faces into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_012: no_overlap",
+     "f_L0_016: no_overlap",
+     "f_L0_027: inside_room",
+     "f_L0_027: no_overlap",
+     "score: plausibility 100 -> 50 (F3 f_L0_027: sideboard: its back is not on a wall (0.12 m off); F9 f_L0_027: sideboard f_L0_027 overlaps table_dining f_L0_010 by 0.15 m²; F9 f_L0_027: sideboard f_L0_027 overlaps chair f_L0_012 by 0.06 m²; F9 f_L0_027: sideboard f_L0_027 overlaps chair f_L0_016 by 0.05 m²)"
+    ],
+    "score_before": 100.0,
+    "score_after": 50.0
+   },
+   "label": "added_by_ai",
+   "reason": "Place the sideboard against the south wall under the window so its back is on the wall and its front faces into the room.",
+   "before": "images/r1_027_move_piece_before_r_L0_dining.png",
+   "note": "move rejected: f_L0_012: no_overlap; f_L0_016: no_overlap; f_L0_027: inside_room"
+  },
+  {
+   "seq": 47,
+   "round": 1,
+   "t": "2026-10-10T00:20:39Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r1-s3-p6-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     7.7,
+     6.815
+    ],
+    "reason": "Place the sideboard against the south wall to the right of the window, back on the wall, front facing into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "max_tries: f_L0_027 was edited 3 times in this round"
+    ],
+    "score_before": null,
+    "score_after": null
+   },
+   "label": "added_by_ai",
+   "reason": "Place the sideboard against the south wall to the right of the window, back on the wall, front facing into the room."
+  },
+  {
+   "seq": 48,
+   "round": 1,
+   "t": "2026-10-10T00:22:25Z",
+   "kind": "rerun",
+   "rerun_from": "refit",
+   "status": "ok",
+   "views": [
+    "cam_r_L0_bed_room_1",
+    "cam_r_L0_bed_room_2",
+    "cam_r_L0_bed_room_3",
+    "cam_r_L0_drawing_room_1",
+    "cam_r_L0_drawing_room_2",
+    "cam_r_L0_drawing_room_3"
+   ],
+   "seconds": 102.0
+  },
+  {
+   "seq": 49,
+   "round": 1,
+   "t": "2026-10-10T00:22:25Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_bed_room_1"
+   ],
+   "before": "images/r1_cam_r_L0_bed_room_1_before.jpg",
+   "after": "images/r1_cam_r_L0_bed_room_1_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 50,
+   "round": 1,
+   "t": "2026-10-10T00:22:25Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_bed_room_2"
+   ],
+   "before": "images/r1_cam_r_L0_bed_room_2_before.jpg",
+   "after": "images/r1_cam_r_L0_bed_room_2_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 51,
+   "round": 1,
+   "t": "2026-10-10T00:22:25Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_bed_room_3"
+   ],
+   "before": "images/r1_cam_r_L0_bed_room_3_before.jpg",
+   "after": "images/r1_cam_r_L0_bed_room_3_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 52,
+   "round": 1,
+   "t": "2026-10-10T00:22:25Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_1"
+   ],
+   "before": "images/r1_cam_r_L0_drawing_room_1_before.jpg",
+   "after": "images/r1_cam_r_L0_drawing_room_1_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 53,
+   "round": 1,
+   "t": "2026-10-10T00:22:25Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_2"
+   ],
+   "before": "images/r1_cam_r_L0_drawing_room_2_before.jpg",
+   "after": "images/r1_cam_r_L0_drawing_room_2_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 54,
+   "round": 1,
+   "t": "2026-10-10T00:22:25Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_3"
+   ],
+   "before": "images/r1_cam_r_L0_drawing_room_3_before.jpg",
+   "after": "images/r1_cam_r_L0_drawing_room_3_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 55,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "plausibility",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 2
+   }
+  },
+  {
+   "seq": 56,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "exterior",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 57,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "views",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 58,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_bed_room",
+   "status": "ok",
+   "counts": {
+    "kept": 0,
+    "dropped": 2
+   },
+   "call_id": "r2-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r2_001_critic_r_L0_bed_room.png",
+     "../agent/previews/cam_r_L0_bed_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bed_room_2_preview.jpg",
+     "../check/cam_r_L0_bed_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 59,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_drawing_room",
+   "status": "ok",
+   "counts": {
+    "kept": 1,
+    "dropped": 3
+   },
+   "call_id": "r2-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r2_002_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 60,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F3",
+   "severity": "minor",
+   "target": "f_L0_023",
+   "room_id": "r_L0_bed_room",
+   "finding": "nightstand: its back is not on a wall (0.15 m off)",
+   "evidence": {
+    "metrics": {
+     "back_wall_m": 0.155,
+     "back_on_wall_share": 0.0,
+     "parallel_deg": 0.0,
+     "front_deg": 0.0
+    }
+   }
+  },
+  {
+   "seq": 61,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F9",
+   "severity": "minor",
+   "target": "f_L0_009",
+   "room_id": "r_L0_bed_room",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "evidence": {
+    "metrics": {
+     "area_m2": 0.221
+    }
+   }
+  },
+  {
+   "seq": 62,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F9",
+   "severity": "major",
+   "target": "f_L0_018",
+   "room_id": "r_L0_drawing_room",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "evidence": {
+    "metrics": {
+     "area_m2": 1.334
+    }
+   }
+  },
+  {
+   "seq": 63,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_017",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The sofa's front is facing the coffee table, but the coffee table is positioned behind the sofa relative to the TV unit, creating a disjointed and illogical seating arrangement.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r2-v2",
+    "images": [
+     "images/r2_002_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "call_id": "r2-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 64,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_027",
+   "room_id": "r_L0_dining",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v7",
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   },
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 65,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F7",
+   "severity": "critical",
+   "target": "f_L0_023",
+   "room_id": "r_L0_bed_room",
+   "finding": "The nightstand f_L0_023 is placed directly in front of the window win_L0_007, blocking the view and light.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r2-v1",
+    "images": [
+     "images/r2_001_critic_r_L0_bed_room.png",
+     "../agent/previews/cam_r_L0_bed_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bed_room_2_preview.jpg",
+     "../check/cam_r_L0_bed_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F7 measured by code without a violation on f_L0_023",
+   "call_id": "r2-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 66,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F7",
+   "severity": "critical",
+   "target": "f_L0_009",
+   "room_id": "r_L0_bed_room",
+   "finding": "The piece f_L0_009 is placed directly in front of the window win_L0_001, blocking the view and light.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r2-v1",
+    "images": [
+     "images/r2_001_critic_r_L0_bed_room.png",
+     "../agent/previews/cam_r_L0_bed_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_bed_room_2_preview.jpg",
+     "../check/cam_r_L0_bed_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F7 measured by code without a violation on f_L0_009",
+   "call_id": "r2-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 67,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F9",
+   "severity": "major",
+   "target": "f_L0_018",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The item f_L0_018 is built as a large, unexplained green box in the center of the room, which does not correspond to any standard furniture type and looks like a placeholder or error.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r2-v2",
+    "images": [
+     "images/r2_002_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "duplicate of a code finding",
+   "call_id": "r2-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 68,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_017",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The sofa (f_L0_017) is floating in the middle of the room with its back facing open space, rather than being placed against a wall or facing the TV unit as part of a coherent group.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r2-v2",
+    "images": [
+     "images/r2_002_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_017",
+   "call_id": "r2-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 69,
+   "round": 2,
+   "t": "2026-10-10T00:22:39Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F5",
+   "severity": "major",
+   "target": "f_L0_019",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The coffee table (f_L0_019) is not grouped with the sofa; it is placed behind the sofa instead of in front of it, breaking the expected living room layout.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r2-v2",
+    "images": [
+     "images/r2_002_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F5 measured by code without a violation on f_L0_019",
+   "call_id": "r2-v2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 70,
+   "round": 2,
+   "t": "2026-10-10T00:22:45Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r2-p3-t1",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_018",
+    "type": "sofa",
+    "reason": "Plan crop shows a 3-seat sofa with upright cushions drawn against the right wall; footprint 1.90x0.70 m matches a sofa."
+   },
+   "target": "f_L0_018",
+   "checklist": "F9",
+   "severity": "major",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "second_anchor: the room already has its sofa / sofa_corner: never a second anchor piece"
+    ],
+    "score_before": 90.0,
+    "score_after": 90.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Plan crop shows a 3-seat sofa with upright cushions drawn against the right wall; footprint 1.90x0.70 m matches a sofa.",
+   "before": "images/r2_004_change_type_before_r_L0_drawing_room.png",
+   "note": "the room already has its sofa / sofa_corner: never a second anchor piece"
+  },
+  {
+   "seq": 71,
+   "round": 2,
+   "t": "2026-10-10T00:22:47Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r2-p4-t1",
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L0_018",
+    "type": "chaise",
+    "reason": "Plan crop shows a long upholstered seat with back along the right wall; as a chaise it complements the existing sofa without creating a second anchor."
+   },
+   "target": "f_L0_018",
+   "checklist": "F9",
+   "severity": "major",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_018: doors_free",
+     "f_L0_024: doors_free",
+     "score: plausibility 90 -> 60 (F4 f_L0_018: chaise does not face its group (f_L0_019, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to d_L0_003 (blocked by f_L0_018, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to o_L0_002 (blocked by f_L0_018, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to o_L0_004 (blocked by f_L0_018, f_L0_024))"
+    ],
+    "score_before": 90.0,
+    "score_after": 60.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Plan crop shows a long upholstered seat with back along the right wall; as a chaise it complements the existing sofa without creating a second anchor.",
+   "before": "images/r2_005_change_type_before_r_L0_drawing_room.png",
+   "note": "change_type rejected: f_L0_018: doors_free; f_L0_024: doors_free; score: plausibility 90 -> 60 (F4 f_L0_018: chaise does not face its group (f_L0_019, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to d_L0_003 (blocked by f_L0_018, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to o_L0_002 (blocked by f_L0_018, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to o_L0_004 (blocked by f_L0_018, f_L0_024))"
+  },
+  {
+   "seq": 72,
+   "round": 2,
+   "t": "2026-10-10T00:22:50Z",
+   "kind": "edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r2-p5-t1",
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L0_018",
+    "reason": "The drawn box is a duplicate of the already-placed sofa f_L0_017 (identical 1.90x0.70 m footprint, same seat height); the room already has its sofa anchor, and keeping it blocks all door walkways."
+   },
+   "target": "f_L0_018",
+   "checklist": "F9",
+   "severity": "major",
+   "finding": "an unexplained drawn box (1.33 m², type unknown) is built",
+   "validation": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 90.0,
+    "score_after": 100.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "The drawn box is a duplicate of the already-placed sofa f_L0_017 (identical 1.90x0.70 m footprint, same seat height); the room already has its sofa anchor, and keeping it blocks all door walkways.",
+   "before": "images/r2_006_remove_piece_before_r_L0_drawing_room.png",
+   "after": "images/r2_007_remove_piece_after_r_L0_drawing_room.png",
+   "rerun_from": "refit",
+   "overrides_id": 4,
+   "note": "remove accepted: score 90 -> 100"
+  },
+  {
+   "seq": 73,
+   "round": 2,
+   "t": "2026-10-10T00:22:57Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r2-s2-p3-t1",
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "front_deg": 180,
+    "reason": "Sideboard was facing the west wall; turn its front to face east into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+    ],
+    "score_before": 100.0,
+    "score_after": 80.0
+   },
+   "label": "added_by_ai",
+   "reason": "Sideboard was facing the west wall; turn its front to face east into the room.",
+   "before": "images/r2_009_rotate_piece_before_r_L0_dining.png",
+   "note": "rotate rejected: score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+  },
+  {
+   "seq": 74,
+   "round": 2,
+   "t": "2026-10-10T00:22:59Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r2-s2-p4-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "snap_wall_id": "w_L0_011",
+    "offset": 0.5,
+    "reason": "Snap the sideboard's back onto the west wall so its front faces into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "snap: f_L0_027: no free place on wall w_L0_011 (doors, windows)"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "added_by_ai",
+   "reason": "Snap the sideboard's back onto the west wall so its front faces into the room.",
+   "before": "images/r2_010_move_piece_before_r_L0_dining.png",
+   "note": "f_L0_027: no free place on wall w_L0_011 (doors, windows)"
+  },
+  {
+   "seq": 75,
+   "round": 2,
+   "t": "2026-10-10T00:23:01Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r2-s2-p5-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     5.331,
+     6.269
+    ],
+    "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_027: inside_room"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "added_by_ai",
+   "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room.",
+   "before": "images/r2_011_move_piece_before_r_L0_dining.png",
+   "note": "move rejected: f_L0_027: inside_room"
+  },
+  {
+   "seq": 76,
+   "round": 2,
+   "t": "2026-10-10T00:23:03Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r2-s2-p6-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     5.331,
+     6.269
+    ],
+    "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "max_tries: f_L0_027 was edited 3 times in this round"
+    ],
+    "score_before": null,
+    "score_after": null
+   },
+   "label": "added_by_ai",
+   "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room."
+  },
+  {
+   "seq": 77,
+   "round": 2,
+   "t": "2026-10-10T00:24:39Z",
+   "kind": "rerun",
+   "rerun_from": "refit",
+   "status": "ok",
+   "views": [
+    "cam_r_L0_drawing_room_1",
+    "cam_r_L0_drawing_room_2",
+    "cam_r_L0_drawing_room_3"
+   ],
+   "seconds": 92.0
+  },
+  {
+   "seq": 78,
+   "round": 2,
+   "t": "2026-10-10T00:24:39Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_1"
+   ],
+   "before": "images/r2_cam_r_L0_drawing_room_1_before.jpg",
+   "after": "images/r2_cam_r_L0_drawing_room_1_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 79,
+   "round": 2,
+   "t": "2026-10-10T00:24:39Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_2"
+   ],
+   "before": "images/r2_cam_r_L0_drawing_room_2_before.jpg",
+   "after": "images/r2_cam_r_L0_drawing_room_2_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 80,
+   "round": 2,
+   "t": "2026-10-10T00:24:39Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_3"
+   ],
+   "before": "images/r2_cam_r_L0_drawing_room_3_before.jpg",
+   "after": "images/r2_cam_r_L0_drawing_room_3_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 81,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "plausibility",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 2
+   }
+  },
+  {
+   "seq": 82,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "exterior",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 83,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "views",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 84,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_drawing_room",
+   "status": "ok",
+   "counts": {
+    "kept": 1,
+    "dropped": 2
+   },
+   "call_id": "r3-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r3_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 85,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F3",
+   "severity": "minor",
+   "target": "f_L0_023",
+   "room_id": "r_L0_bed_room",
+   "finding": "nightstand: its back is not on a wall (0.15 m off)",
+   "evidence": {
+    "metrics": {
+     "back_wall_m": 0.155,
+     "back_on_wall_share": 0.0,
+     "parallel_deg": 0.0,
+     "front_deg": 0.0
+    }
+   }
+  },
+  {
+   "seq": 86,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F9",
+   "severity": "minor",
+   "target": "f_L0_009",
+   "room_id": "r_L0_bed_room",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "evidence": {
+    "metrics": {
+     "area_m2": 0.221
+    }
+   }
+  },
+  {
+   "seq": 87,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_017",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The sofa (f_L0_017) is facing the wall/window instead of facing the TV unit or the coffee table, which is an incorrect orientation for a living room setup.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r3-v1",
+    "images": [
+     "images/r3_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "call_id": "r3-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 88,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_027",
+   "room_id": "r_L0_dining",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v7",
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   },
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 89,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_018",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The piece f_L0_018 (a sofa) is floating in the middle of the room with its back facing the center, not placed against a wall as is standard for this type of furniture.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r3-v1",
+    "images": [
+     "images/r3_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_018",
+   "call_id": "r3-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 90,
+   "round": 3,
+   "t": "2026-10-10T00:24:46Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F5",
+   "severity": "major",
+   "target": "f_L0_019",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The coffee table (f_L0_019) is not positioned in front of the sofa (f_L0_017) to form a coherent seating group; it is isolated in the middle of the room.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r3-v1",
+    "images": [
+     "images/r3_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F5 measured by code without a violation on f_L0_019",
+   "call_id": "r3-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 91,
+   "round": 3,
+   "t": "2026-10-10T00:24:50Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r3-p3-t1",
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "front_deg": 180,
+    "reason": "Sideboard front was facing the west wall; rotate so its front faces into the room (east) away from the wall."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+    ],
+    "score_before": 100.0,
+    "score_after": 80.0
+   },
+   "label": "added_by_ai",
+   "reason": "Sideboard front was facing the west wall; rotate so its front faces into the room (east) away from the wall.",
+   "before": "images/r3_003_rotate_piece_before_r_L0_dining.png",
+   "note": "rotate rejected: score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+  },
+  {
+   "seq": 92,
+   "round": 3,
+   "t": "2026-10-10T00:24:52Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r3-p4-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "snap_wall_id": "w_L0_011",
+    "offset": 0,
+    "reason": "Snap the sideboard's back edge onto the west wall so its front faces into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "snap: f_L0_027: no free place on wall w_L0_011 (doors, windows)"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "added_by_ai",
+   "reason": "Snap the sideboard's back edge onto the west wall so its front faces into the room.",
+   "before": "images/r3_004_move_piece_before_r_L0_dining.png",
+   "note": "f_L0_027: no free place on wall w_L0_011 (doors, windows)"
+  },
+  {
+   "seq": 93,
+   "round": 3,
+   "t": "2026-10-10T00:24:55Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r3-p5-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     5.331,
+     6.269
+    ],
+    "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_027: inside_room"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "added_by_ai",
+   "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room.",
+   "before": "images/r3_005_move_piece_before_r_L0_dining.png",
+   "note": "move rejected: f_L0_027: inside_room"
+  },
+  {
+   "seq": 94,
+   "round": 3,
+   "t": "2026-10-10T00:24:57Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r3-p6-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     5.336,
+     6.269
+    ],
+    "reason": "Nudge the sideboard 1.5 cm west so its back sits flush on the west wall, keeping its front facing into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "max_tries: f_L0_027 was edited 3 times in this round"
+    ],
+    "score_before": null,
+    "score_after": null
+   },
+   "label": "added_by_ai",
+   "reason": "Nudge the sideboard 1.5 cm west so its back sits flush on the west wall, keeping its front facing into the room."
+  },
+  {
+   "seq": 95,
+   "round": 3,
+   "t": "2026-10-10T00:25:11Z",
+   "kind": "edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r3-s2-p4-t1",
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_017",
+    "front_deg": 90,
+    "reason": "Sofa seat faces north toward the coffee table and TV unit, away from the window wall, per the plan crop showing cushions up."
+   },
+   "target": "f_L0_017",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sofa (f_L0_017) is facing the wall/window instead of facing the TV unit or the coffee table, which is an incorrect orientation for a living room setup.",
+   "validation": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Sofa seat faces north toward the coffee table and TV unit, away from the window wall, per the plan crop showing cushions up.",
+   "before": "images/r3_007_rotate_piece_before_r_L0_drawing_room.png",
+   "after": "images/r3_008_rotate_piece_after_r_L0_drawing_room.png",
+   "rerun_from": "refit",
+   "overrides_id": 5,
+   "note": "rotate accepted: score 100 -> 100"
+  },
+  {
+   "seq": 96,
+   "round": 3,
+   "t": "2026-10-10T00:26:50Z",
+   "kind": "rerun",
+   "rerun_from": "refit",
+   "status": "ok",
+   "views": [
+    "cam_r_L0_drawing_room_1",
+    "cam_r_L0_drawing_room_2",
+    "cam_r_L0_drawing_room_3"
+   ],
+   "seconds": 97.1
+  },
+  {
+   "seq": 97,
+   "round": 3,
+   "t": "2026-10-10T00:26:50Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_1"
+   ],
+   "before": "images/r3_cam_r_L0_drawing_room_1_before.jpg",
+   "after": "images/r3_cam_r_L0_drawing_room_1_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 98,
+   "round": 3,
+   "t": "2026-10-10T00:26:50Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_2"
+   ],
+   "before": "images/r3_cam_r_L0_drawing_room_2_before.jpg",
+   "after": "images/r3_cam_r_L0_drawing_room_2_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 99,
+   "round": 3,
+   "t": "2026-10-10T00:26:50Z",
+   "kind": "render",
+   "views": [
+    "cam_r_L0_drawing_room_3"
+   ],
+   "before": "images/r3_cam_r_L0_drawing_room_3_before.jpg",
+   "after": "images/r3_cam_r_L0_drawing_room_3_after.jpg",
+   "status": "preview"
+  },
+  {
+   "seq": 100,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "plausibility",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 2
+   }
+  },
+  {
+   "seq": 101,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "exterior",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 102,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "views",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 103,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_drawing_room",
+   "status": "ok",
+   "counts": {
+    "kept": 1,
+    "dropped": 2
+   },
+   "call_id": "r4-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r4_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 104,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F3",
+   "severity": "minor",
+   "target": "f_L0_023",
+   "room_id": "r_L0_bed_room",
+   "finding": "nightstand: its back is not on a wall (0.15 m off)",
+   "evidence": {
+    "metrics": {
+     "back_wall_m": 0.155,
+     "back_on_wall_share": 0.0,
+     "parallel_deg": 0.0,
+     "front_deg": 0.0
+    }
+   }
+  },
+  {
+   "seq": 105,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F9",
+   "severity": "minor",
+   "target": "f_L0_009",
+   "room_id": "r_L0_bed_room",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "evidence": {
+    "metrics": {
+     "area_m2": 0.221
+    }
+   }
+  },
+  {
+   "seq": 106,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_017",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The sofa (f_L0_017) is facing the wall/window, while the TV unit (f_L0_024) is on the opposite wall. The seating arrangement does not face the TV.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r4-v1",
+    "images": [
+     "images/r4_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "call_id": "r4-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 107,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_027",
+   "room_id": "r_L0_dining",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v7",
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   },
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 108,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_018",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The piece f_L0_018 (a 3-seater sofa) is floating in the middle of the room with its back facing the center, not placed against a wall or as part of a defined seating group.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r4-v1",
+    "images": [
+     "images/r4_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_018",
+   "call_id": "r4-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 109,
+   "round": 4,
+   "t": "2026-10-10T00:26:58Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F5",
+   "severity": "major",
+   "target": "f_L0_019",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The coffee table (f_L0_019) is isolated in the center of the room and is not positioned in front of the sofa (f_L0_017) to form a functional group.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r4-v1",
+    "images": [
+     "images/r4_001_critic_r_L0_drawing_room.png",
+     "../agent/previews/cam_r_L0_drawing_room_1_preview.jpg",
+     "../agent/previews/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F5 measured by code without a violation on f_L0_019",
+   "call_id": "r4-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 110,
+   "round": 4,
+   "t": "2026-10-10T00:27:02Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r4-p3-t1",
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "front_deg": 180,
+    "reason": "Sideboard front was facing the west wall; turn it to face east into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+    ],
+    "score_before": 100.0,
+    "score_after": 80.0
+   },
+   "label": "added_by_ai",
+   "reason": "Sideboard front was facing the west wall; turn it to face east into the room.",
+   "before": "images/r4_003_rotate_piece_before_r_L0_dining.png",
+   "note": "rotate rejected: score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it)"
+  },
+  {
+   "seq": 111,
+   "round": 4,
+   "t": "2026-10-10T00:27:04Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r4-p4-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "snap_wall_id": "w_L0_011",
+    "offset": 0.5,
+    "reason": "Snap the sideboard's back onto the west wall so its front faces into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "snap: f_L0_027: no free place on wall w_L0_011 (doors, windows)"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "added_by_ai",
+   "reason": "Snap the sideboard's back onto the west wall so its front faces into the room.",
+   "before": "images/r4_004_move_piece_before_r_L0_dining.png",
+   "note": "f_L0_027: no free place on wall w_L0_011 (doors, windows)"
+  },
+  {
+   "seq": 112,
+   "round": 4,
+   "t": "2026-10-10T00:27:07Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r4-p5-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     5.331,
+     6.269
+    ],
+    "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_027: inside_room"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "added_by_ai",
+   "reason": "Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room.",
+   "before": "images/r4_005_move_piece_before_r_L0_dining.png",
+   "note": "move rejected: f_L0_027: inside_room"
+  },
+  {
+   "seq": 113,
+   "round": 4,
+   "t": "2026-10-10T00:27:09Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r4-p6-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_027",
+    "center": [
+     5.336,
+     6.269
+    ],
+    "reason": "Nudge the sideboard 1.5 cm west so its back sits on the west wall, keeping its front facing into the room."
+   },
+   "target": "f_L0_027",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "max_tries: f_L0_027 was edited 3 times in this round"
+    ],
+    "score_before": null,
+    "score_after": null
+   },
+   "label": "added_by_ai",
+   "reason": "Nudge the sideboard 1.5 cm west so its back sits on the west wall, keeping its front facing into the room."
+  },
+  {
+   "seq": 114,
+   "round": 4,
+   "t": "2026-10-10T00:27:19Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r4-s2-p4-t1",
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_017",
+    "front_deg": 270,
+    "reason": "Turn the sofa so its front faces the TV unit on the opposite wall instead of the window wall."
+   },
+   "target": "f_L0_017",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sofa (f_L0_017) is facing the wall/window, while the TV unit (f_L0_024) is on the opposite wall. The seating arrangement does not face the TV.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_017: clearance_ok",
+     "score: plausibility 100 -> 60 (F3 f_L0_017: sofa: its back is not on a wall (0.57 m off); F4 f_L0_017: sofa faces a wall 0.18 m in front of it; F4 f_L0_024: tv_unit stands behind the back of f_L0_017, looking at it; F6 f_L0_017: sofa: the free zone in front of it is reaches out of the room)"
+    ],
+    "score_before": 100.0,
+    "score_after": 60.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Turn the sofa so its front faces the TV unit on the opposite wall instead of the window wall.",
+   "before": "images/r4_007_rotate_piece_before_r_L0_drawing_room.png",
+   "note": "rotate rejected: f_L0_017: clearance_ok; score: plausibility 100 -> 60 (F3 f_L0_017: sofa: its back is not on a wall (0.57 m off); F4 f_L0_017: sofa faces a wall 0.18 m in front of it; F4 f_L0_024: tv_unit stands behind the back of f_L0_017, looking at it; F6 f_L0_017: sofa: the free zone in front of it is reaches out of the room)"
+  },
+  {
+   "seq": 115,
+   "round": 4,
+   "t": "2026-10-10T00:27:23Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r4-s2-p5-t1",
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_017",
+    "center": [
+     6.5268,
+     1.6
+    ],
+    "reason": "Pull the sofa off the window wall into the room so it can be turned to face the TV unit."
+   },
+   "target": "f_L0_017",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sofa (f_L0_017) is facing the wall/window, while the TV unit (f_L0_024) is on the opposite wall. The seating arrangement does not face the TV.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "drawn_lock: f_L0_017: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.84 m)"
+    ],
+    "score_before": 100.0,
+    "score_after": 100.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Pull the sofa off the window wall into the room so it can be turned to face the TV unit.",
+   "before": "images/r4_008_move_piece_before_r_L0_drawing_room.png",
+   "note": "f_L0_017: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.84 m)"
+  },
+  {
+   "seq": 116,
+   "round": 4,
+   "t": "2026-10-10T00:27:27Z",
+   "kind": "rejected_edit",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "call_id": "r4-s2-p6-t1",
+   "tool": "move_piece",
+   "args": {
+    "center": [
+     6.5268,
+     1.0
+    ],
+    "piece_id": "f_L0_017",
+    "reason": "Nudge the sofa slightly off the window wall within the drawn-piece limit to improve its facing."
+   },
+   "target": "f_L0_017",
+   "checklist": "F4",
+   "severity": "major",
+   "finding": "The sofa (f_L0_017) is facing the wall/window, while the TV unit (f_L0_024) is on the opposite wall. The seating arrangement does not face the TV.",
+   "validation": {
+    "accepted": false,
+    "failed_checks": [
+     "f_L0_017: clearance_ok",
+     "f_L0_020: doors_free",
+     "score: plausibility 100 -> 60 (F6 f_L0_020: no 0.9 m walkway from o_L0_001 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from d_L0_003 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from o_L0_002 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from o_L0_004 to win_L0_002 (blocked by f_L0_020))"
+    ],
+    "score_before": 100.0,
+    "score_after": 60.0
+   },
+   "label": "adjusted_by_ai",
+   "reason": "Nudge the sofa slightly off the window wall within the drawn-piece limit to improve its facing.",
+   "before": "images/r4_009_move_piece_before_r_L0_drawing_room.png",
+   "note": "move rejected: f_L0_017: clearance_ok; f_L0_020: doors_free; score: plausibility 100 -> 60 (F6 f_L0_020: no 0.9 m walkway from o_L0_001 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from d_L0_003 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from o_L0_002 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from o_L0_004 to win_L0_002 (blocked by f_L0_020))"
+  },
+  {
+   "seq": 117,
+   "round": 4,
+   "t": "2026-10-10T00:27:34Z",
+   "kind": "stop",
+   "reason": "no edit accepted in this round",
+   "status": "no_edit",
+   "note": "5 edits accepted in 4 rounds"
+  },
+  {
+   "seq": 118,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "plausibility",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 2
+   }
+  },
+  {
+   "seq": 119,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "exterior",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 120,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "check",
+   "source": "code",
+   "tool": "views",
+   "status": "ok",
+   "counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+   }
+  },
+  {
+   "seq": 121,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "check",
+   "source": "vision",
+   "target": "r_L0_drawing_room",
+   "status": "ok",
+   "counts": {
+    "kept": 1,
+    "dropped": 3
+   },
+   "call_id": "r5-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "evidence": {
+    "images": [
+     "images/r5_001_critic_r_L0_drawing_room.png",
+     "../renders/cam_r_L0_drawing_room_1_preview.jpg",
+     "../renders/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   }
+  },
+  {
+   "seq": 122,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F3",
+   "severity": "minor",
+   "target": "f_L0_023",
+   "room_id": "r_L0_bed_room",
+   "finding": "nightstand: its back is not on a wall (0.15 m off)",
+   "evidence": {
+    "metrics": {
+     "back_wall_m": 0.155,
+     "back_on_wall_share": 0.0,
+     "parallel_deg": 0.0,
+     "front_deg": 0.0
+    }
+   }
+  },
+  {
+   "seq": 123,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "finding",
+   "source": "code",
+   "checklist": "F9",
+   "severity": "minor",
+   "target": "f_L0_009",
+   "room_id": "r_L0_bed_room",
+   "finding": "an unexplained drawn box (0.22 m², type unknown) is built",
+   "evidence": {
+    "metrics": {
+     "area_m2": 0.221
+    }
+   }
+  },
+  {
+   "seq": 124,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_017",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The sofa's front is facing the wall (or away from the main seating group), which is an incorrect orientation for a living room setup.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r5-v1",
+    "images": [
+     "images/r5_001_critic_r_L0_drawing_room.png",
+     "../renders/cam_r_L0_drawing_room_1_preview.jpg",
+     "../renders/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "call_id": "r5-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 125,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F4",
+   "severity": "major",
+   "target": "f_L0_027",
+   "room_id": "r_L0_dining",
+   "finding": "The sideboard's front is facing the wall instead of the room.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r1-v7",
+    "images": [
+     "images/r1_007_critic_r_L0_dining.png",
+     "../agent/previews/cam_r_L0_dining_1_preview.jpg",
+     "../agent/previews/cam_r_L0_dining_2_preview.jpg",
+     "../check/cam_r_L0_dining_1_plan.jpg"
+    ]
+   },
+   "call_id": "r1-v7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 126,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F3",
+   "severity": "major",
+   "target": "f_L0_017",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The sofa is placed in the middle of the room with its back facing the open space, rather than being positioned against a wall or facing the TV unit/coffee table group.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r5-v1",
+    "images": [
+     "images/r5_001_critic_r_L0_drawing_room.png",
+     "../renders/cam_r_L0_drawing_room_1_preview.jpg",
+     "../renders/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F3 measured by code without a violation on f_L0_017",
+   "call_id": "r5-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 127,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F5",
+   "severity": "major",
+   "target": "f_L0_019",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The coffee table is isolated in the center of the room and does not form a coherent group with the sofa or the TV unit.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r5-v1",
+    "images": [
+     "images/r5_001_critic_r_L0_drawing_room.png",
+     "../renders/cam_r_L0_drawing_room_1_preview.jpg",
+     "../renders/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F5 measured by code without a violation on f_L0_019",
+   "call_id": "r5-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 128,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "finding",
+   "source": "vision",
+   "checklist": "F8",
+   "severity": "major",
+   "target": "f_L0_018",
+   "room_id": "r_L0_drawing_room",
+   "finding": "The piece labeled 'unknown' (likely a second sofa or bench) is floating in the middle of the room without being part of a clear furniture group.",
+   "evidence": {
+    "image": 1,
+    "call_id": "r5-v1",
+    "images": [
+     "images/r5_001_critic_r_L0_drawing_room.png",
+     "../renders/cam_r_L0_drawing_room_1_preview.jpg",
+     "../renders/cam_r_L0_drawing_room_2_preview.jpg",
+     "../check/cam_r_L0_drawing_room_1_plan.jpg"
+    ]
+   },
+   "dropped": "code contradicts: F8 measured by code without a violation on f_L0_018",
+   "call_id": "r5-v1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a"
+  },
+  {
+   "seq": 129,
+   "round": 5,
+   "t": "2026-10-10T00:51:19Z",
+   "kind": "stop",
+   "reason": "final round for critical findings done",
+   "status": "no_finding"
+  }
+ ],
+ "calls": [
+  {
+   "call_id": "r1-v1",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 5.446,
+   "attempts": 1,
+   "prompt_tokens": 3235,
+   "completion_tokens": 171,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r1-v2",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 5.004,
+   "attempts": 1,
+   "prompt_tokens": 2945,
+   "completion_tokens": 214,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r1-v3",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 6.495,
+   "attempts": 1,
+   "prompt_tokens": 3464,
+   "completion_tokens": 281,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r1-v4",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.711,
+   "attempts": 1,
+   "prompt_tokens": 2275,
+   "completion_tokens": 113,
+   "images": 3,
+   "error": null
+  },
+  {
+   "call_id": "r1-v5",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.511,
+   "attempts": 1,
+   "prompt_tokens": 3107,
+   "completion_tokens": 7,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r1-v6",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 5.538,
+   "attempts": 1,
+   "prompt_tokens": 3147,
+   "completion_tokens": 239,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r1-v7",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 5.007,
+   "attempts": 1,
+   "prompt_tokens": 3219,
+   "completion_tokens": 214,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r1-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.816,
+   "attempts": 1,
+   "prompt_tokens": 5612,
+   "completion_tokens": 32,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.972,
+   "attempts": 1,
+   "prompt_tokens": 7551,
+   "completion_tokens": 80,
+   "images": 0,
+   "tool_calls": 2,
+   "error": null
+  },
+  {
+   "call_id": "r1-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 3.008,
+   "attempts": 1,
+   "prompt_tokens": 8964,
+   "completion_tokens": 127,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.157,
+   "attempts": 1,
+   "prompt_tokens": 9237,
+   "completion_tokens": 94,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.195,
+   "attempts": 1,
+   "prompt_tokens": 9511,
+   "completion_tokens": 93,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.961,
+   "attempts": 1,
+   "prompt_tokens": 9782,
+   "completion_tokens": 86,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.923,
+   "attempts": 1,
+   "prompt_tokens": 9950,
+   "completion_tokens": 83,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p8",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.618,
+   "attempts": 1,
+   "prompt_tokens": 10368,
+   "completion_tokens": 112,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p9",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.785,
+   "attempts": 1,
+   "prompt_tokens": 10644,
+   "completion_tokens": 32,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p10",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.05,
+   "attempts": 1,
+   "prompt_tokens": 12589,
+   "completion_tokens": 34,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-p11",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.551,
+   "attempts": 1,
+   "prompt_tokens": 12749,
+   "completion_tokens": 113,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s2-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.23,
+   "attempts": 1,
+   "prompt_tokens": 5695,
+   "completion_tokens": 31,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s2-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.936,
+   "attempts": 1,
+   "prompt_tokens": 7381,
+   "completion_tokens": 79,
+   "images": 0,
+   "tool_calls": 2,
+   "error": null
+  },
+  {
+   "call_id": "r1-s2-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 7.025,
+   "attempts": 1,
+   "prompt_tokens": 8578,
+   "completion_tokens": 312,
+   "images": 2,
+   "tool_calls": 3,
+   "error": null
+  },
+  {
+   "call_id": "r1-s2-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 4.55,
+   "attempts": 1,
+   "prompt_tokens": 9597,
+   "completion_tokens": 197,
+   "images": 2,
+   "tool_calls": 2,
+   "error": null
+  },
+  {
+   "call_id": "r1-s2-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.221,
+   "attempts": 1,
+   "prompt_tokens": 10132,
+   "completion_tokens": 96,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s2-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.186,
+   "attempts": 1,
+   "prompt_tokens": 10491,
+   "completion_tokens": 92,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s2-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.629,
+   "attempts": 1,
+   "prompt_tokens": 10665,
+   "completion_tokens": 116,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s3-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.762,
+   "attempts": 1,
+   "prompt_tokens": 5433,
+   "completion_tokens": 31,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s3-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.221,
+   "attempts": 1,
+   "prompt_tokens": 6800,
+   "completion_tokens": 45,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s3-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.999,
+   "attempts": 1,
+   "prompt_tokens": 7333,
+   "completion_tokens": 84,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s3-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.52,
+   "attempts": 1,
+   "prompt_tokens": 7682,
+   "completion_tokens": 111,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s3-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.215,
+   "attempts": 1,
+   "prompt_tokens": 7959,
+   "completion_tokens": 95,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s3-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.125,
+   "attempts": 1,
+   "prompt_tokens": 8419,
+   "completion_tokens": 93,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r1-s3-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 3.464,
+   "attempts": 1,
+   "prompt_tokens": 8594,
+   "completion_tokens": 154,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-v1",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 4.307,
+   "attempts": 1,
+   "prompt_tokens": 3179,
+   "completion_tokens": 181,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r2-v2",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 8.704,
+   "attempts": 1,
+   "prompt_tokens": 3437,
+   "completion_tokens": 384,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r2-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.821,
+   "attempts": 1,
+   "prompt_tokens": 5538,
+   "completion_tokens": 78,
+   "images": 0,
+   "tool_calls": 2,
+   "error": null
+  },
+  {
+   "call_id": "r2-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.422,
+   "attempts": 1,
+   "prompt_tokens": 7987,
+   "completion_tokens": 52,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.979,
+   "attempts": 1,
+   "prompt_tokens": 8907,
+   "completion_tokens": 129,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.051,
+   "attempts": 1,
+   "prompt_tokens": 9185,
+   "completion_tokens": 89,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.397,
+   "attempts": 1,
+   "prompt_tokens": 9864,
+   "completion_tokens": 101,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.813,
+   "attempts": 1,
+   "prompt_tokens": 10130,
+   "completion_tokens": 32,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.062,
+   "attempts": 1,
+   "prompt_tokens": 12058,
+   "completion_tokens": 34,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-p8",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.67,
+   "attempts": 1,
+   "prompt_tokens": 12143,
+   "completion_tokens": 27,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-s2-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.761,
+   "attempts": 1,
+   "prompt_tokens": 5433,
+   "completion_tokens": 31,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-s2-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.223,
+   "attempts": 1,
+   "prompt_tokens": 6800,
+   "completion_tokens": 45,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-s2-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.86,
+   "attempts": 1,
+   "prompt_tokens": 7333,
+   "completion_tokens": 78,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-s2-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.212,
+   "attempts": 1,
+   "prompt_tokens": 7676,
+   "completion_tokens": 97,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-s2-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.237,
+   "attempts": 1,
+   "prompt_tokens": 7941,
+   "completion_tokens": 96,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-s2-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.163,
+   "attempts": 1,
+   "prompt_tokens": 8187,
+   "completion_tokens": 96,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r2-s2-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 3.048,
+   "attempts": 1,
+   "prompt_tokens": 8365,
+   "completion_tokens": 135,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-v1",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 6.829,
+   "attempts": 1,
+   "prompt_tokens": 3409,
+   "completion_tokens": 296,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r3-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.761,
+   "attempts": 1,
+   "prompt_tokens": 5433,
+   "completion_tokens": 31,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.221,
+   "attempts": 1,
+   "prompt_tokens": 6800,
+   "completion_tokens": 45,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.009,
+   "attempts": 1,
+   "prompt_tokens": 7333,
+   "completion_tokens": 85,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.192,
+   "attempts": 1,
+   "prompt_tokens": 7683,
+   "completion_tokens": 96,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.236,
+   "attempts": 1,
+   "prompt_tokens": 7947,
+   "completion_tokens": 96,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.203,
+   "attempts": 1,
+   "prompt_tokens": 8193,
+   "completion_tokens": 98,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 3.061,
+   "attempts": 1,
+   "prompt_tokens": 8373,
+   "completion_tokens": 136,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-s2-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.785,
+   "attempts": 1,
+   "prompt_tokens": 5459,
+   "completion_tokens": 32,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-s2-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.313,
+   "attempts": 1,
+   "prompt_tokens": 7364,
+   "completion_tokens": 46,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-s2-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.276,
+   "attempts": 1,
+   "prompt_tokens": 7901,
+   "completion_tokens": 52,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-s2-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 6.757,
+   "attempts": 1,
+   "prompt_tokens": 8821,
+   "completion_tokens": 302,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-s2-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.81,
+   "attempts": 1,
+   "prompt_tokens": 9289,
+   "completion_tokens": 32,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r3-s2-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.755,
+   "attempts": 1,
+   "prompt_tokens": 11198,
+   "completion_tokens": 66,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-v1",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 7.026,
+   "attempts": 1,
+   "prompt_tokens": 3409,
+   "completion_tokens": 305,
+   "images": 4,
+   "error": null
+  },
+  {
+   "call_id": "r4-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.764,
+   "attempts": 1,
+   "prompt_tokens": 5433,
+   "completion_tokens": 31,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.224,
+   "attempts": 1,
+   "prompt_tokens": 6800,
+   "completion_tokens": 45,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.858,
+   "attempts": 1,
+   "prompt_tokens": 7333,
+   "completion_tokens": 78,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.213,
+   "attempts": 1,
+   "prompt_tokens": 7677,
+   "completion_tokens": 97,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.238,
+   "attempts": 1,
+   "prompt_tokens": 7943,
+   "completion_tokens": 96,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 2.188,
+   "attempts": 1,
+   "prompt_tokens": 8190,
+   "completion_tokens": 97,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 3.241,
+   "attempts": 1,
+   "prompt_tokens": 8369,
+   "completion_tokens": 144,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-s2-p1",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 0.786,
+   "attempts": 1,
+   "prompt_tokens": 5466,
+   "completion_tokens": 32,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-s2-p2",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.31,
+   "attempts": 1,
+   "prompt_tokens": 7375,
+   "completion_tokens": 46,
+   "images": 0,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-s2-p3",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 1.273,
+   "attempts": 1,
+   "prompt_tokens": 7912,
+   "completion_tokens": 52,
+   "images": 1,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-s2-p4",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 3.256,
+   "attempts": 1,
+   "prompt_tokens": 8832,
+   "completion_tokens": 142,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-s2-p5",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 3.57,
+   "attempts": 1,
+   "prompt_tokens": 9370,
+   "completion_tokens": 158,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-s2-p6",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 4.055,
+   "attempts": 1,
+   "prompt_tokens": 9738,
+   "completion_tokens": 177,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r4-s2-p7",
+   "kind": "chat",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 6.955,
+   "attempts": 1,
+   "prompt_tokens": 10481,
+   "completion_tokens": 309,
+   "images": 2,
+   "tool_calls": 1,
+   "error": null
+  },
+  {
+   "call_id": "r5-v1",
+   "kind": "critic",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+   "seconds": 7.912,
+   "attempts": 1,
+   "prompt_tokens": 4149,
+   "completion_tokens": 342,
+   "images": 4,
+   "error": null
+  }
+ ]
+}

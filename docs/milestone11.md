@@ -709,3 +709,18 @@ Again the refit refused round 2 and the whole round (7 edits) was rolled back, s
 | 8 | GPU test: a library sofa in `oyun_1` absent from the index pass | not found yet | open |
 
 The real02 results in `results/` are now the G2b ones (M10's images are kept in `results/compare/real02/m10/`).
+
+### 19.4 Pod G3 – real01 + synthetic-01 orchestrated, polish off (10 Oct 2026, `3lbakukg3jg7qo`, 55 min, $2.29)
+
+| Project | Rounds | Edits accepted / rejected | Stop | Accepted edits |
+|---|---|---|---|---|
+| real01 | 4 | 5 / 31 | no edit accepted | TV unit snapped to the wall facing the sofa (room score 80 → 90); a drawn box that duplicated the sofa removed (the M10 striped box of the drawing room; 90 → 100); the sofa turned to face the coffee table; a drawn nightstand snapped to its wall (81 → 94); an AI nightstand moved off the door walkway |
+| synthetic-01 | 2 | 1 / 30 | no edit accepted | an AI bench moved out of a wardrobe's free zone |
+
+Compared with M10 (`results/compare/<p>/m10/`): no checkerboard tiles, no striped boxes, a round coffee table on a
+rug where M10 had a striped box, the stair room with 1 view instead of 3.
+
+GPU tests: 2 failures (`test_every_model_answered_its_calls`, `test_style_photo_test` of synthetic-01): the tests
+read `CHECK_MODELS=qwen glm`, while an orchestrated run checks with the agent model alone (D8). The agent read the
+style test photo correctly (walls `plaster_charcoal`, floor `concrete_polished`). Fix: the scheduler gives the GPU
+tests the run's check models (test). real01 passed only because answers of an older run were on the volume.

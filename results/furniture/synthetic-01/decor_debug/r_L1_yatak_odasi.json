@@ -1,0 +1,448 @@
+{
+ "room_id": "r_L1_yatak_odasi",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L1_010.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_010",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L1_010.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_010",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L1_010.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L1_010",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L1_011.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L1_011",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    6.271,
+    3.2
+   ],
+   "max_size": [
+    0.44,
+    0.34,
+    2.1
+   ]
+  },
+  {
+   "id": "f_L1_012.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L1_012",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    6.7,
+    3.729
+   ],
+   "max_size": [
+    0.44,
+    0.34,
+    2.1
+   ]
+  },
+  {
+   "id": "r_L1_yatak_odasi.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L1_010",
+   "host_type": null,
+   "note": "f_L1_010"
+  },
+  {
+   "id": "r_L1_yatak_odasi.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 6.30, 0.50",
+   "center": [
+    6.3,
+    0.5
+   ]
+  },
+  {
+   "id": "r_L1_yatak_odasi.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 9.10, 0.50",
+   "center": [
+    9.1,
+    0.5
+   ]
+  },
+  {
+   "id": "window:win_L1_002",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_002"
+  },
+  {
+   "id": "ceiling:over_f_L1_010",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L1_010",
+   "host_type": null,
+   "note": "over f L1 010"
+  },
+  {
+   "id": "ceiling:centre_r_L1_yatak_odasi",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 yatak odasi"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_010.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "slot": "f_L1_010.throw",
+     "type": "throw",
+     "colour": "sand",
+     "reason": "Adds warmth and texture without overwhelming the space."
+    },
+    {
+     "slot": "f_L1_010.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Simple wooden frame art enhances the light oak floor aesthetic."
+    },
+    {
+     "slot": "f_L1_011.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm brass lamp adds subtle metallic contrast to white walls."
+    },
+    {
+     "slot": "f_L1_012.centre",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Small greenery brings life and freshness to the nightstand."
+    },
+    {
+     "slot": "r_L1_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "light grey",
+     "reason": "Light grey rug grounds the bed and harmonizes with neutral tones."
+    },
+    {
+     "slot": "r_L1_yatak_odasi.corner1",
+     "type": "plant",
+     "colour": "forest green",
+     "reason": "A tall plant in a corner adds organic depth and balance."
+    },
+    {
+     "slot": "window:win_L1_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light cream curtains let in daylight while softening window edges."
+    },
+    {
+     "slot": "ceiling:over_f_L1_010",
+     "type": "pendant_light",
+     "colour": "black",
+     "reason": "Minimal black pendant light provides focused, modern lighting."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_yatak_odasi",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "White ceiling light ensures even, ambient illumination."
+    }
+   ],
+   "error": null,
+   "latency_s": 6.097
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_010.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Adds soft texture and warmth to the bed in line with Scandinavian style."
+    },
+    {
+     "slot": "f_L1_010.throw",
+     "type": "throw",
+     "colour": "sand",
+     "reason": "Complements linen textiles and enhances cozy, natural tones."
+    },
+    {
+     "slot": "f_L1_011.centre",
+     "type": "table_lamp",
+     "colour": "natural wood",
+     "reason": "Warm light and minimalist design fit the Scandinavian aesthetic."
+    },
+    {
+     "slot": "f_L1_012.centre",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Brings life to the space with a subtle, calming botanical touch."
+    },
+    {
+     "slot": "f_L1_010.wall",
+     "type": "wall_art",
+     "colour": "white",
+     "reason": "Minimalist art enhances clean lines and reflects warm daylight."
+    },
+    {
+     "slot": "r_L1_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "light grey",
+     "reason": "Softens the floor and adds subtle contrast without clutter."
+    },
+    {
+     "slot": "window:win_L1_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
+    },
+    {
+     "slot": "ceiling:over_f_L1_010",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Even, diffused lighting supports the bright, open feel of the room."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.021
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_010.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Soft, neutral cushions complement Scandinavian minimalism.",
+    "Adds soft texture and warmth to the bed in line with Scandinavian style."
+   ]
+  },
+  {
+   "slot": "f_L1_010.throw",
+   "type": "throw",
+   "colour": "sand",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and texture without overwhelming the space.",
+    "Complements linen textiles and enhances cozy, natural tones."
+   ]
+  },
+  {
+   "slot": "f_L1_010.wall",
+   "type": "wall_art",
+   "colour": "natural wood",
+   "colour_agreed": false,
+   "reasons": [
+    "Simple wooden frame art enhances the light oak floor aesthetic.",
+    "Minimalist art enhances clean lines and reflects warm daylight."
+   ]
+  },
+  {
+   "slot": "f_L1_011.centre",
+   "type": "table_lamp",
+   "colour": "brass",
+   "colour_agreed": false,
+   "reasons": [
+    "Warm brass lamp adds subtle metallic contrast to white walls.",
+    "Warm light and minimalist design fit the Scandinavian aesthetic."
+   ]
+  },
+  {
+   "slot": "f_L1_012.centre",
+   "type": "plant_small",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Small greenery brings life and freshness to the nightstand.",
+    "Brings life to the space with a subtle, calming botanical touch."
+   ]
+  },
+  {
+   "slot": "r_L1_yatak_odasi.rug1",
+   "type": "rug",
+   "colour": "light grey",
+   "colour_agreed": true,
+   "reasons": [
+    "Light grey rug grounds the bed and harmonizes with neutral tones.",
+    "Softens the floor and adds subtle contrast without clutter."
+   ]
+  },
+  {
+   "slot": "window:win_L1_002",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Light cream curtains let in daylight while softening window edges.",
+    "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "r_L1_yatak_odasi.corner1",
+   "type": "plant",
+   "colour": "forest green",
+   "reason": "A tall plant in a corner adds organic depth and balance.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L1_010",
+   "type": "pendant_light",
+   "colour": "black",
+   "reason": "Minimal black pendant light provides focused, modern lighting.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_yatak_odasi",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "White ceiling light ensures even, ambient illumination.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L1_010",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "Even, diffused lighting supports the bright, open feel of the room.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_013",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_010.cushions"
+  },
+  {
+   "id": "dec_L1_014",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_010.cushions"
+  },
+  {
+   "id": "dec_L1_015",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L1_010.throw"
+  },
+  {
+   "id": "dec_L1_016",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L1_010.wall"
+  },
+  {
+   "id": "dec_L1_017",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L1_011.centre"
+  },
+  {
+   "id": "dec_L1_018",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L1_012.centre"
+  },
+  {
+   "id": "dec_L1_019",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L1_yatak_odasi.rug1"
+  },
+  {
+   "id": "dec_L1_020",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L1_002"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

@@ -3,8 +3,8 @@
  "project": {
   "id": "real01",
   "source_folder": "projects/real01",
-  "created_utc": "2026-10-09T09:30:22Z",
-  "pipeline_commit": "b18dad1f",
+  "created_utc": "2026-10-10T00:07:19Z",
+  "pipeline_commit": "9909871b",
   "unit_system": "imperial"
  },
  "status": "ok",
@@ -2033,7 +2033,7 @@
    "id": "f_L0_006",
    "level_id": "L0",
    "room_id": "r_L0_bed_room_2",
-   "type": "unknown",
+   "type": "nightstand",
    "type_raw": null,
    "source": "from_documents",
    "footprint": {
@@ -2047,7 +2047,7 @@
     ],
     "rotation_deg": 0.0
    },
-   "front_deg": null,
+   "front_deg": 270.0,
    "height": null,
    "asset": null,
    "status": "unverified",
@@ -2082,6 +2082,15 @@
      "text": "wall_cabinet",
      "front": "none",
      "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "inferred",
+     "confidence": 0.55,
+     "rule": "furniture.infer",
+     "text": "nightstand: named by an AI pass and the only named type that fits the size (0.50 x 0.45 m), the bedroom room and the position (others fitting: floor_lamp, ottoman, potted_plant, side_table)",
+     "page": 1,
+     "entity": "path:16843-16848,path:16854,path:16856,path:16858-16865"
     }
    ],
    "type_method": "none",
@@ -2105,7 +2114,9 @@
      "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
     }
    ],
-   "build": true
+   "build": true,
+   "inferred": true,
+   "inferred_reason": "nightstand: named by an AI pass and the only named type that fits the size (0.50 x 0.45 m), the bedroom room and the position (others fitting: floor_lamp, ottoman, potted_plant, side_table)"
   },
   {
    "id": "f_L0_007",
@@ -3336,7 +3347,8 @@
   "sym_L0_013: AI front [0.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) right, pass 2 (zai-org/GLM-4.6V-Flash) right) disagrees with the drawn front 180 deg (chair faces the nearest table): the drawn front is kept (vector geometry > AI)",
   "sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
-  "L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair"
+  "L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair",
+  "f_L0_006: inferred nightstand: nightstand: named by an AI pass and the only named type that fits the size (0.50 x 0.45 m), the bedroom room and the position (others fitting: floor_lamp, ottoman, potted_plant, side_table)"
  ],
  "site": {
   "boundary_walls": [

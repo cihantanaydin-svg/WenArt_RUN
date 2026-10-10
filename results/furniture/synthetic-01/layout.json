@@ -11,38 +11,38 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.881,
+     "latency_s": 2.735,
      "error": null,
-     "pieces_proposed": 2,
-     "pieces_placed": 1,
+     "pieces_proposed": 3,
+     "pieces_placed": 2,
      "pieces_dropped": 1,
-     "iterations": 7,
-     "repair_steps": 7,
+     "iterations": 15,
+     "repair_steps": 15,
      "anchor_first": false,
      "rejected_types": []
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.023,
+     "latency_s": 1.047,
      "error": null,
      "pieces_proposed": 1,
      "pieces_placed": 1,
      "pieces_dropped": 0,
-     "iterations": 4,
-     "repair_steps": 4,
+     "iterations": 5,
+     "repair_steps": 5,
      "anchor_first": false,
      "rejected_types": []
     }
    ],
    "chosen_pass": 2,
-   "latency_s": 2.904,
+   "latency_s": 3.782,
    "skipped": null,
    "pieces": [
     {
      "id": "f_L0_014",
-     "type": "dresser",
-     "confidence": 0.6,
+     "type": "console_table",
+     "confidence": 0.9,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -62,32 +62,32 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 7.588,
+     "latency_s": 10.254,
      "error": null,
-     "pieces_proposed": 9,
-     "pieces_placed": 5,
-     "pieces_dropped": 4,
-     "iterations": 29,
-     "repair_steps": 29,
+     "pieces_proposed": 12,
+     "pieces_placed": 3,
+     "pieces_dropped": 9,
+     "iterations": 46,
+     "repair_steps": 48,
      "anchor_first": false,
      "rejected_types": []
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.245,
+     "latency_s": 4.378,
      "error": null,
-     "pieces_proposed": 6,
-     "pieces_placed": 5,
+     "pieces_proposed": 5,
+     "pieces_placed": 4,
      "pieces_dropped": 1,
-     "iterations": 21,
-     "repair_steps": 21,
+     "iterations": 16,
+     "repair_steps": 16,
      "anchor_first": false,
      "rejected_types": []
     }
    ],
    "chosen_pass": 2,
-   "latency_s": 12.833,
+   "latency_s": 14.632,
    "skipped": null,
    "pieces": [
     {
@@ -118,19 +118,6 @@
     },
     {
      "id": "f_L0_017",
-     "type": "stove",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
-     "id": "f_L0_018",
      "type": "fridge",
      "confidence": 0.9,
      "checks": {
@@ -143,9 +130,9 @@
      }
     },
     {
-     "id": "f_L0_019",
-     "type": "table_dining",
-     "confidence": 0.6,
+     "id": "f_L0_018",
+     "type": "tall_cabinet",
+     "confidence": 0.9,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -165,32 +152,32 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.068,
+     "latency_s": 5.141,
      "error": null,
      "pieces_proposed": 6,
-     "pieces_placed": 4,
-     "pieces_dropped": 2,
-     "iterations": 23,
-     "repair_steps": 23,
+     "pieces_placed": 6,
+     "pieces_dropped": 0,
+     "iterations": 16,
+     "repair_steps": 16,
      "anchor_first": false,
      "rejected_types": []
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.919,
+     "latency_s": 5.223,
      "error": null,
      "pieces_proposed": 6,
      "pieces_placed": 5,
      "pieces_dropped": 1,
-     "iterations": 18,
-     "repair_steps": 18,
+     "iterations": 15,
+     "repair_steps": 15,
      "anchor_first": false,
      "rejected_types": []
     }
    ],
-   "chosen_pass": 2,
-   "latency_s": 9.987,
+   "chosen_pass": 1,
+   "latency_s": 10.365,
    "skipped": null,
    "pieces": [
     {
@@ -257,6 +244,19 @@
       "windows_free": true,
       "wall_contact": true
      }
+    },
+    {
+     "id": "f_L1_006",
+     "type": "office_chair",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
     }
    ]
   },
@@ -268,37 +268,37 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.858,
+     "latency_s": 2.778,
      "error": null,
-     "pieces_proposed": 2,
-     "pieces_placed": 2,
+     "pieces_proposed": 3,
+     "pieces_placed": 3,
      "pieces_dropped": 0,
-     "iterations": 2,
-     "repair_steps": 2,
+     "iterations": 6,
+     "repair_steps": 6,
      "anchor_first": false,
      "rejected_types": []
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.837,
+     "latency_s": 1.008,
      "error": null,
-     "pieces_proposed": 2,
-     "pieces_placed": 2,
+     "pieces_proposed": 1,
+     "pieces_placed": 1,
      "pieces_dropped": 0,
-     "iterations": 3,
-     "repair_steps": 3,
+     "iterations": 2,
+     "repair_steps": 2,
      "anchor_first": false,
      "rejected_types": []
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 3.695,
+   "latency_s": 3.786,
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L1_006",
-     "type": "dresser",
+     "id": "f_L1_007",
+     "type": "console_table",
      "confidence": 0.9,
      "checks": {
       "inside_room": true,
@@ -310,8 +310,21 @@
      }
     },
     {
-     "id": "f_L1_007",
-     "type": "chair",
+     "id": "f_L1_008",
+     "type": "shoe_cabinet",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_009",
+     "type": "bench",
      "confidence": 0.6,
      "checks": {
       "inside_room": true,
@@ -332,64 +345,38 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.067,
+     "latency_s": 5.103,
      "error": null,
      "pieces_proposed": 6,
-     "pieces_placed": 4,
-     "pieces_dropped": 2,
-     "iterations": 23,
-     "repair_steps": 24,
+     "pieces_placed": 3,
+     "pieces_dropped": 3,
+     "iterations": 22,
+     "repair_steps": 23,
      "anchor_first": true,
      "rejected_types": []
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.196,
+     "latency_s": 5.22,
      "error": null,
      "pieces_proposed": 6,
-     "pieces_placed": 4,
-     "pieces_dropped": 2,
-     "iterations": 22,
-     "repair_steps": 23,
+     "pieces_placed": 3,
+     "pieces_dropped": 3,
+     "iterations": 23,
+     "repair_steps": 24,
      "anchor_first": true,
      "rejected_types": []
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 10.262,
+   "latency_s": 10.323,
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L1_008",
-     "type": "bed_double",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
-     "id": "f_L1_009",
-     "type": "nightstand",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
      "id": "f_L1_010",
-     "type": "nightstand",
-     "confidence": 0.6,
+     "type": "bed_double",
+     "confidence": 0.9,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -401,7 +388,20 @@
     },
     {
      "id": "f_L1_011",
-     "type": "chair",
+     "type": "nightstand",
+     "confidence": 0.6,
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "id": "f_L1_012",
+     "type": "nightstand",
      "confidence": 0.6,
      "checks": {
       "inside_room": true,
@@ -422,7 +422,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.741,
+     "latency_s": 3.737,
      "error": null,
      "pieces_proposed": 4,
      "pieces_placed": 4,
@@ -435,7 +435,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.751,
+     "latency_s": 2.746,
      "error": null,
      "pieces_proposed": 3,
      "pieces_placed": 3,
@@ -447,11 +447,11 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 6.492,
+   "latency_s": 6.483,
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L1_012",
+     "id": "f_L1_013",
      "type": "shower",
      "confidence": 0.9,
      "checks": {
@@ -464,7 +464,7 @@
      }
     },
     {
-     "id": "f_L1_013",
+     "id": "f_L1_014",
      "type": "toilet",
      "confidence": 0.6,
      "checks": {
@@ -477,7 +477,7 @@
      }
     },
     {
-     "id": "f_L1_014",
+     "id": "f_L1_015",
      "type": "washbasin",
      "confidence": 0.6,
      "checks": {
@@ -490,7 +490,7 @@
      }
     },
     {
-     "id": "f_L1_015",
+     "id": "f_L1_016",
      "type": "bathtub",
      "confidence": 0.6,
      "checks": {
@@ -512,11 +512,11 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.125,
+     "latency_s": 5.101,
      "error": null,
      "pieces_proposed": 6,
-     "pieces_placed": 5,
-     "pieces_dropped": 1,
+     "pieces_placed": 4,
+     "pieces_dropped": 2,
      "iterations": 23,
      "repair_steps": 23,
      "anchor_first": false,
@@ -525,25 +525,25 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.252,
+     "latency_s": 4.309,
      "error": null,
      "pieces_proposed": 5,
      "pieces_placed": 4,
      "pieces_dropped": 1,
-     "iterations": 14,
-     "repair_steps": 14,
+     "iterations": 19,
+     "repair_steps": 19,
      "anchor_first": false,
      "rejected_types": []
     }
    ],
-   "chosen_pass": 1,
-   "latency_s": 9.378,
+   "chosen_pass": 2,
+   "latency_s": 9.41,
    "skipped": null,
    "pieces": [
     {
-     "id": "f_L1_016",
+     "id": "f_L1_017",
      "type": "bed_single",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -554,7 +554,7 @@
      }
     },
     {
-     "id": "f_L1_017",
+     "id": "f_L1_018",
      "type": "nightstand",
      "confidence": 0.6,
      "checks": {
@@ -567,7 +567,7 @@
      }
     },
     {
-     "id": "f_L1_018",
+     "id": "f_L1_019",
      "type": "wardrobe",
      "confidence": 0.9,
      "checks": {
@@ -580,21 +580,8 @@
      }
     },
     {
-     "id": "f_L1_019",
-     "type": "chair",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
      "id": "f_L1_020",
-     "type": "bookshelf",
+     "type": "desk",
      "confidence": 0.6,
      "checks": {
       "inside_room": true,
@@ -608,6 +595,14 @@
    ]
   }
  ],
- "pieces_added": 26,
- "latency_s": 55.551
+ "pieces_added": 25,
+ "latency_s": 58.781,
+ "completion": {
+  "rooms_completed": 3,
+  "rooms_copied": 0,
+  "changes_applied": 0,
+  "pieces_added": 3,
+  "wall_cabinets": 0,
+  "latency_s": 6.781
+ }
 }

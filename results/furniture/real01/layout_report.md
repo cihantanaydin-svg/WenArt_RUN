@@ -5,7 +5,7 @@ Rooms without documented furniture. Every added piece is `added_by_ai`, `verifie
 | Room | Type | Pass 1 (proposed/placed/dropped, s) | Pass 2 | Chosen | Added | Result |
 |---|---|---|---|---|---|---|
 | Pooja (r_L0_pooja) | prayer | - | - | - | - | room stays empty: prayer room: never furnished by AI (docs/milestone7.md §0) |
-| Bath+ Toilet (r_L0_bath_toilet) | bathroom | 3/2/1 (3.3 s) | 3/2/1 (2.5 s) | 1 | toilet (0.6), washbasin (0.6) | ok |
+| Bath+ Toilet (r_L0_bath_toilet) | bathroom | 3/2/1 (3.5 s) | 3/2/1 (2.8 s) | 1 | toilet (0.6), washbasin (0.6) | ok |
 
 Repair steps of the chosen proposals: 9
 

@@ -4,7 +4,7 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 3.329,
+   "latency_s": 3.548,
    "error": null,
    "pieces_proposed": 3,
    "prompt": "Task: furnish this empty bathroom (Turkish: BANYO) labelled 'Bath+ Toilet' on the plan. Style brief: Scandinavian, light oak floor, white walls, linen textiles, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_bath_toilet\", \"label\": \"Bath+ Toilet\", \"room_type\": \"bathroom\", \"area_m2\": 3.25, \"polygon_m\": [[3.43, 0.23], [4.96, 0.23], [4.96, 2.36], [3.43, 2.36]], \"doors\": [{\"id\": \"d_L0_004\", \"center\": [4.57, 2.44], \"width\": 0.76, \"opens_into_this_room\": true}], \"windows\": []}\n\nAllowed types with their size options [width, depth]:\n- washbasin: height 0.85 m, size options [0.5, 0.4], [0.6, 0.45], [0.8, 0.5] (usually against a wall)\n- toilet: height 0.8 m, size options [0.36, 0.65], [0.4, 0.7], [0.45, 0.75] (usually against a wall)\n- shower: height 2.0 m, size options [0.8, 0.8], [0.9, 0.9], [1.2, 0.9] (usually against a wall)\n- bathtub: height 0.6 m, size options [1.5, 0.7], [1.7, 0.75], [1.8, 0.8] (usually against a wall)\n- washing_machine: height 0.85 m, size options [0.55, 0.55], [0.6, 0.6], [0.7, 0.7] (usually against a wall)\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nA good layout for this room type: washbasin, toilet and a shower or bathtub, each against a wall, the toilet not directly opposite the door.\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of washbasin, toilet, shower, bathtub, washing_machine\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
@@ -784,11 +784,11 @@
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 2.542,
+   "latency_s": 2.784,
    "error": null,
    "pieces_proposed": 3,
    "prompt": "Task: furnish this empty bathroom (Turkish: BANYO) labelled 'Bath+ Toilet' on the plan. Style brief: Scandinavian, light oak floor, white walls, linen textiles, warm daylight.\n\nA good layout for this room type: washbasin, toilet and a shower or bathtub, each against a wall, the toilet not directly opposite the door.\n\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nAllowed types with their size options [width, depth]:\n- washbasin: height 0.85 m, size options [0.5, 0.4], [0.6, 0.45], [0.8, 0.5] (usually against a wall)\n- toilet: height 0.8 m, size options [0.36, 0.65], [0.4, 0.7], [0.45, 0.75] (usually against a wall)\n- shower: height 2.0 m, size options [0.8, 0.8], [0.9, 0.9], [1.2, 0.9] (usually against a wall)\n- bathtub: height 0.6 m, size options [1.5, 0.7], [1.7, 0.75], [1.8, 0.8] (usually against a wall)\n- washing_machine: height 0.85 m, size options [0.55, 0.55], [0.6, 0.6], [0.7, 0.7] (usually against a wall)\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_bath_toilet\", \"label\": \"Bath+ Toilet\", \"room_type\": \"bathroom\", \"area_m2\": 3.25, \"polygon_m\": [[3.43, 0.23], [4.96, 0.23], [4.96, 2.36], [3.43, 2.36]], \"doors\": [{\"id\": \"d_L0_004\", \"center\": [4.57, 2.44], \"width\": 0.76, \"opens_into_this_room\": true}], \"windows\": []}\n\nFields of the answer: pieces, a list (at most 12, the most important piece first) of objects with\n- type: one of washbasin, toilet, shower, bathtub, washing_machine\n- center: [x, y] of the footprint centre in metres, in the same frame as the room polygon\n- rotation_deg: 0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y\n- size: [width, depth] in metres, exactly one of the size options of the type\n- against_wall: true when the back edge touches a wall\n- reason: one short sentence why the piece is there\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"shower\",\n      \"center\": [4.0, 1.78],\n      \"rotation_deg\": 270,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": true,\n      \"reason\": \"Shower placed against the back wall for efficient use of space.\"\n    },\n    {\n      \"type\": \"toilet\",\n      \"center\": [3.7, 0.8],\n      \"rotation_deg\": 0,\n      \"size\": [0.4, 0.7],\n      \"against_wall\": true,\n      \"reason\": \"Toilet positioned against the left wall, not opposite the door.\"\n    },\n    {\n      \"type\": \"washbasin\",\n      \"center\": [3.4, 1.2],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Washbasin placed against the left wall for easy access.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"pieces\": [\n    {\n      \"type\": \"shower\",\n      \"center\": [4.0, 1.78],\n      \"rotation_deg\": 270,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": true,\n      \"reason\": \"Shower placed against the back wall for efficient use of space.\"\n    },\n    {\n      \"type\": \"toilet\",\n      \"center\": [3.7, 0.8],\n      \"rotation_deg\": 0,\n      \"size\": [0.4, 0.7],\n      \"against_wall\": true,\n      \"reason\": \"Toilet positioned against the side wall, not opposite the door.\"\n    },\n    {\n      \"type\": \"washbasin\",\n      \"center\": [3.43, 1.0],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Washbasin placed against the side wall for easy access.\"\n    }\n  ]\n}",
    "data": {
     "pieces": [
      {
@@ -817,13 +817,13 @@
        0.7
       ],
       "against_wall": true,
-      "reason": "Toilet positioned against the left wall, not opposite the door."
+      "reason": "Toilet positioned against the side wall, not opposite the door."
      },
      {
       "type": "washbasin",
       "center": [
-       3.4,
-       1.2
+       3.43,
+       1.0
       ],
       "rotation_deg": 0,
       "size": [
@@ -831,7 +831,7 @@
        0.45
       ],
       "against_wall": true,
-      "reason": "Washbasin placed against the left wall for easy access."
+      "reason": "Washbasin placed against the side wall for easy access."
      }
     ]
    },
@@ -849,7 +849,7 @@
        0.7
       ],
       "against_wall": true,
-      "reason": "Toilet positioned against the left wall, not opposite the door.",
+      "reason": "Toilet positioned against the side wall, not opposite the door.",
       "proposed": {
        "center": [
         3.7,
@@ -915,11 +915,11 @@
        0.45
       ],
       "against_wall": true,
-      "reason": "Washbasin placed against the left wall for easy access.",
+      "reason": "Washbasin placed against the side wall for easy access.",
       "proposed": {
        "center": [
-        3.4,
-        1.2
+        3.43,
+        1.0
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -934,8 +934,8 @@
         "step": "snap",
         "before": {
          "center": [
-          3.4,
-          1.2
+          3.43,
+          1.0
          ],
          "rotation_deg": 0.0,
          "size": [
@@ -946,7 +946,7 @@
         "after": {
          "center": [
           3.676,
-          1.2
+          1.0
          ],
          "rotation_deg": 90.0,
          "size": [
@@ -968,7 +968,7 @@
         "before": {
          "center": [
           3.676,
-          1.2
+          1.0
          ],
          "rotation_deg": 90.0,
          "size": [
@@ -1060,7 +1060,6 @@
          ]
         },
         "failed": [
-         "no_overlap",
          "doors_free",
          "wall_contact"
         ],
@@ -1289,7 +1288,6 @@
        ]
       },
       "failed": [
-       "no_overlap",
        "doors_free",
        "wall_contact"
       ],
@@ -1334,8 +1332,8 @@
       "step": "snap",
       "before": {
        "center": [
-        3.4,
-        1.2
+        3.43,
+        1.0
        ],
        "rotation_deg": 0.0,
        "size": [
@@ -1346,7 +1344,7 @@
       "after": {
        "center": [
         3.676,
-        1.2
+        1.0
        ],
        "rotation_deg": 90.0,
        "size": [
@@ -1369,7 +1367,7 @@
       "before": {
        "center": [
         3.676,
-        1.2
+        1.0
        ],
        "rotation_deg": 90.0,
        "size": [

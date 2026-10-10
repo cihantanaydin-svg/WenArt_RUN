@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "ec7f4c55b629341f6c2935aecc304482044d77a693b8b6f7342d511d8549c61b",
+ "scene_sha256": "8836adb84a8031c44e812e7e28258bc914e04e68f2841184f475a959953bcc7d",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -46,52 +46,211 @@
   "win_L0_009": 12,
   "d_L0_004": 13,
   "d_L0_005": 14,
-  "proxy:f_L0_006": 15,
-  "proxy:f_L0_009": 16,
-  "proxy:f_L0_018": 17,
-  "f_L0_001": 18,
-  "f_L0_002": 19,
-  "f_L0_004": 20,
-  "f_L0_005": 21,
-  "f_L0_007": 22,
-  "f_L0_008": 23,
-  "f_L0_010": 24,
-  "f_L0_011": 25,
-  "f_L0_012": 26,
-  "f_L0_013": 27,
-  "f_L0_014": 28,
-  "f_L0_015": 29,
-  "f_L0_016": 30,
-  "f_L0_017": 31,
-  "f_L0_019": 32,
-  "f_L0_020": 33,
-  "f_L0_021": 34,
-  "f_L0_022": 35,
-  "f_L0_023": 36,
-  "f_L0_024": 37,
-  "f_L0_025": 38,
-  "f_L0_026": 39,
-  "f_L0_027": 40,
-  "f_L0_028": 41,
-  "dec_L0_006": 42,
-  "dec_L0_007": 43,
-  "dec_L0_008": 44,
-  "dec_L0_009": 45,
-  "dec_L0_013": 46,
-  "dec_L0_014": 47,
-  "dec_L0_015": 48,
-  "dec_L0_016": 49,
-  "dec_L0_024": 50,
-  "dec_L0_025": 51,
-  "dec_L0_026": 52,
-  "dec_L0_027": 53,
-  "dec_L0_028": 54,
-  "dec_L0_030": 55,
-  "dec_L0_031": 56,
-  "dec_L0_032": 57,
-  "f_L0_003": 58
+  "proxy:f_L0_009": 15,
+  "f_L0_001": 16,
+  "f_L0_002": 17,
+  "f_L0_004": 18,
+  "f_L0_005": 19,
+  "f_L0_006": 20,
+  "f_L0_007": 21,
+  "f_L0_008": 22,
+  "f_L0_010": 23,
+  "f_L0_011": 24,
+  "f_L0_012": 25,
+  "f_L0_013": 26,
+  "f_L0_014": 27,
+  "f_L0_015": 28,
+  "f_L0_016": 29,
+  "f_L0_017": 30,
+  "f_L0_019": 31,
+  "f_L0_020": 32,
+  "f_L0_021": 33,
+  "f_L0_022": 34,
+  "f_L0_023": 35,
+  "f_L0_024": 36,
+  "f_L0_025": 37,
+  "f_L0_026": 38,
+  "f_L0_027": 39,
+  "dec_L0_006": 40,
+  "dec_L0_007": 41,
+  "dec_L0_008": 42,
+  "dec_L0_009": 43,
+  "dec_L0_013": 44,
+  "dec_L0_014": 45,
+  "dec_L0_015": 46,
+  "dec_L0_016": 47,
+  "dec_L0_024": 48,
+  "dec_L0_025": 49,
+  "dec_L0_026": 50,
+  "dec_L0_027": 51,
+  "dec_L0_028": 52,
+  "dec_L0_029": 53,
+  "dec_L0_031": 54,
+  "dec_L0_032": 55,
+  "dec_L0_033": 56,
+  "f_L0_003": 57
  },
  "renders": [
+  {
+   "camera": "cam_r_L0_drawing_room_2",
+   "room_id": "r_L0_drawing_room",
+   "level_id": "L0",
+   "lens_mm": 18.0,
+   "sensor_mm": 36.0,
+   "png": "cam_r_L0_drawing_room_2.png",
+   "exr": "cam_r_L0_drawing_room_2_passes.exr",
+   "preview": "cam_r_L0_drawing_room_2_preview.jpg",
+   "depth_png": "cam_r_L0_drawing_room_2_depth.png",
+   "index_png": "cam_r_L0_drawing_room_2_index.png",
+   "files": {
+    "index": "cam_r_L0_drawing_room_2_index.png",
+    "depth_mm": "cam_r_L0_drawing_room_2_depth_mm.png",
+    "normal": "cam_r_L0_drawing_room_2_normal.png",
+    "depth": "cam_r_L0_drawing_room_2_depth.png"
+   },
+   "preview_bytes": 194860,
+   "seconds": 3.66,
+   "samples": 128,
+   "resolution": [
+    1920,
+    1080
+   ],
+   "depth": {
+    "min": 1.0764567852020264,
+    "max": 4.711693286895752,
+    "mean": 2.777644395828247,
+    "coverage": 0.963311149691358
+   },
+   "index_values": [
+    2,
+    30,
+    31,
+    32,
+    44,
+    45,
+    47
+   ],
+   "index_stats": {
+    "2": {
+     "pixels": 96512,
+     "box": [
+      1071,
+      102,
+      1370,
+      449
+     ]
+    },
+    "30": {
+     "pixels": 215689,
+     "box": [
+      1007,
+      452,
+      1797,
+      906
+     ]
+    },
+    "31": {
+     "pixels": 224745,
+     "box": [
+      735,
+      760,
+      1656,
+      1080
+     ]
+    },
+    "32": {
+     "pixels": 27519,
+     "box": [
+      792,
+      422,
+      966,
+      745
+     ]
+    },
+    "44": {
+     "pixels": 127535,
+     "box": [
+      479,
+      694,
+      1920,
+      1080
+     ]
+    },
+    "45": {
+     "pixels": 104358,
+     "box": [
+      969,
+      24,
+      1519,
+      490
+     ]
+    },
+    "47": {
+     "pixels": 27176,
+     "box": [
+      1757,
+      529,
+      1920,
+      851
+     ]
+    }
+   },
+   "skipped": false,
+   "scene_sha256": "8836adb84a8031c44e812e7e28258bc914e04e68f2841184f475a959953bcc7d",
+   "render_key": "f8eab75df513f753",
+   "exposure": {
+    "mode": "from",
+    "ev": 2.666667,
+    "ev_raw": null,
+    "at_limit": false,
+    "target": null,
+    "limits": null,
+    "incident_p50": null,
+    "whitepoint": [
+     1.248823,
+     0.951003,
+     0.752671
+    ],
+    "wb_mode": "from",
+    "wb_temperature": 4872.6,
+    "wb_tint": -3.77,
+    "residual": null,
+    "window_clip_frac": 0.0,
+    "meter_seconds": 0.0,
+    "meter": null,
+    "mood": "warm daylight",
+    "source": "../../renders/render_manifest.json",
+    "notes": [],
+    "ev_offset": 0.0
+   },
+   "hidden": [
+    "d_L0_003"
+   ],
+   "plugged": [],
+   "window_pull": {
+    "ev": -1.0,
+    "k": 1,
+    "pane_ev": 1.666667,
+    "clip_before": 0.0,
+    "clip_after": 0.0,
+    "pane_px": 86628,
+    "pane_median": 0.8685,
+    "wall_median": 0.6582,
+    "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
+    "tried": [
+     {
+      "k": 1,
+      "clip": 0.0,
+      "median": 0.7892
+     }
+    ],
+    "pane_median_after": 0.7895,
+    "seconds": 0.33
+   },
+   "alt_preview": null,
+   "alt_preview_bytes": null,
+   "world": "World"
+  },
   {
    "camera": "cam_r_L0_drawing_room_3",
    "room_id": "r_L0_drawing_room",
@@ -275,6 +434,8 @@
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791543250.0,
- "warnings": []
+ "deadline": 1791596531.0,
+ "warnings": [
+  "cam_r_L0_drawing_room_3: rendered from another scene build and not asked for in this run"
+ ]
 }

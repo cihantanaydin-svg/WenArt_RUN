@@ -2680,7 +2680,8 @@ class Orchestrator:
         env = dict(lists)
         env.update(WENART_OUTPUTS=str(self.outputs_root), WENART_RESULTS=str(self.results),
                    WENART_PRIVATE_RESULTS=str(self.opts.private_results),
-                   CHECK_MODELS=" ".join(self.opts.check_models))
+                   # M11 pod G3: an orchestrated run's check is the agent model alone (D8), the tests check its answers
+                   CHECK_MODELS=" ".join(self.check_keys()))
         if (self.repo_root / DETECT_CALIBRATION).is_file():
             env["DETECT_CALIBRATION"] = str(self.repo_root / DETECT_CALIBRATION)
         return env

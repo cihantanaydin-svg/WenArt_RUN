@@ -1,0 +1,486 @@
+{
+ "room_id": "r_L1_ebeveyn_yatak_odasi",
+ "label": "Ebeveyn Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L1_001.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_001",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L1_001.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_001",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L1_001.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L1_001",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L1_002.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L1_002",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    0.471,
+    1.1
+   ],
+   "max_size": [
+    0.44,
+    0.34,
+    2.1
+   ]
+  },
+  {
+   "id": "f_L1_003.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L1_003",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    2.7,
+    3.929
+   ],
+   "max_size": [
+    0.44,
+    0.34,
+    2.1
+   ]
+  },
+  {
+   "id": "f_L1_005.back_left",
+   "kind": "top",
+   "types": [
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_005",
+   "host_type": "desk",
+   "note": "back left part, under a window",
+   "center": [
+    1.841,
+    0.451
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    0.15
+   ]
+  },
+  {
+   "id": "f_L1_005.back_right",
+   "kind": "top",
+   "types": [
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_005",
+   "host_type": "desk",
+   "note": "back right part, under a window",
+   "center": [
+    1.101,
+    0.451
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    0.15
+   ]
+  },
+  {
+   "id": "r_L1_ebeveyn_yatak_odasi.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L1_001",
+   "host_type": null,
+   "note": "f_L1_001"
+  },
+  {
+   "id": "r_L1_ebeveyn_yatak_odasi.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 4.00, 0.50",
+   "center": [
+    4.0,
+    0.5
+   ]
+  },
+  {
+   "id": "window:win_L1_001",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_001"
+  },
+  {
+   "id": "window:win_L1_003",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_003"
+  },
+  {
+   "id": "ceiling:over_f_L1_001",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L1_001",
+   "host_type": null,
+   "note": "over f L1 001"
+  },
+  {
+   "id": "ceiling:centre_r_L1_ebeveyn_yatak_odasi",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 ebeveyn yatak odasi"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_001.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "slot": "f_L1_001.throw",
+     "type": "throw",
+     "colour": "sand",
+     "reason": "Adds warmth and texture without overwhelming the space."
+    },
+    {
+     "slot": "f_L1_001.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Simple wooden frame art enhances the light oak floor aesthetic."
+    },
+    {
+     "slot": "f_L1_002.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm brass lamp adds subtle metallic contrast to white walls."
+    },
+    {
+     "slot": "f_L1_003.centre",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Small greenery brings life and freshness to the nightstand."
+    },
+    {
+     "slot": "r_L1_ebeveyn_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "light grey",
+     "reason": "Light grey rug grounds the bed and harmonizes with neutral tones."
+    },
+    {
+     "slot": "r_L1_ebeveyn_yatak_odasi.corner1",
+     "type": "plant",
+     "colour": "forest green",
+     "reason": "A larger plant in the corner adds organic depth and balance."
+    },
+    {
+     "slot": "window:win_L1_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light cream curtains let in daylight while softening window edges."
+    },
+    {
+     "slot": "ceiling:over_f_L1_001",
+     "type": "pendant_light",
+     "colour": "natural wood",
+     "reason": "Wooden pendant light adds warmth and hangs elegantly over the bed."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.68
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_001.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Adds soft texture and warmth to the bed in Scandinavian style."
+    },
+    {
+     "slot": "f_L1_001.throw",
+     "type": "throw",
+     "colour": "sand",
+     "reason": "Complements linen textiles and enhances cozy, natural tones."
+    },
+    {
+     "slot": "f_L1_001.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Minimalist art matches light oak floors and white walls."
+    },
+    {
+     "slot": "f_L1_002.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm metallic accent adds subtle luxury without clutter."
+    },
+    {
+     "slot": "f_L1_003.centre",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Brings life and freshness with natural, calming tones."
+    },
+    {
+     "slot": "r_L1_ebeveyn_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "light grey",
+     "reason": "Softens the floor and ties in neutral Scandinavian palette."
+    },
+    {
+     "slot": "r_L1_ebeveyn_yatak_odasi.corner1",
+     "type": "plant",
+     "colour": "forest green",
+     "reason": "Adds organic depth in a corner without overwhelming space."
+    },
+    {
+     "slot": "window:win_L1_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens daylight and complements white walls and linen textiles."
+    },
+    {
+     "slot": "ceiling:over_f_L1_001",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Bright, even illumination suits Scandinavian minimalism."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.579
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_001.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Soft, neutral cushions complement Scandinavian minimalism.",
+    "Adds soft texture and warmth to the bed in Scandinavian style."
+   ]
+  },
+  {
+   "slot": "f_L1_001.throw",
+   "type": "throw",
+   "colour": "sand",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and texture without overwhelming the space.",
+    "Complements linen textiles and enhances cozy, natural tones."
+   ]
+  },
+  {
+   "slot": "f_L1_001.wall",
+   "type": "wall_art",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Simple wooden frame art enhances the light oak floor aesthetic.",
+    "Minimalist art matches light oak floors and white walls."
+   ]
+  },
+  {
+   "slot": "f_L1_002.centre",
+   "type": "table_lamp",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm brass lamp adds subtle metallic contrast to white walls.",
+    "Warm metallic accent adds subtle luxury without clutter."
+   ]
+  },
+  {
+   "slot": "f_L1_003.centre",
+   "type": "plant_small",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Small greenery brings life and freshness to the nightstand.",
+    "Brings life and freshness with natural, calming tones."
+   ]
+  },
+  {
+   "slot": "r_L1_ebeveyn_yatak_odasi.rug1",
+   "type": "rug",
+   "colour": "light grey",
+   "colour_agreed": true,
+   "reasons": [
+    "Light grey rug grounds the bed and harmonizes with neutral tones.",
+    "Softens the floor and ties in neutral Scandinavian palette."
+   ]
+  },
+  {
+   "slot": "r_L1_ebeveyn_yatak_odasi.corner1",
+   "type": "plant",
+   "colour": "forest green",
+   "colour_agreed": true,
+   "reasons": [
+    "A larger plant in the corner adds organic depth and balance.",
+    "Adds organic depth in a corner without overwhelming space."
+   ]
+  },
+  {
+   "slot": "window:win_L1_001",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Light cream curtains let in daylight while softening window edges.",
+    "Softens daylight and complements white walls and linen textiles."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:over_f_L1_001",
+   "type": "pendant_light",
+   "colour": "natural wood",
+   "reason": "Wooden pendant light adds warmth and hangs elegantly over the bed.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L1_001",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "Bright, even illumination suits Scandinavian minimalism.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_001",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_001.cushions"
+  },
+  {
+   "id": "dec_L1_002",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_001.cushions"
+  },
+  {
+   "id": "dec_L1_003",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L1_001.throw"
+  },
+  {
+   "id": "dec_L1_004",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L1_001.wall"
+  },
+  {
+   "id": "dec_L1_005",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L1_002.centre"
+  },
+  {
+   "id": "dec_L1_006",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L1_003.centre"
+  },
+  {
+   "id": "dec_L1_007",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L1_ebeveyn_yatak_odasi.rug1"
+  },
+  {
+   "id": "dec_L1_008",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L1_ebeveyn_yatak_odasi.corner1"
+  },
+  {
+   "id": "dec_L1_009",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L1_001"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L1_005 wall: wall_art: above f_L1_005: window win_L1_001 on the wall behind it leave 0.00 m for the picture (min 0.4 m); clock: above f_L1_005: window win_L1_001 on the wall behind it leave 0.00 m for the clock (min 0.25 m)"
+ ]
+}

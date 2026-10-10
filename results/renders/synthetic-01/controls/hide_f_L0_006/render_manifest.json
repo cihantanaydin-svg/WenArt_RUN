@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "9b90a4a80eb0d545f2c2140a1e73a461d144e49a5feea855172da284a1ccac4d",
+ "scene_sha256": "88c7fb93c57e91b0b099b1bf3ab341a48d64acb9d282266308b6ec5e075b007a",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -62,48 +62,66 @@
   "f_L0_017": 28,
   "f_L0_018": 29,
   "f_L0_019": 30,
-  "dec_L0_004": 31,
-  "dec_L0_005": 32,
-  "dec_L0_008": 33,
-  "dec_L0_009": 34,
-  "dec_L0_010": 35,
-  "d_L1_001": 36,
-  "d_L1_002": 37,
-  "d_L1_003": 38,
-  "d_L1_004": 39,
-  "win_L1_001": 40,
-  "win_L1_002": 41,
-  "win_L1_003": 42,
-  "win_L1_004": 43,
-  "win_L1_005": 44,
-  "win_L1_006": 45,
-  "f_L1_001": 46,
-  "f_L1_002": 47,
-  "f_L1_003": 48,
-  "f_L1_004": 49,
-  "f_L1_005": 50,
-  "f_L1_006": 51,
-  "f_L1_007": 52,
-  "f_L1_008": 53,
-  "f_L1_009": 54,
-  "f_L1_010": 55,
-  "f_L1_011": 56,
-  "f_L1_012": 57,
-  "f_L1_013": 58,
-  "f_L1_014": 59,
-  "f_L1_015": 60,
-  "f_L1_016": 61,
-  "f_L1_017": 62,
-  "f_L1_018": 63,
-  "f_L1_019": 64,
-  "f_L1_020": 65,
-  "dec_L1_004": 66,
-  "dec_L1_005": 67,
-  "dec_L1_006": 68,
-  "dec_L1_009": 69,
-  "dec_L1_010": 70,
-  "dec_L1_011": 71,
-  "dec_L1_014": 72
+  "f_L0_020": 31,
+  "f_L0_021": 32,
+  "dec_L0_004": 33,
+  "dec_L0_012": 34,
+  "dec_L0_013": 35,
+  "dec_L0_014": 36,
+  "dec_L0_020": 37,
+  "dec_L0_021": 38,
+  "dec_L0_022": 39,
+  "dec_L0_023": 40,
+  "dec_L0_024": 41,
+  "dec_L0_026": 42,
+  "dec_L0_027": 43,
+  "dec_L0_028": 44,
+  "dec_L0_029": 45,
+  "dec_L0_030": 46,
+  "d_L1_001": 47,
+  "d_L1_002": 48,
+  "d_L1_003": 49,
+  "d_L1_004": 50,
+  "win_L1_001": 51,
+  "win_L1_002": 52,
+  "win_L1_003": 53,
+  "win_L1_004": 54,
+  "win_L1_005": 55,
+  "win_L1_006": 56,
+  "f_L1_001": 57,
+  "f_L1_002": 58,
+  "f_L1_003": 59,
+  "f_L1_004": 60,
+  "f_L1_005": 61,
+  "f_L1_006": 62,
+  "f_L1_007": 63,
+  "f_L1_008": 64,
+  "f_L1_009": 65,
+  "f_L1_010": 66,
+  "f_L1_011": 67,
+  "f_L1_012": 68,
+  "f_L1_013": 69,
+  "f_L1_014": 70,
+  "f_L1_015": 71,
+  "f_L1_016": 72,
+  "f_L1_017": 73,
+  "f_L1_018": 74,
+  "f_L1_019": 75,
+  "f_L1_020": 76,
+  "dec_L1_004": 77,
+  "dec_L1_007": 78,
+  "dec_L1_008": 79,
+  "dec_L1_009": 80,
+  "dec_L1_010": 81,
+  "dec_L1_012": 82,
+  "dec_L1_016": 83,
+  "dec_L1_019": 84,
+  "dec_L1_020": 85,
+  "dec_L1_021": 86,
+  "dec_L1_022": 87,
+  "dec_L1_023": 88,
+  "dec_L1_026": 89,
+  "dec_L1_029": 90
  },
  "renders": [
   {
@@ -123,17 +141,17 @@
     "normal": "cam_r_L0_yatak_odasi_1_normal.png",
     "depth": "cam_r_L0_yatak_odasi_1_depth.png"
    },
-   "preview_bytes": 220051,
-   "seconds": 6.08,
+   "preview_bytes": 208254,
+   "seconds": 7.69,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.8704051971435547,
+    "min": 0.49686574935913086,
     "max": 4.778752326965332,
-    "mean": 2.741941213607788,
+    "mean": 2.6181912422180176,
     "coverage": 1.0
    },
    "index_values": [
@@ -141,39 +159,41 @@
     18,
     19,
     20,
-    34,
-    35
+    32,
+    37,
+    38,
+    39
    ],
    "index_stats": {
     "8": {
-     "pixels": 108459,
+     "pixels": 23309,
      "box": [
       1734,
       0,
-      1920,
-      653
+      1778,
+      546
      ]
     },
     "18": {
-     "pixels": 40690,
+     "pixels": 64231,
      "box": [
       0,
-      650,
+      453,
       266,
       946
      ]
     },
     "19": {
-     "pixels": 10713,
+     "pixels": 12056,
      "box": [
       688,
-      520,
+      470,
       828,
       647
      ]
     },
     "20": {
-     "pixels": 364583,
+     "pixels": 351151,
      "box": [
       942,
       40,
@@ -181,46 +201,64 @@
       800
      ]
     },
-    "34": {
-     "pixels": 283473,
+    "32": {
+     "pixels": 134166,
      "box": [
-      172,
-      645,
-      1209,
+      953,
+      671,
+      1435,
       1080
      ]
     },
-    "35": {
-     "pixels": 65921,
+    "37": {
+     "pixels": 273695,
      "box": [
-      348,
+      172,
+      645,
+      1186,
+      1080
+     ]
+    },
+    "38": {
+     "pixels": 215633,
+     "box": [
+      1603,
       0,
-      620,
-      255
+      1920,
+      1080
+     ]
+    },
+    "39": {
+     "pixels": 1834,
+     "box": [
+      678,
+      0,
+      727,
+      103
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "9b90a4a80eb0d545f2c2140a1e73a461d144e49a5feea855172da284a1ccac4d",
-   "render_key": "322509a1be46330a",
+   "scene_sha256": "88c7fb93c57e91b0b099b1bf3ab341a48d64acb9d282266308b6ec5e075b007a",
+   "render_key": "caae2497f9060cb5",
    "exposure": {
     "mode": "from",
-    "ev": 4.166667,
+    "ev": 4.666667,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.08468,
-     0.982201,
-     0.92696
+     1.075199,
+     0.985201,
+     0.925165
     ],
     "wb_mode": "from",
-    "wb_temperature": 5916.2,
-    "wb_tint": 3.18,
+    "wb_temperature": 5941.4,
+    "wb_tint": 4.79,
     "residual": null,
-    "window_clip_frac": 0.002,
+    "window_clip_frac": 0.5127,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -235,30 +273,31 @@
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": 3.166667,
-    "clip_before": 0.0028,
-    "clip_after": 0.0,
-    "pane_px": 85344,
-    "pane_median": 0.953,
-    "wall_median": 0.6504,
+    "pane_ev": 3.666667,
+    "clip_before": 0.9999,
+    "clip_after": 0.025,
+    "pane_px": 7971,
+    "pane_median": 0.9919,
+    "wall_median": 0.6683,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
       "clip": 0.0,
-      "median": 0.9017
+      "median": 0.9527
      }
     ],
-    "pane_median_after": 0.9017,
-    "seconds": 0.368
+    "pane_median_after": 0.9527,
+    "seconds": 0.318
    },
    "alt_preview": null,
-   "alt_preview_bytes": null
+   "alt_preview_bytes": null,
+   "world": "World"
   }
  ],
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791113620.0,
+ "deadline": 1791596531.0,
  "warnings": []
 }

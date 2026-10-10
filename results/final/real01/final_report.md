@@ -1,31 +1,31 @@
 # Final report: real01
 
-20 views: 9 polished, 11 Cycles (room 9, vision_check 2). Stages: render run, gate validation ok, polish run, vision check run (calibration run). A polished image is final only when the gate accepted it and the vision check checked it without finding a lost or added element (§5.5). Mismatches are listed with their evidence and never auto-fixed.
+18 views: 0 polished, 18 Cycles (error 11, room 7). Stages: render run, gate validation ok, polish run, vision check single_pass (calibration run). A polished image is final only when the gate accepted it and the vision check checked it without finding a lost or added element (§5.5). Mismatches are listed with their evidence and never auto-fixed.
 
 ## Summary
 
 | item | value |
 |---|---|
-| views | 20 |
-| interior / exterior views | 20 / 0 |
+| views | 18 |
+| interior / exterior views | 18 / 0 |
 | variant | base |
-| polished | 9 |
-| Cycles | 11 (room 9, vision_check 2) |
+| polished | 0 |
+| Cycles | 18 (error 11, room 7) |
 | confirmed mismatches on the final image | 0 in 0 view(s) |
 | JSON cross-check findings (Cycles render) | 0 |
 | needs_review views | 0 |
-| unverified pieces in view (sum over views) | 8 |
-| rooms mixing polished and Cycles | 2 |
+| unverified pieces in view (sum over views) | 4 |
+| rooms mixing polished and Cycles | 0 |
 | advisory | yes |
-| advisory flags | 7 |
-| exposure | -0.50 .. +5.17 EV (0 at a limit), modes auto |
+| advisory flags | 10 |
+| exposure | -0.67 .. +5.17 EV (0 at a limit), modes auto |
 | window pull | 15 view(s), -2 .. -1 EV |
-| camera policy | search 20 |
-| camera score (min / mean / max) | 1.85 / 3.28 / 4.19 |
-| rooms by number of views | 2 with 0, 1 with 2, 6 with 3 |
+| camera policy | search 18 |
+| camera score (min / mean / max) | 1.85 / 3.21 / 4.04 |
+| rooms by number of views | 2 with 0, 1 with 1, 1 with 2, 5 with 3 |
 | gate validation | ok |
-| seconds: build / render / metering | 67.5 s / 58.9 s / 10.5 s |
-| seconds: polish / gate / check | 2.1 min / 11.0 s / 10.2 min |
+| seconds: build / render / metering | 63.3 s / 61.6 s / 7.9 s |
+| seconds: polish / gate / check | 2.1 min / 11.0 s / 17.2 min |
 | brief polish | yes (default, not in brief.yaml) |
 | unit system | imperial |
 | side-by-side sheets | 7 |
@@ -36,24 +36,27 @@ Open in Blender: the `.blend` directly (textures packed, cameras with their mete
 
 | file | size |
 |---|---|
-| [real01.blend](3d/real01.blend) | 102.8 MB |
-| [real01.glb](3d/real01.glb) | 224.0 MB |
+| [real01.blend](3d/real01.blend) | 101.5 MB |
+| [real01.glb](3d/real01.glb) | 224.9 MB |
 
-20 cameras; textures scaled to at most 1024 px (91 scaled) for the download.
+18 cameras; textures scaled to at most 1024 px (86 scaled) for the download.
 
 ## AI decor
 
-32 decor items chosen by the AI (Qwen/Qwen3-VL-8B-Instruct; both passes agreeing) in 6 rooms; 0 items by the rules. The decor stage places decor only: it moves, adds and removes no furniture (the AI completion of furnished rooms has its own section, `AI completion of furnished rooms`; `furniture/<project>/decor_report.md` has every room).
+33 decor items chosen by the AI (Qwen/Qwen3-VL-8B-Instruct; both passes agreeing) in 6 rooms; 0 items by the rules. The decor stage places decor only: it moves, adds and removes no furniture (the AI completion of furnished rooms has its own section, `AI completion of furnished rooms`; `furniture/<project>/decor_report.md` has every room).
 
 ## Advisory flags and open items
 
-- vision check advisory: removal_flagged 0.7143 misses >= 0.8; removal_confirmed 0.4286 misses >= 0.6; insertion 0.0 misses >= 0.6
-- check target missed: removal_flagged 0.714 (needs >= 0.8)
-- check target missed: removal_confirmed 0.429 (needs >= 0.6)
-- check target missed: insertion 0.000 (needs >= 0.6)
-- 3 drawn piece(s) not typed: the two AI passes disagree or did not answer (unknown, unverified; footprint kept): f_L0_006, f_L0_009, f_L0_018
-- the polish added an object in cam_r_L0_bath_toilet_2, cam_r_L0_dining_1: the Cycles render is final
-- AI completion: 25 proposal(s) refused, reverted or not placed (listed per room)
+- vision check single pass: every result unverified (advisory)
+- vision check advisory: single pass: no two-model agreement; fa_missing None misses <= 0.05 (single pass); fa_extra None misses <= 0.1 (single pass); removal_flagged None misses >= 0.8 (single pass); removal_confirmed None misses >= 0.6 (single pass); insertion None misses >= 0.6 (single pass)
+- check target missed: fa_missing - (needs <= 0.05), single pass
+- check target missed: fa_extra - (needs <= 0.1), single pass
+- check target missed: removal_flagged - (needs >= 0.8), single pass
+- check target missed: removal_confirmed - (needs >= 0.6), single pass
+- check target missed: insertion - (needs >= 0.6), single pass
+- 2 drawn piece(s) not typed: the two AI passes disagree or did not answer (unknown, unverified; footprint kept): f_L0_006, f_L0_009
+- drawn-piece check: 1 piece(s) moved beyond the tolerance, 0 locked-rule violation(s)
+- AI completion: 34 proposal(s) refused, reverted or not placed (listed per room)
 
 ## Gate validation
 
@@ -90,51 +93,47 @@ Per room: the Cycles render (left) and the polish candidate (right; the chosen a
 
 | room | view | polish attempt | gate | check Cycles | check polished | detector | final |
 |---|---|---|---|---|---|---|---|
-| r_L0_bath_toilet | cam_r_L0_bath_toilet_1 | a1 s 0.375 geometry x0.8 | accept | info | info | calibrated | polished |
-| r_L0_bath_toilet | cam_r_L0_bath_toilet_2 | a1 s 0.375 geometry x0.8 | accept | info | info | added_by_polish | cycles (vision_check) |
-| r_L0_bed_room | cam_r_L0_bed_room_1 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_bed_room | cam_r_L0_bed_room_2 | a1 s 0.375 geometry x0.8 | accept | info | info | calibrated | polished |
-| r_L0_bed_room | cam_r_L0_bed_room_3 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_bed_room_2 | cam_r_L0_bed_room_2_1 | - | - | ok | - | - | cycles (room) |
-| r_L0_bed_room_2 | cam_r_L0_bed_room_2_2 | - | - | ok | - | - | cycles (room) |
-| r_L0_bed_room_2 | cam_r_L0_bed_room_2_3 | - | - | ok | - | - | cycles (room) |
-| r_L0_dining | cam_r_L0_dining_1 | a1 s 0.375 geometry x0.8 | accept | info | info | added_by_polish | cycles (vision_check) |
-| r_L0_dining | cam_r_L0_dining_2 | a2 s 0.25 canny x0.8 | accept | info | info | calibrated | polished |
-| r_L0_dining | cam_r_L0_dining_3 | a3 s 0.125 depth x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_drawing_room | cam_r_L0_drawing_room_1 | a1 s 0.375 geometry x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_drawing_room | cam_r_L0_drawing_room_2 | a2 s 0.25 canny x0.8 | accept | ok | ok | calibrated | polished |
-| r_L0_drawing_room | cam_r_L0_drawing_room_3 | a1 s 0.375 geometry x0.8 | accept | ok | info | calibrated | polished |
-| r_L0_kitchen | cam_r_L0_kitchen_1 | - | - | ok | - | - | cycles (room) |
+| r_L0_bath_toilet | cam_r_L0_bath_toilet_1 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_bath_toilet | cam_r_L0_bath_toilet_2 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_bed_room | cam_r_L0_bed_room_1 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_bed_room | cam_r_L0_bed_room_2 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_bed_room | cam_r_L0_bed_room_3 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_bed_room_2 | cam_r_L0_bed_room_2_1 | - | - | info | - | - | cycles (room) |
+| r_L0_bed_room_2 | cam_r_L0_bed_room_2_2 | - | - | info | - | - | cycles (room) |
+| r_L0_bed_room_2 | cam_r_L0_bed_room_2_3 | - | - | info | - | - | cycles (room) |
+| r_L0_dining | cam_r_L0_dining_1 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_dining | cam_r_L0_dining_2 | a2 s 0.25 canny x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_dining | cam_r_L0_dining_3 | a3 s 0.125 depth x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_drawing_room | cam_r_L0_drawing_room_1 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_drawing_room | cam_r_L0_drawing_room_2 | a2 s 0.25 canny x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_drawing_room | cam_r_L0_drawing_room_3 | a1 s 0.375 geometry x0.8 | accept | info | - | - | cycles (error) |
+| r_L0_kitchen | cam_r_L0_kitchen_1 | - | - | info | - | - | cycles (room) |
 | r_L0_kitchen | cam_r_L0_kitchen_2 | - | - | info | - | - | cycles (room) |
 | r_L0_kitchen | cam_r_L0_kitchen_3 | - | - | info | - | - | cycles (room) |
 | r_L0_room | cam_r_L0_room_1 | - | - | info | - | - | cycles (room) |
-| r_L0_room | cam_r_L0_room_2 | - | - | ok | - | - | cycles (room) |
-| r_L0_room | cam_r_L0_room_3 | - | - | info | - | - | cycles (room) |
 
 ## Views
 
 | view | room | level | final | reason | polish attempt | gate | check Cycles | check polished | preference | EV | pull EV | camera | ids D/A/R | U | review | files |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| cam_r_L0_bath_toilet_1 | r_L0_bath_toilet | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | info | info | preferred 3/4 | +0.33 | - | search 2.78 | D1 A3 | 0 | no | [preview](cam_r_L0_bath_toilet_1_final_preview.jpg) [plan](cam_r_L0_bath_toilet_1_plan.jpg) |
-| cam_r_L0_bath_toilet_2 | r_L0_bath_toilet | L0 | cycles | vision_check | a1 s 0.375 geometry x0.8 | accept | info | info | preferred 3/4 | +0.33 | - | search 1.85 | D1 A3 | 0 | no | [preview](cam_r_L0_bath_toilet_2_final_preview.jpg) [plan](cam_r_L0_bath_toilet_2_plan.jpg) |
-| cam_r_L0_bed_room_1 | r_L0_bed_room | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 0/4 | +3.33 | -1 | search 3.54 | D4 A2 | 1 | no | [preview](cam_r_L0_bed_room_1_final_preview.jpg) [plan](cam_r_L0_bed_room_1_plan.jpg) |
-| cam_r_L0_bed_room_2 | r_L0_bed_room | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | info | info | not preferred 0/4 | +3.67 | -2 | search 3.42 | D5 A2 | 1 | no | [preview](cam_r_L0_bed_room_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_plan.jpg) |
-| cam_r_L0_bed_room_2_1 | r_L0_bed_room_2 | L0 | cycles | room | - | - | ok | - | - | +3.67 | -1 | search 3.55 | D4 A2 | 0 | no | [preview](cam_r_L0_bed_room_2_1_final_preview.jpg) [plan](cam_r_L0_bed_room_2_1_plan.jpg) |
-| cam_r_L0_bed_room_2_2 | r_L0_bed_room_2 | L0 | cycles | room | - | - | ok | - | - | +4.17 | -1 | search 3.44 | D5 A2 | 1 | no | [preview](cam_r_L0_bed_room_2_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_2_plan.jpg) |
-| cam_r_L0_bed_room_2_3 | r_L0_bed_room_2 | L0 | cycles | room | - | - | ok | - | - | +3.67 | -1 | search 3.20 | D5 A3 | 1 | no | [preview](cam_r_L0_bed_room_2_3_final_preview.jpg) [plan](cam_r_L0_bed_room_2_3_plan.jpg) |
-| cam_r_L0_bed_room_3 | r_L0_bed_room | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 0/4 | +3.50 | -1 | search 3.22 | D5 A2 | 1 | no | [preview](cam_r_L0_bed_room_3_final_preview.jpg) [plan](cam_r_L0_bed_room_3_plan.jpg) |
-| cam_r_L0_dining_1 | r_L0_dining | L0 | cycles | vision_check | a1 s 0.375 geometry x0.8 | accept | info | info | not preferred 0/4 | +5.00 | -2 | search 2.63 | D10 A5 | 0 | no | [preview](cam_r_L0_dining_1_final_preview.jpg) [plan](cam_r_L0_dining_1_plan.jpg) |
-| cam_r_L0_dining_2 | r_L0_dining | L0 | polished | - | a2 s 0.25 canny x0.8 | accept | info | info | not preferred 0/4 | +5.00 | -2 | search 2.49 | D7 A4 | 0 | no | [preview](cam_r_L0_dining_2_final_preview.jpg) [plan](cam_r_L0_dining_2_plan.jpg) |
-| cam_r_L0_dining_3 | r_L0_dining | L0 | polished | - | a3 s 0.125 depth x0.8 | accept | ok | ok | not preferred 0/4 | +4.67 | -2 | search 2.44 | D6 A3 | 0 | no | [preview](cam_r_L0_dining_3_final_preview.jpg) [plan](cam_r_L0_dining_3_plan.jpg) |
-| cam_r_L0_drawing_room_1 | r_L0_drawing_room | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | ok | not preferred 0/4 | +3.00 | -1 | search 3.54 | D6 A4 | 1 | no | [preview](cam_r_L0_drawing_room_1_final_preview.jpg) [plan](cam_r_L0_drawing_room_1_plan.jpg) |
-| cam_r_L0_drawing_room_2 | r_L0_drawing_room | L0 | polished | - | a2 s 0.25 canny x0.8 | accept | ok | ok | not preferred 1/4 | +2.83 | -1 | search 3.31 | D6 A4 | 1 | no | [preview](cam_r_L0_drawing_room_2_final_preview.jpg) [plan](cam_r_L0_drawing_room_2_plan.jpg) |
-| cam_r_L0_drawing_room_3 | r_L0_drawing_room | L0 | polished | - | a1 s 0.375 geometry x0.8 | accept | ok | info | not preferred 0/4 | +3.00 | -1 | search 3.05 | D6 A4 | 1 | no | [preview](cam_r_L0_drawing_room_3_final_preview.jpg) [plan](cam_r_L0_drawing_room_3_plan.jpg) |
-| cam_r_L0_kitchen_1 | r_L0_kitchen | L0 | cycles | room | - | - | ok | - | - | +4.83 | -1 | search 4.04 | D4 A2 | 0 | no | [preview](cam_r_L0_kitchen_1_final_preview.jpg) [plan](cam_r_L0_kitchen_1_plan.jpg) |
-| cam_r_L0_kitchen_2 | r_L0_kitchen | L0 | cycles | room | - | - | info | - | - | +4.67 | -1 | search 3.66 | D5 A3 | 0 | no | [preview](cam_r_L0_kitchen_2_final_preview.jpg) [plan](cam_r_L0_kitchen_2_plan.jpg) |
-| cam_r_L0_kitchen_3 | r_L0_kitchen | L0 | cycles | room | - | - | info | - | - | +5.17 | -2 | search 3.64 | D4 A3 | 0 | no | [preview](cam_r_L0_kitchen_3_final_preview.jpg) [plan](cam_r_L0_kitchen_3_plan.jpg) |
-| cam_r_L0_room_1 | r_L0_room | L0 | cycles | room | - | - | info | - | - | +0.00 | - | search 4.19 | D2 | 0 | no | [preview](cam_r_L0_room_1_final_preview.jpg) [plan](cam_r_L0_room_1_plan.jpg) |
-| cam_r_L0_room_2 | r_L0_room | L0 | cycles | room | - | - | ok | - | - | -0.17 | - | search 3.92 | D2 | 0 | no | [preview](cam_r_L0_room_2_final_preview.jpg) [plan](cam_r_L0_room_2_plan.jpg) |
-| cam_r_L0_room_3 | r_L0_room | L0 | cycles | room | - | - | info | - | - | -0.50 | - | search 3.61 | D3 | 0 | no | [preview](cam_r_L0_room_3_final_preview.jpg) [plan](cam_r_L0_room_3_plan.jpg) |
+| cam_r_L0_bath_toilet_1 | r_L0_bath_toilet | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | -0.67 | - | search 2.78 | D1 A3 | 0 | no | [preview](cam_r_L0_bath_toilet_1_final_preview.jpg) [plan](cam_r_L0_bath_toilet_1_plan.jpg) |
+| cam_r_L0_bath_toilet_2 | r_L0_bath_toilet | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | -0.67 | - | search 1.85 | D1 A3 | 0 | no | [preview](cam_r_L0_bath_toilet_2_final_preview.jpg) [plan](cam_r_L0_bath_toilet_2_plan.jpg) |
+| cam_r_L0_bed_room_1 | r_L0_bed_room | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.33 | -1 | search 3.41 | D4 A2 | 1 | no | [preview](cam_r_L0_bed_room_1_final_preview.jpg) [plan](cam_r_L0_bed_room_1_plan.jpg) |
+| cam_r_L0_bed_room_2 | r_L0_bed_room | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.83 | -2 | search 3.20 | D5 A2 | 1 | no | [preview](cam_r_L0_bed_room_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_plan.jpg) |
+| cam_r_L0_bed_room_2_1 | r_L0_bed_room_2 | L0 | cycles | room | - | - | info | - | - | +3.67 | -1 | search 3.67 | D4 A2 | 0 | no | [preview](cam_r_L0_bed_room_2_1_final_preview.jpg) [plan](cam_r_L0_bed_room_2_1_plan.jpg) |
+| cam_r_L0_bed_room_2_2 | r_L0_bed_room_2 | L0 | cycles | room | - | - | info | - | - | +4.17 | -2 | search 3.33 | D3 A3 | 0 | no | [preview](cam_r_L0_bed_room_2_2_final_preview.jpg) [plan](cam_r_L0_bed_room_2_2_plan.jpg) |
+| cam_r_L0_bed_room_2_3 | r_L0_bed_room_2 | L0 | cycles | room | - | - | info | - | - | +3.83 | -1 | search 3.07 | D5 A2 | 1 | no | [preview](cam_r_L0_bed_room_2_3_final_preview.jpg) [plan](cam_r_L0_bed_room_2_3_plan.jpg) |
+| cam_r_L0_bed_room_3 | r_L0_bed_room | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.33 | -1 | search 2.80 | D5 A2 | 1 | no | [preview](cam_r_L0_bed_room_3_final_preview.jpg) [plan](cam_r_L0_bed_room_3_plan.jpg) |
+| cam_r_L0_dining_1 | r_L0_dining | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +4.83 | -1 | search 2.91 | D9 A5 | 0 | no | [preview](cam_r_L0_dining_1_final_preview.jpg) [plan](cam_r_L0_dining_1_plan.jpg) |
+| cam_r_L0_dining_2 | r_L0_dining | L0 | cycles | error | a2 s 0.25 canny x0.8 | accept | info | - | - | +5.00 | -2 | search 2.48 | D7 A4 | 0 | no | [preview](cam_r_L0_dining_2_final_preview.jpg) [plan](cam_r_L0_dining_2_plan.jpg) |
+| cam_r_L0_dining_3 | r_L0_dining | L0 | cycles | error | a3 s 0.125 depth x0.8 | accept | info | - | - | +4.83 | -2 | search 2.47 | D6 A3 | 0 | no | [preview](cam_r_L0_dining_3_final_preview.jpg) [plan](cam_r_L0_dining_3_plan.jpg) |
+| cam_r_L0_drawing_room_1 | r_L0_drawing_room | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.00 | -1 | search 3.95 | D5 A3 | 0 | no | [preview](cam_r_L0_drawing_room_1_final_preview.jpg) [plan](cam_r_L0_drawing_room_1_plan.jpg) |
+| cam_r_L0_drawing_room_2 | r_L0_drawing_room | L0 | cycles | error | a2 s 0.25 canny x0.8 | accept | info | - | - | +2.67 | -1 | search 3.70 | D5 A3 | 0 | no | [preview](cam_r_L0_drawing_room_2_final_preview.jpg) [plan](cam_r_L0_drawing_room_2_plan.jpg) |
+| cam_r_L0_drawing_room_3 | r_L0_drawing_room | L0 | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +2.67 | -1 | search 3.59 | D6 A2 | 0 | no | [preview](cam_r_L0_drawing_room_3_final_preview.jpg) [plan](cam_r_L0_drawing_room_3_plan.jpg) |
+| cam_r_L0_kitchen_1 | r_L0_kitchen | L0 | cycles | room | - | - | info | - | - | +5.17 | -1 | search 4.04 | D4 A2 | 0 | no | [preview](cam_r_L0_kitchen_1_final_preview.jpg) [plan](cam_r_L0_kitchen_1_plan.jpg) |
+| cam_r_L0_kitchen_2 | r_L0_kitchen | L0 | cycles | room | - | - | info | - | - | +5.00 | -2 | search 3.58 | D5 A2 | 0 | no | [preview](cam_r_L0_kitchen_2_final_preview.jpg) [plan](cam_r_L0_kitchen_2_plan.jpg) |
+| cam_r_L0_kitchen_3 | r_L0_kitchen | L0 | cycles | room | - | - | info | - | - | +5.17 | -2 | search 3.54 | D4 A3 | 0 | no | [preview](cam_r_L0_kitchen_3_final_preview.jpg) [plan](cam_r_L0_kitchen_3_plan.jpg) |
+| cam_r_L0_room_1 | r_L0_room | L0 | cycles | room | - | - | info | - | - | +0.00 | - | search 3.33 | D2 | 0 | no | [preview](cam_r_L0_room_1_final_preview.jpg) [plan](cam_r_L0_room_1_plan.jpg) |
 
 polish attempt: the polish candidate (used only when final is polished). pull EV: the window pull of the render (window panes darkened by that many EV, §5). camera: policy (`search` = ray-cast camera search, `m5` = the fixed rules) and score. ids: D from_documents, A added_by_ai, R rule (elements in view). check: verdict (confirmed mismatches). U: unverified pieces in view.
 
@@ -142,46 +141,42 @@ polish attempt: the polish candidate (used only when final is polished). pull EV
 
 | room | type | level | views | polished | Cycles | cameras |
 |---|---|---|---|---|---|---|
-| r_L0_bath_toilet | bathroom | L0 | 2 | 1 | 1 | cam_r_L0_bath_toilet_1, cam_r_L0_bath_toilet_2 |
-| r_L0_bed_room | bedroom | L0 | 3 | 3 | 0 | cam_r_L0_bed_room_1, cam_r_L0_bed_room_2, cam_r_L0_bed_room_3 |
+| r_L0_bath_toilet | bathroom | L0 | 2 | 0 | 2 | cam_r_L0_bath_toilet_1, cam_r_L0_bath_toilet_2 |
+| r_L0_bed_room | bedroom | L0 | 3 | 0 | 3 | cam_r_L0_bed_room_1, cam_r_L0_bed_room_2, cam_r_L0_bed_room_3 |
 | r_L0_bed_room_2 | bedroom | L0 | 3 | 0 | 3 | cam_r_L0_bed_room_2_1, cam_r_L0_bed_room_2_2, cam_r_L0_bed_room_2_3 |
-| r_L0_dining | dining | L0 | 3 | 2 | 1 | cam_r_L0_dining_1, cam_r_L0_dining_2, cam_r_L0_dining_3 |
-| r_L0_drawing_room | living | L0 | 3 | 3 | 0 | cam_r_L0_drawing_room_1, cam_r_L0_drawing_room_2, cam_r_L0_drawing_room_3 |
+| r_L0_dining | dining | L0 | 3 | 0 | 3 | cam_r_L0_dining_1, cam_r_L0_dining_2, cam_r_L0_dining_3 |
+| r_L0_drawing_room | living | L0 | 3 | 0 | 3 | cam_r_L0_drawing_room_1, cam_r_L0_drawing_room_2, cam_r_L0_drawing_room_3 |
 | r_L0_kitchen | kitchen | L0 | 3 | 0 | 3 | cam_r_L0_kitchen_1, cam_r_L0_kitchen_2, cam_r_L0_kitchen_3 |
 | r_L0_pooja | prayer | L0 | 0 | 0 | 0 | - |
-| r_L0_room | hall | L0 | 3 | 0 | 3 | cam_r_L0_room_1, cam_r_L0_room_2, cam_r_L0_room_3 |
+| r_L0_room | hall | L0 | 1 | 0 | 1 | cam_r_L0_room_1 |
 | r_L0_store | storage | L0 | 0 | 0 | 0 | - |
 
 Rooms without a rendered view: r_L0_pooja (no furniture after layout and decor and 1.76 m2 < 2.5 m2: no view (docs/milestone7.md §6.2)), r_L0_store (no furniture after layout and decor and 1.86 m2 < 2.5 m2: no view (docs/milestone7.md §6.2)).
 
 ### Why Cycles
 
-- cam_r_L0_bath_toilet_2: vision_check: added_by_polish furniture at [56.7, 0.3, 200.9, 83.5]
+- cam_r_L0_bath_toilet_1: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_bath_toilet_2: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_bed_room_1: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_bed_room_2: error: polished from another render (source sha256 differs from the current render)
 - cam_r_L0_bed_room_2_1: room: polish: room
 - cam_r_L0_bed_room_2_2: room: polish: room
 - cam_r_L0_bed_room_2_3: room: polish: room
-- cam_r_L0_dining_1: vision_check: added_by_polish furniture at [1190.8, 403.6, 1246.1, 418.6]
+- cam_r_L0_bed_room_3: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_dining_1: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_dining_2: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_dining_3: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_drawing_room_1: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_drawing_room_2: error: polished from another render (source sha256 differs from the current render)
+- cam_r_L0_drawing_room_3: error: polished from another render (source sha256 differs from the current render)
 - cam_r_L0_kitchen_1: room: polish: room
 - cam_r_L0_kitchen_2: room: polish: room
 - cam_r_L0_kitchen_3: room: polish: room
 - cam_r_L0_room_1: room: polish: room
-- cam_r_L0_room_2: room: polish: room
-- cam_r_L0_room_3: room: polish: room
 
 ## Mismatches (never auto-fixed)
 
-| view | image | result | id | type | role | source | evidence | counted | notes |
-|---|---|---|---|---|---|---|---|---|---|
-| cam_r_L0_bath_toilet_1 | cycles | disputed | f_L0_022 | washbasin | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_bath_toilet_2 | cycles | disputed | f_L0_022 | washbasin | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_bath_toilet_2 | polished | missing | f_L0_022 | washbasin | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_dining_1 | cycles | disputed | dec_L0_032 | curtain | optional | added_by_ai | building.json ai 0.90; building.json ai 0.90 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_dining_1 | cycles | missing | f_L0_026 | tall_cabinet | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_dining_1 | polished | disputed | f_L0_026 | tall_cabinet | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_drawing_room_3 | polished | disputed | f_L0_024 | tv_unit | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_kitchen_2 | cycles | missing | f_L0_026 | tall_cabinet | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_kitchen_2 | cycles | missing | dec_L0_028 | blind | optional | added_by_ai | building.json ai 0.90; building.json ai 0.90 | info | added_by_ai: render/polish issue, not a document conflict |
-| cam_r_L0_kitchen_3 | cycles | disputed | f_L0_026 | tall_cabinet | optional | added_by_ai | building.json ai 0.60 | info | added_by_ai: render/polish issue, not a document conflict |
+None.
 
 ## Needs review
 
@@ -202,12 +197,8 @@ Unverified pieces in view:
 
 - cam_r_L0_bed_room_1: f_L0_009
 - cam_r_L0_bed_room_2: f_L0_009
-- cam_r_L0_bed_room_2_2: f_L0_006
 - cam_r_L0_bed_room_2_3: f_L0_006
 - cam_r_L0_bed_room_3: f_L0_009
-- cam_r_L0_drawing_room_1: f_L0_018
-- cam_r_L0_drawing_room_2: f_L0_018
-- cam_r_L0_drawing_room_3: f_L0_018
 
 Conflicts:
 
@@ -270,7 +261,7 @@ Sheet warnings:
 
 Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep, furnished_rooms_keep_size, render.twin_rooms). Drawn pieces keep their anchor (+-5 cm) and front (+-1 deg); the AI may change a piece's type (within the room type's types), size, height and look (it stays `from_documents`, `modified_by_ai`, with the drawn type and size recorded) and add the pieces the room type misses (`added_by_ai`, never a second main piece). Fixed equipment never changes. A change needs both AI passes.
 
-0 change(s) applied, 5 piece(s) added, 1 wall cabinet run(s).
+0 change(s) applied, 4 piece(s) added, 1 wall cabinet run(s).
 
 ### Bed Room (r_L0_bed_room, bedroom): completed
 
@@ -302,33 +293,45 @@ Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep
 
 ### Bed Room (r_L0_bed_room_2, bedroom): completed
 
-- added f_L0_025: nightstand 0.50 x 0.40 (confidence 0.90, ai)
+- not placed bench: no free place passed the placer checks (no repair left)
 - not placed wardrobe: no free place passed the placer checks (no repair left)
+- not placed bench: no free place passed the placer checks (no repair left)
 - not placed wardrobe: no free place passed the placer checks (no repair left)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_004, f_L0_005, f_L0_006
 
 ### Kitchen (r_L0_kitchen, kitchen): completed
 
-- added f_L0_026: tall_cabinet 0.60 x 0.60 (confidence 0.60, ai)
+- added f_L0_025: tall_cabinet 0.60 x 0.60 (confidence 0.60, ai)
 - 1 wall cabinet run(s) over the drawn counter
 - not placed chair: no free place passed the placer checks (no repair left)
 - not placed chair: no free place passed the placer checks (no repair left)
 - not placed table_dining: no free place passed the placer checks (no repair left)
 - not placed chair: no free place passed the placer checks (no repair left)
+- not placed chair: no free place passed the placer checks (no repair left)
 - not placed table_dining: no free place passed the placer checks (no repair left)
-- not placed chair: no free place passed the placer checks (no table_dining in the room)
 - not placed chair: no free place passed the placer checks (no table_dining in the room)
 - not placed chair: no free place passed the placer checks (no table_dining in the room)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_001, f_L0_002
 
 ### Dining (r_L0_dining, dining): completed
 
-- added f_L0_028: sideboard 1.60 x 0.45 (confidence 0.60, ai)
+- added f_L0_027: sideboard 1.60 x 0.45 (confidence 0.60, ai)
+- refused f_L0_010 -> table_dining: only pass 1 changes it (a drawn piece needs both passes)
+- refused f_L0_011 -> chair: only pass 1 changes it (a drawn piece needs both passes)
+- refused f_L0_012 -> chair: only pass 1 changes it (a drawn piece needs both passes)
+- refused f_L0_013 -> chair: only pass 1 changes it (a drawn piece needs both passes)
+- refused f_L0_014 -> chair: only pass 1 changes it (a drawn piece needs both passes)
+- refused f_L0_015 -> chair: only pass 1 changes it (a drawn piece needs both passes)
+- refused f_L0_016 -> chair: only pass 1 changes it (a drawn piece needs both passes)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_010, f_L0_011, f_L0_013, f_L0_014
 
 ### Drawn pieces against the source plan
 
-Reference: source building.json; mode `complete`. 20 of 20 drawn piece(s) checked: anchor within 0.05 m, front within 1.0 deg, the same wall; 20 ok, 0 failed; 0 changed by the AI.
+Reference: source building.json; mode `complete`. 20 of 20 drawn piece(s) checked: anchor within 0.05 m, front within 1.0 deg, the same wall; 19 ok, 1 failed; 0 changed by the AI.
+
+| piece | type (drawn) | anchor moved (m) | front turned (deg) | same wall | notes |
+|---|---|---|---|---|---|
+| f_L0_008 | nightstand (nightstand) | 0.12 | - | - | front missing on one side |
 
 ## Units
 
@@ -348,7 +351,7 @@ AI-typed pieces:
 |---|---|---|---|---|---|---|
 | f_L0_004 | r_L0_bed_room_2 | bed_double | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bed_double, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bed_double, front top 1.00 |
 | f_L0_005 | r_L0_bed_room_2 | nightstand | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: nightstand, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: nightstand, front right 0.90 |
-| f_L0_006 | r_L0_bed_room_2 | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: nightstand, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: wall_cabinet 0.90 |
+| f_L0_006 | r_L0_bed_room_2 | nightstand | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: nightstand, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: wall_cabinet 0.90 |
 | f_L0_007 | r_L0_bed_room | bed_double | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bed_double, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bed_double, front top 0.90 |
 | f_L0_008 | r_L0_bed_room | nightstand | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: nightstand, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: nightstand, front left 0.90 |
 | f_L0_009 | r_L0_bed_room | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: nightstand, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: floor_lamp 0.80 |
@@ -360,7 +363,7 @@ AI-typed pieces:
 | f_L0_015 | r_L0_dining | chair | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: chair, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: chair, front right 0.90 |
 | f_L0_016 | r_L0_dining | chair | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: chair, front right 0.95; pass 2 zai-org/GLM-4.6V-Flash: chair, front right 0.90 |
 | f_L0_017 | r_L0_drawing_room | sofa | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: sofa, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front left 1.00 |
-| f_L0_018 | r_L0_drawing_room | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: wardrobe, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front top 1.00 |
+| f_L0_018 | r_L0_drawing_room | unknown | no | unverified | no (drawn symbol, not built) | pass 1 Qwen/Qwen3-VL-8B-Instruct: wardrobe, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front top 1.00 |
 | f_L0_019 | r_L0_drawing_room | table_coffee | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: table_coffee 0.95; pass 2 zai-org/GLM-4.6V-Flash: table_coffee 0.80 |
 | f_L0_020 | r_L0_drawing_room | floor_lamp | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: floor_lamp 0.95; pass 2 zai-org/GLM-4.6V-Flash: floor_lamp 0.90 |
 
@@ -413,6 +416,9 @@ Virtual lines that split an open-plan face where two room names share it (no geo
 - brief render.lens_mm: auto (default, not in brief.yaml)
 - brief render.exterior_views: True (default, not in brief.yaml)
 - brief render.twin_rooms: one (default, not in brief.yaml)
+- brief markers_in_final: False (default, not in brief.yaml)
+- brief roof_terraces: auto (default, not in brief.yaml)
+- brief site_options.front_court: auto (default, not in brief.yaml)
 - L0: level 'Ground floor' assumed (no level title on the page)
 - L0: ceiling height 8' 10" (2.70 m) (assumed_default)
 - door height 6' 11" (2.10 m): 5 opening(s) (d_L0_001, d_L0_002, d_L0_003, d_L0_004, d_L0_005)
@@ -428,7 +434,7 @@ Scene (build) assumptions:
 | area_light | 1 | r_L0_bath_toilet: room has no window; soft ceiling light added (lighting mood, invisible to the camera) | light_r_L0_bath_toilet |
 | area_light | 1 | r_L0_room: room has no window; soft ceiling light added (lighting mood, invisible to the camera) | light_r_L0_room |
 | area_light | 1 | r_L0_store: room has no window; soft ceiling light added (lighting mood, invisible to the camera) | light_r_L0_store |
-| cabinet_fronts | 1 | design detail of the cabinet (fronts and handles inside its own box); the documents show only the footprint | furn_f_L0_027 |
+| cabinet_fronts | 1 | design detail of the cabinet (fronts and handles inside its own box); the documents show only the footprint | furn_f_L0_026 |
 | ceiling_height | 1 | building JSON: assumed_default | level_L0 |
 | counter_fronts | 2 | design detail of the counter (fronts and handles inside its own box); the documents show only the footprint | furn_f_L0_001, furn_f_L0_002 |
 | direction | 1 | no UP arrow, break line or riser text drawn: rise direction and flight order are assumed; two side-by-side flights read as a U-turn (dog-leg) stair | furn_f_L0_003 |
@@ -436,12 +442,12 @@ Scene (build) assumptions:
 | fabric | 1 | style profile has no textiles slot; default fabric for sofas and chairs | furniture |
 | handrail | 1 | design detail on every flight side not against a wall; not in the documents | furn_f_L0_003 |
 | height | 5 | door height listed as assumed in the building JSON | d_L0_001, d_L0_002, d_L0_003 |
-| height | 3 | no height in the JSON; proxy table value for unknown | proxy_f_L0_006, proxy_f_L0_009, proxy_f_L0_018 |
+| height | 1 | no height in the JSON; proxy table value for unknown | proxy_f_L0_009 |
 | height | 2 | no height in the JSON; type height for bed_double | furn_f_L0_004, furn_f_L0_007 |
 | height | 6 | no height in the JSON; type height for chair | furn_f_L0_011, furn_f_L0_012, furn_f_L0_013 |
 | height | 1 | no height in the JSON; type height for floor_lamp | furn_f_L0_020 |
 | height | 2 | no height in the JSON; type height for kitchen_counter | furn_f_L0_001, furn_f_L0_002 |
-| height | 2 | no height in the JSON; type height for nightstand | furn_f_L0_005, furn_f_L0_008 |
+| height | 3 | no height in the JSON; type height for nightstand | furn_f_L0_005, furn_f_L0_006, furn_f_L0_008 |
 | height | 1 | no height in the JSON; type height for sofa | furn_f_L0_017 |
 | height | 1 | no height in the JSON; type height for table_coffee | furn_f_L0_019 |
 | height | 1 | no height in the JSON; type height for table_dining | furn_f_L0_010 |
@@ -449,17 +455,15 @@ Scene (build) assumptions:
 | height | 9 | window height listed as assumed in the building JSON | win_L0_001, win_L0_002, win_L0_003 |
 | riser_m | 1 | derived from assumed ceiling and slab: 2.850 m / 16 drawn risers | furn_f_L0_003 |
 | sill_height | 9 | window sill_height listed as assumed in the building JSON | win_L0_001, win_L0_002, win_L0_003 |
-| skirting | 7 | design detail of the room's documented walls (painted skirting board); not in the documents | skirting_r_L0_bed_room, skirting_r_L0_drawing_room, skirting_r_L0_room |
+| skirting | 8 | design detail of the room's documented walls (painted skirting board); not in the documents | skirting_r_L0_bed_room, skirting_r_L0_drawing_room, skirting_r_L0_room |
+| splashback | 1 | kitchen splashback: tiles 0.6 m high from the counter top behind f_L0_001, f_L0_002 (docs/milestone11.md §1.3 M2; not drawn) | splashback_r_L0_kitchen |
 | turn | 1 | flights side by side read as a turning stair, climbed in turn; nothing drawn says which flight starts at the floor | furn_f_L0_003 |
 | void | 1 | nothing drawn above the stair; the opening is assumed; the floor above is not modelled, so the cap hides the shaft | f_L0_003_void |
 | waist | 1 | the documents show the stair in plan only | furn_f_L0_003 |
 
 ## Rooms mixing polished and Cycles views
 
-| room | polished | Cycles (reason) | polish room rule |
-|---|---|---|---|
-| r_L0_bath_toilet | cam_r_L0_bath_toilet_1 | cam_r_L0_bath_toilet_2 (vision_check) | ok |
-| r_L0_dining | cam_r_L0_dining_2, cam_r_L0_dining_3 | cam_r_L0_dining_1 (vision_check) | ok |
+None.
 
 Polish room rule (wall colour within ΔE 5 per room) downgraded: r_L0_bed_room_2 (rung None), r_L0_kitchen (rung None), r_L0_room (rung None).
 
@@ -472,11 +476,10 @@ Polish room rule (wall colour within ΔE 5 per room) downgraded: r_L0_bed_room_2
 | gate depth | depth-anything/Depth-Anything-V2-Small-hf | 5426e4f0f36572d16453bbda7a8389317b1bef99 | Apache-2.0 | polish_manifest.json |
 | gate sam | facebook/sam2.1-hiera-large | 665f8e2ad61cf5f53d65644ff27c8ee525124610 | Apache-2.0 | polish_manifest.json |
 | gate dino | facebook/dinov2-base | f9e44c814b77203eaa57a6bdbbd535f21ede1415 | Apache-2.0 | polish_manifest.json |
-| check qwen | Qwen/Qwen3-VL-8B-Instruct | 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b | Apache-2.0 | check_manifest.json |
-| check glm | zai-org/GLM-4.6V-Flash | 411bb4d77144a3f03accbf4b780f5acb8b7cde4e | MIT | check_manifest.json |
+| check agent | Qwen/Qwen3.8-27B-FP8 | 017b9c7af6b5689d5dd426a76e0bc077eb5ca20a | Apache-2.0 | check_manifest.json |
 | detector | google/owlv2-base-patch16-ensemble | cfd3195ba4ea9592eec887ded089f4c08eff231d | Apache-2.0 | check_manifest.json |
 
-Assets: textures CC0 x 8; furniture/decor models CC-BY-4.0 x 38, generated (TRELLIS.2-4B, MIT) x 7 (parametric meshes need no licence).
+Assets: textures CC0 x 5; furniture/decor models CC-BY-4.0 x 38, CC0 x 1, generated (TRELLIS.2-4B, MIT) x 7 (parametric meshes need no licence).
 
 ## Attribution
 
@@ -493,52 +496,152 @@ Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai
 Calibrated: t_det 0.08, t_strong 0.11; a confirmed added non-decor object rejects the polished image (the Cycles render is final).
 Model: google/owlv2-base-patch16-ensemble @ cfd3195ba4ea (Apache-2.0).
 
-| view | detector | computed | added_by_polish | confirmed boxes |
-|---|---|---|---|---|
-| cam_r_L0_bath_toilet_1 | calibrated | yes | no | - |
-| cam_r_L0_bath_toilet_2 | calibrated | yes | yes | furniture [56.7, 0.3, 200.9, 83.5] (score) |
-| cam_r_L0_bed_room_1 | calibrated | yes | no | - |
-| cam_r_L0_bed_room_2 | calibrated | yes | no | - |
-| cam_r_L0_bed_room_3 | calibrated | yes | no | - |
-| cam_r_L0_dining_1 | calibrated | yes | yes | furniture [1190.8, 403.6, 1246.1, 418.6] (score) |
-| cam_r_L0_dining_2 | calibrated | yes | no | - |
-| cam_r_L0_dining_3 | calibrated | yes | no | - |
-| cam_r_L0_drawing_room_1 | calibrated | yes | no | - |
-| cam_r_L0_drawing_room_2 | calibrated | yes | no | - |
-| cam_r_L0_drawing_room_3 | calibrated | yes | no | - |
-
 ## Stages
 
-This run (`20261009-092258-full-20261009T092915Z`):
+This run (`20261010-000113-full-20261010T000613Z`):
 
 | stage | status | seconds | note |
 |---|---|---|---|
 | intake | skipped | 0.0 s | private only |
-| sheets | ok | 9.6 s | - |
-| pipeline | pending | 13.5 s | 17 recognition question(s) written (recognition/requests.json) |
-| recognize | reused | 2.0 s | - |
+| sheets | ok | 8.3 s | - |
+| pipeline | pending | 12.2 s | 17 recognition question(s) written (recognition/requests.json) |
+| recognize | reused | 1.8 s | - |
 | photos | skipped | 0.0 s | no style photos |
-| style | ok | 0.4 s | - |
-| pipeline_final | ok | 13.2 s | answers applied |
-| fit | ok | 2.0 s | - |
-| layout | ok | 44.7 s | - |
-| decor_ask | ok | 41.8 s | - |
-| assets | ok | 1.5 s | - |
-| decor | ok | 3.9 s | - |
-| refit | ok | 4.6 s | - |
-| build | ok | 79.8 s | - |
-| render | ok | 2.0 min | - |
-| export | ok | 42.0 s | - |
-| controls | ok | 49.4 s | - |
-| gate | ok | 60.6 s | gate decision ok |
-| polish | ok | 3.4 min | - |
-| detect | ok | 8.8 s | - |
-| expected | ok | 11.4 s | - |
-| check | ok | 119.9 s | - |
-| combine | ok | 18.5 s | - |
+| style | ok | 0.2 s | - |
+| pipeline_final | ok | 12.1 s | answers applied |
+| fit | ok | 1.7 s | - |
+| layout | ok | 53.0 s | - |
+| decor_ask | ok | 20.7 s | - |
+| assets | ok | 1.3 s | - |
+| decor | ok | 4.1 s | - |
+| refit | ok | 12.6 s | - |
+| build | ok | 4.8 min | - |
+| agent_previews | ok | 101.8 s | 3 view(s) |
+| agent_apply | ok | 6.4 s | - |
+| agent | ok | 8.4 min | 4 round(s), 5 edit(s) accepted, 31 rejected; stop: no edit accepted in this round |
+| render | ok | 111.7 s | - |
+| export | ok | 28.1 s | - |
+| controls | ok | 55.9 s | - |
+| detect | skipped | 0.0 s | polish off |
+| gate | skipped | 0.0 s | polish off |
+| polish | skipped | 0.0 s | polish off |
+| expected | ok | 10.4 s | - |
+| check | ok | 2.1 min | - |
+| combine | ok | 14.5 s | - |
 
 The report stage itself is recorded after this report.
+
+## AI orchestrator
+
+Model `Qwen/Qwen3.8-27B-FP8` @ `017b9c7af6b5689d5dd426a76e0bc077eb5ca20a`: 5 round(s), 5 edit(s) accepted, 31 rejected, 79 model calls (609861 tokens), 10.2 min. Stop: final round for critical findings done. Every edit was checked by code before it was accepted; the full log is `orchestrator/log.md` on the volume.
+
+### Rounds
+
+| round | critical | major | minor | dropped (vision) | accepted | rejected | re-run from | views |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 0 | 5 | 3 | 12 | 3 | 14 | refit | 6 |
+| 2 | 0 | 3 | 2 | 5 | 1 | 6 | refit | 3 |
+| 3 | 0 | 2 | 2 | 2 | 1 | 4 | refit | 3 |
+| 4 | 0 | 2 | 2 | 2 | 0 | 7 | - | 0 |
+| 5 | 0 | 2 | 2 | 3 | 0 | 0 | - | 0 |
+
+### Findings by check
+
+| check | critical | major | minor | dropped |
+|---|---|---|---|---|
+| F3 | 0 | 0 | 6 | 9 |
+| F4 | 0 | 12 | 0 | 0 |
+| F5 | 0 | 0 | 0 | 4 |
+| F6 | 0 | 0 | 0 | 3 |
+| F7 | 0 | 0 | 0 | 3 |
+| F8 | 0 | 0 | 0 | 2 |
+| F9 | 0 | 2 | 5 | 2 |
+| R3 | 0 | 0 | 0 | 1 |
+
+### Accepted edits
+
+| # | round | tool | target | label | score | reason | before | after |
+|---|---|---|---|---|---|---|---|---|
+| 36 | 1 | move_piece | f_L0_024 | added_by_ai | 80.0 -> 90.0 | Move the tv_unit to the north wall so its front faces the sofa group (f_L0_017) and it no longer blocks the coffee table. | ![](agent/r1_013_move_piece_before_r_L0_drawing_room.png) | ![](agent/r1_014_move_piece_after_r_L0_drawing_room.png) |
+| 37 | 1 | move_piece | f_L0_008 | adjusted_by_ai | 81.0 -> 94.0 | Snap the nightstand's back onto the west wall to clear the 0.05 m wall in front and the 0.16 m back gap. | ![](agent/r1_016_move_piece_before_r_L0_bed_room.png) | ![](agent/r1_017_move_piece_after_r_L0_bed_room.png) |
+| 41 | 1 | move_piece | f_L0_023 | added_by_ai | 94.0 -> 94.0 | Shift the AI nightstand up along the west wall to keep the 0.9 m door walkway clear while staying close to the wall. | ![](agent/r1_021_move_piece_before_r_L0_bed_room.png) | ![](agent/r1_022_move_piece_after_r_L0_bed_room.png) |
+| 72 | 2 | remove_piece | f_L0_018 | adjusted_by_ai | 90.0 -> 100.0 | The drawn box is a duplicate of the already-placed sofa f_L0_017 (identical 1.90x0.70 m footprint, same seat height); the room already has its sofa anchor, and keeping it blocks all door walkways. | ![](agent/r2_006_remove_piece_before_r_L0_drawing_room.png) | ![](agent/r2_007_remove_piece_after_r_L0_drawing_room.png) |
+| 95 | 3 | rotate_piece | f_L0_017 | adjusted_by_ai | 100.0 -> 100.0 | Sofa seat faces north toward the coffee table and TV unit, away from the window wall, per the plan crop showing cushions up. | ![](agent/r3_007_rotate_piece_before_r_L0_drawing_room.png) | ![](agent/r3_008_rotate_piece_after_r_L0_drawing_room.png) |
+
+### Rejected edits
+
+| # | round | tool | target | failed checks | reason |
+|---|---|---|---|---|---|
+| 31 | 1 | change_type | f_L0_018 | room_type: tall_cabinet is not a piece a living room may hold here | Plan crop shows a tall cabinet with three doors along the right wall, matching a tall_cabinet footprint (1.9 x 0.7 m). |
+| 32 | 1 | change_type | f_L0_018 | product_size: f_L0_018: 1.90 x 0.70 m does not fit a display_cabinet (size table) | Plan crop shows a tall cabinet with three doors along the right wall; display_cabinet fits the living room and the 1.9 x 0.7 m footprint. |
+| 33 | 1 | change_type | f_L0_018 | product_size: f_L0_018: 1.90 x 0.70 m does not fit a sideboard (size table) | Plan crop shows a long cabinet with three doors along the right wall; a sideboard fits the living room and the 1.9 x 0.7 m footprint. |
+| 34 | 1 | change_type | f_L0_018 | max_tries: f_L0_018 was edited 3 times in this round | Plan crop shows a long three-seat sofa along the right wall; a 1.9 m sofa fits the living room and the footprint. |
+| 35 | 1 | rotate_piece | f_L0_024 | f_L0_017: clearance_ok, f_L0_019: no_overlap, f_L0_024: inside_room, f_L0_024: no_overlap, score: plausibility 80 -> 40 (F3 f_L0_024: tv_unit: its back is not on a wall (0.15 m off); F4 f_L0_017: sofa stands behind the back of f_L0_024, looking at it; F6 f_L0_017: sofa: the free zone in front of it is blocked by f_L0_024; F9 f_L0_024: tv_unit reaches 0.25 m² through the room outline) | Turn the tv_unit so its front faces the sofa group (f_L0_017) across the room. |
+| 38 | 1 | move_piece | f_L0_023 | f_L0_007: doors_free, f_L0_023: doors_free, score: plausibility 94 -> 87 (F6 f_L0_007: no 0.9 m walkway from d_L0_001 to win_L0_007 (blocked by f_L0_007, f_L0_023)) | Snap the AI nightstand's back onto the west wall to close the 0.15 m gap. |
+| 39 | 1 | change_type | f_L0_009 | score: plausibility 94 -> 84 (F3 f_L0_009: nightstand: its back is not on a wall (0.17 m off); F4 f_L0_009: nightstand faces a wall 0.05 m in front of it) | The drawn box is a 0.50x0.45 m bedside table at the foot-side of the bed, matching the twin of f_L0_008. |
+| 40 | 1 | move_piece | f_L0_009 | snap: f_L0_009: no free place on wall w_L0_008 (doors, windows, at most 1.2 m from the drawn place) | Snap the bedside table's back onto the west wall so it reads as a proper nightstand against the wall. |
+| 42 | 1 | change_type | f_L0_009 | score: plausibility 94 -> 84 (F3 f_L0_009: nightstand: its back is not on a wall (0.17 m off); F4 f_L0_009: nightstand faces a wall 0.05 m in front of it) | The drawn box is a 0.50x0.45 m bedside table at the foot-side of the bed, matching the twin of f_L0_008. |
+| 43 | 1 | move_piece | f_L0_009 | max_tries: f_L0_009 was edited 3 times in this round | Move the bedside table to the west wall beside the bed so its back is on the wall and it is not facing a wall. |
+| 44 | 1 | rotate_piece | f_L0_027 | score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it) | Sideboard was facing the west wall; rotate so its front faces into the room (east) away from the wall. |
+| 45 | 1 | move_piece | f_L0_027 | snap: f_L0_027: no free place on wall w_L0_006 (doors, windows) | Move the sideboard to the south wall (w_L0_006) so its back is on a wall and its front faces into the room. |
+| 46 | 1 | move_piece | f_L0_027 | f_L0_012: no_overlap, f_L0_016: no_overlap, f_L0_027: inside_room, f_L0_027: no_overlap, score: plausibility 100 -> 50 (F3 f_L0_027: sideboard: its back is not on a wall (0.12 m off); F9 f_L0_027: sideboard f_L0_027 overlaps table_dining f_L0_010 by 0.15 m²; F9 f_L0_027: sideboard f_L0_027 overlaps chair f_L0_012 by 0.06 m²; F9 f_L0_027: sideboard f_L0_027 overlaps chair f_L0_016 by 0.05 m²) | Place the sideboard against the south wall under the window so its back is on the wall and its front faces into the room. |
+| 47 | 1 | move_piece | f_L0_027 | max_tries: f_L0_027 was edited 3 times in this round | Place the sideboard against the south wall to the right of the window, back on the wall, front facing into the room. |
+| 70 | 2 | change_type | f_L0_018 | second_anchor: the room already has its sofa / sofa_corner: never a second anchor piece | Plan crop shows a 3-seat sofa with upright cushions drawn against the right wall; footprint 1.90x0.70 m matches a sofa. |
+| 71 | 2 | change_type | f_L0_018 | f_L0_018: doors_free, f_L0_024: doors_free, score: plausibility 90 -> 60 (F4 f_L0_018: chaise does not face its group (f_L0_019, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to d_L0_003 (blocked by f_L0_018, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to o_L0_002 (blocked by f_L0_018, f_L0_024); F6 f_L0_018: no 0.9 m walkway from o_L0_001 to o_L0_004 (blocked by f_L0_018, f_L0_024)) | Plan crop shows a long upholstered seat with back along the right wall; as a chaise it complements the existing sofa without creating a second anchor. |
+| 73 | 2 | rotate_piece | f_L0_027 | score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it) | Sideboard was facing the west wall; turn its front to face east into the room. |
+| 74 | 2 | move_piece | f_L0_027 | snap: f_L0_027: no free place on wall w_L0_011 (doors, windows) | Snap the sideboard's back onto the west wall so its front faces into the room. |
+| 75 | 2 | move_piece | f_L0_027 | f_L0_027: inside_room | Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room. |
+| 76 | 2 | move_piece | f_L0_027 | max_tries: f_L0_027 was edited 3 times in this round | Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room. |
+| 91 | 3 | rotate_piece | f_L0_027 | score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it) | Sideboard front was facing the west wall; rotate so its front faces into the room (east) away from the wall. |
+| 92 | 3 | move_piece | f_L0_027 | snap: f_L0_027: no free place on wall w_L0_011 (doors, windows) | Snap the sideboard's back edge onto the west wall so its front faces into the room. |
+| 93 | 3 | move_piece | f_L0_027 | f_L0_027: inside_room | Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room. |
+| 94 | 3 | move_piece | f_L0_027 | max_tries: f_L0_027 was edited 3 times in this round | Nudge the sideboard 1.5 cm west so its back sits flush on the west wall, keeping its front facing into the room. |
+| 110 | 4 | rotate_piece | f_L0_027 | score: plausibility 100 -> 80 (F3 f_L0_027: sideboard: its back is not on a wall (0.10 m off); F4 f_L0_027: sideboard faces a wall 0.02 m in front of it) | Sideboard front was facing the west wall; turn it to face east into the room. |
+| 111 | 4 | move_piece | f_L0_027 | snap: f_L0_027: no free place on wall w_L0_011 (doors, windows) | Snap the sideboard's back onto the west wall so its front faces into the room. |
+| 112 | 4 | move_piece | f_L0_027 | f_L0_027: inside_room | Nudge the sideboard 2 cm west so its back sits flush on the west wall, keeping its front facing into the room. |
+| 113 | 4 | move_piece | f_L0_027 | max_tries: f_L0_027 was edited 3 times in this round | Nudge the sideboard 1.5 cm west so its back sits on the west wall, keeping its front facing into the room. |
+| 114 | 4 | rotate_piece | f_L0_017 | f_L0_017: clearance_ok, score: plausibility 100 -> 60 (F3 f_L0_017: sofa: its back is not on a wall (0.57 m off); F4 f_L0_017: sofa faces a wall 0.18 m in front of it; F4 f_L0_024: tv_unit stands behind the back of f_L0_017, looking at it; F6 f_L0_017: sofa: the free zone in front of it is reaches out of the room) | Turn the sofa so its front faces the TV unit on the opposite wall instead of the window wall. |
+| 115 | 4 | move_piece | f_L0_017 | drawn_lock: f_L0_017: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.84 m) | Pull the sofa off the window wall into the room so it can be turned to face the TV unit. |
+| 116 | 4 | move_piece | f_L0_017 | f_L0_017: clearance_ok, f_L0_020: doors_free, score: plausibility 100 -> 60 (F6 f_L0_020: no 0.9 m walkway from o_L0_001 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from d_L0_003 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from o_L0_002 to win_L0_002 (blocked by f_L0_020); F6 f_L0_020: no 0.9 m walkway from o_L0_004 to win_L0_002 (blocked by f_L0_020)) | Nudge the sofa slightly off the window wall within the drawn-piece limit to improve its facing. |
+
+### Inferred and AI-changed items
+
+| id | kind | type | room | labels | reason |
+|---|---|---|---|---|---|
+| f_L0_006 | piece | nightstand | r_L0_bed_room_2 | inferred | - |
+| f_L0_008 | piece | nightstand | r_L0_bed_room | adjusted_by_ai | Snap the nightstand's back onto the west wall to clear the 0.05 m wall in front and the 0.16 m back gap. |
+| f_L0_017 | piece | sofa | r_L0_drawing_room | adjusted_by_ai | Sofa seat faces north toward the coffee table and TV unit, away from the window wall, per the plan crop showing cushions up. |
+| f_L0_018 | piece | unknown | r_L0_drawing_room | adjusted_by_ai | The drawn box is a duplicate of the already-placed sofa f_L0_017 (identical 1.90x0.70 m footprint, same seat height); the room already has its sofa anchor, and keeping it blocks all door walkways. |
+| f_L0_023 | piece | nightstand | r_L0_bed_room | adjusted_by_ai | Shift the AI nightstand up along the west wall to keep the 0.9 m door walkway clear while staying close to the wall. |
+| f_L0_024 | piece | tv_unit | r_L0_drawing_room | adjusted_by_ai | Move the tv_unit to the north wall so its front faces the sofa group (f_L0_017) and it no longer blocks the coffee table. |
+
+### Before and after (previews of the re-rendered views)
+
+| round | view | before | after |
+|---|---|---|---|
+| 1 | cam_r_L0_bed_room_1 | ![](agent/r1_cam_r_L0_bed_room_1_before.jpg) | ![](agent/r1_cam_r_L0_bed_room_1_after.jpg) |
+| 1 | cam_r_L0_bed_room_2 | ![](agent/r1_cam_r_L0_bed_room_2_before.jpg) | ![](agent/r1_cam_r_L0_bed_room_2_after.jpg) |
+| 1 | cam_r_L0_bed_room_3 | ![](agent/r1_cam_r_L0_bed_room_3_before.jpg) | ![](agent/r1_cam_r_L0_bed_room_3_after.jpg) |
+| 1 | cam_r_L0_drawing_room_1 | ![](agent/r1_cam_r_L0_drawing_room_1_before.jpg) | ![](agent/r1_cam_r_L0_drawing_room_1_after.jpg) |
+| 1 | cam_r_L0_drawing_room_2 | ![](agent/r1_cam_r_L0_drawing_room_2_before.jpg) | ![](agent/r1_cam_r_L0_drawing_room_2_after.jpg) |
+| 1 | cam_r_L0_drawing_room_3 | ![](agent/r1_cam_r_L0_drawing_room_3_before.jpg) | ![](agent/r1_cam_r_L0_drawing_room_3_after.jpg) |
+| 2 | cam_r_L0_drawing_room_1 | ![](agent/r2_cam_r_L0_drawing_room_1_before.jpg) | ![](agent/r2_cam_r_L0_drawing_room_1_after.jpg) |
+| 2 | cam_r_L0_drawing_room_2 | ![](agent/r2_cam_r_L0_drawing_room_2_before.jpg) | ![](agent/r2_cam_r_L0_drawing_room_2_after.jpg) |
+| 2 | cam_r_L0_drawing_room_3 | ![](agent/r2_cam_r_L0_drawing_room_3_before.jpg) | ![](agent/r2_cam_r_L0_drawing_room_3_after.jpg) |
+| 3 | cam_r_L0_drawing_room_1 | ![](agent/r3_cam_r_L0_drawing_room_1_before.jpg) | ![](agent/r3_cam_r_L0_drawing_room_1_after.jpg) |
+| 3 | cam_r_L0_drawing_room_2 | ![](agent/r3_cam_r_L0_drawing_room_2_before.jpg) | ![](agent/r3_cam_r_L0_drawing_room_2_after.jpg) |
+| 3 | cam_r_L0_drawing_room_3 | ![](agent/r3_cam_r_L0_drawing_room_3_before.jpg) | ![](agent/r3_cam_r_L0_drawing_room_3_after.jpg) |
+
+### Old pipeline vs orchestrator
+
+Not made yet: the images of both runs come from the pods (`orchestrator/compare.json`).
 
 ## Warnings
 
 - no brief.yaml in /workspace/repo/projects/real01: every brief value is a default
+- cam_r_L0_room_2: in the polish manifest but not in the render manifest (an earlier run's camera; not a view of this report)
+- cam_r_L0_room_3: in the polish manifest but not in the render manifest (an earlier run's camera; not a view of this report)
+- final/cam_r_L0_room_2_final_preview.jpg is from an earlier run (not part of this report)
+- final/cam_r_L0_room_3_final_preview.jpg is from an earlier run (not part of this report)
+- final/cam_r_L0_room_2_plan.jpg is from an earlier run (not part of this report)
+- final/cam_r_L0_room_3_plan.jpg is from an earlier run (not part of this report)

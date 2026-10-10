@@ -1,6 +1,6 @@
 # Furniture fit report: building_final
 
-Project: real01; 28 pieces, 19 library fits, 9 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
+Project: real01; 27 pieces, 19 library fits, 8 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
 
 Library style filter: family 'scandinavian' (the profile's family, outputs/real01/style.json): library models only when their styles hold 'scandinavian' or 'neutral'
 
@@ -11,7 +11,7 @@ Library style filter: family 'scandinavian' (the profile's family, outputs/real0
 | f_L0_003 | r_L0_room | stair | from_documents | verified | 2.44 x 1.53 | parametric | parametric:stair | n/a | 1.000 / 1.000 / 1.000 | - | 3.17 |
 | f_L0_004 | r_L0_bed_room_2 | bed_double | from_documents | verified | 1.78 x 2.03 | library | abo_B071FJR4FW | CC-BY-4.0 | 1.093 / 0.962 / 1.027 | 0.128 | 1.46 |
 | f_L0_005 | r_L0_bed_room_2 | nightstand | from_documents | verified | 0.50 x 0.49 | library | abo_B01D3C7Z4A | CC-BY-4.0 | 1.159 / 1.164 / 1.161 | 0.005 | 0.71 |
-| f_L0_006 | r_L0_bed_room_2 | unknown | from_documents | unverified | 0.50 x 0.45 | parametric | parametric:unknown | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
+| f_L0_006 | r_L0_bed_room_2 | nightstand | from_documents | unverified | 0.50 x 0.45 | library | side_table_01 | CC0 | 0.901 / 0.990 / 0.946 | 0.094 | 0.52 |
 | f_L0_007 | r_L0_bed_room | bed_double | from_documents | verified | 1.78 x 2.03 | library | abo_B071FJR4FW | CC-BY-4.0 | 1.093 / 0.962 / 1.027 | 0.128 | 1.46 |
 | f_L0_008 | r_L0_bed_room | nightstand | from_documents | verified | 0.50 x 0.49 | library | abo_B01D3C7Z4A | CC-BY-4.0 | 1.159 / 1.161 / 1.160 | 0.002 | 0.71 |
 | f_L0_009 | r_L0_bed_room | unknown | from_documents | unverified | 0.50 x 0.45 | parametric | parametric:unknown | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
@@ -30,22 +30,20 @@ Library style filter: family 'scandinavian' (the profile's family, outputs/real0
 | f_L0_022 | r_L0_bath_toilet | washbasin | added_by_ai | verified | 0.60 x 0.45 | library | gen_washbasin_japandi_1_299a0eb2 | generated (TRELLIS.2-4B, MIT) | 0.947 / 0.923 / 0.935 | 0.026 | 0.60 |
 | f_L0_023 | r_L0_bed_room | nightstand | added_by_ai | verified | 0.60 x 0.45 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 1.072 / 1.023 / 1.047 | 0.047 | 0.49 |
 | f_L0_024 | r_L0_drawing_room | tv_unit | added_by_ai | verified | 1.60 x 0.45 | parametric | parametric:tv_unit | n/a | 1.000 / 1.000 / 1.000 | - | 0.50 |
-| f_L0_025 | r_L0_bed_room_2 | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
-| f_L0_026 | r_L0_kitchen | tall_cabinet | added_by_ai | verified | 0.60 x 0.60 | library | abo_B07H8VCDWP | CC-BY-4.0 | 1.177 / 1.334 / 1.255 | 0.126 | 2.46 |
-| f_L0_027 | r_L0_kitchen | wall_cabinet | added_by_ai | verified | 0.76 x 0.35 | parametric | parametric:wall_cabinet | n/a | 1.000 / 1.000 / 1.000 | - | 0.70 |
-| f_L0_028 | r_L0_dining | sideboard | added_by_ai | verified | 1.60 x 0.45 | library | abo_B07RP1SS3S | CC-BY-4.0 | 1.000 / 1.000 / 1.000 | 0.000 | 0.87 |
+| f_L0_025 | r_L0_kitchen | tall_cabinet | added_by_ai | verified | 0.60 x 0.60 | library | abo_B07H8VCDWP | CC-BY-4.0 | 1.177 / 1.334 / 1.255 | 0.126 | 2.46 |
+| f_L0_026 | r_L0_kitchen | wall_cabinet | added_by_ai | verified | 0.76 x 0.35 | parametric | parametric:wall_cabinet | n/a | 1.000 / 1.000 / 1.000 | - | 0.70 |
+| f_L0_027 | r_L0_dining | sideboard | added_by_ai | verified | 1.60 x 0.45 | library | abo_B07RP1SS3S | CC-BY-4.0 | 1.000 / 1.000 / 1.000 | 0.000 | 0.87 |
 
 ## Parametric fallbacks
 
 - f_L0_001 (kitchen_counter): type kitchen_counter is parametric in the catalogue
 - f_L0_002 (kitchen_counter): type kitchen_counter is parametric in the catalogue
 - f_L0_003 (stair): type stair is parametric in the catalogue
-- f_L0_006 (unknown): type unknown is parametric in the catalogue
 - f_L0_009 (unknown): type unknown is parametric in the catalogue
 - f_L0_018 (unknown): type unknown is parametric in the catalogue
 - f_L0_021 (toilet): no model for style scandinavian
 - f_L0_024 (tv_unit): no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B075Z1NM5W at 18.4 % non-uniform, mean scale 0.9844)
-- f_L0_027 (wall_cabinet): type wall_cabinet is parametric in the catalogue
+- f_L0_026 (wall_cabinet): type wall_cabinet is parametric in the catalogue
 
 ## Library assets and licences
 
@@ -54,12 +52,13 @@ Library style filter: family 'scandinavian' (the profile's family, outputs/real0
 - abo_B07B82PXD8 (abo, CC-BY-4.0) x 1
 - abo_B07H8VCDWP (abo, CC-BY-4.0) x 1
 - abo_B07K7K7GKC (abo, CC-BY-4.0) x 6
-- abo_B07K7K7GTZ (abo, CC-BY-4.0) x 2
+- abo_B07K7K7GTZ (abo, CC-BY-4.0) x 1
 - abo_B07K9PMZJL (abo, CC-BY-4.0) x 1
 - abo_B07QFB1TLZ (abo, CC-BY-4.0) x 1
 - abo_B07RP1SS3S (abo, CC-BY-4.0) x 1
 - gen_washbasin_japandi_1_299a0eb2 (generated, generated (TRELLIS.2-4B, MIT)) x 1
 - objaverse_53409613b45b42b98b979f12ab8faa12 (objaverse, CC-BY-4.0) x 1
+- side_table_01 (polyhaven, CC0) x 1
 
 ## Ranking (fit v2)
 
@@ -67,6 +66,7 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 
 - f_L0_004 (bed_double): abo_B071FJR4FW (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.053 (step 1); quality 3; aspect error 0.128; source abo
 - f_L0_005 (nightstand): abo_B01D3C7Z4A (abo), rank 5 of 5 tried: real size: mean |scale - 1| 0.162 (step 3); quality 3; aspect error 0.005; source abo; passed over side_table_01, abo_B07K7K7GTZ, abo_B07QD6TXWS, abo_B07VB7Q6W7 (caps)
+- f_L0_006 (nightstand): side_table_01 (polyhaven), rank 1 of 1 tried: real size: mean |scale - 1| 0.054 (step 1); quality 3; aspect error 0.094; source polyhaven
 - f_L0_007 (bed_double): abo_B071FJR4FW (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.053 (step 1); quality 3; aspect error 0.128; source abo
 - f_L0_008 (nightstand): abo_B01D3C7Z4A (abo), rank 5 of 5 tried: real size: mean |scale - 1| 0.160 (step 3); quality 3; aspect error 0.002; source abo; passed over side_table_01, abo_B07K7K7GTZ, abo_B07QD6TXWS, abo_B07VB7Q6W7 (caps)
 - f_L0_010 (table_dining): abo_B07B82PXD8 (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.072 (step 1); quality 3; aspect error 0.093; source abo
@@ -81,9 +81,8 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - f_L0_020 (floor_lamp): objaverse_53409613b45b42b98b979f12ab8faa12 (objaverse), rank 3 of 3 tried: units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.000; source objaverse; passed over abo_B07B4ZK8BR, abo_B073P3S1NX (caps)
 - f_L0_022 (washbasin): gen_washbasin_japandi_1_299a0eb2 (generated), rank 2 of 2 tried: generated: no other library model passed the caps; units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.026; source generated; passed over objaverse_8580c4545d1649efb3503c6c2a012641 (caps)
 - f_L0_023 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.047 (step 0); quality 3; aspect error 0.047; source abo
-- f_L0_025 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
-- f_L0_026 (tall_cabinet): abo_B07H8VCDWP (abo), rank 3 of 3 tried: real size: mean |scale - 1| 0.255 (step 5); quality 3; aspect error 0.126; source abo; passed over abo_B07JH147WS, abo_B07H8PQC9V (caps)
-- f_L0_028 (sideboard): abo_B07RP1SS3S (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.000 (step 0); quality 3; aspect error 0.000; source abo
+- f_L0_025 (tall_cabinet): abo_B07H8VCDWP (abo), rank 3 of 3 tried: real size: mean |scale - 1| 0.255 (step 5); quality 3; aspect error 0.126; source abo; passed over abo_B07JH147WS, abo_B07H8PQC9V (caps)
+- f_L0_027 (sideboard): abo_B07RP1SS3S (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.000 (step 0); quality 3; aspect error 0.000; source abo
 
 ## Models not taken (mattress rule, style filter, design)
 
@@ -115,6 +114,19 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - f_L0_005: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_005: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_005: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
+- f_L0_006: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_006: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_006: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_006: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
 - f_L0_007: GothicBed_01: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_007: abo_B0154VUESC: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_007: abo_B01M0ZVGCQ: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
@@ -362,36 +374,23 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - f_L0_024: abo_B07QB8DQ45: styles ['japandi', 'modern'] include neither scandinavian nor neutral
 - f_L0_024: abo_B07QF9QCZ1: styles ['japandi'] include neither scandinavian nor neutral
 - f_L0_024: abo_B07SB8WWHD: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
-- f_L0_025: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L0_025: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_025: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
-- f_L0_025: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_025: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_025: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_025: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_025: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
-- f_L0_025: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
-- f_L0_025: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
-- f_L0_025: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
-- f_L0_025: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
-- f_L0_025: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
-- f_L0_026: gen_tall_cabinet_classic_3_879ecbf5: styles ['classic'] include neither scandinavian nor neutral
-- f_L0_026: gen_tall_cabinet_industrial_1_9054f861: styles ['industrial'] include neither scandinavian nor neutral
-- f_L0_026: gen_tall_cabinet_industrial_3_8656669b: styles ['industrial'] include neither scandinavian nor neutral
-- f_L0_028: abo_B007IHF36E: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_028: abo_B075YQ8Q3T: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_028: abo_B075Z8628K: styles ['japandi', 'modern'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07B77VXN8: styles ['modern', 'industrial'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07B78G1BW: styles ['japandi', 'modern'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07B79WSKT: styles ['modern'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07B7B94L2: styles ['japandi', 'modern'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07B813LW1: styles ['japandi', 'modern minimal', 'minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07HSBD8DM: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07HSF15FW: styles ['industrial'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07HSJY7CY: styles ['industrial', 'rustic'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07JFGPVZD: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07QGG1YGZ: styles ['japandi', 'modern minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L0_028: abo_B07RMJSGS7: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_025: gen_tall_cabinet_classic_3_879ecbf5: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_025: gen_tall_cabinet_industrial_1_9054f861: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_025: gen_tall_cabinet_industrial_3_8656669b: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_027: abo_B007IHF36E: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_027: abo_B075YQ8Q3T: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_027: abo_B075Z8628K: styles ['japandi', 'modern'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07B77VXN8: styles ['modern', 'industrial'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07B78G1BW: styles ['japandi', 'modern'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07B79WSKT: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07B7B94L2: styles ['japandi', 'modern'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07B813LW1: styles ['japandi', 'modern minimal', 'minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07HSBD8DM: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07HSF15FW: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07HSJY7CY: styles ['industrial', 'rustic'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07JFGPVZD: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07QGG1YGZ: styles ['japandi', 'modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_027: abo_B07RMJSGS7: styles ['modern'] include neither scandinavian nor neutral
 
 ## Attribution (CC BY 4.0)
 
@@ -432,10 +431,9 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - cushion: abo_B07BMTNH22 x 2
 - cushion: abo_B07M6PJ4LX x 2
 - mirror: abo_B07RNMMYNR x 1
-- pendant_light: abo_B07374K537 x 2
+- pendant_light: abo_B07374K537 x 3
 - pendant_light: abo_B082JH6PRL x 1
-- plant: gen_potted_plant_modern_minimal_1_6b4ad5f1 x 1
-- plant: gen_potted_plant_scandinavian_2_98f7bbd2 x 1
+- plant: gen_potted_plant_modern_minimal_1_6b4ad5f1 x 2
 - plant_small: gen_plant_small_scandinavian_2_20075b95 x 1
 - rug: abo_B0714MJKX2 x 1
 - rug: abo_B0719STF79 x 1

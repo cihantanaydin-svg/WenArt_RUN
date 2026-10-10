@@ -1,13 +1,13 @@
 # Furniture fit report: building_final
 
-Project: synthetic-01; 39 pieces, 23 library fits, 16 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
+Project: synthetic-01; 41 pieces, 28 library fits, 13 parametric fallbacks. Non-uniform scale cap 15 %. Footprints, types, rotations, rooms and statuses are as in the building JSON (fitting never changes them).
 
 Library style filter: family 'scandinavian' (the profile's family, outputs/synthetic-01/style.json): library models only when their styles hold 'scandinavian' or 'neutral'
 
 | piece | room | type | source | status | footprint w x d (m) | method | asset | licence | scale x / y / z | aspect err | height (m) |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | f_L0_001 | r_L0_salon | sofa | from_documents | verified | 2.20 x 0.90 | library | abo_B07K9PMZJL | CC-BY-4.0 | 1.117 / 1.085 / 1.101 | 0.029 | 0.91 |
-| f_L0_002 | r_L0_salon | table_coffee | from_documents | verified | 1.00 x 0.60 | parametric | parametric:table_coffee | n/a | 1.000 / 1.000 / 1.000 | - | 0.45 |
+| f_L0_002 | r_L0_salon | table_coffee | from_documents | verified | 1.00 x 0.60 | library | abo_B07GDYVV9M | CC-BY-4.0 | 0.992 / 0.998 / 0.995 | 0.005 | 0.36 |
 | f_L0_003 | r_L0_salon | tv_unit | from_documents | verified | 1.60 x 0.45 | parametric | parametric:tv_unit | n/a | 1.000 / 1.000 / 1.000 | - | 0.50 |
 | f_L0_004 | r_L0_salon | armchair | from_documents | verified | 0.90 x 0.90 | library | abo_B075X4N3GM | CC-BY-4.0 | 0.970 / 1.067 / 1.018 | 0.096 | 0.79 |
 | f_L0_005 | r_L0_salon | bookshelf | from_documents | verified | 1.00 x 0.35 | library | wooden_display_shelves_01 | CC0 | 0.928 / 0.942 / 0.935 | 0.015 | 1.46 |
@@ -19,72 +19,78 @@ Library style filter: family 'scandinavian' (the profile's family, outputs/synth
 | f_L0_011 | r_L0_banyo | washbasin | from_documents | verified | 0.60 x 0.45 | library | gen_washbasin_japandi_1_299a0eb2 | generated (TRELLIS.2-4B, MIT) | 0.947 / 0.923 / 0.935 | 0.026 | 0.60 |
 | f_L0_012 | r_L0_banyo | shower | from_documents | verified | 0.90 x 0.90 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
 | f_L0_013 | r_L0_banyo | washing_machine | from_documents | verified | 0.60 x 0.60 | parametric | parametric:washing_machine | n/a | 1.000 / 1.000 / 1.000 | - | 0.85 |
-| f_L0_014 | r_L0_hol | dresser | added_by_ai | verified | 1.00 x 0.45 | library | abo_B07FFWSBBF | CC-BY-4.0 | 0.984 / 0.984 / 0.984 | 0.000 | 1.20 |
+| f_L0_014 | r_L0_hol | console_table | added_by_ai | verified | 0.90 x 0.30 | library | abo_B00BBDF500 | CC-BY-4.0 | 1.000 / 0.883 / 0.941 | 0.125 | 0.69 |
 | f_L0_015 | r_L0_mutfak | kitchen_counter | added_by_ai | verified | 3.00 x 0.60 | parametric | parametric:kitchen_counter | n/a | 1.000 / 1.000 / 1.000 | - | 0.90 |
 | f_L0_016 | r_L0_mutfak | sink_kitchen | added_by_ai | verified | 0.60 x 0.50 | parametric | parametric:sink_kitchen | n/a | 1.000 / 1.000 / 1.000 | - | 1.15 |
-| f_L0_017 | r_L0_mutfak | stove | added_by_ai | verified | 0.60 x 0.60 | parametric | parametric:stove | n/a | 1.000 / 1.000 / 1.000 | - | 0.91 |
-| f_L0_018 | r_L0_mutfak | fridge | added_by_ai | verified | 0.70 x 0.70 | parametric | parametric:fridge | n/a | 1.000 / 1.000 / 1.000 | - | 1.80 |
-| f_L0_019 | r_L0_mutfak | table_dining | added_by_ai | verified | 1.20 x 0.80 | library | abo_B07B82PXCM | CC-BY-4.0 | 0.798 / 0.868 / 0.833 | 0.084 | 0.62 |
+| f_L0_017 | r_L0_mutfak | fridge | added_by_ai | verified | 0.70 x 0.70 | parametric | parametric:fridge | n/a | 1.000 / 1.000 / 1.000 | - | 1.80 |
+| f_L0_018 | r_L0_mutfak | tall_cabinet | added_by_ai | verified | 0.60 x 0.60 | library | abo_B07H8VCDWP | CC-BY-4.0 | 1.177 / 1.334 / 1.255 | 0.126 | 2.46 |
 | f_L1_001 | r_L1_ebeveyn_yatak_odasi | bed_double | added_by_ai | verified | 1.80 x 2.00 | parametric | parametric:bed_double | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
 | f_L1_002 | r_L1_ebeveyn_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
 | f_L1_003 | r_L1_ebeveyn_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
-| f_L1_004 | r_L1_ebeveyn_yatak_odasi | wardrobe | added_by_ai | verified | 1.20 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
+| f_L1_004 | r_L1_ebeveyn_yatak_odasi | wardrobe | added_by_ai | verified | 1.20 x 0.60 | library | objaverse_b46803ba0bc64e12b31f832fb761c4e0 | CC-BY-4.0 | 1.147 / 1.066 / 1.106 | 0.073 | 2.88 |
 | f_L1_005 | r_L1_ebeveyn_yatak_odasi | desk | added_by_ai | verified | 1.20 x 0.60 | library | abo_B01FK3FWNG | CC-BY-4.0 | 1.057 / 0.993 / 1.025 | 0.063 | 0.92 |
-| f_L1_006 | r_L1_hol | dresser | added_by_ai | verified | 1.00 x 0.45 | library | abo_B07FFWSBBF | CC-BY-4.0 | 0.984 / 0.984 / 0.984 | 0.000 | 1.20 |
-| f_L1_007 | r_L1_hol | chair | added_by_ai | verified | 0.45 x 0.45 | library | abo_B0857JM2NC | CC-BY-4.0 | 0.809 / 0.908 / 0.859 | 0.116 | 0.65 |
-| f_L1_008 | r_L1_yatak_odasi | bed_double | added_by_ai | verified | 1.80 x 2.00 | parametric | parametric:bed_double | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
-| f_L1_009 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
-| f_L1_010 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
-| f_L1_011 | r_L1_yatak_odasi | chair | added_by_ai | verified | 0.40 x 0.40 | library | abo_B0857JM2NC | CC-BY-4.0 | 0.719 / 0.808 / 0.763 | 0.116 | 0.58 |
-| f_L1_012 | r_L1_banyo | shower | added_by_ai | verified | 0.90 x 0.90 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
-| f_L1_013 | r_L1_banyo | toilet | added_by_ai | verified | 0.40 x 0.70 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 1.20 |
-| f_L1_014 | r_L1_banyo | washbasin | added_by_ai | verified | 0.60 x 0.45 | library | gen_washbasin_japandi_1_299a0eb2 | generated (TRELLIS.2-4B, MIT) | 0.947 / 0.923 / 0.935 | 0.026 | 0.60 |
-| f_L1_015 | r_L1_banyo | bathtub | added_by_ai | verified | 1.70 x 0.75 | parametric | parametric:bathtub | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
-| f_L1_016 | r_L1_cocuk_odasi | bed_single | added_by_ai | verified | 1.20 x 2.00 | library | objaverse_6eb4212e70b941a3bd2db196a47828b9 | CC-BY-4.0 | 1.078 / 1.113 / 1.096 | 0.033 | 0.76 |
-| f_L1_017 | r_L1_cocuk_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
-| f_L1_018 | r_L1_cocuk_odasi | wardrobe | added_by_ai | verified | 1.20 x 0.60 | parametric | parametric:wardrobe | n/a | 1.000 / 1.000 / 1.000 | - | 2.10 |
-| f_L1_019 | r_L1_cocuk_odasi | chair | added_by_ai | verified | 0.45 x 0.45 | library | abo_B0857JM2NC | CC-BY-4.0 | 0.809 / 0.908 / 0.859 | 0.116 | 0.65 |
-| f_L1_020 | r_L1_cocuk_odasi | bookshelf | added_by_ai | verified | 1.00 x 0.35 | library | wooden_display_shelves_01 | CC0 | 0.928 / 0.942 / 0.935 | 0.015 | 1.46 |
+| f_L1_006 | r_L1_ebeveyn_yatak_odasi | office_chair | added_by_ai | verified | 0.55 x 0.55 | library | abo_B07L3WRJ6R | CC-BY-4.0 | 0.825 / 0.760 / 0.792 | 0.082 | 0.88 |
+| f_L1_007 | r_L1_hol | console_table | added_by_ai | verified | 1.20 x 0.35 | library | abo_B01DA8QZFM | CC-BY-4.0 | 0.968 / 1.001 / 0.984 | 0.033 | 0.72 |
+| f_L1_008 | r_L1_hol | shoe_cabinet | added_by_ai | verified | 0.80 x 0.32 | library | gen_shoe_cabinet_scandinavian_2_66dac02b | generated (TRELLIS.2-4B, MIT) | 0.800 / 0.722 / 0.761 | 0.103 | 0.76 |
+| f_L1_009 | r_L1_hol | bench | added_by_ai | verified | 1.20 x 0.40 | library | abo_B07K8193NL | CC-BY-4.0 | 0.998 / 0.889 / 0.944 | 0.116 | 0.41 |
+| f_L1_010 | r_L1_yatak_odasi | bed_double | added_by_ai | verified | 1.80 x 2.00 | parametric | parametric:bed_double | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
+| f_L1_011 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
+| f_L1_012 | r_L1_yatak_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
+| f_L1_013 | r_L1_banyo | shower | added_by_ai | verified | 0.90 x 0.90 | parametric | parametric:shower | n/a | 1.000 / 1.000 / 1.000 | - | 2.00 |
+| f_L1_014 | r_L1_banyo | toilet | added_by_ai | verified | 0.40 x 0.70 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 1.20 |
+| f_L1_015 | r_L1_banyo | washbasin | added_by_ai | verified | 0.60 x 0.45 | library | gen_washbasin_japandi_1_299a0eb2 | generated (TRELLIS.2-4B, MIT) | 0.947 / 0.923 / 0.935 | 0.026 | 0.60 |
+| f_L1_016 | r_L1_banyo | bathtub | added_by_ai | verified | 1.70 x 0.75 | parametric | parametric:bathtub | n/a | 1.000 / 1.000 / 1.000 | - | 0.75 |
+| f_L1_017 | r_L1_cocuk_odasi | bed_single | added_by_ai | verified | 1.20 x 2.00 | library | objaverse_6eb4212e70b941a3bd2db196a47828b9 | CC-BY-4.0 | 1.078 / 1.113 / 1.096 | 0.033 | 0.76 |
+| f_L1_018 | r_L1_cocuk_odasi | nightstand | added_by_ai | verified | 0.50 x 0.40 | library | abo_B07K7K7GTZ | CC-BY-4.0 | 0.893 / 0.909 / 0.901 | 0.018 | 0.42 |
+| f_L1_019 | r_L1_cocuk_odasi | wardrobe | added_by_ai | verified | 1.20 x 0.60 | library | objaverse_b46803ba0bc64e12b31f832fb761c4e0 | CC-BY-4.0 | 1.147 / 1.066 / 1.106 | 0.073 | 2.88 |
+| f_L1_020 | r_L1_cocuk_odasi | desk | added_by_ai | verified | 1.40 x 0.70 | library | abo_B07TKY3L6X | CC-BY-4.0 | 0.875 / 0.959 / 0.917 | 0.092 | 0.72 |
+| f_L0_019 | r_L0_salon | armchair | added_by_ai | verified | 0.90 x 0.90 | library | abo_B075X4N3GM | CC-BY-4.0 | 0.970 / 1.067 / 1.018 | 0.096 | 0.79 |
+| f_L0_020 | r_L0_salon | console_table | added_by_ai | verified | 1.20 x 0.35 | library | abo_B01DA8QZFM | CC-BY-4.0 | 0.968 / 1.001 / 0.984 | 0.033 | 0.72 |
+| f_L0_021 | r_L0_yatak_odasi | bench | added_by_ai | verified | 1.40 x 0.45 | parametric | parametric:bench | n/a | 1.000 / 1.000 / 1.000 | - | 0.45 |
 
 ## Parametric fallbacks
 
-- f_L0_002 (table_coffee): no table_coffee candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B07GDMBZJJ at 20.2 % non-uniform, mean scale 0.9183)
-- f_L0_003 (tv_unit): no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B00OGP5S98 at 18.5 % non-uniform, mean scale 1.2292)
+- f_L0_003 (tv_unit): no tv_unit candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B075Z1NM5W at 18.4 % non-uniform, mean scale 0.9844)
 - f_L0_010 (toilet): no model for style scandinavian
 - f_L0_012 (shower): no model for style scandinavian
 - f_L0_013 (washing_machine): no model for style scandinavian
 - f_L0_015 (kitchen_counter): type kitchen_counter is parametric in the catalogue
-- f_L0_016 (sink_kitchen): no sink_kitchen candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_sink_kitchen_scandinavian_2_470fa047 at 19.6 % non-uniform, mean scale 0.7672)
-- f_L0_017 (stove): no stove candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: electric_stove at 28.8 % non-uniform, mean scale 1.0601)
-- f_L0_018 (fridge): no model for style scandinavian
+- f_L0_016 (sink_kitchen): no sink_kitchen candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_sink_kitchen_scandinavian_5_b50401d7 at 3.7 % non-uniform, mean scale 0.7408)
+- f_L0_017 (fridge): no model for style scandinavian
 - f_L1_001 (bed_double): no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B071FJR4FW at 16.6 % non-uniform, mean scale 1.0266)
-- f_L1_004 (wardrobe): no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B07GFRKNR1 at 16.5 % non-uniform, mean scale 1.1257)
-- f_L1_008 (bed_double): no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B071FJR4FW at 16.6 % non-uniform, mean scale 1.0266)
-- f_L1_012 (shower): no model for style scandinavian
-- f_L1_013 (toilet): no model for style scandinavian
-- f_L1_015 (bathtub): no model for style scandinavian
-- f_L1_018 (wardrobe): no wardrobe candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B07GFRKNR1 at 16.5 % non-uniform, mean scale 1.1257)
+- f_L1_010 (bed_double): no bed_double candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B071FJR4FW at 16.6 % non-uniform, mean scale 1.0266)
+- f_L1_013 (shower): no model for style scandinavian
+- f_L1_014 (toilet): no model for style scandinavian
+- f_L1_016 (bathtub): no model for style scandinavian
+- f_L0_021 (bench): no bench candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: abo_B07K8193NL at 16.4 % non-uniform, mean scale 1.0826)
 
 ## Library assets and licences
 
+- abo_B00BBDF500 (abo, CC-BY-4.0) x 1
+- abo_B01DA8QZFM (abo, CC-BY-4.0) x 2
 - abo_B01FK3FWNG (abo, CC-BY-4.0) x 1
 - abo_B071FJR4FW (abo, CC-BY-4.0) x 1
-- abo_B075X4N3GM (abo, CC-BY-4.0) x 1
-- abo_B07B82PXCM (abo, CC-BY-4.0) x 1
-- abo_B07FFWSBBF (abo, CC-BY-4.0) x 2
+- abo_B075X4N3GM (abo, CC-BY-4.0) x 2
+- abo_B07GDYVV9M (abo, CC-BY-4.0) x 1
+- abo_B07H8VCDWP (abo, CC-BY-4.0) x 1
 - abo_B07JGPKZYT (abo, CC-BY-4.0) x 1
 - abo_B07K7K7GTZ (abo, CC-BY-4.0) x 7
+- abo_B07K8193NL (abo, CC-BY-4.0) x 1
 - abo_B07K9PMZJL (abo, CC-BY-4.0) x 1
-- abo_B0857JM2NC (abo, CC-BY-4.0) x 3
+- abo_B07L3WRJ6R (abo, CC-BY-4.0) x 1
+- abo_B07TKY3L6X (abo, CC-BY-4.0) x 1
+- gen_shoe_cabinet_scandinavian_2_66dac02b (generated, generated (TRELLIS.2-4B, MIT)) x 1
 - gen_washbasin_japandi_1_299a0eb2 (generated, generated (TRELLIS.2-4B, MIT)) x 2
 - objaverse_6eb4212e70b941a3bd2db196a47828b9 (objaverse, CC-BY-4.0) x 1
-- wooden_display_shelves_01 (polyhaven, CC0) x 2
+- objaverse_b46803ba0bc64e12b31f832fb761c4e0 (objaverse, CC-BY-4.0) x 2
+- wooden_display_shelves_01 (polyhaven, CC0) x 1
 
 ## Ranking (fit v2)
 
 Rule: style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated).
 
 - f_L0_001 (sofa): abo_B07K9PMZJL (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.101 (step 2); quality 3; aspect error 0.029; source abo
+- f_L0_002 (table_coffee): abo_B07GDYVV9M (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.005 (step 0); quality 3; aspect error 0.005; source abo
 - f_L0_004 (armchair): abo_B075X4N3GM (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.039 (step 0); quality 3; aspect error 0.096; source abo
 - f_L0_005 (bookshelf): wooden_display_shelves_01 (polyhaven), rank 1 of 1 tried: real size: mean |scale - 1| 0.065 (step 1); quality 3; aspect error 0.015; source polyhaven
 - f_L0_006 (bed_double): abo_B071FJR4FW (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.035 (step 0); quality 3; aspect error 0.036; source abo
@@ -92,256 +98,669 @@ Rule: style -> bed rule -> generated last -> real size (known units first, mean 
 - f_L0_008 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
 - f_L0_009 (wardrobe): abo_B07JGPKZYT (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.018 (step 0); quality 3; aspect error 0.039; source abo
 - f_L0_011 (washbasin): gen_washbasin_japandi_1_299a0eb2 (generated), rank 2 of 2 tried: generated: no other library model passed the caps; units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.026; source generated; passed over objaverse_8580c4545d1649efb3503c6c2a012641 (caps)
-- f_L0_014 (dresser): abo_B07FFWSBBF (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.016 (step 0); quality 3; aspect error 0.000; source abo
-- f_L0_019 (table_dining): abo_B07B82PXCM (abo), rank 4 of 4 tried: real size: mean |scale - 1| 0.167 (step 3); quality 3; aspect error 0.084; source abo; passed over abo_B07B82PXD8, abo_B07B82WF6G, abo_B0853Q71J6 (caps)
+- f_L0_014 (console_table): abo_B00BBDF500 (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.059 (step 1); quality 3; aspect error 0.125; source abo
+- f_L0_018 (tall_cabinet): abo_B07H8VCDWP (abo), rank 3 of 3 tried: real size: mean |scale - 1| 0.255 (step 5); quality 3; aspect error 0.126; source abo; passed over abo_B07JH147WS, abo_B07H8PQC9V (caps)
 - f_L1_002 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
 - f_L1_003 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
+- f_L1_004 (wardrobe): objaverse_b46803ba0bc64e12b31f832fb761c4e0 (objaverse), rank 8 of 8 tried: units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.073; source objaverse; passed over abo_B07GFRKNR1, abo_B07H8V7P3H, abo_B07B3XXD3P, abo_B07GFS1VB6, abo_B07JGPKZYT, abo_B07H8JN9QF, abo_B07H8PS4FZ (caps)
 - f_L1_005 (desk): abo_B01FK3FWNG (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.030 (step 0); quality 3; aspect error 0.063; source abo
-- f_L1_006 (dresser): abo_B07FFWSBBF (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.016 (step 0); quality 3; aspect error 0.000; source abo
-- f_L1_007 (chair): abo_B0857JM2NC (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.141 (step 2); quality 3; aspect error 0.116; source abo
-- f_L1_009 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
-- f_L1_010 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
-- f_L1_011 (chair): abo_B0857JM2NC (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.237 (step 4); quality 3; aspect error 0.116; source abo
-- f_L1_014 (washbasin): gen_washbasin_japandi_1_299a0eb2 (generated), rank 2 of 2 tried: generated: no other library model passed the caps; units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.026; source generated; passed over objaverse_8580c4545d1649efb3503c6c2a012641 (caps)
-- f_L1_016 (bed_single): objaverse_6eb4212e70b941a3bd2db196a47828b9 (objaverse), rank 4 of 4 tried: units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.033; source objaverse; passed over abo_B07H8V7MQS, abo_B07H8V14CZ, abo_B0856FL9HR (caps)
-- f_L1_017 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
-- f_L1_019 (chair): abo_B0857JM2NC (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.141 (step 2); quality 3; aspect error 0.116; source abo
-- f_L1_020 (bookshelf): wooden_display_shelves_01 (polyhaven), rank 1 of 1 tried: real size: mean |scale - 1| 0.065 (step 1); quality 3; aspect error 0.015; source polyhaven
+- f_L1_006 (office_chair): abo_B07L3WRJ6R (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.208 (step 4); quality 3; aspect error 0.082; source abo
+- f_L1_007 (console_table): abo_B01DA8QZFM (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.016 (step 0); quality 3; aspect error 0.033; source abo
+- f_L1_008 (shoe_cabinet): gen_shoe_cabinet_scandinavian_2_66dac02b (generated), rank 5 of 5 tried: generated: no other library model passed the caps; units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.103; source generated; passed over abo_B07K7YMBNY, abo_B07GFS1R7X, abo_B07TVN114C, abo_B07GFDZVYY (caps)
+- f_L1_009 (bench): abo_B07K8193NL (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.056 (step 1); quality 3; aspect error 0.116; source abo
+- f_L1_011 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
+- f_L1_012 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
+- f_L1_015 (washbasin): gen_washbasin_japandi_1_299a0eb2 (generated), rank 2 of 2 tried: generated: no other library model passed the caps; units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.026; source generated; passed over objaverse_8580c4545d1649efb3503c6c2a012641 (caps)
+- f_L1_017 (bed_single): objaverse_6eb4212e70b941a3bd2db196a47828b9 (objaverse), rank 4 of 4 tried: units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.033; source objaverse; passed over abo_B07H8V7MQS, abo_B07H8V14CZ, abo_B0856FL9HR (caps)
+- f_L1_018 (nightstand): abo_B07K7K7GTZ (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.099 (step 1); quality 3; aspect error 0.018; source abo
+- f_L1_019 (wardrobe): objaverse_b46803ba0bc64e12b31f832fb761c4e0 (objaverse), rank 8 of 8 tried: units not known (normalised by type): ranked after the real-size models; quality 3; aspect error 0.073; source objaverse; passed over abo_B07GFRKNR1, abo_B07H8V7P3H, abo_B07B3XXD3P, abo_B07GFS1VB6, abo_B07JGPKZYT, abo_B07H8JN9QF, abo_B07H8PS4FZ (caps)
+- f_L1_020 (desk): abo_B07TKY3L6X (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.083 (step 1); quality 3; aspect error 0.092; source abo
+- f_L0_019 (armchair): abo_B075X4N3GM (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.039 (step 0); quality 3; aspect error 0.096; source abo
+- f_L0_020 (console_table): abo_B01DA8QZFM (abo), rank 1 of 1 tried: real size: mean |scale - 1| 0.016 (step 0); quality 3; aspect error 0.033; source abo
 
-## Models not taken (mattress rule and style filter)
+## Models not taken (mattress rule, style filter, design)
 
 - f_L0_001: sofa_02: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_001: Sofa_01: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_001: sofa_03: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_001: abo_B0714QGC72: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_001: abo_B071FMSSWB: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_001: abo_B071J7Q3J4: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_001: abo_B072555T67: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_001: abo_B07263589M: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_001: abo_B075X2WNRP: styles ['modern'] include neither scandinavian nor neutral
 - f_L0_001: abo_B075X2X4GY: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_001: abo_B075X4JB3K: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_001: abo_B07B4FW7H5: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_001: abo_B07BWJCBY2: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_001: abo_B07HZ5P7P9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_001: abo_B07HZ6GJC2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_001: abo_B07HZ6HHFF: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_001: abo_B07HZ6X7ZF: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_001: abo_B07HZ72L2H: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_002: CoffeeTable_01: styles ['classic', 'rustic'] include neither scandinavian nor neutral
 - f_L0_002: modern_coffee_table_01: styles ['modern'] include neither scandinavian nor neutral
 - f_L0_002: modern_coffee_table_02: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_002: abo_B072ZK2FZ6: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_002: abo_B074KLRCPW: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_002: abo_B075ZBVZPB: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_002: abo_B07DBFQV23: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_002: abo_B07L8DT2XT: styles ['japandi', 'modern minimal', 'minimal', 'modern', 'industrial'] include neither scandinavian nor neutral
 - f_L0_002: abo_B07QF9Y71V: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_002: abo_B07SQ9P548: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_002: objaverse_01ff88bfc0034211b9f4996d620bc333: styles ['japandi', 'modern minimal', 'minimal', 'modern', 'industrial', 'rustic'] include neither scandinavian nor neutral
+- f_L0_002: objaverse_956a47ccc1a54a40a8711f3852d54433: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_002: objaverse_bbe1d47c0d714884a66c53d6c1e5d177: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_002: objaverse_c17577daa87849d09960669606c0ce27: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_002: objaverse_f4031bb5f7e64ebca4c37d4fa5ba6e8d: styles ['classic', 'rustic'] include neither scandinavian nor neutral
 - f_L0_003: modern_wooden_cabinet: styles ['modern', 'modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_003: WoodenTable_03: styles ['industrial', 'rustic'] include neither scandinavian nor neutral
+- f_L0_003: abo_B01DA8QJYO: styles ['japandi'] include neither scandinavian nor neutral
+- f_L0_003: abo_B072ZMT5SD: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_003: abo_B072ZNMKGM: styles ['japandi', 'modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_003: abo_B075Z8KX9N: styles ['japandi', 'rustic'] include neither scandinavian nor neutral
+- f_L0_003: abo_B07B7J5BC2: styles ['modern minimal'] include neither scandinavian nor neutral
 - f_L0_003: abo_B07B8FN8TP: styles ['classic', 'rustic'] include neither scandinavian nor neutral
+- f_L0_003: abo_B07B8RYY41: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_003: abo_B07BVHKPFS: styles ['japandi', 'modern'] include neither scandinavian nor neutral
+- f_L0_003: abo_B07C9YVDHJ: styles ['modern'] include neither scandinavian nor neutral
 - f_L0_003: abo_B07DYV7WNN: styles ['japandi', 'rustic'] include neither scandinavian nor neutral
 - f_L0_003: abo_B07HSG5DGP: styles ['japandi', 'modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_003: abo_B07JGPKSBB: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_003: abo_B07QB8DQ45: styles ['japandi', 'modern'] include neither scandinavian nor neutral
+- f_L0_003: abo_B07QF9QCZ1: styles ['japandi'] include neither scandinavian nor neutral
+- f_L0_003: abo_B07SB8WWHD: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_004: ArmChair_01: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_004: modern_arm_chair_01: styles ['modern', 'modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_004: mid_century_lounge_chair: styles ['modern'] include neither scandinavian nor neutral
 - f_L0_004: abo_B0719WQGYJ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_004: abo_B071FMSYCH: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_004: abo_B072PZ4LQ2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_004: abo_B0746KJVP2: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_004: abo_B075X2WN36: styles ['modern'] include neither scandinavian nor neutral
 - f_L0_004: abo_B075X467QG: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_004: abo_B075X4N3J5: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_004: abo_B07B4MSP7T: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_004: abo_B07DBDQJRF: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_004: abo_B07HZ9K9PG: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_004: objaverse_124297e7e4574c48b9c1b814b6ddf516: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_004: objaverse_5b9e8ba19b1b454f82898ac4809f02b2: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_004: objaverse_69f1c0489a144f3c98e66dcfe72b3969: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_004: objaverse_a07501cd7f6c40fc9cf4cf438e41bac1: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_004: objaverse_da6d646358d1451fa751f1a9141290a3: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_005: Shelf_01: styles ['rustic'] include neither scandinavian nor neutral
 - f_L0_005: wooden_bookshelf_worn: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_005: abo_B074KKXLK1: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_005: abo_B075Z6YS1Z: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_005: abo_B07HSCJZQM: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_005: abo_B07PMK78R8: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_005: abo_B07PQS58XN: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_005: abo_B07PSZHDNK: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_005: abo_B082JGV1YM: styles ['modern'] include neither scandinavian nor neutral
 - f_L0_005: objaverse_4939d1bca386405f9cc22c48441b63de: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
 - f_L0_005: objaverse_68baafb344b2445a8e7f4917b6fe8a63: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_005: objaverse_6c5ac2547db34c3c81b2e4808b000386: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_005: objaverse_7a545709aa98429a9b30f812f70193f7: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_005: objaverse_d48a42e91c5d4716a8c254addf8c9d99: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_005: objaverse_eb98251fbccf4cdd8a3737362e2378e9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_006: GothicBed_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_006: abo_B0154VUESC: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B01M0ZVGCQ: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B01N6AQX0A: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_006: abo_B071W2SCTJ: styles ['minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B072PWGSZL: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_006: abo_B075QDMWTP: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L0_006: abo_B07B4YNHSN: styles ['modern minimal'] include neither scandinavian nor neutral
 - f_L0_006: abo_B07B4Z9Q3S: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B07GFDZW5W: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B07L1DDXLR: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B084ZBDPG5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_006: abo_B084ZBX1YH: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_006: abo_B08FTN8KHY: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
 - f_L0_006: objaverse_5d3a99865ac84d8a8bf06b263aa5bb55: styles ['industrial'] include neither scandinavian nor neutral
 - f_L0_007: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_007: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_007: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
 - f_L0_007: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_007: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_007: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_007: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_007: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_007: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_007: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_007: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_007: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_007: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
 - f_L0_008: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_008: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_008: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
 - f_L0_008: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_008: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_008: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_008: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_008: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_008: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_008: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_008: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_008: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L0_008: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
+- f_L0_009: abo_B07GFS1R5B: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_009: abo_B07GFS1WDY: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_009: abo_B07GFWW3S8: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_009: gen_wardrobe_classic_1_2bc1a548: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_009: gen_wardrobe_industrial_1_79cac0b4: styles ['industrial'] include neither scandinavian nor neutral
 - f_L0_009: objaverse_05a035c3347645b8a7ceb6d65f825ac3: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_009: objaverse_094697a23146463cb5564ac8bf89e5c4: styles ['classic'] include neither scandinavian nor neutral
 - f_L0_009: objaverse_b3a99e956be64ab6958f7f5e1895f031: styles ['classic', 'rustic'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_classic_3_293965c2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_industrial_1_3cd5bde9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_japandi_1_42fdb46f: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_japandi_3_4e49add0: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_japandi_6_1b5173e9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_mediterranean_1_09b9f7e2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_mediterranean_3_23b530a6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_minimal_1_3799392b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_rustic_1_c2ce66a1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_scandinavian_4_06dcb780: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: gen_toilet_scandinavian_6_b1b3db93: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_010: objaverse_0b3325fad3e740b1ac86173c90b56afd: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: objaverse_1bd73c9a74d14ce29e45c277570990e6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_010: objaverse_24d1b493899d407780140688abae19bc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_010: objaverse_3446229dce1f47528fa871cc7669136c: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: objaverse_4398bcb5976945b08f195816340247b8: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: objaverse_5b18711616054a44b025d9272b745a6a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: objaverse_bd0f8d2bfba24376bec2b827a0cbbabe: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_010: objaverse_c901dfa120a0487a9f5c9a2d241f70ab: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_industrial_1_6794b9a5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_industrial_4_cfaa1f50: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_japandi_2_6d594c3b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_japandi_3_fc4e0710: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_mediterranean_1_93c90025: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_mediterranean_4_c5dc64de: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_minimal_1_9dc765fb: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_modern_1_833baa60: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_modern_minimal_1_d5536003: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: gen_washbasin_scandinavian_1_6efd9d50: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: objaverse_295384601e0d4f1985a919253330d59d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_011: objaverse_3eafb89804b54c8e8cbe35e4d456e0a9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: objaverse_493b70a6177d4a1385b6b0ce041a93b0: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_011: objaverse_5248aa117842442980a2a2bbb5f3bfe6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: objaverse_6458ac945c14458a8e5f4a470495f042: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_011: objaverse_ce1a06f7cbe1425099a145f851fc5dee: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_011: objaverse_f76c502218884914a27148f656a9b656: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_industrial_1_d2ef1a9f: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_industrial_4_31d89a3d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_012: gen_shower_japandi_1_dcdcd4dc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_japandi_6_bd58a347: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_japandi_9_4f1cedc6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_minimal_1_25eeb7e2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_modern_minimal_6_664da6f5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_012: gen_shower_scandinavian_1_0ae4a37a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_scandinavian_6_6844cd10: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_012: gen_shower_scandinavian_9_7fb81c9a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_classic_1_dffff7e0: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_industrial_1_b7c9d275: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_industrial_3_0a739610: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_japandi_1_f1f4def2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_japandi_2_d8b8ac48: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_japandi_3_3e2ddcc7: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_japandi_5_030a02dc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_mediterranean_1_bffe5bde: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_minimal_1_9ec6e746: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_013: gen_washing_machine_modern_1_f4bdd46e: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_modern_2_379d2585: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_modern_3_50bfae6f: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_013: gen_washing_machine_modern_minimal_1_07b2b182: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_modern_minimal_2_94b29e08: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_modern_minimal_3_ff74255c: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_013: gen_washing_machine_scandinavian_1_0a5054b6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L0_013: gen_washing_machine_scandinavian_2_67f28c86: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_014: GothicCommode_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L0_014: vintage_wooden_drawer_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L0_014: abo_B009S7IZWG: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_014: abo_B071FJR3S6: styles ['modern minimal'] include neither scandinavian nor neutral
-- f_L0_014: abo_B071FJR479: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_014: abo_B07B4VXZZC: styles ['classic'] include neither scandinavian nor neutral
-- f_L0_014: abo_B07HSH4WFB: styles ['modern', 'industrial'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_scandinavian_3_292e2d11: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_scandinavian_4_d66cae6a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_013: gen_washing_machine_scandinavian_5_ed8921b5: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_014: abo_B075YQ46KX: styles ['modern minimal', 'minimal', 'modern', 'industrial'] include neither scandinavian nor neutral
+- f_L0_014: abo_B075Z99L7R: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_014: abo_B075ZCLPS1: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_014: abo_B07DB9638P: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_014: abo_B07DMJN8H3: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_014: abo_B07GZY278M: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_014: abo_B07HSBHY2P: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_014: abo_B07W563NHG: styles ['modern minimal', 'minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_014: gen_console_table_classic_1_3039559c: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_014: gen_console_table_classic_2_781fd7f9: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_014: gen_console_table_industrial_2_b39850f8: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_industrial_4_3f68e743: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
 - f_L0_016: gen_sink_kitchen_japandi_1_a61d924d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_017: objaverse_7c5c9dec5c2e4ff998c386410b0e3686: styles ['industrial'] include neither scandinavian nor neutral
-- f_L0_018: gen_fridge_scandinavian_1_315b4d87: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_018: objaverse_2071bda681b642218b6829b82e4fd93b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_018: objaverse_68d69bbf7a454a09a2536ac0762532f3: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_018: objaverse_c9c4e705bf794cb88d5d8726095f4917: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L0_019: dining_table: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_019: wooden_table_02: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_019: painted_wooden_table: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_019: abo_B075Z9QB7N: styles ['industrial'] include neither scandinavian nor neutral
-- f_L0_019: abo_B07B7BGXN9: styles ['rustic'] include neither scandinavian nor neutral
-- f_L0_019: abo_B07H93GTHW: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L0_019: abo_B07RT5JN33: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_japandi_2_d6ae0419: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_japandi_3_1462384d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_japandi_4_329115ec: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_japandi_6_2ccc7ce8: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_mediterranean_1_ae36322f: styles ['minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_mediterranean_3_f6d72c7b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_modern_1_5b97156d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_modern_2_b348b4dc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_modern_5_5f86535a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_016: gen_sink_kitchen_scandinavian_3_3e309f4c: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_classic_3_25281fe9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_industrial_1_03996e16: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_industrial_3_029d56da: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_japandi_1_4c9cd582: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_japandi_2_4c7dbc82: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_japandi_3_38a9d0f8: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_japandi_6_60928003: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_mediterranean_1_1460e264: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_mediterranean_3_e70ec886: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_modern_minimal_1_c27ed7d7: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_modern_minimal_3_bcd54859: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_rustic_1_06be6df4: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_scandinavian_1_315b4d87: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: gen_fridge_scandinavian_6_87b23e5c: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: objaverse_2071bda681b642218b6829b82e4fd93b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: objaverse_66878d980a364b2db1a5cc44c67bb45d: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: objaverse_68d69bbf7a454a09a2536ac0762532f3: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: objaverse_c9c4e705bf794cb88d5d8726095f4917: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_017: objaverse_f32ec9229a8749d1b79245813fbd6c31: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_018: gen_tall_cabinet_classic_3_879ecbf5: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_018: gen_tall_cabinet_industrial_1_9054f861: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_018: gen_tall_cabinet_industrial_3_8656669b: styles ['industrial'] include neither scandinavian nor neutral
 - f_L1_001: GothicBed_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_001: abo_B0154VUESC: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_001: abo_B01M0ZVGCQ: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_001: abo_B01N6AQX0A: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
 - f_L1_001: abo_B071W2SCTJ: styles ['minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_001: abo_B072PWGSZL: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
 - f_L1_001: abo_B075QDMWTP: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_001: abo_B07B4YNHSN: styles ['modern minimal'] include neither scandinavian nor neutral
 - f_L1_001: abo_B07B4Z9Q3S: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_001: abo_B07GFDZW5W: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_001: abo_B07L1DDXLR: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_001: abo_B084ZBDPG5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_001: abo_B084ZBX1YH: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L1_001: abo_B08FTN8KHY: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
 - f_L1_001: objaverse_5d3a99865ac84d8a8bf06b263aa5bb55: styles ['industrial'] include neither scandinavian nor neutral
 - f_L1_002: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
 - f_L1_002: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_002: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
 - f_L1_002: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_002: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_002: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_002: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_002: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_002: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_002: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_002: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_002: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L1_002: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
 - f_L1_003: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
 - f_L1_003: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_003: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
 - f_L1_003: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_003: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_003: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_003: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_003: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_003: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_003: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_003: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_003: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
 - f_L1_003: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
+- f_L1_004: abo_B07GFS1R5B: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_004: abo_B07GFS1WDY: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_004: abo_B07GFWW3S8: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_004: gen_wardrobe_classic_1_2bc1a548: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_004: gen_wardrobe_industrial_1_79cac0b4: styles ['industrial'] include neither scandinavian nor neutral
 - f_L1_004: objaverse_05a035c3347645b8a7ceb6d65f825ac3: styles ['classic'] include neither scandinavian nor neutral
 - f_L1_004: objaverse_094697a23146463cb5564ac8bf89e5c4: styles ['classic'] include neither scandinavian nor neutral
 - f_L1_004: objaverse_b3a99e956be64ab6958f7f5e1895f031: styles ['classic', 'rustic'] include neither scandinavian nor neutral
 - f_L1_005: metal_office_desk: styles ['industrial'] include neither scandinavian nor neutral
 - f_L1_005: WoodenTable_01: styles ['rustic'] include neither scandinavian nor neutral
 - f_L1_005: SchoolDesk_01: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_005: abo_B01MXKMRK4: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
 - f_L1_005: abo_B07B7DFS3S: styles ['industrial', 'rustic'] include neither scandinavian nor neutral
+- f_L1_005: abo_B07B7DKRW4: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_005: abo_B07PVL2N3D: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_005: abo_B07PYYRV2L: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_005: abo_B07QV37J6B: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_005: abo_B07RVBPWG9: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
 - f_L1_005: abo_B082DFL4JW: styles ['japandi', 'modern minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L1_006: GothicCommode_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_006: vintage_wooden_drawer_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_006: abo_B009S7IZWG: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_006: abo_B071FJR3S6: styles ['modern minimal'] include neither scandinavian nor neutral
-- f_L1_006: abo_B071FJR479: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_006: abo_B07B4VXZZC: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_006: abo_B07HSH4WFB: styles ['modern', 'industrial'] include neither scandinavian nor neutral
-- f_L1_007: gallinera_chair: styles ['classic', 'rustic'] include neither scandinavian nor neutral
-- f_L1_007: painted_wooden_chair_02: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_007: dining_chair_02: styles ['modern'] include neither scandinavian nor neutral
-- f_L1_007: abo_B01MQJV7ID: styles ['modern'] include neither scandinavian nor neutral
-- f_L1_007: abo_B0728NW8FP: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_007: abo_B07DBD9WHX: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_007: abo_B07DBHCKHY: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_007: abo_B07FY8PZBH: styles ['industrial'] include neither scandinavian nor neutral
-- f_L1_007: abo_B07QJ24FSL: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_007: abo_B0857JLP6K: styles ['minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L1_007: objaverse_47a690dcecf847fca99c4f89111db85b: styles ['classic', 'rustic'] include neither scandinavian nor neutral
-- f_L1_008: GothicBed_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_008: abo_B071W2SCTJ: styles ['minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_008: abo_B075QDMWTP: styles ['modern minimal'] include neither scandinavian nor neutral
-- f_L1_008: abo_B07B4Z9Q3S: styles ['modern'] include neither scandinavian nor neutral
-- f_L1_008: abo_B08FTN8KHY: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L1_008: objaverse_5d3a99865ac84d8a8bf06b263aa5bb55: styles ['industrial'] include neither scandinavian nor neutral
-- f_L1_009: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_009: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_009: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_009: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
-- f_L1_010: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_010: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_010: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_010: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
-- f_L1_011: gallinera_chair: styles ['classic', 'rustic'] include neither scandinavian nor neutral
-- f_L1_011: painted_wooden_chair_02: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_011: dining_chair_02: styles ['modern'] include neither scandinavian nor neutral
-- f_L1_011: abo_B01MQJV7ID: styles ['modern'] include neither scandinavian nor neutral
-- f_L1_011: abo_B0728NW8FP: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_011: abo_B07DBD9WHX: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_011: abo_B07DBHCKHY: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_011: abo_B07FY8PZBH: styles ['industrial'] include neither scandinavian nor neutral
-- f_L1_011: abo_B07QJ24FSL: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_011: abo_B0857JLP6K: styles ['minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L1_011: objaverse_47a690dcecf847fca99c4f89111db85b: styles ['classic', 'rustic'] include neither scandinavian nor neutral
-- f_L1_012: gen_shower_japandi_1_dcdcd4dc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_012: gen_shower_scandinavian_1_0ae4a37a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_013: objaverse_0b3325fad3e740b1ac86173c90b56afd: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_013: objaverse_24d1b493899d407780140688abae19bc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_013: objaverse_3446229dce1f47528fa871cc7669136c: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_014: objaverse_3eafb89804b54c8e8cbe35e4d456e0a9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_014: objaverse_ce1a06f7cbe1425099a145f851fc5dee: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_015: gen_bathtub_modern_minimal_1_1a44f6ff: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_015: gen_bathtub_scandinavian_1_230fe403: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_015: gen_bathtub_scandinavian_2_6fde34a5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_016: abo_B0718WYQ8D: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_016: abo_B073WR319C: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
-- f_L1_016: abo_B075Y184L3: styles ['modern minimal'] include neither scandinavian nor neutral
-- f_L1_016: abo_B086TFXK75: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L1_017: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_017: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_017: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_017: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
-- f_L1_018: objaverse_05a035c3347645b8a7ceb6d65f825ac3: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_018: objaverse_094697a23146463cb5564ac8bf89e5c4: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_018: objaverse_b3a99e956be64ab6958f7f5e1895f031: styles ['classic', 'rustic'] include neither scandinavian nor neutral
-- f_L1_019: gallinera_chair: styles ['classic', 'rustic'] include neither scandinavian nor neutral
-- f_L1_019: painted_wooden_chair_02: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_019: dining_chair_02: styles ['modern'] include neither scandinavian nor neutral
-- f_L1_019: abo_B01MQJV7ID: styles ['modern'] include neither scandinavian nor neutral
-- f_L1_019: abo_B0728NW8FP: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
-- f_L1_019: abo_B07DBD9WHX: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_019: abo_B07DBHCKHY: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_019: abo_B07FY8PZBH: styles ['industrial'] include neither scandinavian nor neutral
-- f_L1_019: abo_B07QJ24FSL: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_019: abo_B0857JLP6K: styles ['minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L1_019: objaverse_47a690dcecf847fca99c4f89111db85b: styles ['classic', 'rustic'] include neither scandinavian nor neutral
-- f_L1_020: Shelf_01: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_020: wooden_bookshelf_worn: styles ['rustic'] include neither scandinavian nor neutral
-- f_L1_020: abo_B075Z6YS1Z: styles ['industrial'] include neither scandinavian nor neutral
-- f_L1_020: objaverse_4939d1bca386405f9cc22c48441b63de: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
-- f_L1_020: objaverse_68baafb344b2445a8e7f4917b6fe8a63: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_020: objaverse_6c5ac2547db34c3c81b2e4808b000386: styles ['classic'] include neither scandinavian nor neutral
-- f_L1_020: objaverse_eb98251fbccf4cdd8a3737362e2378e9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_005: objaverse_b05862a2023f4c02988b3bb3004f6ff6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B00IFHPVEU: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B00XBC3BF0: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B00XBC3J84: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B016ID2V5O: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B01D7P5BFS: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B01DN7NFRG: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B06W5XBL3D: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B06WVPB4TM: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B072Y5MZQH: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B072Y6Y96S: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B072Z6K34L: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B072Z6K94S: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B07GPSQKV9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B07KWZH5PV: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B07KXF19FN: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B07L3MKRFC: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B081HMS8YK: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B082KYYMZ6: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_006: abo_B084T7GSXM: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_007: abo_B075YQ46KX: styles ['modern minimal', 'minimal', 'modern', 'industrial'] include neither scandinavian nor neutral
+- f_L1_007: abo_B075Z99L7R: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_007: abo_B075ZCLPS1: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_007: abo_B07DB9638P: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_007: abo_B07DMJN8H3: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_007: abo_B07GZY278M: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_007: abo_B07HSBHY2P: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_007: abo_B07W563NHG: styles ['modern minimal', 'minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_007: gen_console_table_classic_1_3039559c: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_007: gen_console_table_classic_2_781fd7f9: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_007: gen_console_table_industrial_2_b39850f8: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07GFDZWMS: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07GFF11HV: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07GFLG5MM: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07GFS1WH7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07P64ZJQG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07P652THV: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07TVMZ5QP: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_008: abo_B07TWQTVXL: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_008: gen_shoe_cabinet_classic_3_d5d17132: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_008: gen_shoe_cabinet_industrial_1_23a27737: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_008: gen_shoe_cabinet_industrial_3_596e817a: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_009: abo_B073G82HBV: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_009: abo_B07C8DHX43: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_009: abo_B07DBCFM4F: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_009: abo_B07DYK2Y61: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_009: abo_B07GZMSRNF: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_009: abo_B07K7NQR23: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_009: abo_B07M6PKC6D: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_009: abo_B0871DCNRM: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_009: objaverse_22e8163cf6e1413486faeb4e42222a99: styles ['modern', 'industrial'] include neither scandinavian nor neutral
+- f_L1_009: objaverse_378cd6e6f505493aa8e22f68db1cabec: styles ['japandi', 'modern'] include neither scandinavian nor neutral
+- f_L1_009: objaverse_43dfa2813779487b9d1bb36b7c1a321c: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_009: objaverse_83bb7dff14e84ecbbc99ebb80fe2977c: styles ['japandi', 'modern minimal', 'minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_009: objaverse_9a4d1c954ed446d9a8d436d5be6dedca: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_009: objaverse_da39bc3a29364f8bb4bf45bccf856bdc: styles ['japandi', 'rustic'] include neither scandinavian nor neutral
+- f_L1_009: objaverse_f889c3adfc5945dcb10c1a594b35957b: styles ['modern minimal', 'minimal', 'modern', 'industrial'] include neither scandinavian nor neutral
+- f_L1_010: GothicBed_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_010: abo_B0154VUESC: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B01M0ZVGCQ: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_010: abo_B01N6AQX0A: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B071W2SCTJ: styles ['minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B072PWGSZL: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B075QDMWTP: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_010: abo_B07B4YNHSN: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_010: abo_B07B4Z9Q3S: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B07GFDZW5W: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B07L1DDXLR: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B084ZBDPG5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_010: abo_B084ZBX1YH: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_010: abo_B08FTN8KHY: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_010: objaverse_5d3a99865ac84d8a8bf06b263aa5bb55: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_011: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_011: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_011: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_011: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_011: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_011: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_011: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_011: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_011: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_011: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_011: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_011: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_011: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
+- f_L1_012: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_012: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_012: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_012: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_012: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_012: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_012: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_012: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_012: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_012: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_012: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_012: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_012: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_industrial_1_d2ef1a9f: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_industrial_4_31d89a3d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_japandi_1_dcdcd4dc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_japandi_6_bd58a347: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_japandi_9_4f1cedc6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_minimal_1_25eeb7e2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_modern_minimal_6_664da6f5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_scandinavian_1_0ae4a37a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_scandinavian_6_6844cd10: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_013: gen_shower_scandinavian_9_7fb81c9a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_classic_3_293965c2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_industrial_1_3cd5bde9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_japandi_1_42fdb46f: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_japandi_3_4e49add0: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_japandi_6_1b5173e9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_mediterranean_1_09b9f7e2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_mediterranean_3_23b530a6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_minimal_1_3799392b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_rustic_1_c2ce66a1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_scandinavian_4_06dcb780: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: gen_toilet_scandinavian_6_b1b3db93: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_0b3325fad3e740b1ac86173c90b56afd: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_1bd73c9a74d14ce29e45c277570990e6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_24d1b493899d407780140688abae19bc: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_3446229dce1f47528fa871cc7669136c: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_4398bcb5976945b08f195816340247b8: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_5b18711616054a44b025d9272b745a6a: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_bd0f8d2bfba24376bec2b827a0cbbabe: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_014: objaverse_c901dfa120a0487a9f5c9a2d241f70ab: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_industrial_1_6794b9a5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_industrial_4_cfaa1f50: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_japandi_2_6d594c3b: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_japandi_3_fc4e0710: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_mediterranean_1_93c90025: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_mediterranean_4_c5dc64de: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_minimal_1_9dc765fb: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_modern_1_833baa60: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_modern_minimal_1_d5536003: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: gen_washbasin_scandinavian_1_6efd9d50: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: objaverse_295384601e0d4f1985a919253330d59d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: objaverse_3eafb89804b54c8e8cbe35e4d456e0a9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: objaverse_493b70a6177d4a1385b6b0ce041a93b0: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_015: objaverse_5248aa117842442980a2a2bbb5f3bfe6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: objaverse_6458ac945c14458a8e5f4a470495f042: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: objaverse_ce1a06f7cbe1425099a145f851fc5dee: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_015: objaverse_f76c502218884914a27148f656a9b656: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_classic_3_f7c924e0: styles ['minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_industrial_1_46aaa4c2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_industrial_3_154b1fde: styles ['modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_japandi_3_83eb18c0: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_mediterranean_1_11d9dbc8: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_minimal_1_fe9cee36: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_minimal_3_2ed3445d: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_modern_1_009871cf: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_modern_3_0f116dc4: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_modern_5_e14ba0b4: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_modern_minimal_1_1a44f6ff: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_modern_minimal_2_927c5b3c: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_modern_minimal_3_5f405b34: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_modern_minimal_5_29a3d1b9: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_scandinavian_1_230fe403: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_scandinavian_2_6fde34a5: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_scandinavian_4_a6fdd251: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_scandinavian_6_c1f08777: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: gen_bathtub_scandinavian_7_da9e6172: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_016: objaverse_84d5cdc68a674e12958f41500e988502: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_017: abo_B0718WYQ8D: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_017: abo_B073WR319C: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_017: abo_B075Y184L3: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_017: abo_B086TFXK75: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_017: gen_bed_single_classic_1_dbac0f10: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_017: gen_bed_single_industrial_1_9f087076: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_017: gen_bed_single_modern_1_cb4f07bd: styles ['japandi', 'modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_017: gen_bed_single_modern_minimal_1_5c05505b: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_018: ClassicNightstand_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_018: painted_wooden_nightstand: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_018: abo_B074KKMQBG: styles ['modern minimal'] include neither scandinavian nor neutral
+- f_L1_018: abo_B075X38PZ7: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_018: abo_B079VK52WZ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_018: abo_B079VKDKC1: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_018: abo_B079VNKB6Z: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_018: abo_B079VNL3CG: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_018: abo_B07DVRLW48: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_018: abo_B07L1DH1PX: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_018: abo_B07PX3CC31: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_018: abo_B07QS8TBXT: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_018: abo_B084MYDTKM: styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral
+- f_L1_019: abo_B07GFS1R5B: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_019: abo_B07GFS1WDY: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_019: abo_B07GFWW3S8: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L1_019: gen_wardrobe_classic_1_2bc1a548: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_019: gen_wardrobe_industrial_1_79cac0b4: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_019: objaverse_05a035c3347645b8a7ceb6d65f825ac3: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_019: objaverse_094697a23146463cb5564ac8bf89e5c4: styles ['classic'] include neither scandinavian nor neutral
+- f_L1_019: objaverse_b3a99e956be64ab6958f7f5e1895f031: styles ['classic', 'rustic'] include neither scandinavian nor neutral
+- f_L1_020: metal_office_desk: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_020: WoodenTable_01: styles ['rustic'] include neither scandinavian nor neutral
+- f_L1_020: SchoolDesk_01: styles ['industrial'] include neither scandinavian nor neutral
+- f_L1_020: abo_B01MXKMRK4: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_020: abo_B07B7DFS3S: styles ['industrial', 'rustic'] include neither scandinavian nor neutral
+- f_L1_020: abo_B07B7DKRW4: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L1_020: abo_B07PVL2N3D: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_020: abo_B07PYYRV2L: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_020: abo_B07QV37J6B: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_020: abo_B07RVBPWG9: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_020: abo_B082DFL4JW: styles ['japandi', 'modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L1_020: objaverse_b05862a2023f4c02988b3bb3004f6ff6: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_019: ArmChair_01: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: modern_arm_chair_01: styles ['modern', 'modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_019: mid_century_lounge_chair: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_019: abo_B0719WQGYJ: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_019: abo_B071FMSYCH: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_019: abo_B072PZ4LQ2: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_019: abo_B0746KJVP2: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_019: abo_B075X2WN36: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_019: abo_B075X467QG: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: abo_B075X4N3J5: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_019: abo_B07B4MSP7T: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: abo_B07DBDQJRF: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: abo_B07HZ9K9PG: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_019: objaverse_124297e7e4574c48b9c1b814b6ddf516: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: objaverse_5b9e8ba19b1b454f82898ac4809f02b2: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: objaverse_69f1c0489a144f3c98e66dcfe72b3969: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: objaverse_a07501cd7f6c40fc9cf4cf438e41bac1: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_019: objaverse_da6d646358d1451fa751f1a9141290a3: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_020: abo_B075YQ46KX: styles ['modern minimal', 'minimal', 'modern', 'industrial'] include neither scandinavian nor neutral
+- f_L0_020: abo_B075Z99L7R: styles ['modern minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_020: abo_B075ZCLPS1: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_020: abo_B07DB9638P: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_020: abo_B07DMJN8H3: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_020: abo_B07GZY278M: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_020: abo_B07HSBHY2P: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_020: abo_B07W563NHG: styles ['modern minimal', 'minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_020: gen_console_table_classic_1_3039559c: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_020: gen_console_table_classic_2_781fd7f9: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_020: gen_console_table_industrial_2_b39850f8: styles ['industrial'] include neither scandinavian nor neutral
+- f_L0_021: abo_B073G82HBV: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_021: abo_B07C8DHX43: styles ['modern minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_021: abo_B07DBCFM4F: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_021: abo_B07DYK2Y61: styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_021: abo_B07GZMSRNF: styles ['modern'] include neither scandinavian nor neutral
+- f_L0_021: abo_B07K7NQR23: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_021: abo_B07M6PKC6D: styles ['japandi', 'modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral
+- f_L0_021: abo_B0871DCNRM: styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral
+- f_L0_021: objaverse_22e8163cf6e1413486faeb4e42222a99: styles ['modern', 'industrial'] include neither scandinavian nor neutral
+- f_L0_021: objaverse_378cd6e6f505493aa8e22f68db1cabec: styles ['japandi', 'modern'] include neither scandinavian nor neutral
+- f_L0_021: objaverse_43dfa2813779487b9d1bb36b7c1a321c: styles ['rustic'] include neither scandinavian nor neutral
+- f_L0_021: objaverse_83bb7dff14e84ecbbc99ebb80fe2977c: styles ['japandi', 'modern minimal', 'minimal', 'industrial'] include neither scandinavian nor neutral
+- f_L0_021: objaverse_9a4d1c954ed446d9a8d436d5be6dedca: styles ['classic'] include neither scandinavian nor neutral
+- f_L0_021: objaverse_da39bc3a29364f8bb4bf45bccf856bdc: styles ['japandi', 'rustic'] include neither scandinavian nor neutral
+- f_L0_021: objaverse_f889c3adfc5945dcb10c1a594b35957b: styles ['modern minimal', 'minimal', 'modern', 'industrial'] include neither scandinavian nor neutral
 
 ## Attribution (CC BY 4.0)
 
+- abo_B00BBDF500: "Amazon Brand - Movian Corona Console Table, 2 Drawer With Shelf, Solid Pine Wood, 70 x 83 x 31 cm" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B01DA8QZFM: "Amazon Brand - Movian Corona Console Table, 2 Drawer With Shelf, Solid Pine Wood, 70 x 83 x 31 cm" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B01FK3FWNG: "Amazon Brand - Movian Haven Retro Desk with Riser, Grey Oak, 113.54 x 60.45 x 89.92 cm" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B0714MMHBL: "Rivet Woven Bordered Sisal Area Rug, 3' 6'' x 5' 6'', Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B0719STLSH: "Stone & Beam MFL nuLoom Rug B0719STLSH 5'X8' Cream" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B071FJR4FW: "Amazon Brand – Stone & Beam Glenwood Industrial Metal Accent Bed, Queen, 84.5"L, Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B073P1H7CF: "Black and White Vintage Bike Print in White Frame, 15" x 21"" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B071HBBDZ1: "Amazon Brand – Stone & Beam Round Wood Quadrant Hanging Wall Mirror, 15 Inch Height, Dark Wood Finish" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07374K537: "Amazon Brand – Stone & Beam Classic Ceiling Pendant Chandelier Fixture With White Drum Shade- 20 x 20 x 42 Inches, Antique Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B073P19S7P: "Amazon Brand – Rivet Patterned Modern Pink and Grey Triangles in White Frame Wall Art, 18" x 26"" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B073P5MPW9: "Amazon Brand – Stone & Beam Modern Turquoise and Orange Palm Print in Gray Frame Wall Art, 12" x 12"" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B074VLRP5T: "Amazon Brand – Rivet Velvet Texture Decorative Throw Pillow, 17" x 17", Midnight" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B073P6FYT4: "Amazon Brand – Rivet Vintage Blue Yellow and Green Chairs in Gold Wood Frame Wall Art, 20" x 20"" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B075X2NLK5: "Rivet Modern Deer Head Ceramic Lamp With Bulb, 19.5"H, White and Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B075X4N3GM: "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4"W, Otter Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B079V39VG5: "Amazon Brand – Stone & Beam Transitional Woven Diamond Decorative Throw Pillow, 20" x 20", Indigo" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B07B4WH5LV: "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 5' 9" x 3' 9", Silver Birch" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B07B4WKQHJ: "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6" x 8', Off White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B07B82PXCM: "Amazon Brand – Stone & Beam Bradhurst Casual Farmhouse Wood Dining Kitchen Table, 61"-84"L, White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B07FFWSBBF: "Artum Hill BE6-802 Laurel Dresser, 5-Drawer, Modern Gray" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B078JGHZT3: "Amazon Brand – Stone & Beam Modern Ceramic Home Decor Flower Vase - 7 Inch, Teal White Tan" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07B4SDLJM: "Amazon Brand – Rivet Contemporary Striated Jute Area Rug, 10' 6" x 8', Oatmeal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07B4W5R8N: "Amazon Brand – Rivet Jonathan Mid-Century Modern Mirror Wood Frame, 52", Walnut" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07B4WKLZ7: "Amazon Brand – Rivet Modern Chevron Wool Area Rug, 5' x 8', Blue, Green, Ivory" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07BMT4F21: "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20" x 20", Cover Only, Purple" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07BMTNH22: "Amazon Brand – Rivet Modern Abstract Geometric Decorative Throw Pillow, 20" x 20", Purple" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07BMTXHSR: "Amazon Brand – Rivet Modern Retro Flair Mosaic Geometric Decorative Throw Pillow, 20" x 20", Cover Only, Blue" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07GDYVV9M: "Amazon Brand - Rivet Triangular Coffee Table with Solid Wood Legs, 105 x 60 x 37cm, MDF with Walnut Veneer/Solid Beech Wood" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07H8VCDWP: "Marca Amazon - Movian Moselle - Aparador con vitrina (roble Sonoma/blanco alpino)" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07HKGHSR7: "Amazon Brand – Rivet Modern Two Tone Table Desk Lamp with LED Light Bulb and Drum Shade - 12 x 12 x 15.88 Inches, Matte Black and Antique Brass" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B07HSGM25V: "Amazon Brand – Stone & Beam Traditional Landscape Print with Copper Leaf Wall Art Decor on Canvas - 35" x 35"" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B07JGPKZYT: "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B07K7K7GTZ: "Amazon Brand - Alkove Hayes 1-Drawer Solid Wood Nightstand, 56 x 44 x 47cm, Wild Oak" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07K8193NL: "Marque Amazon - Alkove - Hayes - Banc de chambre avec siège tapissé" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - abo_B07K9PMZJL: "Amazon Brand - Movian Dyvran 3-Seater Upholstered Sofa, 197 x 83 x 83 cm, Stain-Resistant Polyester, Dust Blue" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B07TS7ZCVM: "Amazon Basics - 4'X6' Plush Diamond Trellis Shag Rug, Grey" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
-- abo_B0857JM2NC: "Amazon Brand – Stone & Beam Mid-Century Beech and Rattan Dining Chair with Arms, 21.9"W, Natural" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07L3WRJ6R: "AmazonBasics Classic Office Desk Computer Chair - Adjustable, Swiveling, Ultra-Soft Microfiber - Light Beige, Lumbar Support" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07M6PJ4LX: "Ravenna Home Casual Floral Throw Pillow, 20" x 20", Cream and Blue" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07QD6ZV84: "Amazon Brand – Stone & Beam Mid-Century Rustic Vase, 8.66"H, Neutral" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07RNMMYNR: "Amazon Basics Rectangular Wall Mirror 16" x 20" - Peaked Trim, White" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B07TKY3L6X: "Amazon Brand - Movian Côa 4-Drawer Desk, 160 x 73 x 77.5cm, Vintage Dark Brown Oak-Effect/Black Metal" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- abo_B082JH6PRL: "Amazon Brand – Stone & Beam Traditional Globe Pendant Light with White Inner Shade & Rattan Outer Shade, 16"H, Natural Twine" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_68ba20aeb8fe4a03befaa2db5b429758: "Comfy kitty" by scubadiverchick (https://sketchfab.com/3d-models/68ba20aeb8fe4a03befaa2db5b429758), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_6b46b33bdff44269bf9391774bb8dd63: "JuiceMachine" by voxelpoint (https://sketchfab.com/3d-models/6b46b33bdff44269bf9391774bb8dd63), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 - objaverse_6eb4212e70b941a3bd2db196a47828b9: "Lowpoly Bed" by Mohamed199 (https://sketchfab.com/3d-models/6eb4212e70b941a3bd2db196a47828b9), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_b46803ba0bc64e12b31f832fb761c4e0: "Simple Tall Shelf" by Blender3D (https://sketchfab.com/3d-models/b46803ba0bc64e12b31f832fb761c4e0), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_d9d5ed5de83b4d899ab93f55bdc3d0bc: "Candle light" by al0sral0 (https://sketchfab.com/3d-models/d9d5ed5de83b4d899ab93f55bdc3d0bc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
+- objaverse_eee70cb7980a4ca7aa0a2f86c492283e: "Bench with Cloth" by finemods (https://sketchfab.com/3d-models/eee70cb7980a4ca7aa0a2f86c492283e), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched
 
 ## Decor
 
-- book_set: parametric x 3
-- cushion: abo_B074VLRP5T x 7
-- cushion: abo_B079V39VG5 x 2
+- blind: gen_blind_mediterranean_4_a6f5003b x 2
+- blind: parametric x 1
+- book_set: parametric x 1
+- candle: objaverse_d9d5ed5de83b4d899ab93f55bdc3d0bc x 1
+- ceiling_light: gen_ceiling_light_japandi_1_200ebd4d x 1
+- ceiling_light: gen_ceiling_light_scandinavian_1_3482d35d x 1
+- curtain: parametric x 5
+- cushion: abo_B07BMT4F21 x 3
+- cushion: abo_B07BMTNH22 x 2
+- cushion: abo_B07BMTXHSR x 2
+- cushion: abo_B07M6PJ4LX x 4
+- mirror: abo_B071HBBDZ1 x 1
+- mirror: abo_B07B4W5R8N x 1
+- mirror: abo_B07RNMMYNR x 3
+- pendant_light: abo_B07374K537 x 1
+- pendant_light: abo_B082JH6PRL x 1
+- plant: gen_potted_plant_classic_3_6a0eb8d8 x 1
+- plant: gen_potted_plant_mediterranean_1_38a58433 x 1
 - plant: potted_plant_01 x 1
-- plant: potted_plant_02 x 2
-- rug: abo_B07B4WH5LV x 1
-- rug: abo_B07B4WKQHJ x 1
-- rug: abo_B07TS7ZCVM x 2
-- wall_art: abo_B073P1H7CF x 2
-- wall_art: abo_B073P5MPW9 x 2
+- plant_small: gen_plant_small_classic_1_08e9f778 x 1
+- plant_small: gen_plant_small_mediterranean_1_3691e399 x 2
+- plant_small: gen_plant_small_rustic_4_694dfd55 x 1
+- plant_small: gen_plant_small_scandinavian_2_20075b95 x 1
+- rug: abo_B0714MMHBL x 1
+- rug: abo_B0719STLSH x 1
+- rug: abo_B07B4SDLJM x 1
+- rug: abo_B07B4WKLZ7 x 1
+- table_lamp: abo_B075X2NLK5 x 1
+- table_lamp: abo_B07HKGHSR7 x 3
+- throw: gen_throw_mediterranean_3_6db1af43 x 1
+- throw: objaverse_68ba20aeb8fe4a03befaa2db5b429758 x 3
+- throw: objaverse_6b46b33bdff44269bf9391774bb8dd63 x 2
+- throw: objaverse_eee70cb7980a4ca7aa0a2f86c492283e x 1
+- vase: abo_B078JGHZT3 x 1
+- vase: abo_B07QD6ZV84 x 1
+- wall_art: abo_B073P19S7P x 1
+- wall_art: abo_B073P5MPW9 x 1
+- wall_art: abo_B073P6FYT4 x 1
 - wall_art: abo_B07HSGM25V x 1
 - books are parametric by design; cushions, plants and rugs without a library decor model of the style family (or neutral) are parametric, wall art without one is not built
+
+## Locked check (docs/milestone10.md §2.7)
+
+source outputs/synthetic-01/building.json, mode complete (from outputs/synthetic-01/completion.json)
+
+- pass

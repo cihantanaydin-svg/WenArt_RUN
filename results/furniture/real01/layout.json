@@ -21,7 +21,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.329,
+     "latency_s": 3.548,
      "error": null,
      "pieces_proposed": 3,
      "pieces_placed": 2,
@@ -34,7 +34,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.542,
+     "latency_s": 2.784,
      "error": null,
      "pieces_proposed": 3,
      "pieces_placed": 2,
@@ -46,7 +46,7 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 5.871,
+   "latency_s": 6.332,
    "skipped": null,
    "pieces": [
     {
@@ -79,13 +79,13 @@
   }
  ],
  "pieces_added": 2,
- "latency_s": 5.871,
+ "latency_s": 6.332,
  "completion": {
   "rooms_completed": 6,
   "rooms_copied": 0,
   "changes_applied": 0,
-  "pieces_added": 5,
+  "pieces_added": 4,
   "wall_cabinets": 1,
-  "latency_s": 31.483
+  "latency_s": 40.224
  }
 }

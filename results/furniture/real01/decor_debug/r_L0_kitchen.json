@@ -48,17 +48,17 @@
      "slot": "window:win_L0_006",
      "type": "blind",
      "colour": "cream",
-     "reason": "Softens light and complements white walls without blocking daylight."
+     "reason": "Softens daylight and complements white walls without blocking light."
     },
     {
      "slot": "window:win_L0_009",
      "type": "blind",
-     "colour": "sand",
-     "reason": "Harmonizes with natural wood tones and enhances the airy feel."
+     "colour": "cream",
+     "reason": "Matches the first blind for cohesion and maintains light, airy feel."
     }
    ],
    "error": null,
-   "latency_s": 1.785
+   "latency_s": 1.92
   },
   "2": {
    "items": [
@@ -66,7 +66,7 @@
      "slot": "ceiling:centre_r_L0_kitchen",
      "type": "pendant_light",
      "colour": "natural wood",
-     "reason": "Matches light oak floor and adds warm Scandinavian ambiance."
+     "reason": "Matches light oak floors and adds warm Scandinavian ambiance."
     },
     {
      "slot": "window:win_L0_006",
@@ -76,7 +76,7 @@
     }
    ],
    "error": null,
-   "latency_s": 1.212
+   "latency_s": 1.312
   }
  },
  "agreed": [
@@ -87,7 +87,7 @@
    "colour_agreed": true,
    "reasons": [
     "Adds warmth and matches the oak floor in Scandinavian style.",
-    "Matches light oak floor and adds warm Scandinavian ambiance."
+    "Matches light oak floors and adds warm Scandinavian ambiance."
    ]
   },
   {
@@ -96,7 +96,7 @@
    "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Softens light and complements white walls without blocking daylight.",
+    "Softens daylight and complements white walls without blocking light.",
     "Softens daylight while complementing white walls and linen textiles."
    ]
   }
@@ -105,8 +105,8 @@
   {
    "slot": "window:win_L0_009",
    "type": "blind",
-   "colour": "sand",
-   "reason": "Harmonizes with natural wood tones and enhances the airy feel.",
+   "colour": "cream",
+   "reason": "Matches the first blind for cohesion and maintains light, airy feel.",
    "passes": [
     1
    ]
@@ -116,13 +116,13 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L0_027",
+   "id": "dec_L0_028",
    "type": "pendant_light",
    "method": "ai",
    "slot": "ceiling:centre_r_L0_kitchen"
   },
   {
-   "id": "dec_L0_028",
+   "id": "dec_L0_029",
    "type": "blind",
    "method": "ai",
    "slot": "window:win_L0_006"

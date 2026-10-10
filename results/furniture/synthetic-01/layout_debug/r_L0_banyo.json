@@ -1,0 +1,315 @@
+{
+ "room_id": "r_L0_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing to ask: no changeable drawn piece and nothing the room may get",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_010",
+   "type": "toilet",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     9.3,
+     4.4
+    ],
+    "wall_id": "w_L0_002"
+   }
+  },
+  {
+   "id": "f_L0_011",
+   "type": "washbasin",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     9.3,
+     5.4
+    ],
+    "wall_id": "w_L0_002"
+   }
+  },
+  {
+   "id": "f_L0_012",
+   "type": "shower",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     7.55,
+     6.9
+    ],
+    "wall_id": "w_L0_003"
+   }
+  },
+  {
+   "id": "f_L0_013",
+   "type": "washing_machine",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     8.95,
+     6.55
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "missing": {},
+ "anchor_missing": false,
+ "addable": {},
+ "change_types": [],
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_010": [
+    "wall_contact"
+   ],
+   "f_L0_011": [
+    "doors_free",
+    "wall_contact"
+   ],
+   "f_L0_012": [
+    "doors_free",
+    "windows_free"
+   ]
+  },
+  "walkways": [
+   [
+    "door",
+    "d_L0_005",
+    "window",
+    "win_L0_006"
+   ]
+  ]
+ },
+ "latency_s": 0,
+ "question": {
+  "room": {
+   "room_id": "r_L0_banyo",
+   "label": "Banyo",
+   "room_type": "bathroom",
+   "room_subtype": null,
+   "area_m2": 7.13,
+   "polygon_m": [
+    [
+     7.05,
+     3.85
+    ],
+    [
+     9.35,
+     3.85
+    ],
+    [
+     9.35,
+     6.95
+    ],
+    [
+     7.05,
+     6.95
+    ]
+   ],
+   "doors": [
+    {
+     "id": "d_L0_005",
+     "center": [
+      7.0,
+      5.4
+     ],
+     "width": 0.8,
+     "opens_into_this_room": true,
+     "approach": [
+      7.51,
+      5.4
+     ]
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_006",
+     "center": [
+      8.2,
+      7.08
+     ],
+     "width": 0.6,
+     "sill_height": null
+    }
+   ]
+  },
+  "drawn": [
+   {
+    "id": "f_L0_010",
+    "type": "toilet",
+    "kind": "fixed",
+    "center": [
+     8.95,
+     4.4
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      9.3,
+      4.4
+     ]
+    },
+    "against_wall": "w_L0_002"
+   },
+   {
+    "id": "f_L0_011",
+    "type": "washbasin",
+    "kind": "fixed",
+    "center": [
+     9.07,
+     5.4
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      9.3,
+      5.4
+     ]
+    },
+    "against_wall": "w_L0_002"
+   },
+   {
+    "id": "f_L0_012",
+    "type": "shower",
+    "kind": "fixed",
+    "center": [
+     7.55,
+     6.45
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": 270.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      7.55,
+      6.9
+     ]
+    },
+    "against_wall": "w_L0_003"
+   },
+   {
+    "id": "f_L0_013",
+    "type": "washing_machine",
+    "kind": "fixed",
+    "center": [
+     8.95,
+     6.55
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 0.0,
+    "front_deg": 270.0,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      8.95,
+      6.55
+     ]
+    },
+    "against_wall": null
+   }
+  ],
+  "change_ids": [],
+  "change_types": [],
+  "add": {},
+  "missing": {},
+  "anchor_missing": false,
+  "anchors": [
+   "washbasin",
+   "toilet"
+  ],
+  "anchors_addable": [],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+   "changes",
+   "added"
+  ],
+  "properties": {
+   "changes": {
+    "type": "array",
+    "maxItems": 0
+   },
+   "added": {
+    "type": "array",
+    "maxItems": 0
+   }
+  }
+ },
+ "placements": {}
+}

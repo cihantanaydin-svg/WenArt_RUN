@@ -1,0 +1,107 @@
+{
+ "room_id": "r_L0_mutfak",
+ "label": "Mutfak",
+ "room_type": "kitchen",
+ "slots": [
+  {
+   "id": "window:win_L0_005",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_005"
+  },
+  {
+   "id": "ceiling:centre_r_L0_mutfak",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 mutfak"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "window:win_L0_005",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Soft cream blind complements white walls and natural light."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_mutfak",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass pendant light adds Scandinavian charm and ambient glow."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.328
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_mutfak",
+     "type": "pendant_light",
+     "colour": "natural wood",
+     "reason": "Matches light oak floor and adds warm Scandinavian ambiance."
+    },
+    {
+     "slot": "window:win_L0_005",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens daylight while complementing white walls and linen textiles."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.322
+  }
+ },
+ "agreed": [
+  {
+   "slot": "window:win_L0_005",
+   "type": "blind",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Soft cream blind complements white walls and natural light.",
+    "Softens daylight while complementing white walls and linen textiles."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_mutfak",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": false,
+   "reasons": [
+    "Warm brass pendant light adds Scandinavian charm and ambient glow.",
+    "Matches light oak floor and adds warm Scandinavian ambiance."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_029",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L0_005"
+  },
+  {
+   "id": "dec_L0_030",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_mutfak"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

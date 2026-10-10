@@ -24,12 +24,12 @@
   },
   "wet_floor": {
    "material": "tiles_light",
-   "asset": "Tiles074",
+   "asset": null,
    "colour": null
   },
   "wet_walls": {
    "material": "tiles_light",
-   "asset": "Tiles074",
+   "asset": null,
    "tile_size_m": null,
    "pattern": null,
    "colour": null,
@@ -216,6 +216,17 @@
    ],
    "thickness": 0.23,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "win_L0_001",
+     "win_L0_002"
+    ],
+    "faces": 18,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     3.0518,
     3.2018,
@@ -255,7 +266,17 @@
     2.439
    ],
    "thickness": 0.155,
-   "height": 2.7
+   "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "d_L0_004"
+    ],
+    "faces": 8,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   }
   },
   {
    "name": "w_L0_003",
@@ -289,6 +310,16 @@
    ],
    "thickness": 0.23,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "win_L0_003"
+    ],
+    "faces": 12,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     1.4455,
     1.6005,
@@ -359,6 +390,16 @@
    ],
    "thickness": 0.15,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "d_L0_005"
+    ],
+    "faces": 8,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     1.4455,
     1.6005
@@ -428,6 +469,18 @@
    ],
    "thickness": 0.225,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "win_L0_004",
+     "win_L0_005",
+     "win_L0_006"
+    ],
+    "faces": 24,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     3.05,
     3.2,
@@ -470,6 +523,17 @@
    ],
    "thickness": 0.23,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "win_L0_007",
+     "win_L0_008"
+    ],
+    "faces": 18,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     0.23,
     3.585,
@@ -509,6 +573,17 @@
    ],
    "thickness": 0.15,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "d_L0_001",
+     "d_L0_002"
+    ],
+    "faces": 14,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     2.1315,
     2.2865,
@@ -548,6 +623,16 @@
    ],
    "thickness": 0.15,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "o_L0_001"
+    ],
+    "faces": 10,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     2.1315,
     2.2865,
@@ -589,6 +674,18 @@
    ],
    "thickness": 0.23,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "d_L0_003",
+     "o_L0_002",
+     "o_L0_003"
+    ],
+    "faces": 18,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     2.6773,
     3.8963,
@@ -660,6 +757,16 @@
    ],
    "thickness": 0.23,
    "height": 2.7,
+   "after_cuts": {
+    "openings": [
+     "win_L0_009"
+    ],
+    "faces": 12,
+    "z_range": [
+     0.0,
+     2.7
+    ]
+   },
    "split_at_m": [
     1.2263,
     1.3763
@@ -1389,7 +1496,7 @@
      "entity": "gap:hatch:7,hatch:3"
     }
    ],
-   "material": "wood_oak_light__WoodFloor051__unverified",
+   "material": "wood_oak_light__WoodFloor051",
    "textured": true,
    "pass_index": null,
    "assumed": {
@@ -1737,7 +1844,7 @@
      "entity": "path:16612,path:16608,path:16607,path:16610,path:16609,path:16606,path:16615,path:16616"
     }
    ],
-   "material": "wood_oak_light__WoodFloor051__unverified",
+   "material": "wood_oak_light__WoodFloor051",
    "textured": true,
    "pass_index": null,
    "assumed": {
@@ -1851,8 +1958,8 @@
      "entity": "path:11590,path:11586,path:11585,path:11587,path:11588,path:11584,path:11596"
     }
    ],
-   "material": "tiles_light__Tiles074",
-   "textured": true,
+   "material": "tiles_light",
+   "textured": false,
    "pass_index": null,
    "assumed": {
     "height": 2.1
@@ -2129,6 +2236,29 @@
    }
   },
   {
+   "name": "skirting_r_L0_kitchen",
+   "wenart_id": "skirting_r_L0_kitchen",
+   "kind": "wall",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_kitchen",
+   "parent": "r_L0_kitchen",
+   "evidence": [],
+   "material": "painted_wood_white",
+   "textured": false,
+   "pass_index": 0,
+   "assumed": {
+    "detail": "skirting",
+    "size_m": [
+     0.08,
+     0.012
+    ],
+    "length_m": 9.382,
+    "runs": 5,
+    "reason": "design detail of the room's documented walls (painted skirting board); not in the documents"
+   }
+  },
+  {
    "name": "skirting_r_L0_dining",
    "wenart_id": "skirting_r_L0_dining",
    "kind": "wall",
@@ -2266,8 +2396,8 @@
      "entity": "derived-from:w_L0_001,w_L0_002,w_L0_009,w_L0_010"
     }
    ],
-   "material": "tiles_light__Tiles074",
-   "textured": true,
+   "material": "tiles_light",
+   "textured": false,
    "pass_index": null,
    "assumed": {},
    "room_type": "bathroom",
@@ -2422,7 +2552,7 @@
      "entity": "derived-from:w_L0_002,w_L0_007,w_L0_009,w_L0_010"
     }
    ],
-   "material": "wood_oak_light__WoodFloor051__unverified",
+   "material": "wood_oak_light__WoodFloor051",
    "textured": true,
    "pass_index": null,
    "assumed": {},
@@ -2715,8 +2845,8 @@
      "entity": "derived-from:w_L0_005,w_L0_007,w_L0_011,w_L0_013"
     }
    ],
-   "material": "tiles_light__Tiles074",
-   "textured": true,
+   "material": "tiles_light",
+   "textured": false,
    "pass_index": null,
    "assumed": {},
    "room_type": "kitchen",
@@ -2849,81 +2979,6 @@
    "wet": false
   },
   {
-   "name": "proxy_f_L0_006",
-   "wenart_id": "proxy:f_L0_006",
-   "kind": "furniture_proxy",
-   "status": "unverified",
-   "level_id": "L0",
-   "element_id": "f_L0_006",
-   "room_id": "r_L0_bed_room_2",
-   "type": "unknown",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "real01.pdf",
-     "method": "vector",
-     "confidence": 0.9,
-     "page": 1,
-     "entity": "path:16843-16848,path:16854,path:16856,path:16858-16865"
-    },
-    {
-     "file": "real01.pdf",
-     "method": "ai",
-     "confidence": 0.95,
-     "page": 1,
-     "entity": "recognition:sym_L0_003",
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "nightstand",
-     "front": "right",
-     "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
-    },
-    {
-     "file": "real01.pdf",
-     "method": "ai",
-     "confidence": 0.9,
-     "page": 1,
-     "entity": "recognition:sym_L0_003",
-     "model": "zai-org/GLM-4.6V-Flash",
-     "pass": 2,
-     "text": "wall_cabinet",
-     "front": "none",
-     "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
-    }
-   ],
-   "material": "proxy_unverified",
-   "textured": false,
-   "pass_index": 15,
-   "center": [
-    0.6596,
-    6.8623,
-    0.4
-   ],
-   "size": [
-    0.4956,
-    0.4456,
-    0.8
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": null,
-   "assumed": {
-    "height": 0.8
-   },
-   "box3d": {
-    "center": [
-     0.6596,
-     6.8623,
-     0.4
-    ],
-    "size": [
-     0.4956,
-     0.4456,
-     0.8
-    ],
-    "rotation_deg": 0.0
-   }
-  },
-  {
    "name": "proxy_f_L0_009",
    "wenart_id": "proxy:f_L0_009",
    "kind": "furniture_proxy",
@@ -2966,9 +3021,9 @@
      "reason": "The object has a circular shape with spokes, typical of a floor lamp symbol."
     }
    ],
-   "material": "proxy_unverified",
+   "material": "proxy",
    "textured": false,
-   "pass_index": 16,
+   "pass_index": 15,
    "center": [
     2.8862,
     0.5002,
@@ -2999,81 +3054,6 @@
    }
   },
   {
-   "name": "proxy_f_L0_018",
-   "wenart_id": "proxy:f_L0_018",
-   "kind": "furniture_proxy",
-   "status": "unverified",
-   "level_id": "L0",
-   "element_id": "f_L0_018",
-   "room_id": "r_L0_drawing_room",
-   "type": "unknown",
-   "source": "from_documents",
-   "evidence": [
-    {
-     "file": "real01.pdf",
-     "method": "vector",
-     "confidence": 0.9,
-     "page": 1,
-     "entity": "path:11997-12367"
-    },
-    {
-     "file": "real01.pdf",
-     "method": "ai",
-     "confidence": 0.95,
-     "page": 1,
-     "entity": "recognition:sym_L0_015",
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "wardrobe",
-     "front": "left",
-     "reason": "Long shallow rectangle against wall, matches wardrobe dimensions and placement."
-    },
-    {
-     "file": "real01.pdf",
-     "method": "ai",
-     "confidence": 1.0,
-     "page": 1,
-     "entity": "recognition:sym_L0_015",
-     "model": "zai-org/GLM-4.6V-Flash",
-     "pass": 2,
-     "text": "sofa",
-     "front": "top",
-     "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
-    }
-   ],
-   "material": "proxy_unverified",
-   "textured": false,
-   "pass_index": 17,
-   "center": [
-    7.9754,
-    2.4437,
-    0.4
-   ],
-   "size": [
-    1.8972,
-    0.703,
-    0.8
-   ],
-   "rotation_deg": 90.0,
-   "front_deg": null,
-   "assumed": {
-    "height": 0.8
-   },
-   "box3d": {
-    "center": [
-     7.9754,
-     2.4437,
-     0.4
-    ],
-    "size": [
-     1.8972,
-     0.703,
-     0.8
-    ],
-    "rotation_deg": 90.0
-   }
-  },
-  {
    "name": "furn_f_L0_001",
    "wenart_id": "f_L0_001",
    "kind": "furniture",
@@ -3093,7 +3073,7 @@
      "note": "kitchen counter rule: chained legs between wall faces"
     }
    ],
-   "pass_index": 18,
+   "pass_index": 16,
    "assumed": {
     "counter_fronts": "2 front(s) 1 mm proud of the carcass with handles",
     "height": 0.9
@@ -3209,7 +3189,7 @@
      "note": "kitchen counter rule: chained legs between wall faces"
     }
    ],
-   "pass_index": 19,
+   "pass_index": 17,
    "assumed": {
     "counter_fronts": "4 front(s) 1 mm proud of the carcass with handles",
     "height": 0.9
@@ -3348,7 +3328,7 @@
      "reason": "The object has a rectangular shape with a headboard area and matches the size and typical appearance of a double bed."
     }
    ],
-   "pass_index": 20,
+   "pass_index": 18,
    "assumed": {
     "height": 0.55
    },
@@ -3671,7 +3651,7 @@
      "reason": "The object has a telephone symbol and a footprint matching a nightstand, with the front edge to the right."
     }
    ],
-   "pass_index": 21,
+   "pass_index": 19,
    "assumed": {
     "height": 0.5
    },
@@ -4023,6 +4003,269 @@
    }
   },
   {
+   "name": "furn_f_L0_006",
+   "wenart_id": "f_L0_006",
+   "kind": "furniture",
+   "status": "unverified",
+   "level_id": "L0",
+   "element_id": "f_L0_006",
+   "room_id": "r_L0_bed_room_2",
+   "type": "nightstand",
+   "source": "from_documents",
+   "evidence": [
+    {
+     "file": "real01.pdf",
+     "method": "vector",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "path:16843-16848,path:16854,path:16856,path:16858-16865"
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.95,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "nightstand",
+     "front": "right",
+     "reason": "The object's shape and size match a nightstand, and it's in a bedroom near a bed."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "ai",
+     "confidence": 0.9,
+     "page": 1,
+     "entity": "recognition:sym_L0_003",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "wall_cabinet",
+     "front": "none",
+     "reason": "The object is a small square with a dashed border, typical of a wall cabinet above a counter, and its size matches the description."
+    },
+    {
+     "file": "real01.pdf",
+     "method": "inferred",
+     "confidence": 0.55,
+     "rule": "furniture.infer",
+     "text": "nightstand: named by an AI pass and the only named type that fits the size (0.50 x 0.45 m), the bedroom room and the position (others fitting: floor_lamp, ottoman, potted_plant, side_table)",
+     "page": 1,
+     "entity": "path:16843-16848,path:16854,path:16856,path:16858-16865"
+    }
+   ],
+   "pass_index": 20,
+   "assumed": {
+    "height": 0.5
+   },
+   "decor": [],
+   "center": [
+    0.6596,
+    6.8623,
+    0.25
+   ],
+   "size": [
+    0.4956,
+    0.4456,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "side_table_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9011,
+     0.9902,
+     0.9457
+    ],
+    "bbox_m": [
+     0.4956,
+     0.4456,
+     0.5208
+    ],
+    "aspect_error": 0.0943,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "side_table_01",
+      "aspect_error": 0.0943,
+      "scale": [
+       0.9011,
+       0.9902,
+       0.9457
+      ],
+      "non_uniform": 1.0989,
+      "mean_scale": 0.9457,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.0543,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "excluded": [
+     {
+      "id": "ClassicNightstand_01",
+      "reason": "styles ['classic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "painted_wooden_nightstand",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B074KKMQBG",
+      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B075X38PZ7",
+      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VK52WZ",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VKDKC1",
+      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNKB6Z",
+      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B079VNL3CG",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07DVRLW48",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07L1DH1PX",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07PX3CC31",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B07QS8TBXT",
+      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
+     },
+     {
+      "id": "abo_B084MYDTKM",
+      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral"
+     }
+    ],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.054 (step 1)",
+      "quality 3",
+      "aspect error 0.094",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/side_table_01/side_table_01_1k.gltf"
+   },
+   "fit_scale": [
+    0.9011,
+    0.9902,
+    0.9457
+   ],
+   "method": "library",
+   "bbox_m": [
+    0.4956,
+    0.4456,
+    0.5208
+   ],
+   "fallback_reason": null,
+   "materials": [
+    "side_table_01"
+   ],
+   "material": "side_table_01",
+   "textured": true,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0024
+    ],
+    "origin_offset_applied": [
+     -0.0,
+     -0.0,
+     0.0024
+    ],
+    "bbox_raw_m": [
+     0.55,
+     0.45,
+     0.5507
+    ],
+    "bbox_m": [
+     0.4956,
+     0.4456,
+     0.5208
+    ],
+    "fit_scale": [
+     0.9011,
+     0.9902,
+     0.9457
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/side_table_01/side_table_01_1k.gltf",
+   "imported_objects": [
+    "side_table_01"
+   ],
+   "box3d": {
+    "center": [
+     0.6596,
+     6.8623,
+     0.2604
+    ],
+    "size": [
+     0.4956,
+     0.4456,
+     0.5208
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
    "name": "furn_f_L0_007",
    "wenart_id": "f_L0_007",
    "kind": "furniture",
@@ -4065,7 +4308,7 @@
      "reason": "The object's footprint and headboard lines match a bed_double."
     }
    ],
-   "pass_index": 22,
+   "pass_index": 21,
    "assumed": {
     "height": 0.55
    },
@@ -4388,7 +4631,7 @@
      "reason": "The object has a small footprint with a lamp symbol, typical of a nightstand."
     }
    ],
-   "pass_index": 23,
+   "pass_index": 22,
    "assumed": {
     "height": 0.5
    },
@@ -4400,8 +4643,8 @@
     }
    ],
    "center": [
-    0.6125,
-    0.523,
+    0.494,
+    0.546,
     0.25
    ],
    "size": [
@@ -4409,8 +4652,8 @@
     0.4853,
     0.5
    ],
-   "rotation_deg": 0.0,
-   "front_deg": null,
+   "rotation_deg": 90.0,
+   "front_deg": 0.0,
    "asset": {
     "library": "abo",
     "asset_id": "abo_B01D3C7Z4A",
@@ -4727,8 +4970,8 @@
    ],
    "box3d": {
     "center": [
-     0.6125,
-     0.523,
+     0.494,
+     0.546,
      0.3559
     ],
     "size": [
@@ -4736,7 +4979,7 @@
      0.4853,
      0.7119
     ],
-    "rotation_deg": 0.0
+    "rotation_deg": 90.0
    }
   },
   {
@@ -4782,13 +5025,13 @@
      "reason": "The object is a large rectangle with chairs around it, matching the dining table description."
     }
    ],
-   "pass_index": 24,
+   "pass_index": 23,
    "assumed": {
     "height": 0.75
    },
    "decor": [
     {
-     "name": "decor_f_L0_010_29",
+     "name": "decor_f_L0_010_30",
      "type": "vase",
      "method": "library"
     }
@@ -5069,7 +5312,7 @@
      "reason": "The object is a small seat with a backrest, drawn around a larger table, matching the description of a dining chair."
     }
    ],
-   "pass_index": 25,
+   "pass_index": 24,
    "assumed": {
     "height": 0.9
    },
@@ -5379,7 +5622,7 @@
      "reason": "The object has a seat and a backrest, typical of a dining chair, and is one of six around a table."
     }
    ],
-   "pass_index": 26,
+   "pass_index": 25,
    "assumed": {
     "height": 0.9
    },
@@ -5689,7 +5932,7 @@
      "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
-   "pass_index": 27,
+   "pass_index": 26,
    "assumed": {
     "height": 0.9
    },
@@ -5999,7 +6242,7 @@
      "reason": "Small seat with backrest, around a table in a dining room."
     }
    ],
-   "pass_index": 28,
+   "pass_index": 27,
    "assumed": {
     "height": 0.9
    },
@@ -6309,7 +6552,7 @@
      "reason": "The object has a seat and a backrest, typical of a dining chair, and matches the size and shape of other chairs around the table."
     }
    ],
-   "pass_index": 29,
+   "pass_index": 28,
    "assumed": {
     "height": 0.9
    },
@@ -6619,7 +6862,7 @@
      "reason": "The object has a seat and a backrest, typical of a dining chair, and its size matches the description for a dining chair."
     }
    ],
-   "pass_index": 30,
+   "pass_index": 29,
    "assumed": {
     "height": 0.9
    },
@@ -6929,7 +7172,7 @@
      "reason": "The object is a long rectangle with a backrest and pillows, matching the description of a sofa."
     }
    ],
-   "pass_index": 31,
+   "pass_index": 30,
    "assumed": {
     "height": 0.85
    },
@@ -7258,7 +7501,7 @@
      "reason": "The object's footprint is a square with a size that fits a coffee table, and it has no distinct front."
     }
    ],
-   "pass_index": 32,
+   "pass_index": 31,
    "assumed": {
     "height": 0.45
    },
@@ -7568,7 +7811,7 @@
      "reason": "The object is a small circular floor lamp with spokes, matching the description and size of a floor lamp."
     }
    ],
-   "pass_index": 33,
+   "pass_index": 32,
    "assumed": {
     "height": 1.6
    },
@@ -7949,7 +8192,7 @@
      "text": "Toilet placed against the left wall, not opposite the door."
     }
    ],
-   "pass_index": 34,
+   "pass_index": 33,
    "assumed": {},
    "decor": [],
    "center": [
@@ -8133,7 +8376,7 @@
      "text": "Washbasin placed against the left wall for functional use."
     }
    ],
-   "pass_index": 35,
+   "pass_index": 34,
    "assumed": {},
    "decor": [],
    "center": [
@@ -8462,7 +8705,7 @@
      "text": "Upgrade to larger size for better functionality and style consistency."
     }
    ],
-   "pass_index": 36,
+   "pass_index": 35,
    "assumed": {},
    "decor": [
     {
@@ -8473,7 +8716,7 @@
    ],
    "center": [
     0.61,
-    1.12,
+    1.35,
     0.25
    ],
    "size": [
@@ -8708,7 +8951,7 @@
    "box3d": {
     "center": [
      0.61,
-     1.12,
+     1.35,
      0.2461
     ],
     "size": [
@@ -8739,7 +8982,7 @@
      "text": "Against wall the sofa faces; fits style and footprint."
     }
    ],
-   "pass_index": 37,
+   "pass_index": 36,
    "assumed": {},
    "decor": [
     {
@@ -8754,8 +8997,8 @@
     }
    ],
    "center": [
-    5.352,
-    1.776,
+    6.852,
+    4.252,
     0.25
    ],
    "size": [
@@ -8763,8 +9006,8 @@
     0.45,
     0.5
    ],
-   "rotation_deg": 90.0,
-   "front_deg": 0.0,
+   "rotation_deg": 0.0,
+   "front_deg": 270.0,
    "asset": {
     "library": "parametric",
     "asset_id": "parametric:tv_unit",
@@ -8987,8 +9230,8 @@
    },
    "box3d": {
     "center": [
-     5.356,
-     1.776,
+     6.852,
+     4.248,
      0.25
     ],
     "size": [
@@ -8996,7 +9239,7 @@
      0.458,
      0.5
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 0.0
    }
   },
   {
@@ -9006,285 +9249,6 @@
    "status": "verified",
    "level_id": "L0",
    "element_id": "f_L0_025",
-   "room_id": "r_L0_bed_room_2",
-   "type": "nightstand",
-   "source": "added_by_ai",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Completing the bed setup with a matching nightstand on the left side."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Replace unverified piece with matching nightstand for symmetry beside bed."
-    }
-   ],
-   "pass_index": 38,
-   "assumed": {},
-   "decor": [],
-   "center": [
-    0.56,
-    6.36,
-    0.25
-   ],
-   "size": [
-    0.5,
-    0.4,
-    0.5
-   ],
-   "rotation_deg": 0.0,
-   "front_deg": 270.0,
-   "asset": {
-    "library": "abo",
-    "asset_id": "abo_B07K7K7GTZ",
-    "licence": "CC-BY-4.0",
-    "license": "CC-BY-4.0",
-    "method": "library",
-    "fit_scale": [
-     0.8932,
-     0.9093,
-     0.9012
-    ],
-    "bbox_m": [
-     0.5,
-     0.4,
-     0.4235
-    ],
-    "aspect_error": 0.0179,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "rotation_fix_deg": 0.0,
-    "front_axis_confidence": "high",
-    "candidates": [
-     {
-      "id": "abo_B07K7K7GTZ",
-      "aspect_error": 0.0179,
-      "scale": [
-       0.8932,
-       0.9093,
-       0.9012
-      ],
-      "non_uniform": 1.018,
-      "mean_scale": 0.9012,
-      "accepted": true,
-      "rank": 1,
-      "source": "abo",
-      "units_known": true,
-      "size_error": 0.0988,
-      "size_bucket": 1,
-      "quality": 3.0
-     }
-    ],
-    "cap": 1.15,
-    "uniform_range": [
-     0.75,
-     1.3
-    ],
-    "styles": [
-     "scandinavian",
-     "japandi",
-     "modern minimal",
-     "minimal",
-     "modern"
-    ],
-    "style_family": "scandinavian",
-    "excluded": [
-     {
-      "id": "ClassicNightstand_01",
-      "reason": "styles ['classic'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "painted_wooden_nightstand",
-      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B074KKMQBG",
-      "reason": "styles ['modern minimal'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B075X38PZ7",
-      "reason": "styles ['rustic'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B079VK52WZ",
-      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B079VKDKC1",
-      "reason": "styles ['modern minimal', 'minimal', 'modern'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B079VNKB6Z",
-      "reason": "styles ['modern minimal', 'modern'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B079VNL3CG",
-      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B07DVRLW48",
-      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B07L1DH1PX",
-      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B07PX3CC31",
-      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B07QS8TBXT",
-      "reason": "styles ['modern minimal', 'minimal'] include neither scandinavian nor neutral"
-     },
-     {
-      "id": "abo_B084MYDTKM",
-      "reason": "styles ['japandi', 'modern minimal', 'minimal', 'rustic'] include neither scandinavian nor neutral"
-     }
-    ],
-    "quality": [
-     5,
-     5
-    ],
-    "units_known": true,
-    "ranking": {
-     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
-     "rank": 1,
-     "tried": 1,
-     "reasons": [
-      "real size: mean |scale - 1| 0.099 (step 1)",
-      "quality 3",
-      "aspect error 0.018",
-      "source abo"
-     ],
-     "passed_over": []
-    },
-    "glb": "models/abo/abo_B07K7K7GTZ.glb",
-    "sha256_glb": "881f28e134f809745a28bf0e3f1ed88a8f421dbdd8d758f918dbd049d8af58e9",
-    "uid": "abo_B07K7K7GTZ",
-    "title": "Amazon Brand - Alkove Hayes 1-Drawer Solid Wood Nightstand, 56 x 44 x 47cm, Wild Oak",
-    "author": "Amazon.com",
-    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07K7K7GTZ",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "via": "Amazon Berkeley Objects (CC BY 4.0)",
-    "attribution": "\"Amazon Brand - Alkove Hayes 1-Drawer Solid Wood Nightstand, 56 x 44 x 47cm, Wild Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
-    "licence_flag": null,
-    "style_hint": "Modern",
-    "name": "Amazon Brand - Alkove Hayes 1-Drawer Solid Wood Nightstand, 56 x 44 x 47cm, Wild Oak",
-    "material_slots": [
-     {
-      "index": 0,
-      "name": "B07K7K7GTZ_MAT_MR",
-      "material": "wood",
-      "materials": [
-       "wood"
-      ],
-      "agreed": true,
-      "separable": true,
-      "share": 1.0,
-      "textured": true,
-      "base_colour": null,
-      "colour_rgb": [
-       246,
-       179,
-       112
-      ]
-     }
-    ],
-    "material_tags": [
-     "wood"
-    ],
-    "recolourable_fabric": false,
-    "recolourable_wood": true,
-    "unit_scale": 1.0
-   },
-   "fit_scale": [
-    0.8932,
-    0.9093,
-    0.9012
-   ],
-   "method": "library",
-   "bbox_m": [
-    0.5,
-    0.4,
-    0.4235
-   ],
-   "fallback_reason": null,
-   "materials": [
-    "B07K7K7GTZ_MAT_MR"
-   ],
-   "material": "B07K7K7GTZ_MAT_MR",
-   "textured": true,
-   "fit": {
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset_catalog": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "origin_offset_applied": [
-     -0.0,
-     -0.0,
-     -0.0
-    ],
-    "bbox_raw_m": [
-     0.5598,
-     0.4399,
-     0.4699
-    ],
-    "bbox_m": [
-     0.5,
-     0.4,
-     0.4235
-    ],
-    "fit_scale": [
-     0.8932,
-     0.9093,
-     0.9012
-    ],
-    "unit_scale": 1.0
-   },
-   "file": "/workspace/assets/models/abo/abo_B07K7K7GTZ.glb",
-   "imported_objects": [
-    "B07K7K7GTZ",
-    "B07K7K7GTZ.001",
-    "root"
-   ],
-   "box3d": {
-    "center": [
-     0.56,
-     6.36,
-     0.2117
-    ],
-    "size": [
-     0.5,
-     0.4,
-     0.4235
-    ],
-    "rotation_deg": 0.0
-   }
-  },
-  {
-   "name": "furn_f_L0_026",
-   "wenart_id": "f_L0_026",
-   "kind": "furniture",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "f_L0_026",
    "room_id": "r_L0_kitchen",
    "type": "tall_cabinet",
    "source": "added_by_ai",
@@ -9298,7 +9262,7 @@
      "text": "Placed at end of counter run against wall for storage."
     }
    ],
-   "pass_index": 39,
+   "pass_index": 37,
    "assumed": {},
    "decor": [],
    "center": [
@@ -9557,12 +9521,12 @@
    }
   },
   {
-   "name": "furn_f_L0_027",
-   "wenart_id": "f_L0_027",
+   "name": "furn_f_L0_026",
+   "wenart_id": "f_L0_026",
    "kind": "furniture",
    "status": "verified",
    "level_id": "L0",
-   "element_id": "f_L0_027",
+   "element_id": "f_L0_026",
    "room_id": "r_L0_kitchen",
    "type": "wall_cabinet",
    "source": "added_by_ai",
@@ -9574,7 +9538,7 @@
      "text": "wall cabinets along the counter run f_L0_002 (rule, docs/milestone10.md §4.4), 1.45-2.15 m; left free: window win_L0_006"
     }
    ],
-   "pass_index": 40,
+   "pass_index": 38,
    "assumed": {
     "cabinet_fronts": "1 front(s) with handles"
    },
@@ -9667,12 +9631,12 @@
    }
   },
   {
-   "name": "furn_f_L0_028",
-   "wenart_id": "f_L0_028",
+   "name": "furn_f_L0_027",
+   "wenart_id": "f_L0_027",
    "kind": "furniture",
    "status": "verified",
    "level_id": "L0",
-   "element_id": "f_L0_028",
+   "element_id": "f_L0_027",
    "room_id": "r_L0_dining",
    "type": "sideboard",
    "source": "added_by_ai",
@@ -9683,15 +9647,15 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds storage against the free wall near the door, matching Scandinavian style."
+     "text": "Adds storage against the free wall, matching Scandinavian style with light wood finish."
     }
    ],
-   "pass_index": 41,
+   "pass_index": 39,
    "assumed": {},
    "decor": [],
    "center": [
     5.352,
-    6.0,
+    6.269,
     0.4
    ],
    "size": [
@@ -9933,7 +9897,7 @@
    "box3d": {
     "center": [
      5.352,
-     6.0,
+     6.269,
      0.435
     ],
     "size": [
@@ -9976,7 +9940,7 @@
      "text": "Adds soft texture and warmth to the bed in Scandinavian style."
     }
    ],
-   "pass_index": 22,
+   "pass_index": 21,
    "assumed": {
     "rest_height": 0.55
    },
@@ -10196,7 +10160,7 @@
      "text": "Adds soft texture and warmth to the bed in Scandinavian style."
     }
    ],
-   "pass_index": 22,
+   "pass_index": 21,
    "assumed": {
     "rest_height": 0.55
    },
@@ -10416,7 +10380,7 @@
      "text": "Complements linen textiles and enhances cozy, natural tones."
     }
    ],
-   "pass_index": 22,
+   "pass_index": 21,
    "assumed": {
     "rest_height": 0.55
    },
@@ -10647,7 +10611,7 @@
      "text": "Warm light and wood finish match the light oak floor and daylight ambiance."
     }
    ],
-   "pass_index": 23,
+   "pass_index": 22,
    "assumed": {
     "rest_height": 0.7119
    },
@@ -10859,7 +10823,7 @@
      "text": "Brings life to the corner with minimalism and earthy tones."
     }
    ],
-   "pass_index": 36,
+   "pass_index": 35,
    "assumed": {
     "rest_height": 0.4922
    },
@@ -11087,7 +11051,7 @@
      "text": "Softens the floor and adds subtle contrast without clutter."
     }
    ],
-   "pass_index": 42,
+   "pass_index": 40,
    "assumed": {
     "rest_height": 0.0
    },
@@ -11308,7 +11272,7 @@
      "text": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
     }
    ],
-   "pass_index": 43,
+   "pass_index": 41,
    "assumed": {},
    "center": [
     1.78,
@@ -11393,7 +11357,7 @@
      "text": "Complements light oak floor and adds Scandinavian minimalism."
     }
    ],
-   "pass_index": 44,
+   "pass_index": 42,
    "assumed": {
     "mount_height": 0.8991
    },
@@ -11619,7 +11583,7 @@
      "text": "Brightens the space with warm daylight tones and matches white walls."
     }
    ],
-   "pass_index": 45,
+   "pass_index": 43,
    "assumed": {},
    "center": [
     4.193,
@@ -11800,7 +11764,7 @@
      "text": "Adds softness and warmth to the sofa in Scandinavian style."
     }
    ],
-   "pass_index": 31,
+   "pass_index": 30,
    "assumed": {
     "rest_height": 0.45
    },
@@ -12005,7 +11969,7 @@
      "text": "Adds softness and warmth to the sofa in Scandinavian style."
     }
    ],
-   "pass_index": 31,
+   "pass_index": 30,
    "assumed": {
     "rest_height": 0.45
    },
@@ -12210,7 +12174,7 @@
      "text": "Complements linen textiles and enhances cozy, natural tones."
     }
    ],
-   "pass_index": 31,
+   "pass_index": 30,
    "assumed": {
     "rest_height": 0.45
    },
@@ -12406,7 +12370,7 @@
      "text": "Matches light oak floors and grounds the seating area."
     }
    ],
-   "pass_index": 46,
+   "pass_index": 44,
    "assumed": {
     "rest_height": 0.0
    },
@@ -12632,7 +12596,7 @@
      "text": "Softens daylight and maintains airy, minimalist Scandinavian feel."
     }
    ],
-   "pass_index": 47,
+   "pass_index": 45,
    "assumed": {},
    "center": [
     7.056,
@@ -12717,7 +12681,7 @@
      "text": "Warm metallic accent that enhances natural daylight and style."
     }
    ],
-   "pass_index": 48,
+   "pass_index": 46,
    "assumed": {},
    "center": [
     6.531,
@@ -12925,7 +12889,7 @@
      "text": "Large plant in corner adds life and balances the room’s geometry."
     }
    ],
-   "pass_index": 49,
+   "pass_index": 47,
    "assumed": {
     "rest_height": 0.0
    },
@@ -13149,7 +13113,7 @@
      "text": "Earthy tone adds warmth and visual interest without clutter."
     }
    ],
-   "pass_index": 32,
+   "pass_index": 31,
    "assumed": {
     "rest_height": 0.4298
    },
@@ -13367,13 +13331,13 @@
      "text": "Books in wooden tray add texture and intellectual charm."
     }
    ],
-   "pass_index": 37,
+   "pass_index": 36,
    "assumed": {
     "rest_height": 0.5
    },
    "center": [
-    5.352,
-    1.376,
+    6.852,
+    4.252,
     0.61
    ],
    "size": [
@@ -13411,8 +13375,8 @@
    },
    "box3d": {
     "center": [
-     5.352,
-     1.376,
+     6.852,
+     4.252,
      0.61
     ],
     "size": [
@@ -13455,13 +13419,13 @@
      "text": "Soft glow complements daylight and adds subtle warmth."
     }
    ],
-   "pass_index": 37,
+   "pass_index": 36,
    "assumed": {
     "rest_height": 0.5
    },
    "center": [
-    5.352,
-    2.176,
+    6.852,
+    4.252,
     0.5571
    ],
    "size": [
@@ -13653,8 +13617,8 @@
    "file": "/workspace/assets/models/objaverse/9d46daabbefe4b4eab74d9da349dd015.glb",
    "box3d": {
     "center": [
-     5.352,
-     2.176,
+     6.852,
+     4.252,
      0.5571
     ],
     "size": [
@@ -13686,7 +13650,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft, neutral cushions complement Scandinavian minimalism and linen textiles."
+     "text": "Adds softness and matches Scandinavian light tones."
     },
     {
      "file": "building.json",
@@ -13697,7 +13661,7 @@
      "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
     }
    ],
-   "pass_index": 20,
+   "pass_index": 18,
    "assumed": {
     "rest_height": 0.55
    },
@@ -13906,7 +13870,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Soft, neutral cushions complement Scandinavian minimalism and linen textiles."
+     "text": "Adds softness and matches Scandinavian light tones."
     },
     {
      "file": "building.json",
@@ -13917,7 +13881,7 @@
      "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
     }
    ],
-   "pass_index": 20,
+   "pass_index": 18,
    "assumed": {
     "rest_height": 0.55
    },
@@ -14126,7 +14090,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "A warm-toned throw adds coziness while matching the light oak and daylight aesthetic."
+     "text": "Complements linen textiles and warm daylight."
     },
     {
      "file": "building.json",
@@ -14134,10 +14098,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements linen textiles and enhances cozy, natural tones."
+     "text": "Complements linen textiles and enhances comfort with a natural, earthy tone."
     }
    ],
-   "pass_index": 20,
+   "pass_index": 18,
    "assumed": {
     "rest_height": 0.55
    },
@@ -14322,7 +14286,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "A wooden base lamp blends with the floor and adds warm ambient light."
+     "text": "Warm light and wood tone enhance the Scandinavian feel."
     },
     {
      "file": "building.json",
@@ -14330,10 +14294,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm light and wood finish match the light oak floor and daylight ambiance."
+     "text": "Warm light and wood finish harmonize with light oak floors and daylight."
     }
    ],
-   "pass_index": 21,
+   "pass_index": 19,
    "assumed": {
     "rest_height": 0.713
    },
@@ -14534,7 +14498,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "A subtle rug under the bed anchors the space and enhances Scandinavian calm."
+     "text": "Subtle contrast with oak floor, adds coziness without clutter."
     },
     {
      "file": "building.json",
@@ -14542,21 +14506,21 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens the floor and adds subtle contrast to the white walls and oak."
+     "text": "Subtle contrast under the bed adds grounding without visual clutter."
     }
    ],
-   "pass_index": 50,
+   "pass_index": 48,
    "assumed": {
     "rest_height": 0.0
    },
    "center": [
     1.776,
-    5.837,
+    5.877,
     0.015
    ],
    "size": [
     2.339,
-    1.574,
+    1.654,
     0.03
    ],
    "rotation_deg": 0.0,
@@ -14569,15 +14533,15 @@
     "decor_type": "rug",
     "fit_scale": [
      0.7209,
-     0.638,
+     0.6704,
      0.6579
     ],
     "bbox_m": [
      2.339,
-     1.574,
+     1.654,
      0.03
     ],
-    "aspect_error": 0.1221,
+    "aspect_error": 0.0725,
     "front_axis": "-Y",
     "up_axis": "+Z",
     "origin_offset": [
@@ -14674,12 +14638,12 @@
    "method": "library",
    "bbox_m": [
     2.339,
-    1.574,
+    1.654,
     0.03
    ],
    "fit_scale": [
     0.7209,
-    0.638,
+    0.6705,
     0.6572
    ],
    "materials": [
@@ -14708,12 +14672,12 @@
     ],
     "bbox_m": [
      2.339,
-     1.574,
+     1.654,
      0.03
     ],
     "fit_scale": [
      0.7209,
-     0.638,
+     0.6705,
      0.6572
     ],
     "unit_scale": 1.0
@@ -14725,12 +14689,12 @@
    "box3d": {
     "center": [
      1.776,
-     5.837,
+     5.877,
      0.015
     ],
     "size": [
      2.339,
-     1.574,
+     1.654,
      0.03
     ],
     "rotation_deg": 0.0
@@ -14745,238 +14709,11 @@
    "element_id": "dec_L0_025",
    "host_id": null,
    "room_id": "r_L0_bed_room_2",
-   "type": "plant",
-   "source": "added_by_ai",
-   "decor_method": "ai",
-   "slot": "r_L0_bed_room_2.corner1",
-   "colour": "forest green",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "A corner plant adds organic texture and balances the room’s geometry."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Brings life to the corner with a simple, earthy touch."
-    }
-   ],
-   "pass_index": 51,
-   "assumed": {
-    "rest_height": 0.0
-   },
-   "center": [
-    0.48,
-    3.985,
-    0.42875
-   ],
-   "size": [
-    0.4,
-    0.4,
-    0.8575
-   ],
-   "rotation_deg": 0.0,
-   "asset": {
-    "library": "generated",
-    "asset_id": "gen_potted_plant_scandinavian_2_98f7bbd2",
-    "licence": "generated (TRELLIS.2-4B, MIT)",
-    "license": "generated (TRELLIS.2-4B, MIT)",
-    "method": "library",
-    "decor_type": "plant",
-    "fit_scale": [
-     0.8197,
-     0.8937,
-     0.8567
-    ],
-    "bbox_m": [
-     0.4,
-     0.4,
-     0.8575
-    ],
-    "aspect_error": 0.0864,
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset": [
-     -0.0036,
-     0.0058,
-     -0.5009
-    ],
-    "front_axis_confidence": "low",
-    "target": "size",
-    "turned_deg": 0.0,
-    "styles": [
-     "scandinavian",
-     "modern minimal",
-     "minimal",
-     "modern"
-    ],
-    "style_family": "scandinavian",
-    "quality": [
-     4,
-     5
-    ],
-    "pick": {
-     "key": "dec_L0_025",
-     "index": 11,
-     "of": 16,
-     "ids": [
-      "gen_potted_plant_classic_3_6a0eb8d8",
-      "gen_potted_plant_industrial_2_eb3d21f5",
-      "gen_potted_plant_japandi_1_63c10a71",
-      "gen_potted_plant_japandi_2_9a3effd1",
-      "gen_potted_plant_japandi_3_36d34f2a",
-      "gen_potted_plant_mediterranean_1_38a58433",
-      "gen_potted_plant_mediterranean_3_068971b6",
-      "gen_potted_plant_minimal_1_5cf2e7a2",
-      "gen_potted_plant_modern_1_8fbfec3c",
-      "gen_potted_plant_modern_minimal_1_6b4ad5f1",
-      "gen_potted_plant_scandinavian_1_04f97c4b",
-      "gen_potted_plant_scandinavian_2_98f7bbd2",
-      "gen_potted_plant_scandinavian_3_ef4f2d99",
-      "potted_plant_01",
-      "potted_plant_02",
-      "potted_plant_04"
-     ],
-     "colour": "forest green",
-     "colour_matches": 0,
-     "not_fitting": [],
-     "other_style": 7
-    },
-    "glb": "models/generated/gen_potted_plant_scandinavian_2_98f7bbd2.glb",
-    "sha256_glb": "98f7bbd2822ae20ed017c75bc7d11c6b952c95b4ef2d9cb4bf69fb5aa38d1963",
-    "uid": "gen_potted_plant_scandinavian_2_98f7bbd2",
-    "title": "Generated scandinavian potted plant (2)",
-    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
-    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
-    "licence_url": "",
-    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
-    "attribution": "\"Generated scandinavian potted plant (2)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
-    "licence_flag": null,
-    "generated": {
-     "prompt": "a single scandinavian style large indoor plant in a floor pot, light oak wood, white and soft grey, natural linen upholstery, slim tapered legs, simple clean lines, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
-     "image_sha256": "d310d3374d658e69f2a879e8c768648b4fbf1e194549f0160109ae5809ffd756",
-     "model": "microsoft/TRELLIS.2-4B",
-     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
-     "seed": 550685039
-    },
-    "style_hint": "scandinavian",
-    "name": "Generated scandinavian potted plant (2)",
-    "material_slots": [
-     {
-      "index": 0,
-      "name": "Material_0",
-      "material": "mixed",
-      "materials": [
-       "wood",
-       "other"
-      ],
-      "agreed": true,
-      "separable": false,
-      "share": 1.0,
-      "textured": true,
-      "base_colour": [
-       1.0,
-       1.0,
-       1.0,
-       1.0
-      ],
-      "colour_rgb": [
-       87,
-       100,
-       79
-      ]
-     }
-    ],
-    "material_tags": [
-     "wood"
-    ],
-    "recolourable_fabric": false,
-    "recolourable_wood": false,
-    "unit_scale": 1.0
-   },
-   "method": "library",
-   "bbox_m": [
-    0.4,
-    0.4,
-    0.8575
-   ],
-   "fit_scale": [
-    0.8197,
-    0.8936,
-    0.8566
-   ],
-   "materials": [
-    "Material_0.006"
-   ],
-   "material": "Material_0.006",
-   "textured": true,
-   "fallback_reason": null,
-   "fit": {
-    "front_axis": "-Y",
-    "up_axis": "+Z",
-    "origin_offset_catalog": [
-     -0.0036,
-     0.0058,
-     -0.5009
-    ],
-    "origin_offset_applied": [
-     0.0036,
-     -0.0059,
-     0.5009
-    ],
-    "bbox_raw_m": [
-     0.488,
-     0.4476,
-     1.001
-    ],
-    "bbox_m": [
-     0.4,
-     0.4,
-     0.8575
-    ],
-    "fit_scale": [
-     0.8197,
-     0.8936,
-     0.8566
-    ],
-    "unit_scale": 1.0
-   },
-   "file": "/workspace/assets/models/generated/gen_potted_plant_scandinavian_2_98f7bbd2.glb",
-   "box3d": {
-    "center": [
-     0.48,
-     3.985,
-     0.4288
-    ],
-    "size": [
-     0.4,
-     0.4,
-     0.8575
-    ],
-    "rotation_deg": 0.0
-   }
-  },
-  {
-   "name": "decor_dec_L0_026",
-   "wenart_id": "dec_L0_026",
-   "kind": "decor",
-   "status": "verified",
-   "level_id": "L0",
-   "element_id": "dec_L0_026",
-   "host_id": null,
-   "room_id": "r_L0_bed_room_2",
    "type": "curtain",
    "source": "added_by_ai",
    "decor_method": "ai",
    "slot": "window:win_L0_004",
-   "colour": "white",
+   "colour": "cream",
    "evidence": [
     {
      "file": "building.json",
@@ -14984,7 +14721,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "White curtains maximize daylight and maintain the airy, clean Scandinavian look."
+     "text": "Softens light, maintains airy feel with neutral tone."
     },
     {
      "file": "building.json",
@@ -14992,10 +14729,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Light and airy, allows daylight while maintaining Scandinavian minimalism."
+     "text": "Softens natural light while maintaining a clean, airy Scandinavian aesthetic."
     }
    ],
-   "pass_index": 52,
+   "pass_index": 49,
    "assumed": {},
    "center": [
     1.78,
@@ -15022,7 +14759,7 @@
    ],
    "materials": [
     "steel_brushed",
-    "fabric_linen__rough_linen__white"
+    "fabric_linen__rough_linen__cream"
    ],
    "material": "steel_brushed",
    "textured": true,
@@ -15049,12 +14786,444 @@
    }
   },
   {
+   "name": "decor_dec_L0_026",
+   "wenart_id": "dec_L0_026",
+   "kind": "decor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "dec_L0_026",
+   "host_id": null,
+   "room_id": "r_L0_bed_room_2",
+   "type": "pendant_light",
+   "source": "added_by_ai",
+   "decor_method": "ai",
+   "slot": "ceiling:over_f_L0_004",
+   "colour": "brass",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm metallic accent adds elegance without overpowering."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm metallic glow adds subtle elegance without overpowering the space."
+    }
+   ],
+   "pass_index": 50,
+   "assumed": {},
+   "center": [
+    1.796,
+    6.066,
+    2.35
+   ],
+   "size": [
+    0.3334,
+    0.3334,
+    0.7
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07374K537",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "decor_type": "pendant_light",
+    "fit_scale": [
+     0.6563,
+     0.6563,
+     0.6563
+    ],
+    "bbox_m": [
+     0.3334,
+     0.3334,
+     0.7
+    ],
+    "aspect_error": 0.0,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     -0.0001
+    ],
+    "front_axis_confidence": "low",
+    "target": "within",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     4
+    ],
+    "pick": {
+     "key": "f_L0_004",
+     "index": 0,
+     "of": 1,
+     "ids": [
+      "abo_B07374K537"
+     ],
+     "colour": "brass",
+     "colour_matches": 1,
+     "not_fitting": [],
+     "other_style": 18
+    },
+    "glb": "models/abo/abo_B07374K537.glb",
+    "sha256_glb": "09d2d256345c01c245c5560682ca7d99f0f79ac5c0333259cfe019608ed80bc8",
+    "uid": "abo_B07374K537",
+    "title": "Amazon Brand – Stone & Beam Classic Ceiling Pendant Chandelier Fixture With White Drum Shade- 20 x 20 x 42 Inches, Antique Brass",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07374K537",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Classic Ceiling Pendant Chandelier Fixture With White Drum Shade- 20 x 20 x 42 Inches, Antique Brass\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "Amazon Brand – Stone & Beam Classic Ceiling Pendant Chandelier Fixture With White Drum Shade- 20 x 20 x 42 Inches, Antique Brass",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"ACMOCNLDEACAAAAAFMBAAAAAAAAAOIPAGCCH\"",
+      "material": "mixed",
+      "materials": [
+       "wood",
+       "metal",
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       207,
+       206,
+       198
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood",
+     "metal"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 1.0
+   },
+   "method": "library",
+   "bbox_m": [
+    0.3334,
+    0.3334,
+    0.7
+   ],
+   "fit_scale": [
+    0.6563,
+    0.6563,
+    0.6563
+   ],
+   "materials": [
+    "\"ACMOCNLDEACAAAAAFMBAAAAAAAAAOIPAGCCH\""
+   ],
+   "material": "\"ACMOCNLDEACAAAAAFMBAAAAAAAAAOIPAGCCH\"",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     0.0,
+     0.0,
+     -0.0001
+    ],
+    "origin_offset_applied": [
+     0.0,
+     -0.0,
+     0.0001
+    ],
+    "bbox_raw_m": [
+     0.508,
+     0.508,
+     1.0666
+    ],
+    "bbox_m": [
+     0.3334,
+     0.3334,
+     0.7
+    ],
+    "fit_scale": [
+     0.6563,
+     0.6563,
+     0.6563
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/abo/abo_B07374K537.glb",
+   "anchor_ids": [
+    "f_L0_004"
+   ],
+   "box3d": {
+    "center": [
+     1.796,
+     6.066,
+     2.35
+    ],
+    "size": [
+     0.3334,
+     0.3334,
+     0.7
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
    "name": "decor_dec_L0_027",
    "wenart_id": "dec_L0_027",
    "kind": "decor",
    "status": "verified",
    "level_id": "L0",
    "element_id": "dec_L0_027",
+   "host_id": null,
+   "room_id": "r_L0_bed_room_2",
+   "type": "plant",
+   "source": "added_by_ai",
+   "decor_method": "ai",
+   "slot": "r_L0_bed_room_2.corner1",
+   "colour": "sage green",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Brings life to corner with natural, calming hue."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life to the corner with a simple, organic touch matching the style."
+    }
+   ],
+   "pass_index": 51,
+   "assumed": {
+    "rest_height": 0.0
+   },
+   "center": [
+    0.48,
+    3.985,
+    0.39005
+   ],
+   "size": [
+    0.4,
+    0.4,
+    0.7801
+   ],
+   "rotation_deg": 0.0,
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "decor_type": "plant",
+    "fit_scale": [
+     0.7859,
+     0.7819,
+     0.7839
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.7801
+    ],
+    "aspect_error": 0.0051,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0,
+     0.0009,
+     -0.5008
+    ],
+    "front_axis_confidence": "low",
+    "target": "size",
+    "turned_deg": 0.0,
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": "scandinavian",
+    "quality": [
+     4,
+     5
+    ],
+    "pick": {
+     "key": "dec_L0_027",
+     "index": 9,
+     "of": 16,
+     "ids": [
+      "gen_potted_plant_classic_3_6a0eb8d8",
+      "gen_potted_plant_industrial_2_eb3d21f5",
+      "gen_potted_plant_japandi_1_63c10a71",
+      "gen_potted_plant_japandi_2_9a3effd1",
+      "gen_potted_plant_japandi_3_36d34f2a",
+      "gen_potted_plant_mediterranean_1_38a58433",
+      "gen_potted_plant_mediterranean_3_068971b6",
+      "gen_potted_plant_minimal_1_5cf2e7a2",
+      "gen_potted_plant_modern_1_8fbfec3c",
+      "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+      "gen_potted_plant_scandinavian_1_04f97c4b",
+      "gen_potted_plant_scandinavian_2_98f7bbd2",
+      "gen_potted_plant_scandinavian_3_ef4f2d99",
+      "potted_plant_01",
+      "potted_plant_02",
+      "potted_plant_04"
+     ],
+     "colour": "sage green",
+     "colour_matches": 0,
+     "not_fitting": [],
+     "other_style": 7
+    },
+    "glb": "models/generated/gen_potted_plant_modern_minimal_1_6b4ad5f1.glb",
+    "sha256_glb": "6b4ad5f116e261f3c0a1b2860c0c9635c0c6780817a19ea22fad83a330db91cc",
+    "uid": "gen_potted_plant_modern_minimal_1_6b4ad5f1",
+    "title": "Generated modern minimal potted plant (1)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated modern minimal potted plant (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single modern minimal style large indoor plant in a floor pot, matte white and warm grey surfaces, flush panels, thin black metal details, no ornament, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "97f92722294f33d10c7e21236f20dd9570c8ca0b3ba1febbcdb1295737db99bf",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 1189468089
+    },
+    "style_hint": "modern minimal",
+    "name": "Generated modern minimal potted plant (1)",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "Material_0",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       86,
+       101,
+       68
+      ]
+     }
+    ],
+    "material_tags": [],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 1.0
+   },
+   "method": "library",
+   "bbox_m": [
+    0.4,
+    0.4,
+    0.7801
+   ],
+   "fit_scale": [
+    0.7859,
+    0.7819,
+    0.7839
+   ],
+   "materials": [
+    "Material_0.004"
+   ],
+   "material": "Material_0.004",
+   "textured": true,
+   "fallback_reason": null,
+   "fit": {
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset_catalog": [
+     -0.0,
+     0.0009,
+     -0.5008
+    ],
+    "origin_offset_applied": [
+     0.0001,
+     -0.0009,
+     0.5008
+    ],
+    "bbox_raw_m": [
+     0.509,
+     0.5116,
+     0.9952
+    ],
+    "bbox_m": [
+     0.4,
+     0.4,
+     0.7801
+    ],
+    "fit_scale": [
+     0.7859,
+     0.7819,
+     0.7839
+    ],
+    "unit_scale": 1.0
+   },
+   "file": "/workspace/assets/models/generated/gen_potted_plant_modern_minimal_1_6b4ad5f1.glb",
+   "box3d": {
+    "center": [
+     0.48,
+     3.985,
+     0.39
+    ],
+    "size": [
+     0.4,
+     0.4,
+     0.7801
+    ],
+    "rotation_deg": 0.0
+   }
+  },
+  {
+   "name": "decor_dec_L0_028",
+   "wenart_id": "dec_L0_028",
+   "kind": "decor",
+   "status": "verified",
+   "level_id": "L0",
+   "element_id": "dec_L0_028",
    "host_id": null,
    "room_id": "r_L0_kitchen",
    "type": "pendant_light",
@@ -15077,10 +15246,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Matches light oak floor and adds warm Scandinavian ambiance."
+     "text": "Matches light oak floors and adds warm Scandinavian ambiance."
     }
    ],
-   "pass_index": 53,
+   "pass_index": 52,
    "assumed": {},
    "center": [
     11.166,
@@ -15134,7 +15303,7 @@
      4
     ],
     "pick": {
-     "key": "dec_L0_027",
+     "key": "dec_L0_028",
      "index": 1,
      "of": 2,
      "ids": [
@@ -15249,12 +15418,12 @@
    }
   },
   {
-   "name": "decor_dec_L0_028",
-   "wenart_id": "dec_L0_028",
+   "name": "decor_dec_L0_029",
+   "wenart_id": "dec_L0_029",
    "kind": "decor",
    "status": "verified",
    "level_id": "L0",
-   "element_id": "dec_L0_028",
+   "element_id": "dec_L0_029",
    "host_id": null,
    "room_id": "r_L0_kitchen",
    "type": "blind",
@@ -15269,7 +15438,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Softens light and complements white walls without blocking daylight."
+     "text": "Softens daylight and complements white walls without blocking light."
     },
     {
      "file": "building.json",
@@ -15280,7 +15449,7 @@
      "text": "Softens daylight while complementing white walls and linen textiles."
     }
    ],
-   "pass_index": 54,
+   "pass_index": 53,
    "assumed": {},
    "center": [
     11.052,
@@ -15334,7 +15503,7 @@
    }
   },
   {
-   "name": "decor_f_L0_010_29",
+   "name": "decor_f_L0_010_30",
    "wenart_id": "f_L0_010",
    "kind": "decor",
    "status": "verified",
@@ -15362,10 +15531,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds Scandinavian warmth with minimalism and complements light oak floor."
+     "text": "Adds Scandinavian warmth with natural wood tone, complements light oak floor."
     }
    ],
-   "pass_index": 24,
+   "pass_index": 23,
    "assumed": {
     "rest_height": 0.7053
    },
@@ -15553,12 +15722,12 @@
    }
   },
   {
-   "name": "decor_dec_L0_030",
-   "wenart_id": "dec_L0_030",
+   "name": "decor_dec_L0_031",
+   "wenart_id": "dec_L0_031",
    "kind": "decor",
    "status": "verified",
    "level_id": "L0",
-   "element_id": "dec_L0_030",
+   "element_id": "dec_L0_031",
    "host_id": null,
    "room_id": "r_L0_dining",
    "type": "pendant_light",
@@ -15581,10 +15750,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm brass light enhances daylight and matches Scandinavian elegance."
+     "text": "Brass pendant adds subtle metallic warmth under warm daylight."
     }
    ],
-   "pass_index": 55,
+   "pass_index": 54,
    "assumed": {},
    "center": [
     6.497,
@@ -15761,12 +15930,12 @@
    }
   },
   {
-   "name": "decor_dec_L0_031",
-   "wenart_id": "dec_L0_031",
+   "name": "decor_dec_L0_032",
+   "wenart_id": "dec_L0_032",
    "kind": "decor",
    "status": "verified",
    "level_id": "L0",
-   "element_id": "dec_L0_031",
+   "element_id": "dec_L0_032",
    "host_id": null,
    "room_id": "r_L0_dining",
    "type": "rug",
@@ -15789,10 +15958,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Cream rug softens floor and ties in with white walls and linen textiles."
+     "text": "Cream rug softens the space, enhances linen textiles, and ties in with white walls."
     }
    ],
-   "pass_index": 56,
+   "pass_index": 55,
    "assumed": {
     "rest_height": 0.0
    },
@@ -15967,12 +16136,12 @@
    }
   },
   {
-   "name": "decor_dec_L0_032",
-   "wenart_id": "dec_L0_032",
+   "name": "decor_dec_L0_033",
+   "wenart_id": "dec_L0_033",
    "kind": "decor",
    "status": "verified",
    "level_id": "L0",
-   "element_id": "dec_L0_032",
+   "element_id": "dec_L0_033",
    "host_id": null,
    "room_id": "r_L0_dining",
    "type": "curtain",
@@ -15987,7 +16156,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
+     "text": "Softens daylight and maintains airy Scandinavian feel."
     },
     {
      "file": "building.json",
@@ -15995,10 +16164,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Cream curtains let in daylight and maintain airy Scandinavian feel."
+     "text": "Cream curtains let in daylight while maintaining Scandinavian minimalism."
     }
    ],
-   "pass_index": 57,
+   "pass_index": 56,
    "assumed": {},
    "center": [
     6.782,
@@ -16052,6 +16221,26 @@
    }
   },
   {
+   "name": "splashback_r_L0_kitchen",
+   "wenart_id": "splashback_r_L0_kitchen",
+   "kind": "splashback",
+   "status": "assumed",
+   "level_id": "L0",
+   "element_id": "r_L0_kitchen",
+   "evidence": [],
+   "material": "tiles_light",
+   "textured": false,
+   "pass_index": null,
+   "detail": "splashback",
+   "pieces": [
+    "f_L0_001",
+    "f_L0_002"
+   ],
+   "assumed": {
+    "reason": "kitchen splashback: tiles 0.6 m high from the counter top behind f_L0_001, f_L0_002 (docs/milestone11.md §1.3 M2; not drawn)"
+   }
+  },
+  {
    "name": "furn_f_L0_003",
    "wenart_id": "f_L0_003",
    "kind": "furniture",
@@ -16071,7 +16260,7 @@
      "note": "stair rule: 2 flight(s), 8, 8 tread lines"
     }
    ],
-   "pass_index": 58,
+   "pass_index": 57,
    "assumed": {
     "direction": [
      0.0,
@@ -16378,32 +16567,6 @@
   {
    "name": "cam_r_L0_room_1",
    "wenart_id": "cam_r_L0_room_1",
-   "kind": "camera",
-   "status": "assumed",
-   "level_id": "L0",
-   "element_id": "r_L0_room",
-   "evidence": [],
-   "material": null,
-   "textured": false,
-   "pass_index": null,
-   "assumed": {}
-  },
-  {
-   "name": "cam_r_L0_room_2",
-   "wenart_id": "cam_r_L0_room_2",
-   "kind": "camera",
-   "status": "assumed",
-   "level_id": "L0",
-   "element_id": "r_L0_room",
-   "evidence": [],
-   "material": null,
-   "textured": false,
-   "pass_index": null,
-   "assumed": {}
-  },
-  {
-   "name": "cam_r_L0_room_3",
-   "wenart_id": "cam_r_L0_room_3",
    "kind": "camera",
    "status": "assumed",
    "level_id": "L0",
@@ -16942,7 +17105,7 @@
  ],
  "camera_policy": "search",
  "lens_mm": null,
- "search_seconds": 0.522,
+ "search_seconds": 0.408,
  "cameras": [
   {
    "name": "cam_r_L0_bed_room_1",
@@ -16970,12 +17133,12 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.5391,
+    "total": 3.4057,
     "furniture": 1.2231,
     "openings": 1.0,
     "floor": 0.3594,
     "depth": 0.9566,
-    "penalties": 0.0,
+    "penalties": 0.1333,
     "blocked": false,
     "yaw_deg": 330.0,
     "shares": {
@@ -16990,7 +17153,7 @@
      "d_wall": 2.8697
     }
    },
-   "placement": "search: score 3.539 = furniture 1.223 + openings 1.000 + floor 0.359 + depth 0.957 - penalties 0.000; yaw 330 deg",
+   "placement": "search: score 3.406 = furniture 1.223 + openings 1.000 + floor 0.359 + depth 0.957 - penalties 0.133; yaw 330 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17001,7 +17164,7 @@
     "f_L0_007",
     "f_L0_009"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17015,13 +17178,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    2.961802,
-    3.266802,
+    2.73,
+    3.23,
     1.25
    ],
    "target": [
-    2.461802,
-    2.400777,
+    2.23,
+    2.363975,
     1.25
    ],
    "lens_mm": 18.0,
@@ -17035,27 +17198,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.4216,
-    "furniture": 1.34,
+    "total": 3.2048,
+    "furniture": 1.3759,
     "openings": 1.0,
-    "floor": 0.2604,
-    "depth": 0.8212,
-    "penalties": 0.0,
+    "floor": 0.217,
+    "depth": 0.8007,
+    "penalties": 0.1889,
     "blocked": false,
     "yaw_deg": 240.0,
     "shares": {
-     "furn": 0.335,
-     "open": 0.1337,
-     "window": 0.1337,
-     "floor": 0.0651,
+     "furn": 0.344,
+     "open": 0.1528,
+     "window": 0.1528,
+     "floor": 0.0543,
      "ceiling": 0.0,
-     "wall": 0.4327,
+     "wall": 0.3859,
      "near": 0.0,
-     "max_single": 0.316,
-     "d_wall": 2.4635
+     "max_single": 0.3411,
+     "d_wall": 2.4022
     }
    },
-   "placement": "search: score 3.422 = furniture 1.340 + openings 1.000 + floor 0.260 + depth 0.821 - penalties 0.000; yaw 240 deg",
+   "placement": "search: score 3.205 = furniture 1.376 + openings 1.000 + floor 0.217 + depth 0.801 - penalties 0.189; yaw 240 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17068,7 +17231,7 @@
     "f_L0_009",
     "f_L0_023"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17083,12 +17246,12 @@
    "index": 3,
    "position": [
     1.23,
-    3.23,
+    2.73,
     1.25
    ],
    "target": [
     1.23,
-    2.23,
+    1.73,
     1.25
    ],
    "lens_mm": 18.0,
@@ -17102,32 +17265,31 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.2208,
-    "furniture": 1.3644,
+    "total": 2.8039,
+    "furniture": 1.4322,
     "openings": 1.0,
-    "floor": 0.0312,
-    "depth": 0.8252,
-    "penalties": 0.0,
+    "floor": 0.0,
+    "depth": 0.7673,
+    "penalties": 0.3955,
     "blocked": false,
     "yaw_deg": 270.0,
     "shares": {
-     "furn": 0.3411,
-     "open": 0.1879,
-     "window": 0.1879,
-     "floor": 0.0078,
+     "furn": 0.358,
+     "open": 0.1775,
+     "window": 0.1775,
+     "floor": 0.0,
      "ceiling": 0.0,
-     "wall": 0.3889,
+     "wall": 0.3429,
      "near": 0.0,
-     "max_single": 0.3537,
-     "d_wall": 2.4755
+     "max_single": 0.3733,
+     "d_wall": 2.3018
     }
    },
-   "placement": "search: score 3.221 = furniture 1.364 + openings 1.000 + floor 0.031 + depth 0.825 - penalties 0.000; yaw 270 deg",
+   "placement": "search: score 2.804 = furniture 1.432 + openings 1.000 + floor 0.000 + depth 0.767 - penalties 0.396; yaw 270 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
-    "win_L0_001",
-    "win_L0_007"
+    "win_L0_001"
    ],
    "visible_furniture": [
     "f_L0_007",
@@ -17135,7 +17297,7 @@
     "f_L0_009",
     "f_L0_023"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17199,7 +17361,7 @@
     "f_L0_021",
     "f_L0_022"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17263,7 +17425,7 @@
     "f_L0_021",
     "f_L0_022"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17277,12 +17439,12 @@
    "level_id": "L0",
    "index": 1,
    "position": [
-    7.106,
+    7.606,
     3.23,
     1.25
    ],
    "target": [
-    7.106,
+    7.606,
     2.23,
     1.25
    ],
@@ -17297,27 +17459,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.5352,
-    "furniture": 1.4136,
+    "total": 3.9506,
+    "furniture": 1.3968,
     "openings": 1.0,
-    "floor": 0.1215,
+    "floor": 0.5538,
     "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 270.0,
     "shares": {
-     "furn": 0.3534,
-     "open": 0.1523,
-     "window": 0.0885,
-     "floor": 0.0304,
+     "furn": 0.3492,
+     "open": 0.2188,
+     "window": 0.0833,
+     "floor": 0.1385,
      "ceiling": 0.0,
-     "wall": 0.3776,
-     "near": 0.0091,
-     "max_single": 0.168,
+     "wall": 0.372,
+     "near": 0.0,
+     "max_single": 0.1723,
      "d_wall": 3.0
     }
    },
-   "placement": "search: score 3.535 = furniture 1.414 + openings 1.000 + floor 0.121 + depth 1.000 - penalties 0.000; yaw 270 deg",
+   "placement": "search: score 3.951 = furniture 1.397 + openings 1.000 + floor 0.554 + depth 1.000 - penalties 0.000; yaw 270 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17326,12 +17488,10 @@
    ],
    "visible_furniture": [
     "f_L0_017",
-    "f_L0_018",
     "f_L0_019",
-    "f_L0_020",
-    "f_L0_024"
+    "f_L0_020"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17345,13 +17505,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    5.606,
-    3.23,
+    6.106,
+    3.73,
     1.25
    ],
    "target": [
-    6.106,
-    2.363975,
+    6.606,
+    2.863975,
     1.25
    ],
    "lens_mm": 18.0,
@@ -17365,27 +17525,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.3075,
-    "furniture": 1.3205,
-    "openings": 0.9476,
-    "floor": 0.0972,
-    "depth": 0.9422,
+    "total": 3.6964,
+    "furniture": 1.152,
+    "openings": 0.9259,
+    "floor": 0.6285,
+    "depth": 0.99,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 300.0,
     "shares": {
-     "furn": 0.3301,
-     "open": 0.1137,
-     "window": 0.0707,
-     "floor": 0.0243,
-     "ceiling": 0.0026,
-     "wall": 0.4062,
+     "furn": 0.288,
+     "open": 0.1111,
+     "window": 0.0681,
+     "floor": 0.1571,
+     "ceiling": 0.0039,
+     "wall": 0.4514,
      "near": 0.0,
-     "max_single": 0.1363,
-     "d_wall": 2.8266
+     "max_single": 0.1293,
+     "d_wall": 2.9699
     }
    },
-   "placement": "search: score 3.308 = furniture 1.321 + openings 0.948 + floor 0.097 + depth 0.942 - penalties 0.000; yaw 300 deg",
+   "placement": "search: score 3.696 = furniture 1.152 + openings 0.926 + floor 0.628 + depth 0.990 - penalties 0.000; yaw 300 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17394,12 +17554,10 @@
    ],
    "visible_furniture": [
     "f_L0_017",
-    "f_L0_018",
     "f_L0_019",
-    "f_L0_020",
-    "f_L0_024"
+    "f_L0_020"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17413,12 +17571,12 @@
    "level_id": "L0",
    "index": 3,
    "position": [
-    8.106,
-    3.73,
+    8.606,
+    3.23,
     1.25
    ],
    "target": [
-    8.106,
+    7.739975,
     2.73,
     1.25
    ],
@@ -17433,41 +17591,39 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.0462,
-    "furniture": 0.8451,
-    "openings": 0.991,
-    "floor": 0.2101,
+    "total": 3.593,
+    "furniture": 1.0199,
+    "openings": 0.9585,
+    "floor": 0.6146,
     "depth": 1.0,
     "penalties": 0.0,
     "blocked": false,
-    "yaw_deg": 270.0,
+    "yaw_deg": 210.0,
     "shares": {
-     "furn": 0.2113,
-     "open": 0.1189,
-     "window": 0.0668,
-     "floor": 0.0525,
-     "ceiling": 0.0,
-     "wall": 0.497,
-     "near": 0.0469,
-     "max_single": 0.1875,
-     "d_wall": 3.2542
+     "furn": 0.255,
+     "open": 0.115,
+     "window": 0.115,
+     "floor": 0.1536,
+     "ceiling": 0.0026,
+     "wall": 0.2543,
+     "near": 0.0,
+     "max_single": 0.1211,
+     "d_wall": 3.718
     }
    },
-   "placement": "search: score 3.046 = furniture 0.845 + openings 0.991 + floor 0.210 + depth 1.000 - penalties 0.000; yaw 270 deg",
+   "placement": "search: score 3.593 = furniture 1.020 + openings 0.959 + floor 0.615 + depth 1.000 - penalties 0.000; yaw 210 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
     "win_L0_002",
-    "d_L0_003"
+    "o_L0_001"
    ],
    "visible_furniture": [
     "f_L0_017",
-    "f_L0_018",
     "f_L0_019",
-    "f_L0_020",
-    "f_L0_024"
+    "f_L0_020"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17501,12 +17657,12 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 4.1876,
+    "total": 3.3251,
     "furniture": 2.4,
     "openings": 1.0,
     "floor": 0.2882,
     "depth": 0.4994,
-    "penalties": 0.0,
+    "penalties": 0.8625,
     "blocked": false,
     "yaw_deg": 120.0,
     "shares": {
@@ -17521,141 +17677,14 @@
      "d_wall": 1.4982
     }
    },
-   "placement": "search: score 4.188 = furniture 2.400 + openings 1.000 + floor 0.288 + depth 0.499 - penalties 0.000; yaw 120 deg",
+   "placement": "search: score 3.325 = furniture 2.400 + openings 1.000 + floor 0.288 + depth 0.499 - penalties 0.863; yaw 120 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [],
    "visible_furniture": [
     "f_L0_003"
    ],
-   "search_seconds": 0.522,
-   "kind": "interior",
-   "variant": "base",
-   "view": null,
-   "sides": [],
-   "region_id": null,
-   "dropped_reason": null
-  },
-  {
-   "name": "cam_r_L0_room_2",
-   "room_id": "r_L0_room",
-   "level_id": "L0",
-   "index": 2,
-   "position": [
-    3.748198,
-    2.834698,
-    1.25
-   ],
-   "target": [
-    4.248198,
-    3.700723,
-    1.25
-   ],
-   "lens_mm": 16.0,
-   "lens_rule": "room width 1.53 m < 2.2 m",
-   "sensor_mm": 36.0,
-   "resolution": [
-    1920,
-    1080
-   ],
-   "shift_x": 0.0,
-   "shift_y": -0.1,
-   "policy": "search",
-   "score": {
-    "total": 3.9231,
-    "furniture": 1.725,
-    "openings": 1.0,
-    "floor": 0.3438,
-    "depth": 0.8544,
-    "penalties": 0.0,
-    "blocked": false,
-    "yaw_deg": 60.0,
-    "shares": {
-     "furn": 0.4312,
-     "open": 0.125,
-     "window": 0.0,
-     "floor": 0.0859,
-     "ceiling": 0.0022,
-     "wall": 0.1662,
-     "near": 0.0,
-     "max_single": 0.1797,
-     "d_wall": 2.5631
-    }
-   },
-   "placement": "search: score 3.923 = furniture 1.725 + openings 1.000 + floor 0.344 + depth 0.854 - penalties 0.000; yaw 60 deg",
-   "anchor": null,
-   "warning": null,
-   "visible_openings": [
-    "d_L0_002",
-    "o_L0_001"
-   ],
-   "visible_furniture": [
-    "f_L0_003"
-   ],
-   "search_seconds": 0.522,
-   "kind": "interior",
-   "variant": "base",
-   "view": null,
-   "sides": [],
-   "region_id": null,
-   "dropped_reason": null
-  },
-  {
-   "name": "cam_r_L0_room_3",
-   "room_id": "r_L0_room",
-   "level_id": "L0",
-   "index": 3,
-   "position": [
-    4.43,
-    3.0165,
-    1.25
-   ],
-   "target": [
-    3.93,
-    3.882525,
-    1.25
-   ],
-   "lens_mm": 16.0,
-   "lens_rule": "room width 1.53 m < 2.2 m",
-   "sensor_mm": 36.0,
-   "resolution": [
-    1920,
-    1080
-   ],
-   "shift_x": 0.0,
-   "shift_y": -0.1,
-   "policy": "search",
-   "score": {
-    "total": 3.6136,
-    "furniture": 1.5625,
-    "openings": 1.0,
-    "floor": 0.4167,
-    "depth": 0.6344,
-    "penalties": 0.0,
-    "blocked": false,
-    "yaw_deg": 120.0,
-    "shares": {
-     "furn": 0.3906,
-     "open": 0.4154,
-     "window": 0.0,
-     "floor": 0.1042,
-     "ceiling": 0.0022,
-     "wall": 0.3155,
-     "near": 0.0,
-     "max_single": 0.2344,
-     "d_wall": 1.9032
-    }
-   },
-   "placement": "search: score 3.614 = furniture 1.562 + openings 1.000 + floor 0.417 + depth 0.634 - penalties 0.000; yaw 120 deg",
-   "anchor": null,
-   "warning": null,
-   "visible_openings": [
-    "d_L0_002"
-   ],
-   "visible_furniture": [
-    "f_L0_003"
-   ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17689,16 +17718,16 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.5466,
-    "furniture": 1.2185,
+    "total": 3.6709,
+    "furniture": 1.4622,
     "openings": 1.0,
     "floor": 0.3715,
     "depth": 0.9566,
-    "penalties": 0.0,
+    "penalties": 0.1194,
     "blocked": false,
     "yaw_deg": 30.0,
     "shares": {
-     "furn": 0.3046,
+     "furn": 0.3656,
      "open": 0.2222,
      "window": 0.0534,
      "floor": 0.0929,
@@ -17709,7 +17738,7 @@
      "d_wall": 2.8697
     }
    },
-   "placement": "search: score 3.547 = furniture 1.218 + openings 1.000 + floor 0.371 + depth 0.957 - penalties 0.000; yaw 30 deg",
+   "placement": "search: score 3.671 = furniture 1.462 + openings 1.000 + floor 0.371 + depth 0.957 - penalties 0.119; yaw 30 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17720,7 +17749,7 @@
     "f_L0_004",
     "f_L0_005"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17734,13 +17763,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    2.961802,
-    4.053198,
+    2.73,
+    4.235,
     1.25
    ],
    "target": [
-    2.461802,
-    4.919223,
+    1.863975,
+    4.735,
     1.25
    ],
    "lens_mm": 18.0,
@@ -17754,27 +17783,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.4352,
-    "furniture": 1.3331,
+    "total": 3.3277,
+    "furniture": 1.4483,
     "openings": 1.0,
-    "floor": 0.2604,
-    "depth": 0.8417,
-    "penalties": 0.0,
+    "floor": 0.3056,
+    "depth": 0.7627,
+    "penalties": 0.1889,
     "blocked": false,
-    "yaw_deg": 120.0,
+    "yaw_deg": 150.0,
     "shares": {
-     "furn": 0.3333,
-     "open": 0.1528,
-     "window": 0.1528,
-     "floor": 0.0651,
+     "furn": 0.3621,
+     "open": 0.1289,
+     "window": 0.1289,
+     "floor": 0.0764,
      "ceiling": 0.0,
-     "wall": 0.4128,
+     "wall": 0.4822,
      "near": 0.0,
-     "max_single": 0.3194,
-     "d_wall": 2.5251
+     "max_single": 0.3099,
+     "d_wall": 2.2881
     }
    },
-   "placement": "search: score 3.435 = furniture 1.333 + openings 1.000 + floor 0.260 + depth 0.842 - penalties 0.000; yaw 120 deg",
+   "placement": "search: score 3.328 = furniture 1.448 + openings 1.000 + floor 0.306 + depth 0.763 - penalties 0.189; yaw 150 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17783,11 +17812,9 @@
    ],
    "visible_furniture": [
     "f_L0_004",
-    "f_L0_005",
-    "f_L0_006",
-    "f_L0_025"
+    "f_L0_006"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17801,12 +17828,12 @@
    "level_id": "L0",
    "index": 3,
    "position": [
-    1.23,
+    0.73,
     4.235,
     1.25
    ],
    "target": [
-    1.23,
+    0.73,
     5.235,
     1.25
    ],
@@ -17821,27 +17848,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.2048,
-    "furniture": 1.3609,
+    "total": 3.071,
+    "furniture": 1.5333,
     "openings": 1.0,
-    "floor": 0.0538,
-    "depth": 0.7901,
-    "penalties": 0.0,
+    "floor": 0.1615,
+    "depth": 0.8635,
+    "penalties": 0.4873,
     "blocked": false,
     "yaw_deg": 90.0,
     "shares": {
-     "furn": 0.3402,
-     "open": 0.1753,
-     "window": 0.1753,
-     "floor": 0.0135,
+     "furn": 0.3833,
+     "open": 0.2817,
+     "window": 0.2817,
+     "floor": 0.0404,
      "ceiling": 0.0,
-     "wall": 0.3967,
-     "near": 0.0,
-     "max_single": 0.3542,
-     "d_wall": 2.3704
+     "wall": 0.3481,
+     "near": 0.125,
+     "max_single": 0.2951,
+     "d_wall": 2.5905
     }
    },
-   "placement": "search: score 3.205 = furniture 1.361 + openings 1.000 + floor 0.054 + depth 0.790 - penalties 0.000; yaw 90 deg",
+   "placement": "search: score 3.071 = furniture 1.533 + openings 1.000 + floor 0.162 + depth 0.864 - penalties 0.487; yaw 90 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17851,10 +17878,9 @@
    "visible_furniture": [
     "f_L0_004",
     "f_L0_005",
-    "f_L0_006",
-    "f_L0_025"
+    "f_L0_006"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17917,9 +17943,9 @@
    "visible_furniture": [
     "f_L0_001",
     "f_L0_002",
-    "f_L0_027"
+    "f_L0_026"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -17933,13 +17959,13 @@
    "level_id": "L0",
    "index": 2,
    "position": [
-    10.104,
-    5.767,
+    9.922198,
+    6.772302,
     1.25
    ],
    "target": [
-    11.104,
-    5.767,
+    10.788223,
+    6.272302,
     1.25
    ],
    "lens_mm": 18.0,
@@ -17953,27 +17979,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.6636,
-    "furniture": 1.3448,
+    "total": 3.5819,
+    "furniture": 1.4167,
     "openings": 1.0,
-    "floor": 0.4444,
-    "depth": 0.8743,
-    "penalties": 0.0,
+    "floor": 0.3455,
+    "depth": 0.9287,
+    "penalties": 0.109,
     "blocked": false,
-    "yaw_deg": 0.0,
+    "yaw_deg": 330.0,
     "shares": {
-     "furn": 0.3362,
-     "open": 0.2431,
-     "window": 0.1398,
-     "floor": 0.1111,
+     "furn": 0.3542,
+     "open": 0.178,
+     "window": 0.1137,
+     "floor": 0.0864,
      "ceiling": 0.0,
-     "wall": 0.2465,
-     "near": 0.0,
-     "max_single": 0.1662,
-     "d_wall": 2.623
+     "wall": 0.1832,
+     "near": 0.1163,
+     "max_single": 0.253,
+     "d_wall": 2.7861
     }
    },
-   "placement": "search: score 3.664 = furniture 1.345 + openings 1.000 + floor 0.444 + depth 0.874 - penalties 0.000; yaw 0 deg",
+   "placement": "search: score 3.582 = furniture 1.417 + openings 1.000 + floor 0.345 + depth 0.929 - penalties 0.109; yaw 330 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -17983,10 +18009,10 @@
    "visible_furniture": [
     "f_L0_001",
     "f_L0_002",
-    "f_L0_026",
-    "f_L0_027"
+    "f_L0_025",
+    "f_L0_026"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -18000,13 +18026,13 @@
    "level_id": "L0",
    "index": 3,
    "position": [
-    9.922198,
-    4.585198,
+    10.028264,
+    4.691264,
     1.25
    ],
    "target": [
-    10.422198,
-    5.451223,
+    10.528264,
+    5.557289,
     1.25
    ],
    "lens_mm": 18.0,
@@ -18020,27 +18046,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 3.6433,
-    "furniture": 1.6453,
-    "openings": 0.9368,
-    "floor": 0.5,
-    "depth": 0.7431,
-    "penalties": 0.1819,
+    "total": 3.545,
+    "furniture": 1.479,
+    "openings": 1.0,
+    "floor": 0.4236,
+    "depth": 0.6924,
+    "penalties": 0.05,
     "blocked": false,
     "yaw_deg": 60.0,
     "shares": {
-     "furn": 0.4113,
-     "open": 0.1124,
-     "window": 0.1124,
-     "floor": 0.125,
+     "furn": 0.3697,
+     "open": 0.1541,
+     "window": 0.1541,
+     "floor": 0.1059,
      "ceiling": 0.0,
-     "wall": 0.2639,
-     "near": 0.1406,
-     "max_single": 0.1671,
-     "d_wall": 2.2292
+     "wall": 0.3168,
+     "near": 0.0625,
+     "max_single": 0.1901,
+     "d_wall": 2.0771
     }
    },
-   "placement": "search: score 3.643 = furniture 1.645 + openings 0.937 + floor 0.500 + depth 0.743 - penalties 0.182; yaw 60 deg",
+   "placement": "search: score 3.545 = furniture 1.479 + openings 1.000 + floor 0.424 + depth 0.692 - penalties 0.050; yaw 60 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -18050,10 +18076,10 @@
    "visible_furniture": [
     "f_L0_001",
     "f_L0_002",
-    "f_L0_026",
-    "f_L0_027"
+    "f_L0_025",
+    "f_L0_026"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -18067,13 +18093,13 @@
    "level_id": "L0",
    "index": 1,
    "position": [
-    5.424198,
-    4.970698,
+    5.606,
+    5.075,
     1.25
    ],
    "target": [
-    6.290223,
-    5.470698,
+    6.472025,
+    5.575,
     1.25
    ],
    "lens_mm": 18.0,
@@ -18087,27 +18113,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 2.6273,
-    "furniture": 0.559,
+    "total": 2.9116,
+    "furniture": 0.5999,
     "openings": 1.0,
-    "floor": 0.2517,
-    "depth": 0.8165,
+    "floor": 0.3177,
+    "depth": 0.994,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 30.0,
     "shares": {
-     "furn": 0.1398,
-     "open": 0.1606,
-     "window": 0.1606,
-     "floor": 0.0629,
-     "ceiling": 0.0022,
-     "wall": 0.3958,
-     "near": 0.0017,
-     "max_single": 0.1879,
-     "d_wall": 2.4496
+     "furn": 0.15,
+     "open": 0.1732,
+     "window": 0.1732,
+     "floor": 0.0794,
+     "ceiling": 0.0004,
+     "wall": 0.3294,
+     "near": 0.0013,
+     "max_single": 0.2062,
+     "d_wall": 2.9819
     }
    },
-   "placement": "search: score 2.627 = furniture 0.559 + openings 1.000 + floor 0.252 + depth 0.817 - penalties 0.000; yaw 30 deg",
+   "placement": "search: score 2.912 = furniture 0.600 + openings 1.000 + floor 0.318 + depth 0.994 - penalties 0.000; yaw 30 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -18119,12 +18145,11 @@
     "f_L0_010",
     "f_L0_011",
     "f_L0_012",
-    "f_L0_013",
     "f_L0_014",
     "f_L0_015",
     "f_L0_016"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -18158,27 +18183,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 2.4931,
-    "furniture": 0.6854,
+    "total": 2.4782,
+    "furniture": 0.6444,
     "openings": 1.0,
-    "floor": 0.0816,
-    "depth": 0.7261,
+    "floor": 0.1024,
+    "depth": 0.7313,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 150.0,
     "shares": {
-     "furn": 0.1713,
+     "furn": 0.1611,
      "open": 0.1467,
      "window": 0.1467,
-     "floor": 0.0204,
+     "floor": 0.0256,
      "ceiling": 0.0,
-     "wall": 0.5017,
+     "wall": 0.5165,
      "near": 0.0017,
      "max_single": 0.1892,
-     "d_wall": 2.1782
+     "d_wall": 2.194
     }
    },
-   "placement": "search: score 2.493 = furniture 0.685 + openings 1.000 + floor 0.082 + depth 0.726 - penalties 0.000; yaw 150 deg",
+   "placement": "search: score 2.478 = furniture 0.644 + openings 1.000 + floor 0.102 + depth 0.731 - penalties 0.000; yaw 150 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [
@@ -18192,9 +18217,9 @@
     "f_L0_014",
     "f_L0_015",
     "f_L0_016",
-    "f_L0_028"
+    "f_L0_027"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -18228,27 +18253,27 @@
    "shift_y": -0.1,
    "policy": "search",
    "score": {
-    "total": 2.4419,
-    "furniture": 0.7463,
+    "total": 2.474,
+    "furniture": 0.7819,
     "openings": 0.8898,
-    "floor": 0.0035,
+    "floor": 0.0,
     "depth": 0.8024,
     "penalties": 0.0,
     "blocked": false,
     "yaw_deg": 180.0,
     "shares": {
-     "furn": 0.1866,
+     "furn": 0.1955,
      "open": 0.1068,
      "window": 0.1068,
-     "floor": 0.0009,
+     "floor": 0.0,
      "ceiling": 0.0,
-     "wall": 0.5356,
+     "wall": 0.5191,
      "near": 0.0,
      "max_single": 0.2266,
      "d_wall": 2.4071
     }
    },
-   "placement": "search: score 2.442 = furniture 0.746 + openings 0.890 + floor 0.004 + depth 0.802 - penalties 0.000; yaw 180 deg",
+   "placement": "search: score 2.474 = furniture 0.782 + openings 0.890 + floor 0.000 + depth 0.802 - penalties 0.000; yaw 180 deg",
    "anchor": null,
    "warning": null,
    "visible_openings": [],
@@ -18258,9 +18283,9 @@
     "f_L0_012",
     "f_L0_013",
     "f_L0_014",
-    "f_L0_028"
+    "f_L0_027"
    ],
-   "search_seconds": 0.522,
+   "search_seconds": 0.408,
    "kind": "interior",
    "variant": "base",
    "view": null,
@@ -18335,16 +18360,13 @@
    "metallic": 0.0,
    "procedural": null
   },
-  "tiles_light__Tiles074": {
+  "tiles_light": {
    "slug": "tiles_light",
-   "textured": true,
-   "asset": "Tiles074",
-   "source": "ambientcg",
-   "licence": "CC0",
-   "size_m": [
-    2.1,
-    2.1
-   ],
+   "textured": false,
+   "asset": null,
+   "source": null,
+   "licence": null,
+   "size_m": null,
    "flat_colour": [
     0.82,
     0.82,
@@ -18352,14 +18374,25 @@
    ],
    "tint": null,
    "unverified": false,
-   "reason": "textured",
-   "albedo_mode": "texture",
-   "detail": null,
-   "albedo_gain": 2.5,
-   "albedo_mean_luminance": 0.1279,
-   "gain_clamped": true,
+   "reason": "style names no asset for this material; procedural tiles grid 0.600 x 0.300 m, 2 mm grout in light grey (node group wenart_tiles_grid)",
+   "albedo_mode": "flat",
+   "detail": 0.0,
+   "albedo_gain": null,
+   "albedo_mean_luminance": null,
+   "gain_clamped": null,
    "metallic": 0.0,
-   "procedural": null
+   "procedural": "wenart_tiles",
+   "params": {
+    "pattern": "grid",
+    "tile_size_m": [
+     0.6,
+     0.3
+    ],
+    "grout_m": 0.002,
+    "grout_colour": "light grey",
+    "variation": 0.02
+   },
+   "group": "wenart_tiles_grid"
   },
   "painted_wood_white": {
    "slug": "painted_wood_white",
@@ -18500,32 +18533,6 @@
    "detail": null,
    "albedo_gain": 2.0848,
    "albedo_mean_luminance": 0.2349,
-   "gain_clamped": false,
-   "metallic": 0.0,
-   "procedural": null
-  },
-  "wood_oak_light__WoodFloor051__unverified": {
-   "slug": "wood_oak_light",
-   "textured": true,
-   "asset": "WoodFloor051",
-   "source": "ambientcg",
-   "licence": "CC0",
-   "size_m": [
-    1.8,
-    1.8
-   ],
-   "flat_colour": [
-    0.62,
-    0.47,
-    0.3
-   ],
-   "tint": null,
-   "unverified": true,
-   "reason": "textured",
-   "albedo_mode": "texture",
-   "detail": null,
-   "albedo_gain": 2.2125,
-   "albedo_mean_luminance": 0.2213,
    "gain_clamped": false,
    "metallic": 0.0,
    "procedural": null
@@ -18677,39 +18684,6 @@
    "gain_clamped": null,
    "metallic": 0.0,
    "procedural": null
-  },
-  "fabric_linen__rough_linen__white": {
-   "slug": "fabric_linen",
-   "textured": true,
-   "asset": "rough_linen",
-   "source": "polyhaven",
-   "licence": "CC0",
-   "size_m": [
-    0.2707,
-    0.2713
-   ],
-   "flat_colour": [
-    0.72,
-    0.66,
-    0.55
-   ],
-   "tint": null,
-   "unverified": false,
-   "reason": "textured",
-   "albedo_mode": "flat",
-   "detail": 0.5,
-   "albedo_gain": null,
-   "albedo_mean_luminance": 0.4002,
-   "gain_clamped": null,
-   "metallic": 0.0,
-   "procedural": null,
-   "colour": "white",
-   "colour_rgb": [
-    1.0,
-    1.0,
-    1.0
-   ],
-   "colour_applied": true
   }
  },
  "lighting": {
@@ -18718,6 +18692,7 @@
    "file": "/workspace/assets/hdris/kloppenheim_06_2k.hdr",
    "strength": 1.0
   },
+  "world_exterior": null,
   "sun": {
    "elevation_deg": 35.0,
    "azimuth_deg": 210.0,
@@ -18756,50 +18731,49 @@
   "win_L0_009": 12,
   "d_L0_004": 13,
   "d_L0_005": 14,
-  "proxy:f_L0_006": 15,
-  "proxy:f_L0_009": 16,
-  "proxy:f_L0_018": 17,
-  "f_L0_001": 18,
-  "f_L0_002": 19,
-  "f_L0_004": 20,
-  "f_L0_005": 21,
-  "f_L0_007": 22,
-  "f_L0_008": 23,
-  "f_L0_010": 24,
-  "f_L0_011": 25,
-  "f_L0_012": 26,
-  "f_L0_013": 27,
-  "f_L0_014": 28,
-  "f_L0_015": 29,
-  "f_L0_016": 30,
-  "f_L0_017": 31,
-  "f_L0_019": 32,
-  "f_L0_020": 33,
-  "f_L0_021": 34,
-  "f_L0_022": 35,
-  "f_L0_023": 36,
-  "f_L0_024": 37,
-  "f_L0_025": 38,
-  "f_L0_026": 39,
-  "f_L0_027": 40,
-  "f_L0_028": 41,
-  "dec_L0_006": 42,
-  "dec_L0_007": 43,
-  "dec_L0_008": 44,
-  "dec_L0_009": 45,
-  "dec_L0_013": 46,
-  "dec_L0_014": 47,
-  "dec_L0_015": 48,
-  "dec_L0_016": 49,
-  "dec_L0_024": 50,
-  "dec_L0_025": 51,
-  "dec_L0_026": 52,
-  "dec_L0_027": 53,
-  "dec_L0_028": 54,
-  "dec_L0_030": 55,
-  "dec_L0_031": 56,
-  "dec_L0_032": 57,
-  "f_L0_003": 58
+  "proxy:f_L0_009": 15,
+  "f_L0_001": 16,
+  "f_L0_002": 17,
+  "f_L0_004": 18,
+  "f_L0_005": 19,
+  "f_L0_006": 20,
+  "f_L0_007": 21,
+  "f_L0_008": 22,
+  "f_L0_010": 23,
+  "f_L0_011": 24,
+  "f_L0_012": 25,
+  "f_L0_013": 26,
+  "f_L0_014": 27,
+  "f_L0_015": 28,
+  "f_L0_016": 29,
+  "f_L0_017": 30,
+  "f_L0_019": 31,
+  "f_L0_020": 32,
+  "f_L0_021": 33,
+  "f_L0_022": 34,
+  "f_L0_023": 35,
+  "f_L0_024": 36,
+  "f_L0_025": 37,
+  "f_L0_026": 38,
+  "f_L0_027": 39,
+  "dec_L0_006": 40,
+  "dec_L0_007": 41,
+  "dec_L0_008": 42,
+  "dec_L0_009": 43,
+  "dec_L0_013": 44,
+  "dec_L0_014": 45,
+  "dec_L0_015": 46,
+  "dec_L0_016": 47,
+  "dec_L0_024": 48,
+  "dec_L0_025": 49,
+  "dec_L0_026": 50,
+  "dec_L0_027": 51,
+  "dec_L0_028": 52,
+  "dec_L0_029": 53,
+  "dec_L0_031": 54,
+  "dec_L0_032": 55,
+  "dec_L0_033": 56,
+  "f_L0_003": 57
  },
  "assumed": [
   {
@@ -19047,6 +19021,14 @@
    "kind": "skirting"
   },
   {
+   "object": "skirting_r_L0_kitchen",
+   "field": "skirting",
+   "value": "8 cm x 12 mm, 9.382 m in 5 runs",
+   "reason": "design detail of the room's documented walls (painted skirting board); not in the documents",
+   "parent": "r_L0_kitchen",
+   "kind": "skirting"
+  },
+  {
    "object": "skirting_r_L0_dining",
    "field": "skirting",
    "value": "8 cm x 12 mm, 10.679 m in 6 runs",
@@ -19061,19 +19043,7 @@
    "reason": "style profile has no textiles slot; default fabric for sofas and chairs"
   },
   {
-   "object": "proxy_f_L0_006",
-   "field": "height",
-   "value": 0.8,
-   "reason": "no height in the JSON; proxy table value for unknown"
-  },
-  {
    "object": "proxy_f_L0_009",
-   "field": "height",
-   "value": 0.8,
-   "reason": "no height in the JSON; proxy table value for unknown"
-  },
-  {
-   "object": "proxy_f_L0_018",
    "field": "height",
    "value": 0.8,
    "reason": "no height in the JSON; proxy table value for unknown"
@@ -19114,6 +19084,12 @@
   },
   {
    "object": "furn_f_L0_005",
+   "field": "height",
+   "value": 0.5,
+   "reason": "no height in the JSON; type height for nightstand"
+  },
+  {
+   "object": "furn_f_L0_006",
    "field": "height",
    "value": 0.5,
    "reason": "no height in the JSON; type height for nightstand"
@@ -19191,12 +19167,20 @@
    "reason": "no height in the JSON; type height for floor_lamp"
   },
   {
-   "object": "furn_f_L0_027",
+   "object": "furn_f_L0_026",
    "field": "cabinet_fronts",
    "value": "1 front(s) with handles",
    "reason": "design detail of the cabinet (fronts and handles inside its own box); the documents show only the footprint",
-   "parent": "f_L0_027",
+   "parent": "f_L0_026",
    "kind": "cabinet_fronts"
+  },
+  {
+   "object": "splashback_r_L0_kitchen",
+   "field": "splashback",
+   "value": 0.6,
+   "reason": "kitchen splashback: tiles 0.6 m high from the counter top behind f_L0_001, f_L0_002 (docs/milestone11.md §1.3 M2; not drawn)",
+   "parent": "r_L0_kitchen",
+   "kind": "splashback"
   },
   {
    "object": "furn_f_L0_003",
@@ -19296,6 +19280,7 @@
   "sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)",
   "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
   "L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair",
+  "f_L0_006: inferred nightstand: nightstand: named by an AI pass and the only named type that fits the size (0.50 x 0.45 m), the bedroom room and the position (others fitting: floor_lamp, ottoman, potted_plant, side_table)",
   "r_L0_pooja: no AI furniture, prayer room: never furnished by AI (docs/milestone7.md §0)",
   "f_L0_003: stair flight 1: 1.28 m under the ceiling at its top (the opening covers the last flight and the landing only, assumed)",
   "r_L0_pooja: no view (no furniture after layout and decor and 1.76 m2 < 2.5 m2: no view (docs/milestone7.md §6.2))",
@@ -19396,7 +19381,7 @@
   }
  },
  "wenart_mood": "warm daylight",
- "build_fingerprint": "8b166000c839cf34e18b8ce3de6efc8a4d7fad945bdf654b1939b1a61d6a4edd",
+ "build_fingerprint": "07247d00b0053782cdd0ab0edfb232b87f2df7aef1ba15a57fa24dfeb8c12c26",
  "build_args": {
   "building": "outputs/real01/building_final.json",
   "style": "outputs/real01/style.json",
@@ -19437,6 +19422,18 @@
    "render.twin_rooms": {
     "value": "one",
     "assumed": true
+   },
+   "markers_in_final": {
+    "value": false,
+    "assumed": true
+   },
+   "roof_terraces": {
+    "value": "auto",
+    "assumed": true
+   },
+   "site_options.front_court": {
+    "value": "auto",
+    "assumed": true
    }
   }
  },
@@ -19445,9 +19442,9 @@
   "glb": "scene.glb"
  },
  "furniture": {
-  "pieces": 28,
+  "pieces": 26,
   "by_method": {
-   "proxy": 3,
+   "proxy": 1,
    "parametric": 6,
    "library": 19
   },
@@ -19473,19 +19470,26 @@
     "reason": "fitting chose the parametric mesh"
    },
    {
-    "id": "f_L0_027",
+    "id": "f_L0_026",
     "type": "wall_cabinet",
     "reason": "fitting chose the parametric mesh"
    }
   ],
-  "proxies": 3,
-  "decor": 32,
+  "proxies": 1,
+  "decor": 33,
   "proxies_forced": false,
-  "not_built": [],
+  "not_built": [
+   {
+    "id": "f_L0_018",
+    "type": "unknown",
+    "reason": "build false: a drawn symbol both recognition passes call not_furniture; kept as an obstacle, not built"
+   }
+  ],
   "stairs": [
    "f_L0_003"
   ],
-  "decor_skipped": []
+  "decor_skipped": [],
+  "splashbacks": 2
  },
  "site": {
   "built": false,
@@ -19627,7 +19631,38 @@
   "render.twin_rooms": {
    "value": "one",
    "assumed": true
+  },
+  "markers_in_final": {
+   "value": false,
+   "assumed": true
+  },
+  "roof_terraces": {
+   "value": "auto",
+   "assumed": true
+  },
+  "site_options.front_court": {
+   "value": "auto",
+   "assumed": true
   }
  },
- "seconds": 67.5
+ "markers_in_final": false,
+ "unverified_items": [
+  {
+   "id": "r_L0_room",
+   "kind": "room",
+   "level_id": "L0"
+  },
+  {
+   "id": "f_L0_006",
+   "kind": "furniture",
+   "level_id": "L0"
+  },
+  {
+   "id": "f_L0_009",
+   "kind": "furniture",
+   "level_id": "L0"
+  }
+ ],
+ "agent_overrides": null,
+ "seconds": 63.3
 }

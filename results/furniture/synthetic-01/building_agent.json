@@ -1,0 +1,8425 @@
+{
+ "schema_version": "0.1",
+ "project": {
+  "id": "synthetic-01",
+  "source_folder": "projects/synthetic-01",
+  "created_utc": "2026-10-10T00:06:47Z",
+  "pipeline_commit": "9909871b",
+  "brief": {
+   "style": "Scandinavian, light oak floor, white walls, linen textiles, warm daylight"
+  }
+ },
+ "status": "ok",
+ "documents": [
+  {
+   "id": "doc_1_kat_pdf",
+   "file": "1_kat.pdf",
+   "format": "pdf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L1",
+     "level_label_raw": "1. KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.035277777777777776,
+      "method": "pdf_scale_text",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "1_kat.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:40",
+       "text": "ÖLÇEK 1/100"
+      }
+     },
+     "transform_to_building": [
+      0.035277777777777776,
+      0.0,
+      -16.848666666666666,
+      0.0,
+      0.035277777777777776,
+      -11.151305555555556
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "1_kat.pdf",
+       "method": "vector",
+       "confidence": 1.0,
+       "page": 1,
+       "entity": "char:28",
+       "text": "1. KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/1_kat_pdf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "cad_pdf"
+  },
+  {
+   "id": "doc_1_kat_scan_png",
+   "file": "1_kat_scan.png",
+   "format": "image",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "scan",
+     "level_id": "L1",
+     "level_label_raw": "1. KAT PLANI",
+     "classifier": "ocr",
+     "scale": {
+      "metres_per_unit": 0.01695835025823463,
+      "method": "dimension_text",
+      "confidence": 0.9,
+      "evidence": {
+       "file": "1_kat_scan.png",
+       "method": "ocr",
+       "confidence": 0.9,
+       "page": 1,
+       "entity": "ocr:8",
+       "text": "4,30",
+       "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+       "pixel_box": [
+        1103.7,
+        1113.0,
+        1140.2,
+        1127.0
+       ]
+      }
+     },
+     "transform_to_building": [
+      0.01695835025823463,
+      0.0,
+      -16.86,
+      0.0,
+      0.01695835025823463,
+      -11.1389
+     ],
+     "confidence": 0.9,
+     "evidence": [
+      {
+       "file": "1_kat_scan.png",
+       "method": "ocr",
+       "confidence": 0.9353,
+       "page": 1,
+       "pixel_box": [
+        996.9,
+        583.5,
+        1127.5,
+        599.5
+       ],
+       "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+       "text": "1. KAT PLANI"
+      },
+      {
+       "file": "1_kat_scan.png",
+       "method": "raster",
+       "confidence": 0.9,
+       "text": "kind: paper outline fills the image"
+      }
+     ],
+     "debug_image": "debug/1_kat_scan_png_p1.png",
+     "rectified_image": "rectified/1_kat_scan_png_p1.png",
+     "to_original": [
+      [
+       0.999999888,
+       -0.000472818,
+       -0.499054271
+      ],
+      [
+       -0.000472818,
+       -0.999999888,
+       1755.500195836
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ]
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "raster_scan"
+  },
+  {
+   "id": "doc_zemin_kat_dxf",
+   "file": "zemin_kat.dxf",
+   "format": "dxf",
+   "converter": null,
+   "pages": [
+    {
+     "page": 1,
+     "class": "floor_plan",
+     "skip_reason": null,
+     "kind": "vector",
+     "level_id": "L0",
+     "level_label_raw": "ZEMİN KAT PLANI",
+     "classifier": "title",
+     "scale": {
+      "metres_per_unit": 0.001,
+      "method": "dxf_insunits",
+      "confidence": 1.0,
+      "evidence": {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "$INSUNITS=4"
+      }
+     },
+     "transform_to_building": [
+      0.001,
+      0.0,
+      0.0,
+      0.0,
+      0.001,
+      0.0
+     ],
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "zemin_kat.dxf",
+       "method": "vector",
+       "confidence": 1.0,
+       "entity": "TEXT:124",
+       "text": "ZEMİN KAT PLANI"
+      }
+     ],
+     "debug_image": "debug/zemin_kat_dxf_p1.png"
+    }
+   ],
+   "unit_system": "metric",
+   "source_kind": "dxf"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L0",
+   "label": "Zemin Kat",
+   "order": 0,
+   "elevation": 0.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "entity": "TEXT:124",
+     "text": "ZEMİN KAT PLANI"
+    }
+   ],
+   "label_source": "title"
+  },
+  {
+   "id": "L1",
+   "label": "1. Kat",
+   "order": 1,
+   "elevation": 3.0,
+   "ceiling_height": 2.7,
+   "ceiling_height_source": "assumed_default",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:28",
+     "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9353,
+     "page": 1,
+     "pixel_box": [
+      996.9,
+      583.5,
+      1127.5,
+      599.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "1. KAT PLANI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.9,
+     "text": "kind: paper outline fills the image"
+    }
+   ],
+   "label_source": "title"
+  }
+ ],
+ "walls": [
+  {
+   "id": "w_L0_001",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    9.6,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:EC"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_002",
+   "level_id": "L0",
+   "start": [
+    9.475,
+    0.0
+   ],
+   "end": [
+    9.475,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:ED"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_003",
+   "level_id": "L0",
+   "start": [
+    0.0,
+    7.075
+   ],
+   "end": [
+    9.6,
+    7.075
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:EE"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_004",
+   "level_id": "L0",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:EF"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_005",
+   "level_id": "L0",
+   "start": [
+    5.3,
+    0.25
+   ],
+   "end": [
+    5.3,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F0"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_006",
+   "level_id": "L0",
+   "start": [
+    0.25,
+    5.2
+   ],
+   "end": [
+    5.25,
+    5.2
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F1"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_007",
+   "level_id": "L0",
+   "start": [
+    5.35,
+    3.8
+   ],
+   "end": [
+    9.35,
+    3.8
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F2"
+    }
+   ]
+  },
+  {
+   "id": "w_L0_008",
+   "level_id": "L0",
+   "start": [
+    7.0,
+    3.85
+   ],
+   "end": [
+    7.0,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "DUVAR",
+     "entity": "LWPOLYLINE:F3"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_001",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    0.125
+   ],
+   "end": [
+    9.6,
+    0.125
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:1"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      993.9,
+      1080.4,
+      1564.7,
+      1095.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_002",
+   "level_id": "L1",
+   "start": [
+    9.475,
+    0.0
+   ],
+   "end": [
+    9.475,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:2"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_003",
+   "level_id": "L1",
+   "start": [
+    0.0,
+    7.075
+   ],
+   "end": [
+    9.6,
+    7.075
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:3"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      994.3,
+      670.1,
+      1564.5,
+      684.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_004",
+   "level_id": "L1",
+   "start": [
+    0.125,
+    0.0
+   ],
+   "end": [
+    0.125,
+    7.2
+   ],
+   "thickness": 0.25,
+   "height": 2.7,
+   "exterior": true,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:4"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "note": "run of 2 pieces"
+    }
+   ]
+  },
+  {
+   "id": "w_L1_005",
+   "level_id": "L1",
+   "start": [
+    4.3,
+    0.25
+   ],
+   "end": [
+    4.3,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:5"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1245.4,
+      685.2,
+      1251.2,
+      1080.6
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_006",
+   "level_id": "L1",
+   "start": [
+    6.0,
+    0.25
+   ],
+   "end": [
+    6.0,
+    6.95
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:6"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1346.0,
+      684.3,
+      1352.1,
+      1079.6
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_007",
+   "level_id": "L1",
+   "start": [
+    0.25,
+    4.2
+   ],
+   "end": [
+    4.25,
+    4.2
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:7"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1009.1,
+      844.1,
+      1245.4,
+      851.6
+     ]
+    }
+   ]
+  },
+  {
+   "id": "w_L1_008",
+   "level_id": "L1",
+   "start": [
+    6.05,
+    4.0
+   ],
+   "end": [
+    9.35,
+    4.0
+   ],
+   "thickness": 0.1,
+   "height": 2.7,
+   "exterior": false,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:8"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.85,
+     "page": 1,
+     "entity": "raster:mask",
+     "pixel_box": [
+      1352.1,
+      855.8,
+      1547.0,
+      863.3
+     ]
+    }
+   ]
+  }
+ ],
+ "openings": [
+  {
+   "id": "d_L0_001",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    6.15,
+    7.075
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_hol",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:F4",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_002",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    5.3,
+    4.5
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_salon",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:F6",
+     "block": "KAPI_90"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_003",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_005",
+   "center": [
+    5.3,
+    6.1
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_mutfak",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:F8",
+     "block": "KAPI_80"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_004",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_007",
+   "center": [
+    5.95,
+    3.8
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:FA",
+     "block": "KAPI_80"
+    }
+   ]
+  },
+  {
+   "id": "d_L0_005",
+   "type": "door",
+   "level_id": "L0",
+   "wall_id": "w_L0_008",
+   "center": [
+    7.0,
+    5.4
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L0_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "KAPI",
+     "entity": "INSERT:FC",
+     "block": "KAPI_80"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_001",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    1.5,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:FE",
+     "block": "PENCERE_180"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_002",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    3.8,
+    0.125
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:100",
+     "block": "PENCERE_120"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_003",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_001",
+   "center": [
+    7.35,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:102",
+     "block": "PENCERE_180"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_004",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_004",
+   "center": [
+    0.125,
+    2.7
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:104",
+     "block": "PENCERE_120"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_005",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    2.75,
+    7.075
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:106",
+     "block": "PENCERE_120"
+    }
+   ]
+  },
+  {
+   "id": "win_L0_006",
+   "type": "window",
+   "level_id": "L0",
+   "wall_id": "w_L0_003",
+   "center": [
+    8.2,
+    7.075
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "PENCERE",
+     "entity": "INSERT:108",
+     "block": "PENCERE_60"
+    }
+   ]
+  },
+  {
+   "id": "d_L1_001",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_005",
+   "center": [
+    4.3,
+    2.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_ebeveyn_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:9"
+    }
+   ]
+  },
+  {
+   "id": "d_L1_002",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_005",
+   "center": [
+    4.3,
+    5.5
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_cocuk_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:11"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:2,seg:54",
+     "pixel_box": [
+      1198.0,
+      747.4,
+      1248.1,
+      793.9
+     ]
+    }
+   ]
+  },
+  {
+   "id": "d_L1_003",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_006",
+   "center": [
+    6.0,
+    2.0
+   ],
+   "width": 0.9,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_yatak_odasi",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:13"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:3,seg:65",
+     "pixel_box": [
+      1349.8,
+      950.8,
+      1405.5,
+      1003.3
+     ]
+    }
+   ]
+  },
+  {
+   "id": "d_L1_004",
+   "type": "door",
+   "level_id": "L1",
+   "wall_id": "w_L1_006",
+   "center": [
+    6.0,
+    5.5
+   ],
+   "width": 0.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": "r_L1_banyo",
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:15"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "arc:1,seg:52",
+     "pixel_box": [
+      1348.6,
+      746.9,
+      1400.3,
+      794.9
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_001",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_001",
+   "center": [
+    2.25,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:17"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:108,seg:98",
+     "pixel_box": [
+      1073.2,
+      1080.6,
+      1183.2,
+      1095.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_002",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_001",
+   "center": [
+    7.7,
+    0.125
+   ],
+   "width": 1.8,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:21"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:106,seg:94",
+     "pixel_box": [
+      1395.2,
+      1080.5,
+      1505.2,
+      1095.3
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_003",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_004",
+   "center": [
+    0.125,
+    2.2
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:25"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:63,seg:64",
+     "pixel_box": [
+      994.4,
+      930.0,
+      1009.2,
+      1002.0
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_004",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_003",
+   "center": [
+    2.25,
+    7.075
+   ],
+   "width": 1.2,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:29"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:23,seg:41",
+     "pixel_box": [
+      1091.0,
+      670.3,
+      1164.0,
+      684.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_005",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_003",
+   "center": [
+    5.15,
+    7.075
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:33"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:25,seg:38",
+     "pixel_box": [
+      1280.0,
+      670.2,
+      1318.0,
+      684.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "win_L1_006",
+   "type": "window",
+   "level_id": "L1",
+   "wall_id": "w_L1_003",
+   "center": [
+    7.7,
+    7.075
+   ],
+   "width": 0.6,
+   "height": null,
+   "sill_height": null,
+   "swing_side": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "path:37"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "raster",
+     "confidence": 0.7,
+     "page": 1,
+     "entity": "seg:26,seg:37",
+     "pixel_box": [
+      1431.0,
+      670.1,
+      1468.0,
+      684.3
+     ]
+    }
+   ]
+  }
+ ],
+ "rooms": [
+  {
+   "id": "r_L0_salon",
+   "level_id": "L0",
+   "label": "Salon",
+   "label_raw": "SALON 24,50 m²",
+   "room_type": "living",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     5.25,
+     0.25
+    ],
+    [
+     5.25,
+     5.15
+    ],
+    [
+     0.25,
+     5.15
+    ]
+   ],
+   "area_computed": 24.5,
+   "area_label": 24.5,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:126",
+     "text": "SALON 24,50 m²"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_004,w_L0_005,w_L0_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_yatak_odasi",
+   "level_id": "L0",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     5.35,
+     0.25
+    ],
+    [
+     9.35,
+     0.25
+    ],
+    [
+     9.35,
+     3.75
+    ],
+    [
+     5.35,
+     3.75
+    ]
+   ],
+   "area_computed": 14.0,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:127",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_001,w_L0_002,w_L0_005,w_L0_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_hol",
+   "level_id": "L0",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     5.35,
+     3.85
+    ],
+    [
+     6.95,
+     3.85
+    ],
+    [
+     6.95,
+     6.95
+    ],
+    [
+     5.35,
+     6.95
+    ]
+   ],
+   "area_computed": 4.96,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:128",
+     "text": "HOL"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_005,w_L0_007,w_L0_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_banyo",
+   "level_id": "L0",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     7.05,
+     3.85
+    ],
+    [
+     9.35,
+     3.85
+    ],
+    [
+     9.35,
+     6.95
+    ],
+    [
+     7.05,
+     6.95
+    ]
+   ],
+   "area_computed": 7.13,
+   "area_label": null,
+   "has_documented_furniture": true,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:129",
+     "text": "BANYO"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_002,w_L0_003,w_L0_007,w_L0_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L0_mutfak",
+   "level_id": "L0",
+   "label": "Mutfak",
+   "label_raw": "MUTFAK",
+   "room_type": "kitchen",
+   "polygon": [
+    [
+     0.25,
+     5.25
+    ],
+    [
+     5.25,
+     5.25
+    ],
+    [
+     5.25,
+     6.95
+    ],
+    [
+     0.25,
+     6.95
+    ]
+   ],
+   "area_computed": 8.5,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "YAZI",
+     "entity": "TEXT:12A",
+     "text": "MUTFAK"
+    },
+    {
+     "file": "zemin_kat.dxf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L0_003,w_L0_004,w_L0_005,w_L0_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_ebeveyn_yatak_odasi",
+   "level_id": "L1",
+   "label": "Ebeveyn Yatak Odası",
+   "label_raw": "EBEVEYN YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.25,
+     0.25
+    ],
+    [
+     4.25,
+     0.25
+    ],
+    [
+     4.25,
+     4.15
+    ],
+    [
+     0.25,
+     4.15
+    ]
+   ],
+   "area_computed": 15.6,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:51",
+     "text": "EBEVEYN YATAK ODASI"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_004,w_L1_005,w_L1_007"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_hol",
+   "level_id": "L1",
+   "label": "Hol",
+   "label_raw": "HOL",
+   "room_type": "hall",
+   "polygon": [
+    [
+     4.35,
+     0.25
+    ],
+    [
+     5.95,
+     0.25
+    ],
+    [
+     5.95,
+     6.95
+    ],
+    [
+     4.35,
+     6.95
+    ]
+   ],
+   "area_computed": 10.72,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:70",
+     "text": "HOL"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.964,
+     "page": 1,
+     "pixel_box": [
+      1267.6,
+      874.9,
+      1301.6,
+      888.4
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "HOL"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_003,w_L1_005,w_L1_006"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_yatak_odasi",
+   "level_id": "L1",
+   "label": "Yatak Odası",
+   "label_raw": "YATAK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     6.05,
+     0.25
+    ],
+    [
+     9.35,
+     0.25
+    ],
+    [
+     9.35,
+     3.95
+    ],
+    [
+     6.05,
+     3.95
+    ]
+   ],
+   "area_computed": 12.21,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:73",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9244,
+     "page": 1,
+     "pixel_box": [
+      1372.6,
+      975.8,
+      1484.6,
+      989.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "YATAK ODASI"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_001,w_L1_002,w_L1_006,w_L1_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_banyo",
+   "level_id": "L1",
+   "label": "Banyo",
+   "label_raw": "BANYO",
+   "room_type": "bathroom",
+   "polygon": [
+    [
+     6.05,
+     4.05
+    ],
+    [
+     9.35,
+     4.05
+    ],
+    [
+     9.35,
+     6.95
+    ],
+    [
+     6.05,
+     6.95
+    ]
+   ],
+   "area_computed": 9.57,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:84",
+     "text": "BANYO"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.8903,
+     "page": 1,
+     "pixel_box": [
+      1373.5,
+      762.3,
+      1431.5,
+      776.9
+     ],
+     "model": "tesseract --oem 1 --psm 7 -l eng+tur (glyph row)",
+     "text": "BANYO"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_002,w_L1_003,w_L1_006,w_L1_008"
+    }
+   ]
+  },
+  {
+   "id": "r_L1_cocuk_odasi",
+   "level_id": "L1",
+   "label": "Çocuk Odası",
+   "label_raw": "ÇOCUK ODASI",
+   "room_type": "bedroom",
+   "polygon": [
+    [
+     0.25,
+     4.25
+    ],
+    [
+     4.25,
+     4.25
+    ],
+    [
+     4.25,
+     6.95
+    ],
+    [
+     0.25,
+     6.95
+    ]
+   ],
+   "area_computed": 10.8,
+   "area_label": null,
+   "has_documented_furniture": false,
+   "style_override": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "method": "vector",
+     "confidence": 1.0,
+     "page": 1,
+     "entity": "char:89",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "1_kat_scan.png",
+     "method": "ocr",
+     "confidence": 0.9605,
+     "page": 1,
+     "pixel_box": [
+      1030.5,
+      757.0,
+      1146.5,
+      773.5
+     ],
+     "model": "tesseract --oem 1 --psm 11 -l eng+tur",
+     "text": "ÇOCUK ODASI"
+    },
+    {
+     "file": "1_kat.pdf",
+     "method": "derived",
+     "confidence": 1.0,
+     "entity": "derived-from:w_L1_003,w_L1_004,w_L1_005,w_L1_007"
+    }
+   ]
+  }
+ ],
+ "furniture": [
+  {
+   "id": "f_L0_001",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "sofa",
+   "type_raw": "KANEPE_3LU",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.75,
+     4.65
+    ],
+    "size": [
+     2.2,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07BWJCBY2",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.074,
+     0.9538,
+     1.0139
+    ],
+    "bbox_m": [
+     2.2,
+     0.9,
+     0.7902
+    ],
+    "aspect_error": 0.1187,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0016,
+     0.0484,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07BWJCBY2",
+      "aspect_error": 0.1187,
+      "scale": [
+       1.074,
+       0.9538,
+       1.0139
+      ],
+      "non_uniform": 1.126,
+      "mean_scale": 1.0139,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0447,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "classic"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.045 (step 0)",
+      "quality 3",
+      "aspect error 0.119",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07BWJCBY2.glb",
+    "sha256_glb": "5d339773ea97c2352be142a077c7036be34b3d29f12b725af14d7ed07070f4ce",
+    "uid": "abo_B07BWJCBY2",
+    "title": "Amazon Brand – Stone & Beam Bradbury Chesterfield Tufted Leather Loveseat Sofa Couch, 78.7\"W, Black",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07BWJCBY2",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Bradbury Chesterfield Tufted Leather Loveseat Sofa Couch, 78.7\"W, Black\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Traditional",
+    "name": "Amazon Brand – Stone & Beam Bradbury Chesterfield Tufted Leather Loveseat Sofa Couch, 78.7\"W, Black",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"B07BWJCBY2_TRB_MDL_MR\"",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": false,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       80,
+       75,
+       73
+      ]
+     }
+    ],
+    "material_tags": [
+     "fabric"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:10A",
+     "block": "KANEPE_3LU"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     2.75,
+     5.1
+    ],
+    "wall_id": "w_L0_006"
+   }
+  },
+  {
+   "id": "f_L0_002",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "table_coffee",
+   "type_raw": "SEHPA",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.75,
+     3.5
+    ],
+    "size": [
+     1.0,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07GDYVV9M",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9924,
+     0.9978,
+     0.9951
+    ],
+    "bbox_m": [
+     1.0,
+     0.6,
+     0.3636
+    ],
+    "aspect_error": 0.0055,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0001,
+     -0.0167,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "abo_B07GDYVV9M",
+      "aspect_error": 0.0055,
+      "scale": [
+       0.9924,
+       0.9978,
+       0.9951
+      ],
+      "non_uniform": 1.0055,
+      "mean_scale": 0.9951,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0049,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.005 (step 0)",
+      "quality 3",
+      "aspect error 0.005",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07GDYVV9M.glb",
+    "sha256_glb": "ecc2592287329a4cc05bc706a68aef86930c5f9e0d7b16983e5f6b651be48d65",
+    "uid": "abo_B07GDYVV9M",
+    "title": "Amazon Brand - Rivet Triangular Coffee Table with Solid Wood Legs, 105 x 60 x 37cm, MDF with Walnut Veneer/Solid Beech Wood",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07GDYVV9M",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Rivet Triangular Coffee Table with Solid Wood Legs, 105 x 60 x 37cm, MDF with Walnut Veneer/Solid Beech Wood\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Modern",
+    "name": "Amazon Brand - Rivet Triangular Coffee Table with Solid Wood Legs, 105 x 60 x 37cm, MDF with Walnut Veneer/Solid Beech Wood",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"AEPDGAHFLGBAAAAAFMBAAAAAAAAAOHHGNGHP\"",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       166,
+       124,
+       111
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:10C",
+     "block": "SEHPA"
+    }
+   ],
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.75,
+     3.5
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_003",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "tv_unit",
+   "type_raw": "TV_UNITESI",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     2.75,
+     0.525
+    ],
+    "size": [
+     1.6,
+     0.45
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07B8RYY41",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9841,
+     0.9967,
+     0.9904
+    ],
+    "bbox_m": [
+     1.6,
+     0.45,
+     0.6541
+    ],
+    "aspect_error": 0.0127,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0001,
+     -0.0097,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07B8RYY41",
+      "aspect_error": 0.0127,
+      "scale": [
+       0.9841,
+       0.9967,
+       0.9904
+      ],
+      "non_uniform": 1.0128,
+      "mean_scale": 0.9904,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0096,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.010 (step 0)",
+      "quality 3",
+      "aspect error 0.013",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07B8RYY41.glb",
+    "sha256_glb": "91b89acaaa49e814c4c4e4072f2c344ef18c7b12e7e5c56a7d1ce913f8429b1b",
+    "uid": "abo_B07B8RYY41",
+    "title": "Amazon Brand – Stone & Beam Bruckner Casual Wood Media Table, 64\"W, Brown",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07B8RYY41",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Stone & Beam Bruckner Casual Wood Media Table, 64\"W, Brown\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Traditional",
+    "name": "Amazon Brand – Stone & Beam Bruckner Casual Wood Media Table, 64\"W, Brown",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"AALIEMLGBOCAAAAAFMBAAAAAAAAACKIGAFNI\"",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       144,
+       115,
+       89
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:10E",
+     "block": "TV_UNITESI"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     2.75,
+     0.3
+    ],
+    "wall_id": "w_L0_001"
+   }
+  },
+  {
+   "id": "f_L0_004",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "armchair",
+   "type_raw": "KOLTUK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     4.5,
+     3.4
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B075X4N3GM",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9698,
+     1.0671,
+     1.0185
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     0.7878
+    ],
+    "aspect_error": 0.0956,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     -0.0253,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B075X4N3GM",
+      "aspect_error": 0.0956,
+      "scale": [
+       0.9698,
+       1.0671,
+       1.0185
+      ],
+      "non_uniform": 1.1003,
+      "mean_scale": 1.0185,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0386,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern",
+     "neutral"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     5
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.039 (step 0)",
+      "quality 3",
+      "aspect error 0.096",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B075X4N3GM.glb",
+    "sha256_glb": "aa989d8447bd125e461ae9578b562e2999afd4f5a8ae21fec64e245bff3a7892",
+    "uid": "abo_B075X4N3GM",
+    "title": "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B075X4N3GM",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Mid-Century modern",
+    "name": "Amazon Brand – Rivet Aiden Tufted Mid-Century Modern Velvet Accent Chair, 35.4\"W, Otter Grey",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "\"AKOHOJEIEGCAAAAAFMBAAAAAAAAABHBGFBGF\"",
+      "material": "fabric",
+      "materials": [
+       "fabric"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       118,
+       107,
+       97
+      ]
+     }
+    ],
+    "material_tags": [
+     "fabric"
+    ],
+    "recolourable_fabric": true,
+    "recolourable_wood": false,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:110",
+     "block": "KOLTUK"
+    }
+   ],
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     4.5,
+     3.4
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_005",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "bookshelf",
+   "type_raw": "KITAPLIK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     0.475,
+     4.3
+    ],
+    "size": [
+     1.0,
+     0.35
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": null,
+   "asset": {
+    "library": "polyhaven",
+    "asset_id": "wooden_display_shelves_01",
+    "licence": "CC0",
+    "license": "CC0",
+    "method": "library",
+    "fit_scale": [
+     0.9278,
+     0.9421,
+     0.935
+    ],
+    "bbox_m": [
+     1.0,
+     0.35,
+     1.455
+    ],
+    "aspect_error": 0.0153,
+    "front_axis": "-X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0004
+    ],
+    "rotation_fix_deg": 90.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "wooden_display_shelves_01",
+      "aspect_error": 0.0153,
+      "scale": [
+       0.9278,
+       0.9421,
+       0.935
+      ],
+      "non_uniform": 1.0154,
+      "mean_scale": 0.935,
+      "accepted": true,
+      "rank": 1,
+      "source": "polyhaven",
+      "units_known": true,
+      "size_error": 0.065,
+      "size_bucket": 1,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "japandi",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": null,
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.065 (step 1)",
+      "quality 3",
+      "aspect error 0.015",
+      "source polyhaven"
+     ],
+     "passed_over": []
+    },
+    "gltf": "models/wooden_display_shelves_01/wooden_display_shelves_01_1k.gltf"
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:112",
+     "block": "KITAPLIK"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     0.3,
+     4.3
+    ],
+    "wall_id": "w_L0_004"
+   }
+  },
+  {
+   "id": "f_L0_006",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": "YATAK_CIFT",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.8,
+     2.7
+    ],
+    "size": [
+     1.6,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07GFDZW5W",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9864,
+     1.0204,
+     1.0034
+    ],
+    "bbox_m": [
+     1.6,
+     2.0,
+     0.8027
+    ],
+    "aspect_error": 0.0339,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07GFDZW5W",
+      "aspect_error": 0.0339,
+      "scale": [
+       0.9864,
+       1.0204,
+       1.0034
+      ],
+      "non_uniform": 1.0344,
+      "mean_scale": 1.0034,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0125,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.013 (step 0)",
+      "quality 3",
+      "aspect error 0.034",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07GFDZW5W.glb",
+    "sha256_glb": "a8c57e426fb65db44420a1cfa5242b38e7d73d67881ea894296a7f33c7306d4d",
+    "uid": "abo_B07GFDZW5W",
+    "title": "Movian Havel",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07GFDZW5W",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Movian Havel\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Modern",
+    "name": "Movian Havel",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B07GFDZW5W_MAT_MR",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": false,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       208,
+       208,
+       209
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:114",
+     "block": "YATAK_CIFT"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     7.8,
+     3.7
+    ],
+    "wall_id": "w_L0_007"
+   }
+  },
+  {
+   "id": "f_L0_007",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     6.65,
+     3.5
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07PX3CC31",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0414,
+     1.0499,
+     1.0457
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.664
+    ],
+    "aspect_error": 0.0081,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07PX3CC31",
+      "aspect_error": 0.0081,
+      "scale": [
+       1.0414,
+       1.0499,
+       1.0457
+      ],
+      "non_uniform": 1.0081,
+      "mean_scale": 1.0457,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0457,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.046 (step 0)",
+      "quality 3",
+      "aspect error 0.008",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07PX3CC31.glb",
+    "sha256_glb": "832d59660d8fed7069b92f13a1d6dbd6ac8cf14297f38607b4b3c13c54d19556",
+    "uid": "abo_B07PX3CC31",
+    "title": "AmazonBasics Classic Wood Nightstand End Table with Cabinet - Black Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07PX3CC31",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"AmazonBasics Classic Wood Nightstand End Table with Cabinet - Black Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "AmazonBasics Classic Wood Nightstand End Table with Cabinet - Black Oak",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B07PX3CC31_MAT_MR",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       77,
+       73,
+       71
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:116",
+     "block": "KOMIDIN"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     6.65,
+     3.7
+    ],
+    "wall_id": "w_L0_007"
+   }
+  },
+  {
+   "id": "f_L0_008",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": "KOMIDIN",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.95,
+     3.5
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07PX3CC31",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     1.0414,
+     1.0499,
+     1.0457
+    ],
+    "bbox_m": [
+     0.5,
+     0.4,
+     0.664
+    ],
+    "aspect_error": 0.0081,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07PX3CC31",
+      "aspect_error": 0.0081,
+      "scale": [
+       1.0414,
+       1.0499,
+       1.0457
+      ],
+      "non_uniform": 1.0081,
+      "mean_scale": 1.0457,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0457,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.046 (step 0)",
+      "quality 3",
+      "aspect error 0.008",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07PX3CC31.glb",
+    "sha256_glb": "832d59660d8fed7069b92f13a1d6dbd6ac8cf14297f38607b4b3c13c54d19556",
+    "uid": "abo_B07PX3CC31",
+    "title": "AmazonBasics Classic Wood Nightstand End Table with Cabinet - Black Oak",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07PX3CC31",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"AmazonBasics Classic Wood Nightstand End Table with Cabinet - Black Oak\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "Classic",
+    "name": "AmazonBasics Classic Wood Nightstand End Table with Cabinet - Black Oak",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B07PX3CC31_MAT_MR",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": true,
+      "separable": true,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       77,
+       73,
+       71
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": true,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:118",
+     "block": "KOMIDIN"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     8.95,
+     3.7
+    ],
+    "wall_id": "w_L0_007"
+   }
+  },
+  {
+   "id": "f_L0_009",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": "DOLAP",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.0,
+     1.5
+    ],
+    "size": [
+     1.8,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "abo",
+    "asset_id": "abo_B07JGPKZYT",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9946,
+     1.0347,
+     1.0147
+    ],
+    "bbox_m": [
+     1.8,
+     0.6,
+     2.1002
+    ],
+    "aspect_error": 0.0394,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "abo_B07JGPKZYT",
+      "aspect_error": 0.0394,
+      "scale": [
+       0.9946,
+       1.0347,
+       1.0147
+      ],
+      "non_uniform": 1.0402,
+      "mean_scale": 1.0147,
+      "accepted": true,
+      "rank": 1,
+      "source": "abo",
+      "units_known": true,
+      "size_error": 0.0183,
+      "size_bucket": 0,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "scandinavian",
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     5,
+     4
+    ],
+    "units_known": true,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "real size: mean |scale - 1| 0.018 (step 0)",
+      "quality 3",
+      "aspect error 0.039",
+      "source abo"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/abo/abo_B07JGPKZYT.glb",
+    "sha256_glb": "c6f09aa32c6e20c1046c43339e3e271eb7da9732ab97e765c690c0a3dc4a72be",
+    "uid": "abo_B07JGPKZYT",
+    "title": "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect",
+    "author": "Amazon.com",
+    "source_url": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html#B07JGPKZYT",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Amazon Berkeley Objects (CC BY 4.0)",
+    "attribution": "\"Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect\" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "style_hint": "4-Door Wardrobe With Mirror",
+    "name": "Amazon Brand - Movian Mira 4-Door Wardrobe with Mirrors, 181 x 207 x 58cm, Light Brown Oak-Effect",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "B07JGPKZYT_MAT_MR",
+      "material": "wood",
+      "materials": [
+       "wood"
+      ],
+      "agreed": false,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": null,
+      "colour_rgb": [
+       214,
+       194,
+       176
+      ]
+     }
+    ],
+    "material_tags": [
+     "wood"
+    ],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 1.0
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:11A",
+     "block": "DOLAP"
+    }
+   ],
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     9.3,
+     1.5
+    ],
+    "wall_id": "w_L0_002"
+   }
+  },
+  {
+   "id": "f_L0_010",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "toilet",
+   "type_raw": "KLOZET",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.95,
+     4.4
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_c901dfa120a0487a9f5c9a2d241f70ab",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9845,
+     0.9914,
+     0.9879
+    ],
+    "bbox_m": [
+     0.4,
+     0.7,
+     0.8205
+    ],
+    "aspect_error": 0.007,
+    "front_axis": "+X",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0134,
+     0.0005,
+     -0.0025
+    ],
+    "rotation_fix_deg": 270.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_c901dfa120a0487a9f5c9a2d241f70ab",
+      "aspect_error": 0.007,
+      "scale": [
+       0.9845,
+       0.9914,
+       0.9879
+      ],
+      "non_uniform": 1.007,
+      "mean_scale": 0.9879,
+      "accepted": true,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0121,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.007",
+      "source objaverse"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/objaverse/c901dfa120a0487a9f5c9a2d241f70ab.glb",
+    "sha256_glb": "8083c091f4ab806605427e4f09c008d4c53b6a2a7a6a22590d122f31bbf661c1",
+    "uid": "c901dfa120a0487a9f5c9a2d241f70ab",
+    "title": "Animated low poly toilet",
+    "author": "Gamedirection",
+    "source_url": "https://sketchfab.com/3d-models/c901dfa120a0487a9f5c9a2d241f70ab",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Animated low poly toilet\" by Gamedirection (https://sketchfab.com/3d-models/c901dfa120a0487a9f5c9a2d241f70ab), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "Animated low poly toilet",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "phong2",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.9938,
+      "textured": false,
+      "base_colour": null,
+      "colour_rgb": [
+       240,
+       240,
+       240
+      ]
+     },
+     {
+      "index": 1,
+      "name": "phong3",
+      "material": "other",
+      "materials": [],
+      "agreed": false,
+      "separable": false,
+      "share": 0.0062,
+      "textured": false,
+      "base_colour": null,
+      "colour_rgb": null,
+      "not_asked": "share"
+     }
+    ],
+    "material_tags": [],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 0.002331331017781076
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:11C",
+     "block": "KLOZET"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_011",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "washbasin",
+   "type_raw": "LAVABO",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     9.075,
+     5.4
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": null,
+   "asset": {
+    "library": "objaverse",
+    "asset_id": "objaverse_f76c502218884914a27148f656a9b656",
+    "licence": "CC-BY-4.0",
+    "license": "CC-BY-4.0",
+    "method": "library",
+    "fit_scale": [
+     0.9044,
+     0.8989,
+     0.9017
+    ],
+    "bbox_m": [
+     0.6,
+     0.45,
+     0.539
+    ],
+    "aspect_error": 0.0061,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     -0.0001,
+     -0.2508,
+     0.2143
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "objaverse_f76c502218884914a27148f656a9b656",
+      "aspect_error": 0.0061,
+      "scale": [
+       0.9044,
+       0.8989,
+       0.9017
+      ],
+      "non_uniform": 1.0061,
+      "mean_scale": 0.9017,
+      "accepted": true,
+      "rank": 1,
+      "source": "objaverse",
+      "units_known": false,
+      "size_error": 0.0983,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.006",
+      "source objaverse"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/objaverse/f76c502218884914a27148f656a9b656.glb",
+    "sha256_glb": "58af8b92b3fa8152d2bb4bef3ab5380981318fae3fde4a4316c93001ee29fd9c",
+    "uid": "f76c502218884914a27148f656a9b656",
+    "title": "Bathroom1",
+    "author": "neutralize",
+    "source_url": "https://sketchfab.com/3d-models/f76c502218884914a27148f656a9b656",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Bathroom1\" by neutralize (https://sketchfab.com/3d-models/f76c502218884914a27148f656a9b656), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched",
+    "licence_flag": null,
+    "name": "Bathroom1",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "cgaxis_models_22_31_01",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.9404,
+      "textured": false,
+      "base_colour": null,
+      "colour_rgb": [
+       255,
+       255,
+       255
+      ]
+     },
+     {
+      "index": 1,
+      "name": "cgaxis_models_22_31_02",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 0.0595,
+      "textured": false,
+      "base_colour": [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ],
+      "colour_rgb": [
+       58,
+       58,
+       58
+      ]
+     },
+     {
+      "index": 2,
+      "name": "cgaxis_models_22_31_03",
+      "material": "other",
+      "materials": [],
+      "agreed": false,
+      "separable": false,
+      "share": 0.0,
+      "textured": false,
+      "base_colour": [
+       0.8627,
+       0.098,
+       0.098,
+       1.0
+      ],
+      "colour_rgb": null,
+      "not_asked": "share"
+     },
+     {
+      "index": 3,
+      "name": "cgaxis_models_22_31_04",
+      "material": "other",
+      "materials": [],
+      "agreed": false,
+      "separable": false,
+      "share": 0.0,
+      "textured": false,
+      "base_colour": [
+       0.098,
+       0.7451,
+       0.8627,
+       1.0
+      ],
+      "colour_rgb": null,
+      "not_asked": "share"
+     }
+    ],
+    "material_tags": [],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 0.0254
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:11E",
+     "block": "LAVABO"
+    }
+   ],
+   "design": {
+    "vanity": true
+   }
+  },
+  {
+   "id": "f_L0_012",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "shower",
+   "type_raw": "DUS",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     7.55,
+     6.45
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_shower_scandinavian_9_7fb81c9a",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "fit_scale": [
+     0.83,
+     0.8934,
+     0.8617
+    ],
+    "bbox_m": [
+     0.9,
+     0.9,
+     1.6888
+    ],
+    "aspect_error": 0.0737,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0,
+     0.0135,
+     -0.9799
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "low",
+    "candidates": [
+     {
+      "id": "gen_shower_scandinavian_9_7fb81c9a",
+      "aspect_error": 0.0737,
+      "scale": [
+       0.83,
+       0.8934,
+       0.8617
+      ],
+      "non_uniform": 1.0764,
+      "mean_scale": 0.8617,
+      "accepted": true,
+      "rank": 1,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.1383,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "generated: no other library model passed the caps",
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.074",
+      "source generated"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/generated/gen_shower_scandinavian_9_7fb81c9a.glb",
+    "sha256_glb": "7fb81c9affc1f048d0c080fc09bedc87064be80367082a5270be8a272b77957b",
+    "uid": "gen_shower_scandinavian_9_7fb81c9a",
+    "title": "Generated scandinavian shower (9)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated scandinavian shower (9)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single scandinavian style square glass shower enclosure with a shower tray, matte white ceramic and enamel, light oak accents, brushed steel fittings, simple rounded forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "7d22756dcbe8fcea2c6ed801841a60fcb0b1dfa96104c8765737971c3f35cbec",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 1595539870
+    },
+    "style_hint": "scandinavian",
+    "name": "Generated scandinavian shower (9)",
+    "unit_scale": 1.956021708071971
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:120",
+     "block": "DUS"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_013",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "type": "washing_machine",
+   "type_raw": "CAMASIR_MAK",
+   "source": "from_documents",
+   "footprint": {
+    "center": [
+     8.95,
+     6.55
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": null,
+   "asset": {
+    "library": "generated",
+    "asset_id": "gen_washing_machine_japandi_1_f1f4def2",
+    "licence": "generated (TRELLIS.2-4B, MIT)",
+    "license": "generated (TRELLIS.2-4B, MIT)",
+    "method": "library",
+    "fit_scale": [
+     0.9631,
+     0.9569,
+     0.96
+    ],
+    "bbox_m": [
+     0.6,
+     0.6,
+     0.8196
+    ],
+    "aspect_error": 0.0064,
+    "front_axis": "-Y",
+    "up_axis": "+Z",
+    "origin_offset": [
+     0.0001,
+     -0.0135,
+     -0.4269
+    ],
+    "rotation_fix_deg": 0.0,
+    "front_axis_confidence": "high",
+    "candidates": [
+     {
+      "id": "gen_washing_machine_japandi_1_f1f4def2",
+      "aspect_error": 0.0064,
+      "scale": [
+       0.9631,
+       0.9569,
+       0.96
+      ],
+      "non_uniform": 1.0064,
+      "mean_scale": 0.96,
+      "accepted": true,
+      "rank": 1,
+      "source": "generated",
+      "units_known": false,
+      "size_error": 0.04,
+      "size_bucket": null,
+      "quality": 3.0
+     }
+    ],
+    "cap": 1.15,
+    "uniform_range": [
+     0.75,
+     1.3
+    ],
+    "styles": [
+     "modern minimal",
+     "minimal",
+     "modern"
+    ],
+    "style_family": null,
+    "excluded": [],
+    "quality": [
+     4,
+     4
+    ],
+    "units_known": false,
+    "ranking": {
+     "rule": "style -> bed rule -> generated last -> real size (known units first, mean |scale - 1| in 5 % steps) -> quality (missing = 3) -> aspect error -> source (abo, polyhaven, objaverse, generated)",
+     "rank": 1,
+     "tried": 1,
+     "reasons": [
+      "generated: no other library model passed the caps",
+      "units not known (normalised by type): ranked after the real-size models",
+      "quality 3",
+      "aspect error 0.006",
+      "source generated"
+     ],
+     "passed_over": []
+    },
+    "glb": "models/generated/gen_washing_machine_japandi_1_f1f4def2.glb",
+    "sha256_glb": "f1f4def2f1734702a09fcdbbf49e2215a46896038a1b66a5b29b9e243cd370e3",
+    "uid": "gen_washing_machine_japandi_1_f1f4def2",
+    "title": "Generated japandi washing machine (1)",
+    "author": "generated: TRELLIS.2-4B (Microsoft, MIT) from a Z-Image-Turbo image",
+    "source_url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+    "licence_url": "",
+    "via": "Objaverse (allenai/objaverse, ODC-By 1.0)",
+    "attribution": "\"Generated japandi washing machine (1)\": generated with TRELLIS.2-4B (MIT) for WenArt_RUN; no third-party credit",
+    "licence_flag": null,
+    "generated": {
+     "prompt": "a single japandi style front-loading washing machine, matte white and stone grey ceramic, black metal fittings, light ash wood accents, low calm forms, studio product photo, three-quarter front view from the left, full object in frame, plain white background, soft even light, no people, no text",
+     "image_sha256": "e4a3ab304b2b24fed6df1e041aba713392d9321e766aa41be69b6ac5921579ea",
+     "model": "microsoft/TRELLIS.2-4B",
+     "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+     "seed": 696633628
+    },
+    "style_hint": "japandi",
+    "name": "Generated japandi washing machine (1)",
+    "material_slots": [
+     {
+      "index": 0,
+      "name": "Material_0",
+      "material": "other",
+      "materials": [
+       "other"
+      ],
+      "agreed": true,
+      "separable": false,
+      "share": 1.0,
+      "textured": true,
+      "base_colour": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ],
+      "colour_rgb": [
+       237,
+       237,
+       236
+      ]
+     }
+    ],
+    "material_tags": [],
+    "recolourable_fabric": false,
+    "recolourable_wood": false,
+    "unit_scale": 0.8521178884186525
+   },
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "method": "vector",
+     "confidence": 1.0,
+     "layer": "MOBILYA",
+     "entity": "INSERT:122",
+     "block": "CAMASIR_MAK"
+    }
+   ]
+  },
+  {
+   "id": "f_L0_014",
+   "level_id": "L0",
+   "room_id": "r_L0_hol",
+   "type": "console_table",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     6.779,
+     4.479
+    ],
+    "size": [
+     0.9,
+     0.3
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Slim console table against the back wall for light storage and decor."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      5.35,
+      6.95
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.35
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L0_015",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "kitchen_counter",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.75,
+     6.629
+    ],
+    "size": [
+     3.0,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.9,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Main counter along the longest wall for workflow."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      2.75,
+      6.95
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      3.0,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L0_016",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "sink_kitchen",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.15,
+     5.521
+    ],
+    "size": [
+     0.6,
+     0.5
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.9,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Sink placed at counter end for easy access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      2.75,
+      6.95
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.5
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L0_017",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "fridge",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.621,
+     6.579
+    ],
+    "size": [
+     0.7,
+     0.7
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 1.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Fridge placed at room corner for storage and access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      0.25,
+      6.95
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.7,
+      0.7
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L0_018",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "type": "tall_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.571,
+     5.839
+    ],
+    "size": [
+     0.6,
+     0.6
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 2.1,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Tall cabinet next to fridge for extra storage."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      0.25,
+      6.95
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_001",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.5,
+     3.129
+    ],
+    "size": [
+     1.8,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main sleeping area against the wall, leaving space for walkways."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.5,
+      3.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.8,
+      2.0
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_002",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.471,
+     1.1
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand beside the bed for easy access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.5,
+      2.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_003",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.7,
+     3.929
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Second nightstand for symmetry and convenience."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.5,
+      3.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_004",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "wardrobe",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     3.929,
+     3.5
+    ],
+    "size": [
+     1.2,
+     0.6
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 2.1,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Storage against the wall, leaving space for walkways."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      3.0,
+      1.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.8,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_005",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "desk",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.471,
+     0.571
+    ],
+    "size": [
+     1.2,
+     0.6
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.75,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Work area against the wall, near the window for daylight."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      0.5,
+      1.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_006",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "type": "office_chair",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.587,
+     0.55
+    ],
+    "size": [
+     0.55,
+     0.55
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 1.0,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Comfortable seating for the desk, positioned to face the desk."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      0.5,
+      1.2
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_007",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "type": "console_table",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     4.546,
+     0.9
+    ],
+    "size": [
+     1.2,
+     0.35
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Provides a minimalist surface for keys and mail near the entrance."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      4.35,
+      1.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.35
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_008",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "type": "shoe_cabinet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     4.531,
+     6.3
+    ],
+    "size": [
+     0.8,
+     0.32
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 1.0,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Stores shoes neatly near the second door, keeping the floor clear."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      4.35,
+      5.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.8,
+      0.32
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_009",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "type": "bench",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     5.729,
+     3.1
+    ],
+    "size": [
+     1.2,
+     0.4
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.45,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Offers seating for waiting guests or removing shoes, against the far wall."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      5.95,
+      3.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_010",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "bed_double",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     7.9,
+     2.929
+    ],
+    "size": [
+     1.8,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Main sleeping area against the back wall, leaving space for walkways."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      7.0,
+      2.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.8,
+      2.0
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "anchor_first"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_011",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     6.271,
+     3.2
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Nightstand beside the bed for easy access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      6.5,
+      2.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_012",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     6.7,
+     3.729
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Second nightstand for symmetry and convenience."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      7.5,
+      2.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_013",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "type": "shower",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     7.171,
+     4.521
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 2.0,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Shower placed against the right wall for easy access and space efficiency."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      7.0,
+      5.5
+     ],
+     "rotation_deg": 270.0,
+     "size": [
+      0.9,
+      0.9
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_014",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "type": "toilet",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     6.6,
+     6.579
+    ],
+    "size": [
+     0.4,
+     0.7
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Toilet placed against the back wall, avoiding direct opposition to the door."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      6.5,
+      6.2
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.4,
+      0.7
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_015",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "type": "washbasin",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     6.296,
+     4.4
+    ],
+    "size": [
+     0.6,
+     0.45
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.85,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Washbasin placed against the left wall near the door for convenience."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      6.0,
+      4.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.6,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_016",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "type": "bathtub",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     8.954,
+     6.079
+    ],
+    "size": [
+     1.7,
+     0.75
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.6,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Bathtub placed against the back wall to maximize space and keep it away from the door."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      8.0,
+      6.0
+     ],
+     "rotation_deg": 90.0,
+     "size": [
+      1.7,
+      0.75
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_017",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "bed_single",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.0,
+     5.929
+    ],
+    "size": [
+     1.2,
+     2.0
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Placed against the left wall with headboard facing away from door."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.0,
+      5.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      2.0
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_018",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.871,
+     6.729
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Positioned beside the bed for easy access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      0.7,
+      5.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.5,
+      0.4
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L1_019",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "wardrobe",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     3.529,
+     6.629
+    ],
+    "size": [
+     1.2,
+     0.6
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 2.1,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Placed against the back wall for storage."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      3.5,
+      6.0
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.8,
+      0.6
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide"
+    ],
+    "agreed_by_other_pass": true
+   }
+  },
+  {
+   "id": "f_L1_020",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "type": "desk",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.5,
+     4.621
+    ],
+    "size": [
+     1.4,
+     0.7
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.75,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Positioned against the back wall near window for natural light."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      2.5,
+      6.5
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.4,
+      0.7
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   }
+  },
+  {
+   "id": "f_L0_019",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "armchair",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.2,
+     4.679
+    ],
+    "size": [
+     0.9,
+     0.9
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.85,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds seating symmetry to the sofa, against the wall for style and space efficiency."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      1.5,
+      4.0
+     ],
+     "rotation_deg": 270.0,
+     "size": [
+      0.9,
+      0.9
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L0_020",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "type": "console_table",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     0.446,
+     0.9
+    ],
+    "size": [
+     1.2,
+     0.35
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Provides surface for decor and entryway function, against wall for clean Scandinavian look."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      0.47,
+      0.9
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.35
+     ]
+    },
+    "repairs": [
+     "snap"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L0_021",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "type": "bench",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     7.4,
+     0.95
+    ],
+    "size": [
+     1.4,
+     0.45
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.45,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds a bench at the foot of the bed for casual seating or storage, matching Scandinavian style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Placed at foot of bed for functional storage and seating, matching Scandinavian style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      7.8,
+      1.2
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.4,
+      0.45
+     ]
+    },
+    "repairs": [
+     "slide"
+    ],
+    "agreed_by_other_pass": true
+   },
+   "completes_room": true,
+   "method": "ai",
+   "adjusted_by_ai": {
+    "reason": "Move the AI bench down so the wardrobe's free zone in front of f_L0_009 is unblocked (F6).",
+    "round": 1,
+    "log_seq": 54,
+    "model": "Qwen/Qwen3.8-27B-FP8",
+    "changed": {
+     "footprint": {
+      "center": [
+       7.4,
+       1.2
+      ],
+      "size": [
+       1.4,
+       0.45
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0
+    }
+   }
+  }
+ ],
+ "conflicts": [],
+ "unverified": [],
+ "warnings": [
+  "Level L0: ceiling height assumed 2.70 m (no section drawing found)",
+  "Level L1: ceiling height assumed 2.70 m (no section drawing found)",
+  "1. Kat: 1_kat_scan.png (scan) is evidence only for 1_kat.pdf p1: 8 walls, 9 openings, 0 furniture pieces and 4 room names confirmed",
+  "r_L0_banyo: completion added nothing, nothing to ask: no changeable drawn piece and nothing the room may get"
+ ],
+ "decor": [
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_001.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Soft, neutral cushions complement Scandinavian style and linen textiles."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism.",
+   "id": "dec_L0_001",
+   "host_id": "f_L0_001",
+   "center": [
+    2.2,
+    4.925
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.15
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_001.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Soft, neutral cushions complement Scandinavian style and linen textiles."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism.",
+   "id": "dec_L0_002",
+   "host_id": "f_L0_001",
+   "center": [
+    3.3,
+    4.925
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.15
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_001.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds texture and warmth without overwhelming the space."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm-toned throw adds coziness and matches natural wood and daylight."
+    }
+   ],
+   "reason": "Adds texture and warmth without overwhelming the space.",
+   "id": "dec_L0_003",
+   "host_id": "f_L0_001",
+   "center": [
+    2.05,
+    4.605
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.45,
+    0.05
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "wall_art",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_001.wall",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Wood-framed art enhances the light oak floor and natural feel."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Minimalist wall art in white enhances clean lines and brightens the space."
+    }
+   ],
+   "reason": "Wood-framed art enhances the light oak floor and natural feel.",
+   "id": "dec_L0_004",
+   "host_id": null,
+   "center": [
+    2.75,
+    5.13
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.32,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L0_001"
+   ],
+   "wall_point": [
+    2.75,
+    5.15
+   ],
+   "wall_id": "w_L0_006",
+   "gap_m": 0.25,
+   "bottom_m": 1.04,
+   "max_height_m": 1.56
+  },
+  {
+   "kind": "decor",
+   "type": "plant_small",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_002.centre",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A small plant brings life to the coffee table and matches the wood tones."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Small plant in natural wood pot brings life and warmth to the coffee table."
+    }
+   ],
+   "reason": "A small plant brings life to the coffee table and matches the wood tones.",
+   "id": "dec_L0_005",
+   "host_id": "f_L0_002",
+   "center": [
+    2.75,
+    3.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.25,
+    0.25,
+    0.45
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "candle",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_003.left",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft glow adds warmth under the window without clutter."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "White candle adds soft glow and aligns with Scandinavian minimalism."
+    }
+   ],
+   "reason": "Soft glow adds warmth under the window without clutter.",
+   "id": "dec_L0_006",
+   "host_id": "f_L0_003",
+   "center": [
+    3.15,
+    0.525
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.2,
+    0.15,
+    0.22
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "book_set",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_003.right",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Books on the TV unit add personality and align with Scandinavian style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Cream books add texture and visual interest without clutter."
+    }
+   ],
+   "reason": "Books on the TV unit add personality and align with Scandinavian style.",
+   "id": "dec_L0_007",
+   "host_id": "f_L0_003",
+   "center": [
+    2.35,
+    0.525
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.3,
+    0.22,
+    0.22
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_004.cushions",
+   "colour": "beige",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Coordinated cushions maintain visual harmony with the sofa."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Beige cushion harmonizes with linen and light oak flooring."
+    }
+   ],
+   "reason": "Coordinated cushions maintain visual harmony with the sofa.",
+   "id": "dec_L0_008",
+   "host_id": "f_L0_004",
+   "center": [
+    4.755,
+    3.4
+   ],
+   "rotation_deg": 270.0,
+   "size": [
+    0.45,
+    0.15
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_004.throw",
+   "colour": "terracotta",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A pop of warm earth tone adds coziness to the armchair."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Light grey throw adds subtle contrast while maintaining calm tones."
+    }
+   ],
+   "reason": "A pop of warm earth tone adds coziness to the armchair.",
+   "id": "dec_L0_009",
+   "host_id": "f_L0_004",
+   "center": [
+    4.455,
+    3.535
+   ],
+   "rotation_deg": 270.0,
+   "size": [
+    0.45,
+    0.45,
+    0.05
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_019.cushions",
+   "colour": "light grey",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Neutral cushion balances the armchair and complements the room’s palette."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Cream cushion on second armchair balances the seating area."
+    }
+   ],
+   "reason": "Neutral cushion balances the armchair and complements the room’s palette.",
+   "id": "dec_L0_010",
+   "host_id": "f_L0_019",
+   "center": [
+    1.2,
+    4.934
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.15
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_019.throw",
+   "colour": "blush",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft blush adds subtle femininity without overpowering the space."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Sand throw adds warmth and symmetry to the armchair setup."
+    }
+   ],
+   "reason": "Soft blush adds subtle femininity without overpowering the space.",
+   "id": "dec_L0_011",
+   "host_id": "f_L0_019",
+   "center": [
+    1.065,
+    4.634
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.45,
+    0.05
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "mirror",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_020.wall",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Wood-framed mirror reflects light and visually expands the room."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "White mirror reflects light and visually expands the room."
+    }
+   ],
+   "reason": "Wood-framed mirror reflects light and visually expands the room.",
+   "id": "dec_L0_012",
+   "host_id": null,
+   "center": [
+    0.27,
+    0.9
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    1.0,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L0_020"
+   ],
+   "wall_point": [
+    0.25,
+    0.9
+   ],
+   "wall_id": "w_L0_004",
+   "gap_m": 0.25,
+   "bottom_m": 1.05,
+   "max_height_m": 1.55
+  },
+  {
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_salon.rug1",
+   "colour": "light grey",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A subtle rug anchors the seating area without competing with the walls."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Natural wood rug anchors the sofa group and complements floor."
+    }
+   ],
+   "reason": "A subtle rug anchors the seating area without competing with the walls.",
+   "id": "dec_L0_013",
+   "host_id": null,
+   "center": [
+    2.75,
+    3.87
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    2.8,
+    1.94
+   ],
+   "anchor_ids": [
+    "f_L0_001",
+    "f_L0_002"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L0",
+   "room_id": "r_L0_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_001",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light curtains let in daylight while softening window edges."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Cream curtains soften daylight and match Scandinavian neutrals."
+    }
+   ],
+   "reason": "Light curtains let in daylight while softening window edges.",
+   "id": "dec_L0_014",
+   "host_id": null,
+   "center": [
+    1.5,
+    0.35,
+    0.8
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.2,
+    0.08,
+    1.45
+   ],
+   "window_id": "win_L0_001",
+   "wall_point": [
+    1.5,
+    0.25
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_006.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds softness and comfort in Scandinavian style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
+    }
+   ],
+   "reason": "Adds softness and comfort in Scandinavian style.",
+   "id": "dec_L0_015",
+   "host_id": "f_L0_006",
+   "center": [
+    7.4,
+    3.45
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_006.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds softness and comfort in Scandinavian style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
+    }
+   ],
+   "reason": "Adds softness and comfort in Scandinavian style.",
+   "id": "dec_L0_016",
+   "host_id": "f_L0_006",
+   "center": [
+    8.2,
+    3.45
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_006.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Complements linen textiles and warm daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements linen textiles and enhances cozy, natural tones."
+    }
+   ],
+   "reason": "Complements linen textiles and warm daylight.",
+   "id": "dec_L0_017",
+   "host_id": "f_L0_006",
+   "center": [
+    7.8,
+    1.98
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.52,
+    0.5,
+    0.05
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "table_lamp",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_007.centre",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm metallic glow suits Scandinavian lighting."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm light and wood finish match the light oak floor and daylight ambiance."
+    }
+   ],
+   "reason": "Warm metallic glow suits Scandinavian lighting.",
+   "id": "dec_L0_018",
+   "host_id": "f_L0_007",
+   "center": [
+    6.65,
+    3.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.34,
+    0.34,
+    0.583
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "plant_small",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_008.centre",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Brings life and freshness to the space."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life to the room with a subtle, calming botanical touch."
+    }
+   ],
+   "reason": "Brings life and freshness to the space.",
+   "id": "dec_L0_019",
+   "host_id": "f_L0_008",
+   "center": [
+    8.95,
+    3.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.25,
+    0.25,
+    0.45
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_yatak_odasi.rug1",
+   "colour": "light grey",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Softens the floor and ties in with neutral tones."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens the floor and adds subtle contrast without overwhelming the space."
+    }
+   ],
+   "reason": "Softens the floor and ties in with neutral tones.",
+   "id": "dec_L0_020",
+   "host_id": null,
+   "center": [
+    7.7,
+    2.367
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    2.0,
+    1.933
+   ],
+   "anchor_ids": [
+    "f_L0_006"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_003",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light, airy curtains enhance natural daylight."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens natural light and maintains the light, airy Scandinavian aesthetic."
+    }
+   ],
+   "reason": "Light, airy curtains enhance natural daylight.",
+   "id": "dec_L0_021",
+   "host_id": null,
+   "center": [
+    7.35,
+    0.35,
+    0.01
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.2,
+    0.08,
+    2.24
+   ],
+   "window_id": "win_L0_003",
+   "wall_point": [
+    7.35,
+    0.25
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "pendant_light",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_006",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm, minimalist lighting above the bed."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm metallic accent that complements wood and linen while adding elegance."
+    }
+   ],
+   "reason": "Warm, minimalist lighting above the bed.",
+   "id": "dec_L0_022",
+   "host_id": null,
+   "anchor_ids": [
+    "f_L0_006"
+   ],
+   "center": [
+    7.8,
+    2.7,
+    2.0
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.45,
+    0.7
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L0_yatak_odasi.corner1",
+   "colour": "forest green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds organic texture in a corner without clutter."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds depth and natural element in a corner, enhancing the airy feel."
+    }
+   ],
+   "reason": "Adds organic texture in a corner without clutter.",
+   "id": "dec_L0_023",
+   "host_id": null,
+   "center": [
+    5.6,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "mirror",
+   "level_id": "L0",
+   "room_id": "r_L0_hol",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_014.wall",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Reflects light and enhances the airy Scandinavian feel."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Reflects light and enhances space in Scandinavian style."
+    }
+   ],
+   "reason": "Reflects light and enhances the airy Scandinavian feel.",
+   "id": "dec_L0_024",
+   "host_id": null,
+   "center": [
+    6.93,
+    4.479
+   ],
+   "rotation_deg": 270.0,
+   "size": [
+    0.81,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L0_014"
+   ],
+   "wall_point": [
+    6.95,
+    4.479
+   ],
+   "wall_id": "w_L0_008",
+   "gap_m": 0.25,
+   "bottom_m": 1.05,
+   "max_height_m": 1.55
+  },
+  {
+   "kind": "decor",
+   "type": "vase",
+   "level_id": "L0",
+   "room_id": "r_L0_hol",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_014.left",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds softness and natural texture with linen-like tones."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Simple, clean vase complements linen textiles and light oak."
+    }
+   ],
+   "reason": "Adds softness and natural texture with linen-like tones.",
+   "id": "dec_L0_025",
+   "host_id": "f_L0_014",
+   "center": [
+    6.779,
+    4.704
+   ],
+   "rotation_deg": 270.0,
+   "size": [
+    0.18,
+    0.18,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "mirror",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L0_011.wall",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Enhances light and space, fits Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Matches light oak floor and enhances Scandinavian minimalism."
+    }
+   ],
+   "reason": "Enhances light and space, fits Scandinavian minimalism.",
+   "id": "dec_L0_026",
+   "host_id": null,
+   "center": [
+    9.33,
+    5.4
+   ],
+   "rotation_deg": 270.0,
+   "size": [
+    0.54,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L0_011"
+   ],
+   "wall_point": [
+    9.35,
+    5.4
+   ],
+   "wall_id": "w_L0_002",
+   "gap_m": 0.3,
+   "bottom_m": 0.839,
+   "max_height_m": 1.761
+  },
+  {
+   "kind": "decor",
+   "type": "blind",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_006",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Softens daylight, complements white walls and linen textiles."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens daylight and complements white walls and linen textiles."
+    }
+   ],
+   "reason": "Softens daylight, complements white walls and linen textiles.",
+   "id": "dec_L0_027",
+   "host_id": null,
+   "center": [
+    8.2,
+    6.915,
+    1.68
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.7,
+    0.06,
+    0.48
+   ],
+   "window_id": "win_L0_006",
+   "wall_point": [
+    8.2,
+    6.95
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "ceiling_light",
+   "level_id": "L0",
+   "room_id": "r_L0_banyo",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_banyo",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm glow matches daylight and light oak floor, adds organic touch."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm metallic tone adds subtle luxury without clutter."
+    }
+   ],
+   "reason": "Warm glow matches daylight and light oak floor, adds organic touch.",
+   "id": "dec_L0_028",
+   "host_id": null,
+   "center": [
+    8.2,
+    5.4,
+    2.58
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4,
+    0.12
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "blind",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L0_005",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft cream blind complements white walls and natural light."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens daylight while complementing white walls and linen textiles."
+    }
+   ],
+   "reason": "Soft cream blind complements white walls and natural light.",
+   "id": "dec_L0_029",
+   "host_id": null,
+   "center": [
+    2.75,
+    6.915,
+    1.68
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.3,
+    0.06,
+    0.48
+   ],
+   "window_id": "win_L0_005",
+   "wall_point": [
+    2.75,
+    6.95
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "pendant_light",
+   "level_id": "L0",
+   "room_id": "r_L0_mutfak",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_mutfak",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm brass pendant light adds Scandinavian charm and ambient glow."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Matches light oak floor and adds warm Scandinavian ambiance."
+    }
+   ],
+   "reason": "Warm brass pendant light adds Scandinavian charm and ambient glow.",
+   "id": "dec_L0_030",
+   "host_id": null,
+   "center": [
+    2.75,
+    6.1,
+    2.0
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.45,
+    0.45,
+    0.7
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_001.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds soft texture and warmth to the bed in Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism.",
+   "id": "dec_L1_001",
+   "host_id": "f_L1_001",
+   "center": [
+    1.05,
+    3.879
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_001.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds soft texture and warmth to the bed in Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism.",
+   "id": "dec_L1_002",
+   "host_id": "f_L1_001",
+   "center": [
+    1.95,
+    3.879
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_001.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds warmth and texture without overwhelming the space."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements linen textiles and enhances cozy, natural tones."
+    }
+   ],
+   "reason": "Adds warmth and texture without overwhelming the space.",
+   "id": "dec_L1_003",
+   "host_id": "f_L1_001",
+   "center": [
+    1.5,
+    2.409
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.71,
+    0.5,
+    0.05
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "wall_art",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_001.wall",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Simple wooden frame art enhances the light oak floor aesthetic."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Minimalist art matches light oak floors and white walls."
+    }
+   ],
+   "reason": "Simple wooden frame art enhances the light oak floor aesthetic.",
+   "id": "dec_L1_004",
+   "host_id": null,
+   "center": [
+    1.5,
+    4.13
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.08,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L1_001"
+   ],
+   "wall_point": [
+    1.5,
+    4.15
+   ],
+   "wall_id": "w_L1_007",
+   "gap_m": 0.25,
+   "bottom_m": 1.25,
+   "max_height_m": 1.35
+  },
+  {
+   "kind": "decor",
+   "type": "table_lamp",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_002.centre",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm brass lamp adds subtle metallic contrast to white walls."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm metallic accent adds subtle luxury without clutter."
+    }
+   ],
+   "reason": "Warm brass lamp adds subtle metallic contrast to white walls.",
+   "id": "dec_L1_005",
+   "host_id": "f_L1_002",
+   "center": [
+    0.471,
+    1.1
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.34,
+    0.34,
+    0.583
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "plant_small",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_003.centre",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Small greenery brings life and freshness to the nightstand."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life and freshness with natural, calming tones."
+    }
+   ],
+   "reason": "Small greenery brings life and freshness to the nightstand.",
+   "id": "dec_L1_006",
+   "host_id": "f_L1_003",
+   "center": [
+    2.7,
+    3.929
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.25,
+    0.25,
+    0.45
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L1_ebeveyn_yatak_odasi.rug1",
+   "colour": "light grey",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light grey rug grounds the bed and harmonizes with neutral tones."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens the floor and ties in neutral Scandinavian palette."
+    }
+   ],
+   "reason": "Light grey rug grounds the bed and harmonizes with neutral tones.",
+   "id": "dec_L1_007",
+   "host_id": null,
+   "center": [
+    1.63,
+    2.796
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    2.14,
+    1.933
+   ],
+   "anchor_ids": [
+    "f_L1_001"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L1_ebeveyn_yatak_odasi.corner1",
+   "colour": "forest green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "A larger plant in the corner adds organic depth and balance."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds organic depth in a corner without overwhelming space."
+    }
+   ],
+   "reason": "A larger plant in the corner adds organic depth and balance.",
+   "id": "dec_L1_008",
+   "host_id": null,
+   "center": [
+    4.0,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L1",
+   "room_id": "r_L1_ebeveyn_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L1_001",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light cream curtains let in daylight while softening window edges."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens daylight and complements white walls and linen textiles."
+    }
+   ],
+   "reason": "Light cream curtains let in daylight while softening window edges.",
+   "id": "dec_L1_009",
+   "host_id": null,
+   "center": [
+    2.25,
+    0.35,
+    0.8
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.2,
+    0.08,
+    1.45
+   ],
+   "window_id": "win_L1_001",
+   "wall_point": [
+    2.25,
+    0.25
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "mirror",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_007.wall",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Reflects light and enhances the airy Scandinavian feel."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Reflects light and enhances space in Scandinavian style."
+    }
+   ],
+   "reason": "Reflects light and enhances the airy Scandinavian feel.",
+   "id": "dec_L1_010",
+   "host_id": null,
+   "center": [
+    4.37,
+    0.9
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    1.0,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L1_007"
+   ],
+   "wall_point": [
+    4.35,
+    0.9
+   ],
+   "wall_id": "w_L1_005",
+   "gap_m": 0.25,
+   "bottom_m": 1.05,
+   "max_height_m": 1.55
+  },
+  {
+   "kind": "decor",
+   "type": "vase",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_007.left",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Simple white vase complements the light oak and white walls."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Simple, clean vase complements light oak and white walls."
+    }
+   ],
+   "reason": "Simple white vase complements the light oak and white walls.",
+   "id": "dec_L1_011",
+   "host_id": "f_L1_007",
+   "center": [
+    4.546,
+    0.6
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.18,
+    0.18,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "plant",
+   "level_id": "L1",
+   "room_id": "r_L1_hol",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L1_hol.corner1",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds natural warmth and life without overwhelming the space."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds natural warmth and life in a corner without clutter."
+    }
+   ],
+   "reason": "Adds natural warmth and life without overwhelming the space.",
+   "id": "dec_L1_012",
+   "host_id": null,
+   "center": [
+    5.7,
+    0.5
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_010.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism.",
+   "id": "dec_L1_013",
+   "host_id": "f_L1_010",
+   "center": [
+    7.45,
+    3.679
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_010.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Adds soft texture and warmth to the bed in line with Scandinavian style."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism.",
+   "id": "dec_L1_014",
+   "host_id": "f_L1_010",
+   "center": [
+    8.35,
+    3.679
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_010.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds warmth and texture without overwhelming the space."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Complements linen textiles and enhances cozy, natural tones."
+    }
+   ],
+   "reason": "Adds warmth and texture without overwhelming the space.",
+   "id": "dec_L1_015",
+   "host_id": "f_L1_010",
+   "center": [
+    7.9,
+    2.209
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.71,
+    0.5,
+    0.05
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "wall_art",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_010.wall",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Simple wooden frame art enhances the light oak floor aesthetic."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Minimalist art enhances clean lines and reflects warm daylight."
+    }
+   ],
+   "reason": "Simple wooden frame art enhances the light oak floor aesthetic.",
+   "id": "dec_L1_016",
+   "host_id": null,
+   "center": [
+    7.9,
+    3.93
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.08,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L1_010"
+   ],
+   "wall_point": [
+    7.9,
+    3.95
+   ],
+   "wall_id": "w_L1_008",
+   "gap_m": 0.25,
+   "bottom_m": 1.25,
+   "max_height_m": 1.35
+  },
+  {
+   "kind": "decor",
+   "type": "table_lamp",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_011.centre",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm brass lamp adds subtle metallic contrast to white walls."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm light and minimalist design fit the Scandinavian aesthetic."
+    }
+   ],
+   "reason": "Warm brass lamp adds subtle metallic contrast to white walls.",
+   "id": "dec_L1_017",
+   "host_id": "f_L1_011",
+   "center": [
+    6.271,
+    3.2
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.34,
+    0.34,
+    0.583
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "plant_small",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_012.centre",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Small greenery brings life and freshness to the nightstand."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Brings life to the space with a subtle, calming botanical touch."
+    }
+   ],
+   "reason": "Small greenery brings life and freshness to the nightstand.",
+   "id": "dec_L1_018",
+   "host_id": "f_L1_012",
+   "center": [
+    6.7,
+    3.729
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.25,
+    0.25,
+    0.45
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "rug",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "r_L1_yatak_odasi.rug1",
+   "colour": "light grey",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light grey rug grounds the bed and harmonizes with neutral tones."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens the floor and adds subtle contrast without clutter."
+    }
+   ],
+   "reason": "Light grey rug grounds the bed and harmonizes with neutral tones.",
+   "id": "dec_L1_019",
+   "host_id": null,
+   "center": [
+    8.0,
+    2.596
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    2.08,
+    1.933
+   ],
+   "anchor_ids": [
+    "f_L1_010"
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L1",
+   "room_id": "r_L1_yatak_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L1_002",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light cream curtains let in daylight while softening window edges."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
+    }
+   ],
+   "reason": "Light cream curtains let in daylight while softening window edges.",
+   "id": "dec_L1_020",
+   "host_id": null,
+   "center": [
+    7.7,
+    0.35,
+    0.01
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    2.2,
+    0.08,
+    2.24
+   ],
+   "window_id": "win_L1_002",
+   "wall_point": [
+    7.7,
+    0.25
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "mirror",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_015.wall",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Enhances light and space, fits Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Matches light oak floor and enhances Scandinavian minimalism."
+    }
+   ],
+   "reason": "Enhances light and space, fits Scandinavian minimalism.",
+   "id": "dec_L1_021",
+   "host_id": null,
+   "center": [
+    6.07,
+    4.4
+   ],
+   "rotation_deg": 90.0,
+   "size": [
+    0.54,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L1_015"
+   ],
+   "wall_point": [
+    6.05,
+    4.4
+   ],
+   "wall_id": "w_L1_006",
+   "gap_m": 0.3,
+   "bottom_m": 1.3,
+   "max_height_m": 1.3
+  },
+  {
+   "kind": "decor",
+   "type": "blind",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L1_006",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Softens daylight, complements white walls and linen textiles."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Softens daylight while complementing white walls and linen textiles."
+    }
+   ],
+   "reason": "Softens daylight, complements white walls and linen textiles.",
+   "id": "dec_L1_022",
+   "host_id": null,
+   "center": [
+    7.7,
+    6.915,
+    1.68
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.7,
+    0.06,
+    0.48
+   ],
+   "window_id": "win_L1_006",
+   "wall_point": [
+    7.7,
+    6.95
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "ceiling_light",
+   "level_id": "L1",
+   "room_id": "r_L1_banyo",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_banyo",
+   "colour": "white",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm light source that matches daylight and Scandinavian style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm metallic tone adds subtle luxury without clutter."
+    }
+   ],
+   "reason": "Warm light source that matches daylight and Scandinavian style.",
+   "id": "dec_L1_023",
+   "host_id": null,
+   "center": [
+    7.7,
+    5.5,
+    2.58
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.4,
+    0.4,
+    0.12
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "cushion",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_017.cushions",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Soft, neutral cushions complement Scandinavian minimalism."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Soft, neutral cushion complements Scandinavian style and linen textiles."
+    }
+   ],
+   "reason": "Soft, neutral cushions complement Scandinavian minimalism.",
+   "id": "dec_L1_024",
+   "host_id": "f_L1_017",
+   "center": [
+    1.0,
+    6.679
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.5,
+    0.3
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "throw",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_017.throw",
+   "colour": "sand",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm linen throw adds texture and coziness."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm, textured throw adds coziness without overwhelming the light palette."
+    }
+   ],
+   "reason": "Warm linen throw adds texture and coziness.",
+   "id": "dec_L1_025",
+   "host_id": "f_L1_017",
+   "center": [
+    1.0,
+    5.209
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.14,
+    0.5,
+    0.05
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "wall_art",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_017.wall",
+   "colour": "natural wood",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Simple wooden frame art fits light oak and white walls."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Minimalist wooden art enhances warmth and aligns with Scandinavian simplicity."
+    }
+   ],
+   "reason": "Simple wooden frame art fits light oak and white walls.",
+   "id": "dec_L1_026",
+   "host_id": null,
+   "center": [
+    1.0,
+    6.93
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.72,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L1_017"
+   ],
+   "wall_point": [
+    1.0,
+    6.95
+   ],
+   "wall_id": "w_L1_003",
+   "gap_m": 0.25,
+   "bottom_m": 1.25,
+   "max_height_m": 1.35
+  },
+  {
+   "kind": "decor",
+   "type": "table_lamp",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_018.centre",
+   "colour": "brass",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Warm brass lamp adds gentle glow and elegance."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Warm brass lamp adds subtle metallic accent under daylight."
+    }
+   ],
+   "reason": "Warm brass lamp adds gentle glow and elegance.",
+   "id": "dec_L1_027",
+   "host_id": "f_L1_018",
+   "center": [
+    1.871,
+    6.729
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.233,
+    0.233,
+    0.4
+   ],
+   "light_on": false
+  },
+  {
+   "kind": "decor",
+   "type": "plant_small",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L1_020.back_left",
+   "colour": "sage green",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Small green plant brings life without clutter."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Small plant brings life and freshness to desk corner without clutter."
+    }
+   ],
+   "reason": "Small green plant brings life without clutter.",
+   "id": "dec_L1_028",
+   "host_id": "f_L1_020",
+   "center": [
+    2.97,
+    4.476
+   ],
+   "rotation_deg": 180.0,
+   "size": [
+    0.25,
+    0.25,
+    0.45
+   ]
+  },
+  {
+   "kind": "decor",
+   "type": "curtain",
+   "level_id": "L1",
+   "room_id": "r_L1_cocuk_odasi",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "window:win_L1_004",
+   "colour": "cream",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Light cream curtains let in daylight while softening edges."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Light, airy curtains let in daylight while softening window edges."
+    }
+   ],
+   "reason": "Light cream curtains let in daylight while softening edges.",
+   "id": "dec_L1_029",
+   "host_id": null,
+   "center": [
+    2.25,
+    6.85,
+    0.8
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    1.6,
+    0.08,
+    1.45
+   ],
+   "window_id": "win_L1_004",
+   "wall_point": [
+    2.25,
+    6.95
+   ]
+  }
+ ],
+ "agent_overrides": {
+  "cameras": [],
+  "exterior": {},
+  "materials": {},
+  "geometry": [],
+  "reruns": {},
+  "round": 1,
+  "not_replayed": []
+ }
+}

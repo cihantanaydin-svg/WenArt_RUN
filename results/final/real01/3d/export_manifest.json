@@ -5,13 +5,13 @@
  "files": {
   "blend": {
    "file": "real01.blend",
-   "bytes": 107799031,
-   "sha256": "3867c74ab4b415808229f6742633f384ad3132e4b4124b675f5d86c2e8a7e577"
+   "bytes": 106407849,
+   "sha256": "80be532b6254ff3c23a734f05f4719d172b437fc23eb64361c968eb7c670c932"
   },
   "glb": {
    "file": "real01.glb",
-   "bytes": 234834720,
-   "sha256": "751613890c7f0b7e5cac1c0c7f8e49d09082f9e4bbfbc195db4e56537e6163d5"
+   "bytes": 235809600,
+   "sha256": "62cce4528add32eb1b7ed3dac6335fa976eb0258e55d21e077391fc7e7ab5b27"
   }
  },
  "max_texture": 1024,
@@ -755,21 +755,6 @@
    "packed_bytes": 1663348
   },
   {
-   "name": "Image_0.013",
-   "size": [
-    2048,
-    2048
-   ],
-   "scaled": true,
-   "packed": true,
-   "format": "PNG",
-   "scaled_to": [
-    1024,
-    1024
-   ],
-   "packed_bytes": 2085519
-  },
-  {
    "name": "Image_1",
    "size": [
     4096,
@@ -924,21 +909,6 @@
    "packed": true,
    "format": "JPEG",
    "packed_bytes": 67736
-  },
-  {
-   "name": "Image_1.012",
-   "size": [
-    2048,
-    2048
-   ],
-   "scaled": true,
-   "packed": true,
-   "format": "JPEG",
-   "scaled_to": [
-    1024,
-    1024
-   ],
-   "packed_bytes": 215668
   },
   {
    "name": "Image_10",
@@ -1545,49 +1515,37 @@
    "packed_bytes": 521571
   },
   {
-   "name": "Tiles074_2K-JPG_Color.jpg",
+   "name": "side_table_01_BaseColor.png",
    "size": [
-    2048,
-    2048
-   ],
-   "scaled": true,
-   "packed": true,
-   "format": "JPEG",
-   "scaled_to": [
     1024,
     1024
    ],
-   "packed_bytes": 253122
+   "scaled": false,
+   "packed": true,
+   "format": "JPEG",
+   "packed_bytes": 183315
   },
   {
-   "name": "Tiles074_2K-JPG_NormalGL.jpg",
+   "name": "side_table_01_gl_normal",
    "size": [
-    2048,
-    2048
-   ],
-   "scaled": true,
-   "packed": true,
-   "format": "JPEG",
-   "scaled_to": [
     1024,
     1024
    ],
-   "packed_bytes": 25157
+   "scaled": false,
+   "packed": true,
+   "format": "JPEG",
+   "packed_bytes": 71744
   },
   {
-   "name": "Tiles074_2K-JPG_Roughness.jpg",
+   "name": "side_table_01_metallic-side_table_01_roughness",
    "size": [
-    2048,
-    2048
-   ],
-   "scaled": true,
-   "packed": true,
-   "format": "JPEG",
-   "scaled_to": [
     1024,
     1024
    ],
-   "packed_bytes": 158054
+   "scaled": false,
+   "packed": true,
+   "format": "JPEG",
+   "packed_bytes": 129725
   },
   {
    "name": "white_plaster_02_diff_2k.jpg",
@@ -1680,169 +1638,153 @@
    "packed_bytes": 179069
   }
  ],
- "images_scaled": 91,
- "images_packed": 118,
- "images_jpeg": 103,
- "packed_image_bytes": 42552928,
+ "images_scaled": 86,
+ "images_packed": 116,
+ "images_jpeg": 102,
+ "packed_image_bytes": 40200192,
  "cameras": {
   "cam_r_L0_bath_toilet_1": {
-   "ev": 0.333333,
+   "ev": -0.666667,
    "whitepoint": [
-    1.209008,
-    0.958628,
-    0.794378
+    1.140456,
+    0.975405,
+    0.830051
    ]
   },
   "cam_r_L0_bath_toilet_2": {
-   "ev": 0.333333,
+   "ev": -0.666667,
    "whitepoint": [
-    1.207955,
-    0.958812,
-    0.795659
+    1.139012,
+    0.975691,
+    0.83147
    ]
   },
   "cam_r_L0_bed_room_1": {
    "ev": 3.333333,
    "whitepoint": [
-    1.081401,
-    0.984691,
-    0.911951
+    1.081776,
+    0.984616,
+    0.911595
    ]
   },
   "cam_r_L0_bed_room_2": {
-   "ev": 3.666667,
+   "ev": 3.833333,
    "whitepoint": [
-    1.094557,
-    0.982292,
-    0.896984
+    1.090714,
+    0.982797,
+    0.903297
    ]
   },
   "cam_r_L0_bed_room_2_1": {
    "ev": 3.666667,
    "whitepoint": [
-    1.036776,
-    0.992513,
-    0.965879
+    1.032396,
+    0.99357,
+    0.968297
    ]
   },
   "cam_r_L0_bed_room_2_2": {
    "ev": 4.166667,
    "whitepoint": [
-    1.057367,
-    0.989062,
-    0.939429
+    1.034905,
+    0.99291,
+    0.967456
    ]
   },
   "cam_r_L0_bed_room_2_3": {
-   "ev": 3.666667,
+   "ev": 3.833333,
    "whitepoint": [
-    1.050137,
-    0.989912,
-    0.952302
+    1.029375,
+    0.993883,
+    0.974092
    ]
   },
   "cam_r_L0_bed_room_3": {
-   "ev": 3.5,
+   "ev": 3.333333,
    "whitepoint": [
-    1.064977,
-    0.987338,
-    0.9341
+    1.033757,
+    0.993002,
+    0.96992
    ]
   },
   "cam_r_L0_dining_1": {
-   "ev": 5.0,
+   "ev": 4.833333,
    "whitepoint": [
-    1.050858,
-    0.985876,
-    0.990148
+    1.070678,
+    0.981915,
+    0.971028
    ]
   },
   "cam_r_L0_dining_2": {
    "ev": 5.0,
    "whitepoint": [
-    0.969223,
-    1.002679,
-    1.064088
+    0.971651,
+    1.001956,
+    1.064106
    ]
   },
   "cam_r_L0_dining_3": {
-   "ev": 4.666667,
+   "ev": 4.833333,
    "whitepoint": [
-    0.941765,
-    1.00656,
-    1.106493
+    0.943225,
+    1.006059,
+    1.107163
    ]
   },
   "cam_r_L0_drawing_room_1": {
    "ev": 3.0,
    "whitepoint": [
-    1.238137,
-    0.953234,
-    0.762037
+    1.277555,
+    0.945298,
+    0.724581
    ]
   },
   "cam_r_L0_drawing_room_2": {
-   "ev": 2.833333,
+   "ev": 2.666667,
    "whitepoint": [
-    1.232793,
-    0.954608,
-    0.764166
+    1.248823,
+    0.951003,
+    0.752671
    ]
   },
   "cam_r_L0_drawing_room_3": {
-   "ev": 3.0,
+   "ev": 2.666667,
    "whitepoint": [
-    1.267488,
-    0.947632,
-    0.731103
+    1.209374,
+    0.959486,
+    0.7848
    ]
   },
   "cam_r_L0_kitchen_1": {
-   "ev": 4.833333,
+   "ev": 5.166667,
    "whitepoint": [
-    0.932535,
-    1.005157,
-    1.147573
+    0.957715,
+    1.003454,
+    1.090299
    ]
   },
   "cam_r_L0_kitchen_2": {
-   "ev": 4.666667,
+   "ev": 5.0,
    "whitepoint": [
-    0.951254,
-    1.003381,
-    1.110044
+    0.939987,
+    1.00679,
+    1.109455
    ]
   },
   "cam_r_L0_kitchen_3": {
    "ev": 5.166667,
    "whitepoint": [
-    1.016153,
-    0.991441,
-    1.037219
+    0.986551,
+    0.999022,
+    1.04929
    ]
   },
   "cam_r_L0_room_1": {
    "ev": 0.0,
    "whitepoint": [
-    1.252763,
-    0.950505,
-    0.746
-   ]
-  },
-  "cam_r_L0_room_2": {
-   "ev": -0.166667,
-   "whitepoint": [
-    1.242487,
-    0.952529,
-    0.75621
-   ]
-  },
-  "cam_r_L0_room_3": {
-   "ev": -0.5,
-   "whitepoint": [
-    1.231929,
-    0.954776,
-    0.765043
+    1.253766,
+    0.950282,
+    0.745259
    ]
   }
  },
@@ -1854,6 +1796,6 @@
  ],
  "blender_version": "5.2.2 LTS",
  "warnings": [],
- "seconds": 23.33,
- "generated_utc": "2026-10-09T09:44:13Z"
+ "seconds": 22.34,
+ "generated_utc": "2026-10-10T00:39:07Z"
 }

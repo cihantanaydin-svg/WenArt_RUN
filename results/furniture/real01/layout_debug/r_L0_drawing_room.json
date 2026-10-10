@@ -97,7 +97,7 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 5.166,
+   "latency_s": 5.608,
    "error": null,
    "transport_error": false,
    "data": {
@@ -189,7 +189,7 @@
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 3.477,
+   "latency_s": 3.76,
    "error": null,
    "transport_error": false,
    "data": {
@@ -331,6 +331,7 @@
    "reason": "no repair left",
    "failed": [
     "no_overlap",
+    "clearance_ok",
     "doors_free"
    ]
   },
@@ -365,7 +366,7 @@
   "pieces": {},
   "walkways": []
  },
- "latency_s": 8.643,
+ "latency_s": 9.368,
  "question": {
   "room": {
    "room_id": "r_L0_drawing_room",
@@ -1281,6 +1282,7 @@
      },
      "failed": [
       "no_overlap",
+      "clearance_ok",
       "doors_free"
      ],
      "reason": "no repair left",
@@ -1313,6 +1315,7 @@
        },
        "failed": [
         "no_overlap",
+        "clearance_ok",
         "doors_free"
        ],
        "ok": false,
@@ -1346,6 +1349,7 @@
        },
        "failed": [
         "no_overlap",
+        "clearance_ok",
         "doors_free"
        ],
        "ok": false
@@ -1378,6 +1382,7 @@
        },
        "failed": [
         "no_overlap",
+        "clearance_ok",
         "doors_free"
        ],
        "ok": false,
@@ -1411,6 +1416,7 @@
        },
        "failed": [
         "no_overlap",
+        "clearance_ok",
         "doors_free"
        ],
        "ok": true,
@@ -1446,6 +1452,7 @@
       },
       "failed": [
        "no_overlap",
+       "clearance_ok",
        "doors_free"
       ],
       "ok": true,
@@ -1681,6 +1688,7 @@
      },
      "failed": [
       "no_overlap",
+      "clearance_ok",
       "doors_free"
      ],
      "ok": false,
@@ -1715,6 +1723,7 @@
      },
      "failed": [
       "no_overlap",
+      "clearance_ok",
       "doors_free"
      ],
      "ok": false
@@ -1748,6 +1757,7 @@
      },
      "failed": [
       "no_overlap",
+      "clearance_ok",
       "doors_free"
      ],
      "ok": false,
@@ -1782,6 +1792,7 @@
      },
      "failed": [
       "no_overlap",
+      "clearance_ok",
       "doors_free"
      ],
      "ok": true,

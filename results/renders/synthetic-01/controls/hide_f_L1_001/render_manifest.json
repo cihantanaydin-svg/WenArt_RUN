@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "9b90a4a80eb0d545f2c2140a1e73a461d144e49a5feea855172da284a1ccac4d",
+ "scene_sha256": "88c7fb93c57e91b0b099b1bf3ab341a48d64acb9d282266308b6ec5e075b007a",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -62,48 +62,66 @@
   "f_L0_017": 28,
   "f_L0_018": 29,
   "f_L0_019": 30,
-  "dec_L0_004": 31,
-  "dec_L0_005": 32,
-  "dec_L0_008": 33,
-  "dec_L0_009": 34,
-  "dec_L0_010": 35,
-  "d_L1_001": 36,
-  "d_L1_002": 37,
-  "d_L1_003": 38,
-  "d_L1_004": 39,
-  "win_L1_001": 40,
-  "win_L1_002": 41,
-  "win_L1_003": 42,
-  "win_L1_004": 43,
-  "win_L1_005": 44,
-  "win_L1_006": 45,
-  "f_L1_001": 46,
-  "f_L1_002": 47,
-  "f_L1_003": 48,
-  "f_L1_004": 49,
-  "f_L1_005": 50,
-  "f_L1_006": 51,
-  "f_L1_007": 52,
-  "f_L1_008": 53,
-  "f_L1_009": 54,
-  "f_L1_010": 55,
-  "f_L1_011": 56,
-  "f_L1_012": 57,
-  "f_L1_013": 58,
-  "f_L1_014": 59,
-  "f_L1_015": 60,
-  "f_L1_016": 61,
-  "f_L1_017": 62,
-  "f_L1_018": 63,
-  "f_L1_019": 64,
-  "f_L1_020": 65,
-  "dec_L1_004": 66,
-  "dec_L1_005": 67,
-  "dec_L1_006": 68,
-  "dec_L1_009": 69,
-  "dec_L1_010": 70,
-  "dec_L1_011": 71,
-  "dec_L1_014": 72
+  "f_L0_020": 31,
+  "f_L0_021": 32,
+  "dec_L0_004": 33,
+  "dec_L0_012": 34,
+  "dec_L0_013": 35,
+  "dec_L0_014": 36,
+  "dec_L0_020": 37,
+  "dec_L0_021": 38,
+  "dec_L0_022": 39,
+  "dec_L0_023": 40,
+  "dec_L0_024": 41,
+  "dec_L0_026": 42,
+  "dec_L0_027": 43,
+  "dec_L0_028": 44,
+  "dec_L0_029": 45,
+  "dec_L0_030": 46,
+  "d_L1_001": 47,
+  "d_L1_002": 48,
+  "d_L1_003": 49,
+  "d_L1_004": 50,
+  "win_L1_001": 51,
+  "win_L1_002": 52,
+  "win_L1_003": 53,
+  "win_L1_004": 54,
+  "win_L1_005": 55,
+  "win_L1_006": 56,
+  "f_L1_001": 57,
+  "f_L1_002": 58,
+  "f_L1_003": 59,
+  "f_L1_004": 60,
+  "f_L1_005": 61,
+  "f_L1_006": 62,
+  "f_L1_007": 63,
+  "f_L1_008": 64,
+  "f_L1_009": 65,
+  "f_L1_010": 66,
+  "f_L1_011": 67,
+  "f_L1_012": 68,
+  "f_L1_013": 69,
+  "f_L1_014": 70,
+  "f_L1_015": 71,
+  "f_L1_016": 72,
+  "f_L1_017": 73,
+  "f_L1_018": 74,
+  "f_L1_019": 75,
+  "f_L1_020": 76,
+  "dec_L1_004": 77,
+  "dec_L1_007": 78,
+  "dec_L1_008": 79,
+  "dec_L1_009": 80,
+  "dec_L1_010": 81,
+  "dec_L1_012": 82,
+  "dec_L1_016": 83,
+  "dec_L1_019": 84,
+  "dec_L1_020": 85,
+  "dec_L1_021": 86,
+  "dec_L1_022": 87,
+  "dec_L1_023": 88,
+  "dec_L1_026": 89,
+  "dec_L1_029": 90
  },
  "renders": [
   {
@@ -123,114 +141,104 @@
     "normal": "cam_r_L1_ebeveyn_yatak_odasi_1_normal.png",
     "depth": "cam_r_L1_ebeveyn_yatak_odasi_1_depth.png"
    },
-   "preview_bytes": 218299,
-   "seconds": 3.69,
+   "preview_bytes": 216377,
+   "seconds": 5.28,
    "samples": 128,
    "resolution": [
     1920,
     1080
    ],
    "depth": {
-    "min": 0.8704068660736084,
-    "max": 4.97727108001709,
-    "mean": 2.8803937435150146,
+    "min": 1.1207897663116455,
+    "max": 4.796637535095215,
+    "mean": 2.8108720779418945,
     "coverage": 1.0
    },
    "index_values": [
-    40,
-    42,
     47,
-    48,
-    49,
-    67,
-    68
+    53,
+    59,
+    60,
+    77,
+    78
    ],
    "index_stats": {
-    "40": {
-     "pixels": 108459,
-     "box": [
-      0,
-      0,
-      186,
-      653
-     ]
-    },
-    "42": {
-     "pixels": 66528,
-     "box": [
-      735,
-      135,
-      971,
-      436
-     ]
-    },
     "47": {
-     "pixels": 12606,
+     "pixels": 55080,
      "box": [
-      872,
-      535,
-      1022,
-      672
-     ]
-    },
-    "48": {
-     "pixels": 9554,
-     "box": [
-      1156,
-      511,
-      1291,
-      627
-     ]
-    },
-    "49": {
-     "pixels": 320290,
-     "box": [
-      289,
-      27,
-      735,
-      820
-     ]
-    },
-    "67": {
-     "pixels": 269973,
-     "box": [
-      805,
-      614,
-      1870,
+      1869,
+      0,
+      1920,
       1080
      ]
     },
-    "68": {
-     "pixels": 87059,
+    "53": {
+     "pixels": 152076,
      "box": [
-      1381,
       0,
-      1634,
+      44,
+      409,
+      473
+     ]
+    },
+    "59": {
+     "pixels": 20423,
+     "box": [
+      1059,
+      495,
+      1230,
+      736
+     ]
+    },
+    "60": {
+     "pixels": 302430,
+     "box": [
+      1423,
+      0,
+      1750,
+      1024
+     ]
+    },
+    "77": {
+     "pixels": 55710,
+     "box": [
+      787,
+      78,
+      1006,
       348
+     ]
+    },
+    "78": {
+     "pixels": 239707,
+     "box": [
+      144,
+      625,
+      1128,
+      1080
      ]
     }
    },
    "skipped": false,
-   "scene_sha256": "9b90a4a80eb0d545f2c2140a1e73a461d144e49a5feea855172da284a1ccac4d",
-   "render_key": "a71d12928f7cd731",
+   "scene_sha256": "88c7fb93c57e91b0b099b1bf3ab341a48d64acb9d282266308b6ec5e075b007a",
+   "render_key": "da2d83be248c1f14",
    "exposure": {
     "mode": "from",
-    "ev": 3.333333,
+    "ev": 3.5,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     1.118432,
-     0.974479,
-     0.904069
+     1.150845,
+     0.968891,
+     0.86398
     ],
     "wb_mode": "from",
-    "wb_temperature": 5723.0,
-    "wb_tint": -0.03,
+    "wb_temperature": 5483.9,
+    "wb_tint": -0.85,
     "residual": null,
-    "window_clip_frac": 0.0001,
+    "window_clip_frac": 0.0008,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -245,30 +253,31 @@
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": 2.333333,
-    "clip_before": 0.0429,
-    "clip_after": 0.0001,
-    "pane_px": 142111,
-    "pane_median": 0.9023,
-    "wall_median": 0.6302,
+    "pane_ev": 2.5,
+    "clip_before": 0.0541,
+    "clip_after": 0.0009,
+    "pane_px": 132082,
+    "pane_median": 0.9283,
+    "wall_median": 0.603,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0,
-      "median": 0.8328
+      "clip": 0.0009,
+      "median": 0.8678
      }
     ],
-    "pane_median_after": 0.8334,
-    "seconds": 0.333
+    "pane_median_after": 0.8678,
+    "seconds": 0.332
    },
    "alt_preview": null,
-   "alt_preview_bytes": null
+   "alt_preview_bytes": null,
+   "world": "World"
   }
  ],
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791113620.0,
+ "deadline": 1791596531.0,
  "warnings": []
 }

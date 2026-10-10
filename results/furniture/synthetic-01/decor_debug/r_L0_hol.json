@@ -1,0 +1,191 @@
+{
+ "room_id": "r_L0_hol",
+ "label": "Hol",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L0_014.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_014",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    6.779,
+    4.704
+   ],
+   "max_size": [
+    0.39,
+    0.24,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_014.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_014",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    6.779,
+    4.254
+   ],
+   "max_size": [
+    0.39,
+    0.24,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L0_014.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L0_014",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L0_hol",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 hol"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_014.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances the airy Scandinavian feel."
+    },
+    {
+     "slot": "f_L0_014.left",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Adds softness and natural texture with linen-like tones."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_hol",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements daylight and wood tones."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.863
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_014.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances space in Scandinavian style."
+    },
+    {
+     "slot": "f_L0_014.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Simple, clean vase complements linen textiles and light oak."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_hol",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Warm daylight effect with minimalist ceiling light."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.835
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_014.wall",
+   "type": "mirror",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Reflects light and enhances the airy Scandinavian feel.",
+    "Reflects light and enhances space in Scandinavian style."
+   ]
+  },
+  {
+   "slot": "f_L0_014.left",
+   "type": "vase",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Adds softness and natural texture with linen-like tones.",
+    "Simple, clean vase complements linen textiles and light oak."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_hol",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm metallic glow complements daylight and wood tones.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_hol",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "Warm daylight effect with minimalist ceiling light.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_024",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L0_014.wall"
+  },
+  {
+   "id": "dec_L0_025",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L0_014.left"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no free corner for a floor plant"
+ ]
+}

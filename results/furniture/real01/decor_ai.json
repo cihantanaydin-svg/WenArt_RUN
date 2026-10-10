@@ -963,30 +963,6 @@
      ]
     },
     {
-     "id": "f_L0_025.centre",
-     "kind": "top",
-     "types": [
-      "table_lamp",
-      "vase",
-      "plant_small",
-      "book_set",
-      "books",
-      "candle"
-     ],
-     "host_id": "f_L0_025",
-     "host_type": "nightstand",
-     "note": "centre part",
-     "center": [
-      0.56,
-      6.36
-     ],
-     "max_size": [
-      0.44,
-      0.34,
-      2.1
-     ]
-    },
-    {
      "id": "r_L0_bed_room_2.rug1",
      "kind": "rug",
      "types": [
@@ -1064,59 +1040,53 @@
        "slot": "f_L0_004.cushions",
        "type": "cushion",
        "colour": "cream",
-       "reason": "Soft, neutral cushions complement Scandinavian minimalism and linen textiles."
+       "reason": "Adds softness and matches Scandinavian light tones."
       },
       {
        "slot": "f_L0_004.throw",
        "type": "throw",
        "colour": "sand",
-       "reason": "A warm-toned throw adds coziness while matching the light oak and daylight aesthetic."
+       "reason": "Complements linen textiles and warm daylight."
       },
       {
        "slot": "f_L0_005.centre",
        "type": "table_lamp",
        "colour": "natural wood",
-       "reason": "A wooden base lamp blends with the floor and adds warm ambient light."
-      },
-      {
-       "slot": "f_L0_025.centre",
-       "type": "plant_small",
-       "colour": "sage green",
-       "reason": "A small green plant brings life and freshness to the nightstand without clutter."
+       "reason": "Warm light and wood tone enhance the Scandinavian feel."
       },
       {
        "slot": "r_L0_bed_room_2.rug1",
        "type": "rug",
        "colour": "light grey",
-       "reason": "A subtle rug under the bed anchors the space and enhances Scandinavian calm."
-      },
-      {
-       "slot": "r_L0_bed_room_2.corner1",
-       "type": "plant",
-       "colour": "forest green",
-       "reason": "A corner plant adds organic texture and balances the room’s geometry."
+       "reason": "Subtle contrast with oak floor, adds coziness without clutter."
       },
       {
        "slot": "window:win_L0_004",
        "type": "curtain",
-       "colour": "white",
-       "reason": "White curtains maximize daylight and maintain the airy, clean Scandinavian look."
+       "colour": "cream",
+       "reason": "Softens light, maintains airy feel with neutral tone."
+      },
+      {
+       "slot": "window:win_L0_008",
+       "type": "curtain",
+       "colour": "cream",
+       "reason": "Matches first curtain for visual harmony."
       },
       {
        "slot": "ceiling:over_f_L0_004",
        "type": "pendant_light",
        "colour": "brass",
-       "reason": "A brass pendant adds warmth and a touch of metallic elegance above the bed."
+       "reason": "Warm metallic accent adds elegance without overpowering."
       },
       {
-       "slot": "ceiling:centre_r_L0_bed_room_2",
-       "type": "ceiling_light",
-       "colour": "white",
-       "reason": "A simple white ceiling light ensures even, soft illumination without visual clutter."
+       "slot": "r_L0_bed_room_2.corner1",
+       "type": "plant",
+       "colour": "sage green",
+       "reason": "Brings life to corner with natural, calming hue."
       }
      ],
      "error": null,
-     "latency_s": 5.429
+     "latency_s": 4.99
     },
     "2": {
      "items": [
@@ -1130,47 +1100,41 @@
        "slot": "f_L0_004.throw",
        "type": "throw",
        "colour": "sand",
-       "reason": "Complements linen textiles and enhances cozy, natural tones."
+       "reason": "Complements linen textiles and enhances comfort with a natural, earthy tone."
       },
       {
        "slot": "f_L0_005.centre",
        "type": "table_lamp",
        "colour": "natural wood",
-       "reason": "Warm light and wood finish match the light oak floor and daylight ambiance."
-      },
-      {
-       "slot": "f_L0_025.centre",
-       "type": "book_set",
-       "colour": "white",
-       "reason": "Minimalist and clean, supports Scandinavian aesthetic without clutter."
+       "reason": "Warm light and wood finish harmonize with light oak floors and daylight."
       },
       {
        "slot": "r_L0_bed_room_2.rug1",
        "type": "rug",
        "colour": "light grey",
-       "reason": "Softens the floor and adds subtle contrast to the white walls and oak."
+       "reason": "Subtle contrast under the bed adds grounding without visual clutter."
       },
       {
        "slot": "r_L0_bed_room_2.corner1",
        "type": "plant",
        "colour": "natural wood",
-       "reason": "Brings life to the corner with a simple, earthy touch."
+       "reason": "Brings life to the corner with a simple, organic touch matching the style."
       },
       {
        "slot": "window:win_L0_004",
        "type": "curtain",
        "colour": "cream",
-       "reason": "Light and airy, allows daylight while maintaining Scandinavian minimalism."
+       "reason": "Softens natural light while maintaining a clean, airy Scandinavian aesthetic."
       },
       {
        "slot": "ceiling:over_f_L0_004",
-       "type": "ceiling_light",
-       "colour": "white",
-       "reason": "Bright, even illumination that enhances the room’s airy, open feel."
+       "type": "pendant_light",
+       "colour": "brass",
+       "reason": "Warm metallic glow adds subtle elegance without overpowering the space."
       }
      ],
      "error": null,
-     "latency_s": 4.684
+     "latency_s": 4.529
     }
    },
    "agreed": [
@@ -1180,7 +1144,7 @@
      "colour": "cream",
      "colour_agreed": true,
      "reasons": [
-      "Soft, neutral cushions complement Scandinavian minimalism and linen textiles.",
+      "Adds softness and matches Scandinavian light tones.",
       "Adds soft texture and warmth to the bed in line with Scandinavian style."
      ]
     },
@@ -1190,8 +1154,8 @@
      "colour": "sand",
      "colour_agreed": true,
      "reasons": [
-      "A warm-toned throw adds coziness while matching the light oak and daylight aesthetic.",
-      "Complements linen textiles and enhances cozy, natural tones."
+      "Complements linen textiles and warm daylight.",
+      "Complements linen textiles and enhances comfort with a natural, earthy tone."
      ]
     },
     {
@@ -1200,8 +1164,8 @@
      "colour": "natural wood",
      "colour_agreed": true,
      "reasons": [
-      "A wooden base lamp blends with the floor and adds warm ambient light.",
-      "Warm light and wood finish match the light oak floor and daylight ambiance."
+      "Warm light and wood tone enhance the Scandinavian feel.",
+      "Warm light and wood finish harmonize with light oak floors and daylight."
      ]
     },
     {
@@ -1210,75 +1174,49 @@
      "colour": "light grey",
      "colour_agreed": true,
      "reasons": [
-      "A subtle rug under the bed anchors the space and enhances Scandinavian calm.",
-      "Softens the floor and adds subtle contrast to the white walls and oak."
-     ]
-    },
-    {
-     "slot": "r_L0_bed_room_2.corner1",
-     "type": "plant",
-     "colour": "forest green",
-     "colour_agreed": false,
-     "reasons": [
-      "A corner plant adds organic texture and balances the room’s geometry.",
-      "Brings life to the corner with a simple, earthy touch."
+      "Subtle contrast with oak floor, adds coziness without clutter.",
+      "Subtle contrast under the bed adds grounding without visual clutter."
      ]
     },
     {
      "slot": "window:win_L0_004",
      "type": "curtain",
-     "colour": "white",
-     "colour_agreed": false,
+     "colour": "cream",
+     "colour_agreed": true,
      "reasons": [
-      "White curtains maximize daylight and maintain the airy, clean Scandinavian look.",
-      "Light and airy, allows daylight while maintaining Scandinavian minimalism."
-     ]
-    }
-   ],
-   "not_agreed": [
-    {
-     "slot": "f_L0_025.centre",
-     "type": "plant_small",
-     "colour": "sage green",
-     "reason": "A small green plant brings life and freshness to the nightstand without clutter.",
-     "passes": [
-      1
+      "Softens light, maintains airy feel with neutral tone.",
+      "Softens natural light while maintaining a clean, airy Scandinavian aesthetic."
      ]
     },
     {
      "slot": "ceiling:over_f_L0_004",
      "type": "pendant_light",
      "colour": "brass",
-     "reason": "A brass pendant adds warmth and a touch of metallic elegance above the bed.",
+     "colour_agreed": true,
+     "reasons": [
+      "Warm metallic accent adds elegance without overpowering.",
+      "Warm metallic glow adds subtle elegance without overpowering the space."
+     ]
+    },
+    {
+     "slot": "r_L0_bed_room_2.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "colour_agreed": false,
+     "reasons": [
+      "Brings life to corner with natural, calming hue.",
+      "Brings life to the corner with a simple, organic touch matching the style."
+     ]
+    }
+   ],
+   "not_agreed": [
+    {
+     "slot": "window:win_L0_008",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Matches first curtain for visual harmony.",
      "passes": [
       1
-     ]
-    },
-    {
-     "slot": "ceiling:centre_r_L0_bed_room_2",
-     "type": "ceiling_light",
-     "colour": "white",
-     "reason": "A simple white ceiling light ensures even, soft illumination without visual clutter.",
-     "passes": [
-      1
-     ]
-    },
-    {
-     "slot": "f_L0_025.centre",
-     "type": "book_set",
-     "colour": "white",
-     "reason": "Minimalist and clean, supports Scandinavian aesthetic without clutter.",
-     "passes": [
-      2
-     ]
-    },
-    {
-     "slot": "ceiling:over_f_L0_004",
-     "type": "ceiling_light",
-     "colour": "white",
-     "reason": "Bright, even illumination that enhances the room’s airy, open feel.",
-     "passes": [
-      2
      ]
     }
    ],
@@ -1317,15 +1255,21 @@
     },
     {
      "id": "dec_L0_025",
-     "type": "plant",
-     "method": "ai",
-     "slot": "r_L0_bed_room_2.corner1"
-    },
-    {
-     "id": "dec_L0_026",
      "type": "curtain",
      "method": "ai",
      "slot": "window:win_L0_004"
+    },
+    {
+     "id": "dec_L0_026",
+     "type": "pendant_light",
+     "method": "ai",
+     "slot": "ceiling:over_f_L0_004"
+    },
+    {
+     "id": "dec_L0_027",
+     "type": "plant",
+     "method": "ai",
+     "slot": "r_L0_bed_room_2.corner1"
     }
    ],
    "fallback": null,
@@ -1383,17 +1327,17 @@
        "slot": "window:win_L0_006",
        "type": "blind",
        "colour": "cream",
-       "reason": "Softens light and complements white walls without blocking daylight."
+       "reason": "Softens daylight and complements white walls without blocking light."
       },
       {
        "slot": "window:win_L0_009",
        "type": "blind",
-       "colour": "sand",
-       "reason": "Harmonizes with natural wood tones and enhances the airy feel."
+       "colour": "cream",
+       "reason": "Matches the first blind for cohesion and maintains light, airy feel."
       }
      ],
      "error": null,
-     "latency_s": 1.785
+     "latency_s": 1.92
     },
     "2": {
      "items": [
@@ -1401,7 +1345,7 @@
        "slot": "ceiling:centre_r_L0_kitchen",
        "type": "pendant_light",
        "colour": "natural wood",
-       "reason": "Matches light oak floor and adds warm Scandinavian ambiance."
+       "reason": "Matches light oak floors and adds warm Scandinavian ambiance."
       },
       {
        "slot": "window:win_L0_006",
@@ -1411,7 +1355,7 @@
       }
      ],
      "error": null,
-     "latency_s": 1.212
+     "latency_s": 1.312
     }
    },
    "agreed": [
@@ -1422,7 +1366,7 @@
      "colour_agreed": true,
      "reasons": [
       "Adds warmth and matches the oak floor in Scandinavian style.",
-      "Matches light oak floor and adds warm Scandinavian ambiance."
+      "Matches light oak floors and adds warm Scandinavian ambiance."
      ]
     },
     {
@@ -1431,7 +1375,7 @@
      "colour": "cream",
      "colour_agreed": true,
      "reasons": [
-      "Softens light and complements white walls without blocking daylight.",
+      "Softens daylight and complements white walls without blocking light.",
       "Softens daylight while complementing white walls and linen textiles."
      ]
     }
@@ -1440,8 +1384,8 @@
     {
      "slot": "window:win_L0_009",
      "type": "blind",
-     "colour": "sand",
-     "reason": "Harmonizes with natural wood tones and enhances the airy feel.",
+     "colour": "cream",
+     "reason": "Matches the first blind for cohesion and maintains light, airy feel.",
      "passes": [
       1
      ]
@@ -1451,13 +1395,13 @@
    "refused": [],
    "items": [
     {
-     "id": "dec_L0_027",
+     "id": "dec_L0_028",
      "type": "pendant_light",
      "method": "ai",
      "slot": "ceiling:centre_r_L0_kitchen"
     },
     {
-     "id": "dec_L0_028",
+     "id": "dec_L0_029",
      "type": "blind",
      "method": "ai",
      "slot": "window:win_L0_006"
@@ -1494,7 +1438,7 @@
      ]
     },
     {
-     "id": "f_L0_028.left",
+     "id": "f_L0_027.left",
      "kind": "top",
      "types": [
       "table_lamp",
@@ -1506,12 +1450,12 @@
       "tray",
       "sculpture"
      ],
-     "host_id": "f_L0_028",
+     "host_id": "f_L0_027",
      "host_type": "sideboard",
      "note": "left part",
      "center": [
       5.352,
-      5.6
+      5.869
      ],
      "max_size": [
       0.74,
@@ -1520,7 +1464,7 @@
      ]
     },
     {
-     "id": "f_L0_028.right",
+     "id": "f_L0_027.right",
      "kind": "top",
      "types": [
       "table_lamp",
@@ -1532,12 +1476,12 @@
       "tray",
       "sculpture"
      ],
-     "host_id": "f_L0_028",
+     "host_id": "f_L0_027",
      "host_type": "sideboard",
      "note": "right part",
      "center": [
       5.352,
-      6.4
+      6.669
      ],
      "max_size": [
       0.74,
@@ -1546,14 +1490,14 @@
      ]
     },
     {
-     "id": "f_L0_028.wall",
+     "id": "f_L0_027.wall",
      "kind": "wall",
      "types": [
       "wall_art",
       "mirror",
       "clock"
      ],
-     "host_id": "f_L0_028",
+     "host_id": "f_L0_027",
      "host_type": "sideboard",
      "note": ""
     },
@@ -1572,6 +1516,7 @@
      "kind": "floor",
      "types": [
       "plant",
+      "plant_large",
       "basket",
       "sculpture"
      ],
@@ -1657,17 +1602,17 @@
        "slot": "window:win_L0_005",
        "type": "curtain",
        "colour": "cream",
-       "reason": "Light, airy curtains let in daylight while maintaining Scandinavian minimalism."
+       "reason": "Softens daylight and maintains airy Scandinavian feel."
       },
       {
-       "slot": "f_L0_028.wall",
+       "slot": "f_L0_027.wall",
        "type": "wall_art",
-       "colour": "sage green",
-       "reason": "Subtle art adds personality without overwhelming the white walls."
+       "colour": "natural wood",
+       "reason": "Adds subtle texture and visual interest without clutter."
       }
      ],
      "error": null,
-     "latency_s": 2.914
+     "latency_s": 3.059
     },
     "2": {
      "items": [
@@ -1675,35 +1620,35 @@
        "slot": "f_L0_010.centre",
        "type": "vase",
        "colour": "natural wood",
-       "reason": "Adds Scandinavian warmth with minimalism and complements light oak floor."
+       "reason": "Adds Scandinavian warmth with natural wood tone, complements light oak floor."
       },
       {
        "slot": "ceiling:over_f_L0_010",
        "type": "pendant_light",
        "colour": "brass",
-       "reason": "Warm brass light enhances daylight and matches Scandinavian elegance."
+       "reason": "Brass pendant adds subtle metallic warmth under warm daylight."
       },
       {
        "slot": "r_L0_dining.rug1",
        "type": "rug",
        "colour": "cream",
-       "reason": "Cream rug softens floor and ties in with white walls and linen textiles."
+       "reason": "Cream rug softens the space, enhances linen textiles, and ties in with white walls."
       },
       {
        "slot": "window:win_L0_005",
        "type": "curtain",
        "colour": "cream",
-       "reason": "Cream curtains let in daylight and maintain airy Scandinavian feel."
+       "reason": "Cream curtains let in daylight while maintaining Scandinavian minimalism."
       },
       {
-       "slot": "f_L0_028.wall",
+       "slot": "f_L0_027.wall",
        "type": "mirror",
-       "colour": "natural wood",
-       "reason": "Wood-framed mirror reflects light and adds depth without clutter."
+       "colour": "white",
+       "reason": "White mirror reflects light, expands the room, and fits the clean Scandinavian aesthetic."
       }
      ],
      "error": null,
-     "latency_s": 2.927
+     "latency_s": 3.256
     }
    },
    "agreed": [
@@ -1714,7 +1659,7 @@
      "colour_agreed": true,
      "reasons": [
       "Adds Scandinavian warmth with minimal clutter.",
-      "Adds Scandinavian warmth with minimalism and complements light oak floor."
+      "Adds Scandinavian warmth with natural wood tone, complements light oak floor."
      ]
     },
     {
@@ -1724,7 +1669,7 @@
      "colour_agreed": true,
      "reasons": [
       "Warm light complements daylight and enhances the dining mood.",
-      "Warm brass light enhances daylight and matches Scandinavian elegance."
+      "Brass pendant adds subtle metallic warmth under warm daylight."
      ]
     },
     {
@@ -1734,7 +1679,7 @@
      "colour_agreed": true,
      "reasons": [
       "Softens the floor and ties in with linen textiles and light oak.",
-      "Cream rug softens floor and ties in with white walls and linen textiles."
+      "Cream rug softens the space, enhances linen textiles, and ties in with white walls."
      ]
     },
     {
@@ -1743,26 +1688,26 @@
      "colour": "cream",
      "colour_agreed": true,
      "reasons": [
-      "Light, airy curtains let in daylight while maintaining Scandinavian minimalism.",
-      "Cream curtains let in daylight and maintain airy Scandinavian feel."
+      "Softens daylight and maintains airy Scandinavian feel.",
+      "Cream curtains let in daylight while maintaining Scandinavian minimalism."
      ]
     }
    ],
    "not_agreed": [
     {
-     "slot": "f_L0_028.wall",
+     "slot": "f_L0_027.wall",
      "type": "wall_art",
-     "colour": "sage green",
-     "reason": "Subtle art adds personality without overwhelming the white walls.",
+     "colour": "natural wood",
+     "reason": "Adds subtle texture and visual interest without clutter.",
      "passes": [
       1
      ]
     },
     {
-     "slot": "f_L0_028.wall",
+     "slot": "f_L0_027.wall",
      "type": "mirror",
-     "colour": "natural wood",
-     "reason": "Wood-framed mirror reflects light and adds depth without clutter.",
+     "colour": "white",
+     "reason": "White mirror reflects light, expands the room, and fits the clean Scandinavian aesthetic.",
      "passes": [
       2
      ]
@@ -1772,25 +1717,25 @@
    "refused": [],
    "items": [
     {
-     "id": "dec_L0_029",
+     "id": "dec_L0_030",
      "type": "vase",
      "method": "ai",
      "slot": "f_L0_010.centre"
     },
     {
-     "id": "dec_L0_030",
+     "id": "dec_L0_031",
      "type": "pendant_light",
      "method": "ai",
      "slot": "ceiling:over_f_L0_010"
     },
     {
-     "id": "dec_L0_031",
+     "id": "dec_L0_032",
      "type": "rug",
      "method": "ai",
      "slot": "r_L0_dining.rug1"
     },
     {
-     "id": "dec_L0_032",
+     "id": "dec_L0_033",
      "type": "curtain",
      "method": "ai",
      "slot": "window:win_L0_005"
@@ -1800,7 +1745,7 @@
    "notes": []
   }
  ],
- "items_ai": 32,
+ "items_ai": 33,
  "items_rule": 0,
  "rooms_ai": 6,
  "rooms_fallback": 0

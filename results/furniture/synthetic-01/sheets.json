@@ -1,0 +1,596 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "synthetic-01",
+ "created_utc": "2026-10-10T00:06:44Z",
+ "code_commit": "9909871b",
+ "inputs": [
+  {
+   "file": "1_kat.pdf",
+   "size": 24219,
+   "sha256": "70219d9d75925ff90c2b46195edbd7b020fab92e1abcb6aebcb799f5f77acbe3"
+  },
+  {
+   "file": "1_kat_scan.png",
+   "size": 1393917,
+   "sha256": "197afe7c8be0820761f00c8642c11667858e7ac8b107c6b46086a9090b532558"
+  },
+  {
+   "file": "zemin_kat.dxf",
+   "size": 63262,
+   "sha256": "f18d4b090609b46470ed361f77889576d8f5be268de482d4f94aab51ef6d8ac8"
+  },
+  {
+   "file": "brief.yaml",
+   "size": 81,
+   "sha256": "0a2f6a5ce43349cb08c1d36fbd44b7995284145d18b73efd92a447ae8776f1b1"
+  }
+ ],
+ "multi_region": false,
+ "documents": [
+  {
+   "file": "1_kat.pdf",
+   "format": "pdf",
+   "converter": null,
+   "units": {
+    "insunits": null,
+    "metres_per_unit": 0.035277777777777776,
+    "method": "pdf_scale_text",
+    "checks": [],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "page:1",
+     "box": [
+      15.0,
+      15.0,
+      1175.55,
+      826.89
+     ],
+     "frames": [],
+     "gap_units": 21.245,
+     "debug_image": "sheets_debug/1_kat_pdf_s1.png",
+     "gap_m": 0.7495
+    }
+   ]
+  },
+  {
+   "file": "1_kat_scan.png",
+   "format": "image",
+   "converter": null,
+   "units": {
+    "insunits": null,
+    "metres_per_unit": null,
+    "method": "raster",
+    "checks": [],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "page:1",
+     "box": [
+      0.0,
+      0.0,
+      2481.0,
+      1754.0
+     ],
+     "frames": [],
+     "gap_units": null,
+     "debug_image": null
+    }
+   ]
+  },
+  {
+   "file": "zemin_kat.dxf",
+   "format": "dxf",
+   "converter": null,
+   "units": {
+    "insunits": 4,
+    "metres_per_unit": 0.001,
+    "method": "dxf_insunits",
+    "checks": [
+     {
+      "check": "area_labels",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 labels alone in a closed outline, 0 regions with >= 2 labels"
+     },
+     {
+      "check": "level_marks",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 1"
+     },
+     {
+      "check": "door_widths",
+      "unit": "mm",
+      "score": 1.0,
+      "samples": 5,
+      "note": "median door radius 800 units"
+     },
+     {
+      "check": "wall_thickness",
+      "unit": null,
+      "score": 0.552,
+      "samples": 67,
+      "note": "median face-pair distance 100 units; no unit fits 50% of the samples"
+     },
+     {
+      "check": "text_height",
+      "unit": "mm",
+      "score": 1.0,
+      "samples": 6,
+      "note": "median text height 200 units"
+     },
+     {
+      "check": "dimensions",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 2"
+     }
+    ],
+    "conflict": null
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "model",
+     "box": [
+      -660.0,
+      -660.0,
+      9123.0,
+      8521.5
+     ],
+     "frames": [],
+     "gap_units": 201.25,
+     "debug_image": "sheets_debug/zemin_kat_dxf_s1.png",
+     "gap_m": 0.2013
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "1_kat.pdf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    15.0,
+    15.0,
+    1175.55,
+    826.89
+   ],
+   "box_m": [
+    40.942,
+    28.642
+   ],
+   "entities": 90,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "1. KAT PLANI",
+    "entity": "char:28",
+    "box": [
+     477.6,
+     551.808,
+     541.877,
+     561.808
+    ],
+    "language": "tr",
+    "keywords": [
+     "1. KAT",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 76,
+    "texts": 14,
+    "room_labels": 5,
+    "wall_test": "4 closed thin polygons",
+    "area_labels": 0,
+    "wall_pairs": 19,
+    "closed_rectangles": 9,
+    "largest_polyline": {
+     "entity": "path:1",
+     "layer": null,
+     "size_m": [
+      9.6,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": 1,
+    "label": "1. Kat",
+    "id": "L1",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "1_kat.pdf",
+      "page": 1,
+      "layer": null,
+      "entity": "char:28",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "1. KAT PLANI",
+      "region_id": "r1"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.035277777777777776,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "page": 1,
+     "layer": null,
+     "entity": "char:28",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "1. KAT PLANI",
+     "region_id": "r1"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r2",
+   "file": "1_kat_scan.png",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    0.0,
+    0.0,
+    2481.0,
+    1754.0
+   ],
+   "box_m": null,
+   "entities": 0,
+   "frame": null,
+   "class": "other",
+   "class_method": "none",
+   "class_confidence": 0.0,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "raster": true,
+    "note": "raster page: one region; classified and read by the pipeline's OCR path (M7), not split"
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": null,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "raster page: classified and read by the pipeline's OCR path",
+   "evidence": [],
+   "conflicts": []
+  },
+  {
+   "id": "r3",
+   "file": "zemin_kat.dxf",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    -1100.0,
+    -1100.0,
+    9600.0,
+    7200.0
+   ],
+   "box_m": [
+    10.7,
+    8.3
+   ],
+   "entities": 45,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI",
+    "entity": "TEXT:124",
+    "box": [
+     0.0,
+     8275.0,
+     6000.0,
+     8900.0
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 38,
+    "texts": 7,
+    "room_labels": 5,
+    "wall_test": "4 closed thin polygons",
+    "area_labels": 1,
+    "wall_pairs": 65,
+    "closed_rectangles": 8,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:EC",
+     "layer": "DUVAR",
+     "size_m": [
+      9.6,
+      0.25
+     ],
+     "closed": true,
+     "ends_m": 0.25
+    },
+    "street_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "zemin_kat.dxf",
+      "page": 1,
+      "layer": "YAZI",
+      "entity": "TEXT:124",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT PLANI",
+      "region_id": "r3"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.001,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:124",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r3"
+    }
+   ],
+   "conflicts": []
+  }
+ ],
+ "stray": [],
+ "levels": [
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Zemin Kat",
+   "kind": "floor",
+   "base_region": "r3",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "zemin_kat.dxf",
+     "page": 1,
+     "layer": "YAZI",
+     "entity": "TEXT:124",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI",
+     "region_id": "r3"
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "order": 1,
+   "label": "1. Kat",
+   "kind": "floor",
+   "base_region": "r1",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "1_kat.pdf",
+     "page": 1,
+     "layer": null,
+     "entity": "char:28",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "1. KAT PLANI",
+     "region_id": "r1"
+    }
+   ]
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r3",
+    "r1"
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [],
+  "cut_axis": null,
+  "cut_at": null,
+  "flipped": null,
+  "datum": null,
+  "levels": [
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: order x 3.00 m"
+    },
+    "ceiling_height": {
+     "value": 2.7,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief ceiling_height"
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: 3.00 m (above the ceiling and slab: an assumed plenum)"
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   },
+   {
+    "level_id": "L1",
+    "floor_z": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: order x 3.00 m"
+    },
+    "ceiling_height": {
+     "value": 2.7,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief ceiling_height"
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: 3.00 m (above the ceiling and slab: an assumed plenum)"
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief slab_thickness"
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: the level's floor"
+    }
+   },
+   {
+    "between": [
+     "L0",
+     "L1"
+    ],
+    "thickness": {
+     "value": 0.2,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: brief slab_thickness"
+    },
+    "z_top": {
+     "value": 3.0,
+     "method": "assumed",
+     "confidence": 0.0,
+     "evidence": [],
+     "note": "no section drawing: the level's floor"
+    }
+   }
+  ],
+  "ground": [],
+  "roof": {
+   "eaves_z": null,
+   "ridge_z": null,
+   "pitches_deg": [],
+   "knee_wall": null,
+   "overhang": null,
+   "thickness": null,
+   "profile": []
+  }
+ },
+ "exterior": {
+  "roof": null,
+  "facade": [],
+  "openings_seen": [],
+  "site": null,
+  "north": null,
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [],
+ "warnings": [],
+ "needs_review": [],
+ "questions": 0,
+ "answers": null
+}

@@ -2,170 +2,95 @@
  "schema_version": "0.1",
  "project": "synthetic-01",
  "model_keys": [
-  "qwen",
-  "glm"
+  "agent"
  ],
- "single_pass": false,
+ "single_pass": true,
  "metrics": {
   "baseline": {
    "views": 29,
    "views_computed": 29,
-   "required_elements": 54,
-   "fa_missing": 0.0,
-   "fa_extra": 0.0,
-   "count_error": 0.069,
-   "disputed": 0.0185
+   "required_elements": 57,
+   "fa_missing": null,
+   "fa_extra": null,
+   "count_error": null
   },
   "models": {
-   "qwen": {
+   "agent": {
     "calls": 29,
     "answered": 29,
     "answer_rate": 1.0,
-    "decoys": 29,
+    "decoys": 28,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.0185
-   },
-   "glm": {
-    "calls": 29,
-    "answered": 29,
-    "answer_rate": 1.0,
-    "decoys": 29,
-    "decoy_accept": 0.0,
-    "fa_missing_single": 0.0
+    "fa_missing_single": 0.0175
    }
   },
-  "fa_missing": 0.0,
-  "fa_extra": 0.0,
-  "count_error": 0.069,
-  "removal_flagged": 0.75,
-  "removal_confirmed": 0.75,
-  "insertion": 0.0,
-  "insertion_flagged": 0.375,
+  "fa_missing": null,
+  "fa_extra": null,
+  "count_error": null,
+  "removal_flagged": null,
+  "removal_confirmed": null,
+  "insertion": null,
+  "insertion_flagged": 0.625,
   "swap_flagged": 1.0,
-  "swap_confirmed": 0.3333,
+  "swap_confirmed": null,
   "detector_insertion": {
-   "n": 8,
-   "advisory": false,
-   "found": 0.875,
-   "flagged": 0.75,
-   "confirmed": 0.75,
-   "rows": [
-    {
-     "camera": "cam_r_L0_banyo_1",
-     "kind": "insertion:win_L0_006",
-     "hit_score": 0.3552,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_hol_1",
-     "kind": "insertion:d_L0_001",
-     "hit_score": 0.0773,
-     "hit_group": "wardrobe",
-     "flagged": false,
-     "confirmed": false
-    },
-    {
-     "camera": "cam_r_L0_yatak_odasi_1",
-     "kind": "insertion:f_L0_006",
-     "hit_score": 0.6832,
-     "hit_group": "bed_single",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L1_cocuk_odasi_1",
-     "kind": "insertion:f_L1_018",
-     "hit_score": 0.2387,
-     "hit_group": "wardrobe",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L1_cocuk_odasi_1",
-     "kind": "insertion:win_L1_004",
-     "hit_score": 0.3869,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
-     "kind": "insertion:f_L1_001",
-     "hit_score": 0.6682,
-     "hit_group": "bed_single",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L1_ebeveyn_yatak_odasi_3",
-     "kind": "insertion:win_L1_001",
-     "hit_score": 0.3862,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L1_yatak_odasi_3",
-     "kind": "insertion:d_L1_003",
-     "hit_score": null,
-     "hit_group": null,
-     "flagged": false,
-     "confirmed": false
-    }
-   ]
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
   },
   "controls": {
    "removal": {
     "n": 8,
     "flagged": 0.75,
-    "confirmed": 0.75,
+    "confirmed": 0.0,
     "rows": [
      {
       "camera": "cam_r_L0_banyo_1",
       "kind": "removal:win_L0_006",
-      "flagged": true,
-      "confirmed": true
+      "flagged": false,
+      "confirmed": false
      },
      {
-      "camera": "cam_r_L0_hol_1",
-      "kind": "removal:d_L0_001",
-      "flagged": false,
+      "camera": "cam_r_L0_mutfak_2",
+      "kind": "removal:d_L0_003",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_salon_1",
+      "kind": "removal:f_L0_001",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_salon_3",
+      "kind": "removal:win_L0_004",
+      "flagged": true,
       "confirmed": false
      },
      {
       "camera": "cam_r_L0_yatak_odasi_1",
       "kind": "removal:f_L0_006",
       "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L1_cocuk_odasi_1",
-      "kind": "removal:f_L1_018",
-      "flagged": true,
-      "confirmed": true
-     },
-     {
-      "camera": "cam_r_L1_cocuk_odasi_1",
-      "kind": "removal:win_L1_004",
-      "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
       "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
       "kind": "removal:f_L1_001",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
-      "camera": "cam_r_L1_ebeveyn_yatak_odasi_3",
-      "kind": "removal:win_L1_001",
+      "camera": "cam_r_L1_ebeveyn_yatak_odasi_2",
+      "kind": "removal:win_L1_003",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
-      "camera": "cam_r_L1_yatak_odasi_3",
+      "camera": "cam_r_L1_yatak_odasi_2",
       "kind": "removal:d_L1_003",
       "flagged": false,
       "confirmed": false
@@ -174,7 +99,7 @@
    },
    "insertion": {
     "n": 8,
-    "flagged": 0.375,
+    "flagged": 0.625,
     "confirmed": 0.0,
     "rows": [
      {
@@ -184,9 +109,21 @@
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_hol_1",
-      "kind": "insertion:d_L0_001",
+      "camera": "cam_r_L0_mutfak_2",
+      "kind": "insertion:d_L0_003",
       "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_salon_1",
+      "kind": "insertion:f_L0_001",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_salon_3",
+      "kind": "insertion:win_L0_004",
+      "flagged": true,
       "confirmed": false
      },
      {
@@ -196,31 +133,19 @@
       "confirmed": false
      },
      {
-      "camera": "cam_r_L1_cocuk_odasi_1",
-      "kind": "insertion:f_L1_018",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L1_cocuk_odasi_1",
-      "kind": "insertion:win_L1_004",
-      "flagged": true,
-      "confirmed": false
-     },
-     {
       "camera": "cam_r_L1_ebeveyn_yatak_odasi_1",
       "kind": "insertion:f_L1_001",
-      "flagged": false,
+      "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L1_ebeveyn_yatak_odasi_3",
-      "kind": "insertion:win_L1_001",
-      "flagged": false,
+      "camera": "cam_r_L1_ebeveyn_yatak_odasi_2",
+      "kind": "insertion:win_L1_003",
+      "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L1_yatak_odasi_3",
+      "camera": "cam_r_L1_yatak_odasi_2",
       "kind": "insertion:d_L1_003",
       "flagged": false,
       "confirmed": false
@@ -230,13 +155,13 @@
    "swap": {
     "n": 3,
     "flagged": 1.0,
-    "confirmed": 0.3333,
+    "confirmed": 0.0,
     "rows": [
      {
       "camera": "cam_r_L0_salon_1",
       "kind": "swap:f_L0_001",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
       "camera": "cam_r_L0_yatak_odasi_1",
@@ -264,24 +189,54 @@
  },
  "missed": [
   {
+   "target": "fa_missing_max",
+   "metric": "fa_missing",
+   "value": null,
+   "threshold": 0.05,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
+   "target": "fa_extra_max",
+   "metric": "fa_extra",
+   "value": null,
+   "threshold": 0.1,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
    "target": "removal_flagged_min",
    "metric": "removal_flagged",
-   "value": 0.75,
+   "value": null,
    "threshold": 0.8,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
+  },
+  {
+   "target": "removal_confirmed_min",
+   "metric": "removal_confirmed",
+   "value": null,
+   "threshold": 0.6,
+   "op": ">=",
+   "reason": "single pass"
   },
   {
    "target": "insertion_min",
    "metric": "insertion",
-   "value": 0.0,
+   "value": null,
    "threshold": 0.6,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   }
  ],
  "advisory": true,
  "advisory_reasons": [
-  "removal_flagged 0.75 misses >= 0.8",
-  "insertion 0.0 misses >= 0.6"
+  "single pass: no two-model agreement",
+  "fa_missing None misses <= 0.05 (single pass)",
+  "fa_extra None misses <= 0.1 (single pass)",
+  "removal_flagged None misses >= 0.8 (single pass)",
+  "removal_confirmed None misses >= 0.6 (single pass)",
+  "insertion None misses >= 0.6 (single pass)"
  ],
  "plan_ab": {
   "cameras": [],

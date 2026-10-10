@@ -1,0 +1,144 @@
+{
+ "room_id": "r_L1_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "f_L1_015.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L1_015",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
+   "id": "window:win_L1_006",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_006"
+  },
+  {
+   "id": "ceiling:centre_r_L1_banyo",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 banyo"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_015.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Enhances light and space, fits Scandinavian minimalism."
+    },
+    {
+     "slot": "window:win_L1_006",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens daylight, complements white walls and linen textiles."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_banyo",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Warm light source that matches daylight and Scandinavian style."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.873
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_015.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Matches light oak floor and enhances Scandinavian minimalism."
+    },
+    {
+     "slot": "window:win_L1_006",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Softens daylight while complementing white walls and linen textiles."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_banyo",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Warm metallic tone adds subtle luxury without clutter."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.867
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_015.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Enhances light and space, fits Scandinavian minimalism.",
+    "Matches light oak floor and enhances Scandinavian minimalism."
+   ]
+  },
+  {
+   "slot": "window:win_L1_006",
+   "type": "blind",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens daylight, complements white walls and linen textiles.",
+    "Softens daylight while complementing white walls and linen textiles."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_banyo",
+   "type": "ceiling_light",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Warm light source that matches daylight and Scandinavian style.",
+    "Warm metallic tone adds subtle luxury without clutter."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_021",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_015.wall"
+  },
+  {
+   "id": "dec_L1_022",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L1_006"
+  },
+  {
+   "id": "dec_L1_023",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_banyo"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

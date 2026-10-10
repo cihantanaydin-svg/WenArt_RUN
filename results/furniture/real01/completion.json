@@ -106,7 +106,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.365,
+     "latency_s": 4.733,
      "error": null,
      "transport_error": false,
      "changes": 3,
@@ -115,7 +115,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.876,
+     "latency_s": 2.023,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -177,19 +177,19 @@
      "type": "bench",
      "center": [
       1.75,
-      0.5
+      2.8
      ],
      "reason": "no repair left",
      "failed": [
-      "no_overlap"
+      "doors_free"
      ]
     },
     {
      "pass": 1,
      "type": "wardrobe",
      "center": [
-      2.89,
-      2.89
+      2.8,
+      2.8
      ],
      "reason": "no repair left",
      "failed": [
@@ -223,7 +223,7 @@
     },
     "walkways": []
    },
-   "latency_s": 6.241
+   "latency_s": 6.756
   },
   {
    "room_id": "r_L0_drawing_room",
@@ -324,7 +324,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.166,
+     "latency_s": 5.608,
      "error": null,
      "transport_error": false,
      "changes": 3,
@@ -333,7 +333,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.477,
+     "latency_s": 3.76,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -412,6 +412,7 @@
      "reason": "no repair left",
      "failed": [
       "no_overlap",
+      "clearance_ok",
       "doors_free"
      ]
     },
@@ -446,7 +447,7 @@
     "pieces": {},
     "walkways": []
    },
-   "latency_s": 8.643
+   "latency_s": 9.368
   },
   {
    "room_id": "r_L0_room",
@@ -484,7 +485,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.042,
+     "latency_s": 1.112,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -493,7 +494,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.003,
+     "latency_s": 1.091,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -540,7 +541,7 @@
     },
     "walkways": []
    },
-   "latency_s": 2.045
+   "latency_s": 2.203
   },
   {
    "room_id": "r_L0_bed_room_2",
@@ -581,26 +582,24 @@
     },
     {
      "id": "f_L0_006",
-     "type": "unknown",
+     "type": "nightstand",
      "kind": "changeable",
      "unverified": true,
      "anchor": {
-      "kind": "centre",
+      "kind": "back_edge",
       "point": [
        0.6596,
-       6.8623
+       7.0851
       ],
-      "wall_id": null
+      "wall_id": "w_L0_007"
      }
     }
    ],
    "missing": {
-    "nightstand": 1,
     "wardrobe": 1
    },
    "anchor_missing": false,
    "addable": {
-    "nightstand": 1,
     "wardrobe": 1,
     "dresser": 1,
     "desk": 1,
@@ -628,7 +627,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.924,
+     "latency_s": 2.007,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -637,41 +636,48 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.865,
+     "latency_s": 2.09,
      "error": null,
      "transport_error": false,
      "changes": 0,
      "added": 2
     }
    ],
-   "chosen_pass": 1,
+   "chosen_pass": null,
    "changes": [],
-   "added": [
-    {
-     "id": "f_L0_025",
-     "type": "nightstand",
-     "center": [
-      0.56,
-      6.36
-     ],
-     "size": [
-      0.5,
-      0.4
-     ],
-     "rotation_deg": 0.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    }
-   ],
+   "added": [],
    "refused": [],
    "dropped": [
     {
      "pass": 1,
+     "type": "bench",
+     "center": [
+      1.8,
+      6.8
+     ],
+     "reason": "no repair left",
+     "failed": [
+      "no_overlap"
+     ]
+    },
+    {
+     "pass": 1,
      "type": "wardrobe",
      "center": [
-      2.8,
-      3.5
+      2.85,
+      3.0
+     ],
+     "reason": "no repair left",
+     "failed": [
+      "doors_free"
+     ]
+    },
+    {
+     "pass": 2,
+     "type": "bench",
+     "center": [
+      1.8,
+      5.5
      ],
      "reason": "no repair left",
      "failed": [
@@ -682,8 +688,8 @@
      "pass": 2,
      "type": "wardrobe",
      "center": [
-      0.85,
-      3.95
+      2.75,
+      3.73
      ],
      "reason": "no repair left",
      "failed": [
@@ -708,7 +714,7 @@
     },
     "walkways": []
    },
-   "latency_s": 3.789
+   "latency_s": 4.097
   },
   {
    "room_id": "r_L0_kitchen",
@@ -760,7 +766,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.445,
+     "latency_s": 3.728,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -769,7 +775,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.055,
+     "latency_s": 5.426,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -780,7 +786,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L0_026",
+     "id": "f_L0_025",
      "type": "tall_cabinet",
      "center": [
       10.906,
@@ -838,8 +844,20 @@
      "pass": 2,
      "type": "chair",
      "center": [
-      12.05,
-      6.55
+      11.44,
+      7.15
+     ],
+     "reason": "no repair left",
+     "failed": [
+      "no_overlap"
+     ]
+    },
+    {
+     "pass": 2,
+     "type": "chair",
+     "center": [
+      11.44,
+      6.75
      ],
      "reason": "no repair left",
      "failed": [
@@ -862,18 +880,8 @@
      "pass": 2,
      "type": "chair",
      "center": [
-      11.85,
+      11.44,
       6.35
-     ],
-     "reason": "no table_dining in the room",
-     "failed": []
-    },
-    {
-     "pass": 2,
-     "type": "chair",
-     "center": [
-      11.65,
-      6.15
      ],
      "reason": "no table_dining in the room",
      "failed": []
@@ -891,7 +899,7 @@
    ],
    "wall_cabinets": [
     {
-     "id": "f_L0_027",
+     "id": "f_L0_026",
      "run": "f_L0_002",
      "size": [
       0.758,
@@ -913,7 +921,7 @@
     },
     "walkways": []
    },
-   "latency_s": 8.5
+   "latency_s": 9.154
   },
   {
    "room_id": "r_L0_dining",
@@ -1043,16 +1051,16 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.131,
+     "latency_s": 7.502,
      "error": null,
      "transport_error": false,
-     "changes": 0,
+     "changes": 7,
      "added": 1
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.134,
+     "latency_s": 1.144,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -1060,14 +1068,78 @@
     }
    ],
    "chosen_pass": 1,
-   "changes": [],
+   "changes": [
+    {
+     "id": "f_L0_010",
+     "type": "table_dining",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    },
+    {
+     "id": "f_L0_011",
+     "type": "chair",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    },
+    {
+     "id": "f_L0_012",
+     "type": "chair",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    },
+    {
+     "id": "f_L0_013",
+     "type": "chair",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    },
+    {
+     "id": "f_L0_014",
+     "type": "chair",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    },
+    {
+     "id": "f_L0_015",
+     "type": "chair",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    },
+    {
+     "id": "f_L0_016",
+     "type": "chair",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    }
+   ],
    "added": [
     {
-     "id": "f_L0_028",
+     "id": "f_L0_027",
      "type": "sideboard",
      "center": [
       5.352,
-      6.0
+      6.269
      ],
      "size": [
       1.6,
@@ -1099,14 +1171,14 @@
     },
     "walkways": []
    },
-   "latency_s": 2.265
+   "latency_s": 8.646
   }
  ],
  "rooms_completed": 6,
  "rooms_copied": 0,
  "changes_applied": 0,
- "pieces_added": 5,
+ "pieces_added": 4,
  "wall_cabinets": 1,
  "locked_violations": [],
- "latency_s": 31.483
+ "latency_s": 40.224
 }

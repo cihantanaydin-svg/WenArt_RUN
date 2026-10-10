@@ -1,0 +1,271 @@
+{
+ "room_id": "r_L1_hol",
+ "label": "Hol",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L1_007.left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "console_table",
+   "note": "left part",
+   "center": [
+    4.546,
+    0.6
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L1_007.right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "bowl",
+    "plant_small",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "console_table",
+   "note": "right part",
+   "center": [
+    4.546,
+    1.2
+   ],
+   "max_size": [
+    0.54,
+    0.29,
+    1.8
+   ]
+  },
+  {
+   "id": "f_L1_007.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "f_L1_008.centre",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "tray",
+    "candle"
+   ],
+   "host_id": "f_L1_008",
+   "host_type": "shoe_cabinet",
+   "note": "centre part",
+   "center": [
+    4.531,
+    6.3
+   ],
+   "max_size": [
+    0.74,
+    0.26,
+    1.6
+   ]
+  },
+  {
+   "id": "r_L1_hol.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.70, 0.50",
+   "center": [
+    5.7,
+    0.5
+   ]
+  },
+  {
+   "id": "r_L1_hol.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 5.70, 6.70",
+   "center": [
+    5.7,
+    6.7
+   ]
+  },
+  {
+   "id": "ceiling:centre_r_L1_hol",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 hol"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "white",
+     "reason": "Reflects light and enhances the airy Scandinavian feel."
+    },
+    {
+     "slot": "f_L1_007.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Simple white vase complements the light oak and white walls."
+    },
+    {
+     "slot": "r_L1_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Adds natural warmth and life without overwhelming the space."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_hol",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass light adds subtle elegance and complements daylight."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.457
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "natural wood",
+     "reason": "Reflects light and enhances space in Scandinavian style."
+    },
+    {
+     "slot": "f_L1_007.left",
+     "type": "vase",
+     "colour": "white",
+     "reason": "Simple, clean vase complements light oak and white walls."
+    },
+    {
+     "slot": "r_L1_hol.corner1",
+     "type": "plant",
+     "colour": "sage green",
+     "reason": "Adds natural warmth and life in a corner without clutter."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_hol",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Soft, even lighting suits Scandinavian minimalism and daylight."
+    }
+   ],
+   "error": null,
+   "latency_s": 2.462
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_007.wall",
+   "type": "mirror",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Reflects light and enhances the airy Scandinavian feel.",
+    "Reflects light and enhances space in Scandinavian style."
+   ]
+  },
+  {
+   "slot": "f_L1_007.left",
+   "type": "vase",
+   "colour": "white",
+   "colour_agreed": true,
+   "reasons": [
+    "Simple white vase complements the light oak and white walls.",
+    "Simple, clean vase complements light oak and white walls."
+   ]
+  },
+  {
+   "slot": "r_L1_hol.corner1",
+   "type": "plant",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds natural warmth and life without overwhelming the space.",
+    "Adds natural warmth and life in a corner without clutter."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L1_hol",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm brass light adds subtle elegance and complements daylight.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_hol",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "Soft, even lighting suits Scandinavian minimalism and daylight.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_010",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_007.wall"
+  },
+  {
+   "id": "dec_L1_011",
+   "type": "vase",
+   "method": "ai",
+   "slot": "f_L1_007.left"
+  },
+  {
+   "id": "dec_L1_012",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L1_hol.corner1"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

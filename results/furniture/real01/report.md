@@ -1,7 +1,7 @@
 # Ingest report: real01
 
 Status: **ok**
-Source: `projects/real01`, pipeline commit `b18dad1f`, created 2026-10-09T09:30:22Z
+Source: `projects/real01`, pipeline commit `9909871b`, created 2026-10-10T00:07:19Z
 
 ## Documents
 
@@ -38,7 +38,7 @@ Source: `projects/real01`, pipeline commit `b18dad1f`, created 2026-10-09T09:30:
 | f_L0_003 | L0 | r_L0_room | stair | - | from_documents | 2.44 x 1.53 | 90 | verified | real01.pdf |
 | f_L0_004 | L0 | r_L0_bed_room_2 | bed_double | - | from_documents | 1.78 x 2.03 | 0 | verified | real01.pdf |
 | f_L0_005 | L0 | r_L0_bed_room_2 | nightstand | - | from_documents | 0.50 x 0.49 | 0 | verified | real01.pdf |
-| f_L0_006 | L0 | r_L0_bed_room_2 | unknown | - | from_documents | 0.50 x 0.45 | 0 | unverified | real01.pdf |
+| f_L0_006 | L0 | r_L0_bed_room_2 | nightstand | - | from_documents | 0.50 x 0.45 | 0 | unverified | real01.pdf |
 | f_L0_007 | L0 | r_L0_bed_room | bed_double | - | from_documents | 1.78 x 2.03 | 180 | verified | real01.pdf |
 | f_L0_008 | L0 | r_L0_bed_room | nightstand | - | from_documents | 0.50 x 0.49 | 0 | verified | real01.pdf |
 | f_L0_009 | L0 | r_L0_bed_room | unknown | - | from_documents | 0.50 x 0.45 | 0 | unverified | real01.pdf |
@@ -53,6 +53,14 @@ Source: `projects/real01`, pipeline commit `b18dad1f`, created 2026-10-09T09:30:
 | f_L0_018 | L0 | r_L0_drawing_room | unknown | - | from_documents | 1.90 x 0.70 | 90 | unverified | real01.pdf |
 | f_L0_019 | L0 | r_L0_drawing_room | table_coffee | - | from_documents | 1.13 x 1.12 | 0 | verified | real01.pdf |
 | f_L0_020 | L0 | r_L0_drawing_room | floor_lamp | - | from_documents | 0.42 x 0.42 | 79 | verified | real01.pdf |
+
+## Inferred (Milestone 11)
+
+Pieces whose type, front or role the documents left unclear; inferred by code (the agent may change them on the plan crop).
+
+| Piece | Room | Type | Front | Built | Reason |
+|---|---|---|---|---|---|
+| f_L0_006 | r_L0_bed_room_2 | nightstand | 270 | yes | nightstand: named by an AI pass and the only named type that fits the size (0.50 x 0.45 m), the bedroom room and the position (others fitting: floor_lamp, ottoman, potted_plant, side_table) |
 
 ## Units
 
@@ -158,7 +166,7 @@ Recorded, not built.
 | f_L0_003 | stair | rule (stair rule: 2 flight(s), 8, 8 tread lines) | - | yes | verified |
 | f_L0_004 | bed_double | ai_two_pass | pass 1: bed_double; pass 2: bed_double | yes | verified |
 | f_L0_005 | nightstand | ai_two_pass | pass 1: nightstand; pass 2: nightstand | yes | verified |
-| f_L0_006 | unknown | none | pass 1: nightstand; pass 2: wall_cabinet | yes | unverified |
+| f_L0_006 | nightstand | none | pass 1: nightstand; pass 2: wall_cabinet | yes | unverified |
 | f_L0_007 | bed_double | ai_two_pass | pass 1: bed_double; pass 2: bed_double | yes | verified |
 | f_L0_008 | nightstand | ai_two_pass | pass 1: nightstand; pass 2: nightstand | yes | verified |
 | f_L0_009 | unknown | none | pass 1: nightstand; pass 2: floor_lamp | yes | unverified |
@@ -259,3 +267,4 @@ Recognition questions: 17 (`recognition/requests.json`), 0 without a complete pa
 - sym_L0_014: AI front [180.0, 270.0] (pass 1 (Qwen/Qwen3-VL-8B-Instruct) bottom, pass 2 (zai-org/GLM-4.6V-Flash) left) disagrees with the drawn front 90 deg (only side within 0.25 m of a wall is the back): the drawn front is kept (vector geometry > AI)
 - Level L0: ceiling height assumed 2.70 m (no section drawing found)
 - L0: room at (3.43, 2.5165) (6.98 m²) has no label: unlabelled face holding the stair
+- f_L0_006: inferred nightstand: nightstand: named by an AI pass and the only named type that fits the size (0.50 x 0.45 m), the bedroom room and the position (others fitting: floor_lamp, ottoman, potted_plant, side_table)

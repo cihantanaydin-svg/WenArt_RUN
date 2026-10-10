@@ -126,11 +126,89 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 1.131,
+   "latency_s": 7.502,
    "error": null,
    "transport_error": false,
    "data": {
-    "changes": [],
+    "changes": [
+     {
+      "id": "f_L0_010",
+      "type": "table_dining",
+      "size": [
+       1.6,
+       0.9
+      ],
+      "style": "scandinavian",
+      "colour": "natural wood",
+      "reason": "Larger table better fits the room and matches Scandinavian style with light oak."
+     },
+     {
+      "id": "f_L0_011",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "style": "scandinavian",
+      "colour": "natural wood",
+      "reason": "Slightly larger chair for comfort and style consistency with Scandinavian minimalism."
+     },
+     {
+      "id": "f_L0_012",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "style": "scandinavian",
+      "colour": "natural wood",
+      "reason": "Slightly larger chair for comfort and style consistency with Scandinavian minimalism."
+     },
+     {
+      "id": "f_L0_013",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "style": "scandinavian",
+      "colour": "natural wood",
+      "reason": "Slightly larger chair for comfort and style consistency with Scandinavian minimalism."
+     },
+     {
+      "id": "f_L0_014",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "style": "scandinavian",
+      "colour": "natural wood",
+      "reason": "Slightly larger chair for comfort and style consistency with Scandinavian minimalism."
+     },
+     {
+      "id": "f_L0_015",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "style": "scandinavian",
+      "colour": "natural wood",
+      "reason": "Slightly larger chair for comfort and style consistency with Scandinavian minimalism."
+     },
+     {
+      "id": "f_L0_016",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "style": "scandinavian",
+      "colour": "natural wood",
+      "reason": "Slightly larger chair for comfort and style consistency with Scandinavian minimalism."
+     }
+    ],
     "added": [
      {
       "type": "sideboard",
@@ -138,25 +216,25 @@
        8.09,
        6.0
       ],
-      "rotation_deg": 270,
+      "rotation_deg": 0,
       "size": [
        1.6,
        0.45
       ],
       "against_wall": true,
-      "reason": "Adds storage against the free wall near the door, matching Scandinavian style."
+      "reason": "Adds storage against the free wall, matching Scandinavian style with light wood finish."
      }
     ]
    },
    "prompt": "Task: complete this dining room (Turkish: YEMEK ODASI) labelled 'Dining' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Scandinavian, light oak floor, white walls, linen textiles, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_dining\", \"label\": \"Dining\", \"room_type\": \"dining\", \"room_subtype\": null, \"area_m2\": 10.51, \"polygon_m\": [[5.11, 4.65], [8.09, 4.65], [8.09, 4.58], [9.37, 4.58], [9.37, 7.09], [5.11, 7.09]], \"doors\": [{\"id\": \"o_L0_003\", \"center\": [9.49, 5.68], \"width\": 1.6, \"opens_into_this_room\": false, \"approach\": [8.91, 5.68]}, {\"id\": \"o_L0_004\", \"center\": [8.73, 4.58], \"width\": 1.29, \"opens_into_this_room\": false, \"approach\": [8.73, 5.04]}], \"windows\": [{\"id\": \"win_L0_005\", \"center\": [6.78, 7.2], \"width\": 1.52, \"sill_height\": 0.9}]}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_010\", \"type\": \"table_dining\", \"kind\": \"changeable\", \"center\": [6.5, 5.89], \"size\": [1.24, 0.74], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.5, 5.89]}, \"against_wall\": null}, {\"id\": \"f_L0_011\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.5, 5.04], \"size\": [0.38, 0.46], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.5, 5.04]}, \"against_wall\": null}, {\"id\": \"f_L0_012\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.5, 6.74], \"size\": [0.38, 0.46], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.5, 6.74]}, \"against_wall\": null}, {\"id\": \"f_L0_013\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.9, 5.57], \"size\": [0.38, 0.46], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.9, 5.57]}, \"against_wall\": null}, {\"id\": \"f_L0_014\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.9, 6.21], \"size\": [0.38, 0.46], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.9, 6.21]}, \"against_wall\": null}, {\"id\": \"f_L0_015\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [7.1, 5.57], \"size\": [0.38, 0.46], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [7.1, 5.57]}, \"against_wall\": null}, {\"id\": \"f_L0_016\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [7.1, 6.21], \"size\": [0.38, 0.46], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [7.1, 6.21]}, \"against_wall\": null}]\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: sideboard (1), display_cabinet (1), bench (1)\nA good completion: chairs on the long sides of the table, each chair's front towards the table and close to its edge; a sideboard against a free wall.\n\nTypes with their size options [width, depth]:\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- display_cabinet: height 1.9 m, size options [0.8, 0.38], [1.0, 0.4], [1.2, 0.42] (usually against a wall)\n- sideboard: height 0.8 m, size options [1.4, 0.42], [1.6, 0.45], [1.8, 0.48] (usually against a wall)\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (table_dining) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of table_dining, chair, dresser, bookshelf, display_cabinet, sideboard, bench), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of sideboard, display_cabinet, bench), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"sideboard\",\n      \"center\": [8.09, 6.0],\n      \"rotation_deg\": 270,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage against the free wall near the door, matching Scandinavian style.\"\n    }\n  ]\n}",
-   "changes": 0,
+   "raw_text": "{\n  \"changes\": [\n    {\n      \"id\": \"f_L0_010\",\n      \"type\": \"table_dining\",\n      \"size\": [1.6, 0.9],\n      \"style\": \"scandinavian\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Larger table better fits the room and matches Scandinavian style with light oak.\"\n    },\n    {\n      \"id\": \"f_L0_011\",\n      \"type\": \"chair\",\n      \"size\": [0.45, 0.45],\n      \"style\": \"scandinavian\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Slightly larger chair for comfort and style consistency with Scandinavian minimalism.\"\n    },\n    {\n      \"id\": \"f_L0_012\",\n      \"type\": \"chair\",\n      \"size\": [0.45, 0.45],\n      \"style\": \"scandinavian\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Slightly larger chair for comfort and style consistency with Scandinavian minimalism.\"\n    },\n    {\n      \"id\": \"f_L0_013\",\n      \"type\": \"chair\",\n      \"size\": [0.45, 0.45],\n      \"style\": \"scandinavian\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Slightly larger chair for comfort and style consistency with Scandinavian minimalism.\"\n    },\n    {\n      \"id\": \"f_L0_014\",\n      \"type\": \"chair\",\n      \"size\": [0.45, 0.45],\n      \"style\": \"scandinavian\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Slightly larger chair for comfort and style consistency with Scandinavian minimalism.\"\n    },\n    {\n      \"id\": \"f_L0_015\",\n      \"type\": \"chair\",\n      \"size\": [0.45, 0.45],\n      \"style\": \"scandinavian\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Slightly larger chair for comfort and style consistency with Scandinavian minimalism.\"\n    },\n    {\n      \"id\": \"f_L0_016\",\n      \"type\": \"chair\",\n      \"size\": [0.45, 0.45],\n      \"style\": \"scandinavian\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Slightly larger chair for comfort and style consistency with Scandinavian minimalism.\"\n    }\n  ],\n  \"added\": [\n    {\n      \"type\": \"sideboard\",\n      \"center\": [8.09, 6.0],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage against the free wall, matching Scandinavian style with light wood finish.\"\n    }\n  ]\n}",
+   "changes": 7,
    "added": 1
   },
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 1.134,
+   "latency_s": 1.144,
    "error": null,
    "transport_error": false,
    "data": {
@@ -166,7 +244,7 @@
       "type": "sideboard",
       "center": [
        5.11,
-       6.33
+       6.84
       ],
       "rotation_deg": 0,
       "size": [
@@ -174,25 +252,89 @@
        0.45
       ],
       "against_wall": true,
-      "reason": "Adds storage against the free wall, matching Scandinavian style with light oak and linen textiles."
+      "reason": "Adds storage against the free wall, matching Scandinavian style."
      }
     ]
    },
    "prompt": "Task: complete this dining room (Turkish: YEMEK ODASI) labelled 'Dining' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Scandinavian, light oak floor, white walls, linen textiles, warm daylight.\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: sideboard (1), display_cabinet (1), bench (1)\nA good completion: chairs on the long sides of the table, each chair's front towards the table and close to its edge; a sideboard against a free wall.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (table_dining) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- display_cabinet: height 1.9 m, size options [0.8, 0.38], [1.0, 0.4], [1.2, 0.42] (usually against a wall)\n- sideboard: height 0.8 m, size options [1.4, 0.42], [1.6, 0.45], [1.8, 0.48] (usually against a wall)\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_010\", \"type\": \"table_dining\", \"kind\": \"changeable\", \"center\": [6.5, 5.89], \"size\": [1.24, 0.74], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.5, 5.89]}, \"against_wall\": null}, {\"id\": \"f_L0_011\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.5, 5.04], \"size\": [0.38, 0.46], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.5, 5.04]}, \"against_wall\": null}, {\"id\": \"f_L0_012\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.5, 6.74], \"size\": [0.38, 0.46], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.5, 6.74]}, \"against_wall\": null}, {\"id\": \"f_L0_013\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.9, 5.57], \"size\": [0.38, 0.46], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.9, 5.57]}, \"against_wall\": null}, {\"id\": \"f_L0_014\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.9, 6.21], \"size\": [0.38, 0.46], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.9, 6.21]}, \"against_wall\": null}, {\"id\": \"f_L0_015\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [7.1, 5.57], \"size\": [0.38, 0.46], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [7.1, 5.57]}, \"against_wall\": null}, {\"id\": \"f_L0_016\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [7.1, 6.21], \"size\": [0.38, 0.46], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [7.1, 6.21]}, \"against_wall\": null}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_dining\", \"label\": \"Dining\", \"room_type\": \"dining\", \"room_subtype\": null, \"area_m2\": 10.51, \"polygon_m\": [[5.11, 4.65], [8.09, 4.65], [8.09, 4.58], [9.37, 4.58], [9.37, 7.09], [5.11, 7.09]], \"doors\": [{\"id\": \"o_L0_003\", \"center\": [9.49, 5.68], \"width\": 1.6, \"opens_into_this_room\": false, \"approach\": [8.91, 5.68]}, {\"id\": \"o_L0_004\", \"center\": [8.73, 4.58], \"width\": 1.29, \"opens_into_this_room\": false, \"approach\": [8.73, 5.04]}], \"windows\": [{\"id\": \"win_L0_005\", \"center\": [6.78, 7.2], \"width\": 1.52, \"sill_height\": 0.9}]}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of table_dining, chair, dresser, bookshelf, display_cabinet, sideboard, bench), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of sideboard, display_cabinet, bench), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"sideboard\",\n      \"center\": [5.11, 6.33],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage against the free wall, matching Scandinavian style with light oak and linen textiles.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"sideboard\",\n      \"center\": [5.11, 6.84],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage against the free wall, matching Scandinavian style.\"\n    }\n  ]\n}",
    "changes": 0,
    "added": 1
   }
  ],
  "chosen_pass": 1,
- "changes": [],
+ "changes": [
+  {
+   "id": "f_L0_010",
+   "type": "table_dining",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  },
+  {
+   "id": "f_L0_011",
+   "type": "chair",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  },
+  {
+   "id": "f_L0_012",
+   "type": "chair",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  },
+  {
+   "id": "f_L0_013",
+   "type": "chair",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  },
+  {
+   "id": "f_L0_014",
+   "type": "chair",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  },
+  {
+   "id": "f_L0_015",
+   "type": "chair",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  },
+  {
+   "id": "f_L0_016",
+   "type": "chair",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  }
+ ],
  "added": [
   {
-   "id": "f_L0_028",
+   "id": "f_L0_027",
    "type": "sideboard",
    "center": [
     5.352,
-    6.0
+    6.269
    ],
    "size": [
     1.6,
@@ -224,7 +366,7 @@
   },
   "walkways": []
  },
- "latency_s": 2.265,
+ "latency_s": 8.646,
  "question": {
   "room": {
    "room_id": "r_L0_dining",
@@ -692,7 +834,7 @@
      "type": "sideboard",
      "center": [
       5.352,
-      6.0
+      6.269
      ],
      "rotation_deg": 90.0,
      "size": [
@@ -700,13 +842,13 @@
       0.45
      ],
      "against_wall": true,
-     "reason": "Adds storage against the free wall near the door, matching Scandinavian style.",
+     "reason": "Adds storage against the free wall, matching Scandinavian style with light wood finish.",
      "proposed": {
       "center": [
        8.09,
        6.0
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.6,
        0.45
@@ -722,7 +864,7 @@
          8.09,
          6.0
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.6,
          0.45
@@ -730,16 +872,17 @@
        },
        "after": {
         "center": [
-         9.128,
-         6.0
+         8.09,
+         6.845
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.6,
          0.45
         ]
        },
        "failed": [
+        "no_overlap",
         "doors_free",
         "wall_contact"
        ],
@@ -751,10 +894,10 @@
        "step": "slide",
        "before": {
         "center": [
-         9.128,
-         6.0
+         8.09,
+         6.845
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.6,
          0.45
@@ -762,10 +905,10 @@
        },
        "after": {
         "center": [
-         9.128,
-         6.0
+         8.09,
+         6.845
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.6,
          0.45
@@ -783,10 +926,10 @@
        "step": "shrink",
        "before": {
         "center": [
-         9.128,
-         6.0
+         8.09,
+         6.845
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.6,
          0.45
@@ -794,10 +937,10 @@
        },
        "after": {
         "center": [
-         9.143,
-         6.0
+         8.09,
+         6.859
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.4,
          0.42
@@ -814,10 +957,10 @@
        "step": "slide",
        "before": {
         "center": [
-         9.143,
-         6.0
+         8.09,
+         6.859
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.4,
          0.42
@@ -825,10 +968,10 @@
        },
        "after": {
         "center": [
-         9.143,
-         6.0
+         8.09,
+         6.859
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.4,
          0.42
@@ -846,10 +989,10 @@
        "step": "relocate",
        "before": {
         "center": [
-         9.143,
-         6.0
+         8.09,
+         6.859
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          1.4,
          0.42
@@ -858,7 +1001,7 @@
        "after": {
         "center": [
          5.352,
-         6.0
+         6.269
         ],
         "rotation_deg": 90.0,
         "size": [
@@ -894,7 +1037,7 @@
        8.09,
        6.0
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.6,
        0.45
@@ -902,16 +1045,17 @@
      },
      "after": {
       "center": [
-       9.128,
-       6.0
+       8.09,
+       6.845
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.6,
        0.45
       ]
      },
      "failed": [
+      "no_overlap",
       "doors_free",
       "wall_contact"
      ],
@@ -924,10 +1068,10 @@
      "step": "slide",
      "before": {
       "center": [
-       9.128,
-       6.0
+       8.09,
+       6.845
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.6,
        0.45
@@ -935,10 +1079,10 @@
      },
      "after": {
       "center": [
-       9.128,
-       6.0
+       8.09,
+       6.845
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.6,
        0.45
@@ -957,10 +1101,10 @@
      "step": "shrink",
      "before": {
       "center": [
-       9.128,
-       6.0
+       8.09,
+       6.845
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.6,
        0.45
@@ -968,10 +1112,10 @@
      },
      "after": {
       "center": [
-       9.143,
-       6.0
+       8.09,
+       6.859
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.4,
        0.42
@@ -989,10 +1133,10 @@
      "step": "slide",
      "before": {
       "center": [
-       9.143,
-       6.0
+       8.09,
+       6.859
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.4,
        0.42
@@ -1000,10 +1144,10 @@
      },
      "after": {
       "center": [
-       9.143,
-       6.0
+       8.09,
+       6.859
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.4,
        0.42
@@ -1022,10 +1166,10 @@
      "step": "relocate",
      "before": {
       "center": [
-       9.143,
-       6.0
+       8.09,
+       6.859
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        1.4,
        0.42
@@ -1034,7 +1178,7 @@
      "after": {
       "center": [
        5.352,
-       6.0
+       6.269
       ],
       "rotation_deg": 90.0,
       "size": [
@@ -1065,11 +1209,11 @@
       0.45
      ],
      "against_wall": true,
-     "reason": "Adds storage against the free wall, matching Scandinavian style with light oak and linen textiles.",
+     "reason": "Adds storage against the free wall, matching Scandinavian style.",
      "proposed": {
       "center": [
        5.11,
-       6.33
+       6.84
       ],
       "rotation_deg": 0.0,
       "size": [
@@ -1085,7 +1229,7 @@
        "before": {
         "center": [
          5.11,
-         6.33
+         6.84
         ],
         "rotation_deg": 0.0,
         "size": [
@@ -1106,7 +1250,6 @@
        },
        "failed": [
         "inside_room",
-        "no_overlap",
         "wall_contact"
        ],
        "ok": true
@@ -1132,7 +1275,7 @@
      "before": {
       "center": [
        5.11,
-       6.33
+       6.84
       ],
       "rotation_deg": 0.0,
       "size": [
@@ -1153,7 +1296,6 @@
      },
      "failed": [
       "inside_room",
-      "no_overlap",
       "wall_contact"
      ],
      "ok": true

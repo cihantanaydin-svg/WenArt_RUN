@@ -56,7 +56,7 @@
     1222
    ],
    "scale": 1.07962,
-   "bytes": 98531
+   "bytes": 100355
   },
   "cam_r_L0_bed_room_2_1": {
    "plan": "cam_r_L0_bed_room_2_1_plan.jpg",
@@ -70,7 +70,7 @@
     626
    ],
    "scale": 1.07817,
-   "bytes": 89565
+   "bytes": 93247
   },
   "cam_r_L0_bed_room_2_2": {
    "plan": "cam_r_L0_bed_room_2_2_plan.jpg",
@@ -84,7 +84,7 @@
     626
    ],
    "scale": 1.07817,
-   "bytes": 92642
+   "bytes": 91840
   },
   "cam_r_L0_bed_room_2_3": {
    "plan": "cam_r_L0_bed_room_2_3_plan.jpg",
@@ -98,7 +98,7 @@
     626
    ],
    "scale": 1.07817,
-   "bytes": 95764
+   "bytes": 93200
   },
   "cam_r_L0_bed_room_3": {
    "plan": "cam_r_L0_bed_room_3_plan.jpg",
@@ -112,7 +112,7 @@
     1222
    ],
    "scale": 1.07962,
-   "bytes": 97689
+   "bytes": 94733
   },
   "cam_r_L0_dining_1": {
    "plan": "cam_r_L0_dining_1_plan.jpg",
@@ -126,7 +126,7 @@
     626
    ],
    "scale": 1.0,
-   "bytes": 88627
+   "bytes": 85071
   },
   "cam_r_L0_dining_2": {
    "plan": "cam_r_L0_dining_2_plan.jpg",
@@ -140,7 +140,7 @@
     626
    ],
    "scale": 1.0,
-   "bytes": 90487
+   "bytes": 90485
   },
   "cam_r_L0_dining_3": {
    "plan": "cam_r_L0_dining_3_plan.jpg",
@@ -154,7 +154,7 @@
     626
    ],
    "scale": 1.0,
-   "bytes": 82013
+   "bytes": 81151
   },
   "cam_r_L0_drawing_room_1": {
    "plan": "cam_r_L0_drawing_room_1_plan.jpg",
@@ -168,7 +168,7 @@
     1054
    ],
    "scale": 1.0,
-   "bytes": 119606
+   "bytes": 111576
   },
   "cam_r_L0_drawing_room_2": {
    "plan": "cam_r_L0_drawing_room_2_plan.jpg",
@@ -182,7 +182,7 @@
     1054
    ],
    "scale": 1.0,
-   "bytes": 119265
+   "bytes": 109676
   },
   "cam_r_L0_drawing_room_3": {
    "plan": "cam_r_L0_drawing_room_3_plan.jpg",
@@ -196,7 +196,7 @@
     1054
    ],
    "scale": 1.0,
-   "bytes": 121279
+   "bytes": 112006
   },
   "cam_r_L0_kitchen_1": {
    "plan": "cam_r_L0_kitchen_1_plan.jpg",
@@ -210,7 +210,7 @@
     626
    ],
    "scale": 1.1396,
-   "bytes": 68748
+   "bytes": 68737
   },
   "cam_r_L0_kitchen_2": {
    "plan": "cam_r_L0_kitchen_2_plan.jpg",
@@ -224,7 +224,7 @@
     626
    ],
    "scale": 1.1396,
-   "bytes": 73113
+   "bytes": 74634
   },
   "cam_r_L0_kitchen_3": {
    "plan": "cam_r_L0_kitchen_3_plan.jpg",
@@ -238,7 +238,7 @@
     626
    ],
    "scale": 1.1396,
-   "bytes": 72441
+   "bytes": 72226
   },
   "cam_r_L0_room_1": {
    "plan": "cam_r_L0_room_1_plan.jpg",
@@ -253,34 +253,6 @@
    ],
    "scale": 1.0,
    "bytes": 42758
-  },
-  "cam_r_L0_room_2": {
-   "plan": "cam_r_L0_room_2_plan.jpg",
-   "document": "real01.pdf",
-   "page": 1,
-   "format": "pdf",
-   "source_kind": "cad_pdf",
-   "drawn_on": "real01.pdf",
-   "crop_origin_px": [
-    1188,
-    626
-   ],
-   "scale": 1.0,
-   "bytes": 43139
-  },
-  "cam_r_L0_room_3": {
-   "plan": "cam_r_L0_room_3_plan.jpg",
-   "document": "real01.pdf",
-   "page": 1,
-   "format": "pdf",
-   "source_kind": "cad_pdf",
-   "drawn_on": "real01.pdf",
-   "crop_origin_px": [
-    1188,
-    626
-   ],
-   "scale": 1.0,
-   "bytes": 45768
   }
  },
  "warnings": []

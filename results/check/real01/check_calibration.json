@@ -2,127 +2,66 @@
  "schema_version": "0.1",
  "project": "real01",
  "model_keys": [
-  "qwen",
-  "glm"
+  "agent"
  ],
- "single_pass": false,
+ "single_pass": true,
  "metrics": {
   "baseline": {
-   "views": 20,
-   "views_computed": 20,
-   "required_elements": 35,
-   "fa_missing": 0.0,
-   "fa_extra": 0.0,
-   "count_error": 0.0,
-   "disputed": 0.0
+   "views": 18,
+   "views_computed": 18,
+   "required_elements": 34,
+   "fa_missing": null,
+   "fa_extra": null,
+   "count_error": null
   },
   "models": {
-   "qwen": {
-    "calls": 20,
-    "answered": 20,
+   "agent": {
+    "calls": 18,
+    "answered": 18,
     "answer_rate": 1.0,
-    "decoys": 20,
-    "decoy_accept": 0.0,
-    "fa_missing_single": 0.0
-   },
-   "glm": {
-    "calls": 20,
-    "answered": 20,
-    "answer_rate": 1.0,
-    "decoys": 20,
+    "decoys": 18,
     "decoy_accept": 0.0,
     "fa_missing_single": 0.0
    }
   },
-  "fa_missing": 0.0,
-  "fa_extra": 0.0,
-  "count_error": 0.0,
-  "removal_flagged": 0.7143,
-  "removal_confirmed": 0.4286,
-  "insertion": 0.0,
-  "insertion_flagged": 0.2857,
+  "fa_missing": null,
+  "fa_extra": null,
+  "count_error": null,
+  "removal_flagged": null,
+  "removal_confirmed": null,
+  "insertion": null,
+  "insertion_flagged": 0.875,
   "swap_flagged": 1.0,
-  "swap_confirmed": 1.0,
+  "swap_confirmed": null,
   "detector_insertion": {
-   "n": 7,
-   "advisory": false,
-   "found": 0.8571,
-   "flagged": 0.8571,
-   "confirmed": 0.8571,
-   "rows": [
-    {
-     "camera": "cam_r_L0_bed_room_2_3",
-     "kind": "insertion:win_L0_004",
-     "hit_score": 0.1927,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_dining_2",
-     "kind": "insertion:f_L0_028",
-     "hit_score": 0.4418,
-     "hit_group": "sideboard",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_drawing_room_1",
-     "kind": "insertion:f_L0_017",
-     "hit_score": 0.6772,
-     "hit_group": "sofa",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_drawing_room_1",
-     "kind": "insertion:win_L0_002",
-     "hit_score": null,
-     "hit_group": null,
-     "flagged": false,
-     "confirmed": false
-    },
-    {
-     "camera": "cam_r_L0_drawing_room_3",
-     "kind": "insertion:d_L0_003",
-     "hit_score": 0.1305,
-     "hit_group": "wall_cabinet",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_kitchen_1",
-     "kind": "insertion:f_L0_002",
-     "hit_score": 0.2429,
-     "hit_group": "kitchen_counter",
-     "flagged": true,
-     "confirmed": true
-    },
-    {
-     "camera": "cam_r_L0_kitchen_2",
-     "kind": "insertion:win_L0_009",
-     "hit_score": 0.3718,
-     "hit_group": "window",
-     "flagged": true,
-     "confirmed": true
-    }
-   ]
+   "n": 0,
+   "advisory": null,
+   "found": null,
+   "flagged": null,
+   "confirmed": null,
+   "rows": []
   },
   "controls": {
    "removal": {
-    "n": 7,
-    "flagged": 0.7143,
-    "confirmed": 0.4286,
+    "n": 8,
+    "flagged": 1.0,
+    "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L0_bed_room_2_3",
-      "kind": "removal:win_L0_004",
+      "camera": "cam_r_L0_bed_room_2_2",
+      "kind": "removal:win_L0_008",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_dining_2",
-      "kind": "removal:f_L0_028",
+      "camera": "cam_r_L0_bed_room_3",
+      "kind": "removal:win_L0_001",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_dining_3",
+      "kind": "removal:f_L0_027",
       "flagged": true,
       "confirmed": false
      },
@@ -130,49 +69,55 @@
       "camera": "cam_r_L0_drawing_room_1",
       "kind": "removal:f_L0_017",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
-      "camera": "cam_r_L0_drawing_room_1",
-      "kind": "removal:win_L0_002",
+      "camera": "cam_r_L0_drawing_room_2",
+      "kind": "removal:d_L0_003",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      },
      {
       "camera": "cam_r_L0_drawing_room_3",
-      "kind": "removal:d_L0_003",
-      "flagged": false,
+      "kind": "removal:win_L0_002",
+      "flagged": true,
       "confirmed": false
      },
      {
       "camera": "cam_r_L0_kitchen_1",
       "kind": "removal:f_L0_002",
-      "flagged": false,
+      "flagged": true,
       "confirmed": false
      },
      {
       "camera": "cam_r_L0_kitchen_2",
-      "kind": "removal:win_L0_009",
+      "kind": "removal:d_L0_005",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      }
     ]
    },
    "insertion": {
-    "n": 7,
-    "flagged": 0.2857,
+    "n": 8,
+    "flagged": 0.875,
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L0_bed_room_2_3",
-      "kind": "insertion:win_L0_004",
-      "flagged": false,
+      "camera": "cam_r_L0_bed_room_2_2",
+      "kind": "insertion:win_L0_008",
+      "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_dining_2",
-      "kind": "insertion:f_L0_028",
-      "flagged": false,
+      "camera": "cam_r_L0_bed_room_3",
+      "kind": "insertion:win_L0_001",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_dining_3",
+      "kind": "insertion:f_L0_027",
+      "flagged": true,
       "confirmed": false
      },
      {
@@ -182,14 +127,14 @@
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_drawing_room_1",
-      "kind": "insertion:win_L0_002",
-      "flagged": false,
+      "camera": "cam_r_L0_drawing_room_2",
+      "kind": "insertion:d_L0_003",
+      "flagged": true,
       "confirmed": false
      },
      {
       "camera": "cam_r_L0_drawing_room_3",
-      "kind": "insertion:d_L0_003",
+      "kind": "insertion:win_L0_002",
       "flagged": true,
       "confirmed": false
      },
@@ -201,8 +146,8 @@
      },
      {
       "camera": "cam_r_L0_kitchen_2",
-      "kind": "insertion:win_L0_009",
-      "flagged": false,
+      "kind": "insertion:d_L0_005",
+      "flagged": true,
       "confirmed": false
      }
     ]
@@ -210,13 +155,13 @@
    "swap": {
     "n": 1,
     "flagged": 1.0,
-    "confirmed": 1.0,
+    "confirmed": 0.0,
     "rows": [
      {
       "camera": "cam_r_L0_drawing_room_1",
       "kind": "swap:f_L0_017",
       "flagged": true,
-      "confirmed": true
+      "confirmed": false
      }
     ]
    }
@@ -232,32 +177,54 @@
  },
  "missed": [
   {
+   "target": "fa_missing_max",
+   "metric": "fa_missing",
+   "value": null,
+   "threshold": 0.05,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
+   "target": "fa_extra_max",
+   "metric": "fa_extra",
+   "value": null,
+   "threshold": 0.1,
+   "op": "<=",
+   "reason": "single pass"
+  },
+  {
    "target": "removal_flagged_min",
    "metric": "removal_flagged",
-   "value": 0.7143,
+   "value": null,
    "threshold": 0.8,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   },
   {
    "target": "removal_confirmed_min",
    "metric": "removal_confirmed",
-   "value": 0.4286,
+   "value": null,
    "threshold": 0.6,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   },
   {
    "target": "insertion_min",
    "metric": "insertion",
-   "value": 0.0,
+   "value": null,
    "threshold": 0.6,
-   "op": ">="
+   "op": ">=",
+   "reason": "single pass"
   }
  ],
  "advisory": true,
  "advisory_reasons": [
-  "removal_flagged 0.7143 misses >= 0.8",
-  "removal_confirmed 0.4286 misses >= 0.6",
-  "insertion 0.0 misses >= 0.6"
+  "single pass: no two-model agreement",
+  "fa_missing None misses <= 0.05 (single pass)",
+  "fa_extra None misses <= 0.1 (single pass)",
+  "removal_flagged None misses >= 0.8 (single pass)",
+  "removal_confirmed None misses >= 0.6 (single pass)",
+  "insertion None misses >= 0.6 (single pass)"
  ],
  "plan_ab": {
   "cameras": [],

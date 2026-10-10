@@ -1,7 +1,7 @@
 {
  "schema_version": "0.1",
  "scene": "../../scene/scene.blend",
- "scene_sha256": "ec7f4c55b629341f6c2935aecc304482044d77a693b8b6f7342d511d8549c61b",
+ "scene_sha256": "8836adb84a8031c44e812e7e28258bc914e04e68f2841184f475a959953bcc7d",
  "device": "OPTIX",
  "device_requested": "auto",
  "blender_version": "5.2.2 LTS",
@@ -46,50 +46,49 @@
   "win_L0_009": 12,
   "d_L0_004": 13,
   "d_L0_005": 14,
-  "proxy:f_L0_006": 15,
-  "proxy:f_L0_009": 16,
-  "proxy:f_L0_018": 17,
-  "f_L0_001": 18,
-  "f_L0_002": 19,
-  "f_L0_004": 20,
-  "f_L0_005": 21,
-  "f_L0_007": 22,
-  "f_L0_008": 23,
-  "f_L0_010": 24,
-  "f_L0_011": 25,
-  "f_L0_012": 26,
-  "f_L0_013": 27,
-  "f_L0_014": 28,
-  "f_L0_015": 29,
-  "f_L0_016": 30,
-  "f_L0_017": 31,
-  "f_L0_019": 32,
-  "f_L0_020": 33,
-  "f_L0_021": 34,
-  "f_L0_022": 35,
-  "f_L0_023": 36,
-  "f_L0_024": 37,
-  "f_L0_025": 38,
-  "f_L0_026": 39,
-  "f_L0_027": 40,
-  "f_L0_028": 41,
-  "dec_L0_006": 42,
-  "dec_L0_007": 43,
-  "dec_L0_008": 44,
-  "dec_L0_009": 45,
-  "dec_L0_013": 46,
-  "dec_L0_014": 47,
-  "dec_L0_015": 48,
-  "dec_L0_016": 49,
-  "dec_L0_024": 50,
-  "dec_L0_025": 51,
-  "dec_L0_026": 52,
-  "dec_L0_027": 53,
-  "dec_L0_028": 54,
-  "dec_L0_030": 55,
-  "dec_L0_031": 56,
-  "dec_L0_032": 57,
-  "f_L0_003": 58
+  "proxy:f_L0_009": 15,
+  "f_L0_001": 16,
+  "f_L0_002": 17,
+  "f_L0_004": 18,
+  "f_L0_005": 19,
+  "f_L0_006": 20,
+  "f_L0_007": 21,
+  "f_L0_008": 22,
+  "f_L0_010": 23,
+  "f_L0_011": 24,
+  "f_L0_012": 25,
+  "f_L0_013": 26,
+  "f_L0_014": 27,
+  "f_L0_015": 28,
+  "f_L0_016": 29,
+  "f_L0_017": 30,
+  "f_L0_019": 31,
+  "f_L0_020": 32,
+  "f_L0_021": 33,
+  "f_L0_022": 34,
+  "f_L0_023": 35,
+  "f_L0_024": 36,
+  "f_L0_025": 37,
+  "f_L0_026": 38,
+  "f_L0_027": 39,
+  "dec_L0_006": 40,
+  "dec_L0_007": 41,
+  "dec_L0_008": 42,
+  "dec_L0_009": 43,
+  "dec_L0_013": 44,
+  "dec_L0_014": 45,
+  "dec_L0_015": 46,
+  "dec_L0_016": 47,
+  "dec_L0_024": 48,
+  "dec_L0_025": 49,
+  "dec_L0_026": 50,
+  "dec_L0_027": 51,
+  "dec_L0_028": 52,
+  "dec_L0_029": 53,
+  "dec_L0_031": 54,
+  "dec_L0_032": 55,
+  "dec_L0_033": 56,
+  "f_L0_003": 57
  },
  "renders": [
   {
@@ -109,8 +108,8 @@
     "normal": "cam_r_L0_kitchen_1_normal.png",
     "depth": "cam_r_L0_kitchen_1_depth.png"
    },
-   "preview_bytes": 236994,
-   "seconds": 5.25,
+   "preview_bytes": 84728,
+   "seconds": 5.8,
    "samples": 128,
    "resolution": [
     1920,
@@ -119,37 +118,37 @@
    "depth": {
     "min": 0.7194995880126953,
     "max": 2.432999610900879,
-    "mean": 1.9437165260314941,
-    "coverage": 0.9999995177469135
+    "mean": 1.9314626455307007,
+    "coverage": 1.0
    },
    "index_values": [
     6,
     12,
-    18,
-    40,
-    54
+    16,
+    38,
+    53
    ],
    "index_stats": {
     "6": {
-     "pixels": 156969,
+     "pixels": 37653,
      "box": [
       494,
       167,
       983,
-      488
+      244
      ]
     },
     "12": {
-     "pixels": 86884,
+     "pixels": 21225,
      "box": [
       1777,
       0,
       1920,
-      628
+      164
      ]
     },
-    "18": {
-     "pixels": 336837,
+    "16": {
+     "pixels": 336374,
      "box": [
       1249,
       545,
@@ -157,8 +156,8 @@
       1080
      ]
     },
-    "40": {
-     "pixels": 103803,
+    "38": {
+     "pixels": 103783,
      "box": [
       1111,
       0,
@@ -166,7 +165,7 @@
       265
      ]
     },
-    "54": {
+    "53": {
      "pixels": 91521,
      "box": [
       452,
@@ -177,26 +176,26 @@
     }
    },
    "skipped": false,
-   "scene_sha256": "ec7f4c55b629341f6c2935aecc304482044d77a693b8b6f7342d511d8549c61b",
-   "render_key": "801ccae1d09211fa",
+   "scene_sha256": "8836adb84a8031c44e812e7e28258bc914e04e68f2841184f475a959953bcc7d",
+   "render_key": "0c753a259d055304",
    "exposure": {
     "mode": "from",
-    "ev": 4.833333,
+    "ev": 5.166667,
     "ev_raw": null,
     "at_limit": false,
     "target": null,
     "limits": null,
     "incident_p50": null,
     "whitepoint": [
-     0.932535,
-     1.005157,
-     1.147573
+     0.957715,
+     1.003454,
+     1.090299
     ],
     "wb_mode": "from",
-    "wb_temperature": 7506.0,
-    "wb_tint": 8.92,
+    "wb_temperature": 7091.7,
+    "wb_tint": 9.26,
     "residual": null,
-    "window_clip_frac": 0.0,
+    "window_clip_frac": 0.0044,
     "meter_seconds": 0.0,
     "meter": null,
     "mood": "warm daylight",
@@ -211,30 +210,31 @@
    "window_pull": {
     "ev": -1.0,
     "k": 1,
-    "pane_ev": 3.833333,
-    "clip_before": 0.0669,
-    "clip_after": 0.0,
-    "pane_px": 180888,
-    "pane_median": 0.9479,
-    "wall_median": 0.4177,
+    "pane_ev": 4.166667,
+    "clip_before": 0.3219,
+    "clip_after": 0.0052,
+    "pane_px": 46118,
+    "pane_median": 0.9759,
+    "wall_median": 0.6583,
     "rule": "smallest k with pane clip <= 1 % and panes brighter than the walls",
     "tried": [
      {
       "k": 1,
-      "clip": 0.0,
-      "median": 0.8933
+      "clip": 0.0009,
+      "median": 0.9311
      }
     ],
-    "pane_median_after": 0.8939,
-    "seconds": 0.428
+    "pane_median_after": 0.9317,
+    "seconds": 0.491
    },
    "alt_preview": null,
-   "alt_preview_bytes": null
+   "alt_preview_bytes": null,
+   "world": "World"
   }
  ],
  "dropped_stale": [],
  "incomplete": false,
  "not_rendered": [],
- "deadline": 1791543250.0,
+ "deadline": 1791596531.0,
  "warnings": []
 }

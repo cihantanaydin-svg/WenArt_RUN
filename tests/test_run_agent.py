@@ -143,6 +143,8 @@ def test_the_orchestrated_run(tmp_path, models):
     assert [opt(c["cmd"], "--model-key") for c in checks] == ["agent"]
     assert opt(checks[0]["cmd"], "--server") == "http://fake-agent/v1" and opt(checks[0]["cmd"], "--workers") == "2"
     assert all(c["env"]["CHECK_MODELS"] == "agent" for c in r.cli.find("combine") + r.cli.find("calibrate"))
+    # pod G3: the GPU tests check the answers of the models the run used (the agent alone)
+    assert all(c["env"]["CHECK_MODELS"] == "agent" for c in r.cli.find("pytest"))
     # 32 GB: the agent server sleeps for the gate and the polish, then wakes for the check
     assert [a for _n, a in r.controls] == ["sleep", "wake"]
     (n_sleep, _), (n_wake, _) = r.controls

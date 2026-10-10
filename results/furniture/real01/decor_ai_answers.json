@@ -553,8 +553,260 @@
    "error": null,
    "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_010.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds Scandinavian warmth with minimalism and complements light oak floor.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_010\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light enhances daylight and matches Scandinavian elegance.\"\n    },\n    {\n      \"slot\": \"r_L0_dining.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream rug softens floor and ties in with white walls and linen textiles.\"\n    },\n    {\n      \"slot\": \"window:win_L0_005\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains let in daylight and maintain airy Scandinavian feel.\"\n    },\n    {\n      \"slot\": \"f_L0_028.wall\",\n      \"type\": \"mirror\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Wood-framed mirror reflects light and adds depth without clutter.\"\n    }\n  ]\n}",
    "latency_s": 2.927
+  },
+  "bfa6dc068540af82c01464df120bbbd400ca88e7cd534195960d64656631c326": {
+   "room_id": "r_L0_bed_room_2",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_004.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Adds softness and matches Scandinavian light tones."
+     },
+     {
+      "slot": "f_L0_004.throw",
+      "type": "throw",
+      "colour": "sand",
+      "reason": "Complements linen textiles and warm daylight."
+     },
+     {
+      "slot": "f_L0_005.centre",
+      "type": "table_lamp",
+      "colour": "natural wood",
+      "reason": "Warm light and wood tone enhance the Scandinavian feel."
+     },
+     {
+      "slot": "r_L0_bed_room_2.rug1",
+      "type": "rug",
+      "colour": "light grey",
+      "reason": "Subtle contrast with oak floor, adds coziness without clutter."
+     },
+     {
+      "slot": "window:win_L0_004",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens light, maintains airy feel with neutral tone."
+     },
+     {
+      "slot": "window:win_L0_008",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Matches first curtain for visual harmony."
+     },
+     {
+      "slot": "ceiling:over_f_L0_004",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic accent adds elegance without overpowering."
+     },
+     {
+      "slot": "r_L0_bed_room_2.corner1",
+      "type": "plant",
+      "colour": "sage green",
+      "reason": "Brings life to corner with natural, calming hue."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_004.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds softness and matches Scandinavian light tones.\"\n    },\n    {\n      \"slot\": \"f_L0_004.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"sand\",\n      \"reason\": \"Complements linen textiles and warm daylight.\"\n    },\n    {\n      \"slot\": \"f_L0_005.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm light and wood tone enhance the Scandinavian feel.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"light grey\",\n      \"reason\": \"Subtle contrast with oak floor, adds coziness without clutter.\"\n    },\n    {\n      \"slot\": \"window:win_L0_004\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens light, maintains airy feel with neutral tone.\"\n    },\n    {\n      \"slot\": \"window:win_L0_008\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Matches first curtain for visual harmony.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_004\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic accent adds elegance without overpowering.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"sage green\",\n      \"reason\": \"Brings life to corner with natural, calming hue.\"\n    }\n  ]\n}",
+   "latency_s": 4.99
+  },
+  "b6c60f3192784da63c409de8bdae02525275693153ca8106d2272777c4fbf372": {
+   "room_id": "r_L0_bed_room_2",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_004.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Adds soft texture and warmth to the bed in line with Scandinavian style."
+     },
+     {
+      "slot": "f_L0_004.throw",
+      "type": "throw",
+      "colour": "sand",
+      "reason": "Complements linen textiles and enhances comfort with a natural, earthy tone."
+     },
+     {
+      "slot": "f_L0_005.centre",
+      "type": "table_lamp",
+      "colour": "natural wood",
+      "reason": "Warm light and wood finish harmonize with light oak floors and daylight."
+     },
+     {
+      "slot": "r_L0_bed_room_2.rug1",
+      "type": "rug",
+      "colour": "light grey",
+      "reason": "Subtle contrast under the bed adds grounding without visual clutter."
+     },
+     {
+      "slot": "r_L0_bed_room_2.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Brings life to the corner with a simple, organic touch matching the style."
+     },
+     {
+      "slot": "window:win_L0_004",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light while maintaining a clean, airy Scandinavian aesthetic."
+     },
+     {
+      "slot": "ceiling:over_f_L0_004",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow adds subtle elegance without overpowering the space."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_004.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds soft texture and warmth to the bed in line with Scandinavian style.\"\n    },\n    {\n      \"slot\": \"f_L0_004.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"sand\",\n      \"reason\": \"Complements linen textiles and enhances comfort with a natural, earthy tone.\"\n    },\n    {\n      \"slot\": \"f_L0_005.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm light and wood finish harmonize with light oak floors and daylight.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"light grey\",\n      \"reason\": \"Subtle contrast under the bed adds grounding without visual clutter.\"\n    },\n    {\n      \"slot\": \"r_L0_bed_room_2.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Brings life to the corner with a simple, organic touch matching the style.\"\n    },\n    {\n      \"slot\": \"window:win_L0_004\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light while maintaining a clean, airy Scandinavian aesthetic.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_004\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow adds subtle elegance without overpowering the space.\"\n    }\n  ]\n}",
+   "latency_s": 4.529
+  },
+  "2e4b9a24c2ec9554808e6a797892e13c6217ca4f4034e87e03c3f16c8f576a94": {
+   "room_id": "r_L0_kitchen",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_kitchen",
+      "type": "pendant_light",
+      "colour": "natural wood",
+      "reason": "Adds warmth and matches the oak floor in Scandinavian style."
+     },
+     {
+      "slot": "window:win_L0_006",
+      "type": "blind",
+      "colour": "cream",
+      "reason": "Softens daylight and complements white walls without blocking light."
+     },
+     {
+      "slot": "window:win_L0_009",
+      "type": "blind",
+      "colour": "cream",
+      "reason": "Matches the first blind for cohesion and maintains light, airy feel."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_kitchen\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds warmth and matches the oak floor in Scandinavian style.\"\n    },\n    {\n      \"slot\": \"window:win_L0_006\",\n      \"type\": \"blind\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens daylight and complements white walls without blocking light.\"\n    },\n    {\n      \"slot\": \"window:win_L0_009\",\n      \"type\": \"blind\",\n      \"colour\": \"cream\",\n      \"reason\": \"Matches the first blind for cohesion and maintains light, airy feel.\"\n    }\n  ]\n}",
+   "latency_s": 1.92
+  },
+  "410ea9caff55e7779cf29e6594bbdd78c3a90230e9bd56bea17cbfd59aa705d3": {
+   "room_id": "r_L0_kitchen",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_kitchen",
+      "type": "pendant_light",
+      "colour": "natural wood",
+      "reason": "Matches light oak floors and adds warm Scandinavian ambiance."
+     },
+     {
+      "slot": "window:win_L0_006",
+      "type": "blind",
+      "colour": "cream",
+      "reason": "Softens daylight while complementing white walls and linen textiles."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_kitchen\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Matches light oak floors and adds warm Scandinavian ambiance.\"\n    },\n    {\n      \"slot\": \"window:win_L0_006\",\n      \"type\": \"blind\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens daylight while complementing white walls and linen textiles.\"\n    }\n  ]\n}",
+   "latency_s": 1.312
+  },
+  "265cd2891d5e3a8f7c9da01495a7d305ae97e72b9592ddc365203f69952c6b99": {
+   "room_id": "r_L0_dining",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_010.centre",
+      "type": "vase",
+      "colour": "natural wood",
+      "reason": "Adds Scandinavian warmth with minimal clutter."
+     },
+     {
+      "slot": "ceiling:over_f_L0_010",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm light complements daylight and enhances the dining mood."
+     },
+     {
+      "slot": "r_L0_dining.rug1",
+      "type": "rug",
+      "colour": "cream",
+      "reason": "Softens the floor and ties in with linen textiles and light oak."
+     },
+     {
+      "slot": "window:win_L0_005",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens daylight and maintains airy Scandinavian feel."
+     },
+     {
+      "slot": "f_L0_027.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Adds subtle texture and visual interest without clutter."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_010.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds Scandinavian warmth with minimal clutter.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_010\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm light complements daylight and enhances the dining mood.\"\n    },\n    {\n      \"slot\": \"r_L0_dining.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the floor and ties in with linen textiles and light oak.\"\n    },\n    {\n      \"slot\": \"window:win_L0_005\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens daylight and maintains airy Scandinavian feel.\"\n    },\n    {\n      \"slot\": \"f_L0_027.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds subtle texture and visual interest without clutter.\"\n    }\n  ]\n}",
+   "latency_s": 3.059
+  },
+  "a6b1f6f3465d7b46fcf32e085c8bdff04ff76d6c733a1a52f536a80e840ac5ff": {
+   "room_id": "r_L0_dining",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_010.centre",
+      "type": "vase",
+      "colour": "natural wood",
+      "reason": "Adds Scandinavian warmth with natural wood tone, complements light oak floor."
+     },
+     {
+      "slot": "ceiling:over_f_L0_010",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant adds subtle metallic warmth under warm daylight."
+     },
+     {
+      "slot": "r_L0_dining.rug1",
+      "type": "rug",
+      "colour": "cream",
+      "reason": "Cream rug softens the space, enhances linen textiles, and ties in with white walls."
+     },
+     {
+      "slot": "window:win_L0_005",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains let in daylight while maintaining Scandinavian minimalism."
+     },
+     {
+      "slot": "f_L0_027.wall",
+      "type": "mirror",
+      "colour": "white",
+      "reason": "White mirror reflects light, expands the room, and fits the clean Scandinavian aesthetic."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_010.centre\",\n      \"type\": \"vase\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds Scandinavian warmth with natural wood tone, complements light oak floor.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_010\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant adds subtle metallic warmth under warm daylight.\"\n    },\n    {\n      \"slot\": \"r_L0_dining.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream rug softens the space, enhances linen textiles, and ties in with white walls.\"\n    },\n    {\n      \"slot\": \"window:win_L0_005\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains let in daylight while maintaining Scandinavian minimalism.\"\n    },\n    {\n      \"slot\": \"f_L0_027.wall\",\n      \"type\": \"mirror\",\n      \"colour\": \"white\",\n      \"reason\": \"White mirror reflects light, expands the room, and fits the clean Scandinavian aesthetic.\"\n    }\n  ]\n}",
+   "latency_s": 3.256
   }
  },
  "model": "Qwen/Qwen3-VL-8B-Instruct",
- "generated_utc": "2026-10-09T09:34:33Z"
+ "generated_utc": "2026-10-10T00:11:27Z"
 }
