@@ -367,8 +367,2792 @@
    "error": null,
    "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"r_L0_kat_merdiveni.corner1\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds lush greenery and fits the natural modern style.\"\n    },\n    {\n      \"slot\": \"r_L0_kat_merdiveni.corner2\",\n      \"type\": \"plant_large\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Balances the space with another large plant for visual harmony.\"\n    },\n    {\n      \"slot\": \"f_L0_015.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the neutral sofa.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_kat_merdiveni\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements the natural wood and greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_017.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life without overwhelming the dining table.\"\n    }\n  ]\n}",
    "latency_s": 3.28
+  },
+  "dcdb88cbb79d956776aaf6cd0f98f81a8fa62a77475fbefc1bdd07bec28a6cef": {
+   "room_id": "r_L0_ebeveyn_odasi",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_059.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style with the greige walls and natural wood."
+     },
+     {
+      "slot": "f_L0_059.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the neutral palette."
+     },
+     {
+      "slot": "f_L0_059.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Modern natural style with wood-framed art above the bed."
+     },
+     {
+      "slot": "f_L0_166.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow matches the dark bronze frames and natural light wood."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Grounds the space with earthy warmth under the bed."
+     },
+     {
+      "slot": "window:win_L0_031",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the greige walls."
+     },
+     {
+      "slot": "ceiling:over_f_L0_059",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm ambient lighting enhances the modern natural feel."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_ebeveyn_odasi",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Balances the room’s lighting without overpowering the natural tones."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_059.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style with the greige walls and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_059.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_059.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Modern natural style with wood-framed art above the bed.\"\n    },\n    {\n      \"slot\": \"f_L0_166.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow matches the dark bronze frames and natural light wood.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Grounds the space with earthy warmth under the bed.\"\n    },\n    {\n      \"slot\": \"window:win_L0_031\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_059\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm ambient lighting enhances the modern natural feel.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_ebeveyn_odasi\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Balances the room’s lighting without overpowering the natural tones.\"\n    }\n  ]\n}",
+   "latency_s": 5.302
+  },
+  "c125cf076117aa0432c2f17d7ecbb08b500e6cfd29e65d045a90433da772b62a": {
+   "room_id": "r_L0_ebeveyn_odasi",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_059.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_059.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and greige tones."
+     },
+     {
+      "slot": "f_L0_059.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in natural wood tone enhances modern natural style."
+     },
+     {
+      "slot": "f_L0_166.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds life and matches the natural wood furniture theme."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Warm sand rug grounds the space and harmonizes with light oak floors."
+     },
+     {
+      "slot": "window:win_L0_031",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and match the warm, neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_059",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant light adds warmth and complements dark bronze frames."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_059.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_059.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and greige tones.\"\n    },\n    {\n      \"slot\": \"f_L0_059.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in natural wood tone enhances modern natural style.\"\n    },\n    {\n      \"slot\": \"f_L0_166.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life and matches the natural wood furniture theme.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Warm sand rug grounds the space and harmonizes with light oak floors.\"\n    },\n    {\n      \"slot\": \"window:win_L0_031\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and match the warm, neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_059\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant light adds warmth and complements dark bronze frames.\"\n    }\n  ]\n}",
+   "latency_s": 4.512
+  },
+  "8a3873e0065fdb5a017334674d8a9abc7512b2768d4a43ef5287467e99b64404": {
+   "room_id": "r_L0_ebeveyn_odasi_2",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_046.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style with mustard against greige walls."
+     },
+     {
+      "slot": "f_L0_046.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural, neutral palette."
+     },
+     {
+      "slot": "f_L0_085.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances modern natural lighting."
+     },
+     {
+      "slot": "f_L0_086.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant in natural wood pot adds greenery and texture."
+     },
+     {
+      "slot": "window:win_L0_033",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften light and match the warm, natural theme."
+     },
+     {
+      "slot": "ceiling:over_f_L0_046",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant adds warmth and modern elegance above the bed."
+     },
+     {
+      "slot": "f_L0_085.centre",
+      "type": "book_set",
+      "colour": "natural wood",
+      "reason": "Books in natural wood box add texture and calm sophistication."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_046.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style with mustard against greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_046.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural, neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_085.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances modern natural lighting.\"\n    },\n    {\n      \"slot\": \"f_L0_086.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant in natural wood pot adds greenery and texture.\"\n    },\n    {\n      \"slot\": \"window:win_L0_033\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften light and match the warm, natural theme.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_046\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant adds warmth and modern elegance above the bed.\"\n    },\n    {\n      \"slot\": \"f_L0_085.centre\",\n      \"type\": \"book_set\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Books in natural wood box add texture and calm sophistication.\"\n    }\n  ]\n}",
+   "latency_s": 4.383
+  },
+  "6af4f825474dbab0e1df27587756de2fac5756038a67d089de8536cad2561845": {
+   "room_id": "r_L0_ebeveyn_odasi_2",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_046.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral furniture."
+     },
+     {
+      "slot": "f_L0_046.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and greige tones."
+     },
+     {
+      "slot": "f_L0_085.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Brings life to the space with a small indoor plant in a natural wood pot."
+     },
+     {
+      "slot": "f_L0_086.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm brass light enhances the modern natural aesthetic and complements dark bronze frames."
+     },
+     {
+      "slot": "window:win_L0_033",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the warm, neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_046",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Adds ambient warmth and modern elegance without overwhelming the space."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_046.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral furniture.\"\n    },\n    {\n      \"slot\": \"f_L0_046.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and greige tones.\"\n    },\n    {\n      \"slot\": \"f_L0_085.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Brings life to the space with a small indoor plant in a natural wood pot.\"\n    },\n    {\n      \"slot\": \"f_L0_086.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light enhances the modern natural aesthetic and complements dark bronze frames.\"\n    },\n    {\n      \"slot\": \"window:win_L0_033\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the warm, neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_046\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Adds ambient warmth and modern elegance without overwhelming the space.\"\n    }\n  ]\n}",
+   "latency_s": 3.956
+  },
+  "7996143c09595fe4ffe594b76c765c3d2a29bd9874209677b6bd89a3c44295f7": {
+   "room_id": "r_L0_ebeveyn_odasi_3",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_060.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the bed with a natural, modern accent."
+     },
+     {
+      "slot": "f_L0_060.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls and natural wood."
+     },
+     {
+      "slot": "f_L0_060.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in wood tone enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "f_L0_172.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow matches the dark bronze frames and adds elegance."
+     },
+     {
+      "slot": "f_L0_173.centre",
+      "type": "plant_small",
+      "colour": "cream",
+      "reason": "Small indoor plant in cream pot brings life and fits the natural theme."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_3.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Light neutral rug grounds the space and complements the oak floor."
+     },
+     {
+      "slot": "window:win_L0_036",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and harmonizes with the warm, neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_060",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm lighting above the bed enhances coziness and style."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_ebeveyn_odasi_3",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Balances ambient light without competing with warm tones."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_060.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the bed with a natural, modern accent.\"\n    },\n    {\n      \"slot\": \"f_L0_060.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_060.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in wood tone enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_172.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow matches the dark bronze frames and adds elegance.\"\n    },\n    {\n      \"slot\": \"f_L0_173.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"cream\",\n      \"reason\": \"Small indoor plant in cream pot brings life and fits the natural theme.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_3.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Light neutral rug grounds the space and complements the oak floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_036\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and harmonizes with the warm, neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_060\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm lighting above the bed enhances coziness and style.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_ebeveyn_odasi_3\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Balances ambient light without competing with warm tones.\"\n    }\n  ]\n}",
+   "latency_s": 5.822
+  },
+  "74d671411ea90b05d32415b9c230ffe430573ab913c035f009b93ca7408e025d": {
+   "room_id": "r_L0_ebeveyn_odasi_3",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_060.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_060.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and light grey sofa."
+     },
+     {
+      "slot": "f_L0_060.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in natural tones enhances the modern natural style."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_3.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Warm neutral rug grounds the space and ties in with the oak floor."
+     },
+     {
+      "slot": "window:win_L0_036",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the warm daylight and greige walls."
+     },
+     {
+      "slot": "ceiling:over_f_L0_060",
+      "type": "ceiling_light",
+      "colour": "brass",
+      "reason": "Warm metallic light enhances the cozy, modern natural ambiance."
+     },
+     {
+      "slot": "f_L0_172.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds greenery and life without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_173.centre",
+      "type": "book_set",
+      "colour": "black",
+      "reason": "Books add texture and intellectual charm while keeping the look clean."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_060.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_060.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and light grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_060.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in natural tones enhances the modern natural style.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_3.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Warm neutral rug grounds the space and ties in with the oak floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_036\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the warm daylight and greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_060\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic light enhances the cozy, modern natural ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_172.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds greenery and life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_173.centre\",\n      \"type\": \"book_set\",\n      \"colour\": \"black\",\n      \"reason\": \"Books add texture and intellectual charm while keeping the look clean.\"\n    }\n  ]\n}",
+   "latency_s": 5.131
+  },
+  "a869ee7ff9f698c4667ccf892338d673ec3ca0bb7cb1b0df2f6190a96bf77672": {
+   "room_id": "r_L0_yasama_2",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_102.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_102.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "window:win_L0_038",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the warm, natural aesthetic."
+     },
+     {
+      "slot": "window:win_L0_063",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Balances the window treatments and enhances the airy, natural feel."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_2",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow complements dark bronze frames and natural wood."
+     },
+     {
+      "slot": "f_L0_176.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small greenery adds life without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_176.right",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Symmetrical balance with left side, enhances natural theme."
+     },
+     {
+      "slot": "f_L0_102.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Adds soft texture and visual harmony with the sofa and walls."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_102.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_102.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"window:win_L0_038\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the warm, natural aesthetic.\"\n    },\n    {\n      \"slot\": \"window:win_L0_063\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Balances the window treatments and enhances the airy, natural feel.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_2\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements dark bronze frames and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_176.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small greenery adds life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_176.right\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Symmetrical balance with left side, enhances natural theme.\"\n    },\n    {\n      \"slot\": \"f_L0_102.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds soft texture and visual harmony with the sofa and walls.\"\n    }\n  ]\n}",
+   "latency_s": 5.077
+  },
+  "5169975dd283c12985bb4dce5767ce328e0f6b4b93f3ec4f17b5b65de8c2eb11": {
+   "room_id": "r_L0_yasama_2",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_102.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_102.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "f_L0_176.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small greenery adds life without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_176.right",
+      "type": "book_set",
+      "colour": "cream",
+      "reason": "Books add texture and intellectual charm, matching the warm daylight."
+     },
+     {
+      "slot": "window:win_L0_038",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the warm, natural aesthetic."
+     },
+     {
+      "slot": "window:win_L0_063",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Balances the dark bronze frames and allows light to filter gently."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_2",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_102.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_102.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_176.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small greenery adds life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_176.right\",\n      \"type\": \"book_set\",\n      \"colour\": \"cream\",\n      \"reason\": \"Books add texture and intellectual charm, matching the warm daylight.\"\n    },\n    {\n      \"slot\": \"window:win_L0_038\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the warm, natural aesthetic.\"\n    },\n    {\n      \"slot\": \"window:win_L0_063\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Balances the dark bronze frames and allows light to filter gently.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_2\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 4.402
+  },
+  "3e6b73ebddb0d6af6ef587d436b2e03b008c4262f25e4f12e785a5dd9131f8f1": {
+   "room_id": "r_L0_oda_01",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_061.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style matching the modern natural theme."
+     },
+     {
+      "slot": "f_L0_061.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls."
+     },
+     {
+      "slot": "f_L0_061.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art enhances the natural aesthetic without clutter."
+     },
+     {
+      "slot": "f_L0_177.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds life and fits the natural wood furniture theme."
+     },
+     {
+      "slot": "window:win_L0_034",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens light and matches the warm, natural palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_061",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm glow complements daylight and dark bronze frames."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_oda_01",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Balances ambient lighting without overpowering the space."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_061.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style matching the modern natural theme.\"\n    },\n    {\n      \"slot\": \"f_L0_061.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_061.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art enhances the natural aesthetic without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_177.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life and fits the natural wood furniture theme.\"\n    },\n    {\n      \"slot\": \"window:win_L0_034\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens light and matches the warm, natural palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_061\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm glow complements daylight and dark bronze frames.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_oda_01\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Balances ambient lighting without overpowering the space.\"\n    }\n  ]\n}",
+   "latency_s": 4.342
+  },
+  "cf982b4f276564a8c9c2ce0091da1c942b5ff610ba95db6618fe0e435fce565f": {
+   "room_id": "r_L0_oda_01",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_061.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_061.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and light grey sofa."
+     },
+     {
+      "slot": "f_L0_061.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in natural tones enhances the modern natural style."
+     },
+     {
+      "slot": "f_L0_177.centre",
+      "type": "plant_small",
+      "colour": "cream",
+      "reason": "Small plant in cream pot adds life and matches the rattan/cream pot theme."
+     },
+     {
+      "slot": "window:win_L0_034",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and harmonize with the warm greige walls."
+     },
+     {
+      "slot": "ceiling:over_f_L0_061",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass light adds metallic accent and complements dark bronze frames."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_061.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_061.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and light grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_061.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in natural tones enhances the modern natural style.\"\n    },\n    {\n      \"slot\": \"f_L0_177.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"cream\",\n      \"reason\": \"Small plant in cream pot adds life and matches the rattan/cream pot theme.\"\n    },\n    {\n      \"slot\": \"window:win_L0_034\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and harmonize with the warm greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_061\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light adds metallic accent and complements dark bronze frames.\"\n    }\n  ]\n}",
+   "latency_s": 3.941
+  },
+  "fc2c56ab36e4cc73daa8a7dd4202fa29e6e69d1a4b63d4f9bb6b62870c0242c3": {
+   "room_id": "r_L0_yasama_3",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_095.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_095.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "window:win_L0_037",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the warm, natural aesthetic."
+     },
+     {
+      "slot": "window:win_L0_050",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Balances the window frames and enhances daylight diffusion."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_3",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow complements dark bronze frames and natural wood."
+     },
+     {
+      "slot": "f_L0_178.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small greenery adds life without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_178.right",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Symmetrical balance with left side, enhances natural theme."
+     },
+     {
+      "slot": "window:win_L0_039",
+      "type": "blind",
+      "colour": "light grey",
+      "reason": "Minimalist control of light while blending with sofa and walls."
+     },
+     {
+      "slot": "window:win_L0_052",
+      "type": "blind",
+      "colour": "light grey",
+      "reason": "Consistent with window treatment style and neutral palette."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_095.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_095.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"window:win_L0_037\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the warm, natural aesthetic.\"\n    },\n    {\n      \"slot\": \"window:win_L0_050\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Balances the window frames and enhances daylight diffusion.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_3\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements dark bronze frames and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_178.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small greenery adds life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_178.right\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Symmetrical balance with left side, enhances natural theme.\"\n    },\n    {\n      \"slot\": \"window:win_L0_039\",\n      \"type\": \"blind\",\n      \"colour\": \"light grey\",\n      \"reason\": \"Minimalist control of light while blending with sofa and walls.\"\n    },\n    {\n      \"slot\": \"window:win_L0_052\",\n      \"type\": \"blind\",\n      \"colour\": \"light grey\",\n      \"reason\": \"Consistent with window treatment style and neutral palette.\"\n    }\n  ]\n}",
+   "latency_s": 5.596
+  },
+  "8b77a4cafd9f991a4207a79031f68805eb69e1c866c1d84cde7f6b45e4cc1391": {
+   "room_id": "r_L0_yasama_3",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_095.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_095.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "f_L0_178.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds greenery without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_178.right",
+      "type": "book_set",
+      "colour": "black",
+      "reason": "Books add texture and sophistication while keeping the look modern."
+     },
+     {
+      "slot": "window:win_L0_037",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the warm, natural aesthetic."
+     },
+     {
+      "slot": "window:win_L0_050",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Balances the window frames and enhances daylight diffusion."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_3",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow complements dark bronze frames and natural wood."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_095.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_095.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_178.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds greenery without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_178.right\",\n      \"type\": \"book_set\",\n      \"colour\": \"black\",\n      \"reason\": \"Books add texture and sophistication while keeping the look modern.\"\n    },\n    {\n      \"slot\": \"window:win_L0_037\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the warm, natural aesthetic.\"\n    },\n    {\n      \"slot\": \"window:win_L0_050\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Balances the window frames and enhances daylight diffusion.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_3\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements dark bronze frames and natural wood.\"\n    }\n  ]\n}",
+   "latency_s": 4.368
+  },
+  "5efb2a606271782606c4b4aa2a012c88b55a22a08b28b97f52e235daa6b8bf6a": {
+   "room_id": "r_L0_banyo",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm wood tone complements natural light wood furniture and enhances the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm wood tone complements natural light wood furniture and enhances the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.827
+  },
+  "a874b8fcaf843a614543b844a84927a8dfa9f1d1c05f0ca476ca3799b1185c8c": {
+   "room_id": "r_L0_banyo",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.856
+  },
+  "d90c7b91e72794abbf0086e510246bfdcc0beefa1537d431addf77faef9f7588": {
+   "room_id": "r_L0_banyo_2",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_2",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm wood tone complements natural light wood furniture and enhances the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_2\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm wood tone complements natural light wood furniture and enhances the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.845
+  },
+  "67d0a82b45fcda3f160c2a083832346f8c127ff37e6918cc069bdae5685998c1": {
+   "room_id": "r_L0_banyo_2",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_2",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_2\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.875
+  },
+  "7df443d2ae5762a5ff66e7c272a75b5a386f00233e81e8a857a23477b550e18e": {
+   "room_id": "r_L0_banyo_3",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_3",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm wood tone complements natural light wood furniture and greige walls."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_3\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm wood tone complements natural light wood furniture and greige walls.\"\n    }\n  ]\n}",
+   "latency_s": 0.825
+  },
+  "f7208114862aba00ff19df06fbf4f16a5dc5389e5b02cf36f1b344d469389b5b": {
+   "room_id": "r_L0_banyo_3",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_3",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_3\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.883
+  },
+  "e2db74ff00c3b7a6490f6745134e66a0a406c5f368cdb08bba4370a42e89aa24": {
+   "room_id": "r_L0_banyo_4",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_4",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm wood tone complements natural light wood furniture and enhances the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_4\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm wood tone complements natural light wood furniture and enhances the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.856
+  },
+  "10d393434315f4d81633124fb06931eb859ba75a1ad9198bd39a4aab7855120a": {
+   "room_id": "r_L0_banyo_4",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_4",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_4\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.88
+  },
+  "1f7b73dcd783baff215930a9faacf88574c75ba2cabd1446b8a2bf3dfb6e5393": {
+   "room_id": "r_L0_yasama_5",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "window:win_L0_042",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Soft cream curtains complement warm greige walls and natural light."
+     },
+     {
+      "slot": "window:win_L0_051",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains maintain cohesive, airy feel across large windows."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_5",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant adds warm metallic accent matching dark bronze frames."
+     },
+     {
+      "slot": "f_L0_180.left",
+      "type": "plant_small",
+      "colour": "mustard",
+      "reason": "Mustard-potted plant adds pop of warm colour near window."
+     },
+     {
+      "slot": "f_L0_180.right",
+      "type": "plant_small",
+      "colour": "mustard",
+      "reason": "Symmetrical mustard plant balances tv unit and enhances natural vibe."
+     },
+     {
+      "slot": "window:win_L0_039",
+      "type": "blind",
+      "colour": "cream",
+      "reason": "Cream blind allows daylight control while blending with neutral palette."
+     },
+     {
+      "slot": "window:win_L0_053",
+      "type": "blind",
+      "colour": "cream",
+      "reason": "Cream blind maintains uniformity and softness across all windows."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"window:win_L0_042\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Soft cream curtains complement warm greige walls and natural light.\"\n    },\n    {\n      \"slot\": \"window:win_L0_051\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains maintain cohesive, airy feel across large windows.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_5\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant adds warm metallic accent matching dark bronze frames.\"\n    },\n    {\n      \"slot\": \"f_L0_180.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Mustard-potted plant adds pop of warm colour near window.\"\n    },\n    {\n      \"slot\": \"f_L0_180.right\",\n      \"type\": \"plant_small\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Symmetrical mustard plant balances tv unit and enhances natural vibe.\"\n    },\n    {\n      \"slot\": \"window:win_L0_039\",\n      \"type\": \"blind\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream blind allows daylight control while blending with neutral palette.\"\n    },\n    {\n      \"slot\": \"window:win_L0_053\",\n      \"type\": \"blind\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream blind maintains uniformity and softness across all windows.\"\n    }\n  ]\n}",
+   "latency_s": 4.366
+  },
+  "fe651d45bb1c749a72ed601f1102c520f8a478b06018ecd868cb58d24f550bc5": {
+   "room_id": "r_L0_yasama_5",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_yasama_5",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass light complements natural wood and greige walls."
+     },
+     {
+      "slot": "window:win_L0_042",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and match rattan pots."
+     },
+     {
+      "slot": "window:win_L0_051",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains maintain cohesive warmth and frame the view."
+     },
+     {
+      "slot": "f_L0_180.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant in natural wood pot adds greenery without clutter."
+     },
+     {
+      "slot": "f_L0_180.right",
+      "type": "book_set",
+      "colour": "natural wood",
+      "reason": "Wood-toned books add texture and blend with furniture."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_5\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light complements natural wood and greige walls.\"\n    },\n    {\n      \"slot\": \"window:win_L0_042\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and match rattan pots.\"\n    },\n    {\n      \"slot\": \"window:win_L0_051\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains maintain cohesive warmth and frame the view.\"\n    },\n    {\n      \"slot\": \"f_L0_180.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant in natural wood pot adds greenery without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_180.right\",\n      \"type\": \"book_set\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Wood-toned books add texture and blend with furniture.\"\n    }\n  ]\n}",
+   "latency_s": 3.139
+  },
+  "084a6f9761b0480bf6c25ae80b84b9c0224e2c757e7e33034cc8c907c3e9e952": {
+   "room_id": "r_L0_yasama_6",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "window:win_L0_043",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Soft cream curtains complement warm greige walls and natural light."
+     },
+     {
+      "slot": "window:win_L0_064",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains maintain cohesive, airy feel across all windows."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_6",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass pendant light enhances modern natural style with soft glow."
+     },
+     {
+      "slot": "f_L0_181.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant in natural wood pot adds greenery and warmth near window."
+     },
+     {
+      "slot": "f_L0_181.right",
+      "type": "vase",
+      "colour": "cream",
+      "reason": "Cream vase holds fresh blooms, matching pots and enhancing soft palette."
+     },
+     {
+      "slot": "f_L0_182.left",
+      "type": "candle",
+      "colour": "mustard",
+      "reason": "Mustard candle adds cozy warmth and complements cushions and decor."
+     },
+     {
+      "slot": "f_L0_182.right",
+      "type": "tray",
+      "colour": "natural wood",
+      "reason": "Wood tray holds small items, blending with furniture and adding texture."
+     },
+     {
+      "slot": "window:win_L0_040",
+      "type": "blind",
+      "colour": "sand",
+      "reason": "Sand-coloured blind softens light while harmonizing with natural wood tones."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"window:win_L0_043\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Soft cream curtains complement warm greige walls and natural light.\"\n    },\n    {\n      \"slot\": \"window:win_L0_064\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains maintain cohesive, airy feel across all windows.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_6\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass pendant light enhances modern natural style with soft glow.\"\n    },\n    {\n      \"slot\": \"f_L0_181.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant in natural wood pot adds greenery and warmth near window.\"\n    },\n    {\n      \"slot\": \"f_L0_181.right\",\n      \"type\": \"vase\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream vase holds fresh blooms, matching pots and enhancing soft palette.\"\n    },\n    {\n      \"slot\": \"f_L0_182.left\",\n      \"type\": \"candle\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Mustard candle adds cozy warmth and complements cushions and decor.\"\n    },\n    {\n      \"slot\": \"f_L0_182.right\",\n      \"type\": \"tray\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Wood tray holds small items, blending with furniture and adding texture.\"\n    },\n    {\n      \"slot\": \"window:win_L0_040\",\n      \"type\": \"blind\",\n      \"colour\": \"sand\",\n      \"reason\": \"Sand-coloured blind softens light while harmonizing with natural wood tones.\"\n    }\n  ]\n}",
+   "latency_s": 5.057
+  },
+  "f678b9f23a4ef13cf60025185fe1dfdcbfeff70cd864e293d68327e7a923bcd0": {
+   "room_id": "r_L0_yasama_6",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_yasama_6",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow complements natural wood and greige walls."
+     },
+     {
+      "slot": "window:win_L0_043",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches rattan pots and cushions."
+     },
+     {
+      "slot": "window:win_L0_064",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Balances window frames and enhances the warm daylight ambiance."
+     },
+     {
+      "slot": "f_L0_181.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Adds greenery in a natural material that fits the modern natural style."
+     },
+     {
+      "slot": "f_L0_182.left",
+      "type": "tray",
+      "colour": "natural wood",
+      "reason": "Functional and minimalist, matches furniture and keeps surface tidy."
+     },
+     {
+      "slot": "f_L0_181.right",
+      "type": "book_set",
+      "colour": "cream",
+      "reason": "Adds texture and warmth without clutter, complements sofa and walls."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_6\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements natural wood and greige walls.\"\n    },\n    {\n      \"slot\": \"window:win_L0_043\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches rattan pots and cushions.\"\n    },\n    {\n      \"slot\": \"window:win_L0_064\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Balances window frames and enhances the warm daylight ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_181.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds greenery in a natural material that fits the modern natural style.\"\n    },\n    {\n      \"slot\": \"f_L0_182.left\",\n      \"type\": \"tray\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Functional and minimalist, matches furniture and keeps surface tidy.\"\n    },\n    {\n      \"slot\": \"f_L0_181.right\",\n      \"type\": \"book_set\",\n      \"colour\": \"cream\",\n      \"reason\": \"Adds texture and warmth without clutter, complements sofa and walls.\"\n    }\n  ]\n}",
+   "latency_s": 3.786
+  },
+  "461919486931a09694c4a6fa2714220d74dd498058dfdfb5a0aa6939e58fda04": {
+   "room_id": "r_L0_banyo_5",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_5",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm wood tone complements natural light wood furniture and enhances the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_5\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm wood tone complements natural light wood furniture and enhances the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.851
+  },
+  "463498de28e672f0849b6deacf38c933fe329699b3cd0188321a3a5df612b1e6": {
+   "room_id": "r_L0_banyo_5",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_5",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_5\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.881
+  },
+  "d99b878f96b9a6df2b782df72d095c52ac2d195f9cd5a109a0fe4d654935d5fe": {
+   "room_id": "r_L0_banyo_6",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_6",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Provides warm daylight ambiance matching the room's natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_6\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Provides warm daylight ambiance matching the room's natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.791
+  },
+  "72bdca23f50f9effaefaef2962744b9e563188ed125fcdabdfb5b1eceb0bd4ff": {
+   "room_id": "r_L0_banyo_6",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_6",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_6\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.891
+  },
+  "2de0228ef5f780b65466e09e192d0ffc446d3b363d4b9a595fda51717fe54f2c": {
+   "room_id": "r_L0_banyo_7",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_7",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm wood tone complements natural light wood furniture and enhances the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_7\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm wood tone complements natural light wood furniture and enhances the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.853
+  },
+  "5018df5dad05880c01d6a46cc16e0f879fc283523defa6e5c4a8254c0e0d76ce": {
+   "room_id": "r_L0_banyo_7",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "ceiling:centre_r_L0_banyo_7",
+      "type": "ceiling_light",
+      "colour": "natural wood",
+      "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_7\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 0.879
+  },
+  "7ec47295c49436ee68e060ba0e10314147a6ccda4eb54e94fa678c30db627571": {
+   "room_id": "r_L0_banyo_8",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "window:win_L0_057",
+      "type": "blind",
+      "colour": "cream",
+      "reason": "Soft cream blind complements warm greige walls and natural light wood."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_banyo_8",
+      "type": "ceiling_light",
+      "colour": "brass",
+      "reason": "Brass ceiling light adds warm metallic accent matching daylight and bronze frames."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"window:win_L0_057\",\n      \"type\": \"blind\",\n      \"colour\": \"cream\",\n      \"reason\": \"Soft cream blind complements warm greige walls and natural light wood.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_8\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass ceiling light adds warm metallic accent matching daylight and bronze frames.\"\n    }\n  ]\n}",
+   "latency_s": 1.433
+  },
+  "adac0f66039250ceee12071dd30a6ebeb93a244176ab54c479992565127dec2b": {
+   "room_id": "r_L0_banyo_8",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "window:win_L0_057",
+      "type": "blind",
+      "colour": "cream",
+      "reason": "Matches warm greige walls and natural light wood for a soft, modern look."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_banyo_8",
+      "type": "ceiling_light",
+      "colour": "brass",
+      "reason": "Warm brass complements natural wood and daylight, enhancing the modern natural style."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"window:win_L0_057\",\n      \"type\": \"blind\",\n      \"colour\": \"cream\",\n      \"reason\": \"Matches warm greige walls and natural light wood for a soft, modern look.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_banyo_8\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass complements natural wood and daylight, enhancing the modern natural style.\"\n    }\n  ]\n}",
+   "latency_s": 1.45
+  },
+  "31e86c922ae28a280db99ccf88d35227c0bc64b0d0b1da88112e4a94f55d7292": {
+   "room_id": "r_L0_ebeveyn_odasi_5",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_055.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style matching the modern natural theme."
+     },
+     {
+      "slot": "f_L0_055.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls."
+     },
+     {
+      "slot": "f_L0_055.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art enhances the natural aesthetic without clutter."
+     },
+     {
+      "slot": "f_L0_108.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow matches the daylight and bronze frames."
+     },
+     {
+      "slot": "f_L0_109.centre",
+      "type": "plant_small",
+      "colour": "cream",
+      "reason": "Small plant in cream pot adds greenery without overwhelming space."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_5.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Softens the floor and ties in with natural wood and greige tones."
+     },
+     {
+      "slot": "window:win_L0_045",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Light, airy curtains let in natural light and match the neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_055",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm pendant light enhances the cozy, modern natural feel."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_055.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style matching the modern natural theme.\"\n    },\n    {\n      \"slot\": \"f_L0_055.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_055.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art enhances the natural aesthetic without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_108.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow matches the daylight and bronze frames.\"\n    },\n    {\n      \"slot\": \"f_L0_109.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"cream\",\n      \"reason\": \"Small plant in cream pot adds greenery without overwhelming space.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_5.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Softens the floor and ties in with natural wood and greige tones.\"\n    },\n    {\n      \"slot\": \"window:win_L0_045\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Light, airy curtains let in natural light and match the neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_055\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm pendant light enhances the cozy, modern natural feel.\"\n    }\n  ]\n}",
+   "latency_s": 5.046
+  },
+  "fa84771cf930fe977f53c07a96cb80bd36ae66603703428bbaf02e9f08c4686c": {
+   "room_id": "r_L0_ebeveyn_odasi_5",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_055.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_055.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and light grey sofa."
+     },
+     {
+      "slot": "f_L0_055.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in natural tones enhances the modern natural style."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_5.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Warm neutral rug grounds the space and ties in with the oak floor."
+     },
+     {
+      "slot": "window:win_L0_045",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Light, airy curtains allow natural light while adding soft texture."
+     },
+     {
+      "slot": "ceiling:over_f_L0_055",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic light adds modern elegance and complements dark bronze frames."
+     },
+     {
+      "slot": "f_L0_108.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant in rattan pot brings life and matches the natural wood theme."
+     },
+     {
+      "slot": "f_L0_109.centre",
+      "type": "book_set",
+      "colour": "black",
+      "reason": "Books add personality and balance the organic elements with structure."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_055.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_055.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and light grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_055.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in natural tones enhances the modern natural style.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_5.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Warm neutral rug grounds the space and ties in with the oak floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_045\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Light, airy curtains allow natural light while adding soft texture.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_055\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic light adds modern elegance and complements dark bronze frames.\"\n    },\n    {\n      \"slot\": \"f_L0_108.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant in rattan pot brings life and matches the natural wood theme.\"\n    },\n    {\n      \"slot\": \"f_L0_109.centre\",\n      \"type\": \"book_set\",\n      \"colour\": \"black\",\n      \"reason\": \"Books add personality and balance the organic elements with structure.\"\n    }\n  ]\n}",
+   "latency_s": 5.156
+  },
+  "eb52d1b3409a97ba4eb2cf24dfda04cfb02b15c7431f1303e1c92b4c10456b6f": {
+   "room_id": "r_L0_ebeveyn_odasi_6",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_054.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the bed with a natural, modern accent."
+     },
+     {
+      "slot": "f_L0_054.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls and natural wood."
+     },
+     {
+      "slot": "f_L0_054.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in wood tone enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "f_L0_106.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow matches the dark bronze frames and adds elegance."
+     },
+     {
+      "slot": "f_L0_107.centre",
+      "type": "plant_small",
+      "colour": "cream",
+      "reason": "Small plant in cream pot brings life and fits the natural, indoor plant theme."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_6.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Softens the floor and ties in with the light oak and warm daylight."
+     },
+     {
+      "slot": "window:win_L0_044",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Light, airy curtains let in natural light and match the neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_054",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm pendant light above bed enhances cozy, modern ambiance."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_ebeveyn_odasi_6",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Neutral ceiling light ensures balanced, ambient illumination."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_054.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the bed with a natural, modern accent.\"\n    },\n    {\n      \"slot\": \"f_L0_054.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_054.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in wood tone enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_106.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow matches the dark bronze frames and adds elegance.\"\n    },\n    {\n      \"slot\": \"f_L0_107.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"cream\",\n      \"reason\": \"Small plant in cream pot brings life and fits the natural, indoor plant theme.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_6.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Softens the floor and ties in with the light oak and warm daylight.\"\n    },\n    {\n      \"slot\": \"window:win_L0_044\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Light, airy curtains let in natural light and match the neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_054\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm pendant light above bed enhances cozy, modern ambiance.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_ebeveyn_odasi_6\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Neutral ceiling light ensures balanced, ambient illumination.\"\n    }\n  ]\n}",
+   "latency_s": 5.868
+  },
+  "114ced3ac13c4564c208a46ec129428c6755f641247c87f2e04e3c69ac365825": {
+   "room_id": "r_L0_ebeveyn_odasi_6",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_054.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_054.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and light grey sofa."
+     },
+     {
+      "slot": "f_L0_054.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist wooden art enhances the modern natural style without clutter."
+     },
+     {
+      "slot": "f_L0_106.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds life and matches the rattan pots in the style brief."
+     },
+     {
+      "slot": "f_L0_107.centre",
+      "type": "book_set",
+      "colour": "cream",
+      "reason": "Books add texture and calmness, matching the warm daylight and neutral tones."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_6.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Sand rug grounds the space and complements the light oak floor and greige walls."
+     },
+     {
+      "slot": "window:win_L0_044",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and match the warm, natural aesthetic."
+     },
+     {
+      "slot": "ceiling:over_f_L0_054",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant light adds warmth and modern elegance to the ceiling."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_054.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_054.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and light grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_054.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist wooden art enhances the modern natural style without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_106.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life and matches the rattan pots in the style brief.\"\n    },\n    {\n      \"slot\": \"f_L0_107.centre\",\n      \"type\": \"book_set\",\n      \"colour\": \"cream\",\n      \"reason\": \"Books add texture and calmness, matching the warm daylight and neutral tones.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_6.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Sand rug grounds the space and complements the light oak floor and greige walls.\"\n    },\n    {\n      \"slot\": \"window:win_L0_044\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and match the warm, natural aesthetic.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_054\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant light adds warmth and modern elegance to the ceiling.\"\n    }\n  ]\n}",
+   "latency_s": 5.248
+  },
+  "e7460eee1b560cc395447a4a7a7c15873f3a3690500720ff13ce09f224d774b1": {
+   "room_id": "r_L0_yasama_7",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_117.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_117.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "f_L0_117.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Wood-framed art echoes the floor and furniture, enhancing the modern natural style."
+     },
+     {
+      "slot": "window:win_L0_049",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the pots and cushions for a cohesive look."
+     },
+     {
+      "slot": "window:win_L0_059",
+      "type": "blind",
+      "colour": "sand",
+      "reason": "Adds subtle texture and lets daylight in while maintaining a warm, natural feel."
+     },
+     {
+      "slot": "ceiling:over_f_L0_186",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow complements dark bronze frames and enhances ambient lighting."
+     },
+     {
+      "slot": "f_L0_189.left",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Matches pendant light and adds cozy, focused lighting near the console table."
+     },
+     {
+      "slot": "f_L0_188.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Balances the armchair’s dark wood and adds softness to the seating area."
+     },
+     {
+      "slot": "f_L0_189.wall",
+      "type": "mirror",
+      "colour": "natural wood",
+      "reason": "Reflects light and visually expands the space while tying in wood tones."
+     },
+     {
+      "slot": "f_L0_186.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds life and fits the natural theme without overwhelming the coffee table."
+     },
+     {
+      "slot": "f_L0_187.left",
+      "type": "vase",
+      "colour": "cream",
+      "reason": "Cream vase holds a small plant or arrangement, echoing pot colors and adding texture."
+     },
+     {
+      "slot": "f_L0_187.right",
+      "type": "vase",
+      "colour": "mustard",
+      "reason": "Mustard vase adds a pop of color near the window, balancing the neutral palette."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_117.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_117.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_117.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Wood-framed art echoes the floor and furniture, enhancing the modern natural style.\"\n    },\n    {\n      \"slot\": \"window:win_L0_049\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the pots and cushions for a cohesive look.\"\n    },\n    {\n      \"slot\": \"window:win_L0_059\",\n      \"type\": \"blind\",\n      \"colour\": \"sand\",\n      \"reason\": \"Adds subtle texture and lets daylight in while maintaining a warm, natural feel.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_186\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow complements dark bronze frames and enhances ambient lighting.\"\n    },\n    {\n      \"slot\": \"f_L0_189.left\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Matches pendant light and adds cozy, focused lighting near the console table.\"\n    },\n    {\n      \"slot\": \"f_L0_188.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Balances the armchair’s dark wood and adds softness to the seating area.\"\n    },\n    {\n      \"slot\": \"f_L0_189.wall\",\n      \"type\": \"mirror\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Reflects light and visually expands the space while tying in wood tones.\"\n    },\n    {\n      \"slot\": \"f_L0_186.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life and fits the natural theme without overwhelming the coffee table.\"\n    },\n    {\n      \"slot\": \"f_L0_187.left\",\n      \"type\": \"vase\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream vase holds a small plant or arrangement, echoing pot colors and adding texture.\"\n    },\n    {\n      \"slot\": \"f_L0_187.right\",\n      \"type\": \"vase\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Mustard vase adds a pop of color near the window, balancing the neutral palette.\"\n    }\n  ]\n}",
+   "latency_s": 7.902
+  },
+  "c43130b1c6a061d523e978d69ae6910a29abdbcefb6ee83fed61d04dd3fa7848": {
+   "room_id": "r_L0_yasama_7",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_117.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_117.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and rattan accents."
+     },
+     {
+      "slot": "f_L0_117.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist wooden frame art enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "f_L0_186.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant in a natural wood pot adds greenery without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_189.left",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm brass light complements dark bronze frames and adds cozy ambiance."
+     },
+     {
+      "slot": "f_L0_189.right",
+      "type": "vase",
+      "colour": "cream",
+      "reason": "Cream vase holds a small plant or arrangement, echoing the rattan and cream pots."
+     },
+     {
+      "slot": "window:win_L0_049",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and match the warm, neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_186",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant light adds warmth and modern elegance over the coffee table."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_117.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_117.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and rattan accents.\"\n    },\n    {\n      \"slot\": \"f_L0_117.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist wooden frame art enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_186.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant in a natural wood pot adds greenery without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_189.left\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light complements dark bronze frames and adds cozy ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_189.right\",\n      \"type\": \"vase\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream vase holds a small plant or arrangement, echoing the rattan and cream pots.\"\n    },\n    {\n      \"slot\": \"window:win_L0_049\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and match the warm, neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_186\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant light adds warmth and modern elegance over the coffee table.\"\n    }\n  ]\n}",
+   "latency_s": 5.252
+  },
+  "45835ee831836cbbedac3edb1a010f1db9eb6ada4c637cbe3bc1577e1ee26ff5": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_056.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the bed with a natural, modern accent."
+     },
+     {
+      "slot": "f_L0_056.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls and natural wood."
+     },
+     {
+      "slot": "f_L0_110.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the natural, modern aesthetic."
+     },
+     {
+      "slot": "f_L0_111.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small indoor plant adds life and fits the natural, greenery-focused style."
+     },
+     {
+      "slot": "f_L0_190.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Comfortable seating with a neutral tone that harmonizes with the room’s palette."
+     },
+     {
+      "slot": "f_L0_191.wall",
+      "type": "wall_art",
+      "colour": "charcoal",
+      "reason": "Minimalist art adds visual interest without overwhelming the space."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Warm, earthy rug grounds the space and complements the oak floor."
+     },
+     {
+      "slot": "window:win_L0_047",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Soft, light curtains allow natural light while adding texture and warmth."
+     },
+     {
+      "slot": "ceiling:over_f_L0_056",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm lighting enhances the cozy, modern natural ambiance."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_056.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the bed with a natural, modern accent.\"\n    },\n    {\n      \"slot\": \"f_L0_056.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_110.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the natural, modern aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_111.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small indoor plant adds life and fits the natural, greenery-focused style.\"\n    },\n    {\n      \"slot\": \"f_L0_190.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Comfortable seating with a neutral tone that harmonizes with the room’s palette.\"\n    },\n    {\n      \"slot\": \"f_L0_191.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"charcoal\",\n      \"reason\": \"Minimalist art adds visual interest without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Warm, earthy rug grounds the space and complements the oak floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_047\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Soft, light curtains allow natural light while adding texture and warmth.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_056\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm lighting enhances the cozy, modern natural ambiance.\"\n    }\n  ]\n}",
+   "latency_s": 5.864
+  },
+  "67e776dd72c6df693c2680cb37a5c6142a0d6ac4dcb07083acb704ed76203044": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_056.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral bed."
+     },
+     {
+      "slot": "f_L0_056.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and light grey sofa."
+     },
+     {
+      "slot": "f_L0_110.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the natural light wood and daylight ambiance."
+     },
+     {
+      "slot": "f_L0_191.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art matches the modern natural style and frames the dresser."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Grounds the space with warmth and ties in with the light oak floor."
+     },
+     {
+      "slot": "window:win_L0_047",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the rattan pots and greige walls."
+     },
+     {
+      "slot": "ceiling:over_f_L0_056",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Adds ambient warmth and matches the window frames and table lamp."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_056.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral bed.\"\n    },\n    {\n      \"slot\": \"f_L0_056.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and light grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_110.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the natural light wood and daylight ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_191.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art matches the modern natural style and frames the dresser.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Grounds the space with warmth and ties in with the light oak floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_047\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the rattan pots and greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_056\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Adds ambient warmth and matches the window frames and table lamp.\"\n    }\n  ]\n}",
+   "latency_s": 4.639
+  },
+  "51b8e6de34bcbc8ea10d651c448b3c79761bb18aa82ef30288b073d1651894f1": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a_2",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_057.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the bed with a pop of color matching the decor theme."
+     },
+     {
+      "slot": "f_L0_057.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls and natural wood tones."
+     },
+     {
+      "slot": "f_L0_112.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the natural, modern aesthetic."
+     },
+     {
+      "slot": "f_L0_113.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small indoor plant adds life and fits the natural, greenery-focused theme."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a_2.rug1",
+      "type": "rug",
+      "colour": "cream",
+      "reason": "Softens the floor and ties in with the neutral palette and natural textures."
+     },
+     {
+      "slot": "window:win_L0_048",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Light, airy curtains let in natural light while maintaining a clean, modern look."
+     },
+     {
+      "slot": "ceiling:over_f_L0_057",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm lighting above the bed enhances coziness and matches the metallic accents."
+     },
+     {
+      "slot": "f_L0_192.left",
+      "type": "book_set",
+      "colour": "natural wood",
+      "reason": "Books on the dresser add personality and blend with the natural wood furniture."
+     },
+     {
+      "slot": "f_L0_193.shelf",
+      "type": "book_set",
+      "colour": "natural wood",
+      "reason": "Books on the bookshelf continue the natural, curated look without clutter."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_057.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the bed with a pop of color matching the decor theme.\"\n    },\n    {\n      \"slot\": \"f_L0_057.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls and natural wood tones.\"\n    },\n    {\n      \"slot\": \"f_L0_112.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the natural, modern aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_113.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small indoor plant adds life and fits the natural, greenery-focused theme.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a_2.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the floor and ties in with the neutral palette and natural textures.\"\n    },\n    {\n      \"slot\": \"window:win_L0_048\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Light, airy curtains let in natural light while maintaining a clean, modern look.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_057\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm lighting above the bed enhances coziness and matches the metallic accents.\"\n    },\n    {\n      \"slot\": \"f_L0_192.left\",\n      \"type\": \"book_set\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Books on the dresser add personality and blend with the natural wood furniture.\"\n    },\n    {\n      \"slot\": \"f_L0_193.shelf\",\n      \"type\": \"book_set\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Books on the bookshelf continue the natural, curated look without clutter.\"\n    }\n  ]\n}",
+   "latency_s": 6.011
+  },
+  "156ea0ecafc77e65a298d26e865642bb3307d19c516224ab837f11a625815f57": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a_2",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_057.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral bed."
+     },
+     {
+      "slot": "f_L0_057.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and greige tones."
+     },
+     {
+      "slot": "f_L0_112.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Brings life to the nightstand and matches the natural wood furniture."
+     },
+     {
+      "slot": "f_L0_113.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the modern natural style and complements dark bronze frames."
+     },
+     {
+      "slot": "f_L0_192.left",
+      "type": "book_set",
+      "colour": "natural wood",
+      "reason": "Adds texture and intellectual charm under the window without clutter."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a_2.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Grounds the space with warmth and ties in with the light oak floor and natural palette."
+     },
+     {
+      "slot": "window:win_L0_048",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and harmonizes with the greige walls and rattan pots."
+     },
+     {
+      "slot": "ceiling:over_f_L0_057",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Provides ambient warmth and matches the modern natural aesthetic with metallic accents."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_057.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral bed.\"\n    },\n    {\n      \"slot\": \"f_L0_057.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and greige tones.\"\n    },\n    {\n      \"slot\": \"f_L0_112.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Brings life to the nightstand and matches the natural wood furniture.\"\n    },\n    {\n      \"slot\": \"f_L0_113.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the modern natural style and complements dark bronze frames.\"\n    },\n    {\n      \"slot\": \"f_L0_192.left\",\n      \"type\": \"book_set\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds texture and intellectual charm under the window without clutter.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a_2.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Grounds the space with warmth and ties in with the light oak floor and natural palette.\"\n    },\n    {\n      \"slot\": \"window:win_L0_048\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and harmonizes with the greige walls and rattan pots.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_057\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Provides ambient warmth and matches the modern natural aesthetic with metallic accents.\"\n    }\n  ]\n}",
+   "latency_s": 5.361
+  },
+  "117bb554be8603a19f40b8bbc883f5371d7b733cec2cd93c23b37dee6b5480a0": {
+   "room_id": "r_L0_yasama_8",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_116.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_116.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "f_L0_116.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist wooden frame art enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "window:win_L0_046",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the rattan and cream pot decor theme."
+     },
+     {
+      "slot": "window:win_L0_055",
+      "type": "blind",
+      "colour": "sand",
+      "reason": "Subtle texture and neutral tone blend with the warm daylight and wood tones."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_8",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the cozy, modern natural ambiance."
+     },
+     {
+      "slot": "f_L0_194.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small greenery adds life without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_194.right",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Balances the TV unit and mirrors the left side’s botanical element."
+     },
+     {
+      "slot": "f_L0_195.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Matches the sofa’s fabric and adds comfort to the ottoman."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_116.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_116.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_116.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist wooden frame art enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"window:win_L0_046\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the rattan and cream pot decor theme.\"\n    },\n    {\n      \"slot\": \"window:win_L0_055\",\n      \"type\": \"blind\",\n      \"colour\": \"sand\",\n      \"reason\": \"Subtle texture and neutral tone blend with the warm daylight and wood tones.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_8\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the cozy, modern natural ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_194.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small greenery adds life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_194.right\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Balances the TV unit and mirrors the left side’s botanical element.\"\n    },\n    {\n      \"slot\": \"f_L0_195.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Matches the sofa’s fabric and adds comfort to the ottoman.\"\n    }\n  ]\n}",
+   "latency_s": 5.764
+  },
+  "d185aa9d77d192dc40699e776213ca019da3e66c515263692c72a128fe43cc6a": {
+   "room_id": "r_L0_yasama_8",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_116.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_116.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa and complements the natural wood and rattan elements."
+     },
+     {
+      "slot": "f_L0_116.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist wooden art enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "f_L0_194.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds greenery without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_194.right",
+      "type": "book_set",
+      "colour": "cream",
+      "reason": "Books in cream tones match the neutral palette and add texture."
+     },
+     {
+      "slot": "window:win_L0_046",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and harmonize with the warm tones."
+     },
+     {
+      "slot": "window:win_L0_055",
+      "type": "blind",
+      "colour": "black",
+      "reason": "Dark bronze frames complement black blinds for a modern contrast."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_8",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant light adds warmth and matches the natural wood furniture."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_116.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_116.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa and complements the natural wood and rattan elements.\"\n    },\n    {\n      \"slot\": \"f_L0_116.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist wooden art enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_194.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds greenery without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_194.right\",\n      \"type\": \"book_set\",\n      \"colour\": \"cream\",\n      \"reason\": \"Books in cream tones match the neutral palette and add texture.\"\n    },\n    {\n      \"slot\": \"window:win_L0_046\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and harmonize with the warm tones.\"\n    },\n    {\n      \"slot\": \"window:win_L0_055\",\n      \"type\": \"blind\",\n      \"colour\": \"black\",\n      \"reason\": \"Dark bronze frames complement black blinds for a modern contrast.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_8\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant light adds warmth and matches the natural wood furniture.\"\n    }\n  ]\n}",
+   "latency_s": 5.003
+  },
+  "166347e75c5e3f377dfa63280c2d5b3345d7005dbf055e21b9940c8e3f7a52c9": {
+   "room_id": "r_L0_ebeveyn_odasi",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_059.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style with the greige walls and natural wood."
+     },
+     {
+      "slot": "f_L0_059.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the neutral palette."
+     },
+     {
+      "slot": "f_L0_059.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Modern natural style with wood-framed art above the bed."
+     },
+     {
+      "slot": "f_L0_166.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow matches the dark bronze frames and natural light wood."
+     },
+     {
+      "slot": "f_L0_167.centre",
+      "type": "plant_small",
+      "colour": "cream",
+      "reason": "Small indoor plant in cream pot adds greenery without clutter."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Softens the oak floor and ties in the warm natural tones."
+     },
+     {
+      "slot": "window:win_L0_031",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Light, airy curtains let in natural light and match the pots and cushions."
+     },
+     {
+      "slot": "ceiling:over_f_L0_059",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm lighting enhances the modern natural ambiance."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_059.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style with the greige walls and natural wood.\"\n    },\n    {\n      \"slot\": \"f_L0_059.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_059.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Modern natural style with wood-framed art above the bed.\"\n    },\n    {\n      \"slot\": \"f_L0_166.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow matches the dark bronze frames and natural light wood.\"\n    },\n    {\n      \"slot\": \"f_L0_167.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"cream\",\n      \"reason\": \"Small indoor plant in cream pot adds greenery without clutter.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Softens the oak floor and ties in the warm natural tones.\"\n    },\n    {\n      \"slot\": \"window:win_L0_031\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Light, airy curtains let in natural light and match the pots and cushions.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_059\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm lighting enhances the modern natural ambiance.\"\n    }\n  ]\n}",
+   "latency_s": 5.238
+  },
+  "074e7d8443fd6fee407f8a4c5a7c10c1c497582b7ca2884a3f60211fc9c49d7b": {
+   "room_id": "r_L0_ebeveyn_odasi",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_059.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_059.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and light grey sofa."
+     },
+     {
+      "slot": "f_L0_059.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in wood tone enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Warm neutral rug grounds the space and ties in with the oak floor."
+     },
+     {
+      "slot": "window:win_L0_031",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the warm daylight and greige walls."
+     },
+     {
+      "slot": "ceiling:over_f_L0_059",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the cozy, modern natural ambiance."
+     },
+     {
+      "slot": "f_L0_166.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant in rattan pot adds greenery without clutter."
+     },
+     {
+      "slot": "f_L0_167.centre",
+      "type": "book_set",
+      "colour": "black",
+      "reason": "Books add texture and sophistication while keeping the space airy."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_059.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_059.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and light grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_059.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in wood tone enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Warm neutral rug grounds the space and ties in with the oak floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_031\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the warm daylight and greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_059\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the cozy, modern natural ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_166.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant in rattan pot adds greenery without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_167.centre\",\n      \"type\": \"book_set\",\n      \"colour\": \"black\",\n      \"reason\": \"Books add texture and sophistication while keeping the space airy.\"\n    }\n  ]\n}",
+   "latency_s": 5.102
+  },
+  "5b592107a6300b166a4084dd84591dc5951a770afd848f0ffb815f91b8bd4c62": {
+   "room_id": "r_L0_ebeveyn_odasi_3",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_060.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style matching the modern natural theme."
+     },
+     {
+      "slot": "f_L0_060.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls."
+     },
+     {
+      "slot": "f_L0_060.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art enhances the natural aesthetic without clutter."
+     },
+     {
+      "slot": "f_L0_173.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow matches the daylight and bronze frames."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_3.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Grounds the space with earthy tone that harmonizes with wood and plants."
+     },
+     {
+      "slot": "window:win_L0_036",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_060",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm light enhances the cozy, modern natural feel."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_ebeveyn_odasi_3",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Balances ambient lighting without overpowering the space."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_060.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style matching the modern natural theme.\"\n    },\n    {\n      \"slot\": \"f_L0_060.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_060.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art enhances the natural aesthetic without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_173.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow matches the daylight and bronze frames.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_3.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Grounds the space with earthy tone that harmonizes with wood and plants.\"\n    },\n    {\n      \"slot\": \"window:win_L0_036\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_060\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm light enhances the cozy, modern natural feel.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_ebeveyn_odasi_3\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Balances ambient lighting without overpowering the space.\"\n    }\n  ]\n}",
+   "latency_s": 5.036
+  },
+  "e7fe7eb386f19e4e2213d7a7295ec187e3846a4efd447c357cc7d31863b8d99e": {
+   "room_id": "r_L0_ebeveyn_odasi_3",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_060.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_060.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and greige tones."
+     },
+     {
+      "slot": "f_L0_060.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in natural wood tone enhances modern natural style."
+     },
+     {
+      "slot": "f_L0_173.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds life and matches the natural wood furniture theme."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_3.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Warm sand rug grounds the space and complements light oak flooring."
+     },
+     {
+      "slot": "window:win_L0_036",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and match the warm, neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_060",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant light adds warmth and modern elegance to the ceiling."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_060.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_060.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and greige tones.\"\n    },\n    {\n      \"slot\": \"f_L0_060.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in natural wood tone enhances modern natural style.\"\n    },\n    {\n      \"slot\": \"f_L0_173.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life and matches the natural wood furniture theme.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_3.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Warm sand rug grounds the space and complements light oak flooring.\"\n    },\n    {\n      \"slot\": \"window:win_L0_036\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and match the warm, neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_060\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant light adds warmth and modern elegance to the ceiling.\"\n    }\n  ]\n}",
+   "latency_s": 4.509
+  },
+  "8d383ca551df238c0d221b67573726c182d9c648eae87597a99239f29f92af30": {
+   "room_id": "r_L0_oda_01",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_061.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style matching the modern natural theme."
+     },
+     {
+      "slot": "f_L0_061.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls."
+     },
+     {
+      "slot": "f_L0_061.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art enhances the natural aesthetic without clutter."
+     },
+     {
+      "slot": "f_L0_177.centre",
+      "type": "plant_small",
+      "colour": "sage green",
+      "reason": "Small plant adds life and fits the natural, warm style."
+     },
+     {
+      "slot": "window:win_L0_034",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_061",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm glow enhances the cozy, modern natural feel."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_oda_01",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Balances lighting without overpowering the space."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_061.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style matching the modern natural theme.\"\n    },\n    {\n      \"slot\": \"f_L0_061.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_061.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art enhances the natural aesthetic without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_177.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"sage green\",\n      \"reason\": \"Small plant adds life and fits the natural, warm style.\"\n    },\n    {\n      \"slot\": \"window:win_L0_034\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_061\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm glow enhances the cozy, modern natural feel.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_oda_01\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Balances lighting without overpowering the space.\"\n    }\n  ]\n}",
+   "latency_s": 4.317
+  },
+  "3823c27a9e3766c8e20d9b839b2f2890d4f69b21eee2344d454c99187562325f": {
+   "room_id": "r_L0_oda_01",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_061.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+     },
+     {
+      "slot": "f_L0_061.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and light grey sofa."
+     },
+     {
+      "slot": "f_L0_061.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art in natural tones enhances the modern natural style."
+     },
+     {
+      "slot": "f_L0_177.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds life and matches the rattan pots in the style brief."
+     },
+     {
+      "slot": "window:win_L0_034",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Light, airy curtains let in natural light while softening the dark bronze frames."
+     },
+     {
+      "slot": "ceiling:over_f_L0_061",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm brass light adds cozy glow and complements the natural wood and greige walls."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_061.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_061.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and light grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_061.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art in natural tones enhances the modern natural style.\"\n    },\n    {\n      \"slot\": \"f_L0_177.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds life and matches the rattan pots in the style brief.\"\n    },\n    {\n      \"slot\": \"window:win_L0_034\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Light, airy curtains let in natural light while softening the dark bronze frames.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_061\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm brass light adds cozy glow and complements the natural wood and greige walls.\"\n    }\n  ]\n}",
+   "latency_s": 3.981
+  },
+  "2e4525db41ef6d0b1b806e8cc183ae529df8840960200c1883204fb4b52eaf94": {
+   "room_id": "r_L0_yasama_7",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_117.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_117.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "f_L0_117.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Wood-framed art adds organic texture and ties in with the natural wood furniture."
+     },
+     {
+      "slot": "window:win_L0_049",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Light, airy curtains let in natural light while softening the dark bronze frames."
+     },
+     {
+      "slot": "window:win_L0_059",
+      "type": "blind",
+      "colour": "sand",
+      "reason": "Sand-colored blind complements the warm daylight and natural wood tones."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_7",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant adds warmth and a modern metallic accent to the space."
+     },
+     {
+      "slot": "f_L0_186.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant in a natural wood pot brings life and ties into the modern natural style."
+     },
+     {
+      "slot": "f_L0_186.right",
+      "type": "vase",
+      "colour": "cream",
+      "reason": "Cream vase holds fresh flowers or greenery, adding softness and elegance."
+     },
+     {
+      "slot": "f_L0_187.cushions",
+      "type": "cushion",
+      "colour": "beige",
+      "reason": "Beige cushion adds subtle warmth and matches the neutral palette."
+     },
+     {
+      "slot": "f_L0_187.throw",
+      "type": "throw",
+      "colour": "terracotta",
+      "reason": "Terracotta throw adds a cozy, earthy pop against the grey armchair."
+     },
+     {
+      "slot": "f_L0_188.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Mustard cushion adds visual interest and warmth to the ottoman."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_117.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_117.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_117.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Wood-framed art adds organic texture and ties in with the natural wood furniture.\"\n    },\n    {\n      \"slot\": \"window:win_L0_049\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Light, airy curtains let in natural light while softening the dark bronze frames.\"\n    },\n    {\n      \"slot\": \"window:win_L0_059\",\n      \"type\": \"blind\",\n      \"colour\": \"sand\",\n      \"reason\": \"Sand-colored blind complements the warm daylight and natural wood tones.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_7\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant adds warmth and a modern metallic accent to the space.\"\n    },\n    {\n      \"slot\": \"f_L0_186.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant in a natural wood pot brings life and ties into the modern natural style.\"\n    },\n    {\n      \"slot\": \"f_L0_186.right\",\n      \"type\": \"vase\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream vase holds fresh flowers or greenery, adding softness and elegance.\"\n    },\n    {\n      \"slot\": \"f_L0_187.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"beige\",\n      \"reason\": \"Beige cushion adds subtle warmth and matches the neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_187.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"terracotta\",\n      \"reason\": \"Terracotta throw adds a cozy, earthy pop against the grey armchair.\"\n    },\n    {\n      \"slot\": \"f_L0_188.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Mustard cushion adds visual interest and warmth to the ottoman.\"\n    }\n  ]\n}",
+   "latency_s": 7.213
+  },
+  "c7c5201af961e24155977087eca743dcfc70f15cde4ecad2ccac829ad9d83f93": {
+   "room_id": "r_L0_yasama_7",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_117.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_117.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and rattan elements."
+     },
+     {
+      "slot": "f_L0_117.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist wooden art enhances the modern natural aesthetic without clutter."
+     },
+     {
+      "slot": "f_L0_186.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds greenery and fits the natural wood theme on the TV unit."
+     },
+     {
+      "slot": "f_L0_186.right",
+      "type": "book_set",
+      "colour": "cream",
+      "reason": "Books in cream tones match the neutral palette and add texture."
+     },
+     {
+      "slot": "f_L0_187.cushions",
+      "type": "cushion",
+      "colour": "beige",
+      "reason": "Beige cushion harmonizes with the warm greige walls and natural wood."
+     },
+     {
+      "slot": "window:win_L0_049",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains diffuse natural light and match the warm, neutral palette."
+     },
+     {
+      "slot": "window:win_L0_059",
+      "type": "blind",
+      "colour": "black",
+      "reason": "Black blind adds contrast and modern edge while controlling daylight."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_7",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant light adds warmth and complements dark bronze window frames."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_117.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_117.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and rattan elements.\"\n    },\n    {\n      \"slot\": \"f_L0_117.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist wooden art enhances the modern natural aesthetic without clutter.\"\n    },\n    {\n      \"slot\": \"f_L0_186.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds greenery and fits the natural wood theme on the TV unit.\"\n    },\n    {\n      \"slot\": \"f_L0_186.right\",\n      \"type\": \"book_set\",\n      \"colour\": \"cream\",\n      \"reason\": \"Books in cream tones match the neutral palette and add texture.\"\n    },\n    {\n      \"slot\": \"f_L0_187.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"beige\",\n      \"reason\": \"Beige cushion harmonizes with the warm greige walls and natural wood.\"\n    },\n    {\n      \"slot\": \"window:win_L0_049\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains diffuse natural light and match the warm, neutral palette.\"\n    },\n    {\n      \"slot\": \"window:win_L0_059\",\n      \"type\": \"blind\",\n      \"colour\": \"black\",\n      \"reason\": \"Black blind adds contrast and modern edge while controlling daylight.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_7\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant light adds warmth and complements dark bronze window frames.\"\n    }\n  ]\n}",
+   "latency_s": 5.801
+  },
+  "9af4ff865bc8753739479717a5f4e9ad0f8ae9abc31bcafbca4129ee8a454df9": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_056.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the bed with a pop of color."
+     },
+     {
+      "slot": "f_L0_056.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls."
+     },
+     {
+      "slot": "f_L0_110.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the natural, modern aesthetic."
+     },
+     {
+      "slot": "f_L0_111.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small greenery adds life without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_189.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Comfort and cohesion with the neutral palette."
+     },
+     {
+      "slot": "f_L0_190.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Adds visual interest above the dresser without clutter."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Grounds the space with warmth and ties in with the wood floor."
+     },
+     {
+      "slot": "window:win_L0_047",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the greige walls."
+     },
+     {
+      "slot": "ceiling:over_f_L0_056",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm lighting enhances the cozy, modern feel."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_056.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the bed with a pop of color.\"\n    },\n    {\n      \"slot\": \"f_L0_056.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls.\"\n    },\n    {\n      \"slot\": \"f_L0_110.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the natural, modern aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_111.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small greenery adds life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_189.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Comfort and cohesion with the neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_190.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Adds visual interest above the dresser without clutter.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Grounds the space with warmth and ties in with the wood floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_047\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_056\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm lighting enhances the cozy, modern feel.\"\n    }\n  ]\n}",
+   "latency_s": 5.59
+  },
+  "54df573bf30c462be8699a52293d95788c08c3adf957666a2c3a32b8bcc958f6": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_056.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral bed."
+     },
+     {
+      "slot": "f_L0_056.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and greige tones."
+     },
+     {
+      "slot": "f_L0_110.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the natural light wood and daylight ambiance."
+     },
+     {
+      "slot": "f_L0_190.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist art matches the modern natural style and frames the dresser."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a.rug1",
+      "type": "rug",
+      "colour": "sand",
+      "reason": "Grounds the space with warmth and ties in with the light oak floor."
+     },
+     {
+      "slot": "window:win_L0_047",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the neutral palette without blocking it."
+     },
+     {
+      "slot": "ceiling:over_f_L0_056",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Provides ambient light that blends with the modern natural aesthetic."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_056.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral bed.\"\n    },\n    {\n      \"slot\": \"f_L0_056.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and greige tones.\"\n    },\n    {\n      \"slot\": \"f_L0_110.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the natural light wood and daylight ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_190.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist art matches the modern natural style and frames the dresser.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"sand\",\n      \"reason\": \"Grounds the space with warmth and ties in with the light oak floor.\"\n    },\n    {\n      \"slot\": \"window:win_L0_047\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the neutral palette without blocking it.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_056\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Provides ambient light that blends with the modern natural aesthetic.\"\n    }\n  ]\n}",
+   "latency_s": 4.586
+  },
+  "646f5c0b917c342e1adcec9d1b6ad5457913e903777fd30d542b52dae9112176": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a_2",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_057.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and style to the bed with a pop of color matching the decor theme."
+     },
+     {
+      "slot": "f_L0_057.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the greige walls and natural wood tones."
+     },
+     {
+      "slot": "f_L0_112.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the natural, modern aesthetic."
+     },
+     {
+      "slot": "f_L0_113.centre",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small greenery adds life and fits the indoor plant theme in rattan pots."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a_2.rug1",
+      "type": "rug",
+      "colour": "cream",
+      "reason": "Softens the floor and ties in with the neutral palette and natural textures."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a_2.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Large indoor plant in rattan pot brings lushness and balances the room’s geometry."
+     },
+     {
+      "slot": "window:win_L0_048",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the warm, neutral palette."
+     },
+     {
+      "slot": "ceiling:over_f_L0_057",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm lighting enhances the cozy, modern natural ambiance."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_057.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and style to the bed with a pop of color matching the decor theme.\"\n    },\n    {\n      \"slot\": \"f_L0_057.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the greige walls and natural wood tones.\"\n    },\n    {\n      \"slot\": \"f_L0_112.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the natural, modern aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_113.centre\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small greenery adds life and fits the indoor plant theme in rattan pots.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a_2.rug1\",\n      \"type\": \"rug\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the floor and ties in with the neutral palette and natural textures.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a_2.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large indoor plant in rattan pot brings lushness and balances the room’s geometry.\"\n    },\n    {\n      \"slot\": \"window:win_L0_048\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the warm, neutral palette.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_057\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm lighting enhances the cozy, modern natural ambiance.\"\n    }\n  ]\n}",
+   "latency_s": 5.418
+  },
+  "be3e3bf51a086b7a12749934308ea5e6995b8c396b0f6583ca9225c8836b1c37": {
+   "room_id": "r_L0_ebeveyn_odasi_m_k_a_2",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_057.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and neutral bed."
+     },
+     {
+      "slot": "f_L0_057.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the bed and complements the natural wood and greige tones."
+     },
+     {
+      "slot": "f_L0_112.centre",
+      "type": "table_lamp",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the natural light wood and creates cozy ambiance."
+     },
+     {
+      "slot": "f_L0_191.left",
+      "type": "book_set",
+      "colour": "black",
+      "reason": "Adds texture and sophistication without overwhelming the minimalist space."
+     },
+     {
+      "slot": "r_L0_ebeveyn_odasi_m_k_a_2.corner1",
+      "type": "plant",
+      "colour": "natural wood",
+      "reason": "Large indoor plant in rattan pot brings life and aligns with modern natural style."
+     },
+     {
+      "slot": "window:win_L0_048",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and complements the warm daylight and greige walls."
+     },
+     {
+      "slot": "ceiling:over_f_L0_057",
+      "type": "ceiling_light",
+      "colour": "white",
+      "reason": "Provides ambient lighting that blends with the modern natural aesthetic."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_057.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and neutral bed.\"\n    },\n    {\n      \"slot\": \"f_L0_057.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the bed and complements the natural wood and greige tones.\"\n    },\n    {\n      \"slot\": \"f_L0_112.centre\",\n      \"type\": \"table_lamp\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the natural light wood and creates cozy ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_191.left\",\n      \"type\": \"book_set\",\n      \"colour\": \"black\",\n      \"reason\": \"Adds texture and sophistication without overwhelming the minimalist space.\"\n    },\n    {\n      \"slot\": \"r_L0_ebeveyn_odasi_m_k_a_2.corner1\",\n      \"type\": \"plant\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Large indoor plant in rattan pot brings life and aligns with modern natural style.\"\n    },\n    {\n      \"slot\": \"window:win_L0_048\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and complements the warm daylight and greige walls.\"\n    },\n    {\n      \"slot\": \"ceiling:over_f_L0_057\",\n      \"type\": \"ceiling_light\",\n      \"colour\": \"white\",\n      \"reason\": \"Provides ambient lighting that blends with the modern natural aesthetic.\"\n    }\n  ]\n}",
+   "latency_s": 4.617
+  },
+  "bcde2398e3ade8309f1b2adeb451f10299266509fa70bb1891733f6ac7ccb724": {
+   "room_id": "r_L0_yasama_8",
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_116.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_116.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+     },
+     {
+      "slot": "f_L0_116.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist wooden frame art enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "window:win_L0_046",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Softens natural light and matches the rattan and cream pot theme."
+     },
+     {
+      "slot": "window:win_L0_055",
+      "type": "blind",
+      "colour": "sand",
+      "reason": "Subtle texture and neutral tone blend with the warm daylight and wood tones."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_8",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Warm metallic glow enhances the cozy, modern natural ambiance."
+     },
+     {
+      "slot": "f_L0_192.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small greenery adds life without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_192.right",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Balances the composition and reinforces the indoor plant theme."
+     },
+     {
+      "slot": "f_L0_193.cushions",
+      "type": "cushion",
+      "colour": "cream",
+      "reason": "Complements the ottoman and sofa, creating a cohesive seating zone."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_116.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_116.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa’s lines and complements the natural wood and neutral palette.\"\n    },\n    {\n      \"slot\": \"f_L0_116.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist wooden frame art enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"window:win_L0_046\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens natural light and matches the rattan and cream pot theme.\"\n    },\n    {\n      \"slot\": \"window:win_L0_055\",\n      \"type\": \"blind\",\n      \"colour\": \"sand\",\n      \"reason\": \"Subtle texture and neutral tone blend with the warm daylight and wood tones.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_8\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Warm metallic glow enhances the cozy, modern natural ambiance.\"\n    },\n    {\n      \"slot\": \"f_L0_192.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small greenery adds life without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_192.right\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Balances the composition and reinforces the indoor plant theme.\"\n    },\n    {\n      \"slot\": \"f_L0_193.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"cream\",\n      \"reason\": \"Complements the ottoman and sofa, creating a cohesive seating zone.\"\n    }\n  ]\n}",
+   "latency_s": 5.709
+  },
+  "0cf13b363b877449a17209d60df79239be399cab59813aceca0d9a4ae1202d5d": {
+   "room_id": "r_L0_yasama_8",
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "data": {
+    "items": [
+     {
+      "slot": "f_L0_116.cushions",
+      "type": "cushion",
+      "colour": "mustard",
+      "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+     },
+     {
+      "slot": "f_L0_116.throw",
+      "type": "throw",
+      "colour": "cream",
+      "reason": "Softens the sofa and complements the natural wood and rattan elements."
+     },
+     {
+      "slot": "f_L0_116.wall",
+      "type": "wall_art",
+      "colour": "natural wood",
+      "reason": "Minimalist wooden art enhances the modern natural aesthetic."
+     },
+     {
+      "slot": "f_L0_192.left",
+      "type": "plant_small",
+      "colour": "natural wood",
+      "reason": "Small plant adds greenery without overwhelming the space."
+     },
+     {
+      "slot": "f_L0_192.right",
+      "type": "book_set",
+      "colour": "cream",
+      "reason": "Books in cream tones match the neutral palette and add texture."
+     },
+     {
+      "slot": "window:win_L0_046",
+      "type": "curtain",
+      "colour": "cream",
+      "reason": "Cream curtains soften natural light and harmonize with the warm tones."
+     },
+     {
+      "slot": "window:win_L0_055",
+      "type": "blind",
+      "colour": "black",
+      "reason": "Dark bronze frames complement black blinds for a modern contrast."
+     },
+     {
+      "slot": "ceiling:centre_r_L0_yasama_8",
+      "type": "pendant_light",
+      "colour": "brass",
+      "reason": "Brass pendant light adds warmth and matches the natural wood furniture."
+     }
+    ]
+   },
+   "error": null,
+   "raw_text": "{\n  \"items\": [\n    {\n      \"slot\": \"f_L0_116.cushions\",\n      \"type\": \"cushion\",\n      \"colour\": \"mustard\",\n      \"reason\": \"Adds warmth and color contrast to the greige walls and grey sofa.\"\n    },\n    {\n      \"slot\": \"f_L0_116.throw\",\n      \"type\": \"throw\",\n      \"colour\": \"cream\",\n      \"reason\": \"Softens the sofa and complements the natural wood and rattan elements.\"\n    },\n    {\n      \"slot\": \"f_L0_116.wall\",\n      \"type\": \"wall_art\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Minimalist wooden art enhances the modern natural aesthetic.\"\n    },\n    {\n      \"slot\": \"f_L0_192.left\",\n      \"type\": \"plant_small\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Small plant adds greenery without overwhelming the space.\"\n    },\n    {\n      \"slot\": \"f_L0_192.right\",\n      \"type\": \"book_set\",\n      \"colour\": \"cream\",\n      \"reason\": \"Books in cream tones match the neutral palette and add texture.\"\n    },\n    {\n      \"slot\": \"window:win_L0_046\",\n      \"type\": \"curtain\",\n      \"colour\": \"cream\",\n      \"reason\": \"Cream curtains soften natural light and harmonize with the warm tones.\"\n    },\n    {\n      \"slot\": \"window:win_L0_055\",\n      \"type\": \"blind\",\n      \"colour\": \"black\",\n      \"reason\": \"Dark bronze frames complement black blinds for a modern contrast.\"\n    },\n    {\n      \"slot\": \"ceiling:centre_r_L0_yasama_8\",\n      \"type\": \"pendant_light\",\n      \"colour\": \"brass\",\n      \"reason\": \"Brass pendant light adds warmth and matches the natural wood furniture.\"\n    }\n  ]\n}",
+   "latency_s": 4.992
   }
  },
  "model": "Qwen/Qwen3-VL-8B-Instruct",
- "generated_utc": "2026-10-10T10:54:01Z"
+ "generated_utc": "2026-10-10T15:49:23Z"
 }

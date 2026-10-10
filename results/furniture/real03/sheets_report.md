@@ -1,6 +1,6 @@
 # Sheet analysis: real03
 
-Status: **ok**; 1 regions, 0 strays, 0 conflicts; code `87831c156`, created 2026-10-10T10:47:16Z
+Status: **ok**; 1 regions, 0 strays, 0 conflicts; code `9e26b0fee`, created 2026-10-10T14:38:03Z
 
 ## Documents and units
 
@@ -10,11 +10,11 @@ Status: **ok**; 1 regions, 0 strays, 0 conflicts; code `87831c156`, created 2026
 
 | File | Check | Unit | Score | Samples | Note |
 |---|---|---|---|---|---|
-| tekkat.dwg | area_labels | cm | 0.833 | 6 | 5 labels alone in a closed outline, 1 regions with >= 2 labels |
+| tekkat.dwg | area_labels | cm | 0.86 | 50 | 49 labels alone in a closed outline, 1 regions with >= 2 labels |
 | tekkat.dwg | level_marks | - | - | 0 | 0 sample(s), fewer than 1 |
-| tekkat.dwg | door_widths | cm | 1.0 | 4 | median door radius 90 units |
-| tekkat.dwg | wall_thickness | - | 0.462 | 78 | median face-pair distance 25 units; no unit fits 50% of the samples |
-| tekkat.dwg | text_height | - | - | 46 | median text height 12.5 units; cm and in fit equally well |
+| tekkat.dwg | door_widths | cm | 1.0 | 40 | median door radius 80 units |
+| tekkat.dwg | wall_thickness | - | 0.567 | 1045 | median face-pair distance 15 units; no unit fits 50% of the samples |
+| tekkat.dwg | text_height | - | - | 302 | median text height 12.5 units; cm and in fit equally well |
 | tekkat.dwg | dimensions | - | - | 0 | 0 sample(s), fewer than 2 |
 
 ## Regions

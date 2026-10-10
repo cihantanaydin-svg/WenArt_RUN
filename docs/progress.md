@@ -759,3 +759,16 @@ a closed net-area outline with its label and printed area.
   rooms without a door get a warning (none invented).
 - real03: status ok (was needs_review), 30 inferred walls, 5 rooms with the printed areas, 4 door leaves (two glass
   double doors), 3 unknown pieces for the AI, 3 rooms without a drawn door. Tests: `tests/test_outline_walls.py`.
+
+### real03: the whole ground floor (10 Oct 2026)
+
+The user saw only the core. The flats were in `tekkat.dwg` all along; details in `docs/milestone11.md` §19.8.
+
+- LibreDWG `dwg2dxf` dropped 13 blocks (a loop-index bug): one-line patch in both setups (`0.14 d9468ae p1`).
+- XCLIP boundaries of block references honoured; walls drawn as closed outlines per room (`ring`); concrete core
+  walls (`MYD - BA`, `B-H`); 15 mm slit closing; inner wall stubs and open balconies no review reasons;
+  services-layer texts no room labels; room types `stair` and `shaft` (never furnished); `YAŞAMA` living.
+- Agent: may retype or remove fixed equipment in a room that never holds it; new `set_lighting` tool; edits tied
+  to the building they were made on. Lights: one per 3 m in long rooms; only windows in outer walls bring daylight.
+- Pods: 3 runs ($6.10). Run 3: 8 flats + core, 84 views, every room lit, agent 2 rounds; GPU tests 37/39.
+- Open: white boxes in some living rooms (untyped drawn pieces), 2 GPU tests, no exterior view.

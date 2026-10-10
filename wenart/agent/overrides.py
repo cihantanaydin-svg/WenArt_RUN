@@ -25,6 +25,7 @@ look_id}``; ``geometry`` = the accepted ``correct_geometry`` records (record-onl
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 from typing import Callable, Optional
@@ -42,6 +43,14 @@ FURNITURE_TOOLS = {"move_piece": "move", "rotate_piece": "rotate", "resize_piece
 CAMERA_TOOLS = {"set_camera": "set", "add_camera": "add", "remove_camera": "remove"}
 OTHER_TOOLS = ("set_material", "set_exterior", "set_lighting", "correct_geometry", "rerun_stage")
 META_KEYS = ("reason",)          # tool arguments that are not override data
+
+
+def source_sha(project_out, source: str = DECOR_BUILDING) -> str:
+    """sha256 of the building the edits are made on (``building_decor.json``), "" without one. real03 (10 Oct
+    2026): the overrides of an earlier run on another reading of the plan stayed on the volume; an edit is replayed
+    only on the building it was made on."""
+    path = Path(project_out) / source
+    return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else ""
 
 
 def overrides_path(project_out) -> Path:
@@ -83,7 +92,7 @@ class Overrides:
                 "applied", "log_seq", "metrics", "rolled_back")
         self.edits.append({"seq": seq, "round": int(round_no), "tool": tool, "args": copy.deepcopy(args),
                            "result": {k: copy.deepcopy(result.get(k)) for k in keep if k in result},
-                           "model": model})
+                           "model": model, "source_sha": source_sha(self.project_out)})
         self.save()
         return seq
 
@@ -91,7 +100,17 @@ class Overrides:
         return LG.write_json_atomic(self.path, {"project": self.project, "edits": self.edits})
 
     def accepted(self) -> list[dict]:
-        return [e for e in sorted(self.edits, key=lambda e: int(e["seq"])) if (e.get("result") or {}).get("accepted")]
+        """The accepted edits made on the current ``building_decor.json`` (edits without a ``source_sha``, written
+        before it was recorded, count as made on it)."""
+        now = source_sha(self.project_out)
+        return [e for e in sorted(self.edits, key=lambda e: int(e["seq"])) if (e.get("result") or {}).get("accepted")
+                and (not e.get("source_sha") or not now or e["source_sha"] == now)]
+
+    def stale(self) -> list[dict]:
+        """Accepted edits made on another ``building_decor.json`` (an earlier reading of the plan): never replayed."""
+        now = source_sha(self.project_out)
+        return [e for e in self.edits if (e.get("result") or {}).get("accepted") and e.get("source_sha") and now
+                and e["source_sha"] != now]
 
     def furniture_edits(self) -> list[dict]:
         return [e for e in self.accepted() if e["tool"] in FURNITURE_TOOLS]
@@ -175,6 +194,9 @@ def apply(project_out, *, apply_edit: Optional[Callable] = None, catalog_loader:
         else:
             not_replayed.append({"seq": entry["seq"], "failed_checks": list(res.get("failed_checks") or []),
                                  "message": res.get("message")})
+    for entry in ov.stale():
+        not_replayed.append({"seq": entry["seq"], "failed_checks": ["stale_source"],
+                             "message": "made on another building_decor.json (an earlier run): not replayed"})
     overrides = ov.agent_overrides()
     overrides["not_replayed"] = not_replayed
     building["agent_overrides"] = overrides

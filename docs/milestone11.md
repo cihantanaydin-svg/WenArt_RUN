@@ -857,3 +857,26 @@ a room with a factor gets lights even with daylight; `agent_overrides.lighting`)
 Ingest of `tekkat.dwg` before → after (CPU): 30 inferred walls, 5 rooms (core only) → 158 walls (vector, `ring` and
 concrete), 55 faces: 8 flats (4 × 1+1 B, 2 × 1+1 A1, 1+1 A2, 2+1 A3) with their living rooms, bedrooms, baths and
 halls, the floor hall, the wind lobby and the two stair rooms; status `ok`.
+
+Pods (10 Oct 2026, RTX PRO 6000, polish off, orchestrated):
+
+| Run | Pod | Min | $ | Result | Fixed after it |
+|---|---|---|---|---|---|
+| 1 | `n6bh2aag0y2amy` | 19 | 0.78 | stopped at `layout`: a debug picture of a room whose window band was empty | `placer.polygon_parts`; a debug picture never fails a stage; infer rule 1c (unknown marks that fit no type: taps, valves, lines are not built) |
+| 2 | `wxj7cj91tloewx` | 62 | 2.56 | the whole floor built and rendered (84 views); the floor hall, both stairs, the lift lobby and one bath black; agent 0 rounds (time estimate); GPU tests 36/39 | windows in inner walls (glazing between hall, stair and lobby) bring no daylight (`lighting.daylight_window`); final-stage factor 1.6 without polish (measured 1,998 s vs 1,302 s unscaled) |
+| 3 | `oesbppzw7hsnmb` | 66 | 2.76 | 84 views, every room lit (the floor hall with 7 ceiling lights, the stairs with their flights); agent 2 rounds, 4 edits applied (a sofa turned to its TV unit, a room-number circle and a dimension outline removed, a lamp out of a door swing; the lift lobby retyped living); GPU tests 37/39 | edits are replayed only on the building they were made on (`overrides.source_sha`; the 11 edits of §19.7 were all refused on replay, none applied) |
+
+Before / after: `results/compare/real03/before_core_only_contact_L0.jpg` (§19.7: 14 views, core only) and
+`after_whole_floor_contact_L0.jpg` (run 3: 84 views, 8 flats + core). Results in `results/{agent,check,final,
+furniture,recognition,renders}/real03/`; the 3D files (`real03.blend`, `real03.glb`, 1.6 GB) are on the volume
+(`/workspace/repo/outputs/real03/export/`) and in the session copy `runs/20261010-153706-full/results/final/real03/3d/`.
+
+Open (real03):
+
+- White boxes in some living rooms: drawn pieces neither the size rules nor the two VLM passes could type (0.8 x
+  0.8 m, 0.74 x 0.74 m, 3.5 x 0.85 m: likely armchairs, a coffee table, a kitchen run with its counter outline);
+  the agent reaches only a few rooms in its two rounds (55 rooms, 120 calls).
+- GPU tests: 3 bath views miss a planned piece in the index pass (an object hidden behind the door leaf), and 12 %
+  of the window-pull views clip the panes (the corridor and entrance halls with glazed inner walls).
+- No exterior view (the core-only run had none either; not looked at).
+- The lift lobby (`oda_19`, no label) was retyped `living` by the agent; it is a lift lobby.

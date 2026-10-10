@@ -7,21 +7,21 @@
  "single_pass": true,
  "metrics": {
   "baseline": {
-   "views": 14,
-   "views_computed": 14,
-   "required_elements": 19,
+   "views": 83,
+   "views_computed": 83,
+   "required_elements": 138,
    "fa_missing": null,
    "fa_extra": null,
    "count_error": null
   },
   "models": {
    "agent": {
-    "calls": 14,
-    "answered": 14,
+    "calls": 83,
+    "answered": 83,
     "answer_rate": 1.0,
-    "decoys": 14,
+    "decoys": 70,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.0
+    "fa_missing_single": 0.029
    }
   },
   "fa_missing": null,
@@ -30,7 +30,7 @@
   "removal_flagged": null,
   "removal_confirmed": null,
   "insertion": null,
-  "insertion_flagged": 0.6,
+  "insertion_flagged": 0.375,
   "swap_flagged": 1.0,
   "swap_confirmed": null,
   "detector_insertion": {
@@ -43,87 +43,135 @@
   },
   "controls": {
    "removal": {
-    "n": 5,
-    "flagged": 0.8,
+    "n": 8,
+    "flagged": 1.0,
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L0_kat_holu_1",
-      "kind": "removal:d_L0_004",
-      "flagged": false,
-      "confirmed": false
-     },
-     {
-      "camera": "cam_r_L0_kat_holu_2",
-      "kind": "removal:f_L0_010",
+      "camera": "cam_r_L0_ebeveyn_odasi_2_3",
+      "kind": "removal:win_L0_056",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_ruzgarlik_1",
-      "kind": "removal:d_L0_002",
+      "camera": "cam_r_L0_ebeveyn_odasi_4_1",
+      "kind": "removal:win_L0_002",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_ruzgarlik_2",
-      "kind": "removal:f_L0_005",
+      "camera": "cam_r_L0_ebeveyn_odasi_m_k_a_2_3",
+      "kind": "removal:f_L0_122",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yangin_merdiveni_2",
-      "kind": "removal:f_L0_013",
+      "camera": "cam_r_L0_yasama_2",
+      "kind": "removal:d_L0_016",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_2_1",
+      "kind": "removal:f_L0_102",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_3_1",
+      "kind": "removal:f_L0_095",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_4_1",
+      "kind": "removal:d_L0_024",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_8_1",
+      "kind": "removal:win_L0_055",
       "flagged": true,
       "confirmed": false
      }
     ]
    },
    "insertion": {
-    "n": 5,
-    "flagged": 0.6,
+    "n": 8,
+    "flagged": 0.375,
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L0_kat_holu_1",
-      "kind": "insertion:d_L0_004",
+      "camera": "cam_r_L0_ebeveyn_odasi_2_3",
+      "kind": "insertion:win_L0_056",
       "flagged": false,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_kat_holu_2",
-      "kind": "insertion:f_L0_010",
+      "camera": "cam_r_L0_ebeveyn_odasi_4_1",
+      "kind": "insertion:win_L0_002",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_ebeveyn_odasi_m_k_a_2_3",
+      "kind": "insertion:f_L0_122",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_ruzgarlik_1",
-      "kind": "insertion:d_L0_002",
+      "camera": "cam_r_L0_yasama_2",
+      "kind": "insertion:d_L0_016",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_2_1",
+      "kind": "insertion:f_L0_102",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_ruzgarlik_2",
-      "kind": "insertion:f_L0_005",
+      "camera": "cam_r_L0_yasama_3_1",
+      "kind": "insertion:f_L0_095",
+      "flagged": false,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_4_1",
+      "kind": "insertion:d_L0_024",
       "flagged": true,
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yangin_merdiveni_2",
-      "kind": "insertion:f_L0_013",
+      "camera": "cam_r_L0_yasama_8_1",
+      "kind": "insertion:win_L0_055",
       "flagged": false,
       "confirmed": false
      }
     ]
    },
    "swap": {
-    "n": 1,
+    "n": 3,
     "flagged": 1.0,
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L0_ruzgarlik_3",
-      "kind": "swap:f_L0_004",
+      "camera": "cam_r_L0_yasama_2",
+      "kind": "swap:f_L0_168",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_2_1",
+      "kind": "swap:f_L0_102",
+      "flagged": true,
+      "confirmed": false
+     },
+     {
+      "camera": "cam_r_L0_yasama_3_1",
+      "kind": "swap:f_L0_095",
       "flagged": true,
       "confirmed": false
      }

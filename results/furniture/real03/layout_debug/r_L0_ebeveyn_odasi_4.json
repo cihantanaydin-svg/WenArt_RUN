@@ -1,0 +1,2319 @@
+{
+ "room_id": "r_L0_ebeveyn_odasi_4",
+ "label": "Ebeveyn Odası",
+ "room_type": "bedroom",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_058",
+   "type": "bed_double",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     16.818,
+     1.5328
+    ],
+    "wall_id": "w_L0_118"
+   }
+  },
+  {
+   "id": "f_L0_114",
+   "type": "nightstand",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     16.818,
+     2.5578
+    ],
+    "wall_id": "w_L0_118"
+   }
+  },
+  {
+   "id": "f_L0_119",
+   "type": "bed_double",
+   "kind": "changeable",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     17.8818,
+     4.6543
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "missing": {
+  "nightstand": 1,
+  "wardrobe": 1
+ },
+ "anchor_missing": false,
+ "addable": {
+  "nightstand": 1,
+  "wardrobe": 1,
+  "dresser": 1,
+  "desk": 1,
+  "office_chair": 1,
+  "bench": 1,
+  "armchair": 1,
+  "bookshelf": 1,
+  "ottoman": 1
+ },
+ "change_types": [
+  "bed_double",
+  "bed_single",
+  "nightstand",
+  "wardrobe",
+  "dresser",
+  "desk",
+  "chair",
+  "bookshelf",
+  "armchair",
+  "bench",
+  "ottoman",
+  "office_chair"
+ ],
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 3.749,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [
+     {
+      "id": "f_L0_058",
+      "type": "bed_double",
+      "size": [
+       1.6,
+       2.0
+      ],
+      "style": "modern",
+      "colour": "natural wood",
+      "reason": "Upgrade to larger size for better comfort and style fit."
+     }
+    ],
+    "added": [
+     {
+      "type": "nightstand",
+      "center": [
+       17.01,
+       2.56
+      ],
+      "rotation_deg": 90,
+      "size": [
+       0.5,
+       0.4
+      ],
+      "against_wall": true,
+      "reason": "Add matching nightstand beside the bed for symmetry and function."
+     },
+     {
+      "type": "wardrobe",
+      "center": [
+       16.8,
+       4.05
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.8,
+       0.6
+      ],
+      "against_wall": true,
+      "reason": "Place wardrobe against free wall for storage without blocking windows."
+     },
+     {
+      "type": "bench",
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0,
+      "size": [
+       1.2,
+       0.4
+      ],
+      "against_wall": false,
+      "reason": "Add bench at foot of bed for seating and storage."
+     }
+    ]
+   },
+   "prompt": "Task: complete this bedroom (Turkish: YATAK ODASI, ÇOCUK ODASI = children's room, EBEVEYN YATAK ODASI = master bedroom) labelled 'Ebeveyn Odası' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_ebeveyn_odasi_4\", \"label\": \"Ebeveyn Odası\", \"room_type\": \"bedroom\", \"room_subtype\": null, \"area_m2\": 13.21, \"polygon_m\": [[16.8, 0.71], [17.2, 0.71], [17.2, 0.45], [19.55, 0.45], [19.55, 1.26], [19.55, 1.26], [19.55, 4.05], [18.95, 4.05], [18.95, 5.64], [16.8, 5.64]], \"doors\": [{\"id\": \"d_L0_023\", \"center\": [19.6, 3.5], \"width\": 0.8, \"opens_into_this_room\": true, \"approach\": [19.09, 3.5]}], \"windows\": [{\"id\": \"win_L0_002\", \"center\": [18.08, 0.23], \"width\": 2.55, \"sill_height\": 0.9}, {\"id\": \"win_L0_058\", \"center\": [19.89, 0.86], \"width\": 0.81, \"sill_height\": 0.9}]}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_058\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [17.84, 1.53], \"size\": [1.65, 2.05], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [16.82, 1.53]}, \"against_wall\": \"w_L0_118\"}, {\"id\": \"f_L0_114\", \"type\": \"nightstand\", \"kind\": \"changeable\", \"center\": [17.01, 2.56], \"size\": [0.4, 0.38], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [16.82, 2.56]}, \"against_wall\": \"w_L0_118\"}, {\"id\": \"f_L0_119\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [17.88, 4.65], \"size\": [1.22, 2.13], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [17.88, 4.65]}, \"against_wall\": null}]\n\nWhat the room misses:\n- expected for this room type and missing: nightstand (1), wardrobe (1)\n- you may add at most: nightstand (1), wardrobe (1), dresser (1), desk (1), office_chair (1), bench (1), armchair (1), bookshelf (1), ottoman (1)\nA good completion: a nightstand on each free side of a double bed (one beside a single bed), touching the headboard wall; a wardrobe against a free wall, not in front of a window; a bench at the foot of the bed or a desk with an office_chair only when the room stays open.\n\nTypes with their size options [width, depth]:\n- bed_double: height 0.5 m, size options [1.4, 2.0], [1.6, 2.0], [1.8, 2.0] (usually against a wall)\n- bed_single: height 0.5 m, size options [0.9, 1.9], [0.9, 2.0], [1.2, 2.0] (usually against a wall)\n- nightstand: height 0.5 m, size options [0.4, 0.4], [0.5, 0.4], [0.6, 0.45]\n- wardrobe: height 2.1 m, size options [1.2, 0.6], [1.8, 0.6], [2.4, 0.6] (usually against a wall)\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- office_chair: height 1.0 m, size options [0.55, 0.55], [0.6, 0.6], [0.65, 0.65]\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (bed_double, bed_single) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of bed_double, bed_single, nightstand, wardrobe, dresser, desk, chair, bookshelf, armchair, bench, ottoman, office_chair), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of nightstand, wardrobe, dresser, desk, office_chair, bench, armchair, bookshelf, ottoman), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [\n    {\n      \"id\": \"f_L0_058\",\n      \"type\": \"bed_double\",\n      \"size\": [1.6, 2.0],\n      \"style\": \"modern\",\n      \"colour\": \"natural wood\",\n      \"reason\": \"Upgrade to larger size for better comfort and style fit.\"\n    }\n  ],\n  \"added\": [\n    {\n      \"type\": \"nightstand\",\n      \"center\": [17.01, 2.56],\n      \"rotation_deg\": 90,\n      \"size\": [0.5, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Add matching nightstand beside the bed for symmetry and function.\"\n    },\n    {\n      \"type\": \"wardrobe\",\n      \"center\": [16.8, 4.05],\n      \"rotation_deg\": 0,\n      \"size\": [1.8, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Place wardrobe against free wall for storage without blocking windows.\"\n    },\n    {\n      \"type\": \"bench\",\n      \"center\": [17.88, 4.65],\n      \"rotation_deg\": 0,\n      \"size\": [1.2, 0.4],\n      \"against_wall\": false,\n      \"reason\": \"Add bench at foot of bed for seating and storage.\"\n    }\n  ]\n}",
+   "changes": 1,
+   "added": 3
+  },
+  {
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 2.104,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [],
+    "added": [
+     {
+      "type": "nightstand",
+      "center": [
+       17.01,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.45
+      ],
+      "against_wall": true,
+      "reason": "Upgrade to larger nightstand for better storage and style match."
+     },
+     {
+      "type": "wardrobe",
+      "center": [
+       16.8,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.8,
+       0.6
+      ],
+      "against_wall": true,
+      "reason": "Add wardrobe against free wall for storage, away from windows."
+     }
+    ]
+   },
+   "prompt": "Task: complete this bedroom (Turkish: YATAK ODASI, ÇOCUK ODASI = children's room, EBEVEYN YATAK ODASI = master bedroom) labelled 'Ebeveyn Odası' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- expected for this room type and missing: nightstand (1), wardrobe (1)\n- you may add at most: nightstand (1), wardrobe (1), dresser (1), desk (1), office_chair (1), bench (1), armchair (1), bookshelf (1), ottoman (1)\nA good completion: a nightstand on each free side of a double bed (one beside a single bed), touching the headboard wall; a wardrobe against a free wall, not in front of a window; a bench at the foot of the bed or a desk with an office_chair only when the room stays open.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (bed_double, bed_single) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- bed_double: height 0.5 m, size options [1.4, 2.0], [1.6, 2.0], [1.8, 2.0] (usually against a wall)\n- bed_single: height 0.5 m, size options [0.9, 1.9], [0.9, 2.0], [1.2, 2.0] (usually against a wall)\n- nightstand: height 0.5 m, size options [0.4, 0.4], [0.5, 0.4], [0.6, 0.45]\n- wardrobe: height 2.1 m, size options [1.2, 0.6], [1.8, 0.6], [2.4, 0.6] (usually against a wall)\n- dresser: height 0.8 m, size options [1.0, 0.45], [1.2, 0.5], [1.4, 0.5] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- bench: height 0.45 m, size options [1.0, 0.4], [1.2, 0.4], [1.4, 0.45]\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- office_chair: height 1.0 m, size options [0.55, 0.55], [0.6, 0.6], [0.65, 0.65]\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_058\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [17.84, 1.53], \"size\": [1.65, 2.05], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [16.82, 1.53]}, \"against_wall\": \"w_L0_118\"}, {\"id\": \"f_L0_114\", \"type\": \"nightstand\", \"kind\": \"changeable\", \"center\": [17.01, 2.56], \"size\": [0.4, 0.38], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [16.82, 2.56]}, \"against_wall\": \"w_L0_118\"}, {\"id\": \"f_L0_119\", \"type\": \"bed_double\", \"kind\": \"changeable\", \"center\": [17.88, 4.65], \"size\": [1.22, 2.13], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [17.88, 4.65]}, \"against_wall\": null}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_ebeveyn_odasi_4\", \"label\": \"Ebeveyn Odası\", \"room_type\": \"bedroom\", \"room_subtype\": null, \"area_m2\": 13.21, \"polygon_m\": [[16.8, 0.71], [17.2, 0.71], [17.2, 0.45], [19.55, 0.45], [19.55, 1.26], [19.55, 1.26], [19.55, 4.05], [18.95, 4.05], [18.95, 5.64], [16.8, 5.64]], \"doors\": [{\"id\": \"d_L0_023\", \"center\": [19.6, 3.5], \"width\": 0.8, \"opens_into_this_room\": true, \"approach\": [19.09, 3.5]}], \"windows\": [{\"id\": \"win_L0_002\", \"center\": [18.08, 0.23], \"width\": 2.55, \"sill_height\": 0.9}, {\"id\": \"win_L0_058\", \"center\": [19.89, 0.86], \"width\": 0.81, \"sill_height\": 0.9}]}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of bed_double, bed_single, nightstand, wardrobe, dresser, desk, chair, bookshelf, armchair, bench, ottoman, office_chair), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of nightstand, wardrobe, dresser, desk, office_chair, bench, armchair, bookshelf, ottoman), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"nightstand\",\n      \"center\": [17.01, 2.56],\n      \"rotation_deg\": 90.0,\n      \"size\": [0.5, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Upgrade to larger nightstand for better storage and style match.\"\n    },\n    {\n      \"type\": \"wardrobe\",\n      \"center\": [16.8, 4.65],\n      \"rotation_deg\": 0.0,\n      \"size\": [1.8, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Add wardrobe against free wall for storage, away from windows.\"\n    }\n  ]\n}",
+   "changes": 0,
+   "added": 2
+  }
+ ],
+ "chosen_pass": 2,
+ "changes": [
+  {
+   "id": "f_L0_058",
+   "type": "bed_double",
+   "status": "not_agreed",
+   "passes": [
+    1
+   ],
+   "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+  }
+ ],
+ "added": [
+  {
+   "id": "f_L0_175",
+   "type": "nightstand",
+   "center": [
+    17.025,
+    3.06
+   ],
+   "size": [
+    0.5,
+    0.4
+   ],
+   "rotation_deg": 90.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": null
+  }
+ ],
+ "refused": [],
+ "dropped": [
+  {
+   "pass": 1,
+   "type": "bench",
+   "center": [
+    17.88,
+    4.65
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap"
+   ]
+  },
+  {
+   "pass": 1,
+   "type": "wardrobe",
+   "center": [
+    16.8,
+    4.05
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap",
+    "clearance_ok"
+   ]
+  },
+  {
+   "pass": 2,
+   "type": "wardrobe",
+   "center": [
+    16.8,
+    4.65
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap",
+    "clearance_ok"
+   ]
+  }
+ ],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_058": [
+    "doors_free",
+    "inside_room"
+   ],
+   "f_L0_114": [
+    "inside_room"
+   ],
+   "f_L0_119": [
+    "clearance_ok",
+    "inside_room"
+   ]
+  },
+  "walkways": [
+   [
+    "door",
+    "d_L0_023",
+    "window",
+    "win_L0_058"
+   ]
+  ]
+ },
+ "latency_s": 5.853,
+ "question": {
+  "room": {
+   "room_id": "r_L0_ebeveyn_odasi_4",
+   "label": "Ebeveyn Odası",
+   "room_type": "bedroom",
+   "room_subtype": null,
+   "area_m2": 13.21,
+   "polygon_m": [
+    [
+     16.8,
+     0.71
+    ],
+    [
+     17.2,
+     0.71
+    ],
+    [
+     17.2,
+     0.45
+    ],
+    [
+     19.55,
+     0.45
+    ],
+    [
+     19.55,
+     1.26
+    ],
+    [
+     19.55,
+     1.26
+    ],
+    [
+     19.55,
+     4.05
+    ],
+    [
+     18.95,
+     4.05
+    ],
+    [
+     18.95,
+     5.64
+    ],
+    [
+     16.8,
+     5.64
+    ]
+   ],
+   "doors": [
+    {
+     "id": "d_L0_023",
+     "center": [
+      19.6,
+      3.5
+     ],
+     "width": 0.8,
+     "opens_into_this_room": true,
+     "approach": [
+      19.09,
+      3.5
+     ]
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_002",
+     "center": [
+      18.08,
+      0.23
+     ],
+     "width": 2.55,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_058",
+     "center": [
+      19.89,
+      0.86
+     ],
+     "width": 0.81,
+     "sill_height": 0.9
+    }
+   ]
+  },
+  "drawn": [
+   {
+    "id": "f_L0_058",
+    "type": "bed_double",
+    "kind": "changeable",
+    "center": [
+     17.84,
+     1.53
+    ],
+    "size": [
+     1.65,
+     2.05
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      16.82,
+      1.53
+     ]
+    },
+    "against_wall": "w_L0_118"
+   },
+   {
+    "id": "f_L0_114",
+    "type": "nightstand",
+    "kind": "changeable",
+    "center": [
+     17.01,
+     2.56
+    ],
+    "size": [
+     0.4,
+     0.38
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      16.82,
+      2.56
+     ]
+    },
+    "against_wall": "w_L0_118"
+   },
+   {
+    "id": "f_L0_119",
+    "type": "bed_double",
+    "kind": "changeable",
+    "center": [
+     17.88,
+     4.65
+    ],
+    "size": [
+     1.22,
+     2.13
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      17.88,
+      4.65
+     ]
+    },
+    "against_wall": null
+   }
+  ],
+  "change_ids": [
+   "f_L0_058",
+   "f_L0_114",
+   "f_L0_119"
+  ],
+  "change_types": [
+   "bed_double",
+   "bed_single",
+   "nightstand",
+   "wardrobe",
+   "dresser",
+   "desk",
+   "chair",
+   "bookshelf",
+   "armchair",
+   "bench",
+   "ottoman",
+   "office_chair"
+  ],
+  "add": {
+   "nightstand": 1,
+   "wardrobe": 1,
+   "dresser": 1,
+   "desk": 1,
+   "office_chair": 1,
+   "bench": 1,
+   "armchair": 1,
+   "bookshelf": 1,
+   "ottoman": 1
+  },
+  "missing": {
+   "nightstand": 1,
+   "wardrobe": 1
+  },
+  "anchor_missing": false,
+  "anchors": [
+   "bed_double",
+   "bed_single"
+  ],
+  "anchors_addable": [],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+   "changes",
+   "added"
+  ],
+  "properties": {
+   "changes": {
+    "type": "array",
+    "maxItems": 3,
+    "items": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "id",
+      "type",
+      "size",
+      "style",
+      "colour",
+      "reason"
+     ],
+     "properties": {
+      "id": {
+       "enum": [
+        "f_L0_058",
+        "f_L0_114",
+        "f_L0_119"
+       ]
+      },
+      "type": {
+       "enum": [
+        "bed_double",
+        "bed_single",
+        "nightstand",
+        "wardrobe",
+        "dresser",
+        "desk",
+        "chair",
+        "bookshelf",
+        "armchair",
+        "bench",
+        "ottoman",
+        "office_chair"
+       ]
+      },
+      "size": {
+       "type": "array",
+       "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "style": {
+       "enum": [
+        "scandinavian",
+        "japandi",
+        "modern minimal",
+        "minimal",
+        "modern",
+        "industrial",
+        "mediterranean",
+        "classic",
+        "rustic",
+        "neutral"
+       ]
+      },
+      "colour": {
+       "enum": [
+        "white",
+        "cream",
+        "beige",
+        "sand",
+        "light grey",
+        "grey",
+        "charcoal",
+        "black",
+        "natural wood",
+        "terracotta",
+        "rust",
+        "mustard",
+        "olive",
+        "sage green",
+        "forest green",
+        "navy",
+        "dusty blue",
+        "teal",
+        "blush",
+        "burgundy",
+        "brass",
+        "copper"
+       ]
+      },
+      "reason": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    }
+   },
+   "added": {
+    "type": "array",
+    "maxItems": 9,
+    "items": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "type",
+      "center",
+      "rotation_deg",
+      "size",
+      "against_wall",
+      "reason"
+     ],
+     "properties": {
+      "type": {
+       "enum": [
+        "nightstand",
+        "wardrobe",
+        "dresser",
+        "desk",
+        "office_chair",
+        "bench",
+        "armchair",
+        "bookshelf",
+        "ottoman"
+       ]
+      },
+      "center": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "rotation_deg": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 360
+      },
+      "size": {
+       "type": "array",
+       "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "against_wall": {
+       "type": "boolean"
+      },
+      "reason": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    }
+   }
+  }
+ },
+ "placements": {
+  "1": {
+   "pieces": [
+    {
+     "type": "nightstand",
+     "center": [
+      17.025,
+      3.06
+     ],
+     "rotation_deg": 90.0,
+     "size": [
+      0.5,
+      0.4
+     ],
+     "against_wall": true,
+     "reason": "Add matching nightstand beside the bed for symmetry and function.",
+     "proposed": {
+      "center": [
+       17.01,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 11,
+       "type": "nightstand",
+       "step": "snap",
+       "before": {
+        "center": [
+         17.01,
+         2.56
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.025,
+         2.56
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 12,
+       "type": "nightstand",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.025,
+         2.56
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.025,
+         3.06
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "dropped": [
+    {
+     "type": "bench",
+     "proposed": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "last": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.0,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 1,
+       "type": "bench",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 2,
+       "type": "bench",
+       "step": "shrink",
+       "before": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.0,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 3,
+       "type": "bench",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.0,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.0,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 4,
+       "type": "bench",
+       "step": "drop",
+       "before": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.0,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.88,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.0,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 4,
+      "piece": 2,
+      "type": "bench",
+      "step": "drop",
+      "before": {
+       "center": [
+        17.88,
+        4.65
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.0,
+        0.4
+       ]
+      },
+      "after": {
+       "center": [
+        17.88,
+        4.65
+       ],
+       "rotation_deg": 0.0,
+       "size": [
+        1.0,
+        0.4
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    },
+    {
+     "type": "wardrobe",
+     "proposed": {
+      "center": [
+       16.8,
+       4.05
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "last": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 5,
+       "type": "wardrobe",
+       "step": "snap",
+       "before": {
+        "center": [
+         16.8,
+         4.05
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "clearance_ok",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 6,
+       "type": "wardrobe",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 7,
+       "type": "wardrobe",
+       "step": "shrink",
+       "before": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 8,
+       "type": "wardrobe",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 9,
+       "type": "wardrobe",
+       "step": "relocate",
+       "before": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free wall"
+      },
+      {
+       "iteration": 10,
+       "type": "wardrobe",
+       "step": "drop",
+       "before": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.05
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 10,
+      "piece": 1,
+      "type": "wardrobe",
+      "step": "drop",
+      "before": {
+       "center": [
+        17.125,
+        4.05
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.2,
+        0.6
+       ]
+      },
+      "after": {
+       "center": [
+        17.125,
+        4.05
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.2,
+        0.6
+       ]
+      },
+      "failed": [
+       "no_overlap",
+       "clearance_ok"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    }
+   ],
+   "log": [
+    {
+     "iteration": 1,
+     "piece": 2,
+     "type": "bench",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 2,
+     "piece": 2,
+     "type": "bench",
+     "step": "shrink",
+     "before": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.0,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 3,
+     "piece": 2,
+     "type": "bench",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.0,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.0,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 4,
+     "piece": 2,
+     "type": "bench",
+     "step": "drop",
+     "before": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.0,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.88,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.0,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    },
+    {
+     "iteration": 5,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "snap",
+     "before": {
+      "center": [
+       16.8,
+       4.05
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "clearance_ok",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 6,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 7,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "shrink",
+     "before": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 8,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 9,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "relocate",
+     "before": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free wall"
+    },
+    {
+     "iteration": 10,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "drop",
+     "before": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.05
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    },
+    {
+     "iteration": 11,
+     "piece": 0,
+     "type": "nightstand",
+     "step": "snap",
+     "before": {
+      "center": [
+       17.01,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.025,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 12,
+     "piece": 0,
+     "type": "nightstand",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.025,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.025,
+       3.06
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    }
+   ],
+   "iterations": 12,
+   "anchor_first": false
+  },
+  "2": {
+   "pieces": [
+    {
+     "type": "nightstand",
+     "center": [
+      17.025,
+      3.06
+     ],
+     "rotation_deg": 90.0,
+     "size": [
+      0.5,
+      0.4
+     ],
+     "against_wall": true,
+     "reason": "Upgrade to larger nightstand for better storage and style match.",
+     "proposed": {
+      "center": [
+       17.01,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 7,
+       "type": "nightstand",
+       "step": "snap",
+       "before": {
+        "center": [
+         17.01,
+         2.56
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.025,
+         2.56
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 8,
+       "type": "nightstand",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.025,
+         2.56
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         17.025,
+         3.06
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.5,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "dropped": [
+    {
+     "type": "wardrobe",
+     "proposed": {
+      "center": [
+       16.8,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "last": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 1,
+       "type": "wardrobe",
+       "step": "snap",
+       "before": {
+        "center": [
+         16.8,
+         4.65
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "clearance_ok",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 2,
+       "type": "wardrobe",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 3,
+       "type": "wardrobe",
+       "step": "shrink",
+       "before": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.8,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 4,
+       "type": "wardrobe",
+       "step": "slide",
+       "before": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 5,
+       "type": "wardrobe",
+       "step": "relocate",
+       "before": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free wall"
+      },
+      {
+       "iteration": 6,
+       "type": "wardrobe",
+       "step": "drop",
+       "before": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         17.125,
+         4.65
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 6,
+      "piece": 1,
+      "type": "wardrobe",
+      "step": "drop",
+      "before": {
+       "center": [
+        17.125,
+        4.65
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.2,
+        0.6
+       ]
+      },
+      "after": {
+       "center": [
+        17.125,
+        4.65
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.2,
+        0.6
+       ]
+      },
+      "failed": [
+       "no_overlap",
+       "clearance_ok"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    }
+   ],
+   "log": [
+    {
+     "iteration": 0,
+     "piece": 0,
+     "type": "nightstand",
+     "step": "size_snapped",
+     "before": {
+      "size": [
+       0.5,
+       0.45
+      ]
+     },
+     "after": {
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "failed": [],
+     "ok": true
+    },
+    {
+     "iteration": 1,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "snap",
+     "before": {
+      "center": [
+       16.8,
+       4.65
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "clearance_ok",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 2,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 3,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "shrink",
+     "before": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.8,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 4,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 5,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "relocate",
+     "before": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free wall"
+    },
+    {
+     "iteration": 6,
+     "piece": 1,
+     "type": "wardrobe",
+     "step": "drop",
+     "before": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       17.125,
+       4.65
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    },
+    {
+     "iteration": 7,
+     "piece": 0,
+     "type": "nightstand",
+     "step": "snap",
+     "before": {
+      "center": [
+       17.01,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.025,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 8,
+     "piece": 0,
+     "type": "nightstand",
+     "step": "slide",
+     "before": {
+      "center": [
+       17.025,
+       2.56
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       17.025,
+       3.06
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.5,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    }
+   ],
+   "iterations": 8,
+   "anchor_first": false
+  }
+ }
+}

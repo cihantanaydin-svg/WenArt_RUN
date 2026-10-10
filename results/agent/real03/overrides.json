@@ -282,6 +282,132 @@
     "log_seq": 130
    },
    "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 12,
+   "round": 1,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_105",
+    "center": [
+     30.41,
+     4.38
+    ],
+    "reason": "Shift the floor lamp 0.3 m away from door o_L0_016 to clear the door swing."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 156,
+    "penalty_after": 156,
+    "changed_ids": [
+     "f_L0_105"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -56 -> -56",
+    "log_seq": 583
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 13,
+   "round": 1,
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L0_102",
+    "front_deg": 270,
+    "reason": "Turn the sofa to face the tv_unit (f_L0_176) and the armchair group instead of the right wall."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 156,
+    "penalty_after": 146,
+    "changed_ids": [
+     "f_L0_102"
+    ],
+    "rerun_from": "refit",
+    "message": "rotate accepted: score -56 -> -46",
+    "log_seq": 584
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 14,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L0_143",
+    "reason": "Plan crop shows f_L0_143 is a circled \"6\" room-number label, not a floor lamp; it is a drawing annotation, not furniture, and it blocks the door and walkways."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 67.0,
+    "penalty_before": 133,
+    "penalty_after": 33,
+    "changed_ids": [
+     "f_L0_143"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score -33 -> 67",
+    "log_seq": 588
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 15,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L0_162",
+    "reason": "The 1.62x0.8 m box is a dimension/annotation outline (160 dimension line) drawn over the room, not furniture; it extends outside the room outline and blocks the door, so it is removed."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 4.0,
+    "score_after": 14.0,
+    "penalty_before": 96,
+    "penalty_after": 86,
+    "changed_ids": [
+     "f_L0_162"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 4 -> 14",
+    "log_seq": 604
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 16,
+   "round": 2,
+   "tool": "set_room_type",
+   "args": {
+    "room_id": "r_L0_oda_19",
+    "room_type": "living",
+    "reason": "Room has windows on three sides, side tables and a central partition; no fixtures indicate kitchen/bath; treat as living room so furniture can be validated."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 100.0,
+    "score_after": 100.0,
+    "penalty_before": 0,
+    "penalty_after": 0,
+    "changed_ids": [
+     "r_L0_oda_19"
+    ],
+    "rerun_from": "layout",
+    "message": "set_room_type accepted: score 100 -> 100",
+    "log_seq": 902
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
   }
  ]
 }

@@ -1,0 +1,376 @@
+{
+ "room_id": "r_L0_yasama_6",
+ "label": "Yaşama",
+ "room_type": "living",
+ "slots": [
+  {
+   "id": "f_L0_181.left",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_181",
+   "host_type": "tv_unit",
+   "note": "left part, under a window",
+   "center": [
+    31.85,
+    12.029
+   ],
+   "max_size": [
+    0.54,
+    0.34,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L0_181.right",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_181",
+   "host_type": "tv_unit",
+   "note": "right part, under a window",
+   "center": [
+    32.45,
+    12.029
+   ],
+   "max_size": [
+    0.54,
+    0.34,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L0_182.left",
+   "kind": "top",
+   "types": [
+    "bowl",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_182",
+   "host_type": "sideboard",
+   "note": "left part, under a window",
+   "center": [
+    30.438,
+    12.019
+   ],
+   "max_size": [
+    0.64,
+    0.36,
+    0.1
+   ]
+  },
+  {
+   "id": "f_L0_182.right",
+   "kind": "top",
+   "types": [
+    "bowl",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_182",
+   "host_type": "sideboard",
+   "note": "right part, under a window",
+   "center": [
+    31.138,
+    12.019
+   ],
+   "max_size": [
+    0.64,
+    0.36,
+    0.1
+   ]
+  },
+  {
+   "id": "window:win_L0_040",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_040"
+  },
+  {
+   "id": "window:win_L0_043",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_043"
+  },
+  {
+   "id": "window:win_L0_064",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_064"
+  },
+  {
+   "id": "ceiling:centre_r_L0_yasama_6",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 yasama 6"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "window:win_L0_043",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Soft cream curtains complement warm greige walls and natural light."
+    },
+    {
+     "slot": "window:win_L0_064",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains maintain cohesive, airy feel across all windows."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yasama_6",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass pendant light enhances modern natural style with soft glow."
+    },
+    {
+     "slot": "f_L0_181.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant in natural wood pot adds greenery and warmth near window."
+    },
+    {
+     "slot": "f_L0_181.right",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Cream vase holds fresh blooms, matching pots and enhancing soft palette."
+    },
+    {
+     "slot": "f_L0_182.left",
+     "type": "candle",
+     "colour": "mustard",
+     "reason": "Mustard candle adds cozy warmth and complements cushions and decor."
+    },
+    {
+     "slot": "f_L0_182.right",
+     "type": "tray",
+     "colour": "natural wood",
+     "reason": "Wood tray holds small items, blending with furniture and adding texture."
+    },
+    {
+     "slot": "window:win_L0_040",
+     "type": "blind",
+     "colour": "sand",
+     "reason": "Sand-coloured blind softens light while harmonizing with natural wood tones."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.057
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_yasama_6",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements natural wood and greige walls."
+    },
+    {
+     "slot": "window:win_L0_043",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens natural light and matches rattan pots and cushions."
+    },
+    {
+     "slot": "window:win_L0_064",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Balances window frames and enhances the warm daylight ambiance."
+    },
+    {
+     "slot": "f_L0_181.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Adds greenery in a natural material that fits the modern natural style."
+    },
+    {
+     "slot": "f_L0_182.left",
+     "type": "tray",
+     "colour": "natural wood",
+     "reason": "Functional and minimalist, matches furniture and keeps surface tidy."
+    },
+    {
+     "slot": "f_L0_181.right",
+     "type": "book_set",
+     "colour": "cream",
+     "reason": "Adds texture and warmth without clutter, complements sofa and walls."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.786
+  }
+ },
+ "agreed": [
+  {
+   "slot": "window:win_L0_043",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Soft cream curtains complement warm greige walls and natural light.",
+    "Softens natural light and matches rattan pots and cushions."
+   ]
+  },
+  {
+   "slot": "window:win_L0_064",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Cream curtains maintain cohesive, airy feel across all windows.",
+    "Balances window frames and enhances the warm daylight ambiance."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_yasama_6",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm brass pendant light enhances modern natural style with soft glow.",
+    "Warm metallic glow complements natural wood and greige walls."
+   ]
+  },
+  {
+   "slot": "f_L0_181.left",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Small plant in natural wood pot adds greenery and warmth near window.",
+    "Adds greenery in a natural material that fits the modern natural style."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_181.right",
+   "type": "vase",
+   "colour": "cream",
+   "reason": "Cream vase holds fresh blooms, matching pots and enhancing soft palette.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_182.left",
+   "type": "candle",
+   "colour": "mustard",
+   "reason": "Mustard candle adds cozy warmth and complements cushions and decor.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_182.right",
+   "type": "tray",
+   "colour": "natural wood",
+   "reason": "Wood tray holds small items, blending with furniture and adding texture.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "window:win_L0_040",
+   "type": "blind",
+   "colour": "sand",
+   "reason": "Sand-coloured blind softens light while harmonizing with natural wood tones.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_182.left",
+   "type": "tray",
+   "colour": "natural wood",
+   "reason": "Functional and minimalist, matches furniture and keeps surface tidy.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L0_181.right",
+   "type": "book_set",
+   "colour": "cream",
+   "reason": "Adds texture and warmth without clutter, complements sofa and walls.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_054",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_043"
+  },
+  {
+   "id": "dec_L0_055",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_064"
+  },
+  {
+   "id": "dec_L0_056",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yasama_6"
+  },
+  {
+   "id": "dec_L0_057",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L0_181.left"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L0_182 wall: wall_art: above f_L0_182: window win_L0_043 on the wall behind it leave 0.00 m for the picture (min 0.4 m); mirror: above f_L0_182: window win_L0_043 on the wall behind it leave 0.00 m for the mirror (min 0.35 m); clock: above f_L0_182: window win_L0_043 on the wall behind it leave 0.00 m for the clock (min 0.25 m)",
+  "no free corner for a floor plant",
+  "window win_L0_028: no room for a curtain rod (doors, windows or wall ends)",
+  "window win_L0_029: no room for a curtain rod (doors, windows or wall ends)",
+  "window win_L0_040: no room for a curtain rod (doors, windows or wall ends)"
+ ]
+}

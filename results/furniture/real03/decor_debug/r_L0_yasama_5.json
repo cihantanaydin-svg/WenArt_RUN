@@ -1,0 +1,311 @@
+{
+ "room_id": "r_L0_yasama_5",
+ "label": "Yaşama",
+ "room_type": "living",
+ "slots": [
+  {
+   "id": "f_L0_180.left",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_180",
+   "host_type": "tv_unit",
+   "note": "left part, under a window",
+   "center": [
+    2.233,
+    12.029
+   ],
+   "max_size": [
+    0.54,
+    0.34,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L0_180.right",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_180",
+   "host_type": "tv_unit",
+   "note": "right part, under a window",
+   "center": [
+    2.833,
+    12.029
+   ],
+   "max_size": [
+    0.54,
+    0.34,
+    0.4
+   ]
+  },
+  {
+   "id": "window:win_L0_039",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_039"
+  },
+  {
+   "id": "window:win_L0_042",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_042"
+  },
+  {
+   "id": "window:win_L0_051",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_051"
+  },
+  {
+   "id": "window:win_L0_053",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_053"
+  },
+  {
+   "id": "ceiling:centre_r_L0_yasama_5",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 yasama 5"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "window:win_L0_042",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Soft cream curtains complement warm greige walls and natural light."
+    },
+    {
+     "slot": "window:win_L0_051",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains maintain cohesive, airy feel across large windows."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yasama_5",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant adds warm metallic accent matching dark bronze frames."
+    },
+    {
+     "slot": "f_L0_180.left",
+     "type": "plant_small",
+     "colour": "mustard",
+     "reason": "Mustard-potted plant adds pop of warm colour near window."
+    },
+    {
+     "slot": "f_L0_180.right",
+     "type": "plant_small",
+     "colour": "mustard",
+     "reason": "Symmetrical mustard plant balances tv unit and enhances natural vibe."
+    },
+    {
+     "slot": "window:win_L0_039",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Cream blind allows daylight control while blending with neutral palette."
+    },
+    {
+     "slot": "window:win_L0_053",
+     "type": "blind",
+     "colour": "cream",
+     "reason": "Cream blind maintains uniformity and softness across all windows."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.366
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_yasama_5",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm brass light complements natural wood and greige walls."
+    },
+    {
+     "slot": "window:win_L0_042",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains soften natural light and match rattan pots."
+    },
+    {
+     "slot": "window:win_L0_051",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains maintain cohesive warmth and frame the view."
+    },
+    {
+     "slot": "f_L0_180.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant in natural wood pot adds greenery without clutter."
+    },
+    {
+     "slot": "f_L0_180.right",
+     "type": "book_set",
+     "colour": "natural wood",
+     "reason": "Wood-toned books add texture and blend with furniture."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.139
+  }
+ },
+ "agreed": [
+  {
+   "slot": "window:win_L0_042",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Soft cream curtains complement warm greige walls and natural light.",
+    "Cream curtains soften natural light and match rattan pots."
+   ]
+  },
+  {
+   "slot": "window:win_L0_051",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Cream curtains maintain cohesive, airy feel across large windows.",
+    "Cream curtains maintain cohesive warmth and frame the view."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_yasama_5",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass pendant adds warm metallic accent matching dark bronze frames.",
+    "Warm brass light complements natural wood and greige walls."
+   ]
+  },
+  {
+   "slot": "f_L0_180.left",
+   "type": "plant_small",
+   "colour": "mustard",
+   "colour_agreed": false,
+   "reasons": [
+    "Mustard-potted plant adds pop of warm colour near window.",
+    "Small plant in natural wood pot adds greenery without clutter."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_180.right",
+   "type": "plant_small",
+   "colour": "mustard",
+   "reason": "Symmetrical mustard plant balances tv unit and enhances natural vibe.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "window:win_L0_039",
+   "type": "blind",
+   "colour": "cream",
+   "reason": "Cream blind allows daylight control while blending with neutral palette.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "window:win_L0_053",
+   "type": "blind",
+   "colour": "cream",
+   "reason": "Cream blind maintains uniformity and softness across all windows.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_180.right",
+   "type": "book_set",
+   "colour": "natural wood",
+   "reason": "Wood-toned books add texture and blend with furniture.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_050",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_042"
+  },
+  {
+   "id": "dec_L0_051",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_051"
+  },
+  {
+   "id": "dec_L0_052",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yasama_5"
+  },
+  {
+   "id": "dec_L0_053",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L0_180.left"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no free corner for a floor plant",
+  "window win_L0_011: no room for a curtain rod (doors, windows or wall ends)",
+  "window win_L0_012: no room for a curtain rod (doors, windows or wall ends)",
+  "window win_L0_039: no room for a curtain rod (doors, windows or wall ends)"
+ ]
+}

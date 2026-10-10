@@ -1,0 +1,366 @@
+{
+ "room_id": "r_L0_yasama_2",
+ "label": "Yaşama",
+ "room_type": "living",
+ "slots": [
+  {
+   "id": "f_L0_102.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_102",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L0_102.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_102",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L0_176.left",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_176",
+   "host_type": "tv_unit",
+   "note": "left part, under a window",
+   "center": [
+    30.988,
+    1.371
+   ],
+   "max_size": [
+    0.54,
+    0.34,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L0_176.right",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_176",
+   "host_type": "tv_unit",
+   "note": "right part, under a window",
+   "center": [
+    30.388,
+    1.371
+   ],
+   "max_size": [
+    0.54,
+    0.34,
+    0.4
+   ]
+  },
+  {
+   "id": "window:win_L0_038",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_038"
+  },
+  {
+   "id": "window:win_L0_040",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_040"
+  },
+  {
+   "id": "window:win_L0_063",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_063"
+  },
+  {
+   "id": "ceiling:centre_r_L0_yasama_2",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 yasama 2"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_102.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+    },
+    {
+     "slot": "f_L0_102.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+    },
+    {
+     "slot": "window:win_L0_038",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens natural light and matches the warm, natural aesthetic."
+    },
+    {
+     "slot": "window:win_L0_063",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Balances the window treatments and enhances the airy, natural feel."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yasama_2",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow complements dark bronze frames and natural wood."
+    },
+    {
+     "slot": "f_L0_176.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small greenery adds life without overwhelming the space."
+    },
+    {
+     "slot": "f_L0_176.right",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Symmetrical balance with left side, enhances natural theme."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.077
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_102.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+    },
+    {
+     "slot": "f_L0_102.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the sofa and complements the natural wood and neutral palette."
+    },
+    {
+     "slot": "f_L0_176.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small greenery adds life without overwhelming the space."
+    },
+    {
+     "slot": "f_L0_176.right",
+     "type": "book_set",
+     "colour": "cream",
+     "reason": "Books add texture and intellectual charm, matching the warm daylight."
+    },
+    {
+     "slot": "window:win_L0_038",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens natural light and complements the warm, natural aesthetic."
+    },
+    {
+     "slot": "window:win_L0_063",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Balances the dark bronze frames and allows light to filter gently."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yasama_2",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm metallic glow enhances the modern natural style."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.402
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_102.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and color contrast to the greige walls and grey sofa.",
+    "Adds warmth and color contrast to the greige walls and grey sofa."
+   ]
+  },
+  {
+   "slot": "f_L0_102.throw",
+   "type": "throw",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the sofa’s lines and complements the natural wood and neutral palette.",
+    "Softens the sofa and complements the natural wood and neutral palette."
+   ]
+  },
+  {
+   "slot": "window:win_L0_038",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens natural light and matches the warm, natural aesthetic.",
+    "Softens natural light and complements the warm, natural aesthetic."
+   ]
+  },
+  {
+   "slot": "window:win_L0_063",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Balances the window treatments and enhances the airy, natural feel.",
+    "Balances the dark bronze frames and allows light to filter gently."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_yasama_2",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm metallic glow complements dark bronze frames and natural wood.",
+    "Warm metallic glow enhances the modern natural style."
+   ]
+  },
+  {
+   "slot": "f_L0_176.left",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Small greenery adds life without overwhelming the space.",
+    "Small greenery adds life without overwhelming the space."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_176.right",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "reason": "Symmetrical balance with left side, enhances natural theme.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_176.right",
+   "type": "book_set",
+   "colour": "cream",
+   "reason": "Books add texture and intellectual charm, matching the warm daylight.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [
+  {
+   "slot": "f_L0_102.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "reason": "Adds soft texture and visual harmony with the sofa and walls.",
+   "why": "a second item for the same slot",
+   "passes": [
+    1
+   ]
+  }
+ ],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_026",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_102.cushions"
+  },
+  {
+   "id": "dec_L0_027",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_102.cushions"
+  },
+  {
+   "id": "dec_L0_028",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_102.throw"
+  },
+  {
+   "id": "dec_L0_029",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_038"
+  },
+  {
+   "id": "dec_L0_030",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_063"
+  },
+  {
+   "id": "dec_L0_031",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yasama_2"
+  },
+  {
+   "id": "dec_L0_032",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L0_176.left"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L0_102 wall: wall_art: above f_L0_102: window win_L0_063 on the wall behind it leave 0.00 m for the picture (min 0.4 m)",
+  "no rug: no coffee table in front of a sofa",
+  "no free corner for a floor plant",
+  "window win_L0_024: no room for a curtain rod (doors, windows or wall ends)",
+  "window win_L0_025: no room for a curtain rod (doors, windows or wall ends)",
+  "window win_L0_040: no room for a curtain rod (doors, windows or wall ends)"
+ ]
+}

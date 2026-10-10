@@ -1,0 +1,68 @@
+{
+ "room_id": "r_L0_banyo_6",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "ceiling:centre_r_L0_banyo_6",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 banyo 6"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_banyo_6",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Provides warm daylight ambiance matching the room's natural style."
+    }
+   ],
+   "error": null,
+   "latency_s": 0.791
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_banyo_6",
+     "type": "ceiling_light",
+     "colour": "natural wood",
+     "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+    }
+   ],
+   "error": null,
+   "latency_s": 0.891
+  }
+ },
+ "agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_banyo_6",
+   "type": "ceiling_light",
+   "colour": "white",
+   "colour_agreed": false,
+   "reasons": [
+    "Provides warm daylight ambiance matching the room's natural style.",
+    "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_059",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_banyo_6"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

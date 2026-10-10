@@ -1,0 +1,68 @@
+{
+ "room_id": "r_L0_banyo_4",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "ceiling:centre_r_L0_banyo_4",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 banyo 4"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_banyo_4",
+     "type": "ceiling_light",
+     "colour": "natural wood",
+     "reason": "Warm wood tone complements natural light wood furniture and enhances the modern natural style."
+    }
+   ],
+   "error": null,
+   "latency_s": 0.856
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L0_banyo_4",
+     "type": "ceiling_light",
+     "colour": "natural wood",
+     "reason": "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+    }
+   ],
+   "error": null,
+   "latency_s": 0.88
+  }
+ },
+ "agreed": [
+  {
+   "slot": "ceiling:centre_r_L0_banyo_4",
+   "type": "ceiling_light",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm wood tone complements natural light wood furniture and enhances the modern natural style.",
+    "Warm natural wood complements the light oak floor and greige walls, enhancing the modern natural style."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_049",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_banyo_4"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

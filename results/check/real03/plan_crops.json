@@ -2,33 +2,551 @@
  "schema_version": "0.1",
  "project": "real03",
  "views": {
-  "cam_r_L0_guvenlik_holu_1": {
-   "plan": "cam_r_L0_guvenlik_holu_1_plan.jpg",
+  "cam_r_L0_banyo_1": {
+   "plan": "cam_r_L0_banyo_1_plan.jpg",
    "document": "tekkat.dwg",
    "page": 1,
    "format": "dwg",
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    500,
-    982
+    439,
+    1079
    ],
-   "scale": 6.77966,
-   "bytes": 59147
+   "scale": 7.01754,
+   "bytes": 76966
   },
-  "cam_r_L0_guvenlik_holu_2": {
-   "plan": "cam_r_L0_guvenlik_holu_2_plan.jpg",
+  "cam_r_L0_banyo_2_1": {
+   "plan": "cam_r_L0_banyo_2_1_plan.jpg",
    "document": "tekkat.dwg",
    "page": 1,
    "format": "dwg",
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    500,
-    982
+    1124,
+    1079
    ],
-   "scale": 6.77966,
-   "bytes": 54947
+   "scale": 7.01754,
+   "bytes": 78172
+  },
+  "cam_r_L0_banyo_3_1": {
+   "plan": "cam_r_L0_banyo_3_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    641,
+    1079
+   ],
+   "scale": 7.40741,
+   "bytes": 99431
+  },
+  "cam_r_L0_banyo_4_1": {
+   "plan": "cam_r_L0_banyo_4_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    887,
+    1079
+   ],
+   "scale": 6.66667,
+   "bytes": 93125
+  },
+  "cam_r_L0_banyo_4_2": {
+   "plan": "cam_r_L0_banyo_4_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    887,
+    1079
+   ],
+   "scale": 6.66667,
+   "bytes": 87755
+  },
+  "cam_r_L0_banyo_5_1": {
+   "plan": "cam_r_L0_banyo_5_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    439,
+    943
+   ],
+   "scale": 7.01754,
+   "bytes": 89474
+  },
+  "cam_r_L0_banyo_5_2": {
+   "plan": "cam_r_L0_banyo_5_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    439,
+    943
+   ],
+   "scale": 7.01754,
+   "bytes": 84585
+  },
+  "cam_r_L0_banyo_6_1": {
+   "plan": "cam_r_L0_banyo_6_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    675,
+    930
+   ],
+   "scale": 6.29921,
+   "bytes": 81287
+  },
+  "cam_r_L0_banyo_6_2": {
+   "plan": "cam_r_L0_banyo_6_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    675,
+    930
+   ],
+   "scale": 6.29921,
+   "bytes": 82321
+  },
+  "cam_r_L0_banyo_7_1": {
+   "plan": "cam_r_L0_banyo_7_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1124,
+    943
+   ],
+   "scale": 7.01754,
+   "bytes": 79995
+  },
+  "cam_r_L0_banyo_8_1": {
+   "plan": "cam_r_L0_banyo_8_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    885,
+    930
+   ],
+   "scale": 6.29921,
+   "bytes": 82377
+  },
+  "cam_r_L0_ebeveyn_odasi_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    1144
+   ],
+   "scale": 5.22876,
+   "bytes": 115905
+  },
+  "cam_r_L0_ebeveyn_odasi_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    1144
+   ],
+   "scale": 5.22876,
+   "bytes": 107424
+  },
+  "cam_r_L0_ebeveyn_odasi_2_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_2_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    599,
+    1157
+   ],
+   "scale": 5.71429,
+   "bytes": 101957
+  },
+  "cam_r_L0_ebeveyn_odasi_2_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_2_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    599,
+    1157
+   ],
+   "scale": 5.71429,
+   "bytes": 103651
+  },
+  "cam_r_L0_ebeveyn_odasi_2_3": {
+   "plan": "cam_r_L0_ebeveyn_odasi_2_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    599,
+    1157
+   ],
+   "scale": 5.71429,
+   "bytes": 102453
+  },
+  "cam_r_L0_ebeveyn_odasi_3_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_3_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1124,
+    1144
+   ],
+   "scale": 5.22876,
+   "bytes": 118598
+  },
+  "cam_r_L0_ebeveyn_odasi_3_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_3_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1124,
+    1144
+   ],
+   "scale": 5.22876,
+   "bytes": 115226
+  },
+  "cam_r_L0_ebeveyn_odasi_4_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_4_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    814,
+    1086
+   ],
+   "scale": 3.9801,
+   "bytes": 82913
+  },
+  "cam_r_L0_ebeveyn_odasi_4_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_4_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    814,
+    1086
+   ],
+   "scale": 3.9801,
+   "bytes": 83102
+  },
+  "cam_r_L0_ebeveyn_odasi_4_3": {
+   "plan": "cam_r_L0_ebeveyn_odasi_4_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    814,
+    1086
+   ],
+   "scale": 3.9801,
+   "bytes": 82516
+  },
+  "cam_r_L0_ebeveyn_odasi_5_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_5_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1124,
+    840
+   ],
+   "scale": 5.22876,
+   "bytes": 119473
+  },
+  "cam_r_L0_ebeveyn_odasi_5_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_5_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1124,
+    840
+   ],
+   "scale": 5.22876,
+   "bytes": 118236
+  },
+  "cam_r_L0_ebeveyn_odasi_5_3": {
+   "plan": "cam_r_L0_ebeveyn_odasi_5_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1124,
+    840
+   ],
+   "scale": 5.22876,
+   "bytes": 114765
+  },
+  "cam_r_L0_ebeveyn_odasi_6_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_6_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    840
+   ],
+   "scale": 5.22876,
+   "bytes": 113649
+  },
+  "cam_r_L0_ebeveyn_odasi_6_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_6_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    840
+   ],
+   "scale": 5.22876,
+   "bytes": 112768
+  },
+  "cam_r_L0_ebeveyn_odasi_m_k_a_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_m_k_a_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    707,
+    814
+   ],
+   "scale": 5.51724,
+   "bytes": 112567
+  },
+  "cam_r_L0_ebeveyn_odasi_m_k_a_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_m_k_a_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    707,
+    814
+   ],
+   "scale": 5.51724,
+   "bytes": 105158
+  },
+  "cam_r_L0_ebeveyn_odasi_m_k_a_2_1": {
+   "plan": "cam_r_L0_ebeveyn_odasi_m_k_a_2_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    812,
+    814
+   ],
+   "scale": 5.51724,
+   "bytes": 108848
+  },
+  "cam_r_L0_ebeveyn_odasi_m_k_a_2_2": {
+   "plan": "cam_r_L0_ebeveyn_odasi_m_k_a_2_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    812,
+    814
+   ],
+   "scale": 5.51724,
+   "bytes": 104555
+  },
+  "cam_r_L0_ebeveyn_odasi_m_k_a_2_3": {
+   "plan": "cam_r_L0_ebeveyn_odasi_m_k_a_2_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    812,
+    814
+   ],
+   "scale": 5.51724,
+   "bytes": 107428
+  },
+  "cam_r_L0_ebeveyn_odasi_m_k_a_3": {
+   "plan": "cam_r_L0_ebeveyn_odasi_m_k_a_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    707,
+    814
+   ],
+   "scale": 5.51724,
+   "bytes": 112703
+  },
+  "cam_r_L0_giris_holu_1": {
+   "plan": "cam_r_L0_giris_holu_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    1079
+   ],
+   "scale": 6.72269,
+   "bytes": 89904
+  },
+  "cam_r_L0_giris_holu_2": {
+   "plan": "cam_r_L0_giris_holu_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    1079
+   ],
+   "scale": 6.72269,
+   "bytes": 84842
+  },
+  "cam_r_L0_giris_holu_2_1": {
+   "plan": "cam_r_L0_giris_holu_2_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1179,
+    1079
+   ],
+   "scale": 6.72269,
+   "bytes": 86289
+  },
+  "cam_r_L0_giris_holu_2_2": {
+   "plan": "cam_r_L0_giris_holu_2_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1179,
+    1079
+   ],
+   "scale": 6.72269,
+   "bytes": 81638
+  },
+  "cam_r_L0_giris_holu_3_1": {
+   "plan": "cam_r_L0_giris_holu_3_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1179,
+    938
+   ],
+   "scale": 6.72269,
+   "bytes": 88600
+  },
+  "cam_r_L0_giris_holu_4_1": {
+   "plan": "cam_r_L0_giris_holu_4_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    938
+   ],
+   "scale": 6.72269,
+   "bytes": 90326
+  },
+  "cam_r_L0_giris_holu_4_2": {
+   "plan": "cam_r_L0_giris_holu_4_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    382,
+    938
+   ],
+   "scale": 6.72269,
+   "bytes": 87602
   },
   "cam_r_L0_kat_holu_1": {
    "plan": "cam_r_L0_kat_holu_1_plan.jpg",
@@ -38,11 +556,11 @@
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    392,
-    982
+    474,
+    1019
    ],
-   "scale": 1.0,
-   "bytes": 40334
+   "scale": 1.14286,
+   "bytes": 41858
   },
   "cam_r_L0_kat_holu_2": {
    "plan": "cam_r_L0_kat_holu_2_plan.jpg",
@@ -52,11 +570,11 @@
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    392,
-    982
+    474,
+    1019
    ],
-   "scale": 1.0,
-   "bytes": 40569
+   "scale": 1.14286,
+   "bytes": 48921
   },
   "cam_r_L0_kat_holu_3": {
    "plan": "cam_r_L0_kat_holu_3_plan.jpg",
@@ -66,11 +584,11 @@
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    392,
-    982
+    474,
+    1019
    ],
-   "scale": 1.0,
-   "bytes": 42026
+   "scale": 1.14286,
+   "bytes": 48260
   },
   "cam_r_L0_kat_merdiveni_1": {
    "plan": "cam_r_L0_kat_merdiveni_1_plan.jpg",
@@ -83,8 +601,8 @@
     1031,
     801
    ],
-   "scale": 3.82775,
-   "bytes": 54998
+   "scale": 3.125,
+   "bytes": 87291
   },
   "cam_r_L0_kat_merdiveni_2": {
    "plan": "cam_r_L0_kat_merdiveni_2_plan.jpg",
@@ -97,8 +615,8 @@
     1031,
     801
    ],
-   "scale": 3.82775,
-   "bytes": 54530
+   "scale": 3.125,
+   "bytes": 83835
   },
   "cam_r_L0_kat_merdiveni_3": {
    "plan": "cam_r_L0_kat_merdiveni_3_plan.jpg",
@@ -111,8 +629,120 @@
     1031,
     801
    ],
-   "scale": 3.82775,
-   "bytes": 54975
+   "scale": 3.125,
+   "bytes": 83624
+  },
+  "cam_r_L0_oda_01_1": {
+   "plan": "cam_r_L0_oda_01_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    906,
+    1176
+   ],
+   "scale": 5.59441,
+   "bytes": 91838
+  },
+  "cam_r_L0_oda_01_2": {
+   "plan": "cam_r_L0_oda_01_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    906,
+    1176
+   ],
+   "scale": 5.59441,
+   "bytes": 98246
+  },
+  "cam_r_L0_oda_01_3": {
+   "plan": "cam_r_L0_oda_01_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    906,
+    1176
+   ],
+   "scale": 5.59441,
+   "bytes": 96098
+  },
+  "cam_r_L0_oda_10_1": {
+   "plan": "cam_r_L0_oda_10_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1179,
+    1029
+   ],
+   "scale": 10.25641,
+   "bytes": 84980
+  },
+  "cam_r_L0_oda_19_1": {
+   "plan": "cam_r_L0_oda_19_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    739,
+    935
+   ],
+   "scale": 4.70588,
+   "bytes": 90740
+  },
+  "cam_r_L0_oda_19_2": {
+   "plan": "cam_r_L0_oda_19_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    739,
+    935
+   ],
+   "scale": 4.70588,
+   "bytes": 92919
+  },
+  "cam_r_L0_oda_19_3": {
+   "plan": "cam_r_L0_oda_19_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    739,
+    935
+   ],
+   "scale": 4.70588,
+   "bytes": 88954
+  },
+  "cam_r_L0_oda_7_1": {
+   "plan": "cam_r_L0_oda_7_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    392,
+    1029
+   ],
+   "scale": 10.25641,
+   "bytes": 86201
   },
   "cam_r_L0_ruzgarlik_1": {
    "plan": "cam_r_L0_ruzgarlik_1_plan.jpg",
@@ -122,11 +752,11 @@
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    704,
-    1166
+    709,
+    1086
    ],
-   "scale": 5.7971,
-   "bytes": 77612
+   "scale": 3.9801,
+   "bytes": 94394
   },
   "cam_r_L0_ruzgarlik_2": {
    "plan": "cam_r_L0_ruzgarlik_2_plan.jpg",
@@ -136,11 +766,11 @@
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    704,
-    1166
+    709,
+    1086
    ],
-   "scale": 5.7971,
-   "bytes": 79409
+   "scale": 3.9801,
+   "bytes": 94163
   },
   "cam_r_L0_ruzgarlik_3": {
    "plan": "cam_r_L0_ruzgarlik_3_plan.jpg",
@@ -150,11 +780,11 @@
    "source_kind": "dxf",
    "drawn_on": "tekkat.dwg",
    "crop_origin_px": [
-    704,
-    1166
+    709,
+    1086
    ],
-   "scale": 5.7971,
-   "bytes": 75253
+   "scale": 3.9801,
+   "bytes": 88355
   },
   "cam_r_L0_yangin_merdiveni_1": {
    "plan": "cam_r_L0_yangin_merdiveni_1_plan.jpg",
@@ -167,8 +797,8 @@
     500,
     801
    ],
-   "scale": 3.82775,
-   "bytes": 67189
+   "scale": 3.125,
+   "bytes": 89610
   },
   "cam_r_L0_yangin_merdiveni_2": {
    "plan": "cam_r_L0_yangin_merdiveni_2_plan.jpg",
@@ -181,8 +811,8 @@
     500,
     801
    ],
-   "scale": 3.82775,
-   "bytes": 67338
+   "scale": 3.125,
+   "bytes": 84253
   },
   "cam_r_L0_yangin_merdiveni_3": {
    "plan": "cam_r_L0_yangin_merdiveni_3_plan.jpg",
@@ -195,8 +825,344 @@
     500,
     801
    ],
-   "scale": 3.82775,
-   "bytes": 66466
+   "scale": 3.125,
+   "bytes": 86620
+  },
+  "cam_r_L0_yasama_1": {
+   "plan": "cam_r_L0_yasama_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    498,
+    1079
+   ],
+   "scale": 3.66972,
+   "bytes": 115052
+  },
+  "cam_r_L0_yasama_2": {
+   "plan": "cam_r_L0_yasama_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    498,
+    1079
+   ],
+   "scale": 3.66972,
+   "bytes": 112852
+  },
+  "cam_r_L0_yasama_2_1": {
+   "plan": "cam_r_L0_yasama_2_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1243,
+    1061
+   ],
+   "scale": 3.94089,
+   "bytes": 98757
+  },
+  "cam_r_L0_yasama_2_2": {
+   "plan": "cam_r_L0_yasama_2_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1243,
+    1061
+   ],
+   "scale": 3.94089,
+   "bytes": 105892
+  },
+  "cam_r_L0_yasama_2_3": {
+   "plan": "cam_r_L0_yasama_2_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1243,
+    1061
+   ],
+   "scale": 3.94089,
+   "bytes": 108290
+  },
+  "cam_r_L0_yasama_3": {
+   "plan": "cam_r_L0_yasama_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    498,
+    1079
+   ],
+   "scale": 3.66972,
+   "bytes": 109944
+  },
+  "cam_r_L0_yasama_3_1": {
+   "plan": "cam_r_L0_yasama_3_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    275,
+    1061
+   ],
+   "scale": 3.94089,
+   "bytes": 99848
+  },
+  "cam_r_L0_yasama_3_2": {
+   "plan": "cam_r_L0_yasama_3_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    275,
+    1061
+   ],
+   "scale": 3.94089,
+   "bytes": 106905
+  },
+  "cam_r_L0_yasama_3_3": {
+   "plan": "cam_r_L0_yasama_3_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    275,
+    1061
+   ],
+   "scale": 3.94089,
+   "bytes": 102226
+  },
+  "cam_r_L0_yasama_4_1": {
+   "plan": "cam_r_L0_yasama_4_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    906,
+    1079
+   ],
+   "scale": 3.27869,
+   "bytes": 124698
+  },
+  "cam_r_L0_yasama_4_2": {
+   "plan": "cam_r_L0_yasama_4_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    906,
+    1079
+   ],
+   "scale": 3.27869,
+   "bytes": 125080
+  },
+  "cam_r_L0_yasama_4_3": {
+   "plan": "cam_r_L0_yasama_4_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    906,
+    1079
+   ],
+   "scale": 3.27869,
+   "bytes": 121418
+  },
+  "cam_r_L0_yasama_5_1": {
+   "plan": "cam_r_L0_yasama_5_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    275,
+    872
+   ],
+   "scale": 3.92157,
+   "bytes": 107047
+  },
+  "cam_r_L0_yasama_5_2": {
+   "plan": "cam_r_L0_yasama_5_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    275,
+    872
+   ],
+   "scale": 3.92157,
+   "bytes": 108406
+  },
+  "cam_r_L0_yasama_5_3": {
+   "plan": "cam_r_L0_yasama_5_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    275,
+    872
+   ],
+   "scale": 3.92157,
+   "bytes": 105583
+  },
+  "cam_r_L0_yasama_6_1": {
+   "plan": "cam_r_L0_yasama_6_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1243,
+    872
+   ],
+   "scale": 3.92157,
+   "bytes": 110307
+  },
+  "cam_r_L0_yasama_6_2": {
+   "plan": "cam_r_L0_yasama_6_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1243,
+    872
+   ],
+   "scale": 3.92157,
+   "bytes": 109045
+  },
+  "cam_r_L0_yasama_6_3": {
+   "plan": "cam_r_L0_yasama_6_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    1243,
+    872
+   ],
+   "scale": 3.92157,
+   "bytes": 106505
+  },
+  "cam_r_L0_yasama_7_1": {
+   "plan": "cam_r_L0_yasama_7_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    911,
+    814
+   ],
+   "scale": 3.29218,
+   "bytes": 104529
+  },
+  "cam_r_L0_yasama_7_2": {
+   "plan": "cam_r_L0_yasama_7_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    911,
+    814
+   ],
+   "scale": 3.29218,
+   "bytes": 88299
+  },
+  "cam_r_L0_yasama_7_3": {
+   "plan": "cam_r_L0_yasama_7_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    911,
+    814
+   ],
+   "scale": 3.29218,
+   "bytes": 102105
+  },
+  "cam_r_L0_yasama_8_1": {
+   "plan": "cam_r_L0_yasama_8_1_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    594,
+    814
+   ],
+   "scale": 3.29218,
+   "bytes": 102440
+  },
+  "cam_r_L0_yasama_8_2": {
+   "plan": "cam_r_L0_yasama_8_2_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    594,
+    814
+   ],
+   "scale": 3.29218,
+   "bytes": 101460
+  },
+  "cam_r_L0_yasama_8_3": {
+   "plan": "cam_r_L0_yasama_8_3_plan.jpg",
+   "document": "tekkat.dwg",
+   "page": 1,
+   "format": "dwg",
+   "source_kind": "dxf",
+   "drawn_on": "tekkat.dwg",
+   "crop_origin_px": [
+    594,
+    814
+   ],
+   "scale": 3.29218,
+   "bytes": 101484
   }
  },
  "warnings": []

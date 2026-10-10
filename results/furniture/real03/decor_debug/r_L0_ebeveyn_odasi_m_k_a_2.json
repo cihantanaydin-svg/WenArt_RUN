@@ -1,0 +1,428 @@
+{
+ "room_id": "r_L0_ebeveyn_odasi_m_k_a_2",
+ "label": "Ebeveyn Odası (m.k.a.)",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L0_057.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_057",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_057.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_057",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_112.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L0_112",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    16.925,
+    13.601
+   ],
+   "max_size": [
+    0.32,
+    0.34,
+    2.166
+   ]
+  },
+  {
+   "id": "f_L0_113.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L0_113",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    16.925,
+    11.55
+   ],
+   "max_size": [
+    0.34,
+    0.32,
+    2.117
+   ]
+  },
+  {
+   "id": "f_L0_191.left",
+   "kind": "top",
+   "types": [
+    "bowl",
+    "book_set",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_191",
+   "host_type": "dresser",
+   "note": "left part, under a window",
+   "center": [
+    17.54,
+    13.779
+   ],
+   "max_size": [
+    0.64,
+    0.44,
+    0.1
+   ]
+  },
+  {
+   "id": "f_L0_191.right",
+   "kind": "top",
+   "types": [
+    "bowl",
+    "book_set",
+    "books",
+    "candle",
+    "tray"
+   ],
+   "host_id": "f_L0_191",
+   "host_type": "dresser",
+   "note": "right part, under a window",
+   "center": [
+    18.24,
+    13.779
+   ],
+   "max_size": [
+    0.64,
+    0.44,
+    0.1
+   ]
+  },
+  {
+   "id": "r_L0_ebeveyn_odasi_m_k_a_2.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L0_057",
+   "host_type": null,
+   "note": "f_L0_057"
+  },
+  {
+   "id": "r_L0_ebeveyn_odasi_m_k_a_2.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 19.45, 13.80",
+   "center": [
+    19.454,
+    13.8
+   ]
+  },
+  {
+   "id": "window:win_L0_041",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_041"
+  },
+  {
+   "id": "window:win_L0_048",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_048"
+  },
+  {
+   "id": "ceiling:over_f_L0_057",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L0_057",
+   "host_type": null,
+   "note": "over f L0 057"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_057.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and style to the bed with a pop of color matching the decor theme."
+    },
+    {
+     "slot": "f_L0_057.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the bed and complements the greige walls and natural wood tones."
+    },
+    {
+     "slot": "f_L0_112.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm metallic glow enhances the natural, modern aesthetic."
+    },
+    {
+     "slot": "f_L0_113.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small greenery adds life and fits the indoor plant theme in rattan pots."
+    },
+    {
+     "slot": "r_L0_ebeveyn_odasi_m_k_a_2.rug1",
+     "type": "rug",
+     "colour": "cream",
+     "reason": "Softens the floor and ties in with the neutral palette and natural textures."
+    },
+    {
+     "slot": "r_L0_ebeveyn_odasi_m_k_a_2.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Large indoor plant in rattan pot brings lushness and balances the room’s geometry."
+    },
+    {
+     "slot": "window:win_L0_048",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens natural light and complements the warm, neutral palette."
+    },
+    {
+     "slot": "ceiling:over_f_L0_057",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm lighting enhances the cozy, modern natural ambiance."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.418
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_057.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and color contrast to the greige walls and neutral bed."
+    },
+    {
+     "slot": "f_L0_057.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the bed and complements the natural wood and greige tones."
+    },
+    {
+     "slot": "f_L0_112.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm metallic glow enhances the natural light wood and creates cozy ambiance."
+    },
+    {
+     "slot": "f_L0_191.left",
+     "type": "book_set",
+     "colour": "black",
+     "reason": "Adds texture and sophistication without overwhelming the minimalist space."
+    },
+    {
+     "slot": "r_L0_ebeveyn_odasi_m_k_a_2.corner1",
+     "type": "plant",
+     "colour": "natural wood",
+     "reason": "Large indoor plant in rattan pot brings life and aligns with modern natural style."
+    },
+    {
+     "slot": "window:win_L0_048",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens natural light and complements the warm daylight and greige walls."
+    },
+    {
+     "slot": "ceiling:over_f_L0_057",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Provides ambient lighting that blends with the modern natural aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.617
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_057.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and style to the bed with a pop of color matching the decor theme.",
+    "Adds warmth and color contrast to the greige walls and neutral bed."
+   ]
+  },
+  {
+   "slot": "f_L0_057.throw",
+   "type": "throw",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the bed and complements the greige walls and natural wood tones.",
+    "Softens the bed and complements the natural wood and greige tones."
+   ]
+  },
+  {
+   "slot": "f_L0_112.centre",
+   "type": "table_lamp",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm metallic glow enhances the natural, modern aesthetic.",
+    "Warm metallic glow enhances the natural light wood and creates cozy ambiance."
+   ]
+  },
+  {
+   "slot": "r_L0_ebeveyn_odasi_m_k_a_2.corner1",
+   "type": "plant",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Large indoor plant in rattan pot brings lushness and balances the room’s geometry.",
+    "Large indoor plant in rattan pot brings life and aligns with modern natural style."
+   ]
+  },
+  {
+   "slot": "window:win_L0_048",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens natural light and complements the warm, neutral palette.",
+    "Softens natural light and complements the warm daylight and greige walls."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_113.centre",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "reason": "Small greenery adds life and fits the indoor plant theme in rattan pots.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "r_L0_ebeveyn_odasi_m_k_a_2.rug1",
+   "type": "rug",
+   "colour": "cream",
+   "reason": "Softens the floor and ties in with the neutral palette and natural textures.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L0_057",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "Warm lighting enhances the cozy, modern natural ambiance.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_191.left",
+   "type": "book_set",
+   "colour": "black",
+   "reason": "Adds texture and sophistication without overwhelming the minimalist space.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L0_057",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "Provides ambient lighting that blends with the modern natural aesthetic.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_094",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_057.cushions"
+  },
+  {
+   "id": "dec_L0_095",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_057.cushions"
+  },
+  {
+   "id": "dec_L0_096",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_057.throw"
+  },
+  {
+   "id": "dec_L0_097",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L0_112.centre"
+  },
+  {
+   "id": "dec_L0_098",
+   "type": "plant",
+   "method": "ai",
+   "slot": "r_L0_ebeveyn_odasi_m_k_a_2.corner1"
+  },
+  {
+   "id": "dec_L0_099",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_048"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L0_057 wall: wall_art: above f_L0_057: window win_L0_041 on the wall behind it leave 0.00 m for the picture (min 0.4 m)",
+  "f_L0_191 wall: wall_art: above f_L0_191: window win_L0_048 on the wall behind it leave 0.00 m for the picture (min 0.4 m); mirror: above f_L0_191: window win_L0_048 on the wall behind it leave 0.00 m for the mirror (min 0.35 m); clock: above f_L0_191: window win_L0_048 on the wall behind it leave 0.00 m for the clock (min 0.25 m)",
+  "window win_L0_041: no room for a curtain rod (doors, windows or wall ends)"
+ ]
+}

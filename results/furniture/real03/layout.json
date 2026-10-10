@@ -4,91 +4,37 @@
  "model": "Qwen/Qwen3-VL-8B-Instruct",
  "rooms": [
   {
-   "room_id": "r_L0_ruzgarlik",
-   "label": "Rüzgarlık",
-   "room_type": "other",
-   "passes": [
-    {
-     "pass": 1,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.574,
-     "error": null,
-     "pieces_proposed": 5,
-     "pieces_placed": 2,
-     "pieces_dropped": 3,
-     "iterations": 17,
-     "repair_steps": 17,
-     "anchor_first": false,
-     "rejected_types": []
-    },
-    {
-     "pass": 2,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.563,
-     "error": null,
-     "pieces_proposed": 4,
-     "pieces_placed": 2,
-     "pieces_dropped": 2,
-     "iterations": 18,
-     "repair_steps": 18,
-     "anchor_first": false,
-     "rejected_types": []
-    }
-   ],
-   "chosen_pass": 2,
-   "latency_s": 8.137,
-   "skipped": null,
-   "pieces": [
-    {
-     "id": "f_L0_004",
-     "type": "desk",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
-     "id": "f_L0_005",
-     "type": "bookshelf",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    }
-   ]
+   "room_id": "r_L0_hava_bacasi",
+   "label": "Hava Bacası",
+   "room_type": "shaft",
+   "passes": [],
+   "chosen_pass": null,
+   "latency_s": 0,
+   "skipped": "shaft room: never furnished by AI (docs/milestone7.md §0)",
+   "pieces": []
   },
   {
-   "room_id": "r_L0_guvenlik_holu",
-   "label": "Güvenlik Holü",
+   "room_id": "r_L0_oda_8",
+   "label": "Oda",
    "room_type": "hall",
    "passes": [
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.579,
+     "latency_s": 2.801,
      "error": null,
-     "pieces_proposed": 4,
-     "pieces_placed": 4,
-     "pieces_dropped": 0,
-     "iterations": 6,
-     "repair_steps": 6,
+     "pieces_proposed": 2,
+     "pieces_placed": 0,
+     "pieces_dropped": 2,
+     "iterations": 12,
+     "repair_steps": 12,
      "anchor_first": false,
      "rejected_types": []
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 0.135,
+     "latency_s": 0.146,
      "error": null,
      "pieces_proposed": 0,
      "pieces_placed": 0,
@@ -99,73 +45,57 @@
      "rejected_types": []
     }
    ],
-   "chosen_pass": 1,
-   "latency_s": 3.714,
-   "skipped": null,
-   "pieces": [
+   "chosen_pass": null,
+   "latency_s": 2.946,
+   "skipped": "model answered nothing usable (pass 1: no usable piece; pass 2: no usable piece)",
+   "pieces": []
+  },
+  {
+   "room_id": "r_L0_oda_9",
+   "label": "Oda",
+   "room_type": "hall",
+   "passes": [
     {
-     "id": "f_L0_006",
-     "type": "console_table",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 1.902,
+     "error": null,
+     "pieces_proposed": 2,
+     "pieces_placed": 0,
+     "pieces_dropped": 2,
+     "iterations": 12,
+     "repair_steps": 12,
+     "anchor_first": false,
+     "rejected_types": []
     },
     {
-     "id": "f_L0_007",
-     "type": "shoe_cabinet",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
-     "id": "f_L0_008",
-     "type": "bench",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
-     "id": "f_L0_009",
-     "type": "bookshelf",
-     "confidence": 0.6,
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
+     "pass": 2,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "latency_s": 0.118,
+     "error": null,
+     "pieces_proposed": 0,
+     "pieces_placed": 0,
+     "pieces_dropped": 0,
+     "iterations": 0,
+     "repair_steps": 0,
+     "anchor_first": false,
+     "rejected_types": []
     }
-   ]
+   ],
+   "chosen_pass": null,
+   "latency_s": 2.02,
+   "skipped": "model answered nothing usable (pass 1: no usable piece; pass 2: no usable piece)",
+   "pieces": []
   }
  ],
- "pieces_added": 6,
- "latency_s": 11.851,
+ "pieces_added": 0,
+ "latency_s": 4.967,
  "completion": {
-  "rooms_completed": 3,
+  "rooms_completed": 33,
   "rooms_copied": 0,
   "changes_applied": 0,
-  "pieces_added": 8,
+  "pieces_added": 28,
   "wall_cabinets": 0,
-  "latency_s": 11.951
+  "latency_s": 141.013
  }
 }

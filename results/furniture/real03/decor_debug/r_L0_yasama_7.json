@@ -1,0 +1,473 @@
+{
+ "room_id": "r_L0_yasama_7",
+ "label": "Yaşama",
+ "room_type": "living",
+ "slots": [
+  {
+   "id": "f_L0_117.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_117",
+   "host_type": "sofa_corner",
+   "note": ""
+  },
+  {
+   "id": "f_L0_117.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_117",
+   "host_type": "sofa_corner",
+   "note": ""
+  },
+  {
+   "id": "f_L0_117.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L0_117",
+   "host_type": "sofa_corner",
+   "note": ""
+  },
+  {
+   "id": "f_L0_186.left",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_186",
+   "host_type": "tv_unit",
+   "note": "left part, under a window",
+   "center": [
+    20.225,
+    13.804
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L0_186.right",
+   "kind": "top",
+   "types": [
+    "vase",
+    "bowl",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle",
+    "sculpture"
+   ],
+   "host_id": "f_L0_186",
+   "host_type": "tv_unit",
+   "note": "right part, under a window",
+   "center": [
+    21.025,
+    13.804
+   ],
+   "max_size": [
+    0.74,
+    0.39,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L0_187.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_187",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L0_187.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_187",
+   "host_type": "armchair",
+   "note": ""
+  },
+  {
+   "id": "f_L0_188.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_188",
+   "host_type": "ottoman",
+   "note": ""
+  },
+  {
+   "id": "window:win_L0_049",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_049"
+  },
+  {
+   "id": "window:win_L0_059",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_059"
+  },
+  {
+   "id": "ceiling:centre_r_L0_yasama_7",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 yasama 7"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_117.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+    },
+    {
+     "slot": "f_L0_117.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the sofa’s lines and complements the natural wood and neutral palette."
+    },
+    {
+     "slot": "f_L0_117.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Wood-framed art adds organic texture and ties in with the natural wood furniture."
+    },
+    {
+     "slot": "window:win_L0_049",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light, airy curtains let in natural light while softening the dark bronze frames."
+    },
+    {
+     "slot": "window:win_L0_059",
+     "type": "blind",
+     "colour": "sand",
+     "reason": "Sand-colored blind complements the warm daylight and natural wood tones."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yasama_7",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant adds warmth and a modern metallic accent to the space."
+    },
+    {
+     "slot": "f_L0_186.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant in a natural wood pot brings life and ties into the modern natural style."
+    },
+    {
+     "slot": "f_L0_186.right",
+     "type": "vase",
+     "colour": "cream",
+     "reason": "Cream vase holds fresh flowers or greenery, adding softness and elegance."
+    },
+    {
+     "slot": "f_L0_187.cushions",
+     "type": "cushion",
+     "colour": "beige",
+     "reason": "Beige cushion adds subtle warmth and matches the neutral palette."
+    },
+    {
+     "slot": "f_L0_187.throw",
+     "type": "throw",
+     "colour": "terracotta",
+     "reason": "Terracotta throw adds a cozy, earthy pop against the grey armchair."
+    },
+    {
+     "slot": "f_L0_188.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Mustard cushion adds visual interest and warmth to the ottoman."
+    }
+   ],
+   "error": null,
+   "latency_s": 7.213
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_117.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and color contrast to the greige walls and grey sofa."
+    },
+    {
+     "slot": "f_L0_117.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the sofa’s lines and complements the natural wood and rattan elements."
+    },
+    {
+     "slot": "f_L0_117.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Minimalist wooden art enhances the modern natural aesthetic without clutter."
+    },
+    {
+     "slot": "f_L0_186.left",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant adds greenery and fits the natural wood theme on the TV unit."
+    },
+    {
+     "slot": "f_L0_186.right",
+     "type": "book_set",
+     "colour": "cream",
+     "reason": "Books in cream tones match the neutral palette and add texture."
+    },
+    {
+     "slot": "f_L0_187.cushions",
+     "type": "cushion",
+     "colour": "beige",
+     "reason": "Beige cushion harmonizes with the warm greige walls and natural wood."
+    },
+    {
+     "slot": "window:win_L0_049",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains diffuse natural light and match the warm, neutral palette."
+    },
+    {
+     "slot": "window:win_L0_059",
+     "type": "blind",
+     "colour": "black",
+     "reason": "Black blind adds contrast and modern edge while controlling daylight."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yasama_7",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant light adds warmth and complements dark bronze window frames."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.801
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_117.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and color contrast to the greige walls and grey sofa.",
+    "Adds warmth and color contrast to the greige walls and grey sofa."
+   ]
+  },
+  {
+   "slot": "f_L0_117.throw",
+   "type": "throw",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the sofa’s lines and complements the natural wood and neutral palette.",
+    "Softens the sofa’s lines and complements the natural wood and rattan elements."
+   ]
+  },
+  {
+   "slot": "f_L0_117.wall",
+   "type": "wall_art",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Wood-framed art adds organic texture and ties in with the natural wood furniture.",
+    "Minimalist wooden art enhances the modern natural aesthetic without clutter."
+   ]
+  },
+  {
+   "slot": "window:win_L0_049",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Light, airy curtains let in natural light while softening the dark bronze frames.",
+    "Cream curtains diffuse natural light and match the warm, neutral palette."
+   ]
+  },
+  {
+   "slot": "window:win_L0_059",
+   "type": "blind",
+   "colour": "sand",
+   "colour_agreed": false,
+   "reasons": [
+    "Sand-colored blind complements the warm daylight and natural wood tones.",
+    "Black blind adds contrast and modern edge while controlling daylight."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_yasama_7",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Brass pendant adds warmth and a modern metallic accent to the space.",
+    "Brass pendant light adds warmth and complements dark bronze window frames."
+   ]
+  },
+  {
+   "slot": "f_L0_186.left",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Small plant in a natural wood pot brings life and ties into the modern natural style.",
+    "Small plant adds greenery and fits the natural wood theme on the TV unit."
+   ]
+  },
+  {
+   "slot": "f_L0_187.cushions",
+   "type": "cushion",
+   "colour": "beige",
+   "colour_agreed": true,
+   "reasons": [
+    "Beige cushion adds subtle warmth and matches the neutral palette.",
+    "Beige cushion harmonizes with the warm greige walls and natural wood."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_186.right",
+   "type": "vase",
+   "colour": "cream",
+   "reason": "Cream vase holds fresh flowers or greenery, adding softness and elegance.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_187.throw",
+   "type": "throw",
+   "colour": "terracotta",
+   "reason": "Terracotta throw adds a cozy, earthy pop against the grey armchair.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_188.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "reason": "Mustard cushion adds visual interest and warmth to the ottoman.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_186.right",
+   "type": "book_set",
+   "colour": "cream",
+   "reason": "Books in cream tones match the neutral palette and add texture.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_077",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_117.cushions"
+  },
+  {
+   "id": "dec_L0_078",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_117.cushions"
+  },
+  {
+   "id": "dec_L0_079",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_117.cushions"
+  },
+  {
+   "id": "dec_L0_080",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_117.throw"
+  },
+  {
+   "id": "dec_L0_081",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L0_117.wall"
+  },
+  {
+   "id": "dec_L0_082",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_049"
+  },
+  {
+   "id": "dec_L0_083",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L0_059"
+  },
+  {
+   "id": "dec_L0_084",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yasama_7"
+  },
+  {
+   "id": "dec_L0_085",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L0_186.left"
+  },
+  {
+   "id": "dec_L0_086",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_187.cushions"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no rug: no coffee table in front of a sofa",
+  "no free corner for a floor plant",
+  "window win_L0_059: no room for a curtain rod (doors, windows or wall ends)"
+ ]
+}

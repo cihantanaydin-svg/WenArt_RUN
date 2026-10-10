@@ -1,0 +1,4705 @@
+{
+ "room_id": "r_L0_yasama_5",
+ "label": "Yaşama",
+ "room_type": "living",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_004",
+   "type": "unknown",
+   "kind": "obstacle",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.653,
+     9.3918
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_018",
+   "type": "unknown",
+   "kind": "outline",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.778,
+     11.0606
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_050",
+   "type": "stove",
+   "kind": "fixed",
+   "unverified": false,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     0.483,
+     8.133
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_091",
+   "type": "unknown",
+   "kind": "changeable",
+   "unverified": true,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     0.168,
+     9.333
+    ],
+    "wall_id": "w_L0_082"
+   }
+  },
+  {
+   "id": "f_L0_092",
+   "type": "bookshelf",
+   "kind": "changeable",
+   "unverified": true,
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     3.1456,
+     10.8884
+    ],
+    "wall_id": "w_L0_087"
+   }
+  },
+  {
+   "id": "f_L0_093",
+   "type": "unknown",
+   "kind": "changeable",
+   "unverified": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.0855,
+     8.1531
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_094",
+   "type": "unknown",
+   "kind": "changeable",
+   "unverified": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.2979,
+     8.4855
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_131",
+   "type": "unknown",
+   "kind": "changeable",
+   "unverified": true,
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.9281,
+     10.6737
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "missing": {
+  "table_coffee": 1,
+  "tv_unit": 1
+ },
+ "anchor_missing": true,
+ "addable": {
+  "sofa": 1,
+  "table_coffee": 1,
+  "tv_unit": 1,
+  "armchair": 2,
+  "chaise": 1,
+  "ottoman": 1,
+  "console_table": 1,
+  "sideboard": 1,
+  "display_cabinet": 1
+ },
+ "change_types": [
+  "sofa",
+  "armchair",
+  "table_coffee",
+  "tv_unit",
+  "bookshelf",
+  "table_dining",
+  "chair",
+  "console_table",
+  "sideboard",
+  "display_cabinet",
+  "ottoman",
+  "chaise",
+  "sofa_corner"
+ ],
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 5.049,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [],
+    "added": [
+     {
+      "type": "sofa",
+      "center": [
+       1.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ],
+      "against_wall": true,
+      "reason": "Replaces unknown piece as main seating; fits style and space."
+     },
+     {
+      "type": "table_coffee",
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ],
+      "against_wall": false,
+      "reason": "Placed in front of sofa with 0.6m clearance; modern natural style."
+     },
+     {
+      "type": "tv_unit",
+      "center": [
+       3.15,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ],
+      "against_wall": true,
+      "reason": "Against wall opposite sofa; fits style and keeps space open."
+     },
+     {
+      "type": "armchair",
+      "center": [
+       0.87,
+       9.33
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ],
+      "against_wall": true,
+      "reason": "Replaces unknown piece; fits style and adds seating."
+     },
+     {
+      "type": "sideboard",
+      "center": [
+       3.02,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ],
+      "against_wall": true,
+      "reason": "Replaces unknown piece; fits style and adds storage."
+     }
+    ]
+   },
+   "prompt": "Task: complete this living room (Turkish: SALON) labelled 'Yaşama' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yasama_5\", \"label\": \"Yaşama\", \"room_type\": \"living\", \"room_subtype\": null, \"area_m2\": 15.64, \"polygon_m\": [[0.15, 7.0], [0.41, 7.0], [0.41, 6.98], [2.9, 6.98], [2.9, 7.23], [3.15, 7.23], [3.15, 7.4], [3.15, 7.4], [3.15, 7.7], [3.15, 7.7], [3.15, 12.25], [0.4, 12.25], [0.4, 11.8], [0.15, 11.8]], \"doors\": [{\"id\": \"o_L0_010\", \"center\": [3.2, 8.93], \"width\": 1.05, \"opens_into_this_room\": false, \"approach\": [2.69, 8.93]}], \"windows\": [{\"id\": \"win_L0_010\", \"center\": [3.3, 7.11], \"width\": 0.58, \"sill_height\": 0.9}, {\"id\": \"win_L0_011\", \"center\": [3.3, 8.89], \"width\": 2.63, \"sill_height\": 0.9}, {\"id\": \"win_L0_012\", \"center\": [3.3, 11.2], \"width\": 1.8, \"sill_height\": 0.9}, {\"id\": \"win_L0_014\", \"center\": [3.42, 7.11], \"width\": 0.58, \"sill_height\": 0.9}, {\"id\": \"win_L0_039\", \"center\": [1.66, 6.7], \"width\": 2.49, \"sill_height\": 0.9}, {\"id\": \"win_L0_042\", \"center\": [1.75, 12.33], \"width\": 1.6, \"sill_height\": 0.9}, {\"id\": \"win_L0_051\", \"center\": [0.08, 9.88], \"width\": 1.6, \"sill_height\": 0.9}, {\"id\": \"win_L0_053\", \"center\": [3.42, 7.47], \"width\": 0.47, \"sill_height\": 0.9}]}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_004\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [1.65, 9.39], \"size\": [4.82, 2.98], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.65, 9.39]}, \"against_wall\": null}, {\"id\": \"f_L0_050\", \"type\": \"stove\", \"kind\": \"fixed\", \"center\": [0.48, 8.13], \"size\": [0.6, 0.57], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.48, 8.13]}, \"against_wall\": null}, {\"id\": \"f_L0_091\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [0.87, 9.33], \"size\": [0.9, 1.4], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.17, 9.33]}, \"against_wall\": \"w_L0_082\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_092\", \"type\": \"bookshelf\", \"kind\": \"changeable\", \"center\": [3.02, 10.89], \"size\": [1.8, 0.25], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [3.15, 10.89]}, \"against_wall\": \"w_L0_087\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_093\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [2.09, 8.15], \"size\": [0.74, 0.74], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.09, 8.15]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_094\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [1.3, 8.49], \"size\": [0.49, 0.49], \"rotation_deg\": 56.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.3, 8.49]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_131\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [1.93, 10.67], \"size\": [0.8, 0.8], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.93, 10.67]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nWhat the room misses:\n- the room has no sofa or sofa_corner: add one (sofa)\n- expected for this room type and missing: table_coffee (1), tv_unit (1)\n- you may add at most: sofa (1), table_coffee (1), tv_unit (1), armchair (2), chaise (1), ottoman (1), console_table (1), sideboard (1), display_cabinet (1)\nA good completion: a coffee table in front of the sofa (beyond the sofa's 0.6 m clearance) and a tv_unit against the wall the sofa faces; an armchair, a sideboard or a bookshelf only where the room stays open.\n\nTypes with their size options [width, depth]:\n- sofa: height 0.85 m, size options [1.6, 0.9], [2.2, 0.9], [2.6, 0.95] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- table_coffee: height 0.45 m, size options [0.8, 0.5], [1.0, 0.6], [1.2, 0.7]\n- tv_unit: height 0.5 m, size options [1.2, 0.4], [1.6, 0.45], [2.0, 0.45] (usually against a wall)\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- console_table: height 0.8 m, size options [0.9, 0.3], [1.2, 0.35], [1.4, 0.4] (usually against a wall)\n- sideboard: height 0.8 m, size options [1.4, 0.42], [1.6, 0.45], [1.8, 0.48] (usually against a wall)\n- display_cabinet: height 1.9 m, size options [0.8, 0.38], [1.0, 0.4], [1.2, 0.42] (usually against a wall)\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- chaise: height 0.8 m, size options [0.65, 1.6], [0.75, 1.7], [0.85, 1.8]\n- sofa_corner: height 0.85 m, size options [2.2, 1.5], [2.6, 1.6], [3.0, 1.7] (usually against a wall)\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (sofa, sofa_corner) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of sofa, armchair, table_coffee, tv_unit, bookshelf, table_dining, chair, console_table, sideboard, display_cabinet, ottoman, chaise, sofa_corner), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of sofa, table_coffee, tv_unit, armchair, chaise, ottoman, console_table, sideboard, display_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"sofa\",\n      \"center\": [1.65, 9.39],\n      \"rotation_deg\": 90.0,\n      \"size\": [2.6, 0.95],\n      \"against_wall\": true,\n      \"reason\": \"Replaces unknown piece as main seating; fits style and space.\"\n    },\n    {\n      \"type\": \"table_coffee\",\n      \"center\": [1.65, 8.85],\n      \"rotation_deg\": 90.0,\n      \"size\": [1.2, 0.7],\n      \"against_wall\": false,\n      \"reason\": \"Placed in front of sofa with 0.6m clearance; modern natural style.\"\n    },\n    {\n      \"type\": \"tv_unit\",\n      \"center\": [3.15, 10.89],\n      \"rotation_deg\": 270.0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Against wall opposite sofa; fits style and keeps space open.\"\n    },\n    {\n      \"type\": \"armchair\",\n      \"center\": [0.87, 9.33],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": true,\n      \"reason\": \"Replaces unknown piece; fits style and adds seating.\"\n    },\n    {\n      \"type\": \"sideboard\",\n      \"center\": [3.02, 10.89],\n      \"rotation_deg\": 270.0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Replaces unknown piece; fits style and adds storage.\"\n    }\n  ]\n}",
+   "changes": 0,
+   "added": 5
+  },
+  {
+   "pass": 2,
+   "model": "Qwen/Qwen3-VL-8B-Instruct",
+   "latency_s": 3.184,
+   "error": null,
+   "transport_error": false,
+   "data": {
+    "changes": [],
+    "added": [
+     {
+      "type": "sofa",
+      "center": [
+       1.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ],
+      "against_wall": true,
+      "reason": "Replaces unknown piece as main seating; fits style and space."
+     },
+     {
+      "type": "table_coffee",
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ],
+      "against_wall": false,
+      "reason": "Placed in front of sofa with 0.6m clearance; modern natural style."
+     },
+     {
+      "type": "tv_unit",
+      "center": [
+       3.15,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ],
+      "against_wall": true,
+      "reason": "Replaces bookshelf; matches style and faces sofa."
+     }
+    ]
+   },
+   "prompt": "Task: complete this living room (Turkish: SALON) labelled 'Yaşama' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- the room has no sofa or sofa_corner: add one (sofa)\n- expected for this room type and missing: table_coffee (1), tv_unit (1)\n- you may add at most: sofa (1), table_coffee (1), tv_unit (1), armchair (2), chaise (1), ottoman (1), console_table (1), sideboard (1), display_cabinet (1)\nA good completion: a coffee table in front of the sofa (beyond the sofa's 0.6 m clearance) and a tv_unit against the wall the sofa faces; an armchair, a sideboard or a bookshelf only where the room stays open.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (sofa, sofa_corner) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- sofa: height 0.85 m, size options [1.6, 0.9], [2.2, 0.9], [2.6, 0.95] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- table_coffee: height 0.45 m, size options [0.8, 0.5], [1.0, 0.6], [1.2, 0.7]\n- tv_unit: height 0.5 m, size options [1.2, 0.4], [1.6, 0.45], [2.0, 0.45] (usually against a wall)\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- console_table: height 0.8 m, size options [0.9, 0.3], [1.2, 0.35], [1.4, 0.4] (usually against a wall)\n- sideboard: height 0.8 m, size options [1.4, 0.42], [1.6, 0.45], [1.8, 0.48] (usually against a wall)\n- display_cabinet: height 1.9 m, size options [0.8, 0.38], [1.0, 0.4], [1.2, 0.42] (usually against a wall)\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- chaise: height 0.8 m, size options [0.65, 1.6], [0.75, 1.7], [0.85, 1.8]\n- sofa_corner: height 0.85 m, size options [2.2, 1.5], [2.6, 1.6], [3.0, 1.7] (usually against a wall)\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L0_004\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [1.65, 9.39], \"size\": [4.82, 2.98], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.65, 9.39]}, \"against_wall\": null}, {\"id\": \"f_L0_050\", \"type\": \"stove\", \"kind\": \"fixed\", \"center\": [0.48, 8.13], \"size\": [0.6, 0.57], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.48, 8.13]}, \"against_wall\": null}, {\"id\": \"f_L0_091\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [0.87, 9.33], \"size\": [0.9, 1.4], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.17, 9.33]}, \"against_wall\": \"w_L0_082\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_092\", \"type\": \"bookshelf\", \"kind\": \"changeable\", \"center\": [3.02, 10.89], \"size\": [1.8, 0.25], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [3.15, 10.89]}, \"against_wall\": \"w_L0_087\", \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_093\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [2.09, 8.15], \"size\": [0.74, 0.74], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.09, 8.15]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_094\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [1.3, 8.49], \"size\": [0.49, 0.49], \"rotation_deg\": 56.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.3, 8.49]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L0_131\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [1.93, 10.67], \"size\": [0.8, 0.8], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.93, 10.67]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L0_yasama_5\", \"label\": \"Yaşama\", \"room_type\": \"living\", \"room_subtype\": null, \"area_m2\": 15.64, \"polygon_m\": [[0.15, 7.0], [0.41, 7.0], [0.41, 6.98], [2.9, 6.98], [2.9, 7.23], [3.15, 7.23], [3.15, 7.4], [3.15, 7.4], [3.15, 7.7], [3.15, 7.7], [3.15, 12.25], [0.4, 12.25], [0.4, 11.8], [0.15, 11.8]], \"doors\": [{\"id\": \"o_L0_010\", \"center\": [3.2, 8.93], \"width\": 1.05, \"opens_into_this_room\": false, \"approach\": [2.69, 8.93]}], \"windows\": [{\"id\": \"win_L0_010\", \"center\": [3.3, 7.11], \"width\": 0.58, \"sill_height\": 0.9}, {\"id\": \"win_L0_011\", \"center\": [3.3, 8.89], \"width\": 2.63, \"sill_height\": 0.9}, {\"id\": \"win_L0_012\", \"center\": [3.3, 11.2], \"width\": 1.8, \"sill_height\": 0.9}, {\"id\": \"win_L0_014\", \"center\": [3.42, 7.11], \"width\": 0.58, \"sill_height\": 0.9}, {\"id\": \"win_L0_039\", \"center\": [1.66, 6.7], \"width\": 2.49, \"sill_height\": 0.9}, {\"id\": \"win_L0_042\", \"center\": [1.75, 12.33], \"width\": 1.6, \"sill_height\": 0.9}, {\"id\": \"win_L0_051\", \"center\": [0.08, 9.88], \"width\": 1.6, \"sill_height\": 0.9}, {\"id\": \"win_L0_053\", \"center\": [3.42, 7.47], \"width\": 0.47, \"sill_height\": 0.9}]}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of sofa, armchair, table_coffee, tv_unit, bookshelf, table_dining, chair, console_table, sideboard, display_cabinet, ottoman, chaise, sofa_corner), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of sofa, table_coffee, tv_unit, armchair, chaise, ottoman, console_table, sideboard, display_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"sofa\",\n      \"center\": [1.65, 9.39],\n      \"rotation_deg\": 90.0,\n      \"size\": [2.6, 0.95],\n      \"against_wall\": true,\n      \"reason\": \"Replaces unknown piece as main seating; fits style and space.\"\n    },\n    {\n      \"type\": \"table_coffee\",\n      \"center\": [1.65, 9.0],\n      \"rotation_deg\": 90.0,\n      \"size\": [1.2, 0.7],\n      \"against_wall\": false,\n      \"reason\": \"Placed in front of sofa with 0.6m clearance; modern natural style.\"\n    },\n    {\n      \"type\": \"tv_unit\",\n      \"center\": [3.15, 10.89],\n      \"rotation_deg\": 270.0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Replaces bookshelf; matches style and faces sofa.\"\n    }\n  ]\n}",
+   "changes": 0,
+   "added": 3
+  }
+ ],
+ "chosen_pass": 2,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L0_180",
+   "type": "tv_unit",
+   "center": [
+    2.533,
+    12.029
+   ],
+   "size": [
+    1.2,
+    0.4
+   ],
+   "rotation_deg": 0.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": null
+  }
+ ],
+ "refused": [],
+ "dropped": [
+  {
+   "pass": 1,
+   "type": "armchair",
+   "center": [
+    0.87,
+    9.33
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap",
+    "clearance_ok"
+   ]
+  },
+  {
+   "pass": 1,
+   "type": "table_coffee",
+   "center": [
+    1.65,
+    8.85
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap"
+   ]
+  },
+  {
+   "pass": 1,
+   "type": "sofa",
+   "center": [
+    1.65,
+    9.39
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap",
+    "clearance_ok"
+   ]
+  },
+  {
+   "pass": 2,
+   "type": "table_coffee",
+   "center": [
+    1.65,
+    9.0
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap"
+   ]
+  },
+  {
+   "pass": 2,
+   "type": "sofa",
+   "center": [
+    1.65,
+    9.39
+   ],
+   "reason": "no repair left",
+   "failed": [
+    "no_overlap",
+    "clearance_ok"
+   ]
+  }
+ ],
+ "wall_cabinets": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_004": [
+    "doors_free",
+    "inside_room",
+    "no_overlap",
+    "windows_free"
+   ],
+   "f_L0_050": [
+    "no_overlap"
+   ],
+   "f_L0_091": [
+    "doors_free",
+    "inside_room",
+    "no_overlap",
+    "windows_free"
+   ],
+   "f_L0_092": [
+    "doors_free",
+    "inside_room",
+    "no_overlap",
+    "windows_free"
+   ],
+   "f_L0_093": [
+    "doors_free",
+    "no_overlap"
+   ],
+   "f_L0_094": [
+    "no_overlap"
+   ],
+   "f_L0_131": [
+    "doors_free",
+    "no_overlap"
+   ]
+  },
+  "walkways": [
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_010"
+   ],
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_011"
+   ],
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_012"
+   ],
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_014"
+   ],
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_039"
+   ],
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_042"
+   ],
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_051"
+   ],
+   [
+    "door",
+    "o_L0_010",
+    "window",
+    "win_L0_053"
+   ]
+  ]
+ },
+ "latency_s": 8.233,
+ "question": {
+  "room": {
+   "room_id": "r_L0_yasama_5",
+   "label": "Yaşama",
+   "room_type": "living",
+   "room_subtype": null,
+   "area_m2": 15.64,
+   "polygon_m": [
+    [
+     0.15,
+     7.0
+    ],
+    [
+     0.41,
+     7.0
+    ],
+    [
+     0.41,
+     6.98
+    ],
+    [
+     2.9,
+     6.98
+    ],
+    [
+     2.9,
+     7.23
+    ],
+    [
+     3.15,
+     7.23
+    ],
+    [
+     3.15,
+     7.4
+    ],
+    [
+     3.15,
+     7.4
+    ],
+    [
+     3.15,
+     7.7
+    ],
+    [
+     3.15,
+     7.7
+    ],
+    [
+     3.15,
+     12.25
+    ],
+    [
+     0.4,
+     12.25
+    ],
+    [
+     0.4,
+     11.8
+    ],
+    [
+     0.15,
+     11.8
+    ]
+   ],
+   "doors": [
+    {
+     "id": "o_L0_010",
+     "center": [
+      3.2,
+      8.93
+     ],
+     "width": 1.05,
+     "opens_into_this_room": false,
+     "approach": [
+      2.69,
+      8.93
+     ]
+    }
+   ],
+   "windows": [
+    {
+     "id": "win_L0_010",
+     "center": [
+      3.3,
+      7.11
+     ],
+     "width": 0.58,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_011",
+     "center": [
+      3.3,
+      8.89
+     ],
+     "width": 2.63,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_012",
+     "center": [
+      3.3,
+      11.2
+     ],
+     "width": 1.8,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_014",
+     "center": [
+      3.42,
+      7.11
+     ],
+     "width": 0.58,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_039",
+     "center": [
+      1.66,
+      6.7
+     ],
+     "width": 2.49,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_042",
+     "center": [
+      1.75,
+      12.33
+     ],
+     "width": 1.6,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_051",
+     "center": [
+      0.08,
+      9.88
+     ],
+     "width": 1.6,
+     "sill_height": 0.9
+    },
+    {
+     "id": "win_L0_053",
+     "center": [
+      3.42,
+      7.47
+     ],
+     "width": 0.47,
+     "sill_height": 0.9
+    }
+   ]
+  },
+  "drawn": [
+   {
+    "id": "f_L0_004",
+    "type": "unknown",
+    "kind": "fixed",
+    "center": [
+     1.65,
+     9.39
+    ],
+    "size": [
+     4.82,
+     2.98
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      1.65,
+      9.39
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L0_050",
+    "type": "stove",
+    "kind": "fixed",
+    "center": [
+     0.48,
+     8.13
+    ],
+    "size": [
+     0.6,
+     0.57
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      0.48,
+      8.13
+     ]
+    },
+    "against_wall": null
+   },
+   {
+    "id": "f_L0_091",
+    "type": "unknown",
+    "kind": "changeable",
+    "center": [
+     0.87,
+     9.33
+    ],
+    "size": [
+     0.9,
+     1.4
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": 0.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      0.17,
+      9.33
+     ]
+    },
+    "against_wall": "w_L0_082",
+    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+   },
+   {
+    "id": "f_L0_092",
+    "type": "bookshelf",
+    "kind": "changeable",
+    "center": [
+     3.02,
+     10.89
+    ],
+    "size": [
+     1.8,
+     0.25
+    ],
+    "rotation_deg": 270.0,
+    "front_deg": 180.0,
+    "anchor": {
+     "kind": "back_edge",
+     "point": [
+      3.15,
+      10.89
+     ]
+    },
+    "against_wall": "w_L0_087",
+    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+   },
+   {
+    "id": "f_L0_093",
+    "type": "unknown",
+    "kind": "changeable",
+    "center": [
+     2.09,
+     8.15
+    ],
+    "size": [
+     0.74,
+     0.74
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      2.09,
+      8.15
+     ]
+    },
+    "against_wall": null,
+    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+   },
+   {
+    "id": "f_L0_094",
+    "type": "unknown",
+    "kind": "changeable",
+    "center": [
+     1.3,
+     8.49
+    ],
+    "size": [
+     0.49,
+     0.49
+    ],
+    "rotation_deg": 56.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      1.3,
+      8.49
+     ]
+    },
+    "against_wall": null,
+    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+   },
+   {
+    "id": "f_L0_131",
+    "type": "unknown",
+    "kind": "changeable",
+    "center": [
+     1.93,
+     10.67
+    ],
+    "size": [
+     0.8,
+     0.8
+    ],
+    "rotation_deg": 90.0,
+    "front_deg": null,
+    "anchor": {
+     "kind": "centre",
+     "point": [
+      1.93,
+      10.67
+     ]
+    },
+    "against_wall": null,
+    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+   }
+  ],
+  "change_ids": [
+   "f_L0_091",
+   "f_L0_092",
+   "f_L0_093",
+   "f_L0_094",
+   "f_L0_131"
+  ],
+  "change_types": [
+   "sofa",
+   "armchair",
+   "table_coffee",
+   "tv_unit",
+   "bookshelf",
+   "table_dining",
+   "chair",
+   "console_table",
+   "sideboard",
+   "display_cabinet",
+   "ottoman",
+   "chaise",
+   "sofa_corner"
+  ],
+  "add": {
+   "sofa": 1,
+   "table_coffee": 1,
+   "tv_unit": 1,
+   "armchair": 2,
+   "chaise": 1,
+   "ottoman": 1,
+   "console_table": 1,
+   "sideboard": 1,
+   "display_cabinet": 1
+  },
+  "missing": {
+   "table_coffee": 1,
+   "tv_unit": 1
+  },
+  "anchor_missing": true,
+  "anchors": [
+   "sofa",
+   "sofa_corner"
+  ],
+  "anchors_addable": [
+   "sofa"
+  ],
+  "styles": [
+   "scandinavian",
+   "japandi",
+   "modern minimal",
+   "minimal",
+   "modern",
+   "industrial",
+   "mediterranean",
+   "classic",
+   "rustic",
+   "neutral"
+  ],
+  "colours": [
+   "white",
+   "cream",
+   "beige",
+   "sand",
+   "light grey",
+   "grey",
+   "charcoal",
+   "black",
+   "natural wood",
+   "terracotta",
+   "rust",
+   "mustard",
+   "olive",
+   "sage green",
+   "forest green",
+   "navy",
+   "dusty blue",
+   "teal",
+   "blush",
+   "burgundy",
+   "brass",
+   "copper"
+  ],
+  "keep_size": false
+ },
+ "schema": {
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+   "changes",
+   "added"
+  ],
+  "properties": {
+   "changes": {
+    "type": "array",
+    "maxItems": 5,
+    "items": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "id",
+      "type",
+      "size",
+      "style",
+      "colour",
+      "reason"
+     ],
+     "properties": {
+      "id": {
+       "enum": [
+        "f_L0_091",
+        "f_L0_092",
+        "f_L0_093",
+        "f_L0_094",
+        "f_L0_131"
+       ]
+      },
+      "type": {
+       "enum": [
+        "sofa",
+        "armchair",
+        "table_coffee",
+        "tv_unit",
+        "bookshelf",
+        "table_dining",
+        "chair",
+        "console_table",
+        "sideboard",
+        "display_cabinet",
+        "ottoman",
+        "chaise",
+        "sofa_corner"
+       ]
+      },
+      "size": {
+       "type": "array",
+       "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "style": {
+       "enum": [
+        "scandinavian",
+        "japandi",
+        "modern minimal",
+        "minimal",
+        "modern",
+        "industrial",
+        "mediterranean",
+        "classic",
+        "rustic",
+        "neutral"
+       ]
+      },
+      "colour": {
+       "enum": [
+        "white",
+        "cream",
+        "beige",
+        "sand",
+        "light grey",
+        "grey",
+        "charcoal",
+        "black",
+        "natural wood",
+        "terracotta",
+        "rust",
+        "mustard",
+        "olive",
+        "sage green",
+        "forest green",
+        "navy",
+        "dusty blue",
+        "teal",
+        "blush",
+        "burgundy",
+        "brass",
+        "copper"
+       ]
+      },
+      "reason": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    }
+   },
+   "added": {
+    "type": "array",
+    "maxItems": 10,
+    "items": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "type",
+      "center",
+      "rotation_deg",
+      "size",
+      "against_wall",
+      "reason"
+     ],
+     "properties": {
+      "type": {
+       "enum": [
+        "sofa",
+        "table_coffee",
+        "tv_unit",
+        "armchair",
+        "chaise",
+        "ottoman",
+        "console_table",
+        "sideboard",
+        "display_cabinet"
+       ]
+      },
+      "center": {
+       "type": "array",
+       "items": {
+        "type": "number"
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "rotation_deg": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 360
+      },
+      "size": {
+       "type": "array",
+       "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+       },
+       "minItems": 2,
+       "maxItems": 2
+      },
+      "against_wall": {
+       "type": "boolean"
+      },
+      "reason": {
+       "type": "string",
+       "maxLength": 200
+      }
+     }
+    }
+   }
+  }
+ },
+ "placements": {
+  "1": {
+   "pieces": [
+    {
+     "type": "tv_unit",
+     "center": [
+      1.133,
+      12.029
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.4
+     ],
+     "against_wall": true,
+     "reason": "Against wall opposite sofa; fits style and keeps space open.",
+     "proposed": {
+      "center": [
+       3.15,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 12,
+       "type": "tv_unit",
+       "step": "snap",
+       "before": {
+        "center": [
+         3.15,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 13,
+       "type": "tv_unit",
+       "step": "slide",
+       "before": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 14,
+       "type": "tv_unit",
+       "step": "shrink",
+       "before": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 15,
+       "type": "tv_unit",
+       "step": "slide",
+       "before": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 16,
+       "type": "tv_unit",
+       "step": "relocate",
+       "before": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         1.133,
+         12.029
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "type": "sideboard",
+     "center": [
+      2.433,
+      12.019
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.4,
+      0.42
+     ],
+     "against_wall": true,
+     "reason": "Replaces unknown piece; fits style and adds storage.",
+     "proposed": {
+      "center": [
+       3.02,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 1,
+       "type": "sideboard",
+       "step": "snap",
+       "before": {
+        "center": [
+         3.02,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 2,
+       "type": "sideboard",
+       "step": "slide",
+       "before": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 3,
+       "type": "sideboard",
+       "step": "shrink",
+       "before": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.923,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.4,
+         0.42
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 4,
+       "type": "sideboard",
+       "step": "slide",
+       "before": {
+        "center": [
+         2.923,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.4,
+         0.42
+        ]
+       },
+       "after": {
+        "center": [
+         2.923,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.4,
+         0.42
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 5,
+       "type": "sideboard",
+       "step": "relocate",
+       "before": {
+        "center": [
+         2.923,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.4,
+         0.42
+        ]
+       },
+       "after": {
+        "center": [
+         2.433,
+         12.019
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.4,
+         0.42
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "dropped": [
+    {
+     "type": "armchair",
+     "proposed": {
+      "center": [
+       0.87,
+       9.33
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "last": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 6,
+       "type": "armchair",
+       "step": "snap",
+       "before": {
+        "center": [
+         0.87,
+         9.33
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 7,
+       "type": "armchair",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.625,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 8,
+       "type": "armchair",
+       "step": "shrink",
+       "before": {
+        "center": [
+         0.625,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.9,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.575,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.8
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 9,
+       "type": "armchair",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.575,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.8
+        ]
+       },
+       "after": {
+        "center": [
+         0.575,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.8
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 10,
+       "type": "armchair",
+       "step": "relocate",
+       "before": {
+        "center": [
+         0.575,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.8
+        ]
+       },
+       "after": {
+        "center": [
+         0.575,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.8
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free wall"
+      },
+      {
+       "iteration": 11,
+       "type": "armchair",
+       "step": "drop",
+       "before": {
+        "center": [
+         0.575,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.8
+        ]
+       },
+       "after": {
+        "center": [
+         0.575,
+         9.33
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.8
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 11,
+      "piece": 3,
+      "type": "armchair",
+      "step": "drop",
+      "before": {
+       "center": [
+        0.575,
+        9.33
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.8,
+        0.8
+       ]
+      },
+      "after": {
+       "center": [
+        0.575,
+        9.33
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.8,
+        0.8
+       ]
+      },
+      "failed": [
+       "no_overlap",
+       "clearance_ok"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    },
+    {
+     "type": "table_coffee",
+     "proposed": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "last": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 17,
+       "type": "table_coffee",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.7
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.7
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 18,
+       "type": "table_coffee",
+       "step": "shrink",
+       "before": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.7
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 19,
+       "type": "table_coffee",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 20,
+       "type": "table_coffee",
+       "step": "shrink",
+       "before": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 21,
+       "type": "table_coffee",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 22,
+       "type": "table_coffee",
+       "step": "drop",
+       "before": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         8.85
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 22,
+      "piece": 1,
+      "type": "table_coffee",
+      "step": "drop",
+      "before": {
+       "center": [
+        1.65,
+        8.85
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.8,
+        0.5
+       ]
+      },
+      "after": {
+       "center": [
+        1.65,
+        8.85
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.8,
+        0.5
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    },
+    {
+     "type": "sofa",
+     "proposed": {
+      "center": [
+       1.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "last": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 23,
+       "type": "sofa",
+       "step": "snap",
+       "before": {
+        "center": [
+         1.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "after": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 24,
+       "type": "sofa",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "after": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 25,
+       "type": "sofa",
+       "step": "shrink",
+       "before": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 26,
+       "type": "sofa",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 27,
+       "type": "sofa",
+       "step": "shrink",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 28,
+       "type": "sofa",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 29,
+       "type": "sofa",
+       "step": "relocate",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free wall"
+      },
+      {
+       "iteration": 30,
+       "type": "sofa",
+       "step": "drop",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 30,
+      "piece": 0,
+      "type": "sofa",
+      "step": "drop",
+      "before": {
+       "center": [
+        0.625,
+        9.39
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "after": {
+       "center": [
+        0.625,
+        9.39
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "failed": [
+       "no_overlap",
+       "clearance_ok"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    }
+   ],
+   "log": [
+    {
+     "iteration": 1,
+     "piece": 4,
+     "type": "sideboard",
+     "step": "snap",
+     "before": {
+      "center": [
+       3.02,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 2,
+     "piece": 4,
+     "type": "sideboard",
+     "step": "slide",
+     "before": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 3,
+     "piece": 4,
+     "type": "sideboard",
+     "step": "shrink",
+     "before": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.923,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.4,
+       0.42
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 4,
+     "piece": 4,
+     "type": "sideboard",
+     "step": "slide",
+     "before": {
+      "center": [
+       2.923,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.4,
+       0.42
+      ]
+     },
+     "after": {
+      "center": [
+       2.923,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.4,
+       0.42
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 5,
+     "piece": 4,
+     "type": "sideboard",
+     "step": "relocate",
+     "before": {
+      "center": [
+       2.923,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.4,
+       0.42
+      ]
+     },
+     "after": {
+      "center": [
+       2.433,
+       12.019
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.4,
+       0.42
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 6,
+     "piece": 3,
+     "type": "armchair",
+     "step": "snap",
+     "before": {
+      "center": [
+       0.87,
+       9.33
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 7,
+     "piece": 3,
+     "type": "armchair",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.625,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 8,
+     "piece": 3,
+     "type": "armchair",
+     "step": "shrink",
+     "before": {
+      "center": [
+       0.625,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.9,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 9,
+     "piece": 3,
+     "type": "armchair",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "after": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 10,
+     "piece": 3,
+     "type": "armchair",
+     "step": "relocate",
+     "before": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "after": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free wall"
+    },
+    {
+     "iteration": 11,
+     "piece": 3,
+     "type": "armchair",
+     "step": "drop",
+     "before": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "after": {
+      "center": [
+       0.575,
+       9.33
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.8
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    },
+    {
+     "iteration": 12,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "snap",
+     "before": {
+      "center": [
+       3.15,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 13,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "slide",
+     "before": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 14,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "shrink",
+     "before": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 15,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "slide",
+     "before": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 16,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "relocate",
+     "before": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       1.133,
+       12.029
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 17,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 18,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "shrink",
+     "before": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 19,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 20,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "shrink",
+     "before": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 21,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 22,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "drop",
+     "before": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       8.85
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    },
+    {
+     "iteration": 23,
+     "piece": 0,
+     "type": "sofa",
+     "step": "snap",
+     "before": {
+      "center": [
+       1.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "after": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 24,
+     "piece": 0,
+     "type": "sofa",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "after": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 25,
+     "piece": 0,
+     "type": "sofa",
+     "step": "shrink",
+     "before": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 26,
+     "piece": 0,
+     "type": "sofa",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 27,
+     "piece": 0,
+     "type": "sofa",
+     "step": "shrink",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 28,
+     "piece": 0,
+     "type": "sofa",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 29,
+     "piece": 0,
+     "type": "sofa",
+     "step": "relocate",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free wall"
+    },
+    {
+     "iteration": 30,
+     "piece": 0,
+     "type": "sofa",
+     "step": "drop",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    }
+   ],
+   "iterations": 30,
+   "anchor_first": false
+  },
+  "2": {
+   "pieces": [
+    {
+     "type": "tv_unit",
+     "center": [
+      2.533,
+      12.029
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      1.2,
+      0.4
+     ],
+     "against_wall": true,
+     "reason": "Replaces bookshelf; matches style and faces sofa.",
+     "proposed": {
+      "center": [
+       3.15,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 1,
+       "type": "tv_unit",
+       "step": "snap",
+       "before": {
+        "center": [
+         3.15,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 2,
+       "type": "tv_unit",
+       "step": "slide",
+       "before": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 3,
+       "type": "tv_unit",
+       "step": "shrink",
+       "before": {
+        "center": [
+         2.908,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.6,
+         0.45
+        ]
+       },
+       "after": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 4,
+       "type": "tv_unit",
+       "step": "slide",
+       "before": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 5,
+       "type": "tv_unit",
+       "step": "relocate",
+       "before": {
+        "center": [
+         2.933,
+         10.89
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "after": {
+        "center": [
+         2.533,
+         12.029
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         1.2,
+         0.4
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    }
+   ],
+   "dropped": [
+    {
+     "type": "table_coffee",
+     "proposed": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "last": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 6,
+       "type": "table_coffee",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.7
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.7
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 7,
+       "type": "table_coffee",
+       "step": "shrink",
+       "before": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.2,
+         0.7
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 8,
+       "type": "table_coffee",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 9,
+       "type": "table_coffee",
+       "step": "shrink",
+       "before": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.0,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 10,
+       "type": "table_coffee",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position within 1 m"
+      },
+      {
+       "iteration": 11,
+       "type": "table_coffee",
+       "step": "drop",
+       "before": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "after": {
+        "center": [
+         1.65,
+         9.0
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.8,
+         0.5
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 11,
+      "piece": 1,
+      "type": "table_coffee",
+      "step": "drop",
+      "before": {
+       "center": [
+        1.65,
+        9.0
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.8,
+        0.5
+       ]
+      },
+      "after": {
+       "center": [
+        1.65,
+        9.0
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        0.8,
+        0.5
+       ]
+      },
+      "failed": [
+       "no_overlap"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    },
+    {
+     "type": "sofa",
+     "proposed": {
+      "center": [
+       1.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "last": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "reason": "no repair left",
+     "repairs": [
+      {
+       "iteration": 12,
+       "type": "sofa",
+       "step": "snap",
+       "before": {
+        "center": [
+         1.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "after": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok",
+        "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 13,
+       "type": "sofa",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "after": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 14,
+       "type": "sofa",
+       "step": "shrink",
+       "before": {
+        "center": [
+         0.65,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.6,
+         0.95
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 15,
+       "type": "sofa",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 16,
+       "type": "sofa",
+       "step": "shrink",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         2.2,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 17,
+       "type": "sofa",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 18,
+       "type": "sofa",
+       "step": "relocate",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false,
+       "note": "no free wall"
+      },
+      {
+       "iteration": 19,
+       "type": "sofa",
+       "step": "drop",
+       "before": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "after": {
+        "center": [
+         0.625,
+         9.39
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         1.6,
+         0.9
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": true,
+       "note": "no repair left"
+      }
+     ],
+     "log_entry": {
+      "iteration": 19,
+      "piece": 0,
+      "type": "sofa",
+      "step": "drop",
+      "before": {
+       "center": [
+        0.625,
+        9.39
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "after": {
+       "center": [
+        0.625,
+        9.39
+       ],
+       "rotation_deg": 90.0,
+       "size": [
+        1.6,
+        0.9
+       ]
+      },
+      "failed": [
+       "no_overlap",
+       "clearance_ok"
+      ],
+      "ok": true,
+      "note": "no repair left"
+     }
+    }
+   ],
+   "log": [
+    {
+     "iteration": 1,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "snap",
+     "before": {
+      "center": [
+       3.15,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 2,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "slide",
+     "before": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 3,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "shrink",
+     "before": {
+      "center": [
+       2.908,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.6,
+       0.45
+      ]
+     },
+     "after": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 4,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "slide",
+     "before": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 5,
+     "piece": 2,
+     "type": "tv_unit",
+     "step": "relocate",
+     "before": {
+      "center": [
+       2.933,
+       10.89
+      ],
+      "rotation_deg": 270.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "after": {
+      "center": [
+       2.533,
+       12.029
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       1.2,
+       0.4
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 6,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 7,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "shrink",
+     "before": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.2,
+       0.7
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 8,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 9,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "shrink",
+     "before": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.0,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 10,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position within 1 m"
+    },
+    {
+     "iteration": 11,
+     "piece": 1,
+     "type": "table_coffee",
+     "step": "drop",
+     "before": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "after": {
+      "center": [
+       1.65,
+       9.0
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.8,
+       0.5
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    },
+    {
+     "iteration": 12,
+     "piece": 0,
+     "type": "sofa",
+     "step": "snap",
+     "before": {
+      "center": [
+       1.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "after": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok",
+      "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 13,
+     "piece": 0,
+     "type": "sofa",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "after": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 14,
+     "piece": 0,
+     "type": "sofa",
+     "step": "shrink",
+     "before": {
+      "center": [
+       0.65,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.6,
+       0.95
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 15,
+     "piece": 0,
+     "type": "sofa",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 16,
+     "piece": 0,
+     "type": "sofa",
+     "step": "shrink",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       2.2,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 17,
+     "piece": 0,
+     "type": "sofa",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 18,
+     "piece": 0,
+     "type": "sofa",
+     "step": "relocate",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false,
+     "note": "no free wall"
+    },
+    {
+     "iteration": 19,
+     "piece": 0,
+     "type": "sofa",
+     "step": "drop",
+     "before": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "after": {
+      "center": [
+       0.625,
+       9.39
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       1.6,
+       0.9
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": true,
+     "note": "no repair left"
+    }
+   ],
+   "iterations": 19,
+   "anchor_first": false
+  }
+ }
+}

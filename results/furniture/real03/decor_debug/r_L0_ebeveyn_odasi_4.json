@@ -1,0 +1,39 @@
+{
+ "room_id": "r_L0_ebeveyn_odasi_4",
+ "label": "Ebeveyn Odası",
+ "room_type": "bedroom",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_022",
+   "type": "cushion",
+   "method": "rule",
+   "slot": null
+  },
+  {
+   "id": "dec_L0_023",
+   "type": "cushion",
+   "method": "rule",
+   "slot": null
+  },
+  {
+   "id": "dec_L0_024",
+   "type": "cushion",
+   "method": "rule",
+   "slot": null
+  },
+  {
+   "id": "dec_L0_025",
+   "type": "cushion",
+   "method": "rule",
+   "slot": null
+  }
+ ],
+ "fallback": "no slot for AI decor",
+ "notes": []
+}

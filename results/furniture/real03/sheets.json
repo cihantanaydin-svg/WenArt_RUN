@@ -2,8 +2,8 @@
  "schema_version": "1.0",
  "kind": "sheets",
  "project": "real03",
- "created_utc": "2026-10-10T10:47:16Z",
- "code_commit": "87831c156",
+ "created_utc": "2026-10-10T14:38:03Z",
+ "code_commit": "9e26b0fee",
  "inputs": [
   {
    "file": "tekkat.dwg",
@@ -21,7 +21,7 @@
   {
    "file": "tekkat.dwg",
    "format": "dwg",
-   "converter": "libredwg dwg2dxf 0.14 d9468ae; audit: 0 errors, 3029 fixes",
+   "converter": "libredwg dwg2dxf 0.14 d9468ae p1; audit: 0 errors, 1761 fixes",
    "units": {
     "insunits": 5,
     "metres_per_unit": 0.01,
@@ -30,9 +30,9 @@
      {
       "check": "area_labels",
       "unit": "cm",
-      "score": 0.833,
-      "samples": 6,
-      "note": "5 labels alone in a closed outline, 1 regions with >= 2 labels"
+      "score": 0.86,
+      "samples": 50,
+      "note": "49 labels alone in a closed outline, 1 regions with >= 2 labels"
      },
      {
       "check": "level_marks",
@@ -45,21 +45,21 @@
       "check": "door_widths",
       "unit": "cm",
       "score": 1.0,
-      "samples": 4,
-      "note": "median door radius 90 units"
+      "samples": 40,
+      "note": "median door radius 80 units"
      },
      {
       "check": "wall_thickness",
       "unit": null,
-      "score": 0.462,
-      "samples": 78,
-      "note": "median face-pair distance 25 units; no unit fits 50% of the samples"
+      "score": 0.567,
+      "samples": 1045,
+      "note": "median face-pair distance 15 units; no unit fits 50% of the samples"
      },
      {
       "check": "text_height",
       "unit": null,
       "score": null,
-      "samples": 46,
+      "samples": 302,
       "note": "median text height 12.5 units; cm and in fit equally well"
      },
      {
@@ -77,15 +77,15 @@
      "id": "s1",
      "space": "model",
      "box": [
-      7132.51,
-      150.0,
-      11277.116,
-      4856.81
+      6468.785,
+      368.25,
+      11275.0,
+      3562.742
      ],
      "frames": [],
-     "gap_units": 94.073,
+     "gap_units": 86.565,
      "debug_image": "sheets_debug/tekkat_dwg_s1.png",
-     "gap_m": 0.9407
+     "gap_m": 0.8657
     }
    ]
   }
@@ -106,7 +106,7 @@
     52.5,
     53.0
    ],
-   "entities": 49,
+   "entities": 305,
    "frame": null,
    "class": "floor_plan",
    "class_method": "title",
@@ -129,11 +129,11 @@
    },
    "features": {
     "entities": 2,
-    "texts": 47,
-    "room_labels": 2,
-    "wall_test": "4 closed thin polygons",
-    "area_labels": 5,
-    "wall_pairs": 54,
+    "texts": 303,
+    "room_labels": 55,
+    "wall_test": "hatch comb of 243 lines at 0 deg, median step 6 dxf",
+    "area_labels": 65,
+    "wall_pairs": 646,
     "closed_rectangles": 0,
     "street_words": true,
     "north_arrow": false,

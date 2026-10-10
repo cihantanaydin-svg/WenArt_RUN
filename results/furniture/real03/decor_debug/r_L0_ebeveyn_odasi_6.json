@@ -1,0 +1,424 @@
+{
+ "room_id": "r_L0_ebeveyn_odasi_6",
+ "label": "Ebeveyn Odası",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L0_054.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_054",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_054.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_054",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_054.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L0_054",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_106.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L0_106",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    6.62,
+    12.726
+   ],
+   "max_size": [
+    0.34,
+    0.32,
+    2.117
+   ]
+  },
+  {
+   "id": "f_L0_107.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L0_107",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    6.62,
+    10.675
+   ],
+   "max_size": [
+    0.34,
+    0.32,
+    2.117
+   ]
+  },
+  {
+   "id": "f_L0_185.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_185",
+   "host_type": "bench",
+   "note": ""
+  },
+  {
+   "id": "r_L0_ebeveyn_odasi_6.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L0_054",
+   "host_type": null,
+   "note": "f_L0_054"
+  },
+  {
+   "id": "window:win_L0_012",
+   "kind": "window",
+   "types": [
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_012"
+  },
+  {
+   "id": "window:win_L0_044",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_044"
+  },
+  {
+   "id": "ceiling:over_f_L0_054",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L0_054",
+   "host_type": null,
+   "note": "over f L0 054"
+  },
+  {
+   "id": "ceiling:centre_r_L0_ebeveyn_odasi_6",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 ebeveyn odasi 6"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_054.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and style to the bed with a natural, modern accent."
+    },
+    {
+     "slot": "f_L0_054.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the bed and complements the greige walls and natural wood."
+    },
+    {
+     "slot": "f_L0_054.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Minimalist art in wood tone enhances the modern natural aesthetic."
+    },
+    {
+     "slot": "f_L0_106.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Warm metallic glow matches the dark bronze frames and adds elegance."
+    },
+    {
+     "slot": "f_L0_107.centre",
+     "type": "plant_small",
+     "colour": "cream",
+     "reason": "Small plant in cream pot brings life and fits the natural, indoor plant theme."
+    },
+    {
+     "slot": "r_L0_ebeveyn_odasi_6.rug1",
+     "type": "rug",
+     "colour": "sand",
+     "reason": "Softens the floor and ties in with the light oak and warm daylight."
+    },
+    {
+     "slot": "window:win_L0_044",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light, airy curtains let in natural light and match the neutral palette."
+    },
+    {
+     "slot": "ceiling:over_f_L0_054",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Warm pendant light above bed enhances cozy, modern ambiance."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_ebeveyn_odasi_6",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Neutral ceiling light ensures balanced, ambient illumination."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.868
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_054.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
+    },
+    {
+     "slot": "f_L0_054.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Softens the bed and complements the natural wood and light grey sofa."
+    },
+    {
+     "slot": "f_L0_054.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "Minimalist wooden art enhances the modern natural style without clutter."
+    },
+    {
+     "slot": "f_L0_106.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small plant adds life and matches the rattan pots in the style brief."
+    },
+    {
+     "slot": "f_L0_107.centre",
+     "type": "book_set",
+     "colour": "cream",
+     "reason": "Books add texture and calmness, matching the warm daylight and neutral tones."
+    },
+    {
+     "slot": "r_L0_ebeveyn_odasi_6.rug1",
+     "type": "rug",
+     "colour": "sand",
+     "reason": "Sand rug grounds the space and complements the light oak floor and greige walls."
+    },
+    {
+     "slot": "window:win_L0_044",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains soften natural light and match the warm, natural aesthetic."
+    },
+    {
+     "slot": "ceiling:over_f_L0_054",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant light adds warmth and modern elegance to the ceiling."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.248
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_054.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds warmth and style to the bed with a natural, modern accent.",
+    "Adds warmth and color contrast to the greige walls and neutral palette."
+   ]
+  },
+  {
+   "slot": "f_L0_054.throw",
+   "type": "throw",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the bed and complements the greige walls and natural wood.",
+    "Softens the bed and complements the natural wood and light grey sofa."
+   ]
+  },
+  {
+   "slot": "f_L0_054.wall",
+   "type": "wall_art",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "Minimalist art in wood tone enhances the modern natural aesthetic.",
+    "Minimalist wooden art enhances the modern natural style without clutter."
+   ]
+  },
+  {
+   "slot": "r_L0_ebeveyn_odasi_6.rug1",
+   "type": "rug",
+   "colour": "sand",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the floor and ties in with the light oak and warm daylight.",
+    "Sand rug grounds the space and complements the light oak floor and greige walls."
+   ]
+  },
+  {
+   "slot": "window:win_L0_044",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Light, airy curtains let in natural light and match the neutral palette.",
+    "Cream curtains soften natural light and match the warm, natural aesthetic."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L0_054",
+   "type": "pendant_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Warm pendant light above bed enhances cozy, modern ambiance.",
+    "Brass pendant light adds warmth and modern elegance to the ceiling."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L0_106.centre",
+   "type": "table_lamp",
+   "colour": "brass",
+   "reason": "Warm metallic glow matches the dark bronze frames and adds elegance.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_107.centre",
+   "type": "plant_small",
+   "colour": "cream",
+   "reason": "Small plant in cream pot brings life and fits the natural, indoor plant theme.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_ebeveyn_odasi_6",
+   "type": "ceiling_light",
+   "colour": "white",
+   "reason": "Neutral ceiling light ensures balanced, ambient illumination.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L0_106.centre",
+   "type": "plant_small",
+   "colour": "natural wood",
+   "reason": "Small plant adds life and matches the rattan pots in the style brief.",
+   "passes": [
+    2
+   ]
+  },
+  {
+   "slot": "f_L0_107.centre",
+   "type": "book_set",
+   "colour": "cream",
+   "reason": "Books add texture and calmness, matching the warm daylight and neutral tones.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_070",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_054.cushions"
+  },
+  {
+   "id": "dec_L0_071",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_054.cushions"
+  },
+  {
+   "id": "dec_L0_072",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_054.throw"
+  },
+  {
+   "id": "dec_L0_073",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L0_054.wall"
+  },
+  {
+   "id": "dec_L0_074",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_ebeveyn_odasi_6.rug1"
+  },
+  {
+   "id": "dec_L0_075",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_044"
+  },
+  {
+   "id": "dec_L0_076",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L0_054"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no free corner for a floor plant",
+  "window win_L0_012: no room for a curtain rod (doors, windows or wall ends)"
+ ]
+}

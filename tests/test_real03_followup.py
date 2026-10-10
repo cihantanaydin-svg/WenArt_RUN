@@ -229,3 +229,19 @@ def test_the_final_estimate_without_polish_uses_its_own_factor():
     without = S.est_final(84, 4, polish=False)
     assert without / S.EST_FINAL_FACTOR_NO_POLISH * S.EST_FINAL_FACTOR > without
     assert without < with_polish and S.EST_FINAL_FACTOR_NO_POLISH < S.EST_FINAL_FACTOR
+
+
+def test_overrides_of_another_building_are_not_replayed(tmp_path):
+    import json as _json
+    from wenart.agent import overrides as OV
+    out = tmp_path / "p"
+    (out / "orchestrator").mkdir(parents=True)
+    (out / "building_decor.json").write_text(_json.dumps({"furniture": [], "rooms": []}), encoding="utf-8")
+    ov = OV.Overrides(out, "p")
+    ov.add(1, "set_material", {"slot": "walls", "look_id": "a", "reason": "r"}, {"accepted": True})
+    assert len(ov.accepted()) == 1 and ov.stale() == []
+    (out / "building_decor.json").write_text(_json.dumps({"furniture": [{"id": "x"}], "rooms": []}), encoding="utf-8")
+    again = OV.Overrides(out, "p")
+    assert again.accepted() == [] and len(again.stale()) == 1
+    summary = OV.apply(out)
+    assert summary["not_replayed"][0]["failed_checks"] == ["stale_source"]
