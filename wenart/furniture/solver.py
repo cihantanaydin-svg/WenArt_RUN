@@ -866,6 +866,8 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
                             break
                         budget["used"] += 1
                         s = Spot(atype, c, rot, size, "anchor", True, "L" if side else None, side)
+                        if zone_poly is not None and not zone_poly.buffer(0.05).contains(Point(c)):
+                            continue                   # outside the group's zone: not a try
                         if not space.spot_free(s):
                             continue
                         pre = _prescore(space, entry["group"], s, (k, t, lo, hi), align, info) - 0.01 * si
@@ -877,6 +879,8 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
                         break
                     budget["used"] += 1
                     s = Spot(atype, c, rot, size, "anchor", False)
+                    if zone_poly is not None and not zone_poly.buffer(0.05).contains(Point(c)):
+                        continue
                     if not space.spot_free(s):
                         continue
                     pre = _prescore(space, entry["group"], s, None, align, info) - 0.01 * si

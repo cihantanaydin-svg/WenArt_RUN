@@ -253,6 +253,13 @@ EITHER_WAY_TYPES = tuple(schemas.FRONTLESS_TYPES) + ("crib", "chair", "armchair"
                                                      "washing_machine", "shower")
 
 
+def size_range(ftype: str) -> Optional[tuple[tuple[float, float], tuple[float, float]]]:
+    """``((width min, max), (depth min, max))`` of a type's real sizes (the size table), None when it has none."""
+    from wenart.recognition import symbols
+
+    return symbols.normalise_table(_size_table()).get(ftype)
+
+
 def oriented_fit(ftype: str, size) -> dict:
     """How a footprint ``size = (width along the front, depth)`` fits its type's ranges (size table):
     ``{"fits": with the +15 % tolerance in this orientation, "turned": the swapped footprint fits the ranges exactly

@@ -42,8 +42,11 @@ def test_interface_signatures_are_frozen(module):
 def test_edit_ops_and_groups_names():
     from wenart.furniture import edit_ops, groups
 
-    assert edit_ops.EDIT_OPS == ("move", "rotate", "resize", "change_type", "swap_model", "add", "add_group",
-                                 "remove", "relayout_room", "set_room_type")
+    # Milestone 12 (§13.2) adds the group tools after the Milestone 11 ops, which keep their names and order.
+    assert edit_ops.EDIT_OPS[:10] == ("move", "rotate", "resize", "change_type", "swap_model", "add", "add_group",
+                                      "remove", "relayout_room", "set_room_type")
+    assert set(edit_ops.EDIT_OPS[10:]) == {"place_group", "complete_group", "move_group", "retype_piece",
+                                           "mark_not_furniture", "fix_fixture", "set_front"}
     assert groups.GROUPS == ("dining_set", "bed_set", "living_set", "desk_set", "kitchen_run")
 
 
