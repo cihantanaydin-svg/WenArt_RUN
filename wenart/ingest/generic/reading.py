@@ -73,7 +73,8 @@ ZONE_AISLE_M = 1.0                 # a kitchen zone: the kitchen pieces and the 
 KITCHEN_ZONE_TYPES = ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge", "tall_cabinet",
                       "wall_cabinet")
 SEAT_TYPES = ("sofa", "sofa_corner")
-HEAD_TYPES = ("bed_double", "bed_single", "bunk_bed", "toilet", "crib")   # the back is a short side
+# The back is a short side (a crib's front is a long side: track B's size table, the layout builds it so).
+HEAD_TYPES = ("bed_double", "bed_single", "bunk_bed", "toilet")
 CHAIR_SIDE_M = (0.30, 0.65)        # a chair (or its half-round back drawn alone) ...
 CHAIR_REACH_M = 0.40               # ... this close to a dining table faces it
 CHAIR_DEPTH_M = 0.45               # a chair drawn shallower (its back alone) reaches this deep towards the table
@@ -321,24 +322,24 @@ def copies(build, items: dict) -> int:
         if not loose:
             continue
         if syms and not typed and len({s["kind"] for s in syms}) == 1:
+            former = ", ".join(sorted(s["former_piece_id"] for s in syms))
             for f in loose:
                 det = items[f["id"]].details
                 det["symbol"] = {"kind": syms[0]["kind"],
-                                 "reason": f"drawn by the same block entities as {', '.join(sorted(s['former_piece_id'] for s in syms))} "
-                                           f"({syms[0]['kind']}): {syms[0]['reason']}"}
+                                 "reason": f"drawn by the same block entities as {former} ({syms[0]['kind']}): "
+                                           f"{syms[0]['reason']}"}
                 changed += 1
             continue
         kinds = {f["type"] for f in typed}
         if len(kinds) != 1:
             continue
         ftype = kinds.pop()
+        mates = ", ".join(sorted(t["id"] for t in typed))
         for f in loose:
-            if tuple(sorted(f["footprint"]["size"])) != tuple(sorted(typed[0]["footprint"]["size"])) and \
-                    max(abs(a - c) for a, c in zip(sorted(f["footprint"]["size"]), sorted(typed[0]["footprint"]["size"]))) \
-                    > 0.02:
+            if not _same_size(f, typed[0], 0.02):
                 continue
-            _set_type(build, f, ftype, f"drawn by the same block entities as {', '.join(sorted(t['id'] for t in typed))}"
-                      f" (typed {ftype}): the same piece in another insert of the block", confidence=0.8)
+            _set_type(build, f, ftype, f"drawn by the same block entities as {mates} (typed {ftype}): the same "
+                      "piece in another insert of the block", confidence=0.8)
             changed += 1
     if changed:
         move_symbols(build, items, {})
@@ -577,9 +578,9 @@ def context_types(build, items: dict) -> dict:
     return counts
 
 
-def _same_size(f: dict, g: dict) -> bool:
+def _same_size(f: dict, g: dict, tol: float = 0.05) -> bool:
     a, b_ = sorted(f["footprint"]["size"]), sorted(g["footprint"]["size"])
-    return all(abs(x - y) <= 0.05 for x, y in zip(a, b_))
+    return all(abs(x - y) <= tol + 1e-9 for x, y in zip(a, b_))
 
 
 def _l_body(seat: dict) -> Polygon:
@@ -688,8 +689,6 @@ def infer(build, pending: set[str]) -> int:
 def misread_share(ftype: str, size) -> float:
     """How far a footprint lies outside its type's real range (0 inside; 0.5 = 50 % beyond a bound), the better of
     both orientations."""
-    from wenart.furniture import sizes
-
     a, b_ = (float(v) for v in size[:2])
     return min(oriented_share(ftype, (a, b_)), oriented_share(ftype, (b_, a)))
 
@@ -739,7 +738,8 @@ def swing_polys(b: dict, room: dict) -> list[Polygon]:
                 continue
             ja = (inner[0] - ux * width / 2, inner[1] - uy * width / 2)
             jb = (inner[0] + ux * width / 2, inner[1] + uy * width / 2)
-            strip = Polygon([ja, jb, (jb[0] + nx * width, jb[1] + ny * width), (ja[0] + nx * width, ja[1] + ny * width)])
+            strip = Polygon([ja, jb, (jb[0] + nx * width, jb[1] + ny * width),
+                             (ja[0] + nx * width, ja[1] + ny * width)])
             out.append(unary_union([Point(ja).buffer(width, 32), Point(jb).buffer(width, 32)]).intersection(strip))
             break
     return out
@@ -769,11 +769,11 @@ def _placed(f: dict, size, centre) -> dict:
     return out
 
 
-def fix_fixed(build) -> list[str]:
-    """Step 4 (see the module docstring). Returns the ids of the adjusted pieces."""
-    from wenart.furniture import schemas, sizes
-
+def fix_fixed(build, items: Optional[dict] = None) -> list[str]:
+    """Step 4 (see the module docstring). Returns the ids of the adjusted pieces. ``items`` (the core's items) give
+    the plan crop of a piece that was asked (``adjusted_by_ai["crop"]``)."""
     from wenart.furniture import infer as INF
+    from wenart.furniture import schemas
 
     b = build.building
     rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
@@ -834,8 +834,10 @@ def fix_fixed(build) -> list[str]:
             changed["front_deg"] = drawn_front
         f["footprint"] = new["footprint"]
         f["front_deg"] = new.get("front_deg")
+        item = (items or {}).get(f["id"])
         f["adjusted_by_ai"] = {"reason": f"misread fixed equipment (CLAUDE.md, user OK of 10 Oct 2026): {reason}",
-                               "changed": changed, "rule": FIXED_RULE}
+                               "changed": changed, "rule": FIXED_RULE,
+                               "crop": _crop(item.details if item is not None else None)}
         f.setdefault("evidence", []).append(_ev(f, FIXED_RULE, reason, 0.8))
         build.warn(f"{f['id']}: {f['type']} adjusted at ingest: {reason}")
         done.append(f["id"])
@@ -1040,15 +1042,21 @@ def kitchen_zones(build) -> int:
 # 7. Never a box
 # --------------------------------------------------------------------------
 
-def never_a_box(build, items: dict) -> int:
+def never_a_box(build, items: dict, pending: Optional[set] = None) -> int:
     """Step 7: every piece still ``unknown`` is not built and listed in ``building["needs_review"]`` (its crop and
-    reason); outlines, details, columns and decor (``inferred_as``) are explained and not listed."""
+    reason); outlines, details, columns and decor (``inferred_as``) are explained and not listed. A piece whose AI
+    question waits for its answers is not built either, but not listed (the pipeline lists the open questions)."""
     b = build.building
     b.setdefault("needs_review", [])
     listed = {n["id"] for n in b["needs_review"]}
     n = 0
     for f in b["furniture"]:
         if f["type"] != "unknown" or f.get("inferred_as") in EXPLAINED_AS or f["id"] in listed:
+            continue
+        if f["id"] in (pending or set()):
+            if f.get("build") is not False:
+                f["build"] = False
+                f["not_built_reason"] = "untyped: its AI question waits for the answers"
             continue
         det = items[f["id"]].details if f["id"] in items else {}
         if f.get("build") is False and not det.get("oversize"):
@@ -1097,10 +1105,10 @@ def read_furniture(build, works: dict) -> None:
     if twice:
         context["drawn_twice"] = twice
     inferred = infer(build, pending)
-    fixed = fix_fixed(build)
+    fixed = fix_fixed(build, items)
     fronts += infer_fronts(build)
     zones = kitchen_zones(build)
-    review = never_a_box(build, items)
+    review = never_a_box(build, items, pending)
     _refresh_rooms(b)
     b.setdefault("symbols", [])
     b.setdefault("needs_review", [])
