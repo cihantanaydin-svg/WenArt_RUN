@@ -116,14 +116,16 @@ def test_basement_rooms_twins_and_openings(building):
 
 
 def test_alternative_basement_rooms_twins_and_same_as(building):
-    labels = {"Banyo": 2, "Oda": 2, "Koridor": 2, "Açık Mutfak": 2}
+    labels = {"Banyo": 2, "Oda": 2, "Koridor": 2, "Salon": 2}
     rooms = _rooms(building, "L-1b")
     assert Counter(r["label"] for r in rooms) == labels
     assert _twins(building, "L-1b") == {k: 1 for k in labels}
     assert _openings(building, "L-1b") == {"door": 4, "window": 2, "opening": 2}
-    # Açık Mutfak and Salon share one face (nothing drawn between them): first label kept, unverified, SALON listed.
-    assert all(r["status"] == "unverified" for r in rooms if r["label"] == "Açık Mutfak")
-    assert any(w.startswith("L-1b: room 'Açık Mutfak' has more labels: SALON") for w in building["warnings"])
+    # Açık Mutfak and Salon share one face (nothing drawn between them). Since docs/milestone11.md §19.8 row 9 the
+    # label with the largest printed net area names the face (Salon; the open kitchen is labelled 8.5 m²), unverified,
+    # the other label listed.
+    assert all(r["status"] == "unverified" for r in rooms if r["label"] == "Salon")
+    assert any(w.startswith("L-1b: room 'Salon' has more labels: AÇIK MUTFAK") for w in building["warnings"])
     base = {r["id"]: r for r in _rooms(building, "L-1")}
     same = {r["id"]: r["same_as"] for r in rooms if r.get("same_as")}
     assert len(same) == 2 and all(base[b]["label"] == "Banyo" for b in same.values())
