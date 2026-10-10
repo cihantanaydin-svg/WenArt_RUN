@@ -1142,11 +1142,13 @@ def walls_from_mask(mask: MaskLayer, outline_strokes_m: list[Stroke], file_rel: 
         _round_thickness(r)
     info["faces_snapped"] = snapped
     info["faces_unsnapped"] = unsnapped
-    face_ids = {k for k, p in enumerate(prims, start=1) if p.kind in FACE_KINDS}
+    # Walls inferred from room outlines (``outlines``) snap to their region's own edges like face-pair walls.
+    face_ids = {k for k, p in enumerate(prims, start=1) if p.kind in FACE_KINDS or p.kind == "inferred"}
     if face_ids:
         moved = _close_face_joints([r for r in rects if r.prims & face_ids], JOINT_PX * rot_grid.px)
         if moved:
-            info["notes"].append(f"{moved} face-pair wall ends moved onto the perpendicular wall face they stopped "
+            kind = "inferred" if all(prims[k - 1].kind == "inferred" for k in face_ids) else "face-pair"
+            info["notes"].append(f"{moved} {kind} wall ends moved onto the perpendicular wall face they stopped "
                                  f"short of by <= {JOINT_PX:g} mask pixels")
     if not segments and rects:
         info["notes"].append("no outline strokes: wall faces from the eroded mask")

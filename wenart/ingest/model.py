@@ -74,6 +74,9 @@ class WallItem:
     exterior: bool = False           # set by rooms.derive_rooms
     status: str = "verified"
     element_id: Optional[str] = None # building id once assigned (pipeline)
+    # Milestone 11 (CLAUDE.md evidence and inference rules): a wall the documents do not draw, inferred by code
+    # (``generic.outlines``: along labelled room outlines); evidence method ``inferred``, listed in the report.
+    inferred: bool = False
 
 
 @dataclass

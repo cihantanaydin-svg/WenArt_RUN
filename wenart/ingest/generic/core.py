@@ -4,12 +4,17 @@ What: ``extract(page, level_id, file_rel, answers=None, no_ai=False, rec_dir=Non
 (``labels``, ``scale``: G1) and the geometry side (``walls``, ``openings``, ``topology``, ``symbols``: G2) of the
 generic core in the order of §1.2:
 
+0. a sheet frame inserted as one block with its title block (``frame.frame_blocks``) is no plan geometry: its strokes
+   are dropped (noted; its texts stay);
 1. texts -> the page's unit system (``labels.page_unit_system``);
 2. dimensions (``scale.find_dimensions``) -> provisional scale (``scale.provisional_scale``); without one the page
    returns early with ``scale = None`` (the pipeline stops with ``needs_review`` as before);
 3. wall primitives and mask -> wall rectangles (``walls``) -> gaps and openings on all walls (``openings``);
 4. label blocks (``labels.merge_label_blocks``) -> plot and building (``topology.split_plot``; plot walls, exterior
-   areas and their openings go to ``site``) -> the outer loop must close (else ``needs_review``);
+   areas and their openings go to ``site``) -> the outer loop must close; when the drawn walls do not close
+   (or are absent) but the rooms are drawn as labelled closed outlines, the walls are inferred along them
+   (``outlines``: evidence method ``inferred``, status ``unverified``, Milestone 11) and the loop is checked again;
+   else ``needs_review``;
 5. furniture clusters, rule types and AI candidates (``symbols.furniture``) -> virtual separators (they need the
    stairs) -> faces with their names and types -> the room checks of the furniture rules;
 6. the scale is confirmed with the room-size labels (``scale.confirm_scale``); a provisional scale that the labels
@@ -46,8 +51,10 @@ from shapely.geometry import Point
 
 from wenart import building as B
 from wenart import units as U
+from wenart.ingest.generic import frame as FR
 from wenart.ingest.generic import labels as LB
 from wenart.ingest.generic import openings as O
+from wenart.ingest.generic import outlines as OL
 from wenart.ingest.generic import scale as SC
 from wenart.ingest.generic import symbols as SY
 from wenart.ingest.generic import topology as TP
@@ -781,6 +788,51 @@ def _raster_evidence_boxes(ex: LevelExtraction, page: GenericPage) -> None:
 
 
 # --------------------------------------------------------------------------
+# Walls inferred from labelled room outlines (Milestone 11)
+# --------------------------------------------------------------------------
+
+def _walls_from_outlines(ex: LevelExtraction, where: str, problem: str, strokes_m: list, blocks: list, walls: list,
+                         openings: list, owned: set, gap_log: list, file_rel: str, page_no: Optional[int], s: float):
+    """When the drawn walls do not close (``problem``), infer them along the labelled room outlines
+    (``outlines.labelled_outlines`` / ``infer_walls``). Returns ``(walls, openings, outline stroke ids)`` when the
+    inferred walls close the outer loop, else None (the drawn walls stay; the review reason stands). Every inferred
+    wall, the outlines used and the rooms left without a door are reported (never silent)."""
+    outlines = OL.labelled_outlines(strokes_m, blocks)
+    if len(outlines) < OL.MIN_OUTLINES:
+        return None
+    inf = OL.infer_walls(outlines, walls, strokes_m, file_rel, page_no, units_to_m=s, owned=owned)
+    if inf is None or not inf.inferred:
+        return None
+    kept_ids = {id(w) for w in inf.kept}
+    new_walls = list(inf.kept) + inf.inferred + [w for w in walls if id(w) not in kept_ids]
+    new_openings = list(openings) + list(inf.openings)
+    still = TP.outer_loop_problem(new_walls, new_openings)
+    report = {"problem": problem, "outlines": [OL.outline_line(o) for o in outlines], "inferred": len(inf.inferred),
+              "kept_drawn": len(inf.kept), "outer_thickness": inf.outer_thickness,
+              "thickness_source": inf.thickness_source, "openings": len(inf.openings), "closed": still is None}
+    ex.report["walls_from_outlines"] = report
+    if still is not None:
+        ex.notes.append(f"{where}: walls inferred from {len(outlines)} labelled room outlines do not close either "
+                        f"({still}); not used")
+        return None
+    owned.update(inf.owned)
+    for o in inf.openings:
+        gap_log.append({"kind": "continuous", "class": o.kind, "center": list(o.center), "width": o.width,
+                        "entity": o.entity, "on": "inferred wall"})
+    ex.warnings.append(f"{where}: the drawn walls do not close ({problem}): {OL.summary(inf)}")
+    ex.notes.append(f"{where}: room outlines used for the inferred walls: " +
+                    "; ".join(OL.outline_line(o) for o in outlines))
+    ex.notes.extend(f"{where}: inferred walls: {n}" for n in inf.notes)
+    ex.warnings.extend(f"{where}: inferred walls: {w}" for w in inf.warnings)
+    if inf.openings:
+        ex.notes.append(f"{where}: {len(inf.openings)} drawn door/window symbols read on the inferred walls")
+    for name in OL.doorless_rooms(outlines, new_walls, new_openings):
+        ex.warnings.append(f"{where}: room '{name}' (walls inferred from its outline) has no door in the documents; "
+                           f"none invented (the agent may add one)")
+    return new_walls, new_openings, {o.stroke.id for o in outlines}
+
+
+# --------------------------------------------------------------------------
 # Report data
 # --------------------------------------------------------------------------
 
@@ -830,6 +882,17 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     where = f"{file_rel} p{page.page}" if page.source_kind != "dxf" else file_rel
     ex.warnings.extend(page.warnings)
     page_no = _evidence_page(page)
+    frames = FR.frame_blocks(page)
+    if frames:
+        # A sheet frame inserted as one block with its title block (real03's legend block): drawing furniture of
+        # the sheet, never walls, openings or furniture of the plan (its texts stay for the titles).
+        drop = {i for f in frames for i in f["stroke_ids"]}
+        page = dataclasses.replace(page, strokes=[st for st in page.strokes if st.id not in drop])
+        for f in frames:
+            ex.notes.append(f"{where}: sheet frame block {f['entity']} ({f['block'] or 'block'}, layer "
+                            f"{f['layer'] or '-'}): {f['strokes']} strokes (frame and title block at the frame edge) "
+                            f"are not plan geometry")
+        ex.report["sheet_frames"] = [{k: v for k, v in f.items() if k != "stroke_ids"} for f in frames]
     is_raster = page.source_kind.startswith("raster")
     if is_raster:
         ex.report["raster"] = {"evidence_only": evidence_only, "labels": []}
@@ -890,16 +953,29 @@ def extract(page: GenericPage, level_id: str, file_rel: str, answers=None, no_ai
     # 4. Label blocks, plot and building.
     blocks = LB.merge_label_blocks(texts_m, file_rel, page_no)
     bwalls, site, site_warnings = TP.split_plot(walls2, openings, blocks, level_id=level_id)
+    site_idx = {o["index"] for o in site["openings"]}
+    b_openings = [o for k, o in enumerate(openings) if k not in site_idx]
+    problem = TP.outer_loop_problem(bwalls, b_openings)
+    if problem is not None and not is_raster:
+        # Milestone 11 (CLAUDE.md: open outer walls -> infer first): the drawn walls do not close, but the rooms may
+        # be drawn as labelled closed outlines: the walls are inferred along them (``outlines``).
+        inferred = _walls_from_outlines(ex, where, problem, non_wall, blocks, walls2, openings, owned, gap_log,
+                                        file_rel, page_no, s)
+        if inferred is not None:
+            walls2, openings, outline_ids = inferred
+            wall_strokes = wall_strokes | outline_ids
+            non_wall = [st for st in non_wall if st.id not in outline_ids]
+            bwalls, site, site_warnings = TP.split_plot(walls2, openings, blocks, level_id=level_id)
+            site_idx = {o["index"] for o in site["openings"]}
+            b_openings = [o for k, o in enumerate(openings) if k not in site_idx]
+            problem = TP.outer_loop_problem(bwalls, b_openings)
     for w in site_warnings:
         if w.startswith(TP.REVIEW_PREFIX):
             ex.review.append(f"{where}: {w[len(TP.REVIEW_PREFIX):]}")
         else:
             ex.warnings.append(f"{where}: {w}")
-    site_idx = {o["index"] for o in site["openings"]}
-    b_openings = [o for k, o in enumerate(openings) if k not in site_idx]
     if not bwalls:
         ex.review.append(f"{where}: no building walls found")
-    problem = TP.outer_loop_problem(bwalls, b_openings)
     if problem is not None:
         ex.review.append(f"{where}: outer walls do not close ({problem})")
     outline = TP.building_outline(bwalls, b_openings)

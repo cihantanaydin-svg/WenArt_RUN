@@ -742,3 +742,20 @@ Spec and report: `docs/milestone11.md` (§18 as built, §19 pods, §20 report).
 - Open items: §20.4 (grey boxes in real02, many major findings still open, polish off in orchestrated runs).
 
 GPU cost so far: $81.53 of $100. No pod is running.
+
+### real03 ingest: walls inferred from labelled room outlines (10 Oct 2026)
+
+`projects/real03/` (the user's D Blok ground floor, public like real02): the flats are external references that are
+empty in the DWG, so only the shared core is drawn: its walls layer holds four jamb fragments, but every core room is
+a closed net-area outline with its label and printed area.
+
+- Sheet frame blocks (`wenart/ingest/generic/frame.py`): a frame and title block inserted as one block (real03's
+  legend `*U62`) are no plan geometry; before, two title-block rows were the only "walls".
+- Walls from room outlines (`wenart/ingest/generic/outlines.py`, CLAUDE.md "open outer walls -> infer first"): when
+  the drawn walls do not close, closed outlines holding exactly one label (area within 8 % of the printed one) give
+  the walls: inner walls fill the gaps between outlines (≤ 0.60 m), outer walls 0.25 m (or the drawn fragments'
+  median); drawn walls on them stay `vector`; every inferred wall has evidence method `inferred`, `inferred: true`,
+  status `unverified`, a warning and a report table. Doors and windows are read only where their symbols are drawn;
+  rooms without a door get a warning (none invented).
+- real03: status ok (was needs_review), 30 inferred walls, 5 rooms with the printed areas, 4 door leaves (two glass
+  double doors), 3 unknown pieces for the AI, 3 rooms without a drawn door. Tests: `tests/test_outline_walls.py`.

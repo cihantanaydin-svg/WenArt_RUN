@@ -935,6 +935,23 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
     return out_walls, openings, log, owned
 
 
+def openings_on_walls(walls: list[WallItem], strokes_m: list[Stroke], file_rel: str, page_no: Optional[int],
+                      units_to_m: Optional[float] = None, owned: Optional[set] = None) -> list[OpeningItem]:
+    """The door and window symbols drawn across continuous walls (the continuous-wall rule of
+    ``gaps_and_openings``, without its run merging and gap casting): walls inferred by code have no drawn gaps, so a
+    door or window is read only where its symbol is drawn (``generic.outlines``). ``owned`` (updated in place) holds
+    the stroke ids other openings own already."""
+    if not walls:
+        return []
+    theta = dominant_angle(walls)
+    index = StrokeIndex(strokes_m, theta)
+    raster = bool(strokes_m) and all(st.source == "raster" for st in strokes_m)
+    ctx = _Ctx(file_rel, page_no, units_to_m, theta, raster)
+    taken = owned if owned is not None else set()
+    doors, windows = _continuous_symbols(walls, index, taken, theta, ctx, [])
+    return doors + windows
+
+
 @dataclass
 class _Ctx:
     file_rel: str

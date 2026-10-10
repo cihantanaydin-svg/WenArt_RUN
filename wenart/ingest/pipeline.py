@@ -200,9 +200,12 @@ def _to_building(ex: LevelExtraction, p) -> tuple[float, float]:
 
 def _wall_dict(level_id: str, wall: WallItem, wall_id: str, ceiling: float) -> dict:
     wall.element_id = wall_id
-    return {"id": wall_id, "level_id": level_id, "start": list(wall.start), "end": list(wall.end),
-            "thickness": wall.thickness, "height": ceiling, "exterior": wall.exterior, "status": wall.status,
-            "evidence": [wall.evidence]}
+    out = {"id": wall_id, "level_id": level_id, "start": list(wall.start), "end": list(wall.end),
+           "thickness": wall.thickness, "height": ceiling, "exterior": wall.exterior, "status": wall.status,
+           "evidence": [wall.evidence]}
+    if getattr(wall, "inferred", False):
+        out["inferred"] = True            # Milestone 11: not drawn, inferred by code (listed in the report)
+    return out
 
 
 def _nearest_wall(point, rotation_deg: float, walls: list[dict]) -> tuple[Optional[dict], float]:
@@ -1983,18 +1986,33 @@ def _infer_types(build: ProjectBuild) -> None:
 
 
 def _inferred_section(b: dict) -> list[str]:
-    """Milestone 11: every inferred item (type, front or outline) with its reason."""
+    """Milestone 11: every inferred item (walls; furniture type, front or outline) with its reason."""
+    walls = [w for w in b.get("walls") or [] if w.get("inferred")]
     rows = [f for f in b["furniture"] if f.get("inferred")]
-    if not rows:
+    if not rows and not walls:
         return []
-    lines = ["", "## Inferred (Milestone 11)", "",
-             "Pieces whose type, front or role the documents left unclear; inferred by code (the agent may change "
-             "them on the plan crop).", "", "| Piece | Room | Type | Front | Built | Reason |", "|---|---|---|---|---|---|"]
+    lines = ["", "## Inferred (Milestone 11)"]
+    if walls:
+        lines += ["", f"Walls inferred from room outlines: {len(walls)} (the documents do not draw them; evidence "
+                      "method inferred, status unverified).", "",
+                  "| Wall | Level | Start | End | Thickness | Outlines | Reason |", "|---|---|---|---|---|---|---|"]
+        for w in walls:
+            ev = (w.get("evidence") or [{}])[0]
+            lines.append(f"| {w['id']} | {w['level_id']} | {_pt(w['start'])} | {_pt(w['end'])} | "
+                         f"{w['thickness']:.3f} | {_cell(ev.get('entity') or '')} | {_cell(ev.get('note') or '')} |")
+    if rows:
+        lines += ["", "Pieces whose type, front or role the documents left unclear; inferred by code (the agent may "
+                      "change them on the plan crop).", "", "| Piece | Room | Type | Front | Built | Reason |",
+                  "|---|---|---|---|---|---|"]
     for f in rows:
         front = f"{f['front_deg']:g}" if f.get("front_deg") is not None else "-"
         lines.append(f"| {f['id']} | {f.get('room_id') or '-'} | {f['type']} | {front} | "
                      f"{'no' if f.get('build') is False else 'yes'} | {_cell(f.get('inferred_reason') or '')} |")
     return lines
+
+
+def _pt(p) -> str:
+    return f"({p[0]:.2f}, {p[1]:.2f})"
 
 
 def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Callable] = None, answers=None,
