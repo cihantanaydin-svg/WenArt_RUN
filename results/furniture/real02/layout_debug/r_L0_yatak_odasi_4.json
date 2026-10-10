@@ -97,7 +97,7 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L0_054",
+   "id": "f_L0_055",
    "type": "nightstand",
    "center": [
     12.852,
@@ -113,7 +113,7 @@
    "mirrored_from": "f_L0_045"
   },
   {
-   "id": "f_L0_055",
+   "id": "f_L0_056",
    "type": "nightstand",
    "center": [
     13.373,
@@ -129,11 +129,11 @@
    "mirrored_from": "f_L0_046"
   },
   {
-   "id": "f_L0_056",
+   "id": "f_L0_057",
    "type": "bench",
    "center": [
-    14.278,
-    11.564
+    14.268,
+    11.515
    ],
    "size": [
     1.2,
@@ -143,6 +143,22 @@
    "confidence": 0.9,
    "method": "ai",
    "mirrored_from": "f_L0_047"
+  },
+  {
+   "id": "f_L0_058",
+   "type": "dresser",
+   "center": [
+    12.226,
+    9.065
+   ],
+   "size": [
+    1.2,
+    0.5
+   ],
+   "rotation_deg": 90.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": "f_L0_048"
   }
  ],
  "refused": [],

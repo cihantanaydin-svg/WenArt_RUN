@@ -68,9 +68,18 @@ None.
 
 ## Drawn pieces against the source plan
 
-Reference: source building.json; mode `furnished_rooms: complete`. 209 of 210 checked drawn pieces keep their anchor (within 0.05 m), front (within 1.0 deg) and wall; 0 changed by the AI, 0 type proposal(s) for unverified pieces.
+Reference: source building.json; mode `furnished_rooms: complete`. 200 of 210 checked drawn pieces keep their anchor (within 0.05 m), front (within 1.0 deg) and wall; 0 changed by the AI, 0 type proposal(s) for unverified pieces.
 
+- f_L-1_023 (wardrobe): anchor moved 0.1791 m, front turned 0.0 deg, no longer against wall w_L-1_004 (now centre None)
+- f_L-1_024 (wardrobe): anchor moved 0.18 m, front turned 0.0 deg, no longer against wall w_L-1_004 (now centre None)
+- f_L-1_050 (armchair): anchor moved 0.0 m, front turned 90.0 deg
+- f_L-1_054 (sofa_corner): anchor moved 0.0 m, front turned 90.0 deg
+- f_L-1_057 (floor_lamp): anchor moved 0.8175 m, front turned 90.0 deg
 - f_L-1_059 (floor_lamp): anchor moved 0.2915 m, front turned 0.0 deg
+- f_L-1_062 (sofa): anchor moved 0.3 m, front turned None deg
+- f_L-1_065 (floor_lamp): anchor moved 0.3 m, front turned None deg
+- f_L0_029 (desk): anchor moved 0.3 m, front turned 0.0 deg
+- f_L0_033 (floor_lamp): anchor moved 0.0615 m, front turned 0.0 deg
 
 ## Exterior views
 
@@ -91,7 +100,7 @@ Advisory window and door count per visible facade (the crop of the render; the e
 | ext_2 | front | 2-4 / 0-0 | agent: 5 windows, 0 doors | unverified |
 | ext_3 | back | 0-0 / 2-2 | agent: 1 windows, 2 doors | unverified |
 | ext_4 | back | 0-0 / 2-2 | agent: 1 windows, 2 doors | unverified |
-| ext_5 | front | 2-2 / 0-0 | agent: 3 windows, 0 doors | unverified |
+| ext_5 | front | 2-2 / 0-0 | agent: 2 windows, 0 doors | ok |
 | ext_6 | back | 0-0 / 2-2 | agent: 0 windows, 2 doors | ok |
 
 ## Elevation check (building JSON against the drawn elevations and the section)
@@ -128,18 +137,18 @@ None.
 | cam_r_L0_e_yatak_odasi_3 | removal:win_L0_002 | no | no |
 | cam_r_L0_koridor_2 | insertion:d_L0_001 | no | no |
 | cam_r_L0_koridor_2 | removal:d_L0_001 | no | no |
-| cam_r_L0_yatak_odasi_1 | insertion:win_L0_001 | yes | no |
+| cam_r_L0_yatak_odasi_1 | insertion:win_L0_001 | no | no |
 | cam_r_L0_yatak_odasi_1 | removal:win_L0_001 | no | no |
 | cam_r_L0_yatak_odasi_1 | swap:f_L0_019 | yes | no |
 | cam_r_L0_yatak_odasi_2 | insertion:f_L0_010 | yes | no |
 | cam_r_L0_yatak_odasi_2 | removal:f_L0_010 | yes | no |
-| cam_r_L0_yatak_odasi_3_2 | swap:f_L0_021 | yes | no |
-| cam_r_L0_yatak_odasi_3_3 | insertion:f_L0_009 | yes | no |
-| cam_r_L0_yatak_odasi_3_3 | removal:f_L0_009 | yes | no |
+| cam_r_L0_yatak_odasi_3_1 | insertion:f_L0_009 | yes | no |
+| cam_r_L0_yatak_odasi_3_1 | removal:f_L0_009 | yes | no |
+| cam_r_L0_yatak_odasi_3_3 | swap:f_L0_021 | yes | no |
 | cam_r_L1_koridor_3 | insertion:d_L1_001 | yes | no |
 | cam_r_L1_koridor_3 | removal:d_L1_001 | yes | no |
-| cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | insertion:f_L1_009 | yes | no |
-| cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | removal:f_L1_009 | yes | no |
+| cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | insertion:f_L1_009 | no | no |
+| cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | removal:f_L1_009 | no | no |
 | cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | swap:f_L1_009 | yes | no |
 
 ## Calibration
@@ -153,7 +162,7 @@ None.
 | removal confirmed | - | >= 0.6 |
 | insertion detected | - | >= 0.6 |
 | type swap confirmed | - | - |
-| agent: answered / decoy accepted / single-pass FA missing | 1.000 / 0.000 / 0.000 | decoy <= 0.1 |
+| agent: answered / decoy accepted / single-pass FA missing | 1.000 / 0.000 / 0.013 | decoy <= 0.1 |
 
 Missed targets (the check is advisory):
 - single pass: no two-model agreement
@@ -188,9 +197,10 @@ Missed targets (the check is advisory):
 - cam_r_L1_koridor_2: polish images were made from another Cycles render (source_sha256); not checked
 - cam_r_L1_koridor_3: polish images were made from another Cycles render (source_sha256); not checked
 - cam_r_L1_teras_1: polish images were made from another Cycles render (source_sha256); not checked
+- cam_r_L0_yatak_odasi_3_1: detect/cam_r_L0_yatak_odasi_3_1.json cycles was made from another image (sha256); not used
+- cam_r_L0_yatak_odasi_3_1: detect/cam_r_L0_yatak_odasi_3_1.json control:f_L0_009 was made from another image (sha256); not used
 - cam_r_L0_yatak_odasi_2: detect/cam_r_L0_yatak_odasi_2.json cycles was made from another image (sha256); not used
 - cam_r_L0_yatak_odasi_2: detect/cam_r_L0_yatak_odasi_2.json control:f_L0_010 was made from another image (sha256); not used
-- cam_r_L0_yatak_odasi_3_3: detect/cam_r_L0_yatak_odasi_3_3.json cycles was made from another image (sha256); not used
 - cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2: detect/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2.json cycles was made from another image (sha256); not used
 - cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2: detect/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2.json control:f_L1_009 was made from another image (sha256); not used
 - cam_r_L-1_salon_1: detect/cam_r_L-1_salon_1.json cycles was made from another image (sha256); not used

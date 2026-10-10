@@ -3,8 +3,23 @@
  "dir_relative_to": "project_out",
  "controls": [
   {
+   "id": "f_L0_009",
+   "index": 145,
+   "kind": "furniture",
+   "type": "wardrobe",
+   "camera": "cam_r_L0_yatak_odasi_3_1",
+   "room_id": "r_L0_yatak_odasi_3",
+   "area_frac": 0.22915,
+   "source": "from_documents",
+   "modified_by_ai": false,
+   "drawn_type": null,
+   "completes_room": false,
+   "plug": false,
+   "dir": "controls/hide_f_L0_009"
+  },
+  {
    "id": "f_L0_010",
-   "index": 149,
+   "index": 146,
    "kind": "furniture",
    "type": "wardrobe",
    "camera": "cam_r_L0_yatak_odasi_2",
@@ -18,28 +33,13 @@
    "dir": "controls/hide_f_L0_010"
   },
   {
-   "id": "f_L0_009",
-   "index": 148,
-   "kind": "furniture",
-   "type": "wardrobe",
-   "camera": "cam_r_L0_yatak_odasi_3_3",
-   "room_id": "r_L0_yatak_odasi_3",
-   "area_frac": 0.18622,
-   "source": "from_documents",
-   "modified_by_ai": false,
-   "drawn_type": null,
-   "completes_room": false,
-   "plug": false,
-   "dir": "controls/hide_f_L0_009"
-  },
-  {
    "id": "f_L1_009",
-   "index": 242,
+   "index": 239,
    "kind": "furniture",
    "type": "sofa",
    "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
-   "area_frac": 0.07429,
+   "area_frac": 0.08706,
    "source": "from_documents",
    "modified_by_ai": false,
    "drawn_type": null,
@@ -54,14 +54,14 @@
    "type": "window",
    "camera": "cam_r_L-1_salon_1",
    "room_id": "r_L-1_salon",
-   "area_frac": 0.08672,
+   "area_frac": 0.10752,
    "source": "from_documents",
    "plug": true,
    "dir": "controls/hide_win_L-1_001"
   },
   {
    "id": "win_L0_002",
-   "index": 139,
+   "index": 136,
    "kind": "window",
    "type": "window",
    "camera": "cam_r_L0_e_yatak_odasi_3",
@@ -73,7 +73,7 @@
   },
   {
    "id": "win_L0_001",
-   "index": 138,
+   "index": 135,
    "kind": "window",
    "type": "window",
    "camera": "cam_r_L0_yatak_odasi_1",
@@ -85,7 +85,7 @@
   },
   {
    "id": "d_L1_001",
-   "index": 222,
+   "index": 221,
    "kind": "door",
    "type": "door",
    "camera": "cam_r_L1_koridor_3",
@@ -97,7 +97,7 @@
   },
   {
    "id": "d_L0_001",
-   "index": 126,
+   "index": 123,
    "kind": "door",
    "type": "door",
    "camera": "cam_r_L0_koridor_2",
@@ -111,7 +111,7 @@
  "swaps": [
   {
    "id": "f_L0_019",
-   "index": 158,
+   "index": 155,
    "type": "bed_double",
    "camera": "cam_r_L0_yatak_odasi_1",
    "room_id": "r_L0_yatak_odasi",
@@ -124,11 +124,11 @@
   },
   {
    "id": "f_L0_021",
-   "index": 160,
+   "index": 157,
    "type": "bed_double",
-   "camera": "cam_r_L0_yatak_odasi_3_2",
+   "camera": "cam_r_L0_yatak_odasi_3_3",
    "room_id": "r_L0_yatak_odasi_3",
-   "area_frac": 0.12343,
+   "area_frac": 0.11387,
    "source": "from_documents",
    "modified_by_ai": false,
    "drawn_type": null,
@@ -137,11 +137,11 @@
   },
   {
    "id": "f_L1_009",
-   "index": 242,
+   "index": 239,
    "type": "sofa",
    "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
-   "area_frac": 0.07429,
+   "area_frac": 0.08706,
    "source": "from_documents",
    "modified_by_ai": false,
    "drawn_type": null,
@@ -150,5 +150,5 @@
   }
  ],
  "project": "real02",
- "hide_sets": "cam_r_L0_yatak_odasi_2:f_L0_010;cam_r_L0_yatak_odasi_3_3:f_L0_009;cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2:f_L1_009;cam_r_L-1_salon_1:win_L-1_001+plug;cam_r_L0_e_yatak_odasi_3:win_L0_002+plug;cam_r_L0_yatak_odasi_1:win_L0_001+plug;cam_r_L1_koridor_3:d_L1_001;cam_r_L0_koridor_2:d_L0_001"
+ "hide_sets": "cam_r_L0_yatak_odasi_3_1:f_L0_009;cam_r_L0_yatak_odasi_2:f_L0_010;cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2:f_L1_009;cam_r_L-1_salon_1:win_L-1_001+plug;cam_r_L0_e_yatak_odasi_3:win_L0_002+plug;cam_r_L0_yatak_odasi_1:win_L0_001+plug;cam_r_L1_koridor_3:d_L1_001;cam_r_L0_koridor_2:d_L0_001"
 }

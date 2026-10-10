@@ -130,8 +130,8 @@ Project: real02; 210 pieces, 92 library fits, 118 parametric fallbacks. Non-unif
 | f_L-1b_036 | r_L-1b_banyo | washbasin | from_documents | verified | 1.00 x 0.55 | parametric | parametric:washbasin | n/a | 1.000 / 1.000 / 1.000 | - | 1.00 |
 | f_L-1b_037 | r_L-1b_banyo_2 | toilet | from_documents | verified | 0.69 x 0.50 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
 | f_L-1b_038 | r_L-1b_banyo | toilet | from_documents | verified | 0.69 x 0.50 | parametric | parametric:toilet | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
-| f_L-1b_039 | r_L-1b_acik_mutfak_2 | kitchen_island | from_documents | unverified | 2.13 x 0.90 | parametric | parametric:kitchen_island | n/a | 1.000 / 1.000 / 1.000 | - | 0.90 |
-| f_L-1b_040 | r_L-1b_acik_mutfak | unknown | from_documents | unverified | 2.13 x 0.90 | parametric | parametric:unknown | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
+| f_L-1b_039 | r_L-1b_acik_mutfak_2 | kitchen_island | from_documents | verified | 0.90 x 2.13 | parametric | parametric:kitchen_island | n/a | 1.000 / 1.000 / 1.000 | - | 0.90 |
+| f_L-1b_040 | r_L-1b_acik_mutfak | kitchen_island | from_documents | unverified | 0.90 x 2.13 | parametric | parametric:kitchen_island | n/a | 1.000 / 1.000 / 1.000 | - | 0.90 |
 | f_L-1b_041 | r_L-1b_banyo_2 | bathtub | from_documents | verified | 1.83 x 0.80 | parametric | parametric:bathtub | n/a | 1.000 / 1.000 / 1.000 | - | 0.70 |
 | f_L-1b_042 | r_L-1b_banyo | bathtub | from_documents | verified | 1.83 x 0.80 | parametric | parametric:bathtub | n/a | 1.000 / 1.000 / 1.000 | - | 0.70 |
 | f_L-1b_043 | r_L-1b_acik_mutfak_2 | unknown | from_documents | unverified | 0.82 x 1.64 | parametric | parametric:unknown | n/a | 1.000 / 1.000 / 1.000 | - | 0.80 |
@@ -282,7 +282,7 @@ Project: real02; 210 pieces, 92 library fits, 118 parametric fallbacks. Non-unif
 - f_L-1b_037 (toilet): no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_toilet_minimal_1_3799392b at 34.4 % non-uniform, mean scale 1.1086)
 - f_L-1b_038 (toilet): no toilet candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_toilet_minimal_1_3799392b at 34.4 % non-uniform, mean scale 1.1086)
 - f_L-1b_039 (kitchen_island): type kitchen_island is parametric in the catalogue
-- f_L-1b_040 (unknown): type unknown is parametric in the catalogue
+- f_L-1b_040 (kitchen_island): type kitchen_island is parametric in the catalogue
 - f_L-1b_041 (bathtub): no bathtub candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_bathtub_modern_5_e14ba0b4 at 18.4 % non-uniform, mean scale 1.1844)
 - f_L-1b_042 (bathtub): no bathtub candidate within 15 % non-uniform scale and 0.75..1.3 mean scale (closest: gen_bathtub_modern_5_e14ba0b4 at 18.4 % non-uniform, mean scale 1.1844)
 - f_L-1b_043 (unknown): type unknown is parametric in the catalogue

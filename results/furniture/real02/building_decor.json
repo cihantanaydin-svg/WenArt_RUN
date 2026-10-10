@@ -3,8 +3,8 @@
  "project": {
   "id": "real02",
   "source_folder": "projects/real02",
-  "created_utc": "2026-10-09T22:38:13Z",
-  "pipeline_commit": "9e136a2a",
+  "created_utc": "2026-10-10T01:09:34Z",
+  "pipeline_commit": "cddf61aa",
   "brief": {
    "style": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight",
    "style_photos": [
@@ -28899,12 +28899,12 @@
      4.4821
     ],
     "size": [
-     2.1273,
-     0.9
+     0.9,
+     2.1273
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 0.0
    },
-   "front_deg": null,
+   "front_deg": 270.0,
    "height": null,
    "asset": {
     "library": "parametric",
@@ -28918,8 +28918,8 @@
      1.0
     ],
     "bbox_m": [
-     2.1273,
      0.9,
+     2.1273,
      0.9
     ],
     "aspect_error": null,
@@ -28936,7 +28936,7 @@
     "style_family": null,
     "excluded": []
    },
-   "status": "unverified",
+   "status": "verified",
    "evidence": [
     {
      "file": "one_building.dwg",
@@ -28947,25 +28947,57 @@
     },
     {
      "file": "one_building.dwg",
-     "method": "inferred",
-     "confidence": 0.6,
-     "rule": "furniture.infer",
-     "text": "kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here",
-     "entity": "LINE:2C823,LINE:2C824,LINE:2C825,LINE:2C826,LINE:2C827,LINE:2C828,LINE:2C829,LINE:2C82A,LINE:2C82B,LINE:2C82C,LINE:2C82D,LINE:2C82E,LINE:2C82F,LINE:2C830,LWPOLYLINE:2C822",
+     "method": "ai",
+     "confidence": 0.95,
+     "entity": "recognition:sym_L-1b_001",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "kitchen_island",
+     "front": "bottom",
+     "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest, front is bottom edge.",
+     "region_id": "r3"
+    },
+    {
+     "file": "one_building.dwg",
+     "method": "ai",
+     "confidence": 0.9,
+     "entity": "recognition:sym_L-1b_001",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "kitchen_island",
+     "front": "bottom",
+     "reason": "The object's footprint and placement in a kitchen area match the description of a kitchen island.",
      "region_id": "r3"
     }
    ],
-   "type_method": "none",
-   "type_candidates": [],
-   "build": true,
-   "inferred": true,
-   "inferred_reason": "kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here"
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "kitchen_island",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest, front is bottom edge."
+    },
+    {
+     "type": "kitchen_island",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "bottom",
+     "reason": "The object's footprint and placement in a kitchen area match the description of a kitchen island."
+    }
+   ],
+   "build": true
   },
   {
    "id": "f_L-1b_040",
    "level_id": "L-1b",
    "room_id": "r_L-1b_acik_mutfak",
-   "type": "unknown",
+   "type": "kitchen_island",
    "type_raw": null,
    "source": "from_documents",
    "footprint": {
@@ -28974,16 +29006,16 @@
      4.4821
     ],
     "size": [
-     2.1273,
-     0.9
+     0.9,
+     2.1273
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 0.0
    },
-   "front_deg": null,
+   "front_deg": 270.0,
    "height": null,
    "asset": {
     "library": "parametric",
-    "asset_id": "parametric:unknown",
+    "asset_id": "parametric:kitchen_island",
     "licence": "n/a",
     "license": "n/a",
     "method": "parametric",
@@ -28993,9 +29025,9 @@
      1.0
     ],
     "bbox_m": [
-     2.1273,
      0.9,
-     0.8
+     2.1273,
+     0.9
     ],
     "aspect_error": null,
     "front_axis": "-Y",
@@ -29006,7 +29038,7 @@
      0.0
     ],
     "candidates": [],
-    "fallback_reason": "type unknown is parametric in the catalogue",
+    "fallback_reason": "type kitchen_island is parametric in the catalogue",
     "cap": 1.15,
     "style_family": null,
     "excluded": []
@@ -29043,6 +29075,15 @@
      "front": "top",
      "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa.",
      "region_id": "r3"
+    },
+    {
+     "file": "one_building.dwg",
+     "method": "inferred",
+     "confidence": 0.8,
+     "rule": "ingest.twins",
+     "text": "type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16)",
+     "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
+     "region_id": "r3"
     }
    ],
    "type_method": "none",
@@ -29067,14 +29108,8 @@
     }
    ],
    "build": true,
-   "anchor": {
-    "kind": "centre",
-    "point": [
-     4.189,
-     4.4821
-    ],
-    "wall_id": null
-   }
+   "inferred": true,
+   "inferred_reason": "type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16)"
   },
   {
    "id": "f_L-1b_041",
@@ -49259,10 +49294,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Comfortable seating near the door, facing the room’s center."
+     "text": "Comfortable seating near the desk, facing the bookshelf."
     }
    ],
    "checks": {
@@ -49287,7 +49322,7 @@
      ]
     },
     "repairs": [],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    }
   },
   {
@@ -49319,7 +49354,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Small chair for additional seating near the armchair."
+     "text": "Additional seating for guests or work, near the armchair."
     }
    ],
    "checks": {
@@ -49378,7 +49413,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Central table for dining or work, balanced between furniture."
+     "text": "Central table for dining or work, between chairs and desk."
     }
    ],
    "checks": {
@@ -49500,7 +49535,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Compact shoe cabinet against wall near door for storage without blocking walkway."
+     "text": "Shoe cabinet against wall near door for practical storage without blocking walkway."
     }
    ],
    "checks": {
@@ -49675,10 +49710,10 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Comfortable seating near the door, facing the room’s center."
+     "text": "Comfortable seating near the desk, facing the bookshelf."
     }
    ],
    "checks": {
@@ -49703,7 +49738,7 @@
      "rotation_deg": 0.0
     },
     "repairs": [],
-    "agreed_by_other_pass": true,
+    "agreed_by_other_pass": false,
     "copied_from": "f_L-1b_063"
    },
    "mirrored_from": "f_L-1b_063"
@@ -49737,7 +49772,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Small chair for additional seating near the armchair."
+     "text": "Additional seating for guests or work, near the armchair."
     }
    ],
    "checks": {
@@ -49796,7 +49831,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Central table for dining or work, balanced between furniture."
+     "text": "Central table for dining or work, between chairs and desk."
     }
    ],
    "checks": {
@@ -49914,7 +49949,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Compact shoe cabinet against wall near door for storage without blocking walkway."
+     "text": "Shoe cabinet against wall near door for practical storage without blocking walkway."
     }
    ],
    "checks": {
@@ -49973,7 +50008,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed against the wall the sofa faces, matching modern natural style."
+     "text": "Placed against the wall the sofa faces, with 0.6m clearance in front."
     }
    ],
    "checks": {
@@ -50034,7 +50069,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds seating near the sofa for conversation, in warm greige and natural wood style."
+     "text": "Added for seating balance, placed away from walls to maintain open flow."
     },
     {
      "file": "building.json",
@@ -50084,80 +50119,11 @@
    "footprint": {
     "center": [
      1.5,
-     4.3
+     6.847
     ],
     "size": [
      1.2,
      0.35
-    ],
-    "rotation_deg": 180.0
-   },
-   "front_deg": 90.0,
-   "height": 0.8,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Placed beside the armchair for decor and function, matching the modern natural style."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Provides surface for decor near sofa, matching style and wall placement."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      1.5,
-      5.0
-     ],
-     "rotation_deg": 180.0,
-     "size": [
-      1.2,
-      0.35
-     ]
-    },
-    "repairs": [
-     "slide"
-    ],
-    "agreed_by_other_pass": true
-   },
-   "completes_room": true,
-   "method": "ai"
-  },
-  {
-   "id": "f_L-1_092",
-   "level_id": "L-1",
-   "room_id": "r_L-1_salon",
-   "type": "chaise",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     1.5,
-     3.0
-    ],
-    "size": [
-     0.75,
-     1.7
     ],
     "rotation_deg": 0.0
    },
@@ -50172,66 +50138,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds lounging space near the sofa, in natural wood and cream style."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      1.5,
-      3.0
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.75,
-      1.7
-     ]
-    },
-    "repairs": [],
-    "agreed_by_other_pass": false
-   },
-   "completes_room": true,
-   "method": "ai"
-  },
-  {
-   "id": "f_L-1_093",
-   "level_id": "L-1",
-   "room_id": "r_L-1_salon",
-   "type": "bookshelf",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     7.19,
-     1.872
-    ],
-    "size": [
-     1.0,
-     0.35
-    ],
-    "rotation_deg": 270.0
-   },
-   "front_deg": 180.0,
-   "height": 1.8,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Placed against the wall for storage and display, matching modern natural style."
+     "text": "Placed against the wall for functional storage and decor, near the armchair."
     }
    ],
    "checks": {
@@ -50247,20 +50154,16 @@
     "proposed": {
      "center": [
       1.5,
-      1.0
+      6.5
      ],
      "rotation_deg": 0.0,
      "size": [
-      1.0,
+      1.2,
       0.35
      ]
     },
     "repairs": [
-     "snap",
-     "slide",
-     "shrink",
-     "slide",
-     "relocate"
+     "snap"
     ],
     "agreed_by_other_pass": false
    },
@@ -50268,7 +50171,7 @@
    "method": "ai"
   },
   {
-   "id": "f_L-1_094",
+   "id": "f_L-1_092",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak",
    "type": "tall_cabinet",
@@ -50296,7 +50199,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds storage at end of counter run, matches modern natural style."
+     "text": "Adds storage at the end of the counter run, matching modern natural style."
     }
    ],
    "checks": {
@@ -50333,7 +50236,7 @@
    "method": "ai"
   },
   {
-   "id": "f_L-1_095",
+   "id": "f_L-1_093",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak",
    "type": "table_dining",
@@ -50358,10 +50261,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Fits 1.2m free space, modern dining setup with natural wood."
+     "text": "Fits in 1.2m free space, modern natural style with light oak finish."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Small dining table fits the 1.2m free space and complements the natural wood and plant style."
     }
    ],
    "checks": {
@@ -50388,13 +50299,13 @@
     "repairs": [
      "slide"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    },
    "completes_room": true,
    "method": "ai"
   },
   {
-   "id": "f_L-1_096",
+   "id": "f_L-1_094",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak",
    "type": "chair",
@@ -50419,10 +50330,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Matches dining table, natural wood, modern style."
+     "text": "Four chairs for dining table, natural wood finish, modern style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed at dining table for seating, matching modern natural style."
     }
    ],
    "checks": {
@@ -50449,13 +50368,13 @@
     "repairs": [
      "slide"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    },
    "completes_room": true,
    "method": "ai"
   },
   {
-   "id": "f_L-1_097",
+   "id": "f_L-1_095",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak",
    "type": "chair",
@@ -50480,10 +50399,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Matches dining table, natural wood, modern style."
+     "text": "Four chairs for dining table, natural wood finish, modern style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed at dining table for seating, matching modern natural style."
     }
    ],
    "checks": {
@@ -50510,13 +50437,13 @@
     "repairs": [
      "slide"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    },
    "completes_room": true,
    "method": "ai"
   },
   {
-   "id": "f_L-1_098",
+   "id": "f_L-1_096",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak",
    "type": "wall_cabinet",
@@ -50560,7 +50487,7 @@
    }
   },
   {
-   "id": "f_L-1_099",
+   "id": "f_L-1_097",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak",
    "type": "wall_cabinet",
@@ -50605,7 +50532,7 @@
    }
   },
   {
-   "id": "f_L-1_100",
+   "id": "f_L-1_098",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak",
    "type": "wall_cabinet",
@@ -50650,7 +50577,7 @@
    }
   },
   {
-   "id": "f_L-1_101",
+   "id": "f_L-1_099",
    "level_id": "L-1",
    "room_id": "r_L-1_koridor_2",
    "type": "console_table",
@@ -50686,7 +50613,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Slim console table against wall near door, leaving walkway clear."
+     "text": "Slim console table against wall near door, keeps corridor clear."
     }
    ],
    "checks": {
@@ -50726,223 +50653,13 @@
    "id": "f_L-1b_071",
    "level_id": "L-1b",
    "room_id": "r_L-1b_acik_mutfak",
-   "type": "bar_stool",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     1.59,
-     4.1
-    ],
-    "size": [
-     0.42,
-     0.42
-    ],
-    "rotation_deg": 180.0
-   },
-   "front_deg": 90.0,
-   "height": 0.75,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Place bar stools at the island for casual dining or seating."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Placed at island bar for modern natural style seating."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      1.59,
-      4.0
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.42,
-      0.42
-     ]
-    },
-    "repairs": [
-     "slide",
-     "face_host"
-    ],
-    "agreed_by_other_pass": true
-   },
-   "completes_room": true,
-   "method": "ai"
-  },
-  {
-   "id": "f_L-1b_072",
-   "level_id": "L-1b",
-   "room_id": "r_L-1b_acik_mutfak",
-   "type": "bar_stool",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     2.09,
-     4.1
-    ],
-    "size": [
-     0.42,
-     0.42
-    ],
-    "rotation_deg": 180.0
-   },
-   "front_deg": 90.0,
-   "height": 0.75,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Add second bar stool for extra seating at the island."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Placed at island bar for modern natural style seating."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      1.59,
-      3.8
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.42,
-      0.42
-     ]
-    },
-    "repairs": [
-     "slide",
-     "face_host"
-    ],
-    "agreed_by_other_pass": true
-   },
-   "completes_room": true,
-   "method": "ai"
-  },
-  {
-   "id": "f_L-1b_073",
-   "level_id": "L-1b",
-   "room_id": "r_L-1b_acik_mutfak",
-   "type": "bar_stool",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     1.09,
-     3.8
-    ],
-    "size": [
-     0.42,
-     0.42
-    ],
-    "rotation_deg": 180.0
-   },
-   "front_deg": 90.0,
-   "height": 0.75,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Add third bar stool to complete island seating."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Placed at island bar for modern natural style seating."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      1.59,
-      3.6
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.42,
-      0.42
-     ]
-    },
-    "repairs": [
-     "slide",
-     "face_host"
-    ],
-    "agreed_by_other_pass": true
-   },
-   "completes_room": true,
-   "method": "ai"
-  },
-  {
-   "id": "f_L-1b_074",
-   "level_id": "L-1b",
-   "room_id": "r_L-1b_acik_mutfak",
    "type": "tall_cabinet",
    "type_raw": null,
    "source": "added_by_ai",
    "footprint": {
     "center": [
      7.066,
-     4.48
+     5.53
     ],
     "size": [
      0.6,
@@ -50960,8 +50677,8 @@
      "method": "ai",
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Place tall cabinet at end of counter run for storage and style."
+     "pass": 1,
+     "text": "Fits at end of counter run, against wall, modern natural style."
     }
    ],
    "checks": {
@@ -50976,17 +50693,206 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      6.94,
-      4.48
+      0.5,
+      5.53
      ],
-     "rotation_deg": 270.0,
+     "rotation_deg": 90.0,
      "size": [
       0.6,
       0.6
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide",
+     "shrink",
+     "slide",
+     "relocate"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L-1b_072",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_acik_mutfak",
+   "type": "bar_stool",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.29,
+     4.02
+    ],
+    "size": [
+     0.42,
+     0.42
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.75,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds bar seating at kitchen island, modern natural style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      1.59,
+      4.62
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.42,
+      0.42
+     ]
+    },
+    "repairs": [
+     "slide",
+     "face_host"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L-1b_073",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_acik_mutfak",
+   "type": "bar_stool",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.19,
+     5.22
+    ],
+    "size": [
+     0.42,
+     0.42
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.75,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds second bar stool at island, modern natural style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      1.59,
+      4.62
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.42,
+      0.42
+     ]
+    },
+    "repairs": [
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L-1b_074",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_acik_mutfak",
+   "type": "bar_stool",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.19,
+     4.02
+    ],
+    "size": [
+     0.42,
+     0.42
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.75,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds third bar stool at island, modern natural style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      1.59,
+      4.62
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.42,
+      0.42
+     ]
+    },
+    "repairs": [
+     "slide",
+     "face_host"
     ],
     "agreed_by_other_pass": false
    },
@@ -50995,6 +50901,67 @@
   },
   {
    "id": "f_L-1b_075",
+   "level_id": "L-1b",
+   "room_id": "r_L-1b_acik_mutfak",
+   "type": "bar_stool",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     1.69,
+     5.22
+    ],
+    "size": [
+     0.42,
+     0.42
+    ],
+    "rotation_deg": 0.0
+   },
+   "front_deg": 270.0,
+   "height": 0.75,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds fourth bar stool at island, modern natural style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      1.59,
+      4.62
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.42,
+      0.42
+     ]
+    },
+    "repairs": [
+     "slide"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L-1b_076",
    "level_id": "L-1b",
    "room_id": "r_L-1b_koridor",
    "type": "console_table",
@@ -51022,7 +50989,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed against the wall at the entrance for functional storage and decor."
+     "text": "Placed against the wall near the entrance to define the space without blocking the walkway."
     },
     {
      "file": "building.json",
@@ -51075,16 +51042,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     0.421,
-     4.01
+     2.121,
+     1.921
     ],
     "size": [
-     0.4,
+     0.5,
      0.4
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 180.0
    },
-   "front_deg": 0.0,
+   "front_deg": 90.0,
    "height": 0.5,
    "asset": null,
    "status": "verified",
@@ -51092,10 +51059,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
      "text": "Place beside bed_double to match modern natural style and keep 0.6m clearance."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Placed beside bed for symmetry and function; fits space without blocking access."
     }
    ],
    "checks": {
@@ -51110,7 +51085,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      0.93,
+      0.65,
       3.01
      ],
      "rotation_deg": 90.0,
@@ -51123,9 +51098,10 @@
      "snap",
      "slide",
      "shrink",
-     "slide"
+     "slide",
+     "relocate"
     ],
-    "agreed_by_other_pass": false
+    "agreed_by_other_pass": true
    },
    "completes_room": true,
    "method": "ai"
@@ -51139,16 +51115,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     1.75,
-     1.921
+     0.421,
+     4.01
     ],
     "size": [
-     0.5,
+     0.4,
      0.4
     ],
-    "rotation_deg": 180.0
+    "rotation_deg": 90.0
    },
-   "front_deg": 90.0,
+   "front_deg": 0.0,
    "height": 0.5,
    "asset": null,
    "status": "verified",
@@ -51182,7 +51158,7 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      1.75,
+      1.65,
       3.01
      ],
      "rotation_deg": 90.0,
@@ -51192,7 +51168,10 @@
      ]
     },
     "repairs": [
-     "snap"
+     "snap",
+     "slide",
+     "shrink",
+     "slide"
     ],
     "agreed_by_other_pass": true
    },
@@ -51208,11 +51187,11 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     0.901,
+     1.201,
      1.945
     ],
     "size": [
-     1.0,
+     1.2,
      0.4
     ],
     "rotation_deg": 0.0
@@ -51253,10 +51232,7 @@
      ]
     },
     "repairs": [
-     "snap",
-     "slide",
-     "shrink",
-     "slide"
+     "snap"
     ],
     "agreed_by_other_pass": false
    },
@@ -51272,12 +51248,12 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     6.665,
-     1.921
+     6.565,
+     1.946
     ],
     "size": [
-     0.5,
-     0.4
+     0.6,
+     0.45
     ],
     "rotation_deg": 180.0
    },
@@ -51292,7 +51268,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed beside bed for symmetry and function; against headboard wall."
+     "text": "Placed beside the bed for symmetry and functionality, against the headboard wall."
     }
    ],
    "checks": {
@@ -51312,12 +51288,14 @@
      ],
      "rotation_deg": 270.0,
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ]
     },
     "repairs": [
      "snap",
+     "slide",
+     "shrink",
      "slide",
      "shrink",
      "slide",
@@ -51337,12 +51315,12 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     7.165,
-     2.12
+     7.14,
+     2.021
     ],
     "size": [
-     0.5,
-     0.4
+     0.6,
+     0.45
     ],
     "rotation_deg": 270.0
    },
@@ -51357,7 +51335,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Second nightstand for balance; against headboard wall."
+     "text": "Second nightstand to balance the bed setup, against the headboard wall."
     }
    ],
    "checks": {
@@ -51377,8 +51355,8 @@
      ],
      "rotation_deg": 90.0,
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ]
     },
     "repairs": [
@@ -51419,7 +51397,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "At foot of bed for storage and seating; leaves space for walkway."
+     "text": "Placed at the foot of the bed for seating or storage, leaving space for walkways."
     }
    ],
    "checks": {
@@ -51480,7 +51458,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed beside bed to match style and keep 0.6m clearance."
+     "text": "Nightstand beside bed for symmetry and function."
     },
     {
      "file": "building.json",
@@ -51553,7 +51531,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Symmetrical placement for balance and style."
+     "text": "Second nightstand for balance and usability."
     },
     {
      "file": "building.json",
@@ -51602,8 +51580,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     0.895,
-     11.564
+     0.905,
+     11.515
     ],
     "size": [
      1.2,
@@ -51622,7 +51600,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "At foot of bed for functional and aesthetic use."
+     "text": "Bench at foot of bed for storage and seating."
     },
     {
      "file": "building.json",
@@ -51650,15 +51628,79 @@
      ],
      "rotation_deg": 0.0,
      "size": [
+      1.4,
+      0.45
+     ]
+    },
+    "repairs": [
+     "snap",
+     "slide",
+     "shrink",
+     "slide"
+    ],
+    "agreed_by_other_pass": true
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L0_048",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi_3",
+   "type": "dresser",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     2.947,
+     9.065
+    ],
+    "size": [
+     1.2,
+     0.5
+    ],
+    "rotation_deg": 270.0
+   },
+   "front_deg": 180.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Dresser against free wall for storage, matching natural wood style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      2.8,
+      7.44
+     ],
+     "rotation_deg": 0.0,
+     "size": [
       1.2,
-      0.4
+      0.5
      ]
     },
     "repairs": [
      "snap",
      "slide"
     ],
-    "agreed_by_other_pass": true
+    "agreed_by_other_pass": false
    },
    "completes_room": true,
    "method": "ai"
@@ -51700,7 +51742,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds a cozy seating spot near the sofa, matching the modern natural style."
+     "text": "Adds a cozy seating spot near the sofa, matching modern natural style."
     }
    ],
    "checks": {
@@ -51830,7 +51872,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds storage and display space against the wall, enhancing the room’s utility."
+     "text": "Adds storage and display space against the wall, complements the minimalist aesthetic."
     }
    ],
    "checks": {
@@ -51928,7 +51970,7 @@
    "method": "ai"
   },
   {
-   "id": "f_L-1_102",
+   "id": "f_L-1_100",
    "level_id": "L-1",
    "room_id": "r_L-1_salon_2",
    "type": "tv_unit",
@@ -51956,7 +51998,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed against the wall the sofa faces, matching modern natural style."
+     "text": "Placed against the wall the sofa faces, with 0.6m clearance in front."
     }
    ],
    "checks": {
@@ -51989,7 +52031,7 @@
    "mirrored_from": "f_L-1_089"
   },
   {
-   "id": "f_L-1_103",
+   "id": "f_L-1_101",
    "level_id": "L-1",
    "room_id": "r_L-1_salon_2",
    "type": "armchair",
@@ -52017,7 +52059,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds seating near the sofa for conversation, in warm greige and natural wood style."
+     "text": "Added for seating balance, placed away from walls to maintain open flow."
     },
     {
      "file": "building.json",
@@ -52058,7 +52100,7 @@
    "mirrored_from": "f_L-1_090"
   },
   {
-   "id": "f_L-1_104",
+   "id": "f_L-1_102",
    "level_id": "L-1",
    "room_id": "r_L-1_salon_2",
    "type": "console_table",
@@ -52067,85 +52109,16 @@
    "footprint": {
     "center": [
      13.6722,
-     4.3
+     6.847
     ],
     "size": [
      1.2,
      0.35
     ],
-    "rotation_deg": 180.0
+    "rotation_deg": 0.0
    },
-   "front_deg": 90.0,
+   "front_deg": 270.0,
    "height": 0.8,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Placed beside the armchair for decor and function, matching the modern natural style."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Provides surface for decor near sofa, matching style and wall placement."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      13.6722,
-      4.3
-     ],
-     "size": [
-      1.2,
-      0.35
-     ],
-     "rotation_deg": 180.0
-    },
-    "repairs": [],
-    "agreed_by_other_pass": true,
-    "copied_from": "f_L-1_091"
-   },
-   "completes_room": true,
-   "method": "ai",
-   "mirrored_from": "f_L-1_091"
-  },
-  {
-   "id": "f_L-1_105",
-   "level_id": "L-1",
-   "room_id": "r_L-1_salon_2",
-   "type": "bookshelf",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     7.9822,
-     1.872
-    ],
-    "size": [
-     1.0,
-     0.35
-    ],
-    "rotation_deg": 90.0
-   },
-   "front_deg": 0.0,
-   "height": 1.8,
    "asset": null,
    "status": "verified",
    "evidence": [
@@ -52155,7 +52128,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed against the wall for storage and display, matching modern natural style."
+     "text": "Placed against the wall for functional storage and decor, near the armchair."
     }
    ],
    "checks": {
@@ -52170,25 +52143,25 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      7.9822,
-      1.872
+      13.6722,
+      6.847
      ],
      "size": [
-      1.0,
+      1.2,
       0.35
      ],
-     "rotation_deg": 90.0
+     "rotation_deg": 0.0
     },
     "repairs": [],
     "agreed_by_other_pass": false,
-    "copied_from": "f_L-1_093"
+    "copied_from": "f_L-1_091"
    },
    "completes_room": true,
    "method": "ai",
-   "mirrored_from": "f_L-1_093"
+   "mirrored_from": "f_L-1_091"
   },
   {
-   "id": "f_L-1_106",
+   "id": "f_L-1_103",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak_2",
    "type": "tall_cabinet",
@@ -52216,7 +52189,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds storage at end of counter run, matches modern natural style."
+     "text": "Adds storage at the end of the counter run, matching modern natural style."
     }
    ],
    "checks": {
@@ -52242,14 +52215,14 @@
     },
     "repairs": [],
     "agreed_by_other_pass": false,
-    "copied_from": "f_L-1_094"
+    "copied_from": "f_L-1_092"
    },
    "completes_room": true,
    "method": "ai",
-   "mirrored_from": "f_L-1_094"
+   "mirrored_from": "f_L-1_092"
   },
   {
-   "id": "f_L-1_107",
+   "id": "f_L-1_104",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak_2",
    "type": "table_dining",
@@ -52274,10 +52247,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Fits 1.2m free space, modern dining setup with natural wood."
+     "text": "Fits in 1.2m free space, modern natural style with light oak finish."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Small dining table fits the 1.2m free space and complements the natural wood and plant style."
     }
    ],
    "checks": {
@@ -52302,15 +52283,15 @@
      "rotation_deg": 0.0
     },
     "repairs": [],
-    "agreed_by_other_pass": false,
-    "copied_from": "f_L-1_095"
+    "agreed_by_other_pass": true,
+    "copied_from": "f_L-1_093"
    },
    "completes_room": true,
    "method": "ai",
-   "mirrored_from": "f_L-1_095"
+   "mirrored_from": "f_L-1_093"
   },
   {
-   "id": "f_L-1_108",
+   "id": "f_L-1_105",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak_2",
    "type": "chair",
@@ -52335,10 +52316,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Matches dining table, natural wood, modern style."
+     "text": "Four chairs for dining table, natural wood finish, modern style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed at dining table for seating, matching modern natural style."
     }
    ],
    "checks": {
@@ -52363,15 +52352,15 @@
      "rotation_deg": 0.0
     },
     "repairs": [],
-    "agreed_by_other_pass": false,
-    "copied_from": "f_L-1_096"
+    "agreed_by_other_pass": true,
+    "copied_from": "f_L-1_094"
    },
    "completes_room": true,
    "method": "ai",
-   "mirrored_from": "f_L-1_096"
+   "mirrored_from": "f_L-1_094"
   },
   {
-   "id": "f_L-1_109",
+   "id": "f_L-1_106",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak_2",
    "type": "chair",
@@ -52396,10 +52385,18 @@
     {
      "file": "building.json",
      "method": "ai",
-     "confidence": 0.6,
+     "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Matches dining table, natural wood, modern style."
+     "text": "Four chairs for dining table, natural wood finish, modern style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Chair placed at dining table for seating, matching modern natural style."
     }
    ],
    "checks": {
@@ -52424,15 +52421,15 @@
      "rotation_deg": 0.0
     },
     "repairs": [],
-    "agreed_by_other_pass": false,
-    "copied_from": "f_L-1_097"
+    "agreed_by_other_pass": true,
+    "copied_from": "f_L-1_095"
    },
    "completes_room": true,
    "method": "ai",
-   "mirrored_from": "f_L-1_097"
+   "mirrored_from": "f_L-1_095"
   },
   {
-   "id": "f_L-1_110",
+   "id": "f_L-1_107",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak_2",
    "type": "wall_cabinet",
@@ -52476,7 +52473,7 @@
    }
   },
   {
-   "id": "f_L-1_111",
+   "id": "f_L-1_108",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak_2",
    "type": "wall_cabinet",
@@ -52521,7 +52518,7 @@
    }
   },
   {
-   "id": "f_L-1_112",
+   "id": "f_L-1_109",
    "level_id": "L-1",
    "room_id": "r_L-1_mutfak_2",
    "type": "wall_cabinet",
@@ -52566,7 +52563,7 @@
    }
   },
   {
-   "id": "f_L-1_113",
+   "id": "f_L-1_110",
    "level_id": "L-1",
    "room_id": "r_L-1_koridor",
    "type": "console_table",
@@ -52602,7 +52599,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Slim console table against wall near door, leaving walkway clear."
+     "text": "Slim console table against wall near door, keeps corridor clear."
     }
    ],
    "checks": {
@@ -52628,14 +52625,14 @@
     },
     "repairs": [],
     "agreed_by_other_pass": true,
-    "copied_from": "f_L-1_101"
+    "copied_from": "f_L-1_099"
    },
    "completes_room": true,
    "method": "ai",
-   "mirrored_from": "f_L-1_101"
+   "mirrored_from": "f_L-1_099"
   },
   {
-   "id": "f_L-1b_076",
+   "id": "f_L-1b_077",
    "level_id": "L-1b",
    "room_id": "r_L-1b_acik_mutfak_2",
    "type": "tall_cabinet",
@@ -52663,7 +52660,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds storage at the end of the counter run, matching modern natural style."
+     "text": "Adds storage at end of counter run, matches modern natural style."
     }
    ],
    "checks": {
@@ -52700,7 +52697,7 @@
    "method": "ai"
   },
   {
-   "id": "f_L-1b_077",
+   "id": "f_L-1b_078",
    "level_id": "L-1b",
    "room_id": "r_L-1b_acik_mutfak_2",
    "type": "bar_stool",
@@ -52728,69 +52725,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds bar stools at the island for casual dining, matching style and scale."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": false,
-    "proposed": {
-     "center": [
-      10.98,
-      4.48
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.42,
-      0.42
-     ]
-    },
-    "repairs": [
-     "slide",
-     "face_host"
-    ],
-    "agreed_by_other_pass": false
-   },
-   "completes_room": true,
-   "method": "ai"
-  },
-  {
-   "id": "f_L-1b_078",
-   "level_id": "L-1b",
-   "room_id": "r_L-1b_acik_mutfak_2",
-   "type": "bar_stool",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     10.28,
-     3.98
-    ],
-    "size": [
-     0.42,
-     0.42
-    ],
-    "rotation_deg": 90.0
-   },
-   "front_deg": 0.0,
-   "height": 0.75,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Adds second bar stool at the island for casual dining, matching style and scale."
+     "text": "Adds bar seating at kitchen island, fits modern natural style."
     }
    ],
    "checks": {
@@ -52832,16 +52767,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     11.68,
-     4.48
+     10.28,
+     3.98
     ],
     "size": [
      0.42,
      0.42
     ],
-    "rotation_deg": 270.0
+    "rotation_deg": 90.0
    },
-   "front_deg": 180.0,
+   "front_deg": 0.0,
    "height": 0.75,
    "asset": null,
    "status": "verified",
@@ -52852,7 +52787,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds third bar stool at the island for casual dining, matching style and scale."
+     "text": "Adds bar seating at kitchen island, fits modern natural style."
     }
    ],
    "checks": {
@@ -52894,16 +52829,16 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     10.28,
+     11.68,
      4.48
     ],
     "size": [
      0.42,
      0.42
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 270.0
    },
-   "front_deg": 0.0,
+   "front_deg": 180.0,
    "height": 0.75,
    "asset": null,
    "status": "verified",
@@ -52914,7 +52849,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds fourth bar stool at the island for casual dining, matching style and scale."
+     "text": "Adds bar seating at kitchen island, fits modern natural style."
     }
    ],
    "checks": {
@@ -52950,6 +52885,68 @@
   {
    "id": "f_L-1b_081",
    "level_id": "L-1b",
+   "room_id": "r_L-1b_acik_mutfak_2",
+   "type": "bar_stool",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     10.28,
+     4.48
+    ],
+    "size": [
+     0.42,
+     0.42
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.75,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds bar seating at kitchen island, fits modern natural style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": false,
+    "proposed": {
+     "center": [
+      10.98,
+      4.48
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.42,
+      0.42
+     ]
+    },
+    "repairs": [
+     "slide",
+     "face_host"
+    ],
+    "agreed_by_other_pass": false
+   },
+   "completes_room": true,
+   "method": "ai"
+  },
+  {
+   "id": "f_L-1b_082",
+   "level_id": "L-1b",
    "room_id": "r_L-1b_koridor_2",
    "type": "console_table",
    "type_raw": null,
@@ -52976,7 +52973,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed against the wall at the entrance for functional storage and decor."
+     "text": "Placed against the wall near the entrance to define the space without blocking the walkway."
     },
     {
      "file": "building.json",
@@ -53010,14 +53007,14 @@
     },
     "repairs": [],
     "agreed_by_other_pass": true,
-    "copied_from": "f_L-1b_075"
+    "copied_from": "f_L-1b_076"
    },
    "completes_room": true,
    "method": "ai",
-   "mirrored_from": "f_L-1b_075"
+   "mirrored_from": "f_L-1b_076"
   },
   {
-   "id": "f_L0_048",
+   "id": "f_L0_049",
    "level_id": "L0",
    "room_id": "r_L0_e_yatak_odasi_2",
    "type": "nightstand",
@@ -53025,12 +53022,12 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     8.508,
-     1.921
+     8.608,
+     1.946
     ],
     "size": [
-     0.5,
-     0.4
+     0.6,
+     0.45
     ],
     "rotation_deg": 180.0
    },
@@ -53045,7 +53042,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed beside bed for symmetry and function; against headboard wall."
+     "text": "Placed beside the bed for symmetry and functionality, against the headboard wall."
     }
    ],
    "checks": {
@@ -53060,12 +53057,12 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      8.508,
-      1.921
+      8.608,
+      1.946
      ],
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ],
      "rotation_deg": 180.0
     },
@@ -53078,7 +53075,7 @@
    "mirrored_from": "f_L0_042"
   },
   {
-   "id": "f_L0_049",
+   "id": "f_L0_050",
    "level_id": "L0",
    "room_id": "r_L0_e_yatak_odasi_2",
    "type": "nightstand",
@@ -53086,12 +53083,12 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     8.008,
-     2.12
+     8.033,
+     2.021
     ],
     "size": [
-     0.5,
-     0.4
+     0.6,
+     0.45
     ],
     "rotation_deg": 90.0
    },
@@ -53106,7 +53103,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Second nightstand for balance; against headboard wall."
+     "text": "Second nightstand to balance the bed setup, against the headboard wall."
     }
    ],
    "checks": {
@@ -53121,12 +53118,12 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      8.008,
-      2.12
+      8.033,
+      2.021
      ],
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ],
      "rotation_deg": 90.0
     },
@@ -53139,7 +53136,7 @@
    "mirrored_from": "f_L0_043"
   },
   {
-   "id": "f_L0_050",
+   "id": "f_L0_051",
    "level_id": "L0",
    "room_id": "r_L0_e_yatak_odasi_2",
    "type": "bench",
@@ -53167,7 +53164,7 @@
      "confidence": 0.6,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "At foot of bed for storage and seating; leaves space for walkway."
+     "text": "Placed at the foot of the bed for seating or storage, leaving space for walkways."
     }
    ],
    "checks": {
@@ -53200,7 +53197,76 @@
    "mirrored_from": "f_L0_044"
   },
   {
-   "id": "f_L0_051",
+   "id": "f_L0_052",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi_2",
+   "type": "nightstand",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     13.052,
+     1.921
+    ],
+    "size": [
+     0.5,
+     0.4
+    ],
+    "rotation_deg": 180.0
+   },
+   "front_deg": 90.0,
+   "height": 0.5,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Place beside bed_double to match modern natural style and keep 0.6m clearance."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Placed beside bed for symmetry and function; fits space without blocking access."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      13.052,
+      1.921
+     ],
+     "size": [
+      0.5,
+      0.4
+     ],
+     "rotation_deg": 180.0
+    },
+    "repairs": [],
+    "agreed_by_other_pass": true,
+    "copied_from": "f_L0_039"
+   },
+   "completes_room": true,
+   "method": "ai",
+   "mirrored_from": "f_L0_039"
+  },
+  {
+   "id": "f_L0_053",
    "level_id": "L0",
    "room_id": "r_L0_yatak_odasi_2",
    "type": "nightstand",
@@ -53218,67 +53284,6 @@
     "rotation_deg": 270.0
    },
    "front_deg": 180.0,
-   "height": 0.5,
-   "asset": null,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.6,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Place beside bed_double to match modern natural style and keep 0.6m clearance."
-    }
-   ],
-   "checks": {
-    "inside_room": true,
-    "no_overlap": true,
-    "clearance_ok": true,
-    "doors_free": true,
-    "windows_free": true,
-    "wall_contact": true
-   },
-   "layout": {
-    "against_wall": true,
-    "proposed": {
-     "center": [
-      14.752,
-      4.01
-     ],
-     "size": [
-      0.4,
-      0.4
-     ],
-     "rotation_deg": 270.0
-    },
-    "repairs": [],
-    "agreed_by_other_pass": false,
-    "copied_from": "f_L0_039"
-   },
-   "completes_room": true,
-   "method": "ai",
-   "mirrored_from": "f_L0_039"
-  },
-  {
-   "id": "f_L0_052",
-   "level_id": "L0",
-   "room_id": "r_L0_yatak_odasi_2",
-   "type": "nightstand",
-   "type_raw": null,
-   "source": "added_by_ai",
-   "footprint": {
-    "center": [
-     13.423,
-     1.921
-    ],
-    "size": [
-     0.5,
-     0.4
-    ],
-    "rotation_deg": 180.0
-   },
-   "front_deg": 90.0,
    "height": 0.5,
    "asset": null,
    "status": "verified",
@@ -53312,14 +53317,14 @@
     "against_wall": true,
     "proposed": {
      "center": [
-      13.423,
-      1.921
+      14.752,
+      4.01
      ],
      "size": [
-      0.5,
+      0.4,
       0.4
      ],
-     "rotation_deg": 180.0
+     "rotation_deg": 270.0
     },
     "repairs": [],
     "agreed_by_other_pass": true,
@@ -53330,7 +53335,7 @@
    "mirrored_from": "f_L0_040"
   },
   {
-   "id": "f_L0_053",
+   "id": "f_L0_054",
    "level_id": "L0",
    "room_id": "r_L0_yatak_odasi_2",
    "type": "bench",
@@ -53338,11 +53343,11 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     14.272,
+     13.972,
      1.945
     ],
     "size": [
-     1.0,
+     1.2,
      0.4
     ],
     "rotation_deg": 0.0
@@ -53373,11 +53378,11 @@
     "against_wall": false,
     "proposed": {
      "center": [
-      14.272,
+      13.972,
       1.945
      ],
      "size": [
-      1.0,
+      1.2,
       0.4
      ],
      "rotation_deg": 0.0
@@ -53391,7 +53396,7 @@
    "mirrored_from": "f_L0_041"
   },
   {
-   "id": "f_L0_054",
+   "id": "f_L0_055",
    "level_id": "L0",
    "room_id": "r_L0_yatak_odasi_4",
    "type": "nightstand",
@@ -53419,7 +53424,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Placed beside bed to match style and keep 0.6m clearance."
+     "text": "Nightstand beside bed for symmetry and function."
     },
     {
      "file": "building.json",
@@ -53460,7 +53465,7 @@
    "mirrored_from": "f_L0_045"
   },
   {
-   "id": "f_L0_055",
+   "id": "f_L0_056",
    "level_id": "L0",
    "room_id": "r_L0_yatak_odasi_4",
    "type": "nightstand",
@@ -53488,7 +53493,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Symmetrical placement for balance and style."
+     "text": "Second nightstand for balance and usability."
     },
     {
      "file": "building.json",
@@ -53529,7 +53534,7 @@
    "mirrored_from": "f_L0_046"
   },
   {
-   "id": "f_L0_056",
+   "id": "f_L0_057",
    "level_id": "L0",
    "room_id": "r_L0_yatak_odasi_4",
    "type": "bench",
@@ -53537,8 +53542,8 @@
    "source": "added_by_ai",
    "footprint": {
     "center": [
-     14.278,
-     11.564
+     14.268,
+     11.515
     ],
     "size": [
      1.2,
@@ -53557,7 +53562,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "At foot of bed for functional and aesthetic use."
+     "text": "Bench at foot of bed for storage and seating."
     },
     {
      "file": "building.json",
@@ -53580,8 +53585,8 @@
     "against_wall": false,
     "proposed": {
      "center": [
-      14.278,
-      11.564
+      14.268,
+      11.515
      ],
      "size": [
       1.2,
@@ -53596,6 +53601,67 @@
    "completes_room": true,
    "method": "ai",
    "mirrored_from": "f_L0_047"
+  },
+  {
+   "id": "f_L0_058",
+   "level_id": "L0",
+   "room_id": "r_L0_yatak_odasi_4",
+   "type": "dresser",
+   "type_raw": null,
+   "source": "added_by_ai",
+   "footprint": {
+    "center": [
+     12.226,
+     9.065
+    ],
+    "size": [
+     1.2,
+     0.5
+    ],
+    "rotation_deg": 90.0
+   },
+   "front_deg": 0.0,
+   "height": 0.8,
+   "asset": null,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.6,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Dresser against free wall for storage, matching natural wood style."
+    }
+   ],
+   "checks": {
+    "inside_room": true,
+    "no_overlap": true,
+    "clearance_ok": true,
+    "doors_free": true,
+    "windows_free": true,
+    "wall_contact": true
+   },
+   "layout": {
+    "against_wall": true,
+    "proposed": {
+     "center": [
+      12.226,
+      9.065
+     ],
+     "size": [
+      1.2,
+      0.5
+     ],
+     "rotation_deg": 90.0
+    },
+    "repairs": [],
+    "agreed_by_other_pass": false,
+    "copied_from": "f_L0_048"
+   },
+   "completes_room": true,
+   "method": "ai",
+   "mirrored_from": "f_L0_048"
   },
   {
    "id": "f_L1_033",
@@ -53634,7 +53700,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds a cozy seating spot near the sofa, matching the modern natural style."
+     "text": "Adds a cozy seating spot near the sofa, matching modern natural style."
     }
    ],
    "checks": {
@@ -53764,7 +53830,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds storage and display space against the wall, enhancing the room’s utility."
+     "text": "Adds storage and display space against the wall, complements the minimalist aesthetic."
     }
    ],
    "checks": {
@@ -54878,7 +54944,6 @@
   "f_L-1b_008",
   "f_L-1b_012",
   "f_L-1b_014",
-  "f_L-1b_039",
   "f_L-1b_040",
   "f_L-1b_043",
   "f_L-1b_044",
@@ -54993,6 +55058,7 @@
   "L0: room at (4.718, 7.594) (5.71 m²) has no label: unlabelled face holding the stair",
   "L0: room at (7.786, 7.594) (5.72 m²) has no label: unlabelled face holding the stair",
   "twin copy: f_L-1_051: toilet -> toilet, front 90 deg (front of f_L-1_052, its mirror twin in r_L-1_banyo_2 (U16); inferred)",
+  "twin copy: f_L-1b_040: unknown -> kitchen_island, front 270 deg (type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16); inferred)",
   "twin copy: f_L0_016: toilet -> toilet, front 270 deg (front of f_L0_015, its mirror twin in r_L0_e_banyo (U16); inferred)",
   "twin copy: f_L0_017: toilet -> toilet, front 90 deg (front of f_L0_018, its mirror twin in r_L0_banyo (U16); inferred)",
   "twin copy: f_L1_021: unknown -> bench, front 0 deg (type and front of f_L1_022, its mirror twin in r_L1_koridor_2 (U16); inferred)",
@@ -55003,7 +55069,6 @@
   "f_L-1_086: not built (rug or group outline): drawn inside kitchen_counter f_L-1_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)",
   "f_L-1b_001: not built (rug or group outline): outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_043, f_L-1b_051, f_L-1b_052): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)",
   "f_L-1b_002: not built (rug or group outline): outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_044, f_L-1b_049, f_L-1b_050): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)",
-  "f_L-1b_039: inferred kitchen_island: kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here",
   "f_L-1b_057: not built (rug or group outline): drawn inside kitchen_counter f_L-1b_004 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)",
   "f_L-1b_058: not built (rug or group outline): drawn inside kitchen_counter f_L-1b_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)",
   "f_L0_027: inferred desk: desk: the only type whose size range fits 1.45 x 0.91 m, that a bedroom room holds and whose position rule holds here",
@@ -56045,7 +56110,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "Adds warmth and style to the sofa corner with a modern natural tone.",
@@ -56090,7 +56155,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "Adds warmth and style to the sofa corner with a modern natural tone.",
@@ -56134,7 +56199,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "Adds warmth and style to the sofa corner with a modern natural tone.",
@@ -56179,7 +56244,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "Adds warmth and style to the sofa corner with a modern natural tone.",
@@ -56223,7 +56288,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "Adds warmth and style to the sofa corner with a modern natural tone.",
@@ -56268,7 +56333,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "Adds warmth and style to the sofa corner with a modern natural tone.",
@@ -56312,7 +56377,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "Adds warmth and style to the sofa corner with a modern natural tone.",
@@ -56332,95 +56397,6 @@
   },
   {
    "kind": "decor",
-   "type": "plant_small",
-   "level_id": "L-1",
-   "room_id": "r_L-1_salon",
-   "asset": null,
-   "source": "added_by_ai",
-   "method": "ai",
-   "slot": "f_L-1_073.centre",
-   "colour": "natural wood",
-   "confidence": 0.9,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Brings life to the coffee table with a natural, modern touch."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Brings life to the space with a small indoor plant in a natural wood pot."
-    }
-   ],
-   "reason": "Brings life to the coffee table with a natural, modern touch.",
-   "id": "dec_L-1_008",
-   "host_id": "f_L-1_073",
-   "center": [
-    6.117,
-    1.004
-   ],
-   "rotation_deg": 270.0,
-   "size": [
-    0.25,
-    0.25,
-    0.45
-   ]
-  },
-  {
-   "kind": "decor",
-   "type": "table_lamp",
-   "level_id": "L-1",
-   "room_id": "r_L-1_salon",
-   "asset": null,
-   "source": "added_by_ai",
-   "method": "ai",
-   "slot": "f_L-1_091.left",
-   "colour": "brass",
-   "confidence": 0.9,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Warm light enhances the natural wood and greige tones."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Warm brass light adds cozy ambiance and matches the dark bronze window frames."
-    }
-   ],
-   "reason": "Warm light enhances the natural wood and greige tones.",
-   "id": "dec_L-1_009",
-   "host_id": "f_L-1_091",
-   "center": [
-    1.8,
-    4.3
-   ],
-   "rotation_deg": 180.0,
-   "size": [
-    0.29,
-    0.29,
-    0.497
-   ],
-   "light_on": false
-  },
-  {
-   "kind": "decor",
    "type": "rug",
    "level_id": "L-1",
    "room_id": "r_L-1_salon",
@@ -56428,7 +56404,7 @@
    "source": "added_by_ai",
    "method": "ai",
    "slot": "r_L-1_salon.rug1",
-   "colour": "cream",
+   "colour": "sand",
    "confidence": 0.9,
    "status": "verified",
    "evidence": [
@@ -56438,7 +56414,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Defines the seating area and adds softness underfoot."
+     "text": "Grounds the space with natural warmth and ties in with the oak floor and neutral palette."
     },
     {
      "file": "building.json",
@@ -56446,24 +56422,78 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "A sand-colored rug grounds the space and complements the light oak floor."
+     "text": "A sand-colored rug grounds the space and harmonizes with the light oak and greige walls."
     }
    ],
-   "reason": "Defines the seating area and adds softness underfoot.",
-   "id": "dec_L-1_010",
+   "reason": "Grounds the space with natural warmth and ties in with the oak floor and neutral palette.",
+   "id": "dec_L-1_008",
    "host_id": null,
    "center": [
-    5.825,
+    5.865,
     4.167
    ],
    "rotation_deg": 90.0,
    "size": [
     5.029,
-    2.36
+    2.44
    ],
    "anchor_ids": [
     "f_L-1_027"
    ]
+  },
+  {
+   "kind": "decor",
+   "type": "wall_art",
+   "level_id": "L-1",
+   "room_id": "r_L-1_salon",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L-1_091.wall",
+   "colour": "charcoal",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds visual interest without overwhelming the light walls, in a modern minimalist style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Wood-framed art complements the warm, natural style and light oak floors."
+    }
+   ],
+   "reason": "Adds visual interest without overwhelming the light walls, in a modern minimalist style.",
+   "id": "dec_L-1_009",
+   "host_id": null,
+   "center": [
+    1.5,
+    7.023
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.72,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L-1_091"
+   ],
+   "wall_point": [
+    1.5,
+    7.043
+   ],
+   "wall_id": "w_L-1_002",
+   "gap_m": 0.25,
+   "bottom_m": 1.05,
+   "max_height_m": 1.7
   },
   {
    "kind": "decor",
@@ -56484,7 +56514,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Softens natural light and matches the warm, neutral palette."
+     "text": "Softens natural light while maintaining a clean, modern aesthetic with warm tones."
     },
     {
      "file": "building.json",
@@ -56495,8 +56525,8 @@
      "text": "Cream blinds soften natural light and match the warm, neutral palette."
     }
    ],
-   "reason": "Softens natural light and matches the warm, neutral palette.",
-   "id": "dec_L-1_011",
+   "reason": "Softens natural light while maintaining a clean, modern aesthetic with warm tones.",
+   "id": "dec_L-1_010",
    "host_id": null,
    "center": [
     3.793,
@@ -56534,7 +56564,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Warm glow enhances the modern natural aesthetic."
+     "text": "Warm metallic glow enhances the natural wood and greige walls with elegant contrast."
     },
     {
      "file": "building.json",
@@ -56542,11 +56572,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "A brass pendant light adds modern elegance over the coffee table."
+     "text": "A brass pendant light adds warmth and complements the dark bronze window frames."
     }
    ],
-   "reason": "Warm glow enhances the modern natural aesthetic.",
-   "id": "dec_L-1_012",
+   "reason": "Warm metallic glow enhances the natural wood and greige walls with elegant contrast.",
+   "id": "dec_L-1_011",
    "host_id": null,
    "anchor_ids": [
     "f_L-1_073"
@@ -56572,7 +56602,7 @@
    "asset": null,
    "source": "added_by_ai",
    "method": "ai",
-   "slot": "f_L-1_095.centre",
+   "slot": "f_L-1_093.centre",
    "colour": "cream",
    "confidence": 0.9,
    "status": "verified",
@@ -56591,12 +56621,12 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds natural warmth and complements rattan pots and greige walls."
+     "text": "Adds natural warmth with a cream vase that complements the greige walls and rattan pots."
     }
    ],
    "reason": "Adds natural warmth and complements the rattan pots and greige walls.",
-   "id": "dec_L-1_013",
-   "host_id": "f_L-1_095",
+   "id": "dec_L-1_012",
+   "host_id": "f_L-1_093",
    "center": [
     1.66,
     10.26
@@ -56616,7 +56646,7 @@
    "asset": null,
    "source": "added_by_ai",
    "method": "ai",
-   "slot": "ceiling:over_f_L-1_095",
+   "slot": "ceiling:over_f_L-1_093",
    "colour": "brass",
    "confidence": 0.9,
    "status": "verified",
@@ -56635,14 +56665,14 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm metallic glow enhances modern natural style and complements dark bronze frames."
+     "text": "Brass pendant light adds a warm metallic accent that enhances the modern natural style."
     }
    ],
    "reason": "Warm brass light enhances the natural, modern feel and matches the dark bronze frames.",
-   "id": "dec_L-1_014",
+   "id": "dec_L-1_013",
    "host_id": null,
    "anchor_ids": [
-    "f_L-1_095"
+    "f_L-1_093"
    ],
    "center": [
     1.66,
@@ -56684,11 +56714,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens natural light and matches sofa fabric without overpowering."
+     "text": "Sand-coloured blind softens natural light while matching the warm, earthy palette."
     }
    ],
    "reason": "Cream blind softens natural light and harmonizes with the neutral palette.",
-   "id": "dec_L-1_015",
+   "id": "dec_L-1_014",
    "host_id": null,
    "center": [
     0.235,
@@ -56738,7 +56768,7 @@
     }
    ],
    "reason": "Enhances natural light and complements greige walls.",
-   "id": "dec_L-1_016",
+   "id": "dec_L-1_015",
    "host_id": null,
    "center": [
     5.218,
@@ -56792,7 +56822,7 @@
     }
    ],
    "reason": "Warm brass light adds modern natural glow matching daylight.",
-   "id": "dec_L-1_017",
+   "id": "dec_L-1_016",
    "host_id": null,
    "center": [
     6.052,
@@ -57165,7 +57195,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style with mustard cushions on the bed."
+     "text": "Adds warmth and style with mustard against greige walls."
     },
     {
      "file": "building.json",
@@ -57176,7 +57206,7 @@
      "text": "Adds warmth and color contrast to the greige walls and neutral palette."
     }
    ],
-   "reason": "Adds warmth and style with mustard cushions on the bed.",
+   "reason": "Adds warmth and style with mustard against greige walls.",
    "id": "dec_L0_001",
    "host_id": "f_L0_019",
    "center": [
@@ -57210,7 +57240,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style with mustard cushions on the bed."
+     "text": "Adds warmth and style with mustard against greige walls."
     },
     {
      "file": "building.json",
@@ -57221,7 +57251,7 @@
      "text": "Adds warmth and color contrast to the greige walls and neutral palette."
     }
    ],
-   "reason": "Adds warmth and style with mustard cushions on the bed.",
+   "reason": "Adds warmth and style with mustard against greige walls.",
    "id": "dec_L0_002",
    "host_id": "f_L0_019",
    "center": [
@@ -57254,7 +57284,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Cream throw complements greige walls and adds soft texture."
+     "text": "Softens the bed with neutral cream for cozy contrast."
     },
     {
      "file": "building.json",
@@ -57265,7 +57295,7 @@
      "text": "Softens the bed and complements the natural wood and light grey sofa."
     }
    ],
-   "reason": "Cream throw complements greige walls and adds soft texture.",
+   "reason": "Softens the bed with neutral cream for cozy contrast.",
    "id": "dec_L0_003",
    "host_id": "f_L0_019",
    "center": [
@@ -57298,7 +57328,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Wood-framed art matches natural wood furniture and adds warmth."
+     "text": "Wood-framed art complements natural light wood furniture."
     },
     {
      "file": "building.json",
@@ -57309,7 +57339,7 @@
      "text": "Minimalist art in natural tones enhances the modern natural style."
     }
    ],
-   "reason": "Wood-framed art matches natural wood furniture and adds warmth.",
+   "reason": "Wood-framed art complements natural light wood furniture.",
    "id": "dec_L0_004",
    "host_id": null,
    "center": [
@@ -57352,7 +57382,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Sand-coloured rug grounds the space and harmonizes with light oak floors."
+     "text": "Sand rug grounds the space and complements oak floors."
     },
     {
      "file": "building.json",
@@ -57360,10 +57390,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm sand rug grounds the space and complements the oak floor."
+     "text": "Warm neutral rug grounds the space and ties in with the oak floor."
     }
    ],
-   "reason": "Sand-coloured rug grounds the space and harmonizes with light oak floors.",
+   "reason": "Sand rug grounds the space and complements oak floors.",
    "id": "dec_L0_005",
    "host_id": null,
    "center": [
@@ -57398,7 +57428,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Cream curtains soften natural light and match the neutral palette."
+     "text": "Cream curtains soften light and match the warm neutral palette."
     },
     {
      "file": "building.json",
@@ -57406,10 +57436,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Cream curtains soften the dark bronze frames and let in natural light."
+     "text": "Light, airy curtains let in natural light while softening the dark bronze frames."
     }
    ],
-   "reason": "Cream curtains soften natural light and match the neutral palette.",
+   "reason": "Cream curtains soften light and match the warm neutral palette.",
    "id": "dec_L0_006",
    "host_id": null,
    "center": [
@@ -57448,7 +57478,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Brass pendant light adds warmth and focal point above the bed."
+     "text": "Brass pendant adds warmth and hangs elegantly over the bed."
     },
     {
      "file": "building.json",
@@ -57456,10 +57486,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm brass pendant light adds metallic warmth and modern elegance."
+     "text": "Warm metallic pendant light adds cozy glow and complements the natural wood."
     }
    ],
-   "reason": "Brass pendant light adds warmth and focal point above the bed.",
+   "reason": "Brass pendant adds warmth and hangs elegantly over the bed.",
    "id": "dec_L0_007",
    "host_id": null,
    "anchor_ids": [
@@ -57497,7 +57527,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style to the bed with a modern natural tone."
+     "text": "Adds warmth and style to the bed with a natural, modern accent."
     },
     {
      "file": "building.json",
@@ -57505,10 +57535,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds warmth and color contrast to the greige walls."
+     "text": "Adds warmth and color contrast to the greige walls and neutral palette."
     }
    ],
-   "reason": "Adds warmth and style to the bed with a modern natural tone.",
+   "reason": "Adds warmth and style to the bed with a natural, modern accent.",
    "id": "dec_L0_008",
    "host_id": "f_L0_007",
    "center": [
@@ -57542,7 +57572,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style to the bed with a modern natural tone."
+     "text": "Adds warmth and style to the bed with a natural, modern accent."
     },
     {
      "file": "building.json",
@@ -57550,10 +57580,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds warmth and color contrast to the greige walls."
+     "text": "Adds warmth and color contrast to the greige walls and neutral palette."
     }
    ],
-   "reason": "Adds warmth and style to the bed with a modern natural tone.",
+   "reason": "Adds warmth and style to the bed with a natural, modern accent.",
    "id": "dec_L0_009",
    "host_id": "f_L0_007",
    "center": [
@@ -57594,7 +57624,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens the bed and complements the natural wood and neutral palette."
+     "text": "Softens the bed and complements the natural wood and light grey sofa."
     }
    ],
    "reason": "Softens the bed and complements the greige walls and natural wood.",
@@ -57638,7 +57668,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Minimalist art in wood tone enhances modern natural style."
+     "text": "Modern art in wood tone enhances the natural, warm aesthetic."
     }
    ],
    "reason": "Minimalist art in wood tone enhances the modern natural aesthetic.",
@@ -57684,7 +57714,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Small plant in cream pot brings life and matches the natural light wood theme."
+     "text": "Small plant in cream pot brings life and matches the natural, warm theme."
     },
     {
      "file": "building.json",
@@ -57692,15 +57722,15 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Small plant in rattan pot brings life and matches natural wood furniture."
+     "text": "Small plant in rattan pot brings life and matches the natural wood theme."
     }
    ],
-   "reason": "Small plant in cream pot brings life and matches the natural light wood theme.",
+   "reason": "Small plant in cream pot brings life and matches the natural, warm theme.",
    "id": "dec_L0_012",
    "host_id": "f_L0_042",
    "center": [
-    6.665,
-    1.921
+    6.565,
+    1.946
    ],
    "rotation_deg": 180.0,
    "size": [
@@ -57728,7 +57758,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Books add texture and calm, in a neutral tone that suits the space."
+     "text": "Books add texture and calm, in a neutral tone that blends with the room."
     },
     {
      "file": "building.json",
@@ -57736,15 +57766,15 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Books add texture and calm, in a neutral tone that blends with the room."
+     "text": "Books in cream cover add texture and calm without visual clutter."
     }
    ],
-   "reason": "Books add texture and calm, in a neutral tone that suits the space.",
+   "reason": "Books add texture and calm, in a neutral tone that blends with the room.",
    "id": "dec_L0_013",
    "host_id": "f_L0_043",
    "center": [
-    7.165,
-    2.12
+    7.14,
+    2.021
    ],
    "rotation_deg": 270.0,
    "size": [
@@ -57780,7 +57810,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm neutral rug grounds the space and ties in with light oak flooring."
+     "text": "Sand rug under bed ties in with warm earth tones and light oak floor."
     }
    ],
    "reason": "Warm sand rug under the bed grounds the space and complements the oak floor.",
@@ -57818,7 +57848,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Cream curtains soften natural light and match the warm, neutral palette."
+     "text": "Cream curtains soften natural light and match the room’s warm, neutral palette."
     },
     {
      "file": "building.json",
@@ -57826,10 +57856,10 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Light, airy curtains let in natural light while softening dark bronze frames."
+     "text": "Cream curtains soften natural light and match the warm, neutral palette."
     }
    ],
-   "reason": "Cream curtains soften natural light and match the warm, neutral palette.",
+   "reason": "Cream curtains soften natural light and match the room’s warm, neutral palette.",
    "id": "dec_L0_015",
    "host_id": null,
    "center": [
@@ -57876,7 +57906,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm brass light adds subtle metallic accent and ambient glow."
+     "text": "Brass pendant light adds warmth and complements dark bronze window frames."
     }
    ],
    "reason": "Brass pendant light adds warmth and modern elegance above the bed.",
@@ -58556,8 +58586,8 @@
      "text": "Complements natural wood furniture and enhances light in modern bathroom."
     }
    ],
-   "reason": "copied from dec_L-1_016 of r_L-1_banyo (mirrored twin)",
-   "id": "dec_L-1_018",
+   "reason": "copied from dec_L-1_015 of r_L-1_banyo (mirrored twin)",
+   "id": "dec_L-1_017",
    "host_id": null,
    "center": [
     9.954,
@@ -58579,7 +58609,7 @@
    "gap_m": 0.3,
    "bottom_m": 1.3,
    "max_height_m": 1.45,
-   "mirrored_from": "dec_L-1_016"
+   "mirrored_from": "dec_L-1_015"
   },
   {
    "kind": "decor",
@@ -58611,8 +58641,8 @@
      "text": "Warm brass light adds cozy glow matching daylight and greige walls."
     }
    ],
-   "reason": "copied from dec_L-1_017 of r_L-1_banyo (mirrored twin)",
-   "id": "dec_L-1_019",
+   "reason": "copied from dec_L-1_016 of r_L-1_banyo (mirrored twin)",
+   "id": "dec_L-1_018",
    "host_id": null,
    "center": [
     9.12,
@@ -58626,7 +58656,7 @@
     0.12
    ],
    "light_on": false,
-   "mirrored_from": "dec_L-1_017"
+   "mirrored_from": "dec_L-1_016"
   },
   {
    "kind": "decor",
@@ -58636,7 +58666,7 @@
    "asset": null,
    "source": "added_by_ai",
    "method": "ai",
-   "slot": "f_L-1_095.centre",
+   "slot": "f_L-1_093.centre",
    "colour": "cream",
    "confidence": 0.9,
    "status": "verified",
@@ -58655,12 +58685,12 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds natural warmth and complements rattan pots and greige walls."
+     "text": "Adds natural warmth with a cream vase that complements the greige walls and rattan pots."
     }
    ],
-   "reason": "copied from dec_L-1_013 of r_L-1_mutfak (mirrored twin)",
-   "id": "dec_L-1_020",
-   "host_id": "f_L-1_107",
+   "reason": "copied from dec_L-1_012 of r_L-1_mutfak (mirrored twin)",
+   "id": "dec_L-1_019",
+   "host_id": "f_L-1_104",
    "center": [
     13.512,
     10.26
@@ -58671,7 +58701,7 @@
     0.18,
     0.4
    ],
-   "mirrored_from": "dec_L-1_013"
+   "mirrored_from": "dec_L-1_012"
   },
   {
    "kind": "decor",
@@ -58681,7 +58711,7 @@
    "asset": null,
    "source": "added_by_ai",
    "method": "ai",
-   "slot": "ceiling:over_f_L-1_095",
+   "slot": "ceiling:over_f_L-1_093",
    "colour": "brass",
    "confidence": 0.9,
    "status": "verified",
@@ -58700,14 +58730,14 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm metallic glow enhances modern natural style and complements dark bronze frames."
+     "text": "Brass pendant light adds a warm metallic accent that enhances the modern natural style."
     }
    ],
-   "reason": "copied from dec_L-1_014 of r_L-1_mutfak (mirrored twin)",
-   "id": "dec_L-1_021",
+   "reason": "copied from dec_L-1_013 of r_L-1_mutfak (mirrored twin)",
+   "id": "dec_L-1_020",
    "host_id": null,
    "anchor_ids": [
-    "f_L-1_107"
+    "f_L-1_104"
    ],
    "center": [
     13.512,
@@ -58721,7 +58751,7 @@
     1.35
    ],
    "light_on": false,
-   "mirrored_from": "dec_L-1_014"
+   "mirrored_from": "dec_L-1_013"
   },
   {
    "kind": "decor",
@@ -58750,11 +58780,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens natural light and matches sofa fabric without overpowering."
+     "text": "Sand-coloured blind softens natural light while matching the warm, earthy palette."
     }
    ],
-   "reason": "copied from dec_L-1_015 of r_L-1_mutfak (mirrored twin)",
-   "id": "dec_L-1_022",
+   "reason": "copied from dec_L-1_014 of r_L-1_mutfak (mirrored twin)",
+   "id": "dec_L-1_021",
    "host_id": null,
    "center": [
     14.937,
@@ -58773,7 +58803,7 @@
     9.522
    ],
    "wall_id": "w_L-1_015",
-   "mirrored_from": "dec_L-1_015"
+   "mirrored_from": "dec_L-1_014"
   },
   {
    "kind": "decor",
@@ -58802,11 +58832,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "copied from dec_L-1_001 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_023",
+   "id": "dec_L-1_022",
    "host_id": "f_L-1_054",
    "center": [
     11.284,
@@ -58848,11 +58878,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "copied from dec_L-1_002 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_024",
+   "id": "dec_L-1_023",
    "host_id": "f_L-1_054",
    "center": [
     11.284,
@@ -58893,11 +58923,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "copied from dec_L-1_003 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_025",
+   "id": "dec_L-1_024",
    "host_id": "f_L-1_054",
    "center": [
     11.284,
@@ -58939,11 +58969,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "copied from dec_L-1_004 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_026",
+   "id": "dec_L-1_025",
    "host_id": "f_L-1_054",
    "center": [
     11.284,
@@ -58984,11 +59014,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "copied from dec_L-1_005 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_027",
+   "id": "dec_L-1_026",
    "host_id": "f_L-1_054",
    "center": [
     11.284,
@@ -59030,11 +59060,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "copied from dec_L-1_006 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_028",
+   "id": "dec_L-1_027",
    "host_id": "f_L-1_054",
    "center": [
     11.284,
@@ -59075,11 +59105,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Complements the natural wood and light grey sofa for a soft, modern look."
+     "text": "Complements the natural wood and neutral palette while softening the sofa's lines."
     }
    ],
    "reason": "copied from dec_L-1_007 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_029",
+   "id": "dec_L-1_028",
    "host_id": "f_L-1_054",
    "center": [
     11.284,
@@ -59096,97 +59126,6 @@
   },
   {
    "kind": "decor",
-   "type": "plant_small",
-   "level_id": "L-1",
-   "room_id": "r_L-1_salon_2",
-   "asset": null,
-   "source": "added_by_ai",
-   "method": "ai",
-   "slot": "f_L-1_073.centre",
-   "colour": "natural wood",
-   "confidence": 0.9,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Brings life to the coffee table with a natural, modern touch."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Brings life to the space with a small indoor plant in a natural wood pot."
-    }
-   ],
-   "reason": "copied from dec_L-1_008 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_030",
-   "host_id": "f_L-1_074",
-   "center": [
-    9.055,
-    1.004
-   ],
-   "rotation_deg": 90.0,
-   "size": [
-    0.25,
-    0.25,
-    0.45
-   ],
-   "mirrored_from": "dec_L-1_008"
-  },
-  {
-   "kind": "decor",
-   "type": "table_lamp",
-   "level_id": "L-1",
-   "room_id": "r_L-1_salon_2",
-   "asset": null,
-   "source": "added_by_ai",
-   "method": "ai",
-   "slot": "f_L-1_091.left",
-   "colour": "brass",
-   "confidence": 0.9,
-   "status": "verified",
-   "evidence": [
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 1,
-     "text": "Warm light enhances the natural wood and greige tones."
-    },
-    {
-     "file": "building.json",
-     "method": "ai",
-     "confidence": 0.9,
-     "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "pass": 2,
-     "text": "Warm brass light adds cozy ambiance and matches the dark bronze window frames."
-    }
-   ],
-   "reason": "copied from dec_L-1_009 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_031",
-   "host_id": "f_L-1_104",
-   "center": [
-    13.372,
-    4.3
-   ],
-   "rotation_deg": 180.0,
-   "size": [
-    0.29,
-    0.29,
-    0.497
-   ],
-   "light_on": false,
-   "mirrored_from": "dec_L-1_009"
-  },
-  {
-   "kind": "decor",
    "type": "rug",
    "level_id": "L-1",
    "room_id": "r_L-1_salon_2",
@@ -59194,7 +59133,7 @@
    "source": "added_by_ai",
    "method": "ai",
    "slot": "r_L-1_salon.rug1",
-   "colour": "cream",
+   "colour": "sand",
    "confidence": 0.9,
    "status": "verified",
    "evidence": [
@@ -59204,7 +59143,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Defines the seating area and adds softness underfoot."
+     "text": "Grounds the space with natural warmth and ties in with the oak floor and neutral palette."
     },
     {
      "file": "building.json",
@@ -59212,25 +59151,80 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "A sand-colored rug grounds the space and complements the light oak floor."
+     "text": "A sand-colored rug grounds the space and harmonizes with the light oak and greige walls."
     }
    ],
-   "reason": "copied from dec_L-1_010 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_032",
+   "reason": "copied from dec_L-1_008 of r_L-1_salon (mirrored twin)",
+   "id": "dec_L-1_029",
    "host_id": null,
    "center": [
-    9.347,
+    9.307,
     4.167
    ],
    "rotation_deg": 270.0,
    "size": [
     5.029,
-    2.36
+    2.44
    ],
    "anchor_ids": [
     "f_L-1_038"
    ],
-   "mirrored_from": "dec_L-1_010"
+   "mirrored_from": "dec_L-1_008"
+  },
+  {
+   "kind": "decor",
+   "type": "wall_art",
+   "level_id": "L-1",
+   "room_id": "r_L-1_salon_2",
+   "asset": null,
+   "source": "added_by_ai",
+   "method": "ai",
+   "slot": "f_L-1_091.wall",
+   "colour": "charcoal",
+   "confidence": 0.9,
+   "status": "verified",
+   "evidence": [
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "Adds visual interest without overwhelming the light walls, in a modern minimalist style."
+    },
+    {
+     "file": "building.json",
+     "method": "ai",
+     "confidence": 0.9,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 2,
+     "text": "Wood-framed art complements the warm, natural style and light oak floors."
+    }
+   ],
+   "reason": "copied from dec_L-1_009 of r_L-1_salon (mirrored twin)",
+   "id": "dec_L-1_030",
+   "host_id": null,
+   "center": [
+    13.672,
+    7.023
+   ],
+   "rotation_deg": 0.0,
+   "size": [
+    0.72,
+    0.04
+   ],
+   "anchor_ids": [
+    "f_L-1_102"
+   ],
+   "wall_point": [
+    13.672,
+    7.043
+   ],
+   "wall_id": "w_L-1_003",
+   "gap_m": 0.25,
+   "bottom_m": 1.05,
+   "max_height_m": 1.7,
+   "mirrored_from": "dec_L-1_009"
   },
   {
    "kind": "decor",
@@ -59251,7 +59245,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Softens natural light and matches the warm, neutral palette."
+     "text": "Softens natural light while maintaining a clean, modern aesthetic with warm tones."
     },
     {
      "file": "building.json",
@@ -59262,8 +59256,8 @@
      "text": "Cream blinds soften natural light and match the warm, neutral palette."
     }
    ],
-   "reason": "copied from dec_L-1_011 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_033",
+   "reason": "copied from dec_L-1_010 of r_L-1_salon (mirrored twin)",
+   "id": "dec_L-1_031",
    "host_id": null,
    "center": [
     11.379,
@@ -59282,7 +59276,7 @@
     0.201
    ],
    "wall_id": "w_L-1_001",
-   "mirrored_from": "dec_L-1_011"
+   "mirrored_from": "dec_L-1_010"
   },
   {
    "kind": "decor",
@@ -59303,7 +59297,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Warm glow enhances the modern natural aesthetic."
+     "text": "Warm metallic glow enhances the natural wood and greige walls with elegant contrast."
     },
     {
      "file": "building.json",
@@ -59311,11 +59305,11 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "A brass pendant light adds modern elegance over the coffee table."
+     "text": "A brass pendant light adds warmth and complements the dark bronze window frames."
     }
    ],
-   "reason": "copied from dec_L-1_012 of r_L-1_salon (mirrored twin)",
-   "id": "dec_L-1_034",
+   "reason": "copied from dec_L-1_011 of r_L-1_salon (mirrored twin)",
+   "id": "dec_L-1_032",
    "host_id": null,
    "anchor_ids": [
     "f_L-1_074"
@@ -59332,7 +59326,7 @@
     0.85
    ],
    "light_on": false,
-   "mirrored_from": "dec_L-1_012"
+   "mirrored_from": "dec_L-1_011"
   },
   {
    "kind": "decor",
@@ -59699,7 +59693,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style to the bed with a modern natural tone."
+     "text": "Adds warmth and style to the bed with a natural, modern accent."
     },
     {
      "file": "building.json",
@@ -59707,7 +59701,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds warmth and color contrast to the greige walls."
+     "text": "Adds warmth and color contrast to the greige walls and neutral palette."
     }
    ],
    "reason": "copied from dec_L0_008 of r_L0_e_yatak_odasi (mirrored twin)",
@@ -59745,7 +59739,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style to the bed with a modern natural tone."
+     "text": "Adds warmth and style to the bed with a natural, modern accent."
     },
     {
      "file": "building.json",
@@ -59753,7 +59747,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Adds warmth and color contrast to the greige walls."
+     "text": "Adds warmth and color contrast to the greige walls and neutral palette."
     }
    ],
    "reason": "copied from dec_L0_009 of r_L0_e_yatak_odasi (mirrored twin)",
@@ -59798,7 +59792,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Softens the bed and complements the natural wood and neutral palette."
+     "text": "Softens the bed and complements the natural wood and light grey sofa."
     }
    ],
    "reason": "copied from dec_L0_010 of r_L0_e_yatak_odasi (mirrored twin)",
@@ -59843,7 +59837,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Minimalist art in wood tone enhances modern natural style."
+     "text": "Modern art in wood tone enhances the natural, warm aesthetic."
     }
    ],
    "reason": "copied from dec_L0_011 of r_L0_e_yatak_odasi (mirrored twin)",
@@ -59890,7 +59884,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Small plant in cream pot brings life and matches the natural light wood theme."
+     "text": "Small plant in cream pot brings life and matches the natural, warm theme."
     },
     {
      "file": "building.json",
@@ -59898,15 +59892,15 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Small plant in rattan pot brings life and matches natural wood furniture."
+     "text": "Small plant in rattan pot brings life and matches the natural wood theme."
     }
    ],
    "reason": "copied from dec_L0_012 of r_L0_e_yatak_odasi (mirrored twin)",
    "id": "dec_L0_031",
-   "host_id": "f_L0_048",
+   "host_id": "f_L0_049",
    "center": [
-    8.508,
-    1.921
+    8.608,
+    1.946
    ],
    "rotation_deg": 180.0,
    "size": [
@@ -59935,7 +59929,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Books add texture and calm, in a neutral tone that suits the space."
+     "text": "Books add texture and calm, in a neutral tone that blends with the room."
     },
     {
      "file": "building.json",
@@ -59943,15 +59937,15 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Books add texture and calm, in a neutral tone that blends with the room."
+     "text": "Books in cream cover add texture and calm without visual clutter."
     }
    ],
    "reason": "copied from dec_L0_013 of r_L0_e_yatak_odasi (mirrored twin)",
    "id": "dec_L0_032",
-   "host_id": "f_L0_049",
+   "host_id": "f_L0_050",
    "center": [
-    8.008,
-    2.12
+    8.033,
+    2.021
    ],
    "rotation_deg": 90.0,
    "size": [
@@ -59988,7 +59982,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm neutral rug grounds the space and ties in with light oak flooring."
+     "text": "Sand rug under bed ties in with warm earth tones and light oak floor."
     }
    ],
    "reason": "copied from dec_L0_014 of r_L0_e_yatak_odasi (mirrored twin)",
@@ -60027,7 +60021,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Cream curtains soften natural light and match the warm, neutral palette."
+     "text": "Cream curtains soften natural light and match the room’s warm, neutral palette."
     },
     {
      "file": "building.json",
@@ -60035,7 +60029,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Light, airy curtains let in natural light while softening dark bronze frames."
+     "text": "Cream curtains soften natural light and match the warm, neutral palette."
     }
    ],
    "reason": "copied from dec_L0_015 of r_L0_e_yatak_odasi (mirrored twin)",
@@ -60087,7 +60081,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm brass light adds subtle metallic accent and ambient glow."
+     "text": "Brass pendant light adds warmth and complements dark bronze window frames."
     }
    ],
    "reason": "copied from dec_L0_016 of r_L0_e_yatak_odasi (mirrored twin)",
@@ -60129,7 +60123,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style with mustard cushions on the bed."
+     "text": "Adds warmth and style with mustard against greige walls."
     },
     {
      "file": "building.json",
@@ -60175,7 +60169,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Adds warmth and style with mustard cushions on the bed."
+     "text": "Adds warmth and style with mustard against greige walls."
     },
     {
      "file": "building.json",
@@ -60220,7 +60214,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Cream throw complements greige walls and adds soft texture."
+     "text": "Softens the bed with neutral cream for cozy contrast."
     },
     {
      "file": "building.json",
@@ -60265,7 +60259,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Wood-framed art matches natural wood furniture and adds warmth."
+     "text": "Wood-framed art complements natural light wood furniture."
     },
     {
      "file": "building.json",
@@ -60320,7 +60314,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Sand-coloured rug grounds the space and harmonizes with light oak floors."
+     "text": "Sand rug grounds the space and complements oak floors."
     },
     {
      "file": "building.json",
@@ -60328,7 +60322,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm sand rug grounds the space and complements the oak floor."
+     "text": "Warm neutral rug grounds the space and ties in with the oak floor."
     }
    ],
    "reason": "copied from dec_L0_005 of r_L0_yatak_odasi (mirrored twin)",
@@ -60367,7 +60361,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Cream curtains soften natural light and match the neutral palette."
+     "text": "Cream curtains soften light and match the warm neutral palette."
     },
     {
      "file": "building.json",
@@ -60375,7 +60369,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Cream curtains soften the dark bronze frames and let in natural light."
+     "text": "Light, airy curtains let in natural light while softening the dark bronze frames."
     }
    ],
    "reason": "copied from dec_L0_006 of r_L0_yatak_odasi (mirrored twin)",
@@ -60419,7 +60413,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 1,
-     "text": "Brass pendant light adds warmth and focal point above the bed."
+     "text": "Brass pendant adds warmth and hangs elegantly over the bed."
     },
     {
      "file": "building.json",
@@ -60427,7 +60421,7 @@
      "confidence": 0.9,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
      "pass": 2,
-     "text": "Warm brass pendant light adds metallic warmth and modern elegance."
+     "text": "Warm metallic pendant light adds cozy glow and complements the natural wood."
     }
    ],
    "reason": "copied from dec_L0_007 of r_L0_yatak_odasi (mirrored twin)",

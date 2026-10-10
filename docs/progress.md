@@ -720,3 +720,22 @@ Spec: `docs/milestone11.md` (the user named `docs/milestone10.md`, which is the 
   runs in three parallel tracks: A agent core, B layout engine, C exterior/rooms/cameras.
 
 GPU cost so far: $65.68 of $100 (no pod in M11 yet). No pod is running.
+
+### Milestone 11 – build and pods (done, 10 Oct 2026)
+
+Spec and report: `docs/milestone11.md` (§18 as built, §19 pods, §20 report).
+
+- Built: the agent (`wenart/agent/`: model client, 30 typed tools, overrides, code + vision critics, per-room
+  planner, rounds, router, decision log), the layout engine (plausibility F1–F9/R1–R4, orientation rules, groups,
+  wall snapping, validated edit ops, type inference, splitting at ingest), the exterior (roof from the break line,
+  site with paths, hedges, trees and sunken courts, facade bands, physical sky, new cameras), kitchens with
+  splashbacks, no stripes in final images. Orchestrated is the default; `--no-orchestrator` keeps the M10 chain.
+- Agent model: `Qwen/Qwen3.8-27B-FP8` (Apache-2.0), 46 tokens/s, 52 GB next to Cycles on the RTX PRO 6000.
+- Pods: G1, G2, G2b, G3, G2c, G2d: 382 min, $15.85. The real02 runs found and fixed 10 integration problems
+  (planner, lock check, rollback, time budget, camera and light, GPU tests).
+- Results: real02 (G2d): 4 rounds, 20 edits accepted, complete; real01 (G3): 4 rounds, 5 edits (living room fixed:
+  score 80 → 100); synthetic-01: 1 edit. Before/after sheets: `results/compare/<p>/before_after_*.jpg`.
+- GPU tests: G2d 37 of 39 (1 fixed in the test, 1 open: §20.4 #3).
+- Open items: §20.4 (grey boxes in real02, many major findings still open, polish off in orchestrated runs).
+
+GPU cost so far: $81.53 of $100. No pod is running.

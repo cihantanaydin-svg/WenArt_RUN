@@ -40,9 +40,18 @@ None.
 
 ## Drawn pieces against the source plan
 
-Reference: source building.json; mode `furnished_rooms: complete`. 209 of 210 checked drawn pieces keep their anchor (within 0.05 m), front (within 1.0 deg) and wall; 0 changed by the AI, 0 type proposal(s) for unverified pieces.
+Reference: source building.json; mode `furnished_rooms: complete`. 200 of 210 checked drawn pieces keep their anchor (within 0.05 m), front (within 1.0 deg) and wall; 0 changed by the AI, 0 type proposal(s) for unverified pieces.
 
+- f_L-1_023 (wardrobe): anchor moved 0.1791 m, front turned 0.0 deg, no longer against wall w_L-1_004 (now centre None)
+- f_L-1_024 (wardrobe): anchor moved 0.18 m, front turned 0.0 deg, no longer against wall w_L-1_004 (now centre None)
+- f_L-1_050 (armchair): anchor moved 0.0 m, front turned 90.0 deg
+- f_L-1_054 (sofa_corner): anchor moved 0.0 m, front turned 90.0 deg
+- f_L-1_057 (floor_lamp): anchor moved 0.8175 m, front turned 90.0 deg
 - f_L-1_059 (floor_lamp): anchor moved 0.2915 m, front turned 0.0 deg
+- f_L-1_062 (sofa): anchor moved 0.3 m, front turned None deg
+- f_L-1_065 (floor_lamp): anchor moved 0.3 m, front turned None deg
+- f_L0_029 (desk): anchor moved 0.3 m, front turned 0.0 deg
+- f_L0_033 (floor_lamp): anchor moved 0.0615 m, front turned 0.0 deg
 
 ## Exterior views
 
@@ -94,8 +103,8 @@ None.
 
 | camera | control | flagged | confirmed |
 |---|---|---|---|
-| cam_r_L-1b_acik_mutfak_3 | insertion:f_L-1b_011 | yes | no |
-| cam_r_L-1b_acik_mutfak_3 | removal:f_L-1b_011 | yes | no |
+| cam_r_L-1b_acik_mutfak_2 | insertion:win_L-1b_001 | yes | no |
+| cam_r_L-1b_acik_mutfak_2 | removal:win_L-1b_001 | yes | no |
 | cam_r_L-1b_oda_1 | insertion:f_L-1b_062 | yes | no |
 | cam_r_L-1b_oda_1 | removal:f_L-1b_062 | yes | no |
 | cam_r_L-1b_oda_3 | insertion:d_L-1b_001 | yes | no |
@@ -140,5 +149,5 @@ Missed targets (the check is advisory):
 - cam_r_L-1b_oda_2: polish images were made from another Cycles render (source_sha256); not checked
 - cam_r_L-1b_oda_3: polish images were made from another Cycles render (source_sha256); not checked
 - cam_r_L-1b_oda_1: detect/cam_r_L-1b_oda_1.json cycles was made from another image (sha256); not used
-- cam_r_L-1b_acik_mutfak_3: detect/cam_r_L-1b_acik_mutfak_3.json cycles was made from another image (sha256); not used
+- cam_r_L-1b_acik_mutfak_2: detect/cam_r_L-1b_acik_mutfak_2.json cycles was made from another image (sha256); not used
 - cam_r_L-1b_oda_3: detect/cam_r_L-1b_oda_3.json cycles was made from another image (sha256); not used

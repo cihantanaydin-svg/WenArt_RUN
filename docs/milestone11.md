@@ -742,3 +742,69 @@ GPU tests then had no project). Fixes (tests):
 | 1 | the locked check treated a not-built drawn `unknown` as fixed equipment; `edit_ops` lets the agent type it (CLAUDE.md: never an unexplained box) | an unbuilt `unknown` may be typed; other not-built pieces stay |
 | 2 | the partial rollback looked at the current round only | it looks at every accepted edit the locked check names |
 | 3 | a refit that failed after the round's rollback ended the project | then every agent edit is rolled back and the project goes on with the M10 result |
+
+### 19.6 Pod G2d – real02 orchestrated, complete (10 Oct 2026, `rx88jd2u31clb6`, 81 min, $3.37)
+
+4 rounds (stop: max rounds), 20 edits accepted, 177 rejected, no refit failure; then full renders, the agent's
+final check (one pass) and the report. Findings: critical 6 → 6, major 120 → 117 (the rounds fix some and the
+critic finds new ones in the changed views). GPU tests: 37 of 39 pass. The 2 failures:
+- `test_ai_decor_is_built`: a ceiling light under the 1.35 m slope of the attic bathroom is not built on purpose
+  (§19.3 #4) and listed in `furniture.not_built`; the test read only `decor_skipped`. Fixed in the test.
+- `test_index_pass_contains_every_visible_proxy`: the play room's library sofa `f_L1_012` is 0.26 m beside camera
+  `oyun_3`; the camera model sees 2.4 % of its fitted box at the frame edge, the smaller library mesh is outside the
+  frame. The M10 tolerance case (edge of a fitted box); **open**.
+
+## 20. Report (step 7)
+
+### 20.1 Before / after
+
+Side-by-side sheets (M10 left, M11 right): `results/compare/<p>/before_after_*.jpg`. M10's images are kept in
+`results/compare/<p>/m10/`; M11's are the committed `results/final/<p>/` (real02: G2d; real01, synthetic-01: G3).
+
+| Project | M10 (before) | M11 (after) |
+|---|---|---|
+| real02 exterior | ground like water with an edge, plants and lights through the roof, stair shafts above the ridge, a roof cut away at both ends, orange stripes on the terrace, stiff 45° cameras | ground to the horizon, plot with hedge, paths, trees and sunken courts, closed mansard with a hip top, plinth and slab bands, paved terraces, physical sky, 30° corner views and a frontal entrance view |
+| real02 interiors | red stripes on 20 floors and 58 boxes, black/beige checkerboard bathrooms and kitchen, kitchen = one giant box, washbasins and wardrobes facing walls, the master bed reversed, a 3.35 m table block + 7 extra chairs | no stripes, light tiles, kitchens with counter runs, upper cabinets and splashbacks, beds and wardrobes with their backs on walls, tables split from their chairs; still some grey boxes (untyped pieces the agent could not type), one corridor view of a bare wall |
+| real01 | checkerboard bathroom and kitchen, a striped box in the drawing room, 3 views of the stair room | light tiles, the striped box gone (it duplicated the sofa: removed by the agent), TV unit facing the sofa, a round coffee table on a rug, 1 view of the stair room |
+| synthetic-01 | as M10 | light tiles, no stripes; 1 agent edit |
+
+### 20.2 The agent's decisions
+
+Every decision is in `results/agent/<p>/log.md` / `log.json` (finding, tool, arguments, reason, validation,
+before/after images); every changed piece carries `adjusted_by_ai` in `building_final.json`.
+
+| Project (pod) | Rounds | Accepted / rejected edits | Kinds of accepted edits | Agent minutes |
+|---|---|---|---|---|
+| real02 (G2d) | 4 | 20 / 177 | moves and wall snaps, turns to face the group, removal of misread outlines, details and lone AI pieces, room retype (lounge → living), unknown → kitchen sink, oversized beds resized, library swaps for flat panels | 36 |
+| real01 (G3) | 4 | 5 / 31 | TV unit to the wall facing the sofa, duplicate sofa box removed, sofa turned, nightstands snapped | 8 |
+| synthetic-01 (G3) | 2 | 1 / 30 | AI bench moved out of a wardrobe's free zone | 6 |
+
+Rejections by the validator (real02, all pods): mostly the drawn-piece rules (0.3 m / 1.2 m), types not allowed in the
+room type, no free place on the wall, a lower plausibility score. Nothing was applied without passing them.
+
+### 20.3 Time and cost
+
+| Pod | What | Minutes | Cost |
+|---|---|---|---|
+| G1 | agent model check | 22 | $0.91 |
+| G2 | real02 orchestrated (polish on) | 105 | $4.34 |
+| G2b | real02 after the G2 fixes | 67 | $2.80 |
+| G3 | real01 + synthetic-01 | 55 | $2.29 |
+| G2c | real02 after the G2b fixes | 52 | $2.14 |
+| G2d | real02, complete | 81 | $3.37 |
+| **M11** | | **382** | **$15.85** (plan §12: ≈ $12) |
+
+PoC total: $81.53 of $100. No pod is running.
+
+### 20.4 Open items
+
+| # | Item |
+|---|---|
+| 1 | Grey boxes remain in real02 (living room, kitchen, play room): untyped drawn pieces whose types the room-type rules refuse (14 such rejections in G2b alone); a wider type list per room or a "keep as decor / not built" decision by the agent would remove them |
+| 2 | The planner's per-room budget (12 calls) and 4 rounds leave real02's 117 major findings mostly open; most are F3/F4/F6 of drawn pieces the 0.3 / 1.2 m rules lock |
+| 3 | GPU test `test_index_pass_contains_every_visible_proxy` (real02, one camera 0.26 m beside a sofa) |
+| 4 | `correct_geometry` is record-only (§18.1) |
+| 5 | Polish off in the orchestrated runs (time); the gate + polish need 35 min on real02 |
+| 6 | Not built in track B: bed + nightstand and desk + chair splitting (U15), the play room's round table + chairs (U9), three twin causes (M7) |
+| 7 | 2 recognition answers stale on real02 (crops changed between the two pipeline runs) |
+| 8 | Exterior: low-poly trees and plain hedges (look), D5/D6 defaults kept |

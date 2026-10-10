@@ -10,19 +10,19 @@
  "refused": [],
  "items": [
   {
-   "id": "dec_L-1_020",
+   "id": "dec_L-1_019",
    "type": "vase",
    "method": "ai",
-   "slot": "f_L-1_095.centre"
+   "slot": "f_L-1_093.centre"
+  },
+  {
+   "id": "dec_L-1_020",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1_093"
   },
   {
    "id": "dec_L-1_021",
-   "type": "pendant_light",
-   "method": "ai",
-   "slot": "ceiling:over_f_L-1_095"
-  },
-  {
-   "id": "dec_L-1_022",
    "type": "blind",
    "method": "ai",
    "slot": "window:win_L-1_003"

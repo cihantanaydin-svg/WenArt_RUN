@@ -84,6 +84,9 @@ def test_ai_decor_is_built(project):
         built = {o["element_id"] for o in scene["objects"] if o.get("kind") == "decor" and o.get("host_id") is None}
         hosted = [o for o in scene["objects"] if o.get("kind") == "decor" and o.get("host_id")]
         skipped = {s.get("id") for s in (scene.get("furniture") or {}).get("decor_skipped") or []}
+        # M11 pod G2d: decor the build leaves out with a reason (a light under a very low slope, a plant taller than
+        # the attic ceiling: build.decor_under_roof) is listed in furniture.not_built
+        skipped |= {s.get("id") for s in (scene.get("furniture") or {}).get("not_built") or []}
         for item in ai:
             if item.get("level_id") not in levels:
                 continue                    # a level only another variant builds (real02's L-1b is not in the base)

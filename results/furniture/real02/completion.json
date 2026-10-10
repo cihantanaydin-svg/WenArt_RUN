@@ -438,16 +438,16 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.078,
+     "latency_s": 3.24,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 5
+     "added": 3
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.936,
+     "latency_s": 3.945,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -494,45 +494,13 @@
      "type": "console_table",
      "center": [
       1.5,
-      4.3
+      6.847
      ],
      "size": [
       1.2,
       0.35
      ],
-     "rotation_deg": 180.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_092",
-     "type": "chaise",
-     "center": [
-      1.5,
-      3.0
-     ],
-     "size": [
-      0.75,
-      1.7
-     ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1_093",
-     "type": "bookshelf",
-     "center": [
-      7.19,
-      1.872
-     ],
-     "size": [
-      1.0,
-      0.35
-     ],
-     "rotation_deg": 270.0,
      "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
@@ -628,7 +596,7 @@
      ]
     ]
    },
-   "latency_s": 9.014
+   "latency_s": 7.185
   },
   {
    "room_id": "r_L-1_salon_2",
@@ -1066,7 +1034,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_102",
+     "id": "f_L-1_100",
      "type": "tv_unit",
      "center": [
       12.0922,
@@ -1082,7 +1050,7 @@
      "mirrored_from": "f_L-1_089"
     },
     {
-     "id": "f_L-1_103",
+     "id": "f_L-1_101",
      "type": "armchair",
      "center": [
       13.8722,
@@ -1098,50 +1066,24 @@
      "mirrored_from": "f_L-1_090"
     },
     {
-     "id": "f_L-1_104",
+     "id": "f_L-1_102",
      "type": "console_table",
      "center": [
       13.6722,
-      4.3
+      6.847
      ],
      "size": [
       1.2,
       0.35
      ],
-     "rotation_deg": 180.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": "f_L-1_091"
-    },
-    {
-     "id": "f_L-1_105",
-     "type": "bookshelf",
-     "center": [
-      7.9822,
-      1.872
-     ],
-     "size": [
-      1.0,
-      0.35
-     ],
-     "rotation_deg": 90.0,
+     "rotation_deg": 0.0,
      "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": "f_L-1_093"
+     "mirrored_from": "f_L-1_091"
     }
    ],
    "refused": [],
-   "dropped": [
-    {
-     "type": "chaise",
-     "mirrored_from": "f_L-1_092",
-     "center": [
-      1.5,
-      3.0
-     ],
-     "reason": "the copy fails clearance_ok here"
-    }
-   ],
+   "dropped": [],
    "wall_cabinets": [],
    "drawn_layout": {
     "pieces": {
@@ -1442,7 +1384,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.688,
+     "latency_s": 5.739,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -1451,7 +1393,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.832,
+     "latency_s": 6.037,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -1462,7 +1404,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_094",
+     "id": "f_L-1_092",
      "type": "tall_cabinet",
      "center": [
       1.412,
@@ -1478,7 +1420,7 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1_095",
+     "id": "f_L-1_093",
      "type": "table_dining",
      "center": [
       1.66,
@@ -1489,12 +1431,12 @@
       0.9
      ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
      "mirrored_from": null
     },
     {
-     "id": "f_L-1_096",
+     "id": "f_L-1_094",
      "type": "chair",
      "center": [
       1.86,
@@ -1505,12 +1447,12 @@
       0.45
      ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
      "mirrored_from": null
     },
     {
-     "id": "f_L-1_097",
+     "id": "f_L-1_095",
      "type": "chair",
      "center": [
       1.36,
@@ -1521,7 +1463,7 @@
       0.45
      ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
      "mirrored_from": null
     }
@@ -1533,7 +1475,7 @@
      "type": "chair",
      "center": [
       1.5,
-      8.7
+      9.7
      ],
      "reason": "no repair left",
      "failed": [
@@ -1545,7 +1487,7 @@
      "type": "chair",
      "center": [
       1.2,
-      8.7
+      9.7
      ],
      "reason": "no repair left",
      "failed": [
@@ -1556,8 +1498,8 @@
      "pass": 1,
      "type": "chair",
      "center": [
-      1.5,
-      8.3
+      1.2,
+      10.1
      ],
      "reason": "no repair left",
      "failed": [
@@ -1569,19 +1511,7 @@
      "type": "table_dining",
      "center": [
       1.36,
-      8.5
-     ],
-     "reason": "no repair left",
-     "failed": [
-      "doors_free"
-     ]
-    },
-    {
-     "pass": 1,
-     "type": "tall_cabinet",
-     "center": [
-      3.12,
-      8.15
+      9.97
      ],
      "reason": "no repair left",
      "failed": [
@@ -1592,8 +1522,8 @@
      "pass": 1,
      "type": "chair",
      "center": [
-      1.2,
-      8.3
+      1.5,
+      10.1
      ],
      "reason": "no table_dining in the room",
      "failed": []
@@ -1625,7 +1555,7 @@
    ],
    "wall_cabinets": [
     {
-     "id": "f_L-1_098",
+     "id": "f_L-1_096",
      "run": "f_L-1_001",
      "size": [
       3.35,
@@ -1636,7 +1566,7 @@
      ]
     },
     {
-     "id": "f_L-1_099",
+     "id": "f_L-1_097",
      "run": "f_L-1_002",
      "size": [
       0.69,
@@ -1648,7 +1578,7 @@
      ]
     },
     {
-     "id": "f_L-1_100",
+     "id": "f_L-1_098",
      "run": "f_L-1_002",
      "size": [
       0.561,
@@ -1710,7 +1640,7 @@
     },
     "walkways": []
    },
-   "latency_s": 11.52
+   "latency_s": 11.776
   },
   {
    "room_id": "r_L-1_mutfak_2",
@@ -1937,7 +1867,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_106",
+     "id": "f_L-1_103",
      "type": "tall_cabinet",
      "center": [
       13.7602,
@@ -1950,10 +1880,10 @@
      "rotation_deg": 180.0,
      "confidence": 0.6,
      "method": "ai",
-     "mirrored_from": "f_L-1_094"
+     "mirrored_from": "f_L-1_092"
     },
     {
-     "id": "f_L-1_107",
+     "id": "f_L-1_104",
      "type": "table_dining",
      "center": [
       13.5122,
@@ -1964,12 +1894,12 @@
       0.9
      ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1_095"
+     "mirrored_from": "f_L-1_093"
     },
     {
-     "id": "f_L-1_108",
+     "id": "f_L-1_105",
      "type": "chair",
      "center": [
       13.3122,
@@ -1980,12 +1910,12 @@
       0.45
      ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1_096"
+     "mirrored_from": "f_L-1_094"
     },
     {
-     "id": "f_L-1_109",
+     "id": "f_L-1_106",
      "type": "chair",
      "center": [
       13.8122,
@@ -1996,16 +1926,16 @@
       0.45
      ],
      "rotation_deg": 0.0,
-     "confidence": 0.6,
+     "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1_097"
+     "mirrored_from": "f_L-1_095"
     }
    ],
    "refused": [],
    "dropped": [],
    "wall_cabinets": [
     {
-     "id": "f_L-1_110",
+     "id": "f_L-1_107",
      "run": "f_L-1_010",
      "size": [
       3.356,
@@ -2016,7 +1946,7 @@
      ]
     },
     {
-     "id": "f_L-1_111",
+     "id": "f_L-1_108",
      "run": "f_L-1_011",
      "size": [
       0.56,
@@ -2028,7 +1958,7 @@
      ]
     },
     {
-     "id": "f_L-1_112",
+     "id": "f_L-1_109",
      "run": "f_L-1_011",
      "size": [
       0.69,
@@ -2144,7 +2074,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_113",
+     "id": "f_L-1_110",
      "type": "console_table",
      "center": [
       11.7582,
@@ -2157,7 +2087,7 @@
      "rotation_deg": 270.0,
      "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1_101"
+     "mirrored_from": "f_L-1_099"
     }
    ],
    "refused": [],
@@ -2209,7 +2139,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.16,
+     "latency_s": 1.162,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -2218,7 +2148,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.127,
+     "latency_s": 1.119,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -2229,7 +2159,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1_101",
+     "id": "f_L-1_099",
      "type": "console_table",
      "center": [
       3.414,
@@ -2256,7 +2186,7 @@
     },
     "walkways": []
    },
-   "latency_s": 2.287
+   "latency_s": 2.281
   },
   {
    "room_id": "r_L-1_banyo",
@@ -2668,9 +2598,9 @@
     },
     {
      "id": "f_L-1b_040",
-     "type": "unknown",
-     "kind": "changeable",
-     "unverified": true,
+     "type": "kitchen_island",
+     "kind": "fixed",
+     "unverified": false,
      "anchor": {
       "kind": "centre",
       "point": [
@@ -2810,7 +2740,7 @@
    "missing": {},
    "anchor_missing": false,
    "addable": {
-    "bar_stool": 3,
+    "bar_stool": 4,
     "tall_cabinet": 1
    },
    "change_types": [
@@ -2823,79 +2753,31 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.077,
+     "latency_s": 5.08,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 4
+     "added": 5
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.075,
+     "latency_s": 4.949,
      "error": null,
      "transport_error": false,
      "changes": 0,
-     "added": 4
+     "added": 5
     }
    ],
-   "chosen_pass": 2,
+   "chosen_pass": 1,
    "changes": [],
    "added": [
     {
      "id": "f_L-1b_071",
-     "type": "bar_stool",
-     "center": [
-      1.59,
-      4.1
-     ],
-     "size": [
-      0.42,
-      0.42
-     ],
-     "rotation_deg": 180.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1b_072",
-     "type": "bar_stool",
-     "center": [
-      2.09,
-      4.1
-     ],
-     "size": [
-      0.42,
-      0.42
-     ],
-     "rotation_deg": 180.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1b_073",
-     "type": "bar_stool",
-     "center": [
-      1.09,
-      3.8
-     ],
-     "size": [
-      0.42,
-      0.42
-     ],
-     "rotation_deg": 180.0,
-     "confidence": 0.9,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L-1b_074",
      "type": "tall_cabinet",
      "center": [
       7.066,
-      4.48
+      5.53
      ],
      "size": [
       0.6,
@@ -2905,18 +2787,82 @@
      "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_072",
+     "type": "bar_stool",
+     "center": [
+      2.29,
+      4.02
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_073",
+     "type": "bar_stool",
+     "center": [
+      2.19,
+      5.22
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_074",
+     "type": "bar_stool",
+     "center": [
+      1.19,
+      4.02
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L-1b_075",
+     "type": "bar_stool",
+     "center": [
+      1.69,
+      5.22
+     ],
+     "size": [
+      0.42,
+      0.42
+     ],
+     "rotation_deg": 0.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": null
     }
    ],
    "refused": [],
    "dropped": [
     {
-     "pass": 1,
+     "pass": 2,
      "type": "bar_stool",
      "center": [
       1.59,
-      2.4
+      3.4
      ],
-     "reason": "1.71 m from the nearest kitchen_island (> 0.6 m)",
+     "reason": "0.61 m from the nearest kitchen_island (> 0.6 m)",
      "failed": []
     }
    ],
@@ -2985,7 +2931,7 @@
     },
     "walkways": []
    },
-   "latency_s": 8.152
+   "latency_s": 10.029
   },
   {
    "room_id": "r_L-1b_acik_mutfak_2",
@@ -2993,7 +2939,7 @@
    "room_type": "kitchen",
    "room_subtype": null,
    "state": "completed",
-   "reason": "partner r_L-1b_acik_mutfak (twin) not used: the twin's drawn furniture does not map onto this room: drawn unknown f_L-1b_040 has no counterpart here; asked itself",
+   "reason": "partner r_L-1b_acik_mutfak (twin) not used: the twin's drawn furniture does not map onto this room: drawn unknown f_L-1b_044 has no counterpart here; asked itself",
    "partner": null,
    "drawn": [
     {
@@ -3377,7 +3323,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.233,
+     "latency_s": 5.042,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3386,7 +3332,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.914,
+     "latency_s": 4.919,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3397,7 +3343,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1b_076",
+     "id": "f_L-1b_077",
      "type": "tall_cabinet",
      "center": [
       8.108,
@@ -3413,7 +3359,7 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1b_077",
+     "id": "f_L-1b_078",
      "type": "bar_stool",
      "center": [
       10.28,
@@ -3429,7 +3375,7 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1b_078",
+     "id": "f_L-1b_079",
      "type": "bar_stool",
      "center": [
       10.28,
@@ -3445,7 +3391,7 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1b_079",
+     "id": "f_L-1b_080",
      "type": "bar_stool",
      "center": [
       11.68,
@@ -3461,7 +3407,7 @@
      "mirrored_from": null
     },
     {
-     "id": "f_L-1b_080",
+     "id": "f_L-1b_081",
      "type": "bar_stool",
      "center": [
       10.28,
@@ -3554,7 +3500,7 @@
     },
     "walkways": []
    },
-   "latency_s": 10.147
+   "latency_s": 9.961
   },
   {
    "room_id": "r_L-1b_koridor",
@@ -3592,7 +3538,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.123,
+     "latency_s": 1.174,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3601,7 +3547,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.125,
+     "latency_s": 1.128,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3612,7 +3558,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1b_075",
+     "id": "f_L-1b_076",
      "type": "console_table",
      "center": [
       3.513,
@@ -3639,7 +3585,7 @@
     },
     "walkways": []
    },
-   "latency_s": 2.248
+   "latency_s": 2.302
   },
   {
    "room_id": "r_L-1b_koridor_2",
@@ -3693,7 +3639,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L-1b_081",
+     "id": "f_L-1b_082",
      "type": "console_table",
      "center": [
       11.6602,
@@ -3706,7 +3652,7 @@
      "rotation_deg": 270.0,
      "confidence": 0.9,
      "method": "ai",
-     "mirrored_from": "f_L-1b_075"
+     "mirrored_from": "f_L-1b_076"
     }
    ],
    "refused": [],
@@ -3965,7 +3911,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 4.733,
+     "latency_s": 4.69,
      "error": null,
      "transport_error": false,
      "changes": 1,
@@ -3974,7 +3920,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.098,
+     "latency_s": 3.107,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -3998,23 +3944,7 @@
      "id": "f_L0_039",
      "type": "nightstand",
      "center": [
-      0.421,
-      4.01
-     ],
-     "size": [
-      0.4,
-      0.4
-     ],
-     "rotation_deg": 90.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": null
-    },
-    {
-     "id": "f_L0_040",
-     "type": "nightstand",
-     "center": [
-      1.75,
+      2.121,
       1.921
      ],
      "size": [
@@ -4027,14 +3957,30 @@
      "mirrored_from": null
     },
     {
+     "id": "f_L0_040",
+     "type": "nightstand",
+     "center": [
+      0.421,
+      4.01
+     ],
+     "size": [
+      0.4,
+      0.4
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
      "id": "f_L0_041",
      "type": "bench",
      "center": [
-      0.901,
+      1.201,
       1.945
      ],
      "size": [
-      1.0,
+      1.2,
       0.4
      ],
      "rotation_deg": 0.0,
@@ -4073,7 +4019,7 @@
     },
     "walkways": []
    },
-   "latency_s": 7.831
+   "latency_s": 7.797
   },
   {
    "room_id": "r_L0_e_yatak_odasi",
@@ -4173,16 +4119,16 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.905,
+     "latency_s": 4.968,
      "error": null,
      "transport_error": false,
-     "changes": 1,
+     "changes": 2,
      "added": 3
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.062,
+     "latency_s": 2.067,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -4199,6 +4145,15 @@
       1
      ],
      "reason": "only pass 1 changes it (a drawn piece needs both passes)"
+    },
+    {
+     "id": "f_L0_023",
+     "type": "wardrobe",
+     "status": "not_agreed",
+     "passes": [
+      1
+     ],
+     "reason": "only pass 1 changes it (a drawn piece needs both passes)"
     }
    ],
    "added": [
@@ -4206,12 +4161,12 @@
      "id": "f_L0_042",
      "type": "nightstand",
      "center": [
-      6.665,
-      1.921
+      6.565,
+      1.946
      ],
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ],
      "rotation_deg": 180.0,
      "confidence": 0.6,
@@ -4222,12 +4177,12 @@
      "id": "f_L0_043",
      "type": "nightstand",
      "center": [
-      7.165,
-      2.12
+      7.14,
+      2.021
      ],
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ],
      "rotation_deg": 270.0,
      "confidence": 0.6,
@@ -4294,7 +4249,7 @@
      ]
     ]
    },
-   "latency_s": 5.967
+   "latency_s": 7.035
   },
   {
    "room_id": "r_L0_e_yatak_odasi_2",
@@ -4410,15 +4365,15 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L0_048",
+     "id": "f_L0_049",
      "type": "nightstand",
      "center": [
-      8.508,
-      1.921
+      8.608,
+      1.946
      ],
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ],
      "rotation_deg": 180.0,
      "confidence": 0.6,
@@ -4426,15 +4381,15 @@
      "mirrored_from": "f_L0_042"
     },
     {
-     "id": "f_L0_049",
+     "id": "f_L0_050",
      "type": "nightstand",
      "center": [
-      8.008,
-      2.12
+      8.033,
+      2.021
      ],
      "size": [
-      0.5,
-      0.4
+      0.6,
+      0.45
      ],
      "rotation_deg": 90.0,
      "confidence": 0.6,
@@ -4442,7 +4397,7 @@
      "mirrored_from": "f_L0_043"
     },
     {
-     "id": "f_L0_050",
+     "id": "f_L0_051",
      "type": "bench",
      "center": [
       8.783,
@@ -4602,7 +4557,23 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L0_051",
+     "id": "f_L0_052",
+     "type": "nightstand",
+     "center": [
+      13.052,
+      1.921
+     ],
+     "size": [
+      0.5,
+      0.4
+     ],
+     "rotation_deg": 180.0,
+     "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": "f_L0_039"
+    },
+    {
+     "id": "f_L0_053",
      "type": "nightstand",
      "center": [
       14.752,
@@ -4613,35 +4584,19 @@
       0.4
      ],
      "rotation_deg": 270.0,
-     "confidence": 0.6,
-     "method": "ai",
-     "mirrored_from": "f_L0_039"
-    },
-    {
-     "id": "f_L0_052",
-     "type": "nightstand",
-     "center": [
-      13.423,
-      1.921
-     ],
-     "size": [
-      0.5,
-      0.4
-     ],
-     "rotation_deg": 180.0,
      "confidence": 0.9,
      "method": "ai",
      "mirrored_from": "f_L0_040"
     },
     {
-     "id": "f_L0_053",
+     "id": "f_L0_054",
      "type": "bench",
      "center": [
-      14.272,
+      13.972,
       1.945
      ],
      "size": [
-      1.0,
+      1.2,
       0.4
      ],
      "rotation_deg": 0.0,
@@ -4925,16 +4880,16 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.711,
+     "latency_s": 4.535,
      "error": null,
      "transport_error": false,
      "changes": 1,
-     "added": 3
+     "added": 4
     },
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.823,
+     "latency_s": 2.843,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -4990,8 +4945,8 @@
      "id": "f_L0_047",
      "type": "bench",
      "center": [
-      0.895,
-      11.564
+      0.905,
+      11.515
      ],
      "size": [
       1.2,
@@ -4999,6 +4954,22 @@
      ],
      "rotation_deg": 0.0,
      "confidence": 0.9,
+     "method": "ai",
+     "mirrored_from": null
+    },
+    {
+     "id": "f_L0_048",
+     "type": "dresser",
+     "center": [
+      2.947,
+      9.065
+     ],
+     "size": [
+      1.2,
+      0.5
+     ],
+     "rotation_deg": 270.0,
+     "confidence": 0.6,
      "method": "ai",
      "mirrored_from": null
     }
@@ -5021,7 +4992,7 @@
     },
     "walkways": []
    },
-   "latency_s": 6.534
+   "latency_s": 7.378
   },
   {
    "room_id": "r_L0_yatak_odasi_4",
@@ -5122,7 +5093,7 @@
    "changes": [],
    "added": [
     {
-     "id": "f_L0_054",
+     "id": "f_L0_055",
      "type": "nightstand",
      "center": [
       12.852,
@@ -5138,7 +5109,7 @@
      "mirrored_from": "f_L0_045"
     },
     {
-     "id": "f_L0_055",
+     "id": "f_L0_056",
      "type": "nightstand",
      "center": [
       13.373,
@@ -5154,11 +5125,11 @@
      "mirrored_from": "f_L0_046"
     },
     {
-     "id": "f_L0_056",
+     "id": "f_L0_057",
      "type": "bench",
      "center": [
-      14.278,
-      11.564
+      14.268,
+      11.515
      ],
      "size": [
       1.2,
@@ -5168,6 +5139,22 @@
      "confidence": 0.9,
      "method": "ai",
      "mirrored_from": "f_L0_047"
+    },
+    {
+     "id": "f_L0_058",
+     "type": "dresser",
+     "center": [
+      12.226,
+      9.065
+     ],
+     "size": [
+      1.2,
+      0.5
+     ],
+     "rotation_deg": 90.0,
+     "confidence": 0.6,
+     "method": "ai",
+     "mirrored_from": "f_L0_048"
     }
    ],
    "refused": [],
@@ -5226,7 +5213,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.115,
+     "latency_s": 1.129,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5235,7 +5222,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.094,
+     "latency_s": 1.097,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5252,7 +5239,7 @@
      "type": "console_table",
      "center": [
       4.72,
-      9.74
+      8.66
      ],
      "reason": "no repair left",
      "failed": [
@@ -5265,7 +5252,7 @@
      "type": "console_table",
      "center": [
       7.39,
-      8.97
+      9.02
      ],
      "reason": "no repair left",
      "failed": [
@@ -5283,7 +5270,7 @@
     },
     "walkways": []
    },
-   "latency_s": 2.209
+   "latency_s": 2.226
   },
   {
    "room_id": "r_L0_merdiven_2",
@@ -5681,7 +5668,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.013,
+     "latency_s": 3.019,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5690,7 +5677,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.979,
+     "latency_s": 2.953,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -5763,7 +5750,7 @@
     },
     "walkways": []
    },
-   "latency_s": 5.992
+   "latency_s": 5.972
   },
   {
    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
@@ -6057,7 +6044,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.195,
+     "latency_s": 1.202,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -6066,7 +6053,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.282,
+     "latency_s": 1.286,
      "error": null,
      "transport_error": false,
      "changes": 0,
@@ -6107,7 +6094,7 @@
     },
     "walkways": []
    },
-   "latency_s": 2.477
+   "latency_s": 2.488
   },
   {
    "room_id": "r_L1_koridor_2",
@@ -6395,5 +6382,5 @@
  "pieces_added": 56,
  "wall_cabinets": 6,
  "locked_violations": [],
- "latency_s": 74.378
+ "latency_s": 76.43
 }

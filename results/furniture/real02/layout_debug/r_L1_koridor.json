@@ -54,7 +54,7 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 1.195,
+   "latency_s": 1.202,
    "error": null,
    "transport_error": false,
    "data": {
@@ -84,7 +84,7 @@
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 1.282,
+   "latency_s": 1.286,
    "error": null,
    "transport_error": false,
    "data": {
@@ -146,7 +146,7 @@
   },
   "walkways": []
  },
- "latency_s": 2.477,
+ "latency_s": 2.488,
  "question": {
   "room": {
    "room_id": "r_L1_koridor",

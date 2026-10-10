@@ -66,6 +66,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-09 23:40 | 9hlndobqs3awg5 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 67 | 2.80 | M11 pod G2b: real02 orchestrated again after the G2 fixes (planner per room, lock check, calibrated budget), polish off, GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-10 00:56 | 3lbakukg3jg7qo | NVIDIA RTX PRO 6000 Blackwell Server Edition | 55 | 2.29 | M11 pod G3: real01 + synthetic-01 orchestrated (agent rounds, validated edits), polish off, GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-10 01:50 | c5hsyi78s9z975 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 52 | 2.14 | M11 pod G2c: real02 orchestrated with the G2b fixes (partial rollback, room retype, 1.2 m wall snaps, low lights), polish off, GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
-| 2026-10-10 01:52 | pending:20261010-015217-full | RTX PRO 6000 | 115 | 4.77 | M11 pod G2d: real02 orchestrated with the G2c fixes (rollback over rounds, full rollback before failing, unbuilt unknowns typed), polish off, GPU tests | creating (provisional, worst case) |
+| 2026-10-10 03:13 | rx88jd2u31clb6 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 81 | 3.37 | M11 pod G2d: real02 orchestrated with the G2c fixes (rollback over rounds, full rollback before failing, unbuilt unknowns typed), polish off, GPU tests | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 
-**Total spent so far: $82.93** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $81.53** (budget: $100; limits: $5.00/GPU-hour, $30/day, 2 h/run)

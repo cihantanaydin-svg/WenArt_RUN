@@ -10,6 +10,12 @@
  "refused": [],
  "items": [
   {
+   "id": "dec_L-1_022",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1_053.cushions"
+  },
+  {
    "id": "dec_L-1_023",
    "type": "cushion",
    "method": "ai",
@@ -47,36 +53,24 @@
   },
   {
    "id": "dec_L-1_029",
-   "type": "cushion",
-   "method": "ai",
-   "slot": "f_L-1_053.cushions"
-  },
-  {
-   "id": "dec_L-1_030",
-   "type": "plant_small",
-   "method": "ai",
-   "slot": "f_L-1_073.centre"
-  },
-  {
-   "id": "dec_L-1_031",
-   "type": "table_lamp",
-   "method": "ai",
-   "slot": "f_L-1_091.left"
-  },
-  {
-   "id": "dec_L-1_032",
    "type": "rug",
    "method": "ai",
    "slot": "r_L-1_salon.rug1"
   },
   {
-   "id": "dec_L-1_033",
+   "id": "dec_L-1_030",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L-1_091.wall"
+  },
+  {
+   "id": "dec_L-1_031",
    "type": "blind",
    "method": "ai",
    "slot": "window:win_L-1_001"
   },
   {
-   "id": "dec_L-1_034",
+   "id": "dec_L-1_032",
    "type": "pendant_light",
    "method": "ai",
    "slot": "ceiling:over_f_L-1_073"

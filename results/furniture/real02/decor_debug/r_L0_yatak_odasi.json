@@ -46,15 +46,15 @@
    ],
    "host_id": "f_L0_039",
    "host_type": "nightstand",
-   "note": "centre part",
+   "note": "centre part, under a window",
    "center": [
-    0.421,
-    4.01
+    2.121,
+    1.921
    ],
    "max_size": [
+    0.44,
     0.34,
-    0.34,
-    2.4
+    0.4
    ]
   },
   {
@@ -70,15 +70,15 @@
    ],
    "host_id": "f_L0_040",
    "host_type": "nightstand",
-   "note": "centre part, under a window",
+   "note": "centre part",
    "center": [
-    1.75,
-    1.921
+    0.421,
+    4.01
    ],
    "max_size": [
-    0.44,
     0.34,
-    0.4
+    0.34,
+    2.4
    ]
   },
   {
@@ -142,59 +142,59 @@
      "slot": "f_L0_019.cushions",
      "type": "cushion",
      "colour": "mustard",
-     "reason": "Adds warmth and style with mustard cushions on the bed."
+     "reason": "Adds warmth and style with mustard against greige walls."
     },
     {
      "slot": "f_L0_019.throw",
      "type": "throw",
      "colour": "cream",
-     "reason": "Cream throw complements greige walls and adds soft texture."
+     "reason": "Softens the bed with neutral cream for cozy contrast."
     },
     {
      "slot": "f_L0_019.wall",
      "type": "wall_art",
      "colour": "natural wood",
-     "reason": "Wood-framed art matches natural wood furniture and adds warmth."
+     "reason": "Wood-framed art complements natural light wood furniture."
     },
     {
      "slot": "f_L0_039.centre",
      "type": "table_lamp",
      "colour": "brass",
-     "reason": "Brass lamp adds metallic warmth and complements dark bronze frames."
+     "reason": "Warm brass light enhances natural daylight and dark bronze frames."
     },
     {
      "slot": "f_L0_040.centre",
      "type": "plant_small",
      "colour": "cream",
-     "reason": "Small cream-pot plant brings life and matches the natural, warm style."
+     "reason": "Small cream pot plant adds greenery without clutter."
     },
     {
      "slot": "r_L0_yatak_odasi.rug1",
      "type": "rug",
      "colour": "sand",
-     "reason": "Sand-coloured rug grounds the space and harmonizes with light oak floors."
+     "reason": "Sand rug grounds the space and complements oak floors."
     },
     {
      "slot": "window:win_L0_001",
      "type": "curtain",
      "colour": "cream",
-     "reason": "Cream curtains soften natural light and match the neutral palette."
+     "reason": "Cream curtains soften light and match the warm neutral palette."
     },
     {
      "slot": "ceiling:over_f_L0_019",
      "type": "pendant_light",
      "colour": "brass",
-     "reason": "Brass pendant light adds warmth and focal point above the bed."
+     "reason": "Brass pendant adds warmth and hangs elegantly over the bed."
     },
     {
      "slot": "ceiling:centre_r_L0_yatak_odasi",
      "type": "ceiling_light",
      "colour": "white",
-     "reason": "White ceiling light ensures even, warm daylight illumination."
+     "reason": "White ceiling light ensures even, ambient illumination."
     }
    ],
    "error": null,
-   "latency_s": 5.669
+   "latency_s": 5.502
   },
   "2": {
    "items": [
@@ -217,38 +217,38 @@
      "reason": "Minimalist art in natural tones enhances the modern natural style."
     },
     {
-     "slot": "f_L0_039.centre",
-     "type": "plant_small",
-     "colour": "cream",
-     "reason": "Small plant in cream pot adds greenery without clutter."
-    },
-    {
-     "slot": "f_L0_040.centre",
-     "type": "book_set",
-     "colour": "cream",
-     "reason": "Books in cream covers match the pots and add texture without overwhelming."
-    },
-    {
      "slot": "r_L0_yatak_odasi.rug1",
      "type": "rug",
      "colour": "sand",
-     "reason": "Warm sand rug grounds the space and complements the oak floor."
+     "reason": "Warm neutral rug grounds the space and ties in with the oak floor."
     },
     {
      "slot": "window:win_L0_001",
      "type": "curtain",
      "colour": "cream",
-     "reason": "Cream curtains soften the dark bronze frames and let in natural light."
+     "reason": "Light, airy curtains let in natural light while softening the dark bronze frames."
     },
     {
      "slot": "ceiling:over_f_L0_019",
      "type": "pendant_light",
      "colour": "brass",
-     "reason": "Warm brass pendant light adds metallic warmth and modern elegance."
+     "reason": "Warm metallic pendant light adds cozy glow and complements the natural wood."
+    },
+    {
+     "slot": "f_L0_039.centre",
+     "type": "plant_small",
+     "colour": "natural wood",
+     "reason": "Small indoor plant in rattan pot brings life and matches the natural wood theme."
+    },
+    {
+     "slot": "f_L0_040.centre",
+     "type": "book_set",
+     "colour": "black",
+     "reason": "Books add texture and sophistication without cluttering the space."
     }
    ],
    "error": null,
-   "latency_s": 5.032
+   "latency_s": 5.159
   }
  },
  "agreed": [
@@ -258,7 +258,7 @@
    "colour": "mustard",
    "colour_agreed": true,
    "reasons": [
-    "Adds warmth and style with mustard cushions on the bed.",
+    "Adds warmth and style with mustard against greige walls.",
     "Adds warmth and color contrast to the greige walls and neutral palette."
    ]
   },
@@ -268,7 +268,7 @@
    "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Cream throw complements greige walls and adds soft texture.",
+    "Softens the bed with neutral cream for cozy contrast.",
     "Softens the bed and complements the natural wood and light grey sofa."
    ]
   },
@@ -278,7 +278,7 @@
    "colour": "natural wood",
    "colour_agreed": true,
    "reasons": [
-    "Wood-framed art matches natural wood furniture and adds warmth.",
+    "Wood-framed art complements natural light wood furniture.",
     "Minimalist art in natural tones enhances the modern natural style."
    ]
   },
@@ -288,8 +288,8 @@
    "colour": "sand",
    "colour_agreed": true,
    "reasons": [
-    "Sand-coloured rug grounds the space and harmonizes with light oak floors.",
-    "Warm sand rug grounds the space and complements the oak floor."
+    "Sand rug grounds the space and complements oak floors.",
+    "Warm neutral rug grounds the space and ties in with the oak floor."
    ]
   },
   {
@@ -298,8 +298,8 @@
    "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Cream curtains soften natural light and match the neutral palette.",
-    "Cream curtains soften the dark bronze frames and let in natural light."
+    "Cream curtains soften light and match the warm neutral palette.",
+    "Light, airy curtains let in natural light while softening the dark bronze frames."
    ]
   },
   {
@@ -308,8 +308,8 @@
    "colour": "brass",
    "colour_agreed": true,
    "reasons": [
-    "Brass pendant light adds warmth and focal point above the bed.",
-    "Warm brass pendant light adds metallic warmth and modern elegance."
+    "Brass pendant adds warmth and hangs elegantly over the bed.",
+    "Warm metallic pendant light adds cozy glow and complements the natural wood."
    ]
   }
  ],
@@ -318,7 +318,7 @@
    "slot": "f_L0_039.centre",
    "type": "table_lamp",
    "colour": "brass",
-   "reason": "Brass lamp adds metallic warmth and complements dark bronze frames.",
+   "reason": "Warm brass light enhances natural daylight and dark bronze frames.",
    "passes": [
     1
    ]
@@ -327,7 +327,7 @@
    "slot": "f_L0_040.centre",
    "type": "plant_small",
    "colour": "cream",
-   "reason": "Small cream-pot plant brings life and matches the natural, warm style.",
+   "reason": "Small cream pot plant adds greenery without clutter.",
    "passes": [
     1
    ]
@@ -336,7 +336,7 @@
    "slot": "ceiling:centre_r_L0_yatak_odasi",
    "type": "ceiling_light",
    "colour": "white",
-   "reason": "White ceiling light ensures even, warm daylight illumination.",
+   "reason": "White ceiling light ensures even, ambient illumination.",
    "passes": [
     1
    ]
@@ -344,8 +344,8 @@
   {
    "slot": "f_L0_039.centre",
    "type": "plant_small",
-   "colour": "cream",
-   "reason": "Small plant in cream pot adds greenery without clutter.",
+   "colour": "natural wood",
+   "reason": "Small indoor plant in rattan pot brings life and matches the natural wood theme.",
    "passes": [
     2
    ]
@@ -353,8 +353,8 @@
   {
    "slot": "f_L0_040.centre",
    "type": "book_set",
-   "colour": "cream",
-   "reason": "Books in cream covers match the pots and add texture without overwhelming.",
+   "colour": "black",
+   "reason": "Books add texture and sophistication without cluttering the space.",
    "passes": [
     2
    ]

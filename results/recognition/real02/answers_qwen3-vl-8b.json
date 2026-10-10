@@ -764,24 +764,23 @@
   },
   "sym_L-1b_001": {
    "task": "symbol_type",
-   "input_sha256": "fed1ed4c0b0042a1cc31e1b6454cf83ce5866e9a9a91ae1467d7cc22f7a72709",
+   "input_sha256": "a865555eea894ff5e4aa25113ec7eda27d12b56fc7c5a27f3a2b0aadb7c3931f",
    "data": {
-    "type": "stove",
-    "front": "none",
+    "type": "kitchen_island",
+    "front": "bottom",
     "confidence": 0.95,
-    "reason": "Square shape, 0.6x0.6m, in kitchen, matches stove dimensions and context."
+    "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest, front is bottom edge."
    },
-   "raw_text": "{\n  \"type\": \"stove\",\n  \"front\": \"none\",\n  \"confidence\": 0.95,\n  \"reason\": \"Square shape, 0.6x0.6m, in kitchen, matches stove dimensions and context.\"\n}",
+   "raw_text": "{\n  \"type\": \"kitchen_island\",\n  \"front\": \"bottom\",\n  \"confidence\": 0.95,\n  \"reason\": \"Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest, front is bottom edge.\"\n}",
    "error": null,
    "attempts": 1,
-   "latency_s": 1.091,
+   "latency_s": 1.627,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
    "seed": 0,
    "images": [
     "crops/sym_L-1b_001_ctx.png",
     "crops/sym_L-1b_001_iso.png"
-   ],
-   "seeded_from": "results/recognition/real02/answers_qwen3-vl-8b.json"
+   ]
   },
   "sym_L-1b_002": {
    "task": "symbol_type",

@@ -223,7 +223,7 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L-1_106",
+   "id": "f_L-1_103",
    "type": "tall_cabinet",
    "center": [
     13.7602,
@@ -236,10 +236,10 @@
    "rotation_deg": 180.0,
    "confidence": 0.6,
    "method": "ai",
-   "mirrored_from": "f_L-1_094"
+   "mirrored_from": "f_L-1_092"
   },
   {
-   "id": "f_L-1_107",
+   "id": "f_L-1_104",
    "type": "table_dining",
    "center": [
     13.5122,
@@ -250,12 +250,12 @@
     0.9
    ],
    "rotation_deg": 0.0,
-   "confidence": 0.6,
+   "confidence": 0.9,
    "method": "ai",
-   "mirrored_from": "f_L-1_095"
+   "mirrored_from": "f_L-1_093"
   },
   {
-   "id": "f_L-1_108",
+   "id": "f_L-1_105",
    "type": "chair",
    "center": [
     13.3122,
@@ -266,12 +266,12 @@
     0.45
    ],
    "rotation_deg": 0.0,
-   "confidence": 0.6,
+   "confidence": 0.9,
    "method": "ai",
-   "mirrored_from": "f_L-1_096"
+   "mirrored_from": "f_L-1_094"
   },
   {
-   "id": "f_L-1_109",
+   "id": "f_L-1_106",
    "type": "chair",
    "center": [
     13.8122,
@@ -282,16 +282,16 @@
     0.45
    ],
    "rotation_deg": 0.0,
-   "confidence": 0.6,
+   "confidence": 0.9,
    "method": "ai",
-   "mirrored_from": "f_L-1_097"
+   "mirrored_from": "f_L-1_095"
   }
  ],
  "refused": [],
  "dropped": [],
  "wall_cabinets": [
   {
-   "id": "f_L-1_110",
+   "id": "f_L-1_107",
    "run": "f_L-1_010",
    "size": [
     3.356,
@@ -302,7 +302,7 @@
    ]
   },
   {
-   "id": "f_L-1_111",
+   "id": "f_L-1_108",
    "run": "f_L-1_011",
    "size": [
     0.56,
@@ -314,7 +314,7 @@
    ]
   },
   {
-   "id": "f_L-1_112",
+   "id": "f_L-1_109",
    "run": "f_L-1_011",
    "size": [
     0.69,

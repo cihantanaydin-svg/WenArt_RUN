@@ -154,7 +154,7 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 3.013,
+   "latency_s": 3.019,
    "error": null,
    "transport_error": false,
    "data": {
@@ -212,7 +212,7 @@
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 2.979,
+   "latency_s": 2.953,
    "error": null,
    "transport_error": false,
    "data": {
@@ -230,7 +230,7 @@
        0.9
       ],
       "against_wall": false,
-      "reason": "Adds a cozy seating spot near the sofa, matching the modern natural style."
+      "reason": "Adds a cozy seating spot near the sofa, matching modern natural style."
      },
      {
       "type": "table_dining",
@@ -244,7 +244,7 @@
        1.0
       ],
       "against_wall": false,
-      "reason": "Provides a functional dining area in the open space, complementing the room’s purpose."
+      "reason": "Central dining table for casual meals, fits the room’s scale and style."
      },
      {
       "type": "bookshelf",
@@ -258,12 +258,12 @@
        0.4
       ],
       "against_wall": true,
-      "reason": "Adds storage and display space against the wall, enhancing the room’s utility."
+      "reason": "Adds storage and display space against the wall, complements the minimalist aesthetic."
      }
     ]
    },
    "prompt": "Task: complete this room of unspecified use labelled 'Oyun Aktivite Ve Dinlenme Odası' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: armchair (2), chair (4), table_dining (1), bookshelf (1), desk (1)\nA good completion: a few pieces that suit the room; keep it sparse.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (none) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- desk: height 0.75 m, size options [1.2, 0.6], [1.4, 0.7], [1.6, 0.8] (usually against a wall)\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L1_005\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.36, 7.24], \"size\": [3.66, 0.4], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.36, 7.24]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L1_009\", \"type\": \"sofa\", \"kind\": \"changeable\", \"center\": [4.21, 4.02], \"size\": [2.1, 0.9], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [4.21, 4.02]}, \"against_wall\": null}, {\"id\": \"f_L1_012\", \"type\": \"sofa\", \"kind\": \"changeable\", \"center\": [5.65, 5.91], \"size\": [2.1, 0.9], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.65, 5.91]}, \"against_wall\": null}, {\"id\": \"f_L1_015\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.56, 4.06], \"size\": [1.03, 0.69], \"rotation_deg\": 78.6, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.56, 4.06]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L1_017\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [2.81, 2.27], \"size\": [1.63, 1.52], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.81, 2.27]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L1_024\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.45, 0.82], \"size\": [0.68, 0.78], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.45, 0.82]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L1_025\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.37, 0.82], \"size\": [0.68, 0.78], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.37, 0.82]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L1_027\", \"type\": \"ottoman\", \"kind\": \"changeable\", \"center\": [4.82, 1.7], \"size\": [0.4, 0.4], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.82, 1.7]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L1_oyun_aktivite_ve_dinlenme_odasi\", \"label\": \"Oyun Aktivite Ve Dinlenme Odası\", \"room_type\": \"other\", \"room_subtype\": null, \"area_m2\": 40.45, \"polygon_m\": [[1.8, 0.2], [7.39, 0.2], [7.39, 7.44], [1.8, 7.44]], \"doors\": [{\"id\": \"d_L1_001\", \"center\": [2.38, 7.52], \"width\": 0.82, \"opens_into_this_room\": true, \"approach\": [2.38, 6.98]}], \"windows\": [{\"id\": \"win_L1_001\", \"center\": [1.75, 4.57], \"width\": 2.0, \"sill_height\": 0.9}]}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of armchair, chair, table_dining, bookshelf, desk), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of armchair, chair, table_dining, bookshelf, desk), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"armchair\",\n      \"center\": [3.5, 3.5],\n      \"rotation_deg\": 270,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Adds a cozy seating spot near the sofa, matching the modern natural style.\"\n    },\n    {\n      \"type\": \"table_dining\",\n      \"center\": [3.5, 2.5],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 1.0],\n      \"against_wall\": false,\n      \"reason\": \"Provides a functional dining area in the open space, complementing the room’s purpose.\"\n    },\n    {\n      \"type\": \"bookshelf\",\n      \"center\": [1.5, 6.0],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage and display space against the wall, enhancing the room’s utility.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"armchair\",\n      \"center\": [3.5, 3.5],\n      \"rotation_deg\": 270,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Adds a cozy seating spot near the sofa, matching modern natural style.\"\n    },\n    {\n      \"type\": \"table_dining\",\n      \"center\": [3.5, 2.5],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 1.0],\n      \"against_wall\": false,\n      \"reason\": \"Central dining table for casual meals, fits the room’s scale and style.\"\n    },\n    {\n      \"type\": \"bookshelf\",\n      \"center\": [1.5, 6.0],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.4],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage and display space against the wall, complements the minimalist aesthetic.\"\n    }\n  ]\n}",
    "changes": 0,
    "added": 3
   }
@@ -334,7 +334,7 @@
   },
   "walkways": []
  },
- "latency_s": 5.992,
+ "latency_s": 5.972,
  "question": {
   "room": {
    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
@@ -1253,7 +1253,7 @@
       0.9
      ],
      "against_wall": false,
-     "reason": "Adds a cozy seating spot near the sofa, matching the modern natural style.",
+     "reason": "Adds a cozy seating spot near the sofa, matching modern natural style.",
      "proposed": {
       "center": [
        3.5,
@@ -1320,7 +1320,7 @@
       0.9
      ],
      "against_wall": false,
-     "reason": "Provides a functional dining area in the open space, complementing the room’s purpose.",
+     "reason": "Central dining table for casual meals, fits the room’s scale and style.",
      "proposed": {
       "center": [
        3.5,
@@ -1386,7 +1386,7 @@
       0.3
      ],
      "against_wall": true,
-     "reason": "Adds storage and display space against the wall, enhancing the room’s utility.",
+     "reason": "Adds storage and display space against the wall, complements the minimalist aesthetic.",
      "proposed": {
       "center": [
        1.5,

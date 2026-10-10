@@ -67,7 +67,7 @@
      "side": null
     },
     {
-     "index": 37,
+     "index": 35,
      "wenart_id": "f_L-1b_026",
      "kind": "furniture",
      "type": "table_dining",
@@ -116,7 +116,7 @@
      "side": null
     },
     {
-     "index": 42,
+     "index": 40,
      "wenart_id": "f_L-1b_031",
      "kind": "furniture",
      "type": "chair",
@@ -165,7 +165,7 @@
      "side": null
     },
     {
-     "index": 44,
+     "index": 42,
      "wenart_id": "f_L-1b_033",
      "kind": "furniture",
      "type": "chair",
@@ -214,7 +214,7 @@
      "side": null
     },
     {
-     "index": 40,
+     "index": 38,
      "wenart_id": "f_L-1b_029",
      "kind": "furniture",
      "type": "chair",
@@ -263,7 +263,7 @@
      "side": null
     },
     {
-     "index": 38,
+     "index": 36,
      "wenart_id": "f_L-1b_027",
      "kind": "furniture",
      "type": "chair",
@@ -312,8 +312,89 @@
      "side": null
     },
     {
-     "index": 67,
-     "wenart_id": "f_L-1b_071",
+     "index": 49,
+     "wenart_id": "f_L-1b_040",
+     "kind": "furniture",
+     "type": "kitchen_island",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 14583,
+     "area_frac": 0.007033,
+     "box_px": [
+      1849,
+      815,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      963,
+      754,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.0,
+     "in_frame": 0.0,
+     "unoccluded": 0.7634,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.95,
+       "entity": "recognition:sym_L-1b_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_island",
+       "front": "bottom",
+       "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest like furniture.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L-1b_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "top",
+       "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "inferred",
+       "confidence": 0.8,
+       "rule": "ingest.twins",
+       "text": "type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16)",
+       "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 69,
+     "wenart_id": "f_L-1b_074",
      "kind": "furniture",
      "type": "bar_stool",
      "type_unverified": false,
@@ -324,40 +405,32 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": true,
-     "pixels": 12081,
-     "area_frac": 0.005826,
+     "pixels": 10555,
+     "area_frac": 0.00509,
      "box_px": [
-      1816,
-      624,
+      1746,
+      586,
       1920,
-      904
+      819
      ],
      "box_1000": [
-      945,
-      577,
+      909,
+      542,
       1000,
-      838
+      759
      ],
      "touches_border": true,
-     "visibility": 0.1315,
-     "in_frame": 0.2998,
-     "unoccluded": 0.4387,
+     "visibility": 0.1749,
+     "in_frame": 0.6798,
+     "unoccluded": 0.2573,
      "evidence": [
       {
        "file": "building.json",
        "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 2,
-       "text": "Place bar stools at the island for casual dining or seating."
-      },
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
+       "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Placed at island bar for modern natural style seating."
+       "text": "Adds third bar stool at island, modern natural style."
       }
      ],
      "host_decor": [],
@@ -369,7 +442,7 @@
      "side": null
     },
     {
-     "index": 43,
+     "index": 41,
      "wenart_id": "f_L-1b_032",
      "kind": "furniture",
      "type": "chair",
@@ -418,136 +491,7 @@
      "side": null
     },
     {
-     "index": 69,
-     "wenart_id": "f_L-1b_073",
-     "kind": "furniture",
-     "type": "bar_stool",
-     "type_unverified": false,
-     "source": "added_by_ai",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 9510,
-     "area_frac": 0.004586,
-     "box_px": [
-      1653,
-      571,
-      1867,
-      820
-     ],
-     "box_1000": [
-      860,
-      528,
-      973,
-      760
-     ],
-     "touches_border": false,
-     "visibility": 0.201,
-     "in_frame": 1.0,
-     "unoccluded": 0.201,
-     "evidence": [
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 2,
-       "text": "Add third bar stool to complete island seating."
-      },
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "Placed at island bar for modern natural style seating."
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": true,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 7,
-     "wenart_id": "f_L-1b_040",
-     "kind": "furniture",
-     "type": "unknown",
-     "type_unverified": true,
-     "source": "from_documents",
-     "status": "unverified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 9283,
-     "area_frac": 0.004477,
-     "box_px": [
-      1847,
-      944,
-      1920,
-      1080
-     ],
-     "box_1000": [
-      961,
-      874,
-      1000,
-      1000
-     ],
-     "touches_border": true,
-     "visibility": 0.0,
-     "in_frame": 0.0,
-     "unoccluded": 0.9996,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.95,
-       "entity": "recognition:sym_L-1b_002",
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "kitchen_island",
-       "front": "bottom",
-       "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest like furniture.",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.9,
-       "entity": "recognition:sym_L-1b_002",
-       "model": "zai-org/GLM-4.6V-Flash",
-       "pass": 2,
-       "text": "sofa",
-       "front": "top",
-       "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa.",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 45,
+     "index": 43,
      "wenart_id": "f_L-1b_034",
      "kind": "furniture",
      "type": "chair",
@@ -596,7 +540,7 @@
      "side": null
     },
     {
-     "index": 25,
+     "index": 23,
      "wenart_id": "f_L-1b_010",
      "kind": "furniture",
      "type": "kitchen_counter",
@@ -608,24 +552,24 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": true,
-     "pixels": 6626,
-     "area_frac": 0.003195,
+     "pixels": 6240,
+     "area_frac": 0.003009,
      "box_px": [
       1887,
       448,
       1920,
-      739
+      717
      ],
      "box_1000": [
       982,
       414,
       1000,
-      685
+      664
      ],
      "touches_border": true,
-     "visibility": 0.0073,
+     "visibility": 0.0069,
      "in_frame": 0.0101,
-     "unoccluded": 0.7241,
+     "unoccluded": 0.6819,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -645,7 +589,7 @@
      "side": null
     },
     {
-     "index": 41,
+     "index": 39,
      "wenart_id": "f_L-1b_030",
      "kind": "furniture",
      "type": "chair",
@@ -694,64 +638,7 @@
      "side": null
     },
     {
-     "index": 68,
-     "wenart_id": "f_L-1b_072",
-     "kind": "furniture",
-     "type": "bar_stool",
-     "type_unverified": false,
-     "source": "added_by_ai",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 2449,
-     "area_frac": 0.001181,
-     "box_px": [
-      1878,
-      683,
-      1920,
-      927
-     ],
-     "box_1000": [
-      978,
-      632,
-      1000,
-      859
-     ],
-     "touches_border": true,
-     "visibility": 0.0154,
-     "in_frame": 0.0736,
-     "unoccluded": 0.2092,
-     "evidence": [
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 2,
-       "text": "Add second bar stool for extra seating at the island."
-      },
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "Placed at island bar for modern natural style seating."
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": true,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 39,
+     "index": 37,
      "wenart_id": "f_L-1b_028",
      "kind": "furniture",
      "type": "chair",
@@ -798,11 +685,60 @@
      "completes_room": false,
      "type_proposal": false,
      "side": null
+    },
+    {
+     "index": 67,
+     "wenart_id": "f_L-1b_072",
+     "kind": "furniture",
+     "type": "bar_stool",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 1433,
+     "area_frac": 0.000691,
+     "box_px": [
+      1858,
+      706,
+      1920,
+      966
+     ],
+     "box_1000": [
+      967,
+      653,
+      1000,
+      895
+     ],
+     "touches_border": true,
+     "visibility": 0.0076,
+     "in_frame": 0.1051,
+     "unoccluded": 0.0724,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds bar seating at kitchen island, modern natural style."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
     }
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -823,15 +759,15 @@
      "f_L-1b_010": {
       "kind": "furniture",
       "type": "kitchen_counter",
-      "visible_share": 0.0545,
+      "visible_share": 0.051,
       "area_frac": 0.00441,
       "centre_px": [
        1903.5,
-       590.0
+       577.8
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 6626
+      "rendered_pixels": 6240
      },
      "f_L-1b_026": {
       "kind": "furniture",
@@ -952,55 +888,42 @@
      },
      "f_L-1b_040": {
       "kind": "furniture",
-      "type": "unknown",
-      "visible_share": 0.0025,
-      "area_frac": 0.00448,
+      "type": "kitchen_island",
+      "visible_share": 0.006,
+      "area_frac": 0.00921,
       "centre_px": [
-       1882.6,
-       1021.0
+       1883.5,
+       954.2
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 9283
-     },
-     "f_L-1b_071": {
-      "kind": "furniture",
-      "type": "bar_stool",
-      "visible_share": 0.5152,
-      "area_frac": 0.01328,
-      "centre_px": [
-       1868.7,
-       756.5
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 12081
+      "rendered_pixels": 14583
      },
      "f_L-1b_072": {
       "kind": "furniture",
       "type": "bar_stool",
-      "visible_share": 0.2378,
-      "area_frac": 0.00564,
+      "visible_share": 0.1469,
+      "area_frac": 0.00954,
       "centre_px": [
-       1900.4,
-       814.7
+       1890.2,
+       830.6
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 2449
+      "rendered_pixels": 1433
      },
-     "f_L-1b_073": {
+     "f_L-1b_074": {
       "kind": "furniture",
       "type": "bar_stool",
-      "visible_share": 0.6317,
-      "area_frac": 0.02282,
+      "visible_share": 0.4522,
+      "area_frac": 0.01978,
       "centre_px": [
-       1755.5,
-       689.0
+       1832.3,
+       702.3
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 9510
+      "rendered_pixels": 10555
      }
     },
     "error": null
@@ -1009,6 +932,1295 @@
   },
   "cam_r_L-1b_acik_mutfak_2": {
    "camera": "cam_r_L-1b_acik_mutfak_2",
+   "view_kind": "interior",
+   "room_id": "r_L-1b_acik_mutfak",
+   "room_type": "kitchen",
+   "room_label": "Açık Mutfak",
+   "level_id": "L-1b",
+   "size": [
+    1920,
+    1080
+   ],
+   "render_key": "61f78aac9cd99ca8",
+   "hidden": [],
+   "elements": [
+    {
+     "index": 49,
+     "wenart_id": "f_L-1b_040",
+     "kind": "furniture",
+     "type": "kitchen_island",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 451442,
+     "area_frac": 0.217709,
+     "box_px": [
+      1034,
+      453,
+      1920,
+      1080
+     ],
+     "box_1000": [
+      538,
+      419,
+      1000,
+      1000
+     ],
+     "touches_border": true,
+     "visibility": 0.4542,
+     "in_frame": 0.4663,
+     "unoccluded": 0.9742,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.95,
+       "entity": "recognition:sym_L-1b_002",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_island",
+       "front": "bottom",
+       "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest like furniture.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L-1b_002",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "sofa",
+       "front": "top",
+       "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "inferred",
+       "confidence": 0.8,
+       "rule": "ingest.twins",
+       "text": "type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16)",
+       "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 5,
+     "wenart_id": "win_L-1b_001",
+     "kind": "window",
+     "type": "window",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": null,
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 244905,
+     "area_frac": 0.118106,
+     "box_px": [
+      89,
+      155,
+      1265,
+      429
+     ],
+     "box_1000": [
+      46,
+      143,
+      659,
+      398
+     ],
+     "touches_border": false,
+     "visibility": null,
+     "in_frame": null,
+     "unoccluded": null,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LWPOLYLINE:2F03F,LWPOLYLINE:2F040",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 12,
+     "wenart_id": "f_L-1b_049",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 119957,
+     "area_frac": 0.05785,
+     "box_px": [
+      347,
+      476,
+      693,
+      874
+     ],
+     "box_1000": [
+      180,
+      440,
+      361,
+      810
+     ],
+     "touches_border": false,
+     "visibility": 1.0,
+     "in_frame": 1.0,
+     "unoccluded": 1.0,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:2F044,LINE:2F045,LINE:2F046,LINE:2F047,LINE:2F048,LINE:2F049,LINE:2F04A,LINE:2F04B,LINE:2F04C,LINE:2F04D,LINE:2F04E,LINE:2F04F",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.95,
+       "entity": "recognition:sym_L-1b_011",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "Rectangular shape, size fits kitchen counter, located in kitchen, matches typical counter footprint.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L-1b_011",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "armchair",
+       "front": "top",
+       "reason": "The object has a seat, backrest, and armrests, matching the armchair description.",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 13,
+     "wenart_id": "f_L-1b_050",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 81329,
+     "area_frac": 0.039221,
+     "box_px": [
+      659,
+      461,
+      970,
+      787
+     ],
+     "box_1000": [
+      343,
+      426,
+      506,
+      729
+     ],
+     "touches_border": false,
+     "visibility": 0.9145,
+     "in_frame": 1.0,
+     "unoccluded": 0.9145,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LINE:2F06C,LINE:2F06D,LINE:2F06E,LINE:2F06F,LINE:2F070,LINE:2F071,LINE:2F072,LINE:2F073,LINE:2F074,LINE:2F075,LINE:2F076,LINE:2F077",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.95,
+       "entity": "recognition:sym_L-1b_012",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_counter",
+       "front": "left",
+       "reason": "Rectangular shape, size matches kitchen counter, located in kitchen, and fits typical counter dimensions.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L-1b_012",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "armchair",
+       "front": "top",
+       "reason": "The object has a seat, backrest, and armrests, matching the armchair description.",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 11,
+     "wenart_id": "f_L-1b_048",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 71565,
+     "area_frac": 0.034512,
+     "box_px": [
+      83,
+      453,
+      384,
+      749
+     ],
+     "box_1000": [
+      43,
+      419,
+      200,
+      694
+     ],
+     "touches_border": false,
+     "visibility": 0.9085,
+     "in_frame": 1.0,
+     "unoccluded": 0.9085,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:2F07A/0,INSERT:2F07A/1,INSERT:2F07A/10,INSERT:2F07A/11,INSERT:2F07A/12,INSERT:2F07A/13,INSERT:2F07A/14,INSERT:2F07A/15,INSERT:2F07A/16,INSERT:2F07A/2,INSERT:2F07A/3,INSERT:2F07A/4,INSERT:2F07A/5,INSERT:2F07A/6,INSERT:2F07A/7,INSERT:2F07A/8,INSERT:2F07A/9",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.95,
+       "entity": "recognition:sym_L-1b_010",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "kitchen_counter",
+       "front": "none",
+       "reason": "The object's shape and size match a kitchen counter, and it's in a kitchen labeled 'AÇIK MUTFAK'.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L-1b_010",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "potted_plant",
+       "front": "none",
+       "reason": "The object is a round shape with radiating lines, consistent with a potted plant, and its size matches the typical footprint of a potted plant.",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "required",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 35,
+     "wenart_id": "f_L-1b_026",
+     "kind": "furniture",
+     "type": "table_dining",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 14921,
+     "area_frac": 0.007196,
+     "box_px": [
+      1157,
+      402,
+      1670,
+      472
+     ],
+     "box_1000": [
+      602,
+      372,
+      870,
+      438
+     ],
+     "touches_border": false,
+     "visibility": 0.1427,
+     "in_frame": 1.0,
+     "unoccluded": 0.1427,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/0,INSERT:2F043/0/1:0,INSERT:2F043/0/2,INSERT:2F043/0/3/213,INSERT:2F043/0/3/427:0,INSERT:2F043/0/3/428,INSERT:2F043/0/3/429:0,INSERT:2F043/0/3/430:0",
+       "note": "table + 8 chairs drawn as one group: split (M11)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 24,
+     "wenart_id": "f_L-1b_011",
+     "kind": "furniture",
+     "type": "kitchen_island",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 11729,
+     "area_frac": 0.005656,
+     "box_px": [
+      1769,
+      436,
+      1920,
+      535
+     ],
+     "box_1000": [
+      921,
+      403,
+      1000,
+      496
+     ],
+     "touches_border": true,
+     "visibility": 0.0872,
+     "in_frame": 0.3494,
+     "unoccluded": 0.2496,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "LWPOLYLINE:2F042",
+       "note": "free block of a kitchen counter outline (peninsula or island, M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "optional",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 10,
+     "wenart_id": "f_L-1b_047",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 3128,
+     "area_frac": 0.001508,
+     "box_px": [
+      80,
+      448,
+      293,
+      690
+     ],
+     "box_1000": [
+      41,
+      414,
+      153,
+      639
+     ],
+     "touches_border": false,
+     "visibility": 0.0666,
+     "in_frame": 1.0,
+     "unoccluded": 0.0666,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:2F079/0,INSERT:2F079/1,INSERT:2F079/10,INSERT:2F079/11,INSERT:2F079/12,INSERT:2F079/13,INSERT:2F079/14,INSERT:2F079/15,INSERT:2F079/16,INSERT:2F079/2,INSERT:2F079/3,INSERT:2F079/4,INSERT:2F079/5,INSERT:2F079/6,INSERT:2F079/7,INSERT:2F079/8,INSERT:2F079/9",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.95,
+       "entity": "recognition:sym_L-1b_009",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "floor_lamp",
+       "front": "none",
+       "reason": "Circular shape with radial spokes, typical of a floor lamp, and size matches 0.59m footprint.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.9,
+       "entity": "recognition:sym_L-1b_009",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "potted_plant",
+       "front": "none",
+       "reason": "The object is a circular shape with spokes, typical of a potted plant drawing.",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 17,
+     "wenart_id": "f_L-1b_056",
+     "kind": "furniture",
+     "type": "unknown",
+     "type_unverified": true,
+     "source": "from_documents",
+     "status": "unverified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 2217,
+     "area_frac": 0.001069,
+     "box_px": [
+      716,
+      446,
+      836,
+      471
+     ],
+     "box_1000": [
+      372,
+      412,
+      436,
+      437
+     ],
+     "touches_border": false,
+     "visibility": 0.0926,
+     "in_frame": 1.0,
+     "unoccluded": 0.0926,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "LWPOLYLINE:2ECDB",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.95,
+       "entity": "recognition:sym_L-1b_018",
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "bar_stool",
+       "front": "none",
+       "reason": "Square shape, 0.4m size, in kitchen, matches bar stool footprint and context.",
+       "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "ai",
+       "confidence": 0.8,
+       "entity": "recognition:sym_L-1b_018",
+       "model": "zai-org/GLM-4.6V-Flash",
+       "pass": 2,
+       "text": "chair",
+       "front": "right",
+       "reason": "The object's footprint is a square about 0.4x0.4m, consistent with a chair, and it is in a kitchen area.",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 41,
+     "wenart_id": "f_L-1b_032",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 1551,
+     "area_frac": 0.000748,
+     "box_px": [
+      1522,
+      442,
+      1619,
+      498
+     ],
+     "box_1000": [
+      792,
+      409,
+      844,
+      462
+     ],
+     "touches_border": false,
+     "visibility": 0.0611,
+     "in_frame": 1.0,
+     "unoccluded": 0.0611,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/1070,INSERT:2F043/0/3/1071,INSERT:2F043/0/3/1072,INSERT:2F043/0/3/1073,INSERT:2F043/0/3/1074,INSERT:2F043/0/3/1075,INSERT:2F043/0/3/1076,INSERT:2F043/0/3/1077,INSERT:2F043/0/3/1078,INSERT:2F043/0/3/1079,INSERT:2F043/0/3/1080,INSERT:2F043/0/3/1081,INSERT:2F043/0/3/1082,INSERT:2F043/0/3/1083,INSERT:2F043/0/3/1084,INSERT:2F043/0/3/1085,INSERT:2F043/0/3/1086,INSERT:2F043/0/3/1087,INSERT:2F043/0/3/1088,INSERT:2F043/0/3/1089,INSERT:2F043/0/3/1090,INSERT:2F043/0/3/1091,INSERT:2F043/0/3/1092,INSERT:2F043/0/3/1093,INSERT:2F043/0/3/1094,INSERT:2F043/0/3/1095,INSERT:2F043/0/3/1096,INSERT:2F043/0/3/1097,INSERT:2F043/0/3/1098,INSERT:2F043/0/3/1099,INSERT:2F043/0/3/1100,INSERT:2F043/0/3/1101,INSERT:2F043/0/3/1102,INSERT:2F043/0/3/1103,INSERT:2F043/0/3/1104,INSERT:2F043/0/3/1105,INSERT:2F043/0/3/1106,INSERT:2F043/0/3/1107,INSERT:2F043/0/3/1108,INSERT:2F043/0/3/1109,INSERT:2F043/0/3/1110,INSERT:2F043/0/3/1111,INSERT:2F043/0/3/1112,INSERT:2F043/0/3/1113,INSERT:2F043/0/3/1114,INSERT:2F043/0/3/1115,INSERT:2F043/0/3/1116,INSERT:2F043/0/3/1117,INSERT:2F043/0/3/1118,INSERT:2F043/0/3/1119,INSERT:2F043/0/3/1120,INSERT:2F043/0/3/1121,INSERT:2F043/0/3/1122,INSERT:2F043/0/3/1123,INSERT:2F043/0/3/1124,INSERT:2F043/0/3/1125,INSERT:2F043/0/3/1126,INSERT:2F043/0/3/1127,INSERT:2F043/0/3/1128,INSERT:2F043/0/3/1129,INSERT:2F043/0/3/1130,INSERT:2F043/0/3/1131,INSERT:2F043/0/3/1132,INSERT:2F043/0/3/1133,INSERT:2F043/0/3/1134,INSERT:2F043/0/3/1135,INSERT:2F043/0/3/1136,INSERT:2F043/0/3/1137,INSERT:2F043/0/3/1138,INSERT:2F043/0/3/1139,INSERT:2F043/0/3/1140,INSERT:2F043/0/3/1141,INSERT:2F043/0/3/1142,INSERT:2F043/0/3/1143,INSERT:2F043/0/3/1144,INSERT:2F043/0/3/1145,INSERT:2F043/0/3/1146,INSERT:2F043/0/3/1147,INSERT:2F043/0/3/1148,INSERT:2F043/0/3/1149,INSERT:2F043/0/3/1150,INSERT:2F043/0/3/1151,INSERT:2F043/0/3/1152,INSERT:2F043/0/3/1153,INSERT:2F043/0/3/1154,INSERT:2F043/0/3/1155,INSERT:2F043/0/3/1156,INSERT:2F043/0/3/1157,INSERT:2F043/0/3/1158,INSERT:2F043/0/3/1159,INSERT:2F043/0/3/1160,INSERT:2F043/0/3/1161,INSERT:2F043/0/3/1162,INSERT:2F043/0/3/1163,INSERT:2F043/0/3/1164,INSERT:2F043/0/3/1165,INSERT:2F043/0/3/1166,INSERT:2F043/0/3/1167,INSERT:2F043/0/3/1168,INSERT:2F043/0/3/1169,INSERT:2F043/0/3/1170,INSERT:2F043/0/3/1171,INSERT:2F043/0/3/1172,INSERT:2F043/0/3/1173,INSERT:2F043/0/3/1174,INSERT:2F043/0/3/1175,INSERT:2F043/0/3/1176,INSERT:2F043/0/3/1177,INSERT:2F043/0/3/1178,INSERT:2F043/0/3/1179,INSERT:2F043/0/3/1180,INSERT:2F043/0/3/1181,INSERT:2F043/0/3/1182,INSERT:2F043/0/3/1183,INSERT:2F043/0/3/1184,INSERT:2F043/0/3/1185,INSERT:2F043/0/3/1186,INSERT:2F043/0/3/1187,INSERT:2F043/0/3/1188,INSERT:2F043/0/3/1189,INSERT:2F043/0/3/1190,INSERT:2F043/0/3/1191,INSERT:2F043/0/3/1192,INSERT:2F043/0/3/1193,INSERT:2F043/0/3/1194,INSERT:2F043/0/3/1195,INSERT:2F043/0/3/1196,INSERT:2F043/0/3/1197,INSERT:2F043/0/3/1198,INSERT:2F043/0/3/1199,INSERT:2F043/0/3/1200,INSERT:2F043/0/3/1201,INSERT:2F043/0/3/1202,INSERT:2F043/0/3/1203,INSERT:2F043/0/3/1204,INSERT:2F043/0/3/1205,INSERT:2F043/0/3/1206,INSERT:2F043/0/3/1207,INSERT:2F043/0/3/1208,INSERT:2F043/0/3/1209,INSERT:2F043/0/3/1210,INSERT:2F043/0/3/1211,INSERT:2F043/0/3/1212,INSERT:2F043/0/3/1213,INSERT:2F043/0/3/1214,INSERT:2F043/0/3/1215,INSERT:2F043/0/3/1216,INSERT:2F043/0/3/1217,INSERT:2F043/0/3/1218,INSERT:2F043/0/3/1219,INSERT:2F043/0/3/1220,INSERT:2F043/0/3/1221,INSERT:2F043/0/3/1222,INSERT:2F043/0/3/1223,INSERT:2F043/0/3/1224,INSERT:2F043/0/3/1225,INSERT:2F043/0/3/1226,INSERT:2F043/0/3/1227,INSERT:2F043/0/3/1228,INSERT:2F043/0/3/1229,INSERT:2F043/0/3/1230,INSERT:2F043/0/3/1231,INSERT:2F043/0/3/1232,INSERT:2F043/0/3/1233,INSERT:2F043/0/3/1234,INSERT:2F043/0/3/1235,INSERT:2F043/0/3/1236,INSERT:2F043/0/3/1237,INSERT:2F043/0/3/1238,INSERT:2F043/0/3/1239,INSERT:2F043/0/3/1240,INSERT:2F043/0/3/1241,INSERT:2F043/0/3/1242,INSERT:2F043/0/3/1243,INSERT:2F043/0/3/1244,INSERT:2F043/0/3/1245,INSERT:2F043/0/3/1246,INSERT:2F043/0/3/1247,INSERT:2F043/0/3/1248,INSERT:2F043/0/3/1249,INSERT:2F043/0/3/1250,INSERT:2F043/0/3/1251,INSERT:2F043/0/3/1252,INSERT:2F043/0/3/1253,INSERT:2F043/0/3/1254,INSERT:2F043/0/3/1255,INSERT:2F043/0/3/1256,INSERT:2F043/0/3/1257,INSERT:2F043/0/3/1258,INSERT:2F043/0/3/1259,INSERT:2F043/0/3/1260,INSERT:2F043/0/3/1261,INSERT:2F043/0/3/1262,INSERT:2F043/0/3/1263,INSERT:2F043/0/3/1264,INSERT:2F043/0/3/1265,INSERT:2F043/0/3/1266,INSERT:2F043/0/3/1267,INSERT:2F043/0/3/1268,INSERT:2F043/0/3/1269,INSERT:2F043/0/3/1270,INSERT:2F043/0/3/1271,INSERT:2F043/0/3/1272,INSERT:2F043/0/3/1273,INSERT:2F043/0/3/1274,INSERT:2F043/0/3/1275,INSERT:2F043/0/3/1276,INSERT:2F043/0/3/1277,INSERT:2F043/0/3/1278,INSERT:2F043/0/3/1279,INSERT:2F043/0/3/1280,INSERT:2F043/0/3/1281,INSERT:2F043/0/3/1282",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 42,
+     "wenart_id": "f_L-1b_033",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 1286,
+     "area_frac": 0.00062,
+     "box_px": [
+      1612,
+      465,
+      1696,
+      506
+     ],
+     "box_1000": [
+      839,
+      430,
+      884,
+      469
+     ],
+     "touches_border": false,
+     "visibility": 0.036,
+     "in_frame": 1.0,
+     "unoccluded": 0.036,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/1283,INSERT:2F043/0/3/1284,INSERT:2F043/0/3/1285,INSERT:2F043/0/3/1286,INSERT:2F043/0/3/1287,INSERT:2F043/0/3/1288,INSERT:2F043/0/3/1289,INSERT:2F043/0/3/1290,INSERT:2F043/0/3/1291,INSERT:2F043/0/3/1292,INSERT:2F043/0/3/1293,INSERT:2F043/0/3/1294,INSERT:2F043/0/3/1295,INSERT:2F043/0/3/1296,INSERT:2F043/0/3/1297,INSERT:2F043/0/3/1298,INSERT:2F043/0/3/1299,INSERT:2F043/0/3/1300,INSERT:2F043/0/3/1301,INSERT:2F043/0/3/1302,INSERT:2F043/0/3/1303,INSERT:2F043/0/3/1304,INSERT:2F043/0/3/1305,INSERT:2F043/0/3/1306,INSERT:2F043/0/3/1307,INSERT:2F043/0/3/1308,INSERT:2F043/0/3/1309,INSERT:2F043/0/3/1310,INSERT:2F043/0/3/1311,INSERT:2F043/0/3/1312,INSERT:2F043/0/3/1313,INSERT:2F043/0/3/1314,INSERT:2F043/0/3/1315,INSERT:2F043/0/3/1316,INSERT:2F043/0/3/1317,INSERT:2F043/0/3/1318,INSERT:2F043/0/3/1319,INSERT:2F043/0/3/1320,INSERT:2F043/0/3/1321,INSERT:2F043/0/3/1322,INSERT:2F043/0/3/1323,INSERT:2F043/0/3/1324,INSERT:2F043/0/3/1325,INSERT:2F043/0/3/1326,INSERT:2F043/0/3/1327,INSERT:2F043/0/3/1328,INSERT:2F043/0/3/1329,INSERT:2F043/0/3/1330,INSERT:2F043/0/3/1331,INSERT:2F043/0/3/1332,INSERT:2F043/0/3/1333,INSERT:2F043/0/3/1334,INSERT:2F043/0/3/1335,INSERT:2F043/0/3/1336,INSERT:2F043/0/3/1337,INSERT:2F043/0/3/1338,INSERT:2F043/0/3/1339,INSERT:2F043/0/3/1340,INSERT:2F043/0/3/1341,INSERT:2F043/0/3/1342,INSERT:2F043/0/3/1343,INSERT:2F043/0/3/1344,INSERT:2F043/0/3/1345,INSERT:2F043/0/3/1346,INSERT:2F043/0/3/1347,INSERT:2F043/0/3/1348,INSERT:2F043/0/3/1349,INSERT:2F043/0/3/1350,INSERT:2F043/0/3/1351,INSERT:2F043/0/3/1352,INSERT:2F043/0/3/1353,INSERT:2F043/0/3/1354,INSERT:2F043/0/3/1355,INSERT:2F043/0/3/1356,INSERT:2F043/0/3/1357,INSERT:2F043/0/3/1358,INSERT:2F043/0/3/1359,INSERT:2F043/0/3/1360,INSERT:2F043/0/3/1361,INSERT:2F043/0/3/1362,INSERT:2F043/0/3/1363,INSERT:2F043/0/3/1364,INSERT:2F043/0/3/1365,INSERT:2F043/0/3/1366,INSERT:2F043/0/3/1367,INSERT:2F043/0/3/1368,INSERT:2F043/0/3/1369,INSERT:2F043/0/3/1370,INSERT:2F043/0/3/1371,INSERT:2F043/0/3/1372,INSERT:2F043/0/3/1373,INSERT:2F043/0/3/1374,INSERT:2F043/0/3/1375,INSERT:2F043/0/3/1376,INSERT:2F043/0/3/1377,INSERT:2F043/0/3/1378,INSERT:2F043/0/3/1379,INSERT:2F043/0/3/1380,INSERT:2F043/0/3/1381,INSERT:2F043/0/3/1382,INSERT:2F043/0/3/1383,INSERT:2F043/0/3/1384,INSERT:2F043/0/3/1385,INSERT:2F043/0/3/1386,INSERT:2F043/0/3/1387,INSERT:2F043/0/3/1388,INSERT:2F043/0/3/1389,INSERT:2F043/0/3/1390,INSERT:2F043/0/3/1391,INSERT:2F043/0/3/1392,INSERT:2F043/0/3/1393,INSERT:2F043/0/3/1394,INSERT:2F043/0/3/1395,INSERT:2F043/0/3/1396,INSERT:2F043/0/3/1397,INSERT:2F043/0/3/1398,INSERT:2F043/0/3/1399,INSERT:2F043/0/3/1400,INSERT:2F043/0/3/1401,INSERT:2F043/0/3/1402,INSERT:2F043/0/3/1403,INSERT:2F043/0/3/1404,INSERT:2F043/0/3/1405,INSERT:2F043/0/3/1406,INSERT:2F043/0/3/1407,INSERT:2F043/0/3/1408,INSERT:2F043/0/3/1409,INSERT:2F043/0/3/1410,INSERT:2F043/0/3/1411,INSERT:2F043/0/3/1412,INSERT:2F043/0/3/1413,INSERT:2F043/0/3/1414,INSERT:2F043/0/3/1415,INSERT:2F043/0/3/1416,INSERT:2F043/0/3/1417,INSERT:2F043/0/3/1418,INSERT:2F043/0/3/1419,INSERT:2F043/0/3/1420,INSERT:2F043/0/3/1421,INSERT:2F043/0/3/1422,INSERT:2F043/0/3/1423,INSERT:2F043/0/3/1424,INSERT:2F043/0/3/1425,INSERT:2F043/0/3/1426,INSERT:2F043/0/3/1427,INSERT:2F043/0/3/1428,INSERT:2F043/0/3/1429,INSERT:2F043/0/3/1430,INSERT:2F043/0/3/1431,INSERT:2F043/0/3/1432,INSERT:2F043/0/3/1433,INSERT:2F043/0/3/1434,INSERT:2F043/0/3/1435,INSERT:2F043/0/3/1436,INSERT:2F043/0/3/1437,INSERT:2F043/0/3/1438,INSERT:2F043/0/3/1439,INSERT:2F043/0/3/1440,INSERT:2F043/0/3/1441,INSERT:2F043/0/3/1442,INSERT:2F043/0/3/1443,INSERT:2F043/0/3/1444,INSERT:2F043/0/3/1445,INSERT:2F043/0/3/1446,INSERT:2F043/0/3/1447,INSERT:2F043/0/3/1448,INSERT:2F043/0/3/1449,INSERT:2F043/0/3/1450,INSERT:2F043/0/3/1451,INSERT:2F043/0/3/1452,INSERT:2F043/0/3/1453,INSERT:2F043/0/3/1454,INSERT:2F043/0/3/1455,INSERT:2F043/0/3/1456,INSERT:2F043/0/3/1457,INSERT:2F043/0/3/1458,INSERT:2F043/0/3/1459,INSERT:2F043/0/3/1460,INSERT:2F043/0/3/1461,INSERT:2F043/0/3/1462,INSERT:2F043/0/3/1463,INSERT:2F043/0/3/1464,INSERT:2F043/0/3/1465,INSERT:2F043/0/3/1466,INSERT:2F043/0/3/1467,INSERT:2F043/0/3/1468,INSERT:2F043/0/3/1469,INSERT:2F043/0/3/1470,INSERT:2F043/0/3/1471,INSERT:2F043/0/3/1472,INSERT:2F043/0/3/1473,INSERT:2F043/0/3/1474,INSERT:2F043/0/3/1475,INSERT:2F043/0/3/1476,INSERT:2F043/0/3/1477,INSERT:2F043/0/3/1478,INSERT:2F043/0/3/1479,INSERT:2F043/0/3/1480,INSERT:2F043/0/3/1481,INSERT:2F043/0/3/1482,INSERT:2F043/0/3/1483,INSERT:2F043/0/3/1484,INSERT:2F043/0/3/1485,INSERT:2F043/0/3/1486,INSERT:2F043/0/3/1487,INSERT:2F043/0/3/1488,INSERT:2F043/0/3/1489,INSERT:2F043/0/3/1490,INSERT:2F043/0/3/1491,INSERT:2F043/0/3/1492,INSERT:2F043/0/3/1493,INSERT:2F043/0/3/1494,INSERT:2F043/0/3/1495",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 39,
+     "wenart_id": "f_L-1b_030",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 641,
+     "area_frac": 0.000309,
+     "box_px": [
+      1415,
+      441,
+      1490,
+      482
+     ],
+     "box_1000": [
+      736,
+      408,
+      777,
+      447
+     ],
+     "touches_border": false,
+     "visibility": 0.0327,
+     "in_frame": 1.0,
+     "unoccluded": 0.0327,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/644,INSERT:2F043/0/3/645,INSERT:2F043/0/3/646,INSERT:2F043/0/3/647,INSERT:2F043/0/3/648,INSERT:2F043/0/3/649,INSERT:2F043/0/3/650,INSERT:2F043/0/3/651,INSERT:2F043/0/3/652,INSERT:2F043/0/3/653,INSERT:2F043/0/3/654,INSERT:2F043/0/3/655,INSERT:2F043/0/3/656,INSERT:2F043/0/3/657,INSERT:2F043/0/3/658,INSERT:2F043/0/3/659,INSERT:2F043/0/3/660,INSERT:2F043/0/3/661,INSERT:2F043/0/3/662,INSERT:2F043/0/3/663,INSERT:2F043/0/3/664,INSERT:2F043/0/3/665,INSERT:2F043/0/3/666,INSERT:2F043/0/3/667,INSERT:2F043/0/3/668,INSERT:2F043/0/3/669,INSERT:2F043/0/3/670,INSERT:2F043/0/3/671,INSERT:2F043/0/3/672,INSERT:2F043/0/3/673,INSERT:2F043/0/3/674,INSERT:2F043/0/3/675,INSERT:2F043/0/3/676,INSERT:2F043/0/3/677,INSERT:2F043/0/3/678,INSERT:2F043/0/3/679,INSERT:2F043/0/3/680,INSERT:2F043/0/3/681,INSERT:2F043/0/3/682,INSERT:2F043/0/3/683,INSERT:2F043/0/3/684,INSERT:2F043/0/3/685,INSERT:2F043/0/3/686,INSERT:2F043/0/3/687,INSERT:2F043/0/3/688,INSERT:2F043/0/3/689,INSERT:2F043/0/3/690,INSERT:2F043/0/3/691,INSERT:2F043/0/3/692,INSERT:2F043/0/3/693,INSERT:2F043/0/3/694,INSERT:2F043/0/3/695,INSERT:2F043/0/3/696,INSERT:2F043/0/3/697,INSERT:2F043/0/3/698,INSERT:2F043/0/3/699,INSERT:2F043/0/3/700,INSERT:2F043/0/3/701,INSERT:2F043/0/3/702,INSERT:2F043/0/3/703,INSERT:2F043/0/3/704,INSERT:2F043/0/3/705,INSERT:2F043/0/3/706,INSERT:2F043/0/3/707,INSERT:2F043/0/3/708,INSERT:2F043/0/3/709,INSERT:2F043/0/3/710,INSERT:2F043/0/3/711,INSERT:2F043/0/3/712,INSERT:2F043/0/3/713,INSERT:2F043/0/3/714,INSERT:2F043/0/3/715,INSERT:2F043/0/3/716,INSERT:2F043/0/3/717,INSERT:2F043/0/3/718,INSERT:2F043/0/3/719,INSERT:2F043/0/3/720,INSERT:2F043/0/3/721,INSERT:2F043/0/3/722,INSERT:2F043/0/3/723,INSERT:2F043/0/3/724,INSERT:2F043/0/3/725,INSERT:2F043/0/3/726,INSERT:2F043/0/3/727,INSERT:2F043/0/3/728,INSERT:2F043/0/3/729,INSERT:2F043/0/3/730,INSERT:2F043/0/3/731,INSERT:2F043/0/3/732,INSERT:2F043/0/3/733,INSERT:2F043/0/3/734,INSERT:2F043/0/3/735,INSERT:2F043/0/3/736,INSERT:2F043/0/3/737,INSERT:2F043/0/3/738,INSERT:2F043/0/3/739,INSERT:2F043/0/3/740,INSERT:2F043/0/3/741,INSERT:2F043/0/3/742,INSERT:2F043/0/3/743,INSERT:2F043/0/3/744,INSERT:2F043/0/3/745,INSERT:2F043/0/3/746,INSERT:2F043/0/3/747,INSERT:2F043/0/3/748,INSERT:2F043/0/3/749,INSERT:2F043/0/3/750,INSERT:2F043/0/3/751,INSERT:2F043/0/3/752,INSERT:2F043/0/3/753,INSERT:2F043/0/3/754,INSERT:2F043/0/3/755,INSERT:2F043/0/3/756,INSERT:2F043/0/3/757,INSERT:2F043/0/3/758,INSERT:2F043/0/3/759,INSERT:2F043/0/3/760,INSERT:2F043/0/3/761,INSERT:2F043/0/3/762,INSERT:2F043/0/3/763,INSERT:2F043/0/3/764,INSERT:2F043/0/3/765,INSERT:2F043/0/3/766,INSERT:2F043/0/3/767,INSERT:2F043/0/3/768,INSERT:2F043/0/3/769,INSERT:2F043/0/3/770,INSERT:2F043/0/3/771,INSERT:2F043/0/3/772,INSERT:2F043/0/3/773,INSERT:2F043/0/3/774,INSERT:2F043/0/3/775,INSERT:2F043/0/3/776,INSERT:2F043/0/3/777,INSERT:2F043/0/3/778,INSERT:2F043/0/3/779,INSERT:2F043/0/3/780,INSERT:2F043/0/3/781,INSERT:2F043/0/3/782,INSERT:2F043/0/3/783,INSERT:2F043/0/3/784,INSERT:2F043/0/3/785,INSERT:2F043/0/3/786,INSERT:2F043/0/3/787,INSERT:2F043/0/3/788,INSERT:2F043/0/3/789,INSERT:2F043/0/3/790,INSERT:2F043/0/3/791,INSERT:2F043/0/3/792,INSERT:2F043/0/3/793,INSERT:2F043/0/3/794,INSERT:2F043/0/3/795,INSERT:2F043/0/3/796,INSERT:2F043/0/3/797,INSERT:2F043/0/3/798,INSERT:2F043/0/3/799,INSERT:2F043/0/3/800,INSERT:2F043/0/3/801,INSERT:2F043/0/3/802,INSERT:2F043/0/3/803,INSERT:2F043/0/3/804,INSERT:2F043/0/3/805,INSERT:2F043/0/3/806,INSERT:2F043/0/3/807,INSERT:2F043/0/3/808,INSERT:2F043/0/3/809,INSERT:2F043/0/3/810,INSERT:2F043/0/3/811,INSERT:2F043/0/3/812,INSERT:2F043/0/3/813,INSERT:2F043/0/3/814,INSERT:2F043/0/3/815,INSERT:2F043/0/3/816,INSERT:2F043/0/3/817,INSERT:2F043/0/3/818,INSERT:2F043/0/3/819,INSERT:2F043/0/3/820,INSERT:2F043/0/3/821,INSERT:2F043/0/3/822,INSERT:2F043/0/3/823,INSERT:2F043/0/3/824,INSERT:2F043/0/3/825,INSERT:2F043/0/3/826,INSERT:2F043/0/3/827,INSERT:2F043/0/3/828,INSERT:2F043/0/3/829,INSERT:2F043/0/3/830,INSERT:2F043/0/3/831,INSERT:2F043/0/3/832,INSERT:2F043/0/3/833,INSERT:2F043/0/3/834,INSERT:2F043/0/3/835,INSERT:2F043/0/3/836,INSERT:2F043/0/3/837,INSERT:2F043/0/3/838,INSERT:2F043/0/3/839,INSERT:2F043/0/3/840,INSERT:2F043/0/3/841,INSERT:2F043/0/3/842,INSERT:2F043/0/3/843,INSERT:2F043/0/3/844,INSERT:2F043/0/3/845,INSERT:2F043/0/3/846,INSERT:2F043/0/3/847,INSERT:2F043/0/3/848,INSERT:2F043/0/3/849,INSERT:2F043/0/3/850,INSERT:2F043/0/3/851,INSERT:2F043/0/3/852,INSERT:2F043/0/3/853,INSERT:2F043/0/3/854,INSERT:2F043/0/3/855,INSERT:2F043/0/3/856",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 40,
+     "wenart_id": "f_L-1b_031",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 571,
+     "area_frac": 0.000275,
+     "box_px": [
+      1364,
+      457,
+      1451,
+      477
+     ],
+     "box_1000": [
+      710,
+      423,
+      756,
+      442
+     ],
+     "touches_border": false,
+     "visibility": 0.0182,
+     "in_frame": 1.0,
+     "unoccluded": 0.0182,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/1000,INSERT:2F043/0/3/1001,INSERT:2F043/0/3/1002,INSERT:2F043/0/3/1003,INSERT:2F043/0/3/1004,INSERT:2F043/0/3/1005,INSERT:2F043/0/3/1006,INSERT:2F043/0/3/1007,INSERT:2F043/0/3/1008,INSERT:2F043/0/3/1009,INSERT:2F043/0/3/1010,INSERT:2F043/0/3/1011,INSERT:2F043/0/3/1012,INSERT:2F043/0/3/1013,INSERT:2F043/0/3/1014,INSERT:2F043/0/3/1015,INSERT:2F043/0/3/1016,INSERT:2F043/0/3/1017,INSERT:2F043/0/3/1018,INSERT:2F043/0/3/1019,INSERT:2F043/0/3/1020,INSERT:2F043/0/3/1021,INSERT:2F043/0/3/1022,INSERT:2F043/0/3/1023,INSERT:2F043/0/3/1024,INSERT:2F043/0/3/1025,INSERT:2F043/0/3/1026,INSERT:2F043/0/3/1027,INSERT:2F043/0/3/1028,INSERT:2F043/0/3/1029,INSERT:2F043/0/3/1030,INSERT:2F043/0/3/1031,INSERT:2F043/0/3/1032,INSERT:2F043/0/3/1033,INSERT:2F043/0/3/1034,INSERT:2F043/0/3/1035,INSERT:2F043/0/3/1036,INSERT:2F043/0/3/1037,INSERT:2F043/0/3/1038,INSERT:2F043/0/3/1039,INSERT:2F043/0/3/1040,INSERT:2F043/0/3/1041,INSERT:2F043/0/3/1042,INSERT:2F043/0/3/1043,INSERT:2F043/0/3/1044,INSERT:2F043/0/3/1045,INSERT:2F043/0/3/1046,INSERT:2F043/0/3/1047,INSERT:2F043/0/3/1048,INSERT:2F043/0/3/1049,INSERT:2F043/0/3/1050,INSERT:2F043/0/3/1051,INSERT:2F043/0/3/1052,INSERT:2F043/0/3/1053,INSERT:2F043/0/3/1054,INSERT:2F043/0/3/1055,INSERT:2F043/0/3/1056,INSERT:2F043/0/3/1057,INSERT:2F043/0/3/1058,INSERT:2F043/0/3/1059,INSERT:2F043/0/3/1060,INSERT:2F043/0/3/1061,INSERT:2F043/0/3/1062,INSERT:2F043/0/3/1063,INSERT:2F043/0/3/1064,INSERT:2F043/0/3/1065,INSERT:2F043/0/3/1066,INSERT:2F043/0/3/1067,INSERT:2F043/0/3/1068,INSERT:2F043/0/3/1069,INSERT:2F043/0/3/857,INSERT:2F043/0/3/858,INSERT:2F043/0/3/859,INSERT:2F043/0/3/860,INSERT:2F043/0/3/861,INSERT:2F043/0/3/862,INSERT:2F043/0/3/863,INSERT:2F043/0/3/864,INSERT:2F043/0/3/865,INSERT:2F043/0/3/866,INSERT:2F043/0/3/867,INSERT:2F043/0/3/868,INSERT:2F043/0/3/869,INSERT:2F043/0/3/870,INSERT:2F043/0/3/871,INSERT:2F043/0/3/872,INSERT:2F043/0/3/873,INSERT:2F043/0/3/874,INSERT:2F043/0/3/875,INSERT:2F043/0/3/876,INSERT:2F043/0/3/877,INSERT:2F043/0/3/878,INSERT:2F043/0/3/879,INSERT:2F043/0/3/880,INSERT:2F043/0/3/881,INSERT:2F043/0/3/882,INSERT:2F043/0/3/883,INSERT:2F043/0/3/884,INSERT:2F043/0/3/885,INSERT:2F043/0/3/886,INSERT:2F043/0/3/887,INSERT:2F043/0/3/888,INSERT:2F043/0/3/889,INSERT:2F043/0/3/890,INSERT:2F043/0/3/891,INSERT:2F043/0/3/892,INSERT:2F043/0/3/893,INSERT:2F043/0/3/894,INSERT:2F043/0/3/895,INSERT:2F043/0/3/896,INSERT:2F043/0/3/897,INSERT:2F043/0/3/898,INSERT:2F043/0/3/899,INSERT:2F043/0/3/900,INSERT:2F043/0/3/901,INSERT:2F043/0/3/902,INSERT:2F043/0/3/903,INSERT:2F043/0/3/904,INSERT:2F043/0/3/905,INSERT:2F043/0/3/906,INSERT:2F043/0/3/907,INSERT:2F043/0/3/908,INSERT:2F043/0/3/909,INSERT:2F043/0/3/910,INSERT:2F043/0/3/911,INSERT:2F043/0/3/912,INSERT:2F043/0/3/913,INSERT:2F043/0/3/914,INSERT:2F043/0/3/915,INSERT:2F043/0/3/916,INSERT:2F043/0/3/917,INSERT:2F043/0/3/918,INSERT:2F043/0/3/919,INSERT:2F043/0/3/920,INSERT:2F043/0/3/921,INSERT:2F043/0/3/922,INSERT:2F043/0/3/923,INSERT:2F043/0/3/924,INSERT:2F043/0/3/925,INSERT:2F043/0/3/926,INSERT:2F043/0/3/927,INSERT:2F043/0/3/928,INSERT:2F043/0/3/929,INSERT:2F043/0/3/930,INSERT:2F043/0/3/931,INSERT:2F043/0/3/932,INSERT:2F043/0/3/933,INSERT:2F043/0/3/934,INSERT:2F043/0/3/935,INSERT:2F043/0/3/936,INSERT:2F043/0/3/937,INSERT:2F043/0/3/938,INSERT:2F043/0/3/939,INSERT:2F043/0/3/940,INSERT:2F043/0/3/941,INSERT:2F043/0/3/942,INSERT:2F043/0/3/943,INSERT:2F043/0/3/944,INSERT:2F043/0/3/945,INSERT:2F043/0/3/946,INSERT:2F043/0/3/947,INSERT:2F043/0/3/948,INSERT:2F043/0/3/949,INSERT:2F043/0/3/950,INSERT:2F043/0/3/951,INSERT:2F043/0/3/952,INSERT:2F043/0/3/953,INSERT:2F043/0/3/954,INSERT:2F043/0/3/955,INSERT:2F043/0/3/956,INSERT:2F043/0/3/957,INSERT:2F043/0/3/958,INSERT:2F043/0/3/959,INSERT:2F043/0/3/960,INSERT:2F043/0/3/961,INSERT:2F043/0/3/962,INSERT:2F043/0/3/963,INSERT:2F043/0/3/964,INSERT:2F043/0/3/965,INSERT:2F043/0/3/966,INSERT:2F043/0/3/967,INSERT:2F043/0/3/968,INSERT:2F043/0/3/969,INSERT:2F043/0/3/970,INSERT:2F043/0/3/971,INSERT:2F043/0/3/972,INSERT:2F043/0/3/973,INSERT:2F043/0/3/974,INSERT:2F043/0/3/975,INSERT:2F043/0/3/976,INSERT:2F043/0/3/977,INSERT:2F043/0/3/978,INSERT:2F043/0/3/979,INSERT:2F043/0/3/980,INSERT:2F043/0/3/981,INSERT:2F043/0/3/982,INSERT:2F043/0/3/983,INSERT:2F043/0/3/984,INSERT:2F043/0/3/985,INSERT:2F043/0/3/986,INSERT:2F043/0/3/987,INSERT:2F043/0/3/988,INSERT:2F043/0/3/989,INSERT:2F043/0/3/990,INSERT:2F043/0/3/991,INSERT:2F043/0/3/992,INSERT:2F043/0/3/993,INSERT:2F043/0/3/994,INSERT:2F043/0/3/995,INSERT:2F043/0/3/996,INSERT:2F043/0/3/997,INSERT:2F043/0/3/998,INSERT:2F043/0/3/999",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 36,
+     "wenart_id": "f_L-1b_027",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 559,
+     "area_frac": 0.00027,
+     "box_px": [
+      1171,
+      435,
+      1235,
+      459
+     ],
+     "box_1000": [
+      609,
+      402,
+      644,
+      425
+     ],
+     "touches_border": false,
+     "visibility": 0.0303,
+     "in_frame": 1.0,
+     "unoccluded": 0.0303,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/0,INSERT:2F043/0/3/1,INSERT:2F043/0/3/10,INSERT:2F043/0/3/100,INSERT:2F043/0/3/101,INSERT:2F043/0/3/102,INSERT:2F043/0/3/103,INSERT:2F043/0/3/104,INSERT:2F043/0/3/105,INSERT:2F043/0/3/106,INSERT:2F043/0/3/107,INSERT:2F043/0/3/108,INSERT:2F043/0/3/109,INSERT:2F043/0/3/11,INSERT:2F043/0/3/110,INSERT:2F043/0/3/111,INSERT:2F043/0/3/112,INSERT:2F043/0/3/113,INSERT:2F043/0/3/114,INSERT:2F043/0/3/115,INSERT:2F043/0/3/116,INSERT:2F043/0/3/117,INSERT:2F043/0/3/118,INSERT:2F043/0/3/119,INSERT:2F043/0/3/12,INSERT:2F043/0/3/120,INSERT:2F043/0/3/121,INSERT:2F043/0/3/122,INSERT:2F043/0/3/123,INSERT:2F043/0/3/124,INSERT:2F043/0/3/125,INSERT:2F043/0/3/126,INSERT:2F043/0/3/127,INSERT:2F043/0/3/128,INSERT:2F043/0/3/129,INSERT:2F043/0/3/13,INSERT:2F043/0/3/130,INSERT:2F043/0/3/131,INSERT:2F043/0/3/132,INSERT:2F043/0/3/133,INSERT:2F043/0/3/134,INSERT:2F043/0/3/135,INSERT:2F043/0/3/136,INSERT:2F043/0/3/137,INSERT:2F043/0/3/138,INSERT:2F043/0/3/139,INSERT:2F043/0/3/14,INSERT:2F043/0/3/140,INSERT:2F043/0/3/141,INSERT:2F043/0/3/142,INSERT:2F043/0/3/143,INSERT:2F043/0/3/144,INSERT:2F043/0/3/145,INSERT:2F043/0/3/146,INSERT:2F043/0/3/147,INSERT:2F043/0/3/148,INSERT:2F043/0/3/149,INSERT:2F043/0/3/15,INSERT:2F043/0/3/150,INSERT:2F043/0/3/151,INSERT:2F043/0/3/152,INSERT:2F043/0/3/153,INSERT:2F043/0/3/154,INSERT:2F043/0/3/155,INSERT:2F043/0/3/156,INSERT:2F043/0/3/157,INSERT:2F043/0/3/158,INSERT:2F043/0/3/159,INSERT:2F043/0/3/16,INSERT:2F043/0/3/160,INSERT:2F043/0/3/161,INSERT:2F043/0/3/162,INSERT:2F043/0/3/163,INSERT:2F043/0/3/164,INSERT:2F043/0/3/165,INSERT:2F043/0/3/166,INSERT:2F043/0/3/167,INSERT:2F043/0/3/168,INSERT:2F043/0/3/169,INSERT:2F043/0/3/17,INSERT:2F043/0/3/170,INSERT:2F043/0/3/171,INSERT:2F043/0/3/172,INSERT:2F043/0/3/173,INSERT:2F043/0/3/174,INSERT:2F043/0/3/175,INSERT:2F043/0/3/176,INSERT:2F043/0/3/177,INSERT:2F043/0/3/178,INSERT:2F043/0/3/179,INSERT:2F043/0/3/18,INSERT:2F043/0/3/180,INSERT:2F043/0/3/181,INSERT:2F043/0/3/182,INSERT:2F043/0/3/183,INSERT:2F043/0/3/184,INSERT:2F043/0/3/185,INSERT:2F043/0/3/186,INSERT:2F043/0/3/187,INSERT:2F043/0/3/188,INSERT:2F043/0/3/189,INSERT:2F043/0/3/19,INSERT:2F043/0/3/190,INSERT:2F043/0/3/191,INSERT:2F043/0/3/192,INSERT:2F043/0/3/193,INSERT:2F043/0/3/194,INSERT:2F043/0/3/195,INSERT:2F043/0/3/196,INSERT:2F043/0/3/197,INSERT:2F043/0/3/198,INSERT:2F043/0/3/199,INSERT:2F043/0/3/2,INSERT:2F043/0/3/20,INSERT:2F043/0/3/200,INSERT:2F043/0/3/201,INSERT:2F043/0/3/202,INSERT:2F043/0/3/203,INSERT:2F043/0/3/204,INSERT:2F043/0/3/205,INSERT:2F043/0/3/206,INSERT:2F043/0/3/207,INSERT:2F043/0/3/208,INSERT:2F043/0/3/209,INSERT:2F043/0/3/21,INSERT:2F043/0/3/210,INSERT:2F043/0/3/211,INSERT:2F043/0/3/212,INSERT:2F043/0/3/22,INSERT:2F043/0/3/23,INSERT:2F043/0/3/24,INSERT:2F043/0/3/25,INSERT:2F043/0/3/26,INSERT:2F043/0/3/27,INSERT:2F043/0/3/28,INSERT:2F043/0/3/29,INSERT:2F043/0/3/3,INSERT:2F043/0/3/30,INSERT:2F043/0/3/31,INSERT:2F043/0/3/32,INSERT:2F043/0/3/33,INSERT:2F043/0/3/34,INSERT:2F043/0/3/35,INSERT:2F043/0/3/36,INSERT:2F043/0/3/37,INSERT:2F043/0/3/38,INSERT:2F043/0/3/39,INSERT:2F043/0/3/4,INSERT:2F043/0/3/40,INSERT:2F043/0/3/41,INSERT:2F043/0/3/42,INSERT:2F043/0/3/43,INSERT:2F043/0/3/44,INSERT:2F043/0/3/45,INSERT:2F043/0/3/46,INSERT:2F043/0/3/47,INSERT:2F043/0/3/48,INSERT:2F043/0/3/49,INSERT:2F043/0/3/5,INSERT:2F043/0/3/50,INSERT:2F043/0/3/51,INSERT:2F043/0/3/52,INSERT:2F043/0/3/53,INSERT:2F043/0/3/54,INSERT:2F043/0/3/55,INSERT:2F043/0/3/56,INSERT:2F043/0/3/57,INSERT:2F043/0/3/58,INSERT:2F043/0/3/59,INSERT:2F043/0/3/6,INSERT:2F043/0/3/60,INSERT:2F043/0/3/61,INSERT:2F043/0/3/62,INSERT:2F043/0/3/63,INSERT:2F043/0/3/64,INSERT:2F043/0/3/65,INSERT:2F043/0/3/66,INSERT:2F043/0/3/67,INSERT:2F043/0/3/68,INSERT:2F043/0/3/69,INSERT:2F043/0/3/7,INSERT:2F043/0/3/70,INSERT:2F043/0/3/71,INSERT:2F043/0/3/72,INSERT:2F043/0/3/73,INSERT:2F043/0/3/74,INSERT:2F043/0/3/75,INSERT:2F043/0/3/76,INSERT:2F043/0/3/77,INSERT:2F043/0/3/78,INSERT:2F043/0/3/79,INSERT:2F043/0/3/8,INSERT:2F043/0/3/80,INSERT:2F043/0/3/81,INSERT:2F043/0/3/82,INSERT:2F043/0/3/83,INSERT:2F043/0/3/84,INSERT:2F043/0/3/85,INSERT:2F043/0/3/86,INSERT:2F043/0/3/87,INSERT:2F043/0/3/88,INSERT:2F043/0/3/89,INSERT:2F043/0/3/9,INSERT:2F043/0/3/90,INSERT:2F043/0/3/91,INSERT:2F043/0/3/92,INSERT:2F043/0/3/93,INSERT:2F043/0/3/94,INSERT:2F043/0/3/95,INSERT:2F043/0/3/96,INSERT:2F043/0/3/97,INSERT:2F043/0/3/98,INSERT:2F043/0/3/99",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 43,
+     "wenart_id": "f_L-1b_034",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 519,
+     "area_frac": 0.00025,
+     "box_px": [
+      1172,
+      421,
+      1231,
+      459
+     ],
+     "box_1000": [
+      610,
+      389,
+      642,
+      425
+     ],
+     "touches_border": false,
+     "visibility": 0.0372,
+     "in_frame": 1.0,
+     "unoccluded": 0.0372,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/1496,INSERT:2F043/0/3/1497,INSERT:2F043/0/3/1498,INSERT:2F043/0/3/1499,INSERT:2F043/0/3/1500,INSERT:2F043/0/3/1501,INSERT:2F043/0/3/1502,INSERT:2F043/0/3/1503,INSERT:2F043/0/3/1504,INSERT:2F043/0/3/1505,INSERT:2F043/0/3/1506,INSERT:2F043/0/3/1507,INSERT:2F043/0/3/1508,INSERT:2F043/0/3/1509,INSERT:2F043/0/3/1510,INSERT:2F043/0/3/1511,INSERT:2F043/0/3/1512,INSERT:2F043/0/3/1513,INSERT:2F043/0/3/1514,INSERT:2F043/0/3/1515,INSERT:2F043/0/3/1516,INSERT:2F043/0/3/1517,INSERT:2F043/0/3/1518,INSERT:2F043/0/3/1519,INSERT:2F043/0/3/1520,INSERT:2F043/0/3/1521,INSERT:2F043/0/3/1522,INSERT:2F043/0/3/1523,INSERT:2F043/0/3/1524,INSERT:2F043/0/3/1525,INSERT:2F043/0/3/1526,INSERT:2F043/0/3/1527,INSERT:2F043/0/3/1528,INSERT:2F043/0/3/1529,INSERT:2F043/0/3/1530,INSERT:2F043/0/3/1531,INSERT:2F043/0/3/1532,INSERT:2F043/0/3/1533,INSERT:2F043/0/3/1534,INSERT:2F043/0/3/1535,INSERT:2F043/0/3/1536,INSERT:2F043/0/3/1537,INSERT:2F043/0/3/1538,INSERT:2F043/0/3/1539,INSERT:2F043/0/3/1540,INSERT:2F043/0/3/1541,INSERT:2F043/0/3/1542,INSERT:2F043/0/3/1543,INSERT:2F043/0/3/1544,INSERT:2F043/0/3/1545,INSERT:2F043/0/3/1546,INSERT:2F043/0/3/1547,INSERT:2F043/0/3/1548,INSERT:2F043/0/3/1549,INSERT:2F043/0/3/1550,INSERT:2F043/0/3/1551,INSERT:2F043/0/3/1552,INSERT:2F043/0/3/1553,INSERT:2F043/0/3/1554,INSERT:2F043/0/3/1555,INSERT:2F043/0/3/1556,INSERT:2F043/0/3/1557,INSERT:2F043/0/3/1558,INSERT:2F043/0/3/1559,INSERT:2F043/0/3/1560,INSERT:2F043/0/3/1561,INSERT:2F043/0/3/1562,INSERT:2F043/0/3/1563,INSERT:2F043/0/3/1564,INSERT:2F043/0/3/1565,INSERT:2F043/0/3/1566,INSERT:2F043/0/3/1567,INSERT:2F043/0/3/1568,INSERT:2F043/0/3/1569,INSERT:2F043/0/3/1570,INSERT:2F043/0/3/1571,INSERT:2F043/0/3/1572,INSERT:2F043/0/3/1573,INSERT:2F043/0/3/1574,INSERT:2F043/0/3/1575,INSERT:2F043/0/3/1576,INSERT:2F043/0/3/1577,INSERT:2F043/0/3/1578,INSERT:2F043/0/3/1579,INSERT:2F043/0/3/1580,INSERT:2F043/0/3/1581,INSERT:2F043/0/3/1582,INSERT:2F043/0/3/1583,INSERT:2F043/0/3/1584,INSERT:2F043/0/3/1585,INSERT:2F043/0/3/1586,INSERT:2F043/0/3/1587,INSERT:2F043/0/3/1588,INSERT:2F043/0/3/1589,INSERT:2F043/0/3/1590,INSERT:2F043/0/3/1591,INSERT:2F043/0/3/1592,INSERT:2F043/0/3/1593,INSERT:2F043/0/3/1594,INSERT:2F043/0/3/1595,INSERT:2F043/0/3/1596,INSERT:2F043/0/3/1597,INSERT:2F043/0/3/1598,INSERT:2F043/0/3/1599,INSERT:2F043/0/3/1600,INSERT:2F043/0/3/1601,INSERT:2F043/0/3/1602,INSERT:2F043/0/3/1603,INSERT:2F043/0/3/1604,INSERT:2F043/0/3/1605,INSERT:2F043/0/3/1606,INSERT:2F043/0/3/1607,INSERT:2F043/0/3/1608,INSERT:2F043/0/3/1609,INSERT:2F043/0/3/1610,INSERT:2F043/0/3/1611,INSERT:2F043/0/3/1612,INSERT:2F043/0/3/1613,INSERT:2F043/0/3/1614,INSERT:2F043/0/3/1615,INSERT:2F043/0/3/1616,INSERT:2F043/0/3/1617,INSERT:2F043/0/3/1618,INSERT:2F043/0/3/1619,INSERT:2F043/0/3/1620,INSERT:2F043/0/3/1621,INSERT:2F043/0/3/1622,INSERT:2F043/0/3/1623,INSERT:2F043/0/3/1624,INSERT:2F043/0/3/1625,INSERT:2F043/0/3/1626,INSERT:2F043/0/3/1627,INSERT:2F043/0/3/1628,INSERT:2F043/0/3/1629,INSERT:2F043/0/3/1630,INSERT:2F043/0/3/1631,INSERT:2F043/0/3/1632,INSERT:2F043/0/3/1633,INSERT:2F043/0/3/1634,INSERT:2F043/0/3/1635,INSERT:2F043/0/3/1636,INSERT:2F043/0/3/1637,INSERT:2F043/0/3/1638,INSERT:2F043/0/3/1639,INSERT:2F043/0/3/1640,INSERT:2F043/0/3/1641,INSERT:2F043/0/3/1642,INSERT:2F043/0/3/1643,INSERT:2F043/0/3/1644,INSERT:2F043/0/3/1645,INSERT:2F043/0/3/1646,INSERT:2F043/0/3/1647,INSERT:2F043/0/3/1648,INSERT:2F043/0/3/1649,INSERT:2F043/0/3/1650,INSERT:2F043/0/3/1651,INSERT:2F043/0/3/1652,INSERT:2F043/0/3/1653,INSERT:2F043/0/3/1654,INSERT:2F043/0/3/1655,INSERT:2F043/0/3/1656,INSERT:2F043/0/3/1657,INSERT:2F043/0/3/1658,INSERT:2F043/0/3/1659,INSERT:2F043/0/3/1660,INSERT:2F043/0/3/1661,INSERT:2F043/0/3/1662,INSERT:2F043/0/3/1663,INSERT:2F043/0/3/1664,INSERT:2F043/0/3/1665,INSERT:2F043/0/3/1666,INSERT:2F043/0/3/1667,INSERT:2F043/0/3/1668,INSERT:2F043/0/3/1669,INSERT:2F043/0/3/1670,INSERT:2F043/0/3/1671,INSERT:2F043/0/3/1672,INSERT:2F043/0/3/1673,INSERT:2F043/0/3/1674,INSERT:2F043/0/3/1675,INSERT:2F043/0/3/1676,INSERT:2F043/0/3/1677,INSERT:2F043/0/3/1678,INSERT:2F043/0/3/1679,INSERT:2F043/0/3/1680,INSERT:2F043/0/3/1681,INSERT:2F043/0/3/1682,INSERT:2F043/0/3/1683,INSERT:2F043/0/3/1684,INSERT:2F043/0/3/1685,INSERT:2F043/0/3/1686,INSERT:2F043/0/3/1687,INSERT:2F043/0/3/1688,INSERT:2F043/0/3/1689,INSERT:2F043/0/3/1690,INSERT:2F043/0/3/1691,INSERT:2F043/0/3/1692,INSERT:2F043/0/3/1693,INSERT:2F043/0/3/1694,INSERT:2F043/0/3/1695,INSERT:2F043/0/3/1696,INSERT:2F043/0/3/1697,INSERT:2F043/0/3/1698,INSERT:2F043/0/3/1699,INSERT:2F043/0/3/1700,INSERT:2F043/0/3/1701,INSERT:2F043/0/3/1702,INSERT:2F043/0/3/1703,INSERT:2F043/0/3/1704,INSERT:2F043/0/3/1705,INSERT:2F043/0/3/1706,INSERT:2F043/0/3/1707,INSERT:2F043/0/3/1708",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 38,
+     "wenart_id": "f_L-1b_029",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 399,
+     "area_frac": 0.000192,
+     "box_px": [
+      1254,
+      445,
+      1323,
+      461
+     ],
+     "box_1000": [
+      653,
+      412,
+      690,
+      427
+     ],
+     "touches_border": false,
+     "visibility": 0.017,
+     "in_frame": 1.0,
+     "unoccluded": 0.017,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/431,INSERT:2F043/0/3/432,INSERT:2F043/0/3/433,INSERT:2F043/0/3/434,INSERT:2F043/0/3/435,INSERT:2F043/0/3/436,INSERT:2F043/0/3/437,INSERT:2F043/0/3/438,INSERT:2F043/0/3/439,INSERT:2F043/0/3/440,INSERT:2F043/0/3/441,INSERT:2F043/0/3/442,INSERT:2F043/0/3/443,INSERT:2F043/0/3/444,INSERT:2F043/0/3/445,INSERT:2F043/0/3/446,INSERT:2F043/0/3/447,INSERT:2F043/0/3/448,INSERT:2F043/0/3/449,INSERT:2F043/0/3/450,INSERT:2F043/0/3/451,INSERT:2F043/0/3/452,INSERT:2F043/0/3/453,INSERT:2F043/0/3/454,INSERT:2F043/0/3/455,INSERT:2F043/0/3/456,INSERT:2F043/0/3/457,INSERT:2F043/0/3/458,INSERT:2F043/0/3/459,INSERT:2F043/0/3/460,INSERT:2F043/0/3/461,INSERT:2F043/0/3/462,INSERT:2F043/0/3/463,INSERT:2F043/0/3/464,INSERT:2F043/0/3/465,INSERT:2F043/0/3/466,INSERT:2F043/0/3/467,INSERT:2F043/0/3/468,INSERT:2F043/0/3/469,INSERT:2F043/0/3/470,INSERT:2F043/0/3/471,INSERT:2F043/0/3/472,INSERT:2F043/0/3/473,INSERT:2F043/0/3/474,INSERT:2F043/0/3/475,INSERT:2F043/0/3/476,INSERT:2F043/0/3/477,INSERT:2F043/0/3/478,INSERT:2F043/0/3/479,INSERT:2F043/0/3/480,INSERT:2F043/0/3/481,INSERT:2F043/0/3/482,INSERT:2F043/0/3/483,INSERT:2F043/0/3/484,INSERT:2F043/0/3/485,INSERT:2F043/0/3/486,INSERT:2F043/0/3/487,INSERT:2F043/0/3/488,INSERT:2F043/0/3/489,INSERT:2F043/0/3/490,INSERT:2F043/0/3/491,INSERT:2F043/0/3/492,INSERT:2F043/0/3/493,INSERT:2F043/0/3/494,INSERT:2F043/0/3/495,INSERT:2F043/0/3/496,INSERT:2F043/0/3/497,INSERT:2F043/0/3/498,INSERT:2F043/0/3/499,INSERT:2F043/0/3/500,INSERT:2F043/0/3/501,INSERT:2F043/0/3/502,INSERT:2F043/0/3/503,INSERT:2F043/0/3/504,INSERT:2F043/0/3/505,INSERT:2F043/0/3/506,INSERT:2F043/0/3/507,INSERT:2F043/0/3/508,INSERT:2F043/0/3/509,INSERT:2F043/0/3/510,INSERT:2F043/0/3/511,INSERT:2F043/0/3/512,INSERT:2F043/0/3/513,INSERT:2F043/0/3/514,INSERT:2F043/0/3/515,INSERT:2F043/0/3/516,INSERT:2F043/0/3/517,INSERT:2F043/0/3/518,INSERT:2F043/0/3/519,INSERT:2F043/0/3/520,INSERT:2F043/0/3/521,INSERT:2F043/0/3/522,INSERT:2F043/0/3/523,INSERT:2F043/0/3/524,INSERT:2F043/0/3/525,INSERT:2F043/0/3/526,INSERT:2F043/0/3/527,INSERT:2F043/0/3/528,INSERT:2F043/0/3/529,INSERT:2F043/0/3/530,INSERT:2F043/0/3/531,INSERT:2F043/0/3/532,INSERT:2F043/0/3/533,INSERT:2F043/0/3/534,INSERT:2F043/0/3/535,INSERT:2F043/0/3/536,INSERT:2F043/0/3/537,INSERT:2F043/0/3/538,INSERT:2F043/0/3/539,INSERT:2F043/0/3/540,INSERT:2F043/0/3/541,INSERT:2F043/0/3/542,INSERT:2F043/0/3/543,INSERT:2F043/0/3/544,INSERT:2F043/0/3/545,INSERT:2F043/0/3/546,INSERT:2F043/0/3/547,INSERT:2F043/0/3/548,INSERT:2F043/0/3/549,INSERT:2F043/0/3/550,INSERT:2F043/0/3/551,INSERT:2F043/0/3/552,INSERT:2F043/0/3/553,INSERT:2F043/0/3/554,INSERT:2F043/0/3/555,INSERT:2F043/0/3/556,INSERT:2F043/0/3/557,INSERT:2F043/0/3/558,INSERT:2F043/0/3/559,INSERT:2F043/0/3/560,INSERT:2F043/0/3/561,INSERT:2F043/0/3/562,INSERT:2F043/0/3/563,INSERT:2F043/0/3/564,INSERT:2F043/0/3/565,INSERT:2F043/0/3/566,INSERT:2F043/0/3/567,INSERT:2F043/0/3/568,INSERT:2F043/0/3/569,INSERT:2F043/0/3/570,INSERT:2F043/0/3/571,INSERT:2F043/0/3/572,INSERT:2F043/0/3/573,INSERT:2F043/0/3/574,INSERT:2F043/0/3/575,INSERT:2F043/0/3/576,INSERT:2F043/0/3/577,INSERT:2F043/0/3/578,INSERT:2F043/0/3/579,INSERT:2F043/0/3/580,INSERT:2F043/0/3/581,INSERT:2F043/0/3/582,INSERT:2F043/0/3/583,INSERT:2F043/0/3/584,INSERT:2F043/0/3/585,INSERT:2F043/0/3/586,INSERT:2F043/0/3/587,INSERT:2F043/0/3/588,INSERT:2F043/0/3/589,INSERT:2F043/0/3/590,INSERT:2F043/0/3/591,INSERT:2F043/0/3/592,INSERT:2F043/0/3/593,INSERT:2F043/0/3/594,INSERT:2F043/0/3/595,INSERT:2F043/0/3/596,INSERT:2F043/0/3/597,INSERT:2F043/0/3/598,INSERT:2F043/0/3/599,INSERT:2F043/0/3/600,INSERT:2F043/0/3/601,INSERT:2F043/0/3/602,INSERT:2F043/0/3/603,INSERT:2F043/0/3/604,INSERT:2F043/0/3/605,INSERT:2F043/0/3/606,INSERT:2F043/0/3/607,INSERT:2F043/0/3/608,INSERT:2F043/0/3/609,INSERT:2F043/0/3/610,INSERT:2F043/0/3/611,INSERT:2F043/0/3/612,INSERT:2F043/0/3/613,INSERT:2F043/0/3/614,INSERT:2F043/0/3/615,INSERT:2F043/0/3/616,INSERT:2F043/0/3/617,INSERT:2F043/0/3/618,INSERT:2F043/0/3/619,INSERT:2F043/0/3/620,INSERT:2F043/0/3/621,INSERT:2F043/0/3/622,INSERT:2F043/0/3/623,INSERT:2F043/0/3/624,INSERT:2F043/0/3/625,INSERT:2F043/0/3/626,INSERT:2F043/0/3/627,INSERT:2F043/0/3/628,INSERT:2F043/0/3/629,INSERT:2F043/0/3/630,INSERT:2F043/0/3/631,INSERT:2F043/0/3/632,INSERT:2F043/0/3/633,INSERT:2F043/0/3/634,INSERT:2F043/0/3/635,INSERT:2F043/0/3/636,INSERT:2F043/0/3/637,INSERT:2F043/0/3/638,INSERT:2F043/0/3/639,INSERT:2F043/0/3/640,INSERT:2F043/0/3/641,INSERT:2F043/0/3/642,INSERT:2F043/0/3/643",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 37,
+     "wenart_id": "f_L-1b_028",
+     "kind": "furniture",
+     "type": "chair",
+     "type_unverified": false,
+     "source": "from_documents",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 201,
+     "area_frac": 9.7e-05,
+     "box_px": [
+      1370,
+      431,
+      1391,
+      456
+     ],
+     "box_1000": [
+      713,
+      399,
+      725,
+      423
+     ],
+     "touches_border": false,
+     "visibility": 0.0128,
+     "in_frame": 1.0,
+     "unoccluded": 0.0128,
+     "evidence": [
+      {
+       "file": "one_building.dwg",
+       "method": "vector",
+       "confidence": 0.85,
+       "entity": "INSERT:2F043/0/3/214,INSERT:2F043/0/3/215,INSERT:2F043/0/3/216,INSERT:2F043/0/3/217,INSERT:2F043/0/3/218,INSERT:2F043/0/3/219,INSERT:2F043/0/3/220,INSERT:2F043/0/3/221,INSERT:2F043/0/3/222,INSERT:2F043/0/3/223,INSERT:2F043/0/3/224,INSERT:2F043/0/3/225,INSERT:2F043/0/3/226,INSERT:2F043/0/3/227,INSERT:2F043/0/3/228,INSERT:2F043/0/3/229,INSERT:2F043/0/3/230,INSERT:2F043/0/3/231,INSERT:2F043/0/3/232,INSERT:2F043/0/3/233,INSERT:2F043/0/3/234,INSERT:2F043/0/3/235,INSERT:2F043/0/3/236,INSERT:2F043/0/3/237,INSERT:2F043/0/3/238,INSERT:2F043/0/3/239,INSERT:2F043/0/3/240,INSERT:2F043/0/3/241,INSERT:2F043/0/3/242,INSERT:2F043/0/3/243,INSERT:2F043/0/3/244,INSERT:2F043/0/3/245,INSERT:2F043/0/3/246,INSERT:2F043/0/3/247,INSERT:2F043/0/3/248,INSERT:2F043/0/3/249,INSERT:2F043/0/3/250,INSERT:2F043/0/3/251,INSERT:2F043/0/3/252,INSERT:2F043/0/3/253,INSERT:2F043/0/3/254,INSERT:2F043/0/3/255,INSERT:2F043/0/3/256,INSERT:2F043/0/3/257,INSERT:2F043/0/3/258,INSERT:2F043/0/3/259,INSERT:2F043/0/3/260,INSERT:2F043/0/3/261,INSERT:2F043/0/3/262,INSERT:2F043/0/3/263,INSERT:2F043/0/3/264,INSERT:2F043/0/3/265,INSERT:2F043/0/3/266,INSERT:2F043/0/3/267,INSERT:2F043/0/3/268,INSERT:2F043/0/3/269,INSERT:2F043/0/3/270,INSERT:2F043/0/3/271,INSERT:2F043/0/3/272,INSERT:2F043/0/3/273,INSERT:2F043/0/3/274,INSERT:2F043/0/3/275,INSERT:2F043/0/3/276,INSERT:2F043/0/3/277,INSERT:2F043/0/3/278,INSERT:2F043/0/3/279,INSERT:2F043/0/3/280,INSERT:2F043/0/3/281,INSERT:2F043/0/3/282,INSERT:2F043/0/3/283,INSERT:2F043/0/3/284,INSERT:2F043/0/3/285,INSERT:2F043/0/3/286,INSERT:2F043/0/3/287,INSERT:2F043/0/3/288,INSERT:2F043/0/3/289,INSERT:2F043/0/3/290,INSERT:2F043/0/3/291,INSERT:2F043/0/3/292,INSERT:2F043/0/3/293,INSERT:2F043/0/3/294,INSERT:2F043/0/3/295,INSERT:2F043/0/3/296,INSERT:2F043/0/3/297,INSERT:2F043/0/3/298,INSERT:2F043/0/3/299,INSERT:2F043/0/3/300,INSERT:2F043/0/3/301,INSERT:2F043/0/3/302,INSERT:2F043/0/3/303,INSERT:2F043/0/3/304,INSERT:2F043/0/3/305,INSERT:2F043/0/3/306,INSERT:2F043/0/3/307,INSERT:2F043/0/3/308,INSERT:2F043/0/3/309,INSERT:2F043/0/3/310,INSERT:2F043/0/3/311,INSERT:2F043/0/3/312,INSERT:2F043/0/3/313,INSERT:2F043/0/3/314,INSERT:2F043/0/3/315,INSERT:2F043/0/3/316,INSERT:2F043/0/3/317,INSERT:2F043/0/3/318,INSERT:2F043/0/3/319,INSERT:2F043/0/3/320,INSERT:2F043/0/3/321,INSERT:2F043/0/3/322,INSERT:2F043/0/3/323,INSERT:2F043/0/3/324,INSERT:2F043/0/3/325,INSERT:2F043/0/3/326,INSERT:2F043/0/3/327,INSERT:2F043/0/3/328,INSERT:2F043/0/3/329,INSERT:2F043/0/3/330,INSERT:2F043/0/3/331,INSERT:2F043/0/3/332,INSERT:2F043/0/3/333,INSERT:2F043/0/3/334,INSERT:2F043/0/3/335,INSERT:2F043/0/3/336,INSERT:2F043/0/3/337,INSERT:2F043/0/3/338,INSERT:2F043/0/3/339,INSERT:2F043/0/3/340,INSERT:2F043/0/3/341,INSERT:2F043/0/3/342,INSERT:2F043/0/3/343,INSERT:2F043/0/3/344,INSERT:2F043/0/3/345,INSERT:2F043/0/3/346,INSERT:2F043/0/3/347,INSERT:2F043/0/3/348,INSERT:2F043/0/3/349,INSERT:2F043/0/3/350,INSERT:2F043/0/3/351,INSERT:2F043/0/3/352,INSERT:2F043/0/3/353,INSERT:2F043/0/3/354,INSERT:2F043/0/3/355,INSERT:2F043/0/3/356,INSERT:2F043/0/3/357,INSERT:2F043/0/3/358,INSERT:2F043/0/3/359,INSERT:2F043/0/3/360,INSERT:2F043/0/3/361,INSERT:2F043/0/3/362,INSERT:2F043/0/3/363,INSERT:2F043/0/3/364,INSERT:2F043/0/3/365,INSERT:2F043/0/3/366,INSERT:2F043/0/3/367,INSERT:2F043/0/3/368,INSERT:2F043/0/3/369,INSERT:2F043/0/3/370,INSERT:2F043/0/3/371,INSERT:2F043/0/3/372,INSERT:2F043/0/3/373,INSERT:2F043/0/3/374,INSERT:2F043/0/3/375,INSERT:2F043/0/3/376,INSERT:2F043/0/3/377,INSERT:2F043/0/3/378,INSERT:2F043/0/3/379,INSERT:2F043/0/3/380,INSERT:2F043/0/3/381,INSERT:2F043/0/3/382,INSERT:2F043/0/3/383,INSERT:2F043/0/3/384,INSERT:2F043/0/3/385,INSERT:2F043/0/3/386,INSERT:2F043/0/3/387,INSERT:2F043/0/3/388,INSERT:2F043/0/3/389,INSERT:2F043/0/3/390,INSERT:2F043/0/3/391,INSERT:2F043/0/3/392,INSERT:2F043/0/3/393,INSERT:2F043/0/3/394,INSERT:2F043/0/3/395,INSERT:2F043/0/3/396,INSERT:2F043/0/3/397,INSERT:2F043/0/3/398,INSERT:2F043/0/3/399,INSERT:2F043/0/3/400,INSERT:2F043/0/3/401,INSERT:2F043/0/3/402,INSERT:2F043/0/3/403,INSERT:2F043/0/3/404,INSERT:2F043/0/3/405,INSERT:2F043/0/3/406,INSERT:2F043/0/3/407,INSERT:2F043/0/3/408,INSERT:2F043/0/3/409,INSERT:2F043/0/3/410,INSERT:2F043/0/3/411,INSERT:2F043/0/3/412,INSERT:2F043/0/3/413,INSERT:2F043/0/3/414,INSERT:2F043/0/3/415,INSERT:2F043/0/3/416,INSERT:2F043/0/3/417,INSERT:2F043/0/3/418,INSERT:2F043/0/3/419,INSERT:2F043/0/3/420,INSERT:2F043/0/3/421,INSERT:2F043/0/3/422,INSERT:2F043/0/3/423,INSERT:2F043/0/3/424,INSERT:2F043/0/3/425,INSERT:2F043/0/3/426",
+       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
+       "region_id": "r3"
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": false,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 69,
+     "wenart_id": "f_L-1b_074",
+     "kind": "furniture",
+     "type": "bar_stool",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": true,
+     "pixels": 101,
+     "area_frac": 4.9e-05,
+     "box_px": [
+      1748,
+      509,
+      1774,
+      517
+     ],
+     "box_1000": [
+      910,
+      471,
+      924,
+      479
+     ],
+     "touches_border": false,
+     "visibility": 0.004,
+     "in_frame": 1.0,
+     "unoccluded": 0.004,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds third bar stool at island, modern natural style."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    }
+   ],
+   "json_crosscheck": {
+    "level_id": "L-1b",
+    "tested": 77,
+    "in_json_not_rendered": [],
+    "rendered_not_in_json": [],
+    "misplaced": [],
+    "projected": {
+     "win_L-1b_001": {
+      "kind": "window",
+      "type": "window",
+      "visible_share": 0.9722,
+      "area_frac": 0.11634,
+      "centre_px": [
+       681.3,
+       292.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 244905
+     },
+     "f_L-1b_011": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 0.1046,
+      "area_frac": 0.02266,
+      "centre_px": [
+       1848.1,
+       482.0
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 11729
+     },
+     "f_L-1b_026": {
+      "kind": "furniture",
+      "type": "table_dining",
+      "visible_share": 0.565,
+      "area_frac": 0.05041,
+      "centre_px": [
+       1413.8,
+       451.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 14921
+     },
+     "f_L-1b_027": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3323,
+      "area_frac": 0.00891,
+      "centre_px": [
+       1216.4,
+       443.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 559
+     },
+     "f_L-1b_028": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.0366,
+      "area_frac": 0.00757,
+      "centre_px": [
+       1388.0,
+       442.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 201
+     },
+     "f_L-1b_029": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2927,
+      "area_frac": 0.01135,
+      "centre_px": [
+       1306.2,
+       449.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 399
+     },
+     "f_L-1b_030": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.1296,
+      "area_frac": 0.00944,
+      "centre_px": [
+       1443.1,
+       457.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 641
+     },
+     "f_L-1b_031": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.2942,
+      "area_frac": 0.01515,
+      "centre_px": [
+       1425.0,
+       465.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 571
+     },
+     "f_L-1b_032": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3064,
+      "area_frac": 0.01224,
+      "centre_px": [
+       1564.1,
+       469.9
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1551
+     },
+     "f_L-1b_033": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.375,
+      "area_frac": 0.01724,
+      "centre_px": [
+       1630.8,
+       480.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 1286
+     },
+     "f_L-1b_034": {
+      "kind": "furniture",
+      "type": "chair",
+      "visible_share": 0.3994,
+      "area_frac": 0.00672,
+      "centre_px": [
+       1211.6,
+       438.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 519
+     },
+     "f_L-1b_040": {
+      "kind": "furniture",
+      "type": "kitchen_island",
+      "visible_share": 0.6751,
+      "area_frac": 0.22347,
+      "centre_px": [
+       1478.4,
+       766.5
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 451442
+     },
+     "f_L-1b_047": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.2679,
+      "area_frac": 0.02265,
+      "centre_px": [
+       189.8,
+       467.8
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 3128
+     },
+     "f_L-1b_048": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.6734,
+      "area_frac": 0.03799,
+      "centre_px": [
+       237.7,
+       597.3
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 71565
+     },
+     "f_L-1b_049": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 1.0,
+      "area_frac": 0.05783,
+      "centre_px": [
+       521.6,
+       670.1
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 119957
+     },
+     "f_L-1b_050": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.8161,
+      "area_frac": 0.04289,
+      "centre_px": [
+       812.4,
+       620.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 81329
+     },
+     "f_L-1b_056": {
+      "kind": "furniture",
+      "type": "unknown",
+      "visible_share": 0.252,
+      "area_frac": 0.01155,
+      "centre_px": [
+       774.2,
+       457.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 2217
+     },
+     "f_L-1b_074": {
+      "kind": "furniture",
+      "type": "bar_stool",
+      "visible_share": 0.0303,
+      "area_frac": 0.01224,
+      "centre_px": [
+       1760.8,
+       511.7
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 101
+     }
+    },
+    "error": null
+   },
+   "warnings": []
+  },
+  "cam_r_L-1b_acik_mutfak_3": {
+   "camera": "cam_r_L-1b_acik_mutfak_3",
    "view_kind": "interior",
    "room_id": "r_L-1b_acik_mutfak",
    "room_type": "kitchen",
@@ -1070,7 +2282,7 @@
      "side": null
     },
     {
-     "index": 37,
+     "index": 35,
      "wenart_id": "f_L-1b_026",
      "kind": "furniture",
      "type": "table_dining",
@@ -1119,7 +2331,7 @@
      "side": null
     },
     {
-     "index": 26,
+     "index": 24,
      "wenart_id": "f_L-1b_011",
      "kind": "furniture",
      "type": "kitchen_island",
@@ -1131,8 +2343,8 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": true,
-     "pixels": 41791,
-     "area_frac": 0.020154,
+     "pixels": 49590,
+     "area_frac": 0.023915,
      "box_px": [
       1641,
       423,
@@ -1146,9 +2358,9 @@
       672
      ],
      "touches_border": true,
-     "visibility": 0.2492,
+     "visibility": 0.2957,
      "in_frame": 0.4155,
-     "unoccluded": 0.5998,
+     "unoccluded": 0.7117,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -1168,7 +2380,7 @@
      "side": null
     },
     {
-     "index": 42,
+     "index": 40,
      "wenart_id": "f_L-1b_031",
      "kind": "furniture",
      "type": "chair",
@@ -1217,7 +2429,7 @@
      "side": null
     },
     {
-     "index": 40,
+     "index": 38,
      "wenart_id": "f_L-1b_029",
      "kind": "furniture",
      "type": "chair",
@@ -1266,7 +2478,7 @@
      "side": null
     },
     {
-     "index": 38,
+     "index": 36,
      "wenart_id": "f_L-1b_027",
      "kind": "furniture",
      "type": "chair",
@@ -1315,7 +2527,7 @@
      "side": null
     },
     {
-     "index": 68,
+     "index": 67,
      "wenart_id": "f_L-1b_072",
      "kind": "furniture",
      "type": "bar_stool",
@@ -1327,40 +2539,32 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": true,
-     "pixels": 12925,
-     "area_frac": 0.006233,
+     "pixels": 12719,
+     "area_frac": 0.006134,
      "box_px": [
-      1740,
-      557,
+      1763,
+      570,
       1920,
-      762
+      792
      ],
      "box_1000": [
-      906,
-      515,
+      918,
+      527,
       1000,
-      706
+      734
      ],
      "touches_border": true,
-     "visibility": 0.2694,
-     "in_frame": 0.7298,
-     "unoccluded": 0.3691,
+     "visibility": 0.2262,
+     "in_frame": 0.5698,
+     "unoccluded": 0.3969,
      "evidence": [
       {
        "file": "building.json",
        "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 2,
-       "text": "Add second bar stool for extra seating at the island."
-      },
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
+       "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Placed at island bar for modern natural style seating."
+       "text": "Adds bar seating at kitchen island, modern natural style."
       }
      ],
      "host_decor": [],
@@ -1372,7 +2576,7 @@
      "side": null
     },
     {
-     "index": 54,
+     "index": 53,
      "wenart_id": "f_L-1b_054",
      "kind": "furniture",
      "type": "fridge",
@@ -1444,7 +2648,7 @@
      "side": null
     },
     {
-     "index": 25,
+     "index": 23,
      "wenart_id": "f_L-1b_010",
      "kind": "furniture",
      "type": "kitchen_counter",
@@ -1456,8 +2660,8 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": true,
-     "pixels": 9713,
-     "area_frac": 0.004684,
+     "pixels": 9431,
+     "area_frac": 0.004548,
      "box_px": [
       1560,
       414,
@@ -1471,9 +2675,9 @@
       572
      ],
      "touches_border": true,
-     "visibility": 0.0784,
+     "visibility": 0.0761,
      "in_frame": 0.5902,
-     "unoccluded": 0.1328,
+     "unoccluded": 0.129,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -1493,7 +2697,7 @@
      "side": null
     },
     {
-     "index": 44,
+     "index": 42,
      "wenart_id": "f_L-1b_033",
      "kind": "furniture",
      "type": "chair",
@@ -1542,7 +2746,7 @@
      "side": null
     },
     {
-     "index": 45,
+     "index": 43,
      "wenart_id": "f_L-1b_034",
      "kind": "furniture",
      "type": "chair",
@@ -1591,64 +2795,7 @@
      "side": null
     },
     {
-     "index": 67,
-     "wenart_id": "f_L-1b_071",
-     "kind": "furniture",
-     "type": "bar_stool",
-     "type_unverified": false,
-     "source": "added_by_ai",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 8239,
-     "area_frac": 0.003973,
-     "box_px": [
-      1639,
-      529,
-      1834,
-      701
-     ],
-     "box_1000": [
-      853,
-      489,
-      956,
-      650
-     ],
-     "touches_border": false,
-     "visibility": 0.2507,
-     "in_frame": 1.0,
-     "unoccluded": 0.2507,
-     "evidence": [
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 2,
-       "text": "Place bar stools at the island for casual dining or seating."
-      },
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "Placed at island bar for modern natural style seating."
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": true,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 39,
+     "index": 37,
      "wenart_id": "f_L-1b_028",
      "kind": "furniture",
      "type": "chair",
@@ -1697,7 +2844,7 @@
      "side": null
     },
     {
-     "index": 56,
+     "index": 55,
      "wenart_id": "f_L-1b_060",
      "kind": "furniture",
      "type": "wall_cabinet",
@@ -1776,7 +2923,7 @@
      "side": null
     },
     {
-     "index": 43,
+     "index": 41,
      "wenart_id": "f_L-1b_032",
      "kind": "furniture",
      "type": "chair",
@@ -1826,7 +2973,7 @@
     },
     {
      "index": 69,
-     "wenart_id": "f_L-1b_073",
+     "wenart_id": "f_L-1b_074",
      "kind": "furniture",
      "type": "bar_stool",
      "type_unverified": false,
@@ -1837,40 +2984,32 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": true,
-     "pixels": 3308,
-     "area_frac": 0.001595,
+     "pixels": 2222,
+     "area_frac": 0.001072,
      "box_px": [
-      1496,
-      507,
-      1642,
-      624
+      1565,
+      511,
+      1718,
+      663
      ],
      "box_1000": [
-      779,
-      469,
-      856,
-      578
+      815,
+      473,
+      895,
+      614
      ],
      "touches_border": false,
-     "visibility": 0.1448,
+     "visibility": 0.0889,
      "in_frame": 1.0,
-     "unoccluded": 0.1448,
+     "unoccluded": 0.0889,
      "evidence": [
       {
        "file": "building.json",
        "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 2,
-       "text": "Add third bar stool to complete island seating."
-      },
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
+       "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Placed at island bar for modern natural style seating."
+       "text": "Adds third bar stool at island, modern natural style."
       }
      ],
      "host_decor": [],
@@ -1882,7 +3021,7 @@
      "side": null
     },
     {
-     "index": 41,
+     "index": 39,
      "wenart_id": "f_L-1b_030",
      "kind": "furniture",
      "type": "chair",
@@ -1933,7 +3072,7 @@
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -1954,20 +3093,20 @@
      "f_L-1b_010": {
       "kind": "furniture",
       "type": "kitchen_counter",
-      "visible_share": 0.24,
+      "visible_share": 0.2385,
       "area_frac": 0.03527,
       "centre_px": [
        1740.0,
-       515.5
+       490.2
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 9713
+      "rendered_pixels": 9431
      },
      "f_L-1b_011": {
       "kind": "furniture",
       "type": "kitchen_island",
-      "visible_share": 0.415,
+      "visible_share": 0.4686,
       "area_frac": 0.0336,
       "centre_px": [
        1781.4,
@@ -1975,7 +3114,7 @@
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 41791
+      "rendered_pixels": 49590
      },
      "f_L-1b_026": {
       "kind": "furniture",
@@ -2117,1313 +3256,31 @@
       "outside_share": 0.0,
       "rendered_pixels": 6013
      },
-     "f_L-1b_071": {
-      "kind": "furniture",
-      "type": "bar_stool",
-      "visible_share": 0.6643,
-      "area_frac": 0.01585,
-      "centre_px": [
-       1735.6,
-       610.6
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 8239
-     },
      "f_L-1b_072": {
       "kind": "furniture",
       "type": "bar_stool",
-      "visible_share": 0.8019,
-      "area_frac": 0.01689,
+      "visible_share": 0.6224,
+      "area_frac": 0.01545,
       "centre_px": [
-       1830.5,
-       653.9
+       1841.2,
+       675.6
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 12925
+      "rendered_pixels": 12719
      },
-     "f_L-1b_073": {
+     "f_L-1b_074": {
       "kind": "furniture",
       "type": "bar_stool",
-      "visible_share": 0.5105,
-      "area_frac": 0.01102,
+      "visible_share": 0.4103,
+      "area_frac": 0.01206,
       "centre_px": [
-       1569.8,
-       563.6
+       1638.1,
+       583.8
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 3308
-     }
-    },
-    "error": null
-   },
-   "warnings": []
-  },
-  "cam_r_L-1b_acik_mutfak_3": {
-   "camera": "cam_r_L-1b_acik_mutfak_3",
-   "view_kind": "interior",
-   "room_id": "r_L-1b_acik_mutfak",
-   "room_type": "kitchen",
-   "room_label": "Açık Mutfak",
-   "level_id": "L-1b",
-   "size": [
-    1920,
-    1080
-   ],
-   "render_key": "61f78aac9cd99ca8",
-   "hidden": [],
-   "elements": [
-    {
-     "index": 7,
-     "wenart_id": "f_L-1b_040",
-     "kind": "furniture",
-     "type": "unknown",
-     "type_unverified": true,
-     "source": "from_documents",
-     "status": "unverified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 219467,
-     "area_frac": 0.105839,
-     "box_px": [
-      0,
-      501,
-      391,
-      1080
-     ],
-     "box_1000": [
-      0,
-      463,
-      204,
-      1000
-     ],
-     "touches_border": true,
-     "visibility": 0.0869,
-     "in_frame": 0.0869,
-     "unoccluded": 1.0,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.95,
-       "entity": "recognition:sym_L-1b_002",
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "kitchen_island",
-       "front": "bottom",
-       "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest like furniture.",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.9,
-       "entity": "recognition:sym_L-1b_002",
-       "model": "zai-org/GLM-4.6V-Flash",
-       "pass": 2,
-       "text": "sofa",
-       "front": "top",
-       "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa.",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 26,
-     "wenart_id": "f_L-1b_011",
-     "kind": "furniture",
-     "type": "kitchen_island",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 185127,
-     "area_frac": 0.089278,
-     "box_px": [
-      942,
-      443,
-      1480,
-      874
-     ],
-     "box_1000": [
-      490,
-      410,
-      771,
-      810
-     ],
-     "touches_border": false,
-     "visibility": 0.9225,
-     "in_frame": 1.0,
-     "unoccluded": 0.9225,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "LWPOLYLINE:2F042",
-       "note": "free block of a kitchen counter outline (peninsula or island, M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "required",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 5,
-     "wenart_id": "win_L-1b_001",
-     "kind": "window",
-     "type": "window",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": null,
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 183648,
-     "area_frac": 0.088565,
-     "box_px": [
-      0,
-      178,
-      933,
-      419
-     ],
-     "box_1000": [
-      0,
-      164,
-      486,
-      388
-     ],
-     "touches_border": true,
-     "visibility": null,
-     "in_frame": null,
-     "unoccluded": null,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "LWPOLYLINE:2F03F,LWPOLYLINE:2F040",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 25,
-     "wenart_id": "f_L-1b_010",
-     "kind": "furniture",
-     "type": "kitchen_counter",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 161824,
-     "area_frac": 0.07804,
-     "box_px": [
-      1323,
-      435,
-      1920,
-      901
-     ],
-     "box_1000": [
-      689,
-      402,
-      1000,
-      835
-     ],
-     "touches_border": true,
-     "visibility": 0.2597,
-     "in_frame": 0.3345,
-     "unoccluded": 0.7764,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "LWPOLYLINE:2F042",
-       "note": "kitchen counter run drawn as a closed outline along the walls (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 54,
-     "wenart_id": "f_L-1b_054",
-     "kind": "furniture",
-     "type": "fridge",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 38815,
-     "area_frac": 0.018719,
-     "box_px": [
-      1720,
-      290,
-      1920,
-      496
-     ],
-     "box_1000": [
-      895,
-      268,
-      1000,
-      460
-     ],
-     "touches_border": true,
-     "visibility": 0.1159,
-     "in_frame": 0.3775,
-     "unoccluded": 0.307,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "INSERT:2F078/4,INSERT:2F078/9",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.95,
-       "entity": "recognition:sym_L-1b_016",
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "fridge",
-       "front": "none",
-       "reason": "Rectangular shape, size 0.79x0.50m fits fridge, located in kitchen, no front direction indicated.",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.9,
-       "entity": "recognition:sym_L-1b_016",
-       "model": "zai-org/GLM-4.6V-Flash",
-       "pass": 2,
-       "text": "fridge",
-       "front": "top",
-       "reason": "The object's footprint matches a fridge's size and it's in a kitchen.",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 37,
-     "wenart_id": "f_L-1b_026",
-     "kind": "furniture",
-     "type": "table_dining",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 26713,
-     "area_frac": 0.012882,
-     "box_px": [
-      702,
-      405,
-      1093,
-      647
-     ],
-     "box_1000": [
-      365,
-      375,
-      570,
-      600
-     ],
-     "touches_border": false,
-     "visibility": 0.2841,
-     "in_frame": 1.0,
-     "unoccluded": 0.2841,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/0,INSERT:2F043/0/1:0,INSERT:2F043/0/2,INSERT:2F043/0/3/213,INSERT:2F043/0/3/427:0,INSERT:2F043/0/3/428,INSERT:2F043/0/3/429:0,INSERT:2F043/0/3/430:0",
-       "note": "table + 8 chairs drawn as one group: split (M11)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 42,
-     "wenart_id": "f_L-1b_031",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 7722,
-     "area_frac": 0.003724,
-     "box_px": [
-      735,
-      468,
-      871,
-      685
-     ],
-     "box_1000": [
-      382,
-      433,
-      454,
-      635
-     ],
-     "touches_border": false,
-     "visibility": 0.2415,
-     "in_frame": 1.0,
-     "unoccluded": 0.2415,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/1000,INSERT:2F043/0/3/1001,INSERT:2F043/0/3/1002,INSERT:2F043/0/3/1003,INSERT:2F043/0/3/1004,INSERT:2F043/0/3/1005,INSERT:2F043/0/3/1006,INSERT:2F043/0/3/1007,INSERT:2F043/0/3/1008,INSERT:2F043/0/3/1009,INSERT:2F043/0/3/1010,INSERT:2F043/0/3/1011,INSERT:2F043/0/3/1012,INSERT:2F043/0/3/1013,INSERT:2F043/0/3/1014,INSERT:2F043/0/3/1015,INSERT:2F043/0/3/1016,INSERT:2F043/0/3/1017,INSERT:2F043/0/3/1018,INSERT:2F043/0/3/1019,INSERT:2F043/0/3/1020,INSERT:2F043/0/3/1021,INSERT:2F043/0/3/1022,INSERT:2F043/0/3/1023,INSERT:2F043/0/3/1024,INSERT:2F043/0/3/1025,INSERT:2F043/0/3/1026,INSERT:2F043/0/3/1027,INSERT:2F043/0/3/1028,INSERT:2F043/0/3/1029,INSERT:2F043/0/3/1030,INSERT:2F043/0/3/1031,INSERT:2F043/0/3/1032,INSERT:2F043/0/3/1033,INSERT:2F043/0/3/1034,INSERT:2F043/0/3/1035,INSERT:2F043/0/3/1036,INSERT:2F043/0/3/1037,INSERT:2F043/0/3/1038,INSERT:2F043/0/3/1039,INSERT:2F043/0/3/1040,INSERT:2F043/0/3/1041,INSERT:2F043/0/3/1042,INSERT:2F043/0/3/1043,INSERT:2F043/0/3/1044,INSERT:2F043/0/3/1045,INSERT:2F043/0/3/1046,INSERT:2F043/0/3/1047,INSERT:2F043/0/3/1048,INSERT:2F043/0/3/1049,INSERT:2F043/0/3/1050,INSERT:2F043/0/3/1051,INSERT:2F043/0/3/1052,INSERT:2F043/0/3/1053,INSERT:2F043/0/3/1054,INSERT:2F043/0/3/1055,INSERT:2F043/0/3/1056,INSERT:2F043/0/3/1057,INSERT:2F043/0/3/1058,INSERT:2F043/0/3/1059,INSERT:2F043/0/3/1060,INSERT:2F043/0/3/1061,INSERT:2F043/0/3/1062,INSERT:2F043/0/3/1063,INSERT:2F043/0/3/1064,INSERT:2F043/0/3/1065,INSERT:2F043/0/3/1066,INSERT:2F043/0/3/1067,INSERT:2F043/0/3/1068,INSERT:2F043/0/3/1069,INSERT:2F043/0/3/857,INSERT:2F043/0/3/858,INSERT:2F043/0/3/859,INSERT:2F043/0/3/860,INSERT:2F043/0/3/861,INSERT:2F043/0/3/862,INSERT:2F043/0/3/863,INSERT:2F043/0/3/864,INSERT:2F043/0/3/865,INSERT:2F043/0/3/866,INSERT:2F043/0/3/867,INSERT:2F043/0/3/868,INSERT:2F043/0/3/869,INSERT:2F043/0/3/870,INSERT:2F043/0/3/871,INSERT:2F043/0/3/872,INSERT:2F043/0/3/873,INSERT:2F043/0/3/874,INSERT:2F043/0/3/875,INSERT:2F043/0/3/876,INSERT:2F043/0/3/877,INSERT:2F043/0/3/878,INSERT:2F043/0/3/879,INSERT:2F043/0/3/880,INSERT:2F043/0/3/881,INSERT:2F043/0/3/882,INSERT:2F043/0/3/883,INSERT:2F043/0/3/884,INSERT:2F043/0/3/885,INSERT:2F043/0/3/886,INSERT:2F043/0/3/887,INSERT:2F043/0/3/888,INSERT:2F043/0/3/889,INSERT:2F043/0/3/890,INSERT:2F043/0/3/891,INSERT:2F043/0/3/892,INSERT:2F043/0/3/893,INSERT:2F043/0/3/894,INSERT:2F043/0/3/895,INSERT:2F043/0/3/896,INSERT:2F043/0/3/897,INSERT:2F043/0/3/898,INSERT:2F043/0/3/899,INSERT:2F043/0/3/900,INSERT:2F043/0/3/901,INSERT:2F043/0/3/902,INSERT:2F043/0/3/903,INSERT:2F043/0/3/904,INSERT:2F043/0/3/905,INSERT:2F043/0/3/906,INSERT:2F043/0/3/907,INSERT:2F043/0/3/908,INSERT:2F043/0/3/909,INSERT:2F043/0/3/910,INSERT:2F043/0/3/911,INSERT:2F043/0/3/912,INSERT:2F043/0/3/913,INSERT:2F043/0/3/914,INSERT:2F043/0/3/915,INSERT:2F043/0/3/916,INSERT:2F043/0/3/917,INSERT:2F043/0/3/918,INSERT:2F043/0/3/919,INSERT:2F043/0/3/920,INSERT:2F043/0/3/921,INSERT:2F043/0/3/922,INSERT:2F043/0/3/923,INSERT:2F043/0/3/924,INSERT:2F043/0/3/925,INSERT:2F043/0/3/926,INSERT:2F043/0/3/927,INSERT:2F043/0/3/928,INSERT:2F043/0/3/929,INSERT:2F043/0/3/930,INSERT:2F043/0/3/931,INSERT:2F043/0/3/932,INSERT:2F043/0/3/933,INSERT:2F043/0/3/934,INSERT:2F043/0/3/935,INSERT:2F043/0/3/936,INSERT:2F043/0/3/937,INSERT:2F043/0/3/938,INSERT:2F043/0/3/939,INSERT:2F043/0/3/940,INSERT:2F043/0/3/941,INSERT:2F043/0/3/942,INSERT:2F043/0/3/943,INSERT:2F043/0/3/944,INSERT:2F043/0/3/945,INSERT:2F043/0/3/946,INSERT:2F043/0/3/947,INSERT:2F043/0/3/948,INSERT:2F043/0/3/949,INSERT:2F043/0/3/950,INSERT:2F043/0/3/951,INSERT:2F043/0/3/952,INSERT:2F043/0/3/953,INSERT:2F043/0/3/954,INSERT:2F043/0/3/955,INSERT:2F043/0/3/956,INSERT:2F043/0/3/957,INSERT:2F043/0/3/958,INSERT:2F043/0/3/959,INSERT:2F043/0/3/960,INSERT:2F043/0/3/961,INSERT:2F043/0/3/962,INSERT:2F043/0/3/963,INSERT:2F043/0/3/964,INSERT:2F043/0/3/965,INSERT:2F043/0/3/966,INSERT:2F043/0/3/967,INSERT:2F043/0/3/968,INSERT:2F043/0/3/969,INSERT:2F043/0/3/970,INSERT:2F043/0/3/971,INSERT:2F043/0/3/972,INSERT:2F043/0/3/973,INSERT:2F043/0/3/974,INSERT:2F043/0/3/975,INSERT:2F043/0/3/976,INSERT:2F043/0/3/977,INSERT:2F043/0/3/978,INSERT:2F043/0/3/979,INSERT:2F043/0/3/980,INSERT:2F043/0/3/981,INSERT:2F043/0/3/982,INSERT:2F043/0/3/983,INSERT:2F043/0/3/984,INSERT:2F043/0/3/985,INSERT:2F043/0/3/986,INSERT:2F043/0/3/987,INSERT:2F043/0/3/988,INSERT:2F043/0/3/989,INSERT:2F043/0/3/990,INSERT:2F043/0/3/991,INSERT:2F043/0/3/992,INSERT:2F043/0/3/993,INSERT:2F043/0/3/994,INSERT:2F043/0/3/995,INSERT:2F043/0/3/996,INSERT:2F043/0/3/997,INSERT:2F043/0/3/998,INSERT:2F043/0/3/999",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 15,
-     "wenart_id": "f_L-1b_050",
-     "kind": "furniture",
-     "type": "unknown",
-     "type_unverified": true,
-     "source": "from_documents",
-     "status": "unverified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 5454,
-     "area_frac": 0.00263,
-     "box_px": [
-      0,
-      474,
-      115,
-      528
-     ],
-     "box_1000": [
-      0,
-      438,
-      60,
-      489
-     ],
-     "touches_border": true,
-     "visibility": 0.0329,
-     "in_frame": 0.1958,
-     "unoccluded": 0.1681,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "LINE:2F06C,LINE:2F06D,LINE:2F06E,LINE:2F06F,LINE:2F070,LINE:2F071,LINE:2F072,LINE:2F073,LINE:2F074,LINE:2F075,LINE:2F076,LINE:2F077",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.95,
-       "entity": "recognition:sym_L-1b_012",
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "kitchen_counter",
-       "front": "left",
-       "reason": "Rectangular shape, size matches kitchen counter, located in kitchen, and fits typical counter dimensions.",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.9,
-       "entity": "recognition:sym_L-1b_012",
-       "model": "zai-org/GLM-4.6V-Flash",
-       "pass": 2,
-       "text": "armchair",
-       "front": "top",
-       "reason": "The object has a seat, backrest, and armrests, matching the armchair description.",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 40,
-     "wenart_id": "f_L-1b_029",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 4483,
-     "area_frac": 0.002162,
-     "box_px": [
-      695,
-      453,
-      811,
-      640
-     ],
-     "box_1000": [
-      361,
-      419,
-      423,
-      593
-     ],
-     "touches_border": false,
-     "visibility": 0.1892,
-     "in_frame": 1.0,
-     "unoccluded": 0.1892,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/431,INSERT:2F043/0/3/432,INSERT:2F043/0/3/433,INSERT:2F043/0/3/434,INSERT:2F043/0/3/435,INSERT:2F043/0/3/436,INSERT:2F043/0/3/437,INSERT:2F043/0/3/438,INSERT:2F043/0/3/439,INSERT:2F043/0/3/440,INSERT:2F043/0/3/441,INSERT:2F043/0/3/442,INSERT:2F043/0/3/443,INSERT:2F043/0/3/444,INSERT:2F043/0/3/445,INSERT:2F043/0/3/446,INSERT:2F043/0/3/447,INSERT:2F043/0/3/448,INSERT:2F043/0/3/449,INSERT:2F043/0/3/450,INSERT:2F043/0/3/451,INSERT:2F043/0/3/452,INSERT:2F043/0/3/453,INSERT:2F043/0/3/454,INSERT:2F043/0/3/455,INSERT:2F043/0/3/456,INSERT:2F043/0/3/457,INSERT:2F043/0/3/458,INSERT:2F043/0/3/459,INSERT:2F043/0/3/460,INSERT:2F043/0/3/461,INSERT:2F043/0/3/462,INSERT:2F043/0/3/463,INSERT:2F043/0/3/464,INSERT:2F043/0/3/465,INSERT:2F043/0/3/466,INSERT:2F043/0/3/467,INSERT:2F043/0/3/468,INSERT:2F043/0/3/469,INSERT:2F043/0/3/470,INSERT:2F043/0/3/471,INSERT:2F043/0/3/472,INSERT:2F043/0/3/473,INSERT:2F043/0/3/474,INSERT:2F043/0/3/475,INSERT:2F043/0/3/476,INSERT:2F043/0/3/477,INSERT:2F043/0/3/478,INSERT:2F043/0/3/479,INSERT:2F043/0/3/480,INSERT:2F043/0/3/481,INSERT:2F043/0/3/482,INSERT:2F043/0/3/483,INSERT:2F043/0/3/484,INSERT:2F043/0/3/485,INSERT:2F043/0/3/486,INSERT:2F043/0/3/487,INSERT:2F043/0/3/488,INSERT:2F043/0/3/489,INSERT:2F043/0/3/490,INSERT:2F043/0/3/491,INSERT:2F043/0/3/492,INSERT:2F043/0/3/493,INSERT:2F043/0/3/494,INSERT:2F043/0/3/495,INSERT:2F043/0/3/496,INSERT:2F043/0/3/497,INSERT:2F043/0/3/498,INSERT:2F043/0/3/499,INSERT:2F043/0/3/500,INSERT:2F043/0/3/501,INSERT:2F043/0/3/502,INSERT:2F043/0/3/503,INSERT:2F043/0/3/504,INSERT:2F043/0/3/505,INSERT:2F043/0/3/506,INSERT:2F043/0/3/507,INSERT:2F043/0/3/508,INSERT:2F043/0/3/509,INSERT:2F043/0/3/510,INSERT:2F043/0/3/511,INSERT:2F043/0/3/512,INSERT:2F043/0/3/513,INSERT:2F043/0/3/514,INSERT:2F043/0/3/515,INSERT:2F043/0/3/516,INSERT:2F043/0/3/517,INSERT:2F043/0/3/518,INSERT:2F043/0/3/519,INSERT:2F043/0/3/520,INSERT:2F043/0/3/521,INSERT:2F043/0/3/522,INSERT:2F043/0/3/523,INSERT:2F043/0/3/524,INSERT:2F043/0/3/525,INSERT:2F043/0/3/526,INSERT:2F043/0/3/527,INSERT:2F043/0/3/528,INSERT:2F043/0/3/529,INSERT:2F043/0/3/530,INSERT:2F043/0/3/531,INSERT:2F043/0/3/532,INSERT:2F043/0/3/533,INSERT:2F043/0/3/534,INSERT:2F043/0/3/535,INSERT:2F043/0/3/536,INSERT:2F043/0/3/537,INSERT:2F043/0/3/538,INSERT:2F043/0/3/539,INSERT:2F043/0/3/540,INSERT:2F043/0/3/541,INSERT:2F043/0/3/542,INSERT:2F043/0/3/543,INSERT:2F043/0/3/544,INSERT:2F043/0/3/545,INSERT:2F043/0/3/546,INSERT:2F043/0/3/547,INSERT:2F043/0/3/548,INSERT:2F043/0/3/549,INSERT:2F043/0/3/550,INSERT:2F043/0/3/551,INSERT:2F043/0/3/552,INSERT:2F043/0/3/553,INSERT:2F043/0/3/554,INSERT:2F043/0/3/555,INSERT:2F043/0/3/556,INSERT:2F043/0/3/557,INSERT:2F043/0/3/558,INSERT:2F043/0/3/559,INSERT:2F043/0/3/560,INSERT:2F043/0/3/561,INSERT:2F043/0/3/562,INSERT:2F043/0/3/563,INSERT:2F043/0/3/564,INSERT:2F043/0/3/565,INSERT:2F043/0/3/566,INSERT:2F043/0/3/567,INSERT:2F043/0/3/568,INSERT:2F043/0/3/569,INSERT:2F043/0/3/570,INSERT:2F043/0/3/571,INSERT:2F043/0/3/572,INSERT:2F043/0/3/573,INSERT:2F043/0/3/574,INSERT:2F043/0/3/575,INSERT:2F043/0/3/576,INSERT:2F043/0/3/577,INSERT:2F043/0/3/578,INSERT:2F043/0/3/579,INSERT:2F043/0/3/580,INSERT:2F043/0/3/581,INSERT:2F043/0/3/582,INSERT:2F043/0/3/583,INSERT:2F043/0/3/584,INSERT:2F043/0/3/585,INSERT:2F043/0/3/586,INSERT:2F043/0/3/587,INSERT:2F043/0/3/588,INSERT:2F043/0/3/589,INSERT:2F043/0/3/590,INSERT:2F043/0/3/591,INSERT:2F043/0/3/592,INSERT:2F043/0/3/593,INSERT:2F043/0/3/594,INSERT:2F043/0/3/595,INSERT:2F043/0/3/596,INSERT:2F043/0/3/597,INSERT:2F043/0/3/598,INSERT:2F043/0/3/599,INSERT:2F043/0/3/600,INSERT:2F043/0/3/601,INSERT:2F043/0/3/602,INSERT:2F043/0/3/603,INSERT:2F043/0/3/604,INSERT:2F043/0/3/605,INSERT:2F043/0/3/606,INSERT:2F043/0/3/607,INSERT:2F043/0/3/608,INSERT:2F043/0/3/609,INSERT:2F043/0/3/610,INSERT:2F043/0/3/611,INSERT:2F043/0/3/612,INSERT:2F043/0/3/613,INSERT:2F043/0/3/614,INSERT:2F043/0/3/615,INSERT:2F043/0/3/616,INSERT:2F043/0/3/617,INSERT:2F043/0/3/618,INSERT:2F043/0/3/619,INSERT:2F043/0/3/620,INSERT:2F043/0/3/621,INSERT:2F043/0/3/622,INSERT:2F043/0/3/623,INSERT:2F043/0/3/624,INSERT:2F043/0/3/625,INSERT:2F043/0/3/626,INSERT:2F043/0/3/627,INSERT:2F043/0/3/628,INSERT:2F043/0/3/629,INSERT:2F043/0/3/630,INSERT:2F043/0/3/631,INSERT:2F043/0/3/632,INSERT:2F043/0/3/633,INSERT:2F043/0/3/634,INSERT:2F043/0/3/635,INSERT:2F043/0/3/636,INSERT:2F043/0/3/637,INSERT:2F043/0/3/638,INSERT:2F043/0/3/639,INSERT:2F043/0/3/640,INSERT:2F043/0/3/641,INSERT:2F043/0/3/642,INSERT:2F043/0/3/643",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 19,
-     "wenart_id": "f_L-1b_056",
-     "kind": "furniture",
-     "type": "unknown",
-     "type_unverified": true,
-     "source": "from_documents",
-     "status": "unverified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 4371,
-     "area_frac": 0.002108,
-     "box_px": [
-      0,
-      455,
-      154,
-      520
-     ],
-     "box_1000": [
-      0,
-      421,
-      81,
-      482
-     ],
-     "touches_border": true,
-     "visibility": 0.1203,
-     "in_frame": 0.9301,
-     "unoccluded": 0.1293,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "LWPOLYLINE:2ECDB",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.95,
-       "entity": "recognition:sym_L-1b_018",
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "bar_stool",
-       "front": "none",
-       "reason": "Square shape, 0.4m size, in kitchen, matches bar stool footprint and context.",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.8,
-       "entity": "recognition:sym_L-1b_018",
-       "model": "zai-org/GLM-4.6V-Flash",
-       "pass": 2,
-       "text": "chair",
-       "front": "right",
-       "reason": "The object's footprint is a square about 0.4x0.4m, consistent with a chair, and it is in a kitchen area.",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "optional",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 38,
-     "wenart_id": "f_L-1b_027",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 3155,
-     "area_frac": 0.001522,
-     "box_px": [
-      664,
-      442,
-      766,
-      606
-     ],
-     "box_1000": [
-      345,
-      409,
-      399,
-      562
-     ],
-     "touches_border": false,
-     "visibility": 0.1708,
-     "in_frame": 1.0,
-     "unoccluded": 0.1708,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/0,INSERT:2F043/0/3/1,INSERT:2F043/0/3/10,INSERT:2F043/0/3/100,INSERT:2F043/0/3/101,INSERT:2F043/0/3/102,INSERT:2F043/0/3/103,INSERT:2F043/0/3/104,INSERT:2F043/0/3/105,INSERT:2F043/0/3/106,INSERT:2F043/0/3/107,INSERT:2F043/0/3/108,INSERT:2F043/0/3/109,INSERT:2F043/0/3/11,INSERT:2F043/0/3/110,INSERT:2F043/0/3/111,INSERT:2F043/0/3/112,INSERT:2F043/0/3/113,INSERT:2F043/0/3/114,INSERT:2F043/0/3/115,INSERT:2F043/0/3/116,INSERT:2F043/0/3/117,INSERT:2F043/0/3/118,INSERT:2F043/0/3/119,INSERT:2F043/0/3/12,INSERT:2F043/0/3/120,INSERT:2F043/0/3/121,INSERT:2F043/0/3/122,INSERT:2F043/0/3/123,INSERT:2F043/0/3/124,INSERT:2F043/0/3/125,INSERT:2F043/0/3/126,INSERT:2F043/0/3/127,INSERT:2F043/0/3/128,INSERT:2F043/0/3/129,INSERT:2F043/0/3/13,INSERT:2F043/0/3/130,INSERT:2F043/0/3/131,INSERT:2F043/0/3/132,INSERT:2F043/0/3/133,INSERT:2F043/0/3/134,INSERT:2F043/0/3/135,INSERT:2F043/0/3/136,INSERT:2F043/0/3/137,INSERT:2F043/0/3/138,INSERT:2F043/0/3/139,INSERT:2F043/0/3/14,INSERT:2F043/0/3/140,INSERT:2F043/0/3/141,INSERT:2F043/0/3/142,INSERT:2F043/0/3/143,INSERT:2F043/0/3/144,INSERT:2F043/0/3/145,INSERT:2F043/0/3/146,INSERT:2F043/0/3/147,INSERT:2F043/0/3/148,INSERT:2F043/0/3/149,INSERT:2F043/0/3/15,INSERT:2F043/0/3/150,INSERT:2F043/0/3/151,INSERT:2F043/0/3/152,INSERT:2F043/0/3/153,INSERT:2F043/0/3/154,INSERT:2F043/0/3/155,INSERT:2F043/0/3/156,INSERT:2F043/0/3/157,INSERT:2F043/0/3/158,INSERT:2F043/0/3/159,INSERT:2F043/0/3/16,INSERT:2F043/0/3/160,INSERT:2F043/0/3/161,INSERT:2F043/0/3/162,INSERT:2F043/0/3/163,INSERT:2F043/0/3/164,INSERT:2F043/0/3/165,INSERT:2F043/0/3/166,INSERT:2F043/0/3/167,INSERT:2F043/0/3/168,INSERT:2F043/0/3/169,INSERT:2F043/0/3/17,INSERT:2F043/0/3/170,INSERT:2F043/0/3/171,INSERT:2F043/0/3/172,INSERT:2F043/0/3/173,INSERT:2F043/0/3/174,INSERT:2F043/0/3/175,INSERT:2F043/0/3/176,INSERT:2F043/0/3/177,INSERT:2F043/0/3/178,INSERT:2F043/0/3/179,INSERT:2F043/0/3/18,INSERT:2F043/0/3/180,INSERT:2F043/0/3/181,INSERT:2F043/0/3/182,INSERT:2F043/0/3/183,INSERT:2F043/0/3/184,INSERT:2F043/0/3/185,INSERT:2F043/0/3/186,INSERT:2F043/0/3/187,INSERT:2F043/0/3/188,INSERT:2F043/0/3/189,INSERT:2F043/0/3/19,INSERT:2F043/0/3/190,INSERT:2F043/0/3/191,INSERT:2F043/0/3/192,INSERT:2F043/0/3/193,INSERT:2F043/0/3/194,INSERT:2F043/0/3/195,INSERT:2F043/0/3/196,INSERT:2F043/0/3/197,INSERT:2F043/0/3/198,INSERT:2F043/0/3/199,INSERT:2F043/0/3/2,INSERT:2F043/0/3/20,INSERT:2F043/0/3/200,INSERT:2F043/0/3/201,INSERT:2F043/0/3/202,INSERT:2F043/0/3/203,INSERT:2F043/0/3/204,INSERT:2F043/0/3/205,INSERT:2F043/0/3/206,INSERT:2F043/0/3/207,INSERT:2F043/0/3/208,INSERT:2F043/0/3/209,INSERT:2F043/0/3/21,INSERT:2F043/0/3/210,INSERT:2F043/0/3/211,INSERT:2F043/0/3/212,INSERT:2F043/0/3/22,INSERT:2F043/0/3/23,INSERT:2F043/0/3/24,INSERT:2F043/0/3/25,INSERT:2F043/0/3/26,INSERT:2F043/0/3/27,INSERT:2F043/0/3/28,INSERT:2F043/0/3/29,INSERT:2F043/0/3/3,INSERT:2F043/0/3/30,INSERT:2F043/0/3/31,INSERT:2F043/0/3/32,INSERT:2F043/0/3/33,INSERT:2F043/0/3/34,INSERT:2F043/0/3/35,INSERT:2F043/0/3/36,INSERT:2F043/0/3/37,INSERT:2F043/0/3/38,INSERT:2F043/0/3/39,INSERT:2F043/0/3/4,INSERT:2F043/0/3/40,INSERT:2F043/0/3/41,INSERT:2F043/0/3/42,INSERT:2F043/0/3/43,INSERT:2F043/0/3/44,INSERT:2F043/0/3/45,INSERT:2F043/0/3/46,INSERT:2F043/0/3/47,INSERT:2F043/0/3/48,INSERT:2F043/0/3/49,INSERT:2F043/0/3/5,INSERT:2F043/0/3/50,INSERT:2F043/0/3/51,INSERT:2F043/0/3/52,INSERT:2F043/0/3/53,INSERT:2F043/0/3/54,INSERT:2F043/0/3/55,INSERT:2F043/0/3/56,INSERT:2F043/0/3/57,INSERT:2F043/0/3/58,INSERT:2F043/0/3/59,INSERT:2F043/0/3/6,INSERT:2F043/0/3/60,INSERT:2F043/0/3/61,INSERT:2F043/0/3/62,INSERT:2F043/0/3/63,INSERT:2F043/0/3/64,INSERT:2F043/0/3/65,INSERT:2F043/0/3/66,INSERT:2F043/0/3/67,INSERT:2F043/0/3/68,INSERT:2F043/0/3/69,INSERT:2F043/0/3/7,INSERT:2F043/0/3/70,INSERT:2F043/0/3/71,INSERT:2F043/0/3/72,INSERT:2F043/0/3/73,INSERT:2F043/0/3/74,INSERT:2F043/0/3/75,INSERT:2F043/0/3/76,INSERT:2F043/0/3/77,INSERT:2F043/0/3/78,INSERT:2F043/0/3/79,INSERT:2F043/0/3/8,INSERT:2F043/0/3/80,INSERT:2F043/0/3/81,INSERT:2F043/0/3/82,INSERT:2F043/0/3/83,INSERT:2F043/0/3/84,INSERT:2F043/0/3/85,INSERT:2F043/0/3/86,INSERT:2F043/0/3/87,INSERT:2F043/0/3/88,INSERT:2F043/0/3/89,INSERT:2F043/0/3/9,INSERT:2F043/0/3/90,INSERT:2F043/0/3/91,INSERT:2F043/0/3/92,INSERT:2F043/0/3/93,INSERT:2F043/0/3/94,INSERT:2F043/0/3/95,INSERT:2F043/0/3/96,INSERT:2F043/0/3/97,INSERT:2F043/0/3/98,INSERT:2F043/0/3/99",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 68,
-     "wenart_id": "f_L-1b_072",
-     "kind": "furniture",
-     "type": "bar_stool",
-     "type_unverified": false,
-     "source": "added_by_ai",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 2675,
-     "area_frac": 0.00129,
-     "box_px": [
-      901,
-      560,
-      971,
-      781
-     ],
-     "box_1000": [
-      469,
-      518,
-      506,
-      724
-     ],
-     "touches_border": false,
-     "visibility": 0.0725,
-     "in_frame": 1.0,
-     "unoccluded": 0.0725,
-     "evidence": [
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 2,
-       "text": "Add second bar stool for extra seating at the island."
-      },
-      {
-       "file": "building.json",
-       "method": "ai",
-       "confidence": 0.9,
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "Placed at island bar for modern natural style seating."
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": true,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 39,
-     "wenart_id": "f_L-1b_028",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 2014,
-     "area_frac": 0.000971,
-     "box_px": [
-      890,
-      452,
-      948,
-      557
-     ],
-     "box_1000": [
-      463,
-      418,
-      494,
-      516
-     ],
-     "touches_border": false,
-     "visibility": 0.1273,
-     "in_frame": 1.0,
-     "unoccluded": 0.1273,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/214,INSERT:2F043/0/3/215,INSERT:2F043/0/3/216,INSERT:2F043/0/3/217,INSERT:2F043/0/3/218,INSERT:2F043/0/3/219,INSERT:2F043/0/3/220,INSERT:2F043/0/3/221,INSERT:2F043/0/3/222,INSERT:2F043/0/3/223,INSERT:2F043/0/3/224,INSERT:2F043/0/3/225,INSERT:2F043/0/3/226,INSERT:2F043/0/3/227,INSERT:2F043/0/3/228,INSERT:2F043/0/3/229,INSERT:2F043/0/3/230,INSERT:2F043/0/3/231,INSERT:2F043/0/3/232,INSERT:2F043/0/3/233,INSERT:2F043/0/3/234,INSERT:2F043/0/3/235,INSERT:2F043/0/3/236,INSERT:2F043/0/3/237,INSERT:2F043/0/3/238,INSERT:2F043/0/3/239,INSERT:2F043/0/3/240,INSERT:2F043/0/3/241,INSERT:2F043/0/3/242,INSERT:2F043/0/3/243,INSERT:2F043/0/3/244,INSERT:2F043/0/3/245,INSERT:2F043/0/3/246,INSERT:2F043/0/3/247,INSERT:2F043/0/3/248,INSERT:2F043/0/3/249,INSERT:2F043/0/3/250,INSERT:2F043/0/3/251,INSERT:2F043/0/3/252,INSERT:2F043/0/3/253,INSERT:2F043/0/3/254,INSERT:2F043/0/3/255,INSERT:2F043/0/3/256,INSERT:2F043/0/3/257,INSERT:2F043/0/3/258,INSERT:2F043/0/3/259,INSERT:2F043/0/3/260,INSERT:2F043/0/3/261,INSERT:2F043/0/3/262,INSERT:2F043/0/3/263,INSERT:2F043/0/3/264,INSERT:2F043/0/3/265,INSERT:2F043/0/3/266,INSERT:2F043/0/3/267,INSERT:2F043/0/3/268,INSERT:2F043/0/3/269,INSERT:2F043/0/3/270,INSERT:2F043/0/3/271,INSERT:2F043/0/3/272,INSERT:2F043/0/3/273,INSERT:2F043/0/3/274,INSERT:2F043/0/3/275,INSERT:2F043/0/3/276,INSERT:2F043/0/3/277,INSERT:2F043/0/3/278,INSERT:2F043/0/3/279,INSERT:2F043/0/3/280,INSERT:2F043/0/3/281,INSERT:2F043/0/3/282,INSERT:2F043/0/3/283,INSERT:2F043/0/3/284,INSERT:2F043/0/3/285,INSERT:2F043/0/3/286,INSERT:2F043/0/3/287,INSERT:2F043/0/3/288,INSERT:2F043/0/3/289,INSERT:2F043/0/3/290,INSERT:2F043/0/3/291,INSERT:2F043/0/3/292,INSERT:2F043/0/3/293,INSERT:2F043/0/3/294,INSERT:2F043/0/3/295,INSERT:2F043/0/3/296,INSERT:2F043/0/3/297,INSERT:2F043/0/3/298,INSERT:2F043/0/3/299,INSERT:2F043/0/3/300,INSERT:2F043/0/3/301,INSERT:2F043/0/3/302,INSERT:2F043/0/3/303,INSERT:2F043/0/3/304,INSERT:2F043/0/3/305,INSERT:2F043/0/3/306,INSERT:2F043/0/3/307,INSERT:2F043/0/3/308,INSERT:2F043/0/3/309,INSERT:2F043/0/3/310,INSERT:2F043/0/3/311,INSERT:2F043/0/3/312,INSERT:2F043/0/3/313,INSERT:2F043/0/3/314,INSERT:2F043/0/3/315,INSERT:2F043/0/3/316,INSERT:2F043/0/3/317,INSERT:2F043/0/3/318,INSERT:2F043/0/3/319,INSERT:2F043/0/3/320,INSERT:2F043/0/3/321,INSERT:2F043/0/3/322,INSERT:2F043/0/3/323,INSERT:2F043/0/3/324,INSERT:2F043/0/3/325,INSERT:2F043/0/3/326,INSERT:2F043/0/3/327,INSERT:2F043/0/3/328,INSERT:2F043/0/3/329,INSERT:2F043/0/3/330,INSERT:2F043/0/3/331,INSERT:2F043/0/3/332,INSERT:2F043/0/3/333,INSERT:2F043/0/3/334,INSERT:2F043/0/3/335,INSERT:2F043/0/3/336,INSERT:2F043/0/3/337,INSERT:2F043/0/3/338,INSERT:2F043/0/3/339,INSERT:2F043/0/3/340,INSERT:2F043/0/3/341,INSERT:2F043/0/3/342,INSERT:2F043/0/3/343,INSERT:2F043/0/3/344,INSERT:2F043/0/3/345,INSERT:2F043/0/3/346,INSERT:2F043/0/3/347,INSERT:2F043/0/3/348,INSERT:2F043/0/3/349,INSERT:2F043/0/3/350,INSERT:2F043/0/3/351,INSERT:2F043/0/3/352,INSERT:2F043/0/3/353,INSERT:2F043/0/3/354,INSERT:2F043/0/3/355,INSERT:2F043/0/3/356,INSERT:2F043/0/3/357,INSERT:2F043/0/3/358,INSERT:2F043/0/3/359,INSERT:2F043/0/3/360,INSERT:2F043/0/3/361,INSERT:2F043/0/3/362,INSERT:2F043/0/3/363,INSERT:2F043/0/3/364,INSERT:2F043/0/3/365,INSERT:2F043/0/3/366,INSERT:2F043/0/3/367,INSERT:2F043/0/3/368,INSERT:2F043/0/3/369,INSERT:2F043/0/3/370,INSERT:2F043/0/3/371,INSERT:2F043/0/3/372,INSERT:2F043/0/3/373,INSERT:2F043/0/3/374,INSERT:2F043/0/3/375,INSERT:2F043/0/3/376,INSERT:2F043/0/3/377,INSERT:2F043/0/3/378,INSERT:2F043/0/3/379,INSERT:2F043/0/3/380,INSERT:2F043/0/3/381,INSERT:2F043/0/3/382,INSERT:2F043/0/3/383,INSERT:2F043/0/3/384,INSERT:2F043/0/3/385,INSERT:2F043/0/3/386,INSERT:2F043/0/3/387,INSERT:2F043/0/3/388,INSERT:2F043/0/3/389,INSERT:2F043/0/3/390,INSERT:2F043/0/3/391,INSERT:2F043/0/3/392,INSERT:2F043/0/3/393,INSERT:2F043/0/3/394,INSERT:2F043/0/3/395,INSERT:2F043/0/3/396,INSERT:2F043/0/3/397,INSERT:2F043/0/3/398,INSERT:2F043/0/3/399,INSERT:2F043/0/3/400,INSERT:2F043/0/3/401,INSERT:2F043/0/3/402,INSERT:2F043/0/3/403,INSERT:2F043/0/3/404,INSERT:2F043/0/3/405,INSERT:2F043/0/3/406,INSERT:2F043/0/3/407,INSERT:2F043/0/3/408,INSERT:2F043/0/3/409,INSERT:2F043/0/3/410,INSERT:2F043/0/3/411,INSERT:2F043/0/3/412,INSERT:2F043/0/3/413,INSERT:2F043/0/3/414,INSERT:2F043/0/3/415,INSERT:2F043/0/3/416,INSERT:2F043/0/3/417,INSERT:2F043/0/3/418,INSERT:2F043/0/3/419,INSERT:2F043/0/3/420,INSERT:2F043/0/3/421,INSERT:2F043/0/3/422,INSERT:2F043/0/3/423,INSERT:2F043/0/3/424,INSERT:2F043/0/3/425,INSERT:2F043/0/3/426",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 45,
-     "wenart_id": "f_L-1b_034",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 1746,
-     "area_frac": 0.000842,
-     "box_px": [
-      732,
-      429,
-      813,
-      566
-     ],
-     "box_1000": [
-      381,
-      397,
-      424,
-      525
-     ],
-     "touches_border": false,
-     "visibility": 0.1197,
-     "in_frame": 1.0,
-     "unoccluded": 0.1197,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/1496,INSERT:2F043/0/3/1497,INSERT:2F043/0/3/1498,INSERT:2F043/0/3/1499,INSERT:2F043/0/3/1500,INSERT:2F043/0/3/1501,INSERT:2F043/0/3/1502,INSERT:2F043/0/3/1503,INSERT:2F043/0/3/1504,INSERT:2F043/0/3/1505,INSERT:2F043/0/3/1506,INSERT:2F043/0/3/1507,INSERT:2F043/0/3/1508,INSERT:2F043/0/3/1509,INSERT:2F043/0/3/1510,INSERT:2F043/0/3/1511,INSERT:2F043/0/3/1512,INSERT:2F043/0/3/1513,INSERT:2F043/0/3/1514,INSERT:2F043/0/3/1515,INSERT:2F043/0/3/1516,INSERT:2F043/0/3/1517,INSERT:2F043/0/3/1518,INSERT:2F043/0/3/1519,INSERT:2F043/0/3/1520,INSERT:2F043/0/3/1521,INSERT:2F043/0/3/1522,INSERT:2F043/0/3/1523,INSERT:2F043/0/3/1524,INSERT:2F043/0/3/1525,INSERT:2F043/0/3/1526,INSERT:2F043/0/3/1527,INSERT:2F043/0/3/1528,INSERT:2F043/0/3/1529,INSERT:2F043/0/3/1530,INSERT:2F043/0/3/1531,INSERT:2F043/0/3/1532,INSERT:2F043/0/3/1533,INSERT:2F043/0/3/1534,INSERT:2F043/0/3/1535,INSERT:2F043/0/3/1536,INSERT:2F043/0/3/1537,INSERT:2F043/0/3/1538,INSERT:2F043/0/3/1539,INSERT:2F043/0/3/1540,INSERT:2F043/0/3/1541,INSERT:2F043/0/3/1542,INSERT:2F043/0/3/1543,INSERT:2F043/0/3/1544,INSERT:2F043/0/3/1545,INSERT:2F043/0/3/1546,INSERT:2F043/0/3/1547,INSERT:2F043/0/3/1548,INSERT:2F043/0/3/1549,INSERT:2F043/0/3/1550,INSERT:2F043/0/3/1551,INSERT:2F043/0/3/1552,INSERT:2F043/0/3/1553,INSERT:2F043/0/3/1554,INSERT:2F043/0/3/1555,INSERT:2F043/0/3/1556,INSERT:2F043/0/3/1557,INSERT:2F043/0/3/1558,INSERT:2F043/0/3/1559,INSERT:2F043/0/3/1560,INSERT:2F043/0/3/1561,INSERT:2F043/0/3/1562,INSERT:2F043/0/3/1563,INSERT:2F043/0/3/1564,INSERT:2F043/0/3/1565,INSERT:2F043/0/3/1566,INSERT:2F043/0/3/1567,INSERT:2F043/0/3/1568,INSERT:2F043/0/3/1569,INSERT:2F043/0/3/1570,INSERT:2F043/0/3/1571,INSERT:2F043/0/3/1572,INSERT:2F043/0/3/1573,INSERT:2F043/0/3/1574,INSERT:2F043/0/3/1575,INSERT:2F043/0/3/1576,INSERT:2F043/0/3/1577,INSERT:2F043/0/3/1578,INSERT:2F043/0/3/1579,INSERT:2F043/0/3/1580,INSERT:2F043/0/3/1581,INSERT:2F043/0/3/1582,INSERT:2F043/0/3/1583,INSERT:2F043/0/3/1584,INSERT:2F043/0/3/1585,INSERT:2F043/0/3/1586,INSERT:2F043/0/3/1587,INSERT:2F043/0/3/1588,INSERT:2F043/0/3/1589,INSERT:2F043/0/3/1590,INSERT:2F043/0/3/1591,INSERT:2F043/0/3/1592,INSERT:2F043/0/3/1593,INSERT:2F043/0/3/1594,INSERT:2F043/0/3/1595,INSERT:2F043/0/3/1596,INSERT:2F043/0/3/1597,INSERT:2F043/0/3/1598,INSERT:2F043/0/3/1599,INSERT:2F043/0/3/1600,INSERT:2F043/0/3/1601,INSERT:2F043/0/3/1602,INSERT:2F043/0/3/1603,INSERT:2F043/0/3/1604,INSERT:2F043/0/3/1605,INSERT:2F043/0/3/1606,INSERT:2F043/0/3/1607,INSERT:2F043/0/3/1608,INSERT:2F043/0/3/1609,INSERT:2F043/0/3/1610,INSERT:2F043/0/3/1611,INSERT:2F043/0/3/1612,INSERT:2F043/0/3/1613,INSERT:2F043/0/3/1614,INSERT:2F043/0/3/1615,INSERT:2F043/0/3/1616,INSERT:2F043/0/3/1617,INSERT:2F043/0/3/1618,INSERT:2F043/0/3/1619,INSERT:2F043/0/3/1620,INSERT:2F043/0/3/1621,INSERT:2F043/0/3/1622,INSERT:2F043/0/3/1623,INSERT:2F043/0/3/1624,INSERT:2F043/0/3/1625,INSERT:2F043/0/3/1626,INSERT:2F043/0/3/1627,INSERT:2F043/0/3/1628,INSERT:2F043/0/3/1629,INSERT:2F043/0/3/1630,INSERT:2F043/0/3/1631,INSERT:2F043/0/3/1632,INSERT:2F043/0/3/1633,INSERT:2F043/0/3/1634,INSERT:2F043/0/3/1635,INSERT:2F043/0/3/1636,INSERT:2F043/0/3/1637,INSERT:2F043/0/3/1638,INSERT:2F043/0/3/1639,INSERT:2F043/0/3/1640,INSERT:2F043/0/3/1641,INSERT:2F043/0/3/1642,INSERT:2F043/0/3/1643,INSERT:2F043/0/3/1644,INSERT:2F043/0/3/1645,INSERT:2F043/0/3/1646,INSERT:2F043/0/3/1647,INSERT:2F043/0/3/1648,INSERT:2F043/0/3/1649,INSERT:2F043/0/3/1650,INSERT:2F043/0/3/1651,INSERT:2F043/0/3/1652,INSERT:2F043/0/3/1653,INSERT:2F043/0/3/1654,INSERT:2F043/0/3/1655,INSERT:2F043/0/3/1656,INSERT:2F043/0/3/1657,INSERT:2F043/0/3/1658,INSERT:2F043/0/3/1659,INSERT:2F043/0/3/1660,INSERT:2F043/0/3/1661,INSERT:2F043/0/3/1662,INSERT:2F043/0/3/1663,INSERT:2F043/0/3/1664,INSERT:2F043/0/3/1665,INSERT:2F043/0/3/1666,INSERT:2F043/0/3/1667,INSERT:2F043/0/3/1668,INSERT:2F043/0/3/1669,INSERT:2F043/0/3/1670,INSERT:2F043/0/3/1671,INSERT:2F043/0/3/1672,INSERT:2F043/0/3/1673,INSERT:2F043/0/3/1674,INSERT:2F043/0/3/1675,INSERT:2F043/0/3/1676,INSERT:2F043/0/3/1677,INSERT:2F043/0/3/1678,INSERT:2F043/0/3/1679,INSERT:2F043/0/3/1680,INSERT:2F043/0/3/1681,INSERT:2F043/0/3/1682,INSERT:2F043/0/3/1683,INSERT:2F043/0/3/1684,INSERT:2F043/0/3/1685,INSERT:2F043/0/3/1686,INSERT:2F043/0/3/1687,INSERT:2F043/0/3/1688,INSERT:2F043/0/3/1689,INSERT:2F043/0/3/1690,INSERT:2F043/0/3/1691,INSERT:2F043/0/3/1692,INSERT:2F043/0/3/1693,INSERT:2F043/0/3/1694,INSERT:2F043/0/3/1695,INSERT:2F043/0/3/1696,INSERT:2F043/0/3/1697,INSERT:2F043/0/3/1698,INSERT:2F043/0/3/1699,INSERT:2F043/0/3/1700,INSERT:2F043/0/3/1701,INSERT:2F043/0/3/1702,INSERT:2F043/0/3/1703,INSERT:2F043/0/3/1704,INSERT:2F043/0/3/1705,INSERT:2F043/0/3/1706,INSERT:2F043/0/3/1707,INSERT:2F043/0/3/1708",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 41,
-     "wenart_id": "f_L-1b_030",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 1245,
-     "area_frac": 0.0006,
-     "box_px": [
-      916,
-      448,
-      1011,
-      584
-     ],
-     "box_1000": [
-      477,
-      414,
-      527,
-      541
-     ],
-     "touches_border": false,
-     "visibility": 0.0627,
-     "in_frame": 1.0,
-     "unoccluded": 0.0627,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/644,INSERT:2F043/0/3/645,INSERT:2F043/0/3/646,INSERT:2F043/0/3/647,INSERT:2F043/0/3/648,INSERT:2F043/0/3/649,INSERT:2F043/0/3/650,INSERT:2F043/0/3/651,INSERT:2F043/0/3/652,INSERT:2F043/0/3/653,INSERT:2F043/0/3/654,INSERT:2F043/0/3/655,INSERT:2F043/0/3/656,INSERT:2F043/0/3/657,INSERT:2F043/0/3/658,INSERT:2F043/0/3/659,INSERT:2F043/0/3/660,INSERT:2F043/0/3/661,INSERT:2F043/0/3/662,INSERT:2F043/0/3/663,INSERT:2F043/0/3/664,INSERT:2F043/0/3/665,INSERT:2F043/0/3/666,INSERT:2F043/0/3/667,INSERT:2F043/0/3/668,INSERT:2F043/0/3/669,INSERT:2F043/0/3/670,INSERT:2F043/0/3/671,INSERT:2F043/0/3/672,INSERT:2F043/0/3/673,INSERT:2F043/0/3/674,INSERT:2F043/0/3/675,INSERT:2F043/0/3/676,INSERT:2F043/0/3/677,INSERT:2F043/0/3/678,INSERT:2F043/0/3/679,INSERT:2F043/0/3/680,INSERT:2F043/0/3/681,INSERT:2F043/0/3/682,INSERT:2F043/0/3/683,INSERT:2F043/0/3/684,INSERT:2F043/0/3/685,INSERT:2F043/0/3/686,INSERT:2F043/0/3/687,INSERT:2F043/0/3/688,INSERT:2F043/0/3/689,INSERT:2F043/0/3/690,INSERT:2F043/0/3/691,INSERT:2F043/0/3/692,INSERT:2F043/0/3/693,INSERT:2F043/0/3/694,INSERT:2F043/0/3/695,INSERT:2F043/0/3/696,INSERT:2F043/0/3/697,INSERT:2F043/0/3/698,INSERT:2F043/0/3/699,INSERT:2F043/0/3/700,INSERT:2F043/0/3/701,INSERT:2F043/0/3/702,INSERT:2F043/0/3/703,INSERT:2F043/0/3/704,INSERT:2F043/0/3/705,INSERT:2F043/0/3/706,INSERT:2F043/0/3/707,INSERT:2F043/0/3/708,INSERT:2F043/0/3/709,INSERT:2F043/0/3/710,INSERT:2F043/0/3/711,INSERT:2F043/0/3/712,INSERT:2F043/0/3/713,INSERT:2F043/0/3/714,INSERT:2F043/0/3/715,INSERT:2F043/0/3/716,INSERT:2F043/0/3/717,INSERT:2F043/0/3/718,INSERT:2F043/0/3/719,INSERT:2F043/0/3/720,INSERT:2F043/0/3/721,INSERT:2F043/0/3/722,INSERT:2F043/0/3/723,INSERT:2F043/0/3/724,INSERT:2F043/0/3/725,INSERT:2F043/0/3/726,INSERT:2F043/0/3/727,INSERT:2F043/0/3/728,INSERT:2F043/0/3/729,INSERT:2F043/0/3/730,INSERT:2F043/0/3/731,INSERT:2F043/0/3/732,INSERT:2F043/0/3/733,INSERT:2F043/0/3/734,INSERT:2F043/0/3/735,INSERT:2F043/0/3/736,INSERT:2F043/0/3/737,INSERT:2F043/0/3/738,INSERT:2F043/0/3/739,INSERT:2F043/0/3/740,INSERT:2F043/0/3/741,INSERT:2F043/0/3/742,INSERT:2F043/0/3/743,INSERT:2F043/0/3/744,INSERT:2F043/0/3/745,INSERT:2F043/0/3/746,INSERT:2F043/0/3/747,INSERT:2F043/0/3/748,INSERT:2F043/0/3/749,INSERT:2F043/0/3/750,INSERT:2F043/0/3/751,INSERT:2F043/0/3/752,INSERT:2F043/0/3/753,INSERT:2F043/0/3/754,INSERT:2F043/0/3/755,INSERT:2F043/0/3/756,INSERT:2F043/0/3/757,INSERT:2F043/0/3/758,INSERT:2F043/0/3/759,INSERT:2F043/0/3/760,INSERT:2F043/0/3/761,INSERT:2F043/0/3/762,INSERT:2F043/0/3/763,INSERT:2F043/0/3/764,INSERT:2F043/0/3/765,INSERT:2F043/0/3/766,INSERT:2F043/0/3/767,INSERT:2F043/0/3/768,INSERT:2F043/0/3/769,INSERT:2F043/0/3/770,INSERT:2F043/0/3/771,INSERT:2F043/0/3/772,INSERT:2F043/0/3/773,INSERT:2F043/0/3/774,INSERT:2F043/0/3/775,INSERT:2F043/0/3/776,INSERT:2F043/0/3/777,INSERT:2F043/0/3/778,INSERT:2F043/0/3/779,INSERT:2F043/0/3/780,INSERT:2F043/0/3/781,INSERT:2F043/0/3/782,INSERT:2F043/0/3/783,INSERT:2F043/0/3/784,INSERT:2F043/0/3/785,INSERT:2F043/0/3/786,INSERT:2F043/0/3/787,INSERT:2F043/0/3/788,INSERT:2F043/0/3/789,INSERT:2F043/0/3/790,INSERT:2F043/0/3/791,INSERT:2F043/0/3/792,INSERT:2F043/0/3/793,INSERT:2F043/0/3/794,INSERT:2F043/0/3/795,INSERT:2F043/0/3/796,INSERT:2F043/0/3/797,INSERT:2F043/0/3/798,INSERT:2F043/0/3/799,INSERT:2F043/0/3/800,INSERT:2F043/0/3/801,INSERT:2F043/0/3/802,INSERT:2F043/0/3/803,INSERT:2F043/0/3/804,INSERT:2F043/0/3/805,INSERT:2F043/0/3/806,INSERT:2F043/0/3/807,INSERT:2F043/0/3/808,INSERT:2F043/0/3/809,INSERT:2F043/0/3/810,INSERT:2F043/0/3/811,INSERT:2F043/0/3/812,INSERT:2F043/0/3/813,INSERT:2F043/0/3/814,INSERT:2F043/0/3/815,INSERT:2F043/0/3/816,INSERT:2F043/0/3/817,INSERT:2F043/0/3/818,INSERT:2F043/0/3/819,INSERT:2F043/0/3/820,INSERT:2F043/0/3/821,INSERT:2F043/0/3/822,INSERT:2F043/0/3/823,INSERT:2F043/0/3/824,INSERT:2F043/0/3/825,INSERT:2F043/0/3/826,INSERT:2F043/0/3/827,INSERT:2F043/0/3/828,INSERT:2F043/0/3/829,INSERT:2F043/0/3/830,INSERT:2F043/0/3/831,INSERT:2F043/0/3/832,INSERT:2F043/0/3/833,INSERT:2F043/0/3/834,INSERT:2F043/0/3/835,INSERT:2F043/0/3/836,INSERT:2F043/0/3/837,INSERT:2F043/0/3/838,INSERT:2F043/0/3/839,INSERT:2F043/0/3/840,INSERT:2F043/0/3/841,INSERT:2F043/0/3/842,INSERT:2F043/0/3/843,INSERT:2F043/0/3/844,INSERT:2F043/0/3/845,INSERT:2F043/0/3/846,INSERT:2F043/0/3/847,INSERT:2F043/0/3/848,INSERT:2F043/0/3/849,INSERT:2F043/0/3/850,INSERT:2F043/0/3/851,INSERT:2F043/0/3/852,INSERT:2F043/0/3/853,INSERT:2F043/0/3/854,INSERT:2F043/0/3/855,INSERT:2F043/0/3/856",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 56,
-     "wenart_id": "f_L-1b_060",
-     "kind": "furniture",
-     "type": "wall_cabinet",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 1031,
-     "area_frac": 0.000497,
-     "box_px": [
-      1916,
-      0,
-      1920,
-      258
-     ],
-     "box_1000": [
-      997,
-      0,
-      1000,
-      239
-     ],
-     "touches_border": true,
-     "visibility": 0.0102,
-     "in_frame": 0.0237,
-     "unoccluded": 0.4307,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.9,
-       "entity": "INSERT:2F078/11",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.95,
-       "entity": "recognition:sym_L-1b_022",
-       "model": "Qwen/Qwen3-VL-8B-Instruct",
-       "pass": 1,
-       "text": "wall_cabinet",
-       "front": "none",
-       "reason": "Dashed outline in kitchen, matches wall cabinet size and placement above counter.",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "ai",
-       "confidence": 0.9,
-       "entity": "recognition:sym_L-1b_022",
-       "model": "zai-org/GLM-4.6V-Flash",
-       "pass": 2,
-       "text": "wall_cabinet",
-       "front": "top",
-       "reason": "The object's size and dashed border in a kitchen match a wall cabinet.",
-       "region_id": "r3"
-      },
-      {
-       "file": "one_building.dwg",
-       "method": "derived",
-       "confidence": 0.5,
-       "text": "bottom 1.45 m above the floor (rule, docs/milestone10.md §4.4); the documents give no height",
-       "rule": "wall_cabinet_mount"
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 43,
-     "wenart_id": "f_L-1b_032",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 393,
-     "area_frac": 0.00019,
-     "box_px": [
-      1024,
-      448,
-      1088,
-      464
-     ],
-     "box_1000": [
-      533,
-      414,
-      567,
-      430
-     ],
-     "touches_border": false,
-     "visibility": 0.0151,
-     "in_frame": 1.0,
-     "unoccluded": 0.0151,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/1070,INSERT:2F043/0/3/1071,INSERT:2F043/0/3/1072,INSERT:2F043/0/3/1073,INSERT:2F043/0/3/1074,INSERT:2F043/0/3/1075,INSERT:2F043/0/3/1076,INSERT:2F043/0/3/1077,INSERT:2F043/0/3/1078,INSERT:2F043/0/3/1079,INSERT:2F043/0/3/1080,INSERT:2F043/0/3/1081,INSERT:2F043/0/3/1082,INSERT:2F043/0/3/1083,INSERT:2F043/0/3/1084,INSERT:2F043/0/3/1085,INSERT:2F043/0/3/1086,INSERT:2F043/0/3/1087,INSERT:2F043/0/3/1088,INSERT:2F043/0/3/1089,INSERT:2F043/0/3/1090,INSERT:2F043/0/3/1091,INSERT:2F043/0/3/1092,INSERT:2F043/0/3/1093,INSERT:2F043/0/3/1094,INSERT:2F043/0/3/1095,INSERT:2F043/0/3/1096,INSERT:2F043/0/3/1097,INSERT:2F043/0/3/1098,INSERT:2F043/0/3/1099,INSERT:2F043/0/3/1100,INSERT:2F043/0/3/1101,INSERT:2F043/0/3/1102,INSERT:2F043/0/3/1103,INSERT:2F043/0/3/1104,INSERT:2F043/0/3/1105,INSERT:2F043/0/3/1106,INSERT:2F043/0/3/1107,INSERT:2F043/0/3/1108,INSERT:2F043/0/3/1109,INSERT:2F043/0/3/1110,INSERT:2F043/0/3/1111,INSERT:2F043/0/3/1112,INSERT:2F043/0/3/1113,INSERT:2F043/0/3/1114,INSERT:2F043/0/3/1115,INSERT:2F043/0/3/1116,INSERT:2F043/0/3/1117,INSERT:2F043/0/3/1118,INSERT:2F043/0/3/1119,INSERT:2F043/0/3/1120,INSERT:2F043/0/3/1121,INSERT:2F043/0/3/1122,INSERT:2F043/0/3/1123,INSERT:2F043/0/3/1124,INSERT:2F043/0/3/1125,INSERT:2F043/0/3/1126,INSERT:2F043/0/3/1127,INSERT:2F043/0/3/1128,INSERT:2F043/0/3/1129,INSERT:2F043/0/3/1130,INSERT:2F043/0/3/1131,INSERT:2F043/0/3/1132,INSERT:2F043/0/3/1133,INSERT:2F043/0/3/1134,INSERT:2F043/0/3/1135,INSERT:2F043/0/3/1136,INSERT:2F043/0/3/1137,INSERT:2F043/0/3/1138,INSERT:2F043/0/3/1139,INSERT:2F043/0/3/1140,INSERT:2F043/0/3/1141,INSERT:2F043/0/3/1142,INSERT:2F043/0/3/1143,INSERT:2F043/0/3/1144,INSERT:2F043/0/3/1145,INSERT:2F043/0/3/1146,INSERT:2F043/0/3/1147,INSERT:2F043/0/3/1148,INSERT:2F043/0/3/1149,INSERT:2F043/0/3/1150,INSERT:2F043/0/3/1151,INSERT:2F043/0/3/1152,INSERT:2F043/0/3/1153,INSERT:2F043/0/3/1154,INSERT:2F043/0/3/1155,INSERT:2F043/0/3/1156,INSERT:2F043/0/3/1157,INSERT:2F043/0/3/1158,INSERT:2F043/0/3/1159,INSERT:2F043/0/3/1160,INSERT:2F043/0/3/1161,INSERT:2F043/0/3/1162,INSERT:2F043/0/3/1163,INSERT:2F043/0/3/1164,INSERT:2F043/0/3/1165,INSERT:2F043/0/3/1166,INSERT:2F043/0/3/1167,INSERT:2F043/0/3/1168,INSERT:2F043/0/3/1169,INSERT:2F043/0/3/1170,INSERT:2F043/0/3/1171,INSERT:2F043/0/3/1172,INSERT:2F043/0/3/1173,INSERT:2F043/0/3/1174,INSERT:2F043/0/3/1175,INSERT:2F043/0/3/1176,INSERT:2F043/0/3/1177,INSERT:2F043/0/3/1178,INSERT:2F043/0/3/1179,INSERT:2F043/0/3/1180,INSERT:2F043/0/3/1181,INSERT:2F043/0/3/1182,INSERT:2F043/0/3/1183,INSERT:2F043/0/3/1184,INSERT:2F043/0/3/1185,INSERT:2F043/0/3/1186,INSERT:2F043/0/3/1187,INSERT:2F043/0/3/1188,INSERT:2F043/0/3/1189,INSERT:2F043/0/3/1190,INSERT:2F043/0/3/1191,INSERT:2F043/0/3/1192,INSERT:2F043/0/3/1193,INSERT:2F043/0/3/1194,INSERT:2F043/0/3/1195,INSERT:2F043/0/3/1196,INSERT:2F043/0/3/1197,INSERT:2F043/0/3/1198,INSERT:2F043/0/3/1199,INSERT:2F043/0/3/1200,INSERT:2F043/0/3/1201,INSERT:2F043/0/3/1202,INSERT:2F043/0/3/1203,INSERT:2F043/0/3/1204,INSERT:2F043/0/3/1205,INSERT:2F043/0/3/1206,INSERT:2F043/0/3/1207,INSERT:2F043/0/3/1208,INSERT:2F043/0/3/1209,INSERT:2F043/0/3/1210,INSERT:2F043/0/3/1211,INSERT:2F043/0/3/1212,INSERT:2F043/0/3/1213,INSERT:2F043/0/3/1214,INSERT:2F043/0/3/1215,INSERT:2F043/0/3/1216,INSERT:2F043/0/3/1217,INSERT:2F043/0/3/1218,INSERT:2F043/0/3/1219,INSERT:2F043/0/3/1220,INSERT:2F043/0/3/1221,INSERT:2F043/0/3/1222,INSERT:2F043/0/3/1223,INSERT:2F043/0/3/1224,INSERT:2F043/0/3/1225,INSERT:2F043/0/3/1226,INSERT:2F043/0/3/1227,INSERT:2F043/0/3/1228,INSERT:2F043/0/3/1229,INSERT:2F043/0/3/1230,INSERT:2F043/0/3/1231,INSERT:2F043/0/3/1232,INSERT:2F043/0/3/1233,INSERT:2F043/0/3/1234,INSERT:2F043/0/3/1235,INSERT:2F043/0/3/1236,INSERT:2F043/0/3/1237,INSERT:2F043/0/3/1238,INSERT:2F043/0/3/1239,INSERT:2F043/0/3/1240,INSERT:2F043/0/3/1241,INSERT:2F043/0/3/1242,INSERT:2F043/0/3/1243,INSERT:2F043/0/3/1244,INSERT:2F043/0/3/1245,INSERT:2F043/0/3/1246,INSERT:2F043/0/3/1247,INSERT:2F043/0/3/1248,INSERT:2F043/0/3/1249,INSERT:2F043/0/3/1250,INSERT:2F043/0/3/1251,INSERT:2F043/0/3/1252,INSERT:2F043/0/3/1253,INSERT:2F043/0/3/1254,INSERT:2F043/0/3/1255,INSERT:2F043/0/3/1256,INSERT:2F043/0/3/1257,INSERT:2F043/0/3/1258,INSERT:2F043/0/3/1259,INSERT:2F043/0/3/1260,INSERT:2F043/0/3/1261,INSERT:2F043/0/3/1262,INSERT:2F043/0/3/1263,INSERT:2F043/0/3/1264,INSERT:2F043/0/3/1265,INSERT:2F043/0/3/1266,INSERT:2F043/0/3/1267,INSERT:2F043/0/3/1268,INSERT:2F043/0/3/1269,INSERT:2F043/0/3/1270,INSERT:2F043/0/3/1271,INSERT:2F043/0/3/1272,INSERT:2F043/0/3/1273,INSERT:2F043/0/3/1274,INSERT:2F043/0/3/1275,INSERT:2F043/0/3/1276,INSERT:2F043/0/3/1277,INSERT:2F043/0/3/1278,INSERT:2F043/0/3/1279,INSERT:2F043/0/3/1280,INSERT:2F043/0/3/1281,INSERT:2F043/0/3/1282",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    },
-    {
-     "index": 44,
-     "wenart_id": "f_L-1b_033",
-     "kind": "furniture",
-     "type": "chair",
-     "type_unverified": false,
-     "source": "from_documents",
-     "status": "verified",
-     "room_id": "r_L-1b_acik_mutfak",
-     "room_ids": [
-      "r_L-1b_acik_mutfak"
-     ],
-     "own_room": true,
-     "pixels": 240,
-     "area_frac": 0.000116,
-     "box_px": [
-      927,
-      581,
-      935,
-      672
-     ],
-     "box_1000": [
-      482,
-      537,
-      487,
-      623
-     ],
-     "touches_border": false,
-     "visibility": 0.0061,
-     "in_frame": 1.0,
-     "unoccluded": 0.0061,
-     "evidence": [
-      {
-       "file": "one_building.dwg",
-       "method": "vector",
-       "confidence": 0.85,
-       "entity": "INSERT:2F043/0/3/1283,INSERT:2F043/0/3/1284,INSERT:2F043/0/3/1285,INSERT:2F043/0/3/1286,INSERT:2F043/0/3/1287,INSERT:2F043/0/3/1288,INSERT:2F043/0/3/1289,INSERT:2F043/0/3/1290,INSERT:2F043/0/3/1291,INSERT:2F043/0/3/1292,INSERT:2F043/0/3/1293,INSERT:2F043/0/3/1294,INSERT:2F043/0/3/1295,INSERT:2F043/0/3/1296,INSERT:2F043/0/3/1297,INSERT:2F043/0/3/1298,INSERT:2F043/0/3/1299,INSERT:2F043/0/3/1300,INSERT:2F043/0/3/1301,INSERT:2F043/0/3/1302,INSERT:2F043/0/3/1303,INSERT:2F043/0/3/1304,INSERT:2F043/0/3/1305,INSERT:2F043/0/3/1306,INSERT:2F043/0/3/1307,INSERT:2F043/0/3/1308,INSERT:2F043/0/3/1309,INSERT:2F043/0/3/1310,INSERT:2F043/0/3/1311,INSERT:2F043/0/3/1312,INSERT:2F043/0/3/1313,INSERT:2F043/0/3/1314,INSERT:2F043/0/3/1315,INSERT:2F043/0/3/1316,INSERT:2F043/0/3/1317,INSERT:2F043/0/3/1318,INSERT:2F043/0/3/1319,INSERT:2F043/0/3/1320,INSERT:2F043/0/3/1321,INSERT:2F043/0/3/1322,INSERT:2F043/0/3/1323,INSERT:2F043/0/3/1324,INSERT:2F043/0/3/1325,INSERT:2F043/0/3/1326,INSERT:2F043/0/3/1327,INSERT:2F043/0/3/1328,INSERT:2F043/0/3/1329,INSERT:2F043/0/3/1330,INSERT:2F043/0/3/1331,INSERT:2F043/0/3/1332,INSERT:2F043/0/3/1333,INSERT:2F043/0/3/1334,INSERT:2F043/0/3/1335,INSERT:2F043/0/3/1336,INSERT:2F043/0/3/1337,INSERT:2F043/0/3/1338,INSERT:2F043/0/3/1339,INSERT:2F043/0/3/1340,INSERT:2F043/0/3/1341,INSERT:2F043/0/3/1342,INSERT:2F043/0/3/1343,INSERT:2F043/0/3/1344,INSERT:2F043/0/3/1345,INSERT:2F043/0/3/1346,INSERT:2F043/0/3/1347,INSERT:2F043/0/3/1348,INSERT:2F043/0/3/1349,INSERT:2F043/0/3/1350,INSERT:2F043/0/3/1351,INSERT:2F043/0/3/1352,INSERT:2F043/0/3/1353,INSERT:2F043/0/3/1354,INSERT:2F043/0/3/1355,INSERT:2F043/0/3/1356,INSERT:2F043/0/3/1357,INSERT:2F043/0/3/1358,INSERT:2F043/0/3/1359,INSERT:2F043/0/3/1360,INSERT:2F043/0/3/1361,INSERT:2F043/0/3/1362,INSERT:2F043/0/3/1363,INSERT:2F043/0/3/1364,INSERT:2F043/0/3/1365,INSERT:2F043/0/3/1366,INSERT:2F043/0/3/1367,INSERT:2F043/0/3/1368,INSERT:2F043/0/3/1369,INSERT:2F043/0/3/1370,INSERT:2F043/0/3/1371,INSERT:2F043/0/3/1372,INSERT:2F043/0/3/1373,INSERT:2F043/0/3/1374,INSERT:2F043/0/3/1375,INSERT:2F043/0/3/1376,INSERT:2F043/0/3/1377,INSERT:2F043/0/3/1378,INSERT:2F043/0/3/1379,INSERT:2F043/0/3/1380,INSERT:2F043/0/3/1381,INSERT:2F043/0/3/1382,INSERT:2F043/0/3/1383,INSERT:2F043/0/3/1384,INSERT:2F043/0/3/1385,INSERT:2F043/0/3/1386,INSERT:2F043/0/3/1387,INSERT:2F043/0/3/1388,INSERT:2F043/0/3/1389,INSERT:2F043/0/3/1390,INSERT:2F043/0/3/1391,INSERT:2F043/0/3/1392,INSERT:2F043/0/3/1393,INSERT:2F043/0/3/1394,INSERT:2F043/0/3/1395,INSERT:2F043/0/3/1396,INSERT:2F043/0/3/1397,INSERT:2F043/0/3/1398,INSERT:2F043/0/3/1399,INSERT:2F043/0/3/1400,INSERT:2F043/0/3/1401,INSERT:2F043/0/3/1402,INSERT:2F043/0/3/1403,INSERT:2F043/0/3/1404,INSERT:2F043/0/3/1405,INSERT:2F043/0/3/1406,INSERT:2F043/0/3/1407,INSERT:2F043/0/3/1408,INSERT:2F043/0/3/1409,INSERT:2F043/0/3/1410,INSERT:2F043/0/3/1411,INSERT:2F043/0/3/1412,INSERT:2F043/0/3/1413,INSERT:2F043/0/3/1414,INSERT:2F043/0/3/1415,INSERT:2F043/0/3/1416,INSERT:2F043/0/3/1417,INSERT:2F043/0/3/1418,INSERT:2F043/0/3/1419,INSERT:2F043/0/3/1420,INSERT:2F043/0/3/1421,INSERT:2F043/0/3/1422,INSERT:2F043/0/3/1423,INSERT:2F043/0/3/1424,INSERT:2F043/0/3/1425,INSERT:2F043/0/3/1426,INSERT:2F043/0/3/1427,INSERT:2F043/0/3/1428,INSERT:2F043/0/3/1429,INSERT:2F043/0/3/1430,INSERT:2F043/0/3/1431,INSERT:2F043/0/3/1432,INSERT:2F043/0/3/1433,INSERT:2F043/0/3/1434,INSERT:2F043/0/3/1435,INSERT:2F043/0/3/1436,INSERT:2F043/0/3/1437,INSERT:2F043/0/3/1438,INSERT:2F043/0/3/1439,INSERT:2F043/0/3/1440,INSERT:2F043/0/3/1441,INSERT:2F043/0/3/1442,INSERT:2F043/0/3/1443,INSERT:2F043/0/3/1444,INSERT:2F043/0/3/1445,INSERT:2F043/0/3/1446,INSERT:2F043/0/3/1447,INSERT:2F043/0/3/1448,INSERT:2F043/0/3/1449,INSERT:2F043/0/3/1450,INSERT:2F043/0/3/1451,INSERT:2F043/0/3/1452,INSERT:2F043/0/3/1453,INSERT:2F043/0/3/1454,INSERT:2F043/0/3/1455,INSERT:2F043/0/3/1456,INSERT:2F043/0/3/1457,INSERT:2F043/0/3/1458,INSERT:2F043/0/3/1459,INSERT:2F043/0/3/1460,INSERT:2F043/0/3/1461,INSERT:2F043/0/3/1462,INSERT:2F043/0/3/1463,INSERT:2F043/0/3/1464,INSERT:2F043/0/3/1465,INSERT:2F043/0/3/1466,INSERT:2F043/0/3/1467,INSERT:2F043/0/3/1468,INSERT:2F043/0/3/1469,INSERT:2F043/0/3/1470,INSERT:2F043/0/3/1471,INSERT:2F043/0/3/1472,INSERT:2F043/0/3/1473,INSERT:2F043/0/3/1474,INSERT:2F043/0/3/1475,INSERT:2F043/0/3/1476,INSERT:2F043/0/3/1477,INSERT:2F043/0/3/1478,INSERT:2F043/0/3/1479,INSERT:2F043/0/3/1480,INSERT:2F043/0/3/1481,INSERT:2F043/0/3/1482,INSERT:2F043/0/3/1483,INSERT:2F043/0/3/1484,INSERT:2F043/0/3/1485,INSERT:2F043/0/3/1486,INSERT:2F043/0/3/1487,INSERT:2F043/0/3/1488,INSERT:2F043/0/3/1489,INSERT:2F043/0/3/1490,INSERT:2F043/0/3/1491,INSERT:2F043/0/3/1492,INSERT:2F043/0/3/1493,INSERT:2F043/0/3/1494,INSERT:2F043/0/3/1495",
-       "note": "chair of the drawn table + chairs group, facing the table (M11 split)",
-       "region_id": "r3"
-      }
-     ],
-     "host_decor": [],
-     "role": "ignore",
-     "modified_by_ai": false,
-     "drawn_type": null,
-     "completes_room": false,
-     "type_proposal": false,
-     "side": null
-    }
-   ],
-   "json_crosscheck": {
-    "level_id": "L-1b",
-    "tested": 79,
-    "in_json_not_rendered": [],
-    "rendered_not_in_json": [],
-    "misplaced": [],
-    "projected": {
-     "win_L-1b_001": {
-      "kind": "window",
-      "type": "window",
-      "visible_share": 0.7122,
-      "area_frac": 0.08764,
-      "centre_px": [
-       467.3,
-       297.5
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 183648
-     },
-     "f_L-1b_010": {
-      "kind": "furniture",
-      "type": "kitchen_counter",
-      "visible_share": 0.4732,
-      "area_frac": 0.10052,
-      "centre_px": [
-       1624.4,
-       669.1
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 161824
-     },
-     "f_L-1b_011": {
-      "kind": "furniture",
-      "type": "kitchen_island",
-      "visible_share": 1.0,
-      "area_frac": 0.09678,
-      "centre_px": [
-       1211.0,
-       663.2
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 185127
-     },
-     "f_L-1b_026": {
-      "kind": "furniture",
-      "type": "table_dining",
-      "visible_share": 0.7633,
-      "area_frac": 0.04534,
-      "centre_px": [
-       896.0,
-       546.9
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 26713
-     },
-     "f_L-1b_027": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 0.8552,
-      "area_frac": 0.00891,
-      "centre_px": [
-       719.3,
-       518.9
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 3155
-     },
-     "f_L-1b_028": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 0.1616,
-      "area_frac": 0.00763,
-      "centre_px": [
-       928.0,
-       515.1
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 2014
-     },
-     "f_L-1b_029": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 0.8902,
-      "area_frac": 0.01143,
-      "centre_px": [
-       757.2,
-       540.2
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 4483
-     },
-     "f_L-1b_030": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 0.3049,
-      "area_frac": 0.00958,
-      "centre_px": [
-       966.3,
-       520.9
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 1245
-     },
-     "f_L-1b_031": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 1.0,
-      "area_frac": 0.01542,
-      "centre_px": [
-       808.3,
-       569.2
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 7722
-     },
-     "f_L-1b_032": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 0.2378,
-      "area_frac": 0.01253,
-      "centre_px": [
-       1036.0,
-       456.1
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 393
-     },
-     "f_L-1b_033": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 0.1585,
-      "area_frac": 0.01889,
-      "centre_px": [
-       968.0,
-       567.0
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 240
-     },
-     "f_L-1b_034": {
-      "kind": "furniture",
-      "type": "chair",
-      "visible_share": 0.3415,
-      "area_frac": 0.00704,
-      "centre_px": [
-       773.7,
-       495.7
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 1746
-     },
-     "f_L-1b_040": {
-      "kind": "furniture",
-      "type": "unknown",
-      "visible_share": 0.6075,
-      "area_frac": 0.10582,
-      "centre_px": [
-       195.4,
-       790.7
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 219467
-     },
-     "f_L-1b_050": {
-      "kind": "furniture",
-      "type": "unknown",
-      "visible_share": 0.129,
-      "area_frac": 0.01564,
-      "centre_px": [
-       57.4,
-       499.5
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 5454
-     },
-     "f_L-1b_054": {
-      "kind": "furniture",
-      "type": "fridge",
-      "visible_share": 0.3333,
-      "area_frac": 0.06096,
-      "centre_px": [
-       1810.1,
-       594.7
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 38815
-     },
-     "f_L-1b_056": {
-      "kind": "furniture",
-      "type": "unknown",
-      "visible_share": 0.34,
-      "area_frac": 0.0163,
-      "centre_px": [
-       77.7,
-       486.7
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 4371
-     },
-     "f_L-1b_060": {
-      "kind": "furniture",
-      "type": "wall_cabinet",
-      "visible_share": 0.0,
-      "area_frac": 0.00066,
-      "centre_px": null,
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 1031
-     },
-     "f_L-1b_072": {
-      "kind": "furniture",
-      "type": "bar_stool",
-      "visible_share": 0.3077,
-      "area_frac": 0.0178,
-      "centre_px": [
-       933.3,
-       666.0
-      ],
-      "in_view": true,
-      "outside_share": 0.0,
-      "rendered_pixels": 2675
+      "rendered_pixels": 2222
      }
     },
     "error": null
@@ -3445,7 +3302,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 85,
+     "index": 83,
      "wenart_id": "f_L-1b_016",
      "kind": "furniture",
      "type": "stair",
@@ -3544,7 +3401,7 @@
     },
     {
      "index": 71,
-     "wenart_id": "f_L-1b_075",
+     "wenart_id": "f_L-1b_076",
      "kind": "furniture",
      "type": "console_table",
      "type_unverified": false,
@@ -3580,7 +3437,7 @@
        "confidence": 0.9,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Placed against the wall at the entrance for functional storage and decor."
+       "text": "Placed against the wall near the entrance to define the space without blocking the walkway."
       },
       {
        "file": "building.json",
@@ -3648,10 +3505,10 @@
      "side": null
     },
     {
-     "index": 7,
+     "index": 49,
      "wenart_id": "f_L-1b_040",
      "kind": "furniture",
-     "type": "unknown",
+     "type": "kitchen_island",
      "type_unverified": true,
      "source": "from_documents",
      "status": "unverified",
@@ -3660,24 +3517,24 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": false,
-     "pixels": 30195,
-     "area_frac": 0.014562,
+     "pixels": 29739,
+     "area_frac": 0.014342,
      "box_px": [
       899,
-      406,
+      393,
       1070,
-      587
+      583
      ],
      "box_1000": [
       468,
-      375,
+      363,
       558,
-      544
+      540
      ],
      "touches_border": false,
-     "visibility": 0.9998,
+     "visibility": 0.9125,
      "in_frame": 1.0,
-     "unoccluded": 0.9998,
+     "unoccluded": 0.9125,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -3709,6 +3566,15 @@
        "front": "top",
        "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa.",
        "region_id": "r3"
+      },
+      {
+       "file": "one_building.dwg",
+       "method": "inferred",
+       "confidence": 0.8,
+       "rule": "ingest.twins",
+       "text": "type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16)",
+       "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
+       "region_id": "r3"
       }
      ],
      "host_decor": [],
@@ -3720,7 +3586,7 @@
      "side": null
     },
     {
-     "index": 24,
+     "index": 22,
      "wenart_id": "f_L-1b_009",
      "kind": "furniture",
      "type": "kitchen_counter",
@@ -3769,7 +3635,7 @@
      "side": null
     },
     {
-     "index": 15,
+     "index": 13,
      "wenart_id": "f_L-1b_050",
      "kind": "furniture",
      "type": "unknown",
@@ -3781,24 +3647,24 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": false,
-     "pixels": 3946,
-     "area_frac": 0.001903,
+     "pixels": 4023,
+     "area_frac": 0.00194,
      "box_px": [
       861,
       397,
-      929,
+      915,
       500
      ],
      "box_1000": [
       448,
       367,
-      484,
+      477,
       463
      ],
      "touches_border": false,
-     "visibility": 0.3753,
+     "visibility": 0.3826,
      "in_frame": 1.0,
-     "unoccluded": 0.3753,
+     "unoccluded": 0.3826,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -3841,7 +3707,7 @@
      "side": null
     },
     {
-     "index": 37,
+     "index": 35,
      "wenart_id": "f_L-1b_026",
      "kind": "furniture",
      "type": "table_dining",
@@ -3853,24 +3719,24 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": false,
-     "pixels": 3009,
-     "area_frac": 0.001451,
+     "pixels": 3003,
+     "area_frac": 0.001448,
      "box_px": [
       1162,
       382,
       1277,
-      490
+      488
      ],
      "box_1000": [
       605,
       353,
       666,
-      454
+      452
      ],
      "touches_border": false,
-     "visibility": 0.1237,
+     "visibility": 0.1235,
      "in_frame": 1.0,
-     "unoccluded": 0.1237,
+     "unoccluded": 0.1235,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -3890,7 +3756,7 @@
      "side": null
     },
     {
-     "index": 9,
+     "index": 7,
      "wenart_id": "f_L-1b_044",
      "kind": "furniture",
      "type": "unknown",
@@ -3962,7 +3828,7 @@
      "side": null
     },
     {
-     "index": 42,
+     "index": 40,
      "wenart_id": "f_L-1b_031",
      "kind": "furniture",
      "type": "chair",
@@ -3974,8 +3840,8 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": false,
-     "pixels": 1434,
-     "area_frac": 0.000692,
+     "pixels": 1367,
+     "area_frac": 0.000659,
      "box_px": [
       1172,
       406,
@@ -3989,9 +3855,9 @@
       469
      ],
      "touches_border": false,
-     "visibility": 0.1966,
+     "visibility": 0.1874,
      "in_frame": 1.0,
-     "unoccluded": 0.1966,
+     "unoccluded": 0.1874,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -4011,7 +3877,7 @@
      "side": null
     },
     {
-     "index": 40,
+     "index": 38,
      "wenart_id": "f_L-1b_029",
      "kind": "furniture",
      "type": "chair",
@@ -4060,7 +3926,7 @@
      "side": null
     },
     {
-     "index": 26,
+     "index": 24,
      "wenart_id": "f_L-1b_011",
      "kind": "furniture",
      "type": "kitchen_island",
@@ -4109,7 +3975,7 @@
      "side": null
     },
     {
-     "index": 38,
+     "index": 36,
      "wenart_id": "f_L-1b_027",
      "kind": "furniture",
      "type": "chair",
@@ -4158,7 +4024,7 @@
      "side": null
     },
     {
-     "index": 45,
+     "index": 43,
      "wenart_id": "f_L-1b_034",
      "kind": "furniture",
      "type": "chair",
@@ -4207,7 +4073,56 @@
      "side": null
     },
     {
-     "index": 19,
+     "index": 67,
+     "wenart_id": "f_L-1b_072",
+     "kind": "furniture",
+     "type": "bar_stool",
+     "type_unverified": false,
+     "source": "added_by_ai",
+     "status": "verified",
+     "room_id": "r_L-1b_acik_mutfak",
+     "room_ids": [
+      "r_L-1b_acik_mutfak"
+     ],
+     "own_room": false,
+     "pixels": 221,
+     "area_frac": 0.000107,
+     "box_px": [
+      1210,
+      446,
+      1223,
+      520
+     ],
+     "box_1000": [
+      630,
+      412,
+      637,
+      482
+     ],
+     "touches_border": false,
+     "visibility": 0.0324,
+     "in_frame": 1.0,
+     "unoccluded": 0.0324,
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "ai",
+       "confidence": 0.6,
+       "model": "Qwen/Qwen3-VL-8B-Instruct",
+       "pass": 1,
+       "text": "Adds bar seating at kitchen island, modern natural style."
+      }
+     ],
+     "host_decor": [],
+     "role": "ignore",
+     "modified_by_ai": false,
+     "drawn_type": null,
+     "completes_room": true,
+     "type_proposal": false,
+     "side": null
+    },
+    {
+     "index": 17,
      "wenart_id": "f_L-1b_056",
      "kind": "furniture",
      "type": "unknown",
@@ -4219,24 +4134,24 @@
       "r_L-1b_acik_mutfak"
      ],
      "own_room": false,
-     "pixels": 180,
-     "area_frac": 8.7e-05,
+     "pixels": 120,
+     "area_frac": 5.8e-05,
      "box_px": [
       886,
       393,
-      930,
-      406
+      918,
+      397
      ],
      "box_1000": [
       461,
       363,
-      485,
-      376
+      479,
+      368
      ],
      "touches_border": false,
-     "visibility": 0.048,
+     "visibility": 0.032,
      "in_frame": 1.0,
-     "unoccluded": 0.048,
+     "unoccluded": 0.032,
      "evidence": [
       {
        "file": "one_building.dwg",
@@ -4281,7 +4196,7 @@
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -4354,7 +4269,7 @@
      "f_L-1b_026": {
       "kind": "furniture",
       "type": "table_dining",
-      "visible_share": 0.4897,
+      "visible_share": 0.4847,
       "area_frac": 0.01173,
       "centre_px": [
        1219.4,
@@ -4362,7 +4277,7 @@
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 3009
+      "rendered_pixels": 3003
      },
      "f_L-1b_027": {
       "kind": "furniture",
@@ -4380,7 +4295,7 @@
      "f_L-1b_029": {
       "kind": "furniture",
       "type": "chair",
-      "visible_share": 0.9055,
+      "visible_share": 0.904,
       "area_frac": 0.00287,
       "centre_px": [
        1186.4,
@@ -4393,7 +4308,7 @@
      "f_L-1b_031": {
       "kind": "furniture",
       "type": "chair",
-      "visible_share": 0.8933,
+      "visible_share": 0.8841,
       "area_frac": 0.00352,
       "centre_px": [
        1207.5,
@@ -4401,7 +4316,7 @@
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 1434
+      "rendered_pixels": 1367
      },
      "f_L-1b_034": {
       "kind": "furniture",
@@ -4418,16 +4333,16 @@
      },
      "f_L-1b_040": {
       "kind": "furniture",
-      "type": "unknown",
-      "visible_share": 1.0,
-      "area_frac": 0.01456,
+      "type": "kitchen_island",
+      "visible_share": 0.974,
+      "area_frac": 0.01572,
       "centre_px": [
        984.4,
-       494.5
+       488.1
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 30195
+      "rendered_pixels": 29739
      },
      "f_L-1b_044": {
       "kind": "furniture",
@@ -4445,30 +4360,43 @@
      "f_L-1b_050": {
       "kind": "furniture",
       "type": "unknown",
-      "visible_share": 0.3427,
+      "visible_share": 0.3,
       "area_frac": 0.00507,
       "centre_px": [
-       895.0,
+       887.6,
        447.4
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 3946
+      "rendered_pixels": 4023
      },
      "f_L-1b_056": {
       "kind": "furniture",
       "type": "unknown",
-      "visible_share": 0.19,
+      "visible_share": 0.112,
       "area_frac": 0.00181,
       "centre_px": [
-       909.1,
-       399.0
+       902.1,
+       394.3
       ],
       "in_view": true,
       "outside_share": 0.0,
-      "rendered_pixels": 180
+      "rendered_pixels": 120
      },
-     "f_L-1b_075": {
+     "f_L-1b_072": {
+      "kind": "furniture",
+      "type": "bar_stool",
+      "visible_share": 0.2774,
+      "area_frac": 0.00329,
+      "centre_px": [
+       1216.2,
+       485.2
+      ],
+      "in_view": true,
+      "outside_share": 0.0,
+      "rendered_pixels": 221
+     },
+     "f_L-1b_076": {
       "kind": "furniture",
       "type": "console_table",
       "visible_share": 0.2809,
@@ -4501,7 +4429,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 85,
+     "index": 83,
      "wenart_id": "f_L-1b_016",
      "kind": "furniture",
      "type": "stair",
@@ -4551,7 +4479,7 @@
     },
     {
      "index": 71,
-     "wenart_id": "f_L-1b_075",
+     "wenart_id": "f_L-1b_076",
      "kind": "furniture",
      "type": "console_table",
      "type_unverified": false,
@@ -4587,7 +4515,7 @@
        "confidence": 0.9,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Placed against the wall at the entrance for functional storage and decor."
+       "text": "Placed against the wall near the entrance to define the space without blocking the walkway."
       },
       {
        "file": "building.json",
@@ -4658,7 +4586,7 @@
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -4686,7 +4614,7 @@
       "outside_share": 0.0,
       "rendered_pixels": 537258
      },
-     "f_L-1b_075": {
+     "f_L-1b_076": {
       "kind": "furniture",
       "type": "console_table",
       "visible_share": 0.1698,
@@ -4719,7 +4647,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 85,
+     "index": 83,
      "wenart_id": "f_L-1b_016",
      "kind": "furniture",
      "type": "stair",
@@ -4770,7 +4698,7 @@
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -4808,7 +4736,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 61,
+     "index": 60,
      "wenart_id": "f_L-1b_065",
      "kind": "furniture",
      "type": "table_dining",
@@ -4845,7 +4773,7 @@
        "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Central table for dining or work, balanced between furniture."
+       "text": "Central table for dining or work, between chairs and desk."
       }
      ],
      "host_decor": [],
@@ -4906,7 +4834,7 @@
      "side": null
     },
     {
-     "index": 58,
+     "index": 57,
      "wenart_id": "f_L-1b_062",
      "kind": "furniture",
      "type": "bookshelf",
@@ -4955,7 +4883,7 @@
      "side": null
     },
     {
-     "index": 59,
+     "index": 58,
      "wenart_id": "f_L-1b_063",
      "kind": "furniture",
      "type": "armchair",
@@ -4989,10 +4917,10 @@
       {
        "file": "building.json",
        "method": "ai",
-       "confidence": 0.9,
+       "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Comfortable seating near the door, facing the room’s center."
+       "text": "Comfortable seating near the desk, facing the bookshelf."
       }
      ],
      "host_decor": [
@@ -5006,7 +4934,7 @@
      "side": null
     },
     {
-     "index": 60,
+     "index": 59,
      "wenart_id": "f_L-1b_064",
      "kind": "furniture",
      "type": "chair",
@@ -5043,7 +4971,7 @@
        "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Small chair for additional seating near the armchair."
+       "text": "Additional seating for guests or work, near the armchair."
       }
      ],
      "host_decor": [],
@@ -5057,7 +4985,7 @@
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -5147,7 +5075,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 58,
+     "index": 57,
      "wenart_id": "f_L-1b_062",
      "kind": "furniture",
      "type": "bookshelf",
@@ -5196,7 +5124,7 @@
      "side": null
     },
     {
-     "index": 61,
+     "index": 60,
      "wenart_id": "f_L-1b_065",
      "kind": "furniture",
      "type": "table_dining",
@@ -5233,7 +5161,7 @@
        "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Central table for dining or work, balanced between furniture."
+       "text": "Central table for dining or work, between chairs and desk."
       }
      ],
      "host_decor": [],
@@ -5245,7 +5173,7 @@
      "side": null
     },
     {
-     "index": 59,
+     "index": 58,
      "wenart_id": "f_L-1b_063",
      "kind": "furniture",
      "type": "armchair",
@@ -5279,10 +5207,10 @@
       {
        "file": "building.json",
        "method": "ai",
-       "confidence": 0.9,
+       "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Comfortable seating near the door, facing the room’s center."
+       "text": "Comfortable seating near the desk, facing the bookshelf."
       }
      ],
      "host_decor": [
@@ -5345,7 +5273,7 @@
      "side": null
     },
     {
-     "index": 60,
+     "index": 59,
      "wenart_id": "f_L-1b_064",
      "kind": "furniture",
      "type": "chair",
@@ -5382,7 +5310,7 @@
        "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Small chair for additional seating near the armchair."
+       "text": "Additional seating for guests or work, near the armchair."
       }
      ],
      "host_decor": [],
@@ -5396,7 +5324,7 @@
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -5535,7 +5463,7 @@
      "side": null
     },
     {
-     "index": 59,
+     "index": 58,
      "wenart_id": "f_L-1b_063",
      "kind": "furniture",
      "type": "armchair",
@@ -5569,10 +5497,10 @@
       {
        "file": "building.json",
        "method": "ai",
-       "confidence": 0.9,
+       "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Comfortable seating near the door, facing the room’s center."
+       "text": "Comfortable seating near the desk, facing the bookshelf."
       }
      ],
      "host_decor": [
@@ -5586,7 +5514,7 @@
      "side": null
     },
     {
-     "index": 78,
+     "index": 76,
      "wenart_id": "dec_L-1b_002",
      "kind": "decor",
      "type": "plant_large",
@@ -5643,7 +5571,7 @@
      "side": null
     },
     {
-     "index": 61,
+     "index": 60,
      "wenart_id": "f_L-1b_065",
      "kind": "furniture",
      "type": "table_dining",
@@ -5680,7 +5608,7 @@
        "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Central table for dining or work, balanced between furniture."
+       "text": "Central table for dining or work, between chairs and desk."
       }
      ],
      "host_decor": [],
@@ -5692,7 +5620,7 @@
      "side": null
     },
     {
-     "index": 60,
+     "index": 59,
      "wenart_id": "f_L-1b_064",
      "kind": "furniture",
      "type": "chair",
@@ -5729,7 +5657,7 @@
        "confidence": 0.6,
        "model": "Qwen/Qwen3-VL-8B-Instruct",
        "pass": 1,
-       "text": "Small chair for additional seating near the armchair."
+       "text": "Additional seating for guests or work, near the armchair."
       }
      ],
      "host_decor": [],
@@ -5743,7 +5671,7 @@
    ],
    "json_crosscheck": {
     "level_id": "L-1b",
-    "tested": 79,
+    "tested": 77,
     "in_json_not_rendered": [],
     "rendered_not_in_json": [],
     "misplaced": [],
@@ -5820,7 +5748,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 98,
+     "index": 96,
      "wenart_id": "win_L0_001",
      "kind": "window",
      "type": "window",
@@ -5868,7 +5796,7 @@
      "side": "front"
     },
     {
-     "index": 99,
+     "index": 97,
      "wenart_id": "win_L0_002",
      "kind": "window",
      "type": "window",
@@ -5965,7 +5893,7 @@
      "side": null
     },
     {
-     "index": 100,
+     "index": 98,
      "wenart_id": "win_L0_003",
      "kind": "window",
      "type": "window",
@@ -6062,7 +5990,7 @@
      "side": null
     },
     {
-     "index": 101,
+     "index": 99,
      "wenart_id": "win_L0_004",
      "kind": "window",
      "type": "window",
@@ -6260,7 +6188,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 101,
+     "index": 99,
      "wenart_id": "win_L0_004",
      "kind": "window",
      "type": "window",
@@ -6308,7 +6236,7 @@
      "side": "front"
     },
     {
-     "index": 100,
+     "index": 98,
      "wenart_id": "win_L0_003",
      "kind": "window",
      "type": "window",
@@ -6405,7 +6333,7 @@
      "side": null
     },
     {
-     "index": 99,
+     "index": 97,
      "wenart_id": "win_L0_002",
      "kind": "window",
      "type": "window",
@@ -6502,7 +6430,7 @@
      "side": null
     },
     {
-     "index": 98,
+     "index": 96,
      "wenart_id": "win_L0_001",
      "kind": "window",
      "type": "window",
@@ -6700,7 +6628,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 97,
+     "index": 95,
      "wenart_id": "d_L0_012",
      "kind": "door",
      "type": "door",
@@ -6748,7 +6676,7 @@
      "side": "back"
     },
     {
-     "index": 96,
+     "index": 94,
      "wenart_id": "d_L0_011",
      "kind": "door",
      "type": "door",
@@ -6796,7 +6724,7 @@
      "side": "back"
     },
     {
-     "index": 229,
+     "index": 223,
      "wenart_id": "dec_L1_011",
      "kind": "decor",
      "type": "mirror",
@@ -7073,7 +7001,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 96,
+     "index": 94,
      "wenart_id": "d_L0_011",
      "kind": "door",
      "type": "door",
@@ -7121,7 +7049,7 @@
      "side": "back"
     },
     {
-     "index": 97,
+     "index": 95,
      "wenart_id": "d_L0_012",
      "kind": "door",
      "type": "door",
@@ -7267,7 +7195,7 @@
      "side": null
     },
     {
-     "index": 229,
+     "index": 223,
      "wenart_id": "dec_L1_011",
      "kind": "decor",
      "type": "mirror",
@@ -7640,7 +7568,7 @@
      "side": null
     },
     {
-     "index": 229,
+     "index": 223,
      "wenart_id": "dec_L1_011",
      "kind": "decor",
      "type": "mirror",
@@ -7697,7 +7625,7 @@
      "side": null
     },
     {
-     "index": 98,
+     "index": 96,
      "wenart_id": "win_L0_001",
      "kind": "window",
      "type": "window",
@@ -7877,7 +7805,7 @@
    "hidden": [],
    "elements": [
     {
-     "index": 96,
+     "index": 94,
      "wenart_id": "d_L0_011",
      "kind": "door",
      "type": "door",
@@ -7925,7 +7853,7 @@
      "side": "back"
     },
     {
-     "index": 97,
+     "index": 95,
      "wenart_id": "d_L0_012",
      "kind": "door",
      "type": "door",
@@ -7973,7 +7901,7 @@
      "side": "back"
     },
     {
-     "index": 229,
+     "index": 223,
      "wenart_id": "dec_L1_011",
      "kind": "decor",
      "type": "mirror",
@@ -8472,7 +8400,7 @@
    {
     "id": "f_L-1_014",
     "room_id": "r_L-1_mutfak_2",
-    "type": "unknown",
+    "type": "sink_kitchen",
     "drawn_type": "unknown",
     "modified_by_ai": false,
     "type_proposal": false,
@@ -8712,12 +8640,14 @@
     ],
     "reference": "source building.json",
     "anchor_kind": "back_edge",
-    "anchor_distance_m": 0.0,
+    "anchor_distance_m": 0.1791,
     "front_turn_deg": 0.0,
-    "same_wall": true,
+    "same_wall": false,
     "checked": true,
-    "ok": true,
-    "notes": []
+    "ok": false,
+    "notes": [
+     "no longer against wall w_L-1_004 (now centre None)"
+    ]
    },
    {
     "id": "f_L-1_024",
@@ -8737,12 +8667,14 @@
     ],
     "reference": "source building.json",
     "anchor_kind": "back_edge",
-    "anchor_distance_m": 0.0,
+    "anchor_distance_m": 0.18,
     "front_turn_deg": 0.0,
-    "same_wall": true,
+    "same_wall": false,
     "checked": true,
-    "ok": true,
-    "notes": []
+    "ok": false,
+    "notes": [
+     "no longer against wall w_L-1_004 (now centre None)"
+    ]
    },
    {
     "id": "f_L-1_025",
@@ -9388,10 +9320,10 @@
     "reference": "source building.json",
     "anchor_kind": "centre",
     "anchor_distance_m": 0.0,
-    "front_turn_deg": 0.0,
+    "front_turn_deg": 90.0,
     "same_wall": null,
     "checked": true,
-    "ok": true,
+    "ok": false,
     "notes": []
    },
    {
@@ -9488,10 +9420,10 @@
     "reference": "source building.json",
     "anchor_kind": "centre",
     "anchor_distance_m": 0.0,
-    "front_turn_deg": 0.0,
+    "front_turn_deg": 90.0,
     "same_wall": null,
     "checked": true,
-    "ok": true,
+    "ok": false,
     "notes": []
    },
    {
@@ -9562,11 +9494,11 @@
     ],
     "reference": "source building.json",
     "anchor_kind": "centre",
-    "anchor_distance_m": 0.0,
-    "front_turn_deg": 0.0,
+    "anchor_distance_m": 0.8175,
+    "front_turn_deg": 90.0,
     "same_wall": null,
     "checked": true,
-    "ok": true,
+    "ok": false,
     "notes": []
    },
    {
@@ -9687,11 +9619,11 @@
     ],
     "reference": "source building.json",
     "anchor_kind": "centre",
-    "anchor_distance_m": 0.0,
+    "anchor_distance_m": 0.3,
     "front_turn_deg": null,
     "same_wall": null,
     "checked": true,
-    "ok": true,
+    "ok": false,
     "notes": []
    },
    {
@@ -9762,11 +9694,11 @@
     ],
     "reference": "source building.json",
     "anchor_kind": "centre",
-    "anchor_distance_m": 0.0,
+    "anchor_distance_m": 0.3,
     "front_turn_deg": null,
     "same_wall": null,
     "checked": true,
-    "ok": true,
+    "ok": false,
     "notes": []
    },
    {
@@ -10472,7 +10404,7 @@
    {
     "id": "f_L-1b_006",
     "room_id": "r_L-1b_acik_mutfak_2",
-    "type": "unknown",
+    "type": "sink_kitchen",
     "drawn_type": "unknown",
     "modified_by_ai": false,
     "type_proposal": false,
@@ -11301,19 +11233,19 @@
     "drawn_type": "kitchen_island",
     "modified_by_ai": false,
     "type_proposal": false,
-    "status": "unverified",
+    "status": "verified",
     "size": [
-     2.127,
-     0.9
+     0.9,
+     2.127
     ],
     "drawn_size": [
-     2.127,
-     0.9
+     0.9,
+     2.127
     ],
     "reference": "source building.json",
     "anchor_kind": "centre",
     "anchor_distance_m": 0.0,
-    "front_turn_deg": null,
+    "front_turn_deg": 0.0,
     "same_wall": null,
     "checked": true,
     "ok": true,
@@ -11322,23 +11254,23 @@
    {
     "id": "f_L-1b_040",
     "room_id": "r_L-1b_acik_mutfak",
-    "type": "unknown",
-    "drawn_type": "unknown",
+    "type": "kitchen_island",
+    "drawn_type": "kitchen_island",
     "modified_by_ai": false,
     "type_proposal": false,
     "status": "unverified",
     "size": [
-     2.127,
-     0.9
+     0.9,
+     2.127
     ],
     "drawn_size": [
-     2.127,
-     0.9
+     0.9,
+     2.127
     ],
     "reference": "source building.json",
     "anchor_kind": "centre",
     "anchor_distance_m": 0.0,
-    "front_turn_deg": null,
+    "front_turn_deg": 0.0,
     "same_wall": null,
     "checked": true,
     "ok": true,
@@ -12028,8 +11960,8 @@
     "type_proposal": false,
     "status": "verified",
     "size": [
-     2.55,
-     2.0
+     2.0,
+     1.6
     ],
     "drawn_size": [
      2.55,
@@ -12562,11 +12494,11 @@
     ],
     "reference": "source building.json",
     "anchor_kind": "back_edge",
-    "anchor_distance_m": 0.0,
+    "anchor_distance_m": 0.3,
     "front_turn_deg": 0.0,
     "same_wall": true,
     "checked": true,
-    "ok": true,
+    "ok": false,
     "notes": []
    },
    {
@@ -12662,11 +12594,11 @@
     ],
     "reference": "source building.json",
     "anchor_kind": "back_edge",
-    "anchor_distance_m": 0.0,
+    "anchor_distance_m": 0.0615,
     "front_turn_deg": 0.0,
     "same_wall": true,
     "checked": true,
-    "ok": true,
+    "ok": false,
     "notes": []
    },
    {
@@ -13396,9 +13328,18 @@
    }
   ],
   "checked": 210,
-  "ok": 209,
+  "ok": 200,
   "failed": [
-   "f_L-1_059"
+   "f_L-1_023",
+   "f_L-1_024",
+   "f_L-1_050",
+   "f_L-1_054",
+   "f_L-1_057",
+   "f_L-1_059",
+   "f_L-1_062",
+   "f_L-1_065",
+   "f_L0_029",
+   "f_L0_033"
   ],
   "modified": [],
   "proposals": [],

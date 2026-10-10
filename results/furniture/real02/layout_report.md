@@ -4,8 +4,8 @@ Rooms without documented furniture. Every added piece is `added_by_ai`, `verifie
 
 | Room | Type | Pass 1 (proposed/placed/dropped, s) | Pass 2 | Chosen | Added | Result |
 |---|---|---|---|---|---|---|
-| Oda (r_L-1b_oda) | other | 5/5/0 (5.1 s) | 4/4/0 (3.5 s) | 1 | desk (0.9), bookshelf (0.6), armchair (0.9), chair (0.6), table_dining (0.6) | ok |
-| Oda (r_L-1b_oda_2) | other | - | - | - | desk (0.9), bookshelf (0.6), armchair (0.9), chair (0.6), table_dining (0.6) | copied from r_L-1b_oda (twin) |
+| Oda (r_L-1b_oda) | other | 5/5/0 (5.2 s) | 4/4/0 (3.5 s) | 1 | desk (0.9), bookshelf (0.6), armchair (0.6), chair (0.6), table_dining (0.6) | ok |
+| Oda (r_L-1b_oda_2) | other | - | - | - | desk (0.9), bookshelf (0.6), armchair (0.6), chair (0.6), table_dining (0.6) | copied from r_L-1b_oda (twin) |
 | Koridor (r_L0_koridor) | hall | 3/2/1 (2.8 s) | 2/2/0 (2.0 s) | 2 | console_table (0.6), shoe_cabinet (0.6) | ok |
 | Koridor (r_L0_koridor_2) | hall | - | - | - | console_table (0.6), shoe_cabinet (0.6) | copied from r_L0_koridor (twin) |
 

@@ -233,9 +233,9 @@
   },
   {
    "id": "f_L-1b_040",
-   "type": "unknown",
-   "kind": "changeable",
-   "unverified": true,
+   "type": "kitchen_island",
+   "kind": "fixed",
+   "unverified": false,
    "anchor": {
     "kind": "centre",
     "point": [
@@ -375,7 +375,7 @@
  "missing": {},
  "anchor_missing": false,
  "addable": {
-  "bar_stool": 3,
+  "bar_stool": 4,
   "tall_cabinet": 1
  },
  "change_types": [
@@ -388,79 +388,93 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 4.077,
+   "latency_s": 5.08,
    "error": null,
    "transport_error": false,
    "data": {
     "changes": [],
     "added": [
      {
-      "type": "bar_stool",
-      "center": [
-       1.59,
-       3.61
-      ],
-      "rotation_deg": 270,
-      "size": [
-       0.42,
-       0.42
-      ],
-      "against_wall": false,
-      "reason": "Placed at island bar for modern natural style seating."
-     },
-     {
-      "type": "bar_stool",
-      "center": [
-       1.59,
-       3.04
-      ],
-      "rotation_deg": 270,
-      "size": [
-       0.42,
-       0.42
-      ],
-      "against_wall": false,
-      "reason": "Placed at island bar for modern natural style seating."
-     },
-     {
-      "type": "bar_stool",
-      "center": [
-       1.59,
-       2.4
-      ],
-      "rotation_deg": 270,
-      "size": [
-       0.42,
-       0.42
-      ],
-      "against_wall": false,
-      "reason": "Placed at island bar for modern natural style seating."
-     },
-     {
       "type": "tall_cabinet",
       "center": [
-       7.39,
-       1.34
+       0.5,
+       5.53
       ],
-      "rotation_deg": 0,
+      "rotation_deg": 90.0,
       "size": [
        0.6,
        0.6
       ],
       "against_wall": true,
-      "reason": "Adds storage at end of counter run, matches modern natural style."
+      "reason": "Fits at end of counter run, against wall, modern natural style."
+     },
+     {
+      "type": "bar_stool",
+      "center": [
+       1.59,
+       4.62
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ],
+      "against_wall": false,
+      "reason": "Adds bar seating at kitchen island, modern natural style."
+     },
+     {
+      "type": "bar_stool",
+      "center": [
+       1.59,
+       4.62
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ],
+      "against_wall": false,
+      "reason": "Adds second bar stool at island, modern natural style."
+     },
+     {
+      "type": "bar_stool",
+      "center": [
+       1.59,
+       4.62
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ],
+      "against_wall": false,
+      "reason": "Adds third bar stool at island, modern natural style."
+     },
+     {
+      "type": "bar_stool",
+      "center": [
+       1.59,
+       4.62
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ],
+      "against_wall": false,
+      "reason": "Adds fourth bar stool at island, modern natural style."
      }
     ]
    },
-   "prompt": "Task: complete this kitchen (Turkish: MUTFAK) labelled 'Açık Mutfak' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L-1b_acik_mutfak\", \"label\": \"Açık Mutfak\", \"room_type\": \"kitchen\", \"room_subtype\": null, \"area_m2\": 51.83, \"polygon_m\": [[0.2, 0.2], [7.39, 0.2], [7.39, 7.44], [4.62, 7.44], [4.62, 7.52], [3.32, 7.52], [3.32, 7.44], [3.32, 7.44], [3.32, 7.34], [0.2, 7.34]], \"doors\": [{\"id\": \"o_L-1b_001\", \"center\": [3.97, 7.52], \"width\": 1.3, \"opens_into_this_room\": false, \"approach\": [3.97, 7.06]}], \"windows\": [{\"id\": \"win_L-1b_001\", \"center\": [3.79, 0.1], \"width\": 7.19, \"sill_height\": 0.9}]}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L-1b_009\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [1.76, 7.04], \"size\": [3.12, 0.6], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [1.76, 7.34]}, \"against_wall\": \"w_L-1b_002\"}, {\"id\": \"f_L-1b_010\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [0.5, 5.53], \"size\": [2.42, 0.6], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 5.53]}, \"against_wall\": \"w_L-1b_007\"}, {\"id\": \"f_L-1b_011\", \"type\": \"kitchen_island\", \"kind\": \"fixed\", \"center\": [1.59, 4.62], \"size\": [1.59, 0.6], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.59, 4.62]}, \"against_wall\": null}, {\"id\": \"f_L-1b_012\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [2.96, 7.03], \"size\": [0.62, 0.6], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.96, 7.03]}, \"against_wall\": null}, {\"id\": \"f_L-1b_013\", \"type\": \"stove\", \"kind\": \"fixed\", \"center\": [1.18, 7.02], \"size\": [0.75, 0.55], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 7.02]}, \"against_wall\": null}, {\"id\": \"f_L-1b_014\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.51, 5.88], \"size\": [0.51, 0.11], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.51, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_026\", \"type\": \"table_dining\", \"kind\": \"changeable\", \"center\": [1.75, 2.4], \"size\": [2.3, 1.0], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.75, 2.4]}, \"against_wall\": null}, {\"id\": \"f_L-1b_027\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_028\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_029\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_030\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_031\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_032\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_033\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 3.61], \"size\": [0.5, 0.45], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 3.61]}, \"against_wall\": null}, {\"id\": \"f_L-1b_034\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 1.19], \"size\": [0.5, 0.45], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 1.19]}, \"against_wall\": null}, {\"id\": \"f_L-1b_040\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [4.19, 4.48], \"size\": [2.13, 0.9], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.19, 4.48]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_044\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.55, 6.44], \"size\": [0.82, 1.64], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.55, 6.44]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_047\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.94, 0.76], \"size\": [0.59, 0.59], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.94, 0.76]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_048\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.68, 1.34], \"size\": [0.79, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.68, 1.34]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_049\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.91, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.91, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_050\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.01, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.01, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_054\", \"type\": \"fridge\", \"kind\": \"fixed\", \"center\": [0.5, 5.88], \"size\": [0.79, 0.5], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_056\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [4.82, 1.7], \"size\": [0.4, 0.4], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.82, 1.7]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_058\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.5, 5.69], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.69]}, \"against_wall\": null}, {\"id\": \"f_L-1b_060\", \"type\": \"wall_cabinet\", \"kind\": \"fixed\", \"center\": [0.5, 6.07], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 6.07]}, \"against_wall\": null}]\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: bar_stool (3), tall_cabinet (1)\nA good completion: bar stools at the free long side of the island; a small dining table with chairs only where 1.2 m stays free; a tall_cabinet at the end of the counter run.\n\nTypes with their size options [width, depth]:\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bar_stool: height 0.75 m, size options [0.38, 0.38], [0.42, 0.42], [0.45, 0.45]\n- tall_cabinet: height 2.1 m, size options [0.4, 0.58], [0.6, 0.6], [0.8, 0.6] (usually against a wall)\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (kitchen_counter) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of table_dining, chair, bar_stool, tall_cabinet), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of bar_stool, tall_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 3.61],\n      \"rotation_deg\": 270,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Placed at island bar for modern natural style seating.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 3.04],\n      \"rotation_deg\": 270,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Placed at island bar for modern natural style seating.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 2.4],\n      \"rotation_deg\": 270,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Placed at island bar for modern natural style seating.\"\n    },\n    {\n      \"type\": \"tall_cabinet\",\n      \"center\": [7.39, 1.34],\n      \"rotation_deg\": 0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Adds storage at end of counter run, matches modern natural style.\"\n    }\n  ]\n}",
+   "prompt": "Task: complete this kitchen (Turkish: MUTFAK) labelled 'Açık Mutfak' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L-1b_acik_mutfak\", \"label\": \"Açık Mutfak\", \"room_type\": \"kitchen\", \"room_subtype\": null, \"area_m2\": 51.83, \"polygon_m\": [[0.2, 0.2], [7.39, 0.2], [7.39, 7.44], [4.62, 7.44], [4.62, 7.52], [3.32, 7.52], [3.32, 7.44], [3.32, 7.44], [3.32, 7.34], [0.2, 7.34]], \"doors\": [{\"id\": \"o_L-1b_001\", \"center\": [3.97, 7.52], \"width\": 1.3, \"opens_into_this_room\": false, \"approach\": [3.97, 7.06]}], \"windows\": [{\"id\": \"win_L-1b_001\", \"center\": [3.79, 0.1], \"width\": 7.19, \"sill_height\": 0.9}]}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L-1b_009\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [1.76, 7.04], \"size\": [3.12, 0.6], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [1.76, 7.34]}, \"against_wall\": \"w_L-1b_002\"}, {\"id\": \"f_L-1b_010\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [0.5, 5.53], \"size\": [2.42, 0.6], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 5.53]}, \"against_wall\": \"w_L-1b_007\"}, {\"id\": \"f_L-1b_011\", \"type\": \"kitchen_island\", \"kind\": \"fixed\", \"center\": [1.59, 4.62], \"size\": [1.59, 0.6], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.59, 4.62]}, \"against_wall\": null}, {\"id\": \"f_L-1b_012\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [2.96, 7.03], \"size\": [0.62, 0.6], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.96, 7.03]}, \"against_wall\": null}, {\"id\": \"f_L-1b_013\", \"type\": \"stove\", \"kind\": \"fixed\", \"center\": [1.18, 7.02], \"size\": [0.75, 0.55], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 7.02]}, \"against_wall\": null}, {\"id\": \"f_L-1b_014\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.51, 5.88], \"size\": [0.51, 0.11], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.51, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_026\", \"type\": \"table_dining\", \"kind\": \"changeable\", \"center\": [1.75, 2.4], \"size\": [2.3, 1.0], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.75, 2.4]}, \"against_wall\": null}, {\"id\": \"f_L-1b_027\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_028\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_029\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_030\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_031\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_032\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_033\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 3.61], \"size\": [0.5, 0.45], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 3.61]}, \"against_wall\": null}, {\"id\": \"f_L-1b_034\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 1.19], \"size\": [0.5, 0.45], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 1.19]}, \"against_wall\": null}, {\"id\": \"f_L-1b_040\", \"type\": \"kitchen_island\", \"kind\": \"fixed\", \"center\": [4.19, 4.48], \"size\": [0.9, 2.13], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [4.19, 4.48]}, \"against_wall\": null}, {\"id\": \"f_L-1b_044\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.55, 6.44], \"size\": [0.82, 1.64], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.55, 6.44]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_047\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.94, 0.76], \"size\": [0.59, 0.59], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.94, 0.76]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_048\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.68, 1.34], \"size\": [0.79, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.68, 1.34]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_049\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.91, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.91, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_050\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.01, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.01, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_054\", \"type\": \"fridge\", \"kind\": \"fixed\", \"center\": [0.5, 5.88], \"size\": [0.79, 0.5], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_056\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [4.82, 1.7], \"size\": [0.4, 0.4], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.82, 1.7]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_058\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.5, 5.69], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.69]}, \"against_wall\": null}, {\"id\": \"f_L-1b_060\", \"type\": \"wall_cabinet\", \"kind\": \"fixed\", \"center\": [0.5, 6.07], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 6.07]}, \"against_wall\": null}]\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: bar_stool (4), tall_cabinet (1)\nA good completion: bar stools at the free long side of the island; a small dining table with chairs only where 1.2 m stays free; a tall_cabinet at the end of the counter run.\n\nTypes with their size options [width, depth]:\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bar_stool: height 0.75 m, size options [0.38, 0.38], [0.42, 0.42], [0.45, 0.45]\n- tall_cabinet: height 2.1 m, size options [0.4, 0.58], [0.6, 0.6], [0.8, 0.6] (usually against a wall)\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (kitchen_counter) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of table_dining, chair, bar_stool, tall_cabinet), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of bar_stool, tall_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"tall_cabinet\",\n      \"center\": [0.5, 5.53],\n      \"rotation_deg\": 90.0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Fits at end of counter run, against wall, modern natural style.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 4.62],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Adds bar seating at kitchen island, modern natural style.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 4.62],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Adds second bar stool at island, modern natural style.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 4.62],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Adds third bar stool at island, modern natural style.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 4.62],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Adds fourth bar stool at island, modern natural style.\"\n    }\n  ]\n}",
    "changes": 0,
-   "added": 4
+   "added": 5
   },
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 4.075,
+   "latency_s": 4.949,
    "error": null,
    "transport_error": false,
    "data": {
@@ -492,7 +506,7 @@
        0.42
       ],
       "against_wall": false,
-      "reason": "Add second bar stool for extra seating at the island."
+      "reason": "Add second bar stool for seating at the island."
      },
      {
       "type": "bar_stool",
@@ -506,87 +520,53 @@
        0.42
       ],
       "against_wall": false,
-      "reason": "Add third bar stool to complete island seating."
+      "reason": "Add third bar stool for seating at the island."
+     },
+     {
+      "type": "bar_stool",
+      "center": [
+       1.59,
+       3.4
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ],
+      "against_wall": false,
+      "reason": "Add fourth bar stool for seating at the island."
      },
      {
       "type": "tall_cabinet",
       "center": [
-       6.94,
+       4.19,
        4.48
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.6,
        0.6
       ],
       "against_wall": true,
-      "reason": "Place tall cabinet at end of counter run for storage and style."
+      "reason": "Place tall cabinet at end of counter run for storage."
      }
     ]
    },
-   "prompt": "Task: complete this kitchen (Turkish: MUTFAK) labelled 'Açık Mutfak' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: bar_stool (3), tall_cabinet (1)\nA good completion: bar stools at the free long side of the island; a small dining table with chairs only where 1.2 m stays free; a tall_cabinet at the end of the counter run.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (kitchen_counter) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bar_stool: height 0.75 m, size options [0.38, 0.38], [0.42, 0.42], [0.45, 0.45]\n- tall_cabinet: height 2.1 m, size options [0.4, 0.58], [0.6, 0.6], [0.8, 0.6] (usually against a wall)\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L-1b_009\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [1.76, 7.04], \"size\": [3.12, 0.6], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [1.76, 7.34]}, \"against_wall\": \"w_L-1b_002\"}, {\"id\": \"f_L-1b_010\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [0.5, 5.53], \"size\": [2.42, 0.6], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 5.53]}, \"against_wall\": \"w_L-1b_007\"}, {\"id\": \"f_L-1b_011\", \"type\": \"kitchen_island\", \"kind\": \"fixed\", \"center\": [1.59, 4.62], \"size\": [1.59, 0.6], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.59, 4.62]}, \"against_wall\": null}, {\"id\": \"f_L-1b_012\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [2.96, 7.03], \"size\": [0.62, 0.6], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.96, 7.03]}, \"against_wall\": null}, {\"id\": \"f_L-1b_013\", \"type\": \"stove\", \"kind\": \"fixed\", \"center\": [1.18, 7.02], \"size\": [0.75, 0.55], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 7.02]}, \"against_wall\": null}, {\"id\": \"f_L-1b_014\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.51, 5.88], \"size\": [0.51, 0.11], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.51, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_026\", \"type\": \"table_dining\", \"kind\": \"changeable\", \"center\": [1.75, 2.4], \"size\": [2.3, 1.0], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.75, 2.4]}, \"against_wall\": null}, {\"id\": \"f_L-1b_027\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_028\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_029\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_030\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_031\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_032\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_033\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 3.61], \"size\": [0.5, 0.45], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 3.61]}, \"against_wall\": null}, {\"id\": \"f_L-1b_034\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 1.19], \"size\": [0.5, 0.45], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 1.19]}, \"against_wall\": null}, {\"id\": \"f_L-1b_040\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [4.19, 4.48], \"size\": [2.13, 0.9], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.19, 4.48]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_044\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.55, 6.44], \"size\": [0.82, 1.64], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.55, 6.44]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_047\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.94, 0.76], \"size\": [0.59, 0.59], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.94, 0.76]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_048\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.68, 1.34], \"size\": [0.79, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.68, 1.34]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_049\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.91, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.91, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_050\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.01, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.01, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_054\", \"type\": \"fridge\", \"kind\": \"fixed\", \"center\": [0.5, 5.88], \"size\": [0.79, 0.5], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_056\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [4.82, 1.7], \"size\": [0.4, 0.4], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.82, 1.7]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_058\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.5, 5.69], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.69]}, \"against_wall\": null}, {\"id\": \"f_L-1b_060\", \"type\": \"wall_cabinet\", \"kind\": \"fixed\", \"center\": [0.5, 6.07], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 6.07]}, \"against_wall\": null}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L-1b_acik_mutfak\", \"label\": \"Açık Mutfak\", \"room_type\": \"kitchen\", \"room_subtype\": null, \"area_m2\": 51.83, \"polygon_m\": [[0.2, 0.2], [7.39, 0.2], [7.39, 7.44], [4.62, 7.44], [4.62, 7.52], [3.32, 7.52], [3.32, 7.44], [3.32, 7.44], [3.32, 7.34], [0.2, 7.34]], \"doors\": [{\"id\": \"o_L-1b_001\", \"center\": [3.97, 7.52], \"width\": 1.3, \"opens_into_this_room\": false, \"approach\": [3.97, 7.06]}], \"windows\": [{\"id\": \"win_L-1b_001\", \"center\": [3.79, 0.1], \"width\": 7.19, \"sill_height\": 0.9}]}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of table_dining, chair, bar_stool, tall_cabinet), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of bar_stool, tall_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 4.0],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Place bar stools at the island for casual dining or seating.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 3.8],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Add second bar stool for extra seating at the island.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 3.6],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Add third bar stool to complete island seating.\"\n    },\n    {\n      \"type\": \"tall_cabinet\",\n      \"center\": [6.94, 4.48],\n      \"rotation_deg\": 270.0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Place tall cabinet at end of counter run for storage and style.\"\n    }\n  ]\n}",
+   "prompt": "Task: complete this kitchen (Turkish: MUTFAK) labelled 'Açık Mutfak' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nWhat the room misses:\n- nothing expected is missing\n- you may add at most: bar_stool (4), tall_cabinet (1)\nA good completion: bar stools at the free long side of the island; a small dining table with chairs only where 1.2 m stays free; a tall_cabinet at the end of the counter run.\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (kitchen_counter) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nTypes with their size options [width, depth]:\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- bar_stool: height 0.75 m, size options [0.38, 0.38], [0.42, 0.42], [0.45, 0.45]\n- tall_cabinet: height 2.1 m, size options [0.4, 0.58], [0.6, 0.6], [0.8, 0.6] (usually against a wall)\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L-1b_009\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [1.76, 7.04], \"size\": [3.12, 0.6], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [1.76, 7.34]}, \"against_wall\": \"w_L-1b_002\"}, {\"id\": \"f_L-1b_010\", \"type\": \"kitchen_counter\", \"kind\": \"fixed\", \"center\": [0.5, 5.53], \"size\": [2.42, 0.6], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [0.2, 5.53]}, \"against_wall\": \"w_L-1b_007\"}, {\"id\": \"f_L-1b_011\", \"type\": \"kitchen_island\", \"kind\": \"fixed\", \"center\": [1.59, 4.62], \"size\": [1.59, 0.6], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.59, 4.62]}, \"against_wall\": null}, {\"id\": \"f_L-1b_012\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [2.96, 7.03], \"size\": [0.62, 0.6], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.96, 7.03]}, \"against_wall\": null}, {\"id\": \"f_L-1b_013\", \"type\": \"stove\", \"kind\": \"fixed\", \"center\": [1.18, 7.02], \"size\": [0.75, 0.55], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 7.02]}, \"against_wall\": null}, {\"id\": \"f_L-1b_014\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.51, 5.88], \"size\": [0.51, 0.11], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.51, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_026\", \"type\": \"table_dining\", \"kind\": \"changeable\", \"center\": [1.75, 2.4], \"size\": [2.3, 1.0], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [1.75, 2.4]}, \"against_wall\": null}, {\"id\": \"f_L-1b_027\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_028\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 1.78], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 1.78]}, \"against_wall\": null}, {\"id\": \"f_L-1b_029\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_030\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 2.39], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 2.39]}, \"against_wall\": null}, {\"id\": \"f_L-1b_031\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [2.3, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.3, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_032\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.18, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.18, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1b_033\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 3.61], \"size\": [0.5, 0.45], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 3.61]}, \"against_wall\": null}, {\"id\": \"f_L-1b_034\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [1.74, 1.19], \"size\": [0.5, 0.45], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.74, 1.19]}, \"against_wall\": null}, {\"id\": \"f_L-1b_040\", \"type\": \"kitchen_island\", \"kind\": \"fixed\", \"center\": [4.19, 4.48], \"size\": [0.9, 2.13], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [4.19, 4.48]}, \"against_wall\": null}, {\"id\": \"f_L-1b_044\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.55, 6.44], \"size\": [0.82, 1.64], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.55, 6.44]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_047\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.94, 0.76], \"size\": [0.59, 0.59], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.94, 0.76]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_048\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.68, 1.34], \"size\": [0.79, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.68, 1.34]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_049\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.91, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.91, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_050\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.01, 2.6], \"size\": [0.82, 0.79], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [5.01, 2.6]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_054\", \"type\": \"fridge\", \"kind\": \"fixed\", \"center\": [0.5, 5.88], \"size\": [0.79, 0.5], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.88]}, \"against_wall\": null}, {\"id\": \"f_L-1b_056\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [4.82, 1.7], \"size\": [0.4, 0.4], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.82, 1.7]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1b_058\", \"type\": \"unknown\", \"kind\": \"fixed\", \"center\": [0.5, 5.69], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 5.69]}, \"against_wall\": null}, {\"id\": \"f_L-1b_060\", \"type\": \"wall_cabinet\", \"kind\": \"fixed\", \"center\": [0.5, 6.07], \"size\": [0.44, 0.35], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 6.07]}, \"against_wall\": null}]\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L-1b_acik_mutfak\", \"label\": \"Açık Mutfak\", \"room_type\": \"kitchen\", \"room_subtype\": null, \"area_m2\": 51.83, \"polygon_m\": [[0.2, 0.2], [7.39, 0.2], [7.39, 7.44], [4.62, 7.44], [4.62, 7.52], [3.32, 7.52], [3.32, 7.44], [3.32, 7.44], [3.32, 7.34], [0.2, 7.34]], \"doors\": [{\"id\": \"o_L-1b_001\", \"center\": [3.97, 7.52], \"width\": 1.3, \"opens_into_this_room\": false, \"approach\": [3.97, 7.06]}], \"windows\": [{\"id\": \"win_L-1b_001\", \"center\": [3.79, 0.1], \"width\": 7.19, \"sill_height\": 0.9}]}\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of table_dining, chair, bar_stool, tall_cabinet), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of bar_stool, tall_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 4.0],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Place bar stools at the island for casual dining or seating.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 3.8],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Add second bar stool for seating at the island.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 3.6],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Add third bar stool for seating at the island.\"\n    },\n    {\n      \"type\": \"bar_stool\",\n      \"center\": [1.59, 3.4],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.42, 0.42],\n      \"against_wall\": false,\n      \"reason\": \"Add fourth bar stool for seating at the island.\"\n    },\n    {\n      \"type\": \"tall_cabinet\",\n      \"center\": [4.19, 4.48],\n      \"rotation_deg\": 0.0,\n      \"size\": [0.6, 0.6],\n      \"against_wall\": true,\n      \"reason\": \"Place tall cabinet at end of counter run for storage.\"\n    }\n  ]\n}",
    "changes": 0,
-   "added": 4
+   "added": 5
   }
  ],
- "chosen_pass": 2,
+ "chosen_pass": 1,
  "changes": [],
  "added": [
   {
    "id": "f_L-1b_071",
-   "type": "bar_stool",
-   "center": [
-    1.59,
-    4.1
-   ],
-   "size": [
-    0.42,
-    0.42
-   ],
-   "rotation_deg": 180.0,
-   "confidence": 0.9,
-   "method": "ai",
-   "mirrored_from": null
-  },
-  {
-   "id": "f_L-1b_072",
-   "type": "bar_stool",
-   "center": [
-    2.09,
-    4.1
-   ],
-   "size": [
-    0.42,
-    0.42
-   ],
-   "rotation_deg": 180.0,
-   "confidence": 0.9,
-   "method": "ai",
-   "mirrored_from": null
-  },
-  {
-   "id": "f_L-1b_073",
-   "type": "bar_stool",
-   "center": [
-    1.09,
-    3.8
-   ],
-   "size": [
-    0.42,
-    0.42
-   ],
-   "rotation_deg": 180.0,
-   "confidence": 0.9,
-   "method": "ai",
-   "mirrored_from": null
-  },
-  {
-   "id": "f_L-1b_074",
    "type": "tall_cabinet",
    "center": [
     7.066,
-    4.48
+    5.53
    ],
    "size": [
     0.6,
@@ -596,18 +576,82 @@
    "confidence": 0.6,
    "method": "ai",
    "mirrored_from": null
+  },
+  {
+   "id": "f_L-1b_072",
+   "type": "bar_stool",
+   "center": [
+    2.29,
+    4.02
+   ],
+   "size": [
+    0.42,
+    0.42
+   ],
+   "rotation_deg": 180.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L-1b_073",
+   "type": "bar_stool",
+   "center": [
+    2.19,
+    5.22
+   ],
+   "size": [
+    0.42,
+    0.42
+   ],
+   "rotation_deg": 0.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L-1b_074",
+   "type": "bar_stool",
+   "center": [
+    1.19,
+    4.02
+   ],
+   "size": [
+    0.42,
+    0.42
+   ],
+   "rotation_deg": 180.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L-1b_075",
+   "type": "bar_stool",
+   "center": [
+    1.69,
+    5.22
+   ],
+   "size": [
+    0.42,
+    0.42
+   ],
+   "rotation_deg": 0.0,
+   "confidence": 0.6,
+   "method": "ai",
+   "mirrored_from": null
   }
  ],
  "refused": [],
  "dropped": [
   {
-   "pass": 1,
+   "pass": 2,
    "type": "bar_stool",
    "center": [
     1.59,
-    2.4
+    3.4
    ],
-   "reason": "1.71 m from the nearest kitchen_island (> 0.6 m)",
+   "reason": "0.61 m from the nearest kitchen_island (> 0.6 m)",
    "failed": []
   }
  ],
@@ -676,7 +720,7 @@
   },
   "walkways": []
  },
- "latency_s": 8.152,
+ "latency_s": 10.029,
  "question": {
   "room": {
    "room_id": "r_L-1b_acik_mutfak",
@@ -1101,18 +1145,18 @@
    },
    {
     "id": "f_L-1b_040",
-    "type": "unknown",
-    "kind": "changeable",
+    "type": "kitchen_island",
+    "kind": "fixed",
     "center": [
      4.19,
      4.48
     ],
     "size": [
-     2.13,
-     0.9
+     0.9,
+     2.13
     ],
-    "rotation_deg": 90.0,
-    "front_deg": null,
+    "rotation_deg": 0.0,
+    "front_deg": 270.0,
     "anchor": {
      "kind": "centre",
      "point": [
@@ -1120,8 +1164,7 @@
       4.48
      ]
     },
-    "against_wall": null,
-    "status": "unverified (type not sure; only its type may change, the footprint stays)"
+    "against_wall": null
    },
    {
     "id": "f_L-1b_044",
@@ -1347,7 +1390,6 @@
    "f_L-1b_032",
    "f_L-1b_033",
    "f_L-1b_034",
-   "f_L-1b_040",
    "f_L-1b_044",
    "f_L-1b_047",
    "f_L-1b_048",
@@ -1362,7 +1404,7 @@
    "tall_cabinet"
   ],
   "add": {
-   "bar_stool": 3,
+   "bar_stool": 4,
    "tall_cabinet": 1
   },
   "missing": {},
@@ -1419,7 +1461,7 @@
   "properties": {
    "changes": {
     "type": "array",
-    "maxItems": 16,
+    "maxItems": 15,
     "items": {
      "type": "object",
      "additionalProperties": false,
@@ -1443,7 +1485,6 @@
         "f_L-1b_032",
         "f_L-1b_033",
         "f_L-1b_034",
-        "f_L-1b_040",
         "f_L-1b_044",
         "f_L-1b_047",
         "f_L-1b_048",
@@ -1518,7 +1559,7 @@
    },
    "added": {
     "type": "array",
-    "maxItems": 4,
+    "maxItems": 5,
     "items": {
      "type": "object",
      "additionalProperties": false,
@@ -1575,89 +1616,187 @@
   "1": {
    "pieces": [
     {
-     "type": "bar_stool",
+     "type": "tall_cabinet",
      "center": [
-      1.59,
-      4.11
+      7.066,
+      5.53
      ],
-     "rotation_deg": 180.0,
+     "rotation_deg": 270.0,
      "size": [
-      0.42,
-      0.42
+      0.6,
+      0.6
      ],
-     "against_wall": false,
-     "reason": "Placed at island bar for modern natural style seating.",
+     "against_wall": true,
+     "reason": "Fits at end of counter run, against wall, modern natural style.",
      "proposed": {
       "center": [
-       1.59,
-       3.61
+       0.5,
+       5.53
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 90.0,
       "size": [
-       0.42,
-       0.42
+       0.6,
+       0.6
       ]
      },
      "repairs": [
       {
        "iteration": 5,
-       "type": "bar_stool",
-       "step": "slide",
+       "type": "tall_cabinet",
+       "step": "snap",
        "before": {
         "center": [
-         1.59,
-         3.61
+         0.5,
+         5.53
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 90.0,
         "size": [
-         0.42,
-         0.42
+         0.6,
+         0.6
         ]
        },
        "after": {
         "center": [
-         1.59,
-         4.11
+         0.522,
+         5.53
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 90.0,
         "size": [
-         0.42,
-         0.42
+         0.6,
+         0.6
+        ]
+       },
+       "failed": [
+        "inside_room",
+        "no_overlap",
+        "clearance_ok"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 6,
+       "type": "tall_cabinet",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.522,
+         5.53
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.6,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         0.522,
+         5.53
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.6,
+         0.6
         ]
        },
        "failed": [
         "no_overlap"
        ],
-       "ok": true
+       "ok": false,
+       "note": "no free position on this wall"
       },
       {
-       "step": "face_host",
-       "piece": 24,
-       "type": "bar_stool",
+       "iteration": 7,
+       "type": "tall_cabinet",
+       "step": "shrink",
        "before": {
         "center": [
-         1.59,
-         4.11
+         0.522,
+         5.53
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 90.0,
         "size": [
-         0.42,
-         0.42
+         0.6,
+         0.6
         ]
        },
        "after": {
         "center": [
-         1.59,
-         4.11
+         0.512,
+         5.53
         ],
-        "rotation_deg": 180.0,
+        "rotation_deg": 90.0,
         "size": [
-         0.42,
-         0.42
+         0.4,
+         0.58
         ]
        },
-       "host_type": "kitchen_island",
-       "failed": [],
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 8,
+       "type": "tall_cabinet",
+       "step": "slide",
+       "before": {
+        "center": [
+         0.512,
+         5.53
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.4,
+         0.58
+        ]
+       },
+       "after": {
+        "center": [
+         0.512,
+         5.53
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.4,
+         0.58
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": false,
+       "note": "no free position on this wall"
+      },
+      {
+       "iteration": 9,
+       "type": "tall_cabinet",
+       "step": "relocate",
+       "before": {
+        "center": [
+         0.512,
+         5.53
+        ],
+        "rotation_deg": 90.0,
+        "size": [
+         0.4,
+         0.58
+        ]
+       },
+       "after": {
+        "center": [
+         7.066,
+         5.53
+        ],
+        "rotation_deg": 270.0,
+        "size": [
+         0.6,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
        "ok": true
       }
      ],
@@ -1673,8 +1812,8 @@
     {
      "type": "bar_stool",
      "center": [
-      0.99,
-      3.54
+      2.29,
+      4.02
      ],
      "rotation_deg": 180.0,
      "size": [
@@ -1682,13 +1821,13 @@
       0.42
      ],
      "against_wall": false,
-     "reason": "Placed at island bar for modern natural style seating.",
+     "reason": "Adds bar seating at kitchen island, modern natural style.",
      "proposed": {
       "center": [
        1.59,
-       3.04
+       4.62
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.42,
        0.42
@@ -1702,9 +1841,9 @@
        "before": {
         "center": [
          1.59,
-         3.04
+         4.62
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          0.42,
          0.42
@@ -1712,10 +1851,10 @@
        },
        "after": {
         "center": [
-         0.99,
-         3.54
+         2.29,
+         4.02
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          0.42,
          0.42
@@ -1732,10 +1871,10 @@
        "type": "bar_stool",
        "before": {
         "center": [
-         0.99,
-         3.54
+         2.29,
+         4.02
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          0.42,
          0.42
@@ -1743,8 +1882,8 @@
        },
        "after": {
         "center": [
-         0.99,
-         3.54
+         2.29,
+         4.02
         ],
         "rotation_deg": 180.0,
         "size": [
@@ -1767,93 +1906,220 @@
      }
     },
     {
-     "type": "tall_cabinet",
+     "type": "bar_stool",
      "center": [
-      7.066,
-      3.34
+      2.19,
+      5.22
      ],
-     "rotation_deg": 270.0,
+     "rotation_deg": 0.0,
      "size": [
-      0.6,
-      0.6
+      0.42,
+      0.42
      ],
-     "against_wall": true,
-     "reason": "Adds storage at end of counter run, matches modern natural style.",
+     "against_wall": false,
+     "reason": "Adds second bar stool at island, modern natural style.",
      "proposed": {
       "center": [
-       7.39,
-       1.34
+       1.59,
+       4.62
       ],
       "rotation_deg": 0.0,
       "size": [
-       0.6,
-       0.6
+       0.42,
+       0.42
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 3,
+       "type": "bar_stool",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.59,
+         4.62
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "after": {
+        "center": [
+         2.19,
+         5.22
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "type": "bar_stool",
+     "center": [
+      1.19,
+      4.02
+     ],
+     "rotation_deg": 180.0,
+     "size": [
+      0.42,
+      0.42
+     ],
+     "against_wall": false,
+     "reason": "Adds third bar stool at island, modern natural style.",
+     "proposed": {
+      "center": [
+       1.59,
+       4.62
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ]
+     },
+     "repairs": [
+      {
+       "iteration": 2,
+       "type": "bar_stool",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.59,
+         4.62
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "after": {
+        "center": [
+         1.19,
+         4.02
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      },
+      {
+       "step": "face_host",
+       "piece": 27,
+       "type": "bar_stool",
+       "before": {
+        "center": [
+         1.19,
+         4.02
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "after": {
+        "center": [
+         1.19,
+         4.02
+        ],
+        "rotation_deg": 180.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "host_type": "kitchen_island",
+       "failed": [],
+       "ok": true
+      }
+     ],
+     "checks": {
+      "inside_room": true,
+      "no_overlap": true,
+      "clearance_ok": true,
+      "doors_free": true,
+      "windows_free": true,
+      "wall_contact": true
+     }
+    },
+    {
+     "type": "bar_stool",
+     "center": [
+      1.69,
+      5.22
+     ],
+     "rotation_deg": 0.0,
+     "size": [
+      0.42,
+      0.42
+     ],
+     "against_wall": false,
+     "reason": "Adds fourth bar stool at island, modern natural style.",
+     "proposed": {
+      "center": [
+       1.59,
+       4.62
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
       ]
      },
      "repairs": [
       {
        "iteration": 1,
-       "type": "tall_cabinet",
-       "step": "snap",
-       "before": {
-        "center": [
-         7.39,
-         1.34
-        ],
-        "rotation_deg": 0.0,
-        "size": [
-         0.6,
-         0.6
-        ]
-       },
-       "after": {
-        "center": [
-         7.066,
-         1.34
-        ],
-        "rotation_deg": 270.0,
-        "size": [
-         0.6,
-         0.6
-        ]
-       },
-       "failed": [
-        "inside_room",
-        "no_overlap",
-        "clearance_ok",
-        "wall_contact"
-       ],
-       "ok": false
-      },
-      {
-       "iteration": 2,
-       "type": "tall_cabinet",
+       "type": "bar_stool",
        "step": "slide",
        "before": {
         "center": [
-         7.066,
-         1.34
+         1.59,
+         4.62
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
-         0.6,
-         0.6
+         0.42,
+         0.42
         ]
        },
        "after": {
         "center": [
-         7.066,
-         3.34
+         1.69,
+         5.22
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
-         0.6,
-         0.6
+         0.42,
+         0.42
         ]
        },
        "failed": [
-        "no_overlap",
-        "clearance_ok"
+        "no_overlap"
        ],
        "ok": true
       }
@@ -1868,134 +2134,69 @@
      }
     }
    ],
-   "dropped": [
-    {
-     "type": "bar_stool",
-     "proposed": {
-      "center": [
-       1.59,
-       2.4
-      ],
-      "rotation_deg": 270.0,
-      "size": [
-       0.42,
-       0.42
-      ]
-     },
-     "last": {
-      "center": [
-       0.69,
-       2.4
-      ],
-      "rotation_deg": 270.0,
-      "size": [
-       0.42,
-       0.42
-      ]
-     },
-     "failed": [],
-     "reason": "1.71 m from the nearest kitchen_island (> 0.6 m)",
-     "repairs": [
-      {
-       "iteration": 3,
-       "type": "bar_stool",
-       "step": "slide",
-       "before": {
-        "center": [
-         1.59,
-         2.4
-        ],
-        "rotation_deg": 270.0,
-        "size": [
-         0.42,
-         0.42
-        ]
-       },
-       "after": {
-        "center": [
-         0.69,
-         2.4
-        ],
-        "rotation_deg": 270.0,
-        "size": [
-         0.42,
-         0.42
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": true
-      }
-     ]
-    }
-   ],
+   "dropped": [],
    "log": [
     {
      "iteration": 1,
-     "piece": 3,
-     "type": "tall_cabinet",
-     "step": "snap",
+     "piece": 4,
+     "type": "bar_stool",
+     "step": "slide",
      "before": {
       "center": [
-       7.39,
-       1.34
+       1.59,
+       4.62
       ],
       "rotation_deg": 0.0,
       "size": [
-       0.6,
-       0.6
+       0.42,
+       0.42
       ]
      },
      "after": {
       "center": [
-       7.066,
-       1.34
+       1.69,
+       5.22
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
-       0.6,
-       0.6
+       0.42,
+       0.42
       ]
      },
      "failed": [
-      "inside_room",
-      "no_overlap",
-      "clearance_ok",
-      "wall_contact"
+      "no_overlap"
      ],
-     "ok": false
+     "ok": true
     },
     {
      "iteration": 2,
      "piece": 3,
-     "type": "tall_cabinet",
+     "type": "bar_stool",
      "step": "slide",
      "before": {
       "center": [
-       7.066,
-       1.34
+       1.59,
+       4.62
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
-       0.6,
-       0.6
+       0.42,
+       0.42
       ]
      },
      "after": {
       "center": [
-       7.066,
-       3.34
+       1.19,
+       4.02
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
-       0.6,
-       0.6
+       0.42,
+       0.42
       ]
      },
      "failed": [
-      "no_overlap",
-      "clearance_ok"
+      "no_overlap"
      ],
      "ok": true
     },
@@ -2007,9 +2208,9 @@
      "before": {
       "center": [
        1.59,
-       2.4
+       4.62
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.42,
        0.42
@@ -2017,10 +2218,10 @@
      },
      "after": {
       "center": [
-       0.69,
-       2.4
+       2.19,
+       5.22
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.42,
        0.42
@@ -2039,9 +2240,9 @@
      "before": {
       "center": [
        1.59,
-       3.04
+       4.62
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.42,
        0.42
@@ -2049,10 +2250,10 @@
      },
      "after": {
       "center": [
-       0.99,
-       3.54
+       2.29,
+       4.02
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.42,
        0.42
@@ -2066,28 +2267,160 @@
     {
      "iteration": 5,
      "piece": 0,
-     "type": "bar_stool",
-     "step": "slide",
+     "type": "tall_cabinet",
+     "step": "snap",
      "before": {
       "center": [
-       1.59,
-       3.61
+       0.5,
+       5.53
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 90.0,
       "size": [
-       0.42,
-       0.42
+       0.6,
+       0.6
       ]
      },
      "after": {
       "center": [
-       1.59,
-       4.11
+       0.522,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.6,
+       0.6
+      ]
+     },
+     "failed": [
+      "inside_room",
+      "no_overlap",
+      "clearance_ok"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 6,
+     "piece": 0,
+     "type": "tall_cabinet",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.522,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.6,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       0.522,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.6,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 7,
+     "piece": 0,
+     "type": "tall_cabinet",
+     "step": "shrink",
+     "before": {
+      "center": [
+       0.522,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.6,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       0.512,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.4,
+       0.58
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 8,
+     "piece": 0,
+     "type": "tall_cabinet",
+     "step": "slide",
+     "before": {
+      "center": [
+       0.512,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.4,
+       0.58
+      ]
+     },
+     "after": {
+      "center": [
+       0.512,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.4,
+       0.58
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": false,
+     "note": "no free position on this wall"
+    },
+    {
+     "iteration": 9,
+     "piece": 0,
+     "type": "tall_cabinet",
+     "step": "relocate",
+     "before": {
+      "center": [
+       0.512,
+       5.53
+      ],
+      "rotation_deg": 90.0,
+      "size": [
+       0.4,
+       0.58
+      ]
+     },
+     "after": {
+      "center": [
+       7.066,
+       5.53
       ],
       "rotation_deg": 270.0,
       "size": [
-       0.42,
-       0.42
+       0.6,
+       0.6
       ]
      },
      "failed": [
@@ -2096,7 +2429,7 @@
      "ok": true
     }
    ],
-   "iterations": 5,
+   "iterations": 9,
    "anchor_first": false
   },
   "2": {
@@ -2127,7 +2460,7 @@
      },
      "repairs": [
       {
-       "iteration": 4,
+       "iteration": 6,
        "type": "bar_stool",
        "step": "slide",
        "before": {
@@ -2209,7 +2542,7 @@
       0.42
      ],
      "against_wall": false,
-     "reason": "Add second bar stool for extra seating at the island.",
+     "reason": "Add second bar stool for seating at the island.",
      "proposed": {
       "center": [
        1.59,
@@ -2223,7 +2556,7 @@
      },
      "repairs": [
       {
-       "iteration": 3,
+       "iteration": 5,
        "type": "bar_stool",
        "step": "slide",
        "before": {
@@ -2297,7 +2630,7 @@
      "type": "bar_stool",
      "center": [
       1.09,
-      3.8
+      4.0
      ],
      "rotation_deg": 180.0,
      "size": [
@@ -2305,7 +2638,7 @@
       0.42
      ],
      "against_wall": false,
-     "reason": "Add third bar stool to complete island seating.",
+     "reason": "Add third bar stool for seating at the island.",
      "proposed": {
       "center": [
        1.59,
@@ -2319,7 +2652,7 @@
      },
      "repairs": [
       {
-       "iteration": 2,
+       "iteration": 4,
        "type": "bar_stool",
        "step": "slide",
        "before": {
@@ -2336,7 +2669,7 @@
        "after": {
         "center": [
          1.09,
-         3.8
+         4.0
         ],
         "rotation_deg": 0.0,
         "size": [
@@ -2356,7 +2689,7 @@
        "before": {
         "center": [
          1.09,
-         3.8
+         4.0
         ],
         "rotation_deg": 0.0,
         "size": [
@@ -2367,7 +2700,7 @@
        "after": {
         "center": [
          1.09,
-         3.8
+         4.0
         ],
         "rotation_deg": 180.0,
         "size": [
@@ -2392,22 +2725,22 @@
     {
      "type": "tall_cabinet",
      "center": [
-      7.066,
-      4.48
+      6.738,
+      7.122
      ],
-     "rotation_deg": 270.0,
+     "rotation_deg": 0.0,
      "size": [
       0.6,
       0.6
      ],
      "against_wall": true,
-     "reason": "Place tall cabinet at end of counter run for storage and style.",
+     "reason": "Place tall cabinet at end of counter run for storage.",
      "proposed": {
       "center": [
-       6.94,
+       4.19,
        4.48
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.6,
        0.6
@@ -2420,10 +2753,10 @@
        "step": "snap",
        "before": {
         "center": [
-         6.94,
+         4.19,
          4.48
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          0.6,
          0.6
@@ -2431,17 +2764,51 @@
        },
        "after": {
         "center": [
-         7.066,
-         4.48
+         4.938,
+         7.122
         ],
-        "rotation_deg": 270.0,
+        "rotation_deg": 0.0,
         "size": [
          0.6,
          0.6
         ]
        },
        "failed": [
+        "no_overlap",
+        "clearance_ok",
         "wall_contact"
+       ],
+       "ok": false
+      },
+      {
+       "iteration": 2,
+       "type": "tall_cabinet",
+       "step": "slide",
+       "before": {
+        "center": [
+         4.938,
+         7.122
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.6,
+         0.6
+        ]
+       },
+       "after": {
+        "center": [
+         6.738,
+         7.122
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.6,
+         0.6
+        ]
+       },
+       "failed": [
+        "no_overlap",
+        "clearance_ok"
        ],
        "ok": true
       }
@@ -2456,19 +2823,80 @@
      }
     }
    ],
-   "dropped": [],
+   "dropped": [
+    {
+     "type": "bar_stool",
+     "proposed": {
+      "center": [
+       1.59,
+       3.4
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ]
+     },
+     "last": {
+      "center": [
+       0.99,
+       3.5
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ]
+     },
+     "failed": [],
+     "reason": "0.61 m from the nearest kitchen_island (> 0.6 m)",
+     "repairs": [
+      {
+       "iteration": 3,
+       "type": "bar_stool",
+       "step": "slide",
+       "before": {
+        "center": [
+         1.59,
+         3.4
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "after": {
+        "center": [
+         0.99,
+         3.5
+        ],
+        "rotation_deg": 0.0,
+        "size": [
+         0.42,
+         0.42
+        ]
+       },
+       "failed": [
+        "no_overlap"
+       ],
+       "ok": true
+      }
+     ]
+    }
+   ],
    "log": [
     {
      "iteration": 1,
-     "piece": 3,
+     "piece": 4,
      "type": "tall_cabinet",
      "step": "snap",
      "before": {
       "center": [
-       6.94,
+       4.19,
        4.48
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.6,
        0.6
@@ -2476,22 +2904,89 @@
      },
      "after": {
       "center": [
-       7.066,
-       4.48
+       4.938,
+       7.122
       ],
-      "rotation_deg": 270.0,
+      "rotation_deg": 0.0,
       "size": [
        0.6,
        0.6
       ]
      },
      "failed": [
+      "no_overlap",
+      "clearance_ok",
       "wall_contact"
+     ],
+     "ok": false
+    },
+    {
+     "iteration": 2,
+     "piece": 4,
+     "type": "tall_cabinet",
+     "step": "slide",
+     "before": {
+      "center": [
+       4.938,
+       7.122
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.6,
+       0.6
+      ]
+     },
+     "after": {
+      "center": [
+       6.738,
+       7.122
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.6,
+       0.6
+      ]
+     },
+     "failed": [
+      "no_overlap",
+      "clearance_ok"
      ],
      "ok": true
     },
     {
-     "iteration": 2,
+     "iteration": 3,
+     "piece": 3,
+     "type": "bar_stool",
+     "step": "slide",
+     "before": {
+      "center": [
+       1.59,
+       3.4
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ]
+     },
+     "after": {
+      "center": [
+       0.99,
+       3.5
+      ],
+      "rotation_deg": 0.0,
+      "size": [
+       0.42,
+       0.42
+      ]
+     },
+     "failed": [
+      "no_overlap"
+     ],
+     "ok": true
+    },
+    {
+     "iteration": 4,
      "piece": 2,
      "type": "bar_stool",
      "step": "slide",
@@ -2509,7 +3004,7 @@
      "after": {
       "center": [
        1.09,
-       3.8
+       4.0
       ],
       "rotation_deg": 0.0,
       "size": [
@@ -2523,7 +3018,7 @@
      "ok": true
     },
     {
-     "iteration": 3,
+     "iteration": 5,
      "piece": 1,
      "type": "bar_stool",
      "step": "slide",
@@ -2555,7 +3050,7 @@
      "ok": true
     },
     {
-     "iteration": 4,
+     "iteration": 6,
      "piece": 0,
      "type": "bar_stool",
      "step": "slide",
@@ -2587,7 +3082,7 @@
      "ok": true
     }
    ],
-   "iterations": 4,
+   "iterations": 6,
    "anchor_first": false
   }
  }

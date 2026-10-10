@@ -50,7 +50,7 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L-1b_081",
+   "id": "f_L-1b_082",
    "type": "console_table",
    "center": [
     11.6602,
@@ -63,7 +63,7 @@
    "rotation_deg": 270.0,
    "confidence": 0.9,
    "method": "ai",
-   "mirrored_from": "f_L-1b_075"
+   "mirrored_from": "f_L-1b_076"
   }
  ],
  "refused": [],

@@ -11,7 +11,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 5.15,
+     "latency_s": 5.167,
      "error": null,
      "pieces_proposed": 5,
      "pieces_placed": 5,
@@ -24,7 +24,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 3.5,
+     "latency_s": 3.507,
      "error": null,
      "pieces_proposed": 4,
      "pieces_placed": 4,
@@ -36,7 +36,7 @@
     }
    ],
    "chosen_pass": 1,
-   "latency_s": 8.649,
+   "latency_s": 8.674,
    "skipped": null,
    "pieces": [
     {
@@ -68,7 +68,7 @@
     {
      "id": "f_L-1b_063",
      "type": "armchair",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -144,7 +144,7 @@
     {
      "id": "f_L-1b_068",
      "type": "armchair",
-     "confidence": 0.9,
+     "confidence": 0.6,
      "checks": {
       "inside_room": true,
       "no_overlap": true,
@@ -207,7 +207,7 @@
     {
      "pass": 1,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 2.76,
+     "latency_s": 2.766,
      "error": null,
      "pieces_proposed": 3,
      "pieces_placed": 2,
@@ -220,7 +220,7 @@
     {
      "pass": 2,
      "model": "Qwen/Qwen3-VL-8B-Instruct",
-     "latency_s": 1.959,
+     "latency_s": 1.974,
      "error": null,
      "pieces_proposed": 2,
      "pieces_placed": 2,
@@ -232,7 +232,7 @@
     }
    ],
    "chosen_pass": 2,
-   "latency_s": 4.718,
+   "latency_s": 4.739,
    "skipped": null,
    "pieces": [
     {
@@ -319,13 +319,13 @@
   }
  ],
  "pieces_added": 14,
- "latency_s": 13.368,
+ "latency_s": 13.413,
  "completion": {
   "rooms_completed": 18,
   "rooms_copied": 14,
   "changes_applied": 0,
   "pieces_added": 56,
   "wall_cabinets": 6,
-  "latency_s": 74.378
+  "latency_s": 76.43
  }
 }

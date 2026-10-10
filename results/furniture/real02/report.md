@@ -1,7 +1,7 @@
 # Ingest report: real02
 
 Status: **ok**
-Source: `projects/real02`, pipeline commit `9e136a2a`, created 2026-10-09T22:38:13Z
+Source: `projects/real02`, pipeline commit `cddf61aa`, created 2026-10-10T01:09:34Z
 
 ## Documents
 
@@ -195,8 +195,8 @@ Source: `projects/real02`, pipeline commit `9e136a2a`, created 2026-10-09T22:38:
 | f_L-1b_036 | L-1b | r_L-1b_banyo | washbasin | ebeveynlavabo | from_documents | 1.00 x 0.55 | 180 | verified | one_building.dwg |
 | f_L-1b_037 | L-1b | r_L-1b_banyo_2 | toilet | klozet | from_documents | 0.69 x 0.50 | 90 | verified | one_building.dwg |
 | f_L-1b_038 | L-1b | r_L-1b_banyo | toilet | klozet | from_documents | 0.69 x 0.50 | 90 | verified | one_building.dwg |
-| f_L-1b_039 | L-1b | r_L-1b_acik_mutfak_2 | kitchen_island | - | from_documents | 2.13 x 0.90 | 90 | unverified | one_building.dwg |
-| f_L-1b_040 | L-1b | r_L-1b_acik_mutfak | unknown | - | from_documents | 2.13 x 0.90 | 90 | unverified | one_building.dwg |
+| f_L-1b_039 | L-1b | r_L-1b_acik_mutfak_2 | kitchen_island | - | from_documents | 0.90 x 2.13 | 0 | verified | one_building.dwg |
+| f_L-1b_040 | L-1b | r_L-1b_acik_mutfak | kitchen_island | - | from_documents | 0.90 x 2.13 | 0 | unverified | one_building.dwg |
 | f_L-1b_041 | L-1b | r_L-1b_banyo_2 | bathtub | - | from_documents | 1.83 x 0.80 | 90 | verified | one_building.dwg |
 | f_L-1b_042 | L-1b | r_L-1b_banyo | bathtub | - | from_documents | 1.83 x 0.80 | 90 | verified | one_building.dwg |
 | f_L-1b_043 | L-1b | r_L-1b_acik_mutfak_2 | unknown | - | from_documents | 0.82 x 1.64 | 270 | unverified | one_building.dwg |
@@ -294,7 +294,7 @@ Pieces whose type, front or role the documents left unclear; inferred by code (t
 | f_L-1_086 | r_L-1_mutfak_2 | unknown | - | no | drawn inside kitchen_counter f_L-1_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built) |
 | f_L-1b_001 | r_L-1b_acik_mutfak_2 | unknown | - | no | outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_043, f_L-1b_051, f_L-1b_052): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups) |
 | f_L-1b_002 | r_L-1b_acik_mutfak | unknown | - | no | outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_044, f_L-1b_049, f_L-1b_050): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups) |
-| f_L-1b_039 | r_L-1b_acik_mutfak_2 | kitchen_island | - | yes | kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here |
+| f_L-1b_040 | r_L-1b_acik_mutfak | kitchen_island | 270 | yes | type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16) |
 | f_L-1b_057 | r_L-1b_acik_mutfak_2 | unknown | - | no | drawn inside kitchen_counter f_L-1b_004 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built) |
 | f_L-1b_058 | r_L-1b_acik_mutfak | unknown | - | no | drawn inside kitchen_counter f_L-1b_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built) |
 | f_L0_016 | r_L0_e_banyo_2 | toilet | 270 | yes | front of f_L0_015, its mirror twin in r_L0_e_banyo (U16) |
@@ -594,8 +594,8 @@ Recorded, not built.
 | f_L-1b_036 | washbasin | block_name (front 90 deg: corner: the long side against a wall is the back) | - | yes | verified |
 | f_L-1b_037 | toilet | block_name (2 drawn parts of one block instance are one piece) | - | yes | verified |
 | f_L-1b_038 | toilet | block_name (2 drawn parts of one block instance are one piece) | - | yes | verified |
-| f_L-1b_039 | kitchen_island | none | - | yes | unverified |
-| f_L-1b_040 | unknown | none | pass 1: kitchen_island; pass 2: sofa | yes | unverified |
+| f_L-1b_039 | kitchen_island | ai_two_pass | pass 1: kitchen_island; pass 2: kitchen_island | yes | verified |
+| f_L-1b_040 | kitchen_island | none | pass 1: kitchen_island; pass 2: sofa | yes | unverified |
 | f_L-1b_041 | bathtub | ai_two_pass | pass 1: bathtub; pass 2: bathtub | yes | verified |
 | f_L-1b_042 | bathtub | ai_two_pass | pass 1: bathtub; pass 2: bathtub | yes | verified |
 | f_L-1b_043 | unknown | none | pass 1: kitchen_island; pass 2: sofa | yes | unverified |
@@ -679,7 +679,7 @@ Recorded, not built.
 | f_L1_027 | ottoman | ai_two_pass | pass 1: ottoman; pass 2: ottoman | yes | unverified |
 | f_L1_028 | ottoman | ai_two_pass | pass 1: ottoman; pass 2: ottoman | yes | unverified |
 
-Recognition questions: 88 (`recognition/requests.json`), 1 without a complete pair of answers (--no-ai: not applied, they stay unknown/unverified).
+Recognition questions: 88 (`recognition/requests.json`), 0 without a complete pair of answers.
 
 ## Assumed values
 
@@ -812,7 +812,6 @@ Recognition questions: 88 (`recognition/requests.json`), 1 without a complete pa
 - klozet at (7259.68, 44909.53): 2 drawn parts of one block instance are one piece
 - table + 8 chairs at (7267.06, 44901.66) split (M11)
 - table + 8 chairs at (7255.37, 44901.66) split (M11)
-- 1 of 22 furniture candidates have no complete pair of answers (--no-ai: they stay unknown, unverified)
 
 ### one_building.dwg
 
@@ -989,7 +988,6 @@ Recognition questions: 88 (`recognition/requests.json`), 1 without a complete pa
 - f_L-1b_008
 - f_L-1b_012
 - f_L-1b_014
-- f_L-1b_039
 - f_L-1b_040
 - f_L-1b_043
 - f_L-1b_044
@@ -1105,6 +1103,7 @@ Recognition questions: 88 (`recognition/requests.json`), 1 without a complete pa
 - L0: room at (4.718, 7.594) (5.71 m²) has no label: unlabelled face holding the stair
 - L0: room at (7.786, 7.594) (5.72 m²) has no label: unlabelled face holding the stair
 - twin copy: f_L-1_051: toilet -> toilet, front 90 deg (front of f_L-1_052, its mirror twin in r_L-1_banyo_2 (U16); inferred)
+- twin copy: f_L-1b_040: unknown -> kitchen_island, front 270 deg (type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16); inferred)
 - twin copy: f_L0_016: toilet -> toilet, front 270 deg (front of f_L0_015, its mirror twin in r_L0_e_banyo (U16); inferred)
 - twin copy: f_L0_017: toilet -> toilet, front 90 deg (front of f_L0_018, its mirror twin in r_L0_banyo (U16); inferred)
 - twin copy: f_L1_021: unknown -> bench, front 0 deg (type and front of f_L1_022, its mirror twin in r_L1_koridor_2 (U16); inferred)
@@ -1115,7 +1114,6 @@ Recognition questions: 88 (`recognition/requests.json`), 1 without a complete pa
 - f_L-1_086: not built (rug or group outline): drawn inside kitchen_counter f_L-1_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)
 - f_L-1b_001: not built (rug or group outline): outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_043, f_L-1b_051, f_L-1b_052): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)
 - f_L-1b_002: not built (rug or group outline): outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_044, f_L-1b_049, f_L-1b_050): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)
-- f_L-1b_039: inferred kitchen_island: kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here
 - f_L-1b_057: not built (rug or group outline): drawn inside kitchen_counter f_L-1b_004 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)
 - f_L-1b_058: not built (rug or group outline): drawn inside kitchen_counter f_L-1b_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)
 - f_L0_027: inferred desk: desk: the only type whose size range fits 1.45 x 0.91 m, that a bedroom room holds and whose position rule holds here

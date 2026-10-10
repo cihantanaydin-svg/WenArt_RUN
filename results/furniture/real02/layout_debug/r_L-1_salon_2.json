@@ -434,7 +434,7 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L-1_102",
+   "id": "f_L-1_100",
    "type": "tv_unit",
    "center": [
     12.0922,
@@ -450,7 +450,7 @@
    "mirrored_from": "f_L-1_089"
   },
   {
-   "id": "f_L-1_103",
+   "id": "f_L-1_101",
    "type": "armchair",
    "center": [
     13.8722,
@@ -466,50 +466,24 @@
    "mirrored_from": "f_L-1_090"
   },
   {
-   "id": "f_L-1_104",
+   "id": "f_L-1_102",
    "type": "console_table",
    "center": [
     13.6722,
-    4.3
+    6.847
    ],
    "size": [
     1.2,
     0.35
    ],
-   "rotation_deg": 180.0,
-   "confidence": 0.9,
-   "method": "ai",
-   "mirrored_from": "f_L-1_091"
-  },
-  {
-   "id": "f_L-1_105",
-   "type": "bookshelf",
-   "center": [
-    7.9822,
-    1.872
-   ],
-   "size": [
-    1.0,
-    0.35
-   ],
-   "rotation_deg": 90.0,
+   "rotation_deg": 0.0,
    "confidence": 0.6,
    "method": "ai",
-   "mirrored_from": "f_L-1_093"
+   "mirrored_from": "f_L-1_091"
   }
  ],
  "refused": [],
- "dropped": [
-  {
-   "type": "chaise",
-   "mirrored_from": "f_L-1_092",
-   "center": [
-    1.5,
-    3.0
-   ],
-   "reason": "the copy fails clearance_ok here"
-  }
- ],
+ "dropped": [],
  "wall_cabinets": [],
  "drawn_layout": {
   "pieces": {

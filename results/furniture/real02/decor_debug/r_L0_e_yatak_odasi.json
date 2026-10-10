@@ -48,12 +48,12 @@
    "host_type": "nightstand",
    "note": "centre part, under a window",
    "center": [
-    6.665,
-    1.921
+    6.565,
+    1.946
    ],
    "max_size": [
-    0.44,
-    0.34,
+    0.54,
+    0.39,
     0.4
    ]
   },
@@ -72,12 +72,12 @@
    "host_type": "nightstand",
    "note": "centre part, under a window",
    "center": [
-    7.165,
-    2.12
+    7.14,
+    2.021
    ],
    "max_size": [
-    0.44,
-    0.34,
+    0.54,
+    0.39,
     0.4
    ]
   },
@@ -142,7 +142,7 @@
      "slot": "f_L0_007.cushions",
      "type": "cushion",
      "colour": "mustard",
-     "reason": "Adds warmth and style to the bed with a modern natural tone."
+     "reason": "Adds warmth and style to the bed with a natural, modern accent."
     },
     {
      "slot": "f_L0_007.throw",
@@ -160,13 +160,13 @@
      "slot": "f_L0_042.centre",
      "type": "plant_small",
      "colour": "cream",
-     "reason": "Small plant in cream pot brings life and matches the natural light wood theme."
+     "reason": "Small plant in cream pot brings life and matches the natural, warm theme."
     },
     {
      "slot": "f_L0_043.centre",
      "type": "book_set",
      "colour": "cream",
-     "reason": "Books add texture and calm, in a neutral tone that suits the space."
+     "reason": "Books add texture and calm, in a neutral tone that blends with the room."
     },
     {
      "slot": "r_L0_e_yatak_odasi.rug1",
@@ -178,7 +178,7 @@
      "slot": "window:win_L0_002",
      "type": "curtain",
      "colour": "cream",
-     "reason": "Cream curtains soften natural light and match the warm, neutral palette."
+     "reason": "Cream curtains soften natural light and match the room’s warm, neutral palette."
     },
     {
      "slot": "ceiling:over_f_L0_007",
@@ -194,7 +194,7 @@
     }
    ],
    "error": null,
-   "latency_s": 5.799
+   "latency_s": 5.845
   },
   "2": {
    "items": [
@@ -202,53 +202,53 @@
      "slot": "f_L0_007.cushions",
      "type": "cushion",
      "colour": "mustard",
-     "reason": "Adds warmth and color contrast to the greige walls."
+     "reason": "Adds warmth and color contrast to the greige walls and neutral palette."
     },
     {
      "slot": "f_L0_007.throw",
      "type": "throw",
      "colour": "cream",
-     "reason": "Softens the bed and complements the natural wood and neutral palette."
+     "reason": "Softens the bed and complements the natural wood and light grey sofa."
     },
     {
      "slot": "f_L0_007.wall",
      "type": "wall_art",
      "colour": "natural wood",
-     "reason": "Minimalist art in wood tone enhances modern natural style."
-    },
-    {
-     "slot": "r_L0_e_yatak_odasi.rug1",
-     "type": "rug",
-     "colour": "sand",
-     "reason": "Warm neutral rug grounds the space and ties in with light oak flooring."
-    },
-    {
-     "slot": "window:win_L0_002",
-     "type": "curtain",
-     "colour": "cream",
-     "reason": "Light, airy curtains let in natural light while softening dark bronze frames."
-    },
-    {
-     "slot": "ceiling:over_f_L0_007",
-     "type": "pendant_light",
-     "colour": "brass",
-     "reason": "Warm brass light adds subtle metallic accent and ambient glow."
+     "reason": "Modern art in wood tone enhances the natural, warm aesthetic."
     },
     {
      "slot": "f_L0_042.centre",
      "type": "plant_small",
      "colour": "natural wood",
-     "reason": "Small plant in rattan pot brings life and matches natural wood furniture."
+     "reason": "Small plant in rattan pot brings life and matches the natural wood theme."
     },
     {
      "slot": "f_L0_043.centre",
      "type": "book_set",
      "colour": "cream",
-     "reason": "Books add texture and calm, in a neutral tone that blends with the room."
+     "reason": "Books in cream cover add texture and calm without visual clutter."
+    },
+    {
+     "slot": "r_L0_e_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "sand",
+     "reason": "Sand rug under bed ties in with warm earth tones and light oak floor."
+    },
+    {
+     "slot": "window:win_L0_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Cream curtains soften natural light and match the warm, neutral palette."
+    },
+    {
+     "slot": "ceiling:over_f_L0_007",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "Brass pendant light adds warmth and complements dark bronze window frames."
     }
    ],
    "error": null,
-   "latency_s": 5.115
+   "latency_s": 5.152
   }
  },
  "agreed": [
@@ -258,8 +258,8 @@
    "colour": "mustard",
    "colour_agreed": true,
    "reasons": [
-    "Adds warmth and style to the bed with a modern natural tone.",
-    "Adds warmth and color contrast to the greige walls."
+    "Adds warmth and style to the bed with a natural, modern accent.",
+    "Adds warmth and color contrast to the greige walls and neutral palette."
    ]
   },
   {
@@ -269,7 +269,7 @@
    "colour_agreed": true,
    "reasons": [
     "Softens the bed and complements the greige walls and natural wood.",
-    "Softens the bed and complements the natural wood and neutral palette."
+    "Softens the bed and complements the natural wood and light grey sofa."
    ]
   },
   {
@@ -279,7 +279,7 @@
    "colour_agreed": true,
    "reasons": [
     "Minimalist art in wood tone enhances the modern natural aesthetic.",
-    "Minimalist art in wood tone enhances modern natural style."
+    "Modern art in wood tone enhances the natural, warm aesthetic."
    ]
   },
   {
@@ -288,8 +288,8 @@
    "colour": "cream",
    "colour_agreed": false,
    "reasons": [
-    "Small plant in cream pot brings life and matches the natural light wood theme.",
-    "Small plant in rattan pot brings life and matches natural wood furniture."
+    "Small plant in cream pot brings life and matches the natural, warm theme.",
+    "Small plant in rattan pot brings life and matches the natural wood theme."
    ]
   },
   {
@@ -298,8 +298,8 @@
    "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Books add texture and calm, in a neutral tone that suits the space.",
-    "Books add texture and calm, in a neutral tone that blends with the room."
+    "Books add texture and calm, in a neutral tone that blends with the room.",
+    "Books in cream cover add texture and calm without visual clutter."
    ]
   },
   {
@@ -309,7 +309,7 @@
    "colour_agreed": true,
    "reasons": [
     "Warm sand rug under the bed grounds the space and complements the oak floor.",
-    "Warm neutral rug grounds the space and ties in with light oak flooring."
+    "Sand rug under bed ties in with warm earth tones and light oak floor."
    ]
   },
   {
@@ -318,8 +318,8 @@
    "colour": "cream",
    "colour_agreed": true,
    "reasons": [
-    "Cream curtains soften natural light and match the warm, neutral palette.",
-    "Light, airy curtains let in natural light while softening dark bronze frames."
+    "Cream curtains soften natural light and match the room’s warm, neutral palette.",
+    "Cream curtains soften natural light and match the warm, neutral palette."
    ]
   },
   {
@@ -329,7 +329,7 @@
    "colour_agreed": true,
    "reasons": [
     "Brass pendant light adds warmth and modern elegance above the bed.",
-    "Warm brass light adds subtle metallic accent and ambient glow."
+    "Brass pendant light adds warmth and complements dark bronze window frames."
    ]
   }
  ],

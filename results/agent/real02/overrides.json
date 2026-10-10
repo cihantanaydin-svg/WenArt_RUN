@@ -319,6 +319,960 @@
     "rolled_back": "refit failed (exit 1)"
    },
    "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 13,
+   "round": 1,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_029",
+    "center": [
+     0.654,
+     8.9356
+    ],
+    "reason": "Nudge the desk 0.3 m north along the west wall so it clears the free zone in front of the wardrobe f_L0_009 (F6)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 90.0,
+    "score_after": 90.0,
+    "penalty_before": 10,
+    "penalty_after": 10,
+    "changed_ids": [
+     "f_L0_029"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score 90 -> 90",
+    "log_seq": 1238
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 14,
+   "round": 1,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_024",
+    "center": [
+     5.9023,
+     6.9722
+    ],
+    "reason": "Shift the wardrobe 0.10 m south so its back edge sits on the north wall line and it no longer crosses the room outline."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_024"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 1247
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 15,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L-1b_077",
+    "reason": "AI-added tall cabinet floats in the middle of the room away from any wall and blocks the walkway between island and dining area."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 55.0,
+    "score_after": 55.0,
+    "penalty_before": 45,
+    "penalty_after": 45,
+    "changed_ids": [
+     "f_L-1b_077"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 55 -> 55",
+    "log_seq": 1250
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 16,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L1_017",
+    "reason": "Plan crop shows the 1.63x1.52 m box is a dashed outline of a circular play mat / rug with a circle inside, not furniture; it must not be built as a solid block."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 22.0,
+    "score_after": 32.0,
+    "penalty_before": 78,
+    "penalty_after": 68,
+    "changed_ids": [
+     "f_L1_017"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 22 -> 32",
+    "log_seq": 1258
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 17,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L1_005",
+    "reason": "Plan crop shows the 3.66x0.4 m strip along the top wall is a curtain (labelled curtain in the drawing), not furniture; it must not be built as a solid box."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 32.0,
+    "score_after": 42.0,
+    "penalty_before": 68,
+    "penalty_after": 58,
+    "changed_ids": [
+     "f_L1_005"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 32 -> 42",
+    "log_seq": 1259
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 18,
+   "round": 1,
+   "tool": "set_room_type",
+   "args": {
+    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+    "room_type": "living",
+    "reason": "The room contains sofas, an armchair, an ottoman and a coffee-table zone (a play/relax lounge), so 'living' fits its fixtures and furniture far better than 'other'."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 42.0,
+    "score_after": 45.0,
+    "penalty_before": 58,
+    "penalty_after": 55,
+    "changed_ids": [
+     "r_L1_oyun_aktivite_ve_dinlenme_odasi"
+    ],
+    "rerun_from": "layout",
+    "message": "set_room_type accepted: score 42 -> 45",
+    "log_seq": 1261
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 19,
+   "round": 1,
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L1_033",
+    "front_deg": 180,
+    "reason": "Turn the armchair to face west, towards the sofa group (f_L1_010, f_L1_011), fixing F4."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 22.0,
+    "score_after": 32.0,
+    "penalty_before": 78,
+    "penalty_after": 68,
+    "changed_ids": [
+     "f_L1_033"
+    ],
+    "rerun_from": "refit",
+    "message": "rotate accepted: score 22 -> 32",
+    "log_seq": 1269
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 20,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L1_034",
+    "reason": "The AI-added chair stands alone with no table or wall nearby (F8); removing it is the cleanest fix."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 32.0,
+    "score_after": 42.0,
+    "penalty_before": 68,
+    "penalty_after": 58,
+    "changed_ids": [
+     "f_L1_034"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 32 -> 42",
+    "log_seq": 1270
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 21,
+   "round": 1,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L0_033",
+    "center": [
+     7.95,
+     2.66
+    ],
+    "reason": "Shift the drawn floor lamp 0.06 m west so it no longer overlaps the bed footprint (F9)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 50.0,
+    "score_after": 50.0,
+    "penalty_before": 50,
+    "penalty_after": 50,
+    "changed_ids": [
+     "f_L0_033"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score 50 -> 50",
+    "log_seq": 1278
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 22,
+   "round": 2,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_089",
+    "center": [
+     3.08,
+     0.45
+    ],
+    "reason": "Keep the TV unit against the window wall but reposition it so it is not behind the armchairs' backs."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_089"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 1509
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 23,
+   "round": 2,
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L-1b_006",
+    "type": "sink_kitchen",
+    "reason": "The 0.62x0.6 m box sits in the back counter run where a sink belongs."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 55.0,
+    "score_after": 55.0,
+    "penalty_before": 45,
+    "penalty_after": 45,
+    "changed_ids": [
+     "f_L-1b_006"
+    ],
+    "rerun_from": "refit",
+    "message": "change_type accepted: score 55 -> 55",
+    "log_seq": 1522
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 24,
+   "round": 2,
+   "tool": "resize_piece",
+   "args": {
+    "piece_id": "f_L0_008",
+    "size": [
+     2.0,
+     1.6
+    ],
+    "reason": "Shrink the drawn bed to a real double-bed size so a 0.9 m walkway opens between the two doors and the window."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 50.0,
+    "score_after": 87.0,
+    "penalty_before": 50,
+    "penalty_after": 13,
+    "changed_ids": [
+     "f_L0_008"
+    ],
+    "rerun_from": "refit",
+    "message": "resize accepted: score 50 -> 87",
+    "log_seq": 1523
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 25,
+   "round": 2,
+   "tool": "swap_model",
+   "args": {
+    "piece_id": "f_L1_013",
+    "asset_id": "gen_toilet_classic_3_293965c2",
+    "reason": "Replace the flat wooden panel render with a proper toilet fixture model."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 67.0,
+    "score_after": 67.0,
+    "penalty_before": 33,
+    "penalty_after": 33,
+    "changed_ids": [
+     "f_L1_013"
+    ],
+    "rerun_from": "refit",
+    "message": "swap_model accepted: score 67 -> 67",
+    "log_seq": 1534
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 26,
+   "round": 2,
+   "tool": "swap_model",
+   "args": {
+    "piece_id": "f_L1_007",
+    "asset_id": "gen_washbasin_modern_1_833baa60",
+    "reason": "Replace the solid white block render with a proper washbasin model showing bowl and faucet."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 67.0,
+    "score_after": 67.0,
+    "penalty_before": 33,
+    "penalty_after": 33,
+    "changed_ids": [
+     "f_L1_007"
+    ],
+    "rerun_from": "refit",
+    "message": "swap_model accepted: score 67 -> 67",
+    "log_seq": 1535
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 27,
+   "round": 2,
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L1_029",
+    "front_deg": 90,
+    "reason": "Turn the armchair to face east toward the sofa group to fix F4."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 45.0,
+    "score_after": 45.0,
+    "penalty_before": 55,
+    "penalty_after": 55,
+    "changed_ids": [
+     "f_L1_029"
+    ],
+    "rerun_from": "refit",
+    "message": "rotate accepted: score 45 -> 45",
+    "log_seq": 1538
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 28,
+   "round": 2,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L1_030",
+    "reason": "Remove the lone AI chair that stands alone with no table or wall nearby (F8)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 45.0,
+    "score_after": 55.0,
+    "penalty_before": 55,
+    "penalty_after": 45,
+    "changed_ids": [
+     "f_L1_030"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 45 -> 55",
+    "log_seq": 1539
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 29,
+   "round": 3,
+   "tool": "rerun_stage",
+   "args": {
+    "stage": "polish",
+    "reason": "Re-enable polish so the drawn staircase f_L-1_019 is rendered as a proper integrated stair (treads, stringers, railing) instead of a floating solid wood block."
+   },
+   "result": {
+    "accepted": false,
+    "failed_checks": [],
+    "score_before": null,
+    "score_after": null,
+    "changed_ids": [],
+    "rerun_from": "polish",
+    "message": "the stage runs again with these settings",
+    "log_seq": 1756,
+    "rolled_back": "refit failed (exit 1)"
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 30,
+   "round": 3,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L-1_015",
+    "reason": "The 0.45×0.23 m box is a sink basin detail drawn inside the north counter run, not a separate piece of furniture."
+   },
+   "result": {
+    "accepted": false,
+    "failed_checks": [],
+    "score_before": 48.0,
+    "score_after": 51.0,
+    "penalty_before": 52,
+    "penalty_after": 49,
+    "changed_ids": [
+     "f_L-1_015"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 48 -> 51",
+    "log_seq": 1796,
+    "rolled_back": "refit failed (exit 1)"
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 31,
+   "round": 1,
+   "tool": "rerun_stage",
+   "args": {
+    "stage": "polish",
+    "reason": "Re-enable polish so the drawn stair f_L-1_019 renders as steps instead of a solid green box blocking the corridor."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": null,
+    "score_after": null,
+    "changed_ids": [],
+    "rerun_from": "polish",
+    "message": "the stage runs again with these settings",
+    "log_seq": 2087
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 32,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L-1_054",
+    "reason": "The drawn corner-sofa block (4.38x1.97 m) completely covers the smaller sofa f_L-1_062 and the coffee table f_L-1_074, is 1.10 m off any wall, and blocks the door-to-window walkway; it is a misread drawing block, so it is removed to unblock the room."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 158,
+    "penalty_after": 148,
+    "changed_ids": [
+     "f_L-1_054"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score -58 -> -48",
+    "log_seq": 2091
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 33,
+   "round": 1,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_023",
+    "center": [
+     9.2708,
+     6.9722
+    ],
+    "reason": "Shift the wardrobe 0.10 m south so its back edge sits on the north wall line and it no longer crosses the room outline."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 148,
+    "penalty_after": 148,
+    "changed_ids": [
+     "f_L-1_023"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -48 -> -48",
+    "log_seq": 2093
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 34,
+   "round": 1,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_057",
+    "snap_wall_id": "w_L-1_015",
+    "offset": 0.3,
+    "reason": "Snap the floor lamp to the east wall so it no longer stands in front of the window band (sill 0.90 m)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 148,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_057"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -48 -> -28",
+    "log_seq": 2095
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 35,
+   "round": 1,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_065",
+    "center": [
+     10.8728,
+     1.0408
+    ],
+    "reason": "Nudge the floor lamp 0.30 m north, the maximum allowed for a drawn piece, to clear the window band (sill 0.90 m)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_065"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 2097
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 36,
+   "round": 1,
+   "tool": "change_type",
+   "args": {
+    "piece_id": "f_L-1_014",
+    "type": "sink_kitchen",
+    "reason": "0.62x0.6 m box at the west counter end is the drawn kitchen sink position."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 48.0,
+    "score_after": 48.0,
+    "penalty_before": 52,
+    "penalty_after": 52,
+    "changed_ids": [
+     "f_L-1_014"
+    ],
+    "rerun_from": "refit",
+    "message": "change_type accepted: score 48 -> 48",
+    "log_seq": 2108
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 37,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L-1b_043",
+    "reason": "1.34 m² unexplained box at (9.62, 6.44) is not furniture; the plan crop shows no drawn object at that location, it is a spurious inferred region."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 55.0,
+    "score_after": 65.0,
+    "penalty_before": 45,
+    "penalty_after": 35,
+    "changed_ids": [
+     "f_L-1b_043"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 55 -> 65",
+    "log_seq": 2113
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 38,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L-1b_078",
+    "reason": "AI-added bar stool floats in the middle of the room, unattached to any counter or island."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 65.0,
+    "score_after": 65.0,
+    "penalty_before": 35,
+    "penalty_after": 35,
+    "changed_ids": [
+     "f_L-1b_078"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 65 -> 65",
+    "log_seq": 2119
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 39,
+   "round": 1,
+   "tool": "remove_piece",
+   "args": {
+    "piece_id": "f_L-1_006",
+    "reason": "Tiny 0.10 m² drawn box is a plan detail (drain/symbol) inside the counter zone, not furniture."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 48.0,
+    "score_after": 51.0,
+    "penalty_before": 52,
+    "penalty_after": 49,
+    "changed_ids": [
+     "f_L-1_006"
+    ],
+    "rerun_from": "refit",
+    "message": "remove accepted: score 48 -> 51",
+    "log_seq": 2132
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 40,
+   "round": 2,
+   "tool": "rerun_stage",
+   "args": {
+    "stage": "polish",
+    "reason": "Stair f_L-1_019 renders as a solid green box instead of steps; polish was skipped, re-run to fix stair rendering."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": null,
+    "score_after": null,
+    "changed_ids": [],
+    "rerun_from": "polish",
+    "message": "the stage runs again with these settings",
+    "log_seq": 2333
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 41,
+   "round": 2,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_023",
+    "center": [
+     9.2708,
+     6.8931
+    ],
+    "reason": "Shift wardrobe 0.08 m north so its back sits on the north wall (F3)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_023"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 2340
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 42,
+   "round": 2,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_062",
+    "center": [
+     13.1641,
+     3.1748
+    ],
+    "reason": "Nudge sofa 0.3 m east toward the east wall to reduce the F3 back-off-wall gap."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_062"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 2342
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 43,
+   "round": 2,
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L-1_050",
+    "front_deg": 180,
+    "reason": "Turn armchair to face the sofa group (F4) and keep its free zone inside the room (F6)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 118,
+    "changed_ids": [
+     "f_L-1_050"
+    ],
+    "rerun_from": "refit",
+    "message": "rotate accepted: score -28 -> -18",
+    "log_seq": 2343
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 44,
+   "round": 2,
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L-1_101",
+    "front_deg": 180,
+    "reason": "Turn armchair to face the sofa group (F4)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 118,
+    "penalty_after": 108,
+    "changed_ids": [
+     "f_L-1_101"
+    ],
+    "rerun_from": "refit",
+    "message": "rotate accepted: score -18 -> -8",
+    "log_seq": 2345
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 45,
+   "round": 2,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_089",
+    "center": [
+     3.08,
+     0.45
+    ],
+    "reason": "Keep the tv_unit at the window wall but reposition so it faces the seating group rather than standing behind the armchairs (F4)."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_089"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 2350
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 46,
+   "round": 3,
+   "tool": "rerun_stage",
+   "args": {
+    "stage": "polish",
+    "reason": "Stair f_L-1_019 renders as a solid green box instead of steps; polish was skipped, re-run to fix stair rendering."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": null,
+    "score_after": null,
+    "changed_ids": [],
+    "rerun_from": "polish",
+    "message": "the stage runs again with these settings",
+    "log_seq": 2570
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 47,
+   "round": 3,
+   "tool": "rotate_piece",
+   "args": {
+    "piece_id": "f_L-1_054",
+    "front_deg": 270,
+    "reason": "Turn the corner sofa to face the room/TV unit instead of the window wall."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 108,
+    "penalty_after": 108,
+    "changed_ids": [
+     "f_L-1_054"
+    ],
+    "rerun_from": "refit",
+    "message": "rotate accepted: score -8 -> -8",
+    "log_seq": 2582
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 48,
+   "round": 4,
+   "tool": "rerun_stage",
+   "args": {
+    "stage": "polish",
+    "reason": "Re-enable polish so the drawn stair f_L-1_019 is rendered as a stepped staircase model instead of a solid green box blocking the corridor."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": null,
+    "score_after": null,
+    "changed_ids": [],
+    "rerun_from": "polish",
+    "message": "the stage runs again with these settings",
+    "log_seq": 2809
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 49,
+   "round": 4,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_089",
+    "center": [
+     3.08,
+     0.45
+    ],
+    "reason": "Keep the TV unit on the south wall but reposition it so it is not behind the back of the armchairs."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_089"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 2822
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
+  },
+  {
+   "seq": 50,
+   "round": 4,
+   "tool": "move_piece",
+   "args": {
+    "piece_id": "f_L-1_024",
+    "center": [
+     5.9023,
+     6.8922
+    ],
+    "reason": "Nudge the wardrobe 0.08 m north so its back sits on the north wall."
+   },
+   "result": {
+    "accepted": true,
+    "failed_checks": [],
+    "score_before": 0.0,
+    "score_after": 0.0,
+    "penalty_before": 128,
+    "penalty_after": 128,
+    "changed_ids": [
+     "f_L-1_024"
+    ],
+    "rerun_from": "refit",
+    "message": "move accepted: score -28 -> -28",
+    "log_seq": 2823
+   },
+   "model": "Qwen/Qwen3.8-27B-FP8"
   }
  ]
 }

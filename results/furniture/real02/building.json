@@ -3,8 +3,8 @@
  "project": {
   "id": "real02",
   "source_folder": "projects/real02",
-  "created_utc": "2026-10-09T22:38:13Z",
-  "pipeline_commit": "9e136a2a",
+  "created_utc": "2026-10-10T01:09:34Z",
+  "pipeline_commit": "cddf61aa",
   "brief": {
    "style": "Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight",
    "style_photos": [
@@ -12897,15 +12897,15 @@
      4.4821
     ],
     "size": [
-     2.1273,
-     0.9
+     0.9,
+     2.1273
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 0.0
    },
-   "front_deg": null,
+   "front_deg": 270.0,
    "height": null,
    "asset": null,
-   "status": "unverified",
+   "status": "verified",
    "evidence": [
     {
      "file": "one_building.dwg",
@@ -12916,25 +12916,57 @@
     },
     {
      "file": "one_building.dwg",
-     "method": "inferred",
-     "confidence": 0.6,
-     "rule": "furniture.infer",
-     "text": "kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here",
-     "entity": "LINE:2C823,LINE:2C824,LINE:2C825,LINE:2C826,LINE:2C827,LINE:2C828,LINE:2C829,LINE:2C82A,LINE:2C82B,LINE:2C82C,LINE:2C82D,LINE:2C82E,LINE:2C82F,LINE:2C830,LWPOLYLINE:2C822",
+     "method": "ai",
+     "confidence": 0.95,
+     "entity": "recognition:sym_L-1b_001",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "text": "kitchen_island",
+     "front": "bottom",
+     "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest, front is bottom edge.",
+     "region_id": "r3"
+    },
+    {
+     "file": "one_building.dwg",
+     "method": "ai",
+     "confidence": 0.9,
+     "entity": "recognition:sym_L-1b_001",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "text": "kitchen_island",
+     "front": "bottom",
+     "reason": "The object's footprint and placement in a kitchen area match the description of a kitchen island.",
      "region_id": "r3"
     }
    ],
-   "type_method": "none",
-   "type_candidates": [],
-   "build": true,
-   "inferred": true,
-   "inferred_reason": "kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here"
+   "type_method": "ai_two_pass",
+   "type_candidates": [
+    {
+     "type": "kitchen_island",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "model_key": "qwen",
+     "pass": 1,
+     "confidence": 0.95,
+     "front": "bottom",
+     "reason": "Rectangular shape in kitchen, size matches kitchen island, no headboard or backrest, front is bottom edge."
+    },
+    {
+     "type": "kitchen_island",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "model_key": "glm",
+     "pass": 2,
+     "confidence": 0.9,
+     "front": "bottom",
+     "reason": "The object's footprint and placement in a kitchen area match the description of a kitchen island."
+    }
+   ],
+   "build": true
   },
   {
    "id": "f_L-1b_040",
    "level_id": "L-1b",
    "room_id": "r_L-1b_acik_mutfak",
-   "type": "unknown",
+   "type": "kitchen_island",
    "type_raw": null,
    "source": "from_documents",
    "footprint": {
@@ -12943,12 +12975,12 @@
      4.4821
     ],
     "size": [
-     2.1273,
-     0.9
+     0.9,
+     2.1273
     ],
-    "rotation_deg": 90.0
+    "rotation_deg": 0.0
    },
-   "front_deg": null,
+   "front_deg": 270.0,
    "height": null,
    "asset": null,
    "status": "unverified",
@@ -12983,6 +13015,15 @@
      "front": "top",
      "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa.",
      "region_id": "r3"
+    },
+    {
+     "file": "one_building.dwg",
+     "method": "inferred",
+     "confidence": 0.8,
+     "rule": "ingest.twins",
+     "text": "type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16)",
+     "entity": "LINE:2F051,LINE:2F052,LINE:2F053,LINE:2F054,LINE:2F055,LINE:2F056,LINE:2F057,LINE:2F058,LINE:2F059,LINE:2F05A,LINE:2F05B,LINE:2F05C,LINE:2F05D,LINE:2F05E,LWPOLYLINE:2F050",
+     "region_id": "r3"
     }
    ],
    "type_method": "none",
@@ -13006,7 +13047,9 @@
      "reason": "The object is a long rectangle with a backrest line, matching the description of a sofa."
     }
    ],
-   "build": true
+   "build": true,
+   "inferred": true,
+   "inferred_reason": "type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16)"
   },
   {
    "id": "f_L-1b_041",
@@ -19536,7 +19579,6 @@
   "f_L-1b_008",
   "f_L-1b_012",
   "f_L-1b_014",
-  "f_L-1b_039",
   "f_L-1b_040",
   "f_L-1b_043",
   "f_L-1b_044",
@@ -19651,6 +19693,7 @@
   "L0: room at (4.718, 7.594) (5.71 m²) has no label: unlabelled face holding the stair",
   "L0: room at (7.786, 7.594) (5.72 m²) has no label: unlabelled face holding the stair",
   "twin copy: f_L-1_051: toilet -> toilet, front 90 deg (front of f_L-1_052, its mirror twin in r_L-1_banyo_2 (U16); inferred)",
+  "twin copy: f_L-1b_040: unknown -> kitchen_island, front 270 deg (type and front of f_L-1b_039, its mirror twin in r_L-1b_acik_mutfak_2 (U16); inferred)",
   "twin copy: f_L0_016: toilet -> toilet, front 270 deg (front of f_L0_015, its mirror twin in r_L0_e_banyo (U16); inferred)",
   "twin copy: f_L0_017: toilet -> toilet, front 90 deg (front of f_L0_018, its mirror twin in r_L0_banyo (U16); inferred)",
   "twin copy: f_L1_021: unknown -> bench, front 0 deg (type and front of f_L1_022, its mirror twin in r_L1_koridor_2 (U16); inferred)",
@@ -19661,7 +19704,6 @@
   "f_L-1_086: not built (rug or group outline): drawn inside kitchen_counter f_L-1_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)",
   "f_L-1b_001: not built (rug or group outline): outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_043, f_L-1b_051, f_L-1b_052): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)",
   "f_L-1b_002: not built (rug or group outline): outline 5.54 x 2.77 m around 3 other piece(s) (f_L-1b_044, f_L-1b_049, f_L-1b_050): a rug or zone outline, not a piece (not built; the decor rules lay rugs under the groups)",
-  "f_L-1b_039: inferred kitchen_island: kitchen_island: the only type whose size range fits 2.13 x 0.90 m, that a kitchen + living room holds and whose position rule holds here",
   "f_L-1b_057: not built (rug or group outline): drawn inside kitchen_counter f_L-1b_004 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)",
   "f_L-1b_058: not built (rug or group outline): drawn inside kitchen_counter f_L-1b_010 (60% or more of it): a detail of that piece (a sink bowl, an appliance front), not a piece of its own (not built)",
   "f_L0_027: inferred desk: desk: the only type whose size range fits 1.45 x 0.91 m, that a bedroom room holds and whose position rule holds here",

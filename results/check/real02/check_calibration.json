@@ -9,7 +9,7 @@
   "baseline": {
    "views": 35,
    "views_computed": 35,
-   "required_elements": 71,
+   "required_elements": 74,
    "fa_missing": null,
    "fa_extra": null,
    "count_error": null
@@ -19,9 +19,9 @@
     "calls": 35,
     "answered": 35,
     "answer_rate": 1.0,
-    "decoys": 31,
+    "decoys": 34,
     "decoy_accept": 0.0,
-    "fa_missing_single": 0.0
+    "fa_missing_single": 0.0135
    }
   },
   "fa_missing": null,
@@ -30,7 +30,7 @@
   "removal_flagged": null,
   "removal_confirmed": null,
   "insertion": null,
-  "insertion_flagged": 0.75,
+  "insertion_flagged": 0.5,
   "swap_flagged": 1.0,
   "swap_confirmed": null,
   "detector_insertion": {
@@ -44,7 +44,7 @@
   "controls": {
    "removal": {
     "n": 8,
-    "flagged": 0.625,
+    "flagged": 0.5,
     "confirmed": 0.0,
     "rows": [
      {
@@ -78,7 +78,7 @@
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yatak_odasi_3_3",
+      "camera": "cam_r_L0_yatak_odasi_3_1",
       "kind": "removal:f_L0_009",
       "flagged": true,
       "confirmed": false
@@ -92,14 +92,14 @@
      {
       "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
       "kind": "removal:f_L1_009",
-      "flagged": true,
+      "flagged": false,
       "confirmed": false
      }
     ]
    },
    "insertion": {
     "n": 8,
-    "flagged": 0.75,
+    "flagged": 0.5,
     "confirmed": 0.0,
     "rows": [
      {
@@ -123,7 +123,7 @@
      {
       "camera": "cam_r_L0_yatak_odasi_1",
       "kind": "insertion:win_L0_001",
-      "flagged": true,
+      "flagged": false,
       "confirmed": false
      },
      {
@@ -133,7 +133,7 @@
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yatak_odasi_3_3",
+      "camera": "cam_r_L0_yatak_odasi_3_1",
       "kind": "insertion:f_L0_009",
       "flagged": true,
       "confirmed": false
@@ -147,7 +147,7 @@
      {
       "camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
       "kind": "insertion:f_L1_009",
-      "flagged": true,
+      "flagged": false,
       "confirmed": false
      }
     ]
@@ -164,7 +164,7 @@
       "confirmed": false
      },
      {
-      "camera": "cam_r_L0_yatak_odasi_3_2",
+      "camera": "cam_r_L0_yatak_odasi_3_3",
       "kind": "swap:f_L0_021",
       "flagged": true,
       "confirmed": false

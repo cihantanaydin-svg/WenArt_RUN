@@ -97,7 +97,23 @@
  "changes": [],
  "added": [
   {
-   "id": "f_L0_051",
+   "id": "f_L0_052",
+   "type": "nightstand",
+   "center": [
+    13.052,
+    1.921
+   ],
+   "size": [
+    0.5,
+    0.4
+   ],
+   "rotation_deg": 180.0,
+   "confidence": 0.9,
+   "method": "ai",
+   "mirrored_from": "f_L0_039"
+  },
+  {
+   "id": "f_L0_053",
    "type": "nightstand",
    "center": [
     14.752,
@@ -108,35 +124,19 @@
     0.4
    ],
    "rotation_deg": 270.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": "f_L0_039"
-  },
-  {
-   "id": "f_L0_052",
-   "type": "nightstand",
-   "center": [
-    13.423,
-    1.921
-   ],
-   "size": [
-    0.5,
-    0.4
-   ],
-   "rotation_deg": 180.0,
    "confidence": 0.9,
    "method": "ai",
    "mirrored_from": "f_L0_040"
   },
   {
-   "id": "f_L0_053",
+   "id": "f_L0_054",
    "type": "bench",
    "center": [
-    14.272,
+    13.972,
     1.945
    ],
    "size": [
-    1.0,
+    1.2,
     0.4
    ],
    "rotation_deg": 0.0,

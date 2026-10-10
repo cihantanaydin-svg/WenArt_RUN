@@ -9,7 +9,7 @@
   "baseline": {
    "views": 9,
    "views_computed": 9,
-   "required_elements": 7,
+   "required_elements": 11,
    "fa_missing": null,
    "fa_extra": null,
    "count_error": null
@@ -48,8 +48,8 @@
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L-1b_acik_mutfak_3",
-      "kind": "removal:f_L-1b_011",
+      "camera": "cam_r_L-1b_acik_mutfak_2",
+      "kind": "removal:win_L-1b_001",
       "flagged": true,
       "confirmed": false
      },
@@ -73,8 +73,8 @@
     "confirmed": 0.0,
     "rows": [
      {
-      "camera": "cam_r_L-1b_acik_mutfak_3",
-      "kind": "insertion:f_L-1b_011",
+      "camera": "cam_r_L-1b_acik_mutfak_2",
+      "kind": "insertion:win_L-1b_001",
       "flagged": true,
       "confirmed": false
      },

@@ -14,7 +14,7 @@
 | confirmed mismatches on the final image | 0 in 0 view(s) |
 | JSON cross-check findings (Cycles render) | 0 |
 | needs_review views | 0 |
-| unverified pieces in view (sum over views) | 5 |
+| unverified pieces in view (sum over views) | 6 |
 | rooms mixing polished and Cycles | 0 |
 | advisory | yes |
 | advisory flags | 12 |
@@ -24,8 +24,8 @@
 | camera score (min / mean / max) | 2.27 / 2.79 / 3.34 |
 | rooms by number of views | 3 with 3 |
 | gate validation | ok |
-| seconds: build / render / metering | 3.3 min / 39.9 s / 13.6 s |
-| seconds: polish / gate / check | 69.1 s / 6.3 s / 10.0 min |
+| seconds: build / render / metering | 2.9 min / 39.3 s / 13.9 s |
+| seconds: polish / gate / check | 69.1 s / 6.3 s / 10.5 min |
 | brief polish | yes (default, not in brief.yaml) |
 | unit system | metric |
 | side-by-side sheets | 4 |
@@ -36,10 +36,10 @@ Open in Blender: the `.blend` directly (textures packed, cameras with their mete
 
 | file | size |
 |---|---|
-| [real02-l-1b-acik-mutfak.blend](3d/real02-l-1b-acik-mutfak.blend) | 268.6 MB |
-| [real02-l-1b-acik-mutfak.glb](3d/real02-l-1b-acik-mutfak.glb) | 751.0 MB |
+| [real02-l-1b-acik-mutfak.blend](3d/real02-l-1b-acik-mutfak.blend) | 252.7 MB |
+| [real02-l-1b-acik-mutfak.glb](3d/real02-l-1b-acik-mutfak.glb) | 709.9 MB |
 
-15 cameras; textures scaled to at most 1024 px (190 scaled) for the download.
+15 cameras; textures scaled to at most 1024 px (186 scaled) for the download.
 
 ## Advisory flags and open items
 
@@ -50,11 +50,11 @@ Open in Blender: the `.blend` directly (textures packed, cameras with their mete
 - check target missed: removal_flagged - (needs >= 0.8), single pass
 - check target missed: removal_confirmed - (needs >= 0.6), single pass
 - check target missed: insertion - (needs >= 0.6), single pass
-- 34 drawn piece(s) not typed: the two AI passes disagree or did not answer (unknown, unverified; footprint kept): f_L-1_058, f_L-1_060, f_L-1_069, f_L-1_070, f_L-1_071, f_L-1_072, f_L-1_087, f_L-1_088
-- 8 drawn piece(s) without an AI answer (not asked, or the answers were not applied; unknown, unverified; footprint kept): f_L-1_006, f_L-1_007, f_L-1_015, f_L-1_016, f_L-1_021, f_L-1_022, f_L1_005, f_L1_006
+- 32 drawn piece(s) not typed: the two AI passes disagree or did not answer (unknown, unverified; footprint kept): f_L-1_058, f_L-1_060, f_L-1_069, f_L-1_070, f_L-1_071, f_L-1_072, f_L-1_087, f_L-1_088
+- 6 drawn piece(s) without an AI answer (not asked, or the answers were not applied; unknown, unverified; footprint kept): f_L-1_007, f_L-1_015, f_L-1_016, f_L-1_021, f_L-1_022, f_L1_006
 - exterior gate polish_disabled: the exterior views are the Cycles render (negative controls rejected 0.733 < 0.90 (60 comparisons): the gate lets geometry changes through)
-- drawn-piece check: 1 piece(s) moved beyond the tolerance, 0 locked-rule violation(s)
-- AI completion: 17 proposal(s) refused, reverted or not placed (listed per room)
+- drawn-piece check: 10 piece(s) moved beyond the tolerance, 0 locked-rule violation(s)
+- AI completion: 16 proposal(s) refused, reverted or not placed (listed per room)
 
 ## Gate validation
 
@@ -118,9 +118,9 @@ Per room: the Cycles render (left) and the polish candidate (right; the chosen a
 
 | view | room | level | final | reason | polish attempt | gate | check Cycles | check polished | preference | EV | pull EV | camera | ids D/A/R | U | review | files |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| cam_r_L-1b_acik_mutfak_1 | r_L-1b_acik_mutfak | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.33 | 0 | search 3.04 | D11 A2 | 1 | no | [preview](cam_r_L-1b_acik_mutfak_1_final_preview.jpg) |
-| cam_r_L-1b_acik_mutfak_2 | r_L-1b_acik_mutfak | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.50 | -1 | search 3.01 | D13 A2 | 0 | no | [preview](cam_r_L-1b_acik_mutfak_2_final_preview.jpg) |
-| cam_r_L-1b_acik_mutfak_3 | r_L-1b_acik_mutfak | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +2.67 | 0 | search 2.99 | D10 | 3 | no | [preview](cam_r_L-1b_acik_mutfak_3_final_preview.jpg) |
+| cam_r_L-1b_acik_mutfak_1 | r_L-1b_acik_mutfak | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.50 | 0 | search 3.03 | D11 A1 | 1 | no | [preview](cam_r_L-1b_acik_mutfak_1_final_preview.jpg) |
+| cam_r_L-1b_acik_mutfak_2 | r_L-1b_acik_mutfak | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.50 | -1 | search 3.02 | D7 | 4 | no | [preview](cam_r_L-1b_acik_mutfak_2_final_preview.jpg) |
+| cam_r_L-1b_acik_mutfak_3 | r_L-1b_acik_mutfak | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +3.50 | -1 | search 3.00 | D13 A1 | 0 | no | [preview](cam_r_L-1b_acik_mutfak_3_final_preview.jpg) |
 | cam_r_L-1b_koridor_1 | r_L-1b_koridor | L-1b | cycles | error | a2 s 0.25 canny x0.8 | accept | info | - | - | -0.67 | 0 | search 3.34 | D5 A1 | 1 | no | [preview](cam_r_L-1b_koridor_1_final_preview.jpg) |
 | cam_r_L-1b_koridor_2 | r_L-1b_koridor | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | +0.00 | - | search 2.56 | D2 A1 | 0 | no | [preview](cam_r_L-1b_koridor_2_final_preview.jpg) |
 | cam_r_L-1b_koridor_3 | r_L-1b_koridor | L-1b | cycles | error | a1 s 0.375 geometry x0.8 | accept | info | - | - | -0.17 | - | search 2.27 | D1 | 0 | no | [preview](cam_r_L-1b_koridor_3_final_preview.jpg) |
@@ -166,7 +166,7 @@ polish attempt: the polish candidate (used only when final is polished). pull EV
 | r_L1_banyo_2 | bathroom | L1 | 0 | 0 | 0 | - |
 | r_L1_koridor | hall | L1 | 0 | 0 | 0 | - |
 | r_L1_koridor_2 | hall | L1 | 0 | 0 | 0 | - |
-| r_L1_oyun_aktivite_ve_dinlenme_odasi | other | L1 | 0 | 0 | 0 | - |
+| r_L1_oyun_aktivite_ve_dinlenme_odasi | living | L1 | 0 | 0 | 0 | - |
 | r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | other | L1 | 0 | 0 | 0 | - |
 | r_L1_teras | balcony | L1 | 0 | 0 | 0 | - |
 | r_L1_teras_2 | balcony | L1 | 0 | 0 | 0 | - |
@@ -251,7 +251,6 @@ Unverified items:
 - f_L-1b_008
 - f_L-1b_012
 - f_L-1b_014
-- f_L-1b_039
 - f_L-1b_040
 - f_L-1b_043
 - f_L-1b_044
@@ -292,7 +291,7 @@ Unverified items:
 Unverified pieces in view:
 
 - cam_r_L-1b_acik_mutfak_1: f_L-1b_040
-- cam_r_L-1b_acik_mutfak_3: f_L-1b_040, f_L-1b_050, f_L-1b_056
+- cam_r_L-1b_acik_mutfak_2: f_L-1b_040, f_L-1b_048, f_L-1b_049, f_L-1b_050
 - cam_r_L-1b_koridor_1: f_L-1b_040
 
 Conflicts:
@@ -499,32 +498,27 @@ Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep
 
 - added f_L-1_089: tv_unit 1.60 x 0.45 (confidence 0.60, ai)
 - added f_L-1_090: armchair 0.90 x 0.90 (confidence 0.90, ai)
-- added f_L-1_091: console_table 1.20 x 0.35 (confidence 0.90, ai)
-- added f_L-1_092: chaise 0.75 x 1.70 (confidence 0.60, ai)
-- added f_L-1_093: bookshelf 1.00 x 0.35 (confidence 0.60, ai)
+- added f_L-1_091: console_table 1.20 x 0.35 (confidence 0.60, ai)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1_021, f_L-1_024, f_L-1_027, f_L-1_028, f_L-1_029, f_L-1_030, f_L-1_031, f_L-1_032, f_L-1_033, f_L-1_034, f_L-1_035, f_L-1_036, f_L-1_037, f_L-1_049, f_L-1_053, f_L-1_059, f_L-1_060, f_L-1_063, f_L-1_064, f_L-1_070, f_L-1_071, f_L-1_075, f_L-1_077, f_L-1_087
 
 ### Salon (r_L-1_salon_2, living): mirrored (decisions of r_L-1_salon (twin), not asked again)
 
-- added f_L-1_102: tv_unit 1.60 x 0.45 (confidence 0.60, ai, mirrored from f_L-1_089)
-- added f_L-1_103: armchair 0.90 x 0.90 (confidence 0.90, ai, mirrored from f_L-1_090)
-- added f_L-1_104: console_table 1.20 x 0.35 (confidence 0.90, ai, mirrored from f_L-1_091)
-- added f_L-1_105: bookshelf 1.00 x 0.35 (confidence 0.60, ai, mirrored from f_L-1_093)
-- not placed chaise: no free place passed the placer checks (the copy fails clearance_ok here)
+- added f_L-1_100: tv_unit 1.60 x 0.45 (confidence 0.60, ai, mirrored from f_L-1_089)
+- added f_L-1_101: armchair 0.90 x 0.90 (confidence 0.90, ai, mirrored from f_L-1_090)
+- added f_L-1_102: console_table 1.20 x 0.35 (confidence 0.60, ai, mirrored from f_L-1_091)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1_022, f_L-1_023, f_L-1_038, f_L-1_039, f_L-1_040, f_L-1_041, f_L-1_042, f_L-1_043, f_L-1_044, f_L-1_045, f_L-1_046, f_L-1_047, f_L-1_048, f_L-1_050, f_L-1_054, f_L-1_057, f_L-1_058, f_L-1_065, f_L-1_066, f_L-1_069, f_L-1_072, f_L-1_076, f_L-1_078, f_L-1_088
 
 ### Mutfak (r_L-1_mutfak, kitchen): completed
 
-- added f_L-1_094: tall_cabinet 0.40 x 0.58 (confidence 0.60, ai)
-- added f_L-1_095: table_dining 1.60 x 0.90 (confidence 0.60, ai)
-- added f_L-1_096: chair 0.45 x 0.45 (confidence 0.60, ai)
-- added f_L-1_097: chair 0.45 x 0.45 (confidence 0.60, ai)
+- added f_L-1_092: tall_cabinet 0.40 x 0.58 (confidence 0.60, ai)
+- added f_L-1_093: table_dining 1.60 x 0.90 (confidence 0.90, ai)
+- added f_L-1_094: chair 0.45 x 0.45 (confidence 0.90, ai)
+- added f_L-1_095: chair 0.45 x 0.45 (confidence 0.90, ai)
 - 3 wall cabinet run(s) over the drawn counter
 - not placed chair: no free place passed the placer checks (no repair left)
 - not placed chair: no free place passed the placer checks (no repair left)
 - not placed chair: no free place passed the placer checks (no repair left)
 - not placed table_dining: no free place passed the placer checks (no repair left)
-- not placed tall_cabinet: no free place passed the placer checks (no repair left)
 - not placed chair: no free place passed the placer checks (no table_dining in the room)
 - not placed chair: no free place passed the placer checks (no repair left)
 - not placed chair: no free place passed the placer checks (no repair left)
@@ -532,21 +526,21 @@ Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep
 
 ### Mutfak (r_L-1_mutfak_2, kitchen): mirrored (decisions of r_L-1_mutfak (twin), not asked again)
 
-- added f_L-1_106: tall_cabinet 0.40 x 0.58 (confidence 0.60, ai, mirrored from f_L-1_094)
-- added f_L-1_107: table_dining 1.60 x 0.90 (confidence 0.60, ai, mirrored from f_L-1_095)
-- added f_L-1_108: chair 0.45 x 0.45 (confidence 0.60, ai, mirrored from f_L-1_096)
-- added f_L-1_109: chair 0.45 x 0.45 (confidence 0.60, ai, mirrored from f_L-1_097)
+- added f_L-1_103: tall_cabinet 0.40 x 0.58 (confidence 0.60, ai, mirrored from f_L-1_092)
+- added f_L-1_104: table_dining 1.60 x 0.90 (confidence 0.90, ai, mirrored from f_L-1_093)
+- added f_L-1_105: chair 0.45 x 0.45 (confidence 0.90, ai, mirrored from f_L-1_094)
+- added f_L-1_106: chair 0.45 x 0.45 (confidence 0.90, ai, mirrored from f_L-1_095)
 - 3 wall cabinet run(s) over the drawn counter
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1_010, f_L-1_011, f_L-1_012, f_L-1_013, f_L-1_014, f_L-1_017, f_L-1_018, f_L-1_068, f_L-1_082, f_L-1_084, f_L-1_086
 
 ### Koridor (r_L-1_koridor, hall): mirrored (decisions of r_L-1_koridor_2 (twin), not asked again)
 
-- added f_L-1_113: console_table 1.20 x 0.35 (confidence 0.90, ai, mirrored from f_L-1_101)
+- added f_L-1_110: console_table 1.20 x 0.35 (confidence 0.90, ai, mirrored from f_L-1_099)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1_020
 
 ### Koridor (r_L-1_koridor_2, hall): completed
 
-- added f_L-1_101: console_table 1.20 x 0.35 (confidence 0.90, ai)
+- added f_L-1_099: console_table 1.20 x 0.35 (confidence 0.90, ai)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1_019
 
 ### Banyo (r_L-1_banyo, bathroom): completed (nothing to ask: no changeable drawn piece and nothing the room may get)
@@ -559,31 +553,32 @@ Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep
 
 ### Açık Mutfak (r_L-1b_acik_mutfak, kitchen): completed
 
-- added f_L-1b_071: bar_stool 0.42 x 0.42 (confidence 0.90, ai)
-- added f_L-1b_072: bar_stool 0.42 x 0.42 (confidence 0.90, ai)
-- added f_L-1b_073: bar_stool 0.42 x 0.42 (confidence 0.90, ai)
-- added f_L-1b_074: tall_cabinet 0.60 x 0.60 (confidence 0.60, ai)
-- not placed bar_stool: no free place passed the placer checks (1.71 m from the nearest kitchen_island (> 0.6 m))
+- added f_L-1b_071: tall_cabinet 0.60 x 0.60 (confidence 0.60, ai)
+- added f_L-1b_072: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
+- added f_L-1b_073: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
+- added f_L-1b_074: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
+- added f_L-1b_075: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
+- not placed bar_stool: no free place passed the placer checks (0.61 m from the nearest kitchen_island (> 0.6 m))
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1b_009, f_L-1b_010, f_L-1b_012, f_L-1b_013, f_L-1b_014, f_L-1b_026, f_L-1b_027, f_L-1b_028, f_L-1b_029, f_L-1b_030, f_L-1b_031, f_L-1b_032, f_L-1b_033, f_L-1b_034, f_L-1b_047, f_L-1b_048, f_L-1b_054, f_L-1b_058
 
-### Açık Mutfak (r_L-1b_acik_mutfak_2, kitchen): completed (partner r_L-1b_acik_mutfak (twin) not used: the twin's drawn furniture does not map onto this room: drawn unknown f_L-1b_040 has no counterpart here; asked itself)
+### Açık Mutfak (r_L-1b_acik_mutfak_2, kitchen): completed (partner r_L-1b_acik_mutfak (twin) not used: the twin's drawn furniture does not map onto this room: drawn unknown f_L-1b_044 has no counterpart here; asked itself)
 
-- added f_L-1b_076: tall_cabinet 0.60 x 0.60 (confidence 0.60, ai)
-- added f_L-1b_077: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
+- added f_L-1b_077: tall_cabinet 0.60 x 0.60 (confidence 0.60, ai)
 - added f_L-1b_078: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
 - added f_L-1b_079: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
 - added f_L-1b_080: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
+- added f_L-1b_081: bar_stool 0.42 x 0.42 (confidence 0.60, ai)
 - not placed bar_stool: no free place passed the placer checks (0.61 m from the nearest kitchen_island (> 0.6 m))
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1b_003, f_L-1b_004, f_L-1b_006, f_L-1b_007, f_L-1b_008, f_L-1b_017, f_L-1b_018, f_L-1b_019, f_L-1b_020, f_L-1b_021, f_L-1b_022, f_L-1b_023, f_L-1b_024, f_L-1b_025, f_L-1b_045, f_L-1b_046, f_L-1b_053, f_L-1b_057
 
 ### Koridor (r_L-1b_koridor, hall): completed
 
-- added f_L-1b_075: console_table 1.20 x 0.35 (confidence 0.90, ai)
+- added f_L-1b_076: console_table 1.20 x 0.35 (confidence 0.90, ai)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1b_016
 
 ### Koridor (r_L-1b_koridor_2, hall): mirrored (decisions of r_L-1b_koridor (twin), not asked again)
 
-- added f_L-1b_081: console_table 1.20 x 0.35 (confidence 0.90, ai, mirrored from f_L-1b_075)
+- added f_L-1b_082: console_table 1.20 x 0.35 (confidence 0.90, ai, mirrored from f_L-1b_076)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L-1b_015
 
 ### Banyo (r_L-1b_banyo, bathroom): completed (nothing to ask: no changeable drawn piece and nothing the room may get; partner r_L-1_banyo (same_as) not used: the same_as's drawn furniture does not map onto this room: drawn toilet f_L-1_051 has no counterpart here; asked itself)
@@ -596,33 +591,34 @@ Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep
 
 ### Yatak Odası (r_L0_yatak_odasi, bedroom): completed
 
-- added f_L0_039: nightstand 0.40 x 0.40 (confidence 0.60, ai)
-- added f_L0_040: nightstand 0.50 x 0.40 (confidence 0.90, ai)
-- added f_L0_041: bench 1.00 x 0.40 (confidence 0.60, ai)
+- added f_L0_039: nightstand 0.50 x 0.40 (confidence 0.90, ai)
+- added f_L0_040: nightstand 0.40 x 0.40 (confidence 0.90, ai)
+- added f_L0_041: bench 1.20 x 0.40 (confidence 0.60, ai)
 - refused f_L0_019 -> bed_double: only pass 1 changes it (a drawn piece needs both passes)
 - not placed dresser: no free place passed the placer checks (no repair left)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_010, f_L0_019, f_L0_030
 
 ### E.yatak Odası (r_L0_e_yatak_odasi, bedroom): completed
 
-- added f_L0_042: nightstand 0.50 x 0.40 (confidence 0.60, ai)
-- added f_L0_043: nightstand 0.50 x 0.40 (confidence 0.60, ai)
+- added f_L0_042: nightstand 0.60 x 0.45 (confidence 0.60, ai)
+- added f_L0_043: nightstand 0.60 x 0.45 (confidence 0.60, ai)
 - added f_L0_044: bench 1.20 x 0.40 (confidence 0.60, ai)
 - refused f_L0_007 -> bed_double: only pass 1 changes it (a drawn piece needs both passes)
+- refused f_L0_023 -> wardrobe: only pass 1 changes it (a drawn piece needs both passes)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_007, f_L0_023, f_L0_031, f_L0_032
 
 ### E.yatak Odası (r_L0_e_yatak_odasi_2, bedroom): mirrored (decisions of r_L0_e_yatak_odasi (twin), not asked again)
 
-- added f_L0_048: nightstand 0.50 x 0.40 (confidence 0.60, ai, mirrored from f_L0_042)
-- added f_L0_049: nightstand 0.50 x 0.40 (confidence 0.60, ai, mirrored from f_L0_043)
-- added f_L0_050: bench 1.20 x 0.40 (confidence 0.60, ai, mirrored from f_L0_044)
+- added f_L0_049: nightstand 0.60 x 0.45 (confidence 0.60, ai, mirrored from f_L0_042)
+- added f_L0_050: nightstand 0.60 x 0.45 (confidence 0.60, ai, mirrored from f_L0_043)
+- added f_L0_051: bench 1.20 x 0.40 (confidence 0.60, ai, mirrored from f_L0_044)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_008, f_L0_024, f_L0_033, f_L0_034
 
 ### Yatak Odası (r_L0_yatak_odasi_2, bedroom): mirrored (decisions of r_L0_yatak_odasi (twin), not asked again)
 
-- added f_L0_051: nightstand 0.40 x 0.40 (confidence 0.60, ai, mirrored from f_L0_039)
-- added f_L0_052: nightstand 0.50 x 0.40 (confidence 0.90, ai, mirrored from f_L0_040)
-- added f_L0_053: bench 1.00 x 0.40 (confidence 0.60, ai, mirrored from f_L0_041)
+- added f_L0_052: nightstand 0.50 x 0.40 (confidence 0.90, ai, mirrored from f_L0_039)
+- added f_L0_053: nightstand 0.40 x 0.40 (confidence 0.90, ai, mirrored from f_L0_040)
+- added f_L0_054: bench 1.20 x 0.40 (confidence 0.60, ai, mirrored from f_L0_041)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_012, f_L0_020, f_L0_027
 
 ### E.banyo (r_L0_e_banyo, bathroom): completed (nothing to ask: no changeable drawn piece and nothing the room may get)
@@ -638,14 +634,16 @@ Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep
 - added f_L0_045: nightstand 0.50 x 0.40 (confidence 0.90, ai)
 - added f_L0_046: nightstand 0.50 x 0.40 (confidence 0.90, ai)
 - added f_L0_047: bench 1.20 x 0.40 (confidence 0.90, ai)
+- added f_L0_048: dresser 1.20 x 0.50 (confidence 0.60, ai)
 - refused f_L0_021 -> bed_double: only pass 1 changes it (a drawn piece needs both passes)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_009, f_L0_021, f_L0_029
 
 ### Yatak Odası (r_L0_yatak_odasi_4, bedroom): mirrored (decisions of r_L0_yatak_odasi_3 (twin), not asked again)
 
-- added f_L0_054: nightstand 0.50 x 0.40 (confidence 0.90, ai, mirrored from f_L0_045)
-- added f_L0_055: nightstand 0.50 x 0.40 (confidence 0.90, ai, mirrored from f_L0_046)
-- added f_L0_056: bench 1.20 x 0.40 (confidence 0.90, ai, mirrored from f_L0_047)
+- added f_L0_055: nightstand 0.50 x 0.40 (confidence 0.90, ai, mirrored from f_L0_045)
+- added f_L0_056: nightstand 0.50 x 0.40 (confidence 0.90, ai, mirrored from f_L0_046)
+- added f_L0_057: bench 1.20 x 0.40 (confidence 0.90, ai, mirrored from f_L0_047)
+- added f_L0_058: dresser 1.20 x 0.50 (confidence 0.60, ai, mirrored from f_L0_048)
 - drawn pieces that already fail a placer check as drawn (kept, never moved): f_L0_011, f_L0_022, f_L0_028
 
 ### Merdiven (r_L0_merdiven, hall): completed
@@ -700,11 +698,20 @@ Mode `furnished_rooms: complete` (assumed: furnished_rooms, furnished_rooms_keep
 
 ### Drawn pieces against the source plan
 
-Reference: source building.json; mode `complete`. 210 of 210 drawn piece(s) checked: anchor within 0.05 m, front within 1.0 deg, the same wall; 209 ok, 1 failed; 0 changed by the AI.
+Reference: source building.json; mode `complete`. 210 of 210 drawn piece(s) checked: anchor within 0.05 m, front within 1.0 deg, the same wall; 200 ok, 10 failed; 0 changed by the AI.
 
 | piece | type (drawn) | anchor moved (m) | front turned (deg) | same wall | notes |
 |---|---|---|---|---|---|
+| f_L-1_023 | wardrobe (wardrobe) | 0.18 | 0.00 | no | no longer against wall w_L-1_004 (now centre None) |
+| f_L-1_024 | wardrobe (wardrobe) | 0.18 | 0.00 | no | no longer against wall w_L-1_004 (now centre None) |
+| f_L-1_050 | armchair (armchair) | 0.00 | 90.00 | - | - |
+| f_L-1_054 | sofa_corner (sofa_corner) | 0.00 | 90.00 | - | - |
+| f_L-1_057 | floor_lamp (floor_lamp) | 0.82 | 90.00 | - | - |
 | f_L-1_059 | floor_lamp (floor_lamp) | 0.29 | 0.00 | - | - |
+| f_L-1_062 | sofa (sofa) | 0.30 | - | - | - |
+| f_L-1_065 | floor_lamp (floor_lamp) | 0.30 | - | - | - |
+| f_L0_029 | desk (desk) | 0.30 | 0.00 | yes | - |
+| f_L0_033 | floor_lamp (floor_lamp) | 0.06 | 0.00 | yes | - |
 
 ## Exterior views
 
@@ -760,14 +767,14 @@ Project unit system: **metric**.
 
 ## Recognition (AI typing and raster labels)
 
-Furniture type methods: ai_two_pass 45, block_name 42, none 63, rule 60. Recognition questions: -; answer files: none. A type counts only when both passes agree and the drawn footprint fits the type's size range; otherwise the piece stays `unknown` and `unverified` with both answers.
+Furniture type methods: ai_two_pass 46, block_name 42, none 62, rule 60. Recognition questions: -; answer files: none. A type counts only when both passes agree and the drawn footprint fits the type's size range; otherwise the piece stays `unknown` and `unverified` with both answers.
 
 AI-typed pieces:
 
 | piece | room | type | agreed | status | built | answers |
 |---|---|---|---|---|---|---|
 | f_L-1_053 | r_L-1_salon | sofa_corner | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: sofa_corner, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa_corner, front left 1.00 |
-| f_L-1_054 | r_L-1_salon_2 | sofa_corner | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: sofa_corner, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa_corner, front left 1.00 |
+| f_L-1_054 | r_L-1_salon_2 | sofa_corner | yes | verified | no (drawn symbol, not built) | pass 1 Qwen/Qwen3-VL-8B-Instruct: sofa_corner, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa_corner, front left 1.00 |
 | f_L-1_055 | r_L-1_banyo_2 | bathtub | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bathtub, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bathtub, front bottom 0.90 |
 | f_L-1_056 | r_L-1_banyo | bathtub | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bathtub, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bathtub, front bottom 0.90 |
 | f_L-1_057 | r_L-1_salon_2 | floor_lamp | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: floor_lamp 0.95; pass 2 zai-org/GLM-4.6V-Flash: floor_lamp 0.90 |
@@ -802,10 +809,11 @@ AI-typed pieces:
 | f_L-1_086 | r_L-1_mutfak_2 | unknown | no | unverified | no (drawn symbol, not built) | pass 1 Qwen/Qwen3-VL-8B-Instruct: not_furniture 0.95; pass 2 zai-org/GLM-4.6V-Flash: unknown 0.80 |
 | f_L-1_087 | r_L-1_salon | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: ottoman 0.95; pass 2 zai-org/GLM-4.6V-Flash: table_coffee, front right 0.90 |
 | f_L-1_088 | r_L-1_salon_2 | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: ottoman 0.95; pass 2 zai-org/GLM-4.6V-Flash: table_coffee, front right 0.90 |
-| f_L-1b_040 | r_L-1b_acik_mutfak | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: kitchen_island, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front top 0.90 |
+| f_L-1b_039 | r_L-1b_acik_mutfak_2 | kitchen_island | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: kitchen_island, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: kitchen_island, front bottom 0.90 |
+| f_L-1b_040 | r_L-1b_acik_mutfak | kitchen_island | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: kitchen_island, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front top 0.90 |
 | f_L-1b_041 | r_L-1b_banyo_2 | bathtub | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bathtub, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bathtub, front bottom 0.90 |
 | f_L-1b_042 | r_L-1b_banyo | bathtub | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bathtub, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bathtub, front bottom 0.90 |
-| f_L-1b_043 | r_L-1b_acik_mutfak_2 | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: kitchen_island, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front left 0.90 |
+| f_L-1b_043 | r_L-1b_acik_mutfak_2 | unknown | no | unverified | no (drawn symbol, not built) | pass 1 Qwen/Qwen3-VL-8B-Instruct: kitchen_island, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front left 0.90 |
 | f_L-1b_044 | r_L-1b_acik_mutfak | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: kitchen_island, front left 0.95; pass 2 zai-org/GLM-4.6V-Flash: sofa, front left 0.90 |
 | f_L-1b_045 | r_L-1b_acik_mutfak_2 | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: floor_lamp 0.95; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.90 |
 | f_L-1b_046 | r_L-1b_acik_mutfak_2 | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: kitchen_counter 0.95; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.90 |
@@ -841,7 +849,7 @@ AI-typed pieces:
 | f_L0_034 | r_L0_e_yatak_odasi_2 | floor_lamp | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: floor_lamp 0.95; pass 2 zai-org/GLM-4.6V-Flash: floor_lamp 0.90 |
 | f_L1_015 | r_L1_oyun_aktivite_ve_dinlenme_odasi | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.90; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.90 |
 | f_L1_016 | r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.90; pass 2 zai-org/GLM-4.6V-Flash: potted_plant 0.90 |
-| f_L1_017 | r_L1_oyun_aktivite_ve_dinlenme_odasi | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: not_furniture 0.90 |
+| f_L1_017 | r_L1_oyun_aktivite_ve_dinlenme_odasi | unknown | no | unverified | no (drawn symbol, not built) | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: not_furniture 0.90 |
 | f_L1_018 | r_L1_oyun_aktivite_ve_dinlenme_odasi_2 | unknown | no | unverified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: unknown 0.95; pass 2 zai-org/GLM-4.6V-Flash: not_furniture 0.90 |
 | f_L1_019 | r_L1_banyo | bathtub | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bathtub, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bathtub, front bottom 0.90 |
 | f_L1_020 | r_L1_banyo_2 | bathtub | yes | verified | yes | pass 1 Qwen/Qwen3-VL-8B-Instruct: bathtub, front bottom 0.95; pass 2 zai-org/GLM-4.6V-Flash: bathtub, front bottom 0.90 |
@@ -958,7 +966,7 @@ Scene (build) assumptions:
 | azimuth_deg | 1 | no north arrow: the sun 45 degrees off the main (+y) facade, so the views of it show light and shadows (docs/milestone11.md §4.1 X7; was 210) | sun |
 | boundary | 1 | no site plan: a low hedge on the inferred plot boundary (inferred) | site |
 | cabinet_fronts | 2 | design detail of the cabinet (fronts and handles inside its own box); the documents show only the footprint | furn_f_L-1b_059, furn_f_L-1b_060 |
-| counter_fronts | 7 | design detail of the counter (fronts and handles inside its own box); the documents show only the footprint | furn_f_L-1b_003, furn_f_L-1b_004, furn_f_L-1b_005 |
+| counter_fronts | 8 | design detail of the counter (fronts and handles inside its own box); the documents show only the footprint | furn_f_L-1b_003, furn_f_L-1b_004, furn_f_L-1b_005 |
 | direction | 4 | no UP arrow, break line or riser text drawn: rise direction and flight order are assumed; two side-by-side flights read as a U-turn (dog-leg) stair | furn_f_L-1b_015, furn_f_L-1b_016, furn_f_L0_001 |
 | door | 1 | style profile exterior.door (assumed) | exterior |
 | door_handles | 22 | design detail of the documented door (lever handles on both faces); not in the documents | d_L-1b_001_handle, d_L-1b_002_handle, d_L-1b_003_handle |
@@ -972,7 +980,7 @@ Scene (build) assumptions:
 | height | 2 | door height not drawn: its top 2.10 m above the floor would reach over the roof underside (1.10 m) at its wall; clipped 0.05 m under it (docs/milestone11.md §1.1 E8); still lower than a usable door (needs a dormer: review) | d_L1_004, d_L1_005 |
 | height | 2 | door height not drawn: its top 2.10 m above the floor would reach over the roof underside (2.04 m) at its wall; clipped 0.05 m under it (docs/milestone11.md §1.1 E8) | d_L1_003, d_L1_006 |
 | height | 2 | door height not drawn: its top 2.10 m above the floor would reach over the roof underside (2.11 m) at its wall; clipped 0.05 m under it (docs/milestone11.md §1.1 E8) | d_L1_001, d_L1_002 |
-| height | 23 | no height in the JSON; proxy table value for unknown | proxy_f_L-1b_040, proxy_f_L-1b_043, proxy_f_L-1b_044 |
+| height | 19 | no height in the JSON; proxy table value for unknown | proxy_f_L-1b_044, proxy_f_L-1b_045, proxy_f_L-1b_046 |
 | height | 6 | no height in the JSON; type height for bathtub | furn_f_L-1b_041, furn_f_L-1b_042, furn_f_L0_025 |
 | height | 6 | no height in the JSON; type height for bed_double | furn_f_L0_007, furn_f_L0_008, furn_f_L0_019 |
 | height | 2 | no height in the JSON; type height for bench | furn_f_L1_021, furn_f_L1_022 |
@@ -981,7 +989,7 @@ Scene (build) assumptions:
 | height | 4 | no height in the JSON; type height for floor_lamp | furn_f_L0_031, furn_f_L0_032, furn_f_L0_033 |
 | height | 2 | no height in the JSON; type height for fridge | furn_f_L-1b_053, furn_f_L-1b_054 |
 | height | 4 | no height in the JSON; type height for kitchen_counter | furn_f_L-1b_003, furn_f_L-1b_004, furn_f_L-1b_009 |
-| height | 3 | no height in the JSON; type height for kitchen_island | furn_f_L-1b_005, furn_f_L-1b_011, furn_f_L-1b_039 |
+| height | 4 | no height in the JSON; type height for kitchen_island | furn_f_L-1b_005, furn_f_L-1b_011, furn_f_L-1b_039 |
 | height | 2 | no height in the JSON; type height for ottoman | furn_f_L1_027, furn_f_L1_028 |
 | height | 2 | no height in the JSON; type height for shower | furn_f_L0_013, furn_f_L0_014 |
 | height | 4 | no height in the JSON; type height for sofa | furn_f_L1_009, furn_f_L1_010, furn_f_L1_011 |
@@ -1051,7 +1059,7 @@ Polish room rule (wall colour within ΔE 5 per room) downgraded: r_L-1b_acik_mut
 | check agent | Qwen/Qwen3.8-27B-FP8 | 017b9c7af6b5689d5dd426a76e0bc077eb5ca20a | Apache-2.0 | check_manifest.json |
 | detector | google/owlv2-base-patch16-ensemble | cfd3195ba4ea9592eec887ded089f4c08eff231d | Apache-2.0 | check_manifest.json |
 
-Assets: textures CC0 x 11; furniture/decor models CC-BY-4.0 x 225, generated (TRELLIS.2-4B, MIT) x 17 (parametric meshes need no licence).
+Assets: textures CC0 x 11; furniture/decor models CC-BY-4.0 x 222, generated (TRELLIS.2-4B, MIT) x 16 (parametric meshes need no licence).
 
 ## Attribution
 
@@ -1066,8 +1074,8 @@ Assets: textures CC0 x 11; furniture/decor models CC-BY-4.0 x 225, generated (TR
 - "Fridge" by Yaseen Ali (https://sketchfab.com/3d-models/66878d980a364b2db1a5cc44c67bb45d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for f_L-1_067, f_L-1_068, f_L-1b_053, f_L-1b_054)
 - "JuiceMachine" by voxelpoint (https://sketchfab.com/3d-models/6b46b33bdff44269bf9391774bb8dd63), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for dec_L0_003)
 - "rattan fruit basket" by prasetyoheru10 (https://sketchfab.com/3d-models/837171e3015b43498b087f3852f9b8cc), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for dec_L1_004)
-- "Chair" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for f_L-1_028, f_L-1_029, f_L-1_030, f_L-1_031, f_L-1_032, f_L-1_033, f_L-1_034, f_L-1_035, f_L-1_036, f_L-1_037, f_L-1_039, f_L-1_040, f_L-1_041, f_L-1_042, f_L-1_043, f_L-1_044, f_L-1_045, f_L-1_046, f_L-1_047, f_L-1_048, f_L-1b_018, f_L-1b_019, f_L-1b_020, f_L-1b_021, f_L-1b_022, f_L-1b_023, f_L-1b_024, f_L-1b_025, f_L-1b_027, f_L-1b_028, f_L-1b_029, f_L-1b_030, f_L-1b_031, f_L-1b_032, f_L-1b_033, f_L-1b_034, f_L-1b_064, f_L-1b_069, f_L-1_096, f_L-1_097, f_L1_030, f_L-1_108, f_L-1_109, f_L1_034)
-- "High Bookcase" by 8549 (https://sketchfab.com/3d-models/d48a42e91c5d4716a8c254addf8c9d99), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for f_L-1b_062, f_L-1b_067, f_L-1_093, f_L-1_105)
+- "Chair" by 杭州维界科技有限公司 (https://sketchfab.com/3d-models/d2785b57e7da45858f2fe8bf4dedd68d), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for f_L-1_028, f_L-1_029, f_L-1_030, f_L-1_031, f_L-1_032, f_L-1_033, f_L-1_034, f_L-1_035, f_L-1_036, f_L-1_037, f_L-1_039, f_L-1_040, f_L-1_041, f_L-1_042, f_L-1_043, f_L-1_044, f_L-1_045, f_L-1_046, f_L-1_047, f_L-1_048, f_L-1b_018, f_L-1b_019, f_L-1b_020, f_L-1b_021, f_L-1b_022, f_L-1b_023, f_L-1b_024, f_L-1b_025, f_L-1b_027, f_L-1b_028, f_L-1b_029, f_L-1b_030, f_L-1b_031, f_L-1b_032, f_L-1b_033, f_L-1b_034, f_L-1b_064, f_L-1b_069, f_L-1_094, f_L-1_095, f_L-1_105, f_L-1_106)
+- "High Bookcase" by 8549 (https://sketchfab.com/3d-models/d48a42e91c5d4716a8c254addf8c9d99), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), via Objaverse (allenai/objaverse, ODC-By 1.0); changes: scaled to the drawn footprint, re-oriented, rendered, AI-retouched (used for f_L-1b_062, f_L-1b_067)
 
 Contains information from Objaverse 1.0 (https://huggingface.co/datasets/allenai/objaverse, revision 21e4e14), which is made available under the ODC Attribution License (ODC-By 1.0, https://opendatacommons.org/licenses/by/1-0/). Every object keeps its own licence, as declared by its uploader and not verified by WenArt_RUN (CC0 1.0 and CC BY 4.0 unflagged, every other licence flagged: docs/milestone8.md §2): check it before commercial use. This file is licensed ODC-By 1.0, not MIT.
 
@@ -1078,19 +1086,19 @@ Model: google/owlv2-base-patch16-ensemble @ cfd3195ba4ea (Apache-2.0).
 
 ## Stages
 
-This run (`20261009-223302-full-20261009T223802Z`):
+This run (`20261010-015217-full-20261010T015655Z`):
 
 | stage | status | seconds | note |
 |---|---|---|---|
-| build | ok | 3.4 min | - |
-| render | ok | 101.6 s | - |
-| export | ok | 71.3 s | - |
-| controls | ok | 31.5 s | - |
-| detect | skipped | 0.0 s | polish off |
+| build | ok | 3.0 min | - |
+| render | ok | 100.8 s | - |
+| export | ok | 72.6 s | - |
+| controls | ok | 34.0 s | - |
 | gate | skipped | 0.0 s | polish off |
+| detect | skipped | 0.0 s | polish off |
 | polish | skipped | 0.0 s | polish off |
-| expected | ok | 10.5 s | - |
-| check | ok | 74.8 s | - |
+| expected | ok | 11.8 s | - |
+| check | ok | 75.7 s | - |
 | combine | ok | 15.6 s | - |
 
 The report stage itself is recorded after this report.

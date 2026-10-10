@@ -418,7 +418,7 @@
   {
    "pass": 1,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 5.078,
+   "latency_s": 3.24,
    "error": null,
    "transport_error": false,
    "data": {
@@ -436,7 +436,7 @@
        0.45
       ],
       "against_wall": true,
-      "reason": "Placed against the wall the sofa faces, matching modern natural style."
+      "reason": "Placed against the wall the sofa faces, with 0.6m clearance in front."
      },
      {
       "type": "armchair",
@@ -450,61 +450,33 @@
        0.9
       ],
       "against_wall": false,
-      "reason": "Adds seating near the sofa for conversation, in warm greige and natural wood style."
+      "reason": "Added for seating balance, placed away from walls to maintain open flow."
      },
      {
       "type": "console_table",
       "center": [
        1.5,
-       5.0
+       6.5
       ],
-      "rotation_deg": 180,
+      "rotation_deg": 0,
       "size": [
        1.2,
        0.35
       ],
-      "against_wall": false,
-      "reason": "Placed beside the armchair for decor and function, matching the modern natural style."
-     },
-     {
-      "type": "chaise",
-      "center": [
-       1.5,
-       3.0
-      ],
-      "rotation_deg": 0,
-      "size": [
-       0.75,
-       1.7
-      ],
-      "against_wall": false,
-      "reason": "Adds lounging space near the sofa, in natural wood and cream style."
-     },
-     {
-      "type": "bookshelf",
-      "center": [
-       1.5,
-       1.0
-      ],
-      "rotation_deg": 0,
-      "size": [
-       1.0,
-       0.35
-      ],
       "against_wall": true,
-      "reason": "Placed against the wall for storage and display, matching modern natural style."
+      "reason": "Placed against the wall for functional storage and decor, near the armchair."
      }
     ]
    },
    "prompt": "Task: complete this living room (Turkish: SALON) labelled 'Salon' on the plan. The documents draw some furniture in it (listed below). Add the pieces the room misses where they fit, and change a drawn piece marked changeable only where a better type, size or look suits the room and the style. Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nRoom (metres, X right, Y up):\n{\"room_id\": \"r_L-1_salon\", \"label\": \"Salon\", \"room_type\": \"living\", \"room_subtype\": null, \"area_m2\": 50.86, \"polygon_m\": [[0.2, 0.2], [7.39, 0.2], [7.39, 7.42], [4.62, 7.42], [4.62, 7.51], [3.24, 7.51], [3.24, 7.04], [0.2, 7.04]], \"doors\": [{\"id\": \"o_L-1_001\", \"center\": [3.93, 7.51], \"width\": 1.38, \"opens_into_this_room\": false, \"approach\": [3.93, 7.05]}], \"windows\": [{\"id\": \"win_L-1_001\", \"center\": [3.79, 0.1], \"width\": 7.19, \"sill_height\": 0.9}]}\n\nDrawn pieces (from the documents; front_deg = the direction the piece faces, 0 = +X, 90 = +Y; anchor = the point that stays: the centre of a free piece, the middle of the back edge of a piece against a wall):\n[{\"id\": \"f_L-1_021\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [0.5, 4.27], \"size\": [5.54, 0.6], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.5, 4.27]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1_024\", \"type\": \"wardrobe\", \"kind\": \"changeable\", \"center\": [5.9, 7.07], \"size\": [2.57, 0.74], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"back_edge\", \"point\": [5.9, 7.44]}, \"against_wall\": \"w_L-1_004\"}, {\"id\": \"f_L-1_027\", \"type\": \"table_dining\", \"kind\": \"changeable\", \"center\": [6.04, 4.23], \"size\": [3.35, 1.0], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [6.04, 4.23]}, \"against_wall\": null}, {\"id\": \"f_L-1_028\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.6, 5.42], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.6, 5.42]}, \"against_wall\": null}, {\"id\": \"f_L-1_029\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.6, 4.22], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.6, 4.22]}, \"against_wall\": null}, {\"id\": \"f_L-1_030\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.6, 3.63], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.6, 3.63]}, \"against_wall\": null}, {\"id\": \"f_L-1_031\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.6, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.6, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1_032\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.48, 5.42], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.48, 5.42]}, \"against_wall\": null}, {\"id\": \"f_L-1_033\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.48, 4.22], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.48, 4.22]}, \"against_wall\": null}, {\"id\": \"f_L-1_034\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.48, 3.63], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.48, 3.63]}, \"against_wall\": null}, {\"id\": \"f_L-1_035\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.48, 3.04], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.48, 3.04]}, \"against_wall\": null}, {\"id\": \"f_L-1_036\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [6.6, 4.84], \"size\": [0.5, 0.45], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.6, 4.84]}, \"against_wall\": null}, {\"id\": \"f_L-1_037\", \"type\": \"chair\", \"kind\": \"changeable\", \"center\": [5.48, 4.84], \"size\": [0.5, 0.45], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.48, 4.84]}, \"against_wall\": null}, {\"id\": \"f_L-1_049\", \"type\": \"armchair\", \"kind\": \"changeable\", \"center\": [2.66, 6.23], \"size\": [0.99, 0.84], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [2.66, 6.23]}, \"against_wall\": null}, {\"id\": \"f_L-1_053\", \"type\": \"sofa_corner\", \"kind\": \"changeable\", \"center\": [3.08, 3.27], \"size\": [4.38, 1.97], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [3.08, 3.27]}, \"against_wall\": null, \"shape\": \"L, long seat on the right\"}, {\"id\": \"f_L-1_059\", \"type\": \"floor_lamp\", \"kind\": \"fixed\", \"center\": [1.28, 0.7], \"size\": [0.59, 0.59], \"rotation_deg\": 180.0, \"front_deg\": 90.0, \"anchor\": {\"kind\": \"centre\", \"point\": [1.28, 0.7]}, \"against_wall\": null}, {\"id\": \"f_L-1_060\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [0.88, 0.99], \"size\": [0.79, 0.79], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [0.88, 0.99]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1_061\", \"type\": \"sofa\", \"kind\": \"changeable\", \"center\": [2.31, 3.17], \"size\": [1.3, 0.63], \"rotation_deg\": 90.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.31, 3.17]}, \"against_wall\": null}, {\"id\": \"f_L-1_063\", \"type\": \"floor_lamp\", \"kind\": \"fixed\", \"center\": [4.3, 0.74], \"size\": [0.59, 0.59], \"rotation_deg\": 0.0, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [4.3, 0.74]}, \"against_wall\": null}, {\"id\": \"f_L-1_064\", \"type\": \"floor_lamp\", \"kind\": \"fixed\", \"center\": [4.68, 1.02], \"size\": [0.44, 0.44], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [4.68, 1.02]}, \"against_wall\": null}, {\"id\": \"f_L-1_070\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [6.99, 0.97], \"size\": [0.64, 0.57], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.99, 0.97]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1_071\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [5.27, 0.97], \"size\": [0.64, 0.57], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.27, 0.97]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}, {\"id\": \"f_L-1_073\", \"type\": \"table_coffee\", \"kind\": \"changeable\", \"center\": [6.12, 1.0], \"size\": [0.56, 0.56], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.12, 1.0]}, \"against_wall\": null}, {\"id\": \"f_L-1_075\", \"type\": \"ottoman\", \"kind\": \"changeable\", \"center\": [6.87, 0.97], \"size\": [0.47, 0.48], \"rotation_deg\": 90.0, \"front_deg\": 0.0, \"anchor\": {\"kind\": \"centre\", \"point\": [6.87, 0.97]}, \"against_wall\": null}, {\"id\": \"f_L-1_077\", \"type\": \"ottoman\", \"kind\": \"changeable\", \"center\": [5.38, 0.97], \"size\": [0.47, 0.48], \"rotation_deg\": 270.0, \"front_deg\": 180.0, \"anchor\": {\"kind\": \"centre\", \"point\": [5.38, 0.97]}, \"against_wall\": null}, {\"id\": \"f_L-1_080\", \"type\": \"ottoman\", \"kind\": \"changeable\", \"center\": [4.82, 1.7], \"size\": [0.4, 0.4], \"rotation_deg\": 0.0, \"front_deg\": 270.0, \"anchor\": {\"kind\": \"centre\", \"point\": [4.82, 1.7]}, \"against_wall\": null}, {\"id\": \"f_L-1_087\", \"type\": \"unknown\", \"kind\": \"changeable\", \"center\": [2.24, 5.63], \"size\": [0.71, 0.41], \"rotation_deg\": 143.6, \"front_deg\": null, \"anchor\": {\"kind\": \"centre\", \"point\": [2.24, 5.63]}, \"against_wall\": null, \"status\": \"unverified (type not sure; only its type may change, the footprint stays)\"}]\n\nWhat the room misses:\n- expected for this room type and missing: tv_unit (1)\n- you may add at most: tv_unit (1), armchair (1), chaise (1), console_table (1), sideboard (1), bookshelf (1), display_cabinet (1)\nA good completion: a coffee table in front of the sofa (beyond the sofa's 0.6 m clearance) and a tv_unit against the wall the sofa faces; an armchair, a sideboard or a bookshelf only where the room stays open.\n\nTypes with their size options [width, depth]:\n- sofa: height 0.85 m, size options [1.6, 0.9], [2.2, 0.9], [2.6, 0.95] (usually against a wall)\n- armchair: height 0.85 m, size options [0.8, 0.8], [0.9, 0.9], [1.0, 1.0]\n- table_coffee: height 0.45 m, size options [0.8, 0.5], [1.0, 0.6], [1.2, 0.7]\n- tv_unit: height 0.5 m, size options [1.2, 0.4], [1.6, 0.45], [2.0, 0.45] (usually against a wall)\n- bookshelf: height 1.8 m, size options [0.8, 0.3], [1.0, 0.35], [1.2, 0.4] (usually against a wall)\n- table_dining: height 0.75 m, size options [1.2, 0.8], [1.6, 0.9], [2.0, 1.0]\n- chair: height 0.9 m, size options [0.4, 0.4], [0.45, 0.45], [0.5, 0.5]\n- console_table: height 0.8 m, size options [0.9, 0.3], [1.2, 0.35], [1.4, 0.4] (usually against a wall)\n- sideboard: height 0.8 m, size options [1.4, 0.42], [1.6, 0.45], [1.8, 0.48] (usually against a wall)\n- display_cabinet: height 1.9 m, size options [0.8, 0.38], [1.0, 0.4], [1.2, 0.42] (usually against a wall)\n- ottoman: height 0.45 m, size options [0.5, 0.5], [0.6, 0.6], [0.8, 0.8]\n- chaise: height 0.8 m, size options [0.65, 1.6], [0.75, 1.7], [0.85, 1.8]\n- sofa_corner: height 0.85 m, size options [2.2, 1.5], [2.6, 1.6], [3.0, 1.7] (usually against a wall)\n\nRules for changes (list a drawn piece only when you change it):\n- only pieces with kind changeable; fixed pieces (stairs, kitchen runs and appliances, sanitary ware) never change;\n- a changed piece keeps its anchor and the direction it faces: against a wall its back edge stays on the same wall at the same point and the new size grows into the room; a free piece keeps its centre;\n- the room's main piece (sofa, sofa_corner) may only become another main piece type, and no other piece may become one (never a second main piece);\n- the size is one of the size options of the new type; a size that does not fit is reduced or the change is undone;\n- style: one of scandinavian, japandi, modern minimal, minimal, modern, industrial, mediterranean, classic, rustic, neutral; colour: one of white, cream, beige, sand, light grey, grey, charcoal, black, natural wood, terracotta, rust, mustard, olive, sage green, forest green, navy, dusty blue, teal, blush, burgundy, brass, copper.\n\nRules for added pieces: the drawn pieces (after your changes) are obstacles; keep 0.6 m free in front of drawn beds, sofas, desks and wardrobes too.\nRules that are checked afterwards (pieces that fail are moved or removed):\n- every footprint lies fully inside the room polygon; pieces do not overlap;\n- keep 0.6 m free in front of beds, sofas, desks and wardrobes (front = the -Y side at rotation 0, rotated with the piece);\n- keep a 0.9 m wide walkway from every door to every other door and window;\n- keep the door swing free: a half circle with the door width as radius inside the room the door opens into, and 0.6 m in front of every door;\n- within 0.3 m of a window nothing may be taller than the sill; beds, sofas and tables may stand under a window;\n- a piece with against_wall true must touch a wall with its back edge (its +Y side at rotation 0): choose rotation_deg so the back faces the wall (0 = back to a wall on the +Y side, 90 = back to a wall on the -X side, 180 = back to a wall on the -Y side, 270 = back to a wall on the +X side) and set the centre half the depth away from the wall.\n\nFields of the answer:\n- changes: a list (only the drawn pieces you change) of objects with id (a changeable drawn piece), type (one of sofa, armchair, table_coffee, tv_unit, bookshelf, table_dining, chair, console_table, sideboard, display_cabinet, ottoman, chaise, sofa_corner), size ([width, depth], one of the size options of the new type), style (a style family), colour (one of the colours) and reason (one short sentence)\n- added: a list (the most important piece first) of objects with type (one of tv_unit, armchair, chaise, console_table, sideboard, bookshelf, display_cabinet), center ([x, y] of the footprint centre in metres, in the same frame as the room polygon), rotation_deg (0..360 counter-clockwise; at 0 the width runs along X and the front faces -Y), size ([width, depth], exactly one of the size options of the type), against_wall (true when the back edge touches a wall) and reason (one short sentence)\n\nAnswer only with JSON.",
-   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"tv_unit\",\n      \"center\": [3.08, 0.2],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Placed against the wall the sofa faces, matching modern natural style.\"\n    },\n    {\n      \"type\": \"armchair\",\n      \"center\": [1.5, 5.0],\n      \"rotation_deg\": 180,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Adds seating near the sofa for conversation, in warm greige and natural wood style.\"\n    },\n    {\n      \"type\": \"console_table\",\n      \"center\": [1.5, 5.0],\n      \"rotation_deg\": 180,\n      \"size\": [1.2, 0.35],\n      \"against_wall\": false,\n      \"reason\": \"Placed beside the armchair for decor and function, matching the modern natural style.\"\n    },\n    {\n      \"type\": \"chaise\",\n      \"center\": [1.5, 3.0],\n      \"rotation_deg\": 0,\n      \"size\": [0.75, 1.7],\n      \"against_wall\": false,\n      \"reason\": \"Adds lounging space near the sofa, in natural wood and cream style.\"\n    },\n    {\n      \"type\": \"bookshelf\",\n      \"center\": [1.5, 1.0],\n      \"rotation_deg\": 0,\n      \"size\": [1.0, 0.35],\n      \"against_wall\": true,\n      \"reason\": \"Placed against the wall for storage and display, matching modern natural style.\"\n    }\n  ]\n}",
+   "raw_text": "{\n  \"changes\": [],\n  \"added\": [\n    {\n      \"type\": \"tv_unit\",\n      \"center\": [3.08, 0.2],\n      \"rotation_deg\": 0,\n      \"size\": [1.6, 0.45],\n      \"against_wall\": true,\n      \"reason\": \"Placed against the wall the sofa faces, with 0.6m clearance in front.\"\n    },\n    {\n      \"type\": \"armchair\",\n      \"center\": [1.5, 5.0],\n      \"rotation_deg\": 180,\n      \"size\": [0.9, 0.9],\n      \"against_wall\": false,\n      \"reason\": \"Added for seating balance, placed away from walls to maintain open flow.\"\n    },\n    {\n      \"type\": \"console_table\",\n      \"center\": [1.5, 6.5],\n      \"rotation_deg\": 0,\n      \"size\": [1.2, 0.35],\n      \"against_wall\": true,\n      \"reason\": \"Placed against the wall for functional storage and decor, near the armchair.\"\n    }\n  ]\n}",
    "changes": 0,
-   "added": 5
+   "added": 3
   },
   {
    "pass": 2,
    "model": "Qwen/Qwen3-VL-8B-Instruct",
-   "latency_s": 3.936,
+   "latency_s": 3.945,
    "error": null,
    "transport_error": false,
    "data": {
@@ -614,45 +586,13 @@
    "type": "console_table",
    "center": [
     1.5,
-    4.3
+    6.847
    ],
    "size": [
     1.2,
     0.35
    ],
-   "rotation_deg": 180.0,
-   "confidence": 0.9,
-   "method": "ai",
-   "mirrored_from": null
-  },
-  {
-   "id": "f_L-1_092",
-   "type": "chaise",
-   "center": [
-    1.5,
-    3.0
-   ],
-   "size": [
-    0.75,
-    1.7
-   ],
    "rotation_deg": 0.0,
-   "confidence": 0.6,
-   "method": "ai",
-   "mirrored_from": null
-  },
-  {
-   "id": "f_L-1_093",
-   "type": "bookshelf",
-   "center": [
-    7.19,
-    1.872
-   ],
-   "size": [
-    1.0,
-    0.35
-   ],
-   "rotation_deg": 270.0,
    "confidence": 0.6,
    "method": "ai",
    "mirrored_from": null
@@ -748,7 +688,7 @@
    ]
   ]
  },
- "latency_s": 9.014,
+ "latency_s": 7.185,
  "question": {
   "room": {
    "room_id": "r_L-1_salon",
@@ -1742,7 +1682,7 @@
       0.45
      ],
      "against_wall": true,
-     "reason": "Placed against the wall the sofa faces, matching modern natural style.",
+     "reason": "Placed against the wall the sofa faces, with 0.6m clearance in front.",
      "proposed": {
       "center": [
        3.08,
@@ -1756,7 +1696,7 @@
      },
      "repairs": [
       {
-       "iteration": 8,
+       "iteration": 3,
        "type": "tv_unit",
        "step": "snap",
        "before": {
@@ -1809,7 +1749,7 @@
       0.9
      ],
      "against_wall": false,
-     "reason": "Adds seating near the sofa for conversation, in warm greige and natural wood style.",
+     "reason": "Added for seating balance, placed away from walls to maintain open flow.",
      "proposed": {
       "center": [
        1.5,
@@ -1823,7 +1763,7 @@
      },
      "repairs": [
       {
-       "iteration": 7,
+       "iteration": 2,
        "type": "armchair",
        "step": "slide",
        "before": {
@@ -1867,21 +1807,21 @@
      "type": "console_table",
      "center": [
       1.5,
-      4.3
+      6.847
      ],
-     "rotation_deg": 180.0,
+     "rotation_deg": 0.0,
      "size": [
       1.2,
       0.35
      ],
-     "against_wall": false,
-     "reason": "Placed beside the armchair for decor and function, matching the modern natural style.",
+     "against_wall": true,
+     "reason": "Placed against the wall for functional storage and decor, near the armchair.",
      "proposed": {
       "center": [
        1.5,
-       5.0
+       6.5
       ],
-      "rotation_deg": 180.0,
+      "rotation_deg": 0.0,
       "size": [
        1.2,
        0.35
@@ -1889,264 +1829,33 @@
      },
      "repairs": [
       {
-       "iteration": 6,
-       "type": "console_table",
-       "step": "slide",
-       "before": {
-        "center": [
-         1.5,
-         5.0
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         1.2,
-         0.35
-        ]
-       },
-       "after": {
-        "center": [
-         1.5,
-         4.3
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         1.2,
-         0.35
-        ]
-       },
-       "failed": [
-        "no_overlap"
-       ],
-       "ok": true
-      }
-     ],
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
-     "type": "chaise",
-     "center": [
-      1.5,
-      3.0
-     ],
-     "rotation_deg": 0.0,
-     "size": [
-      0.75,
-      1.7
-     ],
-     "against_wall": false,
-     "reason": "Adds lounging space near the sofa, in natural wood and cream style.",
-     "proposed": {
-      "center": [
-       1.5,
-       3.0
-      ],
-      "rotation_deg": 0.0,
-      "size": [
-       0.75,
-       1.7
-      ]
-     },
-     "repairs": [],
-     "checks": {
-      "inside_room": true,
-      "no_overlap": true,
-      "clearance_ok": true,
-      "doors_free": true,
-      "windows_free": true,
-      "wall_contact": true
-     }
-    },
-    {
-     "type": "bookshelf",
-     "center": [
-      7.19,
-      1.872
-     ],
-     "rotation_deg": 270.0,
-     "size": [
-      1.0,
-      0.35
-     ],
-     "against_wall": true,
-     "reason": "Placed against the wall for storage and display, matching modern natural style.",
-     "proposed": {
-      "center": [
-       1.5,
-       1.0
-      ],
-      "rotation_deg": 0.0,
-      "size": [
-       1.0,
-       0.35
-      ]
-     },
-     "repairs": [
-      {
        "iteration": 1,
-       "type": "bookshelf",
+       "type": "console_table",
        "step": "snap",
        "before": {
         "center": [
          1.5,
-         1.0
+         6.5
         ],
         "rotation_deg": 0.0,
         "size": [
-         1.0,
+         1.2,
          0.35
         ]
        },
        "after": {
         "center": [
          1.5,
-         0.397
+         6.847
         ],
-        "rotation_deg": 180.0,
+        "rotation_deg": 0.0,
         "size": [
-         1.0,
+         1.2,
          0.35
         ]
        },
        "failed": [
-        "no_overlap",
         "wall_contact"
-       ],
-       "ok": false
-      },
-      {
-       "iteration": 2,
-       "type": "bookshelf",
-       "step": "slide",
-       "before": {
-        "center": [
-         1.5,
-         0.397
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         1.0,
-         0.35
-        ]
-       },
-       "after": {
-        "center": [
-         1.5,
-         0.397
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         1.0,
-         0.35
-        ]
-       },
-       "failed": [
-        "no_overlap",
-        "windows_free"
-       ],
-       "ok": false,
-       "note": "no free position on this wall"
-      },
-      {
-       "iteration": 3,
-       "type": "bookshelf",
-       "step": "shrink",
-       "before": {
-        "center": [
-         1.5,
-         0.397
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         1.0,
-         0.35
-        ]
-       },
-       "after": {
-        "center": [
-         1.5,
-         0.372
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         0.8,
-         0.3
-        ]
-       },
-       "failed": [
-        "no_overlap",
-        "windows_free"
-       ],
-       "ok": false
-      },
-      {
-       "iteration": 4,
-       "type": "bookshelf",
-       "step": "slide",
-       "before": {
-        "center": [
-         1.5,
-         0.372
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         0.8,
-         0.3
-        ]
-       },
-       "after": {
-        "center": [
-         1.5,
-         0.372
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         0.8,
-         0.3
-        ]
-       },
-       "failed": [
-        "no_overlap",
-        "windows_free"
-       ],
-       "ok": false,
-       "note": "no free position on this wall"
-      },
-      {
-       "iteration": 5,
-       "type": "bookshelf",
-       "step": "relocate",
-       "before": {
-        "center": [
-         1.5,
-         0.372
-        ],
-        "rotation_deg": 180.0,
-        "size": [
-         0.8,
-         0.3
-        ]
-       },
-       "after": {
-        "center": [
-         7.19,
-         1.872
-        ],
-        "rotation_deg": 270.0,
-        "size": [
-         1.0,
-         0.35
-        ]
-       },
-       "failed": [
-        "no_overlap",
-        "windows_free"
        ],
        "ok": true
       }
@@ -2165,205 +1874,38 @@
    "log": [
     {
      "iteration": 1,
-     "piece": 4,
-     "type": "bookshelf",
+     "piece": 2,
+     "type": "console_table",
      "step": "snap",
      "before": {
       "center": [
        1.5,
-       1.0
+       6.5
       ],
       "rotation_deg": 0.0,
       "size": [
-       1.0,
+       1.2,
        0.35
       ]
      },
      "after": {
       "center": [
        1.5,
-       0.397
+       6.847
       ],
-      "rotation_deg": 180.0,
+      "rotation_deg": 0.0,
       "size": [
-       1.0,
+       1.2,
        0.35
       ]
      },
      "failed": [
-      "no_overlap",
       "wall_contact"
      ],
-     "ok": false
+     "ok": true
     },
     {
      "iteration": 2,
-     "piece": 4,
-     "type": "bookshelf",
-     "step": "slide",
-     "before": {
-      "center": [
-       1.5,
-       0.397
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       1.0,
-       0.35
-      ]
-     },
-     "after": {
-      "center": [
-       1.5,
-       0.397
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       1.0,
-       0.35
-      ]
-     },
-     "failed": [
-      "no_overlap",
-      "windows_free"
-     ],
-     "ok": false,
-     "note": "no free position on this wall"
-    },
-    {
-     "iteration": 3,
-     "piece": 4,
-     "type": "bookshelf",
-     "step": "shrink",
-     "before": {
-      "center": [
-       1.5,
-       0.397
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       1.0,
-       0.35
-      ]
-     },
-     "after": {
-      "center": [
-       1.5,
-       0.372
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       0.8,
-       0.3
-      ]
-     },
-     "failed": [
-      "no_overlap",
-      "windows_free"
-     ],
-     "ok": false
-    },
-    {
-     "iteration": 4,
-     "piece": 4,
-     "type": "bookshelf",
-     "step": "slide",
-     "before": {
-      "center": [
-       1.5,
-       0.372
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       0.8,
-       0.3
-      ]
-     },
-     "after": {
-      "center": [
-       1.5,
-       0.372
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       0.8,
-       0.3
-      ]
-     },
-     "failed": [
-      "no_overlap",
-      "windows_free"
-     ],
-     "ok": false,
-     "note": "no free position on this wall"
-    },
-    {
-     "iteration": 5,
-     "piece": 4,
-     "type": "bookshelf",
-     "step": "relocate",
-     "before": {
-      "center": [
-       1.5,
-       0.372
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       0.8,
-       0.3
-      ]
-     },
-     "after": {
-      "center": [
-       7.19,
-       1.872
-      ],
-      "rotation_deg": 270.0,
-      "size": [
-       1.0,
-       0.35
-      ]
-     },
-     "failed": [
-      "no_overlap",
-      "windows_free"
-     ],
-     "ok": true
-    },
-    {
-     "iteration": 6,
-     "piece": 2,
-     "type": "console_table",
-     "step": "slide",
-     "before": {
-      "center": [
-       1.5,
-       5.0
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       1.2,
-       0.35
-      ]
-     },
-     "after": {
-      "center": [
-       1.5,
-       4.3
-      ],
-      "rotation_deg": 180.0,
-      "size": [
-       1.2,
-       0.35
-      ]
-     },
-     "failed": [
-      "no_overlap"
-     ],
-     "ok": true
-    },
-    {
-     "iteration": 7,
      "piece": 1,
      "type": "armchair",
      "step": "slide",
@@ -2395,7 +1937,7 @@
      "ok": true
     },
     {
-     "iteration": 8,
+     "iteration": 3,
      "piece": 0,
      "type": "tv_unit",
      "step": "snap",
@@ -2428,7 +1970,7 @@
      "ok": true
     }
    ],
-   "iterations": 8,
+   "iterations": 3,
    "anchor_first": false
   },
   "2": {
