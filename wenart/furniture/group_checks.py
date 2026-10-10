@@ -44,7 +44,7 @@ import math
 from typing import Iterable, Optional
 
 import numpy as np
-from shapely.geometry import LineString, MultiLineString, Point, Polygon
+from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import unary_union
 
 from wenart import geometry as G
@@ -282,7 +282,9 @@ class RoomView:
         self.polygon: Polygon = self.ctx.polygon
         self.ring = self.polygon.exterior
         self.items = [f for f in building.get("furniture") or [] if f.get("room_id") == self.id]
-        self.floor = [f for f in self.items if f.get("build") is not False and f.get("footprint")
+        # Built floor pieces only (``groups.piece_is_built``: not ``build: false``, not ``unknown``, not a library
+        # gap): what the scene shows is what the group checks judge.
+        self.floor = [f for f in self.items if GR.piece_is_built(f) and f.get("footprint")
                       and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None]
         self.by_id = {f["id"]: f for f in self.floor}
         self.pieces: dict[str, placer.Piece] = {}
@@ -797,6 +799,27 @@ def landings(r: RoomView, comp: list[str]) -> dict[str, dict]:
     return out
 
 
+def fridge_landing_elsewhere(r: RoomView, pid: str) -> Optional[str]:
+    """NKBA's other fridge landings: ``"across"`` (a counter or island at most ``across_max`` in front of the fridge)
+    or ``"corner"`` (a counter within ``side_gap`` of a side of the fridge: the run turns the corner beside it);
+    None when neither."""
+    rule = GR.rule("fridge_landing")
+    p = r.pieces[pid]
+    w, d = float(p.size[0]), float(p.size[1])
+    others = [q for q in r.typed(("kitchen_counter", "kitchen_island")) if q != pid]
+    across = placer._local_box(p.center, p.rotation_deg, -w / 2.0, w / 2.0, -d / 2.0 - float(rule.get("across_max", 0.0)),
+                               -d / 2.0)
+    gap = float(rule.get("side_gap", 0.0))
+    sides = [placer._local_box(p.center, p.rotation_deg, x0, x1, -d / 2.0, d / 2.0)
+             for x0, x1 in ((w / 2.0, w / 2.0 + gap), (-w / 2.0 - gap, -w / 2.0))]
+    if any(r.polys[q].intersection(across).area > 1e-4 for q in others):
+        return "across"
+    if gap > 0 and any(r.polys[q].intersection(s).area > 1e-4 for q in others if r.by_id[q]["type"] == "kitchen_counter"
+                       for s in sides):
+        return "corner"
+    return None
+
+
 def _g8_g9(r: RoomView) -> list[dict]:
     out = []
     run_ids = r.typed(GR.KITCHEN_RUN_TYPES)
@@ -818,6 +841,8 @@ def _g8_g9(r: RoomView) -> list[dict]:
             for pid, land in sorted(lands.items()):
                 rule_name = {"sink": "sink_landing", "hob": "hob_landing", "fridge": "fridge_landing"}[land["kind"]]
                 need = GR.rule_min(rule_name)
+                if land["best"] < need - 1e-9 and land["kind"] == "fridge" and fridge_landing_elsewhere(r, pid):
+                    continue
                 if land["best"] < need - 1e-9:
                     out.append(_violation("G8", "major", pid, r.id, f"{land['kind']} {pid}: {land['best']:.2f} m of "
                                           f"counter beside it, needs ≥ {need:.2f} m on one side",

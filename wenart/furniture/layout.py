@@ -403,9 +403,12 @@ def apply_choice(out: dict, room: dict, cand: dict, choice: dict, completes: boo
         f["layout"] = dict(f.get("layout") or {}, candidate=cand["rank"], score=cand["score"])
         if completes:
             f["completes_room"] = True
-    out["furniture"] = new["furniture"]
+    # The pieces already in ``out`` stay the same objects (the records of earlier rooms hold them).
+    kept = {f["id"] for f in new["furniture"]}
+    out["furniture"] = [f for f in out["furniture"] if f["id"] in kept] + added
     if "decor" in new:
-        out["decor"] = new["decor"]
+        hosts = {d.get("host_id") for d in new["decor"]}
+        out["decor"] = [d for d in out.get("decor") or [] if d.get("host_id") in hosts or d.get("host_id") is None]
     return added
 
 

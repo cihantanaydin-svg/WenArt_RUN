@@ -33,6 +33,8 @@ How, per room (``furnished_rooms: complete``, documented furniture, a furnishabl
    already holds: cabinet fronts, colour, handle and worktop from ``style.json`` ``cabinets`` (absent: none),
    ``vanity`` for a washbasin at least 0.45 m deep, ``built_in`` for a wardrobe touching walls at both ends,
    ``material_tags`` from ``style.json`` ``furniture.by_type``.
+5. Groups (``tag_drawn_groups``): the drawn anchor and drawn partners of every furnished room get ``group = {group_id,
+   group, role, anchor_id}`` (the program's ids, shared with the added partners; the fit reads it). Not a locked key.
 
 Partners (asked once, §2.1): a room with ``same_as`` (an alternative level's room equal to a base room) takes its
 partner's added pieces as they are; with ``render.twin_rooms: one`` a room with ``twin_of`` takes them mirrored
@@ -790,6 +792,7 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
             rec.reason = f"partner {pid} ({kind}) is itself waiting (a cycle): completed itself"
             records[room["id"]] = rec
     result = [records[rid] for rid in order]
+    tag_drawn_groups(out, result)
     apply_designs(out, result, style)
     out["warnings"] = list(out.get("warnings", []))
     for rec in result:
@@ -798,6 +801,29 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
         if debug_dir is not None:
             write_room_debug(rec, out, Path(debug_dir))
     return out, result
+
+
+def tag_drawn_groups(out: dict, records: list[RoomCompletion]) -> int:
+    """The drawn pieces of every furnished room get their group (``group = {group_id, group, role, anchor_id}``, the
+    ids of the room's program, so the added partners and the drawn anchor share one group id; the fit picks related
+    types by it). An unverified anchor is not tagged; a piece that already holds a group keeps it. Returns the count."""
+    from wenart.furniture import program as PR
+
+    by_id = {f["id"]: f for f in out["furniture"]}
+    count = 0
+    for rec in records:
+        prog = rec.program if rec.program is not None else PR.room_program(out, rec.room_id)
+        for entry in prog.get("groups", []):
+            if not entry.get("drawn") or str(entry.get("note") or "").startswith("unverified"):
+                continue
+            anchor = entry.get("anchor_id")
+            for pid, role in [(anchor, "anchor")] + [(m, "partner") for m in entry.get("members") or []]:
+                f = by_id.get(pid)
+                if f is None or f.get("source") != "from_documents" or isinstance(f.get("group"), dict):
+                    continue
+                f["group"] = {"group_id": entry["group_id"], "group": entry["group"], "role": role, "anchor_id": anchor}
+                count += 1
+    return count
 
 
 # --------------------------------------------------------------------------

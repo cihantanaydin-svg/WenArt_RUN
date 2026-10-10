@@ -650,12 +650,25 @@ ROLES_OF_GROUP: dict[str, tuple[str, ...]] = {
 }
 
 
+NOT_BUILT_ASSET_METHODS: tuple[str, ...] = ("none",)   # the fit's library gap: no usable model, not built
+
+
+def piece_is_built(piece: Optional[dict]) -> bool:
+    """A piece the scene builds: ``build`` not false, typed (an ``unknown`` piece is never built) and not a library
+    gap the fit left unbuilt (``asset.method == "none"``). The same rule as track S's
+    ``wenart.furniture.decor.piece_is_built`` (kept here so the group modules do not import the decor code)."""
+    if not piece or piece.get("build", True) is False or piece.get("type") == "unknown":
+        return False
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    return asset.get("method") not in NOT_BUILT_ASSET_METHODS
+
+
 def _room_of(building: dict, room_id: str) -> Optional[dict]:
     return next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
 
 
 def _built_floor(building: dict, room_id: str) -> list[dict]:
-    return [f for f in building.get("furniture") or [] if f.get("room_id") == room_id and f.get("build") is not False
+    return [f for f in building.get("furniture") or [] if f.get("room_id") == room_id and piece_is_built(f)
             and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None
             and f.get("footprint")]
 

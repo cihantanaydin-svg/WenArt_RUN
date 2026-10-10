@@ -166,6 +166,16 @@ def _option_of_anchor(group: str, anchor_type: str, options: list[str]) -> list[
     return keep or options
 
 
+def _may_be(ftype: str, size) -> bool:
+    """An unknown footprint fits the product sizes of ``ftype`` (either way round; types without sizes never)."""
+    from wenart.furniture import plausibility as PL     # lazy: plausibility imports the group modules
+
+    if ftype not in PL._size_table():
+        return False
+    w, d = float(size[0]), float(size[1])
+    return PL.oriented_fit(ftype, (w, d))["fits"] or PL.oriented_fit(ftype, (d, w))["fits"]
+
+
 def room_program(building: dict, room_id: str, brief: Optional[dict] = None, choices: Optional[dict] = None) -> dict:
     room = _room(building, room_id)
     rtype = room.get("room_type") or "unknown"
@@ -239,6 +249,20 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
             if not r["drawn"] and t["layout"] == "anchored" and set(t["anchor"]["types"]) & roles:
                 rows.remove(r)
                 notes.append(f"{r['group']} left out: the room's drawn {'/'.join(sorted(roles))} is its anchor")
+    # An unknown drawn piece with the size of a missing anchor may be that anchor (reading could not tell): its group
+    # gets nothing added, never a second anchor beside it; the agent's retype_piece settles it.
+    unknown = [f for f in drawn.values() if f.get("source") == "from_documents" and f.get("type") == "unknown"
+               and f.get("build") is not False and (f.get("footprint") or {}).get("size")]
+    for r in rows:
+        t = GR.load_groups()[r["group"]]
+        if r["drawn"] or t["layout"] != "anchored":
+            continue
+        f = next((u for u in unknown if any(_may_be(a, u["footprint"]["size"]) for a in t["anchor"]["types"])), None)
+        if f is not None:
+            unknown.remove(f)
+            r.update(drawn=True, anchor_id=f["id"], missing=[], note=f"unverified anchor: nothing added (unknown "
+                     f"{f['id']} has the size of a {'/'.join(t['anchor']['types'])})")
+            notes.append(f"{r['group']}: unknown {f['id']} may be its anchor, nothing added")
     # 3. Choices (the VLM's or the agent's picks).
     for r in rows:
         pick = (choices or {}).get(r["group_id"])

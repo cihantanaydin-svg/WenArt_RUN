@@ -64,6 +64,7 @@ from shapely.geometry import LineString, Point, Polygon
 
 from wenart import geometry as G
 from wenart.furniture import group_checks as GC
+from wenart.furniture import groups as GR
 from wenart.furniture import placer, schemas
 
 SEVERITIES = ("critical", "major", "minor")
@@ -162,7 +163,10 @@ class _Room:
         self.polygon: Polygon = self.ctx.polygon
         self.ring = self.polygon.exterior
         self.items = [f for f in building.get("furniture") or [] if f.get("room_id") == self.id]
-        self.built = [f for f in self.items if f.get("build") is not False]
+        # Built: not ``build: false`` and not a library gap the fit left unbuilt (``asset.method == "none"``); unknown
+        # pieces stay here for F9 (the "unknown box" finding) and are left out of the floor below.
+        self.built = [f for f in self.items if f.get("build") is not False and (
+            not isinstance(f.get("asset"), dict) or f["asset"].get("method") not in GR.NOT_BUILT_ASSET_METHODS)]
         self.pieces: dict[str, placer.Piece] = {}
         for i, f in enumerate(self.built):
             try:

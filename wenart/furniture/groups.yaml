@@ -40,7 +40,7 @@ rules:
   kitchen_aisle: {min: 0.90, rec: 1.07, source: [ours, nkba_kitchen], flagged: true, what: "work aisle in front of a counter run (NKBA 1.07 for one cook; 0.90 our minimum for small flats)"}
   sink_landing: {min: 0.46, rec: 0.61, source: [nkba_kitchen], what: "counter beside the sink, one side (rec 0.61 + 0.46)"}
   hob_landing: {min: 0.30, rec: 0.38, source: [nkba_kitchen], what: "counter beside the hob, one side (rec 0.30 + 0.38)"}
-  fridge_landing: {min: 0.38, source: [nkba_kitchen], what: "counter beside the fridge on its handle side"}
+  fridge_landing: {min: 0.38, across_max: 1.22, side_gap: 0.10, source: [nkba_kitchen], what: "counter beside the fridge on its handle side, or a counter or island at most 1.22 m across from it; a counter run that turns the corner beside the fridge (within 0.10 m of its side) counts as beside"}
   triangle_leg: {min: 1.20, max: 2.70, source: [nkba_kitchen], what: "each leg of the work triangle fridge - sink - hob"}
   triangle_sum: {max: 7.90, source: [nkba_kitchen], what: "the three legs together"}
   diner_pullout: {min: 0.81, rec: 0.91, rec_walk: 1.12, source: [nkba_kitchen], what: "table edge to a wall or piece behind a seated diner"}

@@ -81,6 +81,7 @@ OPTIONAL_BONUS = 3.0
 MERGE_M = 0.5                  # same option and turn, anchor within this: one candidate (the better one)
 DIVERSE_M = 1.0                # the top k differ by an option, a turn or an anchor this far apart
 ZONE_INFLATE_M = 0.02          # use zones are tested 2 cm larger on the raster (sub-cell safety)
+FIXED_ZONE_INFLATE_M = -0.03   # a drawn piece's zone is tested 3 cm smaller: it touches the piece's own cells
 CLOSE_M = 0.05                 # pieces closer than this get an exact shapely overlap test
 GAP = placer.SNAP_GAP_M        # back edge to wall face
 EVIDENCE_FILE = "building.json"
@@ -629,6 +630,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
     """(new partner spots, zones, terms, spots by role) around ``anchor``, or None when a required partner does not
     fit. ``filled``: role -> count of drawn partners already there (``nightstand_sides``: the sides taken)."""
     w, d = float(anchor.size[0]), float(anchor.size[1])
+    new_anchor = anchor.existing_id is None      # a drawn anchor gets what fits; a new one needs its required partners
     placed: list[Spot] = []
     placed_fps: list = space.spot_fps(anchor)
     zones: list = []
@@ -752,7 +754,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
             for side, z in pull.items():
                 if not space.zone_layer.hit(space.zone_fp(z)):
                     sides.add(side)
-                elif not _touches(space, anchor, side):
+                elif new_anchor and not _touches(space, anchor, side):
                     return None                # a side without room behind its chairs that does not touch a wall
             zones += [pull[s] for s in sorted(sides)]
             for side, local, turn in members:
@@ -761,7 +763,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
                 s = _local_spot(anchor, ftype, local, turn, sizes[0], role)
                 if _fits(space, s, with_found(found)):
                     found.append(s)
-            if spec["required"] and members and len(found) < 2:
+            if spec["required"] and members and len(found) < 2 and new_anchor:
                 return None
         elif place == "stools":
             n = min(schemas.count_by_length(w, schemas.BAR_STOOLS_BY_ISLAND_LENGTH), want)
@@ -778,9 +780,9 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
                 s = _local_spot(anchor, ftype, (0.0, y), turn, size, role)
                 if _fits(space, s, with_found(found)):
                     found.append(s)
-            if spec["required"] and len(found) < 2:
+            if spec["required"] and len(found) < 2 and new_anchor:
                 return None
-        if spec["required"] and not found and place != "around":
+        if spec["required"] and not found and place != "around" and new_anchor:
             return None
         if place not in ("around", "pair"):
             found = found[:want]
@@ -892,7 +894,7 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
             if zones is None or not space.zones_free(zones) or not space.allowed(spot.type, spot.center):
                 continue
         else:
-            zones = [z for z in spot.zones() if not space.zone_layer.hit(space.zone_fp(z))]
+            zones = []                                 # a drawn anchor's zones are reserved at the root (fixed_zones)
         res = _partners(space, template, opt, spot, filled)
         if res is None:
             continue
@@ -923,13 +925,13 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
     return _keep(out, PER_LEVEL)
 
 
-def _one_side(space: Space, spot: Spot, zones: list) -> Optional[list]:
+def _one_side(space: Space, spot: Spot, zones: list, inflate: float = ZONE_INFLATE_M) -> Optional[list]:
     """A bed that needs one free long side (``sides_needed: 1``, a single bed) keeps the side zones that are free
     (the other side may touch a wall); None when neither is."""
     if int(GR.use_zone(spot.type).get("sides_needed", 2)) != 1:
         return zones
     sides = [z for z in zones if z[0] in ("left", "right")]
-    free = [z for z in sides if not space.zone_layer.hit(space.zone_fp(z))]
+    free = [z for z in sides if not space.zone_layer.hit(space.zone_fp(z, inflate))]
     if sides and not free:
         return None
     return [z for z in zones if z[0] not in ("left", "right")] + free[:1]
@@ -1544,10 +1546,10 @@ def fixed_zones(space: Space) -> list:
             continue
         spot = Spot(f["type"], p.center, p.rotation_deg, p.size, "fixed", False, p.shape, p.chaise_side,
                     existing_id=f["id"])
-        zones = _one_side(space, spot, spot.zones())
+        zones = _one_side(space, spot, spot.zones(), FIXED_ZONE_INFLATE_M)
         if zones is None:
             zones = [z for z in spot.zones() if z[0] not in ("left", "right")]
-        out += [z for z in zones if not space.zone_layer.hit(space.zone_fp(z))]
+        out += [z for z in zones if not space.zone_layer.hit(space.zone_fp(z, FIXED_ZONE_INFLATE_M))]
         if f["type"] == "table_dining":
             # A drawn table keeps the pull-out room behind its drawn chairs (they stand in it, so it is not tested).
             poly = p.polygon()
@@ -1855,11 +1857,76 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
                 continue
             picked.append(coarse)
             out.append(cand)
+    # Pass 3: a layout that fails only by some of its groups is tried without them (a fridge that finds no landing
+    # beside a drawn run: the room still gets its other groups).
+    for score, node, terms in finals:
+        if len(out) >= k or len(verified) >= 3 * limit:
+            break
+        cand = verified.get(node.sig)
+        if cand is None or not cand["hard_failures"]:
+            continue
+        drop = _failing_levels(cand, node, start)
+        if not drop or len(drop) >= sum(c is not None for c in node.cands):
+            continue
+        reduced = _without(space, node, drop, levels)
+        if reduced.sig in verified:
+            continue
+        rterms = _final_terms(space, reduced, walk)
+        rscore = round(sum(REQUIRED_BONUS if req else OPTIONAL_BONUS for (_e, _c, req), c in zip(levels, reduced.cands)
+                           if c is not None) + sum(c.local for c in reduced.cands if c is not None)
+                       + sum(weights.get(t, 0.0) * rterms[t] for t in ("balance", "circulation", "seating_crossed")
+                             if t in rterms), 4)
+        pieces, groups = _piece_dicts(room, reduced, start, levels)
+        hard, violations = verify(base, room_id, pieces)
+        verified[reduced.sig] = _candidate(rscore, rterms, pieces, groups, hard, violations, levels, reduced, kept,
+                                           budget)
+        if hard or any(_similar(_coarse_sig(reduced), s) for s in picked):
+            continue
+        picked.append(_coarse_sig(reduced))
+        out.append(verified[reduced.sig])
     if len(out) < k:
         out += failed[:k - len(out)]
     for i, c in enumerate(out):
         c["rank"] = i + 1
     return out
+
+
+def _failing_levels(cand: dict, node: Node, start: int) -> set:
+    """The levels whose new pieces a hard failure names (pieces are numbered from ``start`` in level order)."""
+    level_of = {}
+    number = start
+    for i, c in enumerate(node.cands):
+        if c is None:
+            continue
+        for _s in c.spots:
+            level_of[number] = i
+            number += 1
+    ids = {p["id"]: int(p["id"].rsplit("_", 1)[1]) for p in cand["pieces"]}
+    out = set()
+    for text in cand["hard_failures"]:
+        for pid, n in ids.items():
+            if re.search(rf"(?<![\w-]){re.escape(pid)}(?![\w-])", text) and n in level_of:
+                out.add(level_of[n])
+    return out
+
+
+def _without(space: Space, node: Node, drop: set, levels: list) -> Node:
+    """``node`` with the candidates of the ``drop`` levels left out (occupancy and reserved zones rebuilt)."""
+    cands = tuple(None if i in drop else c for i, c in enumerate(node.cands))
+    occ = space.fixed_mask.copy()
+    res = np.zeros_like(space.fixed_mask)
+    for z in fixed_zones(space):
+        paint(res, space.zone_fp(z))
+    polys, zfps = [], []
+    for c in cands:
+        if c is None:
+            continue
+        for fp in c.fps:
+            paint(occ, fp)
+        for zfp in c.zfps:
+            paint(res, zfp)
+    sig = tuple(c.sig if c is not None else ("skip",) for c in cands)
+    return Node(cands, occ, res, 0.0, sig, polys, zfps)
 
 
 def _coarse_sig(node: Node) -> tuple:
