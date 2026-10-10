@@ -613,10 +613,13 @@ def check_piece(piece: Piece, others: list[Piece], ctx: RoomContext, walkway_bla
             "doors_free": doors, "windows_free": windows, "wall_contact": wall_contact}
 
 
-def check_all(pieces: list[Piece], ctx: RoomContext) -> list[dict]:
+def check_all(pieces: list[Piece], ctx: RoomContext, walkways: bool = True) -> list[dict]:
+    """The six checks of every piece. ``walkways=False`` (Milestone 12, the agent's edits): ``doors_free`` is only the
+    door strip and swing; the walkways are judged by the group check G11 (doors 0.60 m, main path 0.80 m, use zones
+    reached) in the score instead of the 0.9 m erosion with its window rule."""
     for i, p in enumerate(pieces):
         p.index = i
-    blamed, _failures = walkway_blame(pieces, ctx)
+    blamed = walkway_blame(pieces, ctx)[0] if walkways else set()
     return [check_piece(p, [o for o in pieces if o is not p], ctx, blamed) for p in pieces]
 
 

@@ -34,7 +34,13 @@ def test_each_group_is_placed_as_one_unit_and_scores_100(group, rtype, anchor, m
     assert all(p["source"] == "added_by_ai" and p["status"] == "verified" for p in res["pieces"])
     assert all(not P.failed_checks(p["checks"]) for p in res["pieces"])
     b["furniture"] += res["pieces"]
-    assert PL.score_room(b, M.ROOM_ID)["score"] == 100.0
+    found = PL.score_room(b, M.ROOM_ID)["violations"]
+    assert not [v for v in found if not v["check"].startswith("G")], found
+    # Milestone 12: the group checks see what this Milestone 11 placer gets wrong (the TV unit in front of the window,
+    # the hob at the end of the run, a work triangle out of range); the group solver (tests/test_solver_*.py) places
+    # the same groups without them.
+    known = {"living_set": {"G12"}, "kitchen_run": {"G8"}}.get(group, set())
+    assert {v["check"] for v in found} == known, found
 
 
 def test_dining_chairs_face_the_table():

@@ -283,7 +283,8 @@ def test_real01_nightstand_stays_in_the_room():
     ctx = P.room_context(building, room)
     drawn_pieces = [d for d in C.classify_drawn(room, building) if d.kind != "mounted"]
     k = next(i for i, d in enumerate(drawn_pieces) if d.id == "f_L0_006")
-    reqs = C._requests([{"id": "f_L0_006", "type": "nightstand", "size": (0.6, 0.45)}], drawn_pieces)
+    d = drawn_pieces[k]                     # Milestone 12: complete.py asks no changes; the placer request directly
+    reqs = [P.ChangeRequest(k, "nightstand", (0.6, 0.45), d.anchor, footprint_only=d.unverified)]
     final, results, _base = P.place_changes([d.piece for d in drawn_pieces], reqs, ctx)
     outside = final[k].polygon().difference(ctx.polygon).area
     assert outside <= drawn_pieces[k].piece.polygon().difference(ctx.polygon).area + 1e-9

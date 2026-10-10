@@ -1,0 +1,355 @@
+# Functional furniture groups (docs/milestone12.md §4.2-§4.6, §4.9; owner: track G).
+#
+# What: the groups a room's program asks for (wenart/furniture/program.py), the solver places
+# (wenart/furniture/solver.py) and the group checks judge (wenart/furniture/group_checks.py): the anchor, the partners
+# in the anchor's frame, what each piece faces, the use zones (where a person stands or sits), the wall rules, the
+# size variants by room size, the soft-score weights and every number with its source. One file for the solver, the
+# checks, the agent's tools and the tests; `groups.load_groups()` reads and validates it.
+#
+# Why: Milestone 11 had five hard-coded templates that no stage used (§1.2); the layout and the completion placed
+# single pieces with raw coordinates and the checks only counted partners.
+#
+# Frames: the anchor frame is the block frame of wenart/furniture/schemas.py: x along the front edge (+x = the right
+# of a person facing the piece), the front towards -y, the back edge at +depth/2. Sizes are [width along the front,
+# depth] in metres.
+#
+# Rules: `min` is a hard check (the solver never places below it, the group checks report it), `rec` (recommended)
+# only scores, so small Turkish rooms still get a layout. `flagged: true` = a number from a secondary source or our
+# own assumption (listed in the report); the brief may change them later.
+#
+# Format idea only: ProcTHOR's asset groups (allenai/procthor, Apache-2.0: an anchor with relative children). Constraint
+# words after Holodeck (allenai/Holodeck, Apache-2.0: edge, in front of, side of, face to), the hard/soft split after
+# Infinigen Indoors (princeton-vl/infinigen, BSD-3), the score-term names after Merrell et al. 2011 and Yu et al. 2011
+# ("Make It Home"). No code or data of these projects is copied.
+
+version: 1
+
+sources:
+  nkba_kitchen: "NKBA Kitchen Planning Guidelines (media.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf), snippet; the 5th edition (2024) not read here"
+  nkba_bath: "NKBA Bath Planning Guidelines (media.nkba.org/uploads/2022/05/Bath-Planning-Guidelines.pdf), snippet"
+  adm_m4: "UK Approved Document M vol. 1, M4(2) accessible and adaptable dwellings, snippet"
+  din18011_blog: "a blog quoting the withdrawn DIN 18011 (flagged)"
+  panero_blog: "a blog quoting Panero & Zelnik, Human Dimension & Interior Space (flagged)"
+  viewing: "SMPTE/THX viewing angles via secondary sources (flagged)"
+  ours: "our assumption for small flats (flagged); no Turkish furniture-clearance standard was found"
+
+# name: {min (hard), rec (score), max, ...; source: [keys of sources]; flagged}. Metres and degrees.
+rules:
+  walkway_main: {min: 0.80, rec: 0.91, source: [ours, nkba_kitchen], flagged: true, what: "main walkway from the entrance door to the other doors"}
+  walkway: {min: 0.60, rec: 0.75, source: [ours], flagged: true, what: "walkway between doors and to every use zone"}
+  kitchen_aisle: {min: 0.90, rec: 1.07, source: [ours, nkba_kitchen], flagged: true, what: "work aisle in front of a counter run (NKBA 1.07 for one cook; 0.90 our minimum for small flats)"}
+  sink_landing: {min: 0.46, rec: 0.61, source: [nkba_kitchen], what: "counter beside the sink, one side (rec 0.61 + 0.46)"}
+  hob_landing: {min: 0.30, rec: 0.38, source: [nkba_kitchen], what: "counter beside the hob, one side (rec 0.30 + 0.38)"}
+  fridge_landing: {min: 0.38, across_max: 1.22, side_gap: 0.10, source: [nkba_kitchen], what: "counter beside the fridge on its handle side, or a counter or island at most 1.22 m across from it; a counter run that turns the corner beside the fridge (within 0.10 m of its side) counts as beside"}
+  triangle_leg: {min: 1.20, max: 2.70, source: [nkba_kitchen], what: "each leg of the work triangle fridge - sink - hob"}
+  triangle_sum: {max: 7.90, source: [nkba_kitchen], what: "the three legs together"}
+  diner_pullout: {min: 0.81, rec: 0.91, rec_walk: 1.12, source: [nkba_kitchen], what: "table edge to a wall or piece behind a seated diner"}
+  fixture_front: {min: 0.53, rec: 0.76, source: [nkba_bath], what: "clear floor in front of a toilet, washbasin, shower or bathtub"}
+  toilet_side: {min: 0.38, rec: 0.46, source: [nkba_bath], what: "toilet centre to a side wall or fixture"}
+  washbasin_side: {min: 0.38, rec: 0.51, source: [nkba_bath], what: "washbasin centre to a side wall"}
+  bed_side: {min: 0.60, rec: 0.75, source: [din18011_blog, adm_m4], flagged: true, what: "free along each free long side and at the foot of a bed"}
+  coffee_gap: {min: 0.30, rec: 0.35, rec_max: 0.45, source: [panero_blog], flagged: true, what: "sofa front to the coffee table"}
+  tv_distance: {min: 1.50, rec_factor: [1.2, 1.6], screen_diagonal: 1.40, source: [viewing], flagged: true, what: "sofa front to the TV unit front (rec 1.2-1.6 x the screen diagonal, 55 inch assumed)"}
+  tv_axis: {max_offset: 0.30, max_angle: 10.0, source: [ours], what: "TV unit centre off the sofa axis, TV front off the line to the sofa"}
+  armchair_facing: {max_angle: 30.0, max_distance: 2.50, source: [ours], what: "an armchair faces the coffee table or the sofa"}
+  nightstand_gap: {max: 0.30, rec: 0.05, source: [ours], what: "nightstand to the bed side and to the headboard line (further away it no longer reads as the bed's)"}
+  storage_front: {min: 0.80, source: [ours], flagged: true, what: "free in front of wardrobes and other door-fronted storage"}
+  desk_back: {min: 0.80, source: [ours], flagged: true, what: "free behind the desk front (the chair zone)"}
+  window_band: {depth: 0.30, sill_margin: 0.05, source: [ours], what: "nothing taller than the sill + 0.05 m within 0.30 m in front of a window"}
+
+# Soft score terms of the solver (names after Merrell et al. 2011 and Yu et al. 2011); each term is 0..1 (higher is
+# better), the candidate score is the weighted sum; every candidate logs its terms.
+weights:
+  wall_use: 1.0          # a wall anchor centred on its free wall span (or in a corner where the anchor asks for it)
+  sight_tv: 3.0          # sofa -> TV: on the axis and at the recommended viewing distance
+  bed_sees_door: 1.5     # the door lies in front of the headboard line, not straight behind the foot
+  desk_side_light: 1.0   # a window beside the desk, not behind it
+  daylight: 1.0          # dining table and desk near a window
+  circulation: 2.0       # the walkways between doors stay short (vs the room without the new pieces)
+  seating_crossed: 2.0   # no walkway through the seating area (between the sofa and the TV)
+  related_near: 1.0      # dining near the kitchen (zone or door)
+  balance: 1.0           # the furniture's centre near the room's centre
+  drawn_distance: 1.0    # partners of a drawn anchor at their template place; a re-layout near the old places
+  recommended: 2.0       # share of the recommended clearances (not only the minimums) kept
+  partners: 1.5          # optional partners placed
+  sink_window: 0.5       # the sink under a window
+
+# Where a person stands or sits to use a piece (hard: free of other pieces and inside the room; G11: reached by a
+# walkway). front / sides / foot: depth in metres or a rule name (its `min`; the score checks its `rec`).
+use_zones:
+  bed_double: {sides: bed_side, foot: bed_side, head_skip: 0.45, sides_needed: 2}
+  bed_single: {sides: bed_side, foot: bed_side, head_skip: 0.45, sides_needed: 1}
+  bunk_bed: {sides: bed_side, head_skip: 0.45, sides_needed: 1}
+  crib: {front: walkway}
+  wardrobe: {front: storage_front}
+  tall_cabinet: {front: storage_front}
+  display_cabinet: {front: storage_front}
+  dresser: {front: storage_front}
+  sideboard: {front: storage_front}
+  desk: {front: desk_back}
+  toilet: {front: fixture_front, side_half: toilet_side}
+  washbasin: {front: fixture_front, side_half: washbasin_side}
+  bathtub: {front: fixture_front}
+  shower: {front: fixture_front}
+  washing_machine: {front: fixture_front}
+  sofa: {front: coffee_gap}
+  sofa_corner: {front: coffee_gap}
+  armchair: {front: coffee_gap}
+  kitchen_counter: {front: kitchen_aisle}
+  sink_kitchen: {front: kitchen_aisle}
+  stove: {front: kitchen_aisle}
+  fridge: {front: kitchen_aisle}
+  kitchen_island: {front: kitchen_aisle, back: kitchen_aisle}
+  shoe_cabinet: {front: walkway}
+  console_table: {front: walkway}
+  bookshelf: {front: walkway}
+  table_dining: {chairs: diner_pullout}
+
+# The groups. layout: anchored (an anchor and partners in its frame) | set (each member on a free wall, e.g. a
+# bathroom) | run (a kitchen counter run). place of an anchor: wall (back on a wall) | free (0.10 m grid, turned to the
+# room's axes). Partner places: facing_wall (on the wall the anchor faces, centred on its axis), front (in front of
+# the anchor's front at `gap`), flank (beside `of`, turned to face it), beside_head (at the head on each side, backs
+# on the anchor's back line), foot (at the front, e.g. a bench at a bed's foot), around (chairs around a table, by its
+# length), chair (in front of a desk). sizes: [width, depth] per type, tried in order (room-size rows: the first row
+# whose max_area is above the room or zone area). options: the program's choices (the VLM picks among candidates
+# built from them).
+groups:
+  seating:
+    what: "a sofa facing a TV unit on the opposite wall, a coffee table between them, armchairs facing the table"
+    layout: anchored
+    zone: living
+    room_types: [living]
+    priority: 20
+    anchor:
+      types: [sofa, sofa_corner]
+      place: wall
+      align: centre
+      sizes:
+        - {max_area: 14.0, sofa: [[1.6, 0.9], [2.2, 0.9]], sofa_corner: [[2.2, 1.5]]}
+        - {max_area: 22.0, sofa: [[2.2, 0.9], [1.6, 0.9]], sofa_corner: [[2.6, 1.6], [2.2, 1.5]]}
+        - {sofa: [[2.6, 0.95], [2.2, 0.9]], sofa_corner: [[3.0, 1.7], [2.6, 1.6]]}
+    options:
+      sofa_2_armchairs: {anchor: sofa, counts: {armchair: 2}}
+      sofa_armchair: {anchor: sofa, counts: {armchair: 1}}
+      sofa: {anchor: sofa, counts: {armchair: 0}}
+      corner_sofa: {anchor: sofa_corner, counts: {armchair: 0}}
+    partners:
+      - {role: tv, type: tv_unit, required: true, place: facing_wall, facing: anchor, sizes: [[1.6, 0.45], [1.2, 0.4], [2.0, 0.45]]}
+      - {role: coffee, type: table_coffee, required: false, place: front, gap: coffee_gap, facing: anchor, sizes: [[1.2, 0.7], [1.0, 0.6], [0.8, 0.5]]}
+      - {role: armchair, type: armchair, required: false, max: 2, place: flank, of: coffee, gap: 0.35, facing: of, sizes: [[0.8, 0.8]]}
+
+  dining:
+    what: "a dining table with chairs evenly around it, each chair facing the table, room to pull every chair out"
+    layout: anchored
+    zone: dining
+    room_types: [dining, living, kitchen]
+    priority: 15
+    anchor:
+      types: [table_dining]
+      place: free
+      sizes:
+        - {max_area: 9.0, table_dining: [[1.2, 0.8]]}
+        - {max_area: 16.0, table_dining: [[1.6, 0.9], [1.2, 0.8]]}
+        - {table_dining: [[2.0, 1.0], [1.6, 0.9]]}
+    options:
+      seats_4: {anchor: table_dining, sizes: {table_dining: [[1.2, 0.8]]}}
+      seats_6: {anchor: table_dining, sizes: {table_dining: [[1.6, 0.9]]}}
+      seats_8: {anchor: table_dining, sizes: {table_dining: [[2.0, 1.0]]}}
+    partners:
+      - {role: chair, type: chair, required: true, place: around, facing: anchor, sizes: [[0.45, 0.45]]}
+
+  sleeping_double:
+    what: "a double bed with its headboard on a wall, one nightstand on each side of the headboard, both long sides and the foot free"
+    layout: anchored
+    zone: sleeping
+    room_types: [bedroom]
+    priority: 30
+    anchor:
+      types: [bed_double]
+      place: wall
+      align: centre
+      sizes:
+        - {max_area: 11.0, bed_double: [[1.6, 2.0], [1.4, 2.0]]}
+        - {max_area: 15.0, bed_double: [[1.6, 2.0], [1.8, 2.0], [1.4, 2.0]]}
+        - {bed_double: [[1.8, 2.0], [1.6, 2.0]]}
+    options:
+      bed_nightstands: {anchor: bed_double, counts: {bench: 0}}
+      bed_nightstands_bench: {anchor: bed_double, counts: {bench: 1}}
+    partners:
+      - {role: nightstand, type: nightstand, required: false, max: 2, place: beside_head, gap: 0.02, facing: same, sizes: [[0.5, 0.4], [0.4, 0.4]]}
+      - {role: bench, type: bench, required: false, max: 1, place: foot, gap: 0.05, facing: same, sizes: [[1.2, 0.4], [1.0, 0.4]]}
+
+  sleeping_single:
+    what: "a single bed with its headboard on a wall (one long side may touch a wall) and a nightstand on its free side"
+    layout: anchored
+    zone: sleeping
+    room_types: [bedroom]
+    priority: 30
+    anchor:
+      types: [bed_single]
+      place: wall
+      align: corner
+      sizes:
+        - {max_area: 9.0, bed_single: [[0.9, 2.0], [0.9, 1.9]]}
+        - {bed_single: [[1.2, 2.0], [0.9, 2.0]]}
+    options:
+      bed_nightstand: {anchor: bed_single}
+    partners:
+      - {role: nightstand, type: nightstand, required: false, max: 1, place: beside_head, gap: 0.02, facing: same, sizes: [[0.5, 0.4], [0.4, 0.4]]}
+
+  storage:
+    what: "a wardrobe with its back on a wall and 0.80 m free in front of its doors"
+    layout: anchored
+    zone: sleeping
+    room_types: [bedroom]
+    priority: 25
+    anchor:
+      types: [wardrobe]
+      place: wall
+      align: corner
+      sizes:
+        - {max_area: 9.0, wardrobe: [[1.2, 0.6]]}
+        - {max_area: 14.0, wardrobe: [[1.8, 0.6], [1.2, 0.6]]}
+        - {wardrobe: [[2.4, 0.6], [1.8, 0.6], [1.2, 0.6]]}
+    options:
+      wardrobe: {anchor: wardrobe}
+    partners: []
+
+  work:
+    what: "a desk on a wall with its chair in front, 0.80 m free behind the desk front, daylight from the side"
+    layout: anchored
+    zone: work
+    room_types: [bedroom, other, living]
+    priority: 10
+    anchor:
+      types: [desk]
+      place: wall
+      align: any
+      sizes:
+        - {max_area: 10.0, desk: [[1.2, 0.6]]}
+        - {desk: [[1.4, 0.7], [1.2, 0.6]]}
+    options:
+      desk: {anchor: desk}
+    partners:
+      - {role: chair, type: office_chair, alt_type: chair, required: false, place: chair, gap: 0.05, facing: anchor, sizes: [[0.6, 0.6], [0.55, 0.55]]}
+
+  living_storage:
+    what: "a sideboard or a bookshelf on a free wall of a living or dining room"
+    layout: anchored
+    zone: living
+    room_types: [living, dining]
+    priority: 5
+    anchor:
+      types: [sideboard, bookshelf]
+      place: wall
+      align: any
+      sizes:
+        - {sideboard: [[1.6, 0.45], [1.4, 0.42]], bookshelf: [[1.0, 0.35], [0.8, 0.3]]}
+    options:
+      sideboard: {anchor: sideboard}
+      bookshelf: {anchor: bookshelf}
+    partners: []
+
+  kitchen_run:
+    what: "a counter run with the sink between the fridge and the hob (I, L, U or galley), landings beside each, a 0.90 m aisle"
+    layout: run
+    zone: kitchen
+    room_types: [kitchen]
+    priority: 40
+    anchor:
+      types: [kitchen_counter]
+      place: wall
+      sizes:
+        - {kitchen_counter: [[0.6, 0.6]]}
+    options:
+      I: {shape: I}
+      L: {shape: L}
+      galley: {shape: galley}
+      U: {shape: U}
+    run:
+      depth: 0.60
+      max_leg: 4.80
+      step: 0.10
+      order: [fridge, sink, hob]
+      modules:
+        fridge: {type: fridge, sizes: [[0.6, 0.6]], landing: fridge_landing}
+        sink: {type: sink_kitchen, sizes: [[0.8, 0.6], [0.6, 0.6]], landing: sink_landing}
+        hob: {type: stove, sizes: [[0.6, 0.6]], landing: hob_landing}
+    partners: []
+
+  island:
+    what: "a kitchen island in front of the run with a 0.90 m aisle all round, bar stools on its far side"
+    layout: anchored
+    zone: kitchen
+    room_types: [kitchen]
+    priority: 12
+    anchor:
+      types: [kitchen_island]
+      place: free
+      sizes:
+        - {kitchen_island: [[1.6, 0.9], [1.2, 0.8]]}
+    options:
+      island: {anchor: kitchen_island}
+    partners:
+      - {role: stool, type: bar_stool, required: false, max: 3, place: stools, gap: 0.05, facing: anchor, sizes: [[0.42, 0.42]]}
+
+  bathroom_set:
+    what: "toilet, washbasin and a shower or a bathtub, each on a wall with 0.53 m clear in front, the toilet centre 0.38 m from a side wall"
+    layout: set
+    zone: bath
+    room_types: [bathroom]
+    priority: 40
+    members:
+      - {role: bath, type: bathtub, required: true, place: wall, align: corner, option: bathtub, sizes: [[1.7, 0.75], [1.5, 0.7]]}
+      - {role: bath, type: shower, required: true, place: wall, align: corner, option: shower, sizes: [[0.9, 0.9], [0.8, 0.8]]}
+      - {role: toilet, type: toilet, required: true, place: wall, align: any, sizes: [[0.4, 0.7], [0.36, 0.65]]}
+      - {role: washbasin, type: washbasin, required: true, place: wall, align: any, sizes: [[0.6, 0.45], [0.5, 0.4]]}
+      - {role: washer, type: washing_machine, required: false, place: wall, align: corner, option_any: [washer], sizes: [[0.6, 0.6]]}
+    options:
+      shower: {members: [bath, toilet, washbasin], bath: shower}
+      bathtub: {members: [bath, toilet, washbasin], bath: bathtub}
+      shower_washer: {members: [bath, toilet, washbasin, washer], bath: shower}
+    partners: []
+
+  wc_set:
+    what: "a toilet and a small washbasin, each on a wall with 0.53 m clear in front"
+    layout: set
+    zone: bath
+    room_types: [wc]
+    priority: 40
+    members:
+      - {role: toilet, type: toilet, required: true, place: wall, align: any, sizes: [[0.4, 0.7], [0.36, 0.65]]}
+      - {role: washbasin, type: washbasin, required: false, place: wall, align: any, sizes: [[0.5, 0.4]]}
+    options:
+      wc: {members: [toilet, washbasin]}
+    partners: []
+
+  entrance:
+    what: "a shoe cabinet or a slim console on a wall; the main walkway of 0.80 m stays free"
+    layout: set
+    zone: hall
+    room_types: [hall]
+    priority: 5
+    members:
+      - {role: storage, type: shoe_cabinet, required: true, place: wall, align: any, option: shoe_cabinet, sizes: [[0.8, 0.32], [0.6, 0.3]]}
+      - {role: storage, type: console_table, required: true, place: wall, align: any, option: console, sizes: [[1.2, 0.35], [0.9, 0.3]]}
+    options:
+      shoe_cabinet: {members: [storage], storage: shoe_cabinet}
+      console: {members: [storage], storage: console_table}
+    partners: []
+
+  balcony:
+    what: "a small table with two chairs; the railing side stays free"
+    layout: anchored
+    zone: balcony
+    room_types: [balcony]
+    priority: 10
+    anchor:
+      types: [table_dining]
+      place: free
+      sizes:
+        - {table_dining: [[0.7, 0.7]]}
+    options:
+      table_2_chairs: {anchor: table_dining}
+    partners:
+      - {role: chair, type: chair, required: true, place: pair, facing: anchor, sizes: [[0.45, 0.45]]}

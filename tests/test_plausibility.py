@@ -22,7 +22,9 @@ def bed(front=90.0, center=(0.4 + 1.0, 2.0), pid="b1", **kw):
 
 
 def test_checks_table_names_every_item_with_a_severity():
-    assert set(PL.CHECKS) == {"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "R1", "R2", "R3", "R4"}
+    assert set(PL.CHECKS) == {"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "R1", "R2", "R3", "R4"} | {
+        f"G{k}" for k in range(1, 14)}                    # Milestone 12: the group checks G1-G13 (G14 is the critic's)
+    assert PL.CHECKS["F5"]["measured"] is False            # F5 counting is replaced by the group checks
     assert all(c["severity"] in PL.SEVERITIES and c["what"] for c in PL.CHECKS.values())
     assert PL.CHECKS["R4"]["measured"] is False
 
@@ -83,13 +85,15 @@ def test_dining_chairs_facing_away_and_a_table_without_chairs():
         M.fp("c2", "chair", (3.0, 2.8), (0.45, 0.45), rotation=0.0, front=270.0, source="added_by_ai")])
     assert [v["target"] for v in checks(away, "F4")] == ["c1"]
     bare = M.building(room_type="dining", furniture=[table])
-    f5 = checks(bare, "F5")
-    assert [(v["target"], v["severity"]) for v in f5] == [("t1", "major")]
+    g6 = checks(bare, "G6")                                 # Milestone 12: G6 (was F5)
+    assert [(v["target"], v["severity"]) for v in g6] == [("t1", "major")] and "needs 6" in g6[0]["message"]
+    assert not checks(bare, "F5")
 
 
 def test_an_unverified_table_asks_for_no_chairs():
     t = M.fp("t1", "table_dining", (2.5, 2.0), (1.6, 0.9), rotation=0.0, front=None, status="unverified")
-    assert not checks(M.building(room_type="dining", furniture=[t]), "F5")
+    b = M.building(room_type="dining", furniture=[t])
+    assert not checks(b, "F5") and not checks(b, "G6")
 
 
 def test_an_armchair_behind_the_sofa_back_does_not_face_its_group():
@@ -123,8 +127,10 @@ def test_blocked_door_swing_and_window():
     assert any(v["check"] == "F7" and v["severity"] == "critical" for v in vs)
     assert any(v["check"] == "R3" and v["target"] == "d1" for v in vs)
     shelf = M.fp("b1", "bookshelf", (2.5, 3.83), (1.0, 0.35), rotation=0.0, front=270.0)   # in front of win1
-    f7 = checks(M.building(furniture=[shelf]), "F7")
-    assert [(v["target"], v["severity"]) for v in f7] == [("b1", "major")]
+    in_front = M.building(furniture=[shelf])
+    g12 = checks(in_front, "G12")                          # Milestone 12: G12 (was F7)
+    assert [(v["target"], v["severity"]) for v in g12] == [("b1", "major")] and "sill 0.90" in g12[0]["message"]
+    assert not checks(in_front, "F7")
 
 
 def test_floating_piece_overlap_and_unknown_box():

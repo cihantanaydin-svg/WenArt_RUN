@@ -34,6 +34,10 @@ Milestone 11 (docs/milestone11.md §5): a drawn piece the agent changed through 
 ``adjusted_by_ai`` (with its reason) and is checked by ``_agent_problems`` instead: the drawn values kept for what
 changed (``drawn_type``, ``drawn_footprint``, ``drawn_front_deg``); fixed equipment and kept rooms only turned (and
 in a kept room an unknown piece typed, a piece not built); other drawn furniture moved at most 0.3 m.
+Milestone 12 (docs/milestone12.md §4.1 U1, §5.3): fixed equipment changed by ``fix_fixture``
+(``adjusted_by_ai.fix_fixture``) may move at most 0.5 m and take a real size when its drawn size is more than 30 %
+outside its type's range; a drawn piece marked as a misread symbol (``mark_not_furniture``: ``build: false`` and a
+``symbols[]`` entry with its id as ``former_piece_id``) may be left out, fixed equipment too.
 
 Mode ``keep`` (and every room in ``keep_rooms``): the old byte rule, the
 fit's ``FROZEN_KEYS`` (``KEEP_KEYS``) equal for every drawn piece. Anchors: a piece whose
@@ -202,7 +206,39 @@ def _changed_piece_problems(src: dict, fin: dict, source: dict, final: dict) -> 
 AGENT_SNAP_M = 0.3               # Milestone 11 (§5): a drawn piece adjusted by the agent moves at most this far
 
 
-def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] = None) -> list[str]:
+FIXTURE_MOVE_M = 0.50           # Milestone 12 U1 (docs/milestone12.md §4.1): fix_fixture moves fixed equipment this far
+FIXTURE_OFF_RANGE = 0.30        # ... and gives a real size when the drawn one is more than 30 % outside the range
+
+
+def _fixture_fix_problems(src: dict, fin: dict, moved: float, same_box: bool) -> list[str]:
+    """Milestone 12 U1: fixed equipment changed by ``edit_ops`` ``fix_fixture`` (``adjusted_by_ai.fix_fixture``):
+    moved at most ``FIXTURE_MOVE_M``; resized only when the drawn size is more than ``FIXTURE_OFF_RANGE`` outside its
+    type's real range, and then to a real size (the size table, 5 % tolerance)."""
+    from wenart.furniture import plausibility as PL     # lazy: the size table (PyYAML)
+
+    pid = src["id"]
+    out = []
+    if moved > FIXTURE_MOVE_M + 1e-6:
+        out.append(f"{pid}: fixed equipment moved {moved:.3f} m by fix_fixture (> {FIXTURE_MOVE_M} m)")
+    if not same_box:
+        rng = PL.size_range(src["type"])
+        drawn = placer.drawn_piece(src).size
+        now = placer.drawn_piece(fin).size
+        if rng is None:
+            out.append(f"{pid}: fixed equipment resized without a size table entry for {src['type']}")
+            return out
+        off = max((lo - v) / lo if v < lo else (v - hi) / hi if v > hi else 0.0 for v, (lo, hi) in zip(drawn, rng))
+        if off <= FIXTURE_OFF_RANGE + 1e-9:
+            out.append(f"{pid}: fixed equipment resized although its drawn size is only {off * 100:.0f} % outside the "
+                       f"real range (needs > {FIXTURE_OFF_RANGE * 100:.0f} %)")
+        if any(not (lo / 1.05 - 1e-9 <= v <= hi * 1.05 + 1e-9) for v, (lo, hi) in zip(now, rng)):
+            out.append(f"{pid}: fixed equipment resized to {now[0]:.2f} x {now[1]:.2f} m, not a real {src['type']} "
+                       f"size")
+    return out
+
+
+def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] = None,
+                    symbols_of: Iterable[str] = ()) -> list[str]:
     """Milestone 11 (docs/milestone11.md §5, CLAUDE.md furniture rules): a drawn piece the agent changed
     (``adjusted_by_ai`` with its reason, ``wenart.furniture.edit_ops``). Fixed equipment and pieces that never change:
     only the orientation (type, centre and size as drawn). Kept rooms (``keep``): only the orientation, an unknown
@@ -236,13 +272,19 @@ def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] =
     # real03: fixed equipment in a room that never holds it (schemas.misplaced_fixed) may be retyped or left out
     # by the agent (a reading error), never moved or resized.
     misplaced = src["type"] in schemas.FIXED_TYPES and schemas.misplaced_fixed(src["type"], room_type)
+    # Milestone 12: a drawn piece marked as a misread symbol (edit_ops mark_not_furniture: build false and a symbols[]
+    # entry naming it) is left out like a misplaced one.
+    not_furniture = pid in set(symbols_of) and fin.get("build") is False
     if fixed or keep:
         if src["type"] != fin["type"] and not (keep and not fixed and src["type"] == "unknown") and not misplaced:
             out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} changed its type")
-        if moved > 1e-3 or not same_box:
+        if isinstance(adj.get("fix_fixture"), dict) and src["type"] in schemas.FIXED_TYPES:
+            out.extend(_fixture_fix_problems(src, fin, moved, same_box))
+        elif moved > 1e-3 or not same_box:
             out.append(f"{pid}: {'fixed equipment' if fixed else 'a kept drawn piece'} moved or resized (only the "
                        f"orientation may change)")
-        if fixed and fin.get("build") is False and src.get("build") is not False and not misplaced:
+        if fixed and fin.get("build") is False and src.get("build") is not False and not misplaced \
+                and not not_furniture:
             out.append(f"{pid}: fixed equipment removed")
     elif moved > (schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M) + 1e-6:
         limit = schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M
@@ -275,6 +317,7 @@ def check(source: dict, final: dict, mode: str, keep_rooms: Optional[Iterable[st
         if f.get("source") == "from_documents" and f["id"] not in source_ids:
             out.append(f"{f['id']}: labelled from_documents but not in the source building")
     frozen = KEEP_KEYS
+    symbols_of = {s.get("former_piece_id") for s in final.get("symbols") or [] if s.get("former_piece_id")}
     for src in source.get("furniture", []):
         if src.get("source") != "from_documents":
             continue
@@ -292,7 +335,7 @@ def check(source: dict, final: dict, mode: str, keep_rooms: Optional[Iterable[st
             # Milestone 11: the agent's validated edit (edit_ops) is checked by the M11 rules, not the M10 anchor.
             kept = mode == "keep" or src.get("room_id") in keep
             room = next((r for r in final.get("rooms", []) if r.get("id") == src.get("room_id")), None)
-            out.extend(_agent_problems(src, fin, kept, (room or {}).get("room_type")))
+            out.extend(_agent_problems(src, fin, kept, (room or {}).get("room_type"), symbols_of))
             if kept:
                 free = {"footprint", "front_deg", "build", "type", "evidence", "height"}
                 bad = [k for k in frozen if k not in free and _dump(src.get(k)) != _dump(fin.get(k))]
