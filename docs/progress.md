@@ -880,3 +880,11 @@ on one plot ("r14 is gorgeous the ground slope"); the USD limits may be passed f
   markers, raised by the marks at its entrances (±0.00 = 43.00); the ground is a sloped surface from the site
   marks; the pools are built; b2 is an instance of b1 in the scene; the exterior views keep clear of it and one
   site view shows both blocks. Tests: `tests/test_site_buildings.py`, `tests/test_sheets_real04.py`.
+- **real04 pod** `jeqodk9uyn9o6p` (114 min, $4.72): 6 agent rounds (182 / 170), 48 views rendered (44 interior, 4
+  exterior incl. the site view of both blocks), b2 placed as planned. The rebuild for the final check's one edit
+  failed: **the network volume is full** (disk quota); the GPU tests did not run. Fixed after: the site view's
+  black area (a sloped ground now reaches the horizon). Open: the volume (your OK), the library gaps of the corner
+  sofa and the long dining table.
+
+GPU cost: $130.44 of $200 in total; 11 Oct: $31.81 of $60. No pod is running.
+

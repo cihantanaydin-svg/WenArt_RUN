@@ -328,6 +328,49 @@ def ground_extent(outline: Sequence[Sequence[float]], plot: Sequence[Sequence[fl
     return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
 
 
+SKIRT_STEP_M = 5.0
+
+
+def skirt_faces(extent: Sequence[Sequence[float]], terrain: dict, reach: float = HORIZON_M,
+                step: float = SKIRT_STEP_M) -> tuple[list, list]:
+    """The ground beyond a sloped ground's rectangle to the horizon (pure; 11 Oct 2026, real04: the site view looked
+    down past the 15 m margin into a black world). The inner edge follows the ground (``ground_z`` every ``step``),
+    the outer edge ``reach`` away lies at the ground's level there (the surface is flat beyond its marks). Quads
+    face up."""
+    x0, y0 = min(p[0] for p in extent), min(p[1] for p in extent)
+    x1, y1 = max(p[0] for p in extent), max(p[1] for p in extent)
+    X0, Y0, X1, Y1 = x0 - reach, y0 - reach, x1 + reach, y1 + reach
+
+    def ticks(a: float, b: float) -> list[float]:
+        n = max(1, int(math.ceil((b - a) / step)))
+        return [a + (b - a) * k / n for k in range(n + 1)]
+
+    verts: list = []
+    faces: list = []
+
+    def v(x: float, y: float) -> int:
+        verts.append((x, y, ground_z(terrain, x, y)))
+        return len(verts) - 1
+
+    # each side: inner points along it and their outward projections; corners join two outer points
+    sides = [([(x, y0) for x in ticks(x0, x1)], (0.0, Y0 - y0)),           # south, outward -y
+             ([(x1, y) for y in ticks(y0, y1)], (X1 - x1, 0.0)),           # east, outward +x
+             ([(x, y1) for x in reversed(ticks(x0, x1))], (0.0, Y1 - y1)),  # north, outward +y
+             ([(x0, y) for y in reversed(ticks(y0, y1))], (X0 - x0, 0.0))]  # west, outward -x
+    for pts, (dx, dy) in sides:
+        inner = [v(x, y) for x, y in pts]
+        outer = [v(x + dx, y + dy) for x, y in pts]
+        for k in range(len(pts) - 1):
+            faces.append((inner[k], outer[k], outer[k + 1], inner[k + 1]))   # ccw seen from above (outside the rect)
+    for cx, cy, ox, oy in ((x0, y0, X0, Y0), (x1, y0, X1, Y0), (x1, y1, X1, Y1), (x0, y1, X0, Y1)):
+        a, b, c, d = v(cx, cy), v(cx, oy), v(ox, oy), v(ox, cy)
+        quad = (a, b, c, d)
+        area = sum(verts[quad[i]][0] * verts[quad[(i + 1) % 4]][1] - verts[quad[(i + 1) % 4]][0] * verts[quad[i]][1]
+                   for i in range(4))
+        faces.append(quad if area > 0 else tuple(reversed(quad)))
+    return verts, faces
+
+
 def grid_step(polygon: Sequence[Sequence[float]]) -> float:
     x0, y0, x1, y1 = G.bbox([tuple(p[:2]) for p in polygon])
     return max(GRID_M, max(x1 - x0, y1 - y0) / GRID_MAX_CELLS)
@@ -1385,6 +1428,13 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
           {"assumed": {"extent": [list(p) for p in plan["extent"]], "terrain": terrain["kind"],
                        "reason": "ground plane around the building (the levels per side as drawn, the rest assumed)"},
            "z_range": [round(min(zs), 4), round(max(zs), 4)], "look_source": ground_look.get("source")})
+    if not is_flat(terrain):                     # 11 Oct 2026 (real04): a sloped ground reaches the horizon too
+        sv, sf = skirt_faces(plan["extent"], terrain)
+        ob = common.new_mesh_object("ground_skirt", sv, sf, collection=collection, wenart_id="ground_skirt",
+                                    kind="terrain", status="assumed", materials=[ground_mat])
+        entry(ob.name, "ground_skirt", "terrain", ground_mat, "assumed",
+              {"assumed": {"reason": "the ground beyond the sloped ground's rectangle to the horizon, at the ground's "
+                                     "level there"}, "look_source": ground_look.get("source")})
     well_mat = make_material(looks["light_well"])
     for w in plan["wells"]:
         v, f = light_well_faces(w)

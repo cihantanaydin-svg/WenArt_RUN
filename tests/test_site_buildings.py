@@ -289,3 +289,23 @@ def test_an_agent_camera_inside_the_second_block_is_refused():
            "target": [5.0, 4.0, 1.5], "reason": "t"}
     assert any("inside the building b2" in f for f in X.validate_camera_override(b, cam)["failed"])
     assert not any("b2" in f for f in X.validate_camera_override(b, dict(cam, position=[15.0, -12.0, 1.6]))["failed"])
+
+
+def test_a_sloped_ground_reaches_the_horizon():
+    """real04's site view looked down past the sloped ground's rectangle into a black world: a skirt joins the
+    ground's edge (``ground_z`` there) to the horizon, its faces up."""
+    from wenart.blender import site as S
+    from wenart.levels import terrain as T
+
+    surface = T.fit_surface([(0, 0, -6.0), (40, 0, 0.0), (0, 30, -3.0), (40, 30, 3.0), (20, 15, -1.0)])
+    terrain = {"kind": surface["kind"], "surface": surface, "z": {}, "rect": [0.0, 0.0, 40.0, 30.0]}
+    assert S.ground_z(terrain, 0.0, 0.0) < S.ground_z(terrain, 40.0, 30.0)
+    ext = [(-15.0, -15.0), (55.0, -15.0), (55.0, 45.0), (-15.0, 45.0)]
+    verts, faces = S.skirt_faces(ext, terrain, reach=500.0)
+    inner = [p for p in verts if -15.0 <= p[0] <= 55.0 and -15.0 <= p[1] <= 45.0]
+    assert inner and all(p[2] == pytest.approx(S.ground_z(terrain, p[0], p[1])) for p in inner)
+    assert max(abs(p[0]) for p in verts) > 500.0
+    for f in faces:                                            # every quad faces up (ccw seen from above)
+        area = sum(verts[f[i]][0] * verts[f[(i + 1) % 4]][1] - verts[f[(i + 1) % 4]][0] * verts[f[i]][1]
+                   for i in range(4))
+        assert area > 0

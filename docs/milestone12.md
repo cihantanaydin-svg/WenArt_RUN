@@ -1432,3 +1432,20 @@ entrance markers (`G_BINA`) and 16 level marks (`BDK` attributes, 37.00-46.00 m:
 Tests: `tests/test_site_buildings.py` (a synthetic tilted site plan with two twin blocks, labels, the bow-tie,
 transforms, ground marks, the camera model, a Blender instance), `tests/test_sheets_real04.py` (r14 read as
 above).
+
+Pod `jeqodk9uyn9o6p` (RTX PRO 6000, 114 min, $4.72; polish off, 6 agent rounds): sheets, recognition, layout, decor,
+6 agent rounds (182 accepted / 170 rejected; findings critical 7 → 5, major 159 → 150; round 5 jumped to 33 critical
+and round 6 brought it back), the final build (211 s: furniture 114 s, glb 50 s, `phase_seconds`), the render (48
+views: 44 interior, 4 exterior with the site view of both blocks), the 3D export, the controls and the final check
+ran. **b2 stood as planned** (instance, 18.57 m, +3.00 m), the sloped ground, the 4 pools and the hedges built.
+Then the network volume was full ("Disk quota exceeded" saving `scene.blend` in the rebuild for the final check's
+one edit): the project ends `failed`, the combine step and the GPU tests did not run. The renders of the build
+before are complete.
+
+| Finding | State |
+|---|---|
+| the volume is full (250 GB: every project's outputs with EXR passes, assets, growth downloads, audit sheets, 3D files) | **your OK needed** (CLAUDE.md: no data deleted without it): clean old outputs, or enlarge the volume |
+| the site view looked past the sloped ground into a black world | fixed: a skirt joins the sloped ground to the horizon (`site.skirt_faces`, test) |
+| the basement living rooms miss the drawn corner sofa (4.38 x 1.97 m), the 3.35 m dining table and a 2.57 m wardrobe | no audited model fits; §4.8: sofas and tables never fall back to parametric: library gaps (a decision for you) |
+| the second judge's sheet answers failed (exit 2) | regions kept by title and geometry; r14 is a site plan by geometry |
+
