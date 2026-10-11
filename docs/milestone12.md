@@ -1287,3 +1287,15 @@ rest on the vision check alone**: quality 2 (70), more than one object (49), lyi
 (7), another type (≈ 20). The sheets show many of these are fine (all 7 wall pictures removed as "more than one
 object" are single framed pictures; generated sink cabinets marked quality 2 look like the kept ones), which matches
 the bake-off: the model's look judgements are weak (T2–T4). Your decision on the 137 is open (§14.3).
+
+### 14.3 Open decisions (11 Oct 2026)
+
+1. The 137 vision-only removals (§14.2): (a) **lead's proposal**: remove the 15 with a specific finding (lying on its
+   side, an open part) and keep the 122 others (quality 2, more than one object, another type) usable with a
+   `vision_doubt` note that the final vision check of each run watches; 127 removals in all; (b) remove all 249 as
+   D21 says (quality ≤ 2 removes); (c) remove only the 112 with code evidence.
+2. Growth for pod P4 (§6.4; lists in `results/library/growth/`): Poly Haven 88 unused CC0 models (501 MB); the
+   Infinigen fixture test batch (BSD-3, toilet, bathtub, sinks, oven, fridge; ≈ 1.5 GB tools); the ABO style and
+   decor pass, 232 models (CC BY 4.0, 7.8 GB: classic, industrial and rustic seating and tables, 40 pillows, 40
+   rugs, 40 wall art, 30 headboards); GSO small decor, 36 objects (239 MB; CC BY 4.0 confirmed per object on the
+   pod, others dropped).
