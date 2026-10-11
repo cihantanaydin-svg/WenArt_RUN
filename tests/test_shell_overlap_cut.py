@@ -8,7 +8,8 @@ the thin wall closed it: from inside a dark recess, from outside a sill without 
 CPU: the cutter of the overlapping wall (centre, depth) on the real03 numbers; parallel walls side by side, a cross
 wall and a wall that misses the opening get none. Blender (``WENART_BLENDER``): a small building with the same
 overlap (the thin wall running past both ends of the thick one, which the overlap trim leaves whole); a ray through
-the window passes both walls, one under the sill and one beside the window hits them."""
+the window passes both walls, one under the sill and one beside the window hits them. Only windows and doors cut
+through (pod P8): a plain gap in one layer, where another layer is solid, leaves the wall closed."""
 from __future__ import annotations
 
 import json
@@ -61,6 +62,31 @@ def test_walls_side_by_side_across_or_apart_get_no_cut():
     walls["w_e"] = partial
     (_o, (cx, cy), depth), = shell.foreign_cuts(partial, walls, [win])
     assert (cx, cy) == pytest.approx((3.0, 0.0), abs=1e-9) and depth == pytest.approx(0.2)
+
+
+def gap(oid, wall_id, center, width):
+    return dict(window(oid, wall_id, center, width), type="opening", height=2.1, sill_height=None)
+
+
+def test_a_plain_gap_in_a_cladding_line_cuts_no_other_wall():
+    """Pod P8 (11 Oct 2026): real03's facade line ``w_L0_001`` has a 0.25 m gap ``o_L0_001`` where the column
+    ``w_L0_003`` stands, and the cladding ``w_L0_087`` has a 0.85 m gap ``o_L0_011`` beside no window of the
+    structural wall ``w_L0_088``. Cut through those walls they opened full-height slits to the outside."""
+    w1 = wall("w_L0_001", [3.1539, 0.075], [13.563, 0.075], 0.15)
+    w3 = wall("w_L0_003", [6.6039, 0.2003], [7.3039, 0.2003], 0.4)
+    w87 = wall("w_L0_087", [3.2039, 1.0003], [3.2039, 13.4003], 0.1)
+    w88 = wall("w_L0_088", [3.3039, 0.1405], [3.3039, 13.2505], 0.3)
+    o1 = gap("o_L0_001", "w_L0_001", [7.1785, 0.0751], 0.2509)
+    o11 = gap("o_L0_011", "w_L0_087", [3.2039, 12.8254], 0.8502)
+    win12 = window("win_L0_012", "w_L0_088", [3.3039, 11.2003], 1.8)
+    walls = {w["id"]: w for w in (w1, w3, w87, w88)}
+    ops = [o1, o11, win12]
+    assert shell.foreign_cuts(w3, walls, ops) == []
+    assert shell.foreign_cuts(w88, walls, ops) == []
+    # the window of the structural wall still passes the cladding in front of it
+    assert [o["id"] for o, _c, _d in shell.foreign_cuts(w87, walls, ops)] == ["win_L0_012"]
+    door = dict(window("d_1", "w_L0_001", [7.1785, 0.0751], 0.9), type="door", height=2.1, sill_height=0.0)
+    assert [o["id"] for o, _c, _d in shell.foreign_cuts(w3, walls, [door])] == ["d_1"]
 
 
 def _building() -> dict:

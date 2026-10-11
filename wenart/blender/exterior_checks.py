@@ -43,6 +43,8 @@ OVERHANG_RANGE_M = (0.3, 0.8)
 EYE_LEVEL_RANGE_M = (1.5, 1.7)          # exterior eye-level cameras above the ground
 EYE_RANGE_M = (1.2, 1.6)                # interior cameras above their floor
 DOOR_CLEARANCE_M = 0.6
+AGENT_WALL_CLEARANCE_M = 0.15           # pod P8: an agent camera may stand closer to a wall than a search point
+                                        # (0.3 m); P5's accepted cam_r_L0_ebeveyn_odasi_4_1 stood 0.20 m from one
 SUN_ELEVATION_RANGE = (25.0, 50.0)
 FILL_RANGE = (0.6, 0.8)
 BLANK_FACADE_M = 3.0                    # a habitable room's outer wall this long with no opening is a blank facade
@@ -608,9 +610,48 @@ def check_views(building: dict, render_manifest: dict) -> dict:
 # Override validators
 # --------------------------------------------------------------------------
 
+def free_floor_problems(building: dict, camera: dict) -> list[str]:
+    """An agent camera stands on the free floor the camera search uses (pure; pod P8, 11 Oct 2026): at least
+    ``camsearch.OBSTACLE_CLEARANCE`` from every floor piece and free-standing decor, ``AGENT_WALL_CLEARANCE_M`` from
+    the walls. real03's ``cam_r_L0_banyo_2_1`` was moved 0.05 m beside the shower glass: half the frame was the
+    glass (depth 0.05 m at the lens). In a room with no free point (the search's fallback camera) only the pieces
+    reaching camera height count. The search's own points always pass; the
+    message names the nearest one."""
+    from wenart.blender import camsearch as CS, geom2d
+    from wenart.blender.parametric import piece_bbox
+
+    room = next((r for r in building.get("rooms") or [] if r["id"] == camera.get("room_id")), None)
+    if room is None or len(room.get("polygon") or []) < 3:
+        return []                                       # camera_problems names the missing room
+    points, warning = CS.candidate_positions(room, building)
+    if not points:
+        return []
+    x, y = (float(v) for v in camera["position"][:2])
+    if any(math.dist(q, (x, y)) < 1e-6 for q in points):
+        return []
+    polygon = CS.room_polygon(room)
+    pieces = [f for f in CS.shown_pieces(room, building) if CS.mount_bottom(f) <= 0.0]
+    obstacles = [(f["id"], CS.obstacle_rect(f)) for f in pieces]
+    if warning:                                         # no free point: only what stands at camera height counts
+        obstacles = [(f["id"], CS.obstacle_rect(f)) for f in pieces if piece_bbox(f)[2] >= CS.CAMERA_HEIGHT]
+    else:
+        obstacles += [("floor decor", r) for r in CS.floor_decor_rects(room, building)]
+    if geom2d.point_is_free((x, y), polygon, [r for _i, r in obstacles], AGENT_WALL_CLEARANCE_M,
+                            CS.OBSTACLE_CLEARANCE):
+        return []
+    near = [(geom2d.distance_to_rect((x, y), r["center"], r["size"], r["rotation_deg"]), i) for i, r in obstacles]
+    near = [(d, i) for d, i in near if d < CS.OBSTACLE_CLEARANCE - 1e-9]
+    what = (f"{min(near)[0]:.2f} m from {min(near)[1]}" if near
+            else f"{geom2d.distance_to_polygon_edges((x, y), polygon):.2f} m from a wall")
+    best = min(points, key=lambda q: math.dist(q, (x, y)))
+    return [f"the camera stands {what} (free floor: {CS.OBSTACLE_CLEARANCE:g} m from pieces, {AGENT_WALL_CLEARANCE_M:g} m "
+            f"from walls); the nearest free point is [{best[0]:.2f}, {best[1]:.2f}]"]
+
+
 def validate_camera_override(building: dict, camera: dict) -> dict:
     """``{"ok": bool, "failed": [str]}``: the schema, then for ``set`` / ``add``: an interior camera stands in its
-    room, not inside a piece, at least ``DOOR_CLEARANCE_M`` from a door, ``EYE_RANGE_M`` above its floor; an
+    room, not inside a piece, on the free floor (``free_floor_problems``), at least ``DOOR_CLEARANCE_M`` from a door,
+    ``EYE_RANGE_M`` above its floor; an
     exterior one outside the building (and its roof) at ``EYE_LEVEL_RANGE_M`` above the ground, or a high view
     above the ridge; the target differs from the position."""
     failed = _schema_errors(CAMERA_OVERRIDE_SCHEMA, camera)
@@ -635,6 +676,7 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
         if camera.get("lens_mm") is not None and not 14.0 <= float(camera["lens_mm"]) <= 35.0:
             failed.append(f"lens {camera['lens_mm']} mm outside 14-35 mm (interior)")
         failed += [v["message"] for v in camera_problems(building, dict(camera, name=camera["view_id"]))]
+        failed += free_floor_problems(building, camera)
         return {"ok": not failed, "failed": failed}
     from wenart.blender import geom2d
 

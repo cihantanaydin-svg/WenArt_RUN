@@ -328,7 +328,10 @@ def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: f
     its own wall and stayed closed: a dark bedroom and a sill without glass. Returns ``[(opening, (cx, cy),
     depth)]``: the cutter centre (on the host wall's normal, midway over both walls) and its depth across both,
     for every opening whose host wall is parallel to this one (within ``tol_deg``) and whose rectangle overlaps this
-    wall's footprint along the wall by at least ``min_overlap_m``."""
+    wall's footprint along the wall by at least ``min_overlap_m``. Only windows and doors cut through (pod P8, 11 Oct
+    2026): a plain ``opening`` is a gap in its own line, e.g. real03's 0.25 m gap ``o_L0_001`` in the facade line
+    ``w_L0_001`` where the column ``w_L0_003`` stands; cut through the column it opened a full-height slit to the
+    outside. Where another layer is solid the wall is closed."""
     out = []
     wx0, wy0 = float(wall["start"][0]), float(wall["start"][1])
     wx1, wy1 = float(wall["end"][0]), float(wall["end"][1])
@@ -339,7 +342,7 @@ def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: f
     wt = float(wall["thickness"])
     for o in openings:
         host = walls_by_id.get(o.get("wall_id"))
-        if host is None or host["id"] == wall["id"] or is_virtual(o):
+        if host is None or host["id"] == wall["id"] or is_virtual(o) or o.get("type") not in ("window", "door"):
             continue
         hx0, hy0 = float(host["start"][0]), float(host["start"][1])
         hx1, hy1 = float(host["end"][0]), float(host["end"][1])
