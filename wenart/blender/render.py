@@ -1523,6 +1523,11 @@ class RenderRun:
             "preview_quality": args.preview_quality,
             "pass_index": ctx.pass_index,
             "renders": [self.entries[name] for name in sorted(self.entries)],
+            # Milestone 12 (pod P7): a --cameras re-render after an edit renders the changed rooms' views only;
+            # the other views keep their files from the earlier build (not asked for in this run), listed here
+            "carried_from_earlier_build": sorted(
+                name for name, e in self.entries.items()
+                if name not in {o.name for o in self.cameras} and e.get("scene_sha256") != ctx.fingerprint),
             "dropped_stale": self.dropped_stale(),
             "incomplete": self.incomplete,
             "not_rendered": list(self.not_rendered),

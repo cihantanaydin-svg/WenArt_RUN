@@ -87,6 +87,8 @@ def test_ai_decor_is_built(project):
         # M11 pod G2d: decor the build leaves out with a reason (a light under a very low slope, a plant taller than
         # the attic ceiling: build.decor_under_roof) is listed in furniture.not_built
         skipped |= {s.get("id") for s in (scene.get("furniture") or {}).get("not_built") or []}
+        # Milestone 12 (§4.7, S5): decor that finds no host surface to rest on is not built, with the measurement
+        skipped |= {s.get("id") for s in (scene.get("furniture") or {}).get("decor_not_rested") or []}
         for item in ai:
             if item.get("level_id") not in levels:
                 continue                    # a level only another variant builds (real02's L-1b is not in the base)

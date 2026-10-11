@@ -294,7 +294,11 @@ def test_render_matches_the_scene_build(project):
     blend = OUTPUTS / name / "scene" / "scene.blend"
     fingerprint = hashlib.sha256(blend.read_bytes()).hexdigest()
     assert render["scene_sha256"] == fingerprint, f"{name}: render_manifest.json is not from this scene.blend"
-    stale = sorted(r["camera"] for r in render["renders"] if r.get("scene_sha256") != fingerprint)
+    # Milestone 12 (pod P7): after an edit the changed rooms' views are rendered again (--cameras); the others keep
+    # their files from the earlier build and are listed as such by the render
+    carried = set(render.get("carried_from_earlier_build") or [])
+    stale = sorted(r["camera"] for r in render["renders"]
+                   if r.get("scene_sha256") != fingerprint and r["camera"] not in carried)
     assert not stale, f"{name}: renders of another scene build (re-render them): {stale}"
     assert render["pass_index"] == scene["pass_index"], f"{name}: the two pass index tables differ"
 
