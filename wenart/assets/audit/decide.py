@@ -54,7 +54,7 @@ HANG_FROM_TOP = ("pendant_light", "ceiling_light")
 GROUP_DECOR = ("books", "candle", "tray", "bowl", "basket")
 # Textured real products (ABO, Poly Haven scans) are often box-like with few faces: crude only below this quality
 # (D21: quality <= 2 removes; the crude rule's quality 4 stays for uploads and generated models).
-REAL_SOURCES = ("abo", "polyhaven")
+REAL_SOURCES = ("abo", "polyhaven", "gso")          # gso: Google Scanned Objects (scans of products, pod P4)
 
 
 def _by(checks: list[dict], name: str) -> list[dict]:
@@ -69,7 +69,7 @@ def _status(checks: list[dict], name: str) -> Optional[str]:
 def default_flags(item: dict) -> dict:
     flags: dict = {}
     src = item.get("source")
-    flags["real_product"] = True if src == "abo" else (False if src == "generated" else None)
+    flags["real_product"] = True if src in ("abo", "gso") else (False if src == "generated" else None)
     if item["kind"] == "decor":
         flags["contact"] = DEFAULT_CONTACT.get(item["type"], "flat_bottom")
     return flags
@@ -79,7 +79,7 @@ def answer_flags(item: dict, answer: Optional[dict]) -> dict:
     flags = default_flags(item)
     if not answer:
         return flags
-    if item.get("source") not in ("abo", "generated") and isinstance(answer.get("real_product"), bool):
+    if item.get("source") not in ("abo", "gso", "generated") and isinstance(answer.get("real_product"), bool):
         flags["real_product"] = answer["real_product"]
     t = item["type"]
     if t in BED_TYPES:
@@ -190,7 +190,7 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
             reasons.append("a drawer, door or lid is open, or a part floats apart")
         if isinstance(q, int) and q <= remove_max:
             doubts.append(f"vision quality {q} (<= {remove_max})")
-        elif answer.get("real_product") is False and item.get("source") != "abo" and isinstance(q, int) \
+        elif answer.get("real_product") is False and item.get("source") not in ("abo", "gso") and isinstance(q, int) \
                 and q < keep_min:
             doubts.append(f"not a real manufactured product and vision quality {q} (< {keep_min})")
         side = answer.get("front_shown")

@@ -374,7 +374,7 @@ def test_abo_generated_and_flagged_objaverse_models_come_from_the_cache_only(tmp
         path.write_bytes(f"glTF {source} {uid}".encode())
         return web.sha256_file(path)
 
-    assert models.LIBRARY_SOURCES == ("objaverse", "abo", "generated")
+    assert models.LIBRARY_SOURCES == ("objaverse", "abo", "generated", "gso")
     assert models.library_relpath("abo", "abo_B07B4SCB6T") == "models/abo/abo_B07B4SCB6T.glb"
     with pytest.raises(fetch.AssetNotFound, match="not a library source"):
         models.library_relpath("polyhaven", "x")

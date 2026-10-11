@@ -73,7 +73,7 @@ _FLAGS = {"CC0": None, "CC-BY-4.0": None, "CC-BY-NC-4.0": "non_commercial", "CC-
           "CC-BY-NC-ND-4.0": "non_commercial", "CC-BY-SA-4.0": "share_alike", "CC-BY-ND-4.0": "no_derivatives",
           "Sketchfab-Editorial": "non_commercial", "Sketchfab-Standard": "unknown",
           "Sketchfab-Free-Standard": "unknown", "unknown": "unknown"}   # = wenart.furniture.catalog.LICENCE_FLAGS
-MODEL_SOURCE_LICENCES = {"objaverse": tuple(_FLAGS), "abo": (CC_BY,)}
+MODEL_SOURCE_LICENCES = {"objaverse": tuple(_FLAGS), "abo": (CC_BY,), "gso": (CC_BY,)}   # gso: M12 pod P4
 GENERATED = "generated"                     # model source; its licence starts with this word
 # Manifest sections; the licence rule depends on the kind.
 KINDS = ("textures", "hdris", "models")

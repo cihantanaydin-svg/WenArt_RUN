@@ -120,8 +120,10 @@ OBJAVERSE_SUFFIX = "_objaverse"        # catalog.json -> catalog_objaverse.json 
 LIBRARY_SUFFIX = "_library"            # catalog.json -> catalog_library.json (same folder; M8, preferred)
 LICENCE = "CC0"
 CC_BY = "CC-BY-4.0"
-SOURCES = ("polyhaven", "objaverse", "abo", "generated")
-LIBRARY_SOURCES = ("objaverse", "abo", "generated")      # written by the prep pod (wenart/assets/objaverse.py)
+SOURCES = ("polyhaven", "objaverse", "abo", "generated", "gso")
+# written by the prep pod (wenart/assets/objaverse.py); Milestone 12 pod P4 (docs/milestone12.md §6.4): ``gso`` =
+# Google Scanned Objects (CC BY 4.0, confirmed per object, ``licence_evidence``; wenart/assets/audit/growth_gso.py)
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")
 # Licence -> its flag (docs/milestone8.md §2): None for CC0 and CC BY 4.0 (credit only), else what limits the use.
 # The Objaverse licence strings map onto these names in wenart/assets/objaverse.yaml (licences).
 LICENCE_FLAGS: dict[str, Optional[str]] = {
@@ -137,7 +139,7 @@ GENERATED_LICENCE_PREFIX = "generated"   # e.g. "generated (TRELLIS.2-4B, MIT)" 
 # Objaverse objects carry the uploader's licence (any, flagged unless CC0 / CC BY 4.0); ABO is CC BY 4.0; a generated
 # model's licence starts with "generated" (checked apart).
 SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": tuple(LICENCE_FLAGS),
-                                               "abo": (CC_BY,)}
+                                               "abo": (CC_BY,), "gso": (CC_BY,)}
 # Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)); every library model but a generated one has
 # them (any non-CC0 licence asks for the credit).
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")

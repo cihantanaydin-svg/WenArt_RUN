@@ -493,3 +493,117 @@ def test_audit_judge_wrote_valid_catalogue_copies():
     for e in [e for s in ("entries", "decor") for e in lib.get(s) or []]:
         if (e.get("audit") or {}).get("status") == "removed":
             assert not C.usable(e)
+
+
+# --------------------------------------------------------------------------
+# Milestone 12 pod P4: the library growth (docs/milestone12.md §6.4, scripts/jobs/library_growth.sh,
+# docs/m12_tracks/P4.md). ``WENART_AUDIT_P4`` = the P4 audit folder (default ``$WENART_RESULTS/library/audit/p4``),
+# ``WENART_GROWTH`` = the growth root (default /workspace/library-growth); the tests skip without them.
+# --------------------------------------------------------------------------
+
+AUDIT_P4 = Path(os.environ.get("WENART_AUDIT_P4") or RESULTS / "library" / "audit" / "p4")
+GROWTH = Path(os.environ.get("WENART_GROWTH", "/workspace/library-growth"))
+REPO_GROWTH = Path(__file__).resolve().parents[2] / "results" / "library" / "growth"
+
+
+def p4_doc(name: str) -> dict:
+    doc = OV.read_json(AUDIT_P4 / name)
+    if doc is None:
+        pytest.skip(f"{AUDIT_P4 / name} not found (written by pod P4, scripts/jobs/library_growth.sh)")
+    return doc
+
+
+def p4_new():
+    nid = p4_doc("new_ids.json")
+    lib, ph = p4_doc("catalogue/catalog_library.json"), p4_doc("catalogue/catalog.json")
+    ids = set(nid["ids"])
+    entries = [e for doc in (lib, ph) for s in ("entries", "decor") for e in doc.get(s) or []
+               if isinstance(e, dict) and e.get("id") in ids]
+    return nid, lib, ph, entries
+
+
+def test_growth_new_glbs_load_in_blender_at_plausible_size():
+    nid, _lib, _ph, entries = p4_new()
+    mdoc = p4_doc("measure.json")
+    measures = mdoc["measures"]
+    assert entries and len(entries) == len(nid["ids"])
+    ok = [e for e in entries if (measures.get(e["id"]) or {}).get("ok")]
+    assert len(ok) >= 0.95 * len(entries), sorted(set(nid["ids"]) - {e["id"] for e in ok})[:20]
+    assert {measures[e["id"]].get("device") for e in ok} <= {"OPTIX", "CUDA"}, "the P4 renders ran on the CPU"
+    same = 0
+    for e in ok:
+        m = measures[e["id"]]
+        assert 0.01 <= max(m["size"]) <= 5.0, (e["id"], m["size"])           # a real piece, metres
+        assert m["faces"] > 0 and e["id"] in mdoc["sheets"], e["id"]
+        before = (e.get("audit") or {}).get("before") or {}
+        got = list(m["model_box_min"]) + list(m["model_box_max"])
+        boxes = [list(e["bbox_min_m"]) + list(e["bbox_max_m"]),          # the entry now, or before an audit fix
+                 list(before.get("bbox_min_m", e["bbox_min_m"])) + list(before.get("bbox_max_m", e["bbox_max_m"]))]
+        same += any(max(abs(a - b) for a, b in zip(box, got)) <= 0.02 for box in boxes)
+    assert same >= 0.95 * len(ok), (same, len(ok))     # the numpy box of the entry = Blender's import of the GLB
+
+
+def test_growth_catalogue_copies_validate_and_resolve():
+    from wenart.assets import fetch
+    from wenart.assets import models as M
+    from wenart.assets import web
+    _nid, lib, ph, entries = p4_new()
+    C.validate(lib, complete=False)
+    C.validate(ph, complete=True)
+    C.Catalog(C.merge(ph, lib))
+    manifest = fetch.load_manifest(ASSETS)
+    for e in entries:
+        if e["source"] == "polyhaven":
+            assert (ASSETS / e["gltf"]).is_file(), e["id"]
+            assert e["resolution"] == "1k"                                   # what fit.fetch_models asks for
+            assert M._entry_ok(ASSETS, manifest["models"][e["id"]], "1k"), e["id"]     # no download in a run
+            continue
+        assert e["glb"] == M.library_relpath(e["source"], e["uid"]), e["id"]
+        assert web.sha256_file(ASSETS / e["glb"]) == e["sha256_glb"], e["id"]
+        assert fetch.check_licence(e["source"], e["licence"], kind="models", entry=e), e["id"]
+        if e["source"] == "gso":
+            assert e["licence"] == C.CC_BY and e["licence_evidence"], e["id"]
+            assert {x["method"] for x in e["licence_evidence"]} <= {"archive", "fuel_api"}, e["id"]
+        if e["source"] == "generated":
+            assert e["generated"]["generator"] == "infinigen" and e["licence"].startswith("generated (Infinigen")
+
+
+def test_growth_every_new_entry_has_an_audit_record():
+    nid, _lib, _ph, entries = p4_new()
+    audit = p4_doc("audit.json")
+    assert audit["mode"] == "full"
+    rows = {r["id"]: r for r in audit["items"]}
+    assert set(nid["ids"]) <= set(rows), sorted(set(nid["ids"]) - set(rows))[:20]
+    for e in entries:
+        a = e.get("audit") or {}
+        assert a.get("status") in ("keep", "fix", "removed", "pending") and a.get("version") == "m12", e["id"]
+        assert a["status"] == rows[e["id"]]["status"], e["id"]
+    pending = [e["id"] for e in entries if e["audit"]["status"] == "pending"]
+    assert len(pending) <= 0.05 * len(entries), pending[:20]
+    assert len(p4_doc("ask/requests.json")["items"]) >= 0.95 * len(entries)
+
+
+def test_growth_p3_pending_models_got_their_second_pass():
+    lib = p4_doc("catalogue/catalog_library.json")
+    new = set(p4_doc("new_ids.json")["ids"])
+    left = [e["id"] for s in ("entries", "decor") for e in lib.get(s) or []
+            if (e.get("audit") or {}).get("status") == "pending" and e["id"] not in new]
+    if left and not (AUDIT_P4 / "pending_p3" / "audit.json").is_file():
+        pytest.skip("P3's audit folder was not on the volume (no pass 2 for its pending models)")
+    assert not left, left
+
+
+def test_growth_every_approved_id_is_accounted_for():
+    """Catalogued, shown as a preview (no type of ours) or dropped with its reason: nothing disappears silently."""
+    from wenart.assets.audit import growth_gso as GS
+    nid = p4_doc("new_ids.json")
+    report = OV.read_json(GROWTH / "report" / "catalogue.json")
+    if report is None:
+        pytest.skip(f"{GROWTH / 'report' / 'catalogue.json'} not found")
+    done = set(nid["ids"]) | {p["id"] for p in nid.get("previews") or []} | {d["id"] for d in report["dropped"]}
+    assert all(d.get("reason") for d in report["dropped"])
+    for source in ("polyhaven", "abo", "gso", "infinigen"):
+        approved = OV.read_json(REPO_GROWTH / f"approved_{source}.json")["ids"]
+        for aid in approved:
+            uid = GS.gso_uid(GS.name_of(aid)) if source == "gso" else aid
+            assert aid in done or uid in done, (source, aid)

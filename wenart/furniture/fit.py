@@ -148,7 +148,7 @@ UPHOLSTERED_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise
                                       "bed_double")
 
 # Fit v2 ranking (docs/milestone8.md §1).
-SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "objaverse", "generated")
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "gso", "objaverse", "generated")   # gso: M12 pod P4 scans
 GENERATED = "generated"
 DEFAULT_QUALITY = 3.0
 SIZE_BUCKET = 0.05           # real-size error steps: models within the same 5 % step are ranked by quality

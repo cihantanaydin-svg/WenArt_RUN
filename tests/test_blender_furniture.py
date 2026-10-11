@@ -821,7 +821,7 @@ def test_model_licence_gate_matches_the_asset_rule():
     # Milestone 8 (docs/milestone8.md §2): ABO (CC BY 4.0) and generated models join; see
     # test_model_licence_gate_takes_abo_generated_and_flagged_models for their rules.
     assert F.MODEL_LICENCES == {"polyhaven": ("CC0",), "abo": ("CC-BY-4.0",), "objaverse": ("CC0", "CC-BY-4.0"),
-                                "generated": ()}
+                                "generated": (), "gso": ("CC-BY-4.0",)}
     assert F.CC_BY_FIELDS == fetch.CC_BY_FIELDS and F.CC_BY == fetch.CC_BY
     assert F.licence_refusal(_library_asset([1, 1, 1])) is None
     assert F.licence_refusal(_objaverse_asset([1, 1, 1])) is None

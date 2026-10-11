@@ -104,7 +104,7 @@ MAX_CROPS = 200                    # recognition crops per project (M7 §9.1)
 ATTRIBUTION = "ATTRIBUTION.md"
 LIBRARY_CATALOG = "catalog_library.json"      # the prep pod's library catalogue (docs/milestone8.md §2)
 OBJAVERSE_CATALOG = "catalog_objaverse.json"  # its M7 name (read when the library file is missing)
-LIBRARY_SOURCES = ("objaverse", "abo", "generated")   # = wenart.furniture.catalog.LIBRARY_SOURCES
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")   # = wenart.furniture.catalog.LIBRARY_SOURCES
 # The library work folder's files that never go to $RESULTS (``library_files``): model files (the GLBs live in the
 # sources' caches and <assets>/models/<source>/) and anything larger than the text limit.
 LIBRARY_SKIP_SUFFIXES = (".glb", ".gltf", ".bin", ".blend", ".ply", ".obj", ".fbx", ".part", ".tmp")
@@ -385,7 +385,8 @@ def _notice() -> str:
     return _notices(["objaverse"])[0]
 
 
-SOURCE_NAMES = {"abo": "Amazon Berkeley Objects", "objaverse": "Objaverse 1.0", "generated": "generated models"}
+SOURCE_NAMES = {"abo": "Amazon Berkeley Objects", "objaverse": "Objaverse 1.0", "generated": "generated models",
+                "gso": "Google Scanned Objects"}
 
 
 def audit_removed(entry: dict) -> str:
@@ -403,7 +404,7 @@ def attribution_text(title: str, credits: list[dict]) -> str:
     """The ``ATTRIBUTION.md`` text: the credit line of every library model (with its licence flag when it has one,
     docs/milestone8.md §2; M12: with the library audit's removal and its reasons) and the notices of the sources
     present (Objaverse when nothing says the source)."""
-    order = [s for s in ("abo", "objaverse", "generated")]
+    order = [s for s in ("abo", "gso", "objaverse", "generated")]
     sources = sorted({c.get("source") or "objaverse" for c in credits}, key=lambda s: order.index(s)
                      if s in order else len(order))
     names = ", ".join(SOURCE_NAMES.get(s, s) for s in sources)

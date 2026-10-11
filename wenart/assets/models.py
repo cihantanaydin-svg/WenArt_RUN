@@ -70,7 +70,7 @@ PAGE_URL = "https://polyhaven.com/a/{id}"
 OBJAVERSE = "objaverse"
 OBJAVERSE_CACHE = f"{MODELS_DIR}/objaverse"     # <assets>/models/objaverse/<uid>.glb, written by the prep pod
 # The library sources (docs/milestone8.md §2): cache-only GLBs in <assets>/models/<source>/<uid>.glb.
-LIBRARY_SOURCES = ("objaverse", "abo", "generated")
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")     # gso: Milestone 12 pod P4 (Google Scanned Objects)
 _UID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 # Fields of the fit asset (catalogue entry) kept in the manifest entry of an Objaverse model.
 OBJAVERSE_META = ("uid", "title", "author", "source_url", "licence_url", "via", "attribution")

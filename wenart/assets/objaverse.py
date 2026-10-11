@@ -165,7 +165,8 @@ SURVEY_FILES: dict[str, str] = {"objaverse": SURVEY_NAME, "abo": "survey_abo.jso
                                 "generated": "survey_generated.json"}
 SOURCES: tuple[str, ...] = tuple(SURVEY_FILES)
 REAL_SOURCES: tuple[str, ...] = ("abo", "objaverse")       # the generation plan follows their accepted models
-SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "objaverse", "generated")   # rank order of docs/milestone8.md §2
+# rank order of docs/milestone8.md §2; gso (Google Scanned Objects) since Milestone 12 pod P4
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "gso", "objaverse", "generated")
 DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",             # = catalog.DECOR_TYPES
                                  "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9 (§3)
                                  # Milestone 10 (docs/milestone10.md §1.1: the building schema's decor types, bar book_set)
@@ -1877,7 +1878,15 @@ def thumbnails(out: Path, work: Optional[Path] = None, cfg: Optional[dict] = Non
 
 
 GENERATED_NOTICE = ("Generated models (docs/milestone8.md §3): made by TRELLIS.2-4B (microsoft/TRELLIS.2-4B, MIT) "
-                    "from Z-Image-Turbo product images; marked `generated`, no third-party credit.")
+                    "from Z-Image-Turbo product images, or (Milestone 12 pod P4) by the procedural factories of "
+                    "Infinigen (princeton-vl/infinigen, BSD-3-Clause, Copyright (c) 2023 Princeton University); marked "
+                    "`generated`, no third-party credit beyond the line of each model.")
+GSO_NOTICE = ("Contains 3D models from Google Scanned Objects (Google Research; https://app.gazebosim.org/GoogleResearch/"
+              "fuel/collections/Scanned%20Objects%20by%20Google%20Research), licensed CC BY 4.0 "
+              "(https://creativecommons.org/licenses/by/4.0/), received through the Hugging Face mirror "
+              "suvadityamuk/google-scanned-objects-raw; the licence of every object was confirmed on its own (Milestone "
+              "12 pod P4). Changes: converted from OBJ to GLB, scaled to the drawn footprint, re-oriented, rendered, "
+              "AI-retouched.")
 
 
 def source_notices(sources, cfg: Optional[dict] = None) -> list[str]:
@@ -1889,6 +1898,8 @@ def source_notices(sources, cfg: Optional[dict] = None) -> list[str]:
     if "abo" in sources:
         from wenart.assets import abo
         out.append(abo.notice())
+    if "gso" in sources:
+        out.append(GSO_NOTICE)
     if "generated" in sources:
         out.append(GENERATED_NOTICE)
     return out
