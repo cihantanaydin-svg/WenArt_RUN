@@ -1,0 +1,1558 @@
+{
+ "kind": "gso_licence_evidence",
+ "checked_utc": "2026-10-11T08:31:29Z",
+ "fuel_api": true,
+ "kept": 36,
+ "dropped": 0,
+ "rule": "kept when the archive's own files or the object's Gazebo Fuel record state CC BY 4.0 (the licence URL creativecommons.org/licenses/by/4.0, 'CC BY 4.0', 'Creative Commons Attribution 4.0', or a Fuel licence naming Attribution and 4.0) and no source names another licence; dropped otherwise",
+ "records": [
+  {
+   "id": "gso_RJ_Rabbit_Easter_Basket_Blue",
+   "uid": "gso_RJ_Rabbit_Easter_Basket_Blue",
+   "name": "RJ_Rabbit_Easter_Basket_Blue",
+   "title": "RJ Rabbit Easter Basket Blue",
+   "type": "basket",
+   "kind": "decor",
+   "file": "RJ_Rabbit_Easter_Basket_Blue.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/RJ_Rabbit_Easter_Basket_Blue",
+   "config": {
+    "name": "RJ_Rabbit_Easter_Basket_Blue",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "R.J Rabbit Easter Basket, Blue"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/RJ_Rabbit_Easter_Basket_Blue",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/RJ_Rabbit_Easter_Basket_Blue",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/RJ_Rabbit_Easter_Basket_Blue",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+   "uid": "gso_Smith_Hawken_Woven_BasketTray_Organizer_with_3_Comp_e079cbe1",
+   "name": "Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+   "title": "Smith Hawken Woven BasketTray Organizer with 3 Compartments 95 x 9 x 13",
+   "type": "basket",
+   "kind": "decor",
+   "file": "Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+   "config": {
+    "name": "Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Smith & Hawken Woven Basket,Tray Organizer with 3 Compartments, 9.5\" x 9' x 13\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Spritz_Easter_Basket_Plastic_Teal",
+   "uid": "gso_Spritz_Easter_Basket_Plastic_Teal",
+   "name": "Spritz_Easter_Basket_Plastic_Teal",
+   "title": "Spritz Easter Basket Plastic Teal",
+   "type": "basket",
+   "kind": "decor",
+   "file": "Spritz_Easter_Basket_Plastic_Teal.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Spritz_Easter_Basket_Plastic_Teal",
+   "config": {
+    "name": "Spritz_Easter_Basket_Plastic_Teal",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Spritz Easter Basket, Plastic, Teal"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Spritz_Easter_Basket_Plastic_Teal",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Spritz_Easter_Basket_Plastic_Teal",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Spritz_Easter_Basket_Plastic_Teal",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Squirt_Strain_Fruit_Basket",
+   "uid": "gso_Squirt_Strain_Fruit_Basket",
+   "name": "Squirt_Strain_Fruit_Basket",
+   "title": "Squirt Strain Fruit Basket",
+   "type": "basket",
+   "kind": "decor",
+   "file": "Squirt_Strain_Fruit_Basket.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Squirt_Strain_Fruit_Basket",
+   "config": {
+    "name": "Squirt_Strain_Fruit_Basket",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Squirt & Strain Fruit Basket"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Squirt_Strain_Fruit_Basket",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Squirt_Strain_Fruit_Basket",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Squirt_Strain_Fruit_Basket",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+   "uid": "gso_Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+   "name": "Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+   "title": "Tag Dishtowel Basket Weave Red 18 x 26",
+   "type": "basket",
+   "kind": "decor",
+   "file": "Tag_Dishtowel_Basket_Weave_Red_18_x_26.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+   "config": {
+    "name": "Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Tag Dishtowel, Basket Weave Red, 18\" x 26\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Target_Basket_Medium",
+   "uid": "gso_Target_Basket_Medium",
+   "name": "Target_Basket_Medium",
+   "title": "Target Basket Medium",
+   "type": "basket",
+   "kind": "decor",
+   "file": "Target_Basket_Medium.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Target_Basket_Medium",
+   "config": {
+    "name": "Target_Basket_Medium",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Target Basket, Medium"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Target_Basket_Medium",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Target_Basket_Medium",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Target_Basket_Medium",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+   "uid": "gso_Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+   "name": "Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+   "title": "Threshold Basket Natural Finish Fabric Liner Small",
+   "type": "basket",
+   "kind": "decor",
+   "file": "Threshold_Basket_Natural_Finish_Fabric_Liner_Small.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+   "config": {
+    "name": "Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Threshold Basket, Natural Finish, Fabric Liner, Small"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+   "uid": "gso_Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fa_3901719d",
+   "name": "Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+   "title": "Eat to Live The Amazing NutrientRich Program for Fast and Sustained Weight Loss Revised Edition Book",
+   "type": "books",
+   "kind": "decor",
+   "file": "Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+   "config": {
+    "name": "Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Eat to Live: The Amazing Nutrient-Rich Program for Fast and Sustained Weight Loss, Revised Edition [Book]"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+   "uid": "gso_Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+   "name": "Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+   "title": "Bradshaw International 11642 7 Qt MP Plastic Bowl",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+   "config": {
+    "name": "Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Bradshaw International 11642 7 Qt MP Plastic Bowl \"Good Cook - Assorted Colors.\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Cole_Hardware_Bowl_Scirocco_YellowBlue",
+   "uid": "gso_Cole_Hardware_Bowl_Scirocco_YellowBlue",
+   "name": "Cole_Hardware_Bowl_Scirocco_YellowBlue",
+   "title": "Cole Hardware Bowl Scirocco YellowBlue",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Cole_Hardware_Bowl_Scirocco_YellowBlue.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Cole_Hardware_Bowl_Scirocco_YellowBlue",
+   "config": {
+    "name": "Cole_Hardware_Bowl_Scirocco_YellowBlue",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Cole Hardware Bowl Scirocco, Yellow/Blue"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Cole_Hardware_Bowl_Scirocco_YellowBlue",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Bowl_Scirocco_YellowBlue",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Bowl_Scirocco_YellowBlue",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+   "uid": "gso_Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+   "name": "Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+   "title": "Cole Hardware Deep Bowl Good Earth 1075",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Cole_Hardware_Deep_Bowl_Good_Earth_1075.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+   "config": {
+    "name": "Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Cole Hardware Deep Bowl, Good Earth, 10.75\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Dixie_10_ounce_Bowls_35_ct",
+   "uid": "gso_Dixie_10_ounce_Bowls_35_ct",
+   "name": "Dixie_10_ounce_Bowls_35_ct",
+   "title": "Dixie 10 ounce Bowls 35 ct",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Dixie_10_ounce_Bowls_35_ct.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Dixie_10_ounce_Bowls_35_ct",
+   "config": {
+    "name": "Dixie_10_ounce_Bowls_35_ct",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Dixie 10 ounce Bowls - 35 ct"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Dixie_10_ounce_Bowls_35_ct",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Dixie_10_ounce_Bowls_35_ct",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Dixie_10_ounce_Bowls_35_ct",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Bowl_Atlas_Low",
+   "uid": "gso_Ecoforms_Plant_Bowl_Atlas_Low",
+   "name": "Ecoforms_Plant_Bowl_Atlas_Low",
+   "title": "Ecoforms Plant Bowl Atlas Low",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Ecoforms_Plant_Bowl_Atlas_Low.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Plant_Bowl_Atlas_Low",
+   "config": {
+    "name": "Ecoforms_Plant_Bowl_Atlas_Low",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Plant Bowl, Atlas Low"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Plant_Bowl_Atlas_Low",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Bowl_Atlas_Low",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Bowl_Atlas_Low",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Bowl_Turquoise_7",
+   "uid": "gso_Ecoforms_Plant_Bowl_Turquoise_7",
+   "name": "Ecoforms_Plant_Bowl_Turquoise_7",
+   "title": "Ecoforms Plant Bowl Turquoise 7",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Ecoforms_Plant_Bowl_Turquoise_7.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Plant_Bowl_Turquoise_7",
+   "config": {
+    "name": "Ecoforms_Plant_Bowl_Turquoise_7",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Plant Bowl, Turquoise, 7\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Plant_Bowl_Turquoise_7",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Bowl_Turquoise_7",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Bowl_Turquoise_7",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Footed_Bowl_Sand",
+   "uid": "gso_Footed_Bowl_Sand",
+   "name": "Footed_Bowl_Sand",
+   "title": "Footed Bowl Sand",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Footed_Bowl_Sand.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Footed_Bowl_Sand",
+   "config": {
+    "name": "Footed_Bowl_Sand",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Footed Bowl Sand"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Footed_Bowl_Sand",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Footed_Bowl_Sand",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Footed_Bowl_Sand",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Now_Designs_Bowl_Akita_Black",
+   "uid": "gso_Now_Designs_Bowl_Akita_Black",
+   "name": "Now_Designs_Bowl_Akita_Black",
+   "title": "Now Designs Bowl Akita Black",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Now_Designs_Bowl_Akita_Black.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Now_Designs_Bowl_Akita_Black",
+   "config": {
+    "name": "Now_Designs_Bowl_Akita_Black",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Now Designs Bowl, Akita, Black"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Now_Designs_Bowl_Akita_Black",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Now_Designs_Bowl_Akita_Black",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Now_Designs_Bowl_Akita_Black",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Room_Essentials_Bowl_Turquiose",
+   "uid": "gso_Room_Essentials_Bowl_Turquiose",
+   "name": "Room_Essentials_Bowl_Turquiose",
+   "title": "Room Essentials Bowl Turquiose",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Room_Essentials_Bowl_Turquiose.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Room_Essentials_Bowl_Turquiose",
+   "config": {
+    "name": "Room_Essentials_Bowl_Turquiose",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Room Essentials Bowl, Turquiose"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Room_Essentials_Bowl_Turquiose",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Room_Essentials_Bowl_Turquiose",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Room_Essentials_Bowl_Turquiose",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Sea_to_Summit_Xl_Bowl",
+   "uid": "gso_Sea_to_Summit_Xl_Bowl",
+   "name": "Sea_to_Summit_Xl_Bowl",
+   "title": "Sea to Summit Xl Bowl",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Sea_to_Summit_Xl_Bowl.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Sea_to_Summit_Xl_Bowl",
+   "config": {
+    "name": "Sea_to_Summit_Xl_Bowl",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Sea to Summit Xl Bowl"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Sea_to_Summit_Xl_Bowl",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Sea_to_Summit_Xl_Bowl",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Sea_to_Summit_Xl_Bowl",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Threshold_Bead_Cereal_Bowl_White",
+   "uid": "gso_Threshold_Bead_Cereal_Bowl_White",
+   "name": "Threshold_Bead_Cereal_Bowl_White",
+   "title": "Threshold Bead Cereal Bowl White",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Threshold_Bead_Cereal_Bowl_White.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Threshold_Bead_Cereal_Bowl_White",
+   "config": {
+    "name": "Threshold_Bead_Cereal_Bowl_White",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Threshold Bead Cereal Bowl, White"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Threshold_Bead_Cereal_Bowl_White",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Bead_Cereal_Bowl_White",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Bead_Cereal_Bowl_White",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Threshold_Porcelain_Serving_Bowl_Coupe_White",
+   "uid": "gso_Threshold_Porcelain_Serving_Bowl_Coupe_White",
+   "name": "Threshold_Porcelain_Serving_Bowl_Coupe_White",
+   "title": "Threshold Porcelain Serving Bowl Coupe White",
+   "type": "bowl",
+   "kind": "decor",
+   "file": "Threshold_Porcelain_Serving_Bowl_Coupe_White.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Threshold_Porcelain_Serving_Bowl_Coupe_White",
+   "config": {
+    "name": "Threshold_Porcelain_Serving_Bowl_Coupe_White",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Threshold Porcelain Serving Bowl, Coupe, White"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Threshold_Porcelain_Serving_Bowl_Coupe_White",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Porcelain_Serving_Bowl_Coupe_White",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Porcelain_Serving_Bowl_Coupe_White",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Central_Garden_Flower_Pot_Goo_425",
+   "uid": "gso_Central_Garden_Flower_Pot_Goo_425",
+   "name": "Central_Garden_Flower_Pot_Goo_425",
+   "title": "Central Garden Flower Pot Goo 425",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Central_Garden_Flower_Pot_Goo_425.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Central_Garden_Flower_Pot_Goo_425",
+   "config": {
+    "name": "Central_Garden_Flower_Pot_Goo_425",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Central Garden Flower Pot, Goo, 4.25\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Central_Garden_Flower_Pot_Goo_425",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Central_Garden_Flower_Pot_Goo_425",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Central_Garden_Flower_Pot_Goo_425",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Cole_Hardware_Flower_Pot_1025",
+   "uid": "gso_Cole_Hardware_Flower_Pot_1025",
+   "name": "Cole_Hardware_Flower_Pot_1025",
+   "title": "Cole Hardware Flower Pot 1025",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Cole_Hardware_Flower_Pot_1025.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Cole_Hardware_Flower_Pot_1025",
+   "config": {
+    "name": "Cole_Hardware_Flower_Pot_1025",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Cole Hardware Flower Pot, 10.25\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Cole_Hardware_Flower_Pot_1025",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Flower_Pot_1025",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Flower_Pot_1025",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Cole_Hardware_Orchid_Pot_85",
+   "uid": "gso_Cole_Hardware_Orchid_Pot_85",
+   "name": "Cole_Hardware_Orchid_Pot_85",
+   "title": "Cole Hardware Orchid Pot 85",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Cole_Hardware_Orchid_Pot_85.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Cole_Hardware_Orchid_Pot_85",
+   "config": {
+    "name": "Cole_Hardware_Orchid_Pot_85",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Cole Hardware Orchid Pot, 8.5\""
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Cole_Hardware_Orchid_Pot_85",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Orchid_Pot_85",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Cole_Hardware_Orchid_Pot_85",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+   "uid": "gso_Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+   "name": "Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+   "title": "Down To Earth Ceramic Orchid Pot Asst Blue",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+   "config": {
+    "name": "Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Down To Earth Ceramic Orchid Pot, Asst Blue"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+   "uid": "gso_Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+   "name": "Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+   "title": "Down To Earth Orchid Pot Ceramic Lime",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Down_To_Earth_Orchid_Pot_Ceramic_Lime.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+   "config": {
+    "name": "Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Down To Earth Orchid Pot, Ceramic, Lime"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Down_To_Earth_Orchid_Pot_Ceramic_Red",
+   "uid": "gso_Down_To_Earth_Orchid_Pot_Ceramic_Red",
+   "name": "Down_To_Earth_Orchid_Pot_Ceramic_Red",
+   "title": "Down To Earth Orchid Pot Ceramic Red",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Down_To_Earth_Orchid_Pot_Ceramic_Red.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Down_To_Earth_Orchid_Pot_Ceramic_Red",
+   "config": {
+    "name": "Down_To_Earth_Orchid_Pot_Ceramic_Red",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Down To Earth Orchid Pot, Ceramic, Red"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Down_To_Earth_Orchid_Pot_Ceramic_Red",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Down_To_Earth_Orchid_Pot_Ceramic_Red",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Down_To_Earth_Orchid_Pot_Ceramic_Red",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Garden_Pot_GP16ATurquois",
+   "uid": "gso_Ecoforms_Garden_Pot_GP16ATurquois",
+   "name": "Ecoforms_Garden_Pot_GP16ATurquois",
+   "title": "Ecoforms Garden Pot GP16ATurquois",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Garden_Pot_GP16ATurquois.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Garden_Pot_GP16ATurquois",
+   "config": {
+    "name": "Ecoforms_Garden_Pot_GP16ATurquois",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Garden Pot, GP16A-Turquois"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Garden_Pot_GP16ATurquois",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Garden_Pot_GP16ATurquois",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Garden_Pot_GP16ATurquois",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Container_12_Pot_Nova",
+   "uid": "gso_Ecoforms_Plant_Container_12_Pot_Nova",
+   "name": "Ecoforms_Plant_Container_12_Pot_Nova",
+   "title": "Ecoforms Plant Container 12 Pot Nova",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Plant_Container_12_Pot_Nova.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Plant_Container_12_Pot_Nova",
+   "config": {
+    "name": "Ecoforms_Plant_Container_12_Pot_Nova",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Plant Container, 12 Pot Nova"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Plant_Container_12_Pot_Nova",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Container_12_Pot_Nova",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Container_12_Pot_Nova",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Pot_GP9AAvocado",
+   "uid": "gso_Ecoforms_Plant_Pot_GP9AAvocado",
+   "name": "Ecoforms_Plant_Pot_GP9AAvocado",
+   "title": "Ecoforms Plant Pot GP9AAvocado",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Plant_Pot_GP9AAvocado.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Plant_Pot_GP9AAvocado",
+   "config": {
+    "name": "Ecoforms_Plant_Pot_GP9AAvocado",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Plant Pot, GP9A-Avocado"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Plant_Pot_GP9AAvocado",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Pot_GP9AAvocado",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Pot_GP9AAvocado",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Pot_GP9_SAND",
+   "uid": "gso_Ecoforms_Plant_Pot_GP9_SAND",
+   "name": "Ecoforms_Plant_Pot_GP9_SAND",
+   "title": "Ecoforms Plant Pot GP9 SAND",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Plant_Pot_GP9_SAND.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Plant_Pot_GP9_SAND",
+   "config": {
+    "name": "Ecoforms_Plant_Pot_GP9_SAND",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Plant Pot, GP9 SAND"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Plant_Pot_GP9_SAND",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Pot_GP9_SAND",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Plant_Pot_GP9_SAND",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Planter_Bowl_Cole_Hardware",
+   "uid": "gso_Ecoforms_Planter_Bowl_Cole_Hardware",
+   "name": "Ecoforms_Planter_Bowl_Cole_Hardware",
+   "title": "Ecoforms Planter Bowl Cole Hardware",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Planter_Bowl_Cole_Hardware.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Planter_Bowl_Cole_Hardware",
+   "config": {
+    "name": "Ecoforms_Planter_Bowl_Cole_Hardware",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Planter Bowl, Cole Hardware"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Planter_Bowl_Cole_Hardware",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Planter_Bowl_Cole_Hardware",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Planter_Bowl_Cole_Hardware",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Planter_Pot_GP12AAvocado",
+   "uid": "gso_Ecoforms_Planter_Pot_GP12AAvocado",
+   "name": "Ecoforms_Planter_Pot_GP12AAvocado",
+   "title": "Ecoforms Planter Pot GP12AAvocado",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Planter_Pot_GP12AAvocado.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Planter_Pot_GP12AAvocado",
+   "config": {
+    "name": "Ecoforms_Planter_Pot_GP12AAvocado",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Planter Pot, GP12A-Avocado"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Planter_Pot_GP12AAvocado",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Planter_Pot_GP12AAvocado",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Planter_Pot_GP12AAvocado",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Planter_Pot_QP6Ebony",
+   "uid": "gso_Ecoforms_Planter_Pot_QP6Ebony",
+   "name": "Ecoforms_Planter_Pot_QP6Ebony",
+   "title": "Ecoforms Planter Pot QP6Ebony",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Planter_Pot_QP6Ebony.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Planter_Pot_QP6Ebony",
+   "config": {
+    "name": "Ecoforms_Planter_Pot_QP6Ebony",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Planter Pot, QP6-Ebony"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Planter_Pot_QP6Ebony",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Planter_Pot_QP6Ebony",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Planter_Pot_QP6Ebony",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Ecoforms_Pot_Nova_6_Turquoise",
+   "uid": "gso_Ecoforms_Pot_Nova_6_Turquoise",
+   "name": "Ecoforms_Pot_Nova_6_Turquoise",
+   "title": "Ecoforms Pot Nova 6 Turquoise",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Ecoforms_Pot_Nova_6_Turquoise.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Ecoforms_Pot_Nova_6_Turquoise",
+   "config": {
+    "name": "Ecoforms_Pot_Nova_6_Turquoise",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Ecoforms Pot, Nova 6, Turquoise"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Ecoforms_Pot_Nova_6_Turquoise",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Pot_Nova_6_Turquoise",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Ecoforms_Pot_Nova_6_Turquoise",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+   "uid": "gso_Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+   "name": "Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+   "title": "Sapota Threshold 4 Ceramic Round Planter Red",
+   "type": "plant_small",
+   "kind": "decor",
+   "file": "Sapota_Threshold_4_Ceramic_Round_Planter_Red.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+   "config": {
+    "name": "Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Sapota Threshold 4\" Ceramic Round Planter Red"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  },
+  {
+   "id": "gso_Threshold_Tray_Rectangle_Porcelain",
+   "uid": "gso_Threshold_Tray_Rectangle_Porcelain",
+   "name": "Threshold_Tray_Rectangle_Porcelain",
+   "title": "Threshold Tray Rectangle Porcelain",
+   "type": "tray",
+   "kind": "decor",
+   "file": "Threshold_Tray_Rectangle_Porcelain.zip",
+   "revision": "6139aa33f6163a9f1c7352dd386760f40691ce0d",
+   "folder": "/workspace/library-growth/gso/objects/Threshold_Tray_Rectangle_Porcelain",
+   "config": {
+    "name": "Threshold_Tray_Rectangle_Porcelain",
+    "author": "Google",
+    "email": "scanned-objects@google.com",
+    "description": "Threshold Tray, Rectangle, Porcelain"
+   },
+   "author": "Google Research",
+   "page": "https://app.gazebosim.org/GoogleResearch/fuel/models/Threshold_Tray_Rectangle_Porcelain",
+   "fuel_url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Tray_Rectangle_Porcelain",
+   "fuel_error": null,
+   "kept": true,
+   "evidence": [
+    {
+     "method": "archive",
+     "file": "metadata.pbtxt",
+     "text": "license: \"Creative Commons Attribution 4.0 International\""
+    },
+    {
+     "method": "fuel_api",
+     "url": "https://fuel.gazebosim.org/1.0/GoogleResearch/models/Threshold_Tray_Rectangle_Porcelain",
+     "fields": {
+      "license_id": 2,
+      "license_name": "Creative Commons Attribution 4.0 International",
+      "license_url": "http://creativecommons.org/licenses/by/4.0/",
+      "license_image": "https://i.creativecommons.org/l/by/4.0/88x31.png"
+     },
+     "owner": "GoogleResearch"
+    }
+   ],
+   "reason": "CC BY 4.0 confirmed by the archive's own files and the Gazebo Fuel record",
+   "up_axis": "Z",
+   "files": 12
+  }
+ ]
+}

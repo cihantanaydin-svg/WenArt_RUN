@@ -1,0 +1,19 @@
+{
+ "python": "3.11.16",
+ "factories": {
+  "infinigen.assets.objects.appliances.BeverageFridgeFactory": "ok",
+  "infinigen.assets.objects.appliances.DishwasherFactory": "ok",
+  "infinigen.assets.objects.appliances.MicrowaveFactory": "ok",
+  "infinigen.assets.objects.appliances.OvenFactory": "ok",
+  "infinigen.assets.objects.bathroom.BathroomSinkFactory": "ok",
+  "infinigen.assets.objects.bathroom.BathtubFactory": "ok",
+  "infinigen.assets.objects.bathroom.ToiletFactory": "ok",
+  "infinigen.assets.objects.shelves.KitchenCabinetFactory": "ok",
+  "infinigen.assets.objects.table_decorations.BookStackFactory": "ok",
+  "infinigen.assets.objects.table_decorations.SinkFactory": "ok",
+  "infinigen.assets.objects.tableware.BowlFactory": "ok",
+  "infinigen.assets.objects.tableware.PlantContainerFactory": "ok"
+ },
+ "bpy": "4.2.0",
+ "infinigen": "1.19.0"
+}

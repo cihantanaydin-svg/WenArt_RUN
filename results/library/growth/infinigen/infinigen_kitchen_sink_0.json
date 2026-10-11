@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_kitchen_sink_0",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_kitchen_sink_0/export_000/export_000.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_kitchen_sink_0/infinigen.assets.objects.table_decorations.SinkFactory_000/scene.blend",
+ "dims": [
+  0.6225,
+  0.7624,
+  0.5107
+ ],
+ "meshes": 2,
+ "class": "SinkFactory",
+ "dotted": "infinigen.assets.objects.table_decorations.SinkFactory",
+ "seed": 0,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 7.6,
+ "attempts": 1
+}

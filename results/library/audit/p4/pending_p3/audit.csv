@@ -1,0 +1,5 @@
+id,type,kind,source,licence,w_m,d_m,h_m,status,expected,reasons,fixes,title
+gen_floor_lamp_japandi_1_4be1c62d,floor_lamp,furniture,generated,"generated (TRELLIS.2-4B, MIT)",0.4549,0.4548,1.2,keep,keep,,,Generated japandi floor lamp (1)
+gen_floor_lamp_japandi_2_ef5fd39d,floor_lamp,furniture,generated,"generated (TRELLIS.2-4B, MIT)",0.5682,0.5651,1.2,keep,keep,,,Generated japandi floor lamp (2)
+gen_bowl_industrial_6_b8eef47e,bowl,decor,generated,"generated (TRELLIS.2-4B, MIT)",0.3503,0.3497,0.1254,keep,keep,,,Generated industrial bowl (6)
+gen_bowl_rustic_4_c6b3f320,bowl,decor,generated,"generated (TRELLIS.2-4B, MIT)",0.35,0.35,0.1313,keep,keep,,,Generated rustic bowl (4)

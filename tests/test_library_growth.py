@@ -93,7 +93,8 @@ def test_polyhaven_candidates_from_canned_api_answers():
 
 def test_the_committed_polyhaven_list():
     doc = json.loads((GR.growth_dir() / "candidates_polyhaven.json").read_text(encoding="utf-8"))
-    used = {e["id"].lower() for e in C.load(library=False).data["entries"] if e.get("id")}
+    # the candidates were unused when listed; since pod P4 the approved ones are in the catalogue as growth entries
+    used = {e["id"].lower() for e in C.load(library=False).data["entries"] if e.get("id") and not e.get("growth")}
     assert doc["source"] == "polyhaven" and doc["licences"] == ["CC0"] and doc["count"] >= 50
     for c in doc["candidates"]:
         assert c["id"].lower() not in used and c["type"] and c["licence"] == "CC0"

@@ -1235,6 +1235,7 @@ A track that needs a change in another track's file writes it into its report; t
 | 11 Oct | Pod P3 rerun `3wmzzr6j18u848` (RTX PRO 6000, 12 min, $0.52) | done, GPU tests 2/2: 1,066 models asked (answers of the first try reused), 306 second passes; decisions, sheets, gaps, catalogue copies. Four decision rules fixed after a look at the sheets (§14.2) |
 | 11 Oct | Pod P5 `6pvp7iygs4w1t0` (RTX PRO 6000, 98 min, $4.08) | real03 full orchestrated run, polish off: every stage ok, 82 views; agent 3 rounds, **85 edits accepted, 179 rejected** (M11 run 3: 5 / 73), stopped by the time budget; exit 1 from 10 of 39 GPU tests (§14.4) |
 | 11 Oct | Pod P6 `tuv1125xi3rawf` (RTX PRO 6000, 94 min, $3.91) | real02 full run with the P5 fixes, polish off: every stage ok; agent 4 rounds, 119 accepted / 172 rejected (swap_model 42/43, move_piece 31/106, set_exterior 12/21; complete_group 0/38: unverified anchors and complete groups, fixed in the brief); findings critical 5 -> 5, major 157 -> 149; GPU tests 38/39 (two attic corridor views see 196 m through a 1-2 px gap beside a door leaf: open, cosmetic) |
+| 11 Oct | Pod P4 `zdgah8suo4yy0h` (RTX PRO 6000, 34 min, $1.43) | library growth: 352 new models catalogued (Poly Haven 87 of 88, ABO 202 + 30 headboards kept on the volume without a type, GSO 36 with CC BY 4.0 confirmed per object, Infinigen 27 of 30), audited: keep 310, fix 4, removed 38, 48 with a vision doubt; the 4 pending P3 models kept after their second pass; (type, family) gaps 269 -> 227; failed: one Poly Haven file (no 1k glTF on the API) and a GPU test that also checked a removed 10x model (fixed) |
 
 ### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
 
@@ -1342,4 +1343,23 @@ Agent fixes after P5 (CPU, tests in `tests/test_agent_tools.py`, `tests/test_age
 | 21 drawn_lock on move_group | offered for groups with drawn members, which stay where drawn | not offered for such groups (move_piece / rotate still are) |
 | 32 of 35 fix_fixture refused | the agent guessed centres in 5-10 cm steps | the tool text and the rejection say: leave out center, the code finds the nearest valid spot within 0.5 m |
 | 7 "no room None" | a group id that names no room (`r_L0_yasama_6_kitchen.kitchen_run`) | the rejection names the group |
+
+### 14.5 Pod P4: library growth (11 Oct 2026)
+
+`scripts/jobs/library_growth.sh` (as built: `docs/m12_tracks/P4.md`): downloads, the GSO licence check per object,
+conversion to GLB at metres, the Infinigen test batch (v1.19.0 @01c39c7; it needs the GPL-3.0 submodule
+`infinigen_gpl`, run on the pod only, flagged in `docs/plan.md`), catalogue entries (`growth` record), the audit of the
+new models (render with the scale reference, code checks, vision passes 1 and 2, decide with decision 1a), sheets,
+gaps, GPU tests. Results: `results/library/growth/`, `results/library/audit/p4/`; the catalogue copies are in
+`wenart/furniture/` (copied by the lead: 1,297 library and 121 Poly Haven entries; a type with new Poly Haven models
+is no longer parametric in `catalog.json`).
+
+| source | approved | catalogued | keep | fix | removed |
+|---|---|---|---|---|---|
+| Poly Haven (CC0) | 88 | 87 | 69 | 1 | 17 |
+| ABO (CC BY 4.0) | 232 | 202 (30 headboards: no type) | 195 | 1 | 6 |
+| GSO (CC BY 4.0) | 36 | 36 | 31 | 0 | 5 |
+| Infinigen (generated) | 30 | 27 (3 untyped: sheets only) | 15 | 2 | 10 |
+
+Usable library models after P4: 936 + 314 = 1,250 (plus the 4 P3 models kept after their second pass).
 

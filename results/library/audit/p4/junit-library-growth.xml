@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="17.583" timestamp="2026-10-11T09:03:01.442911+00:00" hostname="e8caa4acf086"><testcase classname="tests.gpu.test_library" name="test_growth_new_glbs_load_in_blender_at_plausible_size" time="0.047"><failure message="AssertionError: ('steel_frame_shelves_01', [10.9741, 5.0212, 21.405])&#10;assert 21.405 &lt;= 5.0&#10; +  where 21.405 = max([10.9741, 5.0212, 21.405])">def test_growth_new_glbs_load_in_blender_at_plausible_size():
+        nid, _lib, _ph, entries = p4_new()
+        mdoc = p4_doc("measure.json")
+        measures = mdoc["measures"]
+        assert entries and len(entries) == len(nid["ids"])
+        ok = [e for e in entries if (measures.get(e["id"]) or {}).get("ok")]
+        assert len(ok) &gt;= 0.95 * len(entries), sorted(set(nid["ids"]) - {e["id"] for e in ok})[:20]
+        assert {measures[e["id"]].get("device") for e in ok} &lt;= {"OPTIX", "CUDA"}, "the P4 renders ran on the CPU"
+        same = 0
+        for e in ok:
+            m = measures[e["id"]]
+&gt;           assert 0.01 &lt;= max(m["size"]) &lt;= 5.0, (e["id"], m["size"])           # a real piece, metres
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: ('steel_frame_shelves_01', [10.9741, 5.0212, 21.405])
+E           assert 21.405 &lt;= 5.0
+E            +  where 21.405 = max([10.9741, 5.0212, 21.405])
+
+tests/gpu/test_library.py:536: AssertionError</failure></testcase><testcase classname="tests.gpu.test_library" name="test_growth_catalogue_copies_validate_and_resolve" time="16.446" /><testcase classname="tests.gpu.test_library" name="test_growth_every_new_entry_has_an_audit_record" time="0.078" /><testcase classname="tests.gpu.test_library" name="test_growth_p3_pending_models_got_their_second_pass" time="0.041" /><testcase classname="tests.gpu.test_library" name="test_growth_every_approved_id_is_accounted_for" time="0.041" /></testsuite></testsuites>

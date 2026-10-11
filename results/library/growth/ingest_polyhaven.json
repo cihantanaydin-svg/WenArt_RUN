@@ -1,0 +1,1460 @@
+{
+ "source": "polyhaven",
+ "approved_by": "the user, in the session of 11 Oct 2026 (\"1a, 2 all four; go on with P4\"; docs/milestone12.md §14.3)",
+ "approved_utc": "2026-10-11T04:00:00Z",
+ "approved": 88,
+ "ok": 87,
+ "failed": 1,
+ "size": "1k",
+ "seconds": 112.3,
+ "records": [
+  {
+   "id": "wicker_basket_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/wicker_basket_02/wicker_basket_02_1k.gltf",
+   "sha256": {
+    "gltf": "78c7a3bdd7025eb092b3ac744e9d83e9a75fbb242696b5dce87ec215af617768",
+    "textures/wicker_basket_02_nor_gl_1k.jpg": "d3de9d9ec34955ed866a819763eb323a0dee571f55b02f5b4c44b0fc34cf2376",
+    "wicker_basket_02.bin": "bd92d61a377879fa28c2bdb18fd0b0a42c42c7333c04e324f346b68689655fdb",
+    "textures/wicker_basket_02_arm_1k.jpg": "641013be798757f4bf2c82cf335b80db2b6d2b52f8fbf0b1f1e2e22196bc60ee",
+    "textures/wicker_basket_02_diff_1k.jpg": "c03525c27579160bcd71054aa17796570a074ff4cdd560bfed3fb9770c9ba975"
+   },
+   "attempts": 1,
+   "bytes": 3064509,
+   "seconds": 1.3
+  },
+  {
+   "id": "book_encyclopedia_set_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/book_encyclopedia_set_01/book_encyclopedia_set_01_1k.gltf",
+   "sha256": {
+    "gltf": "89eb80fffd619ebbe5043d632bd8cf25b2d68a3614aee2f356e850c69ae498ba",
+    "textures/book_encyclopedia_set_01_cover_diff_1k.jpg": "a456aae6ef0ab24769527cccac5313a802ad253584c49fc10a377ce75969d382",
+    "book_encyclopedia_set_01.bin": "bbc726698b6e40ab5537b73e082f7bb4db97b9e6f978f52cdaf763dddc85d9ba",
+    "textures/book_encyclopedia_set_01_paper_nor_gl_1k.jpg": "705f4380c654c44d086ceb120595078e562438c6e4ba01458d2d23fd61483d9d",
+    "textures/book_encyclopedia_set_01_cover_arm_1k.jpg": "ab19b627092da77770de2212a04785940feb2df0957cab8993742a6b8b3f7bff",
+    "textures/book_encyclopedia_set_01_cover_nor_gl_1k.jpg": "17ad410f2d1aab487e47c729a5b988ea4e4d196679c8696331b7960e77a91c17",
+    "textures/book_encyclopedia_set_01_paper_diff_1k.jpg": "b552d6829b75db7a75012bb761068c63507b69e8e944597ea53f6d1a70efa36c",
+    "textures/book_encyclopedia_set_01_paper_roughness_1k.jpg": "62d875e9427f5d71f1bb4d9dc9569e34465bfd3067b8b13f5644b73e23a09fa3"
+   },
+   "attempts": 1,
+   "bytes": 3261046,
+   "seconds": 1.6
+  },
+  {
+   "id": "decorative_book_set_01",
+   "ok": false,
+   "size": "1k",
+   "error": "KeyError: 'Poly Haven file table has no gltf/1k (available: [])'",
+   "seconds": 6.9
+  },
+  {
+   "id": "wooden_bowl_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/wooden_bowl_01/wooden_bowl_01_1k.gltf",
+   "sha256": {
+    "gltf": "7fe0d6aa4b58e1b9bfc704a8142f4f23f651640c5701b26037fbee3c01613c3b",
+    "textures/wooden_bowl_01_diff_1k.jpg": "7c33269d85411cf905d5bb53d95bd148c174b26a3cfb86ee58a26735123098b1",
+    "wooden_bowl_01.bin": "2659e19ea140aed29edca6761b6ee117e0a488ac14cd32c30fd0f1116f645761",
+    "textures/wooden_bowl_01_nor_gl_1k.jpg": "f25955450f21c80e8db34b4621ceec3778199f73c8d5c3350367640cac8cc214",
+    "textures/wooden_bowl_01_arm_1k.jpg": "206e84e320ebc4eb538a1509d3a59cfce5feb96596f7cae3700382d1a0790c81"
+   },
+   "attempts": 1,
+   "bytes": 1823237,
+   "seconds": 1.0
+  },
+  {
+   "id": "wooden_bowl_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/wooden_bowl_02/wooden_bowl_02_1k.gltf",
+   "sha256": {
+    "gltf": "18ba4fb40b1880d9b776f6d98eefdaa9e01e41fbe362ba1dc40a831422e38336",
+    "textures/wooden_bowl_02_arm_1k.jpg": "0715dde81d3a8acbdf67031702c80e994e0b418a9973237f2964f1d0be9f4645",
+    "wooden_bowl_02.bin": "6e3e1fb30969e9a52db3519b01ace016628a361c2cd9e2817c5e50c1ffb8a1dd",
+    "textures/wooden_bowl_02_nor_gl_1k.jpg": "1951d9aae111412f4bd262c18e232b0b11962f33145e46acb936e314a442ec7d",
+    "textures/wooden_bowl_02_diff_1k.jpg": "a3bb80f6ea747491fe91628badc0b98d320fc6d427682564095aba6033a523dc"
+   },
+   "attempts": 1,
+   "bytes": 2511366,
+   "seconds": 1.2
+  },
+  {
+   "id": "Lantern_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/Lantern_01/Lantern_01_1k.gltf",
+   "sha256": {
+    "gltf": "d3f8d7a7afec96d55d3b7f20c3e329c909d19d37047902a826bc157f77c27819",
+    "textures/Lantern_01_brass_arm_1k.jpg": "479e7105b170713373fdcca0c2f7dcce81913990f60cd4cfba1631f80f550191",
+    "Lantern_01.bin": "cb0c7eaaea361546201ba1c4324581ac7147c221851657b6e23d2f854beabe49",
+    "textures/Lantern_01_brass_nor_gl_1k.jpg": "95f89554c659712c7591a2a3d61178c9c0c0ef2c26e133005f24e2366a10f9b8",
+    "textures/Lantern_01_brass_diff_1k.jpg": "d19d4c9417719a89ad824ce3a142f38f5e58c47b8640edca5eacca66918b608e"
+   },
+   "attempts": 1,
+   "bytes": 1420416,
+   "seconds": 1.0
+  },
+  {
+   "id": "brass_candleholders",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/brass_candleholders/brass_candleholders_1k.gltf",
+   "sha256": {
+    "gltf": "a1de928d1c7d2241f0727dbad2c9b52d49c3245e1f7dd0c45a9a6482bc5c9101",
+    "textures/brass_candleholders_03_arm_1k.jpg": "943b1e42d92ac9ed67f24c8c49d55172829ca35fcb98f8289cf266bae854f7a0",
+    "textures/brass_candleholders_03_nor_gl_1k.jpg": "6213bf43d69f3344091262608d90729e182bfc6c558fd7bd58fec2f3942c3f13",
+    "textures/brass_candleholders_flame_diff_1k.jpg": "72b1ef8a6ef2b37148cd9fceb9a239748a87b6866a833c9ae3ac98e1ca81f024",
+    "textures/brass_candleholders_candles_nor_gl_1k.jpg": "4655772521d11f205be8101293be6d8ab07177c6eb00a745a2eb8f5760781e9d",
+    "textures/brass_candleholders_candles_arm_1k.jpg": "c2d4f750067b56cb0cef19b8899e9194e9fc59ebafb7c5e6ae86712baa9da78a",
+    "textures/brass_candleholders_02_arm_1k.jpg": "dce7d69149c18c148b9fccc37708d498e8c087e838653ee8745e6d627c005d0b",
+    "textures/brass_candleholders_01_diff_1k.jpg": "f6d8ae2f8d565cddcdab836bf4d7c6210abd7fbd1a6896381dc182a926e9e9a4",
+    "textures/brass_candleholders_03_diff_1k.jpg": "e30b198ae61e8620aec45faf9181dc19d3ef1b852a52170d9e9fc5d8151aee1a",
+    "textures/brass_candleholders_01_nor_gl_1k.jpg": "57639408a3f29aae15381f605210b89cef60d3e69b2577252abd23e0a44e6488",
+    "textures/brass_candleholders_02_nor_gl_1k.jpg": "fbf36bfcc4c75d54f4b3b3603682dda8efee299604b5c1daec25bdad7a032c8e",
+    "textures/brass_candleholders_02_diff_1k.jpg": "3a8a7b81af977141549ed032b6a2d0a919d0478f225f4dbcd39ddb640cac1203",
+    "textures/brass_candleholders_candles_diff_1k.jpg": "4a044a1c4b79173edd19dbd2b0c503f1d5a3cb9431801f89aaaf00c41b5a43bd",
+    "textures/brass_candleholders_01_arm_1k.jpg": "32e6de735b85ae2e1e800dac0b25e31a89bb37adff28303929ca90c40357352d",
+    "brass_candleholders.bin": "a2f406ea19e6e606ba6b618958cb496b2c18a41fa580409512afd6e644878d51"
+   },
+   "attempts": 1,
+   "bytes": 9502440,
+   "seconds": 3.0
+  },
+  {
+   "id": "wooden_candlestick",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/wooden_candlestick/wooden_candlestick_1k.gltf",
+   "sha256": {
+    "gltf": "fea19adb5e06397d654d089c2852e599bd313063fec38912089f19d607220ca3",
+    "textures/wooden_candlestick_diff_1k.jpg": "b89345f84067f38b40b137f5eeebed64e8d4cbd84a089ecf886cf2d6c49fada3",
+    "textures/wooden_candlestick_nor_gl_1k.jpg": "8339a39429e777f3dc21a413778bfebffddee06e2bff9e574b382702efdca995",
+    "wooden_candlestick.bin": "2b772374c98f7f812b8cdf8852017410ca4c3cbb6567f29893516f32e2897894",
+    "textures/wooden_candlestick_arm_1k.jpg": "096024a3540cb878d087eeb35a1230437c8c4b83d04865e0c63f9035a5a816f7"
+   },
+   "attempts": 1,
+   "bytes": 8429072,
+   "seconds": 1.4
+  },
+  {
+   "id": "wooden_lantern_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/wooden_lantern_01/wooden_lantern_01_1k.gltf",
+   "sha256": {
+    "gltf": "2380275a5c90bf3442c426f3363e826e6b1ceff12a7e65f83b03cc8fac70a099",
+    "textures/wooden_lantern_01_nor_gl_1k.jpg": "06a7d3bb7342b5aa96d8c22d46883153df8948b59cab26e19f0e91ba82dba9ef",
+    "textures/wooden_lantern_01_diff_1k.jpg": "5a346e7e3335e9502eb4e25178d16ba29ae49786b75853d7bd36b386edf7a30d",
+    "textures/wooden_lantern_01_glass_nor_gl_1k.jpg": "0aaab86f76172aeb7ccfa5f5c7f047f616726e6b3ce6636e162caf633f173c0a",
+    "textures/wooden_lantern_01_glass_arm_1k.jpg": "2d549dde55d65c690872f148581d81b3468100e8a0eb22847f31273e47d8f1fb",
+    "textures/wooden_lantern_01_arm_1k.jpg": "6bbe63887f60d20445df75dcaef75653b86cb47fe9e139baab717de542cab429",
+    "textures/wooden_lantern_01_glass_diff_1k.jpg": "1bfced8c9470ea01e73085439e8cee0c44c8ee8199b806a22cc4f2434ae2f151",
+    "wooden_lantern_01.bin": "65c6b1a776c66d4170dab3657f0809b1a8a88219507589d6c9aad70ffbe687a3"
+   },
+   "attempts": 1,
+   "bytes": 3768780,
+   "seconds": 1.7
+  },
+  {
+   "id": "vintage_telephone_wall_clock",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/vintage_telephone_wall_clock/vintage_telephone_wall_clock_1k.gltf",
+   "sha256": {
+    "gltf": "9fc4dae50897d030a7410f7b3f57df032be15d4535ece7492829ac3d99d4729c",
+    "textures/vintage_telephone_wall_clock_nor_gl_1k.jpg": "593a623e5dec4f23cdf0b4c2373d4f1ef165a0ab763c458f08bf6bddc5e46f3c",
+    "textures/vintage_telephone_wall_clock_diff_1k.jpg": "38a0259b52f8507f475c588fff1238926f9118054acf8133c4444cfac87fa1ff",
+    "textures/vintage_telephone_wall_clock_arm_1k.jpg": "5813e39103f4b96957438589227c3c7de9660ba6bfca787a67d8f5e8f996a056",
+    "vintage_telephone_wall_clock.bin": "388989664673558615f9277627108d2797a4485df23d509f7e13eb7e3de87165"
+   },
+   "attempts": 1,
+   "bytes": 2725415,
+   "seconds": 1.2
+  },
+  {
+   "id": "wall_clock",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/wall_clock/wall_clock_1k.gltf",
+   "sha256": {
+    "gltf": "4e67385443e808bc709c054c1de5be1e83d4bf07eb0893884c301fec0bae8bc6",
+    "textures/wall_clock_nor_gl_1k.jpg": "6138946e055828e92d5e0d8d50c75e3d2da0ea789dd6512b30f85f0e18435d00",
+    "textures/wall_clock_diff_1k.jpg": "012bfc3ceecd5e35679fe5764e33b6d1b8a631ad4fc9f5b267af25ad10468672",
+    "textures/wall_clock_arm_1k.jpg": "c78aabec7bb4af4fd6818be1099523e59bf12d88c872530b2260cdea08d81968",
+    "textures/wall_clock_glass_arm_1k.jpg": "42804955958b3d0fdc1da8d4c4e8e909b04f659ae1b02911e148abe0741b8b84",
+    "wall_clock.bin": "61d9fe03e871508230160de546ef505f3f4405b1e82c167536945a483a8bb639"
+   },
+   "attempts": 1,
+   "bytes": 1564880,
+   "seconds": 1.3
+  },
+  {
+   "id": "ornate_mirror_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/ornate_mirror_01/ornate_mirror_01_1k.gltf",
+   "sha256": {
+    "gltf": "2d9bb949df65d6470395959fb7976af6fcc1b3ad7d85084918ad543ee71850f6",
+    "textures/ornate_mirror_01_arm_1k.jpg": "0efbcf5ffae8afbcea89c3fdd7f82951f03067abe6236388303713273ea44752",
+    "ornate_mirror_01.bin": "31ce7eadeb57ffa0d302ea36e4d5de64db91f9a823f1ede8158b45d9ec863a4a",
+    "textures/ornate_mirror_01_diff_1k.jpg": "7b131a08fcf21cb823d7c4914829c2c35215612cdadb241387c20657d6b25a62",
+    "textures/ornate_mirror_01_nor_gl_1k.jpg": "bfa3a35070f0c5f4fa8e7127ffe536001cc6f65c3896e377d7a2a38f9358d3be"
+   },
+   "attempts": 1,
+   "bytes": 677241,
+   "seconds": 1.0
+  },
+  {
+   "id": "Chandelier_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/Chandelier_01/Chandelier_01_1k.gltf",
+   "sha256": {
+    "gltf": "19a63453965dde6ace3159e2059c30adee81905e95a6beaf62b7f47d9283e724",
+    "textures/Chandelier_01_nor_gl_1k.jpg": "0830646c51d8d7a8af90b716768052aba973f9b2e43ac40fdaf7e5aeacbe0244",
+    "Chandelier_01.bin": "f476cc0c0eed8ccc31c49fc797e00ac6a0c8666c345aa933a9accd5762c06cd1",
+    "textures/Chandelier_01_arm_1k.jpg": "f557f4872ed9a586728df285b5ee7d1e4a48aef81d8040d1e423a7fc02602e4e",
+    "textures/Chandelier_01_diff_1k.jpg": "b52eaa35e990d61842006ee8c4a24e08c82e36d87e9ff7a751a6400547a0eba2"
+   },
+   "attempts": 1,
+   "bytes": 1306295,
+   "seconds": 1.0
+  },
+  {
+   "id": "Chandelier_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/Chandelier_02/Chandelier_02_1k.gltf",
+   "sha256": {
+    "gltf": "d52ea299a0831a6851d50901d6719367454ffc61c1fed871cdcfc7db6b775dfd",
+    "Chandelier_02.bin": "54190a815836aa2c9883c607372b37400ba8a6ef8449634973eeb370a511e4d9",
+    "textures/Chandelier_02_nor_gl_1k.jpg": "cf33462f36f9abbbcf3d9962bbae6a72f6e21faa4d12e358feffab1e88cdcd7f",
+    "textures/Chandelier_02_diff_1k.jpg": "c9db61618859d9ff3ae34a2dfa66ff781981fed75f6b485add075395533ca791",
+    "textures/Chandelier_02_arm_1k.jpg": "77236142800bba6203fca273ff6164d6bfc5548470883c33e043ab97589eb515"
+   },
+   "attempts": 1,
+   "bytes": 1182054,
+   "seconds": 1.0
+  },
+  {
+   "id": "Chandelier_03",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/Chandelier_03/Chandelier_03_1k.gltf",
+   "sha256": {
+    "gltf": "ab3c57ada6a22e472778b4c7f7e7d5e9b3b10fe91d4566de95e89497f282e00f",
+    "textures/Chandelier_03_diff_1k.jpg": "fbedb3f4c3273fccf3a697d0a002e2d60677cb76a33e5a19797bc7ca69b6bb1e",
+    "Chandelier_03.bin": "b7085e20c530331e71a6934604f77ba90acef175e78b75a28ded775a28d1a26e",
+    "textures/Chandelier_03_nor_gl_1k.jpg": "35bf7ca66786a9368064801853191e9d4cf24bcdfb07f84647f86bb498a9d5ec",
+    "textures/Chandelier_03_arm_1k.jpg": "9db2d632be31dbf86b17d4722f495f6e44231a94c0540c015d07539056476f9e",
+    "textures/Chandelier_03_opacity_1k.jpg": "708ec4bb612ef2086f93c203b40d05e9e40c441178d000d02a52ffdf524ccbc9"
+   },
+   "attempts": 1,
+   "bytes": 1364013,
+   "seconds": 1.1
+  },
+  {
+   "id": "caged_hanging_light",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/caged_hanging_light/caged_hanging_light_1k.gltf",
+   "sha256": {
+    "gltf": "4d809194606f0862a08147df6408f2124ed7a5dbc90e4090c82a332efb3aa50d",
+    "textures/caged_hanging_light_emissive_1k.jpg": "c5a92e064faaf0af837fc1ff30ccda06f801e763954b06c55c54c2fb609dea86",
+    "textures/caged_hanging_light_nor_gl_1k.jpg": "f4dae767633530b6480933907b86bc4b6023c67fdd11e8e1d7f3ff4e81bc5c1b",
+    "textures/caged_hanging_light_diff_1k.jpg": "45fb98ca86eab8bac7cd8a53a29b87c8e2893ed30e95f267ca5ec574cf74c6cb",
+    "textures/caged_hanging_light_arm_1k.jpg": "130a460656edf97de6250b3758ea1893168d5b5656f2f878bf040814b3847681",
+    "caged_hanging_light.bin": "061a05a47a794fdcb43d032e512291369b5b9cd4db3c4d4975c23431b0c6a0c6"
+   },
+   "attempts": 1,
+   "bytes": 3066504,
+   "seconds": 1.3
+  },
+  {
+   "id": "chinese_chandelier",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_chandelier/chinese_chandelier_1k.gltf",
+   "sha256": {
+    "gltf": "0300d412628b0faffccf05e8ac7caad0e3e9b3b15bbbb0c14ce6f5c9e4e4eff8",
+    "textures/chinese_chandelier_arm_1k.jpg": "8d4cbdbe1d69e8d2ed6c81315e1551acf33078c7f2f4b8126f49c0d2b4208b36",
+    "chinese_chandelier.bin": "e0212905755edbe70777747ff3fd0bae9aec591a775e6ad505c239c713e57467",
+    "textures/chinese_chandelier_nor_gl_1k.jpg": "d0560b3f50cefff904759cc75a47ea31c15f7c4e2ec97a98b37960178629b779",
+    "textures/chinese_chandelier_diff_1k.jpg": "439a768d90e36e5d64701d50da1152da4da06df9593cf2c7ce44b1a57c3859a0"
+   },
+   "attempts": 1,
+   "bytes": 2159286,
+   "seconds": 1.1
+  },
+  {
+   "id": "hanging_industrial_lamp",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/hanging_industrial_lamp/hanging_industrial_lamp_1k.gltf",
+   "sha256": {
+    "gltf": "97e31aac7c350bc40294e78f39f66d5aa998ac2703be1d09b5dab9ae7027876f",
+    "textures/hanging_industrial_lamp_emissive_1k.jpg": "ebf7fed3b0c1d6104d91b77195c7eb0e3da6927562ec4a612700b8afd7574099",
+    "textures/hanging_industrial_lamp_nor_gl_1k.jpg": "ef524876a1a4c5b6d7fb4c652d21e55474ee85b50b8896537fd60e82b288b5f0",
+    "textures/hanging_industrial_lamp_diff_1k.jpg": "22cafeccd4421495c860f8c522bb9e45eaa19fda6ec3a2365dcb5b1db66aad96",
+    "textures/hanging_industrial_lamp_arm_1k.jpg": "888d78437900b43874af5195694c7b867568c9a96ef528846ad7d001f9e096ae",
+    "textures/hanging_industrial_lamp_glass_nor_gl_1k.jpg": "5393af7d78e85689cba7c7b198fafddcee540d3125ebd133799d56f19945d8bf",
+    "hanging_industrial_lamp.bin": "12e8293535e816f1e8bebc94e95da092599909d3c1b9b6cc7384d90307db06ca"
+   },
+   "attempts": 1,
+   "bytes": 3243654,
+   "seconds": 1.5
+  },
+  {
+   "id": "lantern_chandelier_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/lantern_chandelier_01/lantern_chandelier_01_1k.gltf",
+   "sha256": {
+    "gltf": "dc5480e03b82d12521fc46bdb73d4a0291641cfa0d4e4c0fe21f3a087bc69468",
+    "textures/lantern_chandelier_01_glass_arm_1k.jpg": "0946fcf83e9839caaa91e978d851cebcdb080f5e58e41cb912a967efdda8eca2",
+    "textures/lantern_chandelier_01_glass_nor_gl_1k.jpg": "b2b71d166f9f42ac916c3d3139652cd2bbb8158ba69003777ecb9ec326ecfdc7",
+    "textures/lantern_chandelier_01_arm_1k.jpg": "759c5d302fb6b6443677d221b16010395f70018d0f5eb83913c4c9ebad5efb0e",
+    "textures/lantern_chandelier_01_diff_1k.jpg": "72b46da4e813c1e3ef27a9ddc4cc849a4c6de313ac2925b189c58a8813233313",
+    "textures/lantern_chandelier_01_glass_diff_1k.jpg": "b7f9a93f77db82980c2e5f5e5667e1e073118e881bd500e9e1a45e5de5551103",
+    "textures/lantern_chandelier_01_glass_alpha_1k.jpg": "facc4b2c8b0530175cb669c3230ad42c001402d6125d7954aa6506a76f7a423f",
+    "textures/lantern_chandelier_01_nor_gl_1k.jpg": "c09551358d2f95467e3af5ec5b2cd9338f84a23980c1536157e9291e01c3d94d",
+    "lantern_chandelier_01.bin": "2431ab40b0c336600ba58c3144b6cb257370245a5096938363aa4b796aaa5cee"
+   },
+   "attempts": 1,
+   "bytes": 1480125,
+   "seconds": 1.6
+  },
+  {
+   "id": "modern_ceiling_lamp_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/modern_ceiling_lamp_01/modern_ceiling_lamp_01_1k.gltf",
+   "sha256": {
+    "gltf": "f88b5d0a81fa813457a77474e7e4e812f97ad5fac2109ba03ddb183274be3f8c",
+    "textures/modern_ceiling_lamp_01_arm_1k.jpg": "f4c6a8e7c86b1deaaf0f74099539ff635063b63f594b0fadfc3ec8fac805df4e",
+    "textures/modern_ceiling_lamp_01_diff_1k.jpg": "c08bfbf7576a86a4a09d386ae9f0a92965fc652bf82f3a8dba1c796b1aa9e535",
+    "modern_ceiling_lamp_01.bin": "ae5140a64e12e639554158901a5e92340bb37c706096ff255804e3220fb96367",
+    "textures/modern_ceiling_lamp_01_nor_gl_1k.jpg": "dd75bd21a901581325f5c363bd89b45430b8531cb27dead314cd087196a33c27"
+   },
+   "attempts": 1,
+   "bytes": 436065,
+   "seconds": 1.0
+  },
+  {
+   "id": "bronze_ray_statue",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/bronze_ray_statue/bronze_ray_statue_1k.gltf",
+   "sha256": {
+    "gltf": "bb2cab3316b05935fd311e132298d15076af9d6ddd88980abca1dea790c6305e",
+    "textures/bronze_ray_statue_nor_gl_1k.jpg": "f232c13302f332e7f4a2e9c9dbe8676283fec1fcdbebf0a720a397edbed78914",
+    "textures/bronze_ray_statue_diff_1k.jpg": "8cf13cff2c8d01dc4c38db221f7a4a847ea15b68ca4aaa31f66000b5723ce880",
+    "textures/bronze_ray_statue_arm_1k.jpg": "ad7ebcfc95ffc24b3fba2a039dde29ecbbb59a22cd804247f436b45107aff3f9",
+    "bronze_ray_statue.bin": "205a534ad4505442c95221e524b9cde889a715adc52c410d4140ded92ff1cb35"
+   },
+   "attempts": 1,
+   "bytes": 2017578,
+   "seconds": 1.0
+  },
+  {
+   "id": "bronze_shark_statue",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/bronze_shark_statue/bronze_shark_statue_1k.gltf",
+   "sha256": {
+    "gltf": "c7b5b5bd094518489e7eed022006ce2901ec8799397eafd37f6ffd5562187ca0",
+    "textures/bronze_shark_statue_nor_gl_1k.jpg": "00b5e59f5b1ff3b707eb240b5ca8966b246b00f107a9beea31a1efaa386c1dba",
+    "textures/bronze_shark_statue_diff_1k.jpg": "fe6c69896cb48d5601ccf46e4aafcfa6949cc0fc8a8fcf897efe2e61efb2b458",
+    "textures/bronze_shark_statue_arm_1k.jpg": "a40c450a4df9e27dd0cde28bebe3238c4400a73ea1a03cd6a8b9d631e7239134",
+    "bronze_shark_statue.bin": "2b92ba47ee8ccd926c1c0f648911c6bc547b1fac7e2515503c591613685336af"
+   },
+   "attempts": 1,
+   "bytes": 2070550,
+   "seconds": 1.1
+  },
+  {
+   "id": "bronze_whale_statue",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/bronze_whale_statue/bronze_whale_statue_1k.gltf",
+   "sha256": {
+    "gltf": "97ff882e047f3415601437d6db43a7326a3fa1ac5bddb86ae119b74717888d18",
+    "textures/bronze_whale_statue_nor_gl_1k.jpg": "2ecf3a3065ff56da0924ebd2f1e712c49d5f8e06823839a898857141e858cc92",
+    "textures/bronze_whale_statue_diff_1k.jpg": "b7cc4ec674f2c49d09eb66bca291104a10c79a9b384faacb031b49df74c82655",
+    "textures/bronze_whale_statue_arm_1k.jpg": "76ffa3b4f0e81208ddd23a13d0605a225d82b6502f5c847c270490ab96717a81",
+    "bronze_whale_statue.bin": "675ec5711b4d7653a1bdfd4c25a7ca33652eb173eae1869de8e4759090a1fa21"
+   },
+   "attempts": 1,
+   "bytes": 2190241,
+   "seconds": 1.1
+  },
+  {
+   "id": "bull_head",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/bull_head/bull_head_1k.gltf",
+   "sha256": {
+    "gltf": "02385d6be1cee95c1ee614cb01b619d3aeb9ea5e90504562ce4eb57f06e75947",
+    "textures/bull_head_nor_gl_1k.jpg": "060746ec7956cc454de3234450c4a7fc581c1641e47498449c0a8a4361f703df",
+    "textures/bull_head_diff_1k.jpg": "890beefd7bbd1ff32f7bbd5d2485d44324a90a4d9bcc4b713832509aa329d2c5",
+    "textures/bull_head_arm_1k.jpg": "554b78c5400c2770bc5a1487f0c2e2b254d9d5dec632607fa66e737f8fdb3100",
+    "bull_head.bin": "935f767641f7f0ac80aba121746db7d1f51fce475817e208ce6a51f5768e5ec3"
+   },
+   "attempts": 1,
+   "bytes": 2021370,
+   "seconds": 1.1
+  },
+  {
+   "id": "carved_wooden_elephant",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/carved_wooden_elephant/carved_wooden_elephant_1k.gltf",
+   "sha256": {
+    "gltf": "c2378354ecd283c5c8d9459b6829ef7e61bdefd6d0f7a6b2d628362bd9bbef25",
+    "textures/carved_wooden_elephant_nor_gl_1k.jpg": "df066417c37f224d8d0acef8f221cc243ffcf4d8a4501aa0b8c0b82b4054c996",
+    "textures/carved_wooden_elephant_rough_1k.jpg": "b9d04ca7311882c05c4f1f5a94cbaacd1e0b935d844de7acd56d845d4331370b",
+    "textures/carved_wooden_elephant_diff_1k.jpg": "420392c3087c709a7f1e0dd09042f1f194eb7edcb7551d124d6464f572d7f610",
+    "carved_wooden_elephant.bin": "b732bc38c4e57c8630acfe8c9f1bd7623e1ba49b0c488863e13546171f283618"
+   },
+   "attempts": 1,
+   "bytes": 1863924,
+   "seconds": 1.1
+  },
+  {
+   "id": "gothic_statue",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/gothic_statue/gothic_statue_1k.gltf",
+   "sha256": {
+    "gltf": "eecbc67793a1e1efa1359d57fa497cb267fc7a4039823d3feecb6d0fcd2ad2db",
+    "textures/gothic_statue_nor_gl_1k.jpg": "f0d1de09cb49f38ea5de9fb3b0af80834837616188d0504f07ee0cfc39a1ca91",
+    "textures/gothic_statue_diff_1k.jpg": "7c74e5a4e5af689d5c7556bb8b0bd60c8cc6c0cac9d8445fbd9f153abd1eddf1",
+    "textures/gothic_statue_arm_1k.jpg": "fbe7cec4c4745fb796c98a03209b6d664fca81b8b20d155e39509f85daa61fbb",
+    "gothic_statue.bin": "8608701ecff6b56e9fd9cddd130541f831ff8131a7758d54e7964af3d0152b9c"
+   },
+   "attempts": 1,
+   "bytes": 3978633,
+   "seconds": 1.1
+  },
+  {
+   "id": "horse_head",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/horse_head/horse_head_1k.gltf",
+   "sha256": {
+    "gltf": "bb46cbabf202aa1af209678619f912c5605477fa098a46c238cdc46b3696bb0d",
+    "textures/horse_head_nor_gl_1k.jpg": "903f946c7978dd5d11281dc4e35853f8ab7f4e9a51248fc48f83af8c4bc156e0",
+    "textures/horse_head_diff_1k.jpg": "bc7409baf955bc970d7397314f2f126862aef5b8c076167902df7b5742694435",
+    "textures/horse_head_arm_1k.jpg": "a7ebc06bb771f2e17652880dac6d3dff36abcbda5c2c5004f1caa90e46a44264",
+    "horse_head.bin": "e56c0a19bc3aaf859612634665f17e461156423889e7954d72b949211a37b10b"
+   },
+   "attempts": 1,
+   "bytes": 1765312,
+   "seconds": 1.0
+  },
+  {
+   "id": "horse_statue_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/horse_statue_01/horse_statue_01_1k.gltf",
+   "sha256": {
+    "gltf": "64e33e68ef427d0e7e401808d605b7d24208ae72b63f97ddf6716bc423b374ba",
+    "textures/horse_statue_01_diff_1k.jpg": "539eedfb40d73eaad8e719f928bf0af82622271bd58afd9f417e75fad4ebab82",
+    "textures/horse_statue_01_nor_gl_1k.jpg": "868a7226c7b2e1e09dd0f49a40e6ceb62a45fc644f50988d566af5da34eb7a2f",
+    "horse_statue_01.bin": "5099dc5709aa5935031c1e9121e590ba3b0c09f58eef64bcbe390bb46c1aa8f4",
+    "textures/horse_statue_01_arm_1k.jpg": "80703e3f6455374fde4ca83e8d813b09a83856068b538d2154f7d5caacb4109e"
+   },
+   "attempts": 1,
+   "bytes": 1283596,
+   "seconds": 1.0
+  },
+  {
+   "id": "lion_head",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/lion_head/lion_head_1k.gltf",
+   "sha256": {
+    "gltf": "979bd8c7668c02dc26dafb137f8e9e49ecba9eb74ad8bf79c045e9f48fb40cd8",
+    "textures/lion_head_nor_gl_1k.jpg": "8ae7aebe71bfaec856367c3f8e5ceabed99316507ff823d04f932518d994f561",
+    "textures/lion_head_diff_1k.jpg": "6f04773c186dedc6a8b6737091fb9c41dc0699cd72dcbcad0168a943d4e2e177",
+    "textures/lion_head_arm_1k.jpg": "9c19d88c7348c852c59195064296a7dfe4f8b43029b03cc3519046349b3538c0",
+    "lion_head.bin": "5ed0d6324198711ad30e506789f25e570ee82babbd74f1f09abe459e3c0f9ca3"
+   },
+   "attempts": 1,
+   "bytes": 3200423,
+   "seconds": 1.2
+  },
+  {
+   "id": "marble_bust_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/marble_bust_01/marble_bust_01_1k.gltf",
+   "sha256": {
+    "gltf": "b6f192fc01be4349470b66f6f6948bd37620267bdbc86f4568e4d078f97ff09b",
+    "marble_bust_01.bin": "0bb757c1bd00bfe42005c84e7f76df98ce04a532e595a2ddda8a0335cd959e33",
+    "textures/marble_bust_01_nor_gl_1k.jpg": "3d355904cd54c2de90d5d4310b80d43816fa2dd509f0a3445d654eab8e237c5f",
+    "textures/marble_bust_01_diff_1k.jpg": "cbb7dccdc62d7eaa240eef7b4956969bf6e73c7338b64f1378629838ea22383c",
+    "textures/marble_bust_01_rough_1k.jpg": "1c4502352dc936dd1f1c1a81b418706df1ce0445949874215015325f9b8921fb"
+   },
+   "attempts": 1,
+   "bytes": 898283,
+   "seconds": 1.1
+  },
+  {
+   "id": "desk_lamp_arm_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/desk_lamp_arm_01/desk_lamp_arm_01_1k.gltf",
+   "sha256": {
+    "gltf": "2ac8389afc1519449a9cfdf7efd9fa36780a2177bb47ab58f7a7dda7d247dc8c",
+    "textures/desk_lamp_arm_01_nor_gl_1k.jpg": "feefedc3835ecef3634e97a24977451671f8f57747a023f48cd14c84bc73513a",
+    "textures/desk_lamp_arm_01_arm_1k.jpg": "206404c79fb7dcf8e2c4558c13544342f87d2190526231a1750c3c9adc256fbc",
+    "textures/desk_lamp_arm_01_diff_1k.jpg": "159eb178aba3271bd555cbe07ca36431d8af9a006f0b8e9d8c67030cbdc9e4d3",
+    "desk_lamp_arm_01.bin": "07f34e32abecbaa63d28b9d12d6a0eb82b775a0f50c92327655909d72ff8489b"
+   },
+   "attempts": 1,
+   "bytes": 2875984,
+   "seconds": 1.1
+  },
+  {
+   "id": "industrial_pipe_lamp",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/industrial_pipe_lamp/industrial_pipe_lamp_1k.gltf",
+   "sha256": {
+    "gltf": "c5a84037c9183d2966c5659213a0d5190f8fce305153829d81028f6589330af7",
+    "textures/industrial_pipe_lamp_emission_1k.jpg": "fca3fb29d89214d49842cde79125727ff308b4ba1b3912c5ebcc65846cd0cc10",
+    "textures/industrial_pipe_lamp_nor_gl_1k.jpg": "deb1517375d6a054671990ae63735b8b2808038c7406136f0a61ee848acd3377",
+    "textures/industrial_pipe_lamp_diff_1k.jpg": "630c5732f1027a6acd369bac3b44c040ecbaff8f21e491a480c36715f15205ce",
+    "textures/industrial_pipe_lamp_arm_1k.jpg": "ed862bc1d71322cd38efde6e4b1aa6b24b9e85eb950b7e0fc82a98b1c619f7fa",
+    "industrial_pipe_lamp.bin": "75690aa977d3bb011633ed649e058eb43ffef283f3a374f4842e411b25f82775"
+   },
+   "attempts": 1,
+   "bytes": 2408199,
+   "seconds": 1.2
+  },
+  {
+   "id": "antique_ceramic_vase_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/antique_ceramic_vase_01/antique_ceramic_vase_01_1k.gltf",
+   "sha256": {
+    "gltf": "c99f063c1ba4e649e87218265b5ca34f89e3c288ff6560c76b7d9d2dd46aa8cd",
+    "textures/antique_ceramic_vase_01_nor_gl_1k.jpg": "98cf0dceb4a95b73f41cb63f26ad6c26cf84ff6ff642bd216f4ce5343cb66cf7",
+    "antique_ceramic_vase_01.bin": "ff3224b67b0a20e5033e651c405382fbfcc26ceb034f8dc59065ea0e0b6b708e",
+    "textures/antique_ceramic_vase_01_diff_1k.jpg": "8ee51247bf13d76d3d4da3b99ca7d58bc9b14476250800d98385718887dd58de",
+    "textures/antique_ceramic_vase_01_arm_1k.jpg": "d4315346ead607ee6dada9e8e3710c0d804f47942056a2548e083133c0f8b5ce"
+   },
+   "attempts": 1,
+   "bytes": 525941,
+   "seconds": 0.9
+  },
+  {
+   "id": "brass_vase_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/brass_vase_01/brass_vase_01_1k.gltf",
+   "sha256": {
+    "gltf": "becf6d52678c63d7321c8ab51fb1a03a80d8dd61feb183977867069cdd470f9d",
+    "brass_vase_01.bin": "acc32719ee7c42c5b5fd07507a3dd7779e95445754759876bdbc133cebefa8ff",
+    "textures/brass_vase_01_arm_1k.jpg": "b17e947af6e5d2b1f62a3e4953f075ddd6a48f1c11596811fb55ff6b3aab2855",
+    "textures/brass_vase_01_diff_1k.jpg": "346bb95aeb7aaac89ff368c050e511f2e444d7636d1e135f8433a012423474dd",
+    "textures/brass_vase_01_nor_gl_1k.jpg": "dac5267183a708234e2640f89cde45df76c3927bbd5d2b280cb61fd7a4bd63ea"
+   },
+   "attempts": 1,
+   "bytes": 842226,
+   "seconds": 0.9
+  },
+  {
+   "id": "brass_vase_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/brass_vase_02/brass_vase_02_1k.gltf",
+   "sha256": {
+    "gltf": "4680277fd44664e1d60b1cf5f26965c8837d9912f776a083187a35eb883fb3a1",
+    "brass_vase_02.bin": "9b922c73a5bc3012f904f6236fecf99ac5e9c71e0645dab0fdad5943cdf2ae35",
+    "textures/brass_vase_02_diff_1k.jpg": "d8f9edad2915c3988d6c2d094d581f3b9c72f4f81b81678038d52c856515041e",
+    "textures/brass_vase_02_nor_gl_1k.jpg": "5961c39266636828c0917e518cac001e6b0fd4c5d73bceb142d062b8e60b21a3",
+    "textures/brass_vase_02_arm_1k.jpg": "c510b5b2a114d0f46ab525004450c195b52c45aeff01c7989b32fe4960053a9a"
+   },
+   "attempts": 1,
+   "bytes": 1830716,
+   "seconds": 1.0
+  },
+  {
+   "id": "brass_vase_03",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/brass_vase_03/brass_vase_03_1k.gltf",
+   "sha256": {
+    "gltf": "b65379454ee1c8a608e757b513dc72013cfc5b4156deaf33a46e4f58338b5e8c",
+    "textures/brass_vase_03_nor_gl_1k.jpg": "a1d46771607c6cfd4a33326d1f4365baf695e3ee29c56e8013dd3e41769a1d19",
+    "textures/brass_vase_03_diff_1k.jpg": "88d6e93a1bc7db023aa4321c3315de3625261bb903d84dc3da60a2147a87a58a",
+    "brass_vase_03.bin": "55332659811893d1903cbff6aebee7ea4b2824d330171bd9cb20f80f305c4aeb",
+    "textures/brass_vase_03_arm_1k.jpg": "06780d103fe90af5bcd2b12b9ae5c1f8c744a29b8f584eed24fb67cf092678b1"
+   },
+   "attempts": 1,
+   "bytes": 1581617,
+   "seconds": 1.0
+  },
+  {
+   "id": "brass_vase_04",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/brass_vase_04/brass_vase_04_1k.gltf",
+   "sha256": {
+    "gltf": "62d32bf08cac959ef4b07d3c36261ec34ec73a48fd635360f9fc2d2076728204",
+    "textures/brass_vase_04_nor_gl_1k.jpg": "500450d66a6e0447c61bcf240904284b63117e039af0c36c2978e66db3ab9f3b",
+    "brass_vase_04.bin": "d28d50c37cf772eca34c76359bb8a092b4a2cf407be9f9e4951a9ce15ee4184f",
+    "textures/brass_vase_04_diff_1k.jpg": "4bc3c13e68318532e57ed0924f875c62fd3dd39aa480520377b4a2012697b963",
+    "textures/brass_vase_04_arm_1k.jpg": "f446f64424d098df2f578506573577b46a3fad0065729104d5a0b07e35218035"
+   },
+   "attempts": 1,
+   "bytes": 394381,
+   "seconds": 0.9
+  },
+  {
+   "id": "ceramic_vase_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/ceramic_vase_01/ceramic_vase_01_1k.gltf",
+   "sha256": {
+    "gltf": "4e2c69eb5bbccf86e9fbf92af438464669d804c1f0eae041ee28651a5b57d91e",
+    "textures/ceramic_vase_01_nor_gl_1k.jpg": "c35b59d15e0f08db44b0bc8a5870bc65ae781819e5abf0447996d0faf05b7722",
+    "textures/ceramic_vase_01_diff_1k.jpg": "5f7d22178b74a59fe92aa0ccc958b897e2fb80df514eb28b97000097c0e71beb",
+    "textures/ceramic_vase_01_arm_1k.jpg": "121469880a7900513717685e9035dfc1b04613f85c778ab4e9dba98c1675d660",
+    "ceramic_vase_01.bin": "56ffadcafff3f56538d04b0b43c06c9704baeec2ac3ec286ef01c313c82906f0"
+   },
+   "attempts": 1,
+   "bytes": 418457,
+   "seconds": 1.1
+  },
+  {
+   "id": "ceramic_vase_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/ceramic_vase_02/ceramic_vase_02_1k.gltf",
+   "sha256": {
+    "gltf": "1bda047833b68c2c1b190ee53a55b1aa42d30748c84739909b6ca65b2f2d76c9",
+    "textures/ceramic_vase_02_nor_gl_1k.jpg": "29fc2dc6f236d29d403367517249a32c87eb7ce4b70d79ba9ee22d7571eb153f",
+    "textures/ceramic_vase_02_diff_1k.jpg": "12320e404c744095945b164293e522baadb6a0b393648f5908bfea2903f7fcc0",
+    "ceramic_vase_02.bin": "b8e13a9fc140b563526afd11bb233d3a838f03abc779824504d89186dfaacd3a",
+    "textures/ceramic_vase_02_rough_1k.jpg": "137ffbd61551654d94aebfd5f0b18fe9d85ed5c1515d32cca65c9db62fccd01b"
+   },
+   "attempts": 1,
+   "bytes": 750161,
+   "seconds": 1.0
+  },
+  {
+   "id": "ceramic_vase_04",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/ceramic_vase_04/ceramic_vase_04_1k.gltf",
+   "sha256": {
+    "gltf": "ca6461229bd6379b621396581e32400f93884fe77f7fa8abe6ddbeb64d57421b",
+    "ceramic_vase_04.bin": "00d6b5743358cba4bc78d25010b1bfc262d6cb313de8cbeffa570bb95387dfc7",
+    "textures/ceramic_vase_04_rough_1k.jpg": "56186ba6e1980655ff8284a59b2bf04588c047fe61d69d09b98dde40a85f503e",
+    "textures/ceramic_vase_04_diff_1k.jpg": "b8682d194184e15b97b3e8547ebb92e96101d16260412528f37e3096b3844b67",
+    "textures/ceramic_vase_04_nor_gl_1k.jpg": "a1c1cc5eda4157a17ba104387d9898362f2731632b840af62f76c2d00c751bd3"
+   },
+   "attempts": 1,
+   "bytes": 596053,
+   "seconds": 1.0
+  },
+  {
+   "id": "fancy_picture_frame_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/fancy_picture_frame_01/fancy_picture_frame_01_1k.gltf",
+   "sha256": {
+    "gltf": "c54803abf9e43c28a6b3fe76b38a60e827647a4f9a10747e6d4efba842289578",
+    "textures/fancy_picture_frame_01_nor_gl_1k.jpg": "b200c284bbdc9c16f6705b1f4c7bca2486898d83333f2e490d298c4422ee4b4a",
+    "textures/fancy_picture_frame_01_canvas_diff_1k.jpg": "86619612e96004b3c8dd61a6e745edda46b8d1793d5a1fb8306abed11448ffd9",
+    "fancy_picture_frame_01.bin": "5d5a01ce8b89f1fbea87bac0ca9ab24771f0d2827ab0308f19878007e45f442f",
+    "textures/fancy_picture_frame_01_canvas_rough_1k.jpg": "58efa8c350534ef0161e37a6eeed480cab611c992deae9df5d64797cef5a269e",
+    "textures/fancy_picture_frame_01_canvas_nor_gl_1k.jpg": "a77c51fc74606c177b79a1f2e5ebafde1e1d4f6ca851f3f39469afadae0e66ab",
+    "textures/fancy_picture_frame_01_rough_1k.jpg": "a393111f86fa9ffb8fa09f26c7f72a2a519f4120e9a68ee462280444a8a6055f",
+    "textures/fancy_picture_frame_01_diff_1k.jpg": "e511bd3a45b6979d505a652bc21bbb7b0d1cffb9908c67d9b5cd0d77b732a1b1"
+   },
+   "attempts": 1,
+   "bytes": 741506,
+   "seconds": 1.3
+  },
+  {
+   "id": "fancy_picture_frame_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/fancy_picture_frame_02/fancy_picture_frame_02_1k.gltf",
+   "sha256": {
+    "gltf": "1f8362b3118ffa82881657e0db9aec60aa76d6644b8030f9cd299b90415d1ef6",
+    "textures/fancy_picture_frame_02_diff_1k.jpg": "7a2cccf33387518b10081dba5ec885888550322dee44f4f4db7ef322a629a1e5",
+    "fancy_picture_frame_02.bin": "cc94201d75e5934dce90f3adfe7ab19e63f163bd22e22bf8e594ca8f29ef459e",
+    "textures/fancy_picture_frame_02_canvas_nor_gl_1k.jpg": "1c988a47da1ab126fa2487e5be62c9a763878d82987cf648e179ff46906525db",
+    "textures/fancy_picture_frame_02_canvas_diff_1k.jpg": "eca52b5f9ed8308fadf3bfda7725cde4df6a062ff2994fa4e4fcfe7ee84f9036",
+    "textures/fancy_picture_frame_02_rough_1k.jpg": "94e06290ae2d906485bebb9a0a870de9629824f60c307cdcfd50c5d7ff246a0b",
+    "textures/fancy_picture_frame_02_nor_gl_1k.jpg": "567bc0dc71445abc890dbf6bc50795144a8785300cea0f0cc851cc1c05d45133",
+    "textures/fancy_picture_frame_02_canvas_rough_1k.jpg": "82ca7d94a19bb51afd3c11be69a8a08fadaea901c0f770dd87f64c93b39ae57a"
+   },
+   "attempts": 1,
+   "bytes": 1728120,
+   "seconds": 1.6
+  },
+  {
+   "id": "hanging_picture_frame_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/hanging_picture_frame_01/hanging_picture_frame_01_1k.gltf",
+   "sha256": {
+    "gltf": "00aaeab14751485287443b4c5cc2ee5673136510595daa6a2948519c116ad47b",
+    "textures/hanging_picture_frame_01_artwork_roughness_1k.jpg": "62d875e9427f5d71f1bb4d9dc9569e34465bfd3067b8b13f5644b73e23a09fa3",
+    "hanging_picture_frame_01.bin": "27ec66baf3b227d004d2d325e18c77df6b7a1a7f74afd7d5dbd4f950bc2f5ca6",
+    "textures/hanging_picture_frame_01_artwork_diff_1k.jpg": "2e177d2061d2204efc2a1285dc0a30220148b41134d331ed93fd21ae8b15f6a0",
+    "textures/hanging_picture_frame_01_artwork_nor_gl_1k.jpg": "f91caa0cacbefa2c30dff935f0aee41e5f7493f6ba881e5a5021b8a220084195",
+    "textures/hanging_picture_frame_01_arm_1k.jpg": "aec54462e91d53610f46b2bb760cbdf453e7b87c5193efa24f995cd5bb0253bc",
+    "textures/hanging_picture_frame_01_nor_gl_1k.jpg": "6f16f93ee6fcffb27dbd5ebf3de8fda71c77c7e1abd61ae9261715029be4d43e",
+    "textures/hanging_picture_frame_01_diff_1k.jpg": "a6aa51141299ff7366b6e1ac1496dee2d8bd2d6fe775ea7d1fbbb299b2afb5e8"
+   },
+   "attempts": 1,
+   "bytes": 397466,
+   "seconds": 1.4
+  },
+  {
+   "id": "hanging_picture_frame_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/hanging_picture_frame_02/hanging_picture_frame_02_1k.gltf",
+   "sha256": {
+    "gltf": "ea9a1d44e8d794e224a5342204669a328b57d64d5df629d1d5d86e60e27245e5",
+    "textures/hanging_picture_frame_02_diff_1k.jpg": "575f2b6481b9e02474750ded776a0b490744228cb64d9b346f28bd78b9cf5897",
+    "textures/hanging_picture_frame_02_artwork_diff_1k.jpg": "7e26aee962965fb201975ef5a99e2751a24c4b461b48e8348cea9f31cde027c2",
+    "textures/hanging_picture_frame_02_arm_1k.jpg": "67378630bc6bb69799f8ee0fde4ab11ecd9e7a43ed3dfef402fdd784d8c2cea3",
+    "textures/hanging_picture_frame_02_artwork_nor_gl_1k.jpg": "8a700c0d7d3f464177ead95879d60a8bf43ef77c034881379b2c036406ab9e27",
+    "textures/hanging_picture_frame_02_artwork_roughness_1k.jpg": "305018ab800cbd02d61c08f9c5a422c2777f2b5cbb20579f671be56a1fb21853",
+    "hanging_picture_frame_02.bin": "0ed5813c8b30f63807ffac962e47135d3248b3804e07cb93862c13e29bed83d8",
+    "textures/hanging_picture_frame_02_nor_gl_1k.jpg": "79367cf9d7e4981263dd1439297585148d6c93500acaffa7afeb534351e68b86"
+   },
+   "attempts": 1,
+   "bytes": 696031,
+   "seconds": 1.3
+  },
+  {
+   "id": "hanging_picture_frame_03",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/hanging_picture_frame_03/hanging_picture_frame_03_1k.gltf",
+   "sha256": {
+    "gltf": "39223fc47a8714cdf4db3b4d68042a02207db5ec3947bf021e47203540e21ddd",
+    "textures/hanging_picture_frame_03_nor_gl_1k.jpg": "09d7ac399afbcecbef406b72242bde538a0533bc0f509da40bbcafeb9e050137",
+    "textures/hanging_picture_frame_03_diff_1k.jpg": "a75f9cd4535bbdbf46d8be686b9a6c1edc5db6fd00ae373c7469f349665f52bd",
+    "textures/hanging_picture_frame_03_artwork_rough_1k.jpg": "5d64b06ca0862436e3836b6bfe021565a30126d89ec0bb820a918d9fc4a86559",
+    "textures/hanging_picture_frame_03_arm_1k.jpg": "f2fe1ad0978bc9a7fcdbd55158e481fcb1519c62d6fc850603433b3eb9a7c080",
+    "textures/hanging_picture_frame_03_rough_1k.jpg": "acbb5cfb61e68c5fd966768624fc1851f60feae06ae50aa96affaabc8d05be7b",
+    "textures/hanging_picture_frame_03_artwork_nor_gl_1k.jpg": "9dccb54616b192a1c56b52891de27d1a047da9dfee0fa4b2bff540e89220a8b5",
+    "textures/hanging_picture_frame_03_artwork_diff_1k.jpg": "1f6c82a48a0ea02d7a66956282d734ee39860ac5ca98afb4dd81f6a496f2176e",
+    "hanging_picture_frame_03.bin": "e96c6046c6e5b6c8174a53d5956b6147eeec16cb426aa2a8d761216381b75561"
+   },
+   "attempts": 1,
+   "bytes": 1262176,
+   "seconds": 1.4
+  },
+  {
+   "id": "Rockingchair_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/Rockingchair_01/Rockingchair_01_1k.gltf",
+   "sha256": {
+    "gltf": "eb8c3a8f9c2c1bd6ca6d76804b8361dd0fd779498249d554536e5683e08f565b",
+    "textures/Rockingchair_01_diff_1k.jpg": "d42426fe153296909d45abcbc4e91a3410b90d5a9cd58f01b1fa9af93a712ef0",
+    "textures/Rockingchair_01_nor_gl_1k.jpg": "225008fcb16b3ee3b16372b4085d60e20dd660ab30b6a489b77b7e25a874b391",
+    "textures/Rockingchair_01_arm_1k.jpg": "21c6a462d6865a6e839b7dfe966f845df885a6dfe3ad64b3a87438db1598cf5d",
+    "Rockingchair_01.bin": "6c7c3c32a033a3697d9adf3e8c9d966265cf11b519717d92c1eb5a9cffe736e2"
+   },
+   "attempts": 1,
+   "bytes": 804765,
+   "seconds": 0.9
+  },
+  {
+   "id": "bar_chair_round_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/bar_chair_round_01/bar_chair_round_01_1k.gltf",
+   "sha256": {
+    "gltf": "6a8f92123245268cbb69fc96f305ee710b32a7a06761b143d3049eaabfcbdd32",
+    "textures/bar_chair_round_01_arm_1k.jpg": "9f34b279bdd1527ec19fc3a3bb0ce374f0c0ba2dc05dfbd58f561bc317bd36c7",
+    "bar_chair_round_01.bin": "2bda85d89beb91097998b25293f10e72686b972aecffd2c14d1b5412cc1da276",
+    "textures/bar_chair_round_01_diff_1k.jpg": "1b3912fe1102b4082d7421aeb2e2717d3ebe914d261700f8710c0fdb7d7463bb",
+    "textures/bar_chair_round_01_nor_gl_1k.jpg": "91e4310863002228003d100be83e0524832e532d05f27ef8ed62675b116f0bd1"
+   },
+   "attempts": 1,
+   "bytes": 2812333,
+   "seconds": 1.1
+  },
+  {
+   "id": "chinese_stool",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_stool/chinese_stool_1k.gltf",
+   "sha256": {
+    "gltf": "6db83b16076496830f956780890480d3cb1e34c80359b5ea8cb0e7afd42572c6",
+    "textures/chinese_stool_diff_1k.jpg": "a7f84ff302df80b079b47a268ecaea6e9f072b51d7e5dcebdeb7ee6278595e85",
+    "textures/chinese_stool_arm_1k.jpg": "59fb42eb0c3c1684905d94bbf11fd640921325e19dfe8b46cae04ac5b7be36d5",
+    "chinese_stool.bin": "e35c9440fc0751aa9346e6edbfe0bf948f0f7dd1b40be2ef57d0b6debec5b8af",
+    "textures/chinese_stool_nor_gl_1k.jpg": "a44344f2d8ea289ec7642272de42d449059f2f2b175cf64d5db5d2447c56f7aa"
+   },
+   "attempts": 1,
+   "bytes": 1793116,
+   "seconds": 1.0
+  },
+  {
+   "id": "metal_stool_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/metal_stool_01/metal_stool_01_1k.gltf",
+   "sha256": {
+    "gltf": "e69a99778cacbbf0a2447971d8917a2463b411cdd2a50ff2c53c2230b4c43881",
+    "textures/metal_stool_01_nor_gl_1k.jpg": "55d71cb01dd9afba245d4513728ce0cde8b112d5a7e1695a68578445c7b02b82",
+    "textures/metal_stool_01_diff_1k.jpg": "d11949df1f0c59b5a85145395703a2aa7617e76b80759a5ef80b09e1798acb3d",
+    "textures/metal_stool_01_arm_1k.jpg": "eb13e80e9fe232d022b4136e817d4590a7279d8da327d35e525e1aa4cf30e334",
+    "metal_stool_01.bin": "a57dae498990e7b56cba33b64721d1d0b940ca6352248de149740cd4678d451d"
+   },
+   "attempts": 1,
+   "bytes": 2286960,
+   "seconds": 1.0
+  },
+  {
+   "id": "metal_stool_03",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/metal_stool_03/metal_stool_03_1k.gltf",
+   "sha256": {
+    "gltf": "97d7b64c170f6c91982be77beab1c994743ca3d9dc90525e8d3618d402597516",
+    "textures/metal_stool_03_nor_gl_1k.jpg": "dfa87bb714c4af869a375f1a12a872649017dcdba9b23c3fe5d34904b5d60096",
+    "textures/metal_stool_03_diff_1k.jpg": "94c961f96343c780cc6cc0f4d6b045ea62ba9ff04ba52d30c60d933a9b650d98",
+    "textures/metal_stool_03_arm_1k.jpg": "4919d3aa81a6657db8d5d52f077c0a687f29595b6a1177f53305a89354c9b527",
+    "metal_stool_03.bin": "77319f207db1d63ecf8775dad6dce37809967685a73489613a9f2c67b63c9228"
+   },
+   "attempts": 1,
+   "bytes": 2289619,
+   "seconds": 1.0
+  },
+  {
+   "id": "painted_wooden_stool",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/painted_wooden_stool/painted_wooden_stool_1k.gltf",
+   "sha256": {
+    "gltf": "f9a9a4a7c38b3421c30dac35d91c41c8864452d6dbb398911494b8324d312ef9",
+    "textures/painted_wooden_stool_nor_gl_1k.jpg": "39fed6e0a14b464bf5b9555d4ac02df0f85b0bfc89d383e4b8e00c343598384e",
+    "textures/painted_wooden_stool_arm_1k.jpg": "2088f99a25050d6666348388d279b65993fdd50ad8c14d3419a64f1caea6472d",
+    "textures/painted_wooden_stool_diff_1k.jpg": "db0322de5e3c588465d0894515a7c1bdacde9e2a469a9ac154206bfe96746d3f",
+    "painted_wooden_stool.bin": "d336c1eb8832e4441f69bb5618e2289703a7ca71d3884a9087d658051eee0b66"
+   },
+   "attempts": 1,
+   "bytes": 1874833,
+   "seconds": 1.2
+  },
+  {
+   "id": "wooden_stool_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/wooden_stool_02/wooden_stool_02_1k.gltf",
+   "sha256": {
+    "gltf": "8bb8bc3e420db0f69cee3d2ee74eccad7cabd1110a864a7d945549684e6f32cf",
+    "textures/wooden_stool_02_diff_1k.jpg": "591d92444c37bc2e7ba106e4f4e267f55d43cea517ac8ea6f54cd5bfadd5cbca",
+    "textures/wooden_stool_02_nor_gl_1k.jpg": "463af01cee188aaaeb2b89298b6f3b814ef3991315fafa5ea2e66c2e8402c570",
+    "textures/wooden_stool_02_arm_1k.jpg": "dc346290637bc0ae074e8662b62b00a70d0852f2b1857bc03a751998ad69cf2c",
+    "wooden_stool_02.bin": "6b277259e77b8359fa6bd97a2b09d2b59ec615dd78f301f9ef63d25013d257b8"
+   },
+   "attempts": 1,
+   "bytes": 2656017,
+   "seconds": 1.1
+  },
+  {
+   "id": "old_bed_frame",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/old_bed_frame/old_bed_frame_1k.gltf",
+   "sha256": {
+    "gltf": "661055e76d292ae5ec812f05077a6870414527c2d63947574ea8fc739e16de08",
+    "old_bed_frame.bin": "1dcb3b5d335bd55d9f5a494adb284260042fc663e5c21b9b581a8b301dfffdd3",
+    "textures/old_bed_frame_arm_1k.jpg": "c1f265ff346ede024bd869f7aaab9421212ebc9bedd4e0478cf0c2bec9dd315e",
+    "textures/old_bed_frame_diff_1k.jpg": "eb9929f07eb43f530562a6ba05d0653f937474ab76e0e5dccea40ec64744a6e0",
+    "textures/old_bed_frame_nor_gl_1k.jpg": "4c3d5132ae537a70d30216bb6055273fd00735e13b6c9d5064e0e545227ecba1"
+   },
+   "attempts": 1,
+   "bytes": 4041628,
+   "seconds": 0.0
+  },
+  {
+   "id": "vintage_day_bed",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/vintage_day_bed/vintage_day_bed_1k.gltf",
+   "sha256": {
+    "gltf": "fb255992b6e651de9709b17c083a14b405e99cbc26774b31bf252e38cf9287fb",
+    "textures/vintage_day_bed_nor_gl_1k.jpg": "2902f47f4778fce0667c2a1dbff7e2e861a0aed475668ea3fce8a485487598eb",
+    "textures/vintage_day_bed_diff_1k.jpg": "78b7036a3254c780052b87ac962ac6ba212501821af03c56faa2d7a9ccb955ce",
+    "textures/vintage_day_bed_arm_1k.jpg": "b60e71c345fc1d16396a94a133390b4cdde5c05a38ebaadf2f5dc96be2895b11",
+    "vintage_day_bed.bin": "08172858c3f9d4225780013e4e9afd01bb9db42e17001fc6c790a183227ecf07"
+   },
+   "attempts": 1,
+   "bytes": 2425779,
+   "seconds": 1.1
+  },
+  {
+   "id": "painted_wooden_bench",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/painted_wooden_bench/painted_wooden_bench_1k.gltf",
+   "sha256": {
+    "gltf": "2289ab82f3fe3045bf18f7b9541743d2c65b9f071cb34bbe424d2bc998f3e507",
+    "textures/painted_wooden_bench_diff_1k.jpg": "9bc533313091ee71eaca5fa6334b71d27935d9d75311f64df6a53c28a67c435c",
+    "textures/painted_wooden_bench_nor_gl_1k.jpg": "a0f53740d77fc61aac01de0b7e1ae6109445d1756839f739ae31fdf10c9911f2",
+    "textures/painted_wooden_bench_arm_1k.jpg": "878785565eeff706b8f1e4db7e3d794a544e9cf0e56cee424d9a271ab4ead47e",
+    "painted_wooden_bench.bin": "5799bcb20924105cccd6424de8cdb8e67eb57fddc19c395befeac634a7b2e013"
+   },
+   "attempts": 1,
+   "bytes": 1989639,
+   "seconds": 1.0
+  },
+  {
+   "id": "painted_wooden_shelves",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/painted_wooden_shelves/painted_wooden_shelves_1k.gltf",
+   "sha256": {
+    "gltf": "f4d9ffc04ad1e9ce3155522ac962c336bf1fa74b4a27b8a5fd4c8bdb81c2e8f6",
+    "textures/painted_wooden_shelves_nor_gl_1k.jpg": "9dcd7e3783da2a2cd44cd4f7a78ac976d2866e02d8dd0799d180d0ab746ae239",
+    "painted_wooden_shelves.bin": "894c032cda1c5668014c87b15ddcc42bccaede15e369e59f628d5219d38edf5f",
+    "textures/painted_wooden_shelves_arm_1k.jpg": "256c99e04dc99961ad08e085b01adc03641e861f66d4b325b1acb0f822d1e9a9",
+    "textures/painted_wooden_shelves_diff_1k.jpg": "430aef90494d0aa16c354bb4d39fc1a768dd822a0da7e6b746f1891a0cb7cf3a"
+   },
+   "attempts": 1,
+   "bytes": 2110690,
+   "seconds": 1.0
+  },
+  {
+   "id": "steel_frame_shelves_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/steel_frame_shelves_01/steel_frame_shelves_01_1k.gltf",
+   "sha256": {
+    "gltf": "4eff8994825d654e337f8dc425e959ed6add7f4773188c87ba64402d9edd9842",
+    "textures/steel_frame_shelves_01_diff_1k.jpg": "85e205b334e15e05bec9b02be1258da6ab949ae908aa57e0bee6b94ba45b4415",
+    "textures/steel_frame_shelves_01_nor_gl_1k.jpg": "2a67ed7dd4f53c3e225396e6381992b768fe58b5261be703d540678e366e46ed",
+    "textures/steel_frame_shelves_01_arm_1k.jpg": "858629eeaa8f68ddb4fc1a813afe6ed988ded3d6d49184ec45a14611760f0bb3",
+    "steel_frame_shelves_01.bin": "306d7e72d12a5d3047b8a189f8d0add51075eaf7f51f935286fda4e1c16dd066"
+   },
+   "attempts": 1,
+   "bytes": 1597356,
+   "seconds": 1.0
+  },
+  {
+   "id": "steel_frame_shelves_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/steel_frame_shelves_02/steel_frame_shelves_02_1k.gltf",
+   "sha256": {
+    "gltf": "df103b9fbb08a60e262cc1d8af5cb37f3c1231a8764eeacec23d363be24feca6",
+    "textures/steel_frame_shelves_02_nor_gl_1k.jpg": "c0033947364a267d17307943df975bc9d81268b51532c73340dd0bf45d204990",
+    "steel_frame_shelves_02.bin": "bcfe8e37632961b13f7ac845f7f2505181c394e7bd356c123a0ef7706aabd70d",
+    "textures/steel_frame_shelves_02_diff_1k.jpg": "2b41f59f3fbc6464e10ce11ee17c80f35173de8321865e4c4a966c55f5898f15",
+    "textures/steel_frame_shelves_02_arm_1k.jpg": "7fbcad4858018270eec05cbcdfec886adf4de39a057a8fc15a3c1d1d009f0307"
+   },
+   "attempts": 1,
+   "bytes": 540263,
+   "seconds": 0.9
+  },
+  {
+   "id": "steel_frame_shelves_03",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/steel_frame_shelves_03/steel_frame_shelves_03_1k.gltf",
+   "sha256": {
+    "gltf": "5778bc40d135c7c02a62acdaa4be11fa856fe462c574cbc09033e78a269833d8",
+    "textures/steel_frame_shelves_03_drawers_arm_1k.jpg": "cfa78c59c402b8aa26e200a9993ffd260cebbb1b7768cc9a6f8c5c0c0b28ca6e",
+    "textures/steel_frame_shelves_03_diff_1k.jpg": "1bbaf63d2905ddfa94a83c9aa1fe01ec8d867c0b073308cc02821ae624e31b9a",
+    "steel_frame_shelves_03.bin": "6e299e00e277642eb1a1ac67776a8c43bd9c9dbad9a12b768bf3df274afde66f",
+    "textures/steel_frame_shelves_03_drawers_nor_gl_1k.jpg": "e686d0d595eca83cc6ef2186cd199c2d2dde5729788f607e2b1f996d133415af",
+    "textures/steel_frame_shelves_03_arm_1k.jpg": "9cbeebb818f340837554f59a46cd482e4a7ed6bf3fb7eb0a4707fe775473ad32",
+    "textures/steel_frame_shelves_03_drawers_diff_1k.jpg": "5128e44871e33eebe494fe93fba2c572b9a7970d37864ae294c6d25fc59064eb",
+    "textures/steel_frame_shelves_03_nor_gl_1k.jpg": "0e069fedd3573fe09096d766ca950e79903e8f971baaf6078ac7326d3c3dcfc8"
+   },
+   "attempts": 1,
+   "bytes": 3563231,
+   "seconds": 1.6
+  },
+  {
+   "id": "worn_metal_rack",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/worn_metal_rack/worn_metal_rack_1k.gltf",
+   "sha256": {
+    "gltf": "e757448bd448460ecb6c7218e7857c8d071f271e3cdc2bd013ca63d824c0c308",
+    "textures/worn_metal_rack_nor_gl_1k.jpg": "3222c47e6fac0d103afec06b8a53476828777f5282d6703266010ecf587ad49e",
+    "textures/worn_metal_rack_diff_1k.jpg": "295c2d48ad55289fed76b7438513520cadd94516639ab8ffd8790ffe7c903dbb",
+    "textures/worn_metal_rack_arm_1k.jpg": "b3523f947b3ebd960d508361bb323cec5a959d0b7043a8a7118ffab781925a65",
+    "worn_metal_rack.bin": "b8cfa4138b7c0e0e69738c6f24dec7fecdc2f336f524312db48167816776fd13"
+   },
+   "attempts": 1,
+   "bytes": 2009106,
+   "seconds": 1.1
+  },
+  {
+   "id": "BarberShopChair_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/BarberShopChair_01/BarberShopChair_01_1k.gltf",
+   "sha256": {
+    "gltf": "801bed991ab1d3f110ff8e7958fcfe8e60a96582cadb55dbada28e292a111f20",
+    "textures/BarberShopChair_01_arm_1k.jpg": "502ecae4a2f7b09b79f03317f1fe6c141c8f2c753b77e639395e3aea3de46eba",
+    "BarberShopChair_01.bin": "39ecebfef975af4e812134b7f056e243f6404ce60c4dc2e9dec30930802ea24b",
+    "textures/BarberShopChair_01_nor_gl_1k.jpg": "3f51a8f05b38a547db52e10e6e2bec48a10fbeff5d04efc66b82a5b3d026b0fb",
+    "textures/BarberShopChair_01_diff_1k.jpg": "9d1054e6fe12e8397cbca6f1a50ecd2b4d880d8d355cb66e982abc752bf24d22"
+   },
+   "attempts": 1,
+   "bytes": 879179,
+   "seconds": 0.9
+  },
+  {
+   "id": "GreenChair_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/GreenChair_01/GreenChair_01_1k.gltf",
+   "sha256": {
+    "gltf": "d1e4946ac99ab9e64c82d802fe5cd49d962750e34b8d284762b3fe2b00ba8a45",
+    "textures/GreenChair_01_arm_1k.jpg": "d522e08441f3d54977e085b9e54de125efea7e963d3f433a5bd74cad031d2178",
+    "textures/GreenChair_01_nor_gl_1k.jpg": "008b49786f8395301b15b398856f56bd04357096ce542da76f1a3dcad8c28fc8",
+    "textures/GreenChair_01_diff_1k.jpg": "fb7ec456b37dc95fb73d0b08bfa2802c304a40263517d05e674657ad356cfac4",
+    "GreenChair_01.bin": "9070a41bcf38005997fe71a49e50b942b427ec05938413c9dc204df0b781e410"
+   },
+   "attempts": 1,
+   "bytes": 608044,
+   "seconds": 1.0
+  },
+  {
+   "id": "SchoolChair_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/SchoolChair_01/SchoolChair_01_1k.gltf",
+   "sha256": {
+    "gltf": "1db6aca4bf379c2d568b2068492dcfcda15d764c0c3d98a970055af25b46281e",
+    "textures/SchoolChair_01_nor_gl_1k.jpg": "4ee930562ad26e8c98af75e8aa6577d01cb56f6d22628f4e95c385e5364f0623",
+    "textures/SchoolChair_01_diff_1k.jpg": "f10ae4dbddfb056ef716770ebd96e0eff0aa6f0b5ad0f263ff51c5cade6e1d8f",
+    "textures/SchoolChair_01_arm_1k.jpg": "ff773eb01c9d59130dc3cc0274951ac626d73fa1b2f7eee519af4ca80835568b",
+    "SchoolChair_01.bin": "7d64d556ba88d3962778085b9a190f1adb0d84e667bca8ef032c0ae34b31a9fe"
+   },
+   "attempts": 1,
+   "bytes": 484723,
+   "seconds": 1.0
+  },
+  {
+   "id": "WoodenChair_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/WoodenChair_01/WoodenChair_01_1k.gltf",
+   "sha256": {
+    "gltf": "d7139c63be77bb91ceb25cb38733008156bf93d2299a6ca4673ea3c49f5fdec6",
+    "textures/WoodenChair_01_nor_gl_1k.jpg": "ddf8d239f1381a8c9407b1af5508b8b9b178b72228ff39f8dcc2feae5cb47e66",
+    "textures/WoodenChair_01_arm_1k.jpg": "ab1ef5b47cfe96cb11f380310d9b6efe458f14bccf4540a45c350919c0c1232c",
+    "WoodenChair_01.bin": "d36a4fb77139769e17301904dd9fe45a19e29f01273e587bf4e7478d687a016e",
+    "textures/WoodenChair_01_diff_1k.jpg": "4deb2125ad6e7dc17597db40be4f01c09a4d7c3b991ea0c269836f864aa67301"
+   },
+   "attempts": 1,
+   "bytes": 1079531,
+   "seconds": 1.0
+  },
+  {
+   "id": "painted_wooden_chair_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/painted_wooden_chair_01/painted_wooden_chair_01_1k.gltf",
+   "sha256": {
+    "gltf": "34f55ebe1851b89c045dc62d4461c848de3b93c0668e752a2b5f6cbed2d91a5e",
+    "textures/painted_wooden_chair_01_diff_1k.jpg": "de67d1f8a0318616a7ee769cbe5c513301c2b25056542d011bb4359498f9e25d",
+    "textures/painted_wooden_chair_01_nor_gl_1k.jpg": "27301c3ac6a7daf9e0ba418ec85feaa44cc898e61d048211bca57133f22e1807",
+    "painted_wooden_chair_01.bin": "eaf952048db1e770c45898049b8abe28deb83d3dbbaad81d5e7e43e22a322295",
+    "textures/painted_wooden_chair_01_arm_1k.jpg": "9d2de0ea0d630e8e5af05424b1f41b1ae4a80465d27a78eb471cd7f8556db84e"
+   },
+   "attempts": 1,
+   "bytes": 492550,
+   "seconds": 0.9
+  },
+  {
+   "id": "ClassicConsole_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/ClassicConsole_01/ClassicConsole_01_1k.gltf",
+   "sha256": {
+    "gltf": "6c7f79026ad7c388c5d40c56a0988f2a28dc0fc6e489e110332d06792ecd5833",
+    "textures/ClassicConsole_01_nor_gl_1k.jpg": "b8619f83d22c8b050f66fe696e0422bd7e6d8b868295b2dd9708a60352539391",
+    "textures/ClassicConsole_01_arm_1k.jpg": "39cd3bd935a13a09a694e5877f528f6d026395da7a4509fd4514d88c1d8dfd36",
+    "ClassicConsole_01.bin": "f1781fbd65be7ea34a653ed1eaf06a47a4ee3e98dcc5a5627f5479019d87b025",
+    "textures/ClassicConsole_01_diff_1k.jpg": "cf288157e8d8cfe70eef2d355a5d13076b9a1664ff1f5e6cb07f1970de6a2125"
+   },
+   "attempts": 1,
+   "bytes": 740693,
+   "seconds": 1.0
+  },
+  {
+   "id": "chinese_console_table",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_console_table/chinese_console_table_1k.gltf",
+   "sha256": {
+    "gltf": "d028085b14277ce3772445d5991572c95e8c80630bcb401f90129d3c972c5425",
+    "textures/chinese_console_table_arm_1k.jpg": "c819a43214165b1241392a599f5f3076263569e1aaad54ef92a57ba52e34e47e",
+    "textures/chinese_console_table_diff_1k.jpg": "82ecf04fa7793ffa6a5b11993944bf9a8f9a7179777ffaa63ef70295b044d4a4",
+    "textures/chinese_console_table_nor_gl_1k.jpg": "d07e9efc41896c4a77bc91f003341c4e0a64be05320862bf2457817220c3f86b",
+    "chinese_console_table.bin": "70be61585b2b44f8496116cb3665a0f2d121dd2dddac6778aec1c01d2ca9d338"
+   },
+   "attempts": 1,
+   "bytes": 2792195,
+   "seconds": 2.9
+  },
+  {
+   "id": "chinese_armchair",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_armchair/chinese_armchair_1k.gltf",
+   "sha256": {
+    "gltf": "e0649ac9e63135627b824035e9a45a7c06411062589b971e633e5ab5f9e17f04",
+    "textures/chinese_armchair_arm_1k.jpg": "5daef0846dd4f4a32a50106ee12930e547c8a577d60687e6e88b370f0ed84d28",
+    "textures/chinese_armchair_nor_gl_1k.jpg": "8599f79dcd01b20ba4916a959a2e0dcf4beaa21597356acc6abe0c13cb330eff",
+    "chinese_armchair.bin": "7e72b5360513057bdc453d6c03d5a837d32a8c9a2e6185f1b016c1bc62dc5b27",
+    "textures/chinese_armchair_diff_1k.jpg": "41332d6df2c5abad15ba227382bda160e55e9c75f2b4ecc079f8171aecd8d689"
+   },
+   "attempts": 1,
+   "bytes": 1703306,
+   "seconds": 1.1
+  },
+  {
+   "id": "Ottoman_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/Ottoman_01/Ottoman_01_1k.gltf",
+   "sha256": {
+    "gltf": "cb515553924d7ca85b94807aba7d7d5110fafa0fedf7132573b105ac8b900584",
+    "textures/Ottoman_01_arm_1k.jpg": "e894458d15a90e22e4290198929c8fb76e872526fe1f0bdf6d395a91d438bc7c",
+    "Ottoman_01.bin": "ca62a1ee87a30c69142ff15f1bca216842448f57d5b3d64de1d627014b347117",
+    "textures/Ottoman_01_diff_1k.jpg": "03f05a4a2e54ea1e6829a7d1b43dcfad5d2873078bd72534dc46e692c01f97a5",
+    "textures/Ottoman_01_nor_gl_1k.jpg": "3220215de4173c81c4128619a0000ce5368a3d125409f5e7d64e1269e258d923"
+   },
+   "attempts": 1,
+   "bytes": 652112,
+   "seconds": 0.9
+  },
+  {
+   "id": "metal_stool_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/metal_stool_02/metal_stool_02_1k.gltf",
+   "sha256": {
+    "gltf": "de8d603993443294b8a0aed48ea631ac38f2b15872491ea929551f72be726fcb",
+    "textures/metal_stool_02_nor_gl_1k.jpg": "65d0a8be725f094222ca5badf388042d76f24e374398fc0cfb579bc03a29a8c6",
+    "textures/metal_stool_02_diff_1k.jpg": "6dd23ca9932da71c37eb537e7d996e1cc7fc8752c566cec0f7e18690c06f07af",
+    "textures/metal_stool_02_arm_1k.jpg": "dff17b725379af449dae2af9f5224d8b3e863d2dbd645f13d5f4c8b2c9aa1999",
+    "metal_stool_02.bin": "17127317d391eb90ce3446739463b1067cc490210db821769b7a46bd1ff02e1c"
+   },
+   "attempts": 1,
+   "bytes": 2540986,
+   "seconds": 1.3
+  },
+  {
+   "id": "WoodenTable_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/WoodenTable_02/WoodenTable_02_1k.gltf",
+   "sha256": {
+    "gltf": "3a54261d3757fd78561f1f4bedb7304e0f7b98dae433998e280bc2843cf3fb24",
+    "textures/WoodenTable_02_arm_1k.jpg": "232a482ff423c5c214c8a892b378b56995f53058f9c4ee5fb5c1798c9afa2adf",
+    "textures/WoodenTable_02_nor_gl_1k.jpg": "9ceabc356fb177af63e118c1ea24245fcec627a027c0e5503fb5d2165e0f5aa3",
+    "WoodenTable_02.bin": "740bca56c0c6eff1209bb046825f5a8467badef1aebe38aab80d309884d4352e",
+    "textures/WoodenTable_02_diff_1k.jpg": "559a27ea7d127010c5557213020b7d4e43d57289ca041291665dfe1213f5fe6c"
+   },
+   "attempts": 1,
+   "bytes": 503309,
+   "seconds": 0.9
+  },
+  {
+   "id": "side_table_tall_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/side_table_tall_01/side_table_tall_01_1k.gltf",
+   "sha256": {
+    "gltf": "f532f78677adb5c3858d5db7fa8a77e897339f606766b3f1468dc0651a2060ec",
+    "textures/side_table_tall_01_nor_gl_1k.jpg": "001625c84713fb4ad3396578f74bd81ad837575259244a917473bc2d23149972",
+    "side_table_tall_01.bin": "904d46ccf1653483298378c5032da99c081d9c8bb5e853015db833d5602ee15f",
+    "textures/side_table_tall_01_arm_1k.jpg": "c38106446d9b0a59f056946effa80325f805c523d87173cf65c7239809015639",
+    "textures/side_table_tall_01_diff_1k.jpg": "b32fd9f1506a80c04ae86b8cc73a875f3e024eafc8cc4df4371cb29176ec38d6"
+   },
+   "attempts": 1,
+   "bytes": 563895,
+   "seconds": 1.0
+  },
+  {
+   "id": "GothicCabinet_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/GothicCabinet_01/GothicCabinet_01_1k.gltf",
+   "sha256": {
+    "gltf": "1b3506f78e263c66e90d4a84b9efa883fe0bb02a13ff8ead2b3a265024e045ce",
+    "GothicCabinet_01.bin": "f1019b130872cad82d5bf5e27528a980fabbd69a9128340e5eb7530ea2d7c17b",
+    "textures/GothicCabinet_01_nor_gl_1k.jpg": "8c413ff4acbc3b4c7b58cb08e9a921f1781817a24533e0e9af6880ef40bfd68c",
+    "textures/GothicCabinet_01_diff_1k.jpg": "9b9586d9a840045d3f27ea4237ec56d713212fb877aceb2d0fc1cb75c7d59b98",
+    "textures/GothicCabinet_01_arm_1k.jpg": "46b4a66b23836d37d5771ec024abfdc935c7b2bb17d73e2d802abca37edb6994"
+   },
+   "attempts": 1,
+   "bytes": 1015446,
+   "seconds": 1.0
+  },
+  {
+   "id": "chinese_cabinet",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_cabinet/chinese_cabinet_1k.gltf",
+   "sha256": {
+    "gltf": "f7875e583eb73798eed01e1b466bb4c3bc76a46c6bbade39091a01e5ba561293",
+    "textures/chinese_cabinet_diff_1k.jpg": "7552eb37f049d86d0ae210c43da5639265614466d3636682eb9d9b103e5fe07b",
+    "textures/chinese_cabinet_nor_gl_1k.jpg": "6c583a8eaf4d78561bbbb0107a85231173eb9290cc6c233dcf9877e3175017c2",
+    "textures/chinese_cabinet_arm_1k.jpg": "c017dcd80a4a25535ac96c2f8a115a87be3f6b89d5ad153bd72e3a705f96107d",
+    "chinese_cabinet.bin": "e0fa721a1536b426e70d2427f5068cd6b7467aac77cea92617862d05d981918f"
+   },
+   "attempts": 1,
+   "bytes": 2341063,
+   "seconds": 1.1
+  },
+  {
+   "id": "chinese_commode",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_commode/chinese_commode_1k.gltf",
+   "sha256": {
+    "gltf": "40319d26c1bde03d4f3cd42908541aee9cfc3b918a2e74609d0ce9d523e23a16",
+    "textures/chinese_commode_diff_1k.jpg": "82470211ad5479cd4a8950962752e41910bff8b37c3f1525d5b75cafe9970131",
+    "textures/chinese_commode_nor_gl_1k.jpg": "961b96433dac5be681358f987c8097612cbe9743d38b361b8cfcfff6283a338d",
+    "chinese_commode.bin": "90d1bd352c559418fc070546d02dafeee9f14889bc7538abbfd517ab28b81b9a",
+    "textures/chinese_commode_arm_1k.jpg": "fb8989f9949b0dd3dc965f7bec92b37606b08f630807ba18ea10d7682733eef0"
+   },
+   "attempts": 1,
+   "bytes": 1910253,
+   "seconds": 1.5
+  },
+  {
+   "id": "painted_wooden_cabinet",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/painted_wooden_cabinet/painted_wooden_cabinet_1k.gltf",
+   "sha256": {
+    "gltf": "ce04543cdb10e05fe9c2cc08e9c118b16c1c717a07bcbfac9b99859465c8d1ed",
+    "textures/painted_wooden_cabinet_diff_1k.jpg": "2dbed9f9ec8e49fc2e87de8cd86e2029a80e9001b5102b4e47c7dfa913f34d89",
+    "textures/painted_wooden_cabinet_arm_1k.jpg": "34e0bcb00a62704d85161d41e844e798d4f894e416e7769079d50a21d561d171",
+    "textures/painted_wooden_cabinet_nor_gl_1k.jpg": "e94edf68faeaf68016c28da9b9f299bb38c57463acd94130ecf98dcaef790016",
+    "painted_wooden_cabinet.bin": "1023d773d84c42f2709ec297247d90b0e2833e37241fbe852e2f33b41ae10cda"
+   },
+   "attempts": 1,
+   "bytes": 1861779,
+   "seconds": 3.3
+  },
+  {
+   "id": "chinese_sofa",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_sofa/chinese_sofa_1k.gltf",
+   "sha256": {
+    "gltf": "33f9f1bf014bea843f24944ed5ed2b0de0ba0ba1728ddac85fc79eb5aa2e6dce",
+    "textures/chinese_sofa_diff_1k.jpg": "fb512b25971ff1fa17d8049e9687fb232195b73fcf98ebf55e277df2d2d6bca3",
+    "textures/chinese_sofa_arm_1k.jpg": "d0aabd7f28848c3f1189f768a50a29bc32ccdef2f557f91160080a47890be0f7",
+    "chinese_sofa.bin": "5e91e3bc0d8bed2c7260501feca7d24eb355f2477a3ad2ca5e782351616cca4f",
+    "textures/chinese_sofa_nor_gl_1k.jpg": "6c7b73f4c1b38d8e26d35df1deb8f38af2f74fd08597a3a52645a41c6a417735"
+   },
+   "attempts": 1,
+   "bytes": 1572057,
+   "seconds": 2.1
+  },
+  {
+   "id": "chinese_tea_table",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/chinese_tea_table/chinese_tea_table_1k.gltf",
+   "sha256": {
+    "gltf": "4c1987aa1978c4fe1dfd0f5f10739df399346fc4c9373315d8d4b0cc798d8b01",
+    "textures/chinese_tea_table_arm_1k.jpg": "5d93474de9d0560d8a9a46a498fc6f64fb030f9cec6e6eb8f95c36dfc8e09e94",
+    "chinese_tea_table.bin": "e584dbcf8d654c662ef849ef6111b11dc9f87e9a7ea8dc98c7d32dbfe10b7e52",
+    "textures/chinese_tea_table_nor_gl_1k.jpg": "4b6eea9bbf344912313a1046fd3e5183970a907b6dbd55d1ef465e27dd2d0859",
+    "textures/chinese_tea_table_diff_1k.jpg": "beaff8984d8fd498b7cfecc2e5decd4db3ba6c87583acc41d18767326cb3ae3c"
+   },
+   "attempts": 1,
+   "bytes": 1581290,
+   "seconds": 3.4
+  },
+  {
+   "id": "coffee_table_round_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/coffee_table_round_01/coffee_table_round_01_1k.gltf",
+   "sha256": {
+    "gltf": "58fe785584f8999f760e590b04ce74f83962d42c9440ab9415910f63a31165dc",
+    "textures/coffee_table_round_01_diff_1k.jpg": "422b4a24a4459e1fd6d121aae4f1097dd3e467c7a8036bb1d003f955302f1d28",
+    "textures/coffee_table_round_01_arm_1k.jpg": "7221b03af475555092abd650798facbb945bf4acf02e48f8697f012d8515bf52",
+    "coffee_table_round_01.bin": "9605a0c156bff4ec87e8717a79978d85d4e750d21b3193a3d08bed16e8666035",
+    "textures/coffee_table_round_01_nor_gl_1k.jpg": "a5912db1918b1ec925efb19179675cafc8832b082f80b2ea35c3a58b45e1aec4"
+   },
+   "attempts": 1,
+   "bytes": 1563153,
+   "seconds": 1.0
+  },
+  {
+   "id": "gothic_coffee_table",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/gothic_coffee_table/gothic_coffee_table_1k.gltf",
+   "sha256": {
+    "gltf": "4368fa0a0d81cd8651bfcc8a6b48bf43576e1549770c1057eea71eea3d99d54b",
+    "textures/gothic_coffee_table_nor_gl_1k.jpg": "9c066c887be6cb5ccf78979a631e48a5b6f58adbde5b1395481055f20b98d2a0",
+    "textures/gothic_coffee_table_diff_1k.jpg": "d3e2f091c0010da1f5e5e974ee09c2639674a78231a8b920b2f95098be8a588d",
+    "textures/gothic_coffee_table_arm_1k.jpg": "da1f1a69554aa5b5fd571f32ac54a9fe2e9cafc235a00a901e887537ce0174dc",
+    "gothic_coffee_table.bin": "6f138d3da02e5d70b2cd0932b015d72a306b9f91acbbc8e6abdb2f4982eddb40"
+   },
+   "attempts": 1,
+   "bytes": 3266715,
+   "seconds": 1.1
+  },
+  {
+   "id": "industrial_coffee_table",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/industrial_coffee_table/industrial_coffee_table_1k.gltf",
+   "sha256": {
+    "gltf": "e692c26fa4c9179ee2f3f9caa95900e271de4f549e3eabf2b4a3aa1217eaae78",
+    "textures/industrial_coffee_table_nor_gl_1k.jpg": "a18b3b4509827c84cfa30df0e0d9c207dd09c71d52fc54e34a6d6898d17af968",
+    "textures/industrial_coffee_table_diff_1k.jpg": "964a1b580877e607ee8facef0be6fe963db847e160676e28942b2f28c3a8b5b7",
+    "textures/industrial_coffee_table_arm_1k.jpg": "6a10ab1b6bb62907654966e39cf53d95a31f93a9cf4c9e0d408cbca1f175ef2c",
+    "industrial_coffee_table.bin": "a38f03b1a036deb7c959abca531ae2b22c3392de66cba8e9dab2f6a59ab05eca"
+   },
+   "attempts": 1,
+   "bytes": 3244721,
+   "seconds": 1.3
+  },
+  {
+   "id": "small_wooden_table_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/small_wooden_table_01/small_wooden_table_01_1k.gltf",
+   "sha256": {
+    "gltf": "2a33fb09785a9553c3cd4d0c5f8b874bb0fb9f26c8ef2613b65607524411f352",
+    "textures/small_wooden_table_01_arm_1k.jpg": "e1d01aaf54338b61f224e8b08c5b9e9879126ae3908a92cb8ad161bf54078c34",
+    "small_wooden_table_01.bin": "f0ca88dac6cf094e1ba260ee1bc21756a84a27b5456bcf45bda2227819458d84",
+    "textures/small_wooden_table_01_diff_1k.jpg": "ef587bffaf9f65ec81e0777fa6f25d835ed354cef055669c8a783086fd45b9dd",
+    "textures/small_wooden_table_01_nor_gl_1k.jpg": "7f675805966ce02cd7678687c4fc86c0dfe4b20106486bb0c772143ea8ca3b4b"
+   },
+   "attempts": 1,
+   "bytes": 414763,
+   "seconds": 0.9
+  },
+  {
+   "id": "gallinera_table",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/gallinera_table/gallinera_table_1k.gltf",
+   "sha256": {
+    "gltf": "6254d8b51b9fbccc86a4978796ee5d3cb7d46a78cbf2b3090ec12d8c68176a67",
+    "textures/gallinera_table_diff_1k.jpg": "c052ce237c9f5cc77b523ebd9a35b69b16017305c7b3bb919a31069519b873e5",
+    "textures/gallinera_table_nor_gl_1k.jpg": "2cf4c803bf5be25c71dcf132dbfa48a479f06a07e93fe7ab75896ff28d34ce1e",
+    "textures/gallinera_table_arm_1k.jpg": "7a23e58c0aa26fa69f4e17dc9626b8fd90a1845a4b63186407417d2ad3f720c3",
+    "gallinera_table.bin": "ba3f5e6f1b7ffcf82450f2b012f39055a8987485ce6c0227238adeec065c1a36"
+   },
+   "attempts": 1,
+   "bytes": 1838718,
+   "seconds": 1.0
+  },
+  {
+   "id": "round_wooden_table_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/round_wooden_table_01/round_wooden_table_01_1k.gltf",
+   "sha256": {
+    "gltf": "dd09c1663b10d15a1fda12ba4f53743e8b8379b17254a78be22100d584738b48",
+    "textures/round_wooden_table_01_nor_gl_1k.jpg": "5f80ed76e2eccaea8ab7c0cc9c85d29cc9b164aabfa2403304e1ec79dc47150c",
+    "textures/round_wooden_table_01_arm_1k.jpg": "32b5056dc36e3081987c20cd03f15e73298266c1aff3e573b832e9dd0f8145b9",
+    "textures/round_wooden_table_01_diff_1k.jpg": "d83659d8d584bbadf160760b825f990c6264901e33051643d19fcd389b0d19ae",
+    "round_wooden_table_01.bin": "c2635368bc86239a73fafdd8bce20b4261155ce7241e95e809a753ed4693f157"
+   },
+   "attempts": 1,
+   "bytes": 550374,
+   "seconds": 1.0
+  },
+  {
+   "id": "round_wooden_table_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/round_wooden_table_02/round_wooden_table_02_1k.gltf",
+   "sha256": {
+    "gltf": "df65c35148280a06efcc06bfa75432bb13f29318e869597fc94f364ce2b55974",
+    "textures/round_wooden_table_02_nor_gl_1k.jpg": "34989b9a15753b964a4d9d6b2673c048ff2c14feedbe4e6adbeb4bf32be8bc8c",
+    "textures/round_wooden_table_02_diff_1k.jpg": "9872acedc6be92ef232c581c8e9ce435e4aa0d8f5c4b75e4ce445995a3ef8c28",
+    "textures/round_wooden_table_02_arm_1k.jpg": "613d051b4c4e093c5e65eec37d39f6f48ac5476e2cb1b59c4b034f308ef1a7ee",
+    "round_wooden_table_02.bin": "fa9a0ed80be31d9160207913762cedc5de21d1cb37b01a5ae6caa23ce7a741b6"
+   },
+   "attempts": 1,
+   "bytes": 1921292,
+   "seconds": 1.2
+  },
+  {
+   "id": "drawer_cabinet",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/drawer_cabinet/drawer_cabinet_1k.gltf",
+   "sha256": {
+    "gltf": "899581e6a041644139a138f909c6ba001684cc55b5d1702e08f01094e20d0617",
+    "textures/drawer_cabinet_arm_1k.jpg": "8f8eefaaadcee247204c5658c2f4d9cac598222336918b01eb48e4190317788c",
+    "textures/drawer_cabinet_nor_gl_1k.jpg": "26d0904ad341353e095ef619d157a5f416be014500475976f1144827cc849faa",
+    "textures/drawer_cabinet_diff_1k.jpg": "0fe270409b54a5609662dda14afaa94af4bd3267dcd83dd824e05fa880d96efb",
+    "drawer_cabinet.bin": "3460b9fe00ffbe779b7f7f2de3b159c214cfec275c06194add0eebd951ee14e9"
+   },
+   "attempts": 1,
+   "bytes": 1143429,
+   "seconds": 1.0
+  },
+  {
+   "id": "painted_wooden_cabinet_02",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/painted_wooden_cabinet_02/painted_wooden_cabinet_02_1k.gltf",
+   "sha256": {
+    "gltf": "a4b697adf7a24a081b8452f5a7d482765e2139cf2a6687a4cbb2a7b8bea24325",
+    "textures/painted_wooden_cabinet_02_arm_1k.jpg": "0cf309449d4b0c1ecb0a3adbc17837b6f77f36cb45c1f0ceb6013b07fac44214",
+    "painted_wooden_cabinet_02.bin": "7acab853993b90cafc9c7550a7035397dfeb4bbda7f0dba8759d40a971c755ca",
+    "textures/painted_wooden_cabinet_02_nor_gl_1k.jpg": "46e8df6be06eca30a05d0e90f12e8799e6e11c73ab7c910cc3541b0833ee0103",
+    "textures/painted_wooden_cabinet_02_diff_1k.jpg": "ddb2cace49bb05b8e03e6c205223a69f95e5eef84ec66e97e5d0e49d2a1af09e"
+   },
+   "attempts": 1,
+   "bytes": 1596230,
+   "seconds": 1.0
+  },
+  {
+   "id": "vintage_cabinet_01",
+   "ok": true,
+   "size": "1k",
+   "gltf": "models/vintage_cabinet_01/vintage_cabinet_01_1k.gltf",
+   "sha256": {
+    "gltf": "ce66c642cb13ba11bf7cde72bb58ad465dce1909dbef8a22dd55b28d857c1848",
+    "textures/vintage_cabinet_01_a_rough_1k.jpg": "a641d1ac6b43ca25eb1b26e631057b79c3f2ab1b39a3460a5894b5c3dd22b420",
+    "textures/vintage_cabinet_01_a_arm_1k.jpg": "0f5970977780b6dbb202f1371777b7b616dee9da7e01760eee306c2202ffeb17",
+    "textures/vintage_cabinet_01_a_nor_gl_1k.jpg": "08d64582202f32c8f2250ee2061dc870678ac694206f9b4edf2acd11e33323a4",
+    "textures/vintage_cabinet_01_b_rough_1k.jpg": "1f11ec7fdea1b6a9ce7ea8a3d2110f944860aeb72dce4d017b8d2880582dfb20",
+    "vintage_cabinet_01.bin": "407c58be2c5efb1d41d549fcff6a57d18d025033803dcb241e57349dd65bcf60",
+    "textures/vintage_cabinet_01_b_nor_gl_1k.jpg": "c9580fbf1f69d7bc23817216e2954c713c87aceb5c4f04b9b1a5233c2cf2ce7b",
+    "textures/vintage_cabinet_01_a_diff_1k.jpg": "06453bb3e2811147a7558914437c20042f3f5c21b9c4f1d3488bdfe94f25f03f",
+    "textures/vintage_cabinet_01_b_diff_1k.jpg": "81967dbb387b205b2aa6f253165c8c44f60cdf5e57d9ceebf230fef21569b33a"
+   },
+   "attempts": 1,
+   "bytes": 2870976,
+   "seconds": 1.5
+  }
+ ]
+}

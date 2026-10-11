@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_bathroom_sink_1",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_bathroom_sink_1/export_001/export_001.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_bathroom_sink_1/infinigen.assets.objects.bathroom.BathroomSinkFactory_001/scene.blend",
+ "dims": [
+  0.6341,
+  0.7251,
+  0.3146
+ ],
+ "meshes": 1,
+ "class": "BathroomSinkFactory",
+ "dotted": "infinigen.assets.objects.bathroom.BathroomSinkFactory",
+ "seed": 1,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 5.1,
+ "attempts": 1
+}

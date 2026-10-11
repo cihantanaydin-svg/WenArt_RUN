@@ -1,0 +1,554 @@
+{
+ "schema_version": "0.1",
+ "kind": "library_audit_answers",
+ "model_key": "agent",
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "slug": "qwen3.8-27b-fp8",
+ "incomplete": false,
+ "calls": {
+  "audit_abo_B073P5PNZ8": {
+   "task": "library_audit_type",
+   "input_sha256": "380d902a23c84ad28c46e16dd34453016c12137e4c34333e7ef4ee94f63c1f84",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P5PNZ8.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.789
+  },
+  "audit_abo_B073P5Y9J1": {
+   "task": "library_audit_type",
+   "input_sha256": "6ff1e7eb12dad96c40ffccaf65003802dabb3b8e9e825995d2e131f4c6f9b8f5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P5Y9J1.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_abo_B073P66TV3": {
+   "task": "library_audit_type",
+   "input_sha256": "7d395697a3dd982a47d31c5a3d31806db757efe338d827b12b5836cb7efde3e4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P66TV3.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_abo_B073P6HGJS": {
+   "task": "library_audit_type",
+   "input_sha256": "025b46ad9ac5f31600c54c0463ed3a1372b02ef0a05500a38c756b04320ab312",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P6HGJS.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.777
+  },
+  "audit_abo_B07H2MHYDQ": {
+   "task": "library_audit_type",
+   "input_sha256": "b5213944a360774e5ba7f1ba981858a5a8463b970b62f9bdcb01e26352680f09",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/abo_B07H2MHYDQ.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.842
+  },
+  "audit_bull_head": {
+   "task": "library_audit_type",
+   "input_sha256": "b2587682e6d747b6bebb1623e3c77d70ad3c9069df1420de88e0091603748791",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/bull_head.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.794
+  },
+  "audit_carved_wooden_elephant": {
+   "task": "library_audit_type",
+   "input_sha256": "7273c14a4e2edcd59c5822a7f6ee0501c48c756d3c26970135b595808a9efb20",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/carved_wooden_elephant.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.553
+  },
+  "audit_infinigen_bathroom_sink_0": {
+   "task": "library_audit_type",
+   "input_sha256": "9e50b37f1ced3efe6fe128ed0844f234874d7effba762aac3d6c729c61253142",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_0.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_infinigen_bathroom_sink_1": {
+   "task": "library_audit_type",
+   "input_sha256": "6795a37f8b7591f693cfc956b38dad7168810f95832de367476dea9dd2eecea8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_1.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.856
+  },
+  "audit_infinigen_bathroom_sink_2": {
+   "task": "library_audit_type",
+   "input_sha256": "53abd74594ff6ef40b7819e40b6e10ccb2f6b94506928115bd3b5bc08ec0e975",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_2.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.815
+  },
+  "audit_infinigen_bathtub_0": {
+   "task": "library_audit_type",
+   "input_sha256": "74d99f0015603799c47d2acbd6f16af977a17cf8e84b155c8c55f4b1451d314d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_0.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_infinigen_bathtub_1": {
+   "task": "library_audit_type",
+   "input_sha256": "899382c08b28a0561e9e8c04b8a4c56238fc9caee04c0e5628c84a850c07f8e6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_1.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.818
+  },
+  "audit_infinigen_bathtub_2": {
+   "task": "library_audit_type",
+   "input_sha256": "fb9f057866c86f7580cadb832d664fb8879ad32c3373af1cf6c36ddf5725565f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_2.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.811
+  },
+  "audit_infinigen_beverage_fridge_0": {
+   "task": "library_audit_type",
+   "input_sha256": "9fb62c2c81c61bbb2d733fe4ead29d8947c13c430c1909494e2c6578ec2782bc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/infinigen_beverage_fridge_0.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.802
+  },
+  "audit_infinigen_beverage_fridge_1": {
+   "task": "library_audit_type",
+   "input_sha256": "015bb4f796c473fc4e4464d25abf04cf8a3c4b1ae47524f125b62f8fd24775d4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/infinigen_beverage_fridge_1.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.804
+  },
+  "audit_infinigen_books_0": {
+   "task": "library_audit_type",
+   "input_sha256": "3c8491f0da57feb0423803700417138b2ed3ae9565d5c300a3f8dbe04f62ac27",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/infinigen_books_0.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.749
+  },
+  "audit_infinigen_books_1": {
+   "task": "library_audit_type",
+   "input_sha256": "09968ef321ede86ecbf4f2611514c3fc9fa829b4f2acf3d6b0e4858242249f22",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/infinigen_books_1.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.776
+  },
+  "audit_infinigen_books_2": {
+   "task": "library_audit_type",
+   "input_sha256": "916ef174359c4e16e93db4bcb675b2552e5184abf932172073e8f51d68a3e726",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/infinigen_books_2.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.751
+  },
+  "audit_infinigen_bowl_0": {
+   "task": "library_audit_type",
+   "input_sha256": "709842ec08d8066988f5df5f1ffe21c67dafe30dd90967321ed6f7fd4630ed06",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/infinigen_bowl_0.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.766
+  },
+  "audit_infinigen_bowl_1": {
+   "task": "library_audit_type",
+   "input_sha256": "f1352a3a52cb6bac6be015802c50aef13edb64604da5d15f2200d9517bdfe158",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/infinigen_bowl_1.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.783
+  },
+  "audit_infinigen_bowl_2": {
+   "task": "library_audit_type",
+   "input_sha256": "8d8fb6f11bb7520512ed05e95e22a63a28af5f2d25806d28090599be9b7eebe9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/infinigen_bowl_2.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.786
+  },
+  "audit_infinigen_kitchen_sink_0": {
+   "task": "library_audit_type",
+   "input_sha256": "24cac1c43ee3028842e37089aa0d0ad257ad6b502a216d81d47c5107a5ea42ec",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/infinigen_kitchen_sink_0.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_infinigen_kitchen_sink_2": {
+   "task": "library_audit_type",
+   "input_sha256": "8cf735d5b71d9d14d98e50adfb7396bea8215a78b773bf2252cc3c8a20cfec3b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/infinigen_kitchen_sink_2.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.825
+  },
+  "audit_infinigen_oven_0": {
+   "task": "library_audit_type",
+   "input_sha256": "e0744c680773beca74d74ed767ab830d4de75669cf89486589d5227133ae8636",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/infinigen_oven_0.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.805
+  },
+  "audit_infinigen_oven_1": {
+   "task": "library_audit_type",
+   "input_sha256": "a83c7efb218bb7f614f45d2abe2118e7cf4c9e034f4c5177e3cb8c6eee995aa3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/infinigen_oven_1.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.807
+  },
+  "audit_infinigen_oven_2": {
+   "task": "library_audit_type",
+   "input_sha256": "c7d6576bd826983261626c8f8ae7b9f15f81fff3daad8954eb151581a6c7c30d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/infinigen_oven_2.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.804
+  },
+  "audit_infinigen_pot_0": {
+   "task": "library_audit_type",
+   "input_sha256": "fece3fa919410912475e4ecc24fa64c7f90513dc0a508eb788cec30eccde07cb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/infinigen_pot_0.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.745
+  },
+  "audit_infinigen_pot_1": {
+   "task": "library_audit_type",
+   "input_sha256": "038fa85e928bc531e5f6b43a7541535be2819af5fe9a991ddba2677f4306d124",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/infinigen_pot_1.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.779
+  },
+  "audit_infinigen_pot_2": {
+   "task": "library_audit_type",
+   "input_sha256": "160d97ed5062df24f819a289915abe810dff467a536f3d5226f696939fefd85a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/infinigen_pot_2.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.79
+  },
+  "audit_infinigen_toilet_0": {
+   "task": "library_audit_type",
+   "input_sha256": "c80ab6f8955c8f9df4d2ad8c33bd10a6f001af283ec3930765d92264bf601526",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/infinigen_toilet_0.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.826
+  },
+  "audit_infinigen_toilet_1": {
+   "task": "library_audit_type",
+   "input_sha256": "7c9d993ee4a34f2b2ed67ec2705ad73add1d559e17b3c9c34ad0dc2f457db5ce",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/infinigen_toilet_1.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.785
+  },
+  "audit_infinigen_toilet_2": {
+   "task": "library_audit_type",
+   "input_sha256": "5b689e3debe8b1af9a370022dcd2f828118272abd0fd878f7f8e65304dc5a294",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/infinigen_toilet_2.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.8
+  },
+  "audit_lion_head": {
+   "task": "library_audit_type",
+   "input_sha256": "cf94f09e42171b62e5d6fa3d49fa02bb1708695c4f220a88afb0675269632348",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/lion_head.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.532
+  },
+  "audit_worn_metal_rack": {
+   "task": "library_audit_type",
+   "input_sha256": "0b4579ec2b0dfd6cf417467cc7a2a28a066715cd97a679f0bc284ea646621fc5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/worn_metal_rack.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.779
+  }
+ }
+}

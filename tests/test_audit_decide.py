@@ -181,8 +181,11 @@ def test_u3_the_18_nc_sa_models_are_removed_in_the_committed_catalogue():
 def test_b2_generated_entries_name_the_generated_source():
     from wenart.assets.objaverse import GENERATED_VIA
     gen = [e for e in entries(library()) if e["source"] == "generated"]
-    assert len(gen) == 281 and all(e["via"] == GENERATED_VIA for e in gen)
+    # the TRELLIS.2 models; pod P4's Infinigen models (``generated.generator``) keep their own credit line
+    trellis = [e for e in gen if (e.get("generated") or {}).get("generator", "trellis") == "trellis"]
+    assert len(trellis) == 281 and all(e["via"] == GENERATED_VIA for e in trellis)
     assert not any("Objaverse" in e["via"] for e in gen)
+    assert all("Infinigen" in e["via"] for e in gen if e not in trellis)
 
 
 def test_licence_removals_are_idempotent():

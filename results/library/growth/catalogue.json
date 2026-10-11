@@ -1,0 +1,274 @@
+{
+ "added": 352,
+ "by_source": {
+  "polyhaven": 87,
+  "abo": 202,
+  "gso": 36,
+  "infinigen": 27
+ },
+ "by_type": {
+  "abo:armchair": 20,
+  "abo:bar_stool": 2,
+  "abo:bench": 1,
+  "abo:bookshelf": 1,
+  "abo:chair": 11,
+  "abo:decor_cushion": 40,
+  "abo:decor_rug": 40,
+  "abo:decor_wall_art": 40,
+  "abo:floor_lamp": 2,
+  "abo:nightstand": 5,
+  "abo:ottoman": 2,
+  "abo:side_table": 9,
+  "abo:sofa": 13,
+  "abo:sofa_corner": 9,
+  "abo:table_coffee": 6,
+  "abo:tall_cabinet": 1,
+  "generated:bathtub": 3,
+  "generated:decor_books": 3,
+  "generated:decor_bowl": 3,
+  "generated:decor_plant_small": 3,
+  "generated:fridge": 3,
+  "generated:sink_kitchen": 3,
+  "generated:stove": 3,
+  "generated:toilet": 3,
+  "generated:washbasin": 3,
+  "gso:decor_basket": 7,
+  "gso:decor_books": 1,
+  "gso:decor_bowl": 12,
+  "gso:decor_plant_small": 15,
+  "gso:decor_tray": 1,
+  "polyhaven:armchair": 1,
+  "polyhaven:bar_stool": 6,
+  "polyhaven:bed_single": 2,
+  "polyhaven:bench": 1,
+  "polyhaven:bookshelf": 5,
+  "polyhaven:chair": 5,
+  "polyhaven:console_table": 2,
+  "polyhaven:decor_basket": 1,
+  "polyhaven:decor_books": 1,
+  "polyhaven:decor_bowl": 2,
+  "polyhaven:decor_candle": 4,
+  "polyhaven:decor_clock": 2,
+  "polyhaven:decor_mirror": 1,
+  "polyhaven:decor_pendant_light": 8,
+  "polyhaven:decor_sculpture": 10,
+  "polyhaven:decor_table_lamp": 2,
+  "polyhaven:decor_vase": 8,
+  "polyhaven:decor_wall_art": 5,
+  "polyhaven:office_chair": 1,
+  "polyhaven:ottoman": 2,
+  "polyhaven:side_table": 2,
+  "polyhaven:sideboard": 4,
+  "polyhaven:sofa": 1,
+  "polyhaven:table_coffee": 5,
+  "polyhaven:table_dining": 3,
+  "polyhaven:tall_cabinet": 2,
+  "polyhaven:wardrobe": 1
+ },
+ "dropped": [
+  {
+   "source": "polyhaven",
+   "id": "decorative_book_set_01",
+   "reason": "not downloaded: KeyError: 'Poly Haven file table has no gltf/1k (available: [])'"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QBL1TB",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QJDGPN",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QMGMYP",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075X2CVQK",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4SCPNQ",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4W235R",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4W5TDF",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4YC7LD",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4YXRH1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4ZGB6K",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4ZQQPR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07DVRNRCW",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07GFFQZQ1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07H8SMDMT",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07H8T39V6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07KSJRMC6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07KSRKDXF",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MMYCL",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MMYDR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MN85B",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCBKLXJ",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCBKT23",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRNLV",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRP2G",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRYSR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCSGS1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCSGT9",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MJL66BL",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MQD1ZZD",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MQD22K6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  }
+ ],
+ "previews": [
+  {
+   "id": "infinigen_dishwasher_0",
+   "factory": "dishwasher",
+   "class": "DishwasherFactory",
+   "glb": "models/generated/infinigen_dishwasher_0.glb",
+   "sha256": "4a9b981f6d7e5b373f6b82e95643b4f8ce0b40d7719385cced8b9739a6e78390"
+  },
+  {
+   "id": "infinigen_microwave_0",
+   "factory": "microwave",
+   "class": "MicrowaveFactory",
+   "glb": "models/generated/infinigen_microwave_0.glb",
+   "sha256": "67cbd1c356b9d0db581ebcc3016fa5c7cb7fff2a75c1b1987bd5720a462a50e0"
+  },
+  {
+   "id": "infinigen_kitchen_cabinet_0",
+   "factory": "kitchen cabinet",
+   "class": "KitchenCabinetFactory",
+   "glb": "models/generated/infinigen_kitchen_cabinet_0.glb",
+   "sha256": "55ce0874ab66902f7e8f2bc8de7ce595a1242fd72268951c1508a7a68055cea8"
+  }
+ ],
+ "copies": {
+  "library": "/workspace/library-audit/p4/audit/catalogue/catalog_library.json",
+  "polyhaven": "/workspace/library-audit/p4/audit/catalogue/catalog.json"
+ },
+ "stats": {
+  "library": {
+   "added": 265,
+   "replaced": 0
+  },
+  "polyhaven": {
+   "added": 87,
+   "replaced": 0
+  },
+  "parametric_replaced": [
+   "bar_stool",
+   "bed_single",
+   "bench",
+   "console_table",
+   "office_chair",
+   "ottoman",
+   "side_table",
+   "sideboard",
+   "tall_cabinet",
+   "wardrobe"
+  ]
+ }
+}

@@ -30,18 +30,36 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_TYPES = set(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"])
 
 
+def surveyed_doc() -> dict:
+    """``catalog.json`` without the Milestone 12 growth entries (``growth``: pod P4, 87 Poly Haven models): the pins
+    below are about the 31 models surveyed in Milestone 4; the growth entries are tested in
+    ``tests/test_library_growth_p4.py`` and ``tests/gpu/test_library.py -k growth``."""
+    doc = json.loads(C.CATALOG_PATH.read_text(encoding="utf-8"))
+    for key in ("entries", "decor"):
+        doc[key] = [e for e in doc.get(key) or [] if not (isinstance(e, dict) and e.get("growth"))]
+    # the parametric entries the growth replaced (a type is either library or parametric in catalog.json) come back
+    covered = {e.get("type") for e in doc["entries"]}
+    doc["entries"] += [{"type": t, "parametric": True, "reason": "surveyed catalogue: no Poly Haven model (M4)"}
+                       for t in C.FURNITURE_TYPES if t not in covered]
+    return doc
+
+
 @pytest.fixture(scope="module")
-def catalog():
-    """The Poly Haven catalogue alone (``catalog.json``): the pins below are about it; the committed Objaverse file
-    (``catalog_objaverse.json``, prep pod) and the merge are tested in ``test_committed_objaverse_catalogue``."""
-    return C.load(objaverse=False)
+def catalog(tmp_path_factory):
+    """The surveyed Poly Haven catalogue alone (``catalog.json`` without the growth entries): the pins below are about
+    it; the committed Objaverse file (``catalog_objaverse.json``, prep pod) and the merge are tested in
+    ``test_committed_objaverse_catalogue``."""
+    path = tmp_path_factory.mktemp("catalog_surveyed") / "catalog.json"
+    path.write_text(json.dumps(surveyed_doc()), encoding="utf-8")
+    return C.load(path, objaverse=False)
 
 
 def base_catalog_path(tmp_path: Path) -> Path:
-    """A copy of ``catalog.json`` with no Objaverse file next to it, for CLI runs pinned to the Poly Haven models."""
+    """A copy of the surveyed ``catalog.json`` (no growth entries) with no Objaverse file next to it, for CLI runs
+    pinned to the Poly Haven models."""
     path = tmp_path / "catalog_base" / "catalog.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(C.CATALOG_PATH.read_text(encoding="utf-8"), encoding="utf-8")
+    path.write_text(json.dumps(surveyed_doc()), encoding="utf-8")
     return path
 
 

@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_dishwasher_0",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_dishwasher_0/export_000/export_000.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_dishwasher_0/infinigen.assets.objects.appliances.DishwasherFactory_000/scene.blend",
+ "dims": [
+  1.3381,
+  1.04,
+  1.1816
+ ],
+ "meshes": 1,
+ "class": "DishwasherFactory",
+ "dotted": "infinigen.assets.objects.appliances.DishwasherFactory",
+ "seed": 0,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 6.5,
+ "attempts": 1
+}

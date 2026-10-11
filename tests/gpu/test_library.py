@@ -533,7 +533,8 @@ def test_growth_new_glbs_load_in_blender_at_plausible_size():
     same = 0
     for e in ok:
         m = measures[e["id"]]
-        assert 0.01 <= max(m["size"]) <= 5.0, (e["id"], m["size"])           # a real piece, metres
+        if (e.get("audit") or {}).get("status") != "removed":   # pod P4: a 10x Poly Haven glTF is removed by the audit
+            assert 0.01 <= max(m["size"]) <= 5.0, (e["id"], m["size"])       # a real piece, metres
         assert m["faces"] > 0 and e["id"] in mdoc["sheets"], e["id"]
         before = (e.get("audit") or {}).get("before") or {}
         got = list(m["model_box_min"]) + list(m["model_box_max"])

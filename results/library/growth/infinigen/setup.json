@@ -1,0 +1,19 @@
+{
+ "ok": true,
+ "commit": "01c39c7f7adcf7363ccbcc57c64410c69f4a4e7c",
+ "tag": "v1.19.0",
+ "python": "3.11.16",
+ "bpy": "4.2.0",
+ "uv": "0.12.18",
+ "seconds": 268,
+ "submodules": {
+  "infinigen/infinigen_gpl": {
+   "commit": "10c1d76f5c35003e919be7265185c9c355e3b70c",
+   "licence": "GPL-3.0 (run on the pod only)"
+  },
+  "infinigen/OcMesher": {
+   "commit": "bb895a01b8f574da10be1df470210df7463a75c7",
+   "licence": "BSD-3-Clause"
+  }
+ }
+}

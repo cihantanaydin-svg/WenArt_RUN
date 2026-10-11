@@ -262,7 +262,22 @@ def test_gso_and_infinigen_entries(tmp_path):
     assert W.generated_credit(doc) == 0 and ig["via"].startswith("generated for WenArt_RUN with Infinigen")
 
 
-def test_copies_validate_and_replace_parametric_types(tmp_path):
+@pytest.fixture
+def pre_p4(tmp_path, monkeypatch):
+    """The repo's catalogues as pod P4 found them (commit a57b64a; gzipped in tests/fixtures/m12_p4): since P4 the
+    committed catalogues hold the growth entries, so the tests of the growth steps start from this snapshot."""
+    import gzip
+    out = tmp_path / "pre_p4"
+    out.mkdir()
+    for name in ("catalog_library", "catalog"):
+        src = ROOT / "tests" / "fixtures" / "m12_p4" / f"{name}_pre_p4.json.gz"
+        (out / f"{name}.json").write_bytes(gzip.decompress(src.read_bytes()))
+    monkeypatch.setattr(I, "LIBRARY_PATH", out / "catalog_library.json")
+    monkeypatch.setattr(I, "POLYHAVEN_PATH", out / "catalog.json")
+    return out
+
+
+def test_copies_validate_and_replace_parametric_types(tmp_path, pre_p4):
     m = measure_of(tmp_path)
     cand = {"id": "painted_wooden_bench", "type": "bench", "kind": "furniture", "title": "Painted Wooden Bench",
             "styles_hint": ["rustic"]}
@@ -737,7 +752,7 @@ def test_catalogue_step_writes_valid_copies(tmp_path):
     assert "| abo | 3 | 2 |" in md and "Infinigen: tag v1.19.0" in md
 
 
-def test_pending_step_needs_the_p3_folder(tmp_path, capsys):
+def test_pending_step_needs_the_p3_folder(tmp_path, capsys, pre_p4):
     a = fixture_growth(tmp_path)
     assert GR.cmd_catalogue(a) == 0
     a.model_key = "agent"
@@ -837,7 +852,7 @@ def ask_fake(out_root: Path, items: list, passes, by_id):
                      log=lambda *a: None) == 0
 
 
-def test_the_audit_chain_after_the_ask(tmp_path):
+def test_the_audit_chain_after_the_ask(tmp_path, pre_p4):
     from wenart.assets.audit import checks as CK
     from wenart.assets.audit import cli as CLI
     from wenart.assets.audit import load_config

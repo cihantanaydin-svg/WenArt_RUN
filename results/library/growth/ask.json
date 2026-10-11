@@ -1,0 +1,18 @@
+{
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "key": "agent",
+ "unanswered_before": 356,
+ "p3_folder": true,
+ "rc_p4": 0,
+ "rc_p3": 0,
+ "unanswered_after": 0,
+ "server": [
+  {
+   "key": "agent",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seqs": 2,
+   "seconds_to_ready": 190.0,
+   "ok": true
+  }
+ ]
+}

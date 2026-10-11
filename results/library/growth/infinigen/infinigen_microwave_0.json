@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_microwave_0",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_microwave_0/export_000/export_000.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_microwave_0/infinigen.assets.objects.appliances.MicrowaveFactory_000/scene.blend",
+ "dims": [
+  0.6477,
+  0.8861,
+  0.4103
+ ],
+ "meshes": 1,
+ "class": "MicrowaveFactory",
+ "dotted": "infinigen.assets.objects.appliances.MicrowaveFactory",
+ "seed": 0,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 8.6,
+ "attempts": 1
+}

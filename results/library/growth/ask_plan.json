@@ -1,0 +1,6 @@
+{
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "key": "agent",
+ "unanswered_before": 356,
+ "p3_folder": true
+}

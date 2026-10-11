@@ -1,0 +1,518 @@
+{
+ "kind": "library_audit_requests",
+ "task": "library_audit_type",
+ "version": "m12.1",
+ "system_prompt": "You audit 3D models for a photoreal interior renderer and answer only with JSON that follows the given schema. Judge only what is visible in the image and the facts given in the text. When unsure, answer false, null or 'unclear'.",
+ "items": [
+  {
+   "key": "audit_abo_B07H2MHYDQ",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/armchair/abo_B07H2MHYDQ.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "abo_B07H2MHYDQ",
+    "type": "armchair",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "b5213944a360774e5ba7f1ba981858a5a8463b970b62f9bdcb01e26352680f09"
+  },
+  {
+   "key": "audit_infinigen_toilet_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/toilet/infinigen_toilet_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_toilet_0",
+    "type": "toilet",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "c80ab6f8955c8f9df4d2ad8c33bd10a6f001af283ec3930765d92264bf601526"
+  },
+  {
+   "key": "audit_infinigen_bathtub_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bathtub_0",
+    "type": "bathtub",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "74d99f0015603799c47d2acbd6f16af977a17cf8e84b155c8c55f4b1451d314d"
+  },
+  {
+   "key": "audit_infinigen_bathroom_sink_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bathroom_sink_0",
+    "type": "washbasin",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "9e50b37f1ced3efe6fe128ed0844f234874d7effba762aac3d6c729c61253142"
+  },
+  {
+   "key": "audit_infinigen_kitchen_sink_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/sink_kitchen/infinigen_kitchen_sink_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_kitchen_sink_0",
+    "type": "sink_kitchen",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "24cac1c43ee3028842e37089aa0d0ad257ad6b502a216d81d47c5107a5ea42ec"
+  },
+  {
+   "key": "audit_infinigen_oven_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/stove/infinigen_oven_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_oven_0",
+    "type": "stove",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "e0744c680773beca74d74ed767ab830d4de75669cf89486589d5227133ae8636"
+  },
+  {
+   "key": "audit_infinigen_beverage_fridge_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/fridge/infinigen_beverage_fridge_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_beverage_fridge_0",
+    "type": "fridge",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "9fb62c2c81c61bbb2d733fe4ead29d8947c13c430c1909494e2c6578ec2782bc"
+  },
+  {
+   "key": "audit_infinigen_toilet_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/toilet/infinigen_toilet_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_toilet_1",
+    "type": "toilet",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "7c9d993ee4a34f2b2ed67ec2705ad73add1d559e17b3c9c34ad0dc2f457db5ce"
+  },
+  {
+   "key": "audit_infinigen_bathtub_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bathtub_1",
+    "type": "bathtub",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "899382c08b28a0561e9e8c04b8a4c56238fc9caee04c0e5628c84a850c07f8e6"
+  },
+  {
+   "key": "audit_infinigen_bathroom_sink_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bathroom_sink_1",
+    "type": "washbasin",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "6795a37f8b7591f693cfc956b38dad7168810f95832de367476dea9dd2eecea8"
+  },
+  {
+   "key": "audit_infinigen_oven_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/stove/infinigen_oven_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_oven_1",
+    "type": "stove",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "a83c7efb218bb7f614f45d2abe2118e7cf4c9e034f4c5177e3cb8c6eee995aa3"
+  },
+  {
+   "key": "audit_infinigen_beverage_fridge_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/fridge/infinigen_beverage_fridge_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_beverage_fridge_1",
+    "type": "fridge",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "015bb4f796c473fc4e4464d25abf04cf8a3c4b1ae47524f125b62f8fd24775d4"
+  },
+  {
+   "key": "audit_infinigen_toilet_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/toilet/infinigen_toilet_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_toilet_2",
+    "type": "toilet",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "5b689e3debe8b1af9a370022dcd2f828118272abd0fd878f7f8e65304dc5a294"
+  },
+  {
+   "key": "audit_infinigen_bathtub_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bathtub_2",
+    "type": "bathtub",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "fb9f057866c86f7580cadb832d664fb8879ad32c3373af1cf6c36ddf5725565f"
+  },
+  {
+   "key": "audit_infinigen_bathroom_sink_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bathroom_sink_2",
+    "type": "washbasin",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "53abd74594ff6ef40b7819e40b6e10ccb2f6b94506928115bd3b5bc08ec0e975"
+  },
+  {
+   "key": "audit_infinigen_kitchen_sink_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/sink_kitchen/infinigen_kitchen_sink_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_kitchen_sink_2",
+    "type": "sink_kitchen",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "8cf735d5b71d9d14d98e50adfb7396bea8215a78b773bf2252cc3c8a20cfec3b"
+  },
+  {
+   "key": "audit_infinigen_oven_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/stove/infinigen_oven_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_oven_2",
+    "type": "stove",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "c7d6576bd826983261626c8f8ae7b9f15f81fff3daad8954eb151581a6c7c30d"
+  },
+  {
+   "key": "audit_abo_B073P5PNZ8",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/wall_art/abo_B073P5PNZ8.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "abo_B073P5PNZ8",
+    "type": "wall_art",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "380d902a23c84ad28c46e16dd34453016c12137e4c34333e7ef4ee94f63c1f84"
+  },
+  {
+   "key": "audit_abo_B073P5Y9J1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/wall_art/abo_B073P5Y9J1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "abo_B073P5Y9J1",
+    "type": "wall_art",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "6ff1e7eb12dad96c40ffccaf65003802dabb3b8e9e825995d2e131f4c6f9b8f5"
+  },
+  {
+   "key": "audit_abo_B073P66TV3",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/wall_art/abo_B073P66TV3.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "abo_B073P66TV3",
+    "type": "wall_art",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "7d395697a3dd982a47d31c5a3d31806db757efe338d827b12b5836cb7efde3e4"
+  },
+  {
+   "key": "audit_abo_B073P6HGJS",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/wall_art/abo_B073P6HGJS.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "abo_B073P6HGJS",
+    "type": "wall_art",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "025b46ad9ac5f31600c54c0463ed3a1372b02ef0a05500a38c756b04320ab312"
+  },
+  {
+   "key": "audit_infinigen_books_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/books/infinigen_books_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_books_0",
+    "type": "books",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "3c8491f0da57feb0423803700417138b2ed3ae9565d5c300a3f8dbe04f62ac27"
+  },
+  {
+   "key": "audit_infinigen_bowl_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/bowl/infinigen_bowl_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bowl_0",
+    "type": "bowl",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "709842ec08d8066988f5df5f1ffe21c67dafe30dd90967321ed6f7fd4630ed06"
+  },
+  {
+   "key": "audit_infinigen_pot_0",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/plant_small/infinigen_pot_0.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_pot_0",
+    "type": "plant_small",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "fece3fa919410912475e4ecc24fa64c7f90513dc0a508eb788cec30eccde07cb"
+  },
+  {
+   "key": "audit_infinigen_books_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/books/infinigen_books_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_books_1",
+    "type": "books",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "09968ef321ede86ecbf4f2611514c3fc9fa829b4f2acf3d6b0e4858242249f22"
+  },
+  {
+   "key": "audit_infinigen_bowl_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/bowl/infinigen_bowl_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bowl_1",
+    "type": "bowl",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "f1352a3a52cb6bac6be015802c50aef13edb64604da5d15f2200d9517bdfe158"
+  },
+  {
+   "key": "audit_infinigen_pot_1",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/plant_small/infinigen_pot_1.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_pot_1",
+    "type": "plant_small",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "038fa85e928bc531e5f6b43a7541535be2819af5fe9a991ddba2677f4306d124"
+  },
+  {
+   "key": "audit_infinigen_books_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/books/infinigen_books_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_books_2",
+    "type": "books",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "916ef174359c4e16e93db4bcb675b2552e5184abf932172073e8f51d68a3e726"
+  },
+  {
+   "key": "audit_infinigen_bowl_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/bowl/infinigen_bowl_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_bowl_2",
+    "type": "bowl",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "8d8fb6f11bb7520512ed05e95e22a63a28af5f2d25806d28090599be9b7eebe9"
+  },
+  {
+   "key": "audit_infinigen_pot_2",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/plant_small/infinigen_pot_2.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "infinigen_pot_2",
+    "type": "plant_small",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "160d97ed5062df24f819a289915abe810dff467a536f3d5226f696939fefd85a"
+  },
+  {
+   "key": "audit_worn_metal_rack",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/bookshelf/worn_metal_rack.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? bed_single, bed_double, sofa, armchair, table_dining, table_coffee, desk, chair, wardrobe, fridge, stove, sink_kitchen, washbasin, toilet, shower, bathtub, tv_unit, bookshelf, nightstand, dresser, washing_machine, side_table, floor_lamp, potted_plant, sofa_corner, chaise, ottoman, bench, bar_stool, office_chair, console_table, crib, bunk_bed, sideboard, shoe_cabinet, display_cabinet, tall_cabinet. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "worn_metal_rack",
+    "type": "bookshelf",
+    "kind": "furniture",
+    "pass": 2
+   },
+   "input_sha256": "0b4579ec2b0dfd6cf417467cc7a2a28a066715cd97a679f0bc284ea646621fc5"
+  },
+  {
+   "key": "audit_bull_head",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/sculpture/bull_head.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "bull_head",
+    "type": "sculpture",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "b2587682e6d747b6bebb1623e3c77d70ad3c9069df1420de88e0091603748791"
+  },
+  {
+   "key": "audit_carved_wooden_elephant",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/sculpture/carved_wooden_elephant.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "carved_wooden_elephant",
+    "type": "sculpture",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "7273c14a4e2edcd59c5822a7f6ee0501c48c756d3c26970135b595808a9efb20"
+  },
+  {
+   "key": "audit_lion_head",
+   "task": "library_audit_type",
+   "images": [
+    "../sheets/sculpture/lion_head.jpg"
+   ],
+   "prompt": "The image shows one 3D model at its real scale: four renders (front 3/4, side, top, back) next to a 1.75 m person silhouette and a 0.45 m seat-height bar on a metric grid.\n\nWhich one of these is it? cushion, plant, rug, wall_art, vase, bowl, plant_small, table_lamp, mirror, curtain, blind, throw, books, candle, basket, tray, clock, sculpture, plant_large, pendant_light, ceiling_light. Answer 'other' when none fits.\n\nAnswer only with JSON: {\"type_guess\": ...}.",
+   "context": {
+    "id": "lion_head",
+    "type": "sculpture",
+    "kind": "decor",
+    "pass": 2
+   },
+   "input_sha256": "cf94f09e42171b62e5d6fa3d49fa02bb1708695c4f220a88afb0675269632348"
+  }
+ ]
+}

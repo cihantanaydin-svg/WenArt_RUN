@@ -1,0 +1,372 @@
+{
+ "source": "gso",
+ "approved_by": "the user, in the session of 11 Oct 2026 (\"1a, 2 all four; go on with P4\"; docs/milestone12.md §14.3)",
+ "approved_utc": "2026-10-11T04:00:00Z",
+ "approved": 36,
+ "ok": 36,
+ "failed": 0,
+ "size": null,
+ "seconds": 13.0,
+ "records": [
+  {
+   "id": "gso_RJ_Rabbit_Easter_Basket_Blue",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/RJ_Rabbit_Easter_Basket_Blue.zip",
+   "path": "/workspace/library-growth/gso/zips/RJ_Rabbit_Easter_Basket_Blue.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 7010798,
+   "sha256": "bbe6d20c1e60a33b2f4d99e2a8ffacd7e8c73fcec01af4cbf0aa082f24f5991b",
+   "seconds": 3.0
+  },
+  {
+   "id": "gso_Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13.zip",
+   "path": "/workspace/library-growth/gso/zips/Smith_Hawken_Woven_BasketTray_Organizer_with_3_Compartments_95_x_9_x_13.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 11172770,
+   "sha256": "a20f6325b337cea3b6d1a32fbecb30b5bff6ee30cc1168b2cd92cd6cabef3d0e",
+   "seconds": 3.4
+  },
+  {
+   "id": "gso_Spritz_Easter_Basket_Plastic_Teal",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Spritz_Easter_Basket_Plastic_Teal.zip",
+   "path": "/workspace/library-growth/gso/zips/Spritz_Easter_Basket_Plastic_Teal.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 3227912,
+   "sha256": "5799f0c9c3f8b67282017c97c5619147102603235d6403c9bc2ee0391e5fca74",
+   "seconds": 1.6
+  },
+  {
+   "id": "gso_Squirt_Strain_Fruit_Basket",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Squirt_Strain_Fruit_Basket.zip",
+   "path": "/workspace/library-growth/gso/zips/Squirt_Strain_Fruit_Basket.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4216724,
+   "sha256": "58d1e6e83d47718c4d8e24a63071db7c2825c865ea171ed08ceb1d9d6271411b",
+   "seconds": 2.3
+  },
+  {
+   "id": "gso_Tag_Dishtowel_Basket_Weave_Red_18_x_26",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Tag_Dishtowel_Basket_Weave_Red_18_x_26.zip",
+   "path": "/workspace/library-growth/gso/zips/Tag_Dishtowel_Basket_Weave_Red_18_x_26.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 10395019,
+   "sha256": "e4b369fa6ffb85f913b657d864b6823e080f22a7f4b22b664bf41e80e4fc6f9d",
+   "seconds": 3.7
+  },
+  {
+   "id": "gso_Target_Basket_Medium",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Target_Basket_Medium.zip",
+   "path": "/workspace/library-growth/gso/zips/Target_Basket_Medium.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 10758831,
+   "sha256": "cb9e5b39db0e5498ec4eeeae978294197a9ea630969cbe2468e27762fc09d1b6",
+   "seconds": 1.7
+  },
+  {
+   "id": "gso_Threshold_Basket_Natural_Finish_Fabric_Liner_Small",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Threshold_Basket_Natural_Finish_Fabric_Liner_Small.zip",
+   "path": "/workspace/library-growth/gso/zips/Threshold_Basket_Natural_Finish_Fabric_Liner_Small.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 9002495,
+   "sha256": "77d717477327f7875d199e5e04276e0bb4a9f306d7cbc8b00807a0aeb7ad7fa1",
+   "seconds": 2.9
+  },
+  {
+   "id": "gso_Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book.zip",
+   "path": "/workspace/library-growth/gso/zips/Eat_to_Live_The_Amazing_NutrientRich_Program_for_Fast_and_Sustained_Weight_Loss_Revised_Edition_Book.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 10910764,
+   "sha256": "23390de1bf3cf1a5d7051057db9afbdfdc422f84d74093566ceb365080dd9ff5",
+   "seconds": 4.1
+  },
+  {
+   "id": "gso_Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl.zip",
+   "path": "/workspace/library-growth/gso/zips/Bradshaw_International_11642_7_Qt_MP_Plastic_Bowl.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5592554,
+   "sha256": "16a5da51269e941df76a61ae90c68a7f8e42005439245b26d23181bafdebc98d",
+   "seconds": 2.7
+  },
+  {
+   "id": "gso_Cole_Hardware_Bowl_Scirocco_YellowBlue",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Cole_Hardware_Bowl_Scirocco_YellowBlue.zip",
+   "path": "/workspace/library-growth/gso/zips/Cole_Hardware_Bowl_Scirocco_YellowBlue.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5105213,
+   "sha256": "d737c2e152a1f4f4054d91015bc0204eb9acd455eedeb95bd0e37152846483b6",
+   "seconds": 1.8
+  },
+  {
+   "id": "gso_Cole_Hardware_Deep_Bowl_Good_Earth_1075",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Cole_Hardware_Deep_Bowl_Good_Earth_1075.zip",
+   "path": "/workspace/library-growth/gso/zips/Cole_Hardware_Deep_Bowl_Good_Earth_1075.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 3746750,
+   "sha256": "5c37dab794eb76a1118a378dbb6fb46b0a0ec95f480c5b8842e237aa97f09a05",
+   "seconds": 1.9
+  },
+  {
+   "id": "gso_Dixie_10_ounce_Bowls_35_ct",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Dixie_10_ounce_Bowls_35_ct.zip",
+   "path": "/workspace/library-growth/gso/zips/Dixie_10_ounce_Bowls_35_ct.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5249932,
+   "sha256": "edf7bfc07442ca11d8f2970232dc02e0cb2f2c1eef839aa262c4623cff12589b",
+   "seconds": 1.8
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Bowl_Atlas_Low",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Plant_Bowl_Atlas_Low.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Plant_Bowl_Atlas_Low.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5616803,
+   "sha256": "f79539db5ddaa155cbe5617f0ef8fc7579fe14eb4e4c743c5bad9fb1581ce2ec",
+   "seconds": 2.4
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Bowl_Turquoise_7",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Plant_Bowl_Turquoise_7.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Plant_Bowl_Turquoise_7.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 6326798,
+   "sha256": "2fc1e851e08378a3281dae3730ab6acd19a1e4b3adaa57f818d25590f70b33eb",
+   "seconds": 4.3
+  },
+  {
+   "id": "gso_Footed_Bowl_Sand",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Footed_Bowl_Sand.zip",
+   "path": "/workspace/library-growth/gso/zips/Footed_Bowl_Sand.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5932979,
+   "sha256": "1bc647a18dac15c2daa98a83c2bf1662b157b486541fb01966cb8511255df13c",
+   "seconds": 3.2
+  },
+  {
+   "id": "gso_Now_Designs_Bowl_Akita_Black",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Now_Designs_Bowl_Akita_Black.zip",
+   "path": "/workspace/library-growth/gso/zips/Now_Designs_Bowl_Akita_Black.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 9560589,
+   "sha256": "07b4e049db013e70ebb6c71cc72721aef8e279099ee7cb9700f579ba969de381",
+   "seconds": 3.3
+  },
+  {
+   "id": "gso_Room_Essentials_Bowl_Turquiose",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Room_Essentials_Bowl_Turquiose.zip",
+   "path": "/workspace/library-growth/gso/zips/Room_Essentials_Bowl_Turquiose.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4089776,
+   "sha256": "6eb64260335468ecaf21d8b6d5b20fedbaf1b75800af2b33121ceccb2462b4c9",
+   "seconds": 2.1
+  },
+  {
+   "id": "gso_Sea_to_Summit_Xl_Bowl",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Sea_to_Summit_Xl_Bowl.zip",
+   "path": "/workspace/library-growth/gso/zips/Sea_to_Summit_Xl_Bowl.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4449952,
+   "sha256": "cedfb6424b019a5dc3e929733103fd0f30ba7c27241b6faa0ad8a9b159b6f9d0",
+   "seconds": 2.5
+  },
+  {
+   "id": "gso_Threshold_Bead_Cereal_Bowl_White",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Threshold_Bead_Cereal_Bowl_White.zip",
+   "path": "/workspace/library-growth/gso/zips/Threshold_Bead_Cereal_Bowl_White.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4207853,
+   "sha256": "dbc667d1373cc7e4252bcdd21feab246f17794d17ebce3a2693568a6ea197379",
+   "seconds": 2.2
+  },
+  {
+   "id": "gso_Threshold_Porcelain_Serving_Bowl_Coupe_White",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Threshold_Porcelain_Serving_Bowl_Coupe_White.zip",
+   "path": "/workspace/library-growth/gso/zips/Threshold_Porcelain_Serving_Bowl_Coupe_White.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 3324041,
+   "sha256": "9f18958313212a56edb33948cf4ec89eae7bd7392293ab27a6ca50ba7ef14098",
+   "seconds": 1.3
+  },
+  {
+   "id": "gso_Central_Garden_Flower_Pot_Goo_425",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Central_Garden_Flower_Pot_Goo_425.zip",
+   "path": "/workspace/library-growth/gso/zips/Central_Garden_Flower_Pot_Goo_425.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4731312,
+   "sha256": "d256eb5ddb89a47042ab721dc0a50326042dec0f3be382c2556837cc4aa16dd6",
+   "seconds": 2.9
+  },
+  {
+   "id": "gso_Cole_Hardware_Flower_Pot_1025",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Cole_Hardware_Flower_Pot_1025.zip",
+   "path": "/workspace/library-growth/gso/zips/Cole_Hardware_Flower_Pot_1025.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 3888864,
+   "sha256": "86ccb102d775c87d944f7e7c0f24ad6f0c45e10f687deb0053c2b345e6f07624",
+   "seconds": 2.0
+  },
+  {
+   "id": "gso_Cole_Hardware_Orchid_Pot_85",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Cole_Hardware_Orchid_Pot_85.zip",
+   "path": "/workspace/library-growth/gso/zips/Cole_Hardware_Orchid_Pot_85.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4208197,
+   "sha256": "3d308d089ad76d7ebe382f606b07f1b2b8efaf476f07cf81d3c0aa2224c84d72",
+   "seconds": 1.7
+  },
+  {
+   "id": "gso_Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue.zip",
+   "path": "/workspace/library-growth/gso/zips/Down_To_Earth_Ceramic_Orchid_Pot_Asst_Blue.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 8335858,
+   "sha256": "2b38b6db1107ca75b146e9b8859d8733182125007cc457508cf3ce5510ac0a6d",
+   "seconds": 1.3
+  },
+  {
+   "id": "gso_Down_To_Earth_Orchid_Pot_Ceramic_Lime",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Down_To_Earth_Orchid_Pot_Ceramic_Lime.zip",
+   "path": "/workspace/library-growth/gso/zips/Down_To_Earth_Orchid_Pot_Ceramic_Lime.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4709528,
+   "sha256": "e05074f3448888d2c7649e064c5687283d0201ae5aa37f0cbec4497979d87d3b",
+   "seconds": 1.4
+  },
+  {
+   "id": "gso_Down_To_Earth_Orchid_Pot_Ceramic_Red",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Down_To_Earth_Orchid_Pot_Ceramic_Red.zip",
+   "path": "/workspace/library-growth/gso/zips/Down_To_Earth_Orchid_Pot_Ceramic_Red.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5682065,
+   "sha256": "a7ab75b9a916dc12c993045f3d24a69c6a036f86ceb36a356f82bd6f1d251b7b",
+   "seconds": 1.9
+  },
+  {
+   "id": "gso_Ecoforms_Garden_Pot_GP16ATurquois",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Garden_Pot_GP16ATurquois.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Garden_Pot_GP16ATurquois.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 7010186,
+   "sha256": "85373ea61f30294171b77b18d284a14a690310a48a38f69f59a38ad7475934bf",
+   "seconds": 2.5
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Container_12_Pot_Nova",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Plant_Container_12_Pot_Nova.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Plant_Container_12_Pot_Nova.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 11053382,
+   "sha256": "e26681c5849b99b66d24bcf2b46941373dc0531b2d06bb5478e6de8ba917b39f",
+   "seconds": 3.5
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Pot_GP9AAvocado",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Plant_Pot_GP9AAvocado.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Plant_Pot_GP9AAvocado.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 9600395,
+   "sha256": "d4fa6125dfa71052c619c227d265ae29e837a6ece54f0de501ee1e926cca36fe",
+   "seconds": 4.1
+  },
+  {
+   "id": "gso_Ecoforms_Plant_Pot_GP9_SAND",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Plant_Pot_GP9_SAND.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Plant_Pot_GP9_SAND.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 8093283,
+   "sha256": "3e5840755402f44961112edd5cd35048313db1c01f51e1570e73683ff7477dd9",
+   "seconds": 5.0
+  },
+  {
+   "id": "gso_Ecoforms_Planter_Bowl_Cole_Hardware",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Planter_Bowl_Cole_Hardware.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Planter_Bowl_Cole_Hardware.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5841566,
+   "sha256": "90b9647bae9f8741213f2c8599605b649b85fd5aaf616d7b73ba58f3f4248741",
+   "seconds": 1.1
+  },
+  {
+   "id": "gso_Ecoforms_Planter_Pot_GP12AAvocado",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Planter_Pot_GP12AAvocado.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Planter_Pot_GP12AAvocado.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 7996137,
+   "sha256": "86d36c42aa5645d4780b76e147e022c30b0e8f8bda89b21107c3d956ba02eef4",
+   "seconds": 2.1
+  },
+  {
+   "id": "gso_Ecoforms_Planter_Pot_QP6Ebony",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Planter_Pot_QP6Ebony.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Planter_Pot_QP6Ebony.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 9777688,
+   "sha256": "8bf91ef3b57f2f34283d01228ca45fd9b7b70ede4fdd89e2f7887985e5366304",
+   "seconds": 1.1
+  },
+  {
+   "id": "gso_Ecoforms_Pot_Nova_6_Turquoise",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Ecoforms_Pot_Nova_6_Turquoise.zip",
+   "path": "/workspace/library-growth/gso/zips/Ecoforms_Pot_Nova_6_Turquoise.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 7818291,
+   "sha256": "350fb75be654a23d9930be02180514e8d1343b4bc7423f7d82bc336986cd6c7f",
+   "seconds": 2.2
+  },
+  {
+   "id": "gso_Sapota_Threshold_4_Ceramic_Round_Planter_Red",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Sapota_Threshold_4_Ceramic_Round_Planter_Red.zip",
+   "path": "/workspace/library-growth/gso/zips/Sapota_Threshold_4_Ceramic_Round_Planter_Red.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 4961105,
+   "sha256": "cf8cebacdd9aad1bd62e66ffa6f495a18577c23177c8b4f8f330c3af239ba226",
+   "seconds": 1.9
+  },
+  {
+   "id": "gso_Threshold_Tray_Rectangle_Porcelain",
+   "url": "https://huggingface.co/datasets/suvadityamuk/google-scanned-objects-raw/resolve/6139aa33f6163a9f1c7352dd386760f40691ce0d/Threshold_Tray_Rectangle_Porcelain.zip",
+   "path": "/workspace/library-growth/gso/zips/Threshold_Tray_Rectangle_Porcelain.zip",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 5508211,
+   "sha256": "02d4670faedb0befcf875f0f57df185210d442f7025baaa6f1ab864bd6fcec57",
+   "seconds": 1.1
+  }
+ ]
+}
