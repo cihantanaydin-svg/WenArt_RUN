@@ -83,5 +83,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-11 08:29 | tuv1125xi3rawf | NVIDIA RTX PRO 6000 Blackwell Server Edition | 94 | 3.91 | M12 P6: real02 full orchestrated run (basement, attic, variant; polish off) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-11 09:04 | zdgah8suo4yy0h | NVIDIA RTX PRO 6000 Blackwell Server Edition | 34 | 1.43 | M12 P4: library growth (Poly Haven 88, ABO 232, GSO 36, Infinigen test batch) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-11 10:44 | pcwgmt3034xqed | NVIDIA RTX PRO 6000 Blackwell Server Edition | 75 | 3.12 | M12 P7: real01 + synthetic-01 full orchestrated runs (polish off; grown library) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-11 10:48 | pending:20261011-104855-full | RTX PRO 6000 | 115 | 4.77 | M12 P8: real03 rerun with the P5-P7 fixes (window cut, floor-decor cameras, agent briefs, grown library; polish off) | creating (provisional, worst case) |
 
-**Total spent so far: $121.73** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $126.50** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day, 2 h/run)
