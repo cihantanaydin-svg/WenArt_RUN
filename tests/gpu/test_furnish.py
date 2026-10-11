@@ -42,6 +42,17 @@ PROJECTS = [p for p in os.environ.get("FURNISH_TEST_PROJECTS", "synthetic-01").s
 EXPECTED_MODEL = os.environ.get("FURNISH_MODEL", "Qwen/Qwen3-VL-8B-Instruct")
 
 
+def _agent_model() -> str | None:
+    """Milestone 12: in an orchestrated run the layout chooser is the agent model (check.yaml ``models.agent``)."""
+    import yaml
+    cfg = yaml.safe_load((Path(__file__).resolve().parents[2] / "wenart" / "vision_check" / "check.yaml")
+                         .read_text(encoding="utf-8"))
+    return ((cfg.get("models") or {}).get("agent") or {}).get("id")
+
+
+LAYOUT_MODELS = {EXPECTED_MODEL, _agent_model()} - {None}
+
+
 def _load(project: str, name: str) -> dict:
     path = OUTPUTS / project / name
     assert path.exists(), f"{path} missing: did the layout stage run for {project}?"
@@ -123,19 +134,19 @@ def test_added_pieces_pass_every_check(project):
 
 def test_real_model_and_latency_logged(project):
     name, building, summary = project
-    assert summary["model"] == EXPECTED_MODEL, f"{name}: layout by {summary['model']!r}"
+    assert summary["model"] in LAYOUT_MODELS, f"{name}: layout by {summary['model']!r}"
     assert summary["server"].startswith("http")
     for entry in summary["rooms"]:
         choice = entry.get("choice") or {}
         if choice.get("by") == "vlm":
-            assert choice["model"] == EXPECTED_MODEL and entry["latency_s"] > 0, (entry["room_id"], choice)
+            assert choice["model"] == summary["model"] and entry["latency_s"] > 0, (entry["room_id"], choice)
         elif len([c for c in entry["candidates"] if not c["hard_failures"]]) >= 2 and not entry.get("copied_from"):
             assert choice.get("error"), (entry["room_id"], "two or more candidates and no model answer")
     assert summary.get("vision_model_down") is None, summary.get("vision_model_down")
     # Milestone 10: wall cabinets placed by rule carry derived evidence (no model).
     models = {e.get("model") for f in building["furniture"] if f["source"] == "added_by_ai"
               for e in f["evidence"] if e["method"] == "ai"}
-    assert models <= {EXPECTED_MODEL}, models
+    assert models <= {summary["model"]}, models
     report = (OUTPUTS / name / "layout_report.md").read_text(encoding="utf-8")
     assert "| Solve s |" in report and "Choices of the vision model" in report, "choices missing from the report"
     debug = OUTPUTS / name / "layout_debug"
@@ -163,9 +174,11 @@ def test_refit_library_models_fit_the_style(project):
         library += 1
         entry = catalog.entry(asset["asset_id"])
         assert entry is not None, (f["id"], asset["asset_id"])
-        if not C.styles_match(entry, family) or not C.has_mattress(entry):
+        # Milestone 12 (§4.8): the fit tries the project's family, then its STYLE_FALLBACK chain
+        found = asset.get("style_family")
+        assert found in F.style_chain(family), (f["id"], found, F.style_chain(family))
+        if not C.styles_match(entry, found) or not C.has_mattress(entry):
             wrong.append((f["id"], asset["asset_id"], entry.get("styles"), entry.get("has_mattress")))
-        assert asset.get("style_family") == family, (f["id"], asset.get("style_family"), family)
         if asset["licence"] == C.CC_BY:
             assert all(str(asset.get(k) or "").strip() for k in C.CC_BY_FIELDS), (f["id"], asset)
     print(f"{name}: style family {family!r} ({how}); {library} library models")

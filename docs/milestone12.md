@@ -1233,6 +1233,7 @@ A track that needs a change in another track's file writes it into its report; t
 | 11 Oct | Full CPU suite with Blender | 4,802 passed, 2 failed → fixed: the M5 camera reproduction tests (run now that the clone has commit `a2adcef`) differ in one room: synthetic-03's pantry held an untyped box that M12 no longer builds, so it no longer blocks a camera (intended); the tests skip only that room and check it is the only one |
 | 11 Oct | Pod P3 `0tioht9q40mrfq` (RTX PRO 6000, 30 min, $1.24) | cut: the session's runner process hit its 30-minute background limit and its cleanup stopped the pod (no collect); the vision answers stayed on the volume. Runners now start with a 2-hour limit |
 | 11 Oct | Pod P3 rerun `3wmzzr6j18u848` (RTX PRO 6000, 12 min, $0.52) | done, GPU tests 2/2: 1,066 models asked (answers of the first try reused), 306 second passes; decisions, sheets, gaps, catalogue copies. Four decision rules fixed after a look at the sheets (§14.2) |
+| 11 Oct | Pod P5 `6pvp7iygs4w1t0` (RTX PRO 6000, 98 min, $4.08) | real03 full orchestrated run, polish off: every stage ok, 82 views; agent 3 rounds, **85 edits accepted, 179 rejected** (M11 run 3: 5 / 73), stopped by the time budget; exit 1 from 10 of 39 GPU tests (§14.4) |
 
 ### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
 
@@ -1310,3 +1311,24 @@ User: "1a, 2 all four; go on with P4".
    How the doubtful models are watched (`tests/test_vision_doubt.py`): the final check's element line asks "may not be a real <type>" (status `different` goes back to the fit); the agent's room critic gets the pieces whose model, or a decor model on them, is in doubt marked for D2 (the agent can `swap_model`); the final report lists them ("Library models kept with a vision doubt").
 2. **All four growth lists** for pod P4: Poly Haven 88 CC0, the Infinigen fixture test batch, ABO 232, GSO 36 (CC BY
    4.0 confirmed per object).
+
+### 14.4 Pod P5: real03 full run (11 Oct 2026)
+
+All stages ok (polish off), 82 views (76 searched, 1 moved by the agent, 5 exterior). Agent: 3 rounds, 85 accepted /
+179 rejected edits (M11 run 3: 5 / 73); by tool: swap_model 15/16, mark_not_furniture 14/14, move_piece 28/79,
+set_camera 6/15, fix_fixture 3/35, and **every group tool rejected** (complete_group 0/30, move_group 0/26,
+relayout_room 0/26, place_group 0/2: max tries, no place); drawn_lock still 21.
+
+GPU tests 29/39; the 10 failures and what was done:
+
+| Failure | Cause | Done |
+|---|---|---|
+| a bedroom rendered black (2 views; the agent moved one camera, still black) | the facade line `w_L0_002` runs along the outer face of `w_L0_005`; its end lies 0.1 mm outside the thick wall, so the overlap trim left it whole and the window `win_L0_002` was cut out of its own wall only: closed, no daylight, and as a "daylight" room no ceiling light | `shell.foreign_cuts`: an opening cuts every parallel wall that overlaps it (Blender test fails on the old code) |
+| a living-room view blocked, depth 0.05 m | the camera stood inside a 1.6 m plant placed by the decor stage | `camsearch.floor_decor_rects`: free-standing floor decor keeps the camera points away |
+| exposure record "EV 0 used" (2 views) | the black bedroom | the window fix |
+| two policies in one scene; a lens off the rule | the agent's `set_camera` (policy `agent`) | the tests accept agent cameras (their own lens) |
+| bedding records | M12 dresses library beds without bedding | the test counts dressed beds |
+| layout model, style family | M12: the agent model chooses layouts in an orchestrated run; the fit's style fallback chain | the tests follow M12 |
+| a bathtub missing from the index pass (1 view) | the view looks at the bathroom door leaf; the bathtub is behind it | open: the camera model does not see the leaf as the scene builds it |
+| window pull 89 % unclipped (needs 90 %) | 8 hall views with bright windows | open (marginal) |
+

@@ -321,6 +321,51 @@ def opening_centre_on_wall(opening: dict, wall: dict) -> tuple[float, float, flo
     return cx, cy, math.hypot(px - cx, py - cy)
 
 
+def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: float = 3.0,
+                 min_overlap_m: float = 0.05) -> list[tuple[dict, tuple[float, float], float]]:
+    """Openings of OTHER walls that this wall overlaps (pure; pod P5, 11 Oct 2026): real03's facade line
+    ``w_L0_002`` (0.15 m) runs along the outer face of ``w_L0_005`` (0.45 m), so the window ``win_L0_002`` cut only
+    its own wall and stayed closed: a dark bedroom and a sill without glass. Returns ``[(opening, (cx, cy),
+    depth)]``: the cutter centre (on the host wall's normal, midway over both walls) and its depth across both,
+    for every opening whose host wall is parallel to this one (within ``tol_deg``) and whose rectangle overlaps this
+    wall's footprint along the wall by at least ``min_overlap_m``."""
+    out = []
+    wx0, wy0 = float(wall["start"][0]), float(wall["start"][1])
+    wx1, wy1 = float(wall["end"][0]), float(wall["end"][1])
+    wlen = math.hypot(wx1 - wx0, wy1 - wy0)
+    if wlen < 1e-9:
+        return out
+    wu = ((wx1 - wx0) / wlen, (wy1 - wy0) / wlen)
+    wt = float(wall["thickness"])
+    for o in openings:
+        host = walls_by_id.get(o.get("wall_id"))
+        if host is None or host["id"] == wall["id"] or is_virtual(o):
+            continue
+        hx0, hy0 = float(host["start"][0]), float(host["start"][1])
+        hx1, hy1 = float(host["end"][0]), float(host["end"][1])
+        hlen = math.hypot(hx1 - hx0, hy1 - hy0)
+        if hlen < 1e-9:
+            continue
+        hu = ((hx1 - hx0) / hlen, (hy1 - hy0) / hlen)
+        if abs(hu[0] * wu[1] - hu[1] * wu[0]) > math.sin(math.radians(tol_deg)):
+            continue                                    # not parallel
+        n = (-hu[1], hu[0])
+        cx, cy, _ = opening_centre_on_wall(o, host)
+        ht = float(host["thickness"])
+        d = (wx0 - cx) * n[0] + (wy0 - cy) * n[1]       # this wall's centre line, across the host's
+        if abs(d) >= (ht + wt) / 2.0 - 1e-6:
+            continue                                    # side by side, not overlapping in depth
+        half = float(o["width"]) / 2.0
+        a = ((cx - wx0) * wu[0] + (cy - wy0) * wu[1])   # the opening centre along this wall
+        overlap = min(a + half, wlen) - max(a - half, 0.0)
+        if overlap < min_overlap_m:
+            continue
+        lo, hi = min(-ht / 2.0, d - wt / 2.0), max(ht / 2.0, d + wt / 2.0)
+        mid = (lo + hi) / 2.0
+        out.append((o, (cx + n[0] * mid, cy + n[1] * mid), hi - lo))
+    return out
+
+
 def cut_full_height(top: float, floor_z: float, wall_h: float) -> bool:
     """True when an opening reaches the top of its wall (plain opening on a
     level with nothing above): the cutter then runs through the wall top."""
@@ -609,6 +654,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
     floor_z = float(level["elevation"])
     has_above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])
     walls = [w for w in building["walls"] if w["level_id"] == level_id]
+    walls_by_id_level = {w["id"]: w for w in walls}
     openings = [o for o in building["openings"] if o["level_id"] == level_id]
     rooms = [r for r in building["rooms"] if r["level_id"] == level_id]
 
@@ -739,6 +785,36 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             mod.use_self = bool(parapets)
             mod.object = cutter
 
+        # Openings of another wall that this one overlaps (a facade line drawn over a thick wall): cut through
+        # both, else the opening stays closed (pod P5, foreign_cuts).
+        cut_through = []
+        for opening, (fx, fy), depth in foreign_cuts(wall, walls_by_id_level, openings):
+            host = walls_by_id_level[opening["wall_id"]]
+            bottom, top, _ = opening_vertical(opening, level, has_above)
+            extra = DEFAULTS["cutter_extra"]
+            cut_bottom = bottom if opening["type"] == "window" else bottom - extra
+            cut_top = top + extra if cut_full_height(top, wz, height) else top
+            h_angle = math.atan2(float(host["end"][1]) - float(host["start"][1]),
+                                 float(host["end"][0]) - float(host["start"][0]))
+            cv, cf = geom2d.box((fx, fy, (cut_bottom + cut_top) / 2.0),
+                                (float(opening["width"]), depth + extra, cut_top - cut_bottom), h_angle)
+            cutter = common.new_mesh_object(f"cut_{opening['id']}_{wall['id']}", cv, cf, collection=collection,
+                                            wenart_id=opening["id"], kind="opening", status="assumed")
+            cutter.hide_render = True
+            cutters.append(cutter)
+            wall_cuts.setdefault(wall["id"], []).append((opening["id"], (cv, cf)))
+            mod = ob.modifiers.new(name=f"cut_{opening['id']}", type="BOOLEAN")
+            mod.operation = "DIFFERENCE"
+            mod.solver = "EXACT"
+            mod.use_self = bool(parapets)
+            mod.object = cutter
+            cut_through.append(opening["id"])
+            warnings.append(f"{wall['id']}: overlaps {host['id']} at {opening['id']}: the opening is cut through "
+                            "both walls")
+            assumed.append({"object": wall["id"], "field": "cut_through", "value": opening["id"],
+                            "reason": f"the wall overlaps {host['id']} at its opening {opening['id']}: cut through "
+                                      "both (a facade line drawn over a thicker wall)"})
+
         manifest_objects.append({
             "name": wall["id"], "wenart_id": wall["id"], "kind": "wall",
             "status": wall.get("status", "verified"), "level_id": level_id, "element_id": wall["id"],
@@ -765,6 +841,8 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             entry["z_range"] = [round(wz, 4), round(wz + height, 4)]
         if drop < 0:
             entry["base_drop"] = round(drop, 4)          # Milestone 12: down to a sunken room floor beside it
+        if cut_through:
+            entry["cut_through"] = cut_through           # openings of an overlapped wall (foreign_cuts)
         if parapets:
             entry["parapet"] = [{"s": [round(a, 4), round(b, 4)], "z_top": round(z, 4)} for a, b, z in parapets]
             entry["runs_to"] += "; a parapet under the roof terrace"

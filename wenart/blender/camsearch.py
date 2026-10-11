@@ -20,7 +20,8 @@ How:
   (``cameras.room_openings`` and ``shell.opening_vertical``; a plain
   opening is labelled ``opening``, it is neither wall nor element) and the
   room's furniture boxes (``parametric.piece_bbox`` turned by the footprint
-  rotation, standing on the floor; decor is ignored, and so are pieces with
+  rotation, standing on the floor; decor is ignored (but free-standing floor decor keeps the camera points
+  away: ``floor_decor_rects``, pod P5), and so are pieces with
   ``build: false``: drawn symbols the scene does not build, ``shown_pieces``).
   A stair (fixed equipment, ``parametric.SHELL_TYPES``) is not its box but
   the convex parts ``shell.build_stairs`` builds (``shell.plan_stairs`` /
@@ -818,13 +819,32 @@ def convex_corner_points(polygon: Sequence[Sequence[float]], insets=CORNER_INSET
     return out
 
 
+def floor_decor_rects(room: dict, building: dict) -> list[dict]:
+    """Obstacle rectangles of the room's decor that stands free on the floor up to camera height (no host: a large
+    plant, a floor basket, a curtain at a window): pod P5 (11 Oct 2026) put real03's camera ``cam_r_L0_yasama_7_1``
+    inside a 1.6 m plant (depth 0.05 m at the lens). Hosted decor and decor hanging above the camera are not
+    obstacles."""
+    out = []
+    for d in building.get("decor") or []:
+        if d.get("room_id") != room["id"] or d.get("host_id") or not d.get("center") or not d.get("size"):
+            continue
+        center, size = [float(v) for v in d["center"]], [float(v) for v in d["size"]]
+        if len(size) < 2 or min(size[0], size[1]) <= 0.0:
+            continue
+        bottom = center[2] if len(center) > 2 else 0.0
+        if bottom >= CAMERA_HEIGHT + 0.2:
+            continue                                    # a pendant or a blind above the camera
+        out.append({"center": center[:2], "size": size[:2], "rotation_deg": float(d.get("rotation_deg") or 0.0)})
+    return out
+
+
 def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, float]], Optional[str]]:
     """Camera points of a room and a warning: the free convex-corner points and the free 0.5 m grid
     points (sorted by x, y); without any, the M5 fallback point with its warning."""
     polygon = room_polygon(room)
     # Wall-hung pieces (mount_bottom_m, docs/milestone10.md §1.6b row 15) are not floor obstacles.
     pieces = [f for f in shown_pieces(room, building) if mount_bottom(f) <= 0.0]
-    obstacles = [obstacle_rect(f) for f in pieces]
+    obstacles = [obstacle_rect(f) for f in pieces] + floor_decor_rects(room, building)
     corners = [p for p in convex_corner_points(polygon)
                if geom2d.point_is_free(p, polygon, obstacles, WALL_CLEARANCE, OBSTACLE_CLEARANCE)]
     grid = geom2d.free_points(polygon, obstacles, step=GRID_STEP, wall_clearance=WALL_CLEARANCE,

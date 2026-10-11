@@ -157,7 +157,9 @@ def test_assumed_entries_of_the_design_details(project):
         if "kind" in a or "parent" in a:
             assert a.get("parent") and a.get("kind") and a.get("reason"), (name, a)
     parametric = [o for o in _furniture(scene) if str(o.get("method", "")).startswith("parametric")]
-    beds = sorted(o["wenart_id"] for o in parametric if o.get("type") in BED_TYPES)
+    # Milestone 12 (§4.7): a library bed without bedding is dressed with our duvet and pillows (``dressing``)
+    beds = sorted({o["wenart_id"] for o in parametric if o.get("type") in BED_TYPES}
+                  | {o["wenart_id"] for o in _furniture(scene) if o.get("type") in BED_TYPES and o.get("dressing")})
     counters = sorted(o["wenart_id"] for o in parametric if o.get("type") in COUNTER_TYPES)
     doors = sorted({o["wenart_id"] for o in scene["objects"] if o["kind"] == "door" and o["name"].endswith("_leaf")})
     skirting = sorted(o["parent"] for o in scene["objects"] if o["kind"] == "wall" and o.get("parent"))

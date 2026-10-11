@@ -154,7 +154,9 @@ def test_every_room_has_three_views(project):
     interior = [c for c in scene["cameras"] if c.get("kind", "interior") != "exterior"]   # M10: no ext_* view
     for c in interior:
         by_room.setdefault(c["room_id"], []).append(c)
-    policies = {_policy(c) for c in interior}
+    # Milestone 11/12: a camera the agent moved or added (set_camera / add_camera) carries the policy "agent"; the
+    # scene's own policy is that of the others (pod P5: real03 had 76 searched views and one moved by the agent)
+    policies = {_policy(c) for c in interior if _policy(c) != "agent"} or {"search"}
     assert len(policies) == 1, f"{name}: cameras of two policies in one scene: {sorted(policies)}"
     if policies == {"m5"}:
         for room in by_room:
@@ -185,9 +187,12 @@ def test_every_room_has_three_views(project):
     print(f"{name}: rooms with nothing to show (one view): {empty}; without a view: {sorted(expected)}")
     for room_id, cams in by_room.items():
         n = camsearch.room_view_count(rooms[room_id], building)
-        names = sorted(c["name"] for c in cams)
-        assert 1 <= len(cams) <= n, f"{name}: {room_id} has {len(cams)} views, the view rule allows 1..{n}"
-        assert names == sorted(f"cam_{room_id}_{i}" for i in range(1, len(cams) + 1)), names
+        # the planned views (searched, or moved by the agent under their name); a view the agent added is extra
+        planned_views = [c for c in cams if _policy(c) != "agent" or c["name"].startswith(f"cam_{room_id}_")]
+        names = sorted(c["name"] for c in planned_views)
+        assert 1 <= len(planned_views) <= n, \
+            f"{name}: {room_id} has {len(planned_views)} views, the view rule allows 1..{n}"
+        assert names == sorted(f"cam_{room_id}_{i}" for i in range(1, len(planned_views) + 1)), names
 
 
 def _blocked(render_entry: dict, out: Path, lens_mm: float = 24.0) -> dict:
@@ -272,6 +277,8 @@ def test_cameras_render_with_their_own_lens(project):
             continue
         if _policy(plan) == "m5":
             want = cameras.M5_LENS_MM
+        elif _policy(plan) == "agent":
+            want = float(plan["lens_mm"])          # the agent's set_camera lens: rendered as planned
         else:
             want = cameras.room_lens(rooms[plan["room_id"]], scene.get("lens_mm"))[0]
         lenses[want] = lenses.get(want, 0) + 1
