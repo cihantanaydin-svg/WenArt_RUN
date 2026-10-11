@@ -199,11 +199,27 @@ PLANNER_SYSTEM = (
     "8. When you are done, call finish with the findings that are still open.")
 
 
+def doubt_note(piece: dict) -> str:
+    """`` (look closely, D2: ...)`` for a piece whose model, or a decor model on it (``piece["decor_doubt"]``, set by
+    the caller), the library audit kept with a vision doubt; '' otherwise."""
+    from wenart.furniture import catalog as C
+    parts = []
+    own = C.vision_doubt(piece.get("asset") if isinstance(piece.get("asset"), dict) else None)
+    if own:
+        parts.append(f"its 3D model is in doubt ({own[0]})")
+    for d in piece.get("decor_doubt") or []:
+        parts.append(f"the {d['type']} on it is in doubt ({d['doubt'][0]})")
+    if not parts:
+        return ""
+    return " (look closely, D2: " + "; ".join(parts) + "; is it a real, single, well-made object of its type?)"
+
+
 def room_look_prompt(room: dict, pieces: list[dict], views: list[str], image_labels: list[str],
                      code_findings: list[dict]) -> str:
     """Milestone 12: the room critic on the renders only (looks, wrong objects); built pieces only (B5); the code
-    findings are given so they are not repeated."""
-    piece_lines = [f"- {p['id']}: {p.get('type')}" for p in pieces]
+    findings are given so they are not repeated. A piece whose library model (or a decor model on it) the audit kept
+    with a vision doubt (decision 1a) is marked so the critic looks at it (D2)."""
+    piece_lines = [f"- {p['id']}: {p.get('type')}{doubt_note(p)}" for p in pieces]
     known = [f"- {f['check']} {f['severity']} {f['target']}: {f['message']}" for f in code_findings]
     return "\n".join([
         f"Room {room['id']} ({room.get('label')}, type {room.get('room_type')}, "

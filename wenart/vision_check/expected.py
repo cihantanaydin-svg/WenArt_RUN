@@ -518,6 +518,9 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
             "completes_room": bool((flag or {}).get("completes_room")),
             "type_proposal": bool((flag or {}).get("type_proposal")),
             "side": None if outer is None else outer["side"],
+            # Milestone 12 (user decision 1a): its library model kept with a doubt of the audit's vision check
+            "vision_doubt": list(entry.get("vision_doubt") or []),
+            "decor_doubt": list(entry.get("decor_doubt") or []),
         })
     elements.sort(key=lambda e: (-e["pixels"], e["index"]))
 

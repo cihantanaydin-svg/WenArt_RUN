@@ -351,6 +351,23 @@ NEEDS_REVIEW_MANIFEST = {
 }
 
 
+def models_in_doubt(scene: Optional[dict]) -> list[dict]:
+    """Milestone 12 (user decision 1a, docs/milestone12.md §14.3): the built pieces and decor whose library model the
+    audit kept with a vision doubt: ``[{id, kind, type, asset_id, doubt}]`` (one row per object, manifest order)."""
+    from wenart.furniture import catalog as CAT
+    rows, seen = [], set()
+    for obj in (scene or {}).get("objects") or []:
+        asset = obj.get("asset") if isinstance(obj.get("asset"), dict) else None
+        doubt = CAT.vision_doubt(asset)
+        key = obj.get("name") or obj.get("wenart_id")
+        if not doubt or key in seen:
+            continue
+        seen.add(key)
+        rows.append({"id": obj.get("decor_id") or obj.get("wenart_id"), "kind": obj.get("kind"),
+                     "type": obj.get("type"), "asset_id": asset.get("asset_id"), "doubt": doubt[0]})
+    return rows
+
+
 def validate_final_manifest(manifest: dict) -> list[str]:
     """Schema errors of a ``final_manifest.json`` dict (empty list = valid); a needs-review manifest has its own."""
     import jsonschema
@@ -2199,7 +2216,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
                      # and the drawn symbols read as not furniture, by kind
                      "needs_review_items": list(b.get("needs_review") or []),
                      "symbols_by_kind": dict(sorted(Counter(s.get("kind") or "other"
-                                                            for s in b.get("symbols") or []).items()))},
+                                                            for s in b.get("symbols") or []).items())),
+                     "models_in_doubt": models_in_doubt(inp.scene)},
         "intake": intake_summary(inp.intake),
         "kept_on_volume": kept_on_volume(views) if inp.private else [],
         # Milestone 7 (§9.4)
@@ -2948,6 +2966,12 @@ def report_markdown(manifest: dict) -> str:
     symbols = b.get("symbols_by_kind") or {}
     lines += ["", "Drawn symbols read as not furniture (never built): "
               + (", ".join(f"{k} {n}" for k, n in symbols.items()) if symbols else "none") + "."]
+    doubt = b.get("models_in_doubt") or []
+    lines += ["", "Library models kept with a vision doubt (user decision 1a; the room critic and the final check "
+              "look at them):", ""]
+    lines += (C.table(["piece", "kind", "type", "model", "doubt"],
+                      [[d["id"], d["kind"], d["type"], d["asset_id"], d["doubt"]] for d in doubt])
+              if doubt else ["None."])
     lines += ["", "Conflicts:", ""]
     if b["conflicts"]:
         lines += C.table(["id", "kind", "elements", "description", "resolution"],

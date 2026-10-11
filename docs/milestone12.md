@@ -1307,5 +1307,6 @@ User: "1a, 2 all four; go on with P4".
    front turns (size check or an unsure front), 5 rescales (unknown units), 1 retype. Written into
    `wenart/furniture/catalog_library.json` (keep 876, fix 28, removed 124, pending 4) and `catalog.json` (Poly Haven:
    keep 31, fix 1, removed 2); `catalog.usable` refuses `removed` and `pending`. 936 library models are usable.
+   How the doubtful models are watched (`tests/test_vision_doubt.py`): the final check's element line asks "may not be a real <type>" (status `different` goes back to the fit); the agent's room critic gets the pieces whose model, or a decor model on them, is in doubt marked for D2 (the agent can `swap_model`); the final report lists them ("Library models kept with a vision doubt").
 2. **All four growth lists** for pod P4: Poly Haven 88 CC0, the Infinigen fixture test batch, ABO 232, GSO 36 (CC BY
    4.0 confirmed per object).

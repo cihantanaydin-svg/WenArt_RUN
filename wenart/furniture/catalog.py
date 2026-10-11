@@ -626,6 +626,14 @@ def audit_status(entry: dict) -> str | None:
     return str(status) if status else None
 
 
+def vision_doubt(entry: Optional[dict]) -> list[str]:
+    """The audit's ``vision_doubt`` of a catalogue entry or a fitted asset (user decision 1a of 11 Oct 2026,
+    docs/milestone12.md §14.3): findings of the vision check alone that kept the model in use; the room critic and
+    the final check look at such models. [] when there is none."""
+    audit = (entry or {}).get("audit") if isinstance((entry or {}).get("audit"), dict) else {}
+    return [str(x) for x in audit.get("vision_doubt") or []]
+
+
 def by_design_parametric(piece: dict) -> bool:
     """True for a piece built from code by design (``BY_DESIGN_PARAMETRIC_TYPES``; a made-to-measure vanity or
     built-in wardrobe of its design, Milestone 10 §4.4)."""

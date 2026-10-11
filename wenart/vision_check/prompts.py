@@ -197,7 +197,9 @@ def check_items(expected: dict, decoy: Optional[dict] = None, swap: Optional[dic
                       "swapped_from": swapped_from,
                       # Milestone 10, Feature 1: what the AI did to a drawn piece (the type asked is the new one).
                       "modified_by_ai": bool(e.get("modified_by_ai")), "drawn_type": e.get("drawn_type"),
-                      "completes_room": bool(e.get("completes_room"))})
+                      "completes_room": bool(e.get("completes_room")),
+                      # Milestone 12 (decision 1a): a model the library audit kept with a vision doubt
+                      "vision_doubt": list(e.get("vision_doubt") or [])})
     if decoy is not None:
         pos = camera_hash(expected.get("camera") or "") % (len(items) + 1)
         items.insert(pos, {"wenart_id": None, "decoy": True, "kind": "furniture", "type": decoy["type"],
@@ -220,7 +222,9 @@ def element_line(item: dict) -> str:
     else:
         what = f"{item['type']} ({HINTS.get(item['type'], item['type'])})"
     edge = ", cut by the image edge" if item.get("touches_border") else ""
-    return f"- {item['label']}: {what}; expected inside box [{b[0]}, {b[1]}, {b[2]}, {b[3]}]{edge}"
+    doubt = (f"; look closely: its 3D model may not be a real {item['type']} (answer different when it is not)"
+             if item.get("vision_doubt") and not item.get("type_unverified") else "")
+    return f"- {item['label']}: {what}; expected inside box [{b[0]}, {b[1]}, {b[2]}, {b[3]}]{edge}{doubt}"
 
 
 def check_prompt(items: list[dict], room_label: Optional[str], room_type: Optional[str], size=None,

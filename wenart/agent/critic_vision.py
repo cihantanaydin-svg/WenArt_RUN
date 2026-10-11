@@ -118,6 +118,18 @@ def screen(answer: Optional[dict], allowed: set, n_images: int, code: dict, room
     return kept, dropped
 
 
+def with_decor_doubts(pieces: list[dict], building: dict) -> list[dict]:
+    """Copies of ``pieces`` with ``decor_doubt`` [{type, doubt}]: the decor models on them that the library audit
+    kept with a vision doubt (decision 1a; the prompt marks them for D2)."""
+    from wenart.furniture import catalog as C
+    by_host: dict = {}
+    for d in building.get("decor") or []:
+        doubt = C.vision_doubt(d.get("asset") if isinstance(d.get("asset"), dict) else None)
+        if doubt and d.get("host_id"):
+            by_host.setdefault(d["host_id"], []).append({"type": d.get("type"), "doubt": doubt})
+    return [dict(p, decor_doubt=by_host[p["id"]]) if p.get("id") in by_host else p for p in pieces]
+
+
 def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[str, Path]],
                   topdown: Optional[Path], plan_crop: Optional[Path], code: dict, call_id: str,
                   looks: bool = False) -> dict:
@@ -141,6 +153,7 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
         doors, windows = [], []
     pieces = [f for f in building.get("furniture") or [] if f.get("room_id") == room_id
               and TD.is_built(f)]
+    pieces = with_decor_doubts(pieces, building)
     room_code = [f for f in code.get("findings") or [] if f.get("room_id") == room_id]
     views = [v for v, _ in previews]
     if looks:

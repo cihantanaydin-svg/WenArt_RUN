@@ -500,7 +500,16 @@ def _table_entry(obj: dict, kind: str) -> dict:
         "box3d": box3d,
         "level_id": obj.get("level_id"),
         "manifest_kind": raw_kind,
+        "vision_doubt": _doubt(obj),
+        "decor_doubt": [],
     }
+
+
+def _doubt(obj: dict) -> list:
+    """Milestone 12 (user decision 1a): the audit's ``vision_doubt`` of the object's fitted library model."""
+    asset = obj.get("asset") if isinstance(obj.get("asset"), dict) else {}
+    audit = asset.get("audit") if isinstance(asset.get("audit"), dict) else {}
+    return [str(x) for x in audit.get("vision_doubt") or []]
 
 
 def index_table(scene_manifest: dict) -> dict[int, dict]:
@@ -508,7 +517,8 @@ def index_table(scene_manifest: dict) -> dict[int, dict]:
 
     element = ``{"wenart_id" (``proxy:`` stripped), "kind": door|window|furniture|decor,
     "type", "room_id", "room_ids", "host_decor": [types], "evidence", "status", "source",
-    "box3d", "level_id", "manifest_kind"}``.
+    "box3d", "level_id", "manifest_kind", "vision_doubt": [the audit's doubts of its model],
+    "decor_doubt": [{"type", "doubt"} of hosted decor models in doubt]}`` (Milestone 12, decision 1a).
 
     - The first object of an index that is not hosted decor is the host
       (a door's frame and leaf, a window's frame and glass share one index).
@@ -552,6 +562,8 @@ def index_table(scene_manifest: dict) -> dict[int, dict]:
             t = obj.get("type")
             if t and t not in types:
                 types.append(t)
+            if _doubt(obj):
+                table[pi]["decor_doubt"].append({"type": t, "doubt": _doubt(obj)})
         table[pi]["host_decor"] = types
     return dict(sorted(table.items()))
 
