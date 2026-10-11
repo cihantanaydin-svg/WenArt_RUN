@@ -102,7 +102,7 @@ def _records(out: Path, run_id: str) -> dict:
     return found
 
 
-def _check_ok_project(out: Path, records: dict, questions: bool = False) -> None:
+def _check_ok_project(out: Path, records: dict, questions: bool = False, exterior: bool = False) -> None:
     """The stage records and outputs of a project that ended ok in the smoke profile."""
     stages = ["pipeline", "fit", "style", "assets", "layout", "decor", "refit", "build", "render", "controls",
               "expected", "check", "combine", "report"]
@@ -125,9 +125,9 @@ def _check_ok_project(out: Path, records: dict, questions: bool = False) -> None
     scene = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
     interior = [c for c in scene["cameras"] if c.get("kind") != "exterior"]
     assert interior and {c.get("policy") for c in interior} == {"search"}
-    # Milestone 12 (docs/milestone12.md §3.4, D4): a single drawn ground floor is built with its site and gets
-    # eye-level exterior views (the searched-camera policy is the interiors')
-    assert any(c.get("kind") == "exterior" for c in scene["cameras"])
+    # Milestone 12 (docs/milestone12.md §3.4, D4): a single drawn ground floor (real01) is built with its site and
+    # gets eye-level exterior views (the searched-camera policy is the interiors'); an upper floor (L3) gets none
+    assert any(c.get("kind") == "exterior" for c in scene["cameras"]) == exterior
     assert scene["camera_policy"] == "search" and isinstance(scene["search_seconds"], (int, float))
     assert Path(scene["building"]).is_absolute() and Path(scene["building"]).parent == out
     final = json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))
@@ -301,7 +301,7 @@ def test_real01_questions_answered_and_built(smoke):
     m = _manifest(smoke)
     out = smoke["outputs"] / "real01"
     records = _records(out, m["run_id"])
-    _check_ok_project(out, records, questions=True)
+    _check_ok_project(out, records, questions=True, exterior=True)
     assert records["pipeline"]["status"] == "pending" and records["pipeline"]["rc"] == 4
     assert records["pipeline"]["note"].startswith("17 recognition question(s)")
     seeded = _seeds_cover(out / "recognition", ROOT / "results" / "recognition" / "real01")
