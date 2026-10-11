@@ -1,0 +1,2471 @@
+{
+ "key": "bakeoff.muse",
+ "name": "muse",
+ "variant": "high",
+ "model": "meta-models/Muse-Glimmer-30B",
+ "revision": "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",
+ "gpus": 1,
+ "wall_s": 1388.6,
+ "metrics": {
+  "T1": {
+   "items": 40,
+   "run": 0,
+   "answered": 0,
+   "accuracy": 0.0
+  },
+  "T2": {
+   "items": 30,
+   "run": 0,
+   "answered": 0,
+   "accuracy": 0.0,
+   "false_findings": 0,
+   "recall": null
+  },
+  "T3": {
+   "items": 20,
+   "run": 0,
+   "answered": 0,
+   "accuracy": 0.0
+  },
+  "T4": {
+   "items": 20,
+   "run": 0,
+   "answered": 0,
+   "accuracy": 0.0,
+   "false_findings": 0
+  },
+  "T5": {
+   "items": 20,
+   "run": 17,
+   "answered": 17,
+   "accuracy": 0.8,
+   "calls": 16,
+   "valid_rate": 1.0,
+   "allowed_rate": 1.0,
+   "in_plan_rate": 0.0,
+   "no_call_briefs": 1,
+   "plans_ok": 0
+  },
+  "calls": 34,
+  "s_per_call": 227.76,
+  "s_per_call_p50": 194.78,
+  "completion_tokens_per_call": 2834.6,
+  "combined": 0.0
+ },
+ "vram_peak": {
+  "0": 54501,
+  "1": 74011
+ },
+ "cycles": {
+  "skipped": "first variant only"
+ },
+ "results": {
+  "T5-05": {
+   "id": "T5-05",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: Additional properties are not allowed ('program_choices' was unexpected)",
+     "<root>: 'room_id' is a required property",
+     "<root>: 'program' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L3_007",
+      "finding_ids": [
+       "c:F7:f_L3_007"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L3_salon_mutfak",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    304.814,
+    11.729
+   ],
+   "prompt_tokens": 15538,
+   "completion_tokens": 4159,
+   "seconds": 316.55,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-03": {
+   "id": "T5-03",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: Additional properties are not allowed ('program_choices' was unexpected)",
+     "<root>: 'room_id' is a required property",
+     "<root>: 'program' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L-1_089",
+      "finding_ids": [
+       "c:G1:f_L-1_089"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1_salon",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    320.658,
+    14.289
+   ],
+   "prompt_tokens": 18996,
+   "completion_tokens": 3634,
+   "seconds": 334.95,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-02": {
+   "id": "T5-02",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {'r_L0_bed_room.sleeping_double': 'bed_nightstands'} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_014",
+      "finding_ids": [
+       "c:G4:f_L0_014"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L0_015",
+      "finding_ids": [
+       "c:G4:f_L0_015"
+      ]
+     },
+     {
+      "tool": "move_group",
+      "target": "f_L0_013",
+      "finding_ids": [
+       "c:G5:f_L0_013"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_bed_room",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    211.426,
+    138.153
+   ],
+   "prompt_tokens": 10027,
+   "completion_tokens": 4811,
+   "seconds": 349.58,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-04": {
+   "id": "T5-04",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: Additional properties are not allowed ('program_choices' was unexpected)",
+     "<root>: 'room_id' is a required property",
+     "<root>: 'program' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_029",
+      "finding_ids": [
+       "c:G6:f_L0_029"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_calisma_odasi",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    315.519,
+    39.988
+   ],
+   "prompt_tokens": 8897,
+   "completion_tokens": 4724,
+   "seconds": 355.51,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-01": {
+   "id": "T5-01",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {'r_L0_lobby.entrance': 'shoe_cabinet'} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L0_012",
+      "finding_ids": [
+       "c:F7:f_L0_012"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_lobby",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    359.26,
+    11.376
+   ],
+   "prompt_tokens": 7540,
+   "completion_tokens": 4279,
+   "seconds": 370.64,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-07": {
+   "id": "T5-07",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "steps/0: Additional properties are not allowed ('findings' was unexpected)"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L-1b_069",
+      "finding_ids": [
+       "c:F7:f_L-1b_069"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L-1b_069",
+      "finding_ids": [
+       "c:G6:f_L-1b_069"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1b_oda_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    364.045,
+    51.232
+   ],
+   "prompt_tokens": 9621,
+   "completion_tokens": 4463,
+   "seconds": 415.28,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-10": {
+   "id": "T5-10",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L1_027",
+      "finding_ids": [
+       "c:F7:f_L1_027"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    215.555,
+    12.314
+   ],
+   "prompt_tokens": 10923,
+   "completion_tokens": 2704,
+   "seconds": 227.87,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-06": {
+   "id": "T5-06",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: Additional properties are not allowed ('program_choices' was unexpected)",
+     "<root>: 'room_id' is a required property",
+     "<root>: 'program' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_052",
+      "finding_ids": [
+       "c:G4:f_L0_052"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L0_053",
+      "finding_ids": [
+       "c:G4:f_L0_053"
+      ]
+     },
+     {
+      "tool": "move_group",
+      "target": "f_L0_020",
+      "finding_ids": [
+       "c:G5:f_L0_020"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "move_group",
+       "args": {
+        "group_id": "r_L0_yatak_odasi_2.sleeping_double",
+        "span_id": "r_L0_yatak_odasi_2.s2",
+        "offset": 1.31,
+        "reason": "move bed group to east wall to place headboard against wall and fix orientation"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    513.715,
+    96.659
+   ],
+   "prompt_tokens": 10911,
+   "completion_tokens": 7576,
+   "seconds": 610.38,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-08": {
+   "id": "T5-08",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {'r_L3_yatak_odasi.sleeping_double': 'bed_nightstands'} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L3_016",
+      "finding_ids": [
+       "c:G4:f_L3_016"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L3_017",
+      "finding_ids": [
+       "c:G4:f_L3_017"
+      ]
+     }
+    ],
+    "calls": [],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    472.374,
+    178.126
+   ],
+   "prompt_tokens": 10292,
+   "completion_tokens": 9749,
+   "seconds": 650.5,
+   "score": {
+    "score": 0.0,
+    "calls": 0,
+    "valid": 0,
+    "allowed": 0,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-11": {
+   "id": "T5-11",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: Additional properties are not allowed ('program_choices' was unexpected)",
+     "<root>: 'room_id' is a required property",
+     "<root>: 'program' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L-1_010",
+      "finding_ids": [
+       "c:F7:f_L-1_010"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L-1_105",
+      "finding_ids": [
+       "c:G6:f_L-1_105"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1_mutfak_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    348.735,
+    45.227
+   ],
+   "prompt_tokens": 14462,
+   "completion_tokens": 4706,
+   "seconds": 393.96,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-18": {
+   "id": "T5-18",
+   "task": "T5",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "calls": 0,
+    "valid": 0,
+    "allowed": 0,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   },
+   "call_seconds": []
+  },
+  "T5-19": {
+   "id": "T5-19",
+   "task": "T5",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "calls": 0,
+    "valid": 0,
+    "allowed": 0,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   },
+   "call_seconds": []
+  },
+  "T5-20": {
+   "id": "T5-20",
+   "task": "T5",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "calls": 0,
+    "valid": 0,
+    "allowed": 0,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   },
+   "call_seconds": []
+  },
+  "T1-01": {
+   "id": "T1-01",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-01": {
+   "id": "T2-01",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-01": {
+   "id": "T3-01",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-01": {
+   "id": "T4-01",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-02": {
+   "id": "T1-02",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-02": {
+   "id": "T2-02",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 3,
+    "false": 0,
+    "truth": 3
+   },
+   "call_seconds": []
+  },
+  "T3-02": {
+   "id": "T3-02",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-02": {
+   "id": "T4-02",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-03": {
+   "id": "T1-03",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-03": {
+   "id": "T2-03",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 0,
+    "false": 0,
+    "truth": 0
+   },
+   "call_seconds": []
+  },
+  "T3-03": {
+   "id": "T3-03",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-03": {
+   "id": "T4-03",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-04": {
+   "id": "T1-04",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-04": {
+   "id": "T2-04",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-04": {
+   "id": "T3-04",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-04": {
+   "id": "T4-04",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-05": {
+   "id": "T1-05",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-05": {
+   "id": "T2-05",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-05": {
+   "id": "T3-05",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-05": {
+   "id": "T4-05",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-06": {
+   "id": "T1-06",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-06": {
+   "id": "T2-06",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-06": {
+   "id": "T3-06",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-06": {
+   "id": "T4-06",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-07": {
+   "id": "T1-07",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-07": {
+   "id": "T2-07",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 3,
+    "false": 0,
+    "truth": 3
+   },
+   "call_seconds": []
+  },
+  "T3-07": {
+   "id": "T3-07",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-07": {
+   "id": "T4-07",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-08": {
+   "id": "T1-08",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-08": {
+   "id": "T2-08",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 0,
+    "false": 0,
+    "truth": 0
+   },
+   "call_seconds": []
+  },
+  "T3-08": {
+   "id": "T3-08",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-08": {
+   "id": "T4-08",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-09": {
+   "id": "T1-09",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-09": {
+   "id": "T2-09",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T3-09": {
+   "id": "T3-09",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-09": {
+   "id": "T4-09",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-10": {
+   "id": "T1-10",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-10": {
+   "id": "T2-10",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T3-10": {
+   "id": "T3-10",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-10": {
+   "id": "T4-10",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-11": {
+   "id": "T1-11",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-11": {
+   "id": "T2-11",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-11": {
+   "id": "T3-11",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-11": {
+   "id": "T4-11",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-12": {
+   "id": "T1-12",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-12": {
+   "id": "T2-12",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-12": {
+   "id": "T3-12",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-12": {
+   "id": "T4-12",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-13": {
+   "id": "T1-13",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-13": {
+   "id": "T2-13",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-13": {
+   "id": "T3-13",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-13": {
+   "id": "T4-13",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-14": {
+   "id": "T1-14",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-14": {
+   "id": "T2-14",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T3-14": {
+   "id": "T3-14",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-14": {
+   "id": "T4-14",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-15": {
+   "id": "T1-15",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-15": {
+   "id": "T2-15",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-15": {
+   "id": "T3-15",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-15": {
+   "id": "T4-15",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-16": {
+   "id": "T1-16",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-16": {
+   "id": "T2-16",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-16": {
+   "id": "T3-16",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-16": {
+   "id": "T4-16",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-17": {
+   "id": "T1-17",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-17": {
+   "id": "T2-17",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-17": {
+   "id": "T3-17",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-17": {
+   "id": "T4-17",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-18": {
+   "id": "T1-18",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-18": {
+   "id": "T2-18",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-18": {
+   "id": "T3-18",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-18": {
+   "id": "T4-18",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-19": {
+   "id": "T1-19",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-19": {
+   "id": "T2-19",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T3-19": {
+   "id": "T3-19",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-19": {
+   "id": "T4-19",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-20": {
+   "id": "T1-20",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-20": {
+   "id": "T2-20",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T3-20": {
+   "id": "T3-20",
+   "task": "T3",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T4-20": {
+   "id": "T4-20",
+   "task": "T4",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 2,
+    "false": 0
+   },
+   "call_seconds": []
+  },
+  "T1-21": {
+   "id": "T1-21",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-21": {
+   "id": "T2-21",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-22": {
+   "id": "T1-22",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-22": {
+   "id": "T2-22",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-23": {
+   "id": "T1-23",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-23": {
+   "id": "T2-23",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-24": {
+   "id": "T1-24",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-24": {
+   "id": "T2-24",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-25": {
+   "id": "T1-25",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-25": {
+   "id": "T2-25",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-26": {
+   "id": "T1-26",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-26": {
+   "id": "T2-26",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 3,
+    "false": 0,
+    "truth": 3
+   },
+   "call_seconds": []
+  },
+  "T1-27": {
+   "id": "T1-27",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-27": {
+   "id": "T2-27",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-28": {
+   "id": "T1-28",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-28": {
+   "id": "T2-28",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 0,
+    "false": 0,
+    "truth": 0
+   },
+   "call_seconds": []
+  },
+  "T1-29": {
+   "id": "T1-29",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-29": {
+   "id": "T2-29",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-30": {
+   "id": "T1-30",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-30": {
+   "id": "T2-30",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-31": {
+   "id": "T1-31",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-32": {
+   "id": "T1-32",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-33": {
+   "id": "T1-33",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-34": {
+   "id": "T1-34",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-35": {
+   "id": "T1-35",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-36": {
+   "id": "T1-36",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-37": {
+   "id": "T1-37",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-38": {
+   "id": "T1-38",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-39": {
+   "id": "T1-39",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-40": {
+   "id": "T1-40",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T5-12": {
+   "id": "T5-12",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L-1b_034",
+      "finding_ids": [
+       "c:F7:f_L-1b_034"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1b_acik_mutfak",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    444.049,
+    23.874
+   ],
+   "prompt_tokens": 18234,
+   "completion_tokens": 5331,
+   "seconds": 467.93,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-14": {
+   "id": "T5-14",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L1_028",
+      "finding_ids": [
+       "c:F7:f_L1_028"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    392.325,
+    40.663
+   ],
+   "prompt_tokens": 10357,
+   "completion_tokens": 6603,
+   "seconds": 432.99,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-09": {
+   "id": "T5-09",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L0_046",
+      "finding_ids": [
+       "c:G5:f_L0_046"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_ebeveyn_odasi_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    532.181,
+    25.444
+   ],
+   "prompt_tokens": 10303,
+   "completion_tokens": 4601,
+   "seconds": 557.63,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-13": {
+   "id": "T5-13",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "steps/0: Additional properties are not allowed ('reason', 'wall_span_id' were unexpected)"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L0_192",
+      "finding_ids": [
+       "c:G1:f_L0_192"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "move_group",
+       "args": {
+        "group_id": "r_L0_yasama_8.seating",
+        "span_id": "r_L0_yasama_8.s10",
+        "offset": 1.3,
+        "reason": "Move seating group to west wall to avoid TV in front of window and improve TV-sofa alignment"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    509.86,
+    95.992
+   ],
+   "prompt_tokens": 11685,
+   "completion_tokens": 8556,
+   "seconds": 605.85,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-15": {
+   "id": "T5-15",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: Additional properties are not allowed ('program_choices' was unexpected)",
+     "<root>: 'room_id' is a required property",
+     "<root>: 'program' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L3_023",
+      "finding_ids": [
+       "c:G5:f_L3_023"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L3_cocuk_odasi",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    401.118,
+    56.216
+   ],
+   "prompt_tokens": 9631,
+   "completion_tokens": 5373,
+   "seconds": 457.34,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-16": {
+   "id": "T5-16",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {'r_L1_cocuk_odasi.sleeping_double': 'bed_nightstands', 'r_L1_cocuk_odasi.storage': 'wardrobe'} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L1_014",
+      "finding_ids": [
+       "c:G4:f_L1_014"
+      ]
+     },
+     {
+      "tool": "move_group",
+      "target": "f_L1_013",
+      "finding_ids": [
+       "c:G5:f_L1_013"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L1_cocuk_odasi",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    418.893,
+    39.834
+   ],
+   "prompt_tokens": 10241,
+   "completion_tokens": 5497,
+   "seconds": 458.73,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-17": {
+   "id": "T5-17",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "not JSON: Expecting value: line 1 column 1 (char 0)"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L0_061",
+      "finding_ids": [
+       "c:G5:f_L0_061"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_oda_01",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    680.285,
+    57.779
+   ],
+   "prompt_tokens": 9217,
+   "completion_tokens": 9609,
+   "seconds": 738.06,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  }
+ }
+}

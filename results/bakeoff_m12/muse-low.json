@@ -1,0 +1,3142 @@
+{
+ "key": "bakeoff.muse",
+ "name": "muse",
+ "variant": "low",
+ "model": "meta-models/Muse-Glimmer-30B",
+ "revision": "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",
+ "gpus": 1,
+ "wall_s": 813.4,
+ "metrics": {
+  "T1": {
+   "items": 40,
+   "run": 21,
+   "answered": 7,
+   "accuracy": 0.15
+  },
+  "T2": {
+   "items": 30,
+   "run": 20,
+   "answered": 0,
+   "accuracy": 0.0,
+   "false_findings": 0,
+   "recall": 0.0
+  },
+  "T3": {
+   "items": 20,
+   "run": 20,
+   "answered": 0,
+   "accuracy": 0.0
+  },
+  "T4": {
+   "items": 20,
+   "run": 20,
+   "answered": 20,
+   "accuracy": 0.65,
+   "false_findings": 0
+  },
+  "T5": {
+   "items": 20,
+   "run": 20,
+   "answered": 20,
+   "accuracy": 0.95,
+   "calls": 20,
+   "valid_rate": 1.0,
+   "allowed_rate": 1.0,
+   "in_plan_rate": 0.0,
+   "no_call_briefs": 0,
+   "plans_ok": 0
+  },
+  "calls": 121,
+  "s_per_call": 49.67,
+  "s_per_call_p50": 38.74,
+  "completion_tokens_per_call": 622.3,
+  "combined": 20.0
+ },
+ "vram_peak": {
+  "0": 55060,
+  "1": 74258
+ },
+ "cycles": {
+  "skipped": "no scene /workspace/repo/outputs/real02/scene/scene.blend"
+ },
+ "results": {
+  "T5-01": {
+   "id": "T5-01",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L0_012",
+      "finding_ids": [
+       "c:F7:f_L0_012"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_lobby",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    38.742,
+    11.783
+   ],
+   "prompt_tokens": 7540,
+   "completion_tokens": 588,
+   "seconds": 50.53,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-07": {
+   "id": "T5-07",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L-1b_069",
+      "finding_ids": [
+       "c:F7:f_L-1b_069"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L-1b_069",
+      "finding_ids": [
+       "c:G6:f_L-1b_069"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1b_oda_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    44.091,
+    15.158
+   ],
+   "prompt_tokens": 9621,
+   "completion_tokens": 716,
+   "seconds": 59.25,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-04": {
+   "id": "T5-04",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_029",
+      "finding_ids": [
+       "c:G6:f_L0_029"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_calisma_odasi",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    52.144,
+    13.229
+   ],
+   "prompt_tokens": 8897,
+   "completion_tokens": 934,
+   "seconds": 65.38,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-02": {
+   "id": "T5-02",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_014",
+      "finding_ids": [
+       "c:G4:f_L0_014"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L0_015",
+      "finding_ids": [
+       "c:G4:f_L0_015"
+      ]
+     },
+     {
+      "tool": "move_group",
+      "target": "f_L0_013",
+      "finding_ids": [
+       "c:G5:f_L0_013"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_bed_room",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    42.794,
+    31.368
+   ],
+   "prompt_tokens": 10027,
+   "completion_tokens": 1097,
+   "seconds": 74.17,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-08": {
+   "id": "T5-08",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L3_016",
+      "finding_ids": [
+       "c:G4:f_L3_016"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L3_017",
+      "finding_ids": [
+       "c:G4:f_L3_017"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "relayout_room",
+       "args": {
+        "room_id": "r_L3_yatak_odasi",
+        "candidate": 1,
+        "reason": "relayout to place nightstands beside headboard instead of foot end"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    46.012,
+    35.068
+   ],
+   "prompt_tokens": 10292,
+   "completion_tokens": 1179,
+   "seconds": 81.08,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-06": {
+   "id": "T5-06",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_052",
+      "finding_ids": [
+       "c:G4:f_L0_052"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L0_053",
+      "finding_ids": [
+       "c:G4:f_L0_053"
+      ]
+     },
+     {
+      "tool": "move_group",
+      "target": "f_L0_020",
+      "finding_ids": [
+       "c:G5:f_L0_020"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "rotate_piece",
+       "args": {
+        "piece_id": "f_L0_020",
+        "front_deg": 180.0,
+        "reason": "bed headboard should be against wall, currently foot against wall"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    73.263,
+    33.339
+   ],
+   "prompt_tokens": 10911,
+   "completion_tokens": 1431,
+   "seconds": 106.61,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-05": {
+   "id": "T5-05",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L3_007",
+      "finding_ids": [
+       "c:F7:f_L3_007"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L3_salon_mutfak",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    105.029,
+    9.317
+   ],
+   "prompt_tokens": 15538,
+   "completion_tokens": 1250,
+   "seconds": 114.35,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-03": {
+   "id": "T5-03",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L-1_089",
+      "finding_ids": [
+       "c:G1:f_L-1_089"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "rotate_piece",
+       "args": {
+        "piece_id": "f_L-1_089",
+        "front_deg": 105.0,
+        "reason": "rotate TV unit to face sofa f_L-1_061"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    94.619,
+    29.967
+   ],
+   "prompt_tokens": 18996,
+   "completion_tokens": 1235,
+   "seconds": 124.59,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-10": {
+   "id": "T5-10",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "not JSON: Extra data: line 1 column 1573 (char 1572)"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L1_027",
+      "finding_ids": [
+       "c:F7:f_L1_027"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    72.289,
+    11.683
+   ],
+   "prompt_tokens": 10923,
+   "completion_tokens": 1019,
+   "seconds": 83.97,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-12": {
+   "id": "T5-12",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L-1b_034",
+      "finding_ids": [
+       "c:F7:f_L-1b_034"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1b_acik_mutfak",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    70.43,
+    10.336
+   ],
+   "prompt_tokens": 18234,
+   "completion_tokens": 900,
+   "seconds": 80.77,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-13": {
+   "id": "T5-13",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L0_192",
+      "finding_ids": [
+       "c:G1:f_L0_192"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_yasama_8",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    55.298,
+    23.381
+   ],
+   "prompt_tokens": 11685,
+   "completion_tokens": 1050,
+   "seconds": 78.68,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-11": {
+   "id": "T5-11",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L-1_010",
+      "finding_ids": [
+       "c:F7:f_L-1_010"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L-1_105",
+      "finding_ids": [
+       "c:G6:f_L-1_105"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1_mutfak_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    84.575,
+    14.978
+   ],
+   "prompt_tokens": 14462,
+   "completion_tokens": 1131,
+   "seconds": 99.55,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-14": {
+   "id": "T5-14",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L1_028",
+      "finding_ids": [
+       "c:F7:f_L1_028"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    50.464,
+    9.581
+   ],
+   "prompt_tokens": 10357,
+   "completion_tokens": 710,
+   "seconds": 60.05,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-15": {
+   "id": "T5-15",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L3_023",
+      "finding_ids": [
+       "c:G5:f_L3_023"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L3_cocuk_odasi",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    39.736,
+    24.082
+   ],
+   "prompt_tokens": 9631,
+   "completion_tokens": 907,
+   "seconds": 63.82,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-09": {
+   "id": "T5-09",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "not JSON: Extra data: line 1 column 1823 (char 1822)"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L0_046",
+      "finding_ids": [
+       "c:G5:f_L0_046"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "move_group",
+       "args": {
+        "group_id": "r_L0_ebeveyn_odasi_2.sleeping_double",
+        "span_id": "r_L0_ebeveyn_odasi_2.s8",
+        "offset": 1.0,
+        "reason": "move bed group to wall s8 so headboard against wall and foot free"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    91.739,
+    42.204
+   ],
+   "prompt_tokens": 10303,
+   "completion_tokens": 1892,
+   "seconds": 133.94,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T1-01": {
+   "id": "T1-01",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    24.348
+   ],
+   "prompt_tokens": 448,
+   "completion_tokens": 267,
+   "seconds": 24.43,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-01": {
+   "id": "T4-01",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": true,
+    "wrong_object": true,
+    "notes": "A patterned pillow appears to float above the headboard and intersect the bedside lamp, and a white bench-like form sits on the bed as if it were bedding."
+   },
+   "error": null,
+   "call_seconds": [
+    18.005
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 402,
+   "seconds": 18.24,
+   "score": {
+    "score": 1.0,
+    "correct": 1,
+    "scored": 1,
+    "false": 0
+   }
+  },
+  "T5-16": {
+   "id": "T5-16",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L1_014",
+      "finding_ids": [
+       "c:G4:f_L1_014"
+      ]
+     },
+     {
+      "tool": "move_group",
+      "target": "f_L1_013",
+      "finding_ids": [
+       "c:G5:f_L1_013"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "move_group",
+       "args": {
+        "group_id": "r_L1_cocuk_odasi.sleeping_single",
+        "span_id": "r_L1_cocuk_odasi.s4",
+        "offset": 1.5,
+        "reason": "move bed group to left wall to place headboard against wall and free foot space"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    45.113,
+    43.397
+   ],
+   "prompt_tokens": 10241,
+   "completion_tokens": 1434,
+   "seconds": 88.51,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-18": {
+   "id": "T5-18",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_piece",
+      "target": "f_L-1_041",
+      "finding_ids": [
+       "c:F7:f_L-1_041"
+      ]
+     },
+     {
+      "tool": "move_group",
+      "target": "f_L-1_100",
+      "finding_ids": [
+       "c:G1:f_L-1_100"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L-1_salon_2",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    69.838,
+    11.25
+   ],
+   "prompt_tokens": 18701,
+   "completion_tokens": 854,
+   "seconds": 81.09,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T5-17": {
+   "id": "T5-17",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "move_group",
+      "target": "f_L0_061",
+      "finding_ids": [
+       "c:G5:f_L0_061"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "room_topdown",
+      "arguments": {
+       "room_id": "r_L0_oda_01",
+       "annotate": true
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    78.638,
+    15.468
+   ],
+   "prompt_tokens": 9217,
+   "completion_tokens": 1061,
+   "seconds": 94.11,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T1-02": {
+   "id": "T1-02",
+   "task": "T1",
+   "answer": {
+    "type": "not_furniture",
+    "why": "The blue outline encloses only room text “EBEVEYN ODASI 10.17 m2” and dimension numbers 310/332 with no furniture or fixed equipment symbol drawn inside."
+   },
+   "error": null,
+   "call_seconds": [
+    34.803
+   ],
+   "prompt_tokens": 506,
+   "completion_tokens": 367,
+   "seconds": 34.84,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T5-19": {
+   "id": "T5-19",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_009",
+      "finding_ids": [
+       "c:G4:f_L0_009"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "dry_run",
+      "arguments": {
+       "tool": "relayout_room",
+       "args": {
+        "room_id": "r_L0_ebeveyn_yatak_odasi",
+        "candidate": 1,
+        "reason": "relayout to fix nightstand placement beside head"
+       }
+      },
+      "errors": [],
+      "valid": true,
+      "edit": false,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    38.07,
+    48.959
+   ],
+   "prompt_tokens": 9722,
+   "completion_tokens": 1493,
+   "seconds": 87.03,
+   "score": {
+    "score": 1.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 0,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T4-02": {
+   "id": "T4-02",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": true,
+    "wrong_object": true,
+    "notes": "Two geometric purple pillows float in front of the headboard and a white bench/table intersects/floats over the bed."
+   },
+   "error": null,
+   "call_seconds": [
+    13.229
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 297,
+   "seconds": 13.53,
+   "score": {
+    "score": 1.0,
+    "correct": 1,
+    "scored": 1,
+    "false": 0
+   }
+  },
+  "T1-03": {
+   "id": "T1-03",
+   "task": "T1",
+   "answer": {
+    "type": "not_furniture",
+    "why": "A curved door swing arc is visible inside the blue outline."
+   },
+   "error": null,
+   "call_seconds": [
+    9.932
+   ],
+   "prompt_tokens": 557,
+   "completion_tokens": 219,
+   "seconds": 9.97,
+   "score": {
+    "score": 1.0,
+    "correct": true
+   }
+  },
+  "T3-02": {
+   "id": "T3-02",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 1 column 3 (char 2)",
+   "call_seconds": [
+    26.842
+   ],
+   "prompt_tokens": 1899,
+   "completion_tokens": 296,
+   "seconds": 26.92,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T5-20": {
+   "id": "T5-20",
+   "task": "T5",
+   "answer": {
+    "plan": null,
+    "plan_errors": [
+     "<root>: 'room_id' is a required property",
+     "program: 'keep' is a required property",
+     "program/choices: {} is not of type 'array'"
+    ],
+    "plan_problems": [
+     "no valid plan: the default checklist (each fixable finding with its first tool) is used"
+    ],
+    "plan_ok": false,
+    "checklist": [
+     {
+      "tool": "complete_group",
+      "target": "f_L0_005",
+      "finding_ids": [
+       "c:G4:f_L0_005"
+      ]
+     },
+     {
+      "tool": "complete_group",
+      "target": "f_L0_006",
+      "finding_ids": [
+       "c:G4:f_L0_006"
+      ]
+     }
+    ],
+    "calls": [
+     {
+      "name": "relayout_room",
+      "arguments": {
+       "room_id": "r_L0_bed_room_2",
+       "candidate": 1,
+       "reason": "relayout to place nightstands beside head and improve circulation"
+      },
+      "errors": [],
+      "valid": true,
+      "edit": true,
+      "allowed": true,
+      "in_plan": false
+     }
+    ],
+    "content": ""
+   },
+   "error": null,
+   "call_seconds": [
+    61.766,
+    36.914
+   ],
+   "prompt_tokens": 9292,
+   "completion_tokens": 1381,
+   "seconds": 98.68,
+   "score": {
+    "score": 0.0,
+    "calls": 1,
+    "valid": 1,
+    "allowed": 1,
+    "edits": 1,
+    "in_plan": 0,
+    "plan_ok": false
+   }
+  },
+  "T2-01": {
+   "id": "T2-01",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'door_blocked', 'id': 'f_L0_012'}, {'error': 'chair_away', 'id': 'f_L0_012'}] is not of type 'object'",
+   "call_seconds": [
+    86.135
+   ],
+   "prompt_tokens": 832,
+   "completion_tokens": 858,
+   "seconds": 86.15,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T4-03": {
+   "id": "T4-03",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": true,
+    "notes": "A light wood wardrobe, a desk with an open drawer, and a bed with patterned pillows in a simple room."
+   },
+   "error": null,
+   "call_seconds": [
+    12.34
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 268,
+   "seconds": 12.58,
+   "score": {
+    "score": 0.5,
+    "correct": 1,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T3-01": {
+   "id": "T3-01",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    98.093
+   ],
+   "prompt_tokens": 1902,
+   "completion_tokens": 853,
+   "seconds": 98.17,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-04": {
+   "id": "T4-04",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": true,
+    "wrong_object": true,
+    "notes": "Shapeless blue-white blob on the mattress and an open desk drawer; pillows appear to intersect the headboard."
+   },
+   "error": null,
+   "call_seconds": [
+    18.992
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 438,
+   "seconds": 19.26,
+   "score": {
+    "score": 1.0,
+    "correct": 1,
+    "scored": 1,
+    "false": 0
+   }
+  },
+  "T1-04": {
+   "id": "T1-04",
+   "task": "T1",
+   "answer": {
+    "type": "not_furniture",
+    "why": "A circular symbol with the number 2 inside, no furniture or fixed equipment is drawn."
+   },
+   "error": null,
+   "call_seconds": [
+    23.545
+   ],
+   "prompt_tokens": 557,
+   "completion_tokens": 272,
+   "seconds": 23.6,
+   "score": {
+    "score": 1.0,
+    "correct": true
+   }
+  },
+  "T2-02": {
+   "id": "T2-02",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'bed_reversed', 'id': 'f_L0_013'}, {'error': 'door_blocked', 'id': 'f_L0_003'}] is not of type 'object'",
+   "call_seconds": [
+    96.636
+   ],
+   "prompt_tokens": 834,
+   "completion_tokens": 1112,
+   "seconds": 96.67,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 3,
+    "false": 0,
+    "truth": 3
+   }
+  },
+  "T1-05": {
+   "id": "T1-05",
+   "task": "T1",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    28.638
+   ],
+   "prompt_tokens": 557,
+   "completion_tokens": 295,
+   "seconds": 28.68,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T3-03": {
+   "id": "T3-03",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    65.732
+   ],
+   "prompt_tokens": 1901,
+   "completion_tokens": 745,
+   "seconds": 65.79,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-03": {
+   "id": "T2-03",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'door_blocked', 'piece_id': 'f_L1_003'}] is not of type 'object'",
+   "call_seconds": [
+    75.099
+   ],
+   "prompt_tokens": 836,
+   "completion_tokens": 809,
+   "seconds": 75.14,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 0,
+    "false": 0,
+    "truth": 0
+   }
+  },
+  "T4-05": {
+   "id": "T4-05",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "A bedroom render showing a bed with patterned pillows, a blue throw, a white headboard, a small nightstand, and an open view to an adjacent space."
+   },
+   "error": null,
+   "call_seconds": [
+    18.494
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 416,
+   "seconds": 18.73,
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   }
+  },
+  "T1-06": {
+   "id": "T1-06",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    28.339
+   ],
+   "prompt_tokens": 448,
+   "completion_tokens": 347,
+   "seconds": 28.39,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-06": {
+   "id": "T4-06",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "A minimal bedroom with a bed, a geometric throw pillow, wall art with two triangles, a wooden door, and light wood flooring."
+   },
+   "error": null,
+   "call_seconds": [
+    10.963
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 249,
+   "seconds": 11.22,
+   "score": {
+    "score": 0.5,
+    "correct": 1,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T2-05": {
+   "id": "T2-05",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'door_blocked', 'piece_id': 'f_L0_009'}, {'error': 'chair_away', 'piece_id': 'f_L0_029'}] is not of type 'object'",
+   "call_seconds": [
+    74.91
+   ],
+   "prompt_tokens": 835,
+   "completion_tokens": 977,
+   "seconds": 74.93,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T1-07": {
+   "id": "T1-07",
+   "task": "T1",
+   "answer": null,
+   "error": "type: 'kitchen_unit' is not one of ['bed_single', 'bed_double', 'sofa', 'armchair', 'table_dining', 'table_coffee', 'desk', 'chair', 'wardrobe', 'kitchen_counter', 'kitchen_island', 'fridge', 'stove', 'sink_kitchen', 'washbasin', 'toilet', 'shower', 'bathtub', 'tv_unit', 'bookshelf', 'nightstand', 'dresser', 'washing_machine', 'stair', 'side_table', 'floor_lamp', 'potted_plant', 'sofa_corner', 'chaise', 'ottoman', 'bench', 'bar_stool', 'office_chair', 'console_table', 'crib', 'bunk_bed', 'sideboard', 'shoe_cabinet', 'display_cabinet', 'tall_cabinet', 'wall_cabinet', 'not_furniture']",
+   "call_seconds": [
+    35.995
+   ],
+   "prompt_tokens": 367,
+   "completion_tokens": 409,
+   "seconds": 36.05,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T3-05": {
+   "id": "T3-05",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    91.357
+   ],
+   "prompt_tokens": 1906,
+   "completion_tokens": 1170,
+   "seconds": 91.42,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-04": {
+   "id": "T2-04",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'tv_away', 'piece_id': 'f.L-1.088'}] is not of type 'object'",
+   "call_seconds": [
+    115.183
+   ],
+   "prompt_tokens": 832,
+   "completion_tokens": 1644,
+   "seconds": 115.24,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T3-06": {
+   "id": "T3-06",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    61.412
+   ],
+   "prompt_tokens": 1898,
+   "completion_tokens": 757,
+   "seconds": 61.49,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-07": {
+   "id": "T4-07",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "A modern living area with a white sofa with pillows, a white armchair with gold frame, a table lamp, wood flooring, large window and a mirrored opening to an adjacent room."
+   },
+   "error": null,
+   "call_seconds": [
+    15.082
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 332,
+   "seconds": 15.33,
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   }
+  },
+  "T1-08": {
+   "id": "T1-08",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    20.964
+   ],
+   "prompt_tokens": 557,
+   "completion_tokens": 235,
+   "seconds": 21.01,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-06": {
+   "id": "T2-06",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'door_blocked', 'id': 'f_L3_007'}] is not of type 'object'",
+   "call_seconds": [
+    85.136
+   ],
+   "prompt_tokens": 836,
+   "completion_tokens": 1153,
+   "seconds": 85.16,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T4-08": {
+   "id": "T4-08",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Modern living area with gray sofa, low white partition under a horizontal window, framed US map artwork, wooden floor and a white ottoman."
+   },
+   "error": null,
+   "call_seconds": [
+    16.004
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 364,
+   "seconds": 16.22,
+   "score": {
+    "score": 0.5,
+    "correct": 1,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T3-07": {
+   "id": "T3-07",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    65.065
+   ],
+   "prompt_tokens": 1903,
+   "completion_tokens": 741,
+   "seconds": 65.12,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T1-09": {
+   "id": "T1-09",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    28.667
+   ],
+   "prompt_tokens": 367,
+   "completion_tokens": 340,
+   "seconds": 28.71,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T3-08": {
+   "id": "T3-08",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    51.247
+   ],
+   "prompt_tokens": 1904,
+   "completion_tokens": 625,
+   "seconds": 51.29,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T1-10": {
+   "id": "T1-10",
+   "task": "T1",
+   "answer": {
+    "type": "not_furniture",
+    "why": "The blue outline encloses a yellow door swing arc, not a piece of furniture or fixed equipment."
+   },
+   "error": null,
+   "call_seconds": [
+    10.417
+   ],
+   "prompt_tokens": 506,
+   "completion_tokens": 239,
+   "seconds": 10.47,
+   "score": {
+    "score": 1.0,
+    "correct": true
+   }
+  },
+  "T4-09": {
+   "id": "T4-09",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Interior living room render with white two-seat sofa with two pillows, light wood TV stand, black glass coffee table, wooden doors, and a large window/partition."
+   },
+   "error": null,
+   "call_seconds": [
+    13.463
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 296,
+   "seconds": 13.75,
+   "score": {
+    "score": 0.5,
+    "correct": 1,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T3-04": {
+   "id": "T3-04",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    178.598
+   ],
+   "prompt_tokens": 1903,
+   "completion_tokens": 2048,
+   "seconds": 178.68,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-07": {
+   "id": "T2-07",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'bed_reversed', 'piece_id': 'f_L0_020'}] is not of type 'object'",
+   "call_seconds": [
+    110.198
+   ],
+   "prompt_tokens": 836,
+   "completion_tokens": 1069,
+   "seconds": 110.22,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 3,
+    "false": 0,
+    "truth": 3
+   }
+  },
+  "T4-10": {
+   "id": "T4-10",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": true,
+    "wrong_object": false,
+    "notes": "Floral cushion on the brown armchair appears to intersect / cut through the chair backrest."
+   },
+   "error": null,
+   "call_seconds": [
+    14.734
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 335,
+   "seconds": 14.97,
+   "score": {
+    "score": 1.0,
+    "correct": 2,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T1-11": {
+   "id": "T1-11",
+   "task": "T1",
+   "answer": {
+    "type": "not_furniture",
+    "why": "The blue outline encloses empty floor area with no black furniture or fixed equipment drawing inside, only plan lines and annotations."
+   },
+   "error": null,
+   "call_seconds": [
+    12.343
+   ],
+   "prompt_tokens": 506,
+   "completion_tokens": 278,
+   "seconds": 12.4,
+   "score": {
+    "score": 1.0,
+    "correct": true
+   }
+  },
+  "T2-08": {
+   "id": "T2-08",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [] is not of type 'object'",
+   "call_seconds": [
+    77.368
+   ],
+   "prompt_tokens": 832,
+   "completion_tokens": 717,
+   "seconds": 77.39,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 0,
+    "false": 0,
+    "truth": 0
+   }
+  },
+  "T4-11": {
+   "id": "T4-11",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Living room render with L-shaped white sofa with teal and floral pillows, long horizontal window with roller shade, pendant light, low wooden media console, floor lamp, and plain untextured placeholder furniture."
+   },
+   "error": null,
+   "call_seconds": [
+    17.804
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 410,
+   "seconds": 18.0,
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   }
+  },
+  "T2-09": {
+   "id": "T2-09",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'door_blocked', 'id': 'f.1._fb_069'}, {'error': 'chair_away', 'id': 'f.1._fb_068'}] is not of type 'object'",
+   "call_seconds": [
+    72.287
+   ],
+   "prompt_tokens": 833,
+   "completion_tokens": 876,
+   "seconds": 72.31,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   }
+  },
+  "T3-10": {
+   "id": "T3-10",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    43.622
+   ],
+   "prompt_tokens": 1902,
+   "completion_tokens": 477,
+   "seconds": 43.67,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T1-12": {
+   "id": "T1-12",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    29.676
+   ],
+   "prompt_tokens": 481,
+   "completion_tokens": 373,
+   "seconds": 29.71,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-12": {
+   "id": "T4-12",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "A living room with two sofas, an armchair, a shelving unit, a door, a window, and a white block table on light wood floor."
+   },
+   "error": null,
+   "call_seconds": [
+    16.482
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 378,
+   "seconds": 16.75,
+   "score": {
+    "score": 0.5,
+    "correct": 1,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T2-10": {
+   "id": "T2-10",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'nightstand_at_foot', 'id': 'f_L3_016'}, {'error': 'nightstand_at_foot', 'id': 'f_L3_017'}] is not of type 'object'",
+   "call_seconds": [
+    65.258
+   ],
+   "prompt_tokens": 836,
+   "completion_tokens": 768,
+   "seconds": 65.28,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   }
+  },
+  "T1-13": {
+   "id": "T1-13",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    22.481
+   ],
+   "prompt_tokens": 483,
+   "completion_tokens": 247,
+   "seconds": 22.54,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-13": {
+   "id": "T4-13",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "A minimal living room with a light blue sofa with floral pillows and a gray throw, a floor lamp, a window with cream vertical blinds, a wooden door, a small plant, a rug and a partial wooden table."
+   },
+   "error": null,
+   "call_seconds": [
+    13.507
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 309,
+   "seconds": 13.78,
+   "score": {
+    "score": 0.0,
+    "correct": 0,
+    "scored": 1,
+    "false": 0
+   }
+  },
+  "T3-09": {
+   "id": "T3-09",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    123.823
+   ],
+   "prompt_tokens": 1901,
+   "completion_tokens": 1562,
+   "seconds": 123.86,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T1-14": {
+   "id": "T1-14",
+   "task": "T1",
+   "answer": {
+    "type": "not_furniture",
+    "why": "The blue outline encloses a dashed double door swing/door opening symbol with a 335 dimension, no furniture or fixed equipment is drawn."
+   },
+   "error": null,
+   "call_seconds": [
+    10.566
+   ],
+   "prompt_tokens": 466,
+   "completion_tokens": 242,
+   "seconds": 10.59,
+   "score": {
+    "score": 1.0,
+    "correct": true
+   }
+  },
+  "T2-12": {
+   "id": "T2-12",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'door_blocked', 'id': 'f.L1.022'}] is not of type 'object'",
+   "call_seconds": [
+    60.422
+   ],
+   "prompt_tokens": 840,
+   "completion_tokens": 782,
+   "seconds": 60.44,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T2-11": {
+   "id": "T2-11",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'bed_reversed', 'id': 'f_1O_046'}, {'error': 'nightstand_at_foot', 'id': 'f_1O_085'}, {'error': 'nightstand_at_foot', 'id': 'f_1O_088'}] is not of type 'object'",
+   "call_seconds": [
+    94.747
+   ],
+   "prompt_tokens": 838,
+   "completion_tokens": 1027,
+   "seconds": 94.77,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T3-12": {
+   "id": "T3-12",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 1 column 3 (char 2)",
+   "call_seconds": [
+    72.538
+   ],
+   "prompt_tokens": 1898,
+   "completion_tokens": 757,
+   "seconds": 72.62,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-14": {
+   "id": "T4-14",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Minimal bedroom render with wooden door, wooden bed with white mattress and geometric pillows, small nightstand, window and rug."
+   },
+   "error": null,
+   "call_seconds": [
+    13.444
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 302,
+   "seconds": 13.68,
+   "score": {
+    "score": 0.5,
+    "correct": 1,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T1-15": {
+   "id": "T1-15",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    23.088
+   ],
+   "prompt_tokens": 466,
+   "completion_tokens": 258,
+   "seconds": 23.15,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T3-13": {
+   "id": "T3-13",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    72.636
+   ],
+   "prompt_tokens": 1900,
+   "completion_tokens": 625,
+   "seconds": 72.72,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-13": {
+   "id": "T2-13",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [] is not of type 'object'",
+   "call_seconds": [
+    84.146
+   ],
+   "prompt_tokens": 835,
+   "completion_tokens": 827,
+   "seconds": 84.17,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T4-15": {
+   "id": "T4-15",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Minimal bathroom render with wall-mounted vanity, mirror, wooden door, tiled walls and partial toilet visible."
+   },
+   "error": null,
+   "call_seconds": [
+    16.102
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 365,
+   "seconds": 16.27,
+   "score": {
+    "score": 1.0,
+    "correct": 2,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T3-11": {
+   "id": "T3-11",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    132.771
+   ],
+   "prompt_tokens": 1906,
+   "completion_tokens": 1189,
+   "seconds": 132.82,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T1-16": {
+   "id": "T1-16",
+   "task": "T1",
+   "answer": {
+    "type": "not_furniture",
+    "why": "The blue outline encloses an empty rectangular wall opening with no furniture or fixed equipment depicted, just a blank hatch/line."
+   },
+   "error": null,
+   "call_seconds": [
+    16.529
+   ],
+   "prompt_tokens": 503,
+   "completion_tokens": 369,
+   "seconds": 16.59,
+   "score": {
+    "score": 1.0,
+    "correct": true
+   }
+  },
+  "T2-14": {
+   "id": "T2-14",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'chair_away', 'piece_id': 'f.L-1.106'}] is not of type 'object'",
+   "call_seconds": [
+    65.406
+   ],
+   "prompt_tokens": 835,
+   "completion_tokens": 794,
+   "seconds": 65.42,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   }
+  },
+  "T4-16": {
+   "id": "T4-16",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Interior hallway with wooden staircase, small console table, and wooden doors on light wood flooring."
+   },
+   "error": null,
+   "call_seconds": [
+    12.111
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 271,
+   "seconds": 12.42,
+   "score": {
+    "score": 1.0,
+    "correct": 2,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T1-17": {
+   "id": "T1-17",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    23.897
+   ],
+   "prompt_tokens": 502,
+   "completion_tokens": 275,
+   "seconds": 23.94,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-17": {
+   "id": "T4-17",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Wood door with handle, light cabinet, window with curtain and small potted plant, unfinished white block furniture."
+   },
+   "error": null,
+   "call_seconds": [
+    18.364
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 421,
+   "seconds": 18.67,
+   "score": {
+    "score": 1.0,
+    "correct": 2,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T3-14": {
+   "id": "T3-14",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    102.611
+   ],
+   "prompt_tokens": 1899,
+   "completion_tokens": 1096,
+   "seconds": 102.65,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-17": {
+   "id": "T2-17",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'door_blocked', 'id': 'f_L1_028'}] is not of type 'object'",
+   "call_seconds": [
+    43.965
+   ],
+   "prompt_tokens": 840,
+   "completion_tokens": 521,
+   "seconds": 43.99,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T3-15": {
+   "id": "T3-15",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    108.033
+   ],
+   "prompt_tokens": 1902,
+   "completion_tokens": 1250,
+   "seconds": 108.08,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T3-16": {
+   "id": "T3-16",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 1 column 3 (char 2)",
+   "call_seconds": [
+    73.706
+   ],
+   "prompt_tokens": 1900,
+   "completion_tokens": 797,
+   "seconds": 73.75,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-18": {
+   "id": "T4-18",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Minimal kitchen corner with white base and wall cabinets, gray countertop, tiled backsplash and window with roller blind."
+   },
+   "error": null,
+   "call_seconds": [
+    9.852
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 222,
+   "seconds": 10.0,
+   "score": {
+    "score": 1.0,
+    "correct": 2,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T1-18": {
+   "id": "T1-18",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    37.536
+   ],
+   "prompt_tokens": 504,
+   "completion_tokens": 361,
+   "seconds": 37.57,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-15": {
+   "id": "T2-15",
+   "task": "T2",
+   "answer": null,
+   "error": "not JSON: Expecting value: line 1 column 1 (char 0)",
+   "call_seconds": [
+    125.191
+   ],
+   "prompt_tokens": 837,
+   "completion_tokens": 1429,
+   "seconds": 125.22,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T4-19": {
+   "id": "T4-19",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Dining area with wooden table, vase, chairs, large window, open doorway to a small white kitchen."
+   },
+   "error": null,
+   "call_seconds": [
+    11.479
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 261,
+   "seconds": 11.75,
+   "score": {
+    "score": 1.0,
+    "correct": 2,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T3-17": {
+   "id": "T3-17",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 1 column 3 (char 2)",
+   "call_seconds": [
+    85.175
+   ],
+   "prompt_tokens": 1903,
+   "completion_tokens": 1025,
+   "seconds": 85.23,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T1-19": {
+   "id": "T1-19",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    34.216
+   ],
+   "prompt_tokens": 500,
+   "completion_tokens": 380,
+   "seconds": 34.24,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-16": {
+   "id": "T2-16",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'tv_away', 'id': 'f_L0_192'}] is not of type 'object'",
+   "call_seconds": [
+    128.771
+   ],
+   "prompt_tokens": 834,
+   "completion_tokens": 1636,
+   "seconds": 128.79,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T1-20": {
+   "id": "T1-20",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item_type' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    35.259
+   ],
+   "prompt_tokens": 536,
+   "completion_tokens": 411,
+   "seconds": 35.29,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T4-20": {
+   "id": "T4-20",
+   "task": "T4",
+   "answer": {
+    "floating_or_sunk_decor": false,
+    "wrong_object": false,
+    "notes": "Long narrow hallway with light wood flooring, beige walls, large window on left, small wooden side tables and plain gray pedestals along the corridor."
+   },
+   "error": null,
+   "call_seconds": [
+    12.403
+   ],
+   "prompt_tokens": 1395,
+   "completion_tokens": 280,
+   "seconds": 12.69,
+   "score": {
+    "score": 1.0,
+    "correct": 2,
+    "scored": 2,
+    "false": 0
+   }
+  },
+  "T2-21": {
+   "id": "T2-21",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-22": {
+   "id": "T1-22",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-22": {
+   "id": "T2-22",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-23": {
+   "id": "T1-23",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-23": {
+   "id": "T2-23",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-24": {
+   "id": "T1-24",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-24": {
+   "id": "T2-24",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-25": {
+   "id": "T1-25",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-25": {
+   "id": "T2-25",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-26": {
+   "id": "T1-26",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-26": {
+   "id": "T2-26",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 3,
+    "false": 0,
+    "truth": 3
+   },
+   "call_seconds": []
+  },
+  "T1-27": {
+   "id": "T1-27",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-27": {
+   "id": "T2-27",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   },
+   "call_seconds": []
+  },
+  "T1-28": {
+   "id": "T1-28",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-28": {
+   "id": "T2-28",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 0,
+    "false": 0,
+    "truth": 0
+   },
+   "call_seconds": []
+  },
+  "T1-29": {
+   "id": "T1-29",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-29": {
+   "id": "T2-29",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-30": {
+   "id": "T1-30",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-30": {
+   "id": "T2-30",
+   "task": "T2",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   },
+   "call_seconds": []
+  },
+  "T1-31": {
+   "id": "T1-31",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-32": {
+   "id": "T1-32",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-33": {
+   "id": "T1-33",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-34": {
+   "id": "T1-34",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-35": {
+   "id": "T1-35",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-36": {
+   "id": "T1-36",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-37": {
+   "id": "T1-37",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-38": {
+   "id": "T1-38",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-39": {
+   "id": "T1-39",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T1-40": {
+   "id": "T1-40",
+   "task": "T1",
+   "status": "skipped",
+   "error": "time cap",
+   "score": {
+    "score": 0.0,
+    "correct": false
+   },
+   "call_seconds": []
+  },
+  "T2-18": {
+   "id": "T2-18",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [] is not of type 'object'",
+   "call_seconds": [
+    92.106
+   ],
+   "prompt_tokens": 836,
+   "completion_tokens": 1123,
+   "seconds": 92.12,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T3-19": {
+   "id": "T3-19",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    67.482
+   ],
+   "prompt_tokens": 1904,
+   "completion_tokens": 761,
+   "seconds": 67.52,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T1-21": {
+   "id": "T1-21",
+   "task": "T1",
+   "answer": null,
+   "error": "<root>: Additional properties are not allowed ('item' was unexpected); <root>: 'type' is a required property",
+   "call_seconds": [
+    21.658
+   ],
+   "prompt_tokens": 498,
+   "completion_tokens": 256,
+   "seconds": 21.67,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T3-18": {
+   "id": "T3-18",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 1 column 3 (char 2)",
+   "call_seconds": [
+    107.519
+   ],
+   "prompt_tokens": 1904,
+   "completion_tokens": 1282,
+   "seconds": 107.6,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T3-20": {
+   "id": "T3-20",
+   "task": "T3",
+   "answer": null,
+   "error": "not JSON: Extra data: line 2 column 1 (char 2)",
+   "call_seconds": [
+    56.754
+   ],
+   "prompt_tokens": 1902,
+   "completion_tokens": 695,
+   "seconds": 56.79,
+   "score": {
+    "score": 0.0,
+    "correct": false
+   }
+  },
+  "T2-19": {
+   "id": "T2-19",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'bed_reversed', 'piece_id': 'f_L3_023'}, {'error': 'door_blocked', 'piece_id': 'f_L3_004'}, {'error': 'door_blocked', 'piece_id': 'f_L3_023'}] is not of type 'object'",
+   "call_seconds": [
+    111.583
+   ],
+   "prompt_tokens": 835,
+   "completion_tokens": 1376,
+   "seconds": 111.6,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 1,
+    "false": 0,
+    "truth": 1
+   }
+  },
+  "T2-20": {
+   "id": "T2-20",
+   "task": "T2",
+   "answer": null,
+   "error": "<root>: [{'error': 'bed_reversed', 'id': 'f_L1_L013'}, {'error': 'door_blocked', 'id': 'f_L1_L013'}, {'error': 'door_blocked', 'id': 'f_L1_L002'}, {'error': 'chair_away', 'id': 'f_L1_L017'}] is not of type 'object'",
+   "call_seconds": [
+    128.19
+   ],
+   "prompt_tokens": 835,
+   "completion_tokens": 1737,
+   "seconds": 128.21,
+   "score": {
+    "score": 0.0,
+    "hit": 0,
+    "missed": 2,
+    "false": 0,
+    "truth": 2
+   }
+  }
+ }
+}

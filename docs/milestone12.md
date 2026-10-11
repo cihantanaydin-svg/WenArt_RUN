@@ -1226,3 +1226,40 @@ A track that needs a change in another track's file writes it into its report; t
 | 10 Oct | Pod P1 | two creations failed (no 2 × RTX PRO 6000 instance in EU-RO-1, nothing billed); P1 runs **without the volume** from `f4a23d8` (the bake-off skips only its Cycles-VRAM measurement without the real02 scene) |
 | 10 Oct | Pod P1 `kmnn2d9uanyqab` (2 × RTX PRO 6000, US-NE-1, no volume, 103 min, **$8.51, nothing measured**) | the job hung after its first two downloads: `bakeoff_m12.sh` redirects through `exec > >(tee ...)` and a bare `wait` in bash ≥ 5.1 also waits for that process substitution (reproduced here); the watchdog stopped the pod. Fixed (explicit pids; the 129 GB fallback model downloaded only when needed) with `tests/test_jobs_flow.py`, which runs the job's flow with fake commands and fails on the old script; every job script is checked for the pattern. Downloads in US-NE-1 ran at ≈ 0.1 GB/s (EU-RO-1: ≈ 1.1 GB/s) |
 | 10 Oct | Integration | tracks R, A follow-up merged; a drawn piece leaves only through `mark_not_furniture` with evidence (CLAUDE.md); NR (needs review) and RC (type disagreement) findings for the agent; the final report lists review items and symbols; a stale real02 test (M11 §19.8 label rule) fixed; schema documents the new fields |
+| 11 Oct | Pod P1 rerun `p8fndyl7k4bnxh` (2 × RTX PRO 6000, EU-RO-1 with the volume, 16 min, $1.30) | no status server within the boot timeout and no pod log; the runner stopped it; P1 ran again without the volume |
+| 11 Oct | Blender tests | Blender's own Python has no PyYAML: `furniture/sizes.py` falls back to `recognition/size_table.json` (a generated mirror, kept equal by a test); five Blender tests updated for M12 (unknown boxes not built, library seats, cushions resting) |
+| 11 Oct | Pod P1 `1jb70lf1z6oox9` (2 × RTX PRO 6000, EUR-IS-2, no volume, 90 min, $7.50) | bake-off done, all steps ok, GPU tests 4/4; **pick: `Qwen/Qwen3.8-27B-FP8`, thinking off** (unchanged `models.agent`); results and decision in §14.1 |
+
+### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
+
+Tasks (fixture `tests/fixtures/m12_bakeoff/`): T1 plan-crop typing (40 items), T2 planted layout errors in top-down
+images (30 rooms), T3 the best of 3 layouts (20 rooms), T4 floating decor and wrong objects in renders (20 images),
+T5 a plan and tool calls on a room brief (20 rooms). Score = mean of T1–T4 (points). Time cap 720 s per variant.
+
+| model | variant | GPUs | T1 % | T2 % | T3 % | T4 % | T1–T4 | answered | T5 valid calls | s / call |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Qwen3.8-27B-FP8 | thinking off | 1 | 50.0 | 12.2 | 35.0 | 65.0 | **40.6** | 100 % | 100 % | 3.2 |
+| Qwen3.8-27B (BF16) | thinking off | 1 | 47.5 | 10.6 | 35.0 | 70.0 | 40.8 | 100 % | 100 % | 4.9 |
+| Qwen3.8-Flash-Next-NVFP4 | thinking off | 2 | 57.5 | 27.2 | 35.0 | 65.0 | 46.2 | 100 % | 100 % | 2.8 |
+| Muse-Glimmer-30B | reasoning low | 1 | 15.0 | 0 | 0 | 65.0 | 20.0 | 36 % | 100 % | 49.7 |
+| any | thinking on / Muse high | 1–2 | – | – | – | – | – | 8–15 % (time cap) | 100 % | 98–381 |
+
+Baselines: T1 always `not_furniture` 30 %; T3 a random pick 33 %; T4 always "no" 54.5 %.
+
+Decision (rule of §5.1: a 2-GPU model only when ≥ 10 points better): **Qwen3.8-27B-FP8, thinking off** stays the
+agent model. Flash-Next is 5.6 points better (mainly T1 typing and T2), needs 2 GPUs (twice the cost per hour) and
+started only on vLLM 0.31.0 (not adopted; it did not start on the pinned 0.30.0 within 90 s; the retry overwrote
+that log). BF16 is not better than FP8 and is 1.5× slower. Muse-Glimmer is not usable: time caps and schema errors
+(`item_type` instead of `type`). Thinking on: 4–6 minutes and ≈ 5,800 tokens per call; too slow for the agent's time
+budget, so it was not measured beyond 8–15 % of the items (the summary counts it as not answered).
+
+What the numbers say for the design:
+- No model judges layouts from top-down images: T3 is at chance (35 % for every model, the answer key is spread
+  1/2/3 = 7/6/7) and T2 finds 11–27 % of planted errors with 48–61 false reports in 30 rooms. This confirms D9/D13:
+  layout errors are found by code (G-checks), the vision critic's layout findings are dropped when code measured
+  no violation (`critic_vision`), and every edit is checked by code. The solver's candidates all pass the checks,
+  so the model's choice between them is a matter of taste, not of errors.
+- The model is useful where code cannot look: plan-crop typing (T1, 50 % vs a 30 % baseline) and renders (T4,
+  65 % vs 54.5 %), and it makes valid, allowed, planned tool calls (T5 100 %).
+- The Cycles-next-to-the-server measurement was skipped (no real02 scene on a pod without the volume); the agent
+  server keeps M11's 0.55 of the VRAM, measured with Cycles in M11.

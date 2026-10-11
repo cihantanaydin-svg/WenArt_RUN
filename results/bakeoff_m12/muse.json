@@ -1,0 +1,66 @@
+{
+ "key": "bakeoff.muse",
+ "name": "muse",
+ "model": "meta-models/Muse-Glimmer-30B",
+ "revision": "a4e59da52a7bc87ae7251dd5545c0dd437c44b68",
+ "gpus": 1,
+ "device": "1",
+ "variants": {
+  "low": {
+   "wall_s": 813.4,
+   "combined": 20.0,
+   "cycles": {
+    "skipped": "no scene /workspace/repo/outputs/real02/scene/scene.blend"
+   },
+   "vram_peak": {
+    "0": 55060,
+    "1": 74258
+   }
+  },
+  "high": {
+   "wall_s": 1388.6,
+   "combined": 0.0,
+   "cycles": {
+    "skipped": "first variant only"
+   },
+   "vram_peak": {
+    "0": 54501,
+    "1": 74011
+   }
+  }
+ },
+ "started": 1791679328.3381522,
+ "vram_before": [
+  {
+   "index": 0,
+   "used_mib": 0,
+   "total_mib": 97887
+  },
+  {
+   "index": 1,
+   "used_mib": 0,
+   "total_mib": 97887
+  }
+ ],
+ "vllm": "/opt/wenart/venv-vllm/bin/vllm",
+ "server": {
+  "key": "bakeoff.muse",
+  "model": "meta-models/Muse-Glimmer-30B",
+  "seqs": 8,
+  "seconds_to_ready": 330.0,
+  "ok": true
+ },
+ "vram_server": [
+  {
+   "index": 0,
+   "used_mib": 54499,
+   "total_mib": 97887
+  },
+  {
+   "index": 1,
+   "used_mib": 71927,
+   "total_mib": 97887
+  }
+ ],
+ "finished": 1791681861.9807918
+}

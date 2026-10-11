@@ -1,0 +1,73 @@
+{
+ "key": "bakeoff.fp8",
+ "name": "fp8",
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+ "gpus": 1,
+ "device": "0",
+ "variants": {
+  "off": {
+   "wall_s": 61.2,
+   "combined": 40.6,
+   "cycles": {
+    "skipped": "no scene /workspace/repo/outputs/real02/scene/scene.blend"
+   },
+   "vram_peak": {
+    "0": 54499,
+    "1": 73697
+   }
+  },
+  "on": {
+   "wall_s": 1215.3,
+   "combined": 0.0,
+   "cycles": {
+    "skipped": "first variant only"
+   },
+   "vram_peak": {
+    "0": 54501,
+    "1": 74011
+   }
+  }
+ },
+ "started": 1791679328.3382132,
+ "vram_before": [
+  {
+   "index": 0,
+   "used_mib": 0,
+   "total_mib": 97887
+  },
+  {
+   "index": 1,
+   "used_mib": 0,
+   "total_mib": 97887
+  }
+ ],
+ "vllm": "/opt/wenart/venv-vllm/bin/vllm",
+ "server": {
+  "key": "bakeoff.fp8",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "seqs": 8,
+  "seconds_to_ready": 310.0,
+  "ok": true
+ },
+ "vram_server": [
+  {
+   "index": 0,
+   "used_mib": 52113,
+   "total_mib": 97887
+  },
+  {
+   "index": 1,
+   "used_mib": 73559,
+   "total_mib": 97887
+  }
+ ],
+ "gpu_tests": {
+  "rc": 0,
+  "tail": [
+   "....                                                                     [100%]",
+   "4 passed in 260.05s (0:04:20)"
+  ]
+ },
+ "finished": 1791681178.3966353
+}

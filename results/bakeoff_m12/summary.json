@@ -1,0 +1,348 @@
+{
+ "rows": [
+  {
+   "name": "bf16",
+   "variant": "off",
+   "model": "Qwen/Qwen3.8-27B",
+   "gpus": 1,
+   "T1": 47.5,
+   "T2": 10.6,
+   "T3": 35.0,
+   "T4": 70.0,
+   "combined": 40.8,
+   "T2_false": 61,
+   "T2_recall": 0.1951,
+   "T4_false": 0,
+   "T5": 100.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 1.0,
+   "T5_plans_ok": 19,
+   "answered": 1.0,
+   "s_per_call": 4.88,
+   "tokens_per_call": 69.5,
+   "wall_s": 93.3,
+   "vram_peak_mib": 71033,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "no scene /workspace/repo/outputs/real02/scene/scene.blend"
+  },
+  {
+   "name": "bf16",
+   "variant": "on",
+   "model": "Qwen/Qwen3.8-27B",
+   "gpus": 1,
+   "T1": 0.0,
+   "T2": 0.0,
+   "T3": 0.0,
+   "T4": 0.0,
+   "combined": 0.0,
+   "T2_false": 0,
+   "T2_recall": null,
+   "T4_false": 0,
+   "T5": 10.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 0.0,
+   "T5_plans_ok": 2,
+   "answered": 0.077,
+   "s_per_call": 380.65,
+   "tokens_per_call": 5758.0,
+   "wall_s": 1203.9,
+   "vram_peak_mib": 71592,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "first variant only"
+  },
+  {
+   "name": "flash_next",
+   "variant": "off",
+   "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+   "gpus": 2,
+   "T1": 57.5,
+   "T2": 27.2,
+   "T3": 35.0,
+   "T4": 65.0,
+   "combined": 46.2,
+   "T2_false": 48,
+   "T2_recall": 0.3415,
+   "T4_false": 0,
+   "T5": 100.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 1.0,
+   "T5_plans_ok": 20,
+   "answered": 1.0,
+   "s_per_call": 2.81,
+   "tokens_per_call": 103.8,
+   "wall_s": 54.0,
+   "vram_peak_mib": 84913,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "no scene /workspace/repo/outputs/real02/scene/scene.blend"
+  },
+  {
+   "name": "flash_next",
+   "variant": "on",
+   "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+   "gpus": 2,
+   "T1": 0.0,
+   "T2": 0.0,
+   "T3": 0.0,
+   "T4": 0.0,
+   "combined": 0.0,
+   "T2_false": 0,
+   "T2_recall": null,
+   "T4_false": 0,
+   "T5": 90.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 0.0,
+   "T5_plans_ok": 5,
+   "answered": 0.146,
+   "s_per_call": 98.41,
+   "tokens_per_call": 4355.8,
+   "wall_s": 525.7,
+   "vram_peak_mib": 85472,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "first variant only"
+  },
+  {
+   "name": "fp8",
+   "variant": "off",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "gpus": 1,
+   "T1": 50.0,
+   "T2": 12.2,
+   "T3": 35.0,
+   "T4": 65.0,
+   "combined": 40.6,
+   "T2_false": 52,
+   "T2_recall": 0.2439,
+   "T4_false": 0,
+   "T5": 100.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 1.0,
+   "T5_plans_ok": 18,
+   "answered": 1.0,
+   "s_per_call": 3.18,
+   "tokens_per_call": 67.7,
+   "wall_s": 61.2,
+   "vram_peak_mib": 73697,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "no scene /workspace/repo/outputs/real02/scene/scene.blend"
+  },
+  {
+   "name": "fp8",
+   "variant": "on",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "gpus": 1,
+   "T1": 0.0,
+   "T2": 0.0,
+   "T3": 0.0,
+   "T4": 0.0,
+   "combined": 0.0,
+   "T2_false": 0,
+   "T2_recall": null,
+   "T4_false": 0,
+   "T5": 15.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 0.0,
+   "T5_plans_ok": 3,
+   "answered": 0.131,
+   "s_per_call": 243.49,
+   "tokens_per_call": 5809.1,
+   "wall_s": 1215.3,
+   "vram_peak_mib": 74011,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "first variant only"
+  },
+  {
+   "name": "muse",
+   "variant": "high",
+   "model": "meta-models/Muse-Glimmer-30B",
+   "gpus": 1,
+   "T1": 0.0,
+   "T2": 0.0,
+   "T3": 0.0,
+   "T4": 0.0,
+   "combined": 0.0,
+   "T2_false": 0,
+   "T2_recall": null,
+   "T4_false": 0,
+   "T5": 80.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 0.0,
+   "T5_plans_ok": 0,
+   "answered": 0.131,
+   "s_per_call": 227.76,
+   "tokens_per_call": 2834.6,
+   "wall_s": 1388.6,
+   "vram_peak_mib": 74011,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "first variant only"
+  },
+  {
+   "name": "muse",
+   "variant": "low",
+   "model": "meta-models/Muse-Glimmer-30B",
+   "gpus": 1,
+   "T1": 15.0,
+   "T2": 0.0,
+   "T3": 0.0,
+   "T4": 65.0,
+   "combined": 20.0,
+   "T2_false": 0,
+   "T2_recall": 0.0,
+   "T4_false": 0,
+   "T5": 95.0,
+   "T5_valid": 1.0,
+   "T5_allowed": 1.0,
+   "T5_in_plan": 0.0,
+   "T5_plans_ok": 0,
+   "answered": 0.362,
+   "s_per_call": 49.67,
+   "tokens_per_call": 622.3,
+   "wall_s": 813.4,
+   "vram_peak_mib": 74258,
+   "cycles_rc": null,
+   "cycles_s": null,
+   "cycles_note": "no scene /workspace/repo/outputs/real02/scene/scene.blend"
+  }
+ ],
+ "servers": {
+  "bf16": {
+   "model": "Qwen/Qwen3.8-27B",
+   "server": {
+    "key": "bakeoff.bf16",
+    "model": "Qwen/Qwen3.8-27B",
+    "seqs": 8,
+    "seconds_to_ready": 200.0,
+    "ok": true
+   },
+   "vram_server": [
+    {
+     "index": 0,
+     "used_mib": 68643,
+     "total_mib": 97887
+    },
+    {
+     "index": 1,
+     "used_mib": 0,
+     "total_mib": 97887
+    }
+   ],
+   "gpu_tests": null
+  },
+  "flash_next": {
+   "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+   "server": {
+    "key": "bakeoff.flash_next",
+    "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+    "seqs": 8,
+    "seconds_to_ready": 260.0,
+    "ok": true
+   },
+   "vram_server": [
+    {
+     "index": 0,
+     "used_mib": 82731,
+     "total_mib": 97887
+    },
+    {
+     "index": 1,
+     "used_mib": 82731,
+     "total_mib": 97887
+    }
+   ],
+   "gpu_tests": null
+  },
+  "fp8": {
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "server": {
+    "key": "bakeoff.fp8",
+    "model": "Qwen/Qwen3.8-27B-FP8",
+    "seqs": 8,
+    "seconds_to_ready": 310.0,
+    "ok": true
+   },
+   "vram_server": [
+    {
+     "index": 0,
+     "used_mib": 52113,
+     "total_mib": 97887
+    },
+    {
+     "index": 1,
+     "used_mib": 73559,
+     "total_mib": 97887
+    }
+   ],
+   "gpu_tests": {
+    "rc": 0,
+    "tail": [
+     "....                                                                     [100%]",
+     "4 passed in 260.05s (0:04:20)"
+    ]
+   }
+  },
+  "muse": {
+   "model": "meta-models/Muse-Glimmer-30B",
+   "server": {
+    "key": "bakeoff.muse",
+    "model": "meta-models/Muse-Glimmer-30B",
+    "seqs": 8,
+    "seconds_to_ready": 330.0,
+    "ok": true
+   },
+   "vram_server": [
+    {
+     "index": 0,
+     "used_mib": 54499,
+     "total_mib": 97887
+    },
+    {
+     "index": 1,
+     "used_mib": 71927,
+     "total_mib": 97887
+    }
+   ],
+   "gpu_tests": null
+  }
+ },
+ "decision": {
+  "pick": {
+   "name": "fp8",
+   "variant": "off",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "gpus": 1,
+   "combined": 40.6
+  },
+  "why": "the best 2-GPU model (flash_next off, 46.2) is less than 10 points above the best single-GPU model (40.6)",
+  "best_single": {
+   "name": "fp8",
+   "variant": "off",
+   "combined": 40.6
+  },
+  "best_two_gpu": {
+   "name": "flash_next",
+   "variant": "off",
+   "combined": 46.2
+  },
+  "not_eligible": [
+   "bf16 on",
+   "flash_next on",
+   "fp8 on",
+   "muse high",
+   "muse low"
+  ]
+ },
+ "rule": "2-GPU only when >= 10 points better on T1-T4; answered >= 90%, T5 valid calls >= 80%"
+}
