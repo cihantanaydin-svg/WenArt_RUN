@@ -1234,6 +1234,7 @@ A track that needs a change in another track's file writes it into its report; t
 | 11 Oct | Pod P3 `0tioht9q40mrfq` (RTX PRO 6000, 30 min, $1.24) | cut: the session's runner process hit its 30-minute background limit and its cleanup stopped the pod (no collect); the vision answers stayed on the volume. Runners now start with a 2-hour limit |
 | 11 Oct | Pod P3 rerun `3wmzzr6j18u848` (RTX PRO 6000, 12 min, $0.52) | done, GPU tests 2/2: 1,066 models asked (answers of the first try reused), 306 second passes; decisions, sheets, gaps, catalogue copies. Four decision rules fixed after a look at the sheets (§14.2) |
 | 11 Oct | Pod P5 `6pvp7iygs4w1t0` (RTX PRO 6000, 98 min, $4.08) | real03 full orchestrated run, polish off: every stage ok, 82 views; agent 3 rounds, **85 edits accepted, 179 rejected** (M11 run 3: 5 / 73), stopped by the time budget; exit 1 from 10 of 39 GPU tests (§14.4) |
+| 11 Oct | Pod P6 `tuv1125xi3rawf` (RTX PRO 6000, 94 min, $3.91) | real02 full run with the P5 fixes, polish off: every stage ok; agent 4 rounds, 119 accepted / 172 rejected (swap_model 42/43, move_piece 31/106, set_exterior 12/21; complete_group 0/38: unverified anchors and complete groups, fixed in the brief); findings critical 5 -> 5, major 157 -> 149; GPU tests 38/39 (two attic corridor views see 196 m through a 1-2 px gap beside a door leaf: open, cosmetic) |
 
 ### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
 

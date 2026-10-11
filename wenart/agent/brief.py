@@ -416,10 +416,12 @@ def _check_tools(check: str) -> tuple[str, ...]:
 
 
 def classify(findings: list[dict], building: dict, room_id: Optional[str], allowed: dict, group_of: dict,
-             room_tools_ok: dict, locked_groups: frozenset = frozenset()) -> tuple[list[dict], list[dict]]:
+             room_tools_ok: dict, locked_groups: frozenset = frozenset(),
+             completable: Optional[frozenset] = None) -> tuple[list[dict], list[dict]]:
     """``(fixable, not_yours)`` (module docstring). ``allowed``: piece id -> allowed per tool; ``group_of``: piece id
     -> group id; ``room_tools_ok``: room tool -> bool (relayout possible, a group to place / complete);
-    ``locked_groups``: groups with a drawn member (never moved: ``move_group`` is not offered for them)."""
+    ``locked_groups``: groups with a drawn member (never moved: ``move_group`` is not offered for them);
+    ``completable``: groups with missing members and a verified anchor (None: unknown, the validator decides)."""
     pieces = {p.get("id"): p for p in building.get("furniture") or []}
     fixable, not_yours = [], []
     for f in findings:
@@ -445,9 +447,13 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
                     elif a.get("why"):
                         whys.append(f"{t}: {a['why']}")
                 elif t in GROUP_TOOLS:
-                    if t == "move_group" and group_of.get(target) in locked_groups:
-                        whys.append(f"move_group: {group_of.get(target)} has drawn members (they stay as drawn)")
-                    elif group_of.get(target) or (t == "complete_group" and room_tools_ok.get("complete_group")):
+                    gid = group_of.get(target)
+                    if t == "move_group" and gid in locked_groups:
+                        whys.append(f"move_group: {gid} has drawn members (they stay as drawn)")
+                    elif t == "complete_group" and completable is not None and gid not in completable \
+                            and not (gid is None and room_tools_ok.get("complete_group")):
+                        whys.append(f"complete_group: {gid or 'its group'} misses nothing, or its anchor is unverified")
+                    elif gid or (t == "complete_group" and room_tools_ok.get("complete_group")):
                         ok.append(t)
                 elif t == "relayout_room":
                     # a re-layout moves the AI pieces: it fixes an AI piece, or a group around a drawn anchor
@@ -594,9 +600,14 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
     locked_groups = frozenset(g.get("group_id") for g in members
                               if any((by_id.get(m) or {}).get("source") == "from_documents"
                                      for m in [g.get("anchor_id"), *(g.get("member_ids") or [])] if m))
+    # pod P6: complete_group was offered for complete groups (no_change) and for groups whose anchor is unverified
+    # (refused: retype_piece first): only a group with missing members and a verified anchor can be completed
+    completable = frozenset(g.get("group_id") for g in members if g.get("missing")
+                            and (by_id.get(g.get("anchor_id")) or {}).get("status") != "unverified")
+    room_tools_ok["complete_group"] = bool(completable) if members else room_tools_ok["complete_group"]
     fixable, not_yours = classify(list(findings or []), building, room_id,
                                   {pid: a for pid, a in allowed.items()}, group_of, room_tools_ok,
-                                  locked_groups=locked_groups)
+                                  locked_groups=locked_groups, completable=completable if members else None)
     candidates = []
     for c in cands[:k]:
         rank = int(c.get("rank") or len(candidates) + 1)

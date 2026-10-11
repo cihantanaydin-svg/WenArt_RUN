@@ -205,3 +205,18 @@ def test_relayout_is_offered_only_with_a_usable_candidate():
                 "group_violations": []}]
     out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes(solver_fn=lambda b, r, k=3: failing))
     assert "relayout_room" not in {t for f in out["findings"]["fixable"] for t in f["tools"]}
+
+
+def test_complete_group_only_for_a_group_that_misses_members_with_a_verified_anchor():
+    """Pod P6: complete_group was offered for complete groups (no_change) and unverified anchors (refused)."""
+    out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes())
+    assert next(f for f in out["findings"]["fixable"] if f["id"] == "c:G4:f2")["tools"][0] == "complete_group"
+    full = [{"group_id": "g_sleep", "group": "sleeping_double", "anchor_id": "f1", "member_ids": ["f1", "f2"],
+             "missing": []}]
+    out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes(members_fn=lambda b, r: full))
+    tools = {f["id"]: f["tools"] for f in out["findings"]["fixable"]}
+    assert "complete_group" not in tools.get("c:G4:f2", [])
+    b = toy()
+    next(p for p in b["furniture"] if p["id"] == "f1")["status"] = "unverified"
+    out = BR.room_brief(b, "r1", findings=FINDINGS, **fakes())
+    assert "complete_group" not in {t for f in out["findings"]["fixable"] for t in f["tools"]}
