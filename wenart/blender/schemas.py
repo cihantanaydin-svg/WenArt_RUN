@@ -96,7 +96,9 @@ WINDOW_PULL = {
 WHOLE_BUILDING_KINDS = ("slab", "roof", "facade", "terrain", "site_wall", "site_area", "site_decor", "light_well",
                         "railing",
                         # Milestone 11 (docs/milestone11.md §1.1 E10, E11): the inferred site and the facade details
-                        "site_steps", "site_boundary", "facade_detail", "splashback")
+                        "site_steps", "site_boundary", "facade_detail", "splashback",
+                        # 11 Oct 2026 (real04): the other buildings on the plot (instances) and the pools
+                        "building_copy", "site_pool")
 # wenart/schema/building.schema.json $defs/side.
 SIDES = ("all", "north", "east", "south", "west", "front", "back", "left", "right")
 CAMERA_VIEWS = ("corner", "aerial", "elevation",

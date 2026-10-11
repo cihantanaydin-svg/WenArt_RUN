@@ -1,0 +1,9 @@
+# real04: the user's DWG of 11 Oct 2026 (deneme1.dwg): the real02 twin villa on its plot, "4 ADET VİLLA" (two
+# twin blocks on parcels 2086 and 2296, Beykoz), with the site plan (r14: plot, pools, level marks 37-46 m).
+# User: "there can be multiple buildings in the same plot, try to make pod to understand this".
+# Style of real02 (the same villa; the user's reference photo style_photos/living_reference.jpg).
+style: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood
+  furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots,
+  cream and mustard cushions, dark bronze window frames, warm daylight
+style_photos:
+- living_reference.jpg

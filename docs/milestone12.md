@@ -1405,3 +1405,30 @@ fix_fixture 2/4, complete_group **0/13**, place_group 0/4, relayout_room 0/1.
 | 48 kept models (decision 1a) whose vision check names another type, 24 of them a known furniture type (e.g. Poly Haven `chinese_armchair` typed `office_chair`, `metal_stool_02` typed `ottoman`) | kept with a vision doubt; the final vision check watches them; a retype to the vision's type after a second agreeing pass is a decision for you |
 | place_group 0/4 ("no candidate position fits the room") | open: the same dry-run gate as complete_group would fit |
 
+### 14.8 real04: several buildings on one plot (11 Oct 2026, after the build)
+
+User, 11 Oct 2026: "relax the pod time, pods need to be more free, give them more time to complete their jobs";
+"run attached in a pod, give the results, real04, there can be multiple buildings in the same plot, try to make pod
+to understand this, run the test, we can bypass the usd limits for this test"; "r14 is gorgeous the ground slope".
+
+Pod time: 4 h per run (was 2 h, `MAX_MINUTES` 240, CLAUDE.md); `AGENT_ROUNDS` for the full job; 11 Oct only: day
+cap $60 for the real04 test (`DAY_LIMITS`), `--over-5-ok`.
+
+The drawing (`projects/real04/deneme1.dwg`, 22.6 MB): the real02 twin villa (basement with an open-kitchen
+variant, ground floor, attic, two sections) plus four site plans, the two parcels (2086: 544 m², 2296: 614 m²) and
+the title "1165 M2 ... 94.6 M2 / 4 ADET VİLLA". The site plan **r14** has the plot (1,165.9 m², the title's 1,165),
+the building setback line, two twin-villa blocks, four 24 m² pools with sun terraces, parking, 101 trees, five
+entrance markers (`G_BINA`) and 16 level marks (`BDK` attributes, 37.00-46.00 m: the ground falls 9 m to the west).
+
+| Step | What the pipeline now does (code, tests) |
+|---|---|
+| classify | site words (PARSEL SINIRI, YAPI YAKLAŞMA, VAZİYET ...) with one area label make a site plan (`classify.SITE_WORDS`); the site plan with the most evidence is used |
+| buildings | `wenart/sheets/buildings.py`: rectangle-like shapes of the site plan (block inserts exploded, open three-sided outlines closed), single or two touching, matched to the plans' outlines at any angle; real04: two blocks, each two `bina` inserts (one villa each), 15.20 x 12.00 m = plan r16 within 0.03 m |
+| orientation | the entrance markers next to a footprint against the entrance plan's door swings: both blocks "entrances" (the 180-degree turn told apart); without markers the copy is listed `ambiguous` |
+| heights | the marks at each block's entrances: 43.00 (b1) and 46.00 (b2): b2 **+3.00 m**; ±0.00 = 43.00 (derived, the section's ground on the entrance side is 0.00) |
+| site | site-plan marks are ground spot heights wherever they stand (no reach or outlier cut): a triangulated ground from 16 marks (-6 to +3 m); pools (`site.pools`, depth 1.5 m assumed) and sun terraces (GÜNEŞLENME → terrace → paving); labels name the outline next to them and the area they write (`24M2`), never the setback line around several areas; a closed polyline whose last vertex repeats the first a little off is read (the pools were lost to a bow-tie) |
+| build | `wenart/blender/copies.py`: b2 is a collection instance of the levels, roof and facade details (`site.buildings`: rotation, translate, dz); the ground has a hole per block and pool; the pools are built (tiles, water); the exterior camera model holds b2 as an obstacle (no camera inside it, no view blocked by it) and one site view shows every block; an agent camera inside b2 is refused |
+
+Tests: `tests/test_site_buildings.py` (a synthetic tilted site plan with two twin blocks, labels, the bow-tie,
+transforms, ground marks, the camera model, a Blender instance), `tests/test_sheets_real04.py` (r14 read as
+above).

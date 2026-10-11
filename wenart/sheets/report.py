@@ -109,7 +109,7 @@ def write_report(doc: dict, path: Path, pending: list[str]) -> Path:
     else:
         lines.append("Roof: nothing drawn.")
     site = ex.get("site")
-    site_text = "no" if not site else "registered (site_outline)" if site.get("registered") else "not registered"
+    site_text = "no" if not site else site_registration(site) if site.get("registered") else "not registered"
     lines.append(f"Facade entries: {len(ex.get('facade') or [])}; elevations: {len(ex.get('openings_seen') or [])}; "
                  f"site plan: {site_text}; north: {_val(ex.get('north'))}")
     lines += ["", "## Conflicts", ""]
@@ -134,3 +134,18 @@ def write_report(doc: dict, path: Path, pending: list[str]) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
+
+
+def site_registration(site: dict) -> str:
+    """The site plan's registration for the report (11 Oct 2026: every building on the plot)."""
+    if not site.get("buildings"):
+        return "registered (site_outline)"
+    parts = []
+    for c in site["buildings"]:
+        if c.get("reference"):
+            parts.append(f"{c['id']} modelled")
+        else:
+            t = c.get("translate") or [0.0, 0.0]
+            parts.append(f"{c['id']} turned {float(c.get('rotation_deg') or 0):.1f} deg, moved {t[0]:.2f} / "
+                         f"{t[1]:.2f} m, dz {float(c.get('dz') or 0):+.2f} m ({c.get('orientation')})")
+    return "registered (site_buildings: " + "; ".join(parts) + ")"

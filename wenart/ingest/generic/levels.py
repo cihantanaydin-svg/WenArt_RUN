@@ -64,9 +64,26 @@ def _site_plan_texts(build) -> list[dict]:
         ev.setdefault("method", "vector")
         ev.setdefault("confidence", 1.0)
         point = (round(mk["point"][0] - shift[0], 4), round(mk["point"][1] - shift[1], 4))
+        # 11 Oct 2026 (real04): a site plan's marks are spot heights of the ground (its BDK attributes too); a mark
+        # attribute's bare value is read (``attrib_tag``), its kind is the ground.
         out.append({"text": mk["text"], "point": point, "level_id": gl["id"], "entity": mk.get("entity"),
-                    "evidence": ev, "attrib_tag": None})
+                    "evidence": ev, "attrib_tag": mk.get("attrib_tag"), "site_ground": bool(mk.get("site_ground"))})
     return out
+
+
+def _site_datum(build) -> None:
+    """11 Oct 2026 (real04): ±0.00 inferred from the site plan's marks at the first building's entrances
+    (``sheets.json`` ``exterior.site.datum``) when the project has none (a drawn datum always wins)."""
+    site = (((getattr(build, "sheets", None) or {}).get("exterior") or {}).get("site") or {})
+    sd = site.get("datum")
+    proj = build.building["project"]
+    if not sd or sd.get("value") is None or (proj.get("datum") or {}).get("value") is not None:
+        return
+    ev = [e for c in (site.get("buildings") or [])[:1] for e in (c.get("evidence") or [])][:2]
+    if not ev:
+        return
+    proj["datum"] = {"value": float(sd["value"]), "method": "derived", "confidence": float(sd.get("confidence", 0.7)),
+                     "evidence": ev, "note": f"inferred: {sd.get('note')}"}
 
 
 def apply_levels(build, works: dict) -> None:
@@ -75,6 +92,7 @@ def apply_levels(build, works: dict) -> None:
 
     b = build.building
     params = LMOD.level_params(LMOD._brief_of(b, None))
+    _site_datum(build)
     texts = _texts(works) + _site_plan_texts(build)
     section = (getattr(build, "sheets", None) or {}).get("heights")
     res = RD.read_marks(texts, b, params, section)

@@ -503,7 +503,8 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
         if len(outline) >= 3 and G.point_in_polygon(p, outline):
             warnings.append(f"{m['id']}: ground mark {m.get('raw')} inside the building outline: not used")
             continue
-        if len(outline) >= 3 and _dist_to_polygon(p, outline) > float(params["ground_reach"]):
+        if len(outline) >= 3 and _dist_to_polygon(p, outline) > float(params["ground_reach"]) \
+                and not m.get("site_plan"):
             continue                              # another drawing on the sheet (classified unknown by the reader)
         cand.append(m)
     force = (ground.get("terrain_override") or {}).get("kind")     # the agent's set_terrain (edits.py)
@@ -511,7 +512,7 @@ def _ground(b: dict, marks: list, params: dict, gl: dict, outline, inferred: lis
     if cand:
         med = _median([m["z"] for m in cand])
         for m in cand:
-            if abs(m["z"] - med) > float(params["ground_outlier"]):
+            if abs(m["z"] - med) > float(params["ground_outlier"]) and not m.get("site_plan"):
                 rejected.append(m)
                 warnings.append(f"{m['id']}: ground mark {m.get('raw')} ({m['z']:+.2f} m) is more than "
                                 f"{float(params['ground_outlier']):.1f} m from the median of the ground marks "

@@ -14,6 +14,7 @@ Only drawn looks are written (§1.6b row 12): every other look is resolved by th
 """
 from __future__ import annotations
 
+import math
 from typing import Callable, Optional
 
 from shapely.geometry import Point, Polygon
@@ -513,11 +514,23 @@ def _moved_site(sp: dict, shift: Shift) -> dict:
     for key in ("paving", "grass", "parking"):
         out[key] = [dict(x, polygon=moved(x["polygon"], shift)) for x in sp.get(key) or []]
     out["trees"] = [dict(x, points=moved(x["points"], shift)) for x in sp.get("trees") or []]
+    out["pools"] = [dict(x, polygon=moved(x["polygon"], shift)) for x in sp.get("pools") or []]
+    out["buildings"] = [moved_copy(c, shift) for c in sp.get("buildings") or []] or sp.get("buildings")
     out["plot_walls"] = [dict(x, start=moved([x["start"]], shift)[0], end=moved([x["end"]], shift)[0])
                          for x in sp.get("plot_walls") or []]
     out["labels"] = [dict(x, point=moved([x["point"]], shift)[0] if x.get("point") else None)
                      for x in sp.get("labels") or []]
     return out
+
+
+def moved_copy(copy: dict, shift: Shift) -> dict:
+    """A building copy (``sheets.buildings``) in a frame moved by ``shift`` (``p' = p - shift``): its footprint moves;
+    its map ``p -> R p + t`` becomes ``p' -> R p' + (t + R shift - shift)``."""
+    a = math.radians(float(copy.get("rotation_deg") or 0.0))
+    rs = (math.cos(a) * shift[0] - math.sin(a) * shift[1], math.sin(a) * shift[0] + math.cos(a) * shift[1])
+    t = copy.get("translate") or [0.0, 0.0]
+    return dict(copy, footprint=moved(copy.get("footprint"), shift),
+                translate=[round(t[0] + rs[0] - shift[0], 4) + 0.0, round(t[1] + rs[1] - shift[1], 4) + 0.0])
 
 
 def _surface(prefix: str, n: int, polygon: list, area_id: Optional[str], source: str, evidence: list) -> dict:
@@ -583,6 +596,15 @@ def site_block(site: dict, sheets: dict, area_kind: Callable, ground_level_id: O
                 continue
             site[target].append(_surface(SURFACE_PREFIX[target], len(site[target]) + 1, item["polygon"],
                                          area["id"] if area else None, "site_plan", item["evidence"]))
+    # 11 Oct 2026 (real04): the pools of the site plan and every copy of the building on the plot.
+    pools = site.setdefault("pools", [])
+    for k, item in enumerate(sp.get("pools") or []):
+        pools.append({"id": f"pool_{k + 1:03d}", "polygon": [list(p) for p in item["polygon"]], "label": item.get("label"),
+                      "depth": {"value": 1.5, "method": "assumed", "confidence": 0.0, "evidence": [],
+                                "note": "no pool section drawn: a 1.5 m deep pool assumed"},
+                      "source": "site_plan", "build": True, "evidence": list(item["evidence"])})
+    if sp.get("buildings"):
+        site["buildings"] = [dict(c) for c in sp["buildings"]]
     if sp.get("plot"):
         site["plot"] = {"id": "plot", "polygon": [list(p) for p in sp["plot"]], "z": None, "material": None,
                         "colour": None, "area_id": None, "source": "site_plan", "build": True,

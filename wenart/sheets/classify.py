@@ -37,6 +37,10 @@ LEVEL_ONLY_CONFIDENCE = 0.7
 GEOMETRY_CONFIDENCE = {"title_block": 0.9, "section": 0.85, "elevation": 0.7, "site_plan": 0.7, "floor_plan": 0.7,
                        "roof_plan": 0.6}
 STREET_WORDS = re.compile(r"\b(SOKAK|SOK|CADDE|CAD|BULVAR|YOL|PARSEL|ADA|STREET|ROAD|AVENUE|STRASSE|RUE|AVENUE)\b")
+# 11 Oct 2026 (real04): words only a site plan carries: the plot line, the building setback line, the site plan's
+# own name; with them one area label (GÜNEŞLENME ALANI, a pool) does not make the region a floor plan.
+SITE_WORDS = re.compile(r"\bPARSEL SINIRI\b|\bYAPI YAKLASMA\b|\bVAZIYET\b|\bIMAR HATTI\b|\bPLOT BOUNDARY\b"
+                        r"|\bPROPERTY LINE\b|\bSETBACK\b|\bGRUNDSTUECKSGRENZE\b|\bBAUGRENZE\b")
 WINDOW_M = ((0.4, 3.0), (0.4, 2.6))
 EDGE_GAPS = 2.0
 IGNORED_REASON = {"title_block": "title block", "legend": "legend", "detail": "detail drawing", "3d_view": "3D view",
@@ -127,6 +131,7 @@ def features(region: Region, mpu: Optional[float]) -> dict:
         f["largest_polyline"] = big
     words = " ".join(T.fold(t.text) for t in region.texts)
     f["street_words"] = bool(STREET_WORDS.search(words))
+    f["site_words"] = bool(SITE_WORDS.search(words))
     f["north_arrow"] = any(T.fold(t.text) in ("N", "K", "KUZEY", "NORTH", "NORD") for t in region.texts)
     f["stairs"] = len(stairs_of(region))
     f["columns"] = len(columns_of(region, mpu))
@@ -244,6 +249,9 @@ def geometry_rule(region: Region, f: dict, frames: list, gap: float) -> tuple[Op
     if (f.get("north_arrow") or f.get("street_words")) and f.get("closed_rectangles", 0) >= 2 \
             and not f.get("room_labels"):
         return "site_plan", "north_arrow_or_street_words"
+    if f.get("site_words") and f.get("closed_rectangles", 0) >= 2 and f.get("room_labels", 0) <= 1 \
+            and not f.get("slab_bands"):
+        return "site_plan", "site_words"
     if f.get("room_labels", 0) >= 2 and (f.get("wall_test") or f.get("wall_pairs", 0) >= 4):
         return "floor_plan", "room_labels_and_walls"
     if not f.get("room_labels") and f.get("roof_outline") and f.get("hip_lines", 0) >= 2:

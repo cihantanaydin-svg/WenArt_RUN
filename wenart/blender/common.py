@@ -19,7 +19,9 @@ KINDS = ("wall", "floor", "ceiling", "door", "window", "opening", "furniture_pro
          # Milestone 10 (docs/milestone10.md §1.6b row 11): the whole building and its site
          "slab", "roof", "facade", "terrain", "site_wall", "site_area", "site_decor", "light_well", "railing",
          # Milestone 11 (docs/milestone11.md §1.1 E10, E11): the inferred site and the facade details
-         "site_steps", "site_boundary", "facade_detail", "splashback")
+         "site_steps", "site_boundary", "facade_detail", "splashback",
+         # 11 Oct 2026 (real04): the other buildings on the plot and the pools
+         "building_copy", "site_pool")
 STATUSES = ("verified", "unverified", "assumed")
 
 

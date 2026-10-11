@@ -53,7 +53,7 @@ _EXTERIOR_PATTERNS = [B.english_keyword_re(k) for k in EXTERIOR_KEYWORDS]
 # German and French words; the first kind that matches wins (a terrace before paving, parking before garden).
 AREA_KIND_WORDS = (
     ("pool", r"\b(havuz|pool|schwimmbad|piscine)\b"),
-    ("terrace", r"\b(teras|terrace|sit out|otla|terrasse)\b"),
+    ("terrace", r"\b(teras|terrace|sit out|otla|terrasse|guneslenme|sun deck|sundeck)\b"),
     ("parking", r"\b(otopark|park yeri|garaj|parking|car porch|carport|garage|stellplatz|parkplatz)\b"),
     ("paving", r"\b(kaldirim|avlu|patio|paving|drive|driveway|court|courtyard|pflaster|hof|allee|pave|cour)\b"),
     ("garden", r"\b(bahce|cim|yesil alan|garden|lawn|setback|garten|rasen|jardin|pelouse)\b"),

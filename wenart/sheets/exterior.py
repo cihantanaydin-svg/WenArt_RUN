@@ -111,7 +111,14 @@ def _apply(tf: list, p) -> tuple[float, float]:
 def _closed_pts(e) -> Optional[list]:
     if len(e.strokes) != 1 or not e.strokes[0].closed or len(e.strokes[0].pts) < 3:
         return None
-    return list(e.strokes[0].pts)
+    pts = list(e.strokes[0].pts)
+    # 11 Oct 2026 (real04): a closed polyline whose last vertex repeats the first a little off (0.45 units on the
+    # pools) closes into a tiny bow-tie that shapely calls invalid; the near-duplicate is dropped
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+    diag = math.hypot(max(xs) - min(xs), max(ys) - min(ys))
+    if len(pts) > 3 and math.dist(pts[0], pts[-1]) <= 1e-3 * diag:
+        pts = pts[:-1]
+    return pts
 
 
 def _ev(region, entity: Optional[str], rule: str, text: Optional[str] = None, confidence: float = 1.0) -> dict:
@@ -388,7 +395,38 @@ def _label_in(region, box) -> Optional[tuple[str, object]]:
     return None
 
 
-SITE_TARGET = {"paving": "paving", "garden": "grass", "parking": "parking"}
+SITE_TARGET = {"paving": "paving", "garden": "grass", "parking": "parking", "pool": "pools", "terrace": "paving"}
+
+
+LABEL_REACH_M = 1.5                  # 11 Oct 2026 (real04): a label's estimated box may lie just outside its tilted area
+LABEL_MIN_AREA_M2 = {"pool": 4.0, "parking": 10.0, "paving": 2.0, "terrace": 2.0, "garden": 4.0}
+LABEL_MAX_AREA_M2 = {"pool": 150.0, "parking": 1500.0, "paving": 400.0, "terrace": 200.0, "garden": 3000.0}
+LABEL_AREA_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*M2\b")
+
+
+def label_holder(t, closed: list, kind: str, mpu: float):
+    """``(entity, points)`` of the closed outline a site label names (source units), or ``(None, None)``: the outlines
+    that hold the label's point or lie within ``LABEL_REACH_M`` of it (the label's box is estimated without its
+    rotation), at least ``LABEL_MIN_AREA_M2`` of its kind; an area written in the label (``24M2 HAVUZ``) picks the
+    outline whose area is nearest to it (within 25 %); else the smallest outline that holds the point and is no
+    larger than ``LABEL_MAX_AREA_M2`` of its kind (the building setback line around several areas never takes a
+    label from its own area); else the smallest near one."""
+    pt = Point(t.point)
+    reach = LABEL_REACH_M / mpu
+    cands = [(a * mpu * mpu, e, p) for a, e, p in closed
+             if a * mpu * mpu >= LABEL_MIN_AREA_M2.get(kind, 1.0) and Polygon(p).distance(pt) <= reach]
+    if not cands:
+        return None, None
+    m = LABEL_AREA_RE.search(T.fold(t.text))
+    if m:
+        want = float(m.group(1).replace(",", "."))
+        near = [c for c in cands if abs(c[0] - want) <= 0.25 * want]
+        if near:
+            _, e, p = min(near, key=lambda c: (abs(c[0] - want), Polygon(c[2]).distance(pt)))
+            return e, p
+    inside = [c for c in cands if c[0] <= LABEL_MAX_AREA_M2.get(kind, 2000.0) and Polygon(c[2]).contains(pt)]
+    _, e, p = min(inside or cands, key=lambda c: (c[0], Polygon(c[2]).distance(pt)))
+    return e, p
 
 
 def site_of(region, warnings: list) -> Optional[dict]:
@@ -399,7 +437,8 @@ def site_of(region, warnings: list) -> Optional[dict]:
     if not mpu:
         return None
     out = {"region": region.id, "registered": region.transform_to_building is not None, "plot": None,
-           "plot_walls": [], "paving": [], "grass": [], "parking": [], "trees": [], "labels": [], "evidence": []}
+           "plot_walls": [], "paving": [], "grass": [], "parking": [], "pools": [], "trees": [], "labels": [],
+           "evidence": []}
     tf = region.transform_to_building
     building = set((region.registration or {}).get("outline_entities") or [])
     closed = [(Polygon(p).area, e, p) for e in region.ents for p in [_closed_pts(e)] if p and len(p) >= 3
@@ -420,9 +459,13 @@ def site_of(region, warnings: list) -> Optional[dict]:
     # Milestone 12 (docs/milestone12.md §3.1, track L): the site plan's level marks (spot heights, KOT), placed in
     # building metres; the pipeline's level step reads them (wenart.ingest.generic.levels).
     from wenart.levels import marks as LM
-    out["marks"] = [{"text": t.text, "point": list(_apply(tf, t.point)), "entity": t.id,
+    # 11 Oct 2026 (real04): a mark attribute's bare value (BDK 44.00) is a mark too; on a site plan it is a spot height
+    # of the ground (``site_ground``), whatever its tag says.
+    out["marks"] = [{"text": t.text, "point": list(_apply(tf, t.point)), "entity": t.id, "site_ground": True,
+                     "attrib_tag": (t.evidence or {}).get("attrib_tag"),
                      "evidence": [_ev(region, t.id, "level_mark", t.text)]}
-                    for t in region.texts if LM.parse_mark(t.text) is not None]
+                    for t in region.texts
+                    if LM.read_mark(t.text, bare=LM.is_mark_tag((t.evidence or {}).get("attrib_tag"))) is not None]
     if closed:
         area, e, pts = max(closed, key=lambda c: c[0])
         out["plot"] = [list(_apply(tf, p)) for p in pts]
@@ -432,10 +475,9 @@ def site_of(region, warnings: list) -> Optional[dict]:
         target = SITE_TARGET.get(kind)
         if target is None:
             continue
-        holders = [c for c in closed if Polygon(c[2]).contains(Point(t.point))]
-        if not holders:
+        e, pts = label_holder(t, closed, kind, mpu)
+        if e is None:
             continue
-        _, e, pts = min(holders, key=lambda c: c[0])
         out[target].append({"polygon": [list(_apply(tf, p)) for p in pts], "label": t.text,
                             "evidence": [_ev(region, e.id, f"site_{target}"), _ev(region, t.id, "site_label", t.text)]})
     for e in region.ents:
@@ -547,9 +589,12 @@ def ridge_lines(roof: dict, heights: dict, reference_outline) -> list:
 
 
 def exterior(top_plan, section, elevations: list, sites: list, reference_outline, conflict: Callable,
-             warnings: list, reference=None, heights: Optional[dict] = None) -> dict:
+             warnings: list, reference=None, heights: Optional[dict] = None, plans: Optional[list] = None,
+             outlines: Optional[dict] = None) -> dict:
     """The ``exterior`` block. ``reference``: the reference plan region (site plans register onto it);
-    ``heights``: the ``heights`` block (datum, ground, cut axis, roof profile)."""
+    ``heights``: the ``heights`` block (datum, ground, cut axis, roof profile); ``plans`` / ``outlines``: the read
+    plans and their outlines in building metres (11 Oct 2026: every copy of the building on a site plan,
+    ``buildings.site_buildings``)."""
     heights = heights or {}
     out = {"roof": None, "facade": [], "openings_seen": [], "site": None, "north": None, "balconies": [],
            "chimneys": []}
@@ -598,10 +643,32 @@ def exterior(top_plan, section, elevations: list, sites: list, reference_outline
     out["roof"] = roof
 
     # Site plans (registered onto the reference through the building's outline) and the north.
+    # The site plan with the most evidence first (11 Oct 2026, real04: four drawings of the plot; one has the marks).
+    sites = sorted(sites, key=lambda r: -(len(r.texts) + len(r.ents)))
     for r in sites:
+        copies = None
         if reference is not None and reference_outline is not None and r.metres_per_unit:
-            RG.register_site(r, reference, reference_outline, warnings)
+            from wenart.sheets import buildings as BLD
+            w_one, w_copies = [], []
+            one = RG.register_site(r, reference, reference_outline, w_one)
+            reg_one = (r.transform_to_building, r.registration)
+            copies = BLD.site_buildings(r, plans or [reference], outlines or {reference.id: reference_outline},
+                                        w_copies)
+            if copies is None or (len(copies) < 2 and one):
+                r.transform_to_building, r.registration = reg_one     # one building: the outline fit stays
+                copies = None
+                warnings.extend(w_one)
+            else:
+                warnings.extend(w_copies)
         site = site_of(r, warnings)
+        if site is not None and copies:
+            from wenart.sheets import buildings as BLD
+            site["buildings"] = copies
+            site["datum"] = BLD.site_datum(copies, heights)
+            if len(copies) > 1:
+                warnings.append(f"site plan {r.id}: {len(copies)} buildings on the plot ("
+                                + ", ".join(f"{c['id']}: turned {c['rotation_deg']:.1f} deg, dz {c['dz']:+.2f} m"
+                                            for c in copies) + ")")
         if site is not None and out["site"] is None:
             out["site"] = site
         north = north_of(r)

@@ -102,7 +102,7 @@ def read_marks(texts: Sequence[dict], building: dict, params: dict, section: Opt
                       "level_id": t.get("level_id"), "room_id": None, "side": None, "raw": t.get("text") or "",
                       "used_for": [], "status": _status(ev), "evidence": [ev], "note": rec["note"],
                       "bare": rec["bare"], "group": rec["group"], "placement": "note" if rec["note"] else "spot",
-                      "z": None})
+                      "z": None, **({"site_plan": True} if t.get("site_ground") else {})})
     # The section's level marks: slab tops of the levels (building z), the datum.
     for h in (section or {}).get("levels") or []:
         lm = h.get("level_mark") or {}
@@ -218,6 +218,9 @@ def classify(marks: list[dict], building: dict, params: dict) -> list[str]:
             m["kind"] = hint or "unknown"
             if m["kind"] == "unknown":
                 warnings.append(f"{m['id']}: mark {m['raw']!r} without a position or keyword: kind unknown")
+            continue
+        if m.get("site_plan"):                   # 11 Oct 2026 (real04): a site plan's spot height is the ground
+            m["kind"] = hint if hint in ("ground_natural", "ground_finished", "slope_top") else "ground_finished"
             continue
         if lid not in cache:
             rooms = [r for r in building.get("rooms") or [] if r.get("level_id") == lid]

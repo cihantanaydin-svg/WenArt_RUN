@@ -61,7 +61,7 @@ FILL_TARGET = 0.7
 DISTANCE_SCAN_M = (6.0, 80.0, 0.5)
 MOVE_STEPS_M = (0.0, 2.0, 4.0, -1.5, 6.0, 9.0, 12.0)      # a blocked eye-level view moves out (or a little in)
 KIND = "exterior"
-LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4}
+LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4, "copy": 5}   # copy: 11 Oct 2026
 
 
 # --------------------------------------------------------------------------
@@ -222,6 +222,7 @@ class ExteriorModel:
         self.tris: list = []
         self.labels: list[int] = []
         self.prisms: list[tuple] = []          # (outline, z0, top planes or None, z1) of the building
+        self.copy_prisms: list[tuple] = []     # (outline, z0, z1) of the other buildings on the plot (11 Oct 2026)
         self.roof: Optional[dict] = None        # the roof model
         self.walls: list[tuple] = []            # plot walls: (start, end, half thickness, z top)
         self.trees: list[tuple] = []            # (centre, rx, ry, z0 crown, z1 crown, trunk radius, ground z)
@@ -288,6 +289,10 @@ class ExteriorModel:
                 top = z1 if planes is None else min(z1, R.surface_z(planes, x, y))
                 if z <= top + CLEARANCE:
                     return "building"
+        for outline, z0, z1 in self.copy_prisms:
+            if z0 - CLEARANCE <= z <= z1 + CLEARANCE and (G.point_in_polygon((x, y), outline)
+                                                          or geom2d.distance_to_polygon_edges((x, y), outline) < CLEARANCE):
+                return "copy"
         if self.roof is not None and self.roof.get("equations") and G.point_in_polygon((x, y), self.roof["outline"]):
             top = R.surface_z(self.roof["equations"], x, y)
             if top - self.roof["thickness"] - CLEARANCE <= z <= top + CLEARANCE:
@@ -351,10 +356,26 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
         m.add_mesh(v, [face for face, s in zip(f, slots) if s != R.SLOT_SOFFIT], "building")
     zs = [z for p in m.prisms for z in (p[1], p[3])] + ([m.roof["ridge_z"]] if m.roof and m.roof.get("ridge_z") else [])
     m.z_range = (min(zs), max(zs)) if zs else (0.0, 3.0)
+    # 11 Oct 2026 (real04): the other buildings on the plot are obstacles of their own label
+    from wenart.blender import copies as CP
+    top = m.z_range[1]
+    for c in CP.copies_of(building):
+        dz = float(c.get("dz") or 0.0)
+        for outline, z0, _planes, z1 in m.prisms:
+            moved = CP.move_polygon(c, outline)
+            m.copy_prisms.append((moved, z0 + dz, max(z1, top) + dz))
+            for piece in geom2d.convex_pieces(moved):
+                v, f = geom2d.prism(piece, z0 + dz, z1 + dz)
+                m.add_mesh(v, f, "copy")
+        if m.roof is not None:
+            v, f, slots = R.roof_solid(m.roof)
+            mv = [(*CP.move_point(c, q[:2]), q[2] + dz) for q in v]
+            m.add_mesh(mv, [face for face, s_ in zip(f, slots) if s_ != R.SLOT_SOFFIT], "copy")
     if site_plan is not None:
         m.terrain = site_plan["terrain"]
         ext = site_plan["extent"]
-        v, f = S.draped_faces(ext, [site_plan["outline"]], m.terrain, step=max(4.0, S.grid_step(ext)))
+        v, f = S.draped_faces(ext, [site_plan["outline"]] + list(site_plan.get("copy_holes") or []), m.terrain,
+                              step=max(4.0, S.grid_step(ext)))
         m.add_mesh(v, f, "ground")
         for wall in site_plan["plot_walls"]:
             v, f, info = S.plot_wall_parts(wall, m.terrain)
@@ -528,7 +549,7 @@ def view_check(model: ExteriorModel, position, target, lens: float, shift_y: flo
     a, b = camsearch.ray_grid(RAY_GRID, lens_mm=lens, sensor_mm=SENSOR_MM, resolution=RESOLUTION, shift_y=shift_y)
     dirs = camsearch.camera_directions(position, target, a, b)
     labels, _t = model.cast(position, dirs)
-    clear, _ = model.cast(position, dirs, skip=("plot_wall", "tree"))
+    clear, _ = model.cast(position, dirs, skip=("plot_wall", "tree", "copy"))
     building = labels == LABELS["building"]
     reach = clear == LABELS["building"]
     blocked = float(((labels != LABELS["building"]) & reach).sum()) / max(1, int(reach.sum()))
@@ -538,7 +559,7 @@ def view_check(model: ExteriorModel, position, target, lens: float, shift_y: flo
     aim_ok = int(lab[0]) == LABELS["building"]
     why = None
     if blocked > MAX_BLOCKED:
-        why = f"{blocked:.0%} of the view of the building is blocked by trees or the plot wall"
+        why = f"{blocked:.0%} of the view of the building is blocked by trees, the plot wall or another building"
     elif share < MIN_BUILDING_SHARE:
         why = f"the building fills {share:.0%} of the frame (< {MIN_BUILDING_SHARE:.0%})"
     elif not aim_ok:
@@ -822,6 +843,21 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
         keep(_try(model, building, levels, f"ext_{6 + len(views)}", "frontal", cands, aim, lens_mm=EYE_LENS_MM,
                   extra={"side": main_side, "sides": [main_side], "variant": variant, "main_facade": main["axis"],
                          "main_facade_source": main["source"]}))
+    # 11 Oct 2026 (real04): one view of every building on the plot (copies.site_view)
+    from wenart.blender import copies as CP
+    sv = CP.site_view(model.outline, building, model.z_range, plot)
+    if sv is not None:
+        nxt = max([p["index"] for p in plans + dropped if isinstance(p.get("index"), int)] + [5]) + 1
+        pos, target = sv["position"], sv["target"]
+        check = view_check(model, pos, target, sv["lens_mm"], 0.0, target)
+        pitch = math.degrees(math.atan2(target[2] - pos[2], math.hypot(target[0] - pos[0], target[1] - pos[1])))
+        keep({"name": f"ext_{nxt}", "kind": KIND, "view": "aerial", "room_id": None, "level_id": None, "index": nxt,
+              "position": pos, "target": target, "lens_mm": sv["lens_mm"], "sensor_mm": SENSOR_MM,
+              "resolution": list(RESOLUTION), "shift_x": 0.0, "shift_y": 0.0, "pitch_deg": round(pitch, 2),
+              "placement": sv["reason"], "warning": None if check["ok"] else f"site view: {check['why']}",
+              "visible_openings": visible_openings(model, building, levels, pos, target, sv["lens_mm"], 0.0),
+              "visible_furniture": [], "score": check, "status": "assumed", "dropped_reason": None,
+              "sides": [], "region_id": None, "variant": variant, "site_view": True})
     if flat_cut(building):
         nxt = max([p["index"] for p in plans + dropped if isinstance(p.get("index"), int)] + [5]) + 1
         for k, (pos_cands, aim, ent) in enumerate(entrance_views(building, model)):

@@ -306,7 +306,7 @@ def run(project_dir, out_dir, answers=None, no_ai: bool = False, work_dir=None, 
     exterior_json = EX.exterior(top_plan, section_geom, elevations, sites,
                                 outlines.get(reference.id) if reference is not None else None, conflict, warnings,
                                 reference=reference if reference is not None and reference.id in outlines else None,
-                                heights=heights_json)
+                                heights=heights_json, plans=read_plans, outlines=outlines)
     if multi and not elevations:
         warnings.append("no elevation drawn: facade materials and outside openings are not drawn (facade empty)")
 

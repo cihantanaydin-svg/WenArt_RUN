@@ -1184,6 +1184,54 @@ def set_back_levels(levels: Sequence[dict], outline: Sequence[Sequence[float]], 
     return out
 
 
+POOL_DEPTH_M = 1.5
+POOL_WATER_DROP_M = 0.12                     # the water stands this far under the pool's edge
+
+
+def pool_parts(pool: dict, terrain: dict) -> dict:
+    """A pool (pure): its edge at the highest ground of its corners, the basin (walls inward, floor) down to
+    ``depth`` and the water ``POOL_WATER_DROP_M`` under the edge. ``{"basin": (verts, faces), "water": (verts,
+    faces), "edge_z", "floor_z"}``."""
+    poly = [(float(p[0]), float(p[1])) for p in pool["polygon"]]
+    edge = max(ground_z(terrain, x, y) for x, y in poly)
+    floor = edge - float(pool.get("depth") or POOL_DEPTH_M)
+    n = len(poly)
+    verts = [(x, y, floor) for x, y in poly] + [(x, y, edge + 0.02) for x, y in poly]
+    faces = [tuple(range(n))]                                    # floor (ccw seen from above: up)
+    for i in range(n):
+        j = (i + 1) % n
+        faces.append((i, n + i, n + j, j))                     # inward-facing walls of a ccw outline
+    water_z = edge - POOL_WATER_DROP_M
+    wv = [(x, y, water_z) for x, y in poly]
+    return {"basin": (verts, faces), "water": (wv, [tuple(range(n))]), "edge_z": edge, "floor_z": floor}
+
+
+def pool_materials():
+    """The pool's tiles and water (bpy; procedural, no texture: assumed looks)."""
+    import bpy
+
+    def principled(name, colour, roughness, transmission=0.0, ior=1.45):
+        mat = bpy.data.materials.get(name)
+        if mat is not None:
+            return mat
+        mat = bpy.data.materials.new(name)
+        mat.use_nodes = True
+        bsdf = mat.node_tree.nodes.get("Principled BSDF")
+        if bsdf is not None:
+            bsdf.inputs["Base Color"].default_value = (*colour, 1.0)
+            bsdf.inputs["Roughness"].default_value = roughness
+            for key in ("Transmission Weight", "Transmission"):
+                if key in bsdf.inputs:
+                    bsdf.inputs[key].default_value = transmission
+                    break
+            if "IOR" in bsdf.inputs:
+                bsdf.inputs["IOR"].default_value = ior
+        return mat
+
+    return (principled("pool_tiles", (0.62, 0.80, 0.86), 0.25),
+            principled("pool_water", (0.55, 0.85, 0.90), 0.02, transmission=1.0, ior=1.33))
+
+
 def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]], mode: str = "full",
               outlines: Optional[dict] = None, options: Optional[dict] = None) -> dict:
     """Everything the site build makes (pure): ``{"mode", "terrain", "outline", "plot", "extent", "wells",
@@ -1264,10 +1312,24 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         for t in inferred["trees"]:
             trees.append(t)
             assumed.append({"field": f"tree:{t['id']}", "value": t["center"], "reason": t["reason"]})
+    # 11 Oct 2026 (real04): the other buildings on the plot (the ground has a hole for each) and the drawn pools.
+    from wenart.blender import copies as CP
+    copy_holes = [geom2d.ccw(fp) for fp in CP.footprints(building)]
+    pools = []
+    if mode == "full":
+        for k, pool in enumerate(_built(site.get("pools"))):
+            poly = geom2d.ccw(pool.get("polygon") or [])
+            if len(poly) >= 3:
+                depth = float(((pool.get("depth") or {}).get("value")) or POOL_DEPTH_M)
+                pools.append({"id": str(pool.get("id") or f"pool_{k + 1:03d}"), "polygon": poly, "depth": depth,
+                              "evidence": pool.get("evidence") or []})
+                if ((pool.get("depth") or {}).get("method")) in (None, "assumed"):
+                    assumed.append({"field": f"pool:{pools[-1]['id']}:depth", "value": depth,
+                                    "reason": "no pool section drawn: the depth is assumed"})
     return {"mode": mode, "terrain": terrain, "outline": geom2d.ccw(outline), "plot": plot, "plot_source": plot_src,
             "extent": extent, "wells": wells, "plot_walls": plot_walls, "areas": areas, "trees": trees,
             "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass,
-            "inferred": inferred}
+            "inferred": inferred, "copy_holes": copy_holes, "pools": pools}
 
 
 # The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
@@ -1293,7 +1355,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     from wenart.blender import common
 
     terrain = plan["terrain"]
-    holes = [plan["outline"]] + [w["polygon"] for w in plan["wells"]]
+    holes = [plan["outline"]] + [w["polygon"] for w in plan["wells"]] + list(plan.get("copy_holes") or []) \
+        + [p["polygon"] for p in plan.get("pools") or []]
     summary = {"built": True, "mode": plan["mode"], "objects": [],
                "reason": f"brief site: {plan['mode']} (docs/milestone10.md §3.2 item 5)", "terrain": {
         "kind": terrain["kind"], "z": {k: round(v, 4) for k, v in terrain["z"].items()}, "sides": terrain["sides"],
@@ -1362,6 +1425,19 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
               {"assumed": {"lift_m": area["lift"]} if z is not None else {"lift_m": area["lift"], "draped": True},
                "area_kind": area["kind"], "area_id": area.get("area_id"), "slug": look.get("material"),
                "colour": look.get("colour"), "look_source": look.get("source")})
+    if plan.get("pools"):                           # 11 Oct 2026 (real04): the drawn pools
+        tile, water = pool_materials()
+        for pool in plan["pools"]:
+            parts = pool_parts(pool, terrain)
+            for part, mat, suffix in (("basin", tile, "basin"), ("water", water, "water")):
+                v, f = parts[part]
+                name = f"{pool['id']}_{suffix}"
+                ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=pool["id"], kind="site_pool",
+                                            status="verified", materials=[mat])
+                entry(ob.name, pool["id"], "site_pool", mat, "verified",
+                      {"evidence": pool.get("evidence") or [], "part": suffix,
+                       "z_range": [round(parts["floor_z"], 4), round(parts["edge_z"], 4)],
+                       "assumed": {"depth": pool["depth"], "reason": "no pool section drawn"}})
     bark, foliage = (make_material(looks["bark"]), make_material(looks["foliage"])) if plan["trees"] else (None, None)
     for item in plan["trees"]:
         parts = tree_parts(item, terrain)

@@ -152,7 +152,7 @@
         "transform_to_building": {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 6, "maxItems": 6, "description": "Affine [a, b, c, d, e, f] from source units to building metres (x' = a x + b y + c, y' = d x + e y + f) = the building origin step of the reference after the registration map; the extractor uses it instead of its own origin step. Building frame = the reference plan's frame in metres, origin at the min corner of its outer outline (outer wall faces). Sections: x -> building coordinate along heights.cut_axis, y -> building z. Elevations: x -> metres from the facade's left end seen from outside, y -> building z. Site plans: registered through their building outline (method site_outline)"},
         "registration": {"type": ["object", "null"], "properties": {
           "reference": {"type": ["string", "null"], "description": "Region id of the reference plan (null for the reference itself)"},
-          "method": {"enum": ["reference", "outline_icp", "grid", "columns", "site_outline", "section_width", "identity", "none"]},
+          "method": {"enum": ["reference", "outline_icp", "grid", "columns", "site_outline", "site_buildings", "section_width", "identity", "none"]},
           "rotation_deg": {"type": "number", "description": "Rotation of the region's drawing (metres) onto the reference drawing, counter-clockwise"},
           "shift_m": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2, "description": "p_ref = R(rotation_deg) · (p_source · metres_per_unit) + shift_m; the reference has 0 and [0, 0]"},
           "residual_m": {"type": ["number", "null"]},
@@ -288,7 +288,14 @@
           "grass": {"type": "array", "items": {"type": "object"}},
           "parking": {"type": "array", "items": {"type": "object"}},
           "trees": {"type": "array", "items": {"type": "object"}},
-          "labels": {"type": "array", "items": {"type": "object"}}
+          "labels": {"type": "array", "items": {"type": "object"}},
+          "pools": {"type": "array", "items": {"type": "object"}, "description": "11 Oct 2026: closed outlines holding a pool label (HAVUZ, POOL)"},
+          "buildings": {"type": ["array", "null"], "description": "11 Oct 2026 (real04): every copy of the drawn building on the site plan (wenart/sheets/buildings.py); the first is the building as modelled; rotation_deg / translate / dz move it onto each copy",
+            "items": {"type": "object", "required": ["id", "reference", "footprint", "rotation_deg", "translate", "dz", "orientation", "evidence"], "properties": {
+              "id": {"type": "string"}, "reference": {"type": "boolean"}, "footprint": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+              "rotation_deg": {"type": "number"}, "translate": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+              "dz": {"type": "number"}, "orientation": {"enum": ["entrances", "ambiguous"]}, "evidence": {"type": "array", "items": {"type": "object"}}}}},
+          "datum": {"type": ["object", "null"], "description": "11 Oct 2026: ±0.00 in absolute metres inferred from the level marks at the first copy's entrances"}
         }},
         "north": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/value"}], "description": "Compass bearing of the building +Y after the site plan's registration (north arrow)"},
         "balconies": {"type": "array", "items": {"type": "object"}},

@@ -686,6 +686,11 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
         if len(o) >= 3 and (G.point_in_polygon((x, y), o) or geom2d.distance_to_polygon_edges((x, y), o) < 0.3):
             failed.append(f"the camera stands inside the building (level {lid})")
             break
+    from wenart.blender import copies as CP          # 11 Oct 2026 (real04): the other buildings on the plot
+    for c, fp in zip(CP.copies_of(building), CP.footprints(building)):
+        if G.point_in_polygon((x, y), fp) or geom2d.distance_to_polygon_edges((x, y), fp) < 0.3:
+            failed.append(f"the camera stands inside the building {c['id']} (another building on the plot)")
+            break
     roof = prep.get("roof") or {}
     ridge = float(roof.get("ridge_z") or 0.0)
     if roof.get("outline") and G.point_in_polygon((x, y), roof["outline"]) and z <= ridge + 1.0:

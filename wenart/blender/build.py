@@ -1000,6 +1000,14 @@ def main(argv: list[str]) -> int:
             whole_info["facade_details"] = FA.build_articulation(fplan, fac_col,
                                                                  lambda look: shell.look_material(library, look),
                                                                  manifest_objects, assumed)
+        # 11 Oct 2026 (real04): every other building on the plot, an instance of this one (wenart/blender/copies.py)
+        from wenart.blender import copies as CP
+        if CP.copies_of(building):
+            copy_col = common.get_or_make_collection("building_copies")
+            extra_collections.append(copy_col)            # hidden in the top-down previews like the roof
+            built_cols = list(level_collections.values()) + [c for c in extra_collections
+                                                              if c.name in ("roof", "facade_details")]
+            whole_info["copies"] = CP.place_copies(building, built_cols, copy_col, manifest_objects, assumed)
         whole_info["terraces"] = prep["terraces"]
         whole_info["openings_clipped"] = prep["clips"]
         whole_info["main_facade"] = prep.get("main_facade")
