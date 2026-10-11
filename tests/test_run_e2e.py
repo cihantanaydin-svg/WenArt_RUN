@@ -123,7 +123,11 @@ def _check_ok_project(out: Path, records: dict, questions: bool = False) -> None
     assert str(out / "building.json") in fit_inputs and "wenart/furniture/catalog.json" in fit_inputs
     assert "wenart/furniture/catalog_objaverse.json" in fit_inputs
     scene = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
-    assert scene["cameras"] and {c.get("policy") for c in scene["cameras"]} == {"search"}
+    interior = [c for c in scene["cameras"] if c.get("kind") != "exterior"]
+    assert interior and {c.get("policy") for c in interior} == {"search"}
+    # Milestone 12 (docs/milestone12.md §3.4, D4): a single drawn ground floor is built with its site and gets
+    # eye-level exterior views (the searched-camera policy is the interiors')
+    assert any(c.get("kind") == "exterior" for c in scene["cameras"])
     assert scene["camera_policy"] == "search" and isinstance(scene["search_seconds"], (int, float))
     assert Path(scene["building"]).is_absolute() and Path(scene["building"]).parent == out
     final = json.loads((out / "final" / "final_manifest.json").read_text(encoding="utf-8"))
