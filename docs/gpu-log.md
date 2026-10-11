@@ -75,6 +75,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-10 21:53 | pending:20261010-215259-bakeoff_m12 | 2x RTX PRO 6000 | 0 | 0.00 | M12 P1: agent model bake-off (5 tasks, 5 models, 9 variants) | pod creation failed |
 | 2026-10-10 21:55 | pending:20261010-215533-bakeoff_m12 | 2x RTX PRO 6000 WK | 0 | 0.00 | M12 P1: agent model bake-off (5 tasks, 5 models, 9 variants) | pod creation failed |
 | 2026-10-10 23:38 | kmnn2d9uanyqab | 2x NVIDIA RTX PRO 6000 Blackwell Server Edition | 103 | 8.51 | M12 P1: agent model bake-off (5 tasks, 5 models, 9 variants; no volume) | timeout (watchdog): the job hung after its first downloads (a bare `wait` waited for the `tee` process substitution); nothing measured; fixed with tests/test_jobs_flow.py; stopped by runner after collect (watchdog and job-end stop armed) |
-| 2026-10-11 00:18 | pending:20261011-001837-bakeoff_m12 | 2x RTX PRO 6000 | 100 | 8.30 | M12 P1 rerun: agent model bake-off (job hang fixed) | creating (provisional, worst case) |
+| 2026-10-11 00:34 | p8fndyl7k4bnxh | 2x NVIDIA RTX PRO 6000 Blackwell Server Edition | 16 | 1.30 | M12 P1 rerun: agent model bake-off (job hang fixed) | no status server after boot timeout (EU-RO-1 with the volume; no pod log; the runner stopped it after 15 min) |
 
-**Total spent so far: $106.93** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $99.93** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day, 2 h/run)
