@@ -461,7 +461,7 @@
       "properties": {
         "id": {"type": "string"},
         "group": {"type": "object", "description": "Milestone 12 (§4.2): functional group membership", "properties": {"group_id": {"type": "string"}, "group": {"type": "string"}, "role": {"enum": ["anchor", "partner"]}, "anchor_id": {"type": ["string", "null"]}}},
-        "front_inferred": {"type": "boolean", "description": "Milestone 12 (§4.1, track R): the front was inferred (wall it touches, its group), not drawn"},
+        "front_inferred": {"type": ["boolean", "string"], "description": "Milestone 12 (§4.1, track R): the front was inferred (wall it touches, its group), not drawn: true or the reason (text)"},
         "not_built_reason": {"type": "string", "description": "Milestone 12 (§4.1): why a drawn piece is not built (untyped: needs review; column; decor; detail; rug)"},
         "inferred_as": {"enum": ["column", "decor", "detail", "rug"], "description": "Milestone 12 (§4.1): what a drawn mark that is no furniture piece was read as"},
         "library_gap": {"type": "object", "description": "Milestone 12 (§6.4): no audited model fitted; what was used instead"},

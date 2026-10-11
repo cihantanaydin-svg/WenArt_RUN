@@ -1228,6 +1228,7 @@ A track that needs a change in another track's file writes it into its report; t
 | 10 Oct | Integration | tracks R, A follow-up merged; a drawn piece leaves only through `mark_not_furniture` with evidence (CLAUDE.md); NR (needs review) and RC (type disagreement) findings for the agent; the final report lists review items and symbols; a stale real02 test (M11 §19.8 label rule) fixed; schema documents the new fields |
 | 11 Oct | Pod P1 rerun `p8fndyl7k4bnxh` (2 × RTX PRO 6000, EU-RO-1 with the volume, 16 min, $1.30) | no status server within the boot timeout and no pod log; the runner stopped it; P1 ran again without the volume |
 | 11 Oct | Blender tests | Blender's own Python has no PyYAML: `furniture/sizes.py` falls back to `recognition/size_table.json` (a generated mirror, kept equal by a test); five Blender tests updated for M12 (unknown boxes not built, library seats, cushions resting) |
+| 11 Oct | Tests | end-to-end smoke 10/10 with Blender here (exterior views only for the single ground floor; the A/B tests need commit `a2adcef`, missing in a shallow clone); `front_inferred` is true or the reason text (track R writes the reason; the schema said boolean and refused real buildings) |
 | 11 Oct | Pod P1 `1jb70lf1z6oox9` (2 × RTX PRO 6000, EUR-IS-2, no volume, 90 min, $7.50) | bake-off done, all steps ok, GPU tests 4/4; **pick: `Qwen/Qwen3.8-27B-FP8`, thinking off** (unchanged `models.agent`); results and decision in §14.1 |
 
 ### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
