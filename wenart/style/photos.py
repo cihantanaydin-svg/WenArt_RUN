@@ -140,7 +140,10 @@ def pass_numbers(keys) -> dict[str, int]:
     try:
         from wenart.vision_check.config import load_config
         # Milestone 11: the agent models (models.agent, models.agent_fast) read no style photos; they get no pass number
-        order = [k for k in (load_config().get("models") or {}) if not str(k).startswith("agent")]
+        # Milestone 12: groups of models (models.bakeoff: the agent bake-off candidates) are no style-photo readers
+        models = load_config().get("models") or {}
+        order = [k for k, v in models.items() if not str(k).startswith("agent")
+                 and not (isinstance(v, dict) and "id" not in v)]
     except Exception:  # noqa: BLE001 - the numbering then follows the given order
         order = []
     numbers = {k: i + 1 for i, k in enumerate(order)}
