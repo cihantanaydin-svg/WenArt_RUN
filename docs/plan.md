@@ -265,6 +265,13 @@ model is used only when it fits the project's style family (else the parametric 
 come from the API `/info` tags and the M6 renders (3 Oct 2026; thumbnails were blocked by the proxy). TRELLIS.2 is
 **not built in M7** (generated shapes have no documented provenance) and waits for your OK.
 
+**Milestone 12 (11 Oct 2026, pod P4, your OK of the growth lists):** Google Scanned Objects (`gso`, CC BY 4.0 per
+object, kept only when the object's own record says so, credited like ABO). Infinigen (princeton-vl/infinigen v1.19.0,
+BSD-3-Clause) generates the fixture test batch on the pod; it does not import without two submodules: `OcMesher`
+(BSD-3) and **`infinigen_gpl` (GPL-3.0): flagged**. They run only on the pod to generate models; no code of theirs is
+copied into this repo or its outputs, and the generated meshes are our output (source `generated`, credited to
+Infinigen). Poly Haven growth models are fetched at 1k like the existing ones (the fit reads 1k).
+
 **Milestone 8 (4 Oct 2026, your OK of 4 Oct):** every (type, style family) pair still without an accepted model gets
 generated candidates (`wenart/assets/generate.py`, pins in `generate.yaml`, setup `scripts/pod_setup_trellis.sh`):
 a Z-Image-Turbo product photo on white, then TRELLIS.2 image → textured GLB (~200k faces, 2048 px PBR textures),

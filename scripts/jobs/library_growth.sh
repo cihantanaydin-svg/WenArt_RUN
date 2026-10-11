@@ -345,6 +345,15 @@ mkdir -p "$RESULTS" "$JOB_DIR" "$GROWTH/report" "$P4A" "$ASSETS"
 log "job $JOB: growth $GROWTH, audit $P4 (P3 at $AUDIT_ROOT), assets $ASSETS, model key $MODEL_KEY," \
     "Infinigen cap $INFINIGEN_CAP_MIN min, deadline ${WENART_DEADLINE:-none}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
+# The downloads (about 8.5 GB) and the converted GLBs need about 11 GB on the volume: stop before any download when
+# less than GROWTH_MIN_FREE_GB is free (nothing is ever deleted to make room; CLAUDE.md).
+free_gb=$(df -Pk "$WS" 2>/dev/null | awk 'NR == 2 {printf "%d", $4 / 1048576}')
+if [ -n "$free_gb" ] && [ "$free_gb" -lt "${GROWTH_MIN_FREE_GB:-15}" ]; then
+  log "only ${free_gb} GB free on $WS (need ${GROWTH_MIN_FREE_GB:-15} GB): no download; ask the user before" \
+      "anything is deleted or the volume grows"
+  exit 1
+fi
+log "volume: ${free_gb:-?} GB free on $WS"
 if [ ! -f "$AUDIT_ROOT/audit/measure.json" ]; then
   log "no $AUDIT_ROOT/audit/measure.json: the P3 pending models cannot get their pass 2 (pods P2/P3 first);" \
       "the growth goes on"

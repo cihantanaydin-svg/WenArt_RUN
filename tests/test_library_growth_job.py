@@ -108,8 +108,13 @@ def test_the_growth_job_reaches_its_end_and_resumes_with_fakes(tmp_path):
     env = dict(os.environ, WENART_WS=str(ws), WENART_FAST=str(fast), WENART_PY=str(fakebin / "python"),
                JOB_ID="flow", FAKE_LOG=str(log), WENART_RESULTS=str(results), WENART_JOB_DIR=str(tmp_path / "job"),
                AUDIT_MODEL_KEY="agent", PATH=f"{fakebin}:{os.environ.get('PATH', '')}",
-               WENART_BLENDER=str(fakebin / "blender"))
+               WENART_BLENDER=str(fakebin / "blender"), GROWTH_MIN_FREE_GB="0")
     env.pop("WENART_DEADLINE", None)
+
+    # the volume guard: too little free space stops the job before any download (nothing is deleted)
+    rc, out, _ = _run(dict(env, GROWTH_MIN_FREE_GB="1000000"), tmp_path)
+    assert rc == 1 and "no download; ask the user" in out and "step start (background): ingest" not in out, out[-2000:]
+    assert not log.exists() or not any("ingest" in c for c in log.read_text().splitlines())
 
     rc, out, _ = _run(env, tmp_path)
     assert rc == 1, out[-3000:]                                   # the Infinigen part failed (fake git) ...
