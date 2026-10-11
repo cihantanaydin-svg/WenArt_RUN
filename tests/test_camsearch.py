@@ -1301,12 +1301,25 @@ def test_m5_policy_reproduces_the_committed_m5_cameras(name):
              for p in cameras.plan_cameras(building, level["id"], policy="m5")}
     committed = {c["name"]: c for c in scene["cameras"]}
     assert set(plans) == set(committed) and len(committed) in (30, 57)
+    # Milestone 12: an untyped piece is not built (CLAUDE.md), so it no longer blocks a camera; only synthetic-03's
+    # pantry holds one (f_L0_021, an `unknown` parametric box in M5): its cameras may move.
+    unbuilt = unbuilt_rooms(building)
+    assert unbuilt == ({"r_L0_kiler"} if name == "synthetic-03" else set())
     for cam, c in committed.items():
+        assert plans[cam]["room_id"] == c["room_id"] and plans[cam]["index"] == c["index"]
+        if c["room_id"] in unbuilt:
+            continue
         for key in ("position", "target"):
             assert max(abs(a - b) for a, b in zip(plans[cam][key], c[key])) <= 0.001, (cam, key)
-        assert plans[cam]["room_id"] == c["room_id"] and plans[cam]["index"] == c["index"]
     # Byte for byte: every field of every plan (warnings, anchors, frustum lists) is the committed one.
-    assert [cam for cam, c in committed.items() if plans[cam] != c] == []
+    assert [cam for cam, c in committed.items() if c["room_id"] not in unbuilt and plans[cam] != c] == []
+
+
+def unbuilt_rooms(building: dict) -> set:
+    """Rooms holding a piece M5 built and Milestone 12 does not (``shell.piece_built``: untyped or no model)."""
+    from wenart.blender.shell import piece_built
+    return {f.get("room_id") for f in building["furniture"]
+            if f.get("kind") != "decor" and f.get("build", True) is not False and not piece_built(f)}
 
 
 # --------------------------------------------------------------------------

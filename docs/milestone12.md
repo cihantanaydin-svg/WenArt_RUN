@@ -1230,6 +1230,7 @@ A track that needs a change in another track's file writes it into its report; t
 | 11 Oct | Blender tests | Blender's own Python has no PyYAML: `furniture/sizes.py` falls back to `recognition/size_table.json` (a generated mirror, kept equal by a test); five Blender tests updated for M12 (unknown boxes not built, library seats, cushions resting) |
 | 11 Oct | Tests | end-to-end smoke 10/10 with Blender here (exterior views only for the single ground floor; the A/B tests need commit `a2adcef`, missing in a shallow clone); `front_inferred` is true or the reason text (track R writes the reason; the schema said boolean and refused real buildings) |
 | 11 Oct | Pod P1 `1jb70lf1z6oox9` (2 × RTX PRO 6000, EUR-IS-2, no volume, 90 min, $7.50) | bake-off done, all steps ok, GPU tests 4/4; **pick: `Qwen/Qwen3.8-27B-FP8`, thinking off** (unchanged `models.agent`); results and decision in §14.1 |
+| 11 Oct | Full CPU suite with Blender | 4,802 passed, 2 failed → fixed: the M5 camera reproduction tests (run now that the clone has commit `a2adcef`) differ in one room: synthetic-03's pantry held an untyped box that M12 no longer builds, so it no longer blocks a camera (intended); the tests skip only that room and check it is the only one |
 
 ### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
 

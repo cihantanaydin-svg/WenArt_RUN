@@ -121,7 +121,14 @@ def test_m5_cameras_of_the_m5_buildings_are_unchanged(project):
     want = {c["name"]: c for c in scene["cameras"]}
     got = {p["name"]: p for lv in building["levels"] for p in C.plan_cameras(building, lv["id"], policy="m5")}
     assert set(got) == set(want)
+    # Milestone 12: the untyped box of synthetic-03's pantry is not built, so it no longer blocks that room's cameras
+    from wenart.blender.shell import piece_built
+    unbuilt = {f.get("room_id") for f in building["furniture"]
+               if f.get("kind") != "decor" and f.get("build", True) is not False and not piece_built(f)}
+    assert unbuilt == ({"r_L0_kiler"} if project == "synthetic-03" else set())
     for name, cam in want.items():
+        if cam["room_id"] in unbuilt:
+            continue
         assert got[name]["position"] == pytest.approx(cam["position"], abs=1e-3), name
         assert got[name]["target"] == pytest.approx(cam["target"], abs=1e-3), name
 
