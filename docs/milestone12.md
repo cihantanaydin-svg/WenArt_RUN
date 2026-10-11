@@ -1231,6 +1231,8 @@ A track that needs a change in another track's file writes it into its report; t
 | 11 Oct | Tests | end-to-end smoke 10/10 with Blender here (exterior views only for the single ground floor; the A/B tests need commit `a2adcef`, missing in a shallow clone); `front_inferred` is true or the reason text (track R writes the reason; the schema said boolean and refused real buildings) |
 | 11 Oct | Pod P1 `1jb70lf1z6oox9` (2 × RTX PRO 6000, EUR-IS-2, no volume, 90 min, $7.50) | bake-off done, all steps ok, GPU tests 4/4; **pick: `Qwen/Qwen3.8-27B-FP8`, thinking off** (unchanged `models.agent`); results and decision in §14.1 |
 | 11 Oct | Full CPU suite with Blender | 4,802 passed, 2 failed → fixed: the M5 camera reproduction tests (run now that the clone has commit `a2adcef`) differ in one room: synthetic-03's pantry held an untyped box that M12 no longer builds, so it no longer blocks a camera (intended); the tests skip only that room and check it is the only one |
+| 11 Oct | Pod P3 `0tioht9q40mrfq` (RTX PRO 6000, 30 min, $1.24) | cut: the session's runner process hit its 30-minute background limit and its cleanup stopped the pod (no collect); the vision answers stayed on the volume. Runners now start with a 2-hour limit |
+| 11 Oct | Pod P3 rerun `3wmzzr6j18u848` (RTX PRO 6000, 12 min, $0.52) | done, GPU tests 2/2: 1,066 models asked (answers of the first try reused), 306 second passes; decisions, sheets, gaps, catalogue copies. Four decision rules fixed after a look at the sheets (§14.2) |
 
 ### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
 
@@ -1265,8 +1267,6 @@ What the numbers say for the design:
   65 % vs 54.5 %), and it makes valid, allowed, planned tool calls (T5 100 %).
 - The Cycles-next-to-the-server measurement was skipped (no real02 scene on a pod without the volume); the agent
   server keeps M11's 0.55 of the VRAM, measured with Cycles in M11.
-| 11 Oct | Pod P3 `0tioht9q40mrfq` (RTX PRO 6000, 30 min, $1.24) | cut: the session's runner process hit its 30-minute background limit and its cleanup stopped the pod (no collect); the vision answers stayed on the volume. Runners now start with a 2-hour limit |
-| 11 Oct | Pod P3 rerun `3wmzzr6j18u848` (RTX PRO 6000, 12 min, $0.52) | done, GPU tests 2/2: 1,066 models asked (answers of the first try reused), 306 second passes; decisions, sheets, gaps, catalogue copies. Four decision rules fixed after a look at the sheets (§14.2) |
 
 ### 14.2 Pods P2 + P3: the library audit (11 Oct 2026)
 
