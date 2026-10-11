@@ -79,5 +79,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-11 02:05 | 1jb70lf1z6oox9 | 2x NVIDIA RTX PRO 6000 Blackwell Server Edition | 90 | 7.50 | M12 P1 rerun 2: agent model bake-off (no volume) | ok: 4 models, 8 variants, GPU tests 4/4; pick Qwen3.8-27B-FP8 thinking off (T1-T4 40.6); Flash-Next 46.2 on 2 GPUs (vLLM 0.31.0, did not start on 0.30.0) is < 10 points better; thinking-on variants hit the time cap (results/bakeoff_m12/); stopped by runner after collect |
 | 2026-10-11 02:47 | 0tioht9q40mrfq | NVIDIA RTX PRO 6000 Blackwell Server Edition | 30 | 1.24 | M12 P3: library audit B (vision, decisions, gaps) | cut: the session's runner process hit its 30-min background limit; its cleanup stopped the pod (no collect; the answers stay on the volume for the rerun); terminated |
 | 2026-10-11 03:00 | 3wmzzr6j18u848 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 12 | 0.52 | M12 P3 rerun: library audit B (vision, decisions, gaps) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-11 05:01 | pending:20261011-050104-full | RTX PRO 6000 | 115 | 4.77 | M12 P5: real03 full orchestrated run (levels, ground-floor exterior, solver, decor, agent; polish off) | creating (provisional, worst case) |
 
-**Total spent so far: $109.19** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day, 2 h/run)
+**Total spent so far: $113.96** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day, 2 h/run)
