@@ -10,7 +10,8 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
-JOBS = ("scripts/jobs/library_audit_render.sh", "scripts/jobs/library_audit_judge.sh")
+JOBS = ("scripts/jobs/library_audit_render.sh", "scripts/jobs/library_audit_judge.sh",
+        "scripts/jobs/library_growth.sh")
 
 
 def gpu_run():
@@ -58,3 +59,21 @@ def test_p3_stops_without_the_render_of_p2(tmp_path):
     assert proc.returncode == 1
     assert "run pod P2" in proc.stdout
     assert (tmp_path / "res" / "library_audit_judge-t.log").is_file()     # the EXIT trap copied the log
+
+
+def test_p4_audits_its_new_models_into_copies_only():
+    """Pod P4 (docs/m12_tracks/P4.md): every catalogue write goes to the copies under the audit root, the audit
+    steps take the new models only, the vision question runs in one server session and the Infinigen part has its
+    time cap; the job's command line pins the GPU and the disk."""
+    text = (REPO / JOBS[2]).read_text(encoding="utf-8")
+    body = text[text.index("set -Eeuo pipefail"):]
+    assert "wenart/furniture/" not in body
+    assert 'COPY_LIB="$P4A/catalogue/catalog_library.json"' in text and '--catalog "$COPY_LIB"' in text
+    assert text.count('--ids-file "$P4A/new_ids.json"') >= 3 and "run_step write au write" in text
+    assert text.count("growth run ask --model-key") == 1 and "--plan-only" in text
+    assert "INFINIGEN_CAP_MIN" in text and "timeout --kill-after" in text and "IG_COMMIT=01c39c7f" in text
+    # the submodules Infinigen v1.19.0 imports (a trial in the build session failed without them)
+    assert "infinigen/infinigen_gpl:$IG_GPL_COMMIT" in text and "infinigen/OcMesher:$IG_OCMESHER_COMMIT" in text
+    assert "--gpu 'RTX PRO 6000' --disk 150" in text and "--env AUDIT_MODEL_KEY=agent" in text
+    assert "-k growth" in text
+

@@ -15,7 +15,9 @@
 
 Common: ``--out`` (default ``results/library``; the audit lives in ``<out>/audit/``, the dry audit in
 ``<out>/audit/dry/``), ``--catalog`` / ``--polyhaven`` (default ``wenart/furniture/catalog_library.json`` /
-``catalog.json``). Every step is resumable (renders and answers are reused while current). Exit codes: 0 done, 1
+``catalog.json``), ``--ids-file`` (render, code, decide: only these models, a JSON list or ``{"ids": [...]}`` or one id
+per line; pod P4 audits its new models only: the code checks still compare them with the whole library for
+duplicates). Every step is resumable (renders and answers are reused while current). Exit codes: 0 done, 1
 nothing to do or a step failed, 2 server error, 3 cut by the deadline (``--deadline`` or ``WENART_DEADLINE``).
 """
 from __future__ import annotations
@@ -42,6 +44,25 @@ def _items(args):
 
 def _audit(args) -> Path:
     return Path(args.out) / AUDIT_DIR
+
+
+def selected_ids(args) -> Optional[set]:
+    """The ids of ``--ids`` and ``--ids-file`` (None: every model)."""
+    ids = set(getattr(args, "ids", None) or [])
+    path = getattr(args, "ids_file", None)
+    if path:
+        text = Path(path).read_text(encoding="utf-8")
+        try:
+            doc = json.loads(text)
+            ids |= set(doc.get("ids") or [] if isinstance(doc, dict) else doc)
+        except ValueError:
+            ids |= {line.strip() for line in text.splitlines() if line.strip()}
+    return ids if (ids or path) else None
+
+
+def _selected(args, items: list) -> list:
+    ids = selected_ids(args)
+    return items if ids is None else [i for i in items if i["id"] in ids]
 
 
 def _folder(args) -> Path:
@@ -100,9 +121,7 @@ def cmd_render(args) -> int:
     cfg = load_config()
     s = dict(cfg.get("render") or {})
     s["device"] = args.device
-    items = _items(args)
-    if args.ids:
-        items = [i for i in items if i["id"] in set(args.ids)]
+    items = _selected(args, _items(args))
     if args.types:
         items = [i for i in items if i["type"] in set(args.types.split(","))]
     if args.smoke:
@@ -166,13 +185,15 @@ def cmd_code(args) -> int:
     cfg = load_config()
     items = _items(args)
     measures = _measures(args)
-    checks = C.run_checks(items, cfg, measures)
+    checks = C.run_checks(items, cfg, measures)          # every model: the duplicates are found across the library
+    keep_ids = {i["id"] for i in _selected(args, items)}
     # the passed checks are not kept (they say "ok"), except the title's verdict that decide reads
     kept = {iid: [c for c in recs if c["status"] not in ("ok", "skip") or c["check"] == "title"]
-            for iid, recs in checks.items()}
+            for iid, recs in checks.items() if iid in keep_ids}
     _json(_folder(args) / "code.json", {"kind": "library_audit_code", "mode": "dry" if args.dry else "full",
                                         "measured": len(measures), "checks": kept})
-    print(f"audit code: {len(items)} model(s), {len(measures)} measured -> {_folder(args) / 'code.json'}")
+    print(f"audit code: {len(kept)} of {len(items)} model(s), {len(measures)} measured -> "
+          f"{_folder(args) / 'code.json'}")
     return EXIT_OK
 
 
@@ -251,7 +272,7 @@ def decide_all(args, items=None):
     from wenart.assets.audit import checks as C
     from wenart.assets.audit import decide as D
     cfg = load_config()
-    items = items if items is not None else _items(args)
+    items = items if items is not None else _selected(args, _items(args))
     code = _read(_folder(args) / "code.json")
     checks = (code or {}).get("checks") or C.run_checks(items, cfg, _measures(args))
     a1, a2 = _answers(args, items)
@@ -411,6 +432,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--device", default="auto", choices=["auto", "cpu"])
     s.add_argument("--deadline", default=None)
     s.add_argument("--ids", nargs="*", default=None)
+    s.add_argument("--ids-file", default=None, help="only these models (JSON list, {\"ids\": [...]} or lines)")
     s.add_argument("--types", default=None, help="comma list of types")
     s.add_argument("--textures", action="store_true", help="also the texture sets of <assets>/manifest.json")
     s.add_argument("--plan", action="store_true", help="only write render_plan.json")
@@ -418,6 +440,7 @@ def parser() -> argparse.ArgumentParser:
                    "unless every one was measured and rendered")
     s = common(sub.add_parser("code", help="code checks"))
     s.add_argument("--work", default=None)
+    s.add_argument("--ids-file", default=None, help="keep the checks of these models only")
     s.add_argument("--dry", action="store_true", help="catalogue fields only (no render)")
     s = common(sub.add_parser("ask", help="pod P3: the vision question"))
     s.add_argument("--model-key", default=None, help="check.yaml models key (default audit.yaml ask.model_key)")
@@ -431,6 +454,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--deadline", default=None)
     s = common(sub.add_parser("decide", help="keep / fix / remove"))
     s.add_argument("--model-key", default=None)
+    s.add_argument("--ids-file", default=None, help="decide these models only")
     s.add_argument("--dry", action="store_true")
     s.add_argument("--work", default=None)
     s.add_argument("--generated-utc", default=None)

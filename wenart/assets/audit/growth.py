@@ -522,6 +522,10 @@ def cmd_ingest(args) -> int:
 
 
 def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["run"]:                        # pod P4: the growth steps (growth_run.py)
+        from wenart.assets.audit.growth_run import main as run_main
+        return run_main(argv[1:])
     p = argparse.ArgumentParser(prog="python -m wenart.assets growth", description="library growth lists (D24)")
     p.add_argument("source", choices=SOURCES)
     p.add_argument("action", choices=["list", "plan", "ingest"])
