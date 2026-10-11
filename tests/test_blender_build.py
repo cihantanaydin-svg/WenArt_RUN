@@ -321,11 +321,11 @@ def test_synthetic_03_unverified_piece_and_three_levels(tmp_path):
     assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
     manifest = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
     schemas.validate_scene_manifest(manifest)
-    unknown = next(o for o in manifest["objects"] if o["wenart_id"] == "proxy:f_L0_021")
-    # Milestone 11 decision D3: no stripes in the renders by default; the item is listed for the report instead
-    assert unknown["status"] == "unverified" and unknown["material"] == "proxy"
+    # Milestone 12 (CLAUDE.md "no untyped piece is built", docs/milestone12.md §4.1): the untyped piece is no grey
+    # proxy any more; it is not built and listed with its reason (the report lists it for review)
+    assert not [o for o in manifest["objects"] if "f_L0_021" in str(o.get("wenart_id"))]
+    assert "f_L0_021" in {x["id"] for x in manifest["furniture"]["not_built"]}
     assert manifest["markers_in_final"] is False
-    assert {"id": "f_L0_021", "kind": "furniture", "level_id": "L0"} in manifest["unverified_items"]
     assert all(m["textured"] is False for m in manifest["materials"].values())
     assert all(r["hit_kind"] != "wall" for r in manifest["checks"]["door_rays"])
     # Stove and sink drawn on the counter: lifted so the top faces do not coincide.

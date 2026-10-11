@@ -57,6 +57,19 @@ MODELS_SCRIPT = textwrap.dedent("""
     box("deck", (-0.74, -0.99, 0.25), (0.74, 0.99, 0.30), wood)
     box("headboard", (-0.8, 0.99, 0.0), (0.8, 1.05, 1.0), wood)
     export("frame")
+    # Milestone 12 (§4.8: no code-made sofa or table; a type without a usable model is not built): a sofa 2.2 x 0.9 m
+    # (seat 0.45 m, back 0.2 m deep at +Y), a coffee table 1.2 x 0.6 x 0.45 m and a dining table 1.4 x 0.8 x 0.75 m.
+    reset()
+    fabric = (0.7, 0.7, 0.65, 1.0)
+    box("sofa_seat", (-1.1, -0.45, 0.0), (1.1, 0.25, 0.45), fabric)
+    box("sofa_back", (-1.1, 0.25, 0.0), (1.1, 0.45, 0.85), fabric)
+    export("sofa")
+    reset()
+    box("coffee_top", (-0.6, -0.3, 0.0), (0.6, 0.3, 0.45), wood)
+    export("coffee")
+    reset()
+    box("dining_top", (-0.7, -0.4, 0.0), (0.7, 0.4, 0.75), wood)
+    export("dining")
     # Rug 2.0 x 1.4 m, 1 cm thick.
     reset()
     box("rug", (-1.0, -0.7, 0.0), (1.0, 0.7, 0.01), (0.6, 0.2, 0.2, 1.0))
@@ -88,6 +101,9 @@ DUMP_SCRIPT = textwrap.dedent("""
 """)
 
 FRAME = model("frame", "bed_double", 1.6, 2.1, 1.0, has_mattress=False, bed_frame=True, deck_height_m=0.30)
+SOFA = model("sofa", "sofa", 2.2, 0.9, 0.85)
+COFFEE = model("coffee", "table_coffee", 1.2, 0.6, 0.45)
+DINING = model("dining", "table_dining", 1.4, 0.8, 0.75)
 RUG = decor_model("rug", "rug", 2.0, 1.4, 0.01)
 ART = decor_model("art", "wall_art", 0.8, 0.035, 0.6)
 
@@ -119,7 +135,7 @@ def built(tmp_path_factory):
         ("bed_double", (6.5, 1.02), 180.0, (1.6, 2.0)),          # head against the south wall (local +Y = south)
         ("table_dining", (6.3, 4.3), 0.0, (1.4, 0.8))])
     decorated, _rows = D.add_decor(b)
-    fitted = F.fit_building(decorated, FakeCatalog([FRAME], decor=[RUG, ART]), style_family="scandinavian")
+    fitted = F.fit_building(decorated, FakeCatalog([FRAME, SOFA, COFFEE, DINING], decor=[RUG, ART]), style_family="scandinavian")
     rugs, arts = of_type(fitted, "rug"), of_type(fitted, "wall_art")
     assert len(rugs) == 2 and len(arts) == 1 and all(r["asset"] for r in rugs) and arts[0]["asset"]
     rugs[1]["asset"] = None                                     # the dining rug: no model -> parametric rug
@@ -143,7 +159,7 @@ def test_scene_manifest_validates_with_rugs_wall_art_and_a_bed_frame(built):
     m = built["manifest"]
     schemas.validate_scene_manifest(m)
     s = m["furniture"]
-    assert s["by_method"]["library"] == 1 and not [f for f in s["fallbacks"] if f["type"] == "bed_double"]
+    assert s["by_method"]["library"] == 4 and not [f for f in s["fallbacks"] if f["type"] == "bed_double"]
     (skipped,) = s["decor_skipped"]
     assert skipped["id"] == "dec_L0_099" and "no library wall art model" in skipped["reason"]
     assert "decor_dec_L0_099" not in built["objects"] and "dec_L0_099" not in m["pass_index"]

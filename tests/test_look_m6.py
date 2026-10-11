@@ -970,9 +970,12 @@ def test_row8_bed_bevel_veneer_and_metal(flat):
     steel = [name for name in counter["materials"] if name.startswith("steel_brushed")]
     assert steel and all(flat["materials"][name]["metallic"] == 1.0 for name in steel)
     assert flat_list(counter["eval_bounds"]) == pytest.approx(flat_list(counter["bounds"]), abs=1e-4)
-    # The cushion lies on the bedding, not inside the pillows.
+    # The cushion lies on the bedding, not inside the pillows. Milestone 12 (docs/milestone12.md §4.7): it rests on the
+    # duvet surface found by rays on the built mesh (mattress top 0.55 m + the duvet's 0.05 m), within the soft-host
+    # tolerance of S5, no longer on top of the pillows (bedding_top, the pillow top: 0.76 m, 0.16 m of float).
     cushion = flat["objects"]["decor_f_bed_1"]
-    assert cushion["bounds"][2][0] == pytest.approx(round(P.bedding_top(1.6, 2.0, 0.55), 4), abs=1e-4)
+    assert cushion["bounds"][2][0] == pytest.approx(0.55 + 0.05, abs=0.03)
+    assert cushion["bounds"][2][0] < P.bedding_top(1.6, 2.0, 0.55) - 0.1
     entry = next(o for o in flat["manifest"]["objects"] if o["name"] == "furn_f_bed")
     assert entry["bbox_m"] == [1.6, 2.0, 1.0] and entry["bevel"]["segments"] == 3
 
