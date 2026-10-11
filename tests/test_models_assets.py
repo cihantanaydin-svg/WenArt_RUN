@@ -317,8 +317,9 @@ def test_catalog_ids_exist_on_the_api():
         # modern_coffee_table_01 and wooden_display_shelves_01, so the horizontal pair is compared as a set
         if entry["id"] == "throw_pillows_01":
             continue  # the API box of the pillows is 8 cm larger than the glTF geometry (checked by hand)
-        if (entry.get("audit") or {}).get("status") == "removed":
-            continue  # pod P4: steel_frame_shelves_01's glTF is 10x its API size; the audit removed it
+        if entry.get("growth"):
+            continue  # pod P4: the box is the audit's Blender measurement of the file (the API box may differ: an
+            #           articulated desk_lamp_arm_01, a 10x steel_frame_shelves_01 the audit removed)
         measured = entry["bbox_model_m"]
         api = [d / 1000.0 for d in row["dimensions_api_mm"]]
         assert abs(measured[2] - api[2]) <= 0.02, (entry["id"], measured, api)
