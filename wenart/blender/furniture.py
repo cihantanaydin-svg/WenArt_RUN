@@ -143,11 +143,12 @@ from wenart.blender.proxies import COINCIDENT_LIFT, footprints_overlap, mount_bo
 
 CC0 = "CC0"
 CC_BY = "CC-BY-4.0"
-LIBRARIES = ("polyhaven", "abo", "objaverse", "generated", "parametric")
+LIBRARIES = ("polyhaven", "abo", "objaverse", "generated", "gso", "parametric")
 # Licence gate of the model kind (docs/milestone7.md §6.3, docs/milestone8.md §2; the rule of
 # wenart.assets.fetch.check_licence with kind "models", repeated here because Blender's Python imports this
 # module without the asset code). Generated models carry the licence text "generated (<model>, <licence>)".
-MODEL_LICENCES = {"polyhaven": (CC0,), "abo": (CC_BY,), "objaverse": (CC0, CC_BY), "generated": ()}
+MODEL_LICENCES = {"polyhaven": (CC0,), "abo": (CC_BY,), "objaverse": (CC0, CC_BY), "generated": (),
+                  "gso": (CC_BY,)}   # gso: Google Scanned Objects (Milestone 12 pod P4, CC BY 4.0 per object)
 GENERATED_LICENCE_PREFIX = "GENERATED"
 # Milestone 8: sources whose other licences pass when the catalogue flagged them (recorded, not filtered).
 FLAGGED_SOURCES = ("objaverse",)

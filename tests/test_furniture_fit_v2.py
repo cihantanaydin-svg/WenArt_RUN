@@ -131,7 +131,7 @@ def test_aspect_then_source_break_the_remaining_ties():
     # identical boxes and quality: abo, polyhaven, objaverse (generated is a rule of its own)
     same = [model("x", "sofa", 2.0, 0.9, 0.8, source=s, quality=4.0) for s in ("objaverse", "polyhaven", "abo")]
     assert [e["source"] for e in F.rank_candidates(same, 2.0, 0.9)] == ["abo", "polyhaven", "objaverse"]
-    assert F.SOURCE_ORDER == ("abo", "polyhaven", "objaverse", "generated")
+    assert F.SOURCE_ORDER == ("abo", "polyhaven", "gso", "objaverse", "generated")    # gso: M12 pod P4
 
 
 def test_known_units_rank_before_models_normalised_by_type():

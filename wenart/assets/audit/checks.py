@@ -29,7 +29,7 @@ from wenart.assets.audit.items import has_front
 from wenart.furniture import sizes as SZ
 
 NOT_ALLOWED = (("-NC", "non-commercial"), ("-SA", "share-alike"), ("-ND", "no-derivatives"))
-SOURCE_RANK = {"abo": 0, "polyhaven": 1, "objaverse": 2, "generated": 3}
+SOURCE_RANK = {"abo": 0, "polyhaven": 1, "gso": 2, "objaverse": 3, "generated": 4}
 HARD_FLAGS = ("outdoor", "crude", "wrong", "part")
 FLAG_TEXT = {"outdoor": "an outdoor piece", "crude": "not photoreal", "wrong": "not the object",
              "part": "a part of a piece", "scene": "several objects (a set or a scene)"}
@@ -140,7 +140,7 @@ def title_size_check(item: dict) -> dict:
 
 def source_check(item: dict) -> dict:
     if item.get("source") == "generated":
-        return rec("source", "warn", "generated (TRELLIS.2): no real product")
+        return rec("source", "warn", "generated (TRELLIS.2 or Infinigen): no real product")
     return rec("source", "ok", item.get("source", ""))
 
 

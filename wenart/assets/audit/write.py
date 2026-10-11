@@ -87,6 +87,9 @@ def generated_credit(doc: dict, via: Optional[str] = None) -> int:
     via = via or GENERATED_VIA
     n = 0
     for e in _entries(doc):
+        gen = (e.get("generated") or {}).get("generator")
+        if gen and gen != "trellis":
+            continue                    # Milestone 12 pod P4: an Infinigen model keeps its own credit line
         if e.get("source") == "generated" and e.get("via") != via:
             e["via"] = via
             n += 1
