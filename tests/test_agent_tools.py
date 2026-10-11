@@ -210,3 +210,18 @@ def test_rerun_stage_white_list_and_finish(tmp_path):
                                              ("set_camera", {}, "agent_override")])
 def test_labels(tmp_path, tool, args, label):
     assert TL.label_for(tool, ctx_for(tmp_path), args) == label
+
+
+def test_group_edits_count_per_group_not_per_tool():
+    """Pod P5: the max-tries key of a group edit was the tool's name (no group_id in ``_target``), so after three
+    group edits anywhere the next 34 were refused."""
+    assert TL._target("complete_group", {"group_id": "r_1.dining", "reason": "x"}) == "r_1.dining"
+    assert TL._target("move_group", {"group_id": "r_2.seating", "span_id": "r_2.s1"}) == "r_2.seating"
+    assert TL._target("set_exterior", {"reason": "x"}) == "set_exterior"
+
+
+def test_a_wrong_group_id_is_named_in_the_rejection():
+    from wenart.furniture import edit_ops
+    b = {"rooms": [{"id": "r_1", "polygon": [[0, 0], [4, 0], [4, 4], [0, 4]]}], "furniture": []}
+    res = edit_ops.apply_edit(b, {"op": "complete_group", "group_id": "r_9_kitchen.kitchen_run", "reason": "x"})
+    assert not res["accepted"] and "group 'r_9_kitchen.kitchen_run'" in res["failed_checks"][0]

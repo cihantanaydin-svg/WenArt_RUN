@@ -101,8 +101,8 @@ def test_fixable_and_not_yours():
     out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes())
     fixable = {f["id"]: f["tools"] for f in out["findings"]["fixable"]}
     not_yours = {f["id"]: f["why"] for f in out["findings"]["not_yours"]}
-    # a re-layout never moves a drawn bed
-    assert fixable["c:F3:f1"] == ["move_piece", "move_group", "rotate_piece", "set_front"]
+    # a re-layout never moves a drawn bed, nor does move_group (its group has drawn members, pod P5)
+    assert fixable["c:F3:f1"] == ["move_piece", "rotate_piece", "set_front"]
     assert fixable["c:F7:f4"] == ["fix_fixture"]                    # U1: the misread toilet may be fixed
     assert fixable["c:R5:r1"] == ["set_lighting"] and fixable["c:G4:f2"][0] == "complete_group"
     assert "not built" in not_yours["c:F9:f5"] and "decor stage" in not_yours["c:S5:f1"]
@@ -193,3 +193,15 @@ def test_unbuilt_pieces_are_never_drawn_or_shown_to_the_critic(tmp_path, monkeyp
 def test_fixable_weight_ranks_by_severity_times_area():
     fx = [{"severity": "critical"}, {"severity": "major"}, {"severity": "minor"}]
     assert BR.fixable_weight(fx, 10.0) == (9 + 3) * 10.0 and BR.fixable_weight([], 50.0) == 0.0
+
+
+def test_relayout_is_offered_only_with_a_usable_candidate():
+    """Pod P5: relayout_room was offered with candidates that all failed (0 of 26 accepted)."""
+    out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes())
+    assert "relayout_room" in {t for f in out["findings"]["fixable"] for t in f["tools"]}
+    failing = [{"rank": 1, "score": 0.2, "terms": {}, "pieces": [{}], "hard_failures": ["G8 aisle 0.40 m"],
+                "groups": [], "group_violations": []},
+               {"rank": 2, "score": 0.1, "terms": {}, "pieces": [], "hard_failures": [], "groups": [],
+                "group_violations": []}]
+    out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes(solver_fn=lambda b, r, k=3: failing))
+    assert "relayout_room" not in {t for f in out["findings"]["fixable"] for t in f["tools"]}

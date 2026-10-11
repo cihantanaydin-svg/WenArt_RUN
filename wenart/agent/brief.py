@@ -416,9 +416,10 @@ def _check_tools(check: str) -> tuple[str, ...]:
 
 
 def classify(findings: list[dict], building: dict, room_id: Optional[str], allowed: dict, group_of: dict,
-             room_tools_ok: dict) -> tuple[list[dict], list[dict]]:
+             room_tools_ok: dict, locked_groups: frozenset = frozenset()) -> tuple[list[dict], list[dict]]:
     """``(fixable, not_yours)`` (module docstring). ``allowed``: piece id -> allowed per tool; ``group_of``: piece id
-    -> group id; ``room_tools_ok``: room tool -> bool (relayout possible, a group to place / complete)."""
+    -> group id; ``room_tools_ok``: room tool -> bool (relayout possible, a group to place / complete);
+    ``locked_groups``: groups with a drawn member (never moved: ``move_group`` is not offered for them)."""
     pieces = {p.get("id"): p for p in building.get("furniture") or []}
     fixable, not_yours = [], []
     for f in findings:
@@ -444,7 +445,9 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
                     elif a.get("why"):
                         whys.append(f"{t}: {a['why']}")
                 elif t in GROUP_TOOLS:
-                    if group_of.get(target) or (t == "complete_group" and room_tools_ok.get("complete_group")):
+                    if t == "move_group" and group_of.get(target) in locked_groups:
+                        whys.append(f"move_group: {group_of.get(target)} has drawn members (they stay as drawn)")
+                    elif group_of.get(target) or (t == "complete_group" and room_tools_ok.get("complete_group")):
                         ok.append(t)
                 elif t == "relayout_room":
                     # a re-layout moves the AI pieces: it fixes an AI piece, or a group around a drawn anchor
@@ -578,13 +581,22 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
     present = {g.get("group") for g in members}
     # Without group data (track G's stubs) a group tool is offered and the validator decides.
     room_tools_ok = {
-        "relayout_room": bool(cands) or any(p.get("source") == "added_by_ai" for p in pieces),
+        # pod P5: relayout_room was offered with candidates that all failed (0 of 26 accepted, "no candidate
+        # position fits the room"): only a usable candidate (no hard failure, some piece) makes it worth a call
+        "relayout_room": any(not c.get("hard_failures") and c.get("pieces") for c in cands),
         "place_group": any(g.get("group") not in present for g in program_groups) if program_groups else True,
         "complete_group": any(g.get("missing") for g in members) if members else True,
         "move_group": bool(members),
     }
+    # pod P5: move_group on a group with drawn members is always refused (drawn furniture stays where it is
+    # drawn; 21 drawn_lock rejections): such a group is not offered for moving
+    by_id = {p.get("id"): p for p in building.get("furniture") or []}
+    locked_groups = frozenset(g.get("group_id") for g in members
+                              if any((by_id.get(m) or {}).get("source") == "from_documents"
+                                     for m in [g.get("anchor_id"), *(g.get("member_ids") or [])] if m))
     fixable, not_yours = classify(list(findings or []), building, room_id,
-                                  {pid: a for pid, a in allowed.items()}, group_of, room_tools_ok)
+                                  {pid: a for pid, a in allowed.items()}, group_of, room_tools_ok,
+                                  locked_groups=locked_groups)
     candidates = []
     for c in cands[:k]:
         rank = int(c.get("rank") or len(candidates) + 1)

@@ -1015,7 +1015,8 @@ def _fix_fixture(b: dict, args: dict) -> list[str]:
         center = target
         if _place_problem(b, room, placer.Piece(p.type, center, p.rotation_deg, size, False)) is not None:
             raise EditRejected("fixture_place", f"{item['id']} at [{center[0]:.2f}, {center[1]:.2f}] is still through "
-                                                f"a wall or in a door swing")
+                                                f"a wall or in a door swing; leave out center and the code finds the "
+                                                f"nearest valid spot")
     elif place is not None:
         spot = _nearest_valid(b, room, item, placer.Piece(p.type, center, p.rotation_deg, size, False))
         if spot is None:
@@ -1141,7 +1142,9 @@ def apply_edit(building: dict, edit: dict, *, catalog=None) -> dict:
                        "the arguments do not match the edit's schema")
     room_id = _room_id_of(building, op, args)
     if room_id is None or not any(r.get("id") == room_id for r in building.get("rooms") or []):
-        what = f"piece {args.get('piece_id')!r}" if "piece_id" in args else f"room {args.get('room_id')!r}"
+        what = (f"piece {args.get('piece_id')!r}" if "piece_id" in args else
+                f"group {args.get('group_id')!r} (its room {room_id!r})" if "group_id" in args else
+                f"room {args.get('room_id')!r}")
         return _result(False, [f"exists: no {what} in a room of the building"], 0.0, 0.0, None, [], rerun,
                        "nothing to edit")
     before_score = PL.score_room(building, room_id)

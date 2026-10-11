@@ -1332,3 +1332,13 @@ GPU tests 29/39; the 10 failures and what was done:
 | a bathtub missing from the index pass (1 view) | the view looks at the bathroom door leaf; the bathtub is behind it | open: the camera model does not see the leaf as the scene builds it |
 | window pull 89 % unclipped (needs 90 %) | 8 hall views with bright windows | open (marginal) |
 
+Agent fixes after P5 (CPU, tests in `tests/test_agent_tools.py`, `tests/test_agent_brief.py`):
+
+| P5 symptom | Cause | Fix |
+|---|---|---|
+| 34 group edits refused with max_tries | the max-tries key of a group edit was the tool's name (no `group_id` in `tools._target`): three group edits anywhere blocked the rest of the round | the key is the group (and walls, doors, levels) |
+| 26 relayout_room refused, "no candidate position fits" | the brief offered it whenever the solver returned candidates, even all failing | offered only with a usable candidate |
+| 21 drawn_lock on move_group | offered for groups with drawn members, which stay where drawn | not offered for such groups (move_piece / rotate still are) |
+| 32 of 35 fix_fixture refused | the agent guessed centres in 5-10 cm steps | the tool text and the rejection say: leave out center, the code finds the nearest valid spot within 0.5 m |
+| 7 "no room None" | a group id that names no room (`r_L0_yasama_6_kitchen.kitchen_run`) | the rejection names the group |
+

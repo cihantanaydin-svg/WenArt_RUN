@@ -115,7 +115,8 @@ FALLBACK_EDIT_SCHEMAS: dict = {
     "fix_fixture": _obj({"piece_id": ID, "size": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0},
                                                   "minItems": 2, "maxItems": 2,
                                                   "description": "a real product size [w, d] of its type"},
-                         "center": dict(XY, description="a new centre at most 0.5 m away")}, ["piece_id"]),
+                         "center": dict(XY, description="only to choose a spot: a new centre at most 0.5 m away "
+                                                        "(left out: the nearest valid spot)")}, ["piece_id"]),
     "set_front": _obj({"piece_id": ID, "front_deg": {"type": "number", "minimum": 0, "maximum": 360}},
                       ["piece_id", "front_deg"]),
 }
@@ -186,7 +187,8 @@ DESCRIPTIONS = {
     "mark_not_furniture": "Record a drawn symbol, mark or line that was read as furniture (not built), with the "
                           "evidence.",
     "fix_fixture": "Misread fixed equipment: a real product size and/or a move of at most 0.5 m (through a wall, in "
-                   "a door swing).",
+                   "a door swing). Leave out center: the code moves it to the nearest valid spot (pod P5: 32 of 35 "
+                   "guessed centres were still in a wall or a door swing).",
     "set_front": "Give a drawn piece without a front (front_inferred) the direction its front faces (degrees "
                  "counter-clockwise from +x, along a side of its footprint); to turn a piece use rotate_piece.",
     "set_mark_kind": "Correct the kind of a level mark (with the reason).",
@@ -812,7 +814,11 @@ def t_stage_status(ctx: ToolContext, args: dict) -> dict:
 # --------------------------------------------------------------------------
 
 def _target(tool: str, args: dict) -> str:
-    for key in ("piece_id", "room_id", "view_id", "opening_id", "stage", "slot"):
+    """What an edit changes (the max-tries key): its piece, group, room, view, opening, wall, level, stage or slot;
+    else the tool. Pod P5: without ``group_id`` every group edit counted on the tool's name, so after three group
+    edits anywhere in the building the next 34 were refused with max_tries."""
+    for key in ("piece_id", "group_id", "room_id", "view_id", "opening_id", "wall_id", "door_id", "level_id",
+                "stage", "slot"):
         if args.get(key):
             return str(args[key])
     return tool
