@@ -31,7 +31,7 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   a key into the chat. `.env` is git-ignored.
 
 ## GPU limits (hard rules)
-- Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $30 per day (raised from $10 to $30 on 4 Oct 2026; $40 on 9 Oct 2026 only, user OK, `DAY_LIMITS` in `scripts/gpu_run.py`), max 2 hours per pod run, one pod at a time. Project total: $200 (raised from $100 on 10 Oct 2026, user OK).
+- Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $30 per day (raised from $10 to $30 on 4 Oct 2026; $40 on 9 Oct 2026 only, user OK, `DAY_LIMITS` in `scripts/gpu_run.py`), max 4 hours per pod run (raised from 2 h on 11 Oct 2026, user OK), one pod at a time. 11 Oct 2026 only: the real04 test may pass the USD limits (user OK; day cap $60 in `DAY_LIMITS`, `--over-5-ok`). Project total: $200 (raised from $100 on 10 Oct 2026, user OK).
   A pod may have 2 GPUs when the price per GPU-hour stays within the limit; its worst case counts as one action
   (user OK of 10 Oct 2026, Milestone 12).
 - Ask the user before: going over any limit, creating or deleting a Network Volume,

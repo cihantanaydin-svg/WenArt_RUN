@@ -33,6 +33,7 @@
 #                       (docs/milestone11.md §8: agent rounds, the agent model's one-pass check; its model is
 #                       downloaded by the setup, AGENT_MODELS)
 #   AGENT_MODEL         agent (default, Qwen/Qwen3.8-27B-FP8) | agent_fast (Qwen/Qwen3.6-35B-A3B-FP8)
+#   AGENT_ROUNDS        max orchestrator rounds (default 4; the time budget still stops earlier)
 #   WENART_AGENT_SLEEP  on | off | auto (default: the agent server sleeps for the gate and polish below 80 GB)
 #   RUN_THREADS         CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)
 #
@@ -120,6 +121,8 @@ if [ "${RUN_POLISH:-on}" = "off" ]; then export WENART_POLISH=off; fi
 AGENT_SETUP="${AGENT_MODEL:-agent}"
 if [ "${NO_ORCHESTRATOR:-0}" = "1" ]; then POD_ARGS+=(--no-orchestrator); AGENT_SETUP=""; fi
 if [ -n "${AGENT_MODEL:-}" ]; then POD_ARGS+=(--agent-model "$AGENT_MODEL"); fi
+# 11 Oct 2026 (user: pods get more time): more orchestrator rounds when the pod has the time (default 4)
+if [ -n "${AGENT_ROUNDS:-}" ]; then POD_ARGS+=(--agent-rounds "$AGENT_ROUNDS"); fi
 
 # stamp <file>: an empty file whose mtime is the volume's own time minus COPY_OVERLAP_S, so a file
 # written in the same second as the stamp still counts as newer (polish.sh).

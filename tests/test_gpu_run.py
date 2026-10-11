@@ -93,6 +93,11 @@ def test_pick_gpu_refuses_expensive():
                             max_price=gpu_run.action_price_limit(115, over_5_ok=True))["name"] == "H100 SXM"
 
 
+def test_day_limits_of_the_users_one_day_raises():
+    assert gpu_run.day_limit("2026-10-09") == 40.0 and gpu_run.day_limit("2026-10-11") == 60.0   # real04 test
+    assert gpu_run.day_limit("2026-10-12") == gpu_run.MAX_PER_DAY == 30.0 and gpu_run.MAX_MINUTES == 240
+
+
 def test_check_limits(monkeypatch):
     import datetime as dt
     monkeypatch.setattr(gpu_run, "utc_now", lambda: dt.datetime(2026, 10, 5, 12, 0, tzinfo=dt.timezone.utc))  # a $30 day
@@ -100,8 +105,9 @@ def test_check_limits(monkeypatch):
     gpu_run.check_limits(1.01, 10, 0.0)                     # allowed since 3 Oct 2026 ($5/h limit)
     with pytest.raises(RuntimeError):
         gpu_run.check_limits(5.01, 10, 0.0)
+    gpu_run.check_limits(0.5, 240, 0.0)                      # 4 h per run since 11 Oct 2026 (user OK)
     with pytest.raises(RuntimeError):
-        gpu_run.check_limits(0.5, 121, 0.0)
+        gpu_run.check_limits(0.5, 241, 0.0)
     gpu_run.check_limits(0.9, 120, 19.0)                     # $20.80 a day: allowed since 4 Oct 2026 ($30/day)
     with pytest.raises(RuntimeError, match="day"):
         gpu_run.check_limits(0.9, 120, 29.0)
@@ -690,9 +696,11 @@ def test_drive_upload_secret_check(monkeypatch):
     assert 'RCLONE_CONF="{{ RUNPOD_SECRET_" + DRIVE_SECRET + " }}"' in text and '"RCLONE_")' in text
 
 
-def test_two_gpu_pods_of_10_oct_2026():
+def test_two_gpu_pods_of_10_oct_2026(monkeypatch):
     """Milestone 12 (CLAUDE.md, user OK of 10 Oct 2026): a pod may have 2 GPUs; the $5 limit is per GPU-hour and the
     worst case counts both GPUs (over $5 needs --over-5-ok)."""
+    import datetime as dt
+    monkeypatch.setattr(gpu_run, "utc_now", lambda: dt.datetime(2026, 10, 10, 12, 0, tzinfo=dt.timezone.utc))  # $30
     assert gpu_run.GPU_COUNTS == (1, 2)
     assert gpu_run.action_price_limit(100, count=2) == pytest.approx(5.0 * 60 / 100 / 2)        # $1.50/GPU-hour
     assert gpu_run.action_price_limit(100, over_5_ok=True, count=2) == 5.0
