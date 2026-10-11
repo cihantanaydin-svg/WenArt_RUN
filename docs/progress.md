@@ -864,3 +864,19 @@ kitchen sink inside its counter run (synthetic-01); bathroom cameras that do not
 
 GPU cost of Milestone 12: $36.35 (estimate $35–49). Project total: **$125.72 of $200**. Today (11 Oct UTC):
 $27.09 of $30. No pod is running.
+
+### After Milestone 12: more pod time, several buildings on one plot, real04 (11 Oct 2026)
+
+**Your requests of 11 Oct 2026:** pods get more time; run the attached DWG as real04; several buildings can stand
+on one plot ("r14 is gorgeous the ground slope"); the USD limits may be passed for this test.
+
+- **Pod time:** 4 h per run (was 2 h; `CLAUDE.md`, `scripts/gpu_run.py`), `AGENT_ROUNDS` for the full job (real04:
+  6); 11 Oct only: day cap $60, `--over-5-ok`.
+- **real04** (`projects/real04/deneme1.dwg`): the real02 twin villa with its site. The site plan r14 holds two
+  twin-villa blocks (4 villas), the plot (1,165.9 m²), four 24 m² pools with sun terraces, parking, 101 trees and 16
+  level marks (37-46 m).
+- **Several buildings on one plot** (`wenart/sheets/buildings.py`, `wenart/blender/copies.py`): every copy of the
+  building on the site plan is found (b2 18.6 m beside b1, **3.00 m higher**), turned the right way by its entrance
+  markers, raised by the marks at its entrances (±0.00 = 43.00); the ground is a sloped surface from the site
+  marks; the pools are built; b2 is an instance of b1 in the scene; the exterior views keep clear of it and one
+  site view shows both blocks. Tests: `tests/test_site_buildings.py`, `tests/test_sheets_real04.py`.
