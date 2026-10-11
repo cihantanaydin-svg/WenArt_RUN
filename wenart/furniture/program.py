@@ -223,7 +223,10 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
             same = next((r for r in rows if r["group"] in ("sleeping_double", "sleeping_single") and not r["drawn"]),
                         None)
         template = GR.load_groups()[name]
-        options = (same or {}).get("options") or list(template["options"])
+        # the row of the other sleeping group (a drawn double bed in a room under 9 m², whose row is sleeping_single)
+        # has that group's options: the drawn group takes its own (P8 test: KeyError 'bed_nightstand')
+        own = (same or {}).get("options") if (same or {}).get("group") == name else None
+        options = own or list(template["options"])
         if template["layout"] == "anchored":
             options = _option_of_anchor(name, anchor["type"], options)
         unsure = anchor.get("status") == "unverified" and template["layout"] == "anchored"

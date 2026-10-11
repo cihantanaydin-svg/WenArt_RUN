@@ -369,6 +369,25 @@ def foreign_cuts(wall: dict, walls_by_id: dict, openings: list[dict], tol_deg: f
     return out
 
 
+def along_wall(wall: dict, point) -> float:
+    """Distance of ``point`` along the wall from its start (pure; the point projected on the centre line)."""
+    ax, ay = float(wall["start"][0]), float(wall["start"][1])
+    dx, dy = float(wall["end"][0]) - ax, float(wall["end"][1]) - ay
+    length = math.hypot(dx, dy)
+    if length < 1e-12:
+        return 0.0
+    return ((float(point[0]) - ax) * dx + (float(point[1]) - ay) * dy) / length
+
+
+def span_covered(span: tuple, spans: list[tuple], tol: float = 0.02) -> bool:
+    """True when the cut ``span`` ``(a0, a1, z0, z1)`` (along the wall, height) lies inside one of ``spans`` (within
+    ``tol``): a cut there removes nothing more (pure; pod P8, 11 Oct 2026: real03 draws a window on three or four
+    stacked wall layers; every copy cut every layer, about 100 boolean cuts, and the scene build took twice as
+    long)."""
+    a0, a1, z0, z1 = span
+    return any(b0 - tol <= a0 and a1 <= b1 + tol and c0 - tol <= z0 and z1 <= c1 + tol for b0, b1, c0, c1 in spans)
+
+
 def cut_full_height(top: float, floor_z: float, wall_h: float) -> bool:
     """True when an opening reaches the top of its wall (plain opening on a
     level with nothing above): the cutter then runs through the wall top."""
@@ -760,6 +779,7 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
         solids[wall["id"]] = (verts, faces)
 
         # Cutters for the openings of this wall (a virtual separator has no wall: never cut).
+        spans = []                                       # (a0, a1, z0, z1) of every cut of this wall
         for opening in openings:
             if opening.get("wall_id") != wall["id"]:
                 continue
@@ -770,6 +790,8 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             cut_bottom = bottom if opening["type"] == "window" else bottom - extra
             cut_top = top + extra if cut_full_height(top, wz, height) else top
             cx, cy, _shift = opening_centre_on_wall(opening, wall)  # shift recorded in build_openings
+            a = along_wall(wall, (cx, cy))
+            spans.append((a - float(opening["width"]) / 2.0, a + float(opening["width"]) / 2.0, cut_bottom, cut_top))
             cv, cf = geom2d.box((cx, cy, (cut_bottom + cut_top) / 2.0),
                                 (float(opening["width"]), float(wall["thickness"]) + extra, cut_top - cut_bottom),
                                 angle)
@@ -790,13 +812,21 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
 
         # Openings of another wall that this one overlaps (a facade line drawn over a thick wall): cut through
         # both, else the opening stays closed (pod P5, foreign_cuts).
-        cut_through = []
-        for opening, (fx, fy), depth in foreign_cuts(wall, walls_by_id_level, openings):
+        # The widest first; one that an earlier cut of this wall already covers adds no cutter (span_covered).
+        cut_through, covered = [], []
+        foreign = sorted(foreign_cuts(wall, walls_by_id_level, openings), key=lambda c: -float(c[0]["width"]))
+        for opening, (fx, fy), depth in foreign:
             host = walls_by_id_level[opening["wall_id"]]
             bottom, top, _ = opening_vertical(opening, level, has_above)
             extra = DEFAULTS["cutter_extra"]
             cut_bottom = bottom if opening["type"] == "window" else bottom - extra
             cut_top = top + extra if cut_full_height(top, wz, height) else top
+            a = along_wall(wall, (fx, fy))
+            span = (a - float(opening["width"]) / 2.0, a + float(opening["width"]) / 2.0, cut_bottom, cut_top)
+            if span_covered(span, spans):
+                covered.append(opening["id"])
+                continue
+            spans.append(span)
             h_angle = math.atan2(float(host["end"][1]) - float(host["start"][1]),
                                  float(host["end"][0]) - float(host["start"][0]))
             cv, cf = geom2d.box((fx, fy, (cut_bottom + cut_top) / 2.0),
@@ -846,6 +876,8 @@ def build_walls(building: dict, level: dict, collection, library, style: dict, m
             entry["base_drop"] = round(drop, 4)          # Milestone 12: down to a sunken room floor beside it
         if cut_through:
             entry["cut_through"] = cut_through           # openings of an overlapped wall (foreign_cuts)
+        if covered:
+            entry["cut_through_covered"] = covered       # ... whose span an earlier cut of this wall already opened
         if parapets:
             entry["parapet"] = [{"s": [round(a, 4), round(b, 4)], "z_top": round(z, 4)} for a, b, z in parapets]
             entry["runs_to"] += "; a parapet under the roof terrace"

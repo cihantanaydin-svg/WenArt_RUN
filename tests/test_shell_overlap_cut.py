@@ -9,7 +9,8 @@ CPU: the cutter of the overlapping wall (centre, depth) on the real03 numbers; p
 wall and a wall that misses the opening get none. Blender (``WENART_BLENDER``): a small building with the same
 overlap (the thin wall running past both ends of the thick one, which the overlap trim leaves whole); a ray through
 the window passes both walls, one under the sill and one beside the window hits them. Only windows and doors cut
-through (pod P8): a plain gap in one layer, where another layer is solid, leaves the wall closed."""
+through (pod P8): a plain gap in one layer, where another layer is solid, leaves the wall closed; a cut inside an
+earlier cut of the same wall (the same window drawn on each layer) adds no cutter."""
 from __future__ import annotations
 
 import json
@@ -89,7 +90,20 @@ def test_a_plain_gap_in_a_cladding_line_cuts_no_other_wall():
     assert [o["id"] for o, _c, _d in shell.foreign_cuts(w3, walls, [door])] == ["d_1"]
 
 
-def _building() -> dict:
+def test_a_cut_inside_an_earlier_cut_of_the_wall_is_covered():
+    """Pod P8: real03 draws one window on three or four stacked layers; each copy cut every layer (about 100
+    boolean cuts, a build twice as long). A cut inside an earlier one adds no cutter."""
+    w = wall("w_L0_087", [3.2039, 1.0003], [3.2039, 13.4003], 0.1)
+    assert shell.along_wall(w, (3.3039, 6.2804)) == pytest.approx(5.2801)
+    spans = [(5.0, 5.56, 0.9, 2.1)]
+    assert shell.span_covered((5.0, 5.56, 0.9, 2.1), spans)               # the same window on another layer
+    assert shell.span_covered((5.01, 5.55, 0.91, 2.1), spans)
+    assert not shell.span_covered((4.8, 5.56, 0.9, 2.1), spans)           # wider
+    assert not shell.span_covered((5.0, 5.56, 0.0, 2.1), spans)           # taller (a door under the window)
+    assert not shell.span_covered((5.0, 5.56, 0.9, 2.1), [])
+
+
+def _building(duplicate: bool = False) -> dict:
     room = {"id": "r_L0_bed", "level_id": "L0", "label": "Bed", "room_type": "bedroom",
             "polygon": [[0.45, 0.45], [5.55, 0.45], [5.55, 4.0], [0.45, 4.0]], "area_computed": 18.1,
             "status": "verified", "evidence": EV}
@@ -101,7 +115,8 @@ def _building() -> dict:
             "walls": [wall("w_5", [0.0, 0.225], [6.0, 0.225], 0.45), wall("w_2", [-1.0, 0.075], [8.0, 0.075], 0.15),
                       wall("w_w", [0.225, 0.45], [0.225, 4.1], 0.45), wall("w_e", [5.775, 0.45], [5.775, 4.1], 0.45),
                       wall("w_n", [0.0, 4.075], [6.0, 4.075], 0.15)],
-            "openings": [window("win_1", "w_5", [4.0, 0.225], 1.2)],
+            "openings": [window("win_1", "w_5", [4.0, 0.225], 1.2)]
+            + ([window("win_2", "w_2", [4.0, 0.075], 1.2)] if duplicate else []),
             "rooms": [room], "furniture": [], "decor": [], "conflicts": [], "unverified": [], "warnings": []}
 
 
@@ -123,9 +138,10 @@ DUMP = textwrap.dedent("""
 
 
 @needs_blender
-def test_a_window_passes_through_an_overlapping_facade_wall(tmp_path):
+@pytest.mark.parametrize("duplicate", [False, True], ids=["one_copy", "a_copy_on_each_layer"])
+def test_a_window_passes_through_an_overlapping_facade_wall(tmp_path, duplicate):
     path = tmp_path / "overlap.json"
-    path.write_text(json.dumps(_building()), encoding="utf-8")
+    path.write_text(json.dumps(_building(duplicate)), encoding="utf-8")
     manifest_path = cli.build(path, tmp_path / "scene", no_textures=True, preview_samples=1)
     m = json.loads(manifest_path.read_text(encoding="utf-8"))
     (tmp_path / "dump.py").write_text(DUMP, encoding="utf-8")
@@ -135,5 +151,12 @@ def test_a_window_passes_through_an_overlapping_facade_wall(tmp_path):
     assert hits["w_5"] == {"window": False, "under_sill": True, "beside": True}
     assert hits["w_2"] == {"window": False, "under_sill": True, "beside": True}
     entry = next(o for o in m["objects"] if o["kind"] == "wall" and o["wenart_id"] == "w_2")
-    assert entry["cut_through"] == ["win_1"] and "problems" not in (entry.get("after_cuts") or {})
-    assert any(a.get("field") == "cut_through" and a["object"] == "w_2" for a in m["assumed"])
+    assert "problems" not in (entry.get("after_cuts") or {})
+    if not duplicate:
+        assert entry["cut_through"] == ["win_1"]
+        assert any(a.get("field") == "cut_through" and a["object"] == "w_2" for a in m["assumed"])
+        return
+    # each layer has its own copy: the other copy is covered by it, no second cutter
+    thick = next(o for o in m["objects"] if o["kind"] == "wall" and o["wenart_id"] == "w_5")
+    assert "cut_through" not in entry and entry["cut_through_covered"] == ["win_1"]
+    assert "cut_through" not in thick and thick["cut_through_covered"] == ["win_2"]

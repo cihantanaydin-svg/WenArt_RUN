@@ -57,7 +57,8 @@ def test_the_new_types_are_known_everywhere():
     for t in NEW_TYPES:
         assert proxies.PROXY_HEIGHTS[t] == SC.HEIGHTS[t] == C.PARAMETRIC_HEIGHTS[t], t
     catalog = C.load(library=False)
-    assert set(NEW_TYPES) <= set(catalog.parametric_types)
+    # pod P4 (11 Oct 2026): a type with audited Poly Haven models is no longer parametric in catalog.json
+    assert all(t in catalog.parametric_types or catalog.candidates(t) for t in NEW_TYPES)
     # looks.py repeats track B's tables (schemas needs jsonschema, Blender's Python has none)
     assert looks.CABINET_TYPES == SC.CABINET_TYPES and looks.FABRIC_TYPES == SC.FABRIC_TYPES
     assert looks.VANITY_MIN_DEPTH_M == SC.VANITY_MIN_DEPTH_M

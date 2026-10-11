@@ -107,3 +107,13 @@ def test_program_choices_pick_an_option():
     assert seat["chosen"] == "sofa"
     bad = PR.room_program(M.building(w=5.0, h=4.5, room_type="living"), ROOM, choices={f"{ROOM}.seating": "piano"})
     assert next(g for g in bad["groups"] if g["group"] == "seating")["chosen"] is None
+
+
+def test_a_drawn_double_bed_in_a_room_under_9_m2_keeps_its_own_options():
+    """Pod P8 (found by the brief's completion dry run): the program row of a 3.5 m² bedroom is sleeping_single;
+    the drawn double bed's group took that row's options (``bed_nightstand``) and the program raised KeyError."""
+    bed = fp("b1", "bed_double", (0.82, 1.0), (1.6, 2.0), 0.0)
+    prog = PR.room_program(M.building(w=1.75, h=2.0, furniture=[bed]), ROOM)
+    (g,) = [g for g in prog["groups"] if g["anchor_id"] == "b1"]
+    assert g["group"] == "sleeping_double" and g["drawn"]
+    assert g["options"] and set(g["options"]) <= set(GR.load_groups()["sleeping_double"]["options"])

@@ -265,6 +265,8 @@ SCENE_MANIFEST = {
         "style": {"type": ["string", "null"]},
         "blender_version": {"type": "string"},
         "textures_enabled": {"type": "boolean"},
+        # pod P8: the build's time per phase (walls, furniture, cameras, previews, save, glb ...), summed over levels
+        "phase_seconds": {"type": "object", "additionalProperties": {"type": "number"}},
         "levels": {"type": "array", "items": {"type": "object", "required": ["id", "elevation", "ceiling_height"]}},
         "objects": {"type": "array", "items": SCENE_OBJECT},
         "cameras": {"type": "array", "items": SCENE_CAMERA},

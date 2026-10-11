@@ -836,6 +836,17 @@ def main(argv: list[str]) -> int:
                                        **({"twin_of": skip["twin_of"]} if skip.get("twin_of") else {})})
     outside = {"sills": 0, "railings": 0, "frames_outside": 0}
 
+    # pod P8 (11 Oct 2026): real03's build took 446 s, P5's 232 s, and the manifest could not say where: the time of
+    # each phase (summed over the levels) goes to ``phase_seconds``
+    phases: dict = {}
+    mark = [t0]                                    # "setup": reading, assets, styles, scene reset
+
+    def lap(name: str) -> None:
+        now = time.time()
+        phases[name] = round(phases.get(name, 0.0) + now - mark[0], 2)
+        mark[0] = now
+
+    lap("setup")
     for level in levels:
         col = common.get_or_make_collection(f"level_{level['id']}")
         level_collections[level["id"]] = col
@@ -852,7 +863,9 @@ def main(argv: list[str]) -> int:
                           "faces": prep["faces"], "open_rooms": prep["open_rooms"], "roof_cut": roof_cut}
             warnings.extend(openings_through_roof(building, level, wall_whole["roof_cut"]))
             warnings.extend(pieces_above_ceiling(building, level))
+        lap("setup")
         shell.build_walls(building, level, col, library, style, manifest_objects, assumed, warnings, whole=wall_whole)
+        lap("walls")
         shell.build_openings(building, level, col, library, style, pass_indices, manifest_objects, assumed, warnings)
         shell.build_skirting(building, level, col, library, style, manifest_objects, assumed)
         floor_whole = None
@@ -868,6 +881,7 @@ def main(argv: list[str]) -> int:
                                                  pass_indices, manifest_objects, assumed, style=style)
             for k, v in counts.items():
                 outside[k] += v
+        lap("openings_floors_outside")
         level_furniture = loose_furniture
         if whole and level.get("ceiling_planes"):     # decor under the roof stays inside it
             decor, fit_warnings, fit_not_built = decor_under_roof(loose_furniture, level)
@@ -877,6 +891,7 @@ def main(argv: list[str]) -> int:
         summary = furniture.create_furniture(level_furniture, level, col, library, style, args.assets, pass_indices,
                                              manifest_objects, assumed, warnings, use_proxies=args.proxies)
         add_furniture_summary(furniture_summary, summary)
+        lap("furniture")
         # Milestone 12 (docs/milestone12.md §4.6-§4.7, contract §13.3; hook owned by track S): the scene checks S1-S6
         # of this level's built furniture and decor (``summary["objects"]``: {piece or decor id: object}).
         from wenart.blender import scene_checks as SC
@@ -891,12 +906,14 @@ def main(argv: list[str]) -> int:
             furniture_summary["scene_checks_failed"] = True
             warnings.append(f"level {level['id']}: scene check S5 failed for a built decor item; see "
                             f"checks/scene_{level['id']}.json")
+        lap("scene_checks")
         # Milestone 11 (docs/milestone11.md §1.3 M2): the kitchens' tiled splashback behind the counter runs
         splash = shell.build_splashbacks(building, level, col, library, style, manifest_objects, assumed)
         furniture_summary["splashbacks"] = furniture_summary.get("splashbacks", 0) + splash
         add_furniture_summary(furniture_summary, shell.build_stairs(building, level, col, library, style, pass_indices,
                                                                     manifest_objects, assumed, warnings, plans=stairs,
                                                                     shaft=not arrives))
+        lap("splashbacks_stairs")
         plans = [p for p in cams.plan_cameras(building, level["id"], policy=args.camera_policy, lens_mm=args.lens_mm)
                  if p.get("room_id") in render_rooms]
         no_view = [r for r in cams.rooms_without_view(building, level["id"], policy=args.camera_policy)
@@ -916,6 +933,7 @@ def main(argv: list[str]) -> int:
         for plan in plans:
             if plan.get("warning"):
                 warnings.append(f"{plan['name']}: {plan['warning']}")
+        lap("cameras")
         bpy.context.view_layer.update()
         rays = shell.door_ray_checks(building, level, scene)
         checks["door_rays"].extend(rays)
@@ -927,6 +945,7 @@ def main(argv: list[str]) -> int:
             assumed.append({"object": f"level_{level['id']}", "field": "ceiling_height",
                             "value": level["ceiling_height"], "reason": "building JSON: assumed_default"})
         add_room_ids(manifest_objects, cams.opening_rooms(building, level["id"]), level["id"])
+        lap("door_rays")
 
     whole_info = None
     extra_collections = []
@@ -1019,6 +1038,7 @@ def main(argv: list[str]) -> int:
                                           "dropped": [d["name"] for d in dropped], "reason": views["exterior_reason"],
                                           "from": views["exterior_from"]}
 
+    lap("exterior")
     light_col = common.get_or_make_collection("lighting")
     if whole:
         north, north_source = S.north_deg(building)
@@ -1041,6 +1061,7 @@ def main(argv: list[str]) -> int:
     # render.py reads the mood here to pick the white-balance residual (§2.4).
     scene["wenart_mood"] = str(mood or "")
 
+    lap("lighting")
     previews = {}
     preview_maps = {}
     if not args.no_preview:
@@ -1058,8 +1079,10 @@ def main(argv: list[str]) -> int:
     scene.render.resolution_x, scene.render.resolution_y = cams.RESOLUTION
     scene.render.resolution_percentage = 100
 
+    lap("previews")
     blend = out / "scene.blend"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend), compress=True)
+    lap("save")
     files = {"blend": blend.name}
     if not args.no_glb:
         glb = out / "scene.glb"
@@ -1070,6 +1093,7 @@ def main(argv: list[str]) -> int:
             files["glb"] = glb.name
         except Exception as exc:  # noqa: BLE001 - the export must not break the build
             warnings.append(f"glTF export failed: {exc}")
+    lap("glb")
 
     manifest = {
         "schema_version": "0.1",
@@ -1117,6 +1141,7 @@ def main(argv: list[str]) -> int:
         "unverified_items": unverified_items(building),
         "agent_overrides": prep.get("overrides_applied"),
         "seconds": round(time.time() - t0, 1),
+        "phase_seconds": phases,
     }
     (out / "scene_manifest.json").write_text(json.dumps(manifest, indent=1, ensure_ascii=False), encoding="utf-8")
     kinds = {}

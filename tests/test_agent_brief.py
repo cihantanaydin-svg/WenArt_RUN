@@ -220,3 +220,23 @@ def test_complete_group_only_for_a_group_that_misses_members_with_a_verified_anc
     next(p for p in b["furniture"] if p["id"] == "f1")["status"] = "unverified"
     out = BR.room_brief(b, "r1", findings=FINDINGS, **fakes())
     assert "complete_group" not in {t for f in out["findings"]["fixable"] for t in f["tools"]}
+
+
+def test_complete_group_only_when_its_dry_run_passes():
+    """Pod P8: 0 of 13 complete_group accepted, most "no place passes the checks" (a washbasin in a full 1.6 x 2.5 m
+    bathroom). With the real tracks the brief asks a ``complete_group`` dry run; ``complete_fn`` replaces it."""
+    out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes(complete_fn=lambda b, gid: True))
+    assert next(f for f in out["findings"]["fixable"] if f["id"] == "c:G4:f2")["tools"][0] == "complete_group"
+    out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes(complete_fn=lambda b, gid: False))
+    assert "complete_group" not in {t for f in out["findings"]["fixable"] for t in f["tools"]}
+
+
+def test_the_completion_dry_run_on_a_bed_with_and_without_room_for_nightstands():
+    import _m11_room as M
+
+    bed = M.fp("b1", "bed_double", (1.02, 2.0), (1.6, 2.0), rotation=90.0, front=0.0)
+    gid = f"{M.ROOM_ID}.sleeping_double"
+    assert BR.complete_dry_run(M.building(furniture=[bed]), gid)
+    tight = M.fp("b1", "bed_double", (0.82, 1.0), (1.6, 2.0), rotation=90.0, front=0.0)
+    assert not BR.complete_dry_run(M.building(w=1.75, h=2.0, furniture=[tight]), gid)   # no side is free
+    assert not BR.complete_dry_run(M.building(furniture=[bed]), "r_nowhere.sleeping_double")

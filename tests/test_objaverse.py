@@ -1770,8 +1770,12 @@ def test_catalogue_validation_of_every_source():
 
 
 def test_catalogue_load_merges_the_library_file_with_decor(tmp_path):
+    import gzip
+
     main = tmp_path / "catalog.json"
-    shutil.copy(C.CATALOG_PATH, main)
+    # the catalogue as pod P4 found it: since P4, bed_single has Poly Haven models and is no longer parametric
+    main.write_bytes(gzip.decompress((Path(__file__).parent / "fixtures" / "m12_p4" / "catalog_pre_p4.json.gz")
+                                     .read_bytes()))
     assert C.extra_path(main) is None and C.load(main).merged == {}
     old = {"entries": [lib_entry("objaverse", "u9", "chair", (0.5, 0.5, 0.9), licence="CC0", author="a",
                                  attribution="x")]}

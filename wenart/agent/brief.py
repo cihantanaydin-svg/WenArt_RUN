@@ -494,6 +494,16 @@ def fixable_weight(fixable: list[dict], area: float) -> float:
 # The brief
 # --------------------------------------------------------------------------
 
+def complete_dry_run(building: dict, group_id: str) -> bool:
+    """True when ``complete_group`` on ``group_id`` would pass its checks now (``edit_ops.dry_run``: nothing is
+    applied, no try is counted)."""
+    from wenart.furniture import edit_ops
+
+    res = edit_ops.dry_run(building, {"op": "complete_group", "group_id": group_id, "round": 0, "log_seq": 0,
+                                      "model": "room brief", "reason": "room brief: can the group be completed?"})
+    return bool(res.get("accepted"))
+
+
 def _call(notes: list, what: str, fn: Callable, default):
     try:
         out = fn()
@@ -543,15 +553,18 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
                image_of: Optional[Callable] = None, allowed_fn: Optional[Callable] = None,
                program_fn: Optional[Callable] = None, members_fn: Optional[Callable] = None,
                group_checks_fn: Optional[Callable] = None, solver_fn: Optional[Callable] = None,
-               spans_fn: Optional[Callable] = None, k: int = 3) -> dict:
+               spans_fn: Optional[Callable] = None, complete_fn: Optional[Callable] = None, k: int = 3) -> dict:
     """The brief of ``room_id`` (module docstring). ``findings``: the round's findings of this room (code and kept
     vision); ``memory``: ``memory.Memory``; ``image_of(rank, candidate) -> image id``; the ``*_fn`` arguments
-    replace the other tracks' functions (tests)."""
+    replace the other tracks' functions (tests); ``complete_fn(building, group_id) -> bool``: can the group be
+    completed (default with the real tracks: a ``complete_group`` dry run; with stubbed tracks: not asked)."""
     from wenart.agent import topdown as TD
     room = next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
     if room is None:
         return {"error": f"no room {room_id}"}
     notes: list = []
+    if complete_fn is None and members_fn is None:
+        complete_fn = complete_dry_run
     if program_fn is None or members_fn is None or group_checks_fn is None or solver_fn is None:
         from wenart.furniture import group_checks, groups, program, solver
         program_fn = program_fn or program.room_program
@@ -604,6 +617,11 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
     # (refused: retype_piece first): only a group with missing members and a verified anchor can be completed
     completable = frozenset(g.get("group_id") for g in members if g.get("missing")
                             and (by_id.get(g.get("anchor_id")) or {}).get("status") != "unverified")
+    # pod P8: 0 of 13 complete_group accepted, most "no place passes the checks" (a washbasin in a full 1.6 x 2.5 m
+    # bathroom): a group is offered only when a dry run of the completion passes
+    if complete_fn is not None:
+        completable = frozenset(gid for gid in completable
+                                if _call(notes, f"complete {gid}", lambda gid=gid: complete_fn(building, gid), True))
     room_tools_ok["complete_group"] = bool(completable) if members else room_tools_ok["complete_group"]
     fixable, not_yours = classify(list(findings or []), building, room_id,
                                   {pid: a for pid, a in allowed.items()}, group_of, room_tools_ok,
