@@ -27,6 +27,7 @@ duplicates:
 quality:
   remove_max: 2           # vision quality <= 2: remove
   crude_keep_min: 4       # a crude or "not a real product" model stays only with quality >= 4
+  crude_keep_min_real: 3  # ... a textured real product (ABO, Poly Haven) with few faces with quality >= 3 (pod P3)
   fallback_min: 3         # the M8-M10 judges' quality (both) <= 3: remove (all accepted ones were >= 4)
 pivot_tol_m: 0.01         # origin_offset vs the bottom centre of the box
 

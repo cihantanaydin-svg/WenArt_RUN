@@ -1264,3 +1264,26 @@ What the numbers say for the design:
   65 % vs 54.5 %), and it makes valid, allowed, planned tool calls (T5 100 %).
 - The Cycles-next-to-the-server measurement was skipped (no real02 scene on a pod without the volume); the agent
   server keeps M11's 0.55 of the VRAM, measured with Cycles in M11.
+| 11 Oct | Pod P3 `0tioht9q40mrfq` (RTX PRO 6000, 30 min, $1.24) | cut: the session's runner process hit its 30-minute background limit and its cleanup stopped the pod (no collect); the vision answers stayed on the volume. Runners now start with a 2-hour limit |
+| 11 Oct | Pod P3 rerun `3wmzzr6j18u848` (RTX PRO 6000, 12 min, $0.52) | done, GPU tests 2/2: 1,066 models asked (answers of the first try reused), 306 second passes; decisions, sheets, gaps, catalogue copies. Four decision rules fixed after a look at the sheets (§14.2) |
+
+### 14.2 Pods P2 + P3: the library audit (11 Oct 2026)
+
+The pod decided keep 587 / fix 157 / remove 322 (`results/library/audit/p3/audit_pod.md`). The contact sheets showed
+four rule errors in `decide.py` (the vision answers are right, the rules read them wrongly); fixed with tests and
+decided again here from the same answers (no new pod):
+
+| Rule error | Models wrongly removed | Fix |
+|---|---|---|
+| pendant and ceiling lights drawn standing on the floor read as "upside down" | 23 | the upright question does not apply to lights hanging from their top |
+| books, candle sets, trays, bowls, baskets read as "more than one object" | ≈ 30 | not asked of decor that is a group by nature |
+| "not a clock" while the type guess is "clock" (a contradictory answer) | 25 | the type guess decides |
+| ABO / Poly Haven products with < 3,000 faces removed below quality 4 | 28 | D21: real textured products stay from quality 3 (uploads and generated models keep 4) |
+
+Result (`results/library/audit/p3/audit.md`, contact sheets per type in `contact/`): **keep 649, fix 166, remove 249**
+(2 generated models wait for a second pass and are not used). Of the 249 removals, **112 have code evidence**
+(licence 18, title 63, proportions 28, crude and low quality 14, duplicates 3; a model may have several) and **137
+rest on the vision check alone**: quality 2 (70), more than one object (49), lying on its side (8), an open part
+(7), another type (≈ 20). The sheets show many of these are fine (all 7 wall pictures removed as "more than one
+object" are single framed pictures; generated sink cabinets marked quality 2 look like the kept ones), which matches
+the bake-off: the model's look judgements are weak (T2–T4). Your decision on the 137 is open (§14.3).

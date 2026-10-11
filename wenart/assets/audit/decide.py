@@ -4,8 +4,10 @@ What: ``decide(item, checks, answer=None, answer2=None, cfg)`` -> ``{"status", "
 "flags", "notes"}``:
 
 - ``removed``: a wrong object (title, vision), outdoor, an NC / SA / ND licence, a broken mesh, proportions no real
-  piece of the type has, a model lying on its side, a duplicate, quality <= 2, a crude or not-real model below
-  quality 4, an open drawer or a part apart, a known-unit product more than 30 % off its type's real size;
+  piece of the type has, a model lying on its side (not a light hanging from its top), more than one object (not
+  books, candles, a tray, a bowl or a basket), a duplicate, quality <= 2, a crude or not-real model below quality 4
+  (a crude real product, ABO or Poly Haven, below 3), an open drawer or a part apart, a known-unit product more than
+  30 % off its type's real size;
 - ``fix``: catalogue fields only (``fixes``): ``origin_offset`` / boxes (pivot), ``front_quarter_turns`` (front),
   ``rescale`` (unit scale, size off by 15-30 % or a wrong unit guess), ``type`` (a real product filed under the wrong
   type: the title names the type, the box fits it and the vision check agrees);
@@ -38,6 +40,15 @@ DEFAULT_CONTACT = {"wall_art": "hangs", "mirror": "hangs", "clock": "hangs", "cu
                    "pendant_light": "hangs", "ceiling_light": "hangs", "throw": "drapes", "cushion": "leans"}
 CONTACTS = ("flat_bottom", "hangs", "leans", "drapes")
 FRONT_TURNS = {"front": 0, "right": 1, "back": 2, "left": 3}     # where the true front faces, seen in view 0
+# Pod P3 (11 Oct 2026, docs/milestone12.md §14.2): the sheets show every model standing on the floor, so a light that
+# hangs from its top reads as "upside down" (23 pendant and ceiling lights removed); the upright question does not
+# apply to them. Decor that is several objects by nature (a stack of books, a candle set, a tray or a bowl with things
+# on it, a filled basket) reads as "more than one object"; the single-object question does not apply to it.
+HANG_FROM_TOP = ("pendant_light", "ceiling_light")
+GROUP_DECOR = ("books", "candle", "tray", "bowl", "basket")
+# Textured real products (ABO, Poly Haven scans) are often box-like with few faces: crude only below this quality
+# (D21: quality <= 2 removes; the crude rule's quality 4 stays for uploads and generated models).
+REAL_SOURCES = ("abo", "polyhaven")
 
 
 def _by(checks: list[dict], name: str) -> list[dict]:
@@ -82,6 +93,7 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
     cfg = cfg or {}
     qc = cfg.get("quality") or {}
     remove_max, keep_min = int(qc.get("remove_max", 2)), int(qc.get("crude_keep_min", 4))
+    keep_min_real = int(qc.get("crude_keep_min_real", remove_max + 1))
     reasons: list[str] = []
     fixes: dict = {}
     pending: list[dict] = []
@@ -105,6 +117,11 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
     title = (_by(checks, "title") or [{}])[0]
     verdict = (title.get("metrics") or {}).get("verdict")
     q = answer.get("quality") if answer else None
+    if answer and answer.get("is_type") is False and answer.get("type_guess") == item["type"]:
+        # a contradictory answer ("not a clock", type guess: clock): its type guess names the type, so it is the type
+        answer = dict(answer, is_type=True)
+        notes.append(f"the vision answer says not a {item['type']} but names {item['type']} as what it is: "
+                     f"taken as a {item['type']}")
 
     # title review cases: a retype candidate, a scene word, no title evidence
     if title.get("status") == "review" and verdict == "conflict":
@@ -131,7 +148,7 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
             # textured real products (ABO, Poly Haven scans) are often box-like with few faces: expected to stay
             real = item.get("source") in ("abo", "polyhaven")
             pending.append({"needs": "vision", "why": c["reason"], "expect": "keep" if real else "remove"})
-        elif not (isinstance(q, int) and q >= keep_min):
+        elif not (isinstance(q, int) and q >= (keep_min_real if item.get("source") in REAL_SOURCES else keep_min)):
             reasons.append(f"{c['reason']}; vision quality {q}")
     if _status(checks, "outside_parts") == "review" and answer is not None and answer.get("parts_open") is None:
         notes.append(_by(checks, "outside_parts")[0]["reason"])
@@ -158,9 +175,9 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
                 reasons.append(f"the two vision passes disagree: a {item['type']} and a {answer2.get('type_guess')}")
         if answer.get("indoor") == "outdoor":
             reasons.append("the vision check says it is an outdoor piece")
-        if answer.get("single_object") is False:
+        if answer.get("single_object") is False and item["type"] not in GROUP_DECOR:
             reasons.append("the vision check sees more than one object")
-        if answer.get("upright") is False:
+        if answer.get("upright") is False and item["type"] not in HANG_FROM_TOP:
             reasons.append("the vision check sees it lying on its side or upside down")
         if answer.get("parts_open") is True:
             reasons.append("a drawer, door or lid is open, or a part floats apart")

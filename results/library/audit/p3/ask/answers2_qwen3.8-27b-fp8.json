@@ -1,0 +1,4906 @@
+{
+ "schema_version": "0.1",
+ "kind": "library_audit_answers",
+ "model_key": "agent",
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "slug": "qwen3.8-27b-fp8",
+ "incomplete": false,
+ "calls": {
+  "audit_abo_B00OGP5S98": {
+   "task": "library_audit_type",
+   "input_sha256": "8b1cc0a5bf6a8076a036d5e6ccdf8b2e7b06b8e07f039989e4330e990f08bdf3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/abo_B00OGP5S98.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.825
+  },
+  "audit_abo_B01M0ZVGCQ": {
+   "task": "library_audit_type",
+   "input_sha256": "1609fbbb8bd5c39f5b9f2c680be42b9f82162b5bfc93ed400e058d38d11a09c9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/abo_B01M0ZVGCQ.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_abo_B01N6AQX0A": {
+   "task": "library_audit_type",
+   "input_sha256": "3f4b4cd4a53942f3776dd33fb74b823339b25b31408afc51f1ca6082730f593a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/abo_B01N6AQX0A.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_abo_B07GFDZW5W": {
+   "task": "library_audit_type",
+   "input_sha256": "988e1c02271b650a6316641fc4472808e57793a426d029a180db48689a00967c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/abo_B07GFDZW5W.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.846
+  },
+  "audit_abo_B07GFW9GFX": {
+   "task": "library_audit_type",
+   "input_sha256": "9b606bd90f238da888c3b3e3e505399a8e935b77441fe587e3e573703e474d2f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/abo_B07GFW9GFX.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.897
+  },
+  "audit_abo_B07H8PQC9V": {
+   "task": "library_audit_type",
+   "input_sha256": "bd1acadc001921eaf4277aeccd455630264d7c298896d6d90ae46143cd2eaf6e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/abo_B07H8PQC9V.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.883
+  },
+  "audit_abo_B07H8V14CZ": {
+   "task": "library_audit_type",
+   "input_sha256": "2d3cfea67588c3ede08b5be846393eff76e69b5d7acb27265372e30643f9a5af",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/abo_B07H8V14CZ.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.844
+  },
+  "audit_abo_B07H8V7MQS": {
+   "task": "library_audit_type",
+   "input_sha256": "87d1ebe91068b55d1f591631d210a533b84f958b026589c34a0023ce84806213",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/abo_B07H8V7MQS.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_gen_bathtub_classic_3_f7c924e0": {
+   "task": "library_audit_type",
+   "input_sha256": "bdacd1e1681aa224281f19a9f5f62292293eaf173579311dea91c60b87619ed6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_classic_3_f7c924e0.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.82
+  },
+  "audit_gen_bathtub_industrial_1_46aaa4c2": {
+   "task": "library_audit_type",
+   "input_sha256": "04ff691e0ac4e238a6cb0eae545a72c2577d75c8d1487ba70a9ccf62ed2f9dc2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_industrial_1_46aaa4c2.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.807
+  },
+  "audit_gen_bathtub_industrial_3_154b1fde": {
+   "task": "library_audit_type",
+   "input_sha256": "08716ee4864bcde6b96ba8d1dc4be5d0a7a1c3548b564352afe3c22e27df5c2c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_industrial_3_154b1fde.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_bathtub_japandi_3_83eb18c0": {
+   "task": "library_audit_type",
+   "input_sha256": "91a6261be6b607197a634910a0ce00eaff8880ea927338ebd1021452c4418de8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_japandi_3_83eb18c0.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.837
+  },
+  "audit_gen_bathtub_mediterranean_1_11d9dbc8": {
+   "task": "library_audit_type",
+   "input_sha256": "7910e680019331bbc8c428ee91e3ee1a7ae73b01a1c50b57b19676f7b358447c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_mediterranean_1_11d9dbc8.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.825
+  },
+  "audit_gen_bathtub_minimal_1_fe9cee36": {
+   "task": "library_audit_type",
+   "input_sha256": "c79307e2a56e29c4d59f1c439498577e61c4518b590f739e61d5790fdf56521e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_minimal_1_fe9cee36.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.817
+  },
+  "audit_gen_bathtub_minimal_3_2ed3445d": {
+   "task": "library_audit_type",
+   "input_sha256": "108fc76ceb338f5b16e13a7c8335df513050ebae72b8078e42e0265d24e943be",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_minimal_3_2ed3445d.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_gen_bathtub_modern_1_009871cf": {
+   "task": "library_audit_type",
+   "input_sha256": "fc706a998f59e2fae99e62f6e22a7724a936318bf14c6e1e69dd477087d95411",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_modern_1_009871cf.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_gen_bathtub_modern_3_0f116dc4": {
+   "task": "library_audit_type",
+   "input_sha256": "6cdacee91709eff6bc5bbcea186a6959718e7b11bc6a80be853c2f741c95ed42",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_modern_3_0f116dc4.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.823
+  },
+  "audit_gen_bathtub_modern_5_e14ba0b4": {
+   "task": "library_audit_type",
+   "input_sha256": "0e49d00b6943368e2f74546a47dbfef139cb8cf186b984ce2ea58b770c3458a1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_modern_5_e14ba0b4.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.811
+  },
+  "audit_gen_bathtub_modern_minimal_1_1a44f6ff": {
+   "task": "library_audit_type",
+   "input_sha256": "4742024c846eef2c929ce289c748ab69472d83028702427b392b3c8be351ccca",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_modern_minimal_1_1a44f6ff.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_bathtub_modern_minimal_2_927c5b3c": {
+   "task": "library_audit_type",
+   "input_sha256": "6294d3d49c34b9c74a0762d14043cc939a446e35c858ec54531ce9ac285e6e37",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_modern_minimal_2_927c5b3c.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_gen_bathtub_modern_minimal_3_5f405b34": {
+   "task": "library_audit_type",
+   "input_sha256": "e855cab4030711e11e082c12a4d8def5bb36a26628af52f6c1c0d4f26c821a06",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_modern_minimal_3_5f405b34.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.834
+  },
+  "audit_gen_bathtub_modern_minimal_5_29a3d1b9": {
+   "task": "library_audit_type",
+   "input_sha256": "ddcf3bbe0f27db1c966f21d2799a4b6942f0824426e83c98dfb658ddecb22e07",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_modern_minimal_5_29a3d1b9.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.82
+  },
+  "audit_gen_bathtub_scandinavian_1_230fe403": {
+   "task": "library_audit_type",
+   "input_sha256": "a3f64b18f36fe0daf21688ac26e49988778fad13ecbe6f501fe57351c158ed5e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_scandinavian_1_230fe403.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.843
+  },
+  "audit_gen_bathtub_scandinavian_2_6fde34a5": {
+   "task": "library_audit_type",
+   "input_sha256": "d09f70bd5361c1688ee8bbff5a94263c0b58d2965a2a07dbf9b6e2f9d3804b8e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_scandinavian_2_6fde34a5.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.854
+  },
+  "audit_gen_bathtub_scandinavian_4_a6fdd251": {
+   "task": "library_audit_type",
+   "input_sha256": "5623aa4669fa30ba4a576e1383ccf0b55cea5280df27a273c216210e339b6663",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_scandinavian_4_a6fdd251.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_gen_bathtub_scandinavian_6_c1f08777": {
+   "task": "library_audit_type",
+   "input_sha256": "c2444addc612ca22e1248633505f3eedb900d785add3239357c1aad8a865572b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_scandinavian_6_c1f08777.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.834
+  },
+  "audit_gen_bathtub_scandinavian_7_da9e6172": {
+   "task": "library_audit_type",
+   "input_sha256": "a27fd6fa3898352b28e4ee589407e23f581cda95d53e0cd430f64db5371a22f6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/gen_bathtub_scandinavian_7_da9e6172.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_bed_single_classic_1_dbac0f10": {
+   "task": "library_audit_type",
+   "input_sha256": "e064d1b882a7d37938a52460cfc87a6ccb1ce1e72f460236b4e5eea9b907b5ba",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_classic_1_dbac0f10.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.862
+  },
+  "audit_gen_bed_single_industrial_1_9f087076": {
+   "task": "library_audit_type",
+   "input_sha256": "46e793455a17c3b70511f863e6ae46f567ec3241ef1956ece4943f53ddcc0c46",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_industrial_1_9f087076.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.863
+  },
+  "audit_gen_bed_single_mediterranean_1_c9d313b4": {
+   "task": "library_audit_type",
+   "input_sha256": "06c76f6040a38aab6b538862072bf424046d3d1d86fd1269798774df8c9eabfb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_mediterranean_1_c9d313b4.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.851
+  },
+  "audit_gen_bed_single_mediterranean_2_8f745c9f": {
+   "task": "library_audit_type",
+   "input_sha256": "8fba3f4016daa7faf767d25d663d172023be146a915a75f8458a684d30de8d77",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_mediterranean_2_8f745c9f.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.867
+  },
+  "audit_gen_bed_single_minimal_1_738c07ed": {
+   "task": "library_audit_type",
+   "input_sha256": "555946adac30153abc770d2c95a47cf728c59bae451c2b16a7858842aa3d3b11",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_minimal_1_738c07ed.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.867
+  },
+  "audit_gen_bed_single_modern_1_cb4f07bd": {
+   "task": "library_audit_type",
+   "input_sha256": "6b442b4ca427634117073377563ca527fd075673012ab87bbd5092c1f964f490",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_modern_1_cb4f07bd.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.844
+  },
+  "audit_gen_bed_single_rustic_1_db9b30c6": {
+   "task": "library_audit_type",
+   "input_sha256": "3f136f9ae22a0808e7234c13397d155c793966fc2263878b4d10fdaa4b3b657a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_rustic_1_db9b30c6.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.842
+  },
+  "audit_gen_bed_single_rustic_3_20248be5": {
+   "task": "library_audit_type",
+   "input_sha256": "7983f4f277282117d0c11e35315a614622ee7c6fe0c9d78223d2a8a6b91d2684",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_rustic_3_20248be5.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_gen_bed_single_scandinavian_1_8060783a": {
+   "task": "library_audit_type",
+   "input_sha256": "830341cb1989306feeb8143db6640e3ab6f258e457a159ae366535fe331f2365",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/gen_bed_single_scandinavian_1_8060783a.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.835
+  },
+  "audit_gen_blind_industrial_4_d38b2c66": {
+   "task": "library_audit_type",
+   "input_sha256": "98b411fe2cfa851d6098bd76258cca855a3d65215ca5e4a4618cb0e68bb6c8a4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_industrial_4_d38b2c66.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.781
+  },
+  "audit_gen_blind_japandi_1_868561f3": {
+   "task": "library_audit_type",
+   "input_sha256": "f674e14dd844cf8bb3040bed43dd9c14cc3ac784bc11c1b6eb70b2bf5e7b7469",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_japandi_1_868561f3.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.773
+  },
+  "audit_gen_blind_japandi_5_1ba5318e": {
+   "task": "library_audit_type",
+   "input_sha256": "43b47eac5c43b99701af6c844af743d11a52cc41b2dcb631aedf6629da9e97b7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_japandi_5_1ba5318e.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.755
+  },
+  "audit_gen_blind_mediterranean_4_a6f5003b": {
+   "task": "library_audit_type",
+   "input_sha256": "c74ecb80abc2032cd56d0dc3c296e3972fb2187ee2c2b75f4a4a2b4590f66135",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_mediterranean_4_a6f5003b.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.77
+  },
+  "audit_gen_blind_minimal_4_343b5f93": {
+   "task": "library_audit_type",
+   "input_sha256": "cd49357ef47db7ca2d9947883af463fea540b4b67a684c7c0a989a272717fa02",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_minimal_4_343b5f93.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.767
+  },
+  "audit_gen_blind_modern_4_e018681c": {
+   "task": "library_audit_type",
+   "input_sha256": "ae5c119f09edef1724a2c551559870ef8c739e1ad5b5db95056ed70a98671604",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_modern_4_e018681c.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.772
+  },
+  "audit_gen_blind_modern_minimal_4_ff409718": {
+   "task": "library_audit_type",
+   "input_sha256": "5f6c5cddf89178bb24506e6463b330d9af0338abd450660b1d61da83a39835ce",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_modern_minimal_4_ff409718.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.759
+  },
+  "audit_gen_blind_scandinavian_5_212df6a6": {
+   "task": "library_audit_type",
+   "input_sha256": "7c3bc12ec5068f71052ca2571799fbb1ae3a5c4550dd00085ed3e5184a495b0c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/gen_blind_scandinavian_5_212df6a6.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.745
+  },
+  "audit_gen_books_classic_3_3223f281": {
+   "task": "library_audit_type",
+   "input_sha256": "a93304f8a993f74f6b3f0c9a94d7644d40b2a1d6f612b7d474ac96324972f1de",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_classic_3_3223f281.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.733
+  },
+  "audit_gen_books_industrial_1_e00c8743": {
+   "task": "library_audit_type",
+   "input_sha256": "dfac4bd6c6ea933e6ca8014052974744f0fe154915b255cc450a35be9864f0ff",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_industrial_1_e00c8743.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.77
+  },
+  "audit_gen_books_industrial_3_fef33ab7": {
+   "task": "library_audit_type",
+   "input_sha256": "764bd708bec93d5e2a358a0ce918caed4cad5803dc241286775bbe0075d3dff8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_industrial_3_fef33ab7.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.776
+  },
+  "audit_gen_books_japandi_2_61ebd4b5": {
+   "task": "library_audit_type",
+   "input_sha256": "1c82b4f13d3294647f2bfe105afe1b9cd66ebb6fe21d1ff853533e2f1d7c4736",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_japandi_2_61ebd4b5.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.747
+  },
+  "audit_gen_books_mediterranean_1_a40f12bd": {
+   "task": "library_audit_type",
+   "input_sha256": "32820a678811f42c579adc8ac8512b3435156b65ea427f4c604ea71d67952226",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_mediterranean_1_a40f12bd.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.735
+  },
+  "audit_gen_books_mediterranean_3_40fb4e04": {
+   "task": "library_audit_type",
+   "input_sha256": "1b66d456726fac58bd4b777c75bcbaae8c275fc5c86d5cc61374ae6cb9782404",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_mediterranean_3_40fb4e04.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.769
+  },
+  "audit_gen_books_modern_minimal_2_76b4e632": {
+   "task": "library_audit_type",
+   "input_sha256": "ca87a3261a8a614d91166bb283bc2077328561280357541d94a2723268960b1a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_modern_minimal_2_76b4e632.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.784
+  },
+  "audit_gen_books_rustic_3_0316f1d7": {
+   "task": "library_audit_type",
+   "input_sha256": "492db728e3a28c85ad08988162cf061bd63519b5c74cde20959f685f4e1a316c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/gen_books_rustic_3_0316f1d7.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.753
+  },
+  "audit_gen_bowl_industrial_1_8fc4b9a1": {
+   "task": "library_audit_type",
+   "input_sha256": "6ed7a9894ae026f4a3c305a13bc1d71d80c2c371bf5ea6a428ac86fa195ab442",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_industrial_1_8fc4b9a1.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.294
+  },
+  "audit_gen_bowl_industrial_4_0af12e89": {
+   "task": "library_audit_type",
+   "input_sha256": "8d59d632cb703859d25a7287d228623d22a2536ddcebca870736be5091dedff0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_industrial_4_0af12e89.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.295
+  },
+  "audit_gen_bowl_japandi_1_6596ba4b": {
+   "task": "library_audit_type",
+   "input_sha256": "2e1296b3da91ef4a985729fd896d69be7fc2b82dc40a07744dc9b4c64b0baaf0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_japandi_1_6596ba4b.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  },
+  "audit_gen_bowl_japandi_5_f9ac0f6a": {
+   "task": "library_audit_type",
+   "input_sha256": "4fa765e8b451cdc85823d8e13b1867cab602256ffa7a51329c9d96fce2fa6940",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_japandi_5_f9ac0f6a.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.792
+  },
+  "audit_gen_bowl_mediterranean_1_80ad0595": {
+   "task": "library_audit_type",
+   "input_sha256": "f807b2fecba40fad0efd7744acb9b296230bd78d8c4d4bfebdc8079b8c7d1e50",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_mediterranean_1_80ad0595.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.768
+  },
+  "audit_gen_bowl_mediterranean_4_014f7e0c": {
+   "task": "library_audit_type",
+   "input_sha256": "69b2be254f91d58c6a59a339dc5c82104a5ab8fd8b2bc732ed6ff0275ff73a7d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_mediterranean_4_014f7e0c.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.751
+  },
+  "audit_gen_bowl_mediterranean_5_89d14d2a": {
+   "task": "library_audit_type",
+   "input_sha256": "0019553d40126a36e32d21be63018db1e3c29e91f1f7841961830828102d7567",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_mediterranean_5_89d14d2a.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.807
+  },
+  "audit_gen_bowl_minimal_1_58d9a7aa": {
+   "task": "library_audit_type",
+   "input_sha256": "55c894c81d92b30e781ed8492a85023758e8a77458e8b0ec4123239df6997516",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_minimal_1_58d9a7aa.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.818
+  },
+  "audit_gen_bowl_minimal_4_af49933c": {
+   "task": "library_audit_type",
+   "input_sha256": "a2287312d051ea861830d259eba7575e5ba6aca52c122c1ca8712a4adab82e76",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_minimal_4_af49933c.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.784
+  },
+  "audit_gen_bowl_modern_1_c5302d78": {
+   "task": "library_audit_type",
+   "input_sha256": "a4f02c3314c5a35edb149db49080d588d56d7ed10c79cf5ddddf72f5e2f96db0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_modern_1_c5302d78.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.788
+  },
+  "audit_gen_bowl_modern_4_c75b3b47": {
+   "task": "library_audit_type",
+   "input_sha256": "7173a18bc6b29d310c630b94fbf4c01ad30d425493a13302a805a4f026a02b77",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_modern_4_c75b3b47.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_gen_bowl_modern_minimal_1_8e554715": {
+   "task": "library_audit_type",
+   "input_sha256": "057035f5c91701e411d0edce1ca8c21e0e84ea572821867f504bb2bbc24c9704",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_modern_minimal_1_8e554715.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  },
+  "audit_gen_bowl_modern_minimal_4_e4ace234": {
+   "task": "library_audit_type",
+   "input_sha256": "cde9e4d9b3ee8f3927d2941fd859feb19bb1ebb56b0786454ab0667048e272dc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_modern_minimal_4_e4ace234.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.78
+  },
+  "audit_gen_bowl_rustic_1_4d403b64": {
+   "task": "library_audit_type",
+   "input_sha256": "ab09cc327213bbc63c9f81819737ec0d041e56d0043ac81cff90375900945702",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_rustic_1_4d403b64.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.764
+  },
+  "audit_gen_bowl_scandinavian_1_ca5c9c50": {
+   "task": "library_audit_type",
+   "input_sha256": "e823f67bd604ca6f7c2fddf28b53b1a47c5a00432032193b571da66844d89487",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_scandinavian_1_ca5c9c50.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.791
+  },
+  "audit_gen_bowl_scandinavian_2_10f5db00": {
+   "task": "library_audit_type",
+   "input_sha256": "7e4da24d5c51aa090dacc7ca5daae89cbef387064745b4a327bb7e2440ce0bdf",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_scandinavian_2_10f5db00.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_gen_bowl_scandinavian_5_d2b9b4a7": {
+   "task": "library_audit_type",
+   "input_sha256": "49a9e5558f95c4d74c5326bcbd68058641e7aaffefb5c8ccba1dc4b4e3e0cfe8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/gen_bowl_scandinavian_5_d2b9b4a7.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.784
+  },
+  "audit_gen_bunk_bed_industrial_4_a364b7d0": {
+   "task": "library_audit_type",
+   "input_sha256": "cd1596e26ea00adf5bf0ded234c764b6c102fd755be6b78d4d25329f1b72dad2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/gen_bunk_bed_industrial_4_a364b7d0.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.813
+  },
+  "audit_gen_bunk_bed_mediterranean_1_d9f8e70f": {
+   "task": "library_audit_type",
+   "input_sha256": "548e6e01cf509a46a8a148e2324d3ade398bef87da6344a5b2595889e1fe1fb1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/gen_bunk_bed_mediterranean_1_d9f8e70f.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.819
+  },
+  "audit_gen_bunk_bed_mediterranean_4_b3b0eca5": {
+   "task": "library_audit_type",
+   "input_sha256": "2b2379276a148a6a0b8455486051f2acecbf46ad0dcc5d3a7bcb330bd3fa0aad",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/gen_bunk_bed_mediterranean_4_b3b0eca5.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.852
+  },
+  "audit_gen_bunk_bed_minimal_3_209e481a": {
+   "task": "library_audit_type",
+   "input_sha256": "807b3c2c832fb8862adc0e33fcc6848692390c3eeafed7b2a313e161d8650c7c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/gen_bunk_bed_minimal_3_209e481a.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.873
+  },
+  "audit_gen_bunk_bed_modern_minimal_3_d55e3538": {
+   "task": "library_audit_type",
+   "input_sha256": "4ae5f1f1bf876b13889ce634e01f7ec7c7d3407ee2d4ab74e9e6a1ef6220266e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/gen_bunk_bed_modern_minimal_3_d55e3538.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.851
+  },
+  "audit_gen_bunk_bed_rustic_4_c03d21d4": {
+   "task": "library_audit_type",
+   "input_sha256": "bacb0de61f8162575460da1ab42a746189c032b2da9bdb09afb96a67f8c50d43",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/gen_bunk_bed_rustic_4_c03d21d4.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.828
+  },
+  "audit_gen_chaise_industrial_4_77836ff4": {
+   "task": "library_audit_type",
+   "input_sha256": "a48f5906ea832299e5f681e7b6b8ee7c11be08eca62b176d8c1bc501e5f0bd0b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chaise/gen_chaise_industrial_4_77836ff4.jpg"
+   ],
+   "data": {
+    "type_guess": "chaise"
+   },
+   "raw_text": "{\"type_guess\": \"chaise\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.792
+  },
+  "audit_gen_chaise_japandi_1_542da328": {
+   "task": "library_audit_type",
+   "input_sha256": "3f0fc05a91ff592b7966a83ee6d11422a7717d9c86da796881860416864667c1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chaise/gen_chaise_japandi_1_542da328.jpg"
+   ],
+   "data": {
+    "type_guess": "chaise"
+   },
+   "raw_text": "{\"type_guess\": \"chaise\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.798
+  },
+  "audit_gen_chaise_japandi_4_d279126b": {
+   "task": "library_audit_type",
+   "input_sha256": "671c6b9c46894fa0650cf40f021ab2808a84dc80a8f554dae3547e2b690070ad",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chaise/gen_chaise_japandi_4_d279126b.jpg"
+   ],
+   "data": {
+    "type_guess": "chaise"
+   },
+   "raw_text": "{\"type_guess\": \"chaise\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.844
+  },
+  "audit_gen_chaise_minimal_3_f934a44d": {
+   "task": "library_audit_type",
+   "input_sha256": "97103dde0c52bec13851af5804f3968f1f2b00f8c52c5fa4b7cc9fd2a6d748ea",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chaise/gen_chaise_minimal_3_f934a44d.jpg"
+   ],
+   "data": {
+    "type_guess": "chaise"
+   },
+   "raw_text": "{\"type_guess\": \"chaise\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.849
+  },
+  "audit_gen_chaise_scandinavian_4_c69c1983": {
+   "task": "library_audit_type",
+   "input_sha256": "fb4363b9b14b1b48ab0bcab1674cf9481265b8cca435b9110a9b3779e0dab914",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chaise/gen_chaise_scandinavian_4_c69c1983.jpg"
+   ],
+   "data": {
+    "type_guess": "chaise"
+   },
+   "raw_text": "{\"type_guess\": \"chaise\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.831
+  },
+  "audit_gen_console_table_classic_1_3039559c": {
+   "task": "library_audit_type",
+   "input_sha256": "16fa24ced9e27eb9de43e1ba270e858e8643ba1be1bb1d6205fbe23d816f26f2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/console_table/gen_console_table_classic_1_3039559c.jpg"
+   ],
+   "data": {
+    "type_guess": "console_table"
+   },
+   "raw_text": "{\"type_guess\": \"console_table\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.817
+  },
+  "audit_gen_console_table_classic_2_781fd7f9": {
+   "task": "library_audit_type",
+   "input_sha256": "99ee28a84292f4202459a8cf2915e9e3a13584e5f33cb92d2ac4e93583958878",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/console_table/gen_console_table_classic_2_781fd7f9.jpg"
+   ],
+   "data": {
+    "type_guess": "console_table"
+   },
+   "raw_text": "{\"type_guess\": \"console_table\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.844
+  },
+  "audit_gen_console_table_industrial_2_b39850f8": {
+   "task": "library_audit_type",
+   "input_sha256": "7383f247f5d5089971db3663961fd98205c8b147a3689ffa0ca09f2acc967ce5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/console_table/gen_console_table_industrial_2_b39850f8.jpg"
+   ],
+   "data": {
+    "type_guess": "console_table"
+   },
+   "raw_text": "{\"type_guess\": \"console_table\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_console_table_mediterranean_2_d2049e0b": {
+   "task": "library_audit_type",
+   "input_sha256": "921fb5a4942c54e8719c67dde193dcc3f69ac7e63698049c3866af6e51843d99",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/console_table/gen_console_table_mediterranean_2_d2049e0b.jpg"
+   ],
+   "data": {
+    "type_guess": "console_table"
+   },
+   "raw_text": "{\"type_guess\": \"console_table\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.826
+  },
+  "audit_gen_console_table_scandinavian_2_a05f3e24": {
+   "task": "library_audit_type",
+   "input_sha256": "ffb7f1c27d0dcc11771c1f557deed721e7eac90014b62e792cab58599806d54e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/console_table/gen_console_table_scandinavian_2_a05f3e24.jpg"
+   ],
+   "data": {
+    "type_guess": "console_table"
+   },
+   "raw_text": "{\"type_guess\": \"console_table\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.816
+  },
+  "audit_gen_crib_classic_4_d4e08139": {
+   "task": "library_audit_type",
+   "input_sha256": "c787ba2ef38391b890a048c275b72c26abea4870a0e08ce3e1239d58ee6193a6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/crib/gen_crib_classic_4_d4e08139.jpg"
+   ],
+   "data": {
+    "type_guess": "crib"
+   },
+   "raw_text": "{\"type_guess\": \"crib\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_gen_crib_japandi_4_f1163671": {
+   "task": "library_audit_type",
+   "input_sha256": "c637edfd68d3b37faba48b3006831ae9b02917b690b63906da48619802d6b439",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/crib/gen_crib_japandi_4_f1163671.jpg"
+   ],
+   "data": {
+    "type_guess": "crib"
+   },
+   "raw_text": "{\"type_guess\": \"crib\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.849
+  },
+  "audit_gen_crib_mediterranean_4_d3d32233": {
+   "task": "library_audit_type",
+   "input_sha256": "2c7de06a8c53a08eed15e743d361a7c5cb3627790b299a2cbcbac22f2285a141",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/crib/gen_crib_mediterranean_4_d3d32233.jpg"
+   ],
+   "data": {
+    "type_guess": "crib"
+   },
+   "raw_text": "{\"type_guess\": \"crib\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_gen_crib_modern_4_75ca50fe": {
+   "task": "library_audit_type",
+   "input_sha256": "b4c11201860200083e0bdb339354829ec3523efcec392a501bc03c3deb5e18fa",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/crib/gen_crib_modern_4_75ca50fe.jpg"
+   ],
+   "data": {
+    "type_guess": "crib"
+   },
+   "raw_text": "{\"type_guess\": \"crib\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.825
+  },
+  "audit_gen_crib_modern_minimal_1_ddd7d0c3": {
+   "task": "library_audit_type",
+   "input_sha256": "48a1d9481a9923c34819d77d0d2e0ed05434514de24987c05c41eb1340e40325",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/crib/gen_crib_modern_minimal_1_ddd7d0c3.jpg"
+   ],
+   "data": {
+    "type_guess": "crib"
+   },
+   "raw_text": "{\"type_guess\": \"crib\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.824
+  },
+  "audit_gen_crib_modern_minimal_4_13c42be0": {
+   "task": "library_audit_type",
+   "input_sha256": "c7f361f6b8289d80421277b062bb1332cc392a909498f1158f71b008b308e4c0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/crib/gen_crib_modern_minimal_4_13c42be0.jpg"
+   ],
+   "data": {
+    "type_guess": "crib"
+   },
+   "raw_text": "{\"type_guess\": \"crib\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.827
+  },
+  "audit_gen_curtain_classic_2_abb8eff3": {
+   "task": "library_audit_type",
+   "input_sha256": "26b5b3c3fb910a23b435001a6a3cd02d21fc28d65a76576564ba574f3c1f2740",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/gen_curtain_classic_2_abb8eff3.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.773
+  },
+  "audit_gen_curtain_industrial_1_23f0856b": {
+   "task": "library_audit_type",
+   "input_sha256": "7e4febfa234b66c7513bbc9110ea6d4ddfc5a3f20d786fa575af9ec70402a070",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/gen_curtain_industrial_1_23f0856b.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.795
+  },
+  "audit_gen_curtain_mediterranean_1_55dc3d88": {
+   "task": "library_audit_type",
+   "input_sha256": "83d4752e97f5b5a94d213c43b5d2e6e1fde774c2ae24a7187675ad26bf3661f2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/gen_curtain_mediterranean_1_55dc3d88.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.792
+  },
+  "audit_gen_curtain_mediterranean_2_0c50d539": {
+   "task": "library_audit_type",
+   "input_sha256": "ee71a9918dd131519aaa3d5a8f83591d30545dd270282fe6f48306e618006dd2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/gen_curtain_mediterranean_2_0c50d539.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_gen_curtain_modern_minimal_2_235eed17": {
+   "task": "library_audit_type",
+   "input_sha256": "ca10f72b249ad2c17813a89ee8b229ce10f553e835989384807c27e3149f1f29",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/gen_curtain_modern_minimal_2_235eed17.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.755
+  },
+  "audit_gen_curtain_rustic_2_f1cb2022": {
+   "task": "library_audit_type",
+   "input_sha256": "e819e41fb69a93035adf68c113dfdb74d63ec6b4aea9f25880351920068366d5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/gen_curtain_rustic_2_f1cb2022.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.795
+  },
+  "audit_gen_curtain_scandinavian_2_8e241991": {
+   "task": "library_audit_type",
+   "input_sha256": "5554a5ed85fb9963338d84bf86ed3125dec09768fb49f4d5349717548916721e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/gen_curtain_scandinavian_2_8e241991.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.807
+  },
+  "audit_gen_display_cabinet_classic_4_4ee0e3d6": {
+   "task": "library_audit_type",
+   "input_sha256": "116c00e4543a0c1b99205a271731a601e79ca07467eafcc55352fdeb517c138f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/display_cabinet/gen_display_cabinet_classic_4_4ee0e3d6.jpg"
+   ],
+   "data": {
+    "type_guess": "display_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"display_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.827
+  },
+  "audit_gen_display_cabinet_industrial_4_be8f656e": {
+   "task": "library_audit_type",
+   "input_sha256": "2bd489e3af91d6da177845264eb647872eff5e620cdd961110767b0ed7a7b04b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/display_cabinet/gen_display_cabinet_industrial_4_be8f656e.jpg"
+   ],
+   "data": {
+    "type_guess": "display_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"display_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_display_cabinet_japandi_1_211fbef4": {
+   "task": "library_audit_type",
+   "input_sha256": "77b7c621bcd95d965cf33aee23b526a12da360a6be7204a94e22e8fb653a55e9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/display_cabinet/gen_display_cabinet_japandi_1_211fbef4.jpg"
+   ],
+   "data": {
+    "type_guess": "display_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"display_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.867
+  },
+  "audit_gen_display_cabinet_rustic_4_dddd4a3b": {
+   "task": "library_audit_type",
+   "input_sha256": "6a7bbd370e88b6e7ee8521bde2389599b8549d8df83772c40eecab8d83f61889",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/display_cabinet/gen_display_cabinet_rustic_4_dddd4a3b.jpg"
+   ],
+   "data": {
+    "type_guess": "display_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"display_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.878
+  },
+  "audit_gen_display_cabinet_scandinavian_1_e7525a8d": {
+   "task": "library_audit_type",
+   "input_sha256": "bf12dc7924b6b636be7a0ecf7a4a68e4819d3e875ad174011ce801d0ec3fabc2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/display_cabinet/gen_display_cabinet_scandinavian_1_e7525a8d.jpg"
+   ],
+   "data": {
+    "type_guess": "display_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"display_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_gen_display_cabinet_scandinavian_5_4b2b7b6d": {
+   "task": "library_audit_type",
+   "input_sha256": "48472ca052911c68cd757bc105144e9bee8dc37563cff1b798fca1583d8b5ec6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/display_cabinet/gen_display_cabinet_scandinavian_5_4b2b7b6d.jpg"
+   ],
+   "data": {
+    "type_guess": "display_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"display_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.856
+  },
+  "audit_gen_fridge_classic_3_25281fe9": {
+   "task": "library_audit_type",
+   "input_sha256": "52e71d56db30a56d50c3c89e16ec68cb6969f00b2cfe3953d2a65f658c93234b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_classic_3_25281fe9.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.827
+  },
+  "audit_gen_fridge_industrial_1_03996e16": {
+   "task": "library_audit_type",
+   "input_sha256": "db82d01888ef37c0f6ec8501e2f92fb44cf27d8b326a1773ae4296605793161d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_industrial_1_03996e16.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.829
+  },
+  "audit_gen_fridge_industrial_3_029d56da": {
+   "task": "library_audit_type",
+   "input_sha256": "f42f0ce676217ee6b33e4456aabbe1616c2bf61e412a01370254af1847f90a5f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_industrial_3_029d56da.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.827
+  },
+  "audit_gen_fridge_japandi_1_4c9cd582": {
+   "task": "library_audit_type",
+   "input_sha256": "e6ba32d6dd209a12f5683239b88ba4e743d16d666cda8307b6954b668f06fc77",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_japandi_1_4c9cd582.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.818
+  },
+  "audit_gen_fridge_japandi_2_4c7dbc82": {
+   "task": "library_audit_type",
+   "input_sha256": "6f076dfb2214f11b64a7b2d6066b389133972b71e9b2fb1db8019519740b0337",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_japandi_2_4c7dbc82.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.827
+  },
+  "audit_gen_fridge_japandi_3_38a9d0f8": {
+   "task": "library_audit_type",
+   "input_sha256": "aec668939d5983bc8ec73e9a1845ca8a3f03cbfa1f22276ad1740c70cf29a23e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_japandi_3_38a9d0f8.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.819
+  },
+  "audit_gen_fridge_japandi_6_60928003": {
+   "task": "library_audit_type",
+   "input_sha256": "cea055bf712dae24b9830fa88fb4956033e47a35f60105779b3aebadb10a47d5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_japandi_6_60928003.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.81
+  },
+  "audit_gen_fridge_mediterranean_1_1460e264": {
+   "task": "library_audit_type",
+   "input_sha256": "cb11a0271c1b743e46e9165a300a16f2653fb3cc0a010d5e4f97034dfe2e1dd6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_mediterranean_1_1460e264.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_gen_fridge_mediterranean_3_e70ec886": {
+   "task": "library_audit_type",
+   "input_sha256": "667104798e8579f7a24605d782304a7f77f1603499bc7508d15f7e2ba1d997e3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_mediterranean_3_e70ec886.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.811
+  },
+  "audit_gen_fridge_modern_minimal_1_c27ed7d7": {
+   "task": "library_audit_type",
+   "input_sha256": "c78085e6bbebcf2106cf5dba6e193f4e223f8ce234058a1a5d42a091cd6b02cd",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_modern_minimal_1_c27ed7d7.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_fridge_modern_minimal_3_bcd54859": {
+   "task": "library_audit_type",
+   "input_sha256": "02731eee9ffad15c7db08bc24f3f4a6cb8a5dac493141b207d09827c3ca55bb4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_modern_minimal_3_bcd54859.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_gen_fridge_rustic_1_06be6df4": {
+   "task": "library_audit_type",
+   "input_sha256": "d30f6c20b0c390746b36261a19d6f828ab46fab2993c5a4b6f54a9f23671179c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_rustic_1_06be6df4.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.824
+  },
+  "audit_gen_fridge_scandinavian_1_315b4d87": {
+   "task": "library_audit_type",
+   "input_sha256": "5f67745a8bc815d2c6c49e05314f696d8d626afcf0d9a36b82d5545a13f511db",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_scandinavian_1_315b4d87.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.812
+  },
+  "audit_gen_fridge_scandinavian_6_87b23e5c": {
+   "task": "library_audit_type",
+   "input_sha256": "7d82dfa87707444edf5329bd72e6bbba35b81de7369db058d907481455c3897e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/gen_fridge_scandinavian_6_87b23e5c.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_plant_large_industrial_4_8cd58cf0": {
+   "task": "library_audit_type",
+   "input_sha256": "1320091e8eb8c42e67e88aeac469cadf2d38015858f3d5c9e1e3601933b476db",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_industrial_4_8cd58cf0.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.797
+  },
+  "audit_gen_plant_large_japandi_1_07ff34b0": {
+   "task": "library_audit_type",
+   "input_sha256": "69deac4f30a6530f63860c67ec102802260dc70be29ae6c74cf64ae8fedb4ac8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_japandi_1_07ff34b0.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.785
+  },
+  "audit_gen_plant_large_japandi_5_92708e0b": {
+   "task": "library_audit_type",
+   "input_sha256": "904723fcde59e6a716940131cf1f6851dc1d76b441b5f4937c73c0da4c4bad1f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_japandi_5_92708e0b.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_gen_plant_large_mediterranean_4_b7e80c9d": {
+   "task": "library_audit_type",
+   "input_sha256": "91039c459fdbd1947f3de275508642c7952cd70d6e148f817a5276fa39ae74bc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_mediterranean_4_b7e80c9d.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.808
+  },
+  "audit_gen_plant_large_minimal_4_71886746": {
+   "task": "library_audit_type",
+   "input_sha256": "a60cb82b6d30b61476686413206ae22c97014aa5e4087aa2cdfa918f638747c9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_minimal_4_71886746.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.792
+  },
+  "audit_gen_plant_large_modern_4_2b0c9146": {
+   "task": "library_audit_type",
+   "input_sha256": "b3fb58803e241a2ec5b8d64b8950dd8bc0474fe3061de4cc028360387bbe6674",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_modern_4_2b0c9146.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.781
+  },
+  "audit_gen_plant_large_modern_minimal_1_06ccb749": {
+   "task": "library_audit_type",
+   "input_sha256": "6a98ea5e62da757faf3c4519bcba731efad6cebcf53f47ea169848ee4d7be24e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_modern_minimal_1_06ccb749.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_gen_plant_large_modern_minimal_4_00c38373": {
+   "task": "library_audit_type",
+   "input_sha256": "18b1fcd0d994418aae36e189a3421d9cc2b32ae21723dba7ec04effd3a2584b3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_modern_minimal_4_00c38373.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.792
+  },
+  "audit_gen_plant_large_scandinavian_1_2265e7c5": {
+   "task": "library_audit_type",
+   "input_sha256": "f92365458bcfef56fa42717ef9837291080080ff4e11f2360340afa487d71e80",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_scandinavian_1_2265e7c5.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.774
+  },
+  "audit_gen_plant_large_scandinavian_5_c7cc94ed": {
+   "task": "library_audit_type",
+   "input_sha256": "a28c27a691194257756dd4b21e2c0fd6006f35c9a4d14d86b67bdb2e8a7362fe",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_large/gen_plant_large_scandinavian_5_c7cc94ed.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_large"
+   },
+   "raw_text": "{\"type_guess\": \"plant_large\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.76
+  },
+  "audit_gen_plant_small_classic_1_08e9f778": {
+   "task": "library_audit_type",
+   "input_sha256": "5c76c6660003e2eb388da280485266208c56696169d5fe68b6b19d2f7d179d1b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_classic_1_08e9f778.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.764
+  },
+  "audit_gen_plant_small_classic_4_53050a52": {
+   "task": "library_audit_type",
+   "input_sha256": "0d7d47bbfe3b292038ed54a422af028054b7abb32715c0c57684da8d65b9286a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_classic_4_53050a52.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  },
+  "audit_gen_plant_small_industrial_1_94d74431": {
+   "task": "library_audit_type",
+   "input_sha256": "44441700373882cdafe9acc3bbcebbf7496a095fe25384dcfaaa09cd46d60ba0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_industrial_1_94d74431.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.791
+  },
+  "audit_gen_plant_small_industrial_4_26598070": {
+   "task": "library_audit_type",
+   "input_sha256": "add4100e72124b3b31b2ce0548f7303daad398b58471ab312e4e0095a6316965",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_industrial_4_26598070.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.769
+  },
+  "audit_gen_plant_small_industrial_5_effc724b": {
+   "task": "library_audit_type",
+   "input_sha256": "f77ab59ccb1ea0e69b9a747c9a80a622f0977a134decb021d3cfa75140cc089a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_industrial_5_effc724b.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.762
+  },
+  "audit_gen_plant_small_japandi_1_32d3b9fb": {
+   "task": "library_audit_type",
+   "input_sha256": "2fdf10968633b9c59fdcd085a5bd3b24a908c8dd055351539657dd14d0ad0a14",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_japandi_1_32d3b9fb.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.789
+  },
+  "audit_gen_plant_small_japandi_5_cabc98bd": {
+   "task": "library_audit_type",
+   "input_sha256": "81c216b26f8bff812a242c2c01c16eb40c21aea50d8d0ef59011936ab1a85626",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_japandi_5_cabc98bd.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.76
+  },
+  "audit_gen_plant_small_mediterranean_1_3691e399": {
+   "task": "library_audit_type",
+   "input_sha256": "e0b789592963eaf30fc92b65e3d6d5cd7217aa590fa375f219497de4186bd261",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_mediterranean_1_3691e399.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.769
+  },
+  "audit_gen_plant_small_mediterranean_4_8292bf7a": {
+   "task": "library_audit_type",
+   "input_sha256": "07ceb6f8c74013fa9c23098a37ef32d2fa8ab2e79828ed1246f7d4688bdcd923",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_mediterranean_4_8292bf7a.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.749
+  },
+  "audit_gen_plant_small_minimal_1_6f2e772d": {
+   "task": "library_audit_type",
+   "input_sha256": "622c8cb2afb3003d47ebb8c16364175d2f41443b6cc88aad9b2b96fa27055d61",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_minimal_1_6f2e772d.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  },
+  "audit_gen_plant_small_minimal_4_e8c7266b": {
+   "task": "library_audit_type",
+   "input_sha256": "1b131b92a160e1373dafa50dbb374b66acc71785b57a32d25bcfe9d86441c7ee",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_minimal_4_e8c7266b.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.809
+  },
+  "audit_gen_plant_small_modern_1_e1ff6032": {
+   "task": "library_audit_type",
+   "input_sha256": "46f217583a921fc13999ffffeba1b9771a9a85310d832dec03cdce1ff640aac0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_modern_1_e1ff6032.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.78
+  },
+  "audit_gen_plant_small_modern_4_086a8ac4": {
+   "task": "library_audit_type",
+   "input_sha256": "f42c79d060cda1edcd7179da251b9c8c72c7d3f735a58450ce2fc8d4d7c7a3df",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_modern_4_086a8ac4.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.769
+  },
+  "audit_gen_plant_small_modern_minimal_1_7ea34d3d": {
+   "task": "library_audit_type",
+   "input_sha256": "de2e615eb3faec2be4b50e541cf301b43f9013fd071786d0c66c2f37e48d1490",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_modern_minimal_1_7ea34d3d.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.805
+  },
+  "audit_gen_plant_small_modern_minimal_4_e33af5b4": {
+   "task": "library_audit_type",
+   "input_sha256": "3b622115d2f425cb6495f58883ff9cea0856494d9d5cea4577f12fe6d6e2e1ab",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_modern_minimal_4_e33af5b4.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.795
+  },
+  "audit_gen_plant_small_rustic_1_5cdaa51b": {
+   "task": "library_audit_type",
+   "input_sha256": "30e3a02cf64606f100a0f461bb239bc2485e9abf98d39468262d6a2a9c510751",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_rustic_1_5cdaa51b.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_gen_plant_small_rustic_4_694dfd55": {
+   "task": "library_audit_type",
+   "input_sha256": "8f7b687b277ddbe24e72142ad96434b994e84e33c9e38b3d3b8ed6910f79bb29",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_rustic_4_694dfd55.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.791
+  },
+  "audit_gen_plant_small_scandinavian_1_0dcfdd60": {
+   "task": "library_audit_type",
+   "input_sha256": "d29bbf3bf527b6e79e3e416b830bd369e3f259e5d3e70ae56c89d9afb2e69852",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_scandinavian_1_0dcfdd60.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_gen_plant_small_scandinavian_2_20075b95": {
+   "task": "library_audit_type",
+   "input_sha256": "c047583c89d2f3790fd7eb31bcedab5079f54f86b67e01e1c9338c28a35064dc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_scandinavian_2_20075b95.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  },
+  "audit_gen_plant_small_scandinavian_5_02284d1a": {
+   "task": "library_audit_type",
+   "input_sha256": "953421dda56660273169cda4c6212ab4b2423b53c16c16a70937c3291d4793c8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/gen_plant_small_scandinavian_5_02284d1a.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.774
+  },
+  "audit_gen_potted_plant_classic_3_6a0eb8d8": {
+   "task": "library_audit_type",
+   "input_sha256": "ed5a22dba5053125c4de7bba78e4a15303af5d90701c06bcbd42f8c663580faf",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_classic_3_6a0eb8d8.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.849
+  },
+  "audit_gen_potted_plant_industrial_2_eb3d21f5": {
+   "task": "library_audit_type",
+   "input_sha256": "80bee07f313e2417b8ee7a6ab76dca1c370e0b932f4ea60ecad11b0ee795549e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_industrial_2_eb3d21f5.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.89
+  },
+  "audit_gen_potted_plant_industrial_3_23920a8f": {
+   "task": "library_audit_type",
+   "input_sha256": "9378e665a1088b871ea40f931c8b466a3307639e19d8c48161e54c02b4786dbe",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_industrial_3_23920a8f.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.891
+  },
+  "audit_gen_potted_plant_japandi_1_63c10a71": {
+   "task": "library_audit_type",
+   "input_sha256": "0896dcf6a2c08be29401941c338a8ccfe94e378ac77659e832fe7205edc87f37",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_japandi_1_63c10a71.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.872
+  },
+  "audit_gen_potted_plant_japandi_2_9a3effd1": {
+   "task": "library_audit_type",
+   "input_sha256": "be77ace03b0e69ee7ddf9e63bf13efc39d0b9fd193a43215114587c815b237fb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_japandi_2_9a3effd1.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.848
+  },
+  "audit_gen_potted_plant_japandi_3_36d34f2a": {
+   "task": "library_audit_type",
+   "input_sha256": "b35d1df4c4cca08b82db7026b95ea2bfcced1afdf957b610f4e394e5975fda3a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_japandi_3_36d34f2a.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.886
+  },
+  "audit_gen_potted_plant_mediterranean_1_38a58433": {
+   "task": "library_audit_type",
+   "input_sha256": "0c9afabd4544bfaa24eac2538fcd889855a68520178ac3ccd51356d96f39c192",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_mediterranean_1_38a58433.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.885
+  },
+  "audit_gen_potted_plant_mediterranean_3_068971b6": {
+   "task": "library_audit_type",
+   "input_sha256": "1c16d6dc3bf675198c43b5b0947546eb8ec62764140255f31f5d2d812f3c76be",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_mediterranean_3_068971b6.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.871
+  },
+  "audit_gen_potted_plant_minimal_1_5cf2e7a2": {
+   "task": "library_audit_type",
+   "input_sha256": "dbe74d6e3663e4613b8edf26d25035f1c233d9f69a1564222b7d1ed9445f28c3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_minimal_1_5cf2e7a2.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.86
+  },
+  "audit_gen_potted_plant_modern_1_8fbfec3c": {
+   "task": "library_audit_type",
+   "input_sha256": "bcd89d21708131ea6e69ee2c42944ef8ddaa4a484920556065b5908d9d478190",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_modern_1_8fbfec3c.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.889
+  },
+  "audit_gen_potted_plant_modern_minimal_1_6b4ad5f1": {
+   "task": "library_audit_type",
+   "input_sha256": "269723d3cfa6ae50861b39387d48a8a3e45ffc804e3d0ba9ceaa57c236f8291b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_modern_minimal_1_6b4ad5f1.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.893
+  },
+  "audit_gen_potted_plant_scandinavian_1_04f97c4b": {
+   "task": "library_audit_type",
+   "input_sha256": "e2be497ee7da178f9324865e6fc5ddc0bed6af3342d29772a21e01eac93cf03d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_scandinavian_1_04f97c4b.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.884
+  },
+  "audit_gen_potted_plant_scandinavian_2_98f7bbd2": {
+   "task": "library_audit_type",
+   "input_sha256": "3423c8e4d1b5502212dcd1144b2b0650370e9d8a324e1087d9c8a26078f89aa4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_scandinavian_2_98f7bbd2.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.877
+  },
+  "audit_gen_potted_plant_scandinavian_3_ef4f2d99": {
+   "task": "library_audit_type",
+   "input_sha256": "77d7ac6b73568abb7f56a5a0560cbc7583c8be0fcc878d2121efc5d59c8a0dfc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/potted_plant/gen_potted_plant_scandinavian_3_ef4f2d99.jpg"
+   ],
+   "data": {
+    "type_guess": "potted_plant"
+   },
+   "raw_text": "{\"type_guess\": \"potted_plant\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.863
+  },
+  "audit_gen_sculpture_japandi_1_136a4ec5": {
+   "task": "library_audit_type",
+   "input_sha256": "44c61736e389154e6dc07be1162cda0c4ed7099494c91ed667dd7d45a3bb757a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/gen_sculpture_japandi_1_136a4ec5.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.797
+  },
+  "audit_gen_sculpture_scandinavian_1_6ac6cfa2": {
+   "task": "library_audit_type",
+   "input_sha256": "f2c26c598e3fa281acdb86c54565b878000455a40a127132999ef8ccf93006d6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/gen_sculpture_scandinavian_1_6ac6cfa2.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.789
+  },
+  "audit_gen_shoe_cabinet_classic_3_d5d17132": {
+   "task": "library_audit_type",
+   "input_sha256": "a024d79404c8bfe6712a2dfde1f87c5b543b366689ffa4b469f8eb690a17ce75",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_classic_3_d5d17132.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.895
+  },
+  "audit_gen_shoe_cabinet_industrial_1_23a27737": {
+   "task": "library_audit_type",
+   "input_sha256": "3103684834a74601562020b9ba51edbf04ff9173c7ce7cf94623906b568ae04a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_industrial_1_23a27737.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.887
+  },
+  "audit_gen_shoe_cabinet_industrial_3_596e817a": {
+   "task": "library_audit_type",
+   "input_sha256": "4e535486b0ffb4bd384b4e33d2a16269471f838661a99e243d1a79acf15dc760",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_industrial_3_596e817a.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.876
+  },
+  "audit_gen_shoe_cabinet_japandi_2_d4caf94a": {
+   "task": "library_audit_type",
+   "input_sha256": "0335e9c7fdd9068b4511613d6da3ebe6d130d768d40047d83db229633b74f3f9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_japandi_2_d4caf94a.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.873
+  },
+  "audit_gen_shoe_cabinet_mediterranean_1_5b538be0": {
+   "task": "library_audit_type",
+   "input_sha256": "d5f5f87a0de76cd792652aeeec4f178578e488c0a5858fc35b6cfaf6a8a7e5d5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_mediterranean_1_5b538be0.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.852
+  },
+  "audit_gen_shoe_cabinet_mediterranean_3_4228c675": {
+   "task": "library_audit_type",
+   "input_sha256": "4edb8746351a3ec51ba54ff5fc90576dea6932d9dedd0c544df37073f97bbe50",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_mediterranean_3_4228c675.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.85
+  },
+  "audit_gen_shoe_cabinet_rustic_2_9c24d5e4": {
+   "task": "library_audit_type",
+   "input_sha256": "69f895941e0b6f23925292867300abfd346b1beb4df2c202136da63cf63541d8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_rustic_2_9c24d5e4.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.874
+  },
+  "audit_gen_shoe_cabinet_scandinavian_2_66dac02b": {
+   "task": "library_audit_type",
+   "input_sha256": "66d00aa7c691e077c37cdce4593adc3de3a919e8db154d13d30e6adef9692faf",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/gen_shoe_cabinet_scandinavian_2_66dac02b.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.867
+  },
+  "audit_gen_shower_industrial_1_d2ef1a9f": {
+   "task": "library_audit_type",
+   "input_sha256": "47acfd28479df7c598f2987785259d627ce664be749a070804ee716743248a39",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_industrial_1_d2ef1a9f.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.846
+  },
+  "audit_gen_shower_industrial_4_31d89a3d": {
+   "task": "library_audit_type",
+   "input_sha256": "2252cda4fbd31de001cb3cb8204b89f7b06a9649055e78faf2d181c0caa39ef3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_industrial_4_31d89a3d.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.853
+  },
+  "audit_gen_shower_japandi_1_dcdcd4dc": {
+   "task": "library_audit_type",
+   "input_sha256": "46f0d938b598061d6a97ac4262ea46fe0e160332c0cb84d252428fc9bf2827ae",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_japandi_1_dcdcd4dc.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.85
+  },
+  "audit_gen_shower_japandi_6_bd58a347": {
+   "task": "library_audit_type",
+   "input_sha256": "8a3e32fb9bd516f0befe63772ec0e56d4f367582a5e370ec81c6fdae0b329bfb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_japandi_6_bd58a347.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.834
+  },
+  "audit_gen_shower_japandi_9_4f1cedc6": {
+   "task": "library_audit_type",
+   "input_sha256": "746aa3c32181f7758e799d50d1666c74f65f6cda300174e3a25b35ca887ef9f3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_japandi_9_4f1cedc6.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_shower_minimal_1_25eeb7e2": {
+   "task": "library_audit_type",
+   "input_sha256": "88374620a4c975aba82206a5ec5989c69b9d6e1a78c2e2317b1ecf99cb64123a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_minimal_1_25eeb7e2.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.854
+  },
+  "audit_gen_shower_modern_minimal_6_664da6f5": {
+   "task": "library_audit_type",
+   "input_sha256": "681256c72dd8cbd4dc2a3c01d95ffee86a3c6bb24cb73a2aa7457bbe25ba52cb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_modern_minimal_6_664da6f5.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_gen_shower_scandinavian_1_0ae4a37a": {
+   "task": "library_audit_type",
+   "input_sha256": "acea6884d87b2d004cdc3f01569b3a203811441bfa6d49d2854459441980d113",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_scandinavian_1_0ae4a37a.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.813
+  },
+  "audit_gen_shower_scandinavian_6_6844cd10": {
+   "task": "library_audit_type",
+   "input_sha256": "4451a6b15586e9f86a6b929b1e77c2c6da19b6a36a29ecde058c5ffed666f952",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_scandinavian_6_6844cd10.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.837
+  },
+  "audit_gen_shower_scandinavian_9_7fb81c9a": {
+   "task": "library_audit_type",
+   "input_sha256": "d2257a6eac2ba701d0fd4a6bbb72892be61c8a7dac950f7322ba8dc293a98b69",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/gen_shower_scandinavian_9_7fb81c9a.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.829
+  },
+  "audit_gen_sink_kitchen_industrial_4_3f68e743": {
+   "task": "library_audit_type",
+   "input_sha256": "0b1ab257e4f6c888ba92b7bcd0c46ac6a1b3c36679236962d2b005ca3644272a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_industrial_4_3f68e743.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.878
+  },
+  "audit_gen_sink_kitchen_japandi_1_a61d924d": {
+   "task": "library_audit_type",
+   "input_sha256": "12b0ab0d1786406db2e9fbb31fb7e36421b5b1dae5d08c3e2155089045bf7cf1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_japandi_1_a61d924d.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.863
+  },
+  "audit_gen_sink_kitchen_japandi_2_d6ae0419": {
+   "task": "library_audit_type",
+   "input_sha256": "6f0939fe18b23c194ba33b6b33292978a41e6a2d370ce3d8ee9248e7bc31131d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_japandi_2_d6ae0419.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.863
+  },
+  "audit_gen_sink_kitchen_japandi_3_1462384d": {
+   "task": "library_audit_type",
+   "input_sha256": "46be0155a14f25bc473635baff0d22b7c5e53c05cc495b1769124989fd431d60",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_japandi_3_1462384d.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_gen_sink_kitchen_japandi_4_329115ec": {
+   "task": "library_audit_type",
+   "input_sha256": "a5cf5a6427e80ae2e40519b87d312f3a876fa0b3771be84a21e6b539d100cdb8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_japandi_4_329115ec.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.804
+  },
+  "audit_gen_sink_kitchen_japandi_6_2ccc7ce8": {
+   "task": "library_audit_type",
+   "input_sha256": "6d1d28afa106aef2fe0babb70d4448ea1ddd3c285ce569fd5dc3adeb99da2c03",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_japandi_6_2ccc7ce8.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.816
+  },
+  "audit_gen_sink_kitchen_mediterranean_1_ae36322f": {
+   "task": "library_audit_type",
+   "input_sha256": "ff6fcc64760bf2c8512e363186d3829f13e3337a4b88044d07def79085944b52",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_mediterranean_1_ae36322f.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.801
+  },
+  "audit_gen_sink_kitchen_mediterranean_3_f6d72c7b": {
+   "task": "library_audit_type",
+   "input_sha256": "e49f36a12ac12e85c1db585f3d67896512e8af8d61b220e761b964bf58711b1d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_mediterranean_3_f6d72c7b.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_gen_sink_kitchen_modern_1_5b97156d": {
+   "task": "library_audit_type",
+   "input_sha256": "5eaf1cae7a0ee2cfd3b0b73ea834e5b48bb3082a16e323b26a00a3e4add5d274",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_modern_1_5b97156d.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.849
+  },
+  "audit_gen_sink_kitchen_modern_2_b348b4dc": {
+   "task": "library_audit_type",
+   "input_sha256": "bffe0362e74073c22a20eb2416327930b0491c6c88092961f97e6602b1a94f55",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_modern_2_b348b4dc.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.818
+  },
+  "audit_gen_sink_kitchen_modern_5_5f86535a": {
+   "task": "library_audit_type",
+   "input_sha256": "96f4b984863c700f4f951543e011b009b78b3ede657bc53c217e451379ae7492",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_modern_5_5f86535a.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.829
+  },
+  "audit_gen_sink_kitchen_scandinavian_1_dbad65c6": {
+   "task": "library_audit_type",
+   "input_sha256": "f347b92c3dc39280f1451c6e25a5c9ecc2ab32898d399eccecb098d971e8953e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_scandinavian_1_dbad65c6.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.864
+  },
+  "audit_gen_sink_kitchen_scandinavian_2_470fa047": {
+   "task": "library_audit_type",
+   "input_sha256": "788ec8b500f686a795fd6d021753fd5d3d4c180167a228e1877f4e5d0a6cec7f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_scandinavian_2_470fa047.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.859
+  },
+  "audit_gen_sink_kitchen_scandinavian_3_3e309f4c": {
+   "task": "library_audit_type",
+   "input_sha256": "59cd35f2490dd76c5085200771f15d1a97bb45d7be1e9dbc148b1883f9638161",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_scandinavian_3_3e309f4c.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.851
+  },
+  "audit_gen_sink_kitchen_scandinavian_5_b50401d7": {
+   "task": "library_audit_type",
+   "input_sha256": "3d5c2c69b5345756dc590c15e02577d324d0ec9b861a17a063d99c394b6a8008",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/gen_sink_kitchen_scandinavian_5_b50401d7.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.843
+  },
+  "audit_gen_sofa_corner_industrial_2_64d3a8a9": {
+   "task": "library_audit_type",
+   "input_sha256": "bb836487ea231b2d69f709fa84a0b12765aa9d2e8805c7eecb37ec305308070c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa_corner/gen_sofa_corner_industrial_2_64d3a8a9.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa_corner"
+   },
+   "raw_text": "{\"type_guess\": \"sofa_corner\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.834
+  },
+  "audit_gen_sofa_japandi_1_246e1bd6": {
+   "task": "library_audit_type",
+   "input_sha256": "9a30a3ce0863adf1f2651011f0d8926687c7c099ce0b8feb59dd893c71c70c30",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/gen_sofa_japandi_1_246e1bd6.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_gen_sofa_japandi_2_98a7a89b": {
+   "task": "library_audit_type",
+   "input_sha256": "80d618ec163b747398506c34c80096529ab40789d79a25462ba4f0c593b178db",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/gen_sofa_japandi_2_98a7a89b.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.821
+  },
+  "audit_gen_stove_classic_1_4cdc3ba9": {
+   "task": "library_audit_type",
+   "input_sha256": "344e44fb34a9139d259979b864a9439d617273fd8ee1f4ecb6eef5840a3ba4de",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_classic_1_4cdc3ba9.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_gen_stove_classic_4_e2fe38fa": {
+   "task": "library_audit_type",
+   "input_sha256": "0a0b91ae13dd01f2e9dabbb961e19fa5f6aa6e79fd1778458bbb811fef49fa9a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_classic_4_e2fe38fa.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.819
+  },
+  "audit_gen_stove_industrial_1_59fd0342": {
+   "task": "library_audit_type",
+   "input_sha256": "fa14028eb49d134fe9688d06b6917b3b8d48c1e89fac0269cfe2462a365f6082",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_industrial_1_59fd0342.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.806
+  },
+  "audit_gen_stove_industrial_3_158d2bab": {
+   "task": "library_audit_type",
+   "input_sha256": "890fcfe84608b70e6c0d77af53a73caadf22147083e0043fc6c2731a27d0645d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_industrial_3_158d2bab.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.843
+  },
+  "audit_gen_stove_japandi_1_2c35be6c": {
+   "task": "library_audit_type",
+   "input_sha256": "bb71c91bbea9545dfd7875eb249a780852877687d7a2767137deac064d5540d9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_japandi_1_2c35be6c.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.857
+  },
+  "audit_gen_stove_japandi_4_c8b92b90": {
+   "task": "library_audit_type",
+   "input_sha256": "51af185f992dc516a8d3c2c52f600c6035a8f1c46e9571a38c5e009655aa1890",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_japandi_4_c8b92b90.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.849
+  },
+  "audit_gen_stove_japandi_5_6f5e00ea": {
+   "task": "library_audit_type",
+   "input_sha256": "2cc9ee26737d765e782a65845b50cb7e1a00742c03aa24a6ebe25374cc43543c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_japandi_5_6f5e00ea.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_stove_japandi_6_1c3993c0": {
+   "task": "library_audit_type",
+   "input_sha256": "15ad5edc794311b36ed8b951751b8db96ef8c711ca3e428fb06be3a2e1500f52",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_japandi_6_1c3993c0.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.842
+  },
+  "audit_gen_stove_modern_1_d7aca74d": {
+   "task": "library_audit_type",
+   "input_sha256": "7dc54777e0a3c00a5586402bdd02e670ee9c4d183618d267fee2a3f4bff3802e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_modern_1_d7aca74d.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.846
+  },
+  "audit_gen_stove_modern_3_6d806e82": {
+   "task": "library_audit_type",
+   "input_sha256": "9016a99858fc2c90bb8d9cff2b52c7e866878a9e192c425592d34e38795b17c2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_modern_3_6d806e82.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_gen_stove_modern_minimal_1_18c4c83a": {
+   "task": "library_audit_type",
+   "input_sha256": "1e5395483c3a76458e278c1b31ff49bb90ac199de9280fed033464f0011170c0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_modern_minimal_1_18c4c83a.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.828
+  },
+  "audit_gen_stove_rustic_1_f05488ba": {
+   "task": "library_audit_type",
+   "input_sha256": "e31e4eb89721155daf9623ee2ff58b80db9a44c71c4fe725e141685adea2808a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_rustic_1_f05488ba.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_stove_rustic_3_78e2f342": {
+   "task": "library_audit_type",
+   "input_sha256": "472c97c2a86a095c1b7e55604176c8b762f6ac937dd088c047e7d8dc6712ad50",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_rustic_3_78e2f342.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.842
+  },
+  "audit_gen_stove_scandinavian_1_acd46212": {
+   "task": "library_audit_type",
+   "input_sha256": "10fd1d763329595f8b75a3ccce9f8b9964d27380b46f045c5084ef7e625cb985",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_scandinavian_1_acd46212.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_gen_stove_scandinavian_2_4aebb9bc": {
+   "task": "library_audit_type",
+   "input_sha256": "5c84a0b1e2b50d05bd6082308ef4f0eb3779030bba77fdfadf0853ebba05a1f0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_scandinavian_2_4aebb9bc.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.822
+  },
+  "audit_gen_stove_scandinavian_4_c71c9213": {
+   "task": "library_audit_type",
+   "input_sha256": "3cc7481ab01b133f913ca792d4264e955c6b342289dd9fda8e6d49f5742a36a1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/gen_stove_scandinavian_4_c71c9213.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_tall_cabinet_classic_3_879ecbf5": {
+   "task": "library_audit_type",
+   "input_sha256": "5a3f7445875c5bea5cbada08396e0ac78982e9199c623e8a5f6c2409135f4c1f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_classic_3_879ecbf5.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.875
+  },
+  "audit_gen_tall_cabinet_industrial_1_9054f861": {
+   "task": "library_audit_type",
+   "input_sha256": "910b0470103a14497f9430e77f74c95530d6608effa3db4efc2af37f345bdffc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_industrial_1_9054f861.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.867
+  },
+  "audit_gen_tall_cabinet_industrial_3_8656669b": {
+   "task": "library_audit_type",
+   "input_sha256": "03137e30521d82fcac3db5b1d6cb1f77683e9e2d902acfd60d4b3f6b55eb6b04",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_industrial_3_8656669b.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.921
+  },
+  "audit_gen_tall_cabinet_japandi_1_a52b169e": {
+   "task": "library_audit_type",
+   "input_sha256": "c06fa54c832ac39bbe12f900310da6f579d1ffca2b7bd2f5a6e484746a5ab04f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_japandi_1_a52b169e.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.9
+  },
+  "audit_gen_tall_cabinet_japandi_3_e4559684": {
+   "task": "library_audit_type",
+   "input_sha256": "fd39b0505fdc688377b7d5faad110372e5c93a79bd230b46c90ddc58170d3eb6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_japandi_3_e4559684.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.898
+  },
+  "audit_gen_tall_cabinet_mediterranean_3_38df09c4": {
+   "task": "library_audit_type",
+   "input_sha256": "4c8504eeec131311763b37c21882176f660cff7b253c5a1150dc53cd0d7d1c64",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_mediterranean_3_38df09c4.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.908
+  },
+  "audit_gen_tall_cabinet_rustic_3_60387ddf": {
+   "task": "library_audit_type",
+   "input_sha256": "98c591d8f2347694bc2d464b6ffcf17078b03f8adaeb7956b67208b339dc1672",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_rustic_3_60387ddf.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.36
+  },
+  "audit_gen_tall_cabinet_scandinavian_3_0feb441e": {
+   "task": "library_audit_type",
+   "input_sha256": "ff64e624b964d1c006253ef339fbe89da5774de0ce4eae55607675f5610bddf1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/gen_tall_cabinet_scandinavian_3_0feb441e.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 1.363
+  },
+  "audit_gen_throw_japandi_1_b42708f1": {
+   "task": "library_audit_type",
+   "input_sha256": "7abeb2ff1c29fedc7507ef9efecb548f60309d9573f55704b2326bca1e9a5f13",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/throw/gen_throw_japandi_1_b42708f1.jpg"
+   ],
+   "data": {
+    "type_guess": "throw"
+   },
+   "raw_text": "{\"type_guess\": \"throw\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.781
+  },
+  "audit_gen_throw_japandi_3_280c8708": {
+   "task": "library_audit_type",
+   "input_sha256": "d2f8cefaea036057009b78f0ea787144aebe8c64045ea3daa55cbaf040c70159",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/throw/gen_throw_japandi_3_280c8708.jpg"
+   ],
+   "data": {
+    "type_guess": "throw"
+   },
+   "raw_text": "{\"type_guess\": \"throw\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.767
+  },
+  "audit_gen_throw_mediterranean_3_6db1af43": {
+   "task": "library_audit_type",
+   "input_sha256": "06dd3d940e7eef7ea7df754de39babe8370118dc35a1855ff61c4754c2b3abdc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/throw/gen_throw_mediterranean_3_6db1af43.jpg"
+   ],
+   "data": {
+    "type_guess": "throw"
+   },
+   "raw_text": "{\"type_guess\": \"throw\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.761
+  },
+  "audit_gen_throw_modern_3_4f1b4c89": {
+   "task": "library_audit_type",
+   "input_sha256": "3094543be4c6b98d6a904c0af32158095a7834f64970594c9acca9b2af17eead",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/throw/gen_throw_modern_3_4f1b4c89.jpg"
+   ],
+   "data": {
+    "type_guess": "throw"
+   },
+   "raw_text": "{\"type_guess\": \"throw\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.77
+  },
+  "audit_gen_throw_modern_minimal_3_9e78dc45": {
+   "task": "library_audit_type",
+   "input_sha256": "f8346bf0117dfa16d22301001e23bb6213e0ddf1e760b94373eaa43780c10e01",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/throw/gen_throw_modern_minimal_3_9e78dc45.jpg"
+   ],
+   "data": {
+    "type_guess": "throw"
+   },
+   "raw_text": "{\"type_guess\": \"throw\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.77
+  },
+  "audit_gen_toilet_classic_3_293965c2": {
+   "task": "library_audit_type",
+   "input_sha256": "c6ed9b77213c1c7940d19aeff3da8e028218c61c3ec0a649a195d98f0145d4ac",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_classic_3_293965c2.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_gen_toilet_industrial_1_3cd5bde9": {
+   "task": "library_audit_type",
+   "input_sha256": "065c89bced417c9b32ee265e9ae098c80ccd4f79c65109c88846d798ee6d00bb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_industrial_1_3cd5bde9.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.837
+  },
+  "audit_gen_toilet_japandi_1_42fdb46f": {
+   "task": "library_audit_type",
+   "input_sha256": "c3612466fdffcb3151301c30525123fd1f2859decc2a0d9d0b71111d46d4a430",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_japandi_1_42fdb46f.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.832
+  },
+  "audit_gen_toilet_japandi_3_4e49add0": {
+   "task": "library_audit_type",
+   "input_sha256": "50f89190d170373c2def012e80a4bdf917639785ee1d6664f5fa4529a048aa5e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_japandi_3_4e49add0.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.822
+  },
+  "audit_gen_toilet_japandi_6_1b5173e9": {
+   "task": "library_audit_type",
+   "input_sha256": "09217a7262e6e5e3c8d393dfad460011bdbd4830ab07114745824a25031b37e0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_japandi_6_1b5173e9.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_toilet_mediterranean_1_09b9f7e2": {
+   "task": "library_audit_type",
+   "input_sha256": "ea74207dbc4c30e5c308074a00111726437c8c24c9e4c3a0de2f1f797ac4e778",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_mediterranean_1_09b9f7e2.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.848
+  },
+  "audit_gen_toilet_mediterranean_3_23b530a6": {
+   "task": "library_audit_type",
+   "input_sha256": "b15f417666a41aab9987a9bd7434b81d27d0b256c51f771febc731131af8eb46",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_mediterranean_3_23b530a6.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_gen_toilet_minimal_1_3799392b": {
+   "task": "library_audit_type",
+   "input_sha256": "0e1f454b8e481d78c97e82f39265f53554722710b396c4e5679aee09aa0f4213",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_minimal_1_3799392b.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.828
+  },
+  "audit_gen_toilet_rustic_1_c2ce66a1": {
+   "task": "library_audit_type",
+   "input_sha256": "9b7bf1ae0c7409dee57a24a1b1aea06e930e6fed25088694272f917205cced94",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_rustic_1_c2ce66a1.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.843
+  },
+  "audit_gen_toilet_scandinavian_4_06dcb780": {
+   "task": "library_audit_type",
+   "input_sha256": "cbf40ec723de95e10681ed5ee649c34ba625c1965a75f24291310c861a5e7361",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_scandinavian_4_06dcb780.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.853
+  },
+  "audit_gen_toilet_scandinavian_6_b1b3db93": {
+   "task": "library_audit_type",
+   "input_sha256": "e19a49d609591cd3c692094c893e0c81158296975148583c8726b68ae3347dc3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/gen_toilet_scandinavian_6_b1b3db93.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_wardrobe_classic_1_2bc1a548": {
+   "task": "library_audit_type",
+   "input_sha256": "519fc60071e4440f2d5db4a96d53b849de782291f8dad0bbbfdee95aa3a6e909",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/gen_wardrobe_classic_1_2bc1a548.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.794
+  },
+  "audit_gen_wardrobe_industrial_1_79cac0b4": {
+   "task": "library_audit_type",
+   "input_sha256": "ba504c2601206b62e6f501b65c50e7cb72f399a0c95099dd0308603b7bc81831",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/gen_wardrobe_industrial_1_79cac0b4.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_gen_wardrobe_rustic_1_97c119f6": {
+   "task": "library_audit_type",
+   "input_sha256": "e0f062b9c11cceb593fbe402d38a8ec208413afd17fd21e7079ea9208a3f5495",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/gen_wardrobe_rustic_1_97c119f6.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.846
+  },
+  "audit_gen_wardrobe_scandinavian_1_d0aa2dad": {
+   "task": "library_audit_type",
+   "input_sha256": "6a3ac3e686adf0e897bc73d6eeaf00261c753b380f74297c47e12689a22d6cf8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/gen_wardrobe_scandinavian_1_d0aa2dad.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_gen_washbasin_industrial_1_6794b9a5": {
+   "task": "library_audit_type",
+   "input_sha256": "47f4598ef5b5b42256327c343e9e0981833bccd6a180559329b3542a104a22ee",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_industrial_1_6794b9a5.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.869
+  },
+  "audit_gen_washbasin_industrial_4_cfaa1f50": {
+   "task": "library_audit_type",
+   "input_sha256": "f7dc6327533e972013332d1710a87f945450ee950231d85a6b22d35db0ea9f88",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_industrial_4_cfaa1f50.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.875
+  },
+  "audit_gen_washbasin_japandi_1_299a0eb2": {
+   "task": "library_audit_type",
+   "input_sha256": "dc53de8bf082cbb8024d739e22bce5a43ab64feb706804173244534cd3bae285",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_japandi_1_299a0eb2.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.867
+  },
+  "audit_gen_washbasin_japandi_2_6d594c3b": {
+   "task": "library_audit_type",
+   "input_sha256": "f98f5170de4aa98868ca89652959431565624e08dd770f33efcb90fb9f693922",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_japandi_2_6d594c3b.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.861
+  },
+  "audit_gen_washbasin_japandi_3_fc4e0710": {
+   "task": "library_audit_type",
+   "input_sha256": "977f157e541c7c05633beef255933d0144e22aa16b8e2699377c1debd7218a4e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_japandi_3_fc4e0710.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.872
+  },
+  "audit_gen_washbasin_mediterranean_1_93c90025": {
+   "task": "library_audit_type",
+   "input_sha256": "57797b1eded3eca38ef309c5dc6faa85ae0e207a2a58f956bfbc6b631d6f0557",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_mediterranean_1_93c90025.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.864
+  },
+  "audit_gen_washbasin_mediterranean_4_c5dc64de": {
+   "task": "library_audit_type",
+   "input_sha256": "52aa7e18ecb20e1be2e630bdca872029aba8b4f25be7f4892a471c6b56e21bb4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_mediterranean_4_c5dc64de.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.852
+  },
+  "audit_gen_washbasin_minimal_1_9dc765fb": {
+   "task": "library_audit_type",
+   "input_sha256": "b67b01afb940f80b89fbd8f5ffad87ab3e5196106b48cbb78149f234b22fda2c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_minimal_1_9dc765fb.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_gen_washbasin_modern_1_833baa60": {
+   "task": "library_audit_type",
+   "input_sha256": "fcd5568d24cfc9a0e41b9215e7224e87ea8cd7e463f9a5d764ba2eea87037a39",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_modern_1_833baa60.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.878
+  },
+  "audit_gen_washbasin_modern_minimal_1_d5536003": {
+   "task": "library_audit_type",
+   "input_sha256": "b5b5fc6673fbb49fd69bf2d4994237c3fa44fcfc3275c923959c2b873f449526",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_modern_minimal_1_d5536003.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.87
+  },
+  "audit_gen_washbasin_rustic_1_2d54af97": {
+   "task": "library_audit_type",
+   "input_sha256": "5dcf8da16a7e167b0689e9fe434de4850b0df2f2c7881756ef398a6541a3ee12",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_rustic_1_2d54af97.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.858
+  },
+  "audit_gen_washbasin_scandinavian_1_6efd9d50": {
+   "task": "library_audit_type",
+   "input_sha256": "fe390d3345c011b39b7b36e73582a1afa13e09af09833e8c65d2aa3e6c46f1a6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/gen_washbasin_scandinavian_1_6efd9d50.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.87
+  },
+  "audit_gen_washing_machine_classic_1_dffff7e0": {
+   "task": "library_audit_type",
+   "input_sha256": "d90cec710d8796050bb7569f4413498899fd6a0cc5ef4fa2113633679ec0545b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_classic_1_dffff7e0.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.821
+  },
+  "audit_gen_washing_machine_industrial_1_b7c9d275": {
+   "task": "library_audit_type",
+   "input_sha256": "f45d96851a5014f30430a1536339e747c6024c4a16bf5cf0be0192940e0e904d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_industrial_1_b7c9d275.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_gen_washing_machine_industrial_3_0a739610": {
+   "task": "library_audit_type",
+   "input_sha256": "3ec5ed5203475d8a809977eec136d7695c87e0dc7d2df1f061672e27e6204fa8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_industrial_3_0a739610.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_washing_machine_japandi_1_f1f4def2": {
+   "task": "library_audit_type",
+   "input_sha256": "c362832bc77ae7bd630e9e5fbafd83abd93caaa4415fa1c8c22bc1dbb1bb9838",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_japandi_1_f1f4def2.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.83
+  },
+  "audit_gen_washing_machine_japandi_2_d8b8ac48": {
+   "task": "library_audit_type",
+   "input_sha256": "8be571818c55473913bc3048d54f661870530d3c50d948c48d1bad3fa7fa7470",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_japandi_2_d8b8ac48.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.82
+  },
+  "audit_gen_washing_machine_japandi_3_3e2ddcc7": {
+   "task": "library_audit_type",
+   "input_sha256": "b170d4a335a5b3c03968b2759afd56e70f2248f9b37784b81d3a46148b6f5f22",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_japandi_3_3e2ddcc7.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_washing_machine_japandi_5_030a02dc": {
+   "task": "library_audit_type",
+   "input_sha256": "235ecac6359dfdd1135e826d67016f6593986a9db5ef9ee17ccf4ce0758d494d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_japandi_5_030a02dc.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_gen_washing_machine_mediterranean_1_bffe5bde": {
+   "task": "library_audit_type",
+   "input_sha256": "4cd219a944f22b670fa9a61352980625fc51988e8e84dc31b26831da6cca7fad",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_mediterranean_1_bffe5bde.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.822
+  },
+  "audit_gen_washing_machine_minimal_1_9ec6e746": {
+   "task": "library_audit_type",
+   "input_sha256": "f4c1c2da405a0edc8704caac9548e5aab744971dbc5770926610f5a09b25134f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_minimal_1_9ec6e746.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.808
+  },
+  "audit_gen_washing_machine_modern_1_f4bdd46e": {
+   "task": "library_audit_type",
+   "input_sha256": "d830399768443f891f75a5779febacf7af3b3a0b1cef632904cedcb22788f6cc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_modern_1_f4bdd46e.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.842
+  },
+  "audit_gen_washing_machine_modern_2_379d2585": {
+   "task": "library_audit_type",
+   "input_sha256": "85f2bb84aaedcefbe757936ffe954561bdf232c59a966cfae989e372ffeb98f1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_modern_2_379d2585.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.849
+  },
+  "audit_gen_washing_machine_modern_3_50bfae6f": {
+   "task": "library_audit_type",
+   "input_sha256": "52224076351a4d725f36d8ce7cd33be6f025e667361ce950a0e30226cec1a42d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_modern_3_50bfae6f.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.837
+  },
+  "audit_gen_washing_machine_modern_minimal_1_07b2b182": {
+   "task": "library_audit_type",
+   "input_sha256": "1f7e13fb1b2cf01654ff8d3bcd2407cfb51dd473d7f3d840b3946d14971b7eed",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_modern_minimal_1_07b2b182.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.819
+  },
+  "audit_gen_washing_machine_modern_minimal_2_94b29e08": {
+   "task": "library_audit_type",
+   "input_sha256": "a55740f31366d01d69b2e9649abba38fa46f29299ff7950269d5105250f64343",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_modern_minimal_2_94b29e08.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_washing_machine_modern_minimal_3_ff74255c": {
+   "task": "library_audit_type",
+   "input_sha256": "629613178b66eca60f2f280325257ae9e82bdf6a5eb8ac665f2c22afa4e61ff8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_modern_minimal_3_ff74255c.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.843
+  },
+  "audit_gen_washing_machine_scandinavian_1_0a5054b6": {
+   "task": "library_audit_type",
+   "input_sha256": "682a77306f58d3d0750fc96298a72b6e804e1e702de5551f85746627f1383467",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_scandinavian_1_0a5054b6.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.832
+  },
+  "audit_gen_washing_machine_scandinavian_2_67f28c86": {
+   "task": "library_audit_type",
+   "input_sha256": "a79c1400331d9eae431a8597dcb06404d76da31429c826518576c12f5162627e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_scandinavian_2_67f28c86.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.817
+  },
+  "audit_gen_washing_machine_scandinavian_3_292e2d11": {
+   "task": "library_audit_type",
+   "input_sha256": "e9c1d47756e505d9bb47702427c4310fd04103aeabb78f848be0fec017fc1e5c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_scandinavian_3_292e2d11.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_gen_washing_machine_scandinavian_4_d66cae6a": {
+   "task": "library_audit_type",
+   "input_sha256": "2740432b71c92ef93ba9dd07a63631db3cd42f6411ae0f8bdc1c56fe420d7205",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_scandinavian_4_d66cae6a.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_gen_washing_machine_scandinavian_5_ed8921b5": {
+   "task": "library_audit_type",
+   "input_sha256": "a7d049bd37a2c5db3b9ac556a1715fb708fb876bd76468e6d4af0ad57ff9f927",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washing_machine/gen_washing_machine_scandinavian_5_ed8921b5.jpg"
+   ],
+   "data": {
+    "type_guess": "washing_machine"
+   },
+   "raw_text": "{\"type_guess\": \"washing_machine\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.817
+  },
+  "audit_objaverse_01c77468a1d04414ae24ecd1d1559f7d": {
+   "task": "library_audit_type",
+   "input_sha256": "a068b0a78554574a6d44dd99a0f07dd346f8b3e7ea8ca7fe40029c269ab2566a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/basket/objaverse_01c77468a1d04414ae24ecd1d1559f7d.jpg"
+   ],
+   "data": {
+    "type_guess": "basket"
+   },
+   "raw_text": "{\"type_guess\": \"basket\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.771
+  },
+  "audit_objaverse_124297e7e4574c48b9c1b814b6ddf516": {
+   "task": "library_audit_type",
+   "input_sha256": "c9d5b43e960c759672ed29d84391741964729822a63c0714600f58b5c84173ab",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/objaverse_124297e7e4574c48b9c1b814b6ddf516.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_objaverse_1ab0499f7a7746188eefe85c1f16594b": {
+   "task": "library_audit_type",
+   "input_sha256": "2d33c8b56865b5ab58afd49e33e99e78d582bb2dad2bf796efeb4f09549a7c80",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/objaverse_1ab0499f7a7746188eefe85c1f16594b.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.875
+  },
+  "audit_objaverse_1f60399f99304ff087274e0e39352389": {
+   "task": "library_audit_type",
+   "input_sha256": "6f78ab9044a13f4799202200575834b0ed7a6cbf417926aa9f505afcac4d2f8f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/objaverse_1f60399f99304ff087274e0e39352389.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.813
+  },
+  "audit_objaverse_295384601e0d4f1985a919253330d59d": {
+   "task": "library_audit_type",
+   "input_sha256": "c64276200d10d3845f88573ba37c2bc9747d0cf90594c0eac0b0ffd48d799af0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/objaverse_295384601e0d4f1985a919253330d59d.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.866
+  },
+  "audit_objaverse_366b50081c884690bb2ce4df6dacad59": {
+   "task": "library_audit_type",
+   "input_sha256": "a5d1b1f529662a688358699ba72f13639de5b48b64d2b71566c08ddfd755450d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/pendant_light/objaverse_366b50081c884690bb2ce4df6dacad59.jpg"
+   ],
+   "data": {
+    "type_guess": "pendant_light"
+   },
+   "raw_text": "{\"type_guess\": \"pendant_light\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.568
+  },
+  "audit_objaverse_36bb9a6e62ab4b88b7154c41489b5f41": {
+   "task": "library_audit_type",
+   "input_sha256": "603056bd0773ac0407faf317f7010b15b056a05003087b36f2cc52dcd66a1db2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/objaverse_36bb9a6e62ab4b88b7154c41489b5f41.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.798
+  },
+  "audit_objaverse_3b4ee19c627e4fb4a3305621cf925aa2": {
+   "task": "library_audit_type",
+   "input_sha256": "d9226ab17966aea0ac34a1f6a57025b7f23d7a7cbec27e70c3113a862f07b532",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_dining/objaverse_3b4ee19c627e4fb4a3305621cf925aa2.jpg"
+   ],
+   "data": {
+    "type_guess": "table_dining"
+   },
+   "raw_text": "{\"type_guess\": \"table_dining\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.828
+  },
+  "audit_objaverse_47a690dcecf847fca99c4f89111db85b": {
+   "task": "library_audit_type",
+   "input_sha256": "4189bc863e249ba8ec363254602ad1d1cdfc6f76f413df39d4fa05f984bd48b1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/objaverse_47a690dcecf847fca99c4f89111db85b.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.791
+  },
+  "audit_objaverse_511d44e5693549ca9c4002752a35fcb2": {
+   "task": "library_audit_type",
+   "input_sha256": "cd60bf706d2b6278e7c4ac799c89f50ecaf84d79f8a9f9b325aa66ab02801049",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/throw/objaverse_511d44e5693549ca9c4002752a35fcb2.jpg"
+   ],
+   "data": {
+    "type_guess": "throw"
+   },
+   "raw_text": "{\"type_guess\": \"throw\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.77
+  },
+  "audit_objaverse_5248aa117842442980a2a2bbb5f3bfe6": {
+   "task": "library_audit_type",
+   "input_sha256": "8f1beed651f1eb3a8a045e05a589f499ecefc83099aefd55e62fab7676987250",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/objaverse_5248aa117842442980a2a2bbb5f3bfe6.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.865
+  },
+  "audit_objaverse_5b9e8ba19b1b454f82898ac4809f02b2": {
+   "task": "library_audit_type",
+   "input_sha256": "987000be34cd0f8ab7e316b70ffc69c115cfb74453e7f80a1e30cf20d1bdc50d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/objaverse_5b9e8ba19b1b454f82898ac4809f02b2.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.844
+  },
+  "audit_objaverse_636f635cf2f64bad9aa836c0bb252fb6": {
+   "task": "library_audit_type",
+   "input_sha256": "c04f8de8c8197c13ae295ffe3b797f566169e7584625ac34d3174ba35ed0bd22",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/objaverse_636f635cf2f64bad9aa836c0bb252fb6.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.795
+  },
+  "audit_objaverse_6458ac945c14458a8e5f4a470495f042": {
+   "task": "library_audit_type",
+   "input_sha256": "7c1dadfd17d8b4e602605848b5ecd6cb283feb11743082c80e4645e9d8999ee5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/objaverse_6458ac945c14458a8e5f4a470495f042.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.847
+  },
+  "audit_objaverse_668237aabbf54beeb347bbaa7be930c7": {
+   "task": "library_audit_type",
+   "input_sha256": "fdd9a23c9895e8858c5a3687c6761c19008706158f1d75cb9010614d19dd1c26",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/objaverse_668237aabbf54beeb347bbaa7be930c7.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.777
+  },
+  "audit_objaverse_84d5cdc68a674e12958f41500e988502": {
+   "task": "library_audit_type",
+   "input_sha256": "3278a41d5d977e81e0cc1ce9033da5f64e030aaf75f091ba50aab54c6d91b621",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/objaverse_84d5cdc68a674e12958f41500e988502.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_objaverse_8580c4545d1649efb3503c6c2a012641": {
+   "task": "library_audit_type",
+   "input_sha256": "0f05b208937ac5053b280038d0e65af5036a2f8ded1b7546a652f4d1ef9628ba",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/objaverse_8580c4545d1649efb3503c6c2a012641.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_objaverse_87f2d57d6d7e4f22b2ac2da367dd6007": {
+   "task": "library_audit_type",
+   "input_sha256": "a516de6cc9cea3fa3543b0560a4200ce81c252d1aae3b996b9cd6837e0ca50e9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/objaverse_87f2d57d6d7e4f22b2ac2da367dd6007.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.788
+  },
+  "audit_objaverse_956a47ccc1a54a40a8711f3852d54433": {
+   "task": "library_audit_type",
+   "input_sha256": "195d9caaff8e098ab9951fbb427a0c401c2c7df54a8e90adb14304b7aa67a823",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_coffee/objaverse_956a47ccc1a54a40a8711f3852d54433.jpg"
+   ],
+   "data": {
+    "type_guess": "table_coffee"
+   },
+   "raw_text": "{\"type_guess\": \"table_coffee\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.851
+  },
+  "audit_objaverse_acf6497a3d274d90ad3750510348f07a": {
+   "task": "library_audit_type",
+   "input_sha256": "fdd724cb0b903c731c0aebb693b075b6d1a4c17538fe3da94df6ecf05b320078",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/objaverse_acf6497a3d274d90ad3750510348f07a.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.779
+  },
+  "audit_objaverse_ade41221909748209406d91b20c0b06d": {
+   "task": "library_audit_type",
+   "input_sha256": "56e8b7bc25cbdbb9e9661555200e3df4ccf981e199140fd410b5db09c655a0d3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/throw/objaverse_ade41221909748209406d91b20c0b06d.jpg"
+   ],
+   "data": {
+    "type_guess": "throw"
+   },
+   "raw_text": "{\"type_guess\": \"throw\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.754
+  },
+  "audit_objaverse_afb7e0918a2549788aaa83476adf5b8d": {
+   "task": "library_audit_type",
+   "input_sha256": "b7072fdf14d214ba69a0188b7769bff650ad9da3ea8f89933536e9e39ddcdeff",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/objaverse_afb7e0918a2549788aaa83476adf5b8d.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.823
+  },
+  "audit_objaverse_b0bd00b700a3451da1cb4ad9b082c3e0": {
+   "task": "library_audit_type",
+   "input_sha256": "e6e1e2865adf1e04f54644012ff5383bec73ef93ccf89d2da2a6051f031386ec",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/curtain/objaverse_b0bd00b700a3451da1cb4ad9b082c3e0.jpg"
+   ],
+   "data": {
+    "type_guess": "curtain"
+   },
+   "raw_text": "{\"type_guess\": \"curtain\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.777
+  },
+  "audit_objaverse_bac9ee64eb454a66a637ae0c20f56364": {
+   "task": "library_audit_type",
+   "input_sha256": "0ecaf5e891619b07c8f1d465b2f4ce44014dd9d3b68263c186141cd6c9c758a6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/objaverse_bac9ee64eb454a66a637ae0c20f56364.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_objaverse_bd0f8d2bfba24376bec2b827a0cbbabe": {
+   "task": "library_audit_type",
+   "input_sha256": "7d958c171928af690cb421030a22df9cc54d08ff468ecb401b855f94ca9cbf47",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/objaverse_bd0f8d2bfba24376bec2b827a0cbbabe.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.827
+  },
+  "audit_objaverse_c274989766c344ac97817f77a046c0e0": {
+   "task": "library_audit_type",
+   "input_sha256": "9ae428b308e60f6288c3c77cfb2d8d3d07a589ac6cb2e0bc5eb5de74a8d512e0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tray/objaverse_c274989766c344ac97817f77a046c0e0.jpg"
+   ],
+   "data": {
+    "type_guess": "tray"
+   },
+   "raw_text": "{\"type_guess\": \"tray\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_objaverse_da6d646358d1451fa751f1a9141290a3": {
+   "task": "library_audit_type",
+   "input_sha256": "01f4b5a2333616752e346d2a91d540ef694f270971078e6f36814aebce05a4f4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/objaverse_da6d646358d1451fa751f1a9141290a3.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.83
+  },
+  "audit_objaverse_dfcd6f9d7aba46938912a0f68d0ce676": {
+   "task": "library_audit_type",
+   "input_sha256": "d35851e54537cf5ad77b19292c1c1ef5a1d454eaa40b448006c3f96bc5ceec2d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/objaverse_dfcd6f9d7aba46938912a0f68d0ce676.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.748
+  },
+  "audit_objaverse_ea40259ea9ab488e8fe21eaf2fc29d6e": {
+   "task": "library_audit_type",
+   "input_sha256": "c9cdab3f959872e3222bc2b16bc57570415daed7337a0ef937e2b54fbb30766c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bunk_bed/objaverse_ea40259ea9ab488e8fe21eaf2fc29d6e.jpg"
+   ],
+   "data": {
+    "type_guess": "bunk_bed"
+   },
+   "raw_text": "{\"type_guess\": \"bunk_bed\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.88
+  },
+  "audit_vintage_wooden_drawer_01": {
+   "task": "library_audit_type",
+   "input_sha256": "c56cd7d92ae10e90edea360f71363dcdf68227e8e25a85578b7439d72574f19f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/dresser/vintage_wooden_drawer_01.jpg"
+   ],
+   "data": {
+    "type_guess": "dresser"
+   },
+   "raw_text": "{\"type_guess\": \"dresser\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.548
+  }
+ }
+}

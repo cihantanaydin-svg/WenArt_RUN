@@ -84,16 +84,52 @@ def test_models_without_title_evidence_need_two_passes():
     assert decide(gen, YES, {"type_guess": "sofa"})["status"] == "keep"
     assert decide(gen, YES, {"type_guess": "sofa_corner"})["status"] == "keep"     # a near type agrees
     assert decide(gen, YES, {"type_guess": "bench"})["status"] == "removed"
-    assert decide(gen, dict(YES, is_type=False))["status"] == "removed"           # pass 1 no: no pass 2 needed
+    assert decide(gen, dict(YES, is_type=False, type_guess="bench"))["status"] == "removed"   # pass 1 no: no pass 2
+    assert decide(gen, dict(YES, is_type=False))["status"] == "pending"   # "not a sofa", guess sofa: pass 2 decides
     assert decide(gen, YES, {"type_guess": "sofa"})["flags"]["real_product"] is False
 
 
 def test_crude_real_products_are_expected_to_stay_crude_uploads_to_go():
     abo = item(polycount=1500)
     assert D.expected_status(decide(abo)) == "keep?"
-    assert decide(abo, dict(YES, quality=3))["status"] == "removed"
+    # pod P3: a textured real product with few faces stays with quality 3 (D21: quality <= 2 removes)
+    assert decide(abo, dict(YES, quality=3))["status"] == "keep"
+    assert decide(abo, dict(YES, quality=2))["status"] == "removed"
     obj = item(id="objaverse_y", source="objaverse", title="Old sofa", polycount=1500)
     assert D.expected_status(decide(obj)) == "removed?"
+    assert decide(obj, dict(YES, quality=3))["status"] == "removed"
+    assert decide(obj, dict(YES, quality=4))["status"] == "keep"
+
+
+def deco(dtype, title):
+    return item(id=f"abo_{dtype}", type=dtype, kind="decor", title=title, bbox_m=[0.3, 0.3, 0.3],
+                bbox_min_m=[-0.15, -0.15, 0.0], bbox_max_m=[0.15, 0.15, 0.3], polycount=20000)
+
+
+def test_lights_hanging_from_their_top_are_not_upside_down():
+    """Pod P3: the sheets show a pendant light standing on the floor; the vision check called 23 lights upside down."""
+    for dtype in ("pendant_light", "ceiling_light"):
+        d = decide(deco(dtype, "Pendant Light"), dict(YES, type_guess=dtype, upright=False))
+        assert not any("upside down" in r for r in d["reasons"]), d["reasons"]
+    d = decide(deco("clock", "Wall Clock"), dict(YES, type_guess="clock", upright=False))
+    assert d["status"] == "removed"                              # a wall clock lying on its back stays a reason
+
+
+def test_decor_that_is_a_group_by_nature_may_be_several_objects():
+    for dtype, title in (("books", "Stack of Books"), ("candle", "Candle Set"), ("tray", "Serving Tray"),
+                         ("bowl", "Fruit Bowl"), ("basket", "Storage Basket")):
+        d = decide(deco(dtype, title), dict(YES, type_guess=dtype, single_object=False))
+        assert not any("more than one" in r for r in d["reasons"]), (dtype, d["reasons"])
+    d = decide(deco("vase", "Vase"), dict(YES, type_guess="vase", single_object=False))
+    assert any("more than one" in r for r in d["reasons"])
+
+
+def test_a_contradictory_answer_whose_guess_is_the_type_counts_as_the_type():
+    """Pod P3: 25 models were removed as "not a clock" by answers whose type guess was "clock"."""
+    d = decide(item(), dict(YES, is_type=False, type_guess="sofa"))
+    assert d["status"] == "keep" and any("taken as a sofa" in n for n in d["notes"]), d
+    d = decide(item(), dict(YES, is_type=False, type_guess="bench"))
+    assert d["status"] == "removed"
 
 
 def test_decor_flags():
