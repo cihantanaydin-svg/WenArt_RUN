@@ -45,24 +45,27 @@ def test_licence_removes_without_any_vision():
     assert d["status"] == "removed" and "not allowed" in d["reasons"][0]
 
 
-@pytest.mark.parametrize("change,word", [({"indoor": "outdoor"}, "outdoor"), ({"single_object": False}, "more than"),
-                                         ({"upright": False}, "side"), ({"parts_open": True}, "drawer"),
-                                         ({"quality": 2}, "quality 2"), ({"is_type": False, "type_guess": "bench"},
-                                                                         "not a sofa")])
+@pytest.mark.parametrize("change,word", [({"upright": False}, "side"), ({"parts_open": True}, "drawer")])
 def test_vision_answers_that_remove(change, word):
+    """The specific findings remove; the other vision-only findings keep the model with a doubt (decision 1a)."""
     d = decide(item(), dict(YES, **change))
     assert d["status"] == "removed" and any(word in r for r in d["reasons"]), d["reasons"]
 
 
 def test_not_a_real_product_needs_quality_four():
     obj = item(id="objaverse_x", source="objaverse", title="Sofa", licence="CC-BY-4.0")
-    assert decide(obj, dict(YES, real_product=False, quality=3))["status"] == "removed"
-    assert decide(obj, dict(YES, real_product=False, quality=4))["status"] == "keep"
+    d = decide(obj, dict(YES, real_product=False, quality=3))
+    assert d["status"] == "keep" and d["vision_doubt"]               # decision 1a: a doubt, not a removal
+    d = decide(obj, dict(YES, real_product=False, quality=4))
+    assert d["status"] == "keep" and not d["vision_doubt"]
 
 
 def test_the_front_answer_turns_the_front():
-    d = decide(item(), dict(YES, front_shown="back"))
+    """Only where code is unsure of the front (pod P3: 179 of 188 vision turns overrode agreed fronts)."""
+    d = decide(item(front_axis_confidence="low"), dict(YES, front_shown="back"))
     assert d["status"] == "fix" and d["fixes"] == {"front_quarter_turns": 2}
+    d = decide(item(), dict(YES, front_shown="right"))             # an agreed (high confidence) front stays
+    assert d["status"] == "keep" and not d["fixes"] and any("agreed front is kept" in n for n in d["notes"])
 
 
 def test_a_retype_needs_title_size_and_vision():
@@ -83,8 +86,10 @@ def test_models_without_title_evidence_need_two_passes():
     assert decide(gen, YES)["status"] == "pending"              # pass 2 not asked yet
     assert decide(gen, YES, {"type_guess": "sofa"})["status"] == "keep"
     assert decide(gen, YES, {"type_guess": "sofa_corner"})["status"] == "keep"     # a near type agrees
-    assert decide(gen, YES, {"type_guess": "bench"})["status"] == "removed"
-    assert decide(gen, dict(YES, is_type=False, type_guess="bench"))["status"] == "removed"   # pass 1 no: no pass 2
+    d = decide(gen, YES, {"type_guess": "bench"})                    # decision 1a: the passes disagree: a doubt
+    assert d["status"] == "keep" and "disagree" in d["vision_doubt"][0]
+    d = decide(gen, dict(YES, is_type=False, type_guess="bench"))     # pass 1 no: no pass 2, a doubt
+    assert d["status"] == "keep" and "not a sofa" in d["vision_doubt"][0]
     assert decide(gen, dict(YES, is_type=False))["status"] == "pending"   # "not a sofa", guess sofa: pass 2 decides
     assert decide(gen, YES, {"type_guess": "sofa"})["flags"]["real_product"] is False
 
@@ -119,9 +124,9 @@ def test_decor_that_is_a_group_by_nature_may_be_several_objects():
     for dtype, title in (("books", "Stack of Books"), ("candle", "Candle Set"), ("tray", "Serving Tray"),
                          ("bowl", "Fruit Bowl"), ("basket", "Storage Basket")):
         d = decide(deco(dtype, title), dict(YES, type_guess=dtype, single_object=False))
-        assert not any("more than one" in r for r in d["reasons"]), (dtype, d["reasons"])
+        assert not any("more than one" in r for r in d["reasons"] + d["vision_doubt"]), (dtype, d)
     d = decide(deco("vase", "Vase"), dict(YES, type_guess="vase", single_object=False))
-    assert any("more than one" in r for r in d["reasons"])
+    assert any("more than one" in r for r in d["vision_doubt"])
 
 
 def test_a_contradictory_answer_whose_guess_is_the_type_counts_as_the_type():
@@ -129,7 +134,7 @@ def test_a_contradictory_answer_whose_guess_is_the_type_counts_as_the_type():
     d = decide(item(), dict(YES, is_type=False, type_guess="sofa"))
     assert d["status"] == "keep" and any("taken as a sofa" in n for n in d["notes"]), d
     d = decide(item(), dict(YES, is_type=False, type_guess="bench"))
-    assert d["status"] == "removed"
+    assert d["status"] == "keep" and "not a sofa (a bench)" in d["vision_doubt"][0]     # decision 1a
 
 
 def test_decor_flags():
@@ -158,15 +163,18 @@ def entries(doc):
 
 def test_u3_the_18_nc_sa_models_are_removed_in_the_committed_catalogue():
     doc = library()
-    removed = [e for e in entries(doc) if (e.get("audit") or {}).get("status") == "removed"]
+    # since pod P3 every entry carries its full audit: the licence removals are the removed entries whose reasons
+    # name their licence
+    licence = [e for e in entries(doc) if (e.get("audit") or {}).get("status") == "removed"
+               and f"licence {e['licence']} not allowed (user decision of 10 Oct 2026)" in e["audit"]["reasons"]]
     by = {}
-    for e in removed:
+    for e in licence:
         by[e["licence"]] = by.get(e["licence"], 0) + 1
         assert e["audit"]["version"] == "m12" and e["audit"]["checked_utc"]
-        assert e["audit"]["reasons"] == [f"licence {e['licence']} not allowed (user decision of 10 Oct 2026)"]
         assert not C.usable(e)
     assert by == NC_SA
-    assert all(C.usable(e) for e in entries(doc) if e not in removed)
+    for e in entries(doc):
+        assert C.usable(e) == ((e.get("audit") or {}).get("status") in ("keep", "fix")), e["id"]
     assert W.U3_NOTE in doc["notes"]
 
 
@@ -214,3 +222,35 @@ def test_apply_a_retype_and_skip_pending():
     C.validate(doc, complete=False)
     stats = W.apply_decisions(doc, {e["id"]: {"status": "pending", "reasons": [], "fixes": {}, "flags": {}}}, "t")
     assert stats["skipped_pending"] == 1
+
+
+def test_vision_only_findings_keep_the_model_with_a_doubt():
+    """User decision 1a of 11 Oct 2026 (docs/milestone12.md §14.3): a finding of the vision check alone keeps the
+    model with ``vision_doubt``; code evidence and the specific findings (on its side, an open part) still remove."""
+    for change, word in (({"single_object": False}, "more than one"), ({"quality": 2}, "quality 2"),
+                         ({"is_type": False, "type_guess": "bench"}, "not a sofa"), ({"indoor": "outdoor"}, "outdoor")):
+        d = decide(item(), dict(YES, **change))
+        assert d["status"] == "keep" and any(word in x for x in d["vision_doubt"]), (change, d)
+    for change in ({"upright": False}, {"parts_open": True}):
+        d = decide(item(), dict(YES, **change))
+        assert d["status"] == "removed" and d["vision_doubt"] == []
+    # with code evidence the doubts join the removal reasons
+    d = decide(item(licence="CC-BY-NC-4.0", source="objaverse"), dict(YES, quality=2))
+    assert d["status"] == "removed" and any("quality 2" in r for r in d["reasons"]) and d["vision_doubt"] == []
+
+
+def test_the_writer_records_the_doubt_in_the_audit():
+    doc = {"entries": [{"id": "abo_x", "type": "sofa", "front_axis": "-Y", "bbox_m": [2, 0.9, 0.8]}]}
+    d = decide(item(), dict(YES, single_object=False))
+    W.apply_decisions(doc, {"abo_x": d}, "2026-10-11T00:00:00Z")
+    audit = doc["entries"][0]["audit"]
+    assert audit["status"] == "keep" and audit["vision_doubt"] == ["the vision check sees more than one object"]
+    assert C.usable(doc["entries"][0])
+
+
+def test_pass_two_asks_contradictory_untitled_models():
+    from wenart.assets.audit import cli
+    gen = item(id="gen_x", source="generated", licence="generated (TRELLIS.2-4B, MIT)",
+               title="Generated modern sofa (1)", units_known=False)
+    assert cli.second_pass_ids([gen], {"gen_x": dict(YES, is_type=False, type_guess="sofa")}) == {"gen_x"}
+    assert cli.second_pass_ids([gen], {"gen_x": dict(YES, is_type=False, type_guess="bench")}) == set()

@@ -240,6 +240,12 @@ def size_check(item: dict, cfg: dict, box=None) -> dict:
             return rec("size", "fix", "; ".join(reasons), fix=fixes, metrics=metrics)
         return rec("size", "ok", f"{_fmt(box)} m fits a real {ftype}" + (f" ({off:.0%} off)" if off > 0 else ""),
                    metrics=metrics)
+    if item.get("units_known") and r["height"][0] * (1 - slack) <= box[2] <= r["height"][1] * (1 + slack) \
+            and off <= fix and not turned:
+        # pod P3: a real product of known units whose height is right is a small (or large) one of its type, not a
+        # unit error: a uniform rescale would make it too tall (a 0.71 m school desk became 1.08 m high); kept
+        return rec("size", "warn", f"a real product {off:.0%} off the {ftype} table ({_fmt(box)} m): kept at its "
+                   "real size", metrics=metrics)
     if off <= fix or not item.get("units_known"):
         fixes["rescale"] = round(s, 4)
         why = ("the unit guess put it" if not item.get("units_known") else "it is")

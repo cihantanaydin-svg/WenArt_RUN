@@ -29,6 +29,7 @@ def rows_of(items: list[dict], checks: dict, decisions: dict, answers: Optional[
                     "styles": it.get("styles"), "status": d["status"], "expected": expected_status(d),
                     "reasons": d["reasons"], "fixes": d["fixes"], "pending": d.get("pending") or [],
                     "flags": d.get("flags") or {}, "notes": d.get("notes") or [],
+                    "vision_doubt": d.get("vision_doubt") or [],
                     "checks": [c for c in checks[it["id"]] if c["status"] not in ("ok", "skip")],
                     "vision": answers.get(it["id"]), "vision2": answers2.get(it["id"])})
     return out
@@ -113,6 +114,13 @@ def audit_markdown(rows: list[dict], title: str, intro: str = "") -> str:
     if fixes:
         lines += ["## Fixes (catalogue fields)", ""] + _table(["fix", "models"],
                                                               [[k, v] for k, v in fixes.most_common()]) + [""]
+    doubt = [r for r in rows if r.get("vision_doubt")]
+    if doubt:
+        lines += ["## Kept with a vision doubt (user decision 1a of 11 Oct 2026; each run's final check looks at "
+                  "them)", ""] + _table(
+            ["id", "type", "source", "status", "doubt", "title"],
+            [[r["id"], r["type"], r["source"], r["status"], "; ".join(r["vision_doubt"])[:120].replace("|", "/"),
+              str(r["title"])[:60].replace("|", "/")] for r in doubt]) + [""]
     pend = Counter(p["needs"] + ": " + reason_group(p["why"]) for r in rows for p in r["pending"])
     if pend:
         lines += ["## Waiting for the vision check", ""] + _table(["needs", "models"],

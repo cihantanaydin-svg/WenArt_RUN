@@ -12,6 +12,12 @@ What: ``decide(item, checks, answer=None, answer2=None, cfg)`` -> ``{"status", "
   ``rescale`` (unit scale, size off by 15-30 % or a wrong unit guess), ``type`` (a real product filed under the wrong
   type: the title names the type, the box fits it and the vision check agrees);
 - ``keep``: everything else;
+- ``vision_doubt`` (user decision 1a of 11 Oct 2026, docs/milestone12.md §14.3): a finding of the vision check alone
+  (another type, two passes disagree, outdoor, more than one object, quality <= 2, not a real product below quality 4)
+  no longer removes a model: the bake-off and the P3 sheets showed these look judgements are often wrong. The model is
+  kept (or fixed) with the findings in ``vision_doubt``; each run's final vision check looks at the doubtful models in
+  its views. Code evidence (licence, title, proportions, crude with low quality, duplicates, a broken mesh) and the
+  specific vision findings (lying on its side, an open part) still remove; a removed model lists its doubts too;
 - ``pending`` (dry audit only, never written to the catalogue): what still needs the vision answer, with the
   expected outcome.
 
@@ -98,6 +104,7 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
     fixes: dict = {}
     pending: list[dict] = []
     notes: list[str] = []
+    doubts: list[str] = []          # vision-only findings (user decision 1a of 11 Oct 2026, §14.3)
 
     for c in checks:
         if c["status"] == "remove":
@@ -163,31 +170,36 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
                             "expect": "keep"})
     else:
         if answer.get("is_type") is False and "type" not in fixes:
-            reasons.append(f"the vision check says it is not a {item['type']}"
-                           + (f" (a {answer['type_guess']})" if answer.get("type_guess") not in (None, "other",
-                                                                                                    item["type"])
-                              else ""))
+            doubts.append(f"the vision check says it is not a {item['type']}"
+                          + (f" (a {answer['type_guess']})" if answer.get("type_guess") not in (None, "other",
+                                                                                                   item["type"])
+                             else ""))
         elif answer.get("is_type") is True and untitled:
             if answer2 is None:
                 pending.append({"needs": "vision pass 2", "why": "no title evidence: two passes must agree",
                                 "expect": "keep"})
             elif not K.near(str(answer2.get("type_guess")), item["type"]):
-                reasons.append(f"the two vision passes disagree: a {item['type']} and a {answer2.get('type_guess')}")
+                doubts.append(f"the two vision passes disagree: a {item['type']} and a {answer2.get('type_guess')}")
         if answer.get("indoor") == "outdoor":
-            reasons.append("the vision check says it is an outdoor piece")
+            doubts.append("the vision check says it is an outdoor piece")
         if answer.get("single_object") is False and item["type"] not in GROUP_DECOR:
-            reasons.append("the vision check sees more than one object")
+            doubts.append("the vision check sees more than one object")
         if answer.get("upright") is False and item["type"] not in HANG_FROM_TOP:
             reasons.append("the vision check sees it lying on its side or upside down")
         if answer.get("parts_open") is True:
             reasons.append("a drawer, door or lid is open, or a part floats apart")
         if isinstance(q, int) and q <= remove_max:
-            reasons.append(f"vision quality {q} (<= {remove_max})")
+            doubts.append(f"vision quality {q} (<= {remove_max})")
         elif answer.get("real_product") is False and item.get("source") != "abo" and isinstance(q, int) \
                 and q < keep_min:
-            reasons.append(f"not a real manufactured product and vision quality {q} (< {keep_min})")
+            doubts.append(f"not a real manufactured product and vision quality {q} (< {keep_min})")
         side = answer.get("front_shown")
-        if has_front(item["type"]) and side in FRONT_TURNS and FRONT_TURNS[side]:
+        # pod P3: the vision answer about one angled view (front 3/4) turns a front only where code is unsure of it
+        # (front check review / warn); 179 of 188 turns overrode fronts the M8-M10 judges had agreed on
+        unsure_front = _status(checks, "front") in ("review", "warn")
+        if has_front(item["type"]) and side in FRONT_TURNS and FRONT_TURNS[side] and not unsure_front:
+            notes.append(f"the vision check sees the front on the {side} of view 0; the agreed front is kept")
+        elif has_front(item["type"]) and side in FRONT_TURNS and FRONT_TURNS[side]:
             fixes["front_quarter_turns"] = (fixes.get("front_quarter_turns", 0) + FRONT_TURNS[side]) % 4
             notes.append(f"the vision check sees the front on the {side} of view 0: front turned")
         elif has_front(item["type"]) and side == "unclear":
@@ -202,6 +214,8 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
         fixes.pop("rescale")
     if reasons:
         status = "removed"
+        reasons = reasons + doubts
+        doubts = []
     elif pending:
         status = "pending"
     elif fixes:
@@ -209,7 +223,8 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
     else:
         status = "keep"
     return {"status": status, "reasons": reasons, "fixes": fixes if status != "removed" else {},
-            "pending": pending if not reasons else [], "flags": flags, "notes": notes}
+            "pending": pending if not reasons else [], "flags": flags, "notes": notes,
+            "vision_doubt": doubts if status in ("keep", "fix") else []}
 
 
 def expected_status(decision: dict) -> str:

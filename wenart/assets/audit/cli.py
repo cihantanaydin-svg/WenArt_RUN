@@ -195,13 +195,14 @@ def _answers(args, items):
 
 
 def second_pass_ids(items: list, first: dict) -> set:
-    """The models of pass 2: no title evidence (generated, a title naming no type) and pass 1 says it is the type."""
+    """The models of pass 2: no title evidence (generated, a title naming no type) and pass 1 says it is the type (or
+    names the type as its guess: a contradictory answer counts as the type, ``decide.py``)."""
     from wenart.assets.audit import checks as CK
     out = set()
     for it in items:
         v = CK.title_check(it, set())[0]["metrics"]["verdict"]
         a = first.get(it["id"])
-        if v in ("silent", "generated") and a and a.get("is_type") is True:
+        if v in ("silent", "generated") and a and (a.get("is_type") is True or a.get("type_guess") == it["type"]):
             out.add(it["id"])
     return out
 
@@ -348,7 +349,7 @@ def cmd_write(args) -> int:
         print(f"audit write: {_audit(args) / 'audit.json'} of a full audit not found (the dry audit is never written)")
         return EXIT_NOTHING
     decisions = {r["id"]: {"status": r["status"], "reasons": r["reasons"], "fixes": r["fixes"], "flags": r["flags"],
-                           "notes": r["notes"]} for r in doc["items"]}
+                           "notes": r["notes"], "vision_doubt": r.get("vision_doubt") or []} for r in doc["items"]}
     stamp = args.checked_utc or now_utc()
     for path, indent, complete in ((Path(args.catalog) if args.catalog else I.LIBRARY_PATH, 1, False),
                                    (Path(args.polyhaven) if args.polyhaven else I.POLYHAVEN_PATH, 2, True)):

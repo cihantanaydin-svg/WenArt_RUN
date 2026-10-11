@@ -1289,14 +1289,23 @@ rest on the vision check alone**: quality 2 (70), more than one object (49), lyi
 object" are single framed pictures; generated sink cabinets marked quality 2 look like the kept ones), which matches
 the bake-off: the model's look judgements are weak (T2–T4). Your decision on the 137 is open (§14.3).
 
-### 14.3 Open decisions (11 Oct 2026)
+### 14.3 Decisions of 11 Oct 2026 and the audited catalogues
 
-1. The 137 vision-only removals (§14.2): (a) **lead's proposal**: remove the 15 with a specific finding (lying on its
-   side, an open part) and keep the 122 others (quality 2, more than one object, another type) usable with a
-   `vision_doubt` note that the final vision check of each run watches; 127 removals in all; (b) remove all 249 as
-   D21 says (quality ≤ 2 removes); (c) remove only the 112 with code evidence.
-2. Growth for pod P4 (§6.4; lists in `results/library/growth/`): Poly Haven 88 unused CC0 models (501 MB); the
-   Infinigen fixture test batch (BSD-3, toilet, bathtub, sinks, oven, fridge; ≈ 1.5 GB tools); the ABO style and
-   decor pass, 232 models (CC BY 4.0, 7.8 GB: classic, industrial and rustic seating and tables, 40 pillows, 40
-   rugs, 40 wall art, 30 headboards); GSO small decor, 36 objects (239 MB; CC BY 4.0 confirmed per object on the
-   pod, others dropped).
+User: "1a, 2 all four; go on with P4".
+
+1. **1a**: a finding of the vision check alone keeps the model with `audit.vision_doubt` (each run's final vision
+   check looks at the doubtful models in its views); code evidence and the specific vision findings (lying on its
+   side, an open part) remove. Two more rule errors showed when the catalogues were written (tests on the ABO
+   title sizes and the Poly Haven API sizes failed):
+   - the vision **front turns** (188) overrode fronts the M8–M10 judges had agreed on (179 of them, from one
+     answer about the angled front 3/4 view): a vision front now turns a model only where code is unsure of its
+     front (check `review` / `warn`), else it is a note;
+   - a **known-unit product** 15–30 % off its type's table was rescaled uniformly (Poly Haven's 0.71 m school desk
+     became 1.08 m high): a real product whose height fits its type keeps its real size (a warning).
+   Final audit (`results/library/audit/p3/audit.md`): **keep 907, fix 29, removed 126, pending 4** (generated models
+   waiting for a second vision pass, asked in P4; not used meanwhile); **121 kept with a vision doubt**. Fixes: 23
+   front turns (size check or an unsure front), 5 rescales (unknown units), 1 retype. Written into
+   `wenart/furniture/catalog_library.json` (keep 876, fix 28, removed 124, pending 4) and `catalog.json` (Poly Haven:
+   keep 31, fix 1, removed 2); `catalog.usable` refuses `removed` and `pending`. 936 library models are usable.
+2. **All four growth lists** for pod P4: Poly Haven 88 CC0, the Infinigen fixture test batch, ABO 232, GSO 36 (CC BY
+   4.0 confirmed per object).

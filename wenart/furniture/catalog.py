@@ -577,7 +577,8 @@ def parametric_height(ftype: str) -> float:
 # Milestone 12 contract (docs/milestone12.md §4.8, §6.2, §13.2; owner: track S; the audit fields: track B).
 NOT_USABLE_LICENCE_MARKERS = ("-NC", "-SA", "-ND")
 NOT_USABLE_FLAGS = ("non_commercial", "share_alike", "no_derivatives")
-REMOVED_STATUSES = ("removed", "remove")
+# pending: the audit waits for a vision pass (not used, CLAUDE.md library rules)
+REMOVED_STATUSES = ("removed", "remove", "pending")
 # Types built from code by design (docs/milestone12.md §4.8, D14): the kitchen counter run and island, wall cabinets
 # and stairs are made to the drawing; the kitchen and bath fixtures come from code when no audited model fits (§6.4:
 # "no open, commercial-safe library has realistic kitchen or bath fixtures; they come from code": our shower, washing
@@ -591,8 +592,8 @@ BY_DESIGN_PARAMETRIC_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_islan
 
 
 def usable(entry: dict) -> bool:
-    """A library entry the fit may use: its audit status is not ``removed`` (``entry["audit"]["status"]`` in keep /
-    fix, or no audit yet) and its licence is not non-commercial, share-alike or no-derivatives (CLAUDE.md library
+    """A library entry the fit may use: its audit status is not ``removed`` or ``pending`` (``entry["audit"]["status"]``
+    in keep / fix, or no audit yet: a fitted asset dict carries none) and its licence is not non-commercial, share-alike or no-derivatives (CLAUDE.md library
     rules, user OK of 10 Oct 2026): neither the licence text (``-NC``, ``-SA``, ``-ND``) nor the catalogue's
     ``licence_flag`` says so. Works on a catalogue entry and on a fitted ``asset`` dict alike."""
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
@@ -609,7 +610,7 @@ def unusable_reason(entry: dict) -> Optional[str]:
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
         reasons = "; ".join(str(r) for r in audit.get("reasons") or []) or "no reason recorded"
-        return f"audit: removed ({reasons})"
+        return f"audit: {str(audit.get('status')).lower()} ({reasons})"
     if not usable(entry):
         return f"licence {entry.get('licence')} ({entry.get('licence_flag') or 'NC/SA/ND'}): not used (CLAUDE.md)"
     return None

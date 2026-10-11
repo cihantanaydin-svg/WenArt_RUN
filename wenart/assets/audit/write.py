@@ -153,6 +153,8 @@ def fix_entry(entry: dict, fixes: dict) -> tuple[dict, dict]:
 
 def decision_sha(decision: dict) -> str:
     body = {k: decision.get(k) for k in ("status", "reasons", "fixes", "flags")}
+    if decision.get("vision_doubt"):
+        body["vision_doubt"] = decision["vision_doubt"]
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()[:16]
 
 
@@ -165,7 +167,13 @@ def apply_decisions(doc: dict, decisions: dict, checked_utc: str) -> dict:
         if d is None:
             continue
         if d["status"] == "pending":
+            # still waiting for a vision pass: recorded as pending, never used (catalog.usable; CLAUDE.md library
+            # rules: only audited models are used)
             stats["skipped_pending"] += 1
+            rec = audit_record("pending", [p.get("why", "") for p in d.get("pending") or []], checked_utc)
+            old = e.get("audit") if isinstance(e.get("audit"), dict) else {}
+            if old.get("status") != "pending" or old.get("reasons") != rec["reasons"]:
+                e["audit"] = rec
             continue
         status = d["status"]
         stats["counts"][status] = stats["counts"].get(status, 0) + 1
@@ -182,6 +190,8 @@ def apply_decisions(doc: dict, decisions: dict, checked_utc: str) -> dict:
             extra["before"] = before
         if d.get("notes"):
             extra["notes"] = list(d["notes"])
+        if d.get("vision_doubt"):
+            extra["vision_doubt"] = list(d["vision_doubt"])      # user decision 1a: kept, watched by the final check
         e["audit"] = audit_record(status, d.get("reasons") or [], checked_utc, new, **extra)
         for k in FLAG_KEYS:
             v = (d.get("flags") or {}).get(k)

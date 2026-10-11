@@ -154,3 +154,17 @@ def test_meshstats_nonmanifold_edge():
     v = np.vstack([v, [[0.5, -1.0, 0.5]]])
     f = np.vstack([f, [[0, 1, 8]]])                    # a fin on the bottom front edge: 3 faces share it
     assert M.analyse(v, f)["nonmanifold_edges"] == 1
+
+
+def test_a_real_product_with_the_right_height_is_not_rescaled():
+    """Pod P3: Poly Haven's SchoolDesk_01 (0.71 x 0.55 x 0.88 m, API sizes) was rescaled x1.23 to a desk's width and
+    became 1.08 m high; a known-unit product whose height fits its type keeps its real size."""
+    from wenart.assets.audit import load_config
+    cfg = load_config()
+    desk = {"id": "SchoolDesk_01", "type": "desk", "kind": "furniture", "source": "polyhaven", "units_known": True,
+            "bbox_m": [0.712, 0.546, 0.883], "front_axis_confidence": "high"}
+    c = CK.size_check(desk, cfg)
+    assert c["status"] == "warn" and "kept at its real size" in c["reason"] and not c.get("fix")
+    # unknown units: the same box is a unit guess to correct
+    c = CK.size_check(dict(desk, units_known=False), cfg)
+    assert c["status"] == "fix" and "rescale" in c["fix"]
