@@ -10,7 +10,8 @@ Session: cloud (`CLAUDE_CODE_REMOTE=true`), branch `opus_branch_06`, 10 Oct 2026
 
 Status: **approved by the user on 10 Oct 2026 (D1–D24 yes, D3a 0.15 m yes, D16 bake-off with Qwen3.8-Flash-Next on 2
 GPUs and 2-GPU full runs if it wins yes, GPU plan OK incl. `--over-5-ok` for P1 and 2-GPU pods, `CLAUDE.md` wording
-1–5 OK and applied)**; build in progress (step 2, contracts §13).
+1–5 OK and applied)**; build done 11 Oct 2026 (step 2, contracts §13): pods P1–P8 run, last GPU run P8 37/39 with
+both failures fixed on CPU (§14.6); the GPU re-check of those fixes waits for the next pod (§14.7).
 
 User answers to the step-0 questions (10 Oct 2026): (1) misread fixed equipment: the AI may set a real product size
 and move it up to 0.5 m, logged with evidence – **yes**; (2) real03 exterior: **ground floor only** (no inferred upper
@@ -1237,6 +1238,8 @@ A track that needs a change in another track's file writes it into its report; t
 | 11 Oct | Pod P6 `tuv1125xi3rawf` (RTX PRO 6000, 94 min, $3.91) | real02 full run with the P5 fixes, polish off: every stage ok; agent 4 rounds, 119 accepted / 172 rejected (swap_model 42/43, move_piece 31/106, set_exterior 12/21; complete_group 0/38: unverified anchors and complete groups, fixed in the brief); findings critical 5 -> 5, major 157 -> 149; GPU tests 38/39 (two attic corridor views see 196 m through a 1-2 px gap beside a door leaf: open, cosmetic) |
 | 11 Oct | Pod P4 `zdgah8suo4yy0h` (RTX PRO 6000, 34 min, $1.43) | library growth: 352 new models catalogued (Poly Haven 87 of 88, ABO 202 + 30 headboards kept on the volume without a type, GSO 36 with CC BY 4.0 confirmed per object, Infinigen 27 of 30), audited: keep 310, fix 4, removed 38, 48 with a vision doubt; the 4 pending P3 models kept after their second pass; (type, family) gaps 269 -> 227; failed: one Poly Haven file (no 1k glTF on the API) and a GPU test that also checked a removed 10x model (fixed) |
 | 11 Oct | Pod P7 `pcwgmt3034xqed` (RTX PRO 6000, 75 min, $3.12) | real01 + synthetic-01 with the grown library, polish off: every stage ok; real01 agent 4 rounds, 23 accepted / 18 rejected; GPU tests 72/75: (1) after the final check's findings went back, only the changed rooms' views were rendered again and the test took the others for stale (the render now lists `carried_from_earlier_build`; the test accepts them); (2) a cushion that found no headboard to lean on is not built (`decor_not_rested`; the M9 test now reads it); (3) synthetic-01's AI kitchen sink is hidden inside its counter run (open) |
+| 11 Oct | Pod P8 `skkyszbqaaadh3` (RTX PRO 6000, 96 min, $3.99) | real03 rerun with the P5–P7 fixes, polish off: every stage ok, 78 views; agent 2 rounds (time budget), **65 accepted / 35 rejected** (P5: 85 / 179); GPU tests 37/39 (P5: 29/39): a slit to the outside in one living-room view and a bathroom camera beside the shower glass (§14.6) |
+| 11 Oct | After P8 (CPU) | only windows and doors cut through overlapping walls; a cut inside an earlier cut adds no cutter (real03: 108 → 41); agent cameras stand on free floor; `complete_group` offered only when its dry run passes; build phase timings in the scene manifest; a program crash on a drawn double bed in a room under 9 m² fixed; full CPU suite 4,851 passed, 2 failed → both fixed (tests that read the pre-P4 catalogue) |
 
 ### 14.1 Pod P1: the agent model bake-off (11 Oct 2026)
 
@@ -1363,4 +1366,42 @@ is no longer parametric in `catalog.json`).
 | Infinigen (generated) | 30 | 27 (3 untyped: sheets only) | 15 | 2 | 10 |
 
 Usable library models after P4: 936 + 314 = 1,250 (plus the 4 P3 models kept after their second pass).
+
+### 14.6 Pod P8: real03 rerun (11 Oct 2026)
+
+All stages ok (polish off), 78 views (72 interior, 6 exterior). The P5 symptoms are gone: the bedroom behind
+`win_L0_002` has daylight, no camera stands in a plant, no stale view.
+
+| | P5 | P8 |
+|---|---|---|
+| agent rounds | 3 | 2 (time budget: each scene build took 446–483 s, P5 220–241 s) |
+| edits accepted / rejected | 85 / 179 (32 %) | **65 / 35 (65 %)** |
+| findings at the last round (critical / major) | 2 / 139 (round 3) | 4 / 145 (round 2) |
+| drawn pieces as drawn (drawn check) | 154 of 171 | 159 of 171 |
+| GPU tests | 29/39 | 37/39 |
+
+By tool (P8): swap_model 20/20, mark_not_furniture 17/17, move_piece 16/21, set_camera 3/7, retype_piece 3/7,
+fix_fixture 2/4, complete_group **0/13**, place_group 0/4, relayout_room 0/1.
+
+| P8 failure or finding | Cause | Fix (CPU, after P8) |
+|---|---|---|
+| `cam_r_L0_yasama_2`: depth up to 179 m, a full-height slit to the outside | `foreign_cuts` (P5 fix) also cut plain openings: the 0.25 m gap `o_L0_001` in the facade line `w_L0_001` cut through the column `w_L0_003` behind it | only windows and doors cut through other walls (`tests/test_shell_overlap_cut.py`, real03 numbers) |
+| `cam_r_L0_banyo_2_1` blocked, depth 0.05 m | the agent moved the camera 0.05 m beside the 2 m shower glass; the camera check only refused a point inside a piece | `exterior_checks.free_floor_problems`: an agent camera keeps 0.2 m from floor pieces and 0.15 m from walls (in a room without free floor: from pieces at camera height); the refusal names the nearest free point (`tests/test_camera_override_free_floor.py`) |
+| 108 extra boolean cuts on real03's stacked wall layers | each copy of a window drawn on 3–4 layers cut every layer | a cut inside an earlier cut of the same wall adds no cutter (`cut_through_covered`): 41 cutters; a local build with proxy boxes 62 → 55 s |
+| scene build 446 s (P5 232 s), so only 2 agent rounds | not found: the extra cuts explain ≈ 10 % (local build), the 5 new Poly Haven pieces are 1k models of 41–96 k polygons, the camera search took 3 s, P7's builds after the library growth were normal | the scene manifest now records `phase_seconds` (walls, furniture, cameras, previews, save, glb ...): the next pod shows where the time goes |
+| complete_group 0/13 | offered for groups the solver cannot complete (a washbasin in full 1.6 × 2.5 m bathrooms) | offered only when a dry run of the completion passes (`tests/test_agent_brief.py`); the dry run predicts all 6 groups P8 tried |
+| (found by that test) a drawn double bed in a room under 9 m² | the group took the single-bed row's options: KeyError in the program | the drawn group keeps its own options (`tests/test_groups_program.py`) |
+
+### 14.7 Open items after the build
+
+| Item | State |
+|---|---|
+| GPU re-check of the after-P8 fixes (slit, bathroom camera, fewer cuts, build timings, completion dry run) | waits for the next pod (≈ $4; today's limit is reached: $27.09 of $30) |
+| scene build twice as slow on real03 in P8 | `phase_seconds` will show the phase |
+| a 1–2 px gap beside a door leaf (real02 attic corridor, 196 m depth in 2 views) | open, cosmetic |
+| synthetic-01: the AI kitchen sink sits inside its counter run | open |
+| bathroom views whose camera model does not see the door leaf (P5 bathtub hidden behind it) | open |
+| window pull 89 % unclipped (90 % wanted) in 8 hall views | open, marginal |
+| 48 kept models (decision 1a) whose vision check names another type, 24 of them a known furniture type (e.g. Poly Haven `chinese_armchair` typed `office_chair`, `metal_stool_02` typed `ottoman`) | kept with a vision doubt; the final vision check watches them; a retype to the vision's type after a second agreeing pass is a decision for you |
+| place_group 0/4 ("no candidate position fits the room") | open: the same dry-run gate as complete_group would fit |
 

@@ -773,7 +773,7 @@ The user saw only the core. The flats were in `tekkat.dwg` all along; details in
 - Pods: 3 runs ($6.10). Run 3: 8 flats + core, 84 views, every room lit, agent 2 rounds; GPU tests 37/39.
 - Open: white boxes in some living rooms (untyped drawn pieces), 2 GPU tests, no exterior view.
 
-## Milestone 12 – ground levels, furniture overhaul, smarter pod AI, library audit (steps 0–1 done and approved 10 Oct 2026; build in progress)
+## Milestone 12 – ground levels, furniture overhaul, smarter pod AI, library audit (built 11 Oct 2026; GPU re-check of the last fixes open)
 
 Spec: `docs/milestone12.md` (prompt: `docs/prompts/milestone12.md`). Cloud session, CPU only, no pod, no code change.
 
@@ -830,3 +830,37 @@ signatures, pipeline and build hooks, schema fields, DXF attribute tags in the t
 --gpu-count 2`); six tracks build in parallel: L levels, R reading, G groups and solver, S scene/decor/fit,
 A agent/run/bake-off, B library audit.
 
+**Step 2, build and pods (11 Oct 2026)** (`docs/milestone12.md` §14):
+
+| Pod | What | Result | Cost |
+|---|---|---|---|
+| P1 | agent model bake-off (4 models, 8 variants) | **Qwen3.8-27B-FP8, thinking off** stays: 40.6 points; Flash-Next 46.2 but 2 GPUs (rule: ≥ 10 points better); no model judges layouts from images (T3 at chance), so layout errors stay with code checks | $17.31 (of which failed tries $9.81) |
+| P2 + P3 | library audit (1,066 models) | after 6 rule fixes and your decision 1a: keep 907, fix 29, removed 126, 121 kept with a vision doubt | $2.51 |
+| P4 | library growth (your 4 lists) | 352 catalogued, 314 usable (Poly Haven 70, ABO 196, GSO 31, Infinigen 17); 1,250 usable models now; gaps 269 → 227 | $1.43 |
+| P5 | real03 full run | 85 / 179 agent edits accepted; GPU tests 29/39 → 2 scene fixes, test updates, 5 agent fixes | $4.08 |
+| P6 | real02 full run (basement, attic, variant) | 119 / 172 accepted; GPU tests 38/39 (a 1–2 px gap by a door leaf) | $3.91 |
+| P7 | real01 + synthetic-01 | real01 23 / 18 accepted; GPU tests 72/75 → 2 fixes, 1 open | $3.12 |
+| P8 | real03 rerun | **65 / 35 accepted** (65 %, P5 32 %); GPU tests 37/39 → both fixed on CPU | $3.99 |
+
+What changed for the user's five problems (real03 P5 → P8 unless noted):
+- **Levels:** level marks read (real03 datum 93.20, real02 43.00); ground 0.15 m below the ground floor where
+  nothing is drawn; single-floor projects get a slab, roof, site and exterior views (real03: 6).
+- **Furniture:** drawn pieces read first, symbols never built, untyped pieces not built but listed; groups placed by
+  the solver; 159 of 171 drawn pieces stay as drawn (P5 154).
+- **Decor:** rests on the built mesh of its host; a cushion with nothing to lean on is not built.
+- **Agent:** accepted share 32 % → 65 %; the brief offers only edits that can pass (relayout and completion dry runs,
+  no moves of drawn groups, group-keyed retry limits); agent cameras checked for free floor.
+- **Library:** audited (keep / fix / remove with evidence, contact sheets per type), grown by 314 usable models.
+
+Fixes after P8 (CPU, tests green, full CPU suite 4,851 passed before them, the 2 failures fixed): only windows and
+doors cut through overlapping walls (a slit to the outside), agent cameras on free floor (a camera 5 cm from shower
+glass), 108 → 41 wall cuts on real03, complete_group only after a passing dry run, build phase timings, a program
+crash on a double bed in a room under 9 m².
+
+Open (`docs/milestone12.md` §14.7): GPU re-check of the after-P8 fixes (next pod, ≈ $4); real03's scene build was
+twice as slow in P8 (cause not found on CPU; the new phase timings will show it); a door-leaf gap (cosmetic); an AI
+kitchen sink inside its counter run (synthetic-01); bathroom cameras that do not see a door leaf; window pull 89 %;
+48 kept models whose vision check names another type (a retype rule is your call); place_group 0/4.
+
+GPU cost of Milestone 12: $36.35 (estimate $35–49). Project total: **$125.72 of $200**. Today (11 Oct UTC):
+$27.09 of $30. No pod is running.
