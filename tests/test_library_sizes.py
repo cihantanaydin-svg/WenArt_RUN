@@ -140,3 +140,30 @@ def test_the_old_readers_still_read_the_table():
     assert set(rs) == set(gs) == set(ov) == set(schema_types())
     assert src.endswith("size_table.yaml") and tol == 0.15
     assert rs["crib"] == ((1.15, 1.50), (0.60, 0.85))
+
+
+def test_the_json_mirror_equals_the_yaml_and_serves_without_pyyaml(monkeypatch):
+    """Blender's Python has no PyYAML (a CPU Blender build of 11 Oct 2026 failed in the scene checks): sizes.py falls
+    back to size_table.json, which must equal the YAML (rewrite it with ``sizes.write_json_mirror()``)."""
+    import builtins
+    import json
+
+    import yaml
+    from wenart.furniture import sizes
+    table = yaml.safe_load(sizes._TABLE.read_text(encoding="utf-8"))
+    assert json.loads(sizes._TABLE_JSON.read_text(encoding="utf-8")) == table, \
+        "size_table.json is out of date: run python -c 'from wenart.furniture import sizes; sizes.write_json_mirror()'"
+    real_import = builtins.__import__
+
+    def no_yaml(name, *args, **kwargs):
+        if name == "yaml":
+            raise ImportError("no PyYAML here (Blender)")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", no_yaml)
+    sizes.reload()
+    try:
+        assert sizes.real_range("sofa") is not None and sizes.table_tolerance() == table.get("tolerance", 0.15)
+    finally:
+        monkeypatch.setattr(builtins, "__import__", real_import)
+        sizes.reload()

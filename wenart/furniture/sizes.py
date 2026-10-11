@@ -40,16 +40,34 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
-import yaml
-
 _TABLE = Path(__file__).resolve().parents[1] / "recognition" / "size_table.yaml"
+# Blender's own Python has no PyYAML (the scene checks S4 read this table inside Blender): a JSON copy of the YAML,
+# kept equal by tests/test_library_sizes.py (``write_json_mirror`` rewrites it after the YAML changed).
+_TABLE_JSON = _TABLE.with_suffix(".json")
 DECOR_PREFIX = "decor_"
 TOLERANCE = 0.15
 
 
+def _load_yaml() -> dict:
+    import yaml
+    return yaml.safe_load(_TABLE.read_text(encoding="utf-8")) or {}
+
+
 @lru_cache(maxsize=1)
 def _data() -> dict:
-    return yaml.safe_load(_TABLE.read_text(encoding="utf-8")) or {}
+    try:
+        return _load_yaml()
+    except ImportError:
+        import json
+        return json.loads(_TABLE_JSON.read_text(encoding="utf-8"))
+
+
+def write_json_mirror() -> Path:
+    """Rewrite ``size_table.json`` from the YAML (run after editing the YAML)."""
+    import json
+    _TABLE_JSON.write_text(json.dumps(_load_yaml(), indent=1, ensure_ascii=False, sort_keys=True) + "\n",
+                           encoding="utf-8")
+    return _TABLE_JSON
 
 
 def _types() -> dict:
