@@ -11,7 +11,8 @@ JOB = ROOT / "scripts" / "jobs" / "volume_clean.sh"
 
 def _ws(tmp_path: Path) -> Path:
     ws = tmp_path / "ws"
-    for d in ("outputs/real03/scene", "outputs/real04/scene", "outputs/synthetic-01", "jobs/20261010-000000-full/results",
+    for d in ("outputs/real03/scene", "outputs/real04/scene", "outputs/synthetic-01", "repo/outputs/real02/scene",
+              "repo/outputs/real04/scene", "repo/wenart", "jobs/20261010-000000-full/results",
               "jobs/20261011-153030-full/results", "jobs/clean-1", "outputs-archive/x", ".repo-broken-1/a",
               "assets/models", "library-growth/abo", "hf/hub", "projects-private/p1", "results-private/p1"):
         (ws / d).mkdir(parents=True, exist_ok=True)
@@ -31,8 +32,8 @@ def test_old_outputs_go_and_everything_else_stays(tmp_path):
     assert (ws / "outputs/real03").exists() and "would delete" in (tmp_path / "results/volume_clean.txt").read_text()
     res = _run(ws, tmp_path)
     assert res.returncode == 0, res.stderr
-    gone = ("outputs/real03", "outputs/synthetic-01", "jobs/20261010-000000-full", "outputs-archive", ".repo-broken-1")
-    kept = ("outputs/real04", "jobs/20261011-153030-full", "jobs/clean-1", "assets/models", "library-growth/abo",
+    gone = ("outputs/real03", "outputs/synthetic-01", "repo/outputs/real02", "jobs/20261010-000000-full", "outputs-archive", ".repo-broken-1")
+    kept = ("outputs/real04", "repo/outputs/real04", "repo/wenart", "jobs/20261011-153030-full", "jobs/clean-1", "assets/models", "library-growth/abo",
             "hf/hub", "projects-private/p1", "results-private/p1")
     assert not any((ws / g).exists() for g in gone)
     assert all((ws / k).exists() for k in kept)
