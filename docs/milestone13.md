@@ -782,7 +782,7 @@ GPU cost of step 0 and step 1: $0.00 (no pod). Project total unchanged: $130.54 
 | D3 | keep flagged | the 281 nvdiffrast-era generated models stay usable with `licence_flag: tool_nc`; in `commercial` mode they are excluded |
 | D4 | yes, "but we need a good model" | the fallback ladder is built, and the fallback must look like a real product: module builders from real module sizes with PBR slots, parametric families v2 with PBR, bevel and real proportions; every piece built below the library level is listed in the report so the gap can be closed with a real model later |
 | D5 | yes | drawn groups as units (0.5 m per-member bound), product-size snap for furniture; off with `keep` / `furnished_rooms_keep_size` |
-| D6 | raise to $300 | project total $300 (CLAUDE.md); the pods of §8 are approved; the M12 baselines B0 of real02/real03 run (recommended, not objected) |
+| D6 | raise to $300 | project total $300 (CLAUDE.md); the pods of §8 are approved. **Later on 12 Oct 2026 the user cancelled the M12 baselines ("no need m12 baselines, you can use the m11 as base line, stop the pods")**: the baseline of real02 and real03 is the committed M11 run (`results/renders/<p>/scene_manifest.json` carries its cameras), the baseline of real04 is the committed M12 run (no camera records committed: compared by camera name and room); pod B0a was stopped after 3 minutes (§14) |
 | D7 | yes with my edits | `CLAUDE.md` updated (this commit) |
 | D8 | no | cameras keep the M11 policy (18/16 mm at 1.25 m, hall views as today); the before/after uses the same camera records on both sides; the exterior camera bugs (site view below the horizon, dropped views behind the hedge) are still fixed because they are bugs, not policy |
 | D9 | hold the paid ones | no Maxtree, no BlenderKit, no 3D-FUTURE in Milestone 13 |
@@ -889,7 +889,7 @@ commits, pushes, then writes `tests/test_m13_contracts.py`.
 |---|---|---|
 | P1 | `scripts/jobs/m13_p1.sh`: levers A/B (T5, T6) + GPU tests of T2, T5, T6 | CPU suite green; T5, T6 merged |
 | P2 | `scripts/jobs/library_growth.sh` with `ingest-hssd` + `demands` + `size-grid` + audit + gaps | **the user has accepted the HSSD terms on Hugging Face with the account behind the pod's `hf_token`**; T7 merged |
-| B0 | `scripts/jobs/full.sh` real02 + real03 on the M12 commit (baselines) | nothing (M12 code: `scripts/gpu_run.py --commit <M12 head>`) |
-| P3 | full run real04 with `--cameras-from` the committed cameras + new catalogue | P1 constants applied, P2 catalogue |
-| P4 | full runs real02 + real03 | P3 fixes |
+| ~~B0~~ | cancelled by the user on 12 Oct 2026: the committed M11 runs are the baseline of real02 and real03 (the M12 run for real04) | – |
+| P3 | full run real04 with the new catalogue (cameras searched: no camera records are committed for real04) | P1 constants applied, P2 catalogue |
+| P4 | full runs real02 + real03 with `--cameras-from` the committed M11 scene manifests (set 1) and the searched cameras (set 2) | P3 fixes |
 | P5 | one fix round + metric renders | P4 |
