@@ -778,7 +778,7 @@ GPU cost of step 0 and step 1: $0.00 (no pod). Project total unchanged: $130.54 
 | # | Decision | What it means for the build |
 |---|---|---|
 | D1 | "go to relaxed" | `licence_mode: relaxed` is the Milestone 13 default: core + commercial-safe base + the HSSD layer; the switch and the per-render line are built anyway |
-| D2 | HSSD: yes | HSSD (CC BY-NC 4.0, gated) is downloaded and audited in pod P2; **the user must accept the terms at `https://huggingface.co/datasets/hssd/hssd-models` with the Hugging Face account whose token is the pod's `hf_token` secret before P2** |
+| D2 | HSSD: yes | HSSD (CC BY-NC 4.0, gated) is downloaded and audited in pod P2; the user accepts the terms at `https://huggingface.co/datasets/hssd/hssd-models` with the Hugging Face account whose token is the pod's `hf_token` secret (user, 12 Oct 2026: "I accept this"); P2 checks the gate at run time and skips the HSSD step with a clear log line on a 403 |
 | D3 | keep flagged | the 281 nvdiffrast-era generated models stay usable with `licence_flag: tool_nc`; in `commercial` mode they are excluded |
 | D4 | yes, "but we need a good model" | the fallback ladder is built, and the fallback must look like a real product: module builders from real module sizes with PBR slots, parametric families v2 with PBR, bevel and real proportions; every piece built below the library level is listed in the report so the gap can be closed with a real model later |
 | D5 | yes | drawn groups as units (0.5 m per-member bound), product-size snap for furniture; off with `keep` / `furnished_rooms_keep_size` |
