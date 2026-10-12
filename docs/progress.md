@@ -888,3 +888,43 @@ on one plot ("r14 is gorgeous the ground slope"); the USD limits may be passed f
 
 GPU cost: $130.44 of $200 in total; 11 Oct: $31.81 of $60. No pod is running.
 
+
+## Milestone 13 – realistic furniture, real vegetation, designer placement (steps 0-1 done, 12 Oct 2026; waiting for your OK)
+
+Spec: `docs/milestone13.md` (prompt: `docs/prompts/milestone13_fable.md`). Cloud session, branch `Claude/Fable_01`,
+CPU only, no pod, no change to pipeline code. A 60-agent workflow did the work (3 image reviewers over all 182
+committed renders, 6 diagnosis agents, 6 research agents, 45 licence/count verifiers, 3 proposal writers, 3 critics).
+
+**Step 0, diagnosis** (§1): every committed render tagged and scored (`results/review/m13_step0/`): real04 (M12 code)
+mean 1.88 of 5, real02 1.78, real03 1.85 (M11 code; the committed real02/real03 results predate the M12 solver and
+audit). Ranked causes with numbers: (1) drawn anchors left empty by the fit (real04: 43 pieces not built, 20 of 33
+drawn anchors, 4 of 8 bedrooms without a bed, 4 of 4 living rooms without a sofa; the library has no model near the
+drawn sizes and M12 D14 forbids a built fallback); (2) weak model choice (a "recolourable wood first" re-sort
+overrides the ranking: one Objaverse chair of unknown units used 40-42 times; audit quality, units, faces never
+rank; half the pieces stretched > 5 %); (3) daylight 300× too weak (sun 3 W/m² vs 1000 reference; daylight rooms at
++3..+8 EV, panes pulled dark); (4) flat shell materials on 72-81 % of every frame, no displacement/sheen/coat/bevel/AO,
+the brief's fabric colour never applied; (5) placement blocked by invisible drawn obstacles (unbuilt anchors, 44
+untyped pieces); drawn groups not units; 84 % of round-1 findings survive 6 agent rounds, 20 of 160 accepted edits
+removed their finding, the agent is 56 % of the pod; (6) outdoor: 101 hedge circles read as 4 m lollipop trees, flat
+ground, pool boxes 1-2 m out of the ground, no sun disc, black below the horizon, 3 of 7 exterior cameras dropped;
+(7) 18/16 mm lenses at 1.25 m and 12 of 48 views on bare landing walls. 13 plain bugs listed (§1.8).
+
+**Step 1, research and design** (§2-§4): sources checked against official pages (HSSD, 3D-FUTURE/FRONT, ABO, Poly
+Haven, ambientCG, TexVerse, Objaverse++, OmniObject3D, BlenderKit, Sketchfab, Fab/Megascans, Infinigen, Sapling,
+TRELLIS.2, Pixal3D, Hunyuan3D, SAM 3D, PartCrafter, Material Anything, Holodeck, LayoutVLM, SceneEval, 2026 layout
+papers, NKBA, Turkish minimums, Blender 5.2 levers); 45 verifiers refuted or corrected the decisive claims (§2.6).
+Key facts: no commercial-safe source has real bath/kitchen fixtures (HSSD, CC BY-NC 4.0, is the only one); no
+permissive professional layout data exists; open VLMs judge layouts at chance (code decides); Sapling runs headless in
+bpy 5.2.2; every existing generated model was exported with the NC tool nvdiffrast; the real pod price is $2.49/h,
+not $2.09. Three complete approaches (A quality-first relaxed, B commercial-safe maximum, C procedural/generative
+first) with critics' verdicts and a comparison table (§3-§4).
+
+**Recommendation** (§5-§9): build the licence-neutral core first (anchor never empty with module builders, fit
+ranking, placement units, agent acceptance by "finding gone", physical daylight and light rigs, shell PBR with
+displacement/sheen/coat/bevel/AO, 24 mm cameras, hedge detector + real/generated trees + site platforms + pools +
+sky), grow the library commercial-safe (ABO by size grid, Poly Haven 2K with its 20 CC0 trees, ambientCG), add HSSD
+as a switchable relaxed layer if its terms are accepted; licence switch with per-render `commercial-safe` line and
+ATTRIBUTION sections; 17 before/after metrics on frozen cameras; 6 pods ≈ $46-54 at $2.49/h (project total needs a
+raise to $230); 7 `CLAUDE.md` wording changes; 10 decisions (§10).
+
+GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is running.

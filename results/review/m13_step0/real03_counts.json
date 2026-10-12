@@ -1,0 +1,25 @@
+{
+ "tag_counts": {
+  "bad_camera": 31,
+  "empty_room": 13,
+  "bare_material": 40,
+  "lighting_bad": 5,
+  "parametric_boxy": 27,
+  "wrong_scale": 4,
+  "floating_or_odd_placement": 30,
+  "grey_box": 47,
+  "decor_wrong": 18,
+  "blocked_door_window": 10,
+  "overlap_cut": 3,
+  "looks_acceptable": 3,
+  "missing_anchor": 11,
+  "flat_outdoor": 0,
+  "lollipop_vegetation": 0
+ },
+ "histogram": {
+  "1": 28,
+  "2": 43,
+  "3": 13,
+  "4": 1
+ }
+}

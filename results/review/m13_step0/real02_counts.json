@@ -1,0 +1,109 @@
+{
+ "tag_counts": {
+  "parametric_boxy": 23,
+  "bare_material": 28,
+  "lighting_bad": 24,
+  "bad_camera": 24,
+  "empty_room": 11,
+  "grey_box": 8,
+  "floating_or_odd_placement": 18,
+  "overlap_cut": 4,
+  "wrong_scale": 6,
+  "decor_wrong": 11,
+  "flat_outdoor": 12,
+  "looks_acceptable": 2,
+  "blocked_door_window": 2,
+  "lollipop_vegetation": 7
+ },
+ "score_histogram": {
+  "1": 15,
+  "2": 30,
+  "3": 4
+ },
+ "ranked": [
+  [
+   "bare_material",
+   28,
+   57.1,
+   1.64
+  ],
+  [
+   "lighting_bad",
+   24,
+   49.0,
+   1.67
+  ],
+  [
+   "bad_camera",
+   24,
+   49.0,
+   1.54
+  ],
+  [
+   "parametric_boxy",
+   23,
+   46.9,
+   1.74
+  ],
+  [
+   "floating_or_odd_placement",
+   18,
+   36.7,
+   1.89
+  ],
+  [
+   "flat_outdoor",
+   12,
+   24.5,
+   1.92
+  ],
+  [
+   "empty_room",
+   11,
+   22.4,
+   1.36
+  ],
+  [
+   "decor_wrong",
+   11,
+   22.4,
+   1.73
+  ],
+  [
+   "grey_box",
+   8,
+   16.3,
+   1.88
+  ],
+  [
+   "lollipop_vegetation",
+   7,
+   14.3,
+   2.0
+  ],
+  [
+   "wrong_scale",
+   6,
+   12.2,
+   1.83
+  ],
+  [
+   "overlap_cut",
+   4,
+   8.2,
+   2.0
+  ],
+  [
+   "looks_acceptable",
+   2,
+   4.1,
+   3.0
+  ],
+  [
+   "blocked_door_window",
+   2,
+   4.1,
+   2.0
+  ]
+ ]
+}

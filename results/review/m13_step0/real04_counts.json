@@ -1,0 +1,124 @@
+{
+ "tag_counts": {
+  "parametric_boxy": 13,
+  "bare_material": 26,
+  "lighting_bad": 25,
+  "bad_camera": 21,
+  "lollipop_vegetation": 15,
+  "empty_room": 15,
+  "missing_anchor": 10,
+  "overlap_cut": 5,
+  "floating_or_odd_placement": 12,
+  "decor_wrong": 7,
+  "wrong_scale": 2,
+  "looks_acceptable": 3,
+  "blocked_door_window": 3,
+  "flat_outdoor": 10
+ },
+ "hist": {
+  "1": 20,
+  "2": 17,
+  "3": 8,
+  "4": 3
+ },
+ "rows": [
+  [
+   "bare_material",
+   26,
+   54.166666666666664,
+   2.0384615384615383,
+   1
+  ],
+  [
+   "lighting_bad",
+   25,
+   52.083333333333336,
+   1.72,
+   1
+  ],
+  [
+   "bad_camera",
+   21,
+   43.75,
+   1.4761904761904763,
+   1
+  ],
+  [
+   "empty_room",
+   15,
+   31.25,
+   1.0666666666666667,
+   1
+  ],
+  [
+   "lollipop_vegetation",
+   15,
+   31.25,
+   1.6,
+   1
+  ],
+  [
+   "parametric_boxy",
+   13,
+   27.083333333333332,
+   1.9230769230769231,
+   1
+  ],
+  [
+   "floating_or_odd_placement",
+   12,
+   25.0,
+   1.8333333333333333,
+   1
+  ],
+  [
+   "missing_anchor",
+   10,
+   20.833333333333332,
+   1.2,
+   1
+  ],
+  [
+   "flat_outdoor",
+   10,
+   20.833333333333332,
+   2.1,
+   1
+  ],
+  [
+   "decor_wrong",
+   7,
+   14.583333333333334,
+   1.8571428571428572,
+   1
+  ],
+  [
+   "overlap_cut",
+   5,
+   10.416666666666666,
+   1.6,
+   1
+  ],
+  [
+   "blocked_door_window",
+   3,
+   6.25,
+   1.0,
+   1
+  ],
+  [
+   "looks_acceptable",
+   3,
+   6.25,
+   4.0,
+   4
+  ],
+  [
+   "wrong_scale",
+   2,
+   4.166666666666667,
+   2.0,
+   2
+  ]
+ ]
+}
