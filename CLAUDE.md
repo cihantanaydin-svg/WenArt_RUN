@@ -22,7 +22,9 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   Pods: image `runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404`, Network Volume in EU-RO-1,
   GPU: the fastest one in stock under $5.00/h with ≥ 24 GB (order in `scripts/gpu_run.py` GPU_PRIORITY: RTX PRO
   6000, RTX 5090, RTX PRO 5000, L40S, H200/H100, RTX 4090, …, RTX PRO 4500; never L4), prices read live from
-  `/v2/catalog/gpus`; a pod whose worst case is over $5 needs your OK first (`--over-5-ok`).
+  `/v2/catalog/gpus`; a pod whose worst case is over $5 needs your OK first (`--over-5-ok`). Real prices since
+  9 Oct 2026: RTX PRO 6000 ≈ $2.5/h (not the $2.09 of early October), RTX 5090 ≈ $1.2/h (32 GB: cannot host the
+  52 GB agent/judge server). Plan pods with these numbers.
 
 ## Secrets
 - `RUNPOD_API_KEY` comes from the environment (cloud) or the user's local store (Mac).
@@ -31,7 +33,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   a key into the chat. `.env` is git-ignored.
 
 ## GPU limits (hard rules)
-- Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $30 per day (raised from $10 to $30 on 4 Oct 2026; $40 on 9 Oct 2026 only, user OK, `DAY_LIMITS` in `scripts/gpu_run.py`), max 4 hours per pod run (raised from 2 h on 11 Oct 2026, user OK), one pod at a time. 11 Oct 2026 only: the real04 test may pass the USD limits (user OK; day cap $60 in `DAY_LIMITS`, `--over-5-ok`). Project total: $200 (raised from $100 on 10 Oct 2026, user OK).
+- Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $30 per day (raised from $10 to $30 on 4 Oct 2026; $40 on 9 Oct 2026 only, user OK, `DAY_LIMITS` in `scripts/gpu_run.py`), max 4 hours per pod run (raised from 2 h on 11 Oct 2026, user OK), one pod at a time. 11 Oct 2026 only: the real04 test may pass the USD limits (user OK; day cap $60 in `DAY_LIMITS`, `--over-5-ok`). Project total: $300 (raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026, user OK, Milestone 13; the
+  Milestone 13 pods of `docs/milestone13.md` §8 are approved under that decision, each with `--over-5-ok`).
   A pod may have 2 GPUs when the price per GPU-hour stays within the limit; its worst case counts as one action
   (user OK of 10 Oct 2026, Milestone 12).
 - Ask the user before: going over any limit, creating or deleting a Network Volume,
@@ -64,17 +67,52 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   (default: yes).
 - Rooms with no furniture in the documents: the AI furnishes them in the project style (default).
 - Rooms are furnished in functional groups (seating, dining, sleeping, work, kitchen run, bathroom set …) placed by
-  the deterministic solver; the AI chooses the program and between solver candidates, never coordinates. No
-  untyped piece is built: it is typed, recorded as not furniture, or listed for review.
+  the deterministic solver; the AI chooses the program; the code score chooses between solver candidates unless a
+  measured test shows the vision model ranks marked candidate images better; the AI never gives coordinates and
+  never judges a bare top-down image (user OK of 12 Oct 2026, Milestone 13). No untyped piece is built: it is
+  typed, recorded as not furniture, or listed for review.
+- An untyped drawn footprint is typed by code first: the same footprint in the twin room or on another level
+  (within 1 cm), the block name, or the room's missing group member of that size (`inferred`, with the evidence);
+  the AI types the rest from the plan crop (user OK of 12 Oct 2026).
+- A drawn furniture size outside its type's product range (a block with its neighbours, a split artefact) is
+  snapped to the nearest real product size before the fit (`adjusted_by_ai`, `drawn_footprint` kept, plan crop as
+  evidence). A drawn group (a table with its chairs, a sofa with its armchairs and coffee table, a bed with its
+  nightstands) is one unit: when its anchor is missing, misread or fails the checks, the solver re-places the group
+  around the drawn anchor centre; every member moves at most 0.5 m from its drawn centre and is logged
+  `adjusted_by_ai`. A drawn piece that cannot be built is never an obstacle for its own group. With `keep` or
+  `furnished_rooms_keep_size` the snap and the group re-solve are off (user OK of 12 Oct 2026).
 - Every placement or edit passes the code checks before it is accepted: inside the room, no collisions, real
   clearances and walkways, door swings free, windows free, backs to walls where the type needs it, fronts facing
   their group.
 - Every piece is labelled `from_documents` (with evidence), `added_by_ai` or `adjusted_by_ai` (with the reason).
 
-## Library rules (user OK of 10 Oct 2026, Milestone 12)
-- Only audited library models (`keep`) are used. Non-commercial, share-alike and no-derivatives licences are not
-  used. Nothing is deleted from the volume without the user's OK. When no audited model fits, the run writes a
-  `library gap` finding instead of using a wrong piece.
+## Library rules (user OK of 10 Oct 2026, Milestone 12; extended with user OK of 12 Oct 2026, Milestone 13)
+- Only audited library models (`keep`, `fix`) and audited module or parametric families are used. Every catalogue
+  entry carries `licence`, `licence_url`, `licence_declared_by` (`publisher` | `uploader`), `licence_flag` (`none`
+  | `non_commercial` | `share_alike` | `no_derivatives` | `research_only` | `regional` | `tool_nc`),
+  `commercial_safe` and `attribution`.
+- `library.licence_mode: commercial` uses only `commercial_safe: yes` entries. `relaxed` (the Milestone 13 default
+  for this PoC, user OK of 12 Oct 2026) may also use non-commercial, share-alike, research-only, regional and
+  `tool_nc` assets (HSSD under CC BY-NC 4.0 with the user's acceptance of its terms; the TRELLIS.2 models exported
+  with the non-commercial tool nvdiffrast stay usable with the `tool_nc` flag until the export is replaced).
+  No-derivatives assets are never used. Research-only data sets that forbid redistribution (3D-FUTURE, 3D-FRONT)
+  are not used. Paid packs (Maxtree) and BlenderKit are on hold.
+- Every render carries `commercial-safe: yes|no` with the flagged asset ids; every run writes `ATTRIBUTION.md`
+  (tools and generators, assets with authors and changes, PoC-only assets with the reason, dataset notices).
+  Switching back to `commercial` re-runs the fit and the renders without the flagged assets; nothing on the volume
+  is deleted.
+- Nothing is deleted from the volume without the user's OK. When no audited model fits a drawn anchor, the run
+  still builds it, in this order: the nearest audited model within the caps, a module builder with real proportions
+  (wardrobe runs, long tables, L-sofas from modules, kitchen runs), the parametric family; it writes a `library gap`
+  finding naming what was used. A drawn anchor is never left out and never built as a grey box; the fallback must
+  look like a real product (PBR materials, real module sizes), and the report lists every piece built below the
+  library level so the gap can be closed (user OK of 12 Oct 2026: "yes, but we need a good model").
+- Vegetation and site (user OK of 12 Oct 2026): a row of ≥ 5 drawn tree symbols of equal radius ≤ 0.6 m at a pitch
+  ≤ 1.5 × their diameter is a hedge; single symbols are trees; tree height follows the crown radius by size class
+  (a crown under 1.5 m is a shrub). Every tree, shrub, hedge and lawn is a real model or generated geometry with
+  leaf textures, never a primitive; species not named in the documents are `inferred` and named in the report.
+  Terraces, pools and parking get one level each with retaining edges; pools get coping and water; the sky, the sun
+  and the horizon are always in the image. Vegetation and site assets are audited like furniture.
 
 ## Evidence and inference rules (user OK of 9 Oct 2026, Milestone 11)
 - Source geometry (DWG/DXF entities, vector PDF paths) is the anchor for walls, openings, room outlines and
@@ -98,14 +136,21 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   stay only where no code check exists (e.g. reading a label that no geometry confirms).
 - Everything is logged: every check, finding, edit, rejected edit and reason goes to
   `outputs/<p>/orchestrator/log.json` and `log.md` with before/after images. Nothing changes silently.
+- An agent edit is accepted only when the finding it targets is gone in the dry re-check and no new critical finding
+  appears; "edits accepted" is no success metric, "findings removed" is. Building-wide edits (roof, terrain, site,
+  exterior cameras) come only from the building session (user OK of 12 Oct 2026).
 - AI polish must not change geometry: compare edge and depth maps before/after and reject changed results. A
   final vision check compares every render with the building JSON and the source plan; its findings go back to
   the stage that caused them.
 - Save a debug image per page with detected elements drawn over the original, colored by method and confidence.
 
 ## Engineering conventions
-- Open-weight models and open-source tools only; prefer licenses that allow
-  commercial use; flag the rest in `docs/plan.md`.
+- Open-weight models and open-source tools only; commercial-safe licences by default (`licence_mode: commercial`);
+  other licences only in `relaxed` mode, flagged in the catalogue, in `docs/plan.md` and in `ATTRIBUTION.md`. GPL
+  tools (Blender and its add-ons, LibreDWG, Infinigen's GPL submodule) run as installed programs; no GPL code is
+  copied into this repository.
+- Cameras keep the Milestone 11 policy (18 mm / 16 mm lenses, 1.25 m) in Milestone 13 (user decision of 12 Oct
+  2026); AI polish stays off in Milestone 13.
 - Verify model IDs, versions and flags against official sources; never invent them.
 - Tests: CPU tests run here (`pytest -m "not gpu"`); GPU tests run on RunPod
   (`pytest -m gpu` via the runner). Run GPU tests before calling a milestone done.

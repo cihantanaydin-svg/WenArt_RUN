@@ -772,3 +772,20 @@ P4); Poly Haven tree render memory with 100 instances (P1); download speed of sm
 12 Oct per the cleanup, so B0 is the only like-for-like baseline); the cause of the too-high bathroom art (B12).
 
 GPU cost of step 0 and step 1: $0.00 (no pod). Project total unchanged: $130.54 of $200. No pod is running.
+
+## 12. Decisions of 12 Oct 2026 (user) and the build
+
+| # | Decision | What it means for the build |
+|---|---|---|
+| D1 | "go to relaxed" | `licence_mode: relaxed` is the Milestone 13 default: core + commercial-safe base + the HSSD layer; the switch and the per-render line are built anyway |
+| D2 | HSSD: yes | HSSD (CC BY-NC 4.0, gated) is downloaded and audited in pod P2; **the user must accept the terms at `https://huggingface.co/datasets/hssd/hssd-models` with the Hugging Face account whose token is the pod's `hf_token` secret before P2** |
+| D3 | keep flagged | the 281 nvdiffrast-era generated models stay usable with `licence_flag: tool_nc`; in `commercial` mode they are excluded |
+| D4 | yes, "but we need a good model" | the fallback ladder is built, and the fallback must look like a real product: module builders from real module sizes with PBR slots, parametric families v2 with PBR, bevel and real proportions; every piece built below the library level is listed in the report so the gap can be closed with a real model later |
+| D5 | yes | drawn groups as units (0.5 m per-member bound), product-size snap for furniture; off with `keep` / `furnished_rooms_keep_size` |
+| D6 | raise to $300 | project total $300 (CLAUDE.md); the pods of §8 are approved; the M12 baselines B0 of real02/real03 run (recommended, not objected) |
+| D7 | yes with my edits | `CLAUDE.md` updated (this commit) |
+| D8 | no | cameras keep the M11 policy (18/16 mm at 1.25 m, hall views as today); the before/after uses the same camera records on both sides; the exterior camera bugs (site view below the horizon, dropped views behind the hedge) are still fixed because they are bugs, not policy |
+| D9 | hold the paid ones | no Maxtree, no BlenderKit, no 3D-FUTURE in Milestone 13 |
+| D10 | yes | AI polish stays off |
+
+Build (step 2) follows in §13 (contracts) and §14 (build log).
