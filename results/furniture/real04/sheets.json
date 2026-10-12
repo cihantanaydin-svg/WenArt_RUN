@@ -1,0 +1,6342 @@
+{
+ "schema_version": "1.0",
+ "kind": "sheets",
+ "project": "real04",
+ "created_utc": "2026-10-11T15:47:11Z",
+ "code_commit": "7283ccdcd",
+ "inputs": [
+  {
+   "file": "deneme1.dwg",
+   "size": 23665079,
+   "sha256": "9ab7a5747d2f36ff6887306a226865f0333a6a237a94f8460831818ef68bd228"
+  },
+  {
+   "file": "brief.yaml",
+   "size": 739,
+   "sha256": "9a7750bd3c51af1816e3819a46cc731e4aea15c6a9682589ffc5ea68c428f2b4"
+  }
+ ],
+ "multi_region": true,
+ "documents": [
+  {
+   "file": "deneme1.dwg",
+   "format": "dwg",
+   "converter": "libredwg dwg2dxf 0.14 d9468ae p1; audit: 0 errors, 1647 fixes",
+   "units": {
+    "insunits": 4,
+    "metres_per_unit": 0.01,
+    "method": "unit_check",
+    "checks": [
+     {
+      "check": "area_labels",
+      "unit": "cm",
+      "score": 1.0,
+      "samples": 6,
+      "note": "0 labels alone in a closed outline, 6 regions with >= 2 labels"
+     },
+     {
+      "check": "level_marks",
+      "unit": null,
+      "score": 0.038,
+      "samples": 53,
+      "note": "53 mark pair(s): 0.06501 m/unit, 0.002694 m/unit, 0.002142 m/unit, 0.0003792 m/unit; no unit fits 50% of the samples"
+     },
+     {
+      "check": "door_widths",
+      "unit": "cm",
+      "score": 0.907,
+      "samples": 43,
+      "note": "median door radius 81.83 units"
+     },
+     {
+      "check": "wall_thickness",
+      "unit": null,
+      "score": 0.435,
+      "samples": 2951,
+      "note": "median face-pair distance 10 units; no unit fits 50% of the samples"
+     },
+     {
+      "check": "text_height",
+      "unit": null,
+      "score": null,
+      "samples": 201,
+      "note": "median text height 60.27 units; no unit fits"
+     },
+     {
+      "check": "dimensions",
+      "unit": null,
+      "score": null,
+      "samples": 0,
+      "note": "0 sample(s), fewer than 2"
+     }
+    ],
+    "conflict": "$INSUNITS 4 says mm, but 2 independent checks (area_labels, door_widths) agree on cm and none supports mm: cm used"
+   },
+   "sheets": [
+    {
+     "id": "s1",
+     "space": "model",
+     "box": [
+      721989.405,
+      4486031.46,
+      727993.026,
+      4493909.233
+     ],
+     "frames": [
+      {
+       "entity": "LWPOLYLINE:2AE50",
+       "box": [
+        695974.921,
+        4495574.669,
+        701978.542,
+        4503452.442
+       ]
+      },
+      {
+       "entity": "LWPOLYLINE:2AF68",
+       "box": [
+        695974.921,
+        4486031.46,
+        701978.542,
+        4493909.233
+       ]
+      },
+      {
+       "entity": "LWPOLYLINE:2B01A",
+       "box": [
+        708982.163,
+        4486031.46,
+        714985.784,
+        4493909.233
+       ]
+      },
+      {
+       "entity": "LWPOLYLINE:2F883",
+       "box": [
+        715485.784,
+        4486031.46,
+        721489.405,
+        4493909.233
+       ]
+      },
+      {
+       "entity": "LWPOLYLINE:2F086",
+       "box": [
+        721989.405,
+        4486031.46,
+        727993.026,
+        4493909.233
+       ]
+      },
+      {
+       "entity": "LWPOLYLINE:39F2A",
+       "box": [
+        728326.932,
+        4486031.46,
+        734330.552,
+        4493909.233
+       ]
+      }
+     ],
+     "gap_units": 148.57,
+     "debug_image": "sheets_debug/deneme1_dwg_s1.png",
+     "gap_m": 1.4857
+    }
+   ]
+  }
+ ],
+ "regions": [
+  {
+   "id": "r1",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    694231.091,
+    4505419.031,
+    703556.973,
+    4518943.277
+   ],
+   "box_m": [
+    93.259,
+    135.242
+   ],
+   "entities": 372,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "ai",
+   "class_confidence": 0.95,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 326,
+    "texts": 46,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 747,
+    "level_marks": 10,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 32,
+    "closed_rectangles": 2,
+    "window_rows": 1,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:6E9D",
+     "layer": "0",
+     "size_m": [
+      42.877,
+      37.168
+     ],
+     "closed": true,
+     "ends_m": 38.63
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 3,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.95,
+     "reason": "The drawing shows a top-down view of a building with walls, rooms, and dimensions, which is characteristic of a floor plan. There are no visible title blocks, 3",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The image shows a top-down view of a building layout with walls, rooms, and dimensions, which matches the definition of a floor plan.",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "AI-only class: unverified, never read as a drawing (AI proposes, title and geometry decide)",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.95,
+     "text": "The drawing shows a top-down view of a building with walls, rooms, and dimensions, which is characteristic of a floor plan. There are no visible title blocks, 3",
+     "rule": "two_pass_agreement",
+     "region_id": "r1"
+    },
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "confidence": 1.0,
+     "text": "The image shows a top-down view of a building layout with walls, rooms, and dimensions, which matches the definition of a floor plan.",
+     "rule": "two_pass_agreement",
+     "region_id": "r1"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r2",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    722862.214,
+    4512181.154,
+    732188.096,
+    4518943.277
+   ],
+   "box_m": [
+    93.259,
+    67.621
+   ],
+   "entities": 203,
+   "frame": null,
+   "class": "other",
+   "class_method": "none",
+   "class_confidence": 0.0,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 178,
+    "texts": 25,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 302,
+    "level_marks": 4,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 27,
+    "closed_rectangles": 1,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:381B5",
+     "layer": "0",
+     "size_m": [
+      42.877,
+      37.168
+     ],
+     "closed": true,
+     "ends_m": 38.63
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 0,
+    "roof_outline": true,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": null,
+     "level_word": null,
+     "variant_word": null,
+     "confidence": null,
+     "reason": null,
+     "error": "no answer"
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The image shows a top-down view of a building with walls, rooms (represented by dark rectangles), and dimensions, which matches the definition of a floor plan.",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "no title and no geometry rule gives a class",
+   "evidence": [],
+   "conflicts": []
+  },
+  {
+   "id": "r3",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    696433.888,
+    4501446.331,
+    702033.888,
+    4503029.664
+   ],
+   "box_m": [
+    56.0,
+    15.833
+   ],
+   "entities": 1,
+   "frame": "LWPOLYLINE:2AE50",
+   "class": "other",
+   "class_method": "none",
+   "class_confidence": 0.0,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 0,
+    "texts": 1,
+    "texts_only": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": null,
+     "level_word": null,
+     "variant_word": null,
+     "confidence": null,
+     "reason": null,
+     "error": "no answer"
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "title_block",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The image contains text related to area measurements (m2: 1165) and other technical data, which is typical for a title block on an architectural CAD sheet.",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "no title and no geometry rule gives a class",
+   "evidence": [],
+   "conflicts": []
+  },
+  {
+   "id": "r4",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    696488.513,
+    4495804.346,
+    701823.02,
+    4499785.533
+   ],
+   "box_m": [
+    53.345,
+    39.812
+   ],
+   "entities": 482,
+   "frame": "LWPOLYLINE:2AE50",
+   "class": "other",
+   "class_method": "none",
+   "class_confidence": 0.0,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 453,
+    "texts": 29,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": false,
+    "wall_pairs": 31,
+    "closed_rectangles": 2,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:7025",
+     "layer": "0",
+     "size_m": [
+      42.877,
+      37.168
+     ],
+     "closed": true,
+     "ends_m": 38.63
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": null,
+     "level_word": null,
+     "variant_word": null,
+     "confidence": null,
+     "reason": null,
+     "error": "no answer"
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "site_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The drawing shows a plot with buildings, streets, and a north arrow, which matches the definition of a site plan.",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "no title and no geometry rule gives a class",
+   "evidence": [],
+   "conflicts": []
+  },
+  {
+   "id": "r5",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    723121.264,
+    4495305.806,
+    724838.438,
+    4496505.808
+   ],
+   "box_m": [
+    17.172,
+    12.0
+   ],
+   "entities": 1891,
+   "frame": null,
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI BRÜT 92M2",
+    "entity": "MTEXT:3A66E",
+    "box": [
+     723226.981,
+     4495028.704,
+     724726.981,
+     4495122.454
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 1878,
+    "texts": 13,
+    "room_labels": 12,
+    "wall_test": "hatch comb of 288 lines at 1 deg, median step 0.0017 dxf",
+    "area_labels": 12,
+    "wall_pairs": 286,
+    "closed_rectangles": 22,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:39F34",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      7.586,
+      10.5
+     ],
+     "closed": false,
+     "ends_m": 5.312
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:3A66E",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT PLANI BRÜT 92M2",
+      "region_id": "r5"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7231.212643,
+    0.0,
+    0.01,
+    -44953.058063
+   ],
+   "registration": {
+    "reference": null,
+    "method": "reference",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     0.0,
+     0.0
+    ],
+    "residual_m": 0.0,
+    "matched": 0,
+    "stairs_aligned": true,
+    "note": null
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:3A66E",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI BRÜT 92M2",
+     "region_id": "r5"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r6",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    696153.739,
+    4493031.976,
+    701812.448,
+    4493753.489
+   ],
+   "box_m": [
+    56.587,
+    7.215
+   ],
+   "entities": 2,
+   "frame": "LWPOLYLINE:2AF68",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": {
+    "text": "BEYKOZ ÇAYAĞZI MAHALLESİ 2086 ve 2296 PARSEL",
+    "entity": "MTEXT:2B069",
+    "box": [
+     696226.852,
+     4493474.978,
+     699746.852,
+     4493599.978
+    ],
+    "language": null,
+    "keywords": []
+   },
+   "features": {
+    "entities": 1,
+    "texts": 1,
+    "title_box": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2B06A",
+     "method": "vector",
+     "confidence": 0.9,
+     "rule": "lone_rectangle_with_texts",
+     "text": "title_box True",
+     "region_id": "r6"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r7",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    709160.98,
+    4493031.976,
+    714819.69,
+    4493753.489
+   ],
+   "box_m": [
+    56.587,
+    7.215
+   ],
+   "entities": 2,
+   "frame": "LWPOLYLINE:2B01A",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": {
+    "text": "E:0.25 / H:2K / PROJE ALANI : 1165 M2(621+544)",
+    "entity": "MTEXT:2B065",
+    "box": [
+     709234.094,
+     4493474.978,
+     712914.094,
+     4493599.978
+    ],
+    "language": null,
+    "keywords": []
+   },
+   "features": {
+    "entities": 1,
+    "texts": 1,
+    "title_box": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2B066",
+     "method": "vector",
+     "confidence": 0.9,
+     "rule": "lone_rectangle_with_texts",
+     "text": "title_box True",
+     "region_id": "r7"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r8",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    715664.601,
+    4492535.549,
+    721323.311,
+    4493753.489
+   ],
+   "box_m": [
+    56.587,
+    12.179
+   ],
+   "entities": 2,
+   "frame": "LWPOLYLINE:2F883",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": {
+    "text": "m2 : 1165 M2(621+544) TAKS %40 : 466 M2 1165x0,25: 291,25 M2 291,25x1.3 : 378,625 M2( %30 dahil) 94.6 M2 / 4 ADET VİLLA",
+    "entity": "MTEXT:2FB6F",
+    "box": [
+     715825.743,
+     4492883.665,
+     718625.743,
+     4493675.332
+    ],
+    "language": null,
+    "keywords": []
+   },
+   "features": {
+    "entities": 1,
+    "texts": 1,
+    "title_box": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F884",
+     "method": "vector",
+     "confidence": 0.9,
+     "rule": "lone_rectangle_with_texts",
+     "text": "title_box True",
+     "region_id": "r8"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r9",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    722168.222,
+    4493031.976,
+    727826.932,
+    4493753.489
+   ],
+   "box_m": [
+    56.587,
+    7.215
+   ],
+   "entities": 2,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": {
+    "text": "PLANLAR",
+    "entity": "MTEXT:304EE",
+    "box": [
+     722329.364,
+     4493550.332,
+     722889.364,
+     4493675.332
+    ],
+    "language": null,
+    "keywords": []
+   },
+   "features": {
+    "entities": 1,
+    "texts": 1,
+    "title_box": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F087",
+     "method": "vector",
+     "confidence": 0.9,
+     "rule": "lone_rectangle_with_texts",
+     "text": "title_box True",
+     "region_id": "r9"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r10",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    728505.749,
+    4492535.549,
+    734164.458,
+    4493753.489
+   ],
+   "box_m": [
+    56.587,
+    12.179
+   ],
+   "entities": 2,
+   "frame": "LWPOLYLINE:39F2A",
+   "class": "title_block",
+   "class_method": "geometry",
+   "class_confidence": 0.9,
+   "status": "verified",
+   "title": {
+    "text": "m2 : 1165 M2(621+544) TAKS %40 : 466 M2 1165x0,25: 291,25 M2 291,25x1.3 : 378,625 M2( %30 dahil) 94.6 M2 / 4 ADET VİLLA",
+    "entity": "MTEXT:39F2C",
+    "box": [
+     728666.891,
+     4492883.665,
+     731466.891,
+     4493675.332
+    ],
+    "language": null,
+    "keywords": []
+   },
+   "features": {
+    "entities": 1,
+    "texts": 1,
+    "title_box": true
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "title block",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:39F2B",
+     "method": "vector",
+     "confidence": 0.9,
+     "rule": "lone_rectangle_with_texts",
+     "text": "title_box True",
+     "region_id": "r10"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r11",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    725362.847,
+    4491480.383,
+    726880.045,
+    4492680.384
+   ],
+   "box_m": [
+    15.172,
+    12.0
+   ],
+   "entities": 2259,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI BRÜT 92 M2",
+    "entity": "MTEXT:36A77",
+    "box": [
+     725372.246,
+     4491300.325,
+     726992.246,
+     4491394.075
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 2250,
+    "texts": 9,
+    "room_labels": 8,
+    "wall_test": "hatch comb of 600 lines at 0 deg, median step 0.0144 dxf",
+    "area_labels": 8,
+    "wall_pairs": 227,
+    "closed_rectangles": 20,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:366F8",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      7.186,
+      10.5
+     ],
+     "closed": false,
+     "ends_m": 12.502
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1",
+    "kind": "basement",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:36A77",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "BODRUM KAT PLANI BRÜT 92 M2",
+      "region_id": "r11"
+     }
+    ]
+   },
+   "variant_group": "vg_L-1",
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7252.628591,
+    0.0,
+    0.01,
+    -44914.803832
+   ],
+   "registration": {
+    "reference": "r5",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -21.415948,
+     38.254231
+    ],
+    "residual_m": 0.2477,
+    "matched": 488,
+    "stairs_aligned": true,
+    "note": "18 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:36A77",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2",
+     "region_id": "r11"
+    }
+   ],
+   "conflicts": [
+    "sc_002"
+   ]
+  },
+  {
+   "id": "r12",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    696488.513,
+    4488151.176,
+    701360.12,
+    4492132.363
+   ],
+   "box_m": [
+    48.716,
+    39.812
+   ],
+   "entities": 15,
+   "frame": "LWPOLYLINE:2AF68",
+   "class": "site_plan",
+   "class_method": "ai",
+   "class_confidence": 0.95,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 6,
+    "texts": 9,
+    "room_labels": 0,
+    "area_labels": 2,
+    "slab_bands": 0,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": false,
+    "wall_pairs": 0,
+    "closed_rectangles": 0,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2AF22",
+     "layer": "0",
+     "size_m": [
+      42.877,
+      37.168
+     ],
+     "closed": true,
+     "ends_m": 38.63
+    },
+    "street_words": true,
+    "site_words": true,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "site_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.95,
+     "reason": "The drawing shows two adjacent parcels with area measurements (544 M2 and 614 M2) and boundary dimensions, labeled 'PARSEL SINIRI' (Parcel Boundary). This is a ",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "site_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The image shows a plot with labeled dimensions and parcel boundaries, which is characteristic of a site plan.",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "AI-only class: unverified, never read as a drawing (AI proposes, title and geometry decide)",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.95,
+     "text": "The drawing shows two adjacent parcels with area measurements (544 M2 and 614 M2) and boundary dimensions, labeled 'PARSEL SINIRI' (Parcel Boundary). This is a ",
+     "rule": "two_pass_agreement",
+     "region_id": "r12"
+    },
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "confidence": 1.0,
+     "text": "The image shows a plot with labeled dimensions and parcel boundaries, which is characteristic of a site plan.",
+     "rule": "two_pass_agreement",
+     "region_id": "r12"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r13",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    709495.755,
+    4488151.176,
+    714367.361,
+    4492132.363
+   ],
+   "box_m": [
+    48.716,
+    39.812
+   ],
+   "entities": 12,
+   "frame": "LWPOLYLINE:2B01A",
+   "class": "site_plan",
+   "class_method": "ai",
+   "class_confidence": 0.95,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 6,
+    "texts": 6,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": false,
+    "wall_pairs": 0,
+    "closed_rectangles": 0,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2AF76",
+     "layer": "0",
+     "size_m": [
+      42.877,
+      37.168
+     ],
+     "closed": true,
+     "ends_m": 38.63
+    },
+    "street_words": true,
+    "site_words": true,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": "site_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 0.95,
+     "reason": "The drawing shows boundary lines for a plot ('PARSEL SINIRI') and a building setback ('YAPI YAKLAŞMA SINIRI') with dimension labels, which is characteristic of ",
+     "error": null
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "site_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The image shows a plot boundary labeled 'PARSEL SINIRI' (Parcel Boundary) and a construction approach limit labeled 'YAPI YAKLAŞMA SINIRI', along with dimension",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "AI-only class: unverified, never read as a drawing (AI proposes, title and geometry decide)",
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "pass": 1,
+     "confidence": 0.95,
+     "text": "The drawing shows boundary lines for a plot ('PARSEL SINIRI') and a building setback ('YAPI YAKLAŞMA SINIRI') with dimension labels, which is characteristic of ",
+     "rule": "two_pass_agreement",
+     "region_id": "r13"
+    },
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": null,
+     "method": "ai",
+     "model": "zai-org/GLM-4.6V-Flash",
+     "pass": 2,
+     "confidence": 1.0,
+     "text": "The image shows a plot boundary labeled 'PARSEL SINIRI' (Parcel Boundary) and a construction approach limit labeled 'YAPI YAKLAŞMA SINIRI', along with dimension",
+     "rule": "two_pass_agreement",
+     "region_id": "r13"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r14",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    715999.376,
+    4487703.877,
+    721333.882,
+    4492132.363
+   ],
+   "box_m": [
+    53.345,
+    44.285
+   ],
+   "entities": 583,
+   "frame": "LWPOLYLINE:2F883",
+   "class": "site_plan",
+   "class_method": "geometry",
+   "class_confidence": 0.7,
+   "status": "verified",
+   "title": null,
+   "features": {
+    "entities": 549,
+    "texts": 34,
+    "room_labels": 1,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": false,
+    "wall_pairs": 32,
+    "closed_rectangles": 2,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2F894",
+     "layer": "0",
+     "size_m": [
+      42.877,
+      37.168
+     ],
+     "closed": true,
+     "ends_m": 38.63
+    },
+    "street_words": true,
+    "site_words": true,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.001934516,
+    -0.009811098,
+    42673.990637,
+    0.009811098,
+    0.001934516,
+    -15718.309792
+   ],
+   "registration": {
+    "reference": "r5",
+    "method": "site_buildings",
+    "rotation_deg": 78.8457,
+    "shift_m": [
+     42673.9906,
+     -15718.3098
+    ],
+    "residual_m": 0.025,
+    "matched": 2,
+    "stairs_aligned": null,
+    "note": "2 building footprint(s) of the plans' size on the site plan; registered through INSERT:2F890, INSERT:2FB7C",
+    "outline_entities": [
+     "INSERT:2F890",
+     "INSERT:2FB7C",
+     "INSERT:2F8C8",
+     "INSERT:2FB7D"
+    ]
+   },
+   "use": "exterior",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "HATCH:2F885",
+     "method": "vector",
+     "confidence": 0.7,
+     "rule": "site_words",
+     "text": "room_labels 1, wall_pairs 32, closed_rectangles 2, largest_polyline {'entity': 'LWPOLYLINE:2F894', 'layer': '0', 'size_m': [42.877, 37.168], 'closed': True, 'ends_m': 38.63}, street_words True, site_words True, stairs 1",
+     "region_id": "r14"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r15",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    725362.944,
+    4489925.498,
+    726880.142,
+    4491125.999
+   ],
+   "box_m": [
+    15.172,
+    12.005
+   ],
+   "entities": 1888,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "alternative_floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+    "entity": "MTEXT:2F090",
+    "box": [
+     725372.246,
+     4489629.793,
+     727892.246,
+     4489723.543
+    ],
+    "language": "tr",
+    "keywords": [
+     "BODRUM",
+     "KAT PLANI",
+     "(Açık mutfak)"
+    ]
+   },
+   "features": {
+    "entities": 1877,
+    "texts": 11,
+    "room_labels": 8,
+    "wall_test": "hatch comb of 452 lines at 0 deg, median step 0.0143 dxf",
+    "area_labels": 10,
+    "wall_pairs": 247,
+    "closed_rectangles": 24,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2C4A5",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      7.186,
+      10.5
+     ],
+     "closed": false,
+     "ends_m": 12.502
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": -1,
+    "label": "Bodrum Kat",
+    "id": "L-1b",
+    "kind": "basement",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:2F090",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+      "region_id": "r15"
+     }
+    ]
+   },
+   "variant_group": "vg_L-1",
+   "variant": "Açık mutfak",
+   "variant_slug": "acik-mutfak",
+   "variant_gloss": "open kitchen",
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7252.629563,
+    0.0,
+    0.01,
+    -44899.259985
+   ],
+   "registration": {
+    "reference": "r5",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -21.41692,
+     53.798078
+    ],
+    "residual_m": 0.2477,
+    "matched": 488,
+    "stairs_aligned": true,
+    "note": "18 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2F090",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+     "region_id": "r15"
+    }
+   ],
+   "conflicts": [
+    "sc_003"
+   ]
+  },
+  {
+   "id": "r16",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    723221.238,
+    4489906.895,
+    724738.464,
+    4491106.897
+   ],
+   "box_m": [
+    15.172,
+    12.0
+   ],
+   "entities": 1847,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ZEMİN KAT PLANI BRÜT 92M2",
+    "entity": "MTEXT:2F08F",
+    "box": [
+     723226.981,
+     4489629.793,
+     724726.981,
+     4489723.543
+    ],
+    "language": "tr",
+    "keywords": [
+     "ZEMIN",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 1834,
+    "texts": 13,
+    "room_labels": 12,
+    "wall_test": "hatch comb of 288 lines at 1 deg, median step 0.0017 dxf",
+    "area_labels": 12,
+    "wall_pairs": 314,
+    "closed_rectangles": 22,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2DA7F",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      7.586,
+      10.5
+     ],
+     "closed": false,
+     "ends_m": 0.4
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": 0,
+    "label": "Zemin Kat",
+    "id": "L0",
+    "kind": "floor",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:2F08F",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ZEMİN KAT PLANI BRÜT 92M2",
+      "region_id": "r16"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7231.212643,
+    0.0,
+    0.01,
+    -44899.068952
+   ],
+   "registration": {
+    "reference": "r5",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     0.0,
+     53.989111
+    ],
+    "residual_m": 0.2467,
+    "matched": 492,
+    "stairs_aligned": true,
+    "note": "18 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2F08F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI BRÜT 92M2",
+     "region_id": "r16"
+    }
+   ],
+   "conflicts": [
+    "sc_004"
+   ]
+  },
+  {
+   "id": "r17",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    730545.227,
+    4489286.2,
+    731725.227,
+    4490186.2
+   ],
+   "box_m": [
+    11.8,
+    9.0
+   ],
+   "entities": 28,
+   "frame": "LWPOLYLINE:39F2A",
+   "class": "other",
+   "class_method": "none",
+   "class_confidence": 0.0,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 28,
+    "texts": 0,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 2,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": true,
+    "wall_pairs": 79,
+    "closed_rectangles": 9,
+    "window_rows": 1,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:3AC29",
+     "layer": "DBM_w_sld",
+     "size_m": [
+      10.8,
+      8.0
+     ],
+     "closed": true,
+     "ends_m": 10.8
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 1,
+    "columns": 0,
+    "roof_outline": true,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": null,
+     "level_word": null,
+     "variant_word": null,
+     "confidence": null,
+     "reason": null,
+     "error": "no answer"
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "floor_plan",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The image displays a top-down view of a building's interior with walls, rooms (bathroom, staircase, kitchen area), and fixtures (toilet, sink, stove, cabinets),",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "no title and no geometry rule gives a class",
+   "evidence": [],
+   "conflicts": []
+  },
+  {
+   "id": "r18",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    724107.198,
+    4487815.596,
+    725724.386,
+    4489115.597
+   ],
+   "box_m": [
+    16.172,
+    13.0
+   ],
+   "entities": 2097,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "floor_plan",
+   "class_method": "title",
+   "class_confidence": 0.99,
+   "status": "verified",
+   "title": {
+    "text": "ÇATI KAT PLANI",
+    "entity": "MTEXT:2FD2F",
+    "box": [
+     724495.524,
+     4487716.794,
+     725335.524,
+     4487810.544
+    ],
+    "language": "tr",
+    "keywords": [
+     "CATI KAT",
+     "KAT PLANI"
+    ]
+   },
+   "features": {
+    "entities": 2088,
+    "texts": 9,
+    "room_labels": 6,
+    "wall_test": "hatch comb of 452 lines at 0 deg, median step 0.0146 dxf",
+    "area_labels": 8,
+    "wall_pairs": 192,
+    "closed_rectangles": 28,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:2F87A",
+     "layer": "_P3_S_Duvar_Ç",
+     "size_m": [
+      11.772,
+      8.6
+     ],
+     "closed": true,
+     "ends_m": 11.772
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 2,
+    "columns": 18
+   },
+   "level": {
+    "order": 1,
+    "label": "Çatı Katı",
+    "id": "L1",
+    "kind": "attic",
+    "method": "title",
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": "0",
+      "entity": "MTEXT:2FD2F",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "title_keyword",
+      "text": "ÇATI KAT PLANI",
+      "region_id": "r18"
+     }
+    ]
+   },
+   "variant_group": null,
+   "variant": "base",
+   "variant_slug": "base",
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": [
+    0.01,
+    0.0,
+    -7240.572109,
+    0.0,
+    0.01,
+    -44878.655961
+   ],
+   "registration": {
+    "reference": "r5",
+    "method": "columns",
+    "rotation_deg": 0.0,
+    "shift_m": [
+     -9.359466,
+     74.402102
+    ],
+    "residual_m": 0.2477,
+    "matched": 488,
+    "stairs_aligned": true,
+    "note": "18 columns matched"
+   },
+   "use": "read",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2FD2F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r18"
+    }
+   ],
+   "conflicts": [
+    "sc_005"
+   ]
+  },
+  {
+   "id": "r19",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    729946.382,
+    4487958.111,
+    732835.146,
+    4488853.611
+   ],
+   "box_m": [
+    28.888,
+    8.955
+   ],
+   "entities": 13,
+   "frame": "LWPOLYLINE:39F2A",
+   "class": "section",
+   "class_method": "geometry",
+   "class_confidence": 0.85,
+   "status": "verified",
+   "title": null,
+   "features": {
+    "entities": 13,
+    "texts": 0,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 3,
+    "roof_lines": 8,
+    "level_marks": 0,
+    "ground_lines": 2,
+    "outer_walls": true,
+    "wall_pairs": 9,
+    "closed_rectangles": 0,
+    "window_rows": 0,
+    "largest_polyline": {
+     "entity": "LWPOLYLINE:3AC65",
+     "layer": "0",
+     "size_m": [
+      11.8,
+      2.805
+     ],
+     "closed": true,
+     "ends_m": 0.75
+    },
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "heights",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:3AC5E",
+     "method": "vector",
+     "confidence": 0.85,
+     "rule": "slab_bands",
+     "text": "slab_bands 3, roof_lines 8, ground_lines 2, outer_walls True, wall_pairs 9, largest_polyline {'entity': 'LWPOLYLINE:3AC65', 'layer': '0', 'size_m': [11.8, 2.805], 'closed': True, 'ends_m': 0.75}",
+     "region_id": "r19"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r20",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    723229.664,
+    4486483.065,
+    726584.711,
+    4487476.935
+   ],
+   "box_m": [
+    33.55,
+    9.939
+   ],
+   "entities": 49,
+   "frame": "LWPOLYLINE:2F086",
+   "class": "section",
+   "class_method": "geometry",
+   "class_confidence": 0.85,
+   "status": "verified",
+   "title": null,
+   "features": {
+    "entities": 47,
+    "texts": 2,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 3,
+    "roof_lines": 8,
+    "level_marks": 2,
+    "ground_lines": 4,
+    "outer_walls": true,
+    "wall_pairs": 17,
+    "closed_rectangles": 0,
+    "window_rows": 0,
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "heights",
+   "ignored_reason": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F85E",
+     "method": "vector",
+     "confidence": 0.85,
+     "rule": "slab_bands",
+     "text": "slab_bands 3, roof_lines 8, level_marks 2, ground_lines 4, outer_walls True, wall_pairs 17",
+     "region_id": "r20"
+    }
+   ],
+   "conflicts": []
+  },
+  {
+   "id": "r21",
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "page": 1,
+   "box": [
+    713338.995,
+    4487264.206,
+    713340.287,
+    4487266.22
+   ],
+   "box_m": [
+    0.013,
+    0.02
+   ],
+   "entities": 1,
+   "frame": "LWPOLYLINE:2B01A",
+   "class": "other",
+   "class_method": "none",
+   "class_confidence": 0.0,
+   "status": "unverified",
+   "title": null,
+   "features": {
+    "entities": 1,
+    "texts": 0,
+    "room_labels": 0,
+    "area_labels": 0,
+    "slab_bands": 0,
+    "roof_lines": 0,
+    "level_marks": 0,
+    "ground_lines": 0,
+    "outer_walls": false,
+    "wall_pairs": 0,
+    "closed_rectangles": 0,
+    "window_rows": 0,
+    "street_words": false,
+    "site_words": false,
+    "north_arrow": false,
+    "stairs": 0,
+    "columns": 0,
+    "roof_outline": false,
+    "hip_lines": 0
+   },
+   "level": null,
+   "variant_group": null,
+   "variant": null,
+   "variant_slug": null,
+   "variant_gloss": null,
+   "ai": [
+    {
+     "pass": 1,
+     "model": "Qwen/Qwen3-VL-8B-Instruct",
+     "class": null,
+     "level_word": null,
+     "variant_word": null,
+     "confidence": null,
+     "reason": null,
+     "error": "no answer"
+    },
+    {
+     "pass": 2,
+     "model": "zai-org/GLM-4.6V-Flash",
+     "class": "detail",
+     "level_word": null,
+     "variant_word": null,
+     "confidence": 1.0,
+     "reason": "The image shows a detailed technical drawing of a mechanical component (likely a bicycle handlebar assembly) with precise lines and features, which is typical  ",
+     "error": null
+    }
+   ],
+   "metres_per_unit": 0.01,
+   "transform_to_building": null,
+   "registration": null,
+   "use": "ignored",
+   "ignored_reason": "no title and no geometry rule gives a class",
+   "evidence": [],
+   "conflicts": []
+  }
+ ],
+ "stray": [
+  {
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "entity": "HATCH:5303",
+   "type": "HATCH",
+   "layer": "_P6_BT_Yesil_T",
+   "box": [
+    696998.87,
+    4539602.628,
+    699184.616,
+    4541542.96
+   ],
+   "distance_m": 206.59,
+   "reason": "far outside the frame, 1 entity (0.01 % of the document)"
+  },
+  {
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "entity": "HATCH:2AC24",
+   "type": "HATCH",
+   "layer": "0",
+   "box": [
+    703419.581,
+    4498745.63,
+    703421.504,
+    4498747.072
+   ],
+   "distance_m": 15.96,
+   "reason": "far outside the frame, 4 entities (0.03 % of the document)"
+  },
+  {
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "entity": "HATCH:2AC25",
+   "type": "HATCH",
+   "layer": "0",
+   "box": [
+    703418.806,
+    4498744.32,
+    703421.306,
+    4498744.82
+   ],
+   "distance_m": 15.96,
+   "reason": "far outside the frame, 4 entities (0.03 % of the document)"
+  },
+  {
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "entity": "LWPOLYLINE:2AC26",
+   "type": "LWPOLYLINE",
+   "layer": "_P2_D_4_Ç",
+   "box": [
+    703418.806,
+    4498744.32,
+    703421.306,
+    4498744.82
+   ],
+   "distance_m": 15.96,
+   "reason": "far outside the frame, 4 entities (0.03 % of the document)"
+  },
+  {
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "entity": "HATCH:2AC27",
+   "type": "HATCH",
+   "layer": "0",
+   "box": [
+    703418.806,
+    4498744.991,
+    703421.306,
+    4498745.491
+   ],
+   "distance_m": 15.96,
+   "reason": "far outside the frame, 4 entities (0.03 % of the document)"
+  },
+  {
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "entity": "LWPOLYLINE:2B018",
+   "type": "LWPOLYLINE",
+   "layer": "_P3_S_Duvar_Ç",
+   "box": [
+    702478.542,
+    4486031.46,
+    708482.163,
+    4493909.233
+   ],
+   "distance_m": 6.66,
+   "reason": "far outside the frame, 2 entities (0.02 % of the document)"
+  },
+  {
+   "file": "deneme1.dwg",
+   "sheet": "s1",
+   "entity": "LWPOLYLINE:2B019",
+   "type": "LWPOLYLINE",
+   "layer": "_P3_S_Duvar_Ç",
+   "box": [
+    705274.114,
+    4488461.034,
+    705900.784,
+    4489035.775
+   ],
+   "distance_m": 6.66,
+   "reason": "far outside the frame, 2 entities (0.02 % of the document)"
+  }
+ ],
+ "levels": [
+  {
+   "id": "L-1",
+   "order": -1,
+   "label": "Bodrum Kat",
+   "kind": "basement",
+   "base_region": "r11",
+   "secondary_regions": [],
+   "alternatives": [
+    {
+     "region": "r15",
+     "variant": "Açık mutfak",
+     "slug": "acik-mutfak",
+     "level_id": "L-1b",
+     "base_unclear": false
+    }
+   ],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:36A77",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2",
+     "region_id": "r11"
+    }
+   ]
+  },
+  {
+   "id": "L0",
+   "order": 0,
+   "label": "Zemin Kat",
+   "kind": "floor",
+   "base_region": "r5",
+   "secondary_regions": [
+    "r16"
+   ],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:3A66E",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ZEMİN KAT PLANI BRÜT 92M2",
+     "region_id": "r5"
+    }
+   ]
+  },
+  {
+   "id": "L1",
+   "order": 1,
+   "label": "Çatı Katı",
+   "kind": "attic",
+   "base_region": "r18",
+   "secondary_regions": [],
+   "alternatives": [],
+   "furniture_regions": [],
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2FD2F",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "ÇATI KAT PLANI",
+     "region_id": "r18"
+    }
+   ]
+  }
+ ],
+ "variants": [
+  {
+   "id": "base",
+   "label": "Base",
+   "base": true,
+   "levels": [
+    "L-1",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r11",
+    "r5",
+    "r18"
+   ]
+  },
+  {
+   "id": "l-1b-acik-mutfak",
+   "label": "Bodrum Kat: Açık mutfak (open kitchen)",
+   "base": false,
+   "levels": [
+    "L-1b",
+    "L0",
+    "L1"
+   ],
+   "regions": [
+    "r15",
+    "r5",
+    "r18"
+   ],
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": "0",
+     "entity": "MTEXT:2F090",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "title_keyword",
+     "text": "BODRUM KAT PLANI BRÜT 92 M2 ( Açık mutfak)",
+     "region_id": "r15"
+    }
+   ]
+  }
+ ],
+ "heights": {
+  "section_regions": [
+   "r19"
+  ],
+  "cut_axis": null,
+  "cut_at": null,
+  "flipped": null,
+  "datum": null,
+  "levels": [
+   {
+    "level_id": "L-1",
+    "floor_z": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC62",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.85,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC63",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC67",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   },
+   {
+    "level_id": "L0",
+    "floor_z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC67",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC65",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "floor_to_floor": {
+     "value": 3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC66",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "level_mark": null,
+    "level_mark_target_z": null
+   },
+   {
+    "level_id": "L1",
+    "floor_z": {
+     "value": 3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC66",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "ceiling_height": {
+     "value": 2.451,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC66",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_underside",
+       "region_id": "r19"
+      }
+     ],
+     "note": "sloped: the roof underside, highest under the ridge"
+    },
+    "floor_to_floor": null,
+    "level_mark": null,
+    "level_mark_target_z": null
+   }
+  ],
+  "slabs": [
+   {
+    "between": [
+     null,
+     "L-1"
+    ],
+    "thickness": {
+     "value": 0.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC69",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "z_top": {
+     "value": -3.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC62",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L-1",
+     "L0"
+    ],
+    "thickness": {
+     "value": 0.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC63",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC67",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    }
+   },
+   {
+    "between": [
+     "L0",
+     "L1"
+    ],
+    "thickness": {
+     "value": 0.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC65",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    },
+    "z_top": {
+     "value": 3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC66",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "slab_bands",
+       "region_id": "r19"
+      }
+     ]
+    }
+   }
+  ],
+  "ground": [
+   {
+    "side": "left",
+    "z": {
+     "value": -3.15,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC6A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "ground_line",
+       "region_id": "r19"
+      }
+     ]
+    }
+   },
+   {
+    "side": "right",
+    "z": {
+     "value": 0.0,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC67",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "ground_line",
+       "region_id": "r19"
+      }
+     ]
+    }
+   }
+  ],
+  "roof": {
+   "eaves_z": {
+    "value": 3.75,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:3AC65",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r19"
+     }
+    ],
+    "note": "0.60 m above the top floor"
+   },
+   "ridge_z": {
+    "value": 5.805,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:3AC65",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r19"
+     }
+    ],
+    "note": "2.66 m above the top floor"
+   },
+   "pitches_deg": [
+    {
+     "value": 32.5,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC65",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r19"
+      }
+     ]
+    },
+    {
+     "value": 11.3,
+     "method": "vector",
+     "confidence": 1.0,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "LWPOLYLINE:3AC65",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "roof_line",
+       "region_id": "r19"
+      }
+     ]
+    }
+   ],
+   "knee_wall": {
+    "value": 0.919,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:3AC65",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r19"
+     }
+    ],
+    "note": "the roof's top surface at the outer face of the outer wall above the top floor (a cross-check); the underside meets the outer face 0.68 m above the floor"
+   },
+   "overhang": {
+    "value": 0.5,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:3AC60",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r19"
+     }
+    ],
+    "note": "left 0.50 m, right 0.50 m"
+   },
+   "thickness": {
+    "value": 0.2,
+    "method": "vector",
+    "confidence": 1.0,
+    "evidence": [
+     {
+      "file": "deneme1.dwg",
+      "page": 1,
+      "layer": null,
+      "entity": "LWPOLYLINE:3AC66",
+      "method": "vector",
+      "confidence": 1.0,
+      "rule": "roof_line",
+      "region_id": "r19"
+     }
+    ],
+    "note": "perpendicular to the first slope"
+   },
+   "profile": [
+    [
+     -0.5,
+     3.75
+    ],
+    [
+     1.5,
+     5.025
+    ],
+    [
+     5.4,
+     5.805
+    ],
+    [
+     9.3,
+     5.025
+    ],
+    [
+     11.3,
+     3.75
+    ]
+   ]
+  }
+ },
+ "exterior": {
+  "roof": {
+   "type": "mansard",
+   "type_source": "plan_roof_lines",
+   "outline": [
+    [
+     0.4999,
+     -0.5
+    ],
+    [
+     16.6718,
+     -0.5
+    ],
+    [
+     16.6718,
+     12.5
+    ],
+    [
+     0.4999,
+     12.5
+    ]
+   ],
+   "break_line": [
+    [
+     14.472,
+     10.3
+    ],
+    [
+     14.472,
+     1.7
+    ],
+    [
+     2.6999,
+     1.7
+    ],
+    [
+     2.6999,
+     10.3
+    ]
+   ],
+   "ridge_lines": [],
+   "covering": null,
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:304CA",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_outline",
+     "region_id": "r18"
+    },
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F87A",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_break_line",
+     "region_id": "r18"
+    },
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:3AC65",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "roof_line",
+     "region_id": "r19"
+    }
+   ],
+   "note": "roof outline 16.17 x 13.00 m on r18; closed line inside it 11.77 x 8.60 m (LWPOLYLINE:2F87A): the slope changes there (mansard)"
+  },
+  "facade": [],
+  "openings_seen": [],
+  "site": {
+   "region": "r14",
+   "registered": true,
+   "plot": [
+    [
+     25.261,
+     34.8265
+    ],
+    [
+     -5.0045,
+     35.7266
+    ],
+    [
+     -5.0045,
+     -2.9084
+    ],
+    [
+     25.085,
+     -3.8033
+    ]
+   ],
+   "plot_walls": [],
+   "paving": [
+    {
+     "polygon": [
+      [
+       -3.8104,
+       0.0078
+      ],
+      [
+       -3.7934,
+       11.7998
+      ],
+      [
+       1.0009,
+       11.7986
+      ],
+      [
+       0.9954,
+       8.0008
+      ],
+      [
+       -1.9995,
+       8.0052
+      ],
+      [
+       -1.9991,
+       0.0052
+      ]
+     ],
+     "label": "GÜNEŞLENME ALANI",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2F887",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_paving",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB72",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    },
+    {
+     "polygon": [
+      [
+       19.1732,
+       -0.0032
+      ],
+      [
+       19.1849,
+       8.0009
+      ],
+      [
+       16.1728,
+       8.0111
+      ],
+      [
+       16.1856,
+       11.8007
+      ],
+      [
+       20.1582,
+       11.801
+      ],
+      [
+       20.1025,
+       -0.0051
+      ]
+     ],
+     "label": "GÜNEŞLENME ALANI",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2F885",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_paving",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB75",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    },
+    {
+     "polygon": [
+      [
+       19.1698,
+       18.5553
+      ],
+      [
+       19.1815,
+       26.5594
+      ],
+      [
+       16.1694,
+       26.5695
+      ],
+      [
+       16.1822,
+       30.3591
+      ],
+      [
+       19.971,
+       30.3592
+      ],
+      [
+       19.9711,
+       18.556
+      ]
+     ],
+     "label": "GÜNEŞLENME ALANI",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2FA21",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_paving",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB76",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    },
+    {
+     "polygon": [
+      [
+       -3.8127,
+       18.5806
+      ],
+      [
+       -3.7957,
+       30.3726
+      ],
+      [
+       0.9971,
+       30.3714
+      ],
+      [
+       0.9916,
+       26.5736
+      ],
+      [
+       -2.0033,
+       26.578
+      ],
+      [
+       -2.0029,
+       18.578
+      ]
+     ],
+     "label": "GÜNEŞLENME ALANI",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2F88E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_paving",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB77",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    }
+   ],
+   "grass": [],
+   "parking": [
+    {
+     "polygon": [
+      [
+       20.1733,
+       11.9971
+      ],
+      [
+       20.1719,
+       30.5739
+      ],
+      [
+       15.1705,
+       30.5739
+      ],
+      [
+       15.1705,
+       31.5738
+      ],
+      [
+       13.2718,
+       31.5738
+      ],
+      [
+       13.2718,
+       30.5738
+      ],
+      [
+       7.5844,
+       30.5738
+      ],
+      [
+       4.6874,
+       30.5738
+      ],
+      [
+       -0.0012,
+       30.5738
+      ],
+      [
+       -0.0045,
+       35.5739
+      ],
+      [
+       25.261,
+       34.8265
+      ],
+      [
+       25.085,
+       -3.8033
+      ],
+      [
+       20.0873,
+       -3.6546
+      ]
+     ],
+     "label": "OTOPARK ALANI",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2F889",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_parking",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB70",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "OTOPARK ALANI"
+      }
+     ]
+    }
+   ],
+   "pools": [
+    {
+     "polygon": [
+      [
+       -1.9991,
+       0.0052
+      ],
+      [
+       1.0009,
+       0.0008
+      ],
+      [
+       1.0126,
+       8.0008
+      ],
+      [
+       -1.9995,
+       8.0052
+      ]
+     ],
+     "label": "24M2 HAVUZ",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2F8CC",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_pools",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB73",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    },
+    {
+     "polygon": [
+      [
+       16.1732,
+       0.0053
+      ],
+      [
+       19.1732,
+       0.0009
+      ],
+      [
+       19.1849,
+       8.0009
+      ],
+      [
+       16.1728,
+       8.0053
+      ]
+     ],
+     "label": "24M2 HAVUZ",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2F8CF",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_pools",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB74",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    },
+    {
+     "polygon": [
+      [
+       -2.0029,
+       18.578
+      ],
+      [
+       0.9971,
+       18.5736
+      ],
+      [
+       1.0088,
+       26.5736
+      ],
+      [
+       -2.0033,
+       26.578
+      ]
+     ],
+     "label": "24M2 HAVUZ",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2F88C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_pools",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB78",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    },
+    {
+     "polygon": [
+      [
+       16.1698,
+       18.5638
+      ],
+      [
+       19.1698,
+       18.5594
+      ],
+      [
+       19.1815,
+       26.5594
+      ],
+      [
+       16.1694,
+       26.5638
+      ]
+     ],
+     "label": "24M2 HAVUZ",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "HATCH:2FA1F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_pools",
+       "region_id": "r14"
+      },
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FC9D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    }
+   ],
+   "trees": [
+    {
+     "points": [
+      [
+       7.954,
+       -2.8738
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2F8C2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.9581,
+       -2.1967
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2F8C3",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.9342,
+       -1.4684
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2F8C4",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.1796,
+       -2.8929
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2F8C5",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.1558,
+       -2.1646
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2F8C6",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.1599,
+       -1.4875
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2F8C7",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       8.0186,
+       16.6716
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA25",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       8.0227,
+       17.3487
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA26",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.9989,
+       18.077
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA27",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.2443,
+       16.6525
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA28",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.2205,
+       17.3808
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA29",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.2246,
+       18.0579
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA2A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.2025,
+       15.9528
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA2F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       8.0696,
+       15.9471
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FA30",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6415,
+       -2.6036
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB48",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6344,
+       -1.8898
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB49",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6767,
+       -1.1729
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB4A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -4.6241,
+       16.0877
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB4C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.8741,
+       16.0843
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB4D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.1241,
+       16.0809
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB4E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -2.3741,
+       16.0775
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB4F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -1.6242,
+       16.0741
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB50",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -0.8742,
+       16.0707
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB51",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -0.1242,
+       16.0672
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB52",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       0.6258,
+       16.0638
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB53",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       1.3758,
+       16.0604
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB54",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       2.1258,
+       16.057
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB55",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       2.8758,
+       16.0536
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB56",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       3.6258,
+       16.0502
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB57",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       4.3758,
+       16.0468
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB58",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       5.1258,
+       16.0433
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB59",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       5.8758,
+       16.0399
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB5A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       6.6258,
+       16.0365
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB5B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.3758,
+       16.0331
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB5C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       8.1257,
+       16.0297
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB5D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       8.8757,
+       16.0263
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB5E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       9.6257,
+       16.0228
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB5F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       10.3757,
+       16.0194
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB60",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       11.1257,
+       16.016
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB61",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       11.8757,
+       16.0126
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB62",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       12.6257,
+       16.0092
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB63",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       13.3757,
+       16.0058
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB64",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       14.1257,
+       16.0024
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB65",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       14.8757,
+       15.9989
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB66",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       15.6257,
+       15.9955
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB67",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       16.3757,
+       15.9921
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB68",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       17.1257,
+       15.9887
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB69",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       17.8756,
+       15.9853
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB6A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       18.6256,
+       15.9819
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB6B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -4.6572,
+       16.7916
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB6C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -4.6239,
+       17.4782
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FB6D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.376,
+       15.9762
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC01",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.8346,
+       16.5622
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC02",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.8287,
+       17.3334
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC03",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.5806,
+       -3.2608
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC04",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.5689,
+       -2.5411
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC05",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.569,
+       -1.8392
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC06",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.5239,
+       -1.1591
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC07",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -2.9157,
+       -2.5981
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC48",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -2.116,
+       -2.6219
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC49",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -1.3164,
+       -2.6456
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC4A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -0.5167,
+       -2.6694
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC4B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       0.2829,
+       -2.6932
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC4C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       1.0826,
+       -2.717
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC4D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       1.8822,
+       -2.7408
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC4E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       2.6819,
+       -2.7646
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC4F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       3.4815,
+       -2.7883
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC50",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       4.2811,
+       -2.8121
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC51",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       5.0808,
+       -2.8359
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC52",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       5.8804,
+       -2.8597
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC53",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       6.6801,
+       -2.8835
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC54",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       7.4797,
+       -2.9072
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC55",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       8.2794,
+       -2.931
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC56",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       9.079,
+       -2.9548
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC57",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       9.8787,
+       -2.9786
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC58",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       10.6783,
+       -3.0024
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC59",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       11.478,
+       -3.0261
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC5A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       12.2776,
+       -3.0499
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC5B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       13.0773,
+       -3.0737
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC5C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       13.8769,
+       -3.0975
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC5D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       14.6766,
+       -3.1213
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC5E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       15.4762,
+       -3.145
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC5F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       16.2758,
+       -3.1688
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC60",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       17.0755,
+       -3.1926
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC61",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       17.8751,
+       -3.2164
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC62",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       18.6748,
+       -3.2402
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC63",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       19.4744,
+       -3.2639
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC64",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6745,
+       0.418
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC8F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6733,
+       1.218
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC90",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6722,
+       2.018
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC91",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.671,
+       2.818
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC92",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6699,
+       3.618
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC93",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6687,
+       4.418
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC94",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6676,
+       5.218
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC95",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.608,
+       18.9896
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC96",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6068,
+       19.7896
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC97",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6057,
+       20.5896
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC98",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6045,
+       21.3896
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC99",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6034,
+       22.1896
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC9A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6022,
+       22.9896
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC9B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    },
+    {
+     "points": [
+      [
+       -3.6011,
+       23.7896
+      ]
+     ],
+     "radius_m": 0.359,
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": "BS_09_AĞAÇ",
+       "entity": "INSERT:2FC9C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_tree",
+       "region_id": "r14"
+      }
+     ]
+    }
+   ],
+   "labels": [
+    {
+     "label": "OTOPARK ALANI",
+     "kind": "parking",
+     "point": [
+      21.7302,
+      25.1762
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB70",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "OTOPARK ALANI"
+      }
+     ]
+    },
+    {
+     "label": "GÜNEŞLENME ALANI",
+     "kind": "terrace",
+     "point": [
+      -2.3295,
+      9.4862
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB72",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    },
+    {
+     "label": "24M2 HAVUZ",
+     "kind": "pool",
+     "point": [
+      -1.0205,
+      2.8168
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB73",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    },
+    {
+     "label": "24M2 HAVUZ",
+     "kind": "pool",
+     "point": [
+      17.3413,
+      3.7582
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB74",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    },
+    {
+     "label": "GÜNEŞLENME ALANI",
+     "kind": "terrace",
+     "point": [
+      17.6449,
+      9.7242
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB75",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    },
+    {
+     "label": "GÜNEŞLENME ALANI",
+     "kind": "terrace",
+     "point": [
+      17.054,
+      28.3015
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB76",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    },
+    {
+     "label": "GÜNEŞLENME ALANI",
+     "kind": "terrace",
+     "point": [
+      -1.9068,
+      28.3785
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB77",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "GÜNEŞLENME ALANI"
+      }
+     ]
+    },
+    {
+     "label": "24M2 HAVUZ",
+     "kind": "pool",
+     "point": [
+      -0.6115,
+      22.2537
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FB78",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    },
+    {
+     "label": "24M2 HAVUZ",
+     "kind": "pool",
+     "point": [
+      17.7313,
+      22.6439
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "MTEXT:2FC9D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "site_label",
+       "region_id": "r14",
+       "text": "24M2 HAVUZ"
+      }
+     ]
+    }
+   ],
+   "evidence": [
+    {
+     "file": "deneme1.dwg",
+     "page": 1,
+     "layer": null,
+     "entity": "LWPOLYLINE:2F894",
+     "method": "vector",
+     "confidence": 1.0,
+     "rule": "site_plot",
+     "region_id": "r14"
+    }
+   ],
+   "marks": [
+    {
+     "text": "44.00",
+     "point": [
+      -5.6131,
+      37.4541
+     ],
+     "entity": "ATTRIB:2FA3A",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FA3A",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "44.00"
+      }
+     ]
+    },
+    {
+     "text": "37.00",
+     "point": [
+      -5.621,
+      -2.8581
+     ],
+     "entity": "ATTRIB:2FA4B",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FA4B",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "37.00"
+      }
+     ]
+    },
+    {
+     "text": "40.00",
+     "point": [
+      25.5346,
+      -2.7666
+     ],
+     "entity": "ATTRIB:2FA5C",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FA5C",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "40.00"
+      }
+     ]
+    },
+    {
+     "text": "46.00",
+     "point": [
+      25.1703,
+      37.0081
+     ],
+     "entity": "ATTRIB:2FA6D",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FA6D",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "46.00"
+      }
+     ]
+    },
+    {
+     "text": "40.00",
+     "point": [
+      -6.5088,
+      16.5766
+     ],
+     "entity": "ATTRIB:2FA7E",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FA7E",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "40.00"
+      }
+     ]
+    },
+    {
+     "text": "43.00",
+     "point": [
+      26.3431,
+      14.9466
+     ],
+     "entity": "ATTRIB:2FA8F",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FA8F",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "43.00"
+      }
+     ]
+    },
+    {
+     "text": "40.00",
+     "point": [
+      2.9149,
+      -1.7756
+     ],
+     "entity": "ATTRIB:2FAA0",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FAA0",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "40.00"
+      }
+     ]
+    },
+    {
+     "text": "43.00",
+     "point": [
+      2.4233,
+      14.7962
+     ],
+     "entity": "ATTRIB:2FAB1",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FAB1",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "43.00"
+      }
+     ]
+    },
+    {
+     "text": "40.00",
+     "point": [
+      12.9813,
+      -1.5467
+     ],
+     "entity": "ATTRIB:2FAC2",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FAC2",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "40.00"
+      }
+     ]
+    },
+    {
+     "text": "43.00",
+     "point": [
+      11.2921,
+      17.4755
+     ],
+     "entity": "ATTRIB:2FAD3",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FAD3",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "43.00"
+      }
+     ]
+    },
+    {
+     "text": "45.00",
+     "point": [
+      8.4844,
+      37.8244
+     ],
+     "entity": "ATTRIB:2FAE4",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FAE4",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "45.00"
+      }
+     ]
+    },
+    {
+     "text": "46.00",
+     "point": [
+      12.344,
+      34.3498
+     ],
+     "entity": "ATTRIB:2FAF5",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FAF5",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "46.00"
+      }
+     ]
+    },
+    {
+     "text": "43.00",
+     "point": [
+      3.9706,
+      17.6829
+     ],
+     "entity": "ATTRIB:2FB06",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FB06",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "43.00"
+      }
+     ]
+    },
+    {
+     "text": "40.00",
+     "point": [
+      -0.5458,
+      5.0427
+     ],
+     "entity": "ATTRIB:2FB17",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FB17",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "40.00"
+      }
+     ]
+    },
+    {
+     "text": "43.00",
+     "point": [
+      14.8273,
+      14.7162
+     ],
+     "entity": "ATTRIB:2FB28",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FB28",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "43.00"
+      }
+     ]
+    },
+    {
+     "text": "46.00",
+     "point": [
+      4.7163,
+      34.2002
+     ],
+     "entity": "ATTRIB:2FB39",
+     "site_ground": true,
+     "attrib_tag": "BDK",
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "page": 1,
+       "layer": null,
+       "entity": "ATTRIB:2FB39",
+       "method": "vector",
+       "confidence": 1.0,
+       "rule": "level_mark",
+       "region_id": "r14",
+       "text": "46.00"
+      }
+     ]
+    }
+   ],
+   "buildings": [
+    {
+     "id": "b1",
+     "reference": true,
+     "footprint": [
+      [
+       16.172,
+       0.0
+      ],
+      [
+       8.5939,
+       0.0
+      ],
+      [
+       0.9997,
+       -0.0
+      ],
+      [
+       0.9997,
+       12.0
+      ],
+      [
+       0.9873,
+       12.0
+      ],
+      [
+       8.5359,
+       12.0
+      ],
+      [
+       8.5867,
+       12.0
+      ],
+      [
+       16.1844,
+       12.0
+      ],
+      [
+       16.172,
+       12.0
+      ]
+     ],
+     "rotation_deg": 0.0,
+     "translate": [
+      0.0,
+      0.0
+     ],
+     "dz": 0.0,
+     "plan_region": "r16",
+     "size_m": [
+      15.197,
+      12.0
+     ],
+     "orientation": "entrances",
+     "orientation_score_m": 1.286,
+     "entrance_ground": 43.0,
+     "entities": [
+      "INSERT:2F890",
+      "INSERT:2FB7C"
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:2F890",
+       "region_id": "r14",
+       "rule": "site_building"
+      },
+      {
+       "file": "deneme1.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:2FB7C",
+       "region_id": "r14",
+       "rule": "site_building"
+      }
+     ],
+     "method": "vector",
+     "dz_note": null,
+     "note": "two outlines (bina) of 15.20 x 12.00 m match the plan r16 within 0.03 m"
+    },
+    {
+     "id": "b2",
+     "reference": false,
+     "footprint": [
+      [
+       16.1682,
+       18.5728
+      ],
+      [
+       8.5821,
+       18.5728
+      ],
+      [
+       0.9959,
+       18.5728
+      ],
+      [
+       0.9959,
+       30.5728
+      ],
+      [
+       0.9835,
+       30.5728
+      ],
+      [
+       8.532,
+       30.5728
+      ],
+      [
+       16.1806,
+       30.5728
+      ],
+      [
+       16.1682,
+       30.5728
+      ]
+     ],
+     "rotation_deg": 0.0,
+     "translate": [
+      -0.0038,
+      18.5728
+     ],
+     "dz": 3.0,
+     "plan_region": "r16",
+     "size_m": [
+      15.197,
+      12.0
+     ],
+     "orientation": "entrances",
+     "orientation_score_m": 1.151,
+     "entrance_ground": 46.0,
+     "entities": [
+      "INSERT:2F8C8",
+      "INSERT:2FB7D"
+     ],
+     "evidence": [
+      {
+       "file": "deneme1.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:2F8C8",
+       "region_id": "r14",
+       "rule": "site_building"
+      },
+      {
+       "file": "deneme1.dwg",
+       "method": "vector",
+       "confidence": 0.9,
+       "entity": "INSERT:2FB7D",
+       "region_id": "r14",
+       "rule": "site_building"
+      }
+     ],
+     "method": "vector",
+     "dz_note": null,
+     "note": "two outlines (bina) of 15.20 x 12.00 m match the plan r16 within 0.03 m"
+    }
+   ],
+   "datum": {
+    "value": 43.0,
+    "method": "inferred",
+    "confidence": 0.7,
+    "note": "±0.00 = 43.00: the site plan's level marks at the entrances of building b1 read 43.00, the section's ground there is +0.00"
+   }
+  },
+  "north": null,
+  "balconies": [],
+  "chimneys": []
+ },
+ "conflicts": [
+  {
+   "id": "sc_001",
+   "kind": "unit_mismatch",
+   "regions": [
+    "r1",
+    "r2",
+    "r3",
+    "r4",
+    "r5",
+    "r6",
+    "r7",
+    "r8",
+    "r9",
+    "r10",
+    "r11",
+    "r12",
+    "r13",
+    "r14",
+    "r15",
+    "r16",
+    "r17",
+    "r18",
+    "r19",
+    "r20",
+    "r21"
+   ],
+   "description": "deneme1.dwg: $INSUNITS 4 says mm, but 2 independent checks (area_labels, door_widths) agree on cm and none supports mm: cm used",
+   "resolution": "cm used (user decision 8 of 8 Oct 2026: >= 2 independent checks agree)"
+  },
+  {
+   "id": "sc_002",
+   "kind": "registration_residual",
+   "regions": [
+    "r11",
+    "r5"
+   ],
+   "description": "deneme1.dwg r11 (L-1) registered onto r5 (L0) with an RMS outline distance of 0.248 m (488 of 546 outline points within 5 cm; outlines 15.17 x 12.00 m vs 17.17 x 12.00 m)",
+   "resolution": "unresolved: each level is built as drawn"
+  },
+  {
+   "id": "sc_003",
+   "kind": "registration_residual",
+   "regions": [
+    "r15",
+    "r5"
+   ],
+   "description": "deneme1.dwg r15 (L-1b) registered onto r5 (L0) with an RMS outline distance of 0.248 m (488 of 546 outline points within 5 cm; outlines 15.17 x 12.00 m vs 17.17 x 12.00 m)",
+   "resolution": "unresolved: each level is built as drawn"
+  },
+  {
+   "id": "sc_004",
+   "kind": "registration_residual",
+   "regions": [
+    "r16",
+    "r5"
+   ],
+   "description": "deneme1.dwg r16 (L0) registered onto r5 (L0) with an RMS outline distance of 0.247 m (492 of 550 outline points within 5 cm; outlines 15.17 x 12.00 m vs 17.17 x 12.00 m)",
+   "resolution": "unresolved: each level is built as drawn"
+  },
+  {
+   "id": "sc_005",
+   "kind": "registration_residual",
+   "regions": [
+    "r18",
+    "r5"
+   ],
+   "description": "deneme1.dwg r18 (L1) registered onto r5 (L0) with an RMS outline distance of 0.248 m (488 of 546 outline points within 5 cm; outlines 15.17 x 12.00 m vs 17.17 x 12.00 m)",
+   "resolution": "unresolved: each level is built as drawn"
+  },
+  {
+   "id": "sc_006",
+   "kind": "section_width_mismatch",
+   "regions": [
+    "r19"
+   ],
+   "description": "section r19 is 10.80 m wide between its outer walls; the reference plan's outline is 17.17 x 12.00 m",
+   "resolution": "unresolved: heights kept, cut direction unknown"
+  }
+ ],
+ "warnings": [
+  "deneme1.dwg r1: class floor_plan from the two AI passes only: unverified, not read",
+  "deneme1.dwg r12: class site_plan from the two AI passes only: unverified, not read",
+  "deneme1.dwg r13: class site_plan from the two AI passes only: unverified, not read",
+  "the largest drawn polylines of the plans differ in size: r5 (L0) LWPOLYLINE:39F34 on DBM_w_sld 7.59 x 10.50 m (open, ends 5.31 m apart); r11 (L-1) LWPOLYLINE:366F8 on DBM_w_sld 7.19 x 10.50 m (open, ends 12.50 m apart); r15 (L-1b) LWPOLYLINE:2C4A5 on DBM_w_sld 7.19 x 10.50 m (open, ends 12.50 m apart); r16 (L0) LWPOLYLINE:2DA7F on DBM_w_sld 7.59 x 10.50 m (open, ends 0.40 m apart); r18 (L1) LWPOLYLINE:2F87A on _P3_S_Duvar_Ç 11.77 x 8.60 m (closed); the registered outlines (all long strokes, columns included) give residuals r11 0.2477, r15 0.2477, r16 0.2467, r18 0.2477 m; each level is kept as drawn",
+  "2 sections: heights from r19; r20 not read for heights",
+  "section r19: no cut line on the plans: the section's left end is taken as the building's min side along the cut axis (flipped unknown)",
+  "section r19: the cut direction is unknown: the ground levels keep the section's left/right",
+  "roof: the break line on r18 (LWPOLYLINE:2F87A) is 8.60 m wide along the cut, the section's slope changes 7.80 m apart (0.80 m); both kept as drawn",
+  "site plan r14: 2 buildings on the plot (b1: turned 0.0 deg, dz +0.00 m, b2: turned 0.0 deg, dz +3.00 m)",
+  "no elevation drawn: facade materials and outside openings are not drawn (facade empty)"
+ ],
+ "needs_review": [],
+ "questions": 8,
+ "answers": "outputs/real04/sheets"
+}

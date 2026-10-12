@@ -1,0 +1,840 @@
+{
+ "room_id": "r_L-1b_salon",
+ "label": "Salon",
+ "room_type": "living",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing fits: kitchen_run: no candidate position fits the room",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L-1b_002",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.2023,
+     4.4714
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_009",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     2.7596,
+     7.3421
+    ],
+    "wall_id": "w_L-1b_002"
+   }
+  },
+  {
+   "id": "f_L-1b_010",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2011,
+     5.5321
+    ],
+    "wall_id": "w_L-1b_007"
+   }
+  },
+  {
+   "id": "f_L-1b_011",
+   "type": "kitchen_island",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.5944,
+     4.6214
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_012",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.9626,
+     7.0318
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_013",
+   "type": "stove",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.1755,
+     7.0173
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_014",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.5053,
+     5.8785
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_026",
+   "type": "table_dining",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.7456,
+     2.3955
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_027",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.2963,
+     1.7804
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_028",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.1803,
+     1.7805
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_029",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.2963,
+     2.3931
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_030",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.1803,
+     2.3932
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_031",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.2963,
+     3.0384
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_032",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.1803,
+     3.0385
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_033",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.741,
+     3.6049
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_034",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.741,
+     1.1862
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_040",
+   "type": "bar_stool",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     5.818,
+     7.4427
+    ],
+    "wall_id": "w_L-1b_004"
+   }
+  },
+  {
+   "id": "f_L-1b_042",
+   "type": "kitchen_island",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.189,
+     4.4812
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_046",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.5542,
+     6.4424
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_049",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.9367,
+     0.7542
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_050",
+   "type": "floor_lamp",
+   "kind": "kept",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.6769,
+     1.3431
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_051",
+   "type": "table_dining",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.9122,
+     2.6003
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_052",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.0963,
+     2.5866
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_053",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.7281,
+     2.5866
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_054",
+   "type": "table_dining",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.0118,
+     2.6003
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_055",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.1959,
+     2.5866
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_056",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.8277,
+     2.5866
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_064",
+   "type": "sink_kitchen",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.5038,
+     5.8785
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_066",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.818,
+     1.7001
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_068",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.5038,
+     5.6882
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1b_070",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.5038,
+     6.0689
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L-1b_salon_kitchen.kitchen_run",
+   "group": "kitchen_run",
+   "options": [
+    "I",
+    "L",
+    "galley",
+    "U"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [
+    "fridge"
+   ],
+   "note": ""
+  },
+  {
+   "group_id": "r_L-1b_salon_kitchen.dining",
+   "group": "dining",
+   "options": [
+    "seats_4"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": ""
+  },
+  {
+   "group_id": "r_L-1b_salon.island",
+   "group": "island",
+   "options": [
+    "island"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": "unverified anchor: nothing added"
+  },
+  {
+   "group_id": "r_L-1b_salon_kitchen.island",
+   "group": "island",
+   "options": [
+    "island"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": ""
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 2.8496,
+   "terms": {
+    "balance": 0.8496,
+    "circulation": 1.0
+   },
+   "options": {},
+   "pieces": [],
+   "not_placed": [
+    {
+     "group_id": "r_L-1b_salon_kitchen.kitchen_run",
+     "group": "kitchen_run",
+     "required": false,
+     "reason": "no candidate position fits the room"
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    "G6 major f_L-1b_033: chair f_L-1b_033: 0.78 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+    "G8 major f_L-1b_064: kitchen aisle 0.05 m in front of sink_kitchen f_L-1b_064, needs ≥ 0.90 m",
+    "G9 major r_L-1b_salon_kitchen: kitchen r_L-1b_salon_kitchen has no fridge (fridge)"
+   ],
+   "nodes": {
+    "generated": 736,
+    "expanded": 0,
+    "walkway_checks": 0
+   }
+  }
+ ],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [
+  {
+   "type": "kitchen_run",
+   "reason": "no candidate position fits the room",
+   "group_id": "r_L-1b_salon_kitchen.kitchen_run"
+  }
+ ],
+ "wall_cabinets": [
+  {
+   "id": "f_L-1b_079",
+   "run": "f_L-1b_009",
+   "size": [
+    0.59,
+    0.35
+   ],
+   "excluded": [
+    "door o_L-1b_001",
+    "stove f_L-1b_013"
+   ]
+  },
+  {
+   "id": "f_L-1b_080",
+   "run": "f_L-1b_009",
+   "size": [
+    1.47,
+    0.35
+   ],
+   "excluded": [
+    "door o_L-1b_001",
+    "stove f_L-1b_013"
+   ]
+  },
+  {
+   "id": "f_L-1b_081",
+   "run": "f_L-1b_010",
+   "size": [
+    2.421,
+    0.35
+   ],
+   "excluded": []
+  }
+ ],
+ "missing": [
+  "fridge"
+ ],
+ "drawn_layout": {
+  "pieces": {
+   "f_L-1b_002": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1b_009": [
+    "inside_room",
+    "no_overlap",
+    "doors_free"
+   ],
+   "f_L-1b_010": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1b_012": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1b_013": [
+    "no_overlap"
+   ],
+   "f_L-1b_014": [
+    "no_overlap"
+   ],
+   "f_L-1b_026": [
+    "no_overlap"
+   ],
+   "f_L-1b_027": [
+    "no_overlap"
+   ],
+   "f_L-1b_028": [
+    "no_overlap"
+   ],
+   "f_L-1b_029": [
+    "no_overlap"
+   ],
+   "f_L-1b_030": [
+    "no_overlap"
+   ],
+   "f_L-1b_031": [
+    "no_overlap"
+   ],
+   "f_L-1b_032": [
+    "no_overlap"
+   ],
+   "f_L-1b_033": [
+    "no_overlap"
+   ],
+   "f_L-1b_034": [
+    "no_overlap"
+   ],
+   "f_L-1b_040": [
+    "inside_room"
+   ],
+   "f_L-1b_046": [
+    "no_overlap"
+   ],
+   "f_L-1b_049": [
+    "no_overlap",
+    "windows_free"
+   ],
+   "f_L-1b_050": [
+    "no_overlap"
+   ],
+   "f_L-1b_051": [
+    "no_overlap"
+   ],
+   "f_L-1b_052": [
+    "no_overlap"
+   ],
+   "f_L-1b_053": [
+    "no_overlap"
+   ],
+   "f_L-1b_054": [
+    "no_overlap"
+   ],
+   "f_L-1b_055": [
+    "no_overlap"
+   ],
+   "f_L-1b_056": [
+    "no_overlap"
+   ],
+   "f_L-1b_064": [
+    "no_overlap"
+   ],
+   "f_L-1b_068": [
+    "no_overlap"
+   ],
+   "f_L-1b_070": [
+    "no_overlap"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.069,
+ "program_full": {
+  "room_id": "r_L-1b_salon",
+  "zones": [
+   {
+    "zone_id": "r_L-1b_salon_kitchen",
+    "kind": "kitchen",
+    "polygon": [
+     [
+      1.2011,
+      3.3214
+     ],
+     [
+      1.2011,
+      7.3421
+     ],
+     [
+      4.3191,
+      7.3421
+     ],
+     [
+      4.3171,
+      7.5171
+     ],
+     [
+      5.3181,
+      7.5171
+     ],
+     [
+      6.639,
+      6.5449
+     ],
+     [
+      6.639,
+      2.4176
+     ],
+     [
+      3.739,
+      2.4176
+     ]
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "group_id": "r_L-1b_salon_kitchen.kitchen_run",
+    "group": "kitchen_run",
+    "anchor_id": "f_L-1b_009",
+    "required": true,
+    "options": [
+     "I",
+     "L",
+     "galley",
+     "U"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": "r_L-1b_salon_kitchen",
+    "area": 25.4,
+    "priority": 140,
+    "members": [
+     "f_L-1b_010",
+     "f_L-1b_013",
+     "f_L-1b_064"
+    ],
+    "missing": [
+     "fridge"
+    ],
+    "note": ""
+   },
+   {
+    "group_id": "r_L-1b_salon_kitchen.dining",
+    "group": "dining",
+    "anchor_id": "f_L-1b_026",
+    "required": true,
+    "options": [
+     "seats_4"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": "r_L-1b_salon_kitchen",
+    "area": 25.4,
+    "priority": 115,
+    "members": [
+     "f_L-1b_027",
+     "f_L-1b_028",
+     "f_L-1b_029",
+     "f_L-1b_030",
+     "f_L-1b_031",
+     "f_L-1b_032",
+     "f_L-1b_033",
+     "f_L-1b_034"
+    ],
+    "missing": [],
+    "note": ""
+   },
+   {
+    "group_id": "r_L-1b_salon.island",
+    "group": "island",
+    "anchor_id": "f_L-1b_042",
+    "required": true,
+    "options": [
+     "island"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 51.83,
+    "priority": 112,
+    "members": [],
+    "missing": [],
+    "note": "unverified anchor: nothing added"
+   },
+   {
+    "group_id": "r_L-1b_salon_kitchen.island",
+    "group": "island",
+    "anchor_id": "f_L-1b_011",
+    "required": true,
+    "options": [
+     "island"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": "r_L-1b_salon_kitchen",
+    "area": 25.4,
+    "priority": 112,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "kitchen_run completed around drawn kitchen_counter f_L-1b_009; island completed around drawn kitchen_island f_L-1b_011; dining completed around drawn table_dining f_L-1b_026; island completed around drawn kitchen_island f_L-1b_042"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 2.8496,
+   "terms": {
+    "balance": 0.8496,
+    "circulation": 1.0
+   },
+   "pieces": [],
+   "groups": [],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G6",
+     "severity": "major",
+     "target": "f_L-1b_033",
+     "room_id": "r_L-1b_salon",
+     "message": "chair f_L-1b_033: 0.78 m from the table edge to the wall or piece behind, needs ≥ 0.81 m",
+     "metrics": {
+      "table": "f_L-1b_026",
+      "pullout_m": 0.776,
+      "needs_m": 0.81
+     }
+    },
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1b_064",
+     "room_id": "r_L-1b_salon",
+     "message": "kitchen aisle 0.05 m in front of sink_kitchen f_L-1b_064, needs ≥ 0.90 m",
+     "metrics": {
+      "aisle_m": 0.047,
+      "needs_m": 0.9
+     }
+    },
+    {
+     "check": "G9",
+     "severity": "major",
+     "target": "r_L-1b_salon_kitchen",
+     "room_id": "r_L-1b_salon",
+     "message": "kitchen r_L-1b_salon_kitchen has no fridge (fridge)",
+     "metrics": {
+      "missing": "fridge"
+     }
+    }
+   ],
+   "options": {},
+   "placed": [],
+   "not_placed": [
+    {
+     "group_id": "r_L-1b_salon_kitchen.kitchen_run",
+     "group": "kitchen_run",
+     "required": false,
+     "reason": "no candidate position fits the room"
+    }
+   ],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 736,
+    "expanded": 0,
+    "walkway_checks": 0
+   }
+  }
+ ]
+}

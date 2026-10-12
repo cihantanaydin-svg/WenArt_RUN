@@ -1,0 +1,674 @@
+{
+ "room_id": "r_L1_teras_2",
+ "label": "Teras",
+ "room_type": "balcony",
+ "program": [
+  {
+   "group_id": "r_L1_teras_2.balcony",
+   "group": "balcony",
+   "options": [
+    "table_2_chairs"
+   ],
+   "drawn": false,
+   "required": false
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 6.3175,
+   "terms": {
+    "daylight": 0.8831,
+    "balance": 0.693,
+    "circulation": 0.8707
+   },
+   "options": {
+    "r_L1_teras_2.balcony": "table_2_chairs"
+   },
+   "pieces": [
+    "table_dining",
+    "chair",
+    "chair"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 3154,
+    "expanded": 37,
+    "walkway_checks": 32
+   }
+  },
+  {
+   "rank": 2,
+   "score": 6.2863,
+   "terms": {
+    "daylight": 0.6862,
+    "balance": 0.8587,
+    "circulation": 0.8707
+   },
+   "options": {
+    "r_L1_teras_2.balcony": "table_2_chairs"
+   },
+   "pieces": [
+    "table_dining",
+    "chair",
+    "chair"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 3154,
+    "expanded": 37,
+    "walkway_checks": 32
+   }
+  },
+  {
+   "rank": 3,
+   "score": 6.1495,
+   "terms": {
+    "daylight": 0.4447,
+    "balance": 0.9634,
+    "circulation": 0.8707
+   },
+   "options": {
+    "r_L1_teras_2.balcony": "table_2_chairs"
+   },
+   "pieces": [
+    "table_dining",
+    "chair",
+    "chair"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 3154,
+    "expanded": 37,
+    "walkway_checks": 32
+   }
+  }
+ ],
+ "chosen": 2,
+ "choice": {
+  "index": 1,
+  "rank": 2,
+  "by": "vlm",
+  "reason": "Better balance score than candidate 1 while keeping strong daylight, and the dining set is positioned to use the window light effectively.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 1.139
+ },
+ "latency_s": 1.139,
+ "solve_s": 0.147,
+ "skipped": null,
+ "pieces": [
+  {
+   "id": "f_L1_037",
+   "type": "table_dining",
+   "group": "balcony"
+  },
+  {
+   "id": "f_L1_038",
+   "type": "chair",
+   "group": "balcony"
+  },
+  {
+   "id": "f_L1_039",
+   "type": "chair",
+   "group": "balcony"
+  }
+ ],
+ "program_full": {
+  "room_id": "r_L1_teras_2",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L1_teras_2.balcony",
+    "group": "balcony",
+    "anchor_id": null,
+    "required": false,
+    "options": [
+     "table_2_chairs"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 19.68,
+    "priority": 10,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "balcony 19.7 m²: balcony"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 6.3175,
+   "terms": {
+    "daylight": 0.8831,
+    "balance": 0.693,
+    "circulation": 0.8707
+   },
+   "pieces": [
+    {
+     "id": "f_L1_037",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "table_dining",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       4.7501
+      ],
+      "size": [
+       0.7,
+       0.7
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.75,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "table_dining (anchor) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "anchor",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "anchor",
+      "option": "table_2_chairs"
+     }
+    },
+    {
+     "id": "f_L1_038",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       4.1251
+      ],
+      "size": [
+       0.45,
+       0.45
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 0.9,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "chair (chair) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "partner",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "table_2_chairs"
+     }
+    },
+    {
+     "id": "f_L1_039",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       5.3751
+      ],
+      "size": [
+       0.45,
+       0.45
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.9,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "chair (chair) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "partner",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "table_2_chairs"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_teras_2.balcony",
+     "group": "balcony",
+     "anchor_id": "f_L1_037",
+     "member_ids": [
+      "f_L1_038",
+      "f_L1_039"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L1_teras_2.balcony": "table_2_chairs"
+   },
+   "placed": [
+    "r_L1_teras_2.balcony"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 3154,
+    "expanded": 37,
+    "walkway_checks": 32
+   }
+  },
+  {
+   "rank": 2,
+   "score": 6.2863,
+   "terms": {
+    "daylight": 0.6862,
+    "balance": 0.8587,
+    "circulation": 0.8707
+   },
+   "pieces": [
+    {
+     "id": "f_L1_037",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "table_dining",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       5.7501
+      ],
+      "size": [
+       0.7,
+       0.7
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.75,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "table_dining (anchor) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "anchor",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "anchor",
+      "option": "table_2_chairs"
+     }
+    },
+    {
+     "id": "f_L1_038",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       5.1251
+      ],
+      "size": [
+       0.45,
+       0.45
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 0.9,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "chair (chair) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "partner",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "table_2_chairs"
+     }
+    },
+    {
+     "id": "f_L1_039",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       6.3751
+      ],
+      "size": [
+       0.45,
+       0.45
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.9,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "chair (chair) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "partner",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "table_2_chairs"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_teras_2.balcony",
+     "group": "balcony",
+     "anchor_id": "f_L1_037",
+     "member_ids": [
+      "f_L1_038",
+      "f_L1_039"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L1_teras_2.balcony": "table_2_chairs"
+   },
+   "placed": [
+    "r_L1_teras_2.balcony"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 3154,
+    "expanded": 37,
+    "walkway_checks": 32
+   }
+  },
+  {
+   "rank": 3,
+   "score": 6.1495,
+   "terms": {
+    "daylight": 0.4447,
+    "balance": 0.9634,
+    "circulation": 0.8707
+   },
+   "pieces": [
+    {
+     "id": "f_L1_037",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "table_dining",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       6.7501
+      ],
+      "size": [
+       0.7,
+       0.7
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.75,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "table_dining (anchor) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "anchor",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "anchor",
+      "option": "table_2_chairs"
+     }
+    },
+    {
+     "id": "f_L1_038",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       6.1251
+      ],
+      "size": [
+       0.45,
+       0.45
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 0.9,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "chair (chair) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "partner",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "table_2_chairs"
+     }
+    },
+    {
+     "id": "f_L1_039",
+     "level_id": "L1",
+     "room_id": "r_L1_teras_2",
+     "type": "chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       14.9045,
+       7.3751
+      ],
+      "size": [
+       0.45,
+       0.45
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.9,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group balcony",
+       "text": "chair (chair) of the balcony group, option table_2_chairs, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_teras_2.balcony",
+      "group": "balcony",
+      "role": "partner",
+      "anchor_id": "f_L1_037"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "table_2_chairs"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_teras_2.balcony",
+     "group": "balcony",
+     "anchor_id": "f_L1_037",
+     "member_ids": [
+      "f_L1_038",
+      "f_L1_039"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L1_teras_2.balcony": "table_2_chairs"
+   },
+   "placed": [
+    "r_L1_teras_2.balcony"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 3154,
+    "expanded": 37,
+    "walkway_checks": 32
+   }
+  }
+ ],
+ "choice_full": {
+  "index": 1,
+  "rank": 2,
+  "by": "vlm",
+  "reason": "Better balance score than candidate 1 while keeping strong daylight, and the dining set is positioned to use the window light effectively.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 1.139,
+  "prompt": "Task: choose the best furniture layout for this balcony or terrace (Turkish: BALKON, TERAS) labelled 'Teras' (19.7 m²). Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nHow to read the images (north up, metres): the black outline is the room; orange shapes are door strips and door swings, cyan strips are windows; grey boxes are pieces drawn in the documents (they stay); coloured boxes are the candidate's new pieces, one colour per functional group, each with its type; the red edge of a piece is its front.\n\nCandidates:\nCandidate 1: score 6.3; groups: balcony (table_2_chairs); new pieces: chair, chair, table_dining; terms (0-1, higher is better): balance 0.69, circulation 0.87, daylight 0.88\nCandidate 2: score 6.3; groups: balcony (table_2_chairs); new pieces: chair, chair, table_dining; terms (0-1, higher is better): balance 0.86, circulation 0.87, daylight 0.69\nCandidate 3: score 6.1; groups: balcony (table_2_chairs); new pieces: chair, chair, table_dining; terms (0-1, higher is better): balance 0.96, circulation 0.87, daylight 0.44\n\nPrefer the candidate where the main group works best (a sofa that faces its TV with the coffee table between, a bed with free sides and its headboard on a wall, chairs around the table, a kitchen run in the order fridge - sink - hob), the walkways from the doors stay short and the room looks balanced. The score is the code's own ranking; you may disagree when the image shows a better room.\n\nFields of the answer: candidate (the number of the candidate you choose) and reason (one short sentence why).\n\nAnswer only with JSON.",
+  "raw_text": "{\n  \"candidate\": 2,\n  \"reason\": \"Better balance score than candidate 1 while keeping strong daylight, and the dining set is positioned to use the window light effectively.\"\n}",
+  "images": [
+   "r_L1_teras_2_c1.png",
+   "r_L1_teras_2_c2.png",
+   "r_L1_teras_2_c3.png"
+  ]
+ }
+}

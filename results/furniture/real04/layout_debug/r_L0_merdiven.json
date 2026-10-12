@@ -1,0 +1,144 @@
+{
+ "room_id": "r_L0_merdiven",
+ "label": "Merdiven",
+ "room_type": "hall",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing fits: entrance: no candidate position fits the room",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_001",
+   "type": "stair",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.0587,
+     8.6427
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L0_merdiven.entrance",
+   "group": "entrance",
+   "options": [
+    "shoe_cabinet",
+    "console"
+   ],
+   "drawn": false,
+   "required": false,
+   "missing": [],
+   "note": ""
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 0.9875,
+   "terms": {
+    "balance": 0.9875
+   },
+   "options": {},
+   "pieces": [],
+   "not_placed": [
+    {
+     "group_id": "r_L0_merdiven.entrance",
+     "group": "entrance",
+     "required": false,
+     "reason": "no candidate position fits the room"
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 398,
+    "expanded": 0,
+    "walkway_checks": 0
+   }
+  }
+ ],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [
+  {
+   "type": "entrance",
+   "reason": "no candidate position fits the room",
+   "group_id": "r_L0_merdiven.entrance"
+  }
+ ],
+ "wall_cabinets": [],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_001": [
+    "inside_room",
+    "doors_free"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.11,
+ "program_full": {
+  "room_id": "r_L0_merdiven",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L0_merdiven.entrance",
+    "group": "entrance",
+    "anchor_id": null,
+    "required": false,
+    "options": [
+     "shoe_cabinet",
+     "console"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 5.71,
+    "priority": 5,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "hall 5.7 m²: entrance"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 0.9875,
+   "terms": {
+    "balance": 0.9875
+   },
+   "pieces": [],
+   "groups": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {},
+   "placed": [],
+   "not_placed": [
+    {
+     "group_id": "r_L0_merdiven.entrance",
+     "group": "entrance",
+     "required": false,
+     "reason": "no candidate position fits the room"
+    }
+   ],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 398,
+    "expanded": 0,
+    "walkway_checks": 0
+   }
+  }
+ ]
+}

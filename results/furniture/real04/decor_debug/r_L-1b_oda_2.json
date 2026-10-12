@@ -1,0 +1,65 @@
+{
+ "room_id": "r_L-1b_oda_2",
+ "label": "Oda",
+ "room_type": "bedroom",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1b_011",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1b_071.cushions"
+  },
+  {
+   "id": "dec_L-1b_012",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1b_071.cushions"
+  },
+  {
+   "id": "dec_L-1b_013",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L-1b_071.throw"
+  },
+  {
+   "id": "dec_L-1b_014",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L-1b_071.wall"
+  },
+  {
+   "id": "dec_L-1b_015",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L-1b_072.centre"
+  },
+  {
+   "id": "dec_L-1b_016",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L-1b_oda.rug1"
+  },
+  {
+   "id": "dec_L-1b_017",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L-1b_oda.corner1"
+  },
+  {
+   "id": "dec_L-1b_018",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1b_071"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L-1b_oda (twin, not asked)"
+ ]
+}

@@ -1,0 +1,178 @@
+{
+ "room_id": "r_L0_yatak_odasi_3",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "room_subtype": null,
+ "state": "mirrored",
+ "reason": "decisions of r_L0_yatak_odasi_4 (twin), not asked again",
+ "partner": {
+  "id": "r_L0_yatak_odasi_4",
+  "kind": "twin",
+  "transform": {
+   "kind": "given",
+   "affine": [
+    -1.0,
+    0.0,
+    17.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "deviation_m": 0.001
+  }
+ },
+ "drawn": [
+  {
+   "id": "f_L0_010",
+   "type": "bed_double",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     12.955,
+     10.2943
+    ],
+    "wall_id": "w_L0_018"
+   }
+  },
+  {
+   "id": "f_L0_022",
+   "type": "desk",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     16.9724,
+     10.6351
+    ],
+    "wall_id": "w_L0_021"
+   }
+  },
+  {
+   "id": "f_L0_027",
+   "type": "unknown",
+   "kind": "outline",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     14.9276,
+     7.4353
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_035",
+   "type": "floor_lamp",
+   "kind": "kept",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     13.18,
+     11.45
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_036",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     12.955,
+     9.2693
+    ],
+    "wall_id": "w_L0_018"
+   }
+  },
+  {
+   "id": "f_L0_039",
+   "type": "wardrobe",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     15.0457,
+     7.1427
+    ],
+    "wall_id": "w_L0_023"
+   }
+  },
+  {
+   "id": "f_L0_042",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     15.0224,
+     10.506
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_045",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     15.519,
+     8.6347
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [],
+ "candidates": [],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_010": [
+    "inside_room",
+    "no_overlap",
+    "clearance_ok"
+   ],
+   "f_L0_022": [
+    "inside_room",
+    "clearance_ok"
+   ],
+   "f_L0_035": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L0_036": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L0_039": [
+    "inside_room",
+    "clearance_ok",
+    "windows_free"
+   ],
+   "f_L0_042": [
+    "no_overlap"
+   ],
+   "f_L0_045": [
+    "inside_room"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.0,
+ "program_full": null,
+ "candidates_full": []
+}

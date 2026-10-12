@@ -1,0 +1,112 @@
+{
+ "room_id": "r_L1_koridor",
+ "label": "Koridor",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "f_L1_045.wall",
+   "kind": "wall",
+   "types": [
+    "mirror",
+    "wall_art"
+   ],
+   "host_id": "f_L1_045",
+   "host_type": "console_table",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L1_koridor",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 koridor"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_045.wall",
+     "type": "mirror",
+     "colour": "brass",
+     "reason": "A brass-framed mirror reflects the warm daylight and complements the natural wood and greige palette."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_koridor",
+     "type": "pendant_light",
+     "colour": "natural wood",
+     "reason": "A natural wood pendant light reinforces the modern natural style and adds warmth to the corridor."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.125
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_045.wall",
+     "type": "mirror",
+     "colour": "brass",
+     "reason": "A brass-framed mirror reflects the warm daylight and complements the natural wood and greige palette."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_koridor",
+     "type": "pendant_light",
+     "colour": "natural wood",
+     "reason": "A natural wood pendant light reinforces the modern natural style and adds warmth to the corridor."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.124
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_045.wall",
+   "type": "mirror",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "A brass-framed mirror reflects the warm daylight and complements the natural wood and greige palette.",
+    "A brass-framed mirror reflects the warm daylight and complements the natural wood and greige palette."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_koridor",
+   "type": "pendant_light",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "A natural wood pendant light reinforces the modern natural style and adds warmth to the corridor.",
+    "A natural wood pendant light reinforces the modern natural style and adds warmth to the corridor."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_011",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_045.wall"
+  },
+  {
+   "id": "dec_L1_012",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_koridor"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L1_045 left: no decor fits (0.39 x 0.24 m, 0.00 m high)",
+  "f_L1_045 right: no decor fits (0.39 x 0.24 m, 0.00 m high)",
+  "no free corner for a floor plant"
+ ]
+}

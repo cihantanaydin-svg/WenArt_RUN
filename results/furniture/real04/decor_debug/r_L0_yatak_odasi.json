@@ -1,0 +1,451 @@
+{
+ "room_id": "r_L0_yatak_odasi",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L0_017.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_017.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_017.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L0_049.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L0_049",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    1.426,
+    4.003
+   ],
+   "max_size": [
+    0.34,
+    0.34,
+    2.4
+   ]
+  },
+  {
+   "id": "f_L0_050.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L0_050",
+   "host_type": "nightstand",
+   "note": "centre part, under a window",
+   "center": [
+    1.426,
+    2.013
+   ],
+   "max_size": [
+    0.34,
+    0.34,
+    0.4
+   ]
+  },
+  {
+   "id": "f_L0_051.back_left",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L0_051",
+   "host_type": "desk",
+   "note": "back left part",
+   "center": [
+    4.017,
+    5.391
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    2.15
+   ]
+  },
+  {
+   "id": "f_L0_051.back_right",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L0_051",
+   "host_type": "desk",
+   "note": "back right part",
+   "center": [
+    4.017,
+    4.651
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    2.15
+   ]
+  },
+  {
+   "id": "f_L0_051.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art",
+    "clock"
+   ],
+   "host_id": "f_L0_051",
+   "host_type": "desk",
+   "note": ""
+  },
+  {
+   "id": "r_L0_yatak_odasi.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": null,
+   "note": "f_L0_017"
+  },
+  {
+   "id": "window:win_L0_001",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_001"
+  },
+  {
+   "id": "window:win_L0_005",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_005"
+  },
+  {
+   "id": "ceiling:over_f_L0_017",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L0_017",
+   "host_type": null,
+   "note": "over f L0 017"
+  },
+  {
+   "id": "ceiling:centre_r_L0_yatak_odasi",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 yatak odasi"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L0_017.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Adds softness and aligns with the warm greige and natural palette."
+    },
+    {
+     "slot": "f_L0_017.throw",
+     "type": "throw",
+     "colour": "mustard",
+     "reason": "Introduces a warm accent color that complements the natural wood tones."
+    },
+    {
+     "slot": "f_L0_017.wall",
+     "type": "wall_art",
+     "colour": "sage green",
+     "reason": "Brings a touch of nature indoors, echoing the many plants in the room."
+    },
+    {
+     "slot": "f_L0_049.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Provides warm, ambient lighting for reading and matches the dark bronze frames."
+    },
+    {
+     "slot": "f_L0_050.centre",
+     "type": "plant_small",
+     "colour": "forest green",
+     "reason": "A small fern or palm adds life to the nightstand under the window."
+    },
+    {
+     "slot": "r_L0_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "beige",
+     "reason": "A neutral rug grounds the bed and softens the light oak floor."
+    },
+    {
+     "slot": "window:win_L0_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Light, airy curtains enhance the warm daylight and modern natural feel."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yatak_odasi",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "A central light fixture with brass details ties the room's metallic accents together."
+    }
+   ],
+   "error": null,
+   "latency_s": 10.918
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L0_017.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds a warm pop of colour that complements the greige walls and natural wood."
+    },
+    {
+     "slot": "f_L0_017.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Introduces soft texture and lightness to the bed, enhancing the modern natural feel."
+    },
+    {
+     "slot": "f_L0_017.wall",
+     "type": "wall_art",
+     "colour": "sage green",
+     "reason": "Brings a touch of nature indoors, echoing the many plants in the room."
+    },
+    {
+     "slot": "f_L0_049.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Provides warm, ambient lighting for reading and adds a subtle metallic accent."
+    },
+    {
+     "slot": "f_L0_050.centre",
+     "type": "plant_small",
+     "colour": "forest green",
+     "reason": "Continues the biophilic theme with a small greenery accent on the second nightstand."
+    },
+    {
+     "slot": "r_L0_yatak_odasi.rug1",
+     "type": "rug",
+     "colour": "beige",
+     "reason": "Softens the light oak floor and anchors the bed area with a neutral, warm tone."
+    },
+    {
+     "slot": "window:win_L0_001",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Allows warm daylight to filter through while maintaining privacy and a soft aesthetic."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yatak_odasi",
+     "type": "ceiling_light",
+     "colour": "white",
+     "reason": "Provides general illumination that blends seamlessly with the bright, airy atmosphere."
+    }
+   ],
+   "error": null,
+   "latency_s": 11.153
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L0_017.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Adds softness and aligns with the warm greige and natural palette.",
+    "Adds a warm pop of colour that complements the greige walls and natural wood."
+   ]
+  },
+  {
+   "slot": "f_L0_017.throw",
+   "type": "throw",
+   "colour": "mustard",
+   "colour_agreed": false,
+   "reasons": [
+    "Introduces a warm accent color that complements the natural wood tones.",
+    "Introduces soft texture and lightness to the bed, enhancing the modern natural feel."
+   ]
+  },
+  {
+   "slot": "f_L0_017.wall",
+   "type": "wall_art",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Brings a touch of nature indoors, echoing the many plants in the room.",
+    "Brings a touch of nature indoors, echoing the many plants in the room."
+   ]
+  },
+  {
+   "slot": "f_L0_049.centre",
+   "type": "table_lamp",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Provides warm, ambient lighting for reading and matches the dark bronze frames.",
+    "Provides warm, ambient lighting for reading and adds a subtle metallic accent."
+   ]
+  },
+  {
+   "slot": "f_L0_050.centre",
+   "type": "plant_small",
+   "colour": "forest green",
+   "colour_agreed": true,
+   "reasons": [
+    "A small fern or palm adds life to the nightstand under the window.",
+    "Continues the biophilic theme with a small greenery accent on the second nightstand."
+   ]
+  },
+  {
+   "slot": "r_L0_yatak_odasi.rug1",
+   "type": "rug",
+   "colour": "beige",
+   "colour_agreed": true,
+   "reasons": [
+    "A neutral rug grounds the bed and softens the light oak floor.",
+    "Softens the light oak floor and anchors the bed area with a neutral, warm tone."
+   ]
+  },
+  {
+   "slot": "window:win_L0_001",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Light, airy curtains enhance the warm daylight and modern natural feel.",
+    "Allows warm daylight to filter through while maintaining privacy and a soft aesthetic."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_yatak_odasi",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "colour_agreed": false,
+   "reasons": [
+    "A central light fixture with brass details ties the room's metallic accents together.",
+    "Provides general illumination that blends seamlessly with the bright, airy atmosphere."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_001",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_017.cushions"
+  },
+  {
+   "id": "dec_L0_002",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_017.cushions"
+  },
+  {
+   "id": "dec_L0_003",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_017.throw"
+  },
+  {
+   "id": "dec_L0_004",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L0_017.wall"
+  },
+  {
+   "id": "dec_L0_005",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L0_049.centre"
+  },
+  {
+   "id": "dec_L0_006",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L0_050.centre"
+  },
+  {
+   "id": "dec_L0_007",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_yatak_odasi.rug1"
+  },
+  {
+   "id": "dec_L0_008",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_001"
+  },
+  {
+   "id": "dec_L0_009",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yatak_odasi"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "no free corner for a floor plant"
+ ]
+}

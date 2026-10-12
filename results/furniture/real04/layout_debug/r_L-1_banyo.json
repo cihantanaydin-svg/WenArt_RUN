@@ -1,0 +1,122 @@
+{
+ "room_id": "r_L-1_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing missing: the drawn groups are complete",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L-1_026",
+   "type": "washbasin",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     6.2183,
+     9.9344
+    ],
+    "wall_id": "w_L-1_005"
+   }
+  },
+  {
+   "id": "f_L-1_051",
+   "type": "toilet",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     7.0523,
+     9.9214
+    ],
+    "wall_id": "w_L-1_005"
+   }
+  },
+  {
+   "id": "f_L-1_056",
+   "type": "bathtub",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     8.3866,
+     10.8831
+    ],
+    "wall_id": "w_L-1_011"
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L-1_banyo.bathroom_set",
+   "group": "bathroom_set",
+   "options": [
+    "shower",
+    "bathtub",
+    "shower_washer"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": ""
+  }
+ ],
+ "candidates": [],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L-1_026": [
+    "inside_room",
+    "doors_free"
+   ],
+   "f_L-1_051": [
+    "inside_room"
+   ],
+   "f_L-1_056": [
+    "inside_room"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.001,
+ "program_full": {
+  "room_id": "r_L-1_banyo",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L-1_banyo.bathroom_set",
+    "group": "bathroom_set",
+    "anchor_id": "f_L-1_051",
+    "required": true,
+    "options": [
+     "shower",
+     "bathtub",
+     "shower_washer"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 4.98,
+    "priority": 140,
+    "members": [
+     "f_L-1_026",
+     "f_L-1_056"
+    ],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "bathroom_set completed around drawn toilet f_L-1_051"
+ },
+ "candidates_full": []
+}

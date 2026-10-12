@@ -1,0 +1,1155 @@
+{
+ "schema_version": "0.1",
+ "kind": "final",
+ "project": "l-1b-acik-mutfak",
+ "status": "not_rendered",
+ "status_note": "no renders in this run",
+ "private": false,
+ "inputs": {
+  "render_manifest": null,
+  "scene_manifest": null,
+  "polish_manifest": null,
+  "check_manifest": null,
+  "check_calibration": null,
+  "expected_views": null,
+  "gate_calibration": null,
+  "gate_validation": null,
+  "sheets": "../../../sheets.json",
+  "completion": "../../../completion.json",
+  "building": null
+ },
+ "stages": {
+  "render": "not_run",
+  "polish": "not_run",
+  "check": "not_run",
+  "check_calibration": "not_run",
+  "gate_calibration": "not_run",
+  "gate_validation": "not_run",
+  "exterior_gate": "not_applicable",
+  "expected": "not_run"
+ },
+ "run_id": "20261011-153030-full-20261011T153556Z",
+ "run_stages": [
+  {
+   "stage": "build",
+   "status": "failed",
+   "seconds": 155.86,
+   "note": "exit 1: Error: script failed, file: '/workspace/repo/wenart/blender/build.py', exiting.",
+   "rc": 1,
+   "started_utc": "2026-10-11T17:10:12Z",
+   "run_id": "20261011-153030-full-20261011T153556Z"
+  }
+ ],
+ "earlier_run_stages": [],
+ "stopped_stages": [
+  {
+   "stage": "build",
+   "status": "failed",
+   "note": "exit 1: Error: script failed, file: '/workspace/repo/wenart/blender/build.py', exiting."
+  }
+ ],
+ "gate_validation": null,
+ "polish_allowed": true,
+ "brief_assumed": [],
+ "advisory": true,
+ "advisory_flags": [
+  "polish not run (every view is the Cycles render)",
+  "vision check not run",
+  "AI completion: 9 proposal(s) refused, reverted or not placed (listed per room)"
+ ],
+ "summary": {
+  "views": 0,
+  "polished": 0,
+  "cycles": 0,
+  "cycles_by_reason": {},
+  "final_mismatches": 0,
+  "views_with_final_mismatch": 0,
+  "crosscheck_findings": 0,
+  "needs_review": 0,
+  "unverified_in_view": 0,
+  "exposure": {
+   "min": null,
+   "max": null,
+   "views": 0,
+   "at_limit": 0,
+   "modes": [],
+   "window_pull": {
+    "views": 0,
+    "min": null,
+    "max": null
+   }
+  },
+  "cameras": {
+   "policies": {},
+   "scored": 0,
+   "score_min": null,
+   "score_mean": null,
+   "score_max": null,
+   "warnings": []
+  },
+  "views_per_room": {},
+  "seconds": {
+   "build": null,
+   "render": null,
+   "meter": null,
+   "polish": null,
+   "gate": null,
+   "check": null
+  },
+  "rooms_mixed": 0,
+  "interior_views": 0,
+  "exterior_views": 0
+ },
+ "views": [],
+ "rooms": {},
+ "rooms_mixed": [],
+ "models": [],
+ "assets": {
+  "textures": {},
+  "models": {}
+ },
+ "contact_sheets": {},
+ "building": {
+  "status": null,
+  "unverified": [],
+  "conflicts": [],
+  "needs_review_items": [],
+  "symbols_by_kind": {},
+  "models_in_doubt": []
+ },
+ "intake": null,
+ "kept_on_volume": [],
+ "units": null,
+ "side_by_side": {
+  "sheets": {},
+  "note": "the polish did not run in this run"
+ },
+ "recognition": null,
+ "site": null,
+ "separators": [],
+ "assumed": {
+  "brief": [],
+  "style": [],
+  "building": [],
+  "scene": [],
+  "m10": []
+ },
+ "attribution": {
+  "credits": [],
+  "notice": null,
+  "missing": []
+ },
+ "detector": null,
+ "decor_ai": null,
+ "files_3d": null,
+ "variant": "l-1b-acik-mutfak",
+ "sheets": null,
+ "building_detail": null,
+ "completion": {
+  "mode": "complete",
+  "keep_size": false,
+  "keep_rooms": [],
+  "assumed": [
+   "furnished_rooms",
+   "furnished_rooms_keep",
+   "furnished_rooms_keep_size",
+   "render.twin_rooms"
+  ],
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "rooms": [
+   {
+    "room_id": "r_L-1_salon",
+    "label": "Salon",
+    "room_type": "living",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1_089",
+      "type": "bookshelf",
+      "size": [
+       1.0,
+       0.35
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "dining",
+      "why": "no free place passed the placer checks (no place passes the checks)"
+     }
+    ],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_021",
+     "f_L-1_024",
+     "f_L-1_027",
+     "f_L-1_028",
+     "f_L-1_029",
+     "f_L-1_030",
+     "f_L-1_031",
+     "f_L-1_032",
+     "f_L-1_033",
+     "f_L-1_034",
+     "f_L-1_035",
+     "f_L-1_036",
+     "f_L-1_037",
+     "f_L-1_049",
+     "f_L-1_059",
+     "f_L-1_060",
+     "f_L-1_063",
+     "f_L-1_064",
+     "f_L-1_070",
+     "f_L-1_071",
+     "f_L-1_075",
+     "f_L-1_077",
+     "f_L-1_087"
+    ]
+   },
+   {
+    "room_id": "r_L-1_salon_2",
+    "label": "Salon",
+    "room_type": "living",
+    "state": "mirrored",
+    "reason": "decisions of r_L-1_salon (twin), not asked again",
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1_094",
+      "type": "bookshelf",
+      "size": [
+       1.0,
+       0.35
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": "f_L-1_089"
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_022",
+     "f_L-1_023",
+     "f_L-1_038",
+     "f_L-1_039",
+     "f_L-1_040",
+     "f_L-1_041",
+     "f_L-1_042",
+     "f_L-1_043",
+     "f_L-1_044",
+     "f_L-1_045",
+     "f_L-1_046",
+     "f_L-1_047",
+     "f_L-1_048",
+     "f_L-1_050",
+     "f_L-1_057",
+     "f_L-1_058",
+     "f_L-1_065",
+     "f_L-1_066",
+     "f_L-1_069",
+     "f_L-1_072",
+     "f_L-1_076",
+     "f_L-1_078",
+     "f_L-1_088"
+    ]
+   },
+   {
+    "room_id": "r_L-1_mutfak",
+    "label": "Mutfak",
+    "room_type": "kitchen",
+    "state": "completed",
+    "reason": "nothing fits: kitchen_run: no place passes the checks; dining: no place passes the checks",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "kitchen_run",
+      "why": "no free place passed the placer checks (no place passes the checks)"
+     },
+     {
+      "type": "dining",
+      "why": "no free place passed the placer checks (no place passes the checks)"
+     }
+    ],
+    "wall_cabinets": 3,
+    "unplaceable_drawn": [
+     "f_L-1_001",
+     "f_L-1_002",
+     "f_L-1_003",
+     "f_L-1_004",
+     "f_L-1_005",
+     "f_L-1_008",
+     "f_L-1_009",
+     "f_L-1_067",
+     "f_L-1_081",
+     "f_L-1_083",
+     "f_L-1_085"
+    ]
+   },
+   {
+    "room_id": "r_L-1_mutfak_2",
+    "label": "Mutfak",
+    "room_type": "kitchen",
+    "state": "mirrored",
+    "reason": "decisions of r_L-1_mutfak (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 3,
+    "unplaceable_drawn": [
+     "f_L-1_010",
+     "f_L-1_011",
+     "f_L-1_012",
+     "f_L-1_013",
+     "f_L-1_014",
+     "f_L-1_017",
+     "f_L-1_018",
+     "f_L-1_068",
+     "f_L-1_082",
+     "f_L-1_084",
+     "f_L-1_086"
+    ]
+   },
+   {
+    "room_id": "r_L-1_koridor",
+    "label": "Koridor",
+    "room_type": "hall",
+    "state": "mirrored",
+    "reason": "decisions of r_L-1_koridor_2 (twin), not asked again",
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1_098",
+      "type": "shoe_cabinet",
+      "size": [
+       0.6,
+       0.3
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": "f_L-1_093"
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_020"
+    ]
+   },
+   {
+    "room_id": "r_L-1_koridor_2",
+    "label": "Koridor",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1_093",
+      "type": "shoe_cabinet",
+      "size": [
+       0.6,
+       0.3
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_019"
+    ]
+   },
+   {
+    "room_id": "r_L-1_banyo",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "completed",
+    "reason": "nothing missing: the drawn groups are complete",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_026",
+     "f_L-1_051",
+     "f_L-1_056"
+    ]
+   },
+   {
+    "room_id": "r_L-1_banyo_2",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "mirrored",
+    "reason": "decisions of r_L-1_banyo (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1_025",
+     "f_L-1_052",
+     "f_L-1_055"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_salon",
+    "label": "Salon",
+    "room_type": "living",
+    "state": "completed",
+    "reason": "nothing fits: kitchen_run: no candidate position fits the room",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "kitchen_run",
+      "why": "no free place passed the placer checks (no candidate position fits the room)"
+     }
+    ],
+    "wall_cabinets": 3,
+    "unplaceable_drawn": [
+     "f_L-1b_002",
+     "f_L-1b_009",
+     "f_L-1b_010",
+     "f_L-1b_012",
+     "f_L-1b_013",
+     "f_L-1b_014",
+     "f_L-1b_026",
+     "f_L-1b_027",
+     "f_L-1b_028",
+     "f_L-1b_029",
+     "f_L-1b_030",
+     "f_L-1b_031",
+     "f_L-1b_032",
+     "f_L-1b_033",
+     "f_L-1b_034",
+     "f_L-1b_040",
+     "f_L-1b_046",
+     "f_L-1b_049",
+     "f_L-1b_050",
+     "f_L-1b_051",
+     "f_L-1b_052",
+     "f_L-1b_053",
+     "f_L-1b_054",
+     "f_L-1b_055",
+     "f_L-1b_056",
+     "f_L-1b_064",
+     "f_L-1b_068",
+     "f_L-1b_070"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_salon_2",
+    "label": "Salon",
+    "room_type": "living",
+    "state": "completed",
+    "reason": "nothing fits: kitchen_run: no candidate position fits the room; partner r_L-1b_salon (twin) not used: the twin's drawn furniture does not map onto this room: drawn unknown f_L-1b_046 has no counterpart here; completed itself",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "kitchen_run",
+      "why": "no free place passed the placer checks (no candidate position fits the room)"
+     }
+    ],
+    "wall_cabinets": 3,
+    "unplaceable_drawn": [
+     "f_L-1b_001",
+     "f_L-1b_003",
+     "f_L-1b_004",
+     "f_L-1b_006",
+     "f_L-1b_007",
+     "f_L-1b_008",
+     "f_L-1b_017",
+     "f_L-1b_018",
+     "f_L-1b_019",
+     "f_L-1b_020",
+     "f_L-1b_021",
+     "f_L-1b_022",
+     "f_L-1b_023",
+     "f_L-1b_024",
+     "f_L-1b_025",
+     "f_L-1b_039",
+     "f_L-1b_045",
+     "f_L-1b_047",
+     "f_L-1b_048",
+     "f_L-1b_057",
+     "f_L-1b_058",
+     "f_L-1b_059",
+     "f_L-1b_060",
+     "f_L-1b_061",
+     "f_L-1b_062",
+     "f_L-1b_063",
+     "f_L-1b_067",
+     "f_L-1b_069"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_koridor",
+    "label": "Koridor",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1b_082",
+      "type": "shoe_cabinet",
+      "size": [
+       0.6,
+       0.3
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1b_016"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_koridor_2",
+    "label": "Koridor",
+    "room_type": "hall",
+    "state": "mirrored",
+    "reason": "decisions of r_L-1b_koridor (twin), not asked again",
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L-1b_086",
+      "type": "shoe_cabinet",
+      "size": [
+       0.6,
+       0.3
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": "f_L-1b_082"
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1b_015"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_banyo",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "copied",
+    "reason": "decisions of r_L-1_banyo (same_as), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1b_036",
+     "f_L-1b_038",
+     "f_L-1b_044"
+    ]
+   },
+   {
+    "room_id": "r_L-1b_banyo_2",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "copied",
+    "reason": "decisions of r_L-1_banyo_2 (same_as), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L-1b_035",
+     "f_L-1b_037",
+     "f_L-1b_043"
+    ]
+   },
+   {
+    "room_id": "r_L0_yatak_odasi",
+    "label": "Yatak Odası",
+    "room_type": "bedroom",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L0_049",
+      "type": "nightstand",
+      "size": [
+       0.4,
+       0.4
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_050",
+      "type": "nightstand",
+      "size": [
+       0.4,
+       0.4
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_051",
+      "type": "desk",
+      "size": [
+       1.2,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_052",
+      "type": "office_chair",
+      "size": [
+       0.6,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_017",
+     "f_L0_024",
+     "f_L0_026",
+     "f_L0_038"
+    ]
+   },
+   {
+    "room_id": "r_L0_e_yatak_odasi",
+    "label": "E.yatak Odası",
+    "room_type": "bedroom",
+    "state": "completed",
+    "reason": "nothing fits: storage: no candidate position fits the room; work: no place passes the checks",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "storage",
+      "why": "no free place passed the placer checks (no candidate position fits the room)"
+     },
+     {
+      "type": "work",
+      "why": "no free place passed the placer checks (no place passes the checks)"
+     }
+    ],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_007",
+     "f_L0_019",
+     "f_L0_029",
+     "f_L0_030"
+    ]
+   },
+   {
+    "room_id": "r_L0_e_yatak_odasi_2",
+    "label": "E.yatak Odası",
+    "room_type": "bedroom",
+    "state": "mirrored",
+    "reason": "decisions of r_L0_e_yatak_odasi (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_008",
+     "f_L0_020",
+     "f_L0_031",
+     "f_L0_032"
+    ]
+   },
+   {
+    "room_id": "r_L0_yatak_odasi_2",
+    "label": "Yatak Odası",
+    "room_type": "bedroom",
+    "state": "completed",
+    "reason": "partner r_L0_yatak_odasi (twin) not used: 2 of 4 copied pieces fail a check here (office_chair: the copy fails doors_free here; desk: the copy fails doors_free here); completed itself",
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L0_053",
+      "type": "nightstand",
+      "size": [
+       0.4,
+       0.4
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_054",
+      "type": "nightstand",
+      "size": [
+       0.4,
+       0.4
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_055",
+      "type": "desk",
+      "size": [
+       1.2,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L0_056",
+      "type": "office_chair",
+      "size": [
+       0.6,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_018",
+     "f_L0_021",
+     "f_L0_025",
+     "f_L0_040"
+    ]
+   },
+   {
+    "room_id": "r_L0_e_banyo",
+    "label": "E.banyo",
+    "room_type": "bathroom",
+    "state": "completed",
+    "reason": "nothing missing: the drawn groups are complete",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_006",
+     "f_L0_011",
+     "f_L0_013"
+    ]
+   },
+   {
+    "room_id": "r_L0_e_banyo_2",
+    "label": "E.banyo",
+    "room_type": "bathroom",
+    "state": "mirrored",
+    "reason": "decisions of r_L0_e_banyo (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_004",
+     "f_L0_012",
+     "f_L0_014"
+    ]
+   },
+   {
+    "room_id": "r_L0_yatak_odasi_3",
+    "label": "Yatak Odası",
+    "room_type": "bedroom",
+    "state": "mirrored",
+    "reason": "decisions of r_L0_yatak_odasi_4 (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_010",
+     "f_L0_022",
+     "f_L0_035",
+     "f_L0_036",
+     "f_L0_039",
+     "f_L0_042",
+     "f_L0_045"
+    ]
+   },
+   {
+    "room_id": "r_L0_merdiven",
+    "label": "Merdiven",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": "nothing fits: entrance: no candidate position fits the room",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "entrance",
+      "why": "no free place passed the placer checks (no candidate position fits the room)"
+     }
+    ],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_001"
+    ]
+   },
+   {
+    "room_id": "r_L0_merdiven_2",
+    "label": "Merdiven",
+    "room_type": "hall",
+    "state": "mirrored",
+    "reason": "decisions of r_L0_merdiven (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_002"
+    ]
+   },
+   {
+    "room_id": "r_L0_yatak_odasi_4",
+    "label": "Yatak Odası",
+    "room_type": "bedroom",
+    "state": "completed",
+    "reason": "nothing missing: the drawn groups are complete",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_009",
+     "f_L0_023",
+     "f_L0_033",
+     "f_L0_034",
+     "f_L0_037",
+     "f_L0_041",
+     "f_L0_046"
+    ]
+   },
+   {
+    "room_id": "r_L0_banyo",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "completed",
+    "reason": "nothing fits: bathroom_set: no candidate position fits the room",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [
+     {
+      "type": "bathroom_set",
+      "why": "no free place passed the placer checks (no candidate position fits the room)"
+     }
+    ],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_003",
+     "f_L0_016",
+     "f_L0_043"
+    ]
+   },
+   {
+    "room_id": "r_L0_banyo_2",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "mirrored",
+    "reason": "decisions of r_L0_banyo (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L0_005",
+     "f_L0_015",
+     "f_L0_044"
+    ]
+   },
+   {
+    "room_id": "r_L1_teras",
+    "label": "Teras",
+    "room_type": "balcony",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L1_040",
+      "type": "table_dining",
+      "size": [
+       0.7,
+       0.7
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L1_041",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L1_042",
+      "type": "chair",
+      "size": [
+       0.45,
+       0.45
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_022"
+    ]
+   },
+   {
+    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+    "label": "Oyun Aktivite Ve Dinlenme Odası",
+    "room_type": "other",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L1_043",
+      "type": "desk",
+      "size": [
+       1.2,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L1_044",
+      "type": "office_chair",
+      "size": [
+       0.6,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_005",
+     "f_L1_009",
+     "f_L1_033",
+     "f_L1_034"
+    ]
+   },
+   {
+    "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+    "label": "Oyun Aktivite Ve Dinlenme Odası",
+    "room_type": "other",
+    "state": "completed",
+    "reason": "partner r_L1_oyun_aktivite_ve_dinlenme_odasi (twin) not used: the twin's drawn furniture does not map onto this room: drawn unknown f_L1_033 has no counterpart here; completed itself",
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L1_047",
+      "type": "desk",
+      "size": [
+       1.2,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     },
+     {
+      "id": "f_L1_048",
+      "type": "office_chair",
+      "size": [
+       0.6,
+       0.6
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_006",
+     "f_L1_010",
+     "f_L1_035",
+     "f_L1_036"
+    ]
+   },
+   {
+    "room_id": "r_L1_koridor",
+    "label": "Koridor",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L1_045",
+      "type": "console_table",
+      "size": [
+       0.9,
+       0.3
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_002",
+     "f_L1_021",
+     "f_L1_023"
+    ]
+   },
+   {
+    "room_id": "r_L1_koridor_2",
+    "label": "Koridor",
+    "room_type": "hall",
+    "state": "completed",
+    "reason": null,
+    "changes": [],
+    "added": [
+     {
+      "id": "f_L1_046",
+      "type": "shoe_cabinet",
+      "size": [
+       0.6,
+       0.3
+      ],
+      "confidence": null,
+      "method": "rule",
+      "mirrored_from": null
+     }
+    ],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_001",
+     "f_L1_024",
+     "f_L1_025",
+     "f_L1_026"
+    ]
+   },
+   {
+    "room_id": "r_L1_banyo",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "completed",
+    "reason": "nothing missing: the drawn groups are complete",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_007",
+     "f_L1_013",
+     "f_L1_019"
+    ]
+   },
+   {
+    "room_id": "r_L1_banyo_2",
+    "label": "Banyo",
+    "room_type": "bathroom",
+    "state": "mirrored",
+    "reason": "decisions of r_L1_banyo (twin), not asked again",
+    "changes": [],
+    "added": [],
+    "refused": [],
+    "dropped": [],
+    "wall_cabinets": 0,
+    "unplaceable_drawn": [
+     "f_L1_008",
+     "f_L1_014",
+     "f_L1_020"
+    ]
+   }
+  ],
+  "changes_applied": 0,
+  "pieces_added": 23,
+  "wall_cabinets": 12,
+  "locked_violations": []
+ },
+ "drawn_check": null,
+ "exterior": null,
+ "exterior_sheets": {},
+ "variants": null,
+ "variant_sheets": {},
+ "base_exterior_views": null,
+ "agent": null,
+ "warnings": [
+  "project inputs not fully readable (FileNotFoundError: [Errno 2] No such file or directory: '/workspace/repo/outputs/real04/variants/l-1b-acik-mutfak/scene/scene_manifest.json'); brief not loaded, polish permission taken as the default (true)",
+  "scene/scene_manifest.json not readable: no element table or building",
+  "renders/render_manifest.json not found: no rendered views"
+ ]
+}

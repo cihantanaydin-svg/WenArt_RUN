@@ -1,0 +1,79 @@
+{
+ "room_id": "r_L-1_koridor",
+ "label": "Koridor",
+ "room_type": "hall",
+ "room_subtype": null,
+ "state": "mirrored",
+ "reason": "decisions of r_L-1_koridor_2 (twin), not asked again",
+ "partner": {
+  "id": "r_L-1_koridor_2",
+  "kind": "twin",
+  "transform": {
+   "kind": "given",
+   "affine": [
+    -1.0,
+    0.0,
+    17.1722,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "deviation_m": 0.0009
+  }
+ },
+ "drawn": [
+  {
+   "id": "f_L-1_020",
+   "type": "stair",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     10.1143,
+     8.6427
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [],
+ "candidates": [],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L-1_098",
+   "type": "shoe_cabinet",
+   "center": [
+    12.6341,
+    11.6292
+   ],
+   "size": [
+    0.6,
+    0.3
+   ],
+   "rotation_deg": 0.0,
+   "group": "entrance",
+   "method": "rule",
+   "mirrored_from": "f_L-1_093"
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L-1_020": [
+    "inside_room"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.0,
+ "program_full": null,
+ "candidates_full": []
+}

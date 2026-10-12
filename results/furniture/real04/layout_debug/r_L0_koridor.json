@@ -1,0 +1,399 @@
+{
+ "room_id": "r_L0_koridor",
+ "label": "Koridor",
+ "room_type": "hall",
+ "program": [
+  {
+   "group_id": "r_L0_koridor.entrance",
+   "group": "entrance",
+   "options": [
+    "shoe_cabinet",
+    "console"
+   ],
+   "drawn": false,
+   "required": false
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 8.1808,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.828,
+    "circulation": 0.9264
+   },
+   "options": {
+    "r_L0_koridor.entrance": "shoe_cabinet"
+   },
+   "pieces": [
+    "shoe_cabinet"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 872,
+    "expanded": 18,
+    "walkway_checks": 18
+   }
+  },
+  {
+   "rank": 2,
+   "score": 8.1319,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8211,
+    "circulation": 0.9054
+   },
+   "options": {
+    "r_L0_koridor.entrance": "console_table"
+   },
+   "pieces": [
+    "console_table"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 872,
+    "expanded": 18,
+    "walkway_checks": 18
+   }
+  },
+  {
+   "rank": 3,
+   "score": 7.9246,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.5718,
+    "circulation": 0.9264
+   },
+   "options": {
+    "r_L0_koridor.entrance": "shoe_cabinet"
+   },
+   "pieces": [
+    "shoe_cabinet"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 872,
+    "expanded": 18,
+    "walkway_checks": 18
+   }
+  }
+ ],
+ "chosen": 1,
+ "choice": {
+  "index": 0,
+  "rank": 1,
+  "by": "vlm",
+  "reason": "The shoe cabinet is placed lower on the left wall, keeping the entrance area near the top door clear and balanced, which supports better circulation and a more open feel in the narrow corridor.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 1.399
+ },
+ "latency_s": 1.399,
+ "solve_s": 0.209,
+ "skipped": null,
+ "pieces": [
+  {
+   "id": "f_L0_047",
+   "type": "shoe_cabinet",
+   "group": "entrance"
+  }
+ ],
+ "program_full": {
+  "room_id": "r_L0_koridor",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L0_koridor.entrance",
+    "group": "entrance",
+    "anchor_id": null,
+    "required": false,
+    "options": [
+     "shoe_cabinet",
+     "console"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 7.62,
+    "priority": 5,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "hall 7.6 m²: entrance"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 8.1808,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.828,
+    "circulation": 0.9264
+   },
+   "pieces": [
+    {
+     "id": "f_L0_047",
+     "level_id": "L0",
+     "room_id": "r_L0_koridor",
+     "type": "shoe_cabinet",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       4.489,
+       9.063
+      ],
+      "size": [
+       0.6,
+       0.3
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group entrance",
+       "text": "shoe_cabinet (storage) of the entrance group, option shoe_cabinet, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_koridor.entrance",
+      "group": "entrance",
+      "role": "partner",
+      "anchor_id": null
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "storage",
+      "option": "shoe_cabinet"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L0_koridor.entrance",
+     "group": "entrance",
+     "anchor_id": null,
+     "member_ids": [
+      "f_L0_047"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L0_koridor.entrance": "shoe_cabinet"
+   },
+   "placed": [
+    "r_L0_koridor.entrance"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 872,
+    "expanded": 18,
+    "walkway_checks": 18
+   }
+  },
+  {
+   "rank": 2,
+   "score": 8.1319,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8211,
+    "circulation": 0.9054
+   },
+   "pieces": [
+    {
+     "id": "f_L0_047",
+     "level_id": "L0",
+     "room_id": "r_L0_koridor",
+     "type": "console_table",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       4.489,
+       9.113
+      ],
+      "size": [
+       0.9,
+       0.3
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.8,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group entrance",
+       "text": "console_table (storage) of the entrance group, option console_table, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_koridor.entrance",
+      "group": "entrance",
+      "role": "partner",
+      "anchor_id": null
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "storage",
+      "option": "console_table"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L0_koridor.entrance",
+     "group": "entrance",
+     "anchor_id": null,
+     "member_ids": [
+      "f_L0_047"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L0_koridor.entrance": "console_table"
+   },
+   "placed": [
+    "r_L0_koridor.entrance"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 872,
+    "expanded": 18,
+    "walkway_checks": 18
+   }
+  },
+  {
+   "rank": 3,
+   "score": 7.9246,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.5718,
+    "circulation": 0.9264
+   },
+   "pieces": [
+    {
+     "id": "f_L0_047",
+     "level_id": "L0",
+     "room_id": "r_L0_koridor",
+     "type": "shoe_cabinet",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       4.489,
+       10.063
+      ],
+      "size": [
+       0.6,
+       0.3
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group entrance",
+       "text": "shoe_cabinet (storage) of the entrance group, option shoe_cabinet, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_koridor.entrance",
+      "group": "entrance",
+      "role": "partner",
+      "anchor_id": null
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "storage",
+      "option": "shoe_cabinet"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L0_koridor.entrance",
+     "group": "entrance",
+     "anchor_id": null,
+     "member_ids": [
+      "f_L0_047"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L0_koridor.entrance": "shoe_cabinet"
+   },
+   "placed": [
+    "r_L0_koridor.entrance"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 872,
+    "expanded": 18,
+    "walkway_checks": 18
+   }
+  }
+ ],
+ "choice_full": {
+  "index": 0,
+  "rank": 1,
+  "by": "vlm",
+  "reason": "The shoe cabinet is placed lower on the left wall, keeping the entrance area near the top door clear and balanced, which supports better circulation and a more open feel in the narrow corridor.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 1.399,
+  "prompt": "Task: choose the best furniture layout for this hall or corridor (Turkish: HOL, ANTRE, KORİDOR) labelled 'Koridor' (7.6 m²). Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nHow to read the images (north up, metres): the black outline is the room; orange shapes are door strips and door swings, cyan strips are windows; grey boxes are pieces drawn in the documents (they stay); coloured boxes are the candidate's new pieces, one colour per functional group, each with its type; the red edge of a piece is its front.\n\nCandidates:\nCandidate 1: score 8.2; groups: entrance (shoe_cabinet); new pieces: shoe_cabinet; terms (0-1, higher is better): balance 0.83, circulation 0.93, recommended 1.00, wall_use 0.50\nCandidate 2: score 8.1; groups: entrance (console_table); new pieces: console_table; terms (0-1, higher is better): balance 0.82, circulation 0.91, recommended 1.00, wall_use 0.50\nCandidate 3: score 7.9; groups: entrance (shoe_cabinet); new pieces: shoe_cabinet; terms (0-1, higher is better): balance 0.57, circulation 0.93, recommended 1.00, wall_use 0.50\n\nPrefer the candidate where the main group works best (a sofa that faces its TV with the coffee table between, a bed with free sides and its headboard on a wall, chairs around the table, a kitchen run in the order fridge - sink - hob), the walkways from the doors stay short and the room looks balanced. The score is the code's own ranking; you may disagree when the image shows a better room.\n\nFields of the answer: candidate (the number of the candidate you choose) and reason (one short sentence why).\n\nAnswer only with JSON.",
+  "raw_text": "{\n  \"candidate\": 1,\n  \"reason\": \"The shoe cabinet is placed lower on the left wall, keeping the entrance area near the top door clear and balanced, which supports better circulation and a more open feel in the narrow corridor.\"\n}",
+  "images": [
+   "r_L0_koridor_c1.png",
+   "r_L0_koridor_c2.png",
+   "r_L0_koridor_c3.png"
+  ]
+ }
+}

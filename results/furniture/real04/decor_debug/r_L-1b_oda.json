@@ -1,0 +1,396 @@
+{
+ "room_id": "r_L-1b_oda",
+ "label": "Oda",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "f_L-1b_071.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L-1b_071",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L-1b_071.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L-1b_071",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L-1b_071.wall",
+   "kind": "wall",
+   "types": [
+    "wall_art"
+   ],
+   "host_id": "f_L-1b_071",
+   "host_type": "bed_double",
+   "note": ""
+  },
+  {
+   "id": "f_L-1b_072.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L-1b_072",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    1.422,
+    10.549
+   ],
+   "max_size": [
+    0.44,
+    0.34,
+    2.25
+   ]
+  },
+  {
+   "id": "f_L-1b_073.centre",
+   "kind": "top",
+   "types": [
+    "table_lamp",
+    "vase",
+    "plant_small",
+    "book_set",
+    "books",
+    "candle"
+   ],
+   "host_id": "f_L-1b_073",
+   "host_type": "nightstand",
+   "note": "centre part",
+   "center": [
+    1.422,
+    8.609
+   ],
+   "max_size": [
+    0.44,
+    0.34,
+    2.25
+   ]
+  },
+  {
+   "id": "r_L-1b_oda.rug1",
+   "kind": "rug",
+   "types": [
+    "rug"
+   ],
+   "host_id": "f_L-1b_071",
+   "host_type": null,
+   "note": "f_L-1b_071"
+  },
+  {
+   "id": "r_L-1b_oda.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 1.45, 7.69",
+   "center": [
+    1.451,
+    7.692
+   ]
+  },
+  {
+   "id": "r_L-1b_oda.corner2",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 1.45, 11.55",
+   "center": [
+    1.451,
+    11.55
+   ]
+  },
+  {
+   "id": "ceiling:over_f_L-1b_071",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": "f_L-1b_071",
+   "host_type": null,
+   "note": "over f L-1b 071"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L-1b_071.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Adds softness and aligns with the warm greige and natural palette."
+    },
+    {
+     "slot": "f_L-1b_071.throw",
+     "type": "throw",
+     "colour": "mustard",
+     "reason": "Introduces a warm accent color that complements the natural wood tones."
+    },
+    {
+     "slot": "f_L-1b_071.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "A framed botanical print in a natural wood frame enhances the modern natural style."
+    },
+    {
+     "slot": "f_L-1b_072.centre",
+     "type": "table_lamp",
+     "colour": "cream",
+     "reason": "Provides warm, ambient lighting suitable for a bedroom setting."
+    },
+    {
+     "slot": "f_L-1b_073.centre",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "A small fern in a cream pot adds life and greenery to the bedside."
+    },
+    {
+     "slot": "r_L-1b_oda.rug1",
+     "type": "rug",
+     "colour": "beige",
+     "reason": "A soft beige rug adds texture and warmth under the bed."
+    },
+    {
+     "slot": "r_L-1b_oda.corner1",
+     "type": "plant_large",
+     "colour": "forest green",
+     "reason": "A large monstera in a rattan pot fills the corner with lush greenery."
+    },
+    {
+     "slot": "ceiling:over_f_L-1b_071",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "A simple brass ceiling light provides functional illumination with a modern touch."
+    }
+   ],
+   "error": null,
+   "latency_s": 11.12
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L-1b_071.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds a warm pop of colour that complements the greige walls and natural wood tones."
+    },
+    {
+     "slot": "f_L-1b_071.throw",
+     "type": "throw",
+     "colour": "cream",
+     "reason": "Introduces soft texture and lightness to the bed, enhancing the modern natural feel."
+    },
+    {
+     "slot": "f_L-1b_071.wall",
+     "type": "wall_art",
+     "colour": "natural wood",
+     "reason": "A framed botanical print in a natural wood frame ties the room's organic theme together."
+    },
+    {
+     "slot": "f_L-1b_072.centre",
+     "type": "table_lamp",
+     "colour": "brass",
+     "reason": "Provides warm, ambient lighting that matches the dark bronze window frames."
+    },
+    {
+     "slot": "f_L-1b_073.centre",
+     "type": "books",
+     "colour": "sage green",
+     "reason": "A small stack of books adds a lived-in touch without cluttering the nightstand."
+    },
+    {
+     "slot": "r_L-1b_oda.rug1",
+     "type": "rug",
+     "colour": "beige",
+     "reason": "A soft beige rug anchors the bed and adds warmth underfoot."
+    },
+    {
+     "slot": "r_L-1b_oda.corner1",
+     "type": "plant_large",
+     "colour": "forest green",
+     "reason": "A large monstera in a rattan pot brings life and height to the corner."
+    },
+    {
+     "slot": "ceiling:over_f_L-1b_071",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "A simple brass ceiling light provides general illumination while maintaining the warm aesthetic."
+    }
+   ],
+   "error": null,
+   "latency_s": 11.399
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L-1b_071.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Adds softness and aligns with the warm greige and natural palette.",
+    "Adds a warm pop of colour that complements the greige walls and natural wood tones."
+   ]
+  },
+  {
+   "slot": "f_L-1b_071.throw",
+   "type": "throw",
+   "colour": "mustard",
+   "colour_agreed": false,
+   "reasons": [
+    "Introduces a warm accent color that complements the natural wood tones.",
+    "Introduces soft texture and lightness to the bed, enhancing the modern natural feel."
+   ]
+  },
+  {
+   "slot": "f_L-1b_071.wall",
+   "type": "wall_art",
+   "colour": "natural wood",
+   "colour_agreed": true,
+   "reasons": [
+    "A framed botanical print in a natural wood frame enhances the modern natural style.",
+    "A framed botanical print in a natural wood frame ties the room's organic theme together."
+   ]
+  },
+  {
+   "slot": "f_L-1b_072.centre",
+   "type": "table_lamp",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "Provides warm, ambient lighting suitable for a bedroom setting.",
+    "Provides warm, ambient lighting that matches the dark bronze window frames."
+   ]
+  },
+  {
+   "slot": "r_L-1b_oda.rug1",
+   "type": "rug",
+   "colour": "beige",
+   "colour_agreed": true,
+   "reasons": [
+    "A soft beige rug adds texture and warmth under the bed.",
+    "A soft beige rug anchors the bed and adds warmth underfoot."
+   ]
+  },
+  {
+   "slot": "r_L-1b_oda.corner1",
+   "type": "plant_large",
+   "colour": "forest green",
+   "colour_agreed": true,
+   "reasons": [
+    "A large monstera in a rattan pot fills the corner with lush greenery.",
+    "A large monstera in a rattan pot brings life and height to the corner."
+   ]
+  },
+  {
+   "slot": "ceiling:over_f_L-1b_071",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "A simple brass ceiling light provides functional illumination with a modern touch.",
+    "A simple brass ceiling light provides general illumination while maintaining the warm aesthetic."
+   ]
+  }
+ ],
+ "not_agreed": [
+  {
+   "slot": "f_L-1b_073.centre",
+   "type": "plant_small",
+   "colour": "sage green",
+   "reason": "A small fern in a cream pot adds life and greenery to the bedside.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "f_L-1b_073.centre",
+   "type": "books",
+   "colour": "sage green",
+   "reason": "A small stack of books adds a lived-in touch without cluttering the nightstand.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1b_001",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1b_071.cushions"
+  },
+  {
+   "id": "dec_L-1b_002",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1b_071.cushions"
+  },
+  {
+   "id": "dec_L-1b_003",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L-1b_071.throw"
+  },
+  {
+   "id": "dec_L-1b_004",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L-1b_071.wall"
+  },
+  {
+   "id": "dec_L-1b_005",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L-1b_072.centre"
+  },
+  {
+   "id": "dec_L-1b_006",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L-1b_oda.rug1"
+  },
+  {
+   "id": "dec_L-1b_007",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L-1b_oda.corner1"
+  },
+  {
+   "id": "dec_L-1b_008",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:over_f_L-1b_071"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

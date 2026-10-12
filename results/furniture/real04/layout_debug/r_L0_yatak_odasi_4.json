@@ -1,0 +1,226 @@
+{
+ "room_id": "r_L0_yatak_odasi_4",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing missing: the drawn groups are complete",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_009",
+   "type": "bed_double",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     4.218,
+     10.2943
+    ],
+    "wall_id": "w_L0_013"
+   }
+  },
+  {
+   "id": "f_L0_023",
+   "type": "desk",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     0.2006,
+     10.6351
+    ],
+    "wall_id": "w_L0_010"
+   }
+  },
+  {
+   "id": "f_L0_028",
+   "type": "unknown",
+   "kind": "outline",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.2454,
+     7.4353
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_033",
+   "type": "floor_lamp",
+   "kind": "kept",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.993,
+     11.45
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_034",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     4.218,
+     9.2693
+    ],
+    "wall_id": "w_L0_013"
+   }
+  },
+  {
+   "id": "f_L0_037",
+   "type": "wardrobe",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     2.1273,
+     7.1427
+    ],
+    "wall_id": "w_L0_022"
+   }
+  },
+  {
+   "id": "f_L0_041",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.1506,
+     10.506
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L0_046",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.654,
+     8.6347
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L0_yatak_odasi_4.storage",
+   "group": "storage",
+   "options": [
+    "wardrobe"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": "unverified anchor: nothing added"
+  },
+  {
+   "group_id": "r_L0_yatak_odasi_4.work",
+   "group": "work",
+   "options": [
+    "desk"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": "unverified anchor: nothing added"
+  }
+ ],
+ "candidates": [],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_009": [
+    "inside_room",
+    "no_overlap",
+    "clearance_ok"
+   ],
+   "f_L0_023": [
+    "inside_room",
+    "clearance_ok"
+   ],
+   "f_L0_033": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L0_034": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L0_037": [
+    "inside_room",
+    "clearance_ok",
+    "windows_free"
+   ],
+   "f_L0_041": [
+    "no_overlap"
+   ],
+   "f_L0_046": [
+    "inside_room"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.002,
+ "program_full": {
+  "room_id": "r_L0_yatak_odasi_4",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L0_yatak_odasi_4.storage",
+    "group": "storage",
+    "anchor_id": "f_L0_037",
+    "required": true,
+    "options": [
+     "wardrobe"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 16.66,
+    "priority": 125,
+    "members": [],
+    "missing": [],
+    "note": "unverified anchor: nothing added"
+   },
+   {
+    "group_id": "r_L0_yatak_odasi_4.work",
+    "group": "work",
+    "anchor_id": "f_L0_023",
+    "required": true,
+    "options": [
+     "desk"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 16.66,
+    "priority": 110,
+    "members": [],
+    "missing": [],
+    "note": "unverified anchor: nothing added"
+   }
+  ],
+  "reason": "work completed around drawn desk f_L0_023; storage completed around drawn wardrobe f_L0_037; sleeping_double left out: the room's drawn bed_double/bed_single/bunk_bed/crib is its anchor"
+ },
+ "candidates_full": []
+}

@@ -1,0 +1,106 @@
+{
+ "room_id": "r_L1_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "slots": [
+  {
+   "id": "f_L1_007.wall",
+   "kind": "wall",
+   "types": [
+    "mirror"
+   ],
+   "host_id": "f_L1_007",
+   "host_type": "washbasin",
+   "note": ""
+  },
+  {
+   "id": "ceiling:centre_r_L1_banyo",
+   "kind": "ceiling",
+   "types": [
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 banyo"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "brass",
+     "reason": "A brass-framed mirror complements the dark bronze window frames and adds a warm metallic accent to the natural wood vanity."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_banyo",
+     "type": "ceiling_light",
+     "colour": "cream",
+     "reason": "A cream ceiling light provides soft, warm illumination that harmonizes with the greige walls and light oak floor."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.295
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_007.wall",
+     "type": "mirror",
+     "colour": "brass",
+     "reason": "A brass-framed mirror adds a warm metallic accent that complements the natural wood and greige tones."
+    },
+    {
+     "slot": "ceiling:centre_r_L1_banyo",
+     "type": "ceiling_light",
+     "colour": "natural wood",
+     "reason": "A natural wood ceiling light fixture reinforces the modern natural style and matches the light oak flooring."
+    }
+   ],
+   "error": null,
+   "latency_s": 3.167
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_007.wall",
+   "type": "mirror",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "A brass-framed mirror complements the dark bronze window frames and adds a warm metallic accent to the natural wood vanity.",
+    "A brass-framed mirror adds a warm metallic accent that complements the natural wood and greige tones."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_banyo",
+   "type": "ceiling_light",
+   "colour": "cream",
+   "colour_agreed": false,
+   "reasons": [
+    "A cream ceiling light provides soft, warm illumination that harmonizes with the greige walls and light oak floor.",
+    "A natural wood ceiling light fixture reinforces the modern natural style and matches the light oak flooring."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L1_013",
+   "type": "mirror",
+   "method": "ai",
+   "slot": "f_L1_007.wall"
+  },
+  {
+   "id": "dec_L1_014",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L1_banyo"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

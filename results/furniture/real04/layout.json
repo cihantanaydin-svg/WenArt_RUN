@@ -1,0 +1,496 @@
+{
+ "project": "real04",
+ "server": "http://127.0.0.1:8001/v1",
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "rooms": [
+  {
+   "room_id": "r_L-1b_oda",
+   "label": "Oda",
+   "room_type": "bedroom",
+   "program": [
+    {
+     "group_id": "r_L-1b_oda.sleeping_double",
+     "group": "sleeping_double",
+     "options": [
+      "bed_nightstands"
+     ],
+     "drawn": false,
+     "required": true
+    },
+    {
+     "group_id": "r_L-1b_oda.storage",
+     "group": "storage",
+     "options": [
+      "wardrobe"
+     ],
+     "drawn": false,
+     "required": true
+    }
+   ],
+   "candidates": [
+    {
+     "rank": 1,
+     "score": 30.7861,
+     "terms": {
+      "bed_sees_door": 1.0,
+      "partners": 1.0,
+      "recommended": 1.0,
+      "wall_use": 0.9856,
+      "balance": 0.8337,
+      "circulation": 0.4906
+     },
+     "options": {
+      "r_L-1b_oda.sleeping_double": "bed_nightstands",
+      "r_L-1b_oda.storage": "wardrobe"
+     },
+     "pieces": [
+      "bed_double",
+      "nightstand",
+      "nightstand",
+      "wardrobe"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 856,
+      "expanded": 179,
+      "walkway_checks": 38
+     }
+    },
+    {
+     "rank": 2,
+     "score": 30.7366,
+     "terms": {
+      "bed_sees_door": 1.0,
+      "partners": 1.0,
+      "recommended": 1.0,
+      "wall_use": 0.9918,
+      "balance": 0.8123,
+      "circulation": 0.4704
+     },
+     "options": {
+      "r_L-1b_oda.sleeping_double": "bed_nightstands",
+      "r_L-1b_oda.storage": "wardrobe"
+     },
+     "pieces": [
+      "bed_double",
+      "nightstand",
+      "nightstand",
+      "wardrobe"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 856,
+      "expanded": 179,
+      "walkway_checks": 38
+     }
+    },
+    {
+     "rank": 3,
+     "score": 29.3006,
+     "terms": {
+      "bed_sees_door": 1.0,
+      "partners": 0.5,
+      "recommended": 0.8334,
+      "wall_use": 0.9447,
+      "balance": 0.8537,
+      "circulation": 0.487
+     },
+     "options": {
+      "r_L-1b_oda.sleeping_double": "bed_nightstands",
+      "r_L-1b_oda.storage": "wardrobe"
+     },
+     "pieces": [
+      "bed_double",
+      "nightstand",
+      "wardrobe"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [
+      "G4 minor f_L-1b_071: bed_double f_L-1b_071: no nightstand on the free left side of the head (0.90 m free)"
+     ],
+     "nodes": {
+      "generated": 856,
+      "expanded": 179,
+      "walkway_checks": 38
+     }
+    }
+   ],
+   "chosen": 1,
+   "choice": {
+    "index": 0,
+    "rank": 1,
+    "by": "vlm",
+    "reason": "Bed is positioned with free sides and headboard against the wall, both nightstands are present for symmetry, and the wardrobe placement leaves a clear, balanced circulation path from the door.",
+    "model": "Qwen/Qwen3.8-27B-FP8",
+    "error": null,
+    "transport_error": false,
+    "latency_s": 2.704
+   },
+   "latency_s": 2.704,
+   "solve_s": 1.145,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L-1b_071",
+     "type": "bed_double",
+     "group": "sleeping_double"
+    },
+    {
+     "id": "f_L-1b_072",
+     "type": "nightstand",
+     "group": "sleeping_double"
+    },
+    {
+     "id": "f_L-1b_073",
+     "type": "nightstand",
+     "group": "sleeping_double"
+    },
+    {
+     "id": "f_L-1b_074",
+     "type": "wardrobe",
+     "group": "storage"
+    }
+   ]
+  },
+  {
+   "room_id": "r_L-1b_oda_2",
+   "label": "Oda",
+   "room_type": "bedroom",
+   "program": [],
+   "candidates": [],
+   "chosen": null,
+   "choice": {},
+   "latency_s": 0.0,
+   "solve_s": 0.0,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L-1b_075",
+     "type": "bed_double",
+     "group": "sleeping_double"
+    },
+    {
+     "id": "f_L-1b_076",
+     "type": "nightstand",
+     "group": "sleeping_double"
+    },
+    {
+     "id": "f_L-1b_077",
+     "type": "nightstand",
+     "group": "sleeping_double"
+    },
+    {
+     "id": "f_L-1b_078",
+     "type": "wardrobe",
+     "group": "storage"
+    }
+   ],
+   "copied_from": {
+    "room": "r_L-1b_oda",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      17.1732,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.001
+    }
+   },
+   "copy_dropped": []
+  },
+  {
+   "room_id": "r_L0_koridor",
+   "label": "Koridor",
+   "room_type": "hall",
+   "program": [
+    {
+     "group_id": "r_L0_koridor.entrance",
+     "group": "entrance",
+     "options": [
+      "shoe_cabinet",
+      "console"
+     ],
+     "drawn": false,
+     "required": false
+    }
+   ],
+   "candidates": [
+    {
+     "rank": 1,
+     "score": 8.1808,
+     "terms": {
+      "recommended": 1.0,
+      "wall_use": 0.5,
+      "balance": 0.828,
+      "circulation": 0.9264
+     },
+     "options": {
+      "r_L0_koridor.entrance": "shoe_cabinet"
+     },
+     "pieces": [
+      "shoe_cabinet"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 872,
+      "expanded": 18,
+      "walkway_checks": 18
+     }
+    },
+    {
+     "rank": 2,
+     "score": 8.1319,
+     "terms": {
+      "recommended": 1.0,
+      "wall_use": 0.5,
+      "balance": 0.8211,
+      "circulation": 0.9054
+     },
+     "options": {
+      "r_L0_koridor.entrance": "console_table"
+     },
+     "pieces": [
+      "console_table"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 872,
+      "expanded": 18,
+      "walkway_checks": 18
+     }
+    },
+    {
+     "rank": 3,
+     "score": 7.9246,
+     "terms": {
+      "recommended": 1.0,
+      "wall_use": 0.5,
+      "balance": 0.5718,
+      "circulation": 0.9264
+     },
+     "options": {
+      "r_L0_koridor.entrance": "shoe_cabinet"
+     },
+     "pieces": [
+      "shoe_cabinet"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 872,
+      "expanded": 18,
+      "walkway_checks": 18
+     }
+    }
+   ],
+   "chosen": 1,
+   "choice": {
+    "index": 0,
+    "rank": 1,
+    "by": "vlm",
+    "reason": "The shoe cabinet is placed lower on the left wall, keeping the entrance area near the top door clear and balanced, which supports better circulation and a more open feel in the narrow corridor.",
+    "model": "Qwen/Qwen3.8-27B-FP8",
+    "error": null,
+    "transport_error": false,
+    "latency_s": 1.399
+   },
+   "latency_s": 1.399,
+   "solve_s": 0.209,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_047",
+     "type": "shoe_cabinet",
+     "group": "entrance"
+    }
+   ]
+  },
+  {
+   "room_id": "r_L0_koridor_2",
+   "label": "Koridor",
+   "room_type": "hall",
+   "program": [],
+   "candidates": [],
+   "chosen": null,
+   "choice": {},
+   "latency_s": 0.0,
+   "solve_s": 0.0,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L0_048",
+     "type": "shoe_cabinet",
+     "group": "entrance"
+    }
+   ],
+   "copied_from": {
+    "room": "r_L0_koridor",
+    "kind": "twin",
+    "transform": {
+     "kind": "given",
+     "affine": [
+      -1.0,
+      0.0,
+      17.173,
+      0.0,
+      1.0,
+      0.0
+     ],
+     "deviation_m": 0.001
+    }
+   },
+   "copy_dropped": []
+  },
+  {
+   "room_id": "r_L1_teras_2",
+   "label": "Teras",
+   "room_type": "balcony",
+   "program": [
+    {
+     "group_id": "r_L1_teras_2.balcony",
+     "group": "balcony",
+     "options": [
+      "table_2_chairs"
+     ],
+     "drawn": false,
+     "required": false
+    }
+   ],
+   "candidates": [
+    {
+     "rank": 1,
+     "score": 6.3175,
+     "terms": {
+      "daylight": 0.8831,
+      "balance": 0.693,
+      "circulation": 0.8707
+     },
+     "options": {
+      "r_L1_teras_2.balcony": "table_2_chairs"
+     },
+     "pieces": [
+      "table_dining",
+      "chair",
+      "chair"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 3154,
+      "expanded": 37,
+      "walkway_checks": 32
+     }
+    },
+    {
+     "rank": 2,
+     "score": 6.2863,
+     "terms": {
+      "daylight": 0.6862,
+      "balance": 0.8587,
+      "circulation": 0.8707
+     },
+     "options": {
+      "r_L1_teras_2.balcony": "table_2_chairs"
+     },
+     "pieces": [
+      "table_dining",
+      "chair",
+      "chair"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 3154,
+      "expanded": 37,
+      "walkway_checks": 32
+     }
+    },
+    {
+     "rank": 3,
+     "score": 6.1495,
+     "terms": {
+      "daylight": 0.4447,
+      "balance": 0.9634,
+      "circulation": 0.8707
+     },
+     "options": {
+      "r_L1_teras_2.balcony": "table_2_chairs"
+     },
+     "pieces": [
+      "table_dining",
+      "chair",
+      "chair"
+     ],
+     "not_placed": [],
+     "hard_failures": [],
+     "group_violations": [],
+     "nodes": {
+      "generated": 3154,
+      "expanded": 37,
+      "walkway_checks": 32
+     }
+    }
+   ],
+   "chosen": 2,
+   "choice": {
+    "index": 1,
+    "rank": 2,
+    "by": "vlm",
+    "reason": "Better balance score than candidate 1 while keeping strong daylight, and the dining set is positioned to use the window light effectively.",
+    "model": "Qwen/Qwen3.8-27B-FP8",
+    "error": null,
+    "transport_error": false,
+    "latency_s": 1.139
+   },
+   "latency_s": 1.139,
+   "solve_s": 0.147,
+   "skipped": null,
+   "pieces": [
+    {
+     "id": "f_L1_037",
+     "type": "table_dining",
+     "group": "balcony"
+    },
+    {
+     "id": "f_L1_038",
+     "type": "chair",
+     "group": "balcony"
+    },
+    {
+     "id": "f_L1_039",
+     "type": "chair",
+     "group": "balcony"
+    }
+   ]
+  }
+ ],
+ "pieces_added": 13,
+ "latency_s": 5.242,
+ "solve_s": 1.502,
+ "vision_model_down": null,
+ "completion": {
+  "rooms_completed": 20,
+  "rooms_copied": 13,
+  "changes_applied": 0,
+  "pieces_added": 23,
+  "wall_cabinets": 12,
+  "latency_s": 10.537
+ }
+}

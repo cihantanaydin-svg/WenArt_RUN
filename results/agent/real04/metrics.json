@@ -1,0 +1,559 @@
+{
+ "schema_version": "m12",
+ "project": "real04",
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "revision": "017b9c7af6b5689d5dd426a76e0bc077eb5ca20a",
+ "first_seq": 1,
+ "rounds": 7,
+ "stop": "final round for critical findings done",
+ "edits": {
+  "accepted": 183,
+  "rejected": 171,
+  "accepted_share": 0.517,
+  "rejected_by_reason": {
+   "1.5-1.7": 4,
+   "asset_type": 1,
+   "choices": 1,
+   "clearance_ok": 9,
+   "drawn_lock": 41,
+   "exists": 3,
+   "fixture_place": 13,
+   "max_tries": 27,
+   "memory": 31,
+   "no_overlap": 7,
+   "no_place": 9,
+   "nothing to change": 1,
+   "retype": 5,
+   "score": 7,
+   "set": 2,
+   "snap": 9,
+   "the camera stands inside the building b2 (another building on the plot)": 1
+  },
+  "by_tool": {
+   "add_camera": {
+    "accepted": 0,
+    "rejected": 1
+   },
+   "complete_group": {
+    "accepted": 0,
+    "rejected": 18
+   },
+   "fix_fixture": {
+    "accepted": 0,
+    "rejected": 19
+   },
+   "mark_not_furniture": {
+    "accepted": 5,
+    "rejected": 0
+   },
+   "move_group": {
+    "accepted": 0,
+    "rejected": 3
+   },
+   "move_piece": {
+    "accepted": 50,
+    "rejected": 77
+   },
+   "place_group": {
+    "accepted": 6,
+    "rejected": 1
+   },
+   "relayout_room": {
+    "accepted": 8,
+    "rejected": 6
+   },
+   "remove_piece": {
+    "accepted": 5,
+    "rejected": 0
+   },
+   "report_library_gap": {
+    "accepted": 13,
+    "rejected": 0
+   },
+   "retype_piece": {
+    "accepted": 7,
+    "rejected": 5
+   },
+   "rotate_piece": {
+    "accepted": 6,
+    "rejected": 15
+   },
+   "set_camera": {
+    "accepted": 1,
+    "rejected": 10
+   },
+   "set_exterior": {
+    "accepted": 17,
+    "rejected": 11
+   },
+   "set_room_type": {
+    "accepted": 0,
+    "rejected": 1
+   },
+   "set_terrain": {
+    "accepted": 1,
+    "rejected": 2
+   },
+   "swap_model": {
+    "accepted": 64,
+    "rejected": 2
+   }
+  }
+ },
+ "rooms": {
+  "code": 38,
+  "vision": 16,
+  "planner": 25,
+  "fixable": 25,
+  "fixable_visited_share": 1.0,
+  "planner_rooms": [
+   "building",
+   "r_L-1_banyo",
+   "r_L-1_banyo_2",
+   "r_L-1_mutfak",
+   "r_L-1_mutfak_2",
+   "r_L-1_salon",
+   "r_L-1_salon_2",
+   "r_L-1b_salon",
+   "r_L-1b_salon_2",
+   "r_L0_banyo",
+   "r_L0_banyo_2",
+   "r_L0_e_banyo",
+   "r_L0_e_banyo_2",
+   "r_L0_yatak_odasi",
+   "r_L0_yatak_odasi_2",
+   "r_L0_yatak_odasi_3",
+   "r_L0_yatak_odasi_4",
+   "r_L1_banyo",
+   "r_L1_banyo_2",
+   "r_L1_koridor",
+   "r_L1_koridor_2",
+   "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "r_L1_teras",
+   "r_L1_teras_2"
+  ],
+  "fixable_rooms": [
+   "building",
+   "r_L-1_banyo",
+   "r_L-1_banyo_2",
+   "r_L-1_mutfak",
+   "r_L-1_mutfak_2",
+   "r_L-1_salon",
+   "r_L-1_salon_2",
+   "r_L-1b_salon",
+   "r_L-1b_salon_2",
+   "r_L0_banyo",
+   "r_L0_banyo_2",
+   "r_L0_e_banyo",
+   "r_L0_e_banyo_2",
+   "r_L0_yatak_odasi",
+   "r_L0_yatak_odasi_2",
+   "r_L0_yatak_odasi_3",
+   "r_L0_yatak_odasi_4",
+   "r_L1_banyo",
+   "r_L1_banyo_2",
+   "r_L1_koridor",
+   "r_L1_koridor_2",
+   "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+   "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "r_L1_teras",
+   "r_L1_teras_2"
+  ]
+ },
+ "findings": {
+  "before": {
+   "D1": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "D2": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+   },
+   "F1": {
+    "critical": 0,
+    "major": 0,
+    "minor": 4
+   },
+   "F2": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "F3": {
+    "critical": 0,
+    "major": 6,
+    "minor": 2
+   },
+   "F4": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "F6": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "F8": {
+    "critical": 0,
+    "major": 38,
+    "minor": 0
+   },
+   "F9": {
+    "critical": 2,
+    "major": 14,
+    "minor": 0
+   },
+   "G10": {
+    "critical": 0,
+    "major": 18,
+    "minor": 0
+   },
+   "G12": {
+    "critical": 0,
+    "major": 10,
+    "minor": 0
+   },
+   "G14": {
+    "critical": 0,
+    "major": 0,
+    "minor": 4
+   },
+   "G5": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "G7": {
+    "critical": 0,
+    "major": 0,
+    "minor": 2
+   },
+   "G8": {
+    "critical": 0,
+    "major": 4,
+    "minor": 0
+   },
+   "G9": {
+    "critical": 0,
+    "major": 4,
+    "minor": 0
+   },
+   "L6": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+   },
+   "LG": {
+    "critical": 0,
+    "major": 0,
+    "minor": 66
+   },
+   "NR": {
+    "critical": 0,
+    "major": 22,
+    "minor": 0
+   },
+   "R3": {
+    "critical": 0,
+    "major": 0,
+    "minor": 10
+   },
+   "RC": {
+    "critical": 0,
+    "major": 0,
+    "minor": 7
+   },
+   "S2": {
+    "critical": 0,
+    "major": 20,
+    "minor": 0
+   },
+   "X2": {
+    "critical": 5,
+    "major": 6,
+    "minor": 2
+   },
+   "X3": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "X6": {
+    "critical": 0,
+    "major": 3,
+    "minor": 0
+   }
+  },
+  "after": {
+   "F1": {
+    "critical": 0,
+    "major": 1,
+    "minor": 4
+   },
+   "F2": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "F3": {
+    "critical": 0,
+    "major": 7,
+    "minor": 2
+   },
+   "F4": {
+    "critical": 0,
+    "major": 4,
+    "minor": 0
+   },
+   "F6": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+   },
+   "F8": {
+    "critical": 0,
+    "major": 38,
+    "minor": 0
+   },
+   "F9": {
+    "critical": 0,
+    "major": 12,
+    "minor": 0
+   },
+   "G10": {
+    "critical": 0,
+    "major": 18,
+    "minor": 0
+   },
+   "G12": {
+    "critical": 0,
+    "major": 4,
+    "minor": 0
+   },
+   "G14": {
+    "critical": 0,
+    "major": 0,
+    "minor": 4
+   },
+   "G5": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   },
+   "G7": {
+    "critical": 0,
+    "major": 0,
+    "minor": 1
+   },
+   "G8": {
+    "critical": 0,
+    "major": 3,
+    "minor": 0
+   },
+   "G9": {
+    "critical": 0,
+    "major": 6,
+    "minor": 0
+   },
+   "L6": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+   },
+   "L7": {
+    "critical": 0,
+    "major": 0,
+    "minor": 1
+   },
+   "LG": {
+    "critical": 0,
+    "major": 0,
+    "minor": 66
+   },
+   "NR": {
+    "critical": 0,
+    "major": 22,
+    "minor": 0
+   },
+   "R3": {
+    "critical": 0,
+    "major": 0,
+    "minor": 10
+   },
+   "RC": {
+    "critical": 0,
+    "major": 0,
+    "minor": 7
+   },
+   "S2": {
+    "critical": 0,
+    "major": 17,
+    "minor": 0
+   },
+   "X2": {
+    "critical": 2,
+    "major": 1,
+    "minor": 0
+   },
+   "X3": {
+    "critical": 0,
+    "major": 3,
+    "minor": 0
+   },
+   "X6": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+   }
+  },
+  "before_totals": {
+   "critical": 7,
+   "major": 159,
+   "minor": 97
+  },
+  "after_totals": {
+   "critical": 2,
+   "major": 144,
+   "minor": 95
+  },
+  "first_round": 1,
+  "last_round": 7
+ },
+ "per_room": {
+  "building": {
+   "calls": 51,
+   "minutes": 6.61
+  },
+  "r_L-1_banyo": {
+   "calls": 24,
+   "minutes": 2.37
+  },
+  "r_L-1_banyo_2": {
+   "calls": 36,
+   "minutes": 2.81
+  },
+  "r_L-1_mutfak": {
+   "calls": 49,
+   "minutes": 4.33
+  },
+  "r_L-1_mutfak_2": {
+   "calls": 45,
+   "minutes": 3.79
+  },
+  "r_L-1_salon": {
+   "calls": 36,
+   "minutes": 7.02
+  },
+  "r_L-1_salon_2": {
+   "calls": 51,
+   "minutes": 6.28
+  },
+  "r_L-1b_salon": {
+   "calls": 39,
+   "minutes": 8.51
+  },
+  "r_L-1b_salon_2": {
+   "calls": 46,
+   "minutes": 6.96
+  },
+  "r_L0_banyo": {
+   "calls": 42,
+   "minutes": 3.05
+  },
+  "r_L0_banyo_2": {
+   "calls": 47,
+   "minutes": 5.19
+  },
+  "r_L0_e_banyo": {
+   "calls": 28,
+   "minutes": 2.48
+  },
+  "r_L0_e_banyo_2": {
+   "calls": 29,
+   "minutes": 2.56
+  },
+  "r_L0_yatak_odasi": {
+   "calls": 42,
+   "minutes": 3.95
+  },
+  "r_L0_yatak_odasi_2": {
+   "calls": 47,
+   "minutes": 5.71
+  },
+  "r_L0_yatak_odasi_3": {
+   "calls": 29,
+   "minutes": 1.75
+  },
+  "r_L0_yatak_odasi_4": {
+   "calls": 62,
+   "minutes": 5.31
+  },
+  "r_L1_banyo": {
+   "calls": 39,
+   "minutes": 3.29
+  },
+  "r_L1_banyo_2": {
+   "calls": 35,
+   "minutes": 2.83
+  },
+  "r_L1_koridor": {
+   "calls": 12,
+   "minutes": 0.68
+  },
+  "r_L1_koridor_2": {
+   "calls": 20,
+   "minutes": 1.1
+  },
+  "r_L1_oyun_aktivite_ve_dinlenme_odasi": {
+   "calls": 34,
+   "minutes": 5.79
+  },
+  "r_L1_oyun_aktivite_ve_dinlenme_odasi_2": {
+   "calls": 43,
+   "minutes": 5.86
+  },
+  "r_L1_teras": {
+   "calls": 3,
+   "minutes": 0.17
+  },
+  "r_L1_teras_2": {
+   "calls": 9,
+   "minutes": 0.64
+  }
+ },
+ "tokens": {
+  "chat": {
+   "calls": 760,
+   "prompt": 10002358,
+   "completion": 123379,
+   "seconds": 3801.55
+  },
+  "critic": {
+   "calls": 83,
+   "prompt": 207481,
+   "completion": 4633,
+   "seconds": 124.77
+  },
+  "plan": {
+   "calls": 138,
+   "prompt": 657919,
+   "completion": 71166,
+   "seconds": 2141.32
+  }
+ },
+ "time": {
+  "agent_minutes": 64.48,
+  "first_accepted_edit_s": 51.0
+ },
+ "memory": {
+  "repeats_refused": 31,
+  "dry_runs": 256,
+  "plans": 138,
+  "plans_valid": 98
+ }
+}

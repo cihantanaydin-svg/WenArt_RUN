@@ -1,0 +1,73 @@
+{
+ "room_id": "r_L1_koridor_2",
+ "label": "Koridor",
+ "room_type": "hall",
+ "slots": [
+  {
+   "id": "ceiling:centre_r_L1_koridor_2",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 koridor 2"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L1_koridor_2",
+     "type": "pendant_light",
+     "colour": "brass",
+     "reason": "A brass pendant light adds a warm metallic accent that complements the dark bronze window frames and natural wood tones."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.901
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "ceiling:centre_r_L1_koridor_2",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "A warm brass ceiling light complements the natural wood and greige tones while providing soft illumination for the hallway."
+    }
+   ],
+   "error": null,
+   "latency_s": 1.901
+  }
+ },
+ "agreed": [],
+ "not_agreed": [
+  {
+   "slot": "ceiling:centre_r_L1_koridor_2",
+   "type": "pendant_light",
+   "colour": "brass",
+   "reason": "A brass pendant light adds a warm metallic accent that complements the dark bronze window frames and natural wood tones.",
+   "passes": [
+    1
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L1_koridor_2",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "reason": "A warm brass ceiling light complements the natural wood and greige tones while providing soft illumination for the hallway.",
+   "passes": [
+    2
+   ]
+  }
+ ],
+ "rejected": [],
+ "refused": [],
+ "items": [],
+ "fallback": "the two passes agreed on no item",
+ "notes": [
+  "f_L1_046 centre: no decor fits (0.54 x 0.24 m, 0.00 m high)",
+  "no free corner for a floor plant"
+ ]
+}

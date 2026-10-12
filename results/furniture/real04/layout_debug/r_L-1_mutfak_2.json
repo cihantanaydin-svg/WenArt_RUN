@@ -1,0 +1,292 @@
+{
+ "room_id": "r_L-1_mutfak_2",
+ "label": "Mutfak",
+ "room_type": "kitchen",
+ "room_subtype": null,
+ "state": "mirrored",
+ "reason": "decisions of r_L-1_mutfak (twin), not asked again",
+ "partner": {
+  "id": "r_L-1_mutfak",
+  "kind": "twin",
+  "transform": {
+   "kind": "given",
+   "affine": [
+    -1.0,
+    0.0,
+    17.1722,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "deviation_m": 0.0045
+  }
+ },
+ "drawn": [
+  {
+   "id": "f_L-1_010",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     13.0541,
+     9.9722
+    ],
+    "wall_id": "w_L-1_014"
+   }
+  },
+  {
+   "id": "f_L-1_011",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     14.8118,
+     11.8001
+    ],
+    "wall_id": "w_L-1_006"
+   }
+  },
+  {
+   "id": "f_L-1_012",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     15.9721,
+     10.2618
+    ],
+    "wall_id": "w_L-1_015"
+   }
+  },
+  {
+   "id": "f_L-1_013",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     15.9721,
+     8.2331
+    ],
+    "wall_id": "w_L-1_015"
+   }
+  },
+  {
+   "id": "f_L-1_014",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     13.362,
+     8.5465
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_015",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     15.258,
+     7.9803
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_016",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     15.258,
+     8.6965
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_017",
+   "type": "stove",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     14.59,
+     11.4672
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_018",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     15.721,
+     10.2592
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_068",
+   "type": "sink_kitchen",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     15.9725,
+     10.2592
+    ],
+    "wall_id": "w_L-1_015"
+   }
+  },
+  {
+   "id": "f_L-1_082",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     15.9425,
+     10.0688
+    ],
+    "wall_id": "w_L-1_015"
+   }
+  },
+  {
+   "id": "f_L-1_084",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     15.9425,
+     10.4495
+    ],
+    "wall_id": "w_L-1_015"
+   }
+  },
+  {
+   "id": "f_L-1_086",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     13.2011,
+     11.7
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [],
+ "candidates": [],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [
+  {
+   "id": "f_L-1_095",
+   "run": "f_L-1_010",
+   "size": [
+    3.356,
+    0.35
+   ],
+   "excluded": [
+    "door d_L-1_004"
+   ]
+  },
+  {
+   "id": "f_L-1_096",
+   "run": "f_L-1_011",
+   "size": [
+    0.56,
+    0.35
+   ],
+   "excluded": [
+    "stove f_L-1_017",
+    "window win_L-1_004"
+   ]
+  },
+  {
+   "id": "f_L-1_097",
+   "run": "f_L-1_011",
+   "size": [
+    0.69,
+    0.35
+   ],
+   "excluded": [
+    "stove f_L-1_017",
+    "window win_L-1_004"
+   ]
+  }
+ ],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L-1_010": [
+    "inside_room",
+    "no_overlap",
+    "doors_free"
+   ],
+   "f_L-1_011": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1_012": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1_013": [
+    "inside_room"
+   ],
+   "f_L-1_014": [
+    "inside_room",
+    "no_overlap",
+    "doors_free"
+   ],
+   "f_L-1_017": [
+    "no_overlap"
+   ],
+   "f_L-1_018": [
+    "no_overlap"
+   ],
+   "f_L-1_068": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1_082": [
+    "no_overlap"
+   ],
+   "f_L-1_084": [
+    "no_overlap"
+   ],
+   "f_L-1_086": [
+    "inside_room",
+    "no_overlap"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.0,
+ "program_full": null,
+ "candidates_full": []
+}

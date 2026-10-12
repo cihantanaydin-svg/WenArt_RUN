@@ -1,0 +1,35 @@
+{
+ "room_id": "r_L0_yatak_odasi_3",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_032",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_005"
+  },
+  {
+   "id": "dec_L0_033",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L0_yatak_odasi_4.corner1"
+  },
+  {
+   "id": "dec_L0_034",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yatak_odasi_4"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L0_yatak_odasi_4 (twin, not asked)"
+ ]
+}

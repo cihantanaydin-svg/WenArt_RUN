@@ -1,0 +1,474 @@
+{
+ "room_id": "r_L1_koridor",
+ "label": "Koridor",
+ "room_type": "hall",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L1_002",
+   "type": "stair",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.0587,
+     8.6427
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_021",
+   "type": "table_coffee",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.5592,
+     9.9001
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_023",
+   "type": "chair",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     4.073,
+     9.9001
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L1_koridor.entrance",
+   "group": "entrance",
+   "options": [
+    "shoe_cabinet",
+    "console"
+   ],
+   "drawn": false,
+   "required": false,
+   "missing": [],
+   "note": ""
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 8.1297,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.6993,
+    "circulation": 0.9652
+   },
+   "options": {
+    "r_L1_koridor.entrance": "shoe_cabinet"
+   },
+   "pieces": [
+    "shoe_cabinet"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 963,
+    "expanded": 16,
+    "walkway_checks": 16
+   }
+  },
+  {
+   "rank": 2,
+   "score": 8.1164,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.7054,
+    "circulation": 0.9555
+   },
+   "options": {
+    "r_L1_koridor.entrance": "console_table"
+   },
+   "pieces": [
+    "console_table"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 963,
+    "expanded": 16,
+    "walkway_checks": 16
+   }
+  },
+  {
+   "rank": 3,
+   "score": 8.0877,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.6907,
+    "circulation": 0.9485
+   },
+   "options": {
+    "r_L1_koridor.entrance": "shoe_cabinet"
+   },
+   "pieces": [
+    "shoe_cabinet"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 963,
+    "expanded": 16,
+    "walkway_checks": 16
+   }
+  }
+ ],
+ "chosen": 2,
+ "choice": {
+  "index": 1,
+  "rank": 2,
+  "by": "vlm",
+  "reason": "The console table is a more appropriate and elegant piece for a modern natural hallway entrance than a bulky shoe cabinet, keeping the space open and balanced.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 1.226,
+  "images": [
+   "r_L1_koridor_c1.png",
+   "r_L1_koridor_c2.png",
+   "r_L1_koridor_c3.png"
+  ]
+ },
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "latency_s": 1.226,
+   "error": null,
+   "transport_error": false
+  }
+ ],
+ "chosen_pass": 2,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L1_045",
+   "type": "console_table",
+   "center": [
+    4.7895,
+    11.6291
+   ],
+   "size": [
+    0.9,
+    0.3
+   ],
+   "rotation_deg": 0.0,
+   "group": "entrance",
+   "method": "rule",
+   "mirrored_from": null
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L1_002": [
+    "inside_room"
+   ],
+   "f_L1_021": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L1_023": [
+    "inside_room",
+    "no_overlap"
+   ]
+  }
+ },
+ "latency_s": 1.226,
+ "solve_s": 0.19,
+ "program_full": {
+  "room_id": "r_L1_koridor",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L1_koridor.entrance",
+    "group": "entrance",
+    "anchor_id": null,
+    "required": false,
+    "options": [
+     "shoe_cabinet",
+     "console"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 15.34,
+    "priority": 5,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "hall 15.3 m²: entrance"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 8.1297,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.6993,
+    "circulation": 0.9652
+   },
+   "pieces": [
+    {
+     "id": "f_L1_045",
+     "level_id": "L1",
+     "room_id": "r_L1_koridor",
+     "type": "shoe_cabinet",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       4.6395,
+       11.6291
+      ],
+      "size": [
+       0.6,
+       0.3
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group entrance",
+       "text": "shoe_cabinet (storage) of the entrance group, option shoe_cabinet, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_koridor.entrance",
+      "group": "entrance",
+      "role": "partner",
+      "anchor_id": null
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "storage",
+      "option": "shoe_cabinet"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_koridor.entrance",
+     "group": "entrance",
+     "anchor_id": null,
+     "member_ids": [
+      "f_L1_045"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L1_koridor.entrance": "shoe_cabinet"
+   },
+   "placed": [
+    "r_L1_koridor.entrance"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 963,
+    "expanded": 16,
+    "walkway_checks": 16
+   }
+  },
+  {
+   "rank": 2,
+   "score": 8.1164,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.7054,
+    "circulation": 0.9555
+   },
+   "pieces": [
+    {
+     "id": "f_L1_045",
+     "level_id": "L1",
+     "room_id": "r_L1_koridor",
+     "type": "console_table",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       4.7895,
+       11.6291
+      ],
+      "size": [
+       0.9,
+       0.3
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.8,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group entrance",
+       "text": "console_table (storage) of the entrance group, option console_table, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_koridor.entrance",
+      "group": "entrance",
+      "role": "partner",
+      "anchor_id": null
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "storage",
+      "option": "console_table"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_koridor.entrance",
+     "group": "entrance",
+     "anchor_id": null,
+     "member_ids": [
+      "f_L1_045"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L1_koridor.entrance": "console_table"
+   },
+   "placed": [
+    "r_L1_koridor.entrance"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 963,
+    "expanded": 16,
+    "walkway_checks": 16
+   }
+  },
+  {
+   "rank": 3,
+   "score": 8.0877,
+   "terms": {
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.6907,
+    "circulation": 0.9485
+   },
+   "pieces": [
+    {
+     "id": "f_L1_045",
+     "level_id": "L1",
+     "room_id": "r_L1_koridor",
+     "type": "shoe_cabinet",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       5.0655,
+       7.7631
+      ],
+      "size": [
+       0.6,
+       0.3
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group entrance",
+       "text": "shoe_cabinet (storage) of the entrance group, option shoe_cabinet, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_koridor.entrance",
+      "group": "entrance",
+      "role": "partner",
+      "anchor_id": null
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "storage",
+      "option": "shoe_cabinet"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_koridor.entrance",
+     "group": "entrance",
+     "anchor_id": null,
+     "member_ids": [
+      "f_L1_045"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L1_koridor.entrance": "shoe_cabinet"
+   },
+   "placed": [
+    "r_L1_koridor.entrance"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 963,
+    "expanded": 16,
+    "walkway_checks": 16
+   }
+  }
+ ]
+}

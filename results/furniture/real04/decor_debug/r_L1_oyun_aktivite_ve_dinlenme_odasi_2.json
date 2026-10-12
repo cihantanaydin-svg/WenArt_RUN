@@ -1,0 +1,298 @@
+{
+ "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+ "label": "Oyun Aktivite Ve Dinlenme Odası",
+ "room_type": "other",
+ "slots": [
+  {
+   "id": "f_L1_010.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_010",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_010.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_010",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_011.cushions",
+   "kind": "soft",
+   "types": [
+    "cushion"
+   ],
+   "host_id": "f_L1_011",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_011.throw",
+   "kind": "soft",
+   "types": [
+    "throw"
+   ],
+   "host_id": "f_L1_011",
+   "host_type": "sofa",
+   "note": ""
+  },
+  {
+   "id": "f_L1_047.back_left",
+   "kind": "top",
+   "types": [
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_047",
+   "host_type": "desk",
+   "note": "back left part, under a window",
+   "center": [
+    14.172,
+    4.491
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    0.15
+   ]
+  },
+  {
+   "id": "f_L1_047.back_right",
+   "kind": "top",
+   "types": [
+    "plant_small",
+    "book_set",
+    "vase",
+    "books"
+   ],
+   "host_id": "f_L1_047",
+   "host_type": "desk",
+   "note": "back right part, under a window",
+   "center": [
+    14.172,
+    3.751
+   ],
+   "max_size": [
+    0.37,
+    0.27,
+    0.15
+   ]
+  },
+  {
+   "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2.corner1",
+   "kind": "floor",
+   "types": [
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 9.04, 0.45",
+   "center": [
+    9.037,
+    0.45
+   ]
+  },
+  {
+   "id": "r_L1_oyun_aktivite_ve_dinlenme_odasi_2.corner2",
+   "kind": "floor",
+   "types": [
+    "basket"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 14.12, 0.45",
+   "center": [
+    14.123,
+    0.45
+   ]
+  },
+  {
+   "id": "window:win_L1_002",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L1_002"
+  },
+  {
+   "id": "ceiling:centre_r_L1_oyun_aktivite_ve_dinlenme_odasi_2",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L1 oyun aktivite ve dinlenme odasi 2"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "f_L1_010.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds a warm pop of color to the light grey sofa, matching the style brief."
+    },
+    {
+     "slot": "f_L1_011.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Provides a soft, neutral contrast that complements the greige walls and natural wood."
+    },
+    {
+     "slot": "f_L1_047.back_left",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Brings natural life to the workspace, echoing the room's many large indoor plants."
+    },
+    {
+     "slot": "window:win_L1_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens the warm daylight and adds texture without blocking the view."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.806
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "f_L1_010.cushions",
+     "type": "cushion",
+     "colour": "mustard",
+     "reason": "Adds a warm pop of color to the light grey sofa, matching the style brief."
+    },
+    {
+     "slot": "f_L1_011.cushions",
+     "type": "cushion",
+     "colour": "cream",
+     "reason": "Provides a soft, neutral contrast that complements the greige walls and natural wood."
+    },
+    {
+     "slot": "f_L1_047.back_left",
+     "type": "plant_small",
+     "colour": "sage green",
+     "reason": "Brings natural life to the desk area, echoing the room's many large indoor plants."
+    },
+    {
+     "slot": "window:win_L1_002",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens the warm daylight and adds texture without blocking the view."
+    }
+   ],
+   "error": null,
+   "latency_s": 5.828
+  }
+ },
+ "agreed": [
+  {
+   "slot": "f_L1_010.cushions",
+   "type": "cushion",
+   "colour": "mustard",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds a warm pop of color to the light grey sofa, matching the style brief.",
+    "Adds a warm pop of color to the light grey sofa, matching the style brief."
+   ]
+  },
+  {
+   "slot": "f_L1_011.cushions",
+   "type": "cushion",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Provides a soft, neutral contrast that complements the greige walls and natural wood.",
+    "Provides a soft, neutral contrast that complements the greige walls and natural wood."
+   ]
+  },
+  {
+   "slot": "f_L1_047.back_left",
+   "type": "plant_small",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Brings natural life to the workspace, echoing the room's many large indoor plants.",
+    "Brings natural life to the desk area, echoing the room's many large indoor plants."
+   ]
+  },
+  {
+   "slot": "window:win_L1_002",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the warm daylight and adds texture without blocking the view.",
+    "Softens the warm daylight and adds texture without blocking the view."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [
+  {
+   "slot": "f_L1_047.back_left",
+   "type": "plant_small",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Brings natural life to the workspace, echoing the room's many large indoor plants.",
+    "Brings natural life to the desk area, echoing the room's many large indoor plants."
+   ],
+   "why": "the slot leaves 0.37 x 0.27 x 0.15 m, below the smallest plant_small box"
+  }
+ ],
+ "items": [
+  {
+   "id": "dec_L1_006",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_010.cushions"
+  },
+  {
+   "id": "dec_L1_007",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_010.cushions"
+  },
+  {
+   "id": "dec_L1_008",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_011.cushions"
+  },
+  {
+   "id": "dec_L1_009",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L1_011.cushions"
+  },
+  {
+   "id": "dec_L1_010",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L1_002"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "f_L1_010 wall: wall_art: f_L1_010 has no wall behind it",
+  "f_L1_011 wall: wall_art: f_L1_011 has no wall behind it",
+  "f_L1_047 wall: wall_art: above f_L1_047: window win_L1_002 on the wall behind it leave 0.00 m for the picture (min 0.4 m); clock: above f_L1_047: window win_L1_002 on the wall behind it leave 0.00 m for the clock (min 0.25 m)"
+ ]
+}

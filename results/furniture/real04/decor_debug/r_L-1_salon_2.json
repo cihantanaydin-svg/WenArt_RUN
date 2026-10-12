@@ -1,0 +1,47 @@
+{
+ "room_id": "r_L-1_salon_2",
+ "label": "Salon",
+ "room_type": "living",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L-1_014",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L-1_049.cushions"
+  },
+  {
+   "id": "dec_L-1_015",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L-1_049.throw"
+  },
+  {
+   "id": "dec_L-1_016",
+   "type": "blind",
+   "method": "ai",
+   "slot": "window:win_L-1_001"
+  },
+  {
+   "id": "dec_L-1_017",
+   "type": "pendant_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L-1_salon"
+  },
+  {
+   "id": "dec_L-1_018",
+   "type": "book_set",
+   "method": "ai",
+   "slot": "f_L-1_089.shelf"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L-1_salon (twin, not asked)"
+ ]
+}

@@ -86,5 +86,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-11 12:25 | skkyszbqaaadh3 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 96 | 3.99 | M12 P8: real03 rerun with the P5-P7 fixes (window cut, floor-decor cameras, agent briefs, grown library; polish off) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-11 17:24 | jeqodk9uyn9o6p | NVIDIA RTX PRO 6000 Blackwell Server Edition | 114 | 4.72 | real04: 4 villas on one plot (site plan copies, sloped ground, pools; polish off) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-12 06:09 | 658im5ey39ecxh | NVIDIA RTX PRO 4500 Blackwell | 5 | 0.06 | volume: clean old outputs (user OK 12 Oct 2026) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-12 06:13 | 1p952a3cwbjhti | NVIDIA RTX PRO 4500 Blackwell | 4 | 0.04 | volume: clean old outputs, pass 2 (repo/outputs; user OK 12 Oct 2026) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 
-**Total spent so far: $130.50** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
+**Total spent so far: $130.54** (budget: $200, raised from $100 on 10 Oct 2026; limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)

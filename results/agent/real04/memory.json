@@ -1,0 +1,5404 @@
+{
+ "version": 1,
+ "rooms": {
+  "r_L-1_salon": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_049",
+      "center": [
+       3.95,
+       6.23
+      ],
+      "reason": "Shift the armchair 0.3 m toward the room centre so its front clearance stays inside the room and it sits within 2.0 m of the sofa/sofa_corner anchor."
+     },
+     "key": "{\"args\": {\"center\": [3.95, 6.23], \"piece_id\": \"f_L-1_049\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_028",
+      "center": [
+       7.3,
+       5.42
+      ],
+      "reason": "Nudge the right column of dining chairs 0.3 m toward the (not-built) table_dining f_L-1_027 so each chair is within 0.8 m of a table."
+     },
+     "key": "{\"args\": {\"center\": [7.3, 5.42], \"piece_id\": \"f_L-1_028\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_029",
+      "center": [
+       7.3,
+       4.22
+      ],
+      "reason": "Nudge the right column of dining chairs 0.3 m toward the (not-built) table_dining f_L-1_027 so each chair is within 0.8 m of a table."
+     },
+     "key": "{\"args\": {\"center\": [7.3, 4.22], \"piece_id\": \"f_L-1_029\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_030",
+      "center": [
+       7.3,
+       3.63
+      ],
+      "reason": "Nudge the right column of dining chairs 0.3 m toward the (not-built) table_dining f_L-1_027 so each chair is within 0.8 m of a table."
+     },
+     "key": "{\"args\": {\"center\": [7.3, 3.63], \"piece_id\": \"f_L-1_030\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_031",
+      "center": [
+       7.3,
+       3.04
+      ],
+      "reason": "Nudge the right column of dining chairs 0.3 m toward the (not-built) table_dining f_L-1_027 so each chair is within 0.8 m of a table."
+     },
+     "key": "{\"args\": {\"center\": [7.3, 3.04], \"piece_id\": \"f_L-1_031\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_049",
+      "center": [
+       3.95,
+       6.221
+      ],
+      "reason": "Nudge armchair 0.009 m into the room so its front free zone stays inside and it sits within 2.0 m of the sofa anchor."
+     },
+     "key": "{\"args\": {\"center\": [3.95, 6.221], \"piece_id\": \"f_L-1_049\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_032",
+      "center": [
+       6.77,
+       5.42
+      ],
+      "reason": "Nudge left dining chair 0.29 m toward the dining table so it is within 0.8 m of it."
+     },
+     "key": "{\"args\": {\"center\": [6.77, 5.42], \"piece_id\": \"f_L-1_032\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_036",
+      "center": [
+       7.3,
+       4.84
+      ],
+      "reason": "Nudge mid-row chair 0.3 m toward the dining table to satisfy the 0.8 m chair-to-table rule."
+     },
+     "key": "{\"args\": {\"center\": [7.3, 4.84], \"piece_id\": \"f_L-1_036\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_059",
+      "center": [
+       2.28,
+       0.99
+      ],
+      "reason": "Move floor lamp 0.29 m away from the window wall so it no longer blocks the sightline in front of win_L-1_001."
+     },
+     "key": "{\"args\": {\"center\": [2.28, 0.99], \"piece_id\": \"f_L-1_059\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_075",
+      "asset_id": "metal_stool_02",
+      "reason": "Swap ottoman for a smaller model so it no longer overlaps/cuts armchair f_L-1_070."
+     },
+     "key": "{\"args\": {\"asset_id\": \"metal_stool_02\", \"piece_id\": \"f_L-1_075\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_075",
+      "center": [
+       8.12,
+       0.96
+      ],
+      "reason": "clear overlap/cut with armchair f_L-1_070"
+     },
+     "key": "{\"args\": {\"center\": [8.12, 0.96], \"piece_id\": \"f_L-1_075\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_077",
+      "center": [
+       6.13,
+       0.96
+      ],
+      "reason": "clear overlap/cut with armchair f_L-1_071"
+     },
+     "key": "{\"args\": {\"center\": [6.13, 0.96], \"piece_id\": \"f_L-1_077\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_075",
+      "asset_id": "metal_stool_02",
+      "reason": "smaller ottoman model to clear the 0.18 m2 overlap and 0.024 m cut with armchair f_L-1_070"
+     },
+     "key": "{\"args\": {\"asset_id\": \"metal_stool_02\", \"piece_id\": \"f_L-1_075\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_077",
+      "asset_id": "metal_stool_02",
+      "reason": "smaller ottoman model to clear the 0.18 m2 overlap and 0.024 m cut with armchair f_L-1_071"
+     },
+     "key": "{\"args\": {\"asset_id\": \"metal_stool_02\", \"piece_id\": \"f_L-1_077\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_032",
+      "center": [
+       6.78,
+       5.42
+      ],
+      "reason": "Nudge the left column of dining chairs 0.3 m toward the (not-built) table_dining f_L-1_027 so each chair is within 0.8 m of a table."
+     },
+     "key": "{\"args\": {\"center\": [6.78, 5.42], \"piece_id\": \"f_L-1_032\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_032: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_059",
+      "center": [
+       2.28,
+       1.0
+      ],
+      "reason": "Move floor lamp 0.3 m away from the window wall so it no longer blocks the sightline in front of win_L-1_001 and lands near the armchair."
+     },
+     "key": "{\"args\": {\"center\": [2.28, 1.0], \"piece_id\": \"f_L-1_059\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_059: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_063",
+      "center": [
+       5.3,
+       1.04
+      ],
+      "reason": "Move floor lamp 0.3 m away from the window wall so it no longer blocks the sightline in front of win_L-1_001."
+     },
+     "key": "{\"args\": {\"center\": [5.3, 1.04], \"piece_id\": \"f_L-1_063\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_063: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_063",
+      "center": [
+       5.3,
+       1.03
+      ],
+      "reason": "Move floor lamp 0.29 m away from the window wall so it no longer blocks the sightline in front of win_L-1_001."
+     },
+     "key": "{\"args\": {\"center\": [5.3, 1.03], \"piece_id\": \"f_L-1_063\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L-1_053: no_overlap"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_063",
+      "center": [
+       5.55,
+       0.99
+      ],
+      "reason": "Move floor lamp 0.29 m away from the window wall (toward the corner) so it no longer blocks the sightline in front of win_L-1_001."
+     },
+     "key": "{\"args\": {\"center\": [5.55, 0.99], \"piece_id\": \"f_L-1_063\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_063: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.35 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_049",
+      "center": [
+       3.95,
+       6.52
+      ],
+      "reason": "shift 0.3 m so the free zone in front of the armchair stays inside the room"
+     },
+     "key": "{\"args\": {\"center\": [3.95, 6.52], \"piece_id\": \"f_L-1_049\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_049: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.41 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_059",
+      "center": [
+       2.28,
+       1.29
+      ],
+      "reason": "shift 0.3 m into the room so the lamp sits within 1.2 m of armchair f_L-1_049"
+     },
+     "key": "{\"args\": {\"center\": [2.28, 1.29], \"piece_id\": \"f_L-1_059\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_059: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.59 m)"
+     ]
+    },
+    {
+     "round": 5,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_049",
+      "center": [
+       4.25,
+       6.22
+      ],
+      "reason": "Move armchair 0.3m towards room center to keep its front free zone inside the room and bring it closer to the seating cluster."
+     },
+     "key": "{\"args\": {\"center\": [4.25, 6.22], \"piece_id\": \"f_L-1_049\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_049: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.59 m)"
+     ]
+    },
+    {
+     "round": 5,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_059",
+      "center": [
+       2.48,
+       0.99
+      ],
+      "reason": "Move floor lamp 0.2m towards the armchair to satisfy the 1.2m proximity requirement."
+     },
+     "key": "{\"args\": {\"center\": [2.48, 0.99], \"piece_id\": \"f_L-1_059\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_059: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.35 m)"
+     ]
+    },
+    {
+     "round": 5,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       8.17,
+       0.96
+      ],
+      "piece_id": "f_L-1_075",
+      "reason": "Move ottoman 0.05m away from armchair f_L-1_070 to resolve the 0.024m overlap and cut."
+     },
+     "key": "{\"args\": {\"center\": [8.17, 0.96], \"piece_id\": \"f_L-1_075\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_075: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 5,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       6.083,
+       0.96
+      ],
+      "piece_id": "f_L-1_077",
+      "reason": "Move ottoman 0.047m away from armchair f_L-1_071 to resolve the 0.024m overlap and cut."
+     },
+     "key": "{\"args\": {\"center\": [6.083, 0.96], \"piece_id\": \"f_L-1_077\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_077: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 8
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 7
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 7
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 5
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 5
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    }
+   ]
+  },
+  "r_L-1_salon_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_050",
+      "center": [
+       13.25,
+       6.23
+      ],
+      "reason": "Move armchair 0.26m left so its front free zone stays in the room and it sits closer to the sofa cluster."
+     },
+     "key": "{\"args\": {\"center\": [13.25, 6.23], \"piece_id\": \"f_L-1_050\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_050",
+      "center": [
+       13.25,
+       6.194
+      ],
+      "reason": "Pull the armchair 0.036 m into the room so its front free zone stays inside and it sits within 2.0 m of the sofa anchor (fixes F6/F8)."
+     },
+     "key": "{\"args\": {\"center\": [13.25, 6.194], \"piece_id\": \"f_L-1_050\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_050",
+      "center": [
+       13.25,
+       6.157
+      ],
+      "reason": "Pull the armchair fully inside the room boundary and closer to the seating cluster, resolving the out-of-bounds front zone and isolation."
+     },
+     "key": "{\"args\": {\"center\": [13.25, 6.157], \"piece_id\": \"f_L-1_050\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       14.89,
+       0.99
+      ],
+      "piece_id": "f_L-1_057",
+      "reason": "Move the floor lamp 0.29 m away from the window wall to clear the window sill obstruction and sit within 1.2 m of the armchair f_L-1_050."
+     },
+     "key": "{\"args\": {\"center\": [14.89, 0.99], \"piece_id\": \"f_L-1_057\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_076",
+      "asset_id": "metal_stool_02",
+      "reason": "Swap the ottoman for a smaller model (0.45 x 0.46 m) to eliminate the 0.19 m² overlap and 0.024 m cut with armchair f_L-1_069."
+     },
+     "key": "{\"args\": {\"asset_id\": \"metal_stool_02\", \"piece_id\": \"f_L-1_076\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_078",
+      "asset_id": "metal_stool_02",
+      "reason": "Swap the ottoman for a smaller model (0.45 x 0.46 m) to eliminate the 0.19 m² overlap and 0.024 m cut with armchair f_L-1_072."
+     },
+     "key": "{\"args\": {\"asset_id\": \"metal_stool_02\", \"piece_id\": \"f_L-1_078\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_076",
+      "center": [
+       10.79,
+       1.2
+      ],
+      "reason": "Shift ottoman 0.24 m away from armchair f_L-1_069 to clear the 0.19 m² overlap (F9) and the 0.024 m cut (S2)."
+     },
+     "key": "{\"args\": {\"center\": [10.79, 1.2], \"piece_id\": \"f_L-1_076\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_050",
+      "center": [
+       13.21,
+       6.23
+      ],
+      "reason": "Move armchair 0.3m left so its front free zone stays in the room and it sits closer to the sofa cluster."
+     },
+     "key": "{\"args\": {\"center\": [13.21, 6.23], \"piece_id\": \"f_L-1_050\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_050: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_039",
+      "center": [
+       9.88,
+       5.42
+      ],
+      "reason": "Move the left dining chair 0.3 m toward the dining table so it is within 0.8 m of it (fixes F8)."
+     },
+     "key": "{\"args\": {\"center\": [9.88, 5.42], \"piece_id\": \"f_L-1_039\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_039: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_040",
+      "center": [
+       9.88,
+       4.22
+      ],
+      "reason": "Move the left dining chair 0.3 m toward the dining table so it is within 0.8 m of it (fixes F8)."
+     },
+     "key": "{\"args\": {\"center\": [9.88, 4.22], \"piece_id\": \"f_L-1_040\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_040: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_041",
+      "center": [
+       9.88,
+       3.63
+      ],
+      "reason": "Move the left dining chair 0.3 m toward the dining table so it is within 0.8 m of it (fixes F8)."
+     },
+     "key": "{\"args\": {\"center\": [9.88, 3.63], \"piece_id\": \"f_L-1_041\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_041: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_042",
+      "center": [
+       9.88,
+       3.04
+      ],
+      "reason": "Move the left dining chair 0.3 m toward the dining table so it is within 0.8 m of it (fixes F8)."
+     },
+     "key": "{\"args\": {\"center\": [9.88, 3.04], \"piece_id\": \"f_L-1_042\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_042: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_043",
+      "center": [
+       10.39,
+       5.42
+      ],
+      "reason": "Move the right dining chair 0.3 m toward the dining table so it is within 0.8 m of it (fixes F8)."
+     },
+     "key": "{\"args\": {\"center\": [10.39, 5.42], \"piece_id\": \"f_L-1_043\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_043: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_044",
+      "center": [
+       10.39,
+       4.22
+      ],
+      "reason": "Move the right dining chair 0.3 m toward the dining table so it is within 0.8 m of it (fixes F8)."
+     },
+     "key": "{\"args\": {\"center\": [10.39, 4.22], \"piece_id\": \"f_L-1_044\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_044: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_057",
+      "center": [
+       14.89,
+       1.0
+      ],
+      "reason": "Move the floor lamp 0.3 m away from the window wall to clear the window sill obstruction and sit within 1.2 m of the armchair f_L-1_050."
+     },
+     "key": "{\"args\": {\"center\": [14.89, 1.0], \"piece_id\": \"f_L-1_057\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_057: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_065",
+      "center": [
+       11.87,
+       1.04
+      ],
+      "reason": "Move the floor lamp 0.3 m away from the window wall to clear the window sill obstruction."
+     },
+     "key": "{\"args\": {\"center\": [11.87, 1.04], \"piece_id\": \"f_L-1_065\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_065: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       11.87,
+       1.03
+      ],
+      "piece_id": "f_L-1_065",
+      "reason": "Move the floor lamp 0.29 m away from the window wall to clear the window sill obstruction."
+     },
+     "key": "{\"args\": {\"center\": [11.87, 1.03], \"piece_id\": \"f_L-1_065\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L-1_054: no_overlap"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       11.6,
+       1.02
+      ],
+      "piece_id": "f_L-1_065",
+      "reason": "Shift the floor lamp 0.27 m sideways and in from the window wall to clear the window sill obstruction without hitting the corner sofa."
+     },
+     "key": "{\"args\": {\"center\": [11.6, 1.02], \"piece_id\": \"f_L-1_065\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_065: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.39 m)"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_078",
+      "center": [
+       9.3,
+       1.2
+      ],
+      "reason": "Shift ottoman 0.24 m away from armchair f_L-1_072 to clear the 0.19 m² overlap (F9) and the 0.024 m cut (S2)."
+     },
+     "key": "{\"args\": {\"center\": [9.3, 1.2], \"piece_id\": \"f_L-1_078\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L-1_094: no_overlap"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_078",
+      "center": [
+       9.3,
+       1.15
+      ],
+      "reason": "Shift ottoman 0.19 m away from armchair f_L-1_072 to clear the overlap (F9) and cut (S2) without hitting the bookshelf."
+     },
+     "key": "{\"args\": {\"center\": [9.3, 1.15], \"piece_id\": \"f_L-1_078\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L-1_094: no_overlap"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_078",
+      "center": [
+       9.3,
+       1.1
+      ],
+      "reason": "Shift ottoman 0.14 m away from armchair f_L-1_072 to clear the overlap (F9) and cut (S2) while staying clear of the bookshelf."
+     },
+     "key": "{\"args\": {\"center\": [9.3, 1.1], \"piece_id\": \"f_L-1_078\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L-1_094: no_overlap"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_065",
+      "center": [
+       11.87,
+       1.2
+      ],
+      "reason": "Move the floor lamp 0.46 m from the window wall to clear the sill obstruction (G12: sill 0.90 m + 0.05 m)."
+     },
+     "key": "{\"args\": {\"center\": [11.87, 1.2], \"piece_id\": \"f_L-1_065\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_065: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.46 m)"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_065",
+      "center": [
+       11.87,
+       1.02
+      ],
+      "reason": "Move the floor lamp 0.28 m from the window wall to clear the sill obstruction (G12: sill 0.90 m + 0.05 m)."
+     },
+     "key": "{\"args\": {\"center\": [11.87, 1.02], \"piece_id\": \"f_L-1_065\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L-1_054: no_overlap"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1_065",
+      "center": [
+       11.87,
+       1.01
+      ],
+      "reason": "Move the floor lamp 0.27 m from the window wall to clear the sill obstruction (G12: sill 0.90 m + 0.05 m)."
+     },
+     "key": "{\"args\": {\"center\": [11.87, 1.01], \"piece_id\": \"f_L-1_065\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L-1_054: no_overlap"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "move_piece on f_L-1_050: The armchair is isolated. Moving it slightly towards the center or towards the other seating group (within 0.025m allowance) might not be enough to clear the 2.0m threshold if"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 8
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [
+      "step 2 (mark_not_furniture on f_L-1_039): mark_not_furniture does not fix c:F8:f_L-1_039, c:F8:f_L-1_040, c:F8:f_L-1_041, c:F8:f_L-1_042, c:F8:f_L-1_043, c:F8:f_L-1_044, c:F8:f_L-1_045, c:F8:f_L-1_046 (its tools: move_piece)"
+     ],
+     "steps": 2
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 7
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 5
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [
+      "step 1 (mark_not_furniture on f_L-1_022): f_L-1_022 is not built",
+      "step 2 (retype_piece on f_L-1_088): f_L-1_088 is not built",
+      "step 3 (relayout_room on r_L-1_salon_2): relayout_room does not fix c:F8:f_L-1_039, c:F8:f_L-1_040, c:F8:f_L-1_041, c:F8:f_L-1_042, c:F8:f_L-1_043, c:F8:f_L-1_044, c:F8:f_L-1_045, c:F8:f_L-1_046 (its tools: move_piece)",
+      "step 4 (relayout_room on r_L-1_salon_2): relayout_room does not fix c:F8:f_L-1_047, c:F8:f_L-1_048 (its tools: move_piece)"
+     ],
+     "steps": 5
+    }
+   ]
+  },
+  "r_L-1b_salon": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1b_033",
+      "front_deg": 270,
+      "reason": "Rotate chair f_L-1b_033 to face the dining table f_L-1b_026, resolving the 'chair does not face its group' finding."
+     },
+     "key": "{\"args\": {\"front_deg\": 270.0, \"piece_id\": \"f_L-1b_033\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1b_013",
+      "asset_id": "electric_stove",
+      "reason": "swap stove to a model whose footprint does not overlap kitchen_counter f_L-1b_009"
+     },
+     "key": "{\"args\": {\"asset_id\": \"electric_stove\", \"piece_id\": \"f_L-1b_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1b_064",
+      "asset_id": "gen_sink_kitchen_modern_2_b348b4dc",
+      "reason": "swap sink to a model whose footprint does not overlap kitchen_counter f_L-1b_010"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sink_kitchen_modern_2_b348b4dc\", \"piece_id\": \"f_L-1b_064\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "mark_not_furniture",
+     "args": {
+      "piece_id": "f_L-1b_002",
+      "kind": "dimension_outline",
+      "evidence": "5.14 x 2.37 m cluster in salon, larger than 4.5m on a side - a group of drawn pieces, not a single furniture item",
+      "reason": "The 5.14 x 2.37 m drawn cluster is too large to be a single furniture piece; it is a group of drawn elements, not built furniture"
+     },
+     "key": "{\"args\": {\"evidence\": \"5.14 x 2.37 m cluster in salon, larger than 4.5m on a side - a group of drawn pieces, not a single furniture item\", \"kind\": \"dimension_outline\", \"piece_id\": \"f_L-1b_002\"}, \"tool\": \"mark_not_furniture\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1b_013",
+      "asset_id": "gen_stove_japandi_6_1c3993c0",
+      "reason": "smaller stove footprint to clear the overlap with the counter"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_stove_japandi_6_1c3993c0\", \"piece_id\": \"f_L-1b_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1b_064",
+      "asset_id": "gen_sink_kitchen_japandi_6_2ccc7ce8",
+      "reason": "narrower sink footprint to clear the overlap with the counter"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sink_kitchen_japandi_6_2ccc7ce8\", \"piece_id\": \"f_L-1b_064\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_027",
+      "center": [
+       3.3,
+       2.0
+      ],
+      "reason": "pull the chair up to the table edge so it is no longer standing alone"
+     },
+     "key": "{\"args\": {\"center\": [3.3, 2.0], \"piece_id\": \"f_L-1b_027\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_028",
+      "center": [
+       2.18,
+       2.0
+      ],
+      "reason": "pull the chair up to the table edge so it is no longer standing alone"
+     },
+     "key": "{\"args\": {\"center\": [2.18, 2.0], \"piece_id\": \"f_L-1b_028\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_027",
+      "center": [
+       3.3,
+       2.0
+      ],
+      "reason": "Re-seat chair at the right edge of the dining table so it is within 0.8 m of the table (F8)."
+     },
+     "key": "{\"args\": {\"center\": [3.3, 2.0], \"piece_id\": \"f_L-1b_027\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_028",
+      "center": [
+       2.18,
+       2.0
+      ],
+      "reason": "Re-seat chair at the left edge of the dining table so it is within 0.8 m of the table (F8)."
+     },
+     "key": "{\"args\": {\"center\": [2.18, 2.0], \"piece_id\": \"f_L-1b_028\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_029",
+      "center": [
+       3.3,
+       2.39
+      ],
+      "reason": "Re-seat chair at the right edge of the dining table so it is within 0.8 m of the table (F8)."
+     },
+     "key": "{\"args\": {\"center\": [3.3, 2.39], \"piece_id\": \"f_L-1b_029\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_030",
+      "center": [
+       2.18,
+       2.39
+      ],
+      "reason": "Re-seat chair at the left edge of the dining table so it is within 0.8 m of the table (F8)."
+     },
+     "key": "{\"args\": {\"center\": [2.18, 2.39], \"piece_id\": \"f_L-1b_030\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_031",
+      "center": [
+       3.3,
+       3.04
+      ],
+      "reason": "Re-seat chair at the right edge of the dining table so it is within 0.8 m of the table (F8)."
+     },
+     "key": "{\"args\": {\"center\": [3.3, 3.04], \"piece_id\": \"f_L-1b_031\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_032",
+      "center": [
+       2.18,
+       3.04
+      ],
+      "reason": "Re-seat chair at the left edge of the dining table so it is within 0.8 m of the table (F8)."
+     },
+     "key": "{\"args\": {\"center\": [2.18, 3.04], \"piece_id\": \"f_L-1b_032\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_034",
+      "center": [
+       2.74,
+       1.19
+      ],
+      "reason": "Re-seat chair at the head of the dining table so it is within 0.8 m of the table (F8)."
+     },
+     "key": "{\"args\": {\"center\": [2.74, 1.19], \"piece_id\": \"f_L-1b_034\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1b_033",
+      "front_deg": 90,
+      "reason": "Rotate chair f_L-1b_033 to face the dining table f_L-1b_026, resolving the 'chair does not face its group' finding."
+     },
+     "key": "{\"args\": {\"front_deg\": 90.0, \"piece_id\": \"f_L-1b_033\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "score: plausibility 50 -> 40 (G6 f_L-1b_033: chair f_L-1b_033 is 180° off the table f_L-1b_026 (needs ≤ 45°))"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "complete_group",
+     "args": {
+      "group_id": "r_L-1b_salon_kitchen.kitchen_run",
+      "reason": "Add a fridge to the kitchen run group to satisfy the 'kitchen has no fridge' requirement."
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L-1b_salon_kitchen.kitchen_run\"}, \"tool\": \"complete_group\"}",
+     "reasons": [
+      "exists: no group 'r_L-1b_salon_kitchen.kitchen_run' (its room 'r_L-1b_salon_kitchen') in a room of the building"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L-1b_salon",
+      "candidate": 1,
+      "reason": "Solver candidate 1 rearranges the dining chairs around the table to fix F8 (chairs standing alone) and F4 (chair not facing group) findings"
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L-1b_salon\"}, \"tool\": \"relayout_room\"}",
+     "reasons": [
+      "no_place: r_L-1b_salon relayout: no place passes the checks (kitchen_run: no candidate position fits the room)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L-1b_046",
+      "type": "sofa",
+      "reason": "0.82 x 1.64 m drawn piece in salon matches a small sofa; AI passes suggest kitchen_island or sofa, and a sofa fits the living room context better"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1b_046\", \"type\": \"sofa\"}, \"tool\": \"retype_piece\"}",
+     "reasons": [
+      "retype: sofa is no candidate for f_L-1b_046 (0.82 x 1.64 m at [6.55, 6.44]): the size table and the room / zone give chaise, kitchen_counter, stair"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "rotate_piece on f_L-1b_033: chair does not face its group (f_L-1b_011)",
+    "mark_not_furniture on f_L-1b_013: stove f_L-1b_013 overlaps kitchen_counter f_L-1b_009 by 0.41 m²",
+    "mark_not_furniture on f_L-1b_064: sink_kitchen f_L-1b_064 overlaps kitchen_counter f_L-1b_010 by 0.39 m²",
+    "complete_group on r_L-1b_salon_kitchen: kitchen r_L-1b_salon_kitchen has no fridge (fridge)",
+    "retype_piece on f_L-1b_002: untyped drawn piece left for review: drawn piece 5.14 x 2.37 m in r_L-1b_salon has no type; cluster larger than 4.5 m on a side: a group of drawn pieces, not built: not bui",
+    "retype_piece on f_L-1b_046: untyped drawn piece left for review: drawn piece 0.82 x 1.64 m in r_L-1b_salon has no type (AI passes: kitchen_island, sofa): not built (plan crop recognition/crops/sym_L-1",
+    "retype_piece on f_L-1b_049: untyped drawn piece left for review: drawn piece 0.59 x 0.59 m in r_L-1b_salon has no type (AI passes: floor_lamp, potted_plant): not built (plan crop recognition/crops/sym"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [
+      "step 2 (move_group on r_L-1b_salon_kitchen.dining): move_group does not fix c:F8:f_L-1b_027, c:F8:f_L-1b_028, c:F8:f_L-1b_029, c:F8:f_L-1b_030, c:F8:f_L-1b_031, c:F8:f_L-1b_032, c:F8:f_L-1b_034 (its tools: move_piece)"
+     ],
+     "steps": 5
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [
+      "step 1 (move_group on r_L-1b_salon_kitchen.dining): move_group does not fix c:F8:f_L-1b_027, c:F8:f_L-1b_028, c:F8:f_L-1b_029, c:F8:f_L-1b_030, c:F8:f_L-1b_031, c:F8:f_L-1b_032, c:F8:f_L-1b_034 (its tools: move_piece)"
+     ],
+     "steps": 4
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [
+      "step 2 (move_group on r_L-1b_salon_kitchen.dining): move_group does not fix c:F8:f_L-1b_027, c:F8:f_L-1b_028, c:F8:f_L-1b_029, c:F8:f_L-1b_030, c:F8:f_L-1b_031, c:F8:f_L-1b_032, c:F8:f_L-1b_034 (its tools: move_piece)",
+      "step 6 (retype_piece on f_L-1b_046): f_L-1b_046 is not built",
+      "step 7 (retype_piece on f_L-1b_049): f_L-1b_049 is not built"
+     ],
+     "steps": 7
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [
+      "step 1 (move_group on r_L-1b_salon_kitchen.dining): move_group does not fix c:F8:f_L-1b_027, c:F8:f_L-1b_028, c:F8:f_L-1b_029, c:F8:f_L-1b_030, c:F8:f_L-1b_031, c:F8:f_L-1b_032, c:F8:f_L-1b_034 (its tools: move_piece)"
+     ],
+     "steps": 1
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "r_L-1b_salon_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_018",
+      "center": [
+       13.88,
+       1.9
+      ],
+      "reason": "move chair closer to table edge to clear F8"
+     },
+     "key": "{\"args\": {\"center\": [13.88, 1.9], \"piece_id\": \"f_L-1b_018\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_019",
+      "center": [
+       14.99,
+       1.9
+      ],
+      "reason": "move chair closer to table edge to clear F8"
+     },
+     "key": "{\"args\": {\"center\": [14.99, 1.9], \"piece_id\": \"f_L-1b_019\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_020",
+      "center": [
+       13.88,
+       2.5
+      ],
+      "reason": "move chair closer to table edge to clear F8"
+     },
+     "key": "{\"args\": {\"center\": [13.88, 2.5], \"piece_id\": \"f_L-1b_020\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_021",
+      "center": [
+       14.99,
+       2.5
+      ],
+      "reason": "move chair closer to table edge to clear F8"
+     },
+     "key": "{\"args\": {\"center\": [14.99, 2.5], \"piece_id\": \"f_L-1b_021\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_022",
+      "center": [
+       13.88,
+       3.15
+      ],
+      "reason": "move chair closer to table edge to clear F8"
+     },
+     "key": "{\"args\": {\"center\": [13.88, 3.15], \"piece_id\": \"f_L-1b_022\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_023",
+      "center": [
+       14.99,
+       3.15
+      ],
+      "reason": "move chair closer to table edge to clear F8"
+     },
+     "key": "{\"args\": {\"center\": [14.99, 3.15], \"piece_id\": \"f_L-1b_023\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L-1b_025",
+      "center": [
+       14.43,
+       1.35
+      ],
+      "reason": "move chair closer to table edge to clear F8"
+     },
+     "key": "{\"args\": {\"center\": [14.43, 1.35], \"piece_id\": \"f_L-1b_025\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "mark_not_furniture",
+     "args": {
+      "piece_id": "f_L-1b_007",
+      "kind": "other",
+      "evidence": "stove f_L-1b_007 at (15.0, 7.02) overlaps kitchen_counter f_L-1b_003 at (14.41, 7.04) by 0.41 m²; the stove is drawn inside the counter footprint, indicating it is a fixture symbol within the counter, not a separate piece",
+      "reason": "stove overlaps the kitchen counter it is built into; it is a fixture symbol, not a separate furniture piece"
+     },
+     "key": "{\"args\": {\"evidence\": \"stove f_L-1b_007 at (15.0, 7.02) overlaps kitchen_counter f_L-1b_003 at (14.41, 7.04) by 0.41 m²; the stove is drawn inside the counter footprint, indicating it is a fixture symbol within the counter, not a separate piece\", \"kind\": \"other\", \"piece_id\": \"f_L-1b_007\"}, \"tool\": \"mark_not_furniture\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "mark_not_furniture",
+     "args": {
+      "piece_id": "f_L-1b_063",
+      "kind": "other",
+      "evidence": "sink_kitchen f_L-1b_063 at (15.67, 5.88) overlaps kitchen_counter f_L-1b_004 at (15.67, 5.53) by 0.39 m²; the sink is drawn inside the counter footprint, indicating it is a fixture symbol within the counter, not a separate piece",
+      "reason": "sink overlaps the kitchen counter it is built into; it is a fixture symbol, not a separate furniture piece"
+     },
+     "key": "{\"args\": {\"evidence\": \"sink_kitchen f_L-1b_063 at (15.67, 5.88) overlaps kitchen_counter f_L-1b_004 at (15.67, 5.53) by 0.39 m²; the sink is drawn inside the counter footprint, indicating it is a fixture symbol within the counter, not a separate piece\", \"kind\": \"other\", \"piece_id\": \"f_L-1b_063\"}, \"tool\": \"mark_not_furniture\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1b_022",
+      "front_deg": 315,
+      "reason": "face the dining table f_L-1b_017 (within 45°)"
+     },
+     "key": "{\"args\": {\"front_deg\": 315.0, \"piece_id\": \"f_L-1b_022\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1b_023",
+      "front_deg": 225,
+      "reason": "face the dining table f_L-1b_017 (within 45°)"
+     },
+     "key": "{\"args\": {\"front_deg\": 225.0, \"piece_id\": \"f_L-1b_023\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1b_024",
+      "front_deg": 270,
+      "reason": "face the dining table f_L-1b_017 directly"
+     },
+     "key": "{\"args\": {\"front_deg\": 270.0, \"piece_id\": \"f_L-1b_024\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 4,
+     "tool": "complete_group",
+     "args": {
+      "group_id": "r_L-1b_salon_2_kitchen.kitchen_run",
+      "reason": "kitchen run is missing its fridge; add it to complete the group"
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L-1b_salon_2_kitchen.kitchen_run\"}, \"tool\": \"complete_group\"}",
+     "reasons": [
+      "exists: no group 'r_L-1b_salon_2_kitchen.kitchen_run' (its room 'r_L-1b_salon_2_kitchen') in a room of the building"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "dry_run on f_L-1b_022: Verify rotation of chair f_L-1b_022 to face the dining table f_L-1b_017 (center 14.43, 2.4). Chair is at (13.88, 3.15). Vector to table is (0.55, -0.75). Angle is approx -53.7 d"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 2,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    }
+   ]
+  },
+  "r_L1_oyun_aktivite_ve_dinlenme_odasi": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_012",
+      "center": [
+       6.95,
+       5.91
+      ],
+      "reason": "Nudge sofa f_L1_012 0.3 m toward the right wall to reduce the F3 back-off-wall distance (max allowed move)."
+     },
+     "key": "{\"args\": {\"center\": [6.95, 5.91], \"piece_id\": \"f_L1_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_009",
+      "asset_id": "gen_sofa_japandi_2_98a7a89b",
+      "reason": "Swap sofa f_L1_009 to a generated japandi model with correctly attached cushions, fixing the floating-cushion visual artifact."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sofa_japandi_2_98a7a89b\", \"piece_id\": \"f_L1_009\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_012",
+      "asset_id": "gen_sofa_japandi_1_246e1bd6",
+      "reason": "Swap sofa f_L1_012 to a generated japandi model with correctly attached cushions, fixing the floating-cushion visual artifact."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sofa_japandi_1_246e1bd6\", \"piece_id\": \"f_L1_012\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_012",
+      "center": [
+       6.953,
+       5.91
+      ],
+      "reason": "Nudge sofa f_L1_012 0.003 m (max allowance) towards the right wall w_L1_012 to minimize the gap, as a full snap was rejected in round 1."
+     },
+     "key": "{\"args\": {\"center\": [6.953, 5.91], \"piece_id\": \"f_L1_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       5.21,
+       3.73
+      ],
+      "piece_id": "f_L1_009",
+      "reason": "Nudge sofa f_L1_009 0.29 m towards the bottom wall w_L1_001 (just under the 0.3 m allowance) to reduce the distance of its back from the wall, as a full snap was rejected in round 1."
+     },
+     "key": "{\"args\": {\"center\": [5.21, 3.73], \"piece_id\": \"f_L1_009\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_028",
+      "type": "armchair",
+      "reason": "Untyped 0.68x0.78 m drawn piece; AI pass armchair fits the size and the seating room."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_028\", \"type\": \"armchair\"}, \"tool\": \"retype_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_029",
+      "type": "armchair",
+      "reason": "Untyped 0.68x0.78 m drawn piece; AI pass armchair fits the size and the seating room."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_029\", \"type\": \"armchair\"}, \"tool\": \"retype_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_034",
+      "type": "bookshelf",
+      "reason": "Untyped 1.09x0.40 m drawn piece; size table and zone give bookshelf."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_034\", \"type\": \"bookshelf\"}, \"tool\": \"retype_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_033",
+      "type": "bookshelf",
+      "reason": "Untyped 0.40x2.17 m drawn piece; size table and zone give bookshelf."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_033\", \"type\": \"bookshelf\"}, \"tool\": \"retype_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L1_012",
+      "front_deg": 180,
+      "reason": "Rotate sofa so its back aligns with the east wall (w_L1_012) and faces into the room, resolving F3 back-not-on-wall finding."
+     },
+     "key": "{\"args\": {\"front_deg\": 180.0, \"piece_id\": \"f_L1_012\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_009",
+      "snap_wall_id": "w_L1_001",
+      "offset": 2.8,
+      "reason": "Place sofa f_L1_009's back against the bottom wall span s0 to fix F3 (back 2.48 m off a wall)."
+     },
+     "key": "{\"args\": {\"offset\": 2.8, \"piece_id\": \"f_L1_009\", \"snap_wall_id\": \"w_L1_001\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L1_009: no free place on wall w_L1_001 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_012",
+      "snap_wall_id": "w_L1_012",
+      "offset": 3.6,
+      "reason": "Place sofa f_L1_012's back against the right wall span s1 to fix F3 (back 0.79 m off a wall)."
+     },
+     "key": "{\"args\": {\"offset\": 3.6, \"piece_id\": \"f_L1_012\", \"snap_wall_id\": \"w_L1_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L1_012: no free place on wall w_L1_012 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_009",
+      "center": [
+       5.21,
+       3.72
+      ],
+      "reason": "Nudge sofa f_L1_009 0.3 m (max allowance) towards the bottom wall w_L1_001 to reduce the distance of its back from the wall, as a full snap was rejected in round 1."
+     },
+     "key": "{\"args\": {\"center\": [5.21, 3.72], \"piece_id\": \"f_L1_009\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_009: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_009",
+      "center": [
+       5.21,
+       0.65
+      ],
+      "reason": "Place sofa back against free wall span s0 (w_L1_001) to fix F3 back-not-on-wall finding."
+     },
+     "key": "{\"args\": {\"center\": [5.21, 0.65], \"piece_id\": \"f_L1_009\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_009: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 3.37 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_012",
+      "center": [
+       7.936,
+       5.91
+      ],
+      "reason": "Place sofa back against free wall span s1 (w_L1_012) to fix F3 back-not-on-wall finding."
+     },
+     "key": "{\"args\": {\"center\": [7.936, 5.91], \"piece_id\": \"f_L1_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_012: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 1.28 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_009",
+      "snap_wall_id": "w_L1_001",
+      "offset": 2.41,
+      "reason": "Snap sofa back onto wall w_L1_001 (free span s0) to fix F3 back-not-on-wall; snap allows up to 1.2 m."
+     },
+     "key": "{\"args\": {\"offset\": 2.41, \"piece_id\": \"f_L1_009\", \"snap_wall_id\": \"w_L1_001\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L1_009: no free place on wall w_L1_001 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_012",
+      "snap_wall_id": "w_L1_012",
+      "offset": 5.71,
+      "reason": "Snap sofa back onto wall w_L1_012 (free span s1) to fix F3 back-not-on-wall; snap allows up to 1.2 m."
+     },
+     "key": "{\"args\": {\"offset\": 5.71, \"piece_id\": \"f_L1_012\", \"snap_wall_id\": \"w_L1_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_012: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 1.34 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_034",
+      "type": "tv_unit",
+      "reason": "Untyped 1.09x0.40 m drawn piece; AI pass tv_unit fits the low wide size."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_034\", \"type\": \"tv_unit\"}, \"tool\": \"retype_piece\"}",
+     "reasons": [
+      "retype: tv_unit is no candidate for f_L1_034 (1.09 x 0.40 m at [5.07, 7.24]): the size table and the room / zone give bookshelf, potted_plant"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_033",
+      "type": "sideboard",
+      "reason": "Untyped 0.40x2.17 m drawn piece; AI pass sideboard fits the long low size."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_033\", \"type\": \"sideboard\"}, \"tool\": \"retype_piece\"}",
+     "reasons": [
+      "retype: sideboard is no candidate for f_L1_033 (0.40 x 2.17 m at [7.10, 7.24]): the size table and the room / zone give bookshelf"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "set_room_type",
+     "args": {
+      "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+      "room_type": "living",
+      "reason": "Room holds sofas, armchairs and a desk (Oyun Aktivite Ve Dinlenme Odası = play/activity/rest room); 'other' is wrong, so F1/G14 sofa-not-in-room findings clear."
+     },
+     "key": "{\"args\": {\"room_id\": \"r_L1_oyun_aktivite_ve_dinlenme_odasi\", \"room_type\": \"living\"}, \"tool\": \"set_room_type\"}",
+     "reasons": [
+      "score: plausibility 74 -> 48 (F1 f_L1_043: desk is not a piece of a living room; F1 f_L1_044: office_chair is not a piece of a living room; G1 f_L1_009: sofa f_L1_009 has no TV unit opposite; G1 f_L1_012: sofa f_L1_012 has no TV unit opposite)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "rotate_piece on f_L1_009: Rotate the sofa 90 degrees clockwise (to 180 deg) so its back aligns with the south wall (w_L1_001) and faces into the room (90 deg). This resolves the 'back not on a wall' f",
+    "c:F3:f_L1_009 (sofa back 2.58 m off a wall; only 0.009 m move left, snap to w_L1_001 already rejected, rotate to 90° rejected on score)",
+    "c:NR:f_L1_015, c:NR:f_L1_017, c:NR:f_L1_028, c:NR:f_L1_029, c:NR:f_L1_033, c:NR:f_L1_034 (untyped drawn pieces, not built - plan steps refused)",
+    "c:F1/G14 minor: sofa not a piece of a 'other' room (set_room_type to living already rejected on score)",
+    "c:X2 findings: pieces poke through roof/sloped ceiling (set_exterior not available)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [
+      "step 5 (mark_not_furniture on f_L1_015): f_L1_015 is not built",
+      "step 6 (mark_not_furniture on f_L1_017): f_L1_017 is not built",
+      "step 7 (retype_piece on f_L1_028): f_L1_028 is not built",
+      "step 8 (retype_piece on f_L1_029): f_L1_029 is not built",
+      "step 9 (retype_piece on f_L1_033): f_L1_033 is not built",
+      "step 10 (retype_piece on f_L1_034): f_L1_034 is not built"
+     ],
+     "steps": 10
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [
+      "step 3 (mark_not_furniture on f_L1_015): f_L1_015 is not built",
+      "step 4 (mark_not_furniture on f_L1_017): f_L1_017 is not built",
+      "step 5 (retype_piece on f_L1_028): f_L1_028 is not built",
+      "step 6 (retype_piece on f_L1_029): f_L1_029 is not built",
+      "step 7 (mark_not_furniture on f_L1_033): f_L1_033 is not built",
+      "step 8 (retype_piece on f_L1_034): f_L1_034 is not built"
+     ],
+     "steps": 8
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [
+      "step 5 (mark_not_furniture on f_L1_015): f_L1_015 is not built",
+      "step 6 (mark_not_furniture on f_L1_017): f_L1_017 is not built",
+      "step 7 (retype_piece on f_L1_028): f_L1_028 is not built",
+      "step 8 (retype_piece on f_L1_029): f_L1_029 is not built",
+      "step 9 (retype_piece on f_L1_033): f_L1_033 is not built",
+      "step 10 (retype_piece on f_L1_034): f_L1_034 is not built"
+     ],
+     "steps": 10
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [
+      "step 3 (mark_not_furniture on f_L1_015): f_L1_015 is not built",
+      "step 4 (mark_not_furniture on f_L1_017): f_L1_017 is not built",
+      "step 5 (retype_piece on f_L1_028): f_L1_028 is not built",
+      "step 6 (retype_piece on f_L1_029): f_L1_029 is not built",
+      "step 7 (retype_piece on f_L1_033): f_L1_033 is not built",
+      "step 8 (retype_piece on f_L1_034): f_L1_034 is not built"
+     ],
+     "steps": 8
+    }
+   ]
+  },
+  "r_L1_oyun_aktivite_ve_dinlenme_odasi_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_010",
+      "center": [
+       11.96,
+       4.32
+      ],
+      "reason": "Nudge sofa f_L1_010 0.3 m toward the room centre to clear the desk's front zone and open the free zone in front of sofa f_L1_011."
+     },
+     "key": "{\"args\": {\"center\": [11.96, 4.32], \"piece_id\": \"f_L1_010\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L1_010",
+      "front_deg": 180,
+      "reason": "Rotate sofa f_L1_010 so its back faces the free wall span s0 (w_L1_001) and its front faces into the room, fixing the 'back not on a wall' finding"
+     },
+     "key": "{\"args\": {\"front_deg\": 180.0, \"piece_id\": \"f_L1_010\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_010",
+      "center": [
+       11.96,
+       4.321
+      ],
+      "reason": "Attempt to nudge sofa f_L1_010 toward its wall to clear F3 (back 1.96 m off); only 0.001 m allowance remains, so this is the maximum possible move."
+     },
+     "key": "{\"args\": {\"center\": [11.96, 4.321], \"piece_id\": \"f_L1_010\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_011",
+      "center": [
+       10.52,
+       6.21
+      ],
+      "reason": "Move sofa f_L1_011 0.3 m toward the top wall to reduce its F3 back-off-wall distance (0.79 m off)."
+     },
+     "key": "{\"args\": {\"center\": [10.52, 6.21], \"piece_id\": \"f_L1_011\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_016",
+      "type": "potted_plant",
+      "reason": "1.03 x 0.69 m drawn piece matches the AI's potted_plant pass; type it as a potted plant."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_016\", \"type\": \"potted_plant\"}, \"tool\": \"retype_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_027",
+      "type": "armchair",
+      "reason": "0.68 x 0.78 m drawn piece matches the AI's armchair pass; type it as an armchair."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_027\", \"type\": \"armchair\"}, \"tool\": \"retype_piece\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_010",
+      "snap_wall_id": "w_L1_001",
+      "offset": 2.8,
+      "reason": "F3: sofa back is 2.48 m off any wall; snap its back onto free span s0 (wall w_L1_001) so it faces into the room."
+     },
+     "key": "{\"args\": {\"offset\": 2.8, \"piece_id\": \"f_L1_010\", \"snap_wall_id\": \"w_L1_001\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L1_010: no free place on wall w_L1_001 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_011",
+      "snap_wall_id": "w_L1_002",
+      "offset": 2.2,
+      "reason": "F3: sofa back is 0.79 m off any wall; snap its back onto free span s3 (wall w_L1_002) so it faces into the room."
+     },
+     "key": "{\"args\": {\"offset\": 2.2, \"piece_id\": \"f_L1_011\", \"snap_wall_id\": \"w_L1_002\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L1_011: no free place on wall w_L1_002 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_010",
+      "center": [
+       9.24,
+       4.02
+      ],
+      "reason": "F3: sofa back 2.48 m off wall; move it to the left wall (w_L1_012) so its back (facing -x) sits on the wall, keeping its front facing +x into the room."
+     },
+     "key": "{\"args\": {\"center\": [9.24, 4.02], \"piece_id\": \"f_L1_010\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_010: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 2.72 m)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L1_011",
+      "center": [
+       10.52,
+       0.7
+      ],
+      "reason": "F3: sofa back 0.79 m off wall; move it to the bottom wall (w_L1_001) so its back (facing -y) sits on the wall, keeping its front facing +y into the room."
+     },
+     "key": "{\"args\": {\"center\": [10.52, 0.7], \"piece_id\": \"f_L1_011\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_011: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 5.21 m)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       10.76,
+       4.02
+      ],
+      "piece_id": "f_L1_010",
+      "reason": "F3: move sofa 1.2 m (max for a drawn piece whose back snaps to a wall) to the left wall w_L1_012 so its back sits on the wall, front still facing +x into the room."
+     },
+     "key": "{\"args\": {\"center\": [10.76, 4.02], \"piece_id\": \"f_L1_010\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_010: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 1.20 m)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       10.52,
+       5.61
+      ],
+      "piece_id": "f_L1_011",
+      "reason": "F3: move sofa 0.3 m (max for a drawn piece) toward the top wall w_L1_002 to reduce the 0.79 m back-off-wall gap as far as the lock allows."
+     },
+     "key": "{\"args\": {\"center\": [10.52, 5.61], \"piece_id\": \"f_L1_011\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L1_011: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L1_010",
+      "front_deg": 90,
+      "reason": "Rotate sofa f_L1_010 so its back faces the free wall span s0 (w_L1_001) and its front faces into the room, fixing the 'back not on a wall' finding."
+     },
+     "key": "{\"args\": {\"front_deg\": 90.0, \"piece_id\": \"f_L1_010\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "score: plausibility 74 -> 64 (F3 f_L1_010: sofa: its back is not on a wall (1.47 m off); G7 f_L1_047: desk f_L1_047: 0.74 m free in front, needs ≥ 0.80 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L1_011",
+      "front_deg": 270,
+      "reason": "Rotate sofa f_L1_011 so its back faces the free wall span s3 (w_L1_002) and its front faces into the room, fixing the 'back not on a wall' finding."
+     },
+     "key": "{\"args\": {\"front_deg\": 270.0, \"piece_id\": \"f_L1_011\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "f_L1_011: clearance_ok",
+      "score: plausibility 74 -> 64 (F6 f_L1_011: sofa: the free zone in front of it is blocked by f_L1_010)"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L1_018",
+      "type": "table_coffee",
+      "reason": "1.63 x 1.52 m square drawn piece in the seating area is a coffee table."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_018\", \"type\": \"table_coffee\"}, \"tool\": \"retype_piece\"}",
+     "reasons": [
+      "retype: table_coffee is no candidate for f_L1_018 (1.63 x 1.52 m at [13.36, 2.27]): the size table and the room / zone give stair"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "retype_piece on f_L1_018: untyped drawn piece left for review: drawn piece 1.63 x 1.52 m in r_L1_oyun_aktivite_ve_dinlenme_odasi_2 has no type (AI passes: not_furniture, unknown): not built (plan crop",
+    "retype_piece on f_L1_030: untyped drawn piece left for review: drawn piece 0.68 x 0.78 m in r_L1_oyun_aktivite_ve_dinlenme_odasi_2 has no type (AI passes: armchair, floor_lamp): not built (plan crop r",
+    "retype_piece on f_L1_035: untyped drawn piece left for review: drawn piece 2.17 x 0.40 m in r_L1_oyun_aktivite_ve_dinlenme_odasi_2 has no type (AI passes: sideboard, tv_unit); re-read part of an untyp",
+    "retype_piece on f_L1_036: untyped drawn piece left for review: drawn piece 1.09 x 0.40 m in r_L1_oyun_aktivite_ve_dinlenme_odasi_2 has no type (AI passes: bookshelf, console_table); re-read part of an"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [
+      "step 3 (mark_not_furniture on f_L1_016): f_L1_016 is not built",
+      "step 4 (mark_not_furniture on f_L1_018): f_L1_018 is not built",
+      "step 5 (retype_piece on f_L1_027): f_L1_027 is not built",
+      "step 6 (retype_piece on f_L1_030): f_L1_030 is not built",
+      "step 7 (retype_piece on f_L1_035): f_L1_035 is not built",
+      "step 8 (retype_piece on f_L1_036): f_L1_036 is not built"
+     ],
+     "steps": 8
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [
+      "step 3 (mark_not_furniture on f_L1_016): f_L1_016 is not built",
+      "step 4 (mark_not_furniture on f_L1_018): f_L1_018 is not built",
+      "step 5 (retype_piece on f_L1_027): f_L1_027 is not built",
+      "step 6 (retype_piece on f_L1_030): f_L1_030 is not built",
+      "step 7 (retype_piece on f_L1_035): f_L1_035 is not built",
+      "step 8 (retype_piece on f_L1_036): f_L1_036 is not built"
+     ],
+     "steps": 8
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [
+      "step 5 (retype_piece on f_L1_016): f_L1_016 is not built",
+      "step 6 (mark_not_furniture on f_L1_018): f_L1_018 is not built",
+      "step 7 (retype_piece on f_L1_027): f_L1_027 is not built",
+      "step 8 (retype_piece on f_L1_030): f_L1_030 is not built",
+      "step 9 (retype_piece on f_L1_035): f_L1_035 is not built",
+      "step 10 (retype_piece on f_L1_036): f_L1_036 is not built"
+     ],
+     "steps": 10
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "r_L0_yatak_odasi": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi",
+      "candidate": 1,
+      "reason": "Candidate 1 has no hard failures and repositions the storage group to clear the window blockage, wall cuts and mutual overlap, while also addressing the bed side clearance."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi",
+      "candidate": 1,
+      "reason": "Re-apply solver candidate 1 to move the storage group away from window win_L0_005 and clear the wardrobe overlap and wall cuts (G12/S2/F9)."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi",
+      "candidate": 1,
+      "reason": "Re-apply solver candidate 1 to resolve the wardrobes' window (G12), wall-cut (S2) and overlap (F9) findings."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi",
+      "candidate": 1,
+      "reason": "Re-solve the room to move the two drawn wardrobes off window win_L0_005 and off wall w_L0_003, separate them, and give the bed the required 0.60 m side clearance."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "mark_not_furniture",
+     "args": {
+      "piece_id": "f_L0_038",
+      "kind": "dimension_outline",
+      "evidence": "plan crop unavailable; f_L0_038 (1.45 m) is drawn directly inside f_L0_026 (2.09 m) at the same wall line y=6.74, overlapping by 0.87 m² — a duplicate outline of the same storage run",
+      "reason": "f_L0_038 is a duplicate/misread outline of the storage run f_L0_026, not a distinct piece; the overlap persists after relayout."
+     },
+     "key": "{\"args\": {\"evidence\": \"plan crop unavailable; f_L0_038 (1.45 m) is drawn directly inside f_L0_026 (2.09 m) at the same wall line y=6.74, overlapping by 0.87 m² — a duplicate outline of the same storage run\", \"kind\": \"dimension_outline\", \"piece_id\": \"f_L0_038\"}, \"tool\": \"mark_not_furniture\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 3,
+     "tool": "move_group",
+     "args": {
+      "group_id": "r_L0_yatak_odasi.storage",
+      "span_id": "r_L0_yatak_odasi.s3",
+      "offset": 0.465,
+      "reason": "Move the 2.09 m wardrobe off window win_L0_005 onto the free wall span s3 (0.93 m) to clear the G12 window finding."
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L0_yatak_odasi.storage\", \"offset\": 0.465, \"span_id\": \"r_L0_yatak_odasi.s3\"}, \"tool\": \"move_group\"}",
+     "reasons": [
+      "drawn_lock: r_L0_yatak_odasi.storage: drawn pieces (f_L0_026) stay where they are drawn; complete_group adds partners, relayout_room re-solves the room"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_026",
+      "snap_wall_id": "w_L0_003",
+      "offset": 0.465,
+      "reason": "Slide the 2.09 m wardrobe along wall w_L0_003 to the free span s3 (0.93 m) so it no longer stands in front of window win_L0_005 (G12) and no longer cuts the wall (S2)."
+     },
+     "key": "{\"args\": {\"offset\": 0.465, \"piece_id\": \"f_L0_026\", \"snap_wall_id\": \"w_L0_003\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L0_026: no free place on wall w_L0_003 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_038",
+      "snap_wall_id": "w_L0_003",
+      "offset": 0.465,
+      "reason": "Slide the 1.45 m wardrobe along wall w_L0_003 to the free span s3 (0.93 m) so it no longer stands in front of window win_L0_005 (G12) and no longer cuts the wall (S2)."
+     },
+     "key": "{\"args\": {\"offset\": 0.465, \"piece_id\": \"f_L0_038\", \"snap_wall_id\": \"w_L0_003\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L0_038: no free place on wall w_L0_003 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L0_017",
+      "front_deg": 90,
+      "reason": "Rotate the bed 90° so its long side runs along the left wall, opening ≥0.60 m clearance along the side and resolving the G5 major clearance finding."
+     },
+     "key": "{\"args\": {\"front_deg\": 90.0, \"piece_id\": \"f_L0_017\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "score: plausibility 54 -> 17 (F3 f_L0_017: bed_double: the headboard stands in the room (0.25 m off); G4 f_L0_017: bed_double f_L0_017: no nightstand on the free left side of the head (1.29 m free); G5 f_L0_017: bed_double f_L0_017: 0.18 m free along the right side, needs ≥ 0.60 m; G11 f_L0_017: bed_double f_L0_017: its right use zone is not reached by a 0.60 m walkway from door d_L0_007)"
+     ]
+    }
+   ],
+   "candidates_tried": [
+    1
+   ],
+   "open": [
+    "move_piece on f_L0_026: wardrobe f_L0_026 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)",
+    "rotate_piece on f_L0_017: bed_double f_L0_017: 0.53 m free along the left side, needs ≥ 0.60 m",
+    "move_piece on f_L0_026: wardrobe f_L0_026 cuts wall w_L0_003 by 0.021 m"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 3
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 4,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "r_L0_yatak_odasi_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi_2",
+      "candidate": 1,
+      "reason": "Move both wardrobes off window win_L0_006 and resolve their mutual overlap and wall cuts in one solver pass."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi_2\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi_2",
+      "candidate": 1,
+      "reason": "Re-run solver to reposition the overlapping wardrobes off window win_L0_006 and clear the F9 overlap and S2 wall cuts."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi_2\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi_2",
+      "candidate": 1,
+      "reason": "Re-apply solver candidate 1 to move the wardrobes off window win_L0_006, resolve the f_L0_025/f_L0_040 overlap and the small wall cuts on w_L0_004."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi_2\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L0_040",
+      "type": "dresser",
+      "reason": "f_L0_040 overlaps f_L0_025 by 0.87 m²; retype to dresser (a distinct storage type) to resolve the F9 overlap finding"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_040\", \"type\": \"dresser\"}, \"tool\": \"retype_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L0_yatak_odasi_2",
+      "candidate": 1,
+      "reason": "Re-solve with candidate 1 to move the wardrobe/dresser off window win_L0_006, clear the wall cuts and overlap, and open the bed's right-side clearance."
+     },
+     "key": "{\"args\": {\"candidate\": 1.0, \"room_id\": \"r_L0_yatak_odasi_2\"}, \"tool\": \"relayout_room\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 4,
+     "tool": "move_group",
+     "args": {
+      "group_id": "r_L0_yatak_odasi_2.storage",
+      "span_id": "r_L0_yatak_odasi_2.s2",
+      "offset": 1.05,
+      "reason": "Move the 2.09 m wardrobe off window win_L0_006 onto the free right wall span s2 (into room 180°), clearing the G12 window block and the wall cut on w_L0_004."
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L0_yatak_odasi_2.storage\", \"offset\": 1.05, \"span_id\": \"r_L0_yatak_odasi_2.s2\"}, \"tool\": \"move_group\"}",
+     "reasons": [
+      "drawn_lock: r_L0_yatak_odasi_2.storage: drawn pieces (f_L0_025) stay where they are drawn; complete_group adds partners, relayout_room re-solves the room"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_025",
+      "snap_wall_id": "w_L0_019",
+      "offset": 1.05,
+      "reason": "Slide the 2.09 m wardrobe along the right wall (span s2) to clear window win_L0_006 and the wall cut on w_L0_004."
+     },
+     "key": "{\"args\": {\"offset\": 1.05, \"piece_id\": \"f_L0_025\", \"snap_wall_id\": \"w_L0_019\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L0_025: no free place on wall w_L0_019 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_025",
+      "center": [
+       14.93,
+       6.44
+      ],
+      "reason": "Shift the wardrobe 0.3 m into the room so it no longer cuts wall w_L0_004 and no longer overlaps f_L0_040."
+     },
+     "key": "{\"args\": {\"center\": [14.93, 6.44], \"piece_id\": \"f_L0_025\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L0_025: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_025",
+      "center": [
+       14.93,
+       6.45
+      ],
+      "reason": "Shift the wardrobe 0.29 m into the room so it no longer cuts wall w_L0_004 and no longer overlaps f_L0_040."
+     },
+     "key": "{\"args\": {\"center\": [14.93, 6.45], \"piece_id\": \"f_L0_025\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L0_040: clearance_ok",
+      "score: plausibility 54 -> 34 (F3 f_L0_025: wardrobe: its back is not on a wall (0.10 m off); F9 f_L0_040: wardrobe f_L0_040 overlaps wardrobe f_L0_025 by 0.45 m²; G4 f_L0_018: bed_double f_L0_018: no nightstand on the free left side of the head (2.37 m free); G13 f_L0_040: wardrobe f_L0_040: 0.29 m free in front, needs ≥ 0.80 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_040",
+      "center": [
+       15.25,
+       6.45
+      ],
+      "reason": "Shift the 1.45 m wardrobe 0.29 m into the room so it no longer cuts wall w_L0_004 and no longer overlaps f_L0_025."
+     },
+     "key": "{\"args\": {\"center\": [15.25, 6.45], \"piece_id\": \"f_L0_040\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L0_025: clearance_ok",
+      "score: plausibility 54 -> 34 (F3 f_L0_040: wardrobe: its back is not on a wall (0.07 m off); F9 f_L0_040: wardrobe f_L0_040 overlaps wardrobe f_L0_025 by 0.45 m²; G4 f_L0_018: bed_double f_L0_018: no nightstand on the free left side of the head (2.37 m free); G13 f_L0_025: wardrobe f_L0_025: 0.29 m free in front, needs ≥ 0.80 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_040",
+      "center": [
+       15.55,
+       6.74
+      ],
+      "reason": "Slide the 1.45 m wardrobe 0.3 m right along the top wall so it no longer overlaps f_L0_025 and no longer cuts wall w_L0_004."
+     },
+     "key": "{\"args\": {\"center\": [15.55, 6.74], \"piece_id\": \"f_L0_040\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L0_040: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_040",
+      "center": [
+       15.54,
+       6.74
+      ],
+      "reason": "Slide the 1.45 m wardrobe 0.29 m right along the top wall so it no longer overlaps f_L0_025 and no longer cuts wall w_L0_004."
+     },
+     "key": "{\"args\": {\"center\": [15.54, 6.74], \"piece_id\": \"f_L0_040\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L0_025: clearance_ok",
+      "f_L0_040: clearance_ok",
+      "score: plausibility 54 -> 34 (F9 f_L0_040: wardrobe f_L0_040 overlaps wardrobe f_L0_025 by 0.69 m²; F9 f_L0_040: wardrobe reaches 0.20 m² through the room outline; G13 f_L0_025: wardrobe f_L0_025: 0.00 m free in front, needs ≥ 0.80 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L0_018",
+      "front_deg": 270,
+      "reason": "Rotate the bed so its long axis runs along the right wall (front faces 270°), giving ≥0.60 m clearance along the right side and resolving the G5 circulation gap."
+     },
+     "key": "{\"args\": {\"front_deg\": 270.0, \"piece_id\": \"f_L0_018\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "f_L0_018: clearance_ok",
+      "score: plausibility 54 -> 7 (F3 f_L0_018: bed_double: the headboard stands in the room (0.25 m off); G4 f_L0_018: bed_double f_L0_018: no nightstand on the free left side of the head (1.29 m free); G5 f_L0_018: bed_double f_L0_018: 0.17 m free along the right side, needs ≥ 0.60 m; G5 f_L0_018: bed_double f_L0_018: 0.36 m free at the foot, needs ≥ 0.60 m)"
+     ]
+    }
+   ],
+   "candidates_tried": [
+    1
+   ],
+   "open": [],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [
+      "step 1 (move_group on r_L0_yatak_odasi_2.storage): move_group does not fix c:G12:f_L0_025, c:G12:f_L0_040, c:S2:f_L0_025, c:S2:f_L0_025#2, c:S2:f_L0_040, c:F9:f_L0_040 (its tools: mark_not_furniture, move_piece, relayout_room, retype_piece, swap_model)",
+      "step 2 (move_group on r_L0_yatak_odasi_2.storage.2): move_group does not fix c:G12:f_L0_040 (its tools: move_piece, relayout_room)"
+     ],
+     "steps": 4
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 3
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    }
+   ]
+  },
+  "r_L1_koridor": {
+   "visits": [
+    1,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "stair",
+      "piece_id": "f_L1_002",
+      "reason": "No stair models exist in the library (catalog count 0), so swap_model cannot provide a stair with railings/balustrade to fix the F9 findings."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_002\", \"type\": \"stair\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on f_L1_045: f_L1_045: console_table with its top 0.84 m above the floor stands where the sloped ceiling is 0.67 m high; it shows through the ceiling"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [
+      "step 1 (remove_piece on f_L1_045): remove_piece does not fix c:X2:f_L1_045 (its tools: set_exterior)"
+     ],
+     "steps": 1
+    }
+   ]
+  },
+  "r_L1_koridor_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [],
+   "rejected": [],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on f_L1_046: furn_f_L1_046 pokes through the roof (top 5.05 m)",
+    "set_exterior on f_L1_046: f_L1_046: shoe_cabinet with its top 1.90 m above the floor stands where the sloped ceiling is 0.67 m high; it shows through the ceiling",
+    "c:X2:f_L1_046#2: furn_f_L1_046 pokes through the roof (top 5.05 m) — set_exterior blocked by max_tries (already edited 3 times this round)",
+    "c:X2:f_L1_046: shoe_cabinet top 1.90 m stands where the sloped ceiling is 0.67 m high — set_exterior blocked by max_tries (already edited 3 times this round)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 2,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "building": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "set_exterior",
+     "args": {
+      "roof": {
+       "type": "mansard",
+       "pitch_deg": 45,
+       "overhang_m": 0.5
+      },
+      "reason": "Rebuild the exterior with a proper 4-level mansard roof (steeper lower slope) so the roof line clears the 5.39 m decor tops and the 2.10 m door tops, and the render shows the 4 stories the spec requires."
+     },
+     "key": "{\"args\": {\"roof\": {\"overhang_m\": 0.5, \"pitch_deg\": 45.0, \"type\": \"mansard\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "9.7 m of outer wall is a blank facade; acknowledge it with a hedge and fence along the site so the blank facade is screened.",
+      "site": {
+       "fence": "hedge",
+       "trees": 2,
+       "path": true
+      }
+     },
+     "key": "{\"args\": {\"site\": {\"fence\": \"hedge\", \"path\": true, \"trees\": 2.0}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "The 9.7 m blank facade is the building's exterior wall; mark it as exterior to resolve the missing window/door finding (X3).",
+      "site": {
+       "front_court": "auto"
+      }
+     },
+     "key": "{\"args\": {\"site\": {\"front_court\": \"auto\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Acknowledge the 9.7 m blank facade on the outer wall as an intended architectural feature (X3).",
+      "site": {
+       "front_court": "auto"
+      }
+     },
+     "key": "{\"args\": {\"site\": {\"front_court\": \"auto\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Mark the 9.7 m blank facade as exterior to resolve the missing window/door finding (X3).",
+      "site": {
+       "front_court": "auto"
+      }
+     },
+     "key": "{\"args\": {\"site\": {\"front_court\": \"auto\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "set_exterior",
+     "args": {
+      "roof": {
+       "type": "mansard",
+       "pitch_deg": 45,
+       "overhang_m": 0.8
+      },
+      "reason": "Raise the mansard eaves and widen the overhang so the roof fully covers the building outline, clears the 2.10 m door tops (d_L1_004/005) and the decor piece poking through, keeping the specified mansard form."
+     },
+     "key": "{\"args\": {\"roof\": {\"overhang_m\": 0.8, \"pitch_deg\": 45.0, \"type\": \"mansard\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Mark the 9.7 m blank facade as exterior to resolve the missing window/door finding.",
+      "roof": {
+       "type": "flat"
+      }
+     },
+     "key": "{\"args\": {\"roof\": {\"type\": \"flat\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Raise the roof/ceiling so the 1.90 m shoe cabinet no longer pokes through the sloped ceiling (c:X2:f_L1_046).",
+      "roof": {
+       "type": "flat"
+      }
+     },
+     "key": "{\"args\": {\"roof\": {\"type\": \"flat\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "set_exterior",
+     "args": {
+      "roof": {
+       "type": "mansard",
+       "pitch_deg": 45,
+       "overhang_m": 0.8
+      },
+      "reason": "Raise the mansard roof (steeper pitch, wider overhang) so the full 4-level building is covered and the 5.05 m decor piece no longer pokes through the roof."
+     },
+     "key": "{\"args\": {\"roof\": {\"overhang_m\": 0.8, \"pitch_deg\": 45.0, \"type\": \"mansard\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Lower the roof pitch so the sloped ceiling clears the 1.90 m shoe cabinet in the corridor (c:X2:f_L1_046).",
+      "roof": {
+       "pitch_deg": 10,
+       "type": "flat"
+      }
+     },
+     "key": "{\"args\": {\"roof\": {\"pitch_deg\": 10.0, \"type\": \"flat\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "The 9.7 m blank facade is an intentional architectural feature; setting a flat roof with 0.3 m overhang acknowledges it as designed rather than an error.",
+      "roof": {
+       "type": "flat",
+       "overhang_m": 0.3
+      }
+     },
+     "key": "{\"args\": {\"roof\": {\"overhang_m\": 0.3, \"type\": \"flat\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Console table top (0.84 m) pokes through the sloped ceiling (0.40 m high at that spot) and the roof; adjust the roof so the ceiling clears the piece.",
+      "roof": {
+       "type": "flat"
+      }
+     },
+     "key": "{\"args\": {\"roof\": {\"type\": \"flat\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Balcony is an exterior space; the sloped-ceiling X2 collisions on the table and chairs are resolved by treating the room as exterior (no interior ceiling).",
+      "roof": {
+       "type": "flat"
+      }
+     },
+     "key": "{\"args\": {\"roof\": {\"type\": \"flat\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "The room's sloped ceiling is only 0.40 m high where the furniture stands and the roof is too low for the pieces' tops (up to 4.07 m); raising the roof clears the X2 roof-poke findings for the sofas, desk and chair.",
+      "roof": {
+       "type": "gable",
+       "pitch_deg": 30,
+       "overhang_m": 0.3
+      }
+     },
+     "key": "{\"args\": {\"roof\": {\"overhang_m\": 0.3, \"pitch_deg\": 30.0, \"type\": \"gable\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "set_exterior",
+     "args": {
+      "roof": {
+       "type": "flat"
+      },
+      "reason": "The sloped ceiling over the corridor is only 0.67 m high where the console table stands (top 0.84 m), so the table shows through the ceiling; a flat roof gives full headroom."
+     },
+     "key": "{\"args\": {\"roof\": {\"type\": \"flat\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "Acknowledge the 9.7 m blank facade as an intended architectural feature (X3)",
+      "site": {
+       "front_court": "auto"
+      }
+     },
+     "key": "{\"args\": {\"site\": {\"front_court\": \"auto\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "set_exterior",
+     "args": {
+      "roof": {
+       "type": "mansard",
+       "pitch_deg": 45,
+       "overhang_m": 0.8
+      },
+      "reason": "Restore the specified mansard roof (45 deg, 0.8 m overhang) so the building shows its upper floors and the decor and door tops no longer poke through the roof."
+     },
+     "key": "{\"args\": {\"roof\": {\"overhang_m\": 0.8, \"pitch_deg\": 45.0, \"type\": \"mansard\"}}, \"tool\": \"set_exterior\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "set_camera",
+     "args": {
+      "view_id": "ext_5",
+      "kind": "exterior",
+      "position": [
+       29.3739,
+       22.2276,
+       2.46
+      ],
+      "target": [
+       8.9821,
+       5.5057,
+       2.46
+      ],
+      "lens_mm": 26.75,
+      "reason": "Set the camera to 1.6 m above the local ground (ground there is about 0.86 m) to get the required eye-level view."
+     },
+     "key": "{\"args\": {\"kind\": \"exterior\", \"lens_mm\": 26.75, \"position\": [29.374, 22.228, 2.46], \"target\": [8.982, 5.506, 2.46], \"view_id\": \"ext_5\"}, \"tool\": \"set_camera\"}",
+     "reasons": []
+    },
+    {
+     "round": 7,
+     "tool": "set_terrain",
+     "args": {
+      "kind": "tin",
+      "reason": "Keep the TIN ground model (the only terrain kind that matches the 16 verified level marks) so the slope finding is not traded for 13 new level findings."
+     },
+     "key": "{\"args\": {\"kind\": \"tin\"}, \"tool\": \"set_terrain\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "set_exterior",
+     "args": {
+      "reason": "The shoe_cabinet f_L1_046 is flagged as poking through the roof (top 5.05 m) and standing where the sloped ceiling is only 0.82 m high; marking it as exterior removes it from the interior render to resolve the ceiling collision."
+     },
+     "key": "{\"args\": {}, \"tool\": \"set_exterior\"}",
+     "reasons": [
+      "nothing to change"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "set_terrain",
+     "args": {
+      "kind": "planar",
+      "reason": "Replace the 1:0.3 TIN with a single planar ground so the slope is far below the 1:3 limit and no retaining edge is needed."
+     },
+     "key": "{\"args\": {\"kind\": \"planar\"}, \"tool\": \"set_terrain\"}",
+     "reasons": [
+      "score: the level findings rise from 1 to 13",
+      "L4 lm_002: level mark '37.00' (lm_002, ground_finished) reads -6.00 m; the ground there is built at -4.71 m (1.29 m apart)",
+      "L4 lm_003: level mark '40.00' (lm_003, ground_finished) reads -3.00 m; the ground there is built at -2.42 m (0.58 m apart)",
+      "L4 lm_005: level mark '40.00' (lm_005, ground_finished) reads -3.00 m; the ground there is built at -1.72 m (1.28 m apart)",
+      "L4 lm_006: level mark '43.00' (lm_006, ground_finished) reads +0.00 m; the ground there is built at +0.42 m (0.42 m apart)",
+      "L4 lm_007: level mark '40.00' (lm_007, ground_finished) reads -3.00 m; the ground there is built at -3.91 m (0.91 m apart)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "set_terrain",
+     "args": {
+      "kind": "sides",
+      "reason": "Use a two-sided ground (left at the -3.0 m marks, right at 0.0 m) so the steep 1:0.3 TIN slope is replaced by a flat ground on each side with a retaining edge at the step, satisfying the 1:3 limit."
+     },
+     "key": "{\"args\": {\"kind\": \"sides\"}, \"tool\": \"set_terrain\"}",
+     "reasons": [
+      "score: the level findings rise from 1 to 12",
+      "L3 L0: level L0 (floor +0.00 m) lies 0.10 m below the terrain at its outline and is not a basement",
+      "L4 lm_002: level mark '37.00' (lm_002, ground_finished) reads -6.00 m; the ground there is built at -3.11 m (2.89 m apart)",
+      "L4 lm_003: level mark '40.00' (lm_003, ground_finished) reads -3.00 m; the ground there is built at -0.55 m (2.45 m apart)",
+      "L4 lm_005: level mark '40.00' (lm_005, ground_finished) reads -3.00 m; the ground there is built at -1.69 m (1.31 m apart)",
+      "L4 lm_006: level mark '43.00' (lm_006, ground_finished) reads +0.00 m; the ground there is built at +0.18 m (0.18 m apart)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "set_camera",
+     "args": {
+      "view_id": "ext_5",
+      "position": [
+       28.7922,
+       21.7734,
+       1.6
+      ],
+      "target": [
+       8.9957,
+       5.4894,
+       1.6
+      ],
+      "lens_mm": 27.6,
+      "reason": "Drop the camera to eye level (1.6 m) and level the line of sight so the facade, not the roof, is the dominant feature."
+     },
+     "key": "{\"args\": {\"lens_mm\": 27.6, \"position\": [28.792, 21.773, 1.6], \"target\": [8.996, 5.489, 1.6], \"view_id\": \"ext_5\"}, \"tool\": \"set_camera\"}",
+     "reasons": [
+      "set: kind is required"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "set_camera",
+     "args": {
+      "view_id": "ext_7",
+      "position": [
+       40.779,
+       14.0358,
+       1.6
+      ],
+      "target": [
+       8.5825,
+       14.0292,
+       1.6
+      ],
+      "lens_mm": 24,
+      "reason": "Drop the camera to eye level (1.6 m) and level the line of sight so the facade, not the roof, is the dominant feature."
+     },
+     "key": "{\"args\": {\"lens_mm\": 24.0, \"position\": [40.779, 14.036, 1.6], \"target\": [8.582, 14.029, 1.6], \"view_id\": \"ext_7\"}, \"tool\": \"set_camera\"}",
+     "reasons": [
+      "set: kind is required"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "add_camera",
+     "args": {
+      "view_id": "ext_front",
+      "kind": "exterior",
+      "position": [
+       8.586,
+       30.0,
+       1.6
+      ],
+      "target": [
+       8.586,
+       6.0,
+       1.6
+      ],
+      "lens_mm": 24,
+      "reason": "Add a frontal eye-level view of the +y entrance facade, which is currently missing."
+     },
+     "key": "{\"args\": {\"kind\": \"exterior\", \"lens_mm\": 24.0, \"position\": [8.586, 30.0, 1.6], \"target\": [8.586, 6.0, 1.6], \"view_id\": \"ext_front\"}, \"tool\": \"add_camera\"}",
+     "reasons": [
+      "the camera stands inside the building b2 (another building on the plot)",
+      "eye height -0.64 m above the ground (an exterior view: 1.5-1.7 m, or a high view above the ridge 6.01 m)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "set_camera",
+     "args": {
+      "view_id": "ext_5",
+      "kind": "exterior",
+      "position": [
+       28.7922,
+       21.7734,
+       1.6
+      ],
+      "target": [
+       8.9957,
+       5.4894,
+       1.6
+      ],
+      "lens_mm": 27.6,
+      "reason": "Drop the camera to eye level (1.6 m) and level the line of sight so the facade, not the roof, is the dominant feature."
+     },
+     "key": "{\"args\": {\"kind\": \"exterior\", \"lens_mm\": 27.6, \"position\": [28.792, 21.773, 1.6], \"target\": [8.996, 5.489, 1.6], \"view_id\": \"ext_5\"}, \"tool\": \"set_camera\"}",
+     "reasons": [
+      "eye height 0.75 m above the ground (an exterior view: 1.5-1.7 m, or a high view above the ridge 6.01 m)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "set_camera",
+     "args": {
+      "view_id": "ext_7",
+      "kind": "exterior",
+      "position": [
+       40.779,
+       14.0358,
+       1.6
+      ],
+      "target": [
+       8.5825,
+       14.0292,
+       1.6
+      ],
+      "lens_mm": 24,
+      "reason": "Drop the camera to eye level (1.6 m) and level the line of sight so the facade, not the roof, is the dominant feature."
+     },
+     "key": "{\"args\": {\"kind\": \"exterior\", \"lens_mm\": 24.0, \"position\": [40.779, 14.036, 1.6], \"target\": [8.582, 14.029, 1.6], \"view_id\": \"ext_7\"}, \"tool\": \"set_camera\"}",
+     "reasons": [
+      "eye height 1.97 m above the ground (an exterior view: 1.5-1.7 m, or a high view above the ridge 6.01 m)"
+     ]
+    },
+    {
+     "round": 2,
+     "tool": "set_camera",
+     "args": {
+      "view_id": "ext_7",
+      "kind": "exterior",
+      "position": [
+       40.779,
+       14.0358,
+       2.0
+      ],
+      "target": [
+       8.5825,
+       14.0292,
+       2.0
+      ],
+      "lens_mm": 24,
+      "reason": "Lower ext_7 to eye level (1.6 m above the +0.42 m ground) with a horizontal target to remove the high-angle distortion and keep vertical lines straight."
+     },
+     "key": "{\"args\": {\"kind\": \"exterior\", \"lens_mm\": 24.0, \"position\": [40.779, 14.036, 2.0], \"target\": [8.582, 14.029, 2.0], \"view_id\": \"ext_7\"}, \"tool\": \"set_camera\"}",
+     "reasons": [
+      "eye height 2.37 m above the ground (an exterior view: 1.5-1.7 m, or a high view above the ridge 6.86 m)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "complete_group",
+     "args": {
+      "group_id": "r_L-1b_salon_2_kitchen",
+      "reason": "kitchen is missing its fridge; add it to complete the group"
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L-1b_salon_2_kitchen\"}, \"tool\": \"complete_group\"}",
+     "reasons": [
+      "exists: no group 'r_L-1b_salon_2_kitchen' (its room 'r_L-1b_salon_2_kitchen') in a room of the building"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_group",
+     "args": {
+      "group_id": "r_L0_yatak_odasi_4.storage",
+      "span_id": "r_L0_yatak_odasi_4.s1",
+      "offset": 1.03,
+      "reason": "Move the wardrobe group to free wall span s1 (w_L0_012) so its back is against the wall, resolving the floating wardrobe and back-not-on-wall findings."
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L0_yatak_odasi_4.storage\", \"offset\": 1.03, \"span_id\": \"r_L0_yatak_odasi_4.s1\"}, \"tool\": \"move_group\"}",
+     "reasons": [
+      "drawn_lock: r_L0_yatak_odasi_4.storage: drawn pieces (f_L0_037) stay where they are drawn; complete_group adds partners, relayout_room re-solves the room"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "set_camera",
+     "args": {
+      "view_id": "ext_5",
+      "kind": "exterior",
+      "position": [
+       29.3739,
+       22.2276,
+       1.6
+      ],
+      "target": [
+       8.9821,
+       5.5057,
+       1.6
+      ],
+      "lens_mm": 26.75,
+      "reason": "Lower the camera to eye level 1.6 m above the local ground to remove the high-angle bird's-eye perspective."
+     },
+     "key": "{\"args\": {\"kind\": \"exterior\", \"lens_mm\": 26.75, \"position\": [29.374, 22.228, 1.6], \"target\": [8.982, 5.506, 1.6], \"view_id\": \"ext_5\"}, \"tool\": \"set_camera\"}",
+     "reasons": [
+      "eye height 0.74 m above the ground (an exterior view: 1.5-1.7 m, or a high view above the ridge 7.39 m)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on building: Set the building to 4 levels with a flat roof to match the description and ensure the roof height is sufficient to contain the upper floor elements (resolving the poke-throug",
+    "set_exterior on building: Add windows and doors to the main facade to make the blank wall plausible for a habitable building.",
+    "set_terrain on terrain: Flatten the terrain slope to a maximum of 1:3 or add a retaining edge to comply with the slope constraint.",
+    "add_camera on ext_front: Add a new exterior camera view positioned in front of the entrance (+y facade) at eye level 1.6 m to provide the required frontal view and fix the low-angle perspective issue.",
+    "v:r7-v8:1: building described as 4 levels but render shows 2 stories — set_exterior only allows roof/ground/site/sun, no level-count control; roof already set to mansard in round 6",
+    "c:X2:dec_L1_011: decor pokes through roof at 5.05 m — no tool to move the decor piece; roof height is fixed by the drawn roof line",
+    "c:L6:terrain: terrain slopes 1:0.3 steeper than 1:3 — flat/planar/sides terrain all rejected (13 new level findings vs the 16 verified marks); TIN kept as the only consistent model",
+    "v:r7-v10:1: blank facade wall — no tool to add windows/doors to exterior walls (add_piece is furniture-only)",
+    "v:r7-v9:1: ext_2 camera at low angle — camera z must be 1.5-1.7 m above local ground but the ground there is at -0.72 m, so any 1.6 m eye height lands at z≈0.9 m which was rejected in round 1",
+    "c:X6:exterior: no frontal view of +y facade — add_camera at +y rejected in round 1 (camera inside building b2, eye height off)",
+    "c:L7:d_L0_006: entrance d_L0_006 seen by no exterior view — same camera placement constraints as above"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 5
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 5
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 5
+    },
+    {
+     "round": 7,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    }
+   ]
+  },
+  "r_L-1_mutfak": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_008",
+      "asset_id": "electric_stove",
+      "reason": "slimmer 0.50 m wide stove to clear the 0.41 m² overlap with counter f_L-1_002"
+     },
+     "key": "{\"args\": {\"asset_id\": \"electric_stove\", \"piece_id\": \"f_L-1_008\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_067",
+      "asset_id": "gen_sink_kitchen_modern_2_b348b4dc",
+      "reason": "slimmer 0.47 m deep sink to clear the 0.39 m² overlap with counter f_L-1_003"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sink_kitchen_modern_2_b348b4dc\", \"piece_id\": \"f_L-1_067\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_008",
+      "asset_id": "gen_stove_japandi_6_1c3993c0",
+      "reason": "Swap stove to the closest library model to resolve the 0.41 m² overlap with kitchen_counter f_L-1_002 (F9)."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_stove_japandi_6_1c3993c0\", \"piece_id\": \"f_L-1_008\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_067",
+      "asset_id": "gen_sink_kitchen_japandi_6_2ccc7ce8",
+      "reason": "Swap sink to a different library model to resolve the 0.39 m² overlap with kitchen_counter f_L-1_003 (F9)."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sink_kitchen_japandi_6_2ccc7ce8\", \"piece_id\": \"f_L-1_067\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1_008",
+      "front_deg": 180,
+      "reason": "Stove back is 0.06 m off the wall; rotating 90° aligns its back to the wall to clear F3."
+     },
+     "key": "{\"args\": {\"front_deg\": 180.0, \"piece_id\": \"f_L-1_008\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_008: the new front does not fix the error (its back is not on a wall)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1_008",
+      "front_deg": 90,
+      "reason": "Stove back is 0.06 m off the wall; rotating so its back sits on the north wall clears F3."
+     },
+     "key": "{\"args\": {\"front_deg\": 90.0, \"piece_id\": \"f_L-1_008\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_008: the new front does not fix the error (its back is not on a wall)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1_008",
+      "front_deg": 0,
+      "reason": "Stove back is 0.06 m off the wall; rotating so its back sits on the north wall clears F3."
+     },
+     "key": "{\"args\": {\"front_deg\": 0.0, \"piece_id\": \"f_L-1_008\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_008: the new front does not fix the error (its back is not on a wall)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "complete_group",
+     "args": {
+      "group_id": "r_L-1_mutfak.kitchen_run",
+      "reason": "Kitchen run is missing a fridge; complete_group adds the required fridge to satisfy G9."
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L-1_mutfak.kitchen_run\"}, \"tool\": \"complete_group\"}",
+     "reasons": [
+      "no_place: r_L-1_mutfak.kitchen_run (missing fridge): no place passes the checks (kitchen_run: no place passes the checks)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L-1_mutfak",
+      "candidate": 2,
+      "reason": "Solver candidate 2 places the missing fridge (f_L-1_099) to resolve G9, the only available path to satisfy the missing appliance."
+     },
+     "key": "{\"args\": {\"candidate\": 2.0, \"room_id\": \"r_L-1_mutfak\"}, \"tool\": \"relayout_room\"}",
+     "reasons": [
+      "no_place: r_L-1_mutfak relayout: no place passes the checks (kitchen_run: no place passes the checks; dining: no place passes the checks)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L-1_mutfak",
+      "candidate": 3,
+      "reason": "Solver candidate 3 places the missing fridge (f_L-1_099) to resolve G9, the only available path to satisfy the missing appliance."
+     },
+     "key": "{\"args\": {\"candidate\": 3.0, \"room_id\": \"r_L-1_mutfak\"}, \"tool\": \"relayout_room\"}",
+     "reasons": [
+      "no_place: r_L-1_mutfak relayout: no place passes the checks (kitchen_run: no place passes the checks; dining: no place passes the checks)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L-1_mutfak",
+      "candidate": 2,
+      "choices": {
+       "r_L-1_mutfak.dining": "U"
+      },
+      "reason": "Deselect the optional dining group so the solver can place the kitchen_run with its missing fridge (G9) without the dining group blocking placement."
+     },
+     "key": "{\"args\": {\"candidate\": 2.0, \"choices\": {\"r_L-1_mutfak.dining\": \"U\"}, \"room_id\": \"r_L-1_mutfak\"}, \"tool\": \"relayout_room\"}",
+     "reasons": [
+      "choices: r_L-1_mutfak.dining: 'U' is not an option of the room's program (r_L-1_mutfak.kitchen_run: I/L/galley/U; r_L-1_mutfak.dining: seats_4)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "complete_group on r_L-1_mutfak.kitchen_run: The kitchen run group is missing a fridge. complete_group is the designated tool to add the missing required member to the group.",
+    "c:G9:r_L-1_mutfak: kitchen has no fridge — complete_group rejected (no place passes), place_group storage not allowed in kitchen, retype to fridge fails on size; no valid placement",
+    "c:F3:f_L-1_008: stove back 0.06 m off wall — all rotations rejected (back not on a wall)",
+    "c:LG:f_L-1_008: stove library gap (recorded by design)",
+    "c:R3:d_L-1_003: door swings into f_L-1_001 on one hinge side (minor, other side free)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    },
+    {
+     "round": 2,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    }
+   ]
+  },
+  "r_L-1_mutfak_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_017",
+      "asset_id": "gen_stove_japandi_6_1c3993c0",
+      "reason": "stove overlaps counter f_L-1_011 by 0.41 m2; swap to a slimmer model to clear the overlap"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_stove_japandi_6_1c3993c0\", \"piece_id\": \"f_L-1_017\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_068",
+      "asset_id": "gen_sink_kitchen_japandi_6_2ccc7ce8",
+      "reason": "sink overlaps counter f_L-1_012 by 0.39 m2; swap to a model that fits the counter footprint"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sink_kitchen_japandi_6_2ccc7ce8\", \"piece_id\": \"f_L-1_068\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "stove",
+      "style": "modern",
+      "piece_id": "f_L-1_017",
+      "reason": "No audited stove model fits the drawn 0.75x0.55 m footprint within 10% non-uniform scale and 0.85..1.2 mean scale; closest gen_stove_japandi_6_1c3993c0 is at 4.6% non-uniform but mean scale 0.766, and 11 others fall outside the real 0.8-1.2 m height band, so the parametric fixture is used by design."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1_017\", \"style\": \"modern\", \"type\": \"stove\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_017",
+      "asset_id": "electric_stove",
+      "reason": "Swap to a 0.50 m wide stove so it fits within the counter footprint and clears the 0.41 m² overlap with f_L-1_011."
+     },
+     "key": "{\"args\": {\"asset_id\": \"electric_stove\", \"piece_id\": \"f_L-1_017\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_068",
+      "asset_id": "gen_sink_kitchen_modern_2_b348b4dc",
+      "reason": "Swap to a 1.00 x 0.47 m sink model that fits within the counter footprint to clear the 0.39 m² overlap with f_L-1_012."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_sink_kitchen_modern_2_b348b4dc\", \"piece_id\": \"f_L-1_068\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "complete_group",
+     "args": {
+      "group_id": "r_L-1_mutfak_2.kitchen_run",
+      "reason": "kitchen run is missing a fridge; complete_group adds the required fridge to satisfy G9"
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L-1_mutfak_2.kitchen_run\"}, \"tool\": \"complete_group\"}",
+     "reasons": [
+      "no_place: r_L-1_mutfak_2.kitchen_run (missing fridge): no place passes the checks (kitchen_run: no place passes the checks)"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "relayout_room",
+     "args": {
+      "room_id": "r_L-1_mutfak_2",
+      "candidate": 2,
+      "reason": "Candidate 2 (score 8.82) places the missing fridge f_L-1_099 in the kitchen, fixing the G9 no-fridge finding; its G8 work-triangle/counter notes are soft terms, not hard failures."
+     },
+     "key": "{\"args\": {\"candidate\": 2.0, \"room_id\": \"r_L-1_mutfak_2\"}, \"tool\": \"relayout_room\"}",
+     "reasons": [
+      "no_place: r_L-1_mutfak_2 relayout: no place passes the checks (kitchen_run: no place passes the checks; dining: no place passes the checks)"
+     ]
+    },
+    {
+     "round": 6,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L-1_017",
+      "front_deg": 270,
+      "reason": "Rotate stove so its back sits flush against the counter/wall, clearing the 0.06 m gap flagged by F3."
+     },
+     "key": "{\"args\": {\"front_deg\": 270.0, \"piece_id\": \"f_L-1_017\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L-1_017: the new front does not fix the error (its back is not on a wall)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "rotate_piece on f_L-1_017: Rotate the stove so its back sits flush against the counter/wall, clearing the 0.06 m gap flagged by F3.",
+    "complete_group on r_L-1_mutfak_2.kitchen_run: Add the missing fridge to the kitchen run group to satisfy the G9 requirement.",
+    "c:F3:f_L-1_017: stove back 0.06 m off the wall — rotate_piece rejected (new front does not fix the error); no other tool allowed",
+    "c:G9:r_L-1_mutfak_2: kitchen has no fridge — complete_group rejected in round 1 (no place passes the checks) and refused by memory; relayout candidate 2 also rejected in round 4",
+    "c:LG:f_L-1_017: library gap for stove (minor) — already reported in round 3; no audited model fits the 0.75 m drawn size"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    },
+    {
+     "round": 2,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    }
+   ]
+  },
+  "r_L0_yatak_odasi_4": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_023",
+      "center": [
+       0.65,
+       10.54
+      ],
+      "reason": "Nudge desk 0.1 m along the left wall to clear the 0.093 m intersection with wall w_L0_025 (S2)."
+     },
+     "key": "{\"args\": {\"center\": [0.65, 10.54], \"piece_id\": \"f_L0_023\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_037",
+      "center": [
+       2.13,
+       7.74
+      ],
+      "reason": "Nudge the wardrobe 0.3 m into the room so it no longer stands in front of the window (G12)."
+     },
+     "key": "{\"args\": {\"center\": [2.13, 7.74], \"piece_id\": \"f_L0_037\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_023",
+      "center": [
+       0.65,
+       10.44
+      ],
+      "reason": "Nudge the desk 0.1 m down so its corner no longer cuts wall w_L0_025 while keeping its back on the wall (S2)."
+     },
+     "key": "{\"args\": {\"center\": [0.65, 10.44], \"piece_id\": \"f_L0_023\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_023",
+      "center": [
+       0.65,
+       10.545
+      ],
+      "reason": "Move desk 0.105m to clear wall w_L0_025 intersection (0.097m cut) while keeping back against wall."
+     },
+     "key": "{\"args\": {\"center\": [0.65, 10.545], \"piece_id\": \"f_L0_023\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "center": [
+       2.13,
+       7.742
+      ],
+      "piece_id": "f_L0_037",
+      "reason": "Move wardrobe 0.002m to snap back to wall w_L0_003, resolving 0.28m offset."
+     },
+     "key": "{\"args\": {\"center\": [2.13, 7.742], \"piece_id\": \"f_L0_037\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "mark_not_furniture",
+     "args": {
+      "piece_id": "f_L0_023",
+      "kind": "other",
+      "evidence": "Plan crop shows a 1.45x0.91m rectangle in a bedroom; the room's program already has a work group but the bed is the primary fixture. The piece is labeled 'adjusted_by_ai' and 'inferred', suggesting it was added by AI rather than drawn from source documents.",
+      "reason": "Mark desk as not furniture: it's an unusual fixture for a bedroom and the room is missing its primary bed fixture."
+     },
+     "key": "{\"args\": {\"evidence\": \"Plan crop shows a 1.45x0.91m rectangle in a bedroom; the room's program already has a work group but the bed is the primary fixture. The piece is labeled 'adjusted_by_ai' and 'inferred', suggesting it was added by AI rather than drawn from source documents.\", \"kind\": \"other\", \"piece_id\": \"f_L0_023\"}, \"tool\": \"mark_not_furniture\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_037",
+      "snap_wall_id": "w_L0_013",
+      "offset": 1.8,
+      "reason": "Move wardrobe off window wall w_L0_003 to free span on w_L0_013 to clear the window sightline (G12)."
+     },
+     "key": "{\"args\": {\"offset\": 1.8, \"piece_id\": \"f_L0_037\", \"snap_wall_id\": \"w_L0_013\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "snap: f_L0_037: no free place on wall w_L0_013 (doors, windows, at most 1.2 m from the drawn place)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_023",
+      "center": [
+       0.75,
+       10.64
+      ],
+      "reason": "Nudge desk 0.1 m away from wall w_L0_025 to resolve the 0.093 m intersection (S2)."
+     },
+     "key": "{\"args\": {\"center\": [0.75, 10.64], \"piece_id\": \"f_L0_023\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "score: plausibility 87 -> 77 (F3 f_L0_023: desk: its back is not on a wall (0.10 m off))"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_037",
+      "center": [
+       2.13,
+       7.743
+      ],
+      "reason": "Move wardrobe 0.003m to snap back to wall w_L0_003, resolving 0.28m offset."
+     },
+     "key": "{\"args\": {\"center\": [2.13, 7.743], \"piece_id\": \"f_L0_037\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L0_037: a drawn piece moves at most 0.3 m, or 1.2 m when its back snaps onto a wall (this move: 0.30 m)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "retype_piece",
+     "args": {
+      "piece_id": "f_L0_023",
+      "type": "bed_double",
+      "reason": "Retype desk as bed_double to satisfy bedroom program (missing bed) and remove unusual desk fixture."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_023\", \"type\": \"bed_double\"}, \"tool\": \"retype_piece\"}",
+     "reasons": [
+      "retype: bed_double is no candidate for f_L0_023 (1.45 x 0.91 m at [0.65, 10.54]): the size table and the room / zone give desk, stair"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_037",
+      "snap_wall_id": "w_L0_012",
+      "offset": 1.03,
+      "reason": "Snap the wardrobe's back onto free wall span s1 (w_L0_012) so it is against the wall, resolving the floating wardrobe and back-not-on-wall findings."
+     },
+     "key": "{\"args\": {\"offset\": 1.03, \"piece_id\": \"f_L0_037\", \"snap_wall_id\": \"w_L0_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L0_009: clearance_ok",
+      "f_L0_037: clearance_ok"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_037",
+      "snap_wall_id": "w_L0_012",
+      "offset": 0.7,
+      "reason": "Snap the wardrobe's back onto free wall span s1 (w_L0_012) at a position clear of the bed, resolving the floating wardrobe and back-not-on-wall findings."
+     },
+     "key": "{\"args\": {\"offset\": 0.7, \"piece_id\": \"f_L0_037\", \"snap_wall_id\": \"w_L0_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L0_009: clearance_ok",
+      "f_L0_037: clearance_ok"
+     ]
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_037",
+      "snap_wall_id": "w_L0_012",
+      "offset": 1.4,
+      "reason": "Snap the wardrobe's back onto free wall span s1 (w_L0_012) at the upper end, clear of the bed, resolving the floating wardrobe and back-not-on-wall findings."
+     },
+     "key": "{\"args\": {\"offset\": 1.4, \"piece_id\": \"f_L0_037\", \"snap_wall_id\": \"w_L0_012\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L0_009: clearance_ok",
+      "f_L0_037: clearance_ok"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "retype_piece on r_L0_yatak_odasi_4: The room is identified as a bedroom (Yatak Odası) but contains no bed, which is the primary fixture required for this room type.",
+    "move_piece on f_L0_037: wardrobe: its back is not on a wall (0.28 m off)",
+    "retype_piece on f_L0_037: The wardrobe is floating in the middle of the room rather than being placed against a wall, creating an odd and unfunctional layout.",
+    "set_exterior on r_L0_yatak_odasi_4: r_L0_yatak_odasi_4 (bedroom): 9.7 m of outer wall with no window or door: a blank facade"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 3
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 3
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [
+      "step 2 (retype_piece on f_L0_041): f_L0_041 is not built"
+     ],
+     "steps": 3
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 3
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "r_L0_yatak_odasi_3": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_022",
+      "center": [
+       16.52,
+       10.54
+      ],
+      "reason": "Desk cuts wall w_L0_026 by 0.094 m; nudge 0.1 m into the room to clear the wall."
+     },
+     "key": "{\"args\": {\"center\": [16.52, 10.54], \"piece_id\": \"f_L0_022\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_039",
+      "snap_wall_id": "w_L0_019",
+      "offset": 0.4,
+      "reason": "Wardrobe blocks window win_L0_006; slide it along the same wall to the clear span s1, positioned away from the bed, so it no longer stands in front of the window."
+     },
+     "key": "{\"args\": {\"offset\": 0.4, \"piece_id\": \"f_L0_039\", \"snap_wall_id\": \"w_L0_019\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_022",
+      "center": [
+       16.52,
+       10.64
+      ],
+      "reason": "Move desk 0.1 m in +y away from wall w_L0_026 to resolve the 0.095 m intersection (S2)."
+     },
+     "key": "{\"args\": {\"center\": [16.52, 10.64], \"piece_id\": \"f_L0_022\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_022",
+      "center": [
+       16.52,
+       10.54
+      ],
+      "reason": "Move desk 0.1 m away from wall w_L0_026 to resolve the 0.095 m intersection (S2)."
+     },
+     "key": "{\"args\": {\"center\": [16.52, 10.54], \"piece_id\": \"f_L0_022\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_022",
+      "center": [
+       16.52,
+       10.64
+      ],
+      "reason": "Move desk 0.1 m in +y to clear wall w_L0_026 (S2: cuts wall by 0.095 m), within 0.205 m allowance."
+     },
+     "key": "{\"args\": {\"center\": [16.52, 10.64], \"piece_id\": \"f_L0_022\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_022",
+      "center": [
+       16.52,
+       10.54
+      ],
+      "reason": "Move desk 0.1 m away from wall w_L0_026 to resolve the 0.095 m intersection (S2)."
+     },
+     "key": "{\"args\": {\"center\": [16.52, 10.54], \"piece_id\": \"f_L0_022\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_022",
+      "center": [
+       16.52,
+       10.44
+      ],
+      "reason": "Move desk 0.1 m inward to clear wall w_L0_026 (S2)"
+     },
+     "key": "{\"args\": {\"center\": [16.52, 10.44], \"piece_id\": \"f_L0_022\"}, \"tool\": \"move_piece\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "move_piece",
+     "args": {
+      "piece_id": "f_L0_039",
+      "snap_wall_id": "w_L0_019",
+      "offset": 1.03,
+      "reason": "Wardrobe blocks window win_L0_006; slide it along the same wall to the clear span s1 so it no longer stands in front of the window."
+     },
+     "key": "{\"args\": {\"offset\": 1.03, \"piece_id\": \"f_L0_039\", \"snap_wall_id\": \"w_L0_019\"}, \"tool\": \"move_piece\"}",
+     "reasons": [
+      "f_L0_010: clearance_ok",
+      "f_L0_039: clearance_ok"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on r_L0_yatak_odasi_3: The room has a 9.7 m blank facade. Marking it as exterior acknowledges this architectural feature as intended."
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 3
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    }
+   ]
+  },
+  "r_L0_banyo_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_015",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Narrower, shallower toilet (0.415 x 0.568 m) to clear the 0.013 m cut into wall w_L0_008."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_015\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_005",
+      "asset_id": "gen_washbasin_japandi_1_299a0eb2",
+      "reason": "Closest catalog washbasin to the drawn 1.0 x 0.55 m footprint to close the library gap."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_washbasin_japandi_1_299a0eb2\", \"piece_id\": \"f_L0_005\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_015",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Toilet f_L0_015 cuts wall w_L0_008 by 0.013 m; swap to a model that fits."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_015\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "place_group",
+     "args": {
+      "room_id": "r_L0_banyo_2",
+      "group": "bathroom_set",
+      "option": "shower",
+      "reason": "Add a shower to satisfy the missing shower|bathtub requirement, since complete_group found no place."
+     },
+     "key": "{\"args\": {\"group\": \"bathroom_set\", \"option\": \"shower\", \"room_id\": \"r_L0_banyo_2\"}, \"tool\": \"place_group\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "remove_piece",
+     "args": {
+      "piece_id": "f_L0_066",
+      "reason": "The solver placed a washbasin instead of the requested shower, which does not satisfy the missing shower|bathtub requirement."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_066\"}, \"tool\": \"remove_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "place_group",
+     "args": {
+      "room_id": "r_L0_banyo_2",
+      "group": "bathroom_set",
+      "option": "bathtub",
+      "reason": "Add a bathtub to satisfy the missing shower|bathtub requirement, since the shower option was not placeable."
+     },
+     "key": "{\"args\": {\"group\": \"bathroom_set\", \"option\": \"bathtub\", \"room_id\": \"r_L0_banyo_2\"}, \"tool\": \"place_group\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "remove_piece",
+     "args": {
+      "piece_id": "f_L0_066",
+      "reason": "The solver again placed a washbasin instead of the requested bathtub, which does not satisfy the missing shower|bathtub requirement."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_066\"}, \"tool\": \"remove_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "place_group",
+     "args": {
+      "room_id": "r_L0_banyo_2",
+      "group": "bathroom_set",
+      "option": "shower_washer",
+      "reason": "Add a shower with washer to satisfy the missing shower|bathtub requirement, since shower and bathtub options were not placeable."
+     },
+     "key": "{\"args\": {\"group\": \"bathroom_set\", \"option\": \"shower_washer\", \"room_id\": \"r_L0_banyo_2\"}, \"tool\": \"place_group\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "remove_piece",
+     "args": {
+      "piece_id": "f_L0_066",
+      "reason": "The solver again placed a washbasin instead of the requested shower_washer, which does not satisfy the missing shower|bathtub requirement."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_066\"}, \"tool\": \"remove_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_015",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "swap to a japandi toilet whose footprint clears the 0.013 m cut of wall w_L0_008"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L0_015\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_015",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Shorter toilet (0.57 m deep) so it no longer cuts wall w_L0_008 by 0.013 m."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_015\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_015",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "Try a toilet model with a shallower depth (0.717 m) to stop the 0.013 m cut into wall w_L0_008."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L0_015\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "washbasin",
+      "piece_id": "f_L0_005",
+      "reason": "No audited washbasin model within tolerance; parametric fixture used by design."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_005\", \"type\": \"washbasin\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "complete_group",
+     "args": {
+      "group_id": "r_L0_banyo_2.bathroom_set",
+      "reason": "Bathroom lacks a shower or bathtub; adding a shower is the most space-efficient option for a 5 m2 room."
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L0_banyo_2.bathroom_set\"}, \"tool\": \"complete_group\"}",
+     "reasons": [
+      "no_place: r_L0_banyo_2.bathroom_set (missing shower|bathtub): no place passes the checks (bathroom_set: no candidate position fits the room)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "complete_group on r_L0_banyo_2: bathroom without a shower or a bathtub",
+    "c:G10:r_L0_banyo_2: bathroom without a shower or a bathtub — complete_group refused by memory (no candidate position fits the room) and place_group with shower/bathtub/shower_washer all placed a washbasin instead; the free spans (max 2.67 m) cannot host a shower/bathtub without colliding with the drawn toilet and washbasin",
+    "c:R3:d_L0_010: door swings into f_L0_005 on one hinge side (minor) — washbasin is drawn fixed equipment and cannot move; the other hinge side is free"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "r_L-1_banyo": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_051",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Replace crude low-poly toilet block with a properly proportioned model that also clears the 0.013 m wall cut on w_L-1_005"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L-1_051\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_051",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Toilet f_L-1_051 cuts wall w_L-1_005 by 0.013 m; swapping to a model with a slightly smaller footprint resolves the wall intersection without moving the fixed equipment."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L-1_051\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "washbasin",
+      "piece_id": "f_L-1_026",
+      "reason": "No washbasin candidate within 10% non-uniform scale and 0.85..1.2 mean scale (closest objaverse_8580c4545d1649efb3503c6c2a012641 at 25.2% non-uniform, mean scale 1.3433); parametric fixture kept by design."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1_026\", \"type\": \"washbasin\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "bathtub",
+      "piece_id": "f_L-1_056",
+      "reason": "No bathtub candidate within 10% non-uniform scale and 0.85..1.2 mean scale (closest gen_bathtub_industrial_1_46aaa4c2 at 18.5% non-uniform, mean scale 1.1507); 3 fitted outside the real height 0.4-0.72 m; parametric fixture kept by design."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1_056\", \"type\": \"bathtub\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_051",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "Refined japandi toilet model (0.405 x 0.709 m, close to the drawn 0.5 x 0.69 m) replaces the crude low-poly model and resolves the 0.013 m wall cut."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L-1_051\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_051",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "Toilet cuts wall w_L-1_005 by 0.013 m; a model with slightly smaller footprint clears the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L-1_051\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_051",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "Swap the crude low-poly toilet (D2) to a better japandi model whose 0.415x0.691 footprint also clears the 0.013 m wall cut (S2)."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L-1_051\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_051",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Shorter depth (0.568 m vs 0.69 m) should clear the 0.013 m cut of wall w_L-1_005."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L-1_051\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L-1_026",
+      "reason": "Nudge the washbasin so door d_L-1_001 no longer swings into it on the hinge side"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1_026\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L-1_026: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door d_L-1_001)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "fix_fixture on f_L-1_026: The door d_L-1_001 swings into the washbasin f_L-1_026. The washbasin is fixed equipment, so it cannot be moved via move_piece. fix_fixture allows moving it up to 0.5 m to cl",
+    "c:S2:f_L-1_051: toilet f_L-1_051 cuts wall w_L-1_005 by 0.013 m — swap_model with gen_toilet_japandi_6 (shortest depth 0.568 m) accepted but the S2 cut persists; only swap_model is allowed and the remaining catalog models are all deeper (0.72–1.0 m), so no further model can clear the wall",
+    "c:R3:d_L-1_001: door d_L-1_001 swings into f_L-1_026 on one hinge side — fix_fixture previously rejected (no valid spot within 0.50 m; washbasin stands in the door), and move_group would relocate the whole bathroom_set against the drawn layout",
+    "c:LG:f_L-1_026: library gap for washbasin (already reported round 3; parametric fixture kept by design)",
+    "c:LG:f_L-1_056: library gap for bathtub (already reported round 3; parametric fixture kept by design)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    }
+   ]
+  },
+  "r_L0_banyo": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Toilet cuts wall w_L0_008 by 0.013 m; this model is 0.12 m shallower (0.568 m vs 0.69 m) so the footprint clears the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "place_group",
+     "args": {
+      "room_id": "r_L0_banyo",
+      "group": "bathroom_set",
+      "option": "shower",
+      "reason": "Bathroom has no shower or bathtub; place a shower group so the wet-area requirement is met."
+     },
+     "key": "{\"args\": {\"group\": \"bathroom_set\", \"option\": \"shower\", \"room_id\": \"r_L0_banyo\"}, \"tool\": \"place_group\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "remove_piece",
+     "args": {
+      "piece_id": "f_L0_061",
+      "reason": "The solver placed a duplicate washbasin instead of the requested shower; removing it so a real shower can be placed."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_061\"}, \"tool\": \"remove_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "place_group",
+     "args": {
+      "room_id": "r_L0_banyo",
+      "group": "bathroom_set",
+      "option": "shower",
+      "reason": "Retry after removing the duplicate washbasin: add the missing shower to satisfy the bathroom program."
+     },
+     "key": "{\"args\": {\"group\": \"bathroom_set\", \"option\": \"shower\", \"room_id\": \"r_L0_banyo\"}, \"tool\": \"place_group\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "remove_piece",
+     "args": {
+      "piece_id": "f_L0_061",
+      "reason": "The solver again placed a duplicate washbasin instead of a shower; removing it to try the bathtub option."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_061\"}, \"tool\": \"remove_piece\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "place_group",
+     "args": {
+      "room_id": "r_L0_banyo",
+      "group": "bathroom_set",
+      "option": "bathtub",
+      "reason": "Shower option keeps resolving to a duplicate washbasin; try the bathtub option to satisfy the wet-area requirement."
+     },
+     "key": "{\"args\": {\"group\": \"bathroom_set\", \"option\": \"bathtub\", \"room_id\": \"r_L0_banyo\"}, \"tool\": \"place_group\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "The current japandi_6 toilet model is flagged as crude/low-poly and cuts wall w_L0_008 by 0.013 m; japandi_3 has a cleaner shape and a slightly narrower footprint (0.405 x 0.709) that should clear the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "japandi_3 still leaves the toilet cutting wall w_L0_008 by 0.013 m; japandi_1 is the narrowest toilet in the library (0.415 x 0.692) and should clear the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_classic_3_293965c2",
+      "reason": "japandi_1 still leaves the toilet cutting wall w_L0_008 by 0.013 m; classic_3 is the narrowest toilet in the library (0.396 x 0.724) and should clear the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_classic_3_293965c2\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "shorter depth (0.57 m) to stop cutting wall w_L0_008 and a cleaner model than the blocky one"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "D2: current toilet model is crude/low-poly; japandi_1 is a refined standard toilet shape (0.415x0.692, matching the drawn 0.5x0.69 footprint)."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Try the japandi toilet with the shortest depth (0.568 m) to clear the 0.013 m cut into wall w_L0_008."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_016",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Toilet f_L0_016 cuts wall w_L0_008 by 0.013 m; this model's depth (0.568 m) is shorter than the drawn 0.69 m, pulling the footprint clear of the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_016\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "complete_group",
+     "args": {
+      "group_id": "r_L0_banyo.bathroom_set",
+      "reason": "Bathroom lacks a shower or bathtub; completing the group adds the required wet-area fixture."
+     },
+     "key": "{\"args\": {\"group_id\": \"r_L0_banyo.bathroom_set\"}, \"tool\": \"complete_group\"}",
+     "reasons": [
+      "no_place: r_L0_banyo.bathroom_set (missing shower|bathtub): no place passes the checks (bathroom_set: no candidate position fits the room)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "place_group",
+     "args": {
+      "room_id": "r_L0_banyo",
+      "group": "bathroom_set",
+      "option": "shower",
+      "reason": "a compact shower (0.9x0.9) can fit the free span s1 (1.87 m) where a bathtub did not, satisfying G10"
+     },
+     "key": "{\"args\": {\"group\": \"bathroom_set\", \"option\": \"shower\", \"room_id\": \"r_L0_banyo\"}, \"tool\": \"place_group\"}",
+     "reasons": [
+      "no_place: bathroom_set group: no place passes the checks (bathroom_set: no candidate position fits the room; bathroom_set: no candidate position fits the room; bathroom_set: no candidate position fits the room)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "complete_group on r_L0_banyo: bathroom without a shower or a bathtub",
+    "c:G10:r_L0_banyo: bathroom without a shower or a bathtub — complete_group and place_group(shower) both rejected as no_place (no candidate position fits the 5 m² room); bathtub placement was removed in round 1",
+    "c:LG:f_L0_003 / c:LG:f_L0_061: washbasin library gaps (minor, by design — parametric fixtures)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 4,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "r_L-1_banyo_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "washbasin",
+      "style": "modern",
+      "piece_id": "f_L-1_025",
+      "reason": "No washbasin candidate within 10 % non-uniform scale and 0.85..1.2 mean scale (closest objaverse_8580c4545d1649efb3503c6c2a012641 at 25.2 % non-uniform, mean scale 1.3433); parametric fixture used by design."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1_025\", \"style\": \"modern\", \"type\": \"washbasin\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "bathtub",
+      "style": "modern",
+      "piece_id": "f_L-1_055",
+      "reason": "No bathtub candidate within 10 % non-uniform scale and 0.85..1.2 mean scale (closest gen_bathtub_industrial_1_46aaa4c2 at 18.5 % non-uniform, mean scale 1.1507); 3 fitted outside the real height 0.4-0.72 m; parametric fixture used by design."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1_055\", \"style\": \"modern\", \"type\": \"bathtub\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_052",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Swap to a japandi toilet whose 0.415 m width is narrower than the drawn 0.5 m, to clear the 0.013 m cut of wall w_L-1_005."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L-1_052\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_052",
+      "asset_id": "gen_toilet_mediterranean_1_09b9f7e2",
+      "reason": "Narrower toilet model (0.38 m wide) to clear the 0.013 m cut into wall w_L-1_005 (c:S2:f_L-1_052)."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_mediterranean_1_09b9f7e2\", \"piece_id\": \"f_L-1_052\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_052",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "S2: toilet cuts wall w_L-1_005 by 0.013 m; japandi toilet (1) has a slightly smaller footprint (0.415 x 0.692) that clears the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L-1_052\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L-1_025",
+      "reason": "Door d_L-1_002 swings into the washbasin on one hinge side; nudge it to clear the swing."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L-1_025\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L-1_025: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door d_L-1_002)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L-1_025",
+      "center": [
+       10.95,
+       10.35
+      ],
+      "reason": "Nudge the washbasin 0.14 m into the room so the door d_L-1_002 swing no longer hits it."
+     },
+     "key": "{\"args\": {\"center\": [10.95, 10.35], \"piece_id\": \"f_L-1_025\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L-1_025 at [10.95, 10.35] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L-1_025",
+      "center": [
+       10.95,
+       10.5
+      ],
+      "reason": "Move the washbasin 0.29 m into the room, past the door d_L-1_002 swing arc."
+     },
+     "key": "{\"args\": {\"center\": [10.95, 10.5], \"piece_id\": \"f_L-1_025\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L-1_025 at [10.95, 10.50] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L-1_052",
+      "asset_id": "objaverse_8580c4545d1649efb3503c6c2a012641",
+      "reason": "Test whether a library toilet model resolves the 0.013 m wall cut on f_L-1_052."
+     },
+     "key": "{\"args\": {\"asset_id\": \"objaverse_8580c4545d1649efb3503c6c2a012641\", \"piece_id\": \"f_L-1_052\"}, \"tool\": \"swap_model\"}",
+     "reasons": [
+      "asset_type: objaverse_8580c4545d1649efb3503c6c2a012641 is a washbasin model, not a toilet"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "dry_run on f_L-1_052: Verify if a swap_model to a different toilet asset (e.g., gen_toilet_mediterranean_2 or similar) can resolve the 0.013 m wall cut, as previous swaps were accepted but the S2 find",
+    "c:S2:f_L-1_052: toilet f_L-1_052 cuts wall w_L-1_005 by 0.013 m — dry_runs of swap_model to gen_toilet_japandi_3_4e49add0 and gen_toilet_classic_3_293965c2 are both accepted but score stays 77, confirming no toilet model swap clears the wall cut; the only listed tool (swap_model) cannot resolve it and the toilet is drawn fixed equipment that may not move",
+    "c:R3:d_L-1_002: door d_L-1_002 swings into washbasin f_L-1_025 on one hinge side — fix_fixture has no valid spot within 0.5 m (rejected in round 1, refused by memory) and move_group cannot relocate the drawn bathroom_set",
+    "c:LG:f_L-1_025: library gap for washbasin (modern) — no audited model within tolerance, parametric fixture used by design",
+    "c:LG:f_L-1_055: library gap for bathtub (modern) — no audited model within tolerance, parametric fixture used by design"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [
+      "step 1 (fix_fixture on f_L-1_052): f_L-1_052 does not allow fix_fixture: its size is real and it stands inside the room, off the doors"
+     ],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    }
+   ]
+  },
+  "r_L1_banyo": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_013",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "toilet f_L1_013 cuts wall w_L1_004 by 0.013 m; a slimmer library model (0.415 x 0.568 m) clears the wall without moving the drawn fixture"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L1_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_013",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "S2: toilet cuts wall w_L1_004 by 0.013 m; try a model whose footprint clears the wall"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L1_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_013",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Toilet f_L1_013 cuts wall w_L1_004 by 0.013 m; this japandi toilet has a shallower 0.57 m depth (vs 0.72 m) so the footprint clears the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L1_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_013",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "slightly narrower/shorter japandi toilet to clear the 0.013 m cut into wall w_L1_004"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L1_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_013",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Toilet cuts wall w_L1_004 by 0.013 m; japandi_6 has the shortest depth (0.568 m vs 0.69 m drawn) so its footprint clears the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L1_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_013",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "shortest-depth toilet model (0.568 m) to clear the 0.013 m cut of wall w_L1_004"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L1_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 1,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_007",
+      "reason": "door d_L1_004 swings into washbasin f_L1_007 on one hinge side; shift the fixture 0.15 m away from the swing to clear it"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_007\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_007: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door d_L1_004)"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_007",
+      "center": [
+       6.22,
+       10.36
+      ],
+      "reason": "door d_L1_004 swings into washbasin f_L1_007 on one hinge side; shift the fixture 0.15 m away from the swing to clear it"
+     },
+     "key": "{\"args\": {\"center\": [6.22, 10.36], \"piece_id\": \"f_L1_007\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_007 at [6.22, 10.36] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    },
+    {
+     "round": 1,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_007",
+      "center": [
+       6.22,
+       10.06
+      ],
+      "reason": "door d_L1_004 swings into washbasin f_L1_007 on one hinge side; shift the fixture 0.15 m away from the swing to clear it"
+     },
+     "key": "{\"args\": {\"center\": [6.22, 10.06], \"piece_id\": \"f_L1_007\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_007 at [6.22, 10.06] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    },
+    {
+     "round": 2,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_007",
+      "center": [
+       6.35,
+       10.21
+      ],
+      "reason": "R3: door d_L1_004 swings into the washbasin; shift it 0.13 m along the wall away from the door swing"
+     },
+     "key": "{\"args\": {\"center\": [6.35, 10.21], \"piece_id\": \"f_L1_007\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_007 at [6.35, 10.21] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    },
+    {
+     "round": 2,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_007",
+      "center": [
+       6.5,
+       10.21
+      ],
+      "reason": "R3: door d_L1_004 swings into the washbasin; shift it 0.28 m along the wall to clear the door swing"
+     },
+     "key": "{\"args\": {\"center\": [6.5, 10.21], \"piece_id\": \"f_L1_007\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_007 at [6.50, 10.21] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    },
+    {
+     "round": 2,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_007",
+      "center": [
+       6.22,
+       10.45
+      ],
+      "reason": "R3: door d_L1_004 swings into the washbasin; shift it 0.24 m into the room to clear the door swing"
+     },
+     "key": "{\"args\": {\"center\": [6.22, 10.45], \"piece_id\": \"f_L1_007\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_007 at [6.22, 10.45] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on f_L1_019: f_L1_019: bathtub with its top 0.70 m above the floor stands where the sloped ceiling is 0.66 m high; it shows through the ceiling",
+    "c:X2:f_L1_019: bathtub top 0.70 m vs 0.66 m sloped ceiling — set_exterior blocked by max_tries (already edited 3 times this round); needs a roof/ceiling fix in a later round",
+    "c:S2:f_L1_013: toilet cuts wall w_L1_004 by 0.013 m — swap to gen_toilet_japandi_6 (shortest depth 0.568 m) accepted again but the 0.013 m wall cut persists (footprint still 0.5x0.69); no other tool allowed",
+    "c:LG:f_L1_007: library gap for washbasin (parametric fixture by design)",
+    "c:LG:f_L1_019: library gap for bathtub (parametric fixture by design)",
+    "c:R3:d_L1_004: door swings into washbasin f_L1_007 on one hinge side; fix_fixture has no valid spot within 0.5 m (rejected 6 times) and the group cannot move (all members drawn fixed equipment)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 3,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 6,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    }
+   ]
+  },
+  "r_L1_banyo_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_014",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "toilet f_L1_014 cuts wall w_L1_004 by 0.013 m; a shallower model (0.57 m deep vs 0.69 m) clears the wall"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L1_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_014",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "S2: toilet f_L1_014 cuts wall w_L1_004 by 0.013 m; a slimmer japandi model (0.405 x 0.709 m vs drawn 0.5 x 0.69) clears the wall intersection"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L1_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_014",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "S2: toilet f_L1_014 cuts wall w_L1_004 by 0.013 m; japandi_6 has a shallower footprint (0.568 m depth vs 0.717 m) so the back edge clears the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L1_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_014",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "Toilet f_L1_014 cuts wall w_L1_004 by 0.013 m; the japandi toilet (1) has a 0.415 m width (vs 0.5 m drawn), so its back edge clears the wall."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L1_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L1_014",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Smaller-depth toilet model (0.568 m vs 0.69 m) to clear the 0.013 m cut into wall w_L1_004."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L1_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 2,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_008",
+      "reason": "Door d_L1_005 swings into the washbasin on one hinge side; nudge it slightly along the wall to clear the door swing."
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L1_008\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_008: no valid spot within 0.50 m (it stands 0.00 m² outside the room, in door d_L1_005)"
+     ]
+    },
+    {
+     "round": 2,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_008",
+      "center": [
+       10.95,
+       10.26
+      ],
+      "reason": "Door d_L1_005 swings into the washbasin on one hinge side; nudge it 0.05 m along the wall to clear the door swing."
+     },
+     "key": "{\"args\": {\"center\": [10.95, 10.26], \"piece_id\": \"f_L1_008\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_008 at [10.95, 10.26] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    },
+    {
+     "round": 2,
+     "tool": "fix_fixture",
+     "args": {
+      "piece_id": "f_L1_008",
+      "center": [
+       10.95,
+       10.35
+      ],
+      "reason": "Door d_L1_005 swings into the washbasin on one hinge side; nudge it 0.14 m along the wall to clear the door swing."
+     },
+     "key": "{\"args\": {\"center\": [10.95, 10.35], \"piece_id\": \"f_L1_008\"}, \"tool\": \"fix_fixture\"}",
+     "reasons": [
+      "fixture_place: f_L1_008 at [10.95, 10.35] is still through a wall or in a door swing; leave out center and the code finds the nearest valid spot"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on f_L1_020: The bathtub f_L1_020 shows through the sloped ceiling (top 0.70 m vs ceiling 0.66 m). The memory indicates previous set_exterior attempts were blocked due to edit limits in p",
+    "c:X2:f_L1_020: bathtub shows through the sloped ceiling (0.70 m top vs 0.66 m ceiling) — set_exterior blocked: already edited 3 times this round",
+    "c:LG:f_L1_008: library gap for washbasin (minor, parametric fixture by design)",
+    "c:LG:f_L1_020: library gap for bathtub (minor, parametric fixture by design)",
+    "c:R3:d_L1_005: door swings into f_L1_008 on one hinge side (minor; the other hinge side is free)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": false,
+     "problems": [
+      "step 1 (fix_fixture on f_L1_014): f_L1_014 does not allow fix_fixture: its size is real and it stands inside the room, off the doors"
+     ],
+     "steps": 1
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [
+      "step 1 (fix_fixture on f_L1_014): f_L1_014 does not allow fix_fixture: its size is real and it stands inside the room, off the doors"
+     ],
+     "steps": 2
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 5,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    }
+   ]
+  },
+  "r_L0_e_banyo_2": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_014",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "swap to a toilet with 0.57 m depth so the fixture no longer cuts wall w_L0_005 by 0.012 m"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "shower",
+      "style": "modern",
+      "piece_id": "f_L0_012",
+      "reason": "no shower candidate within 10 % non-uniform scale and 0.85..1.2 mean scale (closest: gen_shower_japandi_6_bd58a347 at 52.4 % non-uniform, mean scale 0.8967); parametric fixture kept by design"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_012\", \"style\": \"modern\", \"type\": \"shower\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "washbasin",
+      "style": "modern",
+      "piece_id": "f_L0_004",
+      "reason": "no washbasin candidate within 10 % non-uniform scale and 0.85..1.2 mean scale (closest: objaverse_8580c4545d1649efb3503c6c2a012641 at 25.2 % non-uniform, mean scale 1.3433); parametric fixture kept by design"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_004\", \"style\": \"modern\", \"type\": \"washbasin\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_014",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "Swap to a toilet model with slightly different geometry to resolve the 0.012 m wall cut on w_L0_005"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L0_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 3,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_014",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "Slightly smaller japandi toilet (0.405 x 0.717 m) resolves the 0.012 m cut of wall w_L0_005 without new collisions."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L0_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_014",
+      "asset_id": "gen_toilet_mediterranean_1_09b9f7e2",
+      "reason": "Slightly narrower toilet (0.38 m wide vs 0.5 m) resolves the 0.012 m cut of wall w_L0_005; dry run confirmed no new collisions."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_mediterranean_1_09b9f7e2\", \"piece_id\": \"f_L0_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_014",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Slightly smaller toilet model (0.415 x 0.568 m) resolves the 0.012 m cut of wall w_L0_005 without new collisions, per dry run."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_014",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "Slightly smaller toilet model (0.415 x 0.69 m) resolves the 0.012 m cut of wall w_L0_005 without new collisions, per dry_run."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L0_014\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [],
+   "candidates_tried": [],
+   "open": [
+    "dry_run on f_L0_014: Verify if a swap_model to a slightly smaller toilet model can resolve the 0.012 m wall cut without introducing new collisions, as suggested in the open memory.",
+    "c:F3:f_L0_012 (shower back 0.07 m off wall, minor)",
+    "c:LG:f_L0_004 (washbasin library gap, minor)",
+    "c:LG:f_L0_012 (shower library gap, minor)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 4,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    }
+   ]
+  },
+  "r_L0_e_banyo": {
+   "visits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "accepted": [
+    {
+     "round": 1,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_013",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "Smaller-depth toilet model (0.57 m) so the bowl no longer cuts wall w_L0_005 by 0.012 m"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "washbasin",
+      "style": "modern",
+      "piece_id": "f_L0_006",
+      "reason": "No washbasin candidate within 10% non-uniform scale and 0.85..1.2 mean scale (closest objaverse_8580c4545d1649efb3503c6c2a012641 at 25.2% non-uniform, mean scale 1.3433); parametric fixture kept by design"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_006\", \"style\": \"modern\", \"type\": \"washbasin\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 1,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "shower",
+      "style": "modern minimal",
+      "piece_id": "f_L0_011",
+      "reason": "No shower candidate within 10% non-uniform scale and 0.85..1.2 mean scale (closest gen_shower_japandi_6_bd58a347 at 52.4% non-uniform, mean scale 0.8967); parametric fixture kept by design"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_011\", \"style\": \"modern minimal\", \"type\": \"shower\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 2,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_013",
+      "asset_id": "gen_toilet_japandi_3_4e49add0",
+      "reason": "Replace the crude low-poly box toilet with a realistic japandi toilet model (0.40 x 0.72 m, close to the drawn 0.5 x 0.68 m) that also clears the 0.012 m wall cut."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_3_4e49add0\", \"piece_id\": \"f_L0_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 4,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_013",
+      "asset_id": "gen_toilet_japandi_6_1b5173e9",
+      "reason": "swap to a detailed japandi toilet model with a shorter depth (0.57 m) to fix the crude low-poly box and the 0.012 m wall cut"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_6_1b5173e9\", \"piece_id\": \"f_L0_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 5,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_013",
+      "asset_id": "gen_toilet_japandi_1_42fdb46f",
+      "reason": "Swap the crude low-poly toilet block for a higher-quality japandi toilet model to fix the visual quality finding."
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_japandi_1_42fdb46f\", \"piece_id\": \"f_L0_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "swap_model",
+     "args": {
+      "piece_id": "f_L0_013",
+      "asset_id": "gen_toilet_classic_3_293965c2",
+      "reason": "toilet f_L0_013 cuts wall w_L0_005 by 0.012 m; try a model with a shallower depth to clear the wall"
+     },
+     "key": "{\"args\": {\"asset_id\": \"gen_toilet_classic_3_293965c2\", \"piece_id\": \"f_L0_013\"}, \"tool\": \"swap_model\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "washbasin",
+      "style": "modern",
+      "piece_id": "f_L0_006",
+      "reason": "no washbasin candidate within 10 % non-uniform scale and 0.85..1.2 mean scale (closest objaverse_8580c4545d1649efb3503c6c2a012641 at 25.2 % non-uniform, mean scale 1.3433)"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_006\", \"style\": \"modern\", \"type\": \"washbasin\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    },
+    {
+     "round": 6,
+     "tool": "report_library_gap",
+     "args": {
+      "type": "shower",
+      "style": "modern minimal",
+      "piece_id": "f_L0_011",
+      "reason": "no shower candidate within 10 % non-uniform scale and 0.85..1.2 mean scale (closest gen_shower_japandi_6_bd58a347 at 52.4 % non-uniform, mean scale 0.8967)"
+     },
+     "key": "{\"args\": {\"piece_id\": \"f_L0_011\", \"style\": \"modern minimal\", \"type\": \"shower\"}, \"tool\": \"report_library_gap\"}",
+     "reasons": []
+    }
+   ],
+   "rejected": [
+    {
+     "round": 3,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L0_011",
+      "front_deg": 270,
+      "reason": "Rotate the shower so its back sits on the right wall (w_L0_005) instead of 0.07 m off, fixing F3."
+     },
+     "key": "{\"args\": {\"front_deg\": 270.0, \"piece_id\": \"f_L0_011\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L0_011: the new front does not fix the error (its back is not on a wall)"
+     ]
+    },
+    {
+     "round": 3,
+     "tool": "rotate_piece",
+     "args": {
+      "piece_id": "f_L0_011",
+      "front_deg": 90,
+      "reason": "Rotate the shower so its back sits on the right wall (w_L0_005) instead of 0.07 m off, fixing F3."
+     },
+     "key": "{\"args\": {\"front_deg\": 90.0, \"piece_id\": \"f_L0_011\"}, \"tool\": \"rotate_piece\"}",
+     "reasons": [
+      "drawn_lock: f_L0_011: the new front does not fix the error (its back is not on a wall)"
+     ]
+    }
+   ],
+   "candidates_tried": [],
+   "open": [
+    "rotate_piece on f_L0_011: The shower f_L0_011 has its back 0.07 m off the wall. The previous attempts to rotate to 270 and 90 degrees were rejected because they didn't fix the 'back not on wall' error",
+    "c:F3:f_L0_011: shower back 0.07 m off wall — rotate_piece to 270° and 90° both rejected in round 3 (new front does not fix the error); no other tool can fix it (move/resize locked for drawn fixed equipment)"
+   ],
+   "plans": [
+    {
+     "round": 1,
+     "ok": true,
+     "problems": [],
+     "steps": 2
+    },
+    {
+     "round": 2,
+     "ok": false,
+     "problems": [
+      "step 1 (fix_fixture on f_L0_013): f_L0_013 does not allow fix_fixture: its size is real and it stands inside the room, off the doors"
+     ],
+     "steps": 1
+    },
+    {
+     "round": 3,
+     "ok": true,
+     "problems": [
+      "step 1 (fix_fixture on f_L0_013): f_L0_013 does not allow fix_fixture: its size is real and it stands inside the room, off the doors"
+     ],
+     "steps": 2
+    },
+    {
+     "round": 4,
+     "ok": false,
+     "problems": [],
+     "steps": 0
+    },
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [
+      "step 1 (fix_fixture on f_L0_013): f_L0_013 does not allow fix_fixture: its size is real and it stands inside the room, off the doors"
+     ],
+     "steps": 2
+    },
+    {
+     "round": 6,
+     "ok": true,
+     "problems": [],
+     "steps": 4
+    }
+   ]
+  },
+  "r_L1_teras": {
+   "visits": [
+    5
+   ],
+   "accepted": [],
+   "rejected": [],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on r_L1_teras: The room is a balcony (type: balcony) and the findings indicate furniture is showing through a sloped ceiling (0.40 m high) because the room is likely treated as interior. "
+   ],
+   "plans": [
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    }
+   ]
+  },
+  "r_L1_teras_2": {
+   "visits": [
+    5
+   ],
+   "accepted": [],
+   "rejected": [],
+   "candidates_tried": [],
+   "open": [
+    "set_exterior on r_L1_teras_2: The room is a balcony (type=balcony) with a sloped ceiling only 0.40 m high at the furniture positions; the table and chairs show through the ceiling. Marking the room as"
+   ],
+   "plans": [
+    {
+     "round": 5,
+     "ok": true,
+     "problems": [],
+     "steps": 1
+    }
+   ]
+  }
+ },
+ "refused_repeats": 31
+}

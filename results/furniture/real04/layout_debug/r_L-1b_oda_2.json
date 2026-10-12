@@ -1,0 +1,53 @@
+{
+ "room_id": "r_L-1b_oda_2",
+ "label": "Oda",
+ "room_type": "bedroom",
+ "program": [],
+ "candidates": [],
+ "chosen": null,
+ "choice": {},
+ "latency_s": 0.0,
+ "solve_s": 0.0,
+ "skipped": null,
+ "pieces": [
+  {
+   "id": "f_L-1b_075",
+   "type": "bed_double",
+   "group": "sleeping_double"
+  },
+  {
+   "id": "f_L-1b_076",
+   "type": "nightstand",
+   "group": "sleeping_double"
+  },
+  {
+   "id": "f_L-1b_077",
+   "type": "nightstand",
+   "group": "sleeping_double"
+  },
+  {
+   "id": "f_L-1b_078",
+   "type": "wardrobe",
+   "group": "storage"
+  }
+ ],
+ "copied_from": {
+  "room": "r_L-1b_oda",
+  "kind": "twin",
+  "transform": {
+   "kind": "given",
+   "affine": [
+    -1.0,
+    0.0,
+    17.1732,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "deviation_m": 0.001
+  }
+ },
+ "copy_dropped": [],
+ "program_full": null,
+ "candidates_full": []
+}

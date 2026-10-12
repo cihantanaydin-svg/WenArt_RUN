@@ -1,0 +1,803 @@
+{
+ "room_id": "r_L-1_mutfak",
+ "label": "Mutfak",
+ "room_type": "kitchen",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing fits: kitchen_run: no place passes the checks; dining: no place passes the checks",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L-1_001",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     4.122,
+     9.9722
+    ],
+    "wall_id": "w_L-1_008"
+   }
+  },
+  {
+   "id": "f_L-1_002",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     2.3613,
+     11.8001
+    ],
+    "wall_id": "w_L-1_006"
+   }
+  },
+  {
+   "id": "f_L-1_003",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2007,
+     10.2618
+    ],
+    "wall_id": "w_L-1_007"
+   }
+  },
+  {
+   "id": "f_L-1_004",
+   "type": "kitchen_counter",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2007,
+     8.2331
+    ],
+    "wall_id": "w_L-1_007"
+   }
+  },
+  {
+   "id": "f_L-1_005",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.8111,
+     8.5465
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_006",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.9151,
+     7.9803
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_007",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.9151,
+     8.6965
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_008",
+   "type": "stove",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     2.5832,
+     11.4672
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_009",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     1.4521,
+     10.2592
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L-1_067",
+   "type": "sink_kitchen",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2007,
+     10.2592
+    ],
+    "wall_id": "w_L-1_007"
+   }
+  },
+  {
+   "id": "f_L-1_081",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2307,
+     10.0688
+    ],
+    "wall_id": "w_L-1_007"
+   }
+  },
+  {
+   "id": "f_L-1_083",
+   "type": "sink_kitchen",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2307,
+     10.4495
+    ],
+    "wall_id": "w_L-1_007"
+   }
+  },
+  {
+   "id": "f_L-1_085",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.972,
+     11.7
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L-1_mutfak.kitchen_run",
+   "group": "kitchen_run",
+   "options": [
+    "I",
+    "L",
+    "galley",
+    "U"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [
+    "fridge"
+   ],
+   "note": ""
+  },
+  {
+   "group_id": "r_L-1_mutfak.dining",
+   "group": "dining",
+   "options": [
+    "seats_4"
+   ],
+   "drawn": false,
+   "required": false,
+   "missing": [],
+   "note": ""
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 2.7964,
+   "terms": {
+    "balance": 0.7964,
+    "circulation": 1.0
+   },
+   "options": {},
+   "pieces": [],
+   "not_placed": [
+    {
+     "group_id": "r_L-1_mutfak.kitchen_run",
+     "group": "kitchen_run",
+     "required": false,
+     "reason": "no place passes the checks"
+    },
+    {
+     "group_id": "r_L-1_mutfak.dining",
+     "group": "dining",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    "G8 major f_L-1_002: kitchen aisle 0.01 m in front of kitchen_counter f_L-1_002, needs ≥ 0.90 m",
+    "G9 major r_L-1_mutfak: kitchen r_L-1_mutfak has no fridge (fridge)"
+   ],
+   "nodes": {
+    "generated": 1603,
+    "expanded": 44,
+    "walkway_checks": 2
+   }
+  },
+  {
+   "rank": 2,
+   "score": 8.8268,
+   "terms": {
+    "drawn_distance": 0.704,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8368,
+    "circulation": 0.893
+   },
+   "options": {
+    "r_L-1_mutfak.kitchen_run": "fridge"
+   },
+   "pieces": [
+    "fridge"
+   ],
+   "not_placed": [
+    {
+     "group_id": "r_L-1_mutfak.dining",
+     "group": "dining",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "hard_failures": [
+    "G8 f_L-1_067: work triangle: hob-fridge 3.38 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+    "G8 f_L-1_090: fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side"
+   ],
+   "group_violations": [
+    "G8 major f_L-1_002: kitchen aisle 0.01 m in front of kitchen_counter f_L-1_002, needs ≥ 0.90 m",
+    "G8 major f_L-1_067: work triangle: hob-fridge 3.38 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+    "G8 major f_L-1_090: fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side"
+   ],
+   "nodes": {
+    "generated": 1603,
+    "expanded": 44,
+    "walkway_checks": 2
+   }
+  },
+  {
+   "rank": 3,
+   "score": 8.7811,
+   "terms": {
+    "drawn_distance": 0.6979,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8462,
+    "circulation": 0.8685
+   },
+   "options": {
+    "r_L-1_mutfak.kitchen_run": "fridge"
+   },
+   "pieces": [
+    "fridge"
+   ],
+   "not_placed": [
+    {
+     "group_id": "r_L-1_mutfak.dining",
+     "group": "dining",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "hard_failures": [
+    "G8 f_L-1_067: work triangle: hob-fridge 3.33 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+    "G8 f_L-1_090: fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side"
+   ],
+   "group_violations": [
+    "G8 major f_L-1_002: kitchen aisle 0.01 m in front of kitchen_counter f_L-1_002, needs ≥ 0.90 m",
+    "G8 major f_L-1_067: work triangle: hob-fridge 3.33 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+    "G8 major f_L-1_090: fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side"
+   ],
+   "nodes": {
+    "generated": 1603,
+    "expanded": 44,
+    "walkway_checks": 2
+   }
+  }
+ ],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [
+  {
+   "type": "kitchen_run",
+   "reason": "no place passes the checks",
+   "group_id": "r_L-1_mutfak.kitchen_run"
+  },
+  {
+   "type": "dining",
+   "reason": "no place passes the checks",
+   "group_id": "r_L-1_mutfak.dining"
+  }
+ ],
+ "wall_cabinets": [
+  {
+   "id": "f_L-1_090",
+   "run": "f_L-1_001",
+   "size": [
+    3.35,
+    0.35
+   ],
+   "excluded": [
+    "door d_L-1_003"
+   ]
+  },
+  {
+   "id": "f_L-1_091",
+   "run": "f_L-1_002",
+   "size": [
+    0.69,
+    0.35
+   ],
+   "excluded": [
+    "stove f_L-1_008",
+    "window win_L-1_003"
+   ]
+  },
+  {
+   "id": "f_L-1_092",
+   "run": "f_L-1_002",
+   "size": [
+    0.561,
+    0.35
+   ],
+   "excluded": [
+    "stove f_L-1_008",
+    "window win_L-1_003"
+   ]
+  }
+ ],
+ "missing": [
+  "fridge"
+ ],
+ "drawn_layout": {
+  "pieces": {
+   "f_L-1_001": [
+    "inside_room",
+    "no_overlap",
+    "doors_free"
+   ],
+   "f_L-1_002": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1_003": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1_004": [
+    "inside_room"
+   ],
+   "f_L-1_005": [
+    "inside_room",
+    "no_overlap",
+    "doors_free"
+   ],
+   "f_L-1_008": [
+    "no_overlap"
+   ],
+   "f_L-1_009": [
+    "no_overlap"
+   ],
+   "f_L-1_067": [
+    "inside_room",
+    "no_overlap"
+   ],
+   "f_L-1_081": [
+    "no_overlap"
+   ],
+   "f_L-1_083": [
+    "no_overlap"
+   ],
+   "f_L-1_085": [
+    "inside_room",
+    "no_overlap"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.137,
+ "program_full": {
+  "room_id": "r_L-1_mutfak",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L-1_mutfak.kitchen_run",
+    "group": "kitchen_run",
+    "anchor_id": "f_L-1_001",
+    "required": true,
+    "options": [
+     "I",
+     "L",
+     "galley",
+     "U"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 13.63,
+    "priority": 140,
+    "members": [
+     "f_L-1_002",
+     "f_L-1_003",
+     "f_L-1_004",
+     "f_L-1_008",
+     "f_L-1_067"
+    ],
+    "missing": [
+     "fridge"
+    ],
+    "note": ""
+   },
+   {
+    "group_id": "r_L-1_mutfak.dining",
+    "group": "dining",
+    "anchor_id": null,
+    "required": false,
+    "options": [
+     "seats_4"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 13.63,
+    "priority": 15,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "kitchen_run completed around drawn kitchen_counter f_L-1_001"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 2.7964,
+   "terms": {
+    "balance": 0.7964,
+    "circulation": 1.0
+   },
+   "pieces": [],
+   "groups": [],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1_002",
+     "room_id": "r_L-1_mutfak",
+     "message": "kitchen aisle 0.01 m in front of kitchen_counter f_L-1_002, needs ≥ 0.90 m",
+     "metrics": {
+      "aisle_m": 0.007,
+      "needs_m": 0.9
+     }
+    },
+    {
+     "check": "G9",
+     "severity": "major",
+     "target": "r_L-1_mutfak",
+     "room_id": "r_L-1_mutfak",
+     "message": "kitchen r_L-1_mutfak has no fridge (fridge)",
+     "metrics": {
+      "missing": "fridge"
+     }
+    }
+   ],
+   "options": {},
+   "placed": [],
+   "not_placed": [
+    {
+     "group_id": "r_L-1_mutfak.kitchen_run",
+     "group": "kitchen_run",
+     "required": false,
+     "reason": "no place passes the checks"
+    },
+    {
+     "group_id": "r_L-1_mutfak.dining",
+     "group": "dining",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 1603,
+    "expanded": 44,
+    "walkway_checks": 2
+   }
+  },
+  {
+   "rank": 2,
+   "score": 8.8268,
+   "terms": {
+    "drawn_distance": 0.704,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8368,
+    "circulation": 0.893
+   },
+   "pieces": [
+    {
+     "id": "f_L-1_090",
+     "level_id": "L-1",
+     "room_id": "r_L-1_mutfak",
+     "type": "fridge",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       2.4211,
+       7.4882
+      ],
+      "size": [
+       0.6,
+       0.65
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 1.8,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group kitchen_run",
+       "text": "fridge (fridge) of the kitchen_run group, option fridge, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1_mutfak.kitchen_run",
+      "group": "kitchen_run",
+      "role": "partner",
+      "anchor_id": "f_L-1_001"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "fridge",
+      "option": "fridge"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L-1_mutfak.kitchen_run",
+     "group": "kitchen_run",
+     "anchor_id": "f_L-1_001",
+     "member_ids": [
+      "f_L-1_090"
+     ]
+    }
+   ],
+   "hard_failures": [
+    "G8 f_L-1_067: work triangle: hob-fridge 3.38 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+    "G8 f_L-1_090: fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side"
+   ],
+   "group_violations": [
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1_002",
+     "room_id": "r_L-1_mutfak",
+     "message": "kitchen aisle 0.01 m in front of kitchen_counter f_L-1_002, needs ≥ 0.90 m",
+     "metrics": {
+      "aisle_m": 0.007,
+      "needs_m": 0.9
+     }
+    },
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1_067",
+     "room_id": "r_L-1_mutfak",
+     "message": "work triangle: hob-fridge 3.38 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+     "metrics": {
+      "legs_m": {
+       "fridge-sink": 2.55,
+       "sink-hob": 1.28,
+       "hob-fridge": 3.38
+      },
+      "sum_m": 7.22
+     }
+    },
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1_090",
+     "room_id": "r_L-1_mutfak",
+     "message": "fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side",
+     "metrics": {
+      "landing_m": 0.0,
+      "needs_m": 0.38,
+      "left_m": 0.0,
+      "right_m": 0.0
+     }
+    }
+   ],
+   "options": {
+    "r_L-1_mutfak.kitchen_run": "fridge"
+   },
+   "placed": [
+    "r_L-1_mutfak.kitchen_run"
+   ],
+   "not_placed": [
+    {
+     "group_id": "r_L-1_mutfak.dining",
+     "group": "dining",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 1603,
+    "expanded": 44,
+    "walkway_checks": 2
+   }
+  },
+  {
+   "rank": 3,
+   "score": 8.7811,
+   "terms": {
+    "drawn_distance": 0.6979,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8462,
+    "circulation": 0.8685
+   },
+   "pieces": [
+    {
+     "id": "f_L-1_090",
+     "level_id": "L-1",
+     "room_id": "r_L-1_mutfak",
+     "type": "fridge",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       2.4711,
+       7.5132
+      ],
+      "size": [
+       0.7,
+       0.7
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 1.8,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group kitchen_run",
+       "text": "fridge (fridge) of the kitchen_run group, option fridge, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1_mutfak.kitchen_run",
+      "group": "kitchen_run",
+      "role": "partner",
+      "anchor_id": "f_L-1_001"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "fridge",
+      "option": "fridge"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L-1_mutfak.kitchen_run",
+     "group": "kitchen_run",
+     "anchor_id": "f_L-1_001",
+     "member_ids": [
+      "f_L-1_090"
+     ]
+    }
+   ],
+   "hard_failures": [
+    "G8 f_L-1_067: work triangle: hob-fridge 3.33 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+    "G8 f_L-1_090: fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side"
+   ],
+   "group_violations": [
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1_002",
+     "room_id": "r_L-1_mutfak",
+     "message": "kitchen aisle 0.01 m in front of kitchen_counter f_L-1_002, needs ≥ 0.90 m",
+     "metrics": {
+      "aisle_m": 0.007,
+      "needs_m": 0.9
+     }
+    },
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1_067",
+     "room_id": "r_L-1_mutfak",
+     "message": "work triangle: hob-fridge 3.33 m (legs 1.20-2.70 m, sum ≤ 7.90 m)",
+     "metrics": {
+      "legs_m": {
+       "fridge-sink": 2.52,
+       "sink-hob": 1.28,
+       "hob-fridge": 3.33
+      },
+      "sum_m": 7.13
+     }
+    },
+    {
+     "check": "G8",
+     "severity": "major",
+     "target": "f_L-1_090",
+     "room_id": "r_L-1_mutfak",
+     "message": "fridge f_L-1_090: 0.00 m of counter beside it, needs ≥ 0.38 m on one side",
+     "metrics": {
+      "landing_m": 0.0,
+      "needs_m": 0.38,
+      "left_m": 0.0,
+      "right_m": 0.0
+     }
+    }
+   ],
+   "options": {
+    "r_L-1_mutfak.kitchen_run": "fridge"
+   },
+   "placed": [
+    "r_L-1_mutfak.kitchen_run"
+   ],
+   "not_placed": [
+    {
+     "group_id": "r_L-1_mutfak.dining",
+     "group": "dining",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 1603,
+    "expanded": 44,
+    "walkway_checks": 2
+   }
+  }
+ ]
+}

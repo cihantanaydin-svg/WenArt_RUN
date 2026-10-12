@@ -1,0 +1,894 @@
+{
+ "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+ "label": "Oyun Aktivite Ve Dinlenme Odası",
+ "room_type": "other",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L1_003",
+   "type": "unknown",
+   "kind": "outline",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.8741,
+     4.2632
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_005",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.818,
+     7.2427
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_009",
+   "type": "sofa",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.2144,
+     4.0212
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_012",
+   "type": "sofa",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.6534,
+     5.9114
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_015",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.5598,
+     4.0613
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_017",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     3.8118,
+     2.2676
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_028",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     6.4529,
+     0.8163
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_029",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.3717,
+     0.8163
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_031",
+   "type": "ottoman",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     5.818,
+     1.7001
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_033",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.1022,
+     7.2427
+    ],
+    "wall_id": null
+   }
+  },
+  {
+   "id": "f_L1_034",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     5.0709,
+     7.4427
+    ],
+    "wall_id": "w_L1_002"
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.seating",
+   "group": "seating",
+   "options": [
+    "sofa_2_armchairs",
+    "sofa_armchair",
+    "sofa"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": "no completion: a seating group does not belong in a other room"
+  },
+  {
+   "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.seating.f_L1_012",
+   "group": "seating",
+   "options": [
+    "sofa_2_armchairs",
+    "sofa_armchair",
+    "sofa"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": "no completion: a seating group does not belong in a other room"
+  },
+  {
+   "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+   "group": "work",
+   "options": [
+    "desk"
+   ],
+   "drawn": false,
+   "required": false,
+   "missing": [],
+   "note": ""
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 11.603,
+   "terms": {
+    "daylight": 0.8617,
+    "desk_side_light": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.9307,
+    "circulation": 0.9053
+   },
+   "options": {
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work": "desk"
+   },
+   "pieces": [
+    "desk",
+    "office_chair"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [
+    "G14 minor f_L1_009: sofa f_L1_009 is not a piece of a other room",
+    "G14 minor f_L1_012: sofa f_L1_012 is not a piece of a other room"
+   ],
+   "nodes": {
+    "generated": 584,
+    "expanded": 11,
+    "walkway_checks": 11
+   }
+  },
+  {
+   "rank": 2,
+   "score": 11.5349,
+   "terms": {
+    "daylight": 0.8188,
+    "desk_side_light": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.9115,
+    "circulation": 0.9023
+   },
+   "options": {
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work": "desk"
+   },
+   "pieces": [
+    "desk",
+    "office_chair"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [
+    "G14 minor f_L1_009: sofa f_L1_009 is not a piece of a other room",
+    "G14 minor f_L1_012: sofa f_L1_012 is not a piece of a other room"
+   ],
+   "nodes": {
+    "generated": 584,
+    "expanded": 11,
+    "walkway_checks": 11
+   }
+  },
+  {
+   "rank": 3,
+   "score": 10.8991,
+   "terms": {
+    "daylight": 0.059,
+    "desk_side_light": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.9475,
+    "circulation": 0.9463
+   },
+   "options": {
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work": "desk"
+   },
+   "pieces": [
+    "desk",
+    "office_chair"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [
+    "G14 minor f_L1_009: sofa f_L1_009 is not a piece of a other room",
+    "G14 minor f_L1_012: sofa f_L1_012 is not a piece of a other room"
+   ],
+   "nodes": {
+    "generated": 584,
+    "expanded": 11,
+    "walkway_checks": 11
+   }
+  }
+ ],
+ "chosen": 1,
+ "choice": {
+  "index": 0,
+  "rank": 1,
+  "by": "vlm",
+  "reason": "Desk is positioned near the window for optimal natural light and the layout maintains good circulation and balance in the room.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 1.078,
+  "images": [
+   "r_L1_oyun_aktivite_ve_dinlenme_odasi_c1.png",
+   "r_L1_oyun_aktivite_ve_dinlenme_odasi_c2.png",
+   "r_L1_oyun_aktivite_ve_dinlenme_odasi_c3.png"
+  ]
+ },
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "latency_s": 1.078,
+   "error": null,
+   "transport_error": false
+  }
+ ],
+ "chosen_pass": 1,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L1_043",
+   "type": "desk",
+   "center": [
+    3.1215,
+    4.1211
+   ],
+   "size": [
+    1.2,
+    0.6
+   ],
+   "rotation_deg": 90.0,
+   "group": "work",
+   "method": "rule",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L1_044",
+   "type": "office_chair",
+   "center": [
+    3.7715,
+    4.1211
+   ],
+   "size": [
+    0.6,
+    0.6
+   ],
+   "rotation_deg": 270.0,
+   "group": "work",
+   "method": "rule",
+   "mirrored_from": null
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "missing": [],
+ "drawn_layout": {
+  "pieces": {
+   "f_L1_005": [
+    "inside_room"
+   ],
+   "f_L1_009": [
+    "clearance_ok"
+   ],
+   "f_L1_033": [
+    "inside_room"
+   ],
+   "f_L1_034": [
+    "inside_room"
+   ]
+  }
+ },
+ "latency_s": 1.078,
+ "solve_s": 0.118,
+ "program_full": {
+  "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.seating",
+    "group": "seating",
+    "anchor_id": "f_L1_009",
+    "required": true,
+    "options": [
+     "sofa_2_armchairs",
+     "sofa_armchair",
+     "sofa"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 40.45,
+    "priority": 120,
+    "members": [],
+    "missing": [],
+    "note": "no completion: a seating group does not belong in a other room"
+   },
+   {
+    "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.seating.f_L1_012",
+    "group": "seating",
+    "anchor_id": "f_L1_012",
+    "required": true,
+    "options": [
+     "sofa_2_armchairs",
+     "sofa_armchair",
+     "sofa"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 40.45,
+    "priority": 120,
+    "members": [],
+    "missing": [],
+    "note": "no completion: a seating group does not belong in a other room"
+   },
+   {
+    "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+    "group": "work",
+    "anchor_id": null,
+    "required": false,
+    "options": [
+     "desk"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 40.45,
+    "priority": 10,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "seating completed around drawn sofa f_L1_009; seating completed around drawn sofa f_L1_012"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 11.603,
+   "terms": {
+    "daylight": 0.8617,
+    "desk_side_light": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.9307,
+    "circulation": 0.9053
+   },
+   "pieces": [
+    {
+     "id": "f_L1_043",
+     "level_id": "L1",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "desk",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.1215,
+       4.1211
+      ],
+      "size": [
+       1.2,
+       0.6
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.75,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "desk (anchor) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+      "group": "work",
+      "role": "anchor",
+      "anchor_id": "f_L1_043"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "desk"
+     }
+    },
+    {
+     "id": "f_L1_044",
+     "level_id": "L1",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "office_chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.7715,
+       4.1211
+      ],
+      "size": [
+       0.6,
+       0.6
+      ],
+      "rotation_deg": 270.0
+     },
+     "front_deg": 180.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "office_chair (chair) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+      "group": "work",
+      "role": "partner",
+      "anchor_id": "f_L1_043"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "desk"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+     "group": "work",
+     "anchor_id": "f_L1_043",
+     "member_ids": [
+      "f_L1_044"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G14",
+     "severity": "minor",
+     "target": "f_L1_009",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "message": "sofa f_L1_009 is not a piece of a other room",
+     "metrics": {
+      "type": "sofa",
+      "room_type": "other",
+      "drawn": true
+     }
+    },
+    {
+     "check": "G14",
+     "severity": "minor",
+     "target": "f_L1_012",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "message": "sofa f_L1_012 is not a piece of a other room",
+     "metrics": {
+      "type": "sofa",
+      "room_type": "other",
+      "drawn": true
+     }
+    }
+   ],
+   "options": {
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work": "desk"
+   },
+   "placed": [
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 584,
+    "expanded": 11,
+    "walkway_checks": 11
+   }
+  },
+  {
+   "rank": 2,
+   "score": 11.5349,
+   "terms": {
+    "daylight": 0.8188,
+    "desk_side_light": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.9115,
+    "circulation": 0.9023
+   },
+   "pieces": [
+    {
+     "id": "f_L1_043",
+     "level_id": "L1",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "desk",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.1215,
+       5.2211
+      ],
+      "size": [
+       1.2,
+       0.6
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.75,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "desk (anchor) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+      "group": "work",
+      "role": "anchor",
+      "anchor_id": "f_L1_043"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "desk"
+     }
+    },
+    {
+     "id": "f_L1_044",
+     "level_id": "L1",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "office_chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.7715,
+       5.2211
+      ],
+      "size": [
+       0.6,
+       0.6
+      ],
+      "rotation_deg": 270.0
+     },
+     "front_deg": 180.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "office_chair (chair) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+      "group": "work",
+      "role": "partner",
+      "anchor_id": "f_L1_043"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "desk"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+     "group": "work",
+     "anchor_id": "f_L1_043",
+     "member_ids": [
+      "f_L1_044"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G14",
+     "severity": "minor",
+     "target": "f_L1_009",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "message": "sofa f_L1_009 is not a piece of a other room",
+     "metrics": {
+      "type": "sofa",
+      "room_type": "other",
+      "drawn": true
+     }
+    },
+    {
+     "check": "G14",
+     "severity": "minor",
+     "target": "f_L1_012",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "message": "sofa f_L1_012 is not a piece of a other room",
+     "metrics": {
+      "type": "sofa",
+      "room_type": "other",
+      "drawn": true
+     }
+    }
+   ],
+   "options": {
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work": "desk"
+   },
+   "placed": [
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 584,
+    "expanded": 11,
+    "walkway_checks": 11
+   }
+  },
+  {
+   "rank": 3,
+   "score": 10.8991,
+   "terms": {
+    "daylight": 0.059,
+    "desk_side_light": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.9475,
+    "circulation": 0.9463
+   },
+   "pieces": [
+    {
+     "id": "f_L1_043",
+     "level_id": "L1",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "desk",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.1215,
+       0.8211
+      ],
+      "size": [
+       1.2,
+       0.6
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.75,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "desk (anchor) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+      "group": "work",
+      "role": "anchor",
+      "anchor_id": "f_L1_043"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "desk"
+     }
+    },
+    {
+     "id": "f_L1_044",
+     "level_id": "L1",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "type": "office_chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.7715,
+       0.8211
+      ],
+      "size": [
+       0.6,
+       0.6
+      ],
+      "rotation_deg": 270.0
+     },
+     "front_deg": 180.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "office_chair (chair) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+      "group": "work",
+      "role": "partner",
+      "anchor_id": "f_L1_043"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "desk"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi.work",
+     "group": "work",
+     "anchor_id": "f_L1_043",
+     "member_ids": [
+      "f_L1_044"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G14",
+     "severity": "minor",
+     "target": "f_L1_009",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "message": "sofa f_L1_009 is not a piece of a other room",
+     "metrics": {
+      "type": "sofa",
+      "room_type": "other",
+      "drawn": true
+     }
+    },
+    {
+     "check": "G14",
+     "severity": "minor",
+     "target": "f_L1_012",
+     "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+     "message": "sofa f_L1_012 is not a piece of a other room",
+     "metrics": {
+      "type": "sofa",
+      "room_type": "other",
+      "drawn": true
+     }
+    }
+   ],
+   "options": {
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work": "desk"
+   },
+   "placed": [
+    "r_L1_oyun_aktivite_ve_dinlenme_odasi.work"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 584,
+    "expanded": 11,
+    "walkway_checks": 11
+   }
+  }
+ ]
+}

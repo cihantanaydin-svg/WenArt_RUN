@@ -1,0 +1,214 @@
+{
+ "room_id": "r_L0_banyo",
+ "label": "Banyo",
+ "room_type": "bathroom",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "nothing fits: bathroom_set: no candidate position fits the room",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_003",
+   "type": "washbasin",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     6.2182,
+     9.9345
+    ],
+    "wall_id": "w_L0_008"
+   }
+  },
+  {
+   "id": "f_L0_016",
+   "type": "toilet",
+   "kind": "fixed",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     7.0523,
+     9.9214
+    ],
+    "wall_id": "w_L0_008"
+   }
+  },
+  {
+   "id": "f_L0_043",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "centre",
+    "point": [
+     7.9865,
+     10.8831
+    ],
+    "wall_id": null
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L0_banyo.bathroom_set",
+   "group": "bathroom_set",
+   "options": [
+    "shower",
+    "bathtub",
+    "shower_washer"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [
+    "shower|bathtub"
+   ],
+   "note": ""
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 2.7236,
+   "terms": {
+    "balance": 0.7236,
+    "circulation": 1.0
+   },
+   "options": {},
+   "pieces": [],
+   "not_placed": [
+    {
+     "group_id": "r_L0_banyo.bathroom_set",
+     "group": "bathroom_set",
+     "required": true,
+     "reason": "no candidate position fits the room"
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    "G10 major f_L0_016: toilet f_L0_016: centre 0.33 m from the side wall or fixture on its right, needs ≥ 0.38 m",
+    "G10 major r_L0_banyo: bathroom without a shower or a bathtub"
+   ],
+   "nodes": {
+    "generated": 344,
+    "expanded": 0,
+    "walkway_checks": 0
+   }
+  }
+ ],
+ "chosen": null,
+ "choice": {},
+ "passes": [],
+ "chosen_pass": null,
+ "changes": [],
+ "added": [],
+ "refused": [],
+ "dropped": [
+  {
+   "type": "bathroom_set",
+   "reason": "no candidate position fits the room",
+   "group_id": "r_L0_banyo.bathroom_set"
+  }
+ ],
+ "wall_cabinets": [],
+ "missing": [
+  "shower|bathtub"
+ ],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_003": [
+    "inside_room",
+    "doors_free"
+   ],
+   "f_L0_016": [
+    "inside_room"
+   ],
+   "f_L0_043": [
+    "inside_room"
+   ]
+  }
+ },
+ "latency_s": 0.0,
+ "solve_s": 0.048,
+ "program_full": {
+  "room_id": "r_L0_banyo",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L0_banyo.bathroom_set",
+    "group": "bathroom_set",
+    "anchor_id": "f_L0_016",
+    "required": true,
+    "options": [
+     "shower",
+     "bathtub",
+     "shower_washer"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 4.98,
+    "priority": 140,
+    "members": [
+     "f_L0_003"
+    ],
+    "missing": [
+     "shower|bathtub"
+    ],
+    "note": ""
+   }
+  ],
+  "reason": "bathroom_set completed around drawn toilet f_L0_016"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 2.7236,
+   "terms": {
+    "balance": 0.7236,
+    "circulation": 1.0
+   },
+   "pieces": [],
+   "groups": [],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G10",
+     "severity": "major",
+     "target": "f_L0_016",
+     "room_id": "r_L0_banyo",
+     "message": "toilet f_L0_016: centre 0.33 m from the side wall or fixture on its right, needs ≥ 0.38 m",
+     "metrics": {
+      "part": "side",
+      "centre_m": 0.334,
+      "needs_m": 0.38
+     }
+    },
+    {
+     "check": "G10",
+     "severity": "major",
+     "target": "r_L0_banyo",
+     "room_id": "r_L0_banyo",
+     "message": "bathroom without a shower or a bathtub",
+     "metrics": {
+      "missing": "shower|bathtub"
+     }
+    }
+   ],
+   "options": {},
+   "placed": [],
+   "not_placed": [
+    {
+     "group_id": "r_L0_banyo.bathroom_set",
+     "group": "bathroom_set",
+     "required": true,
+     "reason": "no candidate position fits the room"
+    }
+   ],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 344,
+    "expanded": 0,
+    "walkway_checks": 0
+   }
+  }
+ ]
+}

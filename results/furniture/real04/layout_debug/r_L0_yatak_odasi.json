@@ -1,0 +1,828 @@
+{
+ "room_id": "r_L0_yatak_odasi",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "room_subtype": null,
+ "state": "completed",
+ "reason": "",
+ "partner": null,
+ "drawn": [
+  {
+   "id": "f_L0_017",
+   "type": "bed_double",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2006,
+     3.0078
+    ],
+    "wall_id": "w_L0_012"
+   }
+  },
+  {
+   "id": "f_L0_024",
+   "type": "unknown",
+   "kind": "obstacle",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.2006,
+     5.0627
+    ],
+    "wall_id": "w_L0_012"
+   }
+  },
+  {
+   "id": "f_L0_026",
+   "type": "wardrobe",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     2.2454,
+     7.0427
+    ],
+    "wall_id": "w_L0_003"
+   }
+  },
+  {
+   "id": "f_L0_038",
+   "type": "wardrobe",
+   "kind": "changeable",
+   "anchor": {
+    "kind": "back_edge",
+    "point": [
+     1.9273,
+     7.0427
+    ],
+    "wall_id": "w_L0_003"
+   }
+  }
+ ],
+ "program": [
+  {
+   "group_id": "r_L0_yatak_odasi.sleeping_double",
+   "group": "sleeping_double",
+   "options": [
+    "bed_nightstands",
+    "bed_nightstands_bench"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [
+    "nightstand",
+    "nightstand"
+   ],
+   "note": ""
+  },
+  {
+   "group_id": "r_L0_yatak_odasi.storage",
+   "group": "storage",
+   "options": [
+    "wardrobe"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": ""
+  },
+  {
+   "group_id": "r_L0_yatak_odasi.storage.f_L0_038",
+   "group": "storage",
+   "options": [
+    "wardrobe"
+   ],
+   "drawn": true,
+   "required": true,
+   "missing": [],
+   "note": "unverified anchor: nothing added"
+  },
+  {
+   "group_id": "r_L0_yatak_odasi.work",
+   "group": "work",
+   "options": [
+    "desk"
+   ],
+   "drawn": false,
+   "required": false,
+   "missing": [],
+   "note": ""
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 24.208,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "daylight": 0.3654,
+    "desk_side_light": 1.0,
+    "drawn_distance": 0.6922,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8192,
+    "circulation": 0.6656
+   },
+   "options": {
+    "r_L0_yatak_odasi.sleeping_double": "bed_nightstands",
+    "r_L0_yatak_odasi.work": "desk"
+   },
+   "pieces": [
+    "nightstand",
+    "nightstand",
+    "desk",
+    "office_chair"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [
+    "G5 major f_L0_017: bed_double f_L0_017: 0.53 m free along the left side, needs ≥ 0.60 m",
+    "G12 major f_L0_026: wardrobe f_L0_026 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)",
+    "G12 major f_L0_038: wardrobe f_L0_038 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)"
+   ],
+   "nodes": {
+    "generated": 456,
+    "expanded": 8,
+    "walkway_checks": 5
+   }
+  },
+  {
+   "rank": 2,
+   "score": 16.4333,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "drawn_distance": 0.6922,
+    "partners": 1.0,
+    "balance": 0.7583,
+    "circulation": 0.9914
+   },
+   "options": {
+    "r_L0_yatak_odasi.sleeping_double": "bed_nightstands"
+   },
+   "pieces": [
+    "nightstand",
+    "nightstand"
+   ],
+   "not_placed": [
+    {
+     "group_id": "r_L0_yatak_odasi.work",
+     "group": "work",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    "G5 major f_L0_017: bed_double f_L0_017: 0.53 m free along the left side, needs ≥ 0.60 m",
+    "G12 major f_L0_026: wardrobe f_L0_026 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)",
+    "G12 major f_L0_038: wardrobe f_L0_038 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)"
+   ],
+   "nodes": {
+    "generated": 456,
+    "expanded": 8,
+    "walkway_checks": 5
+   }
+  }
+ ],
+ "chosen": 1,
+ "choice": {
+  "index": 0,
+  "rank": 1,
+  "by": "vlm",
+  "reason": "Includes a functional desk and chair setup for a complete bedroom, with good circulation and the bed positioned to see the door, despite slightly lower circulation score than candidate 2.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 1.313,
+  "images": [
+   "r_L0_yatak_odasi_c1.png",
+   "r_L0_yatak_odasi_c2.png"
+  ]
+ },
+ "passes": [
+  {
+   "pass": 1,
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "latency_s": 1.313,
+   "error": null,
+   "transport_error": false
+  }
+ ],
+ "chosen_pass": 1,
+ "changes": [],
+ "added": [
+  {
+   "id": "f_L0_049",
+   "type": "nightstand",
+   "center": [
+    1.4256,
+    4.0028
+   ],
+   "size": [
+    0.4,
+    0.4
+   ],
+   "rotation_deg": 90.0,
+   "group": "sleeping_double",
+   "method": "rule",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L0_050",
+   "type": "nightstand",
+   "center": [
+    1.4256,
+    2.0128
+   ],
+   "size": [
+    0.4,
+    0.4
+   ],
+   "rotation_deg": 90.0,
+   "group": "sleeping_double",
+   "method": "rule",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L0_051",
+   "type": "desk",
+   "center": [
+    3.897,
+    5.021
+   ],
+   "size": [
+    1.2,
+    0.6
+   ],
+   "rotation_deg": 270.0,
+   "group": "work",
+   "method": "rule",
+   "mirrored_from": null
+  },
+  {
+   "id": "f_L0_052",
+   "type": "office_chair",
+   "center": [
+    3.247,
+    5.021
+   ],
+   "size": [
+    0.6,
+    0.6
+   ],
+   "rotation_deg": 90.0,
+   "group": "work",
+   "method": "rule",
+   "mirrored_from": null
+  }
+ ],
+ "refused": [],
+ "dropped": [],
+ "wall_cabinets": [],
+ "missing": [
+  "nightstand",
+  "nightstand"
+ ],
+ "drawn_layout": {
+  "pieces": {
+   "f_L0_017": [
+    "inside_room"
+   ],
+   "f_L0_024": [
+    "inside_room"
+   ],
+   "f_L0_026": [
+    "inside_room",
+    "no_overlap",
+    "windows_free"
+   ],
+   "f_L0_038": [
+    "inside_room",
+    "no_overlap",
+    "windows_free"
+   ]
+  }
+ },
+ "latency_s": 1.313,
+ "solve_s": 0.089,
+ "program_full": {
+  "room_id": "r_L0_yatak_odasi",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L0_yatak_odasi.sleeping_double",
+    "group": "sleeping_double",
+    "anchor_id": "f_L0_017",
+    "required": true,
+    "options": [
+     "bed_nightstands",
+     "bed_nightstands_bench"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 16.06,
+    "priority": 130,
+    "members": [],
+    "missing": [
+     "nightstand",
+     "nightstand"
+    ],
+    "note": ""
+   },
+   {
+    "group_id": "r_L0_yatak_odasi.storage",
+    "group": "storage",
+    "anchor_id": "f_L0_026",
+    "required": true,
+    "options": [
+     "wardrobe"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 16.06,
+    "priority": 125,
+    "members": [],
+    "missing": [],
+    "note": ""
+   },
+   {
+    "group_id": "r_L0_yatak_odasi.storage.f_L0_038",
+    "group": "storage",
+    "anchor_id": "f_L0_038",
+    "required": true,
+    "options": [
+     "wardrobe"
+    ],
+    "chosen": null,
+    "drawn": true,
+    "zone_id": null,
+    "area": 16.06,
+    "priority": 125,
+    "members": [],
+    "missing": [],
+    "note": "unverified anchor: nothing added"
+   },
+   {
+    "group_id": "r_L0_yatak_odasi.work",
+    "group": "work",
+    "anchor_id": null,
+    "required": false,
+    "options": [
+     "desk"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 16.06,
+    "priority": 10,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "sleeping_double completed around drawn bed_double f_L0_017; storage completed around drawn wardrobe f_L0_026; storage completed around drawn wardrobe f_L0_038"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 24.208,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "daylight": 0.3654,
+    "desk_side_light": 1.0,
+    "drawn_distance": 0.6922,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.5,
+    "balance": 0.8192,
+    "circulation": 0.6656
+   },
+   "pieces": [
+    {
+     "id": "f_L0_049",
+     "level_id": "L0",
+     "room_id": "r_L0_yatak_odasi",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.4256,
+       4.0028
+      ],
+      "size": [
+       0.4,
+       0.4
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_yatak_odasi.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L0_017"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L0_050",
+     "level_id": "L0",
+     "room_id": "r_L0_yatak_odasi",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.4256,
+       2.0128
+      ],
+      "size": [
+       0.4,
+       0.4
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_yatak_odasi.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L0_017"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L0_051",
+     "level_id": "L0",
+     "room_id": "r_L0_yatak_odasi",
+     "type": "desk",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.897,
+       5.021
+      ],
+      "size": [
+       1.2,
+       0.6
+      ],
+      "rotation_deg": 270.0
+     },
+     "front_deg": 180.0,
+     "height": 0.75,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "desk (anchor) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_yatak_odasi.work",
+      "group": "work",
+      "role": "anchor",
+      "anchor_id": "f_L0_051"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "desk"
+     }
+    },
+    {
+     "id": "f_L0_052",
+     "level_id": "L0",
+     "room_id": "r_L0_yatak_odasi",
+     "type": "office_chair",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.247,
+       5.021
+      ],
+      "size": [
+       0.6,
+       0.6
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 1.0,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group work",
+       "text": "office_chair (chair) of the work group, option desk, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_yatak_odasi.work",
+      "group": "work",
+      "role": "partner",
+      "anchor_id": "f_L0_051"
+     },
+     "layout": {
+      "against_wall": false,
+      "solver_role": "chair",
+      "option": "desk"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L0_yatak_odasi.sleeping_double",
+     "group": "sleeping_double",
+     "anchor_id": "f_L0_017",
+     "member_ids": [
+      "f_L0_049",
+      "f_L0_050"
+     ]
+    },
+    {
+     "group_id": "r_L0_yatak_odasi.work",
+     "group": "work",
+     "anchor_id": "f_L0_051",
+     "member_ids": [
+      "f_L0_052"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G5",
+     "severity": "major",
+     "target": "f_L0_017",
+     "room_id": "r_L0_yatak_odasi",
+     "message": "bed_double f_L0_017: 0.53 m free along the left side, needs ≥ 0.60 m",
+     "metrics": {
+      "part": "left_side",
+      "free_m": 0.533,
+      "needs_m": 0.6
+     }
+    },
+    {
+     "check": "G12",
+     "severity": "major",
+     "target": "f_L0_026",
+     "room_id": "r_L0_yatak_odasi",
+     "message": "wardrobe f_L0_026 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)",
+     "metrics": {
+      "window": "win_L0_005",
+      "height_m": 2.1,
+      "sill_m": 0.9
+     }
+    },
+    {
+     "check": "G12",
+     "severity": "major",
+     "target": "f_L0_038",
+     "room_id": "r_L0_yatak_odasi",
+     "message": "wardrobe f_L0_038 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)",
+     "metrics": {
+      "window": "win_L0_005",
+      "height_m": 2.1,
+      "sill_m": 0.9
+     }
+    }
+   ],
+   "options": {
+    "r_L0_yatak_odasi.sleeping_double": "bed_nightstands",
+    "r_L0_yatak_odasi.work": "desk"
+   },
+   "placed": [
+    "r_L0_yatak_odasi.sleeping_double",
+    "r_L0_yatak_odasi.work"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 456,
+    "expanded": 8,
+    "walkway_checks": 5
+   }
+  },
+  {
+   "rank": 2,
+   "score": 16.4333,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "drawn_distance": 0.6922,
+    "partners": 1.0,
+    "balance": 0.7583,
+    "circulation": 0.9914
+   },
+   "pieces": [
+    {
+     "id": "f_L0_049",
+     "level_id": "L0",
+     "room_id": "r_L0_yatak_odasi",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.4256,
+       4.0028
+      ],
+      "size": [
+       0.4,
+       0.4
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_yatak_odasi.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L0_017"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L0_050",
+     "level_id": "L0",
+     "room_id": "r_L0_yatak_odasi",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.4256,
+       2.0128
+      ],
+      "size": [
+       0.4,
+       0.4
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L0_yatak_odasi.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L0_017"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L0_yatak_odasi.sleeping_double",
+     "group": "sleeping_double",
+     "anchor_id": "f_L0_017",
+     "member_ids": [
+      "f_L0_049",
+      "f_L0_050"
+     ]
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G5",
+     "severity": "major",
+     "target": "f_L0_017",
+     "room_id": "r_L0_yatak_odasi",
+     "message": "bed_double f_L0_017: 0.53 m free along the left side, needs ≥ 0.60 m",
+     "metrics": {
+      "part": "left_side",
+      "free_m": 0.533,
+      "needs_m": 0.6
+     }
+    },
+    {
+     "check": "G12",
+     "severity": "major",
+     "target": "f_L0_026",
+     "room_id": "r_L0_yatak_odasi",
+     "message": "wardrobe f_L0_026 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)",
+     "metrics": {
+      "window": "win_L0_005",
+      "height_m": 2.1,
+      "sill_m": 0.9
+     }
+    },
+    {
+     "check": "G12",
+     "severity": "major",
+     "target": "f_L0_038",
+     "room_id": "r_L0_yatak_odasi",
+     "message": "wardrobe f_L0_038 (2.10 m) stands in front of window win_L0_005 (sill 0.90 m + 0.05)",
+     "metrics": {
+      "window": "win_L0_005",
+      "height_m": 2.1,
+      "sill_m": 0.9
+     }
+    }
+   ],
+   "options": {
+    "r_L0_yatak_odasi.sleeping_double": "bed_nightstands"
+   },
+   "placed": [
+    "r_L0_yatak_odasi.sleeping_double"
+   ],
+   "not_placed": [
+    {
+     "group_id": "r_L0_yatak_odasi.work",
+     "group": "work",
+     "required": false,
+     "reason": "no place passes the checks"
+    }
+   ],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 456,
+    "expanded": 8,
+    "walkway_checks": 5
+   }
+  }
+ ]
+}

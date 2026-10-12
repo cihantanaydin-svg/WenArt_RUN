@@ -1,0 +1,38 @@
+{
+ "room_id": "r_L0_koridor_2",
+ "label": "Koridor",
+ "room_type": "hall",
+ "program": [],
+ "candidates": [],
+ "chosen": null,
+ "choice": {},
+ "latency_s": 0.0,
+ "solve_s": 0.0,
+ "skipped": null,
+ "pieces": [
+  {
+   "id": "f_L0_048",
+   "type": "shoe_cabinet",
+   "group": "entrance"
+  }
+ ],
+ "copied_from": {
+  "room": "r_L0_koridor",
+  "kind": "twin",
+  "transform": {
+   "kind": "given",
+   "affine": [
+    -1.0,
+    0.0,
+    17.173,
+    0.0,
+    1.0,
+    0.0
+   ],
+   "deviation_m": 0.001
+  }
+ },
+ "copy_dropped": [],
+ "program_full": null,
+ "candidates_full": []
+}

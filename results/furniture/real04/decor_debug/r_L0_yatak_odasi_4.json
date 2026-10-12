@@ -1,0 +1,153 @@
+{
+ "room_id": "r_L0_yatak_odasi_4",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [
+  {
+   "id": "r_L0_yatak_odasi_4.corner1",
+   "kind": "floor",
+   "types": [
+    "plant",
+    "plant_large",
+    "basket",
+    "sculpture"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "corner at 0.45, 9.45",
+   "center": [
+    0.45,
+    9.45
+   ]
+  },
+  {
+   "id": "window:win_L0_005",
+   "kind": "window",
+   "types": [
+    "curtain",
+    "blind"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "window win_L0_005"
+  },
+  {
+   "id": "ceiling:centre_r_L0_yatak_odasi_4",
+   "kind": "ceiling",
+   "types": [
+    "pendant_light",
+    "ceiling_light"
+   ],
+   "host_id": null,
+   "host_type": null,
+   "note": "centre r L0 yatak odasi 4"
+  }
+ ],
+ "passes": {
+  "1": {
+   "items": [
+    {
+     "slot": "window:win_L0_005",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens the dark bronze frames and complements the warm greige walls."
+    },
+    {
+     "slot": "r_L0_yatak_odasi_4.corner1",
+     "type": "plant_large",
+     "colour": "sage green",
+     "reason": "Adds a lush natural element in a rattan pot to balance the room's corners."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yatak_odasi_4",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Provides warm ambient lighting that matches the natural wood and bronze accents."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.463
+  },
+  "2": {
+   "items": [
+    {
+     "slot": "window:win_L0_005",
+     "type": "curtain",
+     "colour": "cream",
+     "reason": "Softens the warm daylight and complements the greige walls and natural wood tones."
+    },
+    {
+     "slot": "r_L0_yatak_odasi_4.corner1",
+     "type": "plant_large",
+     "colour": "sage green",
+     "reason": "Adds a lush natural element in a rattan pot to balance the room's organic style."
+    },
+    {
+     "slot": "ceiling:centre_r_L0_yatak_odasi_4",
+     "type": "ceiling_light",
+     "colour": "brass",
+     "reason": "Provides warm ambient lighting that harmonizes with the dark bronze window frames."
+    }
+   ],
+   "error": null,
+   "latency_s": 4.549
+  }
+ },
+ "agreed": [
+  {
+   "slot": "window:win_L0_005",
+   "type": "curtain",
+   "colour": "cream",
+   "colour_agreed": true,
+   "reasons": [
+    "Softens the dark bronze frames and complements the warm greige walls.",
+    "Softens the warm daylight and complements the greige walls and natural wood tones."
+   ]
+  },
+  {
+   "slot": "r_L0_yatak_odasi_4.corner1",
+   "type": "plant_large",
+   "colour": "sage green",
+   "colour_agreed": true,
+   "reasons": [
+    "Adds a lush natural element in a rattan pot to balance the room's corners.",
+    "Adds a lush natural element in a rattan pot to balance the room's organic style."
+   ]
+  },
+  {
+   "slot": "ceiling:centre_r_L0_yatak_odasi_4",
+   "type": "ceiling_light",
+   "colour": "brass",
+   "colour_agreed": true,
+   "reasons": [
+    "Provides warm ambient lighting that matches the natural wood and bronze accents.",
+    "Provides warm ambient lighting that harmonizes with the dark bronze window frames."
+   ]
+  }
+ ],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_013",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_005"
+  },
+  {
+   "id": "dec_L0_014",
+   "type": "plant_large",
+   "method": "ai",
+   "slot": "r_L0_yatak_odasi_4.corner1"
+  },
+  {
+   "id": "dec_L0_015",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yatak_odasi_4"
+  }
+ ],
+ "fallback": null,
+ "notes": []
+}

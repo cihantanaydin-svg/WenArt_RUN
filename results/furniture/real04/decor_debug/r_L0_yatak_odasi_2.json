@@ -1,0 +1,71 @@
+{
+ "room_id": "r_L0_yatak_odasi_2",
+ "label": "Yatak Odası",
+ "room_type": "bedroom",
+ "slots": [],
+ "passes": {},
+ "agreed": [],
+ "not_agreed": [],
+ "rejected": [],
+ "refused": [],
+ "items": [
+  {
+   "id": "dec_L0_023",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_017.cushions"
+  },
+  {
+   "id": "dec_L0_024",
+   "type": "cushion",
+   "method": "ai",
+   "slot": "f_L0_017.cushions"
+  },
+  {
+   "id": "dec_L0_025",
+   "type": "throw",
+   "method": "ai",
+   "slot": "f_L0_017.throw"
+  },
+  {
+   "id": "dec_L0_026",
+   "type": "wall_art",
+   "method": "ai",
+   "slot": "f_L0_017.wall"
+  },
+  {
+   "id": "dec_L0_027",
+   "type": "table_lamp",
+   "method": "ai",
+   "slot": "f_L0_049.centre"
+  },
+  {
+   "id": "dec_L0_028",
+   "type": "plant_small",
+   "method": "ai",
+   "slot": "f_L0_050.centre"
+  },
+  {
+   "id": "dec_L0_029",
+   "type": "rug",
+   "method": "ai",
+   "slot": "r_L0_yatak_odasi.rug1"
+  },
+  {
+   "id": "dec_L0_030",
+   "type": "curtain",
+   "method": "ai",
+   "slot": "window:win_L0_001"
+  },
+  {
+   "id": "dec_L0_031",
+   "type": "ceiling_light",
+   "method": "ai",
+   "slot": "ceiling:centre_r_L0_yatak_odasi"
+  }
+ ],
+ "fallback": null,
+ "notes": [
+  "decor copied from r_L0_yatak_odasi (twin, not asked)"
+ ]
+}

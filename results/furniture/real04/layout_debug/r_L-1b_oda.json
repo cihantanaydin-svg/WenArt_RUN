@@ -1,0 +1,853 @@
+{
+ "room_id": "r_L-1b_oda",
+ "label": "Oda",
+ "room_type": "bedroom",
+ "program": [
+  {
+   "group_id": "r_L-1b_oda.sleeping_double",
+   "group": "sleeping_double",
+   "options": [
+    "bed_nightstands"
+   ],
+   "drawn": false,
+   "required": true
+  },
+  {
+   "group_id": "r_L-1b_oda.storage",
+   "group": "storage",
+   "options": [
+    "wardrobe"
+   ],
+   "drawn": false,
+   "required": true
+  }
+ ],
+ "candidates": [
+  {
+   "rank": 1,
+   "score": 30.7861,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.9856,
+    "balance": 0.8337,
+    "circulation": 0.4906
+   },
+   "options": {
+    "r_L-1b_oda.sleeping_double": "bed_nightstands",
+    "r_L-1b_oda.storage": "wardrobe"
+   },
+   "pieces": [
+    "bed_double",
+    "nightstand",
+    "nightstand",
+    "wardrobe"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 856,
+    "expanded": 179,
+    "walkway_checks": 38
+   }
+  },
+  {
+   "rank": 2,
+   "score": 30.7366,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.9918,
+    "balance": 0.8123,
+    "circulation": 0.4704
+   },
+   "options": {
+    "r_L-1b_oda.sleeping_double": "bed_nightstands",
+    "r_L-1b_oda.storage": "wardrobe"
+   },
+   "pieces": [
+    "bed_double",
+    "nightstand",
+    "nightstand",
+    "wardrobe"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [],
+   "nodes": {
+    "generated": 856,
+    "expanded": 179,
+    "walkway_checks": 38
+   }
+  },
+  {
+   "rank": 3,
+   "score": 29.3006,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "partners": 0.5,
+    "recommended": 0.8334,
+    "wall_use": 0.9447,
+    "balance": 0.8537,
+    "circulation": 0.487
+   },
+   "options": {
+    "r_L-1b_oda.sleeping_double": "bed_nightstands",
+    "r_L-1b_oda.storage": "wardrobe"
+   },
+   "pieces": [
+    "bed_double",
+    "nightstand",
+    "wardrobe"
+   ],
+   "not_placed": [],
+   "hard_failures": [],
+   "group_violations": [
+    "G4 minor f_L-1b_071: bed_double f_L-1b_071: no nightstand on the free left side of the head (0.90 m free)"
+   ],
+   "nodes": {
+    "generated": 856,
+    "expanded": 179,
+    "walkway_checks": 38
+   }
+  }
+ ],
+ "chosen": 1,
+ "choice": {
+  "index": 0,
+  "rank": 1,
+  "by": "vlm",
+  "reason": "Bed is positioned with free sides and headboard against the wall, both nightstands are present for symmetry, and the wardrobe placement leaves a clear, balanced circulation path from the door.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 2.704
+ },
+ "latency_s": 2.704,
+ "solve_s": 1.145,
+ "skipped": null,
+ "pieces": [
+  {
+   "id": "f_L-1b_071",
+   "type": "bed_double",
+   "group": "sleeping_double"
+  },
+  {
+   "id": "f_L-1b_072",
+   "type": "nightstand",
+   "group": "sleeping_double"
+  },
+  {
+   "id": "f_L-1b_073",
+   "type": "nightstand",
+   "group": "sleeping_double"
+  },
+  {
+   "id": "f_L-1b_074",
+   "type": "wardrobe",
+   "group": "storage"
+  }
+ ],
+ "program_full": {
+  "room_id": "r_L-1b_oda",
+  "zones": [],
+  "groups": [
+   {
+    "group_id": "r_L-1b_oda.sleeping_double",
+    "group": "sleeping_double",
+    "anchor_id": null,
+    "required": true,
+    "options": [
+     "bed_nightstands"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 13.14,
+    "priority": 30,
+    "members": [],
+    "missing": [],
+    "note": ""
+   },
+   {
+    "group_id": "r_L-1b_oda.storage",
+    "group": "storage",
+    "anchor_id": null,
+    "required": true,
+    "options": [
+     "wardrobe"
+    ],
+    "chosen": null,
+    "drawn": false,
+    "zone_id": null,
+    "area": 13.14,
+    "priority": 25,
+    "members": [],
+    "missing": [],
+    "note": ""
+   }
+  ],
+  "reason": "bedroom 13.1 m²: sleeping_double, storage"
+ },
+ "candidates_full": [
+  {
+   "rank": 1,
+   "score": 30.7861,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.9856,
+    "balance": 0.8337,
+    "circulation": 0.4906
+   },
+   "pieces": [
+    {
+     "id": "f_L-1b_071",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "bed_double",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       2.2221,
+       9.5791
+      ],
+      "size": [
+       1.4,
+       2.0
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "bed_double (anchor) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "anchor",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_072",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.4221,
+       10.5491
+      ],
+      "size": [
+       0.5,
+       0.4
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_073",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.4221,
+       8.6091
+      ],
+      "size": [
+       0.5,
+       0.4
+      ],
+      "rotation_deg": 90.0
+     },
+     "front_deg": 0.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_074",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "wardrobe",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.5961,
+       11.4791
+      ],
+      "size": [
+       1.2,
+       0.6
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 2.1,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group storage",
+       "text": "wardrobe (anchor) of the storage group, option wardrobe, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.storage",
+      "group": "storage",
+      "role": "anchor",
+      "anchor_id": "f_L-1b_074"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "wardrobe"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L-1b_oda.sleeping_double",
+     "group": "sleeping_double",
+     "anchor_id": "f_L-1b_071",
+     "member_ids": [
+      "f_L-1b_072",
+      "f_L-1b_073"
+     ]
+    },
+    {
+     "group_id": "r_L-1b_oda.storage",
+     "group": "storage",
+     "anchor_id": "f_L-1b_074",
+     "member_ids": []
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L-1b_oda.sleeping_double": "bed_nightstands",
+    "r_L-1b_oda.storage": "wardrobe"
+   },
+   "placed": [
+    "r_L-1b_oda.sleeping_double",
+    "r_L-1b_oda.storage"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 856,
+    "expanded": 179,
+    "walkway_checks": 38
+   }
+  },
+  {
+   "rank": 2,
+   "score": 30.7366,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "partners": 1.0,
+    "recommended": 1.0,
+    "wall_use": 0.9918,
+    "balance": 0.8123,
+    "circulation": 0.4704
+   },
+   "pieces": [
+    {
+     "id": "f_L-1b_071",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "bed_double",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       2.6961,
+       10.7791
+      ],
+      "size": [
+       1.4,
+       2.0
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "bed_double (anchor) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "anchor",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_072",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.6661,
+       11.5791
+      ],
+      "size": [
+       0.5,
+       0.4
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_073",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.7261,
+       11.5791
+      ],
+      "size": [
+       0.5,
+       0.4
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_074",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "wardrobe",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       2.1221,
+       7.7631
+      ],
+      "size": [
+       1.8,
+       0.6
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 2.1,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group storage",
+       "text": "wardrobe (anchor) of the storage group, option wardrobe, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.storage",
+      "group": "storage",
+      "role": "anchor",
+      "anchor_id": "f_L-1b_074"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "wardrobe"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L-1b_oda.sleeping_double",
+     "group": "sleeping_double",
+     "anchor_id": "f_L-1b_071",
+     "member_ids": [
+      "f_L-1b_072",
+      "f_L-1b_073"
+     ]
+    },
+    {
+     "group_id": "r_L-1b_oda.storage",
+     "group": "storage",
+     "anchor_id": "f_L-1b_074",
+     "member_ids": []
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [],
+   "options": {
+    "r_L-1b_oda.sleeping_double": "bed_nightstands",
+    "r_L-1b_oda.storage": "wardrobe"
+   },
+   "placed": [
+    "r_L-1b_oda.sleeping_double",
+    "r_L-1b_oda.storage"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 856,
+    "expanded": 179,
+    "walkway_checks": 38
+   }
+  },
+  {
+   "rank": 3,
+   "score": 29.3006,
+   "terms": {
+    "bed_sees_door": 1.0,
+    "partners": 0.5,
+    "recommended": 0.8334,
+    "wall_use": 0.9447,
+    "balance": 0.8537,
+    "circulation": 0.487
+   },
+   "pieces": [
+    {
+     "id": "f_L-1b_071",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "bed_double",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       2.6221,
+       8.4631
+      ],
+      "size": [
+       1.4,
+       2.0
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "bed_double (anchor) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "anchor",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_072",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "nightstand",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       1.7021,
+       7.6631
+      ],
+      "size": [
+       0.4,
+       0.4
+      ],
+      "rotation_deg": 180.0
+     },
+     "front_deg": 90.0,
+     "height": 0.5,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group sleeping_double",
+       "text": "nightstand (nightstand) of the sleeping_double group, option bed_nightstands, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.sleeping_double",
+      "group": "sleeping_double",
+      "role": "partner",
+      "anchor_id": "f_L-1b_071"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "nightstand",
+      "option": "bed_nightstands"
+     }
+    },
+    {
+     "id": "f_L-1b_073",
+     "level_id": "L-1b",
+     "room_id": "r_L-1b_oda",
+     "type": "wardrobe",
+     "type_raw": null,
+     "source": "added_by_ai",
+     "footprint": {
+      "center": [
+       3.2961,
+       11.4791
+      ],
+      "size": [
+       1.8,
+       0.6
+      ],
+      "rotation_deg": 0.0
+     },
+     "front_deg": 270.0,
+     "height": 2.1,
+     "asset": null,
+     "status": "verified",
+     "method": "rule",
+     "evidence": [
+      {
+       "file": "building.json",
+       "method": "derived",
+       "confidence": 0.9,
+       "rule": "group storage",
+       "text": "wardrobe (anchor) of the storage group, option wardrobe, placed by the group solver"
+      }
+     ],
+     "group": {
+      "group_id": "r_L-1b_oda.storage",
+      "group": "storage",
+      "role": "anchor",
+      "anchor_id": "f_L-1b_073"
+     },
+     "layout": {
+      "against_wall": true,
+      "solver_role": "anchor",
+      "option": "wardrobe"
+     }
+    }
+   ],
+   "groups": [
+    {
+     "group_id": "r_L-1b_oda.sleeping_double",
+     "group": "sleeping_double",
+     "anchor_id": "f_L-1b_071",
+     "member_ids": [
+      "f_L-1b_072"
+     ]
+    },
+    {
+     "group_id": "r_L-1b_oda.storage",
+     "group": "storage",
+     "anchor_id": "f_L-1b_073",
+     "member_ids": []
+    }
+   ],
+   "hard_failures": [],
+   "group_violations": [
+    {
+     "check": "G4",
+     "severity": "minor",
+     "target": "f_L-1b_071",
+     "room_id": "r_L-1b_oda",
+     "message": "bed_double f_L-1b_071: no nightstand on the free left side of the head (0.90 m free)",
+     "metrics": {
+      "side": "left",
+      "free_m": 0.895
+     }
+    }
+   ],
+   "options": {
+    "r_L-1b_oda.sleeping_double": "bed_nightstands",
+    "r_L-1b_oda.storage": "wardrobe"
+   },
+   "placed": [
+    "r_L-1b_oda.sleeping_double",
+    "r_L-1b_oda.storage"
+   ],
+   "not_placed": [],
+   "kept_ids": [],
+   "nodes": {
+    "generated": 856,
+    "expanded": 179,
+    "walkway_checks": 38
+   }
+  }
+ ],
+ "choice_full": {
+  "index": 0,
+  "rank": 1,
+  "by": "vlm",
+  "reason": "Bed is positioned with free sides and headboard against the wall, both nightstands are present for symmetry, and the wardrobe placement leaves a clear, balanced circulation path from the door.",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "error": null,
+  "transport_error": false,
+  "latency_s": 2.704,
+  "prompt": "Task: choose the best furniture layout for this bedroom (Turkish: YATAK ODASI, ÇOCUK ODASI = children's room, EBEVEYN YATAK ODASI = master bedroom) labelled 'Oda' (13.1 m²). Style brief: Modern natural, warm greige walls, light oak plank floor, light grey fabric sofa, natural light wood furniture, glass coffee table, many large indoor plants (palms, monstera, ferns) in rattan and cream pots, cream and mustard cushions, dark bronze window frames, warm daylight.\n\nHow to read the images (north up, metres): the black outline is the room; orange shapes are door strips and door swings, cyan strips are windows; grey boxes are pieces drawn in the documents (they stay); coloured boxes are the candidate's new pieces, one colour per functional group, each with its type; the red edge of a piece is its front.\n\nCandidates:\nCandidate 1: score 30.8; groups: sleeping_double (bed_nightstands), storage (wardrobe); new pieces: bed_double, nightstand, nightstand, wardrobe; terms (0-1, higher is better): balance 0.83, bed_sees_door 1.00, circulation 0.49, partners 1.00, recommended 1.00, wall_use 0.99\nCandidate 2: score 30.7; groups: sleeping_double (bed_nightstands), storage (wardrobe); new pieces: bed_double, nightstand, nightstand, wardrobe; terms (0-1, higher is better): balance 0.81, bed_sees_door 1.00, circulation 0.47, partners 1.00, recommended 1.00, wall_use 0.99\nCandidate 3: score 29.3; groups: sleeping_double (bed_nightstands), storage (wardrobe); new pieces: bed_double, nightstand, wardrobe; terms (0-1, higher is better): balance 0.85, bed_sees_door 1.00, circulation 0.49, partners 0.50, recommended 0.83, wall_use 0.94\n\nPrefer the candidate where the main group works best (a sofa that faces its TV with the coffee table between, a bed with free sides and its headboard on a wall, chairs around the table, a kitchen run in the order fridge - sink - hob), the walkways from the doors stay short and the room looks balanced. The score is the code's own ranking; you may disagree when the image shows a better room.\n\nFields of the answer: candidate (the number of the candidate you choose) and reason (one short sentence why).\n\nAnswer only with JSON.",
+  "raw_text": "{\n  \"candidate\": 1,\n  \"reason\": \"Bed is positioned with free sides and headboard against the wall, both nightstands are present for symmetry, and the wardrobe placement leaves a clear, balanced circulation path from the door.\"\n}",
+  "images": [
+   "r_L-1b_oda_c1.png",
+   "r_L-1b_oda_c2.png",
+   "r_L-1b_oda_c3.png"
+  ]
+ }
+}
