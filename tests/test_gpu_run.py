@@ -712,3 +712,32 @@ def test_two_gpu_pods_of_10_oct_2026(monkeypatch):
         gpu_run.check_limits(2.49, 120, 22.0, count=2)            # 22 + 9.96 > 30
     with pytest.raises(RuntimeError, match="allowed"):
         gpu_run.check_limits(2.49, 60, 0.0, count=3)
+
+
+def test_resolve_commit_pins_a_pushed_commit_and_checks_the_job_exists_there():
+    """Milestone 13 (docs/milestone13.md §13.6, pod B0): --commit pins the pod's checkout; the local tree is not read."""
+    calls = []
+
+    def fake_git(*args):
+        calls.append(args)
+        if args[:2] == ("rev-parse", "--verify"):
+            return "5a69ff5abc"
+        if args[0] == "branch":
+            return "  origin/Claude/Fable_01"
+        if args[0] == "cat-file":
+            if args[2].endswith(":scripts/jobs/missing.sh"):
+                raise RuntimeError("missing")
+            return ""
+        if args == ("rev-parse", "HEAD"):
+            return "headhead"
+        if args[0] == "status":
+            return " M wenart/furniture/fit.py"
+        raise AssertionError(args)
+
+    assert gpu_run.resolve_commit("5a69ff5", False, "scripts/jobs/full.sh", fake_git) == "5a69ff5abc"
+    assert not any(c[0] == "status" for c in calls)          # the dirty tree is not checked with --commit
+    with pytest.raises(RuntimeError, match="does not exist at that commit"):
+        gpu_run.resolve_commit("5a69ff5", False, "scripts/jobs/missing.sh", fake_git)
+    with pytest.raises(RuntimeError, match="not clean"):
+        gpu_run.resolve_commit(None, False, "scripts/jobs/full.sh", fake_git)
+    assert gpu_run.resolve_commit(None, True, "scripts/jobs/full.sh", fake_git) == "headhead"

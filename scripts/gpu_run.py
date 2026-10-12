@@ -729,17 +729,37 @@ def run_result(final_status: dict | None, stopped_by: str | None, self_stopped: 
     return f"{tag}, stopped by runner"
 
 
-def cmd_run(a: argparse.Namespace) -> int:
-    job = validate_job_path(a.job)
-    commit = git("rev-parse", "HEAD")
-    if not a.allow_dirty:
-        dirty = git("status", "--porcelain", "--", ".", ":!docs/gpu-log.md")
+def resolve_commit(pinned: str | None, allow_dirty: bool, job: str, git_fn=None) -> str:
+    """The commit the pod checks out (``REPO_COMMIT``). Default: HEAD, with a clean and pushed tree and a committed
+    job script (or ``--allow-dirty``). Milestone 13 (docs/milestone13.md §13.6, pod B0): ``--commit`` pins another
+    pushed commit (a baseline run on the Milestone 12 code while this session's tree carries the Milestone 13 build);
+    then the local tree does not matter (the pod clones the pinned commit from GitHub), but the commit must be pushed
+    and the job script must exist at it."""
+    g = git_fn or git
+    if pinned:
+        commit = g("rev-parse", "--verify", f"{pinned}^{{commit}}")
+        if not g("branch", "-r", "--contains", commit):
+            raise RuntimeError(f"--commit {pinned}: not pushed; the pod clones from GitHub")
+        try:
+            g("cat-file", "-e", f"{commit}:{job}")
+        except Exception:
+            raise RuntimeError(f"--commit {pinned}: {job} does not exist at that commit") from None
+        return commit
+    commit = g("rev-parse", "HEAD")
+    if not allow_dirty:
+        dirty = g("status", "--porcelain", "--", ".", ":!docs/gpu-log.md")
         if dirty:
             raise RuntimeError("working tree not clean; commit and push first (or --allow-dirty)")
-        if not git("branch", "-r", "--contains", commit):
+        if not g("branch", "-r", "--contains", commit):
             raise RuntimeError("HEAD is not pushed; the pod clones from GitHub (or --allow-dirty)")
-        if job not in git("ls-files", "--", job):
+        if job not in g("ls-files", "--", job):
             raise RuntimeError(f"{job} is not committed")
+    return commit
+
+
+def cmd_run(a: argparse.Namespace) -> int:
+    job = validate_job_path(a.job)
+    commit = resolve_commit(getattr(a, "commit", None), a.allow_dirty, job)
     minutes = min(a.max_minutes, MAX_MINUTES)
 
     pods = all_pods()
@@ -1066,6 +1086,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--no-volume", action="store_true", help="run without the network volume (nothing persists)")
     r.add_argument("--keep", action="store_true", help="do not terminate the stopped pod")
     r.add_argument("--allow-dirty", action="store_true")
+    r.add_argument("--commit", default=None,
+                   help="pin the pushed commit the pod checks out (Milestone 13 baselines on the M12 code); "
+                        "the local tree is then not checked")
     r.add_argument("--dry-run", action="store_true")
     r.add_argument("--drive-upload", action="store_true",
                    help="pass the RunPod secret rclone_conf: the job uploads the 3D files to Google Drive")
