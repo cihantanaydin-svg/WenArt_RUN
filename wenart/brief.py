@@ -136,6 +136,8 @@ VALUE_RULES = {
     f"expected one of auto, yes, no, got {v!r}",
     # Milestone 12 (docs/milestone12.md §3.3, D3a): the ground floor above the ground when nothing about it is drawn
     "levels.ground_rise": _metres(0.0, 1.5),
+    # Milestone 13 (docs/milestone13.md §13.3, D1): the library licence mode of the fit
+    "library.licence_mode": _one_of("commercial", "relaxed"),
 }
 
 # Values YAML reads as booleans that a rule takes as words (``front_court: yes``).

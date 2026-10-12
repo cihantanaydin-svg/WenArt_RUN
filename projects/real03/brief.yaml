@@ -5,3 +5,7 @@ style: Modern natural, warm greige walls, light oak plank floor, light grey fabr
   cream and mustard cushions, dark bronze window frames, warm daylight
 style_photos:
 - living_reference.jpg
+# Milestone 13 (user decision D1 of 12 Oct 2026): this PoC project may use non-commercial library assets (HSSD, tool_nc);
+# every render says commercial-safe yes/no; set commercial to switch back.
+library:
+  licence_mode: relaxed

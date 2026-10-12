@@ -789,3 +789,107 @@ GPU cost of step 0 and step 1: $0.00 (no pod). Project total unchanged: $130.54 
 | D10 | yes | AI polish stays off |
 
 Build (step 2) follows in §13 (contracts) and §14 (build log).
+
+## 13. Contracts of the build (frozen 12 Oct 2026; only the lead edits this section)
+
+Scope: the common core K1-K8 of §3.0 under the decisions of §12 (relaxed licence mode, HSSD layer, fallback ladder
+with good-looking fallbacks, drawn groups as units, M11 camera policy kept, polish off). Eight tracks build in
+parallel on disjoint files; the lead integrates, runs the CPU suite, commits and pushes. Pods only after the CPU
+suite is green (§13.6).
+
+### 13.1 Tracks and file ownership
+
+| Track | Builds | Owns (only this track edits) | Tests (existing + new) |
+|---|---|---|---|
+| **T1** fit and licence rules | K2; K1 size snap and ladder decision; K7 catalogue side: `licence_mode`, `licence_flag_of`, `commercial_safe`, `usable(entry, mode)`; wood re-sort removed; rank by real product, known units, audit quality and faces (tie-breaks, not gates); uniform scale to the drawn width; design tags as preferences; pins skip the style filter; diversity penalty per room and project; `project.licence_mode` written into the building | `wenart/furniture/fit.py`, `catalog.py`, `sizes.py`, `wenart/furniture/__main__.py`, `wenart/recognition/size_table.yaml`, the catalogue files only for the new licence fields of existing entries (`catalog_library.json`, `catalog.json`: a script, no hand edits) | `tests/test_furniture_fit*.py`, `test_library_filter.py`, `test_library_sizes.py`, `test_scene_fit.py`; new `tests/test_m13_fit.py` |
+| **T2** module builders and families v2 | K1 fallback look (D4): module builders with real module sizes and PBR slots (wardrobe run, long table + chairs, L-sofa from a straight module and a chaise, kitchen run v2, bath set v2: vanity + basin + mirror, shower + tray + glass), parametric families v2 (bed with headboard and bedding, sofa, armchair, table, nightstand, desk, shelving, TV unit) with bevels, real proportions and material slots; grey boxes never | `wenart/blender/parametric.py`, `furniture.py`, `proxies.py`, `textiles.py`, new `wenart/blender/modules.py` | `tests/test_blender_furniture.py`, `test_blender_bedframe_decor.py`, `test_cabinets.py`; new `tests/test_m13_modules.py`, `tests/gpu/test_m13_modules.py` |
+| **T3** placement | K3: code-first typing (twin room / other level / block name / missing group member), drawn group as one unit (0.5 m per-member bound), room-type aliases, tiered minimums and NKBA soft in small kitchens, S2 tolerances 3 cm fixtures / 5 cm soft seating, F8 names the missing anchor, F2 on every drawn piece, designer terms R3, R6, R12-R14 as data, the rug as a group member, unbuilt anchor never an obstacle | `wenart/furniture/solver.py`, `program.py`, `groups.py`, `groups.yaml`, `group_checks.py`, `infer.py`, `complete.py`, `layout.py`, `placer.py`, `plausibility.py`, `locked.py`, `wenart/blender/scene_checks.py`; the `solve_room` line of `tests/test_m12_contracts.py` | `tests/test_groups*.py`, `test_solver_rooms.py`, `test_infer.py`, `test_complete*.py`, `test_scene_checks.py`, `test_group_checks.py`, `test_layout.py`, `test_plausibility.py`; new `tests/test_m13_placement.py` |
+| **T4** agent loop | K4: an edit is accepted only when its finding is gone in the dry re-check and no new critical finding appears; tools offered by cause; building-wide tools only in the building session; idempotent `set_exterior`; `retype_piece` builds the piece (through T1's fit); `place_group` reuses the drawn group; `swap_model` never for S2 < 3 cm; 3 rounds; the vision critic only where a tool exists; metric "findings removed" | `wenart/agent/**`, `wenart/furniture/edit_ops.py`, `wenart/furniture/prompts.py`, `wenart/furniture/schemas.py` | `tests/test_agent_*.py`, `test_edit_ops.py`, `test_groups_edits.py`, `test_run_agent*.py`; new `tests/test_m13_agent.py` |
+| **T5** light, materials, render, camera replay | K5 without the lens change (D8): sun strength constant in the hundreds of W/m² behind an A/B switch, daytime sky with sun disc (exterior world), EV cap +3 with a `lighting_dark` finding, light rig per room type with visible emissive fixtures, shell material table per slot on the CC0 sets (ceiling plaster, worktops, fronts, ceramics, metals, tiles with grout), sheen / coat / bevel / AO / imperfections, fabric colour path, WB locked per project; K8 camera replay `--cameras-from`; the lever A/B job | `wenart/blender/lighting.py`, `materials.py`, `looks.py`, `render.py`, `build.py`, `cameras.py`, `camsearch.py` (replay only, no policy change), `wenart/run/ab.py`, `wenart/run/stages.py`, `wenart/run/plan.py`, new `scripts/jobs/levers_ab.sh`, `wenart/style/**` (fabric colour path) | `tests/test_blender_render.py`, `test_blender_materials.py`, `test_blender_look.py`, `test_look_m6.py`, `test_blender_cameras.py`, `test_run_ab.py`, `test_run_stages.py`, `test_run_plan.py`, `test_style*.py`; new `tests/test_m13_light.py`, `tests/gpu/test_m13_light.py` |
+| **T6** outdoor and site | K6: hedge-row detector → `site.hedges`; tree height by crown class; vegetation module (Poly Haven instances near cameras, Sapling species-look trees elsewhere through the installed add-on, geometry-nodes hedge of leaf cards, grass clumps near cameras and displacement far); platforms per terrace / pool / parking with retaining walls, kerbs and steps; pool coping, clipped basin, tiles, water; skirt and ground backdrop, haze as a closed mesh volume; facade kit (reveals, gutters, canopy, lights, railings); exterior camera bugs (site view below the horizon, views dropped behind the hedge; hedges as low obstacles; one true aerial) | `wenart/blender/site.py`, `exterior.py`, `exterior_checks.py`, `facade.py`, `copies.py`, `roof.py`, new `wenart/blender/vegetation.py`, `wenart/sheets/exterior.py`, new `scripts/pod_setup_vegetation.sh`, new `scripts/jobs/site_ab.sh` | `tests/test_blender_site.py`, `test_blender_exterior.py`, `test_sheets_exterior.py`, `test_site_buildings.py`, `test_gate_exterior.py`, `test_m11_exterior.py`; new `tests/test_m13_site.py`, `tests/gpu/test_m13_site.py` |
+| **T7** library growth and audit | §5.1 phase 2: drawn demands of real02/03/04 → size-grid picks; ABO by size grid (400-600), Poly Haven 2K + trees + plants, ambientCG sets; HSSD picks by type and size bin (600-900, CC BY-NC 4.0, gated, `HF_TOKEN`); audit gates (known units for anchors, PBR maps recorded, material tags, chaise side, size-bin coverage), one vision pass; gap report by drawn demand; `library_growth.sh` steps `ingest-hssd`, `demands`, `size-grid` | `wenart/assets/**` (new `hssd.py`, `audit/demands.py`), `wenart/assets/audit.yaml`, `scripts/jobs/library_growth.sh`, `scripts/jobs/library_audit_*.sh`, `results/library/**` | `tests/test_library_growth*.py`, `test_audit_*.py`, `test_assets.py`, `test_abo*.py`, `test_objaverse*.py`, `tests/gpu/test_library.py`; new `tests/test_m13_library.py` |
+| **T8** licence plumbing, attribution, report, metrics | K7 output side: `commercial-safe: yes | no (flagged assets: ids)` per render in `final_report.md` / `.json`, ATTRIBUTION.md sections 1-4, "built below library level" list per project; K8 metrics: `wenart/report/metrics13.py` (the 17 metrics of §7 over building JSON, logs and manifests, before vs after), before/after sheets per camera; the commercial-mode test over the three committed buildings | `wenart/report/**`, `wenart/run/copy.py`, `wenart/run/pack3d.py`, new `wenart/report/metrics13.py`, new `wenart/report/sheets13.py` | `tests/test_report*.py`, `test_run_copy.py`, `test_pack3d.py`; new `tests/test_m13_report.py` |
+| Lead | contracts, schema, defaults, briefs, job wiring, integration, pods, docs | `CLAUDE.md`, `docs/**`, `wenart/schema/building.schema.json`, `wenart/defaults.yaml`, `wenart/brief.py`, `projects/*/brief.yaml`, `scripts/gpu_run.py`, `scripts/jobs/*.sh` (not `library_*`, `levers_ab.sh`, `site_ab.sh`), `scripts/pod_setup*.sh` (not `_vegetation`), `tests/test_m13_contracts.py`, `tests/test_gpu_run.py` | – |
+
+Rules for every track: no edit outside its files (a needed change elsewhere goes into the track's report; the lead
+decides); no git commands that change state (the lead commits); `pytest` on its own tests plus
+`tests/test_m11_contracts.py tests/test_m12_contracts.py` green; new tests fail on the old code; nothing invented:
+model ids, licence texts, Blender API names verified in the source or the official docs; no key or token printed.
+
+### 13.2 Frozen interfaces (`tests/test_m13_contracts.py`, written by the lead after the tracks)
+
+| Module (owner) | Functions and constants | Used by |
+|---|---|---|
+| `wenart/furniture/catalog.py` (T1) | `LICENCE_MODES = ("commercial", "relaxed")`; `LICENCE_FLAGS = ("none", "non_commercial", "share_alike", "no_derivatives", "research_only", "regional", "tool_nc")`; `licence_mode(brief=None, env=None) -> str` (env `WENART_LICENCE_MODE` > brief `library.licence_mode` > `commercial`); `licence_flag_of(entry) -> str` (from `licence_flag`, the licence text, `source` generated + nvdiffrast → `tool_nc`); `commercial_safe(entry) -> bool` (flag `none`); `usable(entry, mode="commercial") -> bool`; `unusable_reason(entry, mode="commercial")` | T1 fit, T4 `swap_model` / `retype_piece`, T7 audit, T8 report |
+| `wenart/furniture/sizes.py` (T1) | `snap_size(ftype, footprint, height=None) -> {footprint, height, product, changed, reason}` (nearest real product of the type; `changed` false inside the range); `PRODUCT_GRID` from `size_table.yaml` | T1 fit, T3 typing and groups |
+| `wenart/furniture/fit.py` (T1) | `fit_piece(piece, catalog, cap=NON_UNIFORM_CAP, *, mode="commercial", ...)`, `fit_building(building, catalog, *, mode=None, ...)` (mode None = `project.licence_mode` or `licence_mode()`); the result's `asset.method` ∈ `library | module | parametric | none`, `asset.ladder = [{step, result, reason}]`, `asset.licence`, `asset.licence_flag`, `asset.commercial_safe`; `piece.library_gap` names the step used; `none` only for not-furniture, removed or `keep` pieces that are not built | T2 (reads `asset.method`, `asset.module_plan`), T3, T4, T8 |
+| `wenart/blender/modules.py` (T2) | `module_plan(piece, style=None) -> dict | None` (pure, no bpy: `{builder, modules: [{kind, size_m: [w, d, h], pos_m: [x, y], rot_deg, material}], footprint_m, height_m, products: [names]}`; None when no module builder exists for the type); `MODULE_BUILDERS` (type → builder name); `build_module(plan, piece, materials)` (bpy, returns the object) | T1 (ladder step 2 decides on `module_plan` is not None), `furniture.py` |
+| `wenart/blender/parametric.py` (T2) | `FAMILY_TYPES` (types with a v2 family); every builder keeps its signature; the output objects carry `wenart_method = "parametric"` and real material slots (never a flat grey default) | `furniture.py`, T5 materials |
+| `wenart/furniture/infer.py` (T3) | `type_by_code(building, piece) -> {type, method: twin | level | block | group_member, evidence, confidence} | None` | T3 (ingest and completion), T4 `retype_piece` |
+| `wenart/furniture/groups.py` (T3) | `drawn_groups(building, room_id) -> [{anchor_id, members: [ids], centre, template}]`; `GROUP_MEMBER_MOVE_MAX_M = 0.5` | T3 solver, T4 `place_group` |
+| `wenart/furniture/solver.py` (T3) | `solve_room(building, room_id, program=None, *, k=3, fixed_ids=None, drawn_group=None) -> [Candidate]` (the M12 signature + `drawn_group`); `apply_candidate` unchanged; an unbuilt drawn anchor is not an obstacle for its own group | T3, T4 |
+| `wenart/blender/scene_checks.py` (T3) | `TOLERANCES["overlap_fixture"] = 0.03`, `TOLERANCES["overlap_soft"] = 0.05` (S2 by class) | T4, build |
+| `wenart/furniture/edit_ops.py` (T4) | `apply_edit`, `dry_run(building, edit, *, catalog=None)`, `allowed_edits` keep their signatures; `retype_piece` refits through `fit.fit_piece`; `swap_model` refuses S2 < 0.03 m with a reason | T4 |
+| `wenart/agent/loop.py` (T4) | `accept_edit(before, after, edit) -> (bool, reason)` (pure); `MAX_ROUNDS = 3`; `tools_for_finding(finding) -> [tool]` (by cause) | T4, tests |
+| `wenart/blender/lighting.py` (T5) | `SUN_STRENGTH_WM2` (the calibrated constant; the A/B variants `WENART_LIGHT_VARIANT`); `room_rig(room_type) -> [fixtures]`; `build_lighting(...)` keeps its signature | build |
+| `wenart/blender/materials.py` (T5) | `shell_material(slot, style, assets) -> material` (slots `ceiling, worktop, front, ceramic, metal, tile, plaster`); `exterior_world_nodes(..., sun_disc=True, sun_elevation_deg, sun_azimuth_deg)` | build, T6 (sky via the existing call) |
+| `wenart/blender/render.py` (T5) | `EXPOSURE_LIMITS = (-2.0, 3.0)`; a `lighting_dark` entry in the render manifest when the metered EV would pass the cap | T8 report |
+| `wenart/blender/build.py` (T5) | `--cameras-from <scene_manifest.json>`: cameras recreated from the records (name, location, target or rotation, lens, sensor, clip), scene manifest camera `source: "replayed"`; the search runs only for cameras not in the file; `--cameras-extra` adds the searched set as well | T8 sheets, pods P3-P5 |
+| `wenart/run/ab.py` (T5) | `prepare_m13(project, project_out, commit) -> dict` (the committed `scene_manifest.json`, `render_manifest.json` and previews of the baseline run into `out/ab/m13/`); `cameras_check` reused | lever A/B, before/after |
+| `wenart/sheets/exterior.py` (T6) | `hedge_rows(circles) -> [{polyline, radius_m, pitch_m, count, height_class}]` (≥ 5 equal radii ≤ 0.6 m, pitch ≤ 1.5 × diameter); written to `site.hedges` | T6 site |
+| `wenart/blender/site.py` (T6) | `tree_height(crown_radius_m) -> (height_m, size_class)` (shrub < 1.5 m crown; small 1.5-2.5 → 4-6 m; medium 2.5-4 → 6-10 m; large > 4 → 10-15 m); `platforms(site) -> [{polygon, z, kind, edge}]`; `build_site(...)` keeps its signature | build |
+| `wenart/blender/vegetation.py` (T6) | `tree_object(species, height_m, seed, near_camera: bool)`, `hedge_object(hedge)`, `grass_patch(polygon, density)`; `SPECIES` (name → source: polyhaven id or sapling preset); never a primitive; GPL add-ons are called through `bpy.ops`, no add-on code in the repo | site |
+| `wenart/blender/copies.py` / `exterior.py` (T6) | `site_view` keeps the horizon in frame (pitch ≤ 28°, height so the horizon is above the lower third); `view_check` treats `site.hedges` as obstacles of their height; one aerial view allowed | build |
+| `wenart/assets/hssd.py` (T7) | `hssd_candidates(demands, n_per_bin) -> [ids]`, `download(ids, dest, token_env="HF_TOKEN")` (huggingface_hub, gated repo `hssd/hssd-models`); entries `licence: "CC-BY-NC-4.0"`, `licence_flag: "non_commercial"`, `licence_declared_by: "publisher"`, `licence_url: "https://huggingface.co/datasets/hssd/hssd-models"` | growth job |
+| `wenart/assets/audit/demands.py` (T7) | `drawn_demands(building_paths) -> [{type, w, d, h, count, projects}]`; `size_grid(demands) -> {type: [bins]}`; `coverage(catalog, demands, mode) -> {type: {bin: n}}` | T7 picks and gap report, T8 report |
+| `wenart/run/copy.py` (T8) | `attribution_text(title, credits, *, mode="commercial") -> str` with the sections 1 tools and generators, 2 CC0 / CC BY assets, 3 PoC-only assets with the reason, 4 dataset notices; `project_credits` adds `licence_flag`, `commercial_safe` | run |
+| `wenart/report/final.py` (T8) | per view `commercial_safe: {safe: bool, flagged: [asset ids]}` from the scene manifest's objects × the catalogue flags × the view's `index_values`; `final_report.md` line `commercial-safe: yes` / `no (flagged assets: …)`; section "Built below library level" (module / parametric pieces of furniture types) | report |
+| `wenart/report/metrics13.py` (T8) | `metrics(project_out, baseline_out=None) -> dict` (the 17 metrics of §7, each `{value, baseline, unit, source}`); CLI `python -m wenart.report metrics13 --out <project_out> [--baseline <dir>] --json <path>` | §14 |
+| `wenart/report/sheets13.py` (T8) | `sheets(project_out, baseline_out, out_dir)`: one side-by-side JPEG per camera (before | after, same view) | §14 |
+
+`Violation = {check, severity, target, room_id, message, metrics}` stays the one finding format.
+
+### 13.3 Data between the tracks (schema fields added by the lead now, all optional)
+
+- Building JSON: `project.licence_mode` (T1 writes it in the fit stage; later stages read it, never the brief);
+  `furniture[].asset.{method, licence, licence_flag, commercial_safe, ladder, module_plan}`;
+  `furniture[].size_snap = {drawn: [w, d, h], snapped: [w, d, h], product, reason}` (T1; `adjusted_by_ai`);
+  `furniture[].drawn_group = {anchor_id, members, moved_m}` (T3); `furniture[].type_method` gets the values
+  `twin | level | block | group_member` (T3); `site.hedges[]` (T6, see §13.2); `site.platforms[]` (T6).
+- Catalogue entries (T1 adds the fields to the existing entries by script; T7 writes them for new entries):
+  `licence`, `licence_url`, `licence_declared_by` (`publisher | uploader`), `licence_flag`, `commercial_safe`,
+  `attribution`; the existing `licence_flag: null` becomes `"none"`; the 196 TRELLIS.2 entries get `tool_nc`.
+- Settings: `brief.library.licence_mode` in `wenart/defaults.yaml` = `commercial` (the product default);
+  `projects/real02|real03|real04/brief.yaml` set `library: {licence_mode: relaxed}` (D1, this milestone); the pod
+  jobs also export `WENART_LICENCE_MODE` (lead, `scripts/jobs/full.sh`). A flip back to `commercial` reruns fit →
+  layout completion → build → render; the volume is untouched.
+- Scene manifest: cameras carry `source: searched | replayed` (T5); objects keep `wenart_id` ↔ `asset_id`.
+- Final report JSON: `views[].commercial_safe`, `below_library: [{id, type, method, builder}]` (T8).
+- A/B levers (T5, T6): `scripts/jobs/levers_ab.sh` renders 8 fixed interior views × variants
+  (`WENART_LIGHT_VARIANT`: `sun100 | sun300 | sun1000`, `evcap`, `rig`, `shell`), `scripts/jobs/site_ab.sh` 3
+  exterior views × (hedge, instances, sapling, platforms, pools, sky); both write `results/ab_m13/<variant>/` with
+  the render manifest, previews, time and VRAM per view. The lead's `scripts/jobs/m13_p1.sh` runs both and the GPU
+  tests.
+
+### 13.4 What stays as it is (not in scope of any track)
+
+Camera policy (18 / 16 mm at 1.25 m, D8), AI polish (off, D10), the ingest of walls and openings, levels, the
+recognition stage, the gate, the pod runner's limits, the agent model (Qwen3.8-27B-FP8) and its serving.
+
+### 13.5 Order of integration
+
+T1 and T3 first (the fit and the solver feed everything), then T2 and T4, then T5, T6, T8, then T7 (its CPU part;
+the downloads run in P2). Each track delivers a report (what was built, tests added, numbers, open items, changes
+it needs in other tracks' files). The lead integrates, runs `pytest -m "not gpu"` (4,885 tests on 12 Oct 2026),
+commits, pushes, then writes `tests/test_m13_contracts.py`.
+
+### 13.6 Pods (approved under D6; each `--over-5-ok`; one at a time; logged in `docs/gpu-log.md`)
+
+| Pod | Job | Needs first |
+|---|---|---|
+| P1 | `scripts/jobs/m13_p1.sh`: levers A/B (T5, T6) + GPU tests of T2, T5, T6 | CPU suite green; T5, T6 merged |
+| P2 | `scripts/jobs/library_growth.sh` with `ingest-hssd` + `demands` + `size-grid` + audit + gaps | **the user has accepted the HSSD terms on Hugging Face with the account behind the pod's `hf_token`**; T7 merged |
+| B0 | `scripts/jobs/full.sh` real02 + real03 on the M12 commit (baselines) | nothing (M12 code: `scripts/gpu_run.py --commit <M12 head>`) |
+| P3 | full run real04 with `--cameras-from` the committed cameras + new catalogue | P1 constants applied, P2 catalogue |
+| P4 | full runs real02 + real03 | P3 fixes |
+| P5 | one fix round + metric renders | P4 |

@@ -124,6 +124,11 @@ brief:
   levels:
     ground_rise: 0.15              # D3a: nothing about the ground drawn -> the ground floor stands this far above the ground (one inferred step)
     accessible_entrance: false     # true: the main entrance gets a ramp (and steps) by the slope table
+  # Milestone 13 (docs/milestone13.md §6, §13.3; user decisions D1, D3 of 12 Oct 2026): which library licences the fit may use.
+  library:
+    licence_mode: commercial       # commercial = only commercial-safe entries (the product default) | relaxed = also non-commercial,
+                                   # share-alike, research-only, regional and tool_nc entries (the PoC projects set it in brief.yaml;
+                                   # no-derivatives never). Env WENART_LICENCE_MODE overrides.
 
 # Milestone 12 (docs/milestone12.md §3.3, §3.7): level and entrance rules (wenart.levels.model.level_params). FLAGGED:
 # the step and ramp numbers come from SECONDARY sources quoting TS 9111 (Ankara University course notes, a newspaper

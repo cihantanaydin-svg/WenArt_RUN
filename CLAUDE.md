@@ -91,8 +91,9 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   entry carries `licence`, `licence_url`, `licence_declared_by` (`publisher` | `uploader`), `licence_flag` (`none`
   | `non_commercial` | `share_alike` | `no_derivatives` | `research_only` | `regional` | `tool_nc`),
   `commercial_safe` and `attribution`.
-- `library.licence_mode: commercial` uses only `commercial_safe: yes` entries. `relaxed` (the Milestone 13 default
-  for this PoC, user OK of 12 Oct 2026) may also use non-commercial, share-alike, research-only, regional and
+- `library.licence_mode: commercial` uses only `commercial_safe: yes` entries (the code default in
+  `wenart/defaults.yaml`). `relaxed` (set in the `brief.yaml` of the PoC projects real02/03/04 for Milestone 13,
+  user OK of 12 Oct 2026; env `WENART_LICENCE_MODE` overrides) may also use non-commercial, share-alike, research-only, regional and
   `tool_nc` assets (HSSD under CC BY-NC 4.0 with the user's acceptance of its terms; the TRELLIS.2 models exported
   with the non-commercial tool nvdiffrast stay usable with the `tool_nc` flag until the export is replaced).
   No-derivatives assets are never used. Research-only data sets that forbid redistribution (3D-FUTURE, 3D-FRONT)

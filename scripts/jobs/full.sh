@@ -64,6 +64,8 @@ export HF_XET_HIGH_PERFORMANCE=1
 export WENART_OUTPUTS="$REPO/outputs"
 export CHECK_MODELS="${CHECK_MODELS:-qwen glm}"
 export RENDER_SAMPLES="${RENDER_SAMPLES:-128}"
+# Milestone 13 (docs/milestone13.md §13.3): the licence mode of the fit; unset = the project brief (relaxed for real02/03/04) or defaults.yaml
+if [ -n "${WENART_LICENCE_MODE:-}" ]; then export WENART_LICENCE_MODE; fi
 export WENART_JOB_DIR="$JOB_DIR" WENART_RESULTS="$RESULTS" WENART_ASSETS="$ASSETS" WENART_FAST="$FAST" \
   WENART_POLISH_PY="$POLISH_PY" WENART_LOGS="$LOGS"
 RUN_PROJECTS="${RUN_PROJECTS:-}" PRIVATE_PROJECTS="${PRIVATE_PROJECTS:-}" AB_PROJECTS="${AB_PROJECTS:-}"

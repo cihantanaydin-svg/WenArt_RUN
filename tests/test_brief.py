@@ -38,7 +38,9 @@ def test_synthetic_brief_keeps_its_style_and_assumes_the_rest():
                                 # Milestone 11 (docs/milestone11.md §17: D3, D5, D6)
                                 "markers_in_final", "roof_terraces", "site_options.front_court",
                                 # Milestone 12 (docs/milestone12.md §3.3: D3a)
-                                "levels.ground_rise", "levels.accessible_entrance"]
+                                "levels.ground_rise", "levels.accessible_entrance",
+                                # Milestone 13 (docs/milestone13.md §13.3: D1)
+                                "library.licence_mode"]
     assert brief["warnings"] == [] and brief["path"].endswith("brief.yaml")
     styles = B.load_brief(PROJECTS / "synthetic-03")["values"]["styles"]
     assert len(styles) == 2
