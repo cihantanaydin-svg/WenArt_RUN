@@ -69,7 +69,7 @@ MAX_MINUTES = 240               # user, 11 Oct 2026: "relax the pod time ... giv
 IMAGE = "runpod/pytorch:1.4.0-cu1281-torch291-ubuntu2404"
 DATACENTER = "EU-RO-1"
 VOLUME_NAME = "wenart"
-VOLUME_SIZE_GB = 120
+VOLUME_SIZE_GB = 400            # grown from 250 to 400 GB on 12 Oct 2026 (user OK)
 CONTAINER_DISK_GB = 30
 POD_PREFIX = "wenart-"
 # Allowed GPUs, fastest first (user decisions of 3 Oct 2026: "for faster job finish choose a better GPU",
