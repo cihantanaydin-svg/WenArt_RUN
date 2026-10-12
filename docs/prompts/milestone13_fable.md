@@ -24,17 +24,17 @@ licence rule for this proof of concept (see "Licences" below). Quality comes fir
 
 ## What we know (evidence from Milestone 12; check it yourself)
 
-**The library looks bad.** Usable models today: 750 furniture (ABO 444, generated with TRELLIS.2 182,
-Poly Haven 61, Objaverse 58, 5 others) and 576 decor (ABO 283, Objaverse 115, generated 94, Poly Haven 48, GSO 36), over 42
-furniture types; some types have 1-10 models (bathtub 8, shower 10, toilet 14, crib 7). ABO are e-commerce scans
-(Amazon product models) have simple materials; Objaverse uploads vary wildly; the generated models are blobby. The audit (pods P2/P3/P4,
-`results/library/audit/`) removed 126 + 38 models and kept 121 + 48 "with a vision doubt"; among all kept models, 48 have a
-vision check that names another type (e.g. Poly Haven `chinese_armchair` typed `office_chair`).
-On real04 (pod `jeqodk9uyn9o6p`, `results/final/real04/`): of 289 pieces, 131 got a library model, 115 a
-parametric one (kitchen and bath fixtures), **43 were not built at all** because no audited model fits their size
-(12 chairs, 8 dining tables, 4 double beds, 4 wardrobes, 4 coffee tables, 4 floor lamps, 2 sofas, the drawn
-4.38 m corner sofa ...). The run counted 465 "library gap" findings over its rounds. Sofas, beds and tables never fall back
-to a generated parametric model (M12 §4.8), so a living room can end up without its sofa and dining table.
+**The library looks bad.** Usable models today: 750 furniture (ABO 444, generated with TRELLIS.2 182, Poly Haven 61,
+Objaverse 58, 5 others) and 576 decor (ABO 283, Objaverse 115, generated 94, Poly Haven 48, GSO 36), over 42
+furniture types; some types have only 1-14 models (crib 7, bathtub 8, shower 10, toilet 14). ABO models (Amazon
+products) have simple materials; Objaverse uploads vary wildly; the generated models are blobby. The audit (pods
+P2/P3/P4, `results/library/audit/`) removed 126 + 38 models and kept 121 + 48 "with a vision doubt"; among all kept
+models, 48 have a vision check that names another type (e.g. Poly Haven `chinese_armchair` typed `office_chair`). On
+real04 (pod `jeqodk9uyn9o6p`, `results/final/real04/`): of 289 pieces, 131 got a library model, 115 a parametric one
+(kitchen and bath fixtures), **43 were not built at all** because no audited model fits their size (12 chairs, 8
+dining tables, 4 double beds, 4 wardrobes, 4 coffee tables, 4 floor lamps, 2 sofas, the drawn 4.38 m corner sofa
+...). The run counted 465 "library gap" findings over its rounds. Sofas, beds and tables never fall back to a
+generated parametric model (M12 §4.8), so a living room can end up without its sofa and dining table.
 
 **Outdoor models look bad.** Trees and bushes are parametric "lollipops" (a cylinder trunk and an ellipsoid crown,
 `wenart/blender/site.py` `tree_parts`); real04's drawn hedge is 101 such trees in a row. Grass, paving and plot
@@ -42,12 +42,14 @@ walls are flat textured surfaces; there is no shrub, ground cover, planter, fenc
 `results/final/real04/ext_*_final_preview.jpg`.
 
 **Placement is not good.** Facts from the real02/real03/real04 runs:
-- Pieces float in the room or stand where no person would put them. real04 findings over the agent rounds, by check: F8 "piece
-  neither against a wall nor in a group" 266, S2 "piece cuts a wall or another piece" 132, G10 bathroom layout and
-  clearances 126, F9 "odd in the image" 105, R3 door swing blocked 70, F3 61, G12 window blocked 48.
+- Pieces float in the room or stand where no person would put them. real04 findings over the agent rounds, by
+  check: F8 "piece neither against a wall nor in a group" 266, S2 "piece cuts a wall or another piece" 132, G10
+  bathroom layout and clearances 126, F9 "odd in the image" 105, R3 door swing blocked 70, F3 61, G12 window
+  blocked 48.
 - The agent: real04 6 rounds, 182 edits accepted / 170 rejected; the findings stop improving after round 2
-  (critical 7 → 2 → 2 → 3 → 33 → 5, major ~150-160). Many tools rarely pass (accepted of tried): complete_group 0 of 18, fix_fixture 0 of 19,
-  rotate_piece 6 of 21, set_camera 1 of 11; rejections: drawn_lock 41, memory 31, max_tries 27.
+  (critical 7 → 2 → 2 → 3 → 33 → 5, major ~150-160). Many tools rarely pass (accepted of tried): complete_group
+  0 of 18, fix_fixture 0 of 19, rotate_piece 6 of 21, set_camera 1 of 11; rejections: drawn_lock 41, memory 31,
+  max_tries 27.
 - The M12 bake-off (`results/bakeoff_m12/`, docs/milestone12.md §14.1): **no open model judges a layout from a
   top-down image**: picking the best of 3 layouts is at chance (35 %), finding planted errors 11-27 % with many false
   reports. The models are useful only for reading plan crops and checking renders.
