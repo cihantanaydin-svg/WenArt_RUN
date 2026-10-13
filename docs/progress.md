@@ -888,3 +888,7 @@ on one plot ("r14 is gorgeous the ground slope"); the USD limits may be passed f
 
 GPU cost: $130.44 of $200 in total; 11 Oct: $31.81 of $60. No pod is running.
 
+### Furnishing stage contract (13 Oct 2026)
+
+A required role can no longer vanish and leave the run `ok`. `program.required_role_ids` names the anchor and the drawn members of each required group, plus an added anchor when the group has none yet. An `unknown` piece is not a role. `fit` gives a required role the closest usable model when nothing sits inside the scale cap, and writes the scale on the piece (`over_scale`, `library_gap`). No usable model at all: `method: none`, the fit command exits 1, the report names the piece, and the fitted building is not written. Optional pieces still follow the old gap rule. CPU tests only; no pod.
+

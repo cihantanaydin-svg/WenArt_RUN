@@ -409,7 +409,7 @@ class _OneModel:
 
 def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
               uniform_range: tuple[float, float] = UNIFORM_RANGE, style_family: Optional[str] = None,
-              design: Optional[dict] = None) -> dict:
+              design: Optional[dict] = None, required: bool = False, enforce_caps: bool = True) -> dict:
     """The ``asset`` dict for one piece (pure: the piece is not modified).
 
     A candidate is accepted when its non-uniform scale (max/min of sx, sy, sz) is
@@ -435,7 +435,12 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
        related type (``RELATED_TYPES``: a chair for a missing armchair, a sideboard for a TV unit), with
        ``library_gap``;
     6. else a library gap: ``method: "none"`` (not built: never a parametric sofa, bed or table) and
-       ``library_gap = {type, style, used, reason}``.
+       ``library_gap = {type, style, used, reason}``;
+    7. a required role (``required=True``, the ids from ``program.required_role_ids``) that is still ``none``
+       takes the closest usable model with the scale caps off. The footprint stays the drawn one. ``over_scale``
+       and ``library_gap`` record the scale. No usable model at all leaves ``method: "none"``, and the fit
+       command then exits 1 (the report names the piece; the fitted building is not written). An unknown type
+       is not a required role.
     """
     ftype = piece["type"]
     width, depth = piece["footprint"]["size"]
@@ -449,15 +454,17 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         entry = next((e for e in catalog.candidates(ftype) if e.get("id") == pin), None)
         if entry is not None and C.usable(entry):
             pinned = fit_piece(dict(piece, asset_pin=None), _OneModel(catalog, entry), cap, uniform_range,
-                               style_family, design)
+                               style_family, design, required=False, enforce_caps=enforce_caps)
             if pinned.get("method") == "library":
                 pinned["pinned"] = pin
                 return pinned
-        asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design)
+        asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design,
+                          required=False, enforce_caps=enforce_caps)
         asset["pin_refused"] = (f"{pin}: not a {ftype} model of the catalogue" if entry is None
                                 else f"{pin}: {C.unusable_reason(entry)}" if not C.usable(entry)
                                 else f"{pin}: fails the fit rules (style, caps, look)")
-        return asset
+        return _resolve_required(piece, asset, catalog, cap, uniform_range, style_family, design, required,
+                                 enforce_caps)
     candidates = catalog.candidates(ftype)
     if not candidates:
         if ftype in catalog.parametric_types and (ftype == "unknown" or (C.by_design_parametric(piece) and ftype
@@ -467,18 +474,24 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 asset["by_design"] = True
             return asset
         if ftype in catalog.parametric_types:              # Milestone 12: parametric only by design (D14)
-            return _no_model(piece, catalog, f"type {ftype} is parametric in the catalogue (no model)", [], [],
-                             cap, uniform_range, style_family)
-        return _no_model(piece, catalog, f"no catalogue entry for type {ftype}", [], [], cap, uniform_range,
-                         style_family)
+            return _resolve_required(
+                piece, _no_model(piece, catalog, f"type {ftype} is parametric in the catalogue (no model)", [], [],
+                                 cap, uniform_range, style_family, enforce_caps),
+                catalog, cap, uniform_range, style_family, design, required, enforce_caps)
+        return _resolve_required(
+            piece, _no_model(piece, catalog, f"no catalogue entry for type {ftype}", [], [], cap, uniform_range,
+                             style_family, enforce_caps),
+            catalog, cap, uniform_range, style_family, design, required, enforce_caps)
     usable, refused = split_usable(candidates)
     if not usable:
-        return _no_model(piece, catalog, f"no usable {ftype} model (audit or licence)", [], refused, cap,
-                         uniform_range, style_family)
+        return _resolve_required(
+            piece, _no_model(piece, catalog, f"no usable {ftype} model (audit or licence)", [], refused, cap,
+                             uniform_range, style_family, enforce_caps),
+            catalog, cap, uniform_range, style_family, design, required, enforce_caps)
     chain = style_chain(style_family)
     tried, excluded, reasons = [], list(refused), []
     for fam in chain:
-        got = _fit_family(piece, usable, fam, cap, uniform_range, design)
+        got = _fit_family(piece, usable, fam, cap, uniform_range, design, enforce_caps)
         if got.get("method") == "library":
             got["excluded"] = excluded + got.get("excluded", [])
             if fam != style_family:
@@ -492,7 +505,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         excluded += [x for x in got.get("excluded") or [] if x["id"] not in known]
     if design:
         for fam in chain:
-            got = _fit_family(piece, usable, fam, cap, uniform_range, None)
+            got = _fit_family(piece, usable, fam, cap, uniform_range, None, enforce_caps)
             if got.get("method") == "library":
                 got["excluded"] = excluded + got.get("excluded", [])
                 got["design_not_shown"] = {k: design[k] for k in ("material_tags", "fabric_colour", "colour")
@@ -501,12 +514,33 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                     got["style_fallback"] = {"wanted": style_family, "used": fam, "chain": list(chain),
                                              "why": "; ".join(reasons)}
                 return got
-    return _no_model(piece, catalog, "; ".join(reasons) or f"no {ftype} model fits", tried, excluded, cap,
-                     uniform_range, style_family)
+    return _resolve_required(
+        piece, _no_model(piece, catalog, "; ".join(reasons) or f"no {ftype} model fits", tried, excluded, cap,
+                         uniform_range, style_family, enforce_caps),
+        catalog, cap, uniform_range, style_family, design, required, enforce_caps)
+
+
+def _resolve_required(piece: dict, asset: dict, catalog: C.Catalog, cap: float,
+                      uniform_range: tuple[float, float], style_family: Optional[str], design: Optional[dict],
+                      required: bool, enforce_caps: bool) -> dict:
+    """A required role that the caps left unbuilt takes the closest usable model, scale recorded.
+
+    ``enforce_caps`` false is that second pass (it must not call this again). No usable model leaves the gap:
+    ``method: "none"``. The footprint on ``piece`` is not changed.
+    """
+    if not required or not enforce_caps or asset.get("method") != NOT_BUILT_METHOD:
+        return asset
+    loose = fit_piece(piece, catalog, cap, uniform_range, style_family, design, required=False, enforce_caps=False)
+    if loose.get("method") != "library":
+        return asset
+    loose["over_scale"] = True
+    loose["library_gap"] = {"type": piece["type"], "style": style_family, "used": loose["asset_id"],
+                            "reason": asset.get("fallback_reason") or "outside the scale cap"}
+    return loose
 
 
 def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str], cap: float,
-                uniform_range: tuple[float, float], design: Optional[dict]) -> dict:
+                uniform_range: tuple[float, float], design: Optional[dict], enforce_caps: bool = True) -> dict:
     """The Milestone 7-11 fit of one style family on the usable candidates: the bed rule, the style filter, the
     chaise side, the design's looks, the fit v2 rank order and the caps. Returns the library ``asset`` or a
     parametric record whose ``fallback_reason`` says why none fitted."""
@@ -548,8 +582,9 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
         mean_scale = round(sum(scales) / 3.0, 4)
         height = round(float(entry["bbox_m"][2]) * scales[2], 4)
         height_ok = height_fits(height, heights)
-        accepted = (non_uniform <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1]
-                    and height_ok)
+        # enforce_caps false: the closest ranked model is taken and the scale is recorded (a required role).
+        accepted = True if not enforce_caps else (
+            non_uniform <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1] and height_ok)
         known = units_known(entry)
         size_err = round(size_error(scales), 4)
         tried.append({"id": entry["id"], "aspect_error": err, "scale": scales, "non_uniform": non_uniform,
@@ -688,7 +723,7 @@ def gap_fit(piece: dict, reason: str, candidates: Optional[list] = None, exclude
 
 
 def _no_model(piece: dict, catalog, reason: str, tried: list, excluded: list, cap: float,
-              uniform_range: tuple[float, float], style_family: Optional[str]) -> dict:
+              uniform_range: tuple[float, float], style_family: Optional[str], enforce_caps: bool = True) -> dict:
     """What a piece gets when no usable model of its type fits: our parametric fixture (by design), a model of a
     related type its group needs, or a library gap."""
     ftype = piece["type"]
@@ -703,7 +738,7 @@ def _no_model(piece: dict, catalog, reason: str, tried: list, excluded: list, ca
         for rt in RELATED_TYPES.get(ftype, ()):
             usable, _refused = split_usable(catalog.candidates(rt))
             for fam in style_chain(style_family):
-                got = _fit_family(dict(piece, type=rt), usable, fam, cap, uniform_range, None)
+                got = _fit_family(dict(piece, type=rt), usable, fam, cap, uniform_range, None, enforce_caps)
                 if got.get("method") == "library":
                     got["related_type"] = rt
                     got["excluded"] = list(excluded) + got.get("excluded", [])
@@ -929,9 +964,13 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     library style filter of ``fit_piece`` and ``fit_decor_item``; ``style`` (refit only, Milestone 10): the
     profile whose looks the fit honours (``design_of``)."""
     fitted = copy.deepcopy(building)
+    from wenart.furniture.program import required_role_ids
+
+    roles = required_role_ids(building)
     for original, piece in zip(building.get("furniture", []), fitted.get("furniture", [])):
         design = design_of(piece, style) if (style is not None or piece.get("design")) else None
-        piece["asset"] = fit_piece(piece, catalog, cap=cap, style_family=style_family, design=design or None)
+        piece["asset"] = fit_piece(piece, catalog, cap=cap, style_family=style_family, design=design or None,
+                                   required=piece.get("id") in roles)
         # Milestone 12 (§4.8, §6.4): the library gap (type, style, what was used instead) is a finding on the piece
         if piece["asset"].get("library_gap"):
             piece["library_gap"] = dict(piece["asset"]["library_gap"])
@@ -943,6 +982,28 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     for item in fitted.get("decor") or []:
         item["asset"] = fit_decor_item(item, catalog, style_family=style_family)
     return fitted
+
+
+def unresolved_required(building: dict, role_ids: Optional[set] = None) -> list[dict]:
+    """Required roles that still have no buildable asset (``method`` library or parametric).
+
+    ``role_ids`` defaults to ``program.required_role_ids`` of ``building`` (assets ignored). Each row is
+    ``{"id", "type", "room_id", "reason"}``. An unknown piece is never a row.
+    """
+    if role_ids is None:
+        from wenart.furniture.program import required_role_ids
+        role_ids = required_role_ids(building)
+    rows = []
+    for piece in building.get("furniture") or []:
+        if piece.get("id") not in role_ids:
+            continue
+        asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+        if asset.get("method") in ("library", "parametric"):
+            continue
+        gap = asset.get("library_gap") if isinstance(asset.get("library_gap"), dict) else {}
+        rows.append({"id": piece.get("id"), "type": piece.get("type"), "room_id": piece.get("room_id"),
+                     "reason": asset.get("fallback_reason") or gap.get("reason") or "no buildable asset"})
+    return rows
 
 
 def assert_only_assets_changed(before: dict, after: dict) -> None:
@@ -1058,6 +1119,11 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += [f"- {pid} ({ftype}): {reason}" for pid, ftype, reason in fallbacks]
     else:
         lines.append("- none")
+    unresolved = unresolved_required(building)
+    if unresolved:
+        lines += ["", "## Required roles with no buildable asset", "",
+                  "The furnishing stage fails while any of these remain (the fitted building is not written):", ""]
+        lines += [f"- {row['id']} ({row['type']}, room {row['room_id']}): {row['reason']}" for row in unresolved]
     if gaps:
         lines += ["", "## Library gaps (docs/milestone12.md §6.4: no audited model; what was used instead)", ""] + gaps
     if style_fallbacks:
@@ -1213,6 +1279,7 @@ def main(argv=None) -> int:
     out = Path(args.out)
     report_path = Path(args.report) if args.report else out.with_name(out.stem + "_report.md")
     report = fit_report(fitted, title=out.stem, style_note=style_note)
+    unresolved = unresolved_required(fitted)
     if args.source:
         problems, how = locked_check(Path(args.source), fitted, Path(args.completion) if args.completion else None)
         report += "\n## Locked check (docs/milestone10.md §2.7)\n\n" + how + "\n\n" + (
@@ -1224,6 +1291,13 @@ def main(argv=None) -> int:
             for line in problems:
                 print(f"  {line}", file=sys.stderr)
             return 1
+    if unresolved:
+        report_path.write_text(report, encoding="utf-8")
+        print(f"furnishing: {len(unresolved)} required role(s) have no buildable asset; "
+              f"{out} not written (report {report_path})", file=sys.stderr)
+        for row in unresolved:
+            print(f"  {row['id']} ({row['type']}): {row['reason']}", file=sys.stderr)
+        return 1
     B.save(fitted, out)
     report_path.write_text(report, encoding="utf-8")
     methods = Counter(p["asset"]["method"] for p in fitted.get("furniture", []))

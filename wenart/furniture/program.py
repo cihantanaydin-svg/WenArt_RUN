@@ -21,7 +21,9 @@ How:
 1. Drawn pieces first (``groups.group_members``): a drawn sofa is the seating anchor, a drawn bed the sleeping anchor,
    a drawn table the dining anchor, drawn sanitary ware the bathroom set, a drawn counter the kitchen run. Such a
    group is ``drawn: true`` and only completed (its missing partners; never a second anchor, CLAUDE.md). A drawn
-   anchor that is ``unverified`` or not built makes its group ``drawn`` with nothing to complete.
+   anchor that is ``unverified`` or not built makes its group ``drawn`` with nothing to complete. The fit stage
+   (``required_role_ids``) names that anchor when its type is known: it must leave with a buildable asset, or the
+   stage fails. An ``unknown`` anchor stays unbuilt, with its evidence.
 2. Then the groups the room type calls for and the documents leave out (rows below; a zone of an open plan,
    ``rooms[].zones`` of track R, gets the rows of its kind: a kitchen zone of a living room its kitchen run):
 
@@ -43,6 +45,7 @@ How:
 """
 from __future__ import annotations
 
+import copy
 import math
 from typing import Optional
 
@@ -275,3 +278,68 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
     out["groups"] = rows
     out["reason"] = "; ".join(notes) or f"{rtype} {area:.1f} m²: {', '.join(r['group'] for r in rows) or 'nothing'}"
     return out
+
+
+# Types that stay unbuilt on purpose (CLAUDE.md: a footprint whose type is unclear is not guessed).
+NOT_A_ROLE: tuple[str, ...] = ("unknown", "detail")
+
+
+def resolvable_role(piece: Optional[dict]) -> bool:
+    """A piece the furnishing stage may have to resolve: a known type, and ``build`` is not false."""
+    return bool(piece) and piece.get("build", True) is not False and piece.get("type") not in NOT_A_ROLE
+
+
+def _without_assets(building: dict) -> dict:
+    """A copy whose furniture has no ``asset``, so a previous fit cannot hide a required piece."""
+    clean = copy.deepcopy(building)
+    for piece in clean.get("furniture") or []:
+        piece.pop("asset", None)
+        piece.pop("library_gap", None)
+    return clean
+
+
+def required_role_ids(building: dict) -> set[str]:
+    """Piece ids the room program names as a required role.
+
+    Each required group contributes its anchor and its drawn members, when those pieces have a known type.
+    A required group that has no anchor yet contributes the pieces already in the room whose type is one of
+    the group's anchor types (the anchor the layout added). An ``unknown`` piece, a ``detail``, and a piece
+    with ``build: false`` are not roles. A required group that has no such piece yet is not a role either:
+    creating that piece belongs to the layout stage.
+
+    The previous fit is ignored. A piece already saved as ``method: none`` is still named.
+    """
+    clean = _without_assets(building)
+    by_id = {p.get("id"): p for p in clean.get("furniture") or []}
+    ids: set[str] = set()
+    templates = GR.load_groups()
+    for room in clean.get("rooms") or []:
+        room_id = room.get("id")
+        if not room_id:
+            continue
+        try:
+            program = room_program(clean, room_id)
+        except KeyError:
+            continue
+        in_room = [p for p in clean.get("furniture") or [] if p.get("room_id") == room_id]
+        for group in program.get("groups") or []:
+            if not group.get("required"):
+                continue
+            template = templates.get(group.get("group") or "")
+            if not template:
+                continue
+            named = []
+            if group.get("anchor_id"):
+                named.append(group["anchor_id"])
+            named.extend(group.get("members") or [])
+            for pid in named:
+                piece = by_id.get(pid)
+                if resolvable_role(piece):
+                    ids.add(pid)
+            if group.get("anchor_id"):
+                continue
+            anchor_types = set((template.get("anchor") or {}).get("types") or [])
+            for piece in in_room:
+                if piece.get("type") in anchor_types and resolvable_role(piece) and piece.get("id"):
+                    ids.add(piece["id"])
+    return ids

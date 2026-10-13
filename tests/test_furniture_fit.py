@@ -293,7 +293,12 @@ def test_fit_synthetic_buildings(catalog, buildings):
             assert asset["bbox_m"][1] == round(piece["footprint"]["size"][1], 4)
             if asset["method"] == "library":
                 sx, sy, sz = asset["fit_scale"]
-                assert max(sx, sy, sz) / min(sx, sy, sz) <= F.NON_UNIFORM_CAP + 1e-6, (name, piece["id"], asset)
+                if asset.get("over_scale"):
+                    from wenart.furniture.program import required_role_ids
+                    assert piece["id"] in required_role_ids(building), (name, piece["id"])
+                    assert asset["library_gap"]["used"] == asset["asset_id"]
+                else:
+                    assert max(sx, sy, sz) / min(sx, sy, sz) <= F.NON_UNIFORM_CAP + 1e-6, (name, piece["id"], asset)
                 assert sz == pytest.approx((sx + sy) / 2, abs=1e-3)
                 entry = catalog.entry(asset["asset_id"])
                 assert asset["library"] == entry["source"] and asset["licence"] in C.SOURCE_LICENCES[entry["source"]]
@@ -638,13 +643,22 @@ def test_cli_style_flag_filters_the_library(tmp_path, monkeypatch, capsys):
     style.write_text(json.dumps(SP.profile_from_text("Scandinavian, light oak floor")), encoding="utf-8")
     out = tmp_path / "building_final.json"
     base = ["--catalog", str(base_catalog_path(tmp_path))]      # the Poly Haven styles pinned below
-    assert F.main([str(src), "--out", str(out), "--style", str(style)] + base) == 0
-    assert "style filter: family 'scandinavian'" in capsys.readouterr().out
-    fitted = B.load(out)
+    # A required sofa and bed have no model in the scandinavian chain: the stage fails and does not write the
+    # building. The report names them. The assets themselves are checked on fit_building below.
+    assert F.main([str(src), "--out", str(out), "--style", str(style)] + base) == 1
+    assert not out.is_file()
+    captured = capsys.readouterr()
+    assert "style filter: family 'scandinavian'" in captured.out
+    assert "furnishing:" in captured.err
+    report = (tmp_path / "building_final_report.md").read_text(encoding="utf-8")
+    assert "Required roles with no buildable asset" in report
+    fitted = F.fit_building(B.load(src), C.load(Path(base[1])), style_family="scandinavian",
+                            style=json.loads(style.read_text(encoding="utf-8")))
     by_type = {}
     for p in fitted["furniture"]:
         by_type.setdefault(p["type"], set()).add((p["asset"]["method"], p["asset"]["asset_id"]))
-        assert p["asset"]["style_family"] == "scandinavian"
+        wanted = (p["asset"].get("style_fallback") or {}).get("wanted", p["asset"]["style_family"])
+        assert wanted == "scandinavian"
     assert by_type["sofa"] == {("none", "none:sofa")}                      # sofa_02 is classic: a library gap
     assert ("library", "side_table_01") in by_type["nightstand"]
     assert all(m == "none" for m, _ in by_type["bed_double"])               # GothicBed_01 is classic
@@ -655,10 +669,13 @@ def test_cli_style_flag_filters_the_library(tmp_path, monkeypatch, capsys):
     report = (tmp_path / "building_final_report.md").read_text(encoding="utf-8")
     assert "Library style filter: family 'scandinavian'" in report and "sofa_02: styles ['classic']" in report
     F.assert_only_assets_changed(load_truth("synthetic-01"), fitted)
-    # Without --style (the fit stage) nothing is filtered (Milestone 12: sofa_02 is 11 % off the 2.2 x 0.9 m sofa, over
-    # the 10 % cap; the classic bed is taken).
-    assert F.main([str(src), "--out", str(out)] + base) == 0
-    assert any(p["asset"]["asset_id"] == "GothicBed_01" for p in B.load(out)["furniture"])
+    # Without --style the classic bed is taken (Milestone 12: sofa_02 is 11 % off a 2.2 x 0.9 m sofa). A drawn
+    # wardrobe is a required role and this catalogue has no wardrobe model, so the stage fails.
+    plain = F.fit_building(B.load(src), C.load(Path(base[1])))
+    assert any(p["asset"]["asset_id"] == "GothicBed_01" for p in plain["furniture"])
+    assert F.main([str(src), "--out", str(out)] + base) == 1
+    report2 = (tmp_path / "building_final_report.md").read_text(encoding="utf-8")
+    assert "f_L0_009" in report2 and "Required roles with no buildable asset" in report2
     # An Objaverse fit is fetched from the cache only: the fetcher gets the asset (uid, sha256) as meta.
     seen = []
     monkeypatch.setattr(models, "fetch_model", lambda a, d, size="1k", source="polyhaven", licence=None, meta=None:
@@ -669,3 +686,68 @@ def test_cli_style_flag_filters_the_library(tmp_path, monkeypatch, capsys):
         "uid": "u9", "sha256_glb": asset["sha256_glb"], "glb": asset["glb"]})]}
     assert F.download_fitted(building, tmp_path / "assets", log=lambda *_: None)["fetched"] == ["objaverse_u9"]
     assert seen == [("objaverse_u9", "objaverse", "CC-BY-4.0", "u9")]
+
+
+# --------------------------------------------------------------------------
+# Furnishing stage: a required role is built, or the stage fails
+# --------------------------------------------------------------------------
+
+def _living(pieces, room_type="living"):
+    return {"project": {"id": "t", "brief": {}},
+            "rooms": [{"id": "r_L0_salon", "level_id": "L0", "room_type": room_type,
+                       "polygon": [[0, 0], [6, 0], [6, 5], [0, 5]]}],
+            "furniture": pieces}
+
+
+def test_required_role_ids_name_the_drawn_anchor_and_skip_unknown(small_catalog):
+    from wenart.furniture.program import required_role_ids
+
+    sofa = _piece("sofa", 2.2, 0.9)
+    unknown = _piece("unknown", 1.2, 0.5, pid="f_unk")
+    chair = _piece("chair", 0.45, 0.5, pid="f_chair", source="added_by_ai")
+    ids = required_role_ids(_living([sofa, unknown, chair]))
+    assert sofa["id"] in ids and "f_unk" not in ids and "f_chair" not in ids
+    # An added sofa is the seating anchor when the room has no drawn one.
+    added = _piece("sofa", 2.2, 0.9, source="added_by_ai", pid="f_ai")
+    assert required_role_ids(_living([added])) == {"f_ai"}
+
+
+def test_required_sofa_outside_the_cap_keeps_the_footprint(small_catalog):
+    piece = _piece("sofa", 1.0, 0.48)          # no candidate inside the cap (see the cap test above)
+    assert F.fit_piece(piece, small_catalog)["method"] == "none"
+    fitted = F.fit_building(_living([piece]), small_catalog)
+    asset = fitted["furniture"][0]["asset"]
+    assert asset["method"] == "library" and asset["over_scale"] is True
+    assert asset["library_gap"]["used"] == asset["asset_id"]
+    assert asset["library_gap"]["reason"]
+    assert fitted["furniture"][0]["footprint"]["size"] == [1.0, 0.48]
+    assert F.unresolved_required(fitted) == []
+    F.assert_only_assets_changed(_living([piece]), fitted)
+
+
+def test_required_role_with_no_model_fails_the_stage(tmp_path, small_catalog, monkeypatch):
+    piece = _piece("sofa", 2.2, 0.9)
+    building = _living([piece])
+    # No sofa model at all: the caps-off pass still has nothing to build.
+    empty = C.Catalog({"entries": [{"type": t, "parametric": True, "reason": "test"} for t in C.FURNITURE_TYPES]})
+    fitted = F.fit_building(building, empty)
+    unresolved = F.unresolved_required(fitted)
+    assert [row["id"] for row in unresolved] == [piece["id"]]
+    assert fitted["furniture"][0]["asset"]["method"] == "none"
+    src = tmp_path / "building.json"
+    # Schema-valid input: synthetic-01, with sofa candidates removed so the required sofa cannot be built.
+    B.save(load_truth("synthetic-01"), src)
+    out = tmp_path / "building_fitted.json"
+
+    original = C.Catalog.candidates
+
+    def no_sofas(self, ftype):
+        if ftype in ("sofa", "sofa_corner", "bed_double", "bed_single"):
+            return []
+        return original(self, ftype)
+
+    monkeypatch.setattr(C.Catalog, "candidates", no_sofas)
+    assert F.main([str(src), "--out", str(out)]) == 1
+    assert not out.is_file()
+    report = (tmp_path / "building_fitted_report.md").read_text(encoding="utf-8")
+    assert "Required roles with no buildable asset" in report and "sofa" in report
