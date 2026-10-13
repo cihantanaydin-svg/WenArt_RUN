@@ -51,3 +51,6 @@ runs/
 /projects-private/
 /results-private/
 /outputs-private/
+
+# library/review stores real 1k glTF buffers. The *.bin rule above is for checkpoints.
+!library/review/**/*.bin

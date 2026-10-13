@@ -58,6 +58,7 @@ download.pytorch.org
 api.polyhaven.com
 polyhaven.com
 dl.polyhaven.org
+cdn.polyhaven.com
 ambientcg.com
 acg-download.struffelproductions.com
 ```
