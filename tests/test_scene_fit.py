@@ -208,7 +208,13 @@ def test_committed_buildings_parametric_only_by_design_gaps_listed(project):
         if a["method"] == "none":
             assert p["library_gap"]["used"] == "nothing (not built)" and not C.by_design_parametric(p)
         if a["method"] == "library":
-            assert C.usable(a) and a["fit_scale"][0] / a["fit_scale"][1] <= 1.10 + 1e-6
-            assert 0.85 - 1e-6 <= sum(a["fit_scale"]) / 3 <= 1.20 + 1e-6
+            assert C.usable(a)
+            if a.get("over_scale"):
+                from wenart.furniture.program import required_role_ids
+                assert p["id"] in required_role_ids(building)
+                assert a["library_gap"]["used"] == a["asset_id"]
+            else:
+                assert a["fit_scale"][0] / a["fit_scale"][1] <= 1.10 + 1e-6
+                assert 0.85 - 1e-6 <= sum(a["fit_scale"]) / 3 <= 1.20 + 1e-6
     gaps = sum(1 for p in built if p["asset"]["method"] == "none")
     assert gaps < 0.2 * len(built)
