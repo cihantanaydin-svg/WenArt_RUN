@@ -741,3 +741,12 @@ def test_resolve_commit_pins_a_pushed_commit_and_checks_the_job_exists_there():
     with pytest.raises(RuntimeError, match="not clean"):
         gpu_run.resolve_commit(None, False, "scripts/jobs/full.sh", fake_git)
     assert gpu_run.resolve_commit(None, True, "scripts/jobs/full.sh", fake_git) == "headhead"
+
+
+def test_a_runner_killed_by_sigterm_leaves_a_running_pod_to_its_watchdog():
+    """Milestone 13 (docs/milestone13.md §13.6): the cloud session stops a background runner after 2 h, a pod may run
+    4 h; the pod then runs on its own watchdog and 'attach' collects later; --stop-on-signal keeps the old stop."""
+    assert gpu_run.leave_running_on_signal(gpu_run.SIGNAL_RESULT, "RUNNING", False)
+    assert not gpu_run.leave_running_on_signal(gpu_run.SIGNAL_RESULT, "RUNNING", True)
+    assert not gpu_run.leave_running_on_signal(gpu_run.SIGNAL_RESULT, "EXITED", False)
+    assert not gpu_run.leave_running_on_signal("runner timeout", "RUNNING", False)

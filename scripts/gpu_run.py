@@ -757,6 +757,18 @@ def resolve_commit(pinned: str | None, allow_dirty: bool, job: str, git_fn=None)
     return commit
 
 
+SIGNAL_RESULT = "runner terminated (SIGTERM)"
+
+
+def leave_running_on_signal(result: str, pod_status: str | None, stop_on_signal: bool) -> bool:
+    """Milestone 13 (docs/milestone13.md §13.6): a runner killed by SIGTERM (this cloud session stops a background
+    command after 2 h; a pod may run 4 h) leaves a RUNNING pod to its own watchdog and job-end stop (CLAUDE.md:
+    never rely on the session to stop a pod) and the lead re-attaches with ``attach POD_ID`` to collect, log and
+    terminate; ``--stop-on-signal`` restores the Milestone 12 behaviour (the pod is stopped from here, results
+    lost)."""
+    return result == SIGNAL_RESULT and pod_status == "RUNNING" and not stop_on_signal
+
+
 def cmd_run(a: argparse.Namespace) -> int:
     job = validate_job_path(a.job)
     commit = resolve_commit(getattr(a, "commit", None), a.allow_dirty, job)
@@ -924,7 +936,7 @@ def cmd_run(a: argparse.Namespace) -> int:
         result = "interrupted"
         save_pod_log("interrupted")
     except SystemExit:
-        result = "runner terminated (SIGTERM)"
+        result = SIGNAL_RESULT
         raise
     finally:
         minutes_used = (time.time() - t0) / 60
@@ -934,6 +946,16 @@ def cmd_run(a: argparse.Namespace) -> int:
             price = max(p.get("cost") or 0.0, gpu["price"] * count) if count > 1 else (p.get("cost") or price)
         except ApiError as e:
             print(f"final status read failed: {e}")
+        if leave_running_on_signal(result, pod_status, getattr(a, "stop_on_signal", False)):
+            # The pod keeps running on its own watchdog; the row keeps the worst case until ``attach`` corrects it.
+            detached = (f"runner detached after {minutes_used:.0f} min (SIGTERM): the pod stops itself "
+                        f"(watchdog, job-end stop); re-attach with 'attach {pod_id}' to collect and log")
+            try:
+                log_run(pod_id, gpu_name, minutes, worst, purpose, detached, key=pending_key)
+            except Exception as e:  # noqa: BLE001
+                print(f"could not write docs/gpu-log.md: {e}")
+            print(f"result: {detached}")
+            return 1
         if pod_status not in ("EXITED", "TERMINATED") and not result.startswith("api unreachable"):
             print(f"pod still {pod_status} -> stopping it from here")
             if stop(pod_id):
@@ -991,6 +1013,12 @@ def cmd_attach(a: argparse.Namespace) -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
     max_s = float(env.get("MAX_RUNTIME_S") or 7200) + float(env.get("GRACE_S") or 600) + 600
     print(f"attached to {pod_id}: job {job_id}, running {int((time.time() - t0) / 60)} min, ${price}/h")
+
+    def on_term(*_):  # Milestone 13: the pod stays on its own watchdog; attach again later
+        print(f"runner detached (SIGTERM): pod {pod_id} keeps running on its watchdog; re-attach with 'attach {pod_id}'")
+        sys.exit(143)
+    if not getattr(a, "stop_on_signal", False):
+        signal.signal(signal.SIGTERM, on_term)
     final_status, stopped_by, collected_ok, collect_tries, last_state = None, None, False, 0, None
     self_stopped, result = False, "re-attached; no final status"
     pod_status = p["status"]
@@ -1086,6 +1114,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--no-volume", action="store_true", help="run without the network volume (nothing persists)")
     r.add_argument("--keep", action="store_true", help="do not terminate the stopped pod")
     r.add_argument("--allow-dirty", action="store_true")
+    r.add_argument("--stop-on-signal", action="store_true",
+                   help="a runner killed by SIGTERM stops the pod (Milestone 12 behaviour); default: the pod runs on "
+                        "its own watchdog and 'attach' collects later")
     r.add_argument("--commit", default=None,
                    help="pin the pushed commit the pod checks out (Milestone 13 baselines on the M12 code); "
                         "the local tree is then not checked")
@@ -1101,6 +1132,7 @@ def main(argv: list[str] | None = None) -> int:
     at = sub.add_parser("attach", help="re-attach to a running wenart pod whose runner died: wait, collect, "
                                        "stop, log, terminate")
     at.add_argument("pod_id"); at.add_argument("--purpose", default="re-attached run")
+    at.add_argument("--stop-on-signal", action="store_true", help="a SIGTERM stops the pod (default: it keeps running)")
     at.set_defaults(fn=cmd_attach)
     sw = sub.add_parser("sweep", help="stop and terminate every wenart-* pod (asks first)")
     sw.add_argument("--yes", action="store_true"); sw.set_defaults(fn=cmd_sweep)
