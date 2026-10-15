@@ -896,11 +896,176 @@ commits, pushes, then writes `tests/test_m13_contracts.py`.
 
 ## 14. Build log (step 2)
 
-Sections 14.1, 14.2, 14.4 and 14.5 (what was built per track, the numbers measured on the committed buildings, open
-items, the round-1 integration) follow from the track reports; 14.3 holds the pod P1 results and the lead's lever
-decisions.
+Round 2 (commit aafd636) wired the cross-track asks of round 1 (14.5 lists them) and round 3 applies the pod P1
+decisions of 14.3.
 
-### 14.3 Pod P1 (15 Oct 2026): lever A/B, site A/B, GPU tests, and the decisions
+Round 1 of the build (commit e1532a8, 15 Oct 2026; the 12 Oct attempt was cut by a usage limit) built the eight
+tracks of §13.1 on disjoint files, reviewed them and integrated them. The commit touches 141 files (108 modified,
+33 new; +78,945 / -2,684 lines, of which results/library/growth 12 files +52,351, catalogue and size-table JSON
+3 files +5,412 / -1,568, wenart code 76 files +14,471 / -950, tests 46 files +5,895 / -159, scripts 4 files +816).
+Every number below is marked **[CPU]** (measured here on the committed files of commits 93aff07 real02/real03 and
+eddde01 real04, no GPU) or **[pod]** (waits for P1-P5). Pod B0a (12 Oct, the cancelled M12 baseline) ran 4 min for
+$0.19 (`docs/gpu-log.md`).
+
+### 14.1 What was built per track
+
+| Track | Built (round 1) | Constants chosen (source) | Tests added | GPU-only, untested here |
+|---|---|---|---|---|
+| T1 fit and licence | `catalog.py` licence model (`LICENCE_MODES`, `LICENCE_FLAGS`, `licence_mode` env > brief > commercial, `licence_flag_of`, `commercial_safe`, `usable(entry, mode)`, `unusable_reason`); catalogue licence fields by the idempotent script `python -m wenart.furniture licence-fields`; `fit.py` ladder library → module → parametric with `asset.method | ladder | licence | licence_flag | commercial_safe`, `piece.library_gap`, `method none` only for `build: false`; rank without the wood re-sort (generated last > known units > real-size step + diversity penalty > real product > design preference > audit vision quality > texture maps > judge quality > faces > aspect > source > id); one uniform scale to the drawn width (`asset.depth_abs_m` for the layout); pins skip the style filter; diversity penalty per room and project; fabric colour on `asset.fabric_colour`; size snap `sizes.snap_size` / `PRODUCT_GRID` (12 types, 78 cited catalogue ids); `project.licence_mode` written; CLI `fit --licence-mode / --project` | `NON_UNIFORM_CAP` 1.10, `UNIFORM_RANGE` 0.85-1.20, `HEIGHT_TOLERANCE` 0.15, relaxed step 1b `RELAXED_CAP` 1.15 / `RELAXED_RANGE` 0.75-1.30 (the M11 values); `ROOM_REUSE_MAX` 2, `ROOM_REUSE_STEPS` 4, `PROJECT_REUSE_STEP` 1, `SIZE_BUCKET` 0.05, `FACES_LOW` 3000 (the audit's threshold), `VISION_QUALITY_DEFAULT` 3.0, `SNAP_TOLERANCE` 0.05 (one rank step), `ORIENTATION_RATIO` 0.25, `SQUARE_EPS` 0.03; `tool_nc` reason: nvdiffrast v0.4.0 LICENSE.txt §3.3; TRELLIS.2 `licence_url` = its MIT LICENSE page; Poly Haven CC0 (polyhaven.com/license); CC deed URLs from `wenart/assets/objaverse.yaml` (creativecommons.org is blocked) | `tests/test_m13_fit.py` 22 passed (675 lines); T1 batch 123 passed, 1 skipped | none |
+| T2 modules and families v2 | new `wenart/blender/modules.py` (957 lines: `module_plan`, `MODULE_BUILDERS` wardrobe / table_dining / sofa_corner / kitchen_counter / kitchen_island / washbasin / shower, `build_module` with one material slot per part key and the Bevel modifier); `parametric.py` families v2 (`FAMILY_TYPES` bed / bed_single / bed_double, sofa, armchair, table_dining, table_coffee, desk, nightstand, dresser, bookshelf, tv_unit, wardrobe; ≥ 2 material slots, bevel radii, 1 mm `FRONT_GAP`); bed v2 platform bed keeping the M4 camera-profile box; `furniture.py` dispatch on `asset.method == "module"`; `textiles.py` re-exports | wardrobe frames 0.50 / 0.75 / 1.00 wide, 0.35 / 0.58 deep, 2.01 / 2.36 high, fillers ≤ 0.13 (IKEA PAX via the GitHub mirror felixrinker/floor-planner @408e3d7c, read 12 Oct; 404 on 15 Oct, ikea.com blocked); kitchen base widths 0.30 / 0.40 / 0.45 / 0.60 / 0.80 / 0.90, depth 0.60, worktop 0.90, plinth 0.10, wall units 0.35 deep (METOD mirror 12 Oct + utariga kitchen rules re-read 15 Oct); sofa modules 0.90-1.10, chaise 0.85-1.00 × 1.60-1.80 (contract + `size_table.yaml`); bath trays 0.80-1.20, vanity depth 0.45-0.60, basin 0.50 × 0.36 (`size_table.yaml`); bed rail 0.03 + gap 0.03 (Movian Loue 160 × 200 in a 1.72 × 2.06 frame); Blender 5.2 `BevelModifier` fields verified on docs.blender.org | `tests/test_m13_modules.py` 14 CPU tests (478 lines); size sweep 105 family cases + 23 module plans: 0 degenerate faces, boxes = plan within 1 cm | `tests/gpu/test_m13_modules.py` 3 tests (slots ≥ 2, Bevel WEIGHT, bounds = plan within 1.1 cm, manifest `by_method.module`) |
+| T3 placement | `infer.type_by_code` (twin / level / block / group_member), `code_types` in rounds, step 0 of `infer_types`, a validated type proposal before the solver in `complete_building`; `groups.drawn_groups`, `GROUP_MEMBER_MOVE_MAX_M`; `program.room_program` marks a drawn group `resolve` (anchor missing, misread or failing the checks); `solve_room(..., drawn_group=)` re-solves within 0.5 m; unbuilt anchor no obstacle; F8 names the anchor (`cause: anchor_not_built`); F2 on unbuilt drawn pieces; room aliases, tiers, designer terms R3 / R6 / R12-R14 and the rug member as data in `groups.yaml`; S2 by class | `GROUP_MEMBER_MOVE_MAX_M` 0.5 (D5); `SAME_FOOTPRINT_M` 0.01, `SAME_CENTRE_M` 0.02 (`ingest.twins.TOL`), `CONF_TWIN` 0.8, `CONF_BLOCK` 0.7, `CONF_GROUP` 0.6, `BLOCK_SIZE_TOL` 0.40, `CODE_ROUNDS` 3; `TOLERANCES` overlap_fixture 0.03 / overlap_soft 0.05; tiers small_kitchen < 7 m² (aisle 0.90 soft, walkways 0.60), drawn_run < 14 m² (ours + NKBA + Turkish imar, flagged); small_rooms living 12 m², bedroom 10 m²; R3 2.4-3.0 m / 45°, R6 rug inset 0.30 / dining margin 0.60 / bed runner 0.80, R12 0.80 m, R13 5° / 0.10 m (design books / Merrell 2011 as secondary sources, flagged); weights conversation 1.0, rug 0.5, anchored 1.0, alignment 0.5; `RESOLVE_OVERLAP_M2` 0.05, `RESOLVE_OUTSIDE_M2` 0.02 | `tests/test_m13_placement.py` 24 new (23 fail on the old code, 1 skipped without results/), 3 updated; T3 set 266 passed | none |
+| T4 agent loop | new `wenart/agent/causes.py` (342 lines): `accept_edit`, `findings_removed`, `cause_of`, `tools_for_finding`, `BUILDING_WIDE_TOOLS`; the loop runs the dry re-check, carries scene / view / vision findings on a changed target to the next round, logs rejected edits with both finding lists, reports findings removed; building-wide tools only in the building session (refused at call time); idempotent `set_exterior`; `edit_ops.retype_piece` refits through `fit.fit_piece` in `project.licence_mode`, `place_group` through `drawn_groups` + `solve_room(drawn_group=)`, `swap_model` refuses S2 < 0.03 m; room brief with licence mode, drawn groups and below-library pieces; planner rule 7; B5 storeys fix | `MAX_ROUNDS` 3 (the code had 4, the real04 pod ran 6); `S2_SWAP_MIN_M` 0.03 = `TOLERANCES["overlap_fixture"]`; temperature 0 and the strict schemas unchanged | `tests/test_m13_agent.py` 38 items (24 functions + 14 parametrized; 537 lines), 7 test files updated; 191 passed + 1 failed (`AGENT_CODE`, fixed in the integration) | none (pod numbers come from P3 / P4 `metrics.json findings_removed`) |
+| T5 light, materials, render, replay | `lighting.py` `SUN_STRENGTH_WM2`, `WENART_LIGHT_VARIANT` base / sun100 / sun300 / sun1000 / evcap / rig / shell / all, fill-light ratio scaled by sun / 3.0, `room_rig` / `rig_plan` / `build_room_rig` (emissive fixtures); `materials.py` `exterior_world_nodes(..., sun_disc=True, ...)` Nishita sky with disc, `shell_material` 7 slots, `apply_shell_layers` coat / sheen / bevel / AO / imperfection, fabric colour path; `render.py` `EXPOSURE_LIMITS (-2, 3)`, `lighting_dark`, project-locked white balance (`RENDER_CODE_VERSION m13.1`), VRAM per view; `cameras.replay_cameras`, `build.py --cameras-from / --cameras-extra` (env `WENART_CAMERAS_FROM / _EXTRA`); `ab.prepare_m13` + `M13_AB_VIEWS`; `scripts/jobs/levers_ab.sh` 8 + 8 fixed views × 8 variants = 128 renders at 128 spp | `SUN_STRENGTH_WM2` 3.0 (M11 placeholder until P1); variants 100 / 300 / 1000 W/m² (Blender 5.2 manual: clear sky 1000, cloudy 500, overcast 200); `SUN_REFERENCE_MOOD_WM2` 3.0; `ALL_VARIANT_SUN` = sun300; `EXPOSURE_LIMITS` (-2, 3) vs M11 (-2, 8); `lighting_dark` critical at ≥ 2 stops over; `RIG_GAIN` 4.0, `RIG_WARM_K` 2700, lumens → W from the manual table (800 lm 2.1 W … 2500 lm 4.5 W); `sun_size` 0.545° (manual default), `EXTERIOR_SUN_DISC_REFERENCE_WM2` 1000; `LEVER_DEFAULTS` ev_cap on, rig off, shell off; shell slot ids white_plaster_02, marble_01, white_planks_clean, Metal032 (`asset_checks_m10.json`) | `tests/test_m13_light.py` 37 CPU tests (547 lines); row 310 passed / 48 skipped / 1 failed (T2's bed, fixed) | `tests/gpu/test_m13_light.py`: T5 counts 6 GPU tests, the integration report 7 items; the committed file has 2 functions, one over 6 variants (base, sun300, evcap, rig, shell, all) + the sun-disc test = 7 items. Shell layers, rigs, sun-disc world, project WB and VRAM sampling in a real render |
+| T6 outdoor and site | `hedge_rows` (in `vegetation.py`, re-exported by `sheets.exterior`; `site_of` writes `site.hedges`); `site.tree_height` by crown class (4 m minimum gone); `climate_of` / `species_for`; new `wenart/blender/vegetation.py` (1,303 lines): `tree_object` (Poly Haven instances near cameras, Sapling through `bpy.ops.curve.tree_add`, leaf-card fallback, never a primitive), `hedge_object` (geometry-nodes leaf cards), `grass_patch`, `SPECIES` 19 entries; `site.platforms`, `platform_parts`, `pool_parts` v2, `pool_materials` v2, `backdrop_faces`, `haze_box`, `site_levers` (`WENART_SITE_VARIANT`); facade kit (`facade_kit`, `KIT`); `copies.site_view` `pitch_for_horizon`; `exterior.build_model` hedges as obstacles, `view_check` `hedge_blocked` / `hedge_over`, `aerial_allowed`, X6; `scripts/pod_setup_vegetation.sh` (188 lines), `scripts/jobs/site_ab.sh` (339) | hedge rule ≥ 5 symbols, r ≤ 0.6 m, pitch ≤ 1.5 × diameter, turns ≤ 60° (§13.2); crown classes of §13.2; hedge height class mid = 1.2 m (assumed); site view pitch 13.29° at 24 mm, horizon at 0.78 of the frame, cap 28°; haze density 0.0009 /m, anisotropy 0.3; backdrop ring 1,800 m out, +25 m; pool coping 0.35 m, lip 0.04 m, depth 1.5 m (assumed); Sapling 0.3.7 top-per-scale table measured in bpy 5.2.2 (e.g. japanese_maple 1.33, white_birch 1.27, callistemon 1.04; a generated tree is post-scaled to the drawn height); Poly Haven heroes verified on the API 15 Oct (island_tree_01 5.03 m / 3.73 M polys, island_tree_02 3.41 m, island_tree_03 2.62 m, tree_small_02 4.65 m, jacaranda_tree 19.83 m, fir_sapling_medium 9.16 m; pine_tree_01 17.4 M and fir_tree_01 7.9 M polys left out); Sapling licence GPL-3.0-or-later per its 0.3.7 manifest (GPL-2.0-or-later in its source headers), called through `bpy.ops` only | `tests/test_m13_site.py` 21 CPU tests (528 lines); the six existing row files updated; real04 built end to end under the bpy 5.2.2 LTS module in 27.3 s CPU | `tests/gpu/test_m13_site.py` 2 tests; Sapling extension install, Poly Haven 2K downloads, ambientCG atlases, the site A/B |
+| T7 library growth and audit | `audit/demands.py` (`drawn_demands`, `size_grid`, `coverage`, `demand_gaps`); new `wenart/assets/hssd.py` (542 lines: `SYNSET_TYPES`, `hssd_candidates`, `gate_check`, `download` via `huggingface_hub` 2.0.0 `snapshot_download`, token read from the environment only and scrubbed, `entry_fields`); `growth_entries.hssd_entry`; `growth.py` ABO size-grid picks, `polyhaven_vegetation`, `ambientcg_sets` (22 ids), approvals by rule; audit gates `units_anchor`, `pbr` / `pbr_record`, `material_tags` (m13.1 question), `chaise`, `licence_fields`; `growth_run.py` steps demands / size-grid / speed-probe / ingest hssd, ambientcg, abo --m13, polyhaven --m13 / catalogue / gaps / report; `library_growth.sh`; 12 committed lists under `results/library/growth/`; `fetch.check_licence` fixed for the flag word `none` | hssd/hssd-models revision 208ea6bc (14,270 files, 38.45 GB, card licence cc-by-nc-4.0, gated); hssd/hssd-hab `metadata/fpmodels-with-decomposed.csv` revision 4369cb98 (20,451 rows, `aligned.dims` x, y-up, z); paper arXiv 2306.11290 (title and authors from huggingface.co/papers); ABO S3 listings; Poly Haven API categories (trees 20, plants 57, ground cover 32, grass 4, potted plants 6); ambientCG API ids; `speed_probe.budget_minutes` 60, pick floors 600 / 400; M12 download rate 99 MB/s | `tests/test_m13_library.py` 25 tests (676 lines); row tests updated | `blender_audit.pbr_info` (bpy), the speed probe, the real downloads, the HSSD gate, the catalogue step on real files, `tests/gpu/test_library.py -k growth_m13` 3 tests |
+| T8 attribution, report, metrics | `copy.attribution_text(title, credits, *, mode)` sections 1-4, `TOOLS_AND_GENERATORS`, `project_credits` + `licence_flag` / `commercial_safe` / `licence_url` and an `[asset: id]` suffix, `texture_credits`, `library_attribution`; `final.py` `views[].commercial_safe {safe, flagged, flags, pieces, assets}`, manifest `licence` and `below_library` blocks, the two report sections; `pack3d.licence_notes` into `README_3d.txt`; new `wenart/report/metrics13.py` (1,009 lines, 17 metrics, CLI `python -m wenart.report metrics13`); new `wenart/report/sheets13.py` (174 lines, one before \| after JPEG per camera, CLI) | `PRICE_USD_PER_H` 2.49 (§7 / §8), `S2_DEPTH_M` 0.03, `BARE_WALL_SHARE` 0.5, `EV_HIGH` 5.0, `STRETCH_LIMIT` 0.05, `BLACK_LEVEL` 16/255, `TILE_HEIGHT` 540 px, `CAPTION_HEIGHT` 72 px; licences verified on the cards: Qwen3.8-27B-FP8 and Qwen3-VL-8B-Instruct apache-2.0, TRELLIS.2-4B mit, Z-Image-Turbo apache-2.0, DINOv3 License (gated); Blender GPL (manual licence page), LibreDWG GPL-3.0-or-later, Poly Haven CC0 + "Powered by Poly Haven" (Public-API README), HSSD BibTeX from github.com/3dlg-hcvc/hssd | `tests/test_m13_report.py` 12 tests (626 lines); 2 assertions updated in `tests/test_run_copy.py` | none (metrics and sheets run on the collected results) |
+
+### 14.2 Numbers measured on the committed buildings [CPU]
+
+**T1 catalogue flags** (script run on the HEAD files): `catalog.json` 121 entries, all `none` (Poly Haven CC0).
+`catalog_library.json` 1,297 entries (769 furniture + 528 decor): `none` 998, `tool_nc` 281 (every TRELLIS.2
+entry: 196 furniture + 85 decor; audit keep 243, fix 15, removed 23), `non_commercial` 12 (7 CC-BY-NC-4.0 + 5
+CC-BY-NC-SA-4.0, all audit-removed), `share_alike` 6 (CC-BY-SA-4.0, audit-removed), `no_derivatives` 0; Infinigen 27
+`none`; `licence_declared_by` publisher 1,084 / uploader 213; `commercial_safe` true 998 / false 299. §13.3 spoke of
+"the 196 TRELLIS.2 entries": the script flags 281 (the 85 decor entries too). File diff: 1,279 `licence_flag`
+null → word, 281 `licence_url` '' → the TRELLIS.2 LICENSE page, plus the new keys.
+
+**T1 drawn anchors** (from_documents sofa, sofa_corner, bed_double, table_dining, wardrobe, desk with
+`build != false`; "old" = HEAD code + HEAD catalogue; commercial and relaxed give the same anchor counts because the
+relaxed-only models are fixtures and generated items):
+
+| Input | Project | Old: library (none) | New: library + module + parametric (none) |
+|---|---|---|---|
+| building_fitted | real02 | 16 of 30 (14) | 16 + 10 + 4 (0) |
+| building_fitted | real03 | 11 of 15 (4) | 13 + 0 + 2 (0) |
+| building_fitted | real04 | 14 of 34 (20) | 22 + 10 + 2 (0) |
+| building_final | real02 | 18 of 29 (11) | 16 + 9 + 4 (0) |
+| building_final | real03 | 11 of 15 (4) | 13 + 0 + 2 (0) |
+| building_final | real04 | 11 of 31 (20) | 20 + 10 + 1 (0) |
+
+The real04 "before" differs by definition: §7 says 11 of 35, T1 11 of 31 (building_final) / 14 of 34
+(building_fitted), T8's metric 1 12 of 34 (it counts the dresser with `drawn_type` wardrobe). All four are shown;
+the metric script's definition is the one §14 keeps for the after-runs.
+
+**T1 built pieces by method** (building_final; library / module / parametric / none): real02 old 147 / – / 60 / 18
+→ commercial 149 / 35 / 41 / 0, relaxed 153 / 35 / 37 / 0; real03 old 76 / – / 18 / 22 → commercial 70 / 10 / 36 / 0,
+relaxed 84 / 4 / 28 / 0; real04 old 119 / – / 58 / 40 → commercial 144 / 36 / 37 / 0, relaxed 150 / 36 / 31 / 0.
+Flagged assets: commercial 0 / 0 / 0 (the test asserts it); relaxed real02 4 assets on 8 pieces, real03 14 / 15,
+real04 4 / 10, all `tool_nc` TRELLIS.2 (showers, washing machines, stoves, sinks, shoe cabinets, two japandi sofas).
+Relaxed caps (ladder step 1b) used on 8 / 5 / 8 pieces. Size snaps: real02 6, real03 1, real04 32 (4 beds 2.55 × 2.00
+→ 1.80 × 2.00, 8 chairs 0.71 × 0.45 → 0.50 × 0.50, 4 armchairs 0.64 × 0.57 → 0.65 × 0.80, …). Distinct library models:
+real02 27 → 55 (commercial) / 56 (relaxed), real03 27 → 48 / 61, real04 26 → 46 / 49; top model objaverse_d2785b57
+chair 42 / 40 uses → abo_B0857JM2NC 36 / 38 (the dining sets). real02 living room (60 pieces): 36 change model in
+both modes (20 chairs → the ABO chair, 5 none → module, 4 none → library after the snap, 7 library → library by the
+diversity penalty and tie-breaks).
+
+**T3 typing, groups and G-checks** (`building_final.json`; "after" = code typing + every room marked for a re-solve
+solved and the best candidate without hard failures applied):
+
+| | real02 | real03 | real04 |
+|---|---|---|---|
+| untyped drawn pieces → typed by code | 32 → 4 (twin 2, level 1, group_member 1) | 42 → 0 (no twins, no second level, no furniture words in the xref block names) | 20 → 3 (level 1 bathtub, twin 1 bathtub, group_member 1 table_coffee) |
+| drawn groups (with members) | 29 (8) | 19 (8) | 31 (10) |
+| unbuilt drawn anchors (`asset.method none`) | 0 | 0 | 20 |
+| rooms marked for a re-solve → re-solved (pieces moved) | 4 → 2 (2) | 1 → 0 | 10 → 2 (4) |
+| severities before → after | critical 0 / 0, major 96 → 89, minor 23 → 21 | major 100, minor 7, unchanged | major 33 → 34, minor 9 → 8 |
+| solve time | 1.6 s | – | 11.8 s (10 rooms) |
+
+G-checks before → after (only the checks the report lists; the rest were not reported): real02 G1 7 / 7, G2 7 / 7,
+G3 5 / 5, G4 13 / 7, G5 11 / 8, G6 12 / 12, G7 6 / 6, G8 4 / 4, G9 4 / 4, G10 18 / 18, G11 19 / 19, G12 5 / 5,
+G13 6 / 6, G14 2 / 2; real03 unchanged G1 5, G2 5, G3 3, G4 9, G5 10, G10 29, G11 12, G12 15, G13 5, G14 14; real04
+unchanged per check G1 4, G2 4, G5 2, G7 1, G8 3, G9 6, G10 18, G12 4. The counts barely move because the committed
+buildings carry the agent's edits and the re-solves need built anchors (the 20 unbuilt real04 anchors are T1/T2
+ladder cases); the real before/after is P3 / P4 **[pod]**.
+
+**T4 replay of the committed agent logs through `accept_edit`** (before = the findings of the edit's round, after =
+the next round's findings of the same run; record-only tools never go through the acceptance):
+
+| Project (log) | accepted edits | measurable | accepted now | rejected | findings removed | by tool (accepted / rejected) |
+|---|---|---|---|---|---|---|
+| real02 (M11, three runs) | 50 (3 record-only, 12 in a last round) | 35 | 21 (60 %) | 14 | 21 | move_piece 8 / 6, remove_piece 8 / 1, resize 2 / 0, rotate 1 / 4, change_type 1 / 1, swap 1 / 1, set_room_type 0 / 1 |
+| real03 (M11, two runs) | 16 | 15 | 12 (80 %) | 3 (F5, F4, F7 still there) | 12 | remove_piece 8 / 0, move_piece 3 / 2, rotate 1 / 0, resize 0 / 1 |
+| real04 (M12) | 183 (13 report_library_gap record-only, 1 last-round set_terrain) | 169 | 15 strict (9 %: swap_model 8, move_piece 4, mark_not_furniture 2, set_camera 1); 19 when the new-critical condition is judged per edit (round 4 → 5 carried 29 X2 criticals from the roof flip) | 154: target still there S2 39, F8 24, F9 17, F3 12, NR 7, G10 6; no target finding 22 (17 set_exterior, 5 remove_piece); F9 not among the round's findings 8 | 15 (19) | – |
+
+Three sources give three real04 numbers: §1.5 / §7 estimated 20 of 160, T4's replay 15 (19) of 169 and
+`metrics.findings_removed` on the committed log 20 of 183 (asserted by a test), T8's metric 7 28 of 160 (18 %). They
+use different edit sets and rules (last-round edits, record-only tools, the per-edit critical test); the metric
+script's rule is fixed for the after-runs. The same for real02 (T4 21 of 35 = 60 %; T8 12 of 41 = 29 %) and real03
+(T4 12 of 15 = 80 %; T8 12 of 16 = 75 %).
+
+**T6 hedges, trees, platforms, cameras** (real04 sheets.json of eddde01; real02 building_final): real04 has 101
+drawn tree symbols, all r 0.359 m (100 decor entries, 1 duplicate merged by `to_building`); `hedge_rows` finds 4
+hedges from 81 symbols (hedge_001 36 symbols 25.5 m, hedge_002 31 / 21.7 m, hedge_003 7 / 4.8 m, hedge_004 7 / 4.8 m;
+pitch 0.73-0.80 m; height class mid 1.2 m; species cherry_laurel inferred from the Mediterranean climate read from
+the Turkish labels); 20 symbols (19 decor entries) in 2-3-symbol stubs stay single shrubs 0.862 m high (oleander
+inferred). §7 expected 2 hedges; the detector finds 4 (two long rows plus the two 7-symbol stubs). Trees per size
+class: real04 shrub 19 / small 0 / medium 0 / large 0; real02 small 2 (M11 crowns 3.5 m → 5.6 m, olive inferred) + the
+inferred boundary hedge (6 segments, boxwood 0.6 m). Platforms real04: terraces sp_001 -3.00 m (mark lm_014,
+retaining), sp_002 -1.40 (steps), sp_003 +1.55 (steps), sp_004 -0.20 (retaining); parking spk_001 +0.75 drawn sloped
+(marks spread 6 m, draped with kerbs); each pool joins its terrace deck. Cameras: 6 planned (ext_1-5, ext_7; M12
+rendered 4, ext_3 / ext_4 were dropped 63-87 % blocked behind the hedge symbols); now ext_3 blocked 19 % (hedge_over
+15 %), ext_4 29 % (hedge_blocked 20 %); ext_6 (frontal) still dropped by copy b2. Site view: pitch 13.29° (was 28°),
+horizon at 0.78 of the frame (M12: 1.13, above the frame); CPU check render 320 × 180 at 8 spp: ext_7 black share
+0.24 % (M12 29.8 %), ext_1 2.1 %, ext_4 1.1 %. Facade kit: real04 reveal 24, gutter 8, downpipe 10, canopy 4,
+wall_light 8; real02 24, 4, 8, 2, 4; guard rails 0. Vegetation unit run in bpy 5.2.2: 8 m + 4 m hedge → 2,617 leaf
+cards in 0.02 s; Sapling olive 5.6 m in 0.91 s (14,829 leaf faces); grass 275 m² at 4 / m² → 1,100 clumps.
+
+**T7 drawn demands and coverage** (`results/library/growth/`, 15 Oct): 809 demanded pieces (388 drawn + 421
+completion-added; real02 298, real03 222, real04 289) in 156 (type, 1 cm size) rows of 48 types (33 furniture, 15
+decor); 90 demanded size bins (75 furniture, 15 decor). Largest: chair 94 (84 drawn), nightstand 36, floor_lamp 30,
+toilet 28, bed_double 23 (1.60 × 2.00 n = 20), wardrobe 22, washbasin 21, console_table 20, armchair / ottoman / stove /
+table_dining 18, bathtub 17, sink_kitchen 16, sofa 15, shower 14, desk 12. Coverage (≥ 2 usable models per bin
+within the fit caps): commercial 53 of 90 bins (furniture 45 of 75), relaxed 60 of 90 (51 of 75); 37 gap rows; 20
+bins with 0 models in both modes (bathtub 1.70 × 0.75 and 1.80 × 0.80, kitchen_island 1.20 × 0.80 and 2.00 × 1.00,
+shoe_cabinet 0.80 × 0.30, shower 0.80 × 0.80, sink_kitchen 0.60 × 0.50 and 0.80 × 0.50, table_coffee 0.80 × 0.50,
+table_dining 2.40 × 1.00 and 3.00 × 1.00, tall_cabinet 0.60 × 0.60, washbasin 0.50 × 0.40 and 0.80 × 0.50; decor basket,
+blind, curtain, pendant_light, plant, throw). Relaxed-only coverage: washing_machine 15 (commercial 0), stove
+0.90 × 0.60 8 (0), toilet 8 (1), fridge 6 (0), shower 1.00 × 0.80 5 (0) and 1.20 × 0.80 2 (0), plant_large 6 (0).
+Pick plan for P2 **[pod]**: HSSD 874 picks (796 furniture + 78 decor; 708 inside the fit caps) 2,466.8 MB; ABO 562
+(379 size grid + 120 decor + 33 style + 30 headboards) 12,526.5 MB; Poly Haven 48 at 2K (T7 lists 16 trees / shrubs, 4
+grass, 20 ground cover, 8 plants, 3 planter boxes, 1 furniture, which sum to 52, so some picks must sit in two
+categories: to confirm) 2,828 MB plus the 88 M12 models re-fetched at 2K; ambientCG 20 of 22 sets 359.6 MB;
+about 18.2 GB in all (≈ 3 min at the M12 rate 99 MB/s, 61 min at the probe floor 5 MB/s). Gate dry run over the
+current catalogue (1,418 entries = T1's 1,297 + 121): `units_anchor` would remove 197 anchors of guessed units (152
+TRELLIS.2 + 45 Objaverse; P2 applies the gate to the new ids only), `material_tags` review 701, `chaise` warn 1 of 28
+corner sofas, `licence_fields` ok 1,418, `pbr` skip 1,418 (needs the pod measurement). HSSD listing: 14,270 files,
+14,267 GLBs (14,099 objects + 168 stages), 38.45 GB; 10,169 metadata rows typed by `SYNSET_TYPES`, 8,442 of them in
+hssd-models.
+
+**T8 baseline of the 17 metrics of §7** (`wenart.report.metrics13` on the committed results: real02 and real03 =
+the M11 runs of 93aff07, real04 = the M12 run of eddde01, which has no scene or render manifest → "no data"):
+
+| # | Metric | real02 | real03 | real04 |
+|---|---|---|---|---|
+| 1 | drawn anchors built | 29 of 30 (97 %) | 15 of 15 (100 %) | 12 of 34 (35 %) |
+| 2 | drawn pieces in the scene | 185 of 210 (88 %) | 130 of 165 (79 %) | 128 of 240 (53 %) |
+| 3 | `asset.method none` | 0 | 0 | 43 |
+| 4 | parametric share of built (of fitted); grey boxes | 109 of 257 (42 %), 132 of 282 (47 %); 21 | 70 of 158 (44 %), 104 of 193 (54 %); 42 | 58 of 177 (33 %), 115 of 289 (40 %); no data |
+| 5 | complete group sets | bathroom 10/10, bedroom 6/6, kitchen 0/4, living 2/3 (78.3 %) | bathroom 0/8, bedroom 2/9, living 0/8 (8.0 %) | bathroom 8/10, bedroom 4/8, kitchen 0/2, living 0/4 (50.0 %) |
+| 6 | last-round findings F8 / S2 > 3 cm / G10 / LG | round 4: 5 / 0 / 0 / 0 | round 5: 0 / 0 / 0 / 0 | round 7: 38 / 1 (S2 all 17) / 18 / 66 |
+| 7 | accepted edits whose finding is gone next round | 12 of 41 (29 %), 50 accepted | 12 of 16 (75 %), 16 accepted | 28 of 160 (18 %), 183 accepted |
+| 8 | library pieces: top share; distinct; units unknown; stretch > 5 %; quality ≤ 3 | 28 % (42 of 148); 30; 51 %; 53 %; 4 % | 11 % (10 of 88); 33; 40 %; 38 %; 32 % | 34 % (40 of 119); 26; 50 %; 49 %; 12 % |
+| 9 | interior views at EV ≥ +5; EV median gap | 9 of 35; 6.92 EV | 27 of 83; 5.17 EV | 9 of 44; no data |
+| 10 | shell slots with normal + roughness; fabric colour applied | no data; 0 of 23 | no data; 0 of 11 | no data; no data (14 upholstered built) |
+| 11 | trees built; hedges; black pixels in the site view | 0 drawn; 1 hedge object of 0 drawn rows; 0.0 % (ext_5) | 0 drawn; 0; no data | no data of 100 drawn; no data; 29.8 % (ext_7) |
+| 12 | exterior views rendered of planned | 6 of 6 | 0 of 0 | 4 of no data |
+| 13 | views in halls or ≥ 50 % bare wall | 16 of 41 (halls 9, bare 11) | 29 of 83 (21, 14) | 12 of 48 (halls 12, bare no data) |
+| 14 | `in_json_not_rendered` | 0 | 2 in 2 views | 18 in 10 views |
+| 15 | rubric (results/review/m13_step0) | mean 1.90 over 41; 8 at 1; 0 at 4-5 | mean 1.83 over 83; 28 at 1; 1 at 4-5 | mean 1.88 over 48; 20 at 1; 3 at 4-5 |
+| 16 | commercial-safe line present; flagged ids missing in ATTRIBUTION | 0 of 41; 0 | 0 of 83; 0 | 0 of 48; 0 |
+| 17 | minutes and USD (stage seconds at $2.49/h) | 29 min, $1.22 | 56 min, $2.32 | 122 min, $5.07 |
+
+Where the script's number differs from the §7 column (real04): metric 1 12 of 34 vs 11 of 35; metric 7 28 of 160
+vs 20 of 160 (§7 used an unwritten rule); metric 8 quality ≤ 3 12 % vs 52 % (the script counts a lower M8 judge
+score ≤ 3 or a catalogue `vision_doubt`); metric 9 gap "no data" vs 7.2 EV; metric 11 29.8 % vs 29 %; metric 12
+"4 of no data" vs 4 of 7; metric 17 122 min / $5.07 as the stage sum (it includes the failed 29-min build) vs 114
+min / $4.72 pod wall time in `docs/gpu-log.md`. Metrics 10 and 11 need the manifest records T5 (`materials[].maps`,
+`recolour.fabric`) and T6 (`site.vegetation`, `site.hedges`) write; until then they read "no data" **[pod]**.
+Other T8 measurements: the per-view commercial-safe check on the committed real02 manifests flags 6 of 41 views (3
+`tool_nc` generated models), 35 safe; `below_library` 109 pieces, 53 gaps (56 by design); `project_credits` real02
+75 models, 66 commercial-safe, 9 `tool_nc`; `sheets13` on real02 41 sheets of 72-170 KB (≤ 300 KB).
+
+### 14.3 Pod P1 (15 Oct 2026): lever A/B, site A/B, GPU tests, and the lead's decisions
 
 Pod `ker0qemve1rhpf`, RTX 4090 ($0.89/h), 163 min, $2.42, round-1 code (33d12db). The lever A/B rendered the 8 fixed
 Milestone 11 views of real02 and real03 × 8 light variants (128 spp, 4.4-9.2 s per view on the 4090, 13.5 GB VRAM);
@@ -932,3 +1097,91 @@ What the images and numbers show (lead's reading, the sheets are the evidence):
 Numbers: exterior views cost 2-4 s and ≤ 13.4 GB VRAM with every lever on (the Poly Haven instances add ~0.3 GB);
 interior views 4.4-9.2 s. The levers are applied in build round 3 (§14.5) and verified on P3 (real04) and P4
 (real02 + real03).
+
+#### 14.3.1 The settings list (T5's list at e1532a8, decided in 14.3)
+
+P1 (pod ker0qemve1rhpf, RTX 4090 at $0.89/h, 163 min, $2.42, on 33d12db) rendered the 8 + 8 fixed interior
+views × 8 light variants (128 renders at 128 spp), the 3 + 3 exterior views × 8 site variants, and runs the GPU
+tests of T2 / T5 / T6. From its results the lead sets, in T5's own list:
+
+| Setting (file at e1532a8) | Today | Decide from P1 |
+|---|---|---|
+| `SUN_STRENGTH_WM2` (`wenart/blender/lighting.py` l. 94) | 3.0 (M11) | 100 / 300 / 1000 from the sun100 / sun300 / sun1000 renders against the EV targets of §7 metric 9 |
+| `LEVER_DEFAULTS` rig / shell (`lighting.py` l. 107) | ev_cap True, rig False, shell False | True once the rig and shell variants pass the look; needs the bpy-bound tests `tests/test_blender_build.py` (light_r_L0_hol area light), `tests/test_look_m6.py` (light and tile group links) and `tests/test_blender_materials.py` (material names) updated, because they pin the M6-M12 lights and materials |
+| `RIG_GAIN` (`lighting.py` l. 472) | 4.0 | 1.0 if the rig variant is too bright |
+| `EXTERIOR_SUN_DISC_REFERENCE_WM2` (`lighting.py` l. 997) | 1000.0 (assumes a Nishita disc at intensity 1 = a 1000 W/m² sun lamp) | the measured `SUN_DISC_RATIO` printed by `tests/gpu/test_m13_light.py::test_exterior_sky_carries_a_visible_sun_disc` |
+| `ALL_VARIANT_SUN` | sun300 | whether `all` keeps 300 |
+| site levers (`WENART_SITE_VARIANT` all / base / hedge / instances / sapling / platforms / pools / sky, T6) | variants built, no default decided | go / no-go per lever from `scripts/jobs/site_ab.sh` (seconds, EV, VRAM per view, black share) |
+
+The T5 lever and T6 site variants, the 8 + 8 view list (`M13_AB_VIEWS` in `wenart/run/ab.py`) and the GPU tests of
+T2 (3), T5 (7 items), T6 (2) are the P1 deliverables; `tests/gpu/test_library.py -k growth_m13` (3) belongs to P2.
+
+### 14.4 Open items and risks by track
+
+- **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang
+  4-7 cm at the back; the back-edge rule and the S2 tolerance are T2/T3's); the 4 real02 desks 1.45 × 0.91 m lose
+  their library model (no audited desk deeper than 0.78 m) and go to the parametric desk; the matched-set exemption
+  of the diversity penalty may want the user's OK; three real04 snaps deserve a look at the plan crops (armchairs
+  0.64 × 0.57 → 0.65 × 0.80, the 0.56 m round "coffee tables", the corridor 1.52 × 0.60 "coffee tables", probably
+  consoles); the agent's refits must pass `mode=project.licence_mode` (`fit_piece` defaults to commercial).
+- **T2**: PAX / METOD sizes verified only through the 12 Oct mirror (404 and ikea.com blocked on 15 Oct); sofa module
+  widths come from the contract and the size table, not a manufacturer's list; 24 types have neither a module
+  builder nor a v2 family and keep their M4-M12 look (bar_stool, bathtub, bench, bunk_bed, chair, chaise,
+  console_table, crib, display_cabinet, floor_lamp, fridge, office_chair, ottoman, potted_plant, shoe_cabinet,
+  side_table, sideboard, sink_kitchen, stair, stove, tall_cabinet, toilet, wall_cabinet, washing_machine); the
+  `bevel_weight_edge` attribute name is the one used since M6, not from a page fetched this session.
+- **T3**: the decor stage resets `building["decor"]` and drops the solver's rug members (round 2); the ingest still
+  asks the AI about footprints code can type (round 2, K3 order); only 2 of 10 marked real04 rooms re-solve on the
+  committed building (the others need the built anchors); the designer numbers and the Turkish minimum areas come
+  from secondary sources (books not readable, mevzuat.gov.tr unreachable) and are flagged in `groups.yaml`; the
+  refit after the layout must fit re-solved pieces (asset None) and code-typed proposals.
+- **T4**: the dry re-check cannot measure the build's scene, view, look and vision checks before a build; such
+  findings on a changed target count as gone and are re-measured next round (marked `carried`); the scheduler
+  default `agent_rounds` is still 4 (round 2); the vision critic is still asked for every room with a preview.
+- **T5**: every bpy part is untested here (shell layers, rigs, sun-disc world, project WB, VRAM); the sun-disc
+  calibration is an assumption until `SUN_DISC_RATIO` is measured; `RIG_GAIN` 4.0 is a documented choice; the
+  imperfection overlay is procedural noise (no CC0 smudge image in the catalogue); `wenart/run/cli.py` does not
+  forward `--cameras-from / --cameras-extra` (the environment drives the replay; round 2).
+- **T6**: Sapling install, Poly Haven 2K downloads (fir_tree_01 alone 510 MB) and the ambientCG atlases run first on
+  P1; the leaf atlases' opacity map needed the `OPTIONAL_SUFFIXES` change (applied in the integration); real04 ext_6
+  stays dropped (copy b2 across a 6 m gap, a camera-search change outside D8); parking spk_001 stays a draped slope;
+  hedge and tree species are inferred (no CC0 olive, cypress, plane or palm model); the new manifest kinds fall back
+  to site_area / site_boundary / site_decor until `common.KINDS` lists them (round 2); `site.platforms` are recorded
+  in the scene manifest only; `WENART_ASSETS` must be exported by the jobs (site_ab.sh does).
+- **T7**: `catalog.SOURCES` must accept `hssd` before P2's catalogue step or every HSSD entry is dropped (round 2);
+  whether `units_anchor` runs over the whole library (197 anchors, today's only relaxed-mode toilets, basins and
+  stoves) is a lead / user call; the HSSD terms acceptance behind the pod's `hf_token` is checked at run time only;
+  the 18 audit-removed NC / SA Objaverse entries could be reinstated for relaxed mode by a new audit decision; the
+  701 untagged models are not re-asked on P2.
+- **T8**: metrics 10 and 11 read "no data" until T5 and T6 write the manifest records; metric 15 needs the reviewer's
+  per-view rubric JSON for the after-runs; metric 17 is a stage sum, not wall time; metrics 7 and 8 differ from the
+  §7 estimates by definition (a §7 footnote is due); `wenart/assets/objaverse.py` should write the new fields for
+  new entries through `catalog.licence_fields` (T7 ask).
+
+### 14.5 The round-1 integration
+
+The integration agent ran `pytest -m "not gpu"` over tests/ in six chunks on the quiet tree (16:21-16:43): **4,866
+passed, 211 skipped, 4 xfailed, 1 failed, 139 deselected (gpu)**; `python3 -m compileall` clean, `bash -n` clean on
+the four new scripts, `wenart.building.validate` accepts the three committed `building_final.json`, no key or token
+in the diff. Cross-track changes it applied: `tests/gpu/test_m13_light.py` module-level skip without Blender (the
+same-basename twin aborted the collection); `stages.AGENT_CODE += wenart/assets/**`; `scene_checks.usable_asset`
+takes the fitted licence mode and S6 accepts a module / parametric piece whose `library_gap` names the ladder step
+(D4); `cameras.REPLAY_OPTIONAL += site_view, aerial_allowed, horizon_frac`; `furniture.LICENCE_FLAGS` takes the
+§13.3 flag words; `sheets/to_building.py` copies the sheets' hedges into `site.hedges` (a fresh run would lose
+them otherwise); `ambientcg.OPTIONAL_SUFFIXES += opacity`. Ten test failures fixed: the bed v2 part list in
+`test_look_m6` (T2 and T5 both proposed it); the camera-search bed profile (frame box + mattress box, 0.0009 off
+instead of 0.0104; the real02 share 0.0694 unchanged); `rest.place_leaning` on a sideways single bed (pillows read as
+arms); three `test_recolour_apply` tests (K2 ranks a real product first, `preference: True`, the D4 ladder ends in
+`parametric`, not `none`); `program.room_kind` (a read `storage` room is no bedroom on a generic "Oda" label);
+`test_reading_building` (a 1.9 × 1.7 m box in a living room is the missing corner sofa under K3); `test_pipeline`
+(the PDF-only sofa is typed by code); two `test_real01` tests (8 of 17 untyped candidates typed by code).
+
+**The one red test** is data, not code: `tests/test_models_assets.py::test_catalog_ids_exist_on_the_api` asks the
+live Poly Haven API, which now reports `vintage_wooden_drawer_01` at 1.715 × 1.007 × 1.091 m against the committed
+0.858 × 0.457 × 0.545 m (the entry is identical on HEAD); a fetch of the current files fails on an md5 mismatch of
+the 8k `.bin`, so the asset is being republished. No hand-check exception was added because the file could not be
+checked by hand. Lead decision: re-fetch and re-measure the asset on the next library pod (P2) once the CDN and the
+API agree, or drop / replace the entry. The design-level asks the integration left for the lead are the round-2
+list of `docs/progress.md` (the HSSD catalogue source, the K3 ingest order, agent rounds 3 in the scheduler and
+CLI, rug members and candidate application in `edit_ops`, `common.KINDS`, the CLI replay pass-through, the manifest
+records for metrics 10 and 11, `tests/test_m13_contracts.py`, the jobs `m13_p1.sh` / `full.sh` and the docs).

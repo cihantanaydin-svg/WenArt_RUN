@@ -939,8 +939,8 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
 - **Contracts** (§13, commit c2a6a9e): eight tracks on disjoint files, frozen interfaces, new schema fields
   (`asset.method | ladder | licence_flag | commercial_safe`, `size_snap`, `drawn_group`, `site.hedges`,
   `site.platforms`, `project.licence_mode`), `library.licence_mode` setting.
-- **Build round 1** (commit e1532a8, 15 Oct; the 12 Oct attempt was cut by a usage limit): 108 files changed, 33
-  new, 15,923 insertions; tracks T1-T8 built, reviewed and integrated by 17 agents; CPU suite 4,866 passed, 211
+- **Build round 1** (commit e1532a8, 15 Oct; the 12 Oct attempt was cut by a usage limit): 141 files (108 modified, 33
+  new; +78,945 / -2,684 lines, of which 52,351 are the committed growth lists and 14,471 code); tracks T1-T8 built, reviewed and integrated by 17 agents; CPU suite 4,866 passed, 211
   skipped, 1 failed (`tests/test_models_assets.py::test_catalog_ids_exist_on_the_api`: the live Poly Haven API now
   reports `vintage_wooden_drawer_01` at twice the committed size; the entry is unchanged and is re-measured on the
   next library pod). Numbers per track go to `docs/milestone13.md` §14 after round 2.
