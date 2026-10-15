@@ -16,7 +16,8 @@
   "Milestone 7 (docs/milestone7.md §6.3): styles = style families of wenart.style.vocabulary.STYLE_FAMILIES or neutral, tagged on 2026-10-03 from GET https://api.polyhaven.com/info/<id> (tags, description, attributes) and, for the ten models the Milestone 6 renders show, from those renders; the thumbnails (cdn.polyhaven.com) were not reachable from the session. A family is claimed only when the tags or the description say it; style_note gives the words. refit takes a model only when its styles contain the project's family or neutral.",
   "Milestone 7: beds carry has_mattress; old_bed_frame (Old Bed Frame, a tubular metal frame with a wire-mesh base and no mattress) was removed, so bed_single is parametric until the Objaverse library adds one.",
   "Milestone 12 pod P4: the parametric entries of bar_stool, bed_single, bench, console_table, office_chair, ottoman, side_table, sideboard, tall_cabinet, wardrobe gave way to the new Poly Haven models (a type is either library or parametric; catalog_library.json has models of bar_stool, bed_single, bench, console_table, office_chair, ottoman, side_table, sideboard, tall_cabinet, wardrobe of them, so the merged catalogue had no parametric entry for those already)",
-  "Milestone 12 pod P4 (docs/milestone12.md §6.4, user OK of 11 Oct 2026): models added by the library growth (Poly Haven, ABO, Google Scanned Objects, Infinigen test batch), audited in P4 like the others (results/library/audit/p4/, results/library/growth/)."
+  "Milestone 12 pod P4 (docs/milestone12.md §6.4, user OK of 11 Oct 2026): models added by the library growth (Poly Haven, ABO, Google Scanned Objects, Infinigen test batch), audited in P4 like the others (results/library/audit/p4/, results/library/growth/).",
+  "Milestone 13 pod P2 (docs/milestone13.md §5.1 phase 2, §13.6; user decisions D1, D2 of 12 Oct 2026): models added by the library growth by drawn demand (ABO size grid, Poly Haven 2K and vegetation, HSSD by type and size bin under CC BY-NC 4.0 for the relaxed licence mode), audited in P2 with the Milestone 13 gates (results/library/audit/p4/ and results/library/growth/: the folders scripts/jobs/library_growth.sh copy_results writes)."
  ],
  "entries": [
   {
@@ -2291,11 +2292,11 @@
     "classic",
     "rustic"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'classic']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'classic']",
    "url": "https://polyhaven.com/a/Rockingchair_01",
    "api_url": "https://api.polyhaven.com/files/Rockingchair_01",
-   "gltf": "models/Rockingchair_01/Rockingchair_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/Rockingchair_01/Rockingchair_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 11866,
    "vertices": 10017,
    "dimensions_api_mm": [
@@ -2303,25 +2304,46 @@
     833,
     995
    ],
-   "sha256_gltf": "eb8c3a8f9c2c1bd6ca6d76804b8361dd0fd779498249d554536e5683e08f565b",
+   "sha256_gltf": "56d775f66b94589152d303d70ca1d80850fcb48b393c56f792b641916de11d49",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "ce81871822ef7e99",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "df3b977ad1953c99",
     "notes": [
-     "the vision check sees the front on the left of view 0; the agreed front is kept"
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ],
     "vision_doubt": [
      "the vision check says it is not a armchair (a chair)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -2376,8 +2398,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['industrial', 'rustic', 'modern']",
    "url": "https://polyhaven.com/a/bar_chair_round_01",
    "api_url": "https://api.polyhaven.com/files/bar_chair_round_01",
-   "gltf": "models/bar_chair_round_01/bar_chair_round_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/bar_chair_round_01/bar_chair_round_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 14373,
    "vertices": 29091,
    "dimensions_api_mm": [
@@ -2385,22 +2407,44 @@
     486,
     751
    ],
-   "sha256_gltf": "6a8f92123245268cbb69fc96f305ee710b32a7a06761b143d3049eaabfcbdd32",
+   "sha256_gltf": "0c7d5dbea18d83a766b4b5ae1ccd303898e117af1f829282bc6aad37b8be55cc",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
     "notes": [
-     "6 part(s) stick out of the main body (-z, up to 0.60 m): an open drawer or a separate prop?"
+     "6 part(s) stick out of the main body (-z, up to 0.60 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -2452,11 +2496,11 @@
     "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'japandi']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['japandi', 'modern', 'minimal']",
    "url": "https://polyhaven.com/a/chinese_stool",
    "api_url": "https://api.polyhaven.com/files/chinese_stool",
-   "gltf": "models/chinese_stool/chinese_stool_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_stool/chinese_stool_2k.gltf",
+   "resolution": "2k",
    "polycount": 1090,
    "vertices": 1051,
    "dimensions_api_mm": [
@@ -2464,26 +2508,48 @@
     506,
     631
    ],
-   "sha256_gltf": "6db83b16076496830f956780890480d3cb1e34c80359b5ea8cb0e7afd42572c6",
+   "sha256_gltf": "ecf577ffe7308f7243a132ba5bcec464823ee5206b172de355ed1557011e822c",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "642cd1062a98f8e7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "9b622c12bafb0de8",
     "notes": [
      "8 part(s) stick out of the main body (-z, up to 0.55 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check finds the size odd next to the scale reference (code: size ok)"
     ],
     "vision_doubt": [
      "the vision check says it is not a bar_stool (a chair)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -2537,8 +2603,8 @@
    "style_note": "P4 growth: source hint ['industrial', 'classic']; the audit's vision answer (pass 1) names ['industrial', 'modern']",
    "url": "https://polyhaven.com/a/metal_stool_01",
    "api_url": "https://api.polyhaven.com/files/metal_stool_01",
-   "gltf": "models/metal_stool_01/metal_stool_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/metal_stool_01/metal_stool_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 8334,
    "vertices": 5198,
    "dimensions_api_mm": [
@@ -2546,22 +2612,44 @@
     355,
     883
    ],
-   "sha256_gltf": "e69a99778cacbbf0a2447971d8917a2463b411cdd2a50ff2c53c2230b4c43881",
+   "sha256_gltf": "c5886418d98b7ec4e932f54a2ba44896dd9e61276bf62d21697b9136f2b0803e",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
     "notes": [
-     "9 part(s) stick out of the main body (-z, up to 0.80 m): an open drawer or a separate prop?"
+     "9 part(s) stick out of the main body (-z, up to 0.80 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -2614,8 +2702,8 @@
    "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['industrial', 'modern']",
    "url": "https://polyhaven.com/a/metal_stool_03",
    "api_url": "https://api.polyhaven.com/files/metal_stool_03",
-   "gltf": "models/metal_stool_03/metal_stool_03_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/metal_stool_03/metal_stool_03_2k.gltf",
+   "resolution": "2k",
    "polycount": 6576,
    "vertices": 4562,
    "dimensions_api_mm": [
@@ -2623,26 +2711,48 @@
     471,
     1023
    ],
-   "sha256_gltf": "97d7b64c170f6c91982be77beab1c994743ca3d9dc90525e8d3618d402597516",
+   "sha256_gltf": "119a845ff5e2b3183effe6bbc42ef4634ed5b17bbeb3fa19536c72dfdcf5272c",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "642cd1062a98f8e7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "9b622c12bafb0de8",
     "notes": [
      "7 part(s) stick out of the main body (+z, -z, up to 0.66 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check finds the size odd next to the scale reference (code: size ok)"
     ],
     "vision_doubt": [
      "the vision check says it is not a bar_stool (a chair)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -2696,8 +2806,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'industrial', 'classic']",
    "url": "https://polyhaven.com/a/painted_wooden_stool",
    "api_url": "https://api.polyhaven.com/files/painted_wooden_stool",
-   "gltf": "models/painted_wooden_stool/painted_wooden_stool_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/painted_wooden_stool/painted_wooden_stool_2k.gltf",
+   "resolution": "2k",
    "polycount": 676,
    "vertices": 604,
    "dimensions_api_mm": [
@@ -2705,24 +2815,46 @@
     406,
     579
    ],
-   "sha256_gltf": "f9a9a4a7c38b3421c30dac35d91c41c8864452d6dbb398911494b8324d312ef9",
+   "sha256_gltf": "9c02706152c2daaa68be45c2aa04c14306c28465271ba21c1df94cd6999fabaf",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
     "notes": [
      "10 part(s) stick out of the main body (-z, up to 0.55 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
      "the vision answer says not a bar_stool but names bar_stool as what it is: taken as a bar_stool",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check finds the size odd next to the scale reference (code: size ok)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -2775,8 +2907,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'classic']",
    "url": "https://polyhaven.com/a/wooden_stool_02",
    "api_url": "https://api.polyhaven.com/files/wooden_stool_02",
-   "gltf": "models/wooden_stool_02/wooden_stool_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/wooden_stool_02/wooden_stool_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 11146,
    "vertices": 6299,
    "dimensions_api_mm": [
@@ -2784,7 +2916,7 @@
     183,
     182
    ],
-   "sha256_gltf": "8bb8bc3e420db0f69cee3d2ee74eccad7cabd1110a864a7d945549684e6f32cf",
+   "sha256_gltf": "df1b76aefaa6752738aed8fcdc871dbbfddb0cdd0725b013ed46a34b8ab5c2f8",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -2798,8 +2930,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4993a0e404959f18"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "4993a0e404959f18",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
    },
    "real_product": true,
    "has_cushions": false
@@ -2851,11 +2988,11 @@
     "minimal",
     "rustic"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'industrial', 'minimal']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['industrial', 'rustic', 'minimal']",
    "url": "https://polyhaven.com/a/old_bed_frame",
    "api_url": "https://api.polyhaven.com/files/old_bed_frame",
-   "gltf": "models/old_bed_frame/old_bed_frame_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/old_bed_frame/old_bed_frame_2k.gltf",
+   "resolution": "2k",
    "polycount": 49990,
    "vertices": 35560,
    "dimensions_api_mm": [
@@ -2863,7 +3000,7 @@
     2002,
     1201
    ],
-   "sha256_gltf": "661055e76d292ae5ec812f05077a6870414527c2d63947574ea8fc739e16de08",
+   "sha256_gltf": "ac2c610f90462588372eb6c2c477c1eca47adaff33b83fd59789a380c07bf550",
    "has_mattress": false,
    "bed_frame": false,
    "bed_note": "P4 growth: has_mattress False from the vision answer (bedding not seen)",
@@ -2873,15 +3010,37 @@
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "e7f87116a2ca2c5a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "5c488bdb1ba180c9",
     "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_bedding": false,
@@ -2936,8 +3095,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'classic']",
    "url": "https://polyhaven.com/a/vintage_day_bed",
    "api_url": "https://api.polyhaven.com/files/vintage_day_bed",
-   "gltf": "models/vintage_day_bed/vintage_day_bed_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/vintage_day_bed/vintage_day_bed_2k.gltf",
+   "resolution": "2k",
    "polycount": 2715,
    "vertices": 2000,
    "dimensions_api_mm": [
@@ -2945,7 +3104,7 @@
     855,
     1127
    ],
-   "sha256_gltf": "fb255992b6e651de9709b17c083a14b405e99cbc26774b31bf252e38cf9287fb",
+   "sha256_gltf": "1ba8b83ffb698649e67cccdf70a2386e860a94be6222bd94fe39a9422f37220a",
    "has_mattress": true,
    "bed_frame": false,
    "bed_note": "P4 growth: has_mattress True from the vision answer (bedding seen)",
@@ -2958,11 +3117,20 @@
     "status": "fix",
     "reasons": [],
     "fixes": {
-     "front_axis": "+X"
+     "front_axis": "+X",
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
     },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "ef1a0d5735f38304",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "7b5d42adf9eae98f",
     "before": {
      "front_axis": "-Y",
      "bbox_m": [
@@ -2973,8 +3141,20 @@
      "front_axis_confidence": "medium"
     },
     "notes": [
-     "its front is on the wrong side for a bed_single (width along the front): turned 90 deg (side unknown: the vision check confirms)"
+     "its front is on the wrong side for a bed_single (width along the front): turned 90 deg (side unknown: the vision check confirms)",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_bedding": true,
@@ -3029,8 +3209,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'classic']",
    "url": "https://polyhaven.com/a/painted_wooden_bench",
    "api_url": "https://api.polyhaven.com/files/painted_wooden_bench",
-   "gltf": "models/painted_wooden_bench/painted_wooden_bench_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/painted_wooden_bench/painted_wooden_bench_2k.gltf",
+   "resolution": "2k",
    "polycount": 630,
    "vertices": 677,
    "dimensions_api_mm": [
@@ -3038,19 +3218,43 @@
     497,
     889
    ],
-   "sha256_gltf": "2289ab82f3fe3045bf18f7b9541743d2c65b9f071cb34bbe424d2bc998f3e507",
+   "sha256_gltf": "0321bf315d23f82d925353728632e32dad4d7fee8b75f58c3cc3a249635e96a3",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -3103,8 +3307,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'classic']",
    "url": "https://polyhaven.com/a/painted_wooden_shelves",
    "api_url": "https://api.polyhaven.com/files/painted_wooden_shelves",
-   "gltf": "models/painted_wooden_shelves/painted_wooden_shelves_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/painted_wooden_shelves/painted_wooden_shelves_2k.gltf",
+   "resolution": "2k",
    "polycount": 524,
    "vertices": 548,
    "dimensions_api_mm": [
@@ -3112,19 +3316,43 @@
     367,
     1125
    ],
-   "sha256_gltf": "f4d9ffc04ad1e9ce3155522ac962c336bf1fa74b4a27b8a5fd4c8bdb81c2e8f6",
+   "sha256_gltf": "340b722222e0074df89c504d5dc4a49f2978a165051c40514e925d732f2658ef",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": false
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -3171,14 +3399,14 @@
    "front_axis_note": "geometry: open_side: panel fractions {'-x': 0.1956, '+x': 0.1956, '-y': 0.1336, '+y': 0.1336} give 0 axes with one closed side; -Y assumed, the audit's vision answer names the front",
    "styles": [
     "industrial",
-    "modern",
-    "scandinavian"
+    "minimal",
+    "modern"
    ],
-   "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['industrial', 'modern', 'scandinavian']",
+   "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['industrial', 'modern', 'minimal']",
    "url": "https://polyhaven.com/a/steel_frame_shelves_01",
    "api_url": "https://api.polyhaven.com/files/steel_frame_shelves_01",
-   "gltf": "models/steel_frame_shelves_01/steel_frame_shelves_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/steel_frame_shelves_01/steel_frame_shelves_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 4348,
    "vertices": 3632,
    "dimensions_api_mm": [
@@ -3186,7 +3414,7 @@
     502,
     2141
    ],
-   "sha256_gltf": "4eff8994825d654e337f8dc425e959ed6add7f4773188c87ba64402d9edd9842",
+   "sha256_gltf": "42c992b86966deace163e701fb45df82743d42716eefbedb533e550bcc879b6b",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -3199,10 +3427,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "e0f968e81b2a4825",
     "notes": [
-     "10 part(s) stick out of the main body (+x, +z, -x, -z, up to 16.27 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, +z, -x, -z, up to 16.27 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true
@@ -3256,8 +3487,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['industrial', 'modern', 'minimal']",
    "url": "https://polyhaven.com/a/steel_frame_shelves_02",
    "api_url": "https://api.polyhaven.com/files/steel_frame_shelves_02",
-   "gltf": "models/steel_frame_shelves_02/steel_frame_shelves_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/steel_frame_shelves_02/steel_frame_shelves_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 4348,
    "vertices": 3633,
    "dimensions_api_mm": [
@@ -3265,7 +3496,7 @@
     502,
     2142
    ],
-   "sha256_gltf": "df103b9fbb08a60e262cc1d8af5cb37f3c1231a8764eeacec23d363be24feca6",
+   "sha256_gltf": "ab61a90fbfe2d813467ae3353f653d2197bd2b752cf4dda73941ff6bff472d62",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -3278,10 +3509,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "15042075f283ff42",
     "notes": [
-     "10 part(s) stick out of the main body (+x, up to 0.56 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, up to 0.56 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true
@@ -3329,14 +3563,13 @@
    "front_axis_note": "geometry: open_side: panel fractions {'-x': 0.3939, '+x': 0.161, '-y': 0.1209, '+y': 0.0679} give 0 axes with one closed side; -Y assumed, the audit's vision answer names the front",
    "styles": [
     "industrial",
-    "modern",
-    "scandinavian"
+    "modern"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['industrial', 'modern', 'scandinavian']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['industrial', 'modern']",
    "url": "https://polyhaven.com/a/steel_frame_shelves_03",
    "api_url": "https://api.polyhaven.com/files/steel_frame_shelves_03",
-   "gltf": "models/steel_frame_shelves_03/steel_frame_shelves_03_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/steel_frame_shelves_03/steel_frame_shelves_03_2k.gltf",
+   "resolution": "2k",
    "polycount": 8396,
    "vertices": 6531,
    "dimensions_api_mm": [
@@ -3344,7 +3577,7 @@
     721,
     2312
    ],
-   "sha256_gltf": "5778bc40d135c7c02a62acdaa4be11fa856fe462c574cbc09033e78a269833d8",
+   "sha256_gltf": "840ec12798f4091e582eb1a16adc090e46ad1e70c3b0906bd345952bd4bd5a03",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -3357,10 +3590,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "4d3fe6318bdee274",
     "notes": [
-     "10 part(s) stick out of the main body (-z, up to 2.01 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (-z, up to 2.01 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true
@@ -3408,14 +3644,13 @@
    "front_axis_note": "geometry: open_side: panel fractions {'-x': 0.2191, '+x': 0.2191, '-y': 0.1725, '+y': 0.1715} give 0 axes with one closed side; -Y assumed, the audit's vision answer names the front",
    "styles": [
     "industrial",
-    "modern",
     "rustic"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['industrial', 'rustic', 'modern']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['industrial', 'rustic']",
    "url": "https://polyhaven.com/a/worn_metal_rack",
    "api_url": "https://api.polyhaven.com/files/worn_metal_rack",
-   "gltf": "models/worn_metal_rack/worn_metal_rack_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/worn_metal_rack/worn_metal_rack_2k.gltf",
+   "resolution": "2k",
    "polycount": 6372,
    "vertices": 7224,
    "dimensions_api_mm": [
@@ -3423,23 +3658,45 @@
     600,
     1900
    ],
-   "sha256_gltf": "e757448bd448460ecb6c7218e7857c8d071f271e3cdc2bd013ca63d824c0c308",
+   "sha256_gltf": "cec4dab53535d3bf36ae47485917dfacbd670b75c39467c1d0a8faf206540802",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": false
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
      "a real product 29% off the bookshelf table (0.92 x 0.60 x 1.90 m): kept at its real size",
-     "9 part(s) stick out of the main body (+z, -z, up to 1.47 m): an open drawer or a separate prop?"
+     "9 part(s) stick out of the main body (+z, -z, up to 1.47 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -3491,8 +3748,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['industrial', 'classic']",
    "url": "https://polyhaven.com/a/BarberShopChair_01",
    "api_url": "https://api.polyhaven.com/files/BarberShopChair_01",
-   "gltf": "models/BarberShopChair_01/BarberShopChair_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/BarberShopChair_01/BarberShopChair_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 4280,
    "vertices": 7587,
    "dimensions_api_mm": [
@@ -3500,7 +3757,7 @@
     1328,
     1489
    ],
-   "sha256_gltf": "801bed991ab1d3f110ff8e7958fcfe8e60a96582cadb55dbada28e292a111f20",
+   "sha256_gltf": "70e1c0270984d508e24f553458050e799e53e27e3c03b7b0f5b6d5f900e703d9",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -3514,9 +3771,12 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "c04ee33072a0d935",
     "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept"
     ]
    },
@@ -3565,14 +3825,13 @@
    "front_axis_confidence": "medium",
    "front_axis_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.443 of the extent): front -Y",
    "styles": [
-    "classic",
-    "rustic"
+    "classic"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'classic', 'rustic']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'classic']",
    "url": "https://polyhaven.com/a/GreenChair_01",
    "api_url": "https://api.polyhaven.com/files/GreenChair_01",
-   "gltf": "models/GreenChair_01/GreenChair_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/GreenChair_01/GreenChair_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 4213,
    "vertices": 2934,
    "dimensions_api_mm": [
@@ -3580,22 +3839,46 @@
     664,
     1059
    ],
-   "sha256_gltf": "d1e4946ac99ab9e64c82d802fe5cd49d962750e34b8d284762b3fe2b00ba8a45",
+   "sha256_gltf": "ee4a04d41aa2ac7faf33b1a77c908983e6c7899a6ad6a36d4732fb3871f80f7a",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "17084a23591f21ce",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "251d62284dc27e5c",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ],
     "vision_doubt": [
      "the vision check says it is not a chair (a armchair)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -3642,15 +3925,14 @@
    "front_axis_confidence": "medium",
    "front_axis_note": "geometry: back_taller: the top 30 % of the vertices sit toward +Y (+0.331 of the extent): front -Y",
    "styles": [
-    "industrial",
     "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['industrial', 'minimal', 'modern']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern', 'minimal']",
    "url": "https://polyhaven.com/a/SchoolChair_01",
    "api_url": "https://api.polyhaven.com/files/SchoolChair_01",
-   "gltf": "models/SchoolChair_01/SchoolChair_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/SchoolChair_01/SchoolChair_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 5072,
    "vertices": 3265,
    "dimensions_api_mm": [
@@ -3658,23 +3940,45 @@
     675,
     1006
    ],
-   "sha256_gltf": "1db6aca4bf379c2d568b2068492dcfcda15d764c0c3d98a970055af25b46281e",
+   "sha256_gltf": "f072f367f9282032bcc6fefb9ceb01cc2776166d9026a75583f2c8a7767e9693",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
     "notes": [
      "1 part(s) stick out of the main body (+y, -z, up to 0.47 m): an open drawer or a separate prop?",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "the vision check sees the front on the left of view 0; the agreed front is kept"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -3728,8 +4032,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['mediterranean', 'rustic']",
    "url": "https://polyhaven.com/a/WoodenChair_01",
    "api_url": "https://api.polyhaven.com/files/WoodenChair_01",
-   "gltf": "models/WoodenChair_01/WoodenChair_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/WoodenChair_01/WoodenChair_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 19992,
    "vertices": 13327,
    "dimensions_api_mm": [
@@ -3737,7 +4041,7 @@
     658,
     2274
    ],
-   "sha256_gltf": "d7139c63be77bb91ceb25cb38733008156bf93d2299a6ca4673ea3c49f5fdec6",
+   "sha256_gltf": "636e78bedb0d7ff7dbcf2174c1dcda2e312b9c18d1a525b2911dcf9ca26203b7",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -3751,10 +4055,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "ceff8f1f092acc64",
     "notes": [
-     "10 part(s) stick out of the main body (+z, -z, up to 1.44 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+z, -z, up to 1.44 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true,
@@ -3808,8 +4115,8 @@
    "style_note": "P4 growth: source hint ['rustic']; the audit's vision answer (pass 1) names ['classic', 'classic', 'rustic']",
    "url": "https://polyhaven.com/a/painted_wooden_chair_01",
    "api_url": "https://api.polyhaven.com/files/painted_wooden_chair_01",
-   "gltf": "models/painted_wooden_chair_01/painted_wooden_chair_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/painted_wooden_chair_01/painted_wooden_chair_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 724,
    "vertices": 1024,
    "dimensions_api_mm": [
@@ -3817,19 +4124,43 @@
     540,
     956
    ],
-   "sha256_gltf": "34f55ebe1851b89c045dc62d4461c848de3b93c0668e752a2b5f6cbed2d91a5e",
+   "sha256_gltf": "f079552d8564e9dfa247114dd1cb650c89b69d7c56dfc90fd26b1df5adbd8a2c",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -3877,13 +4208,13 @@
    "front_axis_note": "a console_table has no front",
    "styles": [
     "classic",
-    "rustic"
+    "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'classic', 'rustic']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'modern']",
    "url": "https://polyhaven.com/a/ClassicConsole_01",
    "api_url": "https://api.polyhaven.com/files/ClassicConsole_01",
-   "gltf": "models/ClassicConsole_01/ClassicConsole_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/ClassicConsole_01/ClassicConsole_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 7566,
    "vertices": 5506,
    "dimensions_api_mm": [
@@ -3891,23 +4222,45 @@
     589,
     949
    ],
-   "sha256_gltf": "6c7f79026ad7c388c5d40c56a0988f2a28dc0fc6e489e110332d06792ecd5833",
+   "sha256_gltf": "194005edf7180769f4396f2554e368ae55e03c2dc78112ef0096b0b10cdbc820",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": false
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
      "a real product 27% off the console_table table (1.54 x 0.59 x 0.95 m): kept at its real size",
-     "10 part(s) stick out of the main body (-z, up to 0.90 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (-z, up to 0.90 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -3960,8 +4313,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'japandi', 'minimal']",
    "url": "https://polyhaven.com/a/chinese_console_table",
    "api_url": "https://api.polyhaven.com/files/chinese_console_table",
-   "gltf": "models/chinese_console_table/chinese_console_table_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_console_table/chinese_console_table_2k.gltf",
+   "resolution": "2k",
    "polycount": 13648,
    "vertices": 13228,
    "dimensions_api_mm": [
@@ -3969,19 +4322,43 @@
     339,
     661
    ],
-   "sha256_gltf": "d028085b14277ce3772445d5991572c95e8c80630bcb401f90129d3c972c5425",
+   "sha256_gltf": "60a85a2da302ee05abc83bec242c348488aa604d23c9c0579f470747f16de1c1",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -4032,11 +4409,11 @@
     "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'japandi']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['japandi', 'minimal', 'modern']",
    "url": "https://polyhaven.com/a/chinese_armchair",
    "api_url": "https://api.polyhaven.com/files/chinese_armchair",
-   "gltf": "models/chinese_armchair/chinese_armchair_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_armchair/chinese_armchair_2k.gltf",
+   "resolution": "2k",
    "polycount": 2675,
    "vertices": 2043,
    "dimensions_api_mm": [
@@ -4044,26 +4421,48 @@
     789,
     1587
    ],
-   "sha256_gltf": "e0649ac9e63135627b824035e9a45a7c06411062589b971e633e5ab5f9e17f04",
+   "sha256_gltf": "91d1cdd6fba39af27b72ede79bd81ebc7e44f1bf944565ec5c60642cdf347eb7",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "39c4c1eef582ba7f",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "3e2b008e07539da8",
     "notes": [
      "the title names a near type (armchair)",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check finds the size odd next to the scale reference (code: size ok)"
     ],
     "vision_doubt": [
      "the vision check says it is not a office_chair (a armchair)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -4110,14 +4509,14 @@
    "front_axis_confidence": "low",
    "front_axis_note": "a ottoman has no front",
    "styles": [
-    "minimal",
+    "industrial",
     "modern"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern', 'minimal']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern', 'industrial']",
    "url": "https://polyhaven.com/a/Ottoman_01",
    "api_url": "https://api.polyhaven.com/files/Ottoman_01",
-   "gltf": "models/Ottoman_01/Ottoman_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/Ottoman_01/Ottoman_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 4240,
    "vertices": 2805,
    "dimensions_api_mm": [
@@ -4125,22 +4524,44 @@
     621,
     624
    ],
-   "sha256_gltf": "cb515553924d7ca85b94807aba7d7d5110fafa0fedf7132573b105ac8b900584",
+   "sha256_gltf": "dd173fbbcb0d3e58a8f3a83d6d47755efa2d88ca32023382833ed6094c4af227",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
     "notes": [
-     "5 part(s) stick out of the main body (+z, -z, up to 0.15 m): an open drawer or a separate prop?"
+     "5 part(s) stick out of the main body (+z, -z, up to 0.15 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -4193,8 +4614,8 @@
    "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['industrial', 'rustic']",
    "url": "https://polyhaven.com/a/metal_stool_02",
    "api_url": "https://api.polyhaven.com/files/metal_stool_02",
-   "gltf": "models/metal_stool_02/metal_stool_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/metal_stool_02/metal_stool_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 6532,
    "vertices": 4490,
    "dimensions_api_mm": [
@@ -4202,25 +4623,47 @@
     473,
     458
    ],
-   "sha256_gltf": "de8d603993443294b8a0aed48ea631ac38f2b15872491ea929551f72be726fcb",
+   "sha256_gltf": "c0a80667a99cfd61cd2fae6068edc2f39e587b05f71cd6789e4d2254f63c9f09",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "e61c3cc6aba3ccf7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "2101ce3da28ebfe0",
     "notes": [
-     "2 part(s) stick out of the main body (-z, up to 0.43 m): an open drawer or a separate prop?"
+     "2 part(s) stick out of the main body (-z, up to 0.43 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ],
     "vision_doubt": [
      "the vision check says it is not a ottoman (a bar_stool)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -4273,8 +4716,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'rustic', 'classic']",
    "url": "https://polyhaven.com/a/WoodenTable_02",
    "api_url": "https://api.polyhaven.com/files/WoodenTable_02",
-   "gltf": "models/WoodenTable_02/WoodenTable_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/WoodenTable_02/WoodenTable_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 1514,
    "vertices": 1265,
    "dimensions_api_mm": [
@@ -4282,19 +4725,43 @@
     301,
     418
    ],
-   "sha256_gltf": "3a54261d3757fd78561f1f4bedb7304e0f7b98dae433998e280bc2843cf3fb24",
+   "sha256_gltf": "e23631a27990934c78dae2c6b8d23f2735485eb689e4032493719204d7e4eeef",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -4348,31 +4815,53 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['industrial', 'modern', 'minimal']",
    "url": "https://polyhaven.com/a/side_table_tall_01",
    "api_url": "https://api.polyhaven.com/files/side_table_tall_01",
-   "gltf": "models/side_table_tall_01/side_table_tall_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/side_table_tall_01/side_table_tall_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 6408,
-   "vertices": 5186,
+   "vertices": 4534,
    "dimensions_api_mm": [
     384,
     384,
     761
    ],
-   "sha256_gltf": "f532f78677adb5c3858d5db7fa8a77e897339f606766b3f1468dc0651a2060ec",
+   "sha256_gltf": "b0a92c70c98a2c0446d8eafcf63a3f6bb84c0de2764dedcea4db411f42ce228e",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
-     "6 part(s) stick out of the main body (-z, up to 0.74 m): an open drawer or a separate prop?"
+     "6 part(s) stick out of the main body (-z, up to 0.74 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -4422,11 +4911,11 @@
     "mediterranean",
     "rustic"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'mediterranean', 'classic']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'mediterranean']",
    "url": "https://polyhaven.com/a/GothicCabinet_01",
    "api_url": "https://api.polyhaven.com/files/GothicCabinet_01",
-   "gltf": "models/GothicCabinet_01/GothicCabinet_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/GothicCabinet_01/GothicCabinet_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 12170,
    "vertices": 12922,
    "dimensions_api_mm": [
@@ -4434,7 +4923,7 @@
     1129,
     2361
    ],
-   "sha256_gltf": "1b3506f78e263c66e90d4a84b9efa883fe0bb02a13ff8ead2b3a265024e045ce",
+   "sha256_gltf": "45810bf4d58c029820cfd5ed93d292c0df1b1e74f7da81fcaef7a5cc9cc61eba",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -4449,8 +4938,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "813e899b2b4a8760"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "813e899b2b4a8760",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
    },
    "real_product": true
   },
@@ -4497,15 +4991,15 @@
    "front_axis_note": "geometry: detail_side: 888 vs 170 vertices in the y slabs: front -Y",
    "styles": [
     "classic",
+    "industrial",
     "japandi",
-    "minimal",
-    "modern"
+    "minimal"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'japandi']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['japandi', 'minimal', 'industrial']",
    "url": "https://polyhaven.com/a/chinese_cabinet",
    "api_url": "https://api.polyhaven.com/files/chinese_cabinet",
-   "gltf": "models/chinese_cabinet/chinese_cabinet_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_cabinet/chinese_cabinet_2k.gltf",
+   "resolution": "2k",
    "polycount": 15668,
    "vertices": 12467,
    "dimensions_api_mm": [
@@ -4513,7 +5007,7 @@
     545,
     2872
    ],
-   "sha256_gltf": "f7875e583eb73798eed01e1b466bb4c3bc76a46c6bbade39091a01e5ba561293",
+   "sha256_gltf": "20e99d90bdcff55426a50643b9f9ecd21b5f618e0b6969929a999c9d5d52a41f",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -4527,10 +5021,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "dd9f7a3ac9902509",
     "notes": [
-     "8 part(s) stick out of the main body (+z, up to 1.38 m): an open drawer or a separate prop?"
+     "8 part(s) stick out of the main body (+z, up to 1.38 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true
@@ -4578,14 +5075,13 @@
    "front_axis_note": "geometry: detail_side: 3915 vs 198 vertices in the y slabs: front -Y",
    "styles": [
     "classic",
-    "japandi",
-    "minimal"
+    "japandi"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'japandi', 'minimal']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'japandi']",
    "url": "https://polyhaven.com/a/chinese_commode",
    "api_url": "https://api.polyhaven.com/files/chinese_commode",
-   "gltf": "models/chinese_commode/chinese_commode_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_commode/chinese_commode_2k.gltf",
+   "resolution": "2k",
    "polycount": 6775,
    "vertices": 5473,
    "dimensions_api_mm": [
@@ -4593,7 +5089,7 @@
     1170,
     2020
    ],
-   "sha256_gltf": "40319d26c1bde03d4f3cd42908541aee9cfc3b918a2e74609d0ce9d523e23a16",
+   "sha256_gltf": "b89a10f24ab533a554abae1326f35bfbacefdfbaab4f332c3d3cdecc02ca66fe",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -4607,11 +5103,14 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "7eb658b4fad94020",
     "notes": [
      "the title names a near type (commode)",
-     "10 part(s) stick out of the main body (-z, up to 1.87 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (-z, up to 1.87 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true
@@ -4664,8 +5163,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'classic']",
    "url": "https://polyhaven.com/a/painted_wooden_cabinet",
    "api_url": "https://api.polyhaven.com/files/painted_wooden_cabinet",
-   "gltf": "models/painted_wooden_cabinet/painted_wooden_cabinet_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/painted_wooden_cabinet/painted_wooden_cabinet_2k.gltf",
+   "resolution": "2k",
    "polycount": 2227,
    "vertices": 2022,
    "dimensions_api_mm": [
@@ -4673,19 +5172,43 @@
     617,
     1182
    ],
-   "sha256_gltf": "ce04543cdb10e05fe9c2cc08e9c118b16c1c717a07bcbfac9b99859465c8d1ed",
+   "sha256_gltf": "0f2153a2a10fc78a8670a3f11027155b09ee0a11e1ba2a25f616e440b95ad56b",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -4739,8 +5262,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'japandi']",
    "url": "https://polyhaven.com/a/chinese_sofa",
    "api_url": "https://api.polyhaven.com/files/chinese_sofa",
-   "gltf": "models/chinese_sofa/chinese_sofa_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_sofa/chinese_sofa_2k.gltf",
+   "resolution": "2k",
    "polycount": 704,
    "vertices": 800,
    "dimensions_api_mm": [
@@ -4748,22 +5271,44 @@
     969,
     860
    ],
-   "sha256_gltf": "33f9f1bf014bea843f24944ed5ed2b0de0ba0ba1728ddac85fc79eb5aa2e6dce",
+   "sha256_gltf": "9d0e03165ff6e24337309208aa42bde62e26356eeb4da64ebfb35cf12a9b4538",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "4ee9430df9563254",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "a2a4a5757f75cb6f",
     "notes": [
-     "1 part(s) stick out of the main body (+z, up to 0.37 m): an open drawer or a separate prop?"
+     "1 part(s) stick out of the main body (+z, up to 0.37 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "has_cushions": false
@@ -4818,8 +5363,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['japandi', 'minimal', 'modern']",
    "url": "https://polyhaven.com/a/chinese_tea_table",
    "api_url": "https://api.polyhaven.com/files/chinese_tea_table",
-   "gltf": "models/chinese_tea_table/chinese_tea_table_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_tea_table/chinese_tea_table_2k.gltf",
+   "resolution": "2k",
    "polycount": 2508,
    "vertices": 1992,
    "dimensions_api_mm": [
@@ -4827,22 +5372,44 @@
     836,
     499
    ],
-   "sha256_gltf": "4c1987aa1978c4fe1dfd0f5f10739df399346fc4c9373315d8d4b0cc798d8b01",
+   "sha256_gltf": "bd79eb86ac2edcb87b312ce1c2ae2a0cf5881981d11d21f5b62e3dd69d486303",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
-     "10 part(s) stick out of the main body (-z, up to 0.40 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (-z, up to 0.40 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -4894,8 +5461,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['modern', 'minimal']",
    "url": "https://polyhaven.com/a/coffee_table_round_01",
    "api_url": "https://api.polyhaven.com/files/coffee_table_round_01",
-   "gltf": "models/coffee_table_round_01/coffee_table_round_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/coffee_table_round_01/coffee_table_round_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 4044,
    "vertices": 3339,
    "dimensions_api_mm": [
@@ -4903,19 +5470,43 @@
     1301,
     491
    ],
-   "sha256_gltf": "58fe785584f8999f760e590b04ce74f83962d42c9440ab9415910f63a31165dc",
+   "sha256_gltf": "6b9dbd17317c9289ab8e008b05abd146dbe0831c975871732def694de4ad407d",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -4969,8 +5560,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['industrial', 'rustic', 'mediterranean']",
    "url": "https://polyhaven.com/a/gothic_coffee_table",
    "api_url": "https://api.polyhaven.com/files/gothic_coffee_table",
-   "gltf": "models/gothic_coffee_table/gothic_coffee_table_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/gothic_coffee_table/gothic_coffee_table_2k.gltf",
+   "resolution": "2k",
    "polycount": 23836,
    "vertices": 21890,
    "dimensions_api_mm": [
@@ -4978,23 +5569,45 @@
     1443,
     559
    ],
-   "sha256_gltf": "4368fa0a0d81cd8651bfcc8a6b48bf43576e1549770c1057eea71eea3d99d54b",
+   "sha256_gltf": "a17c9ccd67a8cf1c2454bf5c2ed9e237a0e533869e5f6a0fe459ae73c4a487d9",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": false
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
      "a real product 17% off the table_coffee table (1.44 x 1.44 x 0.56 m): kept at its real size",
-     "10 part(s) stick out of the main body (-z, up to 0.50 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (-z, up to 0.50 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -5047,8 +5660,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'industrial']; the audit's vision answer (pass 1) names ['industrial', 'modern']",
    "url": "https://polyhaven.com/a/industrial_coffee_table",
    "api_url": "https://api.polyhaven.com/files/industrial_coffee_table",
-   "gltf": "models/industrial_coffee_table/industrial_coffee_table_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/industrial_coffee_table/industrial_coffee_table_2k.gltf",
+   "resolution": "2k",
    "polycount": 41300,
    "vertices": 33975,
    "dimensions_api_mm": [
@@ -5056,22 +5669,44 @@
     758,
     638
    ],
-   "sha256_gltf": "e692c26fa4c9179ee2f3f9caa95900e271de4f549e3eabf2b4a3aa1217eaae78",
+   "sha256_gltf": "2b390500423cb31e66647b2e322c064432ac2dfcfa40794fbcda5b8363df500f",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
-     "10 part(s) stick out of the main body (+x, -x, -z, up to 0.61 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, -x, -z, up to 0.61 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -5118,15 +5753,15 @@
    "front_axis_note": "a table_coffee has no front",
    "styles": [
     "classic",
-    "japandi",
     "minimal",
-    "modern"
+    "modern",
+    "scandinavian"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'japandi']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'scandinavian']",
    "url": "https://polyhaven.com/a/small_wooden_table_01",
    "api_url": "https://api.polyhaven.com/files/small_wooden_table_01",
-   "gltf": "models/small_wooden_table_01/small_wooden_table_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/small_wooden_table_01/small_wooden_table_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 3410,
    "vertices": 2249,
    "dimensions_api_mm": [
@@ -5134,19 +5769,43 @@
     440,
     533
    ],
-   "sha256_gltf": "2a33fb09785a9553c3cd4d0c5f8b874bb0fb9f26c8ef2613b65607524411f352",
+   "sha256_gltf": "0428be43dc295de29aab0a552fdb5dda1ee49641db6c227f0fb6500bf933751f",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -5198,8 +5857,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'classic']",
    "url": "https://polyhaven.com/a/gallinera_table",
    "api_url": "https://api.polyhaven.com/files/gallinera_table",
-   "gltf": "models/gallinera_table/gallinera_table_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/gallinera_table/gallinera_table_2k.gltf",
+   "resolution": "2k",
    "polycount": 5528,
    "vertices": 4920,
    "dimensions_api_mm": [
@@ -5207,7 +5866,7 @@
     518,
     488
    ],
-   "sha256_gltf": "6254d8b51b9fbccc86a4978796ee5d3cb7d46a78cbf2b3090ec12d8c68176a67",
+   "sha256_gltf": "17bee024bb583baf94af5939bb20be308443c358bbd19193d805a6cc3b9e1cc9",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -5221,10 +5880,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "6c30313bd035e43f",
     "notes": [
-     "10 part(s) stick out of the main body (-z, up to 0.43 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (-z, up to 0.43 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true
@@ -5277,8 +5939,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'rustic']",
    "url": "https://polyhaven.com/a/round_wooden_table_01",
    "api_url": "https://api.polyhaven.com/files/round_wooden_table_01",
-   "gltf": "models/round_wooden_table_01/round_wooden_table_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/round_wooden_table_01/round_wooden_table_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 8640,
    "vertices": 5964,
    "dimensions_api_mm": [
@@ -5286,26 +5948,48 @@
     1399,
     1005
    ],
-   "sha256_gltf": "dd09c1663b10d15a1fda12ba4f53743e8b8379b17254a78be22100d584738b48",
+   "sha256_gltf": "94960f2003dc9a971b8c8301fba5f44889d8c50e3a6139854f1db67997936555",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": false
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "81c89e1a238845a5",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "cf908b7ce8b8f253",
     "notes": [
      "8 part(s) stick out of the main body (-z, up to 0.96 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check finds the size odd next to the scale reference (code: size ok)"
     ],
     "vision_doubt": [
      "the vision check says it is not a table_dining (a side_table)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -5357,8 +6041,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'classic']",
    "url": "https://polyhaven.com/a/round_wooden_table_02",
    "api_url": "https://api.polyhaven.com/files/round_wooden_table_02",
-   "gltf": "models/round_wooden_table_02/round_wooden_table_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/round_wooden_table_02/round_wooden_table_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 4254,
    "vertices": 3434,
    "dimensions_api_mm": [
@@ -5366,26 +6050,48 @@
     796,
     746
    ],
-   "sha256_gltf": "df65c35148280a06efcc06bfa75432bb13f29318e869597fc94f364ce2b55974",
+   "sha256_gltf": "0f26625f9ab72d644184ad6cbb7c87d352cb0779e8bbc2f6ffa92f2154c8b66e",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "81c89e1a238845a5",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "cf908b7ce8b8f253",
     "notes": [
      "10 part(s) stick out of the main body (-z, up to 0.71 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check finds the size odd next to the scale reference (code: size ok)"
     ],
     "vision_doubt": [
      "the vision check says it is not a table_dining (a side_table)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -5438,8 +6144,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['industrial', 'modern', 'scandinavian']",
    "url": "https://polyhaven.com/a/drawer_cabinet",
    "api_url": "https://api.polyhaven.com/files/drawer_cabinet",
-   "gltf": "models/drawer_cabinet/drawer_cabinet_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/drawer_cabinet/drawer_cabinet_2k.gltf",
+   "resolution": "2k",
    "polycount": 26406,
    "vertices": 20013,
    "dimensions_api_mm": [
@@ -5447,23 +6153,45 @@
     488,
     1881
    ],
-   "sha256_gltf": "899581e6a041644139a138f909c6ba001684cc55b5d1702e08f01094e20d0617",
+   "sha256_gltf": "5daedfc7f16b6bef0da212b4904aca449f07a8dbad2ddca18bbfb979caeda31f",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
      "4 part(s) stick out of the main body (+z, -z, up to 0.75 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
      "the vision check sees the front on the right of view 0; the agreed front is kept"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -5517,8 +6245,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'industrial', 'modern']",
    "url": "https://polyhaven.com/a/painted_wooden_cabinet_02",
    "api_url": "https://api.polyhaven.com/files/painted_wooden_cabinet_02",
-   "gltf": "models/painted_wooden_cabinet_02/painted_wooden_cabinet_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/painted_wooden_cabinet_02/painted_wooden_cabinet_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 966,
    "vertices": 1048,
    "dimensions_api_mm": [
@@ -5526,22 +6254,43 @@
     729,
     2569
    ],
-   "sha256_gltf": "a4b697adf7a24a081b8452f5a7d482765e2139cf2a6687a4cbb2a7b8bea24325",
+   "sha256_gltf": "85dcb90361d7fee4dfc279c91015fffd6f8a0ed607737cb8cd0eab1f3b05bae9",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "05ac0f8817ce7e30",
     "notes": [
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true
   },
@@ -5593,8 +6342,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['classic', 'rustic', 'classic']",
    "url": "https://polyhaven.com/a/vintage_cabinet_01",
    "api_url": "https://api.polyhaven.com/files/vintage_cabinet_01",
-   "gltf": "models/vintage_cabinet_01/vintage_cabinet_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/vintage_cabinet_01/vintage_cabinet_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 61096,
    "vertices": 40730,
    "dimensions_api_mm": [
@@ -5602,25 +6351,48 @@
     670,
     2235
    ],
-   "sha256_gltf": "ce66c642cb13ba11bf7cde72bb58ad465dce1909dbef8a22dd55b28d857c1848",
+   "sha256_gltf": "b2c9d4a7c976c8225d2ed7a1c08787c2daaf01ea0e02547b928cb2ac8e05173b",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 3,
+      "images": 7
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "1292ec10aee6b589",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "9346956da3ae3c4d",
     "notes": [
-     "10 part(s) stick out of the main body (+x, +y, -x, -z, up to 0.83 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, +y, -x, -z, up to 0.83 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "the vision check sees the front on the right of view 0; the agreed front is kept"
     ],
     "vision_doubt": [
      "the vision check says it is not a wardrobe (a display_cabinet)"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "images": 7
    },
    "real_product": true
   }
@@ -5939,15 +6711,15 @@
    "front_axis_confidence": "low",
    "front_axis_note": "a basket has no front",
    "styles": [
-    "classic",
+    "japandi",
     "rustic",
     "scandinavian"
    ],
-   "style_note": "P4 growth: source hint ['rustic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'scandinavian']",
+   "style_note": "P4 growth: source hint ['rustic']; the audit's vision answer (pass 1) names ['rustic', 'scandinavian', 'japandi']",
    "url": "https://polyhaven.com/a/wicker_basket_02",
    "api_url": "https://api.polyhaven.com/files/wicker_basket_02",
-   "gltf": "models/wicker_basket_02/wicker_basket_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/wicker_basket_02/wicker_basket_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 17850,
    "vertices": 10171,
    "dimensions_api_mm": [
@@ -5955,7 +6727,7 @@
     271,
     218
    ],
-   "sha256_gltf": "78c7a3bdd7025eb092b3ac744e9d83e9a75fbb242696b5dce87ec215af617768",
+   "sha256_gltf": "13187108ca221090b025a6924db5202e46a4672b5e58ccdc011280f61fc9ae3d",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -5968,10 +6740,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "9fd335b49b139f63",
     "notes": [
-     "1 part(s) stick out of the main body (+x, up to 0.14 m): an open drawer or a separate prop?"
+     "1 part(s) stick out of the main body (+x, up to 0.14 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true,
@@ -6026,8 +6801,8 @@
    "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['classic', 'modern', 'minimal']",
    "url": "https://polyhaven.com/a/book_encyclopedia_set_01",
    "api_url": "https://api.polyhaven.com/files/book_encyclopedia_set_01",
-   "gltf": "models/book_encyclopedia_set_01/book_encyclopedia_set_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/book_encyclopedia_set_01/book_encyclopedia_set_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 67306,
    "vertices": 67003,
    "dimensions_api_mm": [
@@ -6035,22 +6810,44 @@
     163,
     237
    ],
-   "sha256_gltf": "89eb80fffd619ebbe5043d632bd8cf25b2d68a3614aee2f356e850c69ae498ba",
+   "sha256_gltf": "6c8c76560ca8e3c28516c0831545db903111bea069ce569579c2848a2e781bed",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 6
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "d41450b0b9d6fded",
     "notes": [
-     "10 part(s) stick out of the main body (+x, up to 0.51 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, up to 0.51 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 6
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -6101,11 +6898,11 @@
     "rustic",
     "scandinavian"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['rustic', 'scandinavian', 'modern']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['rustic', 'modern', 'scandinavian']",
    "url": "https://polyhaven.com/a/wooden_bowl_01",
    "api_url": "https://api.polyhaven.com/files/wooden_bowl_01",
-   "gltf": "models/wooden_bowl_01/wooden_bowl_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/wooden_bowl_01/wooden_bowl_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 14122,
    "vertices": 7385,
    "dimensions_api_mm": [
@@ -6113,19 +6910,43 @@
     309,
     94
    ],
-   "sha256_gltf": "7fe0d6aa4b58e1b9bfc704a8142f4f23f651640c5701b26037fbee3c01613c3b",
+   "sha256_gltf": "9b2aadbd2aed3144cdbc30834052a8dd3536b3756a554cce99e9702c8adeb440",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -6173,15 +6994,15 @@
    "front_axis_note": "a bowl has no front",
    "styles": [
     "classic",
-    "japandi",
+    "modern",
     "rustic",
     "scandinavian"
    ],
-   "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'scandinavian', 'japandi']",
+   "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'scandinavian', 'modern']",
    "url": "https://polyhaven.com/a/wooden_bowl_02",
    "api_url": "https://api.polyhaven.com/files/wooden_bowl_02",
-   "gltf": "models/wooden_bowl_02/wooden_bowl_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/wooden_bowl_02/wooden_bowl_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 4666,
    "vertices": 2755,
    "dimensions_api_mm": [
@@ -6189,19 +7010,43 @@
     125,
     73
    ],
-   "sha256_gltf": "18ba4fb40b1880d9b776f6d98eefdaa9e01e41fbe362ba1dc40a831422e38336",
+   "sha256_gltf": "144404195bb47eccab110e50aeea4b38a164aca4a6c06d9748c3552390af4737",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -6255,8 +7100,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'industrial', 'classic']",
    "url": "https://polyhaven.com/a/Lantern_01",
    "api_url": "https://api.polyhaven.com/files/Lantern_01",
-   "gltf": "models/Lantern_01/Lantern_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/Lantern_01/Lantern_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 33902,
    "vertices": 20670,
    "dimensions_api_mm": [
@@ -6264,22 +7109,44 @@
     97,
     294
    ],
-   "sha256_gltf": "d3f8d7a7afec96d55d3b7f20c3e329c909d19d37047902a826bc157f77c27819",
+   "sha256_gltf": "86f12126e0a5c1c369249371537eed653fa308de8b3554fa088b3fe503d9ec8c",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "3bab95911dbe3786",
     "notes": [
-     "5 part(s) stick out of the main body (+z, -z, up to 0.17 m): an open drawer or a separate prop?"
+     "5 part(s) stick out of the main body (+z, -z, up to 0.17 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -6333,8 +7200,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'rustic', 'industrial']",
    "url": "https://polyhaven.com/a/brass_candleholders",
    "api_url": "https://api.polyhaven.com/files/brass_candleholders",
-   "gltf": "models/brass_candleholders/brass_candleholders_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/brass_candleholders/brass_candleholders_2k.gltf",
+   "resolution": "2k",
    "polycount": 41936,
    "vertices": 29296,
    "dimensions_api_mm": [
@@ -6342,7 +7209,7 @@
     365,
     835
    ],
-   "sha256_gltf": "a1de928d1c7d2241f0727dbad2c9b52d49c3245e1f7dd0c45a9a6482bc5c9101",
+   "sha256_gltf": "86b7fa1b3f7075c7646fcda17f622d302ff3d885d6ff18e1b1d3cf2bc9242133",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -6355,10 +7222,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "958bf0f3ca31db59",
     "notes": [
-     "10 part(s) stick out of the main body (+x, +y, +z, -x, -y, up to 0.75 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, +y, +z, -x, -y, up to 0.75 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true,
@@ -6412,8 +7282,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'classic']",
    "url": "https://polyhaven.com/a/wooden_candlestick",
    "api_url": "https://api.polyhaven.com/files/wooden_candlestick",
-   "gltf": "models/wooden_candlestick/wooden_candlestick_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/wooden_candlestick/wooden_candlestick_2k.gltf",
+   "resolution": "2k",
    "polycount": 212992,
    "vertices": 113178,
    "dimensions_api_mm": [
@@ -6421,22 +7291,44 @@
     100,
     220
    ],
-   "sha256_gltf": "fea19adb5e06397d654d089c2852e599bd313063fec38912089f19d607220ca3",
+   "sha256_gltf": "388cb73176d78543eeeaf17020d3a954171133687b75dda9ab3f7ad96b0c26f9",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
     "notes": [
-     "1 part(s) stick out of the main body (+z, up to 0.05 m): an open drawer or a separate prop?"
+     "1 part(s) stick out of the main body (+z, up to 0.05 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -6489,8 +7381,8 @@
    "style_note": "P4 growth: source hint ['rustic', 'classic']; the audit's vision answer (pass 1) names ['rustic', 'classic', 'classic']",
    "url": "https://polyhaven.com/a/wooden_lantern_01",
    "api_url": "https://api.polyhaven.com/files/wooden_lantern_01",
-   "gltf": "models/wooden_lantern_01/wooden_lantern_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/wooden_lantern_01/wooden_lantern_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 8321,
    "vertices": 6819,
    "dimensions_api_mm": [
@@ -6498,22 +7390,44 @@
     235,
     530
    ],
-   "sha256_gltf": "2380275a5c90bf3442c426f3363e826e6b1ceff12a7e65f83b03cc8fac70a099",
+   "sha256_gltf": "6f92eae1fa0286ab2efa7a9ac39966fc7ae8ca71e27fdb01260c07bf9055656f",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 6
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "d41450b0b9d6fded",
     "notes": [
-     "10 part(s) stick out of the main body (+z, up to 0.36 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+z, up to 0.36 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 6
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -6567,8 +7481,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'industrial', 'classic']",
    "url": "https://polyhaven.com/a/vintage_telephone_wall_clock",
    "api_url": "https://api.polyhaven.com/files/vintage_telephone_wall_clock",
-   "gltf": "models/vintage_telephone_wall_clock/vintage_telephone_wall_clock_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/vintage_telephone_wall_clock/vintage_telephone_wall_clock_2k.gltf",
+   "resolution": "2k",
    "polycount": 15864,
    "vertices": 12781,
    "dimensions_api_mm": [
@@ -6576,23 +7490,45 @@
     193,
     501
    ],
-   "sha256_gltf": "9fc4dae50897d030a7410f7b3f57df032be15d4535ece7492829ac3d99d4729c",
+   "sha256_gltf": "70863a0c50e83b6d21c7ce86197c2b3a0d28aaef007a56e15fde9ccfabc56641",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "3bab95911dbe3786",
     "notes": [
      "4 part(s) stick out of the main body (-y, -z, up to 0.15 m): an open drawer or a separate prop?",
-     "the vision answer says not a clock but names clock as what it is: taken as a clock"
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "the vision answer says not a clock but names clock as what it is: taken as a clock",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -6646,8 +7582,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'scandinavian']",
    "url": "https://polyhaven.com/a/wall_clock",
    "api_url": "https://api.polyhaven.com/files/wall_clock",
-   "gltf": "models/wall_clock/wall_clock_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/wall_clock/wall_clock_2k.gltf",
+   "resolution": "2k",
    "polycount": 3658,
    "vertices": 3452,
    "dimensions_api_mm": [
@@ -6655,7 +7591,7 @@
     47,
     320
    ],
-   "sha256_gltf": "4e67385443e808bc709c054c1de5be1e83d4bf07eb0893884c301fec0bae8bc6",
+   "sha256_gltf": "6c961d2d74dd3d5c175dca01a0b064e4c83bece262c459e730df9120b6ba85ee",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -6668,8 +7604,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "76e50fdffc9ffc84"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "76e50fdffc9ffc84",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
    },
    "real_product": true,
    "contact": "hangs"
@@ -6718,14 +7659,13 @@
    "styles": [
     "classic",
     "minimal",
-    "modern",
-    "scandinavian"
+    "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'scandinavian']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal']",
    "url": "https://polyhaven.com/a/ornate_mirror_01",
    "api_url": "https://api.polyhaven.com/files/ornate_mirror_01",
-   "gltf": "models/ornate_mirror_01/ornate_mirror_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/ornate_mirror_01/ornate_mirror_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 14246,
    "vertices": 8978,
    "dimensions_api_mm": [
@@ -6733,22 +7673,47 @@
     26,
     744
    ],
-   "sha256_gltf": "2d9bb949df65d6470395959fb7976af6fcc1b3ad7d85084918ad543ee71850f6",
+   "sha256_gltf": "3f8ba6b8b02fd2df140c5f191ab4fe287fe27560bceeeee9c49bad6170ac1f9d",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "aea9366d27ff9507",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "the vision answer says not a mirror but names mirror as what it is: taken as a mirror",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
-   "contact": "hangs"
+   "contact": "leans"
   },
   {
    "id": "Chandelier_01",
@@ -6793,14 +7758,13 @@
    "front_axis_note": "a pendant_light has no front",
    "styles": [
     "classic",
-    "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'modern', 'minimal']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'modern']",
    "url": "https://polyhaven.com/a/Chandelier_01",
    "api_url": "https://api.polyhaven.com/files/Chandelier_01",
-   "gltf": "models/Chandelier_01/Chandelier_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/Chandelier_01/Chandelier_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 26860,
    "vertices": 22842,
    "dimensions_api_mm": [
@@ -6808,22 +7772,44 @@
     816,
     798
    ],
-   "sha256_gltf": "19a63453965dde6ace3159e2059c30adee81905e95a6beaf62b7f47d9283e724",
+   "sha256_gltf": "af5bb8c5edb9ba5596d8da7d22df0fc66008e12ba66871dda6a66f367c7a7569",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "224b449b42dd3a07",
     "notes": [
-     "10 part(s) stick out of the main body (+y, +z, -x, -y, -z, up to 0.53 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+y, +z, -x, -y, -z, up to 0.53 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 3
    },
    "real_product": true,
    "contact": "hangs"
@@ -6871,14 +7857,13 @@
    "front_axis_note": "a pendant_light has no front",
    "styles": [
     "classic",
-    "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'modern', 'minimal']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'modern']",
    "url": "https://polyhaven.com/a/Chandelier_02",
    "api_url": "https://api.polyhaven.com/files/Chandelier_02",
-   "gltf": "models/Chandelier_02/Chandelier_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/Chandelier_02/Chandelier_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 21514,
    "vertices": 15090,
    "dimensions_api_mm": [
@@ -6886,22 +7871,44 @@
     619,
     848
    ],
-   "sha256_gltf": "d52ea299a0831a6851d50901d6719367454ffc61c1fed871cdcfc7db6b775dfd",
+   "sha256_gltf": "bd636b34901e4936e17cbf946d8976561871f5f83f5a8e0682f57b023030518e",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "224b449b42dd3a07",
     "notes": [
-     "10 part(s) stick out of the main body (+x, +y, -x, -y, up to 0.23 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, +y, -x, -y, up to 0.23 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 3
    },
    "real_product": true,
    "contact": "hangs"
@@ -6949,14 +7956,13 @@
    "front_axis_note": "a pendant_light has no front",
    "styles": [
     "classic",
-    "industrial",
-    "rustic"
+    "modern"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['classic', 'rustic', 'industrial']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['classic', 'modern']",
    "url": "https://polyhaven.com/a/Chandelier_03",
    "api_url": "https://api.polyhaven.com/files/Chandelier_03",
-   "gltf": "models/Chandelier_03/Chandelier_03_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/Chandelier_03/Chandelier_03_2k.gltf",
+   "resolution": "2k",
    "polycount": 29301,
    "vertices": 20046,
    "dimensions_api_mm": [
@@ -6964,22 +7970,44 @@
     785,
     1041
    ],
-   "sha256_gltf": "ab3c57ada6a22e472778b4c7f7e7d5e9b3b10fe91d4566de95e89497f282e00f",
+   "sha256_gltf": "e7ecba239abb263b016d2f8a297db905f903804de4a41801ec1cf6e49c07b823",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 4
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "287aef54c6f682c2",
     "notes": [
-     "10 part(s) stick out of the main body (+x, +y, +z, -x, -y, up to 0.56 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, +y, +z, -x, -y, up to 0.56 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 4
    },
    "real_product": true,
    "contact": "hangs"
@@ -7027,14 +8055,13 @@
    "front_axis_note": "a pendant_light has no front",
    "styles": [
     "industrial",
-    "modern",
     "rustic"
    ],
-   "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['industrial', 'rustic', 'modern']",
+   "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['industrial', 'rustic']",
    "url": "https://polyhaven.com/a/caged_hanging_light",
    "api_url": "https://api.polyhaven.com/files/caged_hanging_light",
-   "gltf": "models/caged_hanging_light/caged_hanging_light_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/caged_hanging_light/caged_hanging_light_2k.gltf",
+   "resolution": "2k",
    "polycount": 22893,
    "vertices": 17928,
    "dimensions_api_mm": [
@@ -7042,22 +8069,44 @@
     315,
     750
    ],
-   "sha256_gltf": "4d809194606f0862a08147df6408f2124ed7a5dbc90e4090c82a332efb3aa50d",
+   "sha256_gltf": "66b8d89bef8c41aeadd31ee0cba609a33612c001506bba997b011c67420cff20",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": true,
+      "materials": 1,
+      "images": 4
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "54da3ac4d0effe4c",
     "notes": [
-     "8 part(s) stick out of the main body (+z, -z, up to 0.54 m): an open drawer or a separate prop?"
+     "8 part(s) stick out of the main body (+z, -z, up to 0.54 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": true,
+    "materials": 1,
+    "images": 4
    },
    "real_product": true,
    "contact": "hangs"
@@ -7112,8 +8161,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'japandi', 'minimal']",
    "url": "https://polyhaven.com/a/chinese_chandelier",
    "api_url": "https://api.polyhaven.com/files/chinese_chandelier",
-   "gltf": "models/chinese_chandelier/chinese_chandelier_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/chinese_chandelier/chinese_chandelier_2k.gltf",
+   "resolution": "2k",
    "polycount": 7828,
    "vertices": 7700,
    "dimensions_api_mm": [
@@ -7121,22 +8170,44 @@
     879,
     748
    ],
-   "sha256_gltf": "0300d412628b0faffccf05e8ac7caad0e3e9b3b15bbbb0c14ce6f5c9e4e4eff8",
+   "sha256_gltf": "1b7e627ff12ba62a6c1c640feee85716bc4fb9df917b8301d92c09a9faf77045",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "c10a9493401316bf",
     "notes": [
-     "10 part(s) stick out of the main body (+x, +y, +z, -x, -y, -z, up to 0.14 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+x, +y, +z, -x, -y, -z, up to 0.14 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "hangs"
@@ -7188,8 +8259,8 @@
    "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['industrial']",
    "url": "https://polyhaven.com/a/hanging_industrial_lamp",
    "api_url": "https://api.polyhaven.com/files/hanging_industrial_lamp",
-   "gltf": "models/hanging_industrial_lamp/hanging_industrial_lamp_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/hanging_industrial_lamp/hanging_industrial_lamp_2k.gltf",
+   "resolution": "2k",
    "polycount": 9530,
    "vertices": 8971,
    "dimensions_api_mm": [
@@ -7197,22 +8268,44 @@
     550,
     1355
    ],
-   "sha256_gltf": "97e31aac7c350bc40294e78f39f66d5aa998ac2703be1d09b5dab9ae7027876f",
+   "sha256_gltf": "318ec454902dd49a11c219acf47b59f7a2bd3f20a23c5b26fa7b59e9183f9f98",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": true,
+      "materials": 2,
+      "images": 5
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "8af6b1ac23297ecf",
     "notes": [
-     "4 part(s) stick out of the main body (+z, -z, up to 0.72 m): an open drawer or a separate prop?"
+     "4 part(s) stick out of the main body (+z, -z, up to 0.72 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": true,
+    "materials": 2,
+    "images": 5
    },
    "real_product": true,
    "contact": "hangs"
@@ -7267,8 +8360,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'industrial', 'mediterranean']",
    "url": "https://polyhaven.com/a/lantern_chandelier_01",
    "api_url": "https://api.polyhaven.com/files/lantern_chandelier_01",
-   "gltf": "models/lantern_chandelier_01/lantern_chandelier_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/lantern_chandelier_01/lantern_chandelier_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 5971,
    "vertices": 5713,
    "dimensions_api_mm": [
@@ -7276,22 +8369,44 @@
     575,
     878
    ],
-   "sha256_gltf": "dc5480e03b82d12521fc46bdb73d4a0291641cfa0d4e4c0fe21f3a087bc69468",
+   "sha256_gltf": "d83a359f4182b83b37e93511b3c147576f4e78452e9cc7081a98f9542d81ba21",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 3,
+      "images": 6
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "047f4c18cb0343a8",
     "notes": [
-     "10 part(s) stick out of the main body (+y, -x, -y, up to 0.35 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (+y, -x, -y, up to 0.35 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "images": 6
    },
    "real_product": true,
    "contact": "hangs"
@@ -7344,8 +8459,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['modern', 'minimal']",
    "url": "https://polyhaven.com/a/modern_ceiling_lamp_01",
    "api_url": "https://api.polyhaven.com/files/modern_ceiling_lamp_01",
-   "gltf": "models/modern_ceiling_lamp_01/modern_ceiling_lamp_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/modern_ceiling_lamp_01/modern_ceiling_lamp_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 5602,
    "vertices": 3538,
    "dimensions_api_mm": [
@@ -7353,23 +8468,45 @@
     432,
     952
    ],
-   "sha256_gltf": "f88b5d0a81fa813457a77474e7e4e812f97ad5fac2109ba03ddb183274be3f8c",
+   "sha256_gltf": "d7417dd85e54626a51632d6eaf93712986ac2620ca3041dadc51a08b8ffa9bc9",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 3,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "7fc6a2cfb6e5b5ef",
     "notes": [
      "the title names a near type (ceiling lamp)",
-     "4 part(s) stick out of the main body (+z, up to 0.64 m): an open drawer or a separate prop?"
+     "4 part(s) stick out of the main body (+z, up to 0.64 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "images": 3
    },
    "real_product": true,
    "contact": "hangs"
@@ -7422,8 +8559,8 @@
    "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern', 'minimal']",
    "url": "https://polyhaven.com/a/bronze_ray_statue",
    "api_url": "https://api.polyhaven.com/files/bronze_ray_statue",
-   "gltf": "models/bronze_ray_statue/bronze_ray_statue_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/bronze_ray_statue/bronze_ray_statue_2k.gltf",
+   "resolution": "2k",
    "polycount": 1844,
    "vertices": 1438,
    "dimensions_api_mm": [
@@ -7431,22 +8568,44 @@
     536,
     590
    ],
-   "sha256_gltf": "bb2cab3316b05935fd311e132298d15076af9d6ddd88980abca1dea790c6305e",
+   "sha256_gltf": "185f57863faf2575ad0c98e9cacacef5072b367bae5f3280a7d7a1ca658f1f91",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
     "notes": [
-     "2 part(s) stick out of the main body (-z, up to 0.15 m): an open drawer or a separate prop?"
+     "2 part(s) stick out of the main body (-z, up to 0.15 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -7493,13 +8652,14 @@
    "front_axis_confidence": "low",
    "front_axis_note": "a sculpture has no front",
    "styles": [
+    "industrial",
     "modern"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern', 'industrial']",
    "url": "https://polyhaven.com/a/bronze_shark_statue",
    "api_url": "https://api.polyhaven.com/files/bronze_shark_statue",
-   "gltf": "models/bronze_shark_statue/bronze_shark_statue_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/bronze_shark_statue/bronze_shark_statue_2k.gltf",
+   "resolution": "2k",
    "polycount": 7334,
    "vertices": 4526,
    "dimensions_api_mm": [
@@ -7507,22 +8667,44 @@
     760,
     432
    ],
-   "sha256_gltf": "c7b5b5bd094518489e7eed022006ce2901ec8799397eafd37f6ffd5562187ca0",
+   "sha256_gltf": "c1f0220208ab2cc5dc557c9e8524b1d573d6fc57e3b75276a903ce5518794988",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
     "notes": [
-     "2 part(s) stick out of the main body (-z, up to 0.19 m): an open drawer or a separate prop?"
+     "2 part(s) stick out of the main body (-z, up to 0.19 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -7575,8 +8757,8 @@
    "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern', 'classic']",
    "url": "https://polyhaven.com/a/bronze_whale_statue",
    "api_url": "https://api.polyhaven.com/files/bronze_whale_statue",
-   "gltf": "models/bronze_whale_statue/bronze_whale_statue_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/bronze_whale_statue/bronze_whale_statue_2k.gltf",
+   "resolution": "2k",
    "polycount": 3816,
    "vertices": 2483,
    "dimensions_api_mm": [
@@ -7584,7 +8766,7 @@
     1366,
     1073
    ],
-   "sha256_gltf": "97ff882e047f3415601437d6db43a7326a3fa1ac5bddb86ae119b74717888d18",
+   "sha256_gltf": "a7828169f9f79e6fb797460e15a83dd3fb53057f4f89185f40ddacc0f70d59e2",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -7597,10 +8779,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "9c7e8548624f2b1a",
     "notes": [
-     "1 part(s) stick out of the main body (-z, up to 0.47 m): an open drawer or a separate prop?"
+     "1 part(s) stick out of the main body (-z, up to 0.47 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true,
@@ -7656,8 +8841,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['rustic', 'modern', 'industrial']",
    "url": "https://polyhaven.com/a/bull_head",
    "api_url": "https://api.polyhaven.com/files/bull_head",
-   "gltf": "models/bull_head/bull_head_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/bull_head/bull_head_2k.gltf",
+   "resolution": "2k",
    "polycount": 17148,
    "vertices": 9322,
    "dimensions_api_mm": [
@@ -7665,19 +8850,43 @@
     281,
     433
    ],
-   "sha256_gltf": "02385d6be1cee95c1ee614cb01b619d3aeb9ea5e90504562ce4eb57f06e75947",
+   "sha256_gltf": "cbd517226ba8914034444a40e0366720210cb66cc89b9c3d9dc5601cdf09e71b",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -7731,8 +8940,8 @@
    "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['rustic', 'modern', 'minimal']",
    "url": "https://polyhaven.com/a/carved_wooden_elephant",
    "api_url": "https://api.polyhaven.com/files/carved_wooden_elephant",
-   "gltf": "models/carved_wooden_elephant/carved_wooden_elephant_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/carved_wooden_elephant/carved_wooden_elephant_2k.gltf",
+   "resolution": "2k",
    "polycount": 2752,
    "vertices": 1664,
    "dimensions_api_mm": [
@@ -7740,19 +8949,43 @@
     58,
     96
    ],
-   "sha256_gltf": "c2378354ecd283c5c8d9459b6829ef7e61bdefd6d0f7a6b2d628362bd9bbef25",
+   "sha256_gltf": "641d854a254966933140c0e9ae36f655a752a1079a9f51c21091278a92a09b35",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -7800,14 +9033,13 @@
    "front_axis_note": "a sculpture has no front",
    "styles": [
     "industrial",
-    "mediterranean",
     "rustic"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['rustic', 'industrial', 'mediterranean']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['industrial', 'rustic']",
    "url": "https://polyhaven.com/a/gothic_statue",
    "api_url": "https://api.polyhaven.com/files/gothic_statue",
-   "gltf": "models/gothic_statue/gothic_statue_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/gothic_statue/gothic_statue_2k.gltf",
+   "resolution": "2k",
    "polycount": 27739,
    "vertices": 23314,
    "dimensions_api_mm": [
@@ -7815,7 +9047,7 @@
     1564,
     1740
    ],
-   "sha256_gltf": "eecbc67793a1e1efa1359d57fa497cb267fc7a4039823d3feecb6d0fcd2ad2db",
+   "sha256_gltf": "589beb2aea6ab11eb3016f95f273acfabe1fdf436d3c6c5a7ad08662c937db75",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -7828,8 +9060,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "510c741d8cca3fa2"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "510c741d8cca3fa2",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -7883,8 +9120,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'rustic', 'modern']",
    "url": "https://polyhaven.com/a/horse_head",
    "api_url": "https://api.polyhaven.com/files/horse_head",
-   "gltf": "models/horse_head/horse_head_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/horse_head/horse_head_2k.gltf",
+   "resolution": "2k",
    "polycount": 12068,
    "vertices": 6902,
    "dimensions_api_mm": [
@@ -7892,7 +9129,7 @@
     334,
     419
    ],
-   "sha256_gltf": "bb46cbabf202aa1af209678619f912c5605477fa098a46c238cdc46b3696bb0d",
+   "sha256_gltf": "13b4381aed198ef84ea4574fa1214e02a2d1c9e2f2f3edfac6f42d7a96aa4ecb",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -7905,10 +9142,13 @@
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
+    "checked_utc": "2026-10-15T20:30:45Z",
     "decision_sha": "e5ecbad2a546cdfd",
     "notes": [
-     "1 part(s) stick out of the main body (-z, up to 0.06 m): an open drawer or a separate prop?"
+     "1 part(s) stick out of the main body (-z, up to 0.06 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
    },
    "real_product": true,
@@ -7961,8 +9201,8 @@
    "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['classic']",
    "url": "https://polyhaven.com/a/horse_statue_01",
    "api_url": "https://api.polyhaven.com/files/horse_statue_01",
-   "gltf": "models/horse_statue_01/horse_statue_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/horse_statue_01/horse_statue_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 22388,
    "vertices": 12592,
    "dimensions_api_mm": [
@@ -7970,19 +9210,43 @@
     108,
     220
    ],
-   "sha256_gltf": "64e33e68ef427d0e7e401808d605b7d24208ae72b63f97ddf6716bc423b374ba",
+   "sha256_gltf": "15e7bc37722474df74ef0a442134332e626739b444fdaede134d4bbbf3a004d8",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "3bab95911dbe3786",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8036,8 +9300,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'mediterranean', 'rustic']",
    "url": "https://polyhaven.com/a/lion_head",
    "api_url": "https://api.polyhaven.com/files/lion_head",
-   "gltf": "models/lion_head/lion_head_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/lion_head/lion_head_2k.gltf",
+   "resolution": "2k",
    "polycount": 47214,
    "vertices": 25380,
    "dimensions_api_mm": [
@@ -8045,19 +9309,43 @@
     207,
     436
    ],
-   "sha256_gltf": "979bd8c7668c02dc26dafb137f8e9e49ecba9eb74ad8bf79c045e9f48fb40cd8",
+   "sha256_gltf": "7f52d4dc54bef3cda05bb28a1cde94de83251c843427eb7fae951e6d1de39344",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8104,14 +9392,13 @@
    "front_axis_confidence": "low",
    "front_axis_note": "a sculpture has no front",
    "styles": [
-    "classic",
-    "minimal"
+    "classic"
    ],
-   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['classic', 'minimal']",
+   "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['classic']",
    "url": "https://polyhaven.com/a/marble_bust_01",
    "api_url": "https://api.polyhaven.com/files/marble_bust_01",
-   "gltf": "models/marble_bust_01/marble_bust_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/marble_bust_01/marble_bust_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 17456,
    "vertices": 9746,
    "dimensions_api_mm": [
@@ -8119,19 +9406,43 @@
     300,
     515
    ],
-   "sha256_gltf": "b6f192fc01be4349470b66f6f6948bd37620267bdbc86f4568e4d078f97ff09b",
+   "sha256_gltf": "40ca513e2ef617b0aaecc08653abc0a0fe18db30e04608d061ce96be7d78e7c6",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8179,14 +9490,13 @@
    "front_axis_note": "a table_lamp has no front",
    "styles": [
     "industrial",
-    "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['modern', 'industrial', 'minimal']",
+   "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['modern', 'industrial']",
    "url": "https://polyhaven.com/a/desk_lamp_arm_01",
    "api_url": "https://api.polyhaven.com/files/desk_lamp_arm_01",
-   "gltf": "models/desk_lamp_arm_01/desk_lamp_arm_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/desk_lamp_arm_01/desk_lamp_arm_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 24102,
    "vertices": 18506,
    "dimensions_api_mm": [
@@ -8194,22 +9504,44 @@
     408,
     879
    ],
-   "sha256_gltf": "2ac8389afc1519449a9cfdf7efd9fa36780a2177bb47ab58f7a7dda7d247dc8c",
+   "sha256_gltf": "b3f03ff2c7c186ec73682f7447b3594db2362cbfc0d72a89d2d8967111d2a2b6",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "3bab95911dbe3786",
     "notes": [
-     "10 part(s) stick out of the main body (-y, -z, up to 0.65 m): an open drawer or a separate prop?"
+     "10 part(s) stick out of the main body (-y, -z, up to 0.65 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8256,14 +9588,13 @@
    "front_axis_confidence": "low",
    "front_axis_note": "a table_lamp has no front",
    "styles": [
-    "industrial",
-    "modern"
+    "industrial"
    ],
-   "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['industrial', 'modern']",
+   "style_note": "P4 growth: source hint ['industrial']; the audit's vision answer (pass 1) names ['industrial']",
    "url": "https://polyhaven.com/a/industrial_pipe_lamp",
    "api_url": "https://api.polyhaven.com/files/industrial_pipe_lamp",
-   "gltf": "models/industrial_pipe_lamp/industrial_pipe_lamp_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/industrial_pipe_lamp/industrial_pipe_lamp_2k.gltf",
+   "resolution": "2k",
    "polycount": 8626,
    "vertices": 7210,
    "dimensions_api_mm": [
@@ -8271,22 +9602,44 @@
     262,
     364
    ],
-   "sha256_gltf": "c5a84037c9183d2966c5659213a0d5190f8fce305153829d81028f6589330af7",
+   "sha256_gltf": "e525f4b8bf1a7a77b312e65e3a0d6c69c403e221170d8e1424c15178305c7fe5",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": true,
+      "materials": 2,
+      "images": 4
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "ee873c753f9f4a57",
     "notes": [
-     "3 part(s) stick out of the main body (+y, -z, up to 0.22 m): an open drawer or a separate prop?"
+     "3 part(s) stick out of the main body (+y, -z, up to 0.22 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": true,
+    "materials": 2,
+    "images": 4
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8333,13 +9686,14 @@
    "front_axis_confidence": "low",
    "front_axis_note": "a vase has no front",
    "styles": [
-    "classic"
+    "classic",
+    "rustic"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'classic', 'classic']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'classic', 'rustic']",
    "url": "https://polyhaven.com/a/antique_ceramic_vase_01",
    "api_url": "https://api.polyhaven.com/files/antique_ceramic_vase_01",
-   "gltf": "models/antique_ceramic_vase_01/antique_ceramic_vase_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/antique_ceramic_vase_01/antique_ceramic_vase_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 9408,
    "vertices": 5024,
    "dimensions_api_mm": [
@@ -8347,19 +9701,43 @@
     255,
     440
    ],
-   "sha256_gltf": "c99f063c1ba4e649e87218265b5ca34f89e3c288ff6560c76b7d9d2dd46aa8cd",
+   "sha256_gltf": "08c2254b19143c7b2896ff484104b5c7c9fdc67b94550427abe21d397ac01221",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8407,14 +9785,14 @@
    "front_axis_note": "a vase has no front",
    "styles": [
     "classic",
-    "minimal",
+    "industrial",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'classic', 'minimal']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'classic', 'industrial']",
    "url": "https://polyhaven.com/a/brass_vase_01",
    "api_url": "https://api.polyhaven.com/files/brass_vase_01",
-   "gltf": "models/brass_vase_01/brass_vase_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/brass_vase_01/brass_vase_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 21440,
    "vertices": 11550,
    "dimensions_api_mm": [
@@ -8422,22 +9800,44 @@
     227,
     692
    ],
-   "sha256_gltf": "becf6d52678c63d7321c8ab51fb1a03a80d8dd61feb183977867069cdd470f9d",
+   "sha256_gltf": "e06292d066d3440a57a043149a9ee27f636f41b20318f63fca7db7d38ccc7eae",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
     "notes": [
-     "3 part(s) stick out of the main body (+z, -z, up to 0.24 m): an open drawer or a separate prop?"
+     "3 part(s) stick out of the main body (+z, -z, up to 0.24 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8492,8 +9892,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'industrial']",
    "url": "https://polyhaven.com/a/brass_vase_02",
    "api_url": "https://api.polyhaven.com/files/brass_vase_02",
-   "gltf": "models/brass_vase_02/brass_vase_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/brass_vase_02/brass_vase_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 6890,
    "vertices": 3849,
    "dimensions_api_mm": [
@@ -8501,19 +9901,43 @@
     210,
     529
    ],
-   "sha256_gltf": "4680277fd44664e1d60b1cf5f26965c8837d9912f776a083187a35eb883fb3a1",
+   "sha256_gltf": "89396aa8442dbc809d36e179c1492e7529f9c41fa0f175fc70c7d206bc2ebd86",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8562,13 +9986,14 @@
    "styles": [
     "classic",
     "industrial",
+    "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'classic', 'industrial']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'industrial', 'minimal']",
    "url": "https://polyhaven.com/a/brass_vase_03",
    "api_url": "https://api.polyhaven.com/files/brass_vase_03",
-   "gltf": "models/brass_vase_03/brass_vase_03_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/brass_vase_03/brass_vase_03_2k.gltf",
+   "resolution": "2k",
    "polycount": 2616,
    "vertices": 1545,
    "dimensions_api_mm": [
@@ -8576,19 +10001,43 @@
     83,
     200
    ],
-   "sha256_gltf": "b65379454ee1c8a608e757b513dc72013cfc5b4156deaf33a46e4f58338b5e8c",
+   "sha256_gltf": "a66857b95d7694e19d4b7cad973213c754d08f67fb93f11434a8e848c2451cbe",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8637,14 +10086,13 @@
    "styles": [
     "classic",
     "industrial",
-    "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'industrial']",
+   "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['modern', 'industrial']",
    "url": "https://polyhaven.com/a/brass_vase_04",
    "api_url": "https://api.polyhaven.com/files/brass_vase_04",
-   "gltf": "models/brass_vase_04/brass_vase_04_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/brass_vase_04/brass_vase_04_2k.gltf",
+   "resolution": "2k",
    "polycount": 2760,
    "vertices": 1614,
    "dimensions_api_mm": [
@@ -8652,19 +10100,43 @@
     61,
     170
    ],
-   "sha256_gltf": "62d32bf08cac959ef4b07d3c36261ec34ec73a48fd635360f9fc2d2076728204",
+   "sha256_gltf": "dfb425f4053705563610510519ddd1d97d7822e809ddb753bbf168e091dda3bd",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8718,8 +10190,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'scandinavian']",
    "url": "https://polyhaven.com/a/ceramic_vase_01",
    "api_url": "https://api.polyhaven.com/files/ceramic_vase_01",
-   "gltf": "models/ceramic_vase_01/ceramic_vase_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/ceramic_vase_01/ceramic_vase_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 10296,
    "vertices": 6590,
    "dimensions_api_mm": [
@@ -8727,19 +10199,43 @@
     206,
     401
    ],
-   "sha256_gltf": "4e2c69eb5bbccf86e9fbf92af438464669d804c1f0eae041ee28651a5b57d91e",
+   "sha256_gltf": "294f6c19f128ed5fa99225f02e00bdd5867cbc1f717fe98e8e09f3ae3191fb52",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8793,8 +10289,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['modern', 'minimal', 'scandinavian']",
    "url": "https://polyhaven.com/a/ceramic_vase_02",
    "api_url": "https://api.polyhaven.com/files/ceramic_vase_02",
-   "gltf": "models/ceramic_vase_02/ceramic_vase_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/ceramic_vase_02/ceramic_vase_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 11128,
    "vertices": 7094,
    "dimensions_api_mm": [
@@ -8802,19 +10298,43 @@
     221,
     309
    ],
-   "sha256_gltf": "1bda047833b68c2c1b190ee53a55b1aa42d30748c84739909b6ca65b2f2d76c9",
+   "sha256_gltf": "a9ceea3a2fd13b35919c9e7854ac1d71704734741fdf83a4bd846b33a13ea959",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8868,8 +10388,8 @@
    "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['minimal', 'modern', 'scandinavian']",
    "url": "https://polyhaven.com/a/ceramic_vase_04",
    "api_url": "https://api.polyhaven.com/files/ceramic_vase_04",
-   "gltf": "models/ceramic_vase_04/ceramic_vase_04_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/ceramic_vase_04/ceramic_vase_04_2k.gltf",
+   "resolution": "2k",
    "polycount": 9000,
    "vertices": 5804,
    "dimensions_api_mm": [
@@ -8877,19 +10397,43 @@
     182,
     342
    ],
-   "sha256_gltf": "ca6461229bd6379b621396581e32400f93884fe77f7fa8abe6ddbeb64d57421b",
+   "sha256_gltf": "6f49dd22e89a4b2a64f18d1bd08cfd59e70f5e60ac1ee35484aefe5122fcbbd1",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 1,
+      "images": 3
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "b4bdcea81e68f37a"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "0683f65c522e133f",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 1,
+    "images": 3
    },
    "real_product": true,
    "contact": "flat_bottom"
@@ -8942,8 +10486,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'rustic', 'classic']",
    "url": "https://polyhaven.com/a/fancy_picture_frame_01",
    "api_url": "https://api.polyhaven.com/files/fancy_picture_frame_01",
-   "gltf": "models/fancy_picture_frame_01/fancy_picture_frame_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/fancy_picture_frame_01/fancy_picture_frame_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 938,
    "vertices": 635,
    "dimensions_api_mm": [
@@ -8951,19 +10495,43 @@
     20,
     464
    ],
-   "sha256_gltf": "c54803abf9e43c28a6b3fe76b38a60e827647a4f9a10747e6d4efba842289578",
+   "sha256_gltf": "754637454a0990fc3616d927ba403d05c8dfcfdadf49f390e46141fe45e0060a",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 6
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "c75f0d0a1a848ae7"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "b70284269a86e701",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 6
    },
    "real_product": true,
    "contact": "hangs"
@@ -9016,8 +10584,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'rustic', 'classic']",
    "url": "https://polyhaven.com/a/fancy_picture_frame_02",
    "api_url": "https://api.polyhaven.com/files/fancy_picture_frame_02",
-   "gltf": "models/fancy_picture_frame_02/fancy_picture_frame_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/fancy_picture_frame_02/fancy_picture_frame_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 35102,
    "vertices": 19228,
    "dimensions_api_mm": [
@@ -9025,22 +10593,44 @@
     89,
     771
    ],
-   "sha256_gltf": "1f8362b3118ffa82881657e0db9aec60aa76d6644b8030f9cd299b90415d1ef6",
+   "sha256_gltf": "2e365c648d78755442ed0673cd4dc648a03ebb0584da882214ecbced09c8d9f2",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 2,
+      "images": 6
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "56457e76cc7f34f9",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "5f704ef05add3854",
     "notes": [
-     "1 part(s) stick out of the main body (+x, +z, -x, -y, -z, up to 0.09 m): an open drawer or a separate prop?"
+     "1 part(s) stick out of the main body (+x, +z, -x, -y, -z, up to 0.09 m): an open drawer or a separate prop?",
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
     ]
+   },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 2,
+    "images": 6
    },
    "real_product": true,
    "contact": "leans"
@@ -9087,14 +10677,13 @@
    "front_axis_confidence": "low",
    "front_axis_note": "front not known (only the source can document it): -Y assumed, the audit's vision answer names it",
    "styles": [
-    "minimal",
     "modern"
    ],
-   "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names ['modern', 'minimal']",
+   "style_note": "P4 growth: source hint ['modern']; the audit's vision answer (pass 1) names none",
    "url": "https://polyhaven.com/a/hanging_picture_frame_01",
    "api_url": "https://api.polyhaven.com/files/hanging_picture_frame_01",
-   "gltf": "models/hanging_picture_frame_01/hanging_picture_frame_01_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/hanging_picture_frame_01/hanging_picture_frame_01_2k.gltf",
+   "resolution": "2k",
    "polycount": 2586,
    "vertices": 2217,
    "dimensions_api_mm": [
@@ -9102,24 +10691,48 @@
     16,
     841
    ],
-   "sha256_gltf": "00aaeab14751485287443b4c5cc2ee5673136510595daa6a2948519c116ad47b",
+   "sha256_gltf": "6661770628e5527ceaa7d9457ea07c7b6eeae1a15ee63177e74765e181e38203",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 3,
+      "images": 6
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "dbbf938b83043252",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "80914d3040c7ef34",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ],
     "vision_doubt": [
-     "vision quality 2 (<= 2)"
+     "vision quality 1 (<= 2)"
     ]
    },
-   "real_product": true,
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "images": 6
+   },
+   "real_product": false,
    "contact": "leans"
   },
   {
@@ -9170,8 +10783,8 @@
    "style_note": "P4 growth: source hint none; the audit's vision answer (pass 1) names ['modern', 'minimal']",
    "url": "https://polyhaven.com/a/hanging_picture_frame_02",
    "api_url": "https://api.polyhaven.com/files/hanging_picture_frame_02",
-   "gltf": "models/hanging_picture_frame_02/hanging_picture_frame_02_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/hanging_picture_frame_02/hanging_picture_frame_02_2k.gltf",
+   "resolution": "2k",
    "polycount": 3678,
    "vertices": 2907,
    "dimensions_api_mm": [
@@ -9179,7 +10792,7 @@
     33,
     500
    ],
-   "sha256_gltf": "ea9a1d44e8d794e224a5342204669a328b57d64d5df629d1d5d86e60e27245e5",
+   "sha256_gltf": "db73af9bc09a74c4ba873d8248422ed23bd1d0e054185fde3ff0a9559a5eb7f9",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
@@ -9188,12 +10801,18 @@
    "audit": {
     "status": "removed",
     "reasons": [
-     "the vision check sees it lying on its side or upside down"
+     "the vision check sees it lying on its side or upside down",
+     "vision quality 2 (<= 2)"
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "76e50fdffc9ffc84"
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "87f6f4c137308994",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ]
    },
    "real_product": true,
    "contact": "hangs"
@@ -9246,8 +10865,8 @@
    "style_note": "P4 growth: source hint ['classic']; the audit's vision answer (pass 1) names ['classic', 'rustic', 'classic']",
    "url": "https://polyhaven.com/a/hanging_picture_frame_03",
    "api_url": "https://api.polyhaven.com/files/hanging_picture_frame_03",
-   "gltf": "models/hanging_picture_frame_03/hanging_picture_frame_03_1k.gltf",
-   "resolution": "1k",
+   "gltf": "models/hanging_picture_frame_03/hanging_picture_frame_03_2k.gltf",
+   "resolution": "2k",
    "polycount": 24348,
    "vertices": 15538,
    "dimensions_api_mm": [
@@ -9255,25 +10874,49 @@
     32,
     502
    ],
-   "sha256_gltf": "39223fc47a8714cdf4db3b4d68042a02207db5ec3947bf021e47203540e21ddd",
+   "sha256_gltf": "9a0be815df128039fbbaa29ebd1eb67f59529ee2fce0f58715a7c94d5386814f",
    "growth": {
     "pod": "P4",
     "list": "candidates_polyhaven.json",
     "fits_real_size": true
    },
    "audit": {
-    "status": "keep",
+    "status": "fix",
     "reasons": [],
-    "fixes": {},
+    "fixes": {
+     "pbr_maps": {
+      "base_colour": true,
+      "metallic_roughness": true,
+      "normal": true,
+      "occlusion": false,
+      "emissive": false,
+      "materials": 3,
+      "images": 7
+     }
+    },
     "version": "m12",
-    "checked_utc": "2026-10-11T09:02:20Z",
-    "decision_sha": "461670425fb87bc0",
+    "checked_utc": "2026-10-15T20:30:45Z",
+    "decision_sha": "790755ab1439b3e3",
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)",
+     "licence fields missing: licence_declared_by, licence_flag, commercial_safe, attribution (M13 gate: written by python -m wenart.furniture licence-fields)",
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+    ],
     "vision_doubt": [
      "the vision check sees more than one object"
     ]
    },
+   "pbr_maps": {
+    "base_colour": true,
+    "metallic_roughness": true,
+    "normal": true,
+    "occlusion": false,
+    "emissive": false,
+    "materials": 3,
+    "images": 7
+   },
    "real_product": true,
-   "contact": "leans"
+   "contact": "hangs"
   }
  ],
  "styles_tagged_utc": "2026-10-03"

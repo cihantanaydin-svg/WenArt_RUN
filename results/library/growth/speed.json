@@ -1,0 +1,108 @@
+{
+ "kind": "library_growth_speed",
+ "written_utc": "2026-10-15T19:48:28Z",
+ "files": 8,
+ "bytes": 23217420,
+ "seconds": 1.6,
+ "measured": true,
+ "workers": 8,
+ "records": [
+  {
+   "id": "abo_B074VKVP9L",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/L/B074VKVP9L.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VKVP9L.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 3174896,
+   "sha256": "2d872957aeb976dd75c733a0cac9b84bf808babc11d3c8edebae283186be940a",
+   "seconds": 1.6
+  },
+  {
+   "id": "abo_B074VKWJWP",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/P/B074VKWJWP.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VKWJWP.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 2594636,
+   "sha256": "d62ec2dcbdf41cf3ec102a720f22407ba79813a75b479021193fc703d5b996c9",
+   "seconds": 1.4
+  },
+  {
+   "id": "abo_B074VL1JQC",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/C/B074VL1JQC.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VL1JQC.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 3278928,
+   "sha256": "4c7e38df0ce52ae1d28cbd450cac0b8f1a2bac85787440b2d92522aa9816eaea",
+   "seconds": 1.6
+  },
+  {
+   "id": "abo_B074VLPC1Q",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/Q/B074VLPC1Q.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VLPC1Q.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 2555436,
+   "sha256": "f7c34731efcec844e14627b579f7584e8c0a461db17fe38f9f9fd09cc92b70b2",
+   "seconds": 1.5
+  },
+  {
+   "id": "abo_B074VLQ3GX",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/X/B074VLQ3GX.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VLQ3GX.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 2686724,
+   "sha256": "9f05690e089ac6f56b3aaac2aba914100428b5fc5b35c13726d2eac9dfee485c",
+   "seconds": 1.5
+  },
+  {
+   "id": "abo_B074VM1T62",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/2/B074VM1T62.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VM1T62.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 2900600,
+   "sha256": "2d9affad0340745df0b8295bdf49fe6f60eac30ee1b4408b9835ab59175e197a",
+   "seconds": 1.4
+  },
+  {
+   "id": "abo_B074VMBGCR",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/R/B074VMBGCR.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VMBGCR.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 2536164,
+   "sha256": "6ea858fb1541de8285b616287a40cb0199b61b9873dab2124d0a79b14fc0337a",
+   "seconds": 1.5
+  },
+  {
+   "id": "abo_B074VMBGSZ",
+   "url": "https://amazon-berkeley-objects.s3.amazonaws.com/3dmodels/original/Z/B074VMBGSZ.glb",
+   "path": "/workspace/assets/models/abo/abo_B074VMBGSZ.glb",
+   "ok": true,
+   "attempts": 1,
+   "bytes": 3490036,
+   "sha256": "702073360d495495b3991ec595ccc679cebbcf237c1b9ad89c0cd4bd115f809b",
+   "seconds": 1.6
+  }
+ ],
+ "mb_s": 14.37,
+ "budget_mb": 51747.9,
+ "need_mb": 14886.3,
+ "slow": false,
+ "fits_budget": true,
+ "picks": {
+  "hssd": {
+   "listed": 874,
+   "take": 874,
+   "mb": 2359.8
+  },
+  "abo": {
+   "listed": 562,
+   "take": 562,
+   "mb": 12526.5
+  }
+ }
+}

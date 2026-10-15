@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="1" tests="8" time="38.714" timestamp="2026-10-15T20:31:22.812508+00:00" hostname="d9dcd27defd3"><testcase classname="tests.gpu.test_library" name="test_growth_new_glbs_load_in_blender_at_plausible_size" time="0.061" /><testcase classname="tests.gpu.test_library" name="test_growth_catalogue_copies_validate_and_resolve" time="37.496"><failure message="AssertionError: assert '2k' == '1k'&#10;  &#10;  - 1k&#10;  + 2k">def test_growth_catalogue_copies_validate_and_resolve():
+        from wenart.assets import fetch
+        from wenart.assets import models as M
+        from wenart.assets import web
+        _nid, lib, ph, entries = p4_new()
+        C.validate(lib, complete=False)
+        C.validate(ph, complete=True)
+        C.Catalog(C.merge(ph, lib))
+        manifest = fetch.load_manifest(ASSETS)
+        for e in entries:
+            if e["source"] == "polyhaven":
+                assert (ASSETS / e["gltf"]).is_file(), e["id"]
+&gt;               assert e["resolution"] == "1k"                                   # what fit.fetch_models asks for
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: assert '2k' == '1k'
+E                 
+E                 - 1k
+E                 + 2k
+
+tests/gpu/test_library.py:559: AssertionError</failure></testcase><testcase classname="tests.gpu.test_library" name="test_growth_every_new_entry_has_an_audit_record" time="0.115" /><testcase classname="tests.gpu.test_library" name="test_growth_p3_pending_models_got_their_second_pass" time="0.037" /><testcase classname="tests.gpu.test_library" name="test_growth_every_approved_id_is_accounted_for" time="0.034" /><testcase classname="tests.gpu.test_library" name="test_growth_m13_demands_coverage_and_speed_records" time="0.026" /><testcase classname="tests.gpu.test_library" name="test_growth_m13_hssd_gate_is_explicit_and_the_token_never_written" time="0.045"><skipped type="pytest.skip" message="hssd skipped: HTTP 403: the account behind HF_TOKEN has not accepted the terms at https://huggingface.co/datasets/hssd/hssd-models (D2): the HSSD step is skipped">/workspace/repo/tests/gpu/test_library.py:648: hssd skipped: HTTP 403: the account behind HF_TOKEN has not accepted the terms at https://huggingface.co/datasets/hssd/hssd-models (D2): the HSSD step is skipped</skipped></testcase><testcase classname="tests.gpu.test_library" name="test_growth_m13_catalogue_copies_carry_the_gates_and_the_hssd_flags" time="0.041"><failure message="AssertionError: abo_B07124WCZY&#10;assert 'pbr_maps' in {'id': 'abo_B07124WCZY', 'type': 'armchair', 'kind': 'furniture', 'source': 'abo', ...}">def test_growth_m13_catalogue_copies_carry_the_gates_and_the_hssd_flags():
+        p4 = Path(os.environ.get("WENART_AUDIT_P4", "/workspace/library-audit/p4/audit"))
+        lib = OV.read_json(p4 / "catalogue" / "catalog_library.json")
+        if lib is None:
+            pytest.skip("no catalogue copy of the growth job")
+        new = set((OV.read_json(p4 / "new_ids.json") or {}).get("ids") or [])
+        hssd = [e for e in lib.get("entries", []) + lib.get("decor", []) if e.get("source") == "hssd"]
+        for e in hssd:
+            assert e["licence"] == "CC-BY-NC-4.0" and e["licence_flag"] == "non_commercial" \
+                and e["commercial_safe"] is False and e["units_known"] is True
+            assert not C.usable(e, "commercial")
+        audited = [e for e in lib.get("entries", []) if e["id"] in new and (e.get("audit") or {}).get("status")
+                   in ("keep", "fix")]
+        for e in audited:
+&gt;           assert "pbr_maps" in e, e["id"]                            # the PBR record gate
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: abo_B07124WCZY
+E           assert 'pbr_maps' in {'id': 'abo_B07124WCZY', 'type': 'armchair', 'kind': 'furniture', 'source': 'abo', ...}
+
+tests/gpu/test_library.py:670: AssertionError</failure></testcase></testsuite></testsuites>

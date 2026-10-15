@@ -953,3 +953,11 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
   runner now leaves a running pod to its own watchdog when this session kills it after 2 h (`attach` collects later).
   Next: P2 (library downloads and audit, HSSD included), then P3/P4/P5.
 - GPU spent so far: $130.73 of $300 (+ P1 when it ends). One pod running (P1).
+- **Pod P1 done** (15 Oct, RTX 4090, 163 min, $2.42): lever and site A/B rendered (`results/review/m13_p1/`), decisions in
+  `docs/milestone13.md` §14.3 (sun 1000 W/m², rig on at gain 2 with daylight-only white balance, EV cap, shell; Poly
+  Haven tree instances, hedges, platforms, pools, sky with a camera-only sun disc). Two GPU tests to fix (round 3).
+- **Pod P2 done** (15 Oct, RTX PRO 6000, 46 min, $1.90): 884 new models catalogued and audited (ABO by size grid,
+  Poly Haven at 2K with vegetation, ambientCG sets); the catalogues in the repo now hold 1,950 entries (usable
+  commercial 1,519, relaxed 1,777); coverage 57 / 64 of 90 demand bins. **HSSD: 0 of 874, HTTP 403: the account
+  behind the pod's `hf_token` has not accepted the dataset terms** (§14.6); re-run after the acceptance.
+- GPU spent so far: $135.05 of $300. No pod running.

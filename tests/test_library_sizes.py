@@ -107,7 +107,9 @@ def titled_abo():
 
 def test_the_77_abo_titles_with_sizes_in_cm_fit_the_table():
     rows = titled_abo()
-    assert len(rows) == 77                                    # the diagnosis (§1.6): 77 titles with sizes in cm
+    # The Milestone 12 diagnosis (§1.6) counted 77 titles with sizes in cm; the Milestone 13 growth (pod P2, 15 Oct
+    # 2026: ABO by size grid) adds more ABO models, so the count only grows (119 after P2).
+    assert len(rows) >= 77
     misfits = []
     for it, dims in rows:
         if CK.title_size_error(dims, it["bbox_m"]) > 0.15:

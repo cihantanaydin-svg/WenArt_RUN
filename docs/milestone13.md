@@ -1116,6 +1116,32 @@ tests of T2 / T5 / T6. From its results the lead sets, in T5's own list:
 The T5 lever and T6 site variants, the 8 + 8 view list (`M13_AB_VIEWS` in `wenart/run/ab.py`) and the GPU tests of
 T2 (3), T5 (7 items), T6 (2) are the P1 deliverables; `tests/gpu/test_library.py -k growth_m13` (3) belongs to P2.
 
+### 14.6 Pod P2 (15 Oct 2026): library growth by demand and the audit
+
+Pod `kxvgpycujng0i3`, RTX PRO 6000 ($2.49/h), 46 min, $1.90 (planned 3.5 h: the HSSD step was skipped and the
+downloads ran at the M12 rate). The first attempt found no H100 at creation time (the RTX PRO 6000 was out of stock
+for an hour) and cost nothing. Code: commit aafd636 (rounds 1 and 2).
+
+| Step | Result |
+|---|---|
+| demands, size grid, speed probe | 90 demand bins; 14.4 MB/s on the probe (the picks stay at the full lists) |
+| ABO (M12 list + the M13 size grid) | 232 + 562 downloaded (12.5 GB); 734 catalogued, 60 dropped (headboards wait for a bed-frame type; copies; outdoor pieces) |
+| Poly Haven (M12 at 2K + the M13 vegetation and furniture) | 87 of 88 and 134 of 135 (`decorative_book_set_01` has no 2K glTF on the API); the step counts one failure as rc 1 |
+| ambientCG shell sets | 18 of 20 (two API answers arrived cut: `Metal051A` at 60 KiB, `Tiles074` at 1.1 MB: a retry is the fix, round 4) |
+| **HSSD** | **0 of 874: the Hub answers HTTP 403 to the token (the token itself is accepted: not 401). The account behind the RunPod secret `hf_token` has not accepted the terms at `https://huggingface.co/datasets/hssd/hssd-models`. The step is skipped by design (D2); the 874 picks and the pattern `objects/*/<id>.glb` match the repo (checked from here on 15 Oct: `objects/0`…`objects/x`, 863 files under `objects/0`).** |
+| audit (render, code checks, one vision pass with Qwen3.8-27B-FP8, decisions) | 884 new entries asked (0 failed), 62 second-pass items; written: library 762 keep / 5 fix / 30 removed, Poly Haven 70 fix / 17 removed |
+| catalogue copies | 1,950 entries: ABO 1,272 (keep 1,225), generated 308, Objaverse 213, GSO 36, Poly Haven 121; usable commercial 1,519, relaxed 1,777; flags none 1,651, tool_nc 281, non_commercial 12, share_alike 6 |
+| coverage after (≥ 2 usable models per demand bin) | commercial 57 of 90 bins (before 53), relaxed 64 (before 60); 33 gap rows, 20 bins still at 0 in both modes (bathtubs, kitchen islands, showers, kitchen sinks, the 3.00 × 1.00 table, the 0.80 × 0.50 coffee table, shoe cabinets, …): every one of them lists HSSD as the source that would fill it |
+| preview step, GPU tests | preview rc 1 (no output; round 4); `tests/gpu/test_library.py`: 5 passed, 2 failed (the copies carry Poly Haven at `2k` where the M12 test pins `1k`; an M12 ABO entry without the new `pbr_maps` field in the gates test: both test updates, round 4) |
+
+The copies are now the repo's catalogues (`wenart/furniture/catalog_library.json` 1,181 furniture + 648 decor,
+`catalog.json` 93 + 48; the licence fields completed by `python -m wenart.furniture licence-fields`); the models
+are on the volume under `/workspace/assets/models/`. The P2 reports are under `results/library/growth/` and the
+copies under `results/library/audit/p4/catalogue/`. The 20 empty bins stay library gaps (the fallback ladder
+builds them) until the HSSD step runs: **the user has to accept the HSSD terms with the account whose token is the
+RunPod secret `hf_token`** (or store a token of the account that accepted); then the same job command re-runs
+only the HSSD part (every other download is kept on the volume), about 30 min.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

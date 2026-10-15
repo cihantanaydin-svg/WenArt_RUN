@@ -2,8 +2,8 @@
  "source": "infinigen",
  "converted": 30,
  "failed": 0,
- "redone": 30,
- "seconds": 57.5,
+ "redone": 0,
+ "seconds": 3.7,
  "results": {
   "infinigen_toilet_0": {
    "ok": true,
