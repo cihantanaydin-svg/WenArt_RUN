@@ -511,6 +511,56 @@ SITE_KEYS = ("boundary_walls", "areas", "decor", "openings")
 SITE_REASON = "site elements are recorded in the building JSON and reported, never built (docs/milestone7.md §6.4)"
 
 
+def assets_dir_record(env_value: str | None, arg_value: str | None, resolved) -> dict:
+    """Where the vegetation module found the assets folder (pure; Milestone 13 T6): ``{"path", "source"}`` with
+    ``source`` ``env`` (``WENART_ASSETS``, read first by ``vegetation.assets_dir``), ``build --assets`` (the build's
+    own flag, handed over as the scene property ``wenart_assets_dir``), ``default`` (``vegetation.ASSET_CANDIDATES``)
+    or None when no folder with a manifest was found (the leaf atlases, hero models and grass clumps then fall back
+    to procedural cards)."""
+    if resolved is None:
+        return {"path": None, "source": None}
+    path = Path(str(resolved))
+    if env_value and Path(env_value) == path:
+        source = "env"
+    elif arg_value and Path(arg_value) == path:
+        source = "build --assets"
+    else:
+        source = "default"
+    return {"path": str(path), "source": source}
+
+
+def site_manifest_block(site: dict | None, assets: dict | None = None, realized: dict | None = None) -> dict | None:
+    """The manifest's ``site`` block with the Milestone 13 records (pure): ``assets`` (``assets_dir_record``) and
+    ``realized_instances`` (``site.realize_site_instances`` before the scene.glb export; None when the glb was not
+    written). A building without a site (``site`` None) keeps None. A site that is not built (``built: false``,
+    ``site_summary``: an interior-only build) keeps its block as it is: no vegetation is built then, and the
+    scene-manifest schema (``schemas.SITE_LEFT_OUT``) allows only ``{count, ids}`` objects next to ``built`` and
+    ``reason`` (round-2 review, 15 Oct 2026: the two records broke ``validate_scene_manifest`` there)."""
+    if not isinstance(site, dict) or not site.get("built"):
+        return site
+    out = dict(site)
+    if assets is not None:
+        out["assets"] = assets
+    out["realized_instances"] = realized
+    return out
+
+
+def recolour_parts_of(manifest_objects: list) -> int:
+    """Milestone 13 (T8 metric 10): every scene object's ``recolour`` record gets its per-part keys
+    (``materials.recolour_parts``: ``fabric``, ``wood``, ...) in place; returns how many records changed."""
+    from wenart.blender.materials import recolour_parts
+
+    n = 0
+    for o in manifest_objects:
+        rec = o.get("recolour")
+        if isinstance(rec, dict) and isinstance(rec.get("applied"), list):
+            new = recolour_parts(rec)
+            if new != rec:
+                o["recolour"] = new
+                n += 1
+    return n
+
+
 def site_summary(building: dict) -> dict | None:
     """What the scene leaves out of the building's ``site`` (pure): counts
     per kind and the ids, ``built: false``; None without a site."""
@@ -931,6 +981,13 @@ def main(argv: list[str]) -> int:
     scene.name = building["project"]["id"]
     scene.unit_settings.system = "METRIC"
     scene.unit_settings.scale_length = 1.0
+    # Milestone 13 (T6): the vegetation module (leaf atlases, Poly Haven hero models, grass clumps) finds the assets
+    # folder through WENART_ASSETS first, then this scene property: the build's own --assets stands in for a job
+    # that exports no WENART_ASSETS (scripts/jobs/full.sh does). Recorded in the manifest's site block (assets).
+    from wenart.blender import vegetation as VG
+    if args.assets:
+        scene["wenart_assets_dir"] = str(args.assets)
+    assets_record = assets_dir_record(os.environ.get("WENART_ASSETS"), args.assets, VG.assets_dir())
     library = MaterialLibrary(textures, args.assets, use_textures=not args.no_textures, refused=refused, style=style,
                               levers=levers)
 
@@ -1267,8 +1324,15 @@ def main(argv: list[str]) -> int:
     bpy.ops.wm.save_as_mainfile(filepath=str(blend), compress=True)
     lap("save")
     files = {"blend": blend.name}
+    realized = None
     if not args.no_glb:
         glb = out / "scene.glb"
+        # Milestone 13 (T6): the vegetation instances (leaf cards, grass clumps) reach the .glb only when realized;
+        # after the .blend save, so the renders keep the light instances (site.realize_site_instances, polygon cap).
+        try:
+            realized = S.realize_site_instances()
+        except Exception as exc:  # noqa: BLE001 - the glb is still written, with the cores and cards only
+            warnings.append(f"vegetation instances not realized for scene.glb: {type(exc).__name__}: {exc}")
         try:
             bpy.ops.export_scene.gltf(filepath=str(glb), export_format="GLB", export_apply=True,
                                       export_extras=True, export_cameras=True, export_lights=True,
@@ -1277,6 +1341,7 @@ def main(argv: list[str]) -> int:
         except Exception as exc:  # noqa: BLE001 - the export must not break the build
             warnings.append(f"glTF export failed: {exc}")
     lap("glb")
+    recolour_parts_of(manifest_objects)          # Milestone 13 (T8 metric 10): recolour.fabric per object
 
     manifest = {
         "schema_version": "0.1",
@@ -1312,7 +1377,7 @@ def main(argv: list[str]) -> int:
         "build_args": fp_args,
         "files": files,
         "furniture": furniture_summary,
-        "site": (whole_info or {}).get("site") or site_summary(building),
+        "site": site_manifest_block((whole_info or {}).get("site") or site_summary(building), assets_record, realized),
         "variant": variant_summary(building_all, prep),
         "variants": variants_summary(building_all),
         "whole_building": whole_info,

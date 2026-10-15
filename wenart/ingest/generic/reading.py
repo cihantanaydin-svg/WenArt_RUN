@@ -28,7 +28,13 @@ What, in order (each step deterministic, every change logged in the piece's evid
    front of a sofa is a coffee table; a long low strip at a wall facing a sofa is a TV unit. A fixed piece drawn
    inside another of its type is drawn twice (not built).
 3. **Inference** (``wenart.furniture.infer``: size, room and position) for what is still unknown; a piece whose
-   AI question still waits for its answers is left to them.
+   AI question still waits for its answers is left to them. Milestone 13 (docs/milestone13.md §3.0 K3, CLAUDE.md
+   "an untyped drawn footprint is typed by code first"): the code typing (``infer.type_by_code``: the same footprint
+   in the twin room or on another level, the block name, the room's missing group member) runs before any AI, on a
+   piece whose question waits too; such a piece is typed (``type_method`` twin | level | block | group_member,
+   ``inferred`` with the evidence), its question is withdrawn (``withdraw_questions``: the key leaves the page's
+   ``pending`` and is listed under ``report["typed_by_code"]``, ``build.code_typed``; the pipeline leaves it out of
+   ``recognition/requests.json``) and the AI types only the rest.
 4. **Misread fixed equipment** (user OK 1 of 10 Oct 2026): a fixed piece whose drawn size is more than 30 % outside
    its type's real range gets the nearest real product size (``sizes.product_size``), its back kept on its wall; a
    fixed piece through a wall or in a door swing moves up to 0.5 m to the nearest free spot. ``drawn_type``,
@@ -706,21 +712,71 @@ def duplicates(build) -> int:
 # 3. Inference
 # --------------------------------------------------------------------------
 
-def infer(build, pending: set[str]) -> int:
+def infer(build, pending: set[str]) -> tuple[int, list[str]]:
     """Step 3: ``wenart.furniture.infer`` on what is still unknown (the conflicts read so far count: a face holding
-    two room names allows the types of both)."""
+    two room names allows the types of both). Returns ``(proposals applied, ids typed by code)``.
+
+    Milestone 13 (K3, "code first, the AI types the rest"): a code-typed proposal (``type_method`` in
+    ``infer.CODE_TYPE_METHODS``) needs no AI answer, so it applies to a piece whose question still waits as well; the
+    size / room / position rules keep waiting for the answers (``pending``). The caller withdraws the questions of
+    the code-typed pieces (``withdraw_questions``)."""
     from wenart.furniture import infer as INF
 
     b = build.building
     view = dict(b, conflicts=list(b.get("conflicts") or []) + list(getattr(build, "raw_conflicts", []) or []))
-    proposals = [p for p in INF.infer_types(view) if p["piece_id"] not in pending]
+    proposals = [p for p in INF.infer_types(view)
+                 if p["piece_id"] not in pending or p.get("type_method") in INF.CODE_TYPE_METHODS]
     if not proposals:
-        return 0
+        return 0, []
     b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
+    coded = []
     for p in proposals:
-        what = "not built (rug or group outline)" if p.get("build") is False else f"inferred {p['type']}"
+        if p.get("type_method") in INF.CODE_TYPE_METHODS:
+            what = f"typed {p['type']} by code ({p['type_method']}, before any AI)"
+            coded.append(p["piece_id"])
+        else:
+            what = "not built (rug or group outline)" if p.get("build") is False else f"inferred {p['type']}"
         build.warn(f"{p['piece_id']}: {what}: {p['reason']}")
-    return len(proposals)
+    return len(proposals), coded
+
+
+CODE_TYPED_KEY = "typed_by_code"      # the extraction report's list of question keys withdrawn by the code typing
+
+
+def withdraw_questions(build, works: dict, items: dict, coded: list[str]) -> dict[str, str]:
+    """Milestone 13 (K3): the recognition questions of the pieces code typed (``coded``) are withdrawn: their keys
+    leave every page report's ``pending`` (nothing waits for them) and go to ``report["typed_by_code"]`` and
+    ``build.code_typed`` (key -> piece id), which the pipeline's ``_write_questions`` leaves out of
+    ``recognition/requests.json``. Returns the withdrawn ``{key: piece id}`` (empty when no code-typed piece had a
+    question, e.g. a piece typed from its block name at extraction time)."""
+    keys = {}
+    for pid in coded:
+        key = (items[pid].details or {}).get("candidate_key") if pid in items else None
+        if key:
+            keys[str(key)] = pid
+    if not keys:
+        return {}
+    seen = set()
+    for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
+        if id(w) in seen:
+            continue
+        seen.add(id(w))
+        report = w.extraction.report
+        if report is None:
+            continue
+        asked = {q.get("key") for q in report.get("questions") or []} | set(report.get("pending") or [])
+        mine = [k for k in keys if k in asked]
+        if not mine:
+            continue
+        report["pending"] = [k for k in report.get("pending") or [] if k not in keys]
+        report[CODE_TYPED_KEY] = sorted(set(report.get(CODE_TYPED_KEY) or []) | set(mine))
+    store = getattr(build, "code_typed", None)
+    if not isinstance(store, dict):
+        store = build.code_typed = {}
+    store.update(keys)
+    for key, pid in sorted(keys.items()):
+        build.warn(f"{pid}: recognition question {key} withdrawn: typed by code before the AI (K3)")
+    return keys
 
 
 # --------------------------------------------------------------------------
@@ -1153,7 +1209,11 @@ def read_furniture(build, works: dict) -> None:
     twice = duplicates(build)
     if twice:
         context["drawn_twice"] = twice
-    inferred = infer(build, pending)
+    inferred, coded = infer(build, pending)
+    # Milestone 13 (K3): a code-typed piece waits for no AI answer: its question is withdrawn, it gets its front
+    # and its partners like every typed piece below.
+    withdrawn = withdraw_questions(build, works, items, coded)
+    pending = pending - set(coded)
     fixed = fix_fixed(build, items)
     fronts += infer_fronts(build, pending)
     for k, v in context_types(build, items, pending).items():  # partners of the anchors the inference typed
@@ -1165,4 +1225,5 @@ def read_furniture(build, works: dict) -> None:
     b.setdefault("symbols", [])
     b.setdefault("needs_review", [])
     build.reading = {"symbols": symbols, "context": context, "inferred": inferred, "fixed": fixed,
-                     "fronts": fronts, "zones": zones, "needs_review": review}
+                     "fronts": fronts, "zones": zones, "needs_review": review,
+                     "code_typed": sorted(coded), "questions_withdrawn": sorted(withdrawn)}

@@ -2036,18 +2036,21 @@ def area_look(area: dict, looks: dict) -> dict:
     return looks[AREA_LOOKS.get(area["kind"], "paving")]
 
 
-# Milestone 13 (T6): the object kinds of the new site parts. ``common.KINDS`` is a closed list the lead owns; until the
-# new names are in it, each part takes the nearest existing kind (``site_kind``) and says its own in ``site_part``.
+# Milestone 13 (T6): the object kinds of the new site parts. ``common.KINDS`` (the closed list of object kinds) and
+# ``schemas.WHOLE_BUILDING_KINDS`` (the scene-manifest schema's kinds) both list them since round 2; until both do,
+# a part takes the nearest Milestone 10-12 kind (``site_kind``) and says its own in ``site_part``, so a built manifest
+# always validates.
 SITE_KINDS = {"platform": ("site_platform", "site_area"), "hedge": ("site_hedge", "site_boundary"),
               "grass": ("site_grass", "site_decor"), "haze": ("atmosphere", "site_decor"), "backdrop": ("terrain", "terrain")}
 
 
 def site_kind(part: str) -> str:
-    """The manifest kind of a Milestone 13 site part: its own name when ``common.KINDS`` knows it, else the fallback."""
-    from wenart.blender import common
+    """The manifest kind of a Milestone 13 site part: its own name when ``common.KINDS`` and the scene-manifest
+    schema (``schemas.WHOLE_BUILDING_KINDS``) both know it, else the fallback (``SITE_KINDS``)."""
+    from wenart.blender import common, schemas
 
     own, fallback = SITE_KINDS[part]
-    return own if own in common.KINDS else fallback
+    return own if own in common.KINDS and own in schemas.WHOLE_BUILDING_KINDS else fallback
 
 
 PLATFORM_LOOKS = {"slab": {"terrace": "paving", "pool": "paving", "parking": "paving", "path": "paving"},
@@ -2274,6 +2277,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                "width_m": h["width_m"], "length_m": info["length_m"], "height_class": h["height_class"],
                "species": h["species"], "species_inferred": h.get("species_inferred", True),
                "symbol_ids": h.get("symbol_ids") or [], "source": h.get("source"), "veg_method": rec.get("method"),
+               # round 2: the leaf atlas the hedge really used (``vegetation.hedge_object`` records it as ``atlas``)
+               # and its licence, so ``wenart.run.copy.vegetation_credits`` credits that one
+               "asset": rec.get("asset") or rec.get("atlas"), "licence": rec.get("licence"),
                "cards": rec.get("cards"), "material": rec.get("material") or (foliage_mat.name if foliage_mat else None),
                "z_range": info["z_range"], "assumed": {"reason": h["reason"], **({"error": rec["error"]}
                                                                                    if rec.get("error") else {})}})
@@ -2308,12 +2314,16 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
               {"evidence": item.get("evidence") or [], "parent": item.get("id"), "site_kind": item.get("kind"),
                "species": parts["species"], "species_inferred": parts["species_inferred"],
                "size_class": parts["size_class"], "height_m": parts["height"], "crown_m": parts["diameter"],
-               "near_camera": bool(near), "veg_method": rec.get("method"), "asset": rec.get("asset"),
+               # ``asset``: the Poly Haven model of an instance, else the leaf atlas of a card or Sapling tree
+               # (recorded as ``atlas``; round 2, for ``copy.vegetation_credits``); None for a palm or a proxy
+               "near_camera": bool(near), "veg_method": rec.get("method"),
+               "asset": rec.get("asset") or rec.get("atlas"),
                "licence": rec.get("licence"), "material": rec.get("material"), "inferred": True,
                "assumed": {"height_m": parts["height"], "reason": parts["reason"],
                            **({"error": rec["error"]} if rec.get("error") else {})}})
-        summary["vegetation"].append({"id": wid, "species": parts["species"], "size_class": parts["size_class"],
-                                      "height_m": parts["height"], "method": rec.get("method"), "asset": rec.get("asset"),
+        summary["vegetation"].append({"id": wid, "kind": "tree", "species": parts["species"],
+                                      "size_class": parts["size_class"], "height_m": parts["height"],
+                                      "method": rec.get("method"), "asset": rec.get("asset"),
                                       "near_camera": bool(near)})
         assumed.append({"object": wid, "field": "tree", "value": parts["height"], "reason": parts["reason"],
                         "parent": str(item.get("id")), "kind": "site_tree"})
@@ -2378,4 +2388,208 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]]}
     for a in plan["assumed"]:
         assumed.append({"object": "site", "field": a["field"], "value": a["value"], "reason": a["reason"]})
+    summary["vegetation_counts"] = vegetation_counts(summary)       # Milestone 13 (T8 metric 11): per source
     return summary
+
+
+# --------------------------------------------------------------------------
+# Milestone 13: the vegetation records of the scene manifest, the instances of the 3D export, the building's
+# site.platforms (the pipeline_final hook)
+# --------------------------------------------------------------------------
+
+# The methods vegetation.tree_object / hedge_object / grass_patch record, grouped by source for the manifest's
+# ``site.vegetation_counts`` (docs/milestone13.md §7 metric 11: trees as real geometry, never a primitive).
+VEGETATION_SOURCES = {"polyhaven_instances": ("polyhaven",), "sapling": ("sapling",), "leaf_card": ("cards", "palm"),
+                      "proxy": ("proxy", "none", "", None)}
+
+
+def vegetation_counts(summary: dict) -> dict:
+    """Per-source counts of what ``build_site`` built (pure; the scene manifest's ``site.vegetation_counts``):
+    ``polyhaven_instances`` (collection instances of the CC0 hero models), ``sapling`` (Sapling Tree Gen trees),
+    ``leaf_card`` (card trees and palms), ``proxy`` (the low-poly stand-in when the module failed), ``trees`` (all),
+    ``hedges`` and ``hedges_leaf_card`` (the ``site.hedges`` built, those with leaf cards), ``grass_patches``
+    (the near-camera lawn patch when it was built)."""
+    trees = [r for r in summary.get("vegetation") or [] if isinstance(r, dict)]
+    hedges = [r for r in summary.get("hedges") or [] if isinstance(r, dict)]
+    grass = summary.get("grass") if isinstance(summary.get("grass"), dict) else None
+    out = {key: sum(1 for r in trees if r.get("method") in methods) for key, methods in VEGETATION_SOURCES.items()}
+    out["trees"] = len(trees)
+    out["hedges"] = len(hedges)
+    out["hedges_leaf_card"] = sum(1 for r in hedges if r.get("method") == "cards")
+    built_grass = bool(grass) and grass.get("method") not in (None, "", "none") and not grass.get("error")
+    out["grass_patches"] = 1 if built_grass else 0
+    return out
+
+
+# The polygon cap of ``realize_site_instances`` (env ``WENART_REALIZE_CAP``): the leaf cards of the hedges and card
+# trees and the grass clumps are geometry-nodes instances; the glTF export writes an object's evaluated mesh only
+# (export_apply), so the instances reach the .glb only when realized (or through the exporter's experimental
+# Geometry Nodes Instances option, docs.blender.org/manual/en/5.2/addons/scene_gltf2.html). A cap keeps the .glb
+# deliverable: 1 M polygons as the documented choice (the lead may change it after P3).
+REALIZE_CAP_POLYS = 1_000_000
+REALIZE_CAP_ENV = "WENART_REALIZE_CAP"
+VEGETATION_GROUP_PREFIX = "veg_"                # vegetation.scatter_group names every vegetation node group so
+
+
+def realize_cap(env: Optional[dict] = None) -> int:
+    """The polygon cap (pure): ``WENART_REALIZE_CAP`` (a non-negative integer; 0 = realize nothing), else
+    ``REALIZE_CAP_POLYS``."""
+    import os
+    text = str((os.environ if env is None else env).get(REALIZE_CAP_ENV) or "").strip()
+    if text.isdigit():
+        return int(text)
+    return REALIZE_CAP_POLYS
+
+
+def instance_budget(items: Sequence[dict], cap_polys: int) -> dict:
+    """Which vegetation node groups the export realizes under the polygon cap (pure). ``items``: one per node
+    group, ``{"group", "objects": [names], "instances": n, "polygons": the polygons of all its instances}``.
+    The smallest groups first (the most vegetation reaches the .glb), each taken while the running total stays
+    within ``cap_polys``; the rest stay instances (in the .blend, not in the .glb). Returns ``{"cap",
+    "realize": [items], "skipped": [items with "reason"], "polygons": the realized total, "polygons_all"}``."""
+    cap = max(0, int(cap_polys))
+    realize, skipped, total = [], [], 0
+    for item in sorted(items, key=lambda it: (int(it.get("polygons") or 0), str(it.get("group")))):
+        polys = int(item.get("polygons") or 0)
+        if total + polys <= cap:
+            realize.append(dict(item))
+            total += polys
+        else:
+            skipped.append(dict(item, reason=f"{polys} polygons would pass the cap of {cap} ({total} realized)"))
+    return {"cap": cap, "realize": realize, "skipped": skipped, "polygons": total,
+            "polygons_all": sum(int(it.get("polygons") or 0) for it in items)}
+
+
+def vegetation_instance_items(depsgraph, objects) -> list[dict]:
+    """The ``instance_budget`` items of the scene (bpy): for every object with a NODES modifier on a vegetation
+    node group (``VEGETATION_GROUP_PREFIX``), the instances the depsgraph generates for it and their polygons
+    (``DepsgraphObjectInstance``: ``is_instance``, ``parent``, ``object``), summed per node group (a group is
+    shared by the hedges of one species: realizing it realizes every user)."""
+    by_object: dict[str, list] = {}
+    for ob in objects:
+        for mod in ob.modifiers:
+            ng = getattr(mod, "node_group", None) if mod.type == "NODES" else None
+            if ng is not None and str(ng.name).startswith(VEGETATION_GROUP_PREFIX):
+                by_object.setdefault(ob.name, []).append(ng.name)
+    if not by_object:
+        return []
+    counts: dict[str, list] = {name: [0, 0] for name in by_object}
+    for inst in depsgraph.object_instances:
+        if not inst.is_instance or inst.parent is None:
+            continue
+        parent = inst.parent.original.name if hasattr(inst.parent, "original") else inst.parent.name
+        if parent not in counts:
+            continue
+        data = getattr(inst.object, "data", None)
+        polys = len(data.polygons) if data is not None and hasattr(data, "polygons") else 0
+        counts[parent][0] += 1
+        counts[parent][1] += polys
+    items: dict[str, dict] = {}
+    for ob_name, groups in by_object.items():
+        for gname in groups:
+            item = items.setdefault(gname, {"group": gname, "objects": [], "instances": 0, "polygons": 0})
+            item["objects"].append(ob_name)
+            item["instances"] += counts[ob_name][0]
+            item["polygons"] += counts[ob_name][1]
+    return [items[k] for k in sorted(items)]
+
+
+def realize_node_group(ng) -> bool:
+    """A Realize Instances node before the group output of a vegetation node group (bpy): the instances become
+    mesh geometry for the export. Idempotent (``ng["wenart_realized"]``); False when the group has no linked
+    output."""
+    if ng.get("wenart_realized"):
+        return True
+    go = next((n for n in ng.nodes if n.type == "GROUP_OUTPUT"), None)
+    if go is None or not go.inputs or not go.inputs[0].links:
+        return False
+    link = go.inputs[0].links[0]
+    src = link.from_socket
+    real = ng.nodes.new("GeometryNodeRealizeInstances")
+    ng.links.remove(link)
+    ng.links.new(src, real.inputs["Geometry"])
+    ng.links.new(real.outputs["Geometry"], go.inputs[0])
+    ng["wenart_realized"] = True
+    return True
+
+
+def realize_site_instances(cap_polys: Optional[int] = None, objects=None) -> dict:
+    """Realize the vegetation instances for a glTF export (bpy; Milestone 13 T6, the 3D pack): the leaf cards of
+    the hedges and card trees and the grass clumps are geometry-nodes instances that ``export_apply`` leaves out
+    of the .glb; this adds a Realize Instances node to every vegetation node group that fits under the polygon
+    cap (``instance_budget``, smallest first; ``cap_polys`` None = ``realize_cap()``). Call it after the .blend is
+    saved (the renders keep the light instances) and before ``bpy.ops.export_scene.gltf``. The Poly Haven hero
+    trees are collection instances, not geometry nodes: the cap does not apply to them. Returns the budget with
+    ``realized`` (the group names changed), ``cap``, ``polygons`` and the skipped groups with their reasons."""
+    import bpy
+    cap = realize_cap() if cap_polys is None else int(cap_polys)
+    objects = list(objects) if objects is not None else list(bpy.data.objects)
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    items = vegetation_instance_items(depsgraph, objects)
+    budget = instance_budget(items, cap)
+    realized = []
+    for item in budget["realize"]:
+        ng = bpy.data.node_groups.get(item["group"])
+        if ng is not None and realize_node_group(ng):
+            realized.append(item["group"])
+    if realized:
+        bpy.context.view_layer.update()
+    budget["realized"] = realized
+    budget["groups"] = len(items)
+    return budget
+
+
+def platforms_into_building(building: dict) -> dict:
+    """``site.platforms`` of the building JSON (pure; docs/milestone13.md §13.3, the hook after the levels stage):
+    the records of ``platforms(site)`` on the site's own ground surface (the levels stage's model, as the build
+    reads it without the door overrides) written into ``building["site"]["platforms"]`` (an earlier run's list is
+    replaced; a site without terrace, pool or parking polygons gets ``[]``). Returns ``{"count", "ids", "kinds"}``;
+    a building without a site dict is left alone (``count`` None)."""
+    import json
+    site = building.get("site") if isinstance(building.get("site"), dict) else None
+    if site is None:
+        return {"count": None, "ids": [], "kinds": {}}
+    pfs = json.loads(json.dumps(platforms(site)))
+    site["platforms"] = pfs
+    kinds: dict[str, int] = {}
+    for pf in pfs:
+        kinds[pf["kind"]] = kinds.get(pf["kind"], 0) + 1
+    return {"count": len(pfs), "ids": [pf["id"] for pf in pfs], "kinds": kinds}
+
+
+def main(argv=None) -> int:
+    """``python -m wenart.blender.site platforms <building.json> [--out PATH]`` (CPU, no bpy): the hook of the
+    pipeline_final stage that writes ``site.platforms`` into the building (in place without ``--out``). Exit 0;
+    2 for a file that is not a building JSON."""
+    import argparse
+    import json
+    import sys
+    from pathlib import Path
+
+    ap = argparse.ArgumentParser(prog="python -m wenart.blender.site")
+    sub = ap.add_subparsers(dest="command", required=True)
+    p = sub.add_parser("platforms", help="write site.platforms (one level per terrace / pool / parking) into the building")
+    p.add_argument("building")
+    p.add_argument("--out", default=None, help="where to write (default: the building file itself)")
+    args = ap.parse_args(argv)
+    path = Path(args.building)
+    try:
+        building = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print(f"site platforms: {path}: {exc}", file=sys.stderr)
+        return 2
+    if not isinstance(building, dict):
+        print(f"site platforms: {path}: not a building JSON", file=sys.stderr)
+        return 2
+    rec = platforms_into_building(building)
+    out = Path(args.out) if args.out else path
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(building, indent=1, ensure_ascii=False), encoding="utf-8")
+    print(f"SITE_PLATFORMS {out} count={rec['count']} kinds={rec['kinds']}")
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main())

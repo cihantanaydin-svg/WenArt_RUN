@@ -35,6 +35,12 @@ Why one loader: the brief stored in ``building.project.brief`` is the brief
 at ingest/layout time and can be stale (docs/milestone5.md §1.1), so the
 Milestone 5 readers (polish, vision check, report) load ``brief.yaml``
 through this module, usually via ``wenart.views.project_paths``.
+
+Milestone 13 (docs/milestone13.md §13.2 T5, §13.3): ``library.licence_mode`` (D1: ``commercial`` | ``relaxed``) and
+``render.white_balance_k`` (K5: null = one whitepoint per project metered on the first interior camera, the render
+stage's ``--white-balance project``; a number from 1800 to 100000 K locks that whitepoint to a colour temperature,
+``--white-balance kelvin:K``). ``white_balance_k(brief)`` gives the number or None, ``white_balance_arg(brief)`` the
+render flag value.
 """
 from __future__ import annotations
 
@@ -47,6 +53,11 @@ BRIEF_FILE = "brief.yaml"
 # The brief's lens range (mm): the same as ``wenart.blender.cameras.LENS_RANGE_MM`` (tests/test_brief.py pins it).
 # A copy, so the stages that read the brief (sheets, pipeline) do not import the Blender camera code.
 LENS_RANGE_MM = (14.0, 35.0)
+# Milestone 13: the brief's white balance range in Kelvin, the same as ``wenart.blender.render.parse_white_balance``
+# accepts for ``kelvin:K`` (Blender's ``white_balance_temperature`` range; tests/test_brief.py pins it). A copy, for
+# the same reason as the lens range.
+WHITE_BALANCE_RANGE_K = (1800.0, 100000.0)
+WHITE_BALANCE_PROJECT = "project"      # the render flag value when the brief locks no temperature
 
 
 def brief_defaults(defaults: Optional[dict] = None) -> dict:
@@ -119,6 +130,17 @@ def _metres(lo: float, hi: float):
     return problem
 
 
+def _white_balance_problem(value: Any) -> Optional[str]:
+    """``render.white_balance_k`` (Milestone 13): null (the project whitepoint metered once) or a colour temperature
+    from 1800 to 100000 K (``WHITE_BALANCE_RANGE_K``)."""
+    if value is None:
+        return None
+    lo, hi = WHITE_BALANCE_RANGE_K
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= float(value) <= hi:
+        return f"expected null or a colour temperature from {lo:g} to {hi:g} K, got {value!r}"
+    return None
+
+
 VALUE_RULES = {
     "render.lens_mm": _lens_problem,
     "slab_thickness": _metres(0.05, 0.6),                # Milestone 10 (review): a slab, never a typo of cm
@@ -138,6 +160,8 @@ VALUE_RULES = {
     "levels.ground_rise": _metres(0.0, 1.5),
     # Milestone 13 (docs/milestone13.md §13.3, D1): the library licence mode of the fit
     "library.licence_mode": _one_of("commercial", "relaxed"),
+    # Milestone 13 (docs/milestone13.md §13.2 T5, K5): the project white balance locked to a colour temperature
+    "render.white_balance_k": _white_balance_problem,
 }
 
 # Values YAML reads as booleans that a rule takes as words (``front_court: yes``).
@@ -270,6 +294,22 @@ def lens_mm(brief: Optional[dict]) -> Optional[float]:
     if isinstance(v, bool) or not isinstance(v, (int, float)):
         return None
     return float(v)
+
+
+def white_balance_k(brief: Optional[dict]) -> Optional[float]:
+    """The brief's ``render.white_balance_k`` as a float (validated by ``load_brief``), or None for null (the
+    project whitepoint is metered once on the first interior camera, Milestone 13 K5)."""
+    v = value(brief, "render.white_balance_k", None)
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return None
+    return float(v)
+
+
+def white_balance_arg(brief: Optional[dict]) -> str:
+    """The render stage's ``--white-balance`` value for a brief (``wenart.blender.render.parse_white_balance``):
+    ``kelvin:<K>`` when ``render.white_balance_k`` is set, else ``project`` (``WHITE_BALANCE_PROJECT``)."""
+    k = white_balance_k(brief)
+    return WHITE_BALANCE_PROJECT if k is None else f"kelvin:{k:g}"
 
 
 def front_court(brief: Optional[dict]) -> str:

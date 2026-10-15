@@ -87,6 +87,14 @@ gone, not built or retyped (``decor_dropped``, fixes B3). Heights are not stored
 support on the built mesh (``wenart.blender.rest``). Cushions are real-size standing cushions (``CUSHION_SIZE``,
 ``PILLOW_SIZE``: width, thickness, height) and none go on a seat or bed whose model already has its own
 (``takes_cushions``); untyped pieces and library gaps host nothing (``piece_is_built``).
+
+Milestone 13 (docs/milestone13.md §3.0 K3, groups.yaml R6; track T3 -> the decor stage): the group solver lays the
+rug as a member of the seating and sleeping groups (``solver.apply_candidate`` writes it to ``building["decor"]``
+with ``group.role == "rug"``; ``layout.apply_choice`` and the agent's ``edit_ops`` carry it). ``add_decor`` keeps
+those rugs (``solver_rugs``) instead of resetting the decor: the rule rugs are laid only under groups the solver
+left without one, off the kept rugs (``rugs_for_room``), the new ids count on after the kept ones
+(``decor_counters``), a partner copy never doubles a room's own solver rug, and the report row counts the kept
+rugs. With ``brief.decor`` false the solver's rugs are left out too (listed): no decor means no rug.
 """
 from __future__ import annotations
 
@@ -94,6 +102,7 @@ import argparse
 import copy
 import json
 import math
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -436,13 +445,57 @@ def rug_polygon(item: dict) -> Polygon:
     return placer.Piece("rug", tuple(item["center"]), item["rotation_deg"], tuple(item["size"]), False).polygon()
 
 
+SOLVER_RUG_ROLE = "rug"           # Milestone 13: the group role of a rug the solver laid (solver._rug_dicts)
+
+
+def solver_rugs(building: dict, room_id: Optional[str] = None) -> list[dict]:
+    """Milestone 13 (R6): the rugs the group solver laid as group members (decor items with ``group.role == "rug"``,
+    written by ``solver.apply_candidate``), of one room or of the whole building, in building order. The decor
+    stages keep them (``add_decor``; the AI decorator seeds its decor with them the same way). A rug whose pieces
+    are all gone or not built (``piece_is_built``: the agent removed the sofa, the fit left the bed unbuilt) is no
+    solver rug any more (the ``sync_to_hosts`` rule): it is left out (``stale_solver_rugs`` lists it)."""
+    return [d for d in _solver_rug_items(building, room_id) if _rug_alive(building, d)]
+
+
+def stale_solver_rugs(building: dict, room_id: Optional[str] = None) -> list[dict]:
+    """The solver's rug members ``solver_rugs`` leaves out: their pieces are all gone or not built."""
+    return [d for d in _solver_rug_items(building, room_id) if not _rug_alive(building, d)]
+
+
+def _solver_rug_items(building: dict, room_id: Optional[str]) -> list[dict]:
+    return [d for d in building.get("decor") or []
+            if isinstance(d, dict) and (d.get("group") or {}).get("role") == SOLVER_RUG_ROLE
+            and (room_id is None or d.get("room_id") == room_id)]
+
+
+def _rug_alive(building: dict, rug: dict) -> bool:
+    pieces = {p.get("id"): p for p in building.get("furniture") or []}
+    anchors = [a for a in rug.get("anchor_ids") or [] if a]
+    return any(piece_is_built(pieces.get(a)) for a in anchors)
+
+
+def decor_counters(items: list[dict]) -> dict[str, int]:
+    """``{level id: highest n}`` of the ids ``dec_<level>_<n>`` among ``items``, so a decor stage that keeps items
+    numbers its new ones after them (Milestone 13: the solver's rugs keep their ids)."""
+    out: dict[str, int] = {}
+    for d in items or []:
+        m = re.match(r"^dec_(.+)_(\d+)$", str(d.get("id") or ""))
+        if m:
+            out[m.group(1)] = max(out.get(m.group(1), 0), int(m.group(2)))
+    return out
+
+
 def rugs_for_room(room: dict, furniture: list[dict], building: dict) -> tuple[list[dict], list[str]]:
-    """The rugs of one room (without ids) and the notes for the report (docs/milestone8.md §4)."""
+    """The rugs of one room (without ids) and the notes for the report (docs/milestone8.md §4). Milestone 13: the
+    solver's rugs already in ``building["decor"]`` (``solver_rugs``) are kept: a group one of them belongs to gets
+    no rule rug (listed), and the rule rugs stay off them."""
     ctx = placer.room_context(building, room)
     usable = [f for f in furniture if _usable_anchor(f)]
     rugs: list[dict] = []
     notes: list[str] = []
-    placed: list[Polygon] = []
+    kept = solver_rugs(building, room["id"])
+    placed: list[Polygon] = [rug_polygon(k) for k in kept]
+    covered: dict[str, str] = {a: k["id"] for k in kept for a in k.get("anchor_ids") or []}
 
     def add(item, why, what):
         if item is None:
@@ -450,6 +503,12 @@ def rugs_for_room(room: dict, furniture: list[dict], building: dict) -> tuple[li
         else:
             rugs.append(item)
             placed.append(rug_polygon(item))
+
+    def solver_laid(what: str, *pieces) -> bool:
+        hit = next((covered[p["id"]] for p in pieces if p["id"] in covered), None)
+        if hit is not None:
+            notes.append(f"rug {what}: {hit} laid by the group solver (kept)")
+        return hit is not None
 
     if room.get("room_type") in LIVING_RUG_ROOM_TYPES:
         tables = [f for f in usable if f["type"] == "table_coffee"]
@@ -469,23 +528,29 @@ def rugs_for_room(room: dict, furniture: list[dict], building: dict) -> tuple[li
                 break
         if group is not None:
             sofa, members, key = group
-            fp = sofa["footprint"]
-            region = _local_bounds(members, fp["center"], float(fp["rotation_deg"]))
-            if sofa["type"] == "sofa_corner":
-                region = inner_corner_region(sofa, members[1])
-            item, why = _rug_item(ctx, sofa, members, region, key, furniture, placed,
-                                  "rug under the sofa and coffee table group")
-            add(item, why, f"under {sofa['id']} + {members[1]['id']}")
+            if not solver_laid(f"under {sofa['id']} + {members[1]['id']}", sofa, members[1]):
+                fp = sofa["footprint"]
+                region = _local_bounds(members, fp["center"], float(fp["rotation_deg"]))
+                if sofa["type"] == "sofa_corner":
+                    region = inner_corner_region(sofa, members[1])
+                item, why = _rug_item(ctx, sofa, members, region, key, furniture, placed,
+                                      "rug under the sofa and coffee table group")
+                add(item, why, f"under {sofa['id']} + {members[1]['id']}")
         elif any(f["type"] in LIVING_RUG_SOFAS for f in usable):
-            notes.append("no rug: no coffee table in front of a sofa")
+            if not any(f["id"] in covered for f in usable if f["type"] in LIVING_RUG_SOFAS):
+                notes.append("no rug: no coffee table in front of a sofa")
     if room.get("room_type") in BED_RUG_ROOM_TYPES:
         for bed in sorted((f for f in usable if f["type"] == "bed_double"), key=lambda f: f["id"]):
+            if solver_laid(f"under {bed['id']}", bed):
+                continue
             bw, bd = (float(v) for v in bed["footprint"]["size"])
             region = (-bw / 2.0, -bd / 2.0, bw / 2.0, -bd / 2.0 + BED_RUG_SHARE * bd)
             item, why = _rug_item(ctx, bed, [bed], region, (0.0, -bd / 2.0 + BED_RUG_SHARE * bd / 2.0), furniture,
                                   placed, "rug under the lower two thirds of the double bed")
             add(item, why, f"under {bed['id']}")
     for table in sorted((f for f in usable if f["type"] == "table_dining"), key=lambda f: f["id"]):
+        if solver_laid(f"under {table['id']}", table):
+            continue
         tw, td = (float(v) for v in table["footprint"]["size"])
         region = (-tw / 2.0 - DINING_CHAIR_M, -td / 2.0 - DINING_CHAIR_M, tw / 2.0 + DINING_CHAIR_M,
                   td / 2.0 + DINING_CHAIR_M)
@@ -620,14 +685,25 @@ def wall_art_for_room(room: dict, furniture: list[dict], building: dict) -> tupl
 
 
 def add_decor(building: dict) -> tuple[dict, list[dict]]:
-    """Return (building with ``decor``, report rows). Idempotent: existing decor is replaced."""
+    """Return (building with ``decor``, report rows). Idempotent: existing decor is replaced, except the rugs the
+    group solver laid as group members (Milestone 13, ``solver_rugs``), which are kept with their ids."""
     out = json.loads(json.dumps(building))
-    out["decor"] = []
+    kept = solver_rugs(out)
+    stale = stale_solver_rugs(out)                    # review (round 2): a solver rug under pieces gone or unbuilt
+    out["decor"] = kept
     rows: list[dict] = []
     if not decor_allowed(out):
-        rows.append({"room_id": "-", "label": "-", "note": "brief.decor is false: no decor"})
+        out["decor"] = []
+        rows.append({"room_id": "-", "label": "-", "note": "brief.decor is false: no decor"
+                     + (f" (the group solver's {len(kept)} rug(s) left out too: "
+                        f"{', '.join(k['id'] for k in kept)})" if kept else "")})
         return out, rows
-    counters: dict[str, int] = {}
+    counters: dict[str, int] = decor_counters(kept)
+    for d in stale:
+        rows.append({"room_id": d.get("room_id") or "-", "label": "-",
+                     "note": f"rug {d.get('id')} of the group solver not kept: its pieces "
+                             f"{', '.join(a for a in d.get('anchor_ids') or [] if a) or 'none'} are gone or not "
+                             f"built (the rule rugs decide again)"})
 
     def new_id(level_id: str) -> str:
         counters[level_id] = counters.get(level_id, 0) + 1
@@ -700,7 +776,10 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
         rugs, rug_notes = rugs_for_room(room, pieces, building)
         for item in rugs:
             items.append(_large_item(new_id(room["level_id"]), room, item))
-        row["rugs"] = len(rugs)
+        kept = solver_rugs(building, room["id"])              # Milestone 13: the solver's rugs, kept as they are
+        row["rugs"] = len(rugs) + len(kept)
+        if kept:
+            rug_notes.append(f"{len(kept)} rug(s) kept from the group solver ({', '.join(k['id'] for k in kept)})")
         art, why = wall_art_for_room(room, pieces, building)
         if art is not None:
             items.append(_large_item(new_id(room["level_id"]), room, art))
@@ -835,6 +914,8 @@ def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id)
         room = rooms[rid]
         pieces = _piece_map(building, room, pid, t)
         windows = _window_map(building, room, t)
+        own = {tuple(sorted(d.get("anchor_ids") or [])) for d in items if d.get("room_id") == rid
+               and (d.get("group") or {}).get("role") == SOLVER_RUG_ROLE}
         for item in items + out:                         # + the copies made so far (a chain's partner)
             if item.get("room_id") != pid:
                 continue
@@ -855,6 +936,11 @@ def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id)
             if missing:
                 notes.append(f"{rid}: {item['type']} {item['id']} of {pid} not copied (no counterpart for "
                              f"{', '.join(missing)})")
+                continue
+            if item.get("type") == "rug" and own and tuple(sorted(new.get("anchor_ids") or [])) in own:
+                # Milestone 13: the room's own solver rug under those pieces stays; the partner's is not copied
+                notes.append(f"{rid}: rug {item['id']} of {pid} not copied (the group solver laid the room's own "
+                             f"rug under {', '.join(new['anchor_ids'])})")
                 continue
             c = t.point(item["center"][:2])
             new["center"] = [round(c[0], 3), round(c[1], 3)] + list(item["center"][2:])

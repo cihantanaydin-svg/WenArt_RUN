@@ -2180,7 +2180,10 @@ def assumed_summary(inp: Inputs) -> dict:
     b = inp.building if isinstance(inp.building, dict) else {}
     system = unit_system(b)
     values = (inp.brief or {}).get("values") or {}
-    brief = [{"key": k, "value": _dotted(values, k)} for k in (inp.brief or {}).get("assumed") or []]
+    # a default that is null (Milestone 13: ``render.white_balance_k`` = the whitepoint metered per project) assumes
+    # no value: the stage decides, and the report lists nothing for it (every listed default shows its value)
+    brief = [{"key": k, "value": _dotted(values, k)} for k in (inp.brief or {}).get("assumed") or []
+             if _dotted(values, k) is not None]
     style = style_assumptions(inp.style)
     building: list[str] = []
     for lv in b.get("levels") or []:

@@ -138,6 +138,20 @@ the material slots of its parts and the bevel record; the object carries ``wenar
 ``wenart_module``; the summary counts it under ``by_method["module"]``. The last step, the parametric families v2
 of ``wenart.blender.parametric`` (``FAMILY_TYPES``), runs through the parametric path as before, so every piece
 built below the library level is either ``module`` or ``parametric`` and the report can list it.
+
+Build round 2 (15 Oct 2026; docs/milestone13.md §3.0 K2, §12 D2):
+
+- HSSD models (``library: hssd``, CC BY-NC 4.0, the relaxed licence mode of pod P2) pass the model gate when the fit
+  recorded the catalogue's ``licence_flag: non_commercial`` (``SOURCE_FLAGS``) and the credit fields; the licence
+  check of the fit (``wenart.furniture.catalog.usable``) decided the mode, the gate only refuses what no mode may
+  build (a wrong licence text, a missing flag or credit line).
+- Uniform scaling (K2): the fit scales a model by the drawn width only, so its depth may differ from the footprint
+  by up to the fit's cap (``asset.cap``, 10-15 %; ``asset.scaling == "uniform"``, ``asset.depth_abs_m``). A piece of a
+  wall-backed type (``WALL_BACKED_TYPES``, or ``against_wall: true`` on the piece) keeps its back edge on the
+  footprint's back edge and the difference goes to the front (``depth_alignment``, ``fit_vertices(align="back")``);
+  every other piece stays centred. The depth warning of such a fit fires only beyond the cap
+  (``fit_mismatch_warnings``); a non-uniform fit (an older building) keeps the 1 cm rule on both axes. The manifest
+  entry's ``fit.depth_align`` records the mode, the shift and the depth difference.
 """
 from __future__ import annotations
 
@@ -154,15 +168,22 @@ from wenart.blender.proxies import COINCIDENT_LIFT, footprints_overlap, mount_bo
 
 CC0 = "CC0"
 CC_BY = "CC-BY-4.0"
-LIBRARIES = ("polyhaven", "abo", "objaverse", "generated", "gso", "parametric")
+LIBRARIES = ("polyhaven", "abo", "objaverse", "generated", "gso", "hssd", "parametric")
 # Licence gate of the model kind (docs/milestone7.md §6.3, docs/milestone8.md §2; the rule of
 # wenart.assets.fetch.check_licence with kind "models", repeated here because Blender's Python imports this
 # module without the asset code). Generated models carry the licence text "generated (<model>, <licence>)".
 MODEL_LICENCES = {"polyhaven": (CC0,), "abo": (CC_BY,), "objaverse": (CC0, CC_BY), "generated": (),
-                  "gso": (CC_BY,)}   # gso: Google Scanned Objects (Milestone 12 pod P4, CC BY 4.0 per object)
+                  "gso": (CC_BY,),   # gso: Google Scanned Objects (Milestone 12 pod P4, CC BY 4.0 per object)
+                  # hssd: the HSSD object models (Milestone 13 pod P2, docs/milestone13.md §12 D2; CC BY-NC 4.0 per the
+                  # dataset card, relaxed licence mode only; = wenart.assets.hssd.LICENCE)
+                  "hssd": ("CC-BY-NC-4.0",)}
 GENERATED_LICENCE_PREFIX = "GENERATED"
-# Milestone 8: sources whose other licences pass when the catalogue flagged them (recorded, not filtered).
-FLAGGED_SOURCES = ("objaverse",)
+# Milestone 8: sources whose other licences pass when the catalogue flagged them (recorded, not filtered); Milestone 13:
+# the HSSD layer the same way (its one licence is flagged non_commercial).
+FLAGGED_SOURCES = ("objaverse", "hssd")
+# The flag a source's every model must carry (the dataset's terms, not a per-object licence): an HSSD asset without
+# ``licence_flag: non_commercial`` was not fitted through the Milestone 13 catalogue and is refused.
+SOURCE_FLAGS = {"hssd": "non_commercial"}
 # Milestone 13 (§13.3): the catalogue's flag words (``wenart.furniture.catalog.LICENCE_FLAGS`` without ``none``).
 LICENCE_FLAGS = ("non_commercial", "share_alike", "no_derivatives", "research_only", "regional", "tool_nc", "unknown")
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
@@ -187,6 +208,19 @@ LIT_SHADE_STRENGTH = 1.5
 NOT_BUILT_REASON = "build false: a drawn symbol both recognition passes call not_furniture; kept as an obstacle, not built"
 # A fitted box may differ from the footprint by this much before a warning.
 FIT_TOLERANCE_M = 0.01
+# Build round 2 (K2): the depth mismatch a uniform fit may carry when the asset records no cap of its own
+# (= wenart.furniture.fit.NON_UNIFORM_CAP, repeated: Blender's Python imports this module without the fit code).
+UNIFORM_DEPTH_CAP = 1.10
+# Types whose back normally stands on a wall (= wenart.furniture.schemas.WALL_TYPES, repeated: that module needs
+# jsonschema; tests/test_blender_furniture.py keeps them equal, and every ``place: wall`` anchor of groups.yaml is
+# among them): a uniformly scaled model of such a type keeps its back edge on the footprint's back edge.
+WALL_BACKED_TYPES = (
+    "bed_single", "bed_double", "sofa", "wardrobe", "kitchen_counter", "tv_unit", "bookshelf", "dresser",
+    "fridge", "stove", "sink_kitchen", "washbasin", "toilet", "shower", "bathtub", "washing_machine", "desk",
+    "sofa_corner", "bunk_bed", "console_table", "sideboard", "shoe_cabinet", "display_cabinet", "tall_cabinet",
+    "wall_cabinet",
+)
+DEPTH_ALIGNMENTS = ("centre", "back")
 AXES = {"+X": (1.0, 0.0, 0.0), "-X": (-1.0, 0.0, 0.0), "+Y": (0.0, 1.0, 0.0), "-Y": (0.0, -1.0, 0.0),
         "+Z": (0.0, 0.0, 1.0), "-Z": (0.0, 0.0, -1.0)}
 PIECE_FRONT = (0.0, -1.0, 0.0)
@@ -218,9 +252,15 @@ def licence_refusal(asset: dict) -> str | None:
             return f"asset {asset.get('asset_id')!r} is generated but its licence {licence!r} does not say so; refused"
         return None
     flagged = bool(source in FLAGGED_SOURCES and text and asset.get("licence_flag") in LICENCE_FLAGS)
-    if text not in allowed and not flagged:
+    # a flagged licence outside the list passes for a source of any uploader licence (Objaverse); a source whose
+    # terms are one licence (``SOURCE_FLAGS``: HSSD) has a closed list, its flag never opens it
+    if text not in allowed and not (flagged and source not in SOURCE_FLAGS):
         return f"asset {asset.get('asset_id')!r} licence {licence!r} is not {' or '.join(allowed)}; refused"
-    if text == CC_BY or (flagged and text.startswith("CC-BY")):
+    want_flag = SOURCE_FLAGS.get(source)
+    if want_flag and asset.get("licence_flag") != want_flag:
+        return (f"asset {asset.get('asset_id')!r} from {source} must carry licence_flag {want_flag!r} (the dataset's "
+                f"terms), not {asset.get('licence_flag')!r}; refused")
+    if text.startswith("CC-BY"):          # CC BY 4.0 and its NC / SA variants all ask for the credit line (§3(a)(1))
         missing = [k for k in CC_BY_FIELDS if not str(asset.get(k) or "").strip()]
         if missing:
             return f"asset {asset.get('asset_id')!r} is CC BY 4.0 without {', '.join(missing)} (no credit line); refused"
@@ -296,7 +336,7 @@ def apply_rotation(R: Sequence[Sequence[float]], v: Sequence[float]) -> tuple[fl
 
 
 def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict, floor_z: float,
-                 target_size: Sequence[float] | None = None) -> tuple[list, dict]:
+                 target_size: Sequence[float] | None = None, align: str = "centre") -> tuple[list, dict]:
     """Asset-frame vertices -> world vertices on the footprint.
 
     Steps: rotate into the piece frame, re-centre (XY box centre to the
@@ -308,7 +348,12 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
 
     An Objaverse asset's ``unit_scale`` (raw GLB units -> metres, the prep
     pod's unit guess; 1.0 when absent) is applied first: its catalogue boxes,
-    and so ``fit_scale``, are in metres."""
+    and so ``fit_scale``, are in metres.
+
+    Build round 2 (K2): ``align="back"`` keeps the fitted box's back edge (piece frame +Y) on the footprint's back
+    edge (+ depth / 2), so a uniformly scaled model that is deeper or shallower than the drawn depth differs at its
+    front, never behind (a sofa stays on its wall); ``"centre"`` (the default, and every decor fit) centres the box
+    on the footprint as before. The record's ``depth_align`` says which and by how much the box was shifted."""
     u = float(asset.get("unit_scale") or 1.0)
     if u != 1.0:
         verts = [(v[0] * u, v[1] * u, v[2] * u) for v in verts]
@@ -331,6 +376,13 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
     local = [(x * scale[0], y * scale[1], z * scale[2]) for x, y, z in local]
     fx0, fy0, fz0, fx1, fy1, fz1 = _bounds(local)
     fitted = [fx1 - fx0, fy1 - fy0, fz1 - fz0]
+    if align not in DEPTH_ALIGNMENTS:
+        raise ValueError(f"align must be one of {DEPTH_ALIGNMENTS}, not {align!r}")
+    want_depth = float(footprint["size"][1]) if len(footprint.get("size") or []) > 1 else fitted[1]
+    shift_y = round((want_depth - fitted[1]) / 2.0, 6) if align == "back" else 0.0
+    if shift_y:
+        local = [(x, y + shift_y, z) for x, y, z in local]
+    depth_align = {"mode": align, "shift_m": round(shift_y, 4), "depth_abs_m": round(fitted[1] - want_depth, 4)}
     rot = float(footprint["rotation_deg"])
     rad = math.radians(rot)
     c, s = math.cos(rad), math.sin(rad)
@@ -341,9 +393,58 @@ def fit_vertices(verts: Sequence[Sequence[float]], asset: dict, footprint: dict,
         "origin_offset_catalog": asset.get("origin_offset"),
         "origin_offset_applied": [round(v, 4) for v in offset],
         "bbox_raw_m": [round(v, 4) for v in raw_bbox], "bbox_m": [round(v, 4) for v in fitted],
-        "fit_scale": [round(v, 4) for v in scale], "unit_scale": u,
+        "fit_scale": [round(v, 4) for v in scale], "unit_scale": u, "depth_align": depth_align,
     }
     return world, info
+
+
+def depth_alignment(piece: dict, asset: dict | None = None) -> str:
+    """How a fitted library model sits in its footprint's depth (pure, build round 2 K2): ``back`` for a uniformly
+    scaled model (``asset.scaling == "uniform"``) of a wall-backed type (``WALL_BACKED_TYPES``; the piece's own
+    ``against_wall`` true / false wins when it says so), else ``centre`` (a non-uniform fit of an older building was
+    stretched to the footprint; a free-standing piece keeps its drawn centre)."""
+    asset = piece.get("asset") if asset is None else asset
+    if not isinstance(asset, dict) or asset.get("scaling") != "uniform":
+        return "centre"
+    against = piece.get("against_wall")
+    if isinstance(against, bool):
+        return "back" if against else "centre"
+    return "back" if piece.get("type") in WALL_BACKED_TYPES else "centre"
+
+
+def depth_cap(asset: dict | None) -> float:
+    """The depth mismatch ratio a uniform fit may carry: the fit's own ``cap`` (10 %, or the relaxed 15 % of the
+    ladder) when the asset records one, else ``UNIFORM_DEPTH_CAP``."""
+    cap = (asset or {}).get("cap") if isinstance(asset, dict) else None
+    if isinstance(cap, (int, float)) and not isinstance(cap, bool) and math.isfinite(cap) and cap >= 1.0:
+        return float(cap)
+    return UNIFORM_DEPTH_CAP
+
+
+def fit_mismatch_warnings(piece_id: str, asset: dict, footprint_size: Sequence[float],
+                          bbox_m: Sequence[float]) -> list[str]:
+    """The warnings of a fitted box against its footprint (pure): the width within ``FIT_TOLERANCE_M`` always (the
+    fit scales to the drawn width); the depth within ``FIT_TOLERANCE_M`` for a non-uniform fit, and for a uniform
+    fit (``asset.scaling == "uniform"``) within the fit's cap (``depth_cap``: the ratio either way, the rule of
+    ``wenart.furniture.fit.scale_for``), because the layout absorbs that difference by design (K2)."""
+    out = []
+    uniform = isinstance(asset, dict) and asset.get("scaling") == "uniform"
+    for axis, want, got in (("width", float(footprint_size[0]), float(bbox_m[0])),
+                            ("depth", float(footprint_size[1]), float(bbox_m[1]))):
+        if abs(want - got) <= FIT_TOLERANCE_M:
+            continue
+        if axis == "depth" and uniform:
+            cap = depth_cap(asset)
+            ratio = max(want, got) / min(want, got) if min(want, got) > 1e-9 else math.inf
+            if ratio <= cap + 1e-6:
+                continue
+            out.append(f"{piece_id}: fitted asset {asset.get('asset_id')!r} depth {got:.3f} m differs from the "
+                       f"footprint {want:.3f} m by more than the fit's cap of {round((cap - 1) * 100)} % "
+                       f"(uniform scale; not adjusted)")
+            continue
+        out.append(f"{piece_id}: fitted asset {asset.get('asset_id')!r} {axis} {got:.3f} m differs "
+                   f"from the footprint {want:.3f} m by more than {FIT_TOLERANCE_M} m (not adjusted)")
+    return out
 
 
 def _bounds(points) -> tuple[float, float, float, float, float, float]:
@@ -1502,7 +1603,7 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
     geo = _cached_geometry(file, collection, geo_cache)
     if not geo["faces"]:
         raise ValueError("file has no mesh faces")
-    verts, info = fit_vertices(geo["verts"], asset, piece["footprint"], floor_z)
+    verts, info = fit_vertices(geo["verts"], asset, piece["footprint"], floor_z, align=depth_alignment(piece, asset))
     mats_list = geo["materials"]
     if asset.get("recolour"):
         mats_list, record = recolour_materials(mats_list, asset["recolour"], unverified_cache, library)
@@ -1552,11 +1653,7 @@ def _library_object(piece, file: Path, name, status, floor_z, collection, librar
                             "kind": "bedding", "reason": "design detail of the library bed frame (a frame without a "
                                                          "mattress): soft bedding inside the frame's own box; the "
                                                          "documents show only the footprint"})
-    for axis, want, got in (("width", float(fp["size"][0]), info["bbox_m"][0]),
-                            ("depth", float(fp["size"][1]), info["bbox_m"][1])):
-        if abs(want - got) > FIT_TOLERANCE_M:
-            warnings.append(f"{piece['id']}: fitted asset {asset.get('asset_id')!r} {axis} {got:.3f} m differs "
-                            f"from the footprint {want:.3f} m by more than {FIT_TOLERANCE_M} m (not adjusted)")
+    warnings.extend(fit_mismatch_warnings(piece["id"], asset, fp["size"], info["bbox_m"]))
     bbox = list(info["bbox_m"])
     if bedding is not None:
         bbox[2] = max(bbox[2], entry["bedding"]["top_m"])

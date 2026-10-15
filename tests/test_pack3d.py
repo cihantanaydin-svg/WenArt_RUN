@@ -97,3 +97,37 @@ def test_pack3d_one_set_per_variant(tmp_path):
     assert [s for s, _ in sets] == ["p", f"p-{ALT}"]
     assert [f.name for f in sets[1][1]] == [f"p-{ALT}.blend", "ATTRIBUTION.md"]
     assert [f.name for f in K.files_of(final)] == ["p.blend", "ATTRIBUTION.md"]
+
+
+def test_readme_says_what_the_glb_carries_of_the_vegetation(tmp_path):
+    """Milestone 13 (T6, round 2): the leaf cards and grass clumps are geometry-nodes instances; the README says
+    whether the export realized them (``realized_instances`` of export_manifest.json, written by
+    wenart.blender.site.realize_site_instances) or the .glb carries the hedge cores and crown cards only."""
+    import json
+    src = tmp_path / "real04"
+    (src / "3d").mkdir(parents=True)
+    (src / "3d" / "real04.blend").write_bytes(b"BLENDER" + b"\0" * 100)
+    (src / "3d" / "real04.glb").write_bytes(b"glTF" + b"\0" * 100)
+    (src / "3d" / "export_manifest.json").write_text(json.dumps({"files": {}}), encoding="utf-8")
+    notes = K.vegetation_notes(src)
+    assert any("hedge cores, the trunks and crown cards" in line for line in notes)
+    assert any("did not realize" in line for line in notes)
+    out = tmp_path / "delivery"
+    K.pack(src, out, part_mb=1)
+    text = (out / K.README).read_text(encoding="utf-8")
+    assert "Vegetation in the 3D files (Milestone 13" in text and "hedge cores" in text
+    # With the record: the realized groups, their polygons and the cap, and the groups left as instances.
+    (src / "3d" / "export_manifest.json").write_text(json.dumps({"files": {}, "realized_instances": {
+        "cap": 1000000, "polygons": 7034, "realized": ["veg_scatter_olive_60", "veg_scatter_cherry_laurel_120"],
+        "skipped": [{"group": "veg_grass_polyhaven_4", "polygons": 1210000, "reason": "cap"}]}}), encoding="utf-8")
+    notes = K.vegetation_notes(src)
+    joined = "\n".join(notes)
+    assert "cap of 1000000 polygons: 2 vegetation node group(s), 7034 polygons" in joined
+    assert "veg_scatter_olive_60, veg_scatter_cherry_laurel_120" in joined
+    assert "Left as instances" in joined and "veg_grass_polyhaven_4 (1210000 polygons)" in joined
+    assert "collection instances" in joined
+    K.pack(src, out, part_mb=1)
+    assert "7034 polygons" in (out / K.README).read_text(encoding="utf-8")
+    # No export manifest at all (an export before Milestone 9's manifest): the same "cores only" line.
+    (src / "3d" / "export_manifest.json").unlink()
+    assert any("did not realize" in line for line in K.vegetation_notes(src))

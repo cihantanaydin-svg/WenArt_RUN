@@ -45,6 +45,11 @@ CLI: ``python -m wenart.ingest.pipeline projects/synthetic-01 --out outputs/synt
 pre-answer state: AI candidates ``unknown`` / ``unverified``). With complete
 answers, or with ``--no-ai`` (unanswered candidates stay ``unverified``), it
 never exits 4.
+
+Milestone 13 (docs/milestone13.md §3.0 K3): code types what it can prove before any AI (the reading step's
+``infer`` with ``wenart.furniture.infer.type_by_code``: the twin room, another level, the block name, the missing
+group member); such a candidate's question is withdrawn (``generic.reading.withdraw_questions``,
+``build.code_typed``) and is not written to ``requests.json``: the AI types only the rest.
 """
 from __future__ import annotations
 
@@ -184,6 +189,9 @@ class ProjectBuild:
         self.frame_shift: tuple[float, float] = (0.0, 0.0)
         # Milestone 12 (track R): the counts of the reading step (``generic.reading.read_furniture``) for the report.
         self.reading: dict = {}
+        # Milestone 13 (K3): the recognition questions withdrawn because code typed their piece before the AI
+        # (``generic.reading.withdraw_questions``: question key -> piece id); left out of requests.json.
+        self.code_typed: dict[str, str] = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -1343,6 +1351,11 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
         # Also when no piece is typed (a raster page asks its room labels with or without furniture).
         lines += ["", f"Recognition questions: {len(build.questions)} (`recognition/requests.json`), "
                       f"{unanswered_text(build)}."]
+    withdrawn = getattr(build, "code_typed", None) or {}
+    if withdrawn:
+        # Milestone 13 (K3): the questions code answered before the AI are not asked at all.
+        lines += ["", f"Recognition questions withdrawn (typed by code before the AI, K3): {len(withdrawn)} "
+                      f"({', '.join(f'{k} -> {pid}' for k, pid in sorted(withdrawn.items()))})."]
 
     lines += ["", "## Assumed values", ""]
     assumed = []
@@ -1754,10 +1767,12 @@ def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = 
     from wenart.recognition import answers as A
 
     items, pending, unanswered = [], [], []
+    # Milestone 13 (K3): a question whose piece code typed before the AI is withdrawn (not written, not pending).
+    withdrawn = set(getattr(build, "code_typed", None) or {})
     for ex in [w.extraction for w in build.furniture_works] + build.question_only:
-        mine = list(ex.report.get("questions") or [])
+        mine = [q for q in ex.report.get("questions") or [] if q.get("key") not in withdrawn]
         items.extend(mine)
-        pending.extend(ex.report.get("pending") or [])
+        pending.extend(k for k in ex.report.get("pending") or [] if k not in withdrawn)
         ex.report["unanswered"] = _without_answers(mine, answers)
         unanswered.extend(ex.report["unanswered"])
     build.unanswered = unanswered
@@ -2004,21 +2019,37 @@ def _pending_piece_ids(build: ProjectBuild) -> set[str]:
 def _infer_types(build: ProjectBuild) -> None:
     """Milestone 11 (docs/milestone11.md §6, CLAUDE.md "never an unexplained box"): the drawn ``unknown`` pieces get an
     inferred type or are recognised as rug / group outlines (``wenart.furniture.infer``), after the AI answers were
-    applied; every inference is a warning and is listed in the report (``inferred: true``)."""
+    applied; every inference is a warning and is listed in the report (``inferred: true``). Milestone 13 (K3): a
+    code-typed proposal (twin / level / block / group member) applies to a piece whose question waits as well (code
+    needs no answer; the reading step did the same before) and the question is withdrawn."""
     from wenart.furniture import infer as INF
+    from wenart.ingest.generic import reading as RD
 
     b = build.building
     pending = _pending_piece_ids(build)
     # The conflicts are written to the building at the end; the inference needs them now (a face that holds two room
     # names, real02's open kitchen with its living room, allows the types of both).
     view = dict(b, conflicts=list(b.get("conflicts") or []) + list(build.raw_conflicts))
-    proposals = [p for p in INF.infer_types(view) if p["piece_id"] not in pending]
+    proposals = [p for p in INF.infer_types(view)
+                 if p["piece_id"] not in pending or p.get("type_method") in INF.CODE_TYPE_METHODS]
     if not proposals:
         return
     b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
+    coded = []
     for p in proposals:
-        what = "not built (rug or group outline)" if p.get("build") is False else f"inferred {p['type']}"
+        if p.get("type_method") in INF.CODE_TYPE_METHODS:
+            what = f"typed {p['type']} by code ({p['type_method']}, before any AI)"
+            coded.append(p["piece_id"])
+        else:
+            what = "not built (rug or group outline)" if p.get("build") is False else f"inferred {p['type']}"
         build.warn(f"{p['piece_id']}: {what}: {p['reason']}")
+    if coded:
+        withdrawn = RD.withdraw_questions(build, {}, RD._items(build, {}), coded)
+        # review (round 2): the report's Reading line counts this pass too (the same keys as build.code_typed)
+        stats = build.reading if isinstance(build.reading, dict) else {}
+        stats["code_typed"] = sorted(set(stats.get("code_typed") or []) | set(coded))
+        stats["questions_withdrawn"] = sorted(set(stats.get("questions_withdrawn") or []) | set(withdrawn))
+        build.reading = stats
 
 
 def _inferred_section(b: dict) -> list[str]:
@@ -2061,8 +2092,10 @@ def _reading_section(b: dict, build: Optional[ProjectBuild] = None) -> list[str]
     lines = ["", "## Reading (Milestone 12)", ""]
     if stats:
         context = ", ".join(f"{k} {v}" for k, v in sorted((stats.get("context") or {}).items())) or "none"
-        lines.append(f"Context rules: {context}; inferred by size and room: {stats.get('inferred', 0)}; fronts "
-                     f"inferred: {stats.get('fronts', 0)}.")
+        coded = stats.get("code_typed") or []
+        lines.append(f"Context rules: {context}; inferred by size and room: {stats.get('inferred', 0)}"
+                     + (f" (typed by code before the AI: {len(coded)}: {', '.join(coded)})" if coded else "")
+                     + f"; fronts inferred: {stats.get('fronts', 0)}.")
     by_kind: dict[str, int] = {}
     for s in symbols:
         by_kind[s["kind"]] = by_kind.get(s["kind"], 0) + 1

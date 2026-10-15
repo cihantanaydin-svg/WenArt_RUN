@@ -165,8 +165,10 @@ SURVEY_FILES: dict[str, str] = {"objaverse": SURVEY_NAME, "abo": "survey_abo.jso
                                 "generated": "survey_generated.json"}
 SOURCES: tuple[str, ...] = tuple(SURVEY_FILES)
 REAL_SOURCES: tuple[str, ...] = ("abo", "objaverse")       # the generation plan follows their accepted models
-# rank order of docs/milestone8.md §2; gso (Google Scanned Objects) since Milestone 12 pod P4
-SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "gso", "objaverse", "generated")
+# rank order of docs/milestone8.md §2; gso (Google Scanned Objects) since Milestone 12 pod P4; hssd (the HSSD layer,
+# CC BY-NC 4.0, relaxed mode only) since Milestone 13 pod P2 (= wenart.furniture.fit.SOURCE_ORDER; an HSSD entry of
+# catalog_library.json must sort like every other source in the reports)
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "objaverse", "generated")
 DECOR_TYPES: tuple[str, ...] = ("cushion", "plant", "rug", "wall_art",             # = catalog.DECOR_TYPES
                                  "vase", "bowl", "plant_small", "table_lamp", "mirror",   # Milestone 9 (§3)
                                  # Milestone 10 (docs/milestone10.md §1.1: the building schema's decor types, bar book_set)
@@ -2870,7 +2872,20 @@ def catalog_entry(cand: dict, obj: dict, dec: dict, sha: str, cfg: dict, answers
         entry.update({"generated": generated_record(cand), "style_hint": cand.get("style_hint")})
     if material:
         entry.update({k: material[k] for k in MATERIAL_FIELDS if k in material})
+    # Milestone 13 (docs/milestone13.md §13.3; build round 2): every new entry carries the licence fields the
+    # committed catalogues got from the script: ``licence_flag`` ``none`` instead of None for CC0 / CC BY 4.0,
+    # ``tool_nc`` (with ``licence_flag_note``) for a TRELLIS.2 model, ``licence_declared_by`` (uploader for Objaverse,
+    # publisher for ABO and generated models), ``commercial_safe`` and a filled ``licence_url``; the credit line stays.
+    entry.update(C.licence_fields(entry))
     return entry
+
+
+def flag_text(entry: dict) -> str:
+    """The licence flag of a catalogue entry as the reports print it: the flag word when it limits the use, ``–``
+    for an unflagged entry (Milestone 13: ``none``; a file written before it: None)."""
+    from wenart.furniture import catalog as C
+    flag = entry.get("licence_flag")
+    return "–" if flag in (None, "", C.NO_FLAG) else str(flag)
 
 
 def copy_glb(src: Path, assets: Path, uid: str, sha: str, source: str = SOURCE) -> Path:
@@ -2971,7 +2986,7 @@ def write_catalog(out: Path, assets: Path, cfg: Optional[dict] = None, base_cata
     flags: dict[str, int] = {}
     for e in entries + decor:
         licences[e["licence"]] = licences.get(e["licence"], 0) + 1
-        if e.get("licence_flag"):
+        if flag_text(e) != "–":                    # Milestone 13: ``none`` is no flag
             flags[e["licence_flag"]] = flags.get(e["licence_flag"], 0) + 1
     file_licences = (["ODC-By-1.0"] if SOURCE in sources else []) + (["CC-BY-4.0"] if "abo" in sources else [])
     doc = {
@@ -3282,7 +3297,7 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
         rows = []
         for e in entries:
             rows.append([e.get("decor_type") or e["type"], e["source"], f"`{e['id']}`", e.get("title"),
-                         e.get("author"), e["licence"], e.get("licence_flag") or "–", ", ".join(e["styles"]),
+                         e.get("author"), e["licence"], flag_text(e), ", ".join(e["styles"]),
                          f"{e['front_axis']} ({e['front_axis_confidence']})", "/".join(str(q) for q in e["quality"]),
                          _fmt_dims(e["bbox_m"]), f"x{e['unit_scale']:g}"])
         lines += _table(["Type", "Source", "Id", "Title", "Author", "Licence", "Flag", "Styles", "Front", "Quality",
@@ -3292,7 +3307,7 @@ def report(out: Path, cfg: Optional[dict] = None, models: Optional[dict] = None,
     lines += ["", "## Attribution", ""]
     for text in source_notices(sorted({e["source"] for e in entries}, key=SOURCE_ORDER.index) or [SOURCE], cfg):
         lines += [text, ""]
-    lines += [f"- {e['attribution']}" + (f" (licence flag: {e['licence_flag']})" if e.get("licence_flag") else "")
+    lines += [f"- {e['attribution']}" + (f" (licence flag: {flag_text(e)})" if flag_text(e) != "–" else "")
               for e in entries] or ["- (no model in the catalogue)"]
     if acc and acc.get("refused"):
         lines += ["", "## Refused after judging", ""]

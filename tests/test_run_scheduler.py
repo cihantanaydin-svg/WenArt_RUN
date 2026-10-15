@@ -141,6 +141,8 @@ class FakeCLI:
             return sub
         if mod == "wenart.intake":
             return "intake"
+        if mod == "wenart.blender.site":                          # Milestone 13: site.platforms into building.json
+            return "site platforms"
         if mod == "pytest":
             return "pytest"
         return mod
@@ -159,6 +161,8 @@ class FakeCLI:
             return Path(cmd[4]).name
         if mod == "wenart.intake":
             return cmd[4]
+        if mod == "wenart.blender.site":
+            return Path(cmd[4]).parent.name
         if mod == "wenart.blender.cli":
             path = Path(opt(cmd, "--out"))
             while path.name in ("scene", "renders", "controls", "ab", "ctl_flat", "ctl_proxy", "ctl_direct",
@@ -195,6 +199,16 @@ class FakeCLI:
         return forced if forced else rc
 
     # ----- handlers ----------------------------------------------------------
+
+    def h_site_platforms(self, cmd, project, log):
+        """Milestone 13: the real CLI writes site.platforms into the building in place; the fake does so only with
+        the flag ``site_platforms_write`` (so the stored sha256 of building.json is the one after the step)."""
+        if self.flags.get("site_platforms_write"):
+            path = Path(cmd[4])
+            data = json.loads(path.read_text(encoding="utf-8"))
+            data.setdefault("site", {})["platforms"] = []
+            write(path, data)
+        return 0
 
     def h_intake(self, cmd, project, log):
         out = Path(opt(cmd, "--out"))
@@ -1818,7 +1832,8 @@ def test_pipeline_final_exit_4_runs_again_with_no_ai_and_is_a_warning(tmp_path):
     assert finals[1]["cmd"] == finals[0]["cmd"] + ["--no-ai"]
     rec = r.record("p1", "pipeline_final")
     assert rec["status"] == "warning" and rec["note"] == "second-round questions left unanswered (no-ai)"
-    assert [s["name"] for s in rec["steps"]] == ["pipeline_final", "pipeline_final --no-ai"]
+    # Milestone 13: site.platforms into the building is the stage's last step (round 2)
+    assert [s["name"] for s in rec["steps"]] == ["pipeline_final", "pipeline_final --no-ai", "site platforms"]
     out = tmp_path / "outputs" / "p1"
     assert json.loads((out / "building.json").read_text())["no_ai"] is True
     assert rec["written"]["building.json"] == ST.canonical_sha256(out / "building.json")
@@ -2089,7 +2104,8 @@ def test_m10_a_resume_reuses_the_pipeline_after_pipeline_final_rewrote_sheets_js
     the one it wrote."""
     r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"sheet_questions": 2}}, projects=["p1"])
     assert r.run() == 0
-    assert [s["name"] for s in r.record("p1", "pipeline_final")["steps"]] == ["sheets --answers", "pipeline_final"]
+    assert [s["name"] for s in r.record("p1", "pipeline_final")["steps"]] == ["sheets --answers", "pipeline_final",
+                                                                                "site platforms"]
     assert r.record("p1", "pipeline_final")["status"] == "ok"
     r2 = Run(tmp_path, buildings={"p1": {"sheet_questions": 2}}, projects=["p1"])
     assert r2.run() == 0
@@ -2130,3 +2146,60 @@ def test_m10_a_variant_never_keeps_an_older_gate_validation(tmp_path):
     assert not (vout / "gate" / "gate_calibration.json").exists()
     assert (vout / "gate" / "gate_calibration.failed.json").is_file()
     assert "polish" not in r2.cli.names(VID)
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 (round 2): the camera replay and the white balance as pod flags, site.platforms after the levels
+# --------------------------------------------------------------------------
+
+def test_m13_replay_and_white_balance_flags_reach_the_build_and_the_render(tmp_path):
+    """``pod --cameras-from PATH [--cameras-extra] --white-balance V`` go to the build (``{name}`` = the project)
+    and the final render; without the flags the build command carries no camera flag (build.py reads
+    WENART_CAMERAS_FROM itself) and the render takes the brief's ``render.white_balance_k`` as ``kelvin:K``, else
+    ``project``. The agent previews keep ``auto``."""
+    r = Run(tmp_path, {"p1": {"brief": {"render": {"white_balance_k": 4800}}}, "p2": {}}, projects=["p1", "p2"],
+            cameras_from="results/renders/{name}/scene_manifest.json", cameras_extra=True, white_balance="kelvin:5300")
+    assert r.run() == 0
+    (b1,), (b2,) = (r.cli.find("build", p) for p in ("p1", "p2"))
+    assert opt(b1["cmd"], "--cameras-from") == "results/renders/p1/scene_manifest.json"
+    assert "--cameras-extra" in b1["cmd"]
+    assert opt(b2["cmd"], "--cameras-from") == "results/renders/p2/scene_manifest.json"
+    assert b1["cmd"][-1] == "--reuse"
+    for p in ("p1", "p2"):
+        assert all(opt(c["cmd"], "--white-balance") == "kelvin:5300" for c in r.cli.find("render", p))
+    r2 = Run(tmp_path, {"p1": {"brief": {"render": {"white_balance_k": 4800}}}, "p2": {}}, projects=["p1", "p2"])
+    assert r2.run() == 0
+    for p in ("p1", "p2"):
+        assert "--cameras-from" not in r2.cli.find("build", p)[0]["cmd"]
+    assert all(opt(c["cmd"], "--white-balance") == "kelvin:4800" for c in r2.cli.find("render", "p1"))
+    assert all(opt(c["cmd"], "--white-balance") == "project" for c in r2.cli.find("render", "p2"))
+    assert r2.opts.agent_rounds == 3 and r2.opts.cameras_from is None and r2.opts.white_balance is None
+
+
+def test_m13_site_platforms_step_after_the_pipeline_and_its_sha_in_the_record(tmp_path):
+    """The pipeline_final stage ends with ``site platforms`` (wenart.blender.site platforms <out>/building.json);
+    the stage record's ``written`` sha256 is the building after that step, so a second run reuses the stage; a
+    failing step is a warning note and never fails the stage."""
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"questions": 2}}, projects=["p1"],
+            flags={"site_platforms_write": True})
+    assert r.run() == 0
+    names = r.cli.names("p1")
+    assert "site platforms" in names
+    assert first(names, "pipeline_final") < first(names, "site platforms") < first(names, "fit")
+    step = r.cli.find("site platforms", "p1")[0]
+    assert step["cmd"][1:] == ["-m", "wenart.blender.site", "platforms",
+                               str(tmp_path / "outputs" / "p1" / "building.json")]
+    building = json.loads((tmp_path / "outputs" / "p1" / "building.json").read_text())
+    assert building["site"]["platforms"] == []
+    rec = r.record("p1", "pipeline_final")
+    assert rec["status"] == "ok" and rec["written"]["building.json"] == ST.canonical_sha256(
+        tmp_path / "outputs" / "p1" / "building.json")
+    r2 = Run(tmp_path, buildings={"p1": {"questions": 2}}, projects=["p1"], flags={"site_platforms_write": True})
+    assert r2.run() == 0 and r2.record("p1", "pipeline_final")["status"] == "reused"
+    assert "site platforms" not in r2.cli.names("p1")
+    r3 = Run(tmp_path, buildings={"p1": {"questions": 2}}, projects=["p1"], rc={"site platforms": 1},
+             force=frozenset({"pipeline_final"}))
+    assert r3.run() == 0
+    rec = r3.record("p1", "pipeline_final")
+    assert rec["status"] == "warning" and "site platforms exit 1" in rec["note"]
+    assert r3.record("p1", "fit")["status"] in ("ok", "reused") and "report" in r3.cli.names("p1")

@@ -128,6 +128,13 @@ Milestone 13 (docs/milestone13.md §6, §12 D1 and D3, §13.2; track T1): the li
   new fields from ``write_licence_fields`` (``python -m wenart.furniture licence-fields``; the old ``licence_flag: null``
   became ``"none"``; every other field stayed byte-identical). ``licence_flag_of`` still accepts a licence text (the
   Milestone 8 call of ``wenart.assets.objaverse``) and then returns ``"none"`` where it returned None.
+- Source ``hssd`` (build round 2, 15 Oct 2026; docs/milestone13.md §12 D2, §13.2 row ``hssd.py``): the HSSD object
+  models (``wenart.assets.hssd``, entries written by ``wenart.assets.audit.growth_entries.hssd_entry`` on pod P2) are a
+  library source like ABO: GLB in the cache, the credit fields, ``styles``; their only licence is ``CC-BY-NC-4.0``
+  (``SOURCE_LICENCES``), declared by the publisher (the dataset card), so every entry carries ``licence_flag:
+  non_commercial`` and ``commercial_safe: false`` and is used in ``relaxed`` mode only. The credit fields
+  (``CC_BY_FIELDS``) are required for every licence but CC0 and a generated one (CC BY-NC 4.0 §3(a)(1) asks for the
+  same credit as CC BY 4.0).
 """
 from __future__ import annotations
 
@@ -142,10 +149,13 @@ OBJAVERSE_SUFFIX = "_objaverse"        # catalog.json -> catalog_objaverse.json 
 LIBRARY_SUFFIX = "_library"            # catalog.json -> catalog_library.json (same folder; M8, preferred)
 LICENCE = "CC0"
 CC_BY = "CC-BY-4.0"
-SOURCES = ("polyhaven", "objaverse", "abo", "generated", "gso")
+SOURCES = ("polyhaven", "objaverse", "abo", "generated", "gso", "hssd")
 # written by the prep pod (wenart/assets/objaverse.py); Milestone 12 pod P4 (docs/milestone12.md §6.4): ``gso`` =
-# Google Scanned Objects (CC BY 4.0, confirmed per object, ``licence_evidence``; wenart/assets/audit/growth_gso.py)
-LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")
+# Google Scanned Objects (CC BY 4.0, confirmed per object, ``licence_evidence``; wenart/assets/audit/growth_gso.py);
+# Milestone 13 pod P2 (docs/milestone13.md §12 D2): ``hssd`` = the HSSD object models (CC BY-NC 4.0, relaxed mode only;
+# wenart/assets/hssd.py, wenart/assets/audit/growth_entries.hssd_entry). = wenart.assets.models.LIBRARY_SOURCES and
+# wenart.run.copy.LIBRARY_SOURCES (tests/test_library_growth_p4.py keeps the three equal).
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd")
 # Milestone 13 (docs/milestone13.md §13.2): the licence modes of the fit and the licence flags of the entries.
 LICENCE_MODES: tuple[str, ...] = ("commercial", "relaxed")
 LICENCE_MODE_DEFAULT = "commercial"
@@ -202,15 +212,18 @@ LICENCE_URLS: dict[str, str] = {
 }
 POLYHAVEN_LICENCE_URL = "https://polyhaven.com/license"
 # Who declared the licence (docs/milestone13.md §6): the dataset publisher (Amazon for ABO, Poly Haven, Google for GSO,
-# ourselves for generated models) or the uploader of an object (Objaverse: Sketchfab uploads, not verified by anyone).
+# the HSSD authors for HSSD, ourselves for generated models) or the uploader of an object (Objaverse: Sketchfab
+# uploads, not verified by anyone).
 LICENCE_DECLARED_BY: dict[str, str] = {"polyhaven": "publisher", "abo": "publisher", "generated": "publisher",
-                                       "gso": "publisher", "objaverse": "uploader"}
+                                       "gso": "publisher", "hssd": "publisher", "objaverse": "uploader"}
 DECLARED_BY_VALUES: tuple[str, ...] = ("publisher", "uploader")
 # Source -> licences its models may carry (docs/milestone7.md §6.3, docs/milestone8.md §2): Poly Haven is CC0 only;
 # Objaverse objects carry the uploader's licence (any, flagged unless CC0 / CC BY 4.0); ABO is CC BY 4.0; a generated
-# model's licence starts with "generated" (checked apart).
+# model's licence starts with "generated" (checked apart); HSSD is CC BY-NC 4.0 (the dataset card: "You agree to use
+# this dataset under the CC BY-NC 4.0 license terms", https://huggingface.co/datasets/hssd/hssd-models, read on
+# 15 Oct 2026; = wenart.assets.hssd.LICENCE).
 SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": tuple(LICENCE_TEXT_FLAGS),
-                                               "abo": (CC_BY,), "gso": (CC_BY,)}
+                                               "abo": (CC_BY,), "gso": (CC_BY,), "hssd": ("CC-BY-NC-4.0",)}
 # Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)); every library model but a generated one has
 # them (any non-CC0 licence asks for the credit).
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
@@ -663,7 +676,9 @@ def _validate_licence(e: dict, source: str) -> None:
     if "licence_declared_by" in e and e["licence_declared_by"] not in DECLARED_BY_VALUES:
         raise CatalogError(f"{e['id']}: licence_declared_by must be one of {DECLARED_BY_VALUES}, not "
                            f"{e['licence_declared_by']!r}")
-    if licence == CC_BY or (source in ("objaverse", "abo") and licence != LICENCE):
+    # Every licence but CC0 (and a generated model's own) asks for the credit line: CC BY 4.0 and its NC / SA variants
+    # (ABO, GSO, Objaverse, HSSD) all carry §3(a)(1); the Milestone 8 rule named the sources, this one the licences.
+    if licence != LICENCE and source != "generated":
         empty = [k for k in CC_BY_FIELDS if not (isinstance(e.get(k), str) and e[k].strip())]
         if empty:
             raise CatalogError(f"{e['id']}: a {licence} entry needs {', '.join(empty)} for its credit line")

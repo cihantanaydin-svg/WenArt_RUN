@@ -186,3 +186,28 @@ def test_whole_building_kinds_never_count_as_furniture():
     for kind in schemas.WHOLE_BUILDING_KINDS:
         assert kind in common.KINDS and V.KIND_MAP.get(kind, kind) != "furniture", kind
 
+
+
+def test_site_part_kinds_are_known_and_never_furniture():
+    """Milestone 13 (T6, round 2): the site parts of site.py / vegetation.py (platforms, leaf-card hedges, grass
+    patches, the haze volume) are kinds of their own: in ``common.KINDS`` (so ``site.site_kind`` and
+    ``vegetation._manifest_kind`` give the part's own name, not the Milestone 10-12 fallback) and in
+    ``views.KIND_MAP`` as themselves, never ``furniture`` or ``decor``."""
+    from wenart.blender import common, schemas, site, vegetation
+
+    expected = ("site_platform", "site_hedge", "site_grass", "atmosphere")
+    assert V.SITE_PART_KINDS == expected
+    for kind in expected:
+        assert kind in common.KINDS, kind
+        assert V.KIND_MAP[kind] == kind and V.KIND_MAP.get(kind, kind) not in ("furniture", "decor"), kind
+    # The objects of site.py write these very names once the scene-manifest schema lists them too
+    # (wenart/blender/schemas.py WHOLE_BUILDING_KINDS, the lead's one-line change); until then the Milestone 10-12
+    # fallback keeps every built manifest valid. vegetation._manifest_kind (the object property) follows common.KINDS.
+    for part, (own, fallback) in site.SITE_KINDS.items():
+        assert own in common.KINDS, own
+        assert site.site_kind(part) == (own if own in schemas.WHOLE_BUILDING_KINDS else fallback), part
+        assert site.site_kind(part) in schemas.WHOLE_BUILDING_KINDS, part        # the manifest schema accepts it
+    assert site.site_kind("backdrop") == "terrain"
+    assert vegetation._manifest_kind("site_hedge") == "site_hedge"
+    assert vegetation._manifest_kind("site_grass") == "site_grass"
+    assert vegetation._manifest_kind("site_decor") == "site_decor"

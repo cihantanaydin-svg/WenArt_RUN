@@ -322,3 +322,39 @@ def test_blender_builds_every_slug_with_its_colour_and_node_group():
     assert out["_ext"]["name"] == "render__warm_greige" and out["_ext"]["colour"] == "warm greige"
     assert out["_wet"]["group"] == "wenart_tiles_hexagon" and out["_wet"]["params"]["grout_colour"] == "charcoal"
     assert out["_light"]["strength"] > 0
+
+
+def test_material_maps_and_recolour_parts_for_metric_10():
+    """Milestone 13 (round 2, T8 metric 10): a material record lists the PBR maps it got (``maps``: the texture
+    set's files pbr_material wires; [] for a flat or procedural material), and a scene object's ``recolour`` record
+    gets one key per applied part (``fabric``, ``wood``) next to ``applied`` / ``missing`` so the metric finds
+    ``recolour.fabric`` on the upholstered pieces."""
+    files = {"albedo": "/a/alb.jpg", "normal": "/a/nor.png", "roughness": "/a/rough.jpg"}
+    tset = {"id": "fabric_pattern_07", "files": files, "size_m": [1.0, 1.0], "source": "polyhaven", "licence": "CC0"}
+    assert materials.material_maps(tset) == ["albedo", "normal", "roughness"]
+    assert materials.material_maps(None) == [] and materials.material_maps({"files": {}}) == []
+    more = dict(tset, files=dict(tset["files"], zzz="/a/z.png", displacement="/a/disp.png", opacity=""))
+    assert materials.material_maps(more) == ["albedo", "normal", "roughness", "displacement", "zzz"]
+    names = " ".join(materials.material_maps(tset)).lower()
+    assert "normal" in names and "rough" in names                  # what metrics13.metric_10 looks for
+    record = {"applied": [{"material": "sofa_fabric", "part": "fabric", "colour": "sage green",
+                           "copy": "sofa_fabric__sage"},
+                          {"material": "legs", "part": "wood", "colour": "oak", "copy": "legs__oak"},
+                          {"material": "seat", "part": "fabric", "colour": "sage green", "copy": "seat__sage"}],
+              "missing": ["cushion: colour 'x' unknown"]}
+    parts = materials.recolour_parts(record)
+    assert parts["applied"] == record["applied"] and parts["missing"] == record["missing"]
+    assert parts["fabric"] == {"colour": "sage green", "materials": ["sofa_fabric", "seat"],
+                               "copies": ["sofa_fabric__sage", "seat__sage"]}
+    assert parts["wood"] == {"colour": "oak", "materials": ["legs"], "copies": ["legs__oak"]}
+    assert "fabric" not in materials.recolour_parts({"applied": [], "missing": []})
+    assert materials.recolour_parts(None) == {}
+    assert materials.recolour_parts({"fabric": {"colour": "x"}}) == {"fabric": {"colour": "x"}}
+    assert materials.recolour_parts(parts) == parts                    # idempotent on the manifest's shape
+    # build.recolour_parts_of rewrites the scene objects in place and counts the changed records.
+    objs = [{"wenart_id": "f_1", "recolour": dict(record)}, {"wenart_id": "f_2"},
+            {"wenart_id": "f_3", "recolour": {"applied": []}}]
+    assert build.recolour_parts_of(objs) == 1 and objs[0]["recolour"]["fabric"]["colour"] == "sage green"
+    assert build.recolour_parts_of(objs) == 0
+    # The record shape metrics13 reads: a dict with a truthy ``fabric`` key.
+    assert isinstance(objs[0]["recolour"], dict) and objs[0]["recolour"].get("fabric")

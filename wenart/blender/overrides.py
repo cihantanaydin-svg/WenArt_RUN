@@ -37,6 +37,10 @@ LOOK_SLOTS = ("facade", "roof", "window_frame", "door", "paving", "garden", "gro
 SLOT_ALIASES = {"frames": "window_frame", "window_frames": "window_frame", "kitchen_splashback": "splashback",
                 "wet_room_walls": "wet_walls", "wet_room_floor": "wet_floor"}
 SITE_KEYS = ("path", "fence", "trees", "front_court")
+# Milestone 13 (T6, D8): the flags of an exterior camera record that an agent override keeps (the one true aerial
+# view ``ext_5`` and the site view: ``cameras.REPLAY_OPTIONAL`` carries them through a replay, ``fixed_plan`` through
+# an agent ``set`` / ``add``): from the entry when it says so, else from the camera it replaces.
+CAMERA_KEEP_KEYS = ("site_view", "aerial_allowed", "horizon_frac")
 
 
 def overrides_of(building: dict) -> Optional[dict]:
@@ -128,6 +132,11 @@ def fixed_plan(entry: dict, level_id: Optional[str] = None, index: int = 1, base
     if kind == "exterior":
         plan.update(view=(base or {}).get("view") or "agent", sides=list((base or {}).get("sides") or []),
                     region_id=(base or {}).get("region_id"), variant=(base or {}).get("variant"))
+    for key in CAMERA_KEEP_KEYS:
+        if key in entry:
+            plan[key] = entry[key]
+        elif base is not None and key in base:
+            plan[key] = base[key]
     return plan
 
 

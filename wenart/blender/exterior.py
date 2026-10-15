@@ -972,9 +972,36 @@ def _corner_axes(corner, rect) -> list[tuple[float, float]]:
 # Blender
 # --------------------------------------------------------------------------
 
+def camera_pose(plan: dict) -> tuple[str, list[float]]:
+    """How an exterior camera is turned (pure; Milestone 13 K8): ``("target", [x, y, z])`` when the plan has a
+    target (the searched cameras, the agent's fixed cameras, the M11 records), else ``("rotation", [rx, ry, rz])``
+    in radians from a replayed record's ``rotation_euler_deg`` (``cameras.replay_cameras`` keeps a record that has
+    a rotation but no target). A plan with neither looks level along +Y (the replay drops such a record before)."""
+    target = plan.get("target")
+    if isinstance(target, (list, tuple)) and len(target) == 3:
+        return "target", [float(v) for v in target]
+    rot = plan.get("rotation_euler_deg")
+    if isinstance(rot, (list, tuple)) and len(rot) == 3:
+        return "rotation", [math.radians(float(v)) for v in rot]
+    return "rotation", [math.pi / 2.0, 0.0, 0.0]
+
+
+def camera_clip(plan: dict) -> tuple[float, float]:
+    """``(clip_start, clip_end)`` of an exterior camera (pure): the plan's own values when it carries them (a
+    replayed record), else 0.1 m and ``CLIP_END`` (the flat ground runs to ``site.HORIZON_M``, so a replayed
+    record without clip values, as the M11 manifests, keeps the far horizon)."""
+    start = plan.get("clip_start")
+    end = plan.get("clip_end")
+    start = float(start) if isinstance(start, (int, float)) and not isinstance(start, bool) and start > 0 else 0.1
+    end = float(end) if isinstance(end, (int, float)) and not isinstance(end, bool) and end > start else CLIP_END
+    return start, end
+
+
 def create_cameras(plans: Sequence[dict], collection, manifest_objects: list) -> list:
     """One camera object per exterior plan (kind ``camera``, ``wenart_camera_kind`` = ``exterior``; no room,
-    no level): lens, sensor, the vertical lens shift, clip end ``CLIP_END``."""
+    no level): lens, sensor, the vertical lens shift, the clip range of ``camera_clip`` (``CLIP_END`` unless the
+    plan is a replayed record with its own values) and the pose of ``camera_pose`` (the target, else a replayed
+    record's rotation; Milestone 13 K8)."""
     import bpy
     from mathutils import Vector
 
@@ -988,12 +1015,15 @@ def create_cameras(plans: Sequence[dict], collection, manifest_objects: list) ->
         cam.sensor_fit = "HORIZONTAL"
         cam.shift_x = float(plan.get("shift_x") or 0.0)
         cam.shift_y = float(plan.get("shift_y") or 0.0)
-        cam.clip_start = 0.1
-        cam.clip_end = CLIP_END
+        cam.clip_start, cam.clip_end = camera_clip(plan)
         ob = bpy.data.objects.new(plan["name"], cam)
         ob.location = Vector(plan["position"])
-        direction = Vector(plan["target"]) - Vector(plan["position"])
-        ob.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+        mode, pose = camera_pose(plan)
+        if mode == "target":
+            direction = Vector(pose) - Vector(plan["position"])
+            ob.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+        else:                                   # a replayed record without a target: its recorded rotation
+            ob.rotation_euler = tuple(pose)
         collection.objects.link(ob)
         common.set_props(ob, wenart_id=plan["name"], kind="camera", status="assumed")
         ob["wenart_camera_kind"] = KIND

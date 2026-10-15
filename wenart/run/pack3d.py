@@ -22,6 +22,13 @@ manifest next to the 3D files (``<src>/final_manifest.json`` of ``results/final/
 final_manifest.json`` of the volume's ``outputs/<p>/export``; ``licence_notes``). Without a manifest the README
 says so.
 
+Milestone 13 (T6, the vegetation): the README also says what the .glb carries of the site's vegetation. The leaf
+cards of the hedges and card trees and the grass clumps are geometry-nodes instances; the glTF export writes an
+object's evaluated mesh only, so they reach the .glb when the export realized them under the polygon cap
+(``wenart.blender.site.realize_site_instances``, recorded as ``realized_instances`` in ``export_manifest.json``);
+without that record the README says the pack carries the hedge cores, trunks and crown cards only (the .blend
+keeps every instance; ``vegetation_notes``).
+
 Prints the written files; exit 0, or 2 when the folder has no 3D file. Only the standard library.
 """
 from __future__ import annotations
@@ -166,9 +173,44 @@ def licence_notes(src: Path) -> list[str]:
     return lines
 
 
+def vegetation_notes(src: Path) -> list[str]:
+    """Milestone 13 (T6): the README lines on the site's vegetation in the .glb, from the export manifest next to
+    the 3D files (``<folder>/export_manifest.json``, key ``realized_instances`` = the record of
+    ``wenart.blender.site.realize_site_instances``: ``cap``, ``polygons``, ``realized`` [group names], ``skipped``
+    [{group, polygons, reason}]). Without the record (an export before Milestone 13, or one that did not realize)
+    the lines say the pack carries the hedge cores, trunks and crown cards only."""
+    folder = _folder(Path(src))
+    path = folder / "export_manifest.json"
+    record = None
+    if path.is_file():
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            record = doc.get("realized_instances") if isinstance(doc, dict) else None
+        except (OSError, ValueError):
+            record = None
+    base = ("The hedges, the card trees and the lawn are built as geometry-nodes instances (leaf cards, grass clumps) "
+            "over a hedge core, a trunk with crown cards and the ground; the .blend keeps every instance.")
+    if not isinstance(record, dict):
+        return [base, "The .glb carries the hedge cores, the trunks and crown cards and the lawn surface only: the "
+                      "export did not realize the instances (no realized_instances record in export_manifest.json), "
+                      "and a glTF export writes an object's evaluated mesh without its instances."]
+    realized = [str(g) for g in record.get("realized") or []]
+    skipped = [s for s in record.get("skipped") or [] if isinstance(s, dict)]
+    lines = [base, f"Realized for the .glb under a cap of {record.get('cap')} polygons: {len(realized)} vegetation "
+                   f"node group(s), {record.get('polygons')} polygons"
+                   + (": " + ", ".join(realized) if realized else "") + "."]
+    if skipped:
+        lines.append("Left as instances (in the .blend, not in the .glb): " + "; ".join(
+            f"{s.get('group')} ({s.get('polygons')} polygons)" for s in skipped) + ".")
+    lines.append("The Poly Haven hero trees are collection instances of the imported models (not geometry nodes): "
+                 "the cap does not apply to them.")
+    return lines
+
+
 def readme(name: str, parts: list[str], digest: str, contents: list[str], more: list[tuple] = (),
-           notes: list[str] = ()) -> str:
-    """The README text; ``notes`` (Milestone 13: ``licence_notes``) go at the end."""
+           notes: list[str] = (), vegetation: list[str] = ()) -> str:
+    """The README text; ``notes`` (Milestone 13: ``licence_notes``) and ``vegetation`` (``vegetation_notes``) go
+    at the end."""
     joined = "+".join(parts)
     lines = [
         f"3D files of project {name} (WenArt_RUN, docs/milestone9.md §5a).",
@@ -192,6 +234,8 @@ def readme(name: str, parts: list[str], digest: str, contents: list[str], more: 
         lines.append("")
     if notes:
         lines += ["Licence (Milestone 13, docs/milestone13.md §6):", ""] + list(notes) + [""]
+    if vegetation:
+        lines += ["Vegetation in the 3D files (Milestone 13, docs/milestone13.md §13.2 T6):", ""] + list(vegetation) + [""]
     return "\n".join(lines)
 
 
@@ -232,7 +276,7 @@ def pack(src: Path, out: Path, part_mb: int = DEFAULT_PART_MB, name: str | None 
         written += parts + [out / f"{stem}_3d.zip.sha256"]
         more.append((stem, [p.name for p in parts], digest, [p.name for p in files]))
     (out / README).write_text(readme(stem0, [p.name for p in parts0], digest0, [p.name for p in files0], more,
-                                     licence_notes(Path(src))), encoding="utf-8")
+                                     licence_notes(Path(src)), vegetation_notes(Path(src))), encoding="utf-8")
     return written + [out / README]
 
 

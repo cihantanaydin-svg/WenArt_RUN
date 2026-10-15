@@ -145,6 +145,13 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   caps, then ``_no_model`` (related type, module, parametric); every result goes through ``_finish`` (licence
   fields, the ladder). ``fit_report`` lists the mode, the flagged assets, the snaps and the pieces built below the
   library level.
+- Build round 2 (15 Oct 2026): ``SOURCE_ORDER`` ranks the HSSD layer (``hssd``, CC BY-NC 4.0, relaxed mode only) after
+  Poly Haven and before GSO (real products at real size, declared by the publisher; the licence mode decides whether
+  they are candidates at all, ``catalog.usable``). A module plan with a ``split`` (``wenart.blender.modules``: a drawn
+  table footprint that includes its chairs, CLAUDE.md "a table footprint that includes its chairs") labels the piece
+  ``adjusted_by_ai`` with the reason (``split_label`` on the asset, ``apply_split_label`` on the piece in
+  ``fit_building``): the footprint stays as drawn (the modules sit inside it), ``drawn_footprint`` and the other
+  ``drawn_*`` keys are kept, and the label names the table and the chairs built in it.
 """
 from __future__ import annotations
 
@@ -207,7 +214,8 @@ UPHOLSTERED_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise
 
 # Fit v2 ranking (docs/milestone8.md §1); Milestone 13 (K2): the design preference, the audit's vision quality, the
 # texture maps, the face count and the diversity penalty join it; the wood re-sort is gone.
-SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "gso", "objaverse", "generated")   # gso: M12 pod P4 scans
+# gso: M12 pod P4 scans; hssd: M13 pod P2 (docs/milestone13.md §12 D2; CC BY-NC 4.0, candidates in relaxed mode only)
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "objaverse", "generated")
 GENERATED = "generated"
 DEFAULT_QUALITY = 3.0
 SIZE_BUCKET = 0.05           # real-size error steps: models within the same 5 % step are ranked by quality
@@ -871,6 +879,9 @@ def module_fit(piece: dict, plan: dict, reason: str, candidates: Optional[list] 
     by_design = ftype in C.BY_DESIGN_PARAMETRIC_TYPES
     if by_design:
         base["by_design"] = True
+    label = split_label(piece, plan)
+    if label is not None:
+        base["adjusted_by_ai"] = label
     if not by_design or ftype in C.PARAMETRIC_FIXTURE_TYPES or candidates or excluded:
         base["library_gap"] = {"type": ftype, "style": style_family, "step": MODULE_METHOD,
                                "used": f"module builder {plan['builder']} ({len(plan.get('modules') or [])} "
@@ -878,6 +889,59 @@ def module_fit(piece: dict, plan: dict, reason: str, candidates: Optional[list] 
                                        + (" (by design)" if by_design else ""),
                                "reason": reason}
     return base
+
+
+SPLIT_RULE = "module_split"
+
+
+def split_label(piece: dict, plan: dict) -> Optional[dict]:
+    """The ``adjusted_by_ai`` label of a module plan with a ``split`` (``wenart.blender.modules.plan_table_long``: a
+    drawn footprint deeper than a real table includes its chairs; pure, None without a split): the reason names the
+    drawing error, the table and the chairs built inside the drawn box; ``drawn_footprint`` holds the footprint as
+    drawn (the piece's footprint is not changed: the modules sit inside it), ``changed`` is empty for that reason.
+    ``fit_building`` copies it onto the piece (``apply_split_label``; CLAUDE.md furniture rules: every change keeps
+    the ``drawn_*`` keys and is labelled ``adjusted_by_ai`` with the reason)."""
+    split = plan.get("split") if isinstance(plan, dict) else None
+    if not isinstance(split, dict):
+        return None
+    fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else {}
+    size = [float(v) for v in (fp.get("size") or [])[:2]]
+    table = [float(v) for v in (split.get("table_m") or size)[:2]]
+    chairs = int(split.get("chairs") or 0)
+    why = str(split.get("reason") or "the drawn footprint is deeper than a real table")
+    reason = (f"module split: {why}; built as a {table[0]:.2f} x {table[1]:.2f} m table"
+              + (f" with {chairs} chairs" if chairs else "")
+              + f" inside the drawn {size[0]:.2f} x {size[1]:.2f} m footprint ({plan.get('builder')}); the footprint "
+                "stays as drawn, drawn_footprint kept (CLAUDE.md: a table footprint that includes its chairs is a "
+                "clear drawing error the AI may fix)")
+    return {"reason": reason, "rule": SPLIT_RULE, "changed": {}, "drawn_footprint": copy.deepcopy(fp),
+            "split": copy.deepcopy(split)}
+
+
+def apply_split_label(piece: dict, asset: Optional[dict] = None) -> bool:
+    """Label a piece whose fitted ``asset`` (default ``piece["asset"]``) carries a split (``split_label``) in place:
+    ``adjusted_by_ai`` with the reason (an earlier label's reason is kept in front, its ``changed`` and bookkeeping
+    keys stay), and the ``drawn_*`` keys of ``DRAWN_KEYS`` set where missing. Returns True when the piece was
+    labelled. ``wenart.furniture.edit_ops`` may call it after a refit through ``fit_piece``."""
+    asset = piece.get("asset") if asset is None else asset
+    label = asset.get("adjusted_by_ai") if isinstance(asset, dict) else None
+    if not isinstance(label, dict) or label.get("rule") != SPLIT_RULE:
+        return False
+    old = piece.get("adjusted_by_ai") if isinstance(piece.get("adjusted_by_ai"), dict) else {}
+    if old.get("rule") == SPLIT_RULE or SPLIT_RULE in str(old.get("rules") or ""):
+        return False                                   # labelled by an earlier fit of the same plan
+    for drawn_key, key in DRAWN_KEYS:
+        if key in piece:
+            piece.setdefault(drawn_key, copy.deepcopy(piece[key]))
+    new = {"reason": label["reason"] if not old.get("reason") else f"{old['reason']}; {label['reason']}",
+           "changed": dict(old.get("changed") or {}), "rule": SPLIT_RULE, "split": copy.deepcopy(label.get("split"))}
+    if old.get("rule") and old["rule"] != SPLIT_RULE:
+        new["rules"] = [old["rule"], SPLIT_RULE]       # e.g. a size snap and then the split
+    for k in ("round", "log_seq", "model", "snapped_wall", "fix_fixture"):
+        if old.get(k) is not None:
+            new[k] = old[k]
+    piece["adjusted_by_ai"] = new
+    return True
 
 
 HEIGHT_TOLERANCE = 0.15          # = sizes.fits' tolerance: a fitted height this far outside the real range refuses
@@ -1419,6 +1483,7 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             asset["fabric_colour"] = colour
             asset["fabric_colour_source"] = source
         piece["asset"] = asset
+        apply_split_label(piece, asset)                 # a table footprint split into table + chairs (modules)
         if asset.get("method") == "library":
             used_project[asset["asset_id"]] += 1
             used["room"][asset["asset_id"]] += 1
@@ -1446,7 +1511,22 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
     size is the footprint's, the drawn footprint is the one before)."""
     a, b = copy.deepcopy(before), copy.deepcopy(after)
     for piece_a, piece_b in zip(a.get("furniture", []), b.get("furniture", [])):
+        label = piece_b.get("adjusted_by_ai") if isinstance(piece_b.get("adjusted_by_ai"), dict) else {}
+        split = label.get("rule") == SPLIT_RULE and label != piece_a.get("adjusted_by_ai")
+        if split:
+            # a module split (build round 2): the footprint is unchanged, the label and the drawn_* keys are new
+            if piece_b.get("footprint") != piece_a.get("footprint"):
+                raise AssertionError(f"{piece_b.get('id')}: a module split must not change the footprint")
+            if piece_b.get("drawn_footprint") != piece_a.get("drawn_footprint", piece_a.get("footprint")):
+                raise AssertionError(f"{piece_b.get('id')}: drawn_footprint does not hold the drawn footprint")
+            if not label.get("reason") or not ((piece_b.get("asset") or {}).get("module_plan") or {}).get("split"):
+                raise AssertionError(f"{piece_b.get('id')}: a split piece needs adjusted_by_ai with a reason and the "
+                                     "plan's split")
         snap = piece_b.get("size_snap")
+        if split and not (snap and snap != piece_a.get("size_snap")):
+            for key in ("adjusted_by_ai",) + tuple(k for k, _ in DRAWN_KEYS):
+                piece_a.pop(key, None)
+                piece_b.pop(key, None)
         if snap and snap != piece_a.get("size_snap"):
             if [round(float(v), 4) for v in piece_b["footprint"]["size"][:2]] != [round(float(v), 4)
                                                                                  for v in snap["snapped"][:2]]:

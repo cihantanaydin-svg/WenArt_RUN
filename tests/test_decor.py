@@ -190,3 +190,100 @@ def test_prayer_rooms_get_no_decor_and_build_false_pieces_host_none():
             f["build"] = False
     out, _rows = D.add_decor(building)
     assert not [d for d in out["decor"] if d["host_id"] is not None]
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 (K3, R6): the group solver's rug members survive the decor stage
+# --------------------------------------------------------------------------
+
+def _solved_living_room():
+    """A living room the group solver furnished (seating group with its rug member, docs/milestone13.md R6)."""
+    import _m11_room as M
+    from wenart.furniture import program as PR
+    from wenart.furniture import solver as SV
+
+    b = M.building(w=5.0, h=6.0, room_type="living", window=(2.5, 1.2))
+    b["project"] = {"id": "t", "name": "t"}
+    prog = PR.room_program(b, M.ROOM_ID)
+    prog["groups"] = [g for g in prog["groups"] if g["group"] == "seating"]
+    prog["groups"][0]["chosen"] = "sofa_2_armchairs"
+    best = SV.solve_room(b, M.ROOM_ID, prog, k=1)[0]
+    assert best["rugs"]
+    return SV.apply_candidate(b, M.ROOM_ID, best)
+
+
+def test_add_decor_keeps_the_solvers_rug_members_and_lays_no_second_rug_under_the_group():
+    b = _solved_living_room()
+    (kept,) = D.solver_rugs(b)
+    assert kept["group"]["role"] == "rug" and kept["id"] == "dec_L0_001"
+    out, rows = D.add_decor(b)
+    rugs = [d for d in out["decor"] if d["type"] == "rug"]
+    assert len(rugs) == 1 and rugs[0]["id"] == kept["id"] and rugs[0]["anchor_ids"] == kept["anchor_ids"]
+    assert rugs[0]["center"] == kept["center"] and rugs[0]["size"] == kept["size"] and rugs[0]["group"]["role"] == "rug"
+    assert rugs[0]["host_frame"]["support"] == "floor"                      # attached like every decor item
+    # the rule decor (cushions on the sofa, a plant) comes after it with ids counted on after the kept one
+    others = [d for d in out["decor"] if d["type"] != "rug"]
+    assert others and all(d["id"] != kept["id"] for d in others)
+    assert all(int(d["id"].rsplit("_", 1)[1]) > 1 for d in others)
+    assert len({d["id"] for d in out["decor"]}) == len(out["decor"])
+    row = next(r for r in rows if r["room_id"] == b["rooms"][0]["id"])
+    assert row["rugs"] == 1 and "1 rug(s) kept from the group solver (dec_L0_001)" in row["note"]
+    assert "laid by the group solver (kept)" in row["note"]
+    # idempotent with the kept rug, and the result validates
+    again, _ = D.add_decor(out)
+    assert json.dumps(again, sort_keys=True) == json.dumps(out, sort_keys=True)
+    assert D.decor_counters(out["decor"]) == {"L0": len(out["decor"])}
+    # brief.decor false: no decor, the solver's rug left out too and said so
+    off = json.loads(json.dumps(b))
+    off["project"]["brief"] = {"decor": False}
+    out_off, rows_off = D.add_decor(off)
+    assert out_off["decor"] == [] and "the group solver's 1 rug(s) left out too: dec_L0_001" in rows_off[0]["note"]
+
+
+def test_the_rule_rug_comes_only_where_the_solver_laid_none():
+    """A bed the solver placed without a runner (its rug member dropped) still gets the M8 rule rug; a bed with the
+    solver's runner gets none, and the rule rugs stay off the kept one."""
+    import _m11_room as M
+    from wenart.furniture import solver as SV
+
+    b = M.building(w=4.5, h=5.0, room_type="bedroom")
+    b["project"] = {"id": "t", "name": "t"}
+    best = SV.solve_room(b, M.ROOM_ID, k=1)[0]
+    runner = next(r for r in best["rugs"] if r["group"]["group"] == "sleeping_double")
+    with_runner = SV.apply_candidate(b, M.ROOM_ID, best)
+    without = SV.apply_candidate(b, M.ROOM_ID, dict(best, rugs=[]))
+    assert D.solver_rugs(with_runner) and not D.solver_rugs(without)
+    out_with, rows_with = D.add_decor(with_runner)
+    out_without, rows_without = D.add_decor(without)
+    rugs_with = [d for d in out_with["decor"] if d["type"] == "rug"]
+    rugs_without = [d for d in out_without["decor"] if d["type"] == "rug"]
+    assert [r["anchor_ids"] for r in rugs_with] == [runner["anchor_ids"]] and rugs_with[0]["group"]["role"] == "rug"
+    assert len(rugs_without) == 1 and "group" not in rugs_without[0]        # the M8 rule rug under the bed
+    assert "laid by the group solver (kept)" in next(r for r in rows_with if r["rugs"])["note"]
+    assert "kept from the group solver" not in (next(r for r in rows_without if r["rugs"])["note"] or "")
+
+
+def test_a_solver_rug_whose_pieces_are_all_gone_or_unbuilt_is_not_kept():
+    """Review (round 2): a solver rug member whose pieces are all gone (the agent removed the sofa and its partners)
+    or not built is no solver rug any more (the ``sync_to_hosts`` rule): ``add_decor`` leaves it out, says so, and
+    the rule rugs decide again; one live piece keeps it."""
+    b = _solved_living_room()
+    (kept,) = D.solver_rugs(b)
+    gone = json.loads(json.dumps(b))
+    gone["furniture"] = [f for f in gone["furniture"] if f["id"] not in kept["anchor_ids"]]
+    assert D.solver_rugs(gone) == [] and [d["id"] for d in D.stale_solver_rugs(gone)] == [kept["id"]]
+    out, rows = D.add_decor(gone)
+    # no rug at all (the room has no group left); the ids count from one again (nothing kept)
+    assert not [d for d in out["decor"] if d["type"] == "rug" or (d.get("group") or {}).get("role") == "rug"]
+    assert len({d["id"] for d in out["decor"]}) == len(out["decor"])
+    assert any(f"rug {kept['id']} of the group solver not kept" in (r.get("note") or "") for r in rows)
+    unbuilt = json.loads(json.dumps(b))
+    for f in unbuilt["furniture"]:
+        if f["id"] in kept["anchor_ids"]:
+            f["asset"] = {"method": "none"}                    # a library gap the fit left unbuilt
+    assert D.solver_rugs(unbuilt) == [] and D.stale_solver_rugs(unbuilt)
+    one = json.loads(json.dumps(b))
+    for f in one["furniture"]:
+        if f["id"] in kept["anchor_ids"][1:]:
+            f["build"] = False
+    assert [d["id"] for d in D.solver_rugs(one)] == [kept["id"]] and D.stale_solver_rugs(one) == []

@@ -199,7 +199,10 @@ def storeys_of(building: dict) -> int:
 
 
 def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_crop: Optional[Path], code: dict,
-                      call_id: str) -> dict:
+                      call_id: str, camera: Optional[dict] = None) -> dict:
+    """One exterior view. ``camera`` (round 2, Milestone 13 D8 / T6): the view's camera record of the scene manifest;
+    a record with ``aerial_allowed`` (the one true aerial view, the site view) is told to the critic
+    (``prompts.camera_note``): a true aerial is allowed by the policy and is not a finding."""
     images, labels = [preview], [f"render of exterior view {view}"]
     if plan_crop is not None:
         images.append(plan_crop)
@@ -207,6 +210,7 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
     # Milestone 13 (bug B5): the storeys, not len(levels): a level variant (L-1b) is no storey of its own
     levels = storeys_of(building)
     note = f"The building has {levels} storey(s); roof: {(building.get('roof') or {}).get('type', 'unknown')}."
+    note = " ".join(part for part in (note, P.camera_note(camera)) if part)
     ids = exterior_ids(building, view)
     ext_code = [f for f in code.get("findings") or [] if f.get("check", "").startswith("X") or f.get("target") == view]
     prompt = P.exterior_critic_prompt(view, note, sorted(ids)[:60], labels, ext_code)

@@ -154,7 +154,9 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/blender/rest.py", "wenart/blender/textiles.py", "wenart/furniture/__init__.py",
              "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
              # T5 review (15 Oct 2026): site.py and sheets/exterior.py import T6's new vegetation module.
-             "wenart/blender/vegetation.py")
+             "wenart/blender/vegetation.py",
+             # Round 2 (15 Oct 2026): site.site_kind reads the scene-manifest schema's kinds (WHOLE_BUILDING_KINDS).
+             "wenart/blender/schemas.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
@@ -356,6 +358,15 @@ def pipeline(tools: Tools, ref: ProjectRef) -> list[str]:
     return [tools.py, "-m", "wenart.ingest.pipeline", t(ref.project_dir), "--out", _out(ref)]
 
 
+def site_platforms(tools: Tools, ref: ProjectRef) -> list[str]:
+    """Milestone 13 (T6, docs/milestone13.md §13.3): ``site.platforms`` (one level per terrace / pool / parking,
+    ``wenart.blender.site.platforms`` on the levels stage's ground model) written into ``building.json`` as the
+    last step of the pipeline_final stage (``python -m wenart.blender.site platforms``, CPU, in place). The sheets
+    stage's ``site.hedges`` need no hook: ``wenart.sheets.to_building.site_block`` copies them and every later
+    stage keeps the site dict as it is."""
+    return [tools.py, "-m", "wenart.blender.site", "platforms", _out(ref, "building.json")]
+
+
 def pipeline_final(tools: Tools, ref: ProjectRef, answers: bool = True, no_ai: bool = False) -> list[str]:
     """The pipeline again with the answers of ``<out>/recognition`` (M7 §9.1); ``no_ai`` when an answer is missing
     (the unanswered pieces stay unknown/unverified, so it never exits 4). The smoke profile passes no answers and
@@ -463,6 +474,25 @@ CAMERAS_EXTRA_ENV = "WENART_CAMERAS_EXTRA"
 WHITE_BALANCE = "project"                      # Milestone 13 (K5): one whitepoint per project (render.py)
 
 
+def white_balance_of(brief: Optional[dict], given: Optional[str] = None) -> str:
+    """The ``--white-balance`` of the final render (pure; Milestone 13 K5): ``given`` (the pod flag, any value
+    render.py takes), else ``kelvin:K`` when the brief carries ``render.white_balance_k`` (an optional Kelvin value,
+    1800-100000 K as ``render.parse_white_balance``; ``wenart.brief.value``), else ``project`` (one metered
+    whitepoint per project, ``WHITE_BALANCE``)."""
+    if given:
+        return str(given)
+    from wenart.brief import value
+    k = value(brief, "render.white_balance_k", None)
+    if isinstance(k, bool) or not isinstance(k, (int, float)):
+        return WHITE_BALANCE
+    if not (KELVIN_RANGE[0] <= float(k) <= KELVIN_RANGE[1]):
+        return WHITE_BALANCE
+    return f"kelvin:{float(k):g}"
+
+
+KELVIN_RANGE = (1800.0, 100000.0)              # render.parse_white_balance: Blender's colour temperature range
+
+
 def cameras_from_env(name: str, env: Optional[dict] = None) -> Optional[str]:
     """The camera file of a project from the environment (pure; Milestone 13 K8): ``WENART_CAMERAS_FROM`` with
     ``{name}`` replaced by the project name (``results/renders/{name}/scene_manifest.json`` for the P4 runs of
@@ -493,7 +523,7 @@ def build(tools: Tools, ref: ProjectRef, force: bool = False, lens_mm: Optional[
 
     Milestone 13 (K8): ``cameras_from`` (a scene manifest whose cameras the build replays, ``source: replayed``)
     and ``cameras_extra`` (the searched set as well) go to the build as ``--cameras-from`` / ``--cameras-extra``
-    (``wenart.blender.cli build`` must pass them on to ``build.py``, lead item); None / False add nothing, and the
+    (``wenart.blender.cli build`` passes them on to ``build.py`` since round 2); None / False add nothing, and the
     build then reads ``WENART_CAMERAS_FROM`` / ``WENART_CAMERAS_EXTRA`` from its environment (the pod jobs export
     them), so an orchestrated run replays without a command change."""
     src = Path(base_out) if variant != BASE_VARIANT and base_out is not None else ref.out_dir

@@ -263,3 +263,31 @@ def test_meter_stats_meter_the_facade_of_an_exterior_view():
     tiny = np.ones((h, w))
     tiny[0, 0] = 0.0                                                    # a single facade pixel: every surface
     assert RD.meter_stats(light, albedo, index, depth, set(), blocks_across=8, normal_z=tiny)["metered"] == "surfaces"
+
+
+def test_camera_pose_and_clip_honour_a_replayed_record_without_a_target():
+    """Milestone 13 (K8, round 2): ``create_cameras`` turns a camera to its target when the plan has one (every
+    searched, agent and M11 camera) and, for a replayed record that carries ``rotation_euler_deg`` but no target,
+    takes that rotation; a replayed record's clip range is honoured, a record without one (the committed M11
+    manifests carry None) keeps the exterior ``CLIP_END`` so the flat ground still reaches the horizon."""
+    with_target = {"name": "ext_1", "position": [0.0, -10.0, 1.6], "target": [0.0, 0.0, 1.6], "lens_mm": 24.0}
+    assert E.camera_pose(with_target) == ("target", [0.0, 0.0, 1.6])
+    assert E.camera_clip(with_target) == (0.1, E.CLIP_END)
+    replayed = {"name": "ext_2", "position": [0.0, -10.0, 1.6], "target": None, "rotation_euler_deg": [90.0, 0.0, 45.0],
+                "lens_mm": 24.0, "clip_start": 0.05, "clip_end": 200.0, "source": "replayed"}
+    mode, rot = E.camera_pose(replayed)
+    assert mode == "rotation" and rot == pytest.approx([math.pi / 2, 0.0, math.pi / 4])
+    assert E.camera_clip(replayed) == (0.05, 200.0)
+    # A target wins over a rotation (the M11 records carry both keys, the rotation None); None clips = defaults.
+    both = dict(replayed, target=[1.0, 2.0, 1.6], clip_start=None, clip_end=None)
+    assert E.camera_pose(both) == ("target", [1.0, 2.0, 1.6]) and E.camera_clip(both) == (0.1, E.CLIP_END)
+    # A bad clip range (end <= start) falls back to the defaults; a plan with neither target nor rotation looks +Y.
+    assert E.camera_clip({"clip_start": 5.0, "clip_end": 2.0}) == (5.0, E.CLIP_END)
+    assert E.camera_pose({"name": "x", "position": [0, 0, 0]}) == ("rotation", [math.pi / 2, 0.0, 0.0])
+    # The replay parser of the M11 records keeps the target: the committed real02 exterior cameras are unaffected.
+    from wenart.blender import cameras as C
+    real02 = ROOT / "results" / "renders" / "real02" / "scene_manifest.json"
+    if real02.is_file():
+        plans = C.replay_cameras(json.loads(real02.read_text(encoding="utf-8")), kinds=("exterior",))["plans"]
+        assert plans and all(E.camera_pose(p)[0] == "target" for p in plans)
+        assert all(E.camera_clip(p) == (0.1, E.CLIP_END) for p in plans)

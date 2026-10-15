@@ -216,7 +216,7 @@ def default_checklist(brief: dict, wanted=("critical", "major")) -> list[dict]:
     for f in (brief.get("findings") or {}).get("fixable") or []:
         if f.get("severity") not in wanted:
             continue
-        steps.append({"finding_ids": [f["id"]], "tool": f["tools"][0], "target": f.get("target") or room_id,
+        steps.append({"finding_ids": [f["id"]], "tool": f["tools"][0], "target": BR.step_target(f, room_id),
                       "why": str(f.get("message") or f.get("check"))[:300]})
     return steps
 
@@ -250,13 +250,17 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[l
         tool, target, ids = s.get("tool"), s.get("target"), list(s.get("finding_ids") or [])
         why = None
         bad_ids = [f for f in ids if f not in fixable]
+        # round 2: a step may act on an unbuilt piece when one of its findings names it (the untyped piece of an
+        # NR finding, the unbuilt anchor of an F8: ``edit_target``); the brief checked the anchor's locks
+        named = {t for fid in ids if fid in fixable
+                 for t in (fixable[fid].get("edit_target"), fixable[fid].get("target")) if t}
         if tool not in offered:
             why = f"tool {tool} is not offered"
         elif bad_ids:
             why = ", ".join(f"{f} is {'not yours' if f in not_yours else 'not a fixable finding'}" for f in bad_ids)
-        elif target in unbuilt:
+        elif target in unbuilt and target not in named:
             why = f"{target} is not built"
-        elif tool in BR.PIECE_TOOLS:
+        elif tool in BR.PIECE_TOOLS and target not in unbuilt:
             p = pieces.get(target)
             if p is None:
                 why = f"{tool} needs a built piece of the room as target, not {target!r}"
@@ -509,7 +513,7 @@ class AgentLoop:
                                            plan_crop=ctx.plan_crop_path(key), code=code, call_id=call_id, looks=True)
                 else:
                     res = CV.critique_exterior(self.model, building, key, preview=ctx.preview_path(key),
-                                               plan_crop=None, code=code, call_id=call_id)
+                                               plan_crop=None, code=code, call_id=call_id, camera=ctx.camera(key))
             except ModelError as exc:
                 checks.append({"source": "vision", "target": key, "status": "error", "note": str(exc),
                                "call_id": call_id})

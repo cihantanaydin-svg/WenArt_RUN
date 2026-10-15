@@ -1623,7 +1623,8 @@ def test_write_catalog_of_every_source(mixed):
                                                                                      "obj_by", "obj_nc", "gen")}
     assert doc["sources"] == ["abo", "objaverse", "generated"] and doc["kind"] == "library_catalog"
     assert doc["file_licences"] == ["ODC-By-1.0", "CC-BY-4.0"] and len(doc["notices"]) == 3
-    assert doc["counts"]["licence_flags"] == {"non_commercial": 1} and doc["counts"]["bed_frames"] == 1
+    # Milestone 13 (build round 2): the flags count leaves ``none`` out; the TRELLIS.2 model is tool_nc
+    assert doc["counts"]["licence_flags"] == {"non_commercial": 1, "tool_nc": 1} and doc["counts"]["bed_frames"] == 1
     for e in doc["entries"] + doc["decor"]:
         cached = assets / e["glb"]
         assert e["glb"] == f"models/{e['source']}/{e['uid']}.glb" and OV.sha256_file(cached) == e["sha256_glb"]
@@ -1631,15 +1632,23 @@ def test_write_catalog_of_every_source(mixed):
     assert sofa["id"] == u["sofa"] and sofa["source"] == "abo" and sofa["unit_scale"] == 1.0 and sofa["units_known"]
     assert sofa["abo_3dmodel_id"] == "B072PZ4LVN" and sofa["attribution"].endswith("AI-retouched")
     assert sofa["attribution"].startswith('"Amazon Brand – Rivet Revolve Modern Upholstered Sofa Couch')
-    assert sofa["licence"] == C.CC_BY and sofa["licence_flag"] is None and sofa["quality"] == [5, 5]
+    assert sofa["licence"] == C.CC_BY and sofa["licence_flag"] == "none" and sofa["quality"] == [5, 5]
+    # Milestone 13 (build round 2): every new entry carries the licence fields of catalog.licence_fields
+    assert sofa["commercial_safe"] is True and sofa["licence_declared_by"] == "publisher"
+    assert sofa["licence_url"] == "https://creativecommons.org/licenses/by/4.0/" and "licence_flag_note" not in sofa
     bed = entries[u["tisbury"]]
     assert bed["bed_frame"] is True and bed["has_mattress"] is False and bed["deck_height_m"] == pytest.approx(0.35)
     assert C.bed_usable(bed) and not C.has_mattress(bed)
     nc = entries[u["obj_nc"]]
     assert nc["id"] == f"objaverse_{u['obj_nc']}" and nc["licence"] == "CC-BY-NC-4.0"
     assert nc["licence_flag"] == "non_commercial" and "CC BY-NC 4.0" in nc["attribution"]
+    assert nc["commercial_safe"] is False and nc["licence_declared_by"] == "uploader"
     gen = entries[u["gen"]]
-    assert gen["source"] == "generated" and gen["licence"].startswith("generated") and gen["licence_flag"] is None
+    assert gen["source"] == "generated" and gen["licence"].startswith("generated") and gen["licence_flag"] == "tool_nc"
+    assert gen["commercial_safe"] is False and "nvdiffrast" in gen["licence_flag_note"] and gen["licence_declared_by"] == "publisher"
+    assert gen["licence_url"] == C.LICENCE_URLS["generated (TRELLIS.2-4B, MIT)"]
+    for e in doc["entries"] + doc["decor"]:
+        assert e["licence_flag"] == C.licence_flag_of(e) and e["commercial_safe"] == C.commercial_safe(e)
     assert gen["generated"]["seed"] == 7 and gen["unit_note"].startswith(OV.NORMALISED_NOTE)
     rug = decor[u["rug"]]
     assert rug["type"] == "decor_rug" and rug["kind"] == "decor" and rug["decor_type"] == "rug"
@@ -1655,6 +1664,41 @@ def test_write_catalog_of_every_source(mixed):
     assert merged.decor_candidates("cushion") == [] and merged.entry(u["art"])["decor_type"] == "wall_art"
     assert u["sofa"] in [e["id"] for e in merged.candidates("sofa")]
     assert any(e["id"] == "throw_pillows_01" for e in merged.decor)              # Poly Haven decor stays
+
+
+def test_catalog_entry_writes_the_milestone_13_licence_fields():
+    """Milestone 13 (docs/milestone13.md §13.3; build round 2): ``catalog_entry`` gives a new entry the licence fields
+    of ``catalog.licence_fields`` (``licence_flag`` ``none`` instead of None, ``commercial_safe``,
+    ``licence_declared_by``, a filled ``licence_url``, ``tool_nc`` with its note for a TRELLIS.2 model); the entry
+    validates and the report prints an unflagged entry as ``–``."""
+    def entry_of(source, uid, licence, flag=None, **extra):
+        cand = dict({"uid": uid, "source": source, "licence": licence, "licence_flag": flag, "title": f"Model {uid}",
+                     "author": "Ann Author", "source_url": f"https://example.org/{uid}", "units_known": True,
+                     "glb_info": {"textured": True, "vertex_colours": False}}, **extra)
+        obj = {"unit": {"scale": 1.0, "note": "metres"}, "measure": {"bbox_min_raw": [-1, -0.5, 0],
+                                                                    "bbox_max_raw": [1, 0.5, 0.8],
+                                                                    "triangles": 100, "vertices": 60}, "thumb": None}
+        dec = {"type": "sofa", "kind": "furniture", "front_axis": "-Y", "front_axis_confidence": "high",
+               "front_axis_note": "test", "styles": ["modern"], "style_note": "test", "quality": [4, 4],
+               "has_mattress": None}
+        return OV.catalog_entry(cand, obj, dec, "ab" * 32, CFG)
+
+    by = entry_of("abo", "abo_B000", C.CC_BY, attribution='"Model abo_B000" by Ann Author, ABO (CC BY 4.0)')
+    assert by["licence_flag"] == "none" and by["commercial_safe"] is True and by["licence_declared_by"] == "publisher"
+    assert by["licence_url"] == "https://creativecommons.org/licenses/by/4.0/" and by["attribution"].startswith('"Model')
+    nc = entry_of("objaverse", "u" * 32, "CC-BY-NC-4.0", "non_commercial")
+    assert nc["licence_flag"] == "non_commercial" and nc["commercial_safe"] is False
+    assert nc["licence_declared_by"] == "uploader" and nc["licence_url"] == CFG["licences"]["urls"]["CC-BY-NC-4.0"]
+    gen = entry_of("generated", "gen_sofa_1_ab12cd34", "generated (TRELLIS.2-4B, MIT)",
+                   generated={"prompt": "a sofa", "image_sha256": "c" * 64, "model": "microsoft/TRELLIS.2-4B",
+                              "revision": "af44b45f2e35a493886929c6d786e563ec68364d", "seed": 1})
+    assert gen["licence_flag"] == "tool_nc" and gen["commercial_safe"] is False and "nvdiffrast" in gen["licence_flag_note"]
+    assert gen["licence_url"] == "https://github.com/microsoft/TRELLIS.2/blob/main/LICENSE"
+    for e in (by, nc, gen):
+        assert e["licence_flag"] == C.licence_flag_of(e) and set(C.LICENCE_FIELDS) <= set(e)
+    C.validate({"entries": [by, nc, gen]}, complete=False)
+    assert OV.flag_text(by) == "–" and OV.flag_text(nc) == "non_commercial" and OV.flag_text(gen) == "tool_nc"
+    assert OV.flag_text({"licence_flag": None}) == "–"
 
 
 def test_write_catalog_takes_the_assets_copy_when_the_survey_cache_is_gone(mixed):

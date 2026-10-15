@@ -435,3 +435,38 @@ def test_affine_and_homography():
     with pytest.raises(ZeroDivisionError):
         G.invert_affine([1, 2, 0, 2, 4, 0])
     assert math.isclose(G.snap(0.1 + 0.2), 0.3) and G.snap(-1e-9) == 0.0
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 (docs/milestone13.md §13.3): the committed buildings validate and the schema documents the
+# adjusted_by_ai records the Milestone 13 code writes (the agent's retype, the solver's and the code typing's labels)
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("project", ["real02", "real03", "real04"])
+def test_committed_building_final_validates(project):
+    """The lead's invariant: wenart/schema/building.schema.json validates the three committed buildings."""
+    path = ROOT / "results" / "furniture" / project / "building_final.json"
+    if not path.is_file():
+        pytest.skip(f"{path} is not here")
+    assert B.validation_errors(json.loads(path.read_text(encoding="utf-8"))) == []
+
+
+def test_schema_takes_the_m13_adjusted_by_ai_records():
+    """``furniture[].adjusted_by_ai`` carries ``by`` (solver | code, T3) and ``retype`` with the keys
+    ``edit_ops._build_retyped`` writes ({to, built, method, asset_id, licence_mode, ladder_step}, T4); a typed key
+    of the wrong kind is an error, so the record stays what the schema says."""
+    example = json.loads(EXAMPLE.read_text(encoding="utf-8"))
+    piece = example["furniture"][0]
+    piece["adjusted_by_ai"] = {"reason": "retyped sofa -> sofa_corner by the agent", "round": 1, "by": "solver",
+                               "retype": {"to": "sofa_corner", "built": True, "method": "module", "asset_id": None,
+                                          "licence_mode": "relaxed", "ladder_step": "module"}}
+    assert B.validation_errors(example) == []
+    piece["adjusted_by_ai"] = {"by": "code", "stage": "layout", "typed_by_code": "group_member",
+                               "reason": "typed table_coffee by code (group_member)"}
+    assert B.validation_errors(example) == []
+    piece["adjusted_by_ai"]["retype"] = {"to": "sofa", "built": "yes"}
+    assert any("adjusted_by_ai/retype/built" in e for e in B.validation_errors(example))
+    piece["adjusted_by_ai"]["retype"] = {"to": "sofa", "built": True, "licence_mode": "free"}
+    assert any("retype/licence_mode" in e for e in B.validation_errors(example))
+    del piece["adjusted_by_ai"]["reason"]                     # a reason stays required on every label
+    assert any("reason" in e for e in B.validation_errors(example))

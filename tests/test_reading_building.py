@@ -290,12 +290,78 @@ def test_a_piece_whose_question_waits_for_its_answers_is_left_to_them():
     RD.read_furniture(build, _works(report={"pending": ["sym_L0_003"], "answers_applied": 3},
                                     u={"candidate_key": "sym_L0_003"}))
     assert _piece(build.building, "u")["inferred_as"] == "detail"
-    # Context typing waits too: a square beside a bed's head stays as asked while its question is open.
+    # Context typing waits too (the context rule never runs on an open question), but Milestone 13 (K3, round 2:
+    # "code first, the AI types the rest") types the square beside the bed's head as the bed's missing nightstand
+    # by code (infer.type_by_code, method group_member) while the question is open, and withdraws the question.
     bed = M.fp("bed", "bed_double", (2.5, 3.0), (1.6, 2.0), front=270.0)
     square = M.fp("n", "unknown", (1.45, 3.75), (0.45, 0.40), front=None)
     build = _build([bed, square])
+    works = _works(report={"pending": ["sym_L0_004"], "questions": [{"key": "sym_L0_004"}]},
+                   n={"candidate_key": "sym_L0_004"})
+    RD.read_furniture(build, works)
+    n = _piece(build.building, "n")
+    assert (n["type"], n["type_method"]) == ("nightstand", "group_member") and RD.CONTEXT_RULE not in _rules(n)
+    assert n.get("build") is not False and works["page"].extraction.report["pending"] == []
+    assert build.code_typed == {"sym_L0_004": "n"}
+    # A square code cannot explain (no bed in the room) stays as asked while its question is open.
+    build = _build([dict(square)])
     RD.read_furniture(build, _works(report={"pending": ["sym_L0_004"]}, n={"candidate_key": "sym_L0_004"}))
     assert _piece(build.building, "n")["type"] == "unknown" and _piece(build.building, "n")["front_deg"] is None
+    assert build.code_typed == {}
+
+
+def test_a_piece_code_types_before_the_ai_gets_no_question():
+    """Milestone 13 (K3, round 2: "code first, the AI types the rest"): a footprint the twin room's typed piece
+    explains (infer.type_by_code, method twin) is typed while its AI question still waits, built, and its question
+    is withdrawn: the key leaves the page's ``pending``, goes to ``report["typed_by_code"]`` and ``build.code_typed``,
+    and the pipeline leaves it out of ``recognition/requests.json``. A piece code cannot type keeps its question
+    and waits for the answers as before."""
+    import copy
+    from wenart.ingest import pipeline as P
+
+    bed = M.fp("bed", "bed_double", (1.02, 2.0), (1.6, 2.0), rotation=90.0, front=0.0)
+    twin_bed = M.fp("u", "unknown", (7.98, 2.0), (1.6, 2.0), rotation=90.0, front=None, status="unverified",
+                    room_id="r_L0_oda_2")
+    odd = M.fp("q", "unknown", (3.0, 3.0), (0.3, 0.3), front=None, status="unverified")
+    build = _build([bed, twin_bed, odd], w=4.0, h=4.0, window=None)
+    a = build.building["rooms"][0]
+    second = copy.deepcopy(a)
+    second.update(id="r_L0_oda_2", polygon=[[5.0, 0.0], [9.0, 0.0], [9.0, 4.0], [5.0, 4.0]], twin_of=a["id"],
+                  twin_transform=[-1.0, 0.0, 9.0, 0.0, 1.0, 0.0])
+    build.building["rooms"].append(second)
+    sha = "0" * 64
+    questions = [{"key": "sym_L0_002", "task": "symbol_type", "images": ["crops/sym_L0_002_ctx.png"],
+                  "input_sha256": sha},
+                 {"key": "sym_L0_003", "task": "symbol_type", "images": ["crops/sym_L0_003_ctx.png"],
+                  "input_sha256": sha}]
+    works = _works(report={"questions": questions, "pending": ["sym_L0_002", "sym_L0_003"]},
+                   u={"candidate_key": "sym_L0_002"}, q={"candidate_key": "sym_L0_003"})
+    RD.read_furniture(build, works)
+    u = _piece(build.building, "u")
+    assert (u["type"], u["type_method"], u["inferred"]) == ("bed_double", "twin", True)
+    assert u.get("build") is not False and u["evidence"][-1]["rule"].endswith("type_by_code:twin")
+    q = _piece(build.building, "q")
+    assert q["type"] == "unknown" and q["build"] is False and "waits for the answers" in q["not_built_reason"]
+    report = works["page"].extraction.report
+    assert report["pending"] == ["sym_L0_003"] and report["typed_by_code"] == ["sym_L0_002"]
+    assert build.code_typed == {"sym_L0_002": "u"} and build.reading["code_typed"] == ["u"]
+    assert build.reading["questions_withdrawn"] == ["sym_L0_002"]
+    assert any("sym_L0_002 withdrawn" in w for w in build.building["warnings"])
+    # The pipeline writes the remaining question only; nothing waits for the withdrawn one.
+    import tempfile
+    from pathlib import Path
+    from wenart.recognition import answers as A
+
+    build.furniture_works = [works["page"]]
+    build.building["project"]["id"] = "t"
+    with tempfile.TemporaryDirectory() as tmp:
+        P._write_questions(build, Path(tmp))
+        doc = A.read_requests(Path(tmp) / "recognition")
+    assert [i["key"] for i in doc["items"]] == ["sym_L0_003"]
+    assert build.pending == ["sym_L0_003"] and build.unanswered == ["sym_L0_003"]
+    assert [q["key"] for q in build.questions] == ["sym_L0_003"]
+    text = "\n".join(P._reading_section(build.building, build))
+    assert "typed by code before the AI: 1: u" in text
 
 
 def test_a_stove_drawn_inside_a_named_stove_block_is_drawn_twice():

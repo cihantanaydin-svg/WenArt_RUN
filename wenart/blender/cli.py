@@ -11,7 +11,8 @@ CLI::
 
     python -m wenart.blender.cli build --building outputs/p/building_final.json --style outputs/p/style.json \
         --assets assets --out outputs/p/scene [--level L0] [--no-textures] [--preview-samples N] [--reuse] \
-        [--proxies] [--camera-policy m5|search] [--lens-mm L] [--variant ID] [--brief projects/p]
+        [--proxies] [--camera-policy m5|search] [--lens-mm L] [--variant ID] [--brief projects/p] \
+        [--cameras-from <scene_manifest.json>] [--cameras-extra]
     python -m wenart.blender.cli render --scene outputs/p/scene/scene.blend --out outputs/p/renders \
         [--cameras all|cam_a,cam_b] [--samples N] [--res WxH] [--force] [--device auto|cpu] \
         [--exposure auto|off|<EV>] [--exposure-target T] [--white-balance auto|off|fixed:r,g,b] \
@@ -50,6 +51,13 @@ into ``--out`` and ``export`` names the 3D files ``<name>-<id>.blend`` /
 ``.glb`` (``export_name``). ``build --brief <project dir | brief.yaml |
 brief JSON>`` gives the build the brief (``load_brief_arg``, written to
 ``<out>/build_brief.json``; its values enter the fingerprint).
+
+Milestone 13 (K8, camera replay): ``build --cameras-from <scene_manifest.json> [--cameras-extra]`` is passed on to
+``build.py`` (the recorded cameras are replayed, the search runs for the other rooms; ``--cameras-extra`` adds the
+searched set as well) and enters the ``--reuse`` fingerprint; without the flags build.py reads
+``WENART_CAMERAS_FROM`` / ``WENART_CAMERAS_EXTRA`` from its environment (the pod jobs export them), so both ways
+agree. ``render --white-balance project|kelvin:K`` (render.py: one whitepoint per project, or a fixed colour
+temperature) goes through as any other value.
 """
 from __future__ import annotations
 
@@ -172,25 +180,32 @@ def load_brief_arg(value) -> dict | None:
 def build_fingerprint(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                       no_textures: bool = False, preview_samples: int | None = None, proxies: bool = False,
                       camera_policy: str = "m5", lens_mm: float | None = None, variant: str = BASE_VARIANT,
-                      brief: dict | None = None) -> str:
+                      brief: dict | None = None, cameras_from: str | None = None, cameras_extra: bool = False) -> str:
     """The fingerprint build.py writes for these arguments (computed without Blender); ``brief``: the
-    ``load_brief_arg`` result (its values for the build's keys enter the fingerprint)."""
+    ``load_brief_arg`` result (its values for the build's keys enter the fingerprint). Milestone 13: ``cameras_from``
+    / ``cameras_extra`` as the flags of ``build``; None / False = the environment, as build.py resolves it."""
     import json
 
     from wenart.blender import build as build_script
 
     path = Path(building)
     data = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    extra = {}
+    if cameras_from:
+        extra["cameras_from"] = str(cameras_from)
+    if cameras_extra:
+        extra["cameras_extra"] = True
     args = build_script.fingerprint_args(building, style, assets, level, no_textures, preview_samples, False, False,
                                          proxies, camera_policy, lens_mm, variant,
-                                         build_script.brief_args(data, brief))
+                                         build_script.brief_args(data, brief), **extra)
     return build_script.build_fingerprint(args)
 
 
 def build(building: str, out: str, style: str | None = None, assets: str | None = None, level: str | None = None,
           no_textures: bool = False, preview_samples: int | None = None, timeout: int = 3600,
           proxies: bool = False, reuse: bool = False, camera_policy: str = "m5",
-          lens_mm: float | None = None, variant: str = BASE_VARIANT, brief=None) -> Path:
+          lens_mm: float | None = None, variant: str = BASE_VARIANT, brief=None,
+          cameras_from: str | None = None, cameras_extra: bool = False) -> Path:
     """Build the scene; returns the path of ``scene_manifest.json``.
     ``proxies`` keeps the Milestone 3 proxy boxes for every furniture piece.
     ``camera_policy``: ``m5`` (default, the fixed rules) or ``search``
@@ -199,13 +214,16 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
     in ``out`` has the fingerprint of these inputs (prints ``BUILD_REUSED <fp>``).
     ``variant`` (Milestone 10): the variant to build into the explicit ``out`` (the scheduler picks
     ``outputs/<p>/variants/<id>/scene``); ``brief``: a project folder, its ``brief.yaml`` or a brief JSON
-    (``load_brief_arg``), written to ``<out>/build_brief.json`` for the build."""
+    (``load_brief_arg``), written to ``<out>/build_brief.json`` for the build. Milestone 13 (K8): ``cameras_from``
+    (a scene manifest whose cameras the build replays) and ``cameras_extra`` go to build.py as ``--cameras-from`` /
+    ``--cameras-extra`` and into the ``reuse`` fingerprint; None / False leave the environment path to build.py."""
     loaded = load_brief_arg(brief)
     if reuse:
         from wenart.blender import build as build_script
 
         fp = build_fingerprint(str(building), str(style) if style else None, str(assets) if assets else None, level,
-                               no_textures, preview_samples, proxies, camera_policy, lens_mm, variant, loaded)
+                               no_textures, preview_samples, proxies, camera_policy, lens_mm, variant, loaded,
+                               cameras_from=cameras_from, cameras_extra=cameras_extra)
         ok, why = build_script.reusable_build(Path(out), fp)
         if ok:
             print(f"BUILD_REUSED {fp}")
@@ -229,6 +247,10 @@ def build(building: str, out: str, style: str | None = None, assets: str | None 
         args += ["--lens-mm", f"{float(lens_mm):g}"]
     if variant and variant != BASE_VARIANT:
         args += ["--variant", str(variant)]
+    if cameras_from:
+        args += ["--cameras-from", str(cameras_from)]
+    if cameras_extra:
+        args.append("--cameras-extra")
     Path(out).mkdir(parents=True, exist_ok=True)
     if loaded is not None:
         import json
@@ -338,6 +360,11 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--variant", default=BASE_VARIANT, help=variant_help)
     b.add_argument("--brief", help="the project brief (Milestone 10): the project folder, its brief.yaml or a brief "
                                    "JSON; default: the building's stored brief and the defaults")
+    b.add_argument("--cameras-from", default=None,
+                   help="Milestone 13: a scene_manifest.json whose cameras are replayed (the search runs only for "
+                        "the rooms without a record); default: $WENART_CAMERAS_FROM, read by build.py itself")
+    b.add_argument("--cameras-extra", action="store_true",
+                   help="Milestone 13: with --cameras-from also run the search for every room and add those cameras")
     r = sub.add_parser("render", help="render cameras of a built scene with Cycles")
     r.add_argument("--variant", default=BASE_VARIANT, help=variant_help)
     r.add_argument("--scene", required=True)
@@ -349,7 +376,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--device", default="auto", choices=["auto", "cpu"])
     r.add_argument("--exposure", help="auto (default) | off | <EV>")
     r.add_argument("--exposure-target", type=float)
-    r.add_argument("--white-balance", help="auto (default) | off | fixed:r,g,b")
+    r.add_argument("--white-balance", help="auto (default) | off | fixed:r,g,b | project | kelvin:K (Milestone 13)")
     r.add_argument("--look-from", help="render_manifest.json to copy the per-camera EV and whitepoint from")
     r.add_argument("--hide", help="wenart ids to hide, comma separated")
     r.add_argument("--plug", action="store_true", help="close the wall holes of hidden doors/windows")
@@ -380,7 +407,8 @@ def main(argv: list[str] | None = None) -> int:
         if ns.command == "build":
             path = build(ns.building, ns.out, ns.style, ns.assets, ns.level, ns.no_textures, ns.preview_samples,
                          proxies=ns.proxies, reuse=ns.reuse, camera_policy=ns.camera_policy, lens_mm=ns.lens_mm,
-                         variant=ns.variant, brief=ns.brief)
+                         variant=ns.variant, brief=ns.brief, cameras_from=ns.cameras_from,
+                         cameras_extra=ns.cameras_extra)
         elif ns.command == "export":
             path = export(ns.scene, ns.out, ns.name, ns.renders, ns.max_texture, ns.no_glb, variant=ns.variant)
         else:

@@ -9,6 +9,13 @@ What:
   ``missing_anchor`` (not ``floating``: moving the chair never helped, real04 0 of 24), an S2 cut below
   ``S2_TOLERANCE_M`` (0.03 m) is ``within_tolerance`` (invisible: 0 of 39 swaps helped), an X2 piece under the sloped
   roof is ``under_roof`` (move or lower the piece), an X2 on the roof itself is ``roof`` (building-wide).
+  Round 2 of the build (15 Oct 2026): an F8 whose ``metrics.cause`` is ``anchor_not_built`` goes to the tools that
+  BUILD the anchor, not to the chair's: ``anchor_untyped`` (the anchor is an ``unknown`` piece: ``retype_piece``
+  types and builds it through the fit) or ``missing_anchor`` (a typed anchor the fit left unbuilt: ``place_group``
+  re-solves the drawn group so the refit builds it, ``swap_model`` pins a model, ``retype_piece`` last);
+  ``anchor_of(finding)`` names the anchor the edit must act on (the brief's ``edit_target``). A G8 whose
+  ``metrics.tier`` names a tiered minimum (``groups.yaml`` ``tiers``: a small kitchen's aisle, a drawn run's
+  landings and triangle) is ``soft_minimum``: a scored term of the solver, reported only, no tool.
 - ``tools_for_finding(finding) -> [tool]``: the tools offered for the cause (``CAUSE_TOOLS``), best first; ``[]``
   when no tool fixes the cause: the finding is "not yours" in the brief (vision findings included: the critic's
   findings are offered only where a tool exists for the cause).
@@ -49,7 +56,9 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "orientation": ("rotate_piece", "set_front", "relayout_room"),
     "group_layout": ("move_group", "relayout_room", "move_piece", "rotate_piece", "set_front"),
     "built_front": ("swap_model", "rotate_piece", "set_front"),
-    "missing_anchor": ("place_group", "report_library_gap"),
+    # round 2: an F8 around an unbuilt anchor is fixed on the ANCHOR (``anchor_of``), by the tools that build it
+    "anchor_untyped": ("retype_piece", "mark_not_furniture", "place_group"),
+    "missing_anchor": ("place_group", "swap_model", "retype_piece", "report_library_gap"),
     "missing_member": ("complete_group", "place_group", "relayout_room"),
     "wrong_type": ("retype_piece", "mark_not_furniture", "remove_piece", "set_room_type"),
     "untyped": ("retype_piece", "mark_not_furniture"),
@@ -74,6 +83,7 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "interior_camera": ("set_camera", "remove_camera"),
     # measured, but no agent tool: the finding is "not yours" with the reason of NO_TOOL_REASON
     "within_tolerance": (),
+    "soft_minimum": (),
     "facade": (),
     "decor_rest": (),
     "render_match": (),
@@ -87,6 +97,8 @@ CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
 NO_TOOL_REASON: dict[str, str] = {
     "within_tolerance": f"within tolerance: a cut below {S2_TOLERANCE_M:.2f} m is not visible (S2 class tolerance); "
                         "no tool is offered",
+    "soft_minimum": "a tiered minimum (groups.yaml tiers: a small kitchen's aisle, a drawn run's landings and work "
+                    "triangle) is a scored term of the solver, reported only; no tool is offered",
     "facade": "the facade openings come from the drawings; no agent tool",
     "decor_rest": "decor rest is placed by the decor stage on the built mesh (S5): no agent tool",
     "render_match": "the render/JSON match is checked by the final check",
@@ -167,7 +179,15 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     base = CHECK_CAUSE.get(check, "unknown")
     if check == "F8":
         if metrics.get("cause") == "anchor_not_built" or metrics.get("missing_anchor") or "not built" in text:
-            return "missing_anchor"
+            # round 2: an unknown anchor is typed and built by retype_piece; a typed one the fit left unbuilt is
+            # re-solved (place_group) or given a model (swap_model)
+            anchor = metrics.get("missing_anchor")
+            atype = metrics.get("anchor_type")
+            if building is not None and anchor:
+                piece = next((f for f in building.get("furniture") or [] if f.get("id") == anchor), None)
+                if piece is not None:
+                    atype = piece.get("type")
+            return "anchor_untyped" if atype == "unknown" and anchor else "missing_anchor"
         return "floating"
     if check == "S2":
         depth = metrics.get("depth_m", metrics.get("overlap_m"))
@@ -200,7 +220,7 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     if check == "G5":
         return "off_wall" if (metrics.get("part") == "headboard" or "headboard" in text) else "clearance"
     if check == "G8":
-        return "fixture_clearance"
+        return "soft_minimum" if metrics.get("tier") else "fixture_clearance"
     if check == "V1":
         return "exterior_camera" if str(target or "").startswith(EXTERIOR_VIEW_PREFIX) else "interior_camera"
     if check == "LG":
@@ -217,6 +237,16 @@ def _built(piece: dict) -> bool:
         return False
     asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
     return asset.get("method") != "none"
+
+
+def anchor_of(finding: dict) -> Optional[str]:
+    """Round 2: the unbuilt anchor an F8 / LG finding is really about (``metrics.missing_anchor``), when it is not
+    the finding's own target: the piece the fixing edit must act on (the brief's ``edit_target``); else None."""
+    metrics = _metrics(finding)
+    anchor = metrics.get("missing_anchor")
+    if not anchor or anchor == finding.get("target"):
+        return None
+    return str(anchor)
 
 
 def tools_for_finding(finding: dict) -> list[str]:

@@ -447,6 +447,56 @@ def test_ladder_on_a_ten_seat_table_and_the_yatak_bed(library, monkeypatch):
     assert "## Built below the library level" in F.fit_report(fitted)
 
 
+def test_a_split_table_plan_labels_the_piece_adjusted_by_ai_and_keeps_the_drawn_footprint(library):
+    """Build round 2 (T2 review -> T1): a drawn table footprint deeper than a real table includes its chairs
+    (CLAUDE.md); the module builder splits it into table + chairs (``plan["split"]``) and the fit labels the piece
+    ``adjusted_by_ai`` with the reason, keeps the footprint as drawn and the ``drawn_*`` keys; a table without a
+    split gets no label, and ``assert_only_assets_changed`` accepts the labelled piece."""
+    from wenart.blender import modules as MOD
+
+    deep = drawn("table_dining", 3.35, 1.8, "f_L0_t1", height=0.75)        # 1.8 m deep: the chairs are in the box
+    plain = drawn("table_dining", 3.35, 1.0, "f_L0_t2", height=0.75)
+    before = {"furniture": [deep, plain]}
+    # with the size snap on (the default) the deep table takes a product depth first (K1, D5) and no split happens;
+    # the split is the module builder's answer when the snap is off (furnished_rooms keep_size) or on a refit of the
+    # piece as it is (fit_piece: the agent's retype path)
+    snapped_first = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed")
+    assert snapped_first["furniture"][0]["size_snap"]["drawn"][:2] == [3.35, 1.8]
+    assert not snapped_first["furniture"][0]["asset"]["module_plan"].get("split")
+    assert snapped_first["furniture"][0]["adjusted_by_ai"]["rule"] == F.SNAP_RULE
+    fitted = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed", snap=False)
+    t, u = fitted["furniture"]
+    assert t["asset"]["method"] == "module" and t["asset"]["module_plan"]["builder"] == "table_long"
+    split = t["asset"]["module_plan"]["split"]
+    assert split and split["chairs"] >= 2 and split["table_m"][1] <= MOD.TABLE_DEPTH_RANGE_M[1]
+    label = t["adjusted_by_ai"]
+    assert label["rule"] == F.SPLIT_RULE and label["split"] == split and label["changed"] == {}
+    assert "module split" in label["reason"] and f"with {split['chairs']} chairs" in label["reason"]
+    assert "3.35 x 1.80 m footprint" in label["reason"] and "drawn_footprint kept" in label["reason"]
+    assert t["footprint"] == deep["footprint"] and t["drawn_footprint"] == deep["footprint"]
+    assert t["drawn_type"] == "table_dining" and t["drawn_front_deg"] == 0.0 and t["drawn_height"] == 0.75
+    assert t["asset"]["adjusted_by_ai"]["rule"] == F.SPLIT_RULE and "size_snap" not in t
+    assert "adjusted_by_ai" not in u and "drawn_footprint" not in u and not u["asset"]["module_plan"].get("split")
+    F.assert_only_assets_changed(before, fitted)
+    # the pure helpers: no split, no label; a second application is a no-op; an earlier label's reason stays in front
+    assert F.split_label(plain, u["asset"]["module_plan"]) is None
+    assert F.apply_split_label(t) is False and t["adjusted_by_ai"] == label
+    snapped = dict(copy.deepcopy(deep), adjusted_by_ai={"reason": "size snap: x", "rule": F.SNAP_RULE,
+                                                         "changed": {"footprint": {"size": [3.4, 1.8]}}, "round": 2})
+    assert F.apply_split_label(snapped, t["asset"]) is True
+    assert snapped["adjusted_by_ai"]["reason"].startswith("size snap: x; module split")
+    assert snapped["adjusted_by_ai"]["rules"] == [F.SNAP_RULE, F.SPLIT_RULE] and snapped["adjusted_by_ai"]["round"] == 2
+    assert snapped["adjusted_by_ai"]["changed"] == {"footprint": {"size": [3.4, 1.8]}}
+    # the label stays on the asset of a refit through fit_piece (the agent's retype path applies it itself)
+    asset = F.fit_piece(deep, library, style_family="modern", mode="relaxed")
+    assert asset["adjusted_by_ai"]["rule"] == F.SPLIT_RULE and "adjusted_by_ai" not in deep
+    # a labelled piece whose footprint changed is not a valid fit result
+    broken = copy.deepcopy(fitted)
+    broken["furniture"][0]["footprint"]["size"] = [3.35, 1.0]
+    with pytest.raises(AssertionError, match="must not change the footprint"):
+        F.assert_only_assets_changed(before, broken)
+
+
 def test_module_plan_for_guards_the_import_and_a_builder_error(monkeypatch):
     import builtins
 
@@ -462,6 +512,71 @@ def test_module_plan_for_guards_the_import_and_a_builder_error(monkeypatch):
     assert plan is None and why.startswith("no module builder (wenart.blender.modules not importable")
     monkeypatch.setattr(builtins, "__import__", real_import)
     assert F.module_plan_for(drawn("chair", 0.5, 0.5, "f"))[0] is None               # no builder for the type
+
+
+# --------------------------------------------------------------------------
+# 4b. Build round 2: the HSSD layer as a library source (docs/milestone13.md §12 D2, §13.2 row hssd.py)
+# --------------------------------------------------------------------------
+
+def hssd_entry():
+    """An HSSD catalogue entry as pod P2 writes it (``growth_entries.hssd_entry`` on fake metadata: a 1.96 x 0.92 m
+    sofa measured at real size, the candidate record of ``wenart.assets.hssd``)."""
+    from wenart.assets import hssd as H
+    from wenart.assets.audit import growth_entries as GE
+
+    hid = "a" * 40
+    cand = {"id": H.UID_PREFIX + hid, "hssd_id": hid, "type": "sofa", "kind": "furniture",
+            "title": "Taylor 76'' Upholstered Sofa", "dims_m": [1.96, 0.92, 0.86], "path": H.object_path(hid),
+            "synset": "sofa.n.01", "found_in": "living", "multi": False, "articulated": False, "bin": [2.0, 0.9],
+            "demand": {"type": "sofa", "w": 2.0, "d": 0.9}, "projects": ["real02"], "fits_caps": True}
+    m = {"bbox_model_m": [1.96, 0.92, 0.86], "bbox_min_m": [-0.98, -0.46, 0.0], "bbox_max_m": [0.98, 0.46, 0.86],
+         "triangles": 12000, "vertices": 7000, "info": {"textured": True, "vertex_colours": False}, "stats": None,
+         "pbr": {"base_colour": True, "metallic_roughness": True, "normal": False, "occlusion": False,
+                 "emissive": False, "materials": 2, "images": 2}}
+    return GE.hssd_entry(cand, m, "0" * 64, "2026-10-15T00:00:00Z", pbr=m["pbr"])
+
+
+def test_an_hssd_entry_validates_and_is_a_relaxed_mode_candidate_only():
+    from wenart.assets import hssd as H
+    from wenart.blender import furniture as BF
+
+    e = hssd_entry()
+    assert "hssd" in C.SOURCES and "hssd" in C.LIBRARY_SOURCES
+    assert C.SOURCE_LICENCES["hssd"] == (H.LICENCE,) == ("CC-BY-NC-4.0",) and C.LICENCE_DECLARED_BY["hssd"] == "publisher"
+    assert e["source"] == "hssd" and e["licence"] == "CC-BY-NC-4.0" and e["licence_flag"] == "non_commercial"
+    C.validate({"entries": [e]}, complete=False)                       # the validator takes the CC BY credit fields
+    assert C.licence_flag_of(e) == "non_commercial" and C.commercial_safe(e) is False
+    assert C.licence_fields(e)["licence_declared_by"] == "publisher" and C.licence_fields(e)["commercial_safe"] is False
+    # P2 writes the entry with audit pending: no mode uses it until the audit decides (CLAUDE.md library rules)
+    assert e["audit"]["status"] == "pending" and not C.usable(e, "relaxed") and "pending" in C.unusable_reason(e, "relaxed")
+    e["audit"] = dict(e["audit"], status="keep")
+    assert not C.usable(e, "commercial") and C.usable(e, "relaxed")
+    assert "relaxed mode only" in C.unusable_reason(e, "commercial") and C.unusable_reason(e, "relaxed") is None
+    # the validator refuses what the dataset does not allow: another licence text, a missing credit field, a wrong flag
+    for bad in (dict(e, licence="CC-BY-4.0", licence_flag="none", commercial_safe=True),
+                dict(e, attribution=""), dict(e, licence_flag="none", commercial_safe=True),
+                dict(e, licence_declared_by="uploader", source="abo")):
+        with pytest.raises(C.CatalogError):
+            C.validate({"entries": [bad]}, complete=False)
+    # the fit: excluded in commercial mode with the reason, the model in relaxed mode with its flags; ranked after
+    # Poly Haven and before GSO
+    sofa = drawn("sofa", 2.0, 0.9, "f_L0_001")
+    commercial = F.fit_piece(sofa, FakeCatalog([e]), mode="commercial")
+    assert commercial["method"] != "library" and any(x["id"] == e["id"] and "relaxed mode only" in x["reason"]
+                                                     for x in commercial["excluded"])
+    relaxed = F.fit_piece(sofa, FakeCatalog([e]), mode="relaxed")
+    assert relaxed["method"] == "library" and relaxed["library"] == "hssd" and relaxed["asset_id"] == e["id"]
+    assert relaxed["licence"] == "CC-BY-NC-4.0" and relaxed["licence_flag"] == "non_commercial"
+    assert relaxed["commercial_safe"] is False and relaxed["licence_mode"] == "relaxed" and relaxed["scaling"] == "uniform"
+    assert relaxed["glb"] == f"models/hssd/{e['id']}.glb" and relaxed["attribution"] == e["attribution"]
+    assert F.SOURCE_ORDER.index("hssd") == 2 and F.source_rank(e) < F.source_rank({"source": "gso"})
+    # the scene builder's gate takes the fitted asset (its flag and credit line travel with it)
+    assert BF.licence_refusal(relaxed) is None and BF.MODEL_LICENCES["hssd"] == C.SOURCE_LICENCES["hssd"]
+    # a building in relaxed mode carries it, flagged in the report
+    fitted = F.fit_building({"project": {"licence_mode": "relaxed"}, "furniture": [sofa]}, FakeCatalog([e]))
+    assert fitted["furniture"][0]["asset"]["asset_id"] == e["id"]
+    report = F.fit_report(fitted)
+    assert e["id"] in report and "non_commercial" in report
 
 
 # --------------------------------------------------------------------------

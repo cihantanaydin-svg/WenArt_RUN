@@ -287,3 +287,93 @@ def test_allowed_edits_per_tool_from_the_locks():
     k = E.allowed_edits(kept, "s1")
     assert not k["move_piece"]["allowed"] and not k["resize_piece"]["allowed"] and k["rotate_piece"]["allowed"]
     assert E.allowed_edits(b, "nope") == {}
+
+
+# --------------------------------------------------------------------------
+# Milestone 13, round 2: the candidate applied like layout.apply_choice; complete_group with the drawn group; refit
+# --------------------------------------------------------------------------
+
+def test_a_re_solved_drawn_group_is_applied_in_place_with_its_kept_members_and_rug():
+    """``_solve_apply`` applies the candidate through ``layout.apply_choice``: the drawn pieces of
+    ``candidate["resolved"]`` change in place (the same dict objects; a kept member carries its ``drawn_group`` and
+    ``group`` too) and the solver's rug member comes with the decor. Before round 2 a kept member lost those keys
+    and the re-solved dicts were replaced."""
+    stand = M.fp("n1", "nightstand", (0.22, 3.7), (0.4, 0.4), rotation=90.0, front=0.0)
+    b = M.building(w=4.5, h=5.0, furniture=[bed(), stand])
+    source = copy.deepcopy(b)
+    room = b["rooms"][0]
+    drawn = GR.drawn_groups(b, ROOM)[0]
+    assert drawn["anchor_id"] == "b1" and drawn["members"] == ["n1"]
+    bed_obj, stand_obj = piece(b, "b1"), piece(b, "n1")
+    changed = E._solve_apply(b, room, E._program(b, room, []), dict(META), "test", fixed=[], drawn_group=drawn)
+    assert piece(b, "b1") is bed_obj and piece(b, "n1") is stand_obj                 # changed in place
+    assert changed[:2] == ["b1", "n1"] or changed[:1] == ["b1"]
+    for pid in ("b1", "n1"):
+        f = piece(b, pid)
+        assert f["drawn_group"]["anchor_id"] == "b1" and f["drawn_group"]["moved_m"] <= GR.GROUP_MEMBER_MOVE_MAX_M
+        assert f["group"]["group"] == "sleeping_double" and f["group"]["anchor_id"] == "b1"
+    assert piece(b, "b1")["adjusted_by_ai"]["by"] == "solver" and piece(b, "b1")["adjusted_by_ai"]["round"] == 2
+    rugs = [d for d in b["decor"] if d["type"] == "rug"]
+    assert len(rugs) == 1 and rugs[0]["group"]["role"] == "rug" and "b1" in rugs[0]["anchor_ids"]
+    new = added(b)
+    assert new and all(f["completes_room"] and f["checks"] and f["layout"]["candidate"] == 1 for f in new)
+    assert all([e["method"] for e in f["evidence"]][-2:] == ["derived", "ai"] for f in new)
+    assert LK.check(source, b, "complete") == []
+    # through apply_edit (a copy): the same, and the changed ids name the re-placed drawn pieces first
+    res = E.apply_edit(source, edit("place_group", room_id=ROOM, group="sleeping_double"))
+    assert res["accepted"], res["failed_checks"]
+    assert res["changed_ids"][0] == "b1" and [d["type"] for d in res["building"]["decor"]] == ["rug"]
+    assert piece(res["building"], "n1")["drawn_group"]["members"] == ["n1"]
+    assert LK.check(source, res["building"], "complete") == []
+
+
+def test_complete_group_re_solves_a_misread_drawn_anchor_as_one_unit_and_keeps_a_sound_one():
+    """A drawn bed outside the product grid (1.6 x 1.5 m) is marked for a re-solve by the program: complete_group
+    passes the drawn group to the solver, the bed takes a real size within 0.5 m of its drawn centre (drawn values
+    kept) and the nightstands come with it; a sound drawn bed stays exactly as drawn (Milestone 12)."""
+    short = M.fp("b1", "bed_double", (1.02, 2.5), (1.6, 1.5), rotation=90.0, front=0.0)
+    b = M.building(w=4.5, h=5.0, furniture=[short])
+    room = b["rooms"][0]
+    assert E._resolve_group(b, room, "b1") is not None and E._resolve_group(b, room, None) is None
+    gid = f"{ROOM}.sleeping_double"
+    res = E.apply_edit(b, edit("complete_group", group_id=gid))
+    assert res["accepted"], res["failed_checks"]
+    b1 = piece(res["building"], "b1")
+    assert b1["drawn_footprint"]["size"] == [1.6, 1.5] and b1["adjusted_by_ai"]["resized"] is True
+    assert sorted(b1["footprint"]["size"]) != [1.5, 1.6] and b1["drawn_group"]["moved_m"] <= 0.5
+    assert b1["asset"] is None and b1.get("build", True) is True              # the refit builds it again
+    assert "re-solved with its sleeping_double group as one unit" in b1["adjusted_by_ai"]["reason"]
+    assert "b1" in res["changed_ids"]
+    stands = [f for f in added(res["building"]) if f["type"] == "nightstand"]
+    assert len(stands) == 2 and all(f["group"]["anchor_id"] == "b1" for f in stands)
+    assert LK.check(b, res["building"], "complete") == []
+    sound = M.building(furniture=[bed()])
+    assert E._resolve_group(sound, sound["rooms"][0], "b1") is None
+    ok = E.apply_edit(sound, edit("complete_group", group_id=gid))
+    assert ok["accepted"] and piece(ok["building"], "b1") == bed() and "drawn_group" not in piece(ok["building"], "b1")
+
+
+def test_the_refit_builds_the_re_solved_pieces_and_the_locked_check_accepts_the_group_move():
+    """Item 4 of round 2: after a drawn group re-solve (``asset`` None on a resized member, ``drawn_group``,
+    ``adjusted_by_ai`` by the solver) the refit (``fit.fit_building``, the stage behind ``python -m wenart.furniture
+    fit``) fits the piece again (never ``none``) and the locked check of the refit (``fit.locked_check`` ->
+    ``locked.check``) accepts the member's move within ``groups.GROUP_MEMBER_MOVE_MAX_M`` and refuses a longer one."""
+    from wenart.furniture import catalog as C
+    from wenart.furniture import fit as F
+
+    short = M.fp("b1", "bed_double", (1.02, 2.5), (1.6, 1.5), rotation=90.0, front=0.0)
+    b = M.building(w=4.5, h=5.0, furniture=[short])
+    b["project"] = {"id": "t", "name": "t", "licence_mode": "commercial"}
+    res = E.apply_edit(b, edit("complete_group", group_id=f"{ROOM}.sleeping_double"))
+    assert res["accepted"] and piece(res["building"], "b1")["asset"] is None
+    fitted = F.fit_building(res["building"], C.load(), snap=False)
+    b1 = piece(fitted, "b1")
+    assert b1["asset"]["method"] in ("library", "module", "parametric") and GR.piece_is_built(b1)
+    assert b1["footprint"] == piece(res["building"], "b1")["footprint"] and b1["drawn_group"]["anchor_id"] == "b1"
+    assert all(f["asset"]["method"] != "none" for f in fitted["furniture"])
+    assert LK.check(b, fitted, "complete") == []
+    far = copy.deepcopy(fitted)
+    moved = piece(far, "b1")
+    moved["footprint"]["center"] = [moved["footprint"]["center"][0] + 0.6, moved["footprint"]["center"][1]]
+    problems = LK.check(b, far, "complete")
+    assert len(problems) == 1 and "by the solver (drawn group)" in problems[0] and "> 0.5 m" in problems[0]

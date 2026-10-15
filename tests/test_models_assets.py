@@ -377,7 +377,10 @@ def test_abo_generated_and_flagged_objaverse_models_come_from_the_cache_only(tmp
         path.write_bytes(f"glTF {source} {uid}".encode())
         return web.sha256_file(path)
 
-    assert models.LIBRARY_SOURCES == ("objaverse", "abo", "generated", "gso")
+    # hssd: Milestone 13 pod P2 (build round 2); = catalog.LIBRARY_SOURCES, the cache layout of every library source
+    assert models.LIBRARY_SOURCES == ("objaverse", "abo", "generated", "gso", "hssd") == models.CACHE_SOURCES
+    from wenart.furniture import catalog as C
+    assert set(models.LIBRARY_SOURCES) == set(C.LIBRARY_SOURCES)
     assert models.library_relpath("abo", "abo_B07B4SCB6T") == "models/abo/abo_B07B4SCB6T.glb"
     with pytest.raises(fetch.AssetNotFound, match="not a library source"):
         models.library_relpath("polyhaven", "x")
@@ -412,6 +415,24 @@ def test_abo_generated_and_flagged_objaverse_models_come_from_the_cache_only(tmp
                             meta=_objaverse_meta(uid=uid, sha=osha, licence_flag="non_commercial"))
     assert nc["licence"] == "CC-BY-NC-4.0" and nc["licence_flag"] == "non_commercial"
     assert set(fetch.load_manifest(assets)["models"]) == {"abo_B071777YN3", gen_uid, f"objaverse_{uid}"}
+    # Build round 2: an HSSD model (Milestone 13 pod P2, CC BY-NC 4.0 per the dataset card) comes from the same cache
+    # layout with its flag and credit line; any other licence text is refused, like a missing credit field.
+    hid = "hssd_" + "a" * 40
+    hsha = put("hssd", hid)
+    assert models.library_relpath("hssd", hid) == f"models/hssd/{hid}.glb"
+    hmeta = _library_meta("hssd", hid, hsha, title="Taylor sofa", author="the HSSD authors",
+                          source_url="https://huggingface.co/datasets/hssd/hssd-models/blob/x/objects/a/a.glb",
+                          licence_url="https://huggingface.co/datasets/hssd/hssd-models",
+                          via="HSSD: Habitat Synthetic Scenes Dataset (hssd/hssd-models) (CC BY-NC 4.0)",
+                          attribution='"Taylor sofa" from HSSD, CC BY-NC 4.0', licence_flag="non_commercial")
+    hs = models.fetch_model(hid, assets, source="hssd", licence="CC-BY-NC-4.0", meta=hmeta)
+    assert hs["source"] == "hssd" and hs["files"] == {"glb": f"models/hssd/{hid}.glb"} and hs["cache_only"] is True
+    assert hs["licence"] == "CC-BY-NC-4.0" and hs["licence_flag"] == "non_commercial" and hs["author"] == "the HSSD authors"
+    with pytest.raises(fetch.LicenceError):                                # HSSD is CC BY-NC 4.0 only
+        models.fetch_model(hid, assets, source="hssd", licence="CC0", meta=hmeta)
+    with pytest.raises(fetch.LicenceError, match="credit line"):
+        models.fetch_model(hid, assets, source="hssd", licence="CC-BY-NC-4.0", meta=dict(hmeta, attribution=""))
+    assert hid in fetch.load_manifest(assets)["models"]
 
 
 def test_material_fields_and_plant_variant_reach_the_manifest_only_when_the_catalogue_has_them(tmp_path):

@@ -40,6 +40,19 @@ elevation / null), ``sides`` (``$defs/side`` names), ``region_id`` and ``dropped
 camera; the dropped exterior views are listed in ``cameras_dropped``, never in ``cameras``); the manifest's
 ``variant``, ``variants``, ``whole_building``, ``exterior_looks`` (``exterior.resolve_looks``), ``brief`` (the
 brief values used) and a built ``site`` (``built: true`` with the terrain, its changes and the light wells).
+
+Milestone 13 (docs/milestone13.md §13.2 T5, §13.3; the lead owns this module), optional so the M11 manifests stay
+valid: scene cameras carry ``source`` (``searched`` | ``replayed``: a camera recreated from a scene manifest's record
+by ``build.py --cameras-from``, with ``replayed_from``) and a replayed record's ``rotation_euler_deg`` / ``clip_start``
+/ ``clip_end``; the scene manifest's ``cameras_from`` (the camera file and what came of it, ``CAMERAS_FROM``) and
+``light_variant`` (the ``WENART_LIGHT_VARIANT`` of the build, null in production); render entries' ``lighting_dark``
+(the ``Violation`` of a view whose metered EV would pass the +3 cap, ``LIGHTING_DARK``, also under ``exposure``),
+``sun_hidden`` and ``vram_mib``; the render manifest's ``lighting_dark`` list, ``white_balance_project`` (the one
+whitepoint of the project, ``WHITE_BALANCE_PROJECT``) and ``light_variant`` (``{render, build}``). The per-view
+``exposure.wb_mode`` takes the Milestone 13 modes ``project`` | ``kelvin`` (``render.WB_MODES``; every pod job renders
+``--white-balance project``), its ``limits`` is null outside mode ``auto`` (``--look-from``, ``--exposure fixed``), and
+a replayed camera record may carry ``rotation_euler_deg`` instead of a ``target`` (``_TARGET_OR_ROTATION``: one of
+the two is required).
 """
 from __future__ import annotations
 
@@ -57,6 +70,48 @@ INDEX_STATS = {
     "additionalProperties": {"type": "object", "required": ["pixels", "box"],
                              "properties": {"pixels": {"type": "integer", "minimum": 1}, "box": PIXEL_BOX}},
 }
+# Milestone 13 (docs/milestone13.md §13.2): where a scene camera comes from (``wenart.blender.cameras.replay_cameras``
+# gives ``replayed``; the search and the m5 policy ``searched``).
+CAMERA_SOURCES = ("searched", "replayed")
+# The ``Violation`` shape of ``render.lighting_dark_entry``: a view whose metered EV would pass the cap.
+LIGHTING_DARK = {
+    "type": "object",
+    "required": ["check", "severity", "target", "room_id", "message", "metrics"],
+    "properties": {"check": {"const": "lighting_dark"}, "severity": {"enum": ["major", "critical"]},
+                   "target": {"type": "string"}, "room_id": {"type": ["string", "null"]},
+                   "message": {"type": "string"},
+                   "metrics": {"type": "object", "required": ["ev_wanted", "ev_used", "ev_cap", "stops_over_cap"],
+                               "properties": {"ev_wanted": {"type": "number"}, "ev_used": {"type": "number"},
+                                              "ev_cap": {"type": "number"}, "stops_over_cap": {"type": "number"},
+                                              "incident_p50": {"type": ["number", "null"]}}}},
+}
+# The one whitepoint of a project (``render.py --white-balance project | kelvin:K``, ``lock_project_whitepoint``):
+# ``whitepoint`` null when no interior camera gave light to meter (every view then renders without a white
+# balance, noted on its exposure).
+WHITE_BALANCE_PROJECT = {
+    "type": "object",
+    "required": ["whitepoint", "from_camera", "source"],
+    "properties": {"whitepoint": {"oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "number",
+                                                                                       "exclusiveMinimum": 0},
+                                                              "minItems": 3, "maxItems": 3}]},
+                   "from_camera": {"type": ["string", "null"]}, "source": {"type": "string"},
+                   "residual": {"type": ["number", "null"]}, "kelvin": {"type": "number", "exclusiveMinimum": 0}},
+}
+# The scene manifest's ``cameras_from`` (``build.cameras_from_summary``): the camera file of ``--cameras-from``
+# (``path`` with its ``sha256`` and record count, or ``missing``), the counts of replayed and searched cameras, the
+# records dropped with their reason and a ``reason`` when the search ran for everything.
+CAMERAS_FROM = {
+    "type": "object",
+    "required": ["path", "replayed", "searched", "extra", "dropped"],
+    "properties": {"path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                   "missing": {"type": "boolean"}, "cameras": {"type": "integer", "minimum": 0},
+                   "build_fingerprint": {"type": ["string", "null"]}, "camera_policy": {"type": ["string", "null"]},
+                   "replayed": {"type": "integer", "minimum": 0}, "searched": {"type": "integer", "minimum": 0},
+                   "extra": {"type": "boolean"},
+                   "dropped": {"type": "array", "items": {"type": "object", "required": ["name", "reason"]}},
+                   "reason": {"type": "string"}},
+}
+
 EXPOSURE = {
     "type": "object",
     "required": ["mode", "ev", "ev_raw", "at_limit", "target", "incident_p50", "whitepoint", "wb_temperature",
@@ -70,7 +125,9 @@ EXPOSURE = {
         "incident_p50": {"type": ["number", "null"]},
         "whitepoint": {"oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0},
                                                     "minItems": 3, "maxItems": 3}]},
-        "wb_mode": {"enum": ["auto", "off", "fixed", "from"]},
+        # Milestone 13 (K5): project (one metered whitepoint per project) and kelvin (``--white-balance kelvin:K``),
+        # ``render.WB_MODES`` plus ``from`` (a --look-from render).
+        "wb_mode": {"enum": ["auto", "off", "fixed", "from", "project", "kelvin"]},
         "wb_temperature": {"type": ["number", "null"]},
         "wb_tint": {"type": ["number", "null"]},
         "residual": {"type": ["number", "null"]},
@@ -78,6 +135,13 @@ EXPOSURE = {
         "meter_seconds": {"type": "number", "minimum": 0},
         "source": {"type": ["string", "null"]},
         "ev_offset": {"type": "number"},
+        # Milestone 13 (K5): the EV limits of the run, the lighting_dark finding of the view, the project whitepoint's
+        # source and camera (modes project / kelvin).
+        "limits": {"oneOf": [{"type": "null"},                 # null outside mode auto (from, fixed, off)
+                             {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}]},
+        "lighting_dark": {"oneOf": [{"type": "null"}, LIGHTING_DARK]},
+        "wb_source": {"type": ["string", "null"]},
+        "wb_from_camera": {"type": "string"},
     },
 }
 _SHARE = {"type": ["number", "null"], "minimum": 0, "maximum": 1}
@@ -98,7 +162,11 @@ WHOLE_BUILDING_KINDS = ("slab", "roof", "facade", "terrain", "site_wall", "site_
                         # Milestone 11 (docs/milestone11.md §1.1 E10, E11): the inferred site and the facade details
                         "site_steps", "site_boundary", "facade_detail", "splashback",
                         # 11 Oct 2026 (real04): the other buildings on the plot (instances) and the pools
-                        "building_copy", "site_pool")
+                        "building_copy", "site_pool",
+                        # Milestone 13 (T6, round 2): the site parts of their own (platforms, hedges, grass, the haze
+                        # volume); common.KINDS and views.SITE_PART_KINDS list the same names, site.site_kind
+                        # writes them only once this tuple knows them
+                        "site_platform", "site_hedge", "site_grass", "atmosphere")
 # wenart/schema/building.schema.json $defs/side.
 SIDES = ("all", "north", "east", "south", "west", "front", "back", "left", "right")
 CAMERA_VIEWS = ("corner", "aerial", "elevation",
@@ -194,11 +262,15 @@ _CAMERA_M10 = {
 _EXTERIOR_NO_ROOM = {"if": {"properties": {"kind": {"const": "exterior"}}, "required": ["kind"]},
                      "then": {"properties": {"room_id": {"type": "null"}, "level_id": {"type": "null"}}}}
 
+# Milestone 13 (K8): a searched camera aims at its ``target``; a camera replayed from a record that carries a rotation
+# only (``cameras.replay_cameras``, ``create_cameras``) has ``rotation_euler_deg`` and a null or absent ``target``.
+_TARGET_OR_ROTATION = {"anyOf": [{"required": ["target"], "properties": {"target": {"type": "array"}}},
+                                 {"required": ["rotation_euler_deg"]}]}
 SCENE_CAMERA = {
     "type": "object",
-    "required": ["name", "room_id", "level_id", "index", "position", "target", "lens_mm", "sensor_mm",
+    "required": ["name", "room_id", "level_id", "index", "position", "lens_mm", "sensor_mm",
                  "resolution", "visible_openings", "visible_furniture", "warning"],
-    "allOf": [_EXTERIOR_NO_ROOM,
+    "allOf": [_EXTERIOR_NO_ROOM, _TARGET_OR_ROTATION,
               {"if": {"properties": {"kind": {"const": "interior"}}, "required": ["kind"]},
                "then": {"properties": {"room_id": {"type": "string"}, "dropped_reason": {"type": "null"}}}}],
     "properties": {
@@ -208,7 +280,8 @@ SCENE_CAMERA = {
         "index": {"type": "integer", "minimum": 1},
         **_CAMERA_M10,
         "position": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
-        "target": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+        "target": {"oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "number"}, "minItems": 3,
+                                                "maxItems": 3}]},
         "lens_mm": {"type": "number"},
         "sensor_mm": {"type": "number"},
         "resolution": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
@@ -222,6 +295,17 @@ SCENE_CAMERA = {
         "score": {"type": ["object", "null"]},
         # Milestone 8 (docs/milestone8.md §5): why the camera has its lens (search policy; optional).
         "lens_rule": {"type": ["string", "null"]},
+        # Milestone 13 (docs/milestone13.md §13.2, K8): a searched camera or one replayed from a scene manifest's
+        # record (``cameras.replay_cameras``: the record's rotation and clip when it carries them; ``extra`` marks the
+        # searched camera of a room that also has a replayed one, --cameras-extra).
+        "source": {"enum": list(CAMERA_SOURCES)},
+        "replayed_from": {"type": "object", "properties": {"build_fingerprint": {"type": ["string", "null"]},
+                                                           "camera_policy": {"type": ["string", "null"]},
+                                                           "policy": {"type": ["string", "null"]}}},
+        "rotation_euler_deg": _VEC3,
+        "clip_start": {"type": "number", "exclusiveMinimum": 0},
+        "clip_end": {"type": "number", "exclusiveMinimum": 0},
+        "extra": {"type": "boolean"},
     },
 }
 
@@ -314,6 +398,10 @@ SCENE_MANIFEST = {
         "cameras_dropped": {"type": "array", "items": DROPPED_CAMERA},
         "exterior_looks": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": EXTERIOR_LOOK}]},
         "brief": {"type": "object", "additionalProperties": {"type": "object", "required": ["value", "assumed"]}},
+        # Milestone 13 (docs/milestone13.md §13.2 T5): the camera replay and the light variant of the build
+        # (``WENART_LIGHT_VARIANT``; null = production), optional so the M11 manifests stay valid.
+        "cameras_from": {"oneOf": [{"type": "null"}, CAMERAS_FROM]},
+        "light_variant": {"type": ["string", "null"]},
     },
 }
 
@@ -350,6 +438,11 @@ RENDER_ENTRY = {
         # Milestone 8 (§5): the lens the camera was rendered with (optional: older manifests have none).
         "lens_mm": {"type": "number", "exclusiveMinimum": 0},
         "sensor_mm": {"type": "number", "exclusiveMinimum": 0},
+        # Milestone 13 (docs/milestone13.md §13.2 T5): the view's lighting_dark finding (null within the cap), whether
+        # the sun lamp was hidden under the sun-disc sky (exterior cameras) and the GPU memory after the view.
+        "lighting_dark": {"oneOf": [{"type": "null"}, LIGHTING_DARK]},
+        "sun_hidden": {"type": "boolean"},
+        "vram_mib": {"type": ["integer", "null"], "minimum": 0},
     },
 }
 
@@ -394,6 +487,14 @@ RENDER_MANIFEST = {
             "properties": {"camera": {"type": "string"}, "reason": {"type": "string"},
                            "scene_sha256": {"type": ["string", "null"]}, "render_key": {"type": ["string", "null"]},
                            "files": {"type": "array", "items": {"type": "string"}}}}},
+        # Milestone 13 (docs/milestone13.md §13.2 T5, K5): the EV limits of the run, the views whose metered EV
+        # passed the cap (a Violation each, for the report), the project whitepoint and the light variant of the
+        # render and of the build (``WENART_LIGHT_VARIANT``; null = production). Optional: M11 manifests have none.
+        "exposure_limits": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+        "lighting_dark": {"type": "array", "items": LIGHTING_DARK},
+        "white_balance_project": {"oneOf": [{"type": "null"}, WHITE_BALANCE_PROJECT]},
+        "light_variant": {"type": ["object", "null"], "properties": {"render": {"type": ["string", "null"]},
+                                                                     "build": {"type": ["string", "null"]}}},
     },
 }
 

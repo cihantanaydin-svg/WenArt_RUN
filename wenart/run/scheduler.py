@@ -336,7 +336,17 @@ class RunOptions:
     # that build RunOptions themselves (plan, prep, the CPU tests of M6-M10).
     orchestrator: bool = False
     agent_key: str = S.AGENT_KEY                          # check.yaml models key of the agent (agent | agent_fast)
-    agent_rounds: int = 4
+    # Milestone 13 (K4, docs/milestone13.md §3.0; the user's rule of 12 Oct 2026): 3 rounds (was 4 since 11 Oct;
+    # the real04 pod ran 6 with most edits removing no finding). Passed to AgentLoop as max_rounds, so
+    # wenart.agent.loop.MAX_ROUNDS = 3 and this default must agree.
+    agent_rounds: int = 3
+    # Milestone 13 (K8, K5): the camera replay and the white balance of the final renders as pod flags
+    # (``--cameras-from PATH`` with ``{name}`` = the project, ``--cameras-extra``, ``--white-balance project|kelvin:K``);
+    # None / False leave the environment path (WENART_CAMERAS_FROM / WENART_CAMERAS_EXTRA read by build.py) and the
+    # brief's render.white_balance_k (stages.white_balance_of) in charge.
+    cameras_from: Optional[str] = None
+    cameras_extra: bool = False
+    white_balance: Optional[str] = None
 
     @property
     def smoke(self) -> bool:
@@ -1047,6 +1057,13 @@ class Orchestrator:
                                S.pipeline_final(self.tools, pr.ref, answers=not smoke, no_ai=True))
         data = read_json(building)
         status = data.get("status") if isinstance(data, dict) else None
+        platforms_note = ""
+        if rc == 0 and status == "ok":
+            # Milestone 13 (T6, §13.3): site.platforms into the building after the levels (a step of this stage, so
+            # the stored building.json is the one with them); a failure leaves the building as the pipeline wrote it.
+            prc = self.run_step(pr, "pipeline_final", "site platforms", S.site_platforms(self.tools, pr.ref))
+            if prc != 0:
+                platforms_note = f"; site platforms exit {prc} (building without site.platforms)"
         written = {"building.json": ST.canonical_sha256(building)}
         if (pr.out / "sheets.json").is_file():
             written["sheets.json"] = ST.canonical_sha256(pr.out / "sheets.json")
@@ -1056,9 +1073,10 @@ class Orchestrator:
         if sheets_missing:                      # M10: as prep.do_pipeline_final, never a silent "answers applied"
             how += "; sheet answers missing: sheets --no-ai (regions decided by title and geometry)"
         if second_round and rc == 0 and status == "ok":
-            self.finish(pr, "pipeline_final", "warning", S.SECOND_ROUND_NOTE, **rec)
+            self.finish(pr, "pipeline_final", "warning", S.SECOND_ROUND_NOTE + platforms_note, **rec)
         elif rc == 0 and status == "ok":
-            self.finish(pr, "pipeline_final", "warning" if sheets_missing else "ok", how, **rec)
+            self.finish(pr, "pipeline_final", "warning" if sheets_missing or platforms_note else "ok",
+                        how + platforms_note, **rec)
         elif rc == 1 and status == "needs_review":
             self.finish(pr, "pipeline_final", "needs_review", "building needs review (report.md)", **rec)
         elif rc == TIMEOUT_RC:
@@ -1950,7 +1968,9 @@ class Orchestrator:
         pr.parts.setdefault("agent", []).append({"name": "rounds", "rc": 0, "seconds": round(self.now() - t0, 2)})
         stop = (summary.get("stop") or {}).get("reason")
         from wenart.agent.loop import STOPS
-        self.finish(pr, "agent", "ok", f"{len(summary['rounds'])} round(s), {summary['accepted']} edit(s) accepted, "
+        # Milestone 13 (K4): "findings removed" is the metric, not "edits accepted" (CLAUDE.md evidence rules).
+        self.finish(pr, "agent", "ok", f"{len(summary['rounds'])} round(s), {summary.get('findings_removed', 0)} "
+                                       f"finding(s) removed by {summary['accepted']} accepted edit(s), "
                                        f"{summary['rejected']} rejected; stop: {STOPS.get(stop, stop)}")
 
     def rollback_round(self, pr: ProjectRun, round_no: Optional[int], why: str) -> int:
@@ -2180,7 +2200,9 @@ class Orchestrator:
             return
         rc = self.run_step(pr, "build", "build", S.build(self.tools, pr.ref, force=self.forced("build"),
                                                           lens_mm=self.brief_lens(pr), variant=pr.variant,
-                                                          base_out=pr.base.out if pr.base is not None else None))
+                                                          base_out=pr.base.out if pr.base is not None else None,
+                                                          cameras_from=self.cameras_from(pr),
+                                                          cameras_extra=bool(self.opts.cameras_extra)))
         if rc == 0:
             self.finish(pr, "build", "ok")
         elif rc == TIMEOUT_RC:
@@ -2204,7 +2226,8 @@ class Orchestrator:
         if not self.can_start(S.est_render(len(cameras) if cameras else pr.views)):
             self.not_started(pr, "render")
             return
-        cmd = S.render(self.tools, pr.ref, force=self.forced("render"), alt_look=pr.look_alt, cameras=cameras)
+        cmd = S.render(self.tools, pr.ref, force=self.forced("render"), alt_look=pr.look_alt, cameras=cameras,
+                       white_balance=self.white_balance(pr))
         rc = self.run_step(pr, "render", "render", cmd)
         status, note = self.render_status(rc, pr.out / "renders" / "render_manifest.json")
         self.finish(pr, "render", status, note)
@@ -2345,6 +2368,26 @@ class Orchestrator:
             return lens_mm(load_brief(pr.ref.project_dir))
         except Exception:  # noqa: BLE001 - the style stage already reported a broken brief
             return None
+
+    def cameras_from(self, pr: ProjectRun) -> Optional[str]:
+        """Milestone 13 (K8): the camera file of the build from the pod flag ``--cameras-from`` (``{name}`` = the
+        project name, as ``stages.cameras_from_env``); None leaves ``WENART_CAMERAS_FROM`` to build.py."""
+        text = self.opts.cameras_from
+        if not text:
+            return None
+        return str(text).replace("{name}", pr.name)
+
+    def white_balance(self, pr: ProjectRun) -> str:
+        """Milestone 13 (K5): the final render's ``--white-balance``: the pod flag, else the brief's
+        ``render.white_balance_k`` as ``kelvin:K``, else ``project`` (``stages.white_balance_of``)."""
+        from wenart.brief import load_brief
+        brief = None
+        if not self.opts.white_balance:
+            try:
+                brief = load_brief(pr.ref.project_dir)
+            except Exception:  # noqa: BLE001 - the style stage already reported a broken brief
+                brief = None
+        return S.white_balance_of(brief, self.opts.white_balance)
 
     def polish_on(self, pr: ProjectRun) -> bool:
         """The brief's ``polish`` (default on); Milestone 11: off when the agent accepted ``rerun_stage polish

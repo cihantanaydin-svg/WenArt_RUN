@@ -820,10 +820,12 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
     """The decorated building (new dict) and the per-room records (module docstring); ``style`` (Milestone 10): the
     profile whose decor words (colours, plant species and pots, the mood's lamps) ``apply_brief_looks`` applies."""
     out = json.loads(json.dumps(building))
-    out["decor"] = []
+    # Milestone 13 (round 2): the rugs the group solver laid as group members are kept with their ids
+    # (``decor.solver_rugs``, as ``decor.add_decor``); new items are numbered after them
+    out["decor"] = D.solver_rugs(out)
     records: list[RoomDecor] = []
     mode = decor_mode(out)
-    counters: dict[str, int] = {}
+    counters: dict[str, int] = D.decor_counters(out["decor"])
     looks: dict[str, int] = {}
     lamps = lamps_on_of(style)
 
@@ -832,6 +834,7 @@ def apply(building: dict, style_text: str, answers: dict, model: Optional[str] =
         return f"dec_{level_id}_{counters[level_id]:03d}"
 
     if mode == "off":
+        out["decor"] = []                              # no decor at all, the solver's rugs included (as add_decor)
         return out, records
     store = answers.get("answers") or {}
     model = model or answers.get("model") or "?"

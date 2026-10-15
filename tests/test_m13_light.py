@@ -545,3 +545,37 @@ def test_stages_and_plan_pass_the_camera_file_through():
     env = PL.camera_records_for("real04", ROOT, env={"WENART_CAMERAS_FROM": str(REAL03)})
     assert env["cameras"] == 83 and env["source"] == "env WENART_CAMERAS_FROM"
     assert S.WHITE_BALANCE == "project" and "project" in R.WB_MODES
+
+
+def test_the_cli_forwards_the_camera_flags_to_the_build_and_its_reuse_fingerprint(tmp_path, monkeypatch):
+    """Round 2 (K8): ``wenart.blender.cli build --cameras-from F [--cameras-extra]`` passes the flags on to
+    build.py (stages.build emits them) and takes them into the ``--reuse`` fingerprint exactly as build.py
+    computes it; without the flags the environment path stays (both read WENART_CAMERAS_FROM)."""
+    from wenart.blender import cli as CLI
+    monkeypatch.delenv(B.CAMERAS_FROM_ENV, raising=False)
+    monkeypatch.delenv(B.CAMERAS_EXTRA_ENV, raising=False)
+    monkeypatch.delenv(L.LIGHT_VARIANT_ENV, raising=False)
+    building = ROOT / "results" / "furniture" / "real02" / "building_final.json"
+    seen = []
+    monkeypatch.setattr(CLI, "run_blender", lambda script, args, **kw: seen.append(list(args)))
+    out = tmp_path / "scene"
+    CLI.build(str(building), str(out), cameras_from=str(REAL02), cameras_extra=True)
+    assert seen[-1][seen[-1].index("--cameras-from") + 1] == str(REAL02) and "--cameras-extra" in seen[-1]
+    CLI.build(str(building), str(out))
+    assert "--cameras-from" not in seen[-1] and "--cameras-extra" not in seen[-1]
+    # The reuse fingerprint with the flags = build.py's fingerprint_args with the same values.
+    fp_flags = CLI.build_fingerprint(str(building), cameras_from=str(REAL02), cameras_extra=True)
+    brief_args = B.brief_args(json.loads(building.read_text()), None)
+    expect = B.build_fingerprint(B.fingerprint_args(str(building), None, None, None, False, None, False, False, False,
+                                                    "m5", None, "base", brief_args, cameras_from=str(REAL02),
+                                                    cameras_extra=True))
+    assert fp_flags == expect and fp_flags != CLI.build_fingerprint(str(building))
+    # The environment gives the same fingerprint as the flags (build.py resolves the file either way).
+    monkeypatch.setenv(B.CAMERAS_FROM_ENV, str(REAL02))
+    monkeypatch.setenv(B.CAMERAS_EXTRA_ENV, "1")
+    assert CLI.build_fingerprint(str(building)) == fp_flags
+    # The subcommand parses the flags.
+    monkeypatch.setattr(CLI, "build", lambda *a, **kw: seen.append(kw) or tmp_path / "m.json")
+    assert CLI.main(["build", "--building", "b", "--out", "o", "--cameras-from", "x.json", "--cameras-extra"]) == 0
+    assert seen[-1]["cameras_from"] == "x.json" and seen[-1]["cameras_extra"] is True
+    assert CLI.main(["build", "--building", "b", "--out", "o"]) == 0 and seen[-1]["cameras_from"] is None

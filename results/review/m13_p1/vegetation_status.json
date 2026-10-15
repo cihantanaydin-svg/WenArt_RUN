@@ -1,0 +1,209 @@
+{
+ "written_utc": "2026-10-15T16:57:37Z",
+ "blender": "Blender 5.2.2 LTS",
+ "sapling": {
+  "extension_id": "sapling_tree_gen",
+  "how": "extensions.blender.org",
+  "registered": true
+ },
+ "models": {
+  "island_tree_01": {
+   "ok": true,
+   "gltf": "models/island_tree_01/island_tree_01_2k.gltf",
+   "bbox_m": [
+    4.7551,
+    4.8177,
+    5.0274
+   ],
+   "polycount": 3729692,
+   "licence": "CC0",
+   "bytes": 79783969
+  },
+  "island_tree_02": {
+   "ok": true,
+   "gltf": "models/island_tree_02/island_tree_02_2k.gltf",
+   "bbox_m": [
+    4.2077,
+    4.0707,
+    3.4066
+   ],
+   "polycount": 1762064,
+   "licence": "CC0",
+   "bytes": 59188881
+  },
+  "island_tree_03": {
+   "ok": true,
+   "gltf": "models/island_tree_03/island_tree_03_2k.gltf",
+   "bbox_m": [
+    2.9721,
+    2.9132,
+    2.6151
+   ],
+   "polycount": 4760490,
+   "licence": "CC0",
+   "bytes": 97598257
+  },
+  "tree_small_02": {
+   "ok": true,
+   "gltf": "models/tree_small_02/tree_small_02_2k.gltf",
+   "bbox_m": [
+    2.9167,
+    4.2925,
+    4.5567
+   ],
+   "polycount": 4652585,
+   "licence": "CC0",
+   "bytes": 115328490
+  },
+  "jacaranda_tree": {
+   "ok": true,
+   "gltf": "models/jacaranda_tree/jacaranda_tree_2k.gltf",
+   "bbox_m": [
+    24.417,
+    19.1546,
+    19.4689
+   ],
+   "polycount": 312356,
+   "licence": "CC0",
+   "bytes": 229608704
+  },
+  "fir_sapling_medium": {
+   "ok": true,
+   "gltf": "models/fir_sapling_medium/fir_sapling_medium_2k.gltf",
+   "bbox_m": [
+    14.7929,
+    5.2759,
+    8.8904
+   ],
+   "polycount": 2308249,
+   "licence": "CC0",
+   "bytes": 87511667
+  },
+  "searsia_lucida": {
+   "ok": true,
+   "gltf": "models/searsia_lucida/searsia_lucida_2k.gltf",
+   "bbox_m": [
+    4.7773,
+    2.838,
+    2.3389
+   ],
+   "polycount": 841648,
+   "licence": "CC0",
+   "bytes": 24769783
+  },
+  "searsia_burchellii": {
+   "ok": true,
+   "gltf": "models/searsia_burchellii/searsia_burchellii_2k.gltf",
+   "bbox_m": [
+    8.3564,
+    5.0485,
+    3.247
+   ],
+   "polycount": 1427042,
+   "licence": "CC0",
+   "bytes": 38360286
+  },
+  "othonna_cerarioides": {
+   "ok": true,
+   "gltf": "models/othonna_cerarioides/othonna_cerarioides_2k.gltf",
+   "bbox_m": [
+    3.9691,
+    1.7989,
+    1.9696
+   ],
+   "polycount": 651641,
+   "licence": "CC0",
+   "bytes": 14083490
+  },
+  "grass_medium_02": {
+   "ok": true,
+   "gltf": "models/grass_medium_02/grass_medium_02_2k.gltf",
+   "bbox_m": [
+    1.3106,
+    0.4332,
+    0.4053
+   ],
+   "polycount": 1043926,
+   "licence": "CC0",
+   "bytes": 1789378
+  },
+  "grass_bermuda_01": {
+   "ok": true,
+   "gltf": "models/grass_bermuda_01/grass_bermuda_01_2k.gltf",
+   "bbox_m": [
+    1.6865,
+    0.1422,
+    0.1583
+   ],
+   "polycount": 223596,
+   "licence": "CC0",
+   "bytes": 4772987
+  }
+ },
+ "models_ok": 11,
+ "models_total": 11,
+ "textures": {
+  "LeafSet012": {
+   "ok": true,
+   "maps": [
+    "albedo",
+    "displacement",
+    "normal",
+    "opacity",
+    "roughness"
+   ],
+   "licence": "CC0",
+   "size_m": [
+    1.0,
+    1.0
+   ]
+  },
+  "LeafSet016": {
+   "ok": true,
+   "maps": [
+    "albedo",
+    "displacement",
+    "normal",
+    "opacity",
+    "roughness"
+   ],
+   "licence": "CC0",
+   "size_m": [
+    1.0,
+    1.0
+   ]
+  },
+  "LeafSet027": {
+   "ok": true,
+   "maps": [
+    "albedo",
+    "displacement",
+    "normal",
+    "opacity",
+    "roughness"
+   ],
+   "licence": "CC0",
+   "size_m": [
+    0.9,
+    0.9
+   ]
+  },
+  "Bark014": {
+   "ok": true,
+   "maps": [
+    "albedo",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "licence": "CC0",
+   "size_m": [
+    1.2,
+    1.2
+   ]
+  }
+ },
+ "textures_ok": 4,
+ "model_size": "2k",
+ "failed_steps": []
+}

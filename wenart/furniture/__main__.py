@@ -8,6 +8,15 @@ the existing entries of the catalogue files by script (``wenart.furniture.catalo
 hand, and prints the counts per flag.
 
 The layout step has its own entry (``python -m wenart.furniture.layout``).
+
+The refit (``wenart/run/stages.py`` ``refit``: ``python -m wenart.furniture.fit <building_decor.json> --source
+building.json [--completion completion.json]``, the same ``fit`` entry) fits EVERY piece again
+(``fit.fit_building``): a drawn piece the layout re-solved as part of its drawn group (Milestone 13 D5,
+``solver._resolved_dict``: ``asset`` None, ``drawn_group``, ``adjusted_by_ai`` by the solver, the drawn values
+kept) gets its model, module or parametric build like any other piece, never ``none``; the refit's locked check
+(``fit.locked_check`` -> ``wenart.furniture.locked.check``) accepts such a member within
+``groups.GROUP_MEMBER_MOVE_MAX_M`` (0.5 m) of its drawn centre and a real product size, and refuses more
+(verified in ``tests/test_groups_edits.py``, round 2 of the build).
 """
 from __future__ import annotations
 

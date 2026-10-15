@@ -248,6 +248,40 @@ def licence_problem(entry: dict, asset_id: str) -> str | None:
     return None
 
 
+def material_maps(tset: dict | None) -> list[str]:
+    """The map names a material record lists (pure; Milestone 13, T8 metric 10 reads ``materials[].maps`` and
+    counts a textured slot when the names carry ``normal`` and ``rough``): the texture set's file keys in a
+    fixed order (``texture_set`` requires albedo, normal and roughness), [] without a set."""
+    files = (tset or {}).get("files") or {}
+    order = ("albedo", "normal", "roughness", "displacement", "opacity", "ao", "metallic")
+    names = [k for k in order if files.get(k)] + sorted(k for k in files if k not in order and files.get(k))
+    return names
+
+
+def recolour_parts(record: dict | None) -> dict:
+    """The per-part view of a scene object's ``recolour`` record (pure; Milestone 13, T8 metric 10 counts an
+    upholstered piece as recoloured when its record has a ``fabric`` key): ``furniture.recolour_materials`` writes
+    ``{"applied": [{"material", "part", "colour", "copy"}], "missing": [...]}``; this returns the record with
+    one key per applied part (``fabric``, ``wood``, ...) holding ``{"colour", "materials": [names], "copies":
+    [names]}``. A record that already has part keys, or no ``applied`` list, comes back as it is."""
+    if not isinstance(record, dict) or not isinstance(record.get("applied"), list):
+        return record if isinstance(record, dict) else {}
+    out = dict(record)
+    for item in record["applied"]:
+        if not isinstance(item, dict) or not item.get("part"):
+            continue
+        part = str(item["part"])
+        if part in ("applied", "missing"):
+            continue
+        slot = out.get(part) if isinstance(out.get(part), dict) else {"colour": item.get("colour"), "materials": [],
+                                                                         "copies": []}
+        slot.setdefault("materials", []).append(item.get("material"))
+        slot.setdefault("copies", []).append(item.get("copy"))
+        slot.setdefault("colour", item.get("colour"))
+        out[part] = slot
+    return out
+
+
 class MaterialLibrary:
     """Creates and caches Blender materials per slug and records, for the
     scene manifest, whether each one is textured or flat and why.
@@ -359,6 +393,9 @@ class MaterialLibrary:
             "slug": slug, "textured": tset is not None, "asset": asset_id if tset else None,
             "source": tset["source"] if tset else None, "licence": tset["licence"] if tset else None,
             "size_m": tset["size_m"] if tset else None, "flat_colour": list(flat_colour(slug)),
+            # Milestone 13 (T8 metric 10): the PBR maps the material got (the texture set's files that
+            # pbr_material wires: albedo, normal, roughness); [] for a flat or procedural material.
+            "maps": material_maps(tset),
             "tint": list(tint) if tint else None, "unverified": unverified,
             "reason": (reason if procedural is None
                        else f"{reason}; {procedural_note_for(procedural, slug, all_params)}"),

@@ -18,7 +18,7 @@ from wenart.blender import parametric as P
 from wenart.furniture import fit as F
 
 LICENCES = {"abo": "CC-BY-4.0", "polyhaven": "CC0", "objaverse": "CC-BY-4.0",
-            "generated": "generated (TRELLIS.2-4B, MIT)"}
+            "generated": "generated (TRELLIS.2-4B, MIT)", "hssd": "CC-BY-NC-4.0"}
 
 
 @pytest.fixture(autouse=True)
@@ -138,7 +138,9 @@ def test_aspect_then_source_break_the_remaining_ties():
     # identical boxes and quality: abo, polyhaven, objaverse (generated is a rule of its own)
     same = [model("x", "sofa", 2.0, 0.9, 0.8, source=s, quality=4.0) for s in ("objaverse", "polyhaven", "abo")]
     assert [e["source"] for e in F.rank_candidates(same, 2.0, 0.9)] == ["abo", "polyhaven", "objaverse"]
-    assert F.SOURCE_ORDER == ("abo", "polyhaven", "gso", "objaverse", "generated")    # gso: M12 pod P4
+    # gso: M12 pod P4; hssd: M13 pod P2 (build round 2: the HSSD layer ranks after Poly Haven, relaxed mode only)
+    assert F.SOURCE_ORDER == ("abo", "polyhaven", "hssd", "gso", "objaverse", "generated")
+    assert F.source_rank(model("h", "sofa", 2.0, 0.9, 0.8, source="hssd")) == 2 < F.source_rank(same[0])
 
 
 def test_known_units_rank_before_models_normalised_by_type():

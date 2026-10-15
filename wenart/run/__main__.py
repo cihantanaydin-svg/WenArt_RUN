@@ -5,7 +5,8 @@
                               [--ab "synthetic-01 synthetic-03"] [--ab-controls synthetic-01]
                               [--ab-phase all|render|judge] --results $RESULTS [--profile full|smoke]
                               [--force stage[,stage]] [--vlm-url URL] [--no-orchestrator]
-                              [--agent-model agent|agent_fast] [--agent-rounds 4]
+                              [--agent-model agent|agent_fast] [--agent-rounds 3]
+                              [--cameras-from PATH] [--cameras-extra] [--white-balance project|kelvin:K]
     python -m wenart.run copy --projects ... [--private ...] [--ab ...] --results $RESULTS [--since STAMP]
     python -m wenart.run ab-m5 --project <p> --project-out <out> [--commit SHA]   (A/B prepare part 2)
     python -m wenart.run prep ...      (the prep pod's job, M7 §9.2: ``wenart.run.prep.main(argv)``)
@@ -50,6 +51,25 @@ from wenart.run.projects import (PRIVATE_OUTPUTS, PRIVATE_RESULTS, PRIVATE_ROOT,
 def _env_path(name: str, default) -> Optional[Path]:
     value = os.environ.get(name, "").strip()
     return Path(value) if value else (Path(default) if default is not None else None)
+
+
+def _white_balance_flag(text: str) -> str:
+    """``pod --white-balance``: ``project`` or ``kelvin:K`` with K in ``stages.KELVIN_RANGE`` (the range of
+    ``render.parse_white_balance``); anything else is an argparse error now, not a failed render stage hours into
+    the pod (round-2 review, 15 Oct 2026)."""
+    from wenart.run.stages import KELVIN_RANGE
+    value = str(text).strip()
+    if value == "project":
+        return value
+    if value.startswith("kelvin:"):
+        try:
+            k = float(value[len("kelvin:"):])
+        except ValueError:
+            k = float("nan")
+        if KELVIN_RANGE[0] <= k <= KELVIN_RANGE[1]:
+            return f"kelvin:{k:g}"
+    raise argparse.ArgumentTypeError(f"expected project or kelvin:K ({KELVIN_RANGE[0]:g}-{KELVIN_RANGE[1]:g} K), "
+                                     f"got {text!r}")
 
 
 def _private_args(p: argparse.ArgumentParser) -> None:
@@ -97,7 +117,19 @@ def parse_args(argv) -> argparse.Namespace:
                           "the smoke profile always runs the M10 chain)")
     pod.add_argument("--agent-model", default=None, choices=["agent", "agent_fast"],
                      help="check.yaml models key of the agent (default $WENART_AGENT_MODEL or agent)")
-    pod.add_argument("--agent-rounds", type=int, default=4, help="max rounds of the orchestrator (default 4)")
+    # Milestone 13 (K4, docs/milestone13.md §3.0; the user's rule of 12 Oct 2026): 3 rounds (= wenart.agent.loop.MAX_ROUNDS)
+    pod.add_argument("--agent-rounds", type=int, default=3, help="max rounds of the orchestrator (default 3)")
+    # Milestone 13 (K8, K5): the camera replay and the white balance of the final renders; without the flags the
+    # build reads WENART_CAMERAS_FROM / WENART_CAMERAS_EXTRA from its environment and the render takes the brief's
+    # render.white_balance_k (kelvin:K) or one metered whitepoint per project.
+    pod.add_argument("--cameras-from", default=None,
+                     help="a scene_manifest.json whose cameras the build replays ({name} = the project), e.g. "
+                          "results/renders/{name}/scene_manifest.json; default $WENART_CAMERAS_FROM")
+    pod.add_argument("--cameras-extra", action="store_true",
+                     help="with --cameras-from also run the camera search for every room and add those cameras")
+    pod.add_argument("--white-balance", default=None, type=_white_balance_flag,
+                     help="white balance of the final renders: project (default: one whitepoint per project) | "
+                          "kelvin:K (a fixed colour temperature); default: the brief's render.white_balance_k, else project")
 
     cp = sub.add_parser("copy", help="small result files into the results layout (counts only)")
     cp.add_argument("--projects", default="")
@@ -162,7 +194,9 @@ def cmd_pod(args) -> int:
         # Milestone 11: orchestrated by default; the smoke profile's fake server cannot plan (M10 chain).
         orchestrator=not args.no_orchestrator and args.profile != "smoke",
         agent_key=args.agent_model or os.environ.get("WENART_AGENT_MODEL") or "agent",
-        agent_rounds=max(1, int(args.agent_rounds)))
+        agent_rounds=max(1, int(args.agent_rounds)),
+        cameras_from=args.cameras_from or None, cameras_extra=bool(args.cameras_extra),
+        white_balance=args.white_balance or None)
     return SC.run_pod(opts)
 
 

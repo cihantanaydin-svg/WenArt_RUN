@@ -892,7 +892,8 @@ def target_findings(ctx: ToolContext, tool: str, args: dict) -> list[dict]:
     def fixes(f: dict) -> bool:
         return tool in CS.tools_for_finding(f)
 
-    on_target = sorted((f for f in findings if f.get("target") == target), key=rank)
+    # round 2: a finding about an unbuilt anchor (``causes.anchor_of``) is on the anchor the edit builds
+    on_target = sorted((f for f in findings if f.get("target") == target or CS.anchor_of(f) == target), key=rank)
     cands = [f for f in on_target if fixes(f)] or on_target
     if not cands and args.get("group_id"):
         members = {f.get("id") for f in ctx.building.get("furniture") or []

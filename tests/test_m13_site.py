@@ -526,3 +526,169 @@ def test_the_shell_scripts_parse_and_follow_the_conventions(script):
             assert lever in text
         assert "ext_1,ext_5,ext_7" in text and "ext_1,ext_5,ext_6" in text and "WENART_SITE_VARIANT" in text
         assert "vram" in text and "summary" in text and "tests/gpu/test_m13_site.py" in text
+
+
+# --------------------------------------------------------------------------
+# Round 2 (the lead's wiring items): agent camera overrides keep the D8 flags, the manifest records of metric 11,
+# the vegetation instances of the 3D export, site.platforms into the building
+# --------------------------------------------------------------------------
+
+def test_agent_camera_overrides_keep_the_aerial_and_horizon_flags():
+    """D8: the one true aerial view and the site view carry ``aerial_allowed`` / ``site_view`` / ``horizon_frac``
+    (``cameras.REPLAY_OPTIONAL`` keeps them through a replay); an agent ``set`` of such a camera keeps them from the
+    camera it replaces, an ``add`` takes them from the entry, and a plain corner camera gets none."""
+    from wenart.blender import overrides as O
+
+    assert O.CAMERA_KEEP_KEYS == ("site_view", "aerial_allowed", "horizon_frac")
+    plans = [{"name": "ext_5", "kind": "exterior", "position": [0, 0, 20], "target": [5, 5, 0], "lens_mm": 24.0,
+              "view": "aerial", "aerial_allowed": True, "index": 5},
+             {"name": "ext_7", "kind": "exterior", "position": [0, -30, 12], "target": [5, 5, 0], "lens_mm": 24.0,
+              "view": "site", "site_view": True, "aerial_allowed": True, "horizon_frac": 0.78, "index": 7},
+             {"name": "ext_1", "kind": "exterior", "position": [0, -10, 1.6], "target": [5, 5, 1.6], "lens_mm": 24.0,
+              "view": "corner", "index": 1}]
+    entries = [{"action": "set", "view_id": "ext_5", "kind": "exterior", "position": [1, 1, 22], "target": [5, 5, 0],
+                "reason": "higher"},
+               {"action": "set", "view_id": "ext_7", "kind": "exterior", "position": [0, -32, 12], "target": [5, 5, 0],
+                "reason": "further back"},
+               {"action": "set", "view_id": "ext_1", "kind": "exterior", "position": [0, -12, 1.6],
+                "target": [5, 5, 1.6], "reason": "back"},
+               {"action": "add", "view_id": "ext_9", "kind": "exterior", "position": [0, 0, 25], "target": [5, 5, 0],
+                "aerial_allowed": True, "reason": "a second aerial the critic may judge as such"}]
+    out, applied = O.apply_cameras(plans, entries)
+    by = {p["name"]: p for p in out}
+    assert [a["result"] for a in applied] == ["replaced", "replaced", "replaced", "added"]
+    assert by["ext_5"]["aerial_allowed"] is True and "site_view" not in by["ext_5"]
+    assert by["ext_7"]["site_view"] is True and by["ext_7"]["aerial_allowed"] is True
+    assert by["ext_7"]["horizon_frac"] == 0.78 and by["ext_7"]["position"] == [0.0, -32.0, 12.0]
+    assert not any(k in by["ext_1"] for k in O.CAMERA_KEEP_KEYS)
+    assert by["ext_9"]["aerial_allowed"] is True and by["ext_9"]["policy"] == "agent"
+    # The critic's eye-level rule reads the same flag on the record.
+    from wenart.blender import cameras as C
+    assert all(k in C.REPLAY_OPTIONAL for k in O.CAMERA_KEEP_KEYS)
+
+
+def test_vegetation_counts_per_source_for_metric_11():
+    """The scene manifest's ``site.vegetation`` records carry ``kind: tree`` and a ``method`` (metrics13 counts
+    every method that is not a primitive), ``site.hedges`` their method, and ``site.vegetation_counts`` the
+    per-source numbers the lead asked for (Poly Haven instances, Sapling, leaf cards, hedges, grass patches)."""
+    summary = {"vegetation": [{"id": "tree_1", "kind": "tree", "method": "polyhaven", "asset": "island_tree_02"},
+                              {"id": "tree_2", "kind": "tree", "method": "sapling", "asset": "quaking_aspen"},
+                              {"id": "tree_3", "kind": "tree", "method": "cards", "asset": None},
+                              {"id": "tree_4", "kind": "tree", "method": "palm", "asset": None},
+                              {"id": "tree_5", "kind": "tree", "method": "proxy", "asset": None}],
+               "hedges": [{"id": "hedge_001", "method": "cards", "symbols": 36}, {"id": "hedge_002", "method": "box"}],
+               "grass": {"method": "polyhaven", "asset": "grass_medium_02", "count": 1100}}
+    counts = S.vegetation_counts(summary)
+    assert counts == {"polyhaven_instances": 1, "sapling": 1, "leaf_card": 2, "proxy": 1, "trees": 5, "hedges": 2,
+                      "hedges_leaf_card": 1, "grass_patches": 1}
+    assert S.vegetation_counts({}) == {"polyhaven_instances": 0, "sapling": 0, "leaf_card": 0, "proxy": 0, "trees": 0,
+                                       "hedges": 0, "hedges_leaf_card": 0, "grass_patches": 0}
+    assert S.vegetation_counts({"grass": {"method": "none", "error": "x"}})["grass_patches"] == 0
+    # metrics13 reads the records the way build_site writes them (kind defaults to tree, method not a primitive).
+    from wenart.report import metrics13 as M13
+    real = [r for r in summary["vegetation"] if r.get("kind", "tree") == "tree"
+            and str(r.get("method") or "").lower() not in M13.VEGETATION_PRIMITIVES]
+    assert len(real) == 4 == counts["polyhaven_instances"] + counts["sapling"] + counts["leaf_card"]
+
+
+def test_instance_budget_realizes_the_smallest_groups_under_the_polygon_cap(monkeypatch):
+    """The 3D export realizes the vegetation node groups (leaf cards, grass clumps) smallest first while the
+    polygons stay under the cap; the rest stay instances with a reason. The cap comes from WENART_REALIZE_CAP
+    (0 = nothing), else the documented 1 M polygons."""
+    items = [{"group": "veg_scatter_cherry_laurel_120", "objects": ["hedge_001", "hedge_002"], "instances": 2617,
+              "polygons": 5234},
+             {"group": "veg_grass_polyhaven_4", "objects": ["grass_near"], "instances": 1100, "polygons": 1_210_000},
+             {"group": "veg_scatter_olive_60", "objects": ["tree_sd_L0_001_outer"], "instances": 900, "polygons": 1800}]
+    b = S.instance_budget(items, 10_000)
+    assert [it["group"] for it in b["realize"]] == ["veg_scatter_olive_60", "veg_scatter_cherry_laurel_120"]
+    assert b["polygons"] == 7034 and b["polygons_all"] == 1_217_034 and b["cap"] == 10_000
+    assert [it["group"] for it in b["skipped"]] == ["veg_grass_polyhaven_4"]
+    assert "would pass the cap of 10000" in b["skipped"][0]["reason"]
+    assert S.instance_budget(items, 0) == {"cap": 0, "realize": [], "skipped": b["skipped"][:0] + [
+        dict(it, reason=f"{it['polygons']} polygons would pass the cap of 0 (0 realized)")
+        for it in sorted(items, key=lambda it: it["polygons"])], "polygons": 0, "polygons_all": 1_217_034}
+    assert S.instance_budget([], 5)["realize"] == []
+    monkeypatch.delenv(S.REALIZE_CAP_ENV, raising=False)
+    assert S.realize_cap() == S.REALIZE_CAP_POLYS == 1_000_000
+    assert S.realize_cap({S.REALIZE_CAP_ENV: "2500"}) == 2500 and S.realize_cap({S.REALIZE_CAP_ENV: "x"}) == 1_000_000
+    assert S.realize_cap({S.REALIZE_CAP_ENV: "0"}) == 0
+    assert S.VEGETATION_GROUP_PREFIX == "veg_"       # vegetation.scatter_group names every vegetation group so
+
+
+@pytest.mark.skipif(not REAL04.is_file(), reason="no committed real04 building")
+def test_platforms_into_the_building_after_the_levels_and_the_cli(tmp_path):
+    """§13.3 ``site.platforms[]``: the pipeline_final stage's last step writes the platforms of ``site.platforms``
+    (on the levels stage's ground model) into building.json; the records validate against the building schema and
+    the CLI ``python -m wenart.blender.site platforms`` writes in place or to ``--out``."""
+    from wenart import building as BM
+
+    building = json.loads(REAL04.read_text(encoding="utf-8"))
+    rec = S.platforms_into_building(building)
+    pfs = building["site"]["platforms"]
+    assert rec["count"] == len(pfs) >= 4 and rec["ids"] == [pf["id"] for pf in pfs]
+    assert {pf["kind"] for pf in pfs} <= {"terrace", "pool", "parking", "path"}
+    assert all(pf["edge"] in ("retaining", "kerb", "steps", "none") and len(pf["polygon"]) >= 3 for pf in pfs)
+    assert all(isinstance(pf["z"], (int, float)) for pf in pfs)
+    assert sum(rec["kinds"].values()) == rec["count"]
+    BM.validate(building)                                  # the schema the lead added for the field
+    # The same records as the build's site plan (the scene manifest's site.platforms), ids and levels.
+    plan = S.platforms(building["site"])
+    assert [(pf["id"], pf["z"], pf["kind"], pf["edge"]) for pf in plan] == \
+        [(pf["id"], pf["z"], pf["kind"], pf["edge"]) for pf in pfs]
+    # Idempotent: a second call replaces the list with the same records.
+    assert S.platforms_into_building(building)["ids"] == rec["ids"]
+    # No site dict: left alone.
+    assert S.platforms_into_building({"levels": []}) == {"count": None, "ids": [], "kinds": {}}
+    # The CLI (the stage command of wenart.run.stages.site_platforms).
+    src = tmp_path / "building.json"
+    src.write_text(REAL04.read_text(encoding="utf-8"), encoding="utf-8")
+    proc = subprocess.run([os.sys.executable, "-m", "wenart.blender.site", "platforms", str(src)],
+                          capture_output=True, text=True, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.startswith("SITE_PLATFORMS ") and f"count={rec['count']}" in proc.stdout
+    written = json.loads(src.read_text(encoding="utf-8"))
+    assert [pf["id"] for pf in written["site"]["platforms"]] == rec["ids"]
+    out = tmp_path / "other.json"
+    proc = subprocess.run([os.sys.executable, "-m", "wenart.blender.site", "platforms", str(src), "--out", str(out)],
+                          capture_output=True, text=True, cwd=str(ROOT))
+    assert proc.returncode == 0 and out.is_file()
+    bad = tmp_path / "bad.json"
+    bad.write_text("[]", encoding="utf-8")
+    assert subprocess.run([os.sys.executable, "-m", "wenart.blender.site", "platforms", str(bad)],
+                          capture_output=True, text=True, cwd=str(ROOT)).returncode == 2
+
+
+def test_m13_site_block_records_the_assets_dir_and_the_realized_instances():
+    """Milestone 13 (T6, round 2): the manifest's site block says where the vegetation module found the assets
+    (``assets``: WENART_ASSETS, the build's --assets handed over as the scene property ``wenart_assets_dir``, or a
+    default candidate) and what ``site.realize_site_instances`` realized before the scene.glb export. Here and not
+    in tests/test_blender_build.py (round-2 review, 15 Oct 2026): that module is skipped as a whole without a
+    Blender binary, so a pure test there never runs on the CPU suite."""
+    from wenart.blender import build as B
+
+    assert B.assets_dir_record(None, None, None) == {"path": None, "source": None}
+    assert B.assets_dir_record("/workspace/assets", "/ws/assets", "/workspace/assets") == \
+        {"path": "/workspace/assets", "source": "env"}
+    assert B.assets_dir_record(None, "/ws/assets", "/ws/assets") == {"path": "/ws/assets", "source": "build --assets"}
+    assert B.assets_dir_record("/nope", "/ws/assets", "/workspace/assets") == \
+        {"path": "/workspace/assets", "source": "default"}
+    site = {"built": True, "objects": ["ground"]}
+    rec = {"path": "/ws/assets", "source": "build --assets"}
+    realized = {"cap": 1000000, "polygons": 7034, "realized": ["veg_scatter_olive_60"], "skipped": []}
+    block = B.site_manifest_block(site, rec, realized)
+    assert block == {"built": True, "objects": ["ground"], "assets": rec, "realized_instances": realized}
+    assert site == {"built": True, "objects": ["ground"]}                 # a copy, the summary is untouched
+    assert B.site_manifest_block(None, rec, realized) is None             # a building without a site
+    # A site that is not built (an interior-only build: site_summary's block) keeps its block: the manifest schema's
+    # SITE_LEFT_OUT allows only {count, ids} objects next to built and reason (round-2 review, 15 Oct 2026).
+    assert B.site_manifest_block({"built": False}, None, None) == {"built": False}
+    left = B.site_summary(json.loads(REAL02.read_text(encoding="utf-8")))
+    assert left["built"] is False and B.site_manifest_block(left, rec, realized) == left
+    import jsonschema
+    from wenart.blender import schemas
+    site_schema = schemas.SCENE_MANIFEST["properties"]["site"]
+    jsonschema.validate(B.site_manifest_block(left, rec, realized), site_schema)
+    built = {"built": True, "mode": "full", "reason": "x", "objects": [], "terrain": {"kind": "flat", "z": 0.0,
+                                                                                      "changes": []}, "light_wells": []}
+    jsonschema.validate(B.site_manifest_block(built, rec, realized), site_schema)
+    jsonschema.validate(B.site_manifest_block(built, None, None), site_schema)

@@ -27,7 +27,7 @@ def test_synthetic_brief_keeps_its_style_and_assumes_the_rest():
     # Milestone 8: render.lens_mm (auto = 18 mm, 16 mm in rooms narrower than 2.2 m) is listed as assumed too;
     # Milestone 10 (docs/milestone10.md §1.3): the furniture completion, variant, level, site and exterior keys.
     assert v["render"] == {"views_per_room": 3, "resolution": [1920, 1080], "samples": 256, "lens_mm": "auto",
-                           "exterior_views": True, "twin_rooms": "one"}
+                           "exterior_views": True, "twin_rooms": "one", "white_balance_k": None}
     assert "style" not in brief["assumed"]
     assert brief["assumed"] == ["empty_rooms", "decor", "polish", "style_photos", "ceiling_height", "slab_thickness",
                                 "furnished_rooms", "furnished_rooms_keep", "furnished_rooms_keep_size", "variants",
@@ -35,6 +35,8 @@ def test_synthetic_brief_keeps_its_style_and_assumes_the_rest():
                                 "exterior.door", "exterior.paving", "exterior.garden",
                                 "render.views_per_room", "render.resolution", "render.samples", "render.lens_mm",
                                 "render.exterior_views", "render.twin_rooms",
+                                # Milestone 13 (docs/milestone13.md §13.2 T5, K5): the project white balance
+                                "render.white_balance_k",
                                 # Milestone 11 (docs/milestone11.md §17: D3, D5, D6)
                                 "markers_in_final", "roof_terraces", "site_options.front_court",
                                 # Milestone 12 (docs/milestone12.md §3.3: D3a)
@@ -62,7 +64,7 @@ def test_brief_values_win_and_nested_blocks_merge_key_by_key(tmp_path):
     v = brief["values"]
     assert v["polish"] is False and v["style_photos"] == ["a.jpg", "b.jpg"] and v["custom_key"] == 7
     assert v["render"] == {"views_per_room": 3, "resolution": [1920, 1080], "samples": 64, "lens_mm": "auto",
-                           "exterior_views": True, "twin_rooms": "one", "extra": 1}
+                           "exterior_views": True, "twin_rooms": "one", "white_balance_k": None, "extra": 1}
     assert "polish" not in brief["assumed"] and "style_photos" not in brief["assumed"]
     assert "render.samples" not in brief["assumed"] and "render.views_per_room" in brief["assumed"]
     assert brief["warnings"] == []
@@ -169,3 +171,67 @@ def test_lengths_outside_their_range_are_reported_and_not_used(tmp_path, key, ba
     brief = B.load_brief(tmp_path)
     assert brief["values"][key] == B.brief_defaults()[key]
     assert any(w.startswith(f"brief.yaml {key}: expected a length from") for w in brief["warnings"]), brief["warnings"]
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 (docs/milestone13.md §13.2 T5, K5): render.white_balance_k
+# --------------------------------------------------------------------------
+
+def test_white_balance_default_is_null_and_listed_as_assumed(tmp_path):
+    """null = the project whitepoint metered once on the first interior camera (the render stage's
+    ``--white-balance project``); the key is assumed like every other default."""
+    assert B.brief_defaults()["render"]["white_balance_k"] is None
+    brief = B.load_brief(tmp_path / "nothing_here")
+    assert B.value(brief, "render.white_balance_k", "unset") is None and "render.white_balance_k" in brief["assumed"]
+    assert B.white_balance_k(brief) is None and B.white_balance_k(None) is None
+    assert B.white_balance_arg(brief) == B.white_balance_arg(None) == "project"
+
+
+@pytest.mark.parametrize("text, kelvin, arg", [("1800", 1800.0, "kelvin:1800"), ("5600", 5600.0, "kelvin:5600"),
+                                               ("6500.5", 6500.5, "kelvin:6500.5"),
+                                               ("100000", 100000.0, "kelvin:100000")])
+def test_white_balance_kelvin_is_used_when_valid(tmp_path, text, kelvin, arg):
+    (tmp_path / "brief.yaml").write_text(f"render:\n  white_balance_k: {text}\n", encoding="utf-8")
+    brief = B.load_brief(tmp_path)
+    assert brief["warnings"] == [] and "render.white_balance_k" not in brief["assumed"]
+    assert B.white_balance_k(brief) == kelvin and B.white_balance_arg(brief) == arg
+    assert "render.samples" in brief["assumed"]                         # the other render keys stay defaults
+
+
+@pytest.mark.parametrize("text", ["1799", "100001", "0", "-5600", "warm", "[5600]", "true", ".nan", "kelvin:5600"])
+def test_white_balance_outside_1800_to_100000_k_is_reported_and_not_used(tmp_path, text):
+    (tmp_path / "brief.yaml").write_text(f"render:\n  white_balance_k: {text}\n", encoding="utf-8")
+    brief = B.load_brief(tmp_path)
+    assert B.value(brief, "render.white_balance_k", "unset") is None and B.white_balance_k(brief) is None
+    assert B.white_balance_arg(brief) == "project"
+    assert "render.white_balance_k" in brief["assumed"]
+    (w,) = brief["warnings"]
+    assert w.startswith("brief.yaml render.white_balance_k: expected null or a colour temperature from 1800 to "
+                        "100000 K")
+    assert "None used" in w
+
+
+def test_white_balance_null_in_the_brief_is_the_default_without_a_type_warning(tmp_path):
+    """An explicit ``white_balance_k: null`` means the same as no key (the project whitepoint); the loader reports
+    it as an empty value like every other empty key and uses the default."""
+    (tmp_path / "brief.yaml").write_text("render:\n  white_balance_k: null\n", encoding="utf-8")
+    brief = B.load_brief(tmp_path)
+    assert B.white_balance_k(brief) is None and "render.white_balance_k" in brief["assumed"]
+    assert len(brief["warnings"]) == 1 and "empty" in brief["warnings"][0]
+
+
+def test_white_balance_range_is_the_render_rule():
+    """wenart.brief keeps its own copy of the Kelvin range; it must be what ``render.parse_white_balance`` accepts
+    for ``kelvin:K`` (Blender's white_balance_temperature range)."""
+    from wenart.blender import render as R
+
+    lo, hi = B.WHITE_BALANCE_RANGE_K
+    assert R.parse_white_balance(f"kelvin:{lo:g}") == ("kelvin", [lo])
+    assert R.parse_white_balance(f"kelvin:{hi:g}") == ("kelvin", [hi])
+    assert R.parse_white_balance(B.WHITE_BALANCE_PROJECT) == ("project", None)
+    for bad in (lo - 1, hi + 1):
+        with pytest.raises(Exception, match="kelvin:K"):
+            R.parse_white_balance(f"kelvin:{bad:g}")
+    # The brief's value round-trips through the render flag.
+    brief = {"values": {"render": {"white_balance_k": 5600}}, "assumed": []}
+    assert R.parse_white_balance(B.white_balance_arg(brief)) == ("kelvin", [5600.0])

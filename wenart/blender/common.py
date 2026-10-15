@@ -21,7 +21,11 @@ KINDS = ("wall", "floor", "ceiling", "door", "window", "opening", "furniture_pro
          # Milestone 11 (docs/milestone11.md §1.1 E10, E11): the inferred site and the facade details
          "site_steps", "site_boundary", "facade_detail", "splashback",
          # 11 Oct 2026 (real04): the other buildings on the plot and the pools
-         "building_copy", "site_pool")
+         "building_copy", "site_pool",
+         # Milestone 13 (T6, docs/milestone13.md §13.2): the site parts of site.py / vegetation.py (platforms with
+         # their walls, kerbs and steps; leaf-card hedges; grass patches; the haze volume). The same four names must
+         # be in wenart/blender/schemas.py WHOLE_BUILDING_KINDS (the scene-manifest schema) and views.KIND_MAP.
+         "site_platform", "site_hedge", "site_grass", "atmosphere")
 STATUSES = ("verified", "unverified", "assumed")
 
 

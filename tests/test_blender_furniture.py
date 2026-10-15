@@ -836,8 +836,12 @@ def test_model_licence_gate_matches_the_asset_rule():
 
     # Milestone 8 (docs/milestone8.md §2): ABO (CC BY 4.0) and generated models join; see
     # test_model_licence_gate_takes_abo_generated_and_flagged_models for their rules.
+    # gso: M12 pod P4; hssd: M13 pod P2 (build round 2: the HSSD layer, CC BY-NC 4.0 per the dataset card, flagged
+    # non_commercial; = fetch.MODEL_SOURCE_LICENCES and catalog.SOURCE_LICENCES for the library sources)
     assert F.MODEL_LICENCES == {"polyhaven": ("CC0",), "abo": ("CC-BY-4.0",), "objaverse": ("CC0", "CC-BY-4.0"),
-                                "generated": (), "gso": ("CC-BY-4.0",)}
+                                "generated": (), "gso": ("CC-BY-4.0",), "hssd": ("CC-BY-NC-4.0",)}
+    assert F.MODEL_LICENCES["hssd"] == fetch.MODEL_SOURCE_LICENCES["hssd"] and "hssd" in F.LIBRARIES
+    assert F.FLAGGED_SOURCES == ("objaverse", "hssd") and F.SOURCE_FLAGS == {"hssd": "non_commercial"}
     assert F.CC_BY_FIELDS == fetch.CC_BY_FIELDS and F.CC_BY == fetch.CC_BY
     assert F.licence_refusal(_library_asset([1, 1, 1])) is None
     assert F.licence_refusal(_objaverse_asset([1, 1, 1])) is None
@@ -851,6 +855,116 @@ def test_model_licence_gate_matches_the_asset_rule():
     assert "not a model source" in F.licence_refusal(_library_asset([1, 1, 1], library="sketchfab"))
     no_library = {k: v for k, v in _library_asset([1, 1, 1], licence="CC-BY-4.0", **CREDITS).items() if k != "library"}
     assert "not CC0" in F.licence_refusal(no_library)                       # held to the Poly Haven rule
+
+
+def _hssd_asset(bbox, **extra):
+    hid = "hssd_" + "a" * 40
+    asset = _library_asset(bbox, library="hssd", asset_id=hid, licence="CC-BY-NC-4.0", uid=hid,
+                           glb=f"models/hssd/{hid}.glb", licence_flag="non_commercial", scaling="uniform",
+                           **dict(CREDITS, via="HSSD (CC BY-NC 4.0)", licence_url="https://huggingface.co/datasets/hssd/hssd-models"))
+    asset.pop("file")
+    asset.update(extra)
+    return asset
+
+
+def test_model_licence_gate_takes_hssd_models_with_their_flag_and_credit_line():
+    """Build round 2 (docs/milestone13.md §12 D2): an HSSD asset (CC BY-NC 4.0, the fit in relaxed mode) passes the
+    gate with the catalogue's non_commercial flag and the credit fields; a wrong licence text, a missing flag or
+    a missing credit field is refused (the licence mode was decided by the fit, the gate keeps the dataset's terms)."""
+    assert F.licence_refusal(_hssd_asset([2, 0.9, 0.8])) is None
+    assert "is not CC-BY-NC-4.0" in F.licence_refusal(_hssd_asset([2, 0.9, 0.8], licence="CC0"))
+    assert "is not CC-BY-NC-4.0" in F.licence_refusal(_hssd_asset([2, 0.9, 0.8], licence="CC-BY-4.0"))
+    why = F.licence_refusal(_hssd_asset([2, 0.9, 0.8], licence_flag=None))
+    assert why and "must carry licence_flag 'non_commercial'" in why
+    why = F.licence_refusal(_hssd_asset([2, 0.9, 0.8], licence_flag="none"))
+    assert why and "must carry licence_flag 'non_commercial'" in why
+    why = F.licence_refusal(_hssd_asset([2, 0.9, 0.8], attribution=""))
+    assert why and "attribution" in why and "no credit line" in why
+    # a flagged Objaverse CC BY-NC model keeps the Milestone 8 rule (its flag passes it, the credit line is required)
+    nc = _objaverse_asset([1, 1, 1], licence="CC-BY-NC-4.0", licence_flag="non_commercial")
+    assert F.licence_refusal(nc) is None and "no credit line" in F.licence_refusal(dict(nc, author=""))
+
+
+# --------------------------------------------------------------------------
+# Build round 2 (K2): a uniformly scaled model keeps its back edge on the footprint's back edge
+# --------------------------------------------------------------------------
+
+def _box_verts():
+    # a box 0.5 (x) by 0.8 (y) by 0.9 (z) with its corner at (1, 2, 3), front +X: 0.8 wide and 0.5 deep in the piece frame
+    return [(1 + x, 2 + y, 3 + z) for x in (0, 0.5) for y in (0, 0.8) for z in (0, 0.9)]
+
+
+def test_fit_vertices_back_alignment_keeps_the_back_edge_and_moves_the_difference_to_the_front():
+    verts = _box_verts()
+    asset = {"front_axis": "+X", "up_axis": "+Z", "fit_scale": [1.0, 1.0, 1.0], "scaling": "uniform"}
+    fp = {"center": [10.0, 20.0], "size": [0.8, 0.4], "rotation_deg": 90.0}      # the model is 0.1 m deeper
+    world, info = F.fit_vertices(verts, asset, fp, floor_z=3.0, align="back")
+    # local_bbox_of_world_points un-rotates about the centre and keeps the centre's offset (the Milestone 4 test above)
+    x0, y0, z0, x1, y1, z1 = P.local_bbox_of_world_points(world, (10.0, 20.0), 90.0)
+    assert (x1 - x0, y1 - y0) == pytest.approx((0.8, 0.5)) and z0 == pytest.approx(3.0)
+    assert (y0 - 20.0, y1 - 20.0) == pytest.approx((-0.3, 0.2))        # back on +d/2, the 0.1 m overhang in front
+    assert (x0 + x1) / 2 == pytest.approx(10.0)                          # the width stays centred
+    assert info["depth_align"] == {"mode": "back", "shift_m": -0.05, "depth_abs_m": 0.1}
+    assert info["bbox_m"] == pytest.approx([0.8, 0.5, 0.9])
+    # a shallower model: the back edge still on the footprint's back edge, the gap in front
+    world, info = F.fit_vertices(verts, asset, {"center": [0.0, 0.0], "size": [0.8, 0.6], "rotation_deg": 0.0},
+                                 0.0, align="back")
+    x0, y0, _z0, x1, y1, _z1 = P.local_bbox_of_world_points(world, (0.0, 0.0), 0.0)
+    assert y1 == pytest.approx(0.3) and y0 == pytest.approx(-0.2) and info["depth_align"]["shift_m"] == 0.05
+    # the default centres the box as before (Milestone 4), and records it
+    world, info = F.fit_vertices(verts, asset, fp, floor_z=3.0)
+    _x0, y0, _z0, _x1, y1, _z1 = P.local_bbox_of_world_points(world, (10.0, 20.0), 90.0)
+    assert (y0 - 20.0, y1 - 20.0) == pytest.approx((-0.25, 0.25))
+    assert info["depth_align"] == {"mode": "centre", "shift_m": 0.0, "depth_abs_m": 0.1}
+    with pytest.raises(ValueError):
+        F.fit_vertices(verts, asset, fp, 3.0, align="front")
+
+
+def test_depth_alignment_by_wall_backed_type_uniform_scaling_and_the_pieces_own_flag():
+    from wenart.furniture import groups as GR
+
+    uniform = {"scaling": "uniform", "fit_scale": [1.1, 1.1, 1.1]}
+    stretched = {"fit_scale": [1.1, 0.9, 1.0]}                           # a non-uniform fit of an older building
+    assert F.depth_alignment({"type": "sofa", "asset": uniform}) == "back"
+    assert F.depth_alignment({"type": "sofa"}, uniform) == "back"
+    assert F.depth_alignment({"type": "table_dining", "asset": uniform}) == "centre"      # free-standing types
+    assert F.depth_alignment({"type": "armchair", "asset": uniform}) == "centre"
+    assert F.depth_alignment({"type": "sofa", "asset": stretched}) == "centre"           # stretched to the footprint
+    assert F.depth_alignment({"type": "sofa"}, None) == "centre"
+    # the piece's own against_wall wins over the type (a desk in the room, a table on a wall)
+    assert F.depth_alignment({"type": "desk", "against_wall": False, "asset": uniform}) == "centre"
+    assert F.depth_alignment({"type": "table_dining", "against_wall": True, "asset": uniform}) == "back"
+    # the wall-backed types are the schema's WALL_TYPES (repeated: Blender's Python has no jsonschema) and hold
+    # every wall anchor and wall member of groups.yaml
+    assert set(F.WALL_BACKED_TYPES) == set(SC.WALL_TYPES)
+    wall_types = set()
+    for name, tp in GR.load_groups().items():
+        anchor = tp.get("anchor") or {}
+        if anchor.get("place") == "wall":
+            wall_types |= set(anchor.get("types") or [])
+        for m in list(tp.get("partners") or []) + list(tp.get("members") or []):
+            if isinstance(m, dict) and m.get("place") == "wall" and m.get("type"):
+                wall_types.add(m["type"])
+    assert wall_types and wall_types <= set(F.WALL_BACKED_TYPES), sorted(wall_types - set(F.WALL_BACKED_TYPES))
+
+
+def test_fit_mismatch_warnings_follow_the_fits_cap_for_uniform_fits_only():
+    uniform = {"asset_id": "abo_x", "scaling": "uniform", "cap": 1.10}
+    assert F.fit_mismatch_warnings("f1", uniform, (2.0, 0.9), (2.0, 0.97)) == []       # 7.8 % deeper: within the cap
+    assert F.fit_mismatch_warnings("f1", uniform, (2.0, 0.9), (2.0, 0.83)) == []       # 8.4 % shallower: within
+    deep = F.fit_mismatch_warnings("f1", uniform, (2.0, 0.9), (2.0, 1.0))             # 11.1 %: over the cap
+    assert len(deep) == 1 and "depth 1.000 m" in deep[0] and "cap of 10 %" in deep[0] and "uniform" in deep[0]
+    relaxed = F.fit_mismatch_warnings("f1", dict(uniform, cap=1.15), (2.0, 0.9), (2.0, 1.0))   # the ladder's 15 %
+    assert relaxed == []
+    assert F.depth_cap({"cap": 1.15}) == 1.15 and F.depth_cap({}) == F.UNIFORM_DEPTH_CAP == 1.10
+    assert F.depth_cap({"cap": "x"}) == 1.10 and F.depth_cap(None) == 1.10
+    # the width was scaled to the footprint: the 1 cm rule stays
+    wide = F.fit_mismatch_warnings("f1", uniform, (2.0, 0.9), (2.03, 0.9))
+    assert len(wide) == 1 and "width 2.030 m" in wide[0] and f"{F.FIT_TOLERANCE_M} m" in wide[0]
+    # a non-uniform fit (an older building, no scaling key): 1 cm on both axes as before
+    old = F.fit_mismatch_warnings("f1", {"asset_id": "abo_x"}, (2.0, 0.9), (2.0, 0.92))
+    assert len(old) == 1 and "depth 0.920 m" in old[0] and "0.01 m" in old[0]
+    assert F.fit_mismatch_warnings("f1", {"asset_id": "abo_x"}, (2.0, 0.9), (2.005, 0.905)) == []
 
 
 def test_resolve_asset_finds_the_objaverse_glb_in_the_cache(tmp_path):

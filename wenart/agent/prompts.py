@@ -163,6 +163,22 @@ def room_critic_prompt(room: dict, pieces: list[dict], openings: list[dict], vie
         "image that shows it."])
 
 
+def camera_note(camera: Optional[dict]) -> str:
+    """Round 2 (Milestone 13 D8, track T6): what the exterior critic is told about a camera the policy allows above
+    eye level: a record with ``aerial_allowed`` (the one true aerial view ``ext_5``, the site view) or ``view``
+    aerial. A true aerial is not a finding: its height, pitch and the missing eye level are by design; the critic
+    judges the building and the site in it. '' for an eye-level camera or without a record."""
+    if not isinstance(camera, dict):
+        return ""
+    if not (camera.get("aerial_allowed") or camera.get("site_view") or camera.get("view") == "aerial"):
+        return ""
+    what = "site view (the building in its plot, with the horizon)" if camera.get("site_view") else "aerial view"
+    return (f"This view is the {what} the camera policy allows (one true aerial view beside the eye-level corner "
+            f"and frontal views): its height above eye level, its downward pitch and the whole-building framing are "
+            f"by design and are NOT a finding (do not report X6 or V1 for the camera of this view); judge the roof, "
+            f"the facades, the site and the lighting it shows.")
+
+
 def exterior_critic_prompt(view: str, building_note: str, ids: list[str], image_labels: list[str],
                            code_findings: list[dict]) -> str:
     known = [f"- {f['check']} {f['severity']} {f['target']}: {f['message']}" for f in code_findings]
@@ -311,7 +327,11 @@ PLANNER_SYSTEM_M12 = (
     "finding appears; an edit that changes nothing measurable is rejected. The brief's drawn_groups move as one "
     "unit (place_group re-solves them around the drawn anchor); below_library pieces are our module or parametric "
     "builds, not wrong models (the library gap is already recorded); the licence_mode says which library models "
-    "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only.")
+    "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only.\n"
+    "8. A fixable finding may name an edit_target: the piece the tool must act on instead of the finding's target "
+    "(a chair or nightstand stands around an anchor the fit left unbuilt: retype_piece types and builds an unknown "
+    "anchor, place_group re-solves the drawn group so the refit builds a typed one). Use the edit_target as the "
+    "step's target; never move the piece that stands around it.")
 
 PLAN_SCHEMA: dict = {
     "type": "object", "additionalProperties": False, "required": ["room_id", "program", "steps"],

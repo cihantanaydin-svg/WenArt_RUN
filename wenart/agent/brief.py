@@ -64,6 +64,10 @@ TOOL_OF_OP = {"move": "move_piece", "rotate": "rotate_piece", "resize": "resize_
 # (the M12 ``CHECK_TOOLS`` sent move_piece for an F8 chair whose table was not built, swap_model for a 1.3 cm S2 cut
 # and set_exterior to a corridor session for an X2 piece under the sloped roof; docs/milestone13.md §1.5).
 # A finding without a tool for its cause is "not yours" with ``causes.no_tool_reason``.
+# Round 2: a finding about an unbuilt anchor (``causes.anchor_of``: an F8 chair around a table the fit left unbuilt)
+# is fixed on the ANCHOR: the piece tools are checked against the anchor's locks and the fixable entry names it as
+# ``edit_target`` (the planner's step target); the anchor is not built, so ``check_plan`` allows a step on it when a
+# finding of the step names it.
 NOT_YOURS_REASON = dict(CS.NO_TOOL_REASON, S5=CS.NO_TOOL_REASON["decor_rest"], V3=CS.NO_TOOL_REASON["debug_marker"],
                         V2=CS.NO_TOOL_REASON["render_match"], X5=CS.NO_TOOL_REASON["scale"],
                         R2=CS.NO_TOOL_REASON["ceiling"])
@@ -404,16 +408,20 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
                 not_yours.append(dict(base, why=f"building-wide: {', '.join(wide)} may be called by the building "
                                                 f"session only, not by the session of {room_id}"))
                 continue
-        piece = pieces.get(target)
+        anchor = CS.anchor_of(f)
+        edit_target = anchor if anchor and anchor in pieces else None
+        if edit_target is not None:
+            base["edit_target"] = edit_target
+        piece = pieces.get(edit_target or target)
         ok: list = []
         whys: list = []
         if piece is not None:
-            if not built(piece) and check not in UNBUILT_FIXABLE:
+            if not built(piece) and check not in UNBUILT_FIXABLE and edit_target is None:
                 not_yours.append(dict(base, why="not built: it is in no render; leave it"))
                 continue
             for t in tools:
                 if t in PIECE_TOOLS:
-                    a = (allowed.get(target) or {}).get(t) or {}
+                    a = (allowed.get(edit_target or target) or {}).get(t) or {}
                     if a.get("allowed"):
                         ok.append(t)
                     elif a.get("why"):
@@ -454,6 +462,12 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
     order = {"critical": 0, "major": 1, "minor": 2}
     key = lambda f: (order.get(f.get("severity"), 3), str(f.get("check")), str(f.get("target")))  # noqa: E731
     return sorted(fixable, key=key), sorted(not_yours, key=key)
+
+
+def step_target(f: dict, room_id: Optional[str] = None) -> Optional[str]:
+    """The target a checklist step on finding ``f`` acts on: its ``edit_target`` (round 2: the unbuilt anchor), else
+    its own target, else the room."""
+    return f.get("edit_target") or f.get("target") or room_id
 
 
 def fixable_weight(fixable: list[dict], area: float) -> float:

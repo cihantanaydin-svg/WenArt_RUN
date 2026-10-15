@@ -33,7 +33,14 @@
 #                       (docs/milestone11.md §8: agent rounds, the agent model's one-pass check; its model is
 #                       downloaded by the setup, AGENT_MODELS)
 #   AGENT_MODEL         agent (default, Qwen/Qwen3.8-27B-FP8) | agent_fast (Qwen/Qwen3.6-35B-A3B-FP8)
-#   AGENT_ROUNDS        max orchestrator rounds (default 4; the time budget still stops earlier)
+#   AGENT_ROUNDS        max orchestrator rounds (default 3 since Milestone 13 K4, docs/milestone13.md §3.0; the
+#                       time budget still stops earlier)
+#   CAMERAS_FROM        Milestone 13 (K8): a scene_manifest.json whose cameras the build replays, {name} = the
+#                       project (e.g. results/renders/{name}/scene_manifest.json for P4); default $WENART_CAMERAS_FROM
+#                       (build.py reads that variable itself, so either way works)
+#   CAMERAS_EXTRA=1     with CAMERAS_FROM also search every room and add those cameras (default $WENART_CAMERAS_EXTRA)
+#   WHITE_BALANCE       Milestone 13 (K5): project (one whitepoint per project) | kelvin:K; default: the brief's
+#                       render.white_balance_k, else project
 #   WENART_AGENT_SLEEP  on | off | auto (default: the agent server sleeps for the gate and polish below 80 GB)
 #   RUN_THREADS         CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)
 #
@@ -123,8 +130,15 @@ if [ "${RUN_POLISH:-on}" = "off" ]; then export WENART_POLISH=off; fi
 AGENT_SETUP="${AGENT_MODEL:-agent}"
 if [ "${NO_ORCHESTRATOR:-0}" = "1" ]; then POD_ARGS+=(--no-orchestrator); AGENT_SETUP=""; fi
 if [ -n "${AGENT_MODEL:-}" ]; then POD_ARGS+=(--agent-model "$AGENT_MODEL"); fi
-# 11 Oct 2026 (user: pods get more time): more orchestrator rounds when the pod has the time (default 4)
+# 11 Oct 2026 (user: pods get more time): more orchestrator rounds when the pod has the time; Milestone 13 (K4,
+# the user's rule of 12 Oct 2026): the default is 3 (python -m wenart.run pod --agent-rounds)
 if [ -n "${AGENT_ROUNDS:-}" ]; then POD_ARGS+=(--agent-rounds "$AGENT_ROUNDS"); fi
+# Milestone 13 (K8, K5): the camera replay and the white balance as pod flags; the environment variables
+# WENART_CAMERAS_FROM / WENART_CAMERAS_EXTRA keep working (build.py reads them when the flags are absent).
+CAMERAS_FROM="${CAMERAS_FROM:-${WENART_CAMERAS_FROM:-}}"
+if [ -n "$CAMERAS_FROM" ]; then POD_ARGS+=(--cameras-from "$CAMERAS_FROM"); fi
+case "${CAMERAS_EXTRA:-${WENART_CAMERAS_EXTRA:-}}" in 1|true|yes|on) POD_ARGS+=(--cameras-extra) ;; esac
+if [ -n "${WHITE_BALANCE:-}" ]; then POD_ARGS+=(--white-balance "$WHITE_BALANCE"); fi
 
 # stamp <file>: an empty file whose mtime is the volume's own time minus COPY_OVERLAP_S, so a file
 # written in the same second as the stamp still counts as newer (polish.sh).

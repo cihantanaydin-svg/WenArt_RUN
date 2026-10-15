@@ -893,3 +893,42 @@ commits, pushes, then writes `tests/test_m13_contracts.py`.
 | P3 | full run real04 with the new catalogue (cameras searched: no camera records are committed for real04) | P1 constants applied, P2 catalogue |
 | P4 | full runs real02 + real03 with `--cameras-from` the committed M11 scene manifests (set 1) and the searched cameras (set 2) | P3 fixes |
 | P5 | one fix round + metric renders | P4 |
+
+## 14. Build log (step 2)
+
+Sections 14.1, 14.2, 14.4 and 14.5 (what was built per track, the numbers measured on the committed buildings, open
+items, the round-1 integration) follow from the track reports; 14.3 holds the pod P1 results and the lead's lever
+decisions.
+
+### 14.3 Pod P1 (15 Oct 2026): lever A/B, site A/B, GPU tests, and the decisions
+
+Pod `ker0qemve1rhpf`, RTX 4090 ($0.89/h), 163 min, $2.42, round-1 code (33d12db). The lever A/B rendered the 8 fixed
+Milestone 11 views of real02 and real03 × 8 light variants (128 spp, 4.4-9.2 s per view on the 4090, 13.5 GB VRAM);
+the site A/B rendered 3 exterior views of real04 and real02 × 8 site variants (2-4 s per view, 12.4-13.4 GB). The
+vegetation setup worked (Sapling Tree Gen installed from extensions.blender.org and registered; 11 Poly Haven CC0
+models, 753 MB; 4 ambientCG atlases). Contact sheets: `results/review/m13_p1/levers/` and `site/` (downsized), the
+summaries beside them. GPU tests: T2 modules 3 passed; T5 light 6 passed, 1 failed (the sun-disc measurement script
+exits non-zero, so `SUN_DISC_RATIO` was not measured); T6 site 1 passed, 1 failed (`build_site` raises
+`KeyError: 'sides'` on the test's planar terrain record; the A/B builds themselves ran).
+
+What the images and numbers show (lead's reading, the sheets are the evidence):
+
+| Lever | Observation | Decision |
+|---|---|---|
+| sun 3 W/m² (base = M11) | rooms without direct sun are lifted +6 to +9 EV (real02 kitchen metered 9.2 EV): flat, washed out, blue; the replay matches the M11 baseline frame for frame | replaced |
+| sun100 / sun300 / sun1000 | a real sun patch through the window, clean contrast, warm; metered EV falls to 2.5-4.3 (sun1000) in rooms with windows; sun1000 reads most natural, no clipping seen | **`SUN_STRENGTH_WM2 = 1000`** (the manual's clear-sky value), the same constant outdoors |
+| evcap (+3) alone | a room without light becomes black (kitchen capped from 9.2 to 3.0): the cap is a finding, not a fix | **on**, together with the rig; a capped view is a `lighting_dark` finding routed to the lighting tools |
+| rig (fixtures, gain 4.0) | the kitchen strip and pendant turn the +9 EV room into +1.0 EV (a lit kitchen); but the bedside lamp and shades blow out white, and the project white balance, metered on the rig-lit bathroom (3,422 K), turns every daylight view blue-grey | **on** with `RIG_GAIN = 2.0`; the visible shade emission decoupled from the lamp power (shades never clip at the project EV); the project white point metered on daylight only (rig lights hidden in the metering pass; 5,408 K on real02) |
+| shell | ceiling plaster, worktops, fronts and tiles differ little at 1080p; no harm; +35 % render time (6.4 vs 4.8 s) | **on** |
+| all (sun300 + rig + shell + evcap) | the kitchen and bath look lit and real; the salon and bedrooms suffer the white-balance cast and the blown shades | fixed by the two rig changes above; re-rendered in P3/P4 |
+| sky (Nishita with sun disc) outdoors | the sky brightens but the facades stay flat and bluish because the exterior sun lamp is still 3 W/m² (no shadows) | sun 1000 outdoors; the sun disc visible for camera rays only (Light Path mix of the two sky textures) so the lamp is the only sun light; the ratio test fixed and re-run in P3 |
+| hedge | the leaf-card hedge reads as a box of yellow-green dots | on; denser cards, atlas alpha and colour from the leaf texture, darker green |
+| instances (Poly Haven trees) | the olive instance in real02 ext_1 looks real; the clear win of the site A/B | **on** |
+| sapling | the Sapling tree renders without leaves (bare branches) | on only with leaves (the add-on's leaf settings and the leaf atlas material); fallback to leaf-card trees until then |
+| platforms | terraces and paths appear, but a retaining wall shows as a tall white box in real04 ext_1 (a platform far above the terrain) | on; retaining height capped (1.2 m, higher differences become stepped terraces), a concrete or stone material, never the facade white |
+| pools | coping and water read well in the site view | **on** |
+| horizon / haze (all) | the site view keeps the horizon above the lower third; the haze blends the backdrop | on |
+
+Numbers: exterior views cost 2-4 s and ≤ 13.4 GB VRAM with every lever on (the Poly Haven instances add ~0.3 GB);
+interior views 4.4-9.2 s. The levers are applied in build round 3 (§14.5) and verified on P3 (real04) and P4
+(real02 + real03).

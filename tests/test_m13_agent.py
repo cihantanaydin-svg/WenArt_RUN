@@ -142,8 +142,18 @@ def test_findings_removed_counts_critical_and_major_keys_only():
 # --------------------------------------------------------------------------
 
 @pytest.mark.parametrize("fnd,cause,first,never", [
+    # round 2: an F8 around an unbuilt anchor goes to the tools that build the ANCHOR (never the chair's move)
     (finding("F8", "major", "f_1", "r", "chair stands around table_dining f_2, which is not built (library gap)",
-             cause="anchor_not_built", missing_anchor="f_2"), "missing_anchor", "place_group", "move_piece"),
+             cause="anchor_not_built", missing_anchor="f_2", anchor_type="table_dining"), "missing_anchor",
+     "place_group", "move_piece"),
+    (finding("F8", "major", "f_1", "r", "nightstand stands around unknown u_2, which is not built (untyped)",
+             cause="anchor_not_built", missing_anchor="u_2", anchor_type="unknown"), "anchor_untyped",
+     "retype_piece", "move_piece"),
+    # round 2: a G8 of a tiered minimum (small kitchen, drawn run) is a scored term: reported only, no tool
+    (finding("G8", "minor", "f_1", "r", "kitchen aisle 0.75 m in front of kitchen_counter f_1, needs ≥ 0.90 m",
+             aisle_m=0.75, needs_m=0.9, tier="small_kitchen"), "soft_minimum", None, "fix_fixture"),
+    (finding("G8", "major", "f_1", "r", "kitchen aisle 0.75 m in front of kitchen_counter f_1, needs ≥ 1.07 m",
+             aisle_m=0.75, needs_m=1.07), "fixture_clearance", "fix_fixture", "move_piece"),
     (finding("F8", "major", "f_1", "r", "chair stands alone in the room (no wall, no table within 0.8 m)"),
      "floating", "move_piece", "set_exterior"),
     (finding("S2", "major", "f_1", "r", "toilet cuts wall w_1 by 0.013 m", depth_m=0.0127), "within_tolerance",
@@ -183,6 +193,16 @@ def test_the_cause_uses_the_building_to_tell_a_piece_from_the_roof():
     assert LP.cause_of(finding("X2", "major", "x9")) == "roof"          # no prefix, no building: the roof
     unbuilt = {"furniture": [{"id": "f_2", "type": "bed_double", "build": False}]}
     assert LP.cause_of(finding("LG", "minor", "f_2"), unbuilt) == "missing_anchor"
+    # round 2: the building says whether the unbuilt anchor is untyped (retype builds it) or typed (re-solve / fit)
+    f8 = finding("F8", "major", "f_1", "r", "around f_2, which is not built", cause="anchor_not_built",
+                 missing_anchor="f_2")
+    assert LP.cause_of(f8, unbuilt) == "missing_anchor" and LP.cause_of(f8) == "missing_anchor"
+    assert LP.cause_of(f8, {"furniture": [{"id": "f_2", "type": "unknown", "build": False}]}) == "anchor_untyped"
+    assert CS.anchor_of(f8) == "f_2" and CS.anchor_of(finding("F8", "major", "f_1", "r", "alone")) is None
+    assert CS.anchor_of(dict(f8, target="f_2")) is None                     # the finding is on the anchor itself
+    assert LP.tools_for_finding(dict(f8, cause="anchor_untyped"))[0] == "retype_piece"
+    assert set(LP.tools_for_finding(f8)) >= {"place_group", "swap_model", "retype_piece"}
+    assert "soft_minimum" in CS.NO_TOOL_REASON and "tier" in CS.NO_TOOL_REASON["soft_minimum"]
 
 
 def test_is_building_wide():
@@ -216,6 +236,101 @@ def test_the_brief_classifies_by_cause_and_offers_place_group_for_an_unbuilt_dra
     assert out3["findings"]["fixable"] == [] and out3["findings"]["not_yours"][0]["why"].startswith("building-wide: set_material")
     fixable_b, _ = BR.classify([r4], b, None, {}, {}, {})
     assert fixable_b and fixable_b[0]["tools"] == ["set_material"]
+
+
+def test_an_f8_around_an_unbuilt_anchor_is_fixed_on_the_anchor_through_the_whole_chain():
+    """Round 2: the brief names the unbuilt anchor as ``edit_target`` with the tools that build it (checked against
+    the anchor's locks, ``edit_ops.allowed_edits``), the default checklist and ``check_plan`` act on the anchor
+    although it is not built, and ``tools.target_findings`` hands the F8 to the acceptance of an edit on the anchor."""
+    # an untyped anchor: retype_piece types and builds it (the fit's ladder)
+    stand = M.fp("n1", "nightstand", (0.22, 3.7), (0.4, 0.4), rotation=90.0, front=0.0)
+    box = dict(M.fp("u1", "unknown", (1.02, 2.5), (1.6, 2.0), rotation=90.0, front=None, status="unverified"),
+               build=False, not_built_reason="untyped (CLAUDE.md: no untyped piece is built)")
+    b = M.building(w=4.5, h=5.0, furniture=[box, stand])
+    f8 = finding("F8", "major", "n1", M.ROOM_ID, "nightstand n1 stands around unknown u1, which is not built",
+                 cause="anchor_not_built", missing_anchor="u1", anchor_type="unknown")
+    brief = BR.room_brief(b, M.ROOM_ID, findings=[f8], allowed_fn=E.allowed_edits)
+    (fx,) = brief["findings"]["fixable"]
+    assert fx["cause"] == "anchor_untyped" and fx["target"] == "n1" and fx["edit_target"] == "u1"
+    assert fx["tools"][0] == "retype_piece" and "move_piece" not in fx["tools"]
+    assert "u1" in {p["id"] for p in brief["not_built"]} and "u1" not in {p["id"] for p in brief["pieces"]}
+    steps = LP.default_checklist(brief)
+    assert steps == [{"finding_ids": [fx["id"]], "tool": "retype_piece", "target": "u1", "why": fx["message"]}]
+    plan = {"room_id": M.ROOM_ID, "program": {"keep": True},
+            "steps": [{"finding_ids": [fx["id"]], "tool": "retype_piece", "target": "u1", "why": "type the anchor"},
+                      {"finding_ids": [fx["id"]], "tool": "move_piece", "target": "n1", "why": "move the stand"},
+                      {"finding_ids": [], "tool": "retype_piece", "target": "n1", "why": "no finding names it"}]}
+    checked, problems = LP.check_plan(plan, brief, ["retype_piece", "move_piece", "place_group"])
+    # the step on the unbuilt anchor stays (the finding names it); the chair's move does not fix the finding; a
+    # step without findings on a built piece that allows the tool stays, as before
+    assert [s_["target"] for s_ in checked] == ["u1", "n1"] and len(problems) == 1
+    assert "move_piece does not fix" in problems[0]
+    unnamed = {"room_id": M.ROOM_ID, "program": {"keep": True},
+               "steps": [{"finding_ids": [], "tool": "retype_piece", "target": "u1", "why": "no finding names it"}]}
+    assert LP.check_plan(unnamed, brief, ["retype_piece"])[1] == ["step 1 (retype_piece on u1): u1 is not built"]
+    ctx = TL.ToolContext(project_out=Path("."), building=b)
+    ctx.findings = [f8]
+    assert TL.target_findings(ctx, "retype_piece", {"piece_id": "u1"}) == [f8]
+    assert TL.target_findings(ctx, "move_piece", {"piece_id": "n1"}) == [f8]    # still the only finding on n1
+    assert "edit_target" in P.PLANNER_SYSTEM_M12
+    # a typed anchor the fit left unbuilt: place_group re-solves the group (the refit builds it); swap_model is not
+    # offered on an unbuilt piece (allowed_edits), retype never comes first
+    gap = dict(M.fp("b1", "bed_double", (1.02, 2.5), (1.6, 2.0), rotation=90.0, front=0.0),
+               asset={"method": "none", "asset_id": "none:bed_double"}, library_gap={"type": "bed_double", "step": "none"})
+    b2 = M.building(w=4.5, h=5.0, furniture=[gap, stand])
+    f8b = finding("F8", "major", "n1", M.ROOM_ID, "nightstand n1 stands around bed_double b1, which is not built",
+                  cause="anchor_not_built", missing_anchor="b1", anchor_type="bed_double")
+    brief2 = BR.room_brief(b2, M.ROOM_ID, findings=[f8b], allowed_fn=E.allowed_edits)
+    (fx2,) = brief2["findings"]["fixable"]
+    assert fx2["cause"] == "missing_anchor" and fx2["edit_target"] == "b1" and fx2["tools"][0] == "place_group"
+    assert "swap_model" not in fx2["tools"] and "move_piece" not in fx2["tools"]
+    assert LP.default_checklist(brief2)[0]["target"] == "b1"
+
+
+def test_a_g8_of_a_tiered_minimum_is_report_only():
+    b = building()
+    g8 = finding("G8", "minor", "f3", "r2", "kitchen aisle 0.75 m in front of kitchen_counter f3, needs ≥ 0.90 m",
+                 aisle_m=0.75, needs_m=0.9, tier="small_kitchen")
+    out = BR.room_brief(b, "r2", findings=[g8], allowed_fn=lambda b_, pid: {})
+    assert out["findings"]["fixable"] == []
+    (ny,) = out["findings"]["not_yours"]
+    assert ny["cause"] == "soft_minimum" and ny["why"].startswith("a tiered minimum") and "reported only" in ny["why"]
+    hard = finding("G8", "major", "f3", "r2", "kitchen aisle 0.75 m in front of kitchen_counter f3, needs ≥ 1.07 m",
+                   aisle_m=0.75, needs_m=1.07)
+    assert LP.cause_of(hard) == "fixture_clearance" and LP.tools_for_finding(hard) == ["fix_fixture"]
+
+
+def test_the_exterior_critic_is_told_that_an_allowed_aerial_view_is_no_finding(tmp_path):
+    aerial = {"name": "ext_5", "kind": "exterior", "view": "aerial", "aerial_allowed": True,
+              "position": [-20, -20, 18], "target": [4, 2, 1.6], "lens_mm": 28.0}
+    site = {"name": "ext_7", "kind": "exterior", "view": "aerial", "site_view": True, "aerial_allowed": True,
+            "position": [-30, -30, 9], "target": [4, 2, 1.6], "lens_mm": 24.0, "horizon_frac": 0.42}
+    corner = {"name": "ext_1", "kind": "exterior", "view": "corner", "position": [-8, -8, 1.6],
+              "target": [4, 2, 1.6], "lens_mm": 28.0}
+    assert P.camera_note(None) == "" and P.camera_note(corner) == ""
+    assert "NOT a finding" in P.camera_note(aerial) and "aerial view" in P.camera_note(aerial)
+    assert "site view" in P.camera_note(site) and "X6" in P.camera_note(site)
+    assert P.camera_note({"view": "aerial"}).startswith("This view is the aerial view")
+    model = MM.MockModel(critic=[{"findings": []}, {"findings": []}])
+    b = building()
+    preview = Path(tmp_path / "ext_5_preview.jpg")
+    from test_agent_helpers import jpg
+    jpg(preview)
+    code = {"findings": [], "ran": []}
+    res = CV.critique_exterior(model, b, "ext_5", preview=preview, plan_crop=None, code=code, call_id="t1",
+                               camera=aerial)
+    assert res["error"] is None and "NOT a finding" in json.dumps(model.critic_requests()[0])
+    CV.critique_exterior(model, b, "ext_1", preview=preview, plan_crop=None, code=code, call_id="t2", camera=corner)
+    assert "NOT a finding" not in json.dumps(model.critic_requests()[1])
+    # the loop hands the view's camera record of the scene manifest to the critic
+    loop, out, model2 = make(tmp_path, [{"content": "nothing"}], [[]], critic=[{"findings": []}] * 3, vision=True,
+                             max_rounds=1)
+    scene = json.loads((out / "scene" / "scene_manifest.json").read_text())
+    scene["cameras"][2] = dict(scene["cameras"][2], view="aerial", aerial_allowed=True)        # ext_1 as the aerial
+    (out / "scene" / "scene_manifest.json").write_text(json.dumps(scene))
+    loop.run()
+    ext = [r for r in model2.critic_requests() if "exterior view ext_1" in json.dumps(r)]
+    assert ext and "NOT a finding" in json.dumps(ext[0])
 
 
 def test_a_failing_refit_rejects_the_retype_instead_of_crashing():

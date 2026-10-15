@@ -114,6 +114,10 @@ brief:
     lens_mm: auto
     exterior_views: true   # Milestone 10: 4 corner views, one 3/4 aerial view, one per drawn elevation
     twin_rooms: one        # Milestone 10: one = a mirrored twin room of a semi-detached pair is rendered once | all
+    # Milestone 13 (docs/milestone13.md §13.2 T5, K5): one whitepoint for every view of the project. null = metered once
+    # on the first interior camera (render.py --white-balance project); a colour temperature in Kelvin (1800-100000,
+    # Blender's range) locks it instead (--white-balance kelvin:K).
+    white_balance_k: null
   # Milestone 11 (docs/milestone11.md §17, the user's decisions D3, D5, D6 of 9 Oct 2026):
   markers_in_final: false          # D3: false = no unverified stripes in any render (debug images and the report list them) | true
   roof_terraces: auto              # D5: auto = a terrace is cut into the roof when the plan of that level draws it as a room with a door to it, else the roof stays closed | cut | closed

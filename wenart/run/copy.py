@@ -128,10 +128,12 @@ MAX_CROPS = 200                    # recognition crops per project (M7 §9.1)
 ATTRIBUTION = "ATTRIBUTION.md"
 LIBRARY_CATALOG = "catalog_library.json"      # the prep pod's library catalogue (docs/milestone8.md §2)
 OBJAVERSE_CATALOG = "catalog_objaverse.json"  # its M7 name (read when the library file is missing)
-LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")   # = wenart.furniture.catalog.LIBRARY_SOURCES
-# Milestone 13: the sources whose models are credited in section 2 / 3: the library sources, the CC0 Poly Haven
-# models (no credit required, listed as CC0 assets) and the HSSD layer of track T7 (CC BY-NC 4.0, relaxed mode).
-CREDIT_SOURCES = ("polyhaven",) + LIBRARY_SOURCES + ("hssd",)
+# = wenart.furniture.catalog.LIBRARY_SOURCES (hssd since build round 2 of Milestone 13: the HSSD layer of track T7,
+# CC BY-NC 4.0, relaxed mode only; tests/test_library_growth_p4.py keeps the lists equal)
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd")
+# Milestone 13: the sources whose models are credited in section 2 / 3: the library sources (the HSSD layer among
+# them) and the CC0 Poly Haven models (no credit required, listed as CC0 assets).
+CREDIT_SOURCES = ("polyhaven",) + LIBRARY_SOURCES
 POC_ONLY_FLAGS = ("non_commercial", "share_alike", "research_only", "regional", "tool_nc")
 POC_FLAG_REASONS = {
     "non_commercial": "the licence forbids commercial use (a CC BY-NC licence or the dataset's non-commercial terms)",
@@ -189,6 +191,24 @@ HSSD_NOTICE = ("Contains 3D models from the Habitat Synthetic Scenes Dataset (HS
                "footprint, re-oriented, rendered.")
 POLYHAVEN_NOTICE = ("Poly Haven assets (textures, HDRIs, models; https://polyhaven.com) are CC0 1.0 "
                     "(https://polyhaven.com/license): no credit required. " + POLYHAVEN_API_CREDIT)
+# ambientCG (the leaf atlases of the site's trees and hedges, the shell texture sets): "All assets are released under
+# the Creative Commons CC0 license" (https://ambientcg.com, as wenart/blender/vegetation.py and wenart/assets/fetch.py
+# LICENCES record it).
+AMBIENTCG_NOTICE = ("ambientCG assets (texture sets and leaf atlases; https://ambientcg.com) are CC0 1.0 "
+                    "(https://creativecommons.org/publicdomain/zero/1.0/): no credit required.")
+# Section 1, the site build (build round 2; wenart/blender/vegetation.py, track T6): the Sapling Tree Gen add-on makes
+# the species-look trees. Its 0.3.7 extension manifest (blender_manifest.toml: id sapling_tree_gen, version 0.3.7,
+# license SPDX:GPL-3.0-or-later, website https://projects.blender.org/extensions/add_curve_sapling) and its source
+# headers (SPDX-License-Identifier: GPL-2.0-or-later, Blender Foundation 2011-2022) were read on 15 Oct 2026 from the
+# extension package; it runs as an installed program through bpy.ops.curve.tree_add, nothing of it is in this
+# repository, and the trees it generates are our scene geometry (the GPL covers the program, not its output).
+SAPLING_TOOL = {"name": "Sapling Tree Gen 0.3.7 (Blender extension sapling_tree_gen)",
+                "licence": "GPL-3.0-or-later per its 0.3.7 extension manifest (GPL-2.0-or-later per its source "
+                           "headers); run through bpy.ops.curve.tree_add as an installed add-on, nothing copied",
+                "url": "https://projects.blender.org/extensions/add_curve_sapling",
+                "role": "species-look trees of the site (the generated trees are ours)"}
+POLYHAVEN_PAGE = "https://polyhaven.com/a/{id}"            # = wenart.assets.models.PAGE_URL
+VEGETATION_TABLE_NOTE = "per the vegetation table (wenart/blender/vegetation.py; the manifest entry names no atlas)"
 DEFAULT_CHANGES = "scaled to the drawn footprint, re-oriented, rendered"
 # The library work folder's files that never go to $RESULTS (``library_files``): model files (the GLBs live in the
 # sources' caches and <assets>/models/<source>/) and anything larger than the text limit.
@@ -531,6 +551,93 @@ def texture_credits(out_dir: Path) -> list[dict]:
     return [found[k] for k in found]
 
 
+def hssd_notice() -> str:
+    """The HSSD dataset notice of section 4, built from ``wenart.assets.hssd.DATASET`` (the module states the name,
+    the page, the licence and its page, the citation and the use note; the citation text was checked against the
+    README BibTeX of https://github.com/3dlg-hcvc/hssd and the dataset card, which has no citation block, on
+    15 Oct 2026); ``HSSD_NOTICE`` (the same facts) when the module cannot be imported."""
+    try:
+        from wenart.assets import hssd as H
+        d = H.DATASET
+    except Exception:  # noqa: BLE001 - the notice must never fail the copy
+        return HSSD_NOTICE
+    return (f"Contains 3D models from {d['name']} ({d['page']}), licensed {d['licence']} ({d['licence_url']}): "
+            f"non-commercial use only; {d['note']}. Dataset terms: \"{d['gated']}\" (the dataset card, "
+            f"revision {str(d.get('revision') or '')[:7]}). Citation: {d['citation']}. Changes: {DEFAULT_CHANGES}.")
+
+
+def vegetation_credits(out_dir: Path) -> list[dict]:
+    """Build round 2 (track T6's site build): the credits of the vegetation sources the scene manifest says were
+    used, read from ``<out>/scene/scene_manifest.json`` ``objects[]`` entries that carry ``veg_method`` (trees,
+    hedges, grass; ``wenart.blender.site.build_site`` writes ``veg_method``, ``asset`` and ``licence`` on them):
+
+    - ``polyhaven``: the Poly Haven CC0 model instanced (``asset`` = its id; kind ``model``, section 2, with the name
+      of ``vegetation.POLYHAVEN_MODELS`` and the asset page);
+    - ``sapling``: one ``kind: "tool"`` row for section 1 (``SAPLING_TOOL``, with the trees it made), and the leaf
+      atlas its leaf card uses (``vegetation._tree_sapling``: ``leaf_atlas(species)``), credited like a card tree's;
+    - ``cards`` / ``sapling``: the ambientCG CC0 leaf atlas (``asset`` = the atlas id; kind ``texture``, section 2).
+      The builders record the atlas as ``atlas`` and ``site.build_site`` copies ``asset`` only, so a tree or hedge
+      entry names no atlas today: then the atlas of the species' leaf kind comes from ``vegetation.LEAF_ATLASES``
+      with the note ``VEGETATION_TABLE_NOTE`` (the entry's ``species`` is the species name; its leaf kind is looked
+      up; ``leaf_atlas`` picks the same one). A grass patch of cards uses no atlas (nothing to credit);
+    - ``palm``: our frond geometry without an atlas (``vegetation._tree_palm``: ``atlas`` None): nothing to credit
+      unless the entry names an ``asset``.
+
+    One row per asset, in asset order; ``[]`` without a scene manifest or without vegetation."""
+    try:
+        scene = json.loads((Path(out_dir) / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    rows = scene.get("objects") if isinstance(scene, dict) else None
+    if not isinstance(rows, list):
+        return []
+    try:
+        from wenart.blender import vegetation as VG      # stdlib-only at import; bpy is imported in its builders
+    except Exception:  # noqa: BLE001 - the credits then carry the manifest's facts only
+        VG = None
+    found: dict = {}
+    tool_pieces: list = []
+    for o in rows:
+        if not isinstance(o, dict) or not o.get("veg_method"):
+            continue
+        method = str(o["veg_method"])
+        oid = str(o.get("element_id") or o.get("wenart_id") or o.get("name") or "?")
+        part = str(o.get("site_part") or ("tree" if o.get("species") else "vegetation"))
+        if method == "polyhaven" and o.get("asset"):
+            aid = str(o["asset"])
+            name = ((VG.POLYHAVEN_MODELS.get(aid) or {}).get("name") if VG else None) or aid
+            entry = found.setdefault(aid, {
+                "credit": f"\"{name}\" by Poly Haven ({POLYHAVEN_PAGE.format(id=aid)}), CC0 1.0: no credit required",
+                "pieces": [], "source": "polyhaven", "asset_id": aid, "kind": "model", "licence": "CC0",
+                "licence_flag": "none", "commercial_safe": True, "licence_url": _texture_licence_url("polyhaven"),
+                "changes": "instanced and scaled to the drawn height (site vegetation)"})
+            entry["pieces"].append((oid, part))
+            continue
+        if method == "sapling":
+            tool_pieces.append((oid, part))               # the add-on (section 1); its leaf atlas is credited below
+        if method in ("cards", "palm", "sapling"):
+            aid = str(o.get("asset") or "")
+            note = ""
+            # no atlas named: a card tree, a Sapling tree's leaves and a hedge all use the species' atlas of the
+            # vegetation table (``leaf_atlas``); a palm's fronds and grass cards are our geometry without one
+            if not aid and VG is not None and method != "palm" and part in ("hedge", "tree", "vegetation"):
+                leaf = (VG.species_record(o.get("species")).get("leaf") if o.get("species") else None) or "broadleaf"
+                aid = str(VG.LEAF_ATLASES.get(leaf) or VG.LEAF_ATLASES.get("broadleaf") or "")
+                note = f" ({VEGETATION_TABLE_NOTE})"
+            if not aid:
+                continue                                  # grass cards, a palm: our geometry, nothing to credit
+            entry = found.setdefault(f"atlas:{aid}", {
+                "credit": f"leaf atlas {aid} (ambientCG, CC0){note}", "pieces": [], "source": "ambientcg",
+                "asset_id": aid, "kind": "texture", "licence": "CC0", "licence_flag": "none",
+                "commercial_safe": True, "licence_url": _texture_licence_url("ambientcg"),
+                "changes": "leaf cards of the site's trees and hedges (the leaves of the Sapling trees among them)"})
+            entry["pieces"].append((oid, part))
+    out = [found[k] for k in found]
+    if tool_pieces:
+        out.append(dict(SAPLING_TOOL, kind="tool", pieces=tool_pieces))
+    return out
+
+
 def _texture_licence_url(source: str) -> str:
     try:
         from wenart.assets import fetch as FETCH
@@ -622,7 +729,10 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
        usable;
     4. the dataset notices of the sources present (Objaverse ODC-By, ABO, GSO, generated, HSSD, Poly Haven).
 
-    ``credits`` are ``project_credits`` (+ ``texture_credits``) or ``library_attribution``'s rows.
+    ``credits`` are ``project_credits`` (+ ``texture_credits`` + ``vegetation_credits``) or ``library_attribution``'s
+    rows. Build round 2: a ``kind: "tool"`` row (the Sapling add-on of the site build, ``vegetation_credits``) is
+    listed under section 1 with the trees it made; the HSSD notice comes from ``wenart.assets.hssd.DATASET``
+    (``hssd_notice``); ambientCG textures and leaf atlases add ``AMBIENTCG_NOTICE`` to section 4.
     """
     from wenart.furniture import catalog as CAT
 
@@ -630,6 +740,7 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
     models = [c for c in credits if c.get("kind", "model") == "model"]
     textures = [c for c in credits if c.get("kind") in ("texture", "hdri")]
     run_models = [c for c in credits if c.get("kind") == "run_model"]
+    tools = [c for c in credits if c.get("kind") == "tool"]
     sources = sorted({c.get("source") or "objaverse" for c in models},
                      key=lambda s: SOURCE_ORDER.index(s) if s in SOURCE_ORDER else len(SOURCE_ORDER))
     names = ", ".join(SOURCE_NAMES.get(s, s) for s in sources) or "no library model"
@@ -647,6 +758,12 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
         lines += ["", "Models recorded by this run's final report (role: model @ revision, licence):", ""]
         lines += [f"- {m.get('role')}: {m.get('repo')} @ {str(m.get('revision') or '-')[:12]} "
                   f"({m.get('licence') or 'licence not recorded'})" for m in run_models]
+    if tools:
+        lines += ["", "Tools of the site build (GPL add-ons run as installed programs; their output is ours):", ""]
+        for t in tools:
+            pieces = ", ".join(f"{pid} ({ptype})" for pid, ptype in t.get("pieces") or [])
+            lines.append(f"- {t['name']}: {t['licence']} ({t['url']}); {t['role']}"
+                         + (f" (used for {pieces})" if pieces else ""))
     lines += ["", "## 2. CC0 / CC BY assets (author, source, licence, changes)", ""]
     safe = [c for c in models if _credit_flag(c) == "none"]
     if safe:
@@ -678,9 +795,11 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
     lines += ["", "## 4. Dataset notices", ""]
     notices = _notices(sources)
     if "hssd" in sources:
-        notices.append(HSSD_NOTICE)
+        notices.append(hssd_notice())
     if "polyhaven" in sources or any(c.get("source") == "polyhaven" for c in textures):
         notices.append(POLYHAVEN_NOTICE)
+    if any(c.get("source") == "ambientcg" for c in textures):
+        notices.append(AMBIENTCG_NOTICE)
     if not notices:
         lines.append("None: no dataset asset in these images.")
     for text in notices:
@@ -710,9 +829,10 @@ def write_attributions(ref: ProjectRef) -> int:
     credits = project_credits(ref.out_dir)
     building = read_building(ref.out_dir) or {}
     m13_run = isinstance(building.get("project"), dict) and bool(building["project"].get("licence_mode"))
-    if not credits and not m13_run:
+    vegetation = vegetation_credits(ref.out_dir)         # build round 2: the site's trees, hedges and grass
+    if not credits and not m13_run and not vegetation:
         return 0
-    credits = credits + texture_credits(ref.out_dir)
+    credits = credits + texture_credits(ref.out_dir) + vegetation
     credits += [dict(m, kind="run_model") for m in run_model_rows(ref.out_dir)]
     areas = ("final",) if ref.private else IMAGE_AREAS
     text = attribution_text(f"The images of project {ref.name}", credits, mode=project_licence_mode(ref.out_dir))

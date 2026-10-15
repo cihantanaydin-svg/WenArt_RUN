@@ -361,6 +361,137 @@ def test_attribution_of_every_library_source(tmp_path):
         assert notice in text, notice
 
 
+def test_an_hssd_model_is_a_poc_only_credit_with_the_dataset_notice(tmp_path):
+    """Build round 2 (docs/milestone13.md §12 D2): an HSSD catalogue entry as pod P2 writes it
+    (``growth_entries.hssd_entry`` on fake metadata, audited keep) validates, is no candidate in commercial mode, is
+    fitted in relaxed mode (``fit.fit_piece``), and the fitted asset is credited under section 3 with its flag, the
+    PoC reason and the dataset page; section 4 carries the dataset notice built from ``wenart.assets.hssd.DATASET``
+    (name, page, licence, the card's terms, the citation)."""
+    from test_furniture_fit_v2 import FakeCatalog, piece
+    from test_m13_fit import hssd_entry
+    from wenart.assets import hssd as H
+    from wenart.furniture import catalog as C
+    from wenart.furniture import fit as F
+
+    assert CP.LIBRARY_SOURCES == C.LIBRARY_SOURCES and "hssd" in CP.CREDIT_SOURCES
+    e = hssd_entry()
+    C.validate({"entries": [e]}, complete=False)
+    assert not C.usable(e, "relaxed")                                   # audit pending: no mode uses it yet
+    e["audit"] = dict(e["audit"], status="keep")                        # P2's audit decided
+    assert not C.usable(e, "commercial") and C.usable(e, "relaxed")
+    sofa = piece("sofa", 2.0, 0.9)
+    assert F.fit_piece(sofa, FakeCatalog([e]), mode="commercial")["method"] != "library"
+    asset = F.fit_piece(sofa, FakeCatalog([e]), mode="relaxed")
+    hid, title = e["id"], e["title"]
+    assert asset["method"] == "library" and asset["library"] == "hssd" and asset["asset_id"] == hid
+    results, pub, _priv = refs(tmp_path)
+    fill(pub.out_dir)
+    building = {"project": {"licence_mode": "relaxed"}, "furniture": [dict(sofa, asset=asset)]}
+    put(pub.out_dir / "building_final.json", building)
+    credits = CP.project_credits(pub.out_dir)
+    assert [c["source"] for c in credits] == ["hssd"] and credits[0]["licence_flag"] == "non_commercial"
+    assert credits[0]["commercial_safe"] is False and credits[0]["licence_url"] == H.LICENCE_URL
+    assert credits[0]["credit"] == e["attribution"] and credits[0]["pieces"] == [("f_L0_001", "sofa")]
+    CP.copy_project(pub)
+    text = (results / "final" / "p" / CP.ATTRIBUTION).read_text()
+    parts = {part.partition("\n")[0].strip(): part.partition("\n")[2] for part in text.split("\n## ")[1:]}
+    safe, poc, notices = (parts["2. CC0 / CC BY assets (author, source, licence, changes)"],
+                          parts["3. PoC-only assets (not commercial-safe)"], parts["4. Dataset notices"])
+    assert title not in safe and title in poc and H.CITATION in poc
+    assert "[licence flag: non_commercial]" in poc and "(used for f_L0_001 (sofa))" in poc and f"[asset: {hid}]" in poc
+    assert "PoC only: the licence forbids commercial use" in poc and H.LICENCE_URL in poc
+    assert "Licence mode: relaxed" in text and "HSSD (Habitat Synthetic Scenes Dataset)" in text
+    notice = CP.hssd_notice()
+    assert notice in notices and notice != CP.HSSD_NOTICE
+    for fact in (H.DATASET["name"], H.DATASET["page"], H.DATASET["licence_url"], H.GATED_PROMPT, H.CITATION,
+                 "2306.11290", "non-commercial use only", "relaxed licence mode only"):
+        assert fact in notice, fact
+    assert "CC BY-NC 4.0" in notices and "Habitat Synthetic Scenes Dataset" in notices
+
+
+def _veg_object(name, method, asset=None, licence=None, species=None, part=None):
+    o = {"name": name, "wenart_id": name, "element_id": name, "kind": "site_decor", "status": "assumed",
+         "level_id": None, "evidence": [], "material": None, "textured": False, "pass_index": None,
+         "veg_method": method, "asset": asset, "licence": licence, "inferred": True}
+    if species:
+        o["species"] = species
+    if part:
+        o["site_part"] = part
+    return o
+
+
+def test_vegetation_sources_of_the_site_build_are_credited_when_the_manifest_says_they_were_used(tmp_path):
+    """Build round 2 (track T6's site build): the scene manifest's vegetation objects (``veg_method``, ``asset``)
+    decide the credits: Poly Haven CC0 models with name and page (section 2), ambientCG CC0 leaf atlases (section
+    2; a hedge entry and a Sapling tree's leaves name no atlas, so their species' atlas comes from the vegetation
+    table with a note; a palm's fronds and grass cards are ours), the Sapling Tree Gen line in section 1 (GPL per
+    its manifest and headers, run through bpy.ops) only when a tree was made with it, and the Poly Haven and
+    ambientCG notices in section 4. A run without vegetation gets none of it."""
+    from wenart.blender import vegetation as VG
+
+    results, pub, _priv = refs(tmp_path)
+    fill(pub.out_dir)
+    put(pub.out_dir / "building_final.json", {"project": {"licence_mode": "commercial"}, "furniture": []})
+    scene = {"objects": [
+        _veg_object("tree_t1", "polyhaven", "island_tree_02", "CC0", species="olive"),
+        _veg_object("tree_t4", "polyhaven", "island_tree_02", "CC0", species="olive"),
+        _veg_object("tree_t2", "sapling", None, "CC0", species="olive"),            # the record's licence: its atlas's
+        _veg_object("tree_t3", "cards", "LeafSet012", "CC0", species="oak"),
+        _veg_object("tree_t5", "palm", None, None, species="palm"),                   # our fronds: nothing to credit
+        _veg_object("hedge_001", "cards", None, None, species="cherry_laurel", part="hedge"),
+        _veg_object("grass_near", "polyhaven", "grass_medium_02", "CC0", part="grass"),
+        _veg_object("grass_far", "cards", None, None, part="grass"),                  # our cards: nothing to credit
+        {"name": "wall_1", "element_id": "wall_1", "kind": "wall"}]}
+    put(pub.out_dir / "scene" / "scene_manifest.json", scene)
+    credits = CP.vegetation_credits(pub.out_dir)
+    by_id = {c["asset_id"]: c for c in credits if c["kind"] != "tool"}
+    tree = by_id["island_tree_02"]
+    assert tree["kind"] == "model" and tree["source"] == "polyhaven" and tree["licence_flag"] == "none"
+    assert tree["credit"] == '"Island Tree 02" by Poly Haven (https://polyhaven.com/a/island_tree_02), CC0 1.0: no credit required'
+    assert tree["pieces"] == [("tree_t1", "tree"), ("tree_t4", "tree")] and tree["licence_url"] == "https://polyhaven.com/license"
+    assert by_id["grass_medium_02"]["pieces"] == [("grass_near", "grass")]
+    oak = by_id["LeafSet012"]
+    assert oak["kind"] == "texture" and oak["source"] == "ambientcg" and oak["credit"] == "leaf atlas LeafSet012 (ambientCG, CC0)"
+    # the Sapling tree's leaves (olive) and the hedge (cherry laurel) share the broadleaf atlas of the table
+    hedge_atlas = VG.LEAF_ATLASES[VG.species_record("cherry_laurel").get("leaf") or "broadleaf"]
+    assert hedge_atlas == VG.LEAF_ATLASES[VG.species_record("olive")["leaf"]] != "LeafSet012"
+    shared = by_id[hedge_atlas]
+    assert shared["pieces"] == [("tree_t2", "tree"), ("hedge_001", "hedge")] and CP.VEGETATION_TABLE_NOTE in shared["credit"]
+    assert "grass_far" not in json.dumps(credits) and "tree_t5" not in json.dumps(credits)
+    assert len([c for c in credits if c["kind"] == "texture"]) == 2
+    tools = [c for c in credits if c["kind"] == "tool"]
+    assert len(tools) == 1 and tools[0]["name"].startswith("Sapling Tree Gen 0.3.7") and tools[0]["pieces"] == [("tree_t2", "tree")]
+    assert "GPL-3.0-or-later" in tools[0]["licence"] and "GPL-2.0-or-later" in tools[0]["licence"]
+    assert "bpy.ops.curve.tree_add" in tools[0]["licence"] and tools[0]["url"] == CP.SAPLING_TOOL["url"]
+    CP.copy_project(pub)
+    text = (results / "final" / "p" / CP.ATTRIBUTION).read_text()
+    parts = {part.partition("\n")[0].strip(): part.partition("\n")[2] for part in text.split("\n## ")[1:]}
+    tools_text = parts["1. Tools and generators"]
+    assert "Sapling Tree Gen 0.3.7" in tools_text and "(used for tree_t2 (tree))" in tools_text
+    assert "GPL-3.0-or-later per its 0.3.7 extension manifest" in tools_text and "nothing copied" in tools_text
+    safe = parts["2. CC0 / CC BY assets (author, source, licence, changes)"]
+    assert '"Island Tree 02" by Poly Haven' in safe and "[asset: island_tree_02]" in safe
+    assert "(used for tree_t1 (tree), tree_t4 (tree))" in safe and "instanced and scaled to the drawn height" in safe
+    assert "leaf atlas LeafSet012 (ambientCG, CC0)" in safe and CP.VEGETATION_TABLE_NOTE in safe
+    assert f"leaf atlas {hedge_atlas} (ambientCG, CC0) ({CP.VEGETATION_TABLE_NOTE})" in safe
+    assert "(used for tree_t2 (tree), hedge_001 (hedge))" in safe and "tree_t5" not in text
+    assert "leaf cards of the site's trees and hedges" in safe
+    assert parts["3. PoC-only assets (not commercial-safe)"].strip().startswith("None.")
+    notices = parts["4. Dataset notices"]
+    assert CP.POLYHAVEN_NOTICE in notices and CP.AMBIENTCG_NOTICE in notices
+    # no vegetation in the manifest: no Sapling line, no vegetation credit, no ambientCG notice
+    put(pub.out_dir / "scene" / "scene_manifest.json", {"objects": [{"name": "wall_1", "kind": "wall"}]})
+    assert CP.vegetation_credits(pub.out_dir) == []
+    CP.copy_project(pub)
+    text = (results / "final" / "p" / CP.ATTRIBUTION).read_text()
+    assert "Sapling" not in text and "island_tree_02" not in text and CP.AMBIENTCG_NOTICE not in text
+    # an older run without a licence mode but with vegetation still gets the file (the site's sources are credited)
+    put(pub.out_dir / "building_final.json", {"furniture": []})
+    put(pub.out_dir / "scene" / "scene_manifest.json", scene)
+    (results / "final" / "p" / CP.ATTRIBUTION).unlink()
+    assert CP.write_attributions(pub) >= 1 and "Sapling" in (results / "final" / "p" / CP.ATTRIBUTION).read_text()
+
+
 def test_library_attribution_prefers_the_library_catalogue_and_lists_decor(tmp_path):
     lib = tmp_path / "library"
     put(lib / "catalog_objaverse.json", {"entries": [dict(objaverse_asset("u2", "Old table"), id="objaverse_u2")]})

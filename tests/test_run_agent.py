@@ -156,7 +156,9 @@ def test_the_orchestrated_run(tmp_path, models):
     assert calls.index(r.cli.find("polish")[0]) < n_wake <= calls.index(r.cli.find("check run")[0])
     # records, log, overrides, building_agent.json
     agent = r.record("p1", "agent")
-    assert agent["status"] == "ok" and "1 edit(s) accepted" in agent["note"] and "no critical or major" in agent["note"]
+    # Milestone 13 (K4): the note states the findings removed, not the edits accepted (the metric of §13.1 T4)
+    assert agent["status"] == "ok" and "1 finding(s) removed by 1 accepted edit(s)" in agent["note"] \
+        and "no critical or major" in agent["note"]
     assert r.record("p1", "agent_apply")["status"] == "ok" and r.record("p1", "agent_previews")["status"] == "ok"
     out = tmp_path / "outputs" / "p1"
     log = json.loads((out / "orchestrator" / "log.json").read_text())
@@ -238,7 +240,8 @@ def test_cli_flags(monkeypatch):
     seen = []
     monkeypatch.setattr(SC, "run_pod", lambda opts: seen.append(opts) or 0)
     assert RM.main(["pod", "--projects", "synthetic-01", "--results", "/tmp/r"]) == 0
-    assert seen[-1].orchestrator is True and seen[-1].agent_key == "agent" and seen[-1].agent_rounds == 4
+    # Milestone 13 (K4, docs/milestone13.md §3.0; the user's rule of 12 Oct 2026): 3 rounds, = loop.MAX_ROUNDS
+    assert seen[-1].orchestrator is True and seen[-1].agent_key == "agent" and seen[-1].agent_rounds == 3
     RM.main(["pod", "--projects", "synthetic-01", "--results", "/tmp/r", "--no-orchestrator"])
     assert seen[-1].orchestrator is False
     RM.main(["pod", "--projects", "synthetic-01", "--results", "/tmp/r", "--profile", "smoke", "--vlm-url", "u"])

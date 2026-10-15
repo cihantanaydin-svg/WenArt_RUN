@@ -15,6 +15,14 @@ from wenart.run.projects import REPO_ROOT, project_folder
 GOLDEN = ["synthetic-01", "synthetic-03", "synthetic-04", "synthetic-05", "synthetic-06", "real01", "review-01"]
 PRESENT = [p for p in GOLDEN if project_folder(p, REPO_ROOT).is_dir()]
 GPU = "RTX PRO 6000"
+# real01's recognition questions (exit 4). Milestone 13 (K3, round 2 of the build): the ingest types the drawn pieces
+# by code first (twin room, other level, block name, missing group member) and the AI gets a question only for the
+# rest, so the 17 candidates of Milestones 7-12 leave 8 questions in recognition/requests.json (what
+# wenart.ingest.pipeline writes for projects/real01 on 15 Oct 2026; the K3 agent's own tests pin the withdrawn set).
+REAL01_QUESTIONS = 8
+# real01's planned views: 25 with the 8 code-typed pieces built in the pre-layout building (their rooms count as
+# furnished rooms with their views; Milestone 12's rule gave 17 while every unknown piece stayed unbuilt).
+REAL01_VIEWS = 25
 SPEED = 1.634                                                         # measured by the M7 prep pod
 
 
@@ -128,21 +136,24 @@ def test_golden_plan_of_the_committed_projects(golden):
             assert (s6["levels"], s6["rooms"], s6["empty_rooms"], s6["views"]) == (1, 6, 2, 22)
             assert s6["server_starts"] == 3 and s6["questions"] is None
     r1 = by["real01"]
-    # real01 writes 17 recognition questions (exit 4): pod time from the pre-answer building. The prep pod's answers
-    # are committed (results/recognition/real01, M7 §9.2): every question is answered by the seeds, so no call and no
-    # recognition server start (without the seeds: 34 calls, 4 starts).
+    # real01 writes REAL01_QUESTIONS recognition questions (exit 4; 17 before Milestone 13's code typing): pod time
+    # from the pre-answer building. The prep pod's answers are committed (results/recognition/real01, M7 §9.2): every
+    # question is answered by the seeds, so no call and no recognition server start (without the seeds: two calls per
+    # question, 4 starts).
     assert (r1["status"], r1["stage_status"], r1["levels"], r1["rooms"]) == ("pending", "pending", 1, 9)
     seeded = (REPO_ROOT / "results" / "recognition" / "real01" / "answers_qwen3-vl-8b.json").is_file()
     # Milestone 10: the 14 new furniture types changed the choices (and so the input hashes) of 15 of the 17
     # questions; pod L1d (9 Oct 2026) answered them and its seeds are committed, so they match again.
     # real01's one region is decided by title or geometry: no sheet_region question.
-    want = (17, 0, 3, False) if seeded else (17, 34, 4, False)
+    n = REAL01_QUESTIONS
+    want = (n, 0, 3, False) if seeded else (n, 2 * n, 4, False)
     assert (r1["questions"], r1["recognition_calls"], r1["server_starts"], r1["verified"]) == want
-    calls = 0.0 if seeded else P.recognition_minutes({"qwen": 17, "glm": 17}, plan["gpu"]["seqs"])
+    calls = 0.0 if seeded else P.recognition_minutes({"qwen": n, "glm": n}, plan["gpu"]["seqs"])
     assert r1["minutes"] == P.project_minutes(r1["views"], r1["empty_rooms"] + r1["completed_rooms"], calls, speed=SPEED)
     # Milestone 12 (track S, camsearch.shown_pieces = shell.piece_built): the pre-layout building's unknown pieces are
-    # not built, so their rooms count as rooms without furniture (one view each): 25 -> 17.
-    assert r1["views"] == 17 and r1["pod"] is not None
+    # not built, so their rooms count as rooms without furniture (one view each): 25 -> 17; Milestone 13 (K3): the
+    # code-typed pieces are built again, so the count is REAL01_VIEWS.
+    assert r1["views"] == REAL01_VIEWS and r1["pod"] is not None
     rv = by["review-01"]
     assert rv["status"] == "needs_review" and rv["views"] is None and rv["minutes"] == 0.0 and rv["pod"] is None
     # Milestone 10: the sheet analysis stops it before the pipeline (two plans without a level title).
@@ -172,7 +183,7 @@ def test_plan_reuses_stage_1_and_writes_records(golden):
     assert again["projects"][0]["views"] == 34
     # A reused pending pipeline stays pending (its questions still need the answers).
     assert json.loads((out / "real01" / "run" / "pipeline.json").read_text())["status"] == "pending"
-    assert again["projects"][1]["status"] == "pending" and again["projects"][1]["questions"] == 17
+    assert again["projects"][1]["status"] == "pending" and again["projects"][1]["questions"] == REAL01_QUESTIONS
 
 
 def test_gpu_speed_and_sequences_change_the_minutes(golden, monkeypatch):

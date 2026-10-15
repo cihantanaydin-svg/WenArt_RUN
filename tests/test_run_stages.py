@@ -372,3 +372,26 @@ def test_golden_commands_milestone_7():
     assert S.detect(TOOLS, REF) == ["POLISH_PY", "-m", "wenart.gate", "detect", O, "--manifest",
                                     f"{O}/polish/polish_manifest.json", "--out", f"{O}/detect"]
     assert S.detect(TOOLS, REF, force=True)[-1] == "--force"
+
+
+def test_white_balance_of_the_brief_and_the_platforms_step():
+    """Milestone 13 (round 2): the final render's ``--white-balance`` is the pod flag, else ``kelvin:K`` from the
+    brief's optional ``render.white_balance_k`` (1800-100000 K as render.parse_white_balance), else ``project``;
+    ``site_platforms`` is the pipeline_final stage's last step (site.platforms into building.json)."""
+    assert S.white_balance_of(None) == "project" == S.WHITE_BALANCE
+    assert S.white_balance_of({"values": {"render": {"white_balance_k": 5300}}}) == "kelvin:5300"
+    assert S.white_balance_of({"values": {"render": {"white_balance_k": 4800.0}}}) == "kelvin:4800"
+    assert S.white_balance_of({"values": {"render": {"white_balance_k": None}}}) == "project"
+    assert S.white_balance_of({"values": {"render": {"white_balance_k": True}}}) == "project"
+    assert S.white_balance_of({"values": {"render": {"white_balance_k": 100}}}) == "project"      # out of range
+    assert S.white_balance_of({"values": {"render": {"white_balance_k": "5300"}}}) == "project"   # a string: no
+    assert S.white_balance_of({"values": {"render": {"white_balance_k": 5300}}}, "project") == "project"
+    assert S.white_balance_of(None, "kelvin:6500") == "kelvin:6500"
+    assert S.KELVIN_RANGE == (1800.0, 100000.0)
+    from wenart.blender import render as R
+    assert R.parse_white_balance(S.white_balance_of({"values": {"render": {"white_balance_k": 5300}}})) == \
+        ("kelvin", [5300.0])
+    assert S.render(TOOLS, REF, white_balance=S.white_balance_of({"values": {"render": {"white_balance_k": 5300}}}))[
+        -2:] == ["--white-balance", "kelvin:5300"]
+    assert S.site_platforms(TOOLS, REF) == ["PY", "-m", "wenart.blender.site", "platforms",
+                                            "outputs/synthetic-04/building.json"]

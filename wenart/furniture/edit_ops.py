@@ -77,6 +77,14 @@ Milestone 13 (docs/milestone13.md §1.5, §1.8 B2 / B3, §13.2; owner: track T4)
   swaps for 1.2-1.3 cm cuts changed nothing) and the model the piece already has (``no_change``);
 - every edit may carry ``target_finding`` (``{check, target, severity, message, metrics, cause}``, set by the
   loop, never by the model): the finding the edit addresses.
+
+Round 2 of the build (15 Oct 2026, the integration's asks): ``_solve_apply`` applies a candidate through
+``layout.apply_choice`` (the one place that applies a solver candidate): the re-solved drawn pieces of
+``candidate["resolved"]`` change in place (the same dict objects, every field the solver wrote: ``drawn_group``,
+``group``, ``adjusted_by_ai``), the rug members of ``candidate["rugs"]`` come with the decor; ``complete_group``
+passes the drawn group (``groups.drawn_groups``) to ``solve_room`` when the room's program marks it for a re-solve
+(a misread, unbuilt or failing anchor: ``_resolve_group``), else the drawn anchor stays and only the partners are
+placed, as in Milestone 12.
 """
 from __future__ import annotations
 
@@ -726,10 +734,14 @@ def _program(b: dict, room: dict, entries: list[dict], zones: Optional[list] = N
 def _solve_apply(b: dict, room: dict, prog: dict, args: dict, text: str, *, fixed: list[str], index: int = 1,
                  accept=None, only_type: Optional[str] = None, drawn_group=None) -> list[str]:
     """Solve ``prog`` with ``fixed`` pieces kept, take usable candidate ``index`` (1-based; ``accept`` filters) and
-    add its pieces to ``b`` (``only_type``: only the first piece of that type). Returns the new ids. Milestone 13:
-    ``drawn_group`` (a ``groups.drawn_groups`` entry) makes the solver re-solve that drawn group as one unit
-    (``solve_room(..., drawn_group=...)``, track T3); its re-placed drawn members are taken from the candidate and
-    count as changed."""
+    add its pieces to ``b`` (``only_type``: only the first piece of that type). Returns the changed ids (the
+    re-placed drawn members, then the new pieces). Milestone 13: ``drawn_group`` (a ``groups.drawn_groups`` entry)
+    makes the solver re-solve that drawn group as one unit (``solve_room(..., drawn_group=...)``, track T3); the
+    candidate is applied through ``layout.apply_choice`` (round 2): the drawn pieces of ``candidate["resolved"]``
+    change in place with everything the solver wrote (a kept member gets its ``drawn_group`` and ``group`` too), the
+    rugs of ``candidate["rugs"]`` come with the decor, the moved or resized members count as changed and are
+    labelled."""
+    from wenart.furniture import layout as LY
     from wenart.furniture import solver as SV
 
     cands = SV.solve_room(b, room["id"], prog, k=max(3, index), fixed_ids=fixed, drawn_group=drawn_group)
@@ -749,33 +761,25 @@ def _solve_apply(b: dict, room: dict, prog: dict, args: dict, text: str, *, fixe
         if keep is None:
             raise EditRejected("no_place", f"{text}: the solver places no {only_type} ({_why_not(cands)})")
         cand = dict(cand, pieces=[keep])
-    new = SV.apply_candidate(b, room["id"], cand)
-    before = {f["id"] for f in b["furniture"]}
-    added = [f for f in new["furniture"] if f["id"] not in before]
-    by_new = {f["id"]: f for f in new["furniture"]}
-    kept = set(by_new)
-    moved: list[str] = []
-    rebuilt = []
-    for f in b["furniture"]:
-        if f["id"] not in kept:
-            continue
-        now = by_new[f["id"]]
-        if _drawn(f) and (_dump(now.get("footprint")) != _dump(f.get("footprint")) or now.get("build") != f.get("build")
-                          or _dump(now.get("front_deg")) != _dump(f.get("front_deg"))):
-            # a drawn member re-placed as part of its drawn group (the solver labels it adjusted_by_ai)
-            moved.append(f["id"])
-            rebuilt.append(now)
-        else:
-            rebuilt.append(f)
-    b["furniture"] = rebuilt + added
-    if "decor" in new:
-        b["decor"] = new["decor"]
+    in_cand = {p["id"] for p in cand.get("pieces") or []}
+    resolved = [pid for pid in cand.get("resolved") or [] if pid in in_cand]
+    cand = dict(cand, resolved=resolved)
+    was = {pid: _piece(b, pid) for pid in resolved}
+    before = {pid: {k: _dump(f.get(k)) for k in ("footprint", "front_deg", "build", "asset")}
+              for pid, f in was.items()}
+    choice = {"rank": cand["rank"], "by": "agent", "reason": args.get("reason") or text}
+    added = LY.apply_choice(b, room, cand, choice, completes=bool(room.get("has_documented_furniture")))
+    # a drawn member re-placed, resized or rebuilt as part of its drawn group counts as changed (the solver labels
+    # it adjusted_by_ai); a member the solver kept only carries its drawn_group and group now
+    moved = [pid for pid in resolved
+             if any(_dump(was[pid].get(k)) != v for k, v in before[pid].items())]
+    if not added and not moved:
+        # a re-solve level the solver skipped hands the drawn pieces back as drawn: nothing placed, nothing moved
+        raise EditRejected("no_place", f"{text}: the solver places nothing and leaves the drawn pieces as drawn "
+                                       f"({_why_not(cands) if cands[0].get('not_placed') else 'no place within '
+                                        + str(GR.GROUP_MEMBER_MOVE_MAX_M) + ' m of the drawn centre'})")
     for f in added:
         f["evidence"] = list(f.get("evidence") or []) + _ai_evidence(args, args.get("reason") or text)
-        f["checks"] = {name: True for name in placer.CHECKS}
-        f["layout"] = dict(f.get("layout") or {}, candidate=cand["rank"], score=cand["score"])
-        if room.get("has_documented_furniture"):
-            f["completes_room"] = True
     for pid in moved:
         item = _piece(b, pid)
         adj = item.get("adjusted_by_ai") if isinstance(item.get("adjusted_by_ai"), dict) else None
@@ -865,6 +869,21 @@ def _place_group(b: dict, args: dict) -> list[str]:
                         fixed=_ai_floor_ids(b, room["id"]))
 
 
+def _resolve_group(b: dict, room: dict, anchor_id: Optional[str]) -> Optional[dict]:
+    """Round 2 (Milestone 13, D5): the drawn group of ``anchor_id`` (``groups.drawn_groups``) when the room's program
+    marks it for a re-solve as one unit (``program.room_program``: the anchor misread, not built or failing the
+    checks), else None: the drawn anchor stays where it is and only its partners are placed."""
+    from wenart.furniture import program as PR
+
+    if not anchor_id:
+        return None
+    marked = any(r.get("drawn") and r.get("anchor_id") == anchor_id and r.get("resolve")
+                 for r in PR.room_program(b, room["id"])["groups"])
+    if not marked:
+        return None
+    return next((g for g in GR.drawn_groups(b, room["id"]) if g.get("anchor_id") == anchor_id), None)
+
+
 def _complete_group(b: dict, args: dict) -> list[str]:
     room, g = _find_group(b, args["group_id"])
     anchor = next((f for f in b["furniture"] if f["id"] == g.get("anchor_id")), None)
@@ -874,8 +893,14 @@ def _complete_group(b: dict, args: dict) -> list[str]:
     if not g.get("missing"):
         raise EditRejected("no_change", f"{g['group_id']}: nothing missing (members: "
                                         f"{', '.join(g.get('member_ids') or []) or 'none'})")
-    return _solve_apply(b, room, _program(b, room, [_group_entry(room, g)]), args,
-                        f"{g['group_id']} (missing {', '.join(g['missing'])})", fixed=_ai_floor_ids(b, room["id"]))
+    # Milestone 13 (round 2): a drawn group the program marks for a re-solve (its anchor misread or failing the
+    # checks) is completed as one unit around the drawn anchor (every member within 0.5 m, drawn values kept)
+    drawn = _resolve_group(b, room, g.get("anchor_id")) if anchor is not None and _drawn(anchor) else None
+    text = f"{g['group_id']} (missing {', '.join(g['missing'])})"
+    if drawn is not None:
+        text += f", re-solved as one unit around the drawn {anchor['type']} {anchor['id']}"
+    return _solve_apply(b, room, _program(b, room, [_group_entry(room, g)]), args, text,
+                        fixed=_ai_floor_ids(b, room["id"]), drawn_group=drawn)
 
 
 def free_spans(building: dict, room_id: str, min_length: float = 0.3) -> list[dict]:
@@ -1040,6 +1065,9 @@ def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
         raise EditRejected("refit", f"{item['id']}: the fit built nothing for {item['type']} "
                                     f"({(asset.get('library_gap') or {}).get('reason') or 'no model, no builder'})")
     item["asset"] = asset
+    # round 2: a module plan with a split (a drawn table footprint that includes its chairs) labels the piece
+    # ``adjusted_by_ai`` with the ``drawn_*`` keys, as ``fit_building`` does (``fit_piece`` is pure)
+    F.apply_split_label(item, asset)
     if asset.get("library_gap"):
         item["library_gap"] = dict(asset["library_gap"])
     else:

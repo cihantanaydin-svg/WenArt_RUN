@@ -957,15 +957,17 @@ def _mesh_object(name: str, verts, faces, collection, materials=()):
 
 
 def _manifest_kind(kind: str) -> str:
-    """The object kind the scene manifest knows (``common.KINDS`` is a closed list): the site part's own name when it
-    is in the list, else the nearest existing kind (``site.SITE_KINDS``)."""
+    """The object kind the scene manifest knows (``common.KINDS`` is a closed list): a site part's name as
+    ``site.site_kind`` writes it into the manifest entry (its own name when ``common.KINDS`` and the scene-manifest
+    schema both know it, else the Milestone 10-12 fallback of ``site.SITE_KINDS``), so the object property and the
+    manifest entry agree; any other kind as it is when the list knows it, else ``site_decor``."""
+    from wenart.blender.site import SITE_KINDS, site_kind
+    for part, (own, _fallback) in SITE_KINDS.items():
+        if own == kind:
+            return site_kind(part)
     from wenart.blender import common
     if kind in common.KINDS:
         return kind
-    from wenart.blender.site import SITE_KINDS
-    for own, fallback in SITE_KINDS.values():
-        if own == kind:
-            return fallback
     return "site_decor"
 
 

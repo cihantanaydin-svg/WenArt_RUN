@@ -311,6 +311,9 @@ def test_attribution_text_has_the_four_sections_in_relaxed_mode():
     assert "ODC Attribution License" in notices                  # Objaverse
     assert "Amazon Berkeley Objects" in notices and "CC BY 4.0" in notices
     assert "Habitat Synthetic Scenes Dataset" in notices and "CC BY-NC 4.0" in notices and "2306.11290" in notices
+    # build round 2: the HSSD notice is built from wenart.assets.hssd.DATASET (the card's terms, the citation)
+    from wenart.assets import hssd as H
+    assert CP.hssd_notice() in notices and H.GATED_PROMPT in notices and H.CITATION in notices
     assert "Generated models" in notices and "Poly Haven" in notices and "CC0 1.0" in notices
 
 

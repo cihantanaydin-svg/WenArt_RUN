@@ -442,20 +442,32 @@ def test_debug_image_report_and_questions(run):
     from wenart.recognition import answers as A
     doc = A.read_requests(out / "recognition")
     keys = [i["key"] for i in doc["items"]]
-    assert len(keys) == 17 and keys == sorted(keys) and all(k.startswith("sym_L0_") for k in keys)
+    # The core asks 17 candidates (``test_questions_are_pending_without_answers``). Milestone 13 (K3, round 2 of the
+    # build: "code first, the AI types the rest"): the code typing (infer.type_by_code, type_method twin / level /
+    # block / group_member) types 8 of them before any AI (the two beds and their four nightstands, the sofa and
+    # its coffee table: the bedroom's and the living room's missing anchors and members) and their questions are
+    # withdrawn (reading.withdraw_questions), so requests.json holds the 9 the AI must answer (the dining table,
+    # six chairs, the chaise and the unknown 0.4 m piece). Before round 2 it held all 17 (the code typing ran after
+    # the questions were written).
+    assert len(keys) == 9 and keys == sorted(keys) and all(k.startswith("sym_L0_") for k in keys)
     for item in doc["items"]:
         assert all((out / "recognition" / p).is_file() for p in item["images"])
-    # The 17 questions are the untyped candidates; Milestone 13's code typing (type_method twin / level / block /
-    # group_member) then types the ones a missing group member explains, the rest keep type_method none.
     from wenart.furniture import infer as INF
-    candidates = [f for f in run["building"]["furniture"] if f["type_method"] in ("none",) + INF.CODE_TYPE_METHODS]
-    assert len(candidates) == len(keys)
+    coded = [f for f in run["building"]["furniture"] if f["type_method"] in INF.CODE_TYPE_METHODS]
+    asked = [f for f in run["building"]["furniture"] if f["type_method"] == "none"]
+    assert len(coded) == 8 and len(asked) == len(keys) == 9
+    withdrawn = run["build"].code_typed
+    assert sorted(withdrawn.values()) == sorted(f["id"] for f in coded) and not set(withdrawn) & set(keys)
+    assert all(f.get("build") is not False for f in coded)                  # typed before the AI: built
+    assert run["build"].reading["questions_withdrawn"] == sorted(withdrawn)
+    assert all(f"{k} withdrawn" in " ".join(run["building"]["warnings"]) for k in withdrawn)
     # --no-ai: nothing is pending, so the pipeline would not exit 4.
     assert run["build"].pending == [] and P.exit_code(run["building"], run["build"], no_ai=True) == 0
-    # ... but the 17 questions are still unanswered, and report.md says so (review cross-5).
+    # ... but the 9 questions are still unanswered, and report.md says so (review cross-5).
     assert run["build"].unanswered == keys
-    assert ("Recognition questions: 17 (`recognition/requests.json`), 17 without a complete pair of answers "
+    assert ("Recognition questions: 9 (`recognition/requests.json`), 9 without a complete pair of answers "
             "(--no-ai: not applied, they stay unknown/unverified).") in report
+    assert "Recognition questions withdrawn (typed by code before the AI, K3): 8 (" in report
     # The page's rule outcomes (LevelExtraction.notes) are in report.md, one block per page (review cross-2).
     notes = report.split("## Notes", 1)[1].split("\n## ", 1)[0]
     assert "### real01.pdf p1" in notes

@@ -69,11 +69,12 @@ DEFAULT_SIZE = "1k"
 PAGE_URL = "https://polyhaven.com/a/{id}"
 OBJAVERSE = "objaverse"
 OBJAVERSE_CACHE = f"{MODELS_DIR}/objaverse"     # <assets>/models/objaverse/<uid>.glb, written by the prep pod
-# The library sources (docs/milestone8.md §2): cache-only GLBs in <assets>/models/<source>/<uid>.glb.
-LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")     # gso: Milestone 12 pod P4 (Google Scanned Objects)
-# Milestone 13 (docs/milestone13.md §12 D2, track T7): HSSD models (CC BY-NC 4.0, relaxed licence mode only) live in
-# the same cache layout, <assets>/models/hssd/<uid>.glb (wenart.assets.hssd, growth_run ingest --source hssd).
-CACHE_SOURCES = LIBRARY_SOURCES + ("hssd",)
+# The library sources (docs/milestone8.md §2): cache-only GLBs in <assets>/models/<source>/<uid>.glb; gso: Milestone
+# 12 pod P4 (Google Scanned Objects); hssd: Milestone 13 pod P2 (docs/milestone13.md §12 D2, track T7; the HSSD
+# models, CC BY-NC 4.0, relaxed licence mode only, <assets>/models/hssd/<uid>.glb, wenart.assets.hssd and
+# growth_run ingest --source hssd). = wenart.furniture.catalog.LIBRARY_SOURCES (tests/test_library_growth_p4.py).
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd")
+CACHE_SOURCES = LIBRARY_SOURCES          # the Milestone 13 name (hssd joined LIBRARY_SOURCES in build round 2)
 _UID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 # Fields of the fit asset (catalogue entry) kept in the manifest entry of an Objaverse model.
 OBJAVERSE_META = ("uid", "title", "author", "source_url", "licence_url", "via", "attribution")
