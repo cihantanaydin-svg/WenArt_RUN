@@ -928,3 +928,28 @@ ATTRIBUTION sections; 17 before/after metrics on frozen cameras; 6 pods ≈ $46-
 raise to $230); 7 `CLAUDE.md` wording changes; 10 decisions (§10).
 
 GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is running.
+
+### Milestone 13, step 2 (build), in progress (15 Oct 2026)
+
+- **Decisions of 12 Oct 2026** (D1-D10, `docs/milestone13.md` §12): relaxed licence mode for the PoC projects, HSSD
+  layer (terms accepted by the user), flagged generated models kept (`tool_nc`), fallback ladder with good-looking
+  fallbacks, drawn groups as units, project total $300, cameras and polish unchanged, no paid packs. Later the same
+  day: no Milestone 12 baseline pods; the committed M11 runs of real02/real03 (commit 93aff07) and the committed M12
+  run of real04 (eddde01) are the baseline. Pod B0a was stopped after 4 min ($0.19).
+- **Contracts** (§13, commit c2a6a9e): eight tracks on disjoint files, frozen interfaces, new schema fields
+  (`asset.method | ladder | licence_flag | commercial_safe`, `size_snap`, `drawn_group`, `site.hedges`,
+  `site.platforms`, `project.licence_mode`), `library.licence_mode` setting.
+- **Build round 1** (commit e1532a8, 15 Oct; the 12 Oct attempt was cut by a usage limit): 108 files changed, 33
+  new, 15,923 insertions; tracks T1-T8 built, reviewed and integrated by 17 agents; CPU suite 4,866 passed, 211
+  skipped, 1 failed (`tests/test_models_assets.py::test_catalog_ids_exist_on_the_api`: the live Poly Haven API now
+  reports `vintage_wooden_drawer_01` at twice the committed size; the entry is unchanged and is re-measured on the
+  next library pod). Numbers per track go to `docs/milestone13.md` §14 after round 2.
+- **Build round 2** (running): the cross-track wiring the integration left for the lead (HSSD as a catalogue
+  source, code typing before the recognition questions, rug members and solver candidates in the edit ops, agent
+  routing by cause, site object kinds, camera-replay flags, agent rounds 3, the contracts test, manifest records for
+  the metrics) and the §14 draft.
+- **Pods**: P1 (pod `ker0qemve1rhpf`, RTX 4090 at $0.89/h, worst case $3.56, 4 h) runs the lever A/B (light), the
+  site A/B (vegetation, platforms, pools, sky) and the GPU tests of T2/T5/T6 on the round-1 code (33d12db). The
+  runner now leaves a running pod to its own watchdog when this session kills it after 2 h (`attach` collects later).
+  Next: P2 (library downloads and audit, HSSD included), then P3/P4/P5.
+- GPU spent so far: $130.73 of $300 (+ P1 when it ends). One pod running (P1).

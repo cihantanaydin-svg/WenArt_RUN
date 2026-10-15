@@ -88,5 +88,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-12 06:09 | 658im5ey39ecxh | NVIDIA RTX PRO 4500 Blackwell | 5 | 0.06 | volume: clean old outputs (user OK 12 Oct 2026) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-12 06:13 | 1p952a3cwbjhti | NVIDIA RTX PRO 4500 Blackwell | 4 | 0.04 | volume: clean old outputs, pass 2 (repo/outputs; user OK 12 Oct 2026) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-12 14:08 | 8d5eakw9r2s8y9 | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 4 | 0.19 | M13 B0a: real02 baseline on the M12 code (5a69ff5), polish off | stopped by the user after 4 min ("no need m12 baselines, use the m11 as base line, stop the pods"); no results; terminated |
+| 2026-10-15 16:55 | pending:20261015-165506-m13_p1 | RTX 4090 | 240 | 3.56 | M13 P1: lever A/B (light), site A/B (vegetation, platforms, pools, sky), GPU tests of T2/T5/T6 (round-1 code 33d12db) | creating (provisional, worst case) |
 
-**Total spent so far: $130.73** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
+**Total spent so far: $134.29** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
