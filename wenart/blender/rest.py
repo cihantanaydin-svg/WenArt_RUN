@@ -419,39 +419,52 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
         return None
     how = []
     cy_local = None
-    for _pass in range(2):
-        backs = []
-        for f in BACK_PROBE_SHARES:
-            s = f * h
-            _yb, zb = back_face_offset(t, s, lean_deg)
-            z = seat + zb
-            ox, oy = to_world(hc, rot, lx, -hd / 2.0 - 0.2)
-            dist = _horizontal(caster, (ox, oy, z), (back_dir[0], back_dir[1], 0.0), hd + 0.4)
-            if dist is not None:
-                backs.append((-hd / 2.0 - 0.2 + dist, s))
-        if backs:
-            cy_local = min(yb - back_face_offset(t, s, lean_deg)[0] for yb, s in backs)
-            what = "the backrest found by horizontal rays"
-        else:
-            cy_local = hd / 2.0 - back_face_offset(t, h * 0.5, lean_deg)[0]
-            what = "no backrest hit: against the footprint's back edge (the wall)"
-        # the seat under the item's spot (soft: median of the grid over its middle: never an arm's top)
-        foot = (min(w * 0.5, 0.2), max(t, 0.05))
-        sup = support_height(caster, to_world(hc, rot, lx, cy_local - t * 0.25), foot, rot_item, True, top)
-        if sup["z"] is not None:
-            seat = sup["z"]
-        how = [what]
-    # 2. arms: rays to both sides at two heights of the item (the nearest hit counts)
-    cxw, cyw = to_world(hc, rot, lx, cy_local)
-    right = left = None
-    for f in ARM_PROBE_SHARES:
-        z = seat + max(0.02, h * f * math.cos(math.radians(lean_deg)))
-        r_hit = _horizontal(caster, (cxw, cyw, z), (side_dir[0], side_dir[1], 0.0), hw)
-        l_hit = _horizontal(caster, (cxw, cyw, z), (-side_dir[0], -side_dir[1], 0.0), hw)
-        right = r_hit if right is None or (r_hit is not None and r_hit < right) else right
-        left = l_hit if left is None or (l_hit is not None and l_hit < left) else left
-    room_r = (right if right is not None else hw / 2.0 - lx) - ARM_GAP_M
-    room_l = (left if left is not None else hw / 2.0 + lx) - ARM_GAP_M
+    # Milestone 13: the back is probed with the centre ray first; when the item is then squeezed between two things
+    # narrower than a cushion (the centre ray passed through the gap between the two pillows of a made bed and found
+    # the headboard behind them), three rays over the item's width probe again and the nearest hit is the back.
+    for probe_xs in ((0,), (0, -1, 1)):
+        for _pass in range(2):
+            backs = []
+            for f in BACK_PROBE_SHARES:
+                s = f * h
+                _yb, zb = back_face_offset(t, s, lean_deg)
+                z = seat + zb
+                dists = []
+                for k in probe_xs:
+                    ox, oy = to_world(hc, rot, lx + k * w / 4.0, -hd / 2.0 - 0.2)
+                    dist = _horizontal(caster, (ox, oy, z), (back_dir[0], back_dir[1], 0.0), hd + 0.4)
+                    if dist is None or (k and -hd / 2.0 - 0.2 + dist <= seat_y):
+                        continue              # a side ray stopped in front of the seat (an arm) is not a back
+                    dists.append(dist)
+                if dists:
+                    backs.append((-hd / 2.0 - 0.2 + min(dists), s))
+            if backs:
+                cy_local = min(yb - back_face_offset(t, s, lean_deg)[0] for yb, s in backs)
+                what = "the backrest found by horizontal rays"
+                if len(probe_xs) > 1:
+                    what += " (the nearest of three over the item's width: the centre ray passed between two things)"
+            else:
+                cy_local = hd / 2.0 - back_face_offset(t, h * 0.5, lean_deg)[0]
+                what = "no backrest hit: against the footprint's back edge (the wall)"
+            # the seat under the item's spot (soft: median of the grid over its middle: never an arm's top)
+            foot = (min(w * 0.5, 0.2), max(t, 0.05))
+            sup = support_height(caster, to_world(hc, rot, lx, cy_local - t * 0.25), foot, rot_item, True, top)
+            if sup["z"] is not None:
+                seat = sup["z"]
+            how = [what]
+        # 2. arms: rays to both sides at two heights of the item (the nearest hit counts)
+        cxw, cyw = to_world(hc, rot, lx, cy_local)
+        right = left = None
+        for f in ARM_PROBE_SHARES:
+            z = seat + max(0.02, h * f * math.cos(math.radians(lean_deg)))
+            r_hit = _horizontal(caster, (cxw, cyw, z), (side_dir[0], side_dir[1], 0.0), hw)
+            l_hit = _horizontal(caster, (cxw, cyw, z), (-side_dir[0], -side_dir[1], 0.0), hw)
+            right = r_hit if right is None or (r_hit is not None and r_hit < right) else right
+            left = l_hit if left is None or (l_hit is not None and l_hit < left) else left
+        room_r = (right if right is not None else hw / 2.0 - lx) - ARM_GAP_M
+        room_l = (left if left is not None else hw / 2.0 + lx) - ARM_GAP_M
+        if room_l + room_r >= MIN_CUSHION_W or len(probe_xs) > 1:
+            break
     if room_r < w / 2.0 and room_l > w / 2.0:
         lx -= min(w / 2.0 - room_r, room_l - w / 2.0)
         how.append("shifted off the arm")

@@ -71,6 +71,9 @@ OBJAVERSE = "objaverse"
 OBJAVERSE_CACHE = f"{MODELS_DIR}/objaverse"     # <assets>/models/objaverse/<uid>.glb, written by the prep pod
 # The library sources (docs/milestone8.md §2): cache-only GLBs in <assets>/models/<source>/<uid>.glb.
 LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")     # gso: Milestone 12 pod P4 (Google Scanned Objects)
+# Milestone 13 (docs/milestone13.md §12 D2, track T7): HSSD models (CC BY-NC 4.0, relaxed licence mode only) live in
+# the same cache layout, <assets>/models/hssd/<uid>.glb (wenart.assets.hssd, growth_run ingest --source hssd).
+CACHE_SOURCES = LIBRARY_SOURCES + ("hssd",)
 _UID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 # Fields of the fit asset (catalogue entry) kept in the manifest entry of an Objaverse model.
 OBJAVERSE_META = ("uid", "title", "author", "source_url", "licence_url", "via", "attribution")
@@ -292,8 +295,8 @@ def gltf_relpath(asset_id: str, size: str = DEFAULT_SIZE) -> str:
 
 def library_relpath(source: str, uid: str) -> str:
     """Where the prep pod puts a library GLB (relative to the assets dir): ``models/<source>/<uid>.glb``."""
-    if source not in LIBRARY_SOURCES:
-        raise fetch.AssetNotFound(f"{source}: not a library source {LIBRARY_SOURCES}")
+    if source not in CACHE_SOURCES:
+        raise fetch.AssetNotFound(f"{source}: not a library source {CACHE_SOURCES}")
     if not _UID_RE.fullmatch(str(uid or "")):
         raise fetch.AssetNotFound(f"{source}: uid {uid!r} is not a plain object id")
     return f"{MODELS_DIR}/{source}/{uid}.glb"
@@ -367,11 +370,11 @@ def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: 
     Paths are relative to ``out_dir``; the box is in the Z-up frame, metres.
     """
     out_dir = Path(out_dir)
-    fetch.check_licence(source, licence, kind="models", entry=meta if source in LIBRARY_SOURCES else None)
-    if source in LIBRARY_SOURCES:
+    fetch.check_licence(source, licence, kind="models", entry=meta if source in CACHE_SOURCES else None)
+    if source in CACHE_SOURCES:
         return fetch_library_cached(asset_id, out_dir, source, licence, meta)
     if source != polyhaven.SOURCE:
-        raise fetch.AssetNotFound(f"models come from Poly Haven or the library cache ({', '.join(LIBRARY_SOURCES)}) "
+        raise fetch.AssetNotFound(f"models come from Poly Haven or the library cache ({', '.join(CACHE_SOURCES)}) "
                                   f"only, not '{source}'")
     manifest = fetch.load_manifest(out_dir)
     cached = _manifest_models(manifest).get(asset_id)

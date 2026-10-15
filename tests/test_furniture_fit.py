@@ -27,6 +27,13 @@ from wenart.style import vocabulary as V
 from conftest import PROJECTS, SYNTHETIC, load_truth
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def _no_licence_mode_env(monkeypatch):
+    """Milestone 13 review (15 Oct 2026): these tests rely on the fit's default licence mode (commercial); the pod
+    jobs export WENART_LICENCE_MODE (relaxed, docs/milestone13.md §13.3), which must not reach them."""
+    monkeypatch.delenv("WENART_LICENCE_MODE", raising=False)
 SCHEMA_TYPES = set(B.load_schema()["$defs"]["furniture"]["properties"]["type"]["enum"])
 
 
@@ -192,41 +199,56 @@ def test_fit_picks_the_aspect_closest_candidate(small_catalog):
     fit = F.fit_piece(piece, small_catalog)
     assert json.dumps(piece, sort_keys=True) == before  # pure
     assert fit["method"] == "library" and fit["asset_id"] == "sofa_wide" and fit["licence"] == fit["license"] == "CC0"
-    assert fit["fit_scale"] == [1.1, 1.125, 1.1125]
-    assert fit["bbox_m"] == [2.2, 0.9, 0.89]
+    # Milestone 13 (K2): one uniform scale to the drawn width (2.2 / 2.0); the model keeps its proportions, so its
+    # depth is 0.88 m against the drawn 0.90 m (the layout absorbs the difference, ``depth_abs_m``)
+    assert fit["fit_scale"] == [1.1, 1.1, 1.1] and fit["scaling"] == "uniform"
+    assert fit["bbox_m"] == [2.2, 0.88, 0.88] and fit["depth_abs_m"] == -0.02
     assert fit["gltf"] == "models/sofa_wide/sofa_wide_1k.gltf" and fit["rotation_fix_deg"] == 0.0
     assert [c["id"] for c in fit["candidates"]] == ["sofa_wide"]
     assert fit["candidates"][0]["accepted"] and fit["aspect_error"] == pytest.approx(0.0223, abs=1e-3)
 
 
-def test_cap_moves_to_the_next_candidate_or_a_library_gap(small_catalog):
-    # 1.0 x 0.48 (aspect 2.08): sofa_wide is closest (2.5) but scales 0.5 / 0.6 -> 20 % non-uniform; sofa_deep
-    # (1.6) scales 0.625 / 0.48 -> 30 %; sofa_odd (6.0) 0.333 / 0.96 -> way off -> Milestone 12: a library gap (never
-    # a parametric sofa): not built, ``library_gap`` says so; the parametric box stays for the planners
+def test_cap_moves_to_the_next_candidate_or_down_the_ladder(small_catalog):
+    # 1.0 x 0.48 (aspect 2.08): sofa_wide is closest (2.5) but scaled 0.5 to the width its depth is 0.40 m -> 20 %
+    # off the drawn depth; sofa_deep (1.6) 0.625 -> 30 %; sofa_odd (6.0) 0.333 -> way off -> Milestone 13 (D4): the
+    # ladder: no module builder for a sofa, so the parametric family builds it (``method: parametric``, a drawn
+    # anchor is never left out); ``library_gap`` names the step; the parametric box is the one the planners see
     fit = F.fit_piece(_piece("sofa", 1.0, 0.48), small_catalog)
-    assert fit["method"] == "none" and fit["asset_id"] == "none:sofa"
-    assert fit["library"] == "none" and fit["licence"] == "n/a" and fit["fit_scale"] == [1.0, 1.0, 1.0]
+    assert fit["method"] == "parametric" and fit["asset_id"] == "parametric:sofa"
+    assert fit["library"] == "parametric" and fit["licence"] == "n/a" and fit["fit_scale"] == [1.0, 1.0, 1.0]
     assert fit["bbox_m"] == F.parametric_box(_piece("sofa", 1.0, 0.48))
     assert "no sofa candidate within 10 %" in fit["fallback_reason"]
-    assert fit["library_gap"]["type"] == "sofa" and fit["library_gap"]["used"] == "nothing (not built)"
-    # Milestone 8 (fit v2): tried in real-size order, not aspect order: mean |scale - 1| sofa_odd 0.35,
-    # sofa_deep 0.45, sofa_wide 0.45 (5 % steps 7, 8, 9).
-    assert [c["id"] for c in fit["candidates"]] == ["sofa_odd", "sofa_deep", "sofa_wide"]
+    assert fit["library_gap"]["type"] == "sofa" and fit["library_gap"]["step"] == "parametric"
+    assert fit["library_gap"]["used"].startswith("parametric family")
+    assert [s["step"] for s in fit["ladder"]] == ["library", "module", "parametric"]
+    # Milestone 8 (fit v2): tried in real-size order, not aspect order; Milestone 13: the size error of the one
+    # uniform scale: sofa_deep |0.625 - 1| = 0.375, sofa_wide 0.5, sofa_odd 0.667 (5 % steps 7, 10, 13)
+    assert [c["id"] for c in fit["candidates"]] == ["sofa_deep", "sofa_wide", "sofa_odd"]
     assert not any(c["accepted"] for c in fit["candidates"])
-    # 2.1 x 0.84 (aspect 2.5): sofa_wide: 1.05 / 1.05 -> 0 % ok
+    # 2.1 x 0.84 (aspect 2.5): sofa_wide: 1.05 -> depth 0.84 -> 0 % ok
     fit = F.fit_piece(_piece("sofa", 2.1, 0.84), small_catalog)
     assert fit["asset_id"] == "sofa_wide" and fit["method"] == "library"
-    # Milestone 12 caps (10 %): 2.0 x 0.9 was 12.5 % (taken in Milestone 11), now refused
-    assert F.fit_piece(_piece("sofa", 2.0, 0.9), small_catalog)["method"] == "none"
-    # 1.6 x 0.95 (aspect 1.68): sofa_deep closest (1.6): 1.0 / 0.95 -> 5.3 % ok
+    # Milestone 12 caps (10 %) refused 2.0 x 0.9 (12.5 %); Milestone 13 ladder step 1b: the relaxed caps (15 %,
+    # 0.75-1.30) take it because the fitted 2.0 x 0.8 x 0.8 m box lies inside the documented sofa ranges
+    fit = F.fit_piece(_piece("sofa", 2.0, 0.9), small_catalog)
+    assert fit["method"] == "library" and fit["asset_id"] == "sofa_wide" and fit["fit_scale"] == [1.0, 1.0, 1.0]
+    assert fit["caps_relaxed"]["cap"] == F.RELAXED_CAP == 1.15 and fit["caps_relaxed"]["uniform_range"] == [0.75, 1.3]
+    assert fit["depth_abs_m"] == -0.1 and fit["ladder"][-1]["reason"] == "relaxed caps inside the documented ranges"
+    # 1.6 x 0.95 (aspect 1.68): sofa_deep closest (1.6): 1.0 -> depth 1.0 vs 0.95 -> 5.3 % ok
     fit = F.fit_piece(_piece("sofa", 1.6, 0.95), small_catalog)
-    assert fit["asset_id"] == "sofa_deep"
-    # 1.7 x 0.8 (aspect 2.125): sofa_wide (2.5) 0.85 / 1.0 -> 17.6 % fails; sofa_deep (1.6) 1.0625 / 0.8 -> 33 % fails
+    assert fit["asset_id"] == "sofa_deep" and fit["depth_abs_m"] == 0.05 and "caps_relaxed" not in fit
+    # 1.7 x 0.8 (aspect 2.125): sofa_wide (2.5) 0.85 -> depth 0.68 -> 17.6 % fails (also the relaxed 15 %); sofa_deep
+    # (1.6) 1.0625 -> depth 1.06 -> 33 % fails; ranked by size error sofa_deep (0.0625) first
     fit = F.fit_piece(_piece("sofa", 1.7, 0.8), small_catalog)
-    assert fit["method"] == "none" and fit["candidates"][0]["id"] == "sofa_wide"
-    assert "closest: sofa_wide at 17." in fit["fallback_reason"]
-    # a tighter cap is honoured
-    assert F.fit_piece(_piece("sofa", 1.6, 0.95), small_catalog, cap=1.04)["method"] == "none"
+    assert fit["method"] == "parametric" and fit["candidates"][0]["id"] == "sofa_deep"
+    assert "closest: sofa_wide at 17." in fit["fallback_reason"] and "relaxed caps (15 %" in fit["fallback_reason"]
+    # a tighter cap is honoured (no relaxed pass behind the caller's back: the parametric family, not a looser fit)
+    tight = F.fit_piece(_piece("sofa", 1.6, 0.95), small_catalog, cap=1.04)
+    assert tight["method"] == "parametric" and "within 4 %" in tight["fallback_reason"]
+    assert "relaxed caps" not in tight["fallback_reason"]
+    assert F._relaxed_caps(1.04, F.UNIFORM_RANGE) is None and F._relaxed_caps(F.NON_UNIFORM_CAP, (0.99, 1.01)) is None
+    assert F._relaxed_caps(F.NON_UNIFORM_CAP, F.UNIFORM_RANGE) == (F.RELAXED_CAP, F.RELAXED_RANGE)
+    assert F._relaxed_caps(1.5, (0.5, 2.0)) is None                    # already looser than the relaxed caps
 
 
 def test_parametric_types_and_unknown(small_catalog):
@@ -237,16 +259,22 @@ def test_parametric_types_and_unknown(small_catalog):
     assert fit["bbox_m"][:2] == [0.4, 0.7] and fit["bbox_m"][2] >= 0.4 and fit["by_design"]
     assert "parametric in the catalogue" in fit["fallback_reason"] and fit["candidates"] == []
     assert fit["library_gap"]["used"] == "our parametric fixture (by design)"
+    # Milestone 13 (D4): a chair the catalogue has no model of is built by the parametric family (ladder step 3),
+    # recorded as a library gap at that step
     fit = F.fit_piece(_piece("chair", 0.45, 0.5), small_catalog)
-    assert fit["method"] == "none" and "parametric in the catalogue" in fit["fallback_reason"]
+    assert fit["method"] == "parametric" and "parametric in the catalogue" in fit["fallback_reason"]
+    assert fit["library_gap"]["step"] == "parametric" and "by_design" not in fit
+    # a counter run is made to the drawing: by design, no gap (Milestone 13: the kitchen-run module builder of
+    # wenart.blender.modules when it knows the type, else the parametric counter)
     fit = F.fit_piece(_piece("kitchen_counter", 2.4, 0.6), small_catalog)
-    assert fit["method"] == "parametric" and "library_gap" not in fit
+    assert fit["method"] in ("parametric", "module") and fit["by_design"] and "library_gap" not in fit
     fit = F.fit_piece(_piece("washing_machine", 0.6, 0.6), small_catalog)      # our fixture, by design
     assert fit["method"] == "parametric" and fit["by_design"] and fit["library_gap"]["used"].startswith("our")
     fit = F.fit_piece(_piece("unknown", 1.2, 0.5), small_catalog)
     assert fit["asset_id"] == "parametric:unknown" and fit["bbox_m"] == [1.2, 0.5, 0.8]
     fit = F.fit_piece(_piece("tv_unit", 1.6, 0.45), small_catalog)
-    assert fit["method"] == "none" and fit["candidates"][0]["id"] == "tv_long"      # Milestone 12: a library gap
+    assert fit["method"] == "parametric" and fit["candidates"][0]["id"] == "tv_long"   # the ladder's last step
+    assert fit["library_gap"]["step"] == "parametric"
     assert F.fit_piece(_piece("sofa", 0.0, 0.9), small_catalog)["method"] == "parametric"
 
 
@@ -278,23 +306,36 @@ def test_fit_synthetic_buildings(catalog, buildings):
         F.assert_only_assets_changed(building, fitted)
         for original, piece in zip(building["furniture"], fitted["furniture"]):
             asset = piece["asset"]
-            assert asset and asset["method"] in ("library", "parametric", "none"), (name, piece["id"])
-            # Milestone 12: parametric only by design; every other type without a fitting model is a gap
+            assert asset and asset["method"] in F.METHODS, (name, piece["id"])
+            # Milestone 13 (D4): parametric by design, or the ladder's last step (a library gap at that step);
+            # a module piece is the ladder's step 2 (by design for a counter run); ``none`` only when not built
             if asset["method"] == "parametric":
                 assert C.by_design_parametric(piece) or piece["type"] == "unknown" or \
-                    not piece["footprint"]["size"][0] > 0, (name, piece["id"])
+                    not piece["footprint"]["size"][0] > 0 or asset["library_gap"]["step"] == "parametric", \
+                    (name, piece["id"])
+            if asset["method"] == "module":
+                assert asset["module_plan"]["builder"] and asset["ladder"][-1]["step"] == "module"
             if asset["method"] == "none":
-                assert piece["library_gap"] == asset["library_gap"] and not C.by_design_parametric(piece)
-            # byte-identical footprint and frozen fields
+                assert piece.get("build") is False and piece["library_gap"] == asset["library_gap"]
+            if piece["type"] == "unknown" or not piece["footprint"]["size"][0] > 0:
+                assert [s["step"] for s in asset["ladder"]] == ["parametric"]     # a box, no library search
+            else:
+                assert tuple(s["step"] for s in asset["ladder"]) == F.LADDER_STEPS[:len(asset["ladder"])]
+            assert asset["licence_mode"] == "commercial" and asset["commercial_safe"] is True
+            # byte-identical footprint and frozen fields (the synthetic drawings hold product sizes: no size snap)
+            assert "size_snap" not in piece
             assert json.dumps(piece["footprint"], sort_keys=True) == json.dumps(original["footprint"], sort_keys=True)
             for key in F.FROZEN_KEYS:
                 assert json.dumps(piece.get(key), sort_keys=True) == json.dumps(original.get(key), sort_keys=True)
-            assert asset["bbox_m"][0] == round(piece["footprint"]["size"][0], 4)
-            assert asset["bbox_m"][1] == round(piece["footprint"]["size"][1], 4)
+            assert asset["bbox_m"][0] == pytest.approx(piece["footprint"]["size"][0], abs=1e-3)
             if asset["method"] == "library":
+                # Milestone 13 (K2): one uniform scale; the fitted depth differs from the drawn one by at most the cap
                 sx, sy, sz = asset["fit_scale"]
-                assert max(sx, sy, sz) / min(sx, sy, sz) <= F.NON_UNIFORM_CAP + 1e-6, (name, piece["id"], asset)
-                assert sz == pytest.approx((sx + sy) / 2, abs=1e-3)
+                assert sx == sy == sz and asset["scaling"] == "uniform", (name, piece["id"], asset)
+                ratio = max(asset["bbox_m"][1], piece["footprint"]["size"][1]) / min(asset["bbox_m"][1],
+                                                                                     piece["footprint"]["size"][1])
+                assert ratio <= (F.RELAXED_CAP if asset.get("caps_relaxed") else F.NON_UNIFORM_CAP) + 1e-6
+                assert asset["depth_abs_m"] == pytest.approx(asset["bbox_m"][1] - piece["footprint"]["size"][1], abs=1e-3)
                 entry = catalog.entry(asset["asset_id"])
                 assert asset["library"] == entry["source"] and asset["licence"] in C.SOURCE_LICENCES[entry["source"]]
                 # Milestone 12: a related type's model for a piece its group needs, recorded as a library gap
@@ -307,9 +348,11 @@ def test_fit_synthetic_buildings(catalog, buildings):
             else:
                 assert asset["fallback_reason"] and asset["licence"] == "n/a"
                 assert piece["type"] in catalog.parametric_types or asset["candidates"]
+                assert asset["bbox_m"][1] == pytest.approx(piece["footprint"]["size"][1], abs=0.05)
         B.validate(fitted)
+        assert fitted["project"]["licence_mode"] == "commercial"                   # Milestone 13: written by the fit
         methods = {p["asset"]["method"] for p in fitted["furniture"]}
-        assert "library" in methods and methods <= {"library", "parametric", "none"}, name
+        assert "library" in methods and methods <= set(F.METHODS), name
         library_types = {p["type"] for p in fitted["furniture"] if p["asset"]["method"] == "library"}
         assert {"sofa", "bed_double", "nightstand", "bed_single", "chair", "table_dining"} & library_types, name
 
@@ -318,7 +361,7 @@ def test_fit_synthetic_buildings(catalog, buildings):
         for piece in fitted["furniture"]:
             asset = piece["asset"]
             assert f"| {piece['id']} |" in report
-            if asset["method"] == "parametric":
+            if asset["method"] in ("parametric", "module"):
                 assert f"- {piece['id']} ({piece['type']}): {asset['fallback_reason']}" in report
             elif asset["method"] == "none":
                 assert f"- {piece['id']} ({piece['type']}, style None): nothing (not built)" in report
@@ -352,7 +395,7 @@ def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
     text = capsys.readouterr().out
     assert "download(s) failed" in text and "FAILED" in text
     fitted = B.load(out)
-    assert all(p["asset"]["method"] == "parametric" for p in fitted["furniture"])
+    assert all(p["asset"]["method"] in ("parametric", "module") for p in fitted["furniture"])   # M13: module runs
     assert any("download of" in p["asset"]["fallback_reason"] and "NetworkError" in p["asset"]["fallback_reason"]
                for p in fitted["furniture"])
     report = (tmp_path / "building_fitted_report.md").read_text(encoding="utf-8")
@@ -367,7 +410,7 @@ def test_cli_offline_falls_back_and_says_so(tmp_path, monkeypatch, capsys):
     fitted = B.load(out)
     # Milestone 9: the 20-per-type library has a model for every piece of synthetic-01 (M8: some parametric).
     methods = {p["asset"]["method"] for p in fitted["furniture"]}
-    assert "library" in methods and methods <= {"library", "parametric"}
+    assert "library" in methods and methods <= {"library", "parametric", "module"}
     assert not any("download of" in (p["asset"].get("fallback_reason") or "") for p in fitted["furniture"])
     assert sorted(set(fetched)) == sorted({p["asset"]["asset_id"] for p in fitted["furniture"]
                                            if p["asset"]["method"] == "library"})
@@ -388,8 +431,11 @@ def test_uniform_scale_cap_rejects_stretched_models():
         if t["accepted"]:
             assert F.UNIFORM_RANGE[0] <= t["mean_scale"] <= F.UNIFORM_RANGE[1]
     wide = F.fit_piece(piece, cat, uniform_range=(0.99, 1.01))
-    assert wide["method"] == "none" and "mean scale" in wide["fallback_reason"]      # Milestone 12: a library gap
+    # Milestone 13: the caller's tighter range holds (no relaxed pass); the ladder builds the sofa parametrically
+    assert wide["method"] == "parametric" and "mean scale" in wide["fallback_reason"]
+    assert "relaxed caps" not in wide["fallback_reason"] and wide["library_gap"]["step"] == "parametric"
     assert F.UNIFORM_RANGE == (0.85, 1.20) and F.NON_UNIFORM_CAP == 1.10             # D14 (was 0.75-1.30, 15 %)
+    assert F.RELAXED_CAP == 1.15 and F.RELAXED_RANGE == (0.75, 1.30)                 # M13 ladder step 1b (M11 caps)
 
 
 def test_plants_get_a_library_model_and_cushions_stay_parametric(catalog):
@@ -471,13 +517,15 @@ def test_refit_takes_only_models_of_the_style_family_or_neutral():
     assert fit["styles"] == ["scandinavian", "japandi"]
     assert [x["id"] for x in fit["excluded"]] == ["sofa_classic"] and "classic" in fit["excluded"][0]["reason"]
     fit = F.fit_piece(piece, cat, style_family="industrial")            # only the neutral one is left ...
-    assert fit["method"] == "none" and [c["id"] for c in fit["candidates"]] == ["sofa_any"]   # ... too square
+    assert fit["method"] == "parametric" and [c["id"] for c in fit["candidates"]] == ["sofa_any"]   # ... too square
     assert {x["id"] for x in fit["excluded"]} == {"sofa_classic", "sofa_scandi"}
     assert F.fit_piece(_piece("sofa", 1.6, 1.0), cat, style_family="industrial")["asset_id"] == "sofa_any"
     no_neutral = C.Catalog({"entries": [e for e in cat.entries if e.get("id") != "sofa_any"]})
     fit = F.fit_piece(piece, no_neutral, style_family="industrial")      # industrial -> modern: nothing
-    assert fit["method"] == "none" and fit["fallback_reason"] == ("industrial: no model for style industrial; "
-                                                                  "modern: no model for style modern")
+    assert fit["method"] == "parametric" and fit["fallback_reason"].startswith(
+        "industrial: no model for style industrial; modern: no model for style modern; the parametric family")
+    assert fit["ladder"][0] == {"step": "library", "result": "no model",
+                                "reason": "industrial: no model for style industrial; modern: no model for style modern"}
     assert fit["candidates"] == [] and {x["id"] for x in fit["excluded"]} == {"sofa_classic", "sofa_scandi"}
     building = {"furniture": [piece, _piece("sofa", 2.0, 0.8, pid="f_L0_002")]}
     fitted = F.fit_building(building, cat, style_family="classic")
@@ -487,7 +535,7 @@ def test_refit_takes_only_models_of_the_style_family_or_neutral():
 def test_beds_without_a_mattress_are_never_taken():
     cat = _styled_catalog()
     fit = F.fit_piece(_piece("bed_double", 1.6, 2.0), cat)
-    assert fit["method"] == "none" and fit["fallback_reason"] == "no bed_double model with a mattress"
+    assert fit["method"] == "parametric" and fit["fallback_reason"].startswith("no bed_double model with a mattress")
     assert fit["excluded"] == [{"id": "bed_frame", "reason": "bed model without a mattress"}]
     assert F.fit_piece(_piece("bed_single", 0.9, 2.0), cat)["asset_id"] == "bed_soft"
     assert F.fit_piece(_piece("bed_single", 0.9, 2.0), cat, style_family="modern")["fallback_reason"].startswith(
@@ -645,13 +693,16 @@ def test_cli_style_flag_filters_the_library(tmp_path, monkeypatch, capsys):
     for p in fitted["furniture"]:
         by_type.setdefault(p["type"], set()).add((p["asset"]["method"], p["asset"]["asset_id"]))
         assert p["asset"]["style_family"] == "scandinavian"
-    assert by_type["sofa"] == {("none", "none:sofa")}                      # sofa_02 is classic: a library gap
+    # sofa_02 is classic: a library gap; Milestone 13 (D4): the parametric family builds the sofa (ladder step 3)
+    assert by_type["sofa"] == {("parametric", "parametric:sofa")}
     assert ("library", "side_table_01") in by_type["nightstand"]
-    assert all(m == "none" for m, _ in by_type["bed_double"])               # GothicBed_01 is classic
+    assert all(m == "parametric" for m, _ in by_type["bed_double"])         # GothicBed_01 is classic
     sofa = next(p for p in fitted["furniture"] if p["type"] == "sofa")
     assert sofa["asset"]["fallback_reason"].startswith("scandinavian: no model for style scandinavian; minimal: ")
-    assert sofa["library_gap"] == {"type": "sofa", "style": "scandinavian", "used": "nothing (not built)",
-                                   "reason": sofa["asset"]["fallback_reason"]}
+    assert sofa["library_gap"] == {"type": "sofa", "style": "scandinavian", "step": "parametric",
+                                   "used": "parametric family (built below the library level)",
+                                   "reason": sofa["asset"]["ladder"][0]["reason"]}
+    assert sofa["asset"]["fallback_reason"].startswith(sofa["library_gap"]["reason"])
     report = (tmp_path / "building_final_report.md").read_text(encoding="utf-8")
     assert "Library style filter: family 'scandinavian'" in report and "sofa_02: styles ['classic']" in report
     F.assert_only_assets_changed(load_truth("synthetic-01"), fitted)

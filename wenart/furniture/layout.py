@@ -22,6 +22,12 @@ The request goes through ``wenart.recognition.vlm_client`` (``build_request`` wi
 ``post_json``, ``parse_answer``, ``served_models``). ``LayoutClient.down`` is set by the first transport error:
 later rooms are not asked again (candidate 1, logged), so a dead server costs one retry series, not one per room.
 
+Milestone 13 (docs/milestone13.md §13.2, track T3; user decision D5): a candidate may carry re-solved drawn pieces
+(``candidate["resolved"]``: a drawn group moved as one unit, each piece ``adjusted_by_ai`` with ``drawn_group``) and
+rug members (``candidate["rugs"]``, decor). ``apply_choice`` changes the drawn dicts in place (the same objects) and
+takes the decor list ``apply_candidate`` wrote; ``layout_room(..., settings=...)`` hands the brief keys to the
+program (the re-solve is off with ``keep`` / ``furnished_rooms_keep_size``). ``RoomLayout.resolved`` lists the ids.
+
 CLI (unchanged arguments; ``--passes`` is accepted and ignored): ``python -m wenart.furniture.layout
 outputs/<p>/building_fitted.json --style outputs/<p>/style.json --server http://127.0.0.1:8001/v1 --model <id>
 --out outputs/<p>/building_furnished.json --debug outputs/<p>/layout_debug/ --project-dir <project>`` writes the
@@ -203,6 +209,7 @@ class RoomLayout:
     copied_from: Optional[dict] = None                   # Milestone 10: the partner whose layout this room took
     copy_dropped: list = field(default_factory=list)
     solve_s: float = 0.0
+    resolved: list = field(default_factory=list)         # Milestone 13: drawn pieces re-solved as one unit (ids)
 
     @property
     def latency_s(self) -> float:
@@ -390,6 +397,15 @@ def apply_choice(out: dict, room: dict, cand: dict, choice: dict, completes: boo
     before = {f["id"] for f in out["furniture"]}
     new = SV.apply_candidate(out, room["id"], cand)
     added = [f for f in new["furniture"] if f["id"] not in before]
+    # Milestone 13 (D5): the re-solved drawn pieces change in place (the same dict objects, the records of earlier
+    # rooms hold them); the candidate's rugs come with the decor.
+    resolved = set(cand.get("resolved") or [])
+    by_new = {f["id"]: f for f in new["furniture"]}
+    for f in out["furniture"]:
+        pid = f["id"]
+        if pid in resolved and pid in by_new:
+            f.clear()
+            f.update(by_new[pid])
     if choice.get("by") == "vlm":
         ev = {"file": EVIDENCE_FILE, "method": "ai", "confidence": CHOICE_CONFIDENCE, "model": choice.get("model"),
               "text": f"candidate {choice['rank']} of {len(choice.get('images') or [])} chosen by the vision model: "
@@ -407,21 +423,22 @@ def apply_choice(out: dict, room: dict, cand: dict, choice: dict, completes: boo
     kept = {f["id"] for f in new["furniture"]}
     out["furniture"] = [f for f in out["furniture"] if f["id"] in kept] + added
     if "decor" in new:
-        hosts = {d.get("host_id") for d in new["decor"]}
-        out["decor"] = [d for d in out.get("decor") or [] if d.get("host_id") in hosts or d.get("host_id") is None]
+        out["decor"] = list(new["decor"])
     return added
 
 
 def layout_room(room: dict, building: dict, style_text: str, client, image_dir: Optional[Path] = None,
-                purpose: str = "furnish") -> RoomLayout:
+                purpose: str = "furnish", settings=None) -> RoomLayout:
     """Program -> solver -> choice -> pieces for one room; ``building`` (the building being written) is changed in
-    place."""
+    place. ``settings`` (Milestone 13, a ``complete.Settings``): the brief keys the program reads (the drawn-group
+    re-solve is off with ``keep`` / ``furnished_rooms_keep_size``)."""
     from wenart.furniture import program as PR
     from wenart.furniture import solver as SV
 
     rec = RoomLayout(room["id"], room.get("label", room["id"]), room.get("room_type", "other"))
     rec.context = placer.room_context(building, room)
-    rec.program = PR.room_program(building, room["id"])
+    brief = settings.brief_values() if settings is not None and hasattr(settings, "brief_values") else None
+    rec.program = PR.room_program(building, room["id"], brief=brief)
     if not rec.program["groups"]:
         rec.skipped = f"no groups for this room ({rec.program['reason']})"
         return rec
@@ -445,6 +462,7 @@ def layout_room(room: dict, building: dict, style_text: str, client, image_dir: 
     cand = usable[rec.choice["index"]]
     rec.chosen = cand["rank"]
     rec.pieces = apply_choice(building, room, cand, rec.choice, completes=(purpose == "complete"))
+    rec.resolved = list(cand.get("resolved") or [])
     return rec
 
 

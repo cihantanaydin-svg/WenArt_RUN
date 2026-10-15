@@ -137,6 +137,24 @@ horizontal (walls, not the ground, the roof or the sky; ``meter_stats``
 ``normal_z``) when they fill at least 2 % of the frame; the record says
 ``meter.metered``. Interior cameras are metered as before; render entries
 carry ``room_id`` / ``level_id`` None for exterior views.
+
+Milestone 13 (docs/milestone13.md §13.2 render.py, K5; ``RENDER_CODE_VERSION`` ``m13.1``):
+
+- ``EXPOSURE_LIMITS = (-2.0, 3.0)``: the auto exposure never pushes a view more than +3 EV (the +6..+8 pushes of
+  Milestone 11 smeared the denoiser and hid dark rooms). When the metered EV would pass the cap the render keeps
+  +3 and writes a ``lighting_dark`` entry (the ``Violation`` shape: check ``lighting_dark``, severity major, or
+  critical 2 stops over the cap, target the camera, ``room_id``, ``metrics`` ev_wanted / ev_used / ev_cap /
+  incident_p50) on the camera's manifest entry and in the manifest's ``lighting_dark`` list, for the report (T8)
+  and the agent. The A/B variant ``base`` (``WENART_LIGHT_VARIANT``, ``lighting.light_levers``) keeps the Milestone
+  11 limits ``EXPOSURE_LIMITS_M11`` (-2..+8); every other run uses the cap (``exposure_limits_for``).
+- ``--white-balance project``: one whitepoint for every view of a project. It comes from the previous render
+  manifest of the folder (``white_balance_project``, so a re-render keeps it), else from the first interior camera
+  of the scene (``project_wb_camera``), metered once before the loop; ``kelvin:<K>`` sets it from a colour
+  temperature (the brief's value, a lead option) through Blender's own conversion. The record says
+  ``wb_mode: project`` and ``wb_source``; the render key carries the whitepoint, so a changed one re-renders.
+  ``auto`` (per view) and ``off`` stay for the controls and the previews.
+- ``select_world``: under the exterior world with a sun disc (``wenart_world_exterior_sun_disc``) the sun lamp is
+  hidden, so the sky's disc is the one direct sun; it is shown again for every other camera.
 """
 from __future__ import annotations
 
@@ -168,7 +186,9 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # day (both faces refract) is a build change: the build fingerprint and scene_sha256 cover it.
 # m6.1: the Diffuse Color pass in the final render and the window pull (docs/milestone6.md §5).
 # m7.1: the look AgX - Punchy (docs/milestone7.md §6.1); view transform and look also enter the key.
-RENDER_CODE_VERSION = "m7.1"
+# m13.1: the EV cap +3 with the lighting_dark record, the project white balance, the sun lamp hidden under the
+# exterior sky with a sun disc (docs/milestone13.md §13.2).
+RENDER_CODE_VERSION = "m13.1"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
 LOOK = "AgX - Punchy"
@@ -194,8 +214,13 @@ METER_BLOCKS_ACROSS = 40          # block size = width // 40 px
 METER_BLOCK_COVERAGE = 0.75       # a block counts when this share of it is interior
 METER_MIN_ALBEDO = 0.02           # diffuse albedo luminance below this is not metered
 EXPOSURE_TARGET = 0.9
-EXPOSURE_LIMITS = (-2.0, 8.0)
+# Milestone 13: the cap (docs/milestone13.md §13.2); the Milestone 11 limits stay for the A/B's base variant.
+EXPOSURE_LIMITS = (-2.0, 3.0)
+EXPOSURE_LIMITS_M11 = (-2.0, 8.0)
 EXPOSURE_STEP = 1.0 / 6.0
+LIGHTING_DARK_CHECK = "lighting_dark"
+LIGHTING_DARK_CRITICAL_STOPS = 2.0     # this many stops over the cap: critical, else major
+WB_MODES = ("auto", "off", "fixed", "project", "kelvin")
 WB_RESIDUAL = {"warm daylight": 0.35, "golden evening": 0.5, "cool daylight": 0.0, "overcast": 0.0, "night": 0.5}
 WINDOW_CLIP_LEVEL = 0.98          # a window pixel is clipped when every display channel reaches this
 LUMA = (0.2126, 0.7152, 0.0722)
@@ -283,9 +308,11 @@ def parse_exposure(text: str) -> tuple[str, float | None]:
 
 
 def parse_white_balance(text: str) -> tuple[str, list[float] | None]:
-    """``auto`` | ``off`` | ``fixed:r,g,b`` -> (mode, whitepoint normalised to luminance 1 or None)."""
+    """``auto`` | ``off`` | ``project`` | ``fixed:r,g,b`` | ``kelvin:K`` -> (mode, value): the whitepoint
+    normalised to luminance 1 for ``fixed``, the temperature (1800-100000 K, Blender's range) as ``[K]`` for
+    ``kelvin``, None otherwise. ``project`` (Milestone 13): one whitepoint for every view, see the module."""
     t = str(text).strip().lower()
-    if t in ("auto", "off"):
+    if t in ("auto", "off", "project"):
         return t, None
     if t.startswith("fixed:"):
         try:
@@ -294,7 +321,62 @@ def parse_white_balance(text: str) -> tuple[str, list[float] | None]:
             rgb = []
         if len(rgb) == 3 and all(math.isfinite(v) and v > 0 for v in rgb):
             return "fixed", normalise_whitepoint(rgb)
-    raise UsageError(f"--white-balance must be auto, off or fixed:r,g,b with three positive numbers, not {text!r}")
+    if t.startswith("kelvin:"):
+        try:
+            kelvin = float(t[len("kelvin:"):])
+        except ValueError:
+            kelvin = float("nan")
+        if math.isfinite(kelvin) and 1800.0 <= kelvin <= 100000.0:
+            return "kelvin", [kelvin]
+    raise UsageError(f"--white-balance must be auto, off, project, fixed:r,g,b with three positive numbers or "
+                     f"kelvin:K (1800-100000), not {text!r}")
+
+
+def exposure_limits_for(levers: dict | None = None) -> tuple[float, float]:
+    """The EV limits of a run (pure; Milestone 13): ``EXPOSURE_LIMITS`` (the cap) unless the levers say the cap is
+    off (``lighting.light_levers``: the ``base``, ``sun*``, ``rig`` and ``shell`` variants of the A/B keep the
+    Milestone 11 limits ``EXPOSURE_LIMITS_M11``)."""
+    if levers is None:
+        try:
+            from wenart.blender.lighting import light_levers
+            levers = light_levers()
+        except Exception:  # noqa: BLE001 - the cap is the default
+            levers = {"ev_cap": True}
+    return tuple(EXPOSURE_LIMITS) if levers.get("ev_cap", True) else tuple(EXPOSURE_LIMITS_M11)
+
+
+def lighting_dark_entry(camera: str, room_id, ev_raw: float | None, ev: float, limits, incident_p50=None,
+                        target: float = EXPOSURE_TARGET) -> dict | None:
+    """The ``lighting_dark`` finding of a view whose metered EV would pass the cap (pure; the ``Violation`` shape
+    of docs/milestone13.md §13.2): None when the wanted EV is within ``limits``. Severity ``major``, or
+    ``critical`` from ``LIGHTING_DARK_CRITICAL_STOPS`` over the cap."""
+    if ev_raw is None or not math.isfinite(float(ev_raw)):
+        return None
+    hi = float(limits[1])
+    over = float(ev_raw) - hi
+    if over <= 1e-9:
+        return None
+    return {"check": LIGHTING_DARK_CHECK, "severity": "critical" if over >= LIGHTING_DARK_CRITICAL_STOPS else "major",
+            "target": camera, "room_id": room_id,
+            "message": (f"{camera}: the metered exposure wanted {float(ev_raw):+.2f} EV, the cap is {hi:+.2f} EV "
+                        f"({over:.2f} stops over); the room is too dark for the camera (incident p50 "
+                        f"{float(incident_p50):.5f} at target {target:g})" if incident_p50 is not None else
+                        f"{camera}: the metered exposure wanted {float(ev_raw):+.2f} EV, the cap is {hi:+.2f} EV "
+                        f"({over:.2f} stops over); the room is too dark for the camera"),
+            "metrics": {"ev_wanted": round(float(ev_raw), 4), "ev_used": round(float(ev), 6), "ev_cap": hi,
+                        "stops_over_cap": round(over, 4),
+                        "incident_p50": None if incident_p50 is None else round(float(incident_p50), 6)}}
+
+
+def project_wb_camera(cameras: list) -> str | None:
+    """The camera whose metering gives the project whitepoint (pure; Milestone 13): the first interior camera in
+    name order of ``[(name, kind)]`` (``kind`` ``exterior`` or anything else), else the first camera, None for
+    none."""
+    rows = sorted(((str(n), k) for n, k in cameras), key=lambda r: r[0])
+    for name, kind in rows:
+        if kind != "exterior":
+            return name
+    return rows[0][0] if rows else None
 
 
 def parse_ids(text: str | None) -> list[str]:
@@ -512,25 +594,35 @@ def render_key(settings: dict) -> str:
 def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposure_value, target: float,
                  wb_mode: str, wb_fixed, hidden, plugged, look_from_values: dict | None = None,
                  alt_look: str | None = None, max_bounces: int | None = None, ev_offset: float = 0.0,
-                 preview_quality: int | None = None) -> dict:
+                 preview_quality: int | None = None, limits=None, project_whitepoint=None) -> dict:
     """What the render key covers (docs/milestone5.md §2.5, docs/milestone6.md
     §5 rows 10-11, docs/milestone7.md §6.1). With ``look_from_values``
     (``{"ev", "whitepoint"}`` of the source entry) the exposure and white
     balance are mode ``from`` with those values; ``alt_look``, ``max_bounces``,
     ``ev_offset`` and ``preview_quality`` are the Milestone 6 control flags;
     ``view_transform`` and ``look`` are the display transform of the PNG and
-    the preview (Milestone 7: a change of the default look re-renders)."""
+    the preview (Milestone 7: a change of the default look re-renders).
+    Milestone 13: ``limits`` (the EV limits of the run, ``EXPOSURE_LIMITS`` when None) and the project whitepoint
+    (``project_whitepoint`` for mode ``project``; the kelvin value for mode ``kelvin``) are part of the key."""
     if look_from_values is not None:
         exposure = {"mode": "from", "ev": look_from_values.get("ev"), "whitepoint": look_from_values.get("whitepoint")}
         wb = "from"
     else:
         if exposure_mode == "auto":
-            exposure = {"mode": "auto", "target": float(target), "limits": list(EXPOSURE_LIMITS)}
+            exposure = {"mode": "auto", "target": float(target),
+                        "limits": list(EXPOSURE_LIMITS if limits is None else limits)}
         elif exposure_mode == "fixed":
             exposure = {"mode": "fixed", "ev": float(exposure_value)}
         else:
             exposure = {"mode": "off"}
-        wb = "fixed:" + ",".join(f"{v:.6f}" for v in wb_fixed) if wb_mode == "fixed" else wb_mode
+        if wb_mode == "fixed":
+            wb = "fixed:" + ",".join(f"{v:.6f}" for v in wb_fixed)
+        elif wb_mode == "kelvin":
+            wb = f"kelvin:{float(wb_fixed[0]):g}"
+        elif wb_mode == "project":
+            wb = "project:" + (",".join(f"{float(v):.6f}" for v in project_whitepoint) if project_whitepoint else "none")
+        else:
+            wb = wb_mode
     settings = {"samples": int(samples), "resolution": [int(v) for v in resolution], "denoiser": denoiser,
                 "exposure": exposure, "white_balance": wb, "passes": list(PASSES),
                 "hidden": sorted(hidden), "plugged": sorted(plugged), "code": RENDER_CODE_VERSION,
@@ -853,6 +945,21 @@ def load_previous(manifest_path: Path) -> dict[str, dict]:
         return {}
 
 
+def load_project_whitepoint(manifest_path: Path) -> dict | None:
+    """The ``white_balance_project`` record of the last render manifest (Milestone 13: the locked whitepoint of a
+    re-render), None when absent or unusable."""
+    if not manifest_path.exists():
+        return None
+    try:
+        rec = json.loads(manifest_path.read_text(encoding="utf-8")).get("white_balance_project")
+    except (ValueError, AttributeError):
+        return None
+    wp = (rec or {}).get("whitepoint") if isinstance(rec, dict) else None
+    if not isinstance(wp, list) or len(wp) != 3 or not all(isinstance(v, (int, float)) and v > 0 for v in wp):
+        return None
+    return dict(rec)
+
+
 def load_dropped(manifest_path: Path) -> dict[str, dict]:
     """``dropped_stale`` items of the last render manifest keyed by camera; empty when absent or unreadable."""
     if not manifest_path.exists():
@@ -921,15 +1028,28 @@ def world_for(scene_props: dict, camera_kind: str | None) -> str | None:
     return str(name) if name else None
 
 
+def sun_hidden_for(scene_props: dict, camera_kind: str | None) -> bool:
+    """Whether the sun lamp is hidden for a camera (pure; Milestone 13): under the exterior world whose sky carries
+    the sun disc (``wenart_world_exterior_sun_disc``) the disc is the one direct sun."""
+    return camera_kind == "exterior" and bool(scene_props.get("wenart_world_exterior_sun_disc")) \
+        and bool(scene_props.get("wenart_world_exterior"))
+
+
 def select_world(scene, cam) -> str | None:
-    """Switch ``scene.world`` to the world of ``cam`` (``world_for``); returns the world's name."""
+    """Switch ``scene.world`` to the world of ``cam`` (``world_for``); returns the world's name. Milestone 13: the
+    sun lamp (``wenart_id`` ``sun``) is hidden under the exterior world with a sun disc (``sun_hidden_for``) and
+    shown again for every other camera."""
     import bpy
 
-    want = world_for({k: scene.get(k) for k in ("wenart_world_exterior", "wenart_world_interior")},
-                     cam.get("wenart_camera_kind"))
+    props = {k: scene.get(k) for k in ("wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc")}
+    want = world_for(props, cam.get("wenart_camera_kind"))
     world = bpy.data.worlds.get(want) if want else None
     if world is not None:
         scene.world = world
+    hide = sun_hidden_for(props, cam.get("wenart_camera_kind"))
+    for ob in scene.objects:
+        if ob.type == "LIGHT" and ob.data.type == "SUN" and ob.get("wenart_id") == "sun":
+            ob.hide_render = hide
     return scene.world.name if scene.world is not None else None
 
 
@@ -1166,6 +1286,23 @@ def write_png(path: Path, array, compression: int | None = None) -> None:
     out.close()
 
 
+def vram_used_mib() -> int | None:
+    """The GPU memory in use (MiB, ``nvidia-smi --query-gpu=memory.used``), None without nvidia-smi or on the CPU.
+    Milestone 13: read after every view's render (Cycles keeps the scene resident with persistent data, so the
+    value after a view is close to its peak); the lever A/B job samples nvidia-smi for the peak as well."""
+    import subprocess
+
+    try:
+        proc = subprocess.run(["nvidia-smi", "--query-gpu=memory.used", "--format=csv,noheader,nounits"],
+                              capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0:
+        return None
+    values = [int(float(line.strip())) for line in proc.stdout.splitlines() if line.strip().replace(".", "").isdigit()]
+    return max(values) if values else None
+
+
 def pass_index_table(scene) -> dict[str, int]:
     """``{wenart_id: pass_index}`` of every object with an index, the table of the scene
     manifest (a door's frame and leaf share the id and the index, so one key each)."""
@@ -1198,7 +1335,7 @@ class Look:
     """Decides and applies the exposure and white balance of one camera."""
 
     def __init__(self, scene, args, mood: str | None, windows: set[int], look_from: dict | None,
-                 look_from_path: Path | None):
+                 look_from_path: Path | None, limits=None, project: dict | None = None):
         self.scene = scene
         self.exposure_mode, self.exposure_value = parse_exposure(args.exposure)
         self.target = float(args.exposure_target)
@@ -1208,13 +1345,20 @@ class Look:
         self.look_from = look_from            # {camera: {"ev", "whitepoint"}} or None
         self.look_from_path = look_from_path
         self.ev_offset = float(getattr(args, "ev_offset", 0.0) or 0.0)
+        # Milestone 13: the EV limits of this run (the cap, or the Milestone 11 limits for the A/B base) and the
+        # project whitepoint ({"whitepoint", "from_camera", "source", ...}; set by lock_project_whitepoint).
+        self.limits = tuple(EXPOSURE_LIMITS if limits is None else limits)
+        self.project = project
+        self.variant = None                   # the light variant of this render (main sets it)
 
     def key_settings(self, cam_name: str, samples: int, res, denoiser, hidden, plugged, alt_look=None,
                      max_bounces=None, preview_quality=None) -> dict:
         values = self.look_from[cam_name] if self.look_from is not None else None
         return key_settings(samples, res, denoiser, self.exposure_mode, self.exposure_value, self.target,
                             self.wb_mode, self.wb_fixed, hidden, plugged, values, alt_look=alt_look,
-                            max_bounces=max_bounces, ev_offset=self.ev_offset, preview_quality=preview_quality)
+                            max_bounces=max_bounces, ev_offset=self.ev_offset, preview_quality=preview_quality,
+                            limits=self.limits,
+                            project_whitepoint=(self.project or {}).get("whitepoint") if self.wb_mode == "project" else None)
 
     def decide(self, cam, out_dir: Path, res: tuple[int, int]) -> dict:
         """The exposure record of a camera before its final render
@@ -1230,7 +1374,8 @@ class Look:
         rec = {"mode": self.exposure_mode, "ev": 0.0, "ev_raw": None, "at_limit": False, "target": None,
                "limits": None, "incident_p50": None, "whitepoint": None, "wb_mode": self.wb_mode,
                "wb_temperature": None, "wb_tint": None, "residual": None, "window_clip_frac": None,
-               "meter_seconds": 0.0, "meter": None, "mood": self.mood, "source": None, "notes": []}
+               "meter_seconds": 0.0, "meter": None, "mood": self.mood, "source": None, "notes": [],
+               "lighting_dark": None}
         if self.look_from is not None:
             values = self.look_from[cam.name]
             rec.update(mode="from", wb_mode="from", ev=values["ev"], whitepoint=values["whitepoint"],
@@ -1246,12 +1391,14 @@ class Look:
                 rec["meter"]["metered"] = meter["metered"]
             rec["incident_p50"] = None if meter["incident_p50"] is None else round(meter["incident_p50"], 6)
         if self.exposure_mode == "auto":
-            rec.update(target=self.target, limits=list(EXPOSURE_LIMITS))
+            rec.update(target=self.target, limits=list(self.limits))
             if meter["incident_p50"] is None or meter["incident_p50"] <= 0:
                 rec["notes"].append("no interior block to meter: EV 0 used")
             else:
-                ev, raw, at_limit = exposure_from(meter["incident_p50"], self.target, EXPOSURE_LIMITS)
+                ev, raw, at_limit = exposure_from(meter["incident_p50"], self.target, self.limits)
                 rec.update(ev=ev, ev_raw=raw, at_limit=at_limit)
+                rec["lighting_dark"] = lighting_dark_entry(cam.name, cam.get("wenart_room"), raw, ev, self.limits,
+                                                           meter["incident_p50"], self.target)
         elif self.exposure_mode == "fixed":
             rec["ev"] = float(self.exposure_value)
         if self.wb_mode == "auto":
@@ -1265,6 +1412,15 @@ class Look:
             rec["whitepoint"] = wp
         elif self.wb_mode == "fixed":
             rec["whitepoint"] = list(self.wb_fixed)
+        elif self.wb_mode in ("project", "kelvin"):
+            project = self.project or {}
+            rec["whitepoint"] = list(project["whitepoint"]) if project.get("whitepoint") else None
+            rec["residual"] = project.get("residual")
+            rec["wb_source"] = project.get("source")
+            if project.get("from_camera"):
+                rec["wb_from_camera"] = project["from_camera"]
+            if rec["whitepoint"] is None:
+                rec["notes"].append("no project whitepoint (nothing to meter): white balance off")
         return rec
 
     def apply(self, rec: dict) -> None:
@@ -1281,6 +1437,37 @@ class Look:
         else:
             vs.use_white_balance = False
             rec["wb_temperature"] = rec["wb_tint"] = None
+
+    def lock_project_whitepoint(self, cameras: list, out_dir: Path, res: tuple[int, int], previous: dict | None) -> dict:
+        """Milestone 13: the one whitepoint of the project for mode ``project`` or ``kelvin``: the previous
+        manifest's ``white_balance_project`` (locked across re-renders), else ``kelvin:K`` through Blender's
+        conversion (``white_balance_temperature`` -> ``white_balance_whitepoint``), else the metered illuminant of
+        ``project_wb_camera`` (the first interior camera of the scene) with the mood's residual. Returns the
+        record (also kept in ``self.project``)."""
+        record: dict
+        if self.wb_mode == "kelvin":
+            vs = self.scene.view_settings
+            saved = (vs.use_white_balance, tuple(vs.white_balance_whitepoint))
+            vs.use_white_balance = True
+            vs.white_balance_temperature = float(self.wb_fixed[0])
+            wp = normalise_whitepoint([float(v) for v in vs.white_balance_whitepoint])
+            vs.use_white_balance, vs.white_balance_whitepoint = saved
+            record = {"whitepoint": wp, "from_camera": None, "source": f"kelvin:{float(self.wb_fixed[0]):g}",
+                      "residual": None, "kelvin": float(self.wb_fixed[0])}
+        elif previous and isinstance(previous.get("whitepoint"), list) and len(previous["whitepoint"]) == 3:
+            record = dict(previous, source=f"previous manifest ({previous.get('source')})")
+        else:
+            name = project_wb_camera([(o.name, o.get("wenart_camera_kind")) for o in cameras])
+            cam = next((o for o in cameras if o.name == name), None)
+            residual, _note = wb_residual(self.mood)
+            wp = None
+            if cam is not None:
+                meter = meter_camera(self.scene, cam, out_dir, res, self.windows)
+                wp = whitepoint_from(meter["illuminant"], residual) if meter["illuminant"] else None
+            record = {"whitepoint": wp, "from_camera": name, "source": f"metered on {name}" if wp else "no light to meter",
+                      "residual": residual}
+        self.project = record
+        return record
 
 
 def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[int]) -> dict:
@@ -1511,8 +1698,14 @@ class RenderRun:
             "look": LOOK,
             "exposure_mode": "from" if ctx.look.look_from is not None else ctx.look.exposure_mode,
             "exposure_target": ctx.look.target,
-            "exposure_limits": list(EXPOSURE_LIMITS),
+            "exposure_limits": list(ctx.look.limits),
             "white_balance_mode": "from" if ctx.look.look_from is not None else ctx.look.wb_mode,
+            # Milestone 13 (docs/milestone13.md §13.2): the project whitepoint, the light variant of the build and
+            # the render, the views whose metered EV passed the cap
+            "white_balance_project": ctx.look.project,
+            "light_variant": ctx.light_variant,
+            "lighting_dark": [self.entries[name]["exposure"]["lighting_dark"] for name in sorted(self.entries)
+                              if (self.entries[name].get("exposure") or {}).get("lighting_dark")],
             "look_from": relative_posix(ctx.look.look_from_path, self.out) if ctx.look.look_from_path else None,
             "hidden": self.hidden,
             "plugged": self.plugged,
@@ -1628,11 +1821,19 @@ class RenderRun:
         if look["at_limit"]:
             self.warnings.append(f"{cam.name}: exposure at the limit ({look['ev_raw']:+.2f} EV wanted, "
                                  f"{look['ev']:+.2f} used)")
+        if look.get("lighting_dark"):
+            self.warnings.append(f"{cam.name}: {LIGHTING_DARK_CHECK} ({look['lighting_dark']['severity']}): "
+                                 f"{look['lighting_dark']['message']}")
         for note in look["notes"]:
             self.warnings.append(f"{cam.name}: {note}")
         self.entries[cam.name] = {
             "camera": cam.name, "room_id": cam.get("wenart_room"), "level_id": cam.get("wenart_level"),
             **camera_lens(cam),
+            "lighting_dark": look.get("lighting_dark"),
+            "sun_hidden": sun_hidden_for({k: scene.get(k) for k in ("wenart_world_exterior",
+                                                                    "wenart_world_exterior_sun_disc")},
+                                         cam.get("wenart_camera_kind")),
+            "vram_mib": vram_used_mib() if ctx.device != "CPU" else None,
             "png": f["png"].name, "exr": f["exr"].name, "preview": f["preview"].name,
             "depth_png": f["depth"].name if f["depth"].exists() else None, "index_png": f["index"].name,
             "files": {"index": f["index"].name, "depth_mm": f["depth_mm"].name, "normal": f["normal"].name,
@@ -1743,6 +1944,8 @@ class Context:
         self.blender_version = bpy.app.version_string
         self.pass_index = pass_index_table(scene)
         self.windows = window_indices(scene)
+        # Milestone 13: the variant the render runs under (the build's is in the scene, wenart_light_variant)
+        self.light_variant = {"render": look.variant, "build": scene.get("wenart_light_variant") or None}
 
 
 def _load_scene_manifest() -> dict | None:
@@ -1846,8 +2049,23 @@ def main(argv: list[str]) -> int:
     scene.view_settings.look = LOOK
     mood = scene.get("wenart_mood") or None
     windows = window_indices(scene)
-    look = Look(scene, args, mood, windows, look_from, look_from_path)
+    # Milestone 13: the EV limits of this run from the light variant (the A/B base keeps the Milestone 11 limits).
+    try:
+        from wenart.blender.lighting import light_levers
+        levers = light_levers()
+    except ValueError as exc:
+        print(f"usage error: {exc}")
+        return 2
+    look = Look(scene, args, mood, windows, look_from, look_from_path, limits=exposure_limits_for(levers))
+    look.variant = levers["variant"]
+    if look.wb_mode in ("project", "kelvin") and look_from is None:
+        # One whitepoint for the project: the previous manifest's, else metered once on the first interior camera.
+        previous = load_project_whitepoint(out / "render_manifest.json") if sets is None else None
+        record = look.lock_project_whitepoint(all_cameras, out, (width, height), previous)
+        print(f"WHITE_BALANCE project: {record['source']} whitepoint={record['whitepoint']}")
     ctx = Context(scene, args, device, denoiser, (width, height), look, set(by_name), deadline)
+    print(f"LIGHT_VARIANT render={levers['variant'] or 'none'} build={scene.get('wenart_light_variant') or 'none'} "
+          f"ev_limits={list(look.limits)}")
     if mood is None:
         print("WARNING: scene has no wenart_mood (built before Milestone 5): white-balance residual 0")
 

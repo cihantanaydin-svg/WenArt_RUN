@@ -42,6 +42,20 @@ validated as their M11 ops (``overrides.resolve_edit``). The planner is offered 
 the M11 tools stay callable for replay and old scripts. The context is shared by the parallel room sessions of one
 round: building changes, tries, overrides and the log are guarded by ``ctx.lock``; the images a read tool returns
 and ``finish`` belong to the calling session (thread-local).
+
+Milestone 13 (docs/milestone13.md §3.0 K4, §13.2; track T4):
+
+- acceptance by finding removal: a validated edit goes through ``ctx.acceptance`` (the loop's ``AgentLoop.acceptance``:
+  the dry re-check and ``causes.accept_edit``) before it is applied; its verdict (both finding lists, the reason)
+  travels in the result as ``acceptance`` and in the log; ``target_findings`` names the findings an edit targets
+  (the session's checklist step, else the finding on the edit's target), ``changed_targets`` what it changed;
+- a building-wide tool (``causes.is_building_wide``: the roof, site, sun, materials, geometry, levels, terrain and
+  the exterior cameras) is refused from a room session (``building_wide`` in ``failed_checks``); ``set_exterior`` is
+  idempotent: an override that changes nothing against the building and the accepted overrides is a no-op with the
+  reason (``no_change``), and its max-tries key names the keys it sets (``exterior:roof``), not the tool;
+- ``retype_piece`` and ``swap_model`` get the catalogue (the retype refits the piece through ``fit.fit_piece``) and
+  every furniture edit carries its ``target_finding`` (check, target, metrics) so ``swap_model`` can refuse an S2
+  cut below 0.03 m; ``dry_run`` answers with the acceptance too.
 """
 from __future__ import annotations
 
@@ -53,7 +67,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from wenart.agent import brief as BR
+from wenart.agent import causes as CS
 from wenart.agent import geometry_fix as GF
 from wenart.agent import log as LG
 from wenart.agent import overrides as OV
@@ -63,7 +77,9 @@ from wenart.agent.model import tool_spec
 MAX_TRIES = 3
 PREVIEW_DIR = "agent/previews"         # the round previews (960x540, 32 samples)
 FINAL_RENDER_DIR = "renders"
-EDIT_META = ("op", "round", "log_seq", "model")
+EDIT_META = ("op", "round", "log_seq", "model", "target_finding")      # set by the loop, never by the model
+CATALOG_OPS = ("swap_model", "retype_piece")                           # edits that need the catalogue (M13: both)
+BUILDING = "building"
 # rerun_stage white list (§3.2): stage -> {setting: JSON schema of its value}. The scheduler honours
 # polish.enabled (false: the project's views keep Cycles); the other stages are re-run as they are.
 RERUN_WHITELIST: dict = {"refit": {}, "build": {}, "polish": {"enabled": {"type": "boolean"}}}
@@ -157,7 +173,8 @@ DESCRIPTIONS = {
     "rotate_piece": "Turn a piece so its front faces front_deg.",
     "resize_piece": "Resize a piece to a real product size.",
     "change_type": "Change a piece's type (within the types of the room type).",
-    "swap_model": "Use another library model for a piece.",
+    "swap_model": "Use another library model for a piece (never for a cut below 0.03 m: within tolerance; never "
+                  "the model it has).",
     "add_piece": "Add one piece to a room (placed by the layout engine).",
     "add_group": "Add a functional group (dining_set, bed_set, living_set, desk_set, kitchen_run) to a room.",
     "remove_piece": "Remove a piece. A drawn piece only when it is clearly not furniture (give the evidence).",
@@ -168,7 +185,8 @@ DESCRIPTIONS = {
     "remove_camera": "Remove a camera view (e.g. a view of a bare wall).",
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
                     "frames ...).",
-    "set_exterior": "Change the roof (type, pitch, overhang), ground, site items or the sun.",
+    "set_exterior": "Change the roof (type, pitch, overhang), ground, site items or the sun (the building session "
+                    "only; values the building already has are a no-op).",
     "set_lighting": "Make a room's ceiling lights stronger or weaker (factor 0.5-3; a dark or windowless room, a long "
                     "corridor). Long rooms already get one light per 3 m of length.",
     "correct_geometry": "Record a clear geometry error: close a gap <= 0.15 m, merge a duplicate wall within 0.02 m, "
@@ -180,10 +198,15 @@ DESCRIPTIONS = {
                   "and not-yours findings, memory, solver candidates.",
     "levels": "Level marks, room floor levels, door thresholds, ground points, terrain, entrances and the level "
               "findings.",
-    "place_group": "Add a missing functional group of the room's program; the solver places it.",
+    "place_group": "Add a missing functional group of the room's program; the solver places it. When the room has a "
+                   "drawn group of that kind (a drawn anchor with its drawn partners, built or not), the drawn group "
+                   "is re-solved as one unit around its drawn anchor (every member within 0.5 m of its drawn "
+                   "centre) instead of adding a second one.",
     "complete_group": "Add the missing partners of a group (e.g. the second nightstand); the solver places them.",
     "move_group": "Move a whole group to a free wall span (partners follow).",
-    "retype_piece": "Change a piece's type to a type that fits its size and its room (zone).",
+    "retype_piece": "Change a piece's type to a type that fits its size and its room (zone); the piece is then "
+                    "fitted and built (library model, module builder or parametric family in the project's licence "
+                    "mode) and leaves the review list.",
     "mark_not_furniture": "Record a drawn symbol, mark or line that was read as furniture (not built), with the "
                           "evidence.",
     "fix_fixture": "Misread fixed equipment: a real product size and/or a move of at most 0.5 m (through a wall, in "
@@ -238,12 +261,14 @@ def working_building_path(project_out) -> Optional[Path]:
 
 
 class SessionState:
-    """What belongs to one planner session (one thread): the images its tools returned, its ``finish``."""
+    """What belongs to one planner session (one thread): the images its tools returned, its ``finish``, its checked
+    checklist (Milestone 13: the steps name the findings an edit targets)."""
 
     def __init__(self, room_id: Optional[str] = None):
         self.room_id = room_id
         self.pending_images: list = []
         self.finished: Optional[dict] = None
+        self.checklist: list = []
 
 
 @dataclass
@@ -279,6 +304,9 @@ class ToolContext:
     brief_fns: dict = field(default_factory=dict)         # room_brief's *_fn arguments (tests inject fakes)
     dry_runs: int = 0
     refused_repeats: int = 0
+    # Milestone 13: ``acceptance(ctx, tool, args, result, building_after) -> {"accepted", "reason", ...}`` (the
+    # loop's dry re-check + ``causes.accept_edit``); None keeps the validator's verdict (replay, old tests).
+    acceptance: Optional[Callable] = None
     _default_session: Any = None
     _local: Any = None
     _lock: Any = None
@@ -538,6 +566,17 @@ class Registry:
         args = dict(args or {})
         remember = tool.kind in EDIT_KINDS and ctx.memory is not None
         room = edit_room(ctx, args) if remember else None
+        session_room = ctx.session().room_id
+        if tool.kind in EDIT_KINDS and session_room not in (None, BUILDING) and CS.is_building_wide(name, args):
+            # Milestone 13: building-wide edits come only from the building session (real04: a corridor session
+            # flattened the roof; 10 roof edits from 6 room sessions, last writer wins)
+            out = _result(False, [f"building_wide: {name} changes the whole building (roof, site, sun, materials, "
+                                  f"geometry, levels or an exterior camera); only the building session may call "
+                                  f"it, not the session of {session_room}"],
+                          message="refused: a building-wide edit from a room session", tool=name)
+            if remember:
+                ctx.memory.record(room, ctx.round, name, args, out)
+            return _reject(ctx, name, args, out)
         if remember:
             prev = ctx.memory.repeat_of(room, name, args)
             if prev is not None:
@@ -821,7 +860,63 @@ def _target(tool: str, args: dict) -> str:
                 "stage", "slot"):
         if args.get(key):
             return str(args[key])
+    if tool == "set_exterior":
+        # Milestone 13 (bug B4): one key per part set (roof, site, sun, ground), not one shared by every session
+        keys = sorted(k for k in args if k not in ("reason",) and args.get(k) is not None)
+        if keys:
+            return "exterior:" + ",".join(keys)
     return tool
+
+
+def target_findings(ctx: ToolContext, tool: str, args: dict) -> list[dict]:
+    """Milestone 13: the findings an edit targets, from the round's findings (``ctx.findings``): the session's
+    checklist step with this tool and target names them (``finding_ids``); else the most severe finding on the
+    edit's target whose cause this tool fixes (``causes.tools_for_finding``), else any finding on the target; for a
+    room tool the room's findings the tool fixes, for a group tool its members', for a building-wide tool the
+    building-level ones. At most one finding unless the checklist named several."""
+    findings = list(ctx.findings or [])
+    if not findings:
+        return []
+    target = _target(tool, args)
+    by_id = {f.get("id"): f for f in findings if f.get("id")}
+    for step in ctx.session().checklist or []:
+        if step.get("tool") != tool or step.get("target") not in (target, args.get("room_id"), args.get("group_id")):
+            continue
+        named = [by_id[i] for i in step.get("finding_ids") or [] if i in by_id]
+        if named:
+            return named
+
+    def rank(f: dict):
+        return (CS.SEVERITY_ORDER.get(f.get("severity"), 3), str(f.get("check")), str(f.get("target")))
+
+    def fixes(f: dict) -> bool:
+        return tool in CS.tools_for_finding(f)
+
+    on_target = sorted((f for f in findings if f.get("target") == target), key=rank)
+    cands = [f for f in on_target if fixes(f)] or on_target
+    if not cands and args.get("group_id"):
+        members = {f.get("id") for f in ctx.building.get("furniture") or []
+                   if (f.get("group") or {}).get("group_id") == args["group_id"]}
+        cands = sorted((f for f in findings if f.get("target") in members and fixes(f)), key=rank)
+    if not cands and args.get("room_id"):
+        room = args["room_id"]
+        cands = sorted((f for f in findings if (f.get("room_id") == room or f.get("target") == room) and fixes(f)),
+                       key=rank)
+    if not cands and CS.is_building_wide(tool, args):
+        cands = sorted((f for f in findings if not f.get("room_id") and fixes(f)), key=rank)
+    return cands[:1]
+
+
+def changed_targets(tool: str, args: dict, result: dict, targets: list[dict]) -> set:
+    """Milestone 13: the ids an edit changed (for the dry re-check): the edit's piece, room, group or view, the
+    validator's ``changed_ids``, the targets of the findings it addresses; a building-wide edit changes
+    ``building`` and the exterior as a whole."""
+    out = {args.get(k) for k in ("piece_id", "room_id", "group_id", "view_id") if args.get(k)}
+    out |= {str(i) for i in (result.get("changed_ids") or [])}
+    out |= {f.get("target") for f in targets if f.get("target") is not None}
+    if CS.is_building_wide(tool, args):
+        out.add(BUILDING)
+    return {t for t in out if t}
 
 
 def _too_many(ctx: ToolContext, tool: str, args: dict) -> Optional[dict]:
@@ -886,6 +981,7 @@ def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Cal
     room_id = edit_room(ctx, args)
     room_id = room_id if ctx.room(room_id) is not None else None
     before_png = ctx.topdown(room_id, what=f"{tool}_before") if room_id else None
+    verdict = None
     with ctx.lock:
         try:
             res = run(ctx.building)
@@ -894,14 +990,28 @@ def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Cal
                           tool=tool)
             return _reject(ctx, tool, args, out)
         accepted = bool(res.get("accepted")) and isinstance(res.get("building"), dict)
+        if accepted and ctx.acceptance is not None:
+            # Milestone 13: the finding it targets must be gone in the dry re-check (module docstring)
+            verdict = ctx.acceptance(ctx, tool, args, res, res["building"]) or {}
+            accepted = bool(verdict.get("accepted"))
         if accepted:
             ctx.building = ctx.sync_fn()(res["building"])
-    out = _result(accepted, res.get("failed_checks") or ([] if accepted else ["rejected"]),
-                  before=res.get("score_before"), after=res.get("score_after"),
-                  rerun_from=res.get("rerun_from") or default_rerun, message=str(res.get("message") or ""),
+            if verdict and isinstance(verdict.get("after_findings"), list):
+                ctx.findings = list(verdict["after_findings"])
+    failed = list(res.get("failed_checks") or ([] if accepted else ["rejected"]))
+    message = str(res.get("message") or "")
+    if verdict is not None and not accepted:
+        failed = [f"acceptance: {verdict.get('reason')}"]
+        message = f"{tool} rejected by the dry re-check: {verdict.get('reason')}"
+    elif verdict is not None:
+        message = (message + "; " if message else "") + str(verdict.get("reason") or "")
+    out = _result(accepted, failed, before=res.get("score_before"), after=res.get("score_after"),
+                  rerun_from=res.get("rerun_from") or default_rerun, message=message,
                   changed_ids=res.get("changed_ids"), log_seq=edit["log_seq"],
-                  # acceptance is decided on the unfloored penalty (a score floored at 0 hides gains)
+                  # the second condition is decided on the unfloored penalty (a score floored at 0 hides gains)
                   penalty_before=res.get("penalty_before"), penalty_after=res.get("penalty_after"))
+    if verdict is not None:
+        out["acceptance"] = {k: v for k, v in verdict.items() if k != "after_findings"}
     if before_png is not None:
         out["before_image"] = ctx.rel(before_png)
     if room_id:
@@ -926,13 +1036,24 @@ def furniture_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
         edit = {"op": op, **copy.deepcopy(args), "round": ctx.round, "log_seq": _next_log_seq(ctx),
                 "model": ctx.model_id}
         edit = OV.resolve_edit(edit, ctx.known_ops())
+        targeted = target_findings(ctx, tool, args)
+        if targeted:
+            # Milestone 13: the validator sees the finding (swap_model refuses an S2 cut below 0.03 m with it)
+            edit["target_finding"] = finding_record(targeted[0])
 
         def run(building):
-            catalog = ctx.catalog() if edit["op"] == "swap_model" else None
+            catalog = ctx.catalog() if edit["op"] in CATALOG_OPS else None
             return ctx.edit_fn()(building, edit, catalog=catalog)
         return _building_edit(ctx, tool, args, edit, run, "refit")
 
     return handler
+
+
+def finding_record(f: dict) -> dict:
+    """The compact finding an edit carries to the validator: check, target, severity, message, metrics, cause."""
+    return {"check": f.get("check"), "target": f.get("target"), "severity": f.get("severity"),
+            "message": str(f.get("message") or "")[:200], "metrics": dict(CS._metrics(f)),
+            "cause": f.get("cause") or CS.cause_of(f)}
 
 
 def level_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
@@ -954,7 +1075,10 @@ def t_report_library_gap(ctx: ToolContext, args: dict) -> dict:
     return _accept(ctx, "report_library_gap", args, out)
 
 
-def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[], dict], stage: str) -> dict:
+def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[], dict], stage: str,
+                      trial: Optional[dict] = None) -> dict:
+    """An override edit: the try budget, the validator's verdict, then (Milestone 13) the acceptance on ``trial``
+    (the building with the override applied; the building itself when the override lives outside it)."""
     refused = _too_many(ctx, tool, args)
     if refused is not None:
         ctx.rejected.append({"tool": tool, "args": args, "result": refused})
@@ -969,6 +1093,20 @@ def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[
     out = _result(ok, verdict.get("failed") or ([] if ok else ["rejected"]), rerun_from=stage,
                   message=str(verdict.get("message") or ""), log_seq=_next_log_seq(ctx),
                   changed_ids=[args.get("view_id")] if args.get("view_id") else [])
+    if ok and ctx.acceptance is not None:
+        with ctx.lock:
+            acc = ctx.acceptance(ctx, tool, args, out, trial if trial is not None else ctx.building) or {}
+            ok = bool(acc.get("accepted"))
+            if ok and isinstance(acc.get("after_findings"), list):
+                ctx.findings = list(acc["after_findings"])
+        out["acceptance"] = {k: v for k, v in acc.items() if k != "after_findings"}
+        out["accepted"] = ok
+        if not ok:
+            out["failed_checks"] = [f"acceptance: {acc.get('reason')}"]
+            out["message"] = f"{tool} rejected by the dry re-check: {acc.get('reason')}"
+            out["rerun_from"] = None
+        else:
+            out["message"] = (out["message"] + "; " if out["message"] else "") + str(acc.get("reason") or "")
     if not ok:
         ctx.rejected.append({"tool": tool, "args": args, "result": out})
         return out
@@ -1013,12 +1151,50 @@ def t_set_lighting(ctx: ToolContext, args: dict) -> dict:
     return _validator_result(ctx, "set_lighting", args, check, "build")
 
 
+def exterior_state(ctx: ToolContext) -> dict:
+    """What the exterior is now: the building's own roof, site and sun values under the accepted ``set_exterior``
+    overrides (``Overrides.agent_overrides``), in the override's shape (``roof``, ``ground``, ``site``, ``sun``)."""
+    b = ctx.building
+    state: dict = {}
+    roof = b.get("roof") if isinstance(b.get("roof"), dict) else {}
+    if roof:
+        state["roof"] = {k: roof.get(k) for k in ("type", "pitch_deg", "overhang_m") if roof.get(k) is not None}
+    site = b.get("site") if isinstance(b.get("site"), dict) else {}
+    keep = {k: site.get(k) for k in ("path", "fence", "trees", "front_court") if site.get(k) is not None}
+    if keep:
+        state["site"] = keep
+    ground = (site.get("ground") or {}).get("look") if isinstance(site.get("ground"), dict) else None
+    if ground is not None:
+        state["ground"] = ground
+    sun = (ctx.scene.get("lighting") or {}).get("sun") if isinstance(ctx.scene.get("lighting"), dict) else None
+    if isinstance(sun, dict):
+        state["sun"] = {k: sun.get(k) for k in ("azimuth_deg", "elevation_deg") if sun.get(k) is not None}
+    accepted = ((b.get("agent_overrides") or {}).get("exterior") or {}) if isinstance(b.get("agent_overrides"), dict) \
+        else {}
+    if ctx.overrides is not None:
+        accepted = OV.merge_dict(accepted, ctx.overrides.agent_overrides().get("exterior") or {})
+    return OV.merge_dict(state, accepted)
+
+
 def t_set_exterior(ctx: ToolContext, args: dict) -> dict:
     override = {k: v for k, v in args.items() if k != "reason"}
     if not override:
         return _result(False, ["nothing to change"], tool="set_exterior")
+    current = exterior_state(ctx)
+    if OV.merge_dict(current, override) == current:
+        # Milestone 13: idempotent: the same override twice (or values the building has) is a no-op with a reason
+        out = _result(False, ["no_change: the exterior already has these values "
+                              f"({json.dumps(override, sort_keys=True, default=str)[:200]}): nothing to change"],
+                      message="no-op: set_exterior with values the building already has", tool="set_exterior",
+                      no_op=True)
+        return _reject(ctx, "set_exterior", args, out)
+    trial = copy.deepcopy(ctx.building)
+    trial["agent_overrides"] = dict(trial.get("agent_overrides") or {},
+                                    exterior=OV.merge_dict((trial.get("agent_overrides") or {}).get("exterior") or {},
+                                                           override))
     return _validator_result(ctx, "set_exterior", args,
-                             lambda: ctx.checks().validate_exterior_override(ctx.building, override), "build")
+                             lambda: ctx.checks().validate_exterior_override(ctx.building, override), "build",
+                             trial=trial)
 
 
 def t_correct_geometry(ctx: ToolContext, args: dict) -> dict:
@@ -1195,20 +1371,30 @@ def dry_run_handler(table: dict) -> Callable[[ToolContext, dict], dict]:
             else:
                 edit = {"op": name if tool.kind == "level" else OV.FURNITURE_TOOLS[name], **inner,
                         "round": ctx.round, "log_seq": 0, "model": ctx.model_id}
+                targeted = target_findings(ctx, name, inner)
+                if targeted:
+                    edit["target_finding"] = finding_record(targeted[0])
                 try:
                     with ctx.lock:
                         if tool.kind == "level":
                             res = ctx.level_fn()(ctx.building, edit)
                         else:
                             edit = OV.resolve_edit(edit, ctx.known_ops())
-                            catalog = ctx.catalog() if edit["op"] == "swap_model" else None
-                            if ctx.apply_edit is not None:
-                                res = ctx.apply_edit(ctx.building, edit, catalog=catalog)
+                            catalog = ctx.catalog() if edit["op"] in CATALOG_OPS else None
+                            if ctx.apply_edit is not None or ctx.acceptance is not None:
+                                # Milestone 13: the acceptance needs the edited building (discarded after)
+                                res = ctx.edit_fn()(ctx.building, edit, catalog=catalog)
                             else:
                                 from wenart.furniture import edit_ops
                                 res = edit_ops.dry_run(ctx.building, edit, catalog=catalog)
-                    out = {"would_accept": bool(res.get("accepted")),
-                           "failed_checks": [str(f) for f in res.get("failed_checks") or []],
+                        would = bool(res.get("accepted"))
+                        failed = [str(f) for f in res.get("failed_checks") or []]
+                        if would and ctx.acceptance is not None and isinstance(res.get("building"), dict):
+                            acc = ctx.acceptance(ctx, name, inner, res, res["building"]) or {}
+                            would = bool(acc.get("accepted"))
+                            if not would:
+                                failed = [f"acceptance: {acc.get('reason')}"]
+                    out = {"would_accept": would, "failed_checks": failed,
                            "score_before": res.get("score_before"), "score_after": res.get("score_after"),
                            "message": str(res.get("message") or "")}
                 except NotImplementedError as exc:

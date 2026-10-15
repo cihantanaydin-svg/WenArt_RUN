@@ -122,6 +122,32 @@ Milestone 12 (docs/milestone12.md §4.7, §6.4; track S):
   standing or lying; a cloth with folds; pleated curtain panels; roller or slatted blinds).
 - No type-table rest height for decor (``decor_rest_height`` removed): decor rests on the built mesh
   (``wenart.blender.rest``).
+
+Milestone 13 (docs/milestone13.md §3.0 K1, §12 D4, §13.2; track T2): the parametric families v2 (``FAMILY_TYPES``),
+the last step of the fallback ladder (library model -> module builder of ``wenart.blender.modules`` -> family),
+which must look like a real product, never a flat grey box:
+
+- bed: a frame of side rails on the footprint's edges, foot and head rails, four legs and a deck, a headboard of
+  two wooden posts with an upholstered panel (key ``fabric``: the brief's fabric colour), a superellipsoid mattress
+  inside the rails (a real frame is wider than its mattress) and the textile bedding (``bed_bedding_parts``: the
+  duvet is a cloth grid of ``cloth_solid`` laid on the mattress top with the modelled folds of ``fold`` and hanging
+  down the mattress sides and foot to the rails' ledge, a turned-down band, pillows of ``lying_cushion_mesh``
+  leaning ``PILLOW_TILT_DEG`` on the headboard; the constants ``DUVET_SHARE``, ``PILLOW_SIZE`` ... that
+  ``wenart.blender.textiles`` re-exports); the frame and the mattress keep the Milestone 4 box the camera search's
+  height profile reads (``camsearch.PROFILES``: roles ``body`` and ``mattress``, the posts as ``back``);
+- sofa and armchair: an upholstered base on tapered wooden legs, arms, a back frame, rounded seat cushions and
+  leaning back cushions (superellipsoids, role ``back_cushion``);
+- tables (dining, coffee, desk, console): a ``TABLE_TOP_M`` top on an apron, tapered legs on steel feet, a lower
+  shelf for coffee tables, the desk's drawer block; glass / marble tops and metal legs from the design tags as before;
+- nightstand and dresser: a recessed plinth, a carcass, a top with drawer fronts and handles in the design's
+  front style; tv unit: a low carcass on steel legs with drawer fronts; bookshelf: plinth, sides, a painted back
+  panel and shelves; wardrobe: plinth, carcass, top and 0.50 m door modules with vertical handles.
+
+Every family gives the object several material slots (wood, fabric, bedding, front, handle, dark, steel, painted)
+and keeps its box: the XY box equals the footprint within 1 cm, the lowest point is on the floor, ``back`` parts
+touch +Y, fronts and handles sit on -Y (the Bevel modifier of ``furniture.add_bevel`` rounds the edges by role).
+``piece_bbox`` reads a module plan (``asset.method == "module"``, ``asset.module_plan``) through
+``wenart.blender.modules.plan_bbox``.
 """
 from __future__ import annotations
 
@@ -192,6 +218,43 @@ DECOR_COLOURS: dict[str, tuple[float, float, float]] = {
 }
 BED_TYPES: tuple[str, ...] = ("bed", "bed_single", "bed_double")
 COUNTER_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
+# Milestone 13 (docs/milestone13.md §13.2): the types with a v2 family (real proportions, several material slots,
+# bevelled edges); the fit's ladder builds them when no library model and no module plan fits.
+FAMILY_TYPES: tuple[str, ...] = ("bed", "bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee",
+                                 "desk", "nightstand", "dresser", "bookshelf", "tv_unit", "wardrobe")
+# Bed v2 and the textile bedding (docs/milestone12.md §4.7 "every bed whose model has no bedding gets a duvet and two
+# pillows"; the numbers of wenart.blender.textiles since Milestone 12, kept here so the pure bed family and the
+# draped bedding of a library bed share them).
+DUVET_SHARE = 0.75                # the duvet covers the foot 75 % of the mattress
+DUVET_SIDE_DROP_M = 0.30          # it reaches this far past the mattress sides and the foot (hangs down)
+DUVET_THICKNESS_M = 0.04
+TURN_DOWN_M = 0.28                # the band folded back at the duvet's head end
+PILLOW_SIZE = (0.65, 0.15, 0.45)  # a sleeping pillow: width across the bed, thickness, length along the bed
+TWO_PILLOW_MIN_W = 1.30           # beds at least this wide take two pillows side by side
+BED_DUVET_M = 0.02                # the parametric bed's duvet is thinner than a draped one (DUVET_THICKNESS_M): it
+                                  # hangs in the gap between the mattress and the rails, down to the rails' ledge
+BED_PLINTH_M = 0.10               # the recessed plinth under the rails of the platform bed (its "floating" base)
+BED_PLINTH_RECESS_M = 0.05
+BED_RAIL_M = 0.03                 # side rail thickness: the rails are the footprint's outer edges (the frame)
+BED_FOOT_RAIL_M = 0.03
+BED_MATTRESS_GAP_M = 0.03         # between the mattress and the rails' inner faces: the hanging duvet (CLOTH_OFFSET_M
+                                  # + BED_DUVET_M) and 5 mm of air; rail + gap = 6 cm: a real frame is that much
+                                  # wider than its mattress per side (wenart/recognition/size_table.yaml bed_double:
+                                  # Movian Loue 160 x 200 mattress in a 1.72 x 2.06 frame)
+PILLOW_LENGTH_SHARE = 0.25        # a pillow is never longer than a quarter of the mattress (a bed drawn sideways, real03
+                                  # f_L0_061 1.95 x 0.95, keeps room for the duvet and for cushions on the headboard)
+# Table v2: a real top (contract: "proper top thickness"), an apron under it, tapered legs on steel feet.
+TABLE_TOP_M = 0.04
+TABLE_APRON_M = 0.08
+TABLE_FOOT_M = 0.015
+# Sofa v2: legs, cushions.
+SOFA_LEG_M = 0.10
+SOFA_CUSHION_M = 0.14
+BACK_CUSHION_T_M = 0.20
+BACK_CUSHION_LEAN_DEG = 8.0
+# Drawer units (nightstand, dresser, tv unit): drawer pitch and the smallest drawer front.
+DRAWER_PITCH_M = 0.20
+DRAWER_MIN_M = 0.12
 # Kitchen fronts: this gap between the carcass front face and the back of a front.
 FRONT_GAP = 0.001
 FRONT_THICKNESS = 0.018
@@ -215,6 +278,8 @@ BEVEL_BY_ROLE: dict[str, float] = {
     "panel": 0.002, "rod": 0.0, "roller": 0.0, "slat": 0.002, "castor": 0.004, "rest": 0.003, "ladder": 0.004,
     "leaf": 0.003, "frame": 0.002, "mullion": 0.002, "transom": 0.002, "sill": 0.003, "rim": 0.003, "book": 0.003,
     "candle": 0.0, "plate": 0.0, "canopy": 0.0, "cord": 0.0,
+    # Milestone 13 families v2 and module builders
+    "apron": 0.003, "foot": 0.002, "stretcher": 0.004, "trestle": 0.004, "hob": 0.0, "ring": 0.0,
 }
 BEVEL_SOFT_KEYS: dict[str, float] = {"fabric": 0.03, "bedding": 0.03, "duvet": 0.03}
 BEVEL_BY_KEY: dict[str, float] = {"ceramic": 0.012}
@@ -348,37 +413,134 @@ def _superellipsoid(cx: float, cy: float, z0: float, w: float, d: float, h: floa
     return {"verts": verts, "faces": faces, "key": key, "role": role, "smooth": True}
 
 
-def _bed(w: float, d: float, h: float) -> list[Part]:
-    """Bed: frame and headboard boxes (as in Milestone 4), a superellipsoid
-    mattress in the Milestone 4 mattress box, a duvet draped over the sides
-    with soft wrinkles over the foot 72 % of the mattress, a turn-down band
-    at its head end and puffy pillows leaning on the headboard. Everything
-    stays inside the frame / headboard box (``piece_bbox`` unchanged)."""
-    t = min(0.06, d * 0.05)                       # headboard thickness
-    frame_h = min(0.3, h * 0.55)
-    top = max(1.0, h + 0.4)                        # headboard top
-    inner_d = d - t
-    parts = [
-        _box(0.0, 0.0, 0.0, w, d, frame_h, "wood", "body"),
-        _box(0.0, d / 2.0 - t / 2.0, 0.0, w, t, top, "wood", "back"),
-        _superellipsoid(0.0, -t / 2.0, frame_h, w - 0.06, inner_d - 0.06, h - frame_h, 0.12, 0.08, "bedding",
-                        "mattress"),
-    ]
-    duvet_d = inner_d * 0.72
-    duvet_y = -d / 2.0 + 0.005 + duvet_d / 2.0
-    drape = min(0.18, (h - frame_h) * 0.9)
-    parts.append(_superellipsoid(0.0, duvet_y, h - drape, w - 0.01, duvet_d, drape + 0.05, 0.18, 0.06, "duvet",
-                                 "duvet", n_eta=14, n_om=48, wrinkle=0.012, seed=1.7))
-    parts.append(_superellipsoid(0.0, duvet_y + duvet_d / 2.0 - 0.13, h + 0.02, w - 0.03, 0.26, 0.05, 0.35, 0.1,
-                                 "bedding", "turndown", n_om=40))
-    n = 2 if w >= 1.3 else 1
-    pw = (w - 0.1) / n - 0.05
-    pd = min(0.45, d * 0.22)
-    py = d / 2.0 - t - 0.05 - pd / 2.0
-    for i in range(n):
-        px = 0.0 if n == 1 else (-1 if i == 0 else 1) * (pw / 2.0 + 0.025)
-        parts.append(_superellipsoid(px, py, h - 0.01, pw, pd, 0.16, 0.55, 0.25, "bedding", "pillow",
-                                     tilt_deg=PILLOW_TILT_DEG))
+def _bed(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Bed v2 (Milestone 13): a platform bed. A wooden frame whose side rails are the footprint's outer edges over
+    the full length, a foot rail and a head rail between them on a recessed dark plinth, a deck; a headboard of
+    two posts on the rails' rear ends with an upholstered panel between them (``fabric``, the brief's colour; role
+    ``panel``, recessed 4 mm); a superellipsoid mattress ``BED_RAIL_M + BED_MATTRESS_GAP_M`` inside the rails (a
+    real frame is wider than its mattress) and the textile bedding of ``bed_bedding_parts``: the duvet over the
+    foot of the mattress hanging into the gap down to the rails' ledge (``frame_h``, never below: the bedding stays
+    inside the Milestone 6 bed box), a turn-down band, pillows leaning on the headboard. Touching parts keep
+    ``FRONT_GAP`` (1 mm) between them, so no two faces share a plane (Milestone 10: coplanar faces rendered
+    black). The box is the Milestone 4 one: the footprint, the headboard top at ``max(1.0, h + 0.4)``, the
+    mattress top at the type height ``h``; the frame (role ``body``) and the mattress span the footprint up to
+    ``h`` and the posts (``back``) reach the rear edge, as the camera search's height profile
+    (``camsearch.PROFILES``) reads them."""
+    g = FRONT_GAP
+    t = min(0.06, d * 0.05)                       # headboard thickness (posts and panel)
+    frame_h = min(0.3, h * 0.55)                  # the rails' top: the ledge the mattress and the duvet rest on
+    top = max(1.0, h + 0.4)                       # headboard top
+    leg_h = min(BED_PLINTH_M, frame_h * 0.4)      # the plinth's top = the rails' bottom
+    rail = min(BED_RAIL_M, w * 0.04)
+    foot = min(BED_FOOT_RAIL_M, rail)
+    gap = BED_MATTRESS_GAP_M
+    y_foot, y_head = -d / 2.0 + foot, d / 2.0 - t  # the frame's inner span: foot rail to the headboard's front face
+    parts: list[Part] = []
+    for sx in (-1, 1):                            # side rails: the footprint's edges, the full length
+        parts.append(_box(sx * (w / 2.0 - rail / 2.0), 0.0, leg_h, rail, d, frame_h - leg_h, "wood", "body"))
+    parts.append(_box(0.0, -d / 2.0 + foot / 2.0, leg_h, w - 2 * rail - 2 * g, foot, frame_h - leg_h, "wood",
+                      "body"))                     # foot rail
+    parts.append(_box(0.0, d / 2.0 - t / 2.0, leg_h, w - 2 * rail - 2 * g, t, frame_h - leg_h, "wood", "body"))
+    parts.append(_box(0.0, (y_foot + y_head) / 2.0, frame_h - 0.03 - g, w - 2 * rail - 2 * g, y_head - y_foot - 2 * g,
+                      0.03, "wood", "bottom"))    # the deck between the rails
+    recess = min(BED_PLINTH_RECESS_M, w * 0.05, d * 0.05)
+    parts.append(_box(0.0, 0.0, 0.0, w - 2 * recess, d - 2 * recess, leg_h - g, "dark", "plinth"))
+    post = min(0.05, rail + 0.01)
+    for sx in (-1, 1):                            # headboard posts on the rails' rear ends
+        parts.append(_box(sx * (w / 2.0 - post / 2.0), d / 2.0 - t / 2.0, frame_h + g, post, t, top - frame_h - g,
+                          "wood", "back"))
+    parts.append(_box(0.0, d / 2.0 - t / 2.0, frame_h + g, w - 2 * post - 2 * g, t - 0.008, top - 0.03 - frame_h - g,
+                      "fabric", "panel"))         # the upholstered panel between the posts, recessed 4 mm
+    mw = w - 2 * (rail + gap)
+    m_y0, m_y1 = y_foot + gap, y_head - 0.01
+    md, my = m_y1 - m_y0, (m_y0 + m_y1) / 2.0
+    parts.append(_superellipsoid(0.0, my, frame_h, mw, md, h - frame_h, 0.12, 0.08, "bedding", "mattress"))
+    # the duvet's cloth grid stops BED_DUVET_M above the ledge: its underside (the solid's bottom layer) rests on it
+    parts += bed_bedding_parts(w, mw, md, my, top_z=h, head_y=y_head, lowest_z=frame_h + BED_DUVET_M)
+    return parts
+
+
+def _tilt_x(verts, deg: float, pivot_y: float, pivot_z: float = 0.0):
+    """Points turned about the X axis through ``(pivot_y, pivot_z)`` by ``deg`` (positive: +Y rises)."""
+    a = math.radians(deg)
+    c, s = math.cos(a), math.sin(a)
+    return [(x, pivot_y + (y - pivot_y) * c - (z - pivot_z) * s, pivot_z + (y - pivot_y) * s + (z - pivot_z) * c)
+            for x, y, z in verts]
+
+
+def box_drape_grid(rect, box_x: float, box_y0: float, box_y1: float, top_z: float, drop: float,
+                   step: float = None, offset: float = None, thickness: float = BED_DUVET_M) -> np.ndarray:
+    """A cloth grid over ``rect`` = (x0, y0, x1, y1) laid on a box top (``|x| <= box_x``, ``box_y0 <= y <=
+    box_y1``) at ``top_z`` (pure, no rays: the analytic twin of ``textiles.drape`` for a host whose top is a known
+    box): on the top the cloth lies ``offset + thickness`` above it with the modelled folds of ``fold``; a point
+    beyond the sides or the foot (``y < box_y0``) hangs straight down beside the box by the length it reaches past
+    the edge (at a corner the larger of its two overhangs: a level hem), at most ``drop``, pushed
+    ``offset + thickness`` out of the box's side."""
+    step = CLOTH_STEP_M if step is None else step
+    offset = CLOTH_OFFSET_M if offset is None else offset
+    x0, y0, x1, y1 = (float(v) for v in rect)
+    nu = max(2, int(round((x1 - x0) / step)))
+    nv = max(2, int(round((y1 - y0) / step)))
+    out = offset + thickness
+    grid = np.zeros((nu + 1, nv + 1, 3))
+    w, d = x1 - x0, y1 - y0
+    for i in range(nu + 1):
+        for j in range(nv + 1):
+            x = x0 + w * i / nu
+            y = y0 + d * j / nv
+            dx = max(0.0, abs(x) - box_x)
+            dy = max(0.0, box_y0 - y, y - box_y1)
+            reach = math.hypot(dx, dy)
+            if reach <= 1e-9:
+                grid[i, j] = (x, y, top_z + out + fold(x - x0, y - y0, w, d))
+                continue
+            # the nearest point of the box edge and the outward direction from it: at a corner the hanging
+            # points fan around it (as the ray drape does), so no two grid points coincide
+            ex = math.copysign(box_x, x) if dx > 0 else x
+            ey = (box_y0 if y < box_y0 else box_y1) if dy > 0 else y
+            ux, uy = (x - ex) / reach, (y - ey) / reach
+            # the hang length is the larger overhang, not the diagonal distance (reviewer fix 15 Oct 2026): with the
+            # diagonal, two grid points on one ray from a corner both reached ``drop`` and coincided (degenerate faces
+            # on every 1.20 m wide bed); max(dx, dy) grows strictly along a ray, so no two points coincide
+            grid[i, j] = (ex + ux * out, ey + uy * out, top_z + out - min(max(dx, dy), drop))
+    return grid
+
+
+def bed_bedding_parts(w: float, mw: float, md: float, my: float, top_z: float, head_y: float,
+                      lowest_z: float = 0.05) -> list[Part]:
+    """The textile bedding of the parametric bed in the piece frame (pure): the duvet (``cloth_solid`` of
+    ``box_drape_grid``: over the foot ``DUVET_SHARE`` of the mattress top at ``top_z``, hanging
+    ``DUVET_SIDE_DROP_M`` down the sides and the foot but never below ``lowest_z``), the turn-down band at its head
+    end and one or two pillows (``lying_cushion_mesh`` leaning ``PILLOW_TILT_DEG`` against the headboard at
+    ``head_y``; ``TWO_PILLOW_MIN_W``; never longer than ``PILLOW_LENGTH_SHARE`` of the mattress). The mattress box: half width ``mw / 2`` about x = 0, ``md`` deep about
+    ``my``; the duvet stays inside the footprint width ``w``."""
+    out = CLOTH_OFFSET_M + BED_DUVET_M
+    box_x = mw / 2.0
+    y_foot = my - md / 2.0
+    y_head = y_foot + DUVET_SHARE * md
+    n = 2 if w >= TWO_PILLOW_MIN_W - 1e-9 else 1
+    pw = min(PILLOW_SIZE[0], (mw - 0.1) / n - 0.04)
+    pt, pl = PILLOW_SIZE[1], min(PILLOW_SIZE[2], md * PILLOW_LENGTH_SHARE)
+    a = PILLOW_TILT_DEG
+    pillow_foot = head_y - 0.02 - pl                 # the pillow lies from here to the headboard
+    y_head = min(y_head, pillow_foot - 0.03)
+    drop = max(0.0, min(DUVET_SIDE_DROP_M, top_z + out - lowest_z))
+    rect = (-box_x - drop, y_foot - drop, box_x + drop, y_head)
+    grid = box_drape_grid(rect, box_x, y_foot, my + md / 2.0, top_z, drop)
+    parts = [cloth_solid(grid, BED_DUVET_M, key="duvet", role="duvet")]
+    nv = grid.shape[1] - 1
+    js = [j for j in range(nv + 1) if rect[1] + (rect[3] - rect[1]) * j / nv >= y_head - TURN_DOWN_M - 1e-9]
+    is_ = [i for i in range(grid.shape[0]) if abs(grid[i, 0, 0]) <= box_x + 1e-9]
+    if len(js) >= 2 and len(is_) >= 2:
+        sub = grid[is_[0]:is_[-1] + 1, js[0]:js[-1] + 1].copy()
+        sub[..., 2] += BED_DUVET_M * 0.5 + CLOTH_OFFSET_M
+        parts.append(cloth_solid(sub, BED_DUVET_M * 0.6, key="bedding", role="turndown"))
+    for k in range(n):
+        px = 0.0 if n == 1 else (-1 if k == 0 else 1) * (pw / 2.0 + 0.02)
+        pillow = lying_cushion_mesh(pw, pl, pt, key="bedding", role="pillow")
+        verts = _tilt_x(pillow["verts"], a, -pl / 2.0, 0.0)
+        verts = [(x + px, y + pillow_foot + pl / 2.0, z + top_z + CLOTH_OFFSET_M) for x, y, z in verts]
+        parts.append(dict(pillow, verts=verts))
     return parts
 
 
@@ -438,24 +600,41 @@ def frame_bedding_info(w: float, d: float, deck_z: float, mattress_h: float = FR
             "pillows": sum(1 for p in parts if p["role"] == "pillow")}
 
 
-def _sofa(w: float, d: float, h: float, cushions: int | None = None) -> list[Part]:
-    back_t = min(0.2, d * 0.25)
-    arm_w = min(0.15, w * 0.1)
+def _sofa(w: float, d: float, h: float, cushions: int | None = None, piece: dict | None = None) -> list[Part]:
+    """Sofa v2 (Milestone 13; ``cushions=1``: the armchair): an upholstered base on four tapered wooden legs, two
+    arms, a back frame up to ``h``, rounded seat cushions (one per 0.75 m of seat) and leaning back cushions
+    (superellipsoids, role ``back_cushion``). The box: the footprint, ``h`` high, on the floor."""
+    back_t = min(0.22, d * 0.25)
+    arm_w = min(0.20, w * 0.12) if cushions != 1 else min(0.15, w * 0.15)
     seat_h = sofa_seat_height(h)
-    arm_h = min(0.65, h * 0.8)
+    leg_h = min(SOFA_LEG_M, h * 0.12)
+    arm_h = min(0.65, h * 0.78)
+    cushion_t = min(SOFA_CUSHION_M, (seat_h - leg_h) * 0.5)
     seat_w = w - 2 * arm_w
     seat_d = d - back_t
     parts = [
-        _box(0.0, -back_t / 2.0, 0.0, seat_w, seat_d, seat_h - 0.1, "fabric", "body"),
-        _box(0.0, d / 2.0 - back_t / 2.0, 0.0, w, back_t, h, "fabric", "back"),
-        _box(-(w / 2.0 - arm_w / 2.0), -back_t / 2.0, 0.0, arm_w, seat_d, arm_h, "fabric", "arm"),
-        _box((w / 2.0 - arm_w / 2.0), -back_t / 2.0, 0.0, arm_w, seat_d, arm_h, "fabric", "arm"),
+        _box(0.0, -back_t / 2.0, leg_h, seat_w, seat_d, seat_h - cushion_t - leg_h, "fabric", "body"),
+        _box(0.0, d / 2.0 - back_t / 2.0, leg_h, w, back_t, h - leg_h, "fabric", "back"),
+        _box(-(w / 2.0 - arm_w / 2.0), -back_t / 2.0, leg_h, arm_w, seat_d, arm_h - leg_h, "fabric", "arm"),
+        _box((w / 2.0 - arm_w / 2.0), -back_t / 2.0, leg_h, arm_w, seat_d, arm_h - leg_h, "fabric", "arm"),
     ]
+    r = min(0.03, w * 0.03, d * 0.05)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_frustum_z(sx * (w / 2.0 - 0.06), sy * (d / 2.0 - 0.06), 0.0, r * 0.7, r * 0.7, r, r,
+                                    leg_h - FRONT_GAP, "wood", "leg", n=12))     # 1 mm under the base
     n = cushions or max(1, round(seat_w / 0.75))
     cw = seat_w / n
+    lean = math.radians(BACK_CUSHION_LEAN_DEG)
+    bt = min(BACK_CUSHION_T_M, back_t)
+    # the leaning back cushion's box turns with it: its height is chosen so the top meets h exactly
+    bh = max(0.10, (h - seat_h + 0.02 - bt * math.sin(lean)) / math.cos(lean))
     for i in range(n):
         cx = -seat_w / 2.0 + cw * (i + 0.5)
-        parts.append(_box(cx, -back_t / 2.0, seat_h - 0.1, cw - 0.03, seat_d - 0.04, 0.1, "fabric", "cushion"))
+        parts.append(_superellipsoid(cx, -back_t / 2.0, seat_h - cushion_t, cw - 0.02, seat_d - 0.03, cushion_t, 0.25,
+                                     0.22, "fabric", "cushion", n_eta=10, n_om=32))
+        parts.append(_superellipsoid(cx, d / 2.0 - back_t - bt / 2.0 + 0.01, seat_h - 0.02, cw - 0.03, bt, bh, 0.3,
+                                     0.22, "fabric", "back_cushion", n_eta=10, n_om=32, tilt_deg=-BACK_CUSHION_LEAN_DEG))
     return parts
 
 
@@ -477,14 +656,29 @@ def _chair(w: float, d: float, h: float) -> list[Part]:
 
 
 def _table(w: float, d: float, h: float, desk: bool = False) -> list[Part]:
-    top_t = 0.04
+    """Table v2 (Milestone 13): a ``TABLE_TOP_M`` top, an apron under it, four tapered legs on steel feet; the
+    desk adds its drawer block with a handle. The box: the footprint, ``h`` high, on the floor."""
+    top_t = min(TABLE_TOP_M, h * 0.1)
     leg = min(0.06, w * 0.08, d * 0.08)
     inset = min(0.04, w * 0.05, d * 0.05)
     parts = [_box(0.0, 0.0, h - top_t, w, d, top_t, "wood", "top")]
+    apron = min(TABLE_APRON_M, (h - top_t) * 0.15)
+    rail_t = min(0.025, leg * 0.5)
+    span_x, span_y = w - 2 * (inset + leg), d - 2 * (inset + leg)
+    if span_x > 0.05 and span_y > 0.05:
+        for sy in (-1, 1):                          # 1 mm under the top: no shared face plane
+            parts.append(_box(0.0, sy * (d / 2.0 - inset - leg / 2.0), h - top_t - apron, span_x, rail_t,
+                              apron - FRONT_GAP, "wood", "apron"))
+        for sx in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - inset - leg / 2.0), 0.0, h - top_t - apron, rail_t, span_y,
+                              apron - FRONT_GAP, "wood", "apron"))
+    foot = min(TABLE_FOOT_M, h * 0.03)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            parts.append(_box(sx * (w / 2.0 - inset - leg / 2.0), sy * (d / 2.0 - inset - leg / 2.0), 0.0, leg, leg,
-                              h - top_t, "wood", "leg"))
+            cx, cy = sx * (w / 2.0 - inset - leg / 2.0), sy * (d / 2.0 - inset - leg / 2.0)
+            parts.append(_box(cx, cy, 0.0, leg, leg, foot, "steel", "foot"))
+            parts.append(_frustum_z(cx, cy, foot + FRONT_GAP, leg * 0.35, leg * 0.35, leg / 2.0, leg / 2.0,
+                                    h - top_t - foot - 2 * FRONT_GAP, "wood", "leg", n=16))
     if desk:
         dw, dd, dh = w * 0.3, d - 2 * inset - 0.02, min(0.35, h * 0.45)
         dx = w / 2.0 - inset - leg - 0.01 - dw / 2.0
@@ -515,17 +709,48 @@ def _cabinet(w: float, d: float, h: float, rows: int, cols: int, doors: bool) ->
     return parts
 
 
-def _wardrobe(w: float, d: float, h: float) -> list[Part]:
-    return _cabinet(w, d, h, rows=1, cols=max(2, round(w / 0.5)), doors=True)
+def _wardrobe(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Wardrobe v2 (Milestone 13): a recessed plinth, a carcass, a top panel and 0.50 m door modules in the
+    design's front style with vertical bar handles at the meeting edges (``cabinet_fronts``)."""
+    design = piece_design(piece)
+    plinth = min(0.08, h * 0.05)
+    top_t = 0.02
+    body, face = _carcass(w, d, plinth, h - plinth - top_t)
+    parts = [_box(0.0, 0.02, 0.0, w - 0.02, d - 0.04, plinth, "dark", "plinth"), body,
+             _box(0.0, 0.0, h - top_t, w, d, top_t, "wood", "top")]
+    parts += cabinet_fronts(w - 0.004, face, plinth + 0.003, h - top_t - 0.003, 1, max(1, round(w / 0.5)), design)
+    return parts
 
 
-def _drawers(w: float, d: float, h: float) -> list[Part]:
-    rows = max(1, int(h / 0.25))
-    return _cabinet(w, d, h, rows=rows, cols=1, doors=False)
+def _drawers(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Nightstand / dresser v2 (Milestone 13): a recessed plinth, a carcass, a top and a column of drawer fronts
+    (``DRAWER_PITCH_M``, none under ``DRAWER_MIN_M``) with horizontal handles in the design's front style."""
+    design = piece_design(piece)
+    plinth = min(0.06, h * 0.1)
+    top_t = min(0.02, h * 0.05)
+    body, face = _carcass(w, d, plinth, h - plinth - top_t)
+    parts = [_box(0.0, 0.015, 0.0, w - 0.03, d - 0.03, plinth, "dark", "plinth"), body,
+             _box(0.0, 0.0, h - top_t, w, d, top_t, "wood", "top")]
+    avail = h - plinth - top_t
+    rows = max(1, min(round(avail / DRAWER_PITCH_M), int(avail / DRAWER_MIN_M)))
+    parts += cabinet_fronts(w - 0.004, face, plinth + 0.003, h - top_t - 0.003, rows, 1, design, doors=False)
+    return parts
 
 
-def _tv_unit(w: float, d: float, h: float) -> list[Part]:
-    return _cabinet(w, d, h, rows=1, cols=max(1, round(w / 0.6)), doors=False)
+def _tv_unit(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """TV unit v2 (Milestone 13): a low carcass on four slim steel legs, a top and a row of drawer fronts with
+    centred handles in the design's front style."""
+    design = piece_design(piece)
+    leg_h = min(0.10, h * 0.2)
+    top_t = min(0.02, h * 0.05)
+    body, face = _carcass(w, d, leg_h, h - leg_h - top_t)
+    parts = [body, _box(0.0, 0.0, h - top_t, w, d, top_t, "wood", "top")]
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - 0.05), sy * (d / 2.0 - 0.05), 0.0, 0.03, 0.03, leg_h, "steel", "leg"))
+    parts += cabinet_fronts(w - 0.004, face, leg_h + 0.003, h - top_t - 0.003, 1, max(1, round(w / 0.6)), design,
+                            doors=False)
+    return parts
 
 
 def shelf_heights(h: float, t: float = 0.02) -> list[float]:
@@ -538,17 +763,22 @@ def shelf_heights(h: float, t: float = 0.02) -> list[float]:
     return out
 
 
-def _bookshelf(w: float, d: float, h: float) -> list[Part]:
-    t = 0.02
+def _bookshelf(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Bookshelf v2 (Milestone 13): a recessed plinth, two sides, bottom and top, a painted back panel and shelves
+    every ``SHELF_PITCH`` (``shelf_heights``)."""
+    t = 0.025
+    plinth = min(0.05, h * 0.05)
+    back_t = 0.008
     parts = [
-        _box(-(w / 2.0 - t / 2.0), 0.0, 0.0, t, d, h, "wood", "side"),
-        _box((w / 2.0 - t / 2.0), 0.0, 0.0, t, d, h, "wood", "side"),
-        _box(0.0, 0.0, 0.0, w, d, t, "wood", "bottom"),
-        _box(0.0, 0.0, h - t, w, d, t, "wood", "top"),
-        _box(0.0, d / 2.0 - 0.005, 0.0, w, 0.01, h, "wood", "back"),
+        _box(0.0, 0.01, 0.0, w - 0.04, d - 0.04, plinth, "dark", "plinth"),
+        _box(-(w / 2.0 - t / 2.0), 0.0, plinth, t, d, h - plinth, "wood", "side"),
+        _box((w / 2.0 - t / 2.0), 0.0, plinth, t, d, h - plinth, "wood", "side"),
+        _box(0.0, 0.0, plinth, w - 2 * t, d, t, "wood", "bottom"),
+        _box(0.0, 0.0, h - t, w - 2 * t, d, t, "wood", "top"),
+        _box(0.0, d / 2.0 - back_t / 2.0, plinth, w - 2 * t, back_t, h - plinth - t, "painted", "back"),
     ]
-    for z in shelf_heights(h, t):
-        parts.append(_box(0.0, -0.005, z - t, w - 2 * t, d - 0.01, t, "wood", "shelf"))
+    for z in shelf_heights(h - plinth, t):
+        parts.append(_box(0.0, -back_t / 2.0, plinth + z - t, w - 2 * t, d - back_t, t, "wood", "shelf"))
     return parts
 
 
@@ -1531,24 +1761,23 @@ def _wardrobe_m10(w: float, d: float, h: float, piece: dict | None = None) -> li
     design = piece_design(piece)
     if design.get("built_in"):
         return _built_in_wardrobe(w, d, h, piece)
-    if design.get("front_style") in FRONT_STYLES:
-        body, face = _carcass(w, d, 0.0, h)
-        return [body] + cabinet_fronts(w, face, 0.05, h - 0.05, 1, max(2, round(w / 0.5)), design)
-    return _wardrobe(w, d, h)
+    return _wardrobe(w, d, h, piece)                 # Milestone 13: the v2 family, the design's front style
 
 
-def _table_m10(w: float, d: float, h: float, piece: dict | None = None, desk: bool = False) -> list[Part]:
-    """The Milestone 4 table; a ``glass`` or ``marble`` material tag of the design (§4.10: "glass coffee table")
-    gives that top, ``metal`` steel legs."""
+def _table_m10(w: float, d: float, h: float, piece: dict | None = None, desk: bool = False,
+               shelf: bool = False) -> list[Part]:
+    """The table family (v2 since Milestone 13); a ``glass`` or ``marble`` material tag of the design (§4.10:
+    "glass coffee table") gives that top, ``metal`` steel legs and apron; ``shelf`` (coffee tables) or a glass top
+    adds a lower wooden shelf."""
     parts = _table(w, d, h, desk=desk)
     tags = piece_design(piece).get("material_tags") or ()
     top_key = next((TOP_TAG_KEYS[t] for t in tags if t in TOP_TAG_KEYS), None)
     for p in parts:
         if p["role"] == "top" and top_key:
             p["key"] = top_key
-        if p["role"] == "leg" and "metal" in tags:
+        if p["role"] in ("leg", "apron") and "metal" in tags:
             p["key"] = "steel"
-    if top_key == "glass" and not desk:             # a glass top shows its frame: a lower wooden shelf
+    if (top_key == "glass" or shelf) and not desk:  # a glass top shows its frame: a lower wooden shelf
         leg = min(0.06, w * 0.08, d * 0.08)
         inset = min(0.04, w * 0.05, d * 0.05)
         sw, sd = w - 2 * (inset + leg), d - 2 * (inset + leg)
@@ -2160,8 +2389,9 @@ def _new_decor_parts(dtype: str, w: float, d: float, h: float, item: dict | None
 
 _BUILDERS = {
     "bed": _bed, "bed_single": _bed, "bed_double": _bed,
-    "sofa": _sofa, "armchair": lambda w, d, h: _sofa(w, d, h, cushions=1),
-    "table_dining": _table_m10, "table_coffee": _table_m10,
+    "sofa": lambda w, d, h, piece=None: _sofa(w, d, h, piece=piece),
+    "armchair": lambda w, d, h, piece=None: _sofa(w, d, h, cushions=1, piece=piece),
+    "table_dining": _table_m10, "table_coffee": lambda w, d, h, piece=None: _table_m10(w, d, h, piece, shelf=True),
     "desk": lambda w, d, h, piece=None: _table_m10(w, d, h, piece, desk=True),
     "chair": _chair, "wardrobe": _wardrobe_m10, "dresser": _drawers, "nightstand": _drawers, "tv_unit": _tv_unit,
     "bookshelf": _bookshelf, "kitchen_counter": lambda w, d, h, piece=None: _counter_m10(w, d, h, False, piece),
@@ -2179,7 +2409,10 @@ _BUILDERS = {
 # others take only the box.
 _PIECE_BUILDERS = ("stair", "side_table", "table_dining", "table_coffee", "desk", "wardrobe", "kitchen_counter",
                    "kitchen_island", "washbasin", "sofa_corner", "console_table", "sideboard", "shoe_cabinet",
-                   "display_cabinet", "tall_cabinet", "wall_cabinet")
+                   "display_cabinet", "tall_cabinet", "wall_cabinet",
+                   # Milestone 13 families v2 read the design (fabric colour, front style, wood)
+                   "bed", "bed_single", "bed_double", "sofa", "armchair", "nightstand", "dresser", "tv_unit",
+                   "bookshelf")
 
 
 def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
@@ -2337,6 +2570,14 @@ def piece_bbox(piece: dict) -> tuple[float, float, float, str]:
     if asset.get("method") == "library" and asset.get("bbox_m"):
         bw, bd, bh = (float(v) for v in asset["bbox_m"][:3])
         return (bw, bd, bh, "library")
+    if asset.get("method") == "module" and isinstance(asset.get("module_plan"), dict):
+        from wenart.blender import modules as MOD          # Milestone 13: the module plan's real box
+
+        try:
+            bw, bd, bh = MOD.plan_bbox(asset["module_plan"])
+            return (bw, bd, bh, "module")
+        except (KeyError, TypeError, ValueError):
+            pass                                             # a plan the builder cannot read: the family's box
     if piece["type"] in _BUILDERS:
         bw, bd, bh = parametric_bbox(piece["type"], w, d, h, piece=piece)
         return (bw, bd, bh, "parametric")

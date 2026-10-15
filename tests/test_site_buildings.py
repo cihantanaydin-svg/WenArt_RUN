@@ -183,7 +183,10 @@ def test_the_site_view_sees_both_blocks_side_by_side():
     outline = [(0, 0), (15.2, 0), (15.2, 12.0), (0, 12.0)]
     sv = CP.site_view(outline, b, (-3.0, 6.0))
     assert sv["position"][0] > 30.0 and abs(sv["position"][1] - sv["target"][1]) < 0.01      # from the gable side
-    assert sv["position"][2] > sv["target"][2] + 10.0 and sv["lens_mm"] == CP.SITE_VIEW_LENS_MM
+    # Milestone 13 (D8, bug B9): the horizon stays in the frame (above the lower third), the pitch at most 28 degrees,
+    # the camera at least SITE_VIEW_MIN_HEIGHT_M over the aim point
+    assert sv["position"][2] >= sv["target"][2] + CP.SITE_VIEW_MIN_HEIGHT_M - 1e-6 and sv["lens_mm"] == CP.SITE_VIEW_LENS_MM
+    assert 0 < sv["pitch_deg"] <= CP.SITE_VIEW_PITCH_DEG and 1 / 3 < sv["horizon_frac"] < 1.0
     assert CP.site_view(outline, {"site": {}}, (0.0, 3.0)) is None
 
 

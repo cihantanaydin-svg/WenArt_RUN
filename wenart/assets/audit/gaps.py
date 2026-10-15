@@ -13,6 +13,10 @@ templates with ``room_types`` / ``rooms``, ``anchor`` (a type, a list or ``{type
 Why: growth (Poly Haven, ABO style pass, Infinigen fixtures ...) is approved per list; the gap report says what is
 missing where, so the lists ask only for what the runs need.
 
+Milestone 13 (docs/milestone13.md §5.1 phase 2, track T7): ``demand_gaps_markdown(rows, title, note)`` renders the
+demand gap rows of ``wenart.assets.audit.demands.demand_gaps`` (every drawn-demand bin with fewer than two usable
+models in a licence mode, with the sources that could fill it); HSSD joins ``SOURCES_FOR`` for the relaxed mode.
+
 How: pure; deterministic order (room types as listed, families in ``STYLE_FAMILIES`` order).
 """
 from __future__ import annotations
@@ -72,6 +76,11 @@ SOURCES_FOR: dict[str, tuple[str, ...]] = {
     "bed_double": ("abo (style pass, headboards)",), "bed_single": ("abo (style pass)",),
 }
 DEFAULT_SOURCES = ("abo (style pass)", "polyhaven")
+# Milestone 13: the sources per type grew (ABO by size grid, HSSD in relaxed mode: real fixtures and products).
+for _t in ("toilet", "washbasin", "bathtub", "sink_kitchen", "stove", "fridge", "shower", "washing_machine"):
+    SOURCES_FOR[_t] = SOURCES_FOR.get(_t, ()) + ("hssd (relaxed mode)",)
+for _t in ("bed_double", "bed_single"):
+    SOURCES_FOR[_t] = SOURCES_FOR[_t] + ("abo (size grid)", "hssd (relaxed mode)")
 
 
 def families() -> list[str]:
@@ -204,4 +213,30 @@ def gaps_markdown(rows: list[dict], title: str, note: str = "") -> str:
         fs = [f for f in fams if f in gaps[t]]
         lines.append(f"| {t} | {', '.join(fs)} | {', '.join(SOURCES_FOR.get(t, DEFAULT_SOURCES))} |")
     lines.append("")
+    return "\n".join(lines)
+
+
+def demand_gaps_markdown(rows: list[dict], title: str, note: str = "") -> str:
+    """The demand gap table (Milestone 13): one row per (type, bin) below the target in a mode, the counts per mode
+    in bold where they are gaps, the projects that drew the size and the sources that could fill it."""
+    modes = [k for k in ("commercial", "relaxed") if rows and k in rows[0]] or ["commercial", "relaxed"]
+    lines = [f"# {title}", ""]
+    if note:
+        lines += [note, ""]
+    lines += ["Every drawn-demand bin (wenart/assets/audit/demands.py: the real product sizes the three projects ask "
+              "for) with fewer usable models than the target in a licence mode (**bold** = below the target; "
+              "`relaxed` adds the non-commercial, share-alike, research-only, regional and tool_nc entries).", "",
+              "| type | bin (w x d m) | demand | projects | " + " | ".join(modes) + " | sources |",
+              "|---|---|---|---|" + "---|" * len(modes) + "---|"]
+    for r in rows:
+        cells = [f"**{r.get(m, 0)}**" if r.get(f"gap_{m}") else str(r.get(m, 0)) for m in modes]
+        lines.append(f"| {r['type']} | {r['bin']} | {r['demand']} | {', '.join(r.get('projects') or [])} | "
+                     + " | ".join(cells) + f" | {', '.join(r.get('sources') or [])} |")
+    if not rows:
+        lines.append("| (none) | | | | " + " | ".join("" for _ in modes) + " | |")
+    by_type: dict = {}
+    for r in rows:
+        by_type.setdefault(r["type"], []).append(r["bin"])
+    lines += ["", f"{len(rows)} gap row(s) over {len(by_type)} type(s): "
+              + "; ".join(f"{t} ({', '.join(b)})" for t, b in sorted(by_type.items())) + ".", ""]
     return "\n".join(lines)

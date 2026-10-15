@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 import test_run_scheduler as TRS
-from test_agent_helpers import FakeEdits, ScriptedCritic, fake_validators, violation
+from test_agent_helpers import FakeEdits, FixesWhatItTouched, ScriptedCritic, fake_validators, violation
 from test_run_scheduler import FakeCLI, Run, first, opt
 from test_run_stages import import_closure
 from wenart.agent import log as LG
@@ -99,10 +99,13 @@ def orchestrated(tmp_path, chat, critic_rounds, *, buildings=None, rc=None, fail
         r.mocks.append((url, m))
         return m
 
+    critic = ScriptedCritic(critic_rounds)
     r.kwargs = dict(agent_model_factory=factory,
                     server_control=lambda url, action: r.controls.append((len(r.cli.calls), action)) or True,
-                    agent_loop_kwargs={"code_critic": ScriptedCritic(critic_rounds), "vision": False,
-                                       "apply_edit": FakeEdits(), "validators": fake_validators()})
+                    agent_loop_kwargs={"code_critic": critic, "vision": False, "apply_edit": FakeEdits(),
+                                       "validators": fake_validators(),
+                                       # Milestone 13: the acceptance's dry re-check (the fake drops what the edit touched)
+                                       "recheck": FixesWhatItTouched(critic)})
     return r
 
 

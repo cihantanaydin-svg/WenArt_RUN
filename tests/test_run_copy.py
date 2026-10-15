@@ -78,6 +78,9 @@ def fill(out: Path) -> None:
     put(out / "final" / "contact_1.jpg", size=10)
     put(out / "final" / "cam_a_plan.jpg", size=10)
     put(out / "final" / "debug" / "page_p1.jpg", size=10)
+    put(out / "final" / "sheets13" / "cam_a_before_after.jpg", size=10)       # Milestone 13 before | after sheets
+    put(out / "final" / "sheets13" / "sheets13.json", {})
+    put(out / "final" / "sheets13" / "big_before_after.jpg", size=301 * KB)    # too big
     put(out / "run" / "pipeline.json", {"kind": "stage_record", "stage": "pipeline", "status": "ok",
                                         "inputs": {"/workspace/projects-private/real-01/a.dxf": "x"}})
     put(out / "run" / "logs" / "pipeline.log", "\n".join(f"p{i}" for i in range(450)) + "\n")
@@ -122,6 +125,7 @@ PUBLIC_WANT = {
     "check/p/answers_qwen3-vl-8b.json", "check/p/cam_a_cycles_check.jpg", "check/p/cam_a_plan.jpg",
     "final/p/final_report.md", "final/p/final_manifest.json", "final/p/cam_a_final_preview.jpg",
     "final/p/contact_1.jpg", "final/p/cam_a_plan.jpg", "final/p/debug/page_p1.jpg",
+    "final/p/sheets13/cam_a_before_after.jpg", "final/p/sheets13/sheets13.json",
     "run/p/pipeline.json", "run/p/logs/pipeline.log",
     "realism/p/render_manifest.json", "realism/p/cam_a_alt_preview.jpg", "realism/p/cameras_check.json",
     "realism/p/pairs.json", "realism/p/answers_qwen3-vl-8b.json", "realism/p/contact_realism_m5_vs_m6_1.jpg",
@@ -277,7 +281,10 @@ def test_attribution_goes_into_every_image_folder(tmp_path):
     assert not (results / "gate" / "p" / CP.ATTRIBUTION).exists()      # a folder without images gets none
     text = (results / "final" / "p" / CP.ATTRIBUTION).read_text()
     assert text.count('"Grey sofa" by Ana') == 1 and "f_L0_001 (sofa), f_L0_002 (sofa)" in text
-    assert "GothicBed_01" not in text and "objaverse_u9" not in text   # CC0 Poly Haven and parametric: no credit
+    # Milestone 13 (docs/milestone13.md §6): the CC0 Poly Haven model is listed under section 2 (credit optional);
+    # parametric geometry is ours and never credited.
+    assert '"GothicBed_01" by Poly Haven' in text and "CC0 1.0: no credit required" in text
+    assert "objaverse_u9" not in text
     assert "ODC Attribution License" in text and "CC BY 4.0" in text
     # Unchanged credits are not rewritten (an incremental copy counts nothing new).
     assert CP.write_attributions(pub) == 0
@@ -286,11 +293,18 @@ def test_attribution_goes_into_every_image_folder(tmp_path):
     put(priv.out_dir / "building_final.json", building)
     CP.copy_project(priv)
     assert files(tmp_path / "pr" / "real-01") == PRIVATE_WANT | {"final/ATTRIBUTION.md"}
-    # A project without Objaverse models gets no file.
-    put(pub.out_dir / "building_final.json", {"furniture": [building["furniture"][2]]})
+    # A project without library models gets no file (an older run) ...
+    put(pub.out_dir / "building_final.json", {"furniture": [building["furniture"][3]]})
     (results / "final" / "p" / CP.ATTRIBUTION).unlink()
     CP.copy_project(pub)
     assert not (results / "final" / "p" / CP.ATTRIBUTION).exists()
+    # ... but a Milestone 13 run (the fit wrote project.licence_mode) always gets it: sections 1 and 4 still apply.
+    put(pub.out_dir / "building_final.json", {"project": {"licence_mode": "commercial"},
+                                              "furniture": [building["furniture"][3]]})
+    CP.copy_project(pub)
+    text = (results / "final" / "p" / CP.ATTRIBUTION).read_text()
+    assert "## 1. Tools and generators" in text and "Blender 5.2 LTS" in text
+    assert "No CC0 / CC BY library model in these images" in text
 
 
 def test_library_attribution_from_the_objaverse_catalogue(tmp_path):

@@ -19,6 +19,13 @@ How:
 - site plans: the plot (the largest closed outline), labelled areas (parking, garden, paving ...), trees (circles) and
   the north arrow (an ``N`` / ``K`` text: north points from the arrow's centre to it; ``north`` = the compass
   bearing of the drawing's +Y).
+- Milestone 13 (docs/milestone13.md §13.2, track T6; CLAUDE.md vegetation rules): ``hedge_rows`` turns rows of tree
+  symbols into hedges: >= ``HEDGE_MIN_COUNT`` circles of equal radius (within ``HEDGE_RADIUS_TOL_M``) at most
+  ``HEDGE_MAX_RADIUS_M`` at a pitch <= ``HEDGE_PITCH_FACTOR`` x their diameter along a line or a gentle polyline
+  (turns <= ``HEDGE_MAX_TURN_DEG`` between steps). ``site_of`` writes them as ``hedges`` (the building's
+  ``site.hedges``: id, polyline, width, height by class, species null, inferred, the symbols as evidence); the
+  symbols of a hedge are no longer single trees (real04: 101 symbols of r 0.359 m in four rows, 42 / 45 / 7 / 7,
+  became 100 four-metre trees in Milestone 12).
 """
 from __future__ import annotations
 
@@ -55,6 +62,37 @@ COVERING_WORDS = [
     ("green_roof", r"\bYESIL CATI\b|\bGREEN ROOF\b|\bGRUNDACH\b|\bGRUENDACH\b|\bTOITURE VEGETALE\b"),
 ]
 TREE_BLOCK_RE = re.compile(r"AGAC|TREE|BAUM|ARBRE|ARBOL")
+
+# Milestone 13 (T6): the hedge-row detector lives in wenart.blender.vegetation (pure, no shapely: the Blender build
+# runs it too); the sheets stage re-exports it so ``hedge_rows`` is the sheets API (docs/milestone13.md §13.2).
+from wenart.blender.vegetation import (HEDGE_CLASS_RADIUS_M, HEDGE_HEIGHT_M, HEDGE_MAX_RADIUS_M,  # noqa: E402,F401
+                                       HEDGE_MAX_TURN_DEG, HEDGE_MIN_COUNT, HEDGE_PITCH_FACTOR,
+                                       HEDGE_RADIUS_TOL_M, HEDGE_SIMPLIFY_M, hedge_height_class, hedge_rows)
+
+
+def hedge_records(trees: list, region_id: Optional[str] = None) -> tuple[list[dict], list]:
+    """``(hedges, single_trees)`` of the sheets reader's tree list (pure): the hedges of ``hedge_rows`` as
+    ``site.hedges`` records (``id``, ``polyline``, ``width_m``, ``height_m``, ``height_class``, ``species`` null,
+    ``inferred`` true, ``evidence`` = the symbols' evidence with ``rule: site_hedge_symbol``, ``symbol_count``,
+    ``pitch_m``) and the trees that are in no row."""
+    rows = hedge_rows(trees)
+    taken = set()
+    hedges = []
+    for k, row in enumerate(rows):
+        ev = []
+        for i in row["symbol_indices"]:
+            taken.add(i)
+            for e in (trees[i].get("evidence") or [])[:1]:
+                ev.append(dict(e, rule="site_hedge_symbol"))
+        hedges.append({"id": f"hedge_{k + 1:03d}", "polyline": row["polyline"], "width_m": row["width_m"],
+                       "height_m": row["height_m"], "height_class": row["height_class"], "species": None,
+                       "inferred": True, "symbol_count": row["count"], "pitch_m": row["pitch_m"],
+                       "length_m": row["length_m"], "symbol_ids": row["symbol_ids"], "evidence": ev,
+                       "reason": f"{row['count']} tree symbols of radius {row['radius_m']:.2f} m at a pitch of "
+                                 f"{row['pitch_m']:.2f} m in one row: a {row['height_class']} hedge "
+                                 f"{row['height_m']:.1f} m high (height assumed; species not drawn)"})
+    singles = [t for i, t in enumerate(trees) if i not in taken]
+    return hedges, singles
 NORTH_BLOCK_RE = re.compile(r"KUZEY|NORTH|NORD")
 PLOT_WALL_M = (0.05, 0.6)            # site plan: two closed rings this far apart inside the plot are a plot wall
 WINDOW_M = ((0.4, 3.0), (0.4, 2.6))
@@ -437,8 +475,8 @@ def site_of(region, warnings: list) -> Optional[dict]:
     if not mpu:
         return None
     out = {"region": region.id, "registered": region.transform_to_building is not None, "plot": None,
-           "plot_walls": [], "paving": [], "grass": [], "parking": [], "pools": [], "trees": [], "labels": [],
-           "evidence": []}
+           "plot_walls": [], "paving": [], "grass": [], "parking": [], "pools": [], "trees": [], "hedges": [],
+           "labels": [], "evidence": []}
     tf = region.transform_to_building
     building = set((region.registration or {}).get("outline_entities") or [])
     closed = [(Polygon(p).area, e, p) for e in region.ents for p in [_closed_pts(e)] if p and len(p) >= 3
@@ -498,6 +536,11 @@ def site_of(region, warnings: list) -> Optional[dict]:
         (cx, cy), r = crown.arc["center"], crown.arc["radius"]
         ev = dict(_ev(region, e.id, "site_tree"), layer=e.layer)
         out["trees"].append({"points": [list(_apply(tf, (cx, cy)))], "radius_m": round(r * mpu, 3), "evidence": [ev]})
+    # Milestone 13 (T6): rows of equal small symbols are hedges; their symbols are no longer single trees.
+    out["hedges"], out["trees"] = hedge_records(out["trees"], region.id)
+    for h in out["hedges"]:
+        warnings.append(f"site plan {region.id}: {h['symbol_count']} tree symbols in a row ({h['length_m']:.1f} m): "
+                        f"read as the hedge {h['id']} ({h['height_class']}, {h['height_m']:.1f} m assumed), not as trees")
     if out["plot"]:
         out["plot_walls"] = _plot_walls(region, closed, tf, mpu)
     return out

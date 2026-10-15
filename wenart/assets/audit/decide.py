@@ -30,6 +30,12 @@ independent vision passes agree (pass 1, then the type question of pass 2, ``ask
 answer), ``has_bedding`` / ``has_pillows`` (beds), ``has_cushions`` (beds and seats), ``contact`` (decor:
 ``flat_bottom | hangs | leans | drapes``; the type's default when the vision answer has none).
 
+Milestone 13 (docs/milestone13.md §13.1 track T7; ``audit.yaml gates``): the code gates of ``checks.py`` flow
+through the same statuses (``units_anchor`` removes, ``pbr_record`` / ``chaise`` fix, ``pbr`` / ``licence_fields``
+warn); a ``material_tags`` review waits for the vision answer's ``materials`` (the m13.1 question, ``ask.py``) and
+writes them as the flag ``material_tags`` (the design enum of ``wenart.assets.recolour.TAG_ORDER``); an answer of
+the older question (no ``materials``) leaves a note, never a removal and never a second pass (one vision pass).
+
 How: pure; reasons in plain words; the same input gives the same decision.
 """
 from __future__ import annotations
@@ -54,7 +60,19 @@ HANG_FROM_TOP = ("pendant_light", "ceiling_light")
 GROUP_DECOR = ("books", "candle", "tray", "bowl", "basket")
 # Textured real products (ABO, Poly Haven scans) are often box-like with few faces: crude only below this quality
 # (D21: quality <= 2 removes; the crude rule's quality 4 stays for uploads and generated models).
-REAL_SOURCES = ("abo", "polyhaven", "gso")          # gso: Google Scanned Objects (scans of products, pod P4)
+REAL_SOURCES = ("abo", "polyhaven", "gso", "hssd")  # gso: Google Scanned Objects (scans of products, pod P4); hssd: M13
+# The material words a vision answer may name (``ask.schema`` materials) -> the design enum (recolour.TAG_ORDER).
+MATERIAL_TAGS: tuple[str, ...] = ("glass", "wood", "metal", "fabric", "rattan", "marble")   # = catalog.MATERIAL_TAGS
+                                                                                            # (tests/test_m13_library.py)
+
+
+def material_tags_of(answer: Optional[dict]) -> Optional[list[str]]:
+    """The design material tags of a vision answer's ``materials`` (``other`` dropped, the enum order kept), None when
+    the answer has no ``materials`` field (an answer of the m12.1 question)."""
+    if not answer or not isinstance(answer.get("materials"), list):
+        return None
+    words = {str(w).lower() for w in answer["materials"]}
+    return [t for t in MATERIAL_TAGS if t in words]
 
 
 def _by(checks: list[dict], name: str) -> list[dict]:
@@ -159,6 +177,22 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
             reasons.append(f"{c['reason']}; vision quality {q}")
     if _status(checks, "outside_parts") == "review" and answer is not None and answer.get("parts_open") is None:
         notes.append(_by(checks, "outside_parts")[0]["reason"])
+    material_flags: dict = {}
+    if _status(checks, "material_tags") == "review":
+        tags = material_tags_of(answer)
+        if answer is None:
+            pending.append({"needs": "vision", "why": _by(checks, "material_tags")[0]["reason"], "expect": "keep"})
+        elif tags is None:
+            notes.append("material tags not judged: the vision answer is of the question without materials (m12.1); "
+                         "the m13.1 question names them")
+        else:
+            # Review fix (15 Oct 2026): never write "other" into material_tags: catalog.validate (_validate_m10_fields)
+            # accepts the design enum MATERIAL_TAGS only, and the write step validates the copy (cli.py), so an
+            # "other" tag would make the catalogue copy unloadable. An answer naming none of the design words is
+            # recorded as judged with an empty list and the note says what the vision answer named.
+            material_flags["material_tags"] = tags
+            notes.append(f"material tags from the vision answer: {', '.join(tags) or 'none of the design words'}"
+                         + ("" if tags else f" (the answer named: {', '.join(str(w) for w in answer['materials'])})"))
 
     # the vision answer
     untitled = verdict in ("silent", "generated")
@@ -208,6 +242,7 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
             notes.append("the vision check finds the size odd next to the scale reference (code: size ok)")
 
     flags = answer_flags(item, answer)
+    flags.update(material_flags)
     if fixes.get("front_quarter_turns") == 0:
         fixes.pop("front_quarter_turns")
     if fixes.get("rescale") == 1.0:

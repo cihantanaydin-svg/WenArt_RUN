@@ -45,10 +45,14 @@ def test_one_type_by_size_room_and_position_gets_that_type_and_a_front():
     u1 = next(f for f in out["furniture"] if f["id"] == "u1")
     assert u1["type"] == "wardrobe" and u1["front_deg"] == 270.0 and u1["inferred"] is True
     assert u1["evidence"][-1]["method"] == "inferred" and u1["status"] == "unverified"
-    # A 0.45 x 0.40 m box beside a bed: nightstand, side table or ottoman: nothing is guessed.
+    # A 0.45 x 0.40 m box beside a bed: nightstand, side table or ottoman fit its size; Milestone 13 (code-first
+    # typing, docs/milestone13.md §3.0 K3): the drawn bed misses its nightstands, so the box is the missing group
+    # member of that size (``type_by_code`` method ``group_member``, inferred with the evidence), no longer a guess.
     bed = M.fp("b1", "bed_double", (1.02, 2.0), (1.6, 2.0), rotation=90.0, front=0.0)
     small = unknown("u2", (0.22, 3.3), (0.4, 0.45), rotation=90.0)
-    assert INF.infer_types(M.building(furniture=[bed, small])) == []
+    (prop,) = INF.infer_types(M.building(furniture=[bed, small]))
+    assert (prop["piece_id"], prop["type"], prop["type_method"]) == ("u2", "nightstand", "group_member")
+    assert prop["confidence"] == INF.CONF_GROUP and "b1" in prop["reason"]
 
 
 def test_a_part_drawn_inside_a_typed_piece_is_a_detail():

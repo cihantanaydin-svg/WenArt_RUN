@@ -147,7 +147,14 @@ GATE_CODE = ("wenart/gate/**", "wenart/vision_check/expected.py", "wenart/views.
              "wenart/vision_check/exterior.py", "wenart/blender/roof.py", "wenart/blender/site.py",
              "wenart/blender/looks.py",                  # track F: shell's looks
              "wenart/blender/overrides.py",              # real03: lighting reads the agent's set_lighting
-             "wenart/levels/**")                         # M12: the site reads the terrain (track L)
+             "wenart/levels/**",                         # M12: the site reads the terrain (track L)
+             # Milestone 13 (T5, 15 Oct 2026): the gate's closure reaches the building copies (site -> copies ->
+             # furniture -> modules / rest / textiles and the catalogue); tests/test_run_stages.py computes it.
+             "wenart/blender/copies.py", "wenart/blender/furniture.py", "wenart/blender/modules.py",
+             "wenart/blender/rest.py", "wenart/blender/textiles.py", "wenart/furniture/__init__.py",
+             "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", "wenart/recognition/size_table.yaml",
+             # T5 review (15 Oct 2026): site.py and sheets/exterior.py import T6's new vegetation module.
+             "wenart/blender/vegetation.py")
 
 
 # The decor stages (Milestone 9): the rules and the AI decorator (its slots read the placer, the wall art height
@@ -263,6 +270,7 @@ AGENT_PREVIEW_SAMPLES = 32
 AGENT_KEY = "agent"                  # check.yaml models.agent (Qwen/Qwen3.8-27B-FP8); agent_fast = the fallback
 AGENT_CODE = ("wenart/agent/**", "wenart/furniture/**", "wenart/blender/**", "wenart/style/**", "wenart/recognition/**",
               "wenart/levels/**",                                  # M12: level checks and level edits (track L)
+              "wenart/assets/**",                                  # M13 (T4): retype_piece refits through fit -> assets
               "wenart/synthetic/**", "wenart/ingest/**", "wenart/sheets/**", "wenart/schema/**", "wenart/building.py",
               "wenart/geometry.py", "wenart/units.py", "wenart/brief.py", "wenart/defaults.yaml", "wenart/views.py",
               "wenart/canonical.py", "wenart/run/servers.py", "wenart/__init__.py", CHECK_YAML)
@@ -450,12 +458,44 @@ def preview_samples(tools: Tools) -> str:
     return str(SMOKE_PREVIEW_SAMPLES if tools.smoke else PREVIEW_SAMPLES)
 
 
+CAMERAS_FROM_ENV = "WENART_CAMERAS_FROM"      # Milestone 13 (K8): the camera file of the build, {name} = the project
+CAMERAS_EXTRA_ENV = "WENART_CAMERAS_EXTRA"
+WHITE_BALANCE = "project"                      # Milestone 13 (K5): one whitepoint per project (render.py)
+
+
+def cameras_from_env(name: str, env: Optional[dict] = None) -> Optional[str]:
+    """The camera file of a project from the environment (pure; Milestone 13 K8): ``WENART_CAMERAS_FROM`` with
+    ``{name}`` replaced by the project name (``results/renders/{name}/scene_manifest.json`` for the P4 runs of
+    real02 and real03), None when unset. ``wenart/blender/build.py`` reads the same variable itself, so the
+    orchestrated run needs no new flag through ``wenart.blender.cli``; this helper is for the job scripts, the
+    plan and the tests."""
+    import os
+    text = (os.environ if env is None else env).get(CAMERAS_FROM_ENV)
+    if not text:
+        return None
+    return str(text).replace("{name}", name)
+
+
+def cameras_extra_env(env: Optional[dict] = None) -> bool:
+    """``WENART_CAMERAS_EXTRA`` in ``1 / true / yes / on`` (pure; Milestone 13 K8)."""
+    import os
+    text = str((os.environ if env is None else env).get(CAMERAS_EXTRA_ENV) or "").strip().lower()
+    return text in ("1", "true", "yes", "on")
+
+
 def build(tools: Tools, ref: ProjectRef, force: bool = False, lens_mm: Optional[float] = None,
-          variant: str = BASE_VARIANT, base_out: Optional[Path] = None) -> list[str]:
+          variant: str = BASE_VARIANT, base_out: Optional[Path] = None, cameras_from: Optional[str] = None,
+          cameras_extra: bool = False) -> list[str]:
     """``lens_mm``: the brief's ``render.lens_mm`` (Milestone 8; ``wenart.brief.lens_mm``), None for the automatic
     18 / 16 mm rule of the camera search. ``variant`` (Milestone 10, §1.6b row 9): an alternative builds the base
     project's ``building_final.json`` and ``style.json`` (in ``base_out``) into its own output ``ref``
-    (``outputs/<p>/variants/<id>``) with ``--variant <id>``."""
+    (``outputs/<p>/variants/<id>``) with ``--variant <id>``.
+
+    Milestone 13 (K8): ``cameras_from`` (a scene manifest whose cameras the build replays, ``source: replayed``)
+    and ``cameras_extra`` (the searched set as well) go to the build as ``--cameras-from`` / ``--cameras-extra``
+    (``wenart.blender.cli build`` must pass them on to ``build.py``, lead item); None / False add nothing, and the
+    build then reads ``WENART_CAMERAS_FROM`` / ``WENART_CAMERAS_EXTRA`` from its environment (the pod jobs export
+    them), so an orchestrated run replays without a command change."""
     src = Path(base_out) if variant != BASE_VARIANT and base_out is not None else ref.out_dir
     cmd = [tools.py, "-m", "wenart.blender.cli", "build", "--building", t(src / "building_final.json"),
            "--style", t(src / "style.json"), "--assets", t(tools.assets), "--out", _out(ref, "scene"),
@@ -464,6 +504,10 @@ def build(tools: Tools, ref: ProjectRef, force: bool = False, lens_mm: Optional[
         cmd += ["--variant", variant]
     if lens_mm is not None:
         cmd += ["--lens-mm", f"{float(lens_mm):g}"]
+    if cameras_from:
+        cmd += ["--cameras-from", t(cameras_from)]
+        if cameras_extra:
+            cmd.append("--cameras-extra")
     return cmd if force else cmd + ["--reuse"]
 
 
@@ -476,13 +520,15 @@ def render_quality(tools: Tools, samples: Optional[int] = None) -> list[str]:
 
 
 def render(tools: Tools, ref: ProjectRef, force: bool = False, alt_look: bool = False,
-           cameras: Optional[Sequence[str]] = None) -> list[str]:
+           cameras: Optional[Sequence[str]] = None, white_balance: str = WHITE_BALANCE) -> list[str]:
     """``alt_look``: a project of the realism A/B also saves ``<cam>_alt_preview.jpg`` with ``ALT_LOOK`` from the
     same render result (the look_alt pairs of M7 §8.2). ``cameras`` (Milestone 11, the final critical round): only
-    these views (the render merges them into its manifest)."""
+    these views (the render merges them into its manifest). ``white_balance`` (Milestone 13, K5): ``project`` =
+    one whitepoint for every view of the project (``render.py --white-balance project``; the Milestone 5-12 runs
+    metered every view on its own, ``auto``)."""
     cmd = [tools.py, "-m", "wenart.blender.cli", "render", "--scene", _out(ref, "scene/scene.blend"), "--out",
            _out(ref, "renders"), "--cameras", ",".join(cameras) if cameras else "all"] + render_quality(tools)[:4] + [
-           "--exposure", "auto", "--white-balance", "auto"] + render_quality(tools)[4:]
+           "--exposure", "auto", "--white-balance", str(white_balance)] + render_quality(tools)[4:]
     if alt_look:
         cmd += ["--alt-look", ALT_LOOK]
     return cmd + (["--force"] if force else [])

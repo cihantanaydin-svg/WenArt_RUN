@@ -26,6 +26,7 @@ What: ``python -m wenart.run copy --projects ... [--private ...] [--ab ...]
 | ``sheets_debug/*.png`` (<= 3 MB, Milestone 10) | ``furniture/<p>/sheets_debug/`` |
 | ``orchestrator/`` (+ ``images/``, ``compare/``), ``agent/previews/`` (Milestone 11) | ``agent/<p>/`` (+ the same sub-folders) |
 | ``final/agent/`` (the report's before/after images, Milestone 11) | ``final/<p>/agent/`` |
+| ``final/sheets13/`` (the before | after sheets of Milestone 13, JPEG <= 300 KB and JSON) | ``final/<p>/sheets13/`` |
 | ``variants/<id>/<the rows above>`` (Milestone 10, an alternative) | ``<area>/<p>/variants/<id>/...`` |
 
 Milestone 10 (docs/milestone10.md §1.6b row 9): an alternative's sub-output ``variants/<id>/`` has a project
@@ -59,6 +60,29 @@ generated-model note); ``library_attribution`` reads ``catalog_library.json``
 (else the M7 ``catalog_objaverse.json``), its ``entries`` and ``decor``.
 ``library_files`` lists what the prep job copies from its library work folder
 into ``$RESULTS/library`` (everything but model files and files over 8 MB).
+
+Milestone 13 (docs/milestone13.md §6, §12 D1/D3, §13.2; track T8): ``ATTRIBUTION.md`` has four sections and a
+licence mode.
+
+- What: ``attribution_text(title, credits, *, mode="commercial")`` writes (1) the tools and generators with their
+  licences (``TOOLS_AND_GENERATORS``: Blender, LibreDWG, the agent and vision models, TRELLIS.2 with its DINOv3 image
+  condition and the nvdiffrast export tool, Z-Image-Turbo, Infinigen, the Poly Haven API credit; plus the model rows
+  the final report recorded for the run), (2) the CC0 / CC BY assets with author, source, licence and the changes
+  made (models and, from the scene manifest, the texture sets and the HDRI), (3) the PoC-only assets (flags
+  ``non_commercial``, ``share_alike``, ``research_only``, ``regional``, ``tool_nc``) with the reason and the licence
+  page (in ``commercial`` mode a flagged asset is a warning: it must not be there), (4) the dataset notices of the
+  sources present (ABO CC BY 4.0, Objaverse ODC-By 1.0, GSO, the generated-model note, HSSD CC BY-NC 4.0 with its
+  citation, Poly Haven CC0). ``project_credits`` adds ``licence_flag``, ``commercial_safe`` and ``licence_url`` to
+  every credit (``wenart.furniture.catalog.licence_flag_of`` / ``commercial_safe`` / ``licence_url_of``, track T1)
+  and lists the CC0 Poly Haven models as well (``CREDIT_SOURCES``); ``texture_credits`` reads the scene manifest;
+  ``library_attribution`` writes the same four sections for the whole catalogue (mode ``relaxed``: a catalogue lists
+  everything it holds).
+- Why: every render must say whether it is commercial-safe and every flagged asset must be listed with the reason
+  (CLAUDE.md library rules); the tools section is the GPL / NC bookkeeping the plan asks for.
+- How: the mode comes from ``building_final.json`` ``project.licence_mode`` (the fit writes it; T1), else
+  ``catalog.licence_mode()`` (env ``WENART_LICENCE_MODE`` > ``commercial``). A Milestone 13 run (a building with
+  ``project.licence_mode``) always gets the file, also with no library model (section 1 and 4 still apply); an older
+  run gets it only when it uses library models (as before).
 
 Private projects use an allow-list only, into
 ``<results-private>/<alias>/<area>/``: ``final/final_report.md``,
@@ -105,6 +129,67 @@ ATTRIBUTION = "ATTRIBUTION.md"
 LIBRARY_CATALOG = "catalog_library.json"      # the prep pod's library catalogue (docs/milestone8.md §2)
 OBJAVERSE_CATALOG = "catalog_objaverse.json"  # its M7 name (read when the library file is missing)
 LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")   # = wenart.furniture.catalog.LIBRARY_SOURCES
+# Milestone 13: the sources whose models are credited in section 2 / 3: the library sources, the CC0 Poly Haven
+# models (no credit required, listed as CC0 assets) and the HSSD layer of track T7 (CC BY-NC 4.0, relaxed mode).
+CREDIT_SOURCES = ("polyhaven",) + LIBRARY_SOURCES + ("hssd",)
+POC_ONLY_FLAGS = ("non_commercial", "share_alike", "research_only", "regional", "tool_nc")
+POC_FLAG_REASONS = {
+    "non_commercial": "the licence forbids commercial use (a CC BY-NC licence or the dataset's non-commercial terms)",
+    "share_alike": "the licence asks for derived works under the same licence (CC BY-SA)",
+    "research_only": "the dataset's terms allow research use only",
+    "regional": "the licence excludes some regions or uses",
+    "tool_nc": "exported with nvdiffrast v0.4.0 (NVIDIA Source Code License, section 3.3: non-commercial; "
+               "wenart.furniture.catalog.TOOL_NC); kept for the PoC by the user's decision D3 of 12 Oct 2026",
+}
+# Section 1: the tools and generators of the pipeline with their licences. Verified on 15 Oct 2026 against the
+# official pages named in ``url`` (and docs/plan.md, wenart/vision_check/check.yaml, wenart/assets/generate.yaml):
+# GPL tools run as installed programs (the renders and the DXF are not derived works: "The GPL only applies to
+# the Blender application and not the artwork you create with it", docs.blender.org); the model ids and revisions
+# are the ones the configs pin. Blender's GPL version (T8 review, 15 Oct 2026): the manual page names no version;
+# the source (github.com/blender/blender, main) carries ``SPDX-License-Identifier: GPL-2.0-or-later`` in its files
+# and its COPYING points to doc/license/GPL-license.txt, the GPL version 2 text, so the line says GPL-2.0-or-later
+# (docs/plan.md §"Blender" writes GPL-3.0; the lead decides on the doc).
+TOOLS_AND_GENERATORS = (
+    {"name": "Blender 5.2 LTS (bpy, Cycles)", "licence": "GPL-2.0-or-later (program only; the renders are ours)",
+     "url": "https://docs.blender.org/manual/en/latest/getting_started/about/license.html",
+     "role": "scene build, Cycles renders, .blend / .glb export"},
+    {"name": "GNU LibreDWG 0.14 (dwg2dxf)", "licence": "GPL-3.0-or-later (separate program)",
+     "url": "https://github.com/LibreDWG/libredwg", "role": "DWG to DXF of the input documents (when a DWG is read)"},
+    {"name": "Qwen/Qwen3.8-27B-FP8", "licence": "Apache-2.0", "url": "https://huggingface.co/Qwen/Qwen3.8-27B-FP8",
+     "role": "agent and critic (orchestrator), vision judge (wenart/vision_check/check.yaml models.agent)"},
+    {"name": "Qwen/Qwen3-VL-8B-Instruct", "licence": "Apache-2.0",
+     "url": "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct",
+     "role": "recognition of plan symbols, layout proposals, decor, vision check"},
+    {"name": "microsoft/TRELLIS.2-4B", "licence": "MIT (weights and code)",
+     "url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
+     "role": "generated library models (image to 3D); its image condition is facebook/dinov3-vitl16-pretrain-lvd1689m "
+             "(DINOv3 License, custom, gated: https://huggingface.co/facebook/dinov3-vitl16-pretrain-lvd1689m); "
+             "its GLB export ran through nvdiffrast v0.4.0 (NVIDIA Source Code License, non-commercial: the models "
+             "carry licence_flag tool_nc, https://github.com/NVlabs/nvdiffrast/blob/v0.4.0/LICENSE.txt)"},
+    {"name": "Tongyi-MAI/Z-Image-Turbo", "licence": "Apache-2.0", "url": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+     "role": "product images for the generated models (and the AI polish, off in Milestone 13)"},
+    {"name": "Infinigen (princeton-vl/infinigen)", "licence": "BSD-3-Clause (its infinigen_gpl submodule GPL-3.0, "
+                                                             "run on the pod only)",
+     "url": "https://github.com/princeton-vl/infinigen", "role": "procedural generated models (Milestone 12 pod P4)"},
+    {"name": "Poly Haven API", "licence": "assets CC0 1.0 (https://polyhaven.com/license); the live API asks for a "
+                                          "\"Powered by Poly Haven\" credit",
+     "url": "https://github.com/Poly-Haven/Public-API", "role": "texture sets, HDRIs and CC0 models"},
+)
+POLYHAVEN_API_CREDIT = "Powered by Poly Haven (https://polyhaven.com): CC0 textures, HDRIs and models."
+# Section 4: the HSSD layer (track T7, docs/milestone13.md §12 D2). Licence from the dataset card
+# (https://huggingface.co/datasets/hssd/hssd-models: "You agree to use this dataset under the CC BY-NC 4.0 license
+# terms"), citation from the README of https://github.com/3dlg-hcvc/hssd (both read on 15 Oct 2026).
+HSSD_NOTICE = ("Contains 3D models from the Habitat Synthetic Scenes Dataset (HSSD-200), hssd/hssd-models "
+               "(https://huggingface.co/datasets/hssd/hssd-models), licensed CC BY-NC 4.0 "
+               "(https://creativecommons.org/licenses/by-nc/4.0/): non-commercial use only; used in relaxed licence "
+               "mode with the user's acceptance of the dataset terms (12 Oct 2026). Citation: Khanna*, M., Mao*, Y., "
+               "Jiang, H., Haresh, S., Shacklett, B., Batra, D., Clegg, A., Undersander, E., Chang, A. X., Savva, M.: "
+               "Habitat Synthetic Scenes Dataset (HSSD-200): An Analysis of 3D Scene Scale and Realism Tradeoffs for "
+               "ObjectGoal Navigation. arXiv preprint arXiv:2306.11290 (2023). Changes: scaled to the drawn "
+               "footprint, re-oriented, rendered.")
+POLYHAVEN_NOTICE = ("Poly Haven assets (textures, HDRIs, models; https://polyhaven.com) are CC0 1.0 "
+                    "(https://polyhaven.com/license): no credit required. " + POLYHAVEN_API_CREDIT)
+DEFAULT_CHANGES = "scaled to the drawn footprint, re-oriented, rendered"
 # The library work folder's files that never go to $RESULTS (``library_files``): model files (the GLBs live in the
 # sources' caches and <assets>/models/<source>/) and anything larger than the text limit.
 LIBRARY_SKIP_SUFFIXES = (".glb", ".gltf", ".bin", ".blend", ".ply", ".obj", ".fbx", ".part", ".tmp")
@@ -173,6 +258,9 @@ PUBLIC_RULES = (
     Rule("orchestrator/compare", "agent", "compare", "agent"),
     Rule("agent/previews", "agent", "previews", "general"),
     Rule("final/agent", "final", "agent", "agent"),
+    # Milestone 13 (docs/milestone13.md §7): the before | after sheets of wenart.report.sheets13 (JPEG <= 300 KB,
+    # sheets13.json / .md); the metrics13 JSON and markdown in final/ go with the general rule.
+    Rule("final/sheets13", "final", "sheets13", "debug"),
 )
 PRIVATE_RULES = (
     Rule("final", "final", "", "private_final"),
@@ -327,6 +415,9 @@ def _credit(asset: dict) -> str:
     it, the §7.3 line built from its fields)."""
     if asset.get("attribution"):
         return str(asset["attribution"])
+    if _source_of(asset) == "polyhaven":          # Milestone 13: CC0 models are listed (section 2), credit optional
+        name = asset.get("name") or asset.get("title") or asset.get("asset_id") or asset.get("id") or "?"
+        return f"\"{name}\" by Poly Haven ({asset.get('url') or 'https://polyhaven.com'}), CC0 1.0: no credit required"
     fields = [asset.get(k) for k in ("title", "author", "source_url")]
     if all(fields) and _source_of(asset) in ("objaverse", "") and asset.get("licence"):
         from wenart.assets.objaverse import attribution_line
@@ -340,19 +431,54 @@ def _credit(asset: dict) -> str:
 
 
 def _library_asset(asset) -> bool:
-    return (isinstance(asset, dict) and _source_of(asset) in LIBRARY_SOURCES
-            and asset.get("method") != "parametric")
+    """A credited model: a library asset of ``CREDIT_SOURCES`` (Milestone 13: the CC0 Poly Haven models too) that is
+    not a parametric, module or not-built record."""
+    return (isinstance(asset, dict) and _source_of(asset) in CREDIT_SOURCES
+            and asset.get("method") not in ("parametric", "module", "none"))
 
 
-def project_credits(out_dir: Path) -> list[dict]:
-    """``[{"credit", "pieces": [(id, type)], "source", "licence_flag"}]`` of the library models (ABO, Objaverse,
-    generated; docs/milestone8.md §2) in ``<out>/building_final.json``: its furniture pieces' and decor items'
-    ``asset``, one entry per model (catalogue id), in id order."""
+def _licence_fields(asset: dict) -> dict:
+    """Milestone 13: ``licence``, ``licence_flag``, ``commercial_safe``, ``licence_url`` of a fitted asset or a
+    catalogue entry through track T1's catalogue functions (the flag from the entry's own flag, the licence text and
+    the export tool; the page from ``licence_url`` or the licence text)."""
+    from wenart.furniture import catalog as CAT
+
+    flag = CAT.licence_flag_of(asset)
+    return {"licence": asset.get("licence") or asset.get("license"), "licence_flag": flag,
+            "commercial_safe": flag == CAT.NO_FLAG, "licence_url": CAT.licence_url_of(asset)}
+
+
+def read_building(out_dir: Path) -> Optional[dict]:
+    """``<out>/building_final.json`` as a dict, None when missing or unreadable."""
     try:
         building = json.loads((Path(out_dir) / "building_final.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return []
-    if not isinstance(building, dict):
+        return None
+    return building if isinstance(building, dict) else None
+
+
+def project_licence_mode(out_dir: Path) -> str:
+    """The licence mode of a project output (Milestone 13): ``project.licence_mode`` of its ``building_final.json``
+    (the fit writes it, track T1), else ``catalog.licence_mode()`` (env ``WENART_LICENCE_MODE`` > ``commercial``)."""
+    from wenart.furniture import catalog as CAT
+
+    building = read_building(out_dir) or {}
+    mode = ((building.get("project") or {}).get("licence_mode") if isinstance(building.get("project"), dict)
+            else None)
+    if mode in CAT.LICENCE_MODES:
+        return str(mode)
+    return CAT.licence_mode()
+
+
+def project_credits(out_dir: Path) -> list[dict]:
+    """``[{"credit", "pieces": [(id, type)], "source", "asset_id", "licence", "licence_flag", "commercial_safe",
+    "licence_url", "changes", "kind": "model"}]`` of the library models (ABO, Objaverse, generated, GSO, HSSD and,
+    Milestone 13, the CC0 Poly Haven models; docs/milestone8.md §2, docs/milestone13.md §6) in
+    ``<out>/building_final.json``: its furniture pieces' and decor items' ``asset``, one entry per model (catalogue
+    id), in id order. Milestone 13: every entry carries ``licence_flag``, ``commercial_safe`` and ``licence_url``
+    (``wenart.furniture.catalog``, track T1)."""
+    building = read_building(out_dir)
+    if building is None:
         return []
     found: dict = {}
     for item in list(building.get("furniture") or []) + list(building.get("decor") or []):
@@ -360,10 +486,57 @@ def project_credits(out_dir: Path) -> list[dict]:
         if not _library_asset(asset):
             continue
         key = str(asset.get("asset_id") or asset.get("uid") or "")
-        entry = found.setdefault(key, {"credit": _credit(asset), "pieces": [], "source": _source_of(asset),
-                                       "licence_flag": asset.get("licence_flag")})
-        entry["pieces"].append((str(item.get("id") or "?"), str(item.get("type") or "?")))
+        if key not in found:
+            entry = {"credit": _credit(asset), "pieces": [], "source": _source_of(asset), "asset_id": key,
+                     "kind": "model", "changes": DEFAULT_CHANGES}
+            entry.update(_licence_fields(asset))
+            found[key] = entry
+        found[key]["pieces"].append((str(item.get("id") or "?"), str(item.get("type") or "?")))
     return [found[k] for k in sorted(found)]
+
+
+def texture_credits(out_dir: Path) -> list[dict]:
+    """Milestone 13, section 2: the CC0 texture sets and the HDRI of ``<out>/scene/scene_manifest.json`` (its
+    ``materials`` with ``textured`` and ``asset``: slug, asset, source, licence; ``lighting.world`` of kind ``hdri``:
+    every HDRI under the assets folder was fetched by ``wenart.assets.fetch``, which accepts CC0 only), one entry
+    per asset, in asset order; ``[]`` without a scene manifest."""
+    try:
+        scene = json.loads((Path(out_dir) / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(scene, dict):
+        return []
+    found: dict = {}
+    for key, m in (scene.get("materials") or {}).items():
+        if not isinstance(m, dict) or not m.get("textured") or not m.get("asset"):
+            continue
+        asset = str(m["asset"])
+        source = str(m.get("source") or "unknown")
+        licence = str(m.get("licence") or "unknown")
+        entry = found.setdefault(asset, {
+            "credit": f"texture set {asset} ({SOURCE_NAMES.get(source, source)}, {licence})", "pieces": [],
+            "source": source, "asset_id": asset, "kind": "texture", "licence": licence,
+            "licence_flag": "none" if licence.upper().startswith("CC0") else "unknown",
+            "commercial_safe": licence.upper().startswith("CC0"),
+            "licence_url": _texture_licence_url(source), "changes": "tiled, tinted and lit in the shell materials"})
+        entry["pieces"].append((str(key), str(m.get("slug") or "material")))
+    world = (scene.get("lighting") or {}).get("world") if isinstance(scene.get("lighting"), dict) else None
+    if isinstance(world, dict) and world.get("kind") == "hdri" and world.get("file"):
+        stem = Path(str(world["file"])).stem
+        found.setdefault(f"hdri:{stem}", {
+            "credit": f"HDRI {stem} (CC0: fetched by wenart.assets.fetch, which accepts CC0 only, from Poly Haven)",
+            "pieces": [("world", "hdri")], "source": "polyhaven", "asset_id": f"hdri:{stem}", "kind": "hdri",
+            "licence": "CC0", "licence_flag": "none", "commercial_safe": True,
+            "licence_url": _texture_licence_url("polyhaven"), "changes": "used as the sky light of the interiors"})
+    return [found[k] for k in found]
+
+
+def _texture_licence_url(source: str) -> str:
+    try:
+        from wenart.assets import fetch as FETCH
+        return str(FETCH.LICENCE_URLS.get(source) or "")
+    except Exception:  # noqa: BLE001 - the page is a courtesy; the licence word is recorded anyway
+        return ""
 
 
 def _notices(sources) -> list[str]:
@@ -386,7 +559,20 @@ def _notice() -> str:
 
 
 SOURCE_NAMES = {"abo": "Amazon Berkeley Objects", "objaverse": "Objaverse 1.0", "generated": "generated models",
-                "gso": "Google Scanned Objects"}
+                "gso": "Google Scanned Objects", "polyhaven": "Poly Haven", "hssd": "HSSD (Habitat Synthetic Scenes "
+                "Dataset)", "ambientcg": "ambientCG"}
+SOURCE_ORDER = ("abo", "gso", "objaverse", "generated", "hssd", "polyhaven", "ambientcg")
+
+
+def run_model_rows(out_dir: Path) -> list[dict]:
+    """The AI models the final report recorded for the run (``<out>/final/final_manifest.json`` ``models``:
+    role, repo, revision, licence), for section 1; ``[]`` without a report."""
+    try:
+        manifest = json.loads((Path(out_dir) / "final" / "final_manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    rows = manifest.get("models") if isinstance(manifest, dict) else None
+    return [r for r in rows or [] if isinstance(r, dict) and r.get("repo")]
 
 
 def audit_removed(entry: dict) -> str:
@@ -400,24 +586,104 @@ def audit_removed(entry: dict) -> str:
     return "; ".join(reasons) or "no reason recorded"
 
 
-def attribution_text(title: str, credits: list[dict]) -> str:
-    """The ``ATTRIBUTION.md`` text: the credit line of every library model (with its licence flag when it has one,
-    docs/milestone8.md §2; M12: with the library audit's removal and its reasons) and the notices of the sources
-    present (Objaverse when nothing says the source)."""
-    order = [s for s in ("abo", "gso", "objaverse", "generated")]
-    sources = sorted({c.get("source") or "objaverse" for c in credits}, key=lambda s: order.index(s)
-                     if s in order else len(order))
-    names = ", ".join(SOURCE_NAMES.get(s, s) for s in sources)
+def _credit_flag(c: dict) -> str:
+    """The flag word of a credit: its ``licence_flag`` (Milestone 13: ``none`` for CC0 / CC BY), else derived from
+    the licence text (an older credit dict without the field)."""
+    flag = c.get("licence_flag")
+    if flag in (None, ""):
+        from wenart.furniture import catalog as CAT
+        flag = CAT.licence_text_flag(c.get("licence")) if c.get("licence") else "none"
+    return str(flag)
+
+
+def _credit_line(c: dict) -> str:
+    """One credit line (the docs/milestone8.md §2 format: the credit, the licence flag when it limits the use, the
+    M12 audit removal, the pieces that use it)."""
+    pieces = ", ".join(f"{pid} ({ptype})" for pid, ptype in c.get("pieces") or [])
+    flag = _credit_flag(c)
+    text = f" [licence flag: {flag}]" if flag != "none" else ""
+    if c.get("removed"):
+        text += f" [removed by the M12 library audit: {c['removed']}]"
+    # Milestone 13: the catalogue id of a model closes the line, so a flagged id of the report (final manifest
+    # views[].commercial_safe.flagged) can be found in the file (metric 16 of docs/milestone13.md §7).
+    aid = f" [asset: {c['asset_id']}]" if c.get("asset_id") and c.get("kind", "model") == "model" else ""
+    return f"- {c['credit']}{text}" + (f" (used for {pieces})" if pieces else "") + aid
+
+
+def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial") -> str:
+    """The ``ATTRIBUTION.md`` text (Milestone 13, docs/milestone13.md §6, §13.2): the licence mode, then
+
+    1. the tools and generators with their licences (``TOOLS_AND_GENERATORS``; the credits may carry ``kind:
+       "run_model"`` rows for the models the final report recorded);
+    2. the CC0 / CC BY assets (flag ``none``) with author, source, licence and changes, one line per model
+       (docs/milestone8.md §2 format, with the M12 audit removal and its reasons) and per texture set / HDRI;
+    3. the PoC-only assets (``POC_ONLY_FLAGS``) with the reason and the licence page; in ``commercial`` mode such
+       an asset is a warning (the mode must not use it); a no-derivatives or unknown licence is listed as never
+       usable;
+    4. the dataset notices of the sources present (Objaverse ODC-By, ABO, GSO, generated, HSSD, Poly Haven).
+
+    ``credits`` are ``project_credits`` (+ ``texture_credits``) or ``library_attribution``'s rows.
+    """
+    from wenart.furniture import catalog as CAT
+
+    mode = CAT.check_mode(mode)
+    models = [c for c in credits if c.get("kind", "model") == "model"]
+    textures = [c for c in credits if c.get("kind") in ("texture", "hdri")]
+    run_models = [c for c in credits if c.get("kind") == "run_model"]
+    sources = sorted({c.get("source") or "objaverse" for c in models},
+                     key=lambda s: SOURCE_ORDER.index(s) if s in SOURCE_ORDER else len(SOURCE_ORDER))
+    names = ", ".join(SOURCE_NAMES.get(s, s) for s in sources) or "no library model"
+    mode_text = ("commercial: only commercial-safe assets (licence flag none) may be used"
+                 if mode == "commercial" else
+                 "relaxed (PoC, user OK of 12 Oct 2026): non-commercial, share-alike, research-only, regional and "
+                 "tool_nc assets may be used and are listed in section 3; no-derivatives assets never")
     lines = ["# Attribution", "", f"{title} show 3D models from the furniture library ({names}). Credits "
-             "(docs/milestone7.md §7.3, docs/milestone8.md §2):", ""]
-    for c in credits:
-        pieces = ", ".join(f"{pid} ({ptype})" for pid, ptype in c.get("pieces") or [])
-        flag = f" [licence flag: {c['licence_flag']}]" if c.get("licence_flag") else ""
-        if c.get("removed"):
-            flag += f" [removed by the M12 library audit: {c['removed']}]"
-        lines.append(f"- {c['credit']}{flag}" + (f" (used for {pieces})" if pieces else ""))
-    lines.append("")
-    for text in _notices(sources):
+             "(docs/milestone7.md §7.3, docs/milestone8.md §2, docs/milestone13.md §6):", "",
+             f"Licence mode: {mode_text}.", "",
+             "## 1. Tools and generators", ""]
+    for t in TOOLS_AND_GENERATORS:
+        lines.append(f"- {t['name']}: {t['licence']} ({t['url']}); {t['role']}")
+    if run_models:
+        lines += ["", "Models recorded by this run's final report (role: model @ revision, licence):", ""]
+        lines += [f"- {m.get('role')}: {m.get('repo')} @ {str(m.get('revision') or '-')[:12]} "
+                  f"({m.get('licence') or 'licence not recorded'})" for m in run_models]
+    lines += ["", "## 2. CC0 / CC BY assets (author, source, licence, changes)", ""]
+    safe = [c for c in models if _credit_flag(c) == "none"]
+    if safe:
+        lines += [_credit_line(c) + (f"; changes: {c['changes']}" if c.get("changes") and "changes:" not in
+                                     str(c.get("credit")) else "") for c in safe]
+    else:
+        lines.append("No CC0 / CC BY library model in these images (parametric and module geometry is ours).")
+    if textures:
+        lines += [""] + [_credit_line(c) + (f"; changes: {c['changes']}" if c.get("changes") else "")
+                         for c in textures]
+    lines += ["", "## 3. PoC-only assets (not commercial-safe)", ""]
+    flagged = [c for c in models + textures if _credit_flag(c) != "none"]
+    if not flagged:
+        lines.append("None." + (" Commercial mode: every asset in these images is commercial-safe."
+                                if mode == "commercial" else ""))
+    else:
+        if mode == "commercial":
+            lines += [f"WARNING: {len(flagged)} flagged asset(s) in commercial mode. They must not be in a commercial "
+                      "deliverable: re-run the fit in commercial mode (docs/milestone13.md §6).", ""]
+        for c in flagged:
+            flag = _credit_flag(c)
+            reason = POC_FLAG_REASONS.get(flag) or ("never usable in any mode (no-derivatives or an unknown licence)"
+                                                    if flag in ("no_derivatives", "unknown") else
+                                                    f"licence flag {flag}")
+            url = c.get("licence_url") or "licence page not recorded"
+            if flag == "tool_nc":             # the limit comes from the export tool, not the model's own licence
+                url = f"{CAT.TOOL_NC['licence_url']} (tool); model: {url}"
+            lines.append(f"{_credit_line(c)}; PoC only: {reason}; licence: {url}")
+    lines += ["", "## 4. Dataset notices", ""]
+    notices = _notices(sources)
+    if "hssd" in sources:
+        notices.append(HSSD_NOTICE)
+    if "polyhaven" in sources or any(c.get("source") == "polyhaven" for c in textures):
+        notices.append(POLYHAVEN_NOTICE)
+    if not notices:
+        lines.append("None: no dataset asset in these images.")
+    for text in notices:
         lines += [text, ""]
     return "\n".join(lines)
 
@@ -438,12 +704,18 @@ def _write_if_changed(path: Path, text: str) -> bool:
 
 
 def write_attributions(ref: ProjectRef) -> int:
-    """``ATTRIBUTION.md`` into every image folder of the project's results (module docstring); files written."""
+    """``ATTRIBUTION.md`` into every image folder of the project's results (module docstring); files written.
+    Milestone 13: the file carries the four sections in the project's licence mode and the run's model rows; a
+    Milestone 13 run (``project.licence_mode`` in the building) gets it even without a library model."""
     credits = project_credits(ref.out_dir)
-    if not credits:
+    building = read_building(ref.out_dir) or {}
+    m13_run = isinstance(building.get("project"), dict) and bool(building["project"].get("licence_mode"))
+    if not credits and not m13_run:
         return 0
+    credits = credits + texture_credits(ref.out_dir)
+    credits += [dict(m, kind="run_model") for m in run_model_rows(ref.out_dir)]
     areas = ("final",) if ref.private else IMAGE_AREAS
-    text = attribution_text(f"The images of project {ref.name}", credits)
+    text = attribution_text(f"The images of project {ref.name}", credits, mode=project_licence_mode(ref.out_dir))
     n = 0
     for area in areas:
         folder = ref.results_area(area)
@@ -478,12 +750,16 @@ def library_attribution(library_dir: Path, catalog: Optional[Path] = None) -> Op
     entries = [e for e in entries or [] if isinstance(e, dict)]
     if not entries:
         return None
-    credits = [{"credit": _credit(dict(e, asset_id=e.get("id"))), "pieces": [], "source": _source_of(e),
-                "licence_flag": e.get("licence_flag"), "removed": audit_removed(e)}
-               for e in sorted(entries, key=lambda e: str(e.get("id") or e.get("uid") or ""))]
+    credits = []
+    for e in sorted(entries, key=lambda e: str(e.get("id") or e.get("uid") or "")):
+        row = {"credit": _credit(dict(e, asset_id=e.get("id"))), "pieces": [], "source": _source_of(e),
+               "asset_id": str(e.get("id") or e.get("uid") or ""), "kind": "model", "removed": audit_removed(e)}
+        row.update(_licence_fields(e))        # Milestone 13: licence_flag, commercial_safe, licence_url
+        credits.append(row)
     target = library_dir / ATTRIBUTION
     library_dir.mkdir(parents=True, exist_ok=True)
-    _write_if_changed(target, attribution_text("The thumbnails and models of this library", credits))
+    # A catalogue lists everything it holds: relaxed mode, so the flagged entries go to section 3 with their reason.
+    _write_if_changed(target, attribution_text("The thumbnails and models of this library", credits, mode="relaxed"))
     return target
 
 

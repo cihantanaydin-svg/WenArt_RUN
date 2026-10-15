@@ -128,6 +128,16 @@ Milestone 12 (docs/milestone12.md §4.1, §4.6-§4.8, §6.4; track S):
   ``dress_<id>``, the bed's ``wenart_id`` and pass index; decor on the bed rests on it too).
 - ``summary["objects"]`` = ``{piece or decor id: object}`` (a dressed bed's bedding as ``<id>#dressing``): the
   scene checks S1-S6 of ``build.py`` (``scene_checks.run_scene_checks``) read them.
+
+Milestone 13 (docs/milestone13.md §3.0 K1, §12 D4, §13.2; track T2): the fallback ladder's middle step. A piece
+whose fit says ``asset.method == "module"`` is built by ``wenart.blender.modules.build_module`` from its
+``asset.module_plan`` (or the plan computed here from the piece when the fit stored none): a wardrobe run of real
+frames, a long table with its chairs, an L sofa of straight modules and a chaise, a kitchen run of base units, a
+vanity or shower set. Its manifest entry has ``method: "module"``, ``module`` (builder, products, modules, fit),
+the material slots of its parts and the bevel record; the object carries ``wenart_method = "module"`` and
+``wenart_module``; the summary counts it under ``by_method["module"]``. The last step, the parametric families v2
+of ``wenart.blender.parametric`` (``FAMILY_TYPES``), runs through the parametric path as before, so every piece
+built below the library level is either ``module`` or ``parametric`` and the report can list it.
 """
 from __future__ import annotations
 
@@ -137,6 +147,7 @@ from pathlib import Path
 from typing import Sequence
 
 from wenart import geometry as G
+from wenart.blender import modules as MOD
 from wenart.blender import parametric as P
 from wenart.blender import proxies
 from wenart.blender.proxies import COINCIDENT_LIFT, footprints_overlap, mount_bottom, proxy_height
@@ -152,7 +163,8 @@ MODEL_LICENCES = {"polyhaven": (CC0,), "abo": (CC_BY,), "objaverse": (CC0, CC_BY
 GENERATED_LICENCE_PREFIX = "GENERATED"
 # Milestone 8: sources whose other licences pass when the catalogue flagged them (recorded, not filtered).
 FLAGGED_SOURCES = ("objaverse",)
-LICENCE_FLAGS = ("non_commercial", "share_alike", "no_derivatives", "unknown")
+# Milestone 13 (§13.3): the catalogue's flag words (``wenart.furniture.catalog.LICENCE_FLAGS`` without ``none``).
+LICENCE_FLAGS = ("non_commercial", "share_alike", "no_derivatives", "research_only", "regional", "tool_nc", "unknown")
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
 OBJAVERSE_CACHE = "models/objaverse"          # <assets>/models/objaverse/<uid>.glb (written by the prep pod)
 WALL_ART_CEILING_M = 0.10                     # wall art top at least this far below the ceiling
@@ -965,7 +977,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
                               unverified_cache, geo_cache, style=style, building=building)
         manifest_objects.append(entry)
         entries[piece["id"]] = entry
-        method = "library" if entry["method"] == "library" else "parametric"
+        method = entry["method"] if entry["method"] in ("library", MOD.MODULE_METHOD) else "parametric"
         summary["by_method"][method] = summary["by_method"].get(method, 0) + 1
         if entry["fallback_reason"]:
             summary["fallbacks"].append({"id": piece["id"], "type": piece["type"], "reason": entry["fallback_reason"]})
@@ -1297,20 +1309,32 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
             reason = f"import of {file} failed: {type(exc).__name__}: {exc}"
             warnings.append(f"{piece['id']}: {reason}; parametric mesh used")
             ob = None
+    if ob is None and (piece.get("asset") or {}).get("method") == MOD.MODULE_METHOD:
+        # Milestone 13: the module builder (the fit's plan, else the plan of the piece as it is)
+        plan, plan_reason = module_plan_of(piece, style)
+        if plan is not None:
+            try:
+                ob = _module_object(piece, plan, name, status, floor_z, collection, mats, entry, overrides=overrides)
+            except Exception as exc:  # noqa: BLE001 - a plan the builder cannot build: the family, loudly
+                plan_reason = f"module build failed: {type(exc).__name__}: {exc}"
+                ob = None
+        if ob is None:
+            reason = f"{plan_reason}; parametric family used"
+            warnings.append(f"{piece['id']}: {reason}")
     if ob is None:
         ob = _parametric_object(piece, name, status, floor_z, height + lift, collection, mats, entry,
                                 overrides=overrides)
         entry["method"] = f"parametric (fallback: {reason})"
         entry["fallback_reason"] = reason
-        for detail in entry.pop("_details", []):
-            entry["assumed"][detail["field"]] = detail["value"]
-            assumed.append({"object": name, "field": detail["field"], "value": detail["value"],
-                            "reason": detail["reason"], "parent": piece["id"], "kind": detail["kind"]})
         if lift:
             entry["assumed"]["height_lift"] = lift
             assumed.append({"object": name, "field": "height_lift", "value": lift,
                             "reason": "footprint overlaps another piece of the same height; "
                                       "lifted so the top faces do not coincide"})
+    for detail in entry.pop("_details", []):           # the design details of a parametric or module piece
+        entry["assumed"][detail["field"]] = detail["value"]
+        assumed.append({"object": name, "field": detail["field"], "value": detail["value"],
+                        "reason": detail["reason"], "parent": piece["id"], "kind": detail["kind"]})
     if height_assumed:
         entry["assumed"]["height"] = height
         assumed.append({"object": name, "field": "height", "value": height,
@@ -1322,12 +1346,67 @@ def _create_piece(piece, level, floor_z, height, height_assumed, lift, collectio
     ob["wenart_type"] = piece["type"]
     ob["wenart_room"] = piece.get("room_id") or ""
     ob["wenart_source"] = piece.get("source") or "from_documents"
-    ob["wenart_asset"] = (piece.get("asset") or {}).get("asset_id") if entry["method"] == "library" else "parametric"
-    # Milestone 12 (scene checks S3, S6): the built front and how the piece was built
+    if entry["method"] == "library":
+        ob["wenart_asset"] = (piece.get("asset") or {}).get("asset_id")
+    elif entry["method"] == MOD.MODULE_METHOD:
+        # the fit's asset_id (``module:<type>:<builder>``; docs/milestone13.md §13.3: objects keep wenart_id <->
+        # asset_id), ``module:<builder>`` only for a plan computed here without one (reviewer fix 15 Oct 2026)
+        ob["wenart_asset"] = (piece.get("asset") or {}).get("asset_id") or f"module:{entry['module']['builder']}"
+    else:
+        ob["wenart_asset"] = "parametric"
+    # Milestone 12 (scene checks S3, S6): the built front and how the piece was built (Milestone 13: ``module``)
     ob["wenart_front_deg"] = float(G.front_direction_deg(rot))
-    ob["wenart_method"] = "library" if entry["method"] == "library" else "parametric"
+    ob["wenart_method"] = entry["method"] if entry["method"] in ("library", MOD.MODULE_METHOD) else "parametric"
     ob.pass_index = index
     return entry
+
+
+def module_plan_of(piece: dict, style: dict | None = None) -> tuple[dict | None, str]:
+    """``(plan, reason)`` for a piece the fit marked ``asset.method == "module"`` (pure, Milestone 13): the fit's
+    ``asset.module_plan`` when it is a plan of a known builder, else the plan of the piece as it is
+    (``modules.module_plan``); None and the reason when neither exists."""
+    asset = piece.get("asset") or {}
+    plan = asset.get("module_plan")
+    if isinstance(plan, dict) and plan.get("builder") in MOD._PART_BUILDERS and plan.get("modules"):
+        return plan, "the fit's module plan"
+    plan = MOD.module_plan(piece, style)
+    if plan is not None:
+        return plan, "module plan of the piece (the fit stored none)"
+    return None, (f"asset method 'module' but no module builder fits a {piece.get('type')} of "
+                  f"{piece['footprint']['size'][0]:.2f} x {piece['footprint']['size'][1]:.2f} m")
+
+
+def _module_object(piece, plan, name, status, floor_z, collection, mats, entry, overrides=None):
+    """The object of a module plan (Milestone 13): ``modules.build_module`` with the style materials of the parts'
+    keys (the piece's design overrides apply, as for a parametric piece), recorded on the entry like a parametric
+    piece plus ``module`` (``modules.module_record``) and a design detail of the modules used."""
+    unverified = status == "unverified"
+    parts = MOD.module_parts(plan)
+    keys = [p["key"] for p in parts]
+    used = sorted(set(keys), key=keys.index)
+    provider = MOD.ModuleMaterials(lambda k: _part_material(mats, k, unverified and k != "glass", overrides=overrides),
+                                   collection=collection, floor_z=floor_z, name=name, status=status,
+                                   slugs=lambda k: mats.slug(k, overrides))
+    ob = MOD.build_module(plan, piece, provider)
+    x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
+    slots = [provider.get(k) for k in used]
+    record = MOD.module_record(plan)
+    entry.update({"method": MOD.MODULE_METHOD, "fallback_reason": None,
+                  "bbox_m": [round(x1 - x0, 4), round(y1 - y0, 4), round(z1 - z0, 4)],
+                  "materials": [m.name for m in slots], "material": slots[0].name if slots else None,
+                  "textured": any(mats.library.textured(m) for m in slots),
+                  "material_keys": {k: mats.slug(k, overrides) for k in used},
+                  "bevel": json.loads(ob.get("wenart_bevel") or "null"), "module": record,
+                  "_details": [{"field": "modules", "kind": "modules",
+                                "value": f"{plan['builder']}: {record['modules']} module(s), "
+                                         f"{', '.join(record['products']) or 'no product names'}",
+                                "reason": "built from real product modules (docs/milestone13.md §12 D4): no audited "
+                                          "library model fits the drawn size; the drawn footprint is kept "
+                                          f"(fit {record['fit']})"}]})
+    if plan.get("split"):
+        entry["_details"].append({"field": "split", "kind": "split", "value": json.dumps(plan["split"]),
+                                  "reason": "the drawn footprint includes the chairs (CLAUDE.md): table + chairs"})
+    return ob
 
 
 RECOLOUR_DETAIL = 0.6                  # recoloured texture slots keep this share of their luminance detail

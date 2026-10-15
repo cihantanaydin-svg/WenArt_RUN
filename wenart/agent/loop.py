@@ -33,6 +33,26 @@ previews, run by the scheduler before the loop starts):
 
 ``final_round(k)`` is the one extra round after the final check: critical findings only, on the final renders.
 
+Milestone 13 (docs/milestone13.md §1.5, §3.0 K4, §13.2; track T4):
+
+- acceptance by finding removal: after the validator (``edit_ops.apply_edit`` or an override check) accepts an
+  edit, the loop re-runs the code critic on the changed building (``after_findings``, the dry re-check) and
+  ``accept_edit`` (``causes.accept_edit``, pure) accepts the edit only when the finding it targets
+  (``tools.target_findings``: the checklist step's finding ids, else the finding on the edit's target) is gone and no
+  new critical finding appeared; the old "score must not drop" rule stays as a second condition. A rejected edit is
+  logged with both finding lists (``evidence.acceptance``); the metric ``findings_removed`` (per round in the
+  ``round`` event, the total in the ``stop`` event and ``metrics.json``) replaces "edits accepted" as the success
+  number. Findings the dry re-check cannot measure (the scene checks of the build, the view checks, looks, vision)
+  count as gone on the targets the edit changed and are re-measured by the next round (the log says so);
+- tools by cause: ``tools_for_finding`` (``causes.tools_for_finding``) replaces the check-id mapping; a finding
+  without a tool for its cause is "not yours", the vision critic's findings included (they are dropped with the
+  reason in the log); building-wide tools (``causes.is_building_wide``: roof, site, sun, materials, geometry,
+  levels, terrain, exterior cameras) are offered to the building session only and refused from a room session;
+- ``MAX_ROUNDS`` = 3 (was 6 on the real04 pod, 4 in the code): real04 removed 20 findings in 6 rounds, 136 of the
+  161 round-1 findings were still there after round 6, and a round that removes no finding stops the loop anyway
+  (``no_edit``); three rounds bound the GPU time to what the measured removals justify (§1.5 T9: $0.133 per removed
+  finding).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -53,6 +73,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from wenart.agent import brief as BR
+from wenart.agent import causes as CS
 from wenart.agent import critic_code as CC
 from wenart.agent import critic_vision as CV
 from wenart.agent import log as LG
@@ -60,10 +81,13 @@ from wenart.agent import memory as MEM
 from wenart.agent import overrides as OV
 from wenart.agent import prompts as P
 from wenart.agent import tools as TL
+from wenart.agent.causes import accept_edit, cause_of, findings_removed, tools_for_finding  # noqa: F401 (§13.2)
 from wenart.agent.model import MAX_IMAGES, ModelError, user_message
 
 STAGE_ORDER = ("pipeline_final", "layout", "refit", "build", "polish")
-MAX_ROUNDS = 4
+# Milestone 13: 3 rounds (module docstring): real04 removed 20 findings in 6 rounds and 84.5 % of the round-1
+# findings were still there at the end; acceptance by finding removal makes a round without a removal the last one.
+MAX_ROUNDS = 3
 MAX_CALLS_PER_ROOM = 12         # tool calls of one room session (reads included; dry_run counted, it is cheap)
 MAX_TRIES = 3
 WORKERS = 4                     # parallel room sessions (G1: 167 tokens/s at 4 streams vs 46 at 1)
@@ -145,17 +169,42 @@ def prune_images(messages: list, keep: int = MAX_IMAGES) -> None:
 def offered_tools(registry, brief: dict) -> list[str]:
     """The tools offered to one room session (``tools.PLANNER_TOOLS`` cut to what the session can use): the reads,
     the room edits (or the building edits for the building session), the tools its fixable findings name, the
-    control tools; only those of ``registry``. Also the bake-off's T5 (``bakeoff``)."""
+    control tools; only those of ``registry``. Also the bake-off's T5 (``bakeoff``). Milestone 13: a room session
+    never gets a building-wide tool (``causes.BUILDING_WIDE_TOOLS``), whatever its findings name."""
     named = {t for f in (brief.get("findings") or {}).get("fixable") or [] for t in f.get("tools") or []}
     if brief["room"]["id"] == BUILDING:
         pool = TL.PLANNER_READS + TL.PLANNER_BUILDING + tuple(sorted(named)) + TL.PLANNER_CONTROL
     else:
         extra = tuple(t for t in sorted(named) if t not in TL.PLANNER_ROOM_EDITS)
         pool = TL.PLANNER_READS + TL.PLANNER_ROOM_EDITS + extra + TL.PLANNER_CONTROL
+        pool = tuple(t for t in pool if t not in CS.BUILDING_WIDE_TOOLS)
     out: list[str] = []
     for t in pool:
         if t in registry.tools and t not in out:
             out.append(t)
+    return out
+
+
+# Checks the dry re-check cannot measure on the changed building: the scene checks of the build (S1-S6), the view
+# checks of the render manifest (V1-V3, X6, L7), the looks (R4, R5, X8). On a target the edit changed they count as
+# gone (the validator passed) and the next round's critics re-measure them; elsewhere they stay as they are.
+NOT_REMEASURED = frozenset({"S1", "S2", "S3", "S4", "S5", "S6", "V1", "V2", "V3", "X6", "L7", "R4", "R5", "X8"})
+
+
+def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None
+                   ) -> list[dict]:
+    """The finding list after an edit for ``accept_edit`` (module docstring): the code critic's findings on the
+    changed building (``code_after``) without the ``NOT_REMEASURED`` ones on a changed target, plus the vision
+    findings of ``before`` whose target the edit did not change (a vision finding on a changed target is re-judged
+    after the re-render). Every finding gets its ``cause``."""
+    out = []
+    for f in code_after:
+        if f.get("check") in NOT_REMEASURED and f.get("target") in changed:
+            continue
+        out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
+    for f in before:
+        if f.get("source") == "vision" and f.get("target") not in changed:
+            out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     return out
 
 
@@ -271,8 +320,14 @@ class AgentLoop:
                  workers: int = WORKERS, round_cap_s: float = ROUND_CAP_S, calls_per_room: int = MAX_CALLS_PER_ROOM,
                  plan_first: bool = True, brief_fns: Optional[dict] = None, level_edit: Optional[Callable] = None,
                  level_checks: Optional[Callable] = None, sync: Optional[Callable] = None,
-                 groups_fn: Optional[Callable] = None, scene_dir=None):
+                 groups_fn: Optional[Callable] = None, scene_dir=None, recheck: Optional[Callable] = None,
+                 acceptance: bool = True):
         self.project_out = Path(project_out)
+        # Milestone 13: ``recheck(building, scene, render_manifest) -> [findings]`` is the dry re-check after an
+        # edit (default: the code critic on the changed building); ``acceptance`` False keeps the M12 rule (replay).
+        self.recheck = recheck
+        self.use_acceptance = bool(acceptance)
+        self.findings_removed = 0
         self.model = model
         self.rerun = rerun
         self.clock = clock
@@ -333,7 +388,69 @@ class AgentLoop:
                                    validators=self.validators, plausibility=self.plausibility,
                                    catalog_loader=self.catalog_loader, max_tries=self.max_tries, memory=self.memory,
                                    level_edit=self.level_edit, level_checks=self.level_checks, sync=self.sync,
-                                   brief_fns=self.brief_fns)
+                                   brief_fns=self.brief_fns, acceptance=self.acceptance if self.use_acceptance else None)
+
+    # ----- acceptance (Milestone 13) ------------------------------------------------------------------
+
+    def code_findings(self, building: dict, ctx: TL.ToolContext, manifest: Optional[dict]) -> list[dict]:
+        """The code critic's findings of ``building`` (the dry re-check: ``recheck`` when injected, else the code
+        critic of the round, else ``critic_code.run`` with the same functions as ``run_code_critic``)."""
+        if self.recheck is not None:
+            got = self.recheck(building, ctx.scene, manifest)
+        elif self.code_critic is not None:
+            got = self.code_critic(building, ctx.scene, manifest)
+        else:
+            got = CC.run(building, ctx.scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
+                         **self.critic_kwargs())
+        if isinstance(got, dict):
+            got = got.get("findings") or []
+        return [dict(f) for f in got or []]
+
+    def critic_kwargs(self) -> dict:
+        kwargs = {}
+        if self.plausibility is not None:
+            kwargs["plausibility_fn"] = self.plausibility.score_building
+        if self.validators is not None:
+            kwargs["exterior_fn"] = self.validators.check_exterior
+            kwargs["views_fn"] = self.validators.check_views
+        if self.groups_fn is not None:
+            kwargs["groups_fn"] = self.groups_fn
+        if self.level_checks is not None:
+            kwargs["levels_fn"] = self.level_checks
+        return kwargs
+
+    def acceptance(self, ctx: TL.ToolContext, tool: str, args: dict, result: dict, building_after: dict) -> dict:
+        """The acceptance of one validated edit (module docstring): the findings it targets
+        (``tools.target_findings``), the dry re-check on ``building_after`` (``after_findings``) and
+        ``accept_edit``. Returns ``{"accepted", "reason", "target", "target_findings", "before", "after", "removed",
+        "after_findings"}``; the tools apply the verdict and the loop logs it."""
+        targets = TL.target_findings(ctx, tool, args)
+        changed = TL.changed_targets(tool, args, result, targets)
+        before = list(ctx.findings)
+        code_after = self.code_findings(building_after, ctx, self.render_manifest(ctx.preview_dir))
+        after = after_findings(code_after, before, changed, building_after)
+        edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target")} for f in targets],
+                "penalty_before": result.get("penalty_before"), "penalty_after": result.get("penalty_after"),
+                "score_before": result.get("score_before"), "score_after": result.get("score_after")}
+        ok, reason = accept_edit(before, after, edit)
+        room = TL.edit_room(ctx, args)
+        scope = set(changed) | {f.get("target") for f in targets}
+
+        def mine(f: dict) -> bool:
+            return f.get("room_id") == room or f.get("target") in scope or (room == BUILDING and not f.get("room_id"))
+
+        carried = sorted({f"{f['check']}:{f.get('target')}" for f in after
+                          if f.get("target") in changed and (f.get("source") == "vision"
+                                                             or f.get("check") in NOT_REMEASURED)})
+        note = None
+        if ok and any(f.get("target") in changed and (f.get("source") == "vision" or f.get("check") in NOT_REMEASURED)
+                      for f in before):
+            note = "findings the dry re-check cannot measure on the changed target (scene, view, look or vision) " \
+                   "count as gone and are re-measured by the next round"
+        return {"accepted": ok, "reason": reason, "target": [f"{f.get('check')}:{f.get('target')}" for f in targets],
+                "target_findings": targets, "before": CS.key_list([f for f in before if mine(f)]),
+                "after": CS.key_list([f for f in after if mine(f)]), "removed": findings_removed(before, after),
+                "after_findings": after, "note": note, "carried": carried}
 
     def rendered_building(self, ctx: TL.ToolContext) -> dict:
         """What the renders show: ``building_final.json`` (after refit), else the working building."""
@@ -349,18 +466,8 @@ class AgentLoop:
         manifest = self.render_manifest(preview_dir)
         if self.code_critic is not None:
             return self.code_critic(building, ctx.scene, manifest)
-        kwargs = {}
-        if self.plausibility is not None:
-            kwargs["plausibility_fn"] = self.plausibility.score_building
-        if self.validators is not None:
-            kwargs["exterior_fn"] = self.validators.check_exterior
-            kwargs["views_fn"] = self.validators.check_views
-        if self.groups_fn is not None:
-            kwargs["groups_fn"] = self.groups_fn
-        if self.level_checks is not None:
-            kwargs["levels_fn"] = self.level_checks
         return CC.run(building, ctx.scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
-                      **kwargs)
+                      **self.critic_kwargs())
 
     def critique_keys(self, ctx: TL.ToolContext, building: dict) -> list[tuple[str, str]]:
         """``[(kind, id)]`` (M12: only where an image adds something): rooms with at least one preview of their own
@@ -453,10 +560,19 @@ class AgentLoop:
     def log_edit(self, round_no: int, call_id: str, tool: str, args: Optional[dict], result: dict,
                  label: Optional[str], findings: list[dict], room_id: Optional[str] = None) -> None:
         target = TL._target(tool, args or {})
-        match = next((f for f in findings if f.get("target") == target), None) or next(
+        verdict = result.get("acceptance") if isinstance(result.get("acceptance"), dict) else None
+        targeted = list((verdict or {}).get("target_findings") or [])
+        match = (targeted[0] if targeted else None) or next(
+            (f for f in findings if f.get("target") == target), None) or next(
             (f for f in findings if f.get("room_id") and f.get("room_id") == (args or {}).get("room_id")), None)
         accepted = bool(result.get("accepted"))
         failed = list(result.get("failed_checks") or ([] if accepted else [str(result.get("error") or "rejected")]))
+        evidence = None
+        if verdict is not None:
+            # Milestone 13: both finding lists (the room's critical / major keys before and after the dry re-check)
+            evidence = {"acceptance": {k: verdict.get(k) for k in ("accepted", "reason", "target", "before", "after",
+                                                                   "removed", "note", "carried")
+                                       if verdict.get(k) is not None}}
         self.log.event("edit" if accepted else "rejected_edit", round_no, model=self.log.model or "unknown",
                        revision=self.log.revision, call_id=call_id, tool=tool, args=dict(args or {}),
                        target=target, checklist=match["check"] if match else None,
@@ -467,7 +583,7 @@ class AgentLoop:
                        label=label, reason=str((args or {}).get("reason") or "no reason given"),
                        before=result.get("before_image"), after=result.get("after_image"),
                        rerun_from=result.get("rerun_from"), overrides_id=result.get("overrides_id"),
-                       note=result.get("message") or None, room_id=room_id)
+                       note=result.get("message") or None, room_id=room_id, evidence=evidence)
 
     # ----- sessions: which rooms, in which order ------------------------------------------------------
 
@@ -590,6 +706,7 @@ class AgentLoop:
         self.memory.visit(room_id, round_no)
         offered = self.session_tools(brief)
         checklist, problems, plan_ok = self.make_plan(ctx, round_no, brief, offered, critical_only, tag)
+        state.checklist = list(checklist)          # Milestone 13: the steps name the findings an edit targets
         findings = item["fixable"] + [f for f in ctx.findings if f.get("room_id") == room_id]
         messages = [{"role": "system", "content": P.PLANNER_SYSTEM_M12},
                     {"role": "user", "content": P.session_task(round_no, brief, checklist, problems,
@@ -670,8 +787,21 @@ class AgentLoop:
         preview_dir = TL.FINAL_RENDER_DIR if final else self.preview_dir
         ctx = self.context(round_no, preview_dir)
         code = self.run_code_critic(ctx, preview_dir)
+        rendered = self.rendered_building(ctx)
+        for f in code.get("findings") or []:
+            f["cause"] = CS.cause_of(f, rendered)
         ctx.violations = list(code.get("findings") or [])
         vision = self.run_vision_critic(ctx, code, round_no)
+        # Milestone 13: the vision critic's findings are work only where a tool exists for the cause
+        kept = []
+        for f in list(vision.get("kept") or []):
+            f["cause"] = CS.cause_of(f, rendered)
+            if CS.tools_for_finding(f):
+                kept.append(f)
+            else:
+                vision.setdefault("dropped", []).append(dict(f, dropped=f"no agent tool for the cause "
+                                                                         f"{f['cause']}: {CS.no_tool_reason(f)}"))
+        vision["kept"] = kept
         self.log_findings(round_no, code, vision)
         found = list(code.get("findings") or []) + list(vision.get("kept") or [])
         ctx.findings = found
@@ -686,7 +816,7 @@ class AgentLoop:
                                            if c.get("target") in {r.get("id") for r in ctx.building.get("rooms")
                                                                    or []}}),
                    "rooms_planner": [], "rooms_fixable": [], "unfixable_open": 0, "sessions": 0, "plans_ok": 0,
-                   "refused_repeats": 0, "dry_runs": 0}
+                   "refused_repeats": 0, "dry_runs": 0, "findings_removed": 0}
         self.rounds.append(summary)
         if not open_:
             summary["stop"] = "no_finding"
@@ -697,9 +827,13 @@ class AgentLoop:
             summary["stop"] = "no_fixable"
             return self._end_round(summary, t0)
         plan = self.plan(ctx, round_no, sessions, critical_only)
+        removed = sum(int(((a.get("result") or {}).get("acceptance") or {}).get("removed") or 0)
+                      for a in ctx.accepted)
+        self.findings_removed += removed
         summary.update(calls=plan["calls"], schema_errors=plan["schema_errors"], accepted=len(ctx.accepted),
                        rejected=len(ctx.rejected), rooms_planner=plan["rooms"], sessions=plan["sessions"],
-                       plans_ok=plan["plans_ok"], refused_repeats=ctx.refused_repeats, dry_runs=ctx.dry_runs)
+                       plans_ok=plan["plans_ok"], refused_repeats=ctx.refused_repeats, dry_runs=ctx.dry_runs,
+                       findings_removed=removed)
         if plan["error"] and not ctx.accepted:
             summary["stop"] = "model_error"
             return self._end_round(summary, t0)
@@ -753,12 +887,13 @@ class AgentLoop:
         self.log.event("round", summary["round"], status=summary["stop"] or "done", seconds=summary["seconds"],
                        counts={k: summary[k] for k in ("accepted", "rejected", "calls", "schema_errors", "dropped",
                                                        "rooms_code", "sessions", "plans_ok", "refused_repeats",
-                                                       "dry_runs", "unfixable_open")},
+                                                       "dry_runs", "unfixable_open", "findings_removed")},
                        evidence={"findings": summary["findings"], "rooms_vision": summary["rooms_vision"],
                                  "rooms_planner": summary["rooms_planner"],
                                  "rooms_fixable": summary["rooms_fixable"], "final": summary["final"]})
         self.save()
-        self.out(f"agent round {summary['round']}: findings {summary['findings']}, accepted {summary['accepted']}, "
+        self.out(f"agent round {summary['round']}: findings {summary['findings']}, findings removed "
+                 f"{summary['findings_removed']}, accepted {summary['accepted']}, "
                  f"rejected {summary['rejected']}, rooms {len(summary['rooms_planner'])}/"
                  f"{len(summary['rooms_fixable'])} fixable, re-run {summary['rerun_from'] or '-'} "
                  f"({len(summary['views'])} views)" + (f", stop: {STOPS[summary['stop']]}" if summary["stop"] else ""))
@@ -792,7 +927,10 @@ class AgentLoop:
             stop = "max_rounds"
         self.stop = {"round": last, "reason": stop}
         self.log.event("stop", last, reason=STOPS[stop], status=stop,
-                       note=f"{sum(r['accepted'] for r in self.rounds)} edits accepted in {len(self.rounds)} rounds")
+                       note=f"{self.findings_removed} findings removed by "
+                            f"{sum(r['accepted'] for r in self.rounds)} accepted edits in {len(self.rounds)} rounds",
+                       counts={"findings_removed": self.findings_removed,
+                               "accepted": sum(r["accepted"] for r in self.rounds)})
         self.save()
         return self.summary()
 
@@ -811,4 +949,6 @@ class AgentLoop:
     def summary(self) -> dict:
         return {"rounds": list(self.rounds), "stop": self.stop,
                 "accepted": sum(r["accepted"] for r in self.rounds),
-                "rejected": sum(r["rejected"] for r in self.rounds), "log": str(self.log.dir / LG.LOG_JSON)}
+                "rejected": sum(r["rejected"] for r in self.rounds),
+                "findings_removed": sum(int(r.get("findings_removed") or 0) for r in self.rounds),
+                "log": str(self.log.dir / LG.LOG_JSON)}

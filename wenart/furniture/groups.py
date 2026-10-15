@@ -20,6 +20,20 @@ Milestone 12 (contract, frozen 10 Oct 2026):
 Why: the five hard-coded Milestone 11 templates were used by no stage (§1.2); the layout, the completion, the checks
 and the agent's tools now share one description of what belongs together.
 
+Milestone 13 (docs/milestone13.md §13.2, track T3; user decision D5 of 12 Oct 2026):
+
+- ``drawn_groups(building, room_id) -> [{"anchor_id", "members": [ids], "centre": [x, y], "template", ...}]``: the
+  groups the *drawn* pieces form, built or not (a table with its chairs, a sofa with its armchairs and coffee table,
+  a bed with its nightstands, a desk with its chair, a wardrobe alone), from their positions and types. The solver
+  re-solves such a group as one unit around the drawn anchor's centre when the anchor is missing, misread or fails
+  the checks; every member moves at most ``GROUP_MEMBER_MOVE_MAX_M`` (0.5 m) from its drawn centre.
+- ``groups.yaml`` carries, as data with a named source: the designer terms R3, R6, R12-R14 (rules
+  ``conversation_circle``, ``rug_*``, ``floating``, ``alignment``; weights ``conversation``, ``rug``, ``anchored``,
+  ``alignment``; ``small_rooms``), the tiered minimums (``tiers``: a rule's minimum per room class, ``hard: false``
+  makes it a scored term; ``rule_for``), the room-type aliases (``room_aliases``; ``program.room_kind``), the
+  block-name words of ``infer.type_by_code`` (``block_words``) and the rug as a group member (partner type ``rug``, a
+  decor type: ``DECOR_MEMBER_TYPES``; places ``under`` and ``beside``).
+
 Milestone 11 (kept): dining set, bed set, living set, desk set, kitchen run. ``place_group`` places a whole group as
 one unit (anchor piece + members with their relative offsets and facing) and checks it with the placer.
 
@@ -68,6 +82,12 @@ DESK_CHAIR_GAP_M = 0.25         # desk front to the office chair's centre line, 
 NIGHTSTAND_GAP_M = 0.02
 TV_REACH_M = 5.0                # the TV unit stands on the wall the sofa faces within this distance
 EVIDENCE_FILE = "building.json"
+# Milestone 13 (§13.2, D5): a member of a drawn group re-solved as one unit moves at most this far from its drawn
+# centre (CLAUDE.md furniture rules; the same bound as a fixed-equipment fix).
+GROUP_MEMBER_MOVE_MAX_M = 0.5
+# Milestone 13: group members that are decor, not furniture (laid on the floor, never an obstacle; the size table
+# knows their sizes, ``sizes.real_range``).
+DECOR_MEMBER_TYPES: tuple[str, ...] = ("rug",)
 
 
 @dataclasses.dataclass
@@ -105,12 +125,16 @@ def _anchor_sizes(atype: str, anchor: Optional[dict]) -> list[tuple[float, float
     return [options[schemas.DEFAULT_SIZE_INDEX]] + [o for o in reversed(options[:schemas.DEFAULT_SIZE_INDEX])]
 
 
-def dining_members(size: tuple[float, float]) -> list[Member]:
-    """Chairs around a table ``size`` = (length, width): ``CHAIRS_BY_TABLE_LENGTH`` chairs, as many per long side as
-    fit at ``CHAIR_PITCH_M``, the rest at the ends; every chair faces the table."""
+def dining_members(size: tuple[float, float], count: Optional[int] = None) -> list[Member]:
+    """Chairs around a table ``size`` = (length, width): ``CHAIRS_BY_TABLE_LENGTH`` chairs (or ``count``, Milestone
+    13: the drawn chairs of a re-solved group, capped at what fits), as many per long side as fit at
+    ``CHAIR_PITCH_M``, the rest at the ends; every chair faces the table."""
     w, d = size
-    count = schemas.count_by_length(max(w, d), schemas.CHAIRS_BY_TABLE_LENGTH)
-    per_side = max(1, min(count // 2, int((w + 0.05) // CHAIR_PITCH_M)))
+    if count is None:
+        count = schemas.count_by_length(max(w, d), schemas.CHAIRS_BY_TABLE_LENGTH)
+    fit_side = max(1, int((w + 0.05) // CHAIR_PITCH_M))
+    count = max(1, min(int(count), 2 * fit_side + 2))
+    per_side = max(1, min(count // 2, fit_side))
     ends = max(0, min(2, count - 2 * per_side))
     off = d / 2.0 + CHAIR_SIZE[1] / 2.0 + CHAIR_GAP_M
     out = []
@@ -421,7 +445,9 @@ def _finish(room: dict, group: str, a: placer.Piece, members: list[placer.Piece]
 GROUPS_YAML = Path(__file__).with_name("groups.yaml")
 LAYOUTS = ("anchored", "set", "run")
 ANCHOR_PLACES = ("wall", "free")
-PARTNER_PLACES = ("facing_wall", "front", "flank", "beside_head", "foot", "around", "chair", "stools", "pair")
+# Milestone 13: ``under`` (a rug under the coffee table) and ``beside`` (a runner beside the bed) for decor members.
+PARTNER_PLACES = ("facing_wall", "front", "flank", "beside_head", "foot", "around", "chair", "stools", "pair",
+                  "under", "beside")
 ALIGNS = ("centre", "corner", "any")
 ZONE_KINDS = ("living", "dining", "sleeping", "work", "kitchen", "bath", "hall", "balcony")
 RUN_SHAPES = ("I", "L", "galley", "U")
@@ -454,6 +480,20 @@ _GROUP = {
         "run": {"type": "object", "required": ["depth", "max_leg", "step", "order", "modules"]},
     },
 }
+_SOURCED = {"type": "object", "required": ["source"],
+            "properties": {"source": {"type": "array", "items": {"type": "string"}}, "flagged": {"type": "boolean"},
+                           "what": {"type": "string"}}}
+_TIER = {"type": "object", "required": ["rules", "source"],
+         "properties": {"room_types": {"type": "array", "items": {"type": "string"}}, "max_area": _NUM,
+                        "drawn_run": {"type": "boolean"},
+                        "rules": {"type": "object", "additionalProperties": {
+                            "type": "object", "additionalProperties": False,
+                            "properties": {"min": _NUM, "rec": _NUM, "hard": {"type": "boolean"}}}},
+                        "source": {"type": "array", "items": {"type": "string"}}, "flagged": {"type": "boolean"},
+                        "what": {"type": "string"}}}
+_ALIAS = {"type": "object", "required": ["words", "source"],
+          "properties": {"words": {"type": "array", "items": {"type": "string"}, "minItems": 1}, "min_area": _NUM,
+                         "source": {"type": "array", "items": {"type": "string"}}, "what": {"type": "string"}}}
 CONFIG_SCHEMA = {
     "type": "object", "additionalProperties": False,
     "required": ["version", "sources", "rules", "weights", "use_zones", "groups"],
@@ -467,6 +507,20 @@ CONFIG_SCHEMA = {
         "weights": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
         "use_zones": {"type": "object", "additionalProperties": {"type": "object"}},
         "groups": {"type": "object", "minProperties": 1, "additionalProperties": _GROUP},
+        # Milestone 13 (T3): the designer, tier, alias and block-word blocks (all optional).
+        "small_rooms": {"type": "object", "additionalProperties": dict(
+            _SOURCED, required=["max_area", "source"], properties=dict(
+                _SOURCED["properties"], max_area=_NUM, options={"type": "array", "items": {"type": "string"}},
+                sides_needed={"type": "integer", "minimum": 1}))},
+        "tiers": {"type": "object", "additionalProperties": _TIER},
+        "room_aliases": {"type": "object", "properties": {
+            "content": {"type": "object", "additionalProperties": {"type": "string"}},
+            "stair_cover": {"type": "number", "minimum": 0, "maximum": 1},
+            # Review fix (15 Oct 2026): words that name any room ("oda") yield to a specific word of another kind.
+            "generic": {"type": "array", "items": {"type": "string"}}},
+            "additionalProperties": _ALIAS},
+        "block_words": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"},
+                                                                   "minItems": 1}},
     },
 }
 
@@ -494,13 +548,43 @@ def validate_config(data: dict) -> list[str]:
         for key, value in spec.items():
             if isinstance(value, str) and value not in rules:
                 problems.append(f"use_zones/{ftype}/{key}: unknown rule {value!r}")
+    # Milestone 13 blocks: every source named exists, every tier rule is a rule, every alias kind and block-word
+    # type is known.
+    for block in ("small_rooms", "tiers"):
+        for name, spec in (data.get(block) or {}).items():
+            problems += [f"{block}/{name}: unknown source {s!r}" for s in spec.get("source", []) if s not in data["sources"]]
+            if block == "tiers":
+                problems += [f"tiers/{name}: unknown rule {r!r}" for r in spec.get("rules", {}) if r not in rules]
+            elif name not in ("living", "bedroom", "kitchen", "dining", "bathroom", "wc", "hall", "other", "balcony"):
+                problems.append(f"small_rooms/{name}: not a room type the templates know")
+    aliases = data.get("room_aliases") or {}
+    for kind, spec in aliases.items():
+        if kind in ("content", "stair_cover", "generic"):
+            if kind == "content":
+                problems += [f"room_aliases/content/{t}: {t!r} is not a furniture type" for t in spec if t not in types]
+            elif kind == "generic":
+                known = {w for s in aliases.values() if isinstance(s, dict) for w in s.get("words") or []}
+                problems += [f"room_aliases/generic: {w!r} is no alias word" for w in spec if w not in known]
+            continue
+        if kind not in schemas.ALLOWED_TYPES:
+            problems.append(f"room_aliases/{kind}: not a room type the templates know")
+        problems += [f"room_aliases/{kind}: unknown source {s!r}" for s in spec.get("source", []) if s not in data["sources"]]
+    for ftype in data.get("block_words") or {}:
+        if ftype not in types:
+            problems.append(f"block_words/{ftype}: not a furniture type")
     for gname, g in data["groups"].items():
         where = f"groups/{gname}"
         pieces = list(g.get("partners") or []) + list(g.get("members") or [])
         anchor_types = (g.get("anchor") or {}).get("types", [])
         for t in anchor_types + [p["type"] for p in pieces] + [p["alt_type"] for p in pieces if p.get("alt_type")]:
-            if t not in types:
+            if t not in types and t not in DECOR_MEMBER_TYPES:
                 problems.append(f"{where}: {t!r} is not a furniture type")
+        for p in pieces:
+            if p["type"] in DECOR_MEMBER_TYPES and p.get("place") not in ("under", "beside"):
+                problems.append(f"{where}/{p['role']}: a decor member is placed under or beside, not {p.get('place')!r}")
+            if p.get("place") in ("under", "beside") and p["type"] not in DECOR_MEMBER_TYPES:
+                problems.append(f"{where}/{p['role']}: only a decor member ({', '.join(DECOR_MEMBER_TYPES)}) is "
+                                f"placed {p['place']}")
         for row in (g.get("anchor") or {}).get("sizes", []):
             problems += [f"{where}/anchor/sizes: {k!r} is not an anchor type" for k in row
                          if k != "max_area" and k not in anchor_types]
@@ -582,19 +666,100 @@ def weights() -> dict:
     return dict(config()["weights"])
 
 
-def use_zone(ftype: str) -> dict:
+# --------------------------------------------------------------------------
+# Milestone 13 (T3): tiered minimums, room-size variants, aliases, block words
+# --------------------------------------------------------------------------
+
+def tiers_for(room_type: Optional[str] = None, area: Optional[float] = None, drawn_run: bool = False) -> list[str]:
+    """The names of the ``tiers`` of ``groups.yaml`` that apply to a room: by its type and area (``small_kitchen``)
+    or by the ``drawn_run`` flag (the kitchen run is drawn)."""
+    out = []
+    for name, spec in (config().get("tiers") or {}).items():
+        if spec.get("drawn_run") and not drawn_run:
+            continue
+        types = spec.get("room_types")
+        if types and room_type not in types:
+            continue
+        if spec.get("max_area") is not None and (area is None or float(area) >= float(spec["max_area"]) - 1e-9):
+            continue
+        out.append(name)
+    return out
+
+
+def rule_for(name: str, *, room_type: Optional[str] = None, area: Optional[float] = None,
+             drawn_run: bool = False) -> dict:
+    """A rule's numbers for one room class: ``{"min", "rec", "max", "hard", "tier"}``. ``hard`` is False when a tier
+    of ``groups.yaml`` turns the minimum into a scored term (``tiers_for``); ``tier`` names it. Without a tier the
+    rule's own ``min`` / ``rec`` and ``hard: True``."""
+    r = rule(name)
+    out = {"min": float(r.get("min", r.get("rec", 0.0))), "rec": float(r.get("rec", r.get("min", 0.0))),
+           "max": r.get("max"), "hard": True, "tier": None}
+    for tier in tiers_for(room_type, area, drawn_run):
+        spec = (config()["tiers"][tier].get("rules") or {}).get(name)
+        if not spec:
+            continue
+        if "min" in spec:
+            out["min"] = float(spec["min"])
+        if "rec" in spec:
+            out["rec"] = float(spec["rec"])
+        if spec.get("hard") is False:
+            out["hard"] = False
+        out["tier"] = tier
+    return out
+
+
+def small_room(kind: Optional[str], area: Optional[float]) -> Optional[dict]:
+    """The ``small_rooms`` row (R14) of a room kind when its area is below the row's ``max_area``, else None."""
+    spec = (config().get("small_rooms") or {}).get(kind or "")
+    if not spec or area is None or float(area) >= float(spec["max_area"]) - 1e-9:
+        return None
+    return dict(spec)
+
+
+def room_aliases() -> dict:
+    """The ``room_aliases`` block (kind -> {words, min_area, ...}; ``content``: anchor type -> kind)."""
+    return dict(config().get("room_aliases") or {})
+
+
+def block_words() -> dict:
+    """The ``block_words`` block (type -> words of a block name that name it)."""
+    return dict(config().get("block_words") or {})
+
+
+def use_zone(ftype: str, overrides: Optional[dict] = None) -> dict:
     """The use zone of a type with rule names resolved: ``{"front": m, "front_rec": m, "sides": m, "foot": m,
-    "head_skip": m, "sides_needed": n, "side_half": m, "chairs": m, "back": m}`` (only the keys the type has)."""
+    "head_skip": m, "sides_needed": n, "side_half": m, "chairs": m, "back": m}`` (only the keys the type has).
+    ``overrides`` (Milestone 13, ``tier_overrides``): ``{rule name: {"min", "rec"}}`` of the room's tiers."""
     spec = config()["use_zones"].get(ftype) or {}
     out: dict = {}
     for key, value in spec.items():
         if key in ("head_skip", "sides_needed"):
             out[key] = value
         else:
-            out[key] = rule_min(value)
-            out[key + "_rec"] = rule_rec(value)
+            over = (overrides or {}).get(value) if isinstance(value, str) else None
+            out[key] = float(over["min"]) if over and "min" in over else rule_min(value)
+            out[key + "_rec"] = float(over["rec"]) if over and "rec" in over else rule_rec(value)
             if isinstance(value, str):
                 out[key + "_rule"] = value
+    return out
+
+
+def tier_overrides(room_type: Optional[str] = None, area: Optional[float] = None, drawn_run: bool = False) -> dict:
+    """Milestone 13: ``{rule name: {"min", "rec"}}`` for a room class: the tiers' own minimums, and for a rule a
+    tier turns soft (``hard: false``) the tier's walkway minimum as the hard floor (``rule_for("walkway")``) with
+    the rule's minimum as the recommended (scored) value. Empty when no tier applies."""
+    out: dict = {}
+    names = tiers_for(room_type, area, drawn_run)
+    if not names:
+        return out
+    floor = rule_for("walkway", room_type=room_type, area=area, drawn_run=drawn_run)["min"]
+    for tier in names:
+        for name, spec in (config()["tiers"][tier].get("rules") or {}).items():
+            r = rule_for(name, room_type=room_type, area=area, drawn_run=drawn_run)
+            entry = {"min": r["min"], "rec": r["rec"]}
+            if not r["hard"]:
+                entry = {"min": min(floor, r["min"]), "rec": r["min"]}
+            out[name] = entry
     return out
 
 
@@ -673,9 +838,19 @@ def _built_floor(building: dict, room_id: str) -> list[dict]:
             and f.get("footprint")]
 
 
-def _expected_missing(group: str, anchor: Optional[dict], members: list[dict], room: dict) -> list[str]:
-    """Partner types the group expects and lacks (see the module docstring)."""
-    allowed = set(schemas.allowed_types(room.get("room_type"), room.get("room_subtype")))
+def _expected_missing(group: str, anchor: Optional[dict], members: list[dict], room: dict,
+                      building: Optional[dict] = None) -> list[str]:
+    """Partner types the group expects and lacks (see the module docstring). ``building`` (Milestone 13): the
+    room's aliased kinds decide what it may hold (``program.room_kinds``: a sofa in an ``other`` play room still
+    misses its TV unit and coffee table)."""
+    kinds = [room.get("room_type")]
+    if building is not None:
+        from wenart.furniture import program as PR     # lazy: program imports this module
+
+        kinds = PR.room_kinds(building, room)
+    allowed: set = set()
+    for kind in kinds:
+        allowed |= set(schemas.allowed_types(kind, room.get("room_subtype")))
     have = [m["type"] for m in members]
     out: list[str] = []
     if group == "seating":
@@ -744,7 +919,7 @@ def match_groups(building: dict, room_id: str) -> list[dict]:
         rest = [f for f in members if f is not anchor]
         out.append({"group_id": gid(group), "group": group, "anchor_id": anchor["id"],
                     "member_ids": [f["id"] for f in rest], "roles": {f["id"]: "member" for f in rest},
-                    "missing": _expected_missing(group, anchor, rest, room)})
+                    "missing": _expected_missing(group, anchor, rest, room, building)})
         used |= {f["id"] for f in members}
     # Anchored groups: every anchor-type piece opens one.
     anchors = []
@@ -785,7 +960,7 @@ def match_groups(building: dict, room_id: str) -> list[dict]:
             used.add(f["id"])
     for _group, a in anchors:
         g = groups[a["id"]]
-        g["missing"] = _expected_missing(g["group"], a, [by_id[m] for m in g["member_ids"]], room)
+        g["missing"] = _expected_missing(g["group"], a, [by_id[m] for m in g["member_ids"]], room, building)
         out.append(g)
     return out
 
@@ -805,6 +980,94 @@ def _tv_cost(sofa: dict, tv: dict) -> float:
     want = G.normalise_angle(G.front_direction_deg(s.rotation_deg) + 180.0)
     err = G.angle_difference_deg(G.front_direction_deg(t.rotation_deg), want)
     return lateral + err / 10.0 * 0.3
+
+
+def _drawn_floor(building: dict, room_id: str) -> list[dict]:
+    """The room's drawn floor pieces, built or not: typed, with a footprint, not wall-hung, not a piece recorded as
+    not furniture (a rug outline, a detail, a column, a ``symbols[]`` entry) and not ``build: false`` for another
+    reason than a library gap."""
+    not_furniture = {s.get("former_piece_id") for s in building.get("symbols") or [] if s.get("former_piece_id")}
+    out = []
+    for f in building.get("furniture") or []:
+        if f.get("room_id") != room_id or f.get("source") != "from_documents" or not f.get("footprint"):
+            continue
+        if f.get("type") in ("unknown", "stair") or f.get("type") in schemas.MOUNTED_TYPES \
+                or f.get("mount_bottom_m") is not None:
+            continue
+        if f["id"] in not_furniture or f.get("not_furniture") or f.get("inferred_as"):
+            continue
+        if f.get("build") is False:
+            continue
+        out.append(f)
+    return out
+
+
+def drawn_centre(piece: dict) -> list[float]:
+    """Milestone 13 (D5; review fix of 15 Oct 2026): where a drawn piece was drawn: the centre of ``drawn_footprint``
+    when an earlier stage changed the footprint and kept the drawn one (the fit's size snap of T1, an agent edit),
+    else of ``footprint``. The 0.5 m bound of a re-solved group counts from here (CLAUDE.md: "from its drawn
+    centre"; the locked check measures from the source footprint)."""
+    fp = piece.get("drawn_footprint") if isinstance(piece.get("drawn_footprint"), dict) else None
+    if not fp or not fp.get("center"):
+        fp = piece["footprint"]
+    return [float(v) for v in fp["center"]]
+
+
+def drawn_groups(building: dict, room_id: str) -> list[dict]:
+    """Milestone 13 (§13.2): ``[{"anchor_id", "members": [ids], "centre": [x, y], "template", "anchor_type",
+    "roles": {id: role}, "built": {id: bool}}]``: the anchored groups the drawn pieces of a room form, whether the
+    fit built them or not (``_drawn_floor``): every drawn anchor-type piece opens one (``group_of_type``: a table, a
+    sofa, a bed, a desk, a wardrobe, an island, a sideboard); the drawn partners join the nearest anchor within the
+    role's reach (``PARTNER_REACH``: chairs a table, armchairs and a coffee table a sofa, nightstands a bed, a chair
+    a desk, stools an island). ``centre`` is the drawn anchor's drawn centre (``drawn_centre``). Deterministic (ids
+    in order, partners nearest first). Sets and runs (bathrooms, kitchens: fixed equipment) are not drawn groups."""
+    room = _room_of(building, room_id)
+    if room is None:
+        return []
+    rtype = room.get("room_type")
+    items = _drawn_floor(building, room_id)
+    polys = {}
+    for i, f in enumerate(items):
+        try:
+            polys[f["id"]] = placer.drawn_piece(f, i).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+    anchors = []
+    for f in sorted(items, key=lambda f: f["id"]):
+        template = group_of_type(f["type"], rtype)
+        if template is None or f["id"] not in polys:
+            continue
+        if load_groups().get(template, {}).get("layout") != "anchored" or f["type"] in schemas.FIXED_TYPES:
+            continue
+        anchors.append((template, f))
+    out = {f["id"]: {"anchor_id": f["id"], "members": [], "centre": [round(v, 4) for v in drawn_centre(f)],
+                     "template": template, "anchor_type": f["type"], "roles": {},
+                     "built": {f["id"]: piece_is_built(f)}} for template, f in anchors}
+    anchor_ids = set(out)
+    for role, (types, reach) in PARTNER_REACH.items():
+        for f in sorted((f for f in items if f["type"] in types and f["id"] not in anchor_ids and f["id"] in polys),
+                        key=lambda f: f["id"]):
+            best = None
+            for template, a in anchors:
+                if role not in ROLES_OF_GROUP.get(template, ()):
+                    continue
+                if role == "chair" and template == "work" and f["type"] not in ("office_chair", "chair"):
+                    continue
+                d = polys[a["id"]].distance(polys[f["id"]])
+                if d > reach + 1e-9:
+                    continue
+                key = (round(d, 4), a["id"])
+                if best is None or key < best[0]:
+                    best = (key, a)
+            if best is None:
+                continue
+            g = out[best[1]["id"]]
+            if f["id"] in g["members"] or any(f["id"] in o["members"] for o in out.values()):
+                continue
+            g["members"].append(f["id"])
+            g["roles"][f["id"]] = role
+            g["built"][f["id"]] = piece_is_built(f)
+    return [out[f["id"]] for _t, f in anchors]
 
 
 def group_members(building: dict, room_id: str) -> list[dict]:
@@ -844,7 +1107,7 @@ def group_members(building: dict, room_id: str) -> list[dict]:
         entry["member_ids"] = sorted(set(entry["member_ids"]))
         entry["missing"] = _expected_missing(entry["group"] or "", anchor,
                                              [by_id[m] for m in entry["member_ids"] if m in by_id], _room_of(
-                                                 building, room_id))
+                                                 building, room_id), building)
         claimed |= set(entry["member_ids"]) | ({entry["anchor_id"]} if entry.get("anchor_id") else set())
         out.append(entry)
     for m in matched:

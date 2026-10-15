@@ -241,7 +241,9 @@ def project_entry(orch: "SC.Orchestrator", pr: "SC.ProjectRun", gpu: Optional[di
              "empty_rooms": None, "completed_rooms": None, "views": None, "questions": None, "recognition_calls": None,
              "photos": 0, "photos_cached": None, "minutes": 0.0, "server_starts": 0, "pod": None, "verified": planned == "ok",
              "report": None, "note": next((pr.records[s].note for s in ("pipeline", "sheets") if pr.records.get(s)),
-                                          None)}
+                                          None),
+             # Milestone 13 (K8): the camera records the build replays (None = a private project: nothing committed)
+             "cameras_from": camera_records_for(pr.name, orch.repo_root) if not pr.ref.private else None}
     building = SC.read_json(pr.out / "building.json")
     if isinstance(building, dict):
         entry["levels"] = len(building.get("levels") or [])
@@ -276,6 +278,35 @@ def project_entry(orch: "SC.Orchestrator", pr: "SC.ProjectRun", gpu: Optional[di
     entry["server_starts"] = server_starts(bool(pr.photos) and not cached, len(ai) + len(completed) > 0,
                                            bool(entry["recognition_calls"]))
     return entry
+
+
+# Milestone 13 (docs/milestone13.md §13.2, K8): the committed camera records a build can replay (--cameras-from).
+CAMERA_RECORDS = "results/renders/{name}/scene_manifest.json"
+
+
+def camera_records_for(name: str, repo_root: Optional[Path] = None, env: Optional[dict] = None) -> dict:
+    """The camera file of a project for the plan (pure over the file system; Milestone 13 K8): ``{"path",
+    "cameras", "source"}`` when ``WENART_CAMERAS_FROM`` (``stages.cameras_from_env``) or the committed
+    ``results/renders/<p>/scene_manifest.json`` holds camera records, else ``{"path", "cameras": 0, "reason"}``
+    (real04: the M12 run committed no scene manifest, so its build searches its cameras)."""
+    from wenart.blender.cameras import replay_cameras   # numpy-free
+    root = Path(repo_root or SC.REPO_ROOT)
+    env_path = S.cameras_from_env(name, env)
+    path = Path(env_path) if env_path else root / CAMERA_RECORDS.format(name=name)
+    if not path.is_absolute():
+        path = root / path
+    source = "env WENART_CAMERAS_FROM" if env_path else "committed baseline run"
+    if not path.is_file():
+        return {"path": S.t(path), "cameras": 0, "source": source,
+                "reason": "no scene manifest with camera records is committed: the camera search runs"}
+    try:
+        n = len(replay_cameras(json.loads(path.read_text(encoding="utf-8")))["plans"])
+    except (ValueError, OSError):
+        n = 0
+    out = {"path": S.t(path), "cameras": n, "source": source}
+    if n == 0:
+        out["reason"] = "the scene manifest has no camera records: the camera search runs"
+    return out
 
 
 def _table(entry) -> bool:

@@ -4,7 +4,7 @@
 What: the building is modelled once (the reference copy); every other copy on the site plan is a Blender collection
 instance of the building's collections (levels, slabs, roof, facade details) moved by ``p' = R(rotation_deg) p +
 translate`` and raised by ``dz``. Pure helpers (``copies_of``, ``move_point``, ``move_polygon``, ``footprints``,
-``site_view``) run anywhere; ``place_copies`` needs ``bpy``.
+``site_view``, ``horizon_fraction``) run anywhere; ``place_copies`` needs ``bpy``.
 
 Why: real04 is two identical twin-villa blocks on one sloping plot (b2 18.6 m beside b1 and 3 m higher). Modelling
 the second block again would double the build time; an instance renders the same and keeps one source of truth.
@@ -19,8 +19,30 @@ from __future__ import annotations
 import math
 from typing import Optional, Sequence
 
-SITE_VIEW_PITCH_DEG = 28.0
+SITE_VIEW_PITCH_DEG = 28.0            # the cap (Milestone 13 D8: the site view pitches at most 28 degrees)
 SITE_VIEW_LENS_MM = 24.0
+SITE_VIEW_HORIZON_FRAC = 0.78         # the horizon line's place in the frame from the bottom (above the lower third)
+SITE_VIEW_MIN_HEIGHT_M = 6.0          # the camera stands at least this high over the aim point
+SENSOR_MM = 36.0
+ASPECT = 9.0 / 16.0
+
+
+def horizon_fraction(pitch_deg: float, lens_mm: float = SITE_VIEW_LENS_MM, sensor_mm: float = SENSOR_MM,
+                     aspect: float = ASPECT) -> float:
+    """Where the true horizon (elevation 0) lies in the frame of a camera pitched ``pitch_deg`` down (pure): the
+    fraction of the frame height from the bottom (0.5 = the middle; over 1 = above the frame, under 0 = below).
+    Milestone 12's site view (24 mm, 28 degrees down) had it at 1.13: the frame top 5 degrees under the horizon,
+    a black band by construction (docs/milestone13.md §1.7, bug B9)."""
+    tan_v = sensor_mm / (2.0 * lens_mm) * aspect
+    return 0.5 + 0.5 * math.tan(math.radians(float(pitch_deg))) / tan_v
+
+
+def pitch_for_horizon(frac: float = SITE_VIEW_HORIZON_FRAC, lens_mm: float = SITE_VIEW_LENS_MM,
+                      cap_deg: float = SITE_VIEW_PITCH_DEG) -> float:
+    """The downward pitch that puts the horizon at ``frac`` of the frame height (pure), at most ``cap_deg``."""
+    tan_v = SENSOR_MM / (2.0 * lens_mm) * ASPECT
+    pitch = math.degrees(math.atan((2.0 * float(frac) - 1.0) * tan_v))
+    return round(min(float(cap_deg), max(0.0, pitch)), 3)
 
 
 def copies_of(building: dict) -> list[dict]:
@@ -48,9 +70,11 @@ def footprints(building: dict) -> list[list[tuple[float, float]]]:
 
 def site_view(outline: Sequence, building: dict, z_range: tuple[float, float], plot: Sequence = ()) -> Optional[dict]:
     """The camera that shows every building on the plot (pure): above the plot, looking at the centre of all copies
-    at ``SITE_VIEW_PITCH_DEG`` from the side of the modelled building's main garden (its lowest ground), far enough
-    that every footprint fits ``SITE_VIEW_LENS_MM``. ``{"position", "target", "lens_mm", "reason"}`` or None
-    without copies."""
+    from the side of the modelled building's main garden (its lowest ground), far enough that every footprint
+    fits ``SITE_VIEW_LENS_MM``. Milestone 13 (D8, bug B9): the pitch is the one that keeps the horizon line in the
+    frame at ``SITE_VIEW_HORIZON_FRAC`` of its height (``pitch_for_horizon``; at most ``SITE_VIEW_PITCH_DEG``), the
+    camera at least ``SITE_VIEW_MIN_HEIGHT_M`` over the aim point (further out when the pitch would put it lower).
+    ``{"position", "target", "lens_mm", "pitch_deg", "horizon_frac", "reason"}`` or None without copies."""
     cps = copies_of(building)
     if not cps or len(outline) < 3:
         return None
@@ -65,15 +89,20 @@ def site_view(outline: Sequence, building: dict, z_range: tuple[float, float], p
     my = sum(float(c["translate"][1]) for c in cps) / len(cps)
     n = math.hypot(mx, my) or 1.0
     side = (my / n, -mx / n)
-    half_fov = math.atan(18.0 / SITE_VIEW_LENS_MM)
+    half_fov = math.atan(SENSOR_MM / 2.0 / SITE_VIEW_LENS_MM)
     dist = (radius + 4.0) / math.tan(half_fov * 0.85)
-    h = dist * math.sin(math.radians(SITE_VIEW_PITCH_DEG))
-    horiz = dist * math.cos(math.radians(SITE_VIEW_PITCH_DEG))
+    pitch = pitch_for_horizon(SITE_VIEW_HORIZON_FRAC, SITE_VIEW_LENS_MM)
+    h = dist * math.sin(math.radians(pitch))
+    if h < SITE_VIEW_MIN_HEIGHT_M:                    # keep the pitch: stand further out and higher
+        h = SITE_VIEW_MIN_HEIGHT_M
+        dist = h / max(math.sin(math.radians(pitch)), 1e-6)
+    horiz = dist * math.cos(math.radians(pitch))
     pos = (cx + side[0] * horiz, cy + side[1] * horiz, zc + h)
     return {"position": [round(v, 4) for v in pos], "target": [round(cx, 4), round(cy, 4), round(zc, 4)],
-            "lens_mm": SITE_VIEW_LENS_MM,
+            "lens_mm": SITE_VIEW_LENS_MM, "pitch_deg": pitch,
+            "horizon_frac": round(horizon_fraction(pitch, SITE_VIEW_LENS_MM), 4),
             "reason": f"every building on the plot ({len(cps) + 1}): {dist:.1f} m from their centre, "
-                      f"{SITE_VIEW_PITCH_DEG:g} degrees down"}
+                      f"{pitch:g} degrees down (the horizon at {SITE_VIEW_HORIZON_FRAC:.0%} of the frame height)"}
 
 
 def place_copies(building: dict, collections: Sequence, parent_collection, manifest_objects: list,

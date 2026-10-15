@@ -71,7 +71,16 @@ def test_licence_gates_per_kind():
     # Milestone 8 (docs/milestone8.md §2, user decisions 3, 4): every catalogue licence of an Objaverse object is
     # taken (flagged in the catalogue); a spelling outside the catalogue table is still refused.
     from wenart.furniture import catalog as C
-    assert fetch._FLAGS == C.LICENCE_FLAGS
+    assert fetch._FLAGS == C.LICENCE_TEXT_FLAGS                       # Milestone 13: "none", ND the stricter flag
+    # the catalogue's Milestone 13 flag words: "none" (or the older None) for CC0 / CC BY, an audit-only flag allowed
+    credit = {"title": "t", "author": "a", "source_url": "u", "licence_url": "l", "via": "v", "attribution": "x"}
+    for flag in ("none", None, "regional"):
+        assert fetch.check_licence("abo", "CC-BY-4.0", kind="models", entry=dict(credit, id="abo_f", licence_flag=flag)) \
+            == "CC-BY-4.0"
+    with pytest.raises(fetch.LicenceError):
+        fetch.check_licence("abo", "CC-BY-4.0", kind="models", entry=dict(credit, id="abo_f", licence_flag="non_commercial"))
+    assert fetch.check_licence("hssd", "CC-BY-NC-4.0", kind="models",
+                               entry=dict(credit, id="hssd_f", licence_flag="non_commercial")) == "CC-BY-NC-4.0"
     for ok in ("CC-BY-NC-4.0", "CC-BY-SA-4.0", "CC-BY-ND-4.0", "Sketchfab-Standard", "unknown"):
         assert fetch.check_licence("objaverse", ok, kind="models") == ok
     for bad in (None, "CC-BY", "CC-BY 4.0", "free standard", ""):

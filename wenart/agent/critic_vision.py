@@ -32,6 +32,7 @@ Milestone 12 (docs/milestone12.md §5.4, §1.4 "critic quality", bug B5):
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -130,6 +131,18 @@ def with_decor_doubts(pieces: list[dict], building: dict) -> list[dict]:
     return [dict(p, decor_doubt=by_host[p["id"]]) if p.get("id") in by_host else p for p in pieces]
 
 
+def room_context(building: dict, room_id: str, pieces: list[dict]) -> dict:
+    """Milestone 13: what the critic must know (``prompts.context_lines``): the licence mode, the pieces built below
+    the library level and the drawn groups of the room (``brief.below_library``, ``brief.drawn_group_lines``)."""
+    from wenart.agent import brief as BR
+    try:
+        groups = BR.drawn_group_lines(building, room_id)
+    except Exception:  # noqa: BLE001 - a room without usable geometry has no drawn groups
+        groups = []
+    return {"licence_mode": BR.licence_mode_of(building), "below_library": BR.below_library(pieces),
+            "drawn_groups": groups}
+
+
 def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[str, Path]],
                   topdown: Optional[Path], plan_crop: Optional[Path], code: dict, call_id: str,
                   looks: bool = False) -> dict:
@@ -157,7 +170,8 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
     room_code = [f for f in code.get("findings") or [] if f.get("room_id") == room_id]
     views = [v for v, _ in previews]
     if looks:
-        prompt = P.room_look_prompt(room, pieces, views, labels, room_code)
+        prompt = P.room_look_prompt(room, pieces, views, labels, room_code, context=room_context(building, room_id,
+                                                                                                pieces))
     else:
         prompt = P.room_critic_prompt(room, pieces, doors + windows, views, labels, room_code)
     messages = [{"role": "system", "content": P.CRITIC_SYSTEM},
@@ -170,14 +184,29 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}
 
 
+def storeys_of(building: dict) -> int:
+    """Milestone 13 (bug B5): the storeys the critic is told about: the levels without their variants (``L-1b`` is a
+    variant of ``L-1``: the same storey; real04 was told "4 levels" for a 3-storey villa, a false critical for 5
+    rounds)."""
+    ids = set()
+    for lv in building.get("levels") or []:
+        lid = str(lv.get("id") or "")
+        if not lid:
+            continue
+        m = re.match(r"^(L-?\d+)[a-z]$", lid)
+        ids.add(m.group(1) if m else lid)
+    return len(ids)
+
+
 def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_crop: Optional[Path], code: dict,
                       call_id: str) -> dict:
     images, labels = [preview], [f"render of exterior view {view}"]
     if plan_crop is not None:
         images.append(plan_crop)
         labels.append("crop of the source drawing")
-    levels = len(building.get("levels") or [])
-    note = f"The building has {levels} level(s); roof: {(building.get('roof') or {}).get('type', 'unknown')}."
+    # Milestone 13 (bug B5): the storeys, not len(levels): a level variant (L-1b) is no storey of its own
+    levels = storeys_of(building)
+    note = f"The building has {levels} storey(s); roof: {(building.get('roof') or {}).get('type', 'unknown')}."
     ids = exterior_ids(building, view)
     ext_code = [f for f in code.get("findings") or [] if f.get("check", "").startswith("X") or f.get("target") == view]
     prompt = P.exterior_critic_prompt(view, note, sorted(ids)[:60], labels, ext_code)

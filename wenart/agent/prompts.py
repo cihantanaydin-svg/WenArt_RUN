@@ -15,6 +15,7 @@ critic that the code measured without a violation is dropped (``critic_vision``)
 from __future__ import annotations
 
 import json
+from typing import Optional
 
 SEVERITIES = ("critical", "major", "minor")
 
@@ -214,17 +215,62 @@ def doubt_note(piece: dict) -> str:
     return " (look closely, D2: " + "; ".join(parts) + "; is it a real, single, well-made object of its type?)"
 
 
+def built_as_note(p: dict) -> str:
+    """`` (built by our module builder / parametric family, not a library model: ...)`` for a piece whose asset is a
+    module builder or a parametric family (Milestone 13: the critic must not call it a crude or wrong model; the
+    library gap is reported by code); '' for a library model."""
+    asset = p.get("asset") if isinstance(p.get("asset"), dict) else {}
+    method = asset.get("method")
+    if method == "module":
+        return " (built by our module builder with real module sizes, not a library model: judge only a clearly " \
+               "broken shape)"
+    if method == "parametric":
+        return " (built by our parametric family, not a library model: judge only a clearly broken shape)"
+    return ""
+
+
+def context_lines(context: Optional[dict]) -> list[str]:
+    """Milestone 13: what the critic and the planner must know about the room: the licence mode, the pieces built
+    below the library level and the drawn groups (``brief.room_brief`` keys ``licence_mode``, ``below_library``,
+    ``drawn_groups``); [] without a context."""
+    if not context:
+        return []
+    lines = []
+    mode = context.get("licence_mode")
+    if mode:
+        lines.append(f"Library licence mode: {mode} (commercial = commercial-safe models only; relaxed = non-"
+                     f"commercial, share-alike and tool-flagged models allowed for this proof of concept).")
+    below = context.get("below_library") or []
+    if below:
+        lines.append("Pieces built below the library level (no audited model fitted; ours, with real proportions): "
+                     + "; ".join(f"{b.get('id')} {b.get('type')} ({b.get('method')}: {b.get('builder')})"
+                                 for b in below) + ".")
+    groups = context.get("drawn_groups") or []
+    if groups:
+        parts = []
+        for g in groups:
+            members = ", ".join(g.get("members") or []) or "no drawn partner"
+            built = "" if g.get("anchor_built", True) else " (anchor not built)"
+            parts.append(f"{g.get('anchor_type')} {g.get('anchor_id')} with {members}{built}")
+        lines.append("Drawn groups (the architect drew the anchor with its partners; they move as one unit, every "
+                     "member within 0.5 m of its drawn centre): " + "; ".join(parts) + ".")
+    return lines
+
+
 def room_look_prompt(room: dict, pieces: list[dict], views: list[str], image_labels: list[str],
-                     code_findings: list[dict]) -> str:
+                     code_findings: list[dict], context: Optional[dict] = None) -> str:
     """Milestone 12: the room critic on the renders only (looks, wrong objects); built pieces only (B5); the code
     findings are given so they are not repeated. A piece whose library model (or a decor model on it) the audit kept
-    with a vision doubt (decision 1a) is marked so the critic looks at it (D2)."""
-    piece_lines = [f"- {p['id']}: {p.get('type')}{doubt_note(p)}" for p in pieces]
+    with a vision doubt (decision 1a) is marked so the critic looks at it (D2). Milestone 13: ``context`` (the
+    licence mode, the pieces built below the library level, the drawn groups; ``context_lines``) tells the critic
+    what it sees."""
+    piece_lines = [f"- {p['id']}: {p.get('type')}{doubt_note(p)}{built_as_note(p)}" for p in pieces]
     known = [f"- {f['check']} {f['severity']} {f['target']}: {f['message']}" for f in code_findings]
     return "\n".join([
         f"Room {room['id']} ({room.get('label')}, type {room.get('room_type')}, "
         f"{round(float(room.get('area_computed') or 0.0), 1)} m2).",
         "Images: " + "; ".join(f"image {i + 1} = {label}" for i, label in enumerate(image_labels)) + ".",
+        *context_lines(context),
         "", "Ids you may use as target (only pieces that are built and rendered):", f"- {room['id']}: the room itself",
         *piece_lines, *(f"- {v}: camera view" for v in views),
         "", "Checklist (only what the images show; positions, distances and sizes are measured by code):",
@@ -260,7 +306,12 @@ PLANNER_SYSTEM_M12 = (
     "5. When you are not sure an edit passes, call dry_run first (it is free). One edit per piece at a time: look at "
     "its result before the next.\n"
     "6. Every edit needs a short reason. When your checklist is done or nothing more can be fixed, call finish with "
-    "the findings that stay open.")
+    "the findings that stay open.\n"
+    "7. An edit is accepted only when the finding it targets is gone in the code re-check and no new critical "
+    "finding appears; an edit that changes nothing measurable is rejected. The brief's drawn_groups move as one "
+    "unit (place_group re-solves them around the drawn anchor); below_library pieces are our module or parametric "
+    "builds, not wrong models (the library gap is already recorded); the licence_mode says which library models "
+    "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only.")
 
 PLAN_SCHEMA: dict = {
     "type": "object", "additionalProperties": False, "required": ["room_id", "program", "steps"],

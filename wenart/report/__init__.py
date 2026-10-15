@@ -12,6 +12,11 @@
 - ``sweep``: ``final/sweep_report.md`` from the polish sweep, the gate
   calibration and the vision-check calibration.
 - ``common``: JSON input, the 300 KB JPEG writer, markdown helpers.
+- Milestone 13 (docs/milestone13.md §7, §13.2): ``metrics13`` (the 17 before/after metrics of a run) and
+  ``sheets13`` (one before | after JPEG per camera); ``final`` adds the commercial-safe line per view and the
+  pieces built below the library level (docs/milestone13.md §6, D4).
 
-CLI: ``python -m wenart.report final|sweep --project-out outputs/<p> [--out DIR] [--private]``.
+CLI: ``python -m wenart.report final|sweep --project-out outputs/<p> [--out DIR] [--private]``;
+``python -m wenart.report metrics13 --out <run> [--baseline <run>] --json <path> [--md <path>]``;
+``python -m wenart.report sheets13 --out <run> --baseline <run> --dir <folder>``.
 """

@@ -173,12 +173,13 @@ def test_soft_bedding_stays_inside_the_bed_box():
     x0, y0, z0, x1, y1, z1 = P.parts_bbox(parts)
     assert (x0, y0, z0, x1, y1, z1) == pytest.approx((-0.8, -1.0, 0.0, 0.8, 1.0, 1.0))
     roles = [p["role"] for p in parts]
-    assert roles == ["body", "back", "mattress", "duvet", "turndown", "pillow", "pillow"]
+    # Milestone 13 (T2 bed v2): frame sides, bottom, plinth, two headboard posts and the panel, then the bedding.
+    assert roles[-5:] == ["mattress", "duvet", "turndown", "pillow", "pillow"]
+    assert {"body", "bottom", "plinth", "back", "panel"} <= set(roles)
     soft = [p for p in parts if p.get("smooth")]
     assert {p["role"] for p in soft} == {"mattress", "duvet", "turndown", "pillow"}
     assert {p["key"] for p in soft} == {"bedding", "duvet"}
-    back = next(p for p in parts if p["role"] == "back")
-    back_y = min(v[1] for v in back["verts"])
+    back_y = min(v[1] for p in parts if p["role"] == "back" for v in p["verts"])
     for p in soft:
         xs, ys, zs = zip(*p["verts"])
         assert min(xs) >= -0.8 and max(xs) <= 0.8 and min(ys) >= -1.0 and max(ys) < back_y and max(zs) < 1.0
@@ -191,9 +192,17 @@ def test_soft_bedding_stays_inside_the_bed_box():
     top = max(pillow["verts"], key=lambda v: v[2])
     bottom = min(pillow["verts"], key=lambda v: v[2])
     assert top[1] > bottom[1]
-    # Closed meshes with outward normals.
+    # Closed meshes (every edge in exactly two faces); the convex ones with outward normals (the duvet is a draped
+    # sheet since Milestone 13, a U around the mattress: closed, but its centroid is not inside it).
     from wenart.blender import geom2d
     for p in soft:
+        edges = {}
+        for f in p["faces"]:
+            for a, b in zip(f, f[1:] + f[:1]):
+                edges[(min(a, b), max(a, b))] = edges.get((min(a, b), max(a, b)), 0) + 1
+        assert set(edges.values()) == {2}, p["role"]
+        if p["role"] == "duvet":
+            continue
         cx, cy, cz = (sum(v[i] for v in p["verts"]) / len(p["verts"]) for i in range(3))
         out = 0
         for f in p["faces"]:

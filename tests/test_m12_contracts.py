@@ -28,7 +28,9 @@ def test_reading_interface():
 
 def test_group_interfaces():
     assert params(program.room_program) == ["building", "room_id", "brief", "choices"]
-    assert params(solver.solve_room) == ["building", "room_id", "program", "k", "fixed_ids"]
+    # Milestone 13 (docs/milestone13.md §13.2, T3): the M12 signature + ``drawn_group`` (a drawn group re-solved
+    # as one unit).
+    assert params(solver.solve_room) == ["building", "room_id", "program", "k", "fixed_ids", "drawn_group"]
     assert params(solver.apply_candidate) == ["building", "room_id", "candidate"]
     assert group_checks.CHECKS == tuple(f"G{i}" for i in range(1, 15))
     assert params(group_checks.check_room) == ["building", "room_id"]
@@ -46,7 +48,7 @@ def test_scene_and_library_interfaces():
     assert scene_checks.TOLERANCES["decor_gap_m"] == 0.010
     assert scene_checks.TOLERANCES["decor_pen_soft_m"] == 0.030
     assert params(decor.sync_to_hosts) == ["building"]
-    assert params(catalog.usable) == ["entry"]
+    assert params(catalog.usable) == ["entry", "mode"]   # Milestone 13 (docs/milestone13.md §13.2): usable(entry, mode="commercial")
     assert params(sizes.real_range) == ["ftype"]
     assert params(sizes.product_size) == ["ftype", "drawn"]
     assert params(sizes.fits) == ["ftype", "size", "tolerance"]

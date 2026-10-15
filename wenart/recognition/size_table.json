@@ -421,6 +421,490 @@
    ]
   }
  },
+ "grid": {
+  "armchair": [
+   [
+    0.85,
+    0.85,
+    0.9,
+    "armchair 85: std; syn 0.8-1.0 square; abo B075X2WN36 Rivet 0.85 x 0.78, B07DBHC337 Ravenna 0.85 x 0.89, B075X4N4Z5 Rivet Lawson 33in 0.86 x 0.87"
+   ],
+   [
+    0.8,
+    0.8,
+    0.9,
+    "armchair 80: syn; abo B07124WCZY Ashbury 0.80 x 0.74, B0746KJVP2 Rivet Charlotte 0.81 x 0.81"
+   ],
+   [
+    0.9,
+    0.9,
+    0.9,
+    "armchair 90: syn; abo B085FHBF2S Ravenna recliner 37in 0.90 x 0.93, B075X4N3GM Rivet Aiden 0.93 x 0.84"
+   ],
+   [
+    1.0,
+    1.0,
+    0.9,
+    "lounge chair 100: syn; abo B075NR8HWJ Movian Dofsan '100 x 93 x 86', B0719WQGYJ Rivet Emerly 41in 1.04 x 0.89"
+   ],
+   [
+    0.7,
+    0.85,
+    0.9,
+    "accent chair 70 x 85: abo B071J7Q9X4 Rivet Huxley 0.70 x 0.86, B07124WN69 Huxley 28.3in 0.72 x 0.89, B07B84H7G8 0.71 x 0.82"
+   ],
+   [
+    0.65,
+    0.8,
+    0.8,
+    "small accent chair 65 x 80: abo B071J7Q9WN Rivet Summit 0.65 x 0.80, B07DBDN79B Ravenna Jase 29.9in 0.66 x 0.77"
+   ]
+  ],
+  "bed_double": [
+   [
+    1.4,
+    2.0,
+    1.0,
+    "double 140 x 200: std; syn 1.4 x 2.0; abo B07GFFR415 Movian Constance double bed frame 1.40 x 1.90 x 0.56, B07BBWMPJM Movian Corona '4 ft 6' double 1.49 x 2.07"
+   ],
+   [
+    1.6,
+    2.0,
+    1.0,
+    "queen / 160 x 200: std; syn 1.6 x 2.0; abo B0154VUESC Movian Loue '160 x 200cm' (frame 1.72 x 2.06), B07GFDZW5W Movian Havel 1.62 x 1.96, B084ZBX1YH Stone & Beam queen 1.60 x 2.11"
+   ],
+   [
+    1.8,
+    2.0,
+    1.0,
+    "king 180 x 200: std; syn 1.8 x 2.0; r01 F1/F4 1.78 x 2.03; abo B08FTN8KHY Solimo Senna king 1.88 x 2.04, B071W2SCTJ Glenwood king 1.76 x 2.22, B084ZBDPG5 Stone & Beam king 1.67 x 2.13"
+   ]
+  ],
+  "bed_single": [
+   [
+    0.9,
+    2.0,
+    0.9,
+    "single 90 x 200: std; syn; ph old_bed_frame 0.90 x 2.00; abo B0856FL9HR Rivet twin 0.96 x 1.90"
+   ],
+   [
+    1.0,
+    2.0,
+    0.9,
+    "single 100 x 200: abo B0718WYQ8D Movian Aveyron '195 x 100 x 80cm', B07H8V14CZ Movian Moselle 0.99 x 2.14, B073WR319C 1.02 x 1.91"
+   ],
+   [
+    1.2,
+    2.0,
+    0.9,
+    "small double 120 x 200: std; syn 1.2 x 2.0"
+   ]
+  ],
+  "bookshelf": [
+   [
+    0.9,
+    0.35,
+    1.85,
+    "bookcase 90 x 35: std; syn; abo B075Z6YS1Z Larson 0.87 x 0.36 x 1.86, B07QC876WJ Rivet Davenport 34in 0.87 x 0.39 x 1.80"
+   ],
+   [
+    0.8,
+    0.3,
+    1.85,
+    "bookcase 80 x 30: syn; abo B082JGV1YM Stone & Beam 5-shelf 75in 0.81 x 0.34 x 1.91, B07HSCNKCT Rylee 0.75 x 0.31 x 1.47"
+   ],
+   [
+    1.0,
+    0.35,
+    1.85,
+    "bookcase 100 x 35: syn; ph Shelf_01 1.00 x 0.26 x 2.08"
+   ],
+   [
+    1.2,
+    0.4,
+    1.85,
+    "bookcase 120 x 40: syn; objaverse d48a42e9 High Bookcase 1.18 x 0.39 x 1.89, 68baafb3 Scaffale B 1.16 x 0.39"
+   ],
+   [
+    0.6,
+    0.35,
+    1.8,
+    "narrow bookcase 60 x 35: abo B07PMK78R8 AmazonBasics ladder 0.60 x 0.35 x 1.77, B07PNHSR4G AmazonBasics 5-tier 0.66 x 0.38 x 1.89, B07HSCJZQM Rivet Roxmere 23.6in 0.65 x 0.45 x 2.00"
+   ],
+   [
+    1.0,
+    0.45,
+    1.4,
+    "low cabinet bookcase 100 x 45: abo B07H8SQ2NZ Movian Oker '100 x 43 x 140', B07H8P1N9T Movian Moselle 1.00 x 0.45 x 1.39"
+   ],
+   [
+    1.0,
+    0.4,
+    2.0,
+    "tall bookcase 100 x 40: abo B07JGY5LNV Alkove Velle '42 x 95 x 202cm'"
+   ]
+  ],
+  "chair": [
+   [
+    0.45,
+    0.45,
+    0.88,
+    "dining chair 45: std; syn 0.4-0.5 square; abo B0857JLP6K Stone & Beam birch 17.5in 0.45 x 0.55"
+   ],
+   [
+    0.4,
+    0.4,
+    0.88,
+    "small chair 40: syn; r01 F8-F13 0.38 x 0.45"
+   ],
+   [
+    0.5,
+    0.5,
+    0.88,
+    "dining chair 50: syn; abo B0857JM2NC Stone & Beam beech and rattan 0.56 x 0.50 x 0.76, B07C9W437G Rivet Federal 0.50 x 0.57; objaverse d2785b57 Chair 0.52 x 0.50"
+   ],
+   [
+    0.45,
+    0.55,
+    1.0,
+    "dining chair 45 x 55: abo B07M6PKM8K Ravenna classic 40in 0.45 x 0.56 x 1.00, B07K7K7GKC Alkove Hayes 0.46 x 0.56, B084RZVHD2 Rivet Erikson 0.47 x 0.53"
+   ],
+   [
+    0.5,
+    0.55,
+    0.98,
+    "dining chair 50 x 55: abo B07MBFDL34 Ravenna cutout back 0.49 x 0.54 x 0.98, B07B7B94DP Stone & Beam Hughes 0.50 x 0.61"
+   ]
+  ],
+  "desk": [
+   [
+    1.2,
+    0.6,
+    0.76,
+    "desk 120 x 60: std; syn; abo B07GF5DCK2 Rivet 1.21 x 0.53, B07HSCRFTN Rivet 1.19 x 0.77"
+   ],
+   [
+    1.4,
+    0.7,
+    0.76,
+    "desk 140 x 70: std; syn"
+   ],
+   [
+    1.6,
+    0.8,
+    0.76,
+    "desk 160 x 80: std; syn; abo B07B7DFS3S Stone & Beam 60in 1.54 x 0.78"
+   ],
+   [
+    1.1,
+    0.56,
+    0.73,
+    "desk 110 x 56: abo B07GFL6RF5 Movian Idro '56 x 110 x 73.5cm', B07GFT639N Movian Indre '56 x 110 x 73cm'"
+   ],
+   [
+    1.0,
+    0.5,
+    0.76,
+    "desk 100 x 50: abo B07PVL2N3D AmazonBasics 0.90 x 0.50, B0876NZQ9C AmazonBasics 40in 1.02 x 0.51, B082DFL4JW Rivet Avery 1.02 x 0.47"
+   ],
+   [
+    1.4,
+    0.55,
+    0.76,
+    "desk 140 x 55: abo B07JXXR83F Movian Stanberg '140 x 55'"
+   ],
+   [
+    1.6,
+    0.75,
+    0.78,
+    "desk 160 x 75: abo B07TKY3L6X Movian Coa '160 x 73 x 77.5cm'"
+   ]
+  ],
+  "floor_lamp": [
+   [
+    0.4,
+    0.4,
+    1.6,
+    "floor lamp 40: std; abo B07HKF59YX Stone & Beam Henley 0.40 x 0.40 x 1.52, B07DBK7KKZ Ravenna 0.41 x 0.41 x 1.77"
+   ],
+   [
+    0.3,
+    0.3,
+    1.6,
+    "slim floor lamp 30: std; abo B07MBFDWY5 Ravenna shelves 0.28 x 0.28 x 1.59, B073P3S1NX Rivet Olive 0.31 x 0.31 x 1.57"
+   ],
+   [
+    0.5,
+    0.5,
+    1.6,
+    "floor lamp 50: std; abo B0742D9X4R Rivet tripod 0.46 x 0.45 x 1.54"
+   ],
+   [
+    0.6,
+    0.6,
+    1.6,
+    "wide floor lamp 60: abo B07B4ZK8BR Rivet 0.57 x 0.57 x 1.52, B073P25SXR Rivet 5-arm 0.60 x 0.57 x 1.72 (a drawn 0.79 round symbol, real04, becomes this)"
+   ]
+  ],
+  "nightstand": [
+   [
+    0.45,
+    0.4,
+    0.55,
+    "nightstand 45 x 40: std; syn; r01 F2/F3/F5/F6 0.49 x 0.45; abo B07RNZC4TJ AmazonBasics '45 x 38 x 49 cm', B084MYDTKM Rivet 0.46 x 0.41"
+   ],
+   [
+    0.4,
+    0.4,
+    0.55,
+    "nightstand 40 x 40: syn; abo B07QS8TBXT Movian Emme '40 x 40 x 45 cm'"
+   ],
+   [
+    0.5,
+    0.4,
+    0.55,
+    "nightstand 50 x 40: syn; abo B07DBDX5WF Ravenna Priscilla 18.9in 0.48 x 0.40 x 0.62, B07PX3CC31 AmazonBasics 0.48 x 0.38"
+   ],
+   [
+    0.6,
+    0.45,
+    0.55,
+    "nightstand 60 x 45: syn; abo B07VB7Q6W7 Movian Kyyvesi '60 x 42', B075X38PZ7 Newport 22in 0.59 x 0.46"
+   ],
+   [
+    0.4,
+    0.35,
+    0.5,
+    "slim nightstand 40 x 35: abo B079VK52WZ Movian high gloss 0.40 x 0.36 x 0.47, B07DBB7FVP Ravenna Naomi 0.43 x 0.35"
+   ],
+   [
+    0.55,
+    0.45,
+    0.5,
+    "nightstand 55 x 45: abo B07K7K7GTZ Alkove Hayes '56 x 44 x 47 cm'; ph side_table_01 0.55 x 0.45"
+   ]
+  ],
+  "sofa": [
+   [
+    2.0,
+    0.9,
+    0.85,
+    "3-seat 200: std; syn 2.0 x 0.9; abo B075X43FD2 Rivet Lawson 78in 2.00 x 0.88, B07K9PMZJL Movian Dyvran '197 x 83 x 83', B07B4FW7H5 Andover 78in 1.97 x 0.92"
+   ],
+   [
+    1.6,
+    0.9,
+    0.85,
+    "2-seat / loveseat 160: std; syn 1.6 x 0.9; abo B075X4JB3K Rivet Eva loveseat 1.54 x 0.90, B07B4FZK8X Edgewest loveseat 65in 1.68 x 0.88"
+   ],
+   [
+    2.2,
+    0.9,
+    0.85,
+    "3-seat 220: syn 2.2 x 0.9; abo B072555T67 Movian Ackan '209 x 87 x 80', B07B4D84F8 Edgewest 2.22 x 0.86, B07B4MF2MF 87in 2.25 x 0.88"
+   ],
+   [
+    2.6,
+    0.95,
+    0.85,
+    "large 3-seat 260: syn 2.6 x 0.95; abo B071J7Q3J4 Bradbury 2.69 x 1.08; ph sofa_03 2.73 x 0.93"
+   ],
+   [
+    1.3,
+    0.85,
+    0.85,
+    "small 2-seat 130: abo B07R3TWDTM Movian Keitele '2 Seater Sofa, 130 x 82 x 84' (a drawn 1.30 x 0.63 'sofa' is this, not a 1.60 one)"
+   ],
+   [
+    3.0,
+    1.0,
+    0.85,
+    "4-seat 300: std (sofas to 3.0 m); objaverse 104ac40e Sofa 3.04 x 1.07"
+   ]
+  ],
+  "sofa_corner": [
+   [
+    2.6,
+    1.6,
+    0.86,
+    "corner 260 x 160: std; abo B07K8Z4VGB Movian Enan L-shaped 2.66 x 1.61, B07BWJCPWV Rivet Emerly 96in 2.44 x 1.62"
+   ],
+   [
+    2.2,
+    1.5,
+    0.86,
+    "corner 220 x 150: std; abo B07QBMQ4YF Rivet Aiden sectional 2.18 x 1.51, B07BWKD3BG Dalton chaise 91.5in 2.09 x 1.50, B07K8V2JRF Movian Djuran 2.30 x 1.58"
+   ],
+   [
+    3.0,
+    1.7,
+    0.86,
+    "corner 300 x 170: std; abo B07BW8MJR2 Edgewest L-sectional 2.92 x 1.47, B07BW8MNQZ Andover L 3.20 x 1.58"
+   ],
+   [
+    3.2,
+    2.0,
+    0.86,
+    "L-sectional 320 x 200: abo B07B4M2B7N Edgewest L-sectional 2.95 x 2.01, B07BW8PWF6 Edgewest 116in 3.33 x 2.08, B07BWK58GZ Edgewest U 3.42 x 2.05"
+   ],
+   [
+    2.4,
+    2.4,
+    0.86,
+    "square sectional 240 x 240: abo B0714QGLNB Rivet Emerly sectional 96in 2.45 x 2.43, B071FMSMD4 Kristin sectional 2.49 x 2.57"
+   ]
+  ],
+  "table_coffee": [
+   [
+    1.1,
+    0.6,
+    0.42,
+    "coffee table 110 x 60: std; syn; abo B07B7GYMQL Rivet 43in 1.10 x 0.65, B07SQ9P548 Solimo Veronica 1.05 x 0.59, B07L8DT2XT 1.07 x 0.61"
+   ],
+   [
+    0.8,
+    0.5,
+    0.42,
+    "small 80 x 50: std; syn 0.8 x 0.5"
+   ],
+   [
+    1.0,
+    0.6,
+    0.42,
+    "coffee table 100 x 60: syn; abo B07GDYVV9M Rivet triangular '105 x 60', objaverse 956a47cc 1.00 x 0.60"
+   ],
+   [
+    1.2,
+    0.7,
+    0.42,
+    "coffee table 120 x 70: syn; abo B074KMJ96Q Glenwood 46in 1.17 x 0.72, B07DBFQV23 Parker 47.2in 1.20 x 0.58; ph modern_coffee_table_01 1.20 x 0.60"
+   ],
+   [
+    0.8,
+    0.8,
+    0.42,
+    "round / square 80: abo B07GDSF3MR Rivet round '80 x 80'; ph industrial_coffee_table 0.78 x 0.76, chinese_tea_table 0.84"
+   ],
+   [
+    0.9,
+    0.9,
+    0.45,
+    "round 36in 90: abo B074KLRCPW Rivet round glass 36in 0.91, B075Z8M2BW Roland X-frame 36in 0.90"
+   ],
+   [
+    1.0,
+    0.5,
+    0.42,
+    "narrow 100 x 50: abo B01LWVEZ1C Alkove Waverly 0.90 x 0.45, B075ZBVZPB Larson 0.99 x 0.45, B07L85XV75 1.09 x 0.49"
+   ],
+   [
+    1.3,
+    0.8,
+    0.42,
+    "large 130 x 80: abo B07B7G4VYF pallet 1.30 x 0.83, B07QF9Y71V 53in 1.35 x 0.75, B075Z85VX9 Sparrow 55in 1.39 x 0.77"
+   ],
+   [
+    1.2,
+    1.2,
+    0.42,
+    "round 120: ph modern_coffee_table_02 1.20, coffee_table_round_01 1.30; abo B07HSG8DPR round 48in 1.26"
+   ]
+  ],
+  "table_dining": [
+   [
+    1.6,
+    0.9,
+    0.75,
+    "6-seat 160 x 90: std; syn; abo B07H8SZNZF Movian Moselle '160 x 76 x 90cm', B07H93GTHW Movian Kuban '160 x 78 x 90cm', B075YMXWZC Rivet 63in 1.61 x 0.81"
+   ],
+   [
+    1.2,
+    0.8,
+    0.75,
+    "4-seat 120 x 80: std; syn; abo B07RT5JN33 Movian Kyyvesi '120.5 x 71.4 x 76 cm', B07SJ75Y1M Alkove Hayes 1.30 x 0.90; r01 F7 1.24 x 0.73"
+   ],
+   [
+    1.8,
+    0.9,
+    0.75,
+    "6-8-seat 180 x 90: std; syn; abo B07VDD563W Movian Kyyvesi '180 x 90 x 75 cm', B07K7K25NM Alkove Hayes 1.80 x 0.90, B075YPTG8S Rivet hairpin 1.79 x 0.88"
+   ],
+   [
+    2.0,
+    1.0,
+    0.75,
+    "8-seat 200 x 100: std; syn; abo B07B7BGXN9 Alejandra 1.97 x 1.07, B076NNYB3P Dunbar 78in 1.98 x 1.02"
+   ],
+   [
+    0.8,
+    0.8,
+    0.75,
+    "2-seat square / round 80: std (round 0.8-0.9); abo B07M6PKC6B Ravenna 29in 0.75 x 0.75, B075Z9QB7N Rivet round 0.89; ph round_wooden_table_02 0.80"
+   ],
+   [
+    1.0,
+    1.0,
+    0.75,
+    "4-seat round 100: std (round 0.9-1.2); abo B0853Q71J6 Rivet round extendable 0.99, B07B82WF6G Rivet round 1.04"
+   ],
+   [
+    2.4,
+    1.0,
+    0.76,
+    "8-10-seat 240 x 100: std; ph painted_wooden_table 2.41 x 1.14 x 0.96"
+   ],
+   [
+    3.0,
+    1.0,
+    0.76,
+    "10-12-seat 300 x 100: std (to 12 seats); m11 real02 masa 3.35 x 1.00 (in range since M13, not snapped)"
+   ]
+  ],
+  "wardrobe": [
+   [
+    1.2,
+    0.6,
+    2.0,
+    "2-door 120 x 60: std; syn 1.2 x 0.6"
+   ],
+   [
+    1.8,
+    0.6,
+    2.0,
+    "sliding 2-door 180 x 60: syn; abo B07GFS1VB6 Movian Kolva '180 x 61 x 197cm', B07JGPKZYT Movian Mira 4-door 1.81 x 0.58 x 2.07"
+   ],
+   [
+    2.4,
+    0.6,
+    2.0,
+    "4-door 240 x 60: std; syn 2.4 x 0.6"
+   ],
+   [
+    1.0,
+    0.6,
+    1.96,
+    "2-door 100 x 60: abo B07H8V7P3H Movian Moselle '100 x 60 x 196 cm', B07GFRKNR1 Movian Inari '100 x 57' 0.99 x 0.58 x 1.81"
+   ],
+   [
+    2.0,
+    0.6,
+    2.2,
+    "5-door 200 x 60: abo B07H8JN9QF Movian Morava 4-door 2.00 x 0.60 x 2.16, B07H8PS4FZ Movian Cinca 5-door 2.16 x 0.59 x 2.26"
+   ],
+   [
+    1.3,
+    0.5,
+    1.9,
+    "3-door 130 x 50: abo B07GFS1R5B Movian Indre '129 x 51 x 191cm'"
+   ],
+   [
+    1.5,
+    0.55,
+    1.9,
+    "3-door 150 x 55: abo B07B3XXD3P Vida Designs Corona 3-door 1.50 x 0.57 x 1.87"
+   ]
+  ]
+ },
  "tolerance": 0.15,
  "types": {
   "armchair": {
@@ -823,10 +1307,10 @@
      0.4
     ]
    ],
-   "source": "std (hall consoles 0.8-1.4 x 0.3-0.4); height lib; product abo median 1.22 x 0.40 x 0.76",
+   "source": "std (hall consoles 0.8-1.4 x 0.3-0.4); height lib; product abo median 1.22 x 0.40 x 0.76; M13: width max 1.60 -> 1.80 (ph chinese_console_table 1.72 x 0.34, abo B075ZBL75Z Ferndale 1.60; m11 real03 hall consoles 1.80 x 0.25: a long console keeps its length, the snap takes the product depth)",
    "width": [
     0.7,
-    1.6
+    1.8
    ]
   },
   "crib": {
@@ -1510,10 +1994,10 @@
      1.7
     ]
    ],
-   "source": "std (L-shaped corner sofas 2.0-3.2 x 1.5-2.5, both legs 0.8-1.0 deep; large modular ones to 4 m); m10 real02 basement 4.38 x 1.97; the footprint is the bounding box of the L; height lib; product abo median 2.44 x 1.83 x 0.86",
+   "source": "std (L-shaped corner sofas 2.0-3.2 x 1.5-2.5, both legs 0.8-1.0 deep; large modular ones to 4.5 m; M13: width max 4.00 -> 4.50); m10 real02 basement 4.38 x 1.97; the footprint is the bounding box of the L; height lib; product abo median 2.44 x 1.83 x 0.86",
    "width": [
     1.8,
-    4.0
+    4.5
    ]
   },
   "stair": {
@@ -1637,10 +2121,10 @@
      1.0
     ]
    ],
-   "source": "std (round 0.9-1.2, 4-12 seats); syn 1.2-2.0 x 0.8-1.0; r01 F7 1.24 x 0.73; m11 real02 masa 3.35 x 1.00 (10 seats); height lib widened by abo (0.66-0.96 m); product abo median 1.58 x 0.90 x 0.76",
+   "source": "std (round 0.9-1.2, 4-12 seats); syn 1.2-2.0 x 0.8-1.0; r01 F7 1.24 x 0.73; m11 real02 masa 3.35 x 1.00 (10 seats; M13: width max 3.00 -> 3.40 so the drawn 10-seat table is a real size, not a snap); height lib widened by abo (0.66-0.96 m); product abo median 1.58 x 0.90 x 0.76",
    "width": [
     0.8,
-    3.0
+    3.4
    ]
   },
   "tall_cabinet": {
@@ -1824,10 +2308,11 @@
      0.6
     ]
    ],
-   "source": "std (0.6 deep carcass); syn 1.2-2.4 x 0.6; height std 1.8-2.4 m, abo 1.81-2.26 m; product abo median 1.64 x 0.58 x 1.96",
+   "run": true,
+   "source": "std (0.6 deep carcass); syn 1.2-2.4 x 0.6; height std 1.8-2.4 m, abo 1.81-2.26 m; product abo median 1.64 x 0.58 x 1.96; M13: width max 3.00 -> 3.20 and run true (built-in runs: m12 real04 blocks dolap01 2.57 x 0.74 and 3.11 x 0.60; the snap keeps a run length and snaps the depth to a carcass depth)",
    "width": [
     0.8,
-    3.0
+    3.2
    ]
   },
   "washbasin": {

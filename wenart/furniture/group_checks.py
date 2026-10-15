@@ -37,6 +37,13 @@ wall-hung and ``unknown`` pieces are skipped). Groups come from ``groups.group_m
 else the templates). Free distances are measured with rays from a piece's edge to the room outline and the other
 pieces (``clear_distance``). ``RoomRaster`` is the 5 cm occupancy raster of a room in its own axis frame (OpenCV
 distance transform and connected components); the solver uses it too. An unverified anchor is skipped (as F5).
+
+Milestone 13 (docs/milestone13.md §1.4, §3.0 K3; track T3): the tiered minimums of ``groups.yaml`` (``groups.rule_for``)
+make a rule a scored term for a room class: in a kitchen under 7 m² the 0.90 m aisle (G8) is reported as minor, and
+beside a drawn counter run the work triangle and the fridge landing of an added fridge are minor (the drawn sink and
+hob cannot move; the kitchen gets its fridge). G5 reads the room-size variant R14 (one free bed side in a bedroom
+under 10 m²). G14 and ``allowed_types_at`` read the aliased room kind (``plausibility.room_types``: a sofa in real04's
+play room is allowed).
 """
 from __future__ import annotations
 
@@ -575,6 +582,9 @@ def _bed_clearances(r: RoomView, bid: str) -> list[dict]:
     head_skip = float(zone.get("head_skip", 0.45))
     sides = {s: side_clear(bed, s, obstacles, -d + 0.05, d - head_skip) for s in ("left", "right")}
     needed = int(zone.get("sides_needed", 2))
+    small = GR.small_room("bedroom", r.area())          # Milestone 13 (R14): one free side in a small bedroom
+    if small and small.get("sides_needed"):
+        needed = min(needed, int(small["sides_needed"]))
     if needed >= 2:
         for s, v in sides.items():
             if v < need - 1e-9:
@@ -820,6 +830,21 @@ def fridge_landing_elsewhere(r: RoomView, pid: str) -> Optional[str]:
     return None
 
 
+def kitchen_tiers(r: RoomView, ids: list[str]) -> dict:
+    """Milestone 13: the room class of the kitchen rules (``groups.rule_for``): a small kitchen by area, a drawn
+    run when any run piece is drawn (its sink and hob cannot move)."""
+    from wenart.furniture import plausibility as PL
+
+    kind = "kitchen" if "kitchen" in PL.room_types(r.building, r.room) else r.type
+    drawn = any(r.by_id[pid].get("source") == "from_documents" for pid in ids)
+    return {"room_type": kind, "area": r.area(), "drawn_run": drawn}
+
+
+def _soft(rule: dict) -> str:
+    """The severity of a rule's finding: major when hard, minor when a tier makes it a scored term."""
+    return "major" if rule.get("hard", True) else "minor"
+
+
 def _g8_g9(r: RoomView) -> list[dict]:
     out = []
     run_ids = r.typed(GR.KITCHEN_RUN_TYPES)
@@ -835,19 +860,24 @@ def _g8_g9(r: RoomView) -> list[dict]:
                                       f"({' / '.join(KITCHEN_FIXTURES[kind])})", {"missing": kind}))
         if not ids:
             continue
+        tiers = kitchen_tiers(r, ids)
         # G8: order and landings per connected run
         for comp in run_components(r, ids):
             lands = landings(r, comp)
             for pid, land in sorted(lands.items()):
                 rule_name = {"sink": "sink_landing", "hob": "hob_landing", "fridge": "fridge_landing"}[land["kind"]]
-                need = GR.rule_min(rule_name)
+                rule = GR.rule_for(rule_name, **tiers)
+                need = rule["min"]
                 if land["best"] < need - 1e-9 and land["kind"] == "fridge" and fridge_landing_elsewhere(r, pid):
                     continue
                 if land["best"] < need - 1e-9:
-                    out.append(_violation("G8", "major", pid, r.id, f"{land['kind']} {pid}: {land['best']:.2f} m of "
+                    # A drawn piece's own landing stays major (as drawn); a soft tier covers added pieces.
+                    sev = _soft(rule) if r.by_id[pid].get("source") != "from_documents" else "major"
+                    out.append(_violation("G8", sev, pid, r.id, f"{land['kind']} {pid}: {land['best']:.2f} m of "
                                           f"counter beside it, needs ≥ {need:.2f} m on one side",
-                                          {"landing_m": land["best"], "needs_m": need, "left_m": land["left"],
-                                           "right_m": land["right"]}))
+                                          dict({"landing_m": land["best"], "needs_m": need, "left_m": land["left"],
+                                                "right_m": land["right"]}, **({"tier": rule["tier"]} if rule["tier"]
+                                                                              else {}))))
             kinds = {pid: land["kind"] for pid, land in lands.items()}
             if {"sink", "hob", "fridge"} <= set(kinds.values()):
                 params = {pid: perimeter_param(r.ctx, r.pieces[pid]) for pid in kinds}
@@ -869,15 +899,18 @@ def _g8_g9(r: RoomView) -> list[dict]:
             pts = {k: _front_mid(r.pieces[present[k][0]]) for k in ("fridge", "sink", "hob")}
             legs = {"fridge-sink": G.distance(pts["fridge"], pts["sink"]), "sink-hob": G.distance(pts["sink"], pts["hob"]),
                     "hob-fridge": G.distance(pts["hob"], pts["fridge"])}
-            leg_rule, sum_rule = GR.rule("triangle_leg"), GR.rule("triangle_sum")
+            leg_rule, sum_rule = GR.rule_for("triangle_leg", **tiers), GR.rule_for("triangle_sum", **tiers)
             bad = [f"{k} {v:.2f} m" for k, v in legs.items() if v < leg_rule["min"] - 1e-9 or v > leg_rule["max"] + 1e-9]
             total = sum(legs.values())
             if bad or total > sum_rule["max"] + 1e-9:
-                out.append(_violation("G8", "major", present["sink"][0], r.id, "work triangle: " + ", ".join(
+                sev = _soft(leg_rule if bad else sum_rule)
+                out.append(_violation("G8", sev, present["sink"][0], r.id, "work triangle: " + ", ".join(
                     bad or [f"sum {total:.2f} m"]) + f" (legs {leg_rule['min']:.2f}-{leg_rule['max']:.2f} m, sum ≤ "
-                    f"{sum_rule['max']:.2f} m)", {"legs_m": {k: round(v, 2) for k, v in legs.items()},
-                                                  "sum_m": round(total, 2)}))
-        aisle = GR.rule_min("kitchen_aisle")
+                    f"{sum_rule['max']:.2f} m)", dict({"legs_m": {k: round(v, 2) for k, v in legs.items()},
+                                                       "sum_m": round(total, 2)},
+                                                      **({"tier": leg_rule["tier"]} if leg_rule["tier"] else {}))))
+        aisle_rule = GR.rule_for("kitchen_aisle", **tiers)
+        aisle = aisle_rule["min"]
         worst = None
         for pid in ids + islands:
             if pid in islands:
@@ -886,9 +919,10 @@ def _g8_g9(r: RoomView) -> list[dict]:
             if worst is None or free < worst[0]:
                 worst = (free, pid)
         if worst is not None and worst[0] < aisle - 1e-9:
-            out.append(_violation("G8", "major", worst[1], r.id, f"kitchen aisle {worst[0]:.2f} m in front of "
-                                  f"{r.by_id[worst[1]]['type']} {worst[1]}, needs ≥ {aisle:.2f} m",
-                                  {"aisle_m": worst[0], "needs_m": aisle}))
+            out.append(_violation("G8", _soft(aisle_rule), worst[1], r.id, f"kitchen aisle {worst[0]:.2f} m in front "
+                                  f"of {r.by_id[worst[1]]['type']} {worst[1]}, needs ≥ {aisle:.2f} m",
+                                  dict({"aisle_m": worst[0], "needs_m": aisle},
+                                       **({"tier": aisle_rule["tier"]} if aisle_rule["tier"] else {}))))
     return out
 
 
@@ -977,12 +1011,28 @@ def entrance_door(building: dict, room: dict, ctx: placer.RoomContext) -> Option
     return min(ctx.doors, key=key).id
 
 
+def tier_overrides_of(building: dict, room: dict, pieces: Optional[list[dict]] = None) -> dict:
+    """Milestone 13: ``groups.tier_overrides`` for a room (its kind, area and whether its kitchen run is drawn)."""
+    from wenart.furniture import plausibility as PL
+
+    types = PL.room_types(building, room)
+    kind = "kitchen" if "kitchen" in types else (types[0] if types else room.get("room_type"))
+    items = pieces if pieces is not None else [f for f in building.get("furniture") or []
+                                               if f.get("room_id") == room.get("id")]
+    drawn = any(f.get("source") == "from_documents" and f.get("type") in GR.KITCHEN_RUN_TYPES
+                and f.get("build") is not False for f in items)
+    area = float(room.get("area_computed") or 0.0) or None
+    return GR.tier_overrides(kind, area, drawn)
+
+
 def use_zone_boxes(size, ftype: str, shape: Optional[str] = None, chaise_side: Optional[str] = None,
-                   chaise_depth: Optional[float] = None, rec: bool = False) -> list[tuple[str, tuple]]:
+                   chaise_depth: Optional[float] = None, rec: bool = False,
+                   overrides: Optional[dict] = None) -> list[tuple[str, tuple]]:
     """The use zones of a piece (``groups.yaml`` ``use_zones``) as boxes ``(name, (x0, x1, y0, y1))`` in the piece's
     frame; ``rec`` = the recommended depths. A bed's sides skip the head (the nightstands' place); a toilet's or a
-    washbasin's zone is at least its side clearance wide each way from its centre (and beside its body)."""
-    spec = GR.use_zone(ftype)
+    washbasin's zone is at least its side clearance wide each way from its centre (and beside its body).
+    ``overrides`` (Milestone 13): the room's tier minimums (``tier_overrides_of``)."""
+    spec = GR.use_zone(ftype, overrides)
     if not spec:
         return []
     sfx = "_rec" if rec else ""
@@ -1013,17 +1063,19 @@ def use_zone_boxes(size, ftype: str, shape: Optional[str] = None, chaise_side: O
 
 
 def use_zone_polys(piece: placer.Piece, ftype: str, room_poly: Optional[Polygon] = None,
-                   rec: bool = False) -> list[tuple[str, Polygon]]:
+                   rec: bool = False, overrides: Optional[dict] = None) -> list[tuple[str, Polygon]]:
     """``use_zone_boxes`` of a placed piece as polygons ``(name, polygon)``."""
     return [(name, placer._local_box(piece.center, piece.rotation_deg, *box))
-            for name, box in use_zone_boxes(piece.size, ftype, piece.shape, piece.chaise_side, piece.chaise_depth, rec)]
+            for name, box in use_zone_boxes(piece.size, ftype, piece.shape, piece.chaise_side, piece.chaise_depth, rec,
+                                            overrides)]
 
 
 def walkway_report(building: dict, room: dict, ctx: placer.RoomContext, pieces: list[placer.Piece],
                    types: list[str], ids: Optional[list[str]] = None, raster: Optional[RoomRaster] = None,
-                   baseline: Optional[dict] = None) -> dict:
+                   baseline: Optional[dict] = None, overrides: Optional[dict] = None) -> dict:
     """The walkway facts of a room on the raster: ``{"pairs": [(a, b, needs_m, ok)], "zones": [(piece id, zone name,
-    ok)], "entrance"}``. ``baseline`` (the same report of the empty room) limits what is required."""
+    ok)], "entrance"}``. ``baseline`` (the same report of the empty room) limits what is required; ``overrides``
+    (Milestone 13): the room's tier minimums (the walkways and the use zones of a small kitchen)."""
     raster = raster or RoomRaster(ctx.polygon)
     ids = ids or [f"#{k}" for k in range(len(pieces))]
     occ = np.zeros_like(raster.inside)
@@ -1031,7 +1083,9 @@ def walkway_report(building: dict, room: dict, ctx: placer.RoomContext, pieces: 
         occ |= raster.polygon_mask(p.polygon())
     free = raster.inside & ~occ
     dist = raster.clearance(free)
-    main, sec = GR.rule_min("walkway_main"), GR.rule_min("walkway")
+    over = overrides or {}
+    main = float(over["walkway_main"]["min"]) if "walkway_main" in over else GR.rule_min("walkway_main")
+    sec = float(over["walkway"]["min"]) if "walkway" in over else GR.rule_min("walkway")
     walk = {w: dist >= w / 2.0 - 1e-6 for w in (main, sec)}
     labels = {w: RoomRaster.components(m)[1] for w, m in walk.items()}
     seeds = {}
@@ -1059,7 +1113,7 @@ def walkway_report(building: dict, room: dict, ctx: placer.RoomContext, pieces: 
         covered = raster.dilate(reach, sec / 2.0) & free
         for pid, p, t in zip(ids, pieces, types):
             mine = []
-            for name, zp in use_zone_polys(p, t, ctx.polygon):
+            for name, zp in use_zone_polys(p, t, ctx.polygon, overrides=over):
                 if name.startswith("side_"):
                     continue                     # a side clearance (toilet, washbasin) is kept free, not walked into
                 zm = raster.polygon_mask(zp) & free
@@ -1085,21 +1139,23 @@ def _g11(r: RoomView) -> list[dict]:
     ids = [pid for pid in r.pieces if r.by_id[pid]["type"] not in ("unknown",)]
     pieces = [r.pieces[pid] for pid in ids]
     types = [r.by_id[pid]["type"] for pid in ids]
-    base = walkway_report(r.building, r.room, r.ctx, [], [], raster=raster)
-    rep = walkway_report(r.building, r.room, r.ctx, pieces, types, ids, raster=raster, baseline=base)
+    over = tier_overrides_of(r.building, r.room, r.items)      # Milestone 13: a small kitchen's tier
+    sec = float(over["walkway"]["min"]) if "walkway" in over else GR.rule_min("walkway")
+    base = walkway_report(r.building, r.room, r.ctx, [], [], raster=raster, overrides=over)
+    rep = walkway_report(r.building, r.room, r.ctx, pieces, types, ids, raster=raster, baseline=base, overrides=over)
     out = []
     for a, b, need, ok, ok_sec in rep["pairs"]:
         if not ok_sec:
-            out.append(_violation("G11", "critical", a, r.id, f"no {GR.rule_min('walkway'):.2f} m walkway from door {a} "
-                                  f"to door {b}", {"from": a, "to": b, "needs_m": GR.rule_min("walkway")}))
+            out.append(_violation("G11", "critical", a, r.id, f"no {sec:.2f} m walkway from door {a} "
+                                  f"to door {b}", {"from": a, "to": b, "needs_m": sec}))
         elif not ok:
             out.append(_violation("G11", "major", a, r.id, f"the main walkway from the entrance door is below "
                                   f"{need:.2f} m between doors {a} and {b}", {"from": a, "to": b, "needs_m": need}))
     for pid, zone, ok in rep["zones"]:
         if not ok:
             out.append(_violation("G11", "major", pid, r.id, f"{r.by_id[pid]['type']} {pid}: its {zone} use zone is not "
-                                  f"reached by a {GR.rule_min('walkway'):.2f} m walkway from door {rep['entrance']}",
-                                  {"zone": zone, "entrance": rep["entrance"], "needs_m": GR.rule_min("walkway")}))
+                                  f"reached by a {sec:.2f} m walkway from door {rep['entrance']}",
+                                  {"zone": zone, "entrance": rep["entrance"], "needs_m": sec}))
     return out
 
 

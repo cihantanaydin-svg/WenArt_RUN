@@ -59,6 +59,24 @@ Milestone 12 (docs/milestone12.md §5.2, §5.3, §4.1 U1; owner: track G), tools
 - ``set_front(piece_id, front_deg)``: a drawn piece without a front gets one along a side of its footprint (± 1°);
 - ``dry_run(edit)``: the answer without the building; ``allowed_edits(building, piece_id)``: per tool ``{allowed, why,
   move_left_m}`` from the locks (the room brief). Every refusal names its numbers.
+
+Milestone 13 (docs/milestone13.md §1.5, §1.8 B2 / B3, §13.2; owner: track T4):
+
+- ``retype_piece`` BUILDS the piece: after the type change it is fitted again through ``fit.fit_piece`` (track T1)
+  in the project's licence mode (``building.project.licence_mode``, else the catalogue's default) with the fallback
+  ladder (library model, module builder, parametric family), so a retyped drawn piece is never an unbuilt box; it
+  becomes ``verified``, ``build`` true, leaves ``needs_review`` and keeps ``drawn_type`` with ``adjusted_by_ai``
+  (``retype``: the fit's method and licence mode). ``apply_edit(..., catalog=...)`` takes the catalogue for it (the
+  tools and the replay pass it; without one ``catalog.load()`` is used);
+- ``place_group`` reuses the drawn group: when the room has a drawn group of the template (``groups.drawn_groups``:
+  a drawn anchor with its drawn partners, built or not) the solver re-solves it as one unit around the drawn anchor
+  (``solve_room(..., drawn_group=...)``, track T3: every member within 0.5 m of its drawn centre, ``adjusted_by_ai``)
+  instead of adding a second group (real04: six duplicate washbasins);
+- ``swap_model`` refuses an S2 cut below ``S2_SWAP_MIN_M`` (0.03 m, ``scene_checks.TOLERANCES["overlap_fixture"]``)
+  with the reason "within tolerance" (the edit's ``target_finding`` carries the finding's metrics; real04: 40 toilet
+  swaps for 1.2-1.3 cm cuts changed nothing) and the model the piece already has (``no_change``);
+- every edit may carry ``target_finding`` (``{check, target, severity, message, metrics, cause}``, set by the
+  loop, never by the model): the finding the edit addresses.
 """
 from __future__ import annotations
 
@@ -98,7 +116,6 @@ GROUP_OPS = ("place_group", "complete_group", "move_group", "relayout_room")
 CORRECTION_OPS = ("mark_not_furniture",)
 SNAP_MAX_M = 0.3                 # §5: a drawn piece may move (snap to a wall) by at most this
 LAYOUT_OPS = ("relayout_room", "set_room_type")
-META_KEYS = ("reason", "round", "log_seq", "model")
 ROOM_TYPES = ("living", "dining", "bedroom", "kitchen", "bathroom", "wc", "hall", "balcony", "storage", "prayer",
               "stair", "shaft", "other", "unknown")
 EVIDENCE_FILE = "building.json"
@@ -108,7 +125,11 @@ _META: dict[str, Any] = {
     "round": {"type": "integer", "minimum": 0},
     "log_seq": {"type": "integer", "minimum": 0},
     "model": {"type": "string", "maxLength": 200},
+    # Milestone 13: the finding the edit addresses (set by the loop: check, target, severity, message, metrics, cause)
+    "target_finding": {"type": "object"},
 }
+META_KEYS = ("reason", "round", "log_seq", "model", "target_finding")
+S2_SWAP_MIN_M = 0.03             # Milestone 13: swap_model never for an S2 cut below this (within tolerance)
 _POINT = {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
 _ID = {"type": "string", "minLength": 1, "maxLength": 80}
 _FTYPES = sorted(t for t in schemas.SIZE_OPTIONS)
@@ -497,8 +518,26 @@ def _change_type(b: dict, args: dict) -> list[str]:
     return [item["id"]]
 
 
+def _s2_depth(args: dict) -> Optional[float]:
+    """The S2 cut depth (metres) of the edit's ``target_finding``, None when the edit targets no S2 finding."""
+    tf = args.get("target_finding") if isinstance(args.get("target_finding"), dict) else None
+    if not tf or str(tf.get("check") or "") != "S2":
+        return None
+    metrics = tf.get("metrics") if isinstance(tf.get("metrics"), dict) else {}
+    depth = metrics.get("depth_m", metrics.get("overlap_m"))
+    try:
+        return None if depth is None else float(depth)
+    except (TypeError, ValueError):
+        return None
+
+
 def _swap_model(b: dict, args: dict, catalog) -> list[str]:
     item = _piece(b, args["piece_id"])
+    depth = _s2_depth(args)
+    if depth is not None and depth < S2_SWAP_MIN_M - 1e-9:
+        # Milestone 13: a cut below the S2 class tolerance is not visible; no model swap fixes it
+        raise EditRejected("within_tolerance", f"{item['id']}: the S2 cut of {depth:.3f} m is within tolerance "
+                                               f"(below {S2_SWAP_MIN_M:.2f} m): no model swap is offered for it")
     if catalog is None:
         from wenart.furniture import catalog as C
         catalog = C.load()
@@ -507,6 +546,9 @@ def _swap_model(b: dict, args: dict, catalog) -> list[str]:
         raise EditRejected("asset_exists", f"no catalogue model {args['asset_id']!r}")
     if entry.get("type") != item["type"]:
         raise EditRejected("asset_type", f"{args['asset_id']} is a {entry.get('type')} model, not a {item['type']}")
+    current = (item.get("asset") or {}).get("asset_id") if isinstance(item.get("asset"), dict) else None
+    if args["asset_id"] in (current, item.get("asset_pin")):
+        raise EditRejected("no_change", f"{item['id']} already uses the model {args['asset_id']}")
     before = copy.deepcopy(item)
     item["asset_pin"] = args["asset_id"]
     _label(item, before, args, ["asset_pin"])
@@ -682,12 +724,15 @@ def _program(b: dict, room: dict, entries: list[dict], zones: Optional[list] = N
 
 
 def _solve_apply(b: dict, room: dict, prog: dict, args: dict, text: str, *, fixed: list[str], index: int = 1,
-                 accept=None, only_type: Optional[str] = None) -> list[str]:
+                 accept=None, only_type: Optional[str] = None, drawn_group=None) -> list[str]:
     """Solve ``prog`` with ``fixed`` pieces kept, take usable candidate ``index`` (1-based; ``accept`` filters) and
-    add its pieces to ``b`` (``only_type``: only the first piece of that type). Returns the new ids."""
+    add its pieces to ``b`` (``only_type``: only the first piece of that type). Returns the new ids. Milestone 13:
+    ``drawn_group`` (a ``groups.drawn_groups`` entry) makes the solver re-solve that drawn group as one unit
+    (``solve_room(..., drawn_group=...)``, track T3); its re-placed drawn members are taken from the candidate and
+    count as changed."""
     from wenart.furniture import solver as SV
 
-    cands = SV.solve_room(b, room["id"], prog, k=max(3, index), fixed_ids=fixed)
+    cands = SV.solve_room(b, room["id"], prog, k=max(3, index), fixed_ids=fixed, drawn_group=drawn_group)
     passing = [c for c in cands if not c["hard_failures"] and c["pieces"]]
     usable = [c for c in passing if accept is None or accept(c)]
     if not usable and passing:
@@ -707,8 +752,22 @@ def _solve_apply(b: dict, room: dict, prog: dict, args: dict, text: str, *, fixe
     new = SV.apply_candidate(b, room["id"], cand)
     before = {f["id"] for f in b["furniture"]}
     added = [f for f in new["furniture"] if f["id"] not in before]
-    kept = {f["id"] for f in new["furniture"]}
-    b["furniture"] = [f for f in b["furniture"] if f["id"] in kept] + added
+    by_new = {f["id"]: f for f in new["furniture"]}
+    kept = set(by_new)
+    moved: list[str] = []
+    rebuilt = []
+    for f in b["furniture"]:
+        if f["id"] not in kept:
+            continue
+        now = by_new[f["id"]]
+        if _drawn(f) and (_dump(now.get("footprint")) != _dump(f.get("footprint")) or now.get("build") != f.get("build")
+                          or _dump(now.get("front_deg")) != _dump(f.get("front_deg"))):
+            # a drawn member re-placed as part of its drawn group (the solver labels it adjusted_by_ai)
+            moved.append(f["id"])
+            rebuilt.append(now)
+        else:
+            rebuilt.append(f)
+    b["furniture"] = rebuilt + added
     if "decor" in new:
         b["decor"] = new["decor"]
     for f in added:
@@ -717,7 +776,27 @@ def _solve_apply(b: dict, room: dict, prog: dict, args: dict, text: str, *, fixe
         f["layout"] = dict(f.get("layout") or {}, candidate=cand["rank"], score=cand["score"])
         if room.get("has_documented_furniture"):
             f["completes_room"] = True
-    return [f["id"] for f in added]
+    for pid in moved:
+        item = _piece(b, pid)
+        adj = item.get("adjusted_by_ai") if isinstance(item.get("adjusted_by_ai"), dict) else None
+        if adj is None or not str(adj.get("reason") or "").strip():
+            # the solver re-placed a drawn member: the label with this edit's reason and the drawn values
+            src = next(f for f in b["furniture"] if f["id"] == pid)
+            drawn_before = {"type": item.get("drawn_type", item.get("type")),
+                            "footprint": item.get("drawn_footprint") or item.get("footprint"),
+                            "front_deg": item.get("drawn_front_deg", item.get("front_deg")),
+                            "height": item.get("drawn_height", item.get("height")), "source": "from_documents"}
+            _label(src, drawn_before, args, ["footprint", "front_deg"])
+        else:
+            for k in ("round", "log_seq", "model"):
+                if args.get(k) is not None:
+                    adj.setdefault(k, args[k])
+    return moved + [f["id"] for f in added]
+
+
+def _dump(value) -> str:
+    import json
+    return json.dumps(value, sort_keys=True, default=str)
 
 
 def _find_group(b: dict, group_id: str) -> tuple[dict, dict]:
@@ -753,6 +832,18 @@ def _place_group(b: dict, args: dict) -> list[str]:
     if not set(template["room_types"]) & ({rtype} | {z.get("kind") for z in room.get("zones") or []}):
         raise EditRejected("room_type", f"a {name} group does not belong in a {rtype} room (groups.yaml room types: "
                                         f"{', '.join(template['room_types'])})")
+    option = args.get("option")
+    if option is not None and option not in template["options"]:
+        raise EditRejected("option", f"{option!r} is not an option of {name} ({', '.join(template['options'])})")
+    # Milestone 13 (B3): a drawn group of this template (the drawn anchor with its drawn partners, built or not) is
+    # re-solved as one unit around the drawn anchor instead of a second group beside it
+    drawn = next((g for g in GR.drawn_groups(b, room["id"]) if g.get("template") == name), None)
+    if drawn is not None:
+        if option is not None:
+            args = dict(args, option=option)
+        return _solve_apply(b, room, _program(b, room, []), args,
+                            f"{name} group re-solved around the drawn {drawn.get('anchor_type')} "
+                            f"{drawn['anchor_id']}", fixed=_ai_floor_ids(b, room["id"]), drawn_group=drawn)
     if template["layout"] == "anchored":
         types = set(template["anchor"]["types"]) & allowed
         if not types:
@@ -762,9 +853,6 @@ def _place_group(b: dict, args: dict) -> list[str]:
                                  if f.get("room_id") == room["id"]):
             raise EditRejected("second_anchor", f"the room already has its {' / '.join(sorted(roles))}: never a "
                                                 f"second anchor piece (complete_group adds the missing partners)")
-    option = args.get("option")
-    if option is not None and option not in template["options"]:
-        raise EditRejected("option", f"{option!r} is not an option of {name} ({', '.join(template['options'])})")
     rows = [g for g in PR.room_program(b, room["id"])["groups"] if g["group"] == name and not g["drawn"]]
     entry = rows[0] if rows else PR._entry(room["id"], name, True, list(template["options"]))
     taken = {g["group_id"] for g in GR.group_members(b, room["id"])}
@@ -888,7 +976,7 @@ def _move_group(b: dict, args: dict) -> list[str]:
     return ids + new_ids
 
 
-def _retype(b: dict, args: dict) -> list[str]:
+def _retype(b: dict, args: dict, catalog=None) -> list[str]:
     item = _piece(b, args["piece_id"])
     room = _room(b, item.get("room_id"))
     p = placer.drawn_piece(item)
@@ -901,7 +989,71 @@ def _retype(b: dict, args: dict) -> list[str]:
         raise EditRejected("retype", f"{args['type']} is no candidate for {item['id']} ({p.size[0]:.2f} x "
                                      f"{p.size[1]:.2f} m at [{p.center[0]:.2f}, {p.center[1]:.2f}]): the size table and "
                                      f"the room / zone give {', '.join(candidates) or 'none'}")
-    return _change_type(b, args)
+    changed = _change_type(b, args)
+    _build_retyped(b, _piece(b, item["id"]), args, catalog)
+    return changed
+
+
+def licence_mode_of(b: dict) -> str:
+    """The licence mode of a building: ``project.licence_mode`` (written by the fit stage), else the catalogue's
+    default (env ``WENART_LICENCE_MODE`` > ``commercial``)."""
+    from wenart.furniture import catalog as C
+
+    project = b.get("project") if isinstance(b.get("project"), dict) else {}
+    mode = project.get("licence_mode")
+    return str(mode) if mode in C.LICENCE_MODES else C.licence_mode()
+
+
+def _style_family_of(b: dict) -> Optional[str]:
+    """The style family the fit used on this building: the most common ``asset.style_family`` of its fitted pieces
+    (the refit's style.json is not part of the building); None without one (no style filter)."""
+    counts: dict = {}
+    for f in b.get("furniture") or []:
+        asset = f.get("asset") if isinstance(f.get("asset"), dict) else {}
+        fam = asset.get("style_family")
+        if fam:
+            counts[str(fam)] = counts.get(str(fam), 0) + 1
+    return max(sorted(counts), key=lambda k: counts[k]) if counts else None
+
+
+def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
+    """Milestone 13 (B2): the retyped piece is fitted again (``fit.fit_piece``, the ladder) in the project's licence
+    mode and built: ``asset`` set, ``status`` verified, ``build`` true, no ``needs_review`` entry; the fit's method
+    and mode are recorded under ``adjusted_by_ai.retype``. Returns the asset."""
+    from wenart.furniture import fit as F
+
+    if catalog is None:
+        from wenart.furniture import catalog as C
+        catalog = C.load()
+    mode = licence_mode_of(b)
+    trial = dict(item, build=True)
+    trial.pop("asset_pin", None)
+    try:
+        asset = F.fit_piece(trial, catalog, mode=mode, style_family=_style_family_of(b))
+    except Exception as exc:  # noqa: BLE001 - review (T4): a refit error is a rejected edit with its reason, never a
+        # crash of the session or of the replay (``apply_edit`` turns only EditRejected into a rejection)
+        raise EditRejected("refit", f"{item['id']}: the refit as {item['type']} failed ({type(exc).__name__}: "
+                                    f"{str(exc)[:160]}); the piece stays as it was") from exc
+    if asset.get("method") in (None, F.NOT_BUILT_METHOD):
+        # review (T4): the ladder builds a ``build: true`` piece (module or parametric at worst); a ``none`` answer
+        # would leave the retyped piece as an unbuilt box, which a retype must never do
+        raise EditRejected("refit", f"{item['id']}: the fit built nothing for {item['type']} "
+                                    f"({(asset.get('library_gap') or {}).get('reason') or 'no model, no builder'})")
+    item["asset"] = asset
+    if asset.get("library_gap"):
+        item["library_gap"] = dict(asset["library_gap"])
+    else:
+        item.pop("library_gap", None)
+    item["status"] = "verified"
+    item.pop("build", None)                      # built (the default); a retype never leaves a box unbuilt
+    if item.get("type_method") in (None, "none"):
+        item["type_method"] = "inferred"
+    b["needs_review"] = [n for n in b.get("needs_review") or [] if n.get("id") != item["id"]]
+    adj = item.get("adjusted_by_ai") if isinstance(item.get("adjusted_by_ai"), dict) else {}
+    adj["retype"] = {"to": item["type"], "built": True, "method": asset.get("method"), "asset_id": asset.get("asset_id"),
+                     "licence_mode": mode, "ladder_step": (item.get("library_gap") or {}).get("step") or "library"}
+    item["adjusted_by_ai"] = adj
+    return asset
 
 
 SYMBOL_KINDS = ("level_mark", "room_number", "north_arrow", "axis_bubble", "section_mark", "door_arc",
@@ -1171,6 +1323,8 @@ def apply_edit(building: dict, edit: dict, *, catalog=None) -> dict:
             changed = _relayout_m12(b, args)
         elif op == "set_room_type":
             changed = _set_room_type(b, args)
+        elif op == "retype_piece":
+            changed = _retype(b, args, catalog)          # Milestone 13: the refit needs the catalogue
         else:
             changed = M12_EDITS[op](b, args)
     except EditRejected as exc:

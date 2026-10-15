@@ -231,8 +231,10 @@ SCORE_DECIMALS = 6                   # scores are rounded before sorting (determ
 # sofa back, cistern) make the back slab on the rear edge. Every other type stays one box (``piece_bbox``).
 PROFILE_BACK_ROLE = "back"
 PROFILES: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
-    "bed": (("body", "mattress"), ()), "bed_single": (("body", "mattress"), ()),
-    "bed_double": (("body", "mattress"), ()),
+    # Milestone 13 (T2 bed v2): the frame (role body) is a low box over the whole footprint and the mattress a
+    # box of its own inside the frame's ledge, so a close-up of the foot corner sees the ledge the mesh shows.
+    "bed": (("body",), ("mattress",)), "bed_single": (("body",), ("mattress",)),
+    "bed_double": (("body",), ("mattress",)),
     "chair": (("top",), ()),
     "sofa": (("body", "cushion"), ("arm",)), "armchair": (("body", "cushion"), ("arm",)),
     "toilet": (("bowl", "seat"), ()),
@@ -493,10 +495,16 @@ def piece_profile(piece: dict) -> list[tuple[float, float, float, float, float]]
         return (x0 * sx, y0 * sy, x1 * sx, y1 * sy, min(z1, top))
 
     low = [p for p in parts if p["role"] in low_roles]
+    sides = [p for p in parts if p["role"] in side_roles]
+    if source == "library" and any(p["role"] == "mattress" for p in sides):
+        # A library bed's mattress reaches its fitted box (its ledge, if any, is not known): the one low box of
+        # Milestone 12 (frame and mattress together); the parametric bed v2 keeps its frame ledge and mattress box.
+        low += [p for p in sides if p["role"] == "mattress"]
+        sides = [p for p in sides if p["role"] != "mattress"]
     back = [p for p in parts if p["role"] == PROFILE_BACK_ROLE]
     if not low or not back:
         return whole
-    boxes = [box(low)] + [box([p]) for p in parts if p["role"] in side_roles]
+    boxes = [box(low)] + [box([p]) for p in sides]
     if max(b[4] for b in boxes) >= top - 1e-9:
         return whole
     return boxes + [box(back, back=True)]

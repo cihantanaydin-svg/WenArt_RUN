@@ -491,7 +491,9 @@ def test_secondary_floor_plan_with_extra_elements_adds_them_unverified(tmp_path)
     assert [e["file"] for e in extra_window["evidence"]] == ["zemin.pdf"]
     extra_piece = next(f for f in building["furniture"] if f["status"] == "unverified")
     assert G.distance(extra_piece["footprint"]["center"], level.furniture[0].center) <= 0.01
-    assert [e["file"] for e in extra_piece["evidence"]] == ["zemin.pdf"] and extra_piece["room_id"] == "r_L0_salon"
+    # Milestone 13 (K3): the PDF-only piece is typed by code (the salon's missing sofa) with an inferred evidence
+    # record of its own; every record names the PDF, none the DXF.
+    assert {e["file"] for e in extra_piece["evidence"]} == {"zemin.pdf"} and extra_piece["room_id"] == "r_L0_salon"
     assert building["unverified"] == [extra_window["id"], extra_piece["id"]]
     conflicts = {c["element_ids"][0]: c for c in building["conflicts"]}
     assert set(conflicts) == {extra_window["id"], extra_piece["id"]}

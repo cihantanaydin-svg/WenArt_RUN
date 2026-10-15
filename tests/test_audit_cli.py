@@ -16,6 +16,8 @@ def small_catalogues(tmp_path):
     small = copy.deepcopy(lib)
     small["entries"] = [e for e in lib["entries"] if e["id"] in keep] + [copy.deepcopy(nc), copy.deepcopy(gen)]
     small["entries"][2].pop("audit", None)
+    # Milestone 13: an NC licence stays (relaxed mode); the licences step removes a no-derivatives one
+    small["entries"][2].update(licence="CC-BY-ND-4.0", licence_flag="no_derivatives", commercial_safe=False)
     small["entries"][3]["via"] = "Objaverse (allenai/objaverse, ODC-By 1.0)"
     small["decor"] = []
     small["notes"] = []

@@ -1,0 +1,1009 @@
+"""The 17 before/after metrics of Milestone 13 (docs/milestone13.md §7, §13.2; track T8).
+
+What: ``metrics(project_out, baseline_out=None)`` computes the 17 metrics of §7 for one run of a project and,
+when a baseline run is given, the same numbers for it, so the report shows before | after side by side::
+
+    python -m wenart.report metrics13 --out outputs/real04 --baseline results/final/real04 --json m13.json [--md m13.md]
+
+Every metric is ``{"id", "name", "value", "baseline", "unit", "source", "text", "baseline_text", "parts",
+"baseline_parts", "target"}``: ``value`` is a number (``unit`` says what: ``%``, ``count``, ``EV``, ``score``,
+``min``, ``USD``) or the string ``"no data"`` when the input it needs is missing (never a silent 0); ``text`` is
+the human form ("11 of 35 (31 %)"); ``parts`` holds the components of a composite metric (metric 8 has five
+numbers, 9 two, 11 three); ``source`` names the files and the rule. The result also carries a per-view table
+(camera, room, EV, bare-wall share, cross-check mismatches, commercial-safe line, rubric score and tags, matched
+to the baseline by camera name) and the input files found.
+
+Inputs, never images alone (§7: "script over building_final.json, log.json, final_manifest.json"):
+
+- the building: ``building_final.json`` (metrics 1-5, 8, 10, 11, 13);
+- the orchestrator log ``orchestrator/log.json`` (6, 7);
+- the scene manifest ``scene/scene_manifest.json`` (4 grey boxes, 9 window rooms, 10 shell slots and fabric
+  recolour, 11 vegetation, 12 planned exterior cameras, 13 bare-wall share) and the render manifest
+  ``renders/render_manifest.json`` (9, 12);
+- the final manifest and report ``final/final_manifest.json`` / ``final_report.md`` (9 as a fallback, 12, 14, 16,
+  17 stage seconds) and ``final/ATTRIBUTION.md`` (16);
+- the rubric ``*_per_view.json`` of the reviewer (15; ``results/review/<folder>/<p>_per_view.json`` of the committed
+  baseline, else ``final/rubric_per_view.json`` of the run);
+- the one image-based number §7 defines as such: the black pixels of the site view (11), read from the final
+  preview of the aerial / site camera.
+
+Two layouts are read (``locate``): the volume's project output (``outputs/<p>/`` with ``scene/``, ``renders/``,
+``orchestrator/``, ``final/``, ``run/``) and the committed results (``results/<area>/<p>``: the folder given is any
+area folder of the project, e.g. ``results/final/real02``; the siblings ``furniture``, ``renders``, ``agent``,
+``final``, ``run`` and ``review`` are read). The committed baselines (docs/milestone13.md §12 D6) are the M11 runs
+of real02 and real03 (commit 93aff07) and the M12 run of real04 (commit eddde01; no scene manifest, no renders
+folder: the metrics that need them say "no data").
+
+Why: the user's D6 decision compares the Milestone 13 runs with the committed runs on the same views; the numbers
+must come from the same script on both sides, with the definitions fixed here (§7).
+
+How (the definitions):
+
+1.  drawn anchors built: ``from_documents`` pieces whose type (or ``drawn_type``) is in ``ANCHOR_TYPES``; built =
+    ``build`` not false and ``asset.method`` in library / module / parametric.
+2.  drawn pieces in the scene: the same rule over every ``from_documents`` piece.
+3.  pieces with ``asset.method: none``.
+4.  parametric share of the built pieces (parts: parametric and module shares of the built pieces, parametric
+    share of every fitted piece = a piece with an ``asset`` whose method is not ``none`` (§7: 115 of 246 for real04,
+    the unbuilt ones counted, the 43 method-none ones not), grey boxes = ``furniture_proxy`` objects of the scene
+    manifest).
+5.  rooms with a complete group set (``ROOM_SETS`` by room type, over built furniture and decor): share of the
+    furnished main rooms (rooms of those types with at least one built piece); parts per room type.
+6.  findings of the last orchestrator round: F8, S2 deeper than 3 cm (``evidence.metrics.depth_m``), G10, LG
+    (non-dropped ``finding`` events); value = their sum, parts = each.
+7.  accepted edits whose finding is gone in the next round: accepted ``edit`` events of round r < last with a
+    checklist and a target; gone = no non-dropped finding with the same checklist and target in round r + 1.
+8.  built library pieces: top model share (value), distinct models, units unknown (``asset.units_known`` false),
+    stretch > 5 % (max / min of ``fit_scale`` - 1), audit quality <= 3 (the lower M8 judge score of ``asset.quality``
+    <= 3, or a ``vision_doubt`` on the catalogue entry).
+9.  interior views at EV >= +5 (value) and the median EV gap between the views of rooms without a window and the
+    views of rooms with one (window rooms from the scene manifest's window objects).
+10. shell material slots on PBR sets with normal + roughness maps (a ``maps`` / ``textures`` record of the scene
+    manifest's materials; "no data" when the manifest records no maps) and the brief's fabric colour applied to the
+    built upholstered pieces (``UPHOLSTERED_TYPES``; applied = the scene object's ``recolour`` has a ``fabric`` slot).
+11. drawn trees (``site.decor`` kind ``tree``) built as real or generated geometry (the scene manifest's
+    ``site.vegetation`` / ``site.trees`` records with a method other than a primitive; tree objects without such a
+    record count as primitives), hedges built from the drawn rows (``site.hedges`` of the building vs the scene's
+    hedge records or objects), black pixels of the site view (the aerial / site camera's final preview; the
+    exterior preview with most black when the scene manifest does not say which camera is the site view).
+12. exterior views rendered of planned (planned = the scene manifest's exterior cameras + the dropped ones).
+13. views in halls (``HALL_TYPES``) or with >= 50 % bare wall (the scene camera's ``score.shares.wall``).
+14. ``in_json_not_rendered`` mismatches of the final check (final manifest ``json_crosscheck``).
+15. rubric score of the reviewer (mean over the views of the final report; parts: views at 1, share at 4-5).
+16. commercial-safe line present (share of views with ``commercial_safe`` in the manifest and a line in the report)
+    and every flagged asset listed in ``ATTRIBUTION.md`` (parts: missing ids).
+17. minutes and USD per full run: the stage seconds of the run (``run/*.json`` records of the run id, else the
+    final manifest's ``run_stages``) at ``PRICE_USD_PER_H`` (env ``WENART_GPU_USD_PER_H`` overrides; the §7 price
+    of the RTX PRO 6000). The pod's wall minutes (docs/gpu-log.md) are longer: setup and downloads are not stages.
+"""
+from __future__ import annotations
+
+import os
+import re
+import statistics
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Optional
+
+from wenart.report import common as C
+
+NO_DATA = "no data"
+SCHEMA_VERSION = "m13"
+ANCHOR_TYPES = ("sofa", "sofa_corner", "bed_double", "table_dining", "wardrobe", "desk")
+BUILT_METHODS = ("library", "module", "parametric")
+NOT_BUILT_METHOD = "none"
+HALL_TYPES = ("hall", "corridor", "vestibule", "landing", "stair")
+UPHOLSTERED_TYPES = ("sofa", "sofa_corner", "armchair", "ottoman")
+# Room type -> the group set a furnished room of that type needs (docs/milestone13.md §7 metric 5):
+# (name, types that satisfy it, how many).
+ROOM_SETS: dict[str, tuple] = {
+    "bedroom": (("bed", ("bed_double", "bed_single"), 1), ("nightstands", ("nightstand",), 2),
+                ("wardrobe", ("wardrobe",), 1)),
+    "living": (("sofa", ("sofa", "sofa_corner"), 1), ("coffee table", ("table_coffee",), 1),
+               ("tv unit", ("tv_unit",), 1), ("rug", ("rug",), 1)),
+    "kitchen": (("counter", ("kitchen_counter", "kitchen_island"), 1), ("sink", ("sink_kitchen",), 1),
+                ("hob", ("stove",), 1), ("fridge", ("fridge",), 1)),
+    "bathroom": (("toilet", ("toilet",), 1), ("basin", ("washbasin",), 1), ("shower or tub", ("shower", "bathtub"), 1)),
+    "dining": (("table", ("table_dining",), 1), ("chairs", ("chair",), 2)),
+}
+LAST_ROUND_CHECKS = ("F8", "S2", "G10", "LG")
+S2_DEPTH_M = 0.03
+EV_HIGH = 5.0
+BARE_WALL_SHARE = 0.5
+STRETCH_LIMIT = 0.05
+QUALITY_LOW = 3
+BLACK_LEVEL = 16                  # a pixel is black when every channel is below this (of 255)
+PRICE_USD_PER_H = 2.49            # docs/milestone13.md §7 / §8: RTX PRO 6000 median price of 9 Oct 2026
+PRICE_ENV = "WENART_GPU_USD_PER_H"
+VEGETATION_PRIMITIVES = ("", "primitive", "ellipsoid", "sphere", "proxy", "box", "none")
+RESULT_AREAS = ("furniture", "renders", "agent", "final", "run", "review")
+
+# id -> (name, unit of the value, target of §7)
+METRICS: dict[int, tuple[str, str, str]] = {
+    1: ("drawn anchors built (sofa, sofa_corner, bed_double, table_dining, wardrobe, desk)", "%", "100 %"),
+    2: ("drawn pieces in the scene (built, method not none)", "%", ">= 90 %"),
+    3: ("pieces with asset.method none", "count", "0"),
+    4: ("parametric share of the built pieces; grey boxes", "%", "<= 25 %; 0"),
+    5: ("rooms with a complete group set", "%", ">= 90 % of the furnished main rooms"),
+    6: ("last-round findings F8 + S2 (> 3 cm) + G10 + LG", "count", "<= 5 / <= 3 / report-only / <= 5"),
+    7: ("accepted agent edits whose finding is gone next round", "%", ">= 60 % (or the agent is off)"),
+    8: ("built library pieces: top model share; distinct; units unknown; stretch > 5 %; quality <= 3", "%",
+        "<= 15 %; >= 60; <= 10 %; <= 10 %; <= 25 %"),
+    9: ("interior views at EV >= +5; EV median gap lit vs daylight rooms", "count", "0; <= 2 EV"),
+    10: ("shell slots on PBR sets with normal + roughness; fabric colour applied", "%", ">= 90 %; 100 %"),
+    11: ("drawn trees built as real geometry; hedges from the drawn rows; black pixels in the site view", "%",
+         "100 %; 2; 0 %"),
+    12: ("exterior views rendered of planned", "count", "7 of 7"),
+    13: ("views in halls or with >= 50 % bare wall", "count", "<= 4"),
+    14: ("in_json_not_rendered mismatches of the final check", "count", "0"),
+    15: ("rubric score (reviewer, same rubric)", "score", "mean >= 3.0; 0 at 1; >= 25 % at 4-5"),
+    16: ("commercial-safe line present; ATTRIBUTION lists every flagged asset", "%", "100 %; 0 missing"),
+    17: ("minutes and USD per full run", "min", "<= 150 min, <= $6.50 at $2.49/h"),
+}
+
+
+# --------------------------------------------------------------------------
+# Inputs
+# --------------------------------------------------------------------------
+
+@dataclass
+class Run:
+    """The files of one run, read once; a missing file is None and named in ``missing``."""
+    root: Path
+    name: str
+    layout: str                                   # volume | results
+    paths: dict = field(default_factory=dict)     # key -> Path or None
+    building: Optional[dict] = None
+    scene: Optional[dict] = None
+    render: Optional[dict] = None
+    final: Optional[dict] = None
+    report_md: Optional[str] = None
+    attribution_md: Optional[str] = None
+    log: Optional[dict] = None
+    rubric: Optional[list] = None
+    stage_records: list = field(default_factory=list)
+    preview_dirs: list = field(default_factory=list)
+    warnings: list = field(default_factory=list)
+
+    @property
+    def missing(self) -> list[str]:
+        return sorted(k for k, p in self.paths.items() if p is None)
+
+
+def _read_json(path: Optional[Path], warnings: list):
+    return C.read_json(path, warnings) if path is not None else None
+
+
+def _first_file(*candidates: Path) -> Optional[Path]:
+    for p in candidates:
+        if p is not None and Path(p).is_file():
+            return Path(p)
+    return None
+
+
+def _results_root(out: Path) -> Optional[tuple[Path, str]]:
+    """``(results root, project name)`` when ``out`` is ``results/<area>/<p>`` (any area folder of the project)."""
+    if out.parent.name in RESULT_AREAS:
+        root = out.parent.parent
+        if any((root / area / out.name).is_dir() for area in RESULT_AREAS):
+            return root, out.name
+    return None
+
+
+def _rubric_path(volume_final: Optional[Path], results_root: Optional[Path], name: str) -> Optional[Path]:
+    """The reviewer's per-view rubric file: ``final/rubric_per_view.json`` of the run, else the newest
+    ``results/review/<folder>/<name>_per_view.json``."""
+    if volume_final is not None:
+        p = _first_file(volume_final / "rubric_per_view.json", volume_final / f"{name}_per_view.json")
+        if p is not None:
+            return p
+    if results_root is not None and (results_root / "review").is_dir():
+        found = sorted((results_root / "review").glob(f"*/{name}_per_view.json"))
+        if found:
+            return found[-1]
+    return None
+
+
+def locate(project_out) -> Run:
+    """Read the files of a run in the volume layout or the committed results layout (module docstring)."""
+    out = Path(project_out).resolve()
+    hit = _results_root(out)
+    volume = (out / "building_final.json").is_file() or (out / "scene").is_dir() or (out / "renders").is_dir() \
+        or (out / "final").is_dir() or (out / "orchestrator").is_dir()
+    if volume or hit is None:
+        run = Run(root=out, name=out.name, layout="volume")
+        run.paths = {
+            "building": _first_file(out / "building_final.json"),
+            "scene": _first_file(out / "scene" / "scene_manifest.json"),
+            "render": _first_file(out / "renders" / "render_manifest.json"),
+            "final": _first_file(out / "final" / "final_manifest.json"),
+            "report": _first_file(out / "final" / "final_report.md"),
+            "attribution": _first_file(out / "final" / "ATTRIBUTION.md"),
+            "log": _first_file(out / "orchestrator" / "log.json"),
+            "rubric": _rubric_path(out / "final", None, out.name),
+        }
+        run.stage_records = _stage_records(out / "run", run.warnings)
+        run.preview_dirs = [out / "final", out / "renders"]
+    else:
+        root, name = hit
+        run = Run(root=out, name=name, layout="results")       # root: the folder given; the areas are its siblings
+        run.paths = {
+            "building": _first_file(root / "furniture" / name / "building_final.json"),
+            "scene": _first_file(root / "renders" / name / "scene_manifest.json"),
+            "render": _first_file(root / "renders" / name / "render_manifest.json"),
+            "final": _first_file(root / "final" / name / "final_manifest.json"),
+            "report": _first_file(root / "final" / name / "final_report.md"),
+            "attribution": _first_file(root / "final" / name / "ATTRIBUTION.md"),
+            "log": _first_file(root / "agent" / name / "log.json"),
+            "rubric": _rubric_path(root / "final" / name, root, name),
+        }
+        run.stage_records = _stage_records(root / "run" / name, run.warnings)
+        run.preview_dirs = [root / "final" / name, root / "renders" / name]
+    w = run.warnings
+    run.building = _read_json(run.paths["building"], w)
+    run.scene = _read_json(run.paths["scene"], w)
+    run.render = _read_json(run.paths["render"], w)
+    run.final = _read_json(run.paths["final"], w)
+    run.log = _read_json(run.paths["log"], w)
+    rubric = _read_json(run.paths["rubric"], w)
+    run.rubric = rubric if isinstance(rubric, list) else None
+    for key, attr in (("report", "report_md"), ("attribution", "attribution_md")):
+        p = run.paths.get(key)
+        if p is not None:
+            try:
+                setattr(run, attr, p.read_text(encoding="utf-8"))
+            except OSError as exc:
+                w.append(f"{p.name}: unreadable ({exc})")
+    if not run.stage_records and isinstance(run.final, dict):
+        run.stage_records = [r for r in run.final.get("run_stages") or [] if isinstance(r, dict)]
+    for key in run.missing:
+        w.append(f"{key}: no file ({run.layout} layout under {run.root})")
+    return run
+
+
+def _stage_records(folder: Path, warnings: list) -> list[dict]:
+    """The stage records of the newest run id in ``folder`` (``run/<stage>.json``)."""
+    if not folder.is_dir():
+        return []
+    records = []
+    for p in sorted(folder.glob("*.json")):
+        data = C.read_json(p, warnings)
+        if isinstance(data, dict) and data.get("kind") == "stage_record":
+            records.append(data)
+    run_ids = [r.get("run_id") for r in records if r.get("run_id")]
+    if run_ids:
+        newest = max(run_ids)
+        records = [r for r in records if r.get("run_id") == newest]
+    return records
+
+
+# --------------------------------------------------------------------------
+# Helpers over the building and the manifests
+# --------------------------------------------------------------------------
+
+def _method(piece: dict) -> str:
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    return str(asset.get("method") or "")
+
+
+def _built(piece: dict) -> bool:
+    return piece.get("build") is not False and _method(piece) in BUILT_METHODS
+
+
+def _furniture(run: Run) -> list[dict]:
+    return [p for p in (run.building or {}).get("furniture") or [] if isinstance(p, dict)]
+
+
+def _decor(run: Run) -> list[dict]:
+    return [d for d in (run.building or {}).get("decor") or [] if isinstance(d, dict)]
+
+
+def _room_types(run: Run) -> dict:
+    return {r.get("id"): r.get("room_type") for r in (run.building or {}).get("rooms") or [] if isinstance(r, dict)}
+
+
+def _pct(a: int, b: int) -> Any:
+    return NO_DATA if not b else round(100.0 * a / b, 1)
+
+
+def _of(a: int, b: int) -> str:
+    return f"{a} of {b}" + (f" ({100.0 * a / b:.0f} %)" if b else "")
+
+
+def _views(run: Run) -> list[dict]:
+    """The rendered views: the final manifest's (camera, room, kind, EV, cross-check), else the render manifest's."""
+    if isinstance(run.final, dict) and isinstance(run.final.get("views"), list):
+        return [v for v in run.final["views"] if isinstance(v, dict) and v.get("camera")]
+    out = []
+    for e in (run.render or {}).get("renders") or []:
+        if not isinstance(e, dict) or not e.get("camera") or e.get("skipped"):
+            continue
+        out.append({"camera": e["camera"], "room_id": e.get("room_id"), "level_id": e.get("level_id"),
+                    "view_kind": "interior" if e.get("room_id") else "exterior", "exposure": e.get("exposure"),
+                    "json_crosscheck": None, "commercial_safe": None})
+    return out
+
+
+def _scene_cameras(run: Run) -> dict:
+    return {c["name"]: c for c in (run.scene or {}).get("cameras") or [] if isinstance(c, dict) and c.get("name")}
+
+
+def _is_exterior(view: dict, cams: dict) -> bool:
+    cam = cams.get(view.get("camera")) or {}
+    if cam.get("kind") == "exterior":
+        return True
+    if view.get("view_kind") == "exterior":
+        return True
+    return not view.get("room_id") and str(view.get("camera") or "").startswith("ext")
+
+
+def _ev(view: dict) -> Optional[float]:
+    exp = view.get("exposure") if isinstance(view.get("exposure"), dict) else None
+    ev = exp.get("ev") if exp else None
+    return float(ev) if isinstance(ev, (int, float)) else None
+
+
+def _preview(run: Run, camera: str) -> Optional[Path]:
+    for d in run.preview_dirs:
+        p = _first_file(d / f"{camera}_final_preview.jpg", d / f"{camera}_preview.jpg")
+        if p is not None:
+            return p
+    return None
+
+
+def _scene_objects_by_id(run: Run) -> dict:
+    out: dict = {}
+    for o in (run.scene or {}).get("objects") or []:
+        if isinstance(o, dict) and o.get("wenart_id") and o.get("kind") == "furniture":
+            out.setdefault(str(o["wenart_id"]), o)
+    return out
+
+
+def _metric(mid: int, value, text: Optional[str] = None, parts: Optional[dict] = None, source: str = "") -> dict:
+    name, unit, target = METRICS[mid]
+    return {"id": mid, "name": name, "value": value, "unit": unit, "source": source,
+            "text": text if text is not None else (NO_DATA if value == NO_DATA else str(value)),
+            "parts": parts or {}, "target": target}
+
+
+# --------------------------------------------------------------------------
+# The 17 metrics
+# --------------------------------------------------------------------------
+
+def metric_1(run: Run) -> dict:
+    src = "building_final.json furniture[]: source from_documents, type or drawn_type in ANCHOR_TYPES; built = " \
+          "build not false and asset.method in library / module / parametric"
+    if run.building is None:
+        return _metric(1, NO_DATA, source=src)
+    anchors = [p for p in _furniture(run) if p.get("source") == "from_documents"
+               and (p.get("type") in ANCHOR_TYPES or p.get("drawn_type") in ANCHOR_TYPES)]
+    built = [p for p in anchors if _built(p)]
+    by_type: dict = {}
+    for p in anchors:
+        t = p.get("type") if p.get("type") in ANCHOR_TYPES else p.get("drawn_type")
+        row = by_type.setdefault(str(t), {"built": 0, "drawn": 0})
+        row["drawn"] += 1
+        row["built"] += int(_built(p))
+    return _metric(1, _pct(len(built), len(anchors)), _of(len(built), len(anchors)),
+                   {"built": len(built), "drawn": len(anchors), "by_type": by_type,
+                    "not_built": sorted(p.get("id") for p in anchors if not _built(p))}, src)
+
+
+def metric_2(run: Run) -> dict:
+    src = "building_final.json furniture[]: source from_documents; built = build not false and asset.method not none"
+    if run.building is None:
+        return _metric(2, NO_DATA, source=src)
+    drawn = [p for p in _furniture(run) if p.get("source") == "from_documents"]
+    built = [p for p in drawn if _built(p)]
+    return _metric(2, _pct(len(built), len(drawn)), _of(len(built), len(drawn)),
+                   {"built": len(built), "drawn": len(drawn),
+                    "build_false": sum(1 for p in drawn if p.get("build") is False),
+                    "method_none": sum(1 for p in drawn if _method(p) == NOT_BUILT_METHOD)}, src)
+
+
+def metric_3(run: Run) -> dict:
+    src = "building_final.json furniture[].asset.method == none"
+    if run.building is None:
+        return _metric(3, NO_DATA, source=src)
+    none = [p for p in _furniture(run) if _method(p) == NOT_BUILT_METHOD]
+    return _metric(3, len(none), str(len(none)), {"ids": sorted(str(p.get("id")) for p in none)}, src)
+
+
+def metric_4(run: Run) -> dict:
+    src = "building_final.json: built pieces (build not false, method not none) by asset.method; fitted = pieces " \
+          "with an asset whose method is not none (the unbuilt ones count, §7); grey boxes = scene_manifest.json " \
+          "objects of kind furniture_proxy"
+    if run.building is None:
+        return _metric(4, NO_DATA, source=src)
+    pieces = _furniture(run)
+    built = [p for p in pieces if _built(p)]
+    # T8 review (15 Oct 2026): §7 counts 115 of 246 fitted pieces for real04 (289 with an asset, 43 of them method
+    # none); every asset dict gave 289, a definition §7 does not use.
+    fitted = [p for p in pieces if isinstance(p.get("asset"), dict) and _method(p) != NOT_BUILT_METHOD]
+    para = sum(1 for p in built if _method(p) == "parametric")
+    module = sum(1 for p in built if _method(p) == "module")
+    para_all = sum(1 for p in fitted if _method(p) == "parametric")
+    grey = NO_DATA
+    if run.scene is not None:
+        grey = sum(1 for o in run.scene.get("objects") or [] if isinstance(o, dict) and o.get("kind") == "furniture_proxy")
+    text = f"{_of(para, len(built))} parametric of the built pieces; {_of(para_all, len(fitted))} of every fitted " \
+           f"piece; module {module}; grey boxes {grey}"
+    return _metric(4, _pct(para, len(built)), text,
+                   {"parametric_of_built": _pct(para, len(built)), "module_of_built": _pct(module, len(built)),
+                    "parametric_of_fitted": _pct(para_all, len(fitted)), "built": len(built), "fitted": len(fitted),
+                    "parametric": para, "module": module, "grey_boxes": grey}, src)
+
+
+def metric_5(run: Run) -> dict:
+    src = "building_final.json rooms[].room_type x ROOM_SETS over the built furniture and decor of each room " \
+          "(furnished main rooms: rooms of a set type with at least one built piece)"
+    if run.building is None:
+        return _metric(5, NO_DATA, source=src)
+    rtypes = _room_types(run)
+    by_room: dict = {}
+    for p in _furniture(run):
+        if _built(p):
+            by_room.setdefault(p.get("room_id"), []).append(str(p.get("type")))
+    for d in _decor(run):
+        # a decor item is built unless build is false (its ``method`` ai / rule says how it was added, not how it was
+        # built; one without an asset is built by the decor builder); T8 review: the former condition was always true
+        if d.get("build") is not False:
+            by_room.setdefault(d.get("room_id"), []).append(str(d.get("type")))
+    per_type: dict = {}
+    complete = total = 0
+    incomplete: dict = {}
+    for rid, rtype in rtypes.items():
+        if rtype not in ROOM_SETS or not by_room.get(rid):
+            continue
+        types = by_room[rid]
+        missing = [name for name, kinds, n in ROOM_SETS[rtype] if sum(types.count(k) for k in kinds) < n]
+        row = per_type.setdefault(rtype, {"complete": 0, "rooms": 0})
+        row["rooms"] += 1
+        total += 1
+        if not missing:
+            row["complete"] += 1
+            complete += 1
+        else:
+            incomplete[rid] = missing
+    text = "; ".join(f"{t} {r['complete']}/{r['rooms']}" for t, r in sorted(per_type.items())) or "no furnished main room"
+    return _metric(5, _pct(complete, total), text,
+                   {"complete": complete, "rooms": total, "by_type": per_type, "missing": incomplete}, src)
+
+
+def _findings(run: Run) -> list[dict]:
+    return [e for e in (run.log or {}).get("events") or [] if isinstance(e, dict) and e.get("kind") == "finding"
+            and not e.get("dropped")]
+
+
+def _last_round(run: Run) -> Optional[int]:
+    rounds = [int(e.get("round") or 0) for e in _findings(run)]
+    return max(rounds) if rounds else None
+
+
+def metric_6(run: Run) -> dict:
+    src = "orchestrator log.json finding events of the last round (not dropped) by checklist; S2 counted when " \
+          f"evidence.metrics.depth_m > {S2_DEPTH_M} m"
+    last = _last_round(run)
+    if run.log is None or last is None:
+        return _metric(6, NO_DATA, source=src)
+    found = [e for e in _findings(run) if int(e.get("round") or 0) == last]
+    counts = {c: 0 for c in LAST_ROUND_CHECKS}
+    s2_all = 0
+    for e in found:
+        c = str(e.get("checklist"))
+        if c == "S2":
+            s2_all += 1
+            depth = ((e.get("evidence") or {}).get("metrics") or {}).get("depth_m")
+            if isinstance(depth, (int, float)) and float(depth) > S2_DEPTH_M:
+                counts["S2"] += 1
+        elif c in counts:
+            counts[c] += 1
+    text = f"round {last}: F8 {counts['F8']} / S2 > 3 cm {counts['S2']} (S2 all {s2_all}) / G10 {counts['G10']} " \
+           f"/ LG {counts['LG']}"
+    return _metric(6, sum(counts.values()), text, dict(counts, S2_all=s2_all, round=last, findings=len(found)), src)
+
+
+def metric_7(run: Run) -> dict:
+    src = "orchestrator log.json: accepted edit events of round r < last with checklist and target; gone = no " \
+          "finding with the same checklist and target in round r + 1"
+    last = _last_round(run)
+    if run.log is None or last is None:
+        return _metric(7, NO_DATA, source=src)
+    next_keys: dict = {}
+    for e in _findings(run):
+        next_keys.setdefault(int(e.get("round") or 0), set()).add((str(e.get("checklist")), str(e.get("target"))))
+    edits = [e for e in run.log.get("events") or [] if isinstance(e, dict) and e.get("kind") == "edit"
+             and e.get("checklist") and e.get("target") and int(e.get("round") or 0) < last]
+    gone = [e for e in edits if (str(e["checklist"]), str(e["target"])) not in next_keys.get(int(e["round"]) + 1, set())]
+    accepted = sum(1 for e in run.log.get("events") or [] if isinstance(e, dict) and e.get("kind") == "edit")
+    return _metric(7, _pct(len(gone), len(edits)), f"{_of(len(gone), len(edits))} (accepted edits {accepted}, "
+                                                    f"rounds {last})",
+                   {"gone": len(gone), "judged": len(edits), "accepted": accepted, "rounds": last}, src)
+
+
+def _quality_low(asset: dict, entry: Optional[dict]) -> Optional[bool]:
+    q = asset.get("quality")
+    scores = [float(v) for v in (q if isinstance(q, list) else [q]) if isinstance(v, (int, float))]
+    doubt = bool(((entry or {}).get("audit") or {}).get("vision_doubt")) if isinstance(entry, dict) else False
+    if not scores and not doubt:
+        return None
+    return bool(scores and min(scores) <= QUALITY_LOW) or doubt
+
+
+def metric_8(run: Run, catalog=None) -> dict:
+    src = "building_final.json built pieces with asset.method library: asset_id counts, units_known, fit_scale " \
+          "(max / min - 1 > 5 %), quality (lower M8 judge <= 3) or a catalogue audit vision_doubt"
+    if run.building is None:
+        return _metric(8, NO_DATA, source=src)
+    lib = [p for p in _furniture(run) if _built(p) and _method(p) == "library"]
+    if not lib:
+        return _metric(8, NO_DATA, "no built library piece", {}, src)
+    counts: dict = {}
+    for p in lib:
+        aid = str(p["asset"].get("asset_id") or "?")
+        counts[aid] = counts.get(aid, 0) + 1
+    top_id, top_n = max(counts.items(), key=lambda kv: (kv[1], kv[0]))
+    unknown = sum(1 for p in lib if p["asset"].get("units_known") is False)
+    stretch = 0
+    for p in lib:
+        s = [float(v) for v in p["asset"].get("fit_scale") or [] if isinstance(v, (int, float)) and v > 0]
+        if s and max(s) / min(s) - 1.0 > STRETCH_LIMIT:
+            stretch += 1
+    low = judged = 0
+    for p in lib:
+        entry = None
+        if catalog is not None:
+            try:
+                entry = catalog.entry(str(p["asset"].get("asset_id") or ""))
+            except Exception:  # noqa: BLE001 - the asset's own judge scores then decide
+                entry = None
+        q = _quality_low(p["asset"], entry)
+        if q is not None:
+            judged += 1
+            low += int(q)
+    parts = {"top_model": top_id, "top_share": _pct(top_n, len(lib)), "distinct_models": len(counts),
+             "units_unknown": _pct(unknown, len(lib)), "stretch_over_5pct": _pct(stretch, len(lib)),
+             "quality_le3": _pct(low, judged), "built_library": len(lib), "judged": judged}
+    text = f"top {top_id} {_of(top_n, len(lib))}; distinct {len(counts)}; units unknown {_of(unknown, len(lib))}; " \
+           f"stretch > 5 % {_of(stretch, len(lib))}; quality <= 3 {_of(low, judged)}"
+    return _metric(8, parts["top_share"], text, parts, src)
+
+
+def _window_rooms(run: Run) -> Optional[set]:
+    if run.scene is None:
+        return None
+    rooms: set = set()
+    for o in run.scene.get("objects") or []:
+        if isinstance(o, dict) and o.get("kind") == "window":
+            rooms.update(str(r) for r in o.get("room_ids") or [])
+    return rooms
+
+
+def metric_9(run: Run) -> dict:
+    src = "render_manifest.json (else final_manifest.json views) exposure.ev of the interior views; window rooms " \
+          "from the scene manifest's window objects (room_ids); gap = median EV (no window) - median EV (window)"
+    views = _views(run)
+    cams = _scene_cameras(run)
+    interior = [v for v in views if not _is_exterior(v, cams) and _ev(v) is not None]
+    if not interior:
+        return _metric(9, NO_DATA, source=src)
+    high = [v["camera"] for v in interior if _ev(v) >= EV_HIGH]
+    win = _window_rooms(run)
+    gap: Any = NO_DATA
+    med_lit: Any = NO_DATA
+    med_day: Any = NO_DATA
+    lit = day = []
+    if win is not None:
+        day = [_ev(v) for v in interior if str(v.get("room_id")) in win]
+        lit = [_ev(v) for v in interior if str(v.get("room_id")) not in win]
+        if day and lit:
+            med_day = round(statistics.median(day), 2)
+            med_lit = round(statistics.median(lit), 2)
+            gap = round(abs(med_lit - med_day), 2)
+    text = f"{len(high)} of {len(interior)} interior views at EV >= +5; gap {gap}" + \
+           (f" EV (median {med_lit:+.2f} over {len(lit)} views of rooms without a window vs {med_day:+.2f} over "
+            f"{len(day)} views of rooms with one)" if gap != NO_DATA else
+            " (window rooms unknown without the scene manifest)" if win is None else " (one group is empty)")
+    return _metric(9, len(high), text, {"views_ev_ge_5": len(high), "interior_views": len(interior),
+                                        "ev_gap": gap, "median_ev_no_window": med_lit, "median_ev_window": med_day,
+                                        "cameras": high}, src)
+
+
+def _material_maps(m: dict) -> Optional[list]:
+    for key in ("maps", "textures", "map_files", "pbr_maps"):
+        v = m.get(key)
+        if isinstance(v, dict):
+            return [str(k) for k, f in v.items() if f]
+        if isinstance(v, list):
+            return [str(x) for x in v]
+    return None
+
+
+def metric_10(run: Run) -> dict:
+    src = "scene_manifest.json materials[] (textured shell slots with a maps record naming normal and roughness); " \
+          "built upholstered pieces (sofa, sofa_corner, armchair, ottoman) whose scene object recolour has a fabric slot"
+    if run.building is None and run.scene is None:
+        return _metric(10, NO_DATA, source=src)
+    shell: Any = NO_DATA
+    with_maps = textured = 0
+    if run.scene is not None:
+        recorded = False
+        for m in (run.scene.get("materials") or {}).values():
+            if not isinstance(m, dict) or not m.get("textured"):
+                continue
+            textured += 1
+            maps = _material_maps(m)
+            if maps is not None:
+                recorded = True
+                names = " ".join(maps).lower()
+                if "normal" in names and "rough" in names:
+                    with_maps += 1
+        if recorded:
+            shell = _pct(with_maps, textured)
+    uph = [p for p in _furniture(run) if _built(p) and p.get("type") in UPHOLSTERED_TYPES] if run.building else []
+    applied: Any = NO_DATA
+    n_applied = 0
+    if run.scene is not None and run.building is not None:
+        objs = _scene_objects_by_id(run)
+        for p in uph:
+            rec = (objs.get(str(p.get("id"))) or {}).get("recolour")
+            if isinstance(rec, dict) and rec.get("fabric"):
+                n_applied += 1
+        applied = _pct(n_applied, len(uph))
+    text = (f"shell slots with normal + roughness: {NO_DATA if shell == NO_DATA else _of(with_maps, textured)}"
+            + (" (maps not recorded in the scene manifest)" if shell == NO_DATA and run.scene is not None else "")
+            + f"; fabric colour applied: {NO_DATA if applied == NO_DATA else _of(n_applied, len(uph))}"
+            + (f" ({len(uph)} upholstered pieces built)" if run.building else ""))
+    value = shell if shell != NO_DATA else applied
+    return _metric(10, value, text, {"shell_slots_pbr": shell, "textured_slots": textured, "fabric_applied": applied,
+                                     "upholstered_built": len(uph), "fabric_applied_n": n_applied}, src)
+
+
+def _vegetation_records(run: Run) -> Optional[list]:
+    site = (run.scene or {}).get("site") if isinstance((run.scene or {}).get("site"), dict) else None
+    if site is None:
+        return None
+    for key in ("vegetation", "trees"):
+        v = site.get(key)
+        if isinstance(v, list):
+            return [x for x in v if isinstance(x, dict)]
+    return []
+
+
+def _black_share(path: Optional[Path]) -> Any:
+    if path is None:
+        return NO_DATA
+    try:
+        from PIL import Image
+        import numpy as np
+        rgb = np.asarray(Image.open(path).convert("RGB"))
+    except Exception:  # noqa: BLE001 - no PIL or a broken file: no number
+        return NO_DATA
+    black = (rgb.max(axis=2) < BLACK_LEVEL).mean()
+    return round(100.0 * float(black), 1)
+
+
+def metric_11(run: Run) -> dict:
+    src = "building_final.json site.decor (kind tree) and site.hedges; scene_manifest.json site.vegetation / " \
+          "site.trees records (method not a primitive), site hedge objects; black pixels (every channel < 16) of " \
+          "the aerial / site camera's final preview"
+    if run.building is None:
+        return _metric(11, NO_DATA, source=src)
+    site = run.building.get("site") if isinstance(run.building.get("site"), dict) else {}
+    trees = [d for d in site.get("decor") or [] if isinstance(d, dict) and d.get("kind") == "tree"]
+    hedges_drawn = len([h for h in site.get("hedges") or [] if isinstance(h, dict)])
+    records = _vegetation_records(run)
+    built: Any = NO_DATA
+    if records is not None:
+        real = [r for r in records if r.get("kind", "tree") == "tree"
+                and str(r.get("method") or r.get("source") or "").lower() not in VEGETATION_PRIMITIVES]
+        built = len(real)
+    hedges_built: Any = NO_DATA
+    if run.scene is not None:
+        site_s = run.scene.get("site") if isinstance(run.scene.get("site"), dict) else {}
+        hedge_recs = site_s.get("hedges") if isinstance(site_s.get("hedges"), list) else None
+        if hedge_recs is not None:
+            hedges_built = len(hedge_recs)
+        else:
+            hedges_built = sum(1 for n in site_s.get("objects") or [] if "hedge" in str(n).lower())
+    cams = _scene_cameras(run)
+    site_cams = [n for n, c in cams.items() if c.get("kind") == "exterior" and c.get("view") in ("aerial", "site")]
+    black: Any = NO_DATA
+    black_cam = None
+    if site_cams:
+        black_cam = site_cams[0]
+        black = _black_share(_preview(run, black_cam))
+    else:
+        best = []
+        for v in _views(run):
+            if _is_exterior(v, cams):
+                share = _black_share(_preview(run, v["camera"]))
+                if share != NO_DATA:
+                    best.append((share, v["camera"]))
+        if best:
+            black, black_cam = max(best)
+    text = (f"trees built {NO_DATA if built == NO_DATA else _of(built, len(trees))} ({len(trees)} drawn); hedges "
+            f"{hedges_built} built of {hedges_drawn} drawn rows; black pixels in the site view {black}"
+            + (f" % ({black_cam})" if black != NO_DATA else ""))
+    value = _pct(built, len(trees)) if built != NO_DATA else NO_DATA      # no drawn tree: no share
+    return _metric(11, value, text, {"trees_drawn": len(trees), "trees_built": built, "hedges_drawn": hedges_drawn,
+                                     "hedges_built": hedges_built, "black_pct": black, "site_camera": black_cam}, src)
+
+
+def metric_12(run: Run) -> dict:
+    src = "scene_manifest.json cameras (kind exterior) + cameras_dropped = planned; render_manifest.json / " \
+          "final_manifest.json exterior views = rendered"
+    views = _views(run)
+    cams = _scene_cameras(run)
+    rendered = [v["camera"] for v in views if _is_exterior(v, cams)]
+    if run.scene is None:
+        return _metric(12, len(rendered) if views else NO_DATA,
+                       f"{len(rendered)} rendered of {NO_DATA} planned (no scene manifest)" if views else NO_DATA,
+                       {"rendered": len(rendered) if views else NO_DATA, "planned": NO_DATA, "cameras": rendered}, src)
+    planned = [n for n, c in cams.items() if c.get("kind") == "exterior"]
+    dropped = [d for d in run.scene.get("cameras_dropped") or [] if d]
+    n_planned = len(planned) + len(dropped)
+    return _metric(12, len(rendered), f"{len(rendered)} of {n_planned} ({len(dropped)} dropped)",
+                   {"rendered": len(rendered), "planned": n_planned, "dropped": len(dropped), "cameras": rendered}, src)
+
+
+def _bare_wall(run: Run, camera: str) -> Any:
+    cam = _scene_cameras(run).get(camera)
+    if cam is None:
+        return NO_DATA
+    share = ((cam.get("score") or {}).get("shares") or {}).get("wall")
+    return round(float(share), 3) if isinstance(share, (int, float)) else NO_DATA
+
+
+def metric_13(run: Run) -> dict:
+    src = "views whose room (building rooms[].room_type, else the final manifest's room_type) is a hall type " \
+          "(hall, corridor, vestibule, landing, stair) or whose scene camera score.shares.wall >= 0.5"
+    views = _views(run)
+    if not views:
+        return _metric(13, NO_DATA, source=src)
+    rtypes = _room_types(run)
+    cams = _scene_cameras(run)
+    halls, bare = [], []
+    bare_known = run.scene is not None
+    for v in views:
+        if _is_exterior(v, cams):
+            continue
+        rtype = rtypes.get(v.get("room_id")) or v.get("room_type")
+        if rtype in HALL_TYPES:
+            halls.append(v["camera"])
+        share = _bare_wall(run, v["camera"])
+        if share != NO_DATA and share >= BARE_WALL_SHARE:
+            bare.append(v["camera"])
+    both = sorted(set(halls) | set(bare))
+    text = f"{len(both)} of {len(views)} views: halls {len(halls)}, bare wall >= 50 % " \
+           f"{len(bare) if bare_known else NO_DATA}"
+    return _metric(13, len(both), text, {"hall_views": len(halls), "bare_wall_views": len(bare) if bare_known
+                                         else NO_DATA, "views": len(views), "cameras": both}, src)
+
+
+def metric_14(run: Run) -> dict:
+    src = "final_manifest.json views[].json_crosscheck.in_json_not_rendered"
+    if not isinstance(run.final, dict):
+        return _metric(14, NO_DATA, source=src)
+    n = views = 0
+    for v in _views(run):
+        cc = v.get("json_crosscheck") if isinstance(v.get("json_crosscheck"), dict) else {}
+        k = len(cc.get("in_json_not_rendered") or [])
+        if k:
+            n += k
+            views += 1
+    return _metric(14, n, f"{n} in {views} view(s)", {"mismatches": n, "views": views}, src)
+
+
+def metric_15(run: Run) -> dict:
+    src = "the reviewer's per-view rubric file (client_ready_score 1-5), over the views of the final report"
+    if not run.rubric:
+        return _metric(15, NO_DATA, source=src)
+    cams = {v["camera"] for v in _views(run)}
+    rows = [r for r in run.rubric if isinstance(r, dict) and isinstance(r.get("client_ready_score"), (int, float))]
+    if cams:
+        rows = [r for r in rows if r.get("view") in cams]
+    if not rows:
+        return _metric(15, NO_DATA, "no rubric row matches a view of the report", {}, src)
+    scores = [float(r["client_ready_score"]) for r in rows]
+    at1 = sum(1 for s in scores if s <= 1)
+    at45 = sum(1 for s in scores if s >= 4)
+    mean = round(statistics.mean(scores), 2)
+    text = f"mean {mean:.2f} over {len(scores)} views; {at1} at 1; {at45} at 4-5 ({100.0 * at45 / len(scores):.0f} %)"
+    return _metric(15, mean, text, {"mean": mean, "views": len(scores), "at_1": at1, "at_4_5": at45,
+                                    "share_4_5": _pct(at45, len(scores)),
+                                    "file": str(run.paths.get("rubric"))}, src)
+
+
+def metric_16(run: Run) -> dict:
+    src = "final_manifest.json views[].commercial_safe and the commercial-safe lines of final_report.md; the " \
+          "flagged asset ids against final/ATTRIBUTION.md"
+    if not isinstance(run.final, dict):
+        return _metric(16, NO_DATA, source=src)
+    views = _views(run)
+    if not views:
+        return _metric(16, NO_DATA, "no view", {}, src)
+    with_field = [v for v in views if isinstance(v.get("commercial_safe"), dict) and "safe" in v["commercial_safe"]]
+    report = run.report_md or ""
+    lines = len(re.findall(r"commercial-safe: (?:yes|no)", report))
+    present = min(len(with_field), lines)
+    flagged: set = set()
+    for v in with_field:
+        flagged.update(str(a) for a in v["commercial_safe"].get("flagged") or [])
+    missing = sorted(a for a in flagged if a not in (run.attribution_md or ""))
+    att: Any = len(missing) if run.attribution_md is not None else (NO_DATA if flagged else 0)
+    text = f"line present for {_of(present, len(views))}; flagged assets {len(flagged)}, missing in ATTRIBUTION.md " \
+           f"{att}"
+    return _metric(16, _pct(present, len(views)), text,
+                   {"views_with_field": len(with_field), "report_lines": lines, "views": len(views),
+                    "flagged_assets": sorted(flagged), "missing_in_attribution": att, "missing_ids": missing}, src)
+
+
+def metric_17(run: Run) -> dict:
+    price = PRICE_USD_PER_H
+    raw = os.environ.get(PRICE_ENV)
+    if raw:
+        try:
+            price = float(raw)
+        except ValueError:
+            run.warnings.append(f"{PRICE_ENV}={raw!r} is no number; {PRICE_USD_PER_H} used")
+    src = "the stage seconds of the run (run/*.json records of the run id, else final_manifest.json run_stages) " \
+          f"/ 60; USD at {price} USD per GPU hour ({PRICE_ENV} overrides); the pod's wall time is longer (setup, " \
+          "downloads: docs/gpu-log.md)"
+    records = [r for r in run.stage_records if isinstance(r.get("seconds"), (int, float))]
+    if not records:
+        return _metric(17, NO_DATA, source=src)
+    minutes = round(sum(float(r["seconds"]) for r in records) / 60.0, 1)
+    usd = round(minutes / 60.0 * price, 2)
+    by_stage = {str(r.get("stage")): round(float(r["seconds"]) / 60.0, 1) for r in records}
+    text = f"{minutes:.0f} min of stages, ${usd:.2f} at ${price:.2f}/h ({len(records)} stage records)"
+    return _metric(17, minutes, text, {"minutes": minutes, "usd": usd, "price_usd_per_h": price,
+                                       "stages": len(records), "by_stage": by_stage}, src)
+
+
+def _catalog():
+    try:
+        from wenart.report.final import report_catalog
+        return report_catalog()
+    except Exception:  # noqa: BLE001 - the asset's own fields decide
+        return None
+
+
+def compute(run: Run) -> dict:
+    """The 17 metrics of one run, ``{"m1": ..., "m17": ...}``."""
+    cat = _catalog()
+    out = {}
+    for mid in sorted(METRICS):
+        fn = globals()[f"metric_{mid}"]
+        try:
+            m = fn(run, cat) if mid == 8 else fn(run)
+        except Exception as exc:  # noqa: BLE001 - one broken input must not hide the other 16 numbers
+            run.warnings.append(f"metric {mid}: not computed ({type(exc).__name__}: {exc})")
+            m = _metric(mid, NO_DATA, f"not computed ({type(exc).__name__})")
+        out[f"m{mid}"] = m
+    return out
+
+
+# --------------------------------------------------------------------------
+# Per view
+# --------------------------------------------------------------------------
+
+def view_rows(run: Run) -> list[dict]:
+    """One row per rendered view: camera, room, type, kind, EV, bare-wall share, cross-check mismatches,
+    commercial-safe line, rubric score and tags."""
+    from wenart.report.final import commercial_safe_line
+
+    rtypes = _room_types(run)
+    cams = _scene_cameras(run)
+    rubric = {r.get("view"): r for r in run.rubric or [] if isinstance(r, dict)}
+    rows = []
+    for v in _views(run):
+        cc = v.get("json_crosscheck") if isinstance(v.get("json_crosscheck"), dict) else {}
+        rub = rubric.get(v["camera"]) or {}
+        cs = v.get("commercial_safe")
+        rows.append({"camera": v["camera"], "room_id": v.get("room_id"),
+                     "room_type": rtypes.get(v.get("room_id")) or v.get("room_type"),
+                     "kind": "exterior" if _is_exterior(v, cams) else "interior",
+                     "ev": round(_ev(v), 2) if _ev(v) is not None else None,
+                     "bare_wall": _bare_wall(run, v["camera"]),
+                     "in_json_not_rendered": len(cc.get("in_json_not_rendered") or []) if cc else NO_DATA,
+                     "commercial_safe": commercial_safe_line(cs) if cs is not None else "commercial-safe: not recorded",
+                     "score": rub.get("client_ready_score", NO_DATA), "tags": list(rub.get("tags") or [])})
+    return rows
+
+
+# --------------------------------------------------------------------------
+# metrics(), JSON and markdown
+# --------------------------------------------------------------------------
+
+def metrics(project_out, baseline_out=None) -> dict:
+    """The 17 metrics of ``project_out`` with, when ``baseline_out`` is given, the baseline's numbers in
+    ``baseline`` / ``baseline_text`` / ``baseline_parts`` of every metric and ``views[].before`` per camera."""
+    run = locate(project_out)
+    after = compute(run)
+    base = locate(baseline_out) if baseline_out else None
+    before = compute(base) if base is not None else {}
+    out_metrics = {}
+    for key, m in after.items():
+        b = before.get(key) or {}
+        out_metrics[key] = dict(m, baseline=b.get("value", NO_DATA) if base is not None else None,
+                                baseline_text=b.get("text") if base is not None else None,
+                                baseline_parts=b.get("parts") if base is not None else None)
+    rows = view_rows(run)
+    if base is not None:
+        by_cam = {r["camera"]: r for r in view_rows(base)}
+        for r in rows:
+            r["before"] = by_cam.get(r["camera"])
+        extra = sorted(set(by_cam) - {r["camera"] for r in rows})
+    else:
+        extra = []
+    return {"schema_version": SCHEMA_VERSION, "kind": "metrics13", "project": run.name,
+            "project_out": str(run.root), "layout": run.layout, "baseline_out": str(base.root) if base else None,
+            "baseline_layout": base.layout if base else None, "baseline_project": base.name if base else None,
+            "inputs": {k: (str(p) if p else None) for k, p in run.paths.items()},
+            "baseline_inputs": {k: (str(p) if p else None) for k, p in base.paths.items()} if base else None,
+            "metrics": out_metrics, "views": rows, "baseline_only_views": extra,
+            "warnings": list(run.warnings) + ([f"baseline: {w}" for w in base.warnings] if base else [])}
+
+
+def _fmt(value) -> str:
+    if value is None:
+        return "-"
+    if isinstance(value, float):
+        return f"{value:g}"
+    return str(value)
+
+
+def markdown(result: dict) -> str:
+    """The markdown report: the 17 metrics (before | after | target) and the per-view table."""
+    has_base = result.get("baseline_out") is not None
+    lines = [f"# Milestone 13 metrics: {result['project']}", "",
+             f"After: `{result['project_out']}` ({result['layout']} layout)."
+             + (f" Before (baseline): `{result['baseline_out']}` ({result['baseline_layout']} layout, project "
+                f"{result['baseline_project']})." if has_base else " No baseline given.")
+             + " Definitions: docs/milestone13.md §7 and the docstring of wenart/report/metrics13.py; a metric says "
+               "\"no data\" when the file it needs is missing.", ""]
+    lines += ["## Inputs", ""]
+    rows = [[k, v or "missing", (result.get("baseline_inputs") or {}).get(k) or "missing" if has_base else "-"]
+            for k, v in (result.get("inputs") or {}).items()]
+    lines += C.table(["input", "after", "before"], rows)
+    lines += ["", "## The 17 metrics", ""]
+    rows = []
+    for key in sorted(result["metrics"], key=lambda k: int(k[1:])):
+        m = result["metrics"][key]
+        rows.append([m["id"], m["name"], (m.get("baseline_text") or _fmt(m.get("baseline"))) if has_base else "-",
+                     m.get("text") or _fmt(m.get("value")), m.get("target"), m.get("unit")])
+    lines += C.table(["#", "metric", "before", "after", "target", "unit"], rows)
+    lines += ["", "Sources:", ""] + [f"- {m['id']}: {m['source']}" for m in
+                                      (result["metrics"][k] for k in sorted(result["metrics"], key=lambda k: int(k[1:])))]
+    lines += ["", "## Per view", ""]
+    rows = []
+    for r in result.get("views") or []:
+        b = r.get("before") or {}
+        row = [r["camera"], r.get("room_id"), r.get("room_type"), r.get("kind")]
+        if has_base:
+            row += [_fmt(b.get("ev")) if b else "-", _fmt(r.get("ev")), _fmt(b.get("score")) if b else "-",
+                    _fmt(r.get("score")), b.get("commercial_safe", "-") if b else "-", r.get("commercial_safe")]
+        else:
+            row += [_fmt(r.get("ev")), _fmt(r.get("score")), r.get("commercial_safe")]
+        row += [_fmt(r.get("in_json_not_rendered")), _fmt(r.get("bare_wall")), ", ".join(r.get("tags") or [])]
+        rows.append(row)
+    header = ["camera", "room", "type", "kind"]
+    header += (["EV before", "EV after", "score before", "score after", "commercial-safe before",
+                "commercial-safe after"] if has_base else ["EV", "score", "commercial-safe"])
+    header += ["in_json_not_rendered", "bare wall", "rubric tags"]
+    lines += C.table(header, rows) if rows else ["No view."]
+    if result.get("baseline_only_views"):
+        lines += ["", "Views only in the baseline: " + ", ".join(result["baseline_only_views"]) + "."]
+    lines += ["", "## Warnings", ""] + C.bullets(result.get("warnings") or [])
+    return "\n".join(lines) + "\n"
+
+
+def write(project_out, baseline_out, json_path, md_path=None) -> dict:
+    """``metrics`` written as JSON (and markdown); returns the result."""
+    result = metrics(project_out, baseline_out)
+    C.write_json(json_path, result)
+    if md_path:
+        Path(md_path).parent.mkdir(parents=True, exist_ok=True)
+        Path(md_path).write_text(markdown(result), encoding="utf-8")
+    return result

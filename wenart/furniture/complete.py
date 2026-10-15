@@ -46,6 +46,20 @@ the other way in the twin) or the partner cannot be verified, the copy is not us
 the record says why (a whole group matters more than the same look in both rooms).
 ``copy_empty_layout`` does the same for the layout of empty rooms (user decision 7). ``completion.json`` keeps the
 mode and the rooms kept as drawn (``locked.keep_rooms_of``, the refit's locked check).
+
+Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3; user decision D5 of 12 Oct 2026):
+
+- **Code-first typing** before the solver: every drawn footprint still ``unknown`` that code can type (the twin
+  room, another level, the block name, the room's missing group member: ``infer.code_types``) gets its type as a
+  validated proposal (``type_proposal``, ``drawn_type`` unknown, ``adjusted_by_ai`` naming the method, the drawn
+  footprint and status kept, so ``locked.check`` passes); not in ``keep`` mode and not in kept rooms. The record's
+  ``typed_by_code`` and the building's warnings list them.
+- **Drawn groups as one unit**: the program marks a drawn group whose anchor is missing, misread or fails the
+  checks (``program.room_program`` ``resolve``); the solver re-solves it around the drawn anchor's centre (every
+  member within ``groups.GROUP_MEMBER_MOVE_MAX_M``, ``adjusted_by_ai`` with the reason, ``drawn_footprint`` /
+  ``drawn_front_deg`` / ``drawn_height`` kept, ``drawn_group`` written); the record's ``resolved`` lists the ids. Off
+  with ``furnished_rooms: keep``, ``furnished_rooms_keep_size`` or a room in ``furnished_rooms_keep``. A twin or
+  ``same_as`` partner whose completion moved its drawn group is not copied: the room is completed itself.
 """
 from __future__ import annotations
 
@@ -112,6 +126,12 @@ class Settings:
         return {"furnished_rooms": self.mode, "furnished_rooms_keep": list(self.keep),
                 "furnished_rooms_keep_size": self.keep_size, "render.twin_rooms": self.twin_rooms,
                 "assumed": list(self.assumed), "brief": self.brief_path, "warnings": list(self.warnings)}
+
+    def brief_values(self) -> dict:
+        """The brief keys the program reads (Milestone 13: ``program.resolve_allowed`` switches the drawn-group
+        re-solve off with ``keep`` / ``furnished_rooms_keep_size`` / a kept room)."""
+        return {"furnished_rooms": self.mode, "furnished_rooms_keep": list(self.keep),
+                "furnished_rooms_keep_size": self.keep_size}
 
 
 def load_settings(project_dir) -> Settings:
@@ -355,6 +375,9 @@ class RoomCompletion:
     wall_cabinets: list = field(default_factory=list)
     solve_s: float = 0.0
     context: Optional[placer.RoomContext] = None
+    # Milestone 13 (D5): the drawn pieces re-solved as one unit (ids) and the pieces code typed before the solve.
+    resolved: list = field(default_factory=list)
+    typed_by_code: list = field(default_factory=list)
 
     @property
     def room_id(self) -> str:
@@ -417,6 +440,7 @@ class RoomCompletion:
                        "group": (f.get("group") or {}).get("group"), "method": f.get("method"),
                        "mirrored_from": f.get("mirrored_from")} for f in self.added],
             "refused": self.refused, "dropped": self.dropped,
+            "resolved": list(self.resolved), "typed_by_code": list(self.typed_by_code),
             "wall_cabinets": [{"id": f["id"], "run": f["rule"]["run"], "size": f["footprint"]["size"],
                                "excluded": f["rule"]["excluded"]} for f in self.wall_cabinets],
             "missing": self.missing, "drawn_layout": self.drawn_layout(),
@@ -548,10 +572,11 @@ def complete_room(room: dict, building: dict, out: dict, style_text: str, client
     rec = RoomCompletion(room)
     rec.context = placer.room_context(building, room)
     rec.drawn = classify_drawn(room, out)
-    lay = L.layout_room(room, out, style_text, client, image_dir, purpose="complete")
+    lay = L.layout_room(room, out, style_text, client, image_dir, purpose="complete", settings=settings)
     rec.program, rec.candidates, rec.choice, rec.chosen, rec.solve_s = (lay.program, lay.candidates, lay.choice,
                                                                         lay.chosen, lay.solve_s)
     rec.added = list(lay.pieces)
+    rec.resolved = list(lay.resolved)
     if lay.skipped:
         rec.reason = lay.skipped
     elif not rec.added:
@@ -762,9 +787,30 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
     order: list[str] = []
     pending: list[tuple[dict, tuple[str, str]]] = []
     rooms_by_id = {r["id"]: r for r in out["rooms"]}
+    # Milestone 13 (T3): code-first typing of the drawn footprints still untyped (twin / level / block / missing
+    # group member) before the solver sees them: an untyped piece is never built and blocks its room. Not in
+    # ``keep`` mode and not in kept rooms (their drawn pieces stay byte-equal); the type is a proposal with the
+    # drawn footprint and status kept (``locked.check``).
+    typed: dict[str, list] = {}
+    if settings.mode != "keep":
+        from wenart.furniture import infer as INF
+
+        kept_ids = {r["id"] for r in out["rooms"] if is_kept(r, settings)}
+        props = [p for p in INF.code_types(out) if next((f.get("room_id") for f in out["furniture"]
+                                                         if f["id"] == p["piece_id"]), None) not in kept_ids]
+        if props:
+            by_id = {f["id"]: f for f in out["furniture"]}
+            for p in props:
+                INF._apply_code_type(by_id[p["piece_id"]], p, proposal=True)
+                typed.setdefault(by_id[p["piece_id"]].get("room_id"), []).append(
+                    {"id": p["piece_id"], "type": p["type"], "method": p["type_method"], "reason": p["reason"]})
+            out["warnings"] = list(out.get("warnings", [])) + [
+                f"{p['piece_id']}: typed {p['type']} by code ({p['type_method']}): {p['reason']}" for p in props]
 
     def solve(room: dict) -> RoomCompletion:
-        return complete_room(room, building, out, style_text, client, settings, passes, family, image_dir)
+        rec = complete_room(room, building, out, style_text, client, settings, passes, family, image_dir)
+        rec.typed_by_code = list(typed.get(room["id"], []))
+        return rec
 
     for room in furnished_rooms(out):
         order.append(room["id"])
@@ -789,6 +835,15 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
             if prec is not None and prec.state not in ("completed", "copied", "mirrored"):
                 records[room["id"]] = RoomCompletion(room, state="kept", reason=(
                     f"partner {pid} ({kind}) not completed ({prec.reason}): kept as drawn so both stay the same"))
+                continue
+            if prec is not None and prec.resolved:
+                # Milestone 13: the partner moved its drawn group; a copy would leave this room's drawn pieces where
+                # they are drawn, so the room is re-solved itself.
+                rec = solve(room)
+                rec.reason = (rec.reason + "; " if rec.reason else "") + (
+                    f"partner {pid} ({kind}) not used: it re-solved its drawn group ({', '.join(prec.resolved[:4])}); "
+                    "completed itself")
+                records[room["id"]] = rec
                 continue
             t, why = (None, f"{pid} has no drawn furniture") if prec is None else \
                 partner_transform(room, rooms_by_id[pid], kind, building)

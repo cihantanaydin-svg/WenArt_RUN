@@ -277,7 +277,10 @@ def test_an_unverified_drawn_bed_gets_no_partners_and_no_second_bed():
 
 
 def test_an_unknown_piece_of_bed_size_is_never_joined_by_a_second_bed():
-    """Fails on the Milestone 12 draft: the program added a whole bed group beside an unknown 1.6 x 2.0 box."""
+    """Fails on the Milestone 12 draft: the program added a whole bed group beside an unknown 1.6 x 2.0 box.
+    Milestone 13 (code-first typing): the box is the bedroom's missing bed of that size, typed ``bed_double`` by
+    code as a type proposal (``type_proposal``, ``drawn_type`` unknown, the drawn footprint and status kept); still
+    an unverified anchor, so nothing is added beside it."""
     source = drawn_building(example())
     piece(source, "f_L0_002").update(type="unknown", status="unverified")
     out, records = C.complete_building(source, "x", FakeChooser(), C.Settings())
@@ -285,7 +288,13 @@ def test_an_unknown_piece_of_bed_size_is_never_joined_by_a_second_bed():
     assert not types & {"bed_double", "bed_single", "nightstand"}
     rec = next(r for r in records if r.room_id == BEDROOM)
     note = next(g["note"] for g in rec.program["groups"] if g["group"] == "sleeping_double")
-    assert note.startswith("unverified anchor: nothing added (unknown f_L0_002")
+    assert note.startswith("unverified anchor: nothing added")
+    typed = piece(out, "f_L0_002")
+    assert typed["type"] == "bed_double" and typed["type_method"] == "group_member" and typed["type_proposal"] is True
+    assert typed["drawn_type"] == "unknown" and typed["status"] == "unverified"
+    assert typed["footprint"] == piece(source, "f_L0_002")["footprint"]
+    assert [t["id"] for t in rec.typed_by_code] == ["f_L0_002"]
+    assert not LK.check(source, out, "complete")
 
 
 # --------------------------------------------------------------------------

@@ -1,8 +1,10 @@
 """Milestone 12 track S (docs/milestone12.md §4.8 D14, §6.4, B1, B7; CLAUDE.md library rules): the fit takes only
 usable (audited, no NC/SA/ND) models, ranks them by the judges' quality list (B1), keeps real proportions (10 %,
 0.85-1.20), falls back along the style chain (``style_fallback``), uses a related type only for a piece its group
-needs, builds parametric pieces only by design (counters, wall cabinets, stairs, the kitchen and bath fixtures) and
-writes a ``library_gap`` instead of a parametric sofa, bed or table; throws, curtains and blinds are procedural."""
+needs, builds parametric pieces only by design (counters, wall cabinets, stairs, the kitchen and bath fixtures);
+throws, curtains and blinds are procedural. Milestone 13 (docs/milestone13.md §12 D4, §13.2; track T1): a sofa, bed
+or table without a model is no longer left out: the fallback ladder builds it (a module builder when
+``wenart.blender.modules`` knows the type, else the parametric family) and ``library_gap`` names the step."""
 from __future__ import annotations
 
 import copy
@@ -17,6 +19,18 @@ from wenart.furniture import fit as F
 from test_furniture_fit_v2 import FakeCatalog, decor_model, model, piece
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(autouse=True)
+def _no_licence_mode_env(monkeypatch):
+    """Milestone 13 review (15 Oct 2026): these tests rely on the fit's default licence mode (commercial); the pod
+    jobs export WENART_LICENCE_MODE (relaxed, docs/milestone13.md §13.3), which must not reach them."""
+    monkeypatch.delenv("WENART_LICENCE_MODE", raising=False)
+
+
+def no_modules(monkeypatch):
+    """Ladder step 2 answers "no module builder" (track T2's module is mocked away): step 3 is the parametric family."""
+    monkeypatch.setattr(F, "module_plan_for", lambda piece, style=None: (None, "mocked: no module builder"))
 
 
 def test_quality_list_ranks_the_models_again_b1():
@@ -40,7 +54,8 @@ def test_only_usable_models_are_fitted(extra, why):
     assert fit["asset_id"] == "abo_good"
     assert fit["excluded"][0]["id"] == "abo_bad" and why in fit["excluded"][0]["reason"]
     gap = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([bad]))
-    assert gap["method"] == "none" and "no usable sofa model" in gap["fallback_reason"]
+    assert gap["method"] == "parametric" and "no usable sofa model" in gap["fallback_reason"]   # M13: the ladder
+    assert gap["library_gap"]["step"] == "parametric" and gap["excluded"][0]["id"] == "abo_bad"
 
 
 def test_an_audit_fix_is_used_as_the_writer_left_it():
@@ -116,44 +131,90 @@ def test_style_family_falls_back_along_its_chain():
             "wenart.style.vocabulary", fromlist=["x"]).STYLE_FAMILIES}
 
 
-def test_never_a_parametric_sofa_bed_or_table_a_library_gap_instead():
+def test_a_sofa_bed_or_table_without_a_model_goes_down_the_ladder(monkeypatch):
+    """Milestone 12 left them out (``none``); Milestone 13 (D4) builds them: a module builder when one exists for
+    the type (the long table), else the parametric family; the gap names the step so it can be closed later."""
+    real_step_2 = F.module_plan_for
+    no_modules(monkeypatch)
     for ftype, size in (("sofa", (2.0, 0.9)), ("bed_double", (1.6, 2.0)), ("table_dining", (1.6, 0.9)),
                         ("table_coffee", (1.0, 0.6))):
         odd = model("odd", ftype, size[0] * 1.5, size[1], 0.8)               # 50 % wider: outside the caps
         fit = F.fit_piece(piece(ftype, *size), FakeCatalog([odd]))
-        assert fit["method"] == "none" and fit["library_gap"]["used"] == "nothing (not built)"
+        assert fit["method"] == "parametric" and fit["library_gap"]["used"].startswith("parametric family")
         assert fit["library_gap"]["type"] == ftype and "10 % non-uniform" in fit["library_gap"]["reason"]
+        assert fit["library_gap"]["step"] == "parametric" and fit["asset_id"] == f"parametric:{ftype}"
+        assert [(s["step"], s["result"]) for s in fit["ladder"]] == [
+            ("library", "no model"), ("module", "no module builder"), ("parametric", "used")]
+        assert fit["ladder"][1]["reason"] == "mocked: no module builder"
+    # step 2: a module plan (track T2's wenart.blender.modules.module_plan) wins over the family
+    plan = {"builder": "table_long", "modules": [{"kind": "top", "size_m": [2.4, 1.0, 0.04], "pos_m": [0, 0],
+                                                  "rot_deg": 0, "material": "wood"}],
+            "footprint_m": [2.4, 1.0], "height_m": 0.75, "products": ["dining table 2.40 x 1.00 m"]}
+    monkeypatch.setattr(F, "module_plan_for", lambda piece, style=None: (plan, ""))
+    odd = model("odd", "table_dining", 3.6, 1.0, 0.75)
+    fit = F.fit_piece(piece("table_dining", 2.4, 1.0), FakeCatalog([odd]))
+    assert fit["method"] == "module" and fit["asset_id"] == "module:table_dining:table_long"
+    assert fit["module_plan"] == plan and fit["bbox_m"] == [2.4, 1.0, 0.75] and fit["library"] == "module"
+    assert fit["library_gap"]["step"] == "module" and fit["library_gap"]["used"].startswith("module builder table_long")
+    assert [s["step"] for s in fit["ladder"]] == ["library", "module"] and fit["licence"] == "n/a"
+    assert fit["commercial_safe"] is True and fit["licence_flag"] == "none" and "by_design" not in fit
+    # a builder that raises is logged, never fatal: step 3 follows
+    def boom(piece, style=None):
+        raise RuntimeError("builder bug")
+    monkeypatch.setattr(F, "module_plan_for", real_step_2)
+    monkeypatch.setattr("wenart.blender.modules.module_plan", boom)
+    fit = F.fit_piece(piece("table_dining", 2.4, 1.0), FakeCatalog([odd]))
+    assert fit["method"] == "parametric" and "module_plan failed: RuntimeError: builder bug" in fit["ladder"][1]["reason"]
 
 
-def test_related_type_only_when_the_group_needs_it():
+def test_related_type_only_when_the_group_needs_it(monkeypatch):
+    no_modules(monkeypatch)
     chair = model("chair", "chair", 0.8, 0.8, 0.8)
     odd = model("wide", "armchair", 1.4, 0.8, 0.8)
     cat = FakeCatalog([odd, chair])
     added = piece("armchair", 0.8, 0.8, source="added_by_ai")
-    assert F.fit_piece(added, cat)["method"] == "none"                         # nobody needs it: a gap
+    fit = F.fit_piece(added, cat)
+    assert fit["method"] == "parametric" and "related_type" not in fit         # nobody needs it: the family (M13)
+    assert fit["library_gap"]["step"] == "parametric"
     grouped = dict(added, group={"group_id": "g1", "group": "seating", "role": "partner"})
     for p in (grouped, piece("armchair", 0.8, 0.8)):                           # a group member, a drawn piece
         fit = F.fit_piece(p, cat)
         assert fit["method"] == "library" and fit["asset_id"] == "abo_chair" and fit["related_type"] == "chair"
         assert fit["library_gap"]["used"] == "related type chair: abo_chair" and fit["library_gap"]["type"] == \
             "armchair"
+        assert fit["library_gap"]["step"] == "library" and fit["ladder"][-1]["result"] == "related type chair: abo_chair"
     assert "sofa" not in F.RELATED_TYPES and "bed_double" not in F.RELATED_TYPES
     assert not set(F.RELATED_TYPES) & set(C.PARAMETRIC_FIXTURE_TYPES)
 
 
-def test_parametric_only_by_design():
+def test_parametric_only_by_design(monkeypatch):
     assert set(C.BY_DESIGN_PARAMETRIC_TYPES) == {"kitchen_counter", "kitchen_island", "wall_cabinet", "stair",
                                                  "shower", "washing_machine", "fridge", "toilet", "washbasin",
                                                  "bathtub", "sink_kitchen", "stove"}
     assert C.by_design_parametric({"type": "washbasin"}) and C.by_design_parametric(
         {"type": "wardrobe", "design": {"built_in": True}}) and not C.by_design_parametric({"type": "wardrobe"})
     odd = model("odd", "shower", 2.0, 0.9, 2.0)
+    no_modules(monkeypatch)
     fit = F.fit_piece(piece("shower", 0.9, 0.9), FakeCatalog([odd]))
     assert fit["method"] == "parametric" and fit["by_design"] and "our parametric shower" in fit["fallback_reason"]
-    assert fit["library_gap"]["used"] == "our parametric fixture (by design)"
+    assert fit["library_gap"]["used"] == "our parametric fixture (by design)" and fit["library_gap"]["step"] == "parametric"
+    assert fit["ladder"][-1] == {"step": "parametric", "result": "used (by design)",
+                                 "reason": "docs/milestone12.md §6.4: made to the drawing"}
+    # Milestone 13: with a module builder for the type (T2's bath set) the fixture is a module, still by design
+    plan = {"builder": "bath_set", "modules": [{"kind": "tray", "size_m": [0.9, 0.9, 0.04], "pos_m": [0, 0],
+                                                "rot_deg": 0, "material": "ceramic"}],
+            "footprint_m": [0.9, 0.9], "height_m": 2.0, "products": ["shower tray 90 x 90"]}
+    monkeypatch.setattr(F, "module_plan_for", lambda piece, style=None: (plan, ""))
+    fit = F.fit_piece(piece("shower", 0.9, 0.9), FakeCatalog([odd]))
+    assert fit["method"] == "module" and fit["by_design"] and fit["library_gap"]["step"] == "module"
+    assert fit["library_gap"]["used"].endswith("(by design)")
+    # a counter run is made to the drawing: by design and no gap at all (nothing to close)
+    counter = F.fit_piece(piece("kitchen_counter", 2.4, 0.6), FakeCatalog([]))
+    assert counter["method"] == "module" and counter["by_design"] and "library_gap" not in counter
 
 
-def test_fit_building_writes_the_gap_on_the_piece_and_changes_nothing_else():
+def test_fit_building_writes_the_gap_on_the_piece_and_changes_nothing_else(monkeypatch):
+    no_modules(monkeypatch)
     cat = FakeCatalog([model("odd", "sofa", 3.0, 0.9, 0.8), model("ok", "nightstand", 0.5, 0.4, 0.5)])
     building = {"project": {"id": "t"}, "furniture": [piece("sofa", 2.0, 0.9),
                                                       piece("nightstand", 0.5, 0.4, pid="f_L0_002")]}
@@ -163,12 +224,19 @@ def test_fit_building_writes_the_gap_on_the_piece_and_changes_nothing_else():
     F.assert_only_assets_changed(building, fitted)
     sofa, night = fitted["furniture"]
     assert sofa["library_gap"]["type"] == "sofa" and "library_gap" not in night
+    assert sofa["asset"]["method"] == "parametric" and sofa["library_gap"]["step"] == "parametric"   # M13 ladder
     report = F.fit_report(fitted)
-    assert "1 library gaps (not built)" in report and "## Library gaps" in report
-    assert "- f_L0_001 (sofa, style None): nothing (not built)" in report
+    assert "1 parametric fallbacks" in report and "## Library gaps" in report
+    assert "- f_L0_001 (sofa, style None): parametric family (built below the library level)" in report
+    assert "## Built below the library level" in report and "- f_L0_001 (sofa): parametric:" in report
+    assert "commercial-safe: yes" in report and "Licence mode (Milestone 13): commercial" in report
     refit = F.fit_building(dict(fitted, furniture=[dict(sofa, footprint=dict(sofa["footprint"], size=[3.0, 0.9]))]),
                            cat)
     assert "library_gap" not in refit["furniture"][0]                     # a later fit clears a stale gap
+    # a piece that is not built (not furniture, removed) keeps ``none``: the ladder stops at the library step
+    gone = F.fit_building({"furniture": [dict(piece("sofa", 2.0, 0.9), build=False)]}, cat)["furniture"][0]
+    assert gone["asset"]["method"] == "none" and gone["library_gap"]["used"] == "nothing (not built)"
+    assert [s["result"] for s in gone["asset"]["ladder"]] == ["no model", "not tried", "not tried"]
 
 
 def test_throws_curtains_and_blinds_are_procedural_b7():
@@ -198,17 +266,22 @@ def test_committed_buildings_parametric_only_by_design_gaps_listed(project):
     building = json.loads(path.read_text(encoding="utf-8"))
     for p in building["furniture"]:
         p.pop("library_gap", None)
-    fitted = F.fit_building(building, C.load(), style_family="modern")
+    fitted = F.fit_building(building, C.load(), style_family="modern", mode="commercial")
     built = [p for p in fitted["furniture"] if p.get("build", True) is not False and p["type"] != "unknown"]
     for p in built:
         a = p["asset"]
-        assert a["method"] in ("library", "parametric", "none")
-        if a["method"] == "parametric":
-            assert C.by_design_parametric(p), p["id"]
-        if a["method"] == "none":
-            assert p["library_gap"]["used"] == "nothing (not built)" and not C.by_design_parametric(p)
+        # Milestone 13 (D4): a built piece is never ``none``; below the library level it is a module or the family
+        assert a["method"] in ("library", "module", "parametric"), p["id"]
+        if a["method"] in ("parametric", "module") and not a.get("by_design"):
+            assert p["library_gap"]["step"] == a["method"], p["id"]
+        if a["method"] == "parametric" and C.by_design_parametric(p):
+            assert a["by_design"]
         if a["method"] == "library":
-            assert C.usable(a) and a["fit_scale"][0] / a["fit_scale"][1] <= 1.10 + 1e-6
-            assert 0.85 - 1e-6 <= sum(a["fit_scale"]) / 3 <= 1.20 + 1e-6
-    gaps = sum(1 for p in built if p["asset"]["method"] == "none")
-    assert gaps < 0.2 * len(built)
+            assert C.usable(a, "commercial") and a["commercial_safe"] is True and a["licence_flag"] == "none"
+            sx, sy, sz = a["fit_scale"]
+            assert sx == sy == sz                                           # Milestone 13: uniform
+            cap, (lo, hi) = (F.RELAXED_CAP, F.RELAXED_RANGE) if a.get("caps_relaxed") else (1.10, (0.85, 1.20))
+            drawn, got = p["footprint"]["size"][1], a["bbox_m"][1]
+            assert max(drawn, got) / min(drawn, got) <= cap + 1e-6 and lo - 1e-6 <= sx <= hi + 1e-6, p["id"]
+    below = sum(1 for p in built if p["asset"]["method"] != "library" and not p["asset"].get("by_design"))
+    assert below < 0.25 * len(built)

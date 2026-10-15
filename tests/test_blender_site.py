@@ -166,7 +166,8 @@ def test_plot_walls_step_with_the_ground_and_trees_stand_on_it():
     tree = EXAMPLE["site"]["decor"][0]
     parts = S.tree_parts(tree, t)
     gz = S.ground_z(t, *tree["center"])
-    assert parts["height"] == pytest.approx(max(4.0, 1.6 * 3.0))
+    # Milestone 13 (T6): the height by the crown class (a 3.0 m crown is a small tree, 4-6 m: 1.6 x 3.0 = 4.8 m)
+    assert parts["height"] == pytest.approx(S.tree_height(1.5)[0]) == pytest.approx(4.8) and parts["size_class"] == "small"
     assert parts["crown_z"][1] == pytest.approx(gz + parts["height"], abs=1e-3)
     crown = parts["crown"][0]
     assert max(v[0] for v in crown) - min(v[0] for v in crown) == pytest.approx(3.0, abs=0.01)

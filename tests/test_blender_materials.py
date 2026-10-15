@@ -309,7 +309,9 @@ def test_blender_builds_every_slug_with_its_colour_and_node_group():
         slugs.add(rec["slug"])
         entry = V.MATERIALS.get(rec["slug"]) or V.FURNITURE_MATERIALS.get(rec["slug"])
         if rec["procedural"] in materials.PROCEDURAL_GROUPS:
-            assert rec["groups"] == [materials.procedural_group_name(rec["procedural"], entry.get("params") or {})]
+            # Milestone 13: under the shell lever the roughness variation group sits beside the look's group.
+            groups = [g for g in rec["groups"] if g != materials.IMPERFECTION_GROUP]
+            assert groups == [materials.procedural_group_name(rec["procedural"], entry.get("params") or {})]
         if name.endswith("__sage"):                    # no texture in use here: every slug but the fixed ones takes it
             assert rec["colour_applied"] and entry.get("colourable") is not False, name
             if not rec["groups"]:

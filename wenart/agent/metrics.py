@@ -12,6 +12,7 @@ latest run: ``run_first_seq`` / ``run_first_call``) and the memory, and returns:
 | ``tokens`` | prompt and completion tokens per call kind |
 | ``time`` | agent minutes, seconds to the first accepted edit |
 | ``memory`` | edits refused by the memory, dry runs, plans (valid / default) |
+| ``findings_removed`` | Milestone 13 (docs/milestone13.md §3.0 K4): the success number. ``per_round``: the critical / major finding keys (check, target) of a round that are gone in the next round (measured by the critics, the only truth); ``total`` their sum; ``dry_recheck``: what the loop's dry re-checks counted per round (the ``round`` events); ``edits_removing_finding``: accepted edits whose logged finding is gone in the next round; ``accepted_edits``: for the ratio (M12 real04: 183 accepted, 20 removed their finding) |
 
 ``write(project_out)`` writes ``orchestrator/metrics.json`` (the loop calls it after every round);
 ``compare_rows`` / ``update_compare(md_path, label, metrics)`` keep ``results/compare/<p>/agent_metrics.md`` (and its
@@ -154,6 +155,7 @@ def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int
                          == "memory")
     plans = [e for e in events if e.get("kind") == "plan"]
     n = len(edits)
+    removed = findings_removed_metrics(events, round_ids)
     return {
         "schema_version": "m12", "project": log.get("project"), "model": log.get("model"),
         "revision": log.get("revision"), "first_seq": first,
@@ -180,7 +182,37 @@ def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int
                                           if since_seq is None else memory_refused),
                    "dry_runs": sum(1 for e in events if e.get("kind") == "dry_run"),
                    "plans": len(plans), "plans_valid": sum(1 for e in plans if e.get("status") == "ok")},
+        "findings_removed": removed,
     }
+
+
+def _finding_keys(findings: list[dict], severities=("critical", "major")) -> set:
+    return {(str(e.get("checklist")), str(e.get("target"))) for e in findings if e.get("severity") in severities}
+
+
+def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
+    """Milestone 13: ``{"per_round": {round: n}, "total", "dry_recheck": {round: n}, "edits_removing_finding",
+    "accepted_edits"}`` (module docstring) from the finding, edit and round events of one run. A round counts
+    against the next round that has findings; the last round has nothing to compare with."""
+    findings = [e for e in events if e.get("kind") == "finding" and not e.get("dropped")]
+    by_round = {r: _finding_keys([e for e in findings if int(e.get("round") or 0) == r]) for r in round_ids}
+    per_round: dict = {}
+    for a, b in zip(round_ids, round_ids[1:]):
+        per_round[str(a)] = len(by_round[a] - by_round[b])
+    edits_removing = 0
+    accepted = [e for e in events if e.get("kind") == "edit"]
+    for e in accepted:
+        r = int(e.get("round") or 0)
+        nxt = next((k for k in round_ids if k > r), None)
+        if nxt is None or not e.get("checklist"):
+            continue
+        key = (str(e.get("checklist")), str(e.get("target")))
+        if key in by_round.get(r, set()) and key not in by_round.get(nxt, set()):
+            edits_removing += 1
+    dry = {str(int(e.get("round") or 0)): int((e.get("counts") or {}).get("findings_removed") or 0)
+           for e in events if e.get("kind") == "round" and (e.get("counts") or {}).get("findings_removed") is not None}
+    return {"per_round": per_round, "total": sum(per_round.values()), "dry_recheck": dry,
+            "edits_removing_finding": edits_removing, "accepted_edits": len(accepted)}
 
 
 def write(project_out) -> Path:
@@ -198,7 +230,8 @@ def write(project_out) -> Path:
 
 COMPARE_HEADER = ["run", "model", "rounds", "edits accepted / rejected", "accepted %", "rooms visited / fixable",
                   "critical before -> after", "major before -> after", "agent min", "calls", "tokens (k)",
-                  "first accepted edit (s)", "repeats refused", "dry runs", "top rejection reasons"]
+                  "first accepted edit (s)", "repeats refused", "dry runs", "top rejection reasons",
+                  "findings removed"]
 
 
 def compare_row(label: str, m: dict) -> list:
@@ -207,13 +240,15 @@ def compare_row(label: str, m: dict) -> list:
     tokens = sum(v["prompt"] + v["completion"] for v in m["tokens"].values())
     top = sorted(e["rejected_by_reason"].items(), key=lambda kv: (-kv[1], kv[0]))[:3]
     share = e["accepted_share"]
+    removed = m.get("findings_removed") or {}
     return [label, str(m.get("model") or "-"), m["rounds"], f"{e['accepted']} / {e['rejected']}",
             f"{share * 100:.0f}" if share is not None else "-", f"{r['planner']} / {r['fixable']}",
             f"{f['before_totals']['critical']} -> {f['after_totals']['critical']}",
             f"{f['before_totals']['major']} -> {f['after_totals']['major']}",
             t["agent_minutes"] if t["agent_minutes"] is not None else "-", calls, round(tokens / 1000.0, 1),
             t["first_accepted_edit_s"] if t["first_accepted_edit_s"] is not None else "-",
-            m["memory"]["repeats_refused"], m["memory"]["dry_runs"], ", ".join(f"{k} {v}" for k, v in top) or "-"]
+            m["memory"]["repeats_refused"], m["memory"]["dry_runs"], ", ".join(f"{k} {v}" for k, v in top) or "-",
+            removed.get("total", "-")]
 
 
 def compare_markdown(project: str, rows: list[dict]) -> str:

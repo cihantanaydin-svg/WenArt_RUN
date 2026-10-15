@@ -329,7 +329,11 @@ def test_e10_plinth_bands_and_surrounds(real02_prep):
                                 site["terrain"], real02_prep["roof"], {"family": "modern"},
                                 {"facade": {"material": "render", "colour": "warm greige"}}, site["wells"])
     kinds = {b["kind"] for b in plan["boxes"]}
-    assert kinds == {"plinth", "band"} and plan["looks"]["band"]["colour"] == "white"
+    # Milestone 13 (T6): the facade kit adds reveals, gutters, downpipes, canopies and wall lights (every box
+    # inferred); the Milestone 11 plinth and bands stay as they were
+    assert {"plinth", "band"} <= kinds and plan["looks"]["band"]["colour"] == "white"
+    assert kinds - {"plinth", "band"} <= set(FA.KIT_KINDS)
+    assert all(b.get("inferred") for b in plan["boxes"] if b["kind"] in FA.KIT_KINDS)
     assert all(b["size"][0] > 0 for b in plan["boxes"])
     plinth = [b for b in plan["boxes"] if b["kind"] == "plinth"]
     assert all(b["center"][2] == pytest.approx((-FA.DIMENSIONS["plinth_below"] + FA.DIMENSIONS["plinth_height"]) / 2)

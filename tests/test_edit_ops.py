@@ -10,7 +10,6 @@ import pytest
 import _m11_room as M
 from wenart.furniture import edit_ops as E
 from wenart.furniture import locked as LK
-from wenart.furniture import plausibility as PL
 
 META = {"reason": "test", "round": 1, "log_seq": 7, "model": "mock"}
 
@@ -106,7 +105,9 @@ def test_fixed_equipment_turns_only_for_a_clear_error():
 
 def test_resize_to_a_product_size_only():
     b = bedroom()
-    bad = E.apply_edit(b, edit("resize", piece_id="f_L0_002", size=[3.6, 0.6]))
+    # Milestone 13 (T1): the size table knows wardrobe runs up to 3.2 m (a 3.6 m one is within its tolerance);
+    # a 5.0 m wardrobe is no product size
+    bad = E.apply_edit(b, edit("resize", piece_id="f_L0_002", size=[5.0, 0.6]))
     assert not bad["accepted"] and "product_size" in bad["failed_checks"][0]
     ok = E.apply_edit(b, edit("resize", piece_id="f_L0_002", size=[1.2, 0.6]))
     assert ok["accepted"], ok["failed_checks"]

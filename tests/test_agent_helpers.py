@@ -166,19 +166,62 @@ def violation(check, severity, target, room_id=None, message="wrong"):
 
 
 class ScriptedCritic:
-    """A code critic (``critic_code.run``-shaped) that answers round by round from a list of violation lists."""
+    """A code critic (``critic_code.run``-shaped) that answers round by round from a list of violation lists.
+    Milestone 13: it remembers the building it last judged (``last_building``) and its last answer (``current``)
+    for the fake dry re-check ``FixesWhatItTouched``."""
 
     def __init__(self, rounds):
         self.rounds = list(rounds)
         self.calls = 0
+        self.last_building = None
+
+    def current(self) -> list:
+        """The violations of the latest answer (the round's findings)."""
+        if not self.rounds:
+            return []
+        return list(self.rounds[min(max(self.calls - 1, 0), len(self.rounds) - 1)])
 
     def __call__(self, building, scene, manifest):
         from wenart.agent import critic_code as CC
         items = self.rounds[min(self.calls, len(self.rounds) - 1)] if self.rounds else []
         self.calls += 1
+        self.last_building = copy.deepcopy(building)
         return {"findings": [CC.finding(v) for v in items],
                 "checks": [{"source": "plausibility", "status": "ok", "note": None, "counts": {}}],
                 "scores": {}, "mean": None}
+
+
+def piece_state(f: dict) -> str:
+    return json.dumps({k: f.get(k) for k in ("type", "footprint", "front_deg", "build", "room_id", "asset_pin")},
+                      sort_keys=True, default=str)
+
+
+class FixesWhatItTouched:
+    """Milestone 13: a fake dry re-check (``AgentLoop(recheck=...)``): the round's findings (the scripted critic's
+    latest answer) minus those on the pieces or rooms the edit changed (compared with the building the critic last
+    judged), i.e. "the edit fixed what it touched". The M13 acceptance tests use real re-checks; the loop mechanics
+    tests use this one."""
+
+    def __init__(self, critic: ScriptedCritic):
+        self.critic = critic
+        self.calls = 0
+
+    def __call__(self, building_after, scene, manifest) -> list:
+        from wenart.agent import critic_code as CC
+        self.calls += 1
+        before = self.critic.last_building or {}
+        old = {f.get("id"): piece_state(f) for f in before.get("furniture") or []}
+        new = {f.get("id"): piece_state(f) for f in building_after.get("furniture") or []}
+        changed = {pid for pid in set(old) | set(new) if old.get(pid) != new.get(pid)}
+        old_rooms = {r.get("id"): r.get("room_type") for r in before.get("rooms") or []}
+        changed |= {r.get("id") for r in building_after.get("rooms") or []
+                    if old_rooms.get(r.get("id")) != r.get("room_type")}
+        return [CC.finding(v) for v in self.critic.current() if v.get("target") not in changed]
+
+
+def gone(building, scene, manifest) -> list:
+    """A dry re-check that finds nothing: every validated edit is accepted (tests of the loop's other rules)."""
+    return []
 
 
 def test_the_fixture_is_a_valid_two_room_output(tmp_path):

@@ -32,7 +32,10 @@ from typing import Optional
 from wenart.assets.audit import VERSION
 from wenart.assets.audit.checks import AXES, licence_reason, rotate_axis
 
-FLAG_KEYS = ("real_product", "has_bedding", "has_cushions", "has_pillows", "contact")
+FLAG_KEYS = ("real_product", "has_bedding", "has_cushions", "has_pillows", "contact",
+             "material_tags")                        # Milestone 13: the vision answer's materials (decide.py)
+# Milestone 13 gates: plain fields a ``fix`` may set on the entry (checks.pbr_check, chaise_check).
+FIELD_FIXES = ("pbr_maps", "chaise_side")
 BOX_KEYS = ("bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m", "origin_offset")
 
 
@@ -142,6 +145,14 @@ def fix_entry(entry: dict, fixes: dict) -> tuple[dict, dict]:
         entry["front_axis_note"] = (str(entry.get("front_axis_note") or "") +
                                     f"; M12 audit: front turned {turns * 90} deg to {entry['front_axis']}")
         new["front_axis"] = entry["front_axis"]
+    for key in FIELD_FIXES:
+        if key in fixes and fixes[key] is not None and entry.get(key) != fixes[key]:
+            keep_old(key)
+            entry[key] = fixes[key]
+            new[key] = fixes[key]
+            if key == "chaise_side":
+                entry["chaise_note"] = (str(entry.get("chaise_note") or "").rstrip("; ") + "; M13 audit: chaise side "
+                                        f"{fixes[key]} from the measured footprint").lstrip("; ")
     t = fixes.get("type")
     if t and t != (entry.get("decor_type") or entry.get("type")):
         if entry.get("kind") == "decor" or entry.get("decor_type"):
@@ -198,8 +209,14 @@ def apply_decisions(doc: dict, decisions: dict, checked_utc: str) -> dict:
         e["audit"] = audit_record(status, d.get("reasons") or [], checked_utc, new, **extra)
         for k in FLAG_KEYS:
             v = (d.get("flags") or {}).get(k)
-            if v is not None:
-                e[k] = v
+            if v is None:
+                continue
+            if k == "material_tags" and isinstance(e.get("material_tags"), list) and e["material_tags"]:
+                continue                                  # the Milestone 10 slot judgement stays
+            e[k] = v
+            if k == "material_tags":
+                e["material_tags_note"] = "M13 audit: from the vision answer's materials (one pass; the slot " \
+                                          "judgement of recolour.py is finer where it exists)"
         stats["written"] += 1
     return stats
 

@@ -107,11 +107,33 @@ types; library entries may carry track D's judged fields ``material_slots``, ``m
 ``recolourable_fabric``, ``recolourable_wood`` (``wenart/assets/recolour.py``) and, for plants, ``species`` and
 ``pot`` (checked by ``_validate_m10_fields`` when present; the fit reads them, ``fit.GLB_ASSET_FIELDS``), a corner
 sofa's ``chaise_side``. The wall cabinet stays parametric whatever the library file holds (``PARAMETRIC_ONLY_TYPES``).
+
+Milestone 13 (docs/milestone13.md §6, §12 D1 and D3, §13.2; track T1): the licence model.
+
+- What: every entry carries ``licence``, ``licence_url``, ``licence_declared_by`` (``publisher`` | ``uploader``),
+  ``licence_flag`` (one of ``LICENCE_FLAGS``: ``none`` | ``non_commercial`` | ``share_alike`` | ``no_derivatives`` |
+  ``research_only`` | ``regional`` | ``tool_nc``), ``commercial_safe`` and ``attribution``. The fit runs in a
+  ``licence_mode`` (``LICENCE_MODES``): ``commercial`` uses only ``commercial_safe`` entries (flag ``none``);
+  ``relaxed`` (the PoC projects, user OK of 12 Oct 2026) also uses non-commercial, share-alike, research-only, regional
+  and ``tool_nc`` entries; a ``no_derivatives`` entry is never used (we scale and re-texture), nor an audit ``removed``
+  or ``pending`` one, nor a licence nobody could read (``unknown``).
+- Why: the generated TRELLIS.2 models were exported with nvdiffrast (NVIDIA Source Code License, section 3.3:
+  non-commercial), so they are flagged ``tool_nc`` (D3: kept for the PoC, excluded in commercial mode); the HSSD layer
+  (T7) is CC BY-NC 4.0. Every render says whether it is commercial-safe (T8 reads the flags the fit writes).
+- How: ``licence_flag_of(entry)`` takes the entry's own ``licence_flag`` when it is a stricter flag than the licence
+  text gives, else the text (``LICENCE_TEXT_FLAGS``, the ``-NC`` / ``-SA`` / ``-ND`` markers), else the export tool
+  (``is_tool_nc``: a generated model whose licence text names TRELLIS.2); ``commercial_safe(entry)`` is flag ``none``;
+  ``usable(entry, mode)`` and ``unusable_reason(entry, mode)`` apply the mode; ``licence_mode(brief, env)`` reads
+  ``WENART_LICENCE_MODE``, then the brief's ``library.licence_mode``, else ``commercial``. The existing entries got the
+  new fields from ``write_licence_fields`` (``python -m wenart.furniture licence-fields``; the old ``licence_flag: null``
+  became ``"none"``; every other field stayed byte-identical). ``licence_flag_of`` still accepts a licence text (the
+  Milestone 8 call of ``wenart.assets.objaverse``) and then returns ``"none"`` where it returned None.
 """
 from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -124,21 +146,70 @@ SOURCES = ("polyhaven", "objaverse", "abo", "generated", "gso")
 # written by the prep pod (wenart/assets/objaverse.py); Milestone 12 pod P4 (docs/milestone12.md §6.4): ``gso`` =
 # Google Scanned Objects (CC BY 4.0, confirmed per object, ``licence_evidence``; wenart/assets/audit/growth_gso.py)
 LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso")
-# Licence -> its flag (docs/milestone8.md §2): None for CC0 and CC BY 4.0 (credit only), else what limits the use.
-# The Objaverse licence strings map onto these names in wenart/assets/objaverse.yaml (licences).
-LICENCE_FLAGS: dict[str, Optional[str]] = {
-    LICENCE: None, CC_BY: None,
-    "CC-BY-NC-4.0": "non_commercial", "CC-BY-NC-SA-4.0": "non_commercial", "CC-BY-NC-ND-4.0": "non_commercial",
+# Milestone 13 (docs/milestone13.md §13.2): the licence modes of the fit and the licence flags of the entries.
+LICENCE_MODES: tuple[str, ...] = ("commercial", "relaxed")
+LICENCE_MODE_DEFAULT = "commercial"
+LICENCE_MODE_ENV = "WENART_LICENCE_MODE"          # overrides the brief (the pod jobs export it, scripts/jobs/full.sh)
+LICENCE_MODE_BRIEF_KEY = "library.licence_mode"   # wenart/defaults.yaml brief.library.licence_mode
+LICENCE_FLAGS: tuple[str, ...] = ("none", "non_commercial", "share_alike", "no_derivatives", "research_only",
+                                  "regional", "tool_nc")
+NO_FLAG = "none"
+UNKNOWN_FLAG = "unknown"          # a licence nobody could read (Sketchfab-Standard, no metadata): never usable
+OWN_LICENCE = "n/a"               # the fit's licence of our own parametric and module geometry (fit.PARAMETRIC_LICENCE)
+# The flags no mode may use: no-derivatives (we scale and re-texture, docs/milestone13.md §6) and unknown.
+NEVER_USABLE_FLAGS: tuple[str, ...] = ("no_derivatives", UNKNOWN_FLAG)
+# The flags an audit may set on top of a CC0 / CC BY text (a dataset's own terms the licence text cannot show); the
+# CC markers (-NC, -SA, -ND) must agree with the text, so a CC BY entry never carries non_commercial.
+AUDIT_ONLY_FLAGS: tuple[str, ...] = ("research_only", "regional")
+# How limiting a flag is (a catalogue flag may be stricter than its licence text says, never looser: _validate_licence).
+FLAG_STRICTNESS: dict[str, int] = {NO_FLAG: 0, "regional": 1, "share_alike": 2, "research_only": 3,
+                                   "non_commercial": 4, "tool_nc": 4, "no_derivatives": 5, UNKNOWN_FLAG: 6}
+# Licence text -> its flag (docs/milestone8.md §2; Milestone 13: ``none`` instead of None for CC0 and CC BY 4.0, and
+# CC BY-NC-ND is no_derivatives, the stricter of its two limits). The Objaverse licence strings map onto these names
+# in wenart/assets/objaverse.yaml (licences).
+LICENCE_TEXT_FLAGS: dict[str, str] = {
+    LICENCE: NO_FLAG, CC_BY: NO_FLAG,
+    "CC-BY-NC-4.0": "non_commercial", "CC-BY-NC-SA-4.0": "non_commercial", "CC-BY-NC-ND-4.0": "no_derivatives",
     "CC-BY-SA-4.0": "share_alike", "CC-BY-ND-4.0": "no_derivatives",
-    "Sketchfab-Editorial": "non_commercial", "Sketchfab-Standard": "unknown", "Sketchfab-Free-Standard": "unknown",
-    "unknown": "unknown",
+    "Sketchfab-Editorial": "non_commercial", "Sketchfab-Standard": UNKNOWN_FLAG, "Sketchfab-Free-Standard": UNKNOWN_FLAG,
+    "unknown": UNKNOWN_FLAG,
 }
-FLAGS = ("non_commercial", "share_alike", "no_derivatives", "unknown")
+FLAGS = ("non_commercial", "share_alike", "no_derivatives", "unknown")   # the Milestone 8 name (wenart.assets)
 GENERATED_LICENCE_PREFIX = "generated"   # e.g. "generated (TRELLIS.2-4B, MIT)" (docs/milestone8.md §3)
+# The non-commercial tool in the export chain of the generated TRELLIS.2 models (docs/milestone13.md §2.3, §6, D3):
+# o_voxel.postprocess.to_glb imports nvdiffrast (verified in the research of 12 Oct 2026 on the pinned v0.4.0
+# LICENSE.txt, byte-identical to main: "Nvidia Source Code License (1-Way Commercial)", 3.3 "may be used ...
+# non-commercially"); the Infinigen models were exported by infinigen.tools.export and Blender (BSD-3-Clause, no NC tool).
+TOOL_NC_LICENCE_PREFIX = "generated (TRELLIS.2"
+TOOL_NC = {"tool": "nvdiffrast", "version": "v0.4.0",
+           "licence": "Nvidia Source Code License (1-Way Commercial), section 3.3 non-commercial",
+           "licence_url": "https://github.com/NVlabs/nvdiffrast/blob/v0.4.0/LICENSE.txt",
+           "where": "o_voxel.postprocess.to_glb (the TRELLIS.2 GLB export and texture bake)",
+           "decision": "D3 of 12 Oct 2026: kept for the PoC with licence_flag tool_nc; excluded in commercial mode"}
+# Licence text -> the official page (creativecommons.org pages as the catalogue's datasets block and
+# wenart/assets/objaverse.yaml already name them; the generated models' code licences on GitHub).
+LICENCE_URLS: dict[str, str] = {
+    LICENCE: "https://creativecommons.org/publicdomain/zero/1.0/",
+    CC_BY: "https://creativecommons.org/licenses/by/4.0/",
+    "CC-BY-NC-4.0": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "CC-BY-NC-SA-4.0": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "CC-BY-NC-ND-4.0": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+    "CC-BY-SA-4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "CC-BY-ND-4.0": "https://creativecommons.org/licenses/by-nd/4.0/",
+    # MIT for the TRELLIS.2 code and weights (README: "This model and code are released under the MIT License";
+    # the LICENSE file of microsoft/TRELLIS.2, verified 12 Oct 2026); the export tool is TOOL_NC
+    "generated (TRELLIS.2-4B, MIT)": "https://github.com/microsoft/TRELLIS.2/blob/main/LICENSE",
+}
+POLYHAVEN_LICENCE_URL = "https://polyhaven.com/license"
+# Who declared the licence (docs/milestone13.md §6): the dataset publisher (Amazon for ABO, Poly Haven, Google for GSO,
+# ourselves for generated models) or the uploader of an object (Objaverse: Sketchfab uploads, not verified by anyone).
+LICENCE_DECLARED_BY: dict[str, str] = {"polyhaven": "publisher", "abo": "publisher", "generated": "publisher",
+                                       "gso": "publisher", "objaverse": "uploader"}
+DECLARED_BY_VALUES: tuple[str, ...] = ("publisher", "uploader")
 # Source -> licences its models may carry (docs/milestone7.md §6.3, docs/milestone8.md §2): Poly Haven is CC0 only;
 # Objaverse objects carry the uploader's licence (any, flagged unless CC0 / CC BY 4.0); ABO is CC BY 4.0; a generated
 # model's licence starts with "generated" (checked apart).
-SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": tuple(LICENCE_FLAGS),
+SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": tuple(LICENCE_TEXT_FLAGS),
                                                "abo": (CC_BY,), "gso": (CC_BY,)}
 # Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)); every library model but a generated one has
 # them (any non-CC0 licence asks for the credit).
@@ -233,12 +304,112 @@ def extra_path(path: Path) -> Optional[Path]:
     return None
 
 
-def licence_flag_of(licence: Optional[str]) -> Optional[str]:
-    """The flag of a catalogue licence (``LICENCE_FLAGS``; generated models: None; an unknown name: unknown)."""
-    text = str(licence or "")
+def licence_text_flag(licence: Optional[str]) -> str:
+    """The flag a licence text alone gives (``LICENCE_TEXT_FLAGS``, else its ``-ND`` / ``-NC`` / ``-SA`` markers):
+    ``none`` for CC0, CC BY 4.0 and a generated model's own licence (the export tool is ``is_tool_nc``); ``unknown``
+    for a name nobody could read."""
+    text = str(licence or "").strip()
+    if not text:
+        return UNKNOWN_FLAG
     if text.startswith(GENERATED_LICENCE_PREFIX):
-        return None
-    return LICENCE_FLAGS.get(text, "unknown")
+        return NO_FLAG
+    if text in LICENCE_TEXT_FLAGS:
+        return LICENCE_TEXT_FLAGS[text]
+    upper = text.upper()
+    if "-ND" in upper:
+        return "no_derivatives"
+    if "-NC" in upper:
+        return "non_commercial"
+    if "-SA" in upper:
+        return "share_alike"
+    if upper in ("CC0", "CC0-1.0", "CC-BY", "CC-BY-4.0") or upper.startswith("CC0 "):
+        return NO_FLAG
+    return UNKNOWN_FLAG
+
+
+def is_tool_nc(entry: dict) -> bool:
+    """A generated model whose export chain holds a non-commercial tool (``TOOL_NC``): the TRELLIS.2 models (their
+    licence text names TRELLIS.2, or their ``generated`` record names nvdiffrast); an explicit ``licence_flag:
+    tool_nc`` says so as well. Infinigen models (``infinigen.tools.export`` + Blender) are not."""
+    if entry.get("licence_flag") == "tool_nc":
+        return True
+    if entry.get("source") != "generated" and entry.get("library") != "generated":
+        return False
+    text = str(entry.get("licence") or entry.get("license") or "")
+    rec = entry.get("generated") if isinstance(entry.get("generated"), dict) else {}
+    return text.startswith(TOOL_NC_LICENCE_PREFIX) or "nvdiffrast" in str(rec.get("export") or "").lower()
+
+
+def licence_flag_of(entry) -> str:
+    """Milestone 13 (docs/milestone13.md §13.2): the flag of a catalogue entry or a fitted asset, one of
+    ``LICENCE_FLAGS`` (or ``unknown`` for a licence nobody could read): the entry's own ``licence_flag`` when it is a
+    known flag at least as strict as its licence text gives (the audit may know a regional or research-only limit the
+    text does not show), else the text's flag (``licence_text_flag``), else ``tool_nc`` for a generated model exported
+    with the non-commercial tool (``is_tool_nc``), else ``none``. A licence text (str) keeps the Milestone 8 answer
+    (``wenart.assets.objaverse`` and its tests call it so): None for CC0, CC BY 4.0 and a generated licence, else the
+    text's flag; a catalogue entry (dict) always gets a flag word."""
+    if entry is None or isinstance(entry, str):
+        flag = licence_text_flag(entry)
+        return None if flag == NO_FLAG else flag
+    text = entry.get("licence") if entry.get("licence") is not None else entry.get("license")
+    if text is None or str(text).strip().lower() == OWN_LICENCE:
+        text_flag = NO_FLAG        # no licence recorded (a stub; every catalogue entry has one) or our own geometry
+    else:
+        text_flag = licence_text_flag(text)
+    tool_flag = "tool_nc" if is_tool_nc(entry) else NO_FLAG
+    strictest = max((text_flag, tool_flag), key=lambda f: FLAG_STRICTNESS.get(f, 0))
+    own = entry.get("licence_flag")
+    if own in LICENCE_FLAGS or own == UNKNOWN_FLAG:
+        if FLAG_STRICTNESS.get(own, 0) >= FLAG_STRICTNESS.get(strictest, 0):
+            return own
+    return strictest
+
+
+def commercial_safe(entry: dict) -> bool:
+    """True when the entry may be used in ``commercial`` mode: its flag is ``none`` (docs/milestone13.md §6)."""
+    return licence_flag_of(entry) == NO_FLAG
+
+
+def check_mode(mode: Optional[str]) -> str:
+    """The mode word, validated (a typo must not silently pick a mode)."""
+    if mode is None:
+        return LICENCE_MODE_DEFAULT
+    word = str(mode).strip().lower()
+    if word not in LICENCE_MODES:
+        raise ValueError(f"licence mode must be one of {LICENCE_MODES}, got {mode!r}")
+    return word
+
+
+def licence_mode_from(brief: Optional[dict] = None, env: Optional[dict] = None) -> tuple[str, str]:
+    """``(mode, where it came from)``: the environment's ``WENART_LICENCE_MODE`` (``env`` defaults to ``os.environ``),
+    else the brief's ``library.licence_mode`` (a ``wenart.brief.load_brief`` result, or a raw brief dict), else
+    ``commercial``. A value that is no mode word is reported in the source text and skipped (never a silent pick)."""
+    env = os.environ if env is None else env
+    notes = []
+    raw = env.get(LICENCE_MODE_ENV) if isinstance(env, dict) or hasattr(env, "get") else None
+    if raw is not None and str(raw).strip():
+        word = str(raw).strip().lower()
+        if word in LICENCE_MODES:
+            return word, f"env {LICENCE_MODE_ENV}"
+        notes.append(f"env {LICENCE_MODE_ENV}={raw!r} is no mode word, ignored")
+    from wenart import brief as BR
+
+    value = BR.value(brief, LICENCE_MODE_BRIEF_KEY, None) if isinstance(brief, dict) and "values" in brief else (
+        ((brief or {}).get("library") or {}).get("licence_mode") if isinstance(brief, dict) else None)
+    if value is not None:
+        word = str(value).strip().lower()
+        if word in LICENCE_MODES:
+            assumed = BR.is_assumed(brief, LICENCE_MODE_BRIEF_KEY) if "values" in (brief or {}) else False
+            return word, "; ".join(notes + [f"brief {LICENCE_MODE_BRIEF_KEY}"
+                                            + (" (default of wenart/defaults.yaml)" if assumed else "")])
+        notes.append(f"brief {LICENCE_MODE_BRIEF_KEY}={value!r} is no mode word, ignored")
+    return LICENCE_MODE_DEFAULT, "; ".join(notes + [f"default {LICENCE_MODE_DEFAULT}"])
+
+
+def licence_mode(brief: Optional[dict] = None, env: Optional[dict] = None) -> str:
+    """Milestone 13 (docs/milestone13.md §13.2): the fit's licence mode: env ``WENART_LICENCE_MODE`` > brief
+    ``library.licence_mode`` > ``commercial`` (``licence_mode_from`` says which one it was)."""
+    return licence_mode_from(brief, env)[0]
 
 
 class CatalogError(ValueError):
@@ -466,10 +637,32 @@ def _validate_licence(e: dict, source: str) -> None:
     elif licence not in SOURCE_LICENCES[source]:
         raise CatalogError(f"{e['id']}: source/licence {source}/{licence} is not allowed "
                            f"({source}: {', '.join(SOURCE_LICENCES[source])})")
-    expect = licence_flag_of(licence)
-    if ("licence_flag" in e or expect is not None) and e.get("licence_flag") != expect:
-        raise CatalogError(f"{e['id']}: licence {licence} needs licence_flag {expect!r}, not "
-                           f"{e.get('licence_flag')!r} (docs/milestone8.md §2)")
+    # Milestone 13: the flag the licence text (and the export tool) gives; the entry's own flag may be absent (a file
+    # written before Milestone 13: None) or at least as strict (the audit may add research_only / regional); a text
+    # flag of NC / SA / ND / unknown must be carried exactly (docs/milestone8.md §2, docs/milestone13.md §6).
+    expect = licence_flag_of({k: v for k, v in e.items() if k != "licence_flag"})
+    given = e.get("licence_flag")
+    if given is not None:
+        if given not in LICENCE_FLAGS and given != UNKNOWN_FLAG:
+            raise CatalogError(f"{e['id']}: licence_flag {given!r} is not one of {LICENCE_FLAGS} "
+                               "(docs/milestone13.md §13.2)")
+        if expect in (NO_FLAG, "tool_nc"):
+            if given != expect and given not in AUDIT_ONLY_FLAGS:
+                raise CatalogError(f"{e['id']}: licence {licence} needs licence_flag {expect!r} (or one of "
+                                   f"{AUDIT_ONLY_FLAGS}, a limit the licence text cannot show), not {given!r} "
+                                   "(docs/milestone13.md §6)")
+        elif given != expect:
+            raise CatalogError(f"{e['id']}: licence {licence} needs licence_flag {expect!r}, not {given!r} "
+                               "(docs/milestone8.md §2)")
+    elif expect not in (NO_FLAG, "tool_nc"):
+        raise CatalogError(f"{e['id']}: licence {licence} needs licence_flag {expect!r}, not None "
+                           "(docs/milestone8.md §2)")
+    if "commercial_safe" in e and (not isinstance(e["commercial_safe"], bool) or e["commercial_safe"] != commercial_safe(e)):
+        raise CatalogError(f"{e['id']}: commercial_safe {e['commercial_safe']!r} does not follow its licence flag "
+                           f"{licence_flag_of(e)!r} (docs/milestone13.md §6)")
+    if "licence_declared_by" in e and e["licence_declared_by"] not in DECLARED_BY_VALUES:
+        raise CatalogError(f"{e['id']}: licence_declared_by must be one of {DECLARED_BY_VALUES}, not "
+                           f"{e['licence_declared_by']!r}")
     if licence == CC_BY or (source in ("objaverse", "abo") and licence != LICENCE):
         empty = [k for k in CC_BY_FIELDS if not (isinstance(e.get(k), str) and e[k].strip())]
         if empty:
@@ -593,29 +786,134 @@ BY_DESIGN_PARAMETRIC_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_islan
                                                "stair") + PARAMETRIC_FIXTURE_TYPES
 
 
-def usable(entry: dict) -> bool:
-    """A library entry the fit may use: its audit status is not ``removed`` or ``pending`` (``entry["audit"]["status"]``
-    in keep / fix, or no audit yet: a fitted asset dict carries none) and its licence is not non-commercial, share-alike or no-derivatives (CLAUDE.md library
-    rules, user OK of 10 Oct 2026): neither the licence text (``-NC``, ``-SA``, ``-ND``) nor the catalogue's
-    ``licence_flag`` says so. Works on a catalogue entry and on a fitted ``asset`` dict alike."""
+def usable(entry: dict, mode: str = "commercial") -> bool:
+    """A library entry the fit may use in licence ``mode`` (Milestone 13, docs/milestone13.md §6, §13.2): its audit
+    status is not ``removed`` or ``pending`` (``entry["audit"]["status"]`` in keep / fix, or no audit yet: a fitted
+    asset dict carries none), and its flag (``licence_flag_of``: the catalogue flag, the licence text's ``-NC`` /
+    ``-SA`` / ``-ND`` markers, the export tool) suits the mode: ``commercial`` takes flag ``none`` only
+    (``commercial_safe``, the rule of 10 Oct 2026); ``relaxed`` (user OK of 12 Oct 2026) takes every flag but
+    ``no_derivatives`` and ``unknown`` (``NEVER_USABLE_FLAGS``). Works on a catalogue entry and on a fitted ``asset``
+    dict alike."""
+    mode = check_mode(mode)
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
         return False
-    if entry.get("licence_flag") in NOT_USABLE_FLAGS:
-        return False
-    licence = str(entry.get("licence") or entry.get("license") or "").upper()
-    return not any(m in licence for m in NOT_USABLE_LICENCE_MARKERS)
+    flag = licence_flag_of(entry)
+    if mode == "commercial":
+        return flag == NO_FLAG
+    return flag in LICENCE_FLAGS and flag not in NEVER_USABLE_FLAGS
 
 
-def unusable_reason(entry: dict) -> Optional[str]:
-    """Why ``usable`` refuses an entry (None when it is usable)."""
+def unusable_reason(entry: dict, mode: str = "commercial") -> Optional[str]:
+    """Why ``usable`` refuses an entry in ``mode`` (None when it is usable)."""
+    mode = check_mode(mode)
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     if str(audit.get("status") or "").lower() in REMOVED_STATUSES:
         reasons = "; ".join(str(r) for r in audit.get("reasons") or []) or "no reason recorded"
         return f"audit: {str(audit.get('status')).lower()} ({reasons})"
-    if not usable(entry):
-        return f"licence {entry.get('licence')} ({entry.get('licence_flag') or 'NC/SA/ND'}): not used (CLAUDE.md)"
+    if not usable(entry, mode):
+        flag = licence_flag_of(entry)
+        why = ("never used in any mode: no derivatives or an unknown licence" if flag in NEVER_USABLE_FLAGS
+               else "not commercial-safe: relaxed mode only")
+        return (f"licence {entry.get('licence') or entry.get('license')} ({flag}): not used in {mode} mode ({why}; "
+                "CLAUDE.md library rules)")
     return None
+
+
+# --------------------------------------------------------------------------
+# Milestone 13: the licence fields of the existing entries (written by a script, never by hand)
+# --------------------------------------------------------------------------
+
+LICENCE_FIELDS: tuple[str, ...] = ("licence", "licence_url", "licence_declared_by", "licence_flag", "commercial_safe",
+                                   "attribution")
+
+
+def licence_url_of(entry: dict) -> str:
+    """The official licence page of an entry: its own ``licence_url`` when it has one, else by its licence text
+    (``LICENCE_URLS``; Poly Haven's CC0 page for Poly Haven models); '' when nothing is known."""
+    own = str(entry.get("licence_url") or "").strip()
+    if own:
+        return own
+    text = str(entry.get("licence") or "")
+    if entry.get("source") == "polyhaven" and text == LICENCE:
+        return POLYHAVEN_LICENCE_URL
+    return LICENCE_URLS.get(text, "")
+
+
+def licence_fields(entry: dict) -> dict:
+    """The Milestone 13 licence fields of an existing entry (pure): ``licence_url`` (filled where missing),
+    ``licence_declared_by`` (``LICENCE_DECLARED_BY`` by source), ``licence_flag`` (``licence_flag_of``: ``none``
+    instead of None, ``tool_nc`` for the TRELLIS.2 models), ``commercial_safe``, ``attribution`` (a CC0 Poly Haven
+    model gets the no-credit line; every other entry keeps its own) and, on a ``tool_nc`` entry, ``licence_flag_note``
+    (the tool and the decision). Nothing else."""
+    flag = licence_flag_of(entry)
+    out = {"licence_url": licence_url_of(entry),
+           "licence_declared_by": entry.get("licence_declared_by") or LICENCE_DECLARED_BY.get(str(entry.get("source")),
+                                                                                                 "uploader"),
+           "licence_flag": flag, "commercial_safe": flag == NO_FLAG}
+    if isinstance(entry.get("attribution"), str) and entry["attribution"].strip():
+        out["attribution"] = entry["attribution"]
+    elif entry.get("source") == "polyhaven":
+        out["attribution"] = (f"{entry.get('name') or entry.get('id')} by Poly Haven "
+                              f"({entry.get('url') or 'https://polyhaven.com'}), CC0 1.0: no credit required")
+    else:
+        out["attribution"] = entry.get("attribution") or ""
+    if flag == "tool_nc":
+        out["licence_flag_note"] = (f"exported with {TOOL_NC['tool']} {TOOL_NC['version']} ({TOOL_NC['licence']}, "
+                                    f"{TOOL_NC['licence_url']}) in {TOOL_NC['where']}; {TOOL_NC['decision']}")
+    return out
+
+
+LICENCE_BLOCK_KEYS: tuple[str, ...] = ("licence", "licence_flag", "licence_url", "licence_declared_by",
+                                       "commercial_safe", "licence_flag_note", "attribution")
+# The keys a new field is inserted after (the last one present): the licence block proper; an entry's own
+# ``attribution`` may sit anywhere and stays there.
+LICENCE_ANCHOR_KEYS: tuple[str, ...] = LICENCE_BLOCK_KEYS[:-1]
+
+
+def add_licence_fields(data: dict) -> dict:
+    """Give every model entry of a catalogue dict (``entries`` and ``decor``; parametric rows untouched) the Milestone
+    13 licence fields, in place, keeping the key order: a field the entry has is set where it is, a new one goes right
+    after the last licence field the entry already has (``LICENCE_BLOCK_KEYS``: the licence block stays together and
+    the file diff holds the new lines only, no trailing-comma change on the entry's last key). Returns the counts
+    (entries touched, flags)."""
+    counts: dict = {"entries": 0, "changed": 0, "flags": {}}
+    for section in ("entries", "decor"):
+        rows = data.get(section) or []
+        for i, e in enumerate(rows):
+            if not isinstance(e, dict) or e.get("parametric") or "licence" not in e:
+                continue
+            new = licence_fields(e)
+            counts["entries"] += 1
+            counts["flags"][new["licence_flag"]] = counts["flags"].get(new["licence_flag"], 0) + 1
+            if all(k in e and e[k] == v for k, v in new.items()):
+                continue
+            anchor = [k for k in e if k in LICENCE_ANCHOR_KEYS][-1]     # "licence" at least
+            rebuilt: dict = {}
+            pending = dict(new)
+            for key, value in e.items():
+                rebuilt[key] = pending.pop(key) if key in pending else value
+                if key == anchor:
+                    for k in LICENCE_BLOCK_KEYS:
+                        if k in pending and k not in e:
+                            rebuilt[k] = pending.pop(k)
+            rebuilt.update(pending)          # cannot happen (every new key is a block key); keeps the data whole
+            rows[i] = rebuilt
+            counts["changed"] += 1
+    return counts
+
+
+def write_licence_fields(path: Path) -> dict:
+    """``add_licence_fields`` on a catalogue file, written back as it was written (indent 1, UTF-8, trailing newline;
+    ``wenart.assets.objaverse`` and this package write every catalogue so). Validates before writing."""
+    path = Path(path)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    counts = add_licence_fields(data)
+    validate(data, complete=path.name == CATALOG_PATH.name)
+    if counts["changed"]:
+        path.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    counts["path"] = str(path)
+    return counts
 
 
 def audit_status(entry: dict) -> str | None:

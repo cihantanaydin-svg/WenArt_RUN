@@ -67,8 +67,15 @@ def test_add_of_a_missing_partner_goes_through_the_solver():
 
 def test_place_group_never_a_second_anchor_and_only_where_it_belongs():
     b = M.building(furniture=[bed()])
+    # Milestone 13 (B3): the room has a drawn sleeping group (the drawn bed): place_group re-solves it as one unit
+    # around the drawn anchor instead of a second bed; the bed keeps its drawn values and moves at most 0.5 m
     second = E.apply_edit(b, edit("place_group", room_id=ROOM, group="sleeping_double"))
-    assert not second["accepted"] and second["failed_checks"][0].startswith("second_anchor")
+    assert second["accepted"], second["failed_checks"]
+    beds = [f for f in second["building"]["furniture"] if f["type"] == "bed_double"]
+    assert [f["id"] for f in beds] == ["b1"] and beds[0]["source"] == "from_documents"
+    assert beds[0]["drawn_group"]["anchor_id"] == "b1" and beds[0]["drawn_group"]["moved_m"] <= 0.5
+    assert beds[0]["drawn_footprint"]["center"] == [1.02, 2.0] and beds[0]["adjusted_by_ai"]["reason"]
+    assert "b1" in second["changed_ids"] and LK.check(b, second["building"], "complete") == []
     kitchen = E.apply_edit(b, edit("place_group", room_id=ROOM, group="kitchen_run"))
     assert not kitchen["accepted"] and "does not belong in a bedroom room" in kitchen["failed_checks"][0]
     option = E.apply_edit(b, edit("place_group", room_id=ROOM, group="storage", option="seats_4"))
@@ -252,7 +259,7 @@ def test_dry_run_answers_without_the_building():
     real = E.apply_edit(b, edit("complete_group", group_id=f"{ROOM}.sleeping_double"))
     assert dry["building"] is None and dry["dry_run"] is True and dry["accepted"] == real["accepted"] is True
     assert dry["changed_ids"] == real["changed_ids"] and json.dumps(b, sort_keys=True) == before
-    no = E.dry_run(b, edit("place_group", room_id=ROOM, group="sleeping_double"))
+    no = E.dry_run(b, edit("place_group", room_id=ROOM, group="kitchen_run"))
     assert not no["accepted"] and no["building"] is None and no["failed_checks"]
 
 

@@ -514,6 +514,7 @@ def _moved_site(sp: dict, shift: Shift) -> dict:
     for key in ("paving", "grass", "parking"):
         out[key] = [dict(x, polygon=moved(x["polygon"], shift)) for x in sp.get(key) or []]
     out["trees"] = [dict(x, points=moved(x["points"], shift)) for x in sp.get("trees") or []]
+    out["hedges"] = [dict(x, polyline=moved(x["polyline"], shift)) for x in sp.get("hedges") or []]   # M13 (T6)
     out["pools"] = [dict(x, polygon=moved(x["polygon"], shift)) for x in sp.get("pools") or []]
     out["buildings"] = [moved_copy(c, shift) for c in sp.get("buildings") or []] or sp.get("buildings")
     out["plot_walls"] = [dict(x, start=moved([x["start"]], shift)[0], end=moved([x["end"]], shift)[0])
@@ -633,6 +634,10 @@ def site_block(site: dict, sheets: dict, area_kind: Callable, ground_level_id: O
         decor.append({"id": f"sd_{level_id}_{len(decor) + 1:03d}", "level_id": level_id, "kind": "tree",
                       "center": list(centre), "size": [size, size], "build": True,
                       "evidence": list(tree["evidence"])})
+    # Milestone 13 (T6, §13.2): the hedge rows of wenart.sheets.exterior.hedge_rows (their symbols are no longer
+    # single trees) as site.hedges.
+    if sp.get("hedges"):
+        site["hedges"] = [dict(h) for h in sp["hedges"]]
     plot_walls = [w for w in site.get("boundary_walls") or [] if w.get("kind") == "plot"]
     if plot_walls and site.get("plot") is None:
         from shapely.geometry import MultiPoint

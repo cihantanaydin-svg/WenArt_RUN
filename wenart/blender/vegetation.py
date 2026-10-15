@@ -1,0 +1,1303 @@
+"""Vegetation of the site: trees, hedges and grass (Milestone 13, docs/milestone13.md §13.2, track T6; CLAUDE.md
+vegetation and site rules, user OK of 12 Oct 2026).
+
+What: ``tree_object(species, height_m, seed, near_camera)`` makes one tree of a species at a height: near the
+cameras a Poly Haven CC0 photoscanned model (``POLYHAVEN_MODELS``) instanced from one import (a collection
+instance per tree: the mesh is loaded once), elsewhere a species-look tree from the Sapling Tree Gen add-on
+(``bpy.ops.curve.tree_add`` with the add-on's own preset and our size, shape and leaf settings; the add-on is GPL and
+runs as an installed program, nothing of it is copied here), and when neither is available a trunk with a
+leaf-card crown from geometry nodes (``crown_plan``) or, for a palm, a trunk with frond cards. ``hedge_object(hedge)``
+fills the hedge volume (its box core following the ground) with leaf cards by geometry nodes (Distribute Points on
+Faces, Instance on Points). ``grass_patch(polygon, density)`` scatters grass clumps over the lawn near the cameras
+(the Poly Haven clump when the assets hold it, else crossed grass cards) and ``lawn_relief`` gives the far lawn a
+gentle displacement. ``SPECIES`` names every species the site may infer (``site.species_for``) with its sources,
+crown shape and colour. Never a primitive sphere or cone: every tree, shrub, hedge and lawn is a real model or
+generated geometry with a leaf texture.
+
+Why: real04's 101 drawn tree symbols (r 0.36 m) were built as 100 four-metre ellipsoid "lollipops" and real02's
+inferred trees as 5.6 m spheres (docs/milestone13.md §1.7). The user's rule (12 Oct 2026): every tree, shrub,
+hedge and lawn is a real model or generated geometry with leaf textures, never a primitive; species not named in the
+documents are inferred (``site.climate_of`` / ``site.species_for``) and named in the report.
+
+How: the pure parts (``species_record``, ``hero_model``, ``sapling_overrides``, ``hedge_plan``, ``crown_plan``,
+``palm_plan``, ``leaf_mask_points``) run without Blender and are tested on the CPU (tests/test_m13_site.py); the
+``bpy`` parts build the objects (tests/gpu/test_m13_site.py on the pod; verified in the bpy 5.2.2 LTS module during
+the build, 15 Oct 2026). Node and property names come from the Blender 5.2 LTS manual and the 5.2.2 Python API:
+``GeometryNodeDistributePointsOnFaces`` (Density, Seed; Points, Normal, Rotation), ``GeometryNodeInstanceOnPoints``
+(Points, Instance, Rotation, Scale), ``GeometryNodeObjectInfo`` (As Instance), ``FunctionNodeRandomValue``,
+``FunctionNodeEulerToRotation`` / ``FunctionNodeRotateRotation``, ``GeometryNodeJoinGeometry``; the Principled BSDF's
+``Thin Wall`` input ("useful for modeling thin structures, such as papers, leaves, and window sheets", 5.2 manual)
+and ``Alpha``; the Displace modifier with a Clouds texture. Assets: the Poly Haven models and the ambientCG leaf
+atlases are read from the assets folder (``WENART_ASSETS``, the scene's ``wenart_assets_dir`` or the default
+folders) through the manifest ``wenart.assets`` writes (``python -m wenart.assets models fetch --ids ...`` and
+``fetch.fetch_texture``; ``scripts/pod_setup_vegetation.sh`` runs them); nothing is downloaded here. Every object
+records ``wenart_veg_method`` (``polyhaven`` | ``sapling`` | ``cards`` | ``palm``), ``wenart_species``,
+``wenart_asset`` and the licence for the scene manifest and ATTRIBUTION.md.
+"""
+from __future__ import annotations
+
+import ast
+import json
+import math
+import os
+import random
+import sys
+from pathlib import Path
+from typing import Optional, Sequence
+
+NEAR_CAMERA_M = 25.0                 # a tree this close to the building (the cameras stand around it) is a hero
+GRASS_DENSITY_NEAR = 4.0             # grass clumps per m² on the lawn near the cameras
+LEAF_CARDS_PER_M2 = 60.0             # leaf cards on a hedge's surface
+CROWN_CARDS_PER_M2 = 35.0            # leaf cards on a crown's surface (two shells)
+LEAF_CARD_M = (0.16, 0.22)           # a leaf card: width, height
+GRASS_CARD_M = (0.30, 0.28)
+HERO_MAX_PER_SPECIES = 12            # collection instances share one mesh; this caps the render memory per species
+ASSET_CANDIDATES = ("/workspace/assets", "assets")
+SAPLING_DIR_ENV = "WENART_SAPLING_DIR"
+SAPLING_MODULES = ("bl_ext.user_default.sapling_tree_gen", "bl_ext.blender_org.sapling_tree_gen",
+                   "sapling_tree_gen", "add_curve_sapling")
+# The nine presets of the Sapling Tree Gen add-on (its presets folder; 0.3.5 bundled source and the 0.3.7
+# extension, checked 12 Oct 2026).
+SAPLING_PRESETS = ("callistemon", "douglas_fir", "japanese_maple", "quaking_aspen", "small_maple", "small_pine",
+                   "weeping_willow", "white_birch", "willow")
+# The top of each preset's tree over its ``scale`` (leaves included) and its width over the scale, measured in bpy
+# 5.2.2 LTS with the 0.3.7 extension at scale 10, seeds 0 and 1 (15 Oct 2026, scratchpad verify): the first guess
+# of ``sapling_overrides``; the built tree is then measured and scaled to the drawn height exactly (``_tree_sapling``).
+SAPLING_TOP_PER_SCALE = {"callistemon": 1.04, "douglas_fir": 1.04, "japanese_maple": 1.33, "quaking_aspen": 1.16,
+                         "small_maple": 1.26, "small_pine": 1.09, "weeping_willow": 1.03, "white_birch": 1.27,
+                         "willow": 1.04}
+SAPLING_WIDTH_PER_SCALE = {"callistemon": 0.80, "douglas_fir": 0.52, "japanese_maple": 1.41, "quaking_aspen": 0.51,
+                           "small_maple": 1.13, "small_pine": 0.77, "weeping_willow": 0.78, "white_birch": 1.01,
+                           "willow": 0.71}
+# The add-on's crown shapes (its ``shapeList3`` enum: the value is the string the operator takes).
+SAPLING_SHAPES = {"conical": "0", "spherical": "1", "hemispherical": "2", "cylindrical": "3",
+                  "tapered_cylindrical": "4", "flame": "5", "inverse_conical": "6", "tend_flame": "7"}
+
+# Poly Haven CC0 models (https://polyhaven.com/license: "You can use our assets for any purpose"); every id, name,
+# height (the API's dimensions z, mm -> m) and polycount read from https://api.polyhaven.com/info/<id> on
+# 15 Oct 2026. Downloaded by ``python -m wenart.assets models fetch --ids <id> --size 2k`` into
+# ``<assets>/models/<id>/<id>_2k.gltf`` (wenart/assets/models.py).
+POLYHAVEN_MODELS = {
+    "island_tree_01": {"name": "Island Tree 01", "height_m": 5.03, "polycount": 3729692, "kind": "tree"},
+    "island_tree_02": {"name": "Island Tree 02", "height_m": 3.41, "polycount": 1762064, "kind": "tree"},
+    "island_tree_03": {"name": "Island Tree 03", "height_m": 2.62, "polycount": 4760490, "kind": "tree"},
+    "tree_small_02": {"name": "Tree Small 02", "height_m": 4.65, "polycount": 4652585, "kind": "tree"},
+    "jacaranda_tree": {"name": "Jacaranda Tree", "height_m": 19.83, "polycount": 312356, "kind": "tree"},
+    "fir_sapling_medium": {"name": "Fir Sapling Medium", "height_m": 9.16, "polycount": 2308249, "kind": "tree"},
+    "searsia_lucida": {"name": "Searsia Lucida", "height_m": 2.34, "polycount": 841648, "kind": "shrub"},
+    "searsia_burchellii": {"name": "Searsia Burchellii", "height_m": 3.25, "polycount": 1427042, "kind": "shrub"},
+    "othonna_cerarioides": {"name": "Othonna Cerarioides", "height_m": 1.97, "polycount": 651641, "kind": "shrub"},
+    "grass_medium_02": {"name": "Grass Medium 02", "height_m": 1.45, "polycount": 1043926, "kind": "grass"},
+    "grass_bermuda_01": {"name": "Grass Bermuda 01", "height_m": 1.06, "polycount": 223596, "kind": "grass"},
+}
+POLYHAVEN_LICENCE = "CC0"
+POLYHAVEN_LICENCE_URL = "https://polyhaven.com/license"
+# ambientCG CC0 leaf atlases (https://ambientcg.com: "All assets are released under the Creative Commons CC0
+# license"); ids checked on the API v2 on 15 Oct 2026. Fetched by ``wenart.assets.fetch.fetch_texture`` (Color,
+# NormalGL, Roughness; the Opacity map is not extracted by that fetcher yet, so the cards use a procedural leaf mask).
+LEAF_ATLASES = {"broadleaf": "LeafSet027", "oak": "LeafSet012", "maple": "LeafSet016"}
+LEAF_LICENCE = "CC0"
+
+# Species the site infers (site.SPECIES_BY_CLIMATE) and the documents may name. source.polyhaven: the hero model
+# near the cameras (an inferred look when the species has no CC0 scan: no CC0 olive, cypress, plane, citrus or palm
+# exists, docs/milestone13.md §2.2); source.sapling: the add-on preset for the species-look tree elsewhere, with
+# the crown shape and our overrides; crown: round | spreading | columnar | umbrella | conical | palm | shrub |
+# hedge; colour: linear RGB of the foliage; overshoot: the preset's crown height over its trunk scale (1.15-1.66 per
+# preset, measured in bpy 5.2.2 on 12 Oct 2026; used to hit the drawn height).
+SPECIES = {
+    "olive": {"source": {"polyhaven": "island_tree_02", "sapling": "small_maple"}, "crown": "round",
+              "shape": "hemispherical", "colour": (0.30, 0.38, 0.26), "overshoot": 1.35, "leaf": "broadleaf",
+              "levels": 3, "width_factor": 0.9, "note": "no CC0 olive scan: a round broadleaf stands in (inferred look)"},
+    "stone_pine": {"source": {"polyhaven": None, "sapling": "small_pine"}, "crown": "umbrella",
+                   "shape": "inverse_conical", "colour": (0.07, 0.16, 0.06), "overshoot": 1.2, "leaf": "broadleaf",
+                   "levels": 3, "width_factor": 0.8, "trunk_share": 0.5, "note": "umbrella crown on a tall trunk"},
+    "plane": {"source": {"polyhaven": "jacaranda_tree", "sapling": "quaking_aspen"}, "crown": "spreading",
+              "shape": "spherical", "colour": (0.22, 0.40, 0.14), "overshoot": 1.45, "leaf": "maple",
+              "levels": 3, "width_factor": 0.8, "note": "no CC0 plane scan: a large broadleaf stands in (inferred look)"},
+    "cypress": {"source": {"polyhaven": None, "sapling": "small_pine"}, "crown": "columnar",
+                "shape": "tapered_cylindrical", "colour": (0.06, 0.14, 0.06), "overshoot": 1.15, "leaf": "broadleaf",
+                "levels": 2, "width_factor": 0.22, "note": "columnar: a narrow tapered crown"},
+    "palm": {"source": {"polyhaven": None, "sapling": None}, "crown": "palm", "shape": None,
+             "colour": (0.18, 0.36, 0.12), "overshoot": 1.0, "leaf": "broadleaf", "levels": 1, "width_factor": 0.6,
+             "note": "no CC0 palm and no Sapling palm: a trunk with frond cards"},
+    "oleander": {"source": {"polyhaven": "searsia_lucida", "sapling": None}, "crown": "shrub", "shape": None,
+                 "colour": (0.16, 0.30, 0.12), "overshoot": 1.0, "leaf": "broadleaf", "levels": 1, "width_factor": 1.0,
+                 "note": "shrub: a leaf-card ball, the Poly Haven shrub near the cameras (inferred look)"},
+    "birch": {"source": {"polyhaven": "island_tree_03", "sapling": "white_birch"}, "crown": "round",
+              "shape": "spherical", "colour": (0.30, 0.48, 0.16), "overshoot": 1.4, "leaf": "broadleaf",
+              "levels": 3, "width_factor": 0.7, "note": "white birch preset"},
+    "maple": {"source": {"polyhaven": "island_tree_02", "sapling": "small_maple"}, "crown": "round",
+              "shape": "spherical", "colour": (0.20, 0.38, 0.12), "overshoot": 1.35, "leaf": "maple",
+              "levels": 3, "width_factor": 0.9, "note": "small maple preset"},
+    "oak": {"source": {"polyhaven": "island_tree_01", "sapling": "small_maple"}, "crown": "spreading",
+            "shape": "hemispherical", "colour": (0.17, 0.33, 0.11), "overshoot": 1.35, "leaf": "oak",
+            "levels": 3, "width_factor": 1.0, "note": "no oak preset: the maple preset with a broad crown (inferred look)"},
+    "conifer": {"source": {"polyhaven": "fir_sapling_medium", "sapling": "douglas_fir"}, "crown": "conical",
+                "shape": "conical", "colour": (0.08, 0.18, 0.08), "overshoot": 1.25, "leaf": "broadleaf",
+                "levels": 3, "width_factor": 0.5, "note": "douglas fir preset"},
+    "jacaranda": {"source": {"polyhaven": "jacaranda_tree", "sapling": "quaking_aspen"}, "crown": "spreading",
+                  "shape": "spherical", "colour": (0.25, 0.42, 0.16), "overshoot": 1.45, "leaf": "broadleaf",
+                  "levels": 3, "width_factor": 0.9, "note": "the Poly Haven jacaranda scan"},
+    "generic_broadleaf": {"source": {"polyhaven": "island_tree_02", "sapling": "small_maple"}, "crown": "round",
+                          "shape": "spherical", "colour": (0.20, 0.36, 0.12), "overshoot": 1.35, "leaf": "broadleaf",
+                          "levels": 3, "width_factor": 0.9, "note": "a broadleaf tree of no named species"},
+    "privet_shrub": {"source": {"polyhaven": "searsia_burchellii", "sapling": None}, "crown": "shrub", "shape": None,
+                     "colour": (0.14, 0.28, 0.10), "overshoot": 1.0, "leaf": "broadleaf", "levels": 1,
+                     "width_factor": 1.0, "note": "shrub: a leaf-card ball, the Poly Haven bush near the cameras"},
+    # hedges (leaf-card volumes; the Poly Haven library has no hedge model)
+    "boxwood": {"source": {"polyhaven": None, "sapling": None}, "crown": "hedge", "shape": None,
+                "colour": (0.14, 0.30, 0.10), "overshoot": 1.0, "leaf": "broadleaf", "levels": 0, "width_factor": 1.0,
+                "card_scale": 0.45, "note": "small dense leaves"},
+    "cherry_laurel": {"source": {"polyhaven": None, "sapling": None}, "crown": "hedge", "shape": None,
+                      "colour": (0.10, 0.26, 0.08), "overshoot": 1.0, "leaf": "broadleaf", "levels": 0,
+                      "width_factor": 1.0, "card_scale": 0.9, "note": "large glossy leaves (Turkish 'taflan')"},
+    "privet": {"source": {"polyhaven": None, "sapling": None}, "crown": "hedge", "shape": None,
+               "colour": (0.16, 0.32, 0.12), "overshoot": 1.0, "leaf": "broadleaf", "levels": 0, "width_factor": 1.0,
+               "card_scale": 0.6, "note": "a common clipped hedge"},
+    "hornbeam": {"source": {"polyhaven": None, "sapling": None}, "crown": "hedge", "shape": None,
+                 "colour": (0.22, 0.40, 0.14), "overshoot": 1.0, "leaf": "broadleaf", "levels": 0,
+                 "width_factor": 1.0, "card_scale": 0.7, "note": "a tall clipped hedge"},
+    "cypress_hedge": {"source": {"polyhaven": None, "sapling": None}, "crown": "hedge", "shape": None,
+                      "colour": (0.07, 0.15, 0.07), "overshoot": 1.0, "leaf": "broadleaf", "levels": 0,
+                      "width_factor": 1.0, "card_scale": 0.5, "note": "a tall dark conifer hedge"},
+}
+TREE_SPECIES = tuple(k for k, v in SPECIES.items() if v["crown"] != "hedge")
+HEDGE_SPECIES = tuple(k for k, v in SPECIES.items() if v["crown"] == "hedge")
+
+
+# --------------------------------------------------------------------------
+# Pure parts
+# --------------------------------------------------------------------------
+
+# Milestone 13 (T6): a row of tree symbols is a hedge (CLAUDE.md vegetation rules, user OK of 12 Oct 2026).
+HEDGE_MIN_COUNT = 5                   # at least this many symbols in a row
+HEDGE_MAX_RADIUS_M = 0.6              # symbols larger than this are trees, never a hedge
+HEDGE_PITCH_FACTOR = 1.5              # the pitch between neighbours is at most this x the diameter
+HEDGE_RADIUS_TOL_M = 0.01             # "equal" radii
+HEDGE_MAX_TURN_DEG = 60.0             # a gentle polyline: the row may turn this much between two steps
+HEDGE_SIMPLIFY_M = 0.15               # the polyline keeps the symbol centres within this of the drawn row
+# The height class by the symbol radius (a trimmed hedge: the drawn width says how it is kept); the heights are
+# assumed (no section draws a hedge) and listed as inferred.
+HEDGE_HEIGHT_M = {"low": 0.6, "mid": 1.2, "high": 1.8}
+HEDGE_CLASS_RADIUS_M = ((0.30, "low"), (0.45, "mid"), (HEDGE_MAX_RADIUS_M, "high"))
+
+
+def hedge_height_class(radius_m: float) -> str:
+    """The height class of a hedge from its symbol radius: ``low`` (r <= 0.30 m), ``mid`` (<= 0.45 m), ``high``."""
+    for limit, cls in HEDGE_CLASS_RADIUS_M:
+        if radius_m <= limit + 1e-9:
+            return cls
+    return "high"
+
+
+def _circle_record(c, k: int) -> Optional[dict]:
+    """``{"id", "centre", "radius"}`` of a tree symbol in the sheets format (``points`` / ``radius_m``, the
+    evidence entity as the id), the building format (``center`` / ``size``, its ``id``) or a plain
+    ``{"center", "radius_m"}``; None when it has no centre or radius."""
+    if not isinstance(c, dict):
+        return None
+    centre = c.get("center") or c.get("centre") or ((c.get("points") or [None])[0])
+    if not centre or len(centre) < 2:
+        return None
+    r = c.get("radius_m")
+    if r is None and c.get("size"):
+        r = float(max(c["size"][:2])) / 2.0
+    if r is None or float(r) <= 0:
+        return None
+    cid = c.get("id")
+    if cid is None:
+        ev = c.get("evidence") or []
+        cid = (ev[0].get("entity") if ev and isinstance(ev[0], dict) else None) or f"symbol_{k}"
+    return {"id": str(cid), "centre": (float(centre[0]), float(centre[1])), "radius": float(r), "index": k}
+
+
+def _simplify(points: list, tol: float) -> list:
+    """Douglas-Peucker on a polyline (pure)."""
+    if len(points) <= 2:
+        return list(points)
+    a, b = points[0], points[-1]
+    ax, ay, bx, by = a[0], a[1], b[0], b[1]
+    length = math.hypot(bx - ax, by - ay)
+    best, best_d = 0, -1.0
+    for i in range(1, len(points) - 1):
+        px, py = points[i]
+        if length < 1e-9:
+            d = math.hypot(px - ax, py - ay)
+        else:
+            d = abs((bx - ax) * (ay - py) - (ax - px) * (by - ay)) / length
+        if d > best_d:
+            best, best_d = i, d
+    if best_d > tol:
+        left = _simplify(points[:best + 1], tol)
+        right = _simplify(points[best:], tol)
+        return left[:-1] + right
+    return [a, b]
+
+
+def hedge_rows(circles) -> list[dict]:
+    """Rows of tree symbols that are hedges (pure; Milestone 13 T6, docs/milestone13.md §13.2): ``[{"polyline",
+    "radius_m", "pitch_m", "count", "height_class", "height_m", "width_m", "length_m", "symbol_ids",
+    "symbol_indices"}]``.
+
+    ``circles``: tree symbols as the sheets reader lists them (``points`` / ``radius_m`` / ``evidence``), as the
+    building's site decor (``center`` / ``size`` / ``id``) or as ``{"center", "radius_m"}``. A hedge is a chain of
+    >= ``HEDGE_MIN_COUNT`` symbols of equal radius (``HEDGE_RADIUS_TOL_M``) <= ``HEDGE_MAX_RADIUS_M`` in which
+    every step to the next symbol is at most ``HEDGE_PITCH_FACTOR`` x the diameter and turns at most
+    ``HEDGE_MAX_TURN_DEG`` from the step before (a line or a gentle polyline; an L-corner starts a new hedge).
+    Chains are walked from their ends (the symbols with one neighbour) to the nearest unvisited neighbour; a symbol
+    belongs to one hedge. The polyline runs through the symbol centres, simplified within ``HEDGE_SIMPLIFY_M``;
+    ``width_m`` is the diameter, ``height_m`` / ``height_class`` by ``hedge_height_class`` (assumed)."""
+    recs = [r for r in (_circle_record(c, k) for k, c in enumerate(circles or [])) if r is not None
+            and r["radius"] <= HEDGE_MAX_RADIUS_M + 1e-9]
+    if len(recs) < HEDGE_MIN_COUNT:
+        return []
+    # groups of equal radius
+    recs.sort(key=lambda r: r["radius"])
+    groups: list[list[dict]] = []
+    for r in recs:
+        if groups and abs(groups[-1][0]["radius"] - r["radius"]) <= HEDGE_RADIUS_TOL_M:
+            groups[-1].append(r)
+        else:
+            groups.append([r])
+    out = []
+    for group in groups:
+        if len(group) < HEDGE_MIN_COUNT:
+            continue
+        radius = sum(r["radius"] for r in group) / len(group)
+        reach = HEDGE_PITCH_FACTOR * 2.0 * radius
+        n = len(group)
+        neigh: list[list[tuple[float, int]]] = [[] for _ in range(n)]
+        for i in range(n):
+            for j in range(i + 1, n):
+                d = math.dist(group[i]["centre"], group[j]["centre"])
+                if 1e-6 < d <= reach + 1e-9:
+                    neigh[i].append((d, j))
+                    neigh[j].append((d, i))
+        for lst in neigh:
+            lst.sort()
+        used = [False] * n
+        # ends first (one neighbour), then the rest by neighbour count: a row is walked from its end
+        order = sorted(range(n), key=lambda i: (len(neigh[i]) != 1, len(neigh[i]), i))
+        for start in order:
+            if used[start] or not neigh[start]:
+                continue
+            chain = [start]
+            used[start] = True
+            prev_dir = None
+            cur = start
+            while True:
+                nxt = None
+                for d, j in neigh[cur]:
+                    if used[j]:
+                        continue
+                    a, b = group[cur]["centre"], group[j]["centre"]
+                    step = ((b[0] - a[0]) / d, (b[1] - a[1]) / d)
+                    if prev_dir is not None:
+                        cos = max(-1.0, min(1.0, step[0] * prev_dir[0] + step[1] * prev_dir[1]))
+                        if math.degrees(math.acos(cos)) > HEDGE_MAX_TURN_DEG + 1e-9:
+                            continue
+                    nxt = (j, step)
+                    break
+                if nxt is None:
+                    break
+                cur, prev_dir = nxt
+                used[cur] = True
+                chain.append(cur)
+            if len(chain) < HEDGE_MIN_COUNT:
+                for i in chain:                       # a short run stays trees (another chain may still take them)
+                    used[i] = False
+                used[start] = True                    # ... but never walk from this start again
+                continue
+            pts = [group[i]["centre"] for i in chain]
+            steps = [math.dist(pts[k], pts[k + 1]) for k in range(len(pts) - 1)]
+            poly = _simplify(pts, HEDGE_SIMPLIFY_M)
+            cls = hedge_height_class(radius)
+            out.append({"polyline": [[round(x, 4), round(y, 4)] for x, y in poly],
+                        "radius_m": round(radius, 4), "width_m": round(2.0 * radius, 4),
+                        "pitch_m": round(sum(steps) / len(steps), 4), "count": len(chain),
+                        "length_m": round(sum(steps), 3), "height_class": cls, "height_m": HEDGE_HEIGHT_M[cls],
+                        "symbol_ids": [group[i]["id"] for i in chain],
+                        "symbol_indices": [group[i]["index"] for i in chain]})
+    out.sort(key=lambda h: (-h["count"], h["polyline"][0]))
+    return out
+
+
+
+def species_record(name: Optional[str]) -> dict:
+    """The ``SPECIES`` entry of ``name`` (a generic broadleaf for an unknown name), with its ``name``."""
+    key = str(name or "").strip().lower().replace(" ", "_")
+    rec = SPECIES.get(key)
+    if rec is None:
+        rec = SPECIES["generic_broadleaf"]
+        key = "generic_broadleaf"
+    return dict(rec, name=key)
+
+
+def assets_dir() -> Optional[Path]:
+    """The assets folder: ``WENART_ASSETS``, the scene's ``wenart_assets_dir`` (when bpy runs), else the first of
+    ``ASSET_CANDIDATES`` that holds a manifest; None when none does."""
+    cands = []
+    env = os.environ.get("WENART_ASSETS")
+    if env:
+        cands.append(env)
+    try:
+        import bpy
+        prop = bpy.context.scene.get("wenart_assets_dir") if bpy.context.scene is not None else None
+        if prop:
+            cands.append(str(prop))
+    except Exception:          # no bpy, or no scene yet
+        pass
+    cands += list(ASSET_CANDIDATES)
+    for c in cands:
+        if (Path(c) / "manifest.json").is_file():
+            return Path(c)
+    return None
+
+
+def assets_manifest(folder: Optional[Path] = None) -> dict:
+    """The assets manifest (``{"textures", "hdris", "models"}``) of the folder, ``{}`` without one."""
+    folder = folder or assets_dir()
+    if folder is None:
+        return {}
+    try:
+        return json.loads((Path(folder) / "manifest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def hero_model(species: str, manifest: Optional[dict] = None, folder: Optional[Path] = None) -> Optional[dict]:
+    """The Poly Haven model of a species when the assets hold it (pure): ``{"id", "path", "height_m",
+    "polycount", "licence", "name"}``, else None. The path is the glTF the manifest records (``models/<id>/
+    <id>_<size>.gltf``), the height the manifest's measured box (``bbox_m[2]``), else the API's."""
+    rec = species_record(species)
+    asset = (rec.get("source") or {}).get("polyhaven")
+    if not asset or asset not in POLYHAVEN_MODELS:
+        return None
+    folder = folder or assets_dir()
+    manifest = manifest if manifest is not None else assets_manifest(folder)
+    entry = (manifest.get("models") or {}).get(asset)
+    if not isinstance(entry, dict) or folder is None:
+        return None
+    rel = (entry.get("files") or {}).get("gltf")
+    if not rel:
+        return None
+    path = Path(folder) / rel
+    if not path.is_file():
+        return None
+    bbox = entry.get("bbox_m") or []
+    height = float(bbox[2]) if len(bbox) >= 3 and float(bbox[2]) > 0 else POLYHAVEN_MODELS[asset]["height_m"]
+    z0 = float((entry.get("bbox_min_m") or [0, 0, 0])[2])
+    return {"id": asset, "path": str(path), "height_m": height, "base_z": z0, "licence": POLYHAVEN_LICENCE,
+            "licence_url": POLYHAVEN_LICENCE_URL, "polycount": entry.get("polycount") or POLYHAVEN_MODELS[asset]["polycount"],
+            "name": entry.get("name") or POLYHAVEN_MODELS[asset]["name"]}
+
+
+def leaf_atlas(species: str, manifest: Optional[dict] = None, folder: Optional[Path] = None) -> Optional[dict]:
+    """The leaf atlas texture of a species when the assets hold it (pure): ``{"id", "files": {albedo, normal,
+    roughness[, opacity]}, "size_m", "licence"}`` with absolute paths, else None."""
+    rec = species_record(species)
+    asset = LEAF_ATLASES.get(rec.get("leaf") or "broadleaf")
+    folder = folder or assets_dir()
+    manifest = manifest if manifest is not None else assets_manifest(folder)
+    entry = (manifest.get("textures") or {}).get(asset) if asset else None
+    if not isinstance(entry, dict) or folder is None:
+        return None
+    files = {}
+    for key, rel in (entry.get("files") or {}).items():
+        p = Path(folder) / rel
+        if p.is_file():
+            files[key] = str(p)
+    if "albedo" not in files:
+        return None
+    return {"id": asset, "files": files, "size_m": entry.get("size_m") or [1.0, 1.0], "licence": LEAF_LICENCE}
+
+
+def sapling_overrides(species: str, height_m: float, seed: int, preset: Optional[dict] = None) -> dict:
+    """The operator settings laid over the preset (pure): ``scale`` = ``height_m`` / the preset's measured top per
+    scale (``SAPLING_TOP_PER_SCALE``; the built tree is measured and corrected afterwards), ``scaleV`` 0 (the drawn
+    height is kept), ``levels``, ``shape``, ``seed``, ``bevel``, ``bevelRes`` 1, ``showLeaves``, ``leafShape``
+    ``dFace`` (our leaf card is instanced on the leaf faces), ``leafScale``, ``do_update``."""
+    rec = species_record(species)
+    preset_name = (rec.get("source") or {}).get("sapling") or ""
+    top = SAPLING_TOP_PER_SCALE.get(preset_name) or float(rec.get("overshoot") or 1.2)
+    scale = max(0.3, float(height_m) / top)
+    out = {"do_update": True, "scale": round(scale, 4), "scaleV": 0.0, "levels": int(rec.get("levels") or 3),
+           "seed": int(seed) % 100000, "bevel": True, "bevelRes": 1, "showLeaves": True, "leafShape": "dFace",
+           "leafScale": round(0.17 * float(rec.get("card_scale") or 1.0), 4), "useArm": False, "armAnim": False,
+           "makeMesh": False, "prune": False}
+    shape = rec.get("shape")
+    if shape in SAPLING_SHAPES:
+        out["shape"] = SAPLING_SHAPES[shape]
+    if rec.get("crown") == "columnar":
+        out["attractUp"] = (0.0, 0.8, 0.8, 0.8)
+    return out
+
+
+def hedge_plan(hedge: dict) -> dict:
+    """The plan of a leaf-card hedge (pure): ``{"length_m", "surface_m2" (top and two sides), "cards",
+    "density", "card_m": [w, h], "species", "colour"}``. ``hedge``: ``polyline``, ``width_m``, ``height_m``,
+    ``species``."""
+    pts = [(float(x), float(y)) for x, y in hedge["polyline"]]
+    length = sum(math.dist(a, b) for a, b in zip(pts, pts[1:]))
+    w, h = float(hedge["width_m"]), float(hedge["height_m"])
+    surface = length * (w + 2.0 * h) + 2.0 * w * h
+    rec = species_record(hedge.get("species"))
+    cs = float(rec.get("card_scale") or 1.0)
+    return {"length_m": round(length, 3), "surface_m2": round(surface, 3), "density": LEAF_CARDS_PER_M2,
+            "cards": int(round(surface * LEAF_CARDS_PER_M2)), "card_m": [round(LEAF_CARD_M[0] * cs, 4),
+                                                                          round(LEAF_CARD_M[1] * cs, 4)],
+            "species": rec["name"], "colour": list(rec["colour"])}
+
+
+def crown_plan(species: str, height_m: float, crown_m: Optional[float] = None) -> dict:
+    """The plan of a leaf-card tree (pure): the trunk (height, radius), the crown ellipsoid (rx, ry, rz, centre z)
+    from the species' crown shape and the drawn crown diameter (else ``width_factor`` x the height), the card
+    count of its two shells (``CROWN_CARDS_PER_M2``). Shrubs: a leaf-card ball on the ground without a trunk."""
+    rec = species_record(species)
+    h = max(0.3, float(height_m))
+    crown = rec.get("crown")
+    width = float(crown_m) if crown_m else h * float(rec.get("width_factor") or 0.8)
+    if crown in ("shrub", "hedge"):
+        rz = h / 2.0
+        rx = width / 2.0
+        trunk_h, trunk_r, cz = 0.0, 0.0, rz
+    else:
+        share = float(rec.get("trunk_share") or {"columnar": 0.12, "conical": 0.1, "umbrella": 0.5}.get(crown, 0.3))
+        trunk_h = h * share
+        crown_h = h - trunk_h
+        rz = crown_h / 2.0
+        rx = width / 2.0
+        trunk_r = max(0.04, min(0.35, 0.02 * h))
+        cz = trunk_h + rz
+        if crown == "umbrella":
+            cz = trunk_h + crown_h * 0.6
+            rz = crown_h * 0.45
+    ry = rx * (0.85 if crown == "spreading" else 1.0)
+    area = 4.0 * math.pi * ((rx * ry) ** 1.6 + (rx * rz) ** 1.6 + (ry * rz) ** 1.6) ** (1.0 / 1.6) / 3.0 ** (1.0 / 1.6)
+    shells = 2 if crown not in ("shrub", "hedge") else 1
+    cards = int(round(area * CROWN_CARDS_PER_M2 * shells))
+    card = float(rec.get("card_scale") or 1.0) * (1.4 if h > 6.0 else 1.0)
+    return {"species": rec["name"], "crown": crown, "height_m": round(h, 3), "trunk_h": round(trunk_h, 3),
+            "trunk_r": round(trunk_r, 3), "crown_rx": round(rx, 3), "crown_ry": round(ry, 3), "crown_rz": round(rz, 3),
+            "crown_cz": round(cz, 3), "surface_m2": round(area, 3), "shells": shells, "cards": cards,
+            "card_m": [round(LEAF_CARD_M[0] * card, 4), round(LEAF_CARD_M[1] * card, 4)], "colour": list(rec["colour"])}
+
+
+def palm_plan(height_m: float, seed: int = 0, fronds: int = 14) -> dict:
+    """A palm (pure): a leaning trunk of ``height_m`` and ``fronds`` frond cards fanned around its top (yaw, pitch
+    and length per frond, deterministic by ``seed``)."""
+    rng = random.Random(seed)
+    h = max(2.0, float(height_m))
+    length = max(1.2, 0.35 * h)
+    out = []
+    for i in range(fronds):
+        yaw = 360.0 * i / fronds + rng.uniform(-8.0, 8.0)
+        pitch = rng.uniform(-35.0, 25.0)                      # droop under the horizontal to a little up
+        out.append({"yaw_deg": round(yaw, 2), "pitch_deg": round(pitch, 2), "length_m": round(length * rng.uniform(0.8, 1.1), 3),
+                    "width_m": round(0.22 * length, 3)})
+    return {"height_m": round(h, 3), "trunk_r": round(max(0.12, 0.03 * h), 3), "lean_deg": round(rng.uniform(2.0, 8.0), 2),
+            "fronds": out}
+
+
+def leaf_mask_points(n: int = 16) -> list:
+    """The outline of the procedural leaf mask (pure): an ellipse in card UV space (0..1), for the tests and the
+    alpha node (a Spherical gradient of the centred UV: inside where the gradient is over ``LEAF_MASK_EDGE``)."""
+    return [(0.5 + 0.5 * math.cos(2 * math.pi * k / n), 0.5 + 0.5 * math.sin(2 * math.pi * k / n)) for k in range(n)]
+
+
+LEAF_MASK_EDGE = 0.12
+
+
+def tree_source(species: str, near_camera: bool, levers: Optional[dict] = None, hero: Optional[dict] = None,
+                sapling_ok: bool = False) -> str:
+    """Which source builds a tree (pure): ``polyhaven`` near the cameras with the ``instances`` lever and a model
+    in the assets, else ``sapling`` with the ``sapling`` lever and the add-on registered (and a preset for the
+    species), else ``palm`` for a palm, else ``cards``."""
+    rec = species_record(species)
+    lv = levers or {"instances": True, "sapling": True}
+    if near_camera and lv.get("instances", True) and hero is not None:
+        return "polyhaven"
+    if lv.get("sapling", True) and sapling_ok and (rec.get("source") or {}).get("sapling") in SAPLING_PRESETS \
+            and rec.get("crown") not in ("shrub", "hedge", "palm"):
+        return "sapling"
+    if rec.get("crown") == "palm":
+        return "palm"
+    return "cards"
+
+
+# --------------------------------------------------------------------------
+# Sapling Tree Gen (the installed GPL add-on, called through bpy.ops)
+# --------------------------------------------------------------------------
+
+def sapling_module():
+    """The registered Sapling module (its ``AddTree`` operator and ``getPresetpaths``), or None."""
+    for name, mod in list(sys.modules.items()):
+        if mod is not None and hasattr(mod, "AddTree") and hasattr(mod, "getPresetpaths") \
+                and getattr(getattr(mod, "AddTree", None), "bl_idname", "") == "curve.tree_add":
+            return mod
+    return None
+
+
+def sapling_available() -> bool:
+    """True when ``curve.tree_add`` is a registered operator."""
+    try:
+        import bpy
+        return hasattr(bpy.types, "CURVE_OT_tree_add")
+    except Exception:
+        return False
+
+
+def ensure_sapling() -> dict:
+    """Make the Sapling add-on usable (bpy): already registered, else enabled from the installed extension
+    (``bpy.ops.preferences.addon_enable`` over ``SAPLING_MODULES``), else imported from ``WENART_SAPLING_DIR`` (a
+    folder holding the add-on package; the pod setup and the tests). ``{"ok", "how", "module"}``."""
+    if sapling_available():
+        return {"ok": True, "how": "registered", "module": getattr(sapling_module(), "__name__", None)}
+    try:
+        import bpy
+    except Exception:
+        return {"ok": False, "how": "no bpy", "module": None}
+    folder = os.environ.get(SAPLING_DIR_ENV)
+    if not (folder and Path(folder).is_dir()):
+        for name in SAPLING_MODULES:
+            try:
+                bpy.ops.preferences.addon_enable(module=name)
+            except Exception:
+                continue
+            if sapling_available():
+                return {"ok": True, "how": "addon_enable", "module": name}
+    if folder and Path(folder).is_dir():
+        import importlib
+        parent = str(Path(folder).resolve())
+        if parent not in sys.path:
+            sys.path.insert(0, parent)
+        for pkg in ("sapling_tree_gen", "add_curve_sapling"):
+            if not (Path(parent) / pkg / "__init__.py").is_file():
+                continue
+            try:
+                mod = importlib.import_module(pkg)
+                try:
+                    mod.register()
+                except Exception as exc:                # already registered
+                    if "already registered" not in str(exc):
+                        raise
+            except Exception:
+                continue
+            if sapling_available():
+                return {"ok": True, "how": f"{SAPLING_DIR_ENV}", "module": pkg}
+    return {"ok": False, "how": "not installed (scripts/pod_setup_vegetation.sh)", "module": None}
+
+
+def sapling_operator_keys() -> set:
+    """The property names ``bpy.ops.curve.tree_add`` accepts (bpy; empty without the add-on). A preset file may
+    carry keys of older add-on versions (``windGust`` ...) that the operator refuses: they are dropped."""
+    try:
+        import bpy
+        return set(bpy.ops.curve.tree_add.get_rna_type().properties.keys())
+    except Exception:
+        return set()
+
+
+def sapling_args(species: str, height_m: float, seed: int, preset: Optional[dict] = None) -> dict:
+    """The full operator call of a species-look tree (pure given ``preset``): the preset's settings, the overrides
+    of ``sapling_overrides`` on top, the preset-menu keys dropped, and (with bpy) only the keys the operator knows."""
+    rec = species_record(species)
+    preset = preset if preset is not None else (sapling_preset((rec.get("source") or {}).get("sapling") or "") or {})
+    args = dict(preset)
+    args.update(sapling_overrides(species, height_m, seed, preset))
+    for key in ("chooseSet", "presetName", "limitImport", "overwrite", "leafDupliObj"):
+        args.pop(key, None)
+    known = sapling_operator_keys()
+    if known:
+        args = {k: v for k, v in args.items() if k in known}
+    return args
+
+
+def sapling_preset(name: str) -> Optional[dict]:
+    """The settings of a Sapling preset read from the add-on's own presets folder (the first non-comment line of
+    ``<name>.py``, a Python literal, as the add-on's Import Preset reads it); None when unavailable."""
+    if name not in SAPLING_PRESETS:
+        return None
+    mod = sapling_module()
+    paths = []
+    if mod is not None:
+        try:
+            paths += list(mod.getPresetpaths())
+        except Exception:
+            pass
+    folder = os.environ.get(SAPLING_DIR_ENV)
+    if folder:
+        for pkg in ("sapling_tree_gen", "add_curve_sapling"):
+            paths.append(str(Path(folder) / pkg / "presets"))
+    for p in paths:
+        f = Path(p) / f"{name}.py"
+        if not f.is_file():
+            continue
+        try:
+            for line in f.read_text(encoding="utf-8").splitlines():
+                if line.strip() and not line.lstrip().startswith("#"):
+                    data = ast.literal_eval(line.strip())
+                    if isinstance(data, dict):
+                        if isinstance(data.get("attractUp"), (int, float)):
+                            data["attractUp"] = [0, 0, data["attractUp"], data["attractUp"]]
+                        return data
+        except (OSError, ValueError, SyntaxError):
+            continue
+    return None
+
+
+# --------------------------------------------------------------------------
+# bpy: materials, cards, the library collection
+# --------------------------------------------------------------------------
+
+LIBRARY_COLLECTION = "vegetation_library"
+_HEROES: dict = {}            # asset id -> {"collection", "height_m", "base_z", "count"}
+
+
+def library_collection():
+    """The collection that holds the imported models and the card objects (bpy; never linked to the scene)."""
+    import bpy
+    col = bpy.data.collections.get(LIBRARY_COLLECTION)
+    if col is None:
+        col = bpy.data.collections.new(LIBRARY_COLLECTION)
+    return col
+
+
+def _unlink_everywhere(ob) -> None:
+    for col in list(ob.users_collection):
+        col.objects.unlink(ob)
+
+
+def _node(tree, idname: str, **props):
+    n = tree.nodes.new(idname)
+    for k, v in props.items():
+        setattr(n, k, v)
+    return n
+
+
+def leaf_material(name: str, colour: Sequence[float], atlas: Optional[dict] = None):
+    """A leaf card material (bpy): Principled BSDF with ``Thin Wall`` on, the atlas Color map (CC0) else the
+    species colour, the Opacity map when the atlas has one else the procedural leaf mask (a Spherical gradient of
+    the centred UV over ``LEAF_MASK_EDGE`` -> Alpha), a little translucency for backlit leaves. Cached by name."""
+    import bpy
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    tree = mat.node_tree
+    for n in list(tree.nodes):
+        tree.nodes.remove(n)
+    out = _node(tree, "ShaderNodeOutputMaterial")
+    bsdf = _node(tree, "ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = (*colour, 1.0)
+    bsdf.inputs["Roughness"].default_value = 0.55
+    if "Thin Wall" in bsdf.inputs:
+        bsdf.inputs["Thin Wall"].default_value = True
+    if "Subsurface Weight" in bsdf.inputs:
+        bsdf.inputs["Subsurface Weight"].default_value = 0.0
+    uv = _node(tree, "ShaderNodeTexCoord")
+    if atlas and atlas.get("files", {}).get("albedo"):
+        img = bpy.data.images.load(atlas["files"]["albedo"], check_existing=True)
+        tex = _node(tree, "ShaderNodeTexImage", image=img)
+        tree.links.new(uv.outputs["UV"], tex.inputs["Vector"])
+        tint = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MULTIPLY")
+        tint.inputs["Factor"].default_value = 0.5
+        tree.links.new(tex.outputs["Color"], tint.inputs[6])
+        tint.inputs[7].default_value = (*[min(1.0, c * 2.2) for c in colour], 1.0)
+        tree.links.new(tint.outputs[2], bsdf.inputs["Base Color"])
+        if atlas["files"].get("normal"):
+            nimg = bpy.data.images.load(atlas["files"]["normal"], check_existing=True)
+            nimg.colorspace_settings.name = "Non-Color"
+            ntex = _node(tree, "ShaderNodeTexImage", image=nimg)
+            tree.links.new(uv.outputs["UV"], ntex.inputs["Vector"])
+            nmap = _node(tree, "ShaderNodeNormalMap")
+            tree.links.new(ntex.outputs["Color"], nmap.inputs["Color"])
+            tree.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+    # the alpha: the atlas opacity map when the fetcher kept one, else the procedural leaf mask
+    if atlas and atlas.get("files", {}).get("opacity"):
+        oimg = bpy.data.images.load(atlas["files"]["opacity"], check_existing=True)
+        oimg.colorspace_settings.name = "Non-Color"
+        otex = _node(tree, "ShaderNodeTexImage", image=oimg)
+        tree.links.new(uv.outputs["UV"], otex.inputs["Vector"])
+        tree.links.new(otex.outputs["Color"], bsdf.inputs["Alpha"])
+        mask = "opacity_map"
+    else:
+        centre = _node(tree, "ShaderNodeVectorMath", operation="SUBTRACT")
+        centre.inputs[1].default_value = (0.5, 0.5, 0.0)
+        tree.links.new(uv.outputs["UV"], centre.inputs[0])
+        scale = _node(tree, "ShaderNodeVectorMath", operation="SCALE")
+        scale.inputs["Scale"].default_value = 2.0
+        tree.links.new(centre.outputs["Vector"], scale.inputs[0])
+        grad = _node(tree, "ShaderNodeTexGradient", gradient_type="SPHERICAL")
+        tree.links.new(scale.outputs["Vector"], grad.inputs["Vector"])
+        edge = _node(tree, "ShaderNodeMath", operation="GREATER_THAN")
+        edge.inputs[1].default_value = LEAF_MASK_EDGE
+        tree.links.new(grad.outputs["Fac"], edge.inputs[0])
+        tree.links.new(edge.outputs["Value"], bsdf.inputs["Alpha"])
+        mask = "procedural_ellipse"
+    trans = _node(tree, "ShaderNodeBsdfTranslucent")
+    trans.inputs["Color"].default_value = (*[min(1.0, c * 1.3) for c in colour], 1.0)
+    mix = _node(tree, "ShaderNodeMixShader")
+    mix.inputs["Factor"].default_value = 0.25
+    tree.links.new(bsdf.outputs["BSDF"], mix.inputs[1])
+    tree.links.new(trans.outputs["BSDF"], mix.inputs[2])
+    tree.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    mat["wenart_leaf"] = True
+    mat["wenart_leaf_mask"] = mask
+    mat["wenart_atlas"] = atlas["id"] if atlas else ""
+    mat["wenart_licence"] = atlas["licence"] if atlas else ""
+    return mat
+
+
+def bark_material(name: str = "veg_bark"):
+    """The trunk material (bpy): a dark brown Principled BSDF with a noise-driven roughness and bump (no bark scan
+    in the assets yet). Cached by name."""
+    import bpy
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    tree = mat.node_tree
+    bsdf = tree.nodes.get("Principled BSDF")
+    if bsdf is not None:
+        bsdf.inputs["Base Color"].default_value = (0.11, 0.08, 0.06, 1.0)
+        bsdf.inputs["Roughness"].default_value = 0.85
+        coord = _node(tree, "ShaderNodeTexCoord")
+        noise = _node(tree, "ShaderNodeTexNoise")
+        noise.inputs["Scale"].default_value = 18.0
+        noise.inputs["Detail"].default_value = 6.0
+        tree.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+        bump = _node(tree, "ShaderNodeBump")
+        bump.inputs["Strength"].default_value = 0.4
+        tree.links.new(noise.outputs["Fac"], bump.inputs["Height"])
+        tree.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    return mat
+
+
+def _card_mesh(name: str, w: float, h: float, standing: bool = False):
+    """A card mesh ``w`` x ``h`` with UVs 0..1 (lying in XY with its normal +Z, or standing in XZ)."""
+    import bpy
+    me = bpy.data.meshes.new(name)
+    if standing:
+        verts = [(-w / 2, 0.0, 0.0), (w / 2, 0.0, 0.0), (w / 2, 0.0, h), (-w / 2, 0.0, h)]
+    else:
+        verts = [(-w / 2, -h / 2, 0.0), (w / 2, -h / 2, 0.0), (w / 2, h / 2, 0.0), (-w / 2, h / 2, 0.0)]
+    me.from_pydata(verts, [], [(0, 1, 2, 3)])
+    me.update()
+    layer = me.uv_layers.new(name="UVMap")
+    for loop, uvc in zip(me.loops, ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0))):
+        layer.data[loop.index].uv = uvc
+    return me
+
+
+def leaf_card(species: str, card_m: Sequence[float], atlas: Optional[dict] = None):
+    """The leaf card object of a species (bpy; one per species, in the library collection): a plane with the leaf
+    material, lying flat (its normal +Z: Instance on Points aligns it to the surface normal)."""
+    import bpy
+    rec = species_record(species)
+    name = f"veg_leaf_{rec['name']}"
+    ob = bpy.data.objects.get(name)
+    if ob is not None:
+        return ob
+    mat = leaf_material(f"veg_leaf_{rec['name']}", rec["colour"], atlas)
+    me = _card_mesh(name, float(card_m[0]), float(card_m[1]))
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(name, me)
+    library_collection().objects.link(ob)
+    ob["wenart_kind"] = "vegetation_card"
+    return ob
+
+
+def grass_card_object(name: str = "veg_grass_clump"):
+    """A grass clump of three crossed standing cards (bpy; the library collection) with a green gradient material
+    (dark base to light tip) and a tapering alpha; the fallback when the Poly Haven clump is not in the assets."""
+    import bpy
+    ob = bpy.data.objects.get(name)
+    if ob is not None:
+        return ob
+    w, h = GRASS_CARD_M
+    me = bpy.data.meshes.new(name)
+    verts, faces = [], []
+    for k in range(3):
+        a = math.radians(60.0 * k)
+        dx, dy = math.cos(a) * w / 2, math.sin(a) * w / 2
+        base = len(verts)
+        verts += [(-dx, -dy, 0.0), (dx, dy, 0.0), (dx, dy, h), (-dx, -dy, h)]
+        faces.append((base, base + 1, base + 2, base + 3))
+    me.from_pydata(verts, [], faces)
+    me.update()
+    layer = me.uv_layers.new(name="UVMap")
+    uvs = ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0))
+    for poly in me.polygons:
+        for li, uvc in zip(poly.loop_indices, uvs):
+            layer.data[li].uv = uvc
+    mat = bpy.data.materials.get("veg_grass_card")
+    if mat is None:
+        mat = bpy.data.materials.new("veg_grass_card")
+        mat.use_nodes = True
+        tree = mat.node_tree
+        for n in list(tree.nodes):
+            tree.nodes.remove(n)
+        out = _node(tree, "ShaderNodeOutputMaterial")
+        bsdf = _node(tree, "ShaderNodeBsdfPrincipled")
+        bsdf.inputs["Roughness"].default_value = 0.6
+        if "Thin Wall" in bsdf.inputs:
+            bsdf.inputs["Thin Wall"].default_value = True
+        uv = _node(tree, "ShaderNodeTexCoord")
+        sep = _node(tree, "ShaderNodeSeparateXYZ")
+        tree.links.new(uv.outputs["UV"], sep.inputs["Vector"])
+        ramp = _node(tree, "ShaderNodeValToRGB")
+        ramp.color_ramp.elements[0].color = (0.05, 0.12, 0.02, 1.0)
+        ramp.color_ramp.elements[1].color = (0.35, 0.52, 0.14, 1.0)
+        tree.links.new(sep.outputs["Y"], ramp.inputs["Fac"])
+        tree.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+        # taper: |u - 0.5| * 2 < 1 - v
+        cu = _node(tree, "ShaderNodeMath", operation="SUBTRACT")
+        cu.inputs[1].default_value = 0.5
+        tree.links.new(sep.outputs["X"], cu.inputs[0])
+        au = _node(tree, "ShaderNodeMath", operation="ABSOLUTE")
+        tree.links.new(cu.outputs["Value"], au.inputs[0])
+        du = _node(tree, "ShaderNodeMath", operation="MULTIPLY")
+        du.inputs[1].default_value = 2.0
+        tree.links.new(au.outputs["Value"], du.inputs[0])
+        iv = _node(tree, "ShaderNodeMath", operation="SUBTRACT")
+        iv.inputs[0].default_value = 1.0
+        tree.links.new(sep.outputs["Y"], iv.inputs[1])
+        lt = _node(tree, "ShaderNodeMath", operation="LESS_THAN")
+        tree.links.new(du.outputs["Value"], lt.inputs[0])
+        tree.links.new(iv.outputs["Value"], lt.inputs[1])
+        tree.links.new(lt.outputs["Value"], bsdf.inputs["Alpha"])
+        tree.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(name, me)
+    library_collection().objects.link(ob)
+    ob["wenart_kind"] = "vegetation_card"
+    return ob
+
+
+# --------------------------------------------------------------------------
+# bpy: geometry-nodes scatter
+# --------------------------------------------------------------------------
+
+def scatter_group(name: str, instance_ob, density: float, seed: int, scale_range=(0.8, 1.3), tilt_deg: float = 25.0,
+                  keep_surface: bool = True, align_normal: bool = True):
+    """A geometry-nodes group that scatters ``instance_ob`` over the faces of the input mesh (bpy): Distribute
+    Points on Faces (``density`` per m², ``seed``) -> Instance on Points with the points' rotation (the instance Z
+    along the face normal) turned by a random tilt and yaw (Random Value -> Euler To Rotation -> Rotate Rotation),
+    a random uniform scale in ``scale_range``; the surface itself is kept (``keep_surface``) and joined."""
+    import bpy
+    ng = bpy.data.node_groups.get(name)
+    if ng is not None:
+        return ng
+    ng = bpy.data.node_groups.new(name, "GeometryNodeTree")
+    ng.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
+    ng.interface.new_socket("Geometry", in_out="OUTPUT", socket_type="NodeSocketGeometry")
+    gi = ng.nodes.new("NodeGroupInput")
+    go = ng.nodes.new("NodeGroupOutput")
+    dist = ng.nodes.new("GeometryNodeDistributePointsOnFaces")
+    dist.distribute_method = "RANDOM"
+    dist.inputs["Density"].default_value = float(density)
+    dist.inputs["Seed"].default_value = int(seed) % 10000
+    info = ng.nodes.new("GeometryNodeObjectInfo")
+    info.inputs["Object"].default_value = instance_ob
+    info.inputs["As Instance"].default_value = True
+    inst = ng.nodes.new("GeometryNodeInstanceOnPoints")
+    rnd_rot = ng.nodes.new("FunctionNodeRandomValue")
+    rnd_rot.data_type = "FLOAT_VECTOR"
+    t = math.radians(tilt_deg)
+    vmin = [x for x in rnd_rot.inputs if x.name == "Min" and x.type == "VECTOR"][0]
+    vmax = [x for x in rnd_rot.inputs if x.name == "Max" and x.type == "VECTOR"][0]
+    vmin.default_value = (-t, -t, 0.0)
+    vmax.default_value = (t, t, 2.0 * math.pi)
+    [x for x in rnd_rot.inputs if x.name == "Seed"][0].default_value = int(seed) % 10000 + 1
+    euler = ng.nodes.new("FunctionNodeEulerToRotation")
+    rot = ng.nodes.new("FunctionNodeRotateRotation")
+    rot.rotation_space = "LOCAL"
+    rnd_s = ng.nodes.new("FunctionNodeRandomValue")
+    rnd_s.data_type = "FLOAT"
+    smin = [x for x in rnd_s.inputs if x.name == "Min" and x.type == "VALUE"][0]
+    smax = [x for x in rnd_s.inputs if x.name == "Max" and x.type == "VALUE"][0]
+    smin.default_value, smax.default_value = float(scale_range[0]), float(scale_range[1])
+    [x for x in rnd_s.inputs if x.name == "Seed"][0].default_value = int(seed) % 10000 + 2
+    join = ng.nodes.new("GeometryNodeJoinGeometry")
+    L = ng.links
+    L.new(gi.outputs[0], dist.inputs["Mesh"])
+    L.new(dist.outputs["Points"], inst.inputs["Points"])
+    L.new(info.outputs["Geometry"], inst.inputs["Instance"])
+    vout = [x for x in rnd_rot.outputs if x.type == "VECTOR"][0]
+    L.new(vout, euler.inputs["Euler"])
+    if align_normal:
+        L.new(dist.outputs["Rotation"], rot.inputs["Rotation"])
+        L.new(euler.outputs["Rotation"], rot.inputs["Rotate By"])
+        L.new(rot.outputs["Rotation"], inst.inputs["Rotation"])
+    else:
+        L.new(euler.outputs["Rotation"], inst.inputs["Rotation"])
+    sout = [x for x in rnd_s.outputs if x.type == "VALUE"][0]
+    L.new(sout, inst.inputs["Scale"])
+    L.new(inst.outputs["Instances"], join.inputs["Geometry"])
+    if keep_surface:
+        L.new(gi.outputs[0], join.inputs["Geometry"])
+    L.new(join.outputs["Geometry"], go.inputs[0])
+    return ng
+
+
+def _mesh_object(name: str, verts, faces, collection, materials=()):
+    import bpy
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([tuple(v) for v in verts], [], [list(f) for f in faces])
+    me.update()
+    for m in materials:
+        if m is not None:
+            me.materials.append(m)
+    ob = bpy.data.objects.new(name, me)
+    (collection or bpy.context.scene.collection).objects.link(ob)
+    return ob
+
+
+def _manifest_kind(kind: str) -> str:
+    """The object kind the scene manifest knows (``common.KINDS`` is a closed list): the site part's own name when it
+    is in the list, else the nearest existing kind (``site.SITE_KINDS``)."""
+    from wenart.blender import common
+    if kind in common.KINDS:
+        return kind
+    from wenart.blender.site import SITE_KINDS
+    for own, fallback in SITE_KINDS.values():
+        if own == kind:
+            return fallback
+    return "site_decor"
+
+
+def _tag(ob, kind: str, species: str, method: str, asset: Optional[str], licence: Optional[str], height_m: float):
+    ob["wenart_id"] = ob.name
+    ob["wenart_kind"] = _manifest_kind(kind)
+    ob["wenart_site_part"] = kind
+    ob["wenart_status"] = "assumed"
+    ob["wenart_species"] = species
+    ob["wenart_veg_method"] = method
+    ob["wenart_asset"] = asset or ""
+    ob["wenart_licence"] = licence or ""
+    ob["wenart_height_m"] = float(height_m)
+
+
+def hedge_object(hedge: dict, collection=None, name: Optional[str] = None) -> tuple:
+    """The leaf-card hedge of one ``site.hedges`` record (bpy; Milestone 13 T6): its box core (``core_verts`` /
+    ``core_faces`` when given, else ``site.hedge_parts`` on a flat ground) with a dark core material, and a
+    geometry-nodes modifier scattering the species' leaf card over the core's faces (``LEAF_CARDS_PER_M2``). Returns
+    ``(object, record)``; the record names the method ``cards``, the card count of ``hedge_plan``, the material
+    and the atlas (CC0) when the assets hold one."""
+    import bpy
+    plan = hedge_plan(hedge)
+    rec = species_record(hedge.get("species"))
+    if hedge.get("core_verts") is not None and hedge.get("core_faces") is not None:
+        verts, faces = hedge["core_verts"], hedge["core_faces"]
+    else:
+        from wenart.blender import site as S
+        terrain = {"kind": "flat", "z": {k: float(hedge.get("ground_z") or 0.0) for k in S.AXES}}
+        verts, faces, _info = S.hedge_parts(hedge, terrain)
+    core = bpy.data.materials.get("veg_hedge_core")
+    if core is None:
+        core = bpy.data.materials.new("veg_hedge_core")
+        core.use_nodes = True
+        b = core.node_tree.nodes.get("Principled BSDF")
+        if b is not None:
+            b.inputs["Base Color"].default_value = (rec["colour"][0] * 0.35, rec["colour"][1] * 0.35, rec["colour"][2] * 0.35, 1.0)
+            b.inputs["Roughness"].default_value = 0.9
+    name = name or f"hedge_{hedge.get('id') or 'x'}"
+    ob = _mesh_object(name, verts, faces, collection, [core])
+    atlas = leaf_atlas(rec["name"])
+    card = leaf_card(rec["name"], plan["card_m"], atlas)
+    seed = sum(ord(c) for c in name)
+    ng = scatter_group(f"veg_scatter_{rec['name']}_{int(LEAF_CARDS_PER_M2)}", card, LEAF_CARDS_PER_M2, seed,
+                       scale_range=(0.7, 1.3), tilt_deg=35.0)
+    mod = ob.modifiers.new("leaf_cards", "NODES")
+    mod.node_group = ng
+    _tag(ob, "site_hedge", rec["name"], "cards", atlas["id"] if atlas else None, atlas["licence"] if atlas else None,
+         float(hedge.get("height_m") or 0.0))
+    return ob, {"method": "cards", "cards": plan["cards"], "material": card.data.materials[0].name,
+                "atlas": atlas["id"] if atlas else None, "licence": atlas["licence"] if atlas else None,
+                "species": rec["name"]}
+
+
+def _import_hero(hero: dict) -> Optional[dict]:
+    """Import a Poly Haven glTF once into the library collection (bpy): ``{"collection", "height_m", "base_z"}``."""
+    import bpy
+    cached = _HEROES.get(hero["id"])
+    if cached is not None and bpy.data.collections.get(cached["collection"]) is not None:
+        return cached
+    before = set(bpy.data.objects)
+    try:
+        bpy.ops.import_scene.gltf(filepath=hero["path"], import_shading="NORMALS", import_scene_as_collection=False)
+    except Exception:
+        return None
+    new = [o for o in bpy.data.objects if o not in before]
+    if not new:
+        return None
+    col = bpy.data.collections.get(f"veg_{hero['id']}") or bpy.data.collections.new(f"veg_{hero['id']}")
+    if col.name not in library_collection().children:
+        library_collection().children.link(col)
+    from mathutils import Vector
+    zs = []
+    for o in new:
+        _unlink_everywhere(o)
+        col.objects.link(o)
+        if o.type == "MESH":
+            for v in o.bound_box:
+                zs.append((o.matrix_world @ Vector(v)).z)
+    height = (max(zs) - min(zs)) if zs else hero["height_m"]
+    base_z = min(zs) if zs else hero.get("base_z", 0.0)
+    _HEROES[hero["id"]] = {"collection": col.name, "height_m": max(0.3, height), "base_z": base_z, "count": 0}
+    return _HEROES[hero["id"]]
+
+
+def _tree_cards(name: str, species: str, height_m: float, seed: int, collection, crown_m: Optional[float]):
+    """A trunk mesh and a leaf-card crown by geometry nodes (bpy)."""
+    plan = crown_plan(species, height_m, crown_m)
+    rec = species_record(species)
+    from wenart.blender import site as S
+    parts = []
+    if plan["trunk_h"] > 0:
+        parts.append(S._cylinder((0.0, 0.0), plan["trunk_r"], -0.05, plan["crown_cz"], segments=10))
+    verts, faces = (parts[0] if parts else ([], []))
+    trunk = _mesh_object(name, verts, faces, collection, [bark_material()])
+    shells = [(1.0, "crown"), (0.7, "inner")] if plan["shells"] > 1 else [(1.0, "crown")]
+    atlas = leaf_atlas(species)
+    card = leaf_card(species, plan["card_m"], atlas)
+    import bpy
+    core = bpy.data.materials.get("veg_hedge_core")
+    for k, (f, label) in enumerate(shells):
+        sv, sf = S._sphere((0.0, 0.0, plan["crown_cz"]), plan["crown_rx"] * f, plan["crown_ry"] * f, plan["crown_rz"] * f,
+                           segments=14, rings=8)
+        shell = _mesh_object(f"{name}_{label}", sv, sf, collection, [core] if core is not None else [])
+        shell.parent = trunk
+        ng = scatter_group(f"veg_scatter_{rec['name']}_{int(CROWN_CARDS_PER_M2)}", card, CROWN_CARDS_PER_M2,
+                           seed + k, scale_range=(0.8, 1.4), tilt_deg=40.0, keep_surface=(label == "inner"))
+        mod = shell.modifiers.new("leaf_cards", "NODES")
+        mod.node_group = ng
+        shell["wenart_kind"] = "site_decor_part"
+    _tag(trunk, "site_decor", rec["name"], "cards", atlas["id"] if atlas else None, atlas["licence"] if atlas else None,
+         height_m)
+    return trunk, {"method": "cards", "cards": plan["cards"], "material": card.data.materials[0].name,
+                   "atlas": atlas["id"] if atlas else None, "licence": atlas["licence"] if atlas else None}
+
+
+def _tree_palm(name: str, height_m: float, seed: int, collection):
+    """A palm (bpy): a leaning trunk and frond cards (standing leaf cards fanned around the top)."""
+    plan = palm_plan(height_m, seed)
+    from wenart.blender import site as S
+    h, r = plan["height_m"], plan["trunk_r"]
+    lean = math.radians(plan["lean_deg"])
+    verts, faces = S._cylinder((0.0, 0.0), r, -0.05, h, segments=10)
+    verts = [(x + z * math.sin(lean), y, z * math.cos(lean)) for x, y, z in verts]
+    trunk = _mesh_object(name, verts, faces, collection, [bark_material()])
+    top = (h * math.sin(lean), 0.0, h * math.cos(lean))
+    fv, ff = [], []
+    for fr in plan["fronds"]:
+        yaw, pitch = math.radians(fr["yaw_deg"]), math.radians(fr["pitch_deg"])
+        L_, W_ = fr["length_m"], fr["width_m"]
+        d = (math.cos(yaw) * math.cos(pitch), math.sin(yaw) * math.cos(pitch), math.sin(pitch))
+        side = (-math.sin(yaw) * W_ / 2, math.cos(yaw) * W_ / 2, 0.0)
+        base = len(fv)
+        a = (top[0] - side[0] * 0.3, top[1] - side[1] * 0.3, top[2])
+        b = (top[0] + side[0] * 0.3, top[1] + side[1] * 0.3, top[2])
+        c = (top[0] + d[0] * L_ + side[0], top[1] + d[1] * L_ + side[1], top[2] + d[2] * L_)
+        e = (top[0] + d[0] * L_ - side[0], top[1] + d[1] * L_ - side[1], top[2] + d[2] * L_)
+        fv += [a, b, c, e]
+        ff.append((base, base + 1, base + 2, base + 3))
+    fronds = _mesh_object(f"{name}_fronds", fv, ff, collection, [leaf_material("veg_leaf_palm", SPECIES["palm"]["colour"])])
+    me = fronds.data
+    layer = me.uv_layers.new(name="UVMap")
+    uvs = ((0.35, 0.0), (0.65, 0.0), (1.0, 1.0), (0.0, 1.0))
+    for poly in me.polygons:
+        for li, uvc in zip(poly.loop_indices, uvs):
+            layer.data[li].uv = uvc
+    fronds.parent = trunk
+    fronds["wenart_kind"] = "site_decor_part"
+    _tag(trunk, "site_decor", "palm", "palm", None, None, height_m)
+    return trunk, {"method": "palm", "cards": len(plan["fronds"]), "material": "veg_leaf_palm", "atlas": None,
+                   "licence": None}
+
+
+def _tree_sapling(name: str, species: str, height_m: float, seed: int, collection, crown_m: Optional[float]):
+    """A Sapling Tree Gen tree (bpy; the installed add-on through ``bpy.ops.curve.tree_add``): the species' preset
+    read from the add-on's presets folder, our overrides on top (``sapling_overrides``), the bark on the curve,
+    our leaf card instanced on the leaf faces (``leafShape`` ``dFace``)."""
+    import bpy
+    rec = species_record(species)
+    preset_name = (rec.get("source") or {}).get("sapling")
+    preset = sapling_preset(preset_name) or {}
+    args = sapling_args(species, height_m, seed, preset)
+    plan = crown_plan(species, height_m, crown_m)
+    atlas = leaf_atlas(species)
+    card = leaf_card(species, plan["card_m"], atlas)
+    args["leafDupliObj"] = card.name
+    before = set(bpy.data.objects)
+    bpy.ops.curve.tree_add(**args)
+    new = [o for o in bpy.data.objects if o not in before]
+    tree_ob = next((o for o in new if o.type == "CURVE"), None)
+    if tree_ob is None:
+        raise RuntimeError("Sapling made no curve object")
+    leaves = next((o for o in new if o.type == "MESH" and o.parent is tree_ob), None)
+    for o in new:
+        _unlink_everywhere(o)
+        if o is card:
+            continue
+        (collection or bpy.context.scene.collection).objects.link(o)
+    tree_ob.name = name
+    tree_ob.data.materials.append(bark_material())
+    # the drawn height exactly: measure the generated top (curve points and leaves) and scale the tree to it
+    zs = [p.co.z for sp in tree_ob.data.splines for p in sp.bezier_points]
+    if leaves is not None:
+        zs += [v.co.z for v in leaves.data.vertices]
+    top = max(zs) if zs else 0.0
+    post = float(height_m) / top if top > 0.1 else 1.0
+    tree_ob.scale = (post, post, post)
+    if leaves is not None:
+        leaves.name = f"{name}_leaves"
+        leaves["wenart_kind"] = "site_decor_part"
+        # The add-on parents the card to the leaves mesh (instance_type FACES): the instanced child must be in the
+        # scene, so this tree gets its own copy of the card, parked under the ground; the library card stays free.
+        if card.parent is leaves:
+            card.parent = None
+        own = bpy.data.objects.new(f"{name}_leaf_card", card.data)
+        own.parent = leaves
+        own.location = (0.0, 0.0, -1.0)
+        own["wenart_kind"] = "vegetation_card"
+        (collection or bpy.context.scene.collection).objects.link(own)
+    _tag(tree_ob, "site_decor", rec["name"], "sapling", preset_name, "GPL add-on output (ours)", height_m)
+    return tree_ob, {"method": "sapling", "preset": preset_name, "scale": args.get("scale"),
+                     "generated_top_m": round(top, 3), "post_scale": round(post, 4),
+                     "material": card.data.materials[0].name, "atlas": atlas["id"] if atlas else None,
+                     "licence": atlas["licence"] if atlas else None, "leaves": leaves is not None}
+
+
+def _tree_hero(name: str, species: str, height_m: float, seed: int, collection, hero: dict):
+    """A collection instance of an imported Poly Haven tree (bpy), scaled to ``height_m``, turned by the seed."""
+    import bpy
+    lib = _import_hero(hero)
+    if lib is None:
+        raise RuntimeError(f"{hero['id']}: glTF import failed")
+    if lib["count"] >= HERO_MAX_PER_SPECIES:
+        raise RuntimeError(f"{hero['id']}: {HERO_MAX_PER_SPECIES} instances already (HERO_MAX_PER_SPECIES)")
+    col = bpy.data.collections[lib["collection"]]
+    ob = bpy.data.objects.new(name, None)
+    ob.instance_type = "COLLECTION"
+    ob.instance_collection = col
+    s = float(height_m) / float(lib["height_m"])
+    ob.scale = (s, s, s)
+    ob.rotation_euler = (0.0, 0.0, random.Random(seed).uniform(0.0, 2 * math.pi))
+    (collection or bpy.context.scene.collection).objects.link(ob)
+    lib["count"] += 1
+    _tag(ob, "site_decor", species_record(species)["name"], "polyhaven", hero["id"], hero["licence"], height_m)
+    ob["wenart_base_offset"] = -float(lib["base_z"]) * s
+    return ob, {"method": "polyhaven", "asset": hero["id"], "licence": hero["licence"], "licence_url": hero["licence_url"],
+                "model_height_m": lib["height_m"], "scale": round(s, 4), "polycount": hero.get("polycount"),
+                "material": None, "name": hero.get("name")}
+
+
+def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, collection=None,
+                name: Optional[str] = None, position=(0.0, 0.0, 0.0), levers: Optional[dict] = None,
+                crown_m: Optional[float] = None) -> tuple:
+    """One tree of ``species`` at ``height_m`` (bpy; Milestone 13 T6): the source by ``tree_source`` (a Poly Haven
+    instance near the cameras, a Sapling tree elsewhere, a leaf-card tree or a palm as the fallback; never a
+    primitive). ``position`` is the ground point (x, y, z); ``levers`` the site levers (``instances``,
+    ``sapling``). Returns ``(object, record)``: the record names ``method``, ``asset``, ``licence`` and the
+    numbers of the build; the object carries ``wenart_species`` / ``wenart_veg_method`` / ``wenart_asset``."""
+    rec = species_record(species)
+    name = name or f"tree_{rec['name']}_{int(seed)}"
+    hero = hero_model(rec["name"])
+    sap = levers is None or levers.get("sapling", True)
+    sapling_ok = sap and ensure_sapling()["ok"]
+    src = tree_source(rec["name"], near_camera, levers, hero, sapling_ok)
+    extra: dict = {}
+    sapling_possible = sapling_ok and (rec.get("source") or {}).get("sapling") in SAPLING_PRESETS \
+        and rec.get("crown") not in ("shrub", "hedge", "palm")
+    if src == "polyhaven":
+        try:
+            ob, out = _tree_hero(name, rec["name"], height_m, seed, collection, hero)
+            ob.location = (float(position[0]), float(position[1]),
+                           float(position[2]) + float(ob.get("wenart_base_offset") or 0.0))
+            return ob, out
+        except RuntimeError as exc:                   # the cap or a failed import: the next source
+            extra = {"fallback_from": "polyhaven", "fallback_reason": str(exc)}
+            src = "sapling" if sapling_possible else ("palm" if rec.get("crown") == "palm" else "cards")
+    if src == "sapling":
+        try:
+            ob, out = _tree_sapling(name, rec["name"], height_m, seed, collection, crown_m)
+            ob.location = (float(position[0]), float(position[1]), float(position[2]))
+            return ob, dict(out, **extra)
+        except Exception as exc:
+            extra = {"fallback_from": "sapling", "fallback_reason": f"{type(exc).__name__}: {exc}"}
+            src = "palm" if rec.get("crown") == "palm" else "cards"
+    if src == "palm":
+        ob, out = _tree_palm(name, height_m, seed, collection)
+    else:
+        ob, out = _tree_cards(name, rec["name"], height_m, seed, collection, crown_m)
+    ob.location = (float(position[0]), float(position[1]), float(position[2]))
+    return ob, dict(out, **extra)
+
+
+def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: Optional[dict] = None,
+                holes: Sequence = (), name: str = "grass_near", seed: int = 7) -> tuple:
+    """Grass clumps over ``polygon`` (bpy; Milestone 13 T6): a draped surface of the polygon minus ``holes``
+    (``site.draped_faces``) carrying a geometry-nodes scatter of ``density`` clumps per m²: the Poly Haven clump
+    (``grass_medium_02`` / ``grass_bermuda_01``, CC0) when the assets hold it, else the crossed grass cards. The
+    surface itself is hidden from the render (the ground shows through). Returns ``(object, record)``."""
+    import bpy
+    from wenart.blender import site as S
+    terrain = terrain or {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
+    verts, faces = S.draped_faces(polygon, list(holes), terrain, lift=0.02)
+    if not faces:
+        raise ValueError("grass_patch: an empty lawn polygon")
+    ob = _mesh_object(name, verts, faces, collection, [])
+    ob.visible_camera = False
+    ob.visible_shadow = False
+    ob.visible_diffuse = False
+    ob.visible_glossy = False
+    ob.visible_transmission = False
+    clump, asset, licence, method = None, None, None, "cards"
+    manifest = assets_manifest()
+    for aid in ("grass_medium_02", "grass_bermuda_01"):
+        entry = (manifest.get("models") or {}).get(aid)
+        folder = assets_dir()
+        if isinstance(entry, dict) and folder is not None and (entry.get("files") or {}).get("gltf") \
+                and (folder / entry["files"]["gltf"]).is_file():
+            lib = _import_hero({"id": aid, "path": str(folder / entry["files"]["gltf"]),
+                                "height_m": POLYHAVEN_MODELS[aid]["height_m"], "base_z": 0.0,
+                                "licence": POLYHAVEN_LICENCE, "licence_url": POLYHAVEN_LICENCE_URL})
+            if lib is not None:
+                col = bpy.data.collections[lib["collection"]]
+                clump = next((o for o in col.objects if o.type == "MESH"), None)
+                asset, licence, method = aid, POLYHAVEN_LICENCE, "polyhaven"
+                break
+    if clump is None:
+        clump = grass_card_object()
+    scale = (0.6, 1.1) if method == "cards" else (0.25, 0.45)
+    ng = scatter_group(f"veg_grass_{method}_{int(density)}", clump, float(density), seed, scale_range=scale,
+                       tilt_deg=8.0, keep_surface=False, align_normal=True)
+    mod = ob.modifiers.new("grass", "NODES")
+    mod.node_group = ng
+    from wenart import geometry as G
+    area = G.polygon_area(polygon) - sum(G.polygon_area(h) for h in holes if len(h) >= 3 and all(
+        G.point_in_polygon(q, polygon) for q in h))
+    count = int(max(0.0, area) * float(density))
+    _tag(ob, "site_grass", "lawn", method, asset, licence, 0.3)
+    return ob, {"method": method, "asset": asset, "licence": licence, "density": float(density), "count": count,
+                "area_m2": round(max(0.0, area), 2)}
+
+
+def lawn_relief(ground_ob, strength: float = 0.06, scale: float = 2.5) -> None:
+    """The far lawn's gentle relief (bpy): a Displace modifier with a Clouds texture on the ground mesh (no blades
+    far from the cameras; the grass texture stays). Idempotent."""
+    import bpy
+    if ground_ob is None or ground_ob.type != "MESH" or "lawn_relief" in ground_ob.modifiers:
+        return
+    tex = bpy.data.textures.get("veg_lawn_relief") or bpy.data.textures.new("veg_lawn_relief", type="CLOUDS")
+    tex.noise_scale = float(scale)
+    tex.noise_depth = 2
+    mod = ground_ob.modifiers.new("lawn_relief", "DISPLACE")
+    mod.texture = tex
+    mod.strength = float(strength)
+    mod.mid_level = 0.5
+    mod.direction = "Z"

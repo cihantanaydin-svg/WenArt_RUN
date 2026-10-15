@@ -41,6 +41,9 @@ SIZES.update({"bed": (1.4, 2.0), "kitchen_island": (1.8, 0.9),
               "stair": (1.0, 3.0), "side_table": (0.45, 0.45), "floor_lamp": (0.4, 0.4), "potted_plant": (0.4, 0.4)})
 # Milestone 10 types (docs/milestone10.md §1.1): the default size options of wenart/furniture/schemas.py.
 SIZES.update({t: SC.SIZE_OPTIONS[t][SC.DEFAULT_SIZE_INDEX] for t in P.PARAMETRIC_TYPES if t not in SIZES})
+# Milestone 13: the bed family's textile bedding (a cloth grid draped over the mattress, filled pillows) is smooth
+# cloth, not a convex solid; every other part stays convex.
+CLOTH_ROLES = ("duvet", "turndown", "pillow")
 
 
 # --------------------------------------------------------------------------
@@ -61,11 +64,20 @@ def _parts_ok(ftype: str, w: float, d: float) -> list[dict]:
         cx = sum(v[0] for v in verts) / len(verts)
         cy = sum(v[1] for v in verts) / len(verts)
         cz = sum(v[2] for v in verts) / len(verts)
-        for f in faces:  # every part is convex: normals point away from its centre
+        for f in faces:  # every solid part is convex: normals point away from its centre; no face is degenerate
             n = geom2d.face_normal(verts, f)
             c = geom2d.face_center(verts, f)
             assert n != (0.0, 0.0, 0.0), (ftype, p["role"])
+            if p["role"] in CLOTH_ROLES:            # Milestone 13: the bed's cloth (a draped duvet, pillows) is not convex
+                continue
             assert n[0] * (c[0] - cx) + n[1] * (c[1] - cy) + n[2] * (c[2] - cz) > 0, (ftype, p["role"], f)
+        if p["role"] in CLOTH_ROLES:                # ... but a closed solid: every edge in exactly two faces
+            edges: dict[tuple[int, int], int] = {}
+            for f in faces:
+                for i in range(len(f)):
+                    e = (min(f[i], f[(i + 1) % len(f)]), max(f[i], f[(i + 1) % len(f)]))
+                    edges[e] = edges.get(e, 0) + 1
+            assert set(edges.values()) == {2}, (ftype, p["role"])
         ys = [v[1] for v in verts]
         if p["role"] == "back":
             assert max(ys) == pytest.approx(d / 2.0, abs=1e-6), (ftype, "back parts touch +Y")
@@ -574,6 +586,7 @@ def scene(tmp_path_factory, glb):
     return _build(tmp_path_factory.mktemp("furniture_scene"), glb, extra=["--markers"])
 
 
+@needs_blender
 def test_no_stripes_without_markers_d3(tmp_path, glb):
     """Milestone 11 decision D3 (docs/milestone11.md §17, brief markers_in_final: false by default): the same scene
     built without --markers has no stripe in any material, the unknown piece is not built (Milestone 12) and the
@@ -651,7 +664,10 @@ def test_parametric_pieces_sit_on_their_footprints(scene):
     shower = entries[next(f["id"] for f in scene["building"]["furniture"] if f["type"] == "shower")]
     assert "thin_glass" in shower["materials"] and shower["material_keys"]["glass"] == "glass"  # thin pane: the index pass sees through
     bed = entries[next(f["id"] for f in scene["building"]["furniture"] if f["type"] == "bed_double")]
-    assert bed["material_keys"] == {"wood": "wood_veneer_oak", "bedding": "fabric_white", "duvet": "fabric_linen"}
+    # Milestone 13 (bed v2): the upholstered headboard adds the fabric slot and the recessed plinth the dark slot
+    # to the wood, bedding and duvet (the fixture style's slugs: furniture.style_material_keys)
+    assert bed["material_keys"] == {"wood": "wood_veneer_oak", "bedding": "fabric_white", "duvet": "fabric_linen",
+                                    "fabric": "fabric_linen", "dark": "lacquer_dark"}
     assert bed["bbox_m"][2] == pytest.approx(1.0) and bed["size"][2] == 0.55
     # Milestone 6: one Bevel modifier per parametric piece, recorded; the bedding is a design detail.
     assert bed["bevel"]["width_m"] == P.BEVEL_WIDTH_M and bed["bevel"]["segments"] == P.BEVEL_SEGMENTS

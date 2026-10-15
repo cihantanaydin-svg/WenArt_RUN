@@ -128,6 +128,21 @@ Milestone 10 (docs/milestone10.md §1.6, §3.2, §3.3): the whole building.
   ``dropped_reason`` (§1.6b row 11). Every value no drawing gives is in
   ``assumed``. The top-down previews hide the roof, the site and the
   exterior cameras. Other buildings keep the M3-M9 scene.
+
+Milestone 13 (docs/milestone13.md §13.2 build.py, K8 camera replay; the camera policy itself stays, D8):
+
+- ``--cameras-from <scene_manifest.json>`` recreates the cameras of that manifest (``cameras.replay_cameras``:
+  name, room, level, position, target or rotation, lens, sensor, shift, clip) with ``source: "replayed"`` in the
+  scene manifest's ``cameras``; the search runs only for the rooms (and the exterior set) that have no camera in
+  the file. ``--cameras-extra`` runs the search for every room as well and adds those cameras with the suffix
+  ``_s`` (``cam_<room>_<n>_s``, ``ext_<n>_s``), so a build carries the baseline views and the searched set
+  together. The environment variable ``WENART_CAMERAS_FROM`` (the orchestrated run; ``{name}`` = the project id,
+  e.g. ``results/renders/{name}/scene_manifest.json``) stands in for the flag, ``WENART_CAMERAS_EXTRA=1`` for
+  ``--cameras-extra``. A file without camera records (real04's run committed none) falls back to the search with
+  a log line and the manifest's ``cameras_from.reason``. The file's content (sha256) and the extra flag are part
+  of the build fingerprint, so a changed camera file rebuilds the scene.
+- The scene manifest's ``lighting`` block carries the light variant and the levers (``lighting.build_lighting``);
+  the material library gets the style and the levers for the shell material table (``materials.MaterialLibrary``).
 """
 from __future__ import annotations
 
@@ -211,7 +226,72 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--markers", action="store_true",
                         help="debug: draw the unverified stripes (Milestone 11 D3: the brief's markers_in_final, "
                              "default false = no stripes in any render)")
+    parser.add_argument("--cameras-from", default=None,
+                        help="Milestone 13: a scene_manifest.json whose cameras are recreated (source: replayed); the "
+                             "search runs only for rooms without a camera in it (env WENART_CAMERAS_FROM)")
+    parser.add_argument("--cameras-extra", action="store_true",
+                        help="Milestone 13: with --cameras-from also run the search for every room and add those "
+                             "cameras with the suffix _s (env WENART_CAMERAS_EXTRA=1)")
     return parser.parse_args(argv)
+
+
+# --------------------------------------------------------------------------
+# Milestone 13: the camera file of --cameras-from (pure)
+# --------------------------------------------------------------------------
+
+CAMERAS_FROM_ENV = "WENART_CAMERAS_FROM"
+CAMERAS_EXTRA_ENV = "WENART_CAMERAS_EXTRA"
+EXTRA_CAMERA_SUFFIX = "_s"
+_ENV = object()                      # "resolve from the environment" (fingerprint_args, build.main)
+
+
+def cameras_from_spec(value, project_id: str | None = None, env=None) -> str | None:
+    """The camera file of a build (pure): ``value`` (the flag), else ``env[CAMERAS_FROM_ENV]`` (``os.environ``
+    when None); ``{name}`` in it is the project id. None without either, or for an empty value."""
+    text = value if value not in (None, "") else (os.environ if env is None else env).get(CAMERAS_FROM_ENV)
+    if text in (None, ""):
+        return None
+    text = str(text)
+    if "{name}" in text:
+        if not project_id:
+            return text
+        text = text.replace("{name}", str(project_id))
+    return text
+
+
+def cameras_extra_flag(value=None, env=None) -> bool:
+    """``--cameras-extra`` (pure): the flag, else ``env[CAMERAS_EXTRA_ENV]`` in ``1 / true / yes / on``."""
+    if value:
+        return True
+    text = str((os.environ if env is None else env).get(CAMERAS_EXTRA_ENV) or "").strip().lower()
+    return text in ("1", "true", "yes", "on")
+
+
+def camera_file_record(path: str | None) -> dict | None:
+    """What the fingerprint and the manifest keep of the camera file (pure): ``{"path", "sha256", "cameras",
+    "build_fingerprint"}``; ``{"path", "missing": True}`` when it does not exist or is not JSON; None without a
+    path. ``cameras`` counts the records ``cameras.replay_cameras`` would take."""
+    if not path:
+        return None
+    p = Path(path)
+    if not p.is_file():
+        return {"path": str(path), "missing": True}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except ValueError:
+        return {"path": str(path), "missing": True, "reason": "not a JSON file"}
+    from wenart.blender.cameras import replay_cameras
+    replay = replay_cameras(data if isinstance(data, dict) else {})
+    return {"path": str(path), "sha256": _sha256_file(p), "cameras": len(replay["plans"]),
+            "build_fingerprint": replay["fingerprint"], "camera_policy": replay["policy"]}
+
+
+def _project_id_of(building_path: str) -> str | None:
+    try:
+        data = json.loads(Path(building_path).read_text(encoding="utf-8"))
+        return str((data.get("project") or {}).get("id") or "") or None
+    except (OSError, ValueError, AttributeError):
+        return None
 
 
 # --------------------------------------------------------------------------
@@ -221,19 +301,41 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def fingerprint_args(building: str, style: str | None = None, assets: str | None = None, level: str | None = None,
                      no_textures: bool = False, preview_samples: int | None = None, no_preview: bool = False,
                      no_glb: bool = False, proxies: bool = False, camera_policy: str = DEFAULT_CAMERA_POLICY,
-                     lens_mm: float | None = None, variant: str = "base", brief: dict | None = None) -> dict:
+                     lens_mm: float | None = None, variant: str = "base", brief: dict | None = None,
+                     cameras_from=_ENV, cameras_extra=_ENV) -> dict:
     """The build arguments that enter the fingerprint, in one canonical form
     (``--out`` is left out: where the scene is written does not change it).
     ``lens_mm`` None = the automatic lens rule (Milestone 8); ``variant``
     (Milestone 10) the building variant; ``brief`` the brief values the
-    build uses (``brief_args``; the file path is not part of it)."""
+    build uses (``brief_args``; the file path is not part of it).
+
+    Milestone 13: ``cameras_from`` (the camera file of ``--cameras-from``; left out = the environment's
+    ``WENART_CAMERAS_FROM``, ``{name}`` = the building's project id) enters as ``camera_file_record`` (its sha256,
+    so a changed file rebuilds), ``cameras_extra`` as a flag; the light variant (``WENART_LIGHT_VARIANT``) enters
+    too, so an A/B build of another variant never reuses this one."""
+    path = cameras_from_spec(None if cameras_from is _ENV else cameras_from,
+                             _project_id_of(building) if cameras_from is _ENV or "{name}" in str(cameras_from or "")
+                             else None, env=None if cameras_from is _ENV else {})
+    extra = cameras_extra_flag(None if cameras_extra is _ENV else cameras_extra,
+                               env=None if cameras_extra is _ENV else {})
+    record = camera_file_record(path)
+    if record is not None and record.get("missing"):
+        record = {"path": record["path"], "missing": True}
+    try:
+        from wenart.blender.lighting import light_levers
+        variant_name = light_levers()["variant"]
+    except Exception:  # noqa: BLE001 - the fingerprint must not die over the lever table
+        variant_name = None
     return {"building": str(building), "style": str(style) if style else None,
             "assets": str(assets) if assets else None, "level": level, "no_textures": bool(no_textures),
             "preview_samples": DEFAULT_PREVIEW_SAMPLES if preview_samples is None else int(preview_samples),
             "no_preview": bool(no_preview), "no_glb": bool(no_glb), "proxies": bool(proxies),
             "camera_policy": str(camera_policy or DEFAULT_CAMERA_POLICY),
             "lens_mm": None if lens_mm is None else float(lens_mm), "variant": str(variant or "base"),
-            "brief": brief or {}}
+            "brief": brief or {},
+            "cameras_from": None if record is None else {k: record[k] for k in ("path", "sha256", "missing") if k in record},
+            "cameras_extra": bool(extra) if record is not None else False,
+            "light_variant": variant_name}
 
 
 def load_brief_file(path: str | None) -> dict | None:
@@ -750,15 +852,40 @@ def main(argv: list[str]) -> int:
     fp_brief = brief_args(building_all, brief)
     if args.markers:                      # M11 D3: the debug flag turns the stripes on whatever the brief says
         fp_brief["markers_in_final"] = {"value": True, "assumed": False, "flag": "--markers"}
+    # Milestone 13: the camera file (the flag, else the environment) and the light levers of this build.
+    cameras_from = cameras_from_spec(args.cameras_from, str((building_all.get("project") or {}).get("id") or ""))
+    cameras_extra = cameras_extra_flag(args.cameras_extra)
+    try:
+        levers = lighting.light_levers()
+    except ValueError as exc:
+        print(f"usage error: {exc}")
+        return 2
     fp_args = fingerprint_args(args.building, args.style, args.assets, args.level, args.no_textures,
                                args.preview_samples, args.no_preview, args.no_glb, args.proxies, args.camera_policy,
-                               args.lens_mm, args.variant, fp_brief)
+                               args.lens_mm, args.variant, fp_brief, cameras_from=cameras_from,
+                               cameras_extra=cameras_extra)
     fingerprint = build_fingerprint(fp_args)
     markers = bool(fp_brief["markers_in_final"]["value"])
     materials.set_markers(markers)
     if building_all.get("status") != "ok":
         print(f"building status is {building_all.get('status')!r}: nothing to build (needs review first)")
         return 2
+    camera_file = camera_file_record(cameras_from)
+    replay = {"plans": [], "dropped": [], "fingerprint": None, "policy": None}
+    if camera_file is not None:
+        if camera_file.get("missing"):
+            print(f"--cameras-from {cameras_from}: no such file; the camera search runs for every room")
+        else:
+            replay = cams.replay_cameras(json.loads(Path(cameras_from).read_text(encoding="utf-8")))
+            if not replay["plans"]:
+                print(f"--cameras-from {cameras_from}: no camera records in the file; the camera search runs for "
+                      f"every room")
+            else:
+                print(f"--cameras-from {cameras_from}: {len(replay['plans'])} cameras replayed "
+                      f"({len(replay['dropped'])} records dropped); the search runs for the rooms without one"
+                      + (" and for every room as extra cameras (--cameras-extra)" if cameras_extra else ""))
+    print(f"LIGHT_VARIANT build={levers['variant'] or 'none'} sun_wm2={levers['sun_wm2']} ev_cap={levers['ev_cap']} "
+          f"rig={levers['rig']} shell={levers['shell']}")
     try:
         prep = prepare(building_all, args.variant, brief)
     except KeyError as exc:
@@ -804,7 +931,8 @@ def main(argv: list[str]) -> int:
     scene.name = building["project"]["id"]
     scene.unit_settings.system = "METRIC"
     scene.unit_settings.scale_length = 1.0
-    library = MaterialLibrary(textures, args.assets, use_textures=not args.no_textures, refused=refused)
+    library = MaterialLibrary(textures, args.assets, use_textures=not args.no_textures, refused=refused, style=style,
+                              levers=levers)
 
     manifest_objects: list[dict] = []
     pass_indices: dict[str, int] = {}
@@ -914,20 +1042,36 @@ def main(argv: list[str]) -> int:
                                                                     manifest_objects, assumed, warnings, plans=stairs,
                                                                     shaft=not arrives))
         lap("splashbacks_stairs")
+        # Milestone 13 (K8): the replayed cameras of this level first; the search for the rooms without one (every
+        # room with --cameras-extra, those cameras renamed with the suffix EXTRA_CAMERA_SUFFIX).
+        level_room_ids = {r["id"] for r in building["rooms"] if r["level_id"] == level["id"]}
+        replayed = [p for p in replay["plans"] if p["kind"] == "interior" and p.get("level_id") == level["id"]
+                    and p.get("room_id") in render_rooms and p.get("room_id") in level_room_ids]
+        covered = cams.replayed_rooms(replayed)
         plans = [p for p in cams.plan_cameras(building, level["id"], policy=args.camera_policy, lens_mm=args.lens_mm)
                  if p.get("room_id") in render_rooms]
+        if covered and not cameras_extra:
+            plans = [p for p in plans if p.get("room_id") not in covered]
+        elif covered:
+            for p in plans:
+                if p.get("room_id") in covered:
+                    p["name"] = p["name"] + EXTRA_CAMERA_SUFFIX
+                    p["extra"] = True
         no_view = [r for r in cams.rooms_without_view(building, level["id"], policy=args.camera_policy)
-                   if r.get("room_id") in render_rooms]
+                   if r.get("room_id") in render_rooms and r.get("room_id") not in covered]
         rooms_without_view.extend(no_view)
         warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
         entries = O.camera_entries(building_all, "interior")
         if entries:                                    # Milestone 11 §17.3: the agent's fixed cameras
-            level_rooms = {r["id"] for r in building["rooms"] if r["level_id"] == level["id"]}
-            plans, applied = O.apply_cameras(plans, entries, level["id"], level_rooms)
+            plans, applied = O.apply_cameras(plans, entries, level["id"], level_room_ids)
             prep["overrides_applied"]["cameras"] += applied
         for plan in plans:
             plan.setdefault("policy", args.camera_policy)
+            plan.setdefault("source", "searched")
             interior_camera_fields(plan, prep["variant"])
+        for plan in replayed:
+            interior_camera_fields(plan, prep["variant"])
+        plans = replayed + plans
         cams.create_cameras(plans, col, manifest_objects)
         camera_plans.extend(plans)
         for plan in plans:
@@ -1016,8 +1160,32 @@ def main(argv: list[str]) -> int:
             ext_col = common.get_or_make_collection("exterior")
             extra_collections.append(ext_col)
             model = E.build_model(building, levels, roof, prep["site"])
-            ext_plans, dropped = E.plan_exterior(model, building, levels, (prep["site"] or {}).get("plot") or [],
-                                                 variant=prep["variant"])
+            # Milestone 13 (K8): the replayed exterior cameras stand in for the planned set (both with --cameras-extra)
+            ext_replayed = [p for p in replay["plans"] if p["kind"] == "exterior"]
+            # T5 review (15 Oct 2026): E.create_cameras aims an exterior camera at its target (exterior.py, T6);
+            # a rotation-only record cannot be replayed there and is dropped with the reason (none in the M11 runs).
+            for p in [p for p in ext_replayed if p.get("target") is None]:
+                replay["dropped"].append({"name": p["name"], "reason": "exterior record without a target: the "
+                                                                         "exterior camera needs one"})
+                warnings.append(f"{p['name']}: replayed exterior camera dropped (no target in the record)")
+            ext_replayed = [p for p in ext_replayed if p.get("target") is not None]
+            for p in ext_replayed:
+                p.setdefault("view", None)
+                p.setdefault("variant", prep["variant"])
+                p.setdefault("sides", [])
+                p.setdefault("region_id", None)
+                p.setdefault("dropped_reason", None)
+            if ext_replayed and not cameras_extra:
+                ext_plans, dropped = [], []
+            else:
+                ext_plans, dropped = E.plan_exterior(model, building, levels, (prep["site"] or {}).get("plot") or [],
+                                                     variant=prep["variant"])
+                if ext_replayed:
+                    for p in ext_plans:
+                        p["name"] = p["name"] + EXTRA_CAMERA_SUFFIX
+                        p["extra"] = True
+            for p in ext_plans:
+                p.setdefault("source", "searched")
             entries = O.camera_entries(building_all, "exterior")
             if entries:                                # Milestone 11 §17.3: the agent's fixed exterior cameras
                 ext_plans, applied = O.apply_cameras(ext_plans, entries)
@@ -1034,7 +1202,14 @@ def main(argv: list[str]) -> int:
                             p["sides"] = [S.side_of(S.AXES[S.nearest_axis(d)], north,
                                                     not src.startswith("assumed"))]
                 prep["overrides_applied"]["cameras"] += applied
+            for p in ext_plans:
+                p.setdefault("source", "searched")
+            ext_plans = ext_replayed + ext_plans
             E.create_cameras(ext_plans, ext_col, manifest_objects)
+            for p in ext_replayed:                     # the replayed record's source, as for the interior cameras
+                ob = bpy.data.objects.get(p["name"])
+                if ob is not None:
+                    ob["wenart_camera_source"] = "replayed"
             camera_plans.extend(ext_plans)
             for d in dropped:
                 warnings.append(f"{d['name']}: exterior view dropped ({d['dropped_reason']})")
@@ -1120,6 +1295,9 @@ def main(argv: list[str]) -> int:
         "lens_mm": args.lens_mm,                              # Milestone 8: the brief's lens, None = automatic
         "search_seconds": search_seconds(camera_plans, args.camera_policy),
         "cameras": camera_plans,
+        # Milestone 13 (K8): the camera file of the replay and what came of it
+        "cameras_from": cameras_from_summary(camera_file, replay, camera_plans, cameras_extra),
+        "light_variant": levers["variant"],
         "rooms_without_view": rooms_without_view,
         "materials": library.records,
         "lighting": light_info,
@@ -1158,6 +1336,25 @@ def main(argv: list[str]) -> int:
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
+
+
+def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: list[dict], extra: bool) -> dict | None:
+    """The scene manifest's ``cameras_from`` (pure): the file record, the counts of replayed and searched cameras
+    of the build, the dropped records and a ``reason`` when the search ran for everything (no file, a missing file,
+    a file without camera records, real04's case)."""
+    if camera_file is None:
+        return None
+    replayed = [p["name"] for p in camera_plans if p.get("source") == "replayed"]
+    searched = [p["name"] for p in camera_plans if p.get("source") != "replayed"]
+    out = dict(camera_file, replayed=len(replayed), searched=len(searched), extra=bool(extra),
+               dropped=list(replay.get("dropped") or []))
+    if camera_file.get("missing"):
+        out["reason"] = "the camera file does not exist: the camera search ran for every room"
+    elif not replay.get("plans"):
+        out["reason"] = "no camera records in the file: the camera search ran for every room"
+    elif not replayed:
+        out["reason"] = "no replayed camera matched a rendered room of this variant: the camera search ran"
+    return out
 
 
 def geom_centre(outline) -> tuple[float, float]:

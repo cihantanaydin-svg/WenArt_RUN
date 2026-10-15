@@ -133,6 +133,61 @@ def image_info(meshes):
     return {"images": len(images), "max_px": max_px, "missing": sorted(missing), "hash": tex_hash}
 
 
+def pbr_info(meshes):
+    """Milestone 13 (audit gate "PBR maps recorded per model"): which Principled BSDF inputs of the imported
+    materials take an image texture (through a Normal Map node for the normal): the same record as
+    ``glbmesh.pbr_maps`` (``base_colour``, ``metallic_roughness``, ``normal``, ``occlusion``, ``emissive``,
+    ``materials``, ``images``). Blender's glTF importer links the baseColor image to Base Color, the metallic-roughness
+    image through Separate Color into Metallic / Roughness, the normal image through a Normal Map node, the emissive
+    image to Emission Color; occlusion stays in a custom group (``glTF Material Output``), read by its node name."""
+    out = {"base_colour": False, "metallic_roughness": False, "normal": False, "occlusion": False, "emissive": False,
+           "materials": 0, "images": 0, "materials_with_base_colour": 0}
+    seen, images = set(), set()
+
+    def has_image(socket, depth=0):
+        if socket is None or not socket.is_linked or depth > 6:
+            return False
+        for link in socket.links:
+            node = link.from_node
+            if node.type == "TEX_IMAGE":
+                if node.image is not None:
+                    images.add(node.image.name)
+                return node.image is not None
+            for inp in node.inputs:
+                if has_image(inp, depth + 1):
+                    return True
+        return False
+
+    for ob in meshes:
+        for slot in ob.material_slots:
+            mat = slot.material
+            if mat is None or mat.name in seen:
+                continue
+            seen.add(mat.name)
+            out["materials"] += 1
+            tree = getattr(mat, "node_tree", None)
+            if tree is None:
+                continue
+            bsdf = next((n for n in tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+            if bsdf is None:
+                continue
+            if has_image(bsdf.inputs.get("Base Color")):
+                out["base_colour"] = True
+                out["materials_with_base_colour"] += 1
+            if has_image(bsdf.inputs.get("Metallic")) or has_image(bsdf.inputs.get("Roughness")):
+                out["metallic_roughness"] = True
+            if has_image(bsdf.inputs.get("Normal")):
+                out["normal"] = True
+            if has_image(bsdf.inputs.get("Emission Color")) or has_image(bsdf.inputs.get("Emission")):
+                out["emissive"] = True
+            for node in tree.nodes:
+                if node.type == "GROUP" and "glTF" in (node.node_tree.name if node.node_tree else ""):
+                    if has_image(node.inputs.get("Occlusion")):
+                        out["occlusion"] = True
+    out["images"] = len(images)
+    return out
+
+
 def mesh_arrays(meshes):
     dg = bpy.context.evaluated_depsgraph_get()
     verts, tris, offset, colour_attrs = [], [], 0, 0
@@ -213,6 +268,10 @@ def one(job, scene, cam, keep):
         stats["model_box_min"] = [round(float(v), 4) for v in model.min(axis=0)]
         stats["model_box_max"] = [round(float(v), 4) for v in model.max(axis=0)]
     stats["textures"] = image_info(meshes)
+    try:
+        stats["pbr"] = pbr_info(meshes)
+    except Exception as exc:  # noqa: BLE001 - a material oddity must not fail the measurement
+        stats["pbr"] = {"error": f"{type(exc).__name__}: {exc}"}
     stats["colour_attributes"] = colour_attrs
     stats["mesh_objects"] = len(meshes)
     build_reference(job["layout"])

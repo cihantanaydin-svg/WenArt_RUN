@@ -14,6 +14,14 @@ gets a thin box ``proud`` metres in front of its face, cut where a door, a windo
 crosses the band (``_spans``). The looks come from ``ARTICULATION`` per style family and the resolved outside
 looks (``exterior.resolve_looks``; the agent's ``plinth`` / ``cornice`` / ``surround`` material slots override
 them).
+
+Milestone 13 (docs/milestone13.md §13.2, track T6; §1.7: "a box with bands"): the facade kit (``facade_kit``), added
+to the plan only where the documents or the room types imply it, every box ``inferred`` with its reason: window
+reveals (a thin frame at the outer face of every window of the modern families, which get no surround), gutters
+along the roof's eaves edges and downpipes at their corners (a pitched roof drawn in the documents), an entrance
+canopy and a pair of wall lights at every entrance door at grade (``site.entrances``), and a guard rail in front of
+an upper-floor outside door that opens onto no balcony or terrace room (a door drawn there implies one).
+``KIT`` holds the sizes; the looks are ``KIT_LOOKS`` (the agent's material slots of the same names override them).
 """
 from __future__ import annotations
 
@@ -33,6 +41,23 @@ ARTICULATION = {
 DIMENSIONS = {"plinth_height": 0.45, "plinth_below": 0.05, "proud": 0.025, "band_height": 0.20, "band_proud": 0.03,
               "coping_height": 0.06, "coping_proud": 0.04, "surround_width": 0.12, "surround_proud": 0.03,
               "min_span": 0.15}
+
+
+# Milestone 13 (T6): the facade kit sizes (metres) and looks (vocabulary slugs; a colour name or None).
+KIT = {"reveal_width": 0.06, "reveal_proud": 0.015, "gutter_w": 0.12, "gutter_h": 0.10, "gutter_drop": 0.02,
+       "downpipe": 0.10, "downpipe_every_m": 12.0, "downpipe_end_m": 0.4, "eaves_tol": 0.15,
+       "canopy_depth": 1.0, "canopy_thick": 0.08, "canopy_side": 0.3, "canopy_above": 0.25,
+       "light_w": 0.12, "light_d": 0.08, "light_h": 0.22, "light_z": 2.1, "light_offset": 0.35,
+       "guard_height": 1.0, "guard_bar": 0.04, "guard_min_drop": 1.5, "guard_side": 0.1}
+KIT_LOOKS = {
+    "reveal": ("render", "white", "window reveal frame at the outer face (modern family; not drawn)"),
+    "gutter": ("aluminium_anthracite", None, "gutter along the eaves (a pitched roof is drawn; the gutter is not)"),
+    "downpipe": ("aluminium_anthracite", None, "downpipe at the eaves corners (not drawn)"),
+    "canopy": ("render", "white", "entrance canopy over the entrance door (the door is drawn; the canopy is not)"),
+    "wall_light": ("steel_black", None, "wall light beside the entrance door (not drawn)"),
+    "railing": ("steel_black", None, "guard rail in front of an upper-floor outside door with no balcony (not drawn)"),
+}
+KIT_KINDS = tuple(KIT_LOOKS)
 
 
 def family_rules(style: Optional[dict]) -> dict:
@@ -212,7 +237,204 @@ def articulation_plan(building: dict, levels: Sequence[dict], outlines: dict, gr
         if len(boxes) > n0:
             assumed.append({"field": "surround", "value": DIMENSIONS["surround_width"],
                             "reason": out_looks["surround"]["reason"]})
-    return {"boxes": boxes, "looks": out_looks, "rules": rules, "assumed": assumed}
+    # Milestone 13 (T6): the facade kit, only where the documents or the room types imply it
+    kit = facade_kit(building, levels, outlines, ground_outline, terrain, roof_model, rules, looks)
+    boxes += kit["boxes"]
+    out_looks.update(kit["looks"])
+    assumed += kit["assumed"]
+    return {"boxes": boxes, "looks": out_looks, "rules": rules, "assumed": assumed, "kit": kit["summary"]}
+
+
+def _box(kind: str, level_id, centre, size, rot: float, parent=None, reason: str = "") -> dict:
+    return {"kind": kind, "level_id": level_id, "center": [float(c) for c in centre], "size": [float(v) for v in size],
+            "rotation_deg": float(rot), "inferred": True, "parent": parent, "reason": reason}
+
+
+def eaves_edges(roof_model: Optional[dict]) -> list[dict]:
+    """The eaves edges of a pitched roof (pure): the outline edges along which the roof's top surface stays within
+    ``KIT["eaves_tol"]`` of ``eaves_z`` (a gable end rises to the ridge: no gutter there). ``[{"p", "q", "z"}]``;
+    none for a flat roof or without planes."""
+    if not roof_model or not roof_model.get("equations") or roof_model.get("eaves_z") is None:
+        return []
+    if roof_model.get("type") in ("flat", None) or roof_model.get("kind") == "flat_cut":
+        return []
+    from wenart.blender import roof as R
+
+    outline = geom2d.ccw(roof_model.get("outline") or [])
+    eaves = float(roof_model["eaves_z"])
+    out = []
+    n = len(outline)
+    for i in range(n):
+        p, q = outline[i], outline[(i + 1) % n]
+        length = G.distance(p, q)
+        if length < 0.5:
+            continue
+        ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+        nx, ny = -uy, ux                                     # ccw outline: the left normal points inward
+        zs = []
+        for t in (0.15, 0.5, 0.85):
+            x, y = p[0] + ux * t * length + nx * 0.05, p[1] + uy * t * length + ny * 0.05
+            zs.append(R.surface_z(roof_model["equations"], x, y))
+        if all(abs(z - eaves) <= KIT["eaves_tol"] for z in zs):
+            out.append({"p": p, "q": q, "z": eaves, "length": length})
+    return out
+
+
+def facade_kit(building: dict, levels: Sequence[dict], outlines: dict, ground_outline, terrain: Optional[dict],
+               roof_model: Optional[dict], rules: dict, looks: Optional[dict] = None) -> dict:
+    """The facade kit (pure; Milestone 13 T6): ``{"boxes", "looks", "assumed", "summary"}``. Reveals around the
+    windows of the families without surrounds; gutters along the eaves edges of a pitched roof and a downpipe
+    ``KIT["downpipe_end_m"]`` from each eaves edge's start corner plus one every ``downpipe_every_m``, from the eaves
+    down the wall to the ground; a canopy and two wall lights at every entrance door at grade; a guard rail in front
+    of an upper-floor outside door (its sill over ``guard_min_drop`` above the ground) that opens onto no balcony or
+    terrace room. Every box is ``inferred`` with its reason; the summary counts per kind."""
+    from wenart.blender import site as S
+    from wenart.blender.shell import outward_side
+
+    looks = looks or {}
+    boxes: list[dict] = []
+    assumed: list[dict] = []
+    order = sorted(levels, key=lambda lv: float(lv["elevation"]))
+    gz = (lambda x, y: S.ground_z(terrain, x, y)) if terrain else (lambda x, y: 0.0)
+    out_looks = {}
+    for kind, (slug, colour, reason) in KIT_LOOKS.items():
+        out_looks[kind] = looks.get(kind) or {"material": slug, "colour": colour, "source": "build", "assumed": True,
+                                              "reason": reason, "inferred": True}
+    # 1. reveals (modern families: no surround)
+    if not rules.get("surround"):
+        w_, proud = KIT["reveal_width"], KIT["reveal_proud"]
+        for lv in order:
+            outline = outlines.get(lv["id"])
+            if len(outline or []) < 3:
+                continue
+            walls = {w["id"]: w for w in building.get("walls") or [] if w.get("level_id") == lv["id"]}
+            for it in opening_items(building, lv, outline, True):
+                if it["type"] != "window":
+                    continue
+                o = next(x for x in building["openings"] if x["id"] == it["id"])
+                side = outward_side(walls[o["wall_id"]], outline, it["centre"])
+                if side is None:
+                    continue
+                ox, oy = side
+                ux, uy = -oy, ox
+                face = it["thickness"] / 2.0 + proud / 2.0
+                cx, cy = it["centre"][0] + ox * face, it["centre"][1] + oy * face
+                rot = math.degrees(math.atan2(uy, ux))
+                h = it["top"] - it["bottom"]
+                why = KIT_LOOKS["reveal"][2]
+                boxes.append(_box("reveal", lv["id"], (cx, cy, it["top"] + w_ / 2.0), (2 * it["half"] + 2 * w_, proud, w_),
+                                  rot, it["id"], why))
+                for sgn in (-1.0, 1.0):
+                    off = sgn * (it["half"] + w_ / 2.0)
+                    boxes.append(_box("reveal", lv["id"], (cx + ux * off, cy + uy * off, (it["bottom"] + it["top"]) / 2.0),
+                                      (w_, proud, h), rot, it["id"], why))
+    # 2. gutters and downpipes along the eaves of a pitched roof
+    edges = eaves_edges(roof_model)
+    top_level = next((lv for lv in order if roof_model and lv["id"] == roof_model.get("over_level_id")), None)
+    wall_outline = outlines.get(top_level["id"]) if top_level else ground_outline
+    for e in edges:
+        p, q, z, length = e["p"], e["q"], e["z"], e["length"]
+        ux, uy = (q[0] - p[0]) / length, (q[1] - p[1]) / length
+        nx, ny = uy, -ux                                      # outward (ccw outline)
+        mid = G.segment_midpoint(p, q)
+        rot = math.degrees(math.atan2(uy, ux))
+        gw, gh = KIT["gutter_w"], KIT["gutter_h"]
+        boxes.append(_box("gutter", top_level["id"] if top_level else None,
+                          (mid[0] + nx * gw / 2.0, mid[1] + ny * gw / 2.0, z - KIT["gutter_drop"] - gh / 2.0),
+                          (length + gw, gw, gh), rot, None, KIT_LOOKS["gutter"][2]))
+        count = 1 + int(length // KIT["downpipe_every_m"])
+        for k in range(count):
+            t = KIT["downpipe_end_m"] + k * KIT["downpipe_every_m"]
+            if t > length - 0.2:
+                break
+            ex, ey = p[0] + ux * t, p[1] + uy * t
+            # the wall face under the eaves edge: the nearest point of the wall outline, then the pipe outside it
+            if len(wall_outline or []) >= 3:
+                _d, (a, b) = geom2d.nearest_edge((ex, ey), wall_outline)
+                tt = max(0.0, min(1.0, ((ex - a[0]) * (b[0] - a[0]) + (ey - a[1]) * (b[1] - a[1])) /
+                                  max(1e-9, G.distance(a, b) ** 2)))
+                wx, wy = a[0] + (b[0] - a[0]) * tt, a[1] + (b[1] - a[1]) * tt
+                wn = G.unit_normal_left(a, b)
+                wn = (-wn[0], -wn[1]) if G.point_in_polygon((wx + wn[0] * 0.2, wy + wn[1] * 0.2), wall_outline) else wn
+            else:
+                wx, wy, wn = ex, ey, (nx, ny)
+            d = KIT["downpipe"]
+            px, py = wx + wn[0] * (d / 2.0 + 0.02), wy + wn[1] * (d / 2.0 + 0.02)
+            z0 = gz(px, py) + 0.1
+            z1 = z - KIT["gutter_drop"] - KIT["gutter_h"]
+            if z1 - z0 < 1.0:
+                continue
+            boxes.append(_box("downpipe", top_level["id"] if top_level else None, (px, py, (z0 + z1) / 2.0), (d, d, z1 - z0),
+                              math.degrees(math.atan2(wn[1], wn[0])), None, KIT_LOOKS["downpipe"][2]))
+    # 3. canopy and wall lights at the entrance doors at grade
+    ents = []
+    if len(ground_outline or []) >= 3 and terrain is not None:
+        try:
+            ents = S.entrances(building, levels, terrain, ground_outline, outlines)
+        except (KeyError, TypeError, ValueError):
+            ents = []
+    openings = {o["id"]: o for o in building.get("openings") or []}
+    for e in ents:
+        o = openings.get(e["opening_id"])
+        lv = next((x for x in levels if x["id"] == e["level_id"]), None)
+        if o is None or lv is None:
+            continue
+        from wenart.blender.shell import opening_vertical
+        above = any(float(x["elevation"]) > float(lv["elevation"]) for x in levels)
+        bottom, top, _ = opening_vertical(o, lv, above)
+        ox, oy = e["outward"]
+        ux, uy = -oy, ox
+        rot = math.degrees(math.atan2(uy, ux))
+        face = (e["centre"][0] + ox * e["half_t"], e["centre"][1] + oy * e["half_t"])
+        depth, thick = KIT["canopy_depth"], KIT["canopy_thick"]
+        boxes.append(_box("canopy", lv["id"], (face[0] + ox * depth / 2.0, face[1] + oy * depth / 2.0,
+                                               top + KIT["canopy_above"] + thick / 2.0),
+                          (e["width"] + 2 * KIT["canopy_side"], depth, thick), rot, e["opening_id"],
+                          KIT_LOOKS["canopy"][2]))
+        for sgn in (-1.0, 1.0):
+            off = sgn * (e["width"] / 2.0 + KIT["light_offset"])
+            boxes.append(_box("wall_light", lv["id"], (face[0] + ux * off + ox * KIT["light_d"] / 2.0,
+                                                       face[1] + uy * off + oy * KIT["light_d"] / 2.0,
+                                                       bottom + KIT["light_z"]),
+                              (KIT["light_w"], KIT["light_d"], KIT["light_h"]), rot, e["opening_id"],
+                              KIT_LOOKS["wall_light"][2]))
+    # 4. guard rails in front of upper-floor outside doors that open onto no balcony or terrace room
+    rooms = [r for r in building.get("rooms") or [] if isinstance(r, dict) and len(r.get("polygon") or []) >= 3]
+    for rec in (S.outer_openings(building, levels, ground_outline, outlines, kinds=("door",))
+                if len(ground_outline or []) >= 3 else []):
+        lv = rec["level"]
+        cx, cy = rec["centre"]
+        ox, oy = rec["outward"]
+        drop = rec["bottom"] - gz(cx + ox * 1.0, cy + oy * 1.0)
+        if drop < KIT["guard_min_drop"]:
+            continue
+        probe = (cx + ox * (rec["half_t"] + 0.5), cy + oy * (rec["half_t"] + 0.5))
+        if any(r.get("level_id") == lv["id"] and str(r.get("room_type") or "") in ("balcony", "terrace")
+               and G.point_in_polygon(probe, r["polygon"]) for r in rooms):
+            continue
+        ux, uy = -oy, ox
+        rot = math.degrees(math.atan2(uy, ux))
+        w = float(rec["opening"]["width"]) + 2 * KIT["guard_side"]
+        bar = KIT["guard_bar"]
+        fx, fy = cx + ox * (rec["half_t"] + bar / 2.0 + 0.02), cy + oy * (rec["half_t"] + bar / 2.0 + 0.02)
+        z0 = rec["bottom"]
+        why = KIT_LOOKS["railing"][2]
+        boxes.append(_box("railing", lv["id"], (fx, fy, z0 + KIT["guard_height"] - bar / 2.0), (w, bar, bar), rot,
+                          rec["opening"]["id"], why))
+        boxes.append(_box("railing", lv["id"], (fx, fy, z0 + 0.5 * KIT["guard_height"]), (w, bar, bar), rot,
+                          rec["opening"]["id"], why))
+        for sgn in (-1.0, 1.0):
+            off = sgn * (w / 2.0 - bar / 2.0)
+            boxes.append(_box("railing", lv["id"], (fx + ux * off, fy + uy * off, z0 + KIT["guard_height"] / 2.0),
+                              (bar, bar, KIT["guard_height"]), rot, rec["opening"]["id"], why))
+    counts: dict[str, int] = {}
+    for b in boxes:
+        counts[b["kind"]] = counts.get(b["kind"], 0) + 1
+    for kind, n in sorted(counts.items()):
+        assumed.append({"field": f"kit:{kind}", "value": n, "reason": KIT_LOOKS[kind][2] + " (inferred)"})
+    used = {k: v for k, v in out_looks.items() if k in counts}
+    return {"boxes": boxes, "looks": used, "assumed": assumed,
+            "summary": {"counts": counts, "eaves_edges": len(edges), "entrances": [e["opening_id"] for e in ents]}}
 
 
 PLINTH_BASE_DEPTH = 0.10        # Milestone 12: the raised base reaches this far in under the outer wall face
@@ -325,7 +547,9 @@ def build_articulation(plan: dict, collection, make_material, manifest_objects: 
             "name": ob.name, "wenart_id": name, "kind": "facade_detail", "status": "assumed", "level_id": None,
             "element_id": None, "evidence": [], "material": mat.name if mat else None, "textured": False,
             "pass_index": None, "detail": kind, "boxes": len(boxes), "slug": look.get("material"),
-            "colour": look.get("colour"), "assumed": {"reason": look.get("reason"), "inferred": True}})
+            "colour": look.get("colour"), "assumed": {"reason": look.get("reason"), "inferred": True},
+            "inferred": True, "kit": kind in KIT_KINDS,
+            "parents": sorted({str(b.get("parent")) for b in boxes if b.get("parent")})[:12]})
         counts[kind] = len(boxes)
     for a in plan["assumed"]:
         assumed.append({"object": "facade", "field": a["field"], "value": a["value"], "reason": a["reason"],

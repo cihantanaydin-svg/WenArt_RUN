@@ -191,16 +191,22 @@ def test_meter_stats_uses_interior_blocks_only():
 
 
 def test_exposure_is_clamped_and_rounded_to_a_sixth_of_a_stop():
-    ev, raw, at_limit = R.exposure_from(0.9 / 2 ** 3.27)
+    # Milestone 13 (docs/milestone13.md §13.2 render.py): the default limits are the cap (-2, +3); the Milestone
+    # 5-12 limits (-2, +8) stay as EXPOSURE_LIMITS_M11 (the A/B's base variant), so the rounding is checked on them.
+    m11 = R.EXPOSURE_LIMITS_M11
+    ev, raw, at_limit = R.exposure_from(0.9 / 2 ** 3.27, limits=m11)
     assert raw == pytest.approx(3.27, abs=1e-3) and ev == pytest.approx(20 / 6) and not at_limit
     assert (ev * 6) == pytest.approx(round(ev * 6))
-    ev, raw, at_limit = R.exposure_from(1e-6)
+    ev, raw, at_limit = R.exposure_from(1e-6, limits=m11)
     assert ev == 8.0 and raw > 8 and at_limit
     ev, raw, at_limit = R.exposure_from(100.0)
     assert ev == -2.0 and raw < -2 and at_limit
     ev, _, _ = R.exposure_from(0.45, target=0.9)
     assert ev == pytest.approx(1.0)
-    assert R.EXPOSURE_LIMITS == (-2.0, 8.0) and R.EXPOSURE_TARGET == 0.9
+    # The cap: +3.27 EV wanted -> +3 used, at the limit, and the lighting_dark finding says so.
+    ev, raw, at_limit = R.exposure_from(0.9 / 2 ** 3.27)
+    assert ev == 3.0 and at_limit and raw == pytest.approx(3.27, abs=1e-3)
+    assert R.EXPOSURE_LIMITS == (-2.0, 3.0) and R.EXPOSURE_LIMITS_M11 == (-2.0, 8.0) and R.EXPOSURE_TARGET == 0.9
 
 
 def test_whitepoint_keeps_the_mood_residual():
@@ -257,7 +263,17 @@ def test_render_key_covers_every_setting():
     assert R.render_key(R.key_settings(**dict(base, exposure_mode="off"))) == \
         R.render_key(R.key_settings(**dict(base, exposure_mode="off", target=0.5)))
     settings = R.key_settings(**base)
-    assert settings["code"] == R.RENDER_CODE_VERSION == "m7.1" and settings["passes"] == list(R.PASSES)
+    # Milestone 13 (docs/milestone13.md §13.2): the EV cap, the project white balance and the hidden sun lamp
+    # under the exterior sky change the pixels, so the code version is m13.1 (m7.1 renders are not reused).
+    assert settings["code"] == R.RENDER_CODE_VERSION == "m13.1" and settings["passes"] == list(R.PASSES)
+    assert settings["exposure"]["limits"] == [-2.0, 3.0]
+    assert R.key_settings(**dict(base, limits=R.EXPOSURE_LIMITS_M11))["exposure"]["limits"] == [-2.0, 8.0]
+    assert R.render_key(R.key_settings(**dict(base, limits=R.EXPOSURE_LIMITS_M11))) != k0
+    # One whitepoint per project: the key carries it (a changed whitepoint re-renders), none = "project:none".
+    wp = R.key_settings(**dict(base, wb_mode="project"), project_whitepoint=[1.1, 1.0, 0.83])["white_balance"]
+    assert wp == "project:1.100000,1.000000,0.830000"
+    assert R.key_settings(**dict(base, wb_mode="project"))["white_balance"] == "project:none"
+    assert R.key_settings(**dict(base, wb_mode="kelvin", wb_fixed=[5300.0]))["white_balance"] == "kelvin:5300"
     # Milestone 7 (docs/milestone7.md §6.1): AgX - Punchy is the default look; view transform and look are keyed.
     assert (R.VIEW_TRANSFORM, R.LOOK) == ("AgX", "AgX - Punchy")
     assert settings["view_transform"] == "AgX" and settings["look"] == "AgX - Punchy"
@@ -773,13 +789,18 @@ def test_metering_records_a_clamped_exposure_and_a_whitepoint(room):
     schemas.validate_render_manifest(manifest)
     assert manifest["exposure_mode"] == "auto" and manifest["white_balance_mode"] == "auto"
     assert manifest["scene"] == "../scene/scene.blend" and manifest["view_transform"] == "AgX"
-    assert manifest["look"] == "AgX - Punchy" and manifest["render_code_version"] == "m7.1"     # Milestone 7
+    assert manifest["look"] == "AgX - Punchy" and manifest["render_code_version"] == "m13.1"    # Milestone 7 / 13
+    # Milestone 13 (docs/milestone13.md §13.2): the EV cap (-2, +3) is the run's limit; a metered EV past it keeps
+    # +3, says at_limit and carries the lighting_dark finding.
+    lo, hi = manifest["exposure_limits"]
+    assert [lo, hi] == list(R.EXPOSURE_LIMITS) == [-2.0, 3.0]
     for e in manifest["renders"]:
         x = e["exposure"]
         assert x["mode"] == "auto" and x["wb_mode"] == "auto" and x["source"] is None
-        assert math.isfinite(x["ev"]) and -2.0 <= x["ev"] <= 8.0 and x["ev"] * 6 == pytest.approx(round(x["ev"] * 6))
-        assert x["at_limit"] == (x["ev_raw"] < -2.0 or x["ev_raw"] > 8.0)
-        assert x["incident_p50"] > 0 and x["target"] == 0.9 and x["limits"] == [-2.0, 8.0]
+        assert math.isfinite(x["ev"]) and lo <= x["ev"] <= hi and x["ev"] * 6 == pytest.approx(round(x["ev"] * 6))
+        assert x["at_limit"] == (x["ev_raw"] < lo or x["ev_raw"] > hi)
+        assert bool(x.get("lighting_dark")) == (x["ev_raw"] > hi)
+        assert x["incident_p50"] > 0 and x["target"] == 0.9 and x["limits"] == [lo, hi]
         assert len(x["whitepoint"]) == 3 and min(x["whitepoint"]) > 0
         assert float(R.luminance(x["whitepoint"])) == pytest.approx(1.0, abs=1e-4)
         assert x["residual"] == 0.35 and x["mood"] == "warm daylight"

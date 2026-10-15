@@ -19,6 +19,9 @@
     (``wenart/assets/audit/cli.py``).
 ``python -m wenart.assets growth <source> list | ingest`` (Milestone 12, §6.4)
     candidate lists for the library's growth; ingest only with an approved list (``wenart/assets/audit/growth.py``).
+    Milestone 13 (docs/milestone13.md §5.1 phase 2): ``hssd list``, ``ambientcg list``, ``abo list --by-demands``,
+    ``polyhaven list --vegetation`` (the lists by drawn demand), ``growth run demands | size-grid | speed-probe``
+    and ``growth run ingest --source hssd | ambientcg | abo --m13 | polyhaven --m13`` (``growth_run.py``).
 """
 from __future__ import annotations
 

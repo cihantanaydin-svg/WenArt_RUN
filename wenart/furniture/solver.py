@@ -53,6 +53,26 @@ How (one room):
    and the group checks G1–G14 on the room with the new pieces; only violations the fixed pieces alone do not cause
    count as ``hard_failures``) and returned best first, diverse (the main group differs first, then any group: another
    option or turn, or an anchor ≥ 1 m away).
+
+Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3; user decision D5 of 12 Oct 2026):
+
+- ``solve_room(..., drawn_group=None)``: a drawn group (``groups.drawn_groups`` entry or its anchor id) that is
+  re-solved as one unit, besides the groups the program marks ``resolve`` itself (an anchor that is missing, misread
+  or fails the checks). The group's drawn pieces are **not** obstacles (``_fixed_items`` leaves them out): the
+  anchor is placed anew within ``groups.GROUP_MEMBER_MOVE_MAX_M`` (0.5 m) of its drawn centre at its drawn size (or
+  the nearest real product, ``sizes.snap_size``, when the drawn size is outside the product grid), the template
+  partners are laid out around it and the drawn members take the partner places nearest their drawn centres (at
+  most 0.5 m away; a member no place reaches stays where it is drawn). Every moved piece is returned in the
+  candidate's ``pieces`` as the drawn dict with the new footprint, ``adjusted_by_ai`` (the reason, ``moved_m``),
+  ``drawn_footprint`` / ``drawn_front_deg`` / ``drawn_height`` / ``drawn_type`` kept and ``drawn_group`` =
+  ``{anchor_id, members, moved_m}``; ``candidate["resolved"]`` lists their ids; ``apply_candidate`` replaces them
+  in place. An unbuilt drawn anchor (``asset.method`` none) never blocks its own group and never suppresses it.
+- The designer terms of ``groups.yaml`` (R3 ``conversation``, R6 ``rug``, R12 ``anchored``, R13 ``alignment``) score
+  the candidates; the rug is a decor member of the seating and sleeping templates (place ``under`` the coffee table,
+  ``beside`` the bed; never an obstacle; ``candidate["rugs"]``, written to ``building["decor"]`` by
+  ``apply_candidate``); the tiered minimums (``groups.rule_for``: a soft aisle in a small kitchen, soft NKBA terms for
+  a fridge beside a drawn run) and the room-size variants (``groups.small_room``: one bed side on the wall in a small
+  bedroom) replace the fixed numbers.
 """
 from __future__ import annotations
 
@@ -60,7 +80,7 @@ import copy
 import math
 import re
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Iterable, Optional
 
 import numpy as np
 from shapely.geometry import LineString, Point, Polygon
@@ -69,6 +89,7 @@ from wenart import geometry as G
 from wenart.furniture import group_checks as GC
 from wenart.furniture import groups as GR
 from wenart.furniture import placer, schemas
+from wenart.furniture import program as PR
 
 BEAM_WIDTH = 32
 PER_LEVEL = 40                 # group candidates of one level kept after the free-space checks
@@ -104,6 +125,11 @@ class Spot:
     shape: Optional[str] = None
     chaise_side: Optional[str] = None
     existing_id: Optional[str] = None          # a drawn (or fixed) piece used as the anchor: not new
+    # Milestone 13: a re-solved drawn piece (``drawn``: its building dict) and how far it moved; ``kept``: a drawn
+    # member no partner place reaches, left where it is drawn (its cells count, its own checks are not run again).
+    drawn: Optional[dict] = None
+    moved: float = 0.0
+    kept: bool = False
 
     def piece(self) -> placer.Piece:
         extra = {}
@@ -121,10 +147,10 @@ class Spot:
         w, d = float(self.size[0]) / 2.0, float(self.size[1]) / 2.0
         return [(-w, w, -d, d)]
 
-    def zones(self, rec: bool = False) -> list[tuple]:
-        """Its use zones ``(name, centre, rotation, box)``."""
+    def zones(self, rec: bool = False, overrides: Optional[dict] = None) -> list[tuple]:
+        """Its use zones ``(name, centre, rotation, box)`` (``overrides``: the room's tier minimums, Milestone 13)."""
         return [(name, self.center, self.rotation, box) for name, box in GC.use_zone_boxes(
-            self.size, self.type, self.shape, self.chaise_side, float(self.size[1]), rec)]
+            self.size, self.type, self.shape, self.chaise_side, float(self.size[1]), rec, overrides)]
 
     def world(self, local) -> tuple[float, float]:
         r = math.radians(self.rotation)
@@ -161,6 +187,8 @@ class Cand:
     rfps: list = field(default_factory=list)       # the zones a person walks into (reached by a walkway)
     polys: list = field(default_factory=list)
     bboxes: list = field(default_factory=list)
+    rugs: list = field(default_factory=list)       # Milestone 13: decor members (rug spots), never obstacles
+    resolve: Optional[dict] = None                 # Milestone 13: {anchor_id, members, reason} of a re-solved group
 
 
 def _reached(zone) -> bool:
@@ -246,6 +274,9 @@ class Space:
         self.area = float(room.get("area_computed") or self.ctx.polygon.area)
         self.centroid = (self.ctx.polygon.centroid.x, self.ctx.polygon.centroid.y)
         self.doors_by_id = {d["id"]: d for d in placer.room_openings(building, room)[0]}
+        self.kind = PR.room_kind(building, room)          # Milestone 13: the aliased room type
+        # Milestone 13: the room's tier minimums (a small kitchen's soft aisle, a drawn run's soft NKBA terms).
+        self.overrides = GC.tier_overrides_of(building, room, fixed)
         self._allowed_room = GC.allowed_types_at(building, dict(room, zones=[]), None)
         self._zones = [(Polygon(z["polygon"]).buffer(0.05), GC.allowed_types_at(building, dict(room, zones=[z]), None))
                        for z in room.get("zones") or [] if len(z.get("polygon") or []) >= 3]
@@ -369,18 +400,22 @@ class Space:
 
 def _finish(space: Space, cand: Cand) -> bool:
     """Footprints of the new spots and zones; True when every spot passes its layer and the exact tests, the spots
-    do not overlap each other and every zone is inside the room and off the fixed pieces."""
+    do not overlap each other and every zone is inside the room and off the fixed pieces. A ``kept`` drawn member
+    (Milestone 13) only counts as occupied and must not overlap the other spots; a rug member is dropped (not
+    rejected) when it leaves the room or lies on a door strip or swing."""
     cand.fps, cand.zfps, cand.rfps, cand.polys, cand.bboxes = [], [], [], [], []
     for s in cand.spots:
         fps = space.spot_fps(s)
-        if not space.spot_free(s, fps):
-            return False
         poly = s.piece().polygon()
-        if not space.exact_ok(s, poly):
-            return False
+        if not s.kept:
+            if not space.spot_free(s, fps):
+                return False
+            if not space.exact_ok(s, poly):
+                return False
         cand.fps += fps
         cand.polys.append(poly)
         cand.bboxes.append(poly.bounds)
+    cand.rugs = [r for r in cand.rugs if _rug_ok(space, r)]
     for i in range(len(cand.spots)):
         for j in range(i + 1, len(cand.spots)):
             if _close(cand.bboxes[i], cand.bboxes[j], 0.0) and \
@@ -393,6 +428,18 @@ def _finish(space: Space, cand: Cand) -> bool:
         cand.zfps.append(zfp)
         if _reached(z):
             cand.rfps.append(zfp)
+    return True
+
+
+def _rug_ok(space: Space, rug: Spot) -> bool:
+    """A rug lies inside the room (shrunk) and off every door strip and swing (it is never an obstacle)."""
+    poly = rug.piece().polygon()
+    if not space.shrunk_tol.contains(poly):
+        return False
+    for door in space.ctx.doors:
+        for geom in (door.zone, door.swing):
+            if geom is not None and not geom.is_empty and poly.intersection(geom).area > placer.AREA_EPS:
+                return False
     return True
 
 
@@ -457,11 +504,91 @@ def _term_sight(anchor: Spot, tv: Optional[Spot]) -> float:
 
 
 def _term_recommended(space: Space, spot: Spot) -> Optional[float]:
-    rec = spot.zones(rec=True)
+    rec = spot.zones(rec=True, overrides=space.overrides)
     if not rec:
         return None
     ok = sum(1 for z in rec if not space.zone_layer.hit(space.zone_fp(z, 0.0)))
     return round(ok / len(rec), 4)
+
+
+# Milestone 13 (T3): the designer terms R3, R12, R13 of groups.yaml (rules conversation_circle, floating, alignment).
+
+def _seat_fronts(anchor: Spot, seats: list[Spot]) -> list[tuple[tuple[float, float], float]]:
+    """``(front midpoint, front direction)`` of the sofa and every armchair of a seating group."""
+    out = []
+    for s in [anchor] + seats:
+        p = s.piece()
+        if p.shape == "L":
+            x0, x1, yf = schemas.l_seat_front(p.size, p.chaise_side, p.chaise_depth, p.seat_depth, p.chaise_width)
+            mid = s.world(((x0 + x1) / 2.0, yf))
+        else:
+            mid = s.world((0.0, -s.size[1] / 2.0))
+        out.append((mid, G.front_direction_deg(s.rotation)))
+    return out
+
+
+def _term_conversation(anchor: Spot, armchairs: list[Spot]) -> Optional[float]:
+    """R3: the seats form a conversation circle ``conversation_circle.min..max`` across (the widest seat-front
+    distance; 1.0 inside the range, falling to 0 one metre outside it) and every seat faces the group's centre
+    within ``facing_deg``. None without armchairs (a sofa alone is no circle)."""
+    if not armchairs:
+        return None
+    rule = GR.rule("conversation_circle")
+    fronts = _seat_fronts(anchor, armchairs)
+    span = max(G.distance(a[0], b[0]) for i, (a) in enumerate(fronts) for b in fronts[i + 1:])
+    lo, hi = float(rule["min"]), float(rule["max"])
+    size = 1.0 if lo <= span <= hi else max(0.0, 1.0 - (lo - span if span < lo else span - hi))
+    cx = sum(m[0] for m, _d in fronts) / len(fronts)
+    cy = sum(m[1] for m, _d in fronts) / len(fronts)
+    faced = 0
+    for (mx, my), deg in fronts:
+        want = math.degrees(math.atan2(cy - my, cx - mx))
+        if G.angle_difference_deg(deg, want) <= float(rule.get("facing_deg", 45.0)) + 1e-9:
+            faced += 1
+    return round(0.5 * size + 0.5 * faced / len(fronts), 4)
+
+
+def _term_alignment(space: Space, anchor: Spot, wall, by_role: dict) -> Optional[float]:
+    """R13: a free anchor parallel to the room's axes (``alignment.axis_deg``); pairs (nightstands, armchairs)
+    mirrored about the anchor's axis within ``alignment.pair_m``. None when nothing applies."""
+    rule = GR.rule("alignment")
+    parts = []
+    if wall is None:
+        off = G.normalise_angle(anchor.rotation - space.R.angle) % 90.0
+        off = min(off, 90.0 - off)
+        parts.append(1.0 if off <= float(rule.get("axis_deg", 5.0)) + 1e-9 else 0.0)
+    for role in ("nightstand", "armchair"):
+        pair = by_role.get(role) or []
+        if len(pair) == 2:
+            a, b = (GC.to_local(anchor.piece(), s.center) for s in pair)
+            mirrored = abs(a[0] + b[0]) <= float(rule.get("pair_m", 0.10)) + 1e-9 and \
+                abs(a[1] - b[1]) <= float(rule.get("pair_m", 0.10)) + 1e-9
+            parts.append(1.0 if mirrored else 0.0)
+        elif len(pair) == 1:
+            parts.append(0.5)
+    if not parts:
+        return None
+    return round(sum(parts) / len(parts), 4)
+
+
+def _term_anchored(space: Space, spots: list[Spot]) -> Optional[float]:
+    """R12: the share of the new free-standing spots that stand on a wall or within ``floating.max_m`` of another
+    spot of the group or of a fixed piece (nothing floats in the middle of the room)."""
+    free = [s for s in spots if not s.against_wall and s.type not in GR.DECOR_MEMBER_TYPES]
+    if not free:
+        return None
+    reach = float(GR.rule("floating").get("max_m", 0.8))
+    polys = [s.piece().polygon() for s in spots]
+    ok = 0
+    for s in free:
+        poly = s.piece().polygon()
+        if poly.distance(space.ctx.ring) <= reach + 1e-9:
+            ok += 1
+            continue
+        if any(q is not poly and poly.distance(q) <= reach + 1e-9 for q in polys) or \
+                any(poly.distance(q) <= reach + 1e-9 for q in space.fixed_polys):
+            ok += 1
+    return round(ok / len(free), 4)
 
 
 def _kitchen_targets(space: Space) -> list:
@@ -592,12 +719,13 @@ def _tv_spots(space: Space, anchor: Spot, sizes, offsets=(0.0, 0.1, -0.1, 0.2, -
     return out
 
 
-def chair_members(size, chair) -> list[tuple[str, tuple, float]]:
+def chair_members(size, chair, count: Optional[int] = None) -> list[tuple[str, tuple, float]]:
     """``(side, local centre, turn)`` of the chairs around a table (``groups.dining_members``: as many per long side
-    as fit at 0.55 m, the rest at the ends; each facing the table, 0.02 m off its edge)."""
+    as fit at 0.55 m, the rest at the ends; each facing the table, 0.02 m off its edge; ``count``: Milestone 13, the
+    drawn chairs of a re-solved group)."""
     out = []
     w, d = float(size[0]), float(size[1])
-    for m in GR.dining_members((w, d)):
+    for m in GR.dining_members((w, d), count):
         x, y = m.local
         if abs(y) > d / 2.0 - 1e-6 and abs(x) < w / 2.0:
             side = "front" if y < 0 else "back"
@@ -626,9 +754,104 @@ def _touches(space: Space, table: Spot, side: str) -> bool:
     return space.zone_layer.hit(space.box_fp(table.center, table.rotation, strips[side], 0.0))
 
 
-def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: dict) -> Optional[tuple]:
-    """(new partner spots, zones, terms, spots by role) around ``anchor``, or None when a required partner does not
-    fit. ``filled``: role -> count of drawn partners already there (``nightstand_sides``: the sides taken)."""
+def _rug_under(anchor: Spot, seat_front: float, seat_x: float, seat_w: float, by_role: dict,
+               spec: dict) -> Optional[Spot]:
+    """R6: the seating rug in the anchor's frame: from ``rug_seating.inset`` behind the sofa's seat front over the
+    coffee table and the armchairs (their far edges minus the inset: the front legs stay on), at least the
+    template's smallest size; None without a coffee table."""
+    coffee = (by_role.get("coffee") or [None])[0]
+    if coffee is None:
+        return None
+    rule = GR.rule(spec["gap"]) if isinstance(spec.get("gap"), str) else {}
+    inset = float(rule.get("inset", 0.30))
+    xs, ys = [seat_x - seat_w / 2.0, seat_x + seat_w / 2.0], [seat_front + inset]
+    for s in [coffee] + list(by_role.get("armchair") or []):
+        lx, ly = GC.to_local(anchor.piece(), s.center)
+        hw, hd = s.size[0] / 2.0, s.size[1] / 2.0
+        if s.role == "armchair":           # its front faces the table: the far edge is its back, minus the inset
+            reach = max(hw, hd) - inset
+            xs += [lx - reach, lx + reach]
+            ys += [ly - reach, ly + reach]
+        else:
+            xs += [lx - hw, lx + hw]
+            ys += [ly - hd, ly + hd]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    mw, md = (float(v) for v in spec["sizes"][0])
+    if x1 - x0 < mw:
+        x0, x1 = (x0 + x1) / 2.0 - mw / 2.0, (x0 + x1) / 2.0 + mw / 2.0
+    if y1 - y0 < md:
+        y0 = y1 - md
+    w, dd = round(x1 - x0, 2), round(y1 - y0, 2)
+    return _local_spot(anchor, "rug", ((x0 + x1) / 2.0, (y0 + y1) / 2.0), 0.0, (w, dd), "rug")
+
+
+def _rugs_beside(space: Space, anchor: Spot, spec: dict, want: int) -> list[Spot]:
+    """R6: a runner ``rug_bed.width`` wide along each free long side of the bed, from the nightstand line
+    (``head_skip``) to the foot; a side whose use zone is blocked gets none."""
+    rule = GR.rule(spec["gap"]) if isinstance(spec.get("gap"), str) else {}
+    width = float(rule.get("width", 0.8))
+    w, d = float(anchor.size[0]), float(anchor.size[1])
+    skip = float(GR.use_zone(anchor.type).get("head_skip", 0.45))
+    length = round(d - skip, 2)
+    out = []
+    free = {z[0] for z in anchor.zones(overrides=space.overrides) if z[0] in ("left", "right")
+            and not space.zone_layer.hit(space.zone_fp(z, FIXED_ZONE_INFLATE_M))}
+    for side in ("right", "left"):
+        if side not in free or len(out) >= want:
+            continue
+        sx = 1.0 if side == "right" else -1.0
+        out.append(_local_spot(anchor, "rug", (sx * (w / 2.0 + width / 2.0), (d / 2.0 - skip - d / 2.0) / 2.0),
+                               0.0, (width, length), "rug"))
+    return out
+
+
+def _resolve_count(resolve: Optional[dict], role: str) -> int:
+    return sum(1 for _m, r in (resolve or {}).get("members", []) if r == role)
+
+
+def _match_members(space: Space, by_role: dict, resolve: dict) -> Optional[tuple[dict, list[Spot], list[float]]]:
+    """Milestone 13: the drawn members of a re-solved group take the partner places of their role nearest their
+    drawn centres (greedy, at most ``GROUP_MEMBER_MOVE_MAX_M`` away). Returns the spots by role with the matched
+    spots replaced by the drawn pieces (their type and size, ``drawn`` / ``existing_id`` / ``moved`` set), the
+    drawn members no place reaches (kept where drawn) and the moves."""
+    limit = GR.GROUP_MEMBER_MOVE_MAX_M
+    out = {role: list(spots) for role, spots in by_role.items()}
+    kept: list[Spot] = []
+    moves: list[float] = []
+    for role in sorted({r for _m, r in resolve["members"]}):
+        members = [m for m, r in resolve["members"] if r == role]
+        spots = out.get(role) or []
+        # The drawn centre (``groups.drawn_centre``: drawn_footprint when the fit's size snap moved the piece).
+        pairs = sorted((round(G.distance(tuple(GR.drawn_centre(m)), s.center), 4), i, j)
+                       for i, m in enumerate(members) for j, s in enumerate(spots))
+        taken_m: set = set()
+        taken_s: set = set()
+        for dist, i, j in pairs:
+            if i in taken_m or j in taken_s or dist > limit + 1e-9:
+                continue
+            m, s = members[i], spots[j]
+            p = placer.drawn_piece(m)
+            moved = Spot(m["type"], s.center, s.rotation, p.size, s.role, s.against_wall, p.shape, p.chaise_side,
+                         existing_id=m["id"], drawn=m, moved=dist)
+            spots[j] = moved
+            taken_m.add(i)
+            taken_s.add(j)
+            moves.append(dist)
+        for i, m in enumerate(members):
+            if i not in taken_m:
+                s = _spot_from(m, role)
+                s.drawn, s.kept = m, True
+                kept.append(s)
+        out[role] = spots
+    return out, kept, moves
+
+
+def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: dict,
+              resolve: Optional[dict] = None) -> Optional[tuple]:
+    """(new partner spots, zones, terms, spots by role, rug spots) around ``anchor``, or None when a required
+    partner does not fit. ``filled``: role -> count of drawn partners already there (``nightstand_sides``: the
+    sides taken). ``resolve`` (Milestone 13): the drawn group re-solved as one unit (``{"members": [(piece, role)],
+    ...}``): its members take the partner places nearest their drawn centres (``_match_members``)."""
     w, d = float(anchor.size[0]), float(anchor.size[1])
     new_anchor = anchor.existing_id is None      # a drawn anchor gets what fits; a new one needs its required partners
     placed: list[Spot] = []
@@ -637,6 +860,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
     counts = option.get("counts") or {}
     optional_total, optional_placed = 0, 0
     by_role: dict[str, list[Spot]] = {}
+    rugs: list[Spot] = []
     seat_front, seat_x, seat_w = -d / 2.0, 0.0, w
     if anchor.shape == "L":
         x0, x1, seat_front = schemas.l_seat_front(anchor.size, anchor.chaise_side, d)
@@ -648,10 +872,21 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
     for spec in template["partners"]:
         role, ftype = spec["role"], spec["type"]
         want = counts.get(ftype, spec.get("max", 1))
+        if resolve is not None:
+            want = max(want, _resolve_count(resolve, role))   # every drawn member of the role needs a place
         want = max(0, want - int(filled.get(role, 0)))
         if role == "nightstand":
             want = min(want, schemas.NIGHTSTANDS_PER_BED.get(anchor.type, 1) - len(filled.get("nightstand_sides", ())))
         if want <= 0:
+            continue
+        place = spec["place"]
+        if ftype in GR.DECOR_MEMBER_TYPES:
+            # Milestone 13 (R6): a rug member, laid after the pieces (it needs the coffee table / the free sides).
+            if place == "under":
+                rug = _rug_under(anchor, seat_front, seat_x, seat_w, by_role, spec)
+                rugs += [rug] if rug is not None else []
+            elif place == "beside":
+                rugs += _rugs_beside(space, anchor, spec, want)
             continue
         if not spec["required"]:
             optional_total += want
@@ -662,7 +897,6 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
             else:
                 continue                       # the room cannot hold it: the group goes without it
         found: list[Spot] = []
-        place = spec["place"]
         sizes = [tuple(s) for s in spec["sizes"]]
         if place == "facing_wall":
             for s in _tv_spots(space, anchor, sizes):
@@ -705,7 +939,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
                         break
                     x = ol[0] + side * (of.size[0] / 2.0 + gap + size[1] / 2.0)
                     s = _local_spot(anchor, ftype, (x, ol[1]), 270.0 if side > 0 else 90.0, size, role)
-                    if _fits(space, s, with_found(found), s.zones()):
+                    if _fits(space, s, with_found(found), s.zones(overrides=space.overrides)):
                         found.append(s)
                 if found:
                     break
@@ -748,7 +982,11 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
         elif place == "around":
             if filled.get(role):
                 continue                       # drawn chairs: none added
-            members = chair_members((w, d), sizes[0])
+            count = None
+            if resolve is not None:            # Milestone 13: a place for every drawn chair (and the table's seats)
+                count = max(_resolve_count(resolve, role),
+                            schemas.count_by_length(max(w, d), schemas.CHAIRS_BY_TABLE_LENGTH))
+            members = chair_members((w, d), sizes[0], count)
             pull = _pullout_zones(anchor, [m[0] for m in members])
             sides = set()
             for side, z in pull.items():
@@ -789,20 +1027,34 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
         if not spec["required"]:
             optional_placed += len(found)
         for s in found:
-            zones += s.zones()
+            zones += s.zones(overrides=space.overrides)
         placed_fps = with_found(found)
         placed += found
         by_role.setdefault(role, []).extend(found)
     terms = {}
     if optional_total:
         terms["partners"] = round(optional_placed / optional_total, 4)
-    return placed, zones, terms, by_role
+    if resolve is not None and resolve.get("members"):
+        matched = _match_members(space, by_role, resolve)
+        if matched is None:
+            return None
+        by_role, kept, moves = matched
+        placed = [s for spots in by_role.values() for s in spots] + kept
+        if moves:
+            terms["member_moves"] = moves
+    return placed, zones, terms, by_role, rugs
 
 
-def _anchor_terms(space: Space, group: str, anchor: Spot, by_role: dict, info: dict) -> dict:
+def _anchor_terms(space: Space, group: str, anchor: Spot, by_role: dict, info: dict, wall=None) -> dict:
     terms: dict = {}
     if group == "seating":
         terms["sight_tv"] = _term_sight(anchor, (by_role.get("tv") or [None])[0])
+        conv = _term_conversation(anchor, list(by_role.get("armchair") or []))
+        if conv is not None:
+            terms["conversation"] = conv
+    align = _term_alignment(space, anchor, wall, by_role)
+    if align is not None:
+        terms["alignment"] = align
     if group in ("sleeping_double", "sleeping_single"):
         terms["bed_sees_door"] = _term_bed_door(space, anchor, info["entrance"])
     if group == "work":
@@ -834,18 +1086,98 @@ def _prescore(space: Space, group: str, spot: Spot, wall, align: str, info: dict
 # Group candidates
 # --------------------------------------------------------------------------
 
+def _resolve_sizes(drawn: dict, template: dict, area: float) -> list[tuple[float, float]]:
+    """Milestone 13: the sizes a re-solved drawn anchor is tried at: its drawn size (front frame) when it lies in
+    the product grid, else the nearest real product (``sizes.snap_size``; CLAUDE.md "change its size to a real
+    product size"), then the template's sizes for the room area nearest the drawn size."""
+    from wenart.furniture import sizes as SZ
+
+    p = placer.drawn_piece(drawn)
+    size = (round(float(p.size[0]), 4), round(float(p.size[1]), 4))
+    snap = SZ.snap_size(drawn["type"], size)
+    first = size if not snap.get("changed") else tuple(round(float(v), 4) for v in snap["footprint"])
+    if drawn["type"] in PR.RUN_LIKE_TYPES:
+        # A storage run keeps its drawn length (modules, T2) and snaps only its depth; it is never shrunk to a
+        # template size (a wall-to-wall wardrobe stays a run, or stays as drawn when no place takes it).
+        return [(size[0], first[1])]
+    out = [first]
+    others = [tuple(s) for s in GR.sizes_for(template, drawn["type"], area)]
+    others.sort(key=lambda s: (max(abs(math.log(s[0] / first[0])), abs(math.log(s[1] / first[1]))), s))
+    for s in others:
+        if all(abs(s[i] - o[i]) > 1e-6 for o in out for i in (0, 1)) or s not in out:
+            if s not in out:
+                out.append(s)
+    return out[:3]
+
+
+def _resolve_tries(space: Space, entry: dict, template: dict, options: list[str], info: dict,
+                   align: str) -> list[tuple]:
+    """Milestone 13: anchor tries of a re-solved drawn group: the drawn anchor at its drawn size (or the nearest
+    product) on every wall position / free grid point within ``GROUP_MEMBER_MOVE_MAX_M`` of its drawn centre (the
+    drawn place itself first), scored by the distance to the drawn centre on top of the usual pre-score."""
+    res = info["resolve"][entry["group_id"]]
+    drawn = res["anchor"]
+    centre = tuple(float(v) for v in res["centre"])
+    limit = GR.GROUP_MEMBER_MOVE_MAX_M
+    anchor_spec = template["anchor"]
+    budget = info["budget"]
+    weight = GR.weights().get("drawn_distance", 1.0)
+    dp = placer.drawn_piece(drawn)
+    tries: list[tuple] = []
+    for oname in options:
+        opt = template["options"][oname]
+        atype = opt["anchor"]
+        if atype != drawn["type"]:
+            continue
+        for si, size in enumerate(_resolve_sizes(drawn, template, float(entry.get("area") or space.area))):
+            if anchor_spec["place"] == "wall":
+                sides = ((dp.chaise_side or "right"),) if atype == "sofa_corner" else (None,)
+                for k, t, c, rot, lo, hi in _wall_positions(space, size):
+                    dist = G.distance(c, centre)
+                    if dist > limit + 1e-6:
+                        continue
+                    for side in sides:
+                        budget["used"] += 1
+                        s = Spot(atype, c, rot, size, "anchor", True, "L" if side else None, side,
+                                 existing_id=drawn["id"], drawn=drawn, moved=dist)
+                        if not space.spot_free(s):
+                            continue
+                        pre = (_prescore(space, entry["group"], s, (k, t, lo, hi), align, info) - 0.01 * si
+                               + weight * (1.0 - dist / limit))
+                        tries.append((pre, (oname, k, int(round(t / MERGE_M)), side or ""), (round(t, 3), si),
+                                      (oname, s, (k, t, lo, hi))))
+            else:
+                turns = (0.0, 90.0) if atype in schemas.FRONTLESS_TYPES else (0.0, 90.0, 180.0, 270.0)
+                places = [((round(centre[0], 4), round(centre[1], 4)), G.normalise_angle(dp.rotation_deg + turn))
+                          for turn in turns]
+                places += [(c, rot) for c, rot in _free_positions(space, size) if G.distance(c, centre) <= limit + 1e-6]
+                for c, rot in places:
+                    budget["used"] += 1
+                    dist = G.distance(c, centre)
+                    s = Spot(atype, c, rot, size, "anchor", False, existing_id=drawn["id"], drawn=drawn, moved=dist)
+                    if not space.spot_free(s):
+                        continue
+                    pre = _prescore(space, entry["group"], s, None, align, info) - 0.01 * si + weight * (1.0 - dist / limit)
+                    tries.append((pre, (oname, round(rot) % 180, int(round(c[0] / MERGE_M)),
+                                        int(round(c[1] / MERGE_M))), (c, si), (oname, s, None)))
+    return tries
+
+
 def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Cand]:
     template = GR.load_groups()[entry["group"]]
     options = [entry["chosen"]] if entry.get("chosen") else list(entry["options"])
     anchor_spec = template["anchor"]
     align = anchor_spec.get("align", "any")
     zone_poly = info["zones"].get(entry.get("zone_id"))
-    drawn = info["by_id"].get(entry.get("anchor_id")) if entry.get("drawn") else None
+    resolve = info.get("resolve", {}).get(entry["group_id"]) if entry.get("resolve") else None
+    drawn = info["by_id"].get(entry.get("anchor_id")) if entry.get("drawn") and resolve is None else None
     filled = info["filled"].get(entry["group_id"], {})
     budget = info["budget"]
     out: list[Cand] = []
     tries: list[tuple] = []
-    for oname in options:
+    if resolve is not None:
+        tries = _resolve_tries(space, entry, template, options, info, align)
+    for oname in (options if resolve is None else []):
         opt = template["options"][oname]
         atype = opt["anchor"]
         if drawn is not None:
@@ -887,25 +1219,27 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
                     tries.append((pre, (oname, round(rot) % 180, int(round(c[0] / MERGE_M)),
                                         int(round(c[1] / MERGE_M))), (c, si), (oname, s, None)))
     valid = 0
+    has_rug = any(p["type"] in GR.DECOR_MEMBER_TYPES for p in template["partners"])
     for n_try, (_pre, _bucket, _key, (oname, spot, wall)) in enumerate(_ordered(tries)):
         if n_try >= ANCHOR_TRIES or valid >= 3 * PER_LEVEL:
             break
         opt = template["options"][oname]
-        if spot.existing_id is None:
+        new_anchor = spot.existing_id is None or spot.drawn is not None     # a re-solved anchor is placed anew
+        if new_anchor:
             if zone_poly is not None and not zone_poly.buffer(0.05).contains(Point(spot.center)):
                 continue
-            zones = _one_side(space, spot, spot.zones())
+            zones = _one_side(space, spot, spot.zones(overrides=space.overrides))
             if zones is None or not space.zones_free(zones) or not space.allowed(spot.type, spot.center):
                 continue
         else:
             zones = []                                 # a drawn anchor's zones are reserved at the root (fixed_zones)
-        res = _partners(space, template, opt, spot, filled)
+        res = _partners(space, template, opt, spot, filled, resolve)
         if res is None:
             continue
-        partners, pzones, terms, by_role = res
-        if spot.existing_id is not None and not partners:
+        partners, pzones, terms, by_role, rugs = res
+        if not new_anchor and not partners:
             continue                                   # a drawn group with nothing to add
-        if spot.existing_id is None:
+        if new_anchor:
             rec = _term_recommended(space, spot)
             if rec is not None:
                 terms["recommended"] = rec
@@ -914,12 +1248,23 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
         else:
             ds = [G.distance(p.center, spot.center) for p in partners]
             terms["drawn_distance"] = round(max(0.0, 1.0 - (sum(ds) / len(ds)) / 4.0), 4) if ds else 1.0
-        terms.update(_anchor_terms(space, entry["group"], spot, by_role, info))
-        _previous_term(terms, partners if spot.existing_id else [spot] + partners, info)
-        new = ([spot] if spot.existing_id is None else []) + partners
-        cand = Cand(level, entry["group_id"], entry["group"], oname, spot, new, zones + pzones, terms)
+        if resolve is not None:
+            moves = [spot.moved] + list(terms.pop("member_moves", []))
+            terms["drawn_distance"] = round(max(0.0, 1.0 - (sum(moves) / len(moves)) / GR.GROUP_MEMBER_MOVE_MAX_M), 4)
+        terms.update(_anchor_terms(space, entry["group"], spot, by_role, info, wall))
+        _previous_term(terms, partners if not new_anchor else [spot] + partners, info)
+        new = ([spot] if new_anchor else []) + partners
+        anchored = _term_anchored(space, new)
+        if anchored is not None:
+            terms["anchored"] = anchored
+        cand = Cand(level, entry["group_id"], entry["group"], oname, spot, new, zones + pzones, terms, rugs=rugs)
+        if resolve is not None:
+            cand.resolve = {"anchor_id": resolve["anchor"]["id"], "members": [m["id"] for m, _r in resolve["members"]],
+                            "reason": resolve.get("reason", "")}
         if not _finish(space, cand):
             continue
+        if has_rug:
+            terms["rug"] = 1.0 if cand.rugs else 0.0
         valid += 1
         cand.local = _score(terms)
         key = (wall[0], int(round(wall[1] / MERGE_M))) if wall else \
@@ -930,9 +1275,14 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
 
 
 def _one_side(space: Space, spot: Spot, zones: list, inflate: float = ZONE_INFLATE_M) -> Optional[list]:
-    """A bed that needs one free long side (``sides_needed: 1``, a single bed) keeps the side zones that are free
-    (the other side may touch a wall); None when neither is."""
-    if int(GR.use_zone(spot.type).get("sides_needed", 2)) != 1:
+    """A bed that needs one free long side (``sides_needed: 1``, a single bed; Milestone 13 R14: any bed in a
+    bedroom under ``small_rooms.bedroom.max_area``) keeps the side zones that are free (the other side may touch a
+    wall); None when neither is."""
+    needed = int(GR.use_zone(spot.type).get("sides_needed", 2))
+    small = GR.small_room("bedroom", space.area) if spot.type in GC.BED_TYPES else None
+    if small and small.get("sides_needed"):
+        needed = min(needed, int(small["sides_needed"]))
+    if needed != 1:
         return zones
     sides = [z for z in zones if z[0] in ("left", "right")]
     free = [z for z in sides if not space.zone_layer.hit(space.zone_fp(z, inflate))]
@@ -995,7 +1345,7 @@ def member_candidates(space: Space, entry: dict, members: list[dict], level: int
                     continue
                 if zone_poly is not None and not zone_poly.buffer(0.05).contains(Point(spot.center)):
                     continue
-                zones = spot.zones()
+                zones = spot.zones(overrides=space.overrides)
                 if not space.zones_free(zones):
                     continue
                 terms = {"wall_use": _align_term(t, lo, hi, align)}
@@ -1337,7 +1687,10 @@ def run_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Ca
     template = GR.load_groups()[entry["group"]]
     run = template["run"]
     depth = float(run["depth"])
-    aisle = GR.rule_min("kitchen_aisle")
+    # Milestone 13: in a small kitchen the aisle minimum is a scored term (tier small_kitchen): the hard floor is
+    # the tier's walkway, the 0.90 m aisle scores through ``recommended``.
+    over = space.overrides.get("kitchen_aisle")
+    aisle = float(over["min"]) if over else GR.rule_min("kitchen_aisle")
     zone_poly = info["zones"].get(entry.get("zone_id"))
     legs = {k: Leg(space, k, depth, aisle) for k, (a, b) in enumerate(space.ctx.segments) if G.distance(a, b) >= 1.2}
     options = [entry["chosen"]] if entry.get("chosen") else list(entry["options"])
@@ -1362,7 +1715,7 @@ def run_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Ca
                 if zone_poly is not None and not all(zone_poly.buffer(0.1).contains(Point(s.center)) for s in spots):
                     continue
                 anchor = next((s for s in spots if s.type == "kitchen_counter"), spots[0])
-                zones = [z for s in spots for z in s.zones()]
+                zones = [z for s in spots for z in s.zones(overrides=space.overrides)]
                 cand = Cand(level, entry["group_id"], entry["group"], oname, anchor, spots, zones, dict(terms))
                 if not all(space.allowed(s.type, s.center) for s in spots) or not _finish(space, cand):
                     continue
@@ -1401,7 +1754,9 @@ class Walk:
                 if m.any():
                     self.seeds[door.id] = m
         self.entrance = GC.entrance_door(space.building, space.room, space.ctx)
-        self.main, self.sec = GR.rule_min("walkway_main"), GR.rule_min("walkway")
+        over = space.overrides                        # Milestone 13: a small kitchen's walkway tier
+        self.main = float(over["walkway_main"]["min"]) if "walkway_main" in over else GR.rule_min("walkway_main")
+        self.sec = float(over["walkway"]["min"]) if "walkway" in over else GR.rule_min("walkway")
         self.base_cover = None
         base = self.state(space.fixed_mask)
         # Required: every door pair (at its width) the room with its fixed pieces connects.
@@ -1469,6 +1824,9 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
         if entry.get("note", "").startswith(("unverified", "no completion")):
             continue
         if template["layout"] == "anchored":
+            if entry.get("resolve"):                   # Milestone 13: the drawn group re-solved as one unit
+                levels.append((entry, anchored_candidates(space, entry, len(levels), info), entry["required"]))
+                continue
             if entry.get("drawn") and (not template["partners"] or not entry.get("missing")):
                 continue                               # a drawn wardrobe, a drawn table with its chairs: nothing to add
             levels.append((entry, anchored_candidates(space, entry, len(levels), info), entry["required"]))
@@ -1513,8 +1871,21 @@ def _info(space: Space, building: dict, room_id: str, prog: dict, budget: dict) 
     by_id = {f["id"]: f for f in building.get("furniture") or [] if f.get("room_id") == room_id}
     filled: dict = {}
     near: dict = {}
+    resolve: dict = {}
     for entry in prog["groups"]:
         if not entry.get("drawn") or entry.get("anchor_id") not in by_id:
+            continue
+        if entry.get("resolve"):
+            # Milestone 13: the group's drawn pieces are re-placed: nothing is filled, the drawn centres are kept.
+            res = entry["resolve"]
+            dg = next((g for g in GR.drawn_groups(building, room_id) if g["anchor_id"] == entry["anchor_id"]), None)
+            roles_of = (dg or {}).get("roles") or {}
+            members = [(by_id[m], roles_of.get(m) or ROLE_OF_TYPE.get(by_id[m]["type"], "partner"))
+                       for m in res.get("members") or [] if m in by_id]
+            centre = list(res.get("centre") or GR.drawn_centre(by_id[entry["anchor_id"]]))
+            resolve[entry["group_id"]] = {"anchor": by_id[entry["anchor_id"]], "members": members, "centre": centre,
+                                          "reason": res.get("reason", "")}
+            near[entry["group_id"]] = [tuple(centre)]
             continue
         roles: dict = {}
         anchor = by_id[entry["anchor_id"]]
@@ -1534,9 +1905,12 @@ def _info(space: Space, building: dict, room_id: str, prog: dict, budget: dict) 
     previous = [(f["type"], tuple(placer.drawn_piece(f).center)) for f in by_id.values()
                 if f.get("source") == "added_by_ai" and f.get("type") not in schemas.MOUNTED_TYPES
                 and f.get("footprint")]
+    drawn_run = any(f.get("source") == "from_documents" and f.get("type") in GR.KITCHEN_RUN_TYPES
+                    and f.get("build") is not False for f in by_id.values())
     return {"by_id": by_id, "filled": filled, "near": near, "zones": zones, "budget": budget,
             "entrance": GC.entrance_door(building, space.room, space.ctx),
-            "kitchen_points": _kitchen_targets(space), "previous": previous}
+            "kitchen_points": _kitchen_targets(space), "previous": previous, "resolve": resolve,
+            "drawn_run": drawn_run}
 
 
 def fixed_zones(space: Space) -> list:
@@ -1550,9 +1924,9 @@ def fixed_zones(space: Space) -> list:
             continue
         spot = Spot(f["type"], p.center, p.rotation_deg, p.size, "fixed", False, p.shape, p.chaise_side,
                     existing_id=f["id"])
-        zones = _one_side(space, spot, spot.zones(), FIXED_ZONE_INFLATE_M)
+        zones = _one_side(space, spot, spot.zones(overrides=space.overrides), FIXED_ZONE_INFLATE_M)
         if zones is None:
-            zones = [z for z in spot.zones() if z[0] not in ("left", "right")]
+            zones = [z for z in spot.zones(overrides=space.overrides) if z[0] not in ("left", "right")]
         out += [z for z in zones if not space.zone_layer.hit(space.zone_fp(z, FIXED_ZONE_INFLATE_M))]
         if f["type"] == "table_dining":
             # A drawn table keeps the pull-out room behind its drawn chairs (they stand in it, so it is not tested).
@@ -1562,7 +1936,31 @@ def fixed_zones(space: Space) -> list:
     return out
 
 
-def _search(space: Space, levels: list, walk: Walk, budget: dict) -> list[Node]:
+def resolve_skip_fps(space: Space, levels: list, info: dict) -> dict:
+    """Milestone 13: per re-solved level, the raster footprints and polygons of its drawn pieces as drawn: when the
+    level is skipped (no place within the bound) the pieces stay where they are drawn and the later levels must
+    treat them as occupied again."""
+    out = {}
+    for i, (entry, _cands, _req) in enumerate(levels):
+        res = entry.get("resolve")
+        if not res:
+            continue
+        fps, polys = [], []
+        for pid in [res["anchor_id"]] + list(res.get("members") or []):
+            f = info["by_id"].get(pid)
+            if f is None or not f.get("footprint"):
+                continue
+            try:
+                s = _spot_from(f, "kept")
+            except (KeyError, TypeError, ValueError):
+                continue
+            fps += space.spot_fps(s)
+            polys.append(s.piece().polygon())
+        out[i] = (fps, polys)
+    return out
+
+
+def _search(space: Space, levels: list, walk: Walk, budget: dict, skip_fps: Optional[dict] = None) -> list[Node]:
     res = np.zeros_like(space.fixed_mask)
     reach = []
     for z in fixed_zones(space):
@@ -1572,7 +1970,8 @@ def _search(space: Space, levels: list, walk: Walk, budget: dict) -> list[Node]:
             reach.append(zfp)                    # a drawn piece's zone the walkways reach now must stay reached
     root = Node((), space.fixed_mask.copy(), res, 0.0, (), [], reach)
     beam = [root]
-    for _entry, cands, required in levels:
+    skip_fps = skip_fps or {}
+    for level_index, (_entry, cands, required) in enumerate(levels):
         bonus = REQUIRED_BONUS if required else OPTIONAL_BONUS
         children = []
         for node in beam:
@@ -1597,6 +1996,12 @@ def _search(space: Space, levels: list, walk: Walk, budget: dict) -> list[Node]:
                     continue
                 if cand is None:
                     child = Node(node.cands + (None,), node.occ, node.res, score, sig, node.polys, node.zfps)
+                    if level_index in skip_fps:              # Milestone 13: the drawn group stays as drawn
+                        occ = node.occ.copy()
+                        for fp in skip_fps[level_index][0]:
+                            paint(occ, fp)
+                        child = Node(node.cands + (None,), occ, node.res, score, sig,
+                                     node.polys + skip_fps[level_index][1], node.zfps)
                 else:
                     occ = node.occ.copy()
                     res = node.res.copy()
@@ -1688,22 +2093,54 @@ def _next_number(building: dict, level_id: str) -> int:
     return max(numbers, default=0) + 1
 
 
-def _piece_dicts(room: dict, node: Node, start: int, levels: list) -> tuple[list[dict], list[dict]]:
+def _spot_ids(room: dict, node: Node, start: int) -> list[tuple[int, Spot, str]]:
+    """``(level index, spot, piece id)`` of every spot of a node: new pieces are numbered from ``start`` in level
+    order, re-solved drawn pieces keep their ids (Milestone 13)."""
+    out = []
+    number = start
+    for i, cand in enumerate(node.cands):
+        if cand is None:
+            continue
+        for s in cand.spots:
+            if s.drawn is not None:
+                out.append((i, s, s.drawn["id"]))
+                continue
+            out.append((i, s, f"f_{room['level_id']}_{number:03d}"))
+            number += 1
+    return out
+
+
+def _piece_dicts(room: dict, node: Node, start: int, levels: list, info: Optional[dict] = None
+                 ) -> tuple[list[dict], list[dict]]:
     """The candidate's new pieces as furniture dicts (ids from ``start``) and its groups (one per group id: a set's
-    members share theirs; a drawn anchor stays the group's anchor)."""
+    members share theirs; a drawn anchor stays the group's anchor). Milestone 13: the re-solved drawn pieces of a
+    group come back as their drawn dicts with the new place (``_resolved_dict``), the anchor first; the drawn pieces
+    of a re-solved level the search skipped come back unchanged (they stay as drawn)."""
     pieces = []
     groups: dict[str, dict] = {}
-    number = start
+    ids = iter(_spot_ids(room, node, start))
     for (entry, _cands, _req), cand in zip(levels, node.cands):
         if cand is None:
+            res = entry.get("resolve")
+            if res and info is not None:
+                for pid in [res["anchor_id"]] + list(res.get("members") or []):
+                    if pid in info["by_id"]:
+                        pieces.append(copy.deepcopy(info["by_id"][pid]))
             continue
         g = groups.setdefault(cand.group_id, {"group_id": cand.group_id, "group": cand.group, "member_ids": [],
                                               "anchor_id": entry.get("anchor_id") if entry.get("drawn") else None,
                                               "option": cand.option})
         sets = GR.load_groups()[cand.group]["layout"] == "set"
         for s in cand.spots:
-            pid = f"f_{room['level_id']}_{number:03d}"
-            number += 1
+            _i, _s, pid = next(ids)
+            if s.drawn is not None:
+                role = "anchor" if s is cand.anchor else "partner"
+                if role == "anchor":
+                    g["anchor_id"] = pid
+                else:
+                    g["member_ids"].append(pid)
+                pieces.append(_resolved_dict(s, room, cand, role))
+                continue
             role = "anchor" if (s is cand.anchor and s.existing_id is None and not entry.get("drawn")
                                 and not sets and g["anchor_id"] is None) else "partner"
             if role == "anchor":
@@ -1712,8 +2149,86 @@ def _piece_dicts(room: dict, node: Node, start: int, levels: list) -> tuple[list
                 g["member_ids"].append(pid)
             pieces.append(_piece_dict(s, room, pid, cand, role))
     for p in pieces:
-        p["group"]["anchor_id"] = groups[p["group"]["group_id"]]["anchor_id"]
+        g = p.get("group")
+        if isinstance(g, dict) and g.get("group_id") in groups:
+            g["anchor_id"] = groups[g["group_id"]]["anchor_id"]
     return pieces, list(groups.values())
+
+
+def _resolved_dict(s: Spot, room: dict, cand: Cand, role: str) -> dict:
+    """Milestone 13 (D5, CLAUDE.md furniture rules): a drawn piece of a re-solved group at its new place: the drawn
+    dict with the new footprint and front, ``adjusted_by_ai`` (reason, ``moved_m``, the size change), the drawn
+    values kept (``drawn_type``, ``drawn_footprint``, ``drawn_front_deg``, ``drawn_height``), ``drawn_group`` and
+    ``group``; a resized or unbuilt piece loses its asset so the refit builds it again. A kept member (not moved)
+    only gets ``drawn_group`` and ``group``."""
+    f = copy.deepcopy(s.drawn)
+    old_fp = dict(f["footprint"])
+    rotation = round(G.normalise_angle(s.rotation), 3)
+    new_fp = {"center": [round(float(s.center[0]), 4), round(float(s.center[1]), 4)],
+              "size": [round(float(s.size[0]), 4), round(float(s.size[1]), 4)], "rotation_deg": rotation}
+    frontless = f["type"] in schemas.FRONTLESS_TYPES and f.get("front_deg") is None
+    old_size = sorted(round(float(v), 3) for v in old_fp["size"])
+    resized = old_size != sorted(round(float(v), 3) for v in new_fp["size"])
+    moved = round(float(s.moved), 3)
+    res = cand.resolve or {}
+    f["group"] = {"group_id": cand.group_id, "group": cand.group, "role": role, "anchor_id": res.get("anchor_id")}
+    f["drawn_group"] = {"anchor_id": res.get("anchor_id"), "members": list(res.get("members") or []),
+                        "moved_m": moved}
+    if s.kept or (moved <= 1e-3 and not resized and (frontless or abs(G.angle_difference_deg(
+            G.front_direction_deg(rotation), float(f.get("front_deg") or G.front_direction_deg(
+                float(old_fp["rotation_deg"]))))) < 0.5)):
+        return f
+    if f.get("drawn_type") is None:
+        f["drawn_type"] = f["type"]
+    if f.get("drawn_footprint") is None:
+        f["drawn_footprint"] = old_fp
+    if "drawn_front_deg" not in f or f.get("drawn_front_deg") is None:
+        f["drawn_front_deg"] = f.get("front_deg")
+    if "drawn_height" not in f or f.get("drawn_height") is None:
+        f["drawn_height"] = f.get("height")
+    f["footprint"] = new_fp
+    f["front_deg"] = None if frontless else round(G.front_direction_deg(rotation), 3)
+    what = f"moved {moved:.2f} m"
+    if resized:
+        what += (f", sized {old_fp['size'][0]:.2f} x {old_fp['size'][1]:.2f} m -> {new_fp['size'][0]:.2f} x "
+                 f"{new_fp['size'][1]:.2f} m (a real product size)")
+    reason = (f"{res.get('reason') or 'the drawn group is re-solved'}: re-solved with its {cand.group} group as one "
+              f"unit around the drawn anchor ({role}); {what}")
+    f["adjusted_by_ai"] = {"by": "solver", "stage": "layout", "reason": reason, "moved_m": moved,
+                           "drawn_group": res.get("anchor_id"), "resized": resized}
+    f.setdefault("evidence", []).append({"file": EVIDENCE_FILE, "method": "derived", "confidence": 0.9,
+                                         "rule": f"group {cand.group}", "text": reason})
+    asset = f.get("asset") if isinstance(f.get("asset"), dict) else None
+    if resized or (asset is not None and asset.get("method") in GR.NOT_BUILT_ASSET_METHODS):
+        f["asset"] = None
+        f.pop("library_gap", None)
+        f["build"] = True
+    return f
+
+
+def _rug_dicts(room: dict, node: Node, groups: list[dict]) -> list[dict]:
+    """Milestone 13 (R6): the rug members of a node as decor items (``building["decor"]`` format of
+    ``wenart.furniture.decor``: ``kind: decor``, ``type: rug``, ``source: added_by_ai``, ``method: rule``, ``host_id``
+    None, ``anchor_ids`` the group's anchor and members; ids are given by ``apply_candidate``)."""
+    by_group = {g["group_id"]: g for g in groups}
+    out = []
+    for cand in node.cands:
+        if cand is None:
+            continue
+        g = by_group.get(cand.group_id) or {}
+        anchors = [a for a in [g.get("anchor_id")] + list(g.get("member_ids") or []) if a]
+        if not anchors:
+            continue
+        for r in cand.rugs:
+            out.append({"kind": "decor", "type": "rug", "level_id": room["level_id"], "room_id": room["id"],
+                        "center": [round(float(r.center[0]), 3), round(float(r.center[1]), 3)],
+                        "rotation_deg": round(G.normalise_angle(r.rotation), 3),
+                        "size": [round(float(r.size[0]), 3), round(float(r.size[1]), 3)], "asset": None,
+                        "host_id": None, "anchor_ids": anchors, "source": "added_by_ai",
+                        "method": "rule", "group": {"group_id": cand.group_id, "group": cand.group, "role": "rug"},
+                        "reason": f"rug member of the {cand.group} group (groups.yaml rug_{'seating' if cand.group == 'seating' else 'bed'}: "
+                                  f"{'under the coffee table, front legs on' if cand.group == 'seating' else 'a runner beside the bed'})"})
+    return out
 
 
 def _piece_dict(s: Spot, room: dict, pid: str, cand: Cand, role: str) -> dict:
@@ -1741,15 +2256,24 @@ def _violation_key(v: dict) -> tuple:
             v["message"] if v["check"] in ("G9", "G10") and v["target"] == v["room_id"] else "")
 
 
-def verify(base_building: dict, room_id: str, pieces: list[dict]) -> tuple[list[str], list[dict]]:
+def verify(base_building: dict, room_id: str, pieces: list[dict],
+           unchanged: Iterable[str] = ()) -> tuple[list[str], list[dict]]:
     """(hard failures, group violations) of the room with ``pieces`` added: the placer's geometry (inside, overlap,
     doors, windows) of every new piece and every critical or major group-check violation (G14 aside: a drawn
-    piece's type is not the solver's) the fixed pieces alone do not cause."""
+    piece's type is not the solver's) the fixed pieces alone do not cause. ``unchanged`` (Milestone 13): the ids of
+    the drawn pieces in ``pieces`` that come back as drawn (``_unchanged_ids``): they count as fixed, not as new."""
     trial = copy.deepcopy(base_building)
     trial["furniture"] = list(trial.get("furniture") or []) + pieces
     room = next(r for r in trial["rooms"] if r["id"] == room_id)
     ctx = placer.room_context(trial, room)
-    new_ids = {p["id"] for p in pieces}
+    # Milestone 13: a drawn piece that comes back unchanged (a kept member, a skipped re-solve) is not new: its own
+    # drawn faults are not the candidate's. Review fix (15 Oct 2026): ``adjusted_by_ai`` alone does not tell (the
+    # fit's size snap, T1, and earlier agent edits leave one on a piece that stays as drawn here), so the caller
+    # names the unchanged ids and they join the base of the group checks below; before, every candidate of a room
+    # with such a piece failed on its drawn faults (a wardrobe over the door: doors_free, G11).
+    skip = set(unchanged)
+    new_ids = {p["id"] for p in pieces if p["id"] not in skip and not (
+        p.get("source") == "from_documents" and not isinstance(p.get("adjusted_by_ai"), dict))}
     floor = [f for f in trial["furniture"] if f.get("room_id") == room_id and f.get("build") is not False
              and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None
              and f.get("type") != "unknown" and f.get("footprint")]
@@ -1770,20 +2294,44 @@ def verify(base_building: dict, room_id: str, pieces: list[dict]) -> tuple[list[
                 hard.append(f"{f['id']}: no_overlap with {g['id']} ({area:.3f} m²)")
         if placer._opening_blocked(p, ctx):
             hard.append(f"{f['id']}: doors_free / windows_free (on a door strip, a door swing or a window band)")
-    base_v = {_violation_key(v) for v in GC.check_room(base_building, room_id)}
+    base = base_building
+    if skip:
+        base = dict(base_building, furniture=list(base_building.get("furniture") or [])
+                    + [copy.deepcopy(p) for p in pieces if p["id"] in skip])
+    base_v = {_violation_key(v) for v in GC.check_room(base, room_id)}
     after = GC.check_room(trial, room_id)
     hard += [f"{v['check']} {v['target']}: {v['message']}" for v in after
              if _violation_key(v) not in base_v and v["severity"] in ("critical", "major") and v["check"] != "G14"]
     return hard, after
 
 
-def _fixed_items(building: dict, room_id: str, fixed_ids: set) -> list[dict]:
+def _unchanged_ids(pieces: list[dict], info: dict) -> set:
+    """Milestone 13 (review fix of 15 Oct 2026): the drawn pieces a candidate brings back as drawn (a kept member, a
+    skipped re-solve, a member matched to its own place): their dicts equal the room's (``group`` and
+    ``drawn_group`` aside, which the candidate writes). ``verify`` counts them as fixed, not as new."""
+    out = set()
+    for p in pieces:
+        src = info["by_id"].get(p["id"])
+        if src is None or p.get("source") != "from_documents":
+            continue
+        if _without_group(p) == _without_group(src):
+            out.add(p["id"])
+    return out
+
+
+def _without_group(piece: dict) -> dict:
+    return {k: v for k, v in piece.items() if k not in ("group", "drawn_group")}
+
+
+def _fixed_items(building: dict, room_id: str, fixed_ids: set, exclude=()) -> list[dict]:
     """The pieces the solver never moves: drawn pieces (built or not; not a rug outline, not one recorded as not
-    furniture) and the ``fixed_ids``; wall-hung pieces stand above the floor."""
+    furniture) and the ``fixed_ids``; wall-hung pieces stand above the floor. ``exclude`` (Milestone 13): the
+    drawn pieces of a group re-solved as one unit: an unbuilt drawn anchor is never an obstacle for its own group."""
     out = []
     not_furniture = {s.get("former_piece_id") for s in building.get("symbols") or [] if s.get("former_piece_id")}
+    skip = set(exclude or ())
     for f in building.get("furniture") or []:
-        if f.get("room_id") != room_id or not f.get("footprint"):
+        if f.get("room_id") != room_id or not f.get("footprint") or f["id"] in skip:
             continue
         if f.get("type") in schemas.MOUNTED_TYPES or f.get("mount_bottom_m") is not None:
             continue
@@ -1794,10 +2342,56 @@ def _fixed_items(building: dict, room_id: str, fixed_ids: set) -> list[dict]:
     return out
 
 
-def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, k: int = 3,
-               fixed_ids: Optional[list[str]] = None) -> list[dict]:
-    from wenart.furniture import program as PR
+def _with_drawn_group(building: dict, room: dict, prog: dict, drawn_group) -> dict:
+    """Milestone 13: the program with ``drawn_group`` (a ``groups.drawn_groups`` entry or its anchor id) marked for
+    the re-solve (``resolve``), whether or not the program found a reason itself."""
+    if drawn_group is None:
+        return prog
+    groups = GR.drawn_groups(building, room["id"])
+    if isinstance(drawn_group, str):
+        g = next((x for x in groups if x["anchor_id"] == drawn_group), None)
+        if g is None:
+            raise KeyError(f"no drawn group with anchor {drawn_group!r} in {room['id']}")
+    else:
+        g = dict(drawn_group)
+        g.setdefault("members", [])
+        g.setdefault("template", GR.group_of_type(next((f["type"] for f in building.get("furniture") or []
+                                                        if f["id"] == g["anchor_id"]), ""), room.get("room_type")))
+        g.setdefault("centre", next((GR.drawn_centre(f) for f in building.get("furniture") or []
+                                     if f["id"] == g["anchor_id"]), [0.0, 0.0]))
+    by_id = {f["id"]: f for f in building.get("furniture") or []}
+    anchor = by_id.get(g["anchor_id"])
+    if anchor is None or not g.get("template"):
+        raise KeyError(f"drawn group {g.get('anchor_id')!r}: no drawn anchor or template")
+    rows = [dict(r) for r in prog["groups"]]
+    entry = next((r for r in rows if r.get("drawn") and r.get("anchor_id") == anchor["id"]), None)
+    reason = (entry or {}).get("resolve", {}).get("reason") if entry else None
+    reason = reason or f"the drawn {anchor['type']} {anchor['id']} group is re-solved on request (drawn_group)"
+    if entry is None:
+        template = GR.load_groups()[g["template"]]
+        same = next((r for r in rows if r["group"] == g["template"] and not r["drawn"]), None)
+        options = PR._option_of_anchor(g["template"], anchor["type"], list((same or {}).get("options")
+                                                                             or template["options"]))
+        entry = PR._entry(room["id"], g["template"], True, options, zone_id=(same or {}).get("zone_id"),
+                          area=(same or {}).get("area", PR._area(room)), anchor_id=anchor["id"], drawn=True,
+                          members=list(g.get("members") or []))
+        if same is not None:
+            rows.remove(same)
+        if any(r["group_id"] == entry["group_id"] for r in rows):
+            entry["group_id"] = f"{entry['group_id']}.{anchor['id']}"
+        rows.append(entry)
+    entry["resolve"] = {"reason": reason, "anchor_id": anchor["id"], "members": list(g.get("members") or []),
+                        "centre": list(g["centre"]), "template": g["template"]}
+    entry["members"] = sorted(set(entry.get("members") or []) | set(g.get("members") or []))
+    entry["missing"] = GR._expected_missing(g["template"], anchor, [by_id[m] for m in entry["members"] if m in by_id],
+                                            room, building)
+    entry["note"] = f"re-solved as one unit around the drawn anchor: {reason}"
+    rows.sort(key=lambda r: (-r["priority"], r["group_id"]))
+    return dict(prog, groups=rows)
 
+
+def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, k: int = 3,
+               fixed_ids: Optional[list[str]] = None, drawn_group=None) -> list[dict]:
     room = next((r for r in building.get("rooms") or [] if r.get("id") == room_id), None)
     if room is None:
         raise KeyError(f"no room {room_id!r}")
@@ -1810,20 +2404,28 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
         kept_groups = {(f.get("group") or {}).get("group") for f in building.get("furniture") or []
                        if f.get("id") in fixed and f.get("room_id") == room_id}
         prog = dict(prog, groups=[g for g in prog["groups"] if g.get("drawn") or g["group"] not in kept_groups])
+    prog = _with_drawn_group(building, room, prog, drawn_group)
     if not prog.get("groups"):
         return []
-    space = Space(building, room, _fixed_items(building, room_id, fixed))
+    # Milestone 13: the drawn pieces of a re-solved group are placed anew, never obstacles for their own group.
+    resolve_ids: set = set()
+    for g in prog["groups"]:
+        if g.get("resolve"):
+            resolve_ids |= {g["resolve"]["anchor_id"]} | set(g["resolve"].get("members") or [])
+    space = Space(building, room, _fixed_items(building, room_id, fixed, exclude=resolve_ids))
     budget = {"used": 0, "generate": NODE_BUDGET, "nodes": 0, "expand": NODE_BUDGET, "walks": 0}
     info = _info(space, building, room_id, prog, budget)
     levels = _levels(space, prog, info)
     if not levels:
         return []
     walk = Walk(space)
-    beam = _search(space, levels, walk, budget)
-    # The base of the verification: the room without its replaceable added pieces.
+    skip_fps = resolve_skip_fps(space, levels, info)
+    beam = _search(space, levels, walk, budget, skip_fps)
+    # The base of the verification: the room without its replaceable added pieces (and without the re-solved drawn
+    # pieces, which every candidate brings back at their new places).
     base = copy.deepcopy(building)
     kept = sorted(fid for fid in fixed if any(f["id"] == fid for f in base.get("furniture") or []))
-    base["furniture"] = [f for f in base.get("furniture") or [] if not (
+    base["furniture"] = [f for f in base.get("furniture") or [] if f["id"] not in resolve_ids and not (
         f.get("room_id") == room_id and f.get("source") == "added_by_ai" and f["id"] not in fixed
         and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None)]
     start = _next_number(building, room["level_id"])
@@ -1855,10 +2457,10 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
             if any(_similar(coarse, s, primary) for s in picked):
                 continue
             if node.sig not in verified:
-                pieces, groups = _piece_dicts(room, node, start, levels)
-                hard, violations = verify(base, room_id, pieces)
+                pieces, groups = _piece_dicts(room, node, start, levels, info)
+                hard, violations = verify(base, room_id, pieces, _unchanged_ids(pieces, info))
                 verified[node.sig] = _candidate(score, terms, pieces, groups, hard, violations, levels, node, kept,
-                                                budget)
+                                                budget, _rug_dicts(room, node, groups))
                 if hard:
                     failed.append(verified[node.sig])
             cand = verified[node.sig]
@@ -1877,7 +2479,7 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
         drop = _failing_levels(cand, node, start)
         if not drop or len(drop) >= sum(c is not None for c in node.cands):
             continue
-        reduced = _without(space, node, drop, levels)
+        reduced = _without(space, node, drop, levels, skip_fps)
         if reduced.sig in verified:
             continue
         rterms = _final_terms(space, reduced, walk)
@@ -1885,10 +2487,10 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
                            if c is not None) + sum(c.local for c in reduced.cands if c is not None)
                        + sum(weights.get(t, 0.0) * rterms[t] for t in ("balance", "circulation", "seating_crossed")
                              if t in rterms), 4)
-        pieces, groups = _piece_dicts(room, reduced, start, levels)
-        hard, violations = verify(base, room_id, pieces)
+        pieces, groups = _piece_dicts(room, reduced, start, levels, info)
+        hard, violations = verify(base, room_id, pieces, _unchanged_ids(pieces, info))
         verified[reduced.sig] = _candidate(rscore, rterms, pieces, groups, hard, violations, levels, reduced, kept,
-                                           budget)
+                                           budget, _rug_dicts(room, reduced, groups))
         if hard or any(_similar(_coarse_sig(reduced), s) for s in picked):
             continue
         picked.append(_coarse_sig(reduced))
@@ -1901,34 +2503,39 @@ def solve_room(building: dict, room_id: str, program: Optional[dict] = None, *, 
 
 
 def _failing_levels(cand: dict, node: Node, start: int) -> set:
-    """The levels whose new pieces a hard failure names (pieces are numbered from ``start`` in level order)."""
-    level_of = {}
-    number = start
-    for i, c in enumerate(node.cands):
-        if c is None:
-            continue
-        for _s in c.spots:
-            level_of[number] = i
-            number += 1
-    ids = {p["id"]: int(p["id"].rsplit("_", 1)[1]) for p in cand["pieces"]}
+    """The levels whose new pieces a hard failure names (pieces are numbered from ``start`` in level order; a
+    re-solved drawn piece keeps its id, ``_spot_ids``)."""
+    level_of = {pid: i for i, _s, pid in _spot_ids({"level_id": _level_of_ids(cand)}, node, start)}
     out = set()
     for text in cand["hard_failures"]:
-        for pid, n in ids.items():
-            if re.search(rf"(?<![\w-]){re.escape(pid)}(?![\w-])", text) and n in level_of:
-                out.add(level_of[n])
+        for pid, i in level_of.items():
+            if re.search(rf"(?<![\w-]){re.escape(pid)}(?![\w-])", text):
+                out.add(i)
     return out
 
 
-def _without(space: Space, node: Node, drop: set, levels: list) -> Node:
-    """``node`` with the candidates of the ``drop`` levels left out (occupancy and reserved zones rebuilt)."""
+def _level_of_ids(cand: dict) -> str:
+    """The level id the candidate's piece ids carry (``f_<level>_<n>``)."""
+    for p in cand["pieces"]:
+        if p.get("level_id"):
+            return p["level_id"]
+    return ""
+
+
+def _without(space: Space, node: Node, drop: set, levels: list, skip_fps: Optional[dict] = None) -> Node:
+    """``node`` with the candidates of the ``drop`` levels left out (occupancy and reserved zones rebuilt; a dropped
+    re-solved group's drawn pieces count as drawn again, ``skip_fps``)."""
     cands = tuple(None if i in drop else c for i, c in enumerate(node.cands))
     occ = space.fixed_mask.copy()
     res = np.zeros_like(space.fixed_mask)
     for z in fixed_zones(space):
         paint(res, space.zone_fp(z))
     polys, zfps = [], []
-    for c in cands:
+    for i, c in enumerate(cands):
         if c is None:
+            for fp in (skip_fps or {}).get(i, ([], []))[0]:
+                paint(occ, fp)
+            polys += (skip_fps or {}).get(i, ([], []))[1]
             continue
         for fp in c.fps:
             paint(occ, fp)
@@ -1945,7 +2552,10 @@ def _coarse_sig(node: Node) -> tuple:
             out.append(None)
         else:
             a = c.anchor
-            out.append((c.option, round(a.rotation) % 360, a.center, a.type))
+            # Milestone 13: a frontless anchor (a table) turned 180° is the same layout; the re-solve tries the drawn
+            # place at the drawn rotation and the free grid at 0° / 90°, which gave one table twice.
+            turn = round(a.rotation) % (180 if a.type in schemas.FRONTLESS_TYPES else 360)
+            out.append((c.option, turn, a.center, a.type))
     return tuple(out)
 
 
@@ -1965,7 +2575,7 @@ def _similar(a: tuple, b: tuple, primary: bool = False) -> bool:
     return True
 
 
-def _candidate(score, terms, pieces, groups, hard, violations, levels, node, kept, budget) -> dict:
+def _candidate(score, terms, pieces, groups, hard, violations, levels, node, kept, budget, rugs=()) -> dict:
     not_placed = []
     for (entry, cands, required), c in zip(levels, node.cands):
         if c is None:
@@ -1973,14 +2583,23 @@ def _candidate(score, terms, pieces, groups, hard, violations, levels, node, kep
             not_placed.append({"group_id": entry["group_id"], "group": entry["group"], "required": required,
                                "reason": why})
     options = {}
+    resolved = []
     for c in node.cands:
         if c is not None:
             options.setdefault(c.group_id, c.option)
+            if c.resolve:
+                resolved.append(dict(c.resolve, group_id=c.group_id,
+                                     moved={s.drawn["id"]: round(float(s.moved), 3) for s in c.spots
+                                            if s.drawn is not None}))
     return {"rank": 0, "score": score, "terms": terms, "pieces": pieces,
             "groups": [{k: g[k] for k in ("group_id", "group", "anchor_id", "member_ids")} for g in groups],
             "hard_failures": hard, "group_violations": violations, "options": options,
             "placed": [g["group_id"] for g in groups], "not_placed": not_placed, "kept_ids": list(kept),
-            "nodes": {"generated": budget["used"], "expanded": budget["nodes"], "walkway_checks": budget["walks"]}}
+            "nodes": {"generated": budget["used"], "expanded": budget["nodes"], "walkway_checks": budget["walks"]},
+            # Milestone 13: the re-solved drawn pieces (ids) with their groups and moves, and the rug members.
+            "resolved": sorted(p["id"] for p in pieces if p.get("source") == "from_documents"
+                               and isinstance(p.get("drawn_group"), dict)),
+            "drawn_groups": resolved, "rugs": list(rugs)}
 
 
 def apply_candidate(building: dict, room_id: str, candidate: dict) -> dict:
@@ -1997,14 +2616,19 @@ def apply_candidate(building: dict, room_id: str, candidate: dict) -> dict:
         out["decor"] = [d for d in out["decor"] if d.get("host_id") not in gone]
     number = _next_number(out, room["level_id"])
     taken = {f["id"] for f in out["furniture"]}
+    drawn_ids = {f["id"] for f in out["furniture"] if f.get("source") == "from_documents"}
     ids = {}
     for p in candidate.get("pieces") or []:
         pid = p["id"]
+        if p.get("source") == "from_documents" and pid in drawn_ids:
+            ids[pid] = pid                   # Milestone 13: a re-solved drawn piece replaces itself in place
+            continue
         if pid in taken:
             pid = f"f_{room['level_id']}_{number:03d}"
             number += 1
         ids[p["id"]] = pid
         taken.add(pid)
+    index = {f["id"]: i for i, f in enumerate(out["furniture"])}
     for p in candidate.get("pieces") or []:
         q = copy.deepcopy(p)
         q["id"] = ids[p["id"]]
@@ -2013,5 +2637,27 @@ def apply_candidate(building: dict, room_id: str, candidate: dict) -> dict:
             g["anchor_id"] = ids[g["anchor_id"]]
         g.setdefault("role", "partner")
         q["group"] = g
-        out["furniture"].append(q)
+        if isinstance(q.get("drawn_group"), dict):
+            dg = dict(q["drawn_group"])
+            dg["anchor_id"] = ids.get(dg.get("anchor_id"), dg.get("anchor_id"))
+            q["drawn_group"] = dg
+        if q["id"] in index and p.get("source") == "from_documents":
+            out["furniture"][index[q["id"]]] = q
+        else:
+            out["furniture"].append(q)
+    rugs = candidate.get("rugs") or []
+    if rugs or any(d.get("room_id") == room_id and (d.get("group") or {}).get("role") == "rug"
+                   for d in out.get("decor") or []):
+        decor = [d for d in out.get("decor") or [] if not (d.get("room_id") == room_id
+                                                          and (d.get("group") or {}).get("role") == "rug")]
+        numbers = [int(m.group(1)) for d in decor for m in [re.match(rf"^dec_{re.escape(room['level_id'])}_(\d+)$",
+                                                                     str(d.get("id") or ""))] if m]
+        n = max(numbers, default=0) + 1
+        for r in rugs:
+            item = copy.deepcopy(r)
+            item["id"] = f"dec_{room['level_id']}_{n:03d}"
+            n += 1
+            item["anchor_ids"] = [ids.get(a, a) for a in item.get("anchor_ids") or []]
+            decor.append(item)
+        out["decor"] = decor
     return out

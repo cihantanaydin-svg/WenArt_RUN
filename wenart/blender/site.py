@@ -37,6 +37,28 @@ side changes do not apply to it, a warning); the entrances come from ``site.entr
 (``wenart.levels.model``: threshold, ground, steps with their riser, tread and intermediate landings, the landing,
 a ramp along the facade, handrails and cheek walls: ``entrance_steps``, ``entrance_meshes``); a light well record
 of ``source: assumed`` in the building JSON (the pipeline's copy of the build's own rule) is not a drawn one.
+
+Milestone 13 (docs/milestone13.md §13.2, track T6; CLAUDE.md vegetation and site rules, user OK of 12 Oct 2026):
+
+- ``tree_height(crown_radius_m)`` gives the height and the size class by the crown (shrub under a 1.5 m crown
+  radius, small 1.5-2.5 m -> 4-6 m, medium 2.5-4 m -> 6-10 m, large over 4 m -> 10-15 m); the 4 m minimum that
+  turned real04's 0.36 m shrub symbols into 4 m trees is gone. ``climate_of`` reads the project's climate (the brief,
+  else the drawing's language: Turkish labels -> Mediterranean / Anatolian species) and ``species_for`` names an
+  inferred species per size class; ``tree_parts`` keeps the low-poly proxy (the camera model's obstacle) and names
+  the species.
+- ``hedges_of``: the building's ``site.hedges`` (the sheets stage, ``wenart.sheets.exterior.hedge_rows``), else the
+  same detector over the site decor's tree symbols (the committed buildings carry none); ``hedge_parts`` is the
+  hedge volume following the ground (the camera model's low obstacle and the leaf-card hedge's core).
+- ``platforms(site)``: one level per drawn terrace, pool or parking polygon from the level marks inside it (else
+  the ground under it), with its edge treatment (retaining walls where the ground lies below or above the level,
+  kerbs, steps on the lowest edge); ``platform_parts`` builds the slab, the walls, the kerb and the steps. Pools
+  get a coping ring, a basin clipped under the deck, tiles and a water slab with ripples and absorption
+  (``pool_parts`` v2). The ground beyond the sloped ground's rectangle (``skirt_faces``) and a rising backdrop
+  ring to the clip distance (``backdrop_faces``) keep the horizon in the image; the haze is a closed hollow mesh
+  volume (``haze_box``; a World volume would kill the sun and the sky).
+- ``build_site`` keeps its signature; the vegetation objects come from ``wenart.blender.vegetation`` (Poly Haven
+  CC0 instances near the cameras, Sapling species-look trees elsewhere, geometry-nodes hedges and grass); the
+  A/B switches of ``scripts/jobs/site_ab.sh`` are ``site_levers`` (``WENART_SITE_VARIANT``).
 """
 from __future__ import annotations
 
@@ -64,14 +86,85 @@ DEFAULTS = {
     "plot_wall_height": 1.2, "plot_wall_thickness": 0.2,
     "light_well_depth": 0.8, "light_well_side": 0.2, "light_well_wall": 0.1, "light_well_below_sill": 0.15,
     "light_well_curb": 0.05,
-    "tree_height_factor": 1.6, "tree_min_height": 4.0, "trunk_radius": 0.12, "crown_share": 0.6,
-    "plant_height": 0.8,
+    "tree_height_factor": 1.6, "trunk_radius": 0.12, "crown_share": 0.6,
+    "plant_height": 0.8, "shrub_height_factor": 1.2,
 }
+# Milestone 13 (T6): the tree size classes by the crown radius (docs/milestone13.md §13.2): the height is
+# tree_height_factor x the crown diameter clamped to the class range; a crown under 1.5 m radius is a shrub.
+TREE_CLASSES = (("shrub", 0.0, 1.5, 0.4, 3.0), ("small", 1.5, 2.5, 4.0, 6.0), ("medium", 2.5, 4.0, 6.0, 10.0),
+                ("large", 4.0, math.inf, 10.0, 15.0))      # (class, r_min, r_max, h_min, h_max)
 AXES = {"+x": (1.0, 0.0), "-x": (-1.0, 0.0), "+y": (0.0, 1.0), "-y": (0.0, -1.0)}
 # Drawing-relative sides (no north known): the plan's bottom edge is the front.
 SIDE_DIRECTIONS = {"north": "+y", "south": "-y", "east": "+x", "west": "-x",
                    "front": "-y", "back": "+y", "left": "-x", "right": "+x"}
 COMPASS = {"north": 0.0, "east": 90.0, "south": 180.0, "west": 270.0}
+
+
+def tree_height(crown_radius_m: float) -> tuple[float, str]:
+    """``(height_m, size_class)`` of a tree from its crown radius (pure; Milestone 13 T6): ``shrub`` under a
+    1.5 m crown radius (``shrub_height_factor`` x the diameter, 0.4-3.0 m), ``small`` 1.5-2.5 m -> 4-6 m,
+    ``medium`` 2.5-4 m -> 6-10 m, ``large`` over 4 m -> 10-15 m (``tree_height_factor`` x the diameter clamped to
+    the class range). No 4 m minimum: a 0.36 m symbol is a 0.86 m shrub."""
+    r = max(0.0, float(crown_radius_m))
+    for cls, r0, r1, h0, h1 in TREE_CLASSES:
+        if r0 <= r < r1:
+            factor = DEFAULTS["shrub_height_factor"] if cls == "shrub" else DEFAULTS["tree_height_factor"]
+            return round(min(h1, max(h0, factor * 2.0 * r)), 3), cls
+    return 15.0, "large"
+
+
+# The inferred species per climate and size class (user OK of 12 Oct 2026: species not named in the documents
+# are inferred and named in the report). The Mediterranean / Anatolian set for Turkish projects, a temperate set
+# otherwise; every name is a key of wenart.blender.vegetation.SPECIES.
+SPECIES_BY_CLIMATE = {
+    "mediterranean": {"shrub": "oleander", "small": "olive", "medium": "stone_pine", "large": "plane",
+                      "hedge_low": "boxwood", "hedge_mid": "cherry_laurel", "hedge_high": "cypress_hedge"},
+    "temperate": {"shrub": "privet_shrub", "small": "birch", "medium": "maple", "large": "oak",
+                  "hedge_low": "boxwood", "hedge_mid": "privet", "hedge_high": "hornbeam"},
+}
+# Words of the documents (room and site labels, the brief) that tell the climate; Turkish -> Mediterranean.
+CLIMATE_WORDS = {
+    "mediterranean": ("salon", "mutfak", "banyo", "yatak", "oda", "hol", "otopark", "havuz", "bahce", "bahçe",
+                      "teras", "giris", "giriş", "kat", "villa", "akdeniz", "mediterranean", "ege", "beykoz",
+                      "istanbul", "izmir", "antalya", "mugla", "muğla", "bodrum", "türkiye", "turkiye", "turkey"),
+}
+
+
+def climate_of(building: dict) -> dict:
+    """The project's climate for the inferred species (pure): ``{"climate": "mediterranean" | "temperate",
+    "source", "inferred": True, "evidence": [words]}``. The brief (``project.brief.climate`` / ``site.climate``, or
+    climate words in its style text) first, else the drawing's language (``CLIMATE_WORDS`` in the room and site
+    labels: a Turkish plan is a Mediterranean / Anatolian site), else temperate."""
+    project = building.get("project") if isinstance(building.get("project"), dict) else {}
+    brief = project.get("brief") if isinstance(project.get("brief"), dict) else {}
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    for src, value in (("brief.climate", brief.get("climate")), ("site.climate", site.get("climate")),
+                       ("brief.site.climate", (brief.get("site") or {}).get("climate")
+                        if isinstance(brief.get("site"), dict) else None)):
+        if isinstance(value, str) and value.strip().lower() in SPECIES_BY_CLIMATE:
+            return {"climate": value.strip().lower(), "source": src, "inferred": False, "evidence": [value]}
+    texts = [str(brief.get("style") or ""), str(project.get("name") or ""), str(project.get("id") or "")]
+    texts += [str(r.get("label_raw") or r.get("label") or "") for r in building.get("rooms") or [] if isinstance(r, dict)]
+    texts += [str(a.get("label_raw") or a.get("label") or "") for a in site.get("areas") or [] if isinstance(a, dict)]
+    blob = " ".join(texts).lower()
+    hits = []
+    for climate, words in CLIMATE_WORDS.items():
+        for w in words:
+            if w and w in blob:
+                hits.append(w)
+        if len(hits) >= 2:
+            return {"climate": climate, "source": "the drawing's language (room and site labels)", "inferred": True,
+                    "evidence": sorted(set(hits))[:8]}
+    return {"climate": "temperate", "source": "no climate word in the brief or the labels: temperate assumed",
+            "inferred": True, "evidence": []}
+
+
+def species_for(size_class: str, climate: str = "temperate", kind: str = "tree") -> str:
+    """The inferred species name of a tree size class (``shrub`` / ``small`` / ``medium`` / ``large``) or a hedge
+    height class (``kind`` ``hedge``: ``low`` / ``mid`` / ``high``) in a climate (``SPECIES_BY_CLIMATE``)."""
+    table = SPECIES_BY_CLIMATE.get(climate) or SPECIES_BY_CLIMATE["temperate"]
+    key = f"hedge_{size_class}" if kind == "hedge" else size_class
+    return table.get(key) or table["small"]
 
 
 def _value(entry) -> Optional[float]:
@@ -653,11 +746,12 @@ def _cylinder(center, radius: float, z0: float, z1: float, segments: int = 8) ->
     return geom2d.prism(ring, z0, z1)
 
 
-def tree_parts(item: dict, terrain: dict) -> dict:
-    """A parametric tree (site decor ``tree``) or bush (``plant``) on the ground: trunk and crown meshes and
-    the assumed sizes. Tree: crown diameter = the drawn size, total height ``tree_height_factor`` x the
-    diameter (at least ``tree_min_height``), the crown the top ``crown_share`` of it; plant: a bush of the
-    drawn size, ``plant_height`` tall."""
+def tree_parts(item: dict, terrain: dict, climate: str = "temperate") -> dict:
+    """The low-poly proxy of a tree (site decor ``tree``) or bush (``plant``) on the ground (pure): trunk and crown
+    meshes (the exterior camera model's obstacle; the scene's real tree comes from ``wenart.blender.vegetation``),
+    the sizes and the species. Crown diameter = the drawn size; the height and the class by ``tree_height`` (a
+    crown under 1.5 m radius is a shrub without a trunk); the species the item names (``species``), else the
+    climate's inferred one (``species_for``). ``plant``: a bush of the drawn size, ``plant_height`` tall."""
     cx, cy = float(item["center"][0]), float(item["center"][1])
     size = [float(v) for v in (item.get("size") or [1.0, 1.0])[:2]]
     dia = max(0.3, max(size))
@@ -665,15 +759,27 @@ def tree_parts(item: dict, terrain: dict) -> dict:
     if item.get("kind") == "plant":
         h = DEFAULTS["plant_height"]
         crown = _sphere((cx, cy, gz + h / 2.0), size[0] / 2.0, size[1] / 2.0, h / 2.0)
-        return {"trunk": None, "crown": crown, "height": h, "diameter": dia, "ground_z": gz,
+        return {"trunk": None, "crown": crown, "height": h, "diameter": dia, "ground_z": gz, "size_class": "shrub",
+                "species": item.get("species") or species_for("shrub", climate), "species_inferred": not item.get("species"),
+                "crown_z": [round(gz, 3), round(gz + h, 3)],
                 "reason": f"bush of the drawn size, {h} m tall (height assumed)"}
-    h = max(DEFAULTS["tree_min_height"], DEFAULTS["tree_height_factor"] * dia)
+    h, cls = tree_height(dia / 2.0)
+    species = item.get("species") or species_for(cls, climate)
+    if cls == "shrub":
+        crown = _sphere((cx, cy, gz + h / 2.0), size[0] / 2.0, size[1] / 2.0, h / 2.0)
+        return {"trunk": None, "crown": crown, "height": round(h, 3), "diameter": dia, "ground_z": gz,
+                "size_class": cls, "species": species, "species_inferred": not item.get("species"),
+                "crown_z": [round(gz, 3), round(gz + h, 3)],
+                "reason": f"shrub: crown {dia:.2f} m as drawn (under a 1.5 m crown radius), {h:.2f} m tall "
+                          f"(height by the crown class, assumed); species {species} (inferred)"}
     crown_h = DEFAULTS["crown_share"] * h
     trunk = _cylinder((cx, cy), DEFAULTS["trunk_radius"], gz - 0.05, gz + h - crown_h * 0.6)
     crown = _sphere((cx, cy, gz + h - crown_h / 2.0), size[0] / 2.0, size[1] / 2.0, crown_h / 2.0)
     return {"trunk": trunk, "crown": crown, "height": round(h, 3), "diameter": dia, "ground_z": gz,
+            "size_class": cls, "species": species, "species_inferred": not item.get("species"),
             "crown_z": [round(gz + h - crown_h, 3), round(gz + h, 3)],
-            "reason": f"parametric tree: crown {dia:.1f} m as drawn, {h:.1f} m tall (height assumed)"}
+            "reason": f"{cls} tree: crown {dia:.1f} m as drawn, {h:.1f} m tall (height by the crown class, assumed); "
+                      f"species {species} ({'drawn' if item.get('species') else 'inferred'})"}
 
 
 # --------------------------------------------------------------------------
@@ -1197,6 +1303,439 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
 
 
 # --------------------------------------------------------------------------
+# Milestone 13 (T6): hedges, platforms, pools v2, the backdrop and the haze (pure)
+# --------------------------------------------------------------------------
+
+# The A/B switches of scripts/jobs/site_ab.sh (docs/milestone13.md §13.3): WENART_SITE_VARIANT = all (the default
+# build: everything on) | base (every lever off: the Milestone 12 site layout, but the trees keep the Milestone 13
+# crown-class heights and are leaf-card trees, never the Milestone 12 ellipsoid: CLAUDE.md "never a primitive") |
+# one lever on.
+SITE_LEVERS = ("hedge", "instances", "sapling", "platforms", "pools", "sky")
+SITE_VARIANT_ENV = "WENART_SITE_VARIANT"
+
+
+def site_levers(variant: Optional[str] = None) -> dict:
+    """``{lever: bool}`` of a site variant (pure): ``None`` reads ``WENART_SITE_VARIANT``; unset, ``all`` or ``""``
+    turn every lever on; ``base`` / ``none`` turn every lever off; a lever name turns that one on; several names
+    joined by ``+`` turn those on. An unknown name raises ValueError."""
+    import os
+
+    v = (os.environ.get(SITE_VARIANT_ENV, "") if variant is None else str(variant or "")).strip().lower()
+    if v in ("", "all"):
+        return {k: True for k in SITE_LEVERS}
+    if v in ("base", "none"):
+        return {k: False for k in SITE_LEVERS}
+    names = [x for x in v.split("+") if x]
+    unknown = [x for x in names if x not in SITE_LEVERS]
+    if unknown:
+        raise ValueError(f"{SITE_VARIANT_ENV} {v!r}: unknown lever {unknown}; one of {SITE_LEVERS}, all, base")
+    return {k: k in names for k in SITE_LEVERS}
+
+
+HEDGE_DEFAULT_HEIGHT_M = 1.2
+
+
+def hedges_of(building: dict, climate: str = "temperate", detect: bool = True) -> tuple[list[dict], set]:
+    """``(hedges, symbol_ids)`` of the building (pure; Milestone 13 T6): the ``site.hedges`` the sheets stage wrote
+    (``wenart.sheets.exterior.hedge_rows``, ``build`` not false), else, with ``detect``, the same detector over the
+    site decor's tree symbols (the committed real04 building carries 100 single trees in four rows). Every hedge:
+    ``id``, ``polyline``, ``width_m``, ``height_m``, ``height_class``, ``species`` (named, else inferred by the
+    climate: ``species_inferred``), ``inferred``, ``evidence``, ``source`` (``site.hedges`` | ``decor_rows``);
+    ``symbol_ids`` are the decor ids of the symbols a hedge took (no longer single trees)."""
+    from wenart.blender.vegetation import hedge_height_class, hedge_rows, HEDGE_HEIGHT_M
+
+    site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    out, taken = [], set()
+    drawn = [h for h in site.get("hedges") or [] if isinstance(h, dict) and h.get("build", True) is not False
+             and len(h.get("polyline") or []) >= 2]
+    if drawn:
+        for k, h in enumerate(drawn):
+            width = float(h.get("width_m") or 0.7)
+            cls = h.get("height_class") or hedge_height_class(width / 2.0)
+            height = float(h.get("height_m") or HEDGE_HEIGHT_M.get(cls, HEDGE_DEFAULT_HEIGHT_M))
+            rec = {"id": str(h.get("id") or f"hedge_{k + 1:03d}"), "polyline": [[float(x), float(y)] for x, y in h["polyline"]],
+                   "width_m": width, "height_m": height, "height_class": cls,
+                   "species": h.get("species") or species_for(cls, climate, kind="hedge"),
+                   "species_inferred": not h.get("species"), "inferred": bool(h.get("inferred", True)),
+                   "evidence": list(h.get("evidence") or []), "source": "site.hedges",
+                   "symbol_ids": list(h.get("symbol_ids") or []), "reason": h.get("reason") or "site.hedges"}
+            out.append(rec)
+            taken |= set(rec["symbol_ids"])
+        return out, taken
+    if not detect:
+        return [], set()
+    trees = [d for d in site.get("decor") or [] if isinstance(d, dict) and d.get("kind") == "tree"
+             and d.get("build", True) is not False]
+    for k, row in enumerate(hedge_rows(trees)):
+        ids = row["symbol_ids"]
+        taken |= set(ids)
+        ev = []
+        for i in row["symbol_indices"][:3]:
+            ev += [dict(e, rule="site_hedge_symbol") for e in (trees[i].get("evidence") or [])[:1]]
+        out.append({"id": f"hedge_{k + 1:03d}", "polyline": row["polyline"], "width_m": row["width_m"],
+                    "height_m": row["height_m"], "height_class": row["height_class"],
+                    "species": species_for(row["height_class"], climate, kind="hedge"), "species_inferred": True,
+                    "inferred": True, "evidence": ev, "source": "decor_rows", "symbol_ids": ids,
+                    "reason": f"{row['count']} drawn tree symbols of radius {row['radius_m']:.2f} m at a pitch of "
+                              f"{row['pitch_m']:.2f} m in one row ({row['length_m']:.1f} m): a {row['height_class']} "
+                              f"hedge {row['height_m']:.1f} m high (inferred; the symbols are not single trees)"})
+    return out, taken
+
+
+def hedge_parts(hedge: dict, terrain: dict) -> tuple[list, list, dict]:
+    """``(verts, faces, info)`` of a hedge's volume following the ground (pure): one box per polyline segment
+    (``plot_wall_parts`` steps of ``PLOT_WALL_STEP_M``), ``width_m`` thick and ``height_m`` high, from 0.1 m under
+    the ground; the exterior camera model's low obstacle and the leaf-card hedge's core."""
+    pts = [(float(x), float(y)) for x, y in hedge["polyline"]]
+    parts, zs = [], []
+    for a, b in zip(pts, pts[1:]):
+        if G.distance(a, b) < 0.05:
+            continue
+        wall = {"start": a, "end": b, "thickness": float(hedge["width_m"]),
+                "height": {"value": float(hedge["height_m"]), "method": "assumed"}}
+        v, f, info = plot_wall_parts(wall, terrain)
+        parts.append((v, f))
+        zs += info["z_range"]
+    if not parts:
+        return [], [], {"z_range": [0.0, 0.0], "segments": 0, "length_m": 0.0}
+    verts, faces = geom2d.merge(parts)
+    length = sum(G.distance(a, b) for a, b in zip(pts, pts[1:]))
+    return verts, faces, {"z_range": [round(min(zs), 4), round(max(zs), 4)], "segments": len(parts),
+                          "length_m": round(length, 3), "top_z": round(max(zs), 4)}
+
+
+PLATFORM = {"mark_reach": 2.0, "level_tol": 0.15, "max_spread": 1.0, "step_max_drop": 1.2, "wall_t": 0.25,
+            "kerb_h": 0.12, "kerb_w": 0.15, "step_rise": 0.16, "step_tread": 0.30, "step_width": 1.2, "lip": 0.04,
+            "pool_join_m": 0.5, "pool_deck_m": 0.9, "railing_drop": 0.5, "below": 0.3, "round": 0.05}
+PLATFORM_KINDS = {"paving": "terrace", "parking": "parking", "pools": "pool", "path": "path"}
+POOL_COPING_M = 0.35
+
+
+def _site_ground_fn(site: dict, terrain: Optional[dict]):
+    """``gz(x, y)`` for ``platforms``: the terrain model when given, else the site's surface, else its flat level."""
+    if terrain is not None:
+        return lambda x, y: ground_z(terrain, x, y)
+    ground = site.get("ground") if isinstance(site.get("ground"), dict) else {}
+    surface = ground.get("surface") if isinstance(ground.get("surface"), dict) else None
+    if surface and surface.get("kind") in ("planar", "tin") and len(surface.get("points") or []) >= 3:
+        return lambda x, y: LT.surface_z(surface, x, y)
+    flat = 0.0
+    for entry in ground.get("levels") or []:
+        z = _value((entry or {}).get("z")) if isinstance(entry, dict) else None
+        if z is not None:
+            flat = z
+            break
+    return lambda x, y: flat
+
+
+def _edge_samples(poly, k: int = 3) -> list[list[tuple[float, float]]]:
+    out = []
+    n = len(poly)
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        out.append([G.point_along_segment(a, b, (j + 0.5) / k) for j in range(k)])
+    return out
+
+
+def platforms(site: dict, terrain: Optional[dict] = None) -> list[dict]:
+    """One level per drawn terrace, pool or parking polygon (pure; Milestone 13 T6, docs/milestone13.md §13.2):
+    ``[{"id", "polygon", "holes", "z", "kind": terrace | pool | parking | path, "edge": retaining | kerb | steps |
+    none, "source", "z_source", "marks", "ground": {min, mean, max}, "drop_m", "rise_m", "sloped", "steps_edge",
+    "railing_edges", "pools", "inferred": true, "reason"}]``.
+
+    The level ``z``: the mean of the level marks (``site.ground.points`` of a ground kind) inside the polygon or
+    within ``mark_reach`` of it, else the mean ground under it (``PLATFORM["round"]``); marks that spread more
+    than ``max_spread`` say the area is drawn sloped (a driveway): it stays draped (``sloped``) with kerbs. A pool
+    joins the terrace platform within ``pool_join_m`` of it (one deck level, the pool a hole in the slab), else it
+    gets its own deck ``pool_deck_m`` wide. The edge treatment: ``none`` / ``kerb`` within ``level_tol`` of the
+    ground, ``steps`` when the lowest drop of a terrace or pool deck is at most ``step_max_drop`` (the flight on the
+    longest such edge, retaining walls on the others), else ``retaining``; ``railing_edges`` are the edges with a
+    drop over ``railing_drop``."""
+    gz = _site_ground_fn(site, terrain)
+    ground = site.get("ground") if isinstance(site.get("ground"), dict) else {}
+    marks = [m for m in ground.get("points") or [] if isinstance(m, dict) and m.get("z") is not None
+             and str(m.get("kind") or "ground").startswith("ground")]
+    reach = PLATFORM["mark_reach"]
+
+    def level_of(poly):
+        near = [m for m in marks if G.point_in_polygon((m["x"], m["y"]), poly)
+                or geom2d.distance_to_polygon_edges((m["x"], m["y"]), poly) <= reach]
+        samples = list(poly) + [G.polygon_centroid(poly)] + [q for seg in _edge_samples(poly) for q in seg]
+        zs = [gz(x, y) for x, y in samples]
+        g = {"min": round(min(zs), 3), "mean": round(sum(zs) / len(zs), 3), "max": round(max(zs), 3)}
+        if near:
+            vals = [float(m["z"]) for m in near]
+            z = sum(vals) / len(vals)
+            return (round(round(z / PLATFORM["round"]) * PLATFORM["round"], 3), "level marks",
+                    [str(m.get("mark_id") or m.get("id") or k) for k, m in enumerate(near)],
+                    g, max(vals) - min(vals) > PLATFORM["max_spread"])
+        return round(round(g["mean"] / PLATFORM["round"]) * PLATFORM["round"], 3), "the mean ground under it", [], g, False
+
+    def edges_of(poly, z, kind, sloped):
+        rec = {"drop_m": 0.0, "rise_m": 0.0, "steps_edge": None, "railing_edges": [], "edge": "none"}
+        if sloped:
+            rec["edge"] = "kerb"
+            return rec
+        drops, rises = [], []
+        for seg in _edge_samples(poly):
+            zs = [gz(x, y) for x, y in seg]
+            drops.append(z - min(zs))
+            rises.append(max(zs) - z)
+        rec["drop_m"], rec["rise_m"] = round(max(drops), 3), round(max(rises), 3)
+        tol = PLATFORM["level_tol"]
+        n = len(poly)
+        rec["railing_edges"] = [i for i in range(n) if drops[i] > PLATFORM["railing_drop"]]
+        if rec["drop_m"] <= tol and rec["rise_m"] <= tol:
+            rec["edge"] = "kerb" if kind in ("parking", "path") else "none"
+            return rec
+        cands = [i for i in range(n) if tol < drops[i] <= PLATFORM["step_max_drop"]
+                 and G.distance(poly[i], poly[(i + 1) % n]) >= PLATFORM["step_width"]]
+        if kind in ("terrace", "pool") and cands:
+            rec["steps_edge"] = max(cands, key=lambda i: (G.distance(poly[i], poly[(i + 1) % n]), -drops[i]))
+            rec["edge"] = "steps"
+        else:
+            rec["edge"] = "retaining"
+        return rec
+
+    out = []
+    pools = [p for p in _built(site.get("pools")) if len(p.get("polygon") or []) >= 3]
+    for key in ("paving", "parking"):
+        for a in _built(site.get(key)):
+            poly = geom2d.ccw(a.get("polygon") or [])
+            if len(poly) < 3:
+                continue
+            kind = PLATFORM_KINDS[key]
+            z, z_src, mark_ids, g, sloped = level_of(poly)
+            out.append({"id": str(a.get("id") or f"{kind}_{len(out) + 1}"), "polygon": poly, "holes": [], "z": z,
+                        "kind": kind, "source": a.get("source"), "area_id": a.get("area_id"), "z_source": z_src,
+                        "marks": mark_ids, "ground": g, "sloped": sloped, "pools": [], "inferred": True,
+                        "material": a.get("material"), "colour": a.get("colour")})
+    for k, pool in enumerate(pools):
+        poly = geom2d.ccw(pool["polygon"])
+        pid = str(pool.get("id") or f"pool_{k + 1:03d}")
+        host = None
+        for pf in out:
+            if pf["kind"] != "terrace" or pf["sloped"]:
+                continue
+            if any(G.point_in_polygon(q, pf["polygon"]) for q in poly) or \
+                    min(geom2d.distance_to_polygon_edges(q, pf["polygon"]) for q in poly) <= PLATFORM["pool_join_m"]:
+                host = pf
+                break
+        if host is not None:
+            deck = geom2d.offset_polygon(poly, -POOL_COPING_M - 0.3)
+            union = geom2d.polygon_union_outline([host["polygon"], deck]) if len(deck) >= 3 else []
+            outer = [r for r in union if G.polygon_signed_area(r) > 0]
+            if len(outer) == 1 and len(outer[0]) >= 3:
+                host["polygon"] = geom2d.ccw(outer[0])
+            host["holes"].append(poly)
+            host["pools"].append(pid)
+            continue
+        deck = geom2d.ccw(geom2d.offset_polygon(poly, -PLATFORM["pool_deck_m"]))
+        z, z_src, mark_ids, g, sloped = level_of(deck if len(deck) >= 3 else poly)
+        out.append({"id": f"{pid}_deck", "polygon": deck if len(deck) >= 3 else poly, "holes": [poly], "z": z,
+                    "kind": "pool", "source": pool.get("source"), "area_id": None, "z_source": z_src,
+                    "marks": mark_ids, "ground": g, "sloped": False, "pools": [pid], "inferred": True,
+                    "material": None, "colour": None})
+    for pf in out:
+        pf.update(edges_of(pf["polygon"], pf["z"], pf["kind"], pf["sloped"]))
+        pf["reason"] = (f"{pf['kind']} {pf['id']}: one level at {pf['z']:+.2f} m ({pf['z_source']}"
+                        + (f" {', '.join(pf['marks'])}" if pf["marks"] else "") + f"); ground {pf['ground']['min']:+.2f}"
+                        f"..{pf['ground']['max']:+.2f} m under it; edge: {pf['edge']}"
+                        + (" (the marks spread over 1 m: the area is drawn sloped and stays draped)" if pf["sloped"] else "")
+                        + (f"; pools {', '.join(pf['pools'])} in the deck" if pf["pools"] else "") + " (inferred)")
+    return out
+
+
+def slab_with_holes(outer, holes, z_top: float, z_bottom: float) -> tuple[list, list]:
+    """A closed slab (pure): the region ``outer`` minus ``holes`` as top and bottom faces with vertical sides along
+    every loop (the hole sides face into the hole)."""
+    outer = geom2d.ccw(outer)
+    hs = [geom2d.ccw(h) for h in holes if len(h) >= 3]
+    top_planes = [(0.0, 0.0, z_top)]
+    bottom_planes = [(0.0, 0.0, z_bottom)]
+    vt, ft = geom2d.polygon_faces(outer, hs, z_top, facing_up=True)
+    vb, fb = geom2d.polygon_faces(outer, hs, z_bottom, facing_up=False)
+    parts = [(vt, ft), (vb, fb)]
+    loops = [outer] + [list(reversed(h)) for h in hs]
+    for loop in loops:
+        quads = geom2d.side_faces(loop, top_planes, bottom_planes)
+        if quads:
+            verts, faces = [], []
+            for q in quads:
+                base = len(verts)
+                verts += [tuple(v) for v in q]
+                faces.append([base + i for i in range(len(q))])
+            parts.append((verts, faces))
+    return geom2d.merge(parts)
+
+
+def platform_parts(pf: dict, terrain: dict) -> list[dict]:
+    """The meshes of one platform (pure): ``[{"part": slab | wall | kerb | steps | railing, "verts", "faces"}]``.
+    The slab is a closed block from ``PLATFORM["below"]`` under its lowest ground to ``z`` (its holes are the pools);
+    a retaining wall skin (``wall_t``) stands outside every edge where the ground lies more than ``level_tol``
+    under the level (fill) or over it (cut: the wall holds the slope back up to the ground), with a ``lip`` over the
+    slab; kerbs along the edges of a parking, a path or a sloped area; the flight of steps on ``steps_edge`` down
+    to the ground; a railing (rail and panel, ``shell.railing_parts``) on the ``railing_edges``."""
+    from wenart.blender.shell import railing_parts
+
+    poly = geom2d.ccw(pf["polygon"])
+    z = float(pf["z"])
+    out = []
+    n = len(poly)
+    if pf.get("sloped"):
+        v, f = draped_faces(poly, pf.get("holes") or [], terrain, lift=PAVING_LIFT)
+        out.append({"part": "slab", "verts": v, "faces": f})
+    else:
+        zmin = min(ground_z(terrain, x, y) for x, y in poly)
+        v, f = slab_with_holes(poly, pf.get("holes") or [], z, min(z, zmin) - PLATFORM["below"])
+        out.append({"part": "slab", "verts": v, "faces": f})
+    tol = PLATFORM["level_tol"]
+    walls, kerbs, steps, rails = [], [], [], []
+    for i in range(n):
+        a, b = poly[i], poly[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 0.05:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = uy, -ux                                        # ccw: the right side of the edge is outside
+        mid = G.segment_midpoint(a, b)
+        angle = G.segment_angle_deg(a, b)
+        zs = [ground_z(terrain, *q) for q in _edge_samples([a, b], 4)[0]] + [ground_z(terrain, *a), ground_z(terrain, *b)]
+        drop, rise = z - min(zs), max(zs) - z
+        if not pf.get("sloped") and (drop > tol or rise > tol):
+            t = PLATFORM["wall_t"]
+            z0 = min(z, min(zs)) - PLATFORM["below"]
+            z1 = max(z + PLATFORM["lip"], max(zs) + 0.1) if rise > tol else z + PLATFORM["lip"]
+            c = (mid[0] + nx * (t / 2.0 + 0.001), mid[1] + ny * (t / 2.0 + 0.001), (z0 + z1) / 2.0)
+            walls.append(geom2d.box(c, (length + t, t, z1 - z0), angle))
+        if pf.get("edge") == "kerb" or pf.get("kind") in ("parking", "path"):
+            kh, kw = PLATFORM["kerb_h"], PLATFORM["kerb_w"]
+            if pf.get("sloped"):
+                k = max(1, int(math.ceil(length / PLOT_WALL_STEP_M)))
+                for j in range(k):
+                    p0, p1 = G.point_along_segment(a, b, j / k), G.point_along_segment(a, b, (j + 1) / k)
+                    m2 = G.segment_midpoint(p0, p1)
+                    zk = max(ground_z(terrain, *p0), ground_z(terrain, *p1), ground_z(terrain, *m2)) + PAVING_LIFT
+                    kerbs.append(geom2d.box((m2[0] + nx * kw / 2.0, m2[1] + ny * kw / 2.0, zk + kh / 2.0 - 0.02),
+                                            (G.distance(p0, p1) + kw, kw, kh + 0.04), angle))
+            else:
+                kerbs.append(geom2d.box((mid[0] + nx * kw / 2.0, mid[1] + ny * kw / 2.0, z + kh / 2.0 - 0.02),
+                                        (length + kw, kw, kh + 0.04), angle))
+        if i in (pf.get("railing_edges") or []) and pf.get("kind") in ("terrace", "pool"):
+            rail, panel = railing_parts(a, b, z)
+            rails += [rail, panel]
+    if pf.get("steps_edge") is not None and not pf.get("sloped"):
+        i = pf["steps_edge"]
+        a, b = poly[i], poly[(i + 1) % n]
+        length = G.distance(a, b)
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = uy, -ux
+        mid = G.segment_midpoint(a, b)
+        half_w = PLATFORM["step_width"] / 2.0
+        gz_edge = min(ground_z(terrain, *q) for q in _edge_samples([a, b], 4)[0])
+        drop = z - gz_edge
+        count = max(1, int(math.ceil(drop / PLATFORM["step_rise"] - 1e-9)))
+        r = drop / count
+        for j in range(1, count + 1):
+            d0 = (j - 1) * PLATFORM["step_tread"]
+            top = z - j * r
+            block = _rect_along(mid, (nx, ny), d0, d0 + PLATFORM["step_tread"], half_w)
+            zb = min(ground_z(terrain, *q) for q in block) - PLATFORM["below"]
+            if top > zb:
+                steps.append(geom2d.prism(block, zb, top))
+    for part, meshes in (("wall", walls), ("kerb", kerbs), ("steps", steps), ("railing", rails)):
+        if meshes:
+            v, f = geom2d.merge(meshes)
+            out.append({"part": part, "verts": v, "faces": f})
+    return out
+
+
+def backdrop_faces(inner: Sequence[Sequence[float]], terrain: dict, outer_reach: float = 1800.0,
+                   rise: float = 25.0) -> tuple[list, list]:
+    """The rising ground ring beyond ``inner`` (the rectangle where the ground or its skirt ends; pure, Milestone 13
+    T6): its inner edge at the ground's level there, its outer edge ``outer_reach`` further out and ``rise`` higher,
+    so a soft hill line stands at the horizon within the cameras' clip distance (a flat ground to 1000 m still left
+    a black band between its edge and the sky's horizon). Quads face up."""
+    x0, y0 = min(p[0] for p in inner), min(p[1] for p in inner)
+    x1, y1 = max(p[0] for p in inner), max(p[1] for p in inner)
+    X0, Y0, X1, Y1 = x0 - outer_reach, y0 - outer_reach, x1 + outer_reach, y1 + outer_reach
+    verts: list = []
+    faces: list = []
+
+    def v(x: float, y: float, dz: float) -> int:
+        verts.append((x, y, ground_z(terrain, x, y) + dz))
+        return len(verts) - 1
+
+    corners = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+    outers = [(X0, Y0), (X1, Y0), (X1, Y1), (X0, Y1)]
+    for k in range(4):
+        a, b = corners[k], corners[(k + 1) % 4]
+        oa, ob = outers[k], outers[(k + 1) % 4]
+        ia, ib = v(*a, 0.0), v(*b, 0.0)
+        ja, jb = v(*oa, rise), v(*ob, rise)
+        quad = (ia, ja, jb, ib)
+        area = sum(verts[quad[i]][0] * verts[quad[(i + 1) % 4]][1] - verts[quad[(i + 1) % 4]][0] * verts[quad[i]][1]
+                   for i in range(4))
+        faces.append(quad if area > 0 else tuple(reversed(quad)))
+    return verts, faces
+
+
+HAZE = {"reach_m": 1200.0, "below_m": 50.0, "above_m": 250.0, "hole_above_m": 80.0, "hole_below_m": 5.0,
+        "density": 0.0009, "anisotropy": 0.3, "colour": (0.78, 0.84, 0.92)}
+
+
+def haze_box(near: Sequence[Sequence[float]], z_range: tuple[float, float], cfg: Optional[dict] = None
+             ) -> tuple[list, list]:
+    """A closed hollow box (pure; Milestone 13 T6): the haze volume around the site, an outer box ``reach_m`` beyond
+    the near ground rectangle and an inner hole over the near rectangle itself (the building, its plot and the
+    cameras stand in clear air; the far ground, the backdrop and the horizon are seen through the haze). The outer
+    shell faces out, the inner shell faces in (Cycles treats the space between them as the volume); a World
+    volume would switch the sun and the sky off (the 5.2 manual)."""
+    c = dict(HAZE, **(cfg or {}))
+    x0, y0 = min(p[0] for p in near), min(p[1] for p in near)
+    x1, y1 = max(p[0] for p in near), max(p[1] for p in near)
+    zb, zt = float(z_range[0]), float(z_range[1])
+    outer = geom2d.box(((x0 + x1) / 2.0, (y0 + y1) / 2.0, (zb - c["below_m"] + zt + c["above_m"]) / 2.0),
+                       (x1 - x0 + 2 * c["reach_m"], y1 - y0 + 2 * c["reach_m"], zt + c["above_m"] - zb + c["below_m"]))
+    inner = geom2d.box(((x0 + x1) / 2.0, (y0 + y1) / 2.0, (zb - c["hole_below_m"] + zt + c["hole_above_m"]) / 2.0),
+                       (x1 - x0, y1 - y0, zt + c["hole_above_m"] - zb + c["hole_below_m"]))
+    iv, if_ = inner
+    return geom2d.merge([outer, (iv, [list(reversed(f)) for f in if_])])
+
+
+POOL_WATER_BOTTOM_M = 0.02                   # the water slab starts this far above the basin floor
+
+
+def pool_parts(pool: dict, terrain: dict, deck_z: Optional[float] = None) -> dict:
+    """A pool (pure): its edge at ``deck_z`` (the platform's level; else the highest ground of its corners), the
+    basin clipped under the edge (walls inward, floor) down to ``depth``, the water as a closed slab from
+    ``POOL_WATER_BOTTOM_M`` over the floor up to ``POOL_WATER_DROP_M`` under the edge (a volume: absorption needs a
+    closed mesh), and a coping ring ``POOL_COPING_M`` wide standing ``lip`` over the deck with a 3 cm overhang over
+    the water. ``{"basin": (verts, faces), "water", "coping", "edge_z", "floor_z", "water_z", "coping_z"}``."""
+    poly = geom2d.ccw([(float(p[0]), float(p[1])) for p in pool["polygon"]])
+    edge = float(deck_z) if deck_z is not None else max(ground_z(terrain, x, y) for x, y in poly)
+    floor = edge - float(pool.get("depth") or POOL_DEPTH_M)
+    inner = geom2d.offset_polygon(poly, 0.01)                      # 1 cm inside the slab's hole: no coplanar faces
+    inner = inner if len(inner) >= 3 else poly
+    n = len(inner)
+    verts = [(x, y, floor) for x, y in inner] + [(x, y, edge) for x, y in inner]
+    faces = [tuple(range(n))]                                    # floor (ccw seen from above: up)
+    for i in range(n):
+        j = (i + 1) % n
+        faces.append((i, n + i, n + j, j))                     # inward-facing walls of a ccw outline
+    water_z = edge - POOL_WATER_DROP_M
+    wv, wf = geom2d.prism(inner, floor + POOL_WATER_BOTTOM_M, water_z)
+    lip = PLATFORM["lip"]
+    coping_z = edge + lip
+    ring_out = geom2d.offset_polygon(poly, -POOL_COPING_M)
+    ring_in = geom2d.offset_polygon(poly, 0.03)
+    coping = slab_with_holes(ring_out, [ring_in], coping_z, edge - 0.02) if len(ring_out) >= 3 and len(ring_in) >= 3 \
+        else ([], [])
+    return {"basin": (verts, faces), "water": (wv, wf), "coping": coping, "edge_z": edge, "floor_z": floor,
+            "water_z": water_z, "coping_z": coping_z, "coping_width": POOL_COPING_M}
+
+
+# --------------------------------------------------------------------------
 # The plan of the site (pure) and the Blender objects
 # --------------------------------------------------------------------------
 
@@ -1231,26 +1770,12 @@ POOL_DEPTH_M = 1.5
 POOL_WATER_DROP_M = 0.12                     # the water stands this far under the pool's edge
 
 
-def pool_parts(pool: dict, terrain: dict) -> dict:
-    """A pool (pure): its edge at the highest ground of its corners, the basin (walls inward, floor) down to
-    ``depth`` and the water ``POOL_WATER_DROP_M`` under the edge. ``{"basin": (verts, faces), "water": (verts,
-    faces), "edge_z", "floor_z"}``."""
-    poly = [(float(p[0]), float(p[1])) for p in pool["polygon"]]
-    edge = max(ground_z(terrain, x, y) for x, y in poly)
-    floor = edge - float(pool.get("depth") or POOL_DEPTH_M)
-    n = len(poly)
-    verts = [(x, y, floor) for x, y in poly] + [(x, y, edge + 0.02) for x, y in poly]
-    faces = [tuple(range(n))]                                    # floor (ccw seen from above: up)
-    for i in range(n):
-        j = (i + 1) % n
-        faces.append((i, n + i, n + j, j))                     # inward-facing walls of a ccw outline
-    water_z = edge - POOL_WATER_DROP_M
-    wv = [(x, y, water_z) for x, y in poly]
-    return {"basin": (verts, faces), "water": (wv, [tuple(range(n))]), "edge_z": edge, "floor_z": floor}
-
-
-def pool_materials():
-    """The pool's tiles and water (bpy; procedural, no texture: assumed looks)."""
+def pool_materials(ripples: bool = True):
+    """The pool's tiles and water (bpy; procedural, no texture: assumed looks). Milestone 13 (T6): the tiles are a
+    light mosaic with a grout grid (Brick texture), the water a Principled glass (transmission 1, IOR 1.33) with
+    ripples from a Wave texture through a Bump node and Volume Absorption in the water slab (the 5.2 manual:
+    ``Volume Absorption`` for water and coloured glass, its ``Density`` input); ``ripples`` False keeps the
+    Milestone 12 flat water (the ``pools`` lever off)."""
     import bpy
 
     def principled(name, colour, roughness, transmission=0.0, ior=1.45):
@@ -1271,8 +1796,89 @@ def pool_materials():
                 bsdf.inputs["IOR"].default_value = ior
         return mat
 
-    return (principled("pool_tiles", (0.62, 0.80, 0.86), 0.25),
-            principled("pool_water", (0.55, 0.85, 0.90), 0.02, transmission=1.0, ior=1.33))
+    tiles = principled("pool_tiles", (0.62, 0.80, 0.86), 0.25)
+    if ripples and "pool_tiles_grid" not in tiles:
+        tree = tiles.node_tree
+        bsdf = tree.nodes.get("Principled BSDF")
+        if bsdf is not None and "Brick Texture" not in tree.nodes:
+            coord = tree.nodes.new("ShaderNodeTexCoord")
+            brick = tree.nodes.new("ShaderNodeTexBrick")
+            brick.inputs["Scale"].default_value = 20.0                     # 5 cm mosaic tiles
+            brick.inputs["Mortar Size"].default_value = 0.04
+            brick.inputs["Color1"].default_value = (0.62, 0.80, 0.86, 1.0)
+            brick.inputs["Color2"].default_value = (0.52, 0.74, 0.84, 1.0)
+            brick.inputs["Mortar"].default_value = (0.85, 0.87, 0.88, 1.0)
+            tree.links.new(coord.outputs["Object"], brick.inputs["Vector"])
+            tree.links.new(brick.outputs["Color"], bsdf.inputs["Base Color"])
+            bump = tree.nodes.new("ShaderNodeBump")
+            bump.inputs["Strength"].default_value = 0.3
+            tree.links.new(brick.outputs["Fac"], bump.inputs["Height"])
+            tree.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+            if "Coat Weight" in bsdf.inputs:
+                bsdf.inputs["Coat Weight"].default_value = 0.5                # glazed tiles
+            tiles["pool_tiles_grid"] = True
+    water = principled("pool_water", (0.55, 0.85, 0.90), 0.02, transmission=1.0, ior=1.33)
+    if ripples and "pool_water_ripples" not in water:
+        tree = water.node_tree
+        bsdf = tree.nodes.get("Principled BSDF")
+        out = next((n for n in tree.nodes if n.bl_idname == "ShaderNodeOutputMaterial"), None)
+        if bsdf is not None and out is not None:
+            bsdf.inputs["Base Color"].default_value = (0.9, 0.97, 1.0, 1.0)
+            coord = tree.nodes.new("ShaderNodeTexCoord")
+            wave = tree.nodes.new("ShaderNodeTexWave")
+            wave.inputs["Scale"].default_value = 1.5
+            wave.inputs["Distortion"].default_value = 6.0
+            wave.inputs["Detail"].default_value = 3.0
+            wave.inputs["Detail Scale"].default_value = 2.0
+            tree.links.new(coord.outputs["Object"], wave.inputs["Vector"])
+            noise = tree.nodes.new("ShaderNodeTexNoise")
+            noise.inputs["Scale"].default_value = 3.0
+            noise.inputs["Detail"].default_value = 4.0
+            tree.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+            mix = tree.nodes.new("ShaderNodeMix")
+            mix.data_type = "FLOAT"
+            mix.inputs["Factor"].default_value = 0.5
+            tree.links.new(wave.outputs["Fac"], mix.inputs[2])
+            tree.links.new(noise.outputs["Fac"], mix.inputs[3])
+            bump = tree.nodes.new("ShaderNodeBump")
+            bump.inputs["Strength"].default_value = 0.08
+            bump.inputs["Distance"].default_value = 0.02
+            tree.links.new(mix.outputs[0], bump.inputs["Height"])
+            tree.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+            absorb = tree.nodes.new("ShaderNodeVolumeAbsorption")
+            absorb.inputs["Color"].default_value = (0.45, 0.8, 0.85, 1.0)
+            absorb.inputs["Density"].default_value = 0.6
+            tree.links.new(absorb.outputs["Volume"], out.inputs["Volume"])
+            water["pool_water_ripples"] = True
+    return tiles, water
+
+
+def haze_material():
+    """The haze volume's material (bpy; Milestone 13 T6): Volume Scatter (``Density`` ``HAZE["density"]`` per
+    metre, ``Anisotropy`` forward) on the material's Volume output, no surface (a transparent surface so the shell
+    itself is invisible); the 5.2 manual's Volume Scatter node (fog) and ``volume_step_rate`` of the material."""
+    import bpy
+
+    mat = bpy.data.materials.get("site_haze")
+    if mat is not None:
+        return mat
+    mat = bpy.data.materials.new("site_haze")
+    mat.use_nodes = True
+    tree = mat.node_tree
+    for n in list(tree.nodes):
+        tree.nodes.remove(n)
+    out = tree.nodes.new("ShaderNodeOutputMaterial")
+    clear = tree.nodes.new("ShaderNodeBsdfTransparent")
+    tree.links.new(clear.outputs["BSDF"], out.inputs["Surface"])
+    scatter = tree.nodes.new("ShaderNodeVolumeScatter")
+    scatter.inputs["Color"].default_value = (*HAZE["colour"], 1.0)
+    scatter.inputs["Density"].default_value = HAZE["density"]
+    scatter.inputs["Anisotropy"].default_value = HAZE["anisotropy"]
+    tree.links.new(scatter.outputs["Volume"], out.inputs["Volume"])
+    if hasattr(mat, "cycles") and hasattr(mat.cycles, "volume_step_rate"):
+        mat.cycles.volume_step_rate = 4.0                       # a thin, even fog needs few steps
+    mat["wenart_haze"] = True
+    return mat
 
 
 def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence[float]], mode: str = "full",
@@ -1288,8 +1894,16 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
     ``front_court`` and the agent's site keys; None = the M10 site) makes the front courts (D6) and, with
     ``site: full``, the inferred site (``inferred_site``: the plot when none is drawn, entrance steps, paths, a
     hedge or fence, trees when none is drawn), returned under ``inferred``; the paths are areas of kind ``path``,
-    the inferred trees join ``trees``; every inferred item is in ``assumed``."""
+    the inferred trees join ``trees``; every inferred item is in ``assumed``.
+
+    Milestone 13 (T6): ``climate`` (``climate_of``), ``levers`` (``site_levers``), ``hedges`` (``hedges_of``: the
+    symbols of a hedge leave ``trees``), ``platforms`` (``platforms``: an area with a platform carries its
+    ``platform_id`` and is not draped), the pools with their deck level (``deck_z``), ``near_extent`` (the ground
+    rectangle around the building and the plot: the clear-air hole of the haze and the near-camera grass) and
+    ``species`` (tree id -> species, size class, inferred)."""
     site = building.get("site") if isinstance(building.get("site"), dict) else {}
+    climate = climate_of(building)
+    levers = site_levers()
     lowest = min(levels, key=lambda lv: float(lv["elevation"])) if levels else None
     default_z = 0.0 if lowest is None or float(lowest["elevation"]) < 0 else float(lowest["elevation"])
     terrain = terrain_model(building, outline, default_z)
@@ -1365,14 +1979,48 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
             if len(poly) >= 3:
                 depth = float(((pool.get("depth") or {}).get("value")) or POOL_DEPTH_M)
                 pools.append({"id": str(pool.get("id") or f"pool_{k + 1:03d}"), "polygon": poly, "depth": depth,
-                              "evidence": pool.get("evidence") or []})
+                              "evidence": pool.get("evidence") or [], "deck_z": None})
                 if ((pool.get("depth") or {}).get("method")) in (None, "assumed"):
                     assumed.append({"field": f"pool:{pools[-1]['id']}:depth", "value": depth,
                                     "reason": "no pool section drawn: the depth is assumed"})
+    # Milestone 13 (T6): hedges (rows of tree symbols), platforms (one level per terrace / pool / parking), species.
+    hedges: list[dict] = []
+    pfs: list[dict] = []
+    species: dict = {}
+    if mode == "full":
+        hedges, taken = hedges_of(building, climate["climate"], detect=levers["hedge"])
+        if taken:
+            trees = [t for t in trees if str(t.get("id")) not in taken]
+        for h in hedges:
+            assumed.append({"field": f"hedge:{h['id']}", "value": [h["height_m"], h["species"]],
+                            "reason": h["reason"] + f"; species {h['species']} "
+                                      f"({'inferred' if h.get('species_inferred') else 'named'})"})
+        if levers["platforms"]:
+            pfs = platforms(site, terrain)
+            by_pool = {pid: pf for pf in pfs for pid in pf["pools"]}
+            for pool in pools:
+                if pool["id"] in by_pool:
+                    pool["deck_z"] = by_pool[pool["id"]]["z"]
+                    pool["platform_id"] = by_pool[pool["id"]]["id"]
+            by_area = {pf["id"]: pf for pf in pfs}
+            for a in areas:
+                if a.get("id") in by_area:
+                    a["platform_id"] = a["id"]
+            for pf in pfs:
+                assumed.append({"field": f"platform:{pf['id']}", "value": pf["z"], "reason": pf["reason"]})
+        for t in trees:
+            parts = tree_parts(t, terrain, climate["climate"])
+            species[str(t.get("id"))] = {"species": parts["species"], "size_class": parts["size_class"],
+                                        "height_m": parts["height"], "inferred": parts["species_inferred"]}
+    if climate.get("inferred"):
+        assumed.append({"field": "climate", "value": climate["climate"], "reason": f"{climate['source']} "
+                        f"(inferred; the species of trees and hedges follow it): {', '.join(climate['evidence'])}"})
+    near_extent = ground_extent(outline, plot, MARGIN_M)
     return {"mode": mode, "terrain": terrain, "outline": geom2d.ccw(outline), "plot": plot, "plot_source": plot_src,
             "extent": extent, "wells": wells, "plot_walls": plot_walls, "areas": areas, "trees": trees,
             "not_built": not_built, "assumed": assumed, "warnings": warnings, "ground_is_grass": ground_is_grass,
-            "inferred": inferred, "copy_holes": copy_holes, "pools": pools}
+            "inferred": inferred, "copy_holes": copy_holes, "pools": pools, "hedges": hedges, "platforms": pfs,
+            "climate": climate, "levers": levers, "near_extent": near_extent, "species": species}
 
 
 # The look of each built area kind (exterior.resolve_looks slots) when the area names no material of its own.
@@ -1388,18 +2036,54 @@ def area_look(area: dict, looks: dict) -> dict:
     return looks[AREA_LOOKS.get(area["kind"], "paving")]
 
 
+# Milestone 13 (T6): the object kinds of the new site parts. ``common.KINDS`` is a closed list the lead owns; until the
+# new names are in it, each part takes the nearest existing kind (``site_kind``) and says its own in ``site_part``.
+SITE_KINDS = {"platform": ("site_platform", "site_area"), "hedge": ("site_hedge", "site_boundary"),
+              "grass": ("site_grass", "site_decor"), "haze": ("atmosphere", "site_decor"), "backdrop": ("terrain", "terrain")}
+
+
+def site_kind(part: str) -> str:
+    """The manifest kind of a Milestone 13 site part: its own name when ``common.KINDS`` knows it, else the fallback."""
+    from wenart.blender import common
+
+    own, fallback = SITE_KINDS[part]
+    return own if own in common.KINDS else fallback
+
+
+PLATFORM_LOOKS = {"slab": {"terrace": "paving", "pool": "paving", "parking": "paving", "path": "paving"},
+                  "wall": ("concrete_exposed", None, "retaining wall: exposed concrete (not drawn)"),
+                  "kerb": ("concrete_exposed", None, "kerb: concrete (not drawn)"),
+                  "steps": None, "railing": None}
+
+
 def build_site(plan: dict, collection, looks: dict, make_material, manifest_objects: list, assumed: list) -> dict:
     """The site objects of ``site_plan``: the ground (kind ``terrain``), ``lightwell_<opening>`` (kind
     ``light_well``), the plot walls (``site_wall``, their ids), the areas (``site_area``, their ids) and
-    ``tree_<id>`` (``site_decor``: trunk and crown in one object, two slots). ``looks``: the resolved looks
-    (``exterior.resolve_looks``: ``garden``, ``paving``, ``plot_wall``, ``light_well``, ``bark``, ``foliage``,
-    ``ground``); ``make_material(look)`` gives the Blender material. Returns the summary for the scene
-    manifest (with the build's terrain changes for basement doors and the light wells)."""
+    ``tree_<id>`` (``site_decor``). ``looks``: the resolved looks (``exterior.resolve_looks``: ``garden``, ``paving``,
+    ``plot_wall``, ``light_well``, ``bark``, ``foliage``, ``ground``); ``make_material(look)`` gives the Blender
+    material. Returns the summary for the scene manifest (with the build's terrain changes for basement doors and
+    the light wells).
+
+    Milestone 13 (T6, under the ``levers`` of the plan): ``ground_backdrop`` (kind ``terrain``: the rising ring
+    to the horizon) and ``haze`` (kind ``atmosphere``: the closed hollow volume) with the ``sky`` lever;
+    ``platform_<id>_<part>`` (kind ``site_platform``: slab, wall, kerb, steps, railing) with ``platforms``;
+    ``<pool>_basin`` / ``_water`` / ``_coping`` (kind ``site_pool``; the coping and the rippled, absorbing water
+    with ``pools``); ``hedge_<id>`` (kind ``site_hedge``: the leaf-card hedge of ``vegetation.hedge_object``, its
+    box core when the vegetation module cannot build it) with ``hedge``, the inferred boundary hedge the same way;
+    every tree through ``vegetation.tree_object`` (a Poly Haven instance near the cameras with ``instances``, a
+    Sapling tree with ``sapling``, else the leaf-card tree; never the Milestone 12 ellipsoid) and the near-camera
+    grass (``vegetation.grass_patch``) with ``instances``. Every object's manifest entry says which source built it
+    (``veg_method``, ``asset``, ``licence``) and the species (``inferred``)."""
     from wenart.blender import common
+    from wenart.blender import vegetation as VG
 
     terrain = plan["terrain"]
+    levers = plan.get("levers") or site_levers()
+    pfs = [pf for pf in plan.get("platforms") or []]
+    platform_holes = [pf["polygon"] for pf in pfs if not pf.get("sloped")]
+    pooled = {pid for pf in pfs for pid in pf["pools"]}
     holes = [plan["outline"]] + [w["polygon"] for w in plan["wells"]] + list(plan.get("copy_holes") or []) \
-        + [p["polygon"] for p in plan.get("pools") or []]
+        + [p["polygon"] for p in plan.get("pools") or [] if p["id"] not in pooled] + platform_holes
     summary = {"built": True, "mode": plan["mode"], "objects": [],
                "reason": f"brief site: {plan['mode']} (docs/milestone10.md §3.2 item 5)", "terrain": {
         "kind": terrain["kind"], "z": {k: round(v, 4) for k, v in terrain["z"].items()}, "sides": terrain["sides"],
@@ -1410,7 +2094,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                          **({"kind": w["kind"], "inferred": True, "opening_ids": w["opening_ids"]}
                             if w.get("kind") == "front_court" else {})}
                         for w in plan["wells"]],
-        "plot_source": plan["plot_source"], "not_built": plan["not_built"], "warnings": plan["warnings"]}
+        "plot_source": plan["plot_source"], "not_built": plan["not_built"], "warnings": plan["warnings"],
+        "levers": dict(levers), "climate": plan.get("climate"), "hedges": [], "platforms": [], "vegetation": []}
 
     def entry(name, wid, kind, mat, status, extra):
         manifest_objects.append({"name": name, "wenart_id": wid, "kind": kind, "status": status, "level_id": None,
@@ -1428,6 +2113,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
           {"assumed": {"extent": [list(p) for p in plan["extent"]], "terrain": terrain["kind"],
                        "reason": "ground plane around the building (the levels per side as drawn, the rest assumed)"},
            "z_range": [round(min(zs), 4), round(max(zs), 4)], "look_source": ground_look.get("source")})
+    if levers.get("instances") and plan["mode"] == "full":
+        VG.lawn_relief(ob)                                   # the far lawn: a gentle displacement (no blades)
+    outer_rect = list(plan["extent"])
     if not is_flat(terrain):                     # 11 Oct 2026 (real04): a sloped ground reaches the horizon too
         sv, sf = skirt_faces(plan["extent"], terrain)
         ob = common.new_mesh_object("ground_skirt", sv, sf, collection=collection, wenart_id="ground_skirt",
@@ -1435,6 +2123,31 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         entry(ob.name, "ground_skirt", "terrain", ground_mat, "assumed",
               {"assumed": {"reason": "the ground beyond the sloped ground's rectangle to the horizon, at the ground's "
                                      "level there"}, "look_source": ground_look.get("source")})
+        x0, y0 = min(p[0] for p in plan["extent"]), min(p[1] for p in plan["extent"])
+        x1, y1 = max(p[0] for p in plan["extent"]), max(p[1] for p in plan["extent"])
+        outer_rect = [(x0 - HORIZON_M, y0 - HORIZON_M), (x1 + HORIZON_M, y0 - HORIZON_M),
+                      (x1 + HORIZON_M, y1 + HORIZON_M), (x0 - HORIZON_M, y1 + HORIZON_M)]
+    if levers.get("sky"):
+        bv, bf = backdrop_faces(outer_rect, terrain)
+        ob = common.new_mesh_object("ground_backdrop", bv, bf, collection=collection, wenart_id="ground_backdrop",
+                                    kind="terrain", status="assumed", materials=[ground_mat])
+        entry(ob.name, "ground_backdrop", "terrain", ground_mat, "assumed",
+              {"assumed": {"reason": "a rising ground ring to the clip distance: a soft hill line at the horizon "
+                                     "(inferred; no context drawn)"}, "inferred": True,
+               "look_source": ground_look.get("source")})
+        near = plan.get("near_extent") or plan["extent"]
+        z_lo = min(ground_z(terrain, x, y) for x, y in near)
+        z_hi = max(ground_z(terrain, x, y) for x, y in near) + 15.0
+        hv, hf = haze_box(near, (z_lo, z_hi))
+        haze_mat = haze_material()
+        ob = common.new_mesh_object("haze", hv, hf, collection=collection, wenart_id="haze", kind=site_kind("haze"),
+                                    status="assumed", materials=[haze_mat])
+        ob.display_type = "WIRE"
+        ob.visible_shadow = False
+        entry(ob.name, "haze", site_kind("haze"), haze_mat, "assumed",
+              {"site_part": "haze", "assumed": {"reason": "distance haze: a closed hollow mesh volume (Volume Scatter) beyond the near "
+                                     "ground, not a World volume (that disables the sun and the sky)",
+                           "density_per_m": HAZE["density"]}, "inferred": True})
     well_mat = make_material(looks["light_well"])
     for w in plan["wells"]:
         v, f = light_well_faces(w)
@@ -1461,6 +2174,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             assumed.append({"object": wid, "field": "height", "value": info["height"],
                             "reason": "plot wall height not drawn"})
     for area in plan["areas"]:
+        if area.get("platform_id"):
+            continue                                  # Milestone 13: built as a platform below
         z = area["z"]
         v, f = draped_faces(area["polygon"], holes, terrain, lift=area["lift"], z=z)
         if not f:
@@ -1475,35 +2190,150 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
               {"assumed": {"lift_m": area["lift"]} if z is not None else {"lift_m": area["lift"], "draped": True},
                "area_kind": area["kind"], "area_id": area.get("area_id"), "slug": look.get("material"),
                "colour": look.get("colour"), "look_source": look.get("source")})
-    if plan.get("pools"):                           # 11 Oct 2026 (real04): the drawn pools
-        tile, water = pool_materials()
+    # Milestone 13 (T6): the platforms (one level each with retaining walls, kerbs, steps and railings)
+    if pfs:
+        concrete = make_material({"material": PLATFORM_LOOKS["wall"][0], "colour": None, "source": "build",
+                                  "assumed": True, "reason": PLATFORM_LOOKS["wall"][2]})
+        step_mat = make_material(looks.get("steps") or looks["paving"])
+        rail_mat = make_material(looks.get("railing") or {"material": "painted_metal_white", "colour": None})
+        for pf in pfs:
+            slab_area = {"kind": "paving" if pf["kind"] in ("terrace", "pool", "path") else "parking",
+                         "id": pf["id"], "material": pf.get("material"), "colour": pf.get("colour")}
+            slab_look = area_look(slab_area, looks)
+            mats = {"slab": make_material(slab_look), "wall": concrete, "kerb": concrete, "steps": step_mat,
+                    "railing": rail_mat}
+            parts = platform_parts(pf, terrain)
+            for part in parts:
+                name = f"platform_{pf['id']}_{part['part']}"
+                mat = mats[part["part"]]
+                ob = common.new_mesh_object(name, part["verts"], part["faces"], collection=collection, wenart_id=name,
+                                            kind=site_kind("platform"), status="assumed", materials=[mat])
+                zz = [v[2] for v in part["verts"]] or [pf["z"]]
+                entry(ob.name, name, site_kind("platform"), mat, "assumed",
+                      {"site_part": "platform", "parent": pf["id"], "platform_kind": pf["kind"], "part": part["part"], "level_z": pf["z"],
+                       "edge": pf["edge"], "inferred": True, "z_range": [round(min(zz), 4), round(max(zz), 4)],
+                       "assumed": {"reason": pf["reason"]}, "area_id": pf.get("area_id"),
+                       "slug": slab_look.get("material") if part["part"] == "slab" else mats[part["part"]].name})
+            summary["platforms"].append({"id": pf["id"], "kind": pf["kind"], "z": pf["z"], "edge": pf["edge"],
+                                         "z_source": pf["z_source"], "marks": pf["marks"], "sloped": pf["sloped"],
+                                         "parts": [q["part"] for q in parts], "pools": pf["pools"],
+                                         "drop_m": pf["drop_m"], "rise_m": pf["rise_m"]})
+            assumed.append({"object": f"platform_{pf['id']}", "field": "level", "value": pf["z"],
+                            "reason": pf["reason"], "kind": "site_platform"})
+    if plan.get("pools"):                           # 11 Oct 2026 (real04): the drawn pools; Milestone 13: coping, water
+        tile, water = pool_materials(ripples=bool(levers.get("pools")))
         for pool in plan["pools"]:
-            parts = pool_parts(pool, terrain)
-            for part, mat, suffix in (("basin", tile, "basin"), ("water", water, "water")):
+            parts = pool_parts(pool, terrain, deck_z=pool.get("deck_z"))
+            built = [("basin", tile, "basin"), ("water", water, "water")]
+            if levers.get("pools") and parts["coping"][1]:
+                built.append(("coping", step_mat if pfs else make_material(looks["paving"]), "coping"))
+            for part, mat, suffix in built:
                 v, f = parts[part]
                 name = f"{pool['id']}_{suffix}"
                 ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=pool["id"], kind="site_pool",
                                             status="verified", materials=[mat])
                 entry(ob.name, pool["id"], "site_pool", mat, "verified",
                       {"evidence": pool.get("evidence") or [], "part": suffix,
-                       "z_range": [round(parts["floor_z"], 4), round(parts["edge_z"], 4)],
-                       "assumed": {"depth": pool["depth"], "reason": "no pool section drawn"}})
-    bark, foliage = (make_material(looks["bark"]), make_material(looks["foliage"])) if plan["trees"] else (None, None)
-    for item in plan["trees"]:
-        parts = tree_parts(item, terrain)
+                       "z_range": [round(parts["floor_z"], 4), round(parts["coping_z"] if suffix == "coping"
+                                                                     else parts["edge_z"], 4)],
+                       "deck_z": pool.get("deck_z"), "platform": pool.get("platform_id"),
+                       "assumed": {"depth": pool["depth"], "reason": "no pool section drawn"
+                                   + ("; coping, tiles and rippled water assumed" if levers.get("pools") else "")}})
+    # Milestone 13 (T6): hedges (drawn rows and the inferred boundary) and the trees through the vegetation module
+    inferred = plan.get("inferred")
+    hedge_recs = list(plan.get("hedges") or [])
+    if inferred and levers.get("hedge"):
+        segs = [seg for seg in inferred["boundary"] if seg["kind"] == "hedge"]
+        for k, seg in enumerate(segs):
+            hedge_recs.append({"id": f"boundary_hedge_{k + 1:02d}", "polyline": [list(seg["start"]), list(seg["end"])],
+                               "width_m": INFERRED["hedge_thickness"], "height_m": INFERRED["hedge_height"],
+                               "height_class": "low", "species": species_for("low", (plan.get("climate") or {}).get(
+                                   "climate", "temperate"), kind="hedge"), "species_inferred": True, "inferred": True,
+                               "evidence": [], "source": "inferred_boundary", "symbol_ids": [],
+                               "reason": "no site plan: a low hedge on the inferred plot boundary (inferred)"})
+    foliage_mat = make_material(looks["foliage"]) if hedge_recs or plan["trees"] else None
+    for h in hedge_recs:
+        v, f, info = hedge_parts(h, terrain)
+        if not f:
+            continue
+        name = f"hedge_{h['id']}" if not h["id"].startswith(("hedge_", "boundary_")) else h["id"]
+        ob, rec = None, None
+        if levers.get("hedge"):
+            try:
+                ob, rec = VG.hedge_object(dict(h, core_verts=v, core_faces=f, ground_z=info["z_range"][0]),
+                                          collection=collection, name=name)
+            except Exception as exc:                 # the box core stands in; the reason is in the manifest
+                rec = {"method": "box", "error": f"{type(exc).__name__}: {exc}"}
+                ob = None
+        if ob is None:
+            ob = common.new_mesh_object(name, v, f, collection=collection, wenart_id=name, kind=site_kind("hedge"),
+                                        status="assumed", materials=[foliage_mat])
+            rec = dict(rec or {}, method=(rec or {}).get("method", "box"))
+        entry(ob.name, name, site_kind("hedge"), foliage_mat if rec.get("method") == "box" else None, "assumed",
+              {"site_part": "hedge", "evidence": h.get("evidence") or [], "inferred": True, "height_m": h["height_m"],
+               "width_m": h["width_m"], "length_m": info["length_m"], "height_class": h["height_class"],
+               "species": h["species"], "species_inferred": h.get("species_inferred", True),
+               "symbol_ids": h.get("symbol_ids") or [], "source": h.get("source"), "veg_method": rec.get("method"),
+               "cards": rec.get("cards"), "material": rec.get("material") or (foliage_mat.name if foliage_mat else None),
+               "z_range": info["z_range"], "assumed": {"reason": h["reason"], **({"error": rec["error"]}
+                                                                                   if rec.get("error") else {})}})
+        summary["hedges"].append({"id": name, "length_m": info["length_m"], "height_m": h["height_m"],
+                                  "species": h["species"], "method": rec.get("method"), "symbols": len(h.get("symbol_ids") or [])})
+        assumed.append({"object": name, "field": "hedge", "value": [h["height_m"], h["species"]], "reason": h["reason"],
+                        "kind": "site_hedge"})
+    climate = (plan.get("climate") or {}).get("climate", "temperate")
+    bark = make_material(looks["bark"]) if plan["trees"] else None
+    near_pts = plan.get("near_extent") or plan["extent"]
+    for k, item in enumerate(plan["trees"]):
+        parts = tree_parts(item, terrain, climate)
         wid = f"tree_{item.get('id') or len(summary['objects'])}"
-        meshes = [m for m in (parts["trunk"], parts["crown"]) if m is not None]
-        v, f = geom2d.merge(meshes)
-        slots = ([0] * len(parts["trunk"][1]) if parts["trunk"] else []) + [1] * len(parts["crown"][1])
-        ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_decor",
-                                    status="assumed", materials=[bark, foliage], face_material_indices=slots)
-        entry(ob.name, wid, "site_decor", foliage, "assumed",
-              {"evidence": item.get("evidence") or [], "parent": item.get("id"),
-               "assumed": {"height_m": parts["height"], "reason": parts["reason"]}, "site_kind": item.get("kind")})
+        cx, cy = float(item["center"][0]), float(item["center"][1])
+        near = geom2d.distance_to_polygon_edges((cx, cy), plan["outline"]) <= VG.NEAR_CAMERA_M \
+            or G.point_in_polygon((cx, cy), plan["outline"])
+        ob, rec = None, None
+        try:
+            ob, rec = VG.tree_object(parts["species"], parts["height"], k, bool(near), collection=collection,
+                                     name=wid, position=(cx, cy, parts["ground_z"]), levers=levers,
+                                     crown_m=parts["diameter"])
+        except Exception as exc:
+            rec = {"method": "proxy", "error": f"{type(exc).__name__}: {exc}"}
+            ob = None
+        if ob is None:                               # the low-poly proxy only when the vegetation module failed
+            meshes = [m for m in (parts["trunk"], parts["crown"]) if m is not None]
+            v, f = geom2d.merge(meshes)
+            slots = ([0] * len(parts["trunk"][1]) if parts["trunk"] else []) + [1] * len(parts["crown"][1])
+            ob = common.new_mesh_object(wid, v, f, collection=collection, wenart_id=wid, kind="site_decor",
+                                        status="assumed", materials=[bark, foliage_mat], face_material_indices=slots)
+        entry(ob.name, wid, "site_decor", None, "assumed",
+              {"evidence": item.get("evidence") or [], "parent": item.get("id"), "site_kind": item.get("kind"),
+               "species": parts["species"], "species_inferred": parts["species_inferred"],
+               "size_class": parts["size_class"], "height_m": parts["height"], "crown_m": parts["diameter"],
+               "near_camera": bool(near), "veg_method": rec.get("method"), "asset": rec.get("asset"),
+               "licence": rec.get("licence"), "material": rec.get("material"), "inferred": True,
+               "assumed": {"height_m": parts["height"], "reason": parts["reason"],
+                           **({"error": rec["error"]} if rec.get("error") else {})}})
+        summary["vegetation"].append({"id": wid, "species": parts["species"], "size_class": parts["size_class"],
+                                      "height_m": parts["height"], "method": rec.get("method"), "asset": rec.get("asset"),
+                                      "near_camera": bool(near)})
         assumed.append({"object": wid, "field": "tree", "value": parts["height"], "reason": parts["reason"],
                         "parent": str(item.get("id")), "kind": "site_tree"})
-    inferred = plan.get("inferred")
-    if inferred:                                     # Milestone 11 E11: steps and the boundary (inferred)
+    if plan["mode"] == "full" and levers.get("instances"):
+        lawn = plan["plot"] if len(plan["plot"]) >= 3 else geom2d.offset_polygon(plan["outline"], -8.0)
+        lawn_holes = holes + [pf["polygon"] for pf in pfs if pf.get("sloped")] \
+            + [a["polygon"] for a in plan["areas"] if not a.get("platform_id")]
+        try:
+            gob, grec = VG.grass_patch(lawn, VG.GRASS_DENSITY_NEAR, collection=collection, terrain=terrain,
+                                       holes=lawn_holes, name="grass_near")
+        except Exception as exc:
+            gob, grec = None, {"method": "none", "error": f"{type(exc).__name__}: {exc}"}
+        if gob is not None:
+            entry(gob.name, "grass_near", site_kind("grass"), None, "assumed",
+                  {"site_part": "grass", "inferred": True, "veg_method": grec.get("method"), "asset": grec.get("asset"),
+                   "licence": grec.get("licence"), "density_per_m2": grec.get("density"), "clumps": grec.get("count"),
+                   "assumed": {"reason": "lawn near the cameras: scattered grass clumps over the grass texture "
+                                         "(inferred; no planting drawn)"}})
+        summary["grass"] = grec
+    if inferred:                                     # Milestone 11 E11: steps and the fence (inferred)
         step_mat = make_material(looks.get("steps") or looks["paving"]) if inferred["steps"] else None
         rail_mat = make_material(looks.get("railing") or {"material": "painted_metal_white", "colour": None}) \
             if any(st.get("rails") for st in inferred["steps"]) else None
@@ -1521,6 +2351,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                                                              "and steps (inferred)"}})
         kinds = sorted({seg["kind"] for seg in inferred["boundary"]})
         for kind in kinds:
+            if kind == "hedge" and levers.get("hedge"):
+                continue                              # built above as leaf-card hedges
             segs = [seg for seg in inferred["boundary"] if seg["kind"] == kind]
             look = looks.get(kind) or (looks["foliage"] if kind == "hedge" else {"material": "wood_cladding",
                                                                                    "colour": None})

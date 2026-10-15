@@ -28,6 +28,25 @@ Infinigen exports, ``report/`` = the small files the job copies to ``$WENART_RES
 library-audit/p4``: the P4 audit, ``audit/`` copied to ``$WENART_RESULTS/library/audit/p4``), ``--p3`` (P3's audit
 root, ``/workspace/library-audit``), ``--lists`` (the committed lists and approvals, ``results/library``).
 
+Milestone 13 (docs/milestone13.md §5.1 phase 2, §13.1 track T7, §13.6 pod P2; ``scripts/jobs/library_growth.sh``):
+
+    demands                             the drawn demands of the committed buildings and the size grid
+                                        (``demands.py``) -> ``report/demands.json``, ``size_grid.json``
+    size-grid                           the coverage per licence mode on the catalogue copies (or the repo's
+                                        catalogues before the growth) and the demand gap report
+                                        (``coverage.json``, ``gaps_demand.md``) plus the pick plan per source
+    speed-probe                         the first ABO downloads timed (``growth.speed_probe`` settings) ->
+                                        ``speed.json`` with the MB/s and the pick counts the budget allows
+    ingest --source hssd                the HSSD objects of ``approved_hssd.json`` (picks of the committed list; the
+                                        gate: HF_TOKEN from the environment, a 403 skips the step with a clear line)
+                                        into ``<growth>/hssd/`` and ``<assets>/models/hssd/<uid>.glb``
+    ingest --source ambientcg           the shell sets (2K-JPG) through ``wenart.assets.fetch.fetch_texture``
+    ingest --source abo|polyhaven --m13 the Milestone 13 lists (``candidates_<source>_m13.json``,
+                                        ``approved_<source>_m13.json``); Poly Haven at 2K (``--size 2k``)
+    catalogue                           also the HSSD entries (``growth_entries.hssd_entry``) and the 2K relink of
+                                        the Poly Haven entries whose 2K glTF is present
+    report                              also the counts per source, per licence flag and per licence mode
+
 Exit codes: 0 done, 1 something failed or nothing to do (the record says which), 2 server error, 3 deadline.
 """
 from __future__ import annotations
@@ -96,8 +115,25 @@ def copies(args) -> tuple[Path, Path]:
     return cat / "catalog_library.json", cat / "catalog.json"
 
 
+def list_names(source: str, m13: bool = False) -> tuple[str, str]:
+    """``(candidates file, approval source key)`` of a source: the Milestone 12 names, or with ``m13`` the
+    Milestone 13 lists of ABO and Poly Haven (``candidates_abo_m13.json`` / ``approved_abo_m13.json``); HSSD and
+    ambientCG have one list each."""
+    if source == "infinigen":
+        return "plan_infinigen.json", "infinigen"
+    if m13 and source in ("abo", "polyhaven"):
+        return f"candidates_{source}_m13.json", f"{source}_m13"
+    return f"candidates_{source}.json", source
+
+
 def candidates(args, source: str) -> dict:
-    name = "plan_infinigen.json" if source == "infinigen" else f"candidates_{source}.json"
+    name, _key = list_names(source, bool(getattr(args, "m13", False)))
+    return read_json(Path(args.lists) / GROWTH_DIR / name) or {}
+
+
+def m13_candidates(args, source: str) -> dict:
+    """The Milestone 13 list of a source whatever ``--m13`` says (the catalogue step reads both)."""
+    name, _key = list_names(source, True)
     return read_json(Path(args.lists) / GROWTH_DIR / name) or {}
 
 
@@ -194,18 +230,94 @@ def ingest_files(rows: list, workers: int, fetch: Optional[Callable] = None) -> 
     return _parallel(one, rows, workers)
 
 
+def ingest_name(args) -> str:
+    """The ingest record's name: ``ingest_<source>.json``, ``ingest_<source>_m13.json`` for the M13 lists."""
+    _name, key = list_names(args.source, bool(getattr(args, "m13", False)))
+    return f"ingest_{key}.json"
+
+
+def ingest_hssd(args, ids: list, cands: dict) -> tuple[list, dict]:
+    """The HSSD objects (``wenart.assets.hssd.download``) into ``<growth>/hssd/`` (the repo layout), then copied to
+    ``<assets>/models/hssd/<uid>.glb`` (kept when present; nothing deleted). ``(records, download record)``."""
+    from wenart.assets import hssd as H
+    dest = Path(args.growth) / "hssd"
+    listing = {c.get("hssd_id") or i[len(H.UID_PREFIX):]: c.get("path") for i, c in cands.items() if c.get("path")}
+    rec = H.download(ids, dest, args.token_env, max_workers=args.workers, listing=listing)
+    have = H.present([c.get("hssd_id") or i[len(H.UID_PREFIX):] for i, c in cands.items() if i in ids], dest)
+    records = []
+    for uid in ids:
+        hid = (cands.get(uid) or {}).get("hssd_id") or uid[len(H.UID_PREFIX):]
+        row = {"id": uid, "hssd_id": hid, "ok": False}
+        src = have.get(hid)
+        if src is None:
+            row["error"] = "not downloaded" + (f": {rec['gate']['reason']}" if rec.get("skipped") and rec.get("gate")
+                                               else (f": {rec['error']}" if rec.get("error") else ""))
+            records.append(row)
+            continue
+        target = Path(args.assets) / "models" / "hssd" / f"{uid}.glb"
+        if not target.is_file() or target.stat().st_size != src.stat().st_size:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, target)
+        else:
+            row["kept"] = True
+        row.update(ok=True, glb=f"models/hssd/{uid}.glb", path=str(target), bytes=target.stat().st_size,
+                   sha256=sha256_file(target))
+        records.append(row)
+    return records, rec
+
+
+def ingest_ambientcg(args, ids: list, cands: dict) -> list:
+    """The ambientCG shell sets (``fetch.fetch_texture``: the 2K-JPG zip unpacked into ``<assets>/textures/<id>/``,
+    recorded in the assets manifest; present sets are kept)."""
+    from wenart.assets import fetch as F
+    out = []
+    for aid in ids:
+        t0 = time.time()
+        row = {"id": aid, "ok": False, "size": args.size if args.size != PH_SIZE else "2k"}
+        try:
+            entry = F.fetch_texture(aid, Path(args.assets), size=row["size"], source="ambientcg")
+            row.update(ok=True, files=entry.get("files"), sha256=entry.get("sha256"))
+        except Exception as exc:  # noqa: BLE001 - recorded
+            row["error"] = f"{type(exc).__name__}: {exc}"
+        row["seconds"] = round(time.time() - t0, 1)
+        print(f"growth ambientcg: {aid} {'ok' if row['ok'] else row['error']}", flush=True)
+        out.append(row)
+    return out
+
+
 def cmd_ingest(args) -> int:
     from wenart.assets.audit import growth as G
     t0 = time.time()
+    _name, key = list_names(args.source, bool(getattr(args, "m13", False)))
     try:
-        doc = G.approved(args.source, args.lists)
+        doc = G.approved(key, args.lists)
     except PermissionError as exc:
-        print(f"growth ingest {args.source} refused: {exc}")
-        write_json(report_dir(args) / f"ingest_{args.source}.json", {"source": args.source, "refused": str(exc)})
+        print(f"growth ingest {key} refused: {exc}")
+        write_json(report_dir(args) / ingest_name(args), {"source": args.source, "refused": str(exc)})
         return EXIT_NOTHING
     ids = list(doc["ids"])
     cands = {c["id"]: c for c in candidates(args, args.source).get("candidates") or []}
-    if args.source == "polyhaven":
+    extra: dict = {}
+    if args.source == "hssd":
+        records, dl = ingest_hssd(args, ids, cands)
+        extra = {"download": {k: v for k, v in dl.items() if k not in ("ok", "missing")},
+                 "gate": dl.get("gate"), "skipped": dl.get("skipped")}
+        if dl.get("skipped"):
+            print(f"growth ingest hssd: SKIPPED: {(dl.get('gate') or {}).get('reason')}")
+    elif args.source == "ambientcg":
+        records = ingest_ambientcg(args, ids, cands)
+    elif args.source == "polyhaven":
+        if getattr(args, "m13", False):
+            # Milestone 13: the Milestone 12 furniture is fetched again at 2K by the same step (the catalogue step
+            # relinks the entries whose 2K file is present); its approval and list are the M12 ones
+            try:
+                old = G.approved("polyhaven", args.lists)
+                ids += [i for i in old.get("ids") or [] if i not in ids]
+                cands.update({c["id"]: c for c in (read_json(Path(args.lists) / GROWTH_DIR / "candidates_polyhaven.json")
+                                                   or {}).get("candidates") or [] if c["id"] not in cands})
+                extra["m12_ids_refetched"] = len(old.get("ids") or [])
+            except PermissionError:
+                pass
         records = ingest_polyhaven(args, ids, cands)
     elif args.source == "abo":
         from wenart.assets import abo as AB
@@ -229,13 +341,154 @@ def cmd_ingest(args) -> int:
         print(f"growth ingest: {args.source} has no download (Infinigen models are generated)")
         return EXIT_NOTHING
     ok = sum(1 for r in records if r["ok"])
-    write_json(report_dir(args) / f"ingest_{args.source}.json",
-               {"source": args.source, "approved_by": doc.get("approved_by"), "approved_utc": doc.get("approved_utc"),
-                "approved": len(ids), "ok": ok, "failed": len(records) - ok, "size": args.size if args.source ==
-                "polyhaven" else None, "seconds": round(time.time() - t0, 1), "records": records})
-    print(f"growth ingest {args.source}: {ok} of {len(ids)} ok")
+    write_json(report_dir(args) / ingest_name(args),
+               {"source": args.source, "list": key, "approved_by": doc.get("approved_by"),
+                "approved_utc": doc.get("approved_utc"), "ids_from": doc.get("ids_from"),
+                "approved": len(ids), "ok": ok, "failed": len(records) - ok, "size": args.size if args.source in
+                ("polyhaven", "ambientcg") else None, "seconds": round(time.time() - t0, 1), "records": records,
+                **extra})
+    print(f"growth ingest {key}: {ok} of {len(ids)} ok")
+    if extra.get("skipped"):
+        return EXIT_NOTHING
     return EXIT_OK if ok == len(ids) else EXIT_NOTHING
 
+
+
+# --------------------------------------------------------------------------
+# Milestone 13: demands, size grid, coverage, speed probe
+# --------------------------------------------------------------------------
+
+def cmd_demands(args) -> int:
+    """The drawn demands of the committed buildings and their size grid (``demands.py``) -> ``report/demands.json``
+    and ``size_grid.json`` (pure: the same files the session commits under results/library/growth/)."""
+    from wenart.assets.audit import demands as D
+    dem = D.drawn_demands()
+    grid = D.size_grid(dem)
+    stamp = args.checked_utc or now_utc()
+    # the building paths relative to the repo (the file is committed: no path of one machine in it)
+    buildings = {k: (v.relative_to(D.REPO).as_posix() if v.is_relative_to(D.REPO) else str(v))
+                 for k, v in D.BUILDING_PATHS.items()}
+    write_json(report_dir(args) / "demands.json",
+               {"kind": "library_demands", "written_utc": stamp, "projects": list(D.PROJECTS),
+                "buildings": buildings, "pieces": sum(d["count"] for d in dem),
+                "rows": len(dem), "summary": D.summary(dem), "demands": dem})
+    write_json(report_dir(args) / "size_grid.json",
+               {"kind": "library_size_grid", "written_utc": stamp, "types": len(grid),
+                "bins_demanded": sum(1 for t in grid for b in grid[t] if b["demand"]), "grid": grid})
+    print(f"growth demands: {sum(d['count'] for d in dem)} pieces in {len(dem)} rows of {len(D.summary(dem))} types; "
+          f"{sum(1 for t in grid for b in grid[t] if b['demand'])} bins demanded")
+    return EXIT_OK
+
+
+def coverage_doc(catalog, dem: list, grid: dict, cfg: dict, stamp: str, scope: str) -> dict:
+    from wenart.assets.audit import demands as D
+    from wenart.furniture import catalog as C
+    cov = {m: D.coverage(catalog, dem, m) for m in C.LICENCE_MODES}
+    min_n = int((cfg.get("growth") or {}).get("min_models_per_bin", D.MIN_MODELS_PER_BIN))
+    gaps = D.demand_gaps(grid, cov, min_n)
+    bins = [(t, b) for t in grid for b in grid[t] if b["demand"]]
+    covered = {m: sum(1 for t, b in bins if cov[m][t][b["bin"]] >= min_n) for m in cov}
+    return {"kind": "library_demand_coverage", "written_utc": stamp, "scope": scope, "min_models_per_bin": min_n,
+            "bins_demanded": len(bins), "bins_covered": covered, "gap_rows": len(gaps),
+            "by_mode": cov, "gaps": gaps}
+
+
+def cmd_size_grid(args) -> int:
+    """The coverage of the demand bins per licence mode on the catalogue copies when the catalogue step wrote them,
+    else the repo's catalogues (before the growth), the demand gap report (``gaps.demand_gaps_markdown``) and the
+    pick plan per source (the committed lists' counts against the targets of ``audit.yaml growth``)."""
+    from wenart.assets.audit import demands as D
+    from wenart.assets.audit import gaps as GP
+    from wenart.assets.audit import load_config
+    from wenart.furniture import catalog as C
+    cfg = load_config()
+    stamp = args.checked_utc or now_utc()
+    dem = D.drawn_demands()
+    grid = D.size_grid(dem)
+    lib_path, ph_path = copies(args)
+    if lib_path.is_file() and ph_path.is_file():
+        catalog, scope = C.load(ph_path, library=lib_path), "catalogue copies after the catalogue step"
+    else:
+        catalog, scope = C.load(), "the repo's catalogues (before the growth)"
+    doc = coverage_doc(catalog, dem, grid, cfg, stamp, scope)
+    plan = {}
+    g = cfg.get("growth") or {}
+    for source, target_key in (("hssd", "hssd_target"), ("abo", "abo_target")):
+        lst = m13_candidates(args, source) if source == "abo" else candidates(args, source)
+        picked = [c for c in (lst.get("candidates") or []) if c.get("pick", True)]
+        plan[source] = {"picked": len(picked), "target": g.get(target_key),
+                        "size_mb": round(sum(c.get("size_mb") or 0 for c in picked), 1)}
+    for source in ("polyhaven", "ambientcg"):
+        lst = m13_candidates(args, source) if source == "polyhaven" else candidates(args, source)
+        picked = [c for c in (lst.get("candidates") or []) if c.get("pick", True)]
+        plan[source] = {"picked": len(picked), "size_mb": round(sum(c.get("size_mb") or 0 for c in picked), 1)}
+    doc["pick_plan"] = plan
+    write_json(report_dir(args) / "coverage.json", doc)
+    (report_dir(args) / "gaps_demand.md").write_text(
+        GP.demand_gaps_markdown(doc["gaps"], "Library gaps by drawn demand", f"Scope: {scope}; written {stamp}; "
+                                f"a bin is a gap below {doc['min_models_per_bin']} usable models in a licence mode."),
+        encoding="utf-8")
+    print(f"growth size-grid: {doc['bins_demanded']} bins demanded, covered {doc['bins_covered']}, "
+          f"{doc['gap_rows']} gap rows ({scope}); picks {json.dumps(plan)}")
+    return EXIT_OK
+
+
+def plan_picks(mb_s: float, cfg_growth: dict, list_counts: dict, mean_mb: dict) -> dict:
+    """The pick counts the measured speed allows (pure): per source the picked count of its list, cut to the lower
+    bound of its target when the budget (``speed_probe.budget_minutes`` at ``mb_s``) does not hold every list's
+    bytes; below ``min_mb_s`` every source takes its lower bound."""
+    sp = cfg_growth.get("speed_probe") or {}
+    budget_mb = float(sp.get("budget_minutes", 60)) * 60.0 * max(float(mb_s), 0.0)
+    slow = float(mb_s) < float(sp.get("min_mb_s", 5.0))
+    need = sum(list_counts.get(s, 0) * float(mean_mb.get(s, 0.0)) for s in list_counts)
+    out = {"mb_s": round(float(mb_s), 2), "budget_mb": round(budget_mb, 1), "need_mb": round(need, 1), "slow": slow,
+           "fits_budget": need <= budget_mb, "picks": {}}
+    for source, n in list_counts.items():
+        target = cfg_growth.get(f"{source}_target")
+        lo = int(target[0]) if isinstance(target, (list, tuple)) and target else n
+        take = n if (need <= budget_mb and not slow) else min(n, lo)
+        out["picks"][source] = {"listed": n, "take": take, "mb": round(take * float(mean_mb.get(source, 0.0)), 1)}
+    return out
+
+
+def cmd_speed_probe(args) -> int:
+    """The first ABO GLBs of the Milestone 13 list timed (``growth.speed_probe.files``; present files are kept and
+    not timed) -> ``report/speed.json`` with the MB/s and the pick counts (``plan_picks``). Runs before the ingests;
+    its downloads are the ingest's (same paths), so nothing is fetched twice."""
+    from wenart.assets import abo as AB
+    from wenart.assets.audit import load_config
+    cfg = (load_config().get("growth") or {})
+    sp = cfg.get("speed_probe") or {}
+    n_files = int(sp.get("files", 8))
+    lst = m13_candidates(args, "abo")
+    cands = [c for c in (lst.get("candidates") or []) if c.get("pick", True) and c.get("glb")]
+    base = AB.load_config()["dataset"]["base_url"]
+    rows = []
+    for c in cands:
+        dest = Path(args.assets) / "models" / "abo" / f"{c['id']}.glb"
+        if dest.is_file():
+            continue
+        rows.append({"id": c["id"], "url": f"{base}/3dmodels/original/{c['glb']}", "dest": dest,
+                     "max_bytes": size_limit(c.get("size_mb"))})
+        if len(rows) >= n_files:
+            break
+    t0 = time.time()
+    records = ingest_files(rows, args.workers) if rows else []
+    secs = max(time.time() - t0, 1e-3)
+    got = sum(r.get("bytes", 0) for r in records if r.get("ok"))
+    mb_s = got / 1e6 / secs if rows else float(sp.get("assume_mb_s", 99.0))
+    counts = {"hssd": sum(1 for c in (candidates(args, "hssd").get("candidates") or []) if c.get("pick", True)),
+              "abo": len(cands)}
+    from wenart.assets import hssd as H
+    mean = {"hssd": H.FILE_SIZE_MB["mean"],
+            "abo": (sum(c.get("size_mb") or 20.8 for c in cands) / len(cands)) if cands else 20.8}
+    plan = plan_picks(mb_s, cfg, counts, mean)
+    doc = {"kind": "library_growth_speed", "written_utc": now_utc(), "files": len(rows), "bytes": got,
+           "seconds": round(secs, 1), "measured": bool(rows), "workers": args.workers, "records": records, **plan}
+    write_json(report_dir(args) / "speed.json", doc)
+    print(f"growth speed-probe: {len(rows)} file(s), {got / 1e6:.1f} MB in {secs:.1f} s = {mb_s:.1f} MB/s"
+          f"{'' if rows else ' (assumed: every probe file was present)'}; picks {json.dumps(plan['picks'])}")
+    return EXIT_OK
 
 # --------------------------------------------------------------------------
 # GSO licence and conversion
@@ -472,13 +725,35 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
         except (GM.MeshError, OSError, KeyError, ValueError) as exc:
             drop(source, iid, f"not catalogued: {type(exc).__name__}: {exc}")
             return None
-    # Poly Haven
+    # Poly Haven (the Milestone 12 list and the Milestone 13 one: furniture at 2K and vegetation); a record of the
+    # M13 ingest whose id is a catalogue model outside the M13 list is the 2K re-fetch of a Milestone 12 model:
+    # relinked by cmd_catalogue, never re-made as a pending entry
     cands = {c["id"]: c for c in candidates(args, "polyhaven").get("candidates") or []}
-    for r in (read_json(report_dir(args) / "ingest_polyhaven.json") or {}).get("records") or []:
+    m13_ph = {c["id"]: c for c in m13_candidates(args, "polyhaven").get("candidates") or []}
+    cands.update(m13_ph)
+    ph_records = [(r, False) for r in (read_json(report_dir(args) / "ingest_polyhaven.json") or {}).get("records")
+                  or []]
+    ph_records += [(r, True) for r in (read_json(report_dir(args) / "ingest_polyhaven_m13.json") or {}).get("records")
+                   or []]
+    from wenart.assets.audit import items as I
+    ph_doc = I.read_json(I.POLYHAVEN_PATH) or {}
+    existing_ph = {e.get("id") for sec in ("entries", "decor") for e in ph_doc.get(sec) or [] if isinstance(e, dict)}
+    seen_ph: set = set()
+    for r, from_m13 in ph_records:
+        if r["id"] in seen_ph:
+            continue
+        seen_ph.add(r["id"])
+        if from_m13 and r["id"] in existing_ph and r["id"] not in m13_ph:
+            continue
         if not r.get("ok"):
             drop("polyhaven", r["id"], f"not downloaded: {r.get('error')}")
             continue
         c = cands.get(r["id"])
+        if c is not None and c.get("kind") == "vegetation":
+            previews.append({"id": r["id"], "source": "polyhaven", "kind": "vegetation", "type": c.get("type"),
+                             "gltf": r.get("gltf"), "note": "vegetation model for wenart.blender.vegetation (T6): "
+                                                            "no furniture catalogue entry"})
+            continue
         if c is None or c["type"] not in known:
             drop("polyhaven", r["id"], "no catalogue type")
             continue
@@ -492,10 +767,13 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
         if e:
             entries.append(e)
             hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
-    # ABO
+    # ABO (the Milestone 12 list and the Milestone 13 size-grid list)
     acfg = AB.load_config()
     cands = {c["id"]: c for c in candidates(args, "abo").get("candidates") or []}
-    for r in (read_json(report_dir(args) / "ingest_abo.json") or {}).get("records") or []:
+    cands.update({c["id"]: c for c in m13_candidates(args, "abo").get("candidates") or []})
+    abo_records = (read_json(report_dir(args) / "ingest_abo.json") or {}).get("records") or []
+    abo_records += (read_json(report_dir(args) / "ingest_abo_m13.json") or {}).get("records") or []
+    for r in abo_records:
         c = cands.get(r["id"])
         if not r.get("ok"):
             drop("abo", r["id"], f"not downloaded: {r.get('error')}")
@@ -511,8 +789,36 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
             fp = None
             if c["type"] in OV.FOOTPRINT_TYPES:
                 fp = OV.footprint_occupancy(GM.triangles_of(path), m["bbox_min_m"], m["bbox_max_m"])
-            return GE.abo_entry(c, m, r["sha256"], acfg, stamp, footprint=fp)
+            e = GE.abo_entry(c, m, r["sha256"], acfg, stamp, footprint=fp)
+            if m.get("pbr"):
+                e["pbr_maps"] = dict(m["pbr"])
+            if c.get("bin"):
+                e["growth"] = dict(e.get("growth") or {}, milestone="m13", bin=c.get("bin"),
+                                   fits_caps=c.get("fits_caps"), list="candidates_abo_m13.json")
+            return e
         e = guard("abo", r["id"], abo)
+        if e:
+            entries.append(e)
+            hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
+    # HSSD (Milestone 13, relaxed licence mode: CC BY-NC 4.0)
+    cands = {c["id"]: c for c in candidates(args, "hssd").get("candidates") or []}
+    for r in (read_json(report_dir(args) / "ingest_hssd.json") or {}).get("records") or []:
+        c = cands.get(r["id"])
+        if not r.get("ok"):
+            drop("hssd", r["id"], f"not downloaded: {r.get('error')}")
+            continue
+        if c is None or c["type"] not in known:
+            drop("hssd", r["id"], f"no catalogue type for {(c or {}).get('type', '?')}")
+            continue
+
+        def hssd(r=r, c=c):
+            path = assets / r["glb"]
+            m = measured(path, r["sha256"], cache, rules)
+            fp = None
+            if c["type"] in OV.FOOTPRINT_TYPES:
+                fp = OV.footprint_occupancy(GM.triangles_of(path), m["bbox_min_m"], m["bbox_max_m"])
+            return GE.hssd_entry(c, m, r["sha256"], stamp, rules, footprint=fp, pbr=m.get("pbr"))
+        e = guard("hssd", r["id"], hssd)
         if e:
             entries.append(e)
             hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
@@ -570,6 +876,28 @@ def source_key(e: dict) -> str:
     return "infinigen" if (e.get("generated") or {}).get("generator") == "infinigen" else e["source"]
 
 
+def relink_polyhaven_2k(doc: dict, assets: Path, records: list) -> int:
+    """Milestone 13: the existing Poly Haven entries whose 2K glTF was fetched (``ingest_polyhaven_m13.json``
+    records of the catalogue's own ids) point to the 2K file (``gltf``, ``resolution``, ``sha256_gltf``); the 1K file
+    stays on the volume. Returns the number relinked."""
+    by_id = {r["id"]: r for r in records if r.get("ok") and r.get("gltf")}
+    n = 0
+    for section in ("entries", "decor"):
+        for e in doc.get(section) or []:
+            r = by_id.get(e.get("id")) if isinstance(e, dict) else None
+            if not r or e.get("gltf") == r["gltf"] or not (assets / r["gltf"]).is_file():
+                continue
+            e["gltf_1k"] = e.get("gltf")
+            e["gltf"] = r["gltf"]
+            e["resolution"] = r.get("size") or "2k"
+            if (r.get("sha256") or {}).get("gltf"):
+                e["sha256_gltf"] = r["sha256"]["gltf"]
+            e["resolution_note"] = "M13 growth: 2K glTF fetched by pod P2 (docs/milestone13.md §5.1 phase 2); the 1K " \
+                                   "file stays as gltf_1k"
+            n += 1
+    return n
+
+
 def cmd_catalogue(args) -> int:
     from collections import Counter
 
@@ -578,6 +906,8 @@ def cmd_catalogue(args) -> int:
     stamp = args.checked_utc or now_utc()
     entries, dropped, previews, hints = new_entries(args, stamp)
     lib, ph, stats = GE.build_copies(I.read_json(I.LIBRARY_PATH), I.read_json(I.POLYHAVEN_PATH), entries)
+    ph2k = (read_json(report_dir(args) / "ingest_polyhaven_m13.json") or {}).get("records") or []
+    stats["polyhaven_relinked_2k"] = relink_polyhaven_2k(ph, Path(args.assets), ph2k)
     lib_path, ph_path = copies(args)
     write_json(lib_path, lib)
     write_json(ph_path, ph)
@@ -616,12 +946,13 @@ def unanswered(a: Namespace, model, passes: list) -> int:
     if not mdoc:
         return 0
     items = I.load_items(Path(a.catalog) if a.catalog else None, Path(a.polyhaven) if a.polyhaven else None)
-    version = (load_config().get("ask") or {}).get("version", "m12.1")
+    cfg_ask = load_config().get("ask") or {}
+    version = cfg_ask.get("version", "m12.1")
     n = 0
     for p in passes:
         second = p == 2
         only = CLI.second_pass_ids(items, A.load_answers(audit, model)) if second else None
-        doc = A.build_requests(items, mdoc, audit, version, only, second)
+        doc = A.build_requests(items, mdoc, audit, version, only, second, cfg_ask=cfg_ask)
         store = A.store_for(audit, model, second)
         n += sum(1 for i in doc["items"] if store.valid(i) is None)
     return n
@@ -743,7 +1074,20 @@ def cmd_gaps(args) -> int:
                                                "groups": "groups.yaml" if groups else "builtin", "rows": rows})
     (audit_dir(args) / "gaps.md").write_text(GP.gaps_markdown(rows, "Library gaps after pod P4", note),
                                              encoding="utf-8")
-    print(f"growth gaps: {sum(1 for r in rows if r['gap'])} (type, family) gap(s) of {len(rows)}")
+    # Milestone 13: the demand gaps per licence mode on the copies (the audit status written)
+    from wenart.assets.audit import demands as D
+    from wenart.furniture import catalog as C
+    dem = D.drawn_demands()
+    grid = D.size_grid(dem)
+    doc = coverage_doc(C.load(ph_path, library=lib_path), dem, grid, load_config(), now_utc(),
+                       "catalogue copies after the audit")
+    write_json(audit_dir(args) / "gaps_demand.json", doc)
+    (audit_dir(args) / "gaps_demand.md").write_text(
+        GP.demand_gaps_markdown(doc["gaps"], "Library gaps by drawn demand (after the audit)",
+                                f"Scope: {doc['scope']}; a bin is a gap below {doc['min_models_per_bin']} usable "
+                                "models in a licence mode."), encoding="utf-8")
+    print(f"growth gaps: {sum(1 for r in rows if r['gap'])} (type, family) gap(s) of {len(rows)}; demand bins "
+          f"{doc['bins_demanded']}, covered {doc['bins_covered']}, {doc['gap_rows']} gap rows")
     return EXIT_OK
 
 
@@ -795,10 +1139,46 @@ def steps_of(path: Path) -> list:
     return rows
 
 
+def catalogue_counts(args) -> dict:
+    """Milestone 13: the catalogue copies' counts per source, per licence flag and per licence mode (``catalog.usable``);
+    {} when the copies are not written yet."""
+    from collections import Counter
+
+    from wenart.assets.audit import items as I
+    from wenart.furniture import catalog as C
+    lib_path, ph_path = copies(args)
+    if not (lib_path.is_file() and ph_path.is_file()):
+        return {}
+    items = I.load_items(lib_path, ph_path)
+    lib, ph = read_json(lib_path) or {}, read_json(ph_path) or {}
+    entries = [e for doc in (lib, ph) for sec in ("entries", "decor") for e in doc.get(sec) or []
+               if isinstance(e, dict) and not e.get("parametric")]
+    by_source: dict = {}
+    by_flag: dict = {}
+    usable = {m: 0 for m in C.LICENCE_MODES}
+    for e in entries:
+        src = e.get("source") or "polyhaven"
+        status = (e.get("audit") or {}).get("status") or "unaudited"
+        row = by_source.setdefault(src, {"entries": 0})
+        row["entries"] += 1
+        row[status] = row.get(status, 0) + 1
+        flag = C.licence_flag_of(e)
+        frow = by_flag.setdefault(flag, {"entries": 0, **{m: 0 for m in C.LICENCE_MODES}})
+        frow["entries"] += 1
+        for m in C.LICENCE_MODES:
+            if C.usable(e, m):
+                frow[m] += 1
+                usable[m] += 1
+    return {"entries": len(entries), "items": len(items), "by_source": by_source, "by_flag": by_flag,
+            "usable": usable, "status": dict(Counter((e.get("audit") or {}).get("status") or "unaudited"
+                                                     for e in entries))}
+
+
 def cmd_report(args) -> int:
     from collections import Counter
     rep = report_dir(args)
-    ing = {s: read_json(rep / f"ingest_{s}.json") or {} for s in ("polyhaven", "abo", "gso")}
+    ing = {s: read_json(rep / f"ingest_{s}.json") or {} for s in ("polyhaven", "abo", "gso", "hssd", "ambientcg",
+                                                                   "polyhaven_m13", "abo_m13")}
     lic = read_json(rep / "gso_licences.json") or {}
     conv = {s: read_json(rep / f"convert_{s}.json") or {} for s in ("gso", "infinigen")}
     cat = read_json(rep / "catalogue.json") or {}
@@ -812,13 +1192,14 @@ def cmd_report(args) -> int:
     for e_id in nid.get("ids") or []:
         src_of[e_id] = "infinigen" if e_id.startswith("infinigen_") else ("gso" if e_id.startswith("gso_") else
                                                                           "abo" if e_id.startswith("abo_") else
+                                                                          "hssd" if e_id.startswith("hssd_") else
                                                                           "polyhaven")
     status = Counter((src_of.get(r["id"], r.get("source")), r["status"]) for r in audit.get("items") or [])
-    dropped = Counter(d["source"] if d["source"] in ("polyhaven", "abo", "gso", "infinigen") else "?"
-                      for d in cat.get("dropped") or [])
+    dropped = Counter(d["source"] if d["source"] in ("polyhaven", "abo", "gso", "infinigen", "hssd") else "?"
+                      for d in cat.get("dropped") or [])                  # hssd: M13 (its drops were counted as "?")
     ig_states = Counter(j.get("state") for j in plan.get("jobs") or [])
     rows = []
-    for s in ("polyhaven", "abo", "gso", "infinigen"):
+    for s in ("polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg", "polyhaven_m13", "abo_m13"):
         approved = ing[s].get("approved") if s != "infinigen" else len(plan.get("jobs") or [])
         got = ing[s].get("ok") if s != "infinigen" else ig_states.get("done", 0)
         rows.append({"source": s, "approved": approved, "downloaded_or_generated": got,
@@ -828,7 +1209,11 @@ def cmd_report(args) -> int:
                      "keep": status.get((s, "keep"), 0), "fix": status.get((s, "fix"), 0),
                      "removed": status.get((s, "removed"), 0), "pending": status.get((s, "pending"), 0)})
     steps = steps_of(Path(args.steps)) if args.steps else []
-    doc = {"kind": "library_growth_report", "written_utc": now_utc(), "sources": rows,
+    counts = catalogue_counts(args)
+    doc = {"kind": "library_growth_report", "written_utc": now_utc(), "sources": rows, "catalogue": counts,
+           "hssd_gate": ing["hssd"].get("gate"), "speed": read_json(rep / "speed.json") or {},
+           "coverage": {k: v for k, v in (read_json(audit_dir(args) / "gaps_demand.json") or {}).items()
+                        if k in ("bins_demanded", "bins_covered", "gap_rows", "min_models_per_bin", "scope")},
            "infinigen": {"tag": plan.get("tag"), "commit": plan.get("commit"), "factories": facs.get("count"),
                          "matched": plan.get("matched"), "missing": plan.get("missing"), "check": check,
                          "setup": setup, "states": dict(ig_states),
@@ -838,7 +1223,27 @@ def cmd_report(args) -> int:
            "dropped": cat.get("dropped") or [], "previews": cat.get("previews") or [],
            "parametric_replaced": (cat.get("stats") or {}).get("parametric_replaced"), "steps": steps}
     write_json(rep / "growth.json", doc)
-    lines = ["# Library growth, pod P4", "", "docs/milestone12.md §6.4; user OK of 11 Oct 2026 (four lists).", "",
+    lines = ["# Library growth, pod P4 / P2", "", "docs/milestone12.md §6.4; user OK of 11 Oct 2026 (four lists); "
+             "Milestone 13 (docs/milestone13.md §5.1 phase 2, D2): the size-grid, 2K, vegetation, ambientCG and HSSD "
+             "lists.", ""]
+    if counts:
+        lines += ["## Catalogue copies (Milestone 13)", "",
+                  f"Entries {counts['entries']} (usable commercial {counts['usable']['commercial']}, relaxed "
+                  f"{counts['usable']['relaxed']}).", "",
+                  "| source | entries | keep | fix | removed | pending |", "|---|---|---|---|---|---|"]
+        lines += [f"| {src} | {c['entries']} | {c.get('keep', 0)} | {c.get('fix', 0)} | {c.get('removed', 0)} | "
+                  f"{c.get('pending', 0)} |" for src, c in sorted(counts["by_source"].items())]
+        lines += ["", "| licence flag | entries | usable commercial | usable relaxed |", "|---|---|---|---|"]
+        lines += [f"| {flag} | {c['entries']} | {c['commercial']} | {c['relaxed']} |"
+                  for flag, c in sorted(counts["by_flag"].items())]
+        lines.append("")
+    if ing["hssd"].get("gate"):
+        lines += [f"HSSD gate: {ing['hssd']['gate'].get('reason')}", ""]
+    if doc["speed"]:
+        sp = doc["speed"]
+        lines += [f"Speed probe: {sp.get('files')} file(s), {sp.get('mb_s')} MB/s, picks {json.dumps(sp.get('picks'))}",
+                  ""]
+    lines += [
              "| source | approved | downloaded / generated | GSO licence kept | converted | catalogued | dropped | "
              "keep | fix | removed | pending |", "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
@@ -868,7 +1273,10 @@ def cmd_report(args) -> int:
 STEPS = {"ingest": cmd_ingest, "gso-licence": cmd_gso_licence, "infinigen-list": cmd_infinigen_list,
          "infinigen-plan": cmd_infinigen_plan, "convert": cmd_convert, "catalogue": cmd_catalogue, "ask": cmd_ask,
          "vision-fields": cmd_vision_fields, "pending": cmd_pending, "gaps": cmd_gaps, "preview": cmd_preview,
-         "report": cmd_report}
+         "report": cmd_report,
+         # Milestone 13 (track T7)
+         "demands": cmd_demands, "size-grid": cmd_size_grid, "speed-probe": cmd_speed_probe}
+M13_STEPS = ("demands", "size-grid", "speed-probe")
 
 
 def parser() -> argparse.ArgumentParser:
@@ -880,7 +1288,10 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--p3", default="/workspace/library-audit")
     p.add_argument("--lists", default=str(DEFAULT_OUT), help="results/library (approvals and candidate lists)")
     p.add_argument("--report", default=None, help="small result files (default <growth>/report)")
-    p.add_argument("--source", default=None, choices=["polyhaven", "abo", "gso", "infinigen"])
+    p.add_argument("--source", default=None, choices=["polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg"])
+    p.add_argument("--m13", action="store_true", help="ingest: the Milestone 13 list of abo / polyhaven")
+    p.add_argument("--token-env", default="HF_TOKEN", help="ingest hssd: the environment variable with the token "
+                                                            "(never printed)")
     p.add_argument("--size", default=PH_SIZE, help="Poly Haven glTF resolution (default 1k: what the fit resolves)")
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--blender", default=os.environ.get("WENART_BLENDER") or "blender")

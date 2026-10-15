@@ -15,10 +15,17 @@ decide without reading anything else (it replaces the M11 ``room`` + ``plausibil
 | ``candidates`` | the solver's top 3 layouts (``solver.solve_room``) with score, terms and a top-down image id |
 
 ``classify(findings, ...)`` is the rule that decides "fixable" vs "not yours" (§5.2; real03 run 3: 53 of 73 rejected
-edits aimed at pieces no tool may change): a finding is fixable when a tool of ``CHECK_TOOLS[check]`` may act on its
+edits aimed at pieces no tool may change): a finding is fixable when a tool for its CAUSE
+(``causes.tools_for_finding``, Milestone 13: the check-id table ``CHECK_TOOLS`` of M12 is gone) may act on its
 target (a piece tool only when ``allowed`` says so for that piece; a group tool only for a piece in a group; a
 re-layout only when the solver has candidates or the room has AI pieces). Unfixable findings are never sent to the
 planner as work (the loop gives them as "not yours").
+
+Milestone 13 (docs/milestone13.md §13.2 row ``loop.py``, track T4): the brief also states ``licence_mode`` (the
+project's, written by the fit), ``drawn_groups`` (``groups.drawn_groups``: the drawn anchor with its drawn partners,
+built or not; ``place_group`` re-solves it as one unit) and ``below_library`` (the built pieces whose asset is a
+module builder or a parametric family: ours, with real proportions and PBR slots, not library models), so the
+planner and the critic know what they see; a piece line carries ``built_as`` for those.
 
 How: the other tracks' functions are called through their frozen contracts (§13.2) and may be stubs: an empty
 answer (or an exception, noted in ``notes``) leaves that part empty. ``edit_ops.allowed_edits`` (track G) gives
@@ -31,6 +38,8 @@ from __future__ import annotations
 
 import math
 from typing import Callable, Optional
+
+from wenart.agent import causes as CS
 
 SEVERITY_WEIGHT = {"critical": 9.0, "major": 3.0, "minor": 1.0}
 SPAN_MIN_M = 0.4                    # shorter free wall pieces are not listed
@@ -51,63 +60,14 @@ BUILDING_TOOLS = ("set_exterior", "set_material", "correct_geometry")
 TOOL_OF_OP = {"move": "move_piece", "rotate": "rotate_piece", "resize": "resize_piece", "change_type": "change_type",
               "swap_model": "swap_model", "add": "add_piece", "add_group": "add_group", "remove": "remove_piece"}
 
-# check -> the tools that can fix a finding of it (§5.3; the brief keeps those allowed for the target).
-CHECK_TOOLS: dict[str, tuple[str, ...]] = {
-    "F1": ("retype_piece", "mark_not_furniture", "remove_piece", "set_room_type"),
-    "F2": ("resize_piece", "fix_fixture", "retype_piece"),
-    "F3": ("move_piece", "move_group", "rotate_piece", "set_front", "relayout_room"),
-    "F4": ("rotate_piece", "set_front", "move_group", "relayout_room"),
-    "F5": ("complete_group", "place_group", "relayout_room"),
-    "F6": ("move_piece", "move_group", "remove_piece", "relayout_room"),
-    "F7": ("move_piece", "move_group", "fix_fixture", "mark_not_furniture", "remove_piece", "relayout_room"),
-    "F8": ("move_piece", "move_group", "remove_piece", "relayout_room"),
-    "F9": ("retype_piece", "mark_not_furniture", "swap_model", "remove_piece"),
-    "R1": ("set_room_type",),
-    "R3": ("move_piece", "move_group", "fix_fixture", "relayout_room"),
-    "R4": ("set_material",),
-    "R5": ("set_lighting",),
-    "G1": ("move_group", "rotate_piece", "set_front", "relayout_room"),
-    "G2": ("move_group", "complete_group", "relayout_room"),
-    "G3": ("rotate_piece", "set_front", "move_group", "relayout_room"),
-    "G4": ("complete_group", "move_piece", "move_group", "relayout_room"),     # missing or misplaced nightstand
-    "G5": ("move_group", "rotate_piece", "set_front", "relayout_room"),
-    "G6": ("complete_group", "rotate_piece", "set_front", "move_piece", "relayout_room"),     # chairs
-    "G7": ("complete_group", "move_group", "relayout_room"),
-    "G8": ("relayout_room", "fix_fixture"),
-    "G9": ("place_group", "complete_group", "retype_piece"),
-    "G10": ("place_group", "complete_group", "fix_fixture", "retype_piece"),
-    "G11": ("move_group", "move_piece", "remove_piece", "relayout_room"),
-    "G12": ("move_piece", "move_group", "relayout_room"),
-    "G13": ("move_piece", "move_group", "relayout_room"),
-    "G14": ("retype_piece", "mark_not_furniture", "remove_piece", "set_room_type"),
-    "S1": ("swap_model",),
-    "S2": ("move_piece", "move_group", "swap_model"),
-    "S3": ("swap_model", "rotate_piece", "set_front"),
-    "S4": ("swap_model", "resize_piece"),
-    "S6": ("retype_piece", "swap_model", "report_library_gap"),
-    "LG": ("report_library_gap", "swap_model", "retype_piece"),
-    "NR": ("retype_piece", "mark_not_furniture"),       # an untyped drawn piece (not built) left for review
-    "RC": ("retype_piece",),
-    "L1": ("set_entrance", "set_ground_point"),
-    "L2": ("set_entrance",),
-    "L3": ("set_ground_point", "set_terrain", "set_room_floor"),
-    "L4": ("set_mark_kind", "set_room_floor", "set_ground_point"),
-    "L5": ("set_entrance",),
-    "L6": ("set_terrain",),
-    "L7": ("add_camera", "set_camera"),
-    "X1": ("correct_geometry",),
-    "X2": ("set_exterior",), "X3": ("set_exterior",), "X4": ("set_exterior",), "X7": ("set_exterior",),
-    "X6": ("set_camera", "add_camera"),
-    "X8": ("set_material",),
-    "V1": ("set_camera", "remove_camera"),
-    "D1": ("move_piece", "swap_model"),
-    "D2": ("swap_model", "report_library_gap"),
-}
-# Measured by code with no tool behind it: listed as "not yours" with this reason.
-NOT_YOURS_REASON = {"S5": "decor rest is placed by the decor stage on the built mesh (S5): no agent tool",
-                    "V3": "debug markers are a build setting, not an agent edit",
-                    "V2": "the render/JSON match is checked by the final check", "X5": "storey and door sizes come "
-                    "from the drawings", "R2": "ceiling heights come from the drawings"}
+# Milestone 13: the tools of a finding come from its cause (``causes.tools_for_finding``), not from a check-id table
+# (the M12 ``CHECK_TOOLS`` sent move_piece for an F8 chair whose table was not built, swap_model for a 1.3 cm S2 cut
+# and set_exterior to a corridor session for an X2 piece under the sloped roof; docs/milestone13.md §1.5).
+# A finding without a tool for its cause is "not yours" with ``causes.no_tool_reason``.
+NOT_YOURS_REASON = dict(CS.NO_TOOL_REASON, S5=CS.NO_TOOL_REASON["decor_rest"], V3=CS.NO_TOOL_REASON["debug_marker"],
+                        V2=CS.NO_TOOL_REASON["render_match"], X5=CS.NO_TOOL_REASON["scale"],
+                        R2=CS.NO_TOOL_REASON["ceiling"])
+BELOW_LIBRARY_METHODS = ("module", "parametric")
 
 
 def _f(v, n=3):
@@ -411,27 +371,39 @@ def _pt(xy):
 UNBUILT_FIXABLE = frozenset({"NR"})
 
 
-def _check_tools(check: str) -> tuple[str, ...]:
-    return CHECK_TOOLS.get(check) or ()
-
-
 def classify(findings: list[dict], building: dict, room_id: Optional[str], allowed: dict, group_of: dict,
              room_tools_ok: dict, locked_groups: frozenset = frozenset(),
              completable: Optional[frozenset] = None) -> tuple[list[dict], list[dict]]:
     """``(fixable, not_yours)`` (module docstring). ``allowed``: piece id -> allowed per tool; ``group_of``: piece id
     -> group id; ``room_tools_ok``: room tool -> bool (relayout possible, a group to place / complete);
     ``locked_groups``: groups with a drawn member (never moved: ``move_group`` is not offered for them);
-    ``completable``: groups with missing members and a verified anchor (None: unknown, the validator decides)."""
+    ``completable``: groups with missing members and a verified anchor (None: unknown, the validator decides).
+    Milestone 13: the tools come from the finding's cause (``causes.tools_for_finding``); every fixable and
+    not-yours entry carries ``cause``."""
     pieces = {p.get("id"): p for p in building.get("furniture") or []}
     fixable, not_yours = [], []
     for f in findings:
         check, target = str(f.get("check")), f.get("target")
+        cause = f.get("cause") if f.get("cause") in CS.CAUSE_TOOLS else CS.cause_of(f, building)
         base = {"id": f.get("id"), "check": check, "severity": f.get("severity"), "target": target,
-                "message": f.get("message")}
-        tools = _check_tools(check)
+                "message": f.get("message"), "cause": cause}
+        tools = tuple(CS.CAUSE_TOOLS.get(cause) or ())
         if not tools:
-            not_yours.append(dict(base, why=NOT_YOURS_REASON.get(check, f"no agent tool fixes {check}")))
+            why = NOT_YOURS_REASON.get(check) if check in ("S5", "V3", "V2", "X5", "R2") else None
+            not_yours.append(dict(base, why=why or CS.no_tool_reason(dict(f, cause=cause))))
             continue
+        if room_id not in (None, "building"):
+            # review (T4), K4 "building-wide tools only from the building session": a room session is never offered
+            # them (``loop.offered_tools``) and is refused at call time, so a finding whose tools are all
+            # building-wide (R4 / X8 materials, an X2 on the roof, a level or terrain finding routed to a room) is
+            # "not yours" here instead of a fixable finding with a tool the session never gets; "building" is
+            # ``loop.BUILDING``, the building session (``classify`` is called with ``room_id`` None for it)
+            wide = [t for t in tools if CS.is_building_wide(t)]
+            tools = tuple(t for t in tools if not CS.is_building_wide(t))
+            if not tools:
+                not_yours.append(dict(base, why=f"building-wide: {', '.join(wide)} may be called by the building "
+                                                f"session only, not by the session of {room_id}"))
+                continue
         piece = pieces.get(target)
         ok: list = []
         whys: list = []
@@ -546,6 +518,55 @@ def _piece_line(p: dict, allowed: dict, group: Optional[dict]) -> dict:
             out.setdefault("labels", []).append(k)
     if p.get("library_gap"):
         out["library_gap"] = p["library_gap"]
+    method = (p.get("asset") or {}).get("method") if isinstance(p.get("asset"), dict) else None
+    if method in BELOW_LIBRARY_METHODS:
+        out["built_as"] = method              # Milestone 13: our module builder or parametric family, not a model
+    return out
+
+
+def below_library(pieces: list[dict]) -> list[dict]:
+    """Milestone 13: the built pieces whose asset is a module builder or a parametric family (``asset.method``):
+    ``[{id, type, method, builder}]`` (``builder``: the module plan's builder or the library gap's note)."""
+    out = []
+    for p in pieces:
+        asset = p.get("asset") if isinstance(p.get("asset"), dict) else {}
+        method = asset.get("method")
+        if method not in BELOW_LIBRARY_METHODS:
+            continue
+        plan = asset.get("module_plan") if isinstance(asset.get("module_plan"), dict) else {}
+        gap = p.get("library_gap") if isinstance(p.get("library_gap"), dict) else {}
+        out.append({"id": p.get("id"), "type": p.get("type"), "method": method,
+                    "builder": plan.get("builder") or gap.get("used") or asset.get("fallback_reason") or method})
+    return out
+
+
+def licence_mode_of(building: dict) -> str:
+    """The project's licence mode (``project.licence_mode``, written by the fit), else the catalogue's default."""
+    project = building.get("project") if isinstance(building.get("project"), dict) else {}
+    mode = project.get("licence_mode")
+    if mode:
+        return str(mode)
+    try:
+        from wenart.furniture import catalog as C
+        return C.licence_mode()
+    except Exception:  # noqa: BLE001 - the brief never fails on the catalogue
+        return "commercial"
+
+
+def drawn_group_lines(building: dict, room_id: str) -> list[dict]:
+    """Milestone 13: the room's drawn groups (``groups.drawn_groups``) for the brief: the anchor, its type, the drawn
+    members, the drawn centre, the template and which of them are built."""
+    from wenart.furniture import groups
+    out = []
+    for g in groups.drawn_groups(building, room_id) or []:
+        built = g.get("built") or {}
+        out.append({"anchor_id": g.get("anchor_id"), "anchor_type": g.get("anchor_type"),
+                    "template": g.get("template"), "members": list(g.get("members") or []),
+                    "centre": [_f(c, 2) for c in (g.get("centre") or [])[:2]],
+                    "anchor_built": bool(built.get(g.get("anchor_id"), True)),
+                    "unbuilt_members": [m for m in g.get("members") or [] if built.get(m) is False],
+                    "note": "place_group re-solves this group as one unit around the drawn anchor (every member "
+                            "within 0.5 m of its drawn centre)"})
     return out
 
 
@@ -598,12 +619,15 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
     program_groups = [{k2: g.get(k2) for k2 in ("group_id", "group", "anchor_id", "required", "options", "chosen",
                                                  "drawn")} for g in prog.get("groups") or []]
     present = {g.get("group") for g in members}
+    drawn = _call(notes, "drawn groups", lambda: drawn_group_lines(building, room_id), []) or []
     # Without group data (track G's stubs) a group tool is offered and the validator decides.
     room_tools_ok = {
         # pod P5: relayout_room was offered with candidates that all failed (0 of 26 accepted, "no candidate
         # position fits the room"): only a usable candidate (no hard failure, some piece) makes it worth a call
         "relayout_room": any(not c.get("hard_failures") and c.get("pieces") for c in cands),
-        "place_group": any(g.get("group") not in present for g in program_groups) if program_groups else True,
+        # Milestone 13: place_group also re-solves a drawn group whose anchor or a member is not built
+        "place_group": (any(g.get("group") not in present for g in program_groups) if program_groups else True)
+        or any(not g.get("anchor_built") or g.get("unbuilt_members") for g in drawn),
         "complete_group": any(g.get("missing") for g in members) if members else True,
         "move_group": bool(members),
     }
@@ -662,6 +686,9 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
                       for p in all_pieces if not built(p)],
         "program": {"groups": program_groups, "reason": prog.get("reason")},
         "groups": groups_out,
+        "drawn_groups": drawn,
+        "licence_mode": licence_mode_of(building),
+        "below_library": below_library(pieces),
         "room_checks": [f"{v.get('check')} {v.get('severity')}: {v.get('message')}" for v in g_viol
                         if v.get("target") in (room_id, None)],
         "free_wall_spans": wall_spans(building, room_id, spans_fn),

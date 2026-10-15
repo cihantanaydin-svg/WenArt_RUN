@@ -32,6 +32,28 @@ caught. One table, read here, keeps them consistent.
 
 How: the YAML is read once (``lru_cache``); ``reload()`` clears the cache (tests). Every function is pure and gives the
 same answer for the same input; ties go to the first product of the list (the default product comes first).
+
+Milestone 13 (docs/milestone13.md §3.0 K1, §5.3, §13.2; track T1; user OK D5 of 12 Oct 2026): the product grid.
+
+- What: ``PRODUCT_GRID`` = ``{type: [{"w", "d", "h", "label"}]}`` from the YAML's ``grid:`` block (5 cm size classes of
+  real products with their sources: ABO titles and boxes, Poly Haven boxes, the layout sizes, the drawings), falling
+  back to the type's ``products`` rows (with the default product's height) where the block has none;
+  ``snap_size(ftype, footprint, height=None) -> {footprint, height, product, changed, reason}``: the nearest grid row
+  of a drawn footprint that lies outside the type's width / depth ranges by more than ``SNAP_TOLERANCE`` (5 %;
+  ``changed`` false inside: a drawn size inside the ranges is never changed); a height outside the height range takes
+  the row's height; a footprint that fits the ranges turned by 90 degrees (or is far closer to them turned,
+  ``ORIENTATION_RATIO``) is an orientation question for the solver, not a size snap.
+- Why: the diagnosis (§1.3) found that 21-33 of real04's 43 unbuilt pieces had doubtful drawn sizes (a bed block with
+  its nightstands 2.55 x 2.00, split-artefact chairs 0.71 x 0.45) that no library product could match; CLAUDE.md
+  allows "change its size to a real product size" (``adjusted_by_ai`` with the reason, ``drawn_footprint`` kept). The
+  fit (``wenart.furniture.fit.fit_building``) snaps before it fits; the snap is off with ``furnished_rooms: keep`` or
+  ``furnished_rooms_keep_size``.
+- How: nearest = the smallest largest-axis change in log space (``max(|ln(w / w_row)|, |ln(d / d_row)|)``), ties by
+  the sum of both, then the row order; the drawn orientation is kept (the reader decided the front; no swap); a square
+  drawn footprint (within ``SQUARE_EPS``) takes square rows only (a round symbol is a round product); a run type keeps
+  its drawn length (clamped to the width range) and snaps the depth to the nearest row depth, as ``product_size``,
+  and so does a long piece (``KEEP_LENGTH_TYPES``: consoles, sideboards, shelves, benches) whose length is inside
+  its range (a 1.80 x 0.25 m hall console stays 1.80 m long).
 """
 from __future__ import annotations
 
@@ -79,8 +101,10 @@ def _decor() -> dict:
 
 
 def reload() -> None:
-    """Forget the cached table (after the YAML changed; tests)."""
+    """Forget the cached table (after the YAML changed; tests) and rebuild ``PRODUCT_GRID``."""
     _data.cache_clear()
+    PRODUCT_GRID.clear()
+    PRODUCT_GRID.update(_build_grid())
 
 
 def table_tolerance() -> float:
@@ -259,3 +283,153 @@ def product_size(ftype: str, drawn: tuple[float, float]) -> tuple[float, float]:
         d = min(max(d1, r["depth"][0]), r["depth"][1])
         return (w, d)
     return best[1]
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 (track T1): the product grid and the size snap
+# --------------------------------------------------------------------------
+
+SQUARE_EPS = 0.03                # |ln(w / d)| below this: a square (or round) drawn footprint
+# Turned by 90 degrees the drawn box is inside the ranges (within SNAP_TOLERANCE) or four times closer to them than as
+# drawn: a front error for the solver (a 0.40 x 2.17 m shelf unit), not a size to snap. The YATAK block 2.55 x 2.00
+# (27 % over the bed width as drawn, 13 % over the depth turned) is still a size snap.
+ORIENTATION_RATIO = 0.25
+# A drawn side this far outside its range (relative) is a drawing tolerance, not a misread: no snap. One 5 % size step
+# of the fit's rank (wenart.furniture.fit.SIZE_BUCKET): a 1.80 x 0.25 m shelf unit 2 % shallower than the range stays
+# a 1.80 m unit; the 0.71 x 0.45 m split-artefact chair (9 % over) and the 2.55 m YATAK block (27 %) are snapped.
+SNAP_TOLERANCE = 0.05
+# Long pieces whose drawn length is a real length when it lies inside the width range: only a misread depth is snapped
+# (to the nearest product depth), as for a run; a 1.80 x 0.25 m hall console stays 1.80 m long, it never becomes the
+# 1.20 m default product. Not for chairs, tables, sofas or beds: those take a whole product (the task's 0.71 x 0.45
+# split-artefact chair becomes a 0.50 x 0.50 one).
+KEEP_LENGTH_TYPES: tuple[str, ...] = ("console_table", "sideboard", "tv_unit", "bookshelf", "bench", "shoe_cabinet",
+                                      "dresser", "display_cabinet", "tall_cabinet", "desk", "kitchen_island")
+GRID_KEY = "grid"
+
+
+def _grid_rows(ftype: str) -> list[dict]:
+    """The grid rows of a type: the YAML ``grid`` block, else its ``products`` with the default product's height."""
+    block = (_data().get(GRID_KEY) or {}).get(ftype)
+    rows: list[dict] = []
+    if isinstance(block, list):
+        for row in block:
+            if isinstance(row, (list, tuple)) and len(row) >= 3:
+                rows.append({"w": float(row[0]), "d": float(row[1]), "h": float(row[2]),
+                             "label": str(row[3]) if len(row) > 3 else ""})
+        return rows
+    r = real_range(ftype)
+    default_h = r["product"][2] if r and r["product"] else None
+    for i, p in enumerate(products(ftype)):
+        h = float(p[2]) if len(p) > 2 else default_h
+        rows.append({"w": float(p[0]), "d": float(p[1]), "h": h, "label": "default product" if i == 0 else "product"})
+    return rows
+
+
+def _build_grid() -> dict[str, list[dict]]:
+    out: dict[str, list[dict]] = {}
+    for t in types():
+        rows = _grid_rows(t)
+        if rows:
+            out[t] = rows
+    return out
+
+
+def grid_sources(ftype: str) -> list[str]:
+    """The labels (size class and sources) of a type's grid rows, for reports."""
+    return [row["label"] for row in PRODUCT_GRID.get(ftype, [])]
+
+
+def _fmt(v: Optional[float]) -> str:
+    return "-" if v is None else f"{v:.2f}"
+
+
+def _row_text(row: dict) -> str:
+    return (f"{_fmt(row['w'])} x {_fmt(row['d'])} x {_fmt(row.get('h'))} m"
+            + (f" ({row['label'].split(':')[0].strip()})" if row.get("label") else ""))
+
+
+def snap_size(ftype: str, footprint, height: Optional[float] = None) -> dict:
+    """The nearest real product of ``ftype`` for a drawn ``footprint`` (w, d) outside the type's ranges (pure;
+    docs/milestone13.md §13.2). Returns ``{"footprint": (w, d), "height": h | None, "product": text | None,
+    "changed": bool, "reason": text}``: ``changed`` is False (and the footprint comes back as given) when the footprint
+    lies inside the width and depth ranges in the drawn orientation, or the type has no size row, or a side is not
+    positive. A ``height`` outside the height range (when given) takes the row's height and counts as a change too."""
+    r = real_range(ftype)
+    try:
+        w, d = float(footprint[0]), float(footprint[1])
+    except (TypeError, ValueError, IndexError):
+        return {"footprint": tuple(footprint) if isinstance(footprint, (list, tuple)) else footprint, "height": height,
+                "product": None, "changed": False, "reason": "no footprint"}
+    h = float(height) if isinstance(height, (int, float)) and not isinstance(height, bool) else None
+    unchanged = {"footprint": (w, d), "height": h, "product": None, "changed": False}
+    if r is None:
+        return dict(unchanged, reason=f"no size row for type {ftype!r}")
+    if w <= 0 or d <= 0:
+        return dict(unchanged, reason="footprint side not positive")
+    rows = PRODUCT_GRID.get(ftype) or _grid_rows(ftype)
+    (lo_w, hi_w), (lo_d, hi_d) = r["width"], r["depth"]
+    err_w, err_d = _axis_error(w, lo_w, hi_w), _axis_error(d, lo_d, hi_d)
+    h_err = _axis_error(h, *r["height"]) if h is not None and r["height"] is not None else 0.0
+    if err_w <= SNAP_TOLERANCE + 1e-9 and err_d <= SNAP_TOLERANCE + 1e-9:
+        if h_err > SNAP_TOLERANCE + 1e-9 and rows:
+            nearest = min(rows, key=lambda row: (abs(math.log(row["w"] / w)) + abs(math.log(row["d"] / d))))
+            new_h = nearest["h"] if nearest.get("h") is not None else h
+            return {"footprint": (w, d), "height": new_h, "product": _row_text(nearest), "changed": new_h != h,
+                    "reason": f"height {h:.2f} m is {h_err * 100:.0f} % outside the {ftype} range "
+                              f"{r['height'][0]:g}-{r['height'][1]:g} m: the product height {new_h:.2f} m"}
+        return dict(unchanged, reason="inside the product range" + (
+            f" (within the {SNAP_TOLERANCE * 100:.0f} % drawing tolerance)" if max(err_w, err_d) > 1e-9 else ""))
+    outside = []
+    if err_w > SNAP_TOLERANCE + 1e-9:
+        outside.append(f"width {w:.2f} m is {err_w * 100:.0f} % outside {lo_w:g}-{hi_w:g} m")
+    if err_d > SNAP_TOLERANCE + 1e-9:
+        outside.append(f"depth {d:.2f} m is {err_d * 100:.0f} % outside {lo_d:g}-{hi_d:g} m")
+    err_turned = max(_axis_error(d, lo_w, hi_w), _axis_error(w, lo_d, hi_d))
+    if not is_run(ftype) and (err_turned <= SNAP_TOLERANCE + 1e-9
+                              or err_turned <= max(err_w, err_d) * ORIENTATION_RATIO):
+        # turned by 90 degrees the drawn box is a product of the type (or far closer to one): the front (the reader's,
+        # the solver's F2) is the question, not the size; a snap in the drawn orientation would make a wrong product
+        # (a 0.40 x 2.17 m bookshelf read with its front along the long side is a 2.17 m shelf unit, not a 1.00 m one)
+        return dict(unchanged, reason="; ".join(outside) + (
+            "; fits the ranges turned by 90 degrees" if err_turned <= SNAP_TOLERANCE + 1e-9 else
+            f"; turned by 90 degrees it is only {err_turned * 100:.0f} % outside") + ": an orientation question, not "
+                                                                                   "a size snap")
+    if not rows:
+        nw, nd = min(max(w, lo_w), hi_w), min(max(d, lo_d), hi_d)
+        return {"footprint": (nw, nd), "height": h, "product": f"{nw:.2f} x {nd:.2f} m (range limit)", "changed": True,
+                "reason": "; ".join(outside) + "; no product grid: clamped to the range"}
+    if is_run(ftype) or (ftype in KEEP_LENGTH_TYPES and err_w <= SNAP_TOLERANCE + 1e-9):
+        long_first = w >= d
+        length, depth = (w, d) if long_first else (d, w)
+        length = min(max(length, lo_w), hi_w)
+        depths = sorted({row["d"] for row in rows})
+        depth = min(depths, key=lambda v: (abs(math.log(v / depth)), v))
+        nw, nd = (length, depth) if long_first else (depth, length)
+        row = next(x for x in rows if abs(x["d"] - depth) < 1e-9)
+        what = "a run" if is_run(ftype) else "a long piece"
+        return {"footprint": (round(nw, 4), round(nd, 4)), "height": _snap_height(h, h_err, row),
+                "product": f"{length:.2f} m long x {depth:.2f} m deep ({row['label'].split(':')[0].strip()})",
+                "changed": True, "reason": "; ".join(outside) + f"; {what} keeps its length and takes the product depth"}
+    square = abs(math.log(w / d)) <= SQUARE_EPS
+    pool = [row for row in rows if abs(math.log(row["w"] / row["d"])) <= SQUARE_EPS] if square else []
+    pool = pool or rows
+
+    def key(item):
+        i, row = item
+        dw, dd = abs(math.log(w / row["w"])), abs(math.log(d / row["d"]))
+        return (round(max(dw, dd), 6), round(dw + dd, 6), i)
+    _i, best = min(enumerate(pool), key=key)
+    return {"footprint": (best["w"], best["d"]), "height": _snap_height(h, h_err, best), "product": _row_text(best),
+            "changed": True, "reason": "; ".join(outside) + (" (square symbol: square products only)" if square and
+                                                              len(pool) < len(rows) else "")
+            + f"; nearest real product {best['w']:.2f} x {best['d']:.2f} m"}
+
+
+def _snap_height(h: Optional[float], h_err: float, row: dict) -> Optional[float]:
+    """The height after a snap: the drawn one when it is inside the range (or None), else the row's."""
+    if h is None or h_err <= SNAP_TOLERANCE + 1e-9 or row.get("h") is None:
+        return h
+    return float(row["h"])
+
+
+PRODUCT_GRID: dict[str, list[dict]] = _build_grid()

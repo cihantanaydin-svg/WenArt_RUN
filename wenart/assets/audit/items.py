@@ -26,7 +26,10 @@ FIELDS = ("bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m", "origin_offset",
           "front_axis_confidence", "front_axis_note", "unit_scale", "unit_note", "polycount", "vertices", "textured",
           "vertex_colours", "quality", "judged", "styles", "has_mattress", "bed_frame", "deck_height_m", "thumbnail",
           "licence_flag", "author", "material_slots", "sha256_glb", "glb", "gltf", "abo_product_type", "abo_3dmodel_id",
-          "brand", "audit", "real_product", "has_bedding", "has_cushions", "has_pillows", "contact")
+          "brand", "audit", "real_product", "has_bedding", "has_cushions", "has_pillows", "contact",
+          # Milestone 13 gates (checks.py): the licence fields, the material tags, the chaise side, the PBR record
+          "licence_url", "licence_declared_by", "commercial_safe", "attribution", "material_tags", "chaise_side",
+          "pbr_maps", "growth", "hssd")
 
 
 def read_json(path) -> Optional[dict]:
@@ -62,7 +65,7 @@ def item_of(entry: dict, catalog: str, section: str) -> dict:
            "catalog_type": entry["type"], "source": entry.get("source") or ("polyhaven" if catalog == "polyhaven"
                                                                              else "?"),
            "licence": entry.get("licence"), "title": entry.get("title") or entry.get("name") or "",
-           "units_known": bool(entry.get("units_known", entry.get("source") in ("abo", "polyhaven")
+           "units_known": bool(entry.get("units_known", entry.get("source") in ("abo", "polyhaven", "hssd")
                                          or catalog == "polyhaven"))}
     for key in FIELDS:
         if key in entry:

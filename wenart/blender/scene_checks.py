@@ -26,6 +26,13 @@ Exceptions (documented, §4.6): wall-hung pieces (``wall_cabinet``, any ``mount_
 of S2; the members of a kitchen run (counter, island, sink, hob, fridge, wall cabinet, washing machine) may overlap
 each other (the drawn sink and hob are inside the drawn counter run).
 
+Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3): S2 tolerances by class. 16 of real04's 17 S2
+findings were 1.2-2.5 cm cuts of drawn toilets, armchair / ottoman pairs and wardrobes (noise the agent chased with
+39 edits). ``TOLERANCES["overlap_fixture"]`` (0.03 m) applies to fixed equipment and kitchen appliances
+(``S2_CLASSES["fixture"]``), ``TOLERANCES["overlap_soft"]`` (0.05 m) to soft seating (``S2_CLASSES["soft"]``: sofas,
+armchairs, chaises, ottomans, poufs: their cushions give); the 0.010 m default stays for everything else. A pair of
+pieces takes the larger of their two tolerances (``overlap_tolerance``); a piece against a wall takes its own class.
+
 How: a mesh is ``{"verts", "faces"}`` in world coordinates plus optional fields the builder records on the
 object: ``front_deg`` (built front), ``method`` (``library`` / ``parametric``), ``rest_footprint`` (the decor
 item's resting footprint ``{center, size, rotation_deg}``), ``support``. ``run_scene_checks`` reads the evaluated
@@ -45,7 +52,29 @@ from wenart.blender.rest import REST_TOLERANCES
 
 CHECKS: tuple[str, ...] = ("S1", "S2", "S3", "S4", "S5", "S6")
 TOLERANCES: dict[str, float] = {"floor_gap_m": 0.010, "floor_sink_m": 0.005, "overlap_m": 0.010, "front_deg": 10.0,
-                                "size_rel": 0.15, **REST_TOLERANCES}
+                                "size_rel": 0.15, **REST_TOLERANCES,
+                                # Milestone 13 (§13.2): S2 by class (the module docstring).
+                                "overlap_fixture": 0.03, "overlap_soft": 0.05}
+S2_CLASSES: dict[str, tuple[str, ...]] = {
+    "fixture": ("toilet", "washbasin", "shower", "bathtub", "washing_machine", "sink_kitchen", "stove", "fridge",
+                "kitchen_counter", "kitchen_island", "tall_cabinet"),
+    "soft": ("sofa", "sofa_corner", "armchair", "chaise", "ottoman", "pouf"),
+}
+
+
+def s2_class(ftype: Optional[str]) -> str:
+    """``fixture`` | ``soft`` | ``default``: the S2 class of a piece type."""
+    for name, types in S2_CLASSES.items():
+        if ftype in types:
+            return name
+    return "default"
+
+
+def overlap_tolerance(*types: Optional[str]) -> float:
+    """The S2 tolerance of one piece (against a wall) or of a pair: the larger of their class tolerances
+    (``overlap_fixture`` 0.03, ``overlap_soft`` 0.05, else ``overlap_m`` 0.010)."""
+    key = {"fixture": "overlap_fixture", "soft": "overlap_soft", "default": "overlap_m"}
+    return max(float(TOLERANCES[key[s2_class(t)]]) for t in (types or (None,)))
 SEVERITY: dict[str, str] = {"S1": "major", "S2": "major", "S3": "major", "S4": "minor", "S5": "critical",
                             "S6": "major"}
 WALL_HUNG_TYPES: tuple[str, ...] = ("wall_cabinet",)
@@ -168,7 +197,8 @@ def depth_in_wall(point, wall: dict) -> float:
 def usable_asset(asset: Optional[dict]) -> bool:
     from wenart.furniture import catalog as C
 
-    return bool(asset) and C.usable(asset)
+    # Milestone 13 (§13.2 T1): usable in the run's licence mode (the fitted asset carries ``licence_mode``).
+    return bool(asset) and C.usable(asset, asset.get("licence_mode") or "commercial")
 
 
 def _decor_support(item: dict, host: Optional[dict]) -> str:
@@ -227,9 +257,13 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
                     worst = (float(d), w["id"])
             counts["S2"]["checked"] += 1
             m["wall_depth_m"] = round(worst[0], 4)
-            if worst[0] > tol["overlap_m"] + 1e-9:
-                fail("S2", pid, room, f"{piece['type']} {pid} cuts wall {worst[1]} by {worst[0]:.3f} m",
-                     {"depth_m": round(worst[0], 4), "wall_id": worst[1]})
+            wall_tol = overlap_tolerance(piece["type"])
+            m["s2_tolerance_m"] = wall_tol
+            if worst[0] > wall_tol + 1e-9:
+                fail("S2", pid, room, f"{piece['type']} {pid} cuts wall {worst[1]} by {worst[0]:.3f} m (allowed "
+                                      f"{wall_tol:.3f} m for a {s2_class(piece['type'])} piece)",
+                     {"depth_m": round(worst[0], 4), "wall_id": worst[1], "tolerance_m": wall_tol,
+                      "class": s2_class(piece["type"])})
         # S3 front
         if piece.get("front_deg") is not None:
             counts["S3"]["checked"] += 1
@@ -261,8 +295,16 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
             if not usable_asset(piece.get("asset")):
                 ok, why = False, "its library model is not usable (audit removed, or an NC/SA/ND licence)"
         elif not C.by_design_parametric(piece):
-            ok, why = False, (f"a parametric {piece['type']} (parametric only for "
-                              f"{', '.join(C.BY_DESIGN_PARAMETRIC_TYPES)})")
+            # Milestone 13 (§13.2 T1, D4 ladder): a module or parametric piece built below the library level
+            # because no audited model fits is the contract (its ``library_gap`` names the step; the fit reports
+            # it), not a violation.
+            gap = (piece.get("asset") or {}).get("library_gap") or piece.get("library_gap")
+            if method in ("module", "parametric") and isinstance(gap, dict) and gap.get("step") in ("module",
+                                                                                                    "parametric"):
+                m["s6_library_gap"] = gap.get("step")
+            else:
+                ok, why = False, (f"a parametric {piece['type']} (parametric only for "
+                                  f"{', '.join(C.BY_DESIGN_PARAMETRIC_TYPES)})")
         m["s6"] = "ok" if ok else why
         if not ok:
             fail("S6", pid, room, f"{piece['type']} {pid}: {why}", {"method": method})
@@ -274,14 +316,16 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
                 continue
             if pa["type"] in KITCHEN_RUN_TYPES and pb["type"] in KITCHEN_RUN_TYPES:
                 continue
-            if not _boxes_overlap(boxes[a], boxes[b], tol["overlap_m"]):
+            pair_tol = overlap_tolerance(pa["type"], pb["type"])
+            if not _boxes_overlap(boxes[a], boxes[b], pair_tol):
                 continue
             depth = float(max(R.penetration(caster(b), R.sample_points(meshes[a]["verts"], MAX_PAIR_SAMPLES)),
                               R.penetration(caster(a), R.sample_points(meshes[b]["verts"], MAX_PAIR_SAMPLES))))
             counts["S2"]["checked"] += 1
-            if depth > tol["overlap_m"] + 1e-9:
+            if depth > pair_tol + 1e-9:
                 fail("S2", a, pa.get("room_id"), f"{pa['type']} {a} and {pb['type']} {b} cut each other by "
-                                                 f"{depth:.3f} m", {"depth_m": round(depth, 4), "other": b})
+                                                 f"{depth:.3f} m (allowed {pair_tol:.3f} m)",
+                     {"depth_m": round(depth, 4), "other": b, "tolerance_m": pair_tol})
                 measured[a].setdefault("cuts", []).append({"id": b, "depth_m": round(depth, 4)})
     # S5 decor
     for did in sorted(i for i in meshes if i in decor):

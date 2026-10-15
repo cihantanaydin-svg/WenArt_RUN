@@ -29,17 +29,55 @@ How (deterministic; the agent may confirm or change the type later on the plan c
    partner; else none (the builder's side, listed as assumed).
 
 Nothing else is guessed: an unknown piece with no single answer stays unknown and is listed.
+
+Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §5.2, §13.2; track T3; CLAUDE.md "an untyped drawn footprint is
+typed by code first"): **code-first typing**, ``type_by_code(building, piece) -> {"type", "method": twin | level |
+block | group_member, "evidence", "confidence"} | None``, runs before any AI typing (step 0 of ``infer_types``, so
+the ingest's inference step and the completion get it; ``code_types`` applies it in rounds so a twin of a piece typed
+by another level is typed too):
+
+0a. **twin**: the same footprint (sizes within ``SAME_FOOTPRINT_M``, the mirrored centre within ``SAME_CENTRE_M``) in
+    the room's twin (``rooms[].twin_of`` / ``twin_transform``, the ingest's mirror; a mirror about the rooms'
+    midline when no transform is recorded) carries a type: that type, the mirrored front (``ingest.twins``).
+0b. **level**: a typed drawn piece on another level whose footprint lies at the same plan position (polygons within
+    ``SAME_FOOTPRINT_M``, mirrored or turned allowed): real04's bathtub f_L-1_056 types the ARC cluster f_L0_043 one
+    level up; the front is copied.
+0c. **block**: a word of the piece's block name (``evidence[].block``, ``type_raw``; ``groups.yaml`` ``block_words``,
+    folded to ASCII: YATAK, masa, klozet, evye ...) names exactly one type whose product range fits the footprint
+    (``sizes.fits``, ``BLOCK_SIZE_TOL``) and that the room may hold.
+0d. **group_member**: the room's drawn groups miss a member (``groups.group_members``: "shower|bathtub" of a bath
+    set, the nightstands of a bed, the chairs of a table, the fridge of a run) or the room kind misses its anchor
+    (``program.room_kind``: a bedroom without a bed) and exactly one of those types fits the footprint (the nearest
+    product when two alternatives of one role fit): that type.
+
+Every proposal carries ``type_method`` (the method), ``inferred: true`` with the evidence (the source piece or
+block, the rule, the confidence: twin / level ``CONF_TWIN``, block ``CONF_BLOCK``, group member ``CONF_GROUP``). The
+AI types the rest (the existing path). ``apply_code_types(building, proposal=False)`` applies the proposals and
+returns the new building with them; ``proposal=True`` (the completion path, after the locked source was written)
+records a ``type_proposal`` with ``drawn_type`` and keeps the footprint and status, as ``locked.check`` requires.
 """
 from __future__ import annotations
 
 import copy
 import math
+import re
 from typing import Optional
 
 from shapely.geometry import Point
 
 from wenart import geometry as G
+from wenart.furniture import groups as GR
 from wenart.furniture import placer, plausibility as PL, schemas
+
+# Milestone 13 (T3): code-first typing.
+CODE_TYPE_METHODS = ("twin", "level", "block", "group_member")
+SAME_FOOTPRINT_M = 0.01          # the same footprint: sizes (and, on another level, the polygon) within 1 cm
+SAME_CENTRE_M = 0.02             # a twin's mirrored centre within this (ingest.twins.TOL: the transform is rounded)
+CONF_TWIN = 0.8
+CONF_BLOCK = 0.7
+CONF_GROUP = 0.6
+BLOCK_SIZE_TOL = 0.40            # a block-named type must fit the footprint within this (a misread YATAK block is 27 % out)
+CODE_ROUNDS = 3                  # chains: a twin of a piece typed by another level
 
 OUTLINE_TYPE = "rug"              # what an outline holding other pieces is (a decor type, not a furniture type)
 WALL_SIDE_M = 0.10                # a side this close to the room outline stands on a wall
@@ -173,12 +211,368 @@ def _evidence(item: dict, reason: str, confidence: float) -> dict:
     return ev
 
 
+# --------------------------------------------------------------------------
+# Milestone 13 (T3): code-first typing (twin, level, block name, missing group member)
+# --------------------------------------------------------------------------
+
+def untyped_drawn(piece: dict) -> bool:
+    """A drawn footprint code may type: ``unknown``, not recorded as something else (a rug outline, a detail, a
+    column, not furniture) and either built or left unbuilt only because it is untyped."""
+    if piece.get("type") != "unknown" or piece.get("source") != "from_documents" or not piece.get("footprint"):
+        return False
+    if piece.get("inferred_as") or piece.get("not_furniture"):
+        return False
+    if piece.get("build") is False and not str(piece.get("not_built_reason") or "").lower().startswith("untyped"):
+        return False
+    return True
+
+
+def _typed_drawn(piece: dict) -> bool:
+    """A drawn piece whose type code may copy: typed, with a footprint, not a mark and not marked not furniture."""
+    return (piece.get("source") == "from_documents" and piece.get("type") not in (None, "unknown", "stair")
+            and bool(piece.get("footprint")) and not piece.get("inferred_as") and not piece.get("not_furniture")
+            and piece.get("build") is not False)
+
+
+def _sorted_size(piece: dict) -> tuple[float, float]:
+    a, b = sorted(float(v) for v in piece["footprint"]["size"])
+    return a, b
+
+
+def _same_size(a: dict, b: dict, tol: float = SAME_FOOTPRINT_M) -> bool:
+    return all(abs(u - v) <= tol + 1e-9 for u, v in zip(_sorted_size(a), _sorted_size(b)))
+
+
+def _mirror_affine_of(a: dict, b: dict) -> list[float]:
+    """A mirror between two twin rooms without a recorded transform: about the vertical or horizontal line between
+    their centroids (``ingest.twins.mirror_affine``)."""
+    from shapely.geometry import Polygon
+
+    from wenart.ingest import twins as TW
+
+    ca, cb = Polygon(a["polygon"]).centroid, Polygon(b["polygon"]).centroid
+    if abs(cb.x - ca.x) >= abs(cb.y - ca.y):
+        return TW.mirror_affine(("x", (ca.x + cb.x) / 2.0))
+    return TW.mirror_affine(("y", (ca.y + cb.y) / 2.0))
+
+
+def _twin_rooms(building: dict, room: dict) -> list[tuple[dict, list[float]]]:
+    """``(twin room, transform)`` pairs of a room (a mirror is its own inverse, so one transform serves both ways)."""
+    rooms = _rooms(building)
+    out = []
+    first = rooms.get(room.get("twin_of") or "")
+    if first is not None:
+        t = room.get("twin_transform") or first.get("twin_transform") or _mirror_affine_of(first, room)
+        out.append((first, list(t)))
+    for r in rooms.values():
+        if r.get("twin_of") == room.get("id") and r["id"] != room["id"]:
+            t = r.get("twin_transform") or room.get("twin_transform") or _mirror_affine_of(room, r)
+            out.append((r, list(t)))
+    return out
+
+
+def _evidence_code(item: dict, method: str, text: str, confidence: float, **extra) -> dict:
+    ev = _evidence(item, text, confidence)
+    ev["rule"] = f"furniture.infer.type_by_code:{method}"
+    ev.update(extra)
+    return ev
+
+
+def _twin_type(building: dict, piece: dict, room: dict) -> Optional[dict]:
+    from wenart.ingest import twins as TW
+
+    furniture = building.get("furniture") or []
+    for other, t in _twin_rooms(building, room):
+        mapped = TW._apply(t, piece["footprint"]["center"])
+        for f in furniture:
+            if f.get("room_id") != other["id"] or not _typed_drawn(f) or f["id"] == piece["id"]:
+                continue
+            if G.distance(mapped, tuple(f["footprint"]["center"])) > SAME_CENTRE_M + 1e-9 or not _same_size(piece, f):
+                continue
+            fp, front = TW._mirror_footprint(f, piece, t)
+            text = (f"{f['type']}: the same footprint ({_sorted_size(f)[1]:.2f} x {_sorted_size(f)[0]:.2f} m) as "
+                    f"{f['id']} in the twin room {other['id']} (mirrored centre within {SAME_CENTRE_M:.2f} m)")
+            return {"type": f["type"], "method": "twin", "confidence": CONF_TWIN, "reason": text,
+                    "evidence": _evidence_code(piece, "twin", text, CONF_TWIN, source_id=f["id"], room_id=other["id"]),
+                    "front_deg": front, "footprint": fp, "source_status": f.get("status")}
+    return None
+
+
+def _level_type(building: dict, piece: dict, room: Optional[dict]) -> Optional[dict]:
+    furniture = building.get("furniture") or []
+    rooms = _rooms(building)
+    try:
+        poly = placer.drawn_piece(piece).polygon()
+    except (KeyError, TypeError, ValueError):
+        return None
+    hits = []
+    for f in furniture:
+        if f.get("level_id") == piece.get("level_id") or not _typed_drawn(f) or not _same_size(piece, f):
+            continue
+        if G.distance(tuple(piece["footprint"]["center"]), tuple(f["footprint"]["center"])) > SAME_CENTRE_M + 1e-9:
+            continue
+        try:
+            other = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if poly.hausdorff_distance(other) > SAME_FOOTPRINT_M + 1e-9:
+            continue
+        r2 = rooms.get(f.get("room_id") or "")
+        same_kind = 0 if room is not None and r2 is not None and r2.get("room_type") == room.get("room_type") else 1
+        hits.append((same_kind, f.get("level_id") or "", f["id"], f))
+    if not hits:
+        return None
+    hits.sort(key=lambda h: h[:3])
+    f = hits[0][3]
+    text = (f"{f['type']}: the same footprint ({_sorted_size(f)[1]:.2f} x {_sorted_size(f)[0]:.2f} m) at the same "
+            f"plan position as {f['id']} on level {f.get('level_id')} (within {SAME_FOOTPRINT_M:.2f} m)")
+    out = {"type": f["type"], "method": "level", "confidence": CONF_TWIN, "reason": text,
+           "evidence": _evidence_code(piece, "level", text, CONF_TWIN, source_id=f["id"], level_id=f.get("level_id")),
+           "source_status": f.get("status")}
+    if f.get("front_deg") is not None and piece.get("front_deg") is None:
+        out["front_deg"] = float(f["front_deg"])
+    return out
+
+
+def _block_names(piece: dict) -> list[str]:
+    names = []
+    for ev in piece.get("evidence") or []:
+        for key in ("block", "block_name"):
+            if ev.get(key):
+                names.append(str(ev[key]))
+    for key in ("type_raw", "block", "block_name"):
+        if piece.get(key):
+            names.append(str(piece[key]))
+    return names
+
+
+def _block_type(building: dict, piece: dict, room: Optional[dict]) -> Optional[dict]:
+    from wenart import building as B
+    from wenart.furniture import sizes as SZ
+
+    names = _block_names(piece)
+    if not names:
+        return None
+    words = []
+    for name in names:
+        words += [w for w in re.split(r"[^a-z0-9]+", B.fold_ascii(name)) if w]
+    if not words:
+        return None
+    text = " " + " ".join(words) + " "
+    hits = []
+    for ftype, keys in GR.block_words().items():
+        for key in keys:
+            parts = key.split()
+            if (len(parts) > 1 and f" {' '.join(parts)} " in text) or (len(parts) == 1 and any(
+                    w.startswith(parts[0]) for w in words)):
+                hits.append((ftype, key))
+                break
+    if not hits:
+        return None
+    size = [float(v) for v in piece["footprint"]["size"]]
+    allowed = None
+    if room is not None and not any(t in ("other", "unknown") for t in PL.room_types(building, room)):
+        allowed = PL.allowed_in(building, room)
+    fits = [(t, k) for t, k in hits if SZ.fits(t, size, BLOCK_SIZE_TOL) and (allowed is None or t in allowed)]
+    if len(fits) != 1:
+        return None
+    ftype, key = fits[0]
+    text = (f"{ftype}: the block name '{names[0]}' holds the word '{key}' (groups.yaml block_words) and the type's "
+            f"product range fits {size[0]:.2f} x {size[1]:.2f} m within {BLOCK_SIZE_TOL:.0%}")
+    return {"type": ftype, "method": "block", "confidence": CONF_BLOCK, "reason": text,
+            "evidence": _evidence_code(piece, "block", text, CONF_BLOCK, block=names[0], word=key)}
+
+
+def _product_distance(ftype: str, size) -> float:
+    from wenart.furniture import sizes as SZ
+
+    rng = SZ.real_range(ftype) or {}
+    product = rng.get("product")
+    if not product:
+        return 9.0
+    w, d = sorted(float(v) for v in size)
+    pw, pd = sorted(float(v) for v in product[:2])
+    return max(abs(math.log(max(w, 1e-3) / pw)), abs(math.log(max(d, 1e-3) / pd)))
+
+
+def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict]:
+    from wenart.furniture import program as PR
+    from wenart.furniture import sizes as SZ
+
+    wanted: dict[str, list[str]] = {}
+    for g in GR.group_members(building, room["id"]):
+        for miss in g.get("missing") or []:
+            for t in str(miss).split("|"):
+                wanted.setdefault(t, []).append(f"{g['group_id']} (anchor {g.get('anchor_id')}) misses {miss}")
+    by_id = {f["id"]: f for f in building.get("furniture") or []}
+    for g in GR.drawn_groups(building, room["id"]):        # drawn groups, built or not (an unbuilt sofa too)
+        if g["built"].get(g["anchor_id"]):
+            continue                                     # a built anchor's group is in group_members already
+        anchor = by_id.get(g["anchor_id"])
+        members = [by_id[m] for m in g["members"] if m in by_id]
+        for miss in GR._expected_missing(g["template"], anchor, members, room, building):
+            for t in str(miss).split("|"):
+                wanted.setdefault(t, []).append(f"the drawn {g['template']} group of {g['anchor_id']} misses {miss}")
+    kind = PR.room_kind(building, room)
+    present = {f.get("type") for f in building.get("furniture") or [] if f.get("room_id") == room["id"]
+               and f.get("type") not in (None, "unknown") and f.get("build") is not False}
+    required = {g for g, req, _opts in PR._rows(kind, PR._area(room), placer.room_context(building, room).polygon,
+                                                 building, room, room.get("room_subtype")) if req}
+    for name, template in GR.load_groups().items():
+        # Only the anchor of a group the room kind requires (a bedroom's bed, a living room's sofa): an optional
+        # group's anchor (a dining table in a living room) is no evidence for a lone footprint.
+        if name not in required or template["layout"] != "anchored":
+            continue
+        for t in template["anchor"]["types"]:
+            if t not in present and not (set(template["anchor"]["types"]) & present):
+                wanted.setdefault(t, []).append(f"the {kind} room misses its {name} anchor ({t})")
+    if not wanted:
+        return None
+    size = [float(v) for v in piece["footprint"]["size"]]
+    allowed = PL.allowed_in(building, room) | set(schemas.allowed_types(kind, room.get("room_subtype")))
+    fits = sorted(t for t in wanted if t in allowed and SZ.fits(t, size, 0.15))
+    if not fits:
+        return None
+    # An AI pass named another type that fits the size and the shape (real02's sofa / kitchen_island): the plan
+    # crop decides, not the group rule.
+    answers = {c.get("type") for c in piece.get("type_candidates") or [] if c.get("type")}
+    if any(a not in fits and a in schemas.SIZE_OPTIONS and SZ.fits(a, size, 0.15) and _shape_ok(a, size)
+           for a in answers):
+        return None
+    if len(fits) > 1:
+        ranked = sorted(fits, key=lambda t: (round(_product_distance(t, size), 4), t))
+        best, second = ranked[0], ranked[1]
+        if _product_distance(second, size) - _product_distance(best, size) < 0.15:
+            return None                         # two members fit about equally: the plan crop decides (AI)
+        fits = [best]
+    ftype = fits[0]
+    text = (f"{ftype}: {'; '.join(wanted[ftype][:2])}, and the type's product range fits {size[0]:.2f} x "
+            f"{size[1]:.2f} m (the only missing member of that size)")
+    return {"type": ftype, "method": "group_member", "confidence": CONF_GROUP, "reason": text,
+            "evidence": _evidence_code(piece, "group_member", text, CONF_GROUP, missing=wanted[ftype][:3])}
+
+
+def type_by_code(building: dict, piece: dict) -> Optional[dict]:
+    """Milestone 13 (§13.2): ``{"type", "method": twin | level | block | group_member, "evidence", "confidence",
+    "reason", "front_deg"?, "footprint"?}`` for an untyped drawn footprint, or None when code cannot tell (the AI
+    types it from the plan crop). The methods are tried in that order (the module docstring)."""
+    if not untyped_drawn(piece):
+        return None
+    room = _rooms(building).get(piece.get("room_id") or "")
+    if room is not None:
+        found = _twin_type(building, piece, room)
+        if found is not None:
+            return found
+    found = _level_type(building, piece, room)
+    if found is not None:
+        return found
+    # An outline drawn around other pieces (a rug, a zone, a counter run) or a part inside a typed piece is no
+    # furniture of its own: rules 1 and 1b of ``infer_types`` decide those, not a block word or a missing member.
+    try:
+        poly = placer.drawn_piece(piece).polygon()
+    except (KeyError, TypeError, ValueError):
+        return None
+    mates = [f for f in building.get("furniture") or [] if f.get("room_id") == piece.get("room_id")
+             and f["id"] != piece["id"]]
+    if outline_holds(poly, mates) or _host_of(poly, mates) is not None:
+        return None
+    found = _block_type(building, piece, room)
+    if found is None and room is not None:
+        found = _group_member_type(building, piece, room)
+    if found is None:
+        return None
+    if room is not None and piece.get("front_deg") is None and len(room.get("polygon") or []) >= 3:
+        # The front as rule 4 gives it: the side opposite the only wall side, or towards the nearest partner.
+        others = [(f["type"], placer.drawn_piece(f, k)) for k, f in enumerate(mates)
+                  if f.get("type") != "unknown" and f.get("build") is not False and f.get("footprint")]
+        partners = [o for t, o in others if t in schemas.orientation_rule(found["type"])["partners"]]
+        front = _front_for(found["type"], placer.drawn_piece(piece), _room_ring(room), partners)
+        if front is not None:
+            found["front_deg"] = front
+    return found
+
+
+def code_types(building: dict) -> list[dict]:
+    """Every untyped drawn piece code can type (``type_by_code``), as proposals ``{"piece_id", "type",
+    "type_method", "reason", "confidence", "evidence", ...}``; applied in rounds on a working copy so chains resolve
+    (a twin of a piece typed by another level). The building is unchanged."""
+    work = copy.deepcopy(building)
+    out: list[dict] = []
+    for _round in range(CODE_ROUNDS):
+        found = 0
+        for f in work.get("furniture") or []:
+            if not untyped_drawn(f):
+                continue
+            prop = type_by_code(work, f)
+            if prop is None:
+                continue
+            prop = dict(prop, piece_id=f["id"], type_method=prop["method"])
+            _apply_code_type(f, prop, proposal=False)     # at once: a missing member is missing only once
+            out.append(prop)
+            found += 1
+        if not found:
+            break
+    return out
+
+
+def _apply_code_type(item: dict, prop: dict, proposal: bool) -> None:
+    item["type"] = prop["type"]
+    item["type_method"] = prop["type_method"]
+    item["inferred"] = True
+    item["inferred_reason"] = prop["reason"]
+    item.setdefault("evidence", []).append(dict(prop["evidence"]))
+    if item.get("build") is False and str(item.get("not_built_reason") or "").lower().startswith("untyped"):
+        item["build"] = True
+        item.pop("not_built_reason", None)
+    if item.get("height") is None and schemas.HEIGHTS.get(prop["type"]) is not None:
+        item["height"] = schemas.HEIGHTS[prop["type"]]
+    if proposal:
+        # The completion path: the locked check allows a typed unknown piece with its drawn footprint and status
+        # as a validated change (``adjusted_by_ai`` with the reason and ``drawn_type``, ``locked._agent_problems``:
+        # "a drawn unknown that was not built may be typed"); ``type_proposal`` keeps the Milestone 10 rule too.
+        item["type_proposal"] = True
+        if item.get("drawn_type") is None:
+            item["drawn_type"] = "unknown"
+        item["adjusted_by_ai"] = {"by": "code", "stage": "layout", "typed_by_code": prop["type_method"],
+                                  "reason": f"typed {prop['type']} by code ({prop['type_method']}): {prop['reason']}"}
+        return
+    if prop["type_method"] in ("twin", "level") and prop.get("source_status"):
+        item["status"] = prop["source_status"]      # the same drawing as an agreed piece: its status
+    if prop.get("footprint"):
+        item["footprint"] = dict(prop["footprint"])
+    if prop.get("front_deg") is not None and item.get("front_deg") is None:
+        if prop.get("footprint"):
+            item["front_deg"] = round(float(prop["front_deg"]), 3)
+        else:
+            set_front(item, float(prop["front_deg"]))
+
+
+def apply_code_types(building: dict, proposal: bool = False) -> tuple[dict, list[dict]]:
+    """A copy of the building with ``code_types`` applied (``type_method`` the method, ``inferred`` with the
+    evidence) and the proposals; ``proposal=True`` for the completion path (see the module docstring)."""
+    props = code_types(building)
+    b = copy.deepcopy(building)
+    by_id = {f["id"]: f for f in b.get("furniture") or []}
+    for prop in props:
+        if prop["piece_id"] in by_id:
+            _apply_code_type(by_id[prop["piece_id"]], prop, proposal)
+    return b, props
+
+
 def infer_types(building: dict) -> list[dict]:
-    """``[{"piece_id", "type", "reason", "confidence", "evidence": {...}}]`` (proposals; the building is unchanged)."""
+    """``[{"piece_id", "type", "reason", "confidence", "evidence": {...}}]`` (proposals; the building is unchanged).
+    Milestone 13: the code-typed pieces (``code_types``: ``type_method`` twin / level / block / group_member) come
+    first; the rules below see the building with them applied."""
+    coded = code_types(building)
+    out = list(coded)
+    if coded:
+        building = apply_code_types(building)[0]
+    done = {p["piece_id"] for p in coded}
     rooms = _rooms(building)
     furniture = building.get("furniture") or []
-    out = []
     for item in furniture:
+        if item["id"] in done:
+            continue
         if item.get("type") != "unknown" or item.get("source") != "from_documents" or item.get("build") is False:
             continue
         room = rooms.get(item.get("room_id"))
@@ -284,6 +678,9 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
     for prop in proposals:
         item = by_id.get(prop["piece_id"])
         if item is None:
+            continue
+        if prop.get("type_method") in CODE_TYPE_METHODS:          # Milestone 13: typed by code
+            _apply_code_type(item, prop, proposal=False)
             continue
         ev = dict(prop.get("evidence") or _evidence(item, prop["reason"], float(prop.get("confidence", 0.5))))
         item.setdefault("evidence", []).append(ev)

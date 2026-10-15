@@ -924,17 +924,19 @@ def _shares(building: dict, position, yaw: float, grid=(64, 36), lens_mm: float 
     return {f["id"]: float((names == f["id"]).mean()) for f in building["furniture"]}
 
 
-@pytest.mark.parametrize("ftype, size, height, low", [("bed_double", (1.6, 2.0), 0.55, 0.55),
-                                                     ("bed_single", (0.9, 2.0), 0.5, 0.5),
+@pytest.mark.parametrize("ftype, size, height, low", [("bed_double", (1.6, 2.0), 0.55, 0.3),
+                                                     ("bed_single", (0.9, 2.0), 0.5, 0.275),
                                                      ("chair", (0.46, 0.4), 0.9, 0.45),
                                                      ("sofa", (2.0, 0.9), 0.85, 0.45),
                                                      ("armchair", (0.8, 0.85), 0.85, 0.45),
                                                      ("toilet", (0.4, 0.7), 0.4, 0.4)])
 def test_profile_is_the_builders_low_part_and_back(ftype, size, height, low):
-    """A piece with a back is modelled as the parts the scene builds: the low part at the builder's mattress /
-    seat / bowl top (``low``: bed = type height, chair min(0.45, h / 2), sofa seat min(0.45, 0.55 h), toilet bowl
-    = type height), the sofa arms, and the back slab on the rear edge (+Y, opposite the front) up to the piece's
-    full height. Every vertex of those parts lies inside the profile, the profile inside the piece's box."""
+    """A piece with a back is modelled as the parts the scene builds: the low part at the builder's frame /
+    seat / bowl top (``low``: bed = the frame rails' top min(0.3, 0.55 h) of the Milestone 13 bed v2, chair
+    min(0.45, h / 2), sofa seat min(0.45, 0.55 h), toilet bowl = type height), one box per side part (the sofa
+    arms; the bed's mattress inside the frame's ledge, up to the type height), and the back slab on the rear edge
+    (+Y, opposite the front) up to the piece's full height. Every vertex of those parts lies inside the profile,
+    the profile inside the piece's box."""
     from wenart.blender import parametric as P
 
     piece = {"id": "p", "type": ftype, "height": height, "asset": None,
@@ -944,8 +946,10 @@ def test_profile_is_the_builders_low_part_and_back(ftype, size, height, low):
     boxes = C.piece_profile(piece)
     low_roles, side_roles = C.PROFILES[ftype]
     assert boxes[0][4] == pytest.approx(low) and boxes[-1][4] == pytest.approx(top) and top > low + 0.3
-    assert len(boxes) == 2 + (2 if side_roles else 0)
     parts = P.build_parts(ftype, size[0], size[1], height)
+    assert len(boxes) == 2 + len([p for p in parts if p["role"] in side_roles])
+    if ftype.startswith("bed"):
+        assert boxes[1][4] == pytest.approx(height)                              # the mattress top
     back = [p for p in parts if p["role"] == "back"]
     assert boxes[-1][1] == pytest.approx(P.parts_bbox(back)[1]) and boxes[-1][3] == pytest.approx(d / 2.0)
     assert boxes[-1][3] - boxes[-1][1] <= max(0.2, 0.3 * d)                  # a slab, not the footprint
@@ -974,6 +978,8 @@ def test_library_profile_takes_the_fitted_box_and_the_builders_seat():
                 "asset": {"method": "library", "bbox_m": list(bbox)}}
 
     bed = C.piece_profile(piece("bed_double", (1.8, 2.0), (1.8, 2.0, 1.5348), 0.5))
+    # a library bed keeps the one low box (frame + mattress to the fitted box; the Milestone 13 ledge is the
+    # parametric bed's, test_profile_is_the_builders_low_part_and_back)
     assert [round(v, 4) for v in bed[0]] == [-0.9, -1.0, 0.9, 1.0, 0.5]           # frame + mattress, 0.5 m
     assert [round(v, 4) for v in bed[1]] == [-0.9, 0.94, 0.9, 1.0, 1.5348]        # 0.06 m headboard to 1.53 m
     chair = C.piece_profile(piece("chair", (0.4572, 0.4572), (0.4572, 0.4572, 0.7436)))

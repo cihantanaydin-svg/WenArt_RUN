@@ -63,6 +63,9 @@ render:
 ask:
   model_key: agent
   version: m12.1          # part of every request's input hash: bump when the question or the sheets change
+  # Milestone 13: the question with the materials field (gates.material_tags_required) for models without material
+  # tags; models that carry tags keep the m12.1 question, so their answers stay valid (no re-ask of the library).
+  version_materials: m13.1
   workers: 4
   second_pass: true       # a type question where code cannot confirm (no title evidence) and pass 1 says no
 
@@ -70,3 +73,40 @@ ask:
 gaps:
   anchor_min: 5
   partner_min: 3
+
+# Milestone 13 (docs/milestone13.md §5.1 phase 2, §13.1 track T7): the growth lists by drawn demand and the audit
+# gates. Designer values unless a source is named.
+growth:
+  hssd_per_bin: 12          # HSSD objects per demanded furniture type and size bin (874 picks for the three projects
+                            # on 15 Oct 2026: 796 furniture + 78 decor, 2.47 GB at the listing's sizes; GLB stubs under 50 KB left out)
+  hssd_per_bin_decor: 6     # ... per decor bin
+  hssd_target: [600, 900]   # the pick range of §5.1; the speed probe may lower the count (growth_run speed-probe)
+  abo_per_bin: 10           # ABO size-grid picks per demanded type and bin (400-600 picks target)
+  abo_target: [400, 600]
+  polyhaven_res: 2k         # Poly Haven glTF resolution of the Milestone 13 ingest (M12 fetched 1k)
+  speed_probe:
+    minutes: 15             # the probe's cap (§5.1: "speed probe first, 15 min")
+    files: 8                # the first downloads measured (ABO GLBs, ~20 MB each; the pod P4 rate was 99 MB/s)
+    min_mb_s: 5.0           # below this the pick counts drop to the targets' lower bound
+    budget_minutes: 60      # download time the job may spend on the picks (worst case: ~12 GB at 5 MB/s = 40 min)
+  min_models_per_bin: 2     # the gap report lists every demand bin with fewer usable models per licence mode
+
+gates:
+  # Known units (metres from the source) are required for anchors: a bed, sofa, table, wardrobe or fixture of
+  # guessed units is removed (code evidence, not a vision judgement: decision 1a of 11 Oct 2026 stays).
+  known_units_anchor_types: [bed_single, bed_double, bunk_bed, crib, sofa, sofa_corner, chaise, table_dining,
+                             wardrobe, kitchen_island, fridge, stove, sink_kitchen, toilet, washbasin, bathtub, shower,
+                             washing_machine]
+  # PBR maps recorded per model (``pbr_maps``: base_colour, metallic_roughness, normal, occlusion, emissive): a
+  # missing base colour is a warning (flat colours), a missing normal or roughness map a note the fit may rank by.
+  pbr_maps_required: [base_colour]
+  pbr_maps_wanted: [normal, metallic_roughness]
+  # Material tags judged for every entry (the vision answer's ``materials`` of the Milestone 13 question, version
+  # ask.version_materials; the Milestone 10 slot judgement stays where it exists).
+  material_tags_required: true
+  # The chaise side of an L-sofa must be known (left / right) for the fit to match the drawn L.
+  chaise_side_types: [sofa_corner]
+  # One vision pass (D: decision 1a stays: vision findings keep the model with vision_doubt); pass 2 only where no
+  # title evidence exists (as before).
+  vision_passes: 1
+  licence_fields: [licence, licence_url, licence_declared_by, licence_flag, commercial_safe, attribution]

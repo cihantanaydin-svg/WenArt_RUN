@@ -127,7 +127,7 @@ class Overrides:
         """Store one accepted edit; its ``seq`` (the ``overrides_id`` the tool returns)."""
         keep = ("accepted", "failed_checks", "score_before", "score_after", "penalty_before", "penalty_after",
                 "changed_ids", "rerun_from", "message",
-                "applied", "log_seq", "metrics", "rolled_back")
+                "applied", "log_seq", "metrics", "rolled_back", "acceptance")
         with self.lock:
             seq = self.next_seq()
             self.edits.append({"seq": seq, "round": int(round_no), "tool": tool, "args": copy.deepcopy(args),
@@ -244,8 +244,8 @@ def apply(project_out, *, apply_edit: Optional[Callable] = None, catalog_loader:
                 res = level_fn(building, edit)
             else:
                 edit = resolve_edit(edit, ops)
-                if edit["op"] == "swap_model" and catalog is None:
-                    catalog = (catalog_loader or _catalog)()
+                if edit["op"] in ("swap_model", "retype_piece") and catalog is None:
+                    catalog = (catalog_loader or _catalog)()        # Milestone 13: the retype refits the piece
                 res = fn(building, edit, catalog=catalog)
         except NotImplementedError as exc:
             not_replayed.append({"seq": entry["seq"], "failed_checks": ["validator_unavailable"], "message": str(exc)})

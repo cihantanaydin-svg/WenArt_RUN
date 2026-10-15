@@ -20,6 +20,22 @@ What (``python -m wenart.assets growth <source> list | ingest``):
 Every list holds per candidate: source, id, title, type, kind, licence, size in MB (and the totals), plus what decided
 the type. Lists are sorted (type, id) and carry the query time given by the caller.
 
+Milestone 13 (docs/milestone13.md §5.1 phase 2, §13.1 track T7): the lists follow the drawn demands of the three
+committed projects (``wenart.assets.audit.demands``: size bins of real products per demanded type):
+
+- ``abo list`` adds the group ``size grid``: unused ABO furniture of a demanded type whose box fits a demanded bin
+  within the fit's caps (``abo_candidates(..., demand_bins=...)``, <= ``per_bin`` per type and bin; the style, decor
+  and headboard passes stay as they were);
+- ``polyhaven list`` adds the vegetation (``polyhaven_vegetation``: the API categories ``trees``, ``plants``,
+  ``ground cover``, ``grass`` and ``potted plants``, verified on ``/assets?t=models`` on 15 Oct 2026: there is no
+  ``outdoor`` category) at 2K, and lists the furniture at 2K as well (``--res``);
+- ``ambientcg list`` (``AMBIENTCG_SHELL_SETS``): CC0 sets for the shell material table of ``wenart.blender.materials``
+  (ceiling plaster, worktops, fronts, ceramics, metals, tiles), every id verified on ``ambientcg.com/api/v2`` when the
+  list is written (a missing id is listed as ``exists: false``);
+- ``hssd list`` (``wenart.assets.hssd``): HSSD objects by type and demand bin (CC BY-NC 4.0, relaxed mode only,
+  user decision D2 of 12 Oct 2026); the ingest gate of HSSD is ``approved_hssd.json`` with ``picks`` (the whole
+  committed list under D2) instead of ids.
+
 Why: CLAUDE.md library rules and D22/D24: growth only after the user's OK of a list (source, licence, count,
 download size).
 
@@ -46,7 +62,7 @@ PH_API = "https://api.polyhaven.com"
 ABO_BASE = "https://amazon-berkeley-objects.s3.amazonaws.com"
 GSO_REPO = "suvadityamuk/google-scanned-objects-raw"
 HF_API = "https://huggingface.co/api/datasets/"
-SOURCES = ("polyhaven", "abo", "gso", "infinigen")
+SOURCES = ("polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg")
 USER_AGENT = "wenart-run/0.1 (library growth lists)"
 STYLE_WORDS = (("rustic", "rustic"), ("farmhouse", "rustic"), ("industrial", "industrial"), ("traditional", "classic"),
                ("classic", "classic"), ("victorian", "classic"), ("baroque", "classic"), ("antique", "classic"),
@@ -58,6 +74,12 @@ ABO_FAMILIES = ("rustic", "industrial", "classic")
 
 def now_utc() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def growth_config() -> dict:
+    """The ``growth`` block of ``wenart/assets/audit.yaml`` (Milestone 13: the picks per bin, the targets)."""
+    from wenart.assets.audit import load_config
+    return dict((load_config().get("growth") or {}))
 
 
 def growth_dir(out=None) -> Path:
@@ -207,9 +229,37 @@ def abo_family(style: Optional[str]) -> Optional[str]:
     return fams[0] if fams else None
 
 
+def demand_bin_of(ftype: str, dims, demand_bins: dict, max_off: float = 0.25) -> Optional[dict]:
+    """The demanded bin (``demands.size_grid`` row with ``demand > 0``) a model box ``dims`` (w, d, h, metres)
+    serves: inside the fit's caps first (``demands.covers``), else the nearest within ``max_off``; ``{bin, off,
+    demand, fits_caps}`` or None."""
+    import math
+
+    from wenart.assets.audit import demands as D
+    best = None
+    h_range = D.height_range(ftype)
+    for b in demand_bins.get(ftype) or []:
+        if not b.get("demand") or min(float(b["w"]), float(b["d"]), float(dims[0]), float(dims[1])) <= 0:
+            continue
+        off = min(max(abs(math.log(dims[0] / b["w"])), abs(math.log(dims[1] / b["d"]))),
+                  max(abs(math.log(dims[1] / b["w"])), abs(math.log(dims[0] / b["d"]))))
+        if off > math.log(1.0 + max_off):
+            continue
+        fits = D.covers(dims, b["w"], b["d"], h_range)
+        key = (0 if fits else 1, off)
+        if best is None or key < best[0]:
+            best = (key, {"bin": b["bin"], "off": round(math.exp(off) - 1.0, 3), "demand": int(b["demand"]),
+                          "fits_caps": fits})
+    return best[1] if best else None
+
+
 def abo_candidates(models: dict, listings: list[dict], glb_sizes: dict, used_models: set, *, per_type_family: int = 8,
-                   decor_per_type: int = 40, headboards: int = 30) -> list[dict]:
-    """The ABO style pass, decor pass and headboards (module docstring); ``pick`` marks the capped selection."""
+                   decor_per_type: int = 40, headboards: int = 30, demand_bins: Optional[dict] = None,
+                   per_bin: int = 6) -> list[dict]:
+    """The ABO style pass, decor pass and headboards (module docstring); ``pick`` marks the capped selection.
+    Milestone 13: with ``demand_bins`` (``demands.size_grid``: ``{type: [bins]}``) the furniture of a demanded type
+    whose box fits a demanded bin within the fit's caps joins the group ``size grid`` (<= ``per_bin`` per type and
+    bin, the nearest first; a listing already in the style pass stays there)."""
     from wenart.assets import abo as AB
     from wenart.assets import objaverse as OV
     cfg, ocfg = AB.load_config(), OV.load_config()
@@ -238,12 +288,18 @@ def abo_candidates(models: dict, listings: list[dict], glb_sizes: dict, used_mod
         seen.add(mid)
         fam = abo_family(style)
         kind = known.get(ftype, "furniture")
+        bin_hit = None
         if ftype == "headboard":
             group = "headboards"
         elif kind == "decor" and ftype in ("cushion", "rug", "wall_art"):
             group = "decor pass"
         elif kind == "furniture" and fam:
             group = "style pass"
+        elif kind == "furniture" and demand_bins and ftype in demand_bins:
+            bin_hit = demand_bin_of(ftype, dims, demand_bins)
+            if bin_hit is None:
+                continue
+            group = "size grid"
         else:
             continue
         path = row.get("path")
@@ -254,15 +310,20 @@ def abo_candidates(models: dict, listings: list[dict], glb_sizes: dict, used_mod
                     "image_px": row.get("image_width_max"), "glb": path,
                     "size_mb": round(size / 1e6, 2) if size else None,
                     "variant": AB.variant_key(AB.english(lst.get("brand"), tags)[0]
-                                              or AB.any_value(lst.get("brand"))[0], name)})
-    # picks: per (type, family) for the style pass, per type for the decor pass, headboards; colour variants last,
-    # larger textures first, then the id (deterministic)
+                                              or AB.any_value(lst.get("brand"))[0], name),
+                    **({"bin": bin_hit["bin"], "bin_off": bin_hit["off"], "bin_demand": bin_hit["demand"],
+                        "fits_caps": bin_hit["fits_caps"]} if bin_hit else {})})
+    # picks: per (type, family) for the style pass, per type for the decor pass, headboards, per (type, bin) for the
+    # size grid (the nearest first); colour variants last, larger textures first, then the id (deterministic)
     out.sort(key=lambda r: (r["group"], r["type"], r["family"] or "", r["id"]))
     counts: dict = {}
     variants: set = set()
-    for r in sorted(out, key=lambda r: (r["group"], r["type"], r["family"] or "", -(r["image_px"] or 0), r["id"])):
-        key = (r["group"], r["type"], r["family"] if r["group"] == "style pass" else None)
-        cap = {"style pass": per_type_family, "decor pass": decor_per_type, "headboards": headboards}[r["group"]]
+    for r in sorted(out, key=lambda r: (r["group"], r["type"], r["family"] or "", r.get("bin") or "",
+                                        0 if r.get("fits_caps", True) else 1, r.get("bin_off") or 0.0,
+                                        -(r["image_px"] or 0), r["id"])):
+        key = (r["group"], r["type"], r["family"] if r["group"] == "style pass" else r.get("bin"))
+        cap = {"style pass": per_type_family, "decor pass": decor_per_type, "headboards": headboards,
+               "size grid": per_bin}[r["group"]]
         vkey = (r["type"], r["variant"])
         if counts.get(key, 0) >= cap or (r["variant"] and vkey in variants):
             r["pick"] = False
@@ -273,6 +334,94 @@ def abo_candidates(models: dict, listings: list[dict], glb_sizes: dict, used_mod
         r["pick"] = True
     return out
 
+
+
+# Milestone 13 (T6 vegetation, docs/milestone13.md §2.2): the Poly Haven API categories of the vegetation models,
+# read from https://api.polyhaven.com/assets?t=models on 15 Oct 2026 (521 models: trees 20, plants 57, ground cover
+# 32, grass 4, potted plants 6; there is no "outdoor" category) -> our vegetation kind. A model takes the first kind
+# whose category it carries.
+PH_VEGETATION_CATEGORIES: tuple[tuple[str, str], ...] = (("trees", "tree"), ("grass", "grass"),
+                                                          ("ground cover", "ground_cover"),
+                                                          ("potted plants", "potted_plant"), ("plants", "plant"))
+# Words of vegetation titles that are no living plant (dead wood, roots, debris, stumps): listed, not picked.
+PH_VEGETATION_NOT = ("dead", "stump", "root", "roots", "debris", "branch", "branches", "trunk", "dry", "hose",
+                     "garden_hose")
+PH_SHRUB_MAX_M = 1.5           # a "tree" whose height is below this is a shrub (site.tree_height: crown < 1.5 m)
+
+
+def polyhaven_vegetation(assets: dict, used_ids: set, files_of: Optional[Callable[[str], Optional[dict]]] = None,
+                         res: str = "2k") -> list[dict]:
+    """The Poly Haven vegetation models (trees, shrubs, grass, ground cover, plants, planters) not yet in the assets
+    (pure but for ``files_of``): ``kind: "vegetation"``, ``type`` tree | shrub | grass | ground_cover | plant |
+    potted_plant, the API height (dimensions z, mm) and polycount, ``pick`` false for dead wood, roots and debris."""
+    used = {u.lower() for u in used_ids}
+    out = []
+    for aid in sorted(assets):
+        a = assets[aid]
+        if aid.lower() in used or int(a.get("type", 2)) != 2:
+            continue
+        cats = [str(c) for c in a.get("categories") or []]
+        vtype = next((kind for cat, kind in PH_VEGETATION_CATEGORIES if cat in cats), None)
+        if vtype is None:
+            continue
+        name = str(a.get("name") or aid)
+        dims = [round(float(v) / 1000.0, 3) for v in a.get("dimensions") or []]
+        height = dims[2] if len(dims) == 3 else None
+        if vtype == "tree" and height is not None and height < PH_SHRUB_MAX_M:
+            vtype = "shrub"
+        words = set(K.tokens(name)) | set(aid.lower().split("_"))
+        dead = sorted(words & set(PH_VEGETATION_NOT))
+        rec = {"source": "polyhaven", "id": aid, "title": name, "type": vtype, "kind": "vegetation", "licence": "CC0",
+               "categories": cats, "dims_m": dims or None, "height_m": height, "polycount": a.get("polycount"),
+               "url": f"https://polyhaven.com/a/{aid}", "pick": not dead,
+               "note": f"not a living plant ({', '.join(dead)})" if dead else ""}
+        rec["size_mb"] = ph_size_mb(files_of(aid) if files_of else None, res)
+        out.append(rec)
+    out.sort(key=lambda r: (r["type"], r["id"]))
+    return out
+
+
+# Milestone 13 (T5 shell material table, wenart/blender/materials.py SHELL_SLOTS; docs/milestone13.md §2.1, §3.0 K5):
+# ambientCG CC0 sets per shell slot. Every id was read from https://ambientcg.com/api/v2/full_json on 15 Oct 2026
+# (query words in the comments); ``ambientcg_sets`` checks them against the API again when the list is written.
+AMBIENTCG_SHELL_SETS: dict[str, tuple[str, ...]] = {
+    "ceiling": ("Plaster001", "Plaster002", "Plaster004", "PaintedPlaster017"),      # q=plaster: clean white plaster
+    "worktop": ("Marble012", "Marble021", "Marble014", "Granite004B"),               # q=marble, granite: countertop
+    "front": ("PaintedWood009C", "PaintedWood006C", "PaintedWood007C"),              # q=painted wood: clean, light
+    "ceramic": ("Porcelain001", "Porcelain002"),                                     # q=porcelain: white
+    "metal": ("Metal032", "Metal009", "Metal011", "Metal051A"),                      # q=brushed metal (+ the vocabulary's)
+    "tile": ("Tiles133A", "Tiles107", "Tiles109", "Tiles074", "Tiles040"),           # q=tiles, terrazzo: bathroom, kitchen
+}
+
+
+def ambientcg_sets(infos: dict, used_ids: set = frozenset(), size: str = "2k") -> list[dict]:
+    """The shell sets (``AMBIENTCG_SHELL_SETS``) as candidates: ``infos`` = ``ambientcg.infos(ids)`` (``{id:
+    record}``; a missing id gives ``exists: false`` and no pick); the zip of ``size`` (2K-JPG) with its bytes when the
+    record lists it."""
+    from wenart.assets import ambientcg as ACG
+    out = []
+    for slot, ids in AMBIENTCG_SHELL_SETS.items():
+        for aid in ids:
+            rec = infos.get(aid)
+            row = {"source": "ambientcg", "id": aid, "slot": slot, "kind": "texture", "type": f"shell_{slot}",
+                   "licence": "CC0", "url": f"https://ambientcg.com/view?id={aid}", "exists": rec is not None,
+                   "used": aid in used_ids}
+            if rec is None:
+                row.update(pick=False, note="not on the ambientCG API (id not found)")
+                out.append(row)
+                continue
+            size_m, assumed = ACG.size_m(rec)
+            maps = sorted(rec.get("maps") or [])
+            row.update(title=rec.get("displayName"), category=rec.get("displayCategory"), size_m=size_m,
+                       size_assumed=assumed, maps=maps, tags=list(rec.get("tags") or [])[:12])
+            try:
+                z = ACG.zip_download(rec, size=size, fmt="JPG")
+                row.update(zip=z.get("fileName"), size_mb=round(int(z.get("size") or 0) / 1e6, 2) or None)
+                row["pick"] = all(m in maps for m in ("color", "normal", "roughness")) and not row["used"]
+            except KeyError as exc:
+                row.update(pick=False, note=str(exc))
+            out.append(row)
+    return out
 
 # --------------------------------------------------------------------------
 # GSO
@@ -403,15 +552,27 @@ def list_doc(source: str, cands: list[dict], queried_utc: str, query: dict, note
 
 
 def approved(source: str, out=None) -> dict:
-    """The approved list of a source; ``PermissionError`` when it is missing or incomplete (the ingest gate)."""
+    """The approved list of a source; ``PermissionError`` when it is missing or incomplete (the ingest gate).
+    Milestone 13: an approval may name ``picks`` (``{"from": "candidates_<source>.json", "max": n}``) instead of
+    ``ids`` (the HSSD layer: the user approved the layer, D2, and the list is built by rule from the demands); the
+    ids are then the picked candidates of that list, at most ``max``."""
     path = growth_dir(out) / f"approved_{source}.json"
     if not path.is_file():
         raise PermissionError(f"{path} not found: the user has not approved a {source} list (D24); nothing is "
                               "downloaded")
     doc = json.loads(path.read_text(encoding="utf-8"))
-    missing = [k for k in ("approved_by", "approved_utc", "ids") if not doc.get(k)]
+    by_rule = isinstance(doc.get("picks"), dict) and doc["picks"].get("from")
+    missing = [k for k in ("approved_by", "approved_utc") + (() if by_rule else ("ids",)) if not doc.get(k)]
     if missing or doc.get("source", source) != source:
         raise PermissionError(f"{path}: missing {', '.join(missing) or 'the right source'}: not an approval")
+    if by_rule and not doc.get("ids"):
+        lst = growth_dir(out) / str(doc["picks"]["from"])
+        if not lst.is_file():
+            raise PermissionError(f"{path}: picks from {lst.name}, which is missing")
+        cands = json.loads(lst.read_text(encoding="utf-8")).get("candidates") or []
+        ids = [c["id"] for c in cands if c.get("pick", True)]
+        cap = doc["picks"].get("max")
+        doc = dict(doc, ids=ids[:int(cap)] if cap else ids, ids_from=lst.name)
     return doc
 
 
@@ -427,17 +588,24 @@ def cmd_list(args) -> int:
         from wenart.furniture import catalog as C
         cat = C.load(library=False)
         used = {e["id"] for e in cat.data.get("entries", []) + cat.data.get("decor", []) if e.get("id")}
+        res = args.res or "2k"
 
         def files_of(aid):
             return json.loads(fetch(f"{PH_API}/files/{aid}", cache, f"ph_files_{aid}.json"))
-        cands = polyhaven_candidates(assets, used, files_of)
+        cands = polyhaven_candidates(assets, used, files_of, res=res)
+        notes = [f"{len(assets)} Poly Haven models; {len(used)} ids already in catalog.json",
+                 "type from the category path (growth.PH_CATEGORY_TYPES: the first type whose real size holds "
+                 "the API dimensions); outdoor and low-poly words left out; fits_real_size false: no type of "
+                 "the category holds the dimensions (the audit decides)"]
+        if args.vegetation:
+            veg = polyhaven_vegetation(assets, used, files_of, res=res)
+            cands = cands + veg
+            notes.append(f"Milestone 13: {len(veg)} vegetation models (API categories trees, plants, ground cover, "
+                         f"grass, potted plants; {sum(1 for v in veg if v['pick'])} picked: dead wood, roots and "
+                         "debris are not) for wenart.blender.vegetation (T6); glTF at " + res)
         doc = list_doc("polyhaven", cands, stamp, {"api": f"{PH_API}/assets?t=models", "files": f"{PH_API}/files/<id>",
-                                                   "resolution": "2k glTF"},
-                       [f"{len(assets)} Poly Haven models; {len(used)} ids already in catalog.json",
-                        "type from the category path (growth.PH_CATEGORY_TYPES: the first type whose real size holds "
-                        "the API dimensions); outdoor and low-poly words left out; fits_real_size false: no type of "
-                        "the category holds the dimensions (the audit decides)"])
-        path = out / "candidates_polyhaven.json"
+                                                   "resolution": f"{res} glTF"}, notes)
+        path = out / ("candidates_polyhaven_m13.json" if args.vegetation else "candidates_polyhaven.json")
     elif args.source == "abo":
         from wenart.assets import abo as AB
         cfg = AB.load_config()
@@ -458,7 +626,11 @@ def cmd_list(args) -> int:
         cat = I.read_json(I.LIBRARY_PATH) or {}
         used |= {str(e.get("abo_3dmodel_id")) for s in ("entries", "decor") for e in cat.get(s) or []
                  if e.get("abo_3dmodel_id")}
-        found = abo_candidates(models, listings, sizes, used)
+        bins = None
+        if args.by_demands:
+            from wenart.assets.audit import demands as D
+            bins = D.size_grid(D.drawn_demands())
+        found = abo_candidates(models, listings, sizes, used, demand_bins=bins, per_bin=args.per_bin)
         cands = [c for c in found if c["pick"]]
         skipped: dict = {}
         for c in found:
@@ -473,8 +645,53 @@ def cmd_list(args) -> int:
                         "wall art (<= 40 per type); headboards (<= 30; no type of ours yet: bed frames)",
                         "colour variants of one product are picked once",
                         f"{len(found)} candidates found, {len(cands)} picked (listed below); not picked per group: "
-                        + json.dumps(dict(sorted(skipped.items())))])
-        path = out / "candidates_abo.json"
+                        + json.dumps(dict(sorted(skipped.items())))]
+                       + ([f"Milestone 13 size grid: furniture of the demanded types (wenart.assets.audit.demands) "
+                           f"whose box fits a demanded bin within the fit's caps, <= {args.per_bin} per type and "
+                           "bin (fits_caps false: the nearest within 25 %, the audit may rescale)"] if bins else []))
+        path = out / ("candidates_abo_m13.json" if bins else "candidates_abo.json")
+    elif args.source == "hssd":
+        from wenart.assets import hssd as H
+        from wenart.assets.audit import demands as D
+        from wenart.assets.audit import items as I
+        meta = H.fetch_metadata(cache / "hssd")
+        rows = H.load_metadata(meta)
+        api = json.loads(fetch(f"{HF_API}{H.REPO_ID}?blobs=true", cache, "hssd_models_api.json"))
+        listing, sizes_of = {}, {}
+        for sib in api.get("siblings") or []:
+            name = str(sib.get("rfilename") or "")
+            if name.startswith("objects/") and name.endswith(".glb"):
+                hid = name.rsplit("/", 1)[1][:-4]
+                listing[hid] = name
+                sizes_of[hid] = int((sib.get("lfs") or {}).get("size") or sib.get("size") or 0)
+        used = {i["id"] for i in I.load_items() if i.get("source") == "hssd"}
+        dem = D.drawn_demands()
+        cands = H.candidate_records(dem, args.per_bin, rows, used, n_per_bin_decor=args.per_bin_decor,
+                                    sizes=sizes_of, listing=listing)
+        doc = H.list_doc(cands, dem, stamp, args.per_bin,
+                         [f"{len(rows)} metadata rows ({H.META_REPO_ID} {H.META_FILE}); {len(listing)} objects in "
+                          f"{H.REPO_ID} @{api.get('sha', '')[:7]}; {len(used)} already in the library",
+                          f"per demand bin the {args.per_bin} nearest objects of the type by size ({args.per_bin_decor} "
+                          "for decor), inside the fit's caps first, single objects before sets, at most "
+                          f"{int(H.MAX_OFF * 100)} % off the bin; outdoor furniture (patio, garden) left out",
+                          "CC BY-NC 4.0: relaxed licence mode only; the terms are accepted by the user on the gated "
+                          "page (D2); the pod skips the ingest with a clear log line on HTTP 403"])
+        path = out / "candidates_hssd.json"
+    elif args.source == "ambientcg":
+        from wenart.assets import ambientcg as ACG
+        from wenart.assets import fetch as F
+        ids = [i for ids in AMBIENTCG_SHELL_SETS.values() for i in ids]
+        infos = json.loads(fetch(f"{ACG.API}?id={','.join(ids)}&include={ACG.INCLUDE}&limit={max(100, len(ids))}",
+                                 cache, "acg_shell_sets.json"))
+        infos = {a["assetId"]: a for a in infos.get("foundAssets") or []}
+        used = {str(r["asset"]) for r in F.texture_rows() if r.get("source") == "ambientcg"}
+        cands = ambientcg_sets(infos, used, size=args.res or "2k")
+        doc = list_doc("ambientcg", cands, stamp, {"api": ACG.API, "resolution": f"{(args.res or '2k').upper()}-JPG"},
+                       [f"{len(ids)} shell sets of growth.AMBIENTCG_SHELL_SETS, {sum(1 for c in cands if c['exists'])} "
+                        "found on the API; the vocabulary's own ambientCG ids are listed as used",
+                        "for the shell material table of wenart.blender.materials (T5: ceiling, worktop, front, "
+                        "ceramic, metal, tile); CC0 (https://ambientcg.com/: free for commercial use, no credit)"])
+        path = out / "candidates_ambientcg.json"
     else:
         meta = json.loads(fetch(f"{HF_API}{GSO_REPO}?blobs=true", cache, "gso_raw.json"))
         cands = gso_candidates(meta.get("siblings") or [])
@@ -534,7 +751,17 @@ def main(argv=None) -> int:
     p.add_argument("--queried-utc", default=None)
     p.add_argument("--assets", default="/workspace/assets", help="ingest: assets folder (Poly Haven)")
     p.add_argument("--cache-glb", default="/workspace/prep/cache/abo", help="ingest: ABO GLB cache")
+    p.add_argument("--res", default=None, help="Poly Haven glTF / ambientCG zip resolution (default 2k)")
+    p.add_argument("--vegetation", action="store_true", help="polyhaven list: add the vegetation models (M13)")
+    p.add_argument("--by-demands", action="store_true", help="abo list: the size-grid group of the demands (M13)")
+    p.add_argument("--per-bin", type=int, default=None, help="picks per type and demand bin (abo 6, hssd 12)")
+    p.add_argument("--per-bin-decor", type=int, default=None, help="hssd list: picks per decor bin (default 6)")
     args = p.parse_args(argv)
+    cfg = growth_config()
+    if args.per_bin is None:
+        args.per_bin = int(cfg.get("hssd_per_bin", 12)) if args.source == "hssd" else int(cfg.get("abo_per_bin", 6))
+    if args.per_bin_decor is None:
+        args.per_bin_decor = int(cfg.get("hssd_per_bin_decor", 6))
     if args.action == "ingest":
         return cmd_ingest(args)
     return cmd_list(args)

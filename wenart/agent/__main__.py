@@ -1,7 +1,7 @@
 """CLI of the orchestrator (docs/milestone11.md §2 "CLI", contract §17.3).
 
     python -m wenart.agent apply <project_out>
-    python -m wenart.agent run <project_out> --server URL [--model-key agent] [--rounds 4] [--deadline EPOCH]
+    python -m wenart.agent run <project_out> --server URL [--model-key agent] [--rounds 3] [--deadline EPOCH]
                                               [--workers 4]
     python -m wenart.agent check-log <project_out>
     python -m wenart.agent metrics <project_out> [--compare results/compare/<p>/agent_metrics.md --label L]
@@ -44,8 +44,8 @@ def cmd_run(args) -> int:
                         workers=args.workers,
                         out=lambda line: print(line, flush=True))
     summary = loop.run()
-    print(f"agent run: {summary['accepted']} edit(s) accepted in {len(summary['rounds'])} round(s); stop: "
-          f"{(summary['stop'] or {}).get('reason')}")
+    print(f"agent run: {summary.get('findings_removed', 0)} finding(s) removed by {summary['accepted']} accepted "
+          f"edit(s) in {len(summary['rounds'])} round(s); stop: {(summary['stop'] or {}).get('reason')}")
     return 0
 
 
@@ -97,7 +97,7 @@ def main(argv=None) -> int:
     rp.add_argument("project_out")
     rp.add_argument("--server", required=True, help="OpenAI base URL of the agent server (http://127.0.0.1:8001/v1)")
     rp.add_argument("--model-key", default="agent", help="check.yaml models key (agent | agent_fast)")
-    rp.add_argument("--rounds", type=int, default=4)
+    rp.add_argument("--rounds", type=int, default=3, help="max rounds (Milestone 13: loop.MAX_ROUNDS = 3)")
     rp.add_argument("--deadline", type=float, default=None, help="epoch seconds")
     rp.add_argument("--workers", type=int, default=4, help="parallel room sessions (the server's sequences)")
     cl = sub.add_parser("check-log", help="validate orchestrator/log.json")

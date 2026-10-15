@@ -7,7 +7,8 @@ from __future__ import annotations
 import copy
 import json
 
-from test_agent_helpers import FakeEdits, ScriptedCritic, fake_validators, piece, project, violation, write_json
+from test_agent_helpers import (FakeEdits, FixesWhatItTouched, ScriptedCritic, fake_validators, piece, project,
+                                violation, write_json)
 from wenart.agent import critic_code as CC
 from wenart.agent import log as LG
 from wenart.agent import loop as LP
@@ -63,8 +64,10 @@ def make(tmp_path, chat, critic_rounds, *, plan=(), **kw):
     # The fake validator (Edits) follows the brief's fallback lock rules, so the brief uses them too (track G's real
     # allowed_edits has its own tests in test_agent_brief.py).
     kw.setdefault("brief_fns", {"allowed_fn": lambda b, pid: {}})
+    critic = ScriptedCritic(critic_rounds)
+    kw.setdefault("recheck", FixesWhatItTouched(critic))     # Milestone 13: the acceptance's dry re-check (fake)
     loop = LP.AgentLoop(out, model, rerun=lambda s, v, r, f: {"status": "ok", "views": v}, clock=kw.pop("clock", Clock()),
-                        code_critic=ScriptedCritic(critic_rounds), vision=False, apply_edit=kw.pop("edits", Edits()),
+                        code_critic=critic, vision=False, apply_edit=kw.pop("edits", Edits()),
                         validators=fake_validators(), out=lambda s: None, workers=kw.pop("workers", 1),
                         sync=lambda b: syncs.append(1) or b, **kw)
     return loop, out, model
@@ -98,13 +101,16 @@ def test_unfixable_findings_are_never_sent_as_work(tmp_path):
 
 
 def test_the_plan_comes_first_and_is_checked_against_the_brief(tmp_path):
+    # Milestone 13: F3 (the headboard off the wall) is fixed by a move (cause off_wall), so the valid step is a
+    # move_piece; a set_front step would be refused ("does not fix c:F3:f1")
     plan = {"room_id": "r1", "program": {"keep": True}, "steps": [
-        {"finding_ids": ["c:F3:f1"], "tool": "set_front", "target": "f1", "why": "turn the bed to the room"},
+        {"finding_ids": ["c:F3:f1"], "tool": "move_piece", "target": "f1", "why": "the bed head onto the wall"},
         {"finding_ids": ["c:F9:f5"], "tool": "mark_not_furniture", "target": "f5", "why": "a symbol"},
         {"finding_ids": [], "tool": "teleport", "target": "f1", "why": "move it fast"},
         {"finding_ids": ["c:F3:f1"], "tool": "fix_fixture", "target": "f1", "why": "a misread bed"}]}
-    loop, out, model = make(tmp_path, [set_front("f1", 90), {"content": "more?"}], [[F3, F9_UNBUILT], []],
-                            plan=[plan])
+    move = {"tool_calls": [{"name": "move_piece", "arguments": {"piece_id": "f1", "center": [2.0, 2.5],
+                                                                "reason": "the bed head onto the north wall"}}]}
+    loop, out, model = make(tmp_path, [move, {"content": "more?"}], [[F3, F9_UNBUILT], []], plan=[plan])
     summary = loop.run()
     assert summary["accepted"] == 1
     first = model.requests[0]
@@ -112,7 +118,7 @@ def test_the_plan_comes_first_and_is_checked_against_the_brief(tmp_path):
     # the checklist is the one valid step; the session ends when it is done (no second planner call)
     assert len(model.chat_requests()) == 1
     task = model.chat_requests()[0]["messages"][1]["content"]
-    assert "1. set_front on f1 for c:F3:f1" in task and "2." not in task.split("Checklist")[1].split("Plan steps")[0]
+    assert "1. move_piece on f1 for c:F3:f1" in task and "2." not in task.split("Checklist")[1].split("Plan steps")[0]
     problems = task.split("Plan steps refused by the check (do not do them):\n")[1]
     assert "c:F9:f5 is not yours" in problems and "tool teleport is not offered" in problems
     assert "f1 does not allow fix_fixture" in problems

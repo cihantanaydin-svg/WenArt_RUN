@@ -817,6 +817,8 @@ def fake_answers(items_by_id):
                         "front_shown": "front" if A.has_front(it["type"]) else "none",
                         "has_bedding": True if bed else None, "has_pillows": False if bed else None,
                         "has_cushions": None, "contact": "flat_bottom" if it["kind"] == "decor" else None}
+                if "materials" in schema["properties"]:           # the Milestone 13 question (material tags gate)
+                    data["materials"] = ["wood", "fabric"]
             return SimpleNamespace(data=data, raw_text="{}", error=None, attempts=1, latency_s=0.01)
     return lambda m, s: Client()
 
@@ -845,9 +847,11 @@ def ask_fake(out_root: Path, items: list, passes, by_id):
     audit = out_root / "audit"
     model = A.model_of("agent")
     mdoc = json.loads((audit / "measure.json").read_text())
+    from wenart.assets.audit import load_config
     for n in passes:
         only = CLI.second_pass_ids(items, A.load_answers(audit, model)) if n == 2 else None
-        A.build_requests(items, mdoc, audit, "m12.1", only, n == 2)
+        # Milestone 13: the question version per item (the materials question for models without material tags)
+        A.build_requests(items, mdoc, audit, "m12.1", only, n == 2, cfg_ask=load_config().get("ask") or {})
         assert A.ask(audit, model, "http://fake", second=n == 2, workers=1, client_factory=fake_answers(by_id),
                      log=lambda *a: None) == 0
 
@@ -958,3 +962,57 @@ def test_gso_licence_and_conversion_steps(tmp_path):
     assert m["bbox_model_m"] == [0.2, 0.2, 0.08] and m["info"]["textured"]       # Z up kept, metres
     assert GR.cmd_convert(a) == 0                                                # resume: nothing converted again
     assert json.loads((tmp_path / "g" / "report" / "convert_gso.json").read_text())["redone"] == 0
+
+
+def test_catalogue_step_m13_relinks_2k_previews_vegetation_and_builds_hssd_entries(tmp_path):
+    """Milestone 13 (track T7): the Poly Haven models fetched again at 2K are relinked in the copy (never re-made as
+    pending entries), vegetation models are previews (no furniture entry), HSSD records become ``source: hssd``
+    entries with the CC BY-NC 4.0 flags (or are dropped by catalog.validate until the lead adds the source)."""
+    from wenart.assets import hssd as H
+    a = fixture_growth(tmp_path)
+    assets, g, lists = tmp_path / "assets", tmp_path / "g", tmp_path / "lists"
+    rep = g / "report"
+    ph_doc = json.loads(I.POLYHAVEN_PATH.read_text(encoding="utf-8"))
+    sofa = next(e for e in ph_doc["entries"] if e["id"] == "sofa_02")
+    gl2k = write_gltf(assets / "models" / "sofa_02", "sofa_02", *box_mesh(1.8, 0.8, 0.7))
+    rel2k = gl2k.relative_to(assets).as_posix().replace("_1k", "_2k")
+    (assets / rel2k).write_bytes(gl2k.read_bytes())
+    veg = write_gltf(assets / "models" / "jacaranda_tree", "jacaranda_tree", *box_mesh(2.0, 2.0, 9.0))
+    (rep / "ingest_polyhaven_m13.json").write_text(json.dumps({"records": [
+        {"id": "sofa_02", "ok": True, "gltf": rel2k, "sha256": {"gltf": "f" * 64}, "size": "2k"},
+        {"id": "jacaranda_tree", "ok": True, "gltf": veg.relative_to(assets).as_posix(), "sha256": {}, "size": "2k"}],
+        "approved": 2, "ok": 2}))
+    (lists / "growth" / "candidates_polyhaven_m13.json").write_text(json.dumps({"candidates": [
+        {"id": "jacaranda_tree", "type": "tree", "kind": "vegetation", "licence": "CC0"}]}))
+    hid = "c" * 40
+    glb = write_glb(assets / "models" / "hssd" / f"hssd_{hid}.glb", *box_mesh(1.9, 0.9, 0.85), textured=True)
+    (lists / "growth" / "candidates_hssd.json").write_text(json.dumps({"candidates": [
+        {"id": f"hssd_{hid}", "hssd_id": hid, "title": "Taylor Sofa", "type": "sofa", "kind": "furniture",
+         "bin": "2.00x0.90", "demand": 4, "projects": ["real02"], "dims_m": [1.9, 0.9, 0.85], "fits_caps": True,
+         "multi": False, "articulated": False, "found_in": "living room", "synset": "sofa.n.01",
+         "path": f"objects/c/{hid}.glb", "pick": True}]}))
+    (rep / "ingest_hssd.json").write_text(json.dumps({"records": [
+        {"id": f"hssd_{hid}", "hssd_id": hid, "ok": True, "glb": f"models/hssd/hssd_{hid}.glb",
+         "sha256": GR.sha256_file(glb)}], "approved": 1, "ok": 1}))
+    assert GR.cmd_catalogue(a) == 0
+    ph = json.loads((tmp_path / "p4" / "audit" / "catalogue" / "catalog.json").read_text())
+    lib = json.loads((tmp_path / "p4" / "audit" / "catalogue" / "catalog_library.json").read_text())
+    C.validate(ph, complete=True)
+    C.validate(lib, complete=False)
+    sofa_after = next(e for e in ph["entries"] if e["id"] == "sofa_02")
+    assert sofa_after["gltf"] == rel2k and sofa_after["gltf_1k"] == sofa["gltf"] and sofa_after["resolution"] == "2k"
+    assert sofa_after.get("audit") == sofa.get("audit")                     # relinked, not re-made
+    assert sum(1 for e in ph["entries"] if e.get("id") == "sofa_02") == 1          # parametric rows have no id
+    rep_doc = json.loads((rep / "catalogue.json").read_text())
+    assert rep_doc["stats"]["polyhaven_relinked_2k"] == 1
+    assert any(p["id"] == "jacaranda_tree" and p["kind"] == "vegetation" for p in rep_doc["previews"])
+    assert not any(e.get("id") == "jacaranda_tree" for e in ph["entries"] + ph["decor"])
+    hssd = [e for e in lib["entries"] if e.get("source") == "hssd"]
+    if "hssd" in C.SOURCES:
+        assert len(hssd) == 1 and hssd[0]["licence_flag"] == "non_commercial" and hssd[0]["commercial_safe"] is False
+        assert hssd[0]["audit"]["status"] == "pending" and hssd[0]["pbr_maps"]["base_colour"] is True
+        assert "hssd" in lib["sources"] and lib["datasets"]["hssd"]["licence"] == "CC-BY-NC-4.0"
+        assert any(H.DATASET["name"] in n or "HSSD" in n for n in lib["notes"])
+    else:
+        why = {d["id"]: d["reason"] for d in rep_doc["dropped"]}
+        assert "refused by catalog.validate" in why[f"hssd_{hid}"] and "hssd" in why[f"hssd_{hid}"]

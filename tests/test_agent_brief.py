@@ -101,8 +101,11 @@ def test_fixable_and_not_yours():
     out = BR.room_brief(toy(), "r1", findings=FINDINGS, **fakes())
     fixable = {f["id"]: f["tools"] for f in out["findings"]["fixable"]}
     not_yours = {f["id"]: f["why"] for f in out["findings"]["not_yours"]}
-    # a re-layout never moves a drawn bed, nor does move_group (its group has drawn members, pod P5)
-    assert fixable["c:F3:f1"] == ["move_piece", "rotate_piece", "set_front"]
+    # a re-layout never moves a drawn bed, nor does move_group (its group has drawn members, pod P5); Milestone 13:
+    # the tools come from the cause: F3 (back off the wall) is a move, never a turn (real04: 0 of 6 rotations helped)
+    assert fixable["c:F3:f1"] == ["move_piece"]
+    causes = {f["id"]: f["cause"] for f in out["findings"]["fixable"] + out["findings"]["not_yours"]}
+    assert causes["c:F3:f1"] == "off_wall" and causes["c:G4:f2"] == "missing_member"
     assert fixable["c:F7:f4"] == ["fix_fixture"]                    # U1: the misread toilet may be fixed
     assert fixable["c:R5:r1"] == ["set_lighting"] and fixable["c:G4:f2"][0] == "complete_group"
     assert "not built" in not_yours["c:F9:f5"] and "decor stage" in not_yours["c:S5:f1"]
@@ -136,7 +139,9 @@ def test_track_g_answers_with_the_drawn_removal_rule_and_its_spans():
     f1 = pieces["f1"]["allowed"]
     assert f1["rotate_piece"] is True and f1["set_front"] is not True and "mark_not_furniture" in f1["remove_piece"]
     fixable = {f["id"]: f["tools"] for f in out["findings"]["fixable"]}
-    assert "rotate_piece" in fixable["c:F3:f1"] and "set_front" not in fixable["c:F3:f1"]
+    # Milestone 13: F3 (the back off the wall) is fixed by a move; rotate_piece is allowed on the piece but is no
+    # tool for this cause, set_front neither
+    assert fixable["c:F3:f1"] == ["move_piece"] and "set_front" not in fixable["c:F3:f1"]
     ai = copy.deepcopy(b)
     next(f for f in ai["furniture"] if f["id"] == "f1")["source"] = "added_by_ai"
     a, src = BR.allowed_of(ai, next(f for f in ai["furniture"] if f["id"] == "f1"))

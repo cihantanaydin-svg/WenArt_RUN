@@ -20,7 +20,11 @@ stands inside the building, the roof, a tree crown or trunk, within ``CLEARANCE`
 view of the building is blocked: a 32 x 18 ray grid over its frame (``camsearch.ray_grid``, the §1.3 lens
 shift convention) must see the building on at least ``MIN_BUILDING_SHARE`` of the rays, at most
 ``MAX_BLOCKED`` of the building rays may end on a tree or plot wall first, and the ray to the aim point must
-reach the building. A refused camera moves along its diagonal (10-15 m) or towards / away from its facade;
+reach the building. Milestone 13 (D8): a hedge (``site.hedges`` and the inferred boundary hedge) is an obstacle of
+its own height: a ray through it counts as blocked only when the camera stands below the hedge's top (a camera above
+the hedge, or one that looks over it, keeps its view); in Milestone 12 real04's hedge rows were 4 m trees and three
+of seven views were dropped behind them. A refused camera moves along its diagonal (10-15 m) or towards / away from
+its facade;
 when no place works it is dropped and listed with the reason. Eye-level cameras stay level (pitch 0) and
 frame the building with a vertical lens shift (straight verticals); the lens is chosen so the building fills
 at most ``FRAME_FILL`` of the frame (``LENS_RANGE_MM``). Every plan lists the outer openings it sees
@@ -61,7 +65,8 @@ FILL_TARGET = 0.7
 DISTANCE_SCAN_M = (6.0, 80.0, 0.5)
 MOVE_STEPS_M = (0.0, 2.0, 4.0, -1.5, 6.0, 9.0, 12.0)      # a blocked eye-level view moves out (or a little in)
 KIND = "exterior"
-LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4, "copy": 5}   # copy: 11 Oct 2026
+LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4, "copy": 5,    # copy: 11 Oct 2026
+          "hedge": 6}                                                                           # hedge: Milestone 13
 
 
 # --------------------------------------------------------------------------
@@ -226,41 +231,48 @@ class ExteriorModel:
         self.roof: Optional[dict] = None        # the roof model
         self.walls: list[tuple] = []            # plot walls: (start, end, half thickness, z top)
         self.trees: list[tuple] = []            # (centre, rx, ry, z0 crown, z1 crown, trunk radius, ground z)
+        self.hedges: list[tuple] = []           # Milestone 13: (start, end, half width, z top) per hedge segment
         self.terrain: Optional[dict] = None
         self.outline: list = []
         self.z_range = (0.0, 0.0)
         self._arrays = None
+        self.tops: list[float] = []             # the highest z of every triangle (the hedge rule of view_check)
 
     def add_mesh(self, verts, faces, label: str) -> None:
         code = LABELS[label]
         for f in faces:
             for k in range(1, len(f) - 1):
-                self.tris.append((verts[f[0]], verts[f[k]], verts[f[k + 1]]))
+                tri = (verts[f[0]], verts[f[k]], verts[f[k + 1]])
+                self.tris.append(tri)
                 self.labels.append(code)
+                self.tops.append(max(float(tri[0][2]), float(tri[1][2]), float(tri[2][2])))
         self._arrays = None
 
     def arrays(self):
         if self._arrays is None:
             t = np.asarray(self.tris, dtype=np.float64).reshape(-1, 3, 3)
-            self._arrays = (t[:, 0], t[:, 1] - t[:, 0], t[:, 2] - t[:, 0], np.asarray(self.labels, dtype=np.int32))
+            self._arrays = (t[:, 0], t[:, 1] - t[:, 0], t[:, 2] - t[:, 0], np.asarray(self.labels, dtype=np.int32),
+                            np.asarray(self.tops, dtype=np.float64))
         return self._arrays
 
-    def cast(self, origin, dirs: np.ndarray, skip: Sequence[str] = ()) -> tuple[np.ndarray, np.ndarray]:
+    def cast(self, origin, dirs: np.ndarray, skip: Sequence[str] = (), want_tops: bool = False):
         """``(labels, t)`` of rays ``origin + t d`` (Moller-Trumbore over every triangle); label 0 and t = inf
-        where nothing is hit. ``skip``: labels to look through."""
-        v0, e1, e2, lab = self.arrays()
+        where nothing is hit. ``skip``: labels to look through. ``want_tops`` (Milestone 13) adds the hit
+        triangle's highest z as a third array (-inf where nothing is hit)."""
+        v0, e1, e2, lab, tops = self.arrays()
         d = np.asarray(dirs, dtype=np.float64).reshape(-1, 3)
         n = d.shape[0]
         best_t = np.full(n, np.inf)
         best_l = np.zeros(n, dtype=np.int32)
+        best_top = np.full(n, -np.inf)
         if not len(lab):
-            return best_l, best_t
+            return (best_l, best_t, best_top) if want_tops else (best_l, best_t)
         keep = ~np.isin(lab, [LABELS[s] for s in skip]) if skip else np.ones(len(lab), dtype=bool)
-        v0, e1, e2, lab = v0[keep], e1[keep], e2[keep], lab[keep]
+        v0, e1, e2, lab, tops = v0[keep], e1[keep], e2[keep], lab[keep], tops[keep]
         o = np.asarray(origin, dtype=np.float64)
         for start in range(0, len(lab), 4096):
             sl = slice(start, start + 4096)
-            a0, a1, a2, al = v0[sl], e1[sl], e2[sl], lab[sl]
+            a0, a1, a2, al, atop = v0[sl], e1[sl], e2[sl], lab[sl], tops[sl]
             p = np.cross(d[:, None, :], a2[None, :, :])                     # n x m x 3
             det = np.einsum("ijk,jk->ij", p, a1)
             with np.errstate(divide="ignore", invalid="ignore"):
@@ -277,7 +289,8 @@ class ExteriorModel:
             closer = tj < best_t
             best_t = np.where(closer, tj, best_t)
             best_l = np.where(closer, al[j], best_l)
-        return best_l, best_t
+            best_top = np.where(closer, atop[j], best_top)
+        return (best_l, best_t, best_top) if want_tops else (best_l, best_t)
 
     # ------------------------------------------------------------------
     def inside(self, p) -> Optional[str]:
@@ -300,6 +313,9 @@ class ExteriorModel:
         for (a, b, half, ztop) in self.walls:
             if G.point_segment_distance((x, y), a, b) < half + CLEARANCE and z <= ztop + CLEARANCE:
                 return "plot_wall"
+        for (a, b, half, ztop) in self.hedges:
+            if G.point_segment_distance((x, y), a, b) < half + CLEARANCE and z <= ztop + CLEARANCE:
+                return "hedge"
         for (cx, cy), rx, ry, z0, z1, trunk, gz in self.trees:
             zc, rz = (z0 + z1) / 2.0, (z1 - z0) / 2.0
             if ((x - cx) / (rx + CLEARANCE)) ** 2 + ((y - cy) / (ry + CLEARANCE)) ** 2 + \
@@ -383,9 +399,21 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
             m.walls.append((tuple(wall["start"]), tuple(wall["end"]), info["thickness"] / 2.0, info["z_range"][1]))
         for seg in (site_plan.get("inferred") or {}).get("boundary") or []:     # Milestone 11: hedge or fence
             v, f, info = S.boundary_parts(seg, m.terrain)
+            if seg["kind"] == "hedge":                 # Milestone 13: a hedge is a low obstacle of its own height
+                m.add_mesh(v, f, "hedge")
+                m.hedges.append((tuple(seg["start"]), tuple(seg["end"]), S.INFERRED["hedge_thickness"] / 2.0,
+                                 info["z_range"][1]))
+                continue
             m.add_mesh(v, f, "plot_wall")
-            half = (S.INFERRED["hedge_thickness"] if seg["kind"] == "hedge" else S.INFERRED["fence_post"]) / 2.0
-            m.walls.append((tuple(seg["start"]), tuple(seg["end"]), half, info["z_range"][1]))
+            m.walls.append((tuple(seg["start"]), tuple(seg["end"]), S.INFERRED["fence_post"] / 2.0, info["z_range"][1]))
+        for h in site_plan.get("hedges") or []:        # Milestone 13: the drawn hedge rows (site.hedges)
+            v, f, info = S.hedge_parts(h, m.terrain)
+            if not f:
+                continue
+            m.add_mesh(v, f, "hedge")
+            pts = [(float(x), float(y)) for x, y in h["polyline"]]
+            for a, b in zip(pts, pts[1:]):
+                m.hedges.append((a, b, float(h["width_m"]) / 2.0, info["z_range"][1]))
         for item in site_plan["trees"]:
             parts = S.tree_parts(item, m.terrain)
             for mesh in (parts["trunk"], parts["crown"]):
@@ -543,20 +571,34 @@ def fill_distance(model: "ExteriorModel", origin, direction, aim, points: np.nda
 
 
 def view_check(model: ExteriorModel, position, target, lens: float, shift_y: float, aim) -> dict:
-    """The ray check of a camera: ``{"building_share", "blocked", "aim_visible", "ok", "why"}``."""
+    """The ray check of a camera: ``{"building_share", "blocked", "aim_visible", "ok", "why", "hedge_blocked",
+    "hedge_over"}``. Milestone 13 (D8): a building ray that ends on a hedge counts as blocked only when the camera
+    stands below that hedge's top (``hedge_blocked``); a camera above the hedge looks over it (``hedge_over``: the
+    share of the building rays that pass through a hedge under the camera), and the aim ray may pass a hedge the
+    same way."""
     from wenart.blender import camsearch
 
     a, b = camsearch.ray_grid(RAY_GRID, lens_mm=lens, sensor_mm=SENSOR_MM, resolution=RESOLUTION, shift_y=shift_y)
     dirs = camsearch.camera_directions(position, target, a, b)
-    labels, _t = model.cast(position, dirs)
-    clear, _ = model.cast(position, dirs, skip=("plot_wall", "tree", "copy"))
+    labels, _t, tops = model.cast(position, dirs, want_tops=True)
+    clear, _ = model.cast(position, dirs, skip=("plot_wall", "tree", "copy", "hedge"))
     building = labels == LABELS["building"]
     reach = clear == LABELS["building"]
-    blocked = float(((labels != LABELS["building"]) & reach).sum()) / max(1, int(reach.sum()))
+    cam_z = float(position[2])
+    hedge_hit = (labels == LABELS["hedge"]) & reach
+    over = hedge_hit & (tops < cam_z)                     # the camera stands above the hedge: it looks over it
+    blocked_mask = (labels != LABELS["building"]) & reach & ~over
+    n_reach = max(1, int(reach.sum()))
+    blocked = float(blocked_mask.sum()) / n_reach
     share = float(building.mean())
     d = np.asarray(aim, dtype=np.float64) - np.asarray(position, dtype=np.float64)
-    lab, _ = model.cast(position, d[None, :] / np.linalg.norm(d))
+    lab, _, top = model.cast(position, d[None, :] / np.linalg.norm(d), want_tops=True)
     aim_ok = int(lab[0]) == LABELS["building"]
+    if not aim_ok and int(lab[0]) == LABELS["hedge"] and float(top[0]) < cam_z:
+        lab2, _ = model.cast(position, d[None, :] / np.linalg.norm(d), skip=("hedge",))
+        aim_ok = int(lab2[0]) == LABELS["building"]
+        if aim_ok:
+            lab = lab2
     why = None
     if blocked > MAX_BLOCKED:
         why = f"{blocked:.0%} of the view of the building is blocked by trees, the plot wall or another building"
@@ -566,7 +608,8 @@ def view_check(model: ExteriorModel, position, target, lens: float, shift_y: flo
         names = {v: k for k, v in LABELS.items()}
         why = f"the line of sight to the building ends on {names.get(int(lab[0]), 'nothing')}"
     return {"building_share": round(share, 4), "blocked": round(blocked, 4), "aim_visible": aim_ok,
-            "ok": why is None, "why": why}
+            "ok": why is None, "why": why, "hedge_blocked": round(float((hedge_hit & ~over).sum()) / n_reach, 4),
+            "hedge_over": round(float(over.sum()) / n_reach, 4)}
 
 
 def visible_openings(model: ExteriorModel, building: dict, levels: Sequence[dict], position, target, lens: float,
@@ -798,8 +841,10 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
                         "region_id": None, "variant": variant,
                         "dropped_reason": "flat_cut roof (upper floors not drawn): no aerial view"})
     else:
+        # Milestone 13 (D8): the one true aerial view of the policy (the vision critic's eye-level rule applies to
+        # the corner and frontal views only; exterior_checks X6 allows one aerial and the site view)
         keep(_try(model, building, levels, "ext_5", "aerial", cands, (cx, cy, zmid), level_cam=False,
-                  extra={"corner": best + 1, "sides": sides_at(corner), "variant": variant}))
+                  extra={"corner": best + 1, "sides": sides_at(corner), "variant": variant, "aerial_allowed": True}))
 
     views, _warnings = elevation_views(building)
     height = model.z_range[1] - model.z_range[0]
@@ -848,16 +893,24 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
     sv = CP.site_view(model.outline, building, model.z_range, plot)
     if sv is not None:
         nxt = max([p["index"] for p in plans + dropped if isinstance(p.get("index"), int)] + [5]) + 1
-        pos, target = sv["position"], sv["target"]
-        check = view_check(model, pos, target, sv["lens_mm"], 0.0, target)
+        pos, target = list(sv["position"]), list(sv["target"])
+        # Milestone 13 (D8): the camera never stands under the ground or below eye height; the pitch is kept (the
+        # target rises with it), so the horizon stays where site_view put it; the ray check aims at the modelled
+        # building (the target, the centre of all blocks, may lie on the ground between them)
+        floor = _eye(model, pos[0], pos[1])
+        if pos[2] < floor:
+            lift = floor - pos[2]
+            pos[2], target[2] = round(pos[2] + lift, 4), round(target[2] + lift, 4)
+        check = view_check(model, pos, target, sv["lens_mm"], 0.0, (cx, cy, zmid))
         pitch = math.degrees(math.atan2(target[2] - pos[2], math.hypot(target[0] - pos[0], target[1] - pos[1])))
         keep({"name": f"ext_{nxt}", "kind": KIND, "view": "aerial", "room_id": None, "level_id": None, "index": nxt,
               "position": pos, "target": target, "lens_mm": sv["lens_mm"], "sensor_mm": SENSOR_MM,
               "resolution": list(RESOLUTION), "shift_x": 0.0, "shift_y": 0.0, "pitch_deg": round(pitch, 2),
+              "horizon_frac": round(CP.horizon_fraction(-pitch, sv["lens_mm"]), 4),
               "placement": sv["reason"], "warning": None if check["ok"] else f"site view: {check['why']}",
               "visible_openings": visible_openings(model, building, levels, pos, target, sv["lens_mm"], 0.0),
               "visible_furniture": [], "score": check, "status": "assumed", "dropped_reason": None,
-              "sides": [], "region_id": None, "variant": variant, "site_view": True})
+              "sides": [], "region_id": None, "variant": variant, "site_view": True, "aerial_allowed": True})
     if flat_cut(building):
         nxt = max([p["index"] for p in plans + dropped if isinstance(p.get("index"), int)] + [5]) + 1
         for k, (pos_cands, aim, ent) in enumerate(entrance_views(building, model)):

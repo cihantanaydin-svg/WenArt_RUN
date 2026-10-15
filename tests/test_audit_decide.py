@@ -41,8 +41,13 @@ def test_a_clean_product_waits_for_the_vision_check_then_is_kept():
 
 
 def test_licence_removes_without_any_vision():
+    # Milestone 13 (docs/milestone13.md §6, D1): a no-derivatives licence is never usable and removed by code alone;
+    # a non-commercial one stays in the catalogue with its flag (relaxed licence mode only) and waits for the vision
+    # check like every other model
+    d = decide(item(licence="CC-BY-ND-4.0", source="objaverse"))
+    assert d["status"] == "removed" and "never usable" in d["reasons"][0]
     d = decide(item(licence="CC-BY-NC-4.0", source="objaverse"))
-    assert d["status"] == "removed" and "not allowed" in d["reasons"][0]
+    assert d["status"] == "pending" and not d["reasons"]
 
 
 @pytest.mark.parametrize("change,word", [({"upright": False}, "side"), ({"parts_open": True}, "drawer")])
@@ -80,8 +85,9 @@ def test_a_retype_needs_title_size_and_vision():
 
 
 def test_models_without_title_evidence_need_two_passes():
+    # units known: the Milestone 13 gate removes an anchor (a sofa) of guessed units by code alone (test below)
     gen = item(id="gen_x", source="generated", licence="generated (TRELLIS.2-4B, MIT)",
-               title="Generated modern sofa (1)", units_known=False)
+               title="Generated modern sofa (1)", units_known=True)
     assert D.expected_status(decide(gen)) == "vision?"
     assert decide(gen, YES)["status"] == "pending"              # pass 2 not asked yet
     assert decide(gen, YES, {"type_guess": "sofa"})["status"] == "keep"
@@ -174,7 +180,9 @@ def test_u3_the_18_nc_sa_models_are_removed_in_the_committed_catalogue():
         assert not C.usable(e)
     assert by == NC_SA
     for e in entries(doc):
-        assert C.usable(e) == ((e.get("audit") or {}).get("status") in ("keep", "fix")), e["id"]
+        # Milestone 13: usable in relaxed mode = the audit status; commercial mode also needs a commercial-safe flag
+        assert C.usable(e, "relaxed") == ((e.get("audit") or {}).get("status") in ("keep", "fix")), e["id"]
+        assert C.usable(e, "commercial") == (C.usable(e, "relaxed") and C.commercial_safe(e)), e["id"]
     assert W.U3_NOTE in doc["notes"]
 
 
@@ -194,8 +202,14 @@ def test_licence_removals_are_idempotent():
     fresh = copy.deepcopy(doc)
     for e in entries(fresh):
         e.pop("audit", None)
-    ids = W.licence_removals(fresh, "2026-10-11T00:00:00Z")
-    assert len(ids) == 18
+    # Milestone 13 (docs/milestone13.md §6, D1): the 18 NC / SA entries are no longer removed for their licence
+    # (relaxed mode may use them; their Milestone 12 removal records stay in the committed catalogue until a new
+    # audit decides them); only a no-derivatives or unknown licence is removed by the licences step
+    assert W.licence_removals(fresh, "2026-10-11T00:00:00Z") == []
+    nd = copy.deepcopy(next(e for e in fresh["entries"] if e["licence"] == "CC-BY-NC-4.0"))
+    nd.update(id="objaverse_nd_test", licence="CC-BY-ND-4.0", licence_flag="no_derivatives")
+    fresh["entries"].append(nd)
+    assert W.licence_removals(fresh, "2026-10-11T00:00:00Z") == ["objaverse_nd_test"]
     assert W.licence_removals(fresh, "2026-10-12T00:00:00Z") == []
 
 
@@ -237,9 +251,12 @@ def test_vision_only_findings_keep_the_model_with_a_doubt():
     for change in ({"upright": False}, {"parts_open": True}):
         d = decide(item(), dict(YES, **change))
         assert d["status"] == "removed" and d["vision_doubt"] == []
-    # with code evidence the doubts join the removal reasons
-    d = decide(item(licence="CC-BY-NC-4.0", source="objaverse"), dict(YES, quality=2))
+    # with code evidence the doubts join the removal reasons (Milestone 13: a no-derivatives licence; an NC one is
+    # usable in relaxed mode and no longer code evidence)
+    d = decide(item(licence="CC-BY-ND-4.0", source="objaverse"), dict(YES, quality=2))
     assert d["status"] == "removed" and any("quality 2" in r for r in d["reasons"]) and d["vision_doubt"] == []
+    d = decide(item(licence="CC-BY-NC-4.0", source="objaverse"), dict(YES, quality=2))
+    assert d["status"] == "keep" and any("quality 2" in x for x in d["vision_doubt"])
 
 
 def test_the_writer_records_the_doubt_in_the_audit():

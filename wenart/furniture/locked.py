@@ -38,6 +38,11 @@ Milestone 12 (docs/milestone12.md §4.1 U1, §5.3): fixed equipment changed by `
 (``adjusted_by_ai.fix_fixture``) may move at most 0.5 m and take a real size when its drawn size is more than 30 %
 outside its type's range; a drawn piece marked as a misread symbol (``mark_not_furniture``: ``build: false`` and a
 ``symbols[]`` entry with its id as ``former_piece_id``) may be left out, fixed equipment too.
+Milestone 13 (docs/milestone13.md §5.3, §13.2; user decision D5): a drawn piece of a group the solver re-solved as
+one unit (``drawn_group`` on the piece, ``adjusted_by_ai.drawn_group``) may move at most
+``groups.GROUP_MEMBER_MOVE_MAX_M`` (0.5 m) from its drawn centre and take a real product size (``drawn_footprint``
+kept); an untyped piece code typed in the completion (``type_proposal`` with ``drawn_type`` unknown) keeps its drawn
+footprint and status, as a type proposal.
 
 Mode ``keep`` (and every room in ``keep_rooms``): the old byte rule, the
 fit's ``FROZEN_KEYS`` (``KEEP_KEYS``) equal for every drawn piece. Anchors: a piece whose
@@ -286,9 +291,17 @@ def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] =
         if fixed and fin.get("build") is False and src.get("build") is not False and not misplaced \
                 and not not_furniture:
             out.append(f"{pid}: fixed equipment removed")
-    elif moved > (schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M) + 1e-6:
-        limit = schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else AGENT_SNAP_M
-        out.append(f"{pid}: moved {moved:.3f} m by the agent (> {limit} m)")
+    else:
+        from wenart.furniture import groups as GR     # lazy: groups.yaml
+
+        # Milestone 13 (D5): a member of a drawn group re-solved as one unit moves at most
+        # groups.GROUP_MEMBER_MOVE_MAX_M (0.5 m) from its drawn centre (adjusted_by_ai.drawn_group / drawn_group).
+        in_group = bool(adj.get("drawn_group")) or isinstance(fin.get("drawn_group"), dict)
+        limit = schemas.WALL_SNAP_MAX_M if adj.get("snapped_wall") else \
+            GR.GROUP_MEMBER_MOVE_MAX_M if in_group else AGENT_SNAP_M
+        if moved > limit + 1e-6:
+            out.append(f"{pid}: moved {moved:.3f} m by the {'solver (drawn group)' if in_group else 'agent'} "
+                       f"(> {limit} m)")
     return out
 
 

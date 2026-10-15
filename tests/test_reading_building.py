@@ -312,7 +312,9 @@ def test_the_report_lists_symbols_review_items_adjusted_equipment_and_zones():
     from wenart.ingest import pipeline as P
 
     tag = M.fp("f1", "unknown", (2.0, 2.0), (0.5, 0.5), front=None)
-    box = M.fp("u", "unknown", (3.5, 1.0), (1.9, 1.7), front=None)
+    # Milestone 13 (K3): a 1.9 x 1.7 m box would be the living room's missing corner sofa, typed by code
+    # (infer.type_by_code); a 1.3 x 1.3 m box fits no missing member and stays for review.
+    box = M.fp("u", "unknown", (3.5, 1.0), (1.3, 1.3), front=None)
     counter = M.fp("k", "kitchen_counter", (1.4, 3.7), (2.4, 0.6), front=270.0)
     wc = M.fp("wc", "toilet", (4.5, 1.0), (0.38, 1.10), front=None)
     build = _build([tag, box, counter, wc], room_type="living", window=None)

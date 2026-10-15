@@ -1,0 +1,8 @@
+{
+ "source": "polyhaven_m13",
+ "approved_by": "the user, decisions D1/D6 of 12 Oct 2026 (docs/milestone13.md §12: the pods of §8 are approved; §5.1 phase 2: 'Poly Haven 2K + 20 trees + plants'; §13.6 pod P2; §2.2: CC0, bulk download allowed by the API terms). The picks are the Poly Haven vegetation models (API categories trees, plants, ground cover, grass, potted plants; dead wood, roots and debris left out) and the furniture models not yet in the catalogue, all as 2K glTF; the Milestone 12 furniture models are fetched again at 2K by the same step (ingest --m13 --size 2k re-fetches the approved_polyhaven.json ids).",
+ "approved_utc": "2026-10-12T20:00:00Z",
+ "licence": "CC0",
+ "picks": {"from": "candidates_polyhaven_m13.json", "rule": "growth.polyhaven_vegetation + growth.polyhaven_candidates at res 2k; pick false for dead wood, roots, debris and the garden hose"},
+ "ids": null
+}

@@ -446,6 +446,11 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
     if main and not frontal:
         out.append(_v("X6", "major", "exterior", f"no frontal view of the entrance ({main.get('axis')}) facade",
                       main_facade=main.get("axis")))
+    # Milestone 13 (D8): one true aerial view is allowed (and the site view of the copies); a second one is noted
+    aerials = [c.get("name") for c in cams if c.get("view") == "aerial" and not c.get("site_view")]
+    if len(aerials) > 1:
+        out.append(_v("X6", "minor", "exterior", f"{len(aerials)} aerial views ({', '.join(str(a) for a in aerials)}): "
+                                                 f"one true aerial view is the policy", aerials=aerials))
 
 
 def _faces(cam: dict, direction) -> bool:

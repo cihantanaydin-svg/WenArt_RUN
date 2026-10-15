@@ -36,7 +36,9 @@ def _model(mid, ftype="sofa", bbox=(2.2, 0.9, 0.85), quality=None, **fields):
          "bbox_model_m": list(bbox), "bbox_min_m": [-bbox[0] / 2, -bbox[1] / 2, 0.0],
          "bbox_max_m": [bbox[0] / 2, bbox[1] / 2, bbox[2]], "front_axis": "-Y", "up_axis": "+Z",
          "origin_offset": [0.0, 0.0, 0.0], "front_axis_confidence": "high", "glb": f"models/abo/{mid}.glb",
-         "sha256_glb": "0" * 64, "uid": mid, "styles": ["neutral"], **CREDIT}
+         "sha256_glb": "0" * 64, "uid": mid, "styles": ["neutral"], **CREDIT,
+         # Milestone 13 (K2): an ABO stub is a real product like the audited Poly Haven entries of the catalogue
+         "real_product": True}
     if quality is not None:
         e["quality"] = quality
     e.update(fields)
@@ -110,7 +112,8 @@ def test_fit_piece_takes_the_model_that_shows_the_design():
     asset = fit.fit_piece(_piece(), catalog, design={"fabric_colour": "light grey"})
     assert asset["asset_id"] == "b_rec" and asset["recolour"]["fabric"]["colour"] == "light grey"
     assert asset["material_slots"][0]["name"] == "Fabric" and asset["recolourable_fabric"] is True
-    assert {"id": "a_plain", "reason": asset["excluded"][0]["reason"]} in asset["excluded"]
+    # Milestone 13 (T1): a design miss is a preference, flagged on the excluded record
+    assert {"id": "a_plain", "reason": asset["excluded"][0]["reason"], "preference": True} in asset["excluded"]
     # Milestone 12 (D14: never a parametric sofa): a design no model can show is dropped before a library gap
     none = fit.fit_piece(_piece(), _catalog(plain), design={"fabric_colour": "light grey"})
     assert none["asset_id"] == "a_plain" and none["design_not_shown"] == {"fabric_colour": "light grey"}
@@ -295,9 +298,11 @@ def test_an_l_sofa_takes_only_models_with_its_chaise_side():
     assert reasons["c_none"] == "chaise side unknown" and "no mirroring" in reasons["c_right"]
     assert fit.fit_piece(dict(piece, chaise_side="right"), cat)["asset_id"] == "c_right"
     assert fit.fit_piece(dict(piece, chaise_side=None), cat)["asset_id"] == "c_right"     # the builder's default
-    # no model with that side: Milestone 12 (D14, never a parametric sofa) a library gap; a model is never mirrored
+    # no model with that side: the Milestone 13 ladder (D4) builds the parametric family and names the library gap;
+    # a model is never mirrored
     p = fit.fit_piece(piece, _catalog(right, unknown))
-    assert p["method"] == "none" and "chaise on the left" in p["fallback_reason"] and p["library_gap"]
+    assert p["method"] == "parametric" and "chaise on the left" in p["fallback_reason"]
+    assert p["library_gap"]["step"] == "parametric" and "chaise on the left" in p["library_gap"]["reason"]
     assert {x["id"]: x["reason"] for x in p["excluded"]}["c_none"] == "chaise side unknown"
     assert {x["id"] for x in p["excluded"]} == {"c_right", "c_none"}
     # a corner sofa piece without the L shape is not filtered by side

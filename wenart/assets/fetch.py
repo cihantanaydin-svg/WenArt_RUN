@@ -69,11 +69,24 @@ LICENCE_URLS = {"polyhaven": "https://polyhaven.com/license", "ambientcg": "http
 CC_BY = "CC-BY-4.0"
 # Model sources whose objects carry their own licence (Milestone 7; Milestone 8 adds ABO, generated models and every
 # Objaverse licence, flagged): these licences are taken. Generated models: any licence starting with "generated".
-_FLAGS = {"CC0": None, "CC-BY-4.0": None, "CC-BY-NC-4.0": "non_commercial", "CC-BY-NC-SA-4.0": "non_commercial",
-          "CC-BY-NC-ND-4.0": "non_commercial", "CC-BY-SA-4.0": "share_alike", "CC-BY-ND-4.0": "no_derivatives",
+# = wenart.furniture.catalog.LICENCE_TEXT_FLAGS (Milestone 13: ``none`` instead of None for CC0 / CC BY 4.0, and
+# CC BY-NC-ND is ``no_derivatives``, the stricter of its two limits; an entry written before Milestone 13 may still
+# carry None for ``none``, ``_entry_flag`` reads both).
+NO_FLAG = "none"
+_FLAGS = {"CC0": NO_FLAG, "CC-BY-4.0": NO_FLAG, "CC-BY-NC-4.0": "non_commercial", "CC-BY-NC-SA-4.0": "non_commercial",
+          "CC-BY-NC-ND-4.0": "no_derivatives", "CC-BY-SA-4.0": "share_alike", "CC-BY-ND-4.0": "no_derivatives",
           "Sketchfab-Editorial": "non_commercial", "Sketchfab-Standard": "unknown",
-          "Sketchfab-Free-Standard": "unknown", "unknown": "unknown"}   # = wenart.furniture.catalog.LICENCE_FLAGS
-MODEL_SOURCE_LICENCES = {"objaverse": tuple(_FLAGS), "abo": (CC_BY,), "gso": (CC_BY,)}   # gso: M12 pod P4
+          "Sketchfab-Free-Standard": "unknown", "unknown": "unknown"}
+# Flags an audit may set on a CC0 / CC BY entry (a dataset's own limit the licence text cannot show; Milestone 13,
+# = wenart.furniture.catalog.AUDIT_ONLY_FLAGS).
+_AUDIT_ONLY_FLAGS = ("research_only", "regional")
+
+
+def _entry_flag(entry: dict) -> str:
+    """The flag an entry carries: ``none`` for None / missing (files written before Milestone 13)."""
+    return entry.get("licence_flag") or NO_FLAG
+MODEL_SOURCE_LICENCES = {"objaverse": tuple(_FLAGS), "abo": (CC_BY,), "gso": (CC_BY,),
+                         "hssd": ("CC-BY-NC-4.0",)}   # gso: M12 pod P4; hssd: M13 (relaxed licence mode only)
 GENERATED = "generated"                     # model source; its licence starts with this word
 # Manifest sections; the licence rule depends on the kind.
 KINDS = ("textures", "hdris", "models")
@@ -128,7 +141,8 @@ def check_licence(source: str, licence: Optional[str] = None, kind: str = "textu
     text = {a.upper(): a for a in allowed}.get(text.upper(), text)
     if text not in allowed:
         raise LicenceError(f"{source}: licence '{licence}' is not one of {', '.join(allowed)}; refused")
-    if entry is not None and "licence_flag" in entry and entry.get("licence_flag") != _FLAGS[text]:
+    if entry is not None and "licence_flag" in entry and _entry_flag(entry) != _FLAGS[text] \
+            and not (_FLAGS[text] == NO_FLAG and _entry_flag(entry) in _AUDIT_ONLY_FLAGS):
         raise LicenceError(f"{source}: model {entry.get('id', '?')!r} with licence {text} has licence_flag "
                            f"{entry.get('licence_flag')!r}, not {_FLAGS[text]!r}; refused")
     if text != LICENCE and entry is not None:

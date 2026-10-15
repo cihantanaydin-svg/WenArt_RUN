@@ -1,0 +1,11 @@
+{
+ "source": "hssd",
+ "approved_by": "the user, decision D2 of 12 Oct 2026 (docs/milestone13.md §12: 'HSSD: yes'; §13.6 pod P2: the HSSD layer is downloaded and audited; the user accepts the CC BY-NC 4.0 terms on https://huggingface.co/datasets/hssd/hssd-models with the account behind the pod's hf_token secret). The picks follow the rule of §5.1 phase 2 (600-900 by type and size bin of the drawn demands of real02/03/04), not a hand-picked list.",
+ "approved_utc": "2026-10-12T20:00:00Z",
+ "licence": "CC-BY-NC-4.0",
+ "licence_flag": "non_commercial",
+ "licence_mode": "relaxed only",
+ "picks": {"from": "candidates_hssd.json", "max": 900, "rule": "wenart.assets.hssd.candidate_records: per demanded type and size bin the 12 nearest objects by size (6 for decor), inside the fit's caps first, single objects before sets, at most 25 % off the bin; outdoor furniture left out"},
+ "ids": null,
+ "gate": "the pod checks the gate at run time (wenart.assets.hssd.gate_check): a 403 from the Hub skips the ingest with a clear log line"
+}

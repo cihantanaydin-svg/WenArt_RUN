@@ -62,8 +62,37 @@ def type_words(ftype: str, kind: str) -> tuple[str, str]:
     return OV.TYPE_WORDS.get(ftype, (ftype.replace("_", " "), ftype.replace("_", " ")))
 
 
-def schema(kind: str) -> dict:
-    """Pass 1 schema (strict; nullable fields answer null where they do not apply)."""
+# Milestone 13 (audit gate "material tags judged for every entry"): the materials a model shows, asked with the
+# question version ``ask.version_materials`` (m13.1) of models without ``material_tags``; models that carry tags keep
+# the m12.1 question so their stored answers stay valid. The words are the design enum of recolour.TAG_ORDER + other.
+MATERIAL_WORDS: tuple[str, ...] = ("glass", "wood", "metal", "fabric", "rattan", "marble", "leather", "stone",
+                                   "ceramic", "plastic", "other")
+
+
+def materials_version(cfg_ask: dict) -> str:
+    return str(cfg_ask.get("version_materials") or "m13.1")
+
+
+def version_for(item: dict, cfg_ask: dict) -> str:
+    """The question version of one model: ``version_materials`` for a model without material tags (the question
+    asks for them), else ``version``."""
+    tags = item.get("material_tags")
+    if isinstance(tags, list) and tags:
+        return str(cfg_ask.get("version", "m12.1"))
+    return materials_version(cfg_ask)
+
+
+def with_materials(version: Optional[str]) -> bool:
+    """True when a question version asks for the materials (m13 and later: the milestone number after the ``m``)."""
+    # by number, not by string order ("m2" > "m13" as text; review fix of 15 Oct 2026)
+    word = str(version or "").strip().lower()
+    digits = word[1:].split(".", 1)[0] if word.startswith("m") else ""
+    return digits.isdigit() and int(digits) >= 13
+
+
+def schema(kind: str, version: Optional[str] = None) -> dict:
+    """Pass 1 schema (strict; nullable fields answer null where they do not apply). With a Milestone 13 ``version``
+    the answer also names the ``materials`` (``MATERIAL_WORDS``)."""
     from wenart.furniture import catalog as C
     styles = list(C.style_values())
     props = {
@@ -83,6 +112,8 @@ def schema(kind: str) -> dict:
         "has_cushions": {"type": ["boolean", "null"]},
         "contact": {"enum": list(CONTACTS) + [None]},
     }
+    if with_materials(version):
+        props["materials"] = {"type": "array", "items": {"enum": list(MATERIAL_WORDS)}, "maxItems": 4}
     return {"$schema": "https://json-schema.org/draft/2020-12/schema", "title": "LibraryAudit", "type": "object",
             "additionalProperties": False, "required": list(props), "properties": props}
 
@@ -98,8 +129,9 @@ def _fmt(box) -> str:
     return " x ".join(f"{float(v):.2f}" for v in box)
 
 
-def prompt(item: dict, box) -> str:
-    """The pass 1 question of one model (the same text for every model of a type but the facts)."""
+def prompt(item: dict, box, version: Optional[str] = None) -> str:
+    """The pass 1 question of one model (the same text for every model of a type but the facts); a Milestone 13
+    ``version`` adds the materials field."""
     name, what = type_words(item["type"], item["kind"])
     types = ", ".join(kind_types(item["kind"]))
     bed = item["type"] in ("bed_single", "bed_double", "bunk_bed", "crib")
@@ -131,6 +163,9 @@ def prompt(item: dict, box) -> str:
          "(against a back or a wall), drapes (lies over a host like a throw)" if item["kind"] == "decor"
          else "- contact: null."),
     ]
+    if with_materials(version):
+        fields.append("- materials: the visible materials of the model, up to four, from: " + ", ".join(MATERIAL_WORDS)
+                      + " (the main one first; 'other' when none of the words fits).")
     return "\n\n".join([
         "The image shows one 3D model from our furniture library at its real scale: a header with its id, type, "
         "source, licence, size and title, then four renders: 0 front 3/4, 1 side (from its right), 2 top, 3 back. "
@@ -158,8 +193,8 @@ def _sha(description) -> str:
 
 
 def request_item(item: dict, sheet_rel: str, sheet_px: str, box, version: str, second: bool = False) -> dict:
-    p = prompt2(item) if second else prompt(item, box)
-    sch = schema2(item["kind"]) if second else schema(item["kind"])
+    p = prompt2(item) if second else prompt(item, box, version)
+    sch = schema2(item["kind"]) if second else schema(item["kind"], version)
     task = TASK2 if second else TASK
     desc = {"version": version, "task": task, "system": SYSTEM, "prompt": p, "schema": sch, "sheet": sheet_px}
     return {"key": f"audit_{item['id']}", "task": task, "images": [sheet_rel], "prompt": p,
@@ -168,8 +203,10 @@ def request_item(item: dict, sheet_rel: str, sheet_px: str, box, version: str, s
 
 
 def build_requests(items: list[dict], measure_doc: dict, audit: Path, version: str, only: Optional[set] = None,
-                   second: bool = False) -> dict:
-    """The requests of every item with a sheet (``measure.json`` ``sheets``); ``only`` limits them to some ids."""
+                   second: bool = False, cfg_ask: Optional[dict] = None) -> dict:
+    """The requests of every item with a sheet (``measure.json`` ``sheets``); ``only`` limits them to some ids.
+    Milestone 13: with ``cfg_ask`` (the ``ask`` block of audit.yaml) a pass 1 request takes ``version_for(item)``
+    (the materials question for models without material tags), else ``version`` for every item."""
     sheets = measure_doc.get("sheets") or {}
     measures = measure_doc.get("measures") or {}
     reqs = []
@@ -179,7 +216,8 @@ def build_requests(items: list[dict], measure_doc: dict, audit: Path, version: s
         if not rel or (only is not None and it["id"] not in only) or not m.get("sheet_sha256"):
             continue
         box = m.get("size") or it.get("bbox_m")
-        reqs.append(request_item(it, f"../{rel}", m["sheet_sha256"], box, version, second))
+        v = version if (second or not cfg_ask) else version_for(it, cfg_ask)
+        reqs.append(request_item(it, f"../{rel}", m["sheet_sha256"], box, v, second))
     doc = {"kind": "library_audit_requests", "task": TASK2 if second else TASK, "version": version,
            "system_prompt": SYSTEM, "items": reqs}
     name = "requests2.json" if second else "requests.json"
@@ -189,10 +227,13 @@ def build_requests(items: list[dict], measure_doc: dict, audit: Path, version: s
 
 
 def valid(data, kind: str, second: bool = False) -> bool:
+    """An answer of either question: the m12.1 one, or the m13.1 one with its ``materials``."""
     import jsonschema
     if data is None:
         return False
-    v = jsonschema.Draft202012Validator(schema2(kind) if second else schema(kind))
+    sch = schema2(kind) if second else schema(kind, materials_version({}) if isinstance(data, dict)
+                                              and "materials" in data else None)
+    v = jsonschema.Draft202012Validator(sch)
     return not any(True for _ in v.iter_errors(data))
 
 

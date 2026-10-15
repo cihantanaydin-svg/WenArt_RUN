@@ -8,7 +8,7 @@ import json
 
 import pytest
 
-from test_agent_helpers import FakeEdits, ScriptedCritic, fake_validators, project, violation
+from test_agent_helpers import FakeEdits, FixesWhatItTouched, ScriptedCritic, fake_validators, project, violation
 from wenart.agent import log as LG
 from wenart.agent import loop as LP
 from wenart.agent import model as M
@@ -51,7 +51,10 @@ def make(tmp_path, chat, critic_rounds, **kw):
     # One session at a time: the scripted answers are taken in order (the parallel sessions of M12 have their own
     # tests; with track G's real solver in the brief, parallel sessions finish in any order).
     kw.setdefault("workers", 1)
-    loop = LP.AgentLoop(out, model, rerun=kw.pop("rerun", Rerun()), clock=clock, code_critic=ScriptedCritic(critic_rounds),
+    critic = ScriptedCritic(critic_rounds)
+    # Milestone 13: the dry re-check of the acceptance; the fake drops the findings on what the edit touched
+    kw.setdefault("recheck", FixesWhatItTouched(critic))
+    loop = LP.AgentLoop(out, model, rerun=kw.pop("rerun", Rerun()), clock=clock, code_critic=critic,
                         vision=kw.pop("vision", False), apply_edit=FakeEdits(), validators=fake_validators(), out=lambda s: None,
                         **kw)
     return loop, out, model
@@ -175,7 +178,8 @@ def test_routing_picks_the_earliest_stage_and_the_changed_views():
 
 def test_the_planner_budget_and_bad_calls(tmp_path):
     """The optional call cap of a round (``max_calls``) and, M12 (§5.4 "self-check"), one edit per piece per reply:
-    the second edit of f1 in the same reply is not run (and not counted)."""
+    the second edit of f1 in the same reply is not run (and not counted). Milestone 13: the edits of f2 and f3 target
+    no finding, so the acceptance rejects them (an edit must name the finding it fixes); they still count as calls."""
     def rot(pid, a):
         return {"name": "rotate_piece", "arguments": {"piece_id": pid, "front_deg": a, "reason": "try it"}}
     many = {"tool_calls": [rot("f1", 0), rot("f1", 90), rot("f2", 90), rot("f3", 90)]
@@ -183,12 +187,16 @@ def test_the_planner_budget_and_bad_calls(tmp_path):
     loop, out, model = make(tmp_path, [many, FINISH], [[F3]], max_calls=3, max_rounds=1)
     summary = loop.run()
     r = summary["rounds"][0]
-    assert r["calls"] == 3 and r["accepted"] == 3
+    assert r["calls"] == 3 and r["accepted"] == 1 and r["rejected"] == 2
     assert len(model.chat_requests()) == 1               # the budget is used up: no further call this round
-    assert [e["kind"] for e in log_of(out)["events"]].count("edit") == 3
+    events = log_of(out)["events"]
+    assert [e["kind"] for e in events].count("edit") == 1
     tool_msgs = [m for m in model.chat_requests()[0]["messages"] if m.get("role") == "tool"]
     assert tool_msgs == []                               # (the request was sent before the answers)
-    assert [e["target"] for e in log_of(out)["events"] if e["kind"] == "edit"] == ["f1", "f2", "f3"]
+    assert [e["target"] for e in events if e["kind"] == "edit"] == ["f1"]
+    rejected = [e for e in events if e["kind"] == "rejected_edit"]
+    assert [e["target"] for e in rejected] == ["f2", "f3"]
+    assert all(e["validation"]["failed_checks"][0].startswith("acceptance: no target finding") for e in rejected)
     loop2, out2, _ = make(tmp_path / "b", [{"tool_calls": [{"name": "move_piece", "arguments": {
         "piece_id": "f2", "center": "here", "reason": "x x x"}}]}, FINISH], [[F3]], max_rounds=1)
     s2 = loop2.run()

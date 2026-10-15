@@ -356,6 +356,30 @@ def touches_walls_at_both_ends(piece: dict, walls: list[dict]) -> bool:
     return True
 
 
+def fabric_colour_for(piece: dict, style: Optional[dict]) -> tuple[Optional[str], Optional[str]]:
+    """``(fabric colour, source)`` of an upholstered piece (pure; Milestone 13, bug B1 of docs/milestone13.md §1.8:
+    the completion stage wrote ``design.material_tags`` only, so the brief's "light grey sofa" reached no sofa):
+    ``design.fabric_colour`` (the layout stage), else the fit's ``asset.fabric_colour`` (track T1 writes it from
+    the same style keys), else the style's ``furniture.by_type[type].fabric_colour``, else
+    ``furniture.fabric_colour``; ``(None, None)`` for other types or without a colour. The same order as
+    ``wenart.furniture.fit.fabric_colour_of``."""
+    if piece.get("type") not in FABRIC_TYPES:
+        return None, None
+    design = piece.get("design") if isinstance(piece.get("design"), dict) else {}
+    if design.get("fabric_colour"):
+        return str(design["fabric_colour"]), "furniture.design (layout stage)"
+    asset = piece.get("asset") if isinstance(piece.get("asset"), dict) else {}
+    if asset.get("fabric_colour"):
+        return str(asset["fabric_colour"]), "asset.fabric_colour (fit stage)"
+    furniture = _slot(style, "furniture")
+    by_type = (furniture.get("by_type") or {}).get(piece.get("type")) or {}
+    if isinstance(by_type, dict) and by_type.get("fabric_colour"):
+        return str(by_type["fabric_colour"]), f"style.json furniture.by_type.{piece.get('type')}"
+    if furniture.get("fabric_colour"):
+        return str(furniture["fabric_colour"]), "style.json furniture.fabric_colour"
+    return None, None
+
+
 def design_for(piece: dict, style: dict, building: Optional[dict] = None) -> tuple[dict, list[str]]:
     """``(design, notes)`` of a piece for the builders: its ``furniture.design`` as written by the layout stage
     (track B) when it has one; else (the layout stage did not run) from ``style.json``: ``cabinets`` (front style,
@@ -363,10 +387,21 @@ def design_for(piece: dict, style: dict, building: Optional[dict] = None) -> tup
     wardrobes, ``furniture.by_type[type]`` (fabric colour, colour, material tags), ``furniture.fabric_colour`` for
     upholstered types and ``furniture.wood``, and the rules: ``vanity`` for a washbasin at least
     ``VANITY_MIN_DEPTH_M`` deep, ``built_in`` for a wardrobe touching walls at both ends (``building`` needed).
-    ``notes`` say where each value came from."""
+    ``notes`` say where each value came from.
+
+    Milestone 13 (bug B1): a given design of an upholstered piece without ``fabric_colour`` takes the style's
+    (``fabric_colour_for``), so the brief's fabric colour reaches the parametric and module fabrics; the note says
+    where it came from."""
     given = piece.get("design")
     if isinstance(given, dict):
-        return {k: given[k] for k in DESIGN_KEYS if k in given}, ["furniture.design (layout stage)"]
+        design = {k: given[k] for k in DESIGN_KEYS if k in given}
+        notes = ["furniture.design (layout stage)"]
+        if "fabric_colour" not in design:
+            colour, source = fabric_colour_for(piece, style)
+            if colour:
+                design["fabric_colour"] = colour
+                notes.append(f"fabric_colour {colour} from {source} (M13 B1: the design had none)")
+        return design, notes
     ftype = piece.get("type")
     design: dict = {}
     notes: list[str] = []

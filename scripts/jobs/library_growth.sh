@@ -1,4 +1,24 @@
 #!/usr/bin/env bash
+# Milestone 13 pod P2 (docs/milestone13.md §5.1 phase 2, §13.1 track T7, §13.6; user decisions D1, D2, D6 of 12 Oct
+# 2026) on top of Milestone 12 pod P4: the library growth by drawn demand. New steps (python -m wenart.assets growth
+# run <step>, wenart/assets/audit/growth_run.py):
+#   demands, size-grid   the drawn demands of real02/03/04 and the coverage per licence mode BEFORE the growth
+#                        (results copied: demands.json, size_grid.json, coverage.json, gaps_demand.md)
+#   speed-probe          the first ABO downloads timed (15 min cap, GROWTH_PROBE_MIN): the MB/s decides the pick
+#                        counts within the targets of audit.yaml growth (speed.json)
+#   ingest-hssd          HSSD objects of results/library/growth/candidates_hssd.json (approved_hssd.json: the rule of
+#                        D2), CC BY-NC 4.0, gated: needs HF_TOKEN in the environment (the RunPod secret hf_token,
+#                        never printed); without it, or on a 403 from the Hub (terms not accepted), the step is
+#                        SKIPPED with a clear log line and the job goes on
+#   ingest-abo-m13       ABO by size grid (candidates_abo_m13.json, 8 parallel downloads)
+#   ingest-polyhaven-m13 Poly Haven vegetation and furniture at 2K, and the Milestone 12 furniture fetched again at
+#                        2K (GROWTH_PH_SIZE, default 2k; the 1K files stay)
+#   ingest-ambientcg     the ambientCG shell sets (2K-JPG) for wenart.blender.materials SHELL_SLOTS
+#   coverage             the coverage per licence mode AFTER the audit (the catalogue copies), the demand gaps
+# Everything under /workspace/assets and /workspace/library-growth (the volume); nothing is deleted; every step
+# keeps present files (a second run resumes). The catalogue copies are written with the counts per source, per
+# licence flag and per licence mode (report step).
+#
 # Milestone 12 pod P4: the library growth (docs/milestone12.md §6.4 D24, §14.3; docs/m12_tracks/P4.md). The four lists
 # the user approved on 11 Oct 2026 (results/library/growth/approved_*.json, read through growth.approved, the
 # ingest gate) are downloaded or generated, put into COPIES of the catalogues (never wenart/furniture/*.json: the
@@ -9,7 +29,8 @@
 # environment, never printed).
 #
 #   python3 scripts/gpu_run.py run --job scripts/jobs/library_growth.sh --gpu 'RTX PRO 6000' --disk 150 \
-#     --max-minutes 110 --env AUDIT_MODEL_KEY=agent --purpose "M12 P4: library growth"
+#     --max-minutes 210 --over-5-ok --env AUDIT_MODEL_KEY=agent --purpose "M13 P2: library growth by demand + audit"
+#   (Milestone 12: --max-minutes 110 --purpose "M12 P4: library growth")
 #
 # Steps (each timed into $GROWTH/report/steps.tsv; a failed step is recorded and the next independent one still
 # runs; exit 1 when any failed or was skipped for lack of time). Expected minutes (EU-RO-1, ~1 GB/s from HF / CDN):
@@ -44,7 +65,8 @@
 #
 # Env (all optional): AUDIT_MODEL_KEY (default audit.yaml ask.model_key), AUDIT_ROOT (/workspace/library-audit),
 # GROWTH_ROOT (/workspace/library-growth), WENART_ASSETS (/workspace/assets), AUDIT_WORKERS (3), INFINIGEN_CAP_MIN
-# (40), INFINIGEN_TEX_RES (1024), GROWTH_PH_SIZE (1k).
+# (40), INFINIGEN_TEX_RES (1024), GROWTH_PH_SIZE (2k since Milestone 13; 1k in M12), GROWTH_PROBE_MIN (15),
+# GROWTH_MIN_FREE_GB (30: the M13 downloads are about 18 GB), HF_TOKEN (the HSSD gate; from the pod secret).
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -67,7 +89,8 @@ P4A="$P4/audit"
 AUDIT_WORKERS="${AUDIT_WORKERS:-3}"
 INFINIGEN_CAP_MIN="${INFINIGEN_CAP_MIN:-40}"
 INFINIGEN_TEX_RES="${INFINIGEN_TEX_RES:-1024}"
-GROWTH_PH_SIZE="${GROWTH_PH_SIZE:-1k}"
+GROWTH_PH_SIZE="${GROWTH_PH_SIZE:-2k}"
+GROWTH_PROBE_MIN="${GROWTH_PROBE_MIN:-15}"
 # Infinigen, pinned (wenart/assets/audit/growth_infinigen.py: tag v1.19.0, read with git ls-remote on 11 Oct 2026)
 IG_URL=https://github.com/princeton-vl/infinigen
 IG_COMMIT=01c39c7f7adcf7363ccbcc57c64410c69f4a4e7c
@@ -345,11 +368,12 @@ mkdir -p "$RESULTS" "$JOB_DIR" "$GROWTH/report" "$P4A" "$ASSETS"
 log "job $JOB: growth $GROWTH, audit $P4 (P3 at $AUDIT_ROOT), assets $ASSETS, model key $MODEL_KEY," \
     "Infinigen cap $INFINIGEN_CAP_MIN min, deadline ${WENART_DEADLINE:-none}"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
-# The downloads (about 8.5 GB) and the converted GLBs need about 11 GB on the volume: stop before any download when
-# less than GROWTH_MIN_FREE_GB is free (nothing is ever deleted to make room; CLAUDE.md).
+# The downloads (M12 about 8.5 GB; M13 about 18 GB more: ABO size grid 12.5, Poly Haven 2K 2.8, HSSD 2.4, ambientCG
+# 0.4) and the converted GLBs need the room: stop before any download when less than GROWTH_MIN_FREE_GB is free
+# (nothing is ever deleted to make room; CLAUDE.md).
 free_gb=$(df -Pk "$WS" 2>/dev/null | awk 'NR == 2 {printf "%d", $4 / 1048576}')
-if [ -n "$free_gb" ] && [ "$free_gb" -lt "${GROWTH_MIN_FREE_GB:-15}" ]; then
-  log "only ${free_gb} GB free on $WS (need ${GROWTH_MIN_FREE_GB:-15} GB): no download; ask the user before" \
+if [ -n "$free_gb" ] && [ "$free_gb" -lt "${GROWTH_MIN_FREE_GB:-30}" ]; then
+  log "only ${free_gb} GB free on $WS (need ${GROWTH_MIN_FREE_GB:-30} GB): no download; ask the user before" \
       "anything is deleted or the volume grows"
   exit 1
 fi
@@ -359,18 +383,39 @@ if [ ! -f "$AUDIT_ROOT/audit/measure.json" ]; then
       "the growth goes on"
 fi
 
+# --- Milestone 13: the demands and the coverage before the growth, then the speed probe (foreground, CPU) ------
+run_step demands gr demands
+run_step size-grid gr size-grid
+run_step speed-probe timeout --kill-after=30 $(( GROWTH_PROBE_MIN * 60 )) "$PY" -m wenart.assets growth run \
+  speed-probe --workers 8 --growth "$GROWTH" --assets "$ASSETS" --p4 "$P4" --p3 "$AUDIT_ROOT"
+
 start_bg setup-check env AGENT_MODELS="$MODEL_KEY" POLISH_RECOG_PARTS="vllm models" POLISH_MODE=final \
   POLISH_PHASES="check" bash scripts/pod_setup_polish.sh
 start_bg infinigen infinigen_part
 start_bg ingest-polyhaven gr ingest --source polyhaven --size "$GROWTH_PH_SIZE"
 start_bg ingest-abo gr ingest --source abo --workers 8
 start_bg ingest-gso gr ingest --source gso --workers 8
+# --- Milestone 13 ingests (background; present files are kept) ----------------------------------------------------
+if [ -n "${HF_TOKEN:-}" ]; then
+  start_bg ingest-hssd gr ingest --source hssd --workers 8 --token-env HF_TOKEN
+else
+  log "ingest-hssd: SKIPPED: HF_TOKEN is not set in the environment (the RunPod secret hf_token); the HSSD layer" \
+      "needs the account that accepted the terms at https://huggingface.co/datasets/hssd/hssd-models (D2)"
+  record "ingest-hssd (skipped: no HF_TOKEN)" 0 0
+fi
+start_bg ingest-abo-m13 gr ingest --source abo --m13 --workers 8
+start_bg ingest-polyhaven-m13 gr ingest --source polyhaven --m13 --size "$GROWTH_PH_SIZE"
+start_bg ingest-ambientcg gr ingest --source ambientcg --size "$GROWTH_PH_SIZE"
 
 join_bg ingest-gso
 run_step gso-licence gr gso-licence --workers 8
 run_step convert-gso gr convert --source gso --blender "$WENART_BLENDER"
 join_bg ingest-polyhaven
 join_bg ingest-abo
+join_bg ingest-hssd
+join_bg ingest-abo-m13
+join_bg ingest-polyhaven-m13
+join_bg ingest-ambientcg
 run_step catalogue gr catalogue
 
 RENDER_ARGS=(--assets "$ASSETS" --work "$P4/work" --workers "$AUDIT_WORKERS" --blender "$WENART_BLENDER"
@@ -403,6 +448,7 @@ run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
 run_step pending gr pending --model-key "$MODEL_KEY"
 run_step sheets au sheets
 run_step gaps gr gaps
+run_step coverage gr size-grid
 if need 180 preview; then run_step preview gr preview --blender "$WENART_BLENDER"; fi
 run_step report gr report --steps "$STEPS_TSV"
 if need 240 gpu-tests; then

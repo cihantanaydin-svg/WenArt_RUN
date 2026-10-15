@@ -356,8 +356,14 @@ def test_rule_types_stair_and_counter_legs(run):
     # Nothing else is read as a type without AI answers (--no-ai). Since Milestone 11 the ingest may infer a
     # type from size, room and neighbours (wenart/furniture/infer.py): such a piece stays unverified with
     # type_method none and carries inferred: true with its reason, so it is listed in the report.
+    # Milestone 13 (K3, docs/milestone13.md §13.2 T3): the code typing (twin / level / block / missing group member,
+    # wenart.furniture.infer.type_by_code) types the beds, nightstands, sofa and coffee table before any AI; such a
+    # piece carries its code method as type_method, stays unverified and is inferred with its reason as well.
+    from wenart.furniture import infer as INF
     others = [f for f in b["furniture"] if f["type"] not in ("stair", "kitchen_counter")]
-    assert others and all((f["status"], f["type_method"]) == ("unverified", "none") for f in others)
+    assert others and all(f["status"] == "unverified" and f["type_method"] in ("none",) + INF.CODE_TYPE_METHODS
+                          for f in others)
+    assert any(f["type_method"] in INF.CODE_TYPE_METHODS for f in others)
     assert all(f["type"] == "unknown" or (f.get("inferred") and f.get("inferred_reason")) for f in others)
     assert any(f["type"] == "unknown" for f in others)
 
@@ -439,8 +445,11 @@ def test_debug_image_report_and_questions(run):
     assert len(keys) == 17 and keys == sorted(keys) and all(k.startswith("sym_L0_") for k in keys)
     for item in doc["items"]:
         assert all((out / "recognition" / p).is_file() for p in item["images"])
-    unknown = [f for f in run["building"]["furniture"] if f["type_method"] == "none"]
-    assert len(unknown) == len(keys)
+    # The 17 questions are the untyped candidates; Milestone 13's code typing (type_method twin / level / block /
+    # group_member) then types the ones a missing group member explains, the rest keep type_method none.
+    from wenart.furniture import infer as INF
+    candidates = [f for f in run["building"]["furniture"] if f["type_method"] in ("none",) + INF.CODE_TYPE_METHODS]
+    assert len(candidates) == len(keys)
     # --no-ai: nothing is pending, so the pipeline would not exit 4.
     assert run["build"].pending == [] and P.exit_code(run["building"], run["build"], no_ai=True) == 0
     # ... but the 17 questions are still unanswered, and report.md says so (review cross-5).

@@ -141,6 +141,26 @@ Milestone 10 (docs/milestone10.md §3.3 item 6; the sections are built by ``wena
 - rooms: only the rooms of the levels the variant builds are listed; a room left out on purpose (``twin of``,
   ``same as``, ``unchanged in variant``: the scene manifest's ``rooms_without_view``) is named with its reason under
   "Rooms not rendered on purpose" and is not counted as a room without a view.
+
+Milestone 13 (docs/milestone13.md §6, §12 D4, §13.2; track T8): the licence line per render and the pieces built
+below the library level.
+
+- What: every view carries ``commercial_safe = {safe, flagged: [asset ids], flags: {id: flag}}``
+  (``commercial_safe_of_view``): the scene manifest's objects whose pass index is in the view's ``index_stats`` /
+  ``index_values`` (``assets_by_index``: furniture, decor and hosted decor with a library ``asset``), each asset's
+  licence flag through track T1's ``wenart.furniture.catalog.licence_flag_of`` (the fitted asset's own fields, the
+  licence text, the export tool) and, when the catalogue loads, the stricter flag of its catalogue entry (an audit
+  may add ``research_only`` / ``regional``); a view with any flagged asset is ``safe: false``. The manifest's
+  ``licence`` block holds the project's mode (``project.licence_mode`` of the building; T1 writes it) and the union
+  of the flagged ids; ``below_library`` lists every furniture piece whose ``asset.method`` is ``module`` or
+  ``parametric`` (id, type, method, builder, room, ``by_design``: a kitchen run, a stair, a fixture made to the
+  drawing is no gap; ``gap``: the rest) so the gaps can be closed with real models (D4).
+- Why: CLAUDE.md library rules ("Every render carries commercial-safe: yes|no with the flagged asset ids"; "the
+  report lists every piece built below the library level so the gap can be closed").
+- How: ``final_report.md`` gets the section "Commercial-safe per view" with the project line (the licence mode) and
+  one line per view, ``commercial-safe: yes`` or ``commercial-safe: no (flagged assets: id [flag], ...)``, and the
+  section "Built below library level" (a table; ``wenart.run.pack3d`` repeats both in its README); a flagged view in
+  ``commercial`` mode is an advisory flag. ``wenart.report.metrics13`` reads the manifest fields (metric 16).
 """
 from __future__ import annotations
 
@@ -262,6 +282,10 @@ FINAL_VIEW = {
         "unverified": {"type": "array", "items": {"type": "string"}},
         "mismatches": {"type": "array", "items": {"type": "object", "required": ["image", "what", "result"]}},
         "needs_review": {"type": "boolean"},
+        # Milestone 13 (docs/milestone13.md §13.3)
+        "commercial_safe": {"type": "object", "required": ["safe", "flagged"],
+                            "properties": {"safe": {"type": "boolean"},
+                                           "flagged": {"type": "array", "items": {"type": "string"}}}},
     },
 }
 FINAL_MANIFEST = {
@@ -320,6 +344,10 @@ FINAL_MANIFEST = {
         "base_exterior_views": {"type": ["array", "null"]},
         # Milestone 11 (docs/milestone11.md §8 "report"; wenart/report/agent.py)
         "agent": {"type": ["object", "null"]},
+        # Milestone 13 (docs/milestone13.md §13.3; track T8)
+        "licence": {"type": ["object", "null"], "properties": {"mode": {"type": "string"},
+                                                               "flagged_assets": {"type": "array"}}},
+        "below_library": {"type": "array", "items": {"type": "object", "required": ["id", "type", "method"]}},
     },
 }
 
@@ -834,6 +862,206 @@ def unverified_in_view(elements: list[dict]) -> list[str]:
 
 
 # --------------------------------------------------------------------------
+# Milestone 13: commercial-safe per view, pieces built below the library level (docs/milestone13.md §6, §13.2)
+# --------------------------------------------------------------------------
+
+BELOW_LIBRARY_METHODS = ("module", "parametric")
+OWN_GEOMETRY_METHODS = BELOW_LIBRARY_METHODS + ("none",)     # no third-party model: never a licence flag
+
+
+def assets_by_index(scene: Optional[dict]) -> dict:
+    """``{pass_index: [(wenart_id, asset)]}`` of every scene-manifest object with a pass index and a library
+    ``asset`` (furniture, hostless decor and hosted decor alike: hosted decor shares its host's index, so a
+    cushion's model is in view when its sofa is)."""
+    out: dict = {}
+    for obj in (scene or {}).get("objects") or []:
+        if not isinstance(obj, dict) or not obj.get("pass_index"):
+            continue
+        asset = obj.get("asset")
+        # T8 review (15 Oct 2026): an asset without a ``method`` (a manifest older than the fit's field) is a library
+        # model too; only our own geometry (parametric, module, none) carries no third-party licence.
+        if not isinstance(asset, dict) or asset.get("method") in OWN_GEOMETRY_METHODS:
+            continue
+        out.setdefault(int(obj["pass_index"]), []).append((str(obj.get("wenart_id") or obj.get("name") or "?"),
+                                                           asset))
+    return out
+
+
+def view_indices(entry: Optional[dict]) -> list[int]:
+    """The pass indices seen in a rendered view: ``index_stats`` (keys) when the render recorded them, else
+    ``index_values``."""
+    entry = entry or {}
+    stats = entry.get("index_stats")
+    if isinstance(stats, dict) and stats:
+        return sorted(int(k) for k in stats)
+    return sorted(int(v) for v in entry.get("index_values") or [])
+
+
+_CATALOG_CACHE: dict = {}
+
+
+def report_catalog(warnings: Optional[list] = None):
+    """The merged furniture catalogue (``wenart.furniture.catalog.load``), loaded once per process; None (with a
+    warning) when it cannot be loaded: the fitted asset's own licence fields then decide alone."""
+    if "catalog" not in _CATALOG_CACHE:
+        try:
+            from wenart.furniture import catalog as CAT
+            _CATALOG_CACHE["catalog"] = CAT.load()
+        except Exception as exc:  # noqa: BLE001 - the report must still be written
+            _CATALOG_CACHE["catalog"] = None
+            _CATALOG_CACHE["error"] = f"{type(exc).__name__}: {exc}"
+    if _CATALOG_CACHE.get("catalog") is None and warnings is not None and _CATALOG_CACHE.get("error"):
+        note = f"furniture catalogue not loaded ({_CATALOG_CACHE['error']}): licence flags from the fitted assets only"
+        if note not in warnings:
+            warnings.append(note)
+    return _CATALOG_CACHE.get("catalog")
+
+
+def asset_flag(asset: dict, catalog=None) -> str:
+    """The licence flag of a fitted asset (track T1's ``licence_flag_of``: the asset's own flag, its licence text,
+    the export tool) or, when its catalogue entry carries a stricter flag (an audit's ``research_only`` /
+    ``regional``), that one."""
+    from wenart.furniture import catalog as CAT
+
+    flag = CAT.licence_flag_of(asset)
+    entry = None
+    if catalog is not None:
+        try:
+            entry = catalog.entry(str(asset.get("asset_id") or asset.get("uid") or ""))
+        except Exception:  # noqa: BLE001 - an odd catalogue object: the asset decides alone
+            entry = None
+    if isinstance(entry, dict):
+        own = CAT.licence_flag_of(entry)
+        if CAT.FLAG_STRICTNESS.get(own, 0) > CAT.FLAG_STRICTNESS.get(flag, 0):
+            flag = own
+    return flag
+
+
+def commercial_safe_of_view(entry: Optional[dict], by_index: dict, catalog=None) -> dict:
+    """``{safe, flagged: [asset ids], flags: {asset id: flag}, pieces: {asset id: [wenart ids]}, assets: n}`` of
+    one rendered view: every library asset whose object index is in the view (``view_indices`` x
+    ``assets_by_index``), flagged when its flag is not ``none`` (``asset_flag``). A view without library assets is
+    safe."""
+    flags: dict = {}
+    pieces: dict = {}
+    n = 0
+    for idx in view_indices(entry):
+        for wid, asset in by_index.get(idx) or []:
+            n += 1
+            aid = str(asset.get("asset_id") or asset.get("uid") or "?")
+            flag = asset_flag(asset, catalog)
+            if flag != "none":
+                flags[aid] = flag
+                if wid not in pieces.setdefault(aid, []):
+                    pieces[aid].append(wid)
+    return {"safe": not flags, "flagged": sorted(flags), "flags": dict(sorted(flags.items())),
+            "pieces": {k: pieces[k] for k in sorted(pieces)}, "assets": n}
+
+
+def commercial_safe_line(cs: Optional[dict]) -> str:
+    """``commercial-safe: yes`` / ``commercial-safe: no (flagged assets: id [flag], ...)`` of a view's record;
+    ``commercial-safe: not recorded`` for a manifest without the field (a run before Milestone 13)."""
+    if not isinstance(cs, dict) or "safe" not in cs:
+        return "commercial-safe: not recorded"
+    if cs.get("safe"):
+        return "commercial-safe: yes"
+    flags = cs.get("flags") or {}
+    ids = ", ".join(f"{a} [{flags[a]}]" if a in flags else a for a in cs.get("flagged") or [])
+    return f"commercial-safe: no (flagged assets: {ids})"
+
+
+def licence_mode_of(building: Optional[dict]) -> tuple[str, str]:
+    """``(mode, source)``: the building's ``project.licence_mode`` (the fit stage writes it, track T1), else the
+    environment / default (``catalog.licence_mode_from``: a later stage never reads the brief)."""
+    from wenart.furniture import catalog as CAT
+
+    project = (building or {}).get("project") if isinstance((building or {}).get("project"), dict) else {}
+    mode = project.get("licence_mode")
+    if mode in CAT.LICENCE_MODES:
+        return str(mode), str(project.get("licence_mode_source") or "building project.licence_mode")
+    mode, source = CAT.licence_mode_from(None)
+    return mode, f"{source} (the building has no project.licence_mode: a run before Milestone 13)"
+
+
+def licence_block(inp: "Inputs", views: list[dict]) -> dict:
+    """The manifest's ``licence`` block: the mode and its source, the union of the flagged asset ids over the
+    views (with their flags and pieces), the counts of safe and flagged views."""
+    mode, source = licence_mode_of(inp.building)
+    flags: dict = {}
+    pieces: dict = {}
+    for v in views:
+        cs = v.get("commercial_safe") or {}
+        flags.update(cs.get("flags") or {})
+        for aid, ids in (cs.get("pieces") or {}).items():
+            for wid in ids:
+                if wid not in pieces.setdefault(aid, []):
+                    pieces[aid].append(wid)
+    safe = sum(1 for v in views if (v.get("commercial_safe") or {}).get("safe"))
+    return {"mode": mode, "mode_source": source, "flagged_assets": sorted(flags),
+            "flags": dict(sorted(flags.items())), "pieces": {k: pieces[k] for k in sorted(pieces)},
+            "views_safe": safe, "views_flagged": len(views) - safe,
+            "line": "commercial-safe: yes" if len(views) == safe else
+            f"commercial-safe: no (flagged assets: {', '.join(f'{a} [{flags[a]}]' for a in sorted(flags))})"}
+
+
+def below_library(building: Optional[dict]) -> list[dict]:
+    """Every furniture piece built below the library level (docs/milestone13.md §12 D4): ``asset.method`` ``module``
+    or ``parametric`` and the piece is built (``build`` not false). ``builder``: the module plan's builder, else the
+    asset's ``builder``, else its ``asset_id`` (``parametric:<type>``); ``by_design``: the asset says so or the type
+    is one made to the drawing (``catalog.BY_DESIGN_PARAMETRIC_TYPES``: kitchen runs, stairs, fixtures); ``gap``:
+    not by design (a real model would close it); ``used``: the fit's ``library_gap.used`` text when it has one."""
+    from wenart.furniture import catalog as CAT
+
+    rtypes = room_types(building)
+    out = []
+    for p in (building or {}).get("furniture") or []:
+        if not isinstance(p, dict) or p.get("build") is False:
+            continue
+        asset = p.get("asset") if isinstance(p.get("asset"), dict) else {}
+        if asset.get("method") not in BELOW_LIBRARY_METHODS:
+            continue
+        plan = asset.get("module_plan") if isinstance(asset.get("module_plan"), dict) else {}
+        builder = plan.get("builder") or asset.get("builder") or asset.get("asset_id") or f"parametric:{p.get('type')}"
+        by_design = bool(asset.get("by_design")) or p.get("type") in CAT.BY_DESIGN_PARAMETRIC_TYPES
+        gap = (p.get("library_gap") or asset.get("library_gap") or {}) if isinstance(
+            p.get("library_gap") or asset.get("library_gap"), dict) else {}
+        out.append({"id": str(p.get("id") or "?"), "type": str(p.get("type") or "?"), "method": asset["method"],
+                    "builder": str(builder), "room_id": p.get("room_id"), "room_type": rtypes.get(p.get("room_id")),
+                    "source": p.get("source"), "by_design": by_design, "gap": not by_design,
+                    "used": gap.get("used"), "reason": gap.get("reason") or asset.get("fallback_reason")})
+    return out
+
+
+def m13_lines(manifest: dict) -> list[str]:
+    """The report sections of Milestone 13: the commercial-safe line per view and the project line, then the table
+    of the pieces built below the library level."""
+    lic = manifest.get("licence") or {}
+    lines = ["", "## Commercial-safe per view (Milestone 13)", ""]
+    mode = lic.get("mode") or "unknown"
+    lines.append(f"Licence mode: {mode} ({lic.get('mode_source') or 'source not recorded'}). Project: "
+                 f"{lic.get('line') or 'commercial-safe: not recorded'}. A view is commercial-safe when no library "
+                 f"asset in its object-index pass carries a licence flag (docs/milestone13.md §6).")
+    lines.append("")
+    for v in manifest.get("views") or []:
+        lines.append(f"- {v['camera']}: {commercial_safe_line(v.get('commercial_safe'))}")
+    if not manifest.get("views"):
+        lines.append("No view.")
+    below = manifest.get("below_library") or []
+    lines += ["", "## Built below library level (Milestone 13)", ""]
+    gaps = [b for b in below if b.get("gap")]
+    design = [b for b in below if not b.get("gap")]
+    lines.append(f"{len(below)} furniture piece(s) built from a module builder or a parametric family instead of a "
+                 f"library model: {len(gaps)} library gap(s) to close with a real model, {len(design)} made to the "
+                 f"drawing by design (kitchen runs, stairs, fixtures; no gap).")
+    if below:
+        lines += [""] + C.table(["id", "type", "method", "builder", "room", "room type", "source", "gap", "used"],
+                                [[b["id"], b["type"], b["method"], b["builder"], b.get("room_id"),
+                                  b.get("room_type"), b.get("source"), "yes" if b.get("gap") else "no (by design)",
+                                  b.get("used")] for b in below])
+    return lines
+
+
+# --------------------------------------------------------------------------
 # Vision check entries
 # --------------------------------------------------------------------------
 
@@ -1125,6 +1353,8 @@ def build_views(inp: Inputs) -> list[dict]:
             inp.warnings.append(f"{cam}: in the polish manifest but not in the render manifest (an earlier run's "
                                 f"camera; not a view of this report)")
     check_views = (inp.check or {}).get("views") or {}
+    by_index = assets_by_index(inp.scene)                    # Milestone 13: the library assets per pass index
+    catalog = report_catalog(inp.warnings) if by_index else None
     out = []
     for cam in cams:
         entry = inp.entries.get(cam) or {}
@@ -1219,6 +1449,8 @@ def build_views(inp: Inputs) -> list[dict]:
             "needs_review": needs_review,
             "added_by_polish": bool((cview or {}).get("added_by_polish")),
             "detector": detector_view((cview or {}).get("detector")),
+            # Milestone 13 (docs/milestone13.md §6): the licence line of the view
+            "commercial_safe": commercial_safe_of_view(entry, by_index, catalog),
         })
     return out
 
@@ -2143,6 +2375,11 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
     flags.extend(m7_flags(recognition, attribution, detector))
     blocks = m10_blocks(inp, views)
     flags.extend(m10_flags(blocks))
+    licence = licence_block(inp, views)
+    if licence["mode"] == "commercial" and licence["flagged_assets"]:
+        flags.append(f"commercial licence mode but {licence['views_flagged']} view(s) show flagged assets "
+                     f"({', '.join(licence['flagged_assets'])}): re-run the fit in commercial mode "
+                     f"(docs/milestone13.md §6)")
     stages = {
         "render": "run" if inp.render_manifest is not None else "not_run",
         "polish": ("not_run" if inp.polish is None else "incomplete" if inp.polish.get("incomplete") else "run"),
@@ -2236,6 +2473,10 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         **blocks,
         # Milestone 11: the AI orchestrator (None without orchestrator/log.json: the M10 report is unchanged)
         "agent": AG.agent_block(inp.project_out, inp.out_dir, inp.private, inp.building),
+        # Milestone 13 (docs/milestone13.md §6, D4): the licence mode with the flagged assets, the pieces built
+        # below the library level
+        "licence": licence,
+        "below_library": below_library(inp.building),
         "warnings": list(inp.warnings),
     }
 
@@ -2996,6 +3237,7 @@ def report_markdown(manifest: dict) -> str:
     if down:
         lines += ["", "Polish room rule (wall colour within ΔE 5 per room) downgraded: "
                   + ", ".join(f"{rid} (rung {r['polish_rung']})" for rid, r in down) + "."]
+    lines += m13_lines(manifest)
     lines += ["", "## Models and licences", ""]
     if manifest["models"]:
         lines += C.table(["role", "model", "revision", "licence", "from"],

@@ -1,0 +1,4085 @@
+{
+ "kind": "library_demands",
+ "written_utc": "2026-10-15T14:00:00Z",
+ "projects": [
+  "real02",
+  "real03",
+  "real04"
+ ],
+ "buildings": {
+  "real02": "results/furniture/real02/building_final.json",
+  "real03": "results/furniture/real03/building_final.json",
+  "real04": "results/furniture/real04/building_final.json"
+ },
+ "pieces": 809,
+ "rows": 156,
+ "summary": {
+  "armchair": {
+   "kind": "furniture",
+   "pieces": 18,
+   "drawn": 10,
+   "added": 8,
+   "sizes": 4,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "bar_stool": {
+   "kind": "furniture",
+   "pieces": 9,
+   "drawn": 2,
+   "added": 7,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "bathtub": {
+   "kind": "furniture",
+   "pieces": 17,
+   "drawn": 17,
+   "added": 0,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "bed_double": {
+   "kind": "furniture",
+   "pieces": 23,
+   "drawn": 21,
+   "added": 2,
+   "sizes": 5,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "bed_single": {
+   "kind": "furniture",
+   "pieces": 1,
+   "drawn": 1,
+   "added": 0,
+   "sizes": 1,
+   "projects": [
+    "real03"
+   ]
+  },
+  "bench": {
+   "kind": "furniture",
+   "pieces": 10,
+   "drawn": 2,
+   "added": 8,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real03"
+   ]
+  },
+  "bookshelf": {
+   "kind": "furniture",
+   "pieces": 9,
+   "drawn": 3,
+   "added": 6,
+   "sizes": 3,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "chair": {
+   "kind": "furniture",
+   "pieces": 94,
+   "drawn": 84,
+   "added": 10,
+   "sizes": 6,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "console_table": {
+   "kind": "furniture",
+   "pieces": 20,
+   "drawn": 6,
+   "added": 14,
+   "sizes": 5,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "desk": {
+   "kind": "furniture",
+   "pieces": 12,
+   "drawn": 6,
+   "added": 6,
+   "sizes": 3,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "dresser": {
+   "kind": "furniture",
+   "pieces": 5,
+   "drawn": 1,
+   "added": 4,
+   "sizes": 3,
+   "projects": [
+    "real02",
+    "real03"
+   ]
+  },
+  "floor_lamp": {
+   "kind": "furniture",
+   "pieces": 30,
+   "drawn": 30,
+   "added": 0,
+   "sizes": 6,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "fridge": {
+   "kind": "furniture",
+   "pieces": 4,
+   "drawn": 4,
+   "added": 0,
+   "sizes": 1,
+   "projects": [
+    "real02"
+   ]
+  },
+  "kitchen_island": {
+   "kind": "furniture",
+   "pieces": 8,
+   "drawn": 8,
+   "added": 0,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "nightstand": {
+   "kind": "furniture",
+   "pieces": 36,
+   "drawn": 11,
+   "added": 25,
+   "sizes": 5,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "office_chair": {
+   "kind": "furniture",
+   "pieces": 4,
+   "drawn": 0,
+   "added": 4,
+   "sizes": 1,
+   "projects": [
+    "real04"
+   ]
+  },
+  "ottoman": {
+   "kind": "furniture",
+   "pieces": 18,
+   "drawn": 16,
+   "added": 2,
+   "sizes": 4,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "shoe_cabinet": {
+   "kind": "furniture",
+   "pieces": 12,
+   "drawn": 2,
+   "added": 10,
+   "sizes": 3,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "shower": {
+   "kind": "furniture",
+   "pieces": 14,
+   "drawn": 14,
+   "added": 0,
+   "sizes": 7,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "side_table": {
+   "kind": "furniture",
+   "pieces": 2,
+   "drawn": 2,
+   "added": 0,
+   "sizes": 1,
+   "projects": [
+    "real03"
+   ]
+  },
+  "sideboard": {
+   "kind": "furniture",
+   "pieces": 2,
+   "drawn": 0,
+   "added": 2,
+   "sizes": 2,
+   "projects": [
+    "real03"
+   ]
+  },
+  "sink_kitchen": {
+   "kind": "furniture",
+   "pieces": 16,
+   "drawn": 16,
+   "added": 0,
+   "sizes": 3,
+   "projects": [
+    "real04"
+   ]
+  },
+  "sofa": {
+   "kind": "furniture",
+   "pieces": 15,
+   "drawn": 14,
+   "added": 1,
+   "sizes": 4,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "sofa_corner": {
+   "kind": "furniture",
+   "pieces": 6,
+   "drawn": 6,
+   "added": 0,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "stove": {
+   "kind": "furniture",
+   "pieces": 18,
+   "drawn": 18,
+   "added": 0,
+   "sizes": 4,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "table_coffee": {
+   "kind": "furniture",
+   "pieces": 7,
+   "drawn": 6,
+   "added": 1,
+   "sizes": 3,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "table_dining": {
+   "kind": "furniture",
+   "pieces": 18,
+   "drawn": 12,
+   "added": 6,
+   "sizes": 6,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "tall_cabinet": {
+   "kind": "furniture",
+   "pieces": 3,
+   "drawn": 0,
+   "added": 3,
+   "sizes": 2,
+   "projects": [
+    "real02"
+   ]
+  },
+  "toilet": {
+   "kind": "furniture",
+   "pieces": 28,
+   "drawn": 28,
+   "added": 0,
+   "sizes": 5,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "tv_unit": {
+   "kind": "furniture",
+   "pieces": 9,
+   "drawn": 0,
+   "added": 9,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real03"
+   ]
+  },
+  "wardrobe": {
+   "kind": "furniture",
+   "pieces": 22,
+   "drawn": 20,
+   "added": 2,
+   "sizes": 6,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "washbasin": {
+   "kind": "furniture",
+   "pieces": 21,
+   "drawn": 20,
+   "added": 1,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "washing_machine": {
+   "kind": "furniture",
+   "pieces": 8,
+   "drawn": 8,
+   "added": 0,
+   "sizes": 2,
+   "projects": [
+    "real03"
+   ]
+  },
+  "basket": {
+   "kind": "decor",
+   "pieces": 2,
+   "drawn": 0,
+   "added": 2,
+   "sizes": 1,
+   "projects": [
+    "real02"
+   ]
+  },
+  "blind": {
+   "kind": "decor",
+   "pieces": 11,
+   "drawn": 0,
+   "added": 11,
+   "sizes": 4,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "ceiling_light": {
+   "kind": "decor",
+   "pieces": 34,
+   "drawn": 0,
+   "added": 34,
+   "sizes": 1,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "curtain": {
+   "kind": "decor",
+   "pieces": 32,
+   "drawn": 0,
+   "added": 32,
+   "sizes": 5,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "cushion": {
+   "kind": "decor",
+   "pieces": 84,
+   "drawn": 0,
+   "added": 84,
+   "sizes": 3,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "mirror": {
+   "kind": "decor",
+   "pieces": 23,
+   "drawn": 0,
+   "added": 23,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "pendant_light": {
+   "kind": "decor",
+   "pieces": 25,
+   "drawn": 0,
+   "added": 25,
+   "sizes": 1,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "plant": {
+   "kind": "decor",
+   "pieces": 1,
+   "drawn": 0,
+   "added": 1,
+   "sizes": 1,
+   "projects": [
+    "real03"
+   ]
+  },
+  "plant_large": {
+   "kind": "decor",
+   "pieces": 6,
+   "drawn": 0,
+   "added": 6,
+   "sizes": 1,
+   "projects": [
+    "real02",
+    "real04"
+   ]
+  },
+  "plant_small": {
+   "kind": "decor",
+   "pieces": 9,
+   "drawn": 0,
+   "added": 9,
+   "sizes": 1,
+   "projects": [
+    "real02",
+    "real03"
+   ]
+  },
+  "rug": {
+   "kind": "decor",
+   "pieces": 15,
+   "drawn": 0,
+   "added": 15,
+   "sizes": 9,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "table_lamp": {
+   "kind": "decor",
+   "pieces": 6,
+   "drawn": 0,
+   "added": 6,
+   "sizes": 2,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "throw": {
+   "kind": "decor",
+   "pieces": 22,
+   "drawn": 0,
+   "added": 22,
+   "sizes": 7,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  },
+  "vase": {
+   "kind": "decor",
+   "pieces": 2,
+   "drawn": 0,
+   "added": 2,
+   "sizes": 1,
+   "projects": [
+    "real02"
+   ]
+  },
+  "wall_art": {
+   "kind": "decor",
+   "pieces": 18,
+   "drawn": 0,
+   "added": 18,
+   "sizes": 8,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ]
+  }
+ },
+ "demands": [
+  {
+   "type": "armchair",
+   "kind": "furniture",
+   "w": 0.9,
+   "d": 0.9,
+   "h": 0.85,
+   "h_from": "height",
+   "count": 8,
+   "drawn": 0,
+   "added": 8,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:f_L-1b_063",
+    "real02:f_L-1b_068",
+    "real02:f_L-1_090",
+    "real02:f_L1_029",
+    "real02:f_L-1_101",
+    "real02:f_L1_033",
+    "real03:f_L0_171",
+    "real03:f_L0_187"
+   ],
+   "bin": "0.90x0.90"
+  },
+  {
+   "type": "armchair",
+   "kind": "furniture",
+   "w": 0.64,
+   "d": 0.57,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1_069",
+    "real04:f_L-1_070",
+    "real04:f_L-1_071",
+    "real04:f_L-1_072"
+   ],
+   "bin": "0.64x0.57"
+  },
+  {
+   "type": "armchair",
+   "kind": "furniture",
+   "w": 0.99,
+   "d": 0.84,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_049",
+    "real02:f_L-1_050",
+    "real04:f_L-1_049",
+    "real04:f_L-1_050"
+   ],
+   "bin": "0.99x0.84"
+  },
+  {
+   "type": "armchair",
+   "kind": "furniture",
+   "w": 0.74,
+   "d": 0.74,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_097",
+    "real03:f_L0_104"
+   ],
+   "bin": "0.74x0.74"
+  },
+  {
+   "type": "bar_stool",
+   "kind": "furniture",
+   "w": 0.42,
+   "d": 0.42,
+   "h": 0.75,
+   "h_from": "height",
+   "count": 7,
+   "drawn": 0,
+   "added": 7,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1b_072",
+    "real02:f_L-1b_073",
+    "real02:f_L-1b_074",
+    "real02:f_L-1b_075",
+    "real02:f_L-1b_079",
+    "real02:f_L-1b_080",
+    "real02:f_L-1b_081"
+   ],
+   "bin": "0.42x0.42"
+  },
+  {
+   "type": "bar_stool",
+   "kind": "furniture",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 1.0,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1b_039",
+    "real04:f_L-1b_040"
+   ],
+   "bin": "0.40x0.40"
+  },
+  {
+   "type": "bathtub",
+   "kind": "furniture",
+   "w": 1.83,
+   "d": 0.8,
+   "h": 0.58,
+   "h_from": "type default",
+   "count": 14,
+   "drawn": 14,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_055",
+    "real02:f_L-1_056",
+    "real02:f_L-1b_041",
+    "real02:f_L-1b_042",
+    "real02:f_L0_025",
+    "real02:f_L0_026",
+    "real02:f_L1_019",
+    "real02:f_L1_020",
+    "real04:f_L-1_055",
+    "real04:f_L-1_056",
+    "real04:f_L-1b_043",
+    "real04:f_L-1b_044",
+    "real04:f_L1_019",
+    "real04:f_L1_020"
+   ],
+   "bin": "1.83x0.80"
+  },
+  {
+   "type": "bathtub",
+   "kind": "furniture",
+   "w": 1.62,
+   "d": 0.8,
+   "h": 0.58,
+   "h_from": "type default",
+   "count": 3,
+   "drawn": 3,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_163",
+    "real03:f_L0_164",
+    "real03:f_L0_165"
+   ],
+   "bin": "1.62x0.80"
+  },
+  {
+   "type": "bed_double",
+   "kind": "furniture",
+   "w": 1.65,
+   "d": 2.05,
+   "h": 1.0,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_046",
+    "real03:f_L0_054",
+    "real03:f_L0_055",
+    "real03:f_L0_056",
+    "real03:f_L0_057",
+    "real03:f_L0_058",
+    "real03:f_L0_059",
+    "real03:f_L0_060"
+   ],
+   "bin": "1.65x2.05"
+  },
+  {
+   "type": "bed_double",
+   "kind": "furniture",
+   "w": 1.55,
+   "d": 1.9,
+   "h": 1.0,
+   "h_from": "type default",
+   "count": 6,
+   "drawn": 6,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_019",
+    "real02:f_L0_020",
+    "real02:f_L0_021",
+    "real02:f_L0_022",
+    "real04:f_L0_017",
+    "real04:f_L0_018"
+   ],
+   "bin": "1.55x1.90"
+  },
+  {
+   "type": "bed_double",
+   "kind": "furniture",
+   "w": 2.55,
+   "d": 2.0,
+   "h": 1.0,
+   "h_from": "type default",
+   "count": 6,
+   "drawn": 6,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_007",
+    "real02:f_L0_008",
+    "real04:f_L0_007",
+    "real04:f_L0_008",
+    "real04:f_L0_009",
+    "real04:f_L0_010"
+   ],
+   "bin": "2.55x2.00"
+  },
+  {
+   "type": "bed_double",
+   "kind": "furniture",
+   "w": 1.4,
+   "d": 2.0,
+   "h": 0.5,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1b_071",
+    "real04:f_L-1b_075"
+   ],
+   "bin": "1.40x2.00"
+  },
+  {
+   "type": "bed_double",
+   "kind": "furniture",
+   "w": 1.22,
+   "d": 2.13,
+   "h": 1.0,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_119"
+   ],
+   "bin": "1.22x2.13"
+  },
+  {
+   "type": "bed_single",
+   "kind": "furniture",
+   "w": 1.95,
+   "d": 0.95,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_061"
+   ],
+   "bin": "1.95x0.95"
+  },
+  {
+   "type": "bench",
+   "kind": "furniture",
+   "w": 1.2,
+   "d": 0.4,
+   "h": 0.45,
+   "h_from": "height",
+   "count": 8,
+   "drawn": 0,
+   "added": 8,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:f_L0_041",
+    "real02:f_L0_044",
+    "real02:f_L0_047",
+    "real02:f_L0_051",
+    "real02:f_L0_054",
+    "real02:f_L0_057",
+    "real03:f_L0_185",
+    "real03:f_L0_189"
+   ],
+   "bin": "1.20x0.40"
+  },
+  {
+   "type": "bench",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 1.52,
+   "h": 0.46,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L1_021",
+    "real02:f_L1_022"
+   ],
+   "bin": "0.60x1.52"
+  },
+  {
+   "type": "bookshelf",
+   "kind": "furniture",
+   "w": 1.0,
+   "d": 0.35,
+   "h": 1.8,
+   "h_from": "height",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1b_062",
+    "real02:f_L-1b_067",
+    "real04:f_L-1_089",
+    "real04:f_L-1_094"
+   ],
+   "bin": "1.00x0.35"
+  },
+  {
+   "type": "bookshelf",
+   "kind": "furniture",
+   "w": 1.8,
+   "d": 0.25,
+   "h": 1.85,
+   "h_from": "type default",
+   "count": 3,
+   "drawn": 3,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_092",
+    "real03:f_L0_140",
+    "real03:f_L0_141"
+   ],
+   "bin": "1.80x0.25"
+  },
+  {
+   "type": "bookshelf",
+   "kind": "furniture",
+   "w": 0.8,
+   "d": 0.3,
+   "h": 1.8,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L1_031",
+    "real02:f_L1_035"
+   ],
+   "bin": "0.80x0.30"
+  },
+  {
+   "type": "chair",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.45,
+   "h": 0.88,
+   "h_from": "type default",
+   "count": 72,
+   "drawn": 72,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_028",
+    "real02:f_L-1_029",
+    "real02:f_L-1_030",
+    "real02:f_L-1_031",
+    "real02:f_L-1_032",
+    "real02:f_L-1_033",
+    "real02:f_L-1_034",
+    "real02:f_L-1_035",
+    "real02:f_L-1_036",
+    "real02:f_L-1_037",
+    "real02:f_L-1_039",
+    "real02:f_L-1_040",
+    "real02:f_L-1_041",
+    "real02:f_L-1_042",
+    "real02:f_L-1_043",
+    "real02:f_L-1_044",
+    "real02:f_L-1_045",
+    "real02:f_L-1_046",
+    "real02:f_L-1_047",
+    "real02:f_L-1_048",
+    "real02:f_L-1b_018",
+    "real02:f_L-1b_019",
+    "real02:f_L-1b_020",
+    "real02:f_L-1b_021",
+    "real02:f_L-1b_022",
+    "real02:f_L-1b_023",
+    "real02:f_L-1b_024",
+    "real02:f_L-1b_025",
+    "real02:f_L-1b_027",
+    "real02:f_L-1b_028",
+    "real02:f_L-1b_029",
+    "real02:f_L-1b_030",
+    "real02:f_L-1b_031",
+    "real02:f_L-1b_032",
+    "real02:f_L-1b_033",
+    "real02:f_L-1b_034",
+    "real04:f_L-1_028",
+    "real04:f_L-1_029",
+    "real04:f_L-1_030",
+    "real04:f_L-1_031",
+    "real04:f_L-1_032",
+    "real04:f_L-1_033",
+    "real04:f_L-1_034",
+    "real04:f_L-1_035",
+    "real04:f_L-1_036",
+    "real04:f_L-1_037",
+    "real04:f_L-1_039",
+    "real04:f_L-1_040",
+    "real04:f_L-1_041",
+    "real04:f_L-1_042",
+    "real04:f_L-1_043",
+    "real04:f_L-1_044",
+    "real04:f_L-1_045",
+    "real04:f_L-1_046",
+    "real04:f_L-1_047",
+    "real04:f_L-1_048",
+    "real04:f_L-1b_018",
+    "real04:f_L-1b_019",
+    "real04:f_L-1b_020",
+    "real04:f_L-1b_021",
+    "real04:f_L-1b_022",
+    "real04:f_L-1b_023",
+    "real04:f_L-1b_024",
+    "real04:f_L-1b_025",
+    "real04:f_L-1b_027",
+    "real04:f_L-1b_028",
+    "real04:f_L-1b_029",
+    "real04:f_L-1b_030",
+    "real04:f_L-1b_031",
+    "real04:f_L-1b_032",
+    "real04:f_L-1b_033",
+    "real04:f_L-1b_034"
+   ],
+   "bin": "0.50x0.45"
+  },
+  {
+   "type": "chair",
+   "kind": "furniture",
+   "w": 0.45,
+   "d": 0.45,
+   "h": 0.9,
+   "h_from": "height",
+   "count": 8,
+   "drawn": 0,
+   "added": 8,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_094",
+    "real02:f_L-1_095",
+    "real02:f_L-1_105",
+    "real02:f_L-1_106",
+    "real04:f_L1_038",
+    "real04:f_L1_039",
+    "real04:f_L1_041",
+    "real04:f_L1_042"
+   ],
+   "bin": "0.45x0.45"
+  },
+  {
+   "type": "chair",
+   "kind": "furniture",
+   "w": 0.71,
+   "d": 0.45,
+   "h": 0.88,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1b_052",
+    "real04:f_L-1b_053",
+    "real04:f_L-1b_055",
+    "real04:f_L-1b_056",
+    "real04:f_L-1b_058",
+    "real04:f_L-1b_059",
+    "real04:f_L-1b_061",
+    "real04:f_L-1b_062"
+   ],
+   "bin": "0.71x0.45"
+  },
+  {
+   "type": "chair",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.5,
+   "h": 0.9,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1b_064",
+    "real02:f_L-1b_069"
+   ],
+   "bin": "0.50x0.50"
+  },
+  {
+   "type": "chair",
+   "kind": "furniture",
+   "w": 0.58,
+   "d": 0.45,
+   "h": 0.88,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L1_022",
+    "real04:f_L1_026"
+   ],
+   "bin": "0.58x0.45"
+  },
+  {
+   "type": "chair",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.45,
+   "h": 0.88,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L1_023",
+    "real04:f_L1_025"
+   ],
+   "bin": "0.60x0.45"
+  },
+  {
+   "type": "console_table",
+   "kind": "furniture",
+   "w": 0.9,
+   "d": 0.3,
+   "h": 0.8,
+   "h_from": "height",
+   "count": 7,
+   "drawn": 0,
+   "added": 7,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_035",
+    "real02:f_L0_037",
+    "real02:f_L1_032",
+    "real02:f_L1_036",
+    "real03:f_L0_183",
+    "real03:f_L0_184",
+    "real04:f_L1_045"
+   ],
+   "bin": "0.90x0.30"
+  },
+  {
+   "type": "console_table",
+   "kind": "furniture",
+   "w": 1.2,
+   "d": 0.35,
+   "h": 0.8,
+   "h_from": "height",
+   "count": 7,
+   "drawn": 0,
+   "added": 7,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:f_L-1_091",
+    "real02:f_L-1_099",
+    "real02:f_L-1b_076",
+    "real02:f_L-1_102",
+    "real02:f_L-1_110",
+    "real02:f_L-1b_082",
+    "real03:f_L0_174"
+   ],
+   "bin": "1.20x0.35"
+  },
+  {
+   "type": "console_table",
+   "kind": "furniture",
+   "w": 0.29,
+   "d": 0.74,
+   "h": 0.76,
+   "h_from": "type default",
+   "count": 3,
+   "drawn": 3,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_087",
+    "real03:f_L0_146",
+    "real03:f_L0_148"
+   ],
+   "bin": "0.29x0.74"
+  },
+  {
+   "type": "console_table",
+   "kind": "furniture",
+   "w": 1.8,
+   "d": 0.25,
+   "h": 0.76,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_096",
+    "real03:f_L0_103"
+   ],
+   "bin": "1.80x0.25"
+  },
+  {
+   "type": "console_table",
+   "kind": "furniture",
+   "w": 0.74,
+   "d": 0.29,
+   "h": 0.76,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_147"
+   ],
+   "bin": "0.74x0.29"
+  },
+  {
+   "type": "desk",
+   "kind": "furniture",
+   "w": 1.45,
+   "d": 0.91,
+   "h": 0.76,
+   "h_from": "type default",
+   "count": 6,
+   "drawn": 6,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_027",
+    "real02:f_L0_028",
+    "real02:f_L0_029",
+    "real02:f_L0_030",
+    "real04:f_L0_022",
+    "real04:f_L0_023"
+   ],
+   "bin": "1.45x0.91"
+  },
+  {
+   "type": "desk",
+   "kind": "furniture",
+   "w": 1.2,
+   "d": 0.6,
+   "h": 0.75,
+   "h_from": "height",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L1_043",
+    "real04:f_L1_047",
+    "real04:f_L0_076",
+    "real04:f_L0_080"
+   ],
+   "bin": "1.20x0.60"
+  },
+  {
+   "type": "desk",
+   "kind": "furniture",
+   "w": 1.4,
+   "d": 0.7,
+   "h": 0.75,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1b_061",
+    "real02:f_L-1b_066"
+   ],
+   "bin": "1.40x0.70"
+  },
+  {
+   "type": "dresser",
+   "kind": "furniture",
+   "w": 1.2,
+   "d": 0.5,
+   "h": 0.8,
+   "h_from": "height",
+   "count": 3,
+   "drawn": 0,
+   "added": 3,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:f_L0_048",
+    "real02:f_L0_058",
+    "real03:f_L0_190"
+   ],
+   "bin": "1.20x0.50"
+  },
+  {
+   "type": "dresser",
+   "kind": "furniture",
+   "w": 1.1,
+   "d": 0.6,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_084"
+   ],
+   "bin": "1.10x0.60"
+  },
+  {
+   "type": "dresser",
+   "kind": "furniture",
+   "w": 1.4,
+   "d": 0.5,
+   "h": 0.8,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_191"
+   ],
+   "bin": "1.40x0.50"
+  },
+  {
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.45,
+   "h": 1.6,
+   "h_from": "type default",
+   "count": 10,
+   "drawn": 10,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_031",
+    "real02:f_L0_032",
+    "real02:f_L0_033",
+    "real02:f_L0_034",
+    "real04:f_L0_029",
+    "real04:f_L0_030",
+    "real04:f_L0_031",
+    "real04:f_L0_032",
+    "real04:f_L0_033",
+    "real04:f_L0_035"
+   ],
+   "bin": "0.50x0.45"
+  },
+  {
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "w": 0.59,
+   "d": 0.59,
+   "h": 1.6,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_057",
+    "real02:f_L-1_059",
+    "real02:f_L-1_063",
+    "real02:f_L-1_065",
+    "real04:f_L-1_057",
+    "real04:f_L-1_059",
+    "real04:f_L-1_063",
+    "real04:f_L-1_065"
+   ],
+   "bin": "0.59x0.59"
+  },
+  {
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "w": 0.44,
+   "d": 0.44,
+   "h": 1.6,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_064",
+    "real02:f_L-1_066",
+    "real04:f_L-1_064",
+    "real04:f_L-1_066"
+   ],
+   "bin": "0.44x0.44"
+  },
+  {
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "w": 0.79,
+   "d": 0.79,
+   "h": 1.6,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1_058",
+    "real04:f_L-1_060",
+    "real04:f_L-1b_048",
+    "real04:f_L-1b_050"
+   ],
+   "bin": "0.79x0.79"
+  },
+  {
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "w": 0.49,
+   "d": 0.49,
+   "h": 1.6,
+   "h_from": "type default",
+   "count": 3,
+   "drawn": 3,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_078",
+    "real03:f_L0_105",
+    "real03:f_L0_143"
+   ],
+   "bin": "0.49x0.49"
+  },
+  {
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "w": 0.37,
+   "d": 0.61,
+   "h": 1.6,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_144"
+   ],
+   "bin": "0.37x0.61"
+  },
+  {
+   "type": "fridge",
+   "kind": "furniture",
+   "w": 0.79,
+   "d": 0.5,
+   "h": 1.85,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1_067",
+    "real02:f_L-1_068",
+    "real02:f_L-1b_053",
+    "real02:f_L-1b_054"
+   ],
+   "bin": "0.79x0.50"
+  },
+  {
+   "type": "kitchen_island",
+   "kind": "furniture",
+   "w": 0.9,
+   "d": 2.13,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1b_039",
+    "real02:f_L-1b_040",
+    "real04:f_L-1b_041",
+    "real04:f_L-1b_042"
+   ],
+   "bin": "0.90x2.13"
+  },
+  {
+   "type": "kitchen_island",
+   "kind": "furniture",
+   "w": 1.59,
+   "d": 0.6,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1b_005",
+    "real02:f_L-1b_011",
+    "real04:f_L-1b_005",
+    "real04:f_L-1b_011"
+   ],
+   "bin": "1.59x0.60"
+  },
+  {
+   "type": "nightstand",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.4,
+   "h": 0.5,
+   "h_from": "height",
+   "count": 13,
+   "drawn": 0,
+   "added": 13,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_039",
+    "real02:f_L0_045",
+    "real02:f_L0_046",
+    "real02:f_L0_052",
+    "real02:f_L0_055",
+    "real02:f_L0_056",
+    "real03:f_L0_173",
+    "real03:f_L0_175",
+    "real03:f_L0_177",
+    "real04:f_L-1b_072",
+    "real04:f_L-1b_073",
+    "real04:f_L-1b_076",
+    "real04:f_L-1b_077"
+   ],
+   "bin": "0.50x0.40"
+  },
+  {
+   "type": "nightstand",
+   "kind": "furniture",
+   "w": 0.4,
+   "d": 0.38,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_085",
+    "real03:f_L0_106",
+    "real03:f_L0_107",
+    "real03:f_L0_108",
+    "real03:f_L0_109",
+    "real03:f_L0_111",
+    "real03:f_L0_113",
+    "real03:f_L0_114"
+   ],
+   "bin": "0.40x0.38"
+  },
+  {
+   "type": "nightstand",
+   "kind": "furniture",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 0.5,
+   "h_from": "height",
+   "count": 6,
+   "drawn": 0,
+   "added": 6,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_040",
+    "real02:f_L0_053",
+    "real04:f_L0_074",
+    "real04:f_L0_075",
+    "real04:f_L0_078",
+    "real04:f_L0_079"
+   ],
+   "bin": "0.40x0.40"
+  },
+  {
+   "type": "nightstand",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.45,
+   "h": 0.5,
+   "h_from": "height",
+   "count": 6,
+   "drawn": 0,
+   "added": 6,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:f_L0_042",
+    "real02:f_L0_043",
+    "real02:f_L0_049",
+    "real02:f_L0_050",
+    "real03:f_L0_166",
+    "real03:f_L0_167"
+   ],
+   "bin": "0.60x0.45"
+  },
+  {
+   "type": "nightstand",
+   "kind": "furniture",
+   "w": 0.38,
+   "d": 0.4,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 3,
+   "drawn": 3,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_086",
+    "real03:f_L0_110",
+    "real03:f_L0_112"
+   ],
+   "bin": "0.38x0.40"
+  },
+  {
+   "type": "office_chair",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 1.0,
+   "h_from": "height",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L1_044",
+    "real04:f_L1_048",
+    "real04:f_L0_077",
+    "real04:f_L0_081"
+   ],
+   "bin": "0.60x0.60"
+  },
+  {
+   "type": "ottoman",
+   "kind": "furniture",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 0.45,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_079",
+    "real02:f_L-1_080",
+    "real02:f_L1_027",
+    "real02:f_L1_028",
+    "real04:f_L-1_079",
+    "real04:f_L-1_080",
+    "real04:f_L1_031",
+    "real04:f_L1_032"
+   ],
+   "bin": "0.40x0.40"
+  },
+  {
+   "type": "ottoman",
+   "kind": "furniture",
+   "w": 0.47,
+   "d": 0.48,
+   "h": 0.45,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_075",
+    "real02:f_L-1_076",
+    "real02:f_L-1_077",
+    "real02:f_L-1_078",
+    "real04:f_L-1_075",
+    "real04:f_L-1_076",
+    "real04:f_L-1_077",
+    "real04:f_L-1_078"
+   ],
+   "bin": "0.47x0.48"
+  },
+  {
+   "type": "ottoman",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.5,
+   "h": 0.45,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_193"
+   ],
+   "bin": "0.50x0.50"
+  },
+  {
+   "type": "ottoman",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 0.45,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_188"
+   ],
+   "bin": "0.60x0.60"
+  },
+  {
+   "type": "shoe_cabinet",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.3,
+   "h": 1.0,
+   "h_from": "height",
+   "count": 7,
+   "drawn": 0,
+   "added": 7,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L0_047",
+    "real04:f_L0_048",
+    "real04:f_L-1_093",
+    "real04:f_L-1b_082",
+    "real04:f_L1_046",
+    "real04:f_L-1_098",
+    "real04:f_L-1b_086"
+   ],
+   "bin": "0.60x0.30"
+  },
+  {
+   "type": "shoe_cabinet",
+   "kind": "furniture",
+   "w": 0.8,
+   "d": 0.32,
+   "h": 1.0,
+   "h_from": "height",
+   "count": 3,
+   "drawn": 0,
+   "added": 3,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:f_L0_036",
+    "real02:f_L0_038",
+    "real03:f_L0_179"
+   ],
+   "bin": "0.80x0.32"
+  },
+  {
+   "type": "shoe_cabinet",
+   "kind": "furniture",
+   "w": 0.21,
+   "d": 0.65,
+   "h": 1.0,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_135",
+    "real03:f_L0_138"
+   ],
+   "bin": "0.21x0.65"
+  },
+  {
+   "type": "shower",
+   "kind": "furniture",
+   "w": 1.4,
+   "d": 0.6,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_013",
+    "real02:f_L0_014",
+    "real04:f_L0_011",
+    "real04:f_L0_012"
+   ],
+   "bin": "1.40x0.60"
+  },
+  {
+   "type": "shower",
+   "kind": "furniture",
+   "w": 0.8,
+   "d": 0.85,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 3,
+   "drawn": 3,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_125",
+    "real03:f_L0_126",
+    "real03:f_L0_127"
+   ],
+   "bin": "0.80x0.85"
+  },
+  {
+   "type": "shower",
+   "kind": "furniture",
+   "w": 0.97,
+   "d": 0.9,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_157",
+    "real03:f_L0_158"
+   ],
+   "bin": "0.97x0.90"
+  },
+  {
+   "type": "shower",
+   "kind": "furniture",
+   "w": 1.0,
+   "d": 0.85,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_075",
+    "real03:f_L0_076"
+   ],
+   "bin": "1.00x0.85"
+  },
+  {
+   "type": "shower",
+   "kind": "furniture",
+   "w": 0.8,
+   "d": 0.83,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_128"
+   ],
+   "bin": "0.80x0.83"
+  },
+  {
+   "type": "shower",
+   "kind": "furniture",
+   "w": 1.02,
+   "d": 0.85,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_123"
+   ],
+   "bin": "1.02x0.85"
+  },
+  {
+   "type": "shower",
+   "kind": "furniture",
+   "w": 1.07,
+   "d": 0.8,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_042"
+   ],
+   "bin": "1.07x0.80"
+  },
+  {
+   "type": "side_table",
+   "kind": "furniture",
+   "w": 0.3,
+   "d": 0.29,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_082",
+    "real03:f_L0_083"
+   ],
+   "bin": "0.30x0.29"
+  },
+  {
+   "type": "sideboard",
+   "kind": "furniture",
+   "w": 1.4,
+   "d": 0.42,
+   "h": 0.8,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_182"
+   ],
+   "bin": "1.40x0.42"
+  },
+  {
+   "type": "sideboard",
+   "kind": "furniture",
+   "w": 1.6,
+   "d": 0.45,
+   "h": 0.8,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_172"
+   ],
+   "bin": "1.60x0.45"
+  },
+  {
+   "type": "sink_kitchen",
+   "kind": "furniture",
+   "w": 0.35,
+   "d": 0.44,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1_081",
+    "real04:f_L-1_082",
+    "real04:f_L-1_083",
+    "real04:f_L-1_084",
+    "real04:f_L-1b_067",
+    "real04:f_L-1b_068",
+    "real04:f_L-1b_069",
+    "real04:f_L-1b_070"
+   ],
+   "bin": "0.35x0.44"
+  },
+  {
+   "type": "sink_kitchen",
+   "kind": "furniture",
+   "w": 0.51,
+   "d": 0.11,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1_009",
+    "real04:f_L-1_018",
+    "real04:f_L-1b_008",
+    "real04:f_L-1b_014"
+   ],
+   "bin": "0.51x0.11"
+  },
+  {
+   "type": "sink_kitchen",
+   "kind": "furniture",
+   "w": 0.79,
+   "d": 0.5,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1_067",
+    "real04:f_L-1_068",
+    "real04:f_L-1b_063",
+    "real04:f_L-1b_064"
+   ],
+   "bin": "0.79x0.50"
+  },
+  {
+   "type": "sofa",
+   "kind": "furniture",
+   "w": 2.1,
+   "d": 0.9,
+   "h": 0.85,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L1_009",
+    "real02:f_L1_010",
+    "real02:f_L1_011",
+    "real02:f_L1_012",
+    "real04:f_L1_009",
+    "real04:f_L1_010",
+    "real04:f_L1_011",
+    "real04:f_L1_012"
+   ],
+   "bin": "2.10x0.90"
+  },
+  {
+   "type": "sofa",
+   "kind": "furniture",
+   "w": 1.3,
+   "d": 0.63,
+   "h": 0.85,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_061",
+    "real02:f_L-1_062",
+    "real04:f_L-1_061",
+    "real04:f_L-1_062"
+   ],
+   "bin": "1.30x0.63"
+  },
+  {
+   "type": "sofa",
+   "kind": "furniture",
+   "w": 0.9,
+   "d": 1.4,
+   "h": 0.85,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_095",
+    "real03:f_L0_102"
+   ],
+   "bin": "0.90x1.40"
+  },
+  {
+   "type": "sofa",
+   "kind": "furniture",
+   "w": 1.6,
+   "d": 0.9,
+   "h": 0.85,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_168"
+   ],
+   "bin": "1.60x0.90"
+  },
+  {
+   "type": "sofa_corner",
+   "kind": "furniture",
+   "w": 4.38,
+   "d": 1.97,
+   "h": 0.86,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_053",
+    "real02:f_L-1_054",
+    "real04:f_L-1_053",
+    "real04:f_L-1_054"
+   ],
+   "bin": "4.38x1.97"
+  },
+  {
+   "type": "sofa_corner",
+   "kind": "furniture",
+   "w": 2.1,
+   "d": 1.5,
+   "h": 0.86,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_116",
+    "real03:f_L0_117"
+   ],
+   "bin": "2.10x1.50"
+  },
+  {
+   "type": "stove",
+   "kind": "furniture",
+   "w": 0.75,
+   "d": 0.55,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_008",
+    "real02:f_L-1_017",
+    "real02:f_L-1b_007",
+    "real02:f_L-1b_013",
+    "real04:f_L-1_008",
+    "real04:f_L-1_017",
+    "real04:f_L-1b_007",
+    "real04:f_L-1b_013"
+   ],
+   "bin": "0.75x0.55"
+  },
+  {
+   "type": "stove",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.57,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 6,
+   "drawn": 6,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_043",
+    "real03:f_L0_047",
+    "real03:f_L0_050",
+    "real03:f_L0_051",
+    "real03:f_L0_052",
+    "real03:f_L0_053"
+   ],
+   "bin": "0.60x0.57"
+  },
+  {
+   "type": "stove",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.52,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_159",
+    "real03:f_L0_160"
+   ],
+   "bin": "0.60x0.52"
+  },
+  {
+   "type": "stove",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.53,
+   "h": 0.9,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_037",
+    "real03:f_L0_038"
+   ],
+   "bin": "0.60x0.53"
+  },
+  {
+   "type": "table_coffee",
+   "kind": "furniture",
+   "w": 0.56,
+   "d": 0.56,
+   "h": 0.42,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_073",
+    "real02:f_L-1_074",
+    "real04:f_L-1_073",
+    "real04:f_L-1_074"
+   ],
+   "bin": "0.56x0.56"
+  },
+  {
+   "type": "table_coffee",
+   "kind": "furniture",
+   "w": 1.52,
+   "d": 0.6,
+   "h": 0.42,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L1_021",
+    "real04:f_L1_024"
+   ],
+   "bin": "1.52x0.60"
+  },
+  {
+   "type": "table_coffee",
+   "kind": "furniture",
+   "w": 1.0,
+   "d": 0.6,
+   "h": 0.45,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_169"
+   ],
+   "bin": "1.00x0.60"
+  },
+  {
+   "type": "table_dining",
+   "kind": "furniture",
+   "w": 0.79,
+   "d": 0.65,
+   "h": 0.75,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1b_051",
+    "real04:f_L-1b_054",
+    "real04:f_L-1b_057",
+    "real04:f_L-1b_060"
+   ],
+   "bin": "0.79x0.65"
+  },
+  {
+   "type": "table_dining",
+   "kind": "furniture",
+   "w": 2.3,
+   "d": 1.0,
+   "h": 0.75,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1b_017",
+    "real02:f_L-1b_026",
+    "real04:f_L-1b_017",
+    "real04:f_L-1b_026"
+   ],
+   "bin": "2.30x1.00"
+  },
+  {
+   "type": "table_dining",
+   "kind": "furniture",
+   "w": 3.35,
+   "d": 1.0,
+   "h": 0.75,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_027",
+    "real02:f_L-1_038",
+    "real04:f_L-1_027",
+    "real04:f_L-1_038"
+   ],
+   "bin": "3.35x1.00"
+  },
+  {
+   "type": "table_dining",
+   "kind": "furniture",
+   "w": 0.7,
+   "d": 0.7,
+   "h": 0.75,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L1_037",
+    "real04:f_L1_040"
+   ],
+   "bin": "0.70x0.70"
+  },
+  {
+   "type": "table_dining",
+   "kind": "furniture",
+   "w": 1.2,
+   "d": 0.8,
+   "h": 0.75,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1b_065",
+    "real02:f_L-1b_070"
+   ],
+   "bin": "1.20x0.80"
+  },
+  {
+   "type": "table_dining",
+   "kind": "furniture",
+   "w": 1.6,
+   "d": 0.9,
+   "h": 0.75,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1_093",
+    "real02:f_L-1_104"
+   ],
+   "bin": "1.60x0.90"
+  },
+  {
+   "type": "tall_cabinet",
+   "kind": "furniture",
+   "w": 0.4,
+   "d": 0.58,
+   "h": 2.1,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1_092",
+    "real02:f_L-1_103"
+   ],
+   "bin": "0.40x0.58"
+  },
+  {
+   "type": "tall_cabinet",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 2.1,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1b_071"
+   ],
+   "bin": "0.60x0.60"
+  },
+  {
+   "type": "toilet",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.69,
+   "h": 0.78,
+   "h_from": "type default",
+   "count": 12,
+   "drawn": 12,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_051",
+    "real02:f_L-1_052",
+    "real02:f_L0_017",
+    "real02:f_L0_018",
+    "real04:f_L-1_051",
+    "real04:f_L-1_052",
+    "real04:f_L-1b_037",
+    "real04:f_L-1b_038",
+    "real04:f_L0_015",
+    "real04:f_L0_016",
+    "real04:f_L1_013",
+    "real04:f_L1_014"
+   ],
+   "bin": "0.50x0.69"
+  },
+  {
+   "type": "toilet",
+   "kind": "furniture",
+   "w": 1.14,
+   "d": 0.36,
+   "h": 0.78,
+   "h_from": "type default",
+   "count": 6,
+   "drawn": 6,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_044",
+    "real03:f_L0_048",
+    "real03:f_L0_066",
+    "real03:f_L0_067",
+    "real03:f_L0_068",
+    "real03:f_L0_069"
+   ],
+   "bin": "1.14x0.36"
+  },
+  {
+   "type": "toilet",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.68,
+   "h": 0.78,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_015",
+    "real02:f_L0_016",
+    "real04:f_L0_013",
+    "real04:f_L0_014"
+   ],
+   "bin": "0.50x0.68"
+  },
+  {
+   "type": "toilet",
+   "kind": "furniture",
+   "w": 0.69,
+   "d": 0.5,
+   "h": 0.78,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:f_L-1b_037",
+    "real02:f_L-1b_038",
+    "real02:f_L1_013",
+    "real02:f_L1_014"
+   ],
+   "bin": "0.69x0.50"
+  },
+  {
+   "type": "toilet",
+   "kind": "furniture",
+   "w": 0.36,
+   "d": 1.14,
+   "h": 0.78,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_039",
+    "real03:f_L0_040"
+   ],
+   "bin": "0.36x1.14"
+  },
+  {
+   "type": "tv_unit",
+   "kind": "furniture",
+   "w": 1.6,
+   "d": 0.45,
+   "h": 0.5,
+   "h_from": "height",
+   "count": 5,
+   "drawn": 0,
+   "added": 5,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:f_L-1_089",
+    "real02:f_L-1_100",
+    "real03:f_L0_170",
+    "real03:f_L0_186",
+    "real03:f_L0_192"
+   ],
+   "bin": "1.60x0.45"
+  },
+  {
+   "type": "tv_unit",
+   "kind": "furniture",
+   "w": 1.2,
+   "d": 0.4,
+   "h": 0.5,
+   "h_from": "height",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_176",
+    "real03:f_L0_178",
+    "real03:f_L0_180",
+    "real03:f_L0_181"
+   ],
+   "bin": "1.20x0.40"
+  },
+  {
+   "type": "wardrobe",
+   "kind": "furniture",
+   "w": 1.45,
+   "d": 0.6,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 8,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_009",
+    "real02:f_L0_010",
+    "real02:f_L0_011",
+    "real02:f_L0_012",
+    "real04:f_L0_037",
+    "real04:f_L0_038",
+    "real04:f_L0_039",
+    "real04:f_L0_040"
+   ],
+   "bin": "1.45x0.60"
+  },
+  {
+   "type": "wardrobe",
+   "kind": "furniture",
+   "w": 2.57,
+   "d": 0.74,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_023",
+    "real02:f_L-1_024",
+    "real04:f_L-1_023",
+    "real04:f_L-1_024"
+   ],
+   "bin": "2.57x0.74"
+  },
+  {
+   "type": "wardrobe",
+   "kind": "furniture",
+   "w": 3.11,
+   "d": 0.6,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 4,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L0_023",
+    "real02:f_L0_024",
+    "real04:f_L0_019",
+    "real04:f_L0_020"
+   ],
+   "bin": "3.11x0.60"
+  },
+  {
+   "type": "wardrobe",
+   "kind": "furniture",
+   "w": 1.2,
+   "d": 0.6,
+   "h": 2.1,
+   "h_from": "height",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L-1b_074",
+    "real04:f_L-1b_078"
+   ],
+   "bin": "1.20x0.60"
+  },
+  {
+   "type": "wardrobe",
+   "kind": "furniture",
+   "w": 1.9,
+   "d": 0.6,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_121",
+    "real03:f_L0_122"
+   ],
+   "bin": "1.90x0.60"
+  },
+  {
+   "type": "wardrobe",
+   "kind": "furniture",
+   "w": 2.09,
+   "d": 0.6,
+   "h": 2.0,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 2,
+   "added": 0,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L0_025",
+    "real04:f_L0_026"
+   ],
+   "bin": "2.09x0.60"
+  },
+  {
+   "type": "washbasin",
+   "kind": "furniture",
+   "w": 1.0,
+   "d": 0.55,
+   "h": 0.85,
+   "h_from": "type default",
+   "count": 20,
+   "drawn": 20,
+   "added": 0,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:f_L-1_025",
+    "real02:f_L-1_026",
+    "real02:f_L-1b_035",
+    "real02:f_L-1b_036",
+    "real02:f_L0_003",
+    "real02:f_L0_004",
+    "real02:f_L0_005",
+    "real02:f_L0_006",
+    "real02:f_L1_007",
+    "real02:f_L1_008",
+    "real04:f_L-1_025",
+    "real04:f_L-1_026",
+    "real04:f_L-1b_035",
+    "real04:f_L-1b_036",
+    "real04:f_L0_003",
+    "real04:f_L0_004",
+    "real04:f_L0_005",
+    "real04:f_L0_006",
+    "real04:f_L1_007",
+    "real04:f_L1_008"
+   ],
+   "bin": "1.00x0.55"
+  },
+  {
+   "type": "washbasin",
+   "kind": "furniture",
+   "w": 0.5,
+   "d": 0.4,
+   "h": 0.85,
+   "h_from": "height",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:f_L0_061"
+   ],
+   "bin": "0.50x0.40"
+  },
+  {
+   "type": "washing_machine",
+   "kind": "furniture",
+   "w": 0.65,
+   "d": 0.6,
+   "h": 0.85,
+   "h_from": "type default",
+   "count": 7,
+   "drawn": 7,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_041",
+    "real03:f_L0_045",
+    "real03:f_L0_062",
+    "real03:f_L0_063",
+    "real03:f_L0_064",
+    "real03:f_L0_065",
+    "real03:f_L0_070"
+   ],
+   "bin": "0.65x0.60"
+  },
+  {
+   "type": "washing_machine",
+   "kind": "furniture",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 0.85,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 1,
+   "added": 0,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:f_L0_049"
+   ],
+   "bin": "0.60x0.60"
+  },
+  {
+   "type": "basket",
+   "kind": "decor",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 0.35,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:dec_L1_004",
+    "real02:dec_L1_015"
+   ],
+   "bin": "0.40x0.40"
+  },
+  {
+   "type": "blind",
+   "kind": "decor",
+   "w": 4.26,
+   "d": 0.06,
+   "h": 1.5,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L-1_014",
+    "real02:dec_L-1_021",
+    "real04:dec_L-1_007",
+    "real04:dec_L-1_013"
+   ],
+   "bin": "4.26x0.06"
+  },
+  {
+   "type": "blind",
+   "kind": "decor",
+   "w": 7.29,
+   "d": 0.06,
+   "h": 1.5,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L-1_010",
+    "real02:dec_L-1_031",
+    "real04:dec_L-1_003",
+    "real04:dec_L-1_016"
+   ],
+   "bin": "7.29x0.06"
+  },
+  {
+   "type": "blind",
+   "kind": "decor",
+   "w": 3.64,
+   "d": 0.06,
+   "h": 1.5,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_083",
+    "real03:dec_L0_106"
+   ],
+   "bin": "3.64x0.06"
+  },
+  {
+   "type": "blind",
+   "kind": "decor",
+   "w": 0.6,
+   "d": 0.06,
+   "h": 1.5,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_061"
+   ],
+   "bin": "0.60x0.06"
+  },
+  {
+   "type": "ceiling_light",
+   "kind": "decor",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 0.13,
+   "h_from": "type default",
+   "count": 34,
+   "drawn": 0,
+   "added": 34,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L-1_016",
+    "real02:dec_L-1b_005",
+    "real02:dec_L-1b_007",
+    "real02:dec_L0_018",
+    "real02:dec_L0_022",
+    "real02:dec_L1_008",
+    "real02:dec_L-1_018",
+    "real02:dec_L0_024",
+    "real02:dec_L0_026",
+    "real02:dec_L1_010",
+    "real03:dec_L0_046",
+    "real03:dec_L0_047",
+    "real03:dec_L0_048",
+    "real03:dec_L0_049",
+    "real03:dec_L0_058",
+    "real03:dec_L0_059",
+    "real03:dec_L0_060",
+    "real03:dec_L0_062",
+    "real04:dec_L-1_009",
+    "real04:dec_L-1b_008",
+    "real04:dec_L0_009",
+    "real04:dec_L0_012",
+    "real04:dec_L0_015",
+    "real04:dec_L0_017",
+    "real04:dec_L1_014",
+    "real04:dec_L-1_011",
+    "real04:dec_L-1b_010",
+    "real04:dec_L-1b_018",
+    "real04:dec_L0_019",
+    "real04:dec_L0_021",
+    "real04:dec_L0_031",
+    "real04:dec_L0_034",
+    "real04:dec_L1_016",
+    "real04:dec_L-1b_020"
+   ],
+   "bin": "0.40x0.40"
+  },
+  {
+   "type": "curtain",
+   "kind": "decor",
+   "w": 2.0,
+   "d": 0.08,
+   "h": 2.5,
+   "h_from": "type default",
+   "count": 18,
+   "drawn": 0,
+   "added": 18,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_006",
+    "real03:dec_L0_011",
+    "real03:dec_L0_020",
+    "real03:dec_L0_029",
+    "real03:dec_L0_030",
+    "real03:dec_L0_037",
+    "real03:dec_L0_042",
+    "real03:dec_L0_043",
+    "real03:dec_L0_050",
+    "real03:dec_L0_051",
+    "real03:dec_L0_054",
+    "real03:dec_L0_055",
+    "real03:dec_L0_068",
+    "real03:dec_L0_075",
+    "real03:dec_L0_082",
+    "real03:dec_L0_093",
+    "real03:dec_L0_099",
+    "real03:dec_L0_105"
+   ],
+   "bin": "2.00x0.08"
+  },
+  {
+   "type": "curtain",
+   "kind": "decor",
+   "w": 2.4,
+   "d": 0.08,
+   "h": 2.5,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L1_005",
+    "real02:dec_L1_016",
+    "real04:dec_L1_005",
+    "real04:dec_L1_010"
+   ],
+   "bin": "2.40x0.08"
+  },
+  {
+   "type": "curtain",
+   "kind": "decor",
+   "w": 2.47,
+   "d": 0.08,
+   "h": 2.5,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L0_015",
+    "real02:dec_L0_034",
+    "real04:dec_L0_010",
+    "real04:dec_L0_022"
+   ],
+   "bin": "2.47x0.08"
+  },
+  {
+   "type": "curtain",
+   "kind": "decor",
+   "w": 2.88,
+   "d": 0.08,
+   "h": 2.5,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L0_006",
+    "real02:dec_L0_041",
+    "real04:dec_L0_008",
+    "real04:dec_L0_030"
+   ],
+   "bin": "2.88x0.08"
+  },
+  {
+   "type": "curtain",
+   "kind": "decor",
+   "w": 2.22,
+   "d": 0.08,
+   "h": 2.5,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:dec_L0_013",
+    "real04:dec_L0_032"
+   ],
+   "bin": "2.22x0.08"
+  },
+  {
+   "type": "cushion",
+   "kind": "decor",
+   "w": 0.45,
+   "d": 0.15,
+   "h": 0.45,
+   "h_from": "type default",
+   "count": 45,
+   "drawn": 0,
+   "added": 45,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L-1_001",
+    "real02:dec_L-1_002",
+    "real02:dec_L-1_003",
+    "real02:dec_L-1_004",
+    "real02:dec_L-1_005",
+    "real02:dec_L-1_006",
+    "real02:dec_L-1_007",
+    "real02:dec_L-1b_003",
+    "real02:dec_L1_001",
+    "real02:dec_L1_002",
+    "real02:dec_L1_003",
+    "real02:dec_L-1_022",
+    "real02:dec_L-1_023",
+    "real02:dec_L-1_024",
+    "real02:dec_L-1_025",
+    "real02:dec_L-1_026",
+    "real02:dec_L-1_027",
+    "real02:dec_L-1_028",
+    "real02:dec_L-1b_010",
+    "real02:dec_L1_012",
+    "real02:dec_L1_013",
+    "real02:dec_L1_014",
+    "real03:dec_L0_013",
+    "real03:dec_L0_014",
+    "real03:dec_L0_026",
+    "real03:dec_L0_027",
+    "real03:dec_L0_039",
+    "real03:dec_L0_040",
+    "real03:dec_L0_077",
+    "real03:dec_L0_078",
+    "real03:dec_L0_079",
+    "real03:dec_L0_086",
+    "real03:dec_L0_100",
+    "real03:dec_L0_101",
+    "real03:dec_L0_102",
+    "real04:dec_L-1_001",
+    "real04:dec_L1_001",
+    "real04:dec_L1_002",
+    "real04:dec_L1_003",
+    "real04:dec_L1_004",
+    "real04:dec_L1_006",
+    "real04:dec_L1_007",
+    "real04:dec_L1_008",
+    "real04:dec_L1_009",
+    "real04:dec_L-1_014"
+   ],
+   "bin": "0.45x0.15"
+  },
+  {
+   "type": "cushion",
+   "kind": "decor",
+   "w": 0.5,
+   "d": 0.3,
+   "h": 0.45,
+   "h_from": "type default",
+   "count": 31,
+   "drawn": 0,
+   "added": 31,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:dec_L0_001",
+    "real02:dec_L0_002",
+    "real02:dec_L0_008",
+    "real02:dec_L0_009",
+    "real02:dec_L0_019",
+    "real02:dec_L0_020",
+    "real02:dec_L0_027",
+    "real02:dec_L0_028",
+    "real02:dec_L0_036",
+    "real02:dec_L0_037",
+    "real02:dec_L0_043",
+    "real02:dec_L0_044",
+    "real03:dec_L0_001",
+    "real03:dec_L0_002",
+    "real03:dec_L0_008",
+    "real03:dec_L0_009",
+    "real03:dec_L0_015",
+    "real03:dec_L0_016",
+    "real03:dec_L0_022",
+    "real03:dec_L0_023",
+    "real03:dec_L0_024",
+    "real03:dec_L0_025",
+    "real03:dec_L0_033",
+    "real03:dec_L0_063",
+    "real03:dec_L0_064",
+    "real03:dec_L0_070",
+    "real03:dec_L0_071",
+    "real03:dec_L0_087",
+    "real03:dec_L0_088",
+    "real03:dec_L0_094",
+    "real03:dec_L0_095"
+   ],
+   "bin": "0.50x0.30"
+  },
+  {
+   "type": "cushion",
+   "kind": "decor",
+   "w": 0.5,
+   "d": 0.15,
+   "h": 0.45,
+   "h_from": "type default",
+   "count": 8,
+   "drawn": 0,
+   "added": 8,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:dec_L-1b_001",
+    "real04:dec_L-1b_002",
+    "real04:dec_L0_001",
+    "real04:dec_L0_002",
+    "real04:dec_L-1b_011",
+    "real04:dec_L-1b_012",
+    "real04:dec_L0_023",
+    "real04:dec_L0_024"
+   ],
+   "bin": "0.50x0.15"
+  },
+  {
+   "type": "mirror",
+   "kind": "decor",
+   "w": 0.9,
+   "d": 0.04,
+   "h": 0.7,
+   "h_from": "type default",
+   "count": 20,
+   "drawn": 0,
+   "added": 20,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L-1_015",
+    "real02:dec_L-1b_004",
+    "real02:dec_L-1b_006",
+    "real02:dec_L0_017",
+    "real02:dec_L0_021",
+    "real02:dec_L1_007",
+    "real02:dec_L-1_017",
+    "real02:dec_L0_023",
+    "real02:dec_L0_025",
+    "real02:dec_L1_009",
+    "real04:dec_L-1_008",
+    "real04:dec_L0_011",
+    "real04:dec_L0_016",
+    "real04:dec_L1_013",
+    "real04:dec_L-1_010",
+    "real04:dec_L-1b_009",
+    "real04:dec_L0_018",
+    "real04:dec_L0_020",
+    "real04:dec_L1_015",
+    "real04:dec_L-1b_019"
+   ],
+   "bin": "0.90x0.04"
+  },
+  {
+   "type": "mirror",
+   "kind": "decor",
+   "w": 0.81,
+   "d": 0.04,
+   "h": 0.7,
+   "h_from": "type default",
+   "count": 3,
+   "drawn": 0,
+   "added": 3,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L1_006",
+    "real02:dec_L1_011",
+    "real04:dec_L1_011"
+   ],
+   "bin": "0.81x0.04"
+  },
+  {
+   "type": "pendant_light",
+   "kind": "decor",
+   "w": 0.45,
+   "d": 0.45,
+   "h": 0.95,
+   "h_from": "type default",
+   "count": 25,
+   "drawn": 0,
+   "added": 25,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L-1_011",
+    "real02:dec_L-1_013",
+    "real02:dec_L0_007",
+    "real02:dec_L0_016",
+    "real02:dec_L-1_020",
+    "real02:dec_L-1_032",
+    "real02:dec_L0_035",
+    "real02:dec_L0_042",
+    "real03:dec_L0_007",
+    "real03:dec_L0_012",
+    "real03:dec_L0_021",
+    "real03:dec_L0_031",
+    "real03:dec_L0_038",
+    "real03:dec_L0_044",
+    "real03:dec_L0_052",
+    "real03:dec_L0_056",
+    "real03:dec_L0_069",
+    "real03:dec_L0_076",
+    "real03:dec_L0_084",
+    "real03:dec_L0_107",
+    "real04:dec_L-1_004",
+    "real04:dec_L-1_006",
+    "real04:dec_L1_012",
+    "real04:dec_L-1_012",
+    "real04:dec_L-1_017"
+   ],
+   "bin": "0.45x0.45"
+  },
+  {
+   "type": "plant",
+   "kind": "decor",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 0.8,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_098"
+   ],
+   "bin": "0.40x0.40"
+  },
+  {
+   "type": "plant_large",
+   "kind": "decor",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 1.5,
+   "h_from": "type default",
+   "count": 6,
+   "drawn": 0,
+   "added": 6,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L-1b_002",
+    "real02:dec_L-1b_009",
+    "real04:dec_L-1b_007",
+    "real04:dec_L0_014",
+    "real04:dec_L-1b_017",
+    "real04:dec_L0_033"
+   ],
+   "bin": "0.60x0.60"
+  },
+  {
+   "type": "plant_small",
+   "kind": "decor",
+   "w": 0.22,
+   "d": 0.22,
+   "h": 0.35,
+   "h_from": "type default",
+   "count": 9,
+   "drawn": 0,
+   "added": 9,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:dec_L0_012",
+    "real02:dec_L0_031",
+    "real03:dec_L0_032",
+    "real03:dec_L0_036",
+    "real03:dec_L0_045",
+    "real03:dec_L0_053",
+    "real03:dec_L0_057",
+    "real03:dec_L0_085",
+    "real03:dec_L0_108"
+   ],
+   "bin": "0.22x0.22"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 2.07,
+   "d": 1.87,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L0_005",
+    "real02:dec_L0_040",
+    "real04:dec_L0_007",
+    "real04:dec_L0_029"
+   ],
+   "bin": "2.07x1.87"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 2.0,
+   "d": 1.87,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:dec_L-1b_006",
+    "real04:dec_L-1b_016"
+   ],
+   "bin": "2.00x1.87"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 3.15,
+   "d": 1.93,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:dec_L0_014",
+    "real02:dec_L0_033"
+   ],
+   "bin": "3.15x1.93"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 5.03,
+   "d": 2.44,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:dec_L-1_008",
+    "real02:dec_L-1_029"
+   ],
+   "bin": "5.03x2.44"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 1.12,
+   "d": 0.88,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_005"
+   ],
+   "bin": "1.12x0.88"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 1.12,
+   "d": 1.08,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_067"
+   ],
+   "bin": "1.12x1.08"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 1.14,
+   "d": 0.84,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_019"
+   ],
+   "bin": "1.14x0.84"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 1.14,
+   "d": 1.06,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_074"
+   ],
+   "bin": "1.14x1.06"
+  },
+  {
+   "type": "rug",
+   "kind": "decor",
+   "w": 2.25,
+   "d": 1.87,
+   "h": 0.01,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_092"
+   ],
+   "bin": "2.25x1.87"
+  },
+  {
+   "type": "table_lamp",
+   "kind": "decor",
+   "w": 0.32,
+   "d": 0.32,
+   "h": 0.5,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "ids": [
+    "real02:dec_L-1b_001",
+    "real02:dec_L-1b_008",
+    "real03:dec_L0_090",
+    "real03:dec_L0_097"
+   ],
+   "bin": "0.32x0.32"
+  },
+  {
+   "type": "table_lamp",
+   "kind": "decor",
+   "w": 0.34,
+   "d": 0.34,
+   "h": 0.5,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:dec_L-1b_005",
+    "real04:dec_L-1b_015"
+   ],
+   "bin": "0.34x0.34"
+  },
+  {
+   "type": "throw",
+   "kind": "decor",
+   "w": 1.57,
+   "d": 0.5,
+   "h": 0.08,
+   "h_from": "type default",
+   "count": 7,
+   "drawn": 0,
+   "added": 7,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_003",
+    "real03:dec_L0_010",
+    "real03:dec_L0_017",
+    "real03:dec_L0_065",
+    "real03:dec_L0_072",
+    "real03:dec_L0_089",
+    "real03:dec_L0_096"
+   ],
+   "bin": "1.57x0.50"
+  },
+  {
+   "type": "throw",
+   "kind": "decor",
+   "w": 0.5,
+   "d": 0.45,
+   "h": 0.08,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real03",
+    "real04"
+   ],
+   "ids": [
+    "real03:dec_L0_080",
+    "real03:dec_L0_103",
+    "real04:dec_L-1_002",
+    "real04:dec_L-1_015"
+   ],
+   "bin": "0.50x0.45"
+  },
+  {
+   "type": "throw",
+   "kind": "decor",
+   "w": 1.47,
+   "d": 0.5,
+   "h": 0.08,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L0_003",
+    "real02:dec_L0_038",
+    "real04:dec_L0_003",
+    "real04:dec_L0_025"
+   ],
+   "bin": "1.47x0.50"
+  },
+  {
+   "type": "throw",
+   "kind": "decor",
+   "w": 0.45,
+   "d": 0.45,
+   "h": 0.08,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_028",
+    "real03:dec_L0_041"
+   ],
+   "bin": "0.45x0.45"
+  },
+  {
+   "type": "throw",
+   "kind": "decor",
+   "w": 1.33,
+   "d": 0.5,
+   "h": 0.08,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:dec_L-1b_003",
+    "real04:dec_L-1b_013"
+   ],
+   "bin": "1.33x0.50"
+  },
+  {
+   "type": "throw",
+   "kind": "decor",
+   "w": 2.42,
+   "d": 0.5,
+   "h": 0.08,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:dec_L0_010",
+    "real02:dec_L0_029"
+   ],
+   "bin": "2.42x0.50"
+  },
+  {
+   "type": "throw",
+   "kind": "decor",
+   "w": 1.85,
+   "d": 0.5,
+   "h": 0.08,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_034"
+   ],
+   "bin": "1.85x0.50"
+  },
+  {
+   "type": "vase",
+   "kind": "decor",
+   "w": 0.18,
+   "d": 0.18,
+   "h": 0.25,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:dec_L-1_012",
+    "real02:dec_L-1_019"
+   ],
+   "bin": "0.18x0.18"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 0.93,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "ids": [
+    "real02:dec_L0_004",
+    "real02:dec_L0_039",
+    "real04:dec_L0_004",
+    "real04:dec_L0_026"
+   ],
+   "bin": "0.93x0.04"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 0.99,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 4,
+   "drawn": 0,
+   "added": 4,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_004",
+    "real03:dec_L0_018",
+    "real03:dec_L0_066",
+    "real03:dec_L0_073"
+   ],
+   "bin": "0.99x0.04"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 0.72,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:dec_L-1_009",
+    "real02:dec_L-1_030"
+   ],
+   "bin": "0.72x0.04"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 0.84,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real04"
+   ],
+   "ids": [
+    "real04:dec_L-1b_004",
+    "real04:dec_L-1b_014"
+   ],
+   "bin": "0.84x0.04"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 1.26,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_081",
+    "real03:dec_L0_104"
+   ],
+   "bin": "1.26x0.04"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 1.5,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 2,
+   "drawn": 0,
+   "added": 2,
+   "projects": [
+    "real02"
+   ],
+   "ids": [
+    "real02:dec_L0_011",
+    "real02:dec_L0_030"
+   ],
+   "bin": "1.50x0.04"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 0.43,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_091"
+   ],
+   "bin": "0.43x0.04"
+  },
+  {
+   "type": "wall_art",
+   "kind": "decor",
+   "w": 1.17,
+   "d": 0.04,
+   "h": 0.55,
+   "h_from": "type default",
+   "count": 1,
+   "drawn": 0,
+   "added": 1,
+   "projects": [
+    "real03"
+   ],
+   "ids": [
+    "real03:dec_L0_035"
+   ],
+   "bin": "1.17x0.04"
+  }
+ ]
+}

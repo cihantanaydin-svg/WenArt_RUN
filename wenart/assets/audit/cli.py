@@ -250,7 +250,7 @@ def cmd_ask(args) -> int:
         for n in passes:
             second = n == 2
             only = second_pass_ids(items, A.load_answers(audit, model)) if second else None
-            doc = A.build_requests(items, mdoc, audit, version, only, second)
+            doc = A.build_requests(items, mdoc, audit, version, only, second, cfg_ask=cfg.get("ask") or {})
             print(f"audit ask: {len(doc['items'])} request(s) (pass {n}), model {model.id}")
             if doc["items"]:
                 rc = A.ask(audit, model, url, second=second, workers=workers, deadline=deadline)

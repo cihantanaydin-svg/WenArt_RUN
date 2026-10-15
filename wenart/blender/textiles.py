@@ -42,16 +42,13 @@ from wenart.blender.parametric import (  # noqa: F401 (the mesh makers, re-expor
     CUSHION_GRID, EDGE_DRAW, FOLD_AMPLITUDE_M, PLEAT_DEPTH_M, PLEAT_PITCH_M, SEAM_M, SLAT_GAP_M, SLAT_M,
     SLAT_TILT_DEG, blind_parts, cloth_solid, curtain_parts, cushion_mesh, flat_cloth, fold,
     lying_cushion_mesh)
+# Milestone 13: the bedding numbers live in ``parametric`` (the pure bed family v2 drapes its own duvet with them,
+# ``parametric.bed_bedding_parts`` / ``box_drape_grid``); re-exported here under their Milestone 12 names.
+from wenart.blender.parametric import (  # noqa: F401
+    DUVET_SHARE, DUVET_SIDE_DROP_M, DUVET_THICKNESS_M, PILLOW_SIZE, PILLOW_TILT_DEG, TURN_DOWN_M, TWO_PILLOW_MIN_W,
+    bed_bedding_parts, box_drape_grid)
 
 Part = dict
-
-DUVET_SHARE = 0.75                # the duvet covers the foot 75 % of the mattress
-DUVET_SIDE_DROP_M = 0.30          # it reaches this far past the mattress sides and the foot (hangs down)
-DUVET_THICKNESS_M = 0.04
-TURN_DOWN_M = 0.28                # the band folded back at the duvet's head end
-PILLOW_SIZE = (0.65, 0.15, 0.45)  # a sleeping pillow: width across the bed, thickness, length along the bed
-PILLOW_TILT_DEG = 14.0            # lying, its head end raised against the headboard
-TWO_PILLOW_MIN_W = 1.30           # beds at least this wide take two pillows side by side
 
 
 # --------------------------------------------------------------------------

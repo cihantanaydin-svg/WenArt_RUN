@@ -36,17 +36,122 @@ Milestone 6 (docs/milestone6.md §5 rows 5 and 6):
 Milestone 7 (docs/milestone7.md §6.4): the stair openings of a level
 (``shell.plan_stairs``) are holes for ``polylabel``, so a ceiling light never
 hangs in an opening, among the steps of the last flight.
+
+Milestone 13 (docs/milestone13.md §13.1 track T5, K5; the diagnosis §1.6: the sun was 3.0 W/m² against the
+manual's 1000 W/m² clear sky, so every room with a window metered 100x darker than a room lit by the assumed
+ceiling light and was pushed +3..+8 EV):
+
+- ``SUN_STRENGTH_WM2`` is the one sun constant (W/m², ``SunLight.energy``; the manual's "Power of Lights" table:
+  clear sky 1000, cloudy 500, overcast 200, moonlight 0.001 W/m²). The style's per-mood ``sun_strength`` is a
+  relative factor against the warm-daylight value (``SUN_REFERENCE_MOOD_WM2``): overcast keeps a tenth of the
+  sun, night none. The lead sets the constant from the P1 lever A/B; until then it keeps the Milestone 11 value.
+- ``WENART_LIGHT_VARIANT`` (environment) picks the levers of the A/B (``light_levers``): ``base`` = every lever at
+  its Milestone 11 value (sun 3.0 W/m², EV limits -2..+8, no rig, Milestone 11 shell materials); ``sun100`` /
+  ``sun300`` / ``sun1000`` = the sun at that many W/m², the rest at base; ``evcap`` = the EV cap +3 of
+  ``render.EXPOSURE_LIMITS`` with the ``lighting_dark`` finding; ``rig`` = the room light rig below; ``shell`` =
+  the shell material table of ``materials.shell_material`` with the sheen / coat / bevel / AO / imperfection
+  layers; ``all`` = ``sun300`` + ``evcap`` + ``rig`` + ``shell``; several names joined by ``,`` or ``+`` combine
+  (``sun1000,rig``). An unknown name raises (a typo must never run the base silently). Unset = production: the
+  constant and the EV cap (the contract's ``render.EXPOSURE_LIMITS``) on, the rig and the shell table off until
+  the lead sets them from P1 (``LEVER_DEFAULTS``; the Milestone 6-12 lights and materials stay until then). The
+  scene manifest's ``lighting`` block records the variant, every lever and the sun (constant, mood factor, applied).
+- The dim-room rule follows the sun (``fill_light_reason(..., sun_wm2=)``): the window / floor ratio is scaled by
+  ``sun / SUN_REFERENCE_MOOD_WM2`` before the ``DIM_ROOM_RATIO`` test, so a 300 W/m² sun through a small window
+  no longer asks for the fill light a 3 W/m² sun needed.
+- ``room_rig(room_type)`` is the light rig per room type (``ROOM_RIGS``): visible emissive fixtures with real sizes
+  and a point or area light inside each, powered from real lumens through the manual's radiant-power table
+  (``watts_for_lumens``: 800 lm LED bulb 2.1 W, 1000 lm bulb 2.9 W, 1500 lm floodlight 4 W, 2500 lm tube 4.5 W;
+  linear between the rows) times ``RIG_GAIN``; colour from ``rig_temperature_k`` (the style's
+  ``lighting.colour_temperature_k`` when it is warmer than ``RIG_WARM_K``, else 2700 K). ``rig_plan`` places
+  them (pure): a pendant over the dining table, a ceiling fixture in halls, stairs, kitchens and bathrooms at the
+  pole of inaccessibility (one per ``area_light_plans`` point in a long room), bedside lamps on the nightstands
+  (else beside the bed head), a strip under the kitchen wall cabinets along the counter run, a mirror light over
+  the washbasin; a fixture whose anchor piece is missing is dropped with the reason. With the rig a windowless
+  or dim room keeps no invisible area light (the fixtures carry its light, recorded ``assumed``); a room type
+  without a rig keeps the Milestone 6 light. Every fixture is ``assumed`` (the documents say nothing about lamps).
 """
 from __future__ import annotations
 
 import heapq
 import math
+import os
 
 from wenart import geometry as G
 from wenart.blender.cameras import room_openings
 
 # The portal sits this far inside the inner wall face (in the reveal, in front of the frame).
 PORTAL_INSET_M = 0.01
+
+# --------------------------------------------------------------------------
+# Milestone 13: the sun constant and the lever variants (docs/milestone13.md §13.2, §13.3)
+# --------------------------------------------------------------------------
+
+# The sun lamp's strength in W/m² (bpy.types.SunLight.energy, "Sunlight strength in watts per meter squared").
+# The Blender 5.2 manual (render/lights/light_object.html, "Power of Lights") gives clear sky 1000, cloudy sky 500,
+# overcast sky 200, moonlight 0.001 W/m². Milestone 11 rendered with 3.0 (the style's warm-daylight sun_strength,
+# vocabulary.LIGHTING); the lead sets this constant from the P1 lever A/B (sun100 / sun300 / sun1000). One number
+# to change, recorded in every scene manifest (lighting.sun.strength_wm2_constant).
+SUN_STRENGTH_WM2 = 3.0
+# The style's per-mood sun_strength (vocabulary.LIGHTING) is a factor against the warm-daylight value: the lamp
+# gets SUN_STRENGTH_WM2 x sun_strength / SUN_REFERENCE_MOOD_WM2 (overcast 0.3 -> a tenth, night 0 -> no sun).
+SUN_REFERENCE_MOOD_WM2 = 3.0
+SUN_STRENGTH_M11_WM2 = 3.0            # the base variant's sun (the Milestone 11 renders of real02 / real03)
+LIGHT_VARIANT_ENV = "WENART_LIGHT_VARIANT"
+SUN_VARIANT_WM2 = {"sun100": 100.0, "sun300": 300.0, "sun1000": 1000.0}
+ALL_VARIANT_SUN = "sun300"            # the sun of the `all` variant (the middle candidate)
+LIGHT_VARIANTS = ("base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
+# Production (no variant): the lead's defaults after P1. Until P1 decides, the sun keeps SUN_STRENGTH_WM2, the EV
+# cap is on (render.EXPOSURE_LIMITS is the contract's constant), the rig and the shell table are off (the Milestone
+# 6-12 lights and materials, which the committed tests of those milestones pin). Three flags to flip, recorded in
+# every scene manifest (lighting.levers).
+LEVER_DEFAULTS = {"ev_cap": True, "rig": False, "shell": False}
+
+
+def parse_light_variant(text) -> list[str]:
+    """The variant names of a ``WENART_LIGHT_VARIANT`` value (pure): ``"sun300"`` -> ``["sun300"]``,
+    ``"sun1000,rig"`` / ``"sun1000+rig"`` -> both; empty / None -> ``[]`` (production). An unknown name raises
+    ValueError (a typo must never run the base silently); two sun strengths in one value raise too."""
+    if text is None:
+        return []
+    names = [n.strip().lower() for n in str(text).replace("+", ",").split(",") if n.strip()]
+    unknown = [n for n in names if n not in LIGHT_VARIANTS]
+    if unknown:
+        raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: unknown variant {unknown}; one of {list(LIGHT_VARIANTS)}")
+    suns = [n for n in names if n in SUN_VARIANT_WM2]
+    if len(suns) > 1:
+        raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one sun strength ({suns})")
+    return list(dict.fromkeys(names))
+
+
+def light_levers(variant=None, env=None) -> dict:
+    """The levers of a build or render (pure): ``{"variant": str | None, "names": [...], "sun_wm2", "ev_cap",
+    "rig", "shell", "source"}``. ``variant`` (a value as the environment variable would hold it) wins over
+    ``env[LIGHT_VARIANT_ENV]`` (``os.environ`` when None). No variant = production: ``SUN_STRENGTH_WM2`` and
+    ``LEVER_DEFAULTS``. Any variant starts from the Milestone 11 base and turns on the named levers only."""
+    source = "arg"
+    if variant is None:
+        variant = (os.environ if env is None else env).get(LIGHT_VARIANT_ENV)
+        source = "env" if variant not in (None, "") else "default"
+    names = parse_light_variant(variant)
+    if not names:
+        return {"variant": None, "names": [], "sun_wm2": float(SUN_STRENGTH_WM2), "source": source,
+                **{k: bool(v) for k, v in LEVER_DEFAULTS.items()}}
+    on = set(names)
+    if "all" in on:
+        on |= {ALL_VARIANT_SUN, "evcap", "rig", "shell"}
+    sun = next((SUN_VARIANT_WM2[n] for n in LIGHT_VARIANTS if n in on and n in SUN_VARIANT_WM2),
+               SUN_STRENGTH_M11_WM2)
+    return {"variant": ",".join(names), "names": names, "sun_wm2": float(sun), "ev_cap": "evcap" in on,
+            "rig": "rig" in on, "shell": "shell" in on, "source": source}
+
+
+def sun_strength_wm2(lighting: dict, levers: dict | None = None) -> tuple[float, float]:
+    """``(strength W/m², mood_factor)`` of the sun lamp (pure): the levers' ``sun_wm2`` (``light_levers``) times
+    the style's ``sun_strength`` over ``SUN_REFERENCE_MOOD_WM2`` (1.0 for warm daylight, 0.1 overcast, 0 night)."""
+    levers = levers or light_levers()
+    factor = float((lighting or {}).get("sun_strength", SUN_REFERENCE_MOOD_WM2)) / SUN_REFERENCE_MOOD_WM2
+    factor = max(0.0, factor)
+    return round(float(levers["sun_wm2"]) * factor, 6), round(factor, 6)
 
 
 def portal_plan(opening: dict, wall: dict, level: dict, levels_above: bool, rooms: list[dict]) -> dict:
@@ -288,13 +393,24 @@ def window_floor_ratio(windows: list[dict], level: dict, levels_above: bool, flo
     return glass / max(float(floor_area), 1e-6)
 
 
-def fill_light_reason(windows: list[dict], ratio: float | None) -> str | None:
+def fill_light_reason(windows: list[dict], ratio: float | None, sun_wm2: float | None = None) -> str | None:
     """Why a room gets the assumed ceiling light, or None: no window, or a
-    window area below ``DIM_ROOM_RATIO`` of the floor area."""
+    window area below ``DIM_ROOM_RATIO`` of the floor area.
+
+    Milestone 13: ``sun_wm2`` (the lamp's strength) scales the ratio by ``sun_wm2 / SUN_REFERENCE_MOOD_WM2``
+    first: the rule was written for the 3 W/m² sun, and a 300 W/m² sun brings 100x the daylight through the same
+    window. None keeps the Milestone 6 rule as it was."""
     if not windows:
         return "room has no window"
-    if ratio is not None and ratio < DIM_ROOM_RATIO:
-        return f"room has little daylight (window/floor {ratio:.3f} < {DIM_ROOM_RATIO})"
+    if ratio is None:
+        return None
+    scale = 1.0 if sun_wm2 is None else max(float(sun_wm2), 0.0) / SUN_REFERENCE_MOOD_WM2
+    effective = ratio * scale
+    if effective < DIM_ROOM_RATIO:
+        if sun_wm2 is None or abs(scale - 1.0) < 1e-9:
+            return f"room has little daylight (window/floor {ratio:.3f} < {DIM_ROOM_RATIO})"
+        return (f"room has little daylight (window/floor {ratio:.3f} x sun {float(sun_wm2):g}/"
+                f"{SUN_REFERENCE_MOOD_WM2:g} W/m2 = {effective:.3f} < {DIM_ROOM_RATIO})")
     return None
 
 
@@ -337,6 +453,342 @@ def world_lighting(lighting: dict, azimuth_building_deg: float) -> dict:
     return dict(lighting, sun_azimuth_deg=float(azimuth_building_deg))
 
 
+# --------------------------------------------------------------------------
+# Milestone 13: the light rig per room type (docs/milestone13.md §13.2 room_rig)
+# --------------------------------------------------------------------------
+
+# Radiant power per lumen: the Blender 5.2 manual's table (render/lights/light_object.html, "Power of Lights":
+# "here is a table of typical power values for point, spot, and area lights"): candle 0.05 W, 800 lm LED bulb 2.1 W,
+# 1000 lm light bulb 2.9 W, 1500 lm PAR38 floodlight 4 W, 2500 lm fluorescent tube 4.5 W. watts_for_lumens reads
+# the table linearly between the rows and with the last row's ratio beyond it.
+LUMEN_WATT_TABLE: tuple[tuple[float, float], ...] = ((0.0, 0.0), (800.0, 2.1), (1000.0, 2.9), (1500.0, 4.0),
+                                                     (2500.0, 4.5))
+LUMEN_WATT_SOURCE = ("Blender 5.2 manual, render/lights/light_object.html, 'Power of Lights' table "
+                     "(800 lm LED bulb 2.1 W, 1000 lm bulb 2.9 W, 1500 lm PAR38 4 W, 2500 lm tube 4.5 W)")
+# The manual's radiant powers put a lamp-lit room 4-6 stops under the metering target of the Milestone 11
+# convention (a 12 W/m² invisible area light, EV about -0.5); the EV cap of render.EXPOSURE_LIMITS allows +3. The
+# gain of 4 (2 stops) keeps the fixtures recognisably dimmer than daylight and inside the cap; every fixture
+# records the radiometric watts and the applied watts, and the lead sets the gain from P1 (1.0 = the table as is).
+RIG_GAIN = 4.0
+RIG_WARM_K = 2700.0                   # a warm LED bulb; the style's colour_temperature_k wins when it is warmer
+RIG_MOUNT_GAP_M = 0.03                # a ceiling fixture hangs this far under the ceiling
+RIG_PENDANT_OVER_TABLE_M = 0.75       # the pendant shade's bottom above the table top
+RIG_TABLE_TOP_M = 0.75
+RIG_WALL_CABINET_BOTTOM_M = 1.45      # the kitchen wall cabinets' bottom (parametric wall_cabinet mount, M10)
+RIG_STRIP_SETBACK_M = 0.30            # the under-cabinet strip this far in front of the wall (cabinet depth 0.35)
+RIG_MIRROR_LIGHT_Z_M = 1.95           # the bathroom mirror light's centre above the floor
+RIG_BEDSIDE_Z_M = 0.60                # a bedside lamp without a nightstand: its base above the floor
+RIG_BEDSIDE_OFFSET_M = 0.35           # ... this far beside the bed's head corners
+# Sources of the lumen values (real fixtures, the ranges typical of the product class): a 60 W-equivalent LED bulb
+# is 800 lm, a 75 W-equivalent 1100 lm (the US FTC lumen labelling rule used by every bulb box: 800 lm ≈ 60 W,
+# 1100 lm ≈ 75 W, 1600 lm ≈ 100 W); LED strips 400-600 lm per metre (product class); the manual's own table rows
+# (800 / 1000 / 1500 / 2500 lm) anchor the conversion. Flagged as assumed in every manifest entry.
+ROOM_RIGS: dict[str, list[dict]] = {
+    # kind: pendant | ceiling | bedside | strip | mirror; anchor: the piece type the fixture needs (None = the room);
+    # size_m: [w, d, h] of the visible fixture; lumens per fixture (a strip: per metre, length from the counter).
+    "dining": [{"kind": "pendant", "anchor": "table_dining", "lumens": 2400.0, "count": 1, "size_m": [0.40, 0.40, 0.14],
+                "source": "pendant with 3 x 800 lm LED bulbs"}],
+    "living": [{"kind": "pendant", "anchor": "table_dining", "lumens": 2400.0, "count": 1, "size_m": [0.40, 0.40, 0.14],
+                "source": "pendant with 3 x 800 lm LED bulbs over the dining table of an open living room",
+                "optional": True}],
+    "kitchen": [{"kind": "strip", "anchor": "kitchen_counter", "lumens_per_m": 500.0, "count": 1,
+                 "size_m": [1.0, 0.02, 0.015], "source": "LED strip under the wall cabinets, 400-600 lm per metre"},
+                {"kind": "ceiling", "anchor": None, "lumens": 1600.0, "count": 1, "size_m": [0.30, 0.30, 0.08],
+                 "source": "ceiling fixture with a 1600 lm (100 W-equivalent) LED bulb"}],
+    "bedroom": [{"kind": "bedside", "anchor": "bed", "lumens": 470.0, "count": 2, "size_m": [0.24, 0.24, 0.42],
+                 "source": "two bedside lamps with a 470 lm (40 W-equivalent) LED bulb each"}],
+    "bathroom": [{"kind": "mirror", "anchor": "washbasin", "lumens": 1100.0, "count": 1, "size_m": [0.60, 0.04, 0.04],
+                  "source": "mirror light bar, 1100 lm (75 W-equivalent)"},
+                 {"kind": "ceiling", "anchor": None, "lumens": 1100.0, "count": 1, "size_m": [0.26, 0.26, 0.08],
+                  "source": "ceiling fixture with a 1100 lm (75 W-equivalent) LED bulb"}],
+    "wc": [{"kind": "mirror", "anchor": "washbasin", "lumens": 800.0, "count": 1, "size_m": [0.50, 0.04, 0.04],
+            "source": "mirror light bar, 800 lm (60 W-equivalent)"},
+           {"kind": "ceiling", "anchor": None, "lumens": 800.0, "count": 1, "size_m": [0.22, 0.22, 0.08],
+            "source": "ceiling fixture with an 800 lm (60 W-equivalent) LED bulb"}],
+    "hall": [{"kind": "ceiling", "anchor": None, "lumens": 1100.0, "count": 1, "size_m": [0.30, 0.30, 0.08],
+              "source": "ceiling fixture with a 1100 lm (75 W-equivalent) LED bulb, one per 3 m of a long hall"}],
+    "stair": [{"kind": "ceiling", "anchor": None, "lumens": 1100.0, "count": 1, "size_m": [0.30, 0.30, 0.08],
+               "source": "ceiling fixture with a 1100 lm (75 W-equivalent) LED bulb"}],
+}
+RIG_KINDS = ("pendant", "ceiling", "bedside", "strip", "mirror")
+
+
+def watts_for_lumens(lumens: float) -> float:
+    """Radiant watts of a light of ``lumens`` (pure): ``LUMEN_WATT_TABLE`` read linearly between its rows, the last
+    row's watts per lumen beyond it; 0 for 0 lm."""
+    lm = max(0.0, float(lumens))
+    rows = LUMEN_WATT_TABLE
+    for (l0, w0), (l1, w1) in zip(rows, rows[1:]):
+        if lm <= l1:
+            return round(w0 + (w1 - w0) * (lm - l0) / (l1 - l0), 4)
+    l1, w1 = rows[-1]
+    return round(lm * w1 / l1, 4)
+
+
+def rig_temperature_k(lighting: dict | None) -> float:
+    """The fixtures' colour temperature (pure): the style's ``lighting.colour_temperature_k`` when it is warmer than
+    ``RIG_WARM_K`` (a golden-evening style keeps its 3200 K sun but its lamps stay at 2700 K: min of the two)."""
+    value = (lighting or {}).get("colour_temperature_k")
+    try:
+        k = float(value)
+    except (TypeError, ValueError):
+        return RIG_WARM_K
+    return min(RIG_WARM_K, k) if k > 0 else RIG_WARM_K
+
+
+def room_rig(room_type: str | None) -> list[dict]:
+    """The light rig of a room type (pure, docs/milestone13.md §13.2): copies of the ``ROOM_RIGS`` fixtures with
+    ``watts_radiometric`` (``watts_for_lumens``), ``watts_applied`` (x ``RIG_GAIN``) and their sources; ``[]`` for a
+    type without a rig (storage, balcony, shaft, unknown ...: the Milestone 6 light rule stays)."""
+    out = []
+    for spec in ROOM_RIGS.get(str(room_type or ""), []):
+        f = dict(spec)
+        if "lumens" in f:
+            f["watts_radiometric"] = watts_for_lumens(f["lumens"])
+            f["watts_applied"] = round(f["watts_radiometric"] * RIG_GAIN, 4)
+        f["gain"] = RIG_GAIN
+        f["lumen_watt_source"] = LUMEN_WATT_SOURCE
+        out.append(f)
+    return out
+
+
+def _piece_frame(piece: dict) -> tuple[tuple[float, float], tuple[float, float], float, float]:
+    """``(centre, front unit vector, width across the front, depth)`` of a piece (pure; ``looks.piece_back_mid``
+    convention: the front_deg points out of the front face, else the footprint's -Y side in its frame)."""
+    fp = piece["footprint"]
+    cx, cy = float(fp["center"][0]), float(fp["center"][1])
+    rot = float(fp.get("rotation_deg") or 0.0)
+    front = piece.get("front_deg")
+    if front is None:
+        front = rot - 90.0
+    fx, fy = math.cos(math.radians(float(front))), math.sin(math.radians(float(front)))
+    local = G.normalise_angle(float(front) - rot)
+    w, d = float(fp["size"][0]), float(fp["size"][1])
+    if min(abs(local - 270.0), abs(local - 90.0)) < 45.0:
+        return (cx, cy), (fx, fy), w, d
+    return (cx, cy), (fx, fy), d, w
+
+
+def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, holes=(),
+             lighting: dict | None = None, agent_factor: float = 1.0) -> dict:
+    """Where the fixtures of ``room_rig(room["room_type"])`` go (pure): ``{"fixtures": [...], "dropped": [...]}``.
+    Each fixture: the ``room_rig`` record plus ``name``, ``center`` [x, y, z] (the visible fixture's centre),
+    ``light`` {``type`` POINT | AREA, ``center``, ``size_m``, ``direction`` (an area light's -Z), ``energy_w``,
+    ``radius_m``}, ``temperature_k``, ``anchor_id`` and ``reason``. ``pieces`` are the room's built pieces
+    (``footprint``, ``type``, ``front_deg``); ``holes`` the stair openings of the level (ceiling fixtures stay out
+    of them, as the Milestone 6 light does). A fixture whose anchor is missing is listed under ``dropped`` with the
+    reason, except ``optional`` ones, which are silently left out."""
+    polygon = [tuple(p[:2]) for p in room.get("polygon") or []]
+    if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
+        polygon = polygon[:-1]
+    out: dict = {"fixtures": [], "dropped": []}
+    if len(polygon) < 3:
+        return out
+    temperature = rig_temperature_k(lighting)
+    by_type: dict[str, list[dict]] = {}
+    for p in pieces:
+        by_type.setdefault(str(p.get("type")), []).append(p)
+    count = 0
+
+    def add(spec: dict, centre, light_centre, light_type: str, energy: float, size, direction=None, anchor=None,
+            radius: float = 0.05, reason: str = "") -> None:
+        nonlocal count
+        count += 1
+        f = dict(spec)
+        f.update(name=f"rig_{room['id']}_{spec['kind']}_{count}", center=[round(float(v), 4) for v in centre],
+                 temperature_k=temperature, anchor_id=anchor, reason=reason,
+                 light={"type": light_type, "center": [round(float(v), 4) for v in light_centre],
+                        "size_m": [round(float(v), 4) for v in size], "energy_w": round(float(energy) * agent_factor, 4),
+                        "radius_m": radius, "direction": [round(float(v), 4) for v in direction] if direction else None})
+        out["fixtures"].append(f)
+
+    for spec in room_rig(room.get("room_type")):
+        kind = spec["kind"]
+        if kind == "pendant":
+            tables = by_type.get("table_dining") or []
+            if not tables:
+                if not spec.get("optional"):
+                    out["dropped"].append({"kind": kind, "reason": f"no {spec['anchor']} in {room['id']}: no pendant"})
+                continue
+            table = max(tables, key=lambda p: float(p["footprint"]["size"][0]) * float(p["footprint"]["size"][1]))
+            (cx, cy), _f, _w, _d = _piece_frame(table)
+            h = float(spec["size_m"][2])
+            z = floor_z + RIG_TABLE_TOP_M + RIG_PENDANT_OVER_TABLE_M + h / 2.0
+            z = min(z, ceil_z - RIG_MOUNT_GAP_M - h / 2.0)
+            add(spec, (cx, cy, z), (cx, cy, z - h * 0.2), "POINT", spec["watts_applied"], spec["size_m"],
+                anchor=table["id"], radius=0.06, reason=f"pendant over the dining table {table['id']}")
+        elif kind == "ceiling":
+            plans = area_light_plans(polygon, holes=holes) if room.get("room_type") in ("hall", "stair") else \
+                [area_light_plan(polygon, holes=holes)]
+            h = float(spec["size_m"][2])
+            for plan in plans:
+                cx, cy = plan["center"]
+                z = ceil_z - RIG_MOUNT_GAP_M - h / 2.0
+                add(spec, (cx, cy, z), (cx, cy, z - h / 2.0 - 0.02), "POINT", spec["watts_applied"], spec["size_m"],
+                    radius=0.08, reason=f"ceiling fixture at the pole of inaccessibility of {room['id']}")
+        elif kind == "bedside":
+            beds = (by_type.get("bed_double") or []) + (by_type.get("bed") or []) + (by_type.get("bed_single") or [])
+            if not beds:
+                out["dropped"].append({"kind": kind, "reason": f"no bed in {room['id']}: no bedside lamps"})
+                continue
+            bed = beds[0]
+            (cx, cy), (fx, fy), width, depth = _piece_frame(bed)
+            sx, sy = -fy, fx                                           # along the bed head
+            hx, hy = cx - fx * depth / 2.0, cy - fy * depth / 2.0      # the head edge's midpoint
+            nightstands = by_type.get("nightstand") or []
+            h = float(spec["size_m"][2])
+            for side in (-1.0, 1.0):
+                corner = (hx + sx * side * width / 2.0, hy + sy * side * width / 2.0)
+                stand = min(nightstands, key=lambda p: G.distance(p["footprint"]["center"][:2], corner),
+                            default=None)
+                if stand is not None and G.distance(stand["footprint"]["center"][:2], corner) <= 0.9:
+                    from wenart.blender.parametric import piece_bbox
+                    top = floor_z + float(piece_bbox(stand)[2])
+                    px, py = float(stand["footprint"]["center"][0]), float(stand["footprint"]["center"][1])
+                    anchor, why = stand["id"], f"bedside lamp on the nightstand {stand['id']}"
+                else:
+                    top = floor_z + RIG_BEDSIDE_Z_M
+                    px, py = corner[0] + sx * side * RIG_BEDSIDE_OFFSET_M, corner[1] + sy * side * RIG_BEDSIDE_OFFSET_M
+                    anchor, why = bed["id"], f"bedside lamp beside the head of the bed {bed['id']} (no nightstand)"
+                if not G.point_in_polygon((px, py), polygon):
+                    out["dropped"].append({"kind": kind, "reason": f"{why}: the lamp would stand outside the room"})
+                    continue
+                z = top + h / 2.0
+                add(spec, (px, py, z), (px, py, top + h * 0.7), "POINT", spec["watts_applied"], spec["size_m"],
+                    anchor=anchor, radius=0.05, reason=why)
+        elif kind == "strip":
+            counters = by_type.get("kitchen_counter") or []
+            if not counters:
+                out["dropped"].append({"kind": kind, "reason": f"no kitchen_counter in {room['id']}: no strip"})
+                continue
+            for counter in counters:
+                (cx, cy), (fx, fy), width, depth = _piece_frame(counter)
+                length = max(0.3, width - 0.1)
+                bx, by = cx - fx * depth / 2.0, cy - fy * depth / 2.0            # the back edge (the wall)
+                px, py = bx + fx * RIG_STRIP_SETBACK_M, by + fy * RIG_STRIP_SETBACK_M
+                z = floor_z + RIG_WALL_CABINET_BOTTOM_M - float(spec["size_m"][2]) / 2.0
+                if z <= floor_z + RIG_TABLE_TOP_M + 0.3:
+                    z = floor_z + RIG_WALL_CABINET_BOTTOM_M
+                lumens = float(spec["lumens_per_m"]) * length
+                watts = round(watts_for_lumens(lumens) * RIG_GAIN, 4)
+                f = dict(spec, lumens=round(lumens, 1), watts_radiometric=watts_for_lumens(lumens), watts_applied=watts,
+                         length_m=round(length, 3), rotation_deg=round(math.degrees(math.atan2(fy, fx)) + 90.0, 3))
+                add(f, (px, py, z), (px, py, z - 0.012), "AREA", watts, [length, 0.02, 0.015], direction=(0.0, 0.0, -1.0),
+                    anchor=counter["id"], radius=0.0,
+                    reason=f"LED strip under the wall cabinets along the counter {counter['id']}")
+        elif kind == "mirror":
+            basins = by_type.get("washbasin") or []
+            if not basins:
+                out["dropped"].append({"kind": kind, "reason": f"no washbasin in {room['id']}: no mirror light"})
+                continue
+            basin = basins[0]
+            (cx, cy), (fx, fy), width, depth = _piece_frame(basin)
+            bx, by = cx - fx * depth / 2.0, cy - fy * depth / 2.0
+            px, py = bx + fx * 0.04, by + fy * 0.04                       # 4 cm off the wall behind the basin
+            z = floor_z + RIG_MIRROR_LIGHT_Z_M
+            z = min(z, ceil_z - 0.15)
+            f = dict(spec, rotation_deg=round(math.degrees(math.atan2(fy, fx)) + 90.0, 3))
+            add(f, (px, py, z), (px + fx * 0.03, py + fy * 0.03, z - 0.03), "AREA", spec["watts_applied"],
+                [float(spec["size_m"][0]), 0.04, 0.04], direction=(fx * 0.7, fy * 0.7, -0.7), anchor=basin["id"],
+                radius=0.0, reason=f"mirror light over the washbasin {basin['id']}")
+    return out
+
+
+def _fixture_mesh(fixture: dict) -> tuple[list, list]:
+    """World-space vertices and faces of a visible fixture (pure, ``geom2d.box``): pendants and ceiling fixtures are
+    8-sided drums, bedside lamps a drum shade over a thin stem, strips and mirror lights flat bars."""
+    from wenart.blender import geom2d
+
+    cx, cy, cz = fixture["center"]
+    w, d, h = [float(v) for v in fixture.get("size_m") or (0.2, 0.2, 0.1)]
+    kind = fixture["kind"]
+    rot = float(fixture.get("rotation_deg") or 0.0)
+    if kind in ("strip", "mirror"):
+        size = (float(fixture.get("length_m") or w), d, h)
+        return geom2d.box((cx, cy, cz), size, rot)
+    r = max(w, d) / 2.0
+    n = 8
+    z0, z1 = cz - h / 2.0, cz + h / 2.0
+    verts = [(cx + r * math.cos(2 * math.pi * i / n), cy + r * math.sin(2 * math.pi * i / n), z0) for i in range(n)]
+    verts += [(cx + r * math.cos(2 * math.pi * i / n), cy + r * math.sin(2 * math.pi * i / n), z1) for i in range(n)]
+    faces = [[i, (i + 1) % n, n + (i + 1) % n, n + i] for i in range(n)]
+    faces.append(list(range(n))[::-1])
+    faces.append([n + i for i in range(n)])
+    if kind == "bedside":                                             # a stem under the shade
+        stem = geom2d.box((cx, cy, z0 - (h * 0.45)), (0.03, 0.03, h * 0.9), 0.0)
+        verts2, faces2 = stem
+        off = len(verts)
+        verts += list(verts2)
+        faces += [[off + i for i in f] for f in faces2]
+    return verts, faces
+
+
+def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: list, room: dict, level: dict,
+                   plan: dict, fixture_material) -> list:
+    """The fixtures of ``rig_plan`` as objects: an emissive mesh (kind ``decor``, status ``assumed``, the camera sees
+    it) and a POINT or AREA light inside (``use_temperature``, ``shadow_soft_size``, soft falloff where the light
+    type has it: bpy.types.PointLight / SpotLight.use_soft_falloff). Returns the light objects."""
+    from mathutils import Vector
+
+    lights = []
+    for f in plan["fixtures"]:
+        verts, faces = _fixture_mesh(f)
+        mat = fixture_material(f["temperature_k"])
+        ob = common.new_mesh_object(f["name"], verts, faces, collection=collection, wenart_id=f["name"], kind="decor",
+                                    status="assumed", materials=[mat])
+        ob["wenart_room"] = room["id"]
+        ob["wenart_rig"] = f["kind"]
+        manifest_objects.append({
+            "name": ob.name, "wenart_id": f["name"], "kind": "decor", "status": "assumed", "level_id": level["id"],
+            "element_id": room["id"], "parent": room["id"], "evidence": [], "material": mat.name, "textured": False,
+            "pass_index": None, "method": "rig", "type": f"rig_{f['kind']}", "rotation_deg": f.get("rotation_deg") or 0.0,
+            "assumed": {"rig": f["kind"], "lumens": f.get("lumens"), "watts_radiometric": f.get("watts_radiometric"),
+                        "watts_applied": f["light"]["energy_w"], "gain": f.get("gain"), "temperature_k": f["temperature_k"],
+                        "anchor_id": f.get("anchor_id"), "reason": f["reason"], "source": f.get("source"),
+                        "lumen_watt_source": f.get("lumen_watt_source")},
+        })
+        spec = f["light"]
+        light = bpy.data.lights.new(f"{f['name']}_light", spec["type"])
+        light.energy = float(spec["energy_w"])
+        if spec["type"] == "AREA":
+            light.shape = "RECTANGLE"
+            light.size, light.size_y = float(spec["size_m"][0]), float(spec["size_m"][1])
+        else:
+            light.shadow_soft_size = float(spec.get("radius_m") or 0.05)
+        if hasattr(light, "use_soft_falloff"):
+            light.use_soft_falloff = True
+        try:
+            light.use_temperature = True
+            light.temperature = float(f["temperature_k"])
+        except AttributeError:
+            light.color = _blackbody_rgb(float(f["temperature_k"]))
+        lob = bpy.data.objects.new(f"{f['name']}_light", light)
+        lob.location = Vector(spec["center"])
+        if spec.get("direction"):
+            lob.rotation_euler = Vector(spec["direction"]).to_track_quat("-Z", "Y").to_euler()
+        lob.visible_camera = False                      # the fixture mesh is what the camera sees
+        collection.objects.link(lob)
+        common.set_props(lob, wenart_id=lob.name, kind="light", status="assumed")
+        lob["wenart_room"] = room["id"]
+        manifest_objects.append({
+            "name": lob.name, "wenart_id": lob.name, "kind": "light", "status": "assumed", "level_id": level["id"],
+            "element_id": room["id"], "parent": room["id"], "evidence": [], "material": None, "textured": False,
+            "pass_index": None, "center": spec["center"], "size": spec["size_m"],
+            "assumed": {"power_w": spec["energy_w"], "rig": f["kind"], "fixture": f["name"], "temperature_k":
+                        f["temperature_k"], "visible_camera": False, "reason": f["reason"], "lumens": f.get("lumens")},
+        })
+        assumed.append({"object": lob.name, "field": "rig_light", "value": spec["energy_w"],
+                        "reason": f"{room['id']}: {f['reason']}; {f.get('lumens') or '?'} lm -> "
+                                  f"{f.get('watts_radiometric')} W radiant x gain {f.get('gain')} "
+                                  f"({f.get('source')}; the documents say nothing about lamps)",
+                        "parent": room["id"], "kind": "rig_light"})
+        lights.append(lob)
+    for d in plan["dropped"]:
+        assumed.append({"object": f"rig_{room['id']}", "field": f"rig_{d['kind']}", "value": None, "reason": d["reason"],
+                        "parent": room["id"], "kind": "rig_dropped"})
+    return lights
+
+
 def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: str | None, collection,
                    manifest_objects: list, assumed: list, north_deg: float | None = None,
                    north_source: str | None = None, ceiling_at=None, exterior: bool = False) -> dict:
@@ -359,15 +811,22 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     lighting = style.get("lighting") or {}
     elevation = float(lighting.get("sun_elevation_deg", 35.0))
     azimuth = float(lighting.get("sun_azimuth_deg", 210.0))
-    strength = float(lighting.get("sun_strength", 3.0))
+    # Milestone 13: the one constant (or the A/B variant's sun) times the mood factor of the style's sun_strength.
+    levers = light_levers()
+    strength, mood_factor = sun_strength_wm2(lighting, levers)
     temperature = float(lighting.get("colour_temperature_k", 5200))
     in_building = building_azimuth(azimuth, north_deg or 0.0)
+    scene["wenart_light_variant"] = levers["variant"] or ""
 
     world = world_nodes(scene, world_lighting(lighting, in_building), hdri_path)
     world_exterior = None
     if exterior:
         from wenart.blender.materials import exterior_world_nodes
-        world_exterior = exterior_world_nodes(scene, world_lighting(lighting, in_building))
+        # Milestone 13: a daytime sky with the sun disc; the disc carries the direct sun of the exterior views and
+        # render.py hides the lamp under that world (it must not double the sun).
+        world_exterior = exterior_world_nodes(scene, world_lighting(lighting, in_building), sun_disc=True,
+                                              sun_elevation_deg=elevation, sun_azimuth_deg=in_building,
+                                              sun_wm2=strength)
 
     sun = bpy.data.lights.new("sun", "SUN")
     sun.energy = strength
@@ -387,7 +846,8 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
         "name": "sun", "wenart_id": "sun", "kind": "light", "status": "assumed", "level_id": None,
         "element_id": None, "evidence": [], "material": None, "textured": False, "pass_index": None,
         "assumed": {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength,
-                    "temperature_k": temperature},
+                    "temperature_k": temperature, "strength_wm2_constant": SUN_STRENGTH_WM2,
+                    "mood_factor": mood_factor, "variant": levers["variant"]},
     })
     if north_deg is not None:
         manifest_objects[-1]["assumed"].update(azimuth_building_deg=round(in_building, 3), north_deg=north_deg,
@@ -396,11 +856,23 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     portals = build_portals(building, levels, collection, manifest_objects)
 
     from wenart.blender.overrides import lighting_of
+    from wenart.blender.shell import piece_built
 
     agent_lights = lighting_of(building)   # the agent's set_lighting (real03 follow-up)
     walls_by_id = {w["id"]: w for w in building.get("walls") or []}
     flagged = any(w.get("exterior") for w in walls_by_id.values())
     area_lights = []
+    rig_lights = []
+    rig_rooms: dict[str, dict] = {}
+    fixture_cache: dict = {}
+
+    def fixture_material(kelvin: float):
+        from wenart.blender.materials import fixture_material as _fm
+        key = round(float(kelvin))
+        if key not in fixture_cache:
+            fixture_cache[key] = _fm(f"rig_fixture_{key}K", kelvin)
+        return fixture_cache[key]
+
     for level in levels:
         floor_z = float(level["elevation"])
         ceil_z = floor_z + float(level["ceiling_height"])
@@ -418,27 +890,55 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                        and daylight_window(o, walls_by_id, flagged)]
             area = G.polygon_area(polygon)
             ratio = window_floor_ratio(windows, level, levels_above, area) if windows else None
-            why = fill_light_reason(windows, ratio)
+            why = fill_light_reason(windows, ratio, sun_wm2=strength)
             agent = agent_lights.get(room["id"])
+            factor = float(agent["factor"]) if agent else 1.0
+            # Milestone 13: the room's light rig (visible fixtures) where its type has one.
+            if levers["rig"] and room_rig(room.get("room_type")):
+                room_floor = floor_z + float(room.get("floor_offset_m") or 0.0)
+                room_ceil = ceil_z if ceiling_at is None else min(ceil_z, float(ceiling_at(level, *G.polygon_centroid(polygon))))
+                pieces = [p for p in building.get("furniture") or [] if p.get("room_id") == room["id"]
+                          and p.get("kind") != "decor" and piece_built(p) and p.get("footprint")]
+                plan = rig_plan(room, pieces, room_floor, room_ceil, holes=voids, lighting=lighting, agent_factor=factor)
+                built = build_room_rig(bpy, common, collection, manifest_objects, assumed, room, level, plan,
+                                       fixture_material)
+                rig_lights.extend(built)
+                rig_rooms[room["id"]] = {"fixtures": [f["name"] for f in plan["fixtures"]],
+                                         "dropped": plan["dropped"], "replaces_fill_light": why is not None and bool(built),
+                                         "fill_light_reason": why}
+                if built and why is not None:
+                    assumed.append({"object": f"rig_{room['id']}", "field": "area_light", "value": None,
+                                    "reason": f"{room['id']}: {why}; the room's light rig ({len(built)} fixtures) "
+                                              f"carries the light instead of the invisible ceiling light",
+                                    "parent": room["id"], "kind": "rig_replaces_fill_light"})
+                    continue
             if why is None and agent is None:
                 continue
             if why is None:
                 why = f"agent: {agent.get('reason') or 'room lights'}"
             dim = bool(windows)
             plans = area_light_plans(polygon, holes=voids)
-            power, per_m2 = light_power(area, len(plans), dim, agent["factor"] if agent else 1.0)
+            power, per_m2 = light_power(area, len(plans), dim, factor)
             for k, plan in enumerate(plans):
                 name = f"light_{room['id']}" if k == 0 else f"light_{room['id']}_{k + 1}"
                 area_lights.append(_room_light(bpy, common, collection, manifest_objects, assumed, room, level, plan,
                                                name, power, per_m2, why, dim, ratio, temperature, ceiling_at, ceil_z,
                                                len(plans), agent))
-    sun_info = {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength, "temperature_k": temperature}
+    sun_info = {"elevation_deg": elevation, "azimuth_deg": azimuth, "strength": strength, "temperature_k": temperature,
+                "strength_wm2_constant": SUN_STRENGTH_WM2, "mood_factor": mood_factor,
+                "mood_sun_strength": lighting.get("sun_strength"), "variant": levers["variant"],
+                "manual_clear_sky_wm2": 1000.0}
     if north_deg is not None:
         sun_info.update(azimuth_building_deg=round(in_building, 3), north_deg=north_deg, north_source=north_source)
     if lighting.get("sun_source"):
         sun_info["source"] = lighting["sun_source"]
     return {"world": world, "world_exterior": world_exterior, "sun": sun_info,
-            "area_lights": [o.name for o in area_lights], "portals": [o.name for o in portals]}
+            "area_lights": [o.name for o in area_lights], "portals": [o.name for o in portals],
+            # Milestone 13 (docs/milestone13.md §13.3): the variant and every lever, the rig per room
+            "variant": levers["variant"], "levers": {k: levers[k] for k in ("sun_wm2", "ev_cap", "rig", "shell", "source")},
+            "rig": {"on": bool(levers["rig"]), "gain": RIG_GAIN, "temperature_k": rig_temperature_k(lighting),
+                    "lumen_watt_source": LUMEN_WATT_SOURCE, "lights": [o.name for o in rig_lights], "rooms": rig_rooms},
+            "fill_light": {"dim_room_ratio": DIM_ROOM_RATIO, "sun_scaled_by": round(strength / SUN_REFERENCE_MOOD_WM2, 6)}}
 
 
 

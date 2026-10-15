@@ -16,6 +16,15 @@ meshes, open edges, parts outside the main body), ``textures`` (present, resolut
 Without ``measures`` (the CPU dry audit) the checks use the catalogue fields only; with the render's measurements
 (``render.py``: ``measure/<id>.json``) the box, the pivot, the mesh and the textures are measured.
 
+Milestone 13 gates (docs/milestone13.md §5.1 phase 2, §13.1 track T7; ``audit.yaml gates``): ``units_anchor``
+(an anchor type of guessed units is removed: code evidence), ``pbr`` (the PBR maps of the model recorded per model:
+``pbr_maps`` from the catalogue step's ``glbmesh.pbr_maps`` or the render's ``measure["pbr"]``, a missing base colour
+a warning, the record a ``fix`` that writes the field), ``material_tags`` (every entry needs judged material tags:
+``review`` until the vision answer's ``materials`` names them, decision 1a: never a removal), ``chaise``
+(an L-sofa needs its chaise side: a warning the fit reads), ``licence_fields`` (the Milestone 13 licence fields of
+every entry: a warning; the fields are written by ``python -m wenart.furniture licence-fields`` and the growth
+entries). Decision 1a of 11 Oct 2026 stays: vision findings keep the model with ``vision_doubt``.
+
 How: pure, deterministic; the thresholds come from ``wenart/assets/audit.yaml``.
 """
 from __future__ import annotations
@@ -29,7 +38,7 @@ from wenart.assets.audit.items import has_front
 from wenart.furniture import sizes as SZ
 
 NOT_ALLOWED = (("-NC", "non-commercial"), ("-SA", "share-alike"), ("-ND", "no-derivatives"))
-SOURCE_RANK = {"abo": 0, "polyhaven": 1, "gso": 2, "objaverse": 3, "generated": 4}
+SOURCE_RANK = {"abo": 0, "polyhaven": 1, "gso": 2, "hssd": 3, "objaverse": 4, "generated": 5}   # hssd: M13
 HARD_FLAGS = ("outdoor", "crude", "wrong", "part")
 FLAG_TEXT = {"outdoor": "an outdoor piece", "crude": "not photoreal", "wrong": "not the object",
              "part": "a part of a piece", "scene": "several objects (a set or a scene)"}
@@ -49,24 +58,31 @@ def _fmt(box) -> str:
 # Licence, title, source, quality
 # --------------------------------------------------------------------------
 
-def licence_reason(licence: Optional[str]) -> Optional[str]:
-    """The removal reason of a licence that is not allowed (None: allowed). Generated models and CC0 / CC BY are
-    allowed; NC, SA and ND are not (CLAUDE.md library rules, user decision of 10 Oct 2026); an unknown licence is
-    not shown to be commercial-safe."""
+def licence_reason(licence: Optional[str], flag: Optional[str] = None) -> Optional[str]:
+    """The removal reason of a licence no licence mode may use (None: allowed in some mode). Milestone 13
+    (docs/milestone13.md §6, §12 D1; ``wenart.furniture.catalog``): a no-derivatives licence (we scale and
+    re-texture) and a licence nobody could read (unknown, Sketchfab-Standard) are never usable; a non-commercial or
+    share-alike licence stays in the catalogue with its flag (``relaxed`` mode only: ``catalog.usable(entry,
+    mode)`` keeps it out of ``commercial`` mode). Before Milestone 13 every NC / SA / ND licence was removed (user
+    decision of 10 Oct 2026); the entries removed then stay removed until a new audit decides them."""
+    from wenart.furniture import catalog as C
     lic = str(licence or "")
-    up = lic.upper()
-    if up.startswith("GENERATED") or up in ("CC0", "CC-BY-4.0"):
-        return None
-    if any(m in up for m, _ in NOT_ALLOWED):
-        return f"licence {lic} not allowed (user decision of 10 Oct 2026)"
-    if up in ("", "UNKNOWN") or up.startswith("SKETCHFAB"):
-        return f"licence {lic or 'missing'} not shown to allow commercial use"
+    f = flag if flag in C.LICENCE_FLAGS or flag == C.UNKNOWN_FLAG else C.licence_text_flag(lic)
+    if f in C.NEVER_USABLE_FLAGS:
+        if f == "no_derivatives":
+            return f"licence {lic} forbids derivatives: never usable (we scale and re-texture; docs/milestone13.md §6)"
+        return f"licence {lic or 'missing'} not shown to allow any use (unknown): never usable"
     return None
 
 
 def licence_check(item: dict) -> dict:
-    why = licence_reason(item.get("licence"))
-    return rec("licence", "remove", why) if why else rec("licence", "ok", str(item.get("licence")))
+    from wenart.furniture import catalog as C
+    flag = C.licence_flag_of({k: item.get(k) for k in ("licence", "licence_flag", "source", "generated") if k in item})
+    why = licence_reason(item.get("licence"), flag)
+    if why:
+        return rec("licence", "remove", why, metrics={"flag": flag})
+    note = "" if flag == C.NO_FLAG else f" ({flag}: relaxed licence mode only, not commercial-safe)"
+    return rec("licence", "ok", f"{item.get('licence')}{note}", metrics={"flag": flag})
 
 
 def title_check(item: dict, known_types) -> list[dict]:
@@ -365,6 +381,105 @@ def texture_check(item: dict, cfg: dict, measure: Optional[dict] = None) -> dict
 
 
 # --------------------------------------------------------------------------
+# Milestone 13 gates
+# --------------------------------------------------------------------------
+
+def gates_of(cfg: dict) -> dict:
+    return dict(cfg.get("gates") or {})
+
+
+def units_anchor_check(item: dict, cfg: dict) -> dict:
+    """An anchor type (``gates.known_units_anchor_types``) must carry known units (metres from the source): a bed,
+    sofa, table, wardrobe or fixture of guessed or normalised units is removed (the fit would scale a guess)."""
+    types = gates_of(cfg).get("known_units_anchor_types") or ()
+    if item["type"] not in types or item.get("kind") == "decor":
+        return rec("units_anchor", "skip", f"a {item['type']} is no anchor of the gate")
+    if item.get("units_known"):
+        return rec("units_anchor", "ok", "an anchor of known units")
+    note = str(item.get("unit_note") or "")
+    how = "normalised to a typical footprint" if "normalised" in note else f"guessed (x{item.get('unit_scale')})"
+    return rec("units_anchor", "remove", f"an anchor ({item['type']}) of units {how}: the Milestone 13 gate needs known "
+               "units for anchors", metrics={"unit_scale": item.get("unit_scale")})
+
+
+def pbr_record(item: dict, measure: Optional[dict] = None) -> Optional[dict]:
+    """The PBR map record of a model: the catalogue's ``pbr_maps``, else the render's ``measure["pbr"]``."""
+    rec_ = item.get("pbr_maps")
+    if isinstance(rec_, dict) and rec_:
+        return rec_
+    m = (measure or {}).get("pbr")
+    return m if isinstance(m, dict) and m else None
+
+
+def pbr_check(item: dict, cfg: dict, measure: Optional[dict] = None) -> list[dict]:
+    """``pbr``: the maps present (``pbr_maps_required`` missing: warn, flat colours; ``pbr_maps_wanted`` missing: a
+    note); ``pbr_record``: a ``fix`` that writes the record into the entry when it has none yet."""
+    maps = pbr_record(item, measure)
+    if not maps:
+        return [rec("pbr", "skip", "PBR maps not recorded (no measurement of the file yet)")]
+    g = gates_of(cfg)
+    required = [m for m in (g.get("pbr_maps_required") or ["base_colour"]) if not maps.get(m)]
+    wanted = [m for m in (g.get("pbr_maps_wanted") or []) if not maps.get(m)]
+    present = [m for m in ("base_colour", "metallic_roughness", "normal", "occlusion", "emissive") if maps.get(m)]
+    metrics = {"maps": present, "missing_required": required, "missing_wanted": wanted,
+               "materials": maps.get("materials"), "images": maps.get("images")}
+    out = []
+    if required:
+        out.append(rec("pbr", "warn", f"no {', '.join(required)} map: flat material colours only "
+                       f"({maps.get('materials')} material(s), {maps.get('images')} image(s))", metrics=metrics))
+    elif wanted:
+        out.append(rec("pbr", "ok", f"maps {', '.join(present)}; no {', '.join(wanted)} map (ranked lower by the fit)",
+                       metrics=metrics))
+    else:
+        out.append(rec("pbr", "ok", f"maps {', '.join(present)}", metrics=metrics))
+    if not (isinstance(item.get("pbr_maps"), dict) and item["pbr_maps"]):
+        out.append(rec("pbr_record", "fix", "the PBR map record is written into the catalogue entry (M13 gate)",
+                       fix={"pbr_maps": {k: maps.get(k) for k in ("base_colour", "metallic_roughness", "normal",
+                                                                  "occlusion", "emissive", "materials", "images")}}))
+    return out
+
+
+def material_tags_check(item: dict, cfg: dict) -> dict:
+    """Every entry needs judged material tags (the Milestone 10 slot judgement, or the Milestone 13 vision answer's
+    ``materials``): ``review`` until the answer names them (never a removal)."""
+    if not gates_of(cfg).get("material_tags_required", False):
+        return rec("material_tags", "skip", "gate off")
+    tags = item.get("material_tags")
+    if isinstance(tags, list) and tags:
+        return rec("material_tags", "ok", f"material tags {', '.join(str(t) for t in tags)}")
+    return rec("material_tags", "review", "no material tags: the vision answer's materials name them (M13 gate)")
+
+
+def chaise_check(item: dict, cfg: dict, measure: Optional[dict] = None) -> dict:
+    """An L-sofa (``gates.chaise_side_types``) needs its chaise side (left / right) for the fit to match a drawn L:
+    a ``fix`` when the measurement found it, else a warning."""
+    if item["type"] not in (gates_of(cfg).get("chaise_side_types") or ()):
+        return rec("chaise", "skip", f"a {item['type']} has no chaise")
+    side = item.get("chaise_side")
+    if side in ("left", "right"):
+        return rec("chaise", "ok", f"chaise on the {side}")
+    measured = (measure or {}).get("chaise_side")
+    if measured in ("left", "right"):
+        return rec("chaise", "fix", f"chaise side {measured} from the measured footprint", fix={"chaise_side": measured})
+    return rec("chaise", "warn", "chaise side unknown: the fit cannot match a drawn L's side (M13 gate); the footprint "
+               "measurement of the catalogue step names it for new models")
+
+
+def licence_fields_check(item: dict, cfg: dict) -> dict:
+    """The Milestone 13 licence fields of every entry (``gates.licence_fields``): a warning when one is missing (the
+    fields are written by ``python -m wenart.furniture licence-fields`` and by the growth entries)."""
+    fields = gates_of(cfg).get("licence_fields") or ()
+    if not fields:
+        return rec("licence_fields", "skip", "gate off")
+    missing = [k for k in fields if k not in item or item.get(k) in (None, "")]
+    if missing:
+        return rec("licence_fields", "warn", f"licence fields missing: {', '.join(missing)} (M13 gate: written by "
+                   "python -m wenart.furniture licence-fields)", metrics={"missing": missing})
+    return rec("licence_fields", "ok", f"licence {item.get('licence')} flag {item.get('licence_flag')}, "
+               f"commercial-safe {item.get('commercial_safe')}")
+
+
+# --------------------------------------------------------------------------
 # Duplicates
 # --------------------------------------------------------------------------
 
@@ -455,6 +570,12 @@ def item_checks(item: dict, cfg: dict, known_types, measure: Optional[dict] = No
     out.append(units_check(item))
     out += mesh_check(item, cfg, measure)
     out.append(texture_check(item, cfg, measure))
+    # Milestone 13 gates
+    out.append(units_anchor_check(item, cfg))
+    out += pbr_check(item, cfg, measure)
+    out.append(material_tags_check(item, cfg))
+    out.append(chaise_check(item, cfg, measure))
+    out.append(licence_fields_check(item, cfg))
     return out
 
 

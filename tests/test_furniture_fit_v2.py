@@ -21,6 +21,13 @@ LICENCES = {"abo": "CC-BY-4.0", "polyhaven": "CC0", "objaverse": "CC-BY-4.0",
             "generated": "generated (TRELLIS.2-4B, MIT)"}
 
 
+@pytest.fixture(autouse=True)
+def _no_licence_mode_env(monkeypatch):
+    """Milestone 13 review (15 Oct 2026): these tests rely on the fit's default licence mode (commercial); the pod
+    jobs export WENART_LICENCE_MODE (relaxed, docs/milestone13.md §13.3), which must not reach them."""
+    monkeypatch.delenv("WENART_LICENCE_MODE", raising=False)
+
+
 def model(uid: str, ftype: str, w: float, d: float, h: float, source: str = "abo", quality=None,
           styles=("neutral",), **extra) -> dict:
     e = {"id": f"{source}_{uid}", "type": ftype, "source": source, "licence": LICENCES[source],
@@ -156,11 +163,18 @@ def test_generated_models_only_when_no_other_library_model_passes():
                            "model": "microsoft/TRELLIS.2-4B", "revision": "af44b45", "seed": 7})
     real = model("real", "sofa", 2.3, 1.0, 0.85, source="polyhaven", quality=2.0)
     assert not F.units_known(gen)
-    fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([gen, real]))
+    fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([gen, real]), mode="relaxed")
     assert fit["asset_id"] == "polyhaven_real" and ids(fit) == ["polyhaven_real"] and fit["gltf"].endswith(".gltf")
-    # every real model outside the caps: the generated one, said so
+    # Milestone 13 (D3): a TRELLIS.2 model was exported with a non-commercial tool (flag tool_nc): in commercial mode
+    # (the default) it is no candidate at all; the ladder builds the sofa parametrically
     fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([gen, model("odd", "sofa", 3.0, 0.5, 0.8)]))
+    assert fit["method"] == "parametric" and ids(fit) == ["abo_odd"]
+    assert [x for x in fit["excluded"] if x["id"] == gen["id"]][0]["reason"].startswith(
+        "licence generated (TRELLIS.2-4B, MIT) (tool_nc): not used in commercial mode")
+    # every real model outside the caps: the generated one (relaxed mode), said so
+    fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([gen, model("odd", "sofa", 3.0, 0.5, 0.8)]), mode="relaxed")
     assert fit["asset_id"] == gen["id"] and ids(fit) == ["abo_odd", gen["id"]]
+    assert fit["licence_flag"] == "tool_nc" and fit["commercial_safe"] is False and fit["licence_mode"] == "relaxed"
     assert fit["library"] == "generated" and fit["licence"].startswith("generated")
     assert fit["generated"]["model"] == "microsoft/TRELLIS.2-4B" and fit["glb"].endswith(".glb")
     assert fit["ranking"]["reasons"][0] == "generated: no other library model passed the caps"
@@ -176,7 +190,8 @@ def test_caps_and_style_filter_still_apply():
     assert fit["asset_id"] == "abo_ok" and [x["id"] for x in fit["excluded"]] == ["abo_classic"]
     assert ids(fit) == ["abo_ok"]
     fit = F.fit_piece(piece("sofa", 2.0, 0.9), FakeCatalog([model("stretched", "sofa", 1.4, 0.9, 0.8)]))
-    assert fit["method"] == "none" and "10 % non-uniform" in fit["fallback_reason"]      # Milestone 12: a gap
+    # Milestone 13 (D4): the ladder's parametric family instead of a Milestone 12 gap; the caps still refuse the model
+    assert fit["method"] == "parametric" and "10 % non-uniform" in fit["fallback_reason"]
     assert fit["candidates"][0]["rank"] == 1 and fit["candidates"][0]["accepted"] is False
 
 
@@ -236,7 +251,9 @@ def test_bed_frames_with_a_deck_are_taken_and_carry_their_bedding():
 def test_beds_without_a_mattress_or_a_deck_are_still_refused(extra):
     bare = model("bare", "bed_double", 1.6, 2.0, 1.0, has_mattress=False, **extra)
     fit = F.fit_piece(piece("bed_double", 1.6, 2.0), FakeCatalog([bare]))
-    assert fit["method"] == "none" and fit["fallback_reason"] == "no bed_double model with a mattress"
+    # Milestone 13 (D4): the bed is built by the parametric family (ladder step 3), the bare frame still refused
+    assert fit["method"] == "parametric" and fit["fallback_reason"].startswith("no bed_double model with a mattress")
+    assert fit["ladder"][0]["reason"] == "no bed_double model with a mattress"
     assert fit["excluded"] == [{"id": "abo_bare", "reason": "bed model without a mattress"}]
 
 

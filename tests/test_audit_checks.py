@@ -19,11 +19,17 @@ def item(**kw):
     return base
 
 
+# Milestone 13 (docs/milestone13.md §6, D1): NC and SA licences stay in the catalogue with their flag (relaxed mode
+# only; catalog.usable keeps them out of commercial mode); ND and unknown licences are never usable and removed.
 @pytest.mark.parametrize("licence,removed", [("CC0", False), ("CC-BY-4.0", False), ("generated (TRELLIS.2-4B, MIT)",
-                                             False), ("CC-BY-NC-4.0", True), ("CC-BY-SA-4.0", True),
-                                             ("CC-BY-NC-SA-4.0", True), ("CC-BY-ND-4.0", True), ("unknown", True)])
+                                             False), ("CC-BY-NC-4.0", False), ("CC-BY-SA-4.0", False),
+                                             ("CC-BY-NC-SA-4.0", False), ("CC-BY-ND-4.0", True), ("unknown", True),
+                                             ("CC-BY-NC-ND-4.0", True)])
 def test_licence(licence, removed):
-    assert (CK.licence_check(item(licence=licence))["status"] == "remove") is removed
+    r = CK.licence_check(item(licence=licence))
+    assert (r["status"] == "remove") is removed
+    if licence in ("CC-BY-NC-4.0", "CC-BY-SA-4.0"):
+        assert "relaxed licence mode only" in r["reason"]
 
 
 def test_size_ok_and_rescale_and_remove():

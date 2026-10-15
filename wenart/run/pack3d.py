@@ -15,12 +15,20 @@ the whole building) and ``<p>-<id>.blend`` / ``.glb`` per alternative, next to t
 --variant``). Each set becomes its own zip (``<p>_3d.zip.partNN``, ``<p>-<id>_3d.zip.partNN``), so the base can
 be downloaded alone; the README lists every set.
 
+Milestone 13 (docs/milestone13.md §6, §12 D4; track T8): the README carries the project's licence line
+(``commercial-safe: yes`` / ``no (flagged assets: ...)`` with the licence mode) and the list of the pieces built below
+the library level (module builders and parametric families: id, type, method, builder, room), read from the final
+manifest next to the 3D files (``<src>/final_manifest.json`` of ``results/final/<p>/``, or ``../final/
+final_manifest.json`` of the volume's ``outputs/<p>/export``; ``licence_notes``). Without a manifest the README
+says so.
+
 Prints the written files; exit 0, or 2 when the folder has no 3D file. Only the standard library.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import sys
 import zipfile
 from pathlib import Path
@@ -109,7 +117,58 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def readme(name: str, parts: list[str], digest: str, contents: list[str], more: list[tuple] = ()) -> str:
+def final_manifest_path(src: Path) -> Path | None:
+    """The final manifest that belongs to the 3D files: ``<src>/final_manifest.json`` (a results folder, where
+    ``3d/`` sits next to it), ``<src>/../final_manifest.json`` (``src`` is the ``3d`` folder itself) or
+    ``<src>/../final/final_manifest.json`` (the volume's ``outputs/<p>/export``); None when none exists."""
+    src = Path(src)
+    for p in (src / "final_manifest.json", src.parent / "final_manifest.json",
+              src.parent / "final" / "final_manifest.json"):
+        if p.is_file():
+            return p
+    return None
+
+
+def licence_notes(src: Path) -> list[str]:
+    """Milestone 13: the README lines of the licence state: the project's commercial-safe line with its licence
+    mode (``licence`` of the final manifest), the views that are not commercial-safe, and every piece built below
+    the library level (``below_library``). One line says so when the manifest is missing or older than
+    Milestone 13."""
+    path = final_manifest_path(src)
+    if path is None:
+        return ["Licence (Milestone 13): no final_manifest.json next to the 3D files; the commercial-safe line and "
+                "the list of pieces built below the library level are in final_report.md of the run."]
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return [f"Licence (Milestone 13): {path.name} is not readable; see final_report.md of the run."]
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("licence"), dict):
+        return ["Licence (Milestone 13): the final manifest carries no licence block (a run before Milestone 13): "
+                "see the Attribution section of final_report.md and ATTRIBUTION.md."]
+    lic = manifest["licence"]
+    lines = [f"Licence mode: {lic.get('mode') or 'unknown'} ({lic.get('mode_source') or 'source not recorded'}). "
+             f"Project: {lic.get('line') or 'commercial-safe: not recorded'}."]
+    flagged_views = [v for v in manifest.get("views") or []
+                     if isinstance(v, dict) and not (v.get("commercial_safe") or {}).get("safe", True)]
+    if flagged_views:
+        lines.append("Views that are not commercial-safe: " + ", ".join(
+            f"{v.get('camera')} ({', '.join((v.get('commercial_safe') or {}).get('flagged') or [])})"
+            for v in flagged_views) + ".")
+    below = [b for b in manifest.get("below_library") or [] if isinstance(b, dict)]
+    gaps = [b for b in below if b.get("gap")]
+    if not below:
+        lines.append("Built below library level: none (every furniture piece is a library model).")
+    else:
+        lines.append(f"Built below library level (module builders and parametric families; {len(gaps)} library "
+                     f"gap(s) to close with a real model, {len(below) - len(gaps)} by design):")
+        lines += [f"  - {b.get('id')}: {b.get('type')}, {b.get('method')}, {b.get('builder')}, room "
+                  f"{b.get('room_id') or '-'}" + ("" if b.get("gap") else " (by design)") for b in below]
+    return lines
+
+
+def readme(name: str, parts: list[str], digest: str, contents: list[str], more: list[tuple] = (),
+           notes: list[str] = ()) -> str:
+    """The README text; ``notes`` (Milestone 13: ``licence_notes``) go at the end."""
     joined = "+".join(parts)
     lines = [
         f"3D files of project {name} (WenArt_RUN, docs/milestone9.md §5a).",
@@ -131,6 +190,8 @@ def readme(name: str, parts: list[str], digest: str, contents: list[str], more: 
             lines += [(f"- {stem}: join {stem}_3d.zip.part* into {stem}_3d.zip (copy /b {'+'.join(vparts)} "
                        f"{stem}_3d.zip on Windows), sha256 {vdigest}; inside: {', '.join(vcontents)}")]
         lines.append("")
+    if notes:
+        lines += ["Licence (Milestone 13, docs/milestone13.md §6):", ""] + list(notes) + [""]
     return "\n".join(lines)
 
 
@@ -170,8 +231,8 @@ def pack(src: Path, out: Path, part_mb: int = DEFAULT_PART_MB, name: str | None 
         parts, digest = _zip_parts(stem, files, out, part_mb)
         written += parts + [out / f"{stem}_3d.zip.sha256"]
         more.append((stem, [p.name for p in parts], digest, [p.name for p in files]))
-    (out / README).write_text(readme(stem0, [p.name for p in parts0], digest0, [p.name for p in files0], more),
-                              encoding="utf-8")
+    (out / README).write_text(readme(stem0, [p.name for p in parts0], digest0, [p.name for p in files0], more,
+                                     licence_notes(Path(src))), encoding="utf-8")
     return written + [out / README]
 
 

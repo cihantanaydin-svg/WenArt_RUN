@@ -57,6 +57,14 @@ other rooms are hidden by walls and are left out).
 Milestone 10 (docs/milestone10.md §1.6b row 15): a wall-hung piece
 (``mount_bottom_m``, ``mount_bottom``) is no floor obstacle; its centre for
 the frustum lists is at its hanging height.
+
+Milestone 13 (docs/milestone13.md §13.2 build.py, K8 camera replay, decision D8: the camera policy itself does
+not change): ``replay_cameras(manifest)`` reads the camera records of a scene manifest (the committed Milestone 11
+runs of real02 and real03) into camera plans with ``source: "replayed"`` (name, room, level, position, target or
+rotation, lens, sensor, shift, clip), so the render stage of a later build takes the same views as the baseline;
+``create_cameras`` honours a plan's ``rotation_euler_deg`` (when it has no target) and ``clip_start`` /
+``clip_end``. Every plan of a build carries ``source``: ``searched`` (the search, the m5 rules or the agent's fixed
+cameras) or ``replayed``.
 """
 from __future__ import annotations
 
@@ -65,6 +73,91 @@ import math
 from wenart import geometry as G
 from wenart.blender import geom2d
 from wenart.blender.parametric import obstacle_rect, piece_bbox
+
+CAMERA_SOURCES = ("searched", "replayed")
+REPLAY_FIELDS = ("name", "position", "lens_mm")                     # without these a record is not a camera
+REPLAY_OPTIONAL = ("room_id", "level_id", "index", "target", "rotation_euler_deg", "sensor_mm", "resolution",
+                   "shift_x", "shift_y", "policy", "kind", "variant", "view", "sides", "region_id", "dropped_reason",
+                   "lens_rule", "score", "placement", "anchor", "warning", "visible_openings", "visible_furniture",
+                   "clip_start", "clip_end",
+                   "site_view", "aerial_allowed", "horizon_frac")   # M13 (T6): a replayed site view keeps its flags
+CLIP_START_M = 0.05
+CLIP_END_M = 200.0
+
+
+def _vec3(value) -> list[float] | None:
+    try:
+        out = [float(v) for v in value]
+    except (TypeError, ValueError):
+        return None
+    return out if len(out) == 3 and all(math.isfinite(v) for v in out) else None
+
+
+def replay_cameras(manifest: dict, kinds=None, level_id: str | None = None) -> dict:
+    """The camera plans of a scene manifest's ``cameras`` records (pure; Milestone 13 K8): ``{"plans": [...],
+    "dropped": [{"name", "reason"}], "fingerprint", "policy"}``. A record needs a name, a finite position and a
+    lens, and a target or a ``rotation_euler_deg``; everything else is copied as it is (room, level, index,
+    sensor, resolution, shift, kind, view, sides, score, the frustum lists), the defaults filled (36 mm sensor,
+    1920 x 1080, shift 0, kind ``interior`` for a camera with a room). Every plan gets ``source: "replayed"`` and
+    ``replayed_from`` (the manifest's build fingerprint and camera policy). ``kinds`` keeps those camera kinds
+    only (``("interior",)``), ``level_id`` the interior cameras of that level (exterior cameras have none and are
+    kept whatever the level)."""
+    plans, dropped = [], []
+    for rec in (manifest or {}).get("cameras") or []:
+        if not isinstance(rec, dict):
+            continue
+        name = rec.get("name")
+        if not name:
+            dropped.append({"name": None, "reason": "camera record without a name"})
+            continue
+        position = _vec3(rec.get("position"))
+        target = _vec3(rec.get("target"))
+        rotation = _vec3(rec.get("rotation_euler_deg"))
+        lens = rec.get("lens_mm")
+        if position is None or not isinstance(lens, (int, float)) or isinstance(lens, bool) or not lens > 0:
+            dropped.append({"name": name, "reason": "no finite position or lens_mm in the record"})
+            continue
+        if target is None and rotation is None:
+            dropped.append({"name": name, "reason": "neither a target nor a rotation_euler_deg in the record"})
+            continue
+        kind = rec.get("kind") or ("exterior" if rec.get("room_id") is None and str(name).startswith("ext_")
+                                   else "interior")
+        if kinds is not None and kind not in kinds:
+            continue
+        if level_id is not None and kind == "interior" and rec.get("level_id") != level_id:
+            continue
+        plan = {k: rec[k] for k in REPLAY_OPTIONAL if k in rec}
+        plan.update(name=str(name), position=position, lens_mm=float(lens), kind=kind,
+                    sensor_mm=float(rec.get("sensor_mm") or SENSOR_MM),
+                    resolution=[int(v) for v in (rec.get("resolution") or RESOLUTION)],
+                    shift_x=float(rec.get("shift_x") or 0.0), shift_y=float(rec.get("shift_y") or 0.0),
+                    visible_openings=list(rec.get("visible_openings") or []),
+                    visible_furniture=list(rec.get("visible_furniture") or []))
+        if target is not None:
+            plan["target"] = target
+        if rotation is not None:
+            plan["rotation_euler_deg"] = rotation
+        plan.setdefault("room_id", None)
+        plan.setdefault("level_id", None)
+        plan.setdefault("index", _index_of(name))
+        plan.setdefault("warning", None)
+        plan.setdefault("placement", f"replayed from the scene manifest ({rec.get('policy') or 'unknown policy'})")
+        plan["source"] = "replayed"
+        plan["replayed_from"] = {"build_fingerprint": (manifest or {}).get("build_fingerprint"),
+                                 "camera_policy": (manifest or {}).get("camera_policy"), "policy": rec.get("policy")}
+        plans.append(plan)
+    return {"plans": plans, "dropped": dropped, "fingerprint": (manifest or {}).get("build_fingerprint"),
+            "policy": (manifest or {}).get("camera_policy")}
+
+
+def _index_of(name: str) -> int:
+    tail = str(name).rsplit("_", 1)[-1]
+    return int(tail) if tail.isdigit() and int(tail) >= 1 else 1
+
+
+def replayed_rooms(plans: list[dict]) -> set:
+    """The room ids with at least one replayed interior camera (pure): the search runs for the other rooms only."""
+    return {p["room_id"] for p in plans if p.get("source") == "replayed" and p.get("room_id")}
 
 CAMERA_HEIGHT = 1.4
 TARGET_HEIGHT = 1.3
@@ -466,20 +559,25 @@ def create_cameras(plans: list[dict], collection, manifest_objects: list) -> lis
         cam.sensor_fit = "HORIZONTAL"
         cam.shift_x = float(plan.get("shift_x") or 0.0)
         cam.shift_y = float(plan.get("shift_y") or 0.0)
-        cam.clip_start = 0.05
-        cam.clip_end = 200.0
+        cam.clip_start = float(plan.get("clip_start") or CLIP_START_M)
+        cam.clip_end = float(plan.get("clip_end") or CLIP_END_M)
         ob = bpy.data.objects.new(plan["name"], cam)
         ob.location = Vector(plan["position"])
-        direction = Vector(plan["target"]) - Vector(plan["position"])
-        ob.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+        if plan.get("target") is not None:
+            direction = Vector(plan["target"]) - Vector(plan["position"])
+            ob.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+        else:                                             # Milestone 13: a replayed record with a rotation only
+            ob.rotation_euler = tuple(math.radians(float(v)) for v in plan["rotation_euler_deg"])
         collection.objects.link(ob)
         common.set_props(ob, wenart_id=plan["name"], kind="camera", status="assumed")
         ob["wenart_room"] = plan["room_id"]
         ob["wenart_level"] = plan["level_id"]
+        ob["wenart_camera_source"] = plan.get("source") or "searched"
         manifest_objects.append({
             "name": plan["name"], "wenart_id": plan["name"], "kind": "camera", "status": "assumed",
             "level_id": plan["level_id"], "element_id": plan["room_id"], "evidence": [],
-            "material": None, "textured": False, "pass_index": None, "assumed": {},
+            "material": None, "textured": False, "pass_index": None,
+            "assumed": {"source": plan.get("source") or "searched"},
         })
         created.append(ob)
     return created

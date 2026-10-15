@@ -249,12 +249,27 @@ def test_golden_commands_gpu_stages():
     # Smoke profile (§2.5): the top-down previews of the builds with 4 samples on the CPU.
     for cmd in (S.build(SMOKE, REF), S.ab_build(SMOKE, REF), S.ab_build(SMOKE, REF, "ctl_flat")):
         assert cmd[cmd.index("--preview-samples") + 1] == "4"
+    # Milestone 13 (docs/milestone13.md §13.2 render.py, K5): the final renders lock one whitepoint per project
+    # (--white-balance project); the Milestone 5-12 per-view "auto" stays for the previews and the controls.
     assert S.render(TOOLS, REF) == [
         "PY", "-m", "wenart.blender.cli", "render", "--scene", f"{O}/scene/scene.blend", "--out", f"{O}/renders",
-        "--cameras", "all", "--samples", "128", "--res", "1920x1080", "--exposure", "auto", "--white-balance", "auto"]
+        "--cameras", "all", "--samples", "128", "--res", "1920x1080", "--exposure", "auto", "--white-balance", "project"]
+    assert S.render(TOOLS, REF, white_balance="auto")[-2:] == ["--white-balance", "auto"]
+    assert S.agent_previews(TOOLS, REF)[-2:] == ["--white-balance", "auto"]
     assert S.render(TOOLS, REF, force=True)[-1] == "--force"
     assert S.render(SMOKE, REF)[8:] == ["--cameras", "all", "--samples", "16", "--res", "480x270", "--exposure",
-                                        "auto", "--white-balance", "auto", "--device", "cpu"]
+                                        "auto", "--white-balance", "project", "--device", "cpu"]
+    # Milestone 13 (K8): the camera file of a replay goes to the build; None adds nothing (the build then reads
+    # WENART_CAMERAS_FROM itself).
+    assert S.build(TOOLS, REF, cameras_from="results/renders/synthetic-04/scene_manifest.json")[-3:] == [
+        "--cameras-from", "results/renders/synthetic-04/scene_manifest.json", "--reuse"]
+    assert S.build(TOOLS, REF, cameras_from="x.json", cameras_extra=True)[-4:] == ["--cameras-from", "x.json",
+                                                                                  "--cameras-extra", "--reuse"]
+    assert S.build(TOOLS, REF, cameras_from=None, cameras_extra=True) == S.build(TOOLS, REF)
+    assert S.cameras_from_env("real02", {"WENART_CAMERAS_FROM": "results/renders/{name}/scene_manifest.json"}) == \
+        "results/renders/real02/scene_manifest.json"
+    assert S.cameras_from_env("real02", {}) is None and S.cameras_extra_env({"WENART_CAMERAS_EXTRA": "1"})
+    assert not S.cameras_extra_env({})
     assert S.select_controls(TOOLS, REF) == ["PY", "-m", "wenart.vision_check", "select-controls", "--project-out", O]
     assert S.control_render(TOOLS, REF, "cam_a:f1;cam_b:w1+plug") == [
         "PY", "-m", "wenart.blender.cli", "render", "--scene", f"{O}/scene/scene.blend", "--out", f"{O}/controls",

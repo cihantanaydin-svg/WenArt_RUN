@@ -59,8 +59,36 @@ Milestone 10 (docs/milestone10.md §4.2-§4.8, track F):
   parts of the interior evening mood);
 - the world strength of the four new moods comes from the vocabulary's ``hdri_strength``.
 
+Milestone 13 (docs/milestone13.md §13.1 track T5, K5; the diagnosis §1.6: 72-81 % of every interior frame is
+shell, and the ceiling, worktops, fronts, sanitary ware, handles and the wet-room tiles were flat colours):
+
+- ``SHELL_SLOTS`` is the shell material table per slot (``ceiling``, ``worktop``, ``front``, ``ceramic``, ``metal``,
+  ``tile``, ``plaster``): a CC0 texture set of the style vocabulary (every id exists in ``vocabulary.MATERIALS`` /
+  ``FURNITURE_MATERIALS`` and in ``wenart/style/asset_checks_m10.json``; none is invented) and the material layers
+  of the Blender 5.2 Principled BSDF: ``Sheen Weight`` / ``Sheen Roughness`` (fabrics), ``Coat Weight`` /
+  ``Coat Roughness`` / ``Coat IOR`` (lacquer, glazed ceramic, polished stone), a Bevel node on the normal (edge
+  highlights, radius in metres, ``samples``), an Ambient Occlusion node mixed into the base colour (contact shadows
+  in corners, ``Distance`` in metres, ``only_local`` off) and a procedural roughness variation (``wenart_imperfection``:
+  a Noise Texture mixed into the roughness; no CC0 imperfection image is in the catalogue, so it is procedural).
+  Tiles get their grout height on the Material Output's Displacement (``displacement_method = "BOTH"``: the bump
+  carries the look, true displacement where the object is subdivided). ``shell_material(slot, style, assets)``
+  builds one; ``MaterialLibrary.get`` routes the shell slugs through it when the ``shell`` lever is on
+  (``lighting.light_levers``; the A/B variant ``shell``). Every record says ``shell_slot`` and ``shell_layers``.
+- ``exterior_world_nodes(..., sun_disc=True, sun_elevation_deg, sun_azimuth_deg)``: the exterior sky carries the
+  sun disc (``ShaderNodeTexSky.sun_disc``, ``sun_intensity``, ``sun_size``); render.py hides the sun lamp under that
+  world so the sky never doubles the sun (``direct_sun: "sky disc"``). The HDRI path of the interior views stays.
+- ``fixture_material``: the emissive surface of a light-rig fixture (``lighting.room_rig``), its colour from the
+  blackbody temperature of the fixture.
+
 Node names were checked against Blender 5.2.2: Principled BSDF inputs 'Base
 Color', 'Roughness', 'Normal', 'Emission Color', 'Emission Strength', 'Metallic';
+Milestone 13 (the 5.2 manual, render/shader_nodes/shader/principled.html; API bpy.types.ShaderNodeBevel,
+ShaderNodeAmbientOcclusion, ShaderNodeTexSky, Material.displacement_method): 'Sheen Weight', 'Sheen Roughness',
+'Sheen Tint', 'Coat Weight', 'Coat Roughness', 'Coat IOR', 'Coat Tint', 'Specular IOR Level'; Bevel 'Radius',
+'Normal' -> 'Normal' (property samples); Ambient Occlusion 'Color', 'Distance', 'Normal' -> 'Color', 'AO'
+(properties samples, inside, only_local); Displacement 'Height', 'Midlevel', 'Scale' -> 'Displacement'; Sky Texture
+sun_disc, sun_size, sun_intensity, sun_elevation, sun_rotation, altitude, air_density, aerosol_density,
+ozone_density;
 Glass BSDF inputs 'Color', 'Roughness', 'IOR'; Glossy BSDF (ShaderNodeBsdfAnisotropic) 'Color', 'Roughness';
 Fresnel 'IOR'; Light Path outputs 'Is Camera Ray', 'Is Singular Ray'; RGB to BW 'Color' -> 'Val';
 Math inputs 'Value', 'Value_001', 'Value_002' (operations DIVIDE,
@@ -222,10 +250,13 @@ def licence_problem(entry: dict, asset_id: str) -> str | None:
 
 class MaterialLibrary:
     """Creates and caches Blender materials per slug and records, for the
-    scene manifest, whether each one is textured or flat and why."""
+    scene manifest, whether each one is textured or flat and why.
+
+    Milestone 13: ``style`` (the style profile) and ``levers`` (``lighting.light_levers``; read from the
+    environment when None) route the shell slugs through ``shell_material`` when the ``shell`` lever is on."""
 
     def __init__(self, textures: dict | None, assets_dir: str | None, use_textures: bool = True,
-                 refused: dict | None = None):
+                 refused: dict | None = None, style: dict | None = None, levers: dict | None = None):
         self.textures = textures or {}
         self.assets_dir = Path(assets_dir) if assets_dir else None
         self.use_textures = use_textures
@@ -234,6 +265,9 @@ class MaterialLibrary:
         self.refused = refused or {}
         self.records: dict[str, dict] = {}
         self._cache: dict = {}
+        self.style = style or {}
+        self.levers = dict(levers) if levers is not None else current_levers()
+        self.shell_on = bool(self.levers.get("shell"))
 
     # -- texture lookup ----------------------------------------------------
     def texture_set(self, asset_id: str | None) -> tuple[dict | None, str]:
@@ -276,7 +310,18 @@ class MaterialLibrary:
 
         unverified = bool(unverified) and markers_on()      # M11 D3: no stripes unless asked for
         pkey = _json.dumps(params, sort_keys=True) if params else None
-        key = (slug, asset_id, tuple(tint) if tint else None, unverified, colour or None, pkey)
+        # Milestone 13: the shell slot of the slug (None when the shell lever is off or the slug has none); the
+        # slot's texture set stands in for a missing asset (the ceiling's plaster, the worktop's stone).
+        slot = shell_slot_of(slug, asset_id) if self.shell_on else None
+        spec = shell_slot_spec(slot, self.style) if slot else None
+        kind_layers = material_kind_layers(slug) if self.shell_on else None
+        # The slot's set stands in only for the slugs of asset_for (the metal slot: steel_brushed; metal_black and
+        # metal_brass keep their flat colour), else for every slug of the slot (T5 review, 15 Oct 2026).
+        if (spec and spec.get("asset") and not asset_id and slug in (spec.get("asset_for") or spec.get("slugs") or (slug,))
+                and self.texture_set(spec["asset"])[0] is not None):
+            asset_id = spec["asset"]
+        key = (slug, asset_id, tuple(tint) if tint else None, unverified, colour or None, pkey, slot,
+               bool(kind_layers))
         if key in self._cache:
             return self._cache[key]
         tset, reason = self.texture_set(asset_id)
@@ -294,11 +339,19 @@ class MaterialLibrary:
                            "or the colour of its photo)")
             rgb = None
         all_params = procedural_params(slug, params) if procedural in PROCEDURAL_GROUPS else {}
+        # (The shell layers change no name: a build runs under one set of levers, so a slug is either shelled or
+        # not; the record's shell_slot says which.)
         name = (slug + (f"__{tset['id']}" if tset else "") + (f"__{_tag(colour)}" if rgb is not None else "")
                 + (f"__p{_short_hash(pkey)}" if pkey and procedural in PROCEDURAL_GROUPS else "")
                 + ("__unverified" if unverified else ""))
         mat = pbr_material(name, slug, tset, tint, unverified=unverified, procedural=procedural, base_rgb=rgb,
                            params=all_params)
+        layers = None
+        if spec:
+            layers = apply_shell_layers(mat, spec, textured=tset is not None, procedural=procedural)
+        elif kind_layers:
+            layers = apply_shell_layers(mat, {"slot": None, "layers": kind_layers}, textured=tset is not None,
+                                        procedural=procedural)
         self._cache[key] = mat
         mode, detail = albedo_mode(slug)
         clamped = mat.get("wenart_gain_clamped")
@@ -314,6 +367,10 @@ class MaterialLibrary:
             "gain_clamped": None if clamped is None else bool(clamped),
             "metallic": metallic(slug), "procedural": procedural,
         }
+        if spec or kind_layers:
+            self.records[mat.name].update(shell_slot=slot, shell_layers=layers,
+                                          shell_asset=spec.get("asset") if spec else None,
+                                          shell_reason=(spec or {}).get("reason") or "material layers by kind")
         if colour:
             self.records[mat.name].update(colour=str(colour), colour_rgb=[round(v, 4) for v in rgb] if rgb else None,
                                           colour_applied=rgb is not None)
@@ -551,6 +608,7 @@ def glazed_tiles_group():
     group.interface.new_socket(name="Color", in_out="OUTPUT", socket_type="NodeSocketColor")
     group.interface.new_socket(name="Roughness", in_out="OUTPUT", socket_type="NodeSocketFloat")
     group.interface.new_socket(name="Normal", in_out="OUTPUT", socket_type="NodeSocketVector")
+    group.interface.new_socket(name="Height", in_out="OUTPUT", socket_type="NodeSocketFloat")   # M13: 1 tile, 0 grout
     nodes, links = group.nodes, group.links
     gin = nodes.new("NodeGroupInput")
     gout = nodes.new("NodeGroupOutput")
@@ -590,6 +648,7 @@ def glazed_tiles_group():
     bump.inputs["Distance"].default_value = float(t["bump_distance_m"])
     links.new(invert.outputs["Value"], bump.inputs["Height"])
     links.new(bump.outputs["Normal"], gout.inputs["Normal"])
+    links.new(invert.outputs["Value"], gout.inputs["Height"])
     return group
 
 
@@ -926,27 +985,68 @@ EXTERIOR_WORLD = "wenart_world_exterior"
 # MULTIPLE_SCATTERING, PREETHAM, HOSEK_WILKIE). Clean air, a little haze.
 EXTERIOR_SKY = {"sky_type": "MULTIPLE_SCATTERING", "air_density": 1.0, "aerosol_density": 1.0, "ozone_density": 1.0,
                 "altitude": 0.0, "strength_factor": 0.5}
+# Milestone 13: the sun disc of the exterior sky (bpy.types.ShaderNodeTexSky: sun_disc "Include the sun itself in the
+# output", sun_size "Size of sun disc" default 0.00951204 rad = 0.545 degrees, sun_intensity "Strength of Sun" in
+# [0, 1000] default 1.0; the manual: "Single and Multiple Scattering skies are very bright by default (hence
+# accurate)"). With the disc on, the sky carries the direct sun of the exterior views and render.py hides the sun
+# lamp under that world (select_world), so nothing doubles it; the disc's intensity is 1.0 (the model's own physical
+# scale: the manual's clear sky is 1000 W/m², EXTERIOR_SUN_DISC_REFERENCE_WM2) scaled by the lamp's strength over
+# that reference, so the exterior sun follows SUN_STRENGTH_WM2 as the interior one does. tests/gpu/test_m13_light.py
+# measures the disc's irradiance against the lamp's and the lead corrects the reference from P1.
+SUN_DISC_SIZE_DEG = 0.545
+EXTERIOR_SUN_DISC_REFERENCE_WM2 = 1000.0
 
 
-def exterior_world(lighting: dict) -> dict:
-    """The world of the exterior views (pure record; docs/milestone11.md §1.1 E13): a physical sky with no sun disc
-    (the sun lamp carries the direct light) whose sun stands where the lamp is (``sun_elevation_deg``,
-    ``sun_azimuth_deg`` in the building frame), so the sky's bright side, the shadows and the light agree; the HDRI
-    of the style (its own low sun and its own ground showed in the exterior views) stays for the interior views."""
+def sky_sun_intensity(sun_wm2: float | None, reference_wm2: float = EXTERIOR_SUN_DISC_REFERENCE_WM2,
+                      world_strength: float = 1.0) -> float:
+    """The sky's ``sun_intensity`` for a sun lamp of ``sun_wm2`` (pure): ``sun_wm2 / (reference_wm2 x
+    world_strength)`` clamped to the node's range [0, 1000]; 1.0 (the model's own scale) when the lamp strength is
+    not given. ``world_strength`` is the Background node's Strength of the exterior world (``EXTERIOR_SKY``
+    ``strength_factor`` x the mood's strength): it multiplies the whole sky texture, the disc included, so without
+    it the disc would deliver ``world_strength x sun_wm2`` and vary by mood (T5 review, 15 Oct 2026)."""
+    if sun_wm2 is None:
+        return 1.0
+    scale = float(reference_wm2) * max(float(world_strength), 1e-6)
+    return round(min(1000.0, max(0.0, float(sun_wm2) / scale)), 6)
+
+
+def exterior_world(lighting: dict, sun_disc: bool = False, sun_elevation_deg: float | None = None,
+                   sun_azimuth_deg: float | None = None, sun_wm2: float | None = None) -> dict:
+    """The world of the exterior views (pure record; docs/milestone11.md §1.1 E13): a physical sky whose sun stands
+    where the lamp is (``sun_elevation_deg``, ``sun_azimuth_deg`` in the building frame; the arguments win over the
+    ``lighting`` keys), so the sky's bright side, the shadows and the light agree; the HDRI of the style (its own low
+    sun and its own ground showed in the exterior views) stays for the interior views.
+
+    Milestone 13: ``sun_disc`` puts the sun itself into the sky (``sun_intensity`` from ``sky_sun_intensity``,
+    ``sun_size_deg``); the record's ``direct_sun`` says who carries the direct light: ``"sky disc"`` (the lamp is
+    hidden under this world) or ``"lamp"`` (no disc, the Milestone 11 world)."""
     mood = str(lighting.get("mood", "")).lower()
     strength = MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0)) * EXTERIOR_SKY["strength_factor"]
-    return {"kind": "sky", "name": EXTERIOR_WORLD, "sky_type": EXTERIOR_SKY["sky_type"], "file": None,
-            "strength": strength, "sun_elevation_deg": float(lighting.get("sun_elevation_deg", 35.0)),
-            "sun_azimuth_deg": float(lighting.get("sun_azimuth_deg", 210.0)), "sun_disc": False,
-            "reason": "exterior views: a physical sky matched to the sun lamp (E13)"}
+    elevation = float(lighting.get("sun_elevation_deg", 35.0) if sun_elevation_deg is None else sun_elevation_deg)
+    azimuth = float(lighting.get("sun_azimuth_deg", 210.0) if sun_azimuth_deg is None else sun_azimuth_deg)
+    rec = {"kind": "sky", "name": EXTERIOR_WORLD, "sky_type": EXTERIOR_SKY["sky_type"], "file": None,
+           "strength": strength, "sun_elevation_deg": elevation, "sun_azimuth_deg": azimuth, "sun_disc": bool(sun_disc),
+           "reason": "exterior views: a physical sky matched to the sun lamp (E13)"}
+    if sun_disc:
+        rec.update(sun_intensity=sky_sun_intensity(sun_wm2, world_strength=strength), sun_size_deg=SUN_DISC_SIZE_DEG,
+                   direct_sun="sky disc", sun_disc_reference_wm2=EXTERIOR_SUN_DISC_REFERENCE_WM2, sun_lamp_wm2=sun_wm2,
+                   sun_disc_world_strength=strength,
+                   reason="exterior views: a daytime physical sky with the sun disc; the sun lamp is hidden under "
+                          "this world so the sky does not double the sun (Milestone 13 K5)")
+    else:
+        rec["direct_sun"] = "lamp"
+    return rec
 
 
-def exterior_world_nodes(scene, lighting: dict) -> dict:
+def exterior_world_nodes(scene, lighting: dict, sun_disc: bool = True, sun_elevation_deg: float | None = None,
+                         sun_azimuth_deg: float | None = None, sun_wm2: float | None = None) -> dict:
     """Make the exterior world (``exterior_world``) as its own Blender world (not assigned to the scene: render.py
-    switches to it for exterior cameras, ``scene["wenart_world_exterior"]``)."""
+    switches to it for exterior cameras, ``scene["wenart_world_exterior"]``; with the sun disc the scene property
+    ``wenart_world_exterior_sun_disc`` tells render.py to hide the sun lamp under it)."""
     import bpy
 
-    rec = exterior_world(lighting)
+    rec = exterior_world(lighting, sun_disc=sun_disc, sun_elevation_deg=sun_elevation_deg,
+                         sun_azimuth_deg=sun_azimuth_deg, sun_wm2=sun_wm2)
     world = bpy.data.worlds.get(EXTERIOR_WORLD) or bpy.data.worlds.new(EXTERIOR_WORLD)
     world.use_nodes = True
     tree = world.node_tree
@@ -958,7 +1058,10 @@ def exterior_world_nodes(scene, lighting: dict) -> dict:
     links.new(bg.outputs["Background"], out.inputs["Surface"])
     sky = nodes.new("ShaderNodeTexSky")
     sky.sky_type = EXTERIOR_SKY["sky_type"]
-    sky.sun_disc = False
+    sky.sun_disc = bool(rec["sun_disc"])
+    if rec["sun_disc"]:
+        sky.sun_intensity = float(rec["sun_intensity"])
+        sky.sun_size = math.radians(SUN_DISC_SIZE_DEG)
     sky.sun_elevation = math.radians(max(1.0, rec["sun_elevation_deg"]))
     sky.sun_rotation = math.radians(90.0 - rec["sun_azimuth_deg"])
     for key in ("air_density", "aerosol_density", "ozone_density", "altitude"):
@@ -968,9 +1071,287 @@ def exterior_world_nodes(scene, lighting: dict) -> dict:
     bg.inputs["Strength"].default_value = rec["strength"]
     world.use_fake_user = True
     scene["wenart_world_exterior"] = world.name
+    scene["wenart_world_exterior_sun_disc"] = bool(rec["sun_disc"])
     if scene.world is not None:
         scene["wenart_world_interior"] = scene.world.name
     return rec
+
+
+# --------------------------------------------------------------------------
+# Milestone 13: the shell material table per slot and the material layers (docs/milestone13.md §13.2)
+# --------------------------------------------------------------------------
+
+SHELL_SLOT_NAMES = ("ceiling", "worktop", "front", "ceramic", "metal", "tile", "plaster")
+# The layers (Blender 5.2 Principled BSDF inputs and shader nodes, names in the module docstring). Every value is a
+# designer value (assumed) within the manual's ranges: coat weight 0-1 ("typically zero or one for physically-based
+# materials, but may be textured"), coat IOR 1-2, sheen weight 0-1; bevel radius in metres (2-5 mm on plaster and
+# wood, 1 mm on metal), AO distance in metres (corners within 0.15-0.30 m), the imperfection amount is the share of
+# roughness variation (0.06-0.20) at a noise scale in metres.
+SHELL_SLOTS: dict[str, dict] = {
+    "ceiling": {"slugs": ("plaster_white",), "asset": "white_plaster_02", "mode": "flat",
+                "layers": {"ao": {"distance_m": 0.30, "mix": 0.10}, "bevel": {"radius_m": 0.004},
+                           "imperfection": {"amount": 0.10, "scale_m": 0.80}},
+                "reason": "ceiling plaster on the Poly Haven white_plaster_02 set (flat albedo mode: the colour stays "
+                          "the ceiling's, the photo adds its detail), corner AO and a 4 mm edge bevel"},
+    "worktop": {"slugs": ("stone_worktop",), "asset": "marble_01", "mode": "texture",
+                "layers": {"coat": {"weight": 0.6, "roughness": 0.10, "ior": 1.5}, "bevel": {"radius_m": 0.002},
+                           "imperfection": {"amount": 0.15, "scale_m": 0.30}},
+                "reason": "stone worktop on the Poly Haven marble_01 set (texture mode, gain-matched to the slug's "
+                          "grey), a polished coat and a 2 mm edge bevel"},
+    "front": {"slugs": ("painted_wood_white",), "asset": "white_planks_clean", "mode": "flat",
+              "layers": {"coat": {"weight": 0.3, "roughness": 0.25, "ior": 1.45}, "bevel": {"radius_m": 0.0015},
+                         "imperfection": {"amount": 0.12, "scale_m": 0.25}},
+              "reason": "painted fronts and trim on the Poly Haven white_planks_clean set (flat mode, the paint colour "
+                        "of the style), a satin lacquer coat and a 1.5 mm edge bevel"},
+    "ceramic": {"slugs": ("ceramic_white",), "asset": None, "mode": "flat", "roughness": 0.12,
+                "layers": {"coat": {"weight": 1.0, "roughness": 0.03, "ior": 1.5}, "bevel": {"radius_m": 0.003},
+                           "imperfection": {"amount": 0.06, "scale_m": 0.20}},
+                "reason": "glazed sanitary ceramic: a full clear coat over the white body, a 3 mm edge bevel"},
+    "metal": {"slugs": ("steel_brushed", "metal_black", "metal_brass"), "asset": "Metal032", "mode": "texture",
+              "asset_for": ("steel_brushed",),
+              "layers": {"bevel": {"radius_m": 0.001}, "imperfection": {"amount": 0.20, "scale_m": 0.10}},
+              "reason": "brushed steel on the ambientCG Metal032 set (its roughness map), black and brass handles keep "
+                        "their flat colour; a 1 mm edge bevel and roughness variation"},
+    "tile": {"slugs": (), "prefix": PROCEDURAL_TILE_PREFIX, "asset": None, "mode": "flat",
+             "layers": {"coat": {"weight": 0.8, "roughness": 0.08, "ior": 1.5}, "displacement": {"scale_m": 0.0015},
+                        "ao": {"distance_m": 0.15, "mix": 0.06}, "imperfection": {"amount": 0.08, "scale_m": 0.50}},
+             "reason": "glazed tiles: the procedural tile group with its grout on the material displacement "
+                       "(displacement_method BOTH), a glaze coat, corner AO"},
+    "plaster": {"slugs": (), "kind": "plaster", "asset": None, "mode": None,
+                "layers": {"ao": {"distance_m": 0.25, "mix": 0.08}, "bevel": {"radius_m": 0.004},
+                           "imperfection": {"amount": 0.10, "scale_m": 1.00}},
+                "reason": "wall plaster and paint keep their own set; corner AO, a 4 mm edge bevel and roughness "
+                          "variation"},
+}
+# Layers by material kind for every other slug (vocabulary ``kind``): fabrics get the Principled sheen ("Sheen
+# simulates very small fibers on the surface. For cloth this adds a soft velvet like reflection near edges"), woods a
+# light varnish coat and a 1.5 mm bevel.
+MATERIAL_KIND_LAYERS: dict[str, dict] = {
+    "fabric": {"sheen": {"weight": 0.5, "roughness": 0.5}},
+    "wood": {"coat": {"weight": 0.25, "roughness": 0.3, "ior": 1.45}, "bevel": {"radius_m": 0.0015}},
+}
+BEVEL_SAMPLES = 4           # the manual: "The default value of 4 works well for most cases"
+AO_SAMPLES = 4
+IMPERFECTION_GROUP = "wenart_imperfection"
+
+
+def current_levers() -> dict:
+    """``lighting.light_levers()`` (the environment's ``WENART_LIGHT_VARIANT``); every lever off when the lighting
+    module cannot be imported."""
+    try:
+        from wenart.blender.lighting import light_levers
+        return light_levers()
+    except Exception:  # noqa: BLE001 - a material must never die over a lever table
+        return {"variant": None, "sun_wm2": None, "ev_cap": False, "rig": False, "shell": False, "source": "none"}
+
+
+def shell_slot_of(slug: str, asset_id: str | None = None) -> str | None:
+    """The shell slot of a material slug (pure), or None: ``ceramic_white`` -> ``ceramic``, ``stone_worktop`` ->
+    ``worktop``, ``painted_wood_white`` -> ``front``, the handle metals -> ``metal``, a ``tiles_*`` slug -> ``tile``,
+    ``plaster_white`` asked without an asset (the ceiling slot of the style profiles) -> ``ceiling``, any other
+    plaster-kind slug (paint, lime_plaster, plaster_cream, a textured plaster_white wall) -> ``plaster``."""
+    for name, spec in SHELL_SLOTS.items():
+        if slug in spec.get("slugs", ()) and name != "ceiling":
+            return name
+    if str(slug).startswith(SHELL_SLOTS["tile"]["prefix"]):
+        return "tile"
+    if slug == "plaster_white" and not asset_id:
+        return "ceiling"
+    if (ENTRIES.get(slug) or {}).get("kind") == "plaster":
+        return "plaster"
+    return None
+
+
+def shell_slot_spec(slot: str, style: dict | None = None) -> dict:
+    """The resolved table entry of ``slot`` (pure): ``{"slot", "asset", "mode", "layers", "reason", "roughness"}``.
+    The style's own slot asset wins where the profile names one (``ceiling.asset``, ``trim.asset``); the ``metal``
+    slot's set applies to ``steel_brushed`` only (``asset_for``). KeyError for an unknown slot."""
+    spec = dict(SHELL_SLOTS[slot])
+    style = style or {}
+    own = {"ceiling": "ceiling", "front": "trim"}.get(slot)
+    entry = style.get(own) if own else None
+    if isinstance(entry, dict) and entry.get("asset"):
+        spec["asset"] = entry["asset"]
+    spec["slot"] = slot
+    spec["layers"] = {k: dict(v) for k, v in spec["layers"].items()}
+    return spec
+
+
+def shell_assets() -> dict[str, str | None]:
+    """``{slot: asset id}`` of the table (pure; the tests check every id against the vocabulary and the asset
+    checks file, so no invented id can enter)."""
+    return {slot: spec.get("asset") for slot, spec in SHELL_SLOTS.items()}
+
+
+def material_kind_layers(slug: str) -> dict | None:
+    """The ``MATERIAL_KIND_LAYERS`` of a slug's vocabulary kind (pure), None for other kinds or a shell slug."""
+    kind = (ENTRIES.get(slug) or {}).get("kind")
+    layers = MATERIAL_KIND_LAYERS.get(str(kind))
+    return {k: dict(v) for k, v in layers.items()} if layers else None
+
+
+def shell_material(slot: str, style: dict | None, assets):
+    """The Blender material of a shell slot (docs/milestone13.md §13.2): the slot's representative slug through
+    ``MaterialLibrary.get`` with the shell lever on, so the slot's CC0 set (when ``assets`` holds it) and its layers
+    apply. ``assets``: a ``MaterialLibrary``, or the assets manifest's ``textures`` dict (paths absolute, or relative
+    to the current folder), or None (flat / procedural with the layers)."""
+    if isinstance(assets, MaterialLibrary):
+        library = assets
+        library.shell_on = True
+        library.style = style or library.style
+    else:
+        library = MaterialLibrary(assets if isinstance(assets, dict) else None, None, use_textures=True, style=style,
+                                  levers={"shell": True})
+    spec = shell_slot_spec(slot, style)
+    slug = {"ceiling": "plaster_white", "worktop": "stone_worktop", "front": "painted_wood_white",
+            "ceramic": "ceramic_white", "metal": "steel_brushed", "tile": "tiles_light", "plaster": "paint"}[slot]
+    asset = None if slot in ("ceiling",) else (ENTRIES.get(slug) or {}).get("asset")
+    if slot == "metal":
+        asset = None
+    return library.get(slug, asset)
+
+
+def _bsdf_of(mat):
+    tree = mat.node_tree
+    return next((n for n in tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None)
+
+
+def _set_input(bsdf, name: str, value) -> bool:
+    sock = bsdf.inputs.get(name)
+    if sock is None:
+        return False
+    sock.default_value = value
+    return True
+
+
+def apply_shell_layers(mat, spec: dict, textured: bool = False, procedural: str | None = None) -> dict:
+    """Add the layers of ``spec["layers"]`` to a Principled material (bpy): ``coat`` and ``sheen`` set the BSDF
+    inputs; ``bevel`` puts a Bevel node on the normal chain (after the normal map or bump that feeds it);
+    ``ao`` mixes the Ambient Occlusion factor into the base colour (``base x (1 - mix + mix x AO)``);
+    ``imperfection`` multiplies the roughness by ``1 + amount x (noise - 0.5) x 2`` (``wenart_imperfection``);
+    ``displacement`` (tiles) feeds the tile group's ``Height`` to a Displacement node on the Material Output
+    (``displacement_method = "BOTH"``). Returns what was applied (the record's ``shell_layers``)."""
+    bsdf = _bsdf_of(mat)
+    if bsdf is None:
+        return {"applied": [], "note": "no Principled BSDF: layers not applied"}
+    tree = mat.node_tree
+    nodes, links = tree.nodes, tree.links
+    layers = spec.get("layers") or {}
+    applied: dict = {}
+    if spec.get("roughness") is not None and not bsdf.inputs["Roughness"].links:
+        bsdf.inputs["Roughness"].default_value = float(spec["roughness"])
+        applied["roughness"] = float(spec["roughness"])
+    coat = layers.get("coat")
+    if coat:
+        ok = _set_input(bsdf, "Coat Weight", float(coat["weight"]))
+        ok = _set_input(bsdf, "Coat Roughness", float(coat["roughness"])) and ok
+        ok = _set_input(bsdf, "Coat IOR", float(coat["ior"])) and ok
+        applied["coat"] = dict(coat, applied=ok)
+    sheen = layers.get("sheen")
+    if sheen:
+        ok = _set_input(bsdf, "Sheen Weight", float(sheen["weight"]))
+        ok = _set_input(bsdf, "Sheen Roughness", float(sheen["roughness"])) and ok
+        applied["sheen"] = dict(sheen, applied=ok)
+    bevel = layers.get("bevel")
+    if bevel:
+        node = nodes.new("ShaderNodeBevel")
+        node.samples = BEVEL_SAMPLES
+        node.inputs["Radius"].default_value = float(bevel["radius_m"])
+        normal_in = bsdf.inputs["Normal"]
+        if normal_in.links:
+            links.new(normal_in.links[0].from_socket, node.inputs["Normal"])
+        links.new(node.outputs["Normal"], normal_in)
+        applied["bevel"] = dict(bevel, samples=BEVEL_SAMPLES)
+    ao = layers.get("ao")
+    if ao:
+        node = nodes.new("ShaderNodeAmbientOcclusion")
+        node.samples = AO_SAMPLES
+        node.only_local = False
+        node.inputs["Distance"].default_value = float(ao["distance_m"])
+        node.inputs["Color"].default_value = (1.0, 1.0, 1.0, 1.0)
+        mix = float(ao["mix"])
+        weight = nodes.new("ShaderNodeMath")               # AO x mix + (1 - mix)
+        weight.operation = "MULTIPLY_ADD"
+        links.new(node.outputs["AO"], weight.inputs[0])
+        weight.inputs[1].default_value = mix
+        weight.inputs[2].default_value = 1.0 - mix
+        scale = nodes.new("ShaderNodeVectorMath")
+        scale.operation = "SCALE"
+        base_in = bsdf.inputs["Base Color"]
+        if base_in.links:
+            links.new(base_in.links[0].from_socket, scale.inputs["Vector"])
+        else:
+            scale.inputs["Vector"].default_value = tuple(base_in.default_value)[:3]
+        links.new(weight.outputs["Value"], scale.inputs["Scale"])
+        links.new(scale.outputs["Vector"], base_in)
+        applied["ao"] = dict(ao, samples=AO_SAMPLES)
+    imp = layers.get("imperfection")
+    if imp:
+        group = nodes.new("ShaderNodeGroup")
+        group.node_tree = imperfection_group()
+        group.inputs["Amount"].default_value = float(imp["amount"])
+        group.inputs["Scale"].default_value = 1.0 / max(1e-3, float(imp["scale_m"]))
+        rough_in = bsdf.inputs["Roughness"]
+        if rough_in.links:
+            links.new(rough_in.links[0].from_socket, group.inputs["Roughness"])
+        else:
+            group.inputs["Roughness"].default_value = float(rough_in.default_value)
+        links.new(group.outputs["Roughness"], rough_in)
+        applied["imperfection"] = dict(imp)
+    disp = layers.get("displacement")
+    if disp:
+        height = next((n.outputs["Height"] for n in nodes if n.bl_idname == "ShaderNodeGroup" and n.node_tree is not None
+                       and "Height" in n.outputs), None)
+        out = next((n for n in nodes if n.bl_idname == "ShaderNodeOutputMaterial"), None)
+        if height is not None and out is not None:
+            node = nodes.new("ShaderNodeDisplacement")
+            node.space = "OBJECT"
+            links.new(height, node.inputs["Height"])
+            node.inputs["Midlevel"].default_value = 1.0          # tiles (height 1) stay, the grout (0) sinks
+            node.inputs["Scale"].default_value = float(disp["scale_m"])
+            links.new(node.outputs["Displacement"], out.inputs["Displacement"])
+            mat.displacement_method = "BOTH"
+            applied["displacement"] = dict(disp, method="BOTH")
+        else:
+            applied["displacement"] = dict(disp, applied=False, note="no tile group with a Height output")
+    mat["wenart_shell_slot"] = str(spec.get("slot") or "")
+    mat["wenart_shell_layers"] = ",".join(sorted(applied))
+    return {"applied": sorted(applied), **applied}
+
+
+def imperfection_group():
+    """``wenart_imperfection`` (created once per file): inputs Roughness, Amount, Scale; output Roughness =
+    ``clamp(Roughness x (1 + Amount x (noise - 0.5) x 2))`` with a 3-D fBM Noise Texture on the object coordinates
+    (world space for the shell meshes, which sit at the origin), so no surface is perfectly uniform. No CC0
+    imperfection image is in the catalogue (none audited), so the overlay is procedural."""
+    import bpy
+
+    group = bpy.data.node_groups.get(IMPERFECTION_GROUP)
+    if group is not None:
+        return group
+    group = bpy.data.node_groups.new(IMPERFECTION_GROUP, "ShaderNodeTree")
+    for sname in ("Roughness", "Amount", "Scale"):
+        group.interface.new_socket(name=sname, in_out="INPUT", socket_type="NodeSocketFloat")
+    group.interface.new_socket(name="Roughness", in_out="OUTPUT", socket_type="NodeSocketFloat")
+    nodes = group.nodes
+    gin, gout = nodes.new("NodeGroupInput"), nodes.new("NodeGroupOutput")
+    g = _Graph(group)
+    coord = nodes.new("ShaderNodeTexCoord")
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.noise_dimensions = "3D"
+    noise.noise_type = "FBM"
+    g.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+    g.links.new(gin.outputs["Scale"], noise.inputs["Scale"])
+    noise.inputs["Detail"].default_value = 3.0
+    centred = g.math("SUBTRACT", noise.outputs["Fac"], 0.5)                  # -0.5 .. 0.5
+    factor = g.math("MULTIPLY_ADD", g.math("MULTIPLY", centred, 2.0), gin.outputs["Amount"], 1.0)
+    rough = g.nodes.new("ShaderNodeMath")
+    rough.operation = "MULTIPLY"
+    rough.use_clamp = True
+    g.links.new(gin.outputs["Roughness"], rough.inputs[0])
+    g.links.new(factor, rough.inputs[1])
+    g.links.new(rough.outputs["Value"], gout.inputs["Roughness"])
+    return group
 
 
 # --------------------------------------------------------------------------
@@ -1165,7 +1546,7 @@ def tiles_group(pattern: str):
         return group
     group, gin, gout, uv = _new_group(name, [("Tile Color", _COLOUR), ("Grout Color", _COLOUR), ("Tile Width", _FLOAT),
                                              ("Tile Height", _FLOAT), ("Grout", _FLOAT), ("Variation", _FLOAT),
-                                             ("Tile Roughness", _FLOAT)], _OUTPUTS)
+                                             ("Tile Roughness", _FLOAT)], _OUTPUTS + [("Height", _FLOAT)])
     g = _Graph(group)
     i = gin.outputs
     if pattern == "hexagon":
@@ -1212,7 +1593,9 @@ def tiles_group(pattern: str):
     g.links.new(i["Tile Roughness"], rough.inputs["To Min"])
     rough.inputs["To Max"].default_value = TILE_GROUT_ROUGHNESS
     g.links.new(rough.outputs["Result"], gout.inputs["Roughness"])
-    g.links.new(_bump(g, g.math("SUBTRACT", 1.0, grout), 0.4, 0.002), gout.inputs["Normal"])
+    height = g.math("SUBTRACT", 1.0, grout)                     # 1 on the tile, 0 in the grout (M13: displacement)
+    g.links.new(_bump(g, height, 0.4, 0.002), gout.inputs["Normal"])
+    g.links.new(height, gout.inputs["Height"])
     return group
 
 
@@ -1382,6 +1765,23 @@ def exterior_material(library, slug: str, colour=None):
     applied. A slug the vocabulary does not know gets the flat ``unknown`` grey (recorded)."""
     asset = (ENTRIES.get(slug) or {}).get("asset")
     return library.get(slug, asset, colour=colour)
+
+
+def fixture_material(name: str, kelvin: float = 2700.0, strength: float = 6.0):
+    """The emissive surface of a light-rig fixture (Milestone 13, ``lighting.room_rig``): an Emission shader in the
+    blackbody colour of ``kelvin`` (``lighting._blackbody_rgb``) at ``strength``; the room's light comes from the
+    point or area light inside the fixture, the emission is what the camera sees. ``cycles.emission_sampling`` is
+    ``NONE`` (the small surface is no light to sample). One material per kelvin, cached by name."""
+    import bpy
+
+    mat = bpy.data.materials.get(name)
+    if mat is not None:
+        return mat
+    from wenart.blender.lighting import _blackbody_rgb
+    mat = light_material(name, _blackbody_rgb(float(kelvin)), strength)
+    mat.cycles.emission_sampling = "NONE"
+    mat["wenart_fixture_k"] = float(kelvin)
+    return mat
 
 
 def light_material(name: str, rgb=(1.0, 0.78, 0.55), strength: float = 8.0):

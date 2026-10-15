@@ -41,7 +41,8 @@ DEFAULT_SIZE_M = 1.0  # when dimensionX / dimensionY are 0 (docs/milestone3.md s
 
 # Our map name -> file-name suffix inside the zip (without extension).
 MAP_SUFFIXES = {"albedo": "_Color", "normal": "_NormalGL", "roughness": "_Roughness"}
-OPTIONAL_SUFFIXES = {"displacement": "_Displacement"}
+OPTIONAL_SUFFIXES = {"displacement": "_Displacement",
+                     "opacity": "_Opacity"}       # M13 (T6): the LeafSet atlases' leaf cut-outs
 
 _ID_RE = re.compile(r"^[A-Z][A-Za-z]*\d{3}[A-Z]?$")
 

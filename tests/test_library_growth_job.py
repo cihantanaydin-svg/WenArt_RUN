@@ -89,9 +89,12 @@ def _run(env: dict, cwd: Path, timeout: float = 180) -> tuple[int, str, float]:
     return res.returncode, res.stdout + res.stderr, time.time() - t0
 
 
-STEPS = ("gso-licence", "convert-gso", "catalogue", "render-a", "convert-infinigen", "catalogue-b", "render-b",
-         "code", "decide", "write", "vision-fields", "pending", "sheets", "gaps", "preview", "report", "gpu-tests")
-BACKGROUND = ("setup-check", "infinigen", "ingest-polyhaven", "ingest-abo", "ingest-gso")
+STEPS = ("demands", "size-grid", "speed-probe",                     # Milestone 13 (track T7), before the ingests
+         "gso-licence", "convert-gso", "catalogue", "render-a", "convert-infinigen", "catalogue-b", "render-b",
+         "code", "decide", "write", "vision-fields", "pending", "sheets", "gaps", "coverage", "preview", "report",
+         "gpu-tests")
+BACKGROUND = ("setup-check", "infinigen", "ingest-polyhaven", "ingest-abo", "ingest-gso",
+              "ingest-abo-m13", "ingest-polyhaven-m13", "ingest-ambientcg")   # Milestone 13 lists
 
 
 @pytest.mark.skipif(not Path("/bin/bash").exists(), reason="bash needed")
@@ -110,6 +113,7 @@ def test_the_growth_job_reaches_its_end_and_resumes_with_fakes(tmp_path):
                AUDIT_MODEL_KEY="agent", PATH=f"{fakebin}:{os.environ.get('PATH', '')}",
                WENART_BLENDER=str(fakebin / "blender"), GROWTH_MIN_FREE_GB="0")
     env.pop("WENART_DEADLINE", None)
+    env.pop("HF_TOKEN", None)                                     # no token: the HSSD step is skipped, loudly
 
     # the volume guard: too little free space stops the job before any download (nothing is deleted)
     rc, out, _ = _run(dict(env, GROWTH_MIN_FREE_GB="1000000"), tmp_path)
@@ -123,7 +127,13 @@ def test_the_growth_job_reaches_its_end_and_resumes_with_fakes(tmp_path):
         assert f"step start: {step}" in out, f"missing {step!r}:\n{out[-3000:]}"
     for step in BACKGROUND:
         assert f"step start (background): {step}" in out and f"step end: {step} rc=" in out, step
+    # Milestone 13: without HF_TOKEN the HSSD ingest never starts and says why (D2: the gated terms)
+    assert "ingest-hssd: SKIPPED: HF_TOKEN is not set" in out and "step start (background): ingest-hssd" not in out
     calls = log.read_text().splitlines()
+    assert any(c.startswith("-m wenart.assets growth run ingest --source abo --m13") for c in calls)
+    assert any("--source polyhaven --m13 --size 2k" in c for c in calls)
+    assert any(c.startswith("-m wenart.assets growth run speed-probe") for c in calls)
+    assert not any("--source hssd" in c for c in calls)
     assert any(c.startswith("-m wenart.assets growth run ask --model-key agent") for c in calls)
     assert any("--ids-file" in c and c.startswith("-m wenart.assets audit render") for c in calls)
     growth = results / "library" / "growth"
@@ -135,6 +145,7 @@ def test_the_growth_job_reaches_its_end_and_resumes_with_fakes(tmp_path):
     assert not (p4 / "sheets").exists()                           # per-model sheets stay on the volume
     steps = (growth / "steps.tsv").read_text().splitlines()
     assert any(s.startswith("infinigen\t1\t") for s in steps) and any(s.startswith("catalogue\t0\t") for s in steps)
+    assert any(s.startswith("ingest-hssd (skipped: no HF_TOKEN)\t0\t") for s in steps)
 
     # second run: Infinigen done meanwhile, every answer current -> no setup, no server; the setup is not waited for
     (ws / "library-growth" / "infinigen" / "fake_done").write_text("")

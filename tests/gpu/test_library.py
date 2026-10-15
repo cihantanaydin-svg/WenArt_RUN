@@ -608,3 +608,73 @@ def test_growth_every_approved_id_is_accounted_for():
         for aid in approved:
             uid = GS.gso_uid(GS.name_of(aid)) if source == "gso" else aid
             assert aid in done or uid in done, (source, aid)
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 pod P2 (docs/milestone13.md §13.6; track T7): the growth by demand and the audit gates
+# --------------------------------------------------------------------------
+
+GROWTH_M13 = Path(os.environ.get("WENART_GROWTH", "/workspace/library-growth"))
+
+
+def _m13_report(name: str) -> dict:
+    doc = OV.read_json(GROWTH_M13 / "report" / name)
+    if doc is None:
+        pytest.skip(f"{GROWTH_M13 / 'report' / name} not found (written by the Milestone 13 growth job)")
+    return doc
+
+
+def test_growth_m13_demands_coverage_and_speed_records():
+    dem = _m13_report("demands.json")
+    cov = _m13_report("coverage.json")
+    assert dem["pieces"] >= 800 and cov["bins_demanded"] >= 80 and cov["min_models_per_bin"] == 2
+    assert set(cov["by_mode"]) == {"commercial", "relaxed"}
+    speed = _m13_report("speed.json")
+    assert speed["mb_s"] > 0 and set(speed["picks"]) >= {"hssd", "abo"}
+    for src, p in speed["picks"].items():
+        assert p["take"] <= p["listed"]
+
+
+def test_growth_m13_hssd_gate_is_explicit_and_the_token_never_written():
+    rec = _m13_report("ingest_hssd.json")
+    text = (GROWTH_M13 / "report" / "ingest_hssd.json").read_text(encoding="utf-8")
+    assert "hf_" not in text.replace("hf_token", "")              # no token in the record
+    if rec.get("refused"):
+        pytest.skip(f"hssd ingest refused: {rec['refused']}")
+    if rec.get("skipped"):
+        gate = rec.get("gate") or {}
+        assert gate.get("status") in (401, 403, None) and "HF_TOKEN" in str(gate.get("reason")) or \
+            "terms" in str(gate.get("reason"))
+        pytest.skip(f"hssd skipped: {gate.get('reason')}")
+    assert rec["ok"] >= 1 and rec["approved"] >= rec["ok"]
+    for r in rec["records"]:
+        if r.get("ok"):
+            assert r["glb"].startswith("models/hssd/hssd_") and (ASSETS / r["glb"]).is_file()
+            assert (ASSETS / r["glb"]).stat().st_size == r["bytes"]
+
+
+def test_growth_m13_catalogue_copies_carry_the_gates_and_the_hssd_flags():
+    p4 = Path(os.environ.get("WENART_AUDIT_P4", "/workspace/library-audit/p4/audit"))
+    lib = OV.read_json(p4 / "catalogue" / "catalog_library.json")
+    if lib is None:
+        pytest.skip("no catalogue copy of the growth job")
+    new = set((OV.read_json(p4 / "new_ids.json") or {}).get("ids") or [])
+    hssd = [e for e in lib.get("entries", []) + lib.get("decor", []) if e.get("source") == "hssd"]
+    for e in hssd:
+        assert e["licence"] == "CC-BY-NC-4.0" and e["licence_flag"] == "non_commercial" \
+            and e["commercial_safe"] is False and e["units_known"] is True
+        assert not C.usable(e, "commercial")
+    audited = [e for e in lib.get("entries", []) if e["id"] in new and (e.get("audit") or {}).get("status")
+               in ("keep", "fix")]
+    for e in audited:
+        assert "pbr_maps" in e, e["id"]                            # the PBR record gate
+        if e["type"] in (load_config().get("gates") or {}).get("known_units_anchor_types", ()):
+            assert e.get("units_known"), e["id"]
+        if e["type"] == "sofa_corner":
+            assert e.get("chaise_side") in ("left", "right", None)
+    assert all(k in e for e in hssd for k in ("licence_url", "licence_declared_by", "attribution"))
+
+
+def load_config():
+    from wenart.assets.audit import load_config as _lc
+    return _lc()

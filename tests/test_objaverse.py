@@ -177,7 +177,7 @@ def test_licence_table_takes_every_licence_and_flags_all_but_cc0_and_cc_by():
     lic = CFG["licences"]
     assert set(lic["accept"]) == {C.LICENCE, C.CC_BY}
     names = set(lic["accept"]) | set(lic["flagged"]) | {lic["unknown"]}
-    assert names == set(C.LICENCE_FLAGS)
+    assert names == set(C.LICENCE_TEXT_FLAGS)                      # Milestone 13: the licence text -> flag table
     for name in names:
         assert lic["urls"][name].startswith("https://") and lic["names"][name], name
     spellings = [s.casefold() for table in (lic["accept"], lic["flagged"]) for v in table.values() for s in v]

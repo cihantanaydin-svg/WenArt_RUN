@@ -32,6 +32,11 @@ sources:
   panero_blog: "a blog quoting Panero & Zelnik, Human Dimension & Interior Space (flagged)"
   viewing: "SMPTE/THX viewing angles via secondary sources (flagged)"
   ours: "our assumption for small flats (flagged); no Turkish furniture-clearance standard was found"
+  # Milestone 13 (docs/milestone13.md §2.4, research of 12 Oct 2026): the designer terms R3, R6, R12-R14. None of
+  # the books could be read; the numbers come from guides that cite them, so every term is flagged.
+  design_books: "design guides citing Neufert, Panero & Zelnik, Ching and Time-Saver Standards (ArchDaily 'How to arrange furniture in architectural spaces', Houzz, retailer rug guides; secondary, flagged)"
+  merrell2011: "Merrell et al. 2011, 'Interactive furniture layout using interior design guidelines' (the alignment and balance term names; secondary, flagged)"
+  turkish_imar: "Planlı Alanlar İmar Yönetmeliği minimum room sizes (living 12 m² / 3.00 m, bedroom 9 m² / 2.50 m, kitchen 3.30 m² / 1.50 m; mevzuat.gov.tr not reachable, search snippets of mimarim.com and Lexpera; flagged)"
 
 # name: {min (hard), rec (score), max, ...; source: [keys of sources]; flagged}. Metres and degrees.
 rules:
@@ -56,6 +61,13 @@ rules:
   storage_front: {min: 0.80, source: [ours], flagged: true, what: "free in front of wardrobes and other door-fronted storage"}
   desk_back: {min: 0.80, source: [ours], flagged: true, what: "free behind the desk front (the chair zone)"}
   window_band: {depth: 0.30, sill_margin: 0.05, source: [ours], what: "nothing taller than the sill + 0.05 m within 0.30 m in front of a window"}
+  # Milestone 13 (T3): the designer terms of docs/milestone13.md §2.4 as data (scored, never hard).
+  conversation_circle: {min: 2.4, max: 3.0, facing_deg: 45.0, source: [design_books], flagged: true, what: "R3: a seating group is a conversation circle 2.4-3.0 m across (seat front to seat front); every seat faces the group's centre within 45 degrees"}
+  rug_seating: {inset: 0.30, min_side: 1.20, source: [design_books], flagged: true, what: "R6: the rug under a seating group covers the group's box (sofa front, coffee table, armchairs) with the front legs of every seat on it: 0.30 m under each seat front, centred on the group"}
+  rug_dining: {margin: 0.60, source: [design_books], flagged: true, what: "R6: a dining rug reaches 0.60 m past the table edge on every side so pulled chairs stay on it (used by the decor rules)"}
+  rug_bed: {width: 0.80, source: [design_books], flagged: true, what: "R6: a runner 0.80 m wide along each free long side of a bed, from the nightstand line to the foot (a bedroom-rug overhang was not found in a readable source)"}
+  floating: {max_m: 0.80, source: [ours], flagged: true, what: "R12: nothing floats: a free-standing piece counts as anchored when a wall, its group's anchor or another piece stands within 0.80 m of it"}
+  alignment: {axis_deg: 5.0, pair_m: 0.10, source: [merrell2011], flagged: true, what: "R13: a free anchor parallel to the room's main axis (or a wall) within 5 degrees; a pair (nightstands, armchairs) mirrored about the anchor's axis within 0.10 m; wall pieces centred on their span (wall_use)"}
 
 # Soft score terms of the solver (names after Merrell et al. 2011 and Yu et al. 2011); each term is 0..1 (higher is
 # better), the candidate score is the weighted sum; every candidate logs its terms.
@@ -73,6 +85,75 @@ weights:
   recommended: 2.0       # share of the recommended clearances (not only the minimums) kept
   partners: 1.5          # optional partners placed
   sink_window: 0.5       # the sink under a window
+  # Milestone 13 (T3): the designer terms (rules conversation_circle, rug_*, floating, alignment above).
+  conversation: 1.0      # R3: the seats of a seating group form a 2.4-3.0 m conversation circle and face its centre
+  rug: 0.5               # R6: the group's rug member is placed (seating: under the coffee table; sleeping: beside the bed)
+  anchored: 1.0          # R12: every new piece stands on a wall or within 0.80 m of its group or another piece
+  alignment: 0.5         # R13: free anchors parallel to the room's axes, pairs mirrored about the anchor's axis
+
+# Milestone 13 (T3, R14 of docs/milestone13.md §2.4): room-size variants below the legal minimum areas (turkish_imar
+# + our arithmetic: a 2.50 m bedroom leaves 0.45 m beside a 1.60 m bed; a 3.00 m living room holds no armchair).
+small_rooms:
+  living: {max_area: 12.0, options: [sofa], source: [turkish_imar, ours], flagged: true, what: "a living room under 12 m²: a sofa without armchairs (the seating options narrow to 'sofa')"}
+  bedroom: {max_area: 10.0, sides_needed: 1, source: [turkish_imar, design_books, ours], flagged: true, what: "a bedroom under 10 m²: one long side of a double bed may stand on the wall (0.46 m absolute minimum on the other side per the design guides; the other side keeps bed_side)"}
+
+# Milestone 13 (T3): tiered minimums. A tier names the rules it changes for a room class: ``min`` replaces the
+# rule's minimum, ``hard: false`` turns the minimum into a scored term (the solver no longer refuses a place for it,
+# the group checks report it as minor). ``room_types`` / ``max_area`` select the tier by the room (``drawn_run``
+# applies when the kitchen run is drawn fixed equipment: its sink and hob cannot move, so the NKBA work triangle
+# and the fridge landing of an added fridge are scored, never a reason to leave the kitchen without a fridge).
+tiers:
+  small_kitchen: {room_types: [kitchen], max_area: 7.0, rules: {kitchen_aisle: {min: 0.90, hard: false}, walkway_main: {min: 0.60}, walkway: {min: 0.60}}, source: [ours, nkba_kitchen, turkish_imar], flagged: true, what: "a kitchen under 7 m² (the legal minimum is 3.30 m²): the 0.90 m aisle is a soft term (the NKBA 1.07 m recommended stays soft), the main walkway 0.60 m"}
+  drawn_run: {drawn_run: true, room_types: [kitchen], max_area: 14.0, rules: {triangle_leg: {hard: false}, triangle_sum: {hard: false}, fridge_landing: {hard: false}}, source: [ours], flagged: true, what: "a drawn counter run in a kitchen under 14 m² (real04: 13.6 m², 4 of 4 kitchens without a fridge) fixes the sink and the hob: the work triangle and the fridge landing of an added fridge are soft terms (scored, reported as minor); a larger kitchen keeps the NKBA minimums hard"}
+
+# Milestone 13 (T3): room-type aliases. The ingest types rooms from their labels (wenart/building.py); rooms it
+# leaves ``other`` or ``unknown`` are read here by the words of their label (Turkish keywords match at the start of
+# a word, English ones as whole words; letters folded to ASCII) and, failing that, by their drawn anchors
+# (``content``). The kinds are the room types the templates know. ``min_area`` guards a generic word (a 0.3 m² "Oda"
+# is a shaft, not a bedroom). Labels of real02/real03/real04 that failed: "Oyun Aktivite Ve Dinlenme Odası" (other,
+# two drawn sofas), "Oda" (other / unknown), "Merdiven" (a stair landing typed hall).
+room_aliases:
+  living: {words: [salon, oturma, yasama, oyun, dinlenme, aktivite, misafir odasi, living, lounge, family, sitting, drawing, games, play], source: [ours], what: "a living room or lounge"}
+  bedroom: {words: [yatak, ebeveyn, cocuk, misafir, oda, bedroom, master, guest, nursery, kids, children], min_area: 7.0, source: [ours, turkish_imar], what: "a bedroom (a plain 'Oda' of at least 7 m² in a dwelling)"}
+  kitchen: {words: [mutfak, kitchen, kitchenette], source: [ours], what: "a kitchen"}
+  dining: {words: [yemek, dining], source: [ours], what: "a dining room"}
+  bathroom: {words: [banyo, dus, bath, shower], source: [ours], what: "a bathroom"}
+  wc: {words: [wc, tuvalet, lavabo, toilet, powder], source: [ours], what: "a toilet"}
+  hall: {words: [antre, hol, koridor, giris, ruzgarlik, sahanlik, merdiven, hall, hallway, corridor, lobby, foyer, entrance, landing, passage], source: [ours], what: "a hall, corridor or landing"}
+  other: {words: [calisma, ofis, camasir, study, office, utility, laundry], source: [ours], what: "a study or utility room (the work group)"}
+  balcony: {words: [balkon, teras, balcony, terrace, veranda, deck], source: [ours], what: "a balcony or terrace"}
+  content: {sofa: living, sofa_corner: living, bed_double: bedroom, bed_single: bedroom, bunk_bed: bedroom, crib: bedroom, kitchen_counter: kitchen, toilet: bathroom, bathtub: bathroom, shower: bathroom, table_dining: dining, desk: other}
+  stair_cover: 0.60   # a hall whose drawn stair covers more than this share of its floor is a landing: no program
+  # Review fix (15 Oct 2026): a generic word names a room only when no other kind's word is in the label (a "Çalışma
+  # Odası" is a study, a "Çamaşır Odası" a utility room, not a bedroom).
+  generic: [oda]
+
+# Milestone 13 (T3): block-name words for ``infer.type_by_code`` (method ``block``): a word of a block name (folded to
+# ASCII, lower case, matched at the start of a word) names a type; the footprint must fit the type's product range
+# (size table, 40 % tolerance) or snap to a product. The names are the ones of the real02/03/04 drawings (YATAK,
+# masa, koltuk, klozet, ebeveynlavabo, tekil_villa_evye, duşş, dolap01) and plain Turkish / English furniture words.
+block_words:
+  bed_double: [yatak, bed, cift kisilik]
+  bed_single: [yatak, tek kisilik, single bed]   # YATAK names both bed types: the size decides (a 0.9 m YATAK is single)
+  table_dining: [masa, yemek masasi, dining table, table]
+  table_coffee: [sehpa, orta sehpa, coffee table]
+  sofa: [koltuk, kanepe, sofa, couch]
+  armchair: [berjer, tekli koltuk, armchair]
+  chair: [sandalye, chair]
+  wardrobe: [dolap, gardrop, wardrobe, closet]
+  nightstand: [komodin, nightstand, bedside]
+  desk: [calisma masasi, desk]
+  bookshelf: [kitaplik, bookshelf, shelf]
+  tv_unit: [tv unitesi, tv, television]
+  toilet: [klozet, tuvalet, toilet, wc]
+  washbasin: [lavabo, washbasin, basin, sink]
+  shower: [dus, shower]
+  bathtub: [kuvet, bathtub, tub]
+  sink_kitchen: [evye, kitchen sink]
+  stove: [ocak, firin, stove, hob, cooker]
+  fridge: [buzdolabi, fridge, refrigerator]
+  washing_machine: [camasir makinesi, washing machine, washer]
+  kitchen_island: [ada, island]
 
 # Where a person stands or sits to use a piece (hard: free of other pieces and inside the room; G11: reached by a
 # walkway). front / sides / foot: depth in metres or a rule name (its `min`; the score checks its `rec`).
@@ -137,6 +218,9 @@ groups:
       - {role: tv, type: tv_unit, required: true, place: facing_wall, facing: anchor, sizes: [[1.6, 0.45], [1.2, 0.4], [2.0, 0.45]]}
       - {role: coffee, type: table_coffee, required: false, place: front, gap: coffee_gap, facing: anchor, sizes: [[1.2, 0.7], [1.0, 0.6], [0.8, 0.5]]}
       - {role: armchair, type: armchair, required: false, max: 2, place: flank, of: coffee, gap: 0.35, facing: of, sizes: [[0.8, 0.8]]}
+      # Milestone 13 (T3, R6): the rug is a member of the group, under the coffee table, sized from the group (the
+      # sizes row is the smallest rug; rule rug_seating). A decor type: laid on the floor, never an obstacle.
+      - {role: rug, type: rug, required: false, place: under, of: coffee, gap: rug_seating, facing: same, sizes: [[1.6, 2.3]]}
 
   dining:
     what: "a dining table with chairs evenly around it, each chair facing the table, room to pull every chair out"
@@ -178,6 +262,8 @@ groups:
     partners:
       - {role: nightstand, type: nightstand, required: false, max: 2, place: beside_head, gap: 0.02, facing: same, sizes: [[0.5, 0.4], [0.4, 0.4]]}
       - {role: bench, type: bench, required: false, max: 1, place: foot, gap: 0.05, facing: same, sizes: [[1.2, 0.4], [1.0, 0.4]]}
+      # Milestone 13 (T3, R6): a runner beside each free long side of the bed (rule rug_bed), a decor member.
+      - {role: rug, type: rug, required: false, max: 2, place: beside, gap: rug_bed, facing: same, sizes: [[2.0, 0.8]]}
 
   sleeping_single:
     what: "a single bed with its headboard on a wall (one long side may touch a wall) and a nightstand on its free side"
@@ -196,6 +282,7 @@ groups:
       bed_nightstand: {anchor: bed_single}
     partners:
       - {role: nightstand, type: nightstand, required: false, max: 1, place: beside_head, gap: 0.02, facing: same, sizes: [[0.5, 0.4], [0.4, 0.4]]}
+      - {role: rug, type: rug, required: false, max: 1, place: beside, gap: rug_bed, facing: same, sizes: [[2.0, 0.8]]}
 
   storage:
     what: "a wardrobe with its back on a wall and 0.80 m free in front of its doors"

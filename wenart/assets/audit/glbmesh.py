@@ -209,6 +209,44 @@ def info(doc: dict) -> dict:
             "extensions_required": sorted(doc.get("extensionsRequired") or [])}
 
 
+PBR_MAPS: tuple[str, ...] = ("base_colour", "metallic_roughness", "normal", "occlusion", "emissive")
+
+
+def pbr_maps(doc: dict) -> dict:
+    """Milestone 13 (audit gate "PBR maps recorded per model"): which glTF 2.0 PBR texture slots the materials use
+    (``materials[].pbrMetallicRoughness.baseColorTexture`` / ``metallicRoughnessTexture``, ``normalTexture``,
+    ``occlusionTexture``, ``emissiveTexture``; the glTF 2.0 specification's material properties): ``{base_colour,
+    metallic_roughness, normal, occlusion, emissive: bool, materials: n, materials_with_base_colour: n, images: n,
+    extensions: [names]}``; a flat-colour model has every flag false."""
+    materials = doc.get("materials") or []
+    out = {name: False for name in PBR_MAPS}
+    with_base = 0
+    exts: set = set()
+    for mat in materials:
+        if not isinstance(mat, dict):
+            continue
+        pbr = mat.get("pbrMetallicRoughness") if isinstance(mat.get("pbrMetallicRoughness"), dict) else {}
+        if _is_texture(pbr.get("baseColorTexture")):
+            out["base_colour"] = True
+            with_base += 1
+        if _is_texture(pbr.get("metallicRoughnessTexture")):
+            out["metallic_roughness"] = True
+        if _is_texture(mat.get("normalTexture")):
+            out["normal"] = True
+        if _is_texture(mat.get("occlusionTexture")):
+            out["occlusion"] = True
+        if _is_texture(mat.get("emissiveTexture")):
+            out["emissive"] = True
+        exts |= set((mat.get("extensions") or {}).keys()) if isinstance(mat.get("extensions"), dict) else set()
+    out.update(materials=len(materials), materials_with_base_colour=with_base, images=len(doc.get("images") or []),
+               extensions=sorted(exts))
+    return out
+
+
+def _is_texture(value) -> bool:
+    return isinstance(value, dict) and isinstance(value.get("index"), int)
+
+
 # --------------------------------------------------------------------------
 # Measurement
 # --------------------------------------------------------------------------
@@ -261,7 +299,7 @@ def measure(path, unit_scale: float = 1.0, rules: Optional[dict] = None) -> dict
     mn, mx = verts.min(axis=0), verts.max(axis=0)
     return {"bbox_min_m": [round(float(v), 4) + 0.0 for v in mn], "bbox_max_m": [round(float(v), 4) + 0.0 for v in mx],
             "bbox_model_m": [round(float(b - a), 4) for a, b in zip(mn, mx)], "vertices": int(len(verts)),
-            "triangles": int(len(tris)), "info": info(doc), "stats": stats}
+            "triangles": int(len(tris)), "info": info(doc), "stats": stats, "pbr": pbr_maps(doc)}
 
 
 def triangles_of(path, unit_scale: float = 1.0) -> np.ndarray:

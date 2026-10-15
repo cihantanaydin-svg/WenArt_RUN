@@ -21,6 +21,14 @@ Steps (each resumable, results under ``<out>/audit/``, default ``results/library
 - ``write`` (``write.py``): the catalogue's ``audit`` fields and the flags ``real_product``, ``has_bedding``,
   ``has_cushions``, ``has_pillows``, ``contact`` (contract §13.3; ``catalog.usable`` reads ``audit.status``).
 
+Milestone 13 (docs/milestone13.md §5.1 phase 2, §13.1 track T7): ``demands.py`` (the drawn demands of the committed
+projects, the product size grid, the coverage per licence mode and the demand gaps), the audit gates of
+``audit.yaml gates`` (known units for anchors, PBR maps recorded, material tags judged by one vision pass, the chaise
+side, the licence fields; ``checks.py`` / ``decide.py`` / ``write.py``), the growth lists by demand (``growth.py``:
+ABO size grid, Poly Haven 2K and vegetation, ambientCG shell sets, HSSD through ``wenart.assets.hssd``) and the pod
+P2 steps ``demands``, ``size-grid``, ``speed-probe``, ``ingest --source hssd | ambientcg | abo --m13 | polyhaven
+--m13`` (``growth_run.py``, ``scripts/jobs/library_growth.sh``).
+
 Why: the M8-M10 judges saw a 256 px sheet with no scale and no title; the diagnosis (§1.6) found wrong objects both
 judges accepted, wrong sizes and NC/SA licences. Nothing is deleted from the volume: ``removed`` only takes a model
 out of the catalogue (D22); a delete list needs the user's OK.

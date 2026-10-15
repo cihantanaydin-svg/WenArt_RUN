@@ -1,0 +1,824 @@
+{
+ "kind": "library_growth_candidates",
+ "source": "ambientcg",
+ "queried_utc": "2026-10-15T14:00:00Z",
+ "query": {
+  "api": "https://ambientcg.com/api/v2/full_json",
+  "resolution": "2K-JPG"
+ },
+ "licences": [
+  "CC0"
+ ],
+ "count": 22,
+ "picked": 20,
+ "picked_size_mb": 359.6,
+ "picked_by_type": {
+  "shell_ceiling": 4,
+  "shell_ceramic": 2,
+  "shell_front": 3,
+  "shell_metal": 3,
+  "shell_tile": 5,
+  "shell_worktop": 3
+ },
+ "notes": [
+  "22 shell sets of growth.AMBIENTCG_SHELL_SETS, 22 found on the API; the vocabulary's own ambientCG ids are listed as used",
+  "for the shell material table of wenart.blender.materials (T5: ceiling, worktop, front, ceramic, metal, tile); CC0 (https://ambientcg.com/: free for commercial use, no credit)"
+ ],
+ "approval": "nothing is downloaded before results/library/growth/approved_ambientcg.json exists (the lead commits it after the user's OK: approved_by, approved_utc, ids)",
+ "candidates": [
+  {
+   "source": "ambientcg",
+   "id": "Plaster001",
+   "slot": "ceiling",
+   "kind": "texture",
+   "type": "shell_ceiling",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Plaster001",
+   "exists": true,
+   "used": false,
+   "title": "Plaster 001",
+   "category": "Plaster",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "001",
+    "1",
+    "clean",
+    "matte",
+    "modern",
+    "outdoor",
+    "plaster",
+    "rough",
+    "solid",
+    "stucco",
+    "surface",
+    "wall"
+   ],
+   "zip": "Plaster001_2K-JPG.zip",
+   "size_mb": 26.14,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Plaster002",
+   "slot": "ceiling",
+   "kind": "texture",
+   "type": "shell_ceiling",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Plaster002",
+   "exists": true,
+   "used": false,
+   "title": "Plaster 002",
+   "category": "Plaster",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "2",
+    "clean",
+    "plaster",
+    "rough",
+    "wall",
+    "white"
+   ],
+   "zip": "Plaster002_2K-JPG.zip",
+   "size_mb": 25.96,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Plaster004",
+   "slot": "ceiling",
+   "kind": "texture",
+   "type": "shell_ceiling",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Plaster004",
+   "exists": true,
+   "used": false,
+   "title": "Plaster 004",
+   "category": "Plaster",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "4",
+    "plaster",
+    "wall",
+    "white"
+   ],
+   "zip": "Plaster004_2K-JPG.zip",
+   "size_mb": 28.89,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "PaintedPlaster017",
+   "slot": "ceiling",
+   "kind": "texture",
+   "type": "shell_ceiling",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=PaintedPlaster017",
+   "exists": true,
+   "used": false,
+   "title": "Painted Plaster 017",
+   "category": "Painted Plaster",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "17",
+    "paint",
+    "painted",
+    "plaster",
+    "white"
+   ],
+   "zip": "PaintedPlaster017_2K-JPG.zip",
+   "size_mb": 14.87,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Marble012",
+   "slot": "worktop",
+   "kind": "texture",
+   "type": "shell_worktop",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Marble012",
+   "exists": true,
+   "used": true,
+   "title": "Marble 012",
+   "category": "Marble",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "012",
+    "12",
+    "bathroom",
+    "elegant",
+    "glossy",
+    "gray",
+    "grey",
+    "kitchen",
+    "light",
+    "marble",
+    "modern",
+    "natural"
+   ],
+   "zip": "Marble012_2K-JPG.zip",
+   "size_mb": 14.79,
+   "pick": false
+  },
+  {
+   "source": "ambientcg",
+   "id": "Marble021",
+   "slot": "worktop",
+   "kind": "texture",
+   "type": "shell_worktop",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Marble021",
+   "exists": true,
+   "used": false,
+   "title": "Marble 021",
+   "category": "Marble",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "21",
+    "bright",
+    "marble",
+    "reflective",
+    "shiny",
+    "white"
+   ],
+   "zip": "Marble021_2K-JPG.zip",
+   "size_mb": 11.43,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Marble014",
+   "slot": "worktop",
+   "kind": "texture",
+   "type": "shell_worktop",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Marble014",
+   "exists": true,
+   "used": false,
+   "title": "Marble 014",
+   "category": "Marble",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "14",
+    "beige",
+    "light",
+    "marble",
+    "smooth",
+    "stone"
+   ],
+   "zip": "Marble014_2K-JPG.zip",
+   "size_mb": 14.84,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Granite004B",
+   "slot": "worktop",
+   "kind": "texture",
+   "type": "shell_worktop",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Granite004B",
+   "exists": true,
+   "used": false,
+   "title": "Granite 004 B",
+   "category": "Granite",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "004",
+    "4",
+    "beige",
+    "brown",
+    "countertop",
+    "granite",
+    "indoor",
+    "kitchen",
+    "modern",
+    "natural",
+    "rough",
+    "spotted"
+   ],
+   "zip": "Granite004B_2K-JPG.zip",
+   "size_mb": 28.42,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "PaintedWood009C",
+   "slot": "front",
+   "kind": "texture",
+   "type": "shell_front",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=PaintedWood009C",
+   "exists": true,
+   "used": false,
+   "title": "Painted Wood 009 C",
+   "category": "Painted Wood",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "ambient-occlusion",
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "9",
+    "beige",
+    "clean",
+    "light",
+    "old",
+    "painted",
+    "wood"
+   ],
+   "zip": "PaintedWood009C_2K-JPG.zip",
+   "size_mb": 28.01,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "PaintedWood006C",
+   "slot": "front",
+   "kind": "texture",
+   "type": "shell_front",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=PaintedWood006C",
+   "exists": true,
+   "used": false,
+   "title": "Painted Wood 006 C",
+   "category": "Painted Wood",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "ambient-occlusion",
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "6",
+    "beige",
+    "clean",
+    "painted",
+    "wood"
+   ],
+   "zip": "PaintedWood006C_2K-JPG.zip",
+   "size_mb": 27.5,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "PaintedWood007C",
+   "slot": "front",
+   "kind": "texture",
+   "type": "shell_front",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=PaintedWood007C",
+   "exists": true,
+   "used": false,
+   "title": "Painted Wood 007 C",
+   "category": "Painted Wood",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "ambient-occlusion",
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "7",
+    "beige",
+    "clean",
+    "painted",
+    "wood",
+    "yellow"
+   ],
+   "zip": "PaintedWood007C_2K-JPG.zip",
+   "size_mb": 27.89,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Porcelain001",
+   "slot": "ceramic",
+   "kind": "texture",
+   "type": "shell_ceramic",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Porcelain001",
+   "exists": true,
+   "used": false,
+   "title": "Porcelain 001",
+   "category": "Porcelain",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "1",
+    "porcelain",
+    "white"
+   ],
+   "zip": "Porcelain001_2K-JPG.zip",
+   "size_mb": 8.18,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Porcelain002",
+   "slot": "ceramic",
+   "kind": "texture",
+   "type": "shell_ceramic",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Porcelain002",
+   "exists": true,
+   "used": false,
+   "title": "Porcelain 002",
+   "category": "Porcelain",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "2",
+    "porcelain",
+    "smear",
+    "white"
+   ],
+   "zip": "Porcelain002_2K-JPG.zip",
+   "size_mb": 8.62,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Metal032",
+   "slot": "metal",
+   "kind": "texture",
+   "type": "shell_metal",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Metal032",
+   "exists": true,
+   "used": true,
+   "title": "Metal 032",
+   "category": "Metal",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "metalness",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "32",
+    "grey",
+    "metal",
+    "smooth"
+   ],
+   "zip": "Metal032_2K-JPG.zip",
+   "size_mb": 13.04,
+   "pick": false
+  },
+  {
+   "source": "ambientcg",
+   "id": "Metal009",
+   "slot": "metal",
+   "kind": "texture",
+   "type": "shell_metal",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Metal009",
+   "exists": true,
+   "used": false,
+   "title": "Metal 009",
+   "category": "Metal",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "metalness",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "9",
+    "brushed",
+    "bumpy",
+    "metal",
+    "scratches",
+    "silver",
+    "steel"
+   ],
+   "zip": "Metal009_2K-JPG.zip",
+   "size_mb": 16.66,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Metal011",
+   "slot": "metal",
+   "kind": "texture",
+   "type": "shell_metal",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Metal011",
+   "exists": true,
+   "used": false,
+   "title": "Metal 011",
+   "category": "Metal",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "metalness",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "11",
+    "brushed",
+    "bumpy",
+    "metal",
+    "scratches",
+    "silver",
+    "steel"
+   ],
+   "zip": "Metal011_2K-JPG.zip",
+   "size_mb": 15.01,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Metal051A",
+   "slot": "metal",
+   "kind": "texture",
+   "type": "shell_metal",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Metal051A",
+   "exists": true,
+   "used": false,
+   "title": "Metal 051 A",
+   "category": "Metal",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "metalness",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "51",
+    "aluminum",
+    "brushed",
+    "circular",
+    "metal"
+   ],
+   "zip": "Metal051A_2K-JPG.zip",
+   "size_mb": 9.15,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Tiles133A",
+   "slot": "tile",
+   "kind": "texture",
+   "type": "shell_tile",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Tiles133A",
+   "exists": true,
+   "used": false,
+   "title": "Tiles 133 A",
+   "category": "Tiles",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "ambient-occlusion",
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "133",
+    "bathroom",
+    "clean",
+    "kitchen",
+    "modern",
+    "new",
+    "tiles",
+    "white"
+   ],
+   "zip": "Tiles133A_2K-JPG.zip",
+   "size_mb": 13.56,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Tiles107",
+   "slot": "tile",
+   "kind": "texture",
+   "type": "shell_tile",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Tiles107",
+   "exists": true,
+   "used": false,
+   "title": "Tiles 107",
+   "category": "Tiles",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": false,
+   "maps": [
+    "ambient-occlusion",
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "107",
+    "tiles",
+    "white"
+   ],
+   "zip": "Tiles107_2K-JPG.zip",
+   "size_mb": 6.71,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Tiles109",
+   "slot": "tile",
+   "kind": "texture",
+   "type": "shell_tile",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Tiles109",
+   "exists": true,
+   "used": false,
+   "title": "Tiles 109",
+   "category": "Tiles",
+   "size_m": [
+    1.85,
+    1.85
+   ],
+   "size_assumed": false,
+   "maps": [
+    "ambient-occlusion",
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "109",
+    "bathroom",
+    "beige",
+    "clean",
+    "flooring",
+    "indoor",
+    "kitchen",
+    "modern",
+    "stone",
+    "terrazzo",
+    "tiles"
+   ],
+   "zip": "Tiles109_2K-JPG.zip",
+   "size_mb": 16.5,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Tiles074",
+   "slot": "tile",
+   "kind": "texture",
+   "type": "shell_tile",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Tiles074",
+   "exists": true,
+   "used": false,
+   "title": "Tiles 074",
+   "category": "Tiles",
+   "size_m": [
+    2.1,
+    2.1
+   ],
+   "size_assumed": false,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "74",
+    "floor",
+    "marble",
+    "stone",
+    "tiled",
+    "tiles",
+    "tiling"
+   ],
+   "zip": "Tiles074_2K-JPG.zip",
+   "size_mb": 11.11,
+   "pick": true
+  },
+  {
+   "source": "ambientcg",
+   "id": "Tiles040",
+   "slot": "tile",
+   "kind": "texture",
+   "type": "shell_tile",
+   "licence": "CC0",
+   "url": "https://ambientcg.com/view?id=Tiles040",
+   "exists": true,
+   "used": false,
+   "title": "Tiles 040",
+   "category": "Tiles",
+   "size_m": [
+    1.0,
+    1.0
+   ],
+   "size_assumed": true,
+   "maps": [
+    "color",
+    "displacement",
+    "normal",
+    "roughness"
+   ],
+   "tags": [
+    "40",
+    "clean",
+    "smooth",
+    "terrazzo",
+    "tiles",
+    "white"
+   ],
+   "zip": "Tiles040_2K-JPG.zip",
+   "size_mb": 20.1,
+   "pick": true
+  }
+ ]
+}

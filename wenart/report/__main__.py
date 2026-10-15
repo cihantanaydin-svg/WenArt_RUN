@@ -19,6 +19,14 @@
 - ``sweep``: ``<project-out>/final/sweep_report.md`` (polish sweep, gate and
   vision-check calibration); exit 0 even when nothing ran yet.
 Exit 2 for a missing ``--project-out`` folder.
+
+Milestone 13 (docs/milestone13.md §7, §13.2; track T8):
+
+- ``metrics13 --out <project_out> [--baseline <dir>] --json <path> [--md <path>]``: the 17 metrics of §7
+  (``wenart.report.metrics13``) of a run, before | after when a baseline run is given; either folder may be the
+  volume's project output or a committed ``results/<area>/<p>`` folder. Exit 0; exit 2 for a missing folder.
+- ``sheets13 --out <project_out> --baseline <dir> --dir <out_dir>``: one before | after JPEG per camera
+  (``wenart.report.sheets13``). Exit 0; exit 2 for a missing folder.
 """
 from __future__ import annotations
 
@@ -26,17 +34,30 @@ import argparse
 import sys
 from pathlib import Path
 
+M13_COMMANDS = ("metrics13", "sheets13")
+
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m wenart.report",
-                                     description="final report (milestones 5 and 6) and sweep report")
-    parser.add_argument("command", choices=["final", "sweep"])
-    parser.add_argument("--project-out", required=True, help="outputs/<p>")
-    parser.add_argument("--out", default=None, help="output folder (default <project-out>/final)")
+                                     description="final report (milestones 5 and 6), sweep report, Milestone 13 "
+                                                 "metrics and before/after sheets")
+    parser.add_argument("command", choices=["final", "sweep", *M13_COMMANDS])
+    parser.add_argument("--project-out", default=None, help="outputs/<p> (final, sweep)")
+    parser.add_argument("--out", default=None,
+                        help="final, sweep: output folder (default <project-out>/final); metrics13, sheets13: the "
+                             "run (outputs/<p> or results/<area>/<p>)")
     parser.add_argument("--private", action="store_true",
                         help="private project: name plan crops and debug images, never copy them (§7.4)")
+    parser.add_argument("--baseline", default=None, help="metrics13, sheets13: the baseline run's folder")
+    parser.add_argument("--json", default=None, help="metrics13: where the JSON goes")
+    parser.add_argument("--md", default=None, help="metrics13: where the markdown goes (optional)")
+    parser.add_argument("--dir", default=None, help="sheets13: the folder of the sheets")
     args = parser.parse_args(argv)
 
+    if args.command in M13_COMMANDS:
+        return _m13(args, parser)
+    if not args.project_out:
+        parser.error(f"{args.command} needs --project-out")
     project_out = Path(args.project_out)
     if not project_out.is_dir():
         print(f"report {args.command}: {project_out} is not a folder", file=sys.stderr)
@@ -70,6 +91,45 @@ def main(argv=None) -> int:
     for flag in manifest["advisory_flags"]:
         print(f"  open: {flag}")
     for w in manifest["warnings"]:
+        print(f"  warning: {w}")
+    return 0
+
+
+def _m13(args, parser) -> int:
+    """``metrics13`` and ``sheets13`` (Milestone 13)."""
+    run = args.out or args.project_out
+    if not run:
+        parser.error(f"{args.command} needs --out <project_out>")
+    if not Path(run).is_dir():
+        print(f"report {args.command}: {run} is not a folder", file=sys.stderr)
+        return 2
+    if args.baseline and not Path(args.baseline).is_dir():
+        print(f"report {args.command}: baseline {args.baseline} is not a folder", file=sys.stderr)
+        return 2
+    if args.command == "metrics13":
+        if not args.json:
+            parser.error("metrics13 needs --json <path>")
+        from wenart.report import metrics13 as MX
+        result = MX.write(run, args.baseline, args.json, args.md)
+        no_data = [k for k, m in result["metrics"].items() if m["value"] == MX.NO_DATA]
+        print(f"report metrics13 {result['project']}: {len(result['metrics'])} metrics, {len(result['views'])} views"
+              + (f", baseline {result['baseline_project']}" if result.get("baseline_out") else "")
+              + (f", no data: {', '.join(sorted(no_data, key=lambda k: int(k[1:])))}" if no_data else "")
+              + f" -> {args.json}" + (f", {args.md}" if args.md else ""))
+        for w in result["warnings"]:
+            print(f"  warning: {w}")
+        return 0
+    if not args.baseline:
+        parser.error("sheets13 needs --baseline <dir>")
+    if not args.dir:
+        parser.error("sheets13 needs --dir <out_dir>")
+    from wenart.report import sheets13 as SH
+    result = SH.sheets(run, args.baseline, args.dir)
+    print(f"report sheets13 {result['project']}: {len(result['sheets'])} sheet(s) -> {args.dir}"
+          + (f"; no baseline preview: {len(result['missing_before'])}" if result["missing_before"] else "")
+          + (f"; no preview of the run: {len(result['missing_after'])}" if result["missing_after"] else "")
+          + (f"; baseline only: {len(result['baseline_only'])}" if result["baseline_only"] else ""))
+    for w in result["warnings"]:
         print(f"  warning: {w}")
     return 0
 

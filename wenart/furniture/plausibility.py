@@ -51,6 +51,14 @@ F2 no longer takes a size "either way" for a piece with a front: a footprint who
 against the type (a bed turned 90°: real02 ``f_L0_007`` after a resize) is a major F2 finding; frontless and
 square types and cribs (a long side as front) still fit either way; kitchen counters, islands, wall cabinets and
 stairs are built by code at any length and are not size-checked.
+
+Milestone 13 (docs/milestone13.md §1.4, §1.8 B6, §3.0 K3; track T3): F2 runs on every drawn piece, in the scene or
+not (the misread 2.55 m beds and 3.35 m tables of real04 never got a finding because the fit left them unbuilt;
+the metrics carry ``built: false`` and the reason). F8 names the missing anchor: a chair, armchair or lamp that
+stands around a drawn partner the fit did not build is reported as "stands around <type> <id>, which is not built
+(<reason>)" with ``metrics.missing_anchor`` (the cause for the agent's tools), not as "stands alone". The room
+types read the aliases of ``program.room_kind`` (``room_types``): a sofa in real04's "Oyun Aktivite Ve Dinlenme
+Odası" (``other``) is no F1 finding.
 """
 from __future__ import annotations
 
@@ -217,6 +225,13 @@ def room_types(building: dict, room: dict) -> list[str]:
             t = B.room_type_for(name)
             if t and t not in out:
                 out.append(t)
+    if out[0] in ("other", "unknown", None, "") and room.get("id"):
+        # Milestone 13: the alias kind of an ``other`` / ``unknown`` room (label words, drawn anchors).
+        from wenart.furniture import program as PR     # lazy: program imports this module
+
+        kind = PR.room_kind(building, room)
+        if kind and kind not in out:
+            out.append(kind)
     return out
 
 
@@ -282,27 +297,47 @@ def oriented_fit(ftype: str, size) -> dict:
     return {"fits": fits, "turned": (not strict) and swapped and reversed_}
 
 
+def unbuilt_drawn(r: "_Room") -> list[dict]:
+    """Milestone 13: the room's typed drawn pieces the fit left unbuilt (``asset.method`` none: a library gap) but
+    that stand in the documents (``build`` not false): F2 and F8 read them."""
+    built = {f["id"] for f in r.built}
+    return [f for f in r.items if f["id"] not in built and f.get("source") == "from_documents"
+            and f.get("build") is not False and f.get("type") not in (None, "unknown") and f.get("footprint")]
+
+
+def _not_built_reason(f: dict) -> str:
+    asset = f.get("asset") if isinstance(f.get("asset"), dict) else {}
+    return str(f.get("not_built_reason") or asset.get("fallback_reason") or f.get("library_gap")
+               or ("asset.method none" if asset.get("method") == "none" else "not built"))
+
+
 def _f2(r: _Room) -> list[dict]:
     out = []
-    for f in r.built:
+    for f in r.built + unbuilt_drawn(r):          # Milestone 13: every drawn piece, in the scene or not
         if f["type"] in ("unknown",) or f["type"] in PARAMETRIC_TYPES or f["type"] in schemas.MOUNTED_TYPES:
             continue
         size = [round(float(v), 3) for v in f["footprint"]["size"]]
         if f["type"] not in _size_table():
             continue
+        built = f["id"] in r.pieces
+        extra = {} if built else {"built": False, "not_built": _not_built_reason(f)}
+        tail = "" if built else f" (not built: {_not_built_reason(f)[:80]})"
         if not _fits(f["type"], size):
             out.append(_violation("F2", f["id"], r.id, f"{f['type']} {size[0]:.2f} x {size[1]:.2f} m is outside the "
-                                  f"type's product sizes", {"size": size, "type": f["type"]}))
+                                  f"type's product sizes{tail}", dict({"size": size, "type": f["type"]}, **extra)))
             continue
-        if f.get("front_deg") is None or f["type"] in EITHER_WAY_TYPES or f["id"] not in r.pieces:
+        if f.get("front_deg") is None or f["type"] in EITHER_WAY_TYPES:
             continue
-        p = r.pieces[f["id"]]
+        try:
+            p = r.pieces[f["id"]] if built else placer.drawn_piece(f)
+        except (KeyError, TypeError, ValueError):
+            continue
         fit = oriented_fit(f["type"], p.size)
         if fit["turned"] or not fit["fits"]:
             out.append(_violation("F2", f["id"], r.id, f"{f['type']} {p.size[0]:.2f} m wide x {p.size[1]:.2f} m deep "
-                                  f"(seen from its front) is turned 90° against the type's product sizes",
-                                  {"size": [round(p.size[0], 3), round(p.size[1], 3)], "type": f["type"],
-                                   "turned": True, "front_deg": f.get("front_deg")}))
+                                  f"(seen from its front) is turned 90° against the type's product sizes{tail}",
+                                  dict({"size": [round(p.size[0], 3), round(p.size[1], 3)], "type": f["type"],
+                                        "turned": True, "front_deg": f.get("front_deg")}, **extra)))
     return out
 
 
@@ -523,6 +558,23 @@ def touches_wall(r: _Room, pid: str) -> bool:
     return r.polys[pid].exterior.distance(r.ring) <= SIDE_WALL_M + 1e-9
 
 
+def _unbuilt_partner(r: _Room, pid: str, types, reach: float) -> Optional[dict]:
+    """Milestone 13: the nearest drawn partner of ``types`` within ``reach`` that the fit did not build."""
+    poly = r.polys[pid]
+    best = None
+    for f in unbuilt_drawn(r):
+        if f["type"] not in types:
+            continue
+        try:
+            other = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        d = other.distance(poly)
+        if d <= reach + 1e-9 and (best is None or (round(d, 4), f["id"]) < best[0]):
+            best = ((round(d, 4), f["id"]), f)
+    return best[1] if best else None
+
+
 def _f8(r: _Room) -> list[dict]:
     out = []
     for f in r.built:
@@ -533,6 +585,15 @@ def _f8(r: _Room) -> list[dict]:
         if rule["back"] != "free" or not rule["partners"]:
             continue
         if touches_wall(r, pid) or _targets(r, pid, rule["partners"], rule["partner_m"]):
+            continue
+        missing = _unbuilt_partner(r, pid, rule["partners"], rule["partner_m"])
+        if missing is not None:
+            # Milestone 13: the finding names the real defect (the anchor the fit left unbuilt), not the chair.
+            why = _not_built_reason(missing)
+            out.append(_violation("F8", pid, r.id, f"{f['type']} stands around {missing['type']} {missing['id']}, "
+                                  f"which is not built ({why[:100]})",
+                                  {"partner_m": rule["partner_m"], "missing_anchor": missing["id"],
+                                   "anchor_type": missing["type"], "cause": "anchor_not_built", "reason": why}))
             continue
         out.append(_violation("F8", pid, r.id, f"{f['type']} stands alone in the room (no wall, no "
                               f"{' / '.join(rule['partners'][:3])} within {rule['partner_m']:.1f} m)",

@@ -1,0 +1,528 @@
+"""Milestone 13 track T6 CPU tests (docs/milestone13.md §13.1, §13.2; CLAUDE.md vegetation and site rules): the
+hedge-row detector on synthetic rows and on real04's drawn symbols, the tree height classes and the inferred species,
+the site platforms from the drawn areas and the level marks, the pool v2 parts, the backdrop and the haze shell, the
+pure parts of the vegetation module, the site view's horizon rule, hedges as low obstacles of the camera check, the
+facade kit and the two shell scripts. Every test here fails on the Milestone 12 code (no ``hedge_rows``, a 4 m
+minimum tree height, no ``platforms``, a site view with the horizon above the frame, hedges unknown to the camera
+model, no facade kit)."""
+from __future__ import annotations
+
+import copy
+import json
+import math
+import os
+import subprocess
+from pathlib import Path
+
+import pytest
+
+from wenart import geometry as G
+from wenart.blender import copies as CP
+from wenart.blender import exterior as E
+from wenart.blender import exterior_checks as X
+from wenart.blender import facade as FA
+from wenart.blender import geom2d
+from wenart.blender import site as S
+from wenart.blender import vegetation as VG
+from wenart.sheets import exterior as EX
+
+ROOT = Path(__file__).resolve().parents[1]
+REAL04 = ROOT / "results" / "furniture" / "real04" / "building_final.json"
+REAL04_SHEETS = ROOT / "results" / "furniture" / "real04" / "sheets.json"
+REAL02 = ROOT / "results" / "furniture" / "real02" / "building_final.json"
+EXAMPLE = json.loads((ROOT / "docs" / "examples" / "building_m10.example.json").read_text(encoding="utf-8"))
+
+
+def _row(n: int, r: float = 0.35, pitch: float = 0.6, start=(0.0, 0.0), direction=(1.0, 0.0), tag: str = "s"):
+    return [{"center": [start[0] + direction[0] * pitch * k, start[1] + direction[1] * pitch * k], "radius_m": r,
+             "id": f"{tag}{k}"} for k in range(n)]
+
+
+# --------------------------------------------------------------------------
+# 1. Hedge rows (sheets.exterior.hedge_rows, site.hedges_of)
+# --------------------------------------------------------------------------
+
+def test_hedge_rows_on_synthetic_rows():
+    rows = EX.hedge_rows(_row(12))
+    assert len(rows) == 1
+    h = rows[0]
+    assert h["count"] == 12 and h["width_m"] == pytest.approx(0.7) and h["pitch_m"] == pytest.approx(0.6)
+    assert h["length_m"] == pytest.approx(6.6) and h["height_class"] == "mid" and h["height_m"] == 1.2
+    assert h["polyline"][0] == [0.0, 0.0] and h["polyline"][-1] == pytest.approx([6.6, 0.0])
+    assert h["symbol_ids"] == [f"s{k}" for k in range(12)]
+    # fewer than HEDGE_MIN_COUNT, a pitch over 1.5 x the diameter, or symbols over 0.6 m: trees, not a hedge
+    assert EX.hedge_rows(_row(4)) == []
+    assert EX.hedge_rows(_row(12, pitch=1.2)) == []                      # 1.2 > 1.5 x 0.7 = 1.05
+    assert EX.hedge_rows(_row(12, r=0.8, pitch=1.0)) == []
+    # two radii in one line stay two rows (equal radii within 1 cm)
+    mixed = _row(6, r=0.35, tag="a") + _row(6, r=0.5, pitch=0.9, start=(10.0, 0.0), tag="b")
+    assert sorted(r["radius_m"] for r in EX.hedge_rows(mixed)) == [0.35, 0.5]
+    # an L-corner (a 90 degree turn) is two hedges; a gentle curve is one hedge with a bent polyline
+    corner = _row(10, tag="x") + _row(10, start=(5.4, 0.6), direction=(0.0, 1.0), tag="y")
+    assert sorted(r["count"] for r in EX.hedge_rows(corner)) == [10, 10]
+    arc = [{"center": [20.0 * math.sin(a), 20.0 - 20.0 * math.cos(a)], "radius_m": 0.35, "id": f"c{k}"}
+           for k, a in enumerate(math.radians(1.72) * k for k in range(14))]
+    curve = EX.hedge_rows(arc)
+    assert len(curve) == 1 and curve[0]["count"] == 14 and len(curve[0]["polyline"]) >= 3
+    assert EX.hedge_height_class(0.25) == "low" and EX.hedge_height_class(0.5) == "high"
+
+
+@pytest.mark.skipif(not REAL04_SHEETS.is_file(), reason="no committed real04 sheets.json")
+def test_hedge_rows_on_the_real04_site_symbols():
+    """real04 (docs/milestone13.md §1.7): 101 tree symbols of r 0.359 m in rows; the long rows along the plot edges
+    and between the two blocks are hedges, the short 2-3 symbol stubs at their ends stay single shrubs."""
+    trees = json.loads(REAL04_SHEETS.read_text(encoding="utf-8"))["exterior"]["site"]["trees"]
+    assert len(trees) == 101 and {t["radius_m"] for t in trees} == {0.359}
+    rows = EX.hedge_rows(trees)
+    assert [r["count"] for r in rows] == [36, 31, 7, 7]
+    assert [round(r["length_m"], 1) for r in rows] == pytest.approx([25.6, 21.7, 4.8, 4.8], abs=0.1)
+    assert all(r["height_class"] == "mid" and r["height_m"] == 1.2 and r["width_m"] == pytest.approx(0.718) for r in rows)
+    hedges, singles = EX.hedge_records(trees)
+    assert [h["id"] for h in hedges] == ["hedge_001", "hedge_002", "hedge_003", "hedge_004"]
+    assert len(singles) == 20 and sum(h["symbol_count"] for h in hedges) + len(singles) == 101
+    for h in hedges:
+        assert h["species"] is None and h["inferred"] is True and h["height_class"] == "mid"
+        assert h["evidence"] and all(e["rule"] == "site_hedge_symbol" for e in h["evidence"])
+        assert len(h["polyline"]) >= 2 and "hedge" in h["reason"]
+
+
+@pytest.mark.skipif(not REAL04.is_file(), reason="no committed real04 building")
+def test_hedges_of_the_committed_real04_building_and_their_symbols_leave_the_trees():
+    b = json.loads(REAL04.read_text(encoding="utf-8"))
+    hedges, taken = S.hedges_of(b, "mediterranean")
+    assert len(hedges) == 4 and len(taken) == 81 and all(h["source"] == "decor_rows" for h in hedges)
+    assert {h["species"] for h in hedges} == {"cherry_laurel"} and all(h["species_inferred"] for h in hedges)
+    assert S.hedges_of(b, "mediterranean", detect=False) == ([], set())
+    # the sheets record wins over the detector when the building carries site.hedges
+    b2 = copy.deepcopy(b)
+    b2["site"]["hedges"] = [{"id": "hx", "polyline": [[0, 0], [8, 0]], "width_m": 0.6, "height_class": "high",
+                             "species": "privet", "symbol_ids": ["sd_L0_007"], "evidence": []}]
+    hs, tk = S.hedges_of(b2, "mediterranean")
+    assert [h["id"] for h in hs] == ["hx"] and hs[0]["height_m"] == 1.8 and hs[0]["species"] == "privet"
+    assert not hs[0]["species_inferred"] and tk == {"sd_L0_007"} and hs[0]["source"] == "site.hedges"
+    terrain = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
+    v, f, info = S.hedge_parts(hedges[0], terrain)
+    assert info["length_m"] == pytest.approx(25.5, abs=0.2) and info["top_z"] == pytest.approx(1.2)
+    assert len(f) == 6 * info["segments"]
+
+
+# --------------------------------------------------------------------------
+# 2. Tree height by crown class, climate and species
+# --------------------------------------------------------------------------
+
+def test_tree_height_classes_and_no_four_metre_minimum():
+    assert S.tree_height(0.359) == (0.862, "shrub")                      # real04's symbol: a shrub, not a 4 m tree
+    assert S.tree_height(1.0) == (2.4, "shrub")
+    assert S.tree_height(1.5) == (4.8, "small") and S.tree_height(2.0) == (6.0, "small")
+    assert S.tree_height(2.5) == (8.0, "medium") and S.tree_height(3.0) == (9.6, "medium")
+    assert S.tree_height(4.0) == (12.8, "large") and S.tree_height(6.0) == (15.0, "large")
+    heights = [S.tree_height(r)[0] for r in (0.2, 0.5, 1.0, 1.49, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 8.0)]
+    assert heights == sorted(heights) and 0.4 <= heights[0] and heights[-1] <= 15.0
+    assert "tree_min_height" not in S.DEFAULTS
+    terrain = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
+    shrub = S.tree_parts({"id": "t", "kind": "tree", "center": [1.0, 1.0], "size": [0.718, 0.718]}, terrain, "mediterranean")
+    assert shrub["size_class"] == "shrub" and shrub["trunk"] is None and shrub["height"] < 1.0
+    assert shrub["species"] == "oleander" and shrub["species_inferred"]
+    tree = S.tree_parts({"id": "t", "kind": "tree", "center": [1.0, 1.0], "size": [3.5, 3.5]}, terrain, "mediterranean")
+    assert tree["size_class"] == "small" and tree["height"] == pytest.approx(5.6) and tree["trunk"] is not None
+    assert tree["species"] == "olive"
+    named = S.tree_parts({"id": "t", "kind": "tree", "center": [0, 0], "size": [8.0, 8.0], "species": "plane"}, terrain)
+    assert named["species"] == "plane" and not named["species_inferred"] and named["size_class"] == "large"
+
+
+def test_climate_from_the_brief_or_the_drawing_language_and_species_per_class():
+    turkish = {"rooms": [{"label_raw": "SALON"}, {"label_raw": "MUTFAK"}, {"label_raw": "YATAK ODASI"}],
+               "site": {"areas": [{"label_raw": "OTOPARK ALANI"}]}}
+    c = S.climate_of(turkish)
+    assert c["climate"] == "mediterranean" and c["inferred"] and "salon" in c["evidence"]
+    english = {"rooms": [{"label_raw": "LIVING ROOM"}, {"label_raw": "KITCHEN"}], "site": {}}
+    assert S.climate_of(english)["climate"] == "temperate"
+    explicit = dict(turkish, project={"brief": {"climate": "temperate"}})
+    assert S.climate_of(explicit) == {"climate": "temperate", "source": "brief.climate", "inferred": False,
+                                      "evidence": ["temperate"]}
+    for climate, table in S.SPECIES_BY_CLIMATE.items():
+        for cls in ("shrub", "small", "medium", "large"):
+            assert S.species_for(cls, climate) in VG.SPECIES and VG.SPECIES[S.species_for(cls, climate)]["crown"] != "hedge"
+        for cls in ("low", "mid", "high"):
+            assert VG.SPECIES[S.species_for(cls, climate, kind="hedge")]["crown"] == "hedge"
+    assert S.species_for("small", "mediterranean") == "olive" and S.species_for("large", "mediterranean") == "plane"
+
+
+def test_the_species_table_resolves_to_verified_sources():
+    """Every Poly Haven id was checked on api.polyhaven.com/info/<id> (type 2 = model) on 15 Oct 2026; every Sapling
+    preset is one of the add-on's nine preset files."""
+    assert set(S.SPECIES_BY_CLIMATE["mediterranean"].values()) <= set(VG.SPECIES)
+    for name, rec in VG.SPECIES.items():
+        src = rec["source"]
+        assert set(src) == {"polyhaven", "sapling"}
+        assert src["polyhaven"] is None or src["polyhaven"] in VG.POLYHAVEN_MODELS
+        assert src["sapling"] is None or src["sapling"] in VG.SAPLING_PRESETS
+        assert rec["crown"] in ("round", "spreading", "columnar", "umbrella", "conical", "palm", "shrub", "hedge")
+        assert len(rec["colour"]) == 3 and all(0.0 <= c <= 1.0 for c in rec["colour"])
+        assert rec["shape"] is None or rec["shape"] in VG.SAPLING_SHAPES
+        assert VG.species_record(name)["name"] == name
+    for aid, m in VG.POLYHAVEN_MODELS.items():
+        assert m["height_m"] > 0 and m["polycount"] > 0 and m["kind"] in ("tree", "shrub", "grass")
+    assert VG.species_record("no such species")["name"] == "generic_broadleaf"
+    assert VG.POLYHAVEN_LICENCE == "CC0" and VG.LEAF_LICENCE == "CC0"
+    assert set(VG.SAPLING_TOP_PER_SCALE) == set(VG.SAPLING_PRESETS)
+
+
+# --------------------------------------------------------------------------
+# 3. Platforms, pools, backdrop, haze, levers
+# --------------------------------------------------------------------------
+
+def _sloped_site(points=((-10, -10, -2.0), (30, -10, 0.0), (-10, 30, 1.0), (30, 30, 3.0), (10, 10, 0.5))):
+    from wenart.levels import terrain as T
+    surface = T.fit_surface(list(points))
+    return {"ground": {"surface": surface, "points": [], "levels": []}, "paving": [], "parking": [], "pools": []}
+
+
+def test_platforms_one_level_each_with_their_edge_treatment():
+    site = _sloped_site()
+    site["paving"] = [{"id": "sp_001", "polygon": [[0, 0], [8, 0], [8, 5], [0, 5]], "source": "site_plan", "build": True,
+                       "area_id": "sa_terrace"}]
+    site["parking"] = [{"id": "spk_001", "polygon": [[12, 0], [20, 0], [20, 6], [12, 6]], "build": True}]
+    site["pools"] = [{"id": "pool_001", "polygon": [[2, 5.3], [6, 5.3], [6, 8.3], [2, 8.3]], "build": True},
+                     {"id": "pool_002", "polygon": [[22, 20], [28, 20], [28, 23], [22, 23]], "build": True}]
+    pfs = S.platforms(site)
+    by = {p["id"]: p for p in pfs}
+    assert set(by) == {"sp_001", "spk_001", "pool_002_deck"}
+    t = by["sp_001"]
+    assert t["kind"] == "terrace" and t["z_source"] == "the mean ground under it" and not t["sloped"]
+    assert abs(t["z"] / S.PLATFORM["round"] - round(t["z"] / S.PLATFORM["round"])) < 1e-6      # rounded to 5 cm
+    assert t["ground"]["min"] <= t["z"] <= t["ground"]["max"] and t["edge"] in ("steps", "retaining")
+    assert t["pools"] == ["pool_001"] and len(t["holes"]) == 1          # the pool beside the terrace joins its deck
+    assert G.polygon_area(t["polygon"]) > 40.0                           # the deck ring grew the terrace polygon
+    assert by["spk_001"]["kind"] == "parking" and by["spk_001"]["edge"] in ("kerb", "retaining", "steps")
+    deck = by["pool_002_deck"]
+    assert deck["kind"] == "pool" and deck["pools"] == ["pool_002"] and len(deck["holes"]) == 1
+    assert all(p["inferred"] and "level" in p["reason"] for p in pfs)
+    # level marks inside the polygon set the level; marks that spread over 1 m say the area is drawn sloped
+    site["ground"]["points"] = [{"x": 4.0, "y": 2.0, "z": 1.0, "kind": "ground_finished", "mark_id": "lm_1"}]
+    t2 = next(p for p in S.platforms(site) if p["id"] == "sp_001")
+    assert t2["z"] == 1.0 and t2["z_source"] == "level marks" and t2["marks"] == ["lm_1"]
+    site["ground"]["points"].append({"x": 14.0, "y": 3.0, "z": -1.0, "kind": "ground_finished", "mark_id": "lm_2"})
+    site["ground"]["points"].append({"x": 19.0, "y": 3.0, "z": 1.5, "kind": "ground_finished", "mark_id": "lm_3"})
+    park = next(p for p in S.platforms(site) if p["id"] == "spk_001")
+    assert park["sloped"] and park["edge"] == "kerb" and set(park["marks"]) == {"lm_2", "lm_3"}
+    # a flat site: no retaining wall, a terrace is flush (none), a parking gets its kerb
+    flat = {"ground": {"levels": [{"side": "all", "z": {"value": 0.0}}]}, "paving": site["paving"], "parking": site["parking"],
+            "pools": []}
+    flat_pfs = {p["id"]: p for p in S.platforms(flat)}
+    assert flat_pfs["sp_001"]["edge"] == "none" and flat_pfs["spk_001"]["edge"] == "kerb"
+
+
+def test_platform_parts_slab_walls_kerbs_steps_and_pool_v2():
+    site = _sloped_site()
+    site["paving"] = [{"id": "sp_001", "polygon": [[0, 0], [8, 0], [8, 5], [0, 5]], "build": True}]
+    site["pools"] = [{"id": "pool_001", "polygon": [[2, 5.3], [6, 5.3], [6, 8.3], [2, 8.3]], "build": True}]
+    pf = S.platforms(site)[0]
+    terrain = {"kind": "tin", "surface": site["ground"]["surface"], "z": {}, "rect": [0, 0, 8, 5]}
+    parts = {p["part"]: p for p in S.platform_parts(pf, terrain)}
+    assert "slab" in parts and "wall" in parts
+    assert max(v[2] for v in parts["slab"]["verts"]) == pytest.approx(pf["z"])
+    assert max(v[2] for v in parts["wall"]["verts"]) >= pf["z"] + S.PLATFORM["lip"] - 1e-6
+    if pf["steps_edge"] is not None:
+        assert "steps" in parts and parts["steps"]["faces"]
+    pool = {"id": "pool_001", "polygon": [[2, 5.3], [6, 5.3], [6, 8.3], [2, 8.3]], "depth": 1.5}
+    pp = S.pool_parts(pool, terrain, deck_z=pf["z"])
+    assert pp["edge_z"] == pf["z"] and pp["floor_z"] == pytest.approx(pf["z"] - 1.5)
+    assert pp["water_z"] == pytest.approx(pf["z"] - S.POOL_WATER_DROP_M) and pp["coping_z"] == pytest.approx(pf["z"] + S.PLATFORM["lip"])
+    wv, wf = pp["water"]
+    assert len(wf) == 6 and min(v[2] for v in wv) == pytest.approx(pp["floor_z"] + S.POOL_WATER_BOTTOM_M)   # a closed slab
+    bv, bf = pp["basin"]
+    assert len(bf) == 5 and max(v[2] for v in bv) == pytest.approx(pf["z"])                               # clipped under the deck
+    cv, cf = pp["coping"]
+    assert cf and max(v[2] for v in cv) == pytest.approx(pp["coping_z"])
+    xs = [v[0] for v in cv]
+    assert min(xs) == pytest.approx(2.0 - S.POOL_COPING_M) and max(xs) == pytest.approx(6.0 + S.POOL_COPING_M)
+    # without a deck level the edge is the highest ground of the corners (the Milestone 12 rule)
+    pp2 = S.pool_parts(pool, terrain)
+    assert pp2["edge_z"] == pytest.approx(max(S.ground_z(terrain, x, y) for x, y in pool["polygon"]))
+    # a sloped (draped) platform keeps the ground: slab and kerbs only
+    sloped = dict(pf, sloped=True, edge="kerb", kind="parking", steps_edge=None, railing_edges=[])
+    kinds = {p["part"] for p in S.platform_parts(sloped, terrain)}
+    assert kinds == {"slab", "kerb"}
+
+
+def test_backdrop_ring_rises_and_the_haze_is_a_closed_hollow_shell():
+    terrain = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
+    inner = [(-10.0, -10.0), (10.0, -10.0), (10.0, 10.0), (-10.0, 10.0)]
+    v, f = S.backdrop_faces(inner, terrain, outer_reach=500.0, rise=20.0)
+    assert len(f) == 4 and len(v) == 16
+    assert max(p[2] for p in v) == pytest.approx(20.0) and min(p[2] for p in v) == 0.0
+    assert max(abs(p[0]) for p in v) == pytest.approx(510.0)
+    for q in f:                                                       # every quad faces up
+        area = sum(v[q[i]][0] * v[q[(i + 1) % 4]][1] - v[q[(i + 1) % 4]][0] * v[q[i]][1] for i in range(4))
+        assert area > 0
+    hv, hf = S.haze_box(inner, (0.0, 10.0))
+    assert len(hv) == 16 and len(hf) == 12
+    outer_normals = [geom2d.face_normal(hv, q) for q in hf[:6]]
+    inner_normals = [geom2d.face_normal(hv, q) for q in hf[6:]]
+    centre = (0.0, 0.0, 5.0)
+    for q, n in zip(hf[:6], outer_normals):                           # the outer shell faces out, the inner one in
+        c = geom2d.face_center(hv, q)
+        assert sum((c[i] - centre[i]) * n[i] for i in range(3)) > 0
+    for q, n in zip(hf[6:], inner_normals):
+        c = geom2d.face_center(hv, q)
+        assert sum((c[i] - centre[i]) * n[i] for i in range(3)) < 0
+    assert 0 < S.HAZE["density"] < 0.01
+
+
+def test_site_levers_from_the_environment(monkeypatch):
+    assert S.site_levers("all") == {k: True for k in S.SITE_LEVERS}
+    assert S.site_levers("base") == {k: False for k in S.SITE_LEVERS}
+    assert S.site_levers("hedge+pools") == {k: k in ("hedge", "pools") for k in S.SITE_LEVERS}
+    monkeypatch.setenv(S.SITE_VARIANT_ENV, "sky")
+    assert S.site_levers()["sky"] and not S.site_levers()["hedge"]
+    monkeypatch.delenv(S.SITE_VARIANT_ENV)
+    assert all(S.site_levers().values())
+    with pytest.raises(ValueError):
+        S.site_levers("lollipop")
+
+
+@pytest.mark.skipif(not REAL04.is_file(), reason="no committed real04 building")
+def test_site_plan_of_real04_carries_hedges_platforms_species_and_the_levers(monkeypatch):
+    from wenart.blender import build as BB
+
+    b = json.loads(REAL04.read_text(encoding="utf-8"))
+    monkeypatch.delenv(S.SITE_VARIANT_ENV, raising=False)
+    sp = BB.prepare(b, "base", None)["site"]
+    assert [h["id"] for h in sp["hedges"]] == ["hedge_001", "hedge_002", "hedge_003", "hedge_004"]
+    assert len(sp["trees"]) == 19 and sp["climate"]["climate"] == "mediterranean"
+    assert sorted((p["id"], p["z"]) for p in sp["platforms"]) == [("sp_001", -3.0), ("sp_002", -1.4), ("sp_003", 1.55),
+                                                                  ("sp_004", -0.2), ("spk_001", 0.75)]
+    assert next(p for p in sp["platforms"] if p["id"] == "spk_001")["sloped"]
+    assert {p["deck_z"] for p in sp["pools"]} == {-3.0, -1.4, 1.55, -0.2}
+    assert all(a.get("platform_id") for a in sp["areas"] if a["kind"] in ("paving", "parking"))
+    assert {v["species"] for v in sp["species"].values()} == {"oleander"} and all(v["inferred"] for v in sp["species"].values())
+    assert {v["size_class"] for v in sp["species"].values()} == {"shrub"}
+    fields = {a["field"] for a in sp["assumed"]}
+    assert {"hedge:hedge_001", "platform:sp_001", "climate"} <= fields
+    monkeypatch.setenv(S.SITE_VARIANT_ENV, "base")
+    sp0 = BB.prepare(b, "base", None)["site"]
+    assert sp0["hedges"] == [] and len(sp0["trees"]) == 100 and sp0["platforms"] == [] and not any(sp0["levers"].values())
+
+
+# --------------------------------------------------------------------------
+# 4. The pure parts of the vegetation module
+# --------------------------------------------------------------------------
+
+def test_vegetation_plans_hedge_crown_palm_and_sapling_overrides():
+    plan = VG.hedge_plan({"polyline": [[0, 0], [20, 0]], "width_m": 0.7, "height_m": 1.2, "species": "cherry_laurel"})
+    assert plan["length_m"] == 20.0 and plan["surface_m2"] == pytest.approx(63.68)
+    assert plan["cards"] == round(63.68 * VG.LEAF_CARDS_PER_M2) and plan["density"] == VG.LEAF_CARDS_PER_M2
+    assert plan["card_m"][0] > VG.LEAF_CARD_M[0] * 0.5 and plan["species"] == "cherry_laurel"
+    crown = VG.crown_plan("plane", 6.0, crown_m=5.0)
+    assert crown["trunk_h"] == pytest.approx(1.8) and crown["crown_rx"] == 2.5 and crown["crown_rz"] == pytest.approx(2.1)
+    assert crown["shells"] == 2 and crown["cards"] > 100 and crown["crown"] == "spreading"
+    shrub = VG.crown_plan("oleander", 0.86, crown_m=0.72)
+    assert shrub["trunk_h"] == 0.0 and shrub["shells"] == 1 and shrub["crown_rz"] == pytest.approx(0.43)
+    palm = VG.palm_plan(7.0, seed=3)
+    assert len(palm["fronds"]) == 14 and palm == VG.palm_plan(7.0, seed=3) and palm != VG.palm_plan(7.0, seed=4)
+    assert all(-35.0 <= f["pitch_deg"] <= 25.0 for f in palm["fronds"])
+    over = VG.sapling_overrides("olive", 5.6, 7)
+    assert over["scale"] == pytest.approx(5.6 / VG.SAPLING_TOP_PER_SCALE["small_maple"], abs=1e-3)
+    assert over["scaleV"] == 0.0 and over["shape"] == VG.SAPLING_SHAPES["hemispherical"] and over["seed"] == 7
+    assert over["leafShape"] == "dFace" and over["bevel"] and not over["useArm"]
+    assert "attractUp" in VG.sapling_overrides("cypress", 8.0, 1)
+    assert len(VG.leaf_mask_points()) == 16 and 0 < VG.LEAF_MASK_EDGE < 0.5
+
+
+def test_tree_source_decision_and_the_hero_model_lookup(tmp_path):
+    hero = {"id": "island_tree_02", "path": "x", "height_m": 3.4, "licence": "CC0"}
+    on = {"instances": True, "sapling": True}
+    assert VG.tree_source("olive", True, on, hero, True) == "polyhaven"
+    assert VG.tree_source("olive", False, on, hero, True) == "sapling"           # far from the cameras
+    assert VG.tree_source("olive", True, {"instances": False, "sapling": True}, hero, True) == "sapling"
+    assert VG.tree_source("olive", True, {"instances": False, "sapling": False}, hero, True) == "cards"
+    assert VG.tree_source("olive", False, on, None, False) == "cards"
+    assert VG.tree_source("palm", False, on, None, True) == "palm"
+    assert VG.tree_source("oleander", False, on, None, True) == "cards"           # shrubs never go through Sapling
+    # the hero model: only when the assets manifest records the glTF and the file exists
+    assets = tmp_path / "assets"
+    (assets / "models" / "island_tree_02").mkdir(parents=True)
+    gltf = assets / "models" / "island_tree_02" / "island_tree_02_2k.gltf"
+    gltf.write_text("{}", encoding="utf-8")
+    manifest = {"models": {"island_tree_02": {"files": {"gltf": "models/island_tree_02/island_tree_02_2k.gltf"},
+                                              "bbox_m": [8.5, 4.1, 3.41], "bbox_min_m": [0, 0, 0.02], "polycount": 1762064}}}
+    (assets / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    h = VG.hero_model("olive", manifest, assets)
+    assert h["id"] == "island_tree_02" and h["path"] == str(gltf) and h["height_m"] == 3.41 and h["licence"] == "CC0"
+    assert VG.hero_model("stone_pine", manifest, assets) is None                # no CC0 scan for that species
+    assert VG.hero_model("olive", {}, assets) is None and VG.hero_model("olive", manifest, tmp_path / "nowhere") is None
+    assert VG.leaf_atlas("olive", {}, assets) is None
+    assert VG.sapling_preset("not_a_preset") is None
+
+
+# --------------------------------------------------------------------------
+# 5. Cameras: the site view's horizon, hedges as low obstacles, one aerial
+# --------------------------------------------------------------------------
+
+def test_site_view_keeps_the_horizon_in_the_frame():
+    # Milestone 12: 24 mm, 28 degrees down -> the horizon above the frame (the black band of real04's ext_7)
+    assert CP.horizon_fraction(28.0, 24.0) > 1.0
+    assert CP.horizon_fraction(0.0, 24.0) == pytest.approx(0.5)
+    pitch = CP.pitch_for_horizon(CP.SITE_VIEW_HORIZON_FRAC, CP.SITE_VIEW_LENS_MM)
+    assert 0 < pitch <= CP.SITE_VIEW_PITCH_DEG and CP.horizon_fraction(pitch, 24.0) == pytest.approx(0.78, abs=1e-3)
+    assert CP.pitch_for_horizon(1.5, 24.0) == CP.SITE_VIEW_PITCH_DEG                 # the cap
+    b = {"site": {"buildings": [{"id": "b1", "reference": True, "translate": [0, 0], "dz": 0.0, "footprint": []},
+                                {"id": "b2", "reference": False, "rotation_deg": 0.0, "translate": [0.0, 18.6],
+                                 "dz": 3.0, "footprint": [[0, 18.6], [15.2, 18.6], [15.2, 30.6], [0, 30.6]]}]}}
+    sv = CP.site_view([(0, 0), (15.2, 0), (15.2, 12.0), (0, 12.0)], b, (-3.0, 6.0))
+    assert sv["pitch_deg"] == pitch and 1 / 3 < sv["horizon_frac"] < 1.0
+    assert sv["position"][2] - sv["target"][2] >= CP.SITE_VIEW_MIN_HEIGHT_M - 1e-6
+    d = math.hypot(sv["position"][0] - sv["target"][0], sv["position"][1] - sv["target"][1])
+    assert math.degrees(math.atan2(sv["position"][2] - sv["target"][2], d)) == pytest.approx(pitch, abs=0.05)
+
+
+def _box_building(hedges=(), hedge_height=1.2):
+    pts = [(0, 0), (10, 0), (10, 8), (0, 8)]
+    walls = [{"id": f"w{i}", "level_id": "L0", "start": list(pts[i]), "end": list(pts[(i + 1) % 4]), "thickness": 0.25,
+              "exterior": True} for i in range(4)]
+    site = {"ground": {"levels": [{"side": "all", "z": {"value": 0.0, "method": "vector"}}]}, "decor": [],
+            "boundary_walls": [], "plot": {"polygon": [[-15, -15], [25, -15], [25, 23], [-15, 23]], "build": True},
+            "hedges": [{"id": f"h{k}", "polyline": [list(a), list(b)], "width_m": 0.7, "height_m": hedge_height,
+                        "height_class": "mid", "inferred": True, "evidence": []} for k, (a, b) in enumerate(hedges)]}
+    return {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.8}], "walls": walls, "openings": [],
+            "rooms": [], "slabs": [], "site": site, "facade": {}}
+
+
+def _model(b):
+    outline, _ = geom2d.wall_outline(b["walls"])
+    plan = S.site_plan(b, b["levels"], outline, "full", options={"path": False, "fence": "none", "trees": 0})
+    return E.build_model(b, b["levels"], None, plan), plan
+
+
+def test_view_check_treats_hedges_as_obstacles_of_their_height():
+    hedge = [((-20.0, -6.0), (30.0, -6.0))]
+    b = _box_building(hedge, 1.2)
+    m, plan = _model(b)
+    assert len(plan["hedges"]) == 1 and m.labels.count(E.LABELS["hedge"]) > 0 and len(m.hedges) == 1
+    assert m.inside((5.0, -6.0, 0.6)) == "hedge" and m.inside((5.0, -6.0, 1.9)) is None
+    pts = E.building_points(m)
+    pos, target = (5.0, -16.0, 1.6), (5.0, 4.0, 1.4)
+    lens, shift_y, tgt, _w = E.frame(pos, target, pts, level=True)
+    low = E.view_check(m, pos, tgt, lens, shift_y, (5.0, 0.0, 1.4))
+    assert low["ok"] and low["hedge_over"] > 0.0 and low["hedge_blocked"] == 0.0 and low["blocked"] <= E.MAX_BLOCKED
+    b2 = _box_building(hedge, 2.2)
+    m2, _ = _model(b2)
+    high = E.view_check(m2, pos, tgt, lens, shift_y, (5.0, 0.0, 1.4))
+    assert high["hedge_blocked"] > 0.3 and not high["ok"] and "blocked" in high["why"]
+    # a 1.2 m hedge all around the plot, 5 m out: every corner view is kept (the Milestone 12 model dropped a view
+    # behind its 4 m "trees" of the hedge symbols)
+    ring = [(-5, -5), (15, -5), (15, 13), (-5, 13)]
+    b3 = _box_building([(ring[i], ring[(i + 1) % 4]) for i in range(4)], 1.2)
+    m3, _ = _model(b3)
+    plans, dropped = E.plan_exterior(m3, b3, b3["levels"], b3["site"]["plot"]["polygon"])
+    assert [d["name"] for d in dropped if d["view"] == "corner"] == []
+    assert all(p["score"]["hedge_over"] >= 0.0 for p in plans if p["view"] == "corner")
+
+
+@pytest.mark.skipif(not REAL04.is_file(), reason="no committed real04 building")
+def test_real04_exterior_views_behind_the_hedges_are_kept_and_the_site_view_sees_the_horizon(monkeypatch):
+    from wenart.blender import build as BB
+
+    monkeypatch.delenv(S.SITE_VARIANT_ENV, raising=False)
+    b = json.loads(REAL04.read_text(encoding="utf-8"))
+    prep = BB.prepare(b, "base", None)
+    vb, sp = prep["building"], prep["site"]
+    model = E.build_model(vb, vb["levels"], prep["roof"], sp)
+    assert len(model.hedges) == 6                                      # 4 rows, one with 3 polyline segments
+    plans, dropped = E.plan_exterior(model, vb, vb["levels"], sp["plot"] or [], variant="base")
+    names = [p["name"] for p in plans]
+    assert {"ext_1", "ext_2", "ext_3", "ext_4", "ext_5", "ext_7"} <= set(names)      # M12 dropped ext_3 and ext_4
+    assert [d["name"] for d in dropped] == ["ext_6"] and "inside the copy" in dropped[0]["dropped_reason"]
+    site_view = next(p for p in plans if p.get("site_view"))
+    assert site_view["score"]["ok"] and 1 / 3 < site_view["horizon_frac"] < 1.0 and -28.0 <= site_view["pitch_deg"] < 0
+    assert site_view["aerial_allowed"] and next(p for p in plans if p["name"] == "ext_5")["aerial_allowed"]
+    for p in plans:
+        if p["view"] == "corner":
+            assert p["score"]["blocked"] <= E.MAX_BLOCKED and p["score"]["hedge_blocked"] <= E.MAX_BLOCKED
+
+
+def test_x6_allows_one_true_aerial_view_and_notes_a_second():
+    base = {"name": "ext_5", "kind": "exterior", "view": "aerial", "position": [30.0, 30.0, 20.0], "target": [5.0, 4.0, 1.5]}
+    hits = []
+    X._x6({}, {"outlines": {}, "roof": {}, "main_facade": {}}, {"cameras": [base, dict(base, name="ext_7", site_view=True)]},
+          None, hits)
+    assert not any("aerial views" in h["message"] for h in hits)
+    hits = []
+    X._x6({}, {"outlines": {}, "roof": {}, "main_facade": {}}, {"cameras": [base, dict(base, name="ext_9")]}, None, hits)
+    second = [h for h in hits if "aerial views" in h["message"]]
+    assert len(second) == 1 and second[0]["severity"] == "minor" and second[0]["metrics"]["aerials"] == ["ext_5", "ext_9"]
+
+
+# --------------------------------------------------------------------------
+# 6. The facade kit
+# --------------------------------------------------------------------------
+
+def test_facade_kit_only_where_the_documents_imply_it():
+    from wenart import views as V
+    from wenart.blender import build as BB
+
+    b = V.variant_building(EXAMPLE, "base")
+    prep = BB.prepare(EXAMPLE, "base", None)
+    vb, sp = prep["building"], prep["site"]
+    plan = FA.articulation_plan(vb, vb["levels"], prep["outlines"], prep["ground_outline"], sp["terrain"], prep["roof"],
+                                {"family": "modern"}, {"facade": {"material": "render", "colour": "white"}}, sp["wells"])
+    kinds = {x["kind"] for x in plan["boxes"]}
+    assert "reveal" in kinds and "canopy" in kinds and "wall_light" in kinds
+    kit = plan["kit"]
+    assert kit["counts"]["canopy"] == len(kit["entrances"]) and kit["counts"]["wall_light"] == 2 * len(kit["entrances"])
+    assert kit["eaves_edges"] > 0 and kit["counts"]["gutter"] == kit["eaves_edges"] and kit["counts"]["downpipe"] >= 1
+    for box in plan["boxes"]:
+        if box["kind"] in FA.KIT_KINDS:
+            assert box["inferred"] and box["reason"] and all(v > 0 for v in box["size"])
+    assert {k for k in plan["looks"] if k in FA.KIT_KINDS} == {k for k in kit["counts"]}
+    assert {a["field"] for a in plan["assumed"] if a["field"].startswith("kit:")} == {f"kit:{k}" for k in kit["counts"]}
+    # a classic family keeps its stone surrounds and gets no reveals
+    classic = FA.articulation_plan(vb, vb["levels"], prep["outlines"], prep["ground_outline"], sp["terrain"], prep["roof"],
+                                   {"family": "classic"}, {}, sp["wells"])
+    assert "reveal" not in {x["kind"] for x in classic["boxes"]} and any(x["kind"] == "surround" for x in classic["boxes"])
+    # a flat roof has no eaves: no gutters; no roof: none
+    assert FA.eaves_edges(dict(prep["roof"], type="flat")) == [] and FA.eaves_edges(None) == []
+    assert set(FA.KIT_LOOKS) == set(FA.KIT_KINDS)
+    # the gutters hang just under the eaves, the downpipes reach the ground
+    gutters = [x for x in plan["boxes"] if x["kind"] == "gutter"]
+    assert all(abs(g["center"][2] + FA.KIT["gutter_h"] / 2 + FA.KIT["gutter_drop"] - prep["roof"]["eaves_z"]) < 1e-6 for g in gutters)
+    pipes = [x for x in plan["boxes"] if x["kind"] == "downpipe"]
+    assert all(p["size"][2] > 2.0 and p["center"][2] - p["size"][2] / 2 < 0.5 for p in pipes)
+
+
+@pytest.mark.skipif(not REAL02.is_file(), reason="no committed real02 building")
+def test_facade_kit_of_real02_is_inferred_and_counted():
+    from wenart.blender import build as BB
+
+    b = json.loads(REAL02.read_text(encoding="utf-8"))
+    prep = BB.prepare(b, "base", None)
+    vb, sp = prep["building"], prep["site"]
+    plan = FA.articulation_plan(vb, vb["levels"], prep["outlines"], prep["ground_outline"], sp["terrain"], prep["roof"],
+                                {"family": "modern"}, {"facade": {"material": "render", "colour": "warm greige"}}, sp["wells"])
+    counts = plan["kit"]["counts"]
+    assert counts["gutter"] == 4 and counts["canopy"] == 2 and counts["wall_light"] == 4 and counts["reveal"] == 24
+    assert counts["downpipe"] >= 4 and plan["kit"]["entrances"] == ["d_L0_011", "d_L0_012"]
+
+
+# --------------------------------------------------------------------------
+# 7. The shell scripts
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("script", ["scripts/pod_setup_vegetation.sh", "scripts/jobs/site_ab.sh"])
+def test_the_shell_scripts_parse_and_follow_the_conventions(script):
+    path = ROOT / script
+    assert path.is_file() and os.access(path, os.X_OK)
+    subprocess.run(["bash", "-n", str(path)], check=True)
+    text = path.read_text(encoding="utf-8")
+    assert text.startswith("#!/usr/bin/env bash") and "set -Eeuo pipefail" in text
+    assert "/workspace/logs" in text or "$WS/logs" in text          # (review: parenthesised; was A and B and C or D)
+    if script.endswith("pod_setup_vegetation.sh"):
+        assert "wenart.assets models fetch" in text and "--command extension install" in text
+        assert "sapling_tree_gen" in text and "vegetation_status.json" in text and "user_default" in text
+        assert "curl" not in text.replace("# ", "")                      # downloads only through the existing code
+    else:
+        for lever in S.SITE_LEVERS:
+            assert lever in text
+        assert "ext_1,ext_5,ext_7" in text and "ext_1,ext_5,ext_6" in text and "WENART_SITE_VARIANT" in text
+        assert "vram" in text and "summary" in text and "tests/gpu/test_m13_site.py" in text

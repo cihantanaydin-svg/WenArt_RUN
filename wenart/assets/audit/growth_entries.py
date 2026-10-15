@@ -3,13 +3,16 @@ copies they go into.
 
 What:
 
-- ``polyhaven_entry``, ``abo_entry``, ``gso_entry``, ``infinigen_entry``: one entry each, in the shape of the
+- ``polyhaven_entry``, ``abo_entry``, ``gso_entry``, ``infinigen_entry``, ``hssd_entry`` (Milestone 13): one entry each, in the shape of the
   source's existing entries (Poly Haven as in ``wenart/furniture/catalog.json``; ABO, GSO and the Infinigen models as
   in ``catalog_library.json``: frame fields, licence, credit fields, units, styles, ``glb`` + ``sha256_glb`` where
   ``wenart.assets.models.fetch_model`` and the Blender build find them). Infinigen models are ``source: generated``
   (made on our pod by Infinigen's BSD-3 code: the approval says "the generated models are ours") with the
   ``generated`` record naming the factory, the seed and the commit; GSO models are ``source: gso`` (CC BY 4.0, with
-  the per-object licence evidence of ``growth_gso.py``).
+  the per-object licence evidence of ``growth_gso.py``); HSSD models (Milestone 13, docs/milestone13.md §12 D2) are
+  ``source: hssd`` with the licence fields of ``wenart.assets.hssd.entry_fields`` (CC BY-NC 4.0, ``licence_flag:
+  non_commercial``, ``commercial_safe: false``: relaxed licence mode only) and the ``hssd`` record (object id,
+  synset, Floorplanner tags, the demand bin the pick served, the repo revision).
 - ``front_of``: the front of a new model: ABO's documented -Y (README convention 2), else the geometric rule of the
   type (``objaverse.yaml`` front rules on the numpy measurement of ``glbmesh.py``; confidence ``medium``), else -Y
   with confidence ``low`` and the reason, so the audit's vision answer names the front (``decide.py``: a vision front
@@ -54,6 +57,13 @@ GSO_VIA = "Google Scanned Objects (Google Research, CC BY 4.0), via the Hugging 
           "suvadityamuk/google-scanned-objects-raw"
 GSO_CHANGES = "converted from OBJ to GLB, scaled to the drawn footprint, re-oriented, rendered, AI-retouched"
 INFINIGEN_REPO = "princeton-vl/infinigen"
+HSSD_CHANGES = "scaled to the drawn footprint, re-oriented, rendered, AI-retouched"
+GROWTH_NOTE_M13 = ("Milestone 13 pod P2 (docs/milestone13.md §5.1 phase 2, §13.6; user decisions D1, D2 of 12 Oct "
+                   "2026): models added by the library growth by drawn demand (ABO size grid, Poly Haven 2K and "
+                   "vegetation, HSSD by type and size bin under CC BY-NC 4.0 for the relaxed licence mode), audited "
+                   "in P2 with the Milestone 13 gates (results/library/audit/p4/ and results/library/growth/: the "
+                   "folders scripts/jobs/library_growth.sh copy_results writes).")
+PENDING_REASON_M13 = "new in pod P2 (Milestone 13 library growth): waiting for the P2 audit"
 
 
 def _round(v, n: int = 4) -> list:
@@ -275,6 +285,52 @@ def infinigen_entry(rec: dict, m: dict, sha: str, commit: str, tag: str, checked
     return e
 
 
+def hssd_entry(cand: dict, m: dict, sha: str, checked_utc: str, rules: Optional[dict] = None,
+               footprint: Optional[dict] = None, pbr: Optional[dict] = None) -> dict:
+    """A ``catalog_library.json`` entry of an HSSD candidate (``wenart.assets.hssd.candidate_records``; Milestone
+    13): ``source: hssd``, the CC BY-NC 4.0 licence fields (``hssd.entry_fields``: ``licence_flag: non_commercial``,
+    ``commercial_safe: false``), units known (metres: the Floorplanner products are modelled at real size; the box of
+    ``glbmesh.measure`` is what the catalogue carries), the front from the geometric rule of the type (the metadata's
+    ``front`` column is empty for most objects: confidence medium at best, the audit's vision answer names it), the
+    ``pbr_maps`` record when measured, an L-sofa's ``chaise_side`` from the footprint, and ``audit: pending`` until
+    the P2 audit decides."""
+    from wenart.assets import hssd as H
+    from wenart.assets import objaverse as OV
+    ftype, kind = cand["type"], cand.get("kind") or "furniture"
+    hid = cand.get("hssd_id") or cand["id"][len(H.UID_PREFIX):]
+    uid = H.UID_PREFIX + hid
+    front, conf, note = front_of(ftype, m.get("stats"), rules=rules)
+    title = cand.get("title") or f"HSSD object {hid[:8]}"
+    hint = styles_hint(title)
+    styles, style_note = _styles(hint, "the product title")
+    e = {"id": uid, **_kind_type(kind, ftype), "source": "hssd", **H.entry_fields(), "name": title}
+    e.update(frame_fields(m, front, conf, note))
+    w, d, h = e["bbox_m"]
+    e.update({"unit_scale": 1.0, "unit_note": f"units known (metres, HSSD aligned.dims {', '.join(f'{v:.3g}' for v in cand.get('dims_m') or [])}): "
+                                              f"{w:.3g} x {d:.3g} x {h:.3g} m measured",
+              "units_known": True, "styles": styles, "style_note": style_note,
+              "glb": f"models/hssd/{uid}.glb", "sha256_glb": sha, "uid": uid, "title": title,
+              "author": "the HSSD authors (Floorplanner product models; 3dlg-hcvc / Meta FAIR)",
+              # the Hub's file page is /blob/<revision>/<path> (/tree/ answers 404 for a file; checked 15 Oct 2026)
+              "source_url": f"{H.PAGE_URL}/blob/{H.REVISION}/{cand.get('path') or H.object_path(hid)}",
+              "via": f"{H.DATASET_NAME} (CC BY-NC 4.0), {H.PAGE_URL}",
+              "attribution": H.attribution(title, hid)})
+    e.update(_mesh_fields(m))
+    if pbr:
+        e["pbr_maps"] = dict(pbr)
+    if kind == "furniture" and ftype in OV.FOOTPRINT_TYPES:
+        e["chaise_side"], e["chaise_note"] = OV.chaise_side(footprint, front, OV.load_config())
+    e.update(_bed_fields(ftype, kind))
+    e["hssd"] = {"id": hid, "synset": cand.get("synset"), "found_in": cand.get("found_in"), "multi": cand.get("multi"),
+                 "articulated": cand.get("articulated"), "bin": cand.get("bin"), "demand": cand.get("demand"),
+                 "projects": list(cand.get("projects") or []), "repo": H.REPO_ID, "revision": H.REVISION,
+                 "path": cand.get("path") or H.object_path(hid)}
+    e["growth"] = {"pod": "P2", "milestone": "m13", "list": "candidates_hssd.json", "bin": cand.get("bin"),
+                   "fits_caps": cand.get("fits_caps")}
+    e["audit"] = dict(pending_audit(checked_utc), reasons=[PENDING_REASON_M13])
+    return e
+
+
 # --------------------------------------------------------------------------
 # Catalogue copies
 # --------------------------------------------------------------------------
@@ -329,10 +385,19 @@ def build_copies(library: dict, polyhaven: dict, entries: list[dict]) -> tuple[d
         if "gso" not in srcs:
             lib["sources"] = srcs + ["gso"]
         lib.setdefault("datasets", {})["gso"] = dict(GSO_DATASET)
+    if any(e["source"] == "hssd" for e in entries):
+        from wenart.assets import hssd as H
+        srcs = list(lib.get("sources") or [])
+        if "hssd" not in srcs:
+            lib["sources"] = srcs + ["hssd"]
+        lib.setdefault("datasets", {})["hssd"] = dict(H.DATASET)
+    m13 = any((e.get("growth") or {}).get("milestone") == "m13" for e in entries)
     for doc in (lib, ph):
         notes = doc.setdefault("notes", [])
         if GROWTH_NOTE not in notes:
             notes.append(GROWTH_NOTE)
+        if m13 and GROWTH_NOTE_M13 not in notes:
+            notes.append(GROWTH_NOTE_M13)
     C.validate(lib, complete=False)
     C.validate(ph, complete=True)
     C.merge(ph, lib)
