@@ -1279,7 +1279,10 @@ checks (F9). A second review (16 agents) found that the set_lighting trial was c
 dry re-checks of its round (an accepted roof override's X2 came back as a new critical finding and rejected the
 next edits), and that the first accepted set_lighting closed every set_lighting step of its room; all three fixed
 with tests that fail on the old code. Checked and not a defect on the real path: a V1 "camera inside a piece" from
-the re-check (the render manifests carry no camera positions, so that check never runs there). Known and kept: the GPU test
+the re-check (the render manifests carry no camera positions, so that check never runs there). A third review
+(commit 3724033) found an older bug: the loop kept one copy of overrides.json for the whole run, so after the
+scheduler rolled back edits a refit refused, the loop's next accepted edit saved the stale copy and the rolled-back
+edits came back (`Overrides.reload`, fixed after P3 attempt 2 started; P3 runs without it, P4 with it). Known and kept: the GPU test
 `test_white_plaster_walls_are_neutral` is expected to fail (R/B 1.186 against 1.12), the interior HDRI stays
 5.2 stops below the clear-sky pair (an A/B lever), and `set_lighting` has no add-lamp tool.
 

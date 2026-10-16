@@ -120,6 +120,21 @@ class Overrides:
             self.project = data.get("project") or self.project
             self.edits = list(data.get("edits") or [])
 
+    def reload(self) -> None:
+        """Re-read ``overrides.json`` (Milestone 13 review of 16 Oct 2026): the scheduler rolls edits back through its
+        own instance (``rollback_round``, ``rollback_locked``), so the agent loop's instance re-reads the file at the
+        start of every round (``AgentLoop.context``) and before every ``add``; before, the loop's next accepted edit
+        saved its stale list and put the rolled-back edits back. A file that cannot be read keeps the list as is."""
+        with self.lock:
+            if not self.path.is_file():
+                return
+            try:
+                data = json.loads(self.path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                return
+            self.project = data.get("project") or self.project
+            self.edits = list(data.get("edits") or [])
+
     def next_seq(self) -> int:
         return (max(int(e["seq"]) for e in self.edits) + 1) if self.edits else 1
 
@@ -129,6 +144,7 @@ class Overrides:
                 "changed_ids", "rerun_from", "message",
                 "applied", "log_seq", "metrics", "rolled_back", "acceptance")
         with self.lock:
+            self.reload()
             seq = self.next_seq()
             self.edits.append({"seq": seq, "round": int(round_no), "tool": tool, "args": copy.deepcopy(args),
                                "result": {k: copy.deepcopy(result.get(k)) for k in keep if k in result},

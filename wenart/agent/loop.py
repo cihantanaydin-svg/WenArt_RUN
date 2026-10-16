@@ -466,6 +466,7 @@ class AgentLoop:
     # ----- context ------------------------------------------------------------------------
 
     def context(self, round_no: int, preview_dir: Optional[str] = None) -> TL.ToolContext:
+        self.overrides.reload()              # the scheduler's rollbacks between rounds (``Overrides.reload``)
         return TL.ToolContext.load(self.project_out, round=round_no, model_id=getattr(self.model, "model", ""),
                                    log=self.log, overrides=self.overrides,
                                    preview_dir=preview_dir or self.preview_dir, apply_edit=self.apply_edit,

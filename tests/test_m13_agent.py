@@ -1049,3 +1049,23 @@ def test_an_accepted_override_reaches_the_later_trials_of_the_round(tmp_path):
     before = copy.deepcopy(ctx.building)
     refused = loop.registry.call(ctx, "set_lighting", {"room_id": "r1", "factor": 2.5, "reason": "brighter"})
     assert not refused["accepted"] and ctx.building == before
+
+
+def test_the_loop_keeps_the_schedulers_rollbacks(tmp_path):
+    """Review of 16 Oct 2026 (fails before ``Overrides.reload``): the loop kept one Overrides instance for the run;
+    the scheduler rolls edits back through its own instance (``rollback_round``, ``rollback_locked``), and the loop's
+    next accepted edit saved its stale list: the rolled-back edits were accepted again and replayed."""
+    out = project(tmp_path)
+    loop = LP.AgentLoop(out, MM.MockModel(chat=[]), vision=False, out=lambda s: None, workers=1)
+    mine = loop.overrides
+    mine.add(1, "move_piece", {"piece_id": "f1", "x": 1.0, "y": 1.0}, {"accepted": True}, "mock")
+    mine.add(1, "set_lighting", {"room_id": "r1", "factor": 3.0}, {"accepted": True}, "mock")
+    theirs = OV.Overrides(out)                           # the scheduler's rollback_round(1)
+    for e in theirs.edits:
+        e["result"].update(accepted=False, rolled_back="refit refused round 1")
+    theirs.save()
+    assert loop.context(2).overrides.agent_overrides().get("lighting") in (None, {})   # the round starts fresh
+    mine.add(2, "rotate_piece", {"piece_id": "f2", "front_deg": 90.0}, {"accepted": True}, "mock")
+    final = OV.Overrides(out)
+    assert [(e["seq"], e["result"].get("accepted")) for e in final.edits] == [(1, False), (2, False), (3, True)]
+    assert [e["tool"] for e in final.furniture_edits()] == ["rotate_piece"]
