@@ -674,3 +674,70 @@ def test_growth_run_ingest_hssd_and_ambientcg_with_fakes(tmp_path, monkeypatch, 
     assert RUN.cmd_ingest(b) == 0 and got == [("Plaster001", "2k", "ambientcg")]
     rec = json.loads((tmp_path / "g" / "report" / "ingest_ambientcg.json").read_text())
     assert rec["ok"] == 1 and rec["records"][0]["files"]["albedo"].startswith("textures/Plaster001/")
+
+
+def test_ambientcg_ingest_retries_a_cut_api_answer_and_records_a_failure_only_after_the_retries(tmp_path, monkeypatch,
+                                                                                                 capsys):
+    """Pod P2 (docs/milestone13.md §14.6): two ambientCG API answers arrived cut (Metal051A at char 61440,
+    Tiles074 at char 1122299) and the sets were recorded as failed at once. Now ``web.get_json`` asks again: a cut
+    first answer for Metal051A is followed by the whole one (2 API tries, the set is fetched); Tiles074 cut 3 times
+    is recorded as failed with the URL and 'try 3 of 3' (rc 1)."""
+    import io
+    import urllib.request
+    import zipfile
+    from argparse import Namespace
+    from wenart.assets import web
+
+    def record(aid):
+        return {"assetId": aid, "dataType": "Material", "displayName": aid, "dimensionX": 100, "dimensionY": 100,
+                "pad": "x" * 70000,
+                "downloadFolders": {"default": {"downloadFiletypeCategories": {"zip": {"downloads": [
+                    {"attribute": "2K-JPG", "downloadLink": f"https://ambientcg.com/get?file={aid}_2K-JPG.zip",
+                     "fileName": f"{aid}_2K-JPG.zip", "size": 1000}]}}}}}
+
+    def zipped(aid):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            for suffix in ("Color", "NormalGL", "Roughness"):
+                zf.writestr(f"{aid}_2K-JPG_{suffix}.jpg", b"jpg " + suffix.encode())
+        return buf.getvalue()
+
+    class Resp(io.BytesIO):
+        def __init__(self, body, length):
+            super().__init__(body)
+            self.headers = {} if length is None else {"Content-Length": str(length)}
+    calls = []
+
+    def fake_urlopen(request, timeout=None):
+        url = request.full_url
+        calls.append(url)
+        if "get?file=" in url:
+            body = zipped(url.split("file=")[1].split("_")[0])
+            return Resp(body, len(body))
+        aid = url.split("id=")[1].split("&")[0]
+        body = json.dumps({"foundAssets": [record(aid)]}).encode()
+        first = sum(1 for c in calls if f"id={aid}&" in c) == 1
+        if aid == "Tiles074" or first:
+            return Resp(body[:61440], None)                           # cut, no Content-Length: no urllib error
+        return Resp(body, len(body))
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(web, "BACKOFF_S", 0.0)
+    lists = tmp_path / "lists"
+    (lists / "growth").mkdir(parents=True)
+    (lists / "growth" / "candidates_ambientcg.json").write_text(json.dumps({"candidates": [
+        {"id": "Metal051A", "slot": "metal", "pick": True}, {"id": "Tiles074", "slot": "tiles", "pick": True}]}))
+    (lists / "growth" / "approved_ambientcg.json").write_text(json.dumps(
+        {"source": "ambientcg", "approved_by": "D6", "approved_utc": "2026-10-12T20:00:00Z",
+         "picks": {"from": "candidates_ambientcg.json"}}))
+    a = Namespace(growth=str(tmp_path / "g"), report=None, p4=str(tmp_path / "p4"), p3=str(tmp_path / "p3"),
+                  assets=str(tmp_path / "assets"), lists=str(lists), source="ambientcg", workers=1, size="2k",
+                  token_env="HF_TOKEN", m13=False, checked_utc=None)
+    assert RUN.cmd_ingest(a) == 1
+    rec = json.loads((tmp_path / "g" / "report" / "ingest_ambientcg.json").read_text())
+    by = {r["id"]: r for r in rec["records"]}
+    assert by["Metal051A"]["ok"] and by["Metal051A"]["files"]["albedo"].startswith("textures/Metal051A/")
+    assert sum(1 for c in calls if "id=Metal051A&" in c) == 2
+    assert not by["Tiles074"]["ok"] and sum(1 for c in calls if "id=Tiles074&" in c) == web.TRIES == 3
+    err = by["Tiles074"]["error"]
+    assert err.startswith("IncompleteBody: https://ambientcg.com/api/v2/full_json?id=Tiles074") and "try 3 of 3" in err
+    assert "growth ingest ambientcg: Tiles074 failed: IncompleteBody" in capsys.readouterr().out

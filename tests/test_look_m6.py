@@ -913,9 +913,14 @@ def test_row3_synthetic_03_wall_w_L1_006(tmp_path):
     assert not any(f["material"].startswith("tiles_light") for f in bed)
     hall_side = _faces(scene, "w_L1_006", (-1, 0, 0))
     assert hall_side and not any(f["material"].startswith("tiles_light") for f in hall_side)
-    # Row 4 with --no-textures: flat colours only, no procedural tiles either.
+    # Row 4 with --no-textures: flat colours only, no procedural tiles either. Milestone 13 round 3
+    # (docs/milestone13.md §14.3): the shell material table is a production default, so the one group node of the
+    # tiles material is the tile slot's wenart_imperfection layer (the Milestone 11 build had no group at all);
+    # a wenart_tiles group would mean the procedural tiles came back.
     tiles = scene["manifest"]["materials"]["tiles_light"]
-    assert tiles["procedural"] is None and scene["materials"]["tiles_light"]["group"] is None
+    assert tiles["procedural"] is None and tiles["shell_slot"] == "tile"
+    group = scene["materials"]["tiles_light"]["group"]
+    assert group == "wenart_imperfection" and not group.startswith("wenart_tiles")
 
 
 @needs_blender
@@ -926,7 +931,13 @@ def test_row4_procedural_tiles_and_flat_mode(flat):
     # the glazed-tiles fallback of a missing image set
     assert tiles["procedural"] == "wenart_tiles" and not tiles["textured"]
     assert flat["materials"]["tiles_light"]["group"].startswith("wenart_tiles")
-    assert flat["materials"]["tiles_light"]["group_links"] == ["Base Color", "Normal", "Roughness"]
+    # Milestone 13 round 3 (docs/milestone13.md §14.3): the shell material table is a production default, so the
+    # tile slot's layers sit between the tile group and the BSDF: the group's Color feeds the AO scale (a Vector
+    # Math node, socket 'Vector'), its Roughness the wenart_imperfection group ('Roughness'), its Height the
+    # Displacement node ('Height'); the Normal still goes to the BSDF (the tile slot has no bevel).
+    assert flat["materials"]["tiles_light"]["group_links"] == ["Height", "Normal", "Roughness", "Vector"]
+    assert m["tiles_light"]["shell_slot"] == "tile" and set(m["tiles_light"]["shell_layers"]["applied"]) >= \
+        {"ao", "imperfection", "displacement", "coat"}
     # Milestone 11 (§1.3 M2): the kitchen walls take the style's walls; the tiles are its splashback band
     kitchen_walls = {f["material"] for f in _faces(flat, "w_e", (-1, 0, 0)) if 0 < f["center"][1] < 3}
     assert kitchen_walls == {"plaster_white"}
@@ -943,27 +954,48 @@ def test_row4_procedural_tiles_and_flat_mode(flat):
 
 @needs_blender
 def test_row5_hall_light_inside_the_l(hall):
-    light = hall["objects"]["light_r_hall"]
+    """Row 5: the windowless hall's light sits at the pole of inaccessibility, inside the L. Milestone 13 round 3
+    (docs/milestone13.md §14.3): the light rig is a production default, so the hall's light is its ceiling fixture
+    (``rig_r_hall_ceiling_1``, a visible drum with a point light inside, lumens through the manual's table x gain
+    2.0) at the same pole; the Milestone 6 invisible area light ``light_r_hall`` is no longer built. The storage
+    room has no rig, so it keeps the Milestone 6 light."""
     plan = lighting.area_light_plan(L_HALL)
+    assert "light_r_hall" not in hall["objects"]
+    fixture = hall["objects"]["rig_r_hall_ceiling_1"]
+    light = hall["objects"]["rig_r_hall_ceiling_1_light"]
+    cx, cy = [(b[0] + b[1]) / 2.0 for b in fixture["bounds"][:2]]
+    assert [cx, cy] == pytest.approx(plan["center"], abs=1e-3) and _square_inside(plan, L_HALL)
     assert light["location"][:2] == pytest.approx(plan["center"], abs=1e-4)
-    assert light["size"] == pytest.approx(plan["size"]) and _square_inside(plan, L_HALL)
-    assert light["location"][2] == pytest.approx(2.7 - lighting.AREA_LIGHT_CEILING_GAP)
-    assert light["energy"] == pytest.approx(12.0 * 8.32) and light["visible_camera"] is False
-    entry = next(o for o in hall["manifest"]["objects"] if o["name"] == "light_r_hall")
-    assert entry["assumed"]["reason"] == "room has no window" and entry["parent"] == "r_hall"
-    assert hall["objects"]["light_r_st"]["energy"] == pytest.approx(12.0 * 1.9 * 1.8)
+    assert fixture["bounds"][2][1] == pytest.approx(2.7 - lighting.RIG_MOUNT_GAP_M, abs=1e-4)   # hangs under the ceiling
+    assert light["light_type"] == "POINT" and light["visible_camera"] is False
+    assert light["energy"] == pytest.approx(lighting.watts_for_lumens(1100.0) * 2.0)
+    entry = next(o for o in hall["manifest"]["objects"] if o["name"] == "rig_r_hall_ceiling_1_light")
+    assert entry["parent"] == "r_hall" and entry["assumed"]["rig"] == "ceiling"
+    replaced = next(a for a in hall["manifest"]["assumed"] if a.get("kind") == "rig_replaces_fill_light")
+    assert replaced["parent"] == "r_hall" and "room has no window" in replaced["reason"]
+    assert hall["objects"]["light_r_st"]["energy"] == pytest.approx(12.0 * 1.9 * 1.8)   # no rig for storage
 
 
 @needs_blender
 def test_row6_dim_bedroom_gets_a_half_power_light(flat):
-    light = flat["objects"]["light_r_bed"]
-    assert light["energy"] == pytest.approx(6.0 * 12.0) and light["visible_camera"] is False
-    assert light["location"][:2] == pytest.approx([2.0, 1.5])
-    assert "light_r_kit" not in flat["objects"]                       # 2.24 m2 of window for 10.5 m2: daylight
-    (entry,) = [a for a in flat["manifest"]["assumed"] if a.get("kind") == "dim_room_light"]
-    assert entry["parent"] == "r_bed" and "0.060 < 0.08" in entry["reason"] and entry["value"] == pytest.approx(72.0)
-    obj = next(o for o in flat["manifest"]["objects"] if o["name"] == "light_r_bed")
-    assert obj["assumed"]["w_per_m2"] == 6.0 and obj["assumed"]["window_floor_ratio"] == pytest.approx(0.06)
+    """Row 6 (Milestone 6): a bedroom whose window is 0.06 of its floor is dim and gets the half-power light.
+    Milestone 13 round 3 (docs/milestone13.md §14.3): the sun is 1000 W/m² and the dim-room ratio is scaled by
+    the sun (0.06 x 1000 / 3 = 20 >= 0.08), so the bedroom is daylit and gets no fill light; its rig (two bedside
+    lamps: one on the nightstand, one beside the bed head without a nightstand) is built instead. The Milestone 6
+    rule itself stays and is pinned pure in tests/test_blender_build.py and tests/test_m13_light.py."""
+    assert "light_r_bed" not in flat["objects"] and "light_r_kit" not in flat["objects"]
+    assert not [a for a in flat["manifest"]["assumed"] if a.get("kind") == "dim_room_light"]
+    lamps = sorted(n for n in flat["objects"] if n.startswith("rig_r_bed_bedside_") and not n.endswith("_light"))
+    assert lamps == ["rig_r_bed_bedside_1", "rig_r_bed_bedside_2"]
+    lights = [flat["objects"][n + "_light"] for n in lamps]
+    assert all(l["light_type"] == "POINT" and l["visible_camera"] is False for l in lights)
+    assert all(l["energy"] == pytest.approx(lighting.watts_for_lumens(470.0) * 2.0) for l in lights)
+    entries = {o["name"]: o for o in flat["manifest"]["objects"] if o["name"] in lamps}
+    assert {e["assumed"]["anchor_id"] for e in entries.values()} == {"f_night", "f_bed"}
+    assert all(e["assumed"]["shade_emission_wm2sr"] == lighting.SHADE_EMISSION_WM2SR for e in entries.values())
+    fill = flat["manifest"]["lighting"]["fill_light"]
+    assert fill["sun_scaled_by"] == pytest.approx(1000.0 / 3.0) and fill["dim_room_ratio"] == 0.08
+    assert flat["manifest"]["lighting"]["rig"]["gain"] == 2.0
 
 
 @needs_blender
@@ -1040,12 +1072,15 @@ def test_assumed_entries_of_every_design_detail(flat, hall):
     for a in entries:
         assert a["parent"] and a["reason"] and a["object"] and "value" in a, a
         by_kind.setdefault(a["kind"], []).append(a["parent"])
+    # Milestone 13 round 3 (docs/milestone13.md §14.3): the rig is on by default: the bedroom's two bedside lamps
+    # and the kitchen's strip and ceiling fixture are rig_light entries; the sun at 1000 W/m² leaves the bedroom
+    # daylit (no dim_room_light); the windowless hall's rig fixture replaces its Milestone 6 light.
     assert by_kind == {"bedding": ["f_bed"], "counter_fronts": ["f_counter"], "door_handles": ["door_p"],
-                       "skirting": ["r_bed", "r_kit"], "dim_room_light": ["r_bed"],
+                       "skirting": ["r_bed", "r_kit"], "rig_light": ["r_bed", "r_bed", "r_kit", "r_kit"],
                        "splashback": ["r_kit"]}                       # Milestone 11 M2
     hall_kinds = sorted((a["kind"], a["parent"]) for a in hall["manifest"]["assumed"] if "kind" in a)
-    assert hall_kinds == [("door_handles", "d_in"), ("door_handles", "d_st"), ("skirting", "r_hall"),
-                          ("skirting", "r_st"), ("windowless_room_light", "r_hall"),
+    assert hall_kinds == [("door_handles", "d_in"), ("door_handles", "d_st"), ("rig_light", "r_hall"),
+                          ("rig_replaces_fill_light", "r_hall"), ("skirting", "r_hall"), ("skirting", "r_st"),
                           ("windowless_room_light", "r_st")]
     building = json.loads(flat["path"].read_text(encoding="utf-8"))
     assert building == flat_building()                                   # nothing written back
@@ -1149,7 +1184,10 @@ def test_row7_window_pull_changes_only_the_panes(pulled):
     assert pull["rule"] and pull["tried"][-1]["k"] == pull["k"] or pull["rule"].startswith("lowest")
     assert r["outside_max_diff"] == 0 and r["inside_changed"] > 0             # pixels outside the mask unchanged
     assert r["final_is_blend"]
-    assert pulled["manifest"]["render_code_version"] == "m7.1" and pulled["manifest"]["look"] == "AgX - Punchy"
+    # The look is still Milestone 7's AgX - Punchy; the render code version moved on (m13.1 since Milestone 13 round 1,
+    # pinned in tests/test_blender_look.py and tests/test_m13_light.py), so this row reads the module's constant.
+    assert pulled["manifest"]["render_code_version"] == R.RENDER_CODE_VERSION and pulled["manifest"]["look"] == R.LOOK
+    assert R.LOOK == "AgX - Punchy"
     assert r["main_look"] == R.LOOK == "AgX - Punchy"                         # the pull saved with the main look
     assert e["exposure"]["window_clip_frac"] is not None and e["exposure"]["ev_offset"] == 0.0
 

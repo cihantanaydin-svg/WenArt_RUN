@@ -45,6 +45,39 @@ def test_write_cameras_check(tmp_path):
     assert AB.m5_cameras(tmp_path) == ["a", "b"] and AB.m5_cameras(tmp_path / "none") == []
 
 
+def test_m13_variant_names_keep_the_summary_and_sheets_working(tmp_path):
+    """Milestone 13 round 3 (docs/milestone13.md §14.3): the A/B variants are the light variants with ``m11`` (the
+    Milestone 11 look) first and ``base`` (production) second; a results folder without a variant's folder (a P1
+    folder has no ``m11``) gives a "not rendered" row per view and a grey tile, never an error."""
+    from PIL import Image
+
+    from wenart.blender import lighting as L
+
+    assert AB.M13_AB_VARIANTS == L.LIGHT_VARIANTS and AB.M13_AB_VARIANTS[:2] == ("m11", "base")
+    res = tmp_path / "ab_m13"
+    cam = AB.m13_views("real03")[0]
+    d = res / "base" / "real03"
+    d.mkdir(parents=True)
+    Image.new("RGB", (64, 36), (120, 100, 80)).save(d / f"{cam}_preview.jpg")
+    (d / "render_manifest.json").write_text(json.dumps({
+        "renders": [{"camera": cam, "seconds": 5.1, "samples": 128, "preview": f"{cam}_preview.jpg", "vram_mib": 2000,
+                     "exposure": {"ev": 2.5, "ev_raw": 2.46, "at_limit": False, "incident_p50": 0.16,
+                                  "wb_temperature": 5406.0, "wb_mode": "project", "lighting_dark": None}}],
+        "light_variant": {"render": "base", "build": "base"}, "exposure_limits": [-2, 3]}))
+    summary = AB.lever_summary(res, ("real03",), ("m11", "base"))
+    rows = summary["rows"]
+    assert [(r["variant"], r["status"]) for r in rows if r["camera"] in (None, cam)] == \
+        [("m11", "not rendered"), ("base", "rendered")]
+    base_row = next(r for r in rows if r["variant"] == "base" and r["camera"] == cam)
+    assert base_row["ev"] == 2.5 and base_row["lighting_dark"] is None and base_row["light_variant"] == "base"
+    md = (res / "summary.md").read_text()
+    assert "| real03 | m11 | - | not rendered |" in md and f"| real03 | base | {cam} | 5.1 | 2.5 | 2.46 | - |" in md
+    sheets = AB.lever_sheets(res, "real03", ("m11", "base"), views=[cam])
+    assert len(sheets) == 1 and sheets[0].is_file()
+    with Image.open(sheets[0]) as im:
+        assert im.width > 2 * 600                                  # the m11 tile (grey) and the base tile
+
+
 def _has_m5_commit() -> bool:
     proc = subprocess.run(["git", "-C", str(REPO_ROOT), "cat-file", "-e", f"{M5_LOOK_COMMIT}^{{commit}}"],
                           capture_output=True)

@@ -152,6 +152,20 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   ``adjusted_by_ai`` with the reason (``split_label`` on the asset, ``apply_split_label`` on the piece in
   ``fit_building``): the footprint stays as drawn (the modules sit inside it), ``drawn_footprint`` and the other
   ``drawn_*`` keys are kept, and the label names the table and the chairs built in it.
+- Build round 3 (lead decision): the split decides BEFORE the size snap. ``fit_building`` asks the module plan first
+  (``split_plan_first``: a ``table_dining`` footprint deeper than ``modules.TABLE_DEPTH_MAX_M``, 1.20 m, is a table
+  with its chairs); such a piece is labelled ``module_split`` with ``drawn_footprint`` kept and only its table part
+  is judged by the snap (``apply_split_then_snap`` -> ``apply_size_snap(part=...)``: the width and the height may
+  take a real product, the drawn depth stays because it holds the chairs; ``size_snap.part``; the label keeps
+  ``rule: module_split`` with ``rules = [module_split, size_snap]`` and a reason that names the built table and
+  chairs, ``split_snap_reason``). Before, the snap ran first and took the drawn 1.8 m depth to a 1.0 m product
+  depth, which erased the chairs (``project.size_snap.split_first`` lists the ids). No drawn table of the committed
+  real02 / real03 / real04 buildings is deeper than 1.20 m (real04's 10-seat tables are drawn 3.35 x 1.00 m with
+  their ten chairs as separate pieces), so their fit does not change. Review of round 3: a piece split first is
+  built by its module plan even when a library table would fit the full footprint (``split_module_fit``: the split
+  decides, the library pick is logged as ``split_over``); a footprint drawn with its long side as the depth is not
+  split first (``plan_table_long`` has no orientation check); ``assert_only_assets_changed`` accepts the snap of a
+  split table's part (the width only).
 """
 from __future__ import annotations
 
@@ -1366,12 +1380,16 @@ def snap_candidate(piece: dict) -> Optional[str]:
     return None
 
 
-def apply_size_snap(piece: dict) -> Optional[dict]:
+def apply_size_snap(piece: dict, part: Optional[tuple] = None) -> Optional[dict]:
     """Snap a drawn piece's footprint to the nearest real product when it lies outside its type's product range
     (``wenart.furniture.sizes.snap_size``), in place; returns the ``size_snap`` record or None when nothing changed.
     The width change keeps the centre; a depth change keeps the back edge where it was (the piece stays against its
     wall; without a front the centre stays). The piece keeps ``drawn_type``, ``drawn_footprint``, ``drawn_front_deg``,
-    ``drawn_height`` and is labelled ``adjusted_by_ai`` with the reason (CLAUDE.md furniture rules)."""
+    ``drawn_height`` and is labelled ``adjusted_by_ai`` with the reason (CLAUDE.md furniture rules).
+
+    ``part`` (build round 3, the split before the snap): the ``(w, d)`` the snap judges instead of the footprint,
+    the table part of a drawn footprint that includes its chairs (``split_plan_first``); then only the width and
+    the height of the piece may change, the drawn depth stays (it holds the chairs) and the record says ``part``."""
     from wenart.furniture import sizes as SZ
 
     if snap_candidate(piece) is not None:
@@ -1379,11 +1397,14 @@ def apply_size_snap(piece: dict) -> Optional[dict]:
     fp = piece["footprint"]
     w, d = (float(v) for v in fp["size"][:2])
     height = piece.get("height") if isinstance(piece.get("height"), (int, float)) else None
-    snap = SZ.snap_size(piece["type"], (w, d), height)
+    judged = (w, d) if part is None else (float(part[0]), float(part[1]))
+    snap = SZ.snap_size(piece["type"], judged, height)
     if not snap["changed"]:
         return None
     before = copy.deepcopy(fp)
     nw, nd = (round(float(v), 4) for v in snap["footprint"])
+    if part is not None:
+        nd = round(d, 4)                     # the drawn depth stays: the chairs are in it (the split's business)
     cx, cy = (float(v) for v in fp["center"])
     front = piece.get("front_deg")
     if abs(nd - d) > 1e-9 and isinstance(front, (int, float)):
@@ -1405,21 +1426,135 @@ def apply_size_snap(piece: dict) -> Optional[dict]:
     merged_changed = dict(old.get("changed") or {})
     for k, v in changed.items():
         merged_changed.setdefault(k, v)
-    reason = (f"size snap: the drawn {piece['type']} {w:.2f} x {d:.2f} m is outside its product range "
-              f"({snap['reason']}); nearest real product {snap['product']} (CLAUDE.md: a drawn size outside its "
-              "type's product range is snapped to the nearest real product before the fit; user OK D5 of 12 Oct 2026)")
+    if part is None:
+        reason = (f"size snap: the drawn {piece['type']} {w:.2f} x {d:.2f} m is outside its product range "
+                  f"({snap['reason']}); nearest real product {snap['product']} (CLAUDE.md: a drawn size outside its "
+                  "type's product range is snapped to the nearest real product before the fit; user OK D5 of 12 Oct "
+                  "2026)")
+    else:
+        reason = (f"size snap of the table part: the {piece['type']} {judged[0]:.2f} x {judged[1]:.2f} m inside the "
+                  f"drawn {w:.2f} x {d:.2f} m footprint is outside its product range ({snap['reason']}); nearest real "
+                  f"product {snap['product']}; the drawn depth stays, it holds the chairs (CLAUDE.md: a drawn size "
+                  "outside its type's product range is snapped to the nearest real product before the fit; user OK "
+                  "D5 of 12 Oct 2026; the split decides first, build round 3)")
     label = {"reason": reason if not old.get("reason") else f"{old['reason']}; {reason}", "changed": merged_changed,
              "rule": SNAP_RULE}
-    for k in ("round", "log_seq", "model", "snapped_wall", "fix_fixture"):
+    if old.get("rule") and old["rule"] != SNAP_RULE:
+        label["rules"] = list(old.get("rules") or [old["rule"]]) + [SNAP_RULE]   # e.g. the split, then the snap
+    for k in ("round", "log_seq", "model", "snapped_wall", "fix_fixture", "split"):
         if old.get(k) is not None:
-            label[k] = old[k]
+            label[k] = copy.deepcopy(old[k])
     piece["adjusted_by_ai"] = label
     record = {"drawn": [w, d] + ([height] if height is not None else []),
               "snapped": [nw, nd] + ([piece["height"]] if "height" in changed else ([height] if height is not None
                                                                                      else [])),
               "product": snap["product"], "reason": snap["reason"]}
+    if part is not None:
+        record["part"] = [round(judged[0], 4), round(judged[1], 4)]
     piece["size_snap"] = record
     return record
+
+
+def split_plan_first(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
+    """Build round 3 (lead decision on the K1 / T2 leftover): the module plan with a ``split`` of a drawn table whose
+    footprint is deeper than a real table (``wenart.blender.modules.plan_table_long``: deeper than
+    ``TABLE_DEPTH_MAX_M``, 1.20 m, the footprint includes its chairs), decided BEFORE the size snap; None for every
+    other piece (no snap candidate, no module builder, no split). The size snap must not snap such a footprint to a
+    product depth first: that would erase the chairs.
+
+    A footprint whose depth is its long side (``size[1] > size[0]``) is not split first: ``plan_table_long`` reads
+    ``size[1]`` as the depth with no orientation check (``wenart.blender.modules``, owner T2), so a long table drawn
+    turned would be taken for a short table with its chairs; such a piece keeps the round-2 order (the snap, then
+    the ladder). None of the 131 dining tables of the committed buildings is drawn so (checked 16 Oct 2026)."""
+    if snap_candidate(piece) is not None:
+        return None
+    size = (piece.get("footprint") or {}).get("size") or []
+    if len(size) < 2 or float(size[1]) > float(size[0]) + 1e-9:
+        return None
+    plan, _why = module_plan_for(piece, style)
+    if not isinstance(plan, dict) or not isinstance(plan.get("split"), dict):
+        return None
+    return plan
+
+
+def apply_split_then_snap(piece: dict, style: Optional[dict] = None) -> Optional[tuple[dict, Optional[dict]]]:
+    """The split-before-snap order of build round 3 for one drawn piece, in place: when ``split_plan_first`` finds a
+    split, the piece is labelled ``adjusted_by_ai`` (rule ``module_split``, ``drawn_footprint`` and the other
+    ``drawn_*`` keys kept, the footprint unchanged) and only then the table part is judged by the size snap
+    (``apply_size_snap(part=...)``: the width and the height may take a real product, the depth stays as drawn).
+    After such a snap the plan is made again on the snapped piece; the label keeps ``rule: module_split`` (the
+    split is why the piece changed) with ``rules = [module_split, size_snap]``, its ``split`` is the new plan's and
+    its reason says what is built (``split_snap_reason``), after any earlier label's reason. Returns ``(plan,
+    size_snap record or None)``, or None when the piece has no split (the caller snaps as usual)."""
+    plan = split_plan_first(piece, style)
+    if plan is None:
+        return None
+    prior = copy.deepcopy(piece.get("adjusted_by_ai")) if isinstance(piece.get("adjusted_by_ai"), dict) else {}
+    apply_split_label(piece, {"adjusted_by_ai": split_label(piece, plan)})
+    table = plan["split"].get("table_m") or piece["footprint"]["size"][:2]
+    drawn_fp = copy.deepcopy(piece["footprint"])
+    record = apply_size_snap(piece, part=(float(table[0]), float(table[1])))
+    if record is None:
+        return plan, None
+    again, _why = module_plan_for(piece, style)
+    if isinstance(again, dict) and isinstance(again.get("split"), dict):
+        plan = again
+    label = piece["adjusted_by_ai"]
+    label["rule"] = SPLIT_RULE
+    label["rules"] = [r for r in (prior.get("rules") or ([prior["rule"]] if prior.get("rule") else []))
+                      if r not in (SPLIT_RULE, SNAP_RULE)] + [SPLIT_RULE, SNAP_RULE]
+    label["split"] = copy.deepcopy(plan["split"])
+    text = split_snap_reason(drawn_fp, piece, plan, record)
+    label["reason"] = text if not prior.get("reason") else f"{prior['reason']}; {text}"
+    return plan, record
+
+
+def split_module_fit(piece: dict, fitted: dict, style: Optional[dict], style_family: Optional[str],
+                     mode: str) -> dict:
+    """Build round 3 (review of item 2): the asset of a piece the split labelled first (``apply_split_then_snap``)
+    when the fit picked something other than its module plan with the split. Why: the label says the module builder
+    makes the table and its chairs inside the drawn footprint, and the lead decision is that the split decides; a
+    library table at the full footprint depth (a square table model scaled to a deep square footprint, a deep
+    model from a later catalogue) would build the table alone, erase the chairs and contradict the label (the fit
+    CLI's ``assert_only_assets_changed`` refuses a split label without the plan's split). Today's catalogue never
+    gets here (no library table reaches a footprint deeper than 1.35 m within the caps, checked on 16 Oct 2026 over
+    1.2-3.6 m widths and 1.25-2.2 m depths); the guard keeps it so when the catalogue grows. Returns ``fitted``
+    unchanged when it already carries the split or when the module plan no longer splits."""
+    if ((fitted.get("module_plan") or {}).get("split")) or fitted.get("method") == "none":
+        return fitted
+    plan, _why = module_plan_for(piece, style)
+    if not isinstance(plan, dict) or not isinstance(plan.get("split"), dict):
+        return fitted
+    picked = fitted.get("asset_id") or fitted.get("method") or "the fit"
+    reason = (f"the drawn footprint holds the table and its chairs (module split, decided before the size snap, "
+              f"build round 3): {picked} would build the table alone at the full footprint depth")
+    asset = module_fit(piece, plan, reason, fitted.get("candidates") or [], fitted.get("excluded") or [],
+                       style_family)
+    asset["split_over"] = picked
+    return _finish(asset, mode, [_step("library", f"not used: {picked}", reason),
+                                 _step(MODULE_METHOD, f"used {plan['builder']}", "the module split decides")])
+
+
+def split_snap_reason(drawn_fp: dict, piece: dict, plan: dict, record: dict) -> str:
+    """The ``adjusted_by_ai`` reason of a drawn table split first and then snapped (``apply_split_then_snap``): the
+    drawing error (the footprint holds the chairs), the table part outside the product range and the product it
+    took, the footprint that results (the drawn depth kept) and what the module builder makes in it."""
+    split = plan.get("split") or {}
+    dw, dd = (float(v) for v in drawn_fp["size"][:2])
+    nw, nd = (float(v) for v in piece["footprint"]["size"][:2])
+    part = record.get("part") or [dw, dd]
+    table = [float(v) for v in (split.get("table_m") or [nw, nd])[:2]]
+    chairs = int(split.get("chairs") or 0)
+    why = str(split.get("reason") or "the drawn footprint is deeper than a real table")
+    return (f"module split, then the size snap of the table part: {why}; the table part {part[0]:.2f} x "
+            f"{part[1]:.2f} m is outside its product range ({record['reason']}; the product: "
+            f"{record['product']}), so the footprint is {nw:.2f} x {nd:.2f} m (drawn {dw:.2f} x {dd:.2f} m; the depth "
+            f"stays, it holds the chairs); built as a {table[0]:.2f} x {table[1]:.2f} m table"
+            + (f" with {chairs} chairs" if chairs else "")
+            + f" inside it ({plan.get('builder')}); drawn_footprint kept (CLAUDE.md: a table footprint that includes "
+              "its chairs is a clear drawing error the AI may fix, and a drawn size outside its type's product range "
+              "is snapped to the nearest real product; user OK D5 of 12 Oct 2026; the split decides first, build "
+              "round 3)")
 
 
 def resolve_mode(building: dict, brief: Optional[dict], mode: Optional[str]) -> tuple[str, str]:
@@ -1464,11 +1599,22 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
     snap_on, snap_why = (snap, "given to the fit") if snap is not None else snap_allowed(settings)
     project["size_snap"] = {"on": bool(snap_on), "why": snap_why}
     snapped = []
+    split_first = []
     if snap_on:
         for piece in fitted.get("furniture", []):
-            record = apply_size_snap(piece)
+            # Build round 3 (lead decision): a drawn table footprint deeper than a real table is a table with its
+            # chairs (the module plan's split decides, ``split_plan_first``); it is labelled first and only its
+            # table part is judged by the snap, so the snap never erases the chairs.
+            split = apply_split_then_snap(piece, style)
+            if split is not None:
+                split_first.append(piece["id"])
+                record = split[1]
+            else:
+                record = apply_size_snap(piece)
             if record is not None:
                 snapped.append(piece["id"])
+        if split_first:
+            project["size_snap"]["split_first"] = split_first
     used_project: Counter = Counter()
     used_rooms: dict[str, Counter] = {}
     for piece in fitted.get("furniture", []):
@@ -1478,6 +1624,10 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         used = {"project": used_project, "room": used_rooms.setdefault(room, Counter())}
         asset = fit_piece(piece, catalog, cap=cap, style_family=style_family, design=design or None, mode=mode,
                           used=used, style=style)
+        if piece.get("id") in split_first:
+            # review of build round 3 item 2: a piece the split labelled is built by its module plan (the split
+            # decides; a library table at the full depth would erase the chairs the label names)
+            asset = split_module_fit(piece, asset, style, style_family, mode)
         colour, source = fabric_colour_of(piece, style)
         if colour:
             asset["fabric_colour"] = colour
@@ -1508,26 +1658,36 @@ def assert_only_assets_changed(before: dict, after: dict) -> None:
     """Raise AssertionError unless ``after`` equals ``before`` except for ``furniture[].asset`` and
     ``decor[].asset`` (Milestone 12: and ``furniture[].library_gap``; Milestone 13: the fit's ``project`` keys and,
     on a piece with a ``size_snap``, the snapped footprint and height with their labels, checked here: the snapped
-    size is the footprint's, the drawn footprint is the one before)."""
+    size is the footprint's, the drawn footprint is the one before; a module split keeps the footprint, and, split
+    first in build round 3, the snap of its table part changes the width only)."""
     a, b = copy.deepcopy(before), copy.deepcopy(after)
     for piece_a, piece_b in zip(a.get("furniture", []), b.get("furniture", [])):
         label = piece_b.get("adjusted_by_ai") if isinstance(piece_b.get("adjusted_by_ai"), dict) else {}
         split = label.get("rule") == SPLIT_RULE and label != piece_a.get("adjusted_by_ai")
+        snap = piece_b.get("size_snap")
+        new_snap = bool(snap) and snap != piece_a.get("size_snap")
         if split:
-            # a module split (build round 2): the footprint is unchanged, the label and the drawn_* keys are new
-            if piece_b.get("footprint") != piece_a.get("footprint"):
+            # a module split (build round 2): the footprint is unchanged, the label and the drawn_* keys are new.
+            # Build round 3 (split before the snap): the snap of the table part (``size_snap.part``) may change the
+            # width only; the drawn depth (it holds the chairs), the centre and the rotation stay.
+            fa, fb = piece_a.get("footprint") or {}, piece_b.get("footprint") or {}
+            if new_snap and snap.get("part"):
+                if (round(float(fb["size"][1]), 4) != round(float(fa["size"][1]), 4)
+                        or fb.get("center") != fa.get("center") or fb.get("rotation_deg") != fa.get("rotation_deg")):
+                    raise AssertionError(f"{piece_b.get('id')}: the snap of a split table's part may change its "
+                                         "width only (the drawn depth holds the chairs)")
+            elif fb != fa:
                 raise AssertionError(f"{piece_b.get('id')}: a module split must not change the footprint")
             if piece_b.get("drawn_footprint") != piece_a.get("drawn_footprint", piece_a.get("footprint")):
                 raise AssertionError(f"{piece_b.get('id')}: drawn_footprint does not hold the drawn footprint")
             if not label.get("reason") or not ((piece_b.get("asset") or {}).get("module_plan") or {}).get("split"):
                 raise AssertionError(f"{piece_b.get('id')}: a split piece needs adjusted_by_ai with a reason and the "
                                      "plan's split")
-        snap = piece_b.get("size_snap")
-        if split and not (snap and snap != piece_a.get("size_snap")):
+        if split and not new_snap:
             for key in ("adjusted_by_ai",) + tuple(k for k, _ in DRAWN_KEYS):
                 piece_a.pop(key, None)
                 piece_b.pop(key, None)
-        if snap and snap != piece_a.get("size_snap"):
+        if new_snap:
             if [round(float(v), 4) for v in piece_b["footprint"]["size"][:2]] != [round(float(v), 4)
                                                                                  for v in snap["snapped"][:2]]:
                 raise AssertionError(f"{piece_b.get('id')}: size_snap.snapped is not the footprint size")
@@ -1665,7 +1825,9 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += ["", "## Size snaps (Milestone 13: drawn sizes outside the product range, adjusted_by_ai)", ""]
         lines += [f"- {p['id']} ({p['type']}): {' x '.join(f'{v:.2f}' for v in p['size_snap']['drawn'][:2])} -> "
                   f"{' x '.join(f'{v:.2f}' for v in p['size_snap']['snapped'][:2])} m, {p['size_snap']['product']}; "
-                  f"{p['size_snap']['reason']}" for p in snaps]
+                  + (f"the table part {' x '.join(f'{v:.2f}' for v in p['size_snap']['part'])} m of a footprint "
+                     "split into table + chairs (the depth stays); " if p['size_snap'].get('part') else "")
+                  + f"{p['size_snap']['reason']}" for p in snaps]
     below = [(p["id"], p["type"], p["asset"]["method"], (p.get("library_gap") or {}).get("used"))
              for p in pieces if p.get("asset") and p["asset"].get("method") in (MODULE_METHOD, "parametric")
              and p["type"] not in C.BY_DESIGN_PARAMETRIC_TYPES + ("unknown",) and not p["asset"].get("by_design")]
@@ -1736,6 +1898,19 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
 # CLI
 # --------------------------------------------------------------------------
 
+def polyhaven_size_of(asset: dict, default: str = "1k") -> str:
+    """The Poly Haven file size a fitted asset needs (Milestone 13 round 3, A1's ask): the size of the ``.gltf`` the
+    scene builder loads (``asset["gltf"]`` = the catalogue entry's ``models/<id>/<id>_<size>.gltf``; pod P2 relinked
+    87 entries to ``2k``), else the asset's ``resolution``, else ``default`` (the Milestone 4-12 ``1k``). A fetch at
+    any other size would rewrite the asset manifest entry away from the file the build loads."""
+    name = Path(str(asset.get("gltf") or "")).name
+    stem = name[:-len(".gltf")] if name.endswith(".gltf") else ""
+    size = stem.rsplit("_", 1)[-1] if "_" in stem else ""
+    if size[:-1].isdigit() and size.endswith("k"):
+        return size
+    return str(asset.get("resolution") or default)
+
+
 def download_fitted(building: dict, assets_dir: Path, log=print) -> dict:
     """Fetch every library asset used in ``building`` into ``assets_dir``.
 
@@ -1758,7 +1933,8 @@ def download_fitted(building: dict, assets_dir: Path, log=print) -> dict:
             # checked against the catalogue sha256: the fetcher gets the fit's asset dict.
             extra = {"meta": asset} if asset["library"] != "polyhaven" else {}
             try:
-                M.fetch_model(asset_id, assets_dir, size="1k", source=asset["library"], licence=asset["licence"],
+                size = polyhaven_size_of(asset) if asset["library"] == "polyhaven" else "1k"
+                M.fetch_model(asset_id, assets_dir, size=size, source=asset["library"], licence=asset["licence"],
                               **extra)
                 cache[asset_id] = None
                 result["fetched"].append(asset_id)

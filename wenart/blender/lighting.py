@@ -44,17 +44,20 @@ ceiling light and was pushed +3..+8 EV):
 - ``SUN_STRENGTH_WM2`` is the one sun constant (W/m², ``SunLight.energy``; the manual's "Power of Lights" table:
   clear sky 1000, cloudy 500, overcast 200, moonlight 0.001 W/m²). The style's per-mood ``sun_strength`` is a
   relative factor against the warm-daylight value (``SUN_REFERENCE_MOOD_WM2``): overcast keeps a tenth of the
-  sun, night none. The lead sets the constant from the P1 lever A/B; until then it keeps the Milestone 11 value.
-- ``WENART_LIGHT_VARIANT`` (environment) picks the levers of the A/B (``light_levers``): ``base`` = every lever at
-  its Milestone 11 value (sun 3.0 W/m², EV limits -2..+8, no rig, Milestone 11 shell materials); ``sun100`` /
-  ``sun300`` / ``sun1000`` = the sun at that many W/m², the rest at base; ``evcap`` = the EV cap +3 of
-  ``render.EXPOSURE_LIMITS`` with the ``lighting_dark`` finding; ``rig`` = the room light rig below; ``shell`` =
-  the shell material table of ``materials.shell_material`` with the sheen / coat / bevel / AO / imperfection
-  layers; ``all`` = ``sun300`` + ``evcap`` + ``rig`` + ``shell``; several names joined by ``,`` or ``+`` combine
-  (``sun1000,rig``). An unknown name raises (a typo must never run the base silently). Unset = production: the
-  constant and the EV cap (the contract's ``render.EXPOSURE_LIMITS``) on, the rig and the shell table off until
-  the lead sets them from P1 (``LEVER_DEFAULTS``; the Milestone 6-12 lights and materials stay until then). The
-  scene manifest's ``lighting`` block records the variant, every lever and the sun (constant, mood factor, applied).
+  sun, night none. Round 3 (docs/milestone13.md §14.3, pod P1 of 15 Oct 2026): the constant is the manual's
+  clear-sky 1000 W/m²; the same constant drives the exterior sun lamp.
+- ``WENART_LIGHT_VARIANT`` (environment) picks the levers of the A/B (``light_levers``): ``m11`` = every lever at
+  its Milestone 11 value (sun 3.0 W/m², EV limits -2..+8, no rig, Milestone 11 shell materials: the "before" of
+  every sheet); ``base`` = the production defaults (the constant and ``LEVER_DEFAULTS``, what an unset variable
+  gives, recorded under its name); ``sun100`` / ``sun300`` / ``sun1000`` = the sun at that many W/m² on the
+  Milestone 11 look; ``evcap`` = the EV cap +3 of ``render.EXPOSURE_LIMITS`` with the ``lighting_dark`` finding;
+  ``rig`` = the room light rig below; ``shell`` = the shell material table of ``materials.shell_material`` with the
+  sheen / coat / bevel / AO / imperfection layers; ``all`` = ``sun300`` + ``evcap`` + ``rig`` + ``shell`` (the P1
+  definition, kept so the P1 sheets stay comparable); several names joined by ``,`` or ``+`` combine
+  (``sun1000,rig``: the Milestone 11 look plus those levers; ``base,sun300``: production with that sun). An
+  unknown name raises (a typo must never run the base silently). Unset = production: the constant, the EV cap, the
+  rig and the shell table on (``LEVER_DEFAULTS``, the lead's decisions from P1). The scene manifest's
+  ``lighting`` block records the variant, every lever and the sun (constant, mood factor, applied).
 - The dim-room rule follows the sun (``fill_light_reason(..., sun_wm2=)``): the window / floor ratio is scaled by
   ``sun / SUN_REFERENCE_MOOD_WM2`` before the ``DIM_ROOM_RATIO`` test, so a 300 W/m² sun through a small window
   no longer asks for the fill light a 3 W/m² sun needed.
@@ -69,6 +72,10 @@ ceiling light and was pushed +3..+8 EV):
   the washbasin; a fixture whose anchor piece is missing is dropped with the reason. With the rig a windowless
   or dim room keeps no invisible area light (the fixtures carry its light, recorded ``assumed``); a room type
   without a rig keeps the Milestone 6 light. Every fixture is ``assumed`` (the documents say nothing about lamps).
+- Round 3 (§14.3): ``RIG_GAIN`` is 2.0; the visible shade of a fixture emits at the fixed radiance
+  ``SHADE_EMISSION_WM2SR`` (``materials.fixture_material``), no longer tied to the lamp power, so a shade never
+  clips at the project EV range; every rig object (the shade mesh and its light) carries ``wenart_rig`` so render.py
+  can hide the rig while it meters the project white point on daylight only.
 """
 from __future__ import annotations
 
@@ -89,28 +96,40 @@ PORTAL_INSET_M = 0.01
 # The sun lamp's strength in W/m² (bpy.types.SunLight.energy, "Sunlight strength in watts per meter squared").
 # The Blender 5.2 manual (render/lights/light_object.html, "Power of Lights") gives clear sky 1000, cloudy sky 500,
 # overcast sky 200, moonlight 0.001 W/m². Milestone 11 rendered with 3.0 (the style's warm-daylight sun_strength,
-# vocabulary.LIGHTING); the lead sets this constant from the P1 lever A/B (sun100 / sun300 / sun1000). One number
-# to change, recorded in every scene manifest (lighting.sun.strength_wm2_constant).
-SUN_STRENGTH_WM2 = 3.0
+# vocabulary.LIGHTING). Round 3: the manual's clear-sky value, decided from the P1 lever A/B of 15 Oct 2026
+# (docs/milestone13.md §14.3; runs/20261015-165506-m13_p1/results/ab_m13/summary.md): sun1000 reads most natural
+# (a real sun patch through the window, clean contrast, warm, no clipping seen); the metered EV of the rooms with
+# windows falls to 2.5-4.3 (real02 salon_1 2.46, salon_2 2.54, mutfak_1 4.31, yatak_odasi_1 3.16, e_yatak_odasi_1
+# 2.16), where the 3 W/m² sun had lifted the sunless rooms +6..+9 EV (real02 mutfak_1 9.21, yatak_odasi_1 7.42,
+# real03 giris_holu_1 7.79). One number to change, recorded in every scene manifest
+# (lighting.sun.strength_wm2_constant); the same constant drives the exterior sun lamp.
+SUN_STRENGTH_WM2 = 1000.0
 # The style's per-mood sun_strength (vocabulary.LIGHTING) is a factor against the warm-daylight value: the lamp
 # gets SUN_STRENGTH_WM2 x sun_strength / SUN_REFERENCE_MOOD_WM2 (overcast 0.3 -> a tenth, night 0 -> no sun).
 SUN_REFERENCE_MOOD_WM2 = 3.0
-SUN_STRENGTH_M11_WM2 = 3.0            # the base variant's sun (the Milestone 11 renders of real02 / real03)
+SUN_STRENGTH_M11_WM2 = 3.0            # the m11 variant's sun (the Milestone 11 renders of real02 / real03)
 LIGHT_VARIANT_ENV = "WENART_LIGHT_VARIANT"
 SUN_VARIANT_WM2 = {"sun100": 100.0, "sun300": 300.0, "sun1000": 1000.0}
-ALL_VARIANT_SUN = "sun300"            # the sun of the `all` variant (the middle candidate)
-LIGHT_VARIANTS = ("base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
-# Production (no variant): the lead's defaults after P1. Until P1 decides, the sun keeps SUN_STRENGTH_WM2, the EV
-# cap is on (render.EXPOSURE_LIMITS is the contract's constant), the rig and the shell table are off (the Milestone
-# 6-12 lights and materials, which the committed tests of those milestones pin). Three flags to flip, recorded in
-# every scene manifest (lighting.levers).
-LEVER_DEFAULTS = {"ev_cap": True, "rig": False, "shell": False}
+ALL_VARIANT_SUN = "sun300"            # the sun of the `all` variant (the P1 middle candidate; the P1 sheets compare)
+# Round 3 (§14.3): ``m11`` is the Milestone 11 look (the "before" of every A/B sheet: sun 3 W/m², EV limits
+# -2..+8, no rig, the Milestone 6-12 materials), ``base`` the production defaults (the constant and
+# LEVER_DEFAULTS, what an unset variable gives, recorded under its name). The single levers start from the
+# Milestone 11 look as they did in P1, so a P1 sheet and a round-3 sheet of the same name show the same thing.
+LIGHT_VARIANTS = ("m11", "base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
+M11_LEVERS = {"ev_cap": False, "rig": False, "shell": False}
+# Production (no variant): the lead's decisions from P1 (§14.3). The EV cap +3 with the lighting_dark finding (the
+# cap alone turned the real02 kitchen black, 9.21 -> 3.0 EV: with the rig it is a finding, not a fix); the room
+# light rig (the kitchen strip and pendant took real02 mutfak_1 from +9.21 to +1.02 EV at gain 4); the shell
+# material table (ceiling plaster, worktops, fronts, tiles: no harm at 1080p, +35 % render time, 6.4 vs 4.8 s).
+# Three flags, recorded in every scene manifest (lighting.levers).
+LEVER_DEFAULTS = {"ev_cap": True, "rig": True, "shell": True}
 
 
 def parse_light_variant(text) -> list[str]:
     """The variant names of a ``WENART_LIGHT_VARIANT`` value (pure): ``"sun300"`` -> ``["sun300"]``,
     ``"sun1000,rig"`` / ``"sun1000+rig"`` -> both; empty / None -> ``[]`` (production). An unknown name raises
-    ValueError (a typo must never run the base silently); two sun strengths in one value raise too."""
+    ValueError (a typo must never run the base silently); two sun strengths in one value raise too, as do ``m11``
+    and ``base`` together (the Milestone 11 look and the production defaults exclude each other)."""
     if text is None:
         return []
     names = [n.strip().lower() for n in str(text).replace("+", ",").split(",") if n.strip()]
@@ -120,6 +139,9 @@ def parse_light_variant(text) -> list[str]:
     suns = [n for n in names if n in SUN_VARIANT_WM2]
     if len(suns) > 1:
         raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one sun strength ({suns})")
+    if "m11" in names and "base" in names:
+        raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: m11 (the Milestone 11 look) and base (production) exclude "
+                         f"each other")
     return list(dict.fromkeys(names))
 
 
@@ -127,7 +149,9 @@ def light_levers(variant=None, env=None) -> dict:
     """The levers of a build or render (pure): ``{"variant": str | None, "names": [...], "sun_wm2", "ev_cap",
     "rig", "shell", "source"}``. ``variant`` (a value as the environment variable would hold it) wins over
     ``env[LIGHT_VARIANT_ENV]`` (``os.environ`` when None). No variant = production: ``SUN_STRENGTH_WM2`` and
-    ``LEVER_DEFAULTS``. Any variant starts from the Milestone 11 base and turns on the named levers only."""
+    ``LEVER_DEFAULTS``. ``base`` = production under its name; ``m11`` = the Milestone 11 look (``M11_LEVERS``, sun
+    ``SUN_STRENGTH_M11_WM2``); every other name starts from the Milestone 11 look (from production when ``base``
+    is among the names) and turns the named levers on (never off)."""
     source = "arg"
     if variant is None:
         variant = (os.environ if env is None else env).get(LIGHT_VARIANT_ENV)
@@ -139,10 +163,13 @@ def light_levers(variant=None, env=None) -> dict:
     on = set(names)
     if "all" in on:
         on |= {ALL_VARIANT_SUN, "evcap", "rig", "shell"}
+    production = "base" in on
+    start = LEVER_DEFAULTS if production else M11_LEVERS
     sun = next((SUN_VARIANT_WM2[n] for n in LIGHT_VARIANTS if n in on and n in SUN_VARIANT_WM2),
-               SUN_STRENGTH_M11_WM2)
-    return {"variant": ",".join(names), "names": names, "sun_wm2": float(sun), "ev_cap": "evcap" in on,
-            "rig": "rig" in on, "shell": "shell" in on, "source": source}
+               SUN_STRENGTH_WM2 if production else SUN_STRENGTH_M11_WM2)
+    return {"variant": ",".join(names), "names": names, "sun_wm2": float(sun),
+            "ev_cap": bool(start["ev_cap"]) or "evcap" in on, "rig": bool(start["rig"]) or "rig" in on,
+            "shell": bool(start["shell"]) or "shell" in on, "source": source}
 
 
 def sun_strength_wm2(lighting: dict, levers: dict | None = None) -> tuple[float, float]:
@@ -399,7 +426,14 @@ def fill_light_reason(windows: list[dict], ratio: float | None, sun_wm2: float |
 
     Milestone 13: ``sun_wm2`` (the lamp's strength) scales the ratio by ``sun_wm2 / SUN_REFERENCE_MOOD_WM2``
     first: the rule was written for the 3 W/m² sun, and a 300 W/m² sun brings 100x the daylight through the same
-    window. None keeps the Milestone 6 rule as it was."""
+    window. None keeps the Milestone 6 rule as it was.
+
+    Round 3, the rule at 1000 W/m² (scale 333, checked on the P1 rows of §14.3): a room with any window counts as
+    daylit, so the 12 W/m² fill light never dominates a sunlit room (its 0.5-1.2 incident would be 3-8x the sun's
+    0.16 in real02 salon_1); a room without a window still gets "room has no window" and with it the fill light,
+    or the rig where its type has one. A room whose window faces away from the sun stays sky-lit as in Milestone
+    11 (real03 yasama_6_1: 4.9 EV under sun1000) and ends as a ``lighting_dark`` finding for the lighting tools,
+    not as a fill light: the rule cannot tell such a window from a sunlit one."""
     if not windows:
         return "room has no window"
     if ratio is None:
@@ -466,10 +500,39 @@ LUMEN_WATT_TABLE: tuple[tuple[float, float], ...] = ((0.0, 0.0), (800.0, 2.1), (
 LUMEN_WATT_SOURCE = ("Blender 5.2 manual, render/lights/light_object.html, 'Power of Lights' table "
                      "(800 lm LED bulb 2.1 W, 1000 lm bulb 2.9 W, 1500 lm PAR38 4 W, 2500 lm tube 4.5 W)")
 # The manual's radiant powers put a lamp-lit room 4-6 stops under the metering target of the Milestone 11
-# convention (a 12 W/m² invisible area light, EV about -0.5); the EV cap of render.EXPOSURE_LIMITS allows +3. The
-# gain of 4 (2 stops) keeps the fixtures recognisably dimmer than daylight and inside the cap; every fixture
-# records the radiometric watts and the applied watts, and the lead sets the gain from P1 (1.0 = the table as is).
-RIG_GAIN = 4.0
+# convention (a 12 W/m² invisible area light, EV about -0.5); the EV cap of render.EXPOSURE_LIMITS allows +3.
+# Round 3 (§14.3, the P1 rig variant at gain 4.0, runs/20261015-165506-m13_p1/results/ab_m13/summary.md): the
+# kitchen strip and pendant took real02 mutfak_1 from 9.21 to 1.02 EV (mutfak_2 8.90 -> 1.14) and e_banyo_1 to
+# 0.89 EV, but the bedside lamps and the shades blew out white (the 'rig' and 'all' sheets of real02
+# yatak_odasi_1). Gain 2.0 (one stop over the table) keeps the kitchen near EV 2 (the estimate from the P1 rows:
+# 0.045 daylight at sun 1000 + 0.44 / 2 of rig = 0.27 incident -> +1.8 EV, under the cap) and the bathroom at
+# about +1.9; the shade's look is decoupled from the gain below (SHADE_EMISSION_WM2SR). Every fixture records the
+# radiometric watts and the applied watts (1.0 = the table as is).
+RIG_GAIN = 2.0
+# The visible shade or diffuser of a fixture is an Emission surface at this fixed radiance in W/(m²·sr) (for a
+# material an Emission Strength of 1.0 renders exactly the Emission Color: the 5.2 manual,
+# render/shader_nodes/shader/emission.html), no longer tied to the lamp power (P1: at 6.0 every shade rendered
+# pure white at EV 3-5.5, 6 x 2^4.58 = 144 scene-linear in yatak_odasi_1). The bound: the project EV range of
+# render.EXPOSURE_LIMITS is -2..+3, the display is AgX with the "AgX - Punchy" look, and a scene-linear value of
+# SHADE_EMISSION_CLIP renders as display 255 for a white emitter (measured on bpy 5.2.2 on 15 Oct 2026, an
+# emissive plane at EV 0, view AgX, look "AgX - Punchy" read back: display 177 / 202 / 222 / 237 / 249 / 255 for
+# 1 / 2 / 4 / 8 / 16 / 32; the 2700 K colour (1.0, 0.65, 0.34) gives 250 / 241 / 232 at 16 and 255 / 252 / 245 at
+# 32, its red channel clipping first; the look "None" clips white at 16 already, 255, so the production look is
+# the one that matters). At the cap +3 (x 8) a shade of strength S shows 8 S in its red channel, so
+# shade_emission_bound() = 32 / 8 = 4.0 is the limit; 2.0 keeps one stop of margin: 16 at +3 (bright, still warm:
+# 250 / 241 / 232), 8 at the +2 of a lamp-lit room (239 / 227 / 215), 0.5 at -2 (a soft warm glow). Verified on
+# P3 against the P1 'rig' and 'all' sheets of real02 yatak_odasi_1 (the bedside lamp) and mutfak_1 (the strip).
+SHADE_EMISSION_WM2SR = 2.0
+SHADE_EMISSION_CLIP = 32.0            # scene-linear value that AgX Punchy shows as display 255 (bpy 5.2.2, measured)
+SHADE_EV_MAX = 3.0                    # = render.EXPOSURE_LIMITS[1] (pinned equal in tests/test_m13_light.py)
+
+
+def shade_emission_bound(ev_max: float = SHADE_EV_MAX, clip: float = SHADE_EMISSION_CLIP,
+                         channel_max: float = 1.0) -> float:
+    """The largest shade radiance (W/(m²·sr)) that stays under the display clip at ``ev_max`` (pure): the shade's
+    brightest channel (``channel_max``, 1.0 for the red of a 2700 K blackbody) times 2^ev_max must stay below
+    ``clip``, so the bound is ``clip / 2^ev_max / channel_max`` (4.0 for the defaults)."""
+    return float(clip) / (2.0 ** float(ev_max)) / max(float(channel_max), 1e-9)
 RIG_WARM_K = 2700.0                   # a warm LED bulb; the style's colour_temperature_k wins when it is warmer
 RIG_MOUNT_GAP_M = 0.03                # a ceiling fixture hangs this far under the ceiling
 RIG_PENDANT_OVER_TABLE_M = 0.75       # the pendant shade's bottom above the table top
@@ -745,7 +808,9 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
             "assumed": {"rig": f["kind"], "lumens": f.get("lumens"), "watts_radiometric": f.get("watts_radiometric"),
                         "watts_applied": f["light"]["energy_w"], "gain": f.get("gain"), "temperature_k": f["temperature_k"],
                         "anchor_id": f.get("anchor_id"), "reason": f["reason"], "source": f.get("source"),
-                        "lumen_watt_source": f.get("lumen_watt_source")},
+                        "lumen_watt_source": f.get("lumen_watt_source"),
+                        # round 3: the shade's own radiance, decoupled from the lamp power (never clips at EV <= +3)
+                        "shade_emission_wm2sr": float(mat.get("wenart_light") or SHADE_EMISSION_WM2SR)},
         })
         spec = f["light"]
         light = bpy.data.lights.new(f"{f['name']}_light", spec["type"])
@@ -770,6 +835,7 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
         collection.objects.link(lob)
         common.set_props(lob, wenart_id=lob.name, kind="light", status="assumed")
         lob["wenart_room"] = room["id"]
+        lob["wenart_rig"] = f["kind"]      # round 3: render.py hides every rig object for the daylight white point
         manifest_objects.append({
             "name": lob.name, "wenart_id": lob.name, "kind": "light", "status": "assumed", "level_id": level["id"],
             "element_id": room["id"], "parent": room["id"], "evidence": [], "material": None, "textured": False,
@@ -822,8 +888,9 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     world_exterior = None
     if exterior:
         from wenart.blender.materials import exterior_world_nodes
-        # Milestone 13: a daytime sky with the sun disc; the disc carries the direct sun of the exterior views and
-        # render.py hides the lamp under that world (it must not double the sun).
+        # Milestone 13 round 3 (§14.3): a daytime sky whose sun disc only the camera sees (a Light Path 'Is Camera
+        # Ray' mix of the sky with and without the disc), so the sun lamp below stays the one direct sun outdoors
+        # (P1: the facades were flat and bluish at 3 W/m²; the lamp now carries SUN_STRENGTH_WM2 outside as well).
         world_exterior = exterior_world_nodes(scene, world_lighting(lighting, in_building), sun_disc=True,
                                               sun_elevation_deg=elevation, sun_azimuth_deg=in_building,
                                               sun_wm2=strength)
@@ -870,7 +937,8 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
         from wenart.blender.materials import fixture_material as _fm
         key = round(float(kelvin))
         if key not in fixture_cache:
-            fixture_cache[key] = _fm(f"rig_fixture_{key}K", kelvin)
+            # round 3: the shade's radiance is the fixed SHADE_EMISSION_WM2SR, not a function of the lamp power
+            fixture_cache[key] = _fm(f"rig_fixture_{key}K", kelvin, SHADE_EMISSION_WM2SR)
         return fixture_cache[key]
 
     for level in levels:
@@ -937,6 +1005,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
             # Milestone 13 (docs/milestone13.md §13.3): the variant and every lever, the rig per room
             "variant": levers["variant"], "levers": {k: levers[k] for k in ("sun_wm2", "ev_cap", "rig", "shell", "source")},
             "rig": {"on": bool(levers["rig"]), "gain": RIG_GAIN, "temperature_k": rig_temperature_k(lighting),
+                    "shade_emission_wm2sr": SHADE_EMISSION_WM2SR, "shade_emission_bound": shade_emission_bound(),
                     "lumen_watt_source": LUMEN_WATT_SOURCE, "lights": [o.name for o in rig_lights], "rooms": rig_rooms},
             "fill_light": {"dim_room_ratio": DIM_ROOM_RATIO, "sun_scaled_by": round(strength / SUN_REFERENCE_MOOD_WM2, 6)}}
 

@@ -412,3 +412,54 @@ def test_a_floor_plant_may_be_a_potted_plant_model():
                                "japandi")
     assert asset is not None and asset["asset_id"] == "gen_pp" and asset["decor_type"] == "plant"
     assert FIT.fit_decor_item({"type": "plant", "size": [0.4, 0.4]}, _Cat(), "japandi") is None
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 (R6, build round 3 item 3): the group solver's rug members survive the AI decor stage
+# --------------------------------------------------------------------------
+
+def _solved_living_room():
+    """A living room the group solver furnished (seating group with its rug member), as tests/test_decor.py."""
+    import _m11_room as M
+    from wenart.furniture import program as PR
+    from wenart.furniture import solver as SV
+
+    b = M.building(w=5.0, h=6.0, room_type="living", window=(2.5, 1.2))
+    b["project"] = {"id": "t", "name": "t"}
+    prog = PR.room_program(b, M.ROOM_ID)
+    prog["groups"] = [g for g in prog["groups"] if g["group"] == "seating"]
+    prog["groups"][0]["chosen"] = "sofa_2_armchairs"
+    best = SV.solve_room(b, M.ROOM_ID, prog, k=1)[0]
+    assert best["rugs"]
+    return SV.apply_candidate(b, M.ROOM_ID, best)
+
+
+def test_apply_keeps_the_solvers_rug_members_and_numbers_the_new_items_after_them():
+    """Build round 3 item 3: the orchestrated decor stage (``decor_ai.apply``, wired in round 2) seeds its decor
+    with ``decor.solver_rugs`` and counts the new ids on with ``decor.decor_counters``: the solver's rug keeps its id
+    and its group record, no second rug is laid under the group (rules fallback: no answers), and a second apply
+    changes nothing; ``brief.decor`` false drops it too. With the round-1 reset (``out["decor"] = []``, fresh
+    counters) the rules laid a new rug dec_L0_004 without the group record and the solver's dec_L0_001 was lost."""
+    b = _solved_living_room()
+    (kept,) = D.solver_rugs(b)
+    assert kept["id"] == "dec_L0_001" and kept["group"]["role"] == "rug"
+    out, records = DA.apply(b, STYLE, {"answers": {}})
+    rugs = [d for d in out["decor"] if d["type"] == "rug"]
+    assert len(rugs) == 1 and rugs[0]["id"] == kept["id"] and rugs[0]["anchor_ids"] == kept["anchor_ids"]
+    assert rugs[0]["center"] == kept["center"] and rugs[0]["size"] == kept["size"]
+    assert rugs[0]["group"] == kept["group"] and rugs[0]["group"]["role"] == "rug"      # still the group's member
+    others = [d for d in out["decor"] if d["id"] != kept["id"]]
+    assert others and all(int(d["id"].rsplit("_", 1)[1]) > 1 for d in others)
+    assert len({d["id"] for d in out["decor"]}) == len(out["decor"])
+    assert D.decor_counters(out["decor"]) == {"L0": len(out["decor"])}
+    rec = next(r for r in records if r.room_id == b["rooms"][0]["id"])
+    assert rec.fallback and all(d["id"] != kept["id"] for d in rec.items)   # the kept rug is not a new item
+    again, _ = DA.apply(out, STYLE, {"answers": {}})
+    assert [d["id"] for d in again["decor"] if d["type"] == "rug"] == [kept["id"]]
+    assert len(again["decor"]) == len(out["decor"])
+    rules = copy.deepcopy(b)
+    rules["project"]["brief"] = {"decor": "rules"}
+    assert [d["id"] for d in DA.apply(rules, STYLE, {"answers": {}})[0]["decor"] if d["type"] == "rug"] == [kept["id"]]
+    off = copy.deepcopy(b)
+    off["project"]["brief"] = {"decor": False}
+    assert DA.apply(off, STYLE, {"answers": {}})[0]["decor"] == []

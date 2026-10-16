@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -286,16 +287,23 @@ def _fetch_ambientcg_texture(asset_id: str, out_dir: Path, size: str) -> dict:
     size_m, size_assumed = ambientcg.size_m(record)
     folder = out_dir / "textures" / asset_id
     zip_path = out_dir / "downloads" / item["fileName"]
-    try:
-        web.download(item["downloadLink"], zip_path)
-    except web.NetworkError as exc:
-        # The get?file= link redirects to the download host; a proxy allow-list must include it.
-        raise web.NetworkError(f"{exc} (ambientCG downloads redirect to {ambientcg.DOWNLOAD_HOST}; "
-                               f"that host must be reachable)") from exc
-    try:
-        paths = ambientcg.extract_set(zip_path, folder)
-    finally:
-        zip_path.unlink(missing_ok=True)  # the maps are what we keep; the manifest makes this idempotent
+    # Milestone 13 round 3 (pod P2: cut ambientCG answers): web.download retries a body shorter than its
+    # Content-Length; a zip cut without that header (chunked) is caught here as BadZipFile and fetched once more.
+    for attempt in (1, 2):
+        try:
+            web.download(item["downloadLink"], zip_path)
+        except web.NetworkError as exc:
+            # The get?file= link redirects to the download host; a proxy allow-list must include it.
+            raise web.NetworkError(f"{exc} (ambientCG downloads redirect to {ambientcg.DOWNLOAD_HOST}; "
+                                   f"that host must be reachable)") from exc
+        try:
+            paths = ambientcg.extract_set(zip_path, folder)
+            break
+        except zipfile.BadZipFile as exc:
+            if attempt == 2:
+                raise web.IncompleteBody(f"{item['downloadLink']}: not a whole zip after 2 downloads: {exc}") from exc
+        finally:
+            zip_path.unlink(missing_ok=True)  # the maps are what we keep; the manifest makes this idempotent
     files = {name: p.relative_to(out_dir).as_posix() for name, p in paths.items()}
     shas = {name: web.sha256_file(p) for name, p in paths.items()}
     return _texture_entry(asset_id, ambientcg.SOURCE, size, size_m, size_assumed, files, shas,

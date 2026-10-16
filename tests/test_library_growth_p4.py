@@ -1016,3 +1016,295 @@ def test_catalogue_step_m13_relinks_2k_previews_vegetation_and_builds_hssd_entri
     else:
         why = {d["id"]: d["reason"] for d in rep_doc["dropped"]}
         assert "refused by catalog.validate" in why[f"hssd_{hid}"] and "hssd" in why[f"hssd_{hid}"]
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 round 3 (docs/milestone13.md §14.6, after pod P2)
+# --------------------------------------------------------------------------
+
+def _ph_lists(tmp_path, ids):
+    lists = tmp_path / "lists"
+    (lists / "growth").mkdir(parents=True, exist_ok=True)
+    (lists / "growth" / "approved_polyhaven.json").write_text(json.dumps(
+        {"source": "polyhaven", "approved_by": "test", "approved_utc": STAMP, "ids": ids}))
+    (lists / "growth" / "candidates_polyhaven.json").write_text(json.dumps({"candidates": [
+        {"id": i, "type": "chair", "kind": "furniture"} for i in ids]}))
+    return lists
+
+
+def test_polyhaven_ingest_falls_back_drops_and_fails_only_for_network_or_code(tmp_path, monkeypatch, capsys):
+    """P2: decorative_book_set_01 ('no gltf/2k (available: [])') made the step rc 1. Now: a smaller glTF is taken
+    with the reason (2k -> 1k), an asset without any glTF or unknown to the API is dropped with the reason (rc 0),
+    and only a network error (after RETRIES = 3 tries here) or a code error fails the step."""
+    from wenart.assets import fetch as F
+    from wenart.assets import web as W
+    import time as _time
+    lists = _ph_lists(tmp_path, ["chair_a", "decorative_book_set_01", "gone_01"])
+    tries = {}
+
+    def fake_fetch(aid, out_dir, size="1k", size_fallback=False, **kw):
+        assert size == "2k" and size_fallback is True
+        tries[aid] = tries.get(aid, 0) + 1
+        if aid == "decorative_book_set_01":
+            raise M.NoGltf("Poly Haven file table has no glTF at any size (model formats offered: ['blend', 'fbx', "
+                           "'usd'])")
+        if aid == "gone_01":
+            raise F.AssetNotFound("polyhaven: no model 'gone_01'")
+        if aid == "net_01":
+            raise W.NetworkError("https://api.polyhaven.com/files/net_01: URLError: reset (try 3 of 3)")
+        rel = f"models/{aid}/{aid}_1k.gltf"
+        (out_dir / rel).parent.mkdir(parents=True, exist_ok=True)
+        (out_dir / rel).write_text("{}")
+        return {"files": {"gltf": rel}, "sha256": {"gltf": "a" * 64}, "resolution": "1k", "resolution_requested": "2k",
+                "resolution_note": "no glTF at 2k on Poly Haven (offered: ['1k']): the next lower size, 1k, is used"}
+    monkeypatch.setattr(M, "fetch_model", fake_fetch)
+    waits = []
+    monkeypatch.setattr(_time, "sleep", waits.append)
+    a = run_args(tmp_path, lists=str(lists), source="polyhaven", size="2k", m13=False)
+    assert GR.cmd_ingest(a) == 0
+    rec = json.loads((tmp_path / "g" / "report" / "ingest_polyhaven.json").read_text())
+    by = {r["id"]: r for r in rec["records"]}
+    assert rec["ok"] == 1 and rec["dropped"] == 2 and rec["failed"] == 0
+    assert by["chair_a"]["size"] == "1k" and by["chair_a"]["size_requested"] == "2k" and "next lower" in \
+        by["chair_a"]["size_reason"]
+    assert by["decorative_book_set_01"]["dropped"] and "NoGltf: Poly Haven file table has no glTF at any size" in \
+        by["decorative_book_set_01"]["reason"] and not by["decorative_book_set_01"]["reason"].startswith("NoGltf: '")
+    assert by["gone_01"]["dropped"] and "AssetNotFound" in by["gone_01"]["reason"]
+    assert tries == {"chair_a": 1, "decorative_book_set_01": 1, "gone_01": 1} and not waits     # data: no retry
+    out = capsys.readouterr().out
+    assert "1 of 3 ok, 2 dropped" in out and "FAILED" not in out
+    lists = _ph_lists(tmp_path, ["chair_a", "net_01"])
+    assert GR.cmd_ingest(run_args(tmp_path, lists=str(lists), source="polyhaven", size="2k", m13=False)) == 1
+    rec = json.loads((tmp_path / "g" / "report" / "ingest_polyhaven.json").read_text())
+    net = next(r for r in rec["records"] if r["id"] == "net_01")
+    assert rec["failed"] == 1 and not net.get("dropped") and "try 3 of 3" in net["error"]
+    assert tries["net_01"] == GR.RETRIES == 3 and waits == [2, 4]
+    assert "net_01 failed: NetworkError" in capsys.readouterr().out
+    # the catalogue step names the drop as data, not as a failed download
+    a = fixture_growth(tmp_path / "cat")
+    rep = tmp_path / "cat" / "g" / "report"
+    doc = json.loads((rep / "ingest_polyhaven.json").read_text())
+    doc["records"].append(by["decorative_book_set_01"])
+    (rep / "ingest_polyhaven.json").write_text(json.dumps(doc))
+    assert GR.cmd_catalogue(a) == 0
+    why = {d["id"]: d["reason"] for d in json.loads((rep / "catalogue.json").read_text())["dropped"]}
+    assert why["decorative_book_set_01"].startswith("no glTF to fetch on Poly Haven: NoGltf")
+
+
+def test_preview_step_takes_both_preview_kinds_and_names_every_failure(tmp_path, monkeypatch, capsys):
+    """P2's preview step stopped at once with KeyError: 'glb' (steps.tsv 'preview 1 0'): the Milestone 13
+    vegetation previews carry 'gltf'. Now both kinds are measured, a preview that cannot be measured or rendered
+    is printed with its reason and recorded in report/preview.json, and the last line names the failures."""
+    from wenart.assets.audit import render as R
+    a = fixture_growth(tmp_path)
+    assert GR.cmd_catalogue(a) == 0
+    assets = tmp_path / "assets"
+    veg = write_gltf(assets / "models" / "jacaranda_tree", "jacaranda_tree", *box_mesh(2.0, 2.0, 9.0))
+    nid_path = tmp_path / "p4" / "audit" / "new_ids.json"
+    nid = json.loads(nid_path.read_text())
+    nid["previews"] += [   # the shape of P2's new_ids.json (47 vegetation + 3 Infinigen previews)
+        {"id": "jacaranda_tree", "source": "polyhaven", "kind": "vegetation", "type": "tree",
+         "gltf": veg.relative_to(assets).as_posix(), "note": "vegetation model for wenart.blender.vegetation (T6)"},
+        {"id": "flower_missing", "source": "polyhaven", "kind": "vegetation", "type": "grass",
+         "gltf": "models/flower_missing/flower_missing_2k.gltf"},
+        {"id": "no_path", "source": "polyhaven", "kind": "vegetation"}]
+    nid_path.write_text(json.dumps(nid))
+    seen = {}
+
+    def fake_run_render(doc, blender, work, workers=1):
+        seen["jobs"] = sorted(j["id"] for j in doc["jobs"])
+        for j in doc["jobs"]:
+            p = R.measure_path(work, j["id"])
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(json.dumps({"id": j["id"], "ok": j["id"] != "infinigen_dishwasher_0", "job_sha": j["job_sha"],
+                                     "error": "Blender stopped on this model (exit 1)"}))
+        return 0
+    monkeypatch.setattr(R, "run_render", fake_run_render)
+    monkeypatch.setattr(R, "compose_all", lambda items, work, out, s: seen.setdefault("composed", [i["id"] for i in
+                                                                                                   items]))
+    a.blender = "blender"
+    assert GR.cmd_preview(a) == 1
+    out = capsys.readouterr().out
+    assert seen["jobs"] == ["infinigen_dishwasher_0", "jacaranda_tree"]
+    assert "flower_missing not measured: FileNotFoundError" in out and "no_path not measured: KeyError" in out
+    assert "infinigen_dishwasher_0 not rendered: Blender stopped" in out
+    assert out.strip().splitlines()[-1].startswith("growth preview: 2 of 4 model(s) measured") and "3 FAILED" in out
+    rec = json.loads((tmp_path / "g" / "report" / "preview.json").read_text())
+    assert {f["id"] for f in rec["failed"]} == {"flower_missing", "no_path", "infinigen_dishwasher_0"}
+    assert rec["rendered"] == 1 and rec["render_rc"] == 0
+    items = {i["id"]: i for i in [GR.preview_item(p, assets) for p in nid["previews"][:2]]}
+    assert items["jacaranda_tree"]["gltf"].endswith(".gltf") and items["jacaranda_tree"]["source"] == "polyhaven"
+    assert items["infinigen_dishwasher_0"]["glb"].endswith(".glb") and "Infinigen" in \
+        items["infinigen_dishwasher_0"]["title"]
+    # every preview good: rc 0
+    nid["previews"] = nid["previews"][:2]
+    nid_path.write_text(json.dumps(nid))
+    monkeypatch.setattr(R, "run_render", lambda doc, *a_, **k: [R.measure_path(tmp_path / "p4" / "work_preview",
+                        j["id"]).write_text(json.dumps({"id": j["id"], "ok": True})) for j in doc["jobs"]] and 0)
+    assert GR.cmd_preview(a) == 0
+
+
+def test_growth_cli_prints_the_reason_of_any_failure(tmp_path, monkeypatch, capsys):
+    def boom(args):
+        raise KeyError("glb")
+    monkeypatch.setitem(GR.STEPS, "preview", boom)
+    assert GR.main(["preview", "--growth", str(tmp_path / "g"), "--p4", str(tmp_path / "p4")]) == 1
+    cap = capsys.readouterr()
+    assert cap.out.strip().splitlines()[-1] == "growth run preview: FAILED: KeyError: 'glb'"
+    assert "Traceback" in cap.err
+    assert GR.main(["catalogue", "--only", "hssd,objaverse"]) == 1 and "--only ['objaverse']" in capsys.readouterr().out
+
+
+def test_steps_tsv_reason_column_reaches_the_report(tmp_path):
+    a = run_args(tmp_path)
+    (tmp_path / "steps.tsv").write_text("demands\t0\t1\t\npreview\t1\t0\tKeyError: 'glb'\nold\t0\t3\n")
+    assert GR.steps_of(tmp_path / "steps.tsv") == [
+        {"step": "demands", "rc": 0, "seconds": 1},
+        {"step": "preview", "rc": 1, "seconds": 0, "reason": "KeyError: 'glb'"},
+        {"step": "old", "rc": 0, "seconds": 3}]
+    a.steps = str(tmp_path / "steps.tsv")
+    assert GR.cmd_report(a) == 0
+    assert "| preview | 1 | 0 | KeyError: 'glb' |" in (tmp_path / "g" / "report" / "growth.md").read_text()
+
+
+def test_measure_cache_measures_again_a_record_without_pbr(tmp_path):
+    """P2: the M12 ABO entries (abo_B07124WCZY) got no pbr_maps: their cached M12 measurement had no 'pbr'."""
+    glb = write_glb(tmp_path / "m.glb", *box_mesh(0.5, 0.5, 0.5), textured=True)
+    key = GR.sha256_file(glb)
+    first = GR.measured(glb, key, tmp_path / "cache", {})
+    assert "pbr" in first
+    cpath = next((tmp_path / "cache").glob("*.json"))
+    old = json.loads(cpath.read_text())
+    old["m"].pop("pbr")
+    cpath.write_text(json.dumps(old))                                    # a Milestone 12 record
+    again = GR.measured(glb, key, tmp_path / "cache", {})
+    assert again["pbr"]["base_colour"] is True and "pbr" in json.loads(cpath.read_text())["m"]
+
+
+def test_reaudit_entry_waits_for_its_current_file_then_joins_new_ids(tmp_path, monkeypatch, capsys, pre_p4):
+    """An entry republished upstream (vintage_wooden_drawer_01, 16 Oct 2026) is pending with an audit.reaudit
+    record: the catalogue step lists it as waiting while the volume holds the old files, ``refetch`` fetches the
+    current ones (models.fetch_model with expect_sha256_gltf), then the catalogue step puts it into new_ids.json
+    so render, code, ask, decide and write judge it again; the pending step never decides it with P3's answers."""
+    from wenart.assets import fetch as F
+    a = fixture_growth(tmp_path)
+    assets = tmp_path / "assets"
+    ph = json.loads(I.POLYHAVEN_PATH.read_text())
+    sofa = next(e for e in ph["entries"] if e.get("id") == "sofa_02")
+    new_file = write_gltf(tmp_path / "upstream", "sofa_02", *box_mesh(1.8, 0.8, 0.7))
+    sofa["sha256_gltf"] = GR.sha256_file(new_file)
+    sofa["audit"] = {"status": "pending", "reasons": ["republished at a new size on Poly Haven"], "fixes": {},
+                     "version": "m12", "checked_utc": STAMP, "reaudit": {"reason": "republished"}}
+    I.POLYHAVEN_PATH.write_text(json.dumps(ph))
+    assert [e["id"] for e in GR.reaudit_entries(ph)] == ["sofa_02"]
+    assert GR.cmd_catalogue(a) == 0
+    nid = json.loads((tmp_path / "p4" / "audit" / "new_ids.json").read_text())
+    assert "sofa_02" not in nid["ids"] and nid["reaudit"] == []
+    assert nid["reaudit_waiting"][0]["id"] == "sofa_02" and "refetch" in nid["reaudit_waiting"][0]["reason"]
+    assert "sofa_02 waits for a re-audit" in capsys.readouterr().out
+
+    def fake_fetch(aid, out_dir, size="1k", expect_sha256_gltf=None, **kw):
+        assert aid == "sofa_02" and expect_sha256_gltf == sofa["sha256_gltf"]
+        rel = f"models/sofa_02/sofa_02_{size}.gltf"
+        (out_dir / rel).parent.mkdir(parents=True, exist_ok=True)
+        for f in new_file.parent.iterdir():
+            (out_dir / rel).parent.joinpath(f.name).write_bytes(f.read_bytes())
+        man = F.load_manifest(out_dir)
+        files = {"gltf": rel, **{f.name: f"models/sofa_02/{f.name}" for f in new_file.parent.iterdir()
+                                 if f.suffix == ".bin"}}
+        entry = {"id": aid, "source": "polyhaven", "licence": "CC0", "files": files, "resolution": size,
+                 "sha256": {k: GR.sha256_file(out_dir / v) for k, v in files.items()}, "bbox_m": [1.8, 0.8, 0.7]}
+        man.setdefault("models", {})[aid] = entry
+        F.save_manifest(out_dir, man)
+        return entry
+    monkeypatch.setattr(M, "fetch_model", fake_fetch)
+    assert GR.cmd_refetch(a) == 0
+    rows = json.loads((tmp_path / "g" / "report" / "refetch.json").read_text())["rows"]
+    assert rows == [dict(rows[0], id="sofa_02", current=True, state="current")]
+    assert GR.cmd_catalogue(a) == 0
+    nid = json.loads((tmp_path / "p4" / "audit" / "new_ids.json").read_text())
+    assert nid["reaudit"] == ["sofa_02"] and nid["ids"][-1] == "sofa_02" and not nid["reaudit_waiting"]
+    # the pending step: the copies' other pending models (P3's) set aside, and sofa_02 not even in new_ids.json
+    # (as while it waits): it is still never decided with P3's answers about the old file
+    lib_copy = tmp_path / "p4" / "audit" / "catalogue" / "catalog_library.json"
+    doc = json.loads(lib_copy.read_text())
+    for e in [e for s_ in ("entries", "decor") for e in doc.get(s_) or [] if isinstance(e, dict)]:
+        if (e.get("audit") or {}).get("status") == "pending":
+            e["audit"]["status"] = "keep"
+    lib_copy.write_text(json.dumps(doc))
+    nid["ids"] = [i for i in nid["ids"] if i != "sofa_02"]
+    (tmp_path / "p4" / "audit" / "new_ids.json").write_text(json.dumps(nid))
+    capsys.readouterr()
+    a.model_key = "agent"
+    assert GR.cmd_pending(a) == 0 and "no P3 model is pending" in capsys.readouterr().out
+    # a refetch that cannot reach the current file says so (rc 1)
+    monkeypatch.setattr(M, "fetch_model", lambda *a_, **k: (_ for _ in ()).throw(RuntimeError("md5 mismatch")))
+    assert GR.cmd_refetch(a) == 1
+    assert json.loads((tmp_path / "g" / "report" / "refetch.json").read_text())["rows"][0]["state"].startswith(
+        "FAILED: RuntimeError")
+
+
+def test_catalogue_only_hssd_keeps_every_other_entry_and_the_earlier_records(tmp_path):
+    """GROWTH_ONLY=hssd (pod P2b): the catalogue step builds the HSSD entries alone on top of the repo's catalogues
+    (every other entry stays as it is), new_ids.json holds the HSSD ids and keeps the earlier ids (kept_ids) and
+    previews, catalogue.json keeps the earlier drops of the other sources; a second run gives the same records."""
+    a = fixture_growth(tmp_path)
+    assert GR.cmd_catalogue(a) == 0
+    nid_path = tmp_path / "p4" / "audit" / "new_ids.json"
+    first = json.loads(nid_path.read_text())
+    first_drops = json.loads((tmp_path / "g" / "report" / "catalogue.json").read_text())["dropped"]
+    assets, lists, rep = tmp_path / "assets", tmp_path / "lists", tmp_path / "g" / "report"
+    hid = "d" * 40
+    glb = write_glb(assets / "models" / "hssd" / f"hssd_{hid}.glb", *box_mesh(1.9, 0.9, 0.85), textured=True)
+    (lists / "growth" / "candidates_hssd.json").write_text(json.dumps({"candidates": [
+        {"id": f"hssd_{hid}", "hssd_id": hid, "title": "Sofa", "type": "sofa", "kind": "furniture", "bin": "2.00x0.90",
+         "demand": 4, "projects": ["real02"], "dims_m": [1.9, 0.9, 0.85], "fits_caps": True, "multi": False,
+         "articulated": False, "found_in": "living room", "synset": "sofa.n.01", "path": f"objects/d/{hid}.glb",
+         "pick": True}]}))
+    (rep / "ingest_hssd.json").write_text(json.dumps({"records": [
+        {"id": f"hssd_{hid}", "hssd_id": hid, "ok": True, "glb": f"models/hssd/hssd_{hid}.glb",
+         "sha256": GR.sha256_file(glb)}], "approved": 1, "ok": 1}))
+    a.only = "hssd"
+    for _ in range(2):                                                   # a second run: the same records
+        assert GR.cmd_catalogue(a) == 0
+        nid = json.loads(nid_path.read_text())
+        assert nid["ids"] == [f"hssd_{hid}"] and nid["only"] == ["hssd"] and nid["by_source"] == {"hssd": 1}
+        assert nid["kept_ids"] == sorted(first["ids"]) and nid["previews"] == first["previews"]
+        report = json.loads((rep / "catalogue.json").read_text())
+        assert report["only"] == ["hssd"] and report["previews"] == first["previews"]
+        assert [d for d in report["dropped"] if d["source"] != "hssd"] == [d for d in first_drops
+                                                                            if d["source"] != "hssd"]
+    lib = json.loads((tmp_path / "p4" / "audit" / "catalogue" / "catalog_library.json").read_text())
+    repo = json.loads(I.LIBRARY_PATH.read_text())
+    ids = [e["id"] for s in ("entries", "decor") for e in lib.get(s) or [] if isinstance(e, dict) and e.get("id")]
+    repo_ids = [e["id"] for s in ("entries", "decor") for e in repo.get(s) or [] if isinstance(e, dict) and e.get("id")]
+    assert sorted(set(ids) - set(repo_ids)) == [f"hssd_{hid}"] and set(repo_ids) <= set(ids)
+    for e in [e for e in lib["entries"] if e["id"] in set(repo_ids)][:200]:          # untouched
+        assert e == next(r for r in repo["entries"] if r.get("id") == e["id"])
+
+
+def test_write_keeps_the_reaudit_record_of_a_republished_entry():
+    """Review of round 3: ``audit write`` rewrote a pending entry's audit with a bare record, so a re-audit entry
+    (``vintage_wooden_drawer_01``: pending + ``audit.reaudit``) that the next audit leaves pending again would lose
+    its ``reaudit`` record and ``before`` values and become an ordinary pending model (``growth run pending`` then
+    decides it with P3's answers about the OLD file). A pending write keeps both; a decided record keeps the evidence
+    it was judged on (and leaves the re-audit list); an ordinary pending entry gets no such record."""
+    from wenart.assets.audit import write as W
+    doc = json.loads((ROOT / "wenart" / "furniture" / "catalog.json").read_text(encoding="utf-8"))   # read only
+    e = next(x for x in doc["entries"] if isinstance(x, dict) and x.get("id") == "vintage_wooden_drawer_01")
+    other = next(x for x in doc["entries"] if isinstance(x, dict) and x.get("id") != e["id"]
+                 and (x.get("audit") or {}).get("status") in ("keep", "fix"))
+    reaudit, before = e["audit"]["reaudit"], e["audit"]["before"]
+    pending = {"status": "pending", "reasons": [], "fixes": {}, "flags": {}, "pending": [{"why": "no vision answer"}]}
+    stats = W.apply_decisions(doc, {e["id"]: pending, other["id"]: pending}, "2026-10-17T00:00:00Z")
+    assert stats["skipped_pending"] == 2
+    assert e["audit"]["status"] == "pending" and e["audit"]["reasons"] == ["no vision answer"]
+    assert e["audit"]["reaudit"] == reaudit and e["audit"]["before"] == before
+    assert [x["id"] for x in GR.reaudit_entries(doc)] == ["vintage_wooden_drawer_01"]
+    assert "reaudit" not in other["audit"] and other["audit"]["status"] == "pending"
+    keep = {"status": "keep", "reasons": [], "fixes": {}, "flags": {}}
+    assert W.apply_decisions(doc, {e["id"]: keep}, "2026-10-18T00:00:00Z")["written"] == 1
+    assert e["audit"]["status"] == "keep" and e["audit"]["reaudit"] == reaudit and e["audit"]["decision_sha"]
+    assert e["audit"]["before"]["bbox_model_m"] == [0.8576, 0.4574, 0.5454]
+    assert GR.reaudit_entries(doc) == [] and C.usable(e, "commercial")
+    C.validate(doc, complete=True)

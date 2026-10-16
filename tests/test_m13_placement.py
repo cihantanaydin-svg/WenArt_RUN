@@ -540,3 +540,139 @@ def test_a_generic_room_word_yields_to_a_specific_one():
     bad = copy.deepcopy(GR.config())
     bad["room_aliases"]["generic"] = ["kiler"]
     assert any("generic" in p for p in GR.validate_config(bad))
+
+
+# --------------------------------------------------------------------------
+# Build round 3 (K2): the solver plans partners and collisions with the fitted depth
+# --------------------------------------------------------------------------
+
+def _deeper(item: dict, ratio: float = 1.12) -> dict:
+    """The piece with a library model scaled uniformly to its width that came out ``ratio`` deeper."""
+    w, d = (float(v) for v in item["footprint"]["size"])
+    fd = round(d * ratio, 4)
+    return dict(item, asset={"method": "library", "asset_id": "lib:sofa", "scaling": "uniform",
+                             "bbox_m": [w, fd, 0.85], "depth_abs_m": round(fd - d, 4),
+                             "fit_scale": [ratio, ratio, ratio], "library": "abo", "licence": "CC-BY-4.0"})
+
+
+def test_a_drawn_sofa_fitted_deeper_gets_its_partners_in_front_of_the_fitted_front():
+    """K2 (docs/milestone13.md §14.4 T1/T3, lead decision of round 3): the builder keeps a uniformly scaled
+    wall-backed model's back edge on the wall and the extra depth goes to the front, so the solver plans the coffee
+    table (and every collision) with the fitted depth: the table sits ``coffee_gap`` in front of the model's real
+    front, 0.108 m further than for the drawn 0.9 m sofa; the drawn record is untouched. S2 on the built meshes is
+    then not expected to flag the pair (P3 / P4 verify it on the renders)."""
+    sofa = fp("s1", "sofa", (0.47, 2.5), (2.2, 0.9), 0.0)                    # back on the west wall, front east
+    deeper = _deeper(sofa)
+    rooms = {}
+    for tag, item in (("drawn", sofa), ("fitted", deeper)):
+        b = M.building(w=4.5, h=5.0, room_type="living", window=(2.25, 1.2), furniture=[item])
+        prog = PR.room_program(b, ROOM)
+        seat = next(g for g in prog["groups"] if g["group"] == "seating")
+        assert seat["drawn"] and seat["anchor_id"] == "s1" and "table_coffee" in seat["missing"]
+        prog["groups"] = [seat]
+        seat["chosen"] = "sofa_2_armchairs"
+        best = SV.solve_room(b, ROOM, prog, k=1)[0]
+        assert not best["hard_failures"]
+        rooms[tag] = (b, best)
+    gap = GR.rule("coffee_gap")
+    planned = P.planned_piece(deeper)
+    assert planned.size == (2.2, 1.008) and planned.polygon().bounds[2] == pytest.approx(0.02 + 1.008)
+    coffee = {tag: next(p for p in best["pieces"] if p["type"] == "table_coffee") for tag, (_b, best) in rooms.items()}
+    front = {"drawn": 0.02 + 0.9, "fitted": 0.02 + 1.008}
+    for tag in ("drawn", "fitted"):
+        poly = P.piece_from_furniture(coffee[tag]).polygon()
+        anchor = P.planned_piece(rooms[tag][0]["furniture"][0]).polygon()
+        assert poly.intersection(anchor).area < P.AREA_EPS
+        assert poly.bounds[0] == pytest.approx(front[tag] + gap["rec"], abs=0.06)   # coffee_gap off the real front
+        assert poly.distance(anchor) >= gap["min"] - 1e-6
+    # the same gap from the fitted front, so 0.108 m further into the room than for the drawn box
+    dx = coffee["fitted"]["footprint"]["center"][0] - coffee["drawn"]["footprint"]["center"][0]
+    assert dx == pytest.approx(0.108, abs=0.02)
+    # every new piece keeps off the fitted box, and the drawn record is what the candidate writes back
+    b, best = rooms["fitted"]
+    for p in best["pieces"]:
+        assert P.piece_from_furniture(p).polygon().intersection(planned.polygon()).area < P.AREA_EPS
+    after = SV.apply_candidate(b, ROOM, best)
+    assert next(f for f in after["furniture"] if f["id"] == "s1") == deeper
+    assert not SV.verify(b, ROOM, best["pieces"])[0]
+
+
+def test_a_fitted_drawn_piece_is_an_obstacle_with_its_fitted_box():
+    """K2: a drawn wardrobe fitted deeper blocks the solver's cells with its fitted box (``Space.fixed_pieces``), and
+    ``verify`` tests a candidate's overlaps against that box."""
+    wardrobe = fp("w1", "wardrobe", (2.25, 4.7), (1.8, 0.6), 270.0)         # back on the north wall, front south
+    deeper = _deeper(wardrobe, 1.15)
+    b = M.building(w=4.5, h=5.0, room_type="bedroom", window=None, furniture=[deeper])
+    space = SV.Space(b, b["rooms"][0], SV._fixed_items(b, ROOM, set()))
+    (fixed,) = space.fixed_pieces
+    assert fixed.size == (1.8, 0.69) and fixed.polygon().bounds == pytest.approx((1.35, 4.31, 3.15, 5.0))
+    assert fixed.planned_size is None
+    for c in SV.solve_room(b, ROOM, k=2):
+        for p in c["pieces"]:
+            assert P.piece_from_furniture(p).polygon().intersection(fixed.polygon()).area < P.AREA_EPS
+    # a candidate piece inside the fitted front strip (free of the drawn box) is a hard overlap for verify
+    intruder = fp("x1", "nightstand", (2.25, 4.15), (0.4, 0.4), 270.0)     # y 3.95-4.35: in the strip 4.31-4.40
+    intruder["source"] = "added_by_ai"
+    hard, _v = SV.verify(b, ROOM, [intruder])
+    assert any("no_overlap with w1" in h for h in hard)
+    drawn_only = M.building(w=4.5, h=5.0, room_type="bedroom", window=None, furniture=[wardrobe])
+    assert not any("no_overlap" in h for h in SV.verify(drawn_only, ROOM, [intruder])[0])
+
+
+def test_a_re_solved_sofa_group_plans_the_fitted_box_and_records_the_drawn_one(monkeypatch):
+    """K2 with a drawn group re-solved as one unit (``drawn_group``): the sofa (fitted 12 % deeper, back on the west
+    wall) is placed anew with the box the builder makes (``Spot.record``) and recorded at its drawn size with its
+    back on the wall (its asset kept: not resized); the drawn coffee table takes the coffee place as far from the
+    fitted front as it stands from the front of the same sofa without the fit, so 0.108 m further into the room.
+    The sizes are held at the drawn one (``_resolve_sizes``) so the two runs differ only by the fit."""
+    monkeypatch.setattr(SV, "_resolve_sizes", lambda drawn, template, area: [tuple(P.drawn_piece(drawn).size)])
+    fitted = _deeper(fp("s1", "sofa", (0.47, 2.5), (2.2, 0.9), 0.0))
+    coffee = fp("c1", "table_coffee", (1.57, 2.5), (1.0, 0.6), 180.0)       # 0.35 m off the drawn front (x 0.92)
+    plan = SV._planned_of(fitted)
+    assert plan[0] == (2.2, 0.9) and plan[1] == (2.2, 1.008) and plan[2] == pytest.approx((0.0, -0.054))
+    assert SV._planned_of(dict(fitted, asset=None)) is None
+    runs = {}
+    for tag, sofa in (("plain", dict(fitted, asset=None)), ("fitted", fitted)):
+        b = M.building(w=4.5, h=5.0, room_type="living", window=(2.25, 1.2), furniture=[sofa, copy.deepcopy(coffee)])
+        (g,) = GR.drawn_groups(b, ROOM)
+        assert g["anchor_id"] == "s1" and g["members"] == ["c1"]
+        best = SV.solve_room(b, ROOM, k=1, drawn_group="s1")[0]
+        assert not best["hard_failures"] and sorted(best["resolved"]) == ["c1", "s1"]
+        assert not SV.verify(b, ROOM, best["pieces"])[0]
+        s = next(p for p in best["pieces"] if p["id"] == "s1")
+        c = next(p for p in best["pieces"] if p["id"] == "c1")
+        assert s["footprint"]["size"] == [2.2, 0.9] and s["asset"] == sofa["asset"]       # the drawn record
+        assert P.drawn_piece(s).polygon().bounds[0] == pytest.approx(0.02, abs=0.005)      # its back on the wall
+        for p in (s, c):
+            if p.get("adjusted_by_ai"):
+                assert p["adjusted_by_ai"]["moved_m"] <= GR.GROUP_MEMBER_MOVE_MAX_M
+        built, table = P.planned_piece(s).polygon(), P.planned_piece(c).polygon()
+        assert table.intersection(built).area < P.AREA_EPS
+        runs[tag] = (built, table, c)
+    built, table, c = runs["fitted"]
+    assert built.bounds[0] == pytest.approx(0.02, abs=0.005) and built.bounds[2] - built.bounds[0] == pytest.approx(1.008)
+    plain_gap = runs["plain"][1].distance(runs["plain"][0])
+    assert plain_gap >= GR.rule("coffee_gap")["min"] - 1e-6
+    assert table.distance(built) == pytest.approx(plain_gap, abs=0.06)                    # from the fitted front
+    dx = c["footprint"]["center"][0] - runs["plain"][2]["footprint"]["center"][0]
+    assert dx == pytest.approx(0.108, abs=0.06)
+
+
+def test_the_group_checks_of_verify_measure_the_fitted_boxes():
+    """K2: a drawn coffee table 0.35 m off a drawn sofa front passes G2 on the drawn boxes, but the sofa's model is
+    0.108 m deeper at the front, so on the boxes the builder makes the gap is 0.24 m (< coffee_gap min 0.30): the
+    solver's ``verify`` measures that (``placer.planned_building``); a candidate that brings a coffee table to such
+    a gap from a fitted sofa fails, while the drawn pair alone is the room's own finding (not the candidate's)."""
+    sofa = _deeper(fp("s1", "sofa", (0.47, 2.5), (2.2, 0.9), 0.0))
+    coffee = fp("c1", "table_coffee", (1.57, 2.5), (1.0, 0.6), 180.0)
+    b = M.building(w=4.5, h=5.0, room_type="living", window=(2.25, 1.2), furniture=[sofa, coffee])
+    drawn = [v for v in GC.check_room(b, ROOM) if v["check"] == "G2"]
+    planned = [v for v in GC.check_room(P.planned_building(b, ROOM), ROOM) if v["check"] == "G2"]
+    assert not drawn and len(planned) == 1 and planned[0]["target"] == "c1" and "0.24 m" in planned[0]["message"]
+    only_sofa = M.building(w=4.5, h=5.0, room_type="living", window=(2.25, 1.2), furniture=[sofa])
+    new = dict(coffee, id="f_L0_009", source="added_by_ai")
+    hard, _v = SV.verify(only_sofa, ROOM, [new])
+    assert any(h.startswith("G2 f_L0_009") for h in hard)
+    plain = M.building(w=4.5, h=5.0, room_type="living", window=(2.25, 1.2), furniture=[dict(sofa, asset=None)])
+    assert not [h for h in SV.verify(plain, ROOM, [new])[0] if h.startswith("G2")]
+    assert not [h for h in SV.verify(b, ROOM, [])[0] if h.startswith("G2")]          # the drawn pair: not new

@@ -218,6 +218,19 @@ def test_default_style_build_textures_the_walls(built_default):
     assert walls and all(o["textured"] and o["material"] == "plaster_white__white_plaster_02" for o in walls)
     record = m["materials"]["plaster_white__white_plaster_02"]
     assert record["textured"] and record["asset"] == "white_plaster_02" and record["licence"] == "CC0"
+    # Milestone 13 round 3 (docs/milestone13.md §14.3): the shell material table is a production default. The
+    # walls are the ``plaster`` slot (their own set, named as before); the ceilings ask for plaster_white without
+    # an asset, which is the ``ceiling`` slot: the slot's set white_plaster_02 stands in and the material name
+    # carries ``__ceiling`` so the two never collide into a Blender ``.001`` twin.
+    assert record["shell_slot"] == "plaster"
+    ceilings = [o for o in m["objects"] if o["kind"] == "ceiling"]
+    assert ceilings and all(o["material"] == "plaster_white__white_plaster_02__ceiling" for o in ceilings)
+    ceiling = m["materials"]["plaster_white__white_plaster_02__ceiling"]
+    assert ceiling["shell_slot"] == "ceiling" and ceiling["textured"] and ceiling["asset"] == "white_plaster_02"
+    assert "ao" in ceiling["shell_layers"]["applied"]
+    # (wood_veneer_oak.001 / tiles_light.001 twins come from the library key of a refused asset, an older quirk
+    # outside this round; the plaster names must not have one)
+    assert not any(name.startswith("plaster_white") and name.endswith(".001") for name in m["materials"])
 
 
 def test_default_style_build_refuses_non_cc0_assets(built_default):

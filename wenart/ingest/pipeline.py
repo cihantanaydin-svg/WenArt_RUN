@@ -47,9 +47,11 @@ answers, or with ``--no-ai`` (unanswered candidates stay ``unverified``), it
 never exits 4.
 
 Milestone 13 (docs/milestone13.md §3.0 K3): code types what it can prove before any AI (the reading step's
-``infer`` with ``wenart.furniture.infer.type_by_code``: the twin room, another level, the block name, the missing
-group member); such a candidate's question is withdrawn (``generic.reading.withdraw_questions``,
-``build.code_typed``) and is not written to ``requests.json``: the AI types only the rest.
+``code_first`` with ``wenart.furniture.infer.code_types``: the twin room, another level, the block name, the missing
+group member, before the context rules; build round 3: the context rules of the reading step type the open
+questions too, as ``context:<type>``); such a candidate's question is withdrawn
+(``generic.reading.withdraw_questions``, ``build.code_typed`` with ``build.code_typed_methods``) and is not
+written to ``requests.json``: the AI types only the rest, the same questions in every run.
 """
 from __future__ import annotations
 
@@ -190,8 +192,10 @@ class ProjectBuild:
         # Milestone 12 (track R): the counts of the reading step (``generic.reading.read_furniture``) for the report.
         self.reading: dict = {}
         # Milestone 13 (K3): the recognition questions withdrawn because code typed their piece before the AI
-        # (``generic.reading.withdraw_questions``: question key -> piece id); left out of requests.json.
+        # (``generic.reading.withdraw_questions``: question key -> piece id); left out of requests.json. Build
+        # round 3: ``code_typed_methods`` (key -> twin | level | block | group_member | context:<type>) says how.
         self.code_typed: dict[str, str] = {}
+        self.code_typed_methods: dict[str, str] = {}
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -1353,9 +1357,12 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
                       f"{unanswered_text(build)}."]
     withdrawn = getattr(build, "code_typed", None) or {}
     if withdrawn:
-        # Milestone 13 (K3): the questions code answered before the AI are not asked at all.
+        # Milestone 13 (K3): the questions code answered before the AI are not asked at all. Build round 3: with
+        # the method (twin | level | block | group_member, or context:<type> for the drawing's context rules).
+        how = getattr(build, "code_typed_methods", None) or {}
+        named = ", ".join(f"{k} -> {pid} [{how.get(k) or 'code'}]" for k, pid in sorted(withdrawn.items()))
         lines += ["", f"Recognition questions withdrawn (typed by code before the AI, K3): {len(withdrawn)} "
-                      f"({', '.join(f'{k} -> {pid}' for k, pid in sorted(withdrawn.items()))})."]
+                      f"({named})."]
 
     lines += ["", "## Assumed values", ""]
     assumed = []
@@ -2044,11 +2051,14 @@ def _infer_types(build: ProjectBuild) -> None:
             what = "not built (rug or group outline)" if p.get("build") is False else f"inferred {p['type']}"
         build.warn(f"{p['piece_id']}: {what}: {p['reason']}")
     if coded:
-        withdrawn = RD.withdraw_questions(build, {}, RD._items(build, {}), coded)
+        by_id = {f["id"]: f for f in b["furniture"]}
+        methods = {pid: str((by_id.get(pid) or {}).get("type_method") or "code") for pid in coded}
+        withdrawn = RD.withdraw_questions(build, {}, RD._items(build, {}), coded, methods)
         # review (round 2): the report's Reading line counts this pass too (the same keys as build.code_typed)
         stats = build.reading if isinstance(build.reading, dict) else {}
         stats["code_typed"] = sorted(set(stats.get("code_typed") or []) | set(coded))
         stats["questions_withdrawn"] = sorted(set(stats.get("questions_withdrawn") or []) | set(withdrawn))
+        stats["typed_by"] = dict(sorted({**(stats.get("typed_by") or {}), **methods}.items()))
         build.reading = stats
 
 
@@ -2093,8 +2103,11 @@ def _reading_section(b: dict, build: Optional[ProjectBuild] = None) -> list[str]
     if stats:
         context = ", ".join(f"{k} {v}" for k, v in sorted((stats.get("context") or {}).items())) or "none"
         coded = stats.get("code_typed") or []
+        how = stats.get("typed_by") or {}
         lines.append(f"Context rules: {context}; inferred by size and room: {stats.get('inferred', 0)}"
-                     + (f" (typed by code before the AI: {len(coded)}: {', '.join(coded)})" if coded else "")
+                     + (f" (typed by code before the AI: {len(coded)}: "
+                        f"{', '.join(f'{pid} [{how[pid]}]' if how.get(pid) else pid for pid in coded)})" if coded
+                        else "")
                      + f"; fronts inferred: {stats.get('fronts', 0)}.")
     by_kind: dict[str, int] = {}
     for s in symbols:

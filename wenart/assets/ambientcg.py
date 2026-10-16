@@ -53,7 +53,9 @@ def looks_like_id(asset_id: str) -> bool:
 
 
 def infos(asset_ids: list[str]) -> dict:
-    """``{asset_id: record}`` for the ids that exist (missing ids are absent)."""
+    """``{asset_id: record}`` for the ids that exist (missing ids are absent). A cut or unparsable answer (pod P2,
+    15 Oct 2026: ``Metal051A`` cut at char 61440, ``Tiles074`` at char 1122299) is asked again by ``web.get_json``
+    (``web.TRIES`` tries); the error after the last try names the URL and the try count."""
     if not asset_ids:
         return {}
     url = f"{API}?id={','.join(asset_ids)}&include={INCLUDE}&limit={max(100, len(asset_ids))}"

@@ -23,7 +23,8 @@
 # (default 300 s per project and variant) and render.py stops new views itself when it passes; the pod_entry.sh
 # watchdog stops the pod at MAX_RUNTIME_S whatever happens here. Idempotent: outputs and renders live on the volume.
 #
-# Env: AB_PROJECTS (default "real02 real03"), AB_VARIANTS (default all eight), AB_SAMPLES (128), AB_RES (1920x1080),
+# Env: AB_PROJECTS (default "real02 real03"), AB_VARIANTS (default all nine: m11 = the Milestone 11 look, the
+#      "before"; base = the production defaults of round 3, §14.3), AB_SAMPLES (128), AB_RES (1920x1080),
 #      AB_VARIANT_EST_S (300), AB_GPU_TESTS (1 = run tests/gpu/test_m13_light.py at the end), AB_BASELINE_DIR
 #      (default results/renders/{name}: the committed baseline files; equal to commit 93aff07, checked 15 Oct 2026),
 #      WENART_LICENCE_MODE (unset = the project brief: relaxed for real02 / real03).
@@ -48,7 +49,7 @@ RES="${AB_RES:-1920x1080}"
 EST_S="${AB_VARIANT_EST_S:-300}"
 BASELINE_DIR="${AB_BASELINE_DIR:-$REPO/results/renders/{name}}"
 read -r -a PROJECTS <<< "${AB_PROJECTS:-real02 real03}"
-read -r -a VARIANTS <<< "${AB_VARIANTS:-base sun100 sun300 sun1000 evcap rig shell all}"
+read -r -a VARIANTS <<< "${AB_VARIANTS:-m11 base sun100 sun300 sun1000 evcap rig shell all}"
 AB_OUT=$RESULTS/ab_m13
 FAILED=()
 SKIPPED=()

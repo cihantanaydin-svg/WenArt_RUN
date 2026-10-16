@@ -555,9 +555,17 @@ def test_growth_catalogue_copies_validate_and_resolve():
     manifest = fetch.load_manifest(ASSETS)
     for e in entries:
         if e["source"] == "polyhaven":
-            assert (ASSETS / e["gltf"]).is_file(), e["id"]
-            assert e["resolution"] == "1k"                                   # what fit.fetch_models asks for
-            assert M._entry_ok(ASSETS, manifest["models"][e["id"]], "1k"), e["id"]     # no download in a run
+            # Milestone 13 (pod P2, docs/milestone13.md §14.6): the growth fetches Poly Haven at GROWTH_PH_SIZE (2k;
+            # 1k where the API offers no 2K glTF: the ingest's size fallback, recorded in resolution_note), so the
+            # entry's declared resolution is checked, not a fixed 1k: its glTF file is that size's file, on the
+            # volume, and the asset manifest holds the same files at that resolution (no download in a run)
+            res = e["resolution"]
+            assert res in ("1k", "2k", "4k"), (e["id"], res)
+            assert e["gltf"] == M.gltf_relpath(e["id"], res) and (ASSETS / e["gltf"]).is_file(), e["id"]
+            man = manifest["models"][e["id"]]
+            assert man["resolution"] == res and M._entry_ok(ASSETS, man, res), (e["id"], res, man.get("resolution"))
+            if e.get("sha256_gltf"):
+                assert man["sha256"]["gltf"] == e["sha256_gltf"], e["id"]
             continue
         assert e["glb"] == M.library_relpath(e["source"], e["uid"]), e["id"]
         assert web.sha256_file(ASSETS / e["glb"]) == e["sha256_glb"], e["id"]
@@ -601,7 +609,9 @@ def test_growth_every_approved_id_is_accounted_for():
     report = OV.read_json(GROWTH / "report" / "catalogue.json")
     if report is None:
         pytest.skip(f"{GROWTH / 'report' / 'catalogue.json'} not found")
-    done = set(nid["ids"]) | {p["id"] for p in nid.get("previews") or []} | {d["id"] for d in report["dropped"]}
+    # GROWTH_ONLY=hssd (pod P2b): new_ids.json holds the HSSD ids; the earlier growth's ids are its kept_ids
+    done = set(nid["ids"]) | set(nid.get("kept_ids") or []) | {p["id"] for p in nid.get("previews") or []} | \
+        {d["id"] for d in report["dropped"]}
     assert all(d.get("reason") for d in report["dropped"])
     for source in ("polyhaven", "abo", "gso", "infinigen"):
         approved = OV.read_json(REPO_GROWTH / f"approved_{source}.json")["ids"]
@@ -664,11 +674,19 @@ def test_growth_m13_catalogue_copies_carry_the_gates_and_the_hssd_flags():
         assert e["licence"] == "CC-BY-NC-4.0" and e["licence_flag"] == "non_commercial" \
             and e["commercial_safe"] is False and e["units_known"] is True
         assert not C.usable(e, "commercial")
-    audited = [e for e in lib.get("entries", []) if e["id"] in new and (e.get("audit") or {}).get("status")
-               in ("keep", "fix")]
+    # The PBR record gate holds for the entries the Milestone 13 growth added: growth_entries / growth_run mark them
+    # growth.milestone = "m13" (the ABO size grid, HSSD, the Poly Haven M13 list). The Milestone 12 list entries
+    # catalogued again by P2 (e.g. abo_B07124WCZY) reused their M12 measurement, which had no PBR record; since
+    # round 3 the catalogue step measures such a record again (growth_run.MEASURE_FIELDS), so a later full growth
+    # run gives them pbr_maps too, but P2's copies do not have them: they are not asserted here.
+    ph = OV.read_json(p4 / "catalogue" / "catalog.json") or {}
+    audited = [e for doc in (lib, ph) for sec in ("entries", "decor") for e in doc.get(sec) or []
+               if isinstance(e, dict) and e.get("id") in new and (e.get("growth") or {}).get("milestone") == "m13"
+               and (e.get("audit") or {}).get("status") in ("keep", "fix")]
     for e in audited:
         assert "pbr_maps" in e, e["id"]                            # the PBR record gate
-        if e["type"] in (load_config().get("gates") or {}).get("known_units_anchor_types", ()):
+        if e.get("source") != "polyhaven" and e["type"] in (load_config().get("gates") or {}).get(
+                "known_units_anchor_types", ()):                   # the library entries (Poly Haven: real size)
             assert e.get("units_known"), e["id"]
         if e["type"] == "sofa_corner":
             assert e.get("chaise_side") in ("left", "right", None)

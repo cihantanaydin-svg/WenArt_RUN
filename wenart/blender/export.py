@@ -24,19 +24,32 @@ Steps:
    lights): opens in Blender (File > Import > glTF 2.0) and other 3D tools; procedural materials (wet-wall tiles)
    export as their base colour.
 5. ``<out>/export_manifest.json``: the files with bytes and sha256, the images (scaled, packed), the cameras, the
-   Blender version.
+   Blender version, and ``realized_instances`` (Milestone 13, round 3): the vegetation node groups (leaf cards of the
+   hedges and card trees, grass clumps) are geometry-nodes instances that the glTF exporter's ``export_apply`` leaves
+   out, so after the .blend is saved and before the glTF export ``site.realize_site_instances`` adds a Realize
+   Instances node to every vegetation group under the polygon cap (``site.realize_cap``, env ``WENART_REALIZE_CAP``);
+   the record (``cap``, ``polygons``, ``realized``, ``skipped``) goes into the manifest, None when nothing was
+   realized or the site module could not run (the reason is a warning).
 
-Pure helpers (``scaled_size``, ``readme_text``, ``manifest_doc``) run without Blender (tests).
+Pure helpers (``scaled_size``, ``readme_text``, ``manifest_doc``, ``repo_root``) run without Blender (tests).
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import sys
 import time
 from pathlib import Path
+
+
+def repo_root() -> Path:
+    """The repository root (``WENART_REPO_ROOT`` as ``cli.run_blender`` sets it, else two folders up): put on
+    ``sys.path`` so the script run inside Blender can import ``wenart.blender.site``."""
+    env = os.environ.get("WENART_REPO_ROOT")
+    return Path(env) if env else Path(__file__).resolve().parents[2]
 
 VIEW_TRANSFORM = "AgX"                   # = render.py VIEW_TRANSFORM / LOOK
 LOOK = "AgX - Punchy"
@@ -117,8 +130,10 @@ def sha256_file(path: Path) -> str:
 
 
 def manifest_doc(name: str, out: Path, files: dict, images: list[dict], cameras: dict, max_texture: int,
-                 blender_version: str, warnings: list[str], seconds: float, texture_format: str = "png") -> dict:
-    """``export_manifest.json``: per file its bytes and sha256 (missing files are listed as such)."""
+                 blender_version: str, warnings: list[str], seconds: float, texture_format: str = "png",
+                 realized_instances: dict | None = None) -> dict:
+    """``export_manifest.json``: per file its bytes and sha256 (missing files are listed as such);
+    ``realized_instances`` the record of ``site.realize_site_instances`` (None when nothing was realized)."""
     entries = {}
     for kind, fname in files.items():
         path = Path(out) / fname
@@ -132,7 +147,23 @@ def manifest_doc(name: str, out: Path, files: dict, images: list[dict], cameras:
             "packed_image_bytes": sum(int(i.get("packed_bytes") or 0) for i in images), "cameras": cameras,
             "view_transform": VIEW_TRANSFORM, "look": LOOK, "resolution": list(RESOLUTION),
             "blender_version": blender_version, "warnings": warnings, "seconds": round(seconds, 2),
+            "realized_instances": realized_instances,
             "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+
+
+def realize_vegetation(warnings: list[str]) -> dict | None:
+    """Realize the vegetation instances for the glTF export (inside Blender; Milestone 13 round 3): imports
+    ``wenart.blender.site`` from the repository root and calls ``realize_site_instances`` (the cap from
+    ``realize_cap``). Returns its record, or None with the reason appended to ``warnings``."""
+    root = str(repo_root())
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    try:
+        from wenart.blender import site as S
+        return S.realize_site_instances()
+    except Exception as exc:  # noqa: BLE001 - the .glb is still written, with the cores and cards only
+        warnings.append(f"vegetation instances not realized for the .glb: {type(exc).__name__}: {exc}")
+        return None
 
 
 def parse_args(argv):
@@ -270,8 +301,12 @@ def main(argv=None) -> int:      # inside Blender
     names = [files["blend"]] + ([] if args.no_glb else [f"{args.name}.glb"])
     readme.write(readme_text(args.name, cameras, args.max_texture, names))
     bpy.ops.wm.save_as_mainfile(filepath=str(out / files["blend"]), compress=True, relative_remap=True, copy=True)
+    realized = None
     if not args.no_glb:
         files["glb"] = f"{args.name}.glb"
+        # Milestone 13 (round 3): the leaf cards and grass clumps reach the .glb only when realized; after the .blend
+        # save (the delivered .blend keeps the light instances), before the export, under the polygon cap.
+        realized = realize_vegetation(warnings)
         try:
             bpy.ops.export_scene.gltf(filepath=str(out / files["glb"]), export_format="GLB", export_apply=True,
                                       export_extras=True, export_cameras=True, export_lights=True,
@@ -280,7 +315,7 @@ def main(argv=None) -> int:      # inside Blender
             warnings.append(f"glTF export failed: {type(exc).__name__}: {exc}")
     shutil.rmtree(jpeg_dir, ignore_errors=True)    # the JPEGs are packed in the files by now
     doc = manifest_doc(args.name, out, files, images, cameras, args.max_texture, bpy.app.version_string, warnings,
-                       time.time() - t0, texture_format=args.texture_format)
+                       time.time() - t0, texture_format=args.texture_format, realized_instances=realized)
     (out / MANIFEST).write_text(json.dumps(doc, indent=1), encoding="utf-8")
     print(f"EXPORT_OK {out / files['blend']} " + " ".join(f"{k}={v.get('bytes')}" for k, v in doc["files"].items()))
     return 0

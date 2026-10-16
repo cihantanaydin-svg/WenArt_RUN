@@ -368,3 +368,158 @@ def test_download_a_new_texture_and_hdri(monkeypatch):
     assert entry["source"] == "polyhaven" and entry["size_m"] == [1.0, 1.0] and set(entry["files"]) >= {"albedo", "normal", "roughness"}
     hdri = network_or_skip(fetch.fetch_hdri, V.LIGHTING["cloudy soft"]["hdri"], ASSETS, size="1k")
     assert hdri["licence"] == "CC0" and (ASSETS / hdri["file"]).is_file()
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 round 3: complete reads and retries (docs/milestone13.md §14.6, pod P2: two cut ambientCG answers)
+# --------------------------------------------------------------------------
+
+class FakeResponse(io.BytesIO):
+    """A urlopen answer: a body and the headers the server sent (``Content-Length`` may be absent or wrong)."""
+
+    def __init__(self, body: bytes, length=None):
+        super().__init__(body)
+        self.headers = {} if length is None else {"Content-Length": str(length)}
+
+
+class FakeOpener:
+    """``urlopen`` stand-in: answers in turn (bytes, ``(bytes, Content-Length)`` or an exception); records URLs."""
+
+    def __init__(self, *answers):
+        self.answers, self.urls = list(answers), []
+
+    def __call__(self, request, timeout=None):
+        self.urls.append(request.full_url)
+        assert request.get_header("User-agent") == web.USER_AGENT
+        answer = self.answers.pop(0)
+        if isinstance(answer, BaseException):
+            raise answer
+        body, length = answer if isinstance(answer, tuple) else (answer, len(answer))
+        return FakeResponse(body, length)
+
+
+def test_get_json_tries_a_cut_answer_again_and_names_the_url_and_try_count():
+    """P2: Metal051A arrived cut at char 61440 with no error from urllib. A cut body (no Content-Length, or fewer
+    bytes than it says) or one that does not parse is asked again: 2 tries here; 3 cut answers fail with the URL and
+    'try 3 of 3'."""
+    good = json.dumps({"foundAssets": [{"assetId": "Metal051A", "x": "y" * 70000}]}).encode()
+    waits = []
+    opener = FakeOpener((good[:61440], None), good)                 # cut without Content-Length, then whole
+    data = web.get_json("https://ambientcg.com/api/v2/full_json?id=Metal051A", opener=opener, sleep=waits.append)
+    assert data["foundAssets"][0]["assetId"] == "Metal051A" and len(opener.urls) == 2 and waits == [1.0]
+    opener = FakeOpener((good[:1000], len(good)), good)             # shorter than Content-Length
+    assert web.get_json("https://x/a", opener=opener, sleep=lambda s: None)["foundAssets"]
+    assert len(opener.urls) == 2
+    waits.clear()
+    opener = FakeOpener((good[:61440], None), (good[:-5], None), (good[:10], None))
+    with pytest.raises(web.IncompleteBody) as exc:
+        web.get_json("https://ambientcg.com/api/v2/full_json?id=Tiles074", opener=opener, sleep=waits.append)
+    msg = str(exc.value)
+    assert "https://ambientcg.com/api/v2/full_json?id=Tiles074" in msg and "try 3 of 3" in msg
+    assert "does not parse" in msg
+    assert len(opener.urls) == web.TRIES == 3 and waits == [1.0, 2.0]
+    assert isinstance(exc.value, web.NetworkError)                  # callers that catch NetworkError still do
+
+
+def test_http_status_retries_only_busy_servers():
+    import urllib.error
+    not_found = urllib.error.HTTPError("https://x/a", 404, "nf", {}, None)
+    opener = FakeOpener(not_found)
+    with pytest.raises(web.HTTPStatusError) as exc:
+        web.get_bytes("https://x/a", opener=opener, sleep=lambda s: None)
+    assert exc.value.status == 404 and len(opener.urls) == 1        # a 404 stays a 404: one try
+    busy = urllib.error.HTTPError("https://x/a", 503, "busy", {}, None)
+    opener = FakeOpener(busy, ConnectionResetError("reset"), b"ok")
+    assert web.get_bytes("https://x/a", opener=opener, sleep=lambda s: None) == b"ok" and len(opener.urls) == 3
+    opener = FakeOpener(urllib.error.URLError("proxy"), urllib.error.URLError("proxy"), urllib.error.URLError("proxy"))
+    with pytest.raises(web.NetworkError, match=r"https://x/a: URLError: .*proxy.* \(try 3 of 3\)"):
+        web.get_bytes("https://x/a", opener=opener, sleep=lambda s: None)
+
+
+def test_download_retries_a_short_body_and_asks_the_origin_after_an_md5_mismatch(tmp_path):
+    """16 Oct 2026: the CDN edge served a stale vintage_wooden_drawer_01.bin (md5 efa2b557...) for the plain URL;
+    the URL with a query string reached the origin. A short body is tried again; after an md5 mismatch the next try
+    asks ``<url>?wenart_fresh=<time>``; three mismatches fail with ChecksumError (a RuntimeError, as before)."""
+    import hashlib
+    good, stale = b"current file " * 100, b"stale copy " * 120
+    want = hashlib.md5(good).hexdigest()
+    url = "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/x/x.bin"
+    opener = FakeOpener((good[:50], len(good)), stale, good)
+    out = web.download(url, tmp_path / "x.bin", expected_md5=want, opener=opener, sleep=lambda s: None)
+    assert out.read_bytes() == good and not (tmp_path / "x.bin.part").exists()
+    assert opener.urls[0] == url and opener.urls[1] == url and opener.urls[2].startswith(url + "?wenart_fresh=")
+    fresh = web.fresh_url("https://ambientcg.com/get?file=a.zip")
+    assert fresh.startswith("https://ambientcg.com/get?file=a.zip&wenart_fresh=")
+    opener = FakeOpener(stale, stale, stale)
+    with pytest.raises(web.ChecksumError) as exc:
+        web.download(url, tmp_path / "y.bin", expected_md5=want, opener=opener, sleep=lambda s: None)
+    assert isinstance(exc.value, RuntimeError) and "try 3 of 3" in str(exc.value) and url in str(exc.value)
+    assert not (tmp_path / "y.bin").exists() and not (tmp_path / "y.bin.part").exists()
+    assert [u.startswith(url + "?wenart_fresh=") for u in opener.urls] == [False, True, True]
+
+
+def test_a_cut_body_from_a_local_server_is_read_again(tmp_path):
+    """The same through real urllib and http.client: a local server sends ``Content-Length`` and closes the
+    connection half-way on the first request; the second request gets the whole body."""
+    import http.server
+    import threading
+    import urllib.request
+    body = json.dumps({"foundAssets": [{"assetId": "Tiles074", "pad": "z" * 200000}]}).encode()
+    hits = []
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802 - http.server API
+            hits.append(self.path)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body if len(hits) > 1 else body[:len(body) // 2])
+            self.wfile.flush()
+            self.close_connection = True
+
+        def log_message(self, *args):
+            pass
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({})).open    # no proxy for 127.0.0.1
+        url = f"http://127.0.0.1:{server.server_address[1]}/api/v2/full_json?id=Tiles074"
+        data = web.get_json(url, timeout=10, opener=opener, sleep=lambda s: None)
+        assert data["foundAssets"][0]["assetId"] == "Tiles074" and len(hits) == 2
+        hits.clear()
+        path = web.download(url, tmp_path / "t.json", timeout=10, opener=opener, sleep=lambda s: None)
+        assert path.read_bytes() == body and len(hits) == 2
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_a_cut_ambientcg_zip_is_fetched_once_more(tmp_path, monkeypatch):
+    """A zip cut without Content-Length (chunked) passes web.download; extract_set raises BadZipFile: one more
+    download, then the set; two cut zips fail with IncompleteBody (a NetworkError) naming the link."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        for suffix in ("Color", "NormalGL", "Roughness"):
+            zf.writestr(f"Tiles074_2K-JPG_{suffix}.jpg", b"jpg")
+    whole = buf.getvalue()
+    record = {"assetId": "Tiles074", "displayName": "Tiles 074", "dimensionX": 100, "dimensionY": 100,
+              "downloadFolders": {"default": {"downloadFiletypeCategories": {"zip": {"downloads": [
+                  {"attribute": "2K-JPG", "downloadLink": "https://ambientcg.com/get?file=Tiles074_2K-JPG.zip",
+                   "fileName": "Tiles074_2K-JPG.zip", "size": len(whole)}]}}}}}
+    monkeypatch.setattr(ambientcg, "info", lambda aid: record)
+    bodies = [whole[:len(whole) // 2], whole]
+
+    def fake_download(url, path, expected_md5=None, timeout=60):
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).write_bytes(bodies.pop(0))
+        return Path(path)
+    monkeypatch.setattr(web, "download", fake_download)
+    entry = fetch.fetch_texture("Tiles074", tmp_path, size="2k", source="ambientcg")
+    assert set(entry["files"]) == {"albedo", "normal", "roughness"} and not bodies
+    assert not (tmp_path / "downloads" / "Tiles074_2K-JPG.zip").exists()
+    bodies[:] = [whole[:100], whole[:200]]
+    with pytest.raises(web.IncompleteBody, match="Tiles074_2K-JPG.zip: not a whole zip after 2 downloads"):
+        fetch.fetch_texture("Tiles074", tmp_path / "b", size="2k", source="ambientcg")

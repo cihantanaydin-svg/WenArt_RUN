@@ -74,3 +74,24 @@ def test_export_arguments():
     assert (args.max_texture, args.texture_format, args.jpeg_quality, args.no_glb) == (1024, "jpeg", 90, False)
     args = E.parse_args(["--out", "o", "--name", "p", "--texture-format", "png", "--max-texture", "0", "--no-glb"])
     assert (args.texture_format, args.max_texture, args.no_glb) == ("png", 0, True)
+
+
+def test_manifest_records_the_realized_instances_and_the_repo_root(monkeypatch, tmp_path):
+    """Milestone 13 (round 3): the 3D pack's export realizes the vegetation instances before the glTF export and
+    records site.realize_site_instances' result; the script finds the repository through WENART_REPO_ROOT."""
+    realized = {"cap": 1000000, "polygons": 7034, "realized": ["veg_scatter_olive_62"], "skipped": [], "groups": 1}
+    doc = E.manifest_doc("p", tmp_path, {"blend": "p.blend"}, [], {}, 1024, "5.2.2", [], 1.0,
+                         realized_instances=realized)
+    assert doc["realized_instances"] == realized
+    assert E.manifest_doc("p", tmp_path, {"blend": "p.blend"}, [], {}, 1024, "5.2.2", [], 1.0)["realized_instances"] is None
+    json.dumps(doc)
+    monkeypatch.setenv("WENART_REPO_ROOT", str(tmp_path))
+    assert E.repo_root() == tmp_path
+    monkeypatch.delenv("WENART_REPO_ROOT")
+    assert E.repo_root() == ROOT
+    # the Blender-side call is wired: after the .blend save, before the glTF export, into the manifest
+    src = (ROOT / "wenart" / "blender" / "export.py").read_text(encoding="utf-8")
+    i_save, i_real, i_gltf = src.index("save_as_mainfile("), src.index("realized = realize_vegetation(warnings)"), \
+        src.index("bpy.ops.export_scene.gltf(")
+    assert i_save < i_real < i_gltf and "realized_instances=realized" in src
+    assert "S.realize_site_instances()" in src

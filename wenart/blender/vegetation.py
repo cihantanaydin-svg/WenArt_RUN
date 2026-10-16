@@ -4,8 +4,9 @@ vegetation and site rules, user OK of 12 Oct 2026).
 What: ``tree_object(species, height_m, seed, near_camera)`` makes one tree of a species at a height: near the
 cameras a Poly Haven CC0 photoscanned model (``POLYHAVEN_MODELS``) instanced from one import (a collection
 instance per tree: the mesh is loaded once), elsewhere a species-look tree from the Sapling Tree Gen add-on
-(``bpy.ops.curve.tree_add`` with the add-on's own preset and our size, shape and leaf settings; the add-on is GPL and
-runs as an installed program, nothing of it is copied here), and when neither is available a trunk with a
+(``bpy.ops.curve.tree_add`` with the add-on's own preset and our size, shape and leaf settings: its ``rect`` leaf quads
+in its ``leaves`` mesh object take our leaf-card material; the add-on is GPL and runs as an installed program,
+nothing of it is copied here), and when neither is available a trunk with a
 leaf-card crown from geometry nodes (``crown_plan``) or, for a palm, a trunk with frond cards. ``hedge_object(hedge)``
 fills the hedge volume (its box core following the ground) with leaf cards by geometry nodes (Distribute Points on
 Faces, Instance on Points). ``grass_patch(polygon, density)`` scatters grass clumps over the lawn near the cameras
@@ -47,9 +48,39 @@ from typing import Optional, Sequence
 
 NEAR_CAMERA_M = 25.0                 # a tree this close to the building (the cameras stand around it) is a hero
 GRASS_DENSITY_NEAR = 4.0             # grass clumps per m² on the lawn near the cameras
-LEAF_CARDS_PER_M2 = 60.0             # leaf cards on a hedge's surface
-CROWN_CARDS_PER_M2 = 35.0            # leaf cards on a crown's surface (two shells)
-LEAF_CARD_M = (0.16, 0.22)           # a leaf card: width, height
+# Leaf cards (round 3, pod P1 of 15 Oct 2026, docs/milestone13.md §14.3 rows 'hedge' and 'sapling'): real02 ext_1
+# 'hedge' and real04 ext_1 'hedge' showed the hedges as boxes of yellow-green dots. The round-1 numbers behind that:
+# 60 cards/m² of 0.16 x 0.22 m cards times the species' card_scale (boxwood 0.45: a 0.07 x 0.10 m card; cherry laurel
+# 0.9) put 0.17 (boxwood) to 0.68 (cherry laurel) expected opaque layers over the box core, when a leaf-atlas card is
+# opaque over about 40 % of its area (LEAF_ATLAS_OPAQUE): 16-50 % of the core was covered, the rest showed as the
+# dark core between pale cards (real02 boundary hedges: 1,260 cards on 12 m of boxwood; real04 hedge_001: 4,880 cards
+# on 25.5 m of cherry laurel). The density now follows a cover target: HEDGE_COVER_LAYERS expected opaque layers over
+# the hull for every species (``hedge_density``: LEAF_CARDS_PER_M2 / card_scale²), 87 % covered, the dark core as
+# the shadow in the gaps (real02 boxwood 12 m: 10,888 cards; real04 hedge_001: 10,534 cards; 1 quad each, instanced).
+LEAF_CARD_M = (0.20, 0.24)           # a leaf card: width, height (the whole atlas tile: a cluster of leaves)
+LEAF_ATLAS_OPAQUE = 0.40             # the opaque share of a leaf-atlas card (assumed for the ambientCG LeafSets)
+HEDGE_COVER_LAYERS = 2.0             # expected opaque layers over a hedge hull (1 - e^-2 = 87 % covered)
+CROWN_COVER_LAYERS = 1.2             # per crown shell (two shells: 2.4 layers in projection)
+LEAF_CARDS_PER_M2 = 105.0            # = HEDGE_COVER_LAYERS / (0.20 x 0.24 m² x LEAF_ATLAS_OPAQUE) at card_scale 1
+CROWN_CARDS_PER_M2 = 62.0            # = CROWN_COVER_LAYERS / (0.20 x 0.24 m² x LEAF_ATLAS_OPAQUE); round 1: 35
+HEDGE_CARD_TILT_DEG = 45.0           # random tilt of a hedge card off the hull normal (round 1: 35°)
+HEDGE_CARD_SCALE = (0.75, 1.25)      # random uniform scale of a hedge card
+# The leaf material's colour (P1 'hedge' and 'base' rows: pale yellow-green cards): the atlas colour is multiplied by
+# the species colour x LEAF_TINT_GAIN at full factor (round 1: factor 0.5 with gain 2.2 kept the atlas' own pale
+# tone); the translucent share of a backlit card drops from 0.25 to LEAF_TRANSLUCENT.
+LEAF_TINT_FACTOR = 1.0
+LEAF_TINT_GAIN = 1.6
+LEAF_TRANSLUCENT = 0.15
+# Sapling trees (P1 real02 ext_1 'sapling': bare branches). Round 1 asked the add-on for 'dFace' leaves (our card
+# instanced on 0.017 m faces, scaled by the face size x 10: 3 cm leaves, invisible) and parked the card 1 m under the
+# leaves object (a face instance keeps the child's offset). Round 3 asks for 'rect' leaves: the add-on's own leaf
+# quads (leafScale metres tall, leafScaleX wide, UV layer 'leafUV' 0..1 over the quad; utils.genLeafMesh and addTree
+# of sapling_tree_gen 0.3.7) in its 'leaves' mesh object, parented to the tree, which then takes the leaf-card
+# material (the atlas colour and opacity). SAPLING_LEAF_M is the leaf quad's size: an atlas tile is a cluster of
+# leaves, so 0.22 m (x the species' card_scale) stands for a leaf cluster, not one leaf.
+SAPLING_LEAF_M = 0.22
+SAPLING_LEAF_SCALE_V = 0.25          # random size variation of the leaf quads (the add-on's leafScaleV, 0..1)
+SAPLING_LEAVES_DEFAULT = 25          # the add-on's own default of 'leaves' per branch (a preset without one)
 GRASS_CARD_M = (0.30, 0.28)
 HERO_MAX_PER_SPECIES = 12            # collection instances share one mesh; this caps the render memory per species
 ASSET_CANDIDATES = ("/workspace/assets", "assets")
@@ -415,15 +446,23 @@ def leaf_atlas(species: str, manifest: Optional[dict] = None, folder: Optional[P
 def sapling_overrides(species: str, height_m: float, seed: int, preset: Optional[dict] = None) -> dict:
     """The operator settings laid over the preset (pure): ``scale`` = ``height_m`` / the preset's measured top per
     scale (``SAPLING_TOP_PER_SCALE``; the built tree is measured and corrected afterwards), ``scaleV`` 0 (the drawn
-    height is kept), ``levels``, ``shape``, ``seed``, ``bevel``, ``bevelRes`` 1, ``showLeaves``, ``leafShape``
-    ``dFace`` (our leaf card is instanced on the leaf faces), ``leafScale``, ``do_update``."""
+    height is kept), ``levels``, ``shape``, ``seed``, ``bevel``, ``bevelRes`` 1, and the leaves (round 3, P1 'sapling'
+    row): ``showLeaves`` on whatever the preset says (douglas_fir, quaking_aspen and the willows ship with it off),
+    ``leafShape`` ``rect`` (the add-on's own leaf quads with UVs; ``dFace`` instanced our card at 3 cm), ``leaves``
+    the preset's count per branch (else ``SAPLING_LEAVES_DEFAULT``), ``leafScale`` ``SAPLING_LEAF_M`` x the species'
+    card scale (metres, the quad's height), ``leafScaleX`` 1 (a square atlas tile), ``leafScaleV`` a size variation,
+    ``bend`` 0; ``do_update``. The property names are those of sapling_tree_gen 0.3.7's ``AddTree`` operator."""
     rec = species_record(species)
     preset_name = (rec.get("source") or {}).get("sapling") or ""
     top = SAPLING_TOP_PER_SCALE.get(preset_name) or float(rec.get("overshoot") or 1.2)
     scale = max(0.3, float(height_m) / top)
+    leaves = (preset or {}).get("leaves")
+    leaves = int(leaves) if isinstance(leaves, (int, float)) and int(leaves) != 0 else SAPLING_LEAVES_DEFAULT
+    cs = float(rec.get("card_scale") or 1.0)
     out = {"do_update": True, "scale": round(scale, 4), "scaleV": 0.0, "levels": int(rec.get("levels") or 3),
-           "seed": int(seed) % 100000, "bevel": True, "bevelRes": 1, "showLeaves": True, "leafShape": "dFace",
-           "leafScale": round(0.17 * float(rec.get("card_scale") or 1.0), 4), "useArm": False, "armAnim": False,
+           "seed": int(seed) % 100000, "bevel": True, "bevelRes": 1, "showLeaves": True, "leafShape": "rect",
+           "leaves": leaves, "leafScale": round(SAPLING_LEAF_M * cs, 4), "leafScaleX": 1.0, "leafScaleT": 0.0,
+           "leafScaleV": SAPLING_LEAF_SCALE_V, "bend": 0.0, "useArm": False, "armAnim": False,
            "makeMesh": False, "prune": False}
     shape = rec.get("shape")
     if shape in SAPLING_SHAPES:
@@ -433,20 +472,37 @@ def sapling_overrides(species: str, height_m: float, seed: int, preset: Optional
     return out
 
 
+def hedge_density(card_scale: float = 1.0) -> float:
+    """Leaf cards per m² of hedge hull for a species' card scale (pure; round 3): ``LEAF_CARDS_PER_M2 /
+    card_scale²``, so every species gets the same expected cover (``HEDGE_COVER_LAYERS``) whatever its leaf size:
+    boxwood (0.45) 518.5/m², privet (0.6) 291.7/m², cherry laurel (0.9) 129.6/m²."""
+    cs = max(0.2, float(card_scale or 1.0))
+    return round(LEAF_CARDS_PER_M2 / (cs * cs), 1)
+
+
+def cover_layers(density: float, card_m: Sequence[float], opaque: float = LEAF_ATLAS_OPAQUE) -> float:
+    """The expected opaque layers of cards over a surface (pure): density x card area x the opaque share."""
+    return round(float(density) * float(card_m[0]) * float(card_m[1]) * float(opaque), 3)
+
+
 def hedge_plan(hedge: dict) -> dict:
     """The plan of a leaf-card hedge (pure): ``{"length_m", "surface_m2" (top and two sides), "cards",
-    "density", "card_m": [w, h], "species", "colour"}``. ``hedge``: ``polyline``, ``width_m``, ``height_m``,
-    ``species``."""
+    "density" (per species, ``hedge_density``), "card_m": [w, h], "cover_layers", "core": "hull", "top_round_m",
+    "tilt_deg", "species", "colour"}``. ``hedge``: ``polyline``, ``width_m``, ``height_m``, ``species``."""
+    from wenart.blender.site import HEDGE_TOP_ROUND_M
+
     pts = [(float(x), float(y)) for x, y in hedge["polyline"]]
     length = sum(math.dist(a, b) for a, b in zip(pts, pts[1:]))
     w, h = float(hedge["width_m"]), float(hedge["height_m"])
     surface = length * (w + 2.0 * h) + 2.0 * w * h
     rec = species_record(hedge.get("species"))
     cs = float(rec.get("card_scale") or 1.0)
-    return {"length_m": round(length, 3), "surface_m2": round(surface, 3), "density": LEAF_CARDS_PER_M2,
-            "cards": int(round(surface * LEAF_CARDS_PER_M2)), "card_m": [round(LEAF_CARD_M[0] * cs, 4),
-                                                                          round(LEAF_CARD_M[1] * cs, 4)],
-            "species": rec["name"], "colour": list(rec["colour"])}
+    density = hedge_density(cs)
+    card_m = [round(LEAF_CARD_M[0] * cs, 4), round(LEAF_CARD_M[1] * cs, 4)]
+    return {"length_m": round(length, 3), "surface_m2": round(surface, 3), "density": density,
+            "cards": int(round(surface * density)), "card_m": card_m, "cover_layers": cover_layers(density, card_m),
+            "core": "hull", "top_round_m": round(max(0.0, min(HEDGE_TOP_ROUND_M, w / 2.0, h / 2.0)), 3),
+            "tilt_deg": HEDGE_CARD_TILT_DEG, "species": rec["name"], "colour": list(rec["colour"])}
 
 
 def crown_plan(species: str, height_m: float, crown_m: Optional[float] = None) -> dict:
@@ -701,10 +757,12 @@ def leaf_material(name: str, colour: Sequence[float], atlas: Optional[dict] = No
         img = bpy.data.images.load(atlas["files"]["albedo"], check_existing=True)
         tex = _node(tree, "ShaderNodeTexImage", image=img)
         tree.links.new(uv.outputs["UV"], tex.inputs["Vector"])
+        # round 3: the atlas colour x the species colour x LEAF_TINT_GAIN at LEAF_TINT_FACTOR (a darker green under
+        # the atlas; P1 'hedge' row: pale yellow-green dots at factor 0.5 and gain 2.2)
         tint = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MULTIPLY")
-        tint.inputs["Factor"].default_value = 0.5
+        tint.inputs["Factor"].default_value = LEAF_TINT_FACTOR
         tree.links.new(tex.outputs["Color"], tint.inputs[6])
-        tint.inputs[7].default_value = (*[min(1.0, c * 2.2) for c in colour], 1.0)
+        tint.inputs[7].default_value = (*[min(1.0, c * LEAF_TINT_GAIN) for c in colour], 1.0)
         tree.links.new(tint.outputs[2], bsdf.inputs["Base Color"])
         if atlas["files"].get("normal"):
             nimg = bpy.data.images.load(atlas["files"]["normal"], check_existing=True)
@@ -737,9 +795,9 @@ def leaf_material(name: str, colour: Sequence[float], atlas: Optional[dict] = No
         tree.links.new(edge.outputs["Value"], bsdf.inputs["Alpha"])
         mask = "procedural_ellipse"
     trans = _node(tree, "ShaderNodeBsdfTranslucent")
-    trans.inputs["Color"].default_value = (*[min(1.0, c * 1.3) for c in colour], 1.0)
+    trans.inputs["Color"].default_value = (*[min(1.0, c) for c in colour], 1.0)
     mix = _node(tree, "ShaderNodeMixShader")
-    mix.inputs["Factor"].default_value = 0.25
+    mix.inputs["Factor"].default_value = LEAF_TRANSLUCENT
     tree.links.new(bsdf.outputs["BSDF"], mix.inputs[1])
     tree.links.new(trans.outputs["BSDF"], mix.inputs[2])
     tree.links.new(mix.outputs["Shader"], out.inputs["Surface"])
@@ -747,6 +805,7 @@ def leaf_material(name: str, colour: Sequence[float], atlas: Optional[dict] = No
     mat["wenart_leaf_mask"] = mask
     mat["wenart_atlas"] = atlas["id"] if atlas else ""
     mat["wenart_licence"] = atlas["licence"] if atlas else ""
+    mat["wenart_tint"] = f"factor {LEAF_TINT_FACTOR}, gain {LEAF_TINT_GAIN}, translucent {LEAF_TRANSLUCENT}"
     return mat
 
 
@@ -984,11 +1043,13 @@ def _tag(ob, kind: str, species: str, method: str, asset: Optional[str], licence
 
 
 def hedge_object(hedge: dict, collection=None, name: Optional[str] = None) -> tuple:
-    """The leaf-card hedge of one ``site.hedges`` record (bpy; Milestone 13 T6): its box core (``core_verts`` /
-    ``core_faces`` when given, else ``site.hedge_parts`` on a flat ground) with a dark core material, and a
-    geometry-nodes modifier scattering the species' leaf card over the core's faces (``LEAF_CARDS_PER_M2``). Returns
-    ``(object, record)``; the record names the method ``cards``, the card count of ``hedge_plan``, the material
-    and the atlas (CC0) when the assets hold one."""
+    """The leaf-card hedge of one ``site.hedges`` record (bpy; Milestone 13 T6): its solid core (``core_verts`` /
+    ``core_faces`` when given, else ``site.hedge_parts`` on a flat ground: the hull with rounded shoulders since
+    round 3) with a dark core material (opaque from every side), and a geometry-nodes modifier scattering the
+    species' leaf card over the hull's faces at the species' density (``hedge_plan``: ``hedge_density``, tilt
+    ``HEDGE_CARD_TILT_DEG``, scale ``HEDGE_CARD_SCALE``). Returns ``(object, record)``; the record names the method
+    ``cards``, the card count, density, card size and cover of ``hedge_plan``, the material and the atlas (CC0)
+    when the assets hold one."""
     import bpy
     plan = hedge_plan(hedge)
     rec = species_record(hedge.get("species"))
@@ -1011,15 +1072,18 @@ def hedge_object(hedge: dict, collection=None, name: Optional[str] = None) -> tu
     atlas = leaf_atlas(rec["name"])
     card = leaf_card(rec["name"], plan["card_m"], atlas)
     seed = sum(ord(c) for c in name)
-    ng = scatter_group(f"veg_scatter_{rec['name']}_{int(LEAF_CARDS_PER_M2)}", card, LEAF_CARDS_PER_M2, seed,
-                       scale_range=(0.7, 1.3), tilt_deg=35.0)
+    ng = scatter_group(f"veg_scatter_{rec['name']}_{int(plan['density'])}", card, plan["density"], seed,
+                       scale_range=HEDGE_CARD_SCALE, tilt_deg=HEDGE_CARD_TILT_DEG)
     mod = ob.modifiers.new("leaf_cards", "NODES")
     mod.node_group = ng
     _tag(ob, "site_hedge", rec["name"], "cards", atlas["id"] if atlas else None, atlas["licence"] if atlas else None,
          float(hedge.get("height_m") or 0.0))
-    return ob, {"method": "cards", "cards": plan["cards"], "material": card.data.materials[0].name,
+    ob["wenart_cards"] = int(plan["cards"])
+    return ob, {"method": "cards", "cards": plan["cards"], "density": plan["density"], "card_m": plan["card_m"],
+                "cover_layers": plan["cover_layers"], "core": plan["core"], "top_round_m": plan["top_round_m"],
+                "tilt_deg": plan["tilt_deg"], "material": card.data.materials[0].name,
                 "atlas": atlas["id"] if atlas else None, "licence": atlas["licence"] if atlas else None,
-                "species": rec["name"]}
+                "leaf_mask": card.data.materials[0].get("wenart_leaf_mask"), "species": rec["name"]}
 
 
 def _import_hero(hero: dict) -> Optional[dict]:
@@ -1123,24 +1187,38 @@ def _tree_palm(name: str, height_m: float, seed: int, collection):
 
 def _tree_sapling(name: str, species: str, height_m: float, seed: int, collection, crown_m: Optional[float]):
     """A Sapling Tree Gen tree (bpy; the installed add-on through ``bpy.ops.curve.tree_add``): the species' preset
-    read from the add-on's presets folder, our overrides on top (``sapling_overrides``), the bark on the curve,
-    our leaf card instanced on the leaf faces (``leafShape`` ``dFace``)."""
+    read from the add-on's presets folder, our overrides on top (``sapling_overrides``: ``rect`` leaves), the bark
+    on the curve, and the add-on's ``leaves`` mesh object (``utils.addTree`` of sapling_tree_gen 0.3.7 makes
+    ``bpy.data.objects.new('leaves', mesh)``, links it to the scene collection and parents it to the tree curve;
+    ``rect`` leaves are one quad each with the UV layer ``leafUV``) given the species' leaf-card material (the atlas
+    colour and opacity, ``leaf_material``). A tree whose leaves mesh has no faces is removed again and raises
+    RuntimeError (``tree_object`` then builds the leaf-card crown and records why): a Sapling tree is never bare
+    (P1 real02 ext_1 'sapling')."""
     import bpy
     rec = species_record(species)
     preset_name = (rec.get("source") or {}).get("sapling")
     preset = sapling_preset(preset_name) or {}
     args = sapling_args(species, height_m, seed, preset)
+    args.pop("leafDupliObj", None)                     # rect leaves are the add-on's own quads: no instanced object
     plan = crown_plan(species, height_m, crown_m)
     atlas = leaf_atlas(species)
-    card = leaf_card(species, plan["card_m"], atlas)
-    args["leafDupliObj"] = card.name
+    card = leaf_card(species, plan["card_m"], atlas)   # the same material as the leaf cards (one per species)
+    leaf_mat = card.data.materials[0]
     before = set(bpy.data.objects)
     bpy.ops.curve.tree_add(**args)
     new = [o for o in bpy.data.objects if o not in before]
     tree_ob = next((o for o in new if o.type == "CURVE"), None)
     if tree_ob is None:
+        for o in new:
+            bpy.data.objects.remove(o)
         raise RuntimeError("Sapling made no curve object")
-    leaves = next((o for o in new if o.type == "MESH" and o.parent is tree_ob), None)
+    leaves = next((o for o in new if o.type == "MESH" and o.parent == tree_ob), None)
+    leaf_faces = len(leaves.data.polygons) if leaves is not None else 0
+    if leaf_faces == 0:
+        for o in new:
+            bpy.data.objects.remove(o)
+        raise RuntimeError(f"Sapling made 0 leaf faces (preset {preset_name}, leaves {args.get('leaves')}, "
+                           f"showLeaves {args.get('showLeaves')}): leaf-card crown instead")
     for o in new:
         _unlink_everywhere(o)
         if o is card:
@@ -1150,28 +1228,22 @@ def _tree_sapling(name: str, species: str, height_m: float, seed: int, collectio
     tree_ob.data.materials.append(bark_material())
     # the drawn height exactly: measure the generated top (curve points and leaves) and scale the tree to it
     zs = [p.co.z for sp in tree_ob.data.splines for p in sp.bezier_points]
-    if leaves is not None:
-        zs += [v.co.z for v in leaves.data.vertices]
+    zs += [v.co.z for v in leaves.data.vertices]
     top = max(zs) if zs else 0.0
     post = float(height_m) / top if top > 0.1 else 1.0
     tree_ob.scale = (post, post, post)
-    if leaves is not None:
-        leaves.name = f"{name}_leaves"
-        leaves["wenart_kind"] = "site_decor_part"
-        # The add-on parents the card to the leaves mesh (instance_type FACES): the instanced child must be in the
-        # scene, so this tree gets its own copy of the card, parked under the ground; the library card stays free.
-        if card.parent is leaves:
-            card.parent = None
-        own = bpy.data.objects.new(f"{name}_leaf_card", card.data)
-        own.parent = leaves
-        own.location = (0.0, 0.0, -1.0)
-        own["wenart_kind"] = "vegetation_card"
-        (collection or bpy.context.scene.collection).objects.link(own)
+    leaves.name = f"{name}_leaves"
+    leaves["wenart_kind"] = "site_decor_part"
+    leaves.data.materials.clear()
+    leaves.data.materials.append(leaf_mat)
+    leaves["wenart_leaf_faces"] = leaf_faces
     _tag(tree_ob, "site_decor", rec["name"], "sapling", preset_name, "GPL add-on output (ours)", height_m)
+    tree_ob["wenart_leaf_faces"] = leaf_faces
     return tree_ob, {"method": "sapling", "preset": preset_name, "scale": args.get("scale"),
-                     "generated_top_m": round(top, 3), "post_scale": round(post, 4),
-                     "material": card.data.materials[0].name, "atlas": atlas["id"] if atlas else None,
-                     "licence": atlas["licence"] if atlas else None, "leaves": leaves is not None}
+                     "generated_top_m": round(top, 3), "post_scale": round(post, 4), "material": leaf_mat.name,
+                     "atlas": atlas["id"] if atlas else None, "licence": atlas["licence"] if atlas else None,
+                     "leaves": True, "leaf_faces": leaf_faces, "leaf_shape": args.get("leafShape"),
+                     "leaf_m": args.get("leafScale"), "leaves_per_branch": args.get("leaves")}
 
 
 def _tree_hero(name: str, species: str, height_m: float, seed: int, collection, hero: dict):
@@ -1287,6 +1359,97 @@ def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: 
     _tag(ob, "site_grass", "lawn", method, asset, licence, 0.3)
     return ob, {"method": method, "asset": asset, "licence": licence, "density": float(density), "count": count,
                 "area_m2": round(max(0.0, area), 2)}
+
+
+# The lawn's look (round 3, P1 §14.3: every exterior view of real02 and real04 rendered the lawn as a flat saturated
+# green). The committed real02 scene manifest records the ground material grass__Grass004 as textured (the ambientCG
+# photo, size_m 1.4, albedo gain 0.585; review of round 3: the ground *object* entry's ``textured: false`` is the
+# constant ``build_site`` writes for every site object, not the material's state): a 1.4 m tile of a uniform photo
+# averages to one flat green a few metres from the camera, with nothing at the scale of metres to break it up.
+# ``lawn_material`` gives the ground material a visible tiling of
+# LAWN_TILE_M (the texture's Mapping scale clamped to 1-2 m), a mild albedo variation (a large Noise mixed into the
+# base colour as a multiplier between ``dark`` and ``light``, with or without a texture) and a fine bump where no
+# normal map is linked. Two noise nodes: no measurable cost (P1 exteriors 2-4 s, <= 13.4 GB).
+LAWN_TILE_M = (1.0, 2.0)
+LAWN_VARIATION = {"scale_per_m": 0.12, "detail": 3.0, "dark": (0.78, 0.84, 0.66), "light": (1.12, 1.06, 0.92),
+                  "bump": 0.12, "bump_scale_per_m": 6.0}
+
+
+def lawn_tile_m(size_m) -> float:
+    """The tile size the lawn texture repeats at (pure): the texture set's longer side clamped to ``LAWN_TILE_M``
+    (a 4 m photo repeats every 2 m, a 0.5 m one every metre); 1.5 m when no size is known."""
+    try:
+        side = max(float(v) for v in (size_m or []) if v is not None)
+    except (TypeError, ValueError):
+        side = 0.0
+    if side <= 0:
+        return 1.5
+    return round(min(LAWN_TILE_M[1], max(LAWN_TILE_M[0], side)), 3)
+
+
+def lawn_material(mat) -> dict:
+    """Give the ground's grass material its lawn look (bpy; round 3; idempotent): the texture's Mapping node scaled
+    to ``lawn_tile_m`` of its current tile, a Noise texture (Object coordinates, ``LAWN_VARIATION``) through a
+    ColorRamp from ``dark`` to ``light`` multiplied into whatever feeds the Principled BSDF's Base Color (the texture
+    or the flat colour), and a fine Bump where the Normal input is free. Returns the record for the manifest:
+    ``{"tile_m", "textured", "variation", "bump", "applied"}``; ``applied`` False with the reason when the material
+    has no node tree or no Principled BSDF."""
+    import json as _json
+    # the node tree alone decides: Material.use_nodes is deprecated in Blender 5.x (always on) and goes in 6.0
+    if mat is None or getattr(mat, "node_tree", None) is None:
+        return {"applied": False, "reason": "no node tree"}
+    if mat.get("wenart_lawn"):
+        try:
+            return dict(_json.loads(mat["wenart_lawn"]), applied=True)
+        except (TypeError, ValueError):
+            return {"applied": True}
+    tree = mat.node_tree
+    nodes, links = tree.nodes, tree.links
+    bsdf = next((n for n in nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None)
+    if bsdf is None:
+        return {"applied": False, "reason": "no Principled BSDF"}
+    mapping = next((n for n in nodes if n.bl_idname == "ShaderNodeMapping"), None)
+    tile = None
+    if mapping is not None:
+        sx, sy = float(mapping.inputs["Scale"].default_value[0]), float(mapping.inputs["Scale"].default_value[1])
+        tile = lawn_tile_m([1.0 / sx if sx > 1e-9 else 0.0, 1.0 / sy if sy > 1e-9 else 0.0])
+        mapping.inputs["Scale"].default_value = (1.0 / tile, 1.0 / tile, 1.0)
+    cfg = LAWN_VARIATION
+    coord = _node(tree, "ShaderNodeTexCoord")
+    noise = _node(tree, "ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = float(cfg["scale_per_m"])
+    noise.inputs["Detail"].default_value = float(cfg["detail"])
+    links.new(coord.outputs["Object"], noise.inputs["Vector"])
+    ramp = _node(tree, "ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = (*cfg["dark"], 1.0)
+    ramp.color_ramp.elements[1].color = (*cfg["light"], 1.0)
+    links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    mix = _node(tree, "ShaderNodeMix", data_type="RGBA", blend_type="MULTIPLY")
+    mix.inputs["Factor"].default_value = 1.0
+    base = bsdf.inputs["Base Color"]
+    if base.links:
+        src = base.links[0].from_socket
+        links.remove(base.links[0])
+        links.new(src, mix.inputs[6])
+    else:
+        mix.inputs[6].default_value = tuple(base.default_value)
+    links.new(ramp.outputs["Color"], mix.inputs[7])
+    links.new(mix.outputs[2], base)
+    bump = False
+    if not bsdf.inputs["Normal"].links:
+        fine = _node(tree, "ShaderNodeTexNoise")
+        fine.inputs["Scale"].default_value = float(cfg["bump_scale_per_m"])
+        fine.inputs["Detail"].default_value = 2.0
+        links.new(coord.outputs["Object"], fine.inputs["Vector"])
+        bnode = _node(tree, "ShaderNodeBump")
+        bnode.inputs["Strength"].default_value = float(cfg["bump"])
+        links.new(fine.outputs["Fac"], bnode.inputs["Height"])
+        links.new(bnode.outputs["Normal"], bsdf.inputs["Normal"])
+        bump = True
+    rec = {"tile_m": tile, "textured": mapping is not None, "variation": [list(cfg["dark"]), list(cfg["light"])],
+           "noise_scale_per_m": cfg["scale_per_m"], "bump": bump}
+    mat["wenart_lawn"] = _json.dumps(rec)
+    return dict(rec, applied=True)
 
 
 def lawn_relief(ground_ob, strength: float = 0.06, scale: float = 2.5) -> None:

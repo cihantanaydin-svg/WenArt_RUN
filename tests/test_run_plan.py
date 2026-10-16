@@ -8,6 +8,8 @@ import json
 import pytest
 
 from wenart.run import plan as P
+from wenart.run import stages as S
+from wenart.run import state as ST
 from wenart.run.__main__ import main as run_main
 from wenart.run.projects import REPO_ROOT, project_folder
 
@@ -15,13 +17,19 @@ from wenart.run.projects import REPO_ROOT, project_folder
 GOLDEN = ["synthetic-01", "synthetic-03", "synthetic-04", "synthetic-05", "synthetic-06", "real01", "review-01"]
 PRESENT = [p for p in GOLDEN if project_folder(p, REPO_ROOT).is_dir()]
 GPU = "RTX PRO 6000"
-# real01's recognition questions (exit 4). Milestone 13 (K3, round 2 of the build): the ingest types the drawn pieces
-# by code first (twin room, other level, block name, missing group member) and the AI gets a question only for the
-# rest, so the 17 candidates of Milestones 7-12 leave 8 questions in recognition/requests.json (what
-# wenart.ingest.pipeline writes for projects/real01 on 15 Oct 2026; the K3 agent's own tests pin the withdrawn set).
-REAL01_QUESTIONS = 8
-# real01's planned views: 25 with the 8 code-typed pieces built in the pre-layout building (their rooms count as
-# furnished rooms with their views; Milestone 12's rule gave 17 while every unknown piece stayed unbuilt).
+# real01's recognition questions (exit 4). Milestone 13 (K3): the ingest types the drawn pieces by code first (twin
+# room, other level, block name, missing group member) and the AI gets a question only for the rest. Build round 3
+# (lead decision): the code typing runs before the context rules and the context rules type the open questions too
+# (a table with seats, chairs at a table), both withdraw their questions, so of the 17 candidates of Milestones 7-12
+# the code types 9 (two beds, four nightstands, the dining table, the sofa, the coffee table: the rooms' missing
+# anchors and members) and the context rules 6 (the chairs at the table); recognition/requests.json holds the 2 the
+# AI must answer (the chaise and the unknown 0.4 m piece), in every mode (what wenart.ingest.pipeline writes for
+# projects/real01 on 16 Oct 2026, the same with --no-ai and with the answers; tests/test_real01.py and
+# tests/test_pipeline.py pin the withdrawn set). Round 2 wrote 8 (the context rules waited for the open questions).
+REAL01_QUESTIONS = 2
+# real01's planned views: 25 with the code-typed pieces built in the pre-layout building (their rooms count as
+# furnished rooms with their views; Milestone 12's rule gave 17 while every unknown piece stayed unbuilt; the six
+# chairs of round 3 join the dining room that the table already furnished, so the count stays 25).
 REAL01_VIEWS = 25
 SPEED = 1.634                                                         # measured by the M7 prep pod
 
@@ -98,8 +106,22 @@ def test_first_fit_split():
     assert [pod["projects"] for pod in pods] == [["a", "q"]] and pods[0]["verified"] is False
 
 
+def pipeline_code_hash() -> str:
+    """The code hash of the pipeline stage's fingerprint (``state.code_hash`` over ``stages.PIPELINE_CODE``, what
+    the scheduler puts into the record)."""
+    return ST.code_hash(S.STAGES["pipeline"].code, REPO_ROOT)
+
+
 @pytest.fixture(scope="module")
-def golden(tmp_path_factory):
+def pipeline_code():
+    """Snapshot of the pipeline code hash before the golden plan is made (build round 3: a shared working tree
+    may change a PIPELINE_CODE file while the module runs; ``test_plan_reuses_stage_1_and_writes_records`` tells a
+    changed tree from a broken reuse by comparing with this)."""
+    return pipeline_code_hash()
+
+
+@pytest.fixture(scope="module")
+def golden(tmp_path_factory, pipeline_code):
     out = tmp_path_factory.mktemp("plan_outputs")
     plan = P.make_plan(PRESENT, outputs=out, gpu=GPU)
     return out, plan
@@ -174,12 +196,21 @@ def test_golden_plan_of_the_committed_projects(golden):
                                                               "synthetic-05"], ["synthetic-06", "real01"]]
 
 
-def test_plan_reuses_stage_1_and_writes_records(golden):
+def test_plan_reuses_stage_1_and_writes_records(golden, pipeline_code):
     out, _plan = golden
     rec = json.loads((out / "synthetic-01" / "run" / "pipeline.json").read_text())
     assert rec["stage"] == "pipeline" and rec["status"] in ("ok", "reused") and rec["fingerprint"]
     again = P.make_plan(["synthetic-01", "real01"], outputs=out, gpu=GPU)
-    assert json.loads((out / "synthetic-01" / "run" / "pipeline.json").read_text())["status"] == "reused"
+    status = json.loads((out / "synthetic-01" / "run" / "pipeline.json").read_text())["status"]
+    if status != "reused":
+        # Build round 3: on a shared working tree a PIPELINE_CODE file may be saved while this module runs; the
+        # stage then runs again ("ok") by design (its fingerprint changed), which is not a failure of the plan. Only
+        # a changed code hash excuses it; the same hash means the reuse itself is broken.
+        now = pipeline_code_hash()
+        if now != pipeline_code:
+            pytest.skip(f"the pipeline code changed during the test (code hash {pipeline_code[:12]} -> {now[:12]}): "
+                        f"the stage ran again by design; a quiet tree asserts 'reused'")
+    assert status == "reused"
     assert again["projects"][0]["views"] == 34
     # A reused pending pipeline stays pending (its questions still need the answers).
     assert json.loads((out / "real01" / "run" / "pipeline.json").read_text())["status"] == "pending"

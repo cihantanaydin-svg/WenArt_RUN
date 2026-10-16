@@ -78,6 +78,18 @@ Without ``obstacles`` the Milestone 4 behaviour is unchanged.
 Milestone 11 (docs/milestone11.md §6): ``snap_to_wall`` (public) puts a piece's back edge on a wall of the room,
 parallel, 2 cm off the face, sliding it off doors, window bands (tall pieces) and other pieces; armchairs keep a
 0.45 m free zone in front (``schemas.CLEARANCE_DEPTH_M``, U13), where a coffee table, pouf or side table may stand.
+
+Milestone 13, build round 3 (K2, docs/milestone13.md §14.4 T1/T3): a library model is scaled uniformly to the drawn
+width, so its depth may differ from the drawn depth by up to the fit's cap (10-15 %); the scene builder keeps such a
+model's back edge on the footprint's back edge for a wall-backed type and the difference goes to its front
+(``wenart.blender.furniture.depth_alignment``). The layout plans with that built box: ``planned_footprint`` gives
+the fitted box (``asset.bbox_m[1]``, or the drawn depth + ``asset.depth_abs_m``) with the back edge kept (``back``)
+or the centre kept (``centre``, a free-standing piece); ``drawn_piece`` carries it on the piece (``planned_center``,
+``planned_size``) and ``Piece.planned()`` / ``planned_piece`` give the piece with that box. The drawn footprint stays
+the record (``Piece.center`` / ``size`` are the drawing's; an edit that writes the piece back writes the drawn
+values); ``place(..., obstacles=...)`` locks the planned boxes, the group solver plans partners and collisions with
+them, and ``planned_building`` gives a copy with the planned boxes for the group checks (G1-G14) the solver runs.
+A piece without a uniform library fit (a module, a parametric family, an older non-uniform fit) plans as drawn.
 """
 from __future__ import annotations
 
@@ -153,6 +165,19 @@ class Piece:
     seat_depth: Optional[float] = None
     chaise_width: Optional[float] = None
     excused: frozenset = frozenset()
+    # Milestone 13 (K2, build round 3): the box the scene builder makes of a uniformly scaled library model when it
+    # differs from the drawn footprint (``planned_footprint``); None = the drawn box is the built box. ``center`` and
+    # ``size`` stay the drawing's record; ``planned()`` gives the piece with the built box.
+    planned_center: Optional[tuple[float, float]] = None
+    planned_size: Optional[tuple[float, float]] = None
+
+    def planned(self) -> "Piece":
+        """The piece with the box the layout plans with (K2): a copy at the fitted depth when ``drawn_piece`` found
+        a uniform library fit deeper or shallower than the drawing, else the piece itself."""
+        if self.planned_center is None or self.planned_size is None:
+            return self
+        return dataclasses.replace(self, center=self.planned_center, size=self.planned_size,
+                                   planned_center=None, planned_size=None)
 
     @classmethod
     def from_proposal(cls, item: dict, index: int, log: Optional[list] = None) -> "Piece":
@@ -282,11 +307,145 @@ def front_frame(footprint: dict, front_deg: Optional[float]) -> tuple[float, tup
 
 def drawn_piece(item: dict, index: int = 0, against_wall: bool = False) -> Piece:
     """A drawn furniture dict as a placer piece in the frame of its front (``front_frame``), so the front
-    clearance and the back edge are where the drawing puts them."""
+    clearance and the back edge are where the drawing puts them. Milestone 13 (K2): when the piece carries a uniform
+    library fit whose depth differs from the drawing, the built box (``planned_footprint``) rides along as
+    ``planned_center`` / ``planned_size``; ``center`` and ``size`` stay the drawn record."""
     rot, size = front_frame(item["footprint"], item.get("front_deg"))
     fp = item["footprint"]
-    return Piece(type=item["type"], center=(float(fp["center"][0]), float(fp["center"][1])), rotation_deg=rot,
-                 size=size, against_wall=against_wall, index=index, **_shape_fields(item))
+    piece = Piece(type=item["type"], center=(float(fp["center"][0]), float(fp["center"][1])), rotation_deg=rot,
+                  size=size, against_wall=against_wall, index=index, **_shape_fields(item))
+    planned = planned_footprint(item)
+    if planned is not None:
+        _prot, psize = front_frame(planned, item.get("front_deg"))
+        piece.planned_center = (float(planned["center"][0]), float(planned["center"][1]))
+        piece.planned_size = psize
+    return piece
+
+
+def planned_piece(item: dict, index: int = 0, against_wall: bool = False) -> Piece:
+    """``drawn_piece`` with the box the layout plans with (K2, build round 3): the fitted depth of a uniform library
+    model (back edge kept for a wall-backed piece), else the drawn box. The group solver's obstacles, anchors and
+    verification and the placer's locked obstacles use it; the record stays the drawn footprint."""
+    return drawn_piece(item, index, against_wall).planned()
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 (K2, build round 3): the box a uniformly scaled library model occupies
+# --------------------------------------------------------------------------
+
+# Types whose back normally stands on a wall: the same list as ``wenart.blender.furniture.WALL_BACKED_TYPES`` (that
+# module repeats ``schemas.WALL_TYPES`` because Blender's Python has no jsonschema; tests keep the three equal).
+WALL_BACKED_TYPES: tuple[str, ...] = schemas.WALL_TYPES
+DEPTH_ALIGNMENTS = ("centre", "back")
+PLANNED_DEPTH_EPS_M = 0.005          # a fitted depth within 5 mm of the drawn one plans as drawn (the S2 tolerances
+                                     # are 3-5 cm; nothing to absorb)
+
+
+def depth_alignment(item: dict, asset: Optional[dict] = None) -> str:
+    """How a fitted library model sits in its footprint's depth: ``back`` for a uniformly scaled model
+    (``asset.scaling == "uniform"``) of a wall-backed type (the piece's own ``against_wall`` true / false wins when
+    it says so), else ``centre``. The same rule as ``wenart.blender.furniture.depth_alignment`` (the scene builder),
+    repeated here so the layout needs no Blender module; ``tests/test_placer.py`` keeps the two equal."""
+    asset = item.get("asset") if asset is None else asset
+    if not isinstance(asset, dict) or asset.get("scaling") != "uniform":
+        return "centre"
+    against = item.get("against_wall")
+    if isinstance(against, bool):
+        return "back" if against else "centre"
+    return "back" if item.get("type") in WALL_BACKED_TYPES else "centre"
+
+
+def _number(v) -> Optional[float]:
+    if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+        return None
+    return float(v)
+
+
+def fitted_depth(item: dict, asset: Optional[dict] = None) -> Optional[float]:
+    """The depth (footprint frame, the ``size[1]`` axis) a uniformly scaled library model has after the fit:
+    ``asset.bbox_m[1]`` (the fit's box at the drawn width), else the drawn depth + ``asset.depth_abs_m``; None when
+    the piece has no uniform library fit (``asset.method`` library, ``asset.scaling`` uniform) or the numbers are
+    unusable. A module or parametric piece is built on the drawn footprint; an older non-uniform fit was stretched
+    to it."""
+    asset = item.get("asset") if asset is None else asset
+    if not isinstance(asset, dict) or asset.get("scaling") != "uniform" or asset.get("method", "library") != "library":
+        return None
+    fp = item.get("footprint") if isinstance(item.get("footprint"), dict) else None
+    if fp is None or len(fp.get("size") or []) < 2:
+        return None
+    drawn = _number(fp["size"][1])
+    if drawn is None or drawn <= 0:
+        return None
+    bbox = asset.get("bbox_m")
+    if isinstance(bbox, (list, tuple)) and len(bbox) > 1:
+        depth = _number(bbox[1])
+        if depth is not None and depth > 0:
+            return round(depth, 4)
+    diff = _number(asset.get("depth_abs_m"))
+    if diff is not None and drawn + diff > 0:
+        return round(drawn + diff, 4)
+    return None
+
+
+def planned_footprint(item: dict, asset: Optional[dict] = None) -> Optional[dict]:
+    """The footprint the layout plans with (K2): None when it is the drawn one (no uniform library fit, the fitted
+    depth within ``PLANNED_DEPTH_EPS_M`` of the drawing, an L-shaped piece whose parts the fit does not record),
+    else ``{center, size, rotation_deg}`` in the footprint's own frame with the fitted depth: for a wall-backed
+    piece (``depth_alignment`` ``back``) the back edge (local +Y) stays where it is drawn and the centre moves by
+    half the difference towards the front (local -Y, the scene builder's rule); a free-standing piece keeps its
+    centre. The width and the rotation are the drawing's."""
+    asset = item.get("asset") if asset is None else asset
+    if item.get("shape") == "L":
+        return None
+    depth = fitted_depth(item, asset)
+    if depth is None:
+        return None
+    fp = item["footprint"]
+    drawn = float(fp["size"][1])
+    if abs(depth - drawn) <= PLANNED_DEPTH_EPS_M:
+        return None
+    rot = _number(fp.get("rotation_deg"))
+    cx, cy = _number(fp["center"][0]), _number(fp["center"][1])
+    if rot is None or cx is None or cy is None:
+        return None
+    if depth_alignment(item, asset) == "back":
+        # the front direction of the footprint frame (local -Y turned by the rotation): the box grows that way
+        a = math.radians(G.front_direction_deg(rot))
+        shift = (depth - drawn) / 2.0
+        cx, cy = cx + math.cos(a) * shift, cy + math.sin(a) * shift
+    return {"center": [round(cx, 4), round(cy, 4)], "size": [round(float(fp["size"][0]), 4), round(depth, 4)],
+            "rotation_deg": G.normalise_angle(rot)}
+
+
+def planned_building(building: dict, room_id: Optional[str] = None) -> dict:
+    """A shallow copy of ``building`` whose furniture boxes are the ones the layout plans with (K2, build round 3),
+    for checks only: every piece (of ``room_id`` when given) with a uniform library fit deeper or shallower than
+    its drawing gets its ``planned_footprint``. Why: the group checks (G1-G14, ``group_checks.check_room``) measure
+    clearances such as the sofa-to-coffee-table gap from the boxes they are given; the scene builder makes the
+    fitted box, so the solver measures that one. How: the copy's asset records the planned depth as its box
+    (``bbox_m[1]``, ``depth_abs_m`` 0), so planning the copy again changes nothing (a check module that plans with
+    ``planned_piece`` itself gets the same boxes). The copy is never written back: the drawn footprint stays the
+    record. Pieces without such a fit are the same objects as in ``building``."""
+    out = dict(building)
+    furniture = []
+    for f in building.get("furniture") or []:
+        planned = None
+        if room_id is None or f.get("room_id") == room_id:
+            try:
+                planned = planned_footprint(f)
+            except (KeyError, TypeError, ValueError, IndexError):
+                planned = None
+        if planned is None:
+            furniture.append(f)
+            continue
+        asset = dict(f["asset"])
+        bbox = asset.get("bbox_m")
+        if isinstance(bbox, (list, tuple)) and len(bbox) > 1:
+            asset["bbox_m"] = [bbox[0], planned["size"][1]] + list(bbox[2:])
+        asset["depth_abs_m"] = 0.0
+        furniture.append(dict(f, footprint=planned, asset=asset))
+    out["furniture"] = furniture
+    return out
 
 
 def back_edge_midpoint(center, rotation_deg: float, size) -> tuple[float, float]:
@@ -652,8 +811,10 @@ def drawn_context(ctx: RoomContext, pieces: list[Piece]) -> RoomContext:
 
 
 def obstacles_for(pieces: list[Piece], ctx: RoomContext) -> list[Piece]:
-    """Copies of the drawn ``pieces`` as locked obstacles whose drawn-layout failures are excused."""
-    out = [dataclasses.replace(p, locked=True, repairs=[]) for p in pieces]
+    """Copies of the drawn ``pieces`` as locked obstacles whose drawn-layout failures are excused. Milestone 13 (K2):
+    a piece that carries a planned box (``drawn_piece`` of a uniformly scaled library model) blocks with that box,
+    the one the scene builder makes."""
+    out = [dataclasses.replace(p.planned(), locked=True, repairs=[]) for p in pieces]
     for p, c in zip(out, check_all(out, ctx)):
         p.excused = frozenset(failed_checks(c))
     return out

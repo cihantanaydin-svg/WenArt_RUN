@@ -47,6 +47,22 @@ Milestone 13 (docs/milestone13.md §5.1 phase 2, §13.1 track T7, §13.6 pod P2;
                                         the Poly Haven entries whose 2K glTF is present
     report                              also the counts per source, per licence flag and per licence mode
 
+Milestone 13 round 3 (docs/milestone13.md §14.6, after pod P2):
+
+    ingest --source polyhaven           a glTF size the API does not offer: the next lower one (2k -> 1k, recorded
+                                        as ``size`` / ``size_requested`` / ``size_reason``); no glTF at all or an
+                                        unknown id: ``dropped`` with the reason (data: rc 0); only network errors
+                                        (after ``web``'s own tries) and code errors fail the step
+    refetch                             the current file of every catalogue entry waiting for a re-audit (an asset
+                                        republished upstream, ``reaudit_entries``); older files kept beside
+    catalogue [--only hssd]             the re-audit entries whose current file is on the volume join new_ids.json;
+                                        ``--only`` (GROWTH_ONLY=hssd, pod P2b) builds those sources alone, every
+                                        other entry as the repo's catalogues have it, the earlier ids kept
+    preview                             the vegetation previews (``gltf``) too: P2 stopped at ``KeyError: 'glb'``;
+                                        every failure is printed with its reason and recorded in ``preview.json``
+    any step                            an unexpected error prints ``growth run <step>: FAILED: <type>: <reason>``
+                                        as its last line (and the traceback), rc 1
+
 Exit codes: 0 done, 1 something failed or nothing to do (the record says which), 2 server error, 3 deadline.
 """
 from __future__ import annotations
@@ -185,27 +201,48 @@ def _parallel(fn: Callable, items: list, workers: int) -> list:
         return list(pool.map(fn, items))
 
 
-def ingest_polyhaven(args, ids: list, cands: dict) -> list:
+def ingest_polyhaven(args, ids: list, cands: dict, fetch_model: Optional[Callable] = None,
+                     sleep: Optional[Callable] = None) -> list:
+    """The approved Poly Haven models at ``--size`` (Milestone 13 round 3, docs/milestone13.md §14.6): an asset
+    without a glTF at that size takes the next lower size the file table offers (``models.pick_gltf_size``; the
+    record keeps ``size`` = the size used, ``size_requested`` and ``size_reason``); an asset without any glTF
+    (``models.NoGltf``) or unknown to the API (404) is ``dropped`` with the reason: data, not a failure of the step.
+    Network errors (after ``web``'s own tries) are tried ``RETRIES`` times here; they and code errors are
+    ``failed`` (the step's rc 1). ``fetch_model`` / ``sleep`` are injectable (tests)."""
+    from wenart.assets import fetch as F
     from wenart.assets import models as M
+    from wenart.assets import web as W
+    fetch_model = fetch_model or M.fetch_model
+    sleep = sleep or time.sleep
     out = []
     for aid in ids:
         t0 = time.time()
         rec = {"id": aid, "ok": False, "size": args.size}
         for attempt in range(1, RETRIES + 1):
             try:
-                e = M.fetch_model(aid, Path(args.assets), size=args.size)
+                e = fetch_model(aid, Path(args.assets), size=args.size, size_fallback=True)
                 rec.update(ok=True, gltf=e["files"]["gltf"], sha256=e.get("sha256") or {}, attempts=attempt,
+                           size=e.get("resolution") or args.size,
                            bytes=sum((Path(args.assets) / r).stat().st_size for r in e["files"].values()))
+                if e.get("resolution_note"):
+                    rec.update(size_requested=args.size, size_reason=e["resolution_note"])
+                rec.pop("error", None)
                 break
-            except Exception as exc:  # noqa: BLE001 - web, licence and parse errors alike: recorded
+            except (M.NoGltf, F.AssetNotFound) as exc:     # data: dropped with the reason, never tried again
+                rec.update(dropped=True, reason=f"{type(exc).__name__}: {exc.args[0] if exc.args else exc}")
+                break
+            except (W.NetworkError, W.HTTPStatusError, W.ChecksumError) as exc:
                 rec["error"] = f"{type(exc).__name__}: {exc}"
                 if attempt < RETRIES:
-                    time.sleep(2 ** attempt)
+                    sleep(2 ** attempt)
+            except Exception as exc:  # noqa: BLE001 - a code or file error: recorded, the step fails
+                rec["error"] = f"{type(exc).__name__}: {exc}"
+                break
         rec["seconds"] = round(time.time() - t0, 1)
-        if rec["ok"]:
-            rec.pop("error", None)
         out.append(rec)
-        print(f"growth polyhaven: {aid} {'ok' if rec['ok'] else rec.get('error')}", flush=True)
+        state = "ok" + (f" at {rec['size']} ({rec['size_reason']})" if rec.get("size_reason") else "") if rec["ok"] \
+            else (f"dropped: {rec['reason']}" if rec.get("dropped") else f"FAILED: {rec.get('error')}")
+        print(f"growth polyhaven: {aid} {state}", flush=True)
     return out
 
 
@@ -302,8 +339,6 @@ def cmd_ingest(args) -> int:
         records, dl = ingest_hssd(args, ids, cands)
         extra = {"download": {k: v for k, v in dl.items() if k not in ("ok", "missing")},
                  "gate": dl.get("gate"), "skipped": dl.get("skipped")}
-        if dl.get("skipped"):
-            print(f"growth ingest hssd: SKIPPED: {(dl.get('gate') or {}).get('reason')}")
     elif args.source == "ambientcg":
         records = ingest_ambientcg(args, ids, cands)
     elif args.source == "polyhaven":
@@ -341,16 +376,28 @@ def cmd_ingest(args) -> int:
         print(f"growth ingest: {args.source} has no download (Infinigen models are generated)")
         return EXIT_NOTHING
     ok = sum(1 for r in records if r["ok"])
+    dropped = sum(1 for r in records if not r["ok"] and r.get("dropped"))
+    failed = len(records) - ok - dropped
     write_json(report_dir(args) / ingest_name(args),
                {"source": args.source, "list": key, "approved_by": doc.get("approved_by"),
                 "approved_utc": doc.get("approved_utc"), "ids_from": doc.get("ids_from"),
-                "approved": len(ids), "ok": ok, "failed": len(records) - ok, "size": args.size if args.source in
-                ("polyhaven", "ambientcg") else None, "seconds": round(time.time() - t0, 1), "records": records,
-                **extra})
-    print(f"growth ingest {key}: {ok} of {len(ids)} ok")
+                "approved": len(ids), "ok": ok, "failed": failed, "dropped": dropped,
+                "size": args.size if args.source in ("polyhaven", "ambientcg") else None,
+                "seconds": round(time.time() - t0, 1), "records": records, **extra})
+    print(f"growth ingest {key}: {ok} of {len(ids)} ok" + (f", {dropped} dropped (no file to fetch: data, reasons in "
+                                                           f"{ingest_name(args)})" if dropped else "")
+          + (f", {failed} FAILED" if failed else ""))
+    bad = [r for r in records if not r["ok"] and not r.get("dropped")] if not extra.get("skipped") else []
+    for r in bad[:20]:
+        print(f"growth ingest {key}: {r['id']} failed: {r.get('error')}")
+    if len(bad) > 20:
+        print(f"growth ingest {key}: ... {len(bad) - 20} more failures in {ingest_name(args)}")
     if extra.get("skipped"):
+        # the last line: the job's steps.tsv takes it as the reason of the step
+        print(f"growth ingest hssd: SKIPPED: {(extra.get('gate') or {}).get('reason')}")
         return EXIT_NOTHING
-    return EXIT_OK if ok == len(ids) else EXIT_NOTHING
+    # Milestone 13 round 3: a Poly Haven asset without a glTF (dropped) is data, not a failure of the step
+    return EXIT_OK if failed == 0 else EXIT_NOTHING
 
 
 
@@ -678,13 +725,20 @@ def cmd_infinigen_plan(args) -> int:
 # Catalogue copies
 # --------------------------------------------------------------------------
 
+# The fields every cached measurement must carry: ``pbr`` joined ``glbmesh.measure`` in Milestone 13; a record of the
+# Milestone 12 measurement has none, so the entry of a model measured then got no ``pbr_maps`` on pod P2
+# (``abo_B07124WCZY``: tests/gpu/test_library.py, docs/milestone13.md §14.6) -> measured again.
+MEASURE_FIELDS = ("pbr",)
+
+
 def measured(path: Path, key: str, cache_dir: Path, rules: dict) -> dict:
-    """``glbmesh.measure`` of a model, cached by ``key`` (the file hashes) under ``cache_dir``."""
+    """``glbmesh.measure`` of a model, cached by ``key`` (the file hashes) under ``cache_dir``; a cached record
+    without the ``MEASURE_FIELDS`` of the current measurement is measured again."""
     from wenart.assets.audit import glbmesh as GM
     safe = hashlib.sha256(str(path).encode("utf-8")).hexdigest()[:16]
     cpath = cache_dir / f"{safe}.json"
     hit = read_json(cpath)
-    if hit and hit.get("key") == key:
+    if hit and hit.get("key") == key and all(f in (hit.get("m") or {}) for f in MEASURE_FIELDS):
         return hit["m"]
     m = GM.measure(path, rules=rules)
     write_json(cpath, {"key": key, "path": str(path), "m": m})
@@ -702,8 +756,9 @@ def _validate_one(e: dict) -> Optional[str]:
     return None
 
 
-def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
-    """``(entries, dropped, previews, hints)`` of every ingested or converted new model."""
+def new_entries(args, stamp: str, only: Optional[set] = None) -> tuple[list, list, list, dict]:
+    """``(entries, dropped, previews, hints)`` of every ingested or converted new model; ``only`` limits them to
+    those sources (``GROWTH_ONLY=hssd``: the HSSD layer alone, every other entry stays as the repo has it)."""
     from wenart.assets import abo as AB
     from wenart.assets import objaverse as OV
     from wenart.assets.audit import glbmesh as GM
@@ -725,6 +780,8 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
         except (GM.MeshError, OSError, KeyError, ValueError) as exc:
             drop(source, iid, f"not catalogued: {type(exc).__name__}: {exc}")
             return None
+    def wanted(source: str) -> bool:
+        return only is None or source in only
     # Poly Haven (the Milestone 12 list and the Milestone 13 one: furniture at 2K and vegetation); a record of the
     # M13 ingest whose id is a catalogue model outside the M13 list is the 2K re-fetch of a Milestone 12 model:
     # relinked by cmd_catalogue, never re-made as a pending entry
@@ -732,9 +789,9 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
     m13_ph = {c["id"]: c for c in m13_candidates(args, "polyhaven").get("candidates") or []}
     cands.update(m13_ph)
     ph_records = [(r, False) for r in (read_json(report_dir(args) / "ingest_polyhaven.json") or {}).get("records")
-                  or []]
+                  or []] if wanted("polyhaven") else []
     ph_records += [(r, True) for r in (read_json(report_dir(args) / "ingest_polyhaven_m13.json") or {}).get("records")
-                   or []]
+                   or []] if wanted("polyhaven") else []
     from wenart.assets.audit import items as I
     ph_doc = I.read_json(I.POLYHAVEN_PATH) or {}
     existing_ph = {e.get("id") for sec in ("entries", "decor") for e in ph_doc.get(sec) or [] if isinstance(e, dict)}
@@ -746,7 +803,8 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
         if from_m13 and r["id"] in existing_ph and r["id"] not in m13_ph:
             continue
         if not r.get("ok"):
-            drop("polyhaven", r["id"], f"not downloaded: {r.get('error')}")
+            drop("polyhaven", r["id"], f"no glTF to fetch on Poly Haven: {r.get('reason')}" if r.get("dropped")
+                 else f"not downloaded: {r.get('error')}")
             continue
         c = cands.get(r["id"])
         if c is not None and c.get("kind") == "vegetation":
@@ -761,8 +819,13 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
 
         def ph(r=r, c=c, key=key):
             m = measured(assets / r["gltf"], key, cache, rules)
-            return GE.polyhaven_entry(c, m, r["gltf"], (r.get("sha256") or {}).get("gltf"), r.get("size", PH_SIZE),
-                                      stamp, rules)
+            e = GE.polyhaven_entry(c, m, r["gltf"], (r.get("sha256") or {}).get("gltf"), r.get("size", PH_SIZE),
+                                   stamp, rules)
+            if r.get("size_reason"):
+                e["resolution_note"] = f"growth ingest: {r['size_reason']}"
+            if r["id"] in m13_ph:          # Milestone 13 list: marked as growth_entries marks the M13 ABO and HSSD
+                e["growth"] = dict(e.get("growth") or {}, milestone="m13", list="candidates_polyhaven_m13.json")
+            return e
         e = guard("polyhaven", r["id"], ph)
         if e:
             entries.append(e)
@@ -773,6 +836,7 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
     cands.update({c["id"]: c for c in m13_candidates(args, "abo").get("candidates") or []})
     abo_records = (read_json(report_dir(args) / "ingest_abo.json") or {}).get("records") or []
     abo_records += (read_json(report_dir(args) / "ingest_abo_m13.json") or {}).get("records") or []
+    abo_records = abo_records if wanted("abo") else []
     for r in abo_records:
         c = cands.get(r["id"])
         if not r.get("ok"):
@@ -802,7 +866,8 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
             hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
     # HSSD (Milestone 13, relaxed licence mode: CC BY-NC 4.0)
     cands = {c["id"]: c for c in candidates(args, "hssd").get("candidates") or []}
-    for r in (read_json(report_dir(args) / "ingest_hssd.json") or {}).get("records") or []:
+    hssd_records = (read_json(report_dir(args) / "ingest_hssd.json") or {}).get("records") or []
+    for r in hssd_records if wanted("hssd") else []:
         c = cands.get(r["id"])
         if not r.get("ok"):
             drop("hssd", r["id"], f"not downloaded: {r.get('error')}")
@@ -823,12 +888,15 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
             entries.append(e)
             hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
     # GSO
-    lic = {r["uid"]: r for r in (read_json(Path(args.growth) / "gso" / "licences.json") or {}).get("records") or []
-           if r.get("uid")}
-    for r in (read_json(Path(args.growth) / "gso" / "licences.json") or {}).get("records") or []:
+    gso_lic = (read_json(Path(args.growth) / "gso" / "licences.json") or {}).get("records") or [] \
+        if wanted("gso") else []
+    lic = {r["uid"]: r for r in gso_lic if r.get("uid")}
+    for r in gso_lic:
         if not r.get("kept"):
             drop("gso", r["id"], f"licence not confirmed: {r.get('reason')}")
-    for uid, res in ((read_json(report_dir(args) / "convert_gso.json") or {}).get("results") or {}).items():
+    gso_conv = (read_json(report_dir(args) / "convert_gso.json") or {}).get("results") or {} \
+        if wanted("gso") else {}
+    for uid, res in gso_conv.items():
         rec = lic.get(uid)
         if not res.get("ok") or rec is None:
             drop("gso", (rec or {}).get("id", uid), f"not converted: {res.get('error')}")
@@ -839,7 +907,7 @@ def new_entries(args, stamp: str) -> tuple[list, list, list, dict]:
             entries.append(e)
             hints[e["id"]] = []
     # Infinigen
-    plan = read_json(ig_root(args) / "jobs.json") or {}
+    plan = read_json(ig_root(args) / "jobs.json") or {} if wanted("infinigen") else {}
     jobs = {j["id"]: j for j in plan.get("jobs") or []}
     conv = (read_json(report_dir(args) / "convert_infinigen.json") or {}).get("results") or {}
     for jid, j in jobs.items():
@@ -892,37 +960,138 @@ def relink_polyhaven_2k(doc: dict, assets: Path, records: list) -> int:
             e["resolution"] = r.get("size") or "2k"
             if (r.get("sha256") or {}).get("gltf"):
                 e["sha256_gltf"] = r["sha256"]["gltf"]
-            e["resolution_note"] = "M13 growth: 2K glTF fetched by pod P2 (docs/milestone13.md §5.1 phase 2); the 1K " \
-                                   "file stays as gltf_1k"
+            e["resolution_note"] = (f"M13 growth: {e['resolution'].upper()} glTF fetched by pod P2 (docs/milestone13.md"
+                                    " §5.1 phase 2); the 1K file stays as gltf_1k"
+                                    + (f"; {r['size_reason']}" if r.get("size_reason") else ""))
             n += 1
     return n
 
 
+REAUDIT = "reaudit"          # audit[REAUDIT]: the record of an entry whose model file changed upstream
+
+
+def reaudit_entries(*docs: Optional[dict]) -> list[dict]:
+    """The catalogue entries waiting for a new audit of a changed model file: ``audit.status`` pending with an
+    ``audit.reaudit`` record (an asset republished upstream: its box was measured again from the current file and
+    the next audit judges it again; docs/milestone13.md §14.6: ``vintage_wooden_drawer_01``, round 3)."""
+    return [e for doc in docs for sec in ("entries", "decor") for e in (doc or {}).get(sec) or []
+            if isinstance(e, dict) and e.get("id") and (e.get("audit") or {}).get("status") == "pending"
+            and isinstance((e.get("audit") or {}).get(REAUDIT), dict)]
+
+
+def file_current(e: dict, assets: Path) -> tuple[bool, str]:
+    """``(current, why)``: the model file on the volume is the one the entry was measured on. Poly Haven: the asset
+    manifest's entry (every file of the glTF with its sha256 on disk, ``models._cached_ok``) has the entry's
+    ``sha256_gltf`` at its ``resolution``; a library GLB: its sha256 is the entry's ``sha256_glb``."""
+    from wenart.assets import fetch as F
+    from wenart.assets import models as M
+    if e.get("source") == "polyhaven":
+        want = e.get("sha256_gltf")
+        if not want:
+            return False, "the entry has no sha256_gltf"
+        man = (F.load_manifest(Path(assets)).get("models") or {}).get(e["id"])
+        if not man:
+            return False, f"not in the asset manifest of {assets}: run growth run refetch"
+        if M._cached_ok(Path(assets), man, e.get("resolution") or PH_SIZE, expect_sha256_gltf=want):
+            return True, "current"
+        got = (man.get("sha256") or {}).get("gltf") or "none"
+        return False, f"the files on the volume (gltf sha256 {got[:12]}...) are not the entry's ({want[:12]}...): " \
+                      "run growth run refetch"
+    rel, want = e.get("glb"), e.get("sha256_glb")
+    if not rel or not want:
+        return False, "the entry has no glb / sha256_glb"
+    path = Path(assets) / rel
+    if not path.is_file():
+        return False, f"{rel} is not on the volume"
+    got = sha256_file(path)
+    return (True, "current") if got == want else (False, f"{rel} has sha256 {got[:12]}..., the entry {want[:12]}...")
+
+
+def cmd_refetch(args) -> int:
+    """Fetch again the current file of every repo catalogue entry waiting for a re-audit (``reaudit_entries``): a
+    Poly Haven model through ``models.fetch_model(expect_sha256_gltf=...)`` (the files of the older publication are
+    kept beside, never deleted); a library GLB is only checked (its pod writes it). ``report/refetch.json`` says per
+    entry whether the file now on the volume is the one the entry was measured on (rc 1 when one is not)."""
+    from wenart.assets import models as M
+    from wenart.assets.audit import items as I
+    rows = []
+    for e in reaudit_entries(I.read_json(I.LIBRARY_PATH), I.read_json(I.POLYHAVEN_PATH)):
+        row = {"id": e["id"], "source": e.get("source"), "reason": (e["audit"][REAUDIT] or {}).get("reason")}
+        try:
+            if e.get("source") == "polyhaven":
+                m = M.fetch_model(e["id"], Path(args.assets), size=e.get("resolution") or PH_SIZE,
+                                  expect_sha256_gltf=e.get("sha256_gltf"))
+                row.update(sha256_gltf=(m.get("sha256") or {}).get("gltf"), superseded=m.get("superseded") or [])
+            row["current"], row["state"] = file_current(e, Path(args.assets))
+        except Exception as exc:  # noqa: BLE001 - recorded with the reason
+            row.update(current=False, state=f"FAILED: {type(exc).__name__}: {exc}")
+        rows.append(row)
+        print(f"growth refetch: {e['id']}: {row['state']}", flush=True)
+    write_json(report_dir(args) / "refetch.json", {"kind": "library_refetch", "written_utc": now_utc(),
+                                                   "rows": rows})
+    bad = [r["id"] for r in rows if not r["current"]]
+    print(f"growth refetch: {len(rows)} entr{'y' if len(rows) == 1 else 'ies'} waiting for a re-audit, "
+          f"{len(rows) - len(bad)} current" + (f"; not current: {bad}" if bad else ""))
+    return EXIT_NOTHING if bad else EXIT_OK
+
+
 def cmd_catalogue(args) -> int:
+    """The catalogue copies with the new entries (``new_entries``) and ``new_ids.json`` (the ids the audit steps
+    take). ``--only hssd`` (``GROWTH_ONLY=hssd``): only those sources are (re)built; every other entry stays as the
+    repo's catalogues have it (P2's audited entries), ``new_ids.json`` keeps the earlier ids as ``kept_ids`` and the
+    earlier previews, ``catalogue.json`` the earlier drops of the other sources (nothing disappears from the
+    records). Both modes add the entries waiting for a re-audit whose current file is on the volume (``refetch``)."""
     from collections import Counter
 
     from wenart.assets.audit import growth_entries as GE
     from wenart.assets.audit import items as I
     stamp = args.checked_utc or now_utc()
-    entries, dropped, previews, hints = new_entries(args, stamp)
+    only = {x.strip() for x in str(getattr(args, "only", None) or "").split(",") if x.strip()} or None
+    entries, dropped, previews, hints = new_entries(args, stamp, only)
     lib, ph, stats = GE.build_copies(I.read_json(I.LIBRARY_PATH), I.read_json(I.POLYHAVEN_PATH), entries)
-    ph2k = (read_json(report_dir(args) / "ingest_polyhaven_m13.json") or {}).get("records") or []
-    stats["polyhaven_relinked_2k"] = relink_polyhaven_2k(ph, Path(args.assets), ph2k)
+    if only is None or "polyhaven" in only:
+        ph2k = (read_json(report_dir(args) / "ingest_polyhaven_m13.json") or {}).get("records") or []
+        stats["polyhaven_relinked_2k"] = relink_polyhaven_2k(ph, Path(args.assets), ph2k)
     lib_path, ph_path = copies(args)
     write_json(lib_path, lib)
     write_json(ph_path, ph)
     ids = [e["id"] for e in entries]
+    reaudit, waiting = [], []
+    for e in reaudit_entries(lib, ph):
+        if e["id"] in ids:
+            continue
+        current, why = file_current(e, Path(args.assets))
+        if current:
+            reaudit.append(e["id"])
+            hints[e["id"]] = [x for x in e.get("styles") or [] if x != "neutral"]
+        else:
+            waiting.append({"id": e["id"], "reason": why})
+    ids += reaudit
     by_source = Counter(source_key(e) for e in entries)
-    write_json(audit_dir(args) / "new_ids.json", {"ids": ids, "by_source": dict(by_source), "hints": hints,
-                                                  "previews": previews, "written_utc": stamp})
+    doc = {"ids": ids, "by_source": dict(by_source), "hints": hints, "previews": previews, "written_utc": stamp,
+           "reaudit": reaudit, "reaudit_waiting": waiting}
+    report = {"added": len(entries), "by_source": dict(by_source), "dropped": dropped, "previews": previews,
+              "reaudit": reaudit, "reaudit_waiting": waiting}
+    if only is not None:
+        prev = new_ids(args)
+        before = (set(prev.get("ids") or []) | set(prev.get("kept_ids") or [])) - set(ids)
+        prev_rep = read_json(report_dir(args) / "catalogue.json") or {}
+        doc.update(only=sorted(only), kept_ids=sorted(before), previews=prev.get("previews") or [])
+        report.update(only=sorted(only), previews=prev_rep.get("previews") or prev.get("previews") or [],
+                      dropped=[d for d in prev_rep.get("dropped") or [] if d.get("source") not in only] + dropped)
+    write_json(audit_dir(args) / "new_ids.json", doc)
     by_type = Counter(f"{e['source']}:{e['type']}" for e in entries)
     write_json(report_dir(args) / "catalogue.json",
-               {"added": len(entries), "by_source": dict(by_source), "by_type": dict(sorted(by_type.items())),
-                "dropped": dropped, "previews": previews, "copies": {"library": str(lib_path), "polyhaven":
-                                                                     str(ph_path)}, "stats": stats})
+               dict(report, by_type=dict(sorted(by_type.items())),
+                    copies={"library": str(lib_path), "polyhaven": str(ph_path)}, stats=stats))
     print(f"growth catalogue: {len(entries)} new entries {dict(by_source)}, {len(dropped)} dropped, "
-          f"{len(previews)} previews -> {lib_path.parent}")
-    return EXIT_OK if entries else EXIT_NOTHING
+          f"{len(previews)} previews" + (f", only {sorted(only)} ({len(doc['kept_ids'])} earlier ids kept)"
+                                         if only else "")
+          + (f", re-audit {reaudit}" if reaudit else "") + (f", re-audit waiting {waiting}" if waiting else "")
+          + f" -> {lib_path.parent}")
+    for w in waiting:
+        print(f"growth catalogue: {w['id']} waits for a re-audit: {w['reason']}")
+    return EXIT_OK if ids else EXIT_NOTHING
 
 
 # --------------------------------------------------------------------------
@@ -1026,8 +1195,10 @@ def cmd_pending(args) -> int:
     from wenart.furniture import catalog as C
     lib_path, ph_path = copies(args)
     new = set(new_ids(args)["ids"])
+    # an entry waiting for a re-audit of a changed file (``reaudit_entries``) needs a render of the new file, never
+    # P3's answers about the old one
     pend = [i for i in I.load_items(lib_path, ph_path) if (i.get("audit") or {}).get("status") == "pending"
-            and i["id"] not in new]
+            and i["id"] not in new and not isinstance((i.get("audit") or {}).get(REAUDIT), dict)]
     if not pend:
         print("growth pending: no P3 model is pending")
         return EXIT_OK
@@ -1091,36 +1262,78 @@ def cmd_gaps(args) -> int:
     return EXIT_OK
 
 
+def preview_item(p: dict, assets: Path) -> dict:
+    """The audit item of one preview of ``new_ids.json``: an Infinigen model without a type of ours (``glb``,
+    ``factory``, ``class``) or, since Milestone 13, a Poly Haven vegetation model (``gltf``, ``type``: no furniture
+    entry, wenart.blender.vegetation uses it). Raises ``KeyError`` naming the missing field, ``MeshError`` /
+    ``OSError`` when the file cannot be measured (``cmd_preview`` prints and records every one)."""
+    from wenart.assets.audit import glbmesh as GM
+    from wenart.furniture import catalog as C
+    rel = p.get("glb") or p.get("gltf")
+    if not rel:
+        raise KeyError(f"no glb / gltf path in the preview record (keys {sorted(p)})")
+    m = GM.measure(Path(assets) / rel)
+    if p.get("kind") == "vegetation":
+        title, source, licence = f"Poly Haven {p.get('type') or 'vegetation'} (vegetation, no furniture entry)", \
+            "polyhaven", "CC0"
+    else:
+        title = f"Infinigen {p.get('factory', '?')} ({p.get('class', '?')}): no type of ours"
+        source, licence = "generated", "generated (Infinigen, BSD-3-Clause)"
+    return {"id": p["id"], "type": "unknown", "kind": "furniture", "source": source, "licence": licence,
+            "title": title, ("gltf" if rel.endswith(".gltf") else "glb"): rel, "bbox_m": m["bbox_model_m"],
+            "unit_scale": 1.0, "origin_offset": C.origin_offset(m["bbox_min_m"], m["bbox_max_m"]), "front_axis": "-Y"}
+
+
 def cmd_preview(args) -> int:
-    """Audit sheets (the scale reference, four views) of the generated models without a type of ours."""
+    """Audit sheets (the scale reference, four views) of the previews of ``new_ids.json``: the generated models
+    without a type of ours and (Milestone 13) the Poly Haven vegetation models.
+
+    Pod P2 (15 Oct 2026, docs/milestone13.md §14.6): the step stopped at once with ``KeyError: 'glb'`` (steps.tsv
+    ``preview 1 0``): the vegetation previews the Milestone 13 catalogue step adds carry ``gltf``, not ``glb``. Now
+    both kinds are measured, every preview that cannot be measured or rendered is printed with its reason and
+    recorded in ``report/preview.json``, and the step ends with one line that names what failed (rc 1 then)."""
     from wenart.assets.audit import load_config
     from wenart.assets.audit import render as R
     prev = new_ids(args).get("previews") or []
     if not prev:
         print("growth preview: nothing to show")
         return EXIT_OK
-    from wenart.assets.audit import glbmesh as GM
-    from wenart.furniture import catalog as C
-    items = []
+    items, failed = [], []
     for p in prev:
         try:
-            m = GM.measure(Path(args.assets) / p["glb"])
-        except (GM.MeshError, OSError) as exc:
-            print(f"growth preview: {p['id']} not measured: {exc}")
-            continue
-        items.append({"id": p["id"], "type": "unknown", "kind": "furniture", "source": "generated",
-                      "licence": "generated (Infinigen, BSD-3-Clause)", "title": f"Infinigen {p['factory']} "
-                      f"({p['class']}): no type of ours", "glb": p["glb"], "bbox_m": m["bbox_model_m"],
-                      "unit_scale": 1.0, "origin_offset": C.origin_offset(m["bbox_min_m"], m["bbox_max_m"]),
-                      "front_axis": "-Y"})
-    s = dict(load_config().get("render") or {})
-    work = Path(args.p4) / "work_preview"
+            items.append(preview_item(p, Path(args.assets)))
+        except Exception as exc:  # noqa: BLE001 - KeyError, MeshError, OSError, ValueError: printed and recorded
+            failed.append({"id": p.get("id"), "reason": f"not measured: {type(exc).__name__}: {exc}"})
+            print(f"growth preview: {p.get('id')} not measured: {type(exc).__name__}: {exc}", flush=True)
+    rc = EXIT_OK
     out = audit_dir(args) / "preview"
-    doc = R.render_jobs(items, Path(args.assets), work, s, deadline_of(args))
-    rc = R.run_render(doc, args.blender, work, 1)
-    R.compose_all(items, work, out, s)
-    print(f"growth preview: {len(items)} model(s) -> {out}")
-    return rc
+    if items:
+        s = dict(load_config().get("render") or {})
+        work = Path(args.p4) / "work_preview"
+        doc = R.render_jobs(items, Path(args.assets), work, s, deadline_of(args))
+        for miss in doc.get("missing") or []:
+            failed.append({"id": miss["id"], "reason": f"file missing: {miss['file']}"})
+            print(f"growth preview: {miss['id']} file missing: {miss['file']}")
+        rc = R.run_render(doc, args.blender, work, 1)
+        if rc != EXIT_OK:
+            print(f"growth preview: the Blender render ended with exit {rc} (logs in {work / 'jobs'})")
+        R.compose_all(items, work, out, s)
+        measures = R.read_measures(work)
+        for it in items:
+            m = measures.get(it["id"]) or {}
+            if not m.get("ok") and it["id"] not in {f["id"] for f in failed}:
+                failed.append({"id": it["id"], "reason": f"not rendered: {m.get('error') or 'no measurement'}"})
+                print(f"growth preview: {it['id']} not rendered: {m.get('error') or 'no measurement'}")
+    write_json(report_dir(args) / "preview.json", {"kind": "library_growth_preview", "written_utc": now_utc(),
+                                                   "previews": len(prev), "rendered": len(items) - sum(
+                                                       1 for f in failed if f["reason"].startswith("not rendered")),
+                                                   "failed": failed, "render_rc": rc, "out": str(out)})
+    print(f"growth preview: {len(items)} of {len(prev)} model(s) measured -> {out}"
+          + (f"; {len(failed)} FAILED: {', '.join(f['id'] + ' (' + f['reason'] + ')' for f in failed[:5])}"
+             + (" ..." if len(failed) > 5 else "") if failed else ""))
+    if rc != EXIT_OK:
+        return rc
+    return EXIT_NOTHING if failed else EXIT_OK
 
 
 # --------------------------------------------------------------------------
@@ -1128,13 +1341,18 @@ def cmd_preview(args) -> int:
 # --------------------------------------------------------------------------
 
 def steps_of(path: Path) -> list:
+    """The rows of the job's ``steps.tsv``: ``name rc seconds [reason]`` (round 3: a failed step's last output line
+    is its fourth column, so ``preview 1 0`` never stands without a reason again)."""
     rows = []
     try:
         for line in Path(path).read_text(encoding="utf-8").splitlines():
             parts = line.split("\t")
             if len(parts) >= 3 and parts[1].lstrip("-").isdigit():
-                rows.append({"step": parts[0], "rc": int(parts[1]), "seconds": int(parts[2])})
-    except OSError:
+                row = {"step": parts[0], "rc": int(parts[1]), "seconds": int(parts[2])}
+                if len(parts) >= 4 and parts[3].strip():
+                    row["reason"] = parts[3].strip()
+                rows.append(row)
+    except (OSError, ValueError):
         pass
     return rows
 
@@ -1258,8 +1476,9 @@ def cmd_report(args) -> int:
         lines += [f"| {d['source']} | {d['id']} | {str(d['reason']).replace('|', '/')[:200]} |" for d in doc["dropped"]]
         lines.append("")
     if steps:
-        lines += ["## Steps", "", "| step | rc | seconds |", "|---|---|---|"]
-        lines += [f"| {s['step']} | {s['rc']} | {s['seconds']} |" for s in steps]
+        lines += ["## Steps", "", "| step | rc | seconds | reason (a failed step's last line) |", "|---|---|---|---|"]
+        lines += [f"| {s['step']} | {s['rc']} | {s['seconds']} | {str(s.get('reason') or '').replace('|', '/')} |"
+                  for s in steps]
         lines.append("")
     (rep / "growth.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"growth report -> {rep / 'growth.md'}")
@@ -1275,8 +1494,11 @@ STEPS = {"ingest": cmd_ingest, "gso-licence": cmd_gso_licence, "infinigen-list":
          "vision-fields": cmd_vision_fields, "pending": cmd_pending, "gaps": cmd_gaps, "preview": cmd_preview,
          "report": cmd_report,
          # Milestone 13 (track T7)
-         "demands": cmd_demands, "size-grid": cmd_size_grid, "speed-probe": cmd_speed_probe}
+         "demands": cmd_demands, "size-grid": cmd_size_grid, "speed-probe": cmd_speed_probe,
+         # Milestone 13 round 3: the current file of an entry waiting for a re-audit
+         "refetch": cmd_refetch}
 M13_STEPS = ("demands", "size-grid", "speed-probe")
+ONLY_SOURCES = ("hssd", "abo", "polyhaven", "gso", "infinigen")      # catalogue --only (GROWTH_ONLY=hssd)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -1303,6 +1525,8 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--deadline", default=None)
     p.add_argument("--checked-utc", default=None)
     p.add_argument("--steps", default=None, help="report: the job's steps.tsv")
+    p.add_argument("--only", default=None, help="catalogue: only these sources, comma separated (GROWTH_ONLY=hssd); "
+                                                 "every other entry stays as the repo's catalogues have it")
     return p
 
 
@@ -1317,10 +1541,19 @@ def main(argv=None) -> int:
     if args.step == "ask" and args.workers == 8:
         from wenart.assets.audit import load_config
         args.workers = int((load_config().get("ask") or {}).get("workers", 4))
+    bad = sorted({x.strip() for x in str(args.only or "").split(",") if x.strip()} - set(ONLY_SOURCES))
+    if bad:
+        print(f"growth run {args.step}: --only {bad} is not a source of {ONLY_SOURCES}")
+        return EXIT_NOTHING
     try:
         return STEPS[args.step](args)
     except KeyboardInterrupt:
         return EXIT_DEADLINE
+    except Exception as exc:  # noqa: BLE001 - round 3: every failure prints its reason (pod P2: preview rc 1)
+        import traceback
+        traceback.print_exc()
+        print(f"growth run {args.step}: FAILED: {type(exc).__name__}: {exc}", flush=True)
+        return EXIT_NOTHING
 
 
 if __name__ == "__main__":

@@ -3,12 +3,14 @@ skipped without a Blender binary): the vegetation and site objects built in Blen
 material counts, and the committed real04 building built and rendered with its site.
 
 - ``test_hedge_tree_sources_and_pool_in_blender``: one script inside Blender (``cli.run_blender``) builds a hedge
-  (``vegetation.hedge_object``: one mesh with a geometry-nodes modifier scattering leaf cards; the leaf material with
-  ``Thin Wall``), one tree per source (``cards`` always; ``sapling`` when the add-on is installed on the pod, through
-  ``bpy.ops.curve.tree_add``: a curve object with a leaves mesh; ``polyhaven`` when the assets hold a Poly Haven tree:
-  a collection instance of one imported glTF), a palm, a grass patch and a pool through ``site.build_site`` (basin,
-  water with a Volume Absorption link, coping). Every expected object and material is counted; instances come from
-  the evaluated depsgraph.
+  (``vegetation.hedge_object``: one hull mesh with a geometry-nodes modifier scattering leaf cards at the species'
+  density; the leaf material with ``Thin Wall``), one tree per source (``cards`` always; ``sapling`` when the add-on
+  is installed on the pod, through ``bpy.ops.curve.tree_add``: a curve object with a ``leaves`` mesh child that has
+  leaf faces and the leaf-card material, round 3; ``polyhaven`` when the assets hold a Poly Haven tree: a collection
+  instance of one imported glTF), a palm, a grass patch, the lawn material, and a pool and a stepped terrace through
+  ``site.build_site`` (basin, water with a Volume Absorption link, coping; the terrace on a sloped ``terrain_model``
+  record and the pool plan on a bare ``{kind, z}`` record: P1 raised ``KeyError: 'sides'`` there). Every expected
+  object and material is counted; instances come from the evaluated depsgraph.
 - ``test_real04_site_builds_and_the_site_view_sees_the_sky``: the committed real04 building built by the real build
   script (no textures): 4 hedges, 5 platforms with their parts, 4 pools with coping, the backdrop and the haze, every
   tree through the vegetation module (no ellipsoid proxy), the exterior cameras ext_1-5 and ext_7 (ext_3 / ext_4 were
@@ -25,6 +27,7 @@ from pathlib import Path
 import pytest
 
 from wenart.blender import cli
+from wenart.blender import site as S
 from wenart.blender import vegetation as VG
 
 pytestmark = pytest.mark.gpu
@@ -50,15 +53,19 @@ VEG_SCRIPT = textwrap.dedent("""
     def instances_of(ob):
         dg = bpy.context.evaluated_depsgraph_get()
         return sum(1 for i in dg.object_instances if i.is_instance and i.parent and i.parent.original == ob)
-    terrain = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
+    # a real terrain record (terrain_model: kind, z, sides, north, changes), flat at 0
+    terrain = S.terrain_model({"site": {"ground": {"levels": [{"side": "all", "z": {"value": 0.0}}]}}},
+                              [(30, 0), (40, 0), (40, 8), (30, 8)])
     hedge = {"id": "h1", "polyline": [[0, 0], [8, 0]], "width_m": 0.7, "height_m": 1.2, "species": "cherry_laurel"}
     v, f, info = S.hedge_parts(hedge, terrain)
     hob, hrec = VG.hedge_object(dict(hedge, core_verts=v, core_faces=f), collection=col, name="hedge_h1")
     leaf = bpy.data.materials.get(hrec["material"])
     bsdf = next((n for n in leaf.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"), None)
     res["hedge"] = {"rec": hrec, "modifiers": [m.type for m in hob.modifiers], "instances": instances_of(hob),
+                    "core_faces": len(hob.data.polygons), "core_info": info,
                     "thin_wall": bool(bsdf and bsdf.inputs["Thin Wall"].default_value),
-                    "alpha_linked": bool(bsdf and bsdf.inputs["Alpha"].is_linked)}
+                    "alpha_linked": bool(bsdf and bsdf.inputs["Alpha"].is_linked),
+                    "tint": leaf.get("wenart_tint"), "mask": leaf.get("wenart_leaf_mask")}
     levers = {"instances": True, "sapling": True}
     trees = {}
     cob, crec = VG.tree_object("stone_pine", 8.0, 1, False, collection=col, name="tree_cards", position=(0, 5, 0),
@@ -67,9 +74,20 @@ VEG_SCRIPT = textwrap.dedent("""
     if res["sapling"]["ok"]:
         sob, srec = VG.tree_object("olive", 5.6, 2, False, collection=col, name="tree_sapling", position=(6, 5, 0),
                                    levers=levers, crown_m=3.5)
+        # matrix_world follows the post-scale and the location only after a depsgraph update (review of round 3:
+        # measured without it, the curve top was the unscaled 4.87 m)
+        bpy.context.view_layer.update()
         zs = [(sob.matrix_world @ p.co).z for sp in sob.data.splines for p in sp.bezier_points] if sob.type == "CURVE" else []
-        trees["sapling"] = {"rec": srec, "type": sob.type, "top": round(max(zs), 2) if zs else None,
-                            "children": [(c.name, c.type, c.instance_type) for c in sob.children]}
+        kids = []
+        for c in sob.children:
+            mesh = c.type == "MESH"
+            kids.append({"name": c.name, "type": c.type, "instance_type": c.instance_type,
+                         "faces": len(c.data.polygons) if mesh else 0,
+                         "materials": [m.name for m in c.data.materials] if mesh else [],
+                         "uv_layers": [u.name for u in c.data.uv_layers] if mesh else [],
+                         "top": round(max((c.matrix_world @ v.co).z for v in c.data.vertices), 2)
+                         if mesh and len(c.data.vertices) else None})
+        trees["sapling"] = {"rec": srec, "type": sob.type, "top": round(max(zs), 2) if zs else None, "children": kids}
     hero = VG.hero_model("olive")
     if hero is not None:
         pob, prec = VG.tree_object("olive", 4.0, 3, True, collection=col, name="tree_hero", position=(12, 5, 0), levers=levers)
@@ -81,8 +99,26 @@ VEG_SCRIPT = textwrap.dedent("""
     res["trees"] = trees
     gob, grec = VG.grass_patch([(0, 10), (10, 10), (10, 16), (0, 16)], 4.0, collection=col, terrain=terrain, name="grass_near")
     res["grass"] = {"rec": grec, "instances": instances_of(gob), "camera_visible": gob.visible_camera}
-    # a pool through build_site on a tiny plan (deck level 0.0, the pools lever on)
-    plan = {"mode": "full", "terrain": terrain, "outline": [(30, 0), (40, 0), (40, 8), (30, 8)], "plot": [], "plot_source": "none",
+    # the lawn material (round 3): a flat-colour material and a textured one (a Mapping node at a 4 m tile)
+    flat = bpy.data.materials.new("lawn_flat"); flat.use_nodes = True
+    flat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.077, 0.097, 0.0, 1.0)
+    tex = bpy.data.materials.new("lawn_tex"); tex.use_nodes = True
+    mp = tex.node_tree.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (0.25, 0.25, 1.0)
+    rgb = tex.node_tree.nodes.new("ShaderNodeRGB")
+    tex.node_tree.links.new(rgb.outputs[0], tex.node_tree.nodes["Principled BSDF"].inputs["Base Color"])
+    # Blender 5.x gives every new material a node tree with a Principled BSDF (Material.use_nodes is deprecated):
+    # the case lawn_material leaves alone is a node tree without a Principled BSDF
+    plain = bpy.data.materials.new("lawn_plain")
+    for n in [n for n in plain.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled"]:
+        plain.node_tree.nodes.remove(n)
+    res["lawn"] = {"flat": VG.lawn_material(flat), "flat_again": VG.lawn_material(flat), "tex": VG.lawn_material(tex),
+                   "plain": VG.lawn_material(plain), "tex_scale": list(mp.inputs["Scale"].default_value),
+                   "flat_nodes": sorted(n.bl_idname for n in flat.node_tree.nodes),
+                   "flat_base_linked": flat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].is_linked}
+    # a pool through build_site on a tiny plan (deck level 0.0, the pools lever on) on a bare terrain record (P1
+    # raised KeyError 'sides' here)
+    bare = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
+    plan = {"mode": "full", "terrain": bare, "outline": [(30, 0), (40, 0), (40, 8), (30, 8)], "plot": [], "plot_source": "none",
             "extent": [(20, -10), (50, -10), (50, 20), (20, 20)], "wells": [], "plot_walls": [], "areas": [], "trees": [],
             "not_built": [], "assumed": [], "warnings": [], "ground_is_grass": True, "inferred": None, "copy_holes": [],
             "pools": [{"id": "pool_t", "polygon": [(32, 10), (38, 10), (38, 14), (32, 14)], "depth": 1.5, "evidence": [],
@@ -92,7 +128,7 @@ VEG_SCRIPT = textwrap.dedent("""
     def mk(look):
         m = bpy.data.materials.get(str(look.get("material"))) or bpy.data.materials.new(str(look.get("material")))
         return m
-    looks = {k: {"material": k, "colour": None, "source": "build"} for k in ("garden", "paving", "plot_wall", "light_well", "bark", "foliage", "ground", "steps", "railing")}
+    looks = {k: {"material": k, "colour": None, "source": "build"} for k in ("garden", "paving", "plot_wall", "light_well", "bark", "foliage", "ground", "steps", "railing", "facade")}
     pcol = bpy.data.collections.new("pool_site"); bpy.context.scene.collection.children.link(pcol)
     objs, assumed = [], []
     summary = S.build_site(plan, pcol, looks, mk, objs, assumed)
@@ -100,7 +136,26 @@ VEG_SCRIPT = textwrap.dedent("""
     water = bpy.data.materials.get("pool_water")
     res["pool"] = {"objects": pool_objs, "water_volume": bool(water and any(l.to_socket.name == "Volume" for l in water.node_tree.links)),
                    "tiles_nodes": [n.bl_idname for n in bpy.data.materials["pool_tiles"].node_tree.nodes],
-                   "summary_objects": summary["objects"]}
+                   "summary_objects": summary["objects"], "terrain": summary["terrain"], "lawn": summary.get("lawn")}
+    # a stepped terrace through build_site: a 'sides' terrain 2.5 m lower on the -x side, a terrace at the +x level
+    sloped = S.terrain_model({"site": {"ground": {"levels": [{"side": "left", "z": {"value": -6.0}},
+                                                              {"side": "right", "z": {"value": 0.0}}]}}},
+                             [(60, 0), (70, 0), (70, 8), (60, 8)])
+    # the terrace sits across the corner blend of the two sides (the ground falls 2.5 m over it)
+    tsite = {"ground": {"levels": [], "points": []}, "paving": [{"id": "t1", "polygon": [[52, -8], [58, -8], [58, -2], [52, -2]],
+                                                                 "build": True}], "parking": [], "pools": []}
+    tpfs = S.platforms(tsite, sloped)
+    tplan = dict(plan, terrain=sloped, outline=[(60, 0), (70, 0), (70, 8), (60, 8)], extent=[(40, -10), (80, -10), (80, 20), (40, 20)],
+                 near_extent=[(40, -10), (80, -10), (80, 20), (40, 20)], pools=[], platforms=tpfs,
+                 areas=[{"id": "t1", "kind": "paving", "polygon": [[52, -8], [58, -8], [58, -2], [52, -2]], "z": None, "material": None,
+                         "colour": None, "source": "site_plan", "area_id": None, "lift": S.PAVING_LIFT, "platform_id": "t1"}])
+    tcol = bpy.data.collections.new("terrace_site"); bpy.context.scene.collection.children.link(tcol)
+    tobjs, tassumed = [], []
+    tsum = S.build_site(tplan, tcol, looks, mk, tobjs, tassumed)
+    res["terrace"] = {"platforms": tsum["platforms"], "terrain": tsum["terrain"],
+                      "objects": sorted(o.name for o in tcol.objects if o.get("wenart_kind") == S.site_kind("platform")),
+                      "facade_material": mk(looks["facade"]).name,
+                      "wall_materials": sorted({o.data.materials[0].name for o in tcol.objects if o.name.endswith("_wall") and o.data.materials})}
     res["materials"] = sorted(m.name for m in bpy.data.materials if m.name.startswith(("veg_", "pool_", "site_")))
     json.dump(res, open(out, "w"), indent=1, default=str)
 """)
@@ -116,6 +171,13 @@ def test_hedge_tree_sources_and_pool_in_blender(tmp_path):
     h = res["hedge"]
     assert h["modifiers"] == ["NODES"] and h["rec"]["method"] == "cards" and h["thin_wall"] and h["alpha_linked"]
     assert h["instances"] > 0.5 * h["rec"]["cards"]                     # the leaf cards scattered on the core
+    # round 3: the hull core, the species' density and cover, the atlas opacity mask on the pod's assets
+    assert h["rec"]["core"] == "hull" and h["core_info"]["core"] == "hull" and h["core_faces"] == 12
+    assert h["rec"]["density"] == VG.hedge_density(0.9) and h["rec"]["cover_layers"] == pytest.approx(2.0, abs=0.05)
+    assert h["rec"]["cards"] == round(26.48 * h["rec"]["density"])     # 8 m x (0.7 + 2 x 1.2) + 2 x 0.7 x 1.2 m²
+    assert h["tint"] and "gain 1.6" in h["tint"]
+    if h["rec"]["atlas"]:
+        assert h["mask"] == "opacity_map"                               # the ambientCG Opacity map drives the alpha
     cards = res["trees"]["cards"]
     assert cards["rec"]["method"] == "cards" and cards["type"] == "MESH" and len(cards["children"]) == 2
     assert all(n > 0 for _name, n in cards["children"])
@@ -123,30 +185,61 @@ def test_hedge_tree_sources_and_pool_in_blender(tmp_path):
     assert palm["rec"]["method"] == "palm" and palm["children"][0][1] == 14
     if res["sapling"]["ok"]:
         sap = res["trees"]["sapling"]
-        assert sap["rec"]["method"] == "sapling" and sap["type"] == "CURVE" and sap["top"] == pytest.approx(5.6, abs=0.3)
-        assert any(c[2] == "FACES" for c in sap["children"])            # the leaf card instanced on the leaf faces
+        assert sap["rec"]["method"] == "sapling" and sap["type"] == "CURVE" and sap["top"] == pytest.approx(5.6, abs=0.4)
+        # round 3 (P1: bare branches): the add-on's own 'rect' leaf quads in its leaves mesh with the leaf material
+        assert sap["rec"]["leaf_faces"] > 0 and sap["rec"]["leaf_shape"] == "rect" and sap["rec"]["leaves"]
+        leaves = next(c for c in sap["children"] if c["type"] == "MESH" and c["name"].endswith("_leaves"))
+        assert leaves["faces"] == sap["rec"]["leaf_faces"] and leaves["materials"] == [sap["rec"]["material"]]
+        assert leaves["instance_type"] == "NONE" and "leafUV" in leaves["uv_layers"]
+        # the drawn height exactly: _tree_sapling scales the tree so its top (curve or leaves) is 5.6 m
+        assert max(leaves["top"], sap["top"]) == pytest.approx(5.6, abs=0.05) and sap["top"] <= leaves["top"] + 0.01
+        assert sap["rec"]["material"].startswith("veg_leaf_")           # the same material as the leaf cards
     if "polyhaven" in res["trees"]:
         hero = res["trees"]["polyhaven"]
         assert hero["rec"]["method"] == "polyhaven" and hero["instance_type"] == "COLLECTION"
         assert hero["rec"]["licence"] == "CC0" and hero["collection"].startswith("veg_") and hero["scale"] > 0
     g = res["grass"]
     assert g["instances"] > 0.8 * g["rec"]["count"] and not g["camera_visible"]
+    # round 3: the lawn material: tiling clamped to 1-2 m, a noise-driven variation into the base colour, a bump
+    lawn = res["lawn"]
+    assert lawn["flat"]["applied"] and lawn["flat"]["tile_m"] is None and lawn["flat"]["bump"] and lawn["flat_base_linked"]
+    assert lawn["flat_again"]["applied"] and lawn["flat_again"].get("bump") == lawn["flat"]["bump"]     # idempotent
+    assert {"ShaderNodeTexNoise", "ShaderNodeValToRGB", "ShaderNodeMix", "ShaderNodeBump"} <= set(lawn["flat_nodes"])
+    assert lawn["tex"]["applied"] and lawn["tex"]["tile_m"] == 2.0 and lawn["tex_scale"][0] == pytest.approx(0.5)
+    assert not lawn["plain"]["applied"] and lawn["plain"]["reason"] == "no Principled BSDF"
     p = res["pool"]
     assert p["objects"] == ["pool_t_basin", "pool_t_coping", "pool_t_water"] and p["water_volume"]
     assert "ShaderNodeTexBrick" in p["tiles_nodes"]
+    assert p["terrain"]["sides"] == [] and p["terrain"]["changes"] == [] and p["terrain"]["kind"] == "flat"
     assert {"pool_tiles", "pool_water", "veg_hedge_core", "veg_leaf_cherry_laurel"} <= set(res["materials"])
+    # round 3: the stepped terrace: bands, every wall built within the cap, concrete walls (never the facade)
+    t = res["terrace"]
+    assert t["terrain"]["kind"] == "sides" and len(t["terrain"]["sides"]) == 2
+    ids = [q["id"] for q in t["platforms"]]
+    assert "t1" in ids and any(q["parent"] == "t1" for q in t["platforms"])
+    assert all(q["wall_max_m"] <= S.RETAINING_MAX_M + 1e-6 for q in t["platforms"]), \
+        [(q["id"], q["wall_max_m"]) for q in t["platforms"]]
+    assert all(w["height_m"] <= S.RETAINING_MAX_M + 1e-6 for q in t["platforms"] for w in q["walls"])
+    assert all(q["ground_z"] and q["retaining_cap_m"] == S.RETAINING_MAX_M for q in t["platforms"])
+    assert "platform_t1_slab" in t["objects"] and "platform_t1_wall" in t["objects"]
+    assert t["wall_materials"] and t["facade_material"] not in t["wall_materials"]
 
 
 DUMP_SCRIPT = textwrap.dedent("""
     import bpy, json, sys
     out = sys.argv[sys.argv.index("--") + 1]
-    rows = {"kinds": {}, "veg": [], "hedge_mods": [], "proxy_trees": 0}
+    rows = {"kinds": {}, "veg": [], "hedge_mods": [], "proxy_trees": 0, "sapling_leaves": [], "lawn": None}
     for ob in bpy.data.objects:
         k = ob.get("wenart_kind")
         if k:
             rows["kinds"][k] = rows["kinds"].get(k, 0) + 1
         if ob.get("wenart_veg_method"):
             rows["veg"].append([ob.name, ob.get("wenart_veg_method"), ob.get("wenart_species")])
+        if ob.get("wenart_veg_method") == "sapling":
+            rows["sapling_leaves"].append([ob.name, ob.get("wenart_leaf_faces"),
+                                           [len(c.data.polygons) for c in ob.children if c.type == "MESH"]])
+        if ob.name == "ground" and ob.data.materials and ob.data.materials[0]:
+            rows["lawn"] = ob.data.materials[0].get("wenart_lawn")
         if ob.name.startswith("hedge_"):
             rows["hedge_mods"].append([ob.name, [m.type for m in ob.modifiers]])
         if ob.name.startswith("tree_") and ob.type == "MESH" and not ob.get("wenart_veg_method") and not ob.parent:
@@ -167,13 +260,33 @@ def test_real04_site_builds_and_the_site_view_sees_the_sky(tmp_path, monkeypatch
     m = json.loads(manifest_path.read_text(encoding="utf-8"))
     site = m["whole_building"]["site"]
     assert [h["id"] for h in site["hedges"]] == ["hedge_001", "hedge_002", "hedge_003", "hedge_004"]
-    assert all(h["method"] == "cards" for h in site["hedges"])
-    assert sorted(p["id"] for p in site["platforms"]) == ["sp_001", "sp_002", "sp_003", "sp_004", "spk_001"]
+    assert all(h["method"] == "cards" and h["core"] == "hull" and h["cards_per_m2"] == VG.hedge_density(0.9)
+               for h in site["hedges"])                                 # round 3: the hull, the species' density
+    primary = sorted(p["id"] for p in site["platforms"] if not p.get("parent"))
+    assert primary == ["sp_001", "sp_002", "sp_003", "sp_004", "spk_001"]
     assert all("slab" in p["parts"] for p in site["platforms"])
+    # round 3 (P1 real04 ext_1 'platforms': a tall white box): stepped bands, no wall over the retaining cap except
+    # the two next to the parking spk_001, recorded with what blocked their band (review of round 3); no wall or band
+    # on the edges facing the building or the copy (sp_001 is drawn 0.65 m into the basement L-1)
+    assert any(p.get("parent") for p in site["platforms"])
+    over = {(p["id"], c["edge"]) for p in site["platforms"] for c in p.get("cap_exceeded") or []}
+    assert all(c["blocked_by"] for p in site["platforms"] for c in p.get("cap_exceeded") or [])
+    assert {pid for pid, _e in over} <= {"sp_002", "sp_004"}
+    assert all(p["wall_max_m"] <= S.RETAINING_MAX_M + 1e-6 or p["cap_exceeded"] for p in site["platforms"]), \
+        [(p["id"], p["wall_max_m"]) for p in site["platforms"] if p["wall_max_m"] > S.RETAINING_MAX_M]
+    assert all(w["height_m"] <= S.RETAINING_MAX_M + 1e-6 for p in site["platforms"] for w in p["walls"]
+               if (p["id"], w["edge"]) not in over)
+    assert all(w["edge"] not in p["against_edges"] for p in site["platforms"] for w in p["walls"])
+    assert next(p for p in site["platforms"] if p["id"] == "sp_001")["against_edges"]
+    assert all(p["ground_z"] and p["materials"].get("slab") for p in site["platforms"])
     assert len(site["vegetation"]) == 19 and {v["method"] for v in site["vegetation"]} <= {"polyhaven", "sapling", "cards", "palm"}
     assert all(v["species"] == "oleander" and v["size_class"] == "shrub" for v in site["vegetation"])
+    assert all((v["leaf_faces"] or 0) > 0 for v in site["vegetation"] if v["method"] == "sapling")
+    assert site["lawn"] and site["lawn"]["applied"]                     # round 3: the lawn look on the ground
     names = {o["name"] for o in m["objects"]}
     assert {"ground", "ground_skirt", "ground_backdrop", "haze", "grass_near"} <= names
+    ground = next(o for o in m["objects"] if o["name"] == "ground")
+    assert ground["lawn"]["applied"]
     assert {f"pool_00{k}_{part}" for k in range(1, 5) for part in ("basin", "water", "coping")} <= names
     cams = {c["name"]: c for c in m["cameras"] if c.get("kind") == "exterior"}
     assert {"ext_1", "ext_2", "ext_3", "ext_4", "ext_5", "ext_7"} <= set(cams)
@@ -184,6 +297,9 @@ def test_real04_site_builds_and_the_site_view_sees_the_sky(tmp_path, monkeypatch
     rows = json.loads(dump.read_text(encoding="utf-8"))
     assert rows["proxy_trees"] == 0 and len(rows["veg"]) >= 19 and rows["haze_volume"] and rows["backdrop"]
     assert all(mods == ["NODES"] for _n, mods in rows["hedge_mods"])
+    assert all(n > 0 and any(f > 0 for f in faces) for _name, n, faces in rows["sapling_leaves"])   # never bare
+    assert rows["lawn"] and "tile_m" in rows["lawn"]                    # the ground material carries the lawn look
+    assert {"site_hedge", "site_platform", "site_grass", "atmosphere"} <= set(rows["kinds"])         # own kinds
     # the site view rendered small: its top rows are sky (no black band), the render records the VRAM on the GPU
     renders = cli.render(str(manifest_path.parent / "scene.blend"), tmp_path / "renders", cameras="ext_7", samples=8,
                          res="320x180")

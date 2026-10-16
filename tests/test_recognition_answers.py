@@ -773,8 +773,15 @@ def test_pipeline_exit_4_then_answers_then_no_ai(tmp_path):
         assert item["task"] == "symbol_type" and item["key"].startswith("sym_")
         assert all((rec / p).is_file() for p in item["images"])
     building = json.loads((out / "building.json").read_text(encoding="utf-8"))
-    asked = [f for f in building["furniture"] if f.get("type_method") == "none"]
+    # Milestone 13 build round 3 (K3, lead decision; docs/milestone13.md §3.0): code typing and then the context
+    # rules run before any AI, on the pieces with a question too, and withdraw those questions. A context-typed piece
+    # keeps type_method "none" and carries ``inferred`` (reading._set_type, the Milestone 12 convention; real01: the
+    # six chairs at the dining table), so the asked pieces are the untyped, not inferred ones: one per question.
+    untyped = [f for f in building["furniture"] if f.get("type_method") == "none"]
+    asked = [f for f in untyped if not f.get("inferred")]
     assert asked and all(f["type"] == "unknown" and f["status"] == "unverified" for f in asked)
+    assert len(asked) == len(doc["items"])
+    assert all(f["type"] != "unknown" and f.get("inferred_reason") for f in untyped if f.get("inferred"))
     # The same inputs give the same questions (hashes) on a second run.
     again = run_pipeline(tmp_path / "again")
     assert again.returncode == 4

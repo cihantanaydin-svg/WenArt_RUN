@@ -719,8 +719,13 @@ def cmd_ingest(args) -> int:
     if args.source == "polyhaven":
         from wenart.assets import models as M
         for aid in ids:
-            M.fetch_model(aid, Path(args.assets), size="2k")
-            print(f"growth polyhaven: {aid} -> {args.assets}")
+            try:          # Milestone 13 round 3: the next lower glTF size when 2k is not offered; none: dropped
+                e = M.fetch_model(aid, Path(args.assets), size="2k", size_fallback=True)
+            except M.NoGltf as exc:
+                print(f"growth polyhaven: {aid} dropped: {exc.args[0] if exc.args else exc}")
+                continue
+            print(f"growth polyhaven: {aid} -> {args.assets}" + (f" ({e['resolution_note']})"
+                                                                 if e.get("resolution_note") else ""))
         return EXIT_OK
     if args.source == "abo":
         from wenart.assets import abo as AB

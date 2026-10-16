@@ -2023,31 +2023,31 @@
    "name": "Vintage Wooden Drawer 01",
    "category": "Furniture/Storage Furniture/Drawers & Dressers",
    "bbox_m": [
-    0.8576,
-    0.4574,
-    0.5454
+    1.7151,
+    1.0069,
+    1.0908
    ],
    "bbox_model_m": [
-    0.8576,
-    0.4574,
-    0.5454
+    1.7151,
+    1.0069,
+    1.0908
    ],
    "bbox_min_m": [
-    -0.4288,
-    -0.2372,
-    -0.0003
+    -0.8576,
+    -0.5666,
+    -0.0006
    ],
    "bbox_max_m": [
-    0.4288,
-    0.2202,
-    0.5451
+    0.8576,
+    0.4403,
+    1.0902
    ],
    "front_axis": "-Y",
    "up_axis": "+Z",
    "origin_offset": [
     0.0,
-    -0.0085,
-    -0.0003
+    -0.0631,
+    -0.0006
    ],
    "front_axis_confidence": "high",
    "front_axis_note": "six drawers with brass handles at -Y",
@@ -2060,23 +2060,128 @@
    "gltf": "models/vintage_wooden_drawer_01/vintage_wooden_drawer_01_1k.gltf",
    "resolution": "1k",
    "polycount": 5184,
-   "vertices": 4936,
+   "vertices": 4893,
    "dimensions_api_mm": [
-    858,
-    457,
-    545
+    1715,
+    1007,
+    1091
    ],
-   "sha256_gltf": "d39f4172d6fcbb285272168d585f4929c3ed27f05e7101d4fe1c4580408fb8e1",
+   "sha256_gltf": "4080ecdac2228759dd41a5d5705b984f993bbf6b0f66570824a9dcbbeaa49e51",
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "pending",
+    "reasons": [
+     "republished at a new size on Poly Haven, 15 Oct 2026"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-11T03:00:00Z",
-    "decision_sha": "7d150548e9c71b40",
-    "notes": [
-     "10 part(s) stick out of the main body (-z, up to 0.45 m): an open drawer or a separate prop?"
-    ]
+    "checked_utc": "2026-10-16T05:53:30Z",
+    "before": {
+     "bbox_m": [
+      0.8576,
+      0.4574,
+      0.5454
+     ],
+     "bbox_model_m": [
+      0.8576,
+      0.4574,
+      0.5454
+     ],
+     "bbox_min_m": [
+      -0.4288,
+      -0.2372,
+      -0.0003
+     ],
+     "bbox_max_m": [
+      0.4288,
+      0.2202,
+      0.5451
+     ],
+     "origin_offset": [
+      0.0,
+      -0.0085,
+      -0.0003
+     ],
+     "vertices": 4936,
+     "sha256_gltf": "d39f4172d6fcbb285272168d585f4929c3ed27f05e7101d4fe1c4580408fb8e1",
+     "dimensions_api_mm": [
+      858,
+      457,
+      545
+     ],
+     "audit": {
+      "status": "keep",
+      "reasons": [],
+      "fixes": {},
+      "version": "m12",
+      "checked_utc": "2026-10-11T03:00:00Z",
+      "decision_sha": "7d150548e9c71b40",
+      "notes": [
+       "10 part(s) stick out of the main body (-z, up to 0.45 m): an open drawer or a separate prop?"
+      ]
+     }
+    },
+    "reaudit": {
+     "reason": "republished at a new size on Poly Haven, 15 Oct 2026",
+     "checked_utc": "2026-10-16T05:53:30Z",
+     "method": "the current 1k glTF and its .bin, md5 checked against the API file table, measured with wenart.assets.audit.glbmesh.measure (the growth catalogue step's numpy code; wenart.assets.models.measure_gltf agrees)",
+     "files": {
+      "gltf": {
+       "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/vintage_wooden_drawer_01/vintage_wooden_drawer_01_1k.gltf",
+       "md5": "88e36661f5a778b4b5b2c4a3715c4e11",
+       "sha256": "4080ecdac2228759dd41a5d5705b984f993bbf6b0f66570824a9dcbbeaa49e51",
+       "bytes": 11781
+      },
+      "bin": {
+       "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/vintage_wooden_drawer_01/vintage_wooden_drawer_01.bin",
+       "md5": "61ea9192d2199cd76f54623942b5bde4",
+       "sha256": "1c9982901f1ad4f4bb431b239f893e6fbf7953d9f16a1369e418554c7f0fbd89",
+       "bytes": 187680
+      }
+     },
+     "measured": {
+      "bbox_model_m": [
+       1.7151,
+       1.0069,
+       1.0908
+      ],
+      "bbox_min_m": [
+       -0.8576,
+       -0.5666,
+       -0.0006
+      ],
+      "bbox_max_m": [
+       0.8576,
+       0.4403,
+       1.0902
+      ],
+      "vertices": 4893,
+      "triangles": 5184
+     },
+     "api": {
+      "dimensions_mm": [
+       1715.1139974594116,
+       1006.912887096405,
+       1090.839296579361
+      ],
+      "polycount": 5184,
+      "files_hash": "e123322194b22d562cb904ca42419c59c6a9f4d2",
+      "generator": "Khronos glTF Blender I/O v5.2.40 (the .gltf)"
+     },
+     "old_file": {
+      "sha256_gltf": "d39f4172d6fcbb285272168d585f4929c3ed27f05e7101d4fe1c4580408fb8e1",
+      "bbox_model_m": [
+       0.8576,
+       0.4574,
+       0.5454
+      ],
+      "measured_by": "pod P2 audit render (results/library/audit/p2/measure.json: 4936 vertices, size 0.8576 x 0.4574 x 0.5454 m)"
+     },
+     "notes": [
+      "the new file is the old model at twice the size (x 0.8576 -> 1.7151 m, z 0.5454 -> 1.0908 m); the depth 1.0069 m includes drawers pulled out (drawer03 translated 0.095 m in the glTF), as the old file's audit note said",
+      "on 16 Oct 2026 the plain CDN URL of the .bin answered a stale Cloudflare copy (189056 bytes, md5 efa2b55728ce87203a878d24597c2f0c, last-modified 22 Sep 2026) that fails the API md5; the same URL with a query string answered the current file (187680 bytes): wenart/assets/web.py retries an md5 mismatch that way",
+      "the volume still holds the old files until growth run refetch fetches the current ones (the old files are kept beside as <name>.superseded-<sha12>); until then the catalogue step lists the entry under reaudit_waiting and the fit does not use it (audit pending)"
+     ]
+    }
    },
    "real_product": true
   },

@@ -465,3 +465,141 @@ def test_log_piece_numbers_are_proposal_positions_in_the_anchor_first_retry():
     for e in result.log:
         by_type.setdefault(e["type"], set()).add(e["piece"])
     assert by_type["bed_double"] == {0} and by_type["chair"] == {5} and by_type["desk"] == {4}
+
+
+# --------------------------------------------------------------------------
+# Milestone 13, build round 3 (K2): the layout plans with the box the scene builder makes
+# --------------------------------------------------------------------------
+
+def _sofa_item(**asset):
+    """A drawn sofa on the north wall of the 4 x 3 test room (back on y = 3.0, front to the south), with a library
+    fit scaled uniformly to its 2.2 m width that came out 12 % deeper (1.008 m) than the drawn 0.9 m."""
+    item = {"id": "s1", "type": "sofa", "source": "from_documents", "front_deg": 270.0,
+            "footprint": {"center": [2.0, 2.55], "size": [2.2, 0.9], "rotation_deg": 0.0}}
+    item["asset"] = dict({"method": "library", "scaling": "uniform", "bbox_m": [2.2, 1.008, 0.85],
+                          "depth_abs_m": 0.108, "fit_scale": [1.12, 1.12, 1.12]}, **asset)
+    return item
+
+
+def test_a_uniform_library_fit_plans_with_its_fitted_depth_and_keeps_the_drawn_record():
+    """K2: the scene builder keeps a uniformly scaled wall-backed model's back edge on the footprint's back edge, so
+    the layout plans the piece with the fitted depth at its front; the drawn footprint stays the record."""
+    item = _sofa_item()
+    assert P.fitted_depth(item) == 1.008 and P.depth_alignment(item) == "back"
+    assert P.planned_footprint(item) == {"center": [2.0, 2.496], "size": [2.2, 1.008], "rotation_deg": 0.0}
+    p = P.drawn_piece(item)
+    assert p.center == (2.0, 2.55) and p.size == (2.2, 0.9)                        # the record: the drawing
+    assert p.planned_center == (2.0, 2.496) and p.planned_size == (2.2, 1.008)
+    q = p.planned()
+    assert q.center == (2.0, 2.496) and q.size == (2.2, 1.008) and q.planned_center is None
+    assert q.polygon().bounds == pytest.approx((0.9, 1.992, 3.1, 3.0))              # the back edge stays on y = 3
+    assert p.polygon().bounds == pytest.approx((0.9, 2.1, 3.1, 3.0))
+    assert q.back_edge().coords[0][1] == pytest.approx(3.0) and q.type == "sofa" and q.index == p.index
+    assert P.planned_piece(item).size == (2.2, 1.008) and P.planned_piece(item).planned_size is None
+    # the drawn depth + depth_abs_m when the fit's box is missing; a free-standing type keeps its centre
+    no_box = _sofa_item(bbox_m=None)
+    assert P.fitted_depth(no_box) == 1.008 and P.planned_footprint(no_box)["center"] == [2.0, 2.496]
+    coffee = dict(_sofa_item(), type="table_coffee", id="c1")
+    assert P.depth_alignment(coffee) == "centre" and P.planned_footprint(coffee)["center"] == [2.0, 2.55]
+    assert P.depth_alignment(dict(_sofa_item(), against_wall=False)) == "centre"
+    assert P.depth_alignment(dict(coffee, against_wall=True)) == "back"
+    # the planned box follows the footprint's own frame (the front turned east: the box grows east)
+    east = dict(_sofa_item(), front_deg=0.0)
+    east["footprint"] = {"center": [0.47, 1.5], "size": [2.2, 0.9], "rotation_deg": 90.0}
+    assert P.planned_footprint(east) == {"center": [0.524, 1.5], "size": [2.2, 1.008], "rotation_deg": 90.0}
+    assert P.planned_piece(east).polygon().bounds == pytest.approx((0.02, 0.4, 1.028, 2.6))
+    # a shallower model is planned shallower (the same rule, the front moves back)
+    shallow = _sofa_item(bbox_m=[2.2, 0.8, 0.85], depth_abs_m=-0.1)
+    assert P.planned_footprint(shallow) == {"center": [2.0, 2.6], "size": [2.2, 0.8], "rotation_deg": 0.0}
+    # the drawn box plans as drawn: no asset, a non-uniform fit, a module or parametric piece, a tiny difference,
+    # an L-shaped piece (its parts are not in the fit's box), unusable numbers
+    for bad in (dict(_sofa_item(), asset=None), _sofa_item(scaling="non_uniform"), _sofa_item(method="module"),
+                _sofa_item(method="parametric", scaling="uniform"), _sofa_item(bbox_m=[2.2, 0.903, 0.85]),
+                dict(_sofa_item(), shape="L", chaise_side="right"), _sofa_item(bbox_m=[2.2, "x", 0.85], depth_abs_m=None),
+                _sofa_item(bbox_m=[2.2, float("nan"), 0.85], depth_abs_m=float("inf"))):
+        assert P.planned_footprint(bad) is None, bad.get("asset")
+        assert P.drawn_piece(bad).planned_size is None and P.planned_piece(bad).size == P.drawn_piece(bad).size
+    # the rule is the scene builder's (wenart.blender.furniture.depth_alignment, build round 2) on the same list
+    BF = pytest.importorskip("wenart.blender.furniture")
+    assert BF.WALL_BACKED_TYPES == P.WALL_BACKED_TYPES == schemas.WALL_TYPES
+    for case in (_sofa_item(), coffee, dict(coffee, against_wall=True), dict(_sofa_item(), against_wall=False),
+                 _sofa_item(scaling="non_uniform"), dict(_sofa_item(), asset=None)):
+        assert P.depth_alignment(case) == BF.depth_alignment(case)
+
+
+def test_locked_obstacles_block_with_the_fitted_box_and_the_placed_piece_keeps_off_it():
+    """K2 in the placer: a drawn piece given as an obstacle blocks with the box the scene builder makes; a proposed
+    piece that fits the drawn box but not the fitted one is moved (or dropped), never left overlapping. A TV unit
+    (wall-backed, no front clearance of its own) fitted 12 % deeper: the chair proposed 3 cm in front of its drawn
+    front would stand 2.4 cm inside the model."""
+    building, room = make_building(doors=[], windows=[])
+    ctx = P.room_context(building, room)
+    tv = {"id": "tv1", "type": "tv_unit", "source": "from_documents", "front_deg": 270.0,
+          "footprint": {"center": [2.0, 2.775], "size": [1.6, 0.45], "rotation_deg": 0.0}}
+    fitted = dict(tv, asset={"method": "library", "scaling": "uniform", "bbox_m": [1.6, 0.504, 0.5],
+                              "depth_abs_m": 0.054})
+    chair = piece("chair", (2.0, 2.295), size=(0.45, 0.45))           # 0.03 m in front of the drawn front (y 2.55)
+    drawn = P.place([dict(chair)], ctx, obstacles=[P.drawn_piece(tv)])
+    assert [p.type for p in drawn.pieces] == ["chair"] and drawn.pieces[0].center == (2.0, 2.295)   # fits as drawn
+    locked = P.obstacles_for([P.drawn_piece(fitted)], ctx)
+    assert locked[0].size == (1.6, 0.504) and locked[0].locked and locked[0].planned_size is None
+    assert locked[0].polygon().bounds == pytest.approx((1.2, 2.496, 2.8, 3.0))
+    checks = P.check_all([locked[0], P.Piece.from_proposal(dict(chair), 1)], ctx)
+    assert checks[1]["no_overlap"] is False                           # the chair is inside the fitted box
+    result = P.place([dict(chair)], ctx, obstacles=[P.drawn_piece(fitted)])
+    planned = P.planned_piece(fitted).polygon()
+    assert all(p.polygon().intersection(planned).area < P.AREA_EPS for p in result.pieces)
+    assert result.all_ok and [p.type for p in result.pieces] == ["chair"]
+    moved = result.pieces[0]
+    assert moved.center != (2.0, 2.295) and moved.polygon().bounds[3] <= 2.496 + 1e-6 and moved.repairs
+    assert P.drawn_piece(fitted).size == (1.6, 0.45)                 # the record never changes
+
+
+def test_a_coffee_table_proposed_in_front_of_a_sofa_fitted_deeper_keeps_off_its_fitted_front():
+    """K2 (build round 3 item 1), the sofa and coffee table pair in the placer: the drawn sofa on the north wall is
+    fitted 12 % deeper (1.008 m instead of 0.9 m; its back stays on the wall, its front comes 0.108 m forward); a
+    coffee table proposed 5 cm in front of the drawn front is repaired to the same clearance from the fitted front
+    as from the drawn front without the fit, so it never overlaps the model the builder makes."""
+    building, room = make_building(doors=[], windows=[])
+    room["room_type"] = "living"
+    ctx = P.room_context(building, room)
+    fitted = _sofa_item()
+    drawn = dict(fitted, asset=None)
+    coffee = piece("table_coffee", (2.0, 1.75), size=(1.0, 0.6))          # top edge y 2.05: 5 cm off the drawn front
+    built = P.planned_piece(fitted).polygon()
+    assert built.bounds == pytest.approx((0.9, 1.992, 3.1, 3.0))
+    gaps = {}
+    for tag, item in (("drawn", drawn), ("fitted", fitted)):
+        result = P.place([dict(coffee)], ctx, obstacles=[P.drawn_piece(item)])
+        assert result.all_ok and [p.type for p in result.pieces] == ["table_coffee"]
+        (table,) = result.pieces
+        box = P.planned_piece(item).polygon()
+        assert table.polygon().intersection(box).area < P.AREA_EPS
+        gaps[tag] = (table.polygon().distance(box), table.center[1])
+    assert gaps["fitted"][0] == pytest.approx(gaps["drawn"][0], abs=0.06)      # the same clearance, from the fitted front
+    assert gaps["drawn"][1] - gaps["fitted"][1] == pytest.approx(0.108, abs=0.06)   # so ~0.108 m further into the room
+    result = P.place([dict(coffee)], ctx, obstacles=[P.drawn_piece(fitted)])
+    assert result.pieces[0].polygon().intersection(built).area < P.AREA_EPS
+
+
+def test_planned_building_gives_the_fitted_boxes_for_the_checks_and_is_idempotent():
+    """K2: ``planned_building`` (what the solver's group checks measure) swaps every uniformly fitted piece's
+    footprint for its planned box, leaves every other piece the same object, never touches the input, and planning
+    the copy again changes nothing (its asset records the planned depth)."""
+    building, room = make_building(doors=[], windows=[])
+    sofa = dict(_sofa_item(), room_id=ROOM_ID)
+    other = {"id": "c1", "type": "table_coffee", "room_id": ROOM_ID, "front_deg": 90.0,
+             "footprint": {"center": [2.0, 1.5], "size": [1.0, 0.6], "rotation_deg": 0.0}}
+    elsewhere = dict(_sofa_item(), id="s2", room_id="r_other")
+    building["furniture"] = [sofa, other, elsewhere]
+    before = json.dumps(building, sort_keys=True)
+    once = P.planned_building(building, ROOM_ID)
+    assert json.dumps(building, sort_keys=True) == before                      # the records stay as drawn
+    s, c, e = once["furniture"]
+    assert s["footprint"] == {"center": [2.0, 2.496], "size": [2.2, 1.008], "rotation_deg": 0.0}
+    assert s["asset"]["bbox_m"][1] == 1.008 and s["asset"]["depth_abs_m"] == 0.0
+    assert c is other and e is elsewhere                                       # another room: not planned
+    assert P.planned_footprint(s) is None                                      # planned once: plans as it is
+    twice = P.planned_building(once, ROOM_ID)
+    assert twice["furniture"][0]["footprint"] == s["footprint"]
+    assert P.planned_building(building)["furniture"][2]["footprint"]["size"] == [2.2, 1.008]   # every room

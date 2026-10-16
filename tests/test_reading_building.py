@@ -44,6 +44,18 @@ def _fp(f):
     return RD.rect(f)
 
 
+def _context_only(build) -> dict:
+    """The Milestone 12 context rules alone (two passes with the fronts between, as ``read_furniture`` runs them):
+    build round 3 (K3) runs ``infer.code_types`` before them, so a piece code can explain (a bed's missing
+    nightstands, a sofa's missing TV unit) is code typed first and the rule never sees it; these tests exercise the
+    rules themselves (``test_code_types_first_then_the_context_rules_and_both_withdraw`` pins the order)."""
+    counts = RD.context_types(build, {})
+    RD.infer_fronts(build)
+    for k, v in RD.context_types(build, {}).items():
+        counts[k] = counts.get(k, 0) + v
+    return counts
+
+
 # --------------------------------------------------------------------------
 # 1. Symbols, columns, decor, copies
 # --------------------------------------------------------------------------
@@ -86,15 +98,25 @@ def test_an_untyped_copy_of_a_typed_block_drawing_takes_its_type():
 # --------------------------------------------------------------------------
 
 def test_small_squares_beside_a_beds_head_are_nightstands_facing_its_way():
-    bed = M.fp("bed", "bed_double", (2.5, 3.0), (1.6, 2.0), front=270.0)
-    left = M.fp("n1", "unknown", (1.45, 3.75), (0.45, 0.40), front=None)
-    right = M.fp("n2", "unknown", (3.55, 3.75), (0.45, 0.40), front=None)
-    build = _build([bed, left, right])
-    RD.read_furniture(build, {})
+    def pieces():
+        return [M.fp("bed", "bed_double", (2.5, 3.0), (1.6, 2.0), front=270.0),
+                M.fp("n1", "unknown", (1.45, 3.75), (0.45, 0.40), front=None),
+                M.fp("n2", "unknown", (3.55, 3.75), (0.45, 0.40), front=None)]
+
+    build = _build(pieces())
+    _context_only(build)
     for pid in ("n1", "n2"):
         f = _piece(build.building, pid)
         assert f["type"] == "nightstand" and f["front_deg"] == 270.0 and RD.CONTEXT_RULE in _rules(f)
         assert f["inferred"] is True and "beside the head of bed" in f["inferred_reason"]
+    # Build round 3 (K3): in the reading step the code typing runs first: the squares are the bed's missing
+    # nightstands (infer.type_by_code, group_member) before the context rule sees them; the same type and front.
+    build = _build(pieces())
+    RD.read_furniture(build, {})
+    for pid in ("n1", "n2"):
+        f = _piece(build.building, pid)
+        assert (f["type"], f["type_method"], f["front_deg"]) == ("nightstand", "group_member", 270.0)
+        assert RD.CONTEXT_RULE not in _rules(f) and build.reading["typed_by"][pid] == "group_member"
 
 
 def test_seats_around_a_dining_table_are_chairs_facing_it():
@@ -114,7 +136,7 @@ def test_a_table_with_seats_drawn_around_it_is_a_dining_set():
              for k, c in enumerate([(2.2, 1.4), (2.8, 1.4), (2.2, 2.6), (2.8, 2.6), (1.65, 2.0)])]
     lone = M.fp("x", "unknown", (4.4, 3.5), (1.24, 0.74), front=None)
     build = _build([table, lone] + seats, room_type="dining", window=None)
-    RD.read_furniture(build, {})
+    _context_only(build)          # build round 3: read_furniture types the table by code first (the missing anchor)
     t = _piece(build.building, "t")
     assert t["type"] == "table_dining" and t["inferred"] is True and t.get("type_method") is None
     assert "5 seats drawn around it on 3 sides" in t["inferred_reason"]
@@ -124,14 +146,20 @@ def test_a_table_with_seats_drawn_around_it_is_a_dining_set():
 
 
 def test_a_coffee_table_and_a_tv_unit_face_the_sofa():
-    sofa = M.fp("s", "sofa", (2.5, 3.55), (2.2, 0.9), front=270.0)
-    coffee = M.fp("ct", "unknown", (2.5, 2.4), (1.0, 0.6), front=None)
-    tv = M.fp("tv", "unknown", (3.0, 0.225), (1.6, 0.45), front=None)
-    build = _build([sofa, coffee, tv], room_type="living", door_x=0.6, window=None)
-    RD.read_furniture(build, {})
+    def pieces():
+        return [M.fp("s", "sofa", (2.5, 3.55), (2.2, 0.9), front=270.0),
+                M.fp("ct", "unknown", (2.5, 2.4), (1.0, 0.6), front=None),
+                M.fp("tv", "unknown", (3.0, 0.225), (1.6, 0.45), front=None)]
+
+    build = _build(pieces(), room_type="living", door_x=0.6, window=None)
+    _context_only(build)          # build round 3: read_furniture types both by code first (the seating's members)
     assert _piece(build.building, "ct")["type"] == "table_coffee"
     f = _piece(build.building, "tv")
     assert f["type"] == "tv_unit" and f["front_deg"] == 90.0 and "facing s" in f["inferred_reason"]
+    build = _build(pieces(), room_type="living", door_x=0.6, window=None)
+    RD.read_furniture(build, {})
+    assert {_piece(build.building, p)["type_method"] for p in ("ct", "tv")} == {"group_member"}
+    assert _piece(build.building, "tv")["type"] == "tv_unit" and _piece(build.building, "ct")["type"] == "table_coffee"
 
 
 def test_two_equal_seats_on_opposite_sides_of_a_coffee_table_are_armchairs_facing_it():
@@ -290,9 +318,9 @@ def test_a_piece_whose_question_waits_for_its_answers_is_left_to_them():
     RD.read_furniture(build, _works(report={"pending": ["sym_L0_003"], "answers_applied": 3},
                                     u={"candidate_key": "sym_L0_003"}))
     assert _piece(build.building, "u")["inferred_as"] == "detail"
-    # Context typing waits too (the context rule never runs on an open question), but Milestone 13 (K3, round 2:
-    # "code first, the AI types the rest") types the square beside the bed's head as the bed's missing nightstand
-    # by code (infer.type_by_code, method group_member) while the question is open, and withdraws the question.
+    # Milestone 13 (K3, "code first, the AI types the rest") types the square beside the bed's head as the bed's
+    # missing nightstand by code (infer.type_by_code, method group_member) while the question is open, and
+    # withdraws the question (build round 3: before the context rules, which type the open questions too).
     bed = M.fp("bed", "bed_double", (2.5, 3.0), (1.6, 2.0), front=270.0)
     square = M.fp("n", "unknown", (1.45, 3.75), (0.45, 0.40), front=None)
     build = _build([bed, square])
@@ -302,7 +330,8 @@ def test_a_piece_whose_question_waits_for_its_answers_is_left_to_them():
     n = _piece(build.building, "n")
     assert (n["type"], n["type_method"]) == ("nightstand", "group_member") and RD.CONTEXT_RULE not in _rules(n)
     assert n.get("build") is not False and works["page"].extraction.report["pending"] == []
-    assert build.code_typed == {"sym_L0_004": "n"}
+    assert build.code_typed == {"sym_L0_004": "n"} and build.code_typed_methods == {"sym_L0_004": "group_member"}
+    assert works["page"].extraction.report["typed_by_code_methods"] == {"sym_L0_004": "group_member"}
     # A square code cannot explain (no bed in the room) stays as asked while its question is open.
     build = _build([dict(square)])
     RD.read_furniture(build, _works(report={"pending": ["sym_L0_004"]}, n={"candidate_key": "sym_L0_004"}))
@@ -344,9 +373,11 @@ def test_a_piece_code_types_before_the_ai_gets_no_question():
     assert q["type"] == "unknown" and q["build"] is False and "waits for the answers" in q["not_built_reason"]
     report = works["page"].extraction.report
     assert report["pending"] == ["sym_L0_003"] and report["typed_by_code"] == ["sym_L0_002"]
+    assert report["typed_by_code_methods"] == {"sym_L0_002": "twin"}           # build round 3: with the method
     assert build.code_typed == {"sym_L0_002": "u"} and build.reading["code_typed"] == ["u"]
+    assert build.code_typed_methods == {"sym_L0_002": "twin"} and build.reading["typed_by"] == {"u": "twin"}
     assert build.reading["questions_withdrawn"] == ["sym_L0_002"]
-    assert any("sym_L0_002 withdrawn" in w for w in build.building["warnings"])
+    assert any("sym_L0_002 withdrawn" in w and "(twin, K3)" in w for w in build.building["warnings"])
     # The pipeline writes the remaining question only; nothing waits for the withdrawn one.
     import tempfile
     from pathlib import Path
@@ -361,7 +392,131 @@ def test_a_piece_code_types_before_the_ai_gets_no_question():
     assert build.pending == ["sym_L0_003"] and build.unanswered == ["sym_L0_003"]
     assert [q["key"] for q in build.questions] == ["sym_L0_003"]
     text = "\n".join(P._reading_section(build.building, build))
-    assert "typed by code before the AI: 1: u" in text
+    assert "typed by code before the AI: 1: u [twin]" in text
+
+
+def test_code_types_first_then_the_context_rules_and_both_withdraw():
+    """Build round 3 (K3, lead decision): ``read_furniture`` runs ``infer.code_types`` before the Milestone 12
+    context rules and the context rules type the open questions too; both withdraw the piece's question with its
+    method, so the AI is asked the same questions with --no-ai, in the first plain run and in the run with the
+    answers. A dining room with an unknown table and seats whose questions are all open: the table is the room's
+    missing dining anchor (code, group_member), the seats are chairs at the table (context:chair); a bathroom's
+    counter under its basin is the vanity (context:vanity, not built). Nothing is left pending; a piece neither
+    code nor the context explains keeps its question."""
+    import copy
+    from wenart.ingest import pipeline as P
+
+    sha = "0" * 64
+    table = M.fp("t", "unknown", (2.5, 2.0), (1.24, 0.74), front=None, status="unverified")
+    seats = [M.fp(f"c{k}", "unknown", c, (0.46, 0.38), front=None, status="unverified")
+             for k, c in enumerate([(2.2, 1.4), (2.8, 1.4), (2.2, 2.6), (2.8, 2.6), (1.65, 2.0)])]
+    odd = M.fp("q", "unknown", (4.4, 3.5), (0.3, 0.3), front=None, status="unverified")
+    build = _build([table, odd] + seats, room_type="dining", window=None)
+    ids = ["t", "q"] + [s["id"] for s in seats]
+    keys = {pid: f"sym_L0_{i + 1:03d}" for i, pid in enumerate(ids)}
+    questions = [{"key": keys[pid], "task": "symbol_type", "images": [f"crops/{keys[pid]}_ctx.png"],
+                  "input_sha256": sha} for pid in ids]
+    works = _works(report={"questions": questions, "pending": [keys[pid] for pid in ids]},
+                   **{pid: {"candidate_key": keys[pid]} for pid in ids})
+    RD.read_furniture(build, works)
+    t = _piece(build.building, "t")
+    assert (t["type"], t["type_method"]) == ("table_dining", "group_member") and RD.CONTEXT_RULE not in _rules(t)
+    for s in seats:
+        c = _piece(build.building, s["id"])
+        assert c["type"] == "chair" and RD.CONTEXT_RULE in _rules(c) and c.get("build") is not False
+        assert c["front_deg"] is not None
+    q = _piece(build.building, "q")
+    assert q["type"] == "unknown" and q["build"] is False and "waits for the answers" in q["not_built_reason"]
+    report = works["page"].extraction.report
+    assert report["pending"] == [keys["q"]]
+    assert sorted(report["typed_by_code"]) == sorted(keys[pid] for pid in ids if pid != "q")
+    want = {keys["t"]: "group_member", **{keys[s["id"]]: "context:chair" for s in seats}}
+    assert report["typed_by_code_methods"] == want and build.code_typed_methods == want
+    assert build.code_typed == {keys[pid]: pid for pid in ids if pid != "q"}
+    assert build.reading["typed_by"] == {"t": "group_member", **{s["id"]: "context:chair" for s in seats}}
+    assert build.reading["code_typed"] == sorted(["t"] + [s["id"] for s in seats])
+    assert build.reading["questions_withdrawn"] == sorted(want)
+    # The pipeline writes the remaining question only, and the report names both kinds with their method.
+    import tempfile
+    from pathlib import Path
+    from wenart.recognition import answers as A
+
+    build.furniture_works = [works["page"]]
+    build.building["project"]["id"] = "t"
+    with tempfile.TemporaryDirectory() as tmp:
+        P._write_questions(build, Path(tmp))
+        doc = A.read_requests(Path(tmp) / "recognition")
+    assert [i["key"] for i in doc["items"]] == [keys["q"]] and build.pending == [keys["q"]]
+    text = "\n".join(P._reading_section(build.building, build))
+    assert "t [group_member]" in text and "c0 [context:chair]" in text
+    # The same drawing with no open question (--no-ai, or the run with the answers for q): the same typing.
+    again = _build([copy.deepcopy(table), copy.deepcopy(odd)] + [copy.deepcopy(s) for s in seats],
+                   room_type="dining", window=None)
+    RD.read_furniture(again, _works(**{pid: {"candidate_key": keys[pid]} for pid in ids}))
+    assert again.reading["typed_by"] == build.reading["typed_by"]
+    assert {f["id"]: f["type"] for f in again.building["furniture"]} == {f["id"]: f["type"]
+                                                                          for f in build.building["furniture"]}
+    # The counter under a washbasin is its vanity: a context decision too, withdrawn as context:vanity (not built).
+    basin = M.fp("wb", "washbasin", (1.0, 2.25), (0.6, 0.45), front=270.0)
+    counter = M.fp("v", "unknown", (1.0, 2.2), (1.2, 0.55), front=None, status="unverified")
+    bath = _build([basin, counter], room_type="bathroom", window=None)
+    works = _works(report={"questions": [{"key": "sym_L0_009", "task": "symbol_type", "images": [],
+                                          "input_sha256": sha}], "pending": ["sym_L0_009"]},
+                   v={"candidate_key": "sym_L0_009"})
+    RD.read_furniture(bath, works)
+    v = _piece(bath.building, "v")
+    assert v["type"] == "unknown" and v["build"] is False and v["inferred_as"] == "detail"
+    assert bath.code_typed_methods == {"sym_L0_009": "context:vanity"} and bath.building["needs_review"] == []
+    assert works["page"].extraction.report["pending"] == []
+
+
+def test_the_questions_withdrawn_are_the_same_in_every_mode_and_an_answered_one_stays():
+    """Build round 3 (K3, lead decision): the same dining drawing read as a first plain run (every question pending),
+    as --no-ai (the questions written, nothing pending: ``core`` sets ``pending`` to []) and as a run with the answers
+    (``answers_applied``; the answered question no longer pending, the others not in the round) withdraws the same
+    questions: the table (code, group_member) and the five seats (context:chair); the odd 0.3 m piece keeps its
+    question. A question asked and answered in this round is never withdrawn (``answered_keys``): here the AI's
+    answer for the table said "unknown", code types the table all the same, the question stays listed and a warning
+    says so; the seats' questions (not in that round) are withdrawn as in the first run."""
+    import copy
+
+    sha = "0" * 64
+    table = M.fp("t", "unknown", (2.5, 2.0), (1.24, 0.74), front=None, status="unverified")
+    seats = [M.fp(f"c{k}", "unknown", c, (0.46, 0.38), front=None, status="unverified")
+             for k, c in enumerate([(2.2, 1.4), (2.8, 1.4), (2.2, 2.6), (2.8, 2.6), (1.65, 2.0)])]
+    odd = M.fp("q", "unknown", (4.4, 3.5), (0.3, 0.3), front=None, status="unverified")
+    ids = ["t", "q"] + [s["id"] for s in seats]
+    keys = {pid: f"sym_L0_{i + 1:03d}" for i, pid in enumerate(ids)}
+    questions = [{"key": keys[pid], "task": "symbol_type", "images": [], "input_sha256": sha} for pid in ids]
+    details = {pid: {"candidate_key": keys[pid]} for pid in ids}
+
+    def read(report):
+        build = _build([copy.deepcopy(table), copy.deepcopy(odd)] + [copy.deepcopy(s) for s in seats],
+                       room_type="dining", window=None)
+        works = _works(report=dict(report, questions=copy.deepcopy(questions)), **details)
+        RD.read_furniture(build, works)
+        return build, works["page"].extraction.report
+
+    plain, plain_report = read({"pending": [keys[pid] for pid in ids]})
+    no_ai, no_ai_report = read({"pending": []})
+    want = {keys["t"]: "group_member", **{keys[s["id"]]: "context:chair" for s in seats}}
+    for build, report in ((plain, plain_report), (no_ai, no_ai_report)):
+        assert build.code_typed_methods == want and report["typed_by_code_methods"] == want
+        assert sorted(report["typed_by_code"]) == sorted(want)
+    assert plain_report["pending"] == [keys["q"]] and no_ai_report["pending"] == []
+    assert {f["id"]: f["type"] for f in plain.building["furniture"]} == \
+        {f["id"]: f["type"] for f in no_ai.building["furniture"]}
+    # the run with the answers: the table's question was asked and answered ("unknown"), the others not in the round
+    answers, report = read({"pending": [keys[pid] for pid in ids if pid != "t"], "answers_applied": 1})
+    page = {"page": SimpleNamespace(extraction=SimpleNamespace(report=report))}
+    assert RD.answered_keys(answers, page) == {keys["t"]}                  # asked, answered, not withdrawn
+    assert RD.answered_keys(plain, {"page": SimpleNamespace(extraction=SimpleNamespace(report=plain_report))}) == set()
+    t = _piece(answers.building, "t")
+    assert (t["type"], t["type_method"]) == ("table_dining", "group_member")
+    assert keys["t"] not in answers.code_typed and keys["t"] not in report["typed_by_code"]
+    assert answers.code_typed_methods == {k: v for k, v in want.items() if k != keys["t"]}
+    assert any(f"recognition question {keys['t']} kept" in w for w in answers.building["warnings"])
+    assert keys["q"] in report["pending"]
 
 
 def test_a_stove_drawn_inside_a_named_stove_block_is_drawn_twice():

@@ -37,6 +37,12 @@ FLAG_KEYS = ("real_product", "has_bedding", "has_cushions", "has_pillows", "cont
 # Milestone 13 gates: plain fields a ``fix`` may set on the entry (checks.pbr_check, chaise_check).
 FIELD_FIXES = ("pbr_maps", "chaise_side")
 BOX_KEYS = ("bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m", "origin_offset")
+# Milestone 13 round 3 (docs/milestone13.md §14.6): an entry whose model file was republished upstream carries
+# ``audit.reaudit`` (the evidence of the current file) and ``audit.before`` (the values of the older file) while it
+# waits for its new audit (``growth_run.reaudit_entries``: pending + reaudit). A write keeps both: a ``pending``
+# decision must not turn it into an ordinary pending model (``growth run pending`` would then decide it with P3's
+# answers about the OLD file), and a decided record keeps the evidence it was judged on.
+CARRIED = ("reaudit",)
 
 
 def _entries(doc: dict):
@@ -184,8 +190,10 @@ def apply_decisions(doc: dict, decisions: dict, checked_utc: str) -> dict:
             # still waiting for a vision pass: recorded as pending, never used (catalog.usable; CLAUDE.md library
             # rules: only audited models are used)
             stats["skipped_pending"] += 1
-            rec = audit_record("pending", [p.get("why", "") for p in d.get("pending") or []], checked_utc)
             old = e.get("audit") if isinstance(e.get("audit"), dict) else {}
+            kept = {k: old[k] for k in ("before", *CARRIED) if old.get(k)} if isinstance(old.get("reaudit"), dict) \
+                else {}
+            rec = audit_record("pending", [p.get("why", "") for p in d.get("pending") or []], checked_utc, **kept)
             if old.get("status") != "pending" or old.get("reasons") != rec["reasons"]:
                 e["audit"] = rec
             continue
@@ -202,6 +210,7 @@ def apply_decisions(doc: dict, decisions: dict, checked_utc: str) -> dict:
         extra = {"decision_sha": sha}
         if before:
             extra["before"] = before
+        extra.update({k: old[k] for k in CARRIED if isinstance(old.get(k), dict)})
         if d.get("notes"):
             extra["notes"] = list(d["notes"])
         if d.get("vision_doubt"):

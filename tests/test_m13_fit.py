@@ -457,15 +457,21 @@ def test_a_split_table_plan_labels_the_piece_adjusted_by_ai_and_keeps_the_drawn_
     deep = drawn("table_dining", 3.35, 1.8, "f_L0_t1", height=0.75)        # 1.8 m deep: the chairs are in the box
     plain = drawn("table_dining", 3.35, 1.0, "f_L0_t2", height=0.75)
     before = {"furniture": [deep, plain]}
-    # with the size snap on (the default) the deep table takes a product depth first (K1, D5) and no split happens;
-    # the split is the module builder's answer when the snap is off (furnished_rooms keep_size) or on a refit of the
-    # piece as it is (fit_piece: the agent's retype path)
-    snapped_first = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed")
-    assert snapped_first["furniture"][0]["size_snap"]["drawn"][:2] == [3.35, 1.8]
-    assert not snapped_first["furniture"][0]["asset"]["module_plan"].get("split")
-    assert snapped_first["furniture"][0]["adjusted_by_ai"]["rule"] == F.SNAP_RULE
+    # Build round 3 (lead decision): with the size snap on (the default) the split decides first: the deep table is
+    # labelled module_split, its table part (3.35 x 0.80 m) is inside the product range, so nothing is snapped and
+    # the chairs stay in the box (round 2 snapped the 1.8 m depth to a 1.0 m product first, which erased them).
+    split_first = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed")
+    s = split_first["furniture"][0]
+    assert "size_snap" not in s and s["footprint"] == deep["footprint"] and s["drawn_footprint"] == deep["footprint"]
+    assert s["adjusted_by_ai"]["rule"] == F.SPLIT_RULE and s["asset"]["module_plan"]["split"]["chairs"] >= 2
+    assert split_first["project"]["size_snap"] == {"on": True, "why": split_first["project"]["size_snap"]["why"],
+                                                   "split_first": ["f_L0_t1"]}
+    assert "size_snap" not in split_first["furniture"][1] and "adjusted_by_ai" not in split_first["furniture"][1]
+    F.assert_only_assets_changed(before, split_first)
+    # with the snap off (furnished_rooms keep_size) the module builder splits at fit time, the same label
     fitted = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed", snap=False)
     t, u = fitted["furniture"]
+    assert t["adjusted_by_ai"]["split"] == s["adjusted_by_ai"]["split"] and "split_first" not in fitted["project"]["size_snap"]
     assert t["asset"]["method"] == "module" and t["asset"]["module_plan"]["builder"] == "table_long"
     split = t["asset"]["module_plan"]["split"]
     assert split and split["chairs"] >= 2 and split["table_m"][1] <= MOD.TABLE_DEPTH_RANGE_M[1]
@@ -495,6 +501,126 @@ def test_a_split_table_plan_labels_the_piece_adjusted_by_ai_and_keeps_the_drawn_
     broken["furniture"][0]["footprint"]["size"] = [3.35, 1.0]
     with pytest.raises(AssertionError, match="must not change the footprint"):
         F.assert_only_assets_changed(before, broken)
+
+
+def test_the_real04_ten_seat_tables_keep_their_chairs_with_the_split_before_the_snap(library):
+    """Build round 3 item 2 (lead decision: the split decides before the size snap) on the real04 drawing. Its two
+    10-seat tables of the L-1 salons (f_L-1_027, f_L-1_038) are drawn 3.35 x 1.00 m with their ten chairs as separate
+    drawn pieces (f_L-1_028..037, f_L-1_039..048; read from results/furniture/real04/building.json), not inside the
+    table footprint: 1.00 m is not deeper than a real table (1.20 m), so there is no split, and 3.35 m is inside
+    the product range (to 3.40 m), so there is no snap; the table and its ten chairs stay as drawn. No drawn table of
+    the committed buildings is deeper than 1.20 m (``split_first`` stays empty). The same table drawn WITH its chairs
+    inside the footprint (3.35 x 2.20 m) is split first and keeps its chairs (round 2 snapped it to a 1.00 m deep
+    product first, which erased them)."""
+    from wenart.blender import modules as MOD
+
+    path = ROOT / "results" / "furniture" / "real04" / "building.json"
+    if not path.is_file():
+        pytest.skip("no committed real04 building")
+    drawn_building = json.loads(path.read_text(encoding="utf-8"))
+    fitted = F.fit_building(copy.deepcopy(drawn_building), library, style_family="modern", mode="relaxed")
+    assert fitted["project"]["size_snap"]["on"] is True and "split_first" not in fitted["project"]["size_snap"]
+    before = {f["id"]: f for f in drawn_building["furniture"]}
+    after = {f["id"]: f for f in fitted["furniture"]}
+    for tid, chairs in (("f_L-1_027", [f"f_L-1_0{n}" for n in range(28, 38)]),
+                        ("f_L-1_038", [f"f_L-1_0{n}" for n in range(39, 49)])):
+        t = after[tid]
+        assert before[tid]["footprint"]["size"] == [3.35, 1.0] and t["footprint"] == before[tid]["footprint"]
+        assert "size_snap" not in t and "adjusted_by_ai" not in t and "drawn_footprint" not in t
+        assert t["asset"]["method"] in ("library", "module", "parametric")
+        assert not (t["asset"].get("module_plan") or {}).get("split")                       # no chairs in the box
+        room_chairs = sorted(f["id"] for f in fitted["furniture"] if f["room_id"] == t["room_id"] and f["type"] == "chair")
+        assert room_chairs == chairs                                                         # the ten drawn chairs
+        for cid in chairs:
+            c = after[cid]
+            assert c["source"] == "from_documents" and c.get("build") is not False and c["asset"]["method"] != "none"
+            assert c["footprint"]["center"] == before[cid]["footprint"]["center"]
+    # the same table drawn with its chairs inside: split first, the chairs kept, nothing snapped (3.35 m is a product)
+    deep = drawn("table_dining", 3.35, 2.2, "f_L-1_027", height=0.75)
+    one = F.fit_building({"furniture": [deep]}, library, style_family="modern", mode="relaxed")
+    s = one["furniture"][0]
+    split = s["asset"]["module_plan"]["split"]
+    per_side = int((3.35 - 0.30 + 1e-9) // MOD.CHAIR_PITCH_M)
+    assert one["project"]["size_snap"]["split_first"] == ["f_L-1_027"] and "size_snap" not in s
+    assert s["footprint"] == deep["footprint"] and s["drawn_footprint"] == deep["footprint"]
+    assert s["adjusted_by_ai"]["rule"] == F.SPLIT_RULE and split["chairs"] == 2 * per_side == 10
+    assert split["table_m"] == [3.35, MOD.TABLE_DEPTH_RANGE_M[1]] and "with 10 chairs" in s["adjusted_by_ai"]["reason"]
+
+
+def test_a_split_table_whose_table_part_is_too_long_snaps_only_the_table_part(library):
+    """Build round 3 item 2: a drawn 3.80 x 1.80 m footprint holds a 3.80 x 0.80 m table and its chairs; the table
+    part is 12 % longer than the longest product (3.40 m), so the snap takes the nearest real product's width
+    (3.00 m) while the drawn depth stays (it holds the chairs); the plan is made again on the snapped footprint (8
+    chairs), the label keeps ``rule: module_split`` with both rules and says what is built; a second fit changes
+    nothing more."""
+    deep = drawn("table_dining", 3.8, 1.8, "f_L0_t3", height=0.75)
+    before = {"furniture": [deep]}
+    fitted = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed")
+    t = fitted["furniture"][0]
+    assert fitted["project"]["size_snap"]["split_first"] == ["f_L0_t3"]
+    assert t["footprint"]["size"] == [3.0, 1.8] and t["footprint"]["center"] == deep["footprint"]["center"]
+    assert t["drawn_footprint"] == deep["footprint"] and t["drawn_type"] == "table_dining"
+    snap = t["size_snap"]
+    assert snap["part"] == [3.8, 0.8] and snap["drawn"][:2] == [3.8, 1.8] and snap["snapped"][:2] == [3.0, 1.8]
+    assert "3.00 x 1.00" in snap["product"]
+    label = t["adjusted_by_ai"]
+    assert label["rule"] == F.SPLIT_RULE and label["rules"] == [F.SPLIT_RULE, F.SNAP_RULE]
+    assert label["changed"]["footprint"] == deep["footprint"]
+    split = t["asset"]["module_plan"]["split"]
+    assert label["split"] == split and split["table_m"] == [3.0, 0.8] and split["chairs"] == 8
+    assert label["reason"].startswith("module split, then the size snap of the table part")
+    assert "built as a 3.00 x 0.80 m table with 8 chairs" in label["reason"] and "drawn 3.80 x 1.80 m" in label["reason"]
+    # review of round 3: the fit CLI's own check accepts the split-then-snap result (it raised "a module split must
+    # not change the footprint" on it) and still refuses a part snap that touches the drawn depth
+    F.assert_only_assets_changed(before, fitted)
+    broken = copy.deepcopy(fitted)
+    broken["furniture"][0]["footprint"]["size"] = [3.0, 1.0]
+    broken["furniture"][0]["size_snap"]["snapped"] = [3.0, 1.0]
+    with pytest.raises(AssertionError, match="width only"):
+        F.assert_only_assets_changed(before, broken)
+    again = F.fit_building(copy.deepcopy(fitted), library, style_family="modern", mode="relaxed")
+    a = again["furniture"][0]
+    assert a["footprint"] == t["footprint"] and a["size_snap"] == snap and a["adjusted_by_ai"] == label
+    F.assert_only_assets_changed(fitted, again)
+    # with the snap off (keep_size) nothing is snapped: the module builder splits the drawn box as it is
+    kept = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed", snap=False)
+    k = kept["furniture"][0]
+    assert k["footprint"] == deep["footprint"] and "size_snap" not in k and k["adjusted_by_ai"]["rule"] == F.SPLIT_RULE
+
+
+def test_a_split_table_is_built_by_its_module_plan_even_when_a_library_table_would_fit(library, monkeypatch):
+    """Review of build round 3 item 2: the split decides. A drawn 1.6 x 1.6 m table footprint holds a 1.6 x 0.8 m
+    table and its chairs (module plan split); when a library table would fit the full footprint (a square model
+    scaled to the drawn width, e.g. from a later catalogue: today's has none, so the fit's library step is stubbed),
+    the piece is still built by the module plan, the label names the chairs, the library pick is logged
+    (``split_over``, ladder ``not used``) and the fit CLI's own check passes."""
+    deep = drawn("table_dining", 1.6, 1.6, "f_L0_sq", height=0.75)
+    real = F.fit_piece
+
+    def library_first(piece, *args, **kwargs):
+        if piece["id"] == "f_L0_sq":
+            return {"method": "library", "asset_id": "lib_square_table", "library": "abo", "scaling": "uniform",
+                    "bbox_m": [1.6, 1.6, 0.75], "licence": "CC-BY-4.0", "ladder": [F._step("library", "used x")]}
+        return real(piece, *args, **kwargs)
+
+    monkeypatch.setattr(F, "fit_piece", library_first)
+    before = {"furniture": [deep]}
+    fitted = F.fit_building(copy.deepcopy(before), library, style_family="modern", mode="relaxed")
+    t = fitted["furniture"][0]
+    assert fitted["project"]["size_snap"]["split_first"] == ["f_L0_sq"]
+    assert t["asset"]["method"] == "module" and t["asset"]["module_plan"]["split"]["chairs"] >= 2
+    assert t["asset"]["split_over"] == "lib_square_table"
+    assert [s["result"] for s in t["asset"]["ladder"]][-2:] == ["not used: lib_square_table", "used table_long"]
+    assert t["adjusted_by_ai"]["rule"] == F.SPLIT_RULE and t["footprint"] == deep["footprint"]
+    F.assert_only_assets_changed(before, fitted)
+    # a long table drawn turned (its depth the long side) is not split first: modules.plan_table_long reads size[1]
+    # as the depth without an orientation check, so it would take a 2.40 m table for a 1.00 m one with 2 chairs
+    turned = drawn("table_dining", 1.0, 2.4, "f_L0_tt", height=0.75)
+    assert F.module_plan_for(turned)[0]["split"] and F.split_plan_first(turned) is None
+    assert F.apply_split_then_snap(copy.deepcopy(turned)) is None
+    # a piece the split did not label keeps what the fit picked
+    plain = drawn("table_dining", 1.6, 0.9, "f_L0_sq", height=0.75)
+    assert F.fit_building({"furniture": [plain]}, library, mode="relaxed")["furniture"][0]["asset"]["method"] == "library"
 
 
 def test_module_plan_for_guards_the_import_and_a_builder_error(monkeypatch):

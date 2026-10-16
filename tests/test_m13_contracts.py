@@ -187,7 +187,8 @@ def test_agent_interfaces():
 def test_lighting_and_material_interfaces():
     from wenart.blender import lighting as L, materials as M
 
-    assert isinstance(L.SUN_STRENGTH_WM2, float) and L.SUN_STRENGTH_WM2 > 0     # the lead sets the value after P1
+    # Round 3 (docs/milestone13.md §14.3): the manual's clear-sky value, decided on pod P1 (15 Oct 2026)
+    assert isinstance(L.SUN_STRENGTH_WM2, float) and L.SUN_STRENGTH_WM2 == 1000.0
     assert L.LIGHT_VARIANT_ENV == "WENART_LIGHT_VARIANT"
     assert {"base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all"} <= set(L.LIGHT_VARIANTS)
     assert params(L.room_rig) == ["room_type"]

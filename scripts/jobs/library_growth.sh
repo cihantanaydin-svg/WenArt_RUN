@@ -19,6 +19,27 @@
 # keeps present files (a second run resumes). The catalogue copies are written with the counts per source, per
 # licence flag and per licence mode (report step).
 #
+# Milestone 13 round 3 (docs/milestone13.md §14.6, after pod P2):
+#   refetch              the current file of every catalogue entry waiting for a re-audit (audit pending with a
+#                        `reaudit` record: an asset republished upstream, vintage_wooden_drawer_01 on 16 Oct 2026);
+#                        the older files are kept beside (<name>.superseded-<sha12>); the catalogue step puts the
+#                        entry into new_ids.json once its current file is on the volume, so this audit judges it again
+#   steps.tsv            a fourth column: the last line a failed step printed (P2 had `preview 1 0` and nothing else)
+#   GROWTH_ONLY=hssd     pod P2b: the HSSD layer alone, once the user has accepted the HSSD terms with the account
+#                        whose token is the RunPod secret hf_token (P2 got HTTP 403). Runs setup-check, ingest-hssd,
+#                        refetch, catalogue --only hssd (every other entry stays as the repo's catalogues have it;
+#                        new_ids.json = the HSSD ids, the earlier ids kept as kept_ids), render of the new ids, code,
+#                        ask, decide, write, vision-fields, gaps, coverage, report and the GPU tests. No other
+#                        download, conversion or catalogue step runs; nothing on the volume is deleted; a second run
+#                        resumes (present HSSD files kept, renders by job_sha, answers by input hash). About 50 min
+#                        for the 874 picks at P2's rates (render 1.42 s per model with 3 workers: ~21 min; ask 884
+#                        requests in 1296 s incl. the server start: ~21 min; the rest a few minutes):
+#     python3 scripts/gpu_run.py run --job scripts/jobs/library_growth.sh --disk 150 --max-minutes 90 --over-5-ok \
+#       --env GROWTH_ONLY=hssd --env AUDIT_MODEL_KEY=agent --purpose "M13 P2b: HSSD layer"
+#   The ask needs the 52 GB agent/judge server (docs/milestone13.md §8: P2 on the RTX PRO 6000). Without --gpu the
+#   runner's GPU_PRIORITY falls back to the RTX 5090 (32 GB, CLAUDE.md: cannot host it) when the 6000 is out of
+#   stock; add --gpu 'RTX PRO 6000' to the command above if that must not happen (the lead's call).
+#
 # Milestone 12 pod P4: the library growth (docs/milestone12.md §6.4 D24, §14.3; docs/m12_tracks/P4.md). The four lists
 # the user approved on 11 Oct 2026 (results/library/growth/approved_*.json, read through growth.approved, the
 # ingest gate) are downloaded or generated, put into COPIES of the catalogues (never wenart/furniture/*.json: the
@@ -66,7 +87,8 @@
 # Env (all optional): AUDIT_MODEL_KEY (default audit.yaml ask.model_key), AUDIT_ROOT (/workspace/library-audit),
 # GROWTH_ROOT (/workspace/library-growth), WENART_ASSETS (/workspace/assets), AUDIT_WORKERS (3), INFINIGEN_CAP_MIN
 # (40), INFINIGEN_TEX_RES (1024), GROWTH_PH_SIZE (2k since Milestone 13; 1k in M12), GROWTH_PROBE_MIN (15),
-# GROWTH_MIN_FREE_GB (30: the M13 downloads are about 18 GB), HF_TOKEN (the HSSD gate; from the pod secret).
+# GROWTH_MIN_FREE_GB (30: the M13 downloads are about 18 GB), HF_TOKEN (the HSSD gate; from the pod secret),
+# GROWTH_ONLY (empty or all: every step; hssd: the HSSD layer alone, see above).
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -91,6 +113,7 @@ INFINIGEN_CAP_MIN="${INFINIGEN_CAP_MIN:-40}"
 INFINIGEN_TEX_RES="${INFINIGEN_TEX_RES:-1024}"
 GROWTH_PH_SIZE="${GROWTH_PH_SIZE:-2k}"
 GROWTH_PROBE_MIN="${GROWTH_PROBE_MIN:-15}"
+GROWTH_ONLY="${GROWTH_ONLY:-all}"
 # Infinigen, pinned (wenart/assets/audit/growth_infinigen.py: tag v1.19.0, read with git ls-remote on 11 Oct 2026)
 IG_URL=https://github.com/princeton-vl/infinigen
 IG_COMMIT=01c39c7f7adcf7363ccbcc57c64410c69f4a4e7c
@@ -136,10 +159,17 @@ time_left() {
   if [ -z "${WENART_DEADLINE:-}" ]; then echo 999999; else echo $(( ${WENART_DEADLINE%.*} - $(date +%s) )); fi
 }
 
-record() {  # name rc seconds
+record() {  # name rc seconds [reason]: one row of steps.tsv (the reason: a failed step's last line)
   mkdir -p "$(dirname "$STEPS_TSV")"
-  printf '%s\t%s\t%s\n' "$1" "$2" "$3" >> "$STEPS_TSV"
+  printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "${4:-}" >> "$STEPS_TSV"
   if [ "$2" -ne 0 ]; then FAILED+=("$1"); fi
+}
+
+# reason_of <log>: the last line a step printed that says something (the error trap's own line left out), tabs
+# folded, at most 200 characters: the reason column of steps.tsv (round 3: P2's `preview 1 0` had none)
+reason_of() {
+  { grep -v -e '^[[:space:]]*$' -e 'library_growth: ERROR at line' "$1" 2>/dev/null || true; } | tail -n 1 \
+    | tr '\t' ' ' | cut -c1-200
 }
 
 # need <seconds> <name>: false (and recorded) when too little time is left before WENART_DEADLINE.
@@ -225,15 +255,25 @@ on_exit() {
 trap 'on_exit' EXIT
 trap 'exit 143' TERM
 
-# run_step <name> <command...>: timed, failure recorded, the job goes on, results flushed.
+# run_step <name> <command...>: timed, its output also in $LOGS/growth-step-<name>-$JOB.log, failure recorded with
+# the step's last line as the reason, the job goes on, results flushed.
 run_step() {
   local name=$1; shift
-  local t0 rc=0
+  local t0 rc=0 out="$LOGS/growth-step-$name-$JOB.log" why="" tee_pid n
   t0=$(date +%s)
   log "step start: $name"
-  "$@" || rc=$?
-  log "step end: $name rc=$rc in $(( $(date +%s) - t0 )) s"
-  record "$name" "$rc" "$(( $(date +%s) - t0 ))"
+  { "$@" || rc=$?; } > >(tee "$out") 2>&1
+  tee_pid=$!
+  # the tee has written the step's last lines when it ends; at most 10 s (a child left running with the step's
+  # stdout would keep it open: never wait for that)
+  for n in $(seq 1 50); do kill -0 "$tee_pid" 2>/dev/null || break; sleep 0.2; done
+  if [ "$rc" -ne 0 ]; then
+    why=$(reason_of "$out")
+    log "step end: $name rc=$rc in $(( $(date +%s) - t0 )) s: ${why:-no output}"
+  else
+    log "step end: $name rc=$rc in $(( $(date +%s) - t0 )) s"
+  fi
+  record "$name" "$rc" "$(( $(date +%s) - t0 ))" "${why:-}"
   kill_vllm
   copy_results
   return 0
@@ -248,7 +288,7 @@ start_bg() {
   BG_PID[$name]=$!
 }
 join_bg() {
-  local name=$1 rc=0 pid secs
+  local name=$1 rc=0 pid secs why
   pid="${BG_PID[$name]:-}"
   [ -n "$pid" ] || return 0
   wait "$pid" || rc=$?
@@ -256,7 +296,8 @@ join_bg() {
   secs=$(( $(date +%s) - ${BG_T0[$name]} ))
   log "step end: $name rc=$rc in $secs s (background)"
   tail -n 12 "$LOGS/growth-$name-$JOB.log" 2>/dev/null | sed "s/^/  [$name] /" || true
-  record "$name" "$rc" "$secs"
+  if [ "$rc" -ne 0 ]; then why=$(reason_of "$LOGS/growth-$name-$JOB.log"); else why=""; fi
+  record "$name" "$rc" "$secs" "$why"
   copy_results
   return 0
 }
@@ -383,73 +424,124 @@ if [ ! -f "$AUDIT_ROOT/audit/measure.json" ]; then
       "the growth goes on"
 fi
 
-# --- Milestone 13: the demands and the coverage before the growth, then the speed probe (foreground, CPU) ------
-run_step demands gr demands
-run_step size-grid gr size-grid
-run_step speed-probe timeout --kill-after=30 $(( GROWTH_PROBE_MIN * 60 )) "$PY" -m wenart.assets growth run \
-  speed-probe --workers 8 --growth "$GROWTH" --assets "$ASSETS" --p4 "$P4" --p3 "$AUDIT_ROOT"
-
-start_bg setup-check env AGENT_MODELS="$MODEL_KEY" POLISH_RECOG_PARTS="vllm models" POLISH_MODE=final \
-  POLISH_PHASES="check" bash scripts/pod_setup_polish.sh
-start_bg infinigen infinigen_part
-start_bg ingest-polyhaven gr ingest --source polyhaven --size "$GROWTH_PH_SIZE"
-start_bg ingest-abo gr ingest --source abo --workers 8
-start_bg ingest-gso gr ingest --source gso --workers 8
-# --- Milestone 13 ingests (background; present files are kept) ----------------------------------------------------
-if [ -n "${HF_TOKEN:-}" ]; then
-  start_bg ingest-hssd gr ingest --source hssd --workers 8 --token-env HF_TOKEN
-else
-  log "ingest-hssd: SKIPPED: HF_TOKEN is not set in the environment (the RunPod secret hf_token); the HSSD layer" \
-      "needs the account that accepted the terms at https://huggingface.co/datasets/hssd/hssd-models (D2)"
-  record "ingest-hssd (skipped: no HF_TOKEN)" 0 0
-fi
-start_bg ingest-abo-m13 gr ingest --source abo --m13 --workers 8
-start_bg ingest-polyhaven-m13 gr ingest --source polyhaven --m13 --size "$GROWTH_PH_SIZE"
-start_bg ingest-ambientcg gr ingest --source ambientcg --size "$GROWTH_PH_SIZE"
-
-join_bg ingest-gso
-run_step gso-licence gr gso-licence --workers 8
-run_step convert-gso gr convert --source gso --blender "$WENART_BLENDER"
-join_bg ingest-polyhaven
-join_bg ingest-abo
-join_bg ingest-hssd
-join_bg ingest-abo-m13
-join_bg ingest-polyhaven-m13
-join_bg ingest-ambientcg
-run_step catalogue gr catalogue
-
 RENDER_ARGS=(--assets "$ASSETS" --work "$P4/work" --workers "$AUDIT_WORKERS" --blender "$WENART_BLENDER"
              --ids-file "$P4A/new_ids.json")
 if [ -n "${WENART_DEADLINE:-}" ]; then RENDER_ARGS+=(--deadline "$WENART_DEADLINE"); fi
-if need 600 render-a; then run_step render-a au render "${RENDER_ARGS[@]}"; fi
 
-join_bg infinigen
-run_step convert-infinigen gr convert --source infinigen --blender "$WENART_BLENDER"
-run_step catalogue-b gr catalogue
-if need 300 render-b; then run_step render-b au render "${RENDER_ARGS[@]}"; fi
-run_step code au code --work "$P4/work" --ids-file "$P4A/new_ids.json"
+start_setup_check() {  # vLLM + the audit model, in the background from the start (the ask needs it last)
+  start_bg setup-check env AGENT_MODELS="$MODEL_KEY" POLISH_RECOG_PARTS="vllm models" POLISH_MODE=final \
+    POLISH_PHASES="check" bash scripts/pod_setup_polish.sh
+}
 
-ask_plan=$(gr ask --plan-only --model-key "$MODEL_KEY" 2>&1) || true
-echo "$ask_plan" | tail -n 3
-if grep -q '^growth ask: unanswered 0$' <<< "$ask_plan"; then
-  log "ask: every request has a current answer: no server"
-  stop_bg setup-check
-else
-  join_bg setup-check
-  if need 900 ask; then
-    run_step ask env HF_HUB_OFFLINE=1 "$PY" -m wenart.assets growth run ask --model-key "$MODEL_KEY" \
-      --job-dir "$JOB_DIR" --growth "$GROWTH" --assets "$ASSETS" --p4 "$P4" --p3 "$AUDIT_ROOT" \
-      ${WENART_DEADLINE:+--deadline "$WENART_DEADLINE"}
+# ask_step: one vLLM server session for the requests without a current answer; none left: no server, the setup
+# step still running is stopped, not waited for.
+ask_step() {
+  local ask_plan
+  ask_plan=$(gr ask --plan-only --model-key "$MODEL_KEY" 2>&1) || true
+  echo "$ask_plan" | tail -n 3
+  if grep -q '^growth ask: unanswered 0$' <<< "$ask_plan"; then
+    log "ask: every request has a current answer: no server"
+    stop_bg setup-check
+  else
+    join_bg setup-check
+    if need 900 ask; then
+      run_step ask env HF_HUB_OFFLINE=1 "$PY" -m wenart.assets growth run ask --model-key "$MODEL_KEY" \
+        --job-dir "$JOB_DIR" --growth "$GROWTH" --assets "$ASSETS" --p4 "$P4" --p3 "$AUDIT_ROOT" \
+        ${WENART_DEADLINE:+--deadline "$WENART_DEADLINE"}
+    fi
   fi
+}
+
+case "$GROWTH_ONLY" in
+  all|hssd) log "mode: GROWTH_ONLY=$GROWTH_ONLY" ;;
+  *) log "GROWTH_ONLY='$GROWTH_ONLY' is not a mode of this job (all | hssd): nothing done"
+     record "mode (GROWTH_ONLY=$GROWTH_ONLY unknown)" 1 0 "GROWTH_ONLY must be all or hssd"
+     exit 1 ;;
+esac
+
+if [ "$GROWTH_ONLY" = hssd ]; then
+  # --- GROWTH_ONLY=hssd (pod P2b): the HSSD layer alone; every other download and entry stays as it is ----------
+  log "GROWTH_ONLY=hssd: ingest-hssd, refetch, catalogue --only hssd, render, code, ask, decide, write," \
+      "vision-fields, gaps, coverage, report, GPU tests; every other download and catalogue entry stays as it is" \
+      "on the volume"
+  if [ -z "${HF_TOKEN:-}" ]; then
+    log "ingest-hssd: SKIPPED: HF_TOKEN is not set in the environment (the RunPod secret hf_token): GROWTH_ONLY=hssd" \
+        "has nothing to do; the HSSD layer needs the account that accepted the terms at" \
+        "https://huggingface.co/datasets/hssd/hssd-models (D2)"
+    record "ingest-hssd (skipped: no HF_TOKEN)" 1 0 "HF_TOKEN is not set"
+    exit 1
+  fi
+  start_setup_check
+  run_step ingest-hssd gr ingest --source hssd --workers 8 --token-env HF_TOKEN
+  if ! compgen -G "$ASSETS/models/hssd/hssd_*.glb" > /dev/null; then
+    log "GROWTH_ONLY=hssd: no HSSD model on the volume (the reason is in the ingest-hssd lines above): nothing to" \
+        "audit; the rest of the library stays as it is"
+    stop_bg setup-check
+    run_step report gr report --steps "$STEPS_TSV"
+    exit 1
+  fi
+  run_step refetch gr refetch
+  run_step catalogue gr catalogue --only hssd
+  if need 300 render; then run_step render au render "${RENDER_ARGS[@]}"; fi
+  run_step code au code --work "$P4/work" --ids-file "$P4A/new_ids.json"
+  ask_step
+  run_step decide au decide --model-key "$MODEL_KEY" --ids-file "$P4A/new_ids.json"
+  run_step write au write
+  run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
+  run_step gaps gr gaps
+  run_step coverage gr size-grid
+else
+  # --- Milestone 13: the demands and the coverage before the growth, then the speed probe (foreground, CPU) ----
+  run_step demands gr demands
+  run_step size-grid gr size-grid
+  run_step speed-probe timeout --kill-after=30 $(( GROWTH_PROBE_MIN * 60 )) "$PY" -m wenart.assets growth run \
+    speed-probe --workers 8 --growth "$GROWTH" --assets "$ASSETS" --p4 "$P4" --p3 "$AUDIT_ROOT"
+
+  start_setup_check
+  start_bg infinigen infinigen_part
+  start_bg ingest-polyhaven gr ingest --source polyhaven --size "$GROWTH_PH_SIZE"
+  start_bg ingest-abo gr ingest --source abo --workers 8
+  start_bg ingest-gso gr ingest --source gso --workers 8
+  # --- Milestone 13 ingests (background; present files are kept) --------------------------------------------------
+  if [ -n "${HF_TOKEN:-}" ]; then
+    start_bg ingest-hssd gr ingest --source hssd --workers 8 --token-env HF_TOKEN
+  else
+    log "ingest-hssd: SKIPPED: HF_TOKEN is not set in the environment (the RunPod secret hf_token); the HSSD layer" \
+        "needs the account that accepted the terms at https://huggingface.co/datasets/hssd/hssd-models (D2)"
+    record "ingest-hssd (skipped: no HF_TOKEN)" 0 0
+  fi
+  start_bg ingest-abo-m13 gr ingest --source abo --m13 --workers 8
+  start_bg ingest-polyhaven-m13 gr ingest --source polyhaven --m13 --size "$GROWTH_PH_SIZE"
+  start_bg ingest-ambientcg gr ingest --source ambientcg --size "$GROWTH_PH_SIZE"
+
+  join_bg ingest-gso
+  run_step gso-licence gr gso-licence --workers 8
+  run_step convert-gso gr convert --source gso --blender "$WENART_BLENDER"
+  join_bg ingest-polyhaven
+  join_bg ingest-abo
+  join_bg ingest-hssd
+  join_bg ingest-abo-m13
+  join_bg ingest-polyhaven-m13
+  join_bg ingest-ambientcg
+  run_step refetch gr refetch
+  run_step catalogue gr catalogue
+  if need 600 render-a; then run_step render-a au render "${RENDER_ARGS[@]}"; fi
+
+  join_bg infinigen
+  run_step convert-infinigen gr convert --source infinigen --blender "$WENART_BLENDER"
+  run_step catalogue-b gr catalogue
+  if need 300 render-b; then run_step render-b au render "${RENDER_ARGS[@]}"; fi
+  run_step code au code --work "$P4/work" --ids-file "$P4A/new_ids.json"
+  ask_step
+  run_step decide au decide --model-key "$MODEL_KEY" --ids-file "$P4A/new_ids.json"
+  run_step write au write
+  run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
+  run_step pending gr pending --model-key "$MODEL_KEY"
+  run_step sheets au sheets
+  run_step gaps gr gaps
+  run_step coverage gr size-grid
+  if need 180 preview; then run_step preview gr preview --blender "$WENART_BLENDER"; fi
 fi
-run_step decide au decide --model-key "$MODEL_KEY" --ids-file "$P4A/new_ids.json"
-run_step write au write
-run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
-run_step pending gr pending --model-key "$MODEL_KEY"
-run_step sheets au sheets
-run_step gaps gr gaps
-run_step coverage gr size-grid
-if need 180 preview; then run_step preview gr preview --blender "$WENART_BLENDER"; fi
 run_step report gr report --steps "$STEPS_TSV"
 if need 240 gpu-tests; then
   run_step gpu-tests env WENART_AUDIT_P4="$P4A" WENART_GROWTH="$GROWTH" WENART_ASSETS="$ASSETS" \

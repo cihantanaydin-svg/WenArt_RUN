@@ -849,7 +849,12 @@ def test_questions_new_in_the_answer_run_are_not_pending(tmp_path):
     _first_building, first = P.run_project(project, out)
     doc = A.read_requests(rec)
     items = doc["items"]
-    assert len(items) == 8 and len(first.code_typed) == 9          # Milestone 13 (K3): 17 asked by the core, 9 withdrawn
+    # Milestone 13 (K3): 17 asked by the core; build round 3 (lead decision: code first, then the context rules on
+    # the open questions too, both withdraw): 15 withdrawn (9 by code: the beds, nightstands, dining table, sofa and
+    # coffee table as the rooms' missing anchors and members; 6 chairs at the table by the context rule), 2 written
+    # (the chaise and the unknown 0.4 m piece); tests/test_real01.py explains the pieces.
+    assert len(items) == 2 and len(first.code_typed) == 15
+    assert sorted(first.code_typed_methods.values()) == ["context:chair"] * 6 + ["group_member"] * 9
     late, missing = items[-1]["key"], items[0]["key"]
     A.write_requests(rec, doc["project"], items[:-1])            # the answer round did not ask the last question
     models = A.load_models()
@@ -863,19 +868,15 @@ def test_questions_new_in_the_answer_run_are_not_pending(tmp_path):
         store.save()
     building, build = P.run_project(project, out, answers=rec)
     assert build.pending == [missing] and P.exit_code(building, build) == P.EXIT_QUESTIONS
-    # Review cross-5: both are unanswered; the report says which one is not waited for. Milestone 13 (K3, round 2):
-    # the first run withdrew the questions code typed before the AI (requests.json held 8 of the core's 17); in the
-    # run with the answers nothing waits (answers applied), so the reading step's context rules may type such a
-    # piece first (the dining table with its seats) and its question comes back as a late one (written again, not
-    # pending, not waited for): the unanswered keys are the two of the story plus those.
+    # Review cross-5: both are unanswered; the report says which one is not waited for. Build round 3 (K3): the
+    # run with the answers withdraws the same 15 questions as the first run (code first, the context rules on what
+    # code left), so no withdrawn question comes back as a late one (round 2: the context rule "a table with its
+    # seats" typed the dining table only in the run with the answers and its question came back; now the code typing
+    # runs first in every run) and the unanswered keys are exactly the two of the story.
     back = set(q["key"] for q in build.questions) - {it["key"] for it in items}
-    assert set(build.unanswered) == {missing, late} | back and not back & set(build.pending)
-    # review (round 2): only a question the first run withdrew can come back, and only the dining table's (the
-    # context rule "a table with its seats" typed it before the code typing; its chairs' questions are in the round)
-    assert back and back <= set(first.code_typed) and not back & set(build.code_typed)
-    pieces = {f["id"]: f for f in building["furniture"]}
-    assert {pieces[first.code_typed[k]]["type"] for k in back} == {"table_dining"}
-    assert len(back) == 1 and len(build.code_typed) == 8
+    assert not back and set(build.unanswered) == {missing, late}
+    assert build.code_typed == first.code_typed and build.code_typed_methods == first.code_typed_methods
+    assert [q["key"] for q in build.questions] == [it["key"] for it in items]
     n = len(build.unanswered)
     assert (f"{n} without a complete pair of answers ({n - 1} not in the round the answers belong to: not applied, "
             "they stay unknown/unverified)") in (out / "report.md").read_text(encoding="utf-8")

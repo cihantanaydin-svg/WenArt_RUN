@@ -29,6 +29,26 @@ from wenart.sheets import exterior as EX
 ROOT = Path(__file__).resolve().parents[1]
 REAL04 = ROOT / "results" / "furniture" / "real04" / "building_final.json"
 REAL04_SHEETS = ROOT / "results" / "furniture" / "real04" / "sheets.json"
+
+
+def assert_walls_within_cap_or_blocked(pfs) -> list:
+    """Review of round 3: every platform's tallest retaining wall is within RETAINING_MAX_M except on the edges its
+    ``cap_exceeded`` names, each one where a stepped band had no room (``blocked_by``: another platform, the
+    building, or band_max), so nothing over the cap is silent. Returns the exceedances ``[(id, edge, height, by)]``."""
+    ids = {p["id"] for p in pfs}
+    found = []
+    for p in pfs:
+        over = p.get("cap_exceeded") or []
+        assert (p["wall_max_m"] <= S.RETAINING_MAX_M + 1e-6) == (not over), (p["id"], p["wall_max_m"], over)
+        if over:
+            assert max(c["height_m"] for c in over) == pytest.approx(p["wall_max_m"], abs=1e-3)
+        blocked = {b["edge"]: b.get("by") for b in p.get("band_blocked") or []}
+        for c in over:
+            assert c["blocked_by"] in ids | {"building", "keep_out", "band_max"}, (p["id"], c)
+            if not p.get("parent"):
+                assert blocked.get(c["edge"]) == c["blocked_by"], (p["id"], c, blocked)
+            found.append((p["id"], c["edge"], c["height_m"], c["blocked_by"]))
+    return found
 REAL02 = ROOT / "results" / "furniture" / "real02" / "building_final.json"
 EXAMPLE = json.loads((ROOT / "docs" / "examples" / "building_m10.example.json").read_text(encoding="utf-8"))
 
@@ -103,7 +123,9 @@ def test_hedges_of_the_committed_real04_building_and_their_symbols_leave_the_tre
     terrain = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
     v, f, info = S.hedge_parts(hedges[0], terrain)
     assert info["length_m"] == pytest.approx(25.5, abs=0.2) and info["top_z"] == pytest.approx(1.2)
-    assert len(f) == 6 * info["segments"]
+    # round 3: the core is a hull with rounded shoulders (a 10-point profile: 2 caps + 10 sides per step), one
+    # step per polyline segment on flat ground
+    assert info["core"] == "hull" and info["top_round_m"] == 0.2 and len(f) == 12 * info["segments"]
 
 
 # --------------------------------------------------------------------------
@@ -291,8 +313,14 @@ def test_site_plan_of_real04_carries_hedges_platforms_species_and_the_levers(mon
     sp = BB.prepare(b, "base", None)["site"]
     assert [h["id"] for h in sp["hedges"]] == ["hedge_001", "hedge_002", "hedge_003", "hedge_004"]
     assert len(sp["trees"]) == 19 and sp["climate"]["climate"] == "mediterranean"
-    assert sorted((p["id"], p["z"]) for p in sp["platforms"]) == [("sp_001", -3.0), ("sp_002", -1.4), ("sp_003", 1.55),
-                                                                  ("sp_004", -0.2), ("spk_001", 0.75)]
+    primary = [p for p in sp["platforms"] if not p.get("parent")]
+    assert sorted((p["id"], p["z"]) for p in primary) == [("sp_001", -3.0), ("sp_002", -1.4), ("sp_003", 1.55),
+                                                          ("sp_004", -0.2), ("spk_001", 0.75)]
+    # round 3: the stepped terraces (bands) of the steep terraces, every wall within the retaining cap except where a
+    # band had no room (recorded with what blocked it; review of round 3)
+    bands = [p for p in sp["platforms"] if p.get("parent")]
+    assert bands and {b["parent"] for b in bands} <= {"sp_001", "sp_002", "sp_003", "sp_004"}
+    assert_walls_within_cap_or_blocked(sp["platforms"])
     assert next(p for p in sp["platforms"] if p["id"] == "spk_001")["sloped"]
     assert {p["deck_z"] for p in sp["pools"]} == {-3.0, -1.4, 1.55, -0.2}
     assert all(a.get("platform_id") for a in sp["areas"] if a["kind"] in ("paving", "parking"))
@@ -312,8 +340,10 @@ def test_site_plan_of_real04_carries_hedges_platforms_species_and_the_levers(mon
 def test_vegetation_plans_hedge_crown_palm_and_sapling_overrides():
     plan = VG.hedge_plan({"polyline": [[0, 0], [20, 0]], "width_m": 0.7, "height_m": 1.2, "species": "cherry_laurel"})
     assert plan["length_m"] == 20.0 and plan["surface_m2"] == pytest.approx(63.68)
-    assert plan["cards"] == round(63.68 * VG.LEAF_CARDS_PER_M2) and plan["density"] == VG.LEAF_CARDS_PER_M2
-    assert plan["card_m"][0] > VG.LEAF_CARD_M[0] * 0.5 and plan["species"] == "cherry_laurel"
+    # round 3: the density per species (hedge_density: the same cover for every leaf size), the hull core
+    assert plan["density"] == VG.hedge_density(0.9) == 129.6 and plan["cards"] == round(63.68 * 129.6) == 8253
+    assert plan["cover_layers"] == pytest.approx(VG.HEDGE_COVER_LAYERS, abs=0.05) and plan["core"] == "hull"
+    assert plan["card_m"] == [0.18, 0.216] and plan["species"] == "cherry_laurel" and plan["tilt_deg"] == 45.0
     crown = VG.crown_plan("plane", 6.0, crown_m=5.0)
     assert crown["trunk_h"] == pytest.approx(1.8) and crown["crown_rx"] == 2.5 and crown["crown_rz"] == pytest.approx(2.1)
     assert crown["shells"] == 2 and crown["cards"] > 100 and crown["crown"] == "spreading"
@@ -325,7 +355,12 @@ def test_vegetation_plans_hedge_crown_palm_and_sapling_overrides():
     over = VG.sapling_overrides("olive", 5.6, 7)
     assert over["scale"] == pytest.approx(5.6 / VG.SAPLING_TOP_PER_SCALE["small_maple"], abs=1e-3)
     assert over["scaleV"] == 0.0 and over["shape"] == VG.SAPLING_SHAPES["hemispherical"] and over["seed"] == 7
-    assert over["leafShape"] == "dFace" and over["bevel"] and not over["useArm"]
+    # round 3 (P1 'sapling': bare branches): the add-on's own 'rect' leaf quads, leaves on, the preset's count
+    assert over["leafShape"] == "rect" and over["showLeaves"] and over["bevel"] and not over["useArm"]
+    assert over["leaves"] == VG.SAPLING_LEAVES_DEFAULT and over["leafScale"] == VG.SAPLING_LEAF_M
+    assert over["leafScaleX"] == 1.0 and over["leafScaleV"] == VG.SAPLING_LEAF_SCALE_V and over["bend"] == 0.0
+    with_preset = VG.sapling_overrides("olive", 5.6, 7, {"leaves": 32, "showLeaves": False, "leafShape": "hex"})
+    assert with_preset["leaves"] == 32 and with_preset["showLeaves"] and with_preset["leafShape"] == "rect"
     assert "attractUp" in VG.sapling_overrides("cypress", 8.0, 1)
     assert len(VG.leaf_mask_points()) == 16 and 0 < VG.LEAF_MASK_EDGE < 0.5
 
@@ -632,7 +667,7 @@ def test_platforms_into_the_building_after_the_levels_and_the_cli(tmp_path):
     assert sum(rec["kinds"].values()) == rec["count"]
     BM.validate(building)                                  # the schema the lead added for the field
     # The same records as the build's site plan (the scene manifest's site.platforms), ids and levels.
-    plan = S.platforms(building["site"])
+    plan = S.platforms(building["site"], keep_out=S.building_keep_out(building))      # the build's keep-out too
     assert [(pf["id"], pf["z"], pf["kind"], pf["edge"]) for pf in plan] == \
         [(pf["id"], pf["z"], pf["kind"], pf["edge"]) for pf in pfs]
     # Idempotent: a second call replaces the list with the same records.
@@ -692,3 +727,369 @@ def test_m13_site_block_records_the_assets_dir_and_the_realized_instances():
                                                                                       "changes": []}, "light_wells": []}
     jsonschema.validate(B.site_manifest_block(built, rec, realized), site_schema)
     jsonschema.validate(B.site_manifest_block(built, None, None), site_schema)
+
+
+# --------------------------------------------------------------------------
+# 7. Round 3 (pod P1 of 15 Oct 2026, docs/milestone13.md §14.3): the hedge hull and its cover, the Sapling leaf
+#    properties, the retaining cap and the stepped terraces, the terrain record, the lawn tile, the export record
+# --------------------------------------------------------------------------
+
+def sapling_source() -> Path | None:
+    """The Sapling Tree Gen add-on's ``__init__.py`` when its folder is known (``WENART_SAPLING_DIR``, the same
+    variable ``vegetation.sapling_preset`` reads: the folder holding ``sapling_tree_gen`` or ``add_curve_sapling``),
+    else None (the property check is skipped; the pod's Blender runs the GPU test against the installed add-on)."""
+    folder = os.environ.get(VG.SAPLING_DIR_ENV)
+    for pkg in (("sapling_tree_gen", "add_curve_sapling") if folder else ()):
+        src = Path(folder) / pkg / "__init__.py"
+        if src.is_file():
+            return src
+    return None
+
+
+def _simple_polygon(poly) -> bool:
+    """No two non-adjacent edges of ``poly`` cross (a bow-tie quad fails)."""
+    def orient(a, b, c):
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+    def cross(p0, p1, q0, q1):
+        return orient(q0, q1, p0) * orient(q0, q1, p1) < 0 and orient(p0, p1, q0) * orient(p0, p1, q1) < 0
+
+    n = len(poly)
+    return not any(cross(poly[i], poly[(i + 1) % n], poly[j], poly[(j + 1) % n])
+                   for i in range(n) for j in range(i + 2, n) if not (i == 0 and j == n - 1))
+
+
+SAPLING_SRC = sapling_source()
+P1_SITE = ROOT / "runs" / "20261015-165506-m13_p1" / "results" / "ab_m13" / "site" / "platforms" / "real04" / "site.json"
+
+
+def test_round3_hedge_hull_profile_and_the_cover_behind_the_card_density():
+    """P1 'hedge' row: the hedges read as boxes of yellow-green dots. The core is a hull with rounded shoulders,
+    the card density follows a cover target per species (the round-1 60/m² gave 0.17-0.68 opaque layers)."""
+    prof = S.hedge_hull_profile(0.7, 1.2)
+    assert prof[0] == (-0.35, 0.0) and prof[1] == (0.35, 0.0) and max(z for _s, z in prof) == 1.2
+    assert len(prof) == 10 and len(set(prof)) == 10                     # no repeated point
+    assert all(abs(x) <= 0.35 + 1e-9 for x, _z in prof)
+    assert (0.15, 1.2) in prof and (-0.15, 1.2) in prof                  # the flat top between the shoulders
+    assert G.polygon_signed_area(prof) > 0 and len(geom2d.convex_hull(prof)) == 10      # convex
+    assert S.hedge_hull_profile(0.7, 1.2, round_m=0.0) == [(-0.35, 0.0), (0.35, 0.0), (0.35, 1.2), (-0.35, 1.2)]
+    assert len(S.hedge_hull_profile(0.3, 0.3)) == 9                    # a full half-round top: no flat segment
+    # the hull follows a sloped ground in steps, like the plot walls
+    terrain = {"kind": "sides", "z": {"+x": 0.0, "-x": -1.0, "+y": 0.0, "-y": 0.0}, "rect": [0, 0, 1, 1]}
+    v, f, info = S.hedge_parts({"polyline": [[-6, 0.5], [6, 0.5]], "width_m": 0.6, "height_m": 1.0}, terrain)
+    assert info["core"] == "hull" and info["segments"] == 1 and len(f) > 12
+    assert info["z_range"] == [-1.1, 1.0]                                # 0.1 m under the -x ground, 1.0 over +x
+    # the density: every hedge species gets HEDGE_COVER_LAYERS whatever its leaf size
+    for name in VG.HEDGE_SPECIES:
+        plan = VG.hedge_plan({"polyline": [[0, 0], [10, 0]], "width_m": 0.6, "height_m": 1.0, "species": name})
+        assert plan["cover_layers"] == pytest.approx(VG.HEDGE_COVER_LAYERS, abs=0.05), name
+        assert plan["density"] == VG.hedge_density(VG.SPECIES[name]["card_scale"]) >= VG.LEAF_CARDS_PER_M2
+    assert VG.hedge_density(0.45) == 518.5 and VG.hedge_density(1.0) == VG.LEAF_CARDS_PER_M2 == 105.0
+    assert VG.cover_layers(60.0, [0.16 * 0.45, 0.22 * 0.45]) == pytest.approx(0.171, abs=0.001)   # round 1, boxwood
+    assert VG.cover_layers(VG.CROWN_CARDS_PER_M2, VG.LEAF_CARD_M) == pytest.approx(VG.CROWN_COVER_LAYERS, abs=0.02)
+    assert VG.LEAF_CARD_M == (0.20, 0.24) and VG.HEDGE_CARD_TILT_DEG == 45.0
+    assert VG.LEAF_TINT_FACTOR == 1.0 and VG.LEAF_TINT_GAIN == 1.6 and 0 < VG.LEAF_TRANSLUCENT < 0.25
+
+
+def test_review_round3_leaf_atlases_carry_the_opacity_map_into_the_leaf_material(tmp_path):
+    """Item 3 of round 3: the hedge and crown cards take the ambientCG LeafSet atlas colour and its Opacity map. The
+    atlas ids are ambientCG ids every species resolves to, the fetcher keeps the Opacity map (OPTIONAL_SUFFIXES) and
+    leaf_atlas hands it to leaf_material (``files["opacity"]``: the alpha; else the procedural leaf mask)."""
+    from wenart.assets import ambientcg as AC
+
+    assert AC.OPTIONAL_SUFFIXES["opacity"] == "_Opacity"
+    assert set(VG.LEAF_ATLASES.values()) == {"LeafSet027", "LeafSet012", "LeafSet016"}
+    assert all(AC.looks_like_id(a) for a in VG.LEAF_ATLASES.values())
+    assert all(VG.LEAF_ATLASES.get(rec.get("leaf") or "broadleaf") for rec in VG.SPECIES.values())
+    folder = tmp_path / "assets"
+    files = {}
+    for key, suffix in (("albedo", "Color"), ("opacity", "Opacity"), ("normal", "NormalGL")):
+        f = folder / "textures" / "LeafSet027" / f"LeafSet027_2K-JPG_{suffix}.jpg"
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(b"x")
+        files[key] = str(f.relative_to(folder))
+    manifest = {"textures": {"LeafSet027": {"files": files, "size_m": [1.0, 1.0]}}}
+    atlas = VG.leaf_atlas("cherry_laurel", manifest, folder)
+    assert atlas["id"] == "LeafSet027" and atlas["licence"] == "CC0" and atlas["files"]["opacity"].endswith("Opacity.jpg")
+    assert VG.leaf_atlas("boxwood", manifest, folder)["id"] == "LeafSet027"
+    manifest["textures"]["LeafSet027"]["files"].pop("albedo")
+    assert VG.leaf_atlas("cherry_laurel", manifest, folder) is None          # no colour map: the procedural card
+
+
+def test_round3_sapling_leaf_properties_exist_in_the_add_on_and_the_presets_keep_their_counts():
+    """The override keys are properties of sapling_tree_gen 0.3.7's AddTree operator (its source, when the
+    verification copy is present), the leaf shape is one of its enum values, and sapling_args keeps a preset's own
+    leaf count while turning the leaves on."""
+    over = VG.sapling_overrides("olive", 5.6, 7)
+    if SAPLING_SRC is not None:
+        import re
+        src = SAPLING_SRC.read_text(encoding="utf-8")
+        props = set(re.findall(r"^    (\w+): (?:Bool|Int|Float|Enum|FloatVector|IntVector|String)Property\(", src, re.M))
+        assert {"showLeaves", "leaves", "leafShape", "leafScale", "leafScaleX", "leafScaleT", "leafScaleV", "bend",
+                "leafDist", "leafDupliObj"} <= props
+        assert set(over) - {"shape", "attractUp"} <= props, set(over) - props
+        assert "('rect', 'Rectangular', '1')" in src and "leafMesh = bpy.data.meshes.new('leaves')" in \
+            SAPLING_SRC.with_name("utils.py").read_text(encoding="utf-8")
+    preset = {"leaves": 150, "showLeaves": False, "leafShape": "hex", "leafScale": 0.4, "scale": 5.0, "levels": 2,
+              "chooseSet": "0", "presetName": "x", "attractUp": 0.5}
+    args = VG.sapling_args("conifer", 8.0, 3, preset)
+    assert args["leaves"] == 150 and args["showLeaves"] and args["leafShape"] == "rect"
+    assert args["leafScale"] == VG.SAPLING_LEAF_M and "chooseSet" not in args and "presetName" not in args
+    assert args["levels"] == 3 and args["scale"] == pytest.approx(8.0 / VG.SAPLING_TOP_PER_SCALE["douglas_fir"], abs=1e-3)
+
+
+@pytest.mark.skipif(not REAL04.is_file(), reason="no committed real04 building")
+def test_round3_real04_platforms_step_down_with_no_wall_over_the_retaining_cap(monkeypatch):
+    """P1 real04 ext_1 'platforms' / 'all': sp_001 (level -3.0 m, the ground 1.86 m under and 1.79 m over it) showed
+    as a tall white box. Now no retaining wall on the committed real04 site is taller than RETAINING_MAX_M where a
+    band fits: the terraces step down in bands, each with its own wall; the records say the terrain under them.
+    Review of round 3: the edges drawn into the building (sp_001 0.65 m into the basement L-1) or facing the copy's
+    footprint (sp_003, sp_004) build no wall and no band (round 3 put 5 bands of 1.2-2.1 m inside the basement), no
+    band enters the building, a copy or another platform, and the two walls next to the parking spk_001 (drawn 0.2 m
+    from sp_004 and beside sp_002) stay over the cap with the reason recorded."""
+    from wenart.blender import build as BB
+    from wenart.blender import geom2d as GD
+
+    assert S.RETAINING_MAX_M == 1.2
+    b = json.loads(REAL04.read_text(encoding="utf-8"))
+    if P1_SITE.is_file():                                      # the P1 numbers this fixes (the runs/ folder, local)
+        p1 = {p["id"]: p for p in json.loads(P1_SITE.read_text(encoding="utf-8"))["platforms"]}
+        assert p1["sp_001"]["drop_m"] > S.RETAINING_MAX_M and p1["sp_001"]["rise_m"] > S.RETAINING_MAX_M
+    keep = S.building_keep_out(b)
+    assert len(keep) == 2                                      # the ground outline and the copy b2's footprint
+    inner = [GD.offset_polygon(q, S.PLATFORM["keep_out_wall"]) for q in keep]
+    # the pure records on the site's own ground (platforms_into_building) and on the build's terrain
+    prep = BB.prepare(b, "base", None)
+    # building_keep_out restates build.ground_outline (site.py must not import build.py): the same outline within
+    # 1 cm (prepare reads the variant building, whose walls differ by a millimetre)
+    def same_outline(p, q):
+        return all(min(G.distance(v, w) for w in q) < 0.01 for v in p) and \
+            all(min(G.distance(v, w) for w in p) < 0.01 for v in q)
+
+    assert same_outline(keep[0], prep["ground_outline"]) and keep[1:] == prep["site"]["copy_holes"]
+    for name in ("real02", "real03"):
+        other = ROOT / "results" / "furniture" / name / "building_final.json"
+        if other.is_file():
+            ob = json.loads(other.read_text(encoding="utf-8"))
+            op = BB.prepare(ob, "base", None)
+            if op["ground_outline"]:
+                assert same_outline(S.building_keep_out(ob)[0], op["ground_outline"]), name
+    for pfs in (S.platforms(b["site"], keep_out=keep), prep["site"]["platforms"]):
+        primary = [p for p in pfs if not p.get("parent")]
+        assert [p["id"] for p in primary] == ["sp_001", "sp_002", "sp_003", "sp_004", "spk_001"]
+        bands = [p for p in pfs if p.get("parent")]
+        assert len(bands) >= 15 and all(p["kind"] == "terrace" and p["edge"] == "retaining" for p in bands)
+        over = assert_walls_within_cap_or_blocked(pfs)
+        assert {(pid, edge, by) for pid, edge, _h, by in over} == {("sp_002", 15, "spk_001"), ("sp_004", 2, "spk_001")}
+        assert all(h < 1.6 for _pid, _e, h, _by in over)
+        sp1 = primary[0]
+        assert sp1["against_edges"] == [0, 1, 12, 13, 14, 15, 16]          # drawn into the basement L-1
+        assert {p["id"]: bool(p["against_edges"]) for p in primary} == \
+            {"sp_001": True, "sp_002": True, "sp_003": True, "sp_004": True, "spk_001": False}
+        assert sp1["stepped"] and all(st["step_m"] <= S.RETAINING_MAX_M + 1e-9 for st in sp1["stepped"])
+        assert {st["direction"] for st in sp1["stepped"]} == {"up", "down"}          # a cut and a fill side
+        assert all(str(st["edge"]) in sp1["edge_floor"] for st in sp1["stepped"])
+        assert all(st["edge"] not in p["against_edges"] for p in primary for st in p.get("stepped") or [])
+        assert len(sp1["polygon"]) > 6                       # the long edges are split (edge_split_m)
+        by_id = {p["id"]: p for p in pfs}
+        for band in bands:
+            assert band["step"] >= 1 and band["shared_edges"] and band["outer_edge"] is not None
+            assert band["bottom_z"] == round(by_id[band["parent"]]["z"] - S.PLATFORM["below"], 3)
+            assert band["ground"]["min"] <= band["ground"]["max"] and "retaining cap" in band["reason"]
+            assert "stepped terrace" in band["reason"]
+            # every band is a proper strip (review of round 3: the mitred band on sp_001's 0.67 m edge 16 was a
+            # bow-tie, a twisted slab; such an edge gets square ends)
+            assert _simple_polygon(band["polygon"]) and G.polygon_signed_area(band["polygon"]) > 0.05, band["id"]
+            assert len(band["mitred"]) == 2
+            # no band inside the building (beyond its outer wall), a copy or another platform: a 5 x 5 grid
+            others = [p["polygon"] for p in primary if p["id"] != band["parent"]] + \
+                [q["polygon"] for q in bands if q is not band]
+            q0, q1, q2, q3 = band["polygon"]
+            for u in (0.1, 0.3, 0.5, 0.7, 0.9):
+                for v in (0.1, 0.3, 0.5, 0.7, 0.9):
+                    pt = tuple((1 - u) * (1 - v) * q0[k] + u * (1 - v) * q1[k] + u * v * q2[k] + (1 - u) * v * q3[k]
+                               for k in (0, 1))
+                    assert not any(G.point_in_polygon(pt, q) for q in inner + others), (band["id"], pt)
+    # the meshes: every wall built is within the cap but the two recorded ones, a band's inner edge and an edge
+    # facing the building have no wall, a parent's wall on a stepped edge ends at the band (to_band)
+    monkeypatch.delenv(S.SITE_VARIANT_ENV, raising=False)
+    sp = BB.prepare(b, "base", None)["site"]
+    over = {(pid, edge) for pid, edge, _h, _by in assert_walls_within_cap_or_blocked(sp["platforms"])}
+    heights, to_band, n_walls = [], 0, 0
+    for pf in sp["platforms"]:
+        parts = {q["part"]: q for q in S.platform_parts(pf, sp["terrain"])}
+        assert "slab" in parts
+        for w in (parts.get("wall") or {}).get("walls") or []:
+            n_walls += 1
+            to_band += int(w["to_band"])
+            assert w["edge"] not in (pf.get("shared_edges") or []) and w["edge"] not in pf["against_edges"]
+            if (pf["id"], w["edge"]) not in over:
+                heights.append(w["height_m"])
+            # the box spans the piece's buried part and the lip; its visible face is height_m (wall_pieces)
+            assert w["z1"] - w["z0"] <= w["height_m"] + S.PLATFORM["below"] + S.PLATFORM["lip"] + 0.1 + 1e-6
+        if pf.get("parent"):
+            assert "railing" not in parts                      # bands carry no railing
+        if pf.get("steps_edge") is not None:
+            assert pf["steps_edge"] not in pf["against_edges"]
+    assert n_walls > 50 and max(heights) <= S.RETAINING_MAX_M + 1e-6 and to_band >= 10
+    # the record's wall_max_m is the same measure as the built pieces (wall_pieces) on the same terrain
+    assert S.wall_pieces((0, 0), (3, 0), 0.0, lambda x, y: -0.4 * x)[-1]["height_m"] == pytest.approx(1.2, abs=0.01)
+    assert S.wall_pieces((0, 0), (3, 0), 0.0, lambda x, y: 0.0) == []
+    assert [q["height_m"] for q in S.wall_pieces((0, 0), (2, 0), 0.0, lambda x, y: 0.0, floor=-0.9)] == [0.9, 0.9]
+    # the building JSON round trip keeps the bands (string edge keys) and validates
+    from wenart import building as BM
+    rec = S.platforms_into_building(b)
+    assert rec["count"] == len(sp["platforms"]) and rec["kinds"]["terrace"] >= 15
+    BM.validate(b)
+    assert all(isinstance(k, str) for pf in b["site"]["platforms"] for k in (pf.get("edge_floor") or {}))
+
+
+def test_review_round3_against_edges_and_blocked_bands_on_a_synthetic_site():
+    """Review of round 3: a terrace drawn 0.5 m into a building on a steep slope builds no wall or band on the edge
+    inside the building, a band that would enter another platform is not built (recorded), a mitred band blocked
+    by a neighbour retries with square ends, and with no keep-out nothing changes."""
+    from wenart.levels import terrain as T
+
+    surface = T.fit_surface([(-20, -20, -8.0), (20, -20, 8.0), (-20, 20, -8.0), (20, 20, 8.0)])    # z = 0.4 x
+    site = {"ground": {"surface": surface, "points": [], "levels": []},
+            "paving": [{"id": "t1", "polygon": [[-3, -3], [3, -3], [3, 3], [-3, 3]], "build": True}], "parking": [],
+            "pools": []}
+    house = [(2.5, -10), (12, -10), (12, 10), (2.5, 10)]                 # the terrace's east 0.5 m lies in it
+    free = S.platforms(site)
+    held = S.platforms(site, keep_out=[house])
+    t_free, t_held = free[0], held[0]
+    assert t_free["against_edges"] == [] and t_held["against_edges"]
+    poly = geom2d.ccw(t_held["polygon"])
+    for i in t_held["against_edges"]:                                     # the east edge pieces (x = 3)
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        assert a[0] == b[0] == 3.0
+        assert str(i) not in t_held["edge_floor"] and i not in {st["edge"] for st in t_held["stepped"]}
+    assert any(st["direction"] == "up" for st in t_free["stepped"])       # the uphill (east) side stepped up before
+    assert all(st["direction"] == "down" for st in t_held["stepped"])     # now it faces the house: no band
+    assert all(not G.point_in_polygon(G.polygon_centroid(p["polygon"]), house) for p in held if p.get("parent"))
+    parts = {q["part"]: q for q in S.platform_parts(t_held, {"kind": "planar", "surface": surface, "z": {},
+                                                             "rect": [-3, -3, 3, 3]})}
+    assert all(w["edge"] not in t_held["against_edges"] for w in parts["wall"]["walls"])
+    # a second terrace 0.3 m west of t1's downhill edge: no band enters it, the edge says what blocked it
+    site2 = dict(site, paving=site["paving"] + [{"id": "t2", "polygon": [[-9, -3], [-3.3, -3], [-3.3, 3], [-9, 3]],
+                                                 "build": True}])
+    pfs = S.platforms(site2)
+    t1 = next(p for p in pfs if p["id"] == "t1")
+    west = [b for b in t1["band_blocked"] if b["by"] == "t2"]
+    assert west and all(b["bands"] == 0 for b in west)
+    t2 = next(p for p in pfs if p["id"] == "t2")
+    for band in (p for p in pfs if p.get("parent") == "t1"):
+        assert not G.point_in_polygon(G.polygon_centroid(band["polygon"]), t2["polygon"])
+    assert_walls_within_cap_or_blocked(pfs)
+    # a sloped (draped) parking: every kerb piece reaches under the ground at both ends (P1 real04 ext_5: the pieces
+    # floated as bars over the slope, their bottom 4 cm under the piece's highest ground)
+    park = {"id": "pk", "polygon": geom2d.ccw([(-6, 4), (6, 4), (6, 9), (-6, 9)]), "holes": [], "z": 0.0,
+            "kind": "parking", "sloped": True, "edge": "kerb", "railing_edges": [], "steps_edge": None}
+    terrain = {"kind": "planar", "surface": surface, "z": {}, "rect": [-6, 4, 6, 9]}
+    kerb = next(q for q in S.platform_parts(park, terrain) if q["part"] == "kerb")
+    boxes = [kerb["verts"][k:k + 8] for k in range(0, len(kerb["verts"]), 8)]
+    assert len(boxes) >= 12
+    for box in boxes:
+        zb, zt = min(v[2] for v in box), max(v[2] for v in box)
+        ground = [S.ground_z(terrain, v[0], v[1]) for v in box]
+        assert zb <= min(ground) + 1e-6 and zt >= max(ground) + S.PLATFORM["kerb_h"] - 1e-6
+    # the blocked index and the quad grid
+    assert S._band_blocked([(0, 0), (1, 0), (1, 1), (0, 1)], [[(5, 5), (6, 5), (6, 6)]]) is None
+    assert S._band_blocked([(0, 0), (1, 0), (1, 1), (0, 1)], [[(5, 5), (6, 5), (6, 6)], [(0.4, 0.4), (2, 0.4), (2, 2)]]) == 1
+    assert S.against_edges([(0, 0), (4, 0), (4, 4), (0, 4)], [[(4.1, -1), (9, -1), (9, 5), (4.1, 5)]]) == [1]
+    assert S.against_edges([(0, 0), (4, 0), (4, 4), (0, 4)], []) == []
+
+
+def test_round3_stepped_bands_on_a_synthetic_steep_slope_and_the_wall_materials():
+    """A 40 % slope under a 6 x 6 m terrace: the downhill edge gets stepped bands (mitred at the shared corner),
+    the uphill edge steps up, the flat site gets none; the wall look is a concrete slug, never the facade."""
+    from wenart.levels import terrain as T
+
+    surface = T.fit_surface([(-20, -20, -8.0), (20, -20, 8.0), (-20, 20, -8.0), (20, 20, 8.0)])    # z = 0.4 x
+    site = {"ground": {"surface": surface, "points": [], "levels": []},
+            "paving": [{"id": "t1", "polygon": [[-3, -3], [3, -3], [3, 3], [-3, 3]], "build": True}], "parking": [],
+            "pools": []}
+    pfs = S.platforms(site)
+    t1 = next(p for p in pfs if p["id"] == "t1")
+    assert t1["z"] == 0.0 and t1["drop_m"] == pytest.approx(1.2, abs=0.01) and t1["rise_m"] == pytest.approx(1.2, abs=0.01)
+    bands = [p for p in pfs if p.get("parent") == "t1"]
+    assert bands and {b["stepped_from"]["direction"] for b in bands} == {"down", "up"}
+    assert all(p["wall_max_m"] <= S.RETAINING_MAX_M + 1e-6 for p in pfs)
+    down = [b for b in bands if b["stepped_from"]["direction"] == "down"]
+    assert all(b["z"] < 0 for b in down) and all(b["bottom_z"] == -S.PLATFORM["below"] for b in down)
+    # the bands lie outside the terrace and never overlap each other (a partition of the strips)
+    for b in bands:
+        assert not G.point_in_polygon(G.polygon_centroid(b["polygon"]), t1["polygon"])
+    for i, a in enumerate(bands):
+        for c in bands[i + 1:]:
+            ca, cc = G.polygon_centroid(a["polygon"]), G.polygon_centroid(c["polygon"])
+            assert not G.point_in_polygon(ca, c["polygon"]) and not G.point_in_polygon(cc, a["polygon"])
+    # the terrain record and the wall parts: a band's outer wall ends at the next band
+    terrain = {"kind": "planar", "surface": surface, "z": {}, "rect": [-3, -3, 3, 3]}
+    for b in down:
+        parts = {q["part"]: q for q in S.platform_parts(b, terrain)}
+        for w in parts.get("wall", {}).get("walls", []):
+            assert w["height_m"] <= S.RETAINING_MAX_M + 1e-6
+    # every band is a proper strip: square ends lie on this edge's normal, mitred ends on the bisector (review of
+    # round 3: the square branch of _offset_corner moved the b corner along the next edge's normal)
+    for b in bands:
+        assert _simple_polygon(b["polygon"]) and G.polygon_signed_area(b["polygon"]) > 0.5, b["id"]
+    assert S._offset_corner((1.0, 0.0), (0.0, -1.0), (1.0, 0.0), 1.2, False) == (1.0, -1.2)      # square: n_this
+    assert S._offset_corner((1.0, 0.0), (0.0, -1.0), (1.0, 0.0), 1.2, True) == pytest.approx((2.2, -1.2))  # mitre
+    # real04 sp_001 edge 16 (0.67 m, a square a end and a mitred b end at a reflex corner): the outer edge would run
+    # backwards (a bow-tie), so the edge gets square ends
+    a, bb = (1.66415, 8.64995), (0.996941, 8.650924)
+    assert not S._band_quad_ok(a, bb, (2.198678, 9.849171), (1.665902, 9.849949))
+    assert S._band_quad_ok(a, bb, (0.998693, 9.850923), (1.665902, 9.849949))
+    assert not S._band_quad_ok((0, 0), (1, 0), (0.5, -1), (0.6, -1))                             # crossed ends
+    # a flat site: no bands at all
+    flat = {"ground": {"levels": [{"side": "all", "z": {"value": 0.0}}]}, "paving": site["paving"], "parking": [],
+            "pools": []}
+    assert [p["id"] for p in S.platforms(flat)] == ["t1"] and S.platforms(flat)[0]["wall_max_m"] == 0.0
+    assert S.subdivide_edges([(0, 0), (9, 0), (9, 1)], 3.0)[:4] == [(0, 0), (3, 0), (6, 0), (9, 0)]
+    # the looks of the parts: walls and kerbs a concrete vocabulary slug of kind stone / ground, never 'render'
+    from wenart.blender import materials as M
+    assert S.PLATFORM_LOOKS["wall"][0] == S.PLATFORM_LOOKS["kerb"][0] == "concrete_exposed"
+    assert (M.ENTRIES.get("concrete_exposed") or {}).get("kind") in ("stone", "ground", "hard")
+    assert S.PLATFORM_LOOKS["wall"][0] not in ("render", "plaster_white")
+
+
+def test_round3_terrain_record_never_raises_and_matches_the_manifest_schema():
+    """P1: build_site raised KeyError 'sides' on a bare terrain record; the record is normalised now."""
+    import jsonschema
+    from wenart.blender import schemas
+
+    bare = S.terrain_record({"kind": "flat", "z": {k: 0.0 for k in S.AXES}})
+    assert bare == {"kind": "flat", "z": {k: 0.0 for k in S.AXES}, "sides": [], "north_deg": None,
+                    "north_source": None, "changes": []}
+    tin = S.terrain_record({"kind": "tin", "surface": {"kind": "tin"}, "z": {}, "rect": [0, 0, 1, 1]})
+    assert tin["kind"] == "tin" and tin["z"] == {} and tin["sides"] == [] and tin["changes"] == []
+    assert S.terrain_record({})["kind"] == "flat"
+    real = S.terrain_model({"site": {"ground": {"levels": [{"side": "left", "z": {"value": -3.0}},
+                                                           {"side": "right", "z": {"value": 0.0}}]}}},
+                           [(0, 0), (10, 0), (10, 8), (0, 8)])
+    rec = S.terrain_record(real)
+    assert rec["kind"] == "sides" and len(rec["sides"]) == 2 and rec["north_deg"] == real["north_deg"]
+    assert rec["z"] == {k: round(v, 4) for k, v in real["z"].items()}
+    schema = schemas.SITE_BUILT["properties"]["terrain"]
+    for r in (bare, tin, rec):
+        jsonschema.validate(r, schema)
+
+
+def test_round3_lawn_tile_clamp_and_the_site_kinds_in_the_manifest_schema():
+    """P1: every exterior rendered the lawn as a flat saturated green (real02's ground: grass__Grass004, a 1.4 m
+    photo tile that averages to one green at a distance). The texture tile is clamped to 1-2 m; the variation is a
+    multiplier around 1. The four site
+    kinds are in the scene-manifest schema (round-2 leftover), so site.site_kind writes its own names."""
+    from wenart.blender import schemas
+
+    assert VG.lawn_tile_m([4.0, 4.0]) == 2.0 and VG.lawn_tile_m([0.5, 0.5]) == 1.0 and VG.lawn_tile_m([1.2, 1.2]) == 1.2
+    assert VG.lawn_tile_m(None) == 1.5 and VG.lawn_tile_m([0, 0]) == 1.5 and VG.lawn_tile_m(["x"]) == 1.5
+    dark, light = VG.LAWN_VARIATION["dark"], VG.LAWN_VARIATION["light"]
+    assert all(0.6 <= d < 1.0 for d in dark) and all(0.85 <= lt <= 1.2 for lt in light)
+    assert sum(dark) / 3 < 1.0 < sum(light) / 3                          # a multiplier around 1: a mild variation
+    assert 0 < VG.LAWN_VARIATION["scale_per_m"] < 0.5 and 0 < VG.LAWN_VARIATION["bump"] < 0.3
+    assert {"site_platform", "site_hedge", "site_grass", "atmosphere"} <= set(schemas.WHOLE_BUILDING_KINDS)
+    assert {S.site_kind(p) for p in ("platform", "hedge", "grass", "haze")} == \
+        {"site_platform", "site_hedge", "site_grass", "atmosphere"}
+    assert VG._manifest_kind("site_hedge") == "site_hedge" and VG._manifest_kind("atmosphere") == "atmosphere"

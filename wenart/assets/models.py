@@ -51,6 +51,20 @@ offline). The licence gate is ``fetch.check_licence`` (Objaverse: any licence
 with its flag; ABO: CC BY 4.0; generated: ``generated ...``); the manifest
 entry keeps the credit fields, the licence flag and, for a generated model,
 its ``generated`` record.
+
+Milestone 13 round 3 (docs/milestone13.md §14.6, pod P2):
+
+- ``fetch_model(..., size_fallback=True)`` (the growth ingest): an asset the API does not offer at the requested
+  glTF size takes the next lower size the file table offers (``pick_gltf_size``: 2k -> 1k; the smallest offered
+  when none is lower) and the entry records ``resolution`` (the size used), ``resolution_requested`` and
+  ``resolution_note``. An asset without any glTF raises ``NoGltf`` (a ``KeyError``, as before): the caller drops it
+  with the reason (``decorative_book_set_01``: blend / fbx / usd only on 16 Oct 2026). Without the switch a missing
+  size raises the ``KeyError`` of ``model_gltf`` as before (what the fit expects).
+- ``fetch_model(..., expect_sha256_gltf=<hex>)``: a cached entry whose ``.gltf`` has another sha256 is not current
+  (an asset republished on Poly Haven: the catalogue's ``sha256_gltf`` names the file it was measured on), so the
+  files are fetched again. A file replaced by a newer publication is kept beside it as
+  ``<name>.superseded-<sha256[:12]>`` (``keep_aside``; nothing is deleted from the volume, CLAUDE.md) and the entry
+  lists it under ``superseded``.
 """
 from __future__ import annotations
 
@@ -94,6 +108,15 @@ class ModelError(RuntimeError):
     """The glTF cannot be read or has no geometry."""
 
 
+class NoGltf(KeyError):
+    """The Poly Haven file table has no glTF at any size (a ``KeyError``, as ``model_gltf`` raised before)."""
+
+
+SUPERSEDED = ".superseded-"           # keep_aside: <name>.superseded-<sha256[:12]>
+MODEL_FORMATS = ("gltf", "blend", "fbx", "usd")     # the model formats of a Poly Haven file table (named in errors)
+_SIZE_RE = re.compile(r"(\d+)k")
+
+
 # --------------------------------------------------------------------------
 # File table
 # --------------------------------------------------------------------------
@@ -107,12 +130,59 @@ def model_gltf(file_table: dict, size: str = DEFAULT_SIZE) -> dict:
     try:
         entry = file_table["gltf"][size]["gltf"]
     except KeyError as exc:
-        have = sorted(file_table.get("gltf", {})) if isinstance(file_table.get("gltf"), dict) else []
+        have = gltf_sizes(file_table)
+        if not have:
+            raise NoGltf(f"Poly Haven file table has no glTF at any size (model formats offered: "
+                         f"{[f for f in MODEL_FORMATS if f in file_table]})") from exc
         raise KeyError(f"Poly Haven file table has no gltf/{size} (available: {have})") from exc
     if "url" not in entry:
         raise KeyError(f"Poly Haven gltf/{size} entry has no url")
     return {"url": entry["url"], "md5": entry.get("md5"), "size": entry.get("size"),
             "include": dict(entry.get("include") or {})}
+
+
+def _size_rank(size: str) -> float:
+    """``"2k"`` -> 2.0; an unknown label sorts last."""
+    m = _SIZE_RE.fullmatch(str(size).lower())
+    return float(m.group(1)) if m else float("inf")
+
+
+def gltf_sizes(file_table: dict) -> list[str]:
+    """The glTF sizes a file table offers, smallest first (``["1k", "2k", "4k", "8k"]``); [] without a glTF."""
+    g = file_table.get("gltf") if isinstance(file_table, dict) else None
+    if not isinstance(g, dict):
+        return []
+    return sorted((s for s, v in g.items() if isinstance(v, dict) and isinstance(v.get("gltf"), dict)
+                   and v["gltf"].get("url")), key=_size_rank)
+
+
+def pick_gltf_size(file_table: dict, size: str) -> tuple[str, Optional[str]]:
+    """``(size used, reason)``: ``size`` when offered (reason None), else the next lower size the table offers, else
+    the smallest offered; ``NoGltf`` when the table has no glTF at all (module docstring, Milestone 13 round 3)."""
+    have = gltf_sizes(file_table)
+    if not have:
+        raise NoGltf(f"Poly Haven file table has no glTF at any size (model formats offered: "
+                     f"{[f for f in MODEL_FORMATS if f in file_table]})")
+    if size in have:
+        return size, None
+    lower = [s for s in have if _size_rank(s) < _size_rank(size)]
+    used, how = (lower[-1], "the next lower size") if lower else (have[0], "the smallest size offered (none lower)")
+    return used, f"no glTF at {size} on Poly Haven (offered: {have}): {how}, {used}, is used"
+
+
+def keep_aside(path: Path) -> Optional[Path]:
+    """Keep a file that a newer publication replaces beside it as ``<name>.superseded-<sha256[:12]>`` (nothing is
+    deleted from the volume, CLAUDE.md); returns where it is kept, None when there was no file. A copy already kept
+    under that name has the same bytes (the name carries the hash), so the file is then only moved out of the way."""
+    path = Path(path)
+    if not path.is_file():
+        return None
+    dest = path.with_name(f"{path.name}{SUPERSEDED}{web.sha256_file(path)[:12]}")
+    if dest.is_file():
+        path.unlink()
+    else:
+        path.replace(dest)
+    return dest
 
 
 # --------------------------------------------------------------------------
@@ -289,6 +359,19 @@ def _entry_ok(assets_dir: Path, entry: dict, size: str) -> bool:
     return bool(entry.get("bbox_m"))
 
 
+def _cached_ok(assets_dir: Path, entry: dict, size: str, size_fallback: bool = False,
+               expect_sha256_gltf: Optional[str] = None) -> bool:
+    """A manifest entry that a fetch at ``size`` can return without the network: its files are on disk with their
+    sha256, at ``size`` (or, with ``size_fallback``, at the size an earlier fallback took for ``size``) and, when
+    ``expect_sha256_gltf`` is given, its ``.gltf`` is that file (an asset republished since is fetched again)."""
+    if expect_sha256_gltf and (entry.get("sha256") or {}).get("gltf") != expect_sha256_gltf:
+        return False
+    if _entry_ok(assets_dir, entry, size):
+        return True
+    return bool(size_fallback and entry.get("resolution_requested") == size
+                and _entry_ok(assets_dir, entry, entry.get("resolution")))
+
+
 def gltf_relpath(asset_id: str, size: str = DEFAULT_SIZE) -> str:
     """Where ``fetch_model`` puts the ``.gltf`` (relative to the assets dir): ``models/<id>/<id>_<size>.gltf``."""
     return f"{MODELS_DIR}/{asset_id}/{asset_id}_{size}.gltf"
@@ -358,7 +441,8 @@ def fetch_objaverse_cached(asset_id: str, out_dir: Path, licence: str, meta: Opt
 
 
 def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: str = polyhaven.SOURCE,
-                licence: Optional[str] = None, meta: Optional[dict] = None) -> dict:
+                licence: Optional[str] = None, meta: Optional[dict] = None, *, size_fallback: bool = False,
+                expect_sha256_gltf: Optional[str] = None) -> dict:
     """Download one Poly Haven model (glTF + bin + textures) and record it in the manifest; for
     ``source="objaverse"`` take the cached GLB instead (``fetch_objaverse_cached``, ``meta`` = the fit's
     asset dict with ``uid``, ``sha256_glb`` and the credit fields).
@@ -369,6 +453,8 @@ def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: 
     "resolution", "name", "category", "dimensions_api_mm", "polycount",
     "url" (API files url), "page_url", "download_urls", "fetched_utc"}``.
     Paths are relative to ``out_dir``; the box is in the Z-up frame, metres.
+    ``size_fallback`` and ``expect_sha256_gltf``: see the module docstring (Milestone 13 round 3); the entry then
+    also carries ``resolution_requested`` / ``resolution_note`` (a fallback) and ``superseded`` (files kept aside).
     """
     out_dir = Path(out_dir)
     fetch.check_licence(source, licence, kind="models", entry=meta if source in CACHE_SOURCES else None)
@@ -379,7 +465,7 @@ def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: 
                                   f"only, not '{source}'")
     manifest = fetch.load_manifest(out_dir)
     cached = _manifest_models(manifest).get(asset_id)
-    if cached and _entry_ok(out_dir, cached, size):
+    if cached and _cached_ok(out_dir, cached, size, size_fallback, expect_sha256_gltf):
         return cached
 
     try:
@@ -389,18 +475,22 @@ def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: 
         if exc.status == 404:
             raise fetch.AssetNotFound(f"polyhaven: no model '{asset_id}'") from exc
         raise
-    item = model_gltf(table, size=size)
+    size_used, size_note = pick_gltf_size(table, size) if size_fallback else (size, None)
+    item = model_gltf(table, size=size_used)
     folder = out_dir / MODELS_DIR / asset_id
-    gltf_target = folder / f"{asset_id}_{size}.gltf"
+    gltf_target = folder / f"{asset_id}_{size_used}.gltf"
     wanted = {"gltf": (gltf_target, item)}
     for rel, inc in item["include"].items():
         rel_clean = Path(rel)
         if rel_clean.is_absolute() or ".." in rel_clean.parts:
             raise ModelError(f"{asset_id}: refusing include path {rel!r}")
         wanted[rel] = (folder / rel_clean, inc)
-    files, shas, urls = {}, {}, {}
+    files, shas, urls, superseded = {}, {}, {}, []
     for key, (target, inc) in wanted.items():
         if not (target.is_file() and fetch._md5_matches(target, inc.get("md5"))):
+            kept = keep_aside(target) if inc.get("md5") else None     # a file of an older publication is kept
+            if kept is not None:
+                superseded.append(kept.relative_to(out_dir).as_posix())
             web.download(inc["url"], target, expected_md5=inc.get("md5"))
         files[key] = target.relative_to(out_dir).as_posix()
         shas[key] = web.sha256_file(target)
@@ -410,11 +500,17 @@ def fetch_model(asset_id: str, out_dir: Path, size: str = DEFAULT_SIZE, source: 
         "id": asset_id, "source": polyhaven.SOURCE, "licence": fetch.LICENCE,
         "licence_url": fetch.LICENCE_URLS[polyhaven.SOURCE], "files": files, "sha256": shas,
         "bbox_m": measured["bbox_m"], "bbox_min_m": measured["bbox_min_m"], "bbox_max_m": measured["bbox_max_m"],
-        "vertices": measured["vertices"], "resolution": size, "name": record.get("name"),
+        "vertices": measured["vertices"], "resolution": size_used, "name": record.get("name"),
         "category": record.get("category"), "dimensions_api_mm": record.get("dimensions"),
         "polycount": record.get("polycount"), "url": f"{polyhaven.API}/files/{asset_id}",
         "page_url": PAGE_URL.format(id=asset_id), "download_urls": urls, "fetched_utc": fetch._now(),
     }
+    if size_note:
+        entry.update(resolution_requested=size, resolution_note=size_note)
+    # the files kept aside by this fetch and by earlier ones (a later re-download keeps the history)
+    superseded = sorted(set((cached or {}).get("superseded") or []) | set(superseded))
+    if superseded:
+        entry["superseded"] = superseded
     manifest = fetch.load_manifest(out_dir)
     _manifest_models(manifest)[asset_id] = entry
     fetch.save_manifest(out_dir, manifest)

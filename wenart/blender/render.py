@@ -145,16 +145,31 @@ Milestone 13 (docs/milestone13.md §13.2 render.py, K5; ``RENDER_CODE_VERSION`` 
   +3 and writes a ``lighting_dark`` entry (the ``Violation`` shape: check ``lighting_dark``, severity major, or
   critical 2 stops over the cap, target the camera, ``room_id``, ``metrics`` ev_wanted / ev_used / ev_cap /
   incident_p50) on the camera's manifest entry and in the manifest's ``lighting_dark`` list, for the report (T8)
-  and the agent. The A/B variant ``base`` (``WENART_LIGHT_VARIANT``, ``lighting.light_levers``) keeps the Milestone
-  11 limits ``EXPOSURE_LIMITS_M11`` (-2..+8); every other run uses the cap (``exposure_limits_for``).
+  and the agent. The A/B variants without the cap lever (``WENART_LIGHT_VARIANT`` ``m11`` and the single ``sun*`` /
+  ``rig`` / ``shell`` levers, ``lighting.light_levers``; ``base`` before round 3) keep the Milestone 11 limits
+  ``EXPOSURE_LIMITS_M11`` (-2..+8); production, ``base`` (round 3) and every run with ``evcap`` use the cap
+  (``exposure_limits_for``).
 - ``--white-balance project``: one whitepoint for every view of a project. It comes from the previous render
-  manifest of the folder (``white_balance_project``, so a re-render keeps it), else from the first interior camera
-  of the scene (``project_wb_camera``), metered once before the loop; ``kelvin:<K>`` sets it from a colour
-  temperature (the brief's value, a lead option) through Blender's own conversion. The record says
-  ``wb_mode: project`` and ``wb_source``; the render key carries the whitepoint, so a changed one re-renders.
-  ``auto`` (per view) and ``off`` stay for the controls and the previews.
-- ``select_world``: under the exterior world with a sun disc (``wenart_world_exterior_sun_disc``) the sun lamp is
-  hidden, so the sky's disc is the one direct sun; it is shown again for every other camera.
+  manifest of the folder (``white_balance_project``, so a re-render keeps it), else it is metered once before the
+  loop; ``kelvin:<K>`` sets it from a colour temperature (the brief's ``render.white_balance_k``, wired through
+  stages.render) through Blender's own conversion. The record says ``wb_mode: project`` and ``wb_source``; the
+  render key carries the whitepoint, so a changed one re-renders. ``auto`` (per view) and ``off`` stay for the
+  controls and the previews.
+  Round 3 (docs/milestone13.md §14.3; P1 metered the rig-lit real02 bathroom at 3,422 K and turned every daylight
+  view blue-grey, the Milestone 11 daylight white point was 5,408 K): the project white point is metered on
+  daylight only. The metering pass hides every rig object (the lights and the emissive shades, ``wenart_rig``), so
+  the illuminant is the sun, the sky and the HDRI. The candidates are the interior cameras of rooms whose window
+  faces the sun (``sunlit_rooms``), then of the other rooms with a window portal (``daylight_rooms``), name order
+  (``wb_camera_order``); up to ``WB_METER_MAX_CAMERAS`` are metered and the one with the most incident light sets
+  the white point (``pick_wb_candidate``: the sun, not a sky-lit window; round-3 review, synthetic-01's sky-lit
+  bath read 9,068 K and cast the sunlit living room orange). The record ``white_balance_project`` carries
+  ``kelvin`` (Blender's temperature of the whitepoint), ``metered_on``, ``daylight_only: true``, ``tried``,
+  ``candidates`` and the hidden rig count; a previous record is reused only when it was metered that way (or came
+  from ``kelvin:``).
+- ``select_world``: under the exterior world with a sun disc for every ray (``wenart_world_exterior_sun_disc``
+  without ``wenart_world_exterior_disc_camera_only``, the P1 world) the sun lamp is hidden, so the sky's disc is
+  the one direct sun. Round 3: the exterior world shows the disc to camera rays only (``materials.
+  exterior_world_nodes``), so the lamp stays shown under it (``sun_hidden_for``) and is the one direct sun.
 """
 from __future__ import annotations
 
@@ -214,7 +229,7 @@ METER_BLOCKS_ACROSS = 40          # block size = width // 40 px
 METER_BLOCK_COVERAGE = 0.75       # a block counts when this share of it is interior
 METER_MIN_ALBEDO = 0.02           # diffuse albedo luminance below this is not metered
 EXPOSURE_TARGET = 0.9
-# Milestone 13: the cap (docs/milestone13.md §13.2); the Milestone 11 limits stay for the A/B's base variant.
+# Milestone 13: the cap (docs/milestone13.md §13.2); the Milestone 11 limits stay for the A/B's m11 variant (round 3).
 EXPOSURE_LIMITS = (-2.0, 3.0)
 EXPOSURE_LIMITS_M11 = (-2.0, 8.0)
 EXPOSURE_STEP = 1.0 / 6.0
@@ -222,6 +237,19 @@ LIGHTING_DARK_CHECK = "lighting_dark"
 LIGHTING_DARK_CRITICAL_STOPS = 2.0     # this many stops over the cap: critical, else major
 WB_MODES = ("auto", "off", "fixed", "project", "kelvin")
 WB_RESIDUAL = {"warm daylight": 0.35, "golden evening": 0.5, "cool daylight": 0.0, "overcast": 0.0, "night": 0.5}
+# Round 3: the project white point is metered on daylight (rig hidden). Up to this many candidate cameras are
+# metered (rooms whose window faces the sun first, then the other rooms with a window, name order) and the daylight
+# candidate with the most incident light gives the white point: the sun, not a sky-lit window, sets the project's
+# white (round-3 review, 16 Oct 2026: synthetic-01's bath, the first windowed room in name order, gets skylight only
+# and metered 9,068 K under the 1000 W/m2 sun, which cast its sunlit living room orange; P1's real02 kitchen was
+# sky-lit at 3 W/m2 too, M11 auto WB 7,672 K). A windowless candidate is metered only when no daylight one gave light.
+WB_METER_MAX_CAMERAS = 3
+# A window faces the sun when the sun's travel direction and the portal's inward axis (unit vectors) have at least
+# this dot product: about 87 degrees between them, grazing sun excluded.
+SUNLIT_DOT_MIN = 0.05
+# The scene properties of the worlds (build.py / materials.exterior_world_nodes) that select_world reads.
+WORLD_PROPS = ("wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc",
+               "wenart_world_exterior_disc_camera_only")
 WINDOW_CLIP_LEVEL = 0.98          # a window pixel is clipped when every display channel reaches this
 LUMA = (0.2126, 0.7152, 0.0722)
 PLUG_EXTRA_M = 0.002              # a plug is the wall thickness + 2 x 2 mm (no coplanar faces)
@@ -334,8 +362,8 @@ def parse_white_balance(text: str) -> tuple[str, list[float] | None]:
 
 def exposure_limits_for(levers: dict | None = None) -> tuple[float, float]:
     """The EV limits of a run (pure; Milestone 13): ``EXPOSURE_LIMITS`` (the cap) unless the levers say the cap is
-    off (``lighting.light_levers``: the ``base``, ``sun*``, ``rig`` and ``shell`` variants of the A/B keep the
-    Milestone 11 limits ``EXPOSURE_LIMITS_M11``)."""
+    off (``lighting.light_levers``: the ``m11``, ``sun*``, ``rig`` and ``shell`` variants of the A/B keep the
+    Milestone 11 limits ``EXPOSURE_LIMITS_M11``; production and ``base`` use the cap, round 3)."""
     if levers is None:
         try:
             from wenart.blender.lighting import light_levers
@@ -368,15 +396,66 @@ def lighting_dark_entry(camera: str, room_id, ev_raw: float | None, ev: float, l
                         "incident_p50": None if incident_p50 is None else round(float(incident_p50), 6)}}
 
 
-def project_wb_camera(cameras: list) -> str | None:
-    """The camera whose metering gives the project whitepoint (pure; Milestone 13): the first interior camera in
-    name order of ``[(name, kind)]`` (``kind`` ``exterior`` or anything else), else the first camera, None for
-    none."""
-    rows = sorted(((str(n), k) for n, k in cameras), key=lambda r: r[0])
-    for name, kind in rows:
-        if kind != "exterior":
-            return name
-    return rows[0][0] if rows else None
+def wb_camera_order(cameras: list, daylight_rooms=None, sunlit_rooms=None) -> list[str]:
+    """The cameras to meter the project whitepoint on, in order (pure; round 3): entries ``(name, kind)`` or
+    ``(name, kind, room_id)``. Interior cameras whose room has a window facing the sun (``sunlit_rooms``) first,
+    then those of the other rooms with a window (``daylight_rooms``), name order within each (the white point is
+    metered on daylight, the sun first), then the other interior cameras, then the exterior ones."""
+    rows = sorted(((str(r[0]), r[1], r[2] if len(r) > 2 else None) for r in cameras), key=lambda r: r[0])
+    daylight = {str(r) for r in (daylight_rooms or ())}
+    sunlit = {str(r) for r in (sunlit_rooms or ())} & daylight if daylight_rooms is not None else \
+        {str(r) for r in (sunlit_rooms or ())}
+
+    def rank(kind, room) -> int:
+        if kind == "exterior":
+            return 3
+        room = None if room is None else str(room)
+        return 0 if room in sunlit else 1 if room in daylight else 2
+
+    return [n for _, n in sorted(((rank(k, room), n) for n, k, room in rows), key=lambda r: r[0])]
+
+
+def project_wb_camera(cameras: list, daylight_rooms=None, sunlit_rooms=None) -> str | None:
+    """The first camera to meter the project whitepoint on (pure; Milestone 13): the first of ``wb_camera_order``
+    (a camera of a sunlit room, else of a room with a window, else the first interior camera, else the first
+    camera), None for none."""
+    order = wb_camera_order(cameras, daylight_rooms, sunlit_rooms)
+    return order[0] if order else None
+
+
+def sunlit_rooms_from(portals: list, sun_travel, min_dot: float = SUNLIT_DOT_MIN) -> set[str]:
+    """The rooms whose window lets the sun in (pure; round-3 review): ``portals`` = ``[(room_id, inward xyz)]`` (the
+    portal light's emission axis points into the room), ``sun_travel`` = the sun's light direction (xyz, from the
+    sun into the scene) or None (no sun: no room). A room is sunlit when one of its portals has
+    ``inward . travel >= min_dot`` (unit vectors); obstruction is not checked here, the metering is."""
+    if sun_travel is None:
+        return set()
+
+    def unit(v):
+        n = math.sqrt(sum(float(c) * float(c) for c in v))
+        return [float(c) / n for c in v] if n > 0 else None
+
+    travel = unit(sun_travel)
+    if travel is None:
+        return set()
+    out = set()
+    for room, inward in portals:
+        u = unit(inward)
+        if room and u is not None and sum(a * b for a, b in zip(u, travel)) >= float(min_dot):
+            out.add(str(room))
+    return out
+
+
+def pick_wb_candidate(rows: list) -> dict | None:
+    """The metered candidate that sets the project white point (pure; round-3 review): ``rows`` = ``[{"camera",
+    "daylight", "incident_p50", "whitepoint", ...}]``. Among the rows with a whitepoint, a daylight row wins over any
+    other; among those the most incident light (a sunlit room over a sky-lit one: the sun sets the white), name
+    order on a tie. None when no row has a whitepoint."""
+    usable = [r for r in rows if r.get("whitepoint")]
+    if not usable:
+        return None
+    return sorted(usable, key=lambda r: (not r.get("daylight"), -float(r.get("incident_p50") or 0.0),
+                                         str(r.get("camera"))))[0]
 
 
 def parse_ids(text: str | None) -> list[str]:
@@ -1030,18 +1109,21 @@ def world_for(scene_props: dict, camera_kind: str | None) -> str | None:
 
 def sun_hidden_for(scene_props: dict, camera_kind: str | None) -> bool:
     """Whether the sun lamp is hidden for a camera (pure; Milestone 13): under the exterior world whose sky carries
-    the sun disc (``wenart_world_exterior_sun_disc``) the disc is the one direct sun."""
+    the sun disc for every ray (``wenart_world_exterior_sun_disc``, the P1 world) the disc is the one direct sun.
+    Round 3: with ``wenart_world_exterior_disc_camera_only`` the disc is in the image only and the lamp stays (it
+    is the one direct sun outdoors)."""
     return camera_kind == "exterior" and bool(scene_props.get("wenart_world_exterior_sun_disc")) \
-        and bool(scene_props.get("wenart_world_exterior"))
+        and bool(scene_props.get("wenart_world_exterior")) \
+        and not bool(scene_props.get("wenart_world_exterior_disc_camera_only"))
 
 
 def select_world(scene, cam) -> str | None:
     """Switch ``scene.world`` to the world of ``cam`` (``world_for``); returns the world's name. Milestone 13: the
-    sun lamp (``wenart_id`` ``sun``) is hidden under the exterior world with a sun disc (``sun_hidden_for``) and
-    shown again for every other camera."""
+    sun lamp (``wenart_id`` ``sun``) is hidden under the exterior world with a sun disc for every ray
+    (``sun_hidden_for``) and shown again for every other camera (round 3: always shown under the camera-only disc)."""
     import bpy
 
-    props = {k: scene.get(k) for k in ("wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc")}
+    props = {k: scene.get(k) for k in WORLD_PROPS}
     want = world_for(props, cam.get("wenart_camera_kind"))
     world = bpy.data.worlds.get(want) if want else None
     if world is not None:
@@ -1051,6 +1133,87 @@ def select_world(scene, cam) -> str | None:
         if ob.type == "LIGHT" and ob.data.type == "SUN" and ob.get("wenart_id") == "sun":
             ob.hide_render = hide
     return scene.world.name if scene.world is not None else None
+
+
+def rig_objects(scene) -> list:
+    """The light-rig objects of the scene (round 3): the emissive shades and their lights, tagged ``wenart_rig`` by
+    ``lighting.build_room_rig``; hidden while the project white point is metered on daylight."""
+    return [ob for ob in scene.objects if ob.get("wenart_rig")]
+
+
+def window_portals(scene) -> list:
+    """``[(room_id, inward xyz)]`` of the window portals (round 3): ``lighting.build_portals`` tags every portal
+    light with the room it faces (``wenart_room``) and points its emission axis (local -Z) into that room."""
+    from mathutils import Vector
+
+    out = []
+    for ob in scene.objects:
+        if ob.type == "LIGHT" and ob.data.type == "AREA" and ob.get("wenart_room") and ob.data.cycles.is_portal:
+            inward = ob.matrix_world.to_3x3() @ Vector((0.0, 0.0, -1.0))
+            out.append((str(ob["wenart_room"]), tuple(float(c) for c in inward)))
+    return out
+
+
+def daylight_rooms(scene) -> set[str]:
+    """The rooms with a window portal (round 3): these rooms get daylight; the project white point is metered in
+    one of them."""
+    return {room for room, _ in window_portals(scene)}
+
+
+def sun_travel(scene) -> tuple | None:
+    """The sun lamp's light direction (its local -Z in the world, xyz), None without a shown sun lamp of strength
+    > 0 (``wenart_id`` ``sun``, ``lighting.build_lighting``)."""
+    from mathutils import Vector
+
+    for ob in scene.objects:
+        if ob.type == "LIGHT" and ob.data.type == "SUN" and ob.get("wenart_id") == "sun" \
+                and float(ob.data.energy) > 0.0:
+            return tuple(float(c) for c in ob.matrix_world.to_3x3() @ Vector((0.0, 0.0, -1.0)))
+    return None
+
+
+def sunlit_rooms(scene) -> set[str]:
+    """The rooms with a window facing the sun (round-3 review, ``sunlit_rooms_from``): metered first for the
+    project white point."""
+    return sunlit_rooms_from(window_portals(scene), sun_travel(scene))
+
+
+def hide_objects(objects) -> list:
+    """Hide ``objects`` from rendering; returns ``[(object, previous hide_render)]`` for ``unhide_objects``."""
+    saved = []
+    for ob in objects:
+        saved.append((ob, bool(ob.hide_render)))
+        ob.hide_render = True
+    return saved
+
+
+def unhide_objects(saved) -> None:
+    """Undo ``hide_objects``."""
+    for ob, previous in saved:
+        ob.hide_render = previous
+
+
+def whitepoint_kelvin(scene, whitepoint) -> tuple[float, float]:
+    """``(kelvin, tint)`` of a whitepoint through Blender's own white balance (``ColorManagedViewSettings
+    .white_balance_whitepoint`` -> ``white_balance_temperature`` / ``white_balance_tint``); the view settings are
+    restored."""
+    vs = scene.view_settings
+    saved = (vs.use_white_balance, tuple(vs.white_balance_whitepoint))
+    try:
+        vs.use_white_balance = True
+        vs.white_balance_whitepoint = tuple(float(v) for v in whitepoint)
+        return round(float(vs.white_balance_temperature), 1), round(float(vs.white_balance_tint), 2)
+    finally:
+        vs.use_white_balance, vs.white_balance_whitepoint = saved
+
+
+def previous_whitepoint_usable(previous: dict | None) -> bool:
+    """Whether a previous manifest's ``white_balance_project`` record is kept for this render (pure; round 3): it
+    needs a whitepoint and must have been metered on daylight (``daylight_only``) or set from ``kelvin:<K>``; a
+    record metered with the rig lit (the P1 runs) is metered again."""
+    if not previous or not isinstance(previous.get("whitepoint"), list) or len(previous["whitepoint"]) != 3:
+        return False
+    return bool(previous.get("daylight_only")) or str(previous.get("source") or "").startswith("kelvin:")
 
 
 def configure_device(scene, requested: str = "auto") -> str:
@@ -1345,7 +1508,7 @@ class Look:
         self.look_from = look_from            # {camera: {"ev", "whitepoint"}} or None
         self.look_from_path = look_from_path
         self.ev_offset = float(getattr(args, "ev_offset", 0.0) or 0.0)
-        # Milestone 13: the EV limits of this run (the cap, or the Milestone 11 limits for the A/B base) and the
+        # Milestone 13: the EV limits of this run (the cap, or the Milestone 11 limits for the A/B's m11) and the
         # project whitepoint ({"whitepoint", "from_camera", "source", ...}; set by lock_project_whitepoint).
         self.limits = tuple(EXPOSURE_LIMITS if limits is None else limits)
         self.project = project
@@ -1440,9 +1603,16 @@ class Look:
 
     def lock_project_whitepoint(self, cameras: list, out_dir: Path, res: tuple[int, int], previous: dict | None) -> dict:
         """Milestone 13: the one whitepoint of the project for mode ``project`` or ``kelvin``: the previous
-        manifest's ``white_balance_project`` (locked across re-renders), else ``kelvin:K`` through Blender's
-        conversion (``white_balance_temperature`` -> ``white_balance_whitepoint``), else the metered illuminant of
-        ``project_wb_camera`` (the first interior camera of the scene) with the mood's residual. Returns the
+        manifest's ``white_balance_project`` (locked across re-renders, ``previous_whitepoint_usable``), else
+        ``kelvin:K`` through Blender's conversion (``white_balance_temperature`` -> ``white_balance_whitepoint``),
+        else the metered illuminant with the mood's residual. Round 3 (docs/milestone13.md §14.3): the metering is
+        daylight only: every rig object is hidden (``rig_objects``), the cameras are taken in ``wb_camera_order``
+        (rooms whose window faces the sun first, ``sunlit_rooms``, then the other rooms with a window,
+        ``daylight_rooms``), up to ``WB_METER_MAX_CAMERAS`` daylight candidates are metered (a windowless one only
+        when no daylight candidate gave light) and ``pick_wb_candidate`` keeps the daylight candidate with the most
+        incident light, so the sun and not a sky-lit window sets the white. The record carries ``kelvin`` /
+        ``tint`` (Blender's reading of the whitepoint), ``metered_on``, ``daylight_only``, ``tried``,
+        ``candidates`` (camera, room, daylight, sunlit, incident, kelvin) and ``rig_objects_hidden``. Returns the
         record (also kept in ``self.project``)."""
         record: dict
         if self.wb_mode == "kelvin":
@@ -1453,19 +1623,55 @@ class Look:
             wp = normalise_whitepoint([float(v) for v in vs.white_balance_whitepoint])
             vs.use_white_balance, vs.white_balance_whitepoint = saved
             record = {"whitepoint": wp, "from_camera": None, "source": f"kelvin:{float(self.wb_fixed[0]):g}",
-                      "residual": None, "kelvin": float(self.wb_fixed[0])}
-        elif previous and isinstance(previous.get("whitepoint"), list) and len(previous["whitepoint"]) == 3:
+                      "residual": None, "kelvin": float(self.wb_fixed[0]), "metered_on": None, "daylight_only": False}
+        elif previous_whitepoint_usable(previous):
             record = dict(previous, source=f"previous manifest ({previous.get('source')})")
         else:
-            name = project_wb_camera([(o.name, o.get("wenart_camera_kind")) for o in cameras])
-            cam = next((o for o in cameras if o.name == name), None)
+            daylight = daylight_rooms(self.scene)
+            sunlit = sunlit_rooms(self.scene)
+            order = wb_camera_order([(o.name, o.get("wenart_camera_kind"), o.get("wenart_room")) for o in cameras],
+                                    daylight, sunlit)
+            by_name = {o.name: o for o in cameras}
             residual, _note = wb_residual(self.mood)
-            wp = None
-            if cam is not None:
-                meter = meter_camera(self.scene, cam, out_dir, res, self.windows)
-                wp = whitepoint_from(meter["illuminant"], residual) if meter["illuminant"] else None
-            record = {"whitepoint": wp, "from_camera": name, "source": f"metered on {name}" if wp else "no light to meter",
-                      "residual": residual}
+            rows: list[dict] = []
+            hidden = hide_objects(rig_objects(self.scene))
+            try:
+                for cam_name in order:
+                    cam = by_name[cam_name]
+                    room = cam.get("wenart_room")
+                    is_day = cam.get("wenart_camera_kind") != "exterior" and room is not None and str(room) in daylight
+                    if len(rows) >= WB_METER_MAX_CAMERAS or (
+                            not is_day and any(r["daylight"] and r["whitepoint"] for r in rows)):
+                        break
+                    # the camera's own world (an exterior candidate meters under the exterior sky, as it renders;
+                    # every render selects its world again, so nothing needs restoring)
+                    select_world(self.scene, cam)
+                    meter = meter_camera(self.scene, cam, out_dir, res, self.windows)
+                    rows.append({"camera": cam_name, "room_id": None if room is None else str(room), "daylight": is_day,
+                                 "sunlit": is_day and str(room) in sunlit, "incident_p50": meter.get("incident_p50"),
+                                 "whitepoint": whitepoint_from(meter["illuminant"], residual) if meter["illuminant"]
+                                 else None})
+            finally:
+                unhide_objects(hidden)
+            best = pick_wb_candidate(rows)
+            wp = best["whitepoint"] if best else None
+            name = best["camera"] if best else (rows[-1]["camera"] if rows else None)
+            candidates = []
+            for r in rows:
+                c = {k: r[k] for k in ("camera", "room_id", "daylight", "sunlit")}
+                c["incident_p50"] = None if r["incident_p50"] is None else round(float(r["incident_p50"]), 6)
+                c["kelvin"] = whitepoint_kelvin(self.scene, r["whitepoint"])[0] if r["whitepoint"] else None
+                candidates.append(c)
+            record = {"whitepoint": wp, "from_camera": name,
+                      "source": (f"metered on {name} (daylight only: {len(hidden)} rig objects hidden; the most "
+                                 f"incident light of {len(rows)} candidates)" if wp else "no light to meter"),
+                      "residual": residual, "metered_on": name if wp else None, "daylight_only": True,
+                      "tried": [r["camera"] for r in rows], "candidates": candidates,
+                      "rig_objects_hidden": len(hidden), "daylight_rooms": sorted(daylight),
+                      "sunlit_rooms": sorted(sunlit), "daylight_camera": bool(best and best["daylight"]),
+                      "sunlit_camera": bool(best and best["sunlit"])}
+            if wp is not None:
+                record["kelvin"], record["tint"] = whitepoint_kelvin(self.scene, wp)
         self.project = record
         return record
 
@@ -1830,9 +2036,7 @@ class RenderRun:
             "camera": cam.name, "room_id": cam.get("wenart_room"), "level_id": cam.get("wenart_level"),
             **camera_lens(cam),
             "lighting_dark": look.get("lighting_dark"),
-            "sun_hidden": sun_hidden_for({k: scene.get(k) for k in ("wenart_world_exterior",
-                                                                    "wenart_world_exterior_sun_disc")},
-                                         cam.get("wenart_camera_kind")),
+            "sun_hidden": sun_hidden_for({k: scene.get(k) for k in WORLD_PROPS}, cam.get("wenart_camera_kind")),
             "vram_mib": vram_used_mib() if ctx.device != "CPU" else None,
             "png": f["png"].name, "exr": f["exr"].name, "preview": f["preview"].name,
             "depth_png": f["depth"].name if f["depth"].exists() else None, "index_png": f["index"].name,
@@ -2049,7 +2253,7 @@ def main(argv: list[str]) -> int:
     scene.view_settings.look = LOOK
     mood = scene.get("wenart_mood") or None
     windows = window_indices(scene)
-    # Milestone 13: the EV limits of this run from the light variant (the A/B base keeps the Milestone 11 limits).
+    # Milestone 13: the EV limits of this run from the light variant (the A/B's m11 keeps the Milestone 11 limits).
     try:
         from wenart.blender.lighting import light_levers
         levers = light_levers()
@@ -2059,7 +2263,8 @@ def main(argv: list[str]) -> int:
     look = Look(scene, args, mood, windows, look_from, look_from_path, limits=exposure_limits_for(levers))
     look.variant = levers["variant"]
     if look.wb_mode in ("project", "kelvin") and look_from is None:
-        # One whitepoint for the project: the previous manifest's, else metered once on the first interior camera.
+        # One whitepoint for the project: the previous manifest's (if metered on daylight), else metered once on
+        # daylight (round 3: rig hidden, a camera of a room with a window first).
         previous = load_project_whitepoint(out / "render_manifest.json") if sets is None else None
         record = look.lock_project_whitepoint(all_cameras, out, (width, height), previous)
         print(f"WHITE_BALANCE project: {record['source']} whitepoint={record['whitepoint']}")

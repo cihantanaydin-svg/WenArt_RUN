@@ -29,6 +29,7 @@ from wenart import building as B
 from wenart.ingest import cad_pdf
 from wenart.ingest import pipeline as P
 from wenart.ingest.generic import core
+from wenart.ingest.generic import reading as RD
 
 from conftest import PROJECTS
 
@@ -442,32 +443,45 @@ def test_debug_image_report_and_questions(run):
     from wenart.recognition import answers as A
     doc = A.read_requests(out / "recognition")
     keys = [i["key"] for i in doc["items"]]
-    # The core asks 17 candidates (``test_questions_are_pending_without_answers``). Milestone 13 (K3, round 2 of the
-    # build: "code first, the AI types the rest"): the code typing (infer.type_by_code, type_method twin / level /
-    # block / group_member) types 8 of them before any AI (the two beds and their four nightstands, the sofa and
-    # its coffee table: the bedroom's and the living room's missing anchors and members) and their questions are
-    # withdrawn (reading.withdraw_questions), so requests.json holds the 9 the AI must answer (the dining table,
-    # six chairs, the chaise and the unknown 0.4 m piece). Before round 2 it held all 17 (the code typing ran after
-    # the questions were written).
-    assert len(keys) == 9 and keys == sorted(keys) and all(k.startswith("sym_L0_") for k in keys)
+    # The core asks 17 candidates (``test_questions_are_pending_without_answers``). Milestone 13 (K3, "code first,
+    # the AI types the rest"; build round 3, lead decision: the code typing runs before the context rules and the
+    # context rules type the open questions too, both withdraw): the code typing (infer.code_types, type_method
+    # group_member here) types 9 of them before any AI (the two beds and their four nightstands, the dining table,
+    # the sofa and its coffee table: the rooms' missing anchors and members), the context rule "chairs at a table"
+    # types the six chairs (method context:chair, type_method none: an inference of the drawing), and every one of
+    # those 15 questions is withdrawn (reading.withdraw_questions), so requests.json holds the 2 the AI must answer:
+    # the chaise (sym_L0_015; the size inference calls it a chaise with --no-ai, the AI decides with answers) and the
+    # unknown 0.4 m piece (sym_L0_017). The count is the same with --no-ai, in the first plain run and in the run
+    # with answers (tests/test_pipeline.py). Round 2 wrote 9 here and 8 in the plain run (the context rules waited
+    # for the open questions); before round 2 all 17 (the code typing ran after the questions were written).
+    assert len(keys) == 2 and keys == ["sym_L0_015", "sym_L0_017"]
     for item in doc["items"]:
         assert all((out / "recognition" / p).is_file() for p in item["images"])
     from wenart.furniture import infer as INF
     coded = [f for f in run["building"]["furniture"] if f["type_method"] in INF.CODE_TYPE_METHODS]
-    asked = [f for f in run["building"]["furniture"] if f["type_method"] == "none"]
-    assert len(coded) == 8 and len(asked) == len(keys) == 9
+    chairs = [f for f in run["building"]["furniture"] if f["type"] == "chair"]
+    asked = [f for f in run["building"]["furniture"] if f["type_method"] == "none" and f["type"] != "chair"]
+    assert len(coded) == 9 and len(chairs) == 6 and len(asked) == len(keys) == 2
+    assert sorted(f["type"] for f in coded) == ["bed_double"] * 2 + ["nightstand"] * 4 + ["sofa", "table_coffee",
+                                                                                            "table_dining"]
+    assert all(f["type_method"] == "group_member" for f in coded)
+    assert all(RD.CONTEXT_RULE in [e.get("rule") for e in f["evidence"]] for f in chairs)
     withdrawn = run["build"].code_typed
-    assert sorted(withdrawn.values()) == sorted(f["id"] for f in coded) and not set(withdrawn) & set(keys)
-    assert all(f.get("build") is not False for f in coded)                  # typed before the AI: built
+    assert sorted(withdrawn.values()) == sorted(f["id"] for f in coded + chairs) and not set(withdrawn) & set(keys)
+    assert all(f.get("build") is not False for f in coded + chairs)         # typed before the AI: built
+    how = run["build"].code_typed_methods
+    assert set(how) == set(withdrawn) and sorted(how.values()) == ["context:chair"] * 6 + ["group_member"] * 9
     assert run["build"].reading["questions_withdrawn"] == sorted(withdrawn)
+    assert run["build"].reading["typed_by"] == {withdrawn[k]: how[k] for k in withdrawn}
     assert all(f"{k} withdrawn" in " ".join(run["building"]["warnings"]) for k in withdrawn)
     # --no-ai: nothing is pending, so the pipeline would not exit 4.
     assert run["build"].pending == [] and P.exit_code(run["building"], run["build"], no_ai=True) == 0
-    # ... but the 9 questions are still unanswered, and report.md says so (review cross-5).
+    # ... but the 2 questions are still unanswered, and report.md says so (review cross-5).
     assert run["build"].unanswered == keys
-    assert ("Recognition questions: 9 (`recognition/requests.json`), 9 without a complete pair of answers "
+    assert ("Recognition questions: 2 (`recognition/requests.json`), 2 without a complete pair of answers "
             "(--no-ai: not applied, they stay unknown/unverified).") in report
-    assert "Recognition questions withdrawn (typed by code before the AI, K3): 8 (" in report
+    assert "Recognition questions withdrawn (typed by code before the AI, K3): 15 (" in report
+    assert "sym_L0_008 -> f_L0_011 [context:chair]" in report and "sym_L0_001 -> f_L0_004 [group_member]" in report
     # The page's rule outcomes (LevelExtraction.notes) are in report.md, one block per page (review cross-2).
     notes = report.split("## Notes", 1)[1].split("\n## ", 1)[0]
     assert "### real01.pdf p1" in notes

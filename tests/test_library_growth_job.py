@@ -6,7 +6,11 @@ server when every answer is current (the setup step still running is stopped, no
 How (as ``tests/test_jobs_flow.py``): a temporary workspace (``WENART_WS``, ``WENART_FAST``, ``WENART_PY``) whose
 ``python`` answers the ``wenart.assets growth run`` / ``audit`` steps from files, whose ``git`` and ``apt-get``
 fail (the Infinigen setup fails at the clone) and whose ``scripts/pod_setup_polish.sh`` only sleeps; a timeout turns
-a hang into a failure."""
+a hang into a failure.
+
+Milestone 13 round 3 (docs/milestone13.md §14.6): the ``refetch`` step, the reason column of ``steps.tsv`` (a failed
+step's last line; P2 had ``preview 1 0`` and nothing else) and the ``GROWTH_ONLY=hssd`` mode of pod P2b (its exact
+step list, nothing else downloaded or catalogued, a second run resumes)."""
 from __future__ import annotations
 
 import os
@@ -41,9 +45,16 @@ def write(path, text):
 if args[:4] == ["-m", "wenart.assets", "growth", "run"]:
     step, g, p4 = args[4], Path(opt("--growth")), Path(opt("--p4"))
     rep = g / "report"
+    if step == os.environ.get("FAKE_FAIL_STEP"):
+        print("some output first")
+        print(f"growth {step}: FAILED: a fake reason\tfor the test")
+        print("")
+        sys.exit(1)
     if step == "ingest":
         time.sleep(0.3)
         write(rep / f"ingest_{opt('--source')}.json", "{}")
+        if opt("--source") == "hssd" and not os.environ.get("FAKE_NO_HSSD"):
+            write(Path(opt("--assets")) / "models" / "hssd" / "hssd_fake.glb", "glTF")
     elif step == "infinigen-plan":
         done = (g / "infinigen" / "fake_done").exists()
         print(f"growth infinigen-plan: todo {0 if done else 30}, done {30 if done else 0}, failed 0")
@@ -52,7 +63,9 @@ if args[:4] == ["-m", "wenart.assets", "growth", "run"]:
     elif step == "catalogue":
         for n in ("catalog_library.json", "catalog.json"):
             write(p4 / "audit" / "catalogue" / n, "{}")
-        write(p4 / "audit" / "new_ids.json", '{"ids": ["abo_x"]}')
+        only = opt("--only")
+        write(p4 / "audit" / "new_ids.json", json.dumps({"ids": ["hssd_fake"], "only": [only], "kept_ids": ["abo_x"]})
+              if only else '{"ids": ["abo_x"]}')
         write(rep / "catalogue.json", "{}")
     elif step == "ask":
         answered = (p4 / "audit" / "ask" / "answers_fake.json").exists()
@@ -90,9 +103,12 @@ def _run(env: dict, cwd: Path, timeout: float = 180) -> tuple[int, str, float]:
 
 
 STEPS = ("demands", "size-grid", "speed-probe",                     # Milestone 13 (track T7), before the ingests
-         "gso-licence", "convert-gso", "catalogue", "render-a", "convert-infinigen", "catalogue-b", "render-b",
-         "code", "decide", "write", "vision-fields", "pending", "sheets", "gaps", "coverage", "preview", "report",
-         "gpu-tests")
+         "gso-licence", "convert-gso", "refetch", "catalogue", "render-a", "convert-infinigen", "catalogue-b",
+         "render-b", "code", "decide", "write", "vision-fields", "pending", "sheets", "gaps", "coverage", "preview",
+         "report", "gpu-tests")
+# GROWTH_ONLY=hssd (pod P2b): exactly these steps, in this order (the background setup-check first)
+HSSD_STEPS = ("ingest-hssd", "refetch", "catalogue", "render", "code", "ask", "decide", "write", "vision-fields",
+              "gaps", "coverage", "report", "gpu-tests")
 BACKGROUND = ("setup-check", "infinigen", "ingest-polyhaven", "ingest-abo", "ingest-gso",
               "ingest-abo-m13", "ingest-polyhaven-m13", "ingest-ambientcg")   # Milestone 13 lists
 
@@ -158,3 +174,87 @@ def test_the_growth_job_reaches_its_end_and_resumes_with_fakes(tmp_path):
     new_calls = log.read_text().splitlines()[n_calls:]
     assert not any(c.startswith("-m wenart.assets growth run ask --model-key") for c in new_calls)
     assert "all steps ok" in out
+
+
+def _workspace(tmp_path):
+    ws, fast, fakebin = tmp_path / "ws", tmp_path / "fast", tmp_path / "bin"
+    _exe(ws / "repo" / "scripts" / "pod_setup_polish.sh", '#!/usr/bin/env bash\nsleep "${FAKE_SETUP_SLEEP:-1}"\n')
+    _exe(fakebin / "python", FAKE_PY)
+    _exe(fakebin / "git", "#!/usr/bin/env bash\necho fake git refuses >&2\nexit 1\n")
+    _exe(fakebin / "apt-get", "#!/usr/bin/env bash\nexit 1\n")
+    env = dict(os.environ, WENART_WS=str(ws), WENART_FAST=str(fast), WENART_PY=str(fakebin / "python"),
+               JOB_ID="p2b", FAKE_LOG=str(tmp_path / "calls.log"), WENART_RESULTS=str(tmp_path / "results"),
+               WENART_JOB_DIR=str(tmp_path / "job"), AUDIT_MODEL_KEY="agent",
+               PATH=f"{fakebin}:{os.environ.get('PATH', '')}", WENART_BLENDER=str(fakebin / "blender"),
+               GROWTH_MIN_FREE_GB="0", GROWTH_ONLY="hssd")
+    for k in ("WENART_DEADLINE", "HF_TOKEN", "FAKE_FAIL_STEP", "FAKE_NO_HSSD"):
+        env.pop(k, None)
+    return ws, env
+
+
+def _started(out: str) -> list:
+    """The step names in the order the job started them (foreground and background)."""
+    import re
+    return re.findall(r"library_growth: step start(?: \(background\))?: ([^\s,]+)", out)
+
+
+@pytest.mark.skipif(not Path("/bin/bash").exists(), reason="bash needed")
+def test_growth_only_hssd_runs_the_hssd_layer_alone_and_resumes(tmp_path):
+    """Pod P2b (GROWTH_ONLY=hssd): setup-check, ingest-hssd, refetch, catalogue --only hssd, render of the new ids,
+    code, ask, decide, write, vision-fields, gaps, coverage, report, GPU tests and nothing else (no other download,
+    conversion, Infinigen, demand, pending, sheet or preview step); the token is never written; a failed step is
+    recorded with its last line as the reason; a second run resumes (every answer current: no server)."""
+    ws, env = _workspace(tmp_path)
+    env["HF_TOKEN"] = "hf_fake_secret_value_for_the_test"
+    rc, out, _ = _run(dict(env, FAKE_FAIL_STEP="gaps"), tmp_path)
+    assert rc == 1 and "FAILED steps: gaps" in out, out[-3000:]
+    assert _started(out) == ["setup-check", *HSSD_STEPS], _started(out)
+    assert "mode: GROWTH_ONLY=hssd" in out and "step end: gaps rc=1" in out and "a fake reason for the test" in out
+    calls = (tmp_path / "calls.log").read_text().splitlines()
+    assert any(c.startswith("-m wenart.assets growth run ingest --source hssd --workers 8 --token-env HF_TOKEN")
+               for c in calls)
+    assert any(c.startswith("-m wenart.assets growth run catalogue --only hssd") for c in calls)
+    assert any(c.startswith("-m wenart.assets growth run refetch") for c in calls)
+    assert any(c.startswith("-m wenart.assets audit render") and "--ids-file" in c for c in calls)
+    for never in ("--source abo", "--source polyhaven", "--source gso", "--source ambientcg", "growth run demands",
+                  "growth run speed-probe", "growth run convert", "growth run gso-licence", "growth run preview",
+                  "growth run pending", "audit sheets", "infinigen"):
+        assert not any(never in c for c in calls), never
+    steps = (ws / "library-growth" / "report" / "steps.tsv").read_text().splitlines()
+    rows = {r.split("\t")[0]: r.split("\t") for r in steps}
+    assert rows["gaps"][1] == "1" and rows["gaps"][3] == "growth gaps: FAILED: a fake reason for the test"
+    assert rows["catalogue"][1] == "0" and rows["catalogue"][3] == ""
+    results = tmp_path / "results"
+    texts = [p.read_text(errors="replace") for p in results.rglob("*") if p.is_file()]
+    assert texts and not any("hf_fake_secret_value_for_the_test" in t for t in texts + [out])
+
+    # second run: the failure gone, every answer current -> no server; the setup step is stopped, not waited for
+    rc, out, secs = _run(dict(env, FAKE_SETUP_SLEEP="90"), tmp_path)
+    assert rc == 0 and "all steps ok" in out, out[-3000:]
+    assert "no server" in out and "stopping background step setup-check" in out and secs < 60
+    assert _started(out) == ["setup-check", *[s for s in HSSD_STEPS if s != "ask"]]
+
+
+@pytest.mark.skipif(not Path("/bin/bash").exists(), reason="bash needed")
+def test_growth_only_hssd_stops_without_a_token_a_model_or_a_known_mode(tmp_path):
+    ws, env = _workspace(tmp_path)
+    rc, out, _ = _run(env, tmp_path)                                   # no HF_TOKEN: nothing to do
+    assert rc == 1 and "GROWTH_ONLY=hssd has nothing to do" in out and not _started(out)
+    assert not (tmp_path / "calls.log").exists() or "ingest" not in (tmp_path / "calls.log").read_text()
+    steps = (ws / "library-growth" / "report" / "steps.tsv").read_text()
+    assert "ingest-hssd (skipped: no HF_TOKEN)\t1\t0\tHF_TOKEN is not set" in steps
+    env["HF_TOKEN"] = "hf_fake"
+    rc, out, _ = _run(dict(env, FAKE_NO_HSSD="1"), tmp_path)          # the gate refused: no model on the volume
+    assert rc == 1 and "no HSSD model on the volume" in out
+    assert _started(out) == ["setup-check", "ingest-hssd", "report"]
+    rc, out, _ = _run(dict(env, GROWTH_ONLY="abo"), tmp_path)
+    assert rc == 1 and "is not a mode of this job (all | hssd)" in out and not _started(out)
+
+
+def test_the_job_header_documents_the_p2b_command():
+    text = JOB.read_text(encoding="utf-8")
+    assert ('python3 scripts/gpu_run.py run --job scripts/jobs/library_growth.sh --disk 150 --max-minutes 90 '
+            '--over-5-ok \\\n#       --env GROWTH_ONLY=hssd --env AUDIT_MODEL_KEY=agent --purpose "M13 P2b: HSSD layer"'
+            ) in text
+    assert 'GROWTH_ONLY="${GROWTH_ONLY:-all}"' in text and "reason_of" in text
+    assert 'printf \'%s\\t%s\\t%s\\t%s\\n\'' in text                  # steps.tsv: name rc seconds reason

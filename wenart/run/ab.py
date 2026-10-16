@@ -27,7 +27,10 @@ What:
   Milestone 11 exposure of each view (the dark daylight rooms and the lamp-lit rooms both in the set).
   ``lever_sheet`` / ``lever_sheets`` write one contact sheet per view (the variants side by side, PIL) and
   ``lever_summary`` the seconds, VRAM, EV and ``lighting_dark`` per view and variant into ``summary.json`` /
-  ``summary.md`` of ``results/ab_m13/``.
+  ``summary.md`` of ``results/ab_m13/``. The variant names are ``lighting.LIGHT_VARIANTS`` (round 3: ``m11`` =
+  the Milestone 11 look, ``base`` = the production defaults); a variant folder that is missing is a "not rendered"
+  row and a grey tile, so an older results folder (P1: no ``m11`` folder, ``base`` = the Milestone 11 look) still
+  summarises and sheets.
 
 Why: the A/B compares the same camera rendered two ways; a camera that moved
 (or was not rendered) would compare different pictures.
@@ -178,7 +181,11 @@ M13_AB_VIEWS: dict[str, list[dict]] = {
         {"camera": "cam_r_L0_kat_holu_1", "room_type": "hall", "m11_ev": -0.33},
     ],
 }
-M13_AB_VARIANTS = ("base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
+# = lighting.LIGHT_VARIANTS (pinned equal in tests/test_m13_light.py). Round 3 (docs/milestone13.md §14.3): ``m11``
+# is the Milestone 11 look (the "before"), ``base`` the production defaults (sun 1000 W/m², EV cap, rig, shell);
+# the single levers keep their P1 meaning (the Milestone 11 look plus that lever), so a P1 sheet and a round-3
+# sheet of the same name compare.
+M13_AB_VARIANTS = ("m11", "base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
 NO_CAMERA_RECORDS = ("no scene_manifest.json with camera records in the baseline (real04: the Milestone 12 run "
                      "committed none); the build searches its cameras and the before/after compares by camera name "
                      "and room")

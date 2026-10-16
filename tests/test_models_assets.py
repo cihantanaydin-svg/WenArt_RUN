@@ -201,6 +201,88 @@ def test_fetch_model_is_idempotent_and_measures(tmp_path, monkeypatch):
         models.fetch_model("evil", assets, size="1k")
 
 
+# --------------------------------------------------------------------------
+# Milestone 13 round 3 (docs/milestone13.md §14.6): sizes the API does not offer, republished files
+# --------------------------------------------------------------------------
+
+def test_gltf_size_fallback_and_an_asset_without_gltf():
+    """P2: decorative_book_set_01 had 'no gltf/2k (available: [])': its file table (16 Oct 2026) offers blend, fbx
+    and usd only (NoGltf: dropped by the ingest, not a step failure); an asset with a smaller glTF takes it."""
+    table = {"gltf": {"4k": {"gltf": {"url": "u4"}}, "1k": {"gltf": {"url": "u1"}}, "8k": {"gltf": {"url": "u8"}}},
+             "blend": {}}
+    assert models.gltf_sizes(table) == ["1k", "4k", "8k"]
+    assert models.pick_gltf_size(table, "4k") == ("4k", None)
+    used, why = models.pick_gltf_size(table, "2k")
+    assert used == "1k" and "no glTF at 2k" in why and "next lower" in why
+    used, why = models.pick_gltf_size({"gltf": {"4k": {"gltf": {"url": "u4"}}}}, "2k")
+    assert used == "4k" and "smallest size offered" in why
+    books = {"blend": {"1k": {}}, "fbx": {"1k": {}}, "usd": {"1k": {}}, "book_hardcover_01_diff": {"1k": {}}}
+    for call in (lambda: models.pick_gltf_size(books, "2k"), lambda: models.model_gltf(books, "2k")):
+        with pytest.raises(models.NoGltf, match=r"no glTF at any size .*\['blend', 'fbx', 'usd'\]") as exc:
+            call()
+        assert isinstance(exc.value, KeyError)                       # what the fit's handlers already catch
+
+
+def test_fetch_model_size_fallback_and_a_republished_file(tmp_path, monkeypatch):
+    """A fake Poly Haven with a 1k glTF only: ``size_fallback`` takes 1k and records why (a second call is
+    offline); then the asset is republished at twice the size (vintage_wooden_drawer_01, 16 Oct 2026): a cached
+    entry is still returned without ``expect_sha256_gltf``; with the new sha256 the files are fetched again, the
+    old ``.gltf`` is kept beside as ``.superseded-<sha12>`` (nothing deleted) and the new box is measured."""
+    import hashlib
+    src = tmp_path / "src"
+    served = {}
+
+    def publish(size_xyz):
+        g = _box_gltf(src / "fake_1k.gltf", size_xyz, data_uri=False)
+        served["fake_1k.gltf"] = g.read_bytes().replace(b'"box.bin"', b'"fake.bin"')
+        served["fake.bin"] = (src / "box.bin").read_bytes()
+
+    def table(asset_id):
+        md5 = {k: hashlib.md5(v).hexdigest() for k, v in served.items()}
+        include = {"fake.bin": {"url": "https://x/fake.bin", "md5": md5["fake.bin"]}}
+        return {"gltf": {"1k": {"gltf": {"url": "https://x/fake_1k.gltf", "md5": md5["fake_1k.gltf"],
+                                         "include": include}}}, "blend": {}}
+    calls = []
+
+    def fake_download(url, path, expected_md5=None, timeout=60):
+        calls.append(url.rsplit("/", 1)[-1])
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).write_bytes(served[url.rsplit("/", 1)[-1]])
+        return Path(path)
+    monkeypatch.setattr(models.polyhaven, "info", lambda a: {"name": "Fake", "dimensions": [860, 460, 550]})
+    monkeypatch.setattr(models.polyhaven, "files", table)
+    monkeypatch.setattr(models.web, "download", fake_download)
+    publish((0.86, 0.55, 0.46))
+    assets = tmp_path / "assets"
+    e = models.fetch_model("fake", assets, size="2k", size_fallback=True)
+    assert e["resolution"] == "1k" and e["resolution_requested"] == "2k" and "no glTF at 2k" in e["resolution_note"]
+    assert e["files"]["gltf"] == "models/fake/fake_1k.gltf" and e["bbox_m"] == [0.86, 0.46, 0.55]
+    assert sorted(calls) == ["fake.bin", "fake_1k.gltf"]
+    calls.clear()
+    assert models.fetch_model("fake", assets, size="2k", size_fallback=True) == e and not calls     # cached
+    with pytest.raises(KeyError, match="gltf/2k"):
+        models.fetch_model("fake", assets, size="2k")                   # without the switch: as before
+    old_sha = e["sha256"]["gltf"]
+
+    publish((1.72, 1.09, 1.01))                                         # republished: twice the size
+    new_sha = hashlib.sha256(served["fake_1k.gltf"]).hexdigest()
+    assert models.fetch_model("fake", assets, size="1k")["sha256"]["gltf"] == old_sha and not calls   # cache kept
+    e2 = models.fetch_model("fake", assets, size="1k", expect_sha256_gltf=new_sha)
+    assert e2["sha256"]["gltf"] == new_sha and e2["bbox_m"] == [1.72, 1.01, 1.09]
+    assert calls == ["fake_1k.gltf", "fake.bin"]
+    kept = assets / "models" / "fake" / f"fake_1k.gltf{models.SUPERSEDED}{old_sha[:12]}"
+    assert kept.is_file() and web.sha256_file(kept) == old_sha
+    assert kept.relative_to(assets).as_posix() in e2["superseded"] and len(e2["superseded"]) == 2   # .bin too
+    calls.clear()
+    assert models.fetch_model("fake", assets, size="1k", expect_sha256_gltf=new_sha) == e2 and not calls
+    assert models.keep_aside(tmp_path / "nothing_here") is None
+    # review of round 3: a later download that keeps nothing aside (here the current .gltf went missing) keeps the
+    # entry's record of the files an older publication left beside
+    (assets / e2["files"]["gltf"]).unlink()
+    e3 = models.fetch_model("fake", assets, size="1k", expect_sha256_gltf=new_sha)
+    assert calls == ["fake_1k.gltf"] and e3["superseded"] == e2["superseded"] and kept.is_file()
+
+
 def test_models_cli_verify_and_fetch(monkeypatch, capsys):
     monkeypatch.setattr(models, "verify_catalog", lambda ids: [
         {"id": i, "exists": i != "ghost", "name": i, "category": "Furniture", "dimensions_api_mm": [1000, 500, 800],
@@ -297,6 +379,29 @@ def test_a_cache_miss_is_a_parametric_fallback_in_the_fit(tmp_path, capsys):
     assert "not in the cache" in fallback["fallback_reason"]
 
 
+def test_the_fit_download_asks_for_the_size_of_the_gltf_the_build_loads(tmp_path, monkeypatch):
+    """Milestone 13 round 3 (A1's ask, integration): pod P2 relinked 87 Poly Haven entries to ``2k``; the fit's
+    download fetches the size of the entry's ``.gltf`` (the file the scene builder loads), not a fixed ``1k`` that would
+    rewrite the asset manifest entry back to 1k (and fall to the parametric model on an offline pod)."""
+    from wenart.furniture import fit as F
+
+    asked = []
+
+    def fake_fetch(asset_id, out_dir, size="1k", source="polyhaven", licence=None, meta=None, **kw):
+        asked.append((asset_id, size, source))
+        return {"id": asset_id}
+
+    monkeypatch.setattr(models, "fetch_model", fake_fetch)
+    pieces = [{"id": f"f{i}", "type": "sofa", "asset": {"method": "library", "library": "polyhaven", "asset_id": aid,
+                                                       "licence": "CC0", "gltf": f"models/{aid}/{aid}_{size}.gltf"}}
+              for i, (aid, size) in enumerate([("sofa_02", "2k"), ("armchair_01", "1k")])]
+    result = F.download_fitted({"furniture": pieces}, tmp_path / "assets", log=lambda *_: None)
+    assert result == {"fetched": ["sofa_02", "armchair_01"], "failed": {}}
+    assert asked == [("sofa_02", "2k", "polyhaven"), ("armchair_01", "1k", "polyhaven")]
+    assert F.polyhaven_size_of({"gltf": "models/x/x_2k.gltf"}) == "2k"
+    assert F.polyhaven_size_of({"resolution": "2k"}) == "2k" and F.polyhaven_size_of({}) == "1k"
+
+
 # --------------------------------------------------------------------------
 # Live API
 # --------------------------------------------------------------------------
@@ -320,11 +425,47 @@ def test_catalog_ids_exist_on_the_api():
         if entry.get("growth"):
             continue  # pod P4: the box is the audit's Blender measurement of the file (the API box may differ: an
             #           articulated desk_lamp_arm_01, a 10x steel_frame_shelves_01 the audit removed)
+        # vintage_wooden_drawer_01 was republished at twice the size (API 1715 x 1007 x 1091 mm since at least 12 Oct
+        # 2026); on 16 Oct its current file was measured (1.7151 x 1.0069 x 1.0908 m, md5 checked) and the entry
+        # updated, audit pending until the next audit judges it (test_the_republished_drawer_waits_for_its_reaudit):
+        # every entry, that one included, must still agree with the live API here
         measured = entry["bbox_model_m"]
         api = [d / 1000.0 for d in row["dimensions_api_mm"]]
         assert abs(measured[2] - api[2]) <= 0.02, (entry["id"], measured, api)
         for a, b in zip(sorted(measured[:2]), sorted(api[:2])):
             assert abs(a - b) <= 0.02, (entry["id"], measured, api)
+
+
+def test_the_republished_drawer_waits_for_its_reaudit():
+    """Item 5 of round 3 (docs/milestone13.md §14.6): the catalogue entry of vintage_wooden_drawer_01 carries the box
+    of the current Poly Haven file (measured on 16 Oct 2026 with glbmesh.measure after the md5 check: twice the old
+    size, drawers pulled out), the old values under audit.before, the evidence under audit.reaudit, and it stays out
+    of the fit (audit pending) until the next audit has rendered and judged the new file (growth run refetch, then
+    the catalogue step puts it into new_ids.json)."""
+    from wenart.assets.audit import growth_run as GR
+    doc = json.loads((ROOT / "wenart" / "furniture" / "catalog.json").read_text(encoding="utf-8"))
+    e = next(x for x in doc["entries"] if isinstance(x, dict) and x.get("id") == "vintage_wooden_drawer_01")
+    a = e["audit"]
+    assert e["sha256_gltf"] == a["reaudit"]["files"]["gltf"]["sha256"] == \
+        "4080ecdac2228759dd41a5d5705b984f993bbf6b0f66570824a9dcbbeaa49e51"
+    assert a["reaudit"]["files"]["gltf"]["md5"] == "88e36661f5a778b4b5b2c4a3715c4e11"           # the API's md5
+    assert a["reaudit"]["files"]["bin"]["md5"] == "61ea9192d2199cd76f54623942b5bde4"
+    assert a["reaudit"]["measured"]["bbox_model_m"] == [1.7151, 1.0069, 1.0908]
+    old = a["before"]
+    assert old["bbox_model_m"] == [0.8576, 0.4574, 0.5454] and old["audit"]["status"] == "keep"
+    if a["status"] != "pending":
+        # judged by the next audit (pod P2b) and its copy taken into the repo: ``audit write`` keeps the reaudit
+        # evidence and the before values (write.CARRIED); the entry has a decision and waits no longer
+        assert a["status"] in ("keep", "fix", "removed") and a.get("decision_sha"), a
+        assert e["id"] not in [x["id"] for x in GR.reaudit_entries(doc)]
+        return
+    assert a["reasons"] == ["republished at a new size on Poly Haven, 15 Oct 2026"]
+    assert e["bbox_model_m"] == [1.7151, 1.0069, 1.0908] and e["dimensions_api_mm"] == [1715, 1007, 1091]
+    assert e["origin_offset"] == C.origin_offset(e["bbox_min_m"], e["bbox_max_m"])
+    for i in (0, 2):                                                    # width and height: twice the old file
+        assert abs(e["bbox_model_m"][i] - 2 * old["bbox_model_m"][i]) <= 0.001
+    assert not C.usable(e, "commercial") and not C.usable(e, "relaxed")
+    assert [x["id"] for x in GR.reaudit_entries(doc)] == ["vintage_wooden_drawer_01"]
 
 
 def test_download_armchair_and_compare_with_catalog():

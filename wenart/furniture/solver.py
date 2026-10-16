@@ -73,6 +73,14 @@ Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3; user decisi
   ``apply_candidate``); the tiered minimums (``groups.rule_for``: a soft aisle in a small kitchen, soft NKBA terms for
   a fridge beside a drawn run) and the room-size variants (``groups.small_room``: one bed side on the wall in a small
   bedroom) replace the fixed numbers.
+- Build round 3 (K2, docs/milestone13.md §14.4 T1/T3): a drawn piece with a uniformly scaled library model is
+  planned with the box the scene builder makes (``placer.planned_piece``: the fitted depth ``asset.bbox_m[1]``, the
+  back edge kept for a wall-backed type), in the fixed obstacles (``Space``), as a drawn anchor the partners gather
+  round (``_spot_from``: the coffee table sits ``coffee_gap`` in front of the model's real front), in the overlap
+  test of ``verify`` and in its group checks (``placer.planned_building``: the clearances G1-G14 are measured on
+  the fitted boxes); a re-solved drawn piece at its drawn size is planned with the fitted box too (``_planned_of``,
+  ``Spot.record``) and recorded at its drawn size where the builder makes that box (``Spot.record_box``: a sofa's
+  back stays on the wall). The drawn footprint stays the record everywhere.
 """
 from __future__ import annotations
 
@@ -130,6 +138,19 @@ class Spot:
     drawn: Optional[dict] = None
     moved: float = 0.0
     kept: bool = False
+    # Milestone 13 (K2, build round 3): a re-solved drawn piece with a uniform library fit is planned with the box the
+    # scene builder makes (this spot's ``size`` / ``center``); ``record`` = (drawn size, offset of that box's centre
+    # from the drawn centre in the piece frame) says what the building records (``record_box``). None: the spot's
+    # box is the record.
+    record: Optional[tuple] = None
+
+    def record_box(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        """``(centre, size)`` the building records for this spot: its own box, or for a planned re-solved piece
+        (``record``) the drawn size at the place that gives this spot's box when the builder fits the model."""
+        if self.record is None:
+            return (float(self.center[0]), float(self.center[1])), (float(self.size[0]), float(self.size[1]))
+        size, offset = self.record
+        return _record_centre(self.center, self.rotation, offset), (float(size[0]), float(size[1]))
 
     def piece(self) -> placer.Piece:
         extra = {}
@@ -159,8 +180,51 @@ class Spot:
 
 
 def _spot_from(f: dict, role: str = "anchor") -> Spot:
-    p = placer.drawn_piece(f)
+    """A drawn piece as a spot that is not placed again (``existing_id``): a drawn anchor the partners gather round,
+    a kept member, a skipped re-solve. Milestone 13 (K2, build round 3): its box is the one the scene builder makes
+    (``placer.planned_piece``: a uniformly scaled library model keeps its back edge and is deeper or shallower at
+    the front), so the partners and the clearances are planned where the model really ends; the drawn footprint
+    stays the record (a kept member comes back as its drawn dict, ``_resolved_dict``)."""
+    p = placer.planned_piece(f)
     return Spot(f["type"], p.center, p.rotation_deg, p.size, role, False, p.shape, p.chaise_side, existing_id=f["id"])
+
+
+def _planned_of(drawn: dict) -> Optional[tuple[tuple, tuple, tuple]]:
+    """Milestone 13 (K2, build round 3): ``(drawn size, planned size, offset)`` of a drawn piece whose uniform library
+    fit is deeper or shallower than its drawing (``placer.drawn_piece`` carries the planned box), in the piece's
+    front frame; ``offset`` is the planned centre minus the drawn centre in that frame (a wall-backed piece keeps
+    its back edge, so its box centre moves towards the front). None for every other piece (it plans as drawn)."""
+    try:
+        p = placer.drawn_piece(drawn)
+    except (KeyError, TypeError, ValueError):
+        return None
+    if p.planned_size is None or p.planned_center is None:
+        return None
+    dx, dy = p.planned_center[0] - p.center[0], p.planned_center[1] - p.center[1]
+    r = math.radians(p.rotation_deg)
+    c, s = math.cos(r), math.sin(r)
+    return p.size, p.planned_size, (dx * c + dy * s, -dx * s + dy * c)
+
+
+def _record_centre(center, rotation: float, offset) -> tuple[float, float]:
+    """The recorded (drawn-size) centre of a planned box at ``center`` turned by ``rotation``: the box centre minus
+    the fit's ``offset`` (``_planned_of``) turned with the piece."""
+    r = math.radians(rotation)
+    c, s = math.cos(r), math.sin(r)
+    ox, oy = float(offset[0]), float(offset[1])
+    return float(center[0]) - (ox * c - oy * s), float(center[1]) - (ox * s + oy * c)
+
+
+def _planned_centre(center, rotation: float, offset) -> tuple[float, float]:
+    """The inverse of ``_record_centre``: the planned box centre of a piece recorded at ``center``."""
+    r = math.radians(rotation)
+    c, s = math.cos(r), math.sin(r)
+    ox, oy = float(offset[0]), float(offset[1])
+    return float(center[0]) + (ox * c - oy * s), float(center[1]) + (ox * s + oy * c)
+
+
+def _same_size(a, b, tol: float = 1e-4) -> bool:
+    return abs(float(a[0]) - float(b[0])) <= tol and abs(float(a[1]) - float(b[1])) <= tol
 
 
 def _local_spot(anchor: Spot, ftype: str, local, turn: float, size, role: str, wall: bool = False) -> Spot:
@@ -250,7 +314,10 @@ class Space:
         self.fixed_pieces = []
         for i, f in enumerate(fixed):
             try:
-                self.fixed_pieces.append(placer.drawn_piece(f, i))
+                # Milestone 13 (K2, build round 3): the box the scene builder makes (a uniformly scaled library
+                # model is deeper or shallower at its front; ``placer.planned_piece``), so the collisions, the
+                # fixed zones and the free cells are planned where the model really ends.
+                self.fixed_pieces.append(placer.planned_piece(f, i))
             except (KeyError, TypeError, ValueError):
                 continue
         self.fixed_polys = [p.polygon() for p in self.fixed_pieces]
@@ -821,8 +888,15 @@ def _match_members(space: Space, by_role: dict, resolve: dict) -> Optional[tuple
     for role in sorted({r for _m, r in resolve["members"]}):
         members = [m for m, r in resolve["members"] if r == role]
         spots = out.get(role) or []
+        # Build round 3 (K2): a member with a uniform library fit takes the place with the box the builder makes
+        # (centred on the place); what it records (and how far it moved) is its drawn size at the matching centre.
+        records = []
+        for m in members:
+            plan = _planned_of(m)
+            records.append(None if plan is None else (plan[0], plan[2]))
         # The drawn centre (``groups.drawn_centre``: drawn_footprint when the fit's size snap moved the piece).
-        pairs = sorted((round(G.distance(tuple(GR.drawn_centre(m)), s.center), 4), i, j)
+        pairs = sorted((round(G.distance(tuple(GR.drawn_centre(m)), s.center if records[i] is None else
+                                         _record_centre(s.center, s.rotation, records[i][1])), 4), i, j)
                        for i, m in enumerate(members) for j, s in enumerate(spots))
         taken_m: set = set()
         taken_s: set = set()
@@ -831,8 +905,9 @@ def _match_members(space: Space, by_role: dict, resolve: dict) -> Optional[tuple
                 continue
             m, s = members[i], spots[j]
             p = placer.drawn_piece(m)
-            moved = Spot(m["type"], s.center, s.rotation, p.size, s.role, s.against_wall, p.shape, p.chaise_side,
-                         existing_id=m["id"], drawn=m, moved=dist)
+            box = p.size if records[i] is None else p.planned_size
+            moved = Spot(m["type"], s.center, s.rotation, box, s.role, s.against_wall, p.shape, p.chaise_side,
+                         existing_id=m["id"], drawn=m, moved=dist, record=records[i])
             spots[j] = moved
             taken_m.add(i)
             taken_s.add(j)
@@ -1123,6 +1198,10 @@ def _resolve_tries(space: Space, entry: dict, template: dict, options: list[str]
     budget = info["budget"]
     weight = GR.weights().get("drawn_distance", 1.0)
     dp = placer.drawn_piece(drawn)
+    # Build round 3 (K2): at its drawn size a drawn anchor with a uniform library fit is planned with the box the
+    # scene builder makes (deeper or shallower at the front, ``_planned_of``); the distance to the drawn centre and
+    # the record are its drawn box (``Spot.record``). A snapped or template size drops the asset (refit): as given.
+    plan = _planned_of(drawn)
     tries: list[tuple] = []
     for oname in options:
         opt = template["options"][oname]
@@ -1130,16 +1209,24 @@ def _resolve_tries(space: Space, entry: dict, template: dict, options: list[str]
         if atype != drawn["type"]:
             continue
         for si, size in enumerate(_resolve_sizes(drawn, template, float(entry.get("area") or space.area))):
+            box, record = size, None
+            if plan is not None and _same_size(size, plan[0]):
+                box, record = plan[1], (plan[0], plan[2])
+
+            def moved_of(c, rot, record=record) -> float:
+                """How far the recorded (drawn-size) box of a place lies from the drawn centre."""
+                return G.distance(c if record is None else _record_centre(c, rot, record[1]), centre)
+
             if anchor_spec["place"] == "wall":
                 sides = ((dp.chaise_side or "right"),) if atype == "sofa_corner" else (None,)
-                for k, t, c, rot, lo, hi in _wall_positions(space, size):
-                    dist = G.distance(c, centre)
+                for k, t, c, rot, lo, hi in _wall_positions(space, box):
+                    dist = moved_of(c, rot)
                     if dist > limit + 1e-6:
                         continue
                     for side in sides:
                         budget["used"] += 1
-                        s = Spot(atype, c, rot, size, "anchor", True, "L" if side else None, side,
-                                 existing_id=drawn["id"], drawn=drawn, moved=dist)
+                        s = Spot(atype, c, rot, box, "anchor", True, "L" if side else None, side,
+                                 existing_id=drawn["id"], drawn=drawn, moved=dist, record=record)
                         if not space.spot_free(s):
                             continue
                         pre = (_prescore(space, entry["group"], s, (k, t, lo, hi), align, info) - 0.01 * si
@@ -1148,13 +1235,17 @@ def _resolve_tries(space: Space, entry: dict, template: dict, options: list[str]
                                       (oname, s, (k, t, lo, hi))))
             else:
                 turns = (0.0, 90.0) if atype in schemas.FRONTLESS_TYPES else (0.0, 90.0, 180.0, 270.0)
-                places = [((round(centre[0], 4), round(centre[1], 4)), G.normalise_angle(dp.rotation_deg + turn))
-                          for turn in turns]
-                places += [(c, rot) for c, rot in _free_positions(space, size) if G.distance(c, centre) <= limit + 1e-6]
+                places = []
+                for turn in turns:
+                    rot = G.normalise_angle(dp.rotation_deg + turn)
+                    c = centre if record is None else _planned_centre(centre, rot, record[1])
+                    places.append(((round(c[0], 4), round(c[1], 4)), rot))
+                places += [(c, rot) for c, rot in _free_positions(space, box) if moved_of(c, rot) <= limit + 1e-6]
                 for c, rot in places:
                     budget["used"] += 1
-                    dist = G.distance(c, centre)
-                    s = Spot(atype, c, rot, size, "anchor", False, existing_id=drawn["id"], drawn=drawn, moved=dist)
+                    dist = moved_of(c, rot)
+                    s = Spot(atype, c, rot, box, "anchor", False, existing_id=drawn["id"], drawn=drawn, moved=dist,
+                             record=record)
                     if not space.spot_free(s):
                         continue
                     pre = _prescore(space, entry["group"], s, None, align, info) - 0.01 * si + weight * (1.0 - dist / limit)
@@ -2164,8 +2255,10 @@ def _resolved_dict(s: Spot, room: dict, cand: Cand, role: str) -> dict:
     f = copy.deepcopy(s.drawn)
     old_fp = dict(f["footprint"])
     rotation = round(G.normalise_angle(s.rotation), 3)
-    new_fp = {"center": [round(float(s.center[0]), 4), round(float(s.center[1]), 4)],
-              "size": [round(float(s.size[0]), 4), round(float(s.size[1]), 4)], "rotation_deg": rotation}
+    # Build round 3 (K2): a spot planned with the fitted box records the drawn size where the builder makes that box
+    centre, size = s.record_box()
+    new_fp = {"center": [round(float(centre[0]), 4), round(float(centre[1]), 4)],
+              "size": [round(float(size[0]), 4), round(float(size[1]), 4)], "rotation_deg": rotation}
     frontless = f["type"] in schemas.FRONTLESS_TYPES and f.get("front_deg") is None
     old_size = sorted(round(float(v), 3) for v in old_fp["size"])
     resized = old_size != sorted(round(float(v), 3) for v in new_fp["size"])
@@ -2277,7 +2370,9 @@ def verify(base_building: dict, room_id: str, pieces: list[dict],
     floor = [f for f in trial["furniture"] if f.get("room_id") == room_id and f.get("build") is not False
              and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None
              and f.get("type") != "unknown" and f.get("footprint")]
-    plist = [placer.drawn_piece(f, i) for i, f in enumerate(floor)]
+    # Milestone 13 (K2, build round 3): the overlap test runs on the boxes the scene builder makes (a uniformly
+    # scaled library model is deeper at its front: ``placer.planned_piece``), as the scene check S2 will see them.
+    plist = [placer.planned_piece(f, i) for i, f in enumerate(floor)]
     hard = []
     shrunk = ctx.shrunk.buffer(1e-3, join_style="mitre")
     for f, p in zip(floor, plist):
@@ -2298,8 +2393,10 @@ def verify(base_building: dict, room_id: str, pieces: list[dict],
     if skip:
         base = dict(base_building, furniture=list(base_building.get("furniture") or [])
                     + [copy.deepcopy(p) for p in pieces if p["id"] in skip])
-    base_v = {_violation_key(v) for v in GC.check_room(base, room_id)}
-    after = GC.check_room(trial, room_id)
+    # Build round 3 (K2): the group checks (clearances G1-G14) measure the boxes the scene builder makes as well
+    # (``placer.planned_building``: a uniformly scaled library model at its fitted depth; the records unchanged).
+    base_v = {_violation_key(v) for v in GC.check_room(placer.planned_building(base, room_id), room_id)}
+    after = GC.check_room(placer.planned_building(trial, room_id), room_id)
     hard += [f"{v['check']} {v['target']}: {v['message']}" for v in after
              if _violation_key(v) not in base_v and v["severity"] in ("critical", "major") and v["check"] != "G14"]
     return hard, after

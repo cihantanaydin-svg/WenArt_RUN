@@ -75,10 +75,21 @@ shell, and the ceiling, worktops, fronts, sanitary ware, handles and the wet-roo
   builds one; ``MaterialLibrary.get`` routes the shell slugs through it when the ``shell`` lever is on
   (``lighting.light_levers``; the A/B variant ``shell``). Every record says ``shell_slot`` and ``shell_layers``.
 - ``exterior_world_nodes(..., sun_disc=True, sun_elevation_deg, sun_azimuth_deg)``: the exterior sky carries the
-  sun disc (``ShaderNodeTexSky.sun_disc``, ``sun_intensity``, ``sun_size``); render.py hides the sun lamp under that
-  world so the sky never doubles the sun (``direct_sun: "sky disc"``). The HDRI path of the interior views stays.
+  sun disc (``ShaderNodeTexSky.sun_disc``, ``sun_intensity``, ``sun_size``). Round 3 (docs/milestone13.md §14.3,
+  P1: at 3 W/m² every facade was flat and bluish): the disc is visible to the camera only. The world is a Mix
+  Shader whose factor is the Light Path output 'Is Camera Ray': camera rays see the sky with the disc, every other
+  ray (diffuse, glossy, shadow, the background importance map) the same sky without it, so the sun lamp at
+  ``lighting.SUN_STRENGTH_WM2`` is the one direct sun and the disc never lights the scene a second time
+  (``direct_sun: "lamp"``, ``sun_disc_camera_only``, the ``world_mix`` record; render.py keeps the lamp shown).
+  ``sun_intensity`` stays for the disc's look. ``disc_camera_only=False`` gives the P1 world (the disc for every
+  ray, ``direct_sun: "sky disc"``, the lamp hidden under it). The HDRI path of the interior views stays.
 - ``fixture_material``: the emissive surface of a light-rig fixture (``lighting.room_rig``), its colour from the
-  blackbody temperature of the fixture.
+  blackbody temperature of the fixture, its radiance the fixed ``lighting.SHADE_EMISSION_WM2SR`` (round 3: the
+  shade no longer follows the lamp power, so it never clips at the project EV range).
+- The ``ceiling`` shell slot is the one slot a slug reaches without an asset (``plaster_white`` asked bare), so
+  its material name carries ``__ceiling``: the walls' ``plaster_white__white_plaster_02`` (slot ``plaster``) and
+  the ceilings' ``plaster_white__white_plaster_02__ceiling`` are two materials with two layer sets, never a
+  Blender ``.001`` twin (``material_name``, pure).
 
 Node names were checked against Blender 5.2.2: Principled BSDF inputs 'Base
 Color', 'Roughness', 'Normal', 'Emission Color', 'Emission Strength', 'Metallic';
@@ -373,11 +384,12 @@ class MaterialLibrary:
                            "or the colour of its photo)")
             rgb = None
         all_params = procedural_params(slug, params) if procedural in PROCEDURAL_GROUPS else {}
-        # (The shell layers change no name: a build runs under one set of levers, so a slug is either shelled or
-        # not; the record's shell_slot says which.)
-        name = (slug + (f"__{tset['id']}" if tset else "") + (f"__{_tag(colour)}" if rgb is not None else "")
-                + (f"__p{_short_hash(pkey)}" if pkey and procedural in PROCEDURAL_GROUPS else "")
-                + ("__unverified" if unverified else ""))
+        # (The shell layers change no name but the ceiling slot's: a build runs under one set of levers, so a slug
+        # is either shelled or not, and the slot follows the slug, except plaster_white asked bare (the ceiling)
+        # beside plaster_white with its asset (the walls): see material_name. The record's shell_slot says which.)
+        name = material_name(slug, tset["id"] if tset else None, _tag(colour) if rgb is not None else None,
+                             _short_hash(pkey) if pkey and procedural in PROCEDURAL_GROUPS else None, unverified,
+                             slot)
         mat = pbr_material(name, slug, tset, tint, unverified=unverified, procedural=procedural, base_rgb=rgb,
                            params=all_params)
         layers = None
@@ -477,6 +489,17 @@ class MaterialLibrary:
 
 def _tag(colour) -> str:
     return "".join(ch if ch.isalnum() else "_" for ch in str(colour).strip().lower())
+
+
+def material_name(slug: str, tset_id: str | None = None, colour_tag: str | None = None, params_hash: str | None = None,
+                  unverified: bool = False, slot: str | None = None) -> str:
+    """The Blender material name of a library request (pure): ``slug``, then ``__<asset>`` for a texture set,
+    ``__ceiling`` for the ceiling shell slot (round 3: the one slot that does not follow the slug, so the walls'
+    ``plaster_white__white_plaster_02`` and the ceilings' ``plaster_white__white_plaster_02__ceiling`` never collide
+    into a Blender ``.001`` twin), ``__<colour>``, ``__p<hash>`` for procedural overrides, ``__unverified``."""
+    return (str(slug) + (f"__{tset_id}" if tset_id else "") + ("__ceiling" if slot == "ceiling" else "")
+            + (f"__{colour_tag}" if colour_tag else "") + (f"__p{params_hash}" if params_hash else "")
+            + ("__unverified" if unverified else ""))
 
 
 def _short_hash(text: str) -> str:
@@ -1009,8 +1032,9 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
     sky.sky_type = "MULTIPLE_SCATTERING"
     sky.sun_disc = False  # the sun lamp carries the direct light
     sky.sun_elevation = math.radians(max(1.0, elevation))
-    # Sky rotation is counter-clockwise from +X; azimuth is clockwise from north (+Y).
-    sky.sun_rotation = math.radians(90.0 - azimuth)
+    # The sky's sun at the lamp's compass azimuth (sky_sun_rotation_rad: measured on 5.2.2, round 3; the old
+    # ``90 - azimuth`` was 30 degrees off at real03's 210).
+    sky.sun_rotation = sky_sun_rotation_rad(azimuth)
     links.new(sky.outputs["Color"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = strength * 0.5
     return {"kind": "sky", "file": None, "strength": strength * 0.5}
@@ -1034,6 +1058,16 @@ SUN_DISC_SIZE_DEG = 0.545
 EXTERIOR_SUN_DISC_REFERENCE_WM2 = 1000.0
 
 
+def sky_sun_rotation_rad(azimuth_deg: float) -> float:
+    """The ``ShaderNodeTexSky.sun_rotation`` (radians) that puts the sky's sun at the compass azimuth
+    ``azimuth_deg`` (clockwise from +Y, the frame of ``lighting.sun_direction``), pure. Measured on bpy 5.2.2
+    (15 Oct 2026, equirectangular renders of the disc against an emissive sphere placed with ``sun_direction``):
+    rotation 0 puts the sun at +Y, 90 degrees at +X (east), 180 at -Y, 270 at -X, i.e. ``sun_rotation`` is the
+    compass azimuth itself. The Milestone 3-11 formula ``90 - azimuth`` agreed with the lamp only at 45 degrees
+    (real02's azimuth) and put real03's sun (210) at 240, 30 degrees off the lamp's shadows."""
+    return math.radians(float(azimuth_deg))
+
+
 def sky_sun_intensity(sun_wm2: float | None, reference_wm2: float = EXTERIOR_SUN_DISC_REFERENCE_WM2,
                       world_strength: float = 1.0) -> float:
     """The sky's ``sun_intensity`` for a sun lamp of ``sun_wm2`` (pure): ``sun_wm2 / (reference_wm2 x
@@ -1048,15 +1082,19 @@ def sky_sun_intensity(sun_wm2: float | None, reference_wm2: float = EXTERIOR_SUN
 
 
 def exterior_world(lighting: dict, sun_disc: bool = False, sun_elevation_deg: float | None = None,
-                   sun_azimuth_deg: float | None = None, sun_wm2: float | None = None) -> dict:
+                   sun_azimuth_deg: float | None = None, sun_wm2: float | None = None,
+                   disc_camera_only: bool = True) -> dict:
     """The world of the exterior views (pure record; docs/milestone11.md §1.1 E13): a physical sky whose sun stands
     where the lamp is (``sun_elevation_deg``, ``sun_azimuth_deg`` in the building frame; the arguments win over the
     ``lighting`` keys), so the sky's bright side, the shadows and the light agree; the HDRI of the style (its own low
     sun and its own ground showed in the exterior views) stays for the interior views.
 
     Milestone 13: ``sun_disc`` puts the sun itself into the sky (``sun_intensity`` from ``sky_sun_intensity``,
-    ``sun_size_deg``); the record's ``direct_sun`` says who carries the direct light: ``"sky disc"`` (the lamp is
-    hidden under this world) or ``"lamp"`` (no disc, the Milestone 11 world)."""
+    ``sun_size_deg``); the record's ``direct_sun`` says who carries the direct light. Round 3 (§14.3):
+    ``disc_camera_only`` (the default) shows the disc to camera rays only (``world_mix``: a Mix Shader on the
+    Light Path 'Is Camera Ray' between the sky with the disc and the same sky without it), so the lamp is the one
+    direct sun (``direct_sun: "lamp"``, ``sun_disc_camera_only: True``); ``False`` is the P1 world (the disc for
+    every ray, ``"sky disc"``, the lamp hidden under it). Without a disc the Milestone 11 world (``"lamp"``)."""
     mood = str(lighting.get("mood", "")).lower()
     strength = MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0)) * EXTERIOR_SKY["strength_factor"]
     elevation = float(lighting.get("sun_elevation_deg", 35.0) if sun_elevation_deg is None else sun_elevation_deg)
@@ -1066,24 +1104,59 @@ def exterior_world(lighting: dict, sun_disc: bool = False, sun_elevation_deg: fl
            "reason": "exterior views: a physical sky matched to the sun lamp (E13)"}
     if sun_disc:
         rec.update(sun_intensity=sky_sun_intensity(sun_wm2, world_strength=strength), sun_size_deg=SUN_DISC_SIZE_DEG,
-                   direct_sun="sky disc", sun_disc_reference_wm2=EXTERIOR_SUN_DISC_REFERENCE_WM2, sun_lamp_wm2=sun_wm2,
-                   sun_disc_world_strength=strength,
-                   reason="exterior views: a daytime physical sky with the sun disc; the sun lamp is hidden under "
-                          "this world so the sky does not double the sun (Milestone 13 K5)")
+                   sun_disc_reference_wm2=EXTERIOR_SUN_DISC_REFERENCE_WM2, sun_lamp_wm2=sun_wm2,
+                   sun_disc_world_strength=strength, sun_disc_camera_only=bool(disc_camera_only))
+        if disc_camera_only:
+            rec.update(direct_sun="lamp",
+                       world_mix={"node": "ShaderNodeMixShader", "factor": "ShaderNodeLightPath 'Is Camera Ray'",
+                                  "camera_rays": "ShaderNodeTexSky with sun_disc (the disc in the image)",
+                                  "other_rays": "the same ShaderNodeTexSky without sun_disc (no second sun)"},
+                       reason="exterior views: a daytime physical sky whose sun disc only the camera sees (Light "
+                              "Path 'Is Camera Ray' mix of the sky with and without the disc); the sun lamp is the "
+                              "one direct sun (Milestone 13 round 3, docs/milestone13.md section 14.3)")
+        else:
+            rec.update(direct_sun="sky disc",
+                       reason="exterior views: a daytime physical sky with the sun disc; the sun lamp is hidden "
+                              "under this world so the sky does not double the sun (Milestone 13 K5, the P1 world)")
     else:
         rec["direct_sun"] = "lamp"
     return rec
 
 
+def _sky_texture_node(nodes, rec: dict, disc: bool):
+    """One ``ShaderNodeTexSky`` of the exterior world record (bpy): the sun where the lamp stands, the disc on or
+    off (``disc``), the air of ``EXTERIOR_SKY``."""
+    sky = nodes.new("ShaderNodeTexSky")
+    sky.sky_type = EXTERIOR_SKY["sky_type"]
+    sky.sun_disc = bool(disc)
+    if disc:
+        sky.sun_intensity = float(rec["sun_intensity"])
+        sky.sun_size = math.radians(SUN_DISC_SIZE_DEG)
+    sky.sun_elevation = math.radians(max(1.0, rec["sun_elevation_deg"]))
+    sky.sun_rotation = sky_sun_rotation_rad(rec["sun_azimuth_deg"])     # the disc where the lamp's shadows point
+    for key in ("air_density", "aerosol_density", "ozone_density", "altitude"):
+        if hasattr(sky, key):
+            setattr(sky, key, EXTERIOR_SKY[key])
+    return sky
+
+
 def exterior_world_nodes(scene, lighting: dict, sun_disc: bool = True, sun_elevation_deg: float | None = None,
-                         sun_azimuth_deg: float | None = None, sun_wm2: float | None = None) -> dict:
+                         sun_azimuth_deg: float | None = None, sun_wm2: float | None = None,
+                         disc_camera_only: bool = True) -> dict:
     """Make the exterior world (``exterior_world``) as its own Blender world (not assigned to the scene: render.py
-    switches to it for exterior cameras, ``scene["wenart_world_exterior"]``; with the sun disc the scene property
-    ``wenart_world_exterior_sun_disc`` tells render.py to hide the sun lamp under it)."""
+    switches to it for exterior cameras, ``scene["wenart_world_exterior"]``). Scene properties for render.py:
+    ``wenart_world_exterior_sun_disc`` (the sky carries a disc) and ``wenart_world_exterior_disc_camera_only``
+    (round 3: the disc is for camera rays only, so the sun lamp stays shown; without it the lamp is hidden under
+    this world, the P1 behaviour).
+
+    Node names checked on bpy 5.2.2 (15 Oct 2026): ShaderNodeLightPath output 'Is Camera Ray'; ShaderNodeMixShader
+    inputs 'Factor' (identifier 'Fac', index 0) and two 'Shader' inputs (indices 1 and 2: factor 0 takes the first,
+    1 the second), output 'Shader'; ShaderNodeTexSky sun_disc / sun_intensity / sun_elevation / sun_rotation /
+    sun_size; ShaderNodeBackground inputs 'Color', 'Strength'."""
     import bpy
 
     rec = exterior_world(lighting, sun_disc=sun_disc, sun_elevation_deg=sun_elevation_deg,
-                         sun_azimuth_deg=sun_azimuth_deg, sun_wm2=sun_wm2)
+                         sun_azimuth_deg=sun_azimuth_deg, sun_wm2=sun_wm2, disc_camera_only=disc_camera_only)
     world = bpy.data.worlds.get(EXTERIOR_WORLD) or bpy.data.worlds.new(EXTERIOR_WORLD)
     world.use_nodes = True
     tree = world.node_tree
@@ -1092,23 +1165,30 @@ def exterior_world_nodes(scene, lighting: dict, sun_disc: bool = True, sun_eleva
         nodes.remove(n)
     out = nodes.new("ShaderNodeOutputWorld")
     bg = nodes.new("ShaderNodeBackground")
-    links.new(bg.outputs["Background"], out.inputs["Surface"])
-    sky = nodes.new("ShaderNodeTexSky")
-    sky.sky_type = EXTERIOR_SKY["sky_type"]
-    sky.sun_disc = bool(rec["sun_disc"])
-    if rec["sun_disc"]:
-        sky.sun_intensity = float(rec["sun_intensity"])
-        sky.sun_size = math.radians(SUN_DISC_SIZE_DEG)
-    sky.sun_elevation = math.radians(max(1.0, rec["sun_elevation_deg"]))
-    sky.sun_rotation = math.radians(90.0 - rec["sun_azimuth_deg"])
-    for key in ("air_density", "aerosol_density", "ozone_density", "altitude"):
-        if hasattr(sky, key):
-            setattr(sky, key, EXTERIOR_SKY[key])
+    bg.name = "wenart_sky_camera"
+    sky = _sky_texture_node(nodes, rec, disc=bool(rec["sun_disc"]))
     links.new(sky.outputs["Color"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = rec["strength"]
+    if rec["sun_disc"] and rec.get("sun_disc_camera_only"):
+        # Every ray but the camera's sees the sky without the disc: the lamp is the one direct sun.
+        sky_lit = _sky_texture_node(nodes, rec, disc=False)
+        bg_lit = nodes.new("ShaderNodeBackground")
+        bg_lit.name = "wenart_sky_lighting"
+        links.new(sky_lit.outputs["Color"], bg_lit.inputs["Color"])
+        bg_lit.inputs["Strength"].default_value = rec["strength"]
+        path = nodes.new("ShaderNodeLightPath")
+        mix = nodes.new("ShaderNodeMixShader")
+        mix.name = "wenart_sun_disc_mix"
+        links.new(path.outputs["Is Camera Ray"], mix.inputs[0])     # 'Factor': 1 on the camera ray only
+        links.new(bg_lit.outputs["Background"], mix.inputs[1])     # factor 0: every other ray, no disc
+        links.new(bg.outputs["Background"], mix.inputs[2])         # factor 1: the camera ray sees the disc
+        links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    else:
+        links.new(bg.outputs["Background"], out.inputs["Surface"])
     world.use_fake_user = True
     scene["wenart_world_exterior"] = world.name
     scene["wenart_world_exterior_sun_disc"] = bool(rec["sun_disc"])
+    scene["wenart_world_exterior_disc_camera_only"] = bool(rec["sun_disc"] and rec.get("sun_disc_camera_only"))
     if scene.world is not None:
         scene["wenart_world_interior"] = scene.world.name
     return rec
@@ -1804,20 +1884,24 @@ def exterior_material(library, slug: str, colour=None):
     return library.get(slug, asset, colour=colour)
 
 
-def fixture_material(name: str, kelvin: float = 2700.0, strength: float = 6.0):
+def fixture_material(name: str, kelvin: float = 2700.0, strength: float | None = None):
     """The emissive surface of a light-rig fixture (Milestone 13, ``lighting.room_rig``): an Emission shader in the
-    blackbody colour of ``kelvin`` (``lighting._blackbody_rgb``) at ``strength``; the room's light comes from the
-    point or area light inside the fixture, the emission is what the camera sees. ``cycles.emission_sampling`` is
-    ``NONE`` (the small surface is no light to sample). One material per kelvin, cached by name."""
+    blackbody colour of ``kelvin`` (``lighting._blackbody_rgb``) at ``strength`` (round 3: the fixed
+    ``lighting.SHADE_EMISSION_WM2SR`` when None, so a shade never clips at the project EV range; the P1 value 6.0
+    rendered every shade white); the room's light comes from the point or area light inside the fixture, the
+    emission is what the camera sees. ``cycles.emission_sampling`` is ``NONE`` (the small surface is no light to
+    sample). One material per kelvin, cached by name."""
     import bpy
 
     mat = bpy.data.materials.get(name)
     if mat is not None:
         return mat
-    from wenart.blender.lighting import _blackbody_rgb
-    mat = light_material(name, _blackbody_rgb(float(kelvin)), strength)
+    from wenart.blender.lighting import SHADE_EMISSION_WM2SR, _blackbody_rgb
+    radiance = float(SHADE_EMISSION_WM2SR if strength is None else strength)
+    mat = light_material(name, _blackbody_rgb(float(kelvin)), radiance)
     mat.cycles.emission_sampling = "NONE"
     mat["wenart_fixture_k"] = float(kelvin)
+    mat["wenart_shade_emission_wm2sr"] = radiance
     return mat
 
 

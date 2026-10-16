@@ -17,6 +17,7 @@ Every test here fails on the Milestone 12 code (the constants, functions and fla
 from __future__ import annotations
 
 import json
+import math
 import os
 import subprocess
 from pathlib import Path
@@ -44,18 +45,25 @@ REAL03 = ROOT / "results" / "renders" / "real03" / "scene_manifest.json"
 # --------------------------------------------------------------------------
 
 def test_sun_constant_and_the_light_variants():
-    assert isinstance(L.SUN_STRENGTH_WM2, float) and L.SUN_STRENGTH_WM2 > 0
-    assert L.LIGHT_VARIANTS == ("base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
+    # Round 3 (docs/milestone13.md §14.3, pod P1 of 15 Oct 2026): the manual's clear-sky sun; the per-mood ratio
+    # stays against the warm-daylight 3.0, so a style's sun_strength scales the same way.
+    assert isinstance(L.SUN_STRENGTH_WM2, float) and L.SUN_STRENGTH_WM2 == 1000.0
+    assert L.SUN_REFERENCE_MOOD_WM2 == 3.0 and L.SUN_STRENGTH_M11_WM2 == 3.0
+    assert L.LIGHT_VARIANTS == ("m11", "base", "sun100", "sun300", "sun1000", "evcap", "rig", "shell", "all")
     assert L.SUN_VARIANT_WM2 == {"sun100": 100.0, "sun300": 300.0, "sun1000": 1000.0}
-    # Production (no variant): the constant and the EV cap on; the rig and the shell table wait for the lead's
-    # decision from P1 (LEVER_DEFAULTS: the Milestone 6-12 lights and materials until then).
+    # Production (no variant): the constant and every lever on (the lead's P1 decisions: EV cap, rig, shell).
     prod = L.light_levers(env={})
-    assert prod["variant"] is None and prod["sun_wm2"] == L.SUN_STRENGTH_WM2 and prod["source"] == "default"
-    assert prod["ev_cap"] and prod == {**prod, **{k: bool(v) for k, v in L.LEVER_DEFAULTS.items()}}
-    assert set(L.LEVER_DEFAULTS) == {"ev_cap", "rig", "shell"} and L.LEVER_DEFAULTS["ev_cap"] is True
-    # Every named variant starts from the Milestone 11 base (sun 3.0, no cap, no rig, no shell).
+    assert prod["variant"] is None and prod["sun_wm2"] == 1000.0 and prod["source"] == "default"
+    assert prod["ev_cap"] and prod["rig"] and prod["shell"]
+    assert L.LEVER_DEFAULTS == {"ev_cap": True, "rig": True, "shell": True}
+    assert L.M11_LEVERS == {"ev_cap": False, "rig": False, "shell": False}
+    # ``base`` = production under its name; ``m11`` = the Milestone 11 look (sun 3.0, no cap, no rig, no shell).
     base = L.light_levers("base")
-    assert (base["sun_wm2"], base["ev_cap"], base["rig"], base["shell"]) == (3.0, False, False, False)
+    assert (base["sun_wm2"], base["ev_cap"], base["rig"], base["shell"]) == (1000.0, True, True, True)
+    assert base["variant"] == "base" and base["source"] == "arg"
+    m11 = L.light_levers("m11")
+    assert (m11["sun_wm2"], m11["ev_cap"], m11["rig"], m11["shell"]) == (3.0, False, False, False)
+    # Every single lever starts from the Milestone 11 look (its P1 meaning, so the P1 sheets still compare).
     for name, wm2 in L.SUN_VARIANT_WM2.items():
         lv = L.light_levers(env={L.LIGHT_VARIANT_ENV: name})
         assert lv["sun_wm2"] == wm2 and not lv["ev_cap"] and not lv["rig"] and not lv["shell"]
@@ -67,16 +75,37 @@ def test_sun_constant_and_the_light_variants():
     assert (every["sun_wm2"], every["ev_cap"], every["rig"], every["shell"]) == (300.0, True, True, True)
     combo = L.light_levers("sun1000+rig")
     assert combo["sun_wm2"] == 1000.0 and combo["rig"] and not combo["ev_cap"] and combo["names"] == ["sun1000", "rig"]
+    assert L.light_levers("m11,rig")["rig"] and not L.light_levers("m11,rig")["shell"]
+    # Names combined with ``base`` start from production and only turn levers on (never off).
+    with_sun = L.light_levers("base,sun300")
+    assert (with_sun["sun_wm2"], with_sun["ev_cap"], with_sun["rig"], with_sun["shell"]) == (300.0, True, True, True)
     assert L.parse_light_variant("") == [] and L.parse_light_variant(None) == []
     with pytest.raises(ValueError, match="unknown variant"):
         L.parse_light_variant("sun200")
     with pytest.raises(ValueError, match="more than one sun"):
         L.parse_light_variant("sun100,sun300")
+    with pytest.raises(ValueError, match="exclude each other"):
+        L.parse_light_variant("m11,base")
     # The style's sun_strength is a factor against warm daylight (3.0): overcast keeps a tenth, night none.
     assert L.sun_strength_wm2({"sun_strength": 3.0}, L.light_levers("sun300")) == (300.0, 1.0)
     assert L.sun_strength_wm2(V.LIGHTING["overcast"], L.light_levers("sun1000")) == (100.0, 0.1)
     assert L.sun_strength_wm2(V.LIGHTING["night"], L.light_levers("sun1000")) == (0.0, 0.0)
-    assert L.sun_strength_wm2({}, L.light_levers(env={}))[0] == L.SUN_STRENGTH_WM2
+    assert L.sun_strength_wm2({}, L.light_levers(env={})) == (1000.0, 1.0)
+    assert L.sun_strength_wm2(V.LIGHTING["overcast"], L.light_levers(env={})) == (100.0, 0.1)
+
+
+def test_fill_light_rule_at_1000_wm2():
+    """Round 3 check of the dim-room rule at the production sun (docs/milestone13.md §14.3 item 1): the fill light
+    never dominates a sunlit room (any window counts as daylight at scale 333) and still helps a sunless one."""
+    small = [{"type": "window", "width": 0.6, "height": 1.2, "sill_height": 0.9}]
+    prod = L.light_levers(env={})
+    assert L.sun_strength_wm2({}, prod)[0] / L.SUN_REFERENCE_MOOD_WM2 == pytest.approx(1000.0 / 3.0)
+    assert L.fill_light_reason(small, 0.06, sun_wm2=1000.0) is None                 # the P1 dim bedroom: sunlit now
+    assert L.fill_light_reason(small, 0.0003, sun_wm2=1000.0) is None                # even a slit: 0.1 >= 0.08
+    reason = L.fill_light_reason(small, 0.0002, sun_wm2=1000.0)
+    assert reason is not None and "x sun 1000/3 W/m2" in reason                     # 0.067 < 0.08: fill
+    assert L.fill_light_reason([], None, sun_wm2=1000.0) == "room has no window"      # sunless: the fill or the rig
+    assert L.fill_light_reason(small, 0.06, sun_wm2=3.0) is not None                 # the m11 look keeps the M6 rule
 
 
 def test_dim_room_rule_follows_the_sun():
@@ -95,7 +124,8 @@ def test_dim_room_rule_follows_the_sun():
 
 def test_ev_cap_and_the_lighting_dark_finding():
     assert R.EXPOSURE_LIMITS == (-2.0, 3.0) and R.EXPOSURE_LIMITS_M11 == (-2.0, 8.0)
-    assert R.exposure_limits_for(L.light_levers("base")) == (-2.0, 8.0)
+    assert R.exposure_limits_for(L.light_levers("m11")) == (-2.0, 8.0)          # the Milestone 11 look
+    assert R.exposure_limits_for(L.light_levers("base")) == (-2.0, 3.0)         # round 3: base = production
     assert R.exposure_limits_for(L.light_levers("sun300")) == (-2.0, 8.0)
     assert R.exposure_limits_for(L.light_levers("evcap")) == (-2.0, 3.0)
     assert R.exposure_limits_for(L.light_levers("all")) == (-2.0, 3.0)
@@ -124,6 +154,48 @@ def test_project_white_balance_helpers(tmp_path):
     assert R.project_wb_camera([("ext_1", "exterior"), ("cam_b", "interior"), ("cam_a", None)]) == "cam_a"
     assert R.project_wb_camera([("ext_2", "exterior"), ("ext_1", "exterior")]) == "ext_1"
     assert R.project_wb_camera([]) is None
+    # Round 3 (§14.3): the white point is metered on daylight: a camera in a room with a window portal first (P1
+    # metered real02 on the windowless, rig-lit cam_r_L-1_banyo_1: 3,422 K), then the other interior cameras,
+    # then the exterior ones; up to WB_METER_MAX_CAMERAS are tried.
+    cams = [("ext_1", "exterior", None), ("cam_r_L-1_banyo_1", "interior", "r_L-1_banyo"),
+            ("cam_r_L-1_salon_1", "interior", "r_L-1_salon"), ("cam_r_L-1_mutfak_1", "interior", "r_L-1_mutfak")]
+    daylight = {"r_L-1_salon", "r_L-1_mutfak"}
+    assert R.wb_camera_order(cams, daylight) == ["cam_r_L-1_mutfak_1", "cam_r_L-1_salon_1", "cam_r_L-1_banyo_1", "ext_1"]
+    assert R.project_wb_camera(cams, daylight) == "cam_r_L-1_mutfak_1"
+    assert R.project_wb_camera(cams) == "cam_r_L-1_banyo_1"                   # no daylight table: name order
+    assert R.wb_camera_order([("ext_1", "exterior", None)], daylight) == ["ext_1"]
+    assert R.WB_METER_MAX_CAMERAS == 3
+    # Round-3 review (16 Oct 2026): the first windowed room in name order may get skylight only (synthetic-01's
+    # bath metered 9,068 K under the 1000 W/m2 sun and cast the sunlit living room orange), so a room whose window
+    # faces the sun comes first and the metered daylight candidate with the most incident light wins.
+    assert R.wb_camera_order(cams, daylight, {"r_L-1_salon"}) == \
+        ["cam_r_L-1_salon_1", "cam_r_L-1_mutfak_1", "cam_r_L-1_banyo_1", "ext_1"]
+    assert R.project_wb_camera(cams, daylight, {"r_L-1_salon", "r_L-1_banyo"}) == "cam_r_L-1_salon_1"  # a sunlit
+    # room without a window portal is no daylight room (the portal table is the evidence of the window)
+    travel = L.sun_direction(35.0, 210.0)
+    travel = tuple(-c for c in travel)                       # from the sun into the scene (a lamp's -Z axis)
+    portals = [("r_s", (0.5, 0.866, 0.0)), ("r_n", (-0.5, -0.866, 0.0)), ("r_e", (-1.0, 0.0, 0.0)),
+               ("r_w", (0.866, -0.5, 0.0)), (None, (0.5, 0.866, 0.0))]
+    # the sun at azimuth 210 (south-south-west) shines towards +Y / +X: the south window's inward axis (+Y, +X)
+    # faces it, the north one (-Y) does not, the east one (-X) is in shadow, the west one at 90 degrees is grazing
+    assert R.sunlit_rooms_from(portals, travel) == {"r_s"}
+    assert R.sunlit_rooms_from(portals, None) == set() and R.sunlit_rooms_from(portals, (0.0, 0.0, 0.0)) == set()
+    assert R.sunlit_rooms_from([("r_w", (0.866, -0.5, 0.0))], travel, min_dot=-0.1) == {"r_w"}
+    assert 0.0 < R.SUNLIT_DOT_MIN < 0.2
+    rows = [{"camera": "cam_b", "daylight": True, "incident_p50": 0.02, "whitepoint": [1.2, 1.0, 0.8]},
+            {"camera": "cam_s", "daylight": True, "incident_p50": 1.6, "whitepoint": [1.1, 1.0, 0.9]},
+            {"camera": "cam_w", "daylight": False, "incident_p50": 3.0, "whitepoint": [1.0, 1.0, 1.0]},
+            {"camera": "cam_x", "daylight": True, "incident_p50": 9.0, "whitepoint": None}]
+    assert R.pick_wb_candidate(rows)["camera"] == "cam_s"                   # the sun, not the sky-lit window
+    assert R.pick_wb_candidate(rows[2:])["camera"] == "cam_w"               # no daylight light: the windowless one
+    assert R.pick_wb_candidate([rows[3]]) is None and R.pick_wb_candidate([]) is None
+    tie = [dict(rows[1], camera="cam_t"), rows[1]]
+    assert R.pick_wb_candidate(tie)["camera"] == "cam_s"                    # name order on a tie
+    # A previous manifest's record is kept only when it was metered on daylight or set from kelvin.
+    assert not R.previous_whitepoint_usable({"whitepoint": [1.1, 1.0, 0.8], "source": "metered on cam_r_L-1_banyo_1"})
+    assert R.previous_whitepoint_usable({"whitepoint": [1.1, 1.0, 0.8], "source": "metered on c", "daylight_only": True})
+    assert R.previous_whitepoint_usable({"whitepoint": [1.1, 1.0, 0.8], "source": "kelvin:5300", "kelvin": 5300.0})
+    assert not R.previous_whitepoint_usable({"whitepoint": None, "daylight_only": True}) and not R.previous_whitepoint_usable(None)
     base = dict(samples=128, resolution=[1920, 1080], denoiser="OPENIMAGEDENOISE", exposure_mode="auto",
                 exposure_value=None, target=0.9, wb_mode="project", wb_fixed=None, hidden=[], plugged=[])
     k_none = R.render_key(R.key_settings(**base))
@@ -137,11 +209,15 @@ def test_project_white_balance_helpers(tmp_path):
     manifest.write_text(json.dumps({"white_balance_project": {"whitepoint": None}}))
     assert R.load_project_whitepoint(manifest) is None
     assert R.RENDER_CODE_VERSION == "m13.1"
-    # The sun lamp hides under the exterior world with a sun disc only.
+    # The sun lamp hides under the exterior world with a sun disc for every ray only (the P1 world); round 3:
+    # with the disc for camera rays only the lamp stays, it is the one direct sun outdoors.
     props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_exterior_sun_disc": True}
     assert R.sun_hidden_for(props, "exterior") and not R.sun_hidden_for(props, "interior")
     assert not R.sun_hidden_for(dict(props, wenart_world_exterior_sun_disc=False), "exterior")
+    assert not R.sun_hidden_for(dict(props, wenart_world_exterior_disc_camera_only=True), "exterior")
     assert not R.sun_hidden_for({}, "exterior")
+    assert set(R.WORLD_PROPS) == {"wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc",
+                                  "wenart_world_exterior_disc_camera_only"}
 
 
 # --------------------------------------------------------------------------
@@ -297,30 +373,73 @@ def test_shell_slot_table_resolves_to_existing_cc0_assets():
     assert M.material_kind_layers("fabric_linen") == {"sheen": {"weight": 0.5, "roughness": 0.5}}
     assert "coat" in M.material_kind_layers("wood_veneer_oak") and M.material_kind_layers("ceramic_white") is None
     assert M.material_kind_layers("grass") is None
-    # The library takes the levers: shell on under the shell / all variants, off under the base; production follows
-    # LEVER_DEFAULTS (the lead's flag after P1).
-    assert M.MaterialLibrary({}, None, levers=L.light_levers("base")).shell_on is False
+    # The library takes the levers: shell on under the shell / all variants and in production (round 3: base =
+    # production, LEVER_DEFAULTS shell on), off under the Milestone 11 look.
+    assert M.MaterialLibrary({}, None, levers=L.light_levers("m11")).shell_on is False
+    assert M.MaterialLibrary({}, None, levers=L.light_levers("base")).shell_on is True
     assert M.MaterialLibrary({}, None, levers=L.light_levers("shell")).shell_on is True
     assert M.MaterialLibrary({}, None, levers=L.light_levers("all")).shell_on is True
-    assert M.MaterialLibrary({}, None, levers=L.light_levers(env={})).shell_on is bool(L.LEVER_DEFAULTS["shell"])
+    assert M.MaterialLibrary({}, None, levers=L.light_levers(env={})).shell_on is True is L.LEVER_DEFAULTS["shell"]
     assert M.MaterialLibrary({}, None, levers={"shell": True}).shell_on is True
+    # The ceiling slot is the one slot a slug reaches without an asset, so its name carries the slot (no .001 twin
+    # of the walls' plaster_white__white_plaster_02 under the shell lever).
+    assert M.material_name("plaster_white", "white_plaster_02", slot="plaster") == "plaster_white__white_plaster_02"
+    assert M.material_name("plaster_white", "white_plaster_02", slot="ceiling") == "plaster_white__white_plaster_02__ceiling"
+    assert M.material_name("plaster_white", None, slot="ceiling") == "plaster_white__ceiling"
+    assert M.material_name("plaster_white", None, "sage", slot="ceiling") == "plaster_white__ceiling__sage"
+    assert M.material_name("tiles_light", None, None, "ab12", unverified=True, slot="tile") == "tiles_light__pab12__unverified"
+    assert M.material_name("wood_oak_light", "WoodFloor051") == "wood_oak_light__WoodFloor051"
 
 
 def test_exterior_world_record_with_the_sun_disc():
     lighting = {"mood": "warm daylight", "sun_elevation_deg": 35.0, "sun_azimuth_deg": 45.0}
     old = M.exterior_world(lighting)                                      # the Milestone 11 record, unchanged
     assert old["sun_disc"] is False and old["direct_sun"] == "lamp" and old["strength"] == 0.5
+    # Round 3 (§14.3): the disc is for camera rays only (a Light Path 'Is Camera Ray' mix of the sky with and
+    # without the disc), so the lamp at SUN_STRENGTH_WM2 is the one direct sun outdoors and the facades get shadows.
     rec = M.exterior_world(lighting, sun_disc=True, sun_elevation_deg=40.0, sun_azimuth_deg=100.0, sun_wm2=300.0)
-    assert rec["sun_disc"] is True and rec["direct_sun"] == "sky disc"
+    assert rec["sun_disc"] is True and rec["direct_sun"] == "lamp" and rec["sun_disc_camera_only"] is True
+    assert rec["world_mix"]["node"] == "ShaderNodeMixShader" and "Is Camera Ray" in rec["world_mix"]["factor"]
+    assert "only the camera sees" in rec["reason"]
     assert (rec["sun_elevation_deg"], rec["sun_azimuth_deg"]) == (40.0, 100.0)    # the arguments win
     # The world's Background Strength (0.5 x the mood's 1.0 for warm daylight) scales the disc too, so the
-    # intensity is 300 / (1000 x 0.5) = 0.6 (T5 review, 15 Oct 2026).
+    # intensity is 300 / (1000 x 0.5) = 0.6 (T5 review, 15 Oct 2026); it stays the disc's look in the image.
     assert rec["strength"] == 0.5 and rec["sun_disc_world_strength"] == 0.5
     assert rec["sun_intensity"] == pytest.approx(0.6) and rec["sun_size_deg"] == 0.545
-    assert rec["sun_disc_reference_wm2"] == 1000.0 and "does not double the sun" in rec["reason"]
+    assert rec["sun_disc_reference_wm2"] == 1000.0
+    prod = M.exterior_world(lighting, sun_disc=True, sun_wm2=L.SUN_STRENGTH_WM2)
+    assert prod["sun_intensity"] == pytest.approx(2.0) and prod["direct_sun"] == "lamp"
+    # The P1 world (the disc for every ray, the lamp hidden under it) stays selectable for the measurement.
+    p1 = M.exterior_world(lighting, sun_disc=True, sun_wm2=300.0, disc_camera_only=False)
+    assert p1["direct_sun"] == "sky disc" and p1["sun_disc_camera_only"] is False and "world_mix" not in p1
+    assert "does not double the sun" in p1["reason"]
     assert M.sky_sun_intensity(None) == 1.0 and M.sky_sun_intensity(1000.0) == 1.0 and M.sky_sun_intensity(3.0) == 0.003
     assert M.sky_sun_intensity(300.0, world_strength=0.5) == 0.6 and M.sky_sun_intensity(300.0, 1000.0, 1.0) == 0.3
     assert M.sky_sun_intensity(2e6) == 1000.0                                # the node's range
+    # The sky's sun where the lamp is: ShaderNodeTexSky.sun_rotation is the compass azimuth itself (measured on
+    # bpy 5.2.2, round 3: rotation 90 degrees puts the sun at +X / east, 180 at -Y, 270 at -X). The Milestone
+    # 3-11 formula 90 - azimuth matched the lamp only at 45 degrees (real02) and put real03's sun (210) at 240.
+    assert M.sky_sun_rotation_rad(210.0) == pytest.approx(math.radians(210.0))
+    assert M.sky_sun_rotation_rad(45.0) == pytest.approx(math.radians(45.0))
+    assert M.sky_sun_rotation_rad(0.0) == 0.0 and M.sky_sun_rotation_rad(90.0) == pytest.approx(math.pi / 2)
+
+
+def test_rig_gain_and_the_shade_emission_bound():
+    """Round 3 (§14.3 item 3): gain 2.0 (P1: gain 4 lit the real02 kitchen but blew the shades white) and the
+    shade's fixed radiance under the AgX Punchy clip at the project EV range -2..+3."""
+    assert L.RIG_GAIN == 2.0
+    assert L.room_rig("bedroom")[0]["watts_applied"] == pytest.approx(L.watts_for_lumens(470.0) * 2.0)
+    assert L.room_rig("kitchen")[1]["watts_applied"] == pytest.approx(L.watts_for_lumens(1600.0) * 2.0)
+    # The bound: a scene-linear 32 shows as display 255 (bpy 5.2.2, measured); at the cap +3 (x 8) the shade's
+    # brightest channel (the red of 2700 K = 1.0) must stay under it: 32 / 8 = 4.0 W/(m2 sr).
+    assert L.SHADE_EV_MAX == R.EXPOSURE_LIMITS[1] == 3.0 and L.SHADE_EMISSION_CLIP == 32.0
+    assert L.shade_emission_bound() == pytest.approx(4.0)
+    assert L.shade_emission_bound(ev_max=-2.0) == pytest.approx(128.0)
+    assert L.shade_emission_bound(ev_max=3.0, channel_max=max(L._blackbody_rgb(2700.0))) == pytest.approx(4.0)
+    assert 0.0 < L.SHADE_EMISSION_WM2SR == 2.0 < L.shade_emission_bound()        # one stop of margin at the cap
+    assert L.SHADE_EMISSION_WM2SR * 2.0 ** L.SHADE_EV_MAX == pytest.approx(16.0)  # 16 < 32: never pure white
+    assert L.SHADE_EMISSION_WM2SR * 2.0 ** -2.0 == pytest.approx(0.5)             # a soft glow at EV -2
+    assert L._blackbody_rgb(2700.0)[0] == 1.0 and L._blackbody_rgb(2700.0)[2] < 0.4
 
 
 def test_fabric_colour_path_b1():
@@ -505,16 +624,21 @@ def test_lever_sheets_and_summary(tmp_path):
         (d / "render_manifest.json").write_text(json.dumps({"renders": renders, "light_variant": {"build": v},
                                                             "exposure_limits": [-2, 3]}))
         (d / "vram.json").write_text(json.dumps({"peak_mib": 4100}))
-    summary = AB.lever_summary(res, ("real02",), ("base", "sun300", "rig"))
+    # Round 3: the variant names are m11 (the Milestone 11 look) and base (production); a folder that is missing
+    # (m11 in a P1 results folder, rig here) is a "not rendered" row and a grey tile, nothing breaks.
+    summary = AB.lever_summary(res, ("real02",), ("m11", "base", "sun300", "rig"))
     rows = summary["rows"]
-    assert len(rows) == 17 and sum(1 for r in rows if r["status"] == "rendered") == 16
+    assert len(rows) == 18 and sum(1 for r in rows if r["status"] == "rendered") == 16
+    assert [r["variant"] for r in rows if r["status"] != "rendered"] == ["m11", "rig"]
     assert all(r["lighting_dark"] == "critical" and r["vram_peak_mib"] == 4100 for r in rows if r["status"] == "rendered")
     assert (res / "summary.json").is_file() and "| real02 | base | cam_r_L-1_salon_1 | 4.5 | 3.0 | 6.1 | critical |" in \
         (res / "summary.md").read_text()
-    sheets = AB.lever_sheets(res, "real02", ("base", "sun300", "rig"))
+    assert "| real02 | m11 | - | not rendered |" in (res / "summary.md").read_text()
+    sheets = AB.lever_sheets(res, "real02", ("m11", "base", "sun300", "rig"))
     assert len(sheets) == 8 and all(s.is_file() for s in sheets)
     with Image.open(sheets[0]) as im:
-        assert im.width > 3 * 600 and im.height > 36           # three tiles side by side, labels under them
+        assert im.width > 4 * 600 and im.height > 36           # four tiles side by side, labels under them
+    assert AB.M13_AB_VARIANTS[:2] == ("m11", "base") and AB.M13_AB_VARIANTS == L.LIGHT_VARIANTS
 
 
 def test_levers_ab_job_script():

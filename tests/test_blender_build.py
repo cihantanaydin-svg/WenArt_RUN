@@ -105,7 +105,11 @@ def test_object_counts_per_kind_match_the_json(built):
     assert {o["parent"] for o in skirting} == dry and all(o["wenart_id"] == f"skirting_{o['parent']}" for o in skirting)
     assert {o["parent"] for o in handles} == {o["id"] for o in doors}
     assert all(o["status"] == "assumed" and o["evidence"] == [] for o in skirting + handles)
-    assert all(o["kind"] in ("wall", "door", "light") for o in details)
+    # Milestone 13 round 3 (docs/milestone13.md §14.3): the light rig is a production default, so a room's visible
+    # fixtures (kind decor, method rig, status assumed) and their lights are details of the room too.
+    assert all(o["kind"] in ("wall", "door", "light", "decor") for o in details)
+    rig = [o for o in details if o.get("method") == "rig"]
+    assert rig and all(o["kind"] == "decor" and o["status"] == "assumed" and o["assumed"]["gain"] == 2.0 for o in rig)
     kinds = {(a["parent"], a["kind"]) for a in m["assumed"] if "parent" in a}
     assert {(o["parent"], "skirting") for o in skirting} | {(o["parent"], "door_handles") for o in handles} <= kinds
     assert ids["window"] == {o["id"] for o in windows}
@@ -262,7 +266,14 @@ def test_assumed_defaults_are_listed(built):
     assert ("win_L0_001", "sill_height") in fields and ("win_L0_001", "height") in fields
     assert ("w_L0_001", "slab_thickness") in fields
     assert ("level_L0", "ceiling_height") in fields
-    assert ("light_r_L0_hol", "area_light") in fields  # hall has no window
+    # The windowless hall gets an assumed light. Milestone 13 round 3 (docs/milestone13.md §14.3): the light rig
+    # is on by default, so the hall's light is its ceiling fixture (kind rig_light) and the record says the rig
+    # replaced the Milestone 6 invisible area light (kind rig_replaces_fill_light); light_r_L0_hol is no longer built.
+    assert ("rig_r_L0_hol", "area_light") in fields and ("light_r_L0_hol", "area_light") not in fields
+    assert ("rig_r_L0_hol_ceiling_1_light", "rig_light") in fields
+    replaced = next(a for a in assumed if a["object"] == "rig_r_L0_hol" and a["field"] == "area_light")
+    assert replaced["kind"] == "rig_replaces_fill_light" and "room has no window" in replaced["reason"]
+    assert not any(o["name"] == "light_r_L0_hol" for o in built["manifest"]["objects"])
 
 
 @pytest.fixture(scope="module")

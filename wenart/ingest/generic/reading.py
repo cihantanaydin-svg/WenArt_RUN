@@ -19,22 +19,34 @@ What, in order (each step deterministic, every change logged in the piece's evid
    pieces (track L's ``apply_levels`` moves them first) is moved too, as ``level_mark``. A type the core's re-read
    set against the AI passes is a ``type_disagreement`` conflict. Copies of one block drawing in other inserts of
    the block (``copy_keys``) share their type or their symbol.
-2. **Context typing** (before any inference): an L outline with seat-deep arms in a living room is a corner sofa;
-   an unknown box drawn with a door swing beside the counter run (or closing it, proud of it) is a fridge; a
-   0.5-0.75 m deep strip along a wall holding a sink or hob is a counter; two small squares at a bed's head are
-   nightstands; a table-sized piece with seats drawn around it on two sides is a dining table, and small pieces
-   at a dining table are chairs facing it; a bowl with a drain in a bathroom is a
-   washbasin and the counter under it its vanity; two equal seats across a coffee table are armchairs; a table in
-   front of a sofa is a coffee table; a long low strip at a wall facing a sofa is a TV unit. A fixed piece drawn
+2. **Code typing first** (Milestone 13, docs/milestone13.md §3.0 K3, CLAUDE.md "an untyped drawn footprint is
+   typed by code first"; build round 3, lead decision): ``infer.code_types`` (``type_by_code``: the same footprint
+   in the twin room or on another level, the block name, the room's missing group member) runs before the context
+   rules and before any AI, on a piece whose question waits too (``code_first``); such a piece is typed
+   (``type_method`` twin | level | block | group_member, ``inferred`` with the evidence) and its question is
+   withdrawn (``withdraw_questions``: the key leaves the page's ``pending`` and is listed under
+   ``report["typed_by_code"]`` with its method in ``report["typed_by_code_methods"]``, ``build.code_typed`` /
+   ``build.code_typed_methods``; the pipeline leaves it out of ``recognition/requests.json``).
+   **Context typing** (the Milestone 12 rules, on what code left, the open questions too): an L outline with
+   seat-deep arms in a living room is a corner sofa; an unknown box drawn with a door swing beside the counter run
+   (or closing it, proud of it) is a fridge; a 0.5-0.75 m deep strip along a wall holding a sink or hob is a
+   counter; two small squares at a bed's head are nightstands; a table-sized piece with seats drawn around it on
+   two sides is a dining table, and small pieces at a dining table are chairs facing it; a bowl with a drain in a
+   bathroom is a washbasin and the counter under it its vanity; two equal seats across a coffee table are
+   armchairs; a table in front of a sofa is a coffee table; a long low strip at a wall facing a sofa is a TV unit.
+   A piece a context rule types is code typed as well (method ``context:<type>``, ``context:vanity`` for the
+   counter under a basin): its question is withdrawn too. The code typing runs again after the context rules
+   (chains: the missing member of a group whose anchor a context rule typed) and the context rules once more.
+   Every step up to here holds the open questions the same way in every mode (``open_questions``: a block copy
+   never decides one, no front for it yet), and a question asked and answered in this round is never withdrawn
+   (``answered_keys``), so the question count is the same with ``--no-ai``, in the first plain run and in the run
+   with the answers (the AI types only what neither code nor the drawing's context explains). A fixed piece drawn
    inside another of its type is drawn twice (not built).
 3. **Inference** (``wenart.furniture.infer``: size, room and position) for what is still unknown; a piece whose
-   AI question still waits for its answers is left to them. Milestone 13 (docs/milestone13.md §3.0 K3, CLAUDE.md
-   "an untyped drawn footprint is typed by code first"): the code typing (``infer.type_by_code``: the same footprint
-   in the twin room or on another level, the block name, the room's missing group member) runs before any AI, on a
-   piece whose question waits too; such a piece is typed (``type_method`` twin | level | block | group_member,
-   ``inferred`` with the evidence), its question is withdrawn (``withdraw_questions``: the key leaves the page's
-   ``pending`` and is listed under ``report["typed_by_code"]``, ``build.code_typed``; the pipeline leaves it out of
-   ``recognition/requests.json``) and the AI types only the rest.
+   AI question still waits for its answers is left to them (the size and position rules are weaker than a plan
+   crop; the code methods above apply there as well and withdraw as above). The context rules then type the
+   partners of the anchors the inference typed (Milestone 12 behaviour: open questions wait, nothing is withdrawn,
+   because with ``--no-ai`` the size inference types pieces a plain run leaves to the AI).
 4. **Misread fixed equipment** (user OK 1 of 10 Oct 2026): a fixed piece whose drawn size is more than 30 % outside
    its type's real range gets the nearest real product size (``sizes.product_size``), its back kept on its wall; a
    fixed piece through a wall or in a door swing moves up to 0.5 m to the nearest free spot. ``drawn_type``,
@@ -381,10 +393,34 @@ def _set_type(build, f: dict, ftype: str, reason: str, front: Optional[float] = 
 
 
 def _unknowns(pieces: list[dict], pending=()) -> list[dict]:
-    """The pieces a context rule may type: unknown, built, drawn, and not waiting for their AI answers (nothing is
-    decided for those before the answers come)."""
+    """The pieces a context rule may type: unknown, built, drawn, and not in ``pending``. Build round 3 (K3, lead
+    decision): the passes of ``read_furniture`` before the size inference give no pending set: a context rule is
+    code and types a piece whose AI question still waits as well (the question is then withdrawn,
+    ``context_typed``); the last pass, after the size inference, keeps the Milestone 12 behaviour (``pending``
+    waits, nothing is withdrawn)."""
     return [f for f in pieces if f["type"] == "unknown" and f.get("build") is not False
             and f.get("source", "from_documents") == "from_documents" and f["id"] not in pending]
+
+
+def context_typed(build, before: dict) -> dict[str, str]:
+    """Build round 3 (K3): the pieces a ``context_types`` pass typed, ``{piece id: "context:<type>"}``, from the
+    unknown pieces ``before`` the pass (``unknown_ids``: id -> piece): a piece that now has a type, or that the pass
+    recorded as a detail of another piece (the counter under a washbasin: ``context:vanity``). The caller withdraws
+    their questions like the code-typed ones."""
+    out = {}
+    for f in build.building["furniture"]:
+        if f["id"] not in before:
+            continue
+        if f.get("type") != "unknown":
+            out[f["id"]] = f"context:{f['type']}"
+        elif f.get("build") is False and f.get("inferred_as") == "detail":
+            out[f["id"]] = "context:vanity"
+    return out
+
+
+def unknown_ids(build) -> dict[str, dict]:
+    """The unknown drawn built pieces before a typing pass (for ``context_typed``)."""
+    return {f["id"]: f for f in _unknowns(build.building["furniture"])}
 
 
 def _facing(seat: dict, other: Polygon) -> Optional[tuple[float, float, float]]:
@@ -741,21 +777,99 @@ def infer(build, pending: set[str]) -> tuple[int, list[str]]:
 
 
 CODE_TYPED_KEY = "typed_by_code"      # the extraction report's list of question keys withdrawn by the code typing
+CODE_METHODS_KEY = "typed_by_code_methods"   # ... and {key: method} (twin | level | block | group_member | context:<type>)
 
 
-def withdraw_questions(build, works: dict, items: dict, coded: list[str]) -> dict[str, str]:
+def code_first(build) -> tuple[list[str], dict[str, str]]:
+    """Build round 3 (K3, lead decision): ``infer.code_types`` applied to the building before the context rules and
+    before any AI (the twin room, another level, the block name, the room's missing group member), on every untyped
+    drawn piece, the ones whose question waits included (code needs no answer). Returns the typed ids and
+    ``{id: method}``; every typing is a warning."""
+    from wenart.furniture import infer as INF
+
+    b = build.building
+    view = dict(b, conflicts=list(b.get("conflicts") or []) + list(getattr(build, "raw_conflicts", []) or []))
+    proposals = [p for p in INF.code_types(view) if p.get("type_method") in INF.CODE_TYPE_METHODS]
+    if not proposals:
+        return [], {}
+    b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
+    methods = {}
+    for p in proposals:
+        methods[p["piece_id"]] = p["type_method"]
+        build.warn(f"{p['piece_id']}: typed {p['type']} by code ({p['type_method']}, before the context rules and "
+                   f"any AI): {p['reason']}")
+    return list(methods), methods
+
+
+def _reports(build, works: dict) -> list[dict]:
+    """The page extraction reports of a reading run (each once)."""
+    out, seen = [], set()
+    for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
+        if id(w) in seen:
+            continue
+        seen.add(id(w))
+        report = getattr(w.extraction, "report", None)
+        if isinstance(report, dict):
+            out.append(report)
+    return out
+
+
+def answered_keys(build, works: dict) -> set[str]:
+    """Build round 3 (K3): the question keys asked and answered in this round: on a page that got answers
+    (``answers_applied``), its questions less the ones still without a complete pair (``pending``) and less the
+    ones withdrawn (``typed_by_code``). ``withdraw_questions`` keeps these listed."""
+    out: set[str] = set()
+    for report in _reports(build, works):
+        if not report.get("answers_applied"):
+            continue
+        keys = {str(q.get("key")) for q in report.get("questions") or [] if q.get("key")}
+        out |= keys - set(report.get("pending") or []) - set(report.get(CODE_TYPED_KEY) or [])
+    return out
+
+
+def open_questions(build, works: dict, items: dict) -> set[str]:
+    """Build round 3 (K3): the drawn pieces that are still unknown and carry a recognition question no answer of
+    this round decided (``answered_keys``), in every mode: in a first plain run they are the pending ones; with
+    --no-ai, and for the questions withdrawn in the first run when the answers come, nothing waits for them, but
+    the steps before the size inference (the block copies, the first fronts) hold them like pending pieces, so
+    what those steps type, and the questions the code and context typing withdraw, are the same in every mode."""
+    keys: set[str] = set()
+    for report in _reports(build, works):
+        keys |= {str(q.get("key")) for q in report.get("questions") or [] if q.get("key")}
+        keys |= {str(k) for k in report.get("pending") or []}
+    keys -= answered_keys(build, works)
+    by_id = {f["id"]: f for f in build.building.get("furniture") or []}
+    return {pid for pid, item in items.items() if str((item.details or {}).get("candidate_key")) in keys
+            and (by_id.get(pid) or {}).get("type") == "unknown"}
+
+
+def withdraw_questions(build, works: dict, items: dict, coded: list[str],
+                       methods: Optional[dict] = None) -> dict[str, str]:
     """Milestone 13 (K3): the recognition questions of the pieces code typed (``coded``) are withdrawn: their keys
     leave every page report's ``pending`` (nothing waits for them) and go to ``report["typed_by_code"]`` and
     ``build.code_typed`` (key -> piece id), which the pipeline's ``_write_questions`` leaves out of
     ``recognition/requests.json``. Returns the withdrawn ``{key: piece id}`` (empty when no code-typed piece had a
-    question, e.g. a piece typed from its block name at extraction time)."""
+    question, e.g. a piece typed from its block name at extraction time). Build round 3: ``methods`` (piece id ->
+    ``twin | level | block | group_member | context:<type>``) is kept beside the keys in
+    ``report["typed_by_code_methods"]`` and ``build.code_typed_methods`` (key -> method), so the report lists both
+    kinds with their method; without ``methods`` the piece's ``type_method`` is used."""
     keys = {}
+    answered = answered_keys(build, works)
     for pid in coded:
         key = (items[pid].details or {}).get("candidate_key") if pid in items else None
+        if key and str(key) in answered:
+            # Build round 3 (K3): a question asked and answered in this round stays listed (the code type stands
+            # beside the AI's answer), so the run with the answers asks what the first run asked.
+            build.warn(f"{pid}: recognition question {key} kept: it was asked and answered in this round (typed by "
+                       "code as well)")
+            continue
         if key:
             keys[str(key)] = pid
     if not keys:
         return {}
+    by_id = {f["id"]: f for f in build.building.get("furniture") or []}
+    how = {key: str((methods or {}).get(pid) or (by_id.get(pid) or {}).get("type_method") or "code")
+           for key, pid in keys.items()}
     seen = set()
     for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
         if id(w) in seen:
@@ -770,12 +884,17 @@ def withdraw_questions(build, works: dict, items: dict, coded: list[str]) -> dic
             continue
         report["pending"] = [k for k in report.get("pending") or [] if k not in keys]
         report[CODE_TYPED_KEY] = sorted(set(report.get(CODE_TYPED_KEY) or []) | set(mine))
+        report[CODE_METHODS_KEY] = dict(report.get(CODE_METHODS_KEY) or {}, **{k: how[k] for k in mine})
     store = getattr(build, "code_typed", None)
     if not isinstance(store, dict):
         store = build.code_typed = {}
     store.update(keys)
+    store_how = getattr(build, "code_typed_methods", None)
+    if not isinstance(store_how, dict):
+        store_how = build.code_typed_methods = {}
+    store_how.update(how)
     for key, pid in sorted(keys.items()):
-        build.warn(f"{pid}: recognition question {key} withdrawn: typed by code before the AI (K3)")
+        build.warn(f"{pid}: recognition question {key} withdrawn: typed by code before the AI ({how[key]}, K3)")
     return keys
 
 
@@ -1199,25 +1318,72 @@ def read_furniture(build, works: dict) -> None:
     pending = _pending(build, works)
     symbols = move_symbols(build, items, works)
     log_overrides(build, items)
-    copied = copies(build, items, pending)
-    context = context_types(build, items, pending)
-    fronts = infer_fronts(build, pending)
-    for k, v in context_types(build, items, pending).items():  # the seats have their fronts now (coffee table, TV)
-        context[k] = context.get(k, 0) + v
+    # Build round 3 (K3): the open questions are held in every mode by the steps before the size inference (a block
+    # copy never decides one: the code typing below does, and withdraws it, or the AI does).
+    held = set(pending) | open_questions(build, works, items)
+    copied = copies(build, items, held)
+    # Milestone 13 (K3), build round 3 (lead decision): code first, in every run. ``infer.code_types`` runs before
+    # the context rules (the twin room, another level, the block name, the missing group member), on the open
+    # questions too; then the context rules type what code left, on the open questions too; both kinds withdraw
+    # their questions (``withdraw_questions`` with the method). Every step up to the size inference treats a piece
+    # with an open question the same way in every mode (``open_questions``: no front for it yet), so the AI is asked
+    # the same questions with --no-ai, in the first plain run and in the run with the answers.
+    typed_by: dict[str, str] = {}
+    withdrawn: dict[str, str] = {}
+    context: dict[str, int] = {}
+    pending = set(pending)
+
+    def code_pass() -> list[str]:
+        """``code_first`` on every untyped piece; the typed ones withdraw their questions."""
+        coded, methods = code_first(build)
+        if coded:
+            typed_by.update(methods)
+            withdrawn.update(withdraw_questions(build, works, items, coded, methods))
+            pending.difference_update(coded)
+            held.difference_update(coded)
+        return coded
+
+    def context_pass() -> None:
+        """One pass of the context rules on every unknown piece, open questions included; the typed ones withdraw
+        their questions."""
+        before = unknown_ids(build)
+        for k, v in context_types(build, items).items():
+            context[k] = context.get(k, 0) + v
+        typed = context_typed(build, before)
+        if typed:
+            typed_by.update(typed)
+            withdrawn.update(withdraw_questions(build, works, items, list(typed), typed))
+            pending.difference_update(typed)
+            held.difference_update(typed)
+
+    code_pass()
+    context_pass()
+    fronts = infer_fronts(build, held)
+    context_pass()                                   # the seats have their fronts now (coffee table, TV unit)
+    if code_pass():                                  # chains: a missing member of a group the context rules typed
+        fronts += infer_fronts(build, held)
+        context_pass()
     if copied:
         context["copies"] = copied
     twice = duplicates(build)
     if twice:
         context["drawn_twice"] = twice
-    inferred, coded = infer(build, pending)
+    inferred, coded2 = infer(build, pending)
     # Milestone 13 (K3): a code-typed piece waits for no AI answer: its question is withdrawn, it gets its front
-    # and its partners like every typed piece below.
-    withdrawn = withdraw_questions(build, works, items, coded)
-    pending = pending - set(coded)
+    # and its partners like every typed piece below (``infer_types`` runs the code methods first, on the same
+    # building in every mode; normally nothing is left for them after the passes above).
+    by_id = {f["id"]: f for f in b["furniture"]}
+    methods2 = {pid: str((by_id.get(pid) or {}).get("type_method") or "code") for pid in coded2}
+    typed_by.update(methods2)
+    withdrawn.update(withdraw_questions(build, works, items, coded2, methods2))
+    pending = pending - set(coded2)
     fixed = fix_fixed(build, items)
     fronts += infer_fronts(build, pending)
-    for k, v in context_types(build, items, pending).items():  # partners of the anchors the inference typed
-        context[k] = context.get(k, 0) + v                     # (real01 --no-ai: the beds by their size)
+    # Partners of the anchors the inference typed (real01 --no-ai: the chaise by its size): the Milestone 12 rules on
+    # what does not wait for answers, and no question is withdrawn here: with --no-ai the size inference types
+    # pieces a plain run leaves to the AI, so a withdrawal here would make the question count depend on the mode.
+    for k, v in context_types(build, items, pending).items():
+        context[k] = context.get(k, 0) + v
     fronts += infer_fronts(build, pending)
     zones = kitchen_zones(build)
     review = never_a_box(build, items, pending)
@@ -1226,4 +1392,5 @@ def read_furniture(build, works: dict) -> None:
     b.setdefault("needs_review", [])
     build.reading = {"symbols": symbols, "context": context, "inferred": inferred, "fixed": fixed,
                      "fronts": fronts, "zones": zones, "needs_review": review,
-                     "code_typed": sorted(coded), "questions_withdrawn": sorted(withdrawn)}
+                     "code_typed": sorted(typed_by), "questions_withdrawn": sorted(withdrawn),
+                     "typed_by": dict(sorted(typed_by.items()))}
