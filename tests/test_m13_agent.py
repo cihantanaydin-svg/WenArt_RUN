@@ -650,3 +650,29 @@ def test_findings_removed_on_the_committed_real04_log():
     assert fr["accepted_edits"] == 183 and fr["edits_removing_finding"] == 20          # §1.5: 20 of 183
     assert fr["dry_recheck"] == {} and set(fr["per_round"]) == {"1", "2", "3", "4", "5", "6"}
     assert MX.COMPARE_HEADER[-1] == "findings removed" and MX.compare_row("x", m)[-1] == fr["total"]
+
+
+def test_the_default_checklist_names_the_kitchen_group_a_g9_completes():
+    """CPU pre-flight of 16 Oct 2026 (real04): a G9 names the kitchen (the room, or its kitchen zone
+    ``r_L-1b_salon_kitchen``), not a group, so the default step was ``complete_group on r_L-1b_salon_kitchen`` and
+    always failed "no group". The step now names the brief's group of that kitchen that misses something; a target
+    that is a group id, and a kitchen without such a group, stay as they are."""
+    def brief(target, groups):
+        return {"room": {"id": "r_L-1b_salon"}, "groups": groups,
+                "findings": {"fixable": [{"id": f"c:G9:{target}", "check": "G9", "severity": "major",
+                                          "target": target, "message": "kitchen has no fridge (fridge)",
+                                          "tools": ["complete_group"]}]}}
+    groups = [{"group_id": "r_L-1b_salon.dining", "missing": ["chair"]},
+              {"group_id": "r_L-1b_salon_kitchen.island", "missing": []},
+              {"group_id": "r_L-1b_salon_kitchen.kitchen_run", "missing": ["fridge"]}]
+    assert LP.default_checklist(brief("r_L-1b_salon_kitchen", groups))[0]["target"] == \
+        "r_L-1b_salon_kitchen.kitchen_run"
+    assert LP.default_checklist(brief("r_L-1b_salon.dining", groups))[0]["target"] == "r_L-1b_salon.dining"
+    assert LP.default_checklist(brief("r_L-1b_salon_kitchen", groups[:2]))[0]["target"] == "r_L-1b_salon_kitchen"
+    # Review: a G9 on a kitchen room (no zone) shares the prefix with the room's other groups; the group that misses
+    # what the finding names is chosen, not the first group that misses anything (an eat-in kitchen's dining chair).
+    eat_in = [{"group_id": "r_mutfak.dining", "missing": ["chair"]},
+              {"group_id": "r_mutfak.kitchen_run", "missing": ["fridge"]}]
+    b = brief("r_mutfak", eat_in)
+    b["room"]["id"] = "r_mutfak"
+    assert LP.default_checklist(b)[0]["target"] == "r_mutfak.kitchen_run"

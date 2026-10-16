@@ -627,3 +627,30 @@ def test_sheets13_cli(tmp_path, capsys):
     assert sorted(p.name for p in out.glob("*.jpg")) == sorted(f"{c}{SH.SUFFIX}" for c, *_ in CAMERAS)
     assert "report sheets13 toy: 5 sheet(s)" in capsys.readouterr().out
     assert report_main(["sheets13", "--out", str(after), "--baseline", str(tmp_path / "nope"), "--dir", str(out)]) == 2
+
+
+def test_final_report_without_a_scene_reads_the_run_building_for_the_licence_mode(tmp_path):
+    """Fails on the old code: when the build failed (no scene manifest) the report loaded no building, so it stated
+    "Licence mode: commercial" for a relaxed run with HSSD pieces and listed nothing as built below library level
+    (CPU pre-flight of 16 Oct 2026, the real02/03/04 outputs without a scene)."""
+    out = tmp_path / "real04"
+    out.mkdir()
+    building = {"project": {"id": "real04", "licence_mode": "relaxed", "licence_mode_source": "given to the fit"},
+                "rooms": [{"id": "r_salon", "room_type": "living"}],
+                "furniture": [{"id": "f_1", "type": "sofa", "room_id": "r_salon", "source": "from_documents",
+                               "asset": {"method": "library", "asset_id": "hssd_x", "licence_flag": "non_commercial"}},
+                              {"id": "f_2", "type": "tv_unit", "room_id": "r_salon", "source": "added_by_ai",
+                               "asset": {"method": "parametric", "asset_id": "parametric:tv_unit"}}]}
+    (out / "building_final.json").write_text(json.dumps(building), encoding="utf-8")
+    inp = F.load_inputs(out)
+    assert inp.scene is None and inp.building is not None
+    assert F.licence_mode_of(inp.building) == ("relaxed", "given to the fit")
+    manifest = F.write_final(out)
+    assert manifest["licence"]["mode"] == "relaxed"
+    assert [b["id"] for b in manifest["below_library"]] == ["f_2"]
+    # Review: nothing was rendered, so the project line claims nothing (it said "commercial-safe: yes" over no view
+    # for a building with an HSSD piece) and names the building's flagged assets.
+    assert manifest["licence"]["line"] == ("commercial-safe: not determined (no rendered view; the building holds 1 "
+                                           "flagged asset(s))")
+    md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "Project: commercial-safe: not determined" in md and "Project: commercial-safe: yes" not in md

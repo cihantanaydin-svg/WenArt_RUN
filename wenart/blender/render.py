@@ -148,7 +148,10 @@ Milestone 13 (docs/milestone13.md §13.2 render.py, K5; ``RENDER_CODE_VERSION`` 
   and the agent. The A/B variants without the cap lever (``WENART_LIGHT_VARIANT`` ``m11`` and the single ``sun*`` /
   ``rig`` / ``shell`` levers, ``lighting.light_levers``; ``base`` before round 3) keep the Milestone 11 limits
   ``EXPOSURE_LIMITS_M11`` (-2..+8); production, ``base`` (round 3) and every run with ``evcap`` use the cap
-  (``exposure_limits_for``).
+  (``exposure_limits_for``). Pre-flight of pod P3: the floor (-2) was set under the M11 sun of 3 W/m²; it moves down
+  by ``sun_floor_shift`` (log2 of the scene's sun lamp over 3 W/m², 8.4 stops at 1000 W/m²) so a sunlit facade or
+  room is not held stops too bright; each entry's ``exposure.limits`` are the limits it was metered against and
+  the manifest's ``exposure_floor`` records the sun and the shift (``exposure_limits`` stays the run's cap).
 - ``--white-balance project``: one whitepoint for every view of a project. It comes from the previous render
   manifest of the folder (``white_balance_project``, so a re-render keeps it), else it is metered once before the
   loop; ``kelvin:<K>`` sets it from a colour temperature (the brief's ``render.white_balance_k``, wired through
@@ -232,6 +235,12 @@ EXPOSURE_TARGET = 0.9
 # Milestone 13: the cap (docs/milestone13.md §13.2); the Milestone 11 limits stay for the A/B's m11 variant (round 3).
 EXPOSURE_LIMITS = (-2.0, 3.0)
 EXPOSURE_LIMITS_M11 = (-2.0, 8.0)
+# Pre-flight of pod P3 (16 Oct 2026): the floor EXPOSURE_LIMITS[0] was set under the Milestone 5-11 sun of 3 W/m²
+# (lighting.SUN_STRENGTH_M11_WM2). Round 3 made the sun 1000 W/m², so a sunlit facade wants about -7.6 EV (real04
+# ext_7 on the CPU: incident p50 180, wanted -7.64) and a sunlit room about -4.5 (real04 terrace); the -2 floor kept
+# them 2.5-5.6 stops too bright (a washed-out, near white exterior). The floor moves down by the stops the scene's
+# sun lamp adds over that reference (``sun_floor_shift``); the +3 cap and the lighting_dark finding stay as they are.
+SUN_FLOOR_REFERENCE_WM2 = 3.0
 EXPOSURE_STEP = 1.0 / 6.0
 LIGHTING_DARK_CHECK = "lighting_dark"
 LIGHTING_DARK_CRITICAL_STOPS = 2.0     # this many stops over the cap: critical, else major
@@ -371,6 +380,34 @@ def exposure_limits_for(levers: dict | None = None) -> tuple[float, float]:
         except Exception:  # noqa: BLE001 - the cap is the default
             levers = {"ev_cap": True}
     return tuple(EXPOSURE_LIMITS) if levers.get("ev_cap", True) else tuple(EXPOSURE_LIMITS_M11)
+
+
+def sun_floor_shift(sun_wm2, reference_wm2: float = SUN_FLOOR_REFERENCE_WM2) -> float:
+    """Stops the EV floor moves down for the scene's sun (pure; pre-flight of pod P3): ``log2(sun / reference)``
+    for a sun lamp stronger than the 3 W/m² the floor was set under, else 0 (no sun, the M11 sun, a bad value)."""
+    try:
+        sun = float(sun_wm2)
+    except (TypeError, ValueError):
+        return 0.0
+    if not math.isfinite(sun) or sun <= float(reference_wm2):
+        return 0.0
+    return round(math.log2(sun / float(reference_wm2)), 4)
+
+
+def view_limits(limits, floor_shift: float = 0.0) -> tuple[float, float]:
+    """The EV limits a view is metered against (pure): the run's ``limits`` with the floor moved down by
+    ``floor_shift`` stops (``sun_floor_shift``); the cap (the upper limit) never moves."""
+    lo, hi = limits
+    return (round(float(lo) - float(floor_shift or 0.0), 4), float(hi))
+
+
+def scene_sun_wm2(scene) -> float | None:
+    """The W/m² of the built scene's sun lamp (bpy objects; ``lighting.build_lighting`` names it ``sun``), None when
+    the scene has none."""
+    ob = scene.objects.get("sun")
+    if ob is None or ob.type != "LIGHT" or getattr(ob.data, "type", None) != "SUN":
+        return None
+    return float(ob.data.energy)
 
 
 def lighting_dark_entry(camera: str, room_id, ev_raw: float | None, ev: float, limits, incident_p50=None,
@@ -1513,6 +1550,13 @@ class Look:
         self.limits = tuple(EXPOSURE_LIMITS if limits is None else limits)
         self.project = project
         self.variant = None                   # the light variant of this render (main sets it)
+        # pre-flight of P3: the stops the floor moves down for the scene's sun (main sets it, sun_floor_shift)
+        self.floor_shift = 0.0
+        self.sun_wm2 = None
+
+    def view_limits(self) -> tuple[float, float]:
+        """The limits a view is metered against: the run's limits, the floor moved for the sun (``view_limits``)."""
+        return view_limits(self.limits, self.floor_shift)
 
     def key_settings(self, cam_name: str, samples: int, res, denoiser, hidden, plugged, alt_look=None,
                      max_bounces=None, preview_quality=None) -> dict:
@@ -1520,7 +1564,7 @@ class Look:
         return key_settings(samples, res, denoiser, self.exposure_mode, self.exposure_value, self.target,
                             self.wb_mode, self.wb_fixed, hidden, plugged, values, alt_look=alt_look,
                             max_bounces=max_bounces, ev_offset=self.ev_offset, preview_quality=preview_quality,
-                            limits=self.limits,
+                            limits=self.view_limits(),
                             project_whitepoint=(self.project or {}).get("whitepoint") if self.wb_mode == "project" else None)
 
     def decide(self, cam, out_dir: Path, res: tuple[int, int]) -> dict:
@@ -1554,13 +1598,16 @@ class Look:
                 rec["meter"]["metered"] = meter["metered"]
             rec["incident_p50"] = None if meter["incident_p50"] is None else round(meter["incident_p50"], 6)
         if self.exposure_mode == "auto":
-            rec.update(target=self.target, limits=list(self.limits))
+            limits = self.view_limits()
+            rec.update(target=self.target, limits=list(limits))
+            if self.floor_shift:
+                rec["floor_shift_stops"] = self.floor_shift
             if meter["incident_p50"] is None or meter["incident_p50"] <= 0:
                 rec["notes"].append("no interior block to meter: EV 0 used")
             else:
-                ev, raw, at_limit = exposure_from(meter["incident_p50"], self.target, self.limits)
+                ev, raw, at_limit = exposure_from(meter["incident_p50"], self.target, limits)
                 rec.update(ev=ev, ev_raw=raw, at_limit=at_limit)
-                rec["lighting_dark"] = lighting_dark_entry(cam.name, cam.get("wenart_room"), raw, ev, self.limits,
+                rec["lighting_dark"] = lighting_dark_entry(cam.name, cam.get("wenart_room"), raw, ev, limits,
                                                            meter["incident_p50"], self.target)
         elif self.exposure_mode == "fixed":
             rec["ev"] = float(self.exposure_value)
@@ -1905,6 +1952,9 @@ class RenderRun:
             "exposure_mode": "from" if ctx.look.look_from is not None else ctx.look.exposure_mode,
             "exposure_target": ctx.look.target,
             "exposure_limits": list(ctx.look.limits),
+            # pre-flight of P3: the floor the views were metered against (the cap stays exposure_limits[1])
+            "exposure_floor": {"sun_wm2": getattr(ctx.look, "sun_wm2", None), "reference_wm2": SUN_FLOOR_REFERENCE_WM2,
+                               "shift_stops": ctx.look.floor_shift, "view_limits": list(ctx.look.view_limits())},
             "white_balance_mode": "from" if ctx.look.look_from is not None else ctx.look.wb_mode,
             # Milestone 13 (docs/milestone13.md §13.2): the project whitepoint, the light variant of the build and
             # the render, the views whose metered EV passed the cap
@@ -2262,6 +2312,9 @@ def main(argv: list[str]) -> int:
         return 2
     look = Look(scene, args, mood, windows, look_from, look_from_path, limits=exposure_limits_for(levers))
     look.variant = levers["variant"]
+    # pre-flight of P3: the EV floor follows the built scene's sun lamp (sun_floor_shift; 0 under the M11 sun)
+    look.sun_wm2 = scene_sun_wm2(scene)
+    look.floor_shift = sun_floor_shift(look.sun_wm2)
     if look.wb_mode in ("project", "kelvin") and look_from is None:
         # One whitepoint for the project: the previous manifest's (if metered on daylight), else metered once on
         # daylight (round 3: rig hidden, a camera of a room with a window first).
@@ -2270,7 +2323,7 @@ def main(argv: list[str]) -> int:
         print(f"WHITE_BALANCE project: {record['source']} whitepoint={record['whitepoint']}")
     ctx = Context(scene, args, device, denoiser, (width, height), look, set(by_name), deadline)
     print(f"LIGHT_VARIANT render={levers['variant'] or 'none'} build={scene.get('wenart_light_variant') or 'none'} "
-          f"ev_limits={list(look.limits)}")
+          f"ev_limits={list(look.limits)} view_limits={list(look.view_limits())} sun_wm2={look.sun_wm2}")
     if mood is None:
         print("WARNING: scene has no wenart_mood (built before Milestone 5): white-balance residual 0")
 

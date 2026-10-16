@@ -417,9 +417,17 @@ class MaterialLibrary:
             "metallic": metallic(slug), "procedural": procedural,
         }
         if spec or kind_layers:
+            # pre-flight of pod P3: the slot's set is recorded only when this material uses it; a missing set keeps
+            # the slot's layers and says why (the real04 worktop said marble_01 with no texture in the scene)
+            wanted = spec.get("asset") if spec else None
+            used = bool(wanted and tset is not None and tset["id"] == wanted)
             self.records[mat.name].update(shell_slot=slot, shell_layers=layers,
-                                          shell_asset=spec.get("asset") if spec else None,
+                                          shell_asset=wanted if used else None,
                                           shell_reason=(spec or {}).get("reason") or "material layers by kind")
+            meant = slug in (spec.get("asset_for") or spec.get("slugs") or (slug,)) if spec else False
+            if wanted and not used and meant and asset_id in (None, wanted):
+                self.records[mat.name]["shell_asset_missing"] = {"asset": wanted,
+                                                                 "reason": self.texture_set(wanted)[1]}
         if colour:
             self.records[mat.name].update(colour=str(colour), colour_rgb=[round(v, 4) for v in rgb] if rgb else None,
                                           colour_applied=rgb is not None)

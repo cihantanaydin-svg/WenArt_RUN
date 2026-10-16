@@ -794,13 +794,19 @@ def test_metering_records_a_clamped_exposure_and_a_whitepoint(room):
     # +3, says at_limit and carries the lighting_dark finding.
     lo, hi = manifest["exposure_limits"]
     assert [lo, hi] == list(R.EXPOSURE_LIMITS) == [-2.0, 3.0]
+    # pre-flight of P3 (16 Oct 2026): the floor moves down for the scene's sun (render.sun_floor_shift), the cap stays
+    floor = manifest["exposure_floor"]
+    assert floor["shift_stops"] == pytest.approx(R.sun_floor_shift(floor["sun_wm2"]), abs=1e-4)
+    vlo, vhi = floor["view_limits"]
+    assert vhi == hi and vlo == pytest.approx(lo - floor["shift_stops"], abs=1e-4)
     for e in manifest["renders"]:
         x = e["exposure"]
         assert x["mode"] == "auto" and x["wb_mode"] == "auto" and x["source"] is None
-        assert math.isfinite(x["ev"]) and lo <= x["ev"] <= hi and x["ev"] * 6 == pytest.approx(round(x["ev"] * 6))
-        assert x["at_limit"] == (x["ev_raw"] < lo or x["ev_raw"] > hi)
+        # the EV is a 1/6 step rounded to 6 decimals (0.166667 x 6 = 1.000002): compare the step at 1e-4
+        assert math.isfinite(x["ev"]) and vlo <= x["ev"] <= hi and abs(x["ev"] * 6 - round(x["ev"] * 6)) < 1e-4
+        assert x["at_limit"] == (x["ev_raw"] < vlo or x["ev_raw"] > hi)
         assert bool(x.get("lighting_dark")) == (x["ev_raw"] > hi)
-        assert x["incident_p50"] > 0 and x["target"] == 0.9 and x["limits"] == [lo, hi]
+        assert x["incident_p50"] > 0 and x["target"] == 0.9 and x["limits"] == [vlo, hi]
         assert len(x["whitepoint"]) == 3 and min(x["whitepoint"]) > 0
         assert float(R.luminance(x["whitepoint"])) == pytest.approx(1.0, abs=1e-4)
         assert x["residual"] == 0.35 and x["mood"] == "warm daylight"

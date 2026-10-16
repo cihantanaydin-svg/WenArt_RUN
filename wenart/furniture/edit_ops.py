@@ -52,7 +52,8 @@ Milestone 12 (docs/milestone12.md §5.2, §5.3, §4.1 U1; owner: track G), tools
 - ``retype_piece(piece_id, type)``: only a type of the room / zone at the piece that fits its footprint (size table,
   not turned 90° against a drawn front); the ``change_type`` locks hold;
 - ``mark_not_furniture(piece_id, kind, evidence)``: a drawn piece read from a symbol is not built (``build: false``)
-  and recorded in ``symbols[]`` (``former_piece_id``, the crop as evidence); the solver and the checks ignore it;
+  and recorded in ``symbols[]`` (``former_piece_id``, the crop as evidence); the solver and the checks ignore it; it
+  leaves ``needs_review`` (pre-flight of 16 Oct 2026);
 - ``fix_fixture(piece_id, size?, center?)`` (U1): drawn fixed equipment more than 30 % outside its type's real range
   takes the nearest real size (or the given one); a fixed piece through a wall or in a door swing moves at most 0.5 m
   (to ``center``, or the nearest valid spot); ``locked.check`` accepts exactly that;
@@ -306,8 +307,13 @@ def _label(item: dict, before: dict, args: dict, fields: list[str]) -> None:
         if args.get(k) is not None:
             label[k] = args[k]
     label["changed"] = changed
-    if old.get("snapped_wall"):                    # M11: a later edit keeps the snap's wider move allowance
-        label["snapped_wall"] = old["snapped_wall"]
+    # A later edit keeps the allowances of the earlier ones that ``locked.check`` reads: the snap's wider move (M11),
+    # a fix_fixture's move and real size (M12 U1) and a drawn-group re-solve's move (M13). Without them a second edit
+    # of the same piece (fix_fixture, then mark_not_furniture or set_front) made the refit's locked check refuse the
+    # first one: "fixed equipment moved or resized" (CPU pre-flight of 16 Oct 2026, real03: five toilets).
+    for key in ("snapped_wall", "fix_fixture", "drawn_group"):
+        if old.get(key):
+            label[key] = old[key]
     item["adjusted_by_ai"] = label
 
 
@@ -803,8 +809,24 @@ def _dump(value) -> str:
     return json.dumps(value, sort_keys=True, default=str)
 
 
+def group_room_id(b: dict, group_id) -> str:
+    """The room of a group id. A group id is ``<room_id>.<group>[...]``, or ``<zone_id>.<group>`` for a group of a
+    zone (``program._entry``). The reading names the kitchen zone of an open-plan room ``<room_id>_kitchen``, without
+    a dot, so the text before the first dot is then a zone id, not a room id: the room is the one that holds that
+    zone. CPU pre-flight of 16 Oct 2026 (real04, P3 inputs): ``complete_group`` on ``r_L-1b_salon_kitchen.kitchen_run``
+    (the open kitchen misses its fridge, G9) was refused as "no group ... in a room of the building"."""
+    head = str(group_id).split(".", 1)[0]
+    rooms = b.get("rooms") or []
+    if any(r.get("id") == head for r in rooms):
+        return head
+    for r in rooms:
+        if any(isinstance(z, dict) and z.get("zone_id") == head for z in r.get("zones") or []):
+            return str(r.get("id"))
+    return head
+
+
 def _find_group(b: dict, group_id: str) -> tuple[dict, dict]:
-    room_id = str(group_id).split(".", 1)[0]
+    room_id = group_room_id(b, group_id)
     room = _room(b, room_id)
     found = next((g for g in GR.group_members(b, room_id) if g["group_id"] == group_id), None)
     if found is None:
@@ -1112,6 +1134,11 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
         "room_id": item.get("room_id"), "footprint": copy.deepcopy(item["footprint"]), "former_piece_id": item["id"],
         "reason": str(args.get("reason") or ""), "crop": crop, "evidence": [ev]})
     b["decor"] = [d for d in b.get("decor") or [] if d.get("host_id") != item["id"]]
+    # The piece is now recorded as not furniture (the symbol above, with its evidence), so it leaves the review list,
+    # as a retyped piece does (``_retype``). Without this the critic's NR finding stayed after the edit and the dry
+    # re-check refused every mark_not_furniture on an untyped piece (CPU pre-flight of 16 Oct 2026, real04: the 20
+    # NR findings could not be closed this way).
+    b["needs_review"] = [n for n in b.get("needs_review") or [] if n.get("id") != item["id"]]
     return [item["id"]]
 
 
@@ -1304,7 +1331,7 @@ def _room_id_of(b: dict, op: str, args: dict) -> Optional[str]:
     if "room_id" in args:
         return args["room_id"]
     if "group_id" in args:
-        return str(args["group_id"]).split(".", 1)[0]
+        return group_room_id(b, args["group_id"])          # a zone's group: the room of the zone
     item = next((f for f in b.get("furniture") or [] if f.get("id") == args.get("piece_id")), None)
     return item.get("room_id") if item else None
 

@@ -602,7 +602,12 @@ def load_inputs(project_out, out_dir=None, private: bool = False) -> Inputs:
     else:
         inp.scene = C.read_json(out / "scene" / "scene_manifest.json", w)
         if inp.scene is None:
-            w.append("scene/scene_manifest.json not readable: no element table or building")
+            w.append("scene/scene_manifest.json not readable: no element table")
+            # The run's building is still there when the build failed: without it the report stated licence mode
+            # "commercial" and "commercial-safe: yes" for a relaxed run with HSSD pieces and listed nothing as built
+            # below library level (CPU pre-flight of 16 Oct 2026, the real02/03/04 outputs without a scene).
+            fallback = out / "building_final.json"
+            inp.building_path = fallback if fallback.is_file() else None
         else:
             inp.project = str(inp.scene.get("project") or out.name)
             inp.building_path = _building_path(inp.scene, out)
@@ -997,11 +1002,23 @@ def licence_block(inp: "Inputs", views: list[dict]) -> dict:
                 if wid not in pieces.setdefault(aid, []):
                     pieces[aid].append(wid)
     safe = sum(1 for v in views if (v.get("commercial_safe") or {}).get("safe"))
+    if len(views) == safe:
+        line = "commercial-safe: yes"
+    else:
+        line = f"commercial-safe: no (flagged assets: {', '.join(f'{a} [{flags[a]}]' for a in sorted(flags))})"
+    if not any(v.get("camera") in inp.entries for v in views):
+        # Review of the CPU pre-flight of 16 Oct 2026: with no rendered view (the build or the render failed) every
+        # view is vacuously "safe", and the project line said "commercial-safe: yes" for a relaxed run whose building
+        # holds HSSD pieces. Nothing was rendered, so nothing is claimed; the building's flagged pieces are named.
+        held = sorted({str((p.get("asset") or {}).get("asset_id") or p.get("id")) for p in
+                       (inp.building or {}).get("furniture") or [] if isinstance(p, dict) and p.get("build") is not False
+                       and isinstance(p.get("asset"), dict)
+                       and str(p["asset"].get("licence_flag") or "none") != "none"})
+        line = ("commercial-safe: not determined (no rendered view; the building holds "
+                f"{len(held)} flagged asset(s))")
     return {"mode": mode, "mode_source": source, "flagged_assets": sorted(flags),
             "flags": dict(sorted(flags.items())), "pieces": {k: pieces[k] for k in sorted(pieces)},
-            "views_safe": safe, "views_flagged": len(views) - safe,
-            "line": "commercial-safe: yes" if len(views) == safe else
-            f"commercial-safe: no (flagged assets: {', '.join(f'{a} [{flags[a]}]' for a in sorted(flags))})"}
+            "views_safe": safe, "views_flagged": len(views) - safe, "line": line}
 
 
 def below_library(building: Optional[dict]) -> list[dict]:

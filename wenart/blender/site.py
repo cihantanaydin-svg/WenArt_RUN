@@ -499,11 +499,16 @@ def draped_faces(outer, holes, terrain: dict, lift: float = 0.0, z: Optional[flo
                 index[key] = len(verts)
                 verts.append(p)
             ids.append(index[key])
-        if tri:
-            for k in range(1, len(ids) - 1):
-                faces.append([ids[0], ids[k], ids[k + 1]])
-        else:
+        # pre-flight of pod P3: two points of a clipped cell within the 0.1 mm key share one vertex, so a face could
+        # use a vertex twice (real04: 732 ground and 112 grass faces, "Mesh ground is not valid" in the glTF export);
+        # the repeated corner is dropped and a face of fewer than 3 distinct vertices is not made
+        ids = [i for k, i in enumerate(ids) if i != ids[k - 1]] if len(ids) > 1 else ids
+        if not tri and len(set(ids)) == len(ids) >= 3:
             faces.append(ids)
+            return
+        for k in range(1, len(ids) - 1):               # a fan; a piece that still repeats a vertex is fanned too
+            if len({ids[0], ids[k], ids[k + 1]}) == 3:
+                faces.append([ids[0], ids[k], ids[k + 1]])
 
     if flat:
         for piece in pieces:
@@ -2733,8 +2738,10 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                          "walls": built_walls,
                                          "materials": {k: getattr(m, "name", None) for k, m in mats.items()
                                                        if k in {q["part"] for q in parts}}})
+            # pre-flight of pod P3 (16 Oct 2026): the scene manifest schema needs ``parent`` with ``kind``
+            # (schemas.ASSUMED_ENTRY); without it the 28 real04 platforms made validate_scene_manifest fail
             assumed.append({"object": f"platform_{pf['id']}", "field": "level", "value": pf["z"],
-                            "reason": pf["reason"], "kind": "site_platform"})
+                            "reason": pf["reason"], "parent": str(pf["id"]), "kind": "site_platform"})
     if plan.get("pools"):                           # 11 Oct 2026 (real04): the drawn pools; Milestone 13: coping, water
         tile, water = pool_materials(ripples=bool(levers.get("pools")))
         for pool in plan["pools"]:
@@ -2803,8 +2810,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                   "cards": rec.get("cards"), "cards_per_m2": rec.get("density"),
                                   "card_m": rec.get("card_m"), "cover_layers": rec.get("cover_layers"),
                                   "atlas": rec.get("atlas"), "core": info.get("core")})
+        # pre-flight of pod P3: ``parent`` with ``kind`` (schemas.ASSUMED_ENTRY), as the trees below
         assumed.append({"object": name, "field": "hedge", "value": [h["height_m"], h["species"]], "reason": h["reason"],
-                        "kind": "site_hedge"})
+                        "parent": str(h["id"]), "kind": "site_hedge"})
     climate = (plan.get("climate") or {}).get("climate", "temperate")
     bark = make_material(looks["bark"]) if plan["trees"] else None
     near_pts = plan.get("near_extent") or plan["extent"]
@@ -2849,7 +2857,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                       "method": rec.get("method"), "asset": rec.get("asset"),
                                       "near_camera": bool(near), "leaf_faces": rec.get("leaf_faces"),
                                       "cards": rec.get("cards"), "atlas": rec.get("atlas"),
-                                      "fallback_from": rec.get("fallback_from")})
+                                      # pre-flight of P3: the reason travels with the fallback (vegetation.missing_source)
+                                      "fallback_from": rec.get("fallback_from"),
+                                      "fallback_reason": rec.get("fallback_reason")})
         assumed.append({"object": wid, "field": "tree", "value": parts["height"], "reason": parts["reason"],
                         "parent": str(item.get("id")), "kind": "site_tree"})
     if plan["mode"] == "full" and levers.get("instances"):

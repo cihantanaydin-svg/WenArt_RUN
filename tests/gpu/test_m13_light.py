@@ -8,7 +8,8 @@ exterior world while the lamp stays the one direct sun.
   the real build script and two interior views rendered at 320 x 180, 16 samples, ``--white-balance project``.
   Checks: the scene manifest's ``lighting`` block records the variant, the levers and the sun (constant x mood
   factor); the rig fixtures and the shell records appear exactly under their levers (round 3: ``base`` = production
-  has both, ``m11`` neither); every render entry's EV lies within the manifest's ``exposure_limits`` (-2..+8 for
+  has both, ``m11`` neither); every render entry's EV lies within its own ``limits`` (the manifest's ``exposure_limits`` with the floor
+  moved down for the scene's sun, ``render.sun_floor_shift``, pre-flight of P3; the cap -2..+8 for
   m11 and the single sun / rig / shell variants, -2..+3 under the cap), a ``lighting_dark`` entry exists exactly
   when the metered EV passed the cap; one project whitepoint for every view, metered on daylight (every rig object
   hidden; the daylight candidate with the most incident light, a sunlit room under a sun of 300 W/m² or more, its
@@ -133,9 +134,15 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
         assert SUNLIT_WB_K[0] <= wbp["kelvin"] <= SUNLIT_WB_K[1], wbp
     wps = {tuple(r["exposure"]["whitepoint"]) for r in rm["renders"]}
     assert len(wps) == 1, "one whitepoint for every view of the project"
+    # pre-flight of P3 (16 Oct 2026): the floor moves down with the scene's sun (render.sun_floor_shift); the cap of
+    # exposure_limits stays, and each view is metered against its own ``limits``
+    floor = rm["exposure_floor"]
+    assert floor["shift_stops"] == pytest.approx(R.sun_floor_shift(light["sun"]["strength"]), abs=1e-4)
+    assert floor["view_limits"] == list(R.view_limits(limits, floor["shift_stops"]))
     for r in rm["renders"]:
         ex = r["exposure"]
-        assert limits[0] <= ex["ev"] <= limits[1] + 1e-9, (r["camera"], ex["ev"], limits)
+        assert ex["limits"] == floor["view_limits"] and ex["limits"][1] == limits[1]
+        assert ex["limits"][0] <= ex["ev"] <= limits[1] + 1e-9, (r["camera"], ex["ev"], ex["limits"])
         assert ex["wb_mode"] == "project" and ex.get("wb_source")
         wanted_dark = ex["ev_raw"] is not None and ex["ev_raw"] > limits[1]
         assert bool(ex.get("lighting_dark")) == wanted_dark, (r["camera"], ex["ev_raw"], limits)

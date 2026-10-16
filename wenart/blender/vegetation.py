@@ -581,6 +581,28 @@ def tree_source(species: str, near_camera: bool, levers: Optional[dict] = None, 
     return "cards"
 
 
+def missing_source(species: str, near_camera: bool, levers: Optional[dict] = None, hero: Optional[dict] = None,
+                   sapling: Optional[dict] = None) -> dict:
+    """Why a tree is not built from the source it is meant to have (pure; pre-flight of pod P3): ``{}`` when that
+    source is there, else ``{"fallback_from": "polyhaven" | "sapling", "fallback_reason"}``. Near a camera a tree is
+    meant to be the species' Poly Haven instance (``instances`` lever; ``hero`` is what ``hero_model`` found, None
+    when the model is not in the assets); elsewhere a species with a Sapling preset (not a shrub, hedge or palm) is
+    meant to be a Sapling tree (``sapling`` lever; ``sapling`` is ``ensure_sapling()``'s record)."""
+    rec = species_record(species)
+    lv = levers or {"instances": True, "sapling": True}
+    src = rec.get("source") or {}
+    model = src.get("polyhaven")
+    if near_camera and lv.get("instances", True) and model in POLYHAVEN_MODELS and hero is None:
+        return {"fallback_from": "polyhaven",
+                "fallback_reason": f"the Poly Haven model {model} of {rec['name']} is not in the assets "
+                                   f"({assets_dir() or 'no assets folder'}; scripts/pod_setup_vegetation.sh fetches it)"}
+    if lv.get("sapling", True) and src.get("sapling") in SAPLING_PRESETS \
+            and rec.get("crown") not in ("shrub", "hedge", "palm") and not (sapling or {}).get("ok"):
+        return {"fallback_from": "sapling",
+                "fallback_reason": f"the Sapling add-on is not usable ({(sapling or {}).get('how') or 'not checked'})"}
+    return {}
+
+
 # --------------------------------------------------------------------------
 # Sapling Tree Gen (the installed GPL add-on, called through bpy.ops)
 # --------------------------------------------------------------------------
@@ -1282,9 +1304,12 @@ def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, 
     name = name or f"tree_{rec['name']}_{int(seed)}"
     hero = hero_model(rec["name"])
     sap = levers is None or levers.get("sapling", True)
-    sapling_ok = sap and ensure_sapling()["ok"]
+    sapling_rec = ensure_sapling() if sap else None
+    sapling_ok = bool(sap and sapling_rec and sapling_rec["ok"])
     src = tree_source(rec["name"], near_camera, levers, hero, sapling_ok)
-    extra: dict = {}
+    # pre-flight of pod P3: a planned source that is missing (no Poly Haven model in the assets, no Sapling add-on)
+    # is recorded with the reason; the 20 real04 shrubs near the cameras became leaf cards with no word of why
+    extra: dict = missing_source(rec["name"], near_camera, levers, hero, sapling_rec)
     sapling_possible = sapling_ok and (rec.get("source") or {}).get("sapling") in SAPLING_PRESETS \
         and rec.get("crown") not in ("shrub", "hedge", "palm")
     if src == "polyhaven":

@@ -682,7 +682,9 @@ def test_broken_and_missing_inputs(tmp_path):
     assert manifest["stages"]["check"] == "not_run"
     assert any("check_manifest.json: unreadable" in w for w in manifest["warnings"])
     assert any("scene/scene_manifest.json not readable" in w for w in manifest["warnings"])
-    assert manifest["building"]["unverified"] == []                  # no building without the scene manifest
+    # Pre-flight of 16 Oct 2026: without the scene manifest the run's building_final.json is still read (the licence
+    # mode and the below-library list of a run whose build failed); before, no building was read at all.
+    assert manifest["building"]["unverified"] == ["f_9"]
     assert [x["level_id"] for x in manifest["views"]] == [l for _, _, l in CAMERAS]   # from the expected lists
     (out / "check" / "expected_views.json").unlink()
     manifest = F.write_final(out)

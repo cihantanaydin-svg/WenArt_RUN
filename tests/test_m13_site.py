@@ -1093,3 +1093,81 @@ def test_round3_lawn_tile_clamp_and_the_site_kinds_in_the_manifest_schema():
     assert {S.site_kind(p) for p in ("platform", "hedge", "grass", "haze")} == \
         {"site_platform", "site_hedge", "site_grass", "atmosphere"}
     assert VG._manifest_kind("site_hedge") == "site_hedge" and VG._manifest_kind("atmosphere") == "atmosphere"
+
+
+# --------------------------------------------------------------------------
+# Pre-flight of pod P3 (16 Oct 2026, CPU build of P3's real04 inputs with the bpy module)
+# --------------------------------------------------------------------------
+
+def _assumed_appends(path: Path) -> list:
+    """``(line, keys)`` of every ``assumed.append({...})`` / ``out["assumed"].append({...})`` call with a dict literal
+    in a module (ast): the entries that reach the scene manifest's ``assumed`` list as they are written."""
+    import ast
+    found = []
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "append"
+                and node.args and isinstance(node.args[0], ast.Dict)):
+            continue
+        target = node.func.value
+        name = target.id if isinstance(target, ast.Name) else (
+            target.slice.value if isinstance(target, ast.Subscript) and isinstance(target.slice, ast.Constant) else None)
+        if name != "assumed":
+            continue
+        keys = {k.value for k in node.args[0].keys if isinstance(k, ast.Constant)}
+        if "object" in keys:              # a manifest entry (the builders' detail lists get their parent later)
+            found.append((node.lineno, keys))
+    return found
+
+
+def test_preflight_p3_assumed_entries_name_their_parent_with_their_kind():
+    """The real04 scene manifest failed validate_scene_manifest: 28 site_platform and 4 site_hedge assumed entries
+    carried ``kind`` without ``parent`` (schemas.ASSUMED_ENTRY: dependentRequired). Every assumed entry written as a
+    literal in the blender package names both or neither."""
+    bad = []
+    for path in sorted((ROOT / "wenart" / "blender").glob("*.py")):
+        for line, keys in _assumed_appends(path):
+            if ("kind" in keys) != ("parent" in keys):
+                bad.append(f"{path.name}:{line} {sorted(keys)}")
+    assert not bad, bad
+    assert len(_assumed_appends(ROOT / "wenart" / "blender" / "site.py")) >= 4      # the scan sees site.py's entries
+
+
+def test_preflight_p3_a_missing_tree_source_is_recorded_with_its_reason(monkeypatch, tmp_path):
+    """real04 on the CPU: the 20 shrubs near the cameras became leaf cards (no Poly Haven model in the assets) and the
+    manifest said ``fallback_from: null``. ``missing_source`` names the planned source that is missing and why."""
+    (tmp_path / "manifest.json").write_text("{}", encoding="utf-8")       # an assets folder without the models
+    monkeypatch.setenv("WENART_ASSETS", str(tmp_path))
+    near = VG.missing_source("oleander", True, {"instances": True, "sapling": True}, hero=None, sapling={"ok": True})
+    assert near["fallback_from"] == "polyhaven" and "searsia_lucida" in near["fallback_reason"]
+    assert str(tmp_path) in near["fallback_reason"]
+    hero = {"id": "searsia_lucida"}
+    assert VG.missing_source("oleander", True, None, hero=hero, sapling={"ok": True}) == {}
+    assert VG.missing_source("oleander", False, None, hero=None, sapling=None) == {}       # a shrub has no Sapling
+    assert VG.missing_source("oleander", True, {"instances": False, "sapling": True}, None, {"ok": True}) == {}
+    far = VG.missing_source("birch", False, None, hero=None, sapling={"ok": False, "how": "not installed"})
+    assert far == {"fallback_from": "sapling", "fallback_reason": "the Sapling add-on is not usable (not installed)"}
+    assert VG.missing_source("birch", False, {"instances": True, "sapling": False}, None, None) == {}
+    assert VG.missing_source("birch", False, None, hero=None, sapling={"ok": True}) == {}
+    assert VG.missing_source("palm", False, None, hero=None, sapling={"ok": False, "how": "x"}) == {}
+    # near a camera without the model: the Poly Haven reason (Sapling, when there, still builds it)
+    assert VG.missing_source("birch", True, None, hero=None, sapling={"ok": True})["fallback_from"] == "polyhaven"
+
+
+def test_preflight_p3_draped_faces_never_use_a_vertex_twice():
+    """real04 on the CPU: 732 ground and 112 grass faces used one vertex twice (two clip points within the 0.1 mm
+    vertex key), "Mesh ground is not valid, and may be exported wrongly" in the scene.glb export. A hole corner 0.04
+    mm from a grid line reproduces it on a slope and on the flat path."""
+    outer = [(0, 0), (10, 0), (10, 10), (0, 10)]
+    terrain = S.terrain_model({"site": {"ground": {"levels": [{"side": "left", "z": {"value": -2.0}},
+                                                              {"side": "right", "z": {"value": 0.0}}]}}},
+                              [(20, 0), (30, 0), (30, 8), (20, 8)])
+    assert not S.is_flat(terrain)
+    for hole in ([(3.00004, 3.00003), (6, 3.00003), (6.00002, 6), (3.00004, 6)],
+                 [(2.99996, 2.99997), (6, 3), (6, 6), (3, 6)]):
+        for kw in ({"step": 1.0}, {"z": 0.0}):
+            verts, faces = S.draped_faces(outer, [hole], terrain, **kw)
+            assert faces and all(len(set(f)) == len(f) >= 3 for f in faces), kw
+            assert all(0 <= i < len(verts) for f in faces for i in f)
+            # the faces still cover the region (10 x 10 minus the 3 x 3 hole) within the dropped slivers
+            area = sum(abs(G.polygon_area([verts[i][:2] for i in f])) for f in faces)
+            assert area == pytest.approx(91.0, abs=1e-2), (kw, area)

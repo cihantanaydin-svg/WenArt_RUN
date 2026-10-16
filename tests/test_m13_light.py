@@ -703,3 +703,67 @@ def test_the_cli_forwards_the_camera_flags_to_the_build_and_its_reuse_fingerprin
     assert CLI.main(["build", "--building", "b", "--out", "o", "--cameras-from", "x.json", "--cameras-extra"]) == 0
     assert seen[-1]["cameras_from"] == "x.json" and seen[-1]["cameras_extra"] is True
     assert CLI.main(["build", "--building", "b", "--out", "o"]) == 0 and seen[-1]["cameras_from"] is None
+
+
+# --------------------------------------------------------------------------
+# Pre-flight of pod P3 (16 Oct 2026, CPU build and render of P3's real04 inputs with the bpy module)
+# --------------------------------------------------------------------------
+
+def test_preflight_p3_the_ev_floor_follows_the_scene_sun():
+    """real04 ext_7 under the 1000 W/m² sun: the facades' incident p50 179.63 wants -7.64 EV, the -2 floor (set under
+    the 3 W/m² sun of Milestone 11) held the view 5.6 stops too bright (a near white exterior); the sunlit terrace
+    (p50 20.87) wanted -4.56. The floor moves down log2(sun / 3) stops; the +3 cap and lighting_dark do not move."""
+    assert R.SUN_FLOOR_REFERENCE_WM2 == L.SUN_STRENGTH_M11_WM2 == 3.0
+    shift = R.sun_floor_shift(L.SUN_STRENGTH_WM2)
+    assert shift == pytest.approx(math.log2(1000.0 / 3.0), abs=1e-4)
+    for no_shift in (None, 0.0, 2.0, 3.0, float("nan"), "x"):
+        assert R.sun_floor_shift(no_shift) == 0.0
+    limits = R.view_limits(R.EXPOSURE_LIMITS, shift)
+    assert limits[1] == R.EXPOSURE_LIMITS[1] == 3.0 and limits[0] == pytest.approx(-2.0 - shift, abs=1e-4)
+    assert R.view_limits(R.EXPOSURE_LIMITS, 0.0) == R.EXPOSURE_LIMITS
+    ev_old, raw_old, at_old = R.exposure_from(179.634978, R.EXPOSURE_TARGET, R.EXPOSURE_LIMITS)
+    ev, raw, at_limit = R.exposure_from(179.634978, R.EXPOSURE_TARGET, limits)
+    assert raw == raw_old == pytest.approx(-7.6409, abs=1e-3)
+    assert (ev_old, at_old) == (-2.0, True)                     # the old floor: 5.6 stops too bright
+    assert ev == pytest.approx(-7.6667, abs=1e-3) and not at_limit
+    assert R.exposure_from(20.870293, R.EXPOSURE_TARGET, limits)[0] == pytest.approx(-4.5, abs=1e-6)
+    dark_view = R.lighting_dark_entry("c", "r", 6.3718, 3.0, limits, 0.0109)
+    assert dark_view is not None and dark_view == R.lighting_dark_entry("c", "r", 6.3718, 3.0, R.EXPOSURE_LIMITS, 0.0109)
+    # the render key carries the floor, so a scene with another sun is never reused
+    base = dict(samples=8, resolution=(160, 90), denoiser="OPENIMAGEDENOISE", exposure_mode="auto",
+                exposure_value=None, target=0.9, wb_mode="auto", wb_fixed=None, hidden=[], plugged=[])
+    assert R.render_key(R.key_settings(**base, limits=limits)) != R.render_key(R.key_settings(**base,
+                                                                                         limits=R.EXPOSURE_LIMITS))
+    # the records validate: the manifest's exposure_floor and the entry's floor_shift_stops
+    from wenart.blender import schemas
+    rm = json.loads((ROOT / "results" / "renders" / "real02" / "render_manifest.json").read_text(encoding="utf-8"))
+    rm["exposure_limits"] = list(R.EXPOSURE_LIMITS)
+    rm["exposure_floor"] = {"sun_wm2": 1000.0, "reference_wm2": 3.0, "shift_stops": shift, "view_limits": list(limits)}
+    rm["renders"][0]["exposure"].update(limits=list(limits), floor_shift_stops=shift)
+    schemas.validate_render_manifest(rm)
+    rm["exposure_floor"]["shift_stops"] = -1.0
+    with pytest.raises(Exception):
+        schemas.validate_render_manifest(rm)
+
+
+def test_preflight_p3_replayed_cameras_the_build_did_not_use_are_listed_with_the_reason():
+    """A camera record whose room is not a rendered room of the build (P4 re-ingests real02 and real03: a renamed
+    room) or an exterior record in a build without exterior views was left out without a word (only the counts of
+    ``cameras_from`` differed). ``build.unused_replayed`` names each one with the reason; the build adds them to
+    ``cameras_from.dropped`` and the warnings."""
+    from wenart.blender import schemas
+    replay = C.replay_cameras(json.loads(REAL02.read_text(encoding="utf-8")))
+    plans = replay["plans"]
+    assert len(plans) == 41 and replay["dropped"] == []
+    made = [p for p in plans if p["kind"] == "interior" and p["room_id"] != "r_L0_banyo"]
+    unused = B.unused_replayed(plans, made, replay["dropped"])
+    assert {u["name"] for u in unused} == {p["name"] for p in plans if p not in made}
+    assert {u["name"] for u in unused} == {"cam_r_L0_banyo_1", "cam_r_L0_banyo_2"} | {f"ext_{k}" for k in range(1, 7)}
+    assert all("room r_L0_banyo on level L0" in u["reason"] for u in unused if u["name"].startswith("cam_"))
+    assert all("no exterior views" in u["reason"] for u in unused if u["name"].startswith("ext_"))
+    assert B.unused_replayed(plans, plans, []) == []
+    assert B.unused_replayed(plans, made, unused) == []                      # never listed twice
+    record = B.cameras_from_summary({"path": str(REAL02), "cameras": 41}, dict(replay, dropped=unused), made, False)
+    assert record["replayed"] == len(made) and len(record["dropped"]) == 8
+    jsonschema_validate = __import__("jsonschema").validate
+    jsonschema_validate(record, schemas.CAMERAS_FROM)

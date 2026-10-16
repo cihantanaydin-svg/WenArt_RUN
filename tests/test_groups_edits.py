@@ -377,3 +377,75 @@ def test_the_refit_builds_the_re_solved_pieces_and_the_locked_check_accepts_the_
     moved["footprint"]["center"] = [moved["footprint"]["center"][0] + 0.6, moved["footprint"]["center"][1]]
     problems = LK.check(b, far, "complete")
     assert len(problems) == 1 and "by the solver (drawn group)" in problems[0] and "> 0.5 m" in problems[0]
+
+
+# --------------------------------------------------------------------------
+# CPU pre-flight of 16 Oct 2026 (real04, the P3 inputs)
+# --------------------------------------------------------------------------
+
+def _open_kitchen(zone_id):
+    """A living room with an open kitchen: a counter run tagged with the group of its kitchen zone (the reading names
+    the zone ``<room>_kitchen``, without a dot; real04 ``r_L-1b_salon_kitchen.kitchen_run``), the fridge missing."""
+    gid = f"{zone_id}.kitchen_run"
+
+    def tag(role):
+        return {"group_id": gid, "group": "kitchen_run", "role": role, "anchor_id": "k1"}
+    run = [M.fp("k1", "kitchen_counter", (3.0, 0.3), (2.4, 0.6), front=90.0, group=tag("anchor")),
+           M.fp("s1", "sink_kitchen", (2.5, 0.3), (0.6, 0.5), front=90.0, group=tag("partner")),
+           M.fp("h1", "stove", (3.6, 0.3), (0.6, 0.55), front=90.0, group=tag("partner"))]
+    b = M.building(w=8.0, h=5.0, room_type="living", door_x=6.5, furniture=run)
+    b["rooms"][0]["zones"] = [{"zone_id": zone_id, "kind": "kitchen", "piece_ids": ["k1", "s1", "h1"],
+                               "polygon": [[0.0, 0.0], [5.5, 0.0], [5.5, 2.0], [0.0, 2.0]]}]
+    return b, gid
+
+
+def test_complete_group_finds_the_group_of_an_open_kitchen_zone():
+    """Fails on the old code: the room of a group was the text before the first dot of its id, so the group of a
+    kitchen zone (``r_L0_oda_kitchen.kitchen_run``) was refused as "exists: no group ... (its room
+    'r_L0_oda_kitchen')" and a G9 (the open kitchen misses its fridge) could never be completed."""
+    b, gid = _open_kitchen(f"{ROOM}_kitchen")
+    assert [g["group_id"] for g in GR.group_members(b, ROOM)] == [gid]
+    assert E.group_room_id(b, gid) == ROOM
+    assert E.group_room_id(b, f"{ROOM}.sleeping_double") == ROOM          # a room's own group: unchanged
+    for res in (E.apply_edit(b, edit("complete_group", group_id=gid)), E.dry_run(b, edit("complete_group",
+                                                                                           group_id=gid))):
+        assert not any(c.startswith(("exists", "group_exists")) for c in res["failed_checks"]), res["failed_checks"]
+        assert res["accepted"] or "missing fridge" in res["failed_checks"][0]   # the solver decides, not the lookup
+
+
+def test_mark_not_furniture_takes_the_piece_off_the_review_list():
+    """Fails on the old code: an untyped drawn piece marked as not furniture stayed in ``needs_review``, so the code
+    critic's NR finding stayed and the agent's dry re-check refused every such edit (real04: 20 NR findings)."""
+    blob = M.fp("u1", "unknown", (2.5, 2.0), (1.2, 0.8), front=None, status="unverified", build=False)
+    b = M.building(furniture=[blob])
+    b["needs_review"] = [{"id": "u1", "kind": "untyped_piece", "reason": "no type", "room_id": ROOM,
+                          "level_id": "L0"}, {"id": "u2", "kind": "untyped_piece", "reason": "other", "room_id": ROOM,
+                                              "level_id": "L0"}]
+    res = E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="other", evidence="crops/u1.png"))
+    assert res["accepted"], res["failed_checks"]
+    assert [n["id"] for n in res["building"]["needs_review"]] == ["u2"]
+    assert res["building"]["symbols"][0]["former_piece_id"] == "u1"
+    from wenart.agent import critic_code as CC
+    assert [v["target"] for v in CC.reading_items(res["building"]) if v["check"] == "NR"] == ["u2"]
+
+
+def test_a_second_edit_keeps_the_fix_fixture_allowance_for_the_locked_check():
+    """Fails on the old code: every edit rebuilt ``adjusted_by_ai`` and kept only ``snapped_wall`` of the earlier
+    labels, so a toilet fixed by ``fix_fixture`` and then marked as not furniture (or turned) lost its
+    ``fix_fixture`` record and the refit's locked check refused it as "fixed equipment moved or resized" (CPU
+    pre-flight of 16 Oct 2026, real03: five toilets 1.145 x 0.356 m; the scheduler then rolled back both edits)."""
+    big = M.fp("t1", "toilet", (2.5, 3.802), (1.145, 0.356), front=270.0)
+    b = M.building(room_type="bathroom", furniture=[big])
+    fixed = E.apply_edit(b, edit("fix_fixture", piece_id="t1"))
+    assert fixed["accepted"], fixed["failed_checks"]
+    marked = E.apply_edit(fixed["building"], edit("mark_not_furniture", piece_id="t1", kind="other",
+                                                  evidence="crops/t1.png"))
+    assert marked["accepted"], marked["failed_checks"]
+    t = piece(marked["building"], "t1")
+    assert t["adjusted_by_ai"]["fix_fixture"] == piece(fixed["building"], "t1")["adjusted_by_ai"]["fix_fixture"]
+    assert t["adjusted_by_ai"]["not_furniture"] == "other"
+    assert LK.check(b, marked["building"], "complete") == []
+    # A forged larger move under the kept label is still refused: the allowance is the fix's, not a free pass.
+    hand = copy.deepcopy(marked["building"])
+    piece(hand, "t1")["footprint"]["center"] = [2.5, 3.0]
+    assert any("by fix_fixture (> 0.5 m)" in v for v in LK.check(b, hand, "complete"))

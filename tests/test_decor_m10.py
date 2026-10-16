@@ -339,3 +339,34 @@ def test_a_loop_of_partners_decorates_its_first_room_itself():
     mine = [d for d in out["decor"] if d["room_id"] == RID]
     copies = [d for d in out["decor"] if d["room_id"] == "r_b"]
     assert mine and {d["mirrored_from"] for d in copies} == {d["id"] for d in mine}
+
+
+def test_a_twin_copy_of_a_solver_rug_names_the_twin_room_group():
+    """Review of the CPU pre-flight of 16 Oct 2026 (real04 r_L-1b_oda_2): the copy of the partner's solver rug kept
+    the partner's group id (``r_L-1b_oda.sleeping_double``) while its bed is in the twin's own group; the copy now
+    names the twin room's group, as the copied furniture does (``complete._map_group``)."""
+    b = _twins("twin")
+    sofa = next(f for f in b["furniture"] if f["room_id"] == RID and f["type"] == "sofa")
+    rug = {"kind": "decor", "type": "rug", "level_id": "L0", "room_id": RID, "center": [2.0, 3.0],
+           "rotation_deg": 0.0, "size": [1.6, 2.3], "asset": None, "host_id": None, "anchor_ids": [sofa["id"]],
+           "source": "added_by_ai", "method": "rule", "id": "dec_L0_001",
+           "group": {"group_id": f"{RID}.seating", "group": "seating", "role": "rug"}}
+    targets, _notes = D.copy_targets(b)
+    copies, notes = D.copy_partner_decor(b, [rug], targets, lambda level: "dec_L0_002")
+    assert len(copies) == 1, notes
+    assert copies[0]["room_id"] == "r_b" and copies[0]["anchor_ids"] == [sofa["id"] + "_b"]
+    assert copies[0]["group"] == {"group_id": "r_b.seating", "group": "seating", "role": "rug"}
+    assert rug["group"]["group_id"] == f"{RID}.seating"                       # the partner's own rug is unchanged
+
+
+def test_the_summary_counts_the_rooms_that_hold_rule_items():
+    """Review of the CPU pre-flight of 16 Oct 2026 (real04): a twin's copy of its partner's rule items has no fallback
+    of its own, so the summary said "2 rule item(s) in 0 room(s)"; it now counts the rooms that hold rule items."""
+    copy_room = DA.RoomDecor("r_b", "Room B", "bedroom")
+    copy_room.items = [{"id": "dec_L0_014", "type": "rug", "method": "rule"}]
+    empty_fallback = DA.RoomDecor("r_c", "Room C", "bathroom")
+    empty_fallback.fallback = "no slot for AI decor"
+    s = DA.summary([copy_room, empty_fallback], {"project": {"id": "toy"}}, None)
+    assert (s["items_rule"], s["rooms_rule"], s["rooms_fallback"]) == (1, 1, 1)
+    assert "1 items by the rules (M4/M8) in 1 rooms; the AI decor did not apply in 1 rooms" in \
+        DA.report([copy_room, empty_fallback], {"project": {"id": "toy"}}, None)

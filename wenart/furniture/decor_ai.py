@@ -908,7 +908,10 @@ def summary(records: list[RoomDecor], building: dict, model: Optional[str]) -> d
     return {"project": building["project"]["id"], "model": model, "rooms": [r.to_dict() for r in records],
             "items_ai": ai, "items_rule": rule,
             "rooms_ai": sum(1 for r in records if any(i.get("method") == "ai" for i in r.items)),
-            "rooms_fallback": sum(1 for r in records if r.fallback)}
+            "rooms_fallback": sum(1 for r in records if r.fallback),
+            # the rooms that hold rule items: a twin's copy of its partner's rule items has no fallback of its own
+            # (CPU pre-flight of 16 Oct 2026, real04: "2 rule item(s) in 0 room(s)")
+            "rooms_rule": sum(1 for r in records if any(i.get("method") == "rule" for i in r.items))}
 
 
 def report(records: list[RoomDecor], building: dict, model: Optional[str]) -> str:
@@ -916,7 +919,8 @@ def report(records: list[RoomDecor], building: dict, model: Optional[str]) -> st
     lines = [f"# Decor: {building['project']['id']}", "",
              f"AI decor (docs/milestone9.md §4): {s['items_ai']} items chosen by the AI (model {model or '-'}, both "
              f"passes agreeing, confidence {CONFIDENCE_AGREED}) in {s['rooms_ai']} rooms; {s['items_rule']} items by "
-             f"the rules (M4/M8) in {s['rooms_fallback']} rooms where the AI decor did not apply (reason per room). "
+             f"the rules (M4/M8) in {s['rooms_rule']} rooms; the AI decor did not apply in {s['rooms_fallback']} rooms "
+             "(reason per room). "
              "Every item is `added_by_ai`, labelled decor (not furniture); no furniture was moved, added or removed.",
              "", "| Room | Type | Slots | Pass 1 / pass 2 items | Agreed | Built | Refused | Fallback |",
              "|---|---|---|---|---|---|---|---|"]
@@ -1373,7 +1377,7 @@ def main(argv: Optional[list[str]] = None, client_factory=None) -> int:
                 write_room_debug(rec, out, Path(args.debug))
         s = summary(records, out, model)
         print(f"decor apply: {s['items_ai']} AI item(s) in {s['rooms_ai']} room(s), {s['items_rule']} rule item(s) "
-              f"in {s['rooms_fallback']} room(s) -> {out_path}")
+              f"in {s['rooms_rule']} room(s), {s['rooms_fallback']} room(s) without AI decor -> {out_path}")
         return EXIT_OK
     except (UsageError, FileNotFoundError, json.JSONDecodeError) as exc:
         print(f"decor: {exc}", file=sys.stderr)

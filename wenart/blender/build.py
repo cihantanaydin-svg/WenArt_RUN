@@ -1278,6 +1278,11 @@ def main(argv: list[str]) -> int:
                                           "dropped": [d["name"] for d in dropped], "reason": views["exterior_reason"],
                                           "from": views["exterior_from"]}
 
+    # pre-flight of pod P3: a camera record the build did not replay (its room is not a rendered room of this
+    # building or level, or the build has no exterior views) is listed with the reason, never lost silently
+    unused = unused_replayed(replay["plans"], camera_plans, replay["dropped"])
+    replay["dropped"].extend(unused)
+    warnings.extend(f"{u['name']}: replayed camera not used ({u['reason']})" for u in unused)
     lap("exterior")
     light_col = common.get_or_make_collection("lighting")
     if whole:
@@ -1401,6 +1406,29 @@ def main(argv: list[str]) -> int:
     print(f"BUILD_DONE {out} objects={kinds} cameras={len(camera_plans)} furniture={furniture_summary['by_method']} "
           f"decor={furniture_summary['decor']} warnings={len(warnings)} seconds={manifest['seconds']}")
     return 0
+
+
+def unused_replayed(plans: list[dict], camera_plans: list[dict], dropped: list[dict] | None = None) -> list[dict]:
+    """The replayed camera plans the build did not create (pure; pre-flight of pod P3): ``[{"name", "reason"}]`` for
+    every plan of ``plans`` (``cameras.replay_cameras``) whose name is not among ``camera_plans`` and not already in
+    ``dropped``: an interior camera whose room is not a rendered room of this build (another room id after a new
+    ingest, a twin, a level left out by ``--level``, another variant), an exterior camera of a build without exterior
+    views."""
+    made = {p.get("name") for p in camera_plans}
+    gone = {d.get("name") for d in dropped or []}
+    out = []
+    for p in plans or []:
+        name = p.get("name")
+        if name in made or name in gone:
+            continue
+        if p.get("kind") == "exterior":
+            reason = "the build has no exterior views to replay it into"
+        else:
+            reason = (f"room {p.get('room_id')} on level {p.get('level_id')} is not a rendered room of this build "
+                      f"(not in the building, a twin, another level or variant); the search covers this build's "
+                      f"rendered rooms without a replayed camera")
+        out.append({"name": name, "reason": reason})
+    return out
 
 
 def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: list[dict], extra: bool) -> dict | None:

@@ -65,6 +65,7 @@ Deterministic for ``workers=1``; with parallel sessions only the interleaving of
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import threading
 import time
@@ -212,11 +213,25 @@ def default_checklist(brief: dict, wanted=("critical", "major")) -> list[dict]:
     """One step per fixable finding of the wanted severities: its first tool on its target (the room for a finding
     without a piece target)."""
     room_id = brief["room"]["id"]
+    groups = [g for g in brief.get("groups") or [] if g.get("group_id")]
     steps = []
     for f in (brief.get("findings") or {}).get("fixable") or []:
         if f.get("severity") not in wanted:
             continue
-        steps.append({"finding_ids": [f["id"]], "tool": f["tools"][0], "target": BR.step_target(f, room_id),
+        tool, target = f["tools"][0], BR.step_target(f, room_id)
+        if tool == "complete_group" and target not in {g["group_id"] for g in groups}:
+            # A G9 names the kitchen (the room or its kitchen zone, ``<zone_id>``), not a group; complete_group needs
+            # the group id: the brief's group of that kitchen that misses something (``<target>.kitchen_run``).
+            # Without it the default step always failed "no group" (CPU pre-flight of 16 Oct 2026, real04 G9).
+            own = [g for g in groups if str(g["group_id"]).startswith(f"{target}.") and g.get("missing")]
+            # A G9 / G10 on a room id: the room's other groups share the prefix (an eat-in kitchen's dining group
+            # missing a chair), so the group that misses what the finding names comes first ("... has no fridge
+            # (fridge)", "bathroom without a toilet"); the order is otherwise the brief's.
+            words = set(re.findall(r"[a-z_]+", str(f.get("message") or "").lower()))
+            own.sort(key=lambda g: not (set(map(str, g.get("missing") or [])) & words))
+            if own:
+                target = own[0]["group_id"]
+        steps.append({"finding_ids": [f["id"]], "tool": tool, "target": target,
                       "why": str(f.get("message") or f.get("check"))[:300]})
     return steps
 

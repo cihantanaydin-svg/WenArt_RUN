@@ -140,6 +140,8 @@ EXPOSURE = {
         "limits": {"oneOf": [{"type": "null"},                 # null outside mode auto (from, fixed, off)
                              {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}]},
         "lighting_dark": {"oneOf": [{"type": "null"}, LIGHTING_DARK]},
+        # pre-flight of pod P3: the stops the floor of ``limits`` moved down for the scene's sun (render.py)
+        "floor_shift_stops": {"type": "number", "minimum": 0},
         "wb_source": {"type": ["string", "null"]},
         "wb_from_camera": {"type": "string"},
     },
@@ -491,6 +493,13 @@ RENDER_MANIFEST = {
         # passed the cap (a Violation each, for the report), the project whitepoint and the light variant of the
         # render and of the build (``WENART_LIGHT_VARIANT``; null = production). Optional: M11 manifests have none.
         "exposure_limits": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+        # pre-flight of pod P3: the EV floor moved down for the scene's sun (render.sun_floor_shift), optional
+        "exposure_floor": {"type": ["object", "null"], "required": ["shift_stops", "view_limits"],
+                           "properties": {"sun_wm2": {"type": ["number", "null"]},
+                                          "reference_wm2": {"type": "number"},
+                                          "shift_stops": {"type": "number", "minimum": 0},
+                                          "view_limits": {"type": "array", "items": {"type": "number"},
+                                                          "minItems": 2, "maxItems": 2}}},
         "lighting_dark": {"type": "array", "items": LIGHTING_DARK},
         "white_balance_project": {"oneOf": [{"type": "null"}, WHITE_BALANCE_PROJECT]},
         "light_variant": {"type": ["object", "null"], "properties": {"render": {"type": ["string", "null"]},

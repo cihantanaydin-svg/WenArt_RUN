@@ -371,3 +371,38 @@ def test_material_maps_and_recolour_parts_for_metric_10():
     assert build.recolour_parts_of(objs) == 0
     # The record shape metrics13 reads: a dict with a truthy ``fabric`` key.
     assert isinstance(objs[0]["recolour"], dict) and objs[0]["recolour"].get("fabric")
+
+
+SHELL_RECORDS = (
+    "import sys, json\n"
+    "sys.path.insert(0, %r)\n"
+    "from wenart.blender import materials as M\n"
+    "man = json.loads(open(%r, encoding='utf-8').read())\n"
+    "lib = M.MaterialLibrary(man['textures'], %r, levers={'shell': True, 'rig': True, 'ev_cap': True, 'sun_wm2': 1000.0})\n"
+    "out = {}\n"
+    "for slug in ('plaster_white', 'stone_worktop', 'steel_brushed', 'metal_black'):\n"
+    "    r = lib.records[lib.get(slug).name]\n"
+    "    out[slug] = {k: r.get(k) for k in ('textured', 'shell_slot', 'shell_asset', 'shell_asset_missing')}\n"
+    "print('SHELLREC ' + json.dumps(out))\n")
+
+
+@pytest.mark.skipif(BLENDER is None, reason="no Blender binary")
+def test_preflight_p3_a_shell_slot_set_is_recorded_only_when_the_material_uses_it():
+    """Pre-flight of pod P3 (16 Oct 2026, real04 built on the CPU): the worktop record said ``shell_asset: marble_01``
+    and a shell reason "on the Poly Haven marble_01 set" while ``textured`` was false (marble_01 was not in the
+    assets). The slot's set is recorded only when the material uses it; a missing set is named with the reason. The
+    repo's assets hold white_plaster_02 (the ceiling's set) and neither marble_01 nor Metal032."""
+    assets = ROOT / "assets"
+    expr = SHELL_RECORDS % (str(ROOT), str(assets / "manifest.json"), str(assets))
+    proc = subprocess.run([BLENDER, "-b", "--python-exit-code", "1", "--python-expr", expr],
+                          capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
+    out = json.loads(next(ln for ln in proc.stdout.splitlines() if ln.startswith("SHELLREC "))[len("SHELLREC "):])
+    assert out["plaster_white"]["textured"] and out["plaster_white"]["shell_asset"] == "white_plaster_02"
+    assert out["plaster_white"]["shell_asset_missing"] is None
+    worktop = out["stone_worktop"]
+    assert worktop["shell_slot"] == "worktop" and not worktop["textured"] and worktop["shell_asset"] is None
+    assert worktop["shell_asset_missing"]["asset"] == "marble_01" and "marble_01" in worktop["shell_asset_missing"]["reason"]
+    assert out["steel_brushed"]["shell_asset"] is None and out["steel_brushed"]["shell_asset_missing"]["asset"] == "Metal032"
+    # the metal slot's set stands in for brushed steel only: black metal never claims or misses it
+    assert out["metal_black"]["shell_asset"] is None and out["metal_black"]["shell_asset_missing"] is None

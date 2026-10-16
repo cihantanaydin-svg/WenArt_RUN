@@ -942,6 +942,16 @@ def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id)
                 notes.append(f"{rid}: rug {item['id']} of {pid} not copied (the group solver laid the room's own "
                              f"rug under {', '.join(new['anchor_ids'])})")
                 continue
+            g = new.get("group")
+            if isinstance(g, dict):
+                # A solver rug's group is the room's own group, as for the copied furniture (complete._map_group):
+                # the copy kept the partner's group id (review of the CPU pre-flight of 16 Oct 2026, real04: the rugs
+                # of r_L-1b_oda_2 named r_L-1b_oda.sleeping_double while their bed is in r_L-1b_oda_2.sleeping_double).
+                gid = str(g.get("group_id") or "")
+                if gid.startswith(pid + "."):
+                    g["group_id"] = rid + gid[len(pid):]
+                if g.get("anchor_id") is not None:
+                    g["anchor_id"] = pieces.get(g["anchor_id"])
             c = t.point(item["center"][:2])
             new["center"] = [round(c[0], 3), round(c[1], 3)] + list(item["center"][2:])
             new["rotation_deg"] = round(t.rotation(float(item.get("rotation_deg") or 0.0)), 3)

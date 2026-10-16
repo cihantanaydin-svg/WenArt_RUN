@@ -149,10 +149,14 @@ VEG_SCRIPT = textwrap.dedent("""
                  near_extent=[(40, -10), (80, -10), (80, 20), (40, 20)], pools=[], platforms=tpfs,
                  areas=[{"id": "t1", "kind": "paving", "polygon": [[52, -8], [58, -8], [58, -2], [52, -2]], "z": None, "material": None,
                          "colour": None, "source": "site_plan", "area_id": None, "lift": S.PAVING_LIFT, "platform_id": "t1"}])
+    # pre-flight of P3: a drawn hedge beside the terrace, so the assumed entries of both kinds are checked
+    tplan["hedges"] = [{"id": "hedge_t", "polyline": [[52, -10], [58, -10]], "width_m": 0.7, "height_m": 1.2,
+                        "height_class": "mid", "species": "cherry_laurel", "species_inferred": True, "inferred": True,
+                        "evidence": [], "source": "site.hedges", "symbol_ids": [], "reason": "a test hedge"}]
     tcol = bpy.data.collections.new("terrace_site"); bpy.context.scene.collection.children.link(tcol)
     tobjs, tassumed = [], []
     tsum = S.build_site(tplan, tcol, looks, mk, tobjs, tassumed)
-    res["terrace"] = {"platforms": tsum["platforms"], "terrain": tsum["terrain"],
+    res["terrace"] = {"platforms": tsum["platforms"], "terrain": tsum["terrain"], "assumed": tassumed,
                       "objects": sorted(o.name for o in tcol.objects if o.get("wenart_kind") == S.site_kind("platform")),
                       "facade_material": mk(looks["facade"]).name,
                       "wall_materials": sorted({o.data.materials[0].name for o in tcol.objects if o.name.endswith("_wall") and o.data.materials})}
@@ -222,6 +226,14 @@ def test_hedge_tree_sources_and_pool_in_blender(tmp_path):
     assert all(w["height_m"] <= S.RETAINING_MAX_M + 1e-6 for q in t["platforms"] for w in q["walls"])
     assert all(q["ground_z"] and q["retaining_cap_m"] == S.RETAINING_MAX_M for q in t["platforms"])
     assert "platform_t1_slab" in t["objects"] and "platform_t1_wall" in t["objects"]
+    # pre-flight of P3 (16 Oct 2026): every assumed entry of build_site matches the scene manifest schema (the
+    # platform and hedge entries had ``kind`` without ``parent``: 32 errors in the real04 manifest)
+    import jsonschema
+    from wenart.blender import schemas
+    kinds = {a.get("kind") for a in t["assumed"]}
+    assert {"site_platform", "site_hedge"} <= kinds, kinds
+    for a in t["assumed"]:
+        jsonschema.validate(a, schemas.ASSUMED_ENTRY)
     assert t["wall_materials"] and t["facade_material"] not in t["wall_materials"]
 
 
