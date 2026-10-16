@@ -979,5 +979,9 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
 - **Round 4** (fe86436 and a follow-up, 16 Oct): calibrated exterior sky (7.71 at 35°, sky band now blue), chair v2,
   shell texture sets fetched and in the build fingerprint, `lighting_dark` read by the agent (a too-weak
   `set_lighting` keeps the finding) and the report, drawn fixed equipment protected from `mark_not_furniture`, a
-  recognition whitespace guard (§14.8). Next: pod P3 attempt 2 (real04 full run) when an 80 GB GPU is in stock in
-  EU-RO-1. GPU spent: $141.80 of $300. No pod running.
+  recognition whitespace guard (§14.8).
+- **Two adversarial reviews of the follow-up** (16 Oct, 31 agents; commits 1a753e1 and 3724033): 7 real defects
+  fixed with tests, among them a lighting rule that never fired on the real finding shape and a dry re-check that
+  brought back findings an earlier edit of the round had removed (they could reject unrelated edits). A view that
+  needs more than set_lighting's x3 is now report-only (an edit counts only when its finding is gone). Pod P3 attempt
+  2 is pinned to 3724033 and waits for an 80 GB GPU in EU-RO-1. GPU spent: $141.80 of $300.
