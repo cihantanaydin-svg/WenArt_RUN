@@ -40,6 +40,11 @@ Round 4 of Milestone 13 (before pod P3's second attempt, 16 Oct 2026):
   and rig x factor); an exterior view (no room) has the cause ``lighting_exterior``: no agent tool sets the sun or
   the sky strength, so the finding is report-only with the reason (P1 decision, docs/milestone13.md §14.3: "a capped
   view is a lighting_dark finding routed to the lighting tools"; the CPU pre-flight found nothing read it);
+  a room view that needs more light than ``set_lighting``'s maximum (``metrics.set_lighting_factor`` over
+  ``tools.LIGHTING_FACTOR``'s top, x3) has the cause ``lighting_beyond_cap``: no tool. An edit is accepted only when
+  the finding it targets is gone (CLAUDE.md), and no factor clears that view, so it is report-only with the reason
+  instead of a set_lighting the acceptance must refuse every round (review of 16 Oct 2026: real04's basement salon
+  needs about x10);
 - the acceptance refuses an edit that took a fixture out of the scene (``edit["removed"]``, from ``removed_pieces``)
   when the dry re-check shows a NEW critical or major room-set finding (``ROOM_SET_CHECKS``: G9 a kitchen without
   its sink / hob / fridge, G10 a bathroom or WC without its toilet / washbasin / shower or bathtub) that names that
@@ -108,6 +113,7 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "scale": (),
     "polish": (),
     "lighting_exterior": (),
+    "lighting_beyond_cap": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -125,6 +131,8 @@ NO_TOOL_REASON: dict[str, str] = {
     "polish": "the polish check is a build setting",
     "lighting_exterior": "an exterior view is lit by the sun lamp and the sky world; no agent tool sets their strength "
                          "(set_exterior moves the sun only), so a view above the EV cap is reported only",
+    "lighting_beyond_cap": "the view needs more light than set_lighting's maximum (the room's lights x3): no factor "
+                           "clears it and there is no add-lamp tool, so it is reported only",
     "unknown": "no agent tool fixes this check",
 }
 # The render's finding of a view whose metered EV passed the cap (``wenart.blender.render.LIGHTING_DARK_CHECK``; the
@@ -251,6 +259,15 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         # round 4: set_lighting needs the view's room; an exterior view (no room) is lit by the sun and the sky only
         if not finding.get("room_id") or str(target or "").startswith(EXTERIOR_VIEW_PREFIX):
             return "lighting_exterior"
+        # review of 16 Oct 2026: a view no set_lighting factor can clear (module docstring)
+        try:
+            want = float(metrics["set_lighting_factor"])
+        except (KeyError, TypeError, ValueError):
+            want = None
+        if want is not None:
+            from wenart.agent.tools import LIGHTING_FACTOR
+            if want > float(LIGHTING_FACTOR[1]) + 1e-9:
+                return "lighting_beyond_cap"
         return "lighting"
     if check == "LG":
         if building is not None:

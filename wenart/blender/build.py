@@ -426,12 +426,16 @@ def referenced_asset_ids(building: dict, style: dict) -> list[str]:
         if isinstance(asset, dict) and asset.get("asset_id"):
             ids.add(str(asset["asset_id"]))
     # Milestone 13 (round 4 review, 16 Oct 2026): the shell slots' texture sets (worktop marble_01, handles Metal032,
-    # ...; the same rows the assets stage fetches, wenart.assets.fetch.shell_texture_rows): a build cached before a
-    # set reached the volume must be redone once it is there, so the fingerprint follows them.
+    # ...): a build cached before a set reached the volume must be redone once it is there, so the fingerprint follows
+    # them. The ids are read from the slot table itself, as the assets stage's wenart.assets.fetch.shell_texture_rows
+    # does (that module is outside the build's import closure, FINGERPRINT_CODE).
     try:
-        from wenart.assets.fetch import shell_texture_rows
-        ids.update(str(asset_id) for _src, asset_id, _why in shell_texture_rows(style))
-    except (ImportError, AttributeError, TypeError):
+        from wenart.blender import materials as M
+        for slot in M.SHELL_SLOT_NAMES:
+            for asset_id in (M.SHELL_SLOTS[slot].get("asset"), M.shell_slot_spec(slot, style).get("asset")):
+                if asset_id:
+                    ids.add(str(asset_id))
+    except (ImportError, AttributeError, KeyError, TypeError):
         pass
     # The furniture texture maps (veneers, linen; Milestone 6): every build may use them.
     try:

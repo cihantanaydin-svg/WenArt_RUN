@@ -1187,7 +1187,19 @@ def t_set_lighting(ctx: ToolContext, args: dict) -> dict:
                                                if factor >= LIGHTING_FACTOR[1] - 1e-9 else "")],
                     "message": "no-op: set_lighting with the factor the room has"}
         return {"ok": True, "message": f"{room['id']}: room lights x {factor:g} in the next build"}
-    return _validator_result(ctx, "set_lighting", args, check, "build")
+    # review of 16 Oct 2026: the dry re-check predicts the room's dark views from the building after the edit
+    # (``loop.lighting_kept``), so the trial carries the factors the next build applies with this edit's factor; the
+    # accepted override itself goes to overrides.json as before (``_accept``)
+    trial = None
+    try:
+        rid, factor = str(args["room_id"]), float(args["factor"])
+        lights = {r: {"factor": f} for r, f in lighting_state(ctx).items()}
+        lights[rid] = {"factor": factor, "reason": args.get("reason")}
+        trial = copy.deepcopy(ctx.building)
+        trial["agent_overrides"] = dict(trial.get("agent_overrides") or {}, lighting=lights)
+    except (KeyError, TypeError, ValueError):
+        trial = None                         # the validator refuses the arguments with the reason
+    return _validator_result(ctx, "set_lighting", args, check, "build", trial=trial)
 
 
 def exterior_state(ctx: ToolContext) -> dict:

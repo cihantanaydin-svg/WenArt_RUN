@@ -384,12 +384,37 @@ def test_an_edit_that_removes_its_finding_is_accepted_and_findings_removed_is_th
 
 
 def test_a_new_critical_finding_rejects_the_edit(tmp_path):
-    worse = lambda b, s, m: [CC.finding(violation("S2", "critical", "f2", "r1", "the nightstand cuts the wall"))]  # noqa: E731
+    # (review of 16 Oct 2026: a check the dry re-check measures on the changed building, F9; the scene checks S1-S6
+    # come from the build's files and cannot be new in a dry re-check, ``test_a_finding_an_earlier_edit_removed_...``)
+    worse = lambda b, s, m: [CC.finding(violation("F9", "critical", "f2", "r1", "the nightstand cuts the wall"))]  # noqa: E731
     loop, out, _ = make(tmp_path, [rotate("f1", 90.0), {"content": "stop"}], [[F3]], recheck=worse)
     summary = loop.run()
     rej = next(e for e in log_of(out)["events"] if e["kind"] == "rejected_edit")
-    assert summary["accepted"] == 0 and "new critical finding S2:f2" in rej["validation"]["failed_checks"][0]
-    assert rej["evidence"]["acceptance"]["after"] == ["S2:f2"]
+    assert summary["accepted"] == 0 and "new critical finding F9:f2" in rej["validation"]["failed_checks"][0]
+    assert rej["evidence"]["acceptance"]["after"] == ["F9:f2"]
+
+
+def test_a_finding_an_earlier_edit_removed_does_not_come_back_from_the_stale_manifests():
+    """Fails on the old code (review of 16 Oct 2026): the dry re-check rebuilds the scene, view, look and lighting
+    findings from the round's manifests, which no edit changes; after an edit had removed S2:f1 (it moved f1), the next
+    edit's re-check listed S2:f1 again, as a NEW critical finding, and rejected an edit on another piece. Now those
+    findings come from the round's list (``before``): unchanged targets keep theirs, changed ones count as gone."""
+    s2_f1 = finding("S2", "critical", "f1", "r1", "the bed cuts the wall", depth_m=0.12)
+    v1 = finding("V1", "major", "cam_r1_1", "r1", "the view looks at a wall")
+    f3_f2 = finding("F3", "critical", "f2", "r1", "the nightstand faces the wall")
+    stale = [s2_f1, v1]                                    # what the scene and render files say all round long
+    # edit 1 moved f1: S2:f1 gone, V1 kept
+    after1 = LP.after_findings([dict(f) for f in stale + [f3_f2]], [s2_f1, v1, f3_f2], {"f1"}, {})
+    assert {(f["check"], f["target"]) for f in after1} == {("V1", "cam_r1_1"), ("F3", "f2")}
+    # edit 2 rotates f2 (its F3 gone in the re-measured checks): S2:f1 must not come back from the stale files
+    after2 = LP.after_findings([dict(f) for f in stale], after1, {"f2"}, {})
+    assert {(f["check"], f["target"]) for f in after2} == {("V1", "cam_r1_1")}
+    ok, why = LP.accept_edit(after1, after2, {"target_finding": {"check": "F3", "target": "f2"}})
+    assert ok, why
+    # a re-measured finding on an unchanged target still comes from the re-check (it may be new)
+    f9 = finding("F9", "critical", "f3", "r1", "the chair is through a wall")
+    after3 = LP.after_findings([dict(f) for f in stale] + [f9], after1, {"f2"}, {})
+    assert ("F9", "f3") in {(f["check"], f["target"]) for f in after3}
 
 
 def test_max_rounds_is_three(tmp_path):
@@ -724,19 +749,23 @@ def test_lighting_dark_entries_become_findings_routed_to_set_lighting():
     assert "the room needs about x10.35 its light, set_lighting gives up to x3" in salon["message"]
     assert bed_["severity"] == "major" and "set_lighting factor about x1.82 on r1" in bed_["message"]
     # routing: the lighting cause and set_lighting; an exterior view is report-only with the reason
-    assert CS.cause_of(salon) == "lighting" and CS.tools_for_finding(salon) == ["set_lighting"]
+    assert CS.cause_of(bed_) == "lighting" and CS.tools_for_finding(bed_) == ["set_lighting"]
     assert CS.cause_of(ext) == "lighting_exterior" and CS.tools_for_finding(ext) == []
     assert "no agent tool sets their strength" in CS.no_tool_reason(ext)
+    # review of 16 Oct 2026: a view no factor clears (the salon needs x10.35, set_lighting gives up to x3) has no tool:
+    # an edit counts only when its finding is gone (CLAUDE.md), so the view is report-only with the reason
+    assert CS.cause_of(salon) == "lighting_beyond_cap" and CS.tools_for_finding(salon) == []
+    assert "no add-lamp tool" in CS.no_tool_reason(salon)
     fixable, not_yours = BR.classify([salon, bed_], building(), "r1", {}, {}, {})
-    assert [(f["target"], f["tools"], f["cause"]) for f in fixable] == [("cam_r1_1", ["set_lighting"], "lighting"),
-                                                                        ("cam_r1_2", ["set_lighting"], "lighting")]
+    assert [(f["target"], f["tools"], f["cause"]) for f in fixable] == [("cam_r1_2", ["set_lighting"], "lighting")]
+    assert [(f["target"], f["cause"]) for f in not_yours] == [("cam_r1_1", "lighting_beyond_cap")]
     # review of round 4: set_lighting takes a room id, so the step acts on the view's room (``edit_target``), and the
-    # room's accepted set_lighting closes both steps (before, the checklist said "set_lighting on cam_r1_1" and the
+    # room's accepted set_lighting closes the step (before, the checklist said "set_lighting on cam_r1_2" and the
     # step stayed open into the next round)
-    assert [f["edit_target"] for f in fixable] == ["r1", "r1"]
+    assert [f["edit_target"] for f in fixable] == ["r1"]
     steps = LP.default_checklist({"room": {"id": "r1"}, "groups": [], "findings": {"fixable": fixable}})
     assert [(s["tool"], s["target"], s["finding_ids"]) for s in steps] == [
-        ("set_lighting", "r1", ["c:lighting_dark:cam_r1_1"]), ("set_lighting", "r1", ["c:lighting_dark:cam_r1_2"])]
+        ("set_lighting", "r1", ["c:lighting_dark:cam_r1_2"])]
     assert all(LP.step_done(s, "set_lighting", {"room_id": "r1", "factor": 3.0}, {}) for s in steps)
     assert "or the room set_lighting acts on for a view too dark for the EV cap" in P.PLANNER_SYSTEM_M12
     fixable, not_yours = BR.classify([ext], building(), None, {}, {}, {})
@@ -764,9 +793,11 @@ def test_lighting_dark_entries_become_findings_routed_to_set_lighting():
 
 def test_set_lighting_clears_the_dark_views_of_its_room_in_the_dry_recheck(tmp_path):
     """Fails on the old code: the dry re-check cannot re-render, so the render's lighting_dark stayed in the after
-    list and the acceptance refused every set_lighting ("finding ... is still there"). Now the room's dark views count
-    as gone after set_lighting on the room (both of them, not only the targeted one) and the next round re-meters
-    them; the edit re-renders the room's views."""
+    list and the acceptance refused every set_lighting ("finding ... is still there"). Now a dark view of the room
+    counts as gone after set_lighting on the room when the new factor reaches the factor it needs, and the next round
+    re-meters it; the edit re-renders the room's views. Review of 16 Oct 2026: the salon view needs x10.35, more than
+    the x3 the edit gives, so it stays (predicted, not re-rendered) and is no target; before, both views counted as
+    removed (the metrics were read from the wrong key and the re-check saw the building without the new factor)."""
     found = [f for f in CC.run(building(), {}, dark_manifest(), **quiet_critic())["findings"]
              if f["check"] == "lighting_dark" and f["room_id"] == "r1"]
     violations = [{k: f[k] for k in ("check", "severity", "target", "room_id", "message")}
@@ -776,10 +807,11 @@ def test_set_lighting_clears_the_dark_views_of_its_room_in_the_dry_recheck(tmp_p
     loop, out, _ = make(tmp_path, [light, FINISH], [violations, []],
                         recheck=lambda b, s, m: [CC.finding(v) for v in violations])     # the render did not change
     summary = loop.run()
-    assert summary["accepted"] == 1 and summary["findings_removed"] == 2, summary
+    assert summary["accepted"] == 1 and summary["findings_removed"] == 1, summary
     ed = next(e for e in log_of(out)["events"] if e["kind"] == "edit")
-    assert ed["tool"] == "set_lighting" and ed["evidence"]["acceptance"]["removed"] == 2
-    assert ed["evidence"]["acceptance"]["target"] == ["lighting_dark:cam_r1_1"]           # the critical one first
+    assert ed["tool"] == "set_lighting" and ed["evidence"]["acceptance"]["removed"] == 1
+    assert ed["evidence"]["acceptance"]["target"] == ["lighting_dark:cam_r1_2"]           # the view x3 can clear
+    assert "lighting_dark:cam_r1_1" in ed["evidence"]["acceptance"]["after"]
     assert OV.Overrides(out).agent_overrides()["lighting"]["r1"]["factor"] == 3.0
     assert TL.changed_targets("set_lighting", {"room_id": "r1"}, {}, [], findings=found) == {"r1", "cam_r1_1",
                                                                                           "cam_r1_2"}
@@ -898,8 +930,10 @@ def test_set_lighting_is_idempotent_and_a_room_at_the_maximum_is_report_only(tmp
     out = BR.room_brief(b, "r1", findings=[salon], members_fn=lambda b_, r: [], group_checks_fn=lambda b_, r: [],
                         program_fn=lambda b_, r: {}, solver_fn=lambda b_, r, k=3: [], allowed_fn=lambda b_, p: {})
     assert out["lighting_factor"] == 3.0 and out["findings"]["fixable"] == []
-    assert "set_lighting: the room's lights are at the maximum factor already" in \
-        out["findings"]["not_yours"][0]["why"]
+    # (review of 16 Oct 2026: at the maximum every dark view needs more than x3, so its cause says why)
+    assert "no factor clears it and there is no add-lamp tool" in out["findings"]["not_yours"][0]["why"]
+    bed_ = next(f for f in CC.run(b, {}, dark_manifest(), **quiet_critic())["findings"] if f["target"] == "cam_r1_2")
+    assert CS.cause_of(bed_) == "lighting_beyond_cap"              # x3 x 1.82 needed
     # review of round 4: the lock is for the views too dark for the cap; a vision R5 (a blown-out window) of the same
     # room keeps set_lighting (a lower factor is still possible)
     r5 = {"id": "v:R5:r1", "check": "R5", "severity": "major", "target": "r1", "room_id": "r1", "source": "vision",
@@ -909,26 +943,54 @@ def test_set_lighting_is_idempotent_and_a_room_at_the_maximum_is_report_only(tmp
                            solver_fn=lambda b_, r, k=3: [], allowed_fn=lambda b_, p: {})
     assert [(f["check"], f["tools"]) for f in out_r5["findings"]["fixable"]] == [("R5", ["set_lighting"])]
     assert [f["check"] for f in out_r5["findings"]["not_yours"]] == ["lighting_dark"]
-    b["agent_overrides"]["lighting"]["r1"]["factor"] = 2.0
-    out2 = BR.room_brief(b, "r1", findings=[salon], members_fn=lambda b_, r: [], group_checks_fn=lambda b_, r: [],
+    b["agent_overrides"]["lighting"]["r1"]["factor"] = 1.5
+    bed_ = next(f for f in CC.run(b, {}, dark_manifest(), **quiet_critic())["findings"] if f["target"] == "cam_r1_2")
+    out2 = BR.room_brief(b, "r1", findings=[bed_], members_fn=lambda b_, r: [], group_checks_fn=lambda b_, r: [],
                          program_fn=lambda b_, r: {}, solver_fn=lambda b_, r, k=3: [], allowed_fn=lambda b_, p: {})
-    assert [f["tools"] for f in out2["findings"]["fixable"]] == [["set_lighting"]]
+    assert [f["tools"] for f in out2["findings"]["fixable"]] == [["set_lighting"]]     # x1.5 x 1.82 = x2.74 needed
 
 
 def test_a_lighting_edit_too_weak_for_its_view_keeps_the_finding():
     """16 Oct 2026, before pod P3 attempt 2: a lighting_dark view counted as gone after any accepted set_lighting
     (only a render re-meters it). real04's basement salon needs about x10 and set_lighting gives up to x3: the x3 edit
-    must not count as a removed finding; an edit that reaches the factor the view needs does."""
-    from wenart.agent import loop as LP
-
-    finding = {"check": "lighting_dark", "severity": "critical", "target": "cam_r_L-1_salon_1", "room_id": "r_L-1_salon",
-               "message": "too dark", "metrics": {"stops_over_cap": 3.37, "factor_needed": 10.34,
-                                                  "lighting_factor_now": 1.0, "set_lighting_factor": 10.34}}
+    must not count as a removed finding; an edit that reaches the factor the view needs does. Review of the same day:
+    the round's findings carry their metrics in ``evidence.metrics`` (``critic_code.finding``), so the test uses that
+    shape (the first version read a top-level ``metrics`` only the test had)."""
+    violation_ = {"check": "lighting_dark", "severity": "critical", "target": "cam_r_L-1_salon_1",
+                  "room_id": "r_L-1_salon", "message": "too dark",
+                  "metrics": {"stops_over_cap": 3.37, "factor_needed": 10.34, "lighting_factor_now": 1.0,
+                              "set_lighting_factor": 10.34}}
+    found = CC.finding(violation_)
+    assert "metrics" not in found and found["evidence"]["metrics"]["set_lighting_factor"] == 10.34
     after = {"agent_overrides": {"lighting": {"r_L-1_salon": {"factor": 3.0, "reason": "x3"}}}}
-    kept = LP.after_findings([dict(finding)], [finding], {"cam_r_L-1_salon_1", "r_L-1_salon"}, after)
+    kept = LP.after_findings([dict(found)], [found], {"cam_r_L-1_salon_1", "r_L-1_salon"}, after)
     assert [f["target"] for f in kept] == ["cam_r_L-1_salon_1"]
-    assert kept[0]["metrics"]["predicted_factor_after"] == 3.0 and "predicted" in kept[0]["message"]
-    enough = dict(finding, metrics=dict(finding["metrics"], set_lighting_factor=2.5, factor_needed=2.5))
+    assert kept[0]["evidence"]["metrics"]["predicted_factor_after"] == 3.0 and "predicted" in kept[0]["message"]
+    enough = CC.finding(dict(violation_, metrics=dict(violation_["metrics"], set_lighting_factor=2.5,
+                                                      factor_needed=2.5)))
     assert LP.after_findings([dict(enough)], [enough], {"cam_r_L-1_salon_1"}, after) == []
     # no building after the edit: nothing can be predicted, the Round 4 rule (re-measured next round) holds
-    assert LP.after_findings([dict(finding)], [finding], {"cam_r_L-1_salon_1"}, None) == []
+    assert LP.after_findings([dict(found)], [found], {"cam_r_L-1_salon_1"}, None) == []
+
+
+def test_set_lighting_is_accepted_when_its_factor_reaches_the_view_and_refused_below(tmp_path):
+    """Review of 16 Oct 2026 (fails on the first version): the set_lighting acceptance received the building without
+    the edit's factor (the override goes to overrides.json), so the dry re-check predicted the old factor and, with
+    the metrics read fixed, refused every set_lighting. Now the tool passes a trial building with the new factor:
+    x2 clears a view that needs x1.82; x1.5 does not and is refused with the predicted factor."""
+    out = project(tmp_path)
+    loop = LP.AgentLoop(out, MM.MockModel(chat=[]), vision=False, out=lambda s: None, workers=1,
+                        recheck=lambda b, s, m: [], apply_edit=FakeEdits(), validators=fake_validators())
+    ctx = loop.context(1)
+    ctx.findings = [f for f in CC.run(building(), {}, dark_manifest(), **quiet_critic())["findings"]
+                    if f["target"] == "cam_r1_2"]                                  # needs x1.82
+    assert ctx.findings[0]["evidence"]["metrics"]["set_lighting_factor"] == 1.82
+    weak = loop.registry.call(ctx, "set_lighting", {"room_id": "r1", "factor": 1.5, "reason": "a bit darker room"})
+    assert not weak["accepted"], weak
+    assert "lighting_dark:cam_r1_2 is still there" in weak["acceptance"]["reason"]
+    assert "x1.5 of the x1.82 the view needs" in weak["acceptance"]["reason"]
+    assert TL.lighting_state(ctx) == {}                                            # nothing stored
+    ok = loop.registry.call(ctx, "set_lighting", {"room_id": "r1", "factor": 2.0, "reason": "the room is too dark"})
+    assert ok["accepted"], ok
+    assert ok["acceptance"]["removed"] == 1 and TL.lighting_state(ctx) == {"r1": 2.0}
+    assert ctx.findings == []

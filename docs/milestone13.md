@@ -1261,14 +1261,20 @@ P3).
 | Item | Before | Fix | Check |
 |---|---|---|---|
 | Exterior sky | Nishita world at strength 0.5 against the 1000 W/m² lamp: about 4 stops too dark | `materials.exterior_sky_strength` pairs the sky with the lamp from a measured sun-ratio table (5-85°): 7.71 at 35°; the visible sun disc stays camera-only; the build manifest records `sky_calibration` | diffuse-to-direct 0.166, between pvlib's Bird clear-sky values for AOD500 0.05 and 0.1; real04 ext_7 sky band grey (79, 80, 80) → blue (100, 116, 127) in a CPU render |
-| Shell texture sets | worktop `marble_01` and handle `Metal032` never fetched | `fetch.shell_texture_rows(style)` reads the one slot table in `materials.py`; the assets stage fetches them; the build fingerprint lists them (`build.referenced_asset_ids`), so a build cached before a set reached the volume is redone | 98 referenced ids on real04, the 4 shell sets included |
-| lighting_dark | written by the render, read by nobody | a code-critic finding (`critic_code.lighting_items`, family `lighting`), routed to `set_lighting` for interiors and report-only for exteriors; a report section; `set_lighting` is idempotent and capped at x0.5-x3 | an edit whose factor stays below what the view needs keeps the finding (`loop.lighting_kept`: predicted, not re-rendered) |
+| Shell texture sets | worktop `marble_01` and handle `Metal032` never fetched | `fetch.shell_texture_rows(style)` reads the one slot table in `materials.py`; the assets stage fetches them; the build fingerprint lists them (`build.referenced_asset_ids`, read from the same table), so a build cached before a set reached the volume is redone | 98 referenced ids on real04, the 4 shell sets included; `test_referenced_assets_follow_the_shell_sets_the_assets_stage_fetches` |
+| lighting_dark | written by the render, read by nobody | a code-critic finding (`critic_code.lighting_items`, family `lighting`), routed to `set_lighting` for interiors and report-only for exteriors; a report section; `set_lighting` is idempotent and capped at x0.5-x3. Follow-up: an edit whose factor stays below what the view needs keeps the finding and is refused (`loop.lighting_kept`, predicted from a trial building with the new factor, not re-rendered); a view that needs more than x3 has the cause `lighting_beyond_cap`: no tool, reported (an edit counts only when its finding is gone) | x2 clears a view that needs x1.82, x1.5 is refused with the prediction; real04's basement salon (about x10) is report-only |
 | Chair below library level | a one-material box | parametric chair v2: legs or sled, seat pad at 0.45 m, back panel, 2-3 material slots, bevels; the long-table module builds it | `tests/test_m13_modules.py`, GPU test in `tests/gpu/test_m13_modules.py` |
 | Fixed equipment | the agent could mark a drawn kitchen run or WC as not furniture | `mark_not_furniture` refuses fixed types; the acceptance refuses an edit that removes a room's required fixture | `tests/test_m13_agent.py` |
 | Recognition whitespace loop | 5 of 8 sheet_region answers were whitespace runs | per-question `max_tokens` and a guard that retries a whitespace-run answer once in compact form (vLLM 0.30.0 has no per-request whitespace option) | `tests/test_recognition_cpu.py`, `tests/test_vllm_schemas.py` |
 
-Stage code lists: `BLENDER_CODE` and `LEVELS_CODE` now include `wenart/assets/**`, because the build reads the shell
-rows from `wenart.assets.fetch` (the import-closure test asks for it). Known and kept: the GPU test
+Review of the follow-up (16 Oct 2026, 15 agents, every finding checked by two more): the first version of the lighting
+rule never fired (it read the metrics from a key the real findings do not have; the test built its own shape) and
+the set_lighting re-check saw the building without the new factor; both fixed with tests on the production shape.
+The same review found that the dry re-check rebuilt the scene, view, look and lighting findings (S1-S6, V1-V3, X6,
+L7, R4, R5, X8, lighting_dark) from the round's manifests, which no edit changes: a finding an earlier edit of the
+round had removed came back on the next edit as a new one, and a new critical one rejected an unrelated edit. These
+findings now come from the round's list (`loop.after_findings`); a fresh collision is still found by the re-measured
+checks (F9). Known and kept: the GPU test
 `test_white_plaster_walls_are_neutral` is expected to fail (R/B 1.186 against 1.12), the interior HDRI stays
 5.2 stops below the clear-sky pair (an A/B lever), and `set_lighting` has no add-lamp tool.
 

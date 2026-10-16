@@ -98,16 +98,12 @@ LOWSPP_SAMPLES = 4
 # Milestone 10: build --brief reads the brief (wenart/brief.py, defaults.yaml) and the exterior looks
 # (wenart/style/**); the site and roof use wenart/geometry.py.
 BLENDER_CODE = ("wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "wenart/brief.py",
-                "wenart/defaults.yaml", "wenart/style/**", "wenart/geometry.py", "wenart/__init__.py",
-                # Milestone 13 (16 Oct 2026): build.referenced_asset_ids reads the shell texture sets the assets
-                # stage fetches (wenart.assets.fetch.shell_texture_rows).
-                "wenart/assets/**")
+                "wenart/defaults.yaml", "wenart/style/**", "wenart/geometry.py", "wenart/__init__.py")
 # Milestone 12 (track L): the level inference (wenart.levels.model) runs in the pipeline and reaches the site,
 # shell and geometry helpers of wenart.blender (function-level imports), and through them the catalogue and the
 # size table: every stage whose closure reaches wenart.levels lists all of it.
 LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "wenart/views.py", "wenart/style/**",
-               "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json",
-               "wenart/assets/**")              # M13: wenart.blender.build reads the shell sets (assets.fetch)
+               "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json")
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
 # runs the group checks, so every stage that scores a room reaches them.
 GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "wenart/furniture/group_checks.py",

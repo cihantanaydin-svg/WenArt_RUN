@@ -207,11 +207,12 @@ def lighting_kept(finding: Optional[dict], building_after: Optional[dict]) -> Op
     re-meters a view, so a changed view's lighting_dark counted as gone after any set_lighting; real04's basement
     salon needs about x10, set_lighting gives up to x3, and the x3 edit was counted as a removed finding. The render
     metered the view at ``lighting_factor_now`` and the view needs ``set_lighting_factor`` (= that factor x 2 ** the
-    stops over the cap, ``critic_code.lighting_items``); the building after the edit carries the new factor
-    (``wenart.blender.overrides.lighting_of``)."""
+    stops over the cap, ``critic_code.lighting_items``; the round's findings carry it in ``evidence.metrics``,
+    ``causes._metrics``); the building after the edit carries the new factor (``wenart.blender.overrides.lighting_of``;
+    ``tools.t_set_lighting`` passes its trial building with the edit's factor)."""
     if finding is None or not isinstance(building_after, dict):
         return None
-    metrics = finding.get("metrics") or {}
+    metrics = CS._metrics(finding)
     room = finding.get("room_id")
     try:
         want = float(metrics["set_lighting_factor"])
@@ -224,29 +225,45 @@ def lighting_kept(finding: Optional[dict], building_after: Optional[dict]) -> Op
     after = float((lighting_of(building_after).get(str(room)) or {}).get("factor") or 1.0)
     if after >= want - 1e-6:
         return None
-    return dict(finding, metrics=dict(metrics, predicted_factor_after=after),
-                message=str(finding.get("message") or "") + f"; after the edit the room has x{after:g} of the "
-                                                             f"x{want:g} the view needs (predicted, not re-rendered)")
+    evidence = finding.get("evidence") if isinstance(finding.get("evidence"), dict) else {}
+    predicted = dict(metrics, predicted_factor_after=after)
+    # the prediction leads the message: the acceptance's reason quotes its first 160 characters, and the planner
+    # needs the factor to ask for next
+    return dict(finding, metrics=predicted, evidence=dict(evidence, metrics=predicted),
+                message=f"after the edit the room has x{after:g} of the x{want:g} the view needs (predicted, not "
+                        f"re-rendered); " + str(finding.get("message") or ""))
 
 
 def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None
                    ) -> list[dict]:
     """The finding list after an edit for ``accept_edit`` (module docstring): the code critic's findings on the
-    changed building (``code_after``) without the ``NOT_REMEASURED`` ones on a changed target, plus the vision
+    changed building (``code_after``) without the ``NOT_REMEASURED`` ones, plus the ``NOT_REMEASURED`` and vision
     findings of ``before`` whose target the edit did not change (a vision finding on a changed target is re-judged
-    after the re-render). Every finding gets its ``cause``."""
+    after the re-render; a ``NOT_REMEASURED`` one is re-measured by the next round, except a ``lighting_dark`` view the
+    edit's room light cannot clear, ``lighting_kept``). Every finding gets its ``cause``.
+
+    Review of 16 Oct 2026: the ``NOT_REMEASURED`` findings come from ``before``, not from ``code_after``. The dry
+    re-check rebuilds them from the round's scene and render manifests, which no edit changes, so a finding an
+    earlier edit of the round had removed came back on the next edit as a new one (a new critical finding rejected an
+    unrelated edit), and the lighting metrics were recomputed against factors the render had not used."""
     out = []
-    lighting_before = {(f.get("check"), f.get("target")): f for f in before if f.get("check") in CS.LIGHTING_CHECKS}
     for f in code_after:
-        if f.get("check") in NOT_REMEASURED and f.get("target") in changed:
-            kept = lighting_kept(lighting_before.get((f.get("check"), f.get("target"))), building_after)
+        if f.get("check") in NOT_REMEASURED:
+            continue
+        out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
+    for f in before:
+        if f.get("source") == "vision":
+            if f.get("target") not in changed:
+                out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
+            continue
+        if f.get("check") not in NOT_REMEASURED:
+            continue
+        if f.get("target") in changed:
+            kept = lighting_kept(f, building_after) if f.get("check") in CS.LIGHTING_CHECKS else None
             if kept is not None:
                 out.append(dict(kept, cause=kept.get("cause") or CS.cause_of(kept, building_after)))
             continue
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
-    for f in before:
-        if f.get("source") == "vision" and f.get("target") not in changed:
-            out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     return out
 
 

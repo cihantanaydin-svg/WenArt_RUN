@@ -573,6 +573,19 @@ def test_referenced_assets_come_from_the_style_and_the_building():
     assert ids == sorted(ids)
 
 
+def test_referenced_assets_follow_the_shell_sets_the_assets_stage_fetches():
+    # Milestone 13 (16 Oct 2026): the build fingerprint lists every shell slot's texture set (worktop marble_01,
+    # handles Metal032), the same ids the assets stage fetches, so a build cached before a set reached the volume is
+    # redone once it is there.
+    from wenart.assets.fetch import shell_texture_rows
+
+    style = json.loads(STYLE.read_text(encoding="utf-8"))
+    ids = set(B.referenced_asset_ids(room_building(), style))
+    shell = {asset_id for _src, asset_id, _why in shell_texture_rows(style)}
+    assert {"marble_01", "Metal032"} <= shell
+    assert shell <= ids
+
+
 def test_reusable_build_needs_every_listed_file(tmp_path):
     ok, why = B.reusable_build(tmp_path, "f" * 64)
     assert not ok and "scene.blend" in why
