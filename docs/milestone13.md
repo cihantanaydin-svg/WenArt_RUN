@@ -1286,6 +1286,46 @@ edits came back (`Overrides.reload`, fixed after P3 attempt 2 started; P3 runs w
 `test_white_plaster_walls_are_neutral` is expected to fail (R/B 1.186 against 1.12), the interior HDRI stays
 5.2 stops below the clear-sky pair (an A/B lever), and `set_lighting` has no add-lamp tool.
 
+**Attempt 2 (16 Oct 2026):** pod `rjom6ve943tqz0`, RTX PRO 6000, 114 min, $4.73, commit 3724033. Every stage ended
+ok (3 agent rounds, build, render, export, check, report); exit 1 came from 4 GPU tests (2 stale pins, 2 real defects).
+Results: `results/review/m13_p3/` (48 before | after sheets against M12 eddde01, the 17 metrics, the final report,
+the contact sheets). Analysis by 4 analysts, every proposed code fix checked by a second agent.
+
+| # | Metric (§7) | M12 | P3 | Target |
+|---|---|---|---|---|
+| 1 | drawn anchors built | 12 / 34 | 34 / 34 | 100 % |
+| 2 | drawn pieces in the scene | 53 % | 74 % | ≥ 90 % |
+| 4 | parametric share of built pieces; grey boxes | 33 % | 10 %; 0 | ≤ 25 %; 0 |
+| 5 | rooms with a complete group set | bath 8/10, kitchen 0/2 | bath 10/10, kitchen 2/2 | ≥ 90 % |
+| 6 | last-round F8 / S2 > 3 cm / LG | 38 / 1 / 66 | 2 / 10 / 8 | ≤ 5 / ≤ 3 / ≤ 5 |
+| 7 | accepted edits whose finding is gone next round | 18 % | 74 % | ≥ 60 % |
+| 8 | top model share; distinct models; stretch > 5 % | 34 %; 26; 49 % | 5 %; 97; 0 % | ≤ 15 %; ≥ 60; ≤ 10 % |
+| 9 | interior views at EV ≥ +5 | 9 / 44 | 3 / 42 (13 held at the cap) | 0 |
+| 11 | trees as real geometry; black pixels in the site view | primitives; 29.8 % | 20 / 20; 6.6 % | 100 %; 0 % |
+| 14 | in JSON, not rendered | 18 | 0 | 0 |
+| 16 | commercial-safe line; flagged assets missing in ATTRIBUTION | 0 %; – | 100 %; 0 | 100 %; 0 |
+| 17 | minutes of stages | 122 | 104 | ≤ 150 |
+
+(Metrics 6 and 7 count this run's events only; `metrics13` read the whole appended log, a bug fixed in the fix round.)
+
+What worked: all 34 drawn anchors built (30 library: 21 ABO, 9 HSSD; 4 module), 91 HSSD pieces from 49 models,
+no grey boxes, shell sets 4 of 4 fetched and used, the sky calibration record (7.71, diffuse-to-direct 0.166),
+vegetation from real models (hedges, shrubs, 915 grass instances; the M12 lollipop trees are gone), the recognition
+guard (5 of 5 whitespace runs answered on the compact retry), every view with its commercial-safe line, ATTRIBUTION
+complete. The image of the furnished rooms is clearly better than M12.
+
+What did not: light and colour. 24 of 48 views carry an orange cast (windowless baths, kitchens and halls under the
+2700 K rig with the daylight project white point); bedroom r_L0_yatak_odasi_4 renders night-dark (its rig of two
+bedside lamps replaced the fill light); the roof-terrace views render under the interior HDRI (black or dusk sky);
+interior windows show a blank pale outside (the window pull stops 5-8 stops short); the exterior EV varies by 3.7
+stops between views (ext_1/2/4 washed out); ext_5 is an aerial without a horizon. Geometry: a closed door's 5 mm
+leaf gap leaks light (GPU depth test, 196 m through the door); the drawn kitchen sinks sit inside the module
+counter runs (no cut-out: nothing sets `module_hints`); an unverified extra wall from the second plan region seals a
+bedroom alcove with a drawn desk. Agent: one session per round ran out of the 32k context (the final round logged
+"the agent model did not answer"); set_lighting gains measured below the linear prediction. Library: a Disney-print
+cushion, a mirror-chrome bathtub and a sporting-goods rack as a bookshelf passed the audit. These go to the fix round
+(§14.9) before P4.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

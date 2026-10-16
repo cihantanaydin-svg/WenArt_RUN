@@ -985,3 +985,9 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
   brought back findings an earlier edit of the round had removed (they could reject unrelated edits). A view that
   needs more than set_lighting's x3 is now report-only (an edit counts only when its finding is gone). Pod P3 attempt
   2 is pinned to 3724033 and waits for an 80 GB GPU in EU-RO-1. GPU spent: $141.80 of $300.
+- **Pod P3 attempt 2** (16 Oct, RTX PRO 6000, 114 min, $4.73): real04 ran end to end (3 agent rounds, build, render,
+  report). 34 of 34 drawn anchors built (M12: 12), no grey boxes, 91 HSSD pieces, real vegetation, agent edits that
+  really removed their finding 74 % (M12: 18 %). Light and colour are worse than M12 (orange cast in 24 of 48 views,
+  a night-dark bedroom, black terrace skies, blank windows); 4 GPU tests failed (2 stale pins, 2 real defects).
+  Sheets and metrics: `results/review/m13_p3/`. Next: a fix round on CPU, then P4 (real02 + real03) and P5
+  (real04 again with the GPU tests). GPU spent: $146.53 of $300. No pod running.
