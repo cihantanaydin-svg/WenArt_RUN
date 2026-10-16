@@ -961,3 +961,6 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
   commercial 1,519, relaxed 1,777); coverage 57 / 64 of 90 demand bins. **HSSD: 0 of 874, HTTP 403: the account
   behind the pod's `hf_token` has not accepted the dataset terms** (§14.6); re-run after the acceptance.
 - GPU spent so far: $135.05 of $300. No pod running.
+- **16 Oct 2026**: the user accepted the HSSD terms (account behind `hf_token`). Round 3 of the build resumed after the usage
+  limit (placement continues from its partial edits; a library agent adds the HSSD-only job mode). Next: round 3 green →
+  commit → pod P2b (HSSD layer, ~30 min) → pod P3 (real04 full run).

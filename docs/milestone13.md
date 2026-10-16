@@ -1138,9 +1138,9 @@ The copies are now the repo's catalogues (`wenart/furniture/catalog_library.json
 `catalog.json` 93 + 48; the licence fields completed by `python -m wenart.furniture licence-fields`); the models
 are on the volume under `/workspace/assets/models/`. The P2 reports are under `results/library/growth/` and the
 copies under `results/library/audit/p4/catalogue/`. The 20 empty bins stay library gaps (the fallback ladder
-builds them) until the HSSD step runs: **the user has to accept the HSSD terms with the account whose token is the
-RunPod secret `hf_token`** (or store a token of the account that accepted); then the same job command re-runs
-only the HSSD part (every other download is kept on the volume), about 30 min.
+builds them) until the HSSD step runs. **16 Oct 2026: the user has accepted the HSSD terms with the account behind
+the RunPod secret `hf_token`.** Pod P2b runs only the HSSD part (`GROWTH_ONLY=hssd`, built in round 3; every other
+download and entry stays as it is on the volume), about 30 min; the gate check confirms the acceptance at run time.
 
 ### 14.4 Open items and risks by track
 
