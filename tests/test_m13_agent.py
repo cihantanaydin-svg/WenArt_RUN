@@ -11,6 +11,7 @@ vision critic's findings dropped where no tool exists. CPU only: MockModel, the 
 fake vLLM server for the critic's strict schema."""
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
@@ -767,6 +768,10 @@ def test_lighting_dark_entries_become_findings_routed_to_set_lighting():
     assert [(s["tool"], s["target"], s["finding_ids"]) for s in steps] == [
         ("set_lighting", "r1", ["c:lighting_dark:cam_r1_2"])]
     assert all(LP.step_done(s, "set_lighting", {"room_id": "r1", "factor": 3.0}, {}) for s in steps)
+    # review of 16 Oct 2026: a set_lighting step stays open while its view is still in the round's list (another
+    # view's factor was accepted, this one needs more)
+    assert not LP.step_done(steps[0], "set_lighting", {"room_id": "r1", "factor": 1.5}, {}, findings=[bed_])
+    assert LP.step_done(steps[0], "set_lighting", {"room_id": "r1", "factor": 2.0}, {}, findings=[salon])
     assert "or the room set_lighting acts on for a view too dark for the EV cap" in P.PLANNER_SYSTEM_M12
     fixable, not_yours = BR.classify([ext], building(), None, {}, {}, {})
     assert fixable == [] and not_yours[0]["cause"] == "lighting_exterior"
@@ -994,3 +999,53 @@ def test_set_lighting_is_accepted_when_its_factor_reaches_the_view_and_refused_b
     assert ok["accepted"], ok
     assert ok["acceptance"]["removed"] == 1 and TL.lighting_state(ctx) == {"r1": 2.0}
     assert ctx.findings == []
+
+
+def test_an_override_trial_starts_from_the_building_as_the_other_sessions_left_it(tmp_path, monkeypatch):
+    """Review of 16 Oct 2026 (fails on 1a753e1): the set_lighting trial was copied from ctx.building before the tool
+    waited for ``ctx.lock``; a room session that accepted an edit meanwhile was missing from it, and its removed
+    finding came back in the dry re-check as a new one. Here the other session's edit lands between the tool call and
+    the acceptance (inside the try budget, which takes the lock first); the trial must carry it."""
+    out = project(tmp_path)
+    seen = []
+    loop = LP.AgentLoop(out, MM.MockModel(chat=[]), vision=False, out=lambda s: None, workers=1,
+                        recheck=lambda b, s, m: seen.append(b) or [], apply_edit=FakeEdits(),
+                        validators=fake_validators())
+    ctx = loop.context(1)
+    ctx.findings = [f for f in CC.run(building(), {}, dark_manifest(), **quiet_critic())["findings"]
+                    if f["target"] == "cam_r1_2"]
+    real = TL._too_many
+
+    def other_session_lands(ctx_, tool, args):
+        with ctx_.lock:
+            ctx_.building = dict(ctx_.building, other_session_edit=True)
+        return real(ctx_, tool, args)
+
+    monkeypatch.setattr(TL, "_too_many", other_session_lands)
+    res = loop.registry.call(ctx, "set_lighting", {"room_id": "r1", "factor": 2.0, "reason": "the room is too dark"})
+    assert res["accepted"], res
+    assert seen and seen[-1].get("other_session_edit") is True
+    assert seen[-1]["agent_overrides"]["lighting"]["r1"]["factor"] == 2.0
+
+
+def test_an_accepted_override_reaches_the_later_trials_of_the_round(tmp_path):
+    """Review of 16 Oct 2026 (fails on 1a753e1): an accepted set_exterior or set_lighting lived only in overrides.json;
+    every later dry re-check of the round ran on a building without it, so a roof override's removed X2 finding came
+    back as a new critical one and rejected the next edits. Now the accepted override is written into ctx.building."""
+    out = project(tmp_path)
+    seen = []
+    loop = LP.AgentLoop(out, MM.MockModel(chat=[]), vision=False, out=lambda s: None, workers=1,
+                        recheck=lambda b, s, m: seen.append(b) or [], apply_edit=FakeEdits(),
+                        validators=fake_validators())
+    ctx = loop.context(1)
+    ctx.findings = [f for f in CC.run(building(), {}, dark_manifest(), **quiet_critic())["findings"]
+                    if f["target"] == "cam_r1_2"]
+    assert loop.registry.call(ctx, "set_lighting", {"room_id": "r1", "factor": 2.0, "reason": "dark"})["accepted"]
+    assert ctx.building["agent_overrides"]["lighting"]["r1"]["factor"] == 2.0
+    assert TL.lighting_state(ctx) == {"r1": 2.0}
+    # a refused edit writes nothing
+    ctx.findings = [CC.finding({"check": "F3", "severity": "critical", "target": "f1", "room_id": "r1",
+                                "message": "the headboard is in the middle of the room", "metrics": {}})]
+    before = copy.deepcopy(ctx.building)
+    refused = loop.registry.call(ctx, "set_lighting", {"room_id": "r1", "factor": 2.5, "reason": "brighter"})
+    assert not refused["accepted"] and ctx.building == before

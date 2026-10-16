@@ -1274,7 +1274,12 @@ The same review found that the dry re-check rebuilt the scene, view, look and li
 L7, R4, R5, X8, lighting_dark) from the round's manifests, which no edit changes: a finding an earlier edit of the
 round had removed came back on the next edit as a new one, and a new critical one rejected an unrelated edit. These
 findings now come from the round's list (`loop.after_findings`); a fresh collision is still found by the re-measured
-checks (F9). Known and kept: the GPU test
+checks (F9). A second review (16 agents) found that the set_lighting trial was copied before the tool took the lock
+(parallel room sessions could make it stale), that an accepted set_exterior or set_lighting never reached the later
+dry re-checks of its round (an accepted roof override's X2 came back as a new critical finding and rejected the
+next edits), and that the first accepted set_lighting closed every set_lighting step of its room; all three fixed
+with tests that fail on the old code. Checked and not a defect on the real path: a V1 "camera inside a piece" from
+the re-check (the render manifests carry no camera positions, so that check never runs there). Known and kept: the GPU test
 `test_white_plaster_walls_are_neutral` is expected to fail (R/B 1.186 against 1.12), the interior HDRI stays
 5.2 stops below the clear-sky pair (an A/B lever), and `set_lighting` has no add-lamp tool.
 

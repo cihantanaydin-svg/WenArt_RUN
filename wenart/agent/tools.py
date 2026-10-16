@@ -1088,9 +1088,18 @@ def t_report_library_gap(ctx: ToolContext, args: dict) -> dict:
 
 
 def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[], dict], stage: str,
-                      trial: Optional[dict] = None) -> dict:
-    """An override edit: the try budget, the validator's verdict, then (Milestone 13) the acceptance on ``trial``
-    (the building with the override applied; the building itself when the override lives outside it)."""
+                      trial: Optional[Callable[[], Optional[dict]]] = None) -> dict:
+    """An override edit: the try budget, the validator's verdict, then (Milestone 13) the acceptance on the building
+    ``trial()`` returns (the building with the override applied; the building itself when the override lives outside
+    it, ``trial`` None or returning None).
+
+    Review of 16 Oct 2026: ``trial`` is called under ``ctx.lock``, right before the acceptance, so it starts from the
+    building as the parallel room sessions left it (a copy taken before the lock missed an edit another session was
+    accepting, and its dry re-check showed that session's removed finding as new); and an accepted override that
+    lives in the building (``agent_overrides``: set_lighting, set_exterior) is written into ``ctx.building`` at once,
+    so the later edits of the round are re-checked with it (before, an accepted roof override was missing from every
+    later trial and its X2 finding came back as a new critical one). ``ctx.building`` is never written to disk;
+    ``building_agent.json`` is replayed from overrides.json (``overrides.apply``)."""
     refused = _too_many(ctx, tool, args)
     if refused is not None:
         ctx.rejected.append({"tool": tool, "args": args, "result": refused})
@@ -1107,10 +1116,13 @@ def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[
                   changed_ids=[args.get("view_id")] if args.get("view_id") else [])
     if ok and ctx.acceptance is not None:
         with ctx.lock:
-            acc = ctx.acceptance(ctx, tool, args, out, trial if trial is not None else ctx.building) or {}
+            after = trial() if trial is not None else None
+            acc = ctx.acceptance(ctx, tool, args, out, after if after is not None else ctx.building) or {}
             ok = bool(acc.get("accepted"))
             if ok and isinstance(acc.get("after_findings"), list):
                 ctx.findings = list(acc["after_findings"])
+            if ok and isinstance(after, dict):
+                ctx.building = dict(ctx.building, agent_overrides=copy.deepcopy(after.get("agent_overrides") or {}))
         out["acceptance"] = {k: v for k, v in acc.items() if k != "after_findings"}
         out["accepted"] = ok
         if not ok:
@@ -1187,18 +1199,19 @@ def t_set_lighting(ctx: ToolContext, args: dict) -> dict:
                                                if factor >= LIGHTING_FACTOR[1] - 1e-9 else "")],
                     "message": "no-op: set_lighting with the factor the room has"}
         return {"ok": True, "message": f"{room['id']}: room lights x {factor:g} in the next build"}
-    # review of 16 Oct 2026: the dry re-check predicts the room's dark views from the building after the edit
-    # (``loop.lighting_kept``), so the trial carries the factors the next build applies with this edit's factor; the
-    # accepted override itself goes to overrides.json as before (``_accept``)
-    trial = None
-    try:
-        rid, factor = str(args["room_id"]), float(args["factor"])
+    def trial() -> Optional[dict]:
+        # review of 16 Oct 2026: the dry re-check predicts the room's dark views from the building after the edit
+        # (``loop.lighting_kept``), so the trial carries the factors the next build applies with this edit's factor;
+        # built under ``ctx.lock`` (``_validator_result``); the override also goes to overrides.json (``_accept``)
+        try:
+            rid, factor = str(args["room_id"]), float(args["factor"])
+        except (KeyError, TypeError, ValueError):
+            return None                      # the validator refuses the arguments with the reason
         lights = {r: {"factor": f} for r, f in lighting_state(ctx).items()}
         lights[rid] = {"factor": factor, "reason": args.get("reason")}
-        trial = copy.deepcopy(ctx.building)
-        trial["agent_overrides"] = dict(trial.get("agent_overrides") or {}, lighting=lights)
-    except (KeyError, TypeError, ValueError):
-        trial = None                         # the validator refuses the arguments with the reason
+        out = copy.deepcopy(ctx.building)
+        out["agent_overrides"] = dict(out.get("agent_overrides") or {}, lighting=lights)
+        return out
     return _validator_result(ctx, "set_lighting", args, check, "build", trial=trial)
 
 
@@ -1239,10 +1252,13 @@ def t_set_exterior(ctx: ToolContext, args: dict) -> dict:
                       message="no-op: set_exterior with values the building already has", tool="set_exterior",
                       no_op=True)
         return _reject(ctx, "set_exterior", args, out)
-    trial = copy.deepcopy(ctx.building)
-    trial["agent_overrides"] = dict(trial.get("agent_overrides") or {},
-                                    exterior=OV.merge_dict((trial.get("agent_overrides") or {}).get("exterior") or {},
-                                                           override))
+    def trial() -> dict:
+        # built under ``ctx.lock`` (``_validator_result``, review of 16 Oct 2026)
+        out = copy.deepcopy(ctx.building)
+        out["agent_overrides"] = dict(out.get("agent_overrides") or {},
+                                      exterior=OV.merge_dict((out.get("agent_overrides") or {}).get("exterior") or {},
+                                                             override))
+        return out
     return _validator_result(ctx, "set_exterior", args,
                              lambda: ctx.checks().validate_exterior_override(ctx.building, override), "build",
                              trial=trial)

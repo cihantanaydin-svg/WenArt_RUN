@@ -354,10 +354,17 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[l
     return steps, problems
 
 
-def step_done(step: dict, tool: str, args: dict, result: dict) -> bool:
-    """An accepted edit ``tool(args)`` completes a checklist step with the same tool on the same target."""
+def step_done(step: dict, tool: str, args: dict, result: dict, findings: Optional[list] = None) -> bool:
+    """An accepted edit ``tool(args)`` completes a checklist step with the same tool on the same target. Review of
+    16 Oct 2026: a ``set_lighting`` step stays open while its finding is still in ``findings`` (the round's list after
+    the edit): every dark view of a room is a step on the room, and a factor that clears one view may leave another
+    (``lighting_kept``), whose step then still asks for its own factor."""
     if step.get("tool") != tool:
         return False
+    if tool == "set_lighting" and findings is not None:
+        open_ids = {f.get("id") for f in findings if f.get("id")}
+        if any(fid in open_ids for fid in step.get("finding_ids") or []):
+            return False
     target = step.get("target")
     return target in {args.get(k) for k in ("piece_id", "room_id", "group_id", "view_id", "span_id")} or \
         target in (result.get("changed_ids") or [])
@@ -831,7 +838,8 @@ class AgentLoop:
                             self.log_edit(round_no, call_id, tc.name, tc.parsed, result, label, findings, room_id)
                             if result.get("accepted"):
                                 for k, step in enumerate(checklist):
-                                    if not done[k] and step_done(step, tc.name, tc.parsed or {}, result):
+                                    if not done[k] and step_done(step, tc.name, tc.parsed or {}, result,
+                                                                 findings=ctx.findings):
                                         done[k] = True
                     messages.append({"role": "tool", "tool_call_id": tc.id,
                                      "content": json.dumps(result, ensure_ascii=False, default=str)[:12000]})
