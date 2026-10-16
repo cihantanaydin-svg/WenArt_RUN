@@ -1216,6 +1216,18 @@ What P3 must look at (open risks, decided after the images):
   question counts after the K3 order (M12: 88 / 95 / 100), and the M6 cushion test (`test_row8_bed_bevel_veneer_and_metal`,
   not caused by round 3).
 
+### 14.8 Pod P3 (real04 full run)
+
+**Attempt 1 (16 Oct 2026):** pod `j66c1kan6qr62r`, RTX PRO 6000 WK, 27 min, $1.15, exit 1 at the layout stage. The
+vegetation setup worked (Sapling registered on the new pod), recognition and fit ran; the layout then refused its
+own result: the locked check compared the final `drawn_footprint` of the two YATAK beds (`f_L0_007`, `f_L0_008`,
+the drawing 2.55 × 2.00 m kept by the round-1 size snap) with the layout's source, the fitted building, where the beds
+are already 1.80 × 2.00 m; the drawn-group re-solve had moved them. Fix (`wenart/furniture/locked.py`
+`drawn_value`): when an earlier stage changed a drawn piece, its `drawn_*` values are the reference for type,
+footprint, front and height; a piece that loses its drawing still fails (test
+`test_a_piece_an_earlier_stage_changed_keeps_its_drawing_as_the_reference`, and the P3 beds replayed: two
+violations before, none after). A CPU pre-flight of the later stages runs before attempt 2.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

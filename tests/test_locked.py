@@ -277,3 +277,29 @@ def test_unknown_mode_is_an_error(pair):
     source, final = pair
     with pytest.raises(ValueError):
         LK.check(source, final, "loose")
+
+
+def test_a_piece_an_earlier_stage_changed_keeps_its_drawing_as_the_reference(pair):
+    """Milestone 13 (pod P3, 16 Oct 2026): the layout's source is the fitted building, where the size snap already
+    changed a drawn bed and kept the drawing in ``drawn_footprint``. When the solver then moves the bed, the final
+    ``drawn_footprint`` must equal the drawing (``locked.drawn_value``), not the snapped box; P3 stopped because the
+    check compared it with the snapped box. A final piece that lost the drawing still fails."""
+    source, final = pair
+    src = piece(source, "f_L0_002")
+    drawing = copy.deepcopy(src["footprint"])
+    src["footprint"] = dict(copy.deepcopy(drawing), size=[1.4, 2.0])          # the snap of an earlier stage
+    src["drawn_footprint"] = drawing
+    src["adjusted_by_ai"] = {"reason": "size snap: test", "rule": "size_snap", "changed": {"footprint": drawing}}
+    fin = piece(final, "f_L0_002")
+    fin.pop("modified_by_ai", None)
+    fin["type"] = src["type"]
+    fin["footprint"] = copy.deepcopy(src["footprint"])
+    fin["footprint"]["center"] = [fin["footprint"]["center"][0] + 0.2, fin["footprint"]["center"][1]]
+    fin["front_deg"] = src.get("front_deg")
+    fin["drawn_footprint"] = copy.deepcopy(drawing)
+    fin["adjusted_by_ai"] = {"reason": "size snap: test; drawn group re-solved", "rule": "size_snap"}
+    assert LK.drawn_value(src, "footprint") == drawing and LK.drawn_value(src, "type") == src["type"]
+    assert [v for v in LK.check(source, final, "complete") if v.startswith("f_L0_002")] == []
+    fin["drawn_footprint"] = copy.deepcopy(src["footprint"])                  # the drawing lost
+    assert any("footprint changed without the drawn footprint" in v
+               for v in LK.check(source, final, "complete") if v.startswith("f_L0_002"))

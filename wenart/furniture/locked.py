@@ -128,6 +128,17 @@ KEEP_KEYS: tuple[str, ...] = ("id", "level_id", "room_id", "type", "type_raw", "
                               "height", "status", "evidence", "build")
 
 
+def drawn_value(src: dict, key: str):
+    """The drawn value of ``key`` (``type``, ``footprint``, ``front_deg``, ``height``) of a source piece: its
+    ``drawn_<key>`` when an earlier stage already changed it, else the current value. Milestone 13 (pod P3, 16 Oct
+    2026): the layout's source is the fitted building, where the size snap already turned the 2.55 x 2.00 m YATAK block
+    into a 1.80 x 2.00 m bed and kept the drawing in ``drawn_footprint``; when the solver then moved that bed, the
+    check compared the final ``drawn_footprint`` (the drawing, right) with the fitted box (wrong) and refused the
+    building. The drawing stays the reference however many stages changed the piece."""
+    drawn = src.get(f"drawn_{key}")
+    return drawn if drawn is not None else src.get(key)
+
+
 def _front_ok(a: Optional[float], b: Optional[float]) -> bool:
     if a is None or b is None:
         return a is None and b is None
@@ -197,13 +208,15 @@ def _changed_piece_problems(src: dict, fin: dict, source: dict, final: dict) -> 
     proposal = (fin.get("type_proposal") is True and src.get("status") == "unverified"
                 and _dump(src["footprint"]) == _dump(fin["footprint"]))
     if changed and proposal and fin.get("modified_by_ai") is not True:
-        if fin.get("drawn_type") != src["type"]:
-            out.append(f"{pid}: type proposal without the drawn type ({fin.get('drawn_type')} != {src['type']})")
+        if fin.get("drawn_type") != drawn_value(src, "type"):
+            out.append(f"{pid}: type proposal without the drawn type ({fin.get('drawn_type')} != "
+                       f"{drawn_value(src, 'type')})")
     elif changed:
         if fin.get("modified_by_ai") is not True:
             out.append(f"{pid}: type, footprint or height changed without modified_by_ai")
-        elif (fin.get("drawn_type") != src["type"] or _dump(fin.get("drawn_footprint")) != _dump(src["footprint"])
-              or fin.get("drawn_height") != src.get("height")):
+        elif (fin.get("drawn_type") != drawn_value(src, "type")
+              or _dump(fin.get("drawn_footprint")) != _dump(drawn_value(src, "footprint"))
+              or fin.get("drawn_height") != drawn_value(src, "height")):
             out.append(f"{pid}: drawn_type / drawn_footprint / drawn_height do not hold the drawn values")
     return out
 
@@ -257,13 +270,15 @@ def _agent_problems(src: dict, fin: dict, keep: bool, room_type: Optional[str] =
     sfp, ffp = src["footprint"], fin["footprint"]
     moved = G.distance(sfp["center"], ffp["center"])
     same_box = sorted(round(float(v), 3) for v in sfp["size"]) == sorted(round(float(v), 3) for v in ffp["size"])
-    if src["type"] != fin["type"] and fin.get("drawn_type") != src["type"]:
-        out.append(f"{pid}: type changed without the drawn type ({fin.get('drawn_type')} != {src['type']})")
-    if _dump(sfp) != _dump(ffp) and _dump(fin.get("drawn_footprint")) != _dump(sfp):
+    if src["type"] != fin["type"] and fin.get("drawn_type") != drawn_value(src, "type"):
+        out.append(f"{pid}: type changed without the drawn type ({fin.get('drawn_type')} != "
+                   f"{drawn_value(src, 'type')})")
+    if _dump(sfp) != _dump(ffp) and _dump(fin.get("drawn_footprint")) != _dump(drawn_value(src, "footprint")):
         out.append(f"{pid}: footprint changed without the drawn footprint")
     if not _front_ok(src.get("front_deg"), fin.get("front_deg")) and "drawn_front_deg" in fin \
-            and not _front_ok(fin.get("drawn_front_deg"), src.get("front_deg")):
-        out.append(f"{pid}: drawn_front_deg {fin.get('drawn_front_deg')} != the drawn front {src.get('front_deg')}")
+            and not _front_ok(fin.get("drawn_front_deg"), drawn_value(src, "front_deg")):
+        out.append(f"{pid}: drawn_front_deg {fin.get('drawn_front_deg')} != the drawn front "
+                   f"{drawn_value(src, 'front_deg')}")
     elif not _front_ok(src.get("front_deg"), fin.get("front_deg")) and "drawn_front_deg" not in fin:
         out.append(f"{pid}: front changed without drawn_front_deg")
     # Pod G2 (real02): the fixed equipment of CLAUDE.md is schemas.FIXED_TYPES, as in edit_ops; the other

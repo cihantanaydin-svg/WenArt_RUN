@@ -93,6 +93,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-16 07:44 | pending:20261016-074442-library_growth | RTX PRO 6000 | 0 | 0.00 | M13 P2b: HSSD layer (874 picks; terms accepted by the user on 16 Oct 2026) | pod creation failed |
 | 2026-10-16 09:02 | b1ab7tktt9xy2r | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 78 | 3.35 | M13 P2b: HSSD layer (874 picks; terms accepted by the user on 16 Oct 2026) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 | 2026-10-16 10:00 | kbr2depvz47vu0 | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 52 | 2.25 | M13 P2c: HSSD audit resume (560 pending; answers reused) | ok, stopped by runner after collect (watchdog and job-end stop armed) |
-| 2026-10-16 10:42 | pending:20261016-104256-full | RTX PRO 6000 WK | 240 | 10.36 | M13 P3: real04 full run (new light, site, HSSD library, placement, 3 agent rounds; polish off; 256 spp) | creating (provisional, worst case) |
+| 2026-10-16 11:09 | j66c1kan6qr62r | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 27 | 1.15 | M13 P3: real04 full run (new light, site, HSSD library, placement, 3 agent rounds; polish off; 256 spp) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
 
-**Total spent so far: $151.01** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
+**Total spent so far: $141.80** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
