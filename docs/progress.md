@@ -964,3 +964,6 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
 - **16 Oct 2026**: the user accepted the HSSD terms (account behind `hf_token`). Round 3 of the build resumed after the usage
   limit (placement continues from its partial edits; a library agent adds the HSSD-only job mode). Next: round 3 green →
   commit → pod P2b (HSSD layer, ~30 min) → pod P3 (real04 full run).
+- **Round 3 committed** (47bd941; CPU suite 4,988 passed, 0 failed). **Pod P2b** (16 Oct, $3.35): all 874 HSSD objects
+  downloaded, 852 catalogued, 229 audited usable (furniture first); 560 still pending (the fixtures among them) → pod P2c
+  finishes the audit, then pod P3 (real04 full run). GPU spent: $138.40 of $300.

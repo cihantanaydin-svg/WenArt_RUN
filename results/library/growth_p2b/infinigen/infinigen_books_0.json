@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_books_0",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_books_0/export_000/export_000.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_books_0/infinigen.assets.objects.table_decorations.BookStackFactory_000/scene.blend",
+ "dims": [
+  0.3477,
+  0.3792,
+  0.1367
+ ],
+ "meshes": 1,
+ "class": "BookStackFactory",
+ "dotted": "infinigen.assets.objects.table_decorations.BookStackFactory",
+ "seed": 0,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 4.2,
+ "attempts": 1
+}

@@ -1,0 +1,14 @@
+ingest-hssd	0	244	
+refetch	0	4	
+catalogue	0	27	
+render	0	1614	
+code	0	14	
+setup-check	0	1941	
+ask	3	2555	growth ask: P4 rc 3, P3 pass 2 rc 0, 609 left
+decide	0	1	
+write	0	1	
+vision-fields	0	2	
+gaps	0	1	
+coverage	0	1	
+report	0	0	
+gpu-tests (no time)	1	0	

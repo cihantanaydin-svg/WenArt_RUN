@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_oven_2",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_oven_2/export_002/export_002.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_oven_2/infinigen.assets.objects.appliances.OvenFactory_002/scene.blend",
+ "dims": [
+  1.1554,
+  0.9944,
+  1.1326
+ ],
+ "meshes": 1,
+ "class": "OvenFactory",
+ "dotted": "infinigen.assets.objects.appliances.OvenFactory",
+ "seed": 2,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 10.3,
+ "attempts": 1
+}

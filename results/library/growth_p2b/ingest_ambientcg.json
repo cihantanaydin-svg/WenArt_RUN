@@ -1,0 +1,352 @@
+{
+ "source": "ambientcg",
+ "list": "ambientcg",
+ "approved_by": "the user, decisions D1/D6 of 12 Oct 2026 (docs/milestone13.md §12: the pods of §8 are approved; §5.1 phase 2: 'ambientCG sets and atlases'; §3.0 K5: the shell material table per slot on CC0 sets; §13.6 pod P2). CC0 (https://ambientcg.com/: 'free to use without attribution - even in commercial circumstances'). The picks are the shell sets of growth.AMBIENTCG_SHELL_SETS (ceiling plaster, worktops, fronts, ceramics, metals, tiles), every id verified on the ambientCG API on 15 Oct 2026.",
+ "approved_utc": "2026-10-12T20:00:00Z",
+ "ids_from": "candidates_ambientcg.json",
+ "approved": 20,
+ "ok": 18,
+ "failed": 2,
+ "size": "2k",
+ "seconds": 26.1,
+ "records": [
+  {
+   "id": "Plaster001",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Plaster001/Plaster001_2K-JPG_Color.jpg",
+    "normal": "textures/Plaster001/Plaster001_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Plaster001/Plaster001_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Plaster001/Plaster001_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "8cac8b7439bdd8d4695c64302c8f1f57af5ecff57c4754d0f04601bd0eb80ce5",
+    "normal": "3474c779968a42112240695fd4da5281d646b3bbf1e15c29e37df1476a58f598",
+    "roughness": "3a6b46ab479fa6410f65387a7345647b8d1baa3d63a6e9f5285a74ccaf0cde52",
+    "displacement": "97d3cdaaca38ebe3b23662db40ab639694f52c0e94672570d9d57fd90f9a46c1"
+   },
+   "seconds": 1.3
+  },
+  {
+   "id": "Plaster002",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Plaster002/Plaster002_2K-JPG_Color.jpg",
+    "normal": "textures/Plaster002/Plaster002_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Plaster002/Plaster002_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Plaster002/Plaster002_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "1f765dd2ef3f4bd820b7691febbd611fc9dc7394f504acb0f2560d166940738c",
+    "normal": "a3fb96aac05d1b827648c908b00998d818bb65464f82e6669dabe90edeb370bd",
+    "roughness": "15f106b4182525f65b169cdb8e7bc8b63fc41081015e64d7608a66ca0a1bb24d",
+    "displacement": "c604e506848c4339cb2f205e49cb468d3620812349251c7b7761ea301d1768ee"
+   },
+   "seconds": 1.2
+  },
+  {
+   "id": "Plaster004",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Plaster004/Plaster004_2K-JPG_Color.jpg",
+    "normal": "textures/Plaster004/Plaster004_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Plaster004/Plaster004_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Plaster004/Plaster004_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "2a1f298f1ee6469c8cc09fe5375741c51e1eecabbfd422c9a1369c57b171dc5b",
+    "normal": "6d980fc5343ddcfce2b5c80ffe7b2b3181d05d13325ca0b33aed33575a5577be",
+    "roughness": "69b3a2d34b525314e4155cbbb737591f457193c64e4025f656e854912e2353aa",
+    "displacement": "b6685b8c4859e468eef109c513adc9e1e5312a2dd2d80d0ee495ca6ec138e54b"
+   },
+   "seconds": 1.7
+  },
+  {
+   "id": "PaintedPlaster017",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/PaintedPlaster017/PaintedPlaster017_2K-JPG_Color.jpg",
+    "normal": "textures/PaintedPlaster017/PaintedPlaster017_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/PaintedPlaster017/PaintedPlaster017_2K-JPG_Roughness.jpg",
+    "displacement": "textures/PaintedPlaster017/PaintedPlaster017_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "1690e0a8839a1db6ac7e339929ddfad885b5c34145ea206f2aa03d7669f73f44",
+    "normal": "8cacf9983fedd60bf28faa231d841ada117298ed4daa8675d3bf771069144470",
+    "roughness": "c22b06fa7c7ad48fd1218575899627a68d0340af1133330881bc04587689179e",
+    "displacement": "014fe73a9bda4d3814e3787e0f4a4f79dd3fa67efe7a59a241d9c5ead557db1c"
+   },
+   "seconds": 0.9
+  },
+  {
+   "id": "Marble021",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Marble021/Marble021_2K-JPG_Color.jpg",
+    "normal": "textures/Marble021/Marble021_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Marble021/Marble021_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Marble021/Marble021_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "8eae10b9fa829a88458a076cff1235da48aa2aaf3ab043535cce59ec5bce1fbf",
+    "normal": "00ff3e14c44e35dfb05c171355c9b332364a0a94d7026ebd49e33bc8a75aa0bd",
+    "roughness": "26287d257dd85cbab6b3828b609ea9df955ce84691d2898514f208cab3492489",
+    "displacement": "630116292917654edd5eab5909ee34bd0393e15dc453b5bc65fe598c7f1c1f90"
+   },
+   "seconds": 1.0
+  },
+  {
+   "id": "Marble014",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Marble014/Marble014_2K-JPG_Color.jpg",
+    "normal": "textures/Marble014/Marble014_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Marble014/Marble014_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Marble014/Marble014_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "714f218372a73613743dcd89fad05e6ffcd6184801986286294a096e7dc0b6d9",
+    "normal": "c857d930077f7c2e84581dac0366da4b8e556fda8a34ababaec4b7109aac3e84",
+    "roughness": "c8c9880989fa6287060bcb1f9fc254b60bea62dd7649c6231063dc7e14acd8a9",
+    "displacement": "5c896ed1648f9c8ce775cd5306788c7f97bc37fe63e179001bfb2d4fdd623dd3"
+   },
+   "seconds": 1.4
+  },
+  {
+   "id": "Granite004B",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Granite004B/Granite004B_2K-JPG_Color.jpg",
+    "normal": "textures/Granite004B/Granite004B_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Granite004B/Granite004B_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Granite004B/Granite004B_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "c4e840636b7eaaa270834496b36f55558c6c195d41b3e8b1f63cbfa63215ee37",
+    "normal": "c5f245afe5be431a13c444e92cf316c193a257e95d4720adebeb6225e0193fbc",
+    "roughness": "2ec5b4dc6cf10349ef8ddc681e235f2d6e3f836d5f679e7590720266032a5c93",
+    "displacement": "551c4998835e31cd4063f19c7843ca062472da014f57aa5b58bfc689899dfc89"
+   },
+   "seconds": 1.1
+  },
+  {
+   "id": "PaintedWood009C",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/PaintedWood009C/PaintedWood009C_2K-JPG_Color.jpg",
+    "normal": "textures/PaintedWood009C/PaintedWood009C_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/PaintedWood009C/PaintedWood009C_2K-JPG_Roughness.jpg",
+    "displacement": "textures/PaintedWood009C/PaintedWood009C_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "cd0aeab790d38e1be20af1d1854bd9595ff7808e6f8ec75c81af543ba74a0626",
+    "normal": "da76b841f15b5e6eacfd275aca81383c362f03734f6561724c6eceba9c158752",
+    "roughness": "02df8b1f6989065015edc05fec553c677592dfd6bc45164e41bcfc29727faf30",
+    "displacement": "5b26b53e14ba527d43049cdbdb17234e25f075fa0f090df37a1225e4e58b1147"
+   },
+   "seconds": 3.0
+  },
+  {
+   "id": "PaintedWood006C",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/PaintedWood006C/PaintedWood006C_2K-JPG_Color.jpg",
+    "normal": "textures/PaintedWood006C/PaintedWood006C_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/PaintedWood006C/PaintedWood006C_2K-JPG_Roughness.jpg",
+    "displacement": "textures/PaintedWood006C/PaintedWood006C_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "faa4e5067020f0a78b927019c796e886053c2f0b8a58119fe6ba3e37046b2554",
+    "normal": "4a52b63c6e9d06bf8d9f70e61a88f8aadd9134a2ff9e290c778bb22b4455411a",
+    "roughness": "a0a6bd1bd0ede1b2419864b2e60e2b35fa546ea36e35be9982340d5062f1bea7",
+    "displacement": "ca14b9c87ff351c9c299e3ce2e888fb6fdc0e9f1abb216ec97607cea1f991065"
+   },
+   "seconds": 2.3
+  },
+  {
+   "id": "PaintedWood007C",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/PaintedWood007C/PaintedWood007C_2K-JPG_Color.jpg",
+    "normal": "textures/PaintedWood007C/PaintedWood007C_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/PaintedWood007C/PaintedWood007C_2K-JPG_Roughness.jpg",
+    "displacement": "textures/PaintedWood007C/PaintedWood007C_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "73fd36a9fe0df737ccd9632e098f04d0aecc92f8855e67aea227725f073eda38",
+    "normal": "9661908d0afa2e9189a99fdfa93d026145f0d441f57902e86f56345baa6d1cd6",
+    "roughness": "4e44c6880a1f848bd8185331f7bbf16d10e7391bf2f158851e64befb275876b1",
+    "displacement": "bc68b894a649ef9c6d19156a06892ebc5828858b0478427c6033e2d7a5cb54c6"
+   },
+   "seconds": 3.5
+  },
+  {
+   "id": "Porcelain001",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Porcelain001/Porcelain001_2K-JPG_Color.jpg",
+    "normal": "textures/Porcelain001/Porcelain001_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Porcelain001/Porcelain001_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Porcelain001/Porcelain001_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "2991a0ae725d22abaac6cea2ceec52582e828ac27f898ad35792b6b14ef9b14c",
+    "normal": "2845ad486467270b2af94855ecc949b1317af8faec1a0bc45a6b440293d4f2d4",
+    "roughness": "242c5c30ef9ce180b015d312a4de0770c715cf2c494b61c8f7cb337860c3d0a9",
+    "displacement": "21f1940aa7c74c910b616a609638462fbd174ec136ad991d0926cca6dfa9d8ee"
+   },
+   "seconds": 0.9
+  },
+  {
+   "id": "Porcelain002",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Porcelain002/Porcelain002_2K-JPG_Color.jpg",
+    "normal": "textures/Porcelain002/Porcelain002_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Porcelain002/Porcelain002_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Porcelain002/Porcelain002_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "364f7223eb8fdaca40b3ed0a3757653727c273046169b78bd53b250fbae4088b",
+    "normal": "073a241155f0ec78ad765c89b3daddabb0fcdc0fe57c8e0b01ba1deaa9487de0",
+    "roughness": "60313a3e4bd8cd34555bb708ee0dab1fa0419bfbbab9b895f6adf0f47791ad3d",
+    "displacement": "0d390be9223b907037b5567cc37758099fa62236527e2a94313040305ad476c8"
+   },
+   "seconds": 1.0
+  },
+  {
+   "id": "Metal009",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Metal009/Metal009_2K-JPG_Color.jpg",
+    "normal": "textures/Metal009/Metal009_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Metal009/Metal009_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Metal009/Metal009_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "209d3bb050be9f58c5af179d9712fa7799567a4cd50afd338d37674bdcff765b",
+    "normal": "8773d9e97a4b057ced3e538d8ecc6069d27c8948191d61daf79b9ad93d93e3b3",
+    "roughness": "e802f013b93cb1bd4b55cd91f02a1863233475a7f8bd0e6755cfaa447a729674",
+    "displacement": "8a7dc69978932952ac0155d7475480b3d9f860cdedd5ccc51db9d202e8f583aa"
+   },
+   "seconds": 1.0
+  },
+  {
+   "id": "Metal011",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Metal011/Metal011_2K-JPG_Color.jpg",
+    "normal": "textures/Metal011/Metal011_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Metal011/Metal011_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Metal011/Metal011_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "c6224b16b39c205502926382b14aed33c9e4d94ace151c1544bc1c63019cf6fe",
+    "normal": "51a310dad0d3c493bf29baab930b95d6563c2ca325d1c0b56d40240e47a1bc36",
+    "roughness": "0e5d6fc143f7b7bc9d9304907fa437409e6d4609e25808d6869180010e4b4082",
+    "displacement": "044c81b40d0e0019a96305bb78b87f2db546e3fa814ae25414da84235596b79f"
+   },
+   "seconds": 1.0
+  },
+  {
+   "id": "Metal051A",
+   "ok": false,
+   "size": "2k",
+   "error": "JSONDecodeError: Expecting value: line 1313 column 22 (char 61440)",
+   "seconds": 1.1
+  },
+  {
+   "id": "Tiles133A",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Tiles133A/Tiles133A_2K-JPG_Color.jpg",
+    "normal": "textures/Tiles133A/Tiles133A_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Tiles133A/Tiles133A_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Tiles133A/Tiles133A_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "c83ba0aa0dd5c9cd03d7c51540b64c29f9dd32683511e61690b1113ddf4ec91c",
+    "normal": "a614fa45ab9fbb4edf75daafe3cefbc19916dfd1cef3a842f0b426d76793bc61",
+    "roughness": "44a1f822c7c2e5fb569e816e68adeeaab6cc15b29479d5c578327f9e9a3f2aa2",
+    "displacement": "b6f860c05b25505bf5662c9a743d2216945fea7b8459186c73338d618b959fec"
+   },
+   "seconds": 0.9
+  },
+  {
+   "id": "Tiles107",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Tiles107/Tiles107_2K-JPG_Color.jpg",
+    "normal": "textures/Tiles107/Tiles107_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Tiles107/Tiles107_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Tiles107/Tiles107_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "a74664ca3721976b9407d5b1bba65534f616eb2519ae16d76b4ec5f426530bdb",
+    "normal": "063e5e1ad15fadcf7453a2b6be8cb80d5d88da8aa79068f894a39f1414fef4db",
+    "roughness": "67cc4cc02b9e5dde932e47b0c3ba6e16b9a0e3847b11f76ea0961641816d9e1d",
+    "displacement": "b08c0831d62e971e8965df8444af50f2439dc216ea249db42c3bc87582d4561a"
+   },
+   "seconds": 0.8
+  },
+  {
+   "id": "Tiles109",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Tiles109/Tiles109_2K-JPG_Color.jpg",
+    "normal": "textures/Tiles109/Tiles109_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Tiles109/Tiles109_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Tiles109/Tiles109_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "0f21a1437e7b282109d80c686e1a424da33f2c2cd99998a26f59b251c7d1a8fd",
+    "normal": "997abf2498c82839f268dda7567354aacc7eb7d6510749b875dfe1ed56c5d7a3",
+    "roughness": "180d6f304e042c8425a7cc9c59971aff962c9db7f2f603eef810d4d544bcb59e",
+    "displacement": "54ec9f0bd63b1a4ac6f12ebb08c4a39eccfa84839a170308cb175eb624c36146"
+   },
+   "seconds": 1.0
+  },
+  {
+   "id": "Tiles074",
+   "ok": false,
+   "size": "2k",
+   "error": "JSONDecodeError: Unterminated string starting at: line 27005 column 7 (char 1122299)",
+   "seconds": 0.0
+  },
+  {
+   "id": "Tiles040",
+   "ok": true,
+   "size": "2k",
+   "files": {
+    "albedo": "textures/Tiles040/Tiles040_2K-JPG_Color.jpg",
+    "normal": "textures/Tiles040/Tiles040_2K-JPG_NormalGL.jpg",
+    "roughness": "textures/Tiles040/Tiles040_2K-JPG_Roughness.jpg",
+    "displacement": "textures/Tiles040/Tiles040_2K-JPG_Displacement.jpg"
+   },
+   "sha256": {
+    "albedo": "e3f383c750a78b2c878afd3b2d22d9f2743540b1dd473cc5a4df67a7e182a78b",
+    "normal": "49357b2eb961de0e0ac2f4a827493cf30ae1cc3ee2986a66770dd2bffe15b681",
+    "roughness": "4a22e3686508356e26f64ee48ac4d1650062fee26c05279455e2c6135eb790f0",
+    "displacement": "8ec785fa1ab248da147d4fc419b08249121a2d82f056a8b5fd6950a37854b7f3"
+   },
+   "seconds": 1.1
+  }
+ ]
+}

@@ -1142,6 +1142,19 @@ builds them) until the HSSD step runs. **16 Oct 2026: the user has accepted the 
 the RunPod secret `hf_token`.** Pod P2b runs only the HSSD part (`GROWTH_ONLY=hssd`, built in round 3; every other
 download and entry stays as it is on the volume), about 30 min; the gate check confirms the acceptance at run time.
 
+**Pod P2b (16 Oct 2026, HSSD layer):** pod `b1ab7tktt9xy2r`, RTX PRO 6000 WK ($2.59/h), 78 min, $3.35, code 47bd941,
+`GROWTH_ONLY=hssd`. The gate passed (the user's acceptance reached the token's account): **874 of 874 HSSD objects
+downloaded in 244 s**; 852 catalogued (22 dropped), the 884 P2 entries kept unchanged. The audit render took 27 min
+and the judge-model setup 32 min, so the vision pass hit the job's deadline: 283 of 853 HSSD models asked (the second
+pass of 310 earlier doubtful items finished). Written: HSSD 217 keep, 12 fix, 63 removed, **560 pending** (pending
+entries are never used); the republished `vintage_wooden_drawer_01` was re-audited and removed (1.72 m is no drawer).
+The audited HSSD models are furniture (chair 33, armchair 32, desk 30, bench 24, bed_double 22, bookshelf 22,
+dresser 21, console_table 15, bar_stool 12, bed_single 10, bathtub 5, floor_lamp 3); the fixtures the user accepted
+HSSD for (toilets, washbasins, showers, kitchen sinks, stoves, fridges) are among the 560 pending. Catalogue now:
+2,681 entries (library 1,955 + decor 726), usable commercial 1,417, relaxed 1,904; demand coverage relaxed 66 of
+90 bins (commercial 57). The GPU tests had no time left. **Pod P2c** re-runs the same command with 120 min: the
+answers on the volume are reused, so it asks only the 560 left.
+
 ### 14.7 Build round 3 (commit 47bd941, 15-16 Oct 2026): the P1 decisions applied
 
 The round was cut by a usage limit on 15 Oct and resumed on 16 Oct (the finished agents replayed from cache; the

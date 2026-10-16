@@ -1,0 +1,433 @@
+{
+ "tag": "v1.19.0",
+ "commit": "01c39c7f7adcf7363ccbcc57c64410c69f4a4e7c",
+ "jobs": [
+  {
+   "id": "infinigen_toilet_0",
+   "factory": "toilet",
+   "type": "toilet",
+   "kind": "furniture",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_toilet_0",
+   "state": "done",
+   "class": "ToiletFactory",
+   "dotted": "infinigen.assets.objects.bathroom.ToiletFactory"
+  },
+  {
+   "id": "infinigen_bathtub_0",
+   "factory": "bathtub",
+   "type": "bathtub",
+   "kind": "furniture",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bathtub_0",
+   "state": "done",
+   "class": "BathtubFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathtubFactory"
+  },
+  {
+   "id": "infinigen_bathroom_sink_0",
+   "factory": "bathroom sink",
+   "type": "washbasin",
+   "kind": "furniture",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bathroom_sink_0",
+   "state": "done",
+   "class": "BathroomSinkFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathroomSinkFactory"
+  },
+  {
+   "id": "infinigen_kitchen_sink_0",
+   "factory": "kitchen sink",
+   "type": "sink_kitchen",
+   "kind": "furniture",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_kitchen_sink_0",
+   "state": "done",
+   "class": "SinkFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.SinkFactory"
+  },
+  {
+   "id": "infinigen_oven_0",
+   "factory": "oven",
+   "type": "stove",
+   "kind": "furniture",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_oven_0",
+   "state": "done",
+   "class": "OvenFactory",
+   "dotted": "infinigen.assets.objects.appliances.OvenFactory"
+  },
+  {
+   "id": "infinigen_beverage_fridge_0",
+   "factory": "beverage fridge",
+   "type": "fridge",
+   "kind": "furniture",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_beverage_fridge_0",
+   "state": "done",
+   "class": "BeverageFridgeFactory",
+   "dotted": "infinigen.assets.objects.appliances.BeverageFridgeFactory"
+  },
+  {
+   "id": "infinigen_dishwasher_0",
+   "factory": "dishwasher",
+   "type": null,
+   "kind": null,
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_dishwasher_0",
+   "state": "done",
+   "class": "DishwasherFactory",
+   "dotted": "infinigen.assets.objects.appliances.DishwasherFactory"
+  },
+  {
+   "id": "infinigen_microwave_0",
+   "factory": "microwave",
+   "type": null,
+   "kind": null,
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_microwave_0",
+   "state": "done",
+   "class": "MicrowaveFactory",
+   "dotted": "infinigen.assets.objects.appliances.MicrowaveFactory"
+  },
+  {
+   "id": "infinigen_kitchen_cabinet_0",
+   "factory": "kitchen cabinet",
+   "type": null,
+   "kind": null,
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_kitchen_cabinet_0",
+   "state": "done",
+   "class": "KitchenCabinetFactory",
+   "dotted": "infinigen.assets.objects.shelves.KitchenCabinetFactory"
+  },
+  {
+   "id": "infinigen_books_0",
+   "factory": "books",
+   "type": "books",
+   "kind": "decor",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_books_0",
+   "state": "done",
+   "class": "BookStackFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.BookStackFactory"
+  },
+  {
+   "id": "infinigen_bowl_0",
+   "factory": "bowl",
+   "type": "bowl",
+   "kind": "decor",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bowl_0",
+   "state": "done",
+   "class": "BowlFactory",
+   "dotted": "infinigen.assets.objects.tableware.BowlFactory"
+  },
+  {
+   "id": "infinigen_pot_0",
+   "factory": "pot",
+   "type": "plant_small",
+   "kind": "decor",
+   "seed": 0,
+   "folder": "/workspace/library-growth/infinigen/infinigen_pot_0",
+   "state": "done",
+   "class": "PlantContainerFactory",
+   "dotted": "infinigen.assets.objects.tableware.PlantContainerFactory"
+  },
+  {
+   "id": "infinigen_toilet_1",
+   "factory": "toilet",
+   "type": "toilet",
+   "kind": "furniture",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_toilet_1",
+   "state": "done",
+   "class": "ToiletFactory",
+   "dotted": "infinigen.assets.objects.bathroom.ToiletFactory"
+  },
+  {
+   "id": "infinigen_bathtub_1",
+   "factory": "bathtub",
+   "type": "bathtub",
+   "kind": "furniture",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bathtub_1",
+   "state": "done",
+   "class": "BathtubFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathtubFactory"
+  },
+  {
+   "id": "infinigen_bathroom_sink_1",
+   "factory": "bathroom sink",
+   "type": "washbasin",
+   "kind": "furniture",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bathroom_sink_1",
+   "state": "done",
+   "class": "BathroomSinkFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathroomSinkFactory"
+  },
+  {
+   "id": "infinigen_kitchen_sink_1",
+   "factory": "kitchen sink",
+   "type": "sink_kitchen",
+   "kind": "furniture",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_kitchen_sink_1",
+   "state": "done",
+   "class": "SinkFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.SinkFactory"
+  },
+  {
+   "id": "infinigen_oven_1",
+   "factory": "oven",
+   "type": "stove",
+   "kind": "furniture",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_oven_1",
+   "state": "done",
+   "class": "OvenFactory",
+   "dotted": "infinigen.assets.objects.appliances.OvenFactory"
+  },
+  {
+   "id": "infinigen_beverage_fridge_1",
+   "factory": "beverage fridge",
+   "type": "fridge",
+   "kind": "furniture",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_beverage_fridge_1",
+   "state": "done",
+   "class": "BeverageFridgeFactory",
+   "dotted": "infinigen.assets.objects.appliances.BeverageFridgeFactory"
+  },
+  {
+   "id": "infinigen_books_1",
+   "factory": "books",
+   "type": "books",
+   "kind": "decor",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_books_1",
+   "state": "done",
+   "class": "BookStackFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.BookStackFactory"
+  },
+  {
+   "id": "infinigen_bowl_1",
+   "factory": "bowl",
+   "type": "bowl",
+   "kind": "decor",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bowl_1",
+   "state": "done",
+   "class": "BowlFactory",
+   "dotted": "infinigen.assets.objects.tableware.BowlFactory"
+  },
+  {
+   "id": "infinigen_pot_1",
+   "factory": "pot",
+   "type": "plant_small",
+   "kind": "decor",
+   "seed": 1,
+   "folder": "/workspace/library-growth/infinigen/infinigen_pot_1",
+   "state": "done",
+   "class": "PlantContainerFactory",
+   "dotted": "infinigen.assets.objects.tableware.PlantContainerFactory"
+  },
+  {
+   "id": "infinigen_toilet_2",
+   "factory": "toilet",
+   "type": "toilet",
+   "kind": "furniture",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_toilet_2",
+   "state": "done",
+   "class": "ToiletFactory",
+   "dotted": "infinigen.assets.objects.bathroom.ToiletFactory"
+  },
+  {
+   "id": "infinigen_bathtub_2",
+   "factory": "bathtub",
+   "type": "bathtub",
+   "kind": "furniture",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bathtub_2",
+   "state": "done",
+   "class": "BathtubFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathtubFactory"
+  },
+  {
+   "id": "infinigen_bathroom_sink_2",
+   "factory": "bathroom sink",
+   "type": "washbasin",
+   "kind": "furniture",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bathroom_sink_2",
+   "state": "done",
+   "class": "BathroomSinkFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathroomSinkFactory"
+  },
+  {
+   "id": "infinigen_kitchen_sink_2",
+   "factory": "kitchen sink",
+   "type": "sink_kitchen",
+   "kind": "furniture",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_kitchen_sink_2",
+   "state": "done",
+   "class": "SinkFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.SinkFactory"
+  },
+  {
+   "id": "infinigen_oven_2",
+   "factory": "oven",
+   "type": "stove",
+   "kind": "furniture",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_oven_2",
+   "state": "done",
+   "class": "OvenFactory",
+   "dotted": "infinigen.assets.objects.appliances.OvenFactory"
+  },
+  {
+   "id": "infinigen_beverage_fridge_2",
+   "factory": "beverage fridge",
+   "type": "fridge",
+   "kind": "furniture",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_beverage_fridge_2",
+   "state": "done",
+   "class": "BeverageFridgeFactory",
+   "dotted": "infinigen.assets.objects.appliances.BeverageFridgeFactory"
+  },
+  {
+   "id": "infinigen_books_2",
+   "factory": "books",
+   "type": "books",
+   "kind": "decor",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_books_2",
+   "state": "done",
+   "class": "BookStackFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.BookStackFactory"
+  },
+  {
+   "id": "infinigen_bowl_2",
+   "factory": "bowl",
+   "type": "bowl",
+   "kind": "decor",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_bowl_2",
+   "state": "done",
+   "class": "BowlFactory",
+   "dotted": "infinigen.assets.objects.tableware.BowlFactory"
+  },
+  {
+   "id": "infinigen_pot_2",
+   "factory": "pot",
+   "type": "plant_small",
+   "kind": "decor",
+   "seed": 2,
+   "folder": "/workspace/library-growth/infinigen/infinigen_pot_2",
+   "state": "done",
+   "class": "PlantContainerFactory",
+   "dotted": "infinigen.assets.objects.tableware.PlantContainerFactory"
+  }
+ ],
+ "todo": [],
+ "done": [
+  "infinigen_toilet_0",
+  "infinigen_bathtub_0",
+  "infinigen_bathroom_sink_0",
+  "infinigen_kitchen_sink_0",
+  "infinigen_oven_0",
+  "infinigen_beverage_fridge_0",
+  "infinigen_dishwasher_0",
+  "infinigen_microwave_0",
+  "infinigen_kitchen_cabinet_0",
+  "infinigen_books_0",
+  "infinigen_bowl_0",
+  "infinigen_pot_0",
+  "infinigen_toilet_1",
+  "infinigen_bathtub_1",
+  "infinigen_bathroom_sink_1",
+  "infinigen_kitchen_sink_1",
+  "infinigen_oven_1",
+  "infinigen_beverage_fridge_1",
+  "infinigen_books_1",
+  "infinigen_bowl_1",
+  "infinigen_pot_1",
+  "infinigen_toilet_2",
+  "infinigen_bathtub_2",
+  "infinigen_bathroom_sink_2",
+  "infinigen_kitchen_sink_2",
+  "infinigen_oven_2",
+  "infinigen_beverage_fridge_2",
+  "infinigen_books_2",
+  "infinigen_bowl_2",
+  "infinigen_pot_2"
+ ],
+ "failed": [],
+ "missing": [],
+ "matched": {
+  "toilet": {
+   "class": "ToiletFactory",
+   "dotted": "infinigen.assets.objects.bathroom.ToiletFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "bathtub": {
+   "class": "BathtubFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathtubFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "bathroom sink": {
+   "class": "BathroomSinkFactory",
+   "dotted": "infinigen.assets.objects.bathroom.BathroomSinkFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "kitchen sink": {
+   "class": "SinkFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.SinkFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "oven": {
+   "class": "OvenFactory",
+   "dotted": "infinigen.assets.objects.appliances.OvenFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "beverage fridge": {
+   "class": "BeverageFridgeFactory",
+   "dotted": "infinigen.assets.objects.appliances.BeverageFridgeFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "dishwasher": {
+   "class": "DishwasherFactory",
+   "dotted": "infinigen.assets.objects.appliances.DishwasherFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "microwave": {
+   "class": "MicrowaveFactory",
+   "dotted": "infinigen.assets.objects.appliances.MicrowaveFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "kitchen cabinet": {
+   "class": "KitchenCabinetFactory",
+   "dotted": "infinigen.assets.objects.shelves.KitchenCabinetFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "books": {
+   "class": "BookStackFactory",
+   "dotted": "infinigen.assets.objects.table_decorations.BookStackFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "bowl": {
+   "class": "BowlFactory",
+   "dotted": "infinigen.assets.objects.tableware.BowlFactory",
+   "how": "preferred (read at the pinned commit)"
+  },
+  "pot": {
+   "class": "PlantContainerFactory",
+   "dotted": "infinigen.assets.objects.tableware.PlantContainerFactory",
+   "how": "preferred (read at the pinned commit)"
+  }
+ }
+}

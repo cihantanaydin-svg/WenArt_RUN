@@ -2068,13 +2068,14 @@
    ],
    "sha256_gltf": "4080ecdac2228759dd41a5d5705b984f993bbf6b0f66570824a9dcbbeaa49e51",
    "audit": {
-    "status": "pending",
+    "status": "removed",
     "reasons": [
-     "republished at a new size on Poly Haven, 15 Oct 2026"
+     "a product of known units 63% off a real dresser (1.72 x 1.01 x 1.09 m): not a dresser"
     ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T05:53:30Z",
+    "checked_utc": "2026-10-16T09:01:40Z",
+    "decision_sha": "8f1cfa799d387fcd",
     "before": {
      "bbox_m": [
       0.8576,
@@ -2181,7 +2182,10 @@
       "on 16 Oct 2026 the plain CDN URL of the .bin answered a stale Cloudflare copy (189056 bytes, md5 efa2b55728ce87203a878d24597c2f0c, last-modified 22 Sep 2026) that fails the API md5; the same URL with a query string answered the current file (187680 bytes): wenart/assets/web.py retries an md5 mismatch that way",
       "the volume still holds the old files until growth run refetch fetches the current ones (the old files are kept beside as <name>.superseded-<sha12>); until then the catalogue step lists the entry under reaudit_waiting and the fit does not use it (audit pending)"
      ]
-    }
+    },
+    "notes": [
+     "the PBR map record is written into the catalogue entry (M13 gate)"
+    ]
    },
    "real_product": true
   },

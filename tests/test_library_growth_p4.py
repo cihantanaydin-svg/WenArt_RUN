@@ -1007,7 +1007,9 @@ def test_catalogue_step_m13_relinks_2k_previews_vegetation_and_builds_hssd_entri
     assert rep_doc["stats"]["polyhaven_relinked_2k"] == 1
     assert any(p["id"] == "jacaranda_tree" and p["kind"] == "vegetation" for p in rep_doc["previews"])
     assert not any(e.get("id") == "jacaranda_tree" for e in ph["entries"] + ph["decor"])
-    hssd = [e for e in lib["entries"] if e.get("source") == "hssd"]
+    # Milestone 13 pod P2b (16 Oct 2026): the repo catalogue already carries the HSSD entries of P2b, so only the
+    # entry this test adds (its id) is checked; the copy keeps the earlier ones unchanged.
+    hssd = [e for e in lib["entries"] if e.get("source") == "hssd" and e.get("id") == f"hssd_{hid}"]
     if "hssd" in C.SOURCES:
         assert len(hssd) == 1 and hssd[0]["licence_flag"] == "non_commercial" and hssd[0]["commercial_safe"] is False
         assert hssd[0]["audit"]["status"] == "pending" and hssd[0]["pbr_maps"]["base_colour"] is True

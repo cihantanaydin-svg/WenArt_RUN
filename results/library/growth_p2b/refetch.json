@@ -1,0 +1,21 @@
+{
+ "kind": "library_refetch",
+ "written_utc": "2026-10-16T07:50:44Z",
+ "rows": [
+  {
+   "id": "vintage_wooden_drawer_01",
+   "source": "polyhaven",
+   "reason": "republished at a new size on Poly Haven, 15 Oct 2026",
+   "sha256_gltf": "4080ecdac2228759dd41a5d5705b984f993bbf6b0f66570824a9dcbbeaa49e51",
+   "superseded": [
+    "models/vintage_wooden_drawer_01/textures/vintage_wooden_drawer_01_arm_1k.jpg.superseded-0f6ceab69f8f",
+    "models/vintage_wooden_drawer_01/textures/vintage_wooden_drawer_01_diff_1k.jpg.superseded-6aecebf3f5ea",
+    "models/vintage_wooden_drawer_01/textures/vintage_wooden_drawer_01_nor_gl_1k.jpg.superseded-07312a77e5e5",
+    "models/vintage_wooden_drawer_01/vintage_wooden_drawer_01.bin.superseded-2c0a40a166cf",
+    "models/vintage_wooden_drawer_01/vintage_wooden_drawer_01_1k.gltf.superseded-d39f4172d6fc"
+   ],
+   "current": true,
+   "state": "current"
+  }
+ ]
+}

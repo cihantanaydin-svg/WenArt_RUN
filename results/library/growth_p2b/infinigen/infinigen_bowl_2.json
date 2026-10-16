@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_bowl_2",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_bowl_2/export_002/export_002.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_bowl_2/infinigen.assets.objects.tableware.BowlFactory_002/scene.blend",
+ "dims": [
+  0.2122,
+  0.2122,
+  0.1148
+ ],
+ "meshes": 1,
+ "class": "BowlFactory",
+ "dotted": "infinigen.assets.objects.tableware.BowlFactory",
+ "seed": 2,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 5.0,
+ "attempts": 1
+}

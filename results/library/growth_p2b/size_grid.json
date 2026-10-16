@@ -1,0 +1,2951 @@
+{
+ "kind": "library_size_grid",
+ "written_utc": "2026-10-15T19:48:21Z",
+ "types": 48,
+ "bins_demanded": 90,
+ "grid": {
+  "armchair": [
+   {
+    "bin": "0.85x0.85",
+    "w": 0.85,
+    "d": 0.85,
+    "h": 0.9,
+    "label": "armchair 85: std; syn 0.8-1.0 square; abo B075X2WN36 Rivet 0.85 x 0.78, B07DBHC337 Ravenna 0.85 x 0.89, B075X4N4Z5 Rivet Lawson 33in 0.86 x 0.87",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.80x0.80",
+    "w": 0.8,
+    "d": 0.8,
+    "h": 0.9,
+    "label": "armchair 80: syn; abo B07124WCZY Ashbury 0.80 x 0.74, B0746KJVP2 Rivet Charlotte 0.81 x 0.81",
+    "demand": 2,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.74,
+      "d": 0.74,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.90x0.90",
+    "w": 0.9,
+    "d": 0.9,
+    "h": 0.9,
+    "label": "armchair 90: syn; abo B085FHBF2S Ravenna recliner 37in 0.90 x 0.93, B075X4N3GM Rivet Aiden 0.93 x 0.84",
+    "demand": 12,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.9,
+      "d": 0.9,
+      "count": 8
+     },
+     {
+      "w": 0.99,
+      "d": 0.84,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.00x1.00",
+    "w": 1.0,
+    "d": 1.0,
+    "h": 0.9,
+    "label": "lounge chair 100: syn; abo B075NR8HWJ Movian Dofsan '100 x 93 x 86', B0719WQGYJ Rivet Emerly 41in 1.04 x 0.89",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.70x0.85",
+    "w": 0.7,
+    "d": 0.85,
+    "h": 0.9,
+    "label": "accent chair 70 x 85: abo B071J7Q9X4 Rivet Huxley 0.70 x 0.86, B07124WN69 Huxley 28.3in 0.72 x 0.89, B07B84H7G8 0.71 x 0.82",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.65x0.80",
+    "w": 0.65,
+    "d": 0.8,
+    "h": 0.8,
+    "label": "small accent chair 65 x 80: abo B071J7Q9WN Rivet Summit 0.65 x 0.80, B07DBDN79B Ravenna Jase 29.9in 0.66 x 0.77",
+    "demand": 4,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.64,
+      "d": 0.57,
+      "count": 4
+     }
+    ]
+   }
+  ],
+  "bar_stool": [
+   {
+    "bin": "0.45x0.50",
+    "w": 0.45,
+    "d": 0.5,
+    "h": 1.0,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.42x0.42",
+    "w": 0.42,
+    "d": 0.42,
+    "h": 1.0,
+    "label": "product",
+    "demand": 9,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.42,
+      "d": 0.42,
+      "count": 7
+     },
+     {
+      "w": 0.4,
+      "d": 0.4,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.38x0.38",
+    "w": 0.38,
+    "d": 0.38,
+    "h": 1.0,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.45x0.45",
+    "w": 0.45,
+    "d": 0.45,
+    "h": 1.0,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "bathtub": [
+   {
+    "bin": "1.70x0.75",
+    "w": 1.7,
+    "d": 0.75,
+    "h": 0.58,
+    "label": "default product",
+    "demand": 3,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.62,
+      "d": 0.8,
+      "count": 3
+     }
+    ]
+   },
+   {
+    "bin": "1.50x0.70",
+    "w": 1.5,
+    "d": 0.7,
+    "h": 0.58,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.60x0.70",
+    "w": 1.6,
+    "d": 0.7,
+    "h": 0.58,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.70x0.70",
+    "w": 1.7,
+    "d": 0.7,
+    "h": 0.58,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.80x0.80",
+    "w": 1.8,
+    "d": 0.8,
+    "h": 0.58,
+    "label": "product",
+    "demand": 14,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.83,
+      "d": 0.8,
+      "count": 14
+     }
+    ]
+   }
+  ],
+  "bed_double": [
+   {
+    "bin": "1.40x2.00",
+    "w": 1.4,
+    "d": 2.0,
+    "h": 1.0,
+    "label": "double 140 x 200: std; syn 1.4 x 2.0; abo B07GFFR415 Movian Constance double bed frame 1.40 x 1.90 x 0.56, B07BBWMPJM Movian Corona '4 ft 6' double 1.49 x 2.07",
+    "demand": 3,
+    "projects": [
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.4,
+      "d": 2.0,
+      "count": 2
+     },
+     {
+      "w": 1.22,
+      "d": 2.13,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.60x2.00",
+    "w": 1.6,
+    "d": 2.0,
+    "h": 1.0,
+    "label": "queen / 160 x 200: std; syn 1.6 x 2.0; abo B0154VUESC Movian Loue '160 x 200cm' (frame 1.72 x 2.06), B07GFDZW5W Movian Havel 1.62 x 1.96, B084ZBX1YH Stone & Beam queen 1.60 x 2.11",
+    "demand": 20,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.65,
+      "d": 2.05,
+      "count": 8
+     },
+     {
+      "w": 1.55,
+      "d": 1.9,
+      "count": 6
+     },
+     {
+      "w": 2.55,
+      "d": 2.0,
+      "count": 6
+     }
+    ]
+   },
+   {
+    "bin": "1.80x2.00",
+    "w": 1.8,
+    "d": 2.0,
+    "h": 1.0,
+    "label": "king 180 x 200: std; syn 1.8 x 2.0; r01 F1/F4 1.78 x 2.03; abo B08FTN8KHY Solimo Senna king 1.88 x 2.04, B071W2SCTJ Glenwood king 1.76 x 2.22, B084ZBDPG5 Stone & Beam king 1.67 x 2.13",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "bed_single": [
+   {
+    "bin": "0.90x2.00",
+    "w": 0.9,
+    "d": 2.0,
+    "h": 0.9,
+    "label": "single 90 x 200: std; syn; ph old_bed_frame 0.90 x 2.00; abo B0856FL9HR Rivet twin 0.96 x 1.90",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.00x2.00",
+    "w": 1.0,
+    "d": 2.0,
+    "h": 0.9,
+    "label": "single 100 x 200: abo B0718WYQ8D Movian Aveyron '195 x 100 x 80cm', B07H8V14CZ Movian Moselle 0.99 x 2.14, B073WR319C 1.02 x 1.91",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.95,
+      "d": 0.95,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.20x2.00",
+    "w": 1.2,
+    "d": 2.0,
+    "h": 0.9,
+    "label": "small double 120 x 200: std; syn 1.2 x 2.0",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "bench": [
+   {
+    "bin": "1.20x0.40",
+    "w": 1.2,
+    "d": 0.4,
+    "h": 0.46,
+    "label": "default product",
+    "demand": 8,
+    "projects": [
+     "real02",
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.2,
+      "d": 0.4,
+      "count": 8
+     }
+    ]
+   },
+   {
+    "bin": "1.00x0.40",
+    "w": 1.0,
+    "d": 0.4,
+    "h": 0.46,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.40x0.45",
+    "w": 1.4,
+    "d": 0.45,
+    "h": 0.46,
+    "label": "product",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 1.52,
+      "count": 2
+     }
+    ]
+   }
+  ],
+  "bookshelf": [
+   {
+    "bin": "0.90x0.35",
+    "w": 0.9,
+    "d": 0.35,
+    "h": 1.85,
+    "label": "bookcase 90 x 35: std; syn; abo B075Z6YS1Z Larson 0.87 x 0.36 x 1.86, B07QC876WJ Rivet Davenport 34in 0.87 x 0.39 x 1.80",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.80x0.30",
+    "w": 0.8,
+    "d": 0.3,
+    "h": 1.85,
+    "label": "bookcase 80 x 30: syn; abo B082JGV1YM Stone & Beam 5-shelf 75in 0.81 x 0.34 x 1.91, B07HSCNKCT Rylee 0.75 x 0.31 x 1.47",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.8,
+      "d": 0.3,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "1.00x0.35",
+    "w": 1.0,
+    "d": 0.35,
+    "h": 1.85,
+    "label": "bookcase 100 x 35: syn; ph Shelf_01 1.00 x 0.26 x 2.08",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.0,
+      "d": 0.35,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.20x0.40",
+    "w": 1.2,
+    "d": 0.4,
+    "h": 1.85,
+    "label": "bookcase 120 x 40: syn; objaverse d48a42e9 High Bookcase 1.18 x 0.39 x 1.89, 68baafb3 Scaffale B 1.16 x 0.39",
+    "demand": 3,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.8,
+      "d": 0.25,
+      "count": 3
+     }
+    ]
+   },
+   {
+    "bin": "0.60x0.35",
+    "w": 0.6,
+    "d": 0.35,
+    "h": 1.8,
+    "label": "narrow bookcase 60 x 35: abo B07PMK78R8 AmazonBasics ladder 0.60 x 0.35 x 1.77, B07PNHSR4G AmazonBasics 5-tier 0.66 x 0.38 x 1.89, B07HSCJZQM Rivet Roxmere 23.6in 0.65 x 0.45 x 2.00",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.00x0.45",
+    "w": 1.0,
+    "d": 0.45,
+    "h": 1.4,
+    "label": "low cabinet bookcase 100 x 45: abo B07H8SQ2NZ Movian Oker '100 x 43 x 140', B07H8P1N9T Movian Moselle 1.00 x 0.45 x 1.39",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.00x0.40",
+    "w": 1.0,
+    "d": 0.4,
+    "h": 2.0,
+    "label": "tall bookcase 100 x 40: abo B07JGY5LNV Alkove Velle '42 x 95 x 202cm'",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "chair": [
+   {
+    "bin": "0.45x0.45",
+    "w": 0.45,
+    "d": 0.45,
+    "h": 0.88,
+    "label": "dining chair 45: std; syn 0.4-0.5 square; abo B0857JLP6K Stone & Beam birch 17.5in 0.45 x 0.55",
+    "demand": 8,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.45,
+      "d": 0.45,
+      "count": 8
+     }
+    ]
+   },
+   {
+    "bin": "0.40x0.40",
+    "w": 0.4,
+    "d": 0.4,
+    "h": 0.88,
+    "label": "small chair 40: syn; r01 F8-F13 0.38 x 0.45",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.50x0.50",
+    "w": 0.5,
+    "d": 0.5,
+    "h": 0.88,
+    "label": "dining chair 50: syn; abo B0857JM2NC Stone & Beam beech and rattan 0.56 x 0.50 x 0.76, B07C9W437G Rivet Federal 0.50 x 0.57; objaverse d2785b57 Chair 0.52 x 0.50",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.5,
+      "d": 0.5,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.45x0.55",
+    "w": 0.45,
+    "d": 0.55,
+    "h": 1.0,
+    "label": "dining chair 45 x 55: abo B07M6PKM8K Ravenna classic 40in 0.45 x 0.56 x 1.00, B07K7K7GKC Alkove Hayes 0.46 x 0.56, B084RZVHD2 Rivet Erikson 0.47 x 0.53",
+    "demand": 84,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.5,
+      "d": 0.45,
+      "count": 72
+     },
+     {
+      "w": 0.71,
+      "d": 0.45,
+      "count": 8
+     },
+     {
+      "w": 0.58,
+      "d": 0.45,
+      "count": 2
+     },
+     {
+      "w": 0.6,
+      "d": 0.45,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.50x0.55",
+    "w": 0.5,
+    "d": 0.55,
+    "h": 0.98,
+    "label": "dining chair 50 x 55: abo B07MBFDL34 Ravenna cutout back 0.49 x 0.54 x 0.98, B07B7B94DP Stone & Beam Hughes 0.50 x 0.61",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "console_table": [
+   {
+    "bin": "1.20x0.35",
+    "w": 1.2,
+    "d": 0.35,
+    "h": 0.76,
+    "label": "default product",
+    "demand": 9,
+    "projects": [
+     "real02",
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.2,
+      "d": 0.35,
+      "count": 7
+     },
+     {
+      "w": 1.8,
+      "d": 0.25,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.90x0.30",
+    "w": 0.9,
+    "d": 0.3,
+    "h": 0.76,
+    "label": "product",
+    "demand": 11,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.9,
+      "d": 0.3,
+      "count": 7
+     },
+     {
+      "w": 0.29,
+      "d": 0.74,
+      "count": 3
+     },
+     {
+      "w": 0.74,
+      "d": 0.29,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.40x0.40",
+    "w": 1.4,
+    "d": 0.4,
+    "h": 0.76,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "desk": [
+   {
+    "bin": "1.20x0.60",
+    "w": 1.2,
+    "d": 0.6,
+    "h": 0.76,
+    "label": "desk 120 x 60: std; syn; abo B07GF5DCK2 Rivet 1.21 x 0.53, B07HSCRFTN Rivet 1.19 x 0.77",
+    "demand": 4,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.2,
+      "d": 0.6,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.40x0.70",
+    "w": 1.4,
+    "d": 0.7,
+    "h": 0.76,
+    "label": "desk 140 x 70: std; syn",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.4,
+      "d": 0.7,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "1.60x0.80",
+    "w": 1.6,
+    "d": 0.8,
+    "h": 0.76,
+    "label": "desk 160 x 80: std; syn; abo B07B7DFS3S Stone & Beam 60in 1.54 x 0.78",
+    "demand": 6,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.45,
+      "d": 0.91,
+      "count": 6
+     }
+    ]
+   },
+   {
+    "bin": "1.10x0.56",
+    "w": 1.1,
+    "d": 0.56,
+    "h": 0.73,
+    "label": "desk 110 x 56: abo B07GFL6RF5 Movian Idro '56 x 110 x 73.5cm', B07GFT639N Movian Indre '56 x 110 x 73cm'",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.00x0.50",
+    "w": 1.0,
+    "d": 0.5,
+    "h": 0.76,
+    "label": "desk 100 x 50: abo B07PVL2N3D AmazonBasics 0.90 x 0.50, B0876NZQ9C AmazonBasics 40in 1.02 x 0.51, B082DFL4JW Rivet Avery 1.02 x 0.47",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.40x0.55",
+    "w": 1.4,
+    "d": 0.55,
+    "h": 0.76,
+    "label": "desk 140 x 55: abo B07JXXR83F Movian Stanberg '140 x 55'",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.60x0.75",
+    "w": 1.6,
+    "d": 0.75,
+    "h": 0.78,
+    "label": "desk 160 x 75: abo B07TKY3L6X Movian Coa '160 x 73 x 77.5cm'",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "dresser": [
+   {
+    "bin": "1.00x0.45",
+    "w": 1.0,
+    "d": 0.45,
+    "h": 0.9,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.20x0.50",
+    "w": 1.2,
+    "d": 0.5,
+    "h": 0.9,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.2,
+      "d": 0.5,
+      "count": 3
+     },
+     {
+      "w": 1.1,
+      "d": 0.6,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.40x0.50",
+    "w": 1.4,
+    "d": 0.5,
+    "h": 0.9,
+    "label": "product",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.4,
+      "d": 0.5,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "0.80x0.40",
+    "w": 0.8,
+    "d": 0.4,
+    "h": 0.9,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "floor_lamp": [
+   {
+    "bin": "0.40x0.40",
+    "w": 0.4,
+    "d": 0.4,
+    "h": 1.6,
+    "label": "floor lamp 40: std; abo B07HKF59YX Stone & Beam Henley 0.40 x 0.40 x 1.52, B07DBK7KKZ Ravenna 0.41 x 0.41 x 1.77",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.44,
+      "d": 0.44,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "0.30x0.30",
+    "w": 0.3,
+    "d": 0.3,
+    "h": 1.6,
+    "label": "slim floor lamp 30: std; abo B07MBFDWY5 Ravenna shelves 0.28 x 0.28 x 1.59, B073P3S1NX Rivet Olive 0.31 x 0.31 x 1.57",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.50x0.50",
+    "w": 0.5,
+    "d": 0.5,
+    "h": 1.6,
+    "label": "floor lamp 50: std; abo B0742D9X4R Rivet tripod 0.46 x 0.45 x 1.54",
+    "demand": 14,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.5,
+      "d": 0.45,
+      "count": 10
+     },
+     {
+      "w": 0.49,
+      "d": 0.49,
+      "count": 3
+     },
+     {
+      "w": 0.37,
+      "d": 0.61,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 1.6,
+    "label": "wide floor lamp 60: abo B07B4ZK8BR Rivet 0.57 x 0.57 x 1.52, B073P25SXR Rivet 5-arm 0.60 x 0.57 x 1.72 (a drawn 0.79 round symbol, real04, becomes this)",
+    "demand": 12,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.59,
+      "d": 0.59,
+      "count": 8
+     },
+     {
+      "w": 0.79,
+      "d": 0.79,
+      "count": 4
+     }
+    ]
+   }
+  ],
+  "fridge": [
+   {
+    "bin": "0.60x0.65",
+    "w": 0.6,
+    "d": 0.65,
+    "h": 1.85,
+    "label": "default product",
+    "demand": 4,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.79,
+      "d": 0.5,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "0.70x0.70",
+    "w": 0.7,
+    "d": 0.7,
+    "h": 1.85,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.90x0.75",
+    "w": 0.9,
+    "d": 0.75,
+    "h": 1.85,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 1.85,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "kitchen_island": [
+   {
+    "bin": "1.60x0.90",
+    "w": 1.6,
+    "d": 0.9,
+    "h": 0.9,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.20x0.80",
+    "w": 1.2,
+    "d": 0.8,
+    "h": 0.9,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.59,
+      "d": 0.6,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "2.00x1.00",
+    "w": 2.0,
+    "d": 1.0,
+    "h": 0.9,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.9,
+      "d": 2.13,
+      "count": 4
+     }
+    ]
+   }
+  ],
+  "nightstand": [
+   {
+    "bin": "0.45x0.40",
+    "w": 0.45,
+    "d": 0.4,
+    "h": 0.55,
+    "label": "nightstand 45 x 40: std; syn; r01 F2/F3/F5/F6 0.49 x 0.45; abo B07RNZC4TJ AmazonBasics '45 x 38 x 49 cm', B084MYDTKM Rivet 0.46 x 0.41",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.40x0.40",
+    "w": 0.4,
+    "d": 0.4,
+    "h": 0.55,
+    "label": "nightstand 40 x 40: syn; abo B07QS8TBXT Movian Emme '40 x 40 x 45 cm'",
+    "demand": 17,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.4,
+      "d": 0.38,
+      "count": 8
+     },
+     {
+      "w": 0.4,
+      "d": 0.4,
+      "count": 6
+     },
+     {
+      "w": 0.38,
+      "d": 0.4,
+      "count": 3
+     }
+    ]
+   },
+   {
+    "bin": "0.50x0.40",
+    "w": 0.5,
+    "d": 0.4,
+    "h": 0.55,
+    "label": "nightstand 50 x 40: syn; abo B07DBDX5WF Ravenna Priscilla 18.9in 0.48 x 0.40 x 0.62, B07PX3CC31 AmazonBasics 0.48 x 0.38",
+    "demand": 13,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.5,
+      "d": 0.4,
+      "count": 13
+     }
+    ]
+   },
+   {
+    "bin": "0.60x0.45",
+    "w": 0.6,
+    "d": 0.45,
+    "h": 0.55,
+    "label": "nightstand 60 x 45: syn; abo B07VB7Q6W7 Movian Kyyvesi '60 x 42', B075X38PZ7 Newport 22in 0.59 x 0.46",
+    "demand": 6,
+    "projects": [
+     "real02",
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.45,
+      "count": 6
+     }
+    ]
+   },
+   {
+    "bin": "0.40x0.35",
+    "w": 0.4,
+    "d": 0.35,
+    "h": 0.5,
+    "label": "slim nightstand 40 x 35: abo B079VK52WZ Movian high gloss 0.40 x 0.36 x 0.47, B07DBB7FVP Ravenna Naomi 0.43 x 0.35",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.55x0.45",
+    "w": 0.55,
+    "d": 0.45,
+    "h": 0.5,
+    "label": "nightstand 55 x 45: abo B07K7K7GTZ Alkove Hayes '56 x 44 x 47 cm'; ph side_table_01 0.55 x 0.45",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "office_chair": [
+   {
+    "bin": "0.65x0.65",
+    "w": 0.65,
+    "d": 0.65,
+    "h": 1.1,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.55x0.55",
+    "w": 0.55,
+    "d": 0.55,
+    "h": 1.1,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 1.1,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.6,
+      "count": 4
+     }
+    ]
+   }
+  ],
+  "ottoman": [
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 0.45,
+    "label": "default product",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.6,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "0.50x0.50",
+    "w": 0.5,
+    "d": 0.5,
+    "h": 0.45,
+    "label": "product",
+    "demand": 17,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.4,
+      "d": 0.4,
+      "count": 8
+     },
+     {
+      "w": 0.47,
+      "d": 0.48,
+      "count": 8
+     },
+     {
+      "w": 0.5,
+      "d": 0.5,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "0.80x0.80",
+    "w": 0.8,
+    "d": 0.8,
+    "h": 0.45,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.80x0.60",
+    "w": 0.8,
+    "d": 0.6,
+    "h": 0.45,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "shoe_cabinet": [
+   {
+    "bin": "0.80x0.30",
+    "w": 0.8,
+    "d": 0.3,
+    "h": 1.0,
+    "label": "default product",
+    "demand": 5,
+    "projects": [
+     "real02",
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.8,
+      "d": 0.32,
+      "count": 3
+     },
+     {
+      "w": 0.21,
+      "d": 0.65,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.60x0.30",
+    "w": 0.6,
+    "d": 0.3,
+    "h": 1.0,
+    "label": "product",
+    "demand": 7,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.3,
+      "count": 7
+     }
+    ]
+   },
+   {
+    "bin": "1.00x0.35",
+    "w": 1.0,
+    "d": 0.35,
+    "h": 1.0,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "shower": [
+   {
+    "bin": "0.90x0.90",
+    "w": 0.9,
+    "d": 0.9,
+    "h": 2.0,
+    "label": "default product",
+    "demand": 2,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.97,
+      "d": 0.9,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.80x0.80",
+    "w": 0.8,
+    "d": 0.8,
+    "h": 2.0,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.8,
+      "d": 0.85,
+      "count": 3
+     },
+     {
+      "w": 0.8,
+      "d": 0.83,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.00x0.80",
+    "w": 1.0,
+    "d": 0.8,
+    "h": 2.0,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.0,
+      "d": 0.85,
+      "count": 2
+     },
+     {
+      "w": 1.02,
+      "d": 0.85,
+      "count": 1
+     },
+     {
+      "w": 1.07,
+      "d": 0.8,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.20x0.80",
+    "w": 1.2,
+    "d": 0.8,
+    "h": 2.0,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.4,
+      "d": 0.6,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.20x0.90",
+    "w": 1.2,
+    "d": 0.9,
+    "h": 2.0,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "side_table": [
+   {
+    "bin": "0.45x0.45",
+    "w": 0.45,
+    "d": 0.45,
+    "h": 0.55,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.40x0.40",
+    "w": 0.4,
+    "d": 0.4,
+    "h": 0.55,
+    "label": "product",
+    "demand": 2,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.3,
+      "d": 0.29,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 0.55,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "sideboard": [
+   {
+    "bin": "1.60x0.45",
+    "w": 1.6,
+    "d": 0.45,
+    "h": 0.82,
+    "label": "default product",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.6,
+      "d": 0.45,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.40x0.42",
+    "w": 1.4,
+    "d": 0.42,
+    "h": 0.82,
+    "label": "product",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.4,
+      "d": 0.42,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.80x0.48",
+    "w": 1.8,
+    "d": 0.48,
+    "h": 0.82,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "sink_kitchen": [
+   {
+    "bin": "0.80x0.60",
+    "w": 0.8,
+    "d": 0.6,
+    "h": 0.9,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.60x0.50",
+    "w": 0.6,
+    "d": 0.5,
+    "h": 0.9,
+    "label": "product",
+    "demand": 12,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.35,
+      "d": 0.44,
+      "count": 8
+     },
+     {
+      "w": 0.51,
+      "d": 0.11,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "0.80x0.50",
+    "w": 0.8,
+    "d": 0.5,
+    "h": 0.9,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.79,
+      "d": 0.5,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.00x0.60",
+    "w": 1.0,
+    "d": 0.6,
+    "h": 0.9,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "sofa": [
+   {
+    "bin": "2.00x0.90",
+    "w": 2.0,
+    "d": 0.9,
+    "h": 0.85,
+    "label": "3-seat 200: std; syn 2.0 x 0.9; abo B075X43FD2 Rivet Lawson 78in 2.00 x 0.88, B07K9PMZJL Movian Dyvran '197 x 83 x 83', B07B4FW7H5 Andover 78in 1.97 x 0.92",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.60x0.90",
+    "w": 1.6,
+    "d": 0.9,
+    "h": 0.85,
+    "label": "2-seat / loveseat 160: std; syn 1.6 x 0.9; abo B075X4JB3K Rivet Eva loveseat 1.54 x 0.90, B07B4FZK8X Edgewest loveseat 65in 1.68 x 0.88",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.6,
+      "d": 0.9,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "2.20x0.90",
+    "w": 2.2,
+    "d": 0.9,
+    "h": 0.85,
+    "label": "3-seat 220: syn 2.2 x 0.9; abo B072555T67 Movian Ackan '209 x 87 x 80', B07B4D84F8 Edgewest 2.22 x 0.86, B07B4MF2MF 87in 2.25 x 0.88",
+    "demand": 8,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 2.1,
+      "d": 0.9,
+      "count": 8
+     }
+    ]
+   },
+   {
+    "bin": "2.60x0.95",
+    "w": 2.6,
+    "d": 0.95,
+    "h": 0.85,
+    "label": "large 3-seat 260: syn 2.6 x 0.95; abo B071J7Q3J4 Bradbury 2.69 x 1.08; ph sofa_03 2.73 x 0.93",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.30x0.85",
+    "w": 1.3,
+    "d": 0.85,
+    "h": 0.85,
+    "label": "small 2-seat 130: abo B07R3TWDTM Movian Keitele '2 Seater Sofa, 130 x 82 x 84' (a drawn 1.30 x 0.63 'sofa' is this, not a 1.60 one)",
+    "demand": 6,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.3,
+      "d": 0.63,
+      "count": 4
+     },
+     {
+      "w": 0.9,
+      "d": 1.4,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "3.00x1.00",
+    "w": 3.0,
+    "d": 1.0,
+    "h": 0.85,
+    "label": "4-seat 300: std (sofas to 3.0 m); objaverse 104ac40e Sofa 3.04 x 1.07",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "sofa_corner": [
+   {
+    "bin": "2.60x1.60",
+    "w": 2.6,
+    "d": 1.6,
+    "h": 0.86,
+    "label": "corner 260 x 160: std; abo B07K8Z4VGB Movian Enan L-shaped 2.66 x 1.61, B07BWJCPWV Rivet Emerly 96in 2.44 x 1.62",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "2.20x1.50",
+    "w": 2.2,
+    "d": 1.5,
+    "h": 0.86,
+    "label": "corner 220 x 150: std; abo B07QBMQ4YF Rivet Aiden sectional 2.18 x 1.51, B07BWKD3BG Dalton chaise 91.5in 2.09 x 1.50, B07K8V2JRF Movian Djuran 2.30 x 1.58",
+    "demand": 2,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 2.1,
+      "d": 1.5,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "3.00x1.70",
+    "w": 3.0,
+    "d": 1.7,
+    "h": 0.86,
+    "label": "corner 300 x 170: std; abo B07BW8MJR2 Edgewest L-sectional 2.92 x 1.47, B07BW8MNQZ Andover L 3.20 x 1.58",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "3.20x2.00",
+    "w": 3.2,
+    "d": 2.0,
+    "h": 0.86,
+    "label": "L-sectional 320 x 200: abo B07B4M2B7N Edgewest L-sectional 2.95 x 2.01, B07BW8PWF6 Edgewest 116in 3.33 x 2.08, B07BWK58GZ Edgewest U 3.42 x 2.05",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 4.38,
+      "d": 1.97,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "2.40x2.40",
+    "w": 2.4,
+    "d": 2.4,
+    "h": 0.86,
+    "label": "square sectional 240 x 240: abo B0714QGLNB Rivet Emerly sectional 96in 2.45 x 2.43, B071FMSMD4 Kristin sectional 2.49 x 2.57",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "stove": [
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 0.9,
+    "label": "default product",
+    "demand": 6,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.57,
+      "count": 6
+     }
+    ]
+   },
+   {
+    "bin": "0.50x0.60",
+    "w": 0.5,
+    "d": 0.6,
+    "h": 0.9,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.52,
+      "count": 2
+     },
+     {
+      "w": 0.6,
+      "d": 0.53,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.90x0.60",
+    "w": 0.9,
+    "d": 0.6,
+    "h": 0.9,
+    "label": "product",
+    "demand": 8,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.75,
+      "d": 0.55,
+      "count": 8
+     }
+    ]
+   }
+  ],
+  "table_coffee": [
+   {
+    "bin": "1.10x0.60",
+    "w": 1.1,
+    "d": 0.6,
+    "h": 0.42,
+    "label": "coffee table 110 x 60: std; syn; abo B07B7GYMQL Rivet 43in 1.10 x 0.65, B07SQ9P548 Solimo Veronica 1.05 x 0.59, B07L8DT2XT 1.07 x 0.61",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.80x0.50",
+    "w": 0.8,
+    "d": 0.5,
+    "h": 0.42,
+    "label": "small 80 x 50: std; syn 0.8 x 0.5",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.56,
+      "d": 0.56,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.00x0.60",
+    "w": 1.0,
+    "d": 0.6,
+    "h": 0.42,
+    "label": "coffee table 100 x 60: syn; abo B07GDYVV9M Rivet triangular '105 x 60', objaverse 956a47cc 1.00 x 0.60",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.0,
+      "d": 0.6,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "1.20x0.70",
+    "w": 1.2,
+    "d": 0.7,
+    "h": 0.42,
+    "label": "coffee table 120 x 70: syn; abo B074KMJ96Q Glenwood 46in 1.17 x 0.72, B07DBFQV23 Parker 47.2in 1.20 x 0.58; ph modern_coffee_table_01 1.20 x 0.60",
+    "demand": 2,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.52,
+      "d": 0.6,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.80x0.80",
+    "w": 0.8,
+    "d": 0.8,
+    "h": 0.42,
+    "label": "round / square 80: abo B07GDSF3MR Rivet round '80 x 80'; ph industrial_coffee_table 0.78 x 0.76, chinese_tea_table 0.84",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.90x0.90",
+    "w": 0.9,
+    "d": 0.9,
+    "h": 0.45,
+    "label": "round 36in 90: abo B074KLRCPW Rivet round glass 36in 0.91, B075Z8M2BW Roland X-frame 36in 0.90",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.00x0.50",
+    "w": 1.0,
+    "d": 0.5,
+    "h": 0.42,
+    "label": "narrow 100 x 50: abo B01LWVEZ1C Alkove Waverly 0.90 x 0.45, B075ZBVZPB Larson 0.99 x 0.45, B07L85XV75 1.09 x 0.49",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.30x0.80",
+    "w": 1.3,
+    "d": 0.8,
+    "h": 0.42,
+    "label": "large 130 x 80: abo B07B7G4VYF pallet 1.30 x 0.83, B07QF9Y71V 53in 1.35 x 0.75, B075Z85VX9 Sparrow 55in 1.39 x 0.77",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.20x1.20",
+    "w": 1.2,
+    "d": 1.2,
+    "h": 0.42,
+    "label": "round 120: ph modern_coffee_table_02 1.20, coffee_table_round_01 1.30; abo B07HSG8DPR round 48in 1.26",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "table_dining": [
+   {
+    "bin": "1.60x0.90",
+    "w": 1.6,
+    "d": 0.9,
+    "h": 0.75,
+    "label": "6-seat 160 x 90: std; syn; abo B07H8SZNZF Movian Moselle '160 x 76 x 90cm', B07H93GTHW Movian Kuban '160 x 78 x 90cm', B075YMXWZC Rivet 63in 1.61 x 0.81",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.6,
+      "d": 0.9,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "1.20x0.80",
+    "w": 1.2,
+    "d": 0.8,
+    "h": 0.75,
+    "label": "4-seat 120 x 80: std; syn; abo B07RT5JN33 Movian Kyyvesi '120.5 x 71.4 x 76 cm', B07SJ75Y1M Alkove Hayes 1.30 x 0.90; r01 F7 1.24 x 0.73",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.2,
+      "d": 0.8,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "1.80x0.90",
+    "w": 1.8,
+    "d": 0.9,
+    "h": 0.75,
+    "label": "6-8-seat 180 x 90: std; syn; abo B07VDD563W Movian Kyyvesi '180 x 90 x 75 cm', B07K7K25NM Alkove Hayes 1.80 x 0.90, B075YPTG8S Rivet hairpin 1.79 x 0.88",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "2.00x1.00",
+    "w": 2.0,
+    "d": 1.0,
+    "h": 0.75,
+    "label": "8-seat 200 x 100: std; syn; abo B07B7BGXN9 Alejandra 1.97 x 1.07, B076NNYB3P Dunbar 78in 1.98 x 1.02",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.80x0.80",
+    "w": 0.8,
+    "d": 0.8,
+    "h": 0.75,
+    "label": "2-seat square / round 80: std (round 0.8-0.9); abo B07M6PKC6B Ravenna 29in 0.75 x 0.75, B075Z9QB7N Rivet round 0.89; ph round_wooden_table_02 0.80",
+    "demand": 6,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.79,
+      "d": 0.65,
+      "count": 4
+     },
+     {
+      "w": 0.7,
+      "d": 0.7,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "1.00x1.00",
+    "w": 1.0,
+    "d": 1.0,
+    "h": 0.75,
+    "label": "4-seat round 100: std (round 0.9-1.2); abo B0853Q71J6 Rivet round extendable 0.99, B07B82WF6G Rivet round 1.04",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "2.40x1.00",
+    "w": 2.4,
+    "d": 1.0,
+    "h": 0.76,
+    "label": "8-10-seat 240 x 100: std; ph painted_wooden_table 2.41 x 1.14 x 0.96",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 2.3,
+      "d": 1.0,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "3.00x1.00",
+    "w": 3.0,
+    "d": 1.0,
+    "h": 0.76,
+    "label": "10-12-seat 300 x 100: std (to 12 seats); m11 real02 masa 3.35 x 1.00 (in range since M13, not snapped)",
+    "demand": 4,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 3.35,
+      "d": 1.0,
+      "count": 4
+     }
+    ]
+   }
+  ],
+  "tall_cabinet": [
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 2.1,
+    "label": "default product",
+    "demand": 1,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.6,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "0.40x0.58",
+    "w": 0.4,
+    "d": 0.58,
+    "h": 2.1,
+    "label": "product",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.4,
+      "d": 0.58,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "0.80x0.60",
+    "w": 0.8,
+    "d": 0.6,
+    "h": 2.1,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.30x0.30",
+    "w": 0.3,
+    "d": 0.3,
+    "h": 2.1,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "toilet": [
+   {
+    "bin": "0.38x0.65",
+    "w": 0.38,
+    "d": 0.65,
+    "h": 0.78,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.36x0.55",
+    "w": 0.36,
+    "d": 0.55,
+    "h": 0.78,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.40x0.70",
+    "w": 0.4,
+    "d": 0.7,
+    "h": 0.78,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.45x0.75",
+    "w": 0.45,
+    "d": 0.75,
+    "h": 0.78,
+    "label": "product",
+    "demand": 28,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.5,
+      "d": 0.69,
+      "count": 12
+     },
+     {
+      "w": 1.14,
+      "d": 0.36,
+      "count": 6
+     },
+     {
+      "w": 0.5,
+      "d": 0.68,
+      "count": 4
+     },
+     {
+      "w": 0.69,
+      "d": 0.5,
+      "count": 4
+     },
+     {
+      "w": 0.36,
+      "d": 1.14,
+      "count": 2
+     }
+    ]
+   }
+  ],
+  "tv_unit": [
+   {
+    "bin": "1.50x0.42",
+    "w": 1.5,
+    "d": 0.42,
+    "h": 0.55,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.20x0.40",
+    "w": 1.2,
+    "d": 0.4,
+    "h": 0.55,
+    "label": "product",
+    "demand": 4,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.2,
+      "d": 0.4,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.60x0.45",
+    "w": 1.6,
+    "d": 0.45,
+    "h": 0.55,
+    "label": "product",
+    "demand": 5,
+    "projects": [
+     "real02",
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.6,
+      "d": 0.45,
+      "count": 5
+     }
+    ]
+   },
+   {
+    "bin": "2.00x0.45",
+    "w": 2.0,
+    "d": 0.45,
+    "h": 0.55,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "wardrobe": [
+   {
+    "bin": "1.20x0.60",
+    "w": 1.2,
+    "d": 0.6,
+    "h": 2.0,
+    "label": "2-door 120 x 60: std; syn 1.2 x 0.6",
+    "demand": 2,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.2,
+      "d": 0.6,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "1.80x0.60",
+    "w": 1.8,
+    "d": 0.6,
+    "h": 2.0,
+    "label": "sliding 2-door 180 x 60: syn; abo B07GFS1VB6 Movian Kolva '180 x 61 x 197cm', B07JGPKZYT Movian Mira 4-door 1.81 x 0.58 x 2.07",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "2.40x0.60",
+    "w": 2.4,
+    "d": 0.6,
+    "h": 2.0,
+    "label": "4-door 240 x 60: std; syn 2.4 x 0.6",
+    "demand": 8,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 2.57,
+      "d": 0.74,
+      "count": 4
+     },
+     {
+      "w": 3.11,
+      "d": 0.6,
+      "count": 4
+     }
+    ]
+   },
+   {
+    "bin": "1.00x0.60",
+    "w": 1.0,
+    "d": 0.6,
+    "h": 1.96,
+    "label": "2-door 100 x 60: abo B07H8V7P3H Movian Moselle '100 x 60 x 196 cm', B07GFRKNR1 Movian Inari '100 x 57' 0.99 x 0.58 x 1.81",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "2.00x0.60",
+    "w": 2.0,
+    "d": 0.6,
+    "h": 2.2,
+    "label": "5-door 200 x 60: abo B07H8JN9QF Movian Morava 4-door 2.00 x 0.60 x 2.16, B07H8PS4FZ Movian Cinca 5-door 2.16 x 0.59 x 2.26",
+    "demand": 4,
+    "projects": [
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.9,
+      "d": 0.6,
+      "count": 2
+     },
+     {
+      "w": 2.09,
+      "d": 0.6,
+      "count": 2
+     }
+    ]
+   },
+   {
+    "bin": "1.30x0.50",
+    "w": 1.3,
+    "d": 0.5,
+    "h": 1.9,
+    "label": "3-door 130 x 50: abo B07GFS1R5B Movian Indre '129 x 51 x 191cm'",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "1.50x0.55",
+    "w": 1.5,
+    "d": 0.55,
+    "h": 1.9,
+    "label": "3-door 150 x 55: abo B07B3XXD3P Vida Designs Corona 3-door 1.50 x 0.57 x 1.87",
+    "demand": 8,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.45,
+      "d": 0.6,
+      "count": 8
+     }
+    ]
+   }
+  ],
+  "washbasin": [
+   {
+    "bin": "0.60x0.45",
+    "w": 0.6,
+    "d": 0.45,
+    "h": 0.85,
+    "label": "default product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.50x0.40",
+    "w": 0.5,
+    "d": 0.4,
+    "h": 0.85,
+    "label": "product",
+    "demand": 1,
+    "projects": [
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.5,
+      "d": 0.4,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "0.80x0.50",
+    "w": 0.8,
+    "d": 0.5,
+    "h": 0.85,
+    "label": "product",
+    "demand": 20,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.0,
+      "d": 0.55,
+      "count": 20
+     }
+    ]
+   },
+   {
+    "bin": "0.45x0.35",
+    "w": 0.45,
+    "d": 0.35,
+    "h": 0.85,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "washing_machine": [
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 0.85,
+    "label": "default product",
+    "demand": 8,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.65,
+      "d": 0.6,
+      "count": 7
+     },
+     {
+      "w": 0.6,
+      "d": 0.6,
+      "count": 1
+     }
+    ]
+   },
+   {
+    "bin": "0.60x0.55",
+    "w": 0.6,
+    "d": 0.55,
+    "h": 0.85,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   },
+   {
+    "bin": "0.70x0.70",
+    "w": 0.7,
+    "d": 0.7,
+    "h": 0.85,
+    "label": "product",
+    "demand": 0,
+    "projects": [],
+    "from": "grid"
+   }
+  ],
+  "basket": [
+   {
+    "bin": "0.40x0.40",
+    "w": 0.4,
+    "d": 0.4,
+    "h": 0.35,
+    "label": "default product",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.4,
+      "d": 0.4,
+      "count": 2
+     }
+    ]
+   }
+  ],
+  "blind": [
+   {
+    "bin": "1.20x0.05",
+    "w": 1.2,
+    "d": 0.05,
+    "h": 1.5,
+    "label": "default product",
+    "demand": 11,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 4.26,
+      "d": 0.06,
+      "count": 4
+     },
+     {
+      "w": 7.29,
+      "d": 0.06,
+      "count": 4
+     },
+     {
+      "w": 3.64,
+      "d": 0.06,
+      "count": 2
+     },
+     {
+      "w": 0.6,
+      "d": 0.06,
+      "count": 1
+     }
+    ]
+   }
+  ],
+  "ceiling_light": [
+   {
+    "bin": "0.35x0.35",
+    "w": 0.35,
+    "d": 0.35,
+    "h": 0.13,
+    "label": "default product",
+    "demand": 34,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.4,
+      "d": 0.4,
+      "count": 34
+     }
+    ]
+   }
+  ],
+  "curtain": [
+   {
+    "bin": "1.40x0.10",
+    "w": 1.4,
+    "d": 0.1,
+    "h": 2.5,
+    "label": "default product",
+    "demand": 32,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 2.0,
+      "d": 0.08,
+      "count": 18
+     },
+     {
+      "w": 2.4,
+      "d": 0.08,
+      "count": 4
+     },
+     {
+      "w": 2.47,
+      "d": 0.08,
+      "count": 4
+     },
+     {
+      "w": 2.88,
+      "d": 0.08,
+      "count": 4
+     },
+     {
+      "w": 2.22,
+      "d": 0.08,
+      "count": 2
+     }
+    ]
+   }
+  ],
+  "cushion": [
+   {
+    "bin": "0.45x0.15",
+    "w": 0.45,
+    "d": 0.15,
+    "h": 0.45,
+    "label": "default product",
+    "demand": 84,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.45,
+      "d": 0.15,
+      "count": 45
+     },
+     {
+      "w": 0.5,
+      "d": 0.3,
+      "count": 31
+     },
+     {
+      "w": 0.5,
+      "d": 0.15,
+      "count": 8
+     }
+    ]
+   }
+  ],
+  "mirror": [
+   {
+    "bin": "0.60x0.04",
+    "w": 0.6,
+    "d": 0.04,
+    "h": 0.7,
+    "label": "default product",
+    "demand": 23,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.9,
+      "d": 0.04,
+      "count": 20
+     },
+     {
+      "w": 0.81,
+      "d": 0.04,
+      "count": 3
+     }
+    ]
+   }
+  ],
+  "pendant_light": [
+   {
+    "bin": "0.40x0.35",
+    "w": 0.4,
+    "d": 0.35,
+    "h": 0.95,
+    "label": "default product",
+    "demand": 25,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.45,
+      "d": 0.45,
+      "count": 25
+     }
+    ]
+   }
+  ],
+  "plant": [
+   {
+    "bin": "0.40x0.40",
+    "w": 0.4,
+    "d": 0.4,
+    "h": 0.8,
+    "label": "default product",
+    "demand": 1,
+    "projects": [
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.4,
+      "d": 0.4,
+      "count": 1
+     }
+    ]
+   }
+  ],
+  "plant_large": [
+   {
+    "bin": "0.60x0.60",
+    "w": 0.6,
+    "d": 0.6,
+    "h": 1.5,
+    "label": "default product",
+    "demand": 6,
+    "projects": [
+     "real02",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.6,
+      "d": 0.6,
+      "count": 6
+     }
+    ]
+   }
+  ],
+  "plant_small": [
+   {
+    "bin": "0.20x0.20",
+    "w": 0.2,
+    "d": 0.2,
+    "h": 0.35,
+    "label": "default product",
+    "demand": 9,
+    "projects": [
+     "real02",
+     "real03"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.22,
+      "d": 0.22,
+      "count": 9
+     }
+    ]
+   }
+  ],
+  "rug": [
+   {
+    "bin": "2.40x1.60",
+    "w": 2.4,
+    "d": 1.6,
+    "h": 0.01,
+    "label": "default product",
+    "demand": 15,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 2.07,
+      "d": 1.87,
+      "count": 4
+     },
+     {
+      "w": 2.0,
+      "d": 1.87,
+      "count": 2
+     },
+     {
+      "w": 3.15,
+      "d": 1.93,
+      "count": 2
+     },
+     {
+      "w": 5.03,
+      "d": 2.44,
+      "count": 2
+     },
+     {
+      "w": 1.12,
+      "d": 0.88,
+      "count": 1
+     },
+     {
+      "w": 1.12,
+      "d": 1.08,
+      "count": 1
+     },
+     {
+      "w": 1.14,
+      "d": 0.84,
+      "count": 1
+     },
+     {
+      "w": 1.14,
+      "d": 1.06,
+      "count": 1
+     },
+     {
+      "w": 2.25,
+      "d": 1.87,
+      "count": 1
+     }
+    ]
+   }
+  ],
+  "table_lamp": [
+   {
+    "bin": "0.25x0.25",
+    "w": 0.25,
+    "d": 0.25,
+    "h": 0.5,
+    "label": "default product",
+    "demand": 6,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.32,
+      "d": 0.32,
+      "count": 4
+     },
+     {
+      "w": 0.34,
+      "d": 0.34,
+      "count": 2
+     }
+    ]
+   }
+  ],
+  "throw": [
+   {
+    "bin": "0.50x0.35",
+    "w": 0.5,
+    "d": 0.35,
+    "h": 0.08,
+    "label": "default product",
+    "demand": 22,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 1.57,
+      "d": 0.5,
+      "count": 7
+     },
+     {
+      "w": 0.5,
+      "d": 0.45,
+      "count": 4
+     },
+     {
+      "w": 1.47,
+      "d": 0.5,
+      "count": 4
+     },
+     {
+      "w": 0.45,
+      "d": 0.45,
+      "count": 2
+     },
+     {
+      "w": 1.33,
+      "d": 0.5,
+      "count": 2
+     },
+     {
+      "w": 2.42,
+      "d": 0.5,
+      "count": 2
+     },
+     {
+      "w": 1.85,
+      "d": 0.5,
+      "count": 1
+     }
+    ]
+   }
+  ],
+  "vase": [
+   {
+    "bin": "0.15x0.15",
+    "w": 0.15,
+    "d": 0.15,
+    "h": 0.25,
+    "label": "default product",
+    "demand": 2,
+    "projects": [
+     "real02"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.18,
+      "d": 0.18,
+      "count": 2
+     }
+    ]
+   }
+  ],
+  "wall_art": [
+   {
+    "bin": "0.50x0.04",
+    "w": 0.5,
+    "d": 0.04,
+    "h": 0.55,
+    "label": "default product",
+    "demand": 18,
+    "projects": [
+     "real02",
+     "real03",
+     "real04"
+    ],
+    "from": "grid",
+    "demanded_sizes": [
+     {
+      "w": 0.93,
+      "d": 0.04,
+      "count": 4
+     },
+     {
+      "w": 0.99,
+      "d": 0.04,
+      "count": 4
+     },
+     {
+      "w": 0.72,
+      "d": 0.04,
+      "count": 2
+     },
+     {
+      "w": 0.84,
+      "d": 0.04,
+      "count": 2
+     },
+     {
+      "w": 1.26,
+      "d": 0.04,
+      "count": 2
+     },
+     {
+      "w": 1.5,
+      "d": 0.04,
+      "count": 2
+     },
+     {
+      "w": 0.43,
+      "d": 0.04,
+      "count": 1
+     },
+     {
+      "w": 1.17,
+      "d": 0.04,
+      "count": 1
+     }
+    ]
+   }
+  ]
+ }
+}

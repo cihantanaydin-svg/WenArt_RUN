@@ -1,0 +1,892 @@
+{
+ "added": 852,
+ "by_source": {
+  "hssd": 852
+ },
+ "dropped": [
+  {
+   "source": "polyhaven",
+   "id": "decorative_book_set_01",
+   "reason": "not downloaded: KeyError: 'Poly Haven file table has no gltf/2k (available: [])'"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QBL1TB",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QJDGPN",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QMGMYP",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075X2CVQK",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4SCPNQ",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4W235R",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4W5TDF",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4YC7LD",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4YXRH1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4ZGB6K",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4ZQQPR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07DVRNRCW",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07GFFQZQ1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07H8SMDMT",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07H8T39V6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07KSJRMC6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07KSRKDXF",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MMYCL",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MMYDR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MN85B",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCBKLXJ",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCBKT23",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRNLV",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRP2G",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRYSR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCSGS1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCSGT9",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MJL66BL",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MQD1ZZD",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MQD22K6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QBL1TB",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QJDGPN",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075QMGMYP",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B075X2CVQK",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4SCPNQ",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4W235R",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4W5TDF",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4YC7LD",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4YXRH1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4ZGB6K",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07B4ZQQPR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07DVRNRCW",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07GFFQZQ1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07H8SMDMT",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07H8T39V6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07KSJRMC6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07KSRKDXF",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MMYCL",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MMYDR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07M7MN85B",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCBKLXJ",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCBKT23",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRNLV",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRP2G",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCRYSR",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCSGS1",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MCCSGT9",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MJL66BL",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MQD1ZZD",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "abo",
+   "id": "abo_B07MQD22K6",
+   "reason": "no catalogue type for headboard (downloaded, kept on the volume; headboards wait for a bed-frame type)"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_09b6f703f78d35692bc3e251c75ccdc131b8f55c",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_126706d2722745fadf95487644ac678e49b87cf4",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_22ece2d4b711becb90ad614ee1b07e937c68646a",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_27e2fe8d91a9d2cc02ce98e94f5f498548b88a5f",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_2a25fe7eebf70b970ecf8c919e5e7391a7392486",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_465c339f405bf0f55e0c316820958dee1126dabd",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_9c403fc76f1ff83787ae5cfce605d64cf8fad195",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_c1eb50298ff734470f53763d12f8bebde8d61764",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_edac4829501b7064951b3e1b3ac2aaae5c1fe251",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_fcd398b303ce33d4fc51caba1a897ad92c50e1c8",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_1929d5de4857ea4efe506b4637a63222e40e3960",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_27903d5a77d900067dd9031caf2f229776d800d4",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_297d88e440ecaf767dde46a00d77e831f8023af0",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_2aa77bff30ed984060db76a7b82bb755e2d3eebf",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_34e0a6c7e42553fab5aa08eeef134ee4d742c6d5",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_39443cc1873a0b4954ce7a2c357f296e98bf86a7",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_4254f35550281f6e419bb5c25f5ee5350b5c6487",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_597216ca30fd1af6023439875e040fd3a784d2d7",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_8df45b4963699bb2f2340149b79a7229d3048184",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_991b508c1cae8da52b72efa54a986c060f41c52f",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_d68aaf2484eec4c754d3b6e07adc09293d8b36de",
+   "reason": "no catalogue type for kitchen_island"
+  },
+  {
+   "source": "hssd",
+   "id": "hssd_efb8d9f40f02f756ddcd767fb4bfa081cc9ac520",
+   "reason": "no catalogue type for kitchen_island"
+  }
+ ],
+ "previews": [
+  {
+   "id": "flower_heliophila",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "grass",
+   "gltf": "models/flower_heliophila/flower_heliophila_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "grass_bermuda_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "grass",
+   "gltf": "models/grass_bermuda_01/grass_bermuda_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "grass_medium_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "grass",
+   "gltf": "models/grass_medium_01/grass_medium_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "grass_medium_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "grass",
+   "gltf": "models/grass_medium_02/grass_medium_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "calathea_orbifolia_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/calathea_orbifolia_01/calathea_orbifolia_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "celandine_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/celandine_01/celandine_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "cheiridopsis_succulent",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/cheiridopsis_succulent/cheiridopsis_succulent_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "crystalline_iceplant",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/crystalline_iceplant/crystalline_iceplant_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "dandelion_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/dandelion_01/dandelion_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "flower_empodium",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/flower_empodium/flower_empodium_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "flower_gazania",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/flower_gazania/flower_gazania_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "flower_ursinia",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/flower_ursinia/flower_ursinia_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "moss_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/moss_01/moss_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "nettle_plant",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/nettle_plant/nettle_plant_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "periwinkle_plant",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/periwinkle_plant/periwinkle_plant_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "shrub_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/shrub_01/shrub_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "shrub_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/shrub_02/shrub_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "shrub_03",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/shrub_03/shrub_03_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "shrub_04",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/shrub_04/shrub_04_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "weed_plant_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "ground_cover",
+   "gltf": "models/weed_plant_02/weed_plant_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "anthurium_botany_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/anthurium_botany_01/anthurium_botany_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "didelta_spinosa",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/didelta_spinosa/didelta_spinosa_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "fern_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/fern_02/fern_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "flower_stinkkruid",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/flower_stinkkruid/flower_stinkkruid_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "leipoldtia_schultzei",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/leipoldtia_schultzei/leipoldtia_schultzei_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "pachira_aquatica_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/pachira_aquatica_01/pachira_aquatica_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "shrub_sorrel_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/shrub_sorrel_01/shrub_sorrel_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "wild_rooibos_bush",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "plant",
+   "gltf": "models/wild_rooibos_bush/wild_rooibos_bush_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "planter_box_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "potted_plant",
+   "gltf": "models/planter_box_01/planter_box_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "planter_box_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "potted_plant",
+   "gltf": "models/planter_box_02/planter_box_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "planter_box_03",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "potted_plant",
+   "gltf": "models/planter_box_03/planter_box_03_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "fir_sapling",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "shrub",
+   "gltf": "models/fir_sapling/fir_sapling_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "pine_sapling_small",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "shrub",
+   "gltf": "models/pine_sapling_small/pine_sapling_small_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "quiver_tree_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "shrub",
+   "gltf": "models/quiver_tree_02/quiver_tree_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "fir_sapling_medium",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/fir_sapling_medium/fir_sapling_medium_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "fir_tree_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/fir_tree_01/fir_tree_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "island_tree_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/island_tree_01/island_tree_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "island_tree_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/island_tree_02/island_tree_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "island_tree_03",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/island_tree_03/island_tree_03_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "jacaranda_tree",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/jacaranda_tree/jacaranda_tree_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "othonna_cerarioides",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/othonna_cerarioides/othonna_cerarioides_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "pine_sapling_medium",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/pine_sapling_medium/pine_sapling_medium_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "pine_tree_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/pine_tree_01/pine_tree_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "quiver_tree_01",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/quiver_tree_01/quiver_tree_01_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "searsia_burchellii",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/searsia_burchellii/searsia_burchellii_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "searsia_lucida",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/searsia_lucida/searsia_lucida_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "tree_small_02",
+   "source": "polyhaven",
+   "kind": "vegetation",
+   "type": "tree",
+   "gltf": "models/tree_small_02/tree_small_02_2k.gltf",
+   "note": "vegetation model for wenart.blender.vegetation (T6): no furniture catalogue entry"
+  },
+  {
+   "id": "infinigen_dishwasher_0",
+   "factory": "dishwasher",
+   "class": "DishwasherFactory",
+   "glb": "models/generated/infinigen_dishwasher_0.glb",
+   "sha256": "4a9b981f6d7e5b373f6b82e95643b4f8ce0b40d7719385cced8b9739a6e78390"
+  },
+  {
+   "id": "infinigen_microwave_0",
+   "factory": "microwave",
+   "class": "MicrowaveFactory",
+   "glb": "models/generated/infinigen_microwave_0.glb",
+   "sha256": "67cbd1c356b9d0db581ebcc3016fa5c7cb7fff2a75c1b1987bd5720a462a50e0"
+  },
+  {
+   "id": "infinigen_kitchen_cabinet_0",
+   "factory": "kitchen cabinet",
+   "class": "KitchenCabinetFactory",
+   "glb": "models/generated/infinigen_kitchen_cabinet_0.glb",
+   "sha256": "55ce0874ab66902f7e8f2bc8de7ce595a1242fd72268951c1508a7a68055cea8"
+  }
+ ],
+ "reaudit": [
+  "vintage_wooden_drawer_01"
+ ],
+ "reaudit_waiting": [],
+ "only": [
+  "hssd"
+ ],
+ "by_type": {
+  "hssd:armchair": 36,
+  "hssd:bar_stool": 12,
+  "hssd:bathtub": 24,
+  "hssd:bed_double": 24,
+  "hssd:bed_single": 12,
+  "hssd:bench": 24,
+  "hssd:bookshelf": 36,
+  "hssd:chair": 36,
+  "hssd:console_table": 16,
+  "hssd:decor_basket": 6,
+  "hssd:decor_blind": 3,
+  "hssd:decor_ceiling_light": 6,
+  "hssd:decor_curtain": 3,
+  "hssd:decor_cushion": 6,
+  "hssd:decor_mirror": 6,
+  "hssd:decor_pendant_light": 6,
+  "hssd:decor_plant_large": 6,
+  "hssd:decor_plant_small": 6,
+  "hssd:decor_rug": 6,
+  "hssd:decor_table_lamp": 6,
+  "hssd:decor_throw": 6,
+  "hssd:decor_vase": 6,
+  "hssd:decor_wall_art": 6,
+  "hssd:desk": 36,
+  "hssd:dresser": 24,
+  "hssd:floor_lamp": 36,
+  "hssd:fridge": 12,
+  "hssd:nightstand": 36,
+  "hssd:office_chair": 12,
+  "hssd:ottoman": 24,
+  "hssd:shoe_cabinet": 8,
+  "hssd:shower": 36,
+  "hssd:side_table": 12,
+  "hssd:sideboard": 24,
+  "hssd:sink_kitchen": 22,
+  "hssd:sofa": 36,
+  "hssd:sofa_corner": 14,
+  "hssd:stove": 18,
+  "hssd:table_coffee": 26,
+  "hssd:table_dining": 45,
+  "hssd:tall_cabinet": 13,
+  "hssd:toilet": 12,
+  "hssd:tv_unit": 24,
+  "hssd:wardrobe": 48,
+  "hssd:washbasin": 24,
+  "hssd:washing_machine": 12
+ },
+ "copies": {
+  "library": "/workspace/library-audit/p4/audit/catalogue/catalog_library.json",
+  "polyhaven": "/workspace/library-audit/p4/audit/catalogue/catalog.json"
+ },
+ "stats": {
+  "library": {
+   "added": 852,
+   "replaced": 0
+  },
+  "polyhaven": {
+   "added": 0,
+   "replaced": 0
+  },
+  "parametric_replaced": []
+ }
+}
