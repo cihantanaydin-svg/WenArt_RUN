@@ -1142,6 +1142,35 @@ builds them) until the HSSD step runs. **16 Oct 2026: the user has accepted the 
 the RunPod secret `hf_token`.** Pod P2b runs only the HSSD part (`GROWTH_ONLY=hssd`, built in round 3; every other
 download and entry stays as it is on the volume), about 30 min; the gate check confirms the acceptance at run time.
 
+### 14.7 Build round 3 (commit 47bd941, 15-16 Oct 2026): the P1 decisions applied
+
+The round was cut by a usage limit on 15 Oct and resumed on 16 Oct (the finished agents replayed from cache; the
+placement agent continued from its partial edits; a library agent was added). CPU suite: **4,988 passed, 0 failed**
+(211 skipped without Blender, 139 GPU tests deselected).
+
+| Area | What changed | Constants (evidence) |
+|---|---|---|
+| Light | sun at the manual's clear-sky value; rig, shell and EV cap on in production; variants `m11` (the before) and `base` (production) for the A/B | `SUN_STRENGTH_WM2` 1000 (P1 sun1000: real02 salon EV 2.5, kitchen 4.3, bedroom 3.2); `RIG_GAIN` 2.0; `LEVER_DEFAULTS` all on |
+| Fixture shades | the visible shade is a fixed-radiance emitter, the light inside carries the power | `SHADE_EMISSION_WM2SR` 2.0; measured on bpy 5.2.2: AgX clips at scene-linear 32, so the bound at the +3 cap is 4.0 |
+| White balance | one white point per project, metered on daylight only (rig hidden; rooms with windows first); recorded as `white_balance_project` | P1 metered 3,423 K on the rig-lit bath; the daylight point is expected near 5,400 K |
+| Exterior sky | the sun disc is visible to the camera only (Light Path mix), so the lamp is the only sun light; the sky's sun now sits at the compass azimuth (the M3-M11 formula put real03's sky sun 30° off its shadows) | measured `SUN_DISC_RATIO` 0.129, mix residual -5e-5 of the lamp (CPU, bpy module) |
+| Site | Sapling trees with leaves; hull-shaped hedges with an opaque core and denser cards; retaining walls capped and stepped; concrete or stone edges; lawn tiling, variation and bump; own manifest kinds; site instances realized in the 3D export | `RETAINING_MAX_M` 1.2; `LEAF_ATLAS_OPAQUE` 0.40 (assumed) |
+| Placement | uniformly scaled wall-backed pieces planned at their fitted depth; drawn tables split before the size snap; solver rugs survive the decor stage; code typing and the context rules run before the recognition questions | – |
+| Library job | complete reads and retries of API answers; Poly Haven size fallback; preview step fixed; `GROWTH_ONLY=hssd` (pod P2b); the drawer re-measured from the republished file (1.715 × 1.007 × 1.091 m, audit pending, re-audited on P2b) | – |
+
+What P3 must look at (open risks, decided after the images):
+
+- `tests/gpu/test_render.py::test_white_plaster_walls_are_neutral` is expected to fail: synthetic-01 measures R/B
+  1.186 against the accepted limit 1.12 under the new defaults (2,700 K fixtures under a daylight white point). The
+  limit is not changed before the real renders are seen.
+- Rooms lit only by the rig (windowless baths and halls) will look warm under the daylight white point; six of the
+  16 P1 views are estimated above the +3 cap and become `lighting_dark` findings for the agent's lighting tools.
+- Two real04 retaining walls stay above the 1.2 m cap (1.32 m and 1.58 m) because a stepped band would land in the
+  draped parking; recorded with the reason in the site manifest.
+- Hedge look (the card density follows an assumed atlas opacity), steep-slope kerbs, the real02/03/04 recognition
+  question counts after the K3 order (M12: 88 / 95 / 100), and the M6 cushion test (`test_row8_bed_bevel_veneer_and_metal`,
+  not caused by round 3).
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang
