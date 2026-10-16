@@ -1,0 +1,989 @@
+{
+ "source": "infinigen",
+ "converted": 30,
+ "failed": 0,
+ "redone": 0,
+ "seconds": 3.7,
+ "results": {
+  "infinigen_toilet_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.7868,
+      0.4781,
+      1.0298
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.7868,
+    0.4781,
+    1.0298
+   ],
+   "vertices": 53606,
+   "faces": 106556,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 7477700,
+   "seconds": 2.07,
+   "sha256": "8f1cfc85da5f87b68efe46c6ab734bd784f0b3ba3dc5d67ec1d6756f04c60016",
+   "glb": "models/generated/infinigen_toilet_0.glb",
+   "src_sha256": "5de07144dfa947bad5c8adf38362f92a7dc903a9edb02b4fbd84040638bbce4f"
+  },
+  "infinigen_bathtub_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.9622,
+      1.7945,
+      0.6745
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.9622,
+    1.7945,
+    0.6745
+   ],
+   "vertices": 37316,
+   "faces": 74624,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 5491960,
+   "seconds": 0.44,
+   "sha256": "e26127a9f984b1a9594b32f63e08f0af0c598160b20e153f65a48e353266ee3c",
+   "glb": "models/generated/infinigen_bathtub_0.glb",
+   "src_sha256": "53aab5ddab446cecb0429f0799f444d8d4c7dc675444b1170bd2035bf668b163"
+  },
+  "infinigen_bathroom_sink_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.6958,
+      0.7646,
+      0.4093
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.6958,
+    0.7646,
+    0.4093
+   ],
+   "vertices": 7538,
+   "faces": 14816,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1162096,
+   "seconds": 0.27,
+   "sha256": "24261823c52e15ac185a46f19d85686ee60e2e3f0726f1fdf2dd80da322814d3",
+   "glb": "models/generated/infinigen_bathroom_sink_0.glb",
+   "src_sha256": "d4cd00f68c457f29818c00ab35b4468cdb8183b6a0e72407d2f7bcba02896906"
+  },
+  "infinigen_kitchen_sink_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.6225,
+      0.7624,
+      0.5107
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.6225,
+    0.7624,
+    0.5107
+   ],
+   "vertices": 7848,
+   "faces": 14188,
+   "images": 8,
+   "fallback_textures": 0,
+   "bytes": 2847004,
+   "seconds": 0.32,
+   "sha256": "ffa6bb220a644d1521370a9e7fc346e0cd0b80b82db51134db6b81fb158a0bfd",
+   "glb": "models/generated/infinigen_kitchen_sink_0.glb",
+   "src_sha256": "abcaeaaabf89db6fa6db5b56bfa8af2afc046189c7b6dccf65bf1807e72cee2c"
+  },
+  "infinigen_oven_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      1.4232,
+      1.04,
+      1.6382
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    1.4232,
+    1.04,
+    1.6382
+   ],
+   "vertices": 87704,
+   "faces": 177780,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 12565752,
+   "seconds": 0.76,
+   "sha256": "5f5808adadf6412f8fe3a443348f1bfc007ce9f047cc73a65d89cd5b4e4fff9f",
+   "glb": "models/generated/infinigen_oven_0.glb",
+   "src_sha256": "c12b7bab8b5be7b06ca8cdff5a291e26073203e1f51065be60d969ac37ce7b54"
+  },
+  "infinigen_beverage_fridge_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      1.3381,
+      1.04,
+      1.1816
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    1.3381,
+    1.04,
+    1.1816
+   ],
+   "vertices": 7078,
+   "faces": 13174,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1627124,
+   "seconds": 0.37,
+   "sha256": "22e323e89222345bef1fb55a09d9858843fd4225b759154246017f7549d8141f",
+   "glb": "models/generated/infinigen_beverage_fridge_0.glb",
+   "src_sha256": "f6316833d3447f7ffd48be7e54f2957dbcd98e45a4eeda420fa237627d884dde"
+  },
+  "infinigen_dishwasher_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      1.3381,
+      1.04,
+      1.1816
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    1.3381,
+    1.04,
+    1.1816
+   ],
+   "vertices": 24478,
+   "faces": 46906,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 3213564,
+   "seconds": 0.42,
+   "sha256": "4a9b981f6d7e5b373f6b82e95643b4f8ce0b40d7719385cced8b9739a6e78390",
+   "glb": "models/generated/infinigen_dishwasher_0.glb",
+   "src_sha256": "607d3f45fb042aea01115e71c99b403b03af3a9a2efb78d71322b8fa27da8fe2"
+  },
+  "infinigen_microwave_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.6477,
+      0.8861,
+      0.4103
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.6477,
+    0.8861,
+    0.4103
+   ],
+   "vertices": 8646,
+   "faces": 15557,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1481468,
+   "seconds": 0.39,
+   "sha256": "67cbd1c356b9d0db581ebcc3016fa5c7cb7fff2a75c1b1987bd5720a462a50e0",
+   "glb": "models/generated/infinigen_microwave_0.glb",
+   "src_sha256": "ac5237b7f9e82d1a7879254d09b00c1edfa61339013289d05010c4d34cfa1a79"
+  },
+  "infinigen_kitchen_cabinet_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.3333,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.3489,
+      3.3881,
+      1.0642
+     ],
+     "off": 0.3333
+    },
+    {
+     "up": "Z",
+     "forward": "Y",
+     "dims": [
+      0.3489,
+      1.0642,
+      3.3881
+     ],
+     "off": 2.1837
+    }
+   ],
+   "dims": [
+    0.3489,
+    3.3881,
+    1.0642
+   ],
+   "vertices": 23924,
+   "faces": 47680,
+   "images": 3,
+   "fallback_textures": 0,
+   "bytes": 2528588,
+   "seconds": 0.64,
+   "sha256": "55ce0874ab66902f7e8f2bc8de7ce595a1242fd72268951c1508a7a68055cea8",
+   "glb": "models/generated/infinigen_kitchen_cabinet_0.glb",
+   "src_sha256": "1c8b0065ed0d695af773518b2bd7e6715e6ce54b3aa9f1aba173aa0cf737a8a9"
+  },
+  "infinigen_books_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.3477,
+      0.3792,
+      0.1367
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.3477,
+    0.3792,
+    0.1367
+   ],
+   "vertices": 364,
+   "faces": 672,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1548428,
+   "seconds": 0.55,
+   "sha256": "c7a990e55e0186922ecfed545db59cf89ee3befa731c26d61e0d9147370e3f05",
+   "glb": "models/generated/infinigen_books_0.glb",
+   "src_sha256": "09f9f01e0239f8a5f0dcd1672419361282d3519248790423da79f3211fa95b42"
+  },
+  "infinigen_bowl_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.2923,
+      0.2923,
+      0.1704
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.2923,
+    0.2923,
+    0.1704
+   ],
+   "vertices": 52938,
+   "faces": 105872,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 6364208,
+   "seconds": 0.46,
+   "sha256": "4f76924d13fc08028716d5daac67ce9bbad620454889cd182f9eb33e0d902b80",
+   "glb": "models/generated/infinigen_bowl_0.glb",
+   "src_sha256": "22087f413b61aec80ac48fdc94640a2c22580c5bd27be26f1e3d3df9a10ae296"
+  },
+  "infinigen_pot_0": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.2506,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.3699,
+      0.3699,
+      0.2754
+     ],
+     "off": 0.2506
+    },
+    {
+     "up": "Z",
+     "forward": "Y",
+     "dims": [
+      0.3699,
+      0.2754,
+      0.3699
+     ],
+     "off": 0.2555
+    }
+   ],
+   "dims": [
+    0.3699,
+    0.3699,
+    0.2754
+   ],
+   "vertices": 989084,
+   "faces": 1966788,
+   "images": 3,
+   "fallback_textures": 0,
+   "bytes": 151151776,
+   "seconds": 8.58,
+   "sha256": "40487ea86b2defe7c31e05d60d4e3b5cff7d52f84efc480fbe9f18101a771377",
+   "glb": "models/generated/infinigen_pot_0.glb",
+   "src_sha256": "d48a59539c25cf7cbfa1fb93d0eab443e20d6b6e55ed5cfc90e431cc214c89da"
+  },
+  "infinigen_toilet_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.7812,
+      0.462,
+      0.6291
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.7812,
+    0.462,
+    0.6291
+   ],
+   "vertices": 53262,
+   "faces": 105834,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 7432696,
+   "seconds": 0.59,
+   "sha256": "45396d8221924081dc81c6c6418b2fce32e827e092497e0776f46825fde01f5c",
+   "glb": "models/generated/infinigen_toilet_1.glb",
+   "src_sha256": "38b71968541be2d648c88867c4e4847671a57d39556428904506dcbb4c147aef"
+  },
+  "infinigen_bathtub_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.9441,
+      1.7085,
+      0.55
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.9441,
+    1.7085,
+    0.55
+   ],
+   "vertices": 4377,
+   "faces": 8746,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1149432,
+   "seconds": 0.31,
+   "sha256": "5dfd3fffed406c5115bf358972c0264d5aa53b4c58270c15b02eb1ae629e288d",
+   "glb": "models/generated/infinigen_bathtub_1.glb",
+   "src_sha256": "7e9e546277f63aaec81ce23ed030db2e3edef40e9a0e90deb5d5465ad90fdef5"
+  },
+  "infinigen_bathroom_sink_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.6341,
+      0.7251,
+      0.3146
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.6341,
+    0.7251,
+    0.3146
+   ],
+   "vertices": 12564,
+   "faces": 24717,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 2248708,
+   "seconds": 0.34,
+   "sha256": "4916eda89c26d7ddbdbeae03757ab12210c9db339d00b6002760ae16786db792",
+   "glb": "models/generated/infinigen_bathroom_sink_1.glb",
+   "src_sha256": "ee68bcd1260f9031d666803431d81cdc3524d4f6b72a292dc129c5aaa60ee50d"
+  },
+  "infinigen_kitchen_sink_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.6045,
+      0.6758,
+      0.4386
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.6045,
+    0.6758,
+    0.4386
+   ],
+   "vertices": 12874,
+   "faces": 24089,
+   "images": 8,
+   "fallback_textures": 0,
+   "bytes": 3474972,
+   "seconds": 0.38,
+   "sha256": "223a3cc4d1b24479ebd90f33f2a60a3548728546abe8d148a3a3beefc5c88c53",
+   "glb": "models/generated/infinigen_kitchen_sink_1.glb",
+   "src_sha256": "c41ccb6ea32e99dcf28e053823a7eb50396a35d476000c783a0cbeffb22c4191"
+  },
+  "infinigen_oven_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      1.382,
+      0.9388,
+      1.3743
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    1.382,
+    0.9388,
+    1.3743
+   ],
+   "vertices": 13966,
+   "faces": 25302,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 2541856,
+   "seconds": 0.46,
+   "sha256": "8d7fcfa0dd1a67a353356c68212e85161c21f8c75232090bba88f86d90a19b3d",
+   "glb": "models/generated/infinigen_oven_1.glb",
+   "src_sha256": "7be06f2c17567b2e4edd8757f7997e65089daec989c1e96a6a5f79cbe4517fe0"
+  },
+  "infinigen_beverage_fridge_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      1.314,
+      0.9388,
+      1.0284
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    1.314,
+    0.9388,
+    1.0284
+   ],
+   "vertices": 7078,
+   "faces": 13174,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1469028,
+   "seconds": 0.36,
+   "sha256": "10b95231e595a202ae7b230de15b60c22560413b7ed41d19f98a5cd0b9dc154d",
+   "glb": "models/generated/infinigen_beverage_fridge_1.glb",
+   "src_sha256": "27c0f53fdf71b33be38638c3d4e41ab0d0f648ecee7634d09171e58bc0974fcf"
+  },
+  "infinigen_books_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.2913,
+      0.3111,
+      0.1932
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.2913,
+    0.3111,
+    0.1932
+   ],
+   "vertices": 356,
+   "faces": 588,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1542232,
+   "seconds": 0.84,
+   "sha256": "7ea403e3b5f25626e9a864e68fdf6a299badbd0c27ceb6d6738f27382e2ddfab",
+   "glb": "models/generated/infinigen_books_1.glb",
+   "src_sha256": "572326b28237a59ad48832e19d6fdc15ec35b090002cc4a457ebaedb1da7fc23"
+  },
+  "infinigen_bowl_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.1677,
+      0.1677,
+      0.0897
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.1677,
+    0.1677,
+    0.0897
+   ],
+   "vertices": 18694,
+   "faces": 37384,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 2658776,
+   "seconds": 0.35,
+   "sha256": "efb7b8b814a84a8761bcbb09724aa98d467e6ef002300be7913704c512e3258f",
+   "glb": "models/generated/infinigen_bowl_1.glb",
+   "src_sha256": "98ce938bce8fde99482194997c07b7a03fa79abb7e1a1a0282e97975297e6dac"
+  },
+  "infinigen_pot_1": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.3624,
+      0.3624,
+      0.5116
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.3624,
+    0.3624,
+    0.5116
+   ],
+   "vertices": 2294074,
+   "faces": 4736490,
+   "images": 3,
+   "fallback_textures": 0,
+   "bytes": 383555096,
+   "seconds": 11.61,
+   "sha256": "c05030647f73f051ea1e08a799721c16e9f389bee93bc398e5ee4d1e525be58d",
+   "glb": "models/generated/infinigen_pot_1.glb",
+   "src_sha256": "d53046c8b50128a7451c4a2e7a0fc23e8c1c63d99565f00a77f0bbdef9075c1e"
+  },
+  "infinigen_toilet_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.8085,
+      0.4359,
+      0.6874
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.8085,
+    0.4359,
+    0.6874
+   ],
+   "vertices": 56980,
+   "faces": 113288,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 7285240,
+   "seconds": 0.57,
+   "sha256": "aa3545e8d858ed6b09993ebf78c578dab02535869643701f23df740493959ad9",
+   "glb": "models/generated/infinigen_toilet_2.glb",
+   "src_sha256": "00fb1045df08ab08d8695de0acc0fdc342be9cb3bbdf6e030dcf4c5231da0536"
+  },
+  "infinigen_bathtub_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.8052,
+      1.718,
+      0.6324
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.8052,
+    1.718,
+    0.6324
+   ],
+   "vertices": 4383,
+   "faces": 8758,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1133892,
+   "seconds": 0.29,
+   "sha256": "73692085aea2e7ae4b03d7288ec324a9e8b0f96ef9586e7a62406ece9d7fb6f0",
+   "glb": "models/generated/infinigen_bathtub_2.glb",
+   "src_sha256": "26109c6c45b5e5369ca7f821a8d6529793775f6fcd5aa9d50718eaceec81c2b3"
+  },
+  "infinigen_bathroom_sink_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.5247,
+      0.7308,
+      1.0948
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.5247,
+    0.7308,
+    1.0948
+   ],
+   "vertices": 17836,
+   "faces": 35408,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 2999740,
+   "seconds": 0.35,
+   "sha256": "3dd6c1ffa9d1d796b40a8fb029850185352d9da7a1445b55c692bf24804033f9",
+   "glb": "models/generated/infinigen_bathroom_sink_2.glb",
+   "src_sha256": "04ab53898434ad0eed401bd0e8d91ea5ea34b8069f8e2fb1d59e417b4973642b"
+  },
+  "infinigen_kitchen_sink_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.5411,
+      0.6877,
+      0.5641
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.5411,
+    0.6877,
+    0.5641
+   ],
+   "vertices": 13000,
+   "faces": 24492,
+   "images": 8,
+   "fallback_textures": 0,
+   "bytes": 2544924,
+   "seconds": 0.36,
+   "sha256": "7fc7545eba917ca62f7fa3a59147c0259c52d4ca31b8283cfb1720961f0af5a5",
+   "glb": "models/generated/infinigen_kitchen_sink_2.glb",
+   "src_sha256": "5a23f8576aae21ad4061bfe4efb00d7385500fb962924032ea01469250ce29f8"
+  },
+  "infinigen_oven_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      1.1554,
+      0.9944,
+      1.1326
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    1.1554,
+    0.9944,
+    1.1326
+   ],
+   "vertices": 17376,
+   "faces": 31411,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 3600312,
+   "seconds": 0.43,
+   "sha256": "83e79dab7cda4b72b0da172c0bb313a868443c2b7d45142cc8a29b25aab0aed0",
+   "glb": "models/generated/infinigen_oven_2.glb",
+   "src_sha256": "9d97c8a48b5702324be550dbd3e4656dd69c110a83ea58f06852b762eecf8b0a"
+  },
+  "infinigen_beverage_fridge_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      1.101,
+      0.9944,
+      0.8544
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    1.101,
+    0.9944,
+    0.8544
+   ],
+   "vertices": 7846,
+   "faces": 14670,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 2341460,
+   "seconds": 0.41,
+   "sha256": "390fa6606d86c4bfcc11bdf91f7a8ffb297282797d9d76bb78d7e40154e94dfc",
+   "glb": "models/generated/infinigen_beverage_fridge_2.glb",
+   "src_sha256": "7bb65aeb7057b612f72c443ce13204324edd9a44ae5f75b6ad231a8f2d7bb9d6"
+  },
+  "infinigen_books_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.3747,
+      0.3879,
+      0.1239
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.3747,
+    0.3879,
+    0.1239
+   ],
+   "vertices": 96,
+   "faces": 108,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 1341280,
+   "seconds": 0.48,
+   "sha256": "2c0d90eaef8c7481e4370373e093ada366dd4e457ebd54148eae797532a228c4",
+   "glb": "models/generated/infinigen_books_2.glb",
+   "src_sha256": "d9d6d411ced49a5bda492df357114f1f23a36d2dee7a43af271339487f69e615"
+  },
+  "infinigen_bowl_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.2122,
+      0.2122,
+      0.1148
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.2122,
+    0.2122,
+    0.1148
+   ],
+   "vertices": 29318,
+   "faces": 58632,
+   "images": 4,
+   "fallback_textures": 0,
+   "bytes": 3436460,
+   "seconds": 0.35,
+   "sha256": "76fd589b9c8a69743bb8a44ad96f96dee4e616137c9cb30f9ee033874354855a",
+   "glb": "models/generated/infinigen_bowl_2.glb",
+   "src_sha256": "54b94c54e44e4e16807e4e668d848d586f786c529b309f1f1ec644856969e842"
+  },
+  "infinigen_pot_2": {
+   "ok": true,
+   "up": "Y",
+   "forward": "NEGATIVE_Z",
+   "axes_off": 0.0,
+   "tried": [
+    {
+     "up": "Y",
+     "forward": "NEGATIVE_Z",
+     "dims": [
+      0.2807,
+      0.2807,
+      0.4982
+     ],
+     "off": 0.0
+    }
+   ],
+   "dims": [
+    0.2807,
+    0.2807,
+    0.4982
+   ],
+   "vertices": 2099181,
+   "faces": 4381939,
+   "images": 3,
+   "fallback_textures": 0,
+   "bytes": 394299004,
+   "seconds": 10.59,
+   "sha256": "2a8e1dd62365c83ea4de3d6136e1ca222628019bfb19ce75c8d837ac9a39a0e7",
+   "glb": "models/generated/infinigen_pot_2.glb",
+   "src_sha256": "99c7568fe2c4063b88800eb43cfcbda9b1258d4c38ce0c3dcf80aaae0200184f"
+  }
+ }
+}

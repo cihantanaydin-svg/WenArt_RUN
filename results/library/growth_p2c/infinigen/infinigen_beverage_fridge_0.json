@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_beverage_fridge_0",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_beverage_fridge_0/export_000/export_000.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_beverage_fridge_0/infinigen.assets.objects.appliances.BeverageFridgeFactory_000/scene.blend",
+ "dims": [
+  1.3381,
+  1.04,
+  1.1816
+ ],
+ "meshes": 1,
+ "class": "BeverageFridgeFactory",
+ "dotted": "infinigen.assets.objects.appliances.BeverageFridgeFactory",
+ "seed": 0,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 6.7,
+ "attempts": 1
+}

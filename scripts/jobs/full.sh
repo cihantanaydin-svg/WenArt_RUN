@@ -26,6 +26,8 @@
 #   AB_PHASE            all (default) | render | judge
 #   RUN_FORCE           stages whose fingerprint is ignored, comma separated (e.g. photos,layout)
 #   RUN_POLISH=off      Milestone 11 (pod G2): no gate and polish for any project of this run (WENART_POLISH)
+#   RUN_VEGETATION_SETUP=0  Milestone 13: skip scripts/pod_setup_vegetation.sh (Sapling extension, tree models, leaf
+#                       atlases; default: run it, idempotent, about a minute)
 #   DRIVE_UPLOAD=1      set by gpu_run.py --drive-upload: the 3D files of RUN_PROJECTS to Google Drive (RCLONE_CONF)
 #   RENDER_SAMPLES      Cycles samples (default 128)
 #   CHECK_MODELS        check.yaml model keys (default "qwen glm"; recognition, layout and --no-orchestrator checks)
@@ -297,6 +299,14 @@ AGENT_MODELS="$AGENT_SETUP" POLISH_RECOG_PARTS="vllm libredwg models" POLISH_MOD
   POLISH_PHASES="look controls polish gate check report tests" bash scripts/pod_setup_polish.sh || setup_rc=$?
 if [ "$setup_rc" -ne 0 ]; then
   log "warning: pod_setup_polish.sh exit $setup_rc (see setup_polish.json): the stages that need a missing part fail"
+fi
+# Milestone 13 (16 Oct 2026, before pod P3): the vegetation setup of the site build (scripts/pod_setup_vegetation.sh:
+# the Sapling Tree Gen extension into this pod's Blender, the Poly Haven tree models and the ambientCG leaf atlases on
+# the volume). The extension lives in $HOME, on the container disk, so a new pod has none; without it the site build
+# falls back to leaf-card trees (recorded in the scene manifest). Idempotent, about a minute; a failure is a warning
+# only. RUN_VEGETATION_SETUP=0 skips it (a run with no exterior views).
+if [ "${RUN_VEGETATION_SETUP:-1}" != "0" ]; then
+  bash scripts/pod_setup_vegetation.sh || log "warning: pod_setup_vegetation.sh failed (see vegetation_status.json): trees fall back to leaf cards"
 fi
 export HF_HUB_OFFLINE=1       # every model is in HF_HOME now; nothing is fetched behind our back
 

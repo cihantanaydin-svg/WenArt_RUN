@@ -236,7 +236,9 @@ def test_fit_building_writes_the_gap_on_the_piece_and_changes_nothing_else(monke
     # a piece that is not built (not furniture, removed) keeps ``none``: the ladder stops at the library step
     gone = F.fit_building({"furniture": [dict(piece("sofa", 2.0, 0.9), build=False)]}, cat)["furniture"][0]
     assert gone["asset"]["method"] == "none" and gone["library_gap"]["used"] == "nothing (not built)"
-    assert [s["result"] for s in gone["asset"]["ladder"]] == ["no model", "not tried", "not tried"]
+    # Milestone 13 (16 Oct 2026): a not-built piece no longer searches the library at all (with the HSSD layer a
+    # model happened to fit one and was credited although nothing is built), so every step reads "not tried".
+    assert [s["result"] for s in gone["asset"]["ladder"]] == ["not tried", "not tried", "not tried"]
 
 
 def test_throws_curtains_and_blinds_are_procedural_b7():

@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_toilet_1",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_toilet_1/export_001/export_001.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_toilet_1/infinigen.assets.objects.bathroom.ToiletFactory_001/scene.blend",
+ "dims": [
+  0.7812,
+  0.462,
+  0.6291
+ ],
+ "meshes": 1,
+ "class": "ToiletFactory",
+ "dotted": "infinigen.assets.objects.bathroom.ToiletFactory",
+ "seed": 1,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 5.9,
+ "attempts": 1
+}

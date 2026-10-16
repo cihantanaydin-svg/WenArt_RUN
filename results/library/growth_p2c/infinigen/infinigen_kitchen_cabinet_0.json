@@ -1,0 +1,19 @@
+{
+ "id": "infinigen_kitchen_cabinet_0",
+ "ok": true,
+ "obj": "/workspace/library-growth/infinigen/infinigen_kitchen_cabinet_0/export_000/export_000.obj",
+ "blend": "/workspace/library-growth/infinigen/infinigen_kitchen_cabinet_0/infinigen.assets.objects.shelves.KitchenCabinetFactory_000/scene.blend",
+ "dims": [
+  0.4642,
+  5.0821,
+  1.0642
+ ],
+ "meshes": 12,
+ "class": "KitchenCabinetFactory",
+ "dotted": "infinigen.assets.objects.shelves.KitchenCabinetFactory",
+ "seed": 0,
+ "bpy": "4.2.0",
+ "tex_res": 1024,
+ "seconds": 5.6,
+ "attempts": 1
+}

@@ -628,6 +628,15 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
     """
     mode = C.check_mode(mode)
     ftype = piece["type"]
+    if piece.get("build") is False and ftype != "unknown":
+        # (an unknown piece keeps its parametric record below: no library search either.)
+        # Milestone 13 (16 Oct 2026, found with the HSSD layer): a piece that is not built (not furniture, removed)
+        # gets no model at all, not even one that fits: a library asset on it would be credited and counted although
+        # nothing is built. Before the HSSD layer no model happened to fit the not-built pieces of the tests.
+        why = "the piece is not built (build false): no model is searched"
+        return _finish(gap_fit(piece, why, [], [], style_family), mode,
+                       [_step("library", "not tried", why), _step(MODULE_METHOD, "not tried", why),
+                        _step("parametric", "not tried", why)])
     width, depth = piece["footprint"]["size"]
     if not (width > 0 and depth > 0):
         asset = parametric_fit(piece, f"footprint size {piece['footprint']['size']} is not positive",
@@ -759,7 +768,7 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
         mean_scale = round(sum(scales) / 3.0, 4)
         height = round(float(entry["bbox_m"][2]) * scales[2], 4)
         fdepth = fitted_depth(entry, width)
-        height_ok = height_fits(height, heights)
+        height_ok = height_fits(height, heights) and working_height_ok(ftype, height)
         accepted = (depth_ratio <= cap + 1e-9 and uniform_range[0] <= mean_scale <= uniform_range[1] and height_ok)
         if accepted and within_table:
             from wenart.furniture import sizes as SZ
@@ -827,6 +836,8 @@ def _fit_family(piece: dict, candidates: list[dict], style_family: Optional[str]
     if too_tall and heights:
         reason += (f"; {len(too_tall)} fitted outside the real height {heights[0]:g}-{heights[1]:g} m "
                    f"(+-{round(HEIGHT_TOLERANCE * 100)} %, wenart.furniture.sizes)")
+        if ftype in WORKING_HEIGHT_TYPES:
+            reason += f" or the working height (+-{round(WORKING_HEIGHT_TOL * 100)} % of the product height)"
     if within_table:
         reason += "; the relaxed caps hold only inside the documented ranges"
     return parametric_fit(piece, reason, tried, excluded=excluded, style_family=style_family)
@@ -959,6 +970,27 @@ def apply_split_label(piece: dict, asset: Optional[dict] = None) -> bool:
 
 
 HEIGHT_TOLERANCE = 0.15          # = sizes.fits' tolerance: a fitted height this far outside the real range refuses
+# Milestone 13 (16 Oct 2026, found by the CPU fit of real04 on the HSSD layer): a uniform scale to the drawn width
+# also scales the height. The size table's dining-table range is 0.65-0.92 m (widened by counter-height ABO tables)
+# and HEIGHT_TOLERANCE widens it again, so a 2.9 m HSSD table scaled 1.155 to the drawn 3.35 m stood 0.88 m high
+# (bar height) and passed. A dining table or a desk is used with chairs, so its working height is fixed: the fitted
+# height must stay within WORKING_HEIGHT_TOL of the size table's product height (0.75 m / 0.76 m: 0.69-0.81 m /
+# 0.70-0.82 m; common dining and desk heights are 0.72-0.78 m, ABO medians 0.76 / 0.78 m in size_table.yaml).
+WORKING_HEIGHT_TYPES: tuple[str, ...] = ("table_dining", "desk")
+WORKING_HEIGHT_TOL = 0.08
+
+
+def working_height_ok(ftype: str, height: float, tol: float = WORKING_HEIGHT_TOL) -> bool:
+    """True unless ``ftype`` has a fixed working height (``WORKING_HEIGHT_TYPES``) and ``height`` is more than ``tol``
+    away from the size table's product height (always true without a product height)."""
+    if ftype not in WORKING_HEIGHT_TYPES:
+        return True
+    from wenart.furniture import sizes as SZ
+
+    product = (SZ.real_range(ftype) or {}).get("product")
+    if not product or len(product) < 3 or not product[2]:
+        return True
+    return abs(float(height) / float(product[2]) - 1.0) <= tol + 1e-9
 
 
 def real_height_range(ftype: str) -> Optional[tuple[float, float]]:

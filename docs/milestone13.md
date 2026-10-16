@@ -1155,6 +1155,38 @@ HSSD for (toilets, washbasins, showers, kitchen sinks, stoves, fridges) are amon
 90 bins (commercial 57). The GPU tests had no time left. **Pod P2c** re-runs the same command with 120 min: the
 answers on the volume are reused, so it asks only the 560 left.
 
+**Pod P2c (16 Oct 2026, HSSD audit resume):** pod `kbr2depvz47vu0`, RTX PRO 6000 WK, 52 min, $2.25, exit 0. The 283
+answers of P2b were reused; every HSSD model is now audited: **736 keep, 32 fix, 84 removed** (852). Library GPU tests
+8 of 8 passed. Catalogue: 2,681 entries, usable commercial 1,417, **relaxed 2,443**; demand coverage relaxed **78 of
+90 bins** (66 after P2b, 60 before Milestone 13), commercial 57. Usable HSSD models by type (relaxed): wardrobe 43,
+table_dining 41, armchair 36, chair 36, nightstand 35, desk 33, floor_lamp 33, sofa 33, shower 31, bookshelf 27,
+bed_double 24, bench 24, table_coffee 24, bathtub 23, dresser 23, ottoman 22, tv_unit 22, sideboard 21, washbasin 21,
+stove 18, console_table 16, sink_kitchen 14, sofa_corner 14, washing_machine 11, fridge 10, toilet 9, and more.
+
+**Two fit fixes found by a CPU fit of the three buildings on the grown catalogue** (16 Oct 2026, before P3):
+
+- A not-built piece (`build: false`) searched the library before the not-built rule, so with HSSD a model fitted a
+  not-built sofa and would have been credited although nothing is built. Now a not-built piece gets no model and
+  its ladder reads "not tried" for every step (unknown pieces keep their parametric record).
+- A uniform scale to the drawn width also scales the height: a 2.9 m HSSD dining table scaled 1.155 to a drawn 3.35 m
+  stood 0.88 m high (bar height) and passed, because the size table's dining range is 0.65-0.92 m (widened by
+  counter-height ABO tables) plus 15 %. Dining tables and desks now keep their working height: within 8 % of the size
+  table's product height (`WORKING_HEIGHT_TYPES`, `WORKING_HEIGHT_TOL`); the 3.35 m tables go to the module builder
+  (`table_long`, 0.75 m), which keeps the chairs of a deep footprint.
+
+CPU fit of the committed buildings on the final catalogue (`building_fitted.json` refitted; pieces by method):
+
+| Project | Mode | pieces | library | module | parametric | none | HSSD | fixtures from the library |
+|---|---|---|---|---|---|---|---|---|
+| real04 | commercial | 240 | 114 | 32 | 76 | 18 | 0 | 10 of 48 |
+| real04 | relaxed | 240 | 140 | 20 | 62 | 18 | 53 | 34 of 48 |
+| real02 | commercial | 210 | 92 | 32 | 86 | 0 | 0 | 10 of 38 |
+| real02 | relaxed | 210 | 116 | 20 | 74 | 0 | 41 | 32 of 38 |
+| real03 | commercial | 165 | 43 | 10 | 112 | 0 | 0 | 10 of 39 |
+| real03 | relaxed | 165 | 64 | 0 | 101 | 0 | 30 | 31 of 39 |
+
+(none = pieces with `build: false`; real04's 12 not-built fixtures are drawn pieces the reading did not type.)
+
 ### 14.7 Build round 3 (commit 47bd941, 15-16 Oct 2026): the P1 decisions applied
 
 The round was cut by a usage limit on 15 Oct and resumed on 16 Oct (the finished agents replayed from cache; the
