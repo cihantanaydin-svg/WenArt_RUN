@@ -90,5 +90,7 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-12 14:08 | 8d5eakw9r2s8y9 | NVIDIA RTX PRO 6000 Blackwell Workstation Edition | 4 | 0.19 | M13 B0a: real02 baseline on the M12 code (5a69ff5), polish off | stopped by the user after 4 min ("no need m12 baselines, use the m11 as base line, stop the pods"); no results; terminated |
 | 2026-10-15 19:38 | ker0qemve1rhpf | NVIDIA GeForce RTX 4090 | 163 | 2.42 | M13 P1: lever A/B (light), site A/B (vegetation, platforms, pools, sky), GPU tests of T2/T5/T6 (round-1 code 33d12db) | exit 1, stopped by runner after collect (watchdog and job-end stop armed) (runner re-attached) |
 | 2026-10-15 20:32 | kxvgpycujng0i3 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 46 | 1.90 | M13 P2: library growth by demand (HSSD, ABO size grid, Poly Haven 2K + vegetation, ambientCG) + audit | exit 1, stopped by runner after collect (watchdog and job-end stop armed) |
+| 2026-10-16 07:44 | pending:20261016-074442-library_growth | RTX PRO 6000 | 0 | 0.00 | M13 P2b: HSSD layer (874 picks; terms accepted by the user on 16 Oct 2026) | pod creation failed |
+| 2026-10-16 07:45 | pending:20261016-074500-library_growth | RTX PRO 6000 WK | 90 | 3.88 | M13 P2b: HSSD layer (874 picks; terms accepted by the user on 16 Oct 2026) | creating (provisional, worst case) |
 
-**Total spent so far: $135.05** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
+**Total spent so far: $138.93** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
