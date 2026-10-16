@@ -913,3 +913,22 @@ def test_set_lighting_is_idempotent_and_a_room_at_the_maximum_is_report_only(tmp
     out2 = BR.room_brief(b, "r1", findings=[salon], members_fn=lambda b_, r: [], group_checks_fn=lambda b_, r: [],
                          program_fn=lambda b_, r: {}, solver_fn=lambda b_, r, k=3: [], allowed_fn=lambda b_, p: {})
     assert [f["tools"] for f in out2["findings"]["fixable"]] == [["set_lighting"]]
+
+
+def test_a_lighting_edit_too_weak_for_its_view_keeps_the_finding():
+    """16 Oct 2026, before pod P3 attempt 2: a lighting_dark view counted as gone after any accepted set_lighting
+    (only a render re-meters it). real04's basement salon needs about x10 and set_lighting gives up to x3: the x3 edit
+    must not count as a removed finding; an edit that reaches the factor the view needs does."""
+    from wenart.agent import loop as LP
+
+    finding = {"check": "lighting_dark", "severity": "critical", "target": "cam_r_L-1_salon_1", "room_id": "r_L-1_salon",
+               "message": "too dark", "metrics": {"stops_over_cap": 3.37, "factor_needed": 10.34,
+                                                  "lighting_factor_now": 1.0, "set_lighting_factor": 10.34}}
+    after = {"agent_overrides": {"lighting": {"r_L-1_salon": {"factor": 3.0, "reason": "x3"}}}}
+    kept = LP.after_findings([dict(finding)], [finding], {"cam_r_L-1_salon_1", "r_L-1_salon"}, after)
+    assert [f["target"] for f in kept] == ["cam_r_L-1_salon_1"]
+    assert kept[0]["metrics"]["predicted_factor_after"] == 3.0 and "predicted" in kept[0]["message"]
+    enough = dict(finding, metrics=dict(finding["metrics"], set_lighting_factor=2.5, factor_needed=2.5))
+    assert LP.after_findings([dict(enough)], [enough], {"cam_r_L-1_salon_1"}, after) == []
+    # no building after the edit: nothing can be predicted, the Round 4 rule (re-measured next round) holds
+    assert LP.after_findings([dict(finding)], [finding], {"cam_r_L-1_salon_1"}, None) == []

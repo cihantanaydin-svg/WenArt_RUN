@@ -967,3 +967,17 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
 - **Round 3 committed** (47bd941; CPU suite 4,988 passed, 0 failed). **Pod P2b** (16 Oct, $3.35): all 874 HSSD objects
   downloaded, 852 catalogued, 229 audited usable (furniture first); 560 still pending (the fixtures among them) → pod P2c
   finishes the audit, then pod P3 (real04 full run). GPU spent: $138.40 of $300.
+- **Pod P2c** (16 Oct, RTX PRO 6000 WK, 52 min, $2.25): the HSSD audit finished (answers of P2b reused): 852 HSSD
+  entries, 736 keep, 32 fix, 84 removed → 768 usable. The catalogues hold 2,681 entries (library 1,955, decor 726);
+  usable commercial 1,417, relaxed 2,443. Relaxed dry fit: fixtures from the library real04 34 / 48, real02 32 / 38,
+  real03 31 / 39 (§14.6). Fit fixes for the grown catalogue (no model search for pieces that are not built; dining
+  tables and desks keep their working height within ±8 %) in 60611a6.
+- **Pod P3, attempt 1** (16 Oct, RTX PRO 6000 WK, 27 min, $1.15): exit 1 at the layout stage; the locked check
+  compared the two snapped YATAK beds with their re-solved size (fix: the drawing stays the reference, `locked.drawn_value`).
+  Then a **CPU pre-flight** of every later stage on P3's real inputs found and fixed 11 more bugs (3ed3383, §14.8),
+  among them the EV floor that clamped every sunlit view near white.
+- **Round 4** (fe86436 and a follow-up, 16 Oct): calibrated exterior sky (7.71 at 35°, sky band now blue), chair v2,
+  shell texture sets fetched and in the build fingerprint, `lighting_dark` read by the agent (a too-weak
+  `set_lighting` keeps the finding) and the report, drawn fixed equipment protected from `mark_not_furniture`, a
+  recognition whitespace guard (§14.8). Next: pod P3 attempt 2 (real04 full run) when an 80 GB GPU is in stock in
+  EU-RO-1. GPU spent: $141.80 of $300. No pod running.
