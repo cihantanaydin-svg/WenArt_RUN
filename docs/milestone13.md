@@ -1228,6 +1228,34 @@ footprint, front and height; a piece that loses its drawing still fails (test
 `test_a_piece_an_earlier_stage_changed_keeps_its_drawing_as_the_reference`, and the P3 beds replayed: two
 violations before, none after). A CPU pre-flight of the later stages runs before attempt 2.
 
+**CPU pre-flight (16 Oct 2026, commit 3ed3383):** every stage after the fit was run here on P3's real inputs (real04)
+and on real02 and real03 (their committed buildings refitted, relaxed): layout, decor (rule and AI paths), refit and
+the agent loop against the repo's fake model server, with the CPU re-run and the locked check after each stage; the
+Blender build and a small CPU render through the Blender 5.2.2 Python module. No stage crashed after the fixes; the
+locked check passed after every stage on all projects; the 6 real04 solver rugs survive both decor paths; the fit
+gives real04 34 of 34 drawn anchors built (M12: 12 of 34).
+
+| Area | Bug found with the real inputs | Fix |
+|---|---|---|
+| agent edits | open-kitchen zone groups (`<room>_kitchen`) not found by `complete_group` / `move_group` | the group's room read from the group record |
+| agent edits | `mark_not_furniture` left the piece in `needs_review`: the dry re-check refused all 20 real04 cases | the piece leaves `needs_review` |
+| agent edits | a second edit of a piece dropped the `fix_fixture` allowance: real03 toilets broke the refit's locked check | `adjusted_by_ai` keeps earlier allowances and `drawn_group` |
+| agent plan | the default checklist sent `complete_group` to the kitchen id | the group id |
+| report | without a scene manifest the report read no building ("commercial", empty below-library list) | the building is read from the run |
+| decor | a twin copy of a solver rug kept the source room's group | the twin room's group |
+| scene manifest | platform and hedge entries without `parent`: the real04 manifest failed its schema (32 errors) | the parent recorded |
+| exposure | the EV floor -2 dated from the 3 W/m² sun: every sunlit view was clamped and rendered near white (real04 ext_7 wanted -7.6 EV) | the floor moves with the sun: -2 − log2(sun / 3 W/m²), -10.4 EV at 1000 W/m²; the cap stays +3 |
+| vegetation | a tree that fell back to leaf cards recorded no reason | `fallback_from` and `fallback_reason` |
+| materials | the worktop record named `marble_01` although the set was missing | the set is named only when used; a missing set is recorded |
+| site meshes | 732 ground and 112 grass faces used a vertex twice (glTF export refused the meshes) | clip points merged before faces are made |
+| cameras | replayed records the build did not use were dropped silently | listed with the reason |
+
+Left for round 4 (before attempt 2): the exterior sky world is about 4 stops too dark against the 1000 W/m² lamp
+(nearly black at the metered EV, grey only through the haze); the worktop set is never fetched by the assets stage;
+nothing reads `lighting_dark`; no v2 chair family (a chair below library level is a one-material box); the agent may
+mark drawn fixed equipment as not furniture; the recognition model's whitespace loop (5 of 8 sheet_region answers on
+P3).
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang
