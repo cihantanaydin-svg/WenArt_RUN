@@ -21,6 +21,14 @@ How: a family whose function is not built yet (``NotImplementedError``) or fails
 ``error`` and the loop goes on with the rest; the functions are injectable (tests). A violation without a room id
 gets the room of its target piece. Finding ids are stable (``c:<check>:<target>``, a counter for repeats), so the
 same problem keeps its id from round to round (the memory and the metrics rely on it).
+
+Milestone 13, round 4 (before pod P3's second attempt): the ``lighting`` family reads the render manifest's
+``lighting_dark`` entries (``lighting_items``; ``wenart.blender.render.lighting_dark_entry``: a view whose metered
+EV passed the +3 cap, major, critical from 2 stops over; written per view and in the manifest's list). Each becomes a
+finding on the camera with its room, the metered EV, the cap and the light factor the room would need
+(``factor_needed`` = 2 ** stops over the cap); ``causes.cause_of`` routes it to ``set_lighting`` (an exterior view:
+report-only). Before this nothing in the agent read them (CPU pre-flight of 16 Oct 2026: real04's basement salon
+wanted +6.37 EV, 3.37 stops over the cap, and no finding reached the agent or the report).
 """
 from __future__ import annotations
 
@@ -147,6 +155,66 @@ def library_gaps(building: dict) -> list[dict]:
     return out
 
 
+LIGHTING_DARK_CHECK = "lighting_dark"       # = wenart.blender.render.LIGHTING_DARK_CHECK (pinned by the tests)
+
+
+def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = None) -> list[dict]:
+    """Round 4: one ``lighting_dark`` violation per view of the render manifest whose metered EV passed the cap: the
+    view entry's ``lighting_dark`` (or its ``exposure.lighting_dark``), else the manifest's ``lighting_dark`` list (the
+    same records; one per camera). The render's message, severity, room and metrics are kept; ``metrics`` adds
+    ``factor_needed`` (the light the room needs over now, 2 ** stops over the cap) and the message says what one
+    ``set_lighting`` can give (``tools.LIGHTING_FACTOR``). FileNotFoundError without a render manifest (the family is
+    then ``unavailable``, not a silent ok).
+
+    Review of round 4: ``set_lighting``'s factor is absolute (the room's lights x factor over the default rig,
+    ``wenart.blender.lighting.build_lighting``), and the render metered the room with the factor the building already
+    has (``building``'s ``agent_overrides.lighting``, read by the build's own ``overrides.lighting_of``). So the factor
+    to ask for is that factor x ``factor_needed`` (``metrics.set_lighting_factor``, with ``lighting_factor_now``);
+    before, a room at x2 that was 0.87 stops over was told "set_lighting factor about x1.82", a darker room."""
+    if not isinstance(render_manifest, dict):
+        raise FileNotFoundError("no render manifest: the lighting_dark entries of the views are not known")
+    from wenart.agent.tools import LIGHTING_FACTOR
+    from wenart.blender.overrides import lighting_of
+
+    now_of = lighting_of(building) if isinstance(building, dict) else {}
+
+    by_camera: dict = {}
+    for e in render_manifest.get("renders") or []:
+        if not isinstance(e, dict):
+            continue
+        rec = e.get("lighting_dark") or (e.get("exposure") or {}).get("lighting_dark")
+        if isinstance(rec, dict) and rec.get("target"):
+            by_camera.setdefault(str(rec["target"]), dict(rec, room_id=rec.get("room_id") or e.get("room_id")))
+    for rec in render_manifest.get("lighting_dark") or []:
+        if isinstance(rec, dict) and rec.get("target"):
+            by_camera.setdefault(str(rec["target"]), dict(rec))
+    out = []
+    top = float(LIGHTING_FACTOR[1])
+    for cam in sorted(by_camera):
+        rec = by_camera[cam]
+        metrics = dict(rec.get("metrics") or {})
+        message = str(rec.get("message") or f"{cam}: the view is too dark for the EV cap")
+        try:
+            over = float(metrics.get("stops_over_cap"))
+        except (TypeError, ValueError):
+            over = None
+        if over is not None and over > 0:
+            need = round(2.0 ** over, 2)
+            metrics["factor_needed"] = need
+            if rec.get("room_id"):
+                now = float((now_of.get(str(rec["room_id"])) or {}).get("factor") or 1.0)
+                want = round(now * 2.0 ** over, 2)
+                metrics["lighting_factor_now"] = now
+                metrics["set_lighting_factor"] = want
+                has = f" (it has x{now:g} now)" if abs(now - 1.0) > 1e-9 else ""
+                message += (f"; the room needs about x{need:g} its light, set_lighting gives up to x{top:g}{has}"
+                            if want > top + 1e-9 else
+                            f"; set_lighting factor about x{want:g} on {rec['room_id']}{has}")
+        out.append({"check": LIGHTING_DARK_CHECK, "severity": rec.get("severity") or "major", "target": cam,
+                    "room_id": rec.get("room_id"), "message": message, "metrics": metrics})
+    return out
+
+
 NEEDS_REVIEW_CHECK = "NR"
 READING_CONFLICT_CHECK = "RC"
 
@@ -262,6 +330,8 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
         family("scene_manifest", None, lambda: manifest_violations(scene_manifest, scene_read), lambda fn: fn())
     family("library", None, lambda: library_gaps(building), lambda fn: fn())
     family("reading", None, lambda: reading_items(building), lambda fn: fn())
+    # round 4: the views the EV cap held too dark (render manifest; unavailable without one)
+    family("lighting", None, lambda: lighting_items(render_manifest, building), lambda fn: fn())
     return {"findings": _unique(findings), "checks": checks, "scores": scores, "mean": mean,
             "scene_summary": manifest_summary(scene_manifest)}
 
@@ -278,4 +348,5 @@ FAMILY_OF = {**{k: "plausibility" for k in ("F1", "F2", "F3", "F4", "F5", "F6", 
              **{f"G{i}": "groups" for i in range(1, 15)},
              **{f"L{i}": "levels" for i in range(1, 8)},
              **{f"S{i}": "scene" for i in range(1, 7)},
-             LIBRARY_GAP_CHECK: "library", NEEDS_REVIEW_CHECK: "reading", READING_CONFLICT_CHECK: "reading"}
+             LIBRARY_GAP_CHECK: "library", NEEDS_REVIEW_CHECK: "reading", READING_CONFLICT_CHECK: "reading",
+             LIGHTING_DARK_CHECK: "lighting"}

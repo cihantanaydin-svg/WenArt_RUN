@@ -654,3 +654,92 @@ def test_final_report_without_a_scene_reads_the_run_building_for_the_licence_mod
                                            "flagged asset(s))")
     md = (out / "final" / "final_report.md").read_text(encoding="utf-8")
     assert "Project: commercial-safe: not determined" in md and "Project: commercial-safe: yes" not in md
+
+
+# --------------------------------------------------------------------------
+# Round 4 (before pod P3's second attempt): the views too dark for the EV cap
+# --------------------------------------------------------------------------
+
+def darken(out: Path) -> None:
+    """Give the toy run two views the +3 cap held, with the render's own records (``render.lighting_dark_entry``):
+    the hall at the CPU pre-flight's real04 basement salon numbers (wanted +6.37 EV, incident p50 0.010868: critical)
+    and the kitchen at +3.87 (major); the hall's room got the agent's set_lighting x3."""
+    from wenart.blender import render as R
+    path = out / "renders" / "render_manifest.json"
+    rm = json.loads(path.read_text(encoding="utf-8"))
+    rm["exposure_limits"] = [-2.0, 3.0]
+    wanted = {"cam_hol_1": (6.3718, 0.010868), "cam_mutfak_1": (3.8672, 0.05)}
+    rm["lighting_dark"] = []
+    for e in rm["renders"]:
+        if e["camera"] in wanted:
+            raw, p50 = wanted[e["camera"]]
+            rec = R.lighting_dark_entry(e["camera"], e["room_id"], raw, 3.0, (-10.3808, 3.0), p50)
+            e["exposure"].update(ev=3.0, ev_raw=raw, at_limit=True, lighting_dark=rec)
+            e["lighting_dark"] = rec
+            rm["lighting_dark"].append(rec)
+    path.write_text(json.dumps(rm), encoding="utf-8")
+    bpath = out / "building_final.json"
+    b = json.loads(bpath.read_text(encoding="utf-8"))
+    b["agent_overrides"] = {"lighting": {"r_hol": {"factor": 3.0, "reason": "the hall is dark"}}}
+    bpath.write_text(json.dumps(b), encoding="utf-8")
+
+
+def test_the_final_report_lists_the_views_too_dark_for_the_ev_cap(tmp_path):
+    """Fails on the old code: render.py writes lighting_dark per view and in the manifest's list (§13.2: "for the T8
+    report"), but the report did not read it; a view held at +3 showed "+3.00 (limit)" like any other."""
+    from wenart.blender import render as R
+    assert F.LIGHTING_DARK_CHECK == R.LIGHTING_DARK_CHECK
+    out = make_run(tmp_path)
+    darken(out)
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    block = manifest["lighting"]
+    assert block["cap_ev"] == 3.0 and block["critical"] == 1 and block["major"] == 1 and block["recorded"]
+    rows = {r["camera"]: r for r in block["views"]}
+    assert list(rows) == ["cam_mutfak_1", "cam_hol_1"]                                   # the views' order
+    hol = rows["cam_hol_1"]
+    assert (hol["severity"], hol["ev_wanted"], hol["ev_used"], hol["ev_cap"], hol["stops_over_cap"]) == \
+        ("critical", 6.3718, 3.0, 3.0, 3.3718)
+    assert hol["room_id"] == "r_hol" and hol["set_lighting_factor"] == 3.0 and hol["incident_p50"] == 0.010868
+    assert rows["cam_mutfak_1"]["severity"] == "major" and rows["cam_mutfak_1"]["set_lighting_factor"] is None
+    assert manifest["summary"]["lighting_dark"] == {"views": 2, "critical": 1, "major": 1}
+    views = {v["camera"]: v for v in manifest["views"]}
+    assert views["cam_hol_1"]["lighting_dark"]["check"] == "lighting_dark" and views["cam_salon_1"]["lighting_dark"] \
+        is None
+    assert any(f.startswith("2 view(s) too dark for the EV cap (lighting_dark: 1 critical, 1 major): cam_mutfak_1 "
+                            "metered +3.87 EV, cam_hol_1 metered +6.37 EV") for f in manifest["advisory_flags"])
+    text = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "| views too dark for the EV cap (lighting_dark) | 2 (1 critical, 1 major) |" in text
+    assert "## Views too dark for the EV cap (Milestone 13)" in text
+    assert "2 view(s) whose metered exposure passed the cap +3.00 EV (1 critical, 1 major" in text
+    assert "| cam_hol_1 | r_hol | critical | +6.37 | +3.00 | +3.00 | 3.37 | 0.01087 | x3 |" in text
+    assert "| cam_mutfak_1 | r_mutfak | major | +3.87 | +3.00 | +3.00 | 0.87 | 0.05000 | - |" in text
+    assert "+3.00 (cap; metered +6.37)" in text                                          # the per-view EV column
+    # a run without the records (Milestone 11 / 12): nothing listed, said so
+    plain = make_run(tmp_path / "plain")
+    m2 = F.write_final(plain)
+    assert m2["lighting"]["views"] == [] and m2["summary"]["lighting_dark"] == {"views": 0, "critical": 0, "major": 0}
+    assert "a run before Milestone 13" in (plain / "final" / "final_report.md").read_text(encoding="utf-8")
+
+
+def test_metric_9_reads_the_lighting_dark_records(tmp_path):
+    """Fails on the old code: metric 9 read the EV used, so a view the +3 cap held never reached the "EV >= +5" count
+    and the gap between lit and daylight rooms shrank to the cap (P1: the real02 kitchen metered +9.2, capped +3.0).
+    Now the lighting_dark record's metered EV is counted, from the final manifest or the render manifest."""
+    out = make_run(tmp_path)
+    darken(out)
+    m = MX.metrics(out)["metrics"]["m9"]                         # the render manifest (no final manifest yet)
+    # cam_salon_2 (6.0, as before) and the hall metered +6.37: 2 of 4 interior views at EV >= +5
+    assert m["value"] == 2 and m["parts"]["cameras"] == ["cam_salon_2", "cam_hol_1"]
+    assert m["parts"]["lighting_dark"] == 2 and m["parts"]["lighting_dark_critical"] == 1
+    assert m["parts"]["lighting_dark_cameras"] == ["cam_hol_1", "cam_mutfak_1"]
+    # rooms without a window (kitchen 3.87, hall 6.37: median 5.12) vs the salon views (1.5, 6.0: median 3.75)
+    assert m["parts"]["median_ev_no_window"] == 5.12 and m["parts"]["ev_gap"] == 1.37
+    assert m["text"].endswith("; 2 view(s) held at the EV cap (lighting_dark: 1 critical, 1 major), counted at their "
+                              "metered EV")
+    F.write_final(out)
+    result = MX.metrics(out)
+    assert result["metrics"]["m9"]["parts"]["cameras"] == ["cam_salon_2", "cam_hol_1"]   # the final manifest's views
+    rows = {r["camera"]: r for r in result["views"]}
+    assert rows["cam_hol_1"]["ev"] == 3.0 and rows["cam_hol_1"]["ev_metered"] == 6.37
+    assert rows["cam_hol_1"]["lighting_dark"] == "critical" and rows["cam_salon_1"]["lighting_dark"] is None

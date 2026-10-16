@@ -223,7 +223,9 @@ def test_shapes_rise_above_the_type_height_where_they_should():
 def test_world_mesh_rotates_and_lifts_the_parts():
     parts = P.build_parts("chair", 0.45, 0.45, 0.9)
     verts, faces, keys = P.world_mesh(parts, (3.0, 4.0), 90.0, floor_z=3.0)
-    assert len(keys) == len(faces) and set(keys) == {"wood"}
+    # round 4: the chair family v2 (a wooden frame, an upholstered pad and back panel, dark floor glides), no longer
+    # the Milestone 4 one-material box chair
+    assert len(keys) == len(faces) and set(keys) == {"wood", "fabric", "dark"}
     x0, y0, z0, x1, y1, z1 = P.local_bbox_of_world_points(verts, (3.0, 4.0), 90.0)
     assert (x1 - x0, y1 - y0) == pytest.approx((0.45, 0.45), abs=1e-9) and z0 == pytest.approx(3.0)
     # The back (local +Y) turned by 90 degrees points to world -X.

@@ -402,13 +402,17 @@ def test_exterior_world_record_with_the_sun_disc():
     assert rec["world_mix"]["node"] == "ShaderNodeMixShader" and "Is Camera Ray" in rec["world_mix"]["factor"]
     assert "only the camera sees" in rec["reason"]
     assert (rec["sun_elevation_deg"], rec["sun_azimuth_deg"]) == (40.0, 100.0)    # the arguments win
-    # The world's Background Strength (0.5 x the mood's 1.0 for warm daylight) scales the disc too, so the
-    # intensity is 300 / (1000 x 0.5) = 0.6 (T5 review, 15 Oct 2026); it stays the disc's look in the image.
-    assert rec["strength"] == 0.5 and rec["sun_disc_world_strength"] == 0.5
-    assert rec["sun_intensity"] == pytest.approx(0.6) and rec["sun_size_deg"] == 0.545
+    # The world's Background Strength scales the disc too (T5 review, 15 Oct 2026). Round 4: the strength is the one
+    # whose own sun equals the 300 W/m² lamp at 40 degrees (300 / (1000 x 0.1331) = 2.254), and the intensity is
+    # divided by it, so the disc's image brightness stays strength x intensity = 300 / 1000 (the P1 disc).
+    assert rec["strength"] == pytest.approx(300.0 / (1000.0 * 0.1331), abs=1e-4)
+    assert rec["sun_disc_world_strength"] == rec["strength"]
+    assert rec["sun_intensity"] == pytest.approx(0.1331, abs=1e-4) and rec["sun_size_deg"] == 0.545
+    assert rec["strength"] * rec["sun_intensity"] == pytest.approx(0.3, abs=1e-5)
     assert rec["sun_disc_reference_wm2"] == 1000.0
     prod = M.exterior_world(lighting, sun_disc=True, sun_wm2=L.SUN_STRENGTH_WM2)
-    assert prod["sun_intensity"] == pytest.approx(2.0) and prod["direct_sun"] == "lamp"
+    assert prod["sun_intensity"] == pytest.approx(0.1297) and prod["direct_sun"] == "lamp"
+    assert prod["strength"] * prod["sun_intensity"] == pytest.approx(1.0, abs=1e-5)  # the P1 disc's 0.5 x 2.0
     # The P1 world (the disc for every ray, the lamp hidden under it) stays selectable for the measurement.
     p1 = M.exterior_world(lighting, sun_disc=True, sun_wm2=300.0, disc_camera_only=False)
     assert p1["direct_sun"] == "sky disc" and p1["sun_disc_camera_only"] is False and "world_mix" not in p1
@@ -422,6 +426,66 @@ def test_exterior_world_record_with_the_sun_disc():
     assert M.sky_sun_rotation_rad(210.0) == pytest.approx(math.radians(210.0))
     assert M.sky_sun_rotation_rad(45.0) == pytest.approx(math.radians(45.0))
     assert M.sky_sun_rotation_rad(0.0) == 0.0 and M.sky_sun_rotation_rad(90.0) == pytest.approx(math.pi / 2)
+
+
+def test_round4_the_exterior_sky_is_the_pair_of_the_sun_lamp():
+    """Round 4 (docs/milestone13.md §14.8, the P3 pre-flight: the exterior sky world at 0.5 was about 4 stops too dark
+    against the 1000 W/m² lamp, ext_7's sky band 14/255 at the metered EV -7.67): the sky's Background Strength is
+    the one whose own sun equals the lamp (the measured pair ``SKY_SUN_TABLE``, bpy 5.2.2), the disc keeps its
+    image brightness, and the pair's horizontal diffuse-to-direct ratio lies in the clear-sky range (pvlib 0.13.1
+    Bird / Ineichen-Perez: 0.149-0.212 at 35 degrees). Fails on the round-3 code (strength 0.5, no calibration)."""
+    lighting = {"mood": "warm daylight", "sun_elevation_deg": 35.0, "sun_azimuth_deg": 45.0, "sun_strength": 3.0}
+    rec = M.exterior_world(lighting, sun_disc=True, sun_wm2=L.SUN_STRENGTH_WM2)
+    # 1000 / (1000 x 0.1297): x15.4 the Milestone 11 0.5 (the pre-flight's x15.5 gave a blue sky band)
+    assert rec["strength"] == pytest.approx(1000.0 / 129.7, abs=1e-4) and 15.0 < rec["strength"] / 0.5 < 16.0
+    cal = rec["sky_calibration"]
+    assert cal["rule"] == "sun pair" and cal["sky_sun_wm2"] == pytest.approx(129.7) and cal["mood_balance"] == 1.0
+    assert cal["strength"] * cal["sky_sun_wm2"] == pytest.approx(L.SUN_STRENGTH_WM2, rel=1e-5)   # its sun = the lamp
+    # the P1 measurement SUN_DISC_RATIO 0.129 (tests/gpu/test_m13_light.py) is the table's 35-degree row
+    assert M.sky_pair_ratios(35.0)[0] == pytest.approx(0.129, abs=0.001)
+    # the visible disc keeps its round-3 image brightness: strength x intensity = lamp / 1000 = 0.5 x 2.0
+    assert rec["strength"] * rec["sun_intensity"] == pytest.approx(1.0, abs=1e-5)
+    # the pair's own clear-sky ratio on a horizontal plane: 0.0124 / (0.1297 x sin 35) = 0.166
+    assert cal["pair_diffuse_to_direct"] == pytest.approx(0.01238 / (0.1297 * math.sin(math.radians(35.0))), abs=1e-4)
+    assert 0.149 <= cal["pair_diffuse_to_direct"] <= 0.212 and cal["pair_in_clear_sky_range"] is True
+    assert M.CLEAR_SKY_DIFFUSE_RANGE == (0.10, 0.25) and cal["diffuse_to_direct"] == cal["pair_diffuse_to_direct"]
+    # every elevation from 25 degrees up is a clear sky; a low sun has more diffuse light (as the clear-sky models)
+    for e in (25.0, 30.0, 35.0, 45.0, 55.0, 65.0, 75.0, 85.0):
+        c = M.exterior_sky_strength(1000.0, e)
+        assert c["pair_in_clear_sky_range"] is True, (e, c["pair_diffuse_to_direct"])
+    assert M.exterior_sky_strength(1000.0, 12.0)["pair_diffuse_to_direct"] > 0.25
+    # pvlib 0.13.1 ``clearsky.bird`` at sea level (precipitable water 1.42 cm, ozone 0.3 cm, AOD380 = AOD500 x
+    # (380 / 500) ** -1.3, Kasten-Young relative air mass; computed on CPU, 16 Oct 2026): DHI / (DNI x sin e) at
+    # AOD500 0.05 and 0.1. The measured pair lies between them at every elevation from 10 to 85 degrees.
+    bird = {10: (0.403, 0.644), 12: (0.351, 0.549), 15: (0.294, 0.448), 20: (0.233, 0.344), 25: (0.194, 0.282),
+            30: (0.168, 0.240), 35: (0.149, 0.212), 40: (0.136, 0.190), 45: (0.125, 0.175), 55: (0.111, 0.153),
+            65: (0.102, 0.140), 75: (0.097, 0.132), 85: (0.095, 0.129)}
+    for e, (clean, typical) in bird.items():
+        assert clean <= M.exterior_sky_strength(1000.0, float(e))["pair_diffuse_to_direct"] <= typical, e
+    assert M.exterior_sky_strength(1000.0, 12.0)["pair_in_clear_sky_range"] is None
+    # the table: elevations rise, the sun brightens with the elevation (less air), read linearly and held at its ends
+    els = [r[0] for r in M.SKY_SUN_TABLE]
+    assert els == sorted(els) and [r[1] for r in M.SKY_SUN_TABLE] == sorted(r[1] for r in M.SKY_SUN_TABLE)
+    assert M.sky_pair_ratios(37.5)[0] == pytest.approx((0.1297 + 0.1331) / 2.0)
+    assert M.sky_pair_ratios(0.0) == M.sky_pair_ratios(5.0) and M.sky_pair_ratios(90.0) == M.sky_pair_ratios(85.0)
+    # the table was measured with this air: a change of EXTERIOR_SKY needs a new measurement
+    assert {k: M.EXTERIOR_SKY[k] for k in M.SKY_TABLE_AIR} == M.SKY_TABLE_AIR
+    # the sky follows the lamp (the A/B suns) and the elevation (a lower sun is dimmer through more air)
+    assert M.exterior_world(lighting, sun_disc=True, sun_wm2=300.0)["strength"] == pytest.approx(0.3 * rec["strength"],
+                                                                                                abs=1e-4)
+    low = M.exterior_world(lighting, sun_disc=True, sun_elevation_deg=12.0, sun_wm2=1000.0)
+    assert low["strength"] == pytest.approx(1000.0 / (1000.0 * 0.0853), abs=1e-3) and low["strength"] > rec["strength"]
+    # moods keep the Milestone 11 balance of sky to sun (MOOD_STRENGTH over the lamp's mood factor): overcast is
+    # a sky-dominated light, 14 x its clear pair; without a lamp (a sunless mood, or no lamp given) the M11 0.5
+    overcast = {"mood": "overcast", "sun_elevation_deg": 45.0, "sun_strength": 0.3}
+    sun, factor = L.sun_strength_wm2(overcast)
+    oc = M.exterior_world(overcast, sun_disc=True, sun_wm2=sun)["sky_calibration"]
+    assert factor == pytest.approx(0.1) and oc["mood_balance"] == pytest.approx(14.0)
+    assert oc["diffuse_to_direct"] == pytest.approx(14.0 * oc["pair_diffuse_to_direct"], abs=1e-3)
+    night = M.exterior_world({"mood": "night", "sun_elevation_deg": -10.0, "sun_strength": 0.0}, sun_disc=True,
+                             sun_wm2=0.0)
+    assert night["sky_calibration"]["rule"] == "m11" and night["strength"] == pytest.approx(0.05 * 0.5)
+    assert M.exterior_world(lighting)["sky_calibration"]["rule"] == "m11"
 
 
 def test_rig_gain_and_the_shade_emission_bound():

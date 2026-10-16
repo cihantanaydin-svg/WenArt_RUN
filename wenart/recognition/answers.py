@@ -43,6 +43,13 @@ slugs from ``wenart/vision_check/check.yaml`` (read here, never edited).
 Milestone 10 (docs/milestone10.md §1.5, §1.6a): the task ``sheet_region`` (one crop per drawing region of the sheets
 stage, ``<out>/sheets/requests.json``) has its schema, prompt and input hash in ``wenart.sheets.question``;
 ``ask`` and ``status`` work on the ``<out>/sheets`` folder exactly as on ``<out>/recognition``.
+
+Milestone 13 round 4 (pod P3, 16 Oct 2026: 5 of 8 ``sheet_region`` answers of Qwen3-VL-8B were an endless run of
+blank lines inside the JSON, 151 s each, three identical requests): every question is asked with a ``max_tokens``
+sized from its schema (``call_args``: ``vlm_client.schema_max_tokens``; 1,322 tokens for ``sheet_region``
+instead of 4,096) and through the client's whitespace guard (vLLM ``repetition_detection``, a repair of an answer
+whose run is at its end, else one retry asking for one-line JSON; ``vlm_client`` module docstring). Each answer
+record keeps ``max_tokens``, ``finish_reason`` and ``guard`` (the guard's steps), and ``ask`` logs every step.
 """
 from __future__ import annotations
 
@@ -390,20 +397,44 @@ def call_args(item: dict, rec_dir: Path) -> dict:
     images = [Path(rec_dir) / p for p in item["images"]]
     if task == SHEET_TASK:
         from wenart.sheets import question
-        return {"images": images, "prompt": question.PROMPT, "schema": question.SCHEMA, "labels": None, "task": task}
+        return {"images": images, "prompt": question.PROMPT, "schema": question.SCHEMA, "labels": None, "task": task,
+                "max_tokens": schema_max_tokens(question.SCHEMA)}
     from wenart.recognition.crops import question_digest
     digest = question_digest(task, item.get("question") if task == "symbol_type" else None)
     labels = list(digest["image_labels"]) if "image_labels" in digest else None
     if labels is not None and len(labels) != len(images):
         labels = None
-    return {"images": images, "prompt": digest["prompt"], "schema": digest["schema"], "labels": labels, "task": task}
+    return {"images": images, "prompt": digest["prompt"], "schema": digest["schema"], "labels": labels, "task": task,
+            "max_tokens": schema_max_tokens(digest["schema"])}
+
+
+def schema_max_tokens(schema: dict) -> int:
+    """Milestone 13 round 4: the ``max_tokens`` of a question, sized from its answer schema
+    (``vlm_client.schema_max_tokens``; the answers are short: at most 85 Qwen tokens in the stored runs, 4,096 let
+    one whitespace run of P3 cost about 50 s per request)."""
+    from wenart.recognition.vlm_client import schema_max_tokens as sized
+    return sized(schema)
 
 
 def record_of(item: dict, result, model: str, seed: int) -> dict:
+    """One answer record. Milestone 13 round 4: also ``max_tokens`` (of the first request), ``finish_reason`` (of the
+    last answer) and ``guard`` (the whitespace / length guard's steps, ``vlm_client.VLMResult.guard``)."""
     return {"task": item["task"], "input_sha256": item["input_sha256"], "data": result.data,
             "raw_text": result.raw_text, "error": result.error, "attempts": result.attempts,
             "latency_s": round(float(result.latency_s), 3), "model": model, "seed": seed,
-            "images": list(item["images"])}
+            "images": list(item["images"]), "max_tokens": int(getattr(result, "max_tokens", 0) or 0),
+            "finish_reason": getattr(result, "finish_reason", None), "guard": list(getattr(result, "guard", None) or [])}
+
+
+def guard_text(guard: list) -> str:
+    """The guard's steps in one line for the log, e.g. ``attempt 1: whitespace run 48 chars, finish repetition ->
+    compact_retry``."""
+    parts = []
+    for step in guard or []:
+        run = step.get("whitespace_run") or 0
+        what = f"whitespace run {run} chars, " if run else ""
+        parts.append(f"attempt {step.get('attempt')}: {what}finish {step.get('finish_reason')} -> {step.get('action')}")
+    return "; ".join(parts)
 
 
 def _error_record(item: dict, error: str, model: str, seed: int) -> dict:
@@ -428,9 +459,10 @@ def ask(items: list[dict], store: AnswerStore, client, rec_dir: Path, *, workers
         clock: Callable[[], float] = time.time) -> dict:
     """Ask every item without a current answer, ``workers`` at once, until ``deadline`` (epoch s).
 
-    Only this thread writes the answers file. Returns ``{"asked", "reused", "failed", "left", "incomplete"}``.
+    Only this thread writes the answers file. Returns ``{"asked", "reused", "failed", "left", "incomplete",
+    "guarded"}`` (``guarded``: answers whose call needed the whitespace / length guard, Milestone 13 round 4).
     """
-    stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False}
+    stats = {"asked": 0, "reused": 0, "failed": 0, "left": 0, "incomplete": False, "guarded": 0}
     if deadline is not None and hasattr(client, "deadline"):
         client.deadline = float(deadline)          # VLMClient caps each request and retry to it
     model = str(getattr(client, "model", "") or store.data.get("model") or "")
@@ -454,7 +486,7 @@ def ask(items: list[dict], store: AnswerStore, client, rec_dir: Path, *, workers
             def call(args=args):
                 return client.run_schema([str(p) for p in args["images"]], args["prompt"], args["schema"],
                                          seed=seed, task=args["task"], max_side=0, labels=args["labels"],
-                                         system_prompt=prompts.M7_SYSTEM_PROMPT)
+                                         system_prompt=prompts.M7_SYSTEM_PROMPT, max_tokens=args["max_tokens"])
             _spawn(call, started, results)
             started += 1
         if not running:
@@ -474,6 +506,10 @@ def ask(items: list[dict], store: AnswerStore, client, rec_dir: Path, *, workers
             rec = record_of(item, result, model, seed)
         store.put(item["key"], rec)
         stats["asked"] += 1
+        if rec.get("guard"):
+            stats["guarded"] += 1
+            log(f"recognition answers: {item['key']}: guard: {guard_text(rec['guard'])}"
+                f"{'' if rec['data'] is None else ' (answered)'}")
         if not valid_answer(item["task"], rec["data"]):
             stats["failed"] += 1
             log(f"recognition answers: {item['key']}: {rec['error'] or 'answer not schema-valid'}")
@@ -567,7 +603,8 @@ def cmd_ask(args, client_factory=None) -> int:
     workers = args.workers or _workers_default()
     stats = ask(items, store, client, rec_dir, workers=workers, deadline=deadline)
     print(f"recognition answers [{info['key']}]: {len(items)} item(s): {stats['asked']} asked "
-          f"({stats['failed']} failed), {stats['reused']} reused, {stats['left']} left"
+          f"({stats['failed']} failed{', ' + str(stats['guarded']) + ' guarded' if stats['guarded'] else ''}), "
+          f"{stats['reused']} reused, {stats['left']} left"
           f"{' (deadline: incomplete)' if stats['incomplete'] else ''} -> {store.path}")
     if stats["left"]:
         return EXIT_DEADLINE

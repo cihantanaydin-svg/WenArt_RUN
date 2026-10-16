@@ -303,7 +303,7 @@ def test_gap_list_names_every_type_without_a_module_builder_or_a_family():
     gaps = M.gap_types()
     assert not set(gaps) & set(M.MODULE_BUILDERS) and not set(gaps) & set(P.FAMILY_TYPES)
     assert set(gaps) | set(M.MODULE_BUILDERS) | set(P.FAMILY_TYPES) == set(P.PARAMETRIC_TYPES)
-    assert gaps == ["bar_stool", "bathtub", "bench", "bunk_bed", "chair", "chaise", "console_table", "crib",
+    assert gaps == ["bar_stool", "bathtub", "bench", "bunk_bed", "chaise", "console_table", "crib",
                     "display_cabinet", "floor_lamp", "fridge", "office_chair", "ottoman", "potted_plant",
                     "shoe_cabinet", "side_table", "sideboard", "sink_kitchen", "stair", "stove", "tall_cabinet",
                     "toilet", "wall_cabinet", "washing_machine"]
@@ -340,6 +340,7 @@ def test_every_family_has_real_parts_and_two_material_slots(ftype):
         "nightstand": {"plinth", "body", "top", "front", "handle"}, "dresser": {"plinth", "body", "top", "front", "handle"},
         "bookshelf": {"plinth", "side", "bottom", "top", "back", "shelf"},
         "tv_unit": {"leg", "body", "top", "front", "handle"}, "wardrobe": {"plinth", "body", "top", "front", "handle"},
+        "chair": {"leg", "foot", "apron", "top", "back"},                            # round 4: the chair v2
     }[ftype]
     assert expected <= roles, (ftype, roles)
     # the old code's flat looks are gone: no bare box body without legs or fronts
@@ -353,6 +354,8 @@ def test_every_family_has_real_parts_and_two_material_slots(ftype):
         assert {"front", "handle"} <= keys and sum(p["role"] == "handle" for p in parts) >= 1
     if ftype == "bookshelf":
         assert "painted" in keys
+    if ftype == "chair":                        # a wooden frame, an upholstered pad and back, dark floor glides
+        assert {"wood", "fabric", "dark"} <= keys and sum(p["role"] == "foot" for p in parts) == 4
 
 
 def test_bed_v2_keeps_its_box_and_drapes_its_own_bedding():
@@ -476,3 +479,77 @@ def test_storage_v2_fronts_follow_the_design():
     # every family builder takes the piece (its design) through build_parts
     for ftype in P.FAMILY_TYPES:
         assert ftype in P._PIECE_BUILDERS or ftype in ("table_dining", "table_coffee", "desk", "wardrobe"), ftype
+
+
+def _extent(parts, axis):
+    vals = [v[axis] for p in parts for v in p["verts"]]
+    return max(vals) - min(vals)
+
+
+@pytest.mark.parametrize("size", [(0.45, 0.45), (0.5, 0.45), (0.5, 0.5), (0.48, 0.55)])
+def test_round4_chair_v2_has_real_proportions_and_two_material_slots(size):
+    """Round 4 (docs/milestone13.md §14.8, the P3 pre-flight: a chair below library level was the one-material box
+    chair, P3's fit sends f_L1_023 and f_L1_025 there): the chair family v2 at the size table's chair products and
+    real04's drawn chairs (0.5 x 0.45). Seat height 0.45-0.47 m, seat depth 0.40-0.45 m, back 0.80-0.90 m (secondary
+    compilations: "Dining chair seat height 450-470 mm"; "Dining chair 0.46 x 0.52 x 0.9 ... seat pad at 0.45 with a
+    0.42 seat depth"); at least two material slots; bevelled frame edges, a smooth pad; the box kept; the back on
+    the rear band camsearch's profile models (min(0.04, 0.1 d), every back part touching +Y). Fails on the round-3
+    code (one ``wood`` key, a 0.04 m seat slab, ``chair`` not in FAMILY_TYPES)."""
+    w, d = size
+    h, _ = proxy_height("chair", None)
+    assert h == pytest.approx(0.9) and "chair" in P.FAMILY_TYPES and "chair" in P._PIECE_BUILDERS
+    parts = P.build_parts("chair", w, d, h)
+    assert _bbox(parts) == pytest.approx((w, d, 0.0, h), abs=1e-9)                 # the Milestone 4 box
+    keys = {p["key"] for p in parts}
+    assert len(keys) >= 2 and keys == {"wood", "fabric", "dark"}                    # frame, pad and back, glides
+    seat = [p for p in parts if p["role"] == "top"]
+    seat_top = max(v[2] for p in seat for v in p["verts"])
+    assert 0.45 <= seat_top <= 0.47 and seat_top == pytest.approx(P.chair_seat_height(h))
+    pad = next(p for p in seat if p["key"] == "fabric")
+    assert pad.get("smooth") and 0.40 <= _extent([pad], 1) <= 0.45                   # the sitting surface's depth
+    back = [p for p in parts if p["role"] == "back"]
+    assert 0.80 <= max(v[2] for p in back for v in p["verts"]) <= 0.90
+    t = min(P.CHAIR_BACK_T_M, d * 0.1)
+    assert all(max(v[1] for v in p["verts"]) == pytest.approx(d / 2.0) for p in back)
+    assert min(v[1] for p in back for v in p["verts"]) == pytest.approx(d / 2.0 - t)
+    assert any(p["key"] == "fabric" for p in back)                                  # an upholstered back panel
+    legs = [p for p in parts if p["role"] == "leg"]
+    assert len(legs) == 2 and sum(p["role"] == "foot" for p in parts) == 4           # front legs + posts, 4 glides
+    for leg in legs:                                                                # tapered: wider at the top
+        zs = [v[2] for v in leg["verts"]]
+        top = [v for v in leg["verts"] if abs(v[2] - max(zs)) < 1e-9]
+        low = [v for v in leg["verts"] if abs(v[2] - min(zs)) < 1e-9]
+        assert max(v[0] for v in top) - min(v[0] for v in top) > max(v[0] for v in low) - min(v[0] for v in low)
+    wood = [p for p in parts if p["key"] == "wood"]
+    assert wood and all(P.part_bevel_radius(p) > 0 for p in wood)                   # bevelled frame edges
+    _no_degenerate_faces(parts)
+
+
+def test_round4_chair_v2_follows_the_design_tags_and_the_long_table_builds_it():
+    """The design's material tags pick the frame and the seat (``chair_design``): ``metal`` a steel sled base with
+    the pad on a dark shell, ``wood`` a shaped wooden seat and back panel, ``rattan`` a rattan seat; every variant
+    keeps two or more material slots and the box. The long table module (a footprint that includes its chairs)
+    builds its chairs through ``build_parts("chair")``: the same family, so they are no box chairs either."""
+    w, d, h = 0.45, 0.45, 0.9
+    sled = P.build_parts("chair", w, d, h, piece={"design": {"material_tags": ["metal"]}})
+    assert {p["key"] for p in sled} == {"steel", "dark", "fabric"}
+    assert sum(p["role"] == "base" for p in sled) == 2 and not any(p["role"] == "foot" for p in sled)
+    assert all(p["key"] == "steel" and min(v[2] for v in p["verts"]) == pytest.approx(0.0)
+               for p in sled if p["role"] == "base")                                 # runners on the floor
+    wooden = P.build_parts("chair", w, d, h, piece={"design": {"material_tags": ["wood"]}})
+    assert {p["key"] for p in wooden} == {"wood", "dark"}
+    assert {p["key"] for p in wooden if p["role"] == "top"} == {"wood"}
+    rattan = P.build_parts("chair", w, d, h, piece={"design": {"material_tags": ["rattan", "wood"]}})
+    assert {p["key"] for p in rattan if p["role"] == "top"} == {"rattan"} and len({p["key"] for p in rattan}) >= 2
+    assert P.chair_design({"design": {"material_tags": ["metal", "wood"]}}) == {
+        "frame": "steel", "seat": "wood", "base": "sled", "back": "panel"}
+    for parts in (sled, wooden, rattan):
+        assert _bbox(parts) == pytest.approx((w, d, 0.0, h), abs=1e-9)
+        assert max(v[2] for p in parts if p["role"] == "top" for v in p["verts"]) == pytest.approx(0.45)
+        _no_degenerate_faces(parts)
+    # the long table splits its chairs from a deep footprint and builds them with the v2 family
+    plan = M.module_plan(_piece("table_dining", 2.3, 1.6))
+    chairs = [m for m in plan["modules"] if m["kind"] == "chair"]
+    assert chairs and M.material_keys(plan) and {"fabric", "dark"} <= set(M.material_keys(plan))
+    parts = M.module_parts(plan)
+    assert sum(p["role"] == "foot" and p["key"] == "dark" for p in parts) == 4 * len(chairs)

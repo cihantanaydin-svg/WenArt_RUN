@@ -45,6 +45,12 @@ Poly Haven Diffuse maps; ``wenart/style/asset_checks_m10.json`` is the committed
 keeps it equal to the vocabulary. Fetching the new ids needs no new code: ``fetch_texture`` already reads any Poly
 Haven or ambientCG id (ambientCG downloads need ``acg-download.struffelproductions.com`` on the proxy list).
 
+Milestone 13 round 4 (docs/milestone13.md §14.8, the CPU pre-flight of pod P3): ``fetch_for_style`` also fetches
+every texture set the shell slots of the build can use (``shell_texture_rows``: the ids of
+``wenart/blender/materials.py`` ``SHELL_SLOTS``, read from that module, the one source of truth), at the same size
+as the style's sets; ``texture_plan`` is the whole list in fetch order (pure). The result's ``shell`` list says per
+slot which set it uses and whether it is ready.
+
 Idempotent: an asset whose manifest entry and files are present with the
 recorded sha256 is returned without any network call.
 """
@@ -365,27 +371,81 @@ def fetch_hdri(asset_id: str, out_dir: Path, size: str = "2k", source: str = pol
 # Whole style, vocabulary check
 # --------------------------------------------------------------------------
 
+SHELL_LABEL = "shell:"          # label prefix of a shell slot's row (``shell:worktop``)
+
+
+def shell_texture_rows(style: Optional[dict] = None) -> list[tuple[str, str, str]]:
+    """``[(source, asset_id, "shell:<slot>")]``: every texture set a shell slot of the build can use (pure, no
+    download), one row per (slot, set) in ``SHELL_SLOT_NAMES`` order.
+
+    Why (Milestone 13 round 4; the CPU pre-flight of pod P3, docs/milestone13.md §14.8): in production the build
+    routes the shell slugs through ``wenart/blender/materials.py`` ``SHELL_SLOTS`` (the ``shell`` lever is on in
+    ``lighting.LEVER_DEFAULTS``), and a slot puts its own set on a slug the style names without one: the worktop's
+    ``stone_worktop`` gets ``marble_01``, the handles' ``steel_brushed`` gets ``Metal032``. This stage fetched only the
+    sets the style names, so they were never on the volume: pod P1's worktop record says ``textured false`` (kitchen
+    worktops flat grey) and P3's real04 style names neither set (the pre-flight's ``shell_asset_missing`` records).
+
+    One source of truth: the ids come from ``materials.SHELL_SLOTS`` itself (the module imports without bpy; it
+    imports ``bpy`` only inside its Blender functions). Per slot: the table's own set (a build with another style,
+    the A/B variants and ``shell_material(slot, None, ...)`` use it) and, with ``style``, the set
+    ``materials.shell_slot_spec`` puts in its place (the profile's ``ceiling.asset`` / ``trim.asset``). Slots without
+    a set (ceramic, tile, plaster) give no row. The source is the vocabulary's (``source_of_texture``; the tests keep
+    every table id a vocabulary id checked in ``asset_checks_m10.json``)."""
+    from wenart.blender import materials as M
+
+    rows, seen = [], set()
+    for slot in M.SHELL_SLOT_NAMES:
+        ids = [M.SHELL_SLOTS[slot].get("asset")]
+        if style:
+            ids.append(M.shell_slot_spec(slot, style).get("asset"))
+        for asset_id in ids:
+            if asset_id and (slot, asset_id) not in seen:
+                seen.add((slot, asset_id))
+                rows.append((source_of_texture(str(asset_id)), str(asset_id), f"{SHELL_LABEL}{slot}"))
+    return rows
+
+
+def texture_plan(style: dict, shell_rows: Optional[list] = None) -> list[tuple[str, str, str]]:
+    """The texture sets ``fetch_for_style`` fetches, in fetch order, one row ``(source, asset_id, label)`` per asset
+    id (pure): the style's sets (``assets_in_profile``, label the slug), the furniture texture maps
+    (``vocabulary.furniture_textures``, label the slug), then the shell slots' sets (``shell_texture_rows(style)``
+    unless ``shell_rows`` is given, label ``shell:<slot>``). An id already in the list keeps its first label."""
+    from wenart.style.profile import assets_in_profile
+
+    shell = shell_texture_rows(style) if shell_rows is None else shell_rows
+    rows, seen = [], set()
+    for row in list(assets_in_profile(style)["textures"]) + list(V.furniture_textures()) + list(shell):
+        if row[1] not in seen:
+            seen.add(row[1])
+            rows.append(tuple(row))
+    return rows
+
+
 def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Optional[str] = None,
                     log=print) -> dict:
     """Fetch every texture set and the HDRI a style profile uses, plus the
     furniture texture maps (``vocabulary.furniture_textures``: the veneers and
     the linen weave every parametric piece and wood door uses, docs/milestone6.md
-    §5 row 8).
+    §5 row 8) and (Milestone 13 round 4) every set the shell slots can use
+    (``shell_texture_rows``), all at ``size``; ``texture_plan`` is the list.
 
     Failures (blocked host, unknown id, licence) do not stop the run: they are
     returned under ``"failed"`` so the scene builder can fall back to flat
-    colours and record that in its manifest.
+    colours and record that in its manifest. ``"shell"``: ``[{"slot", "asset",
+    "source", "ready"}]`` (``ready``: the set is in the manifest after this run).
     """
     from wenart.style.profile import assets_in_profile
 
     wanted = assets_in_profile(style)
-    textures = list(wanted["textures"])
-    seen = {asset_id for _, asset_id, _ in textures}
-    for row in V.furniture_textures():
-        if row[1] not in seen:
-            seen.add(row[1])
-            textures.append(row)
-    result = {"textures": {}, "hdris": {}, "failed": {}}
+    try:
+        shell_rows, shell_error = shell_texture_rows(style), None
+    except Exception as exc:  # noqa: BLE001 - the style's own sets are still fetched; the failure is recorded
+        shell_rows, shell_error = [], f"{type(exc).__name__}: {exc}"
+    textures = texture_plan(style, shell_rows)
+    result = {"textures": {}, "hdris": {}, "failed": {}, "shell": []}
+    if shell_error:
+        result["failed"]["shell_slots"] = f"the shell slot table could not be read: {shell_error}"
+        log(f"texture {'(shell slot table)':<28} {'':<10} {'':<20} FAILED: {shell_error}")
     for source, asset_id, slug in textures:
         try:
             entry = fetch_texture(asset_id, out_dir, size=size, source=source)
@@ -402,6 +462,9 @@ def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Opt
         except (web.NetworkError, web.HTTPStatusError, AssetNotFound, LicenceError, KeyError, RuntimeError) as exc:
             result["failed"][hdri_id] = f"{type(exc).__name__}: {exc}"
             log(f"hdri    {hdri_id:<28} {source:<10} {'':<20} FAILED: {exc}")
+    for source, asset_id, label in shell_rows:
+        result["shell"].append({"slot": label[len(SHELL_LABEL):], "asset": asset_id, "source": source,
+                                "ready": asset_id in result["textures"]})
     return result
 
 

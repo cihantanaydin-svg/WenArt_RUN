@@ -251,9 +251,10 @@ def test_the_code_critic_adds_group_level_scene_and_library_gap_findings(tmp_pat
                  scene_dir=tmp_path / "checks")
     got = {(f["check"], f["target"], f["room_id"]) for f in res["findings"]}
     assert got == {("G4", "f2", "r1"), ("L2", "d1", None), ("S5", "f3", "r2"), ("LG", "f3", "r2")}
+    # round 4 of M13: the lighting family (the render manifest's lighting_dark) is unavailable without a manifest
     assert {c["source"]: c["status"] for c in res["checks"]} == {
         "plausibility": "ok", "exterior": "ok", "views": "ok", "groups": "ok", "levels": "ok", "scene": "ok",
-        "library": "ok", "reading": "ok"}
+        "library": "ok", "reading": "ok", "lighting": "unavailable"}
     lg = next(f for f in res["findings"] if f["check"] == "LG")
     assert lg["severity"] == "minor" and "related type armchair" in lg["message"]
     none = CC.run(b, {}, None, plausibility_fn=lambda x: {"rooms": {}}, exterior_fn=lambda *a: {"violations": []},

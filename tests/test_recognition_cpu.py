@@ -541,6 +541,177 @@ def test_run_schema_reports_an_unreachable_server_without_raising():
 
 
 # --------------------------------------------------------------------------
+# Milestone 13 round 4: the whitespace-run guard (pod P3, 16 Oct 2026)
+# --------------------------------------------------------------------------
+#
+# P3 (runs/20261016-104256-full/results/recognition/real04/sheets/answers_qwen3-vl-8b.json): 5 of 8 sheet_region
+# answers of Qwen3-VL-8B were this prefix followed by "\n  " until max_tokens 4096 (8,216 characters, 151 s for the
+# three identical requests the client sent), error "Expecting ',' delimiter: line 4 column 23".
+
+P3_PREFIX = '{\n  "class": "floor_plan",\n  "level_word": null,\n  "variant_word": null'
+P3_RUN = P3_PREFIX + "\n  " * 2714
+
+
+def _sheet_schema() -> dict:
+    from wenart.sheets import question
+    return question.SCHEMA
+
+
+GOOD_SHEET = {"class": "floor_plan", "level_word": None, "variant_word": None, "confidence": 0.9,
+              "reason": "Walls and room names seen from above."}
+
+
+def _stub_finish(answers: list, bodies: list) -> callable:
+    """A ``post_json`` stand-in: answers ``(text, finish_reason)`` in turn (the last one again), records bodies."""
+    def post_json(url, body, timeout_s):
+        bodies.append(json.loads(json.dumps(body)))
+        text, finish = answers[min(len(bodies), len(answers)) - 1]
+        return {"choices": [{"message": {"content": text}, "finish_reason": finish}], "usage": {}}
+    return post_json
+
+
+def _prompt_of(body: dict) -> str:
+    return [p for p in body["messages"][1]["content"] if p["type"] == "text"][-1]["text"]
+
+
+def test_p3_whitespace_run_is_asked_once_in_one_line_not_three_times_the_same(monkeypatch):
+    """The old client sent the P3 request 3 times unchanged (temperature 0: the same run each time) and gave up.
+    Now the run is not repairable (confidence and reason never came), so it is asked once more with the one-line
+    note, and that answer is used; the guard records the step."""
+    bodies = []
+    monkeypatch.setattr(vlm_client, "post_json",
+                        _stub_finish([(P3_RUN, "length"), (json.dumps(GOOD_SHEET), "stop")], bodies))
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=3, timeout_s=1, max_side=100)
+    page = PROJECTS / "synthetic-02" / "plan_scan.png"
+    res = client.run_schema([page], "Which kind of drawing?", _sheet_schema(), task="sheet_region", max_tokens=500)
+    assert res.error is None and res.data == GOOD_SHEET
+    assert res.attempts == 2 and len(bodies) == 2
+    assert _prompt_of(bodies[0]) == "Which kind of drawing?"
+    assert _prompt_of(bodies[1]) == "Which kind of drawing?\n\n" + vlm_client.COMPACT_RETRY_NOTE
+    # Only the prompt changed: temperature 0, seed, schema, max_tokens and the repetition stop stay.
+    same = ("temperature", "seed", "structured_outputs", "max_tokens", "repetition_detection", "model")
+    assert all(bodies[0][k] == bodies[1][k] for k in same) and bodies[0]["max_tokens"] == 500
+    assert res.max_tokens == 500 and res.finish_reason == "stop"
+    assert res.guard == [{"attempt": 1, "finish_reason": "length", "whitespace_run": len(P3_RUN) - len(P3_PREFIX),
+                          "action": "compact_retry"}]
+
+
+def test_a_second_whitespace_run_ends_the_call_even_with_one_retry(monkeypatch):
+    bodies = []
+    monkeypatch.setattr(vlm_client, "post_json", _stub_finish([(P3_RUN, "repetition")], bodies))
+    page = PROJECTS / "synthetic-02" / "plan_scan.png"
+    for retries in (3, 1):                      # retries=1 still gets the one guard retry, never a third request
+        bodies.clear()
+        client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=retries, timeout_s=1, max_side=100)
+        res = client.run_schema([page], "p", _sheet_schema())
+        assert res.data is None and res.attempts == 2 and len(bodies) == 2
+        assert res.error.startswith("bad answer") and "whitespace run" in res.error and "not asked again" in res.error
+        assert [g["action"] for g in res.guard] == ["compact_retry", "gave_up"]
+
+
+def test_a_run_of_spaces_stopped_for_repetition_is_not_sent_again_unchanged(monkeypatch):
+    """Review of round 4: a run without line breaks is no ``whitespace_run`` (it needs 2 line breaks), but vLLM's
+    finish reason ``repetition`` alone starts the guard: one one-line retry, never the same request again."""
+    bodies = []
+    spaces = P3_PREFIX + " " * 64
+    assert vlm_client.whitespace_run(spaces) == 0
+    monkeypatch.setattr(vlm_client, "post_json",
+                        _stub_finish([(spaces, "repetition"), (json.dumps(GOOD_SHEET), "stop")], bodies))
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=3, timeout_s=1, max_side=100)
+    res = client.run_schema([PROJECTS / "synthetic-02" / "plan_scan.png"], "p", _sheet_schema())
+    assert res.data == GOOD_SHEET and res.attempts == 2 and len(bodies) == 2
+    assert _prompt_of(bodies[1]) == "p\n\n" + vlm_client.COMPACT_RETRY_NOTE
+    assert res.guard == [{"attempt": 1, "finish_reason": "repetition", "whitespace_run": 0,
+                          "action": "compact_retry"}]
+
+
+def test_a_complete_answer_ending_in_a_run_is_repaired_without_a_new_request(monkeypatch):
+    """The run started before the closing brace (every value already written; P3 r13 shows that shape): closing
+    the object gives the model's own answer, nothing is invented."""
+    bodies = []
+    text = (json.dumps(GOOD_SHEET, indent=2)[:-2]) + "\n  " * 40              # no closing brace, then the run
+    monkeypatch.setattr(vlm_client, "post_json", _stub_finish([(text, "repetition")], bodies))
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=3, timeout_s=1, max_side=100)
+    res = client.run_schema([PROJECTS / "synthetic-02" / "plan_scan.png"], "p", _sheet_schema())
+    assert res.error is None and res.data == GOOD_SHEET and res.attempts == 1 and len(bodies) == 1
+    assert res.guard[0]["action"] == "repaired" and res.guard[0]["finish_reason"] == "repetition"
+    # An optional property the model might still have written: closing early would drop it, so no repair.
+    optional = json.loads(json.dumps(_sheet_schema()))
+    optional["properties"]["note"] = {"type": "string", "maxLength": 20}
+    bodies.clear()
+    res = client.run_schema([PROJECTS / "synthetic-02" / "plan_scan.png"], "p", optional)
+    assert res.data is None and [g["action"] for g in res.guard] == ["compact_retry", "gave_up"] and len(bodies) == 2
+
+
+def test_whitespace_run_and_close_truncated_json_never_cut_or_invent():
+    run = "\n  " * 10
+    assert vlm_client.whitespace_run(P3_RUN) == len(P3_RUN) - len(P3_PREFIX)
+    assert vlm_client.whitespace_run(json.dumps(GOOD_SHEET, indent=4)) == 0          # indentation is no run
+    assert vlm_client.whitespace_run('{"reason": "' + run + '"') == 0                # inside a string: the text
+    assert vlm_client.whitespace_run('{"a": 1,' + " " * 40) == 0                     # no line break
+    close = vlm_client.close_truncated_json
+    assert close('{"a": {"b": 1.5}' + run) == '{"a": {"b": 1.5}}'
+    assert close('{"a": 1' + run) == '{"a": 1}'
+    assert close('{"a": 1') is None                                  # cut without a run: 1 may be 1.5 cut short
+    assert close('{"a": 1' + run + '"b"') is None                    # the run is not at the end
+    assert close('{"a": "text' + run) is None                        # ends inside a string
+    assert close('{"a": 1,' + run) is None and close('{"a":' + run) is None and close('{' + run) is None
+    assert close('{"a": [1, 2' + run) is None                        # an open list may miss items
+    assert close('{"a": 1}' + run) is None                           # nothing to close (it parses as it is)
+    assert close(P3_RUN) == P3_PREFIX + "}"                          # parses, but lacks confidence and reason:
+    assert not vlm_client.has_every_property(json.loads(close(P3_RUN)), _sheet_schema())
+    assert vlm_client.has_every_property(GOOD_SHEET, _sheet_schema())
+    body = vlm_client.build_request("m", "prompt", "data:x", {})
+    retry = vlm_client.compact_retry_body(body)
+    assert body["messages"][1]["content"][-1]["text"] == "prompt"   # the caller's body is not changed
+    assert retry["messages"][1]["content"][-1]["text"].endswith(vlm_client.COMPACT_RETRY_NOTE)
+
+
+def test_an_answer_cut_by_the_sized_max_tokens_is_asked_once_with_the_client_max_tokens(monkeypatch):
+    bodies = []
+    cut = '{"class": "floor_plan", "level_word": "ZEMİN KAT PLA'
+    monkeypatch.setattr(vlm_client, "post_json",
+                        _stub_finish([(cut, "length"), (json.dumps(GOOD_SHEET), "stop")], bodies))
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1, max_side=100)
+    res = client.run_schema([PROJECTS / "synthetic-02" / "plan_scan.png"], "p", _sheet_schema(), max_tokens=40)
+    assert res.error is None and res.data == GOOD_SHEET and res.attempts == 2
+    assert [b["max_tokens"] for b in bodies] == [40, vlm_client.DEFAULT_MAX_TOKENS]
+    assert _prompt_of(bodies[1]) == "p" and res.guard[0]["action"] == "length_retry"
+    # Cut at the client's own max_tokens: nothing larger to ask with, the old rule (same request) applies.
+    bodies.clear()
+    monkeypatch.setattr(vlm_client, "post_json", _stub_finish([(cut, "length")], bodies))
+    res = client.run_schema([PROJECTS / "synthetic-02" / "plan_scan.png"], "p", _sheet_schema())
+    assert res.data is None and res.attempts == 1 and res.guard == []
+    # A caller's max_tokens never exceeds the client's.
+    assert client._max_tokens_for(10 ** 6) == vlm_client.DEFAULT_MAX_TOKENS and client._max_tokens_for(None) == 4096
+
+
+def test_every_request_sends_the_vllm_repetition_stop_and_page_tasks_get_a_sized_max_tokens(monkeypatch):
+    """vLLM 0.30.0 ``RepetitionDetectionParams`` rules (vllm/sampling_params.py): sizes >= 0, min <= max, and
+    min_count >= 2 when max_pattern_size > 0."""
+    rd = vlm_client.REPETITION_DETECTION
+    assert set(rd) == {"max_pattern_size", "min_pattern_size", "min_count"}
+    assert 0 <= rd["min_pattern_size"] <= rd["max_pattern_size"] and rd["max_pattern_size"] > 0 and rd["min_count"] >= 2
+    assert "repetition_detection" not in vlm_client.build_request("m", "p", "data:x", {})     # other callers: as before
+    bodies = []
+    monkeypatch.setattr(vlm_client, "post_json", _stub_answers([json.dumps({"status": "absent",
+                                                                            "box": [0, 0, 1, 1]})], bodies))
+    page = PROJECTS / "synthetic-02" / "plan_scan.png"
+    client = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1, max_side=100)
+    client.run_schema([page], "p", CHECK_SCHEMA)
+    assert bodies[-1]["repetition_detection"] == rd and bodies[-1]["max_tokens"] == vlm_client.DEFAULT_MAX_TOKENS
+    off = vlm_client.VLMClient("http://127.0.0.1:9/v1", model="x", retries=1, timeout_s=1, max_side=100,
+                               repetition_detection=None)
+    off.run_schema([page], "p", CHECK_SCHEMA)
+    assert "repetition_detection" not in bodies[-1]
+    # run_task: a bounded page schema gets its sized max_tokens; a list without maxItems keeps the client's.
+    client.run_task("page_class", page)
+    assert bodies[-1]["max_tokens"] == vlm_client.schema_max_tokens(schemas.grammar_schema("page_class")) < 4096
+    client.run_task("symbols", page)
+    assert bodies[-1]["max_tokens"] == 4096 and bodies[-1]["repetition_detection"] == rd
+
+
+# --------------------------------------------------------------------------
 # Two-pass agreement
 # --------------------------------------------------------------------------
 

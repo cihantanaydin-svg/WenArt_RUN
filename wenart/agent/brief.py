@@ -27,6 +27,10 @@ built or not; ``place_group`` re-solves it as one unit) and ``below_library`` (t
 module builder or a parametric family: ours, with real proportions and PBR slots, not library models), so the
 planner and the critic know what they see; a piece line carries ``built_as`` for those.
 
+Round 4 (before pod P3's second attempt): the brief states ``lighting_factor`` (the room's ``set_lighting`` factor in
+the building's ``agent_overrides.lighting``, ``lighting_factor_of``); a room at the maximum factor gets no
+``set_lighting``, so its ``lighting_dark`` findings are "not yours" with that reason.
+
 How: the other tracks' functions are called through their frozen contracts (§13.2) and may be stubs: an empty
 answer (or an exception, noted in ``notes``) leaves that part empty. ``edit_ops.allowed_edits`` (track G) gives
 the lock state; while it answers ``{}`` (its stub) ``allowed_fallback`` applies the M11 rules of CLAUDE.md (fixed
@@ -412,6 +416,12 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
         edit_target = anchor if anchor and anchor in pieces else None
         if edit_target is not None:
             base["edit_target"] = edit_target
+        elif check in CS.LIGHTING_CHECKS and (f.get("room_id") or room_id):
+            # round 4 review: a lighting_dark finding is on a camera, but set_lighting acts on the view's room; the
+            # step's target is the room (``step_target``), so the checklist says "set_lighting on <room>" and
+            # ``loop.step_done`` closes the step when the room's set_lighting is accepted (before, the step named the
+            # camera, the model was told to light a camera id and the step stayed open into the next round)
+            base["edit_target"] = str(f.get("room_id") or room_id)
         piece = pieces.get(edit_target or target)
         ok: list = []
         whys: list = []
@@ -453,8 +463,14 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
                     if any((allowed.get(pid) or {}).get(t, {}).get("allowed") for pid in allowed) or \
                             (t in GROUP_TOOLS and room_tools_ok.get(t)):
                         ok.append(t)
-                elif room_tools_ok.get(t, True):
+                elif room_tools_ok.get(t, True) or (t == "set_lighting" and check not in CS.LIGHTING_CHECKS):
+                    # (review of round 4: the maximum-factor lock is for the views too dark for the EV cap; an R5
+                    # "blown-out window" may still lower the room's lights)
                     ok.append(t)
+                elif t == "set_lighting":
+                    # round 4 (``room_brief``): the room's lights are at the maximum factor already
+                    whys.append("set_lighting: the room's lights are at the maximum factor already; the view stays "
+                                "too dark (reported)")
         if ok:
             fixable.append(dict(base, tools=ok))
         else:
@@ -661,6 +677,12 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
         completable = frozenset(gid for gid in completable
                                 if _call(notes, f"complete {gid}", lambda gid=gid: complete_fn(building, gid), True))
     room_tools_ok["complete_group"] = bool(completable) if members else room_tools_ok["complete_group"]
+    # Round 4: a room whose lights are at set_lighting's maximum factor already cannot be lit more by the agent; its
+    # dark views (lighting_dark) are then "not yours" with the reason instead of a set_lighting that changes nothing
+    # (CPU pre-flight: the real04 basement salon needs about x10 its light, set_lighting gives up to x3).
+    from wenart.agent.tools import LIGHTING_FACTOR
+    light_factor = lighting_factor_of(building, room_id)
+    room_tools_ok["set_lighting"] = light_factor is None or light_factor < float(LIGHTING_FACTOR[1]) - 1e-9
     fixable, not_yours = classify(list(findings or []), building, room_id,
                                   {pid: a for pid, a in allowed.items()}, group_of, room_tools_ok,
                                   locked_groups=locked_groups, completable=completable if members else None)
@@ -702,6 +724,8 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
         "groups": groups_out,
         "drawn_groups": drawn,
         "licence_mode": licence_mode_of(building),
+        # round 4: the set_lighting factor the build applies to this room (None: as assumed, x1)
+        "lighting_factor": light_factor,
         "below_library": below_library(pieces),
         "room_checks": [f"{v.get('check')} {v.get('severity')}: {v.get('message')}" for v in g_viol
                         if v.get("target") in (room_id, None)],
@@ -714,6 +738,18 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
     if notes:
         out["notes"] = notes
     return out
+
+
+def lighting_factor_of(building: dict, room_id: str) -> Optional[float]:
+    """Round 4: the agent's ``set_lighting`` factor of ``room_id`` that the build applies (the building's
+    ``agent_overrides.lighting``, written by ``overrides.apply`` from the accepted edits; read by
+    ``wenart.blender.overrides.lighting_of``), None without one."""
+    ov = building.get("agent_overrides") if isinstance(building.get("agent_overrides"), dict) else {}
+    entry = (ov.get("lighting") or {}).get(str(room_id)) if isinstance(ov.get("lighting"), dict) else None
+    try:
+        return None if not isinstance(entry, dict) else float(entry.get("factor"))
+    except (TypeError, ValueError):
+        return None
 
 
 def findings_of_room(findings: list[dict], building: dict, room_id: str) -> list[dict]:

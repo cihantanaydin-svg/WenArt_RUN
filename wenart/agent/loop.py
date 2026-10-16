@@ -48,6 +48,11 @@ Milestone 13 (docs/milestone13.md §1.5, §3.0 K4, §13.2; track T4):
   without a tool for its cause is "not yours", the vision critic's findings included (they are dropped with the
   reason in the log); building-wide tools (``causes.is_building_wide``: roof, site, sun, materials, geometry,
   levels, terrain, exterior cameras) are offered to the building session only and refused from a room session;
+- round 4 (before pod P3's second attempt): the code critic's ``lighting_dark`` findings (a view above the +3 EV cap)
+  are fixed by ``set_lighting`` on the view's room and count as gone on every view of that room after it (they are
+  re-measured by the next render, ``NOT_REMEASURED``); the acceptance gets the pieces the edit took out of the scene
+  (``causes.removed_pieces``) and refuses an edit whose dry re-check shows a new room-set finding (G9 / G10) for
+  a fixture it removed;
 - ``MAX_ROUNDS`` = 3 (was 6 on the real04 pod, 4 in the code): real04 removed 20 findings in 6 rounds, 136 of the
   161 round-1 findings were still there after round 6, and a round that removes no finding stops the loop anyway
   (``no_edit``); three rounds bound the GPU time to what the measured removals justify (§1.5 T9: $0.133 per removed
@@ -189,7 +194,10 @@ def offered_tools(registry, brief: dict) -> list[str]:
 # Checks the dry re-check cannot measure on the changed building: the scene checks of the build (S1-S6), the view
 # checks of the render manifest (V1-V3, X6, L7), the looks (R4, R5, X8). On a target the edit changed they count as
 # gone (the validator passed) and the next round's critics re-measure them; elsewhere they stay as they are.
-NOT_REMEASURED = frozenset({"S1", "S2", "S3", "S4", "S5", "S6", "V1", "V2", "V3", "X6", "L7", "R4", "R5", "X8"})
+# Round 4: the render's lighting_dark (a view above the +3 EV cap) is measured by the next render only; a
+# set_lighting on its room changes its view (``tools.changed_targets``).
+NOT_REMEASURED = frozenset({"S1", "S2", "S3", "S4", "S5", "S6", "V1", "V2", "V3", "X6", "L7", "R4", "R5", "X8",
+                            *CS.LIGHTING_CHECKS})
 
 
 def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None
@@ -444,13 +452,15 @@ class AgentLoop:
         ``accept_edit``. Returns ``{"accepted", "reason", "target", "target_findings", "before", "after", "removed",
         "after_findings"}``; the tools apply the verdict and the loop logs it."""
         targets = TL.target_findings(ctx, tool, args)
-        changed = TL.changed_targets(tool, args, result, targets)
         before = list(ctx.findings)
+        changed = TL.changed_targets(tool, args, result, targets, findings=before)
         code_after = self.code_findings(building_after, ctx, self.render_manifest(ctx.preview_dir))
         after = after_findings(code_after, before, changed, building_after)
+        # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed)
         edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target")} for f in targets],
                 "penalty_before": result.get("penalty_before"), "penalty_after": result.get("penalty_after"),
-                "score_before": result.get("score_before"), "score_after": result.get("score_after")}
+                "score_before": result.get("score_before"), "score_after": result.get("score_after"),
+                "removed": CS.removed_pieces(ctx.building, building_after)}
         ok, reason = accept_edit(before, after, edit)
         room = TL.edit_room(ctx, args)
         scope = set(changed) | {f.get("target") for f in targets}

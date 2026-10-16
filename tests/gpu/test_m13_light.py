@@ -21,10 +21,15 @@ exterior world while the lamp stays the one direct sun.
   without a disc, (d) the lamp alone under a black world. ``SUN_DISC_RATIO`` = (b - c) / d is the disc's own direct
   light against the lamp's (the calibration number of ``materials.EXTERIOR_SUN_DISC_REFERENCE_WM2`` for the lead;
   required within a factor of 20 of 1), and (a - c) / d must be near zero: under the camera-ray mix the sky lights
-  the scene like the disc-less sky, so the lamp is the only sun light. The Blender script prints its own traceback
+  the scene like the disc-less sky, so the lamp is the only sun light. Round 4 (§14.8): the sky world is the lamp's
+  pair (``materials.exterior_sky_strength``), so (b - c) / d over the record's ``sun_intensity`` (the sky's own sun
+  at sun_intensity 1) is 1 within 5 %, and the disc-less sky over the lamp on a horizontal plane (e, f) is the
+  record's clear-sky ratio within 10 % and inside ``materials.CLEAR_SKY_DIFFUSE_RANGE``. The Blender script prints its own traceback
   and exits non-zero per part (P1: the failure after ``Saved: sky.exr`` was invisible in the captured tail; its
   causes were a plain-EXR read through the multilayer pass names and ``file_format = "OPEN_EXR_MULTILAYER"`` set
   without ``media_type``, both fixed by ``render.set_output``).
+- ``test_sky_sun_table_rows_reproduce`` (round-4 review): rows of ``materials.SKY_SUN_TABLE`` away from 35 degrees
+  (12, 45, 65: the golden-evening, overcast and bright-noon suns) re-measured with the table's own method.
 """
 from __future__ import annotations
 
@@ -284,6 +289,16 @@ def plane():
     scene.collection.objects.link(cob2)
     scene.camera = cob2
     scene.view_layers[0].use_pass_diffuse_direct = True
+    state["plane"], state["cam2"] = pob, cob2
+
+
+def horizontal(on):
+    """Round 4: the white plane flat on the ground (normal +Z) with the camera above it, or back facing the sun."""
+    pob, cob2 = state["plane"], state["cam2"]
+    n = Vector((0.0, 0.0, 1.0)) if on else d
+    pob.rotation_euler = n.to_track_quat("Z", "Y").to_euler()
+    cob2.location = n * 2.0
+    cob2.rotation_euler = (-n).to_track_quat("-Z", "Y").to_euler()
 
 
 def direct(path):
@@ -305,6 +320,11 @@ def measure():
                            sun_wm2=SUN_WM2)
     scene.world = bpy.data.worlds[M.EXTERIOR_WORLD]
     data["dome_direct"] = direct(OUT + "/dome.exr")
+    data["dome_record"] = M.exterior_world(LIGHTING, sun_disc=False, sun_elevation_deg=35.0, sun_azimuth_deg=210.0,
+                                           sun_wm2=SUN_WM2)
+    horizontal(True)                          # round 4: the sky's diffuse light on the ground
+    data["dome_h_direct"] = direct(OUT + "/dome_h.exr")
+    horizontal(False)
     black = bpy.data.worlds.new("black")
     black.use_nodes = True
     nodes, links = black.node_tree.nodes, black.node_tree.links
@@ -317,6 +337,8 @@ def measure():
     scene.world = black
     sob.hide_render = False
     data["lamp_only_direct"] = direct(OUT + "/lamp.exr")
+    horizontal(True)                          # round 4: the lamp's direct light on the ground
+    data["lamp_h_direct"] = direct(OUT + "/lamp_h.exr")
 
 
 def save():
@@ -342,12 +364,21 @@ def sun_disc_script(root: Path, out: Path, sun_wm2: float = L.SUN_STRENGTH_WM2) 
 
 def sun_disc_numbers(data: dict) -> dict:
     """The ratios of the measurement (pure): ``disc_ratio`` = the disc's own direct light (the P1 world minus the
-    dome) over the lamp's, ``mix_residual`` = what the camera-ray mix still adds over the dome, over the lamp's."""
+    dome) over the lamp's, ``mix_residual`` = what the camera-ray mix still adds over the dome, over the lamp's.
+    Round 4: ``world_sun_ratio`` = the sky's own sun at the record's strength and sun_intensity 1 over the lamp
+    (``disc_ratio`` / the record's ``sun_intensity``; 1 when the sky is the lamp's pair) and
+    ``diffuse_to_direct_h`` = the disc-less sky over the lamp on a horizontal plane (the clear-sky ratio)."""
     lamp = float(data["lamp_only_direct"])
     dome = float(data["dome_direct"])
-    return {"disc_ratio": (float(data["disc_all_direct"]) - dome) / lamp,
-            "mix_residual": (float(data["mix_sky_direct"]) - dome) / lamp,
-            "dome_ratio": dome / lamp}
+    out = {"disc_ratio": (float(data["disc_all_direct"]) - dome) / lamp,
+           "mix_residual": (float(data["mix_sky_direct"]) - dome) / lamp,
+           "dome_ratio": dome / lamp}
+    intensity = float((data.get("record") or {}).get("sun_intensity") or 0.0)
+    if intensity > 0:
+        out["world_sun_ratio"] = out["disc_ratio"] / intensity
+    if data.get("lamp_h_direct"):
+        out["diffuse_to_direct_h"] = float(data["dome_h_direct"]) / float(data["lamp_h_direct"])
+    return out
 
 
 @needs_blender
@@ -364,7 +395,9 @@ def test_exterior_sky_carries_a_visible_sun_disc(tmp_path):
     # The production world: the disc for camera rays only, the lamp the one direct sun (render.py keeps it shown).
     assert rec["sun_disc"] is True and rec["sun_disc_camera_only"] is True and rec["direct_sun"] == "lamp"
     assert rec["sun_intensity"] == pytest.approx(M.sky_sun_intensity(L.SUN_STRENGTH_WM2, world_strength=rec["strength"]))
-    assert rec["sun_intensity"] == pytest.approx(2.0)                      # 1000 / (1000 x 0.5 warm daylight)
+    # round 4: the sky is the lamp's pair (strength 1000 / (1000 x 0.1297)), the disc keeps its image brightness
+    assert rec["sun_intensity"] == pytest.approx(M.sky_pair_ratios(35.0)[0], abs=1e-4)
+    assert rec["strength"] * rec["sun_intensity"] == pytest.approx(L.SUN_STRENGTH_WM2 / 1000.0, abs=1e-5)
     assert data["scene_props"]["wenart_world_exterior_disc_camera_only"] is True
     assert data["sun_hidden_by_render"] is False and not R.sun_hidden_for(data["scene_props"], "exterior")
     assert {"ShaderNodeLightPath", "ShaderNodeMixShader"} <= set(data["world_nodes"])
@@ -382,3 +415,181 @@ def test_exterior_sky_carries_a_visible_sun_disc(tmp_path):
     # The calibration number: the disc-for-every-ray sky's own direct light against the lamp's.
     assert n["disc_ratio"] > 0, f"the P1 world's disc adds no light over the dome: {n}"
     assert 1.0 / 20.0 <= n["disc_ratio"] <= 20.0, f"the disc's irradiance is off the lamp's by more than 20x: {n}"
+    # Round 4 (docs/milestone13.md §14.8): the sky world is the lamp's pair, so its own sun at sun_intensity 1 gives
+    # the lamp's irradiance (bpy 5.2.2 CPU: 1.00), and the sky's diffuse light on the ground over the lamp's direct
+    # light is the pair's clear-sky ratio (0.166 at 35 degrees; pvlib's Bird / Ineichen-Perez 0.149-0.212).
+    print(f"SKY_PAIR world sun / lamp = {n['world_sun_ratio']:.3f}; horizontal diffuse / direct = "
+          f"{n['diffuse_to_direct_h']:.4f} (record {data['dome_record']['sky_calibration']['diffuse_to_direct']})")
+    assert n["world_sun_ratio"] == pytest.approx(1.0, abs=0.05), n
+    want = data["dome_record"]["sky_calibration"]["diffuse_to_direct"]
+    assert n["diffuse_to_direct_h"] == pytest.approx(want, rel=0.10), (n, want)
+    assert M.CLEAR_SKY_DIFFUSE_RANGE[0] <= n["diffuse_to_direct_h"] <= M.CLEAR_SKY_DIFFUSE_RANGE[1], n
+
+
+# Round-4 review (16 Oct 2026): SKY_SUN_TABLE was measured with a scratch script at 14 elevations; this script is the
+# same method in the repo, so the rows away from the 35-degree pair of the sun-disc test are re-measured on the pod.
+# Placeholders: __ROOT__, __OUT__, __ELEVATIONS__ (comma separated degrees). Per elevation, a white Lambert plane and
+# its Diffuse Direct pass (the median pixel): (a) the SKY_PAIR_REFERENCE_WM2 lamp alone under a black world on the
+# plane facing the sun; (b) the production sky (exterior_world_nodes, one sky for every ray) at Background Strength 1
+# and sun_intensity 1 with and without the disc on the same plane; (c) the sky without the disc on a horizontal
+# plane. sun_ratio = (disc - dome) / lamp, dome_ratio = horizontal dome / lamp (the table's definitions).
+SKY_TABLE_SCRIPT = r'''
+import json, math, sys, traceback
+sys.path.insert(0, "__ROOT__")
+OUT = "__OUT__"
+ELEVATIONS = [float(e) for e in "__ELEVATIONS__".split(",")]
+
+
+def part(name, fn):
+    try:
+        return fn()
+    except Exception:
+        print("SKY_TABLE_PART_FAILED " + name)
+        traceback.print_exc(file=sys.stdout)
+        sys.stdout.flush()
+        sys.exit(1)
+
+
+import bpy
+import numpy as np
+from mathutils import Vector
+from wenart.blender import lighting as L
+from wenart.blender import materials as M
+from wenart.blender import render as R
+
+AZ = 210.0
+state, rows = {}, []
+
+
+def setup():
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    scene = bpy.context.scene
+    scene.render.engine = "CYCLES"
+    scene.cycles.samples = 128
+    scene.cycles.use_denoising = False
+    scene.cycles.use_adaptive_sampling = False
+    scene.render.resolution_x, scene.render.resolution_y = 12, 12
+    scene.render.resolution_percentage = 100
+    scene.view_settings.view_transform = "Standard"
+    scene.view_layers[0].use_pass_diffuse_direct = True
+    sun = bpy.data.lights.new("sun", "SUN")
+    sun.energy = M.SKY_PAIR_REFERENCE_WM2
+    sun.angle = math.radians(0.53)
+    sob = bpy.data.objects.new("sun", sun)
+    scene.collection.objects.link(sob)
+    mesh = bpy.data.meshes.new("p")
+    mesh.from_pydata([(-1, -1, 0), (1, -1, 0), (1, 1, 0), (-1, 1, 0)], [], [[0, 1, 2, 3]])
+    mesh.update()
+    pob = bpy.data.objects.new("p", mesh)
+    scene.collection.objects.link(pob)
+    mat = bpy.data.materials.new("white")
+    mat.use_nodes = True
+    bsdf = next(n for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = (1.0, 1.0, 1.0, 1.0)
+    bsdf.inputs["Roughness"].default_value = 1.0
+    mesh.materials.append(mat)
+    cam = bpy.data.cameras.new("c")
+    cam.type = "ORTHO"
+    cam.ortho_scale = 0.5
+    cob = bpy.data.objects.new("c", cam)
+    scene.collection.objects.link(cob)
+    scene.camera = cob
+    black = bpy.data.worlds.new("black")
+    black.use_nodes = True
+    nodes = black.node_tree.nodes
+    for n in list(nodes):
+        nodes.remove(n)
+    bg = nodes.new("ShaderNodeBackground")
+    bg.inputs["Strength"].default_value = 0.0
+    black.node_tree.links.new(bg.outputs["Background"], nodes.new("ShaderNodeOutputWorld").inputs["Surface"])
+    state.update(scene=scene, sun=sob, plane=pob, cam=cob, black=black)
+
+
+def face(normal):
+    n = Vector(normal).normalized()
+    state["plane"].rotation_euler = n.to_track_quat("Z", "Y").to_euler()
+    state["cam"].location = n * 2.0
+    state["cam"].rotation_euler = (-n).to_track_quat("-Z", "Y").to_euler()
+
+
+def direct(tag):
+    scene = state["scene"]
+    path = OUT + "/" + tag + ".exr"
+    R.set_output(scene, "OPEN_EXR_MULTILAYER")
+    scene.render.filepath = path
+    bpy.ops.render.render(write_still=True)
+    rgb = R.find_rgb(R.read_exr(path), "Diffuse Direct", "DiffDir")
+    if rgb is None:
+        raise RuntimeError("no Diffuse Direct pass in " + path)
+    return float(np.median(0.2126 * rgb[..., 0] + 0.7152 * rgb[..., 1] + 0.0722 * rgb[..., 2]))
+
+
+def sky(el, disc):
+    """The production sky at the table's unit: Background Strength 1, sun_intensity 1, one sky for every ray."""
+    scene = state["scene"]
+    M.exterior_world_nodes(scene, {"mood": "warm daylight"}, sun_disc=disc, sun_elevation_deg=el,
+                           sun_azimuth_deg=AZ, sun_wm2=M.SKY_PAIR_REFERENCE_WM2, disc_camera_only=False)
+    world = bpy.data.worlds[M.EXTERIOR_WORLD]
+    for n in world.node_tree.nodes:
+        if n.bl_idname == "ShaderNodeBackground":
+            n.inputs["Strength"].default_value = 1.0
+        if n.bl_idname == "ShaderNodeTexSky" and n.sun_disc:
+            n.sun_intensity = 1.0
+    scene.world = world
+
+
+def measure():
+    scene, sob = state["scene"], state["sun"]
+    for el in ELEVATIONS:
+        d = Vector(L.sun_direction(el, AZ))
+        sob.rotation_euler = (-d).to_track_quat("-Z", "Y").to_euler()
+        scene.world = state["black"]
+        sob.hide_render = False
+        face(d)
+        lamp = direct("lamp_%g" % el)
+        sob.hide_render = True
+        sky(el, False)
+        dome_n = direct("dome_n_%g" % el)
+        face((0.0, 0.0, 1.0))
+        dome_h = direct("dome_h_%g" % el)
+        sky(el, True)
+        face(d)
+        disc_n = direct("disc_n_%g" % el)
+        rows.append({"elevation_deg": el, "lamp_n": lamp, "dome_n": dome_n, "dome_h": dome_h, "disc_n": disc_n,
+                     "sun_ratio": (disc_n - dome_n) / lamp, "dome_ratio": dome_h / lamp})
+
+
+def save():
+    with open(OUT + "/sky_table.json", "w") as fh:
+        json.dump({"blender": bpy.app.version_string, "rows": rows}, fh, indent=1)
+    print("SKY_TABLE_DONE")
+
+
+part("setup", setup)
+part("measure", measure)
+part("save", save)
+'''
+SKY_TABLE_CHECK_ELEVATIONS = (12.0, 45.0, 65.0)       # golden evening, overcast, bright noon (wenart/style/finishes.py)
+
+
+@needs_blender
+def test_sky_sun_table_rows_reproduce(tmp_path):
+    """Round-4 review: ``materials.SKY_SUN_TABLE`` rows away from 35 degrees, re-measured with the table's method:
+    the sky's own sun within 3 % and its horizontal dome within 5 % of the table (128 samples here; the table: 256)."""
+    els = ",".join(f"{e:g}" for e in SKY_TABLE_CHECK_ELEVATIONS)
+    script = (SKY_TABLE_SCRIPT.replace("__ROOT__", str(ROOT)).replace("__OUT__", str(tmp_path))
+              .replace("__ELEVATIONS__", els))
+    proc = subprocess.run([BLENDER, "-b", "--factory-startup", "--python-exit-code", "1", "--python-expr", script],
+                          capture_output=True, text=True, timeout=900, cwd=str(ROOT),
+                          env=dict(os.environ, WENART_LIGHT_VARIANT=""))
+    tail = proc.stdout[-4000:] + proc.stderr[-2000:]
+    assert "SKY_TABLE_PART_FAILED" not in proc.stdout, tail
+    assert proc.returncode == 0 and "SKY_TABLE_DONE" in proc.stdout, tail
+    rows = json.loads((tmp_path / "sky_table.json").read_text(encoding="utf-8"))["rows"]
+    assert [r["elevation_deg"] for r in rows] == list(SKY_TABLE_CHECK_ELEVATIONS)
+    for r in rows:
+        sun_ratio, dome_ratio = M.sky_pair_ratios(r["elevation_deg"])
+        print(f"SKY_TABLE {r['elevation_deg']:g} deg: sun_ratio {r['sun_ratio']:.4f} (table {sun_ratio:.4f}), "
+              f"dome_ratio {r['dome_ratio']:.5f} (table {dome_ratio:.5f})")
+        assert r["sun_ratio"] == pytest.approx(sun_ratio, rel=0.03), r
+        assert r["dome_ratio"] == pytest.approx(dome_ratio, rel=0.05), r

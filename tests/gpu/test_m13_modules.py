@@ -8,7 +8,9 @@ would store) and one per family (``parametric.FAMILY_TYPES``) in one room, built
 built object: at least two material slots, a Bevel modifier (the one ``furniture.add_bevel`` adds; limit method
 WEIGHT) or bevelled geometry, and a bounding box equal to the plan's (``modules.plan_bbox``) or the family's
 (``parametric.parts_bbox``) box within 1.1 cm; the manifest counts the module pieces under ``by_method.module``
-and records ``module`` (builder, products, fit) on their entries.
+and records ``module`` (builder, products, fit) on their entries. Round 4: the chair family v2 is built in its
+default look and in three design variants (``CHAIR_VARIANTS``: sled, wooden seat, rattan seat), each with one
+material slot per part key.
 """
 from __future__ import annotations
 
@@ -69,6 +71,10 @@ def _piece(pid, ftype, center, size, **extra):
     return piece
 
 
+# Round 4 (§14.8): the chair family v2 in its design variants besides the default one of FAMILY_TYPES (a wooden frame
+# with an upholstered pad): a steel sled base, a wooden seat, a rattan seat.
+CHAIR_VARIANTS = [["metal"], ["wood"], ["rattan", "wood"]]
+
 MODULE_PIECES = [
     ("wardrobe", (3.11, 0.6), {}), ("table_dining", (2.3, 1.6), {}),
     ("sofa_corner", (3.2, 2.2), {"shape": "L", "chaise_side": "left", "chaise_depth": 2.2}),
@@ -109,6 +115,13 @@ def _building() -> dict:
         if x + size[0] > W - 1.0:
             x, y = 2.0, y + 2.8
         furniture.append(_piece(f"p_{i:02d}", ftype, (x + size[0] / 2.0, y), size))
+        x += size[0] + 0.6
+    for i, tags in enumerate(CHAIR_VARIANTS):
+        size = SC.SIZE_OPTIONS["chair"][SC.DEFAULT_SIZE_INDEX]
+        if x + size[0] > W - 1.0:
+            x, y = 2.0, y + 2.8
+        furniture.append(_piece(f"c_{i:02d}", "chair", (x + size[0] / 2.0, y), size,
+                                design={"material_tags": list(tags)}))
         x += size[0] + 0.6
     return {"schema_version": "0.1", "status": "ok", "project": {"id": "m13-modules-test"},
             "levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}], "walls": walls, "openings": [],
@@ -155,7 +168,7 @@ def test_manifest_counts_the_module_pieces(built):
     m = built["manifest"]
     schemas.validate_scene_manifest(m)
     assert m["furniture"]["by_method"].get("module") == len(MODULE_PIECES)
-    assert m["furniture"]["by_method"].get("parametric") == len(P.FAMILY_TYPES)
+    assert m["furniture"]["by_method"].get("parametric") == len(P.FAMILY_TYPES) + len(CHAIR_VARIANTS)
     assert not [w for w in m["warnings"] if "parametric family used" in w or "module build failed" in w]
     entries = {o["element_id"]: o for o in m["objects"] if o["kind"] == "furniture"}
     for pid, plan in built["plans"].items():
@@ -204,3 +217,6 @@ def test_every_family_object_has_slots_a_bevel_and_its_box(built):
         got = _extent(row["bounds"])
         assert got == pytest.approx(want, abs=TOL_M), (piece["type"], got, want)
         assert math.isclose(row["bounds"][2][0], 0.0, abs_tol=1e-4)
+        if piece["type"] == "chair":                 # round 4: the chair v2's slots are its design's keys
+            keys = {p["key"] for p in P.build_parts("chair", w, d, h, piece=piece)}
+            assert len([s for s in row["slots"] if s]) == len(keys) >= 2, (piece["id"], row["slots"], keys)

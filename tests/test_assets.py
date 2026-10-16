@@ -241,10 +241,15 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
                    # Milestone 10: the default style's exterior looks (render, concrete roof tiles, pavers, lawn) and the
                    # furniture veneers (docs/milestone10.md §1.6b row 14); procedural looks have nothing to fetch
                    "grey_plaster", "grey_roof_01", "large_square_pattern_01", "Grass004",
-                   "oak_veneer_02", "ash_veneer", "white_maple_veneer", "teak_veneer", "black_oak_veneer", "cherry_veneer"}
+                   "oak_veneer_02", "ash_veneer", "white_maple_veneer", "teak_veneer", "black_oak_veneer", "cherry_veneer",
+                   # Milestone 13 round 4: the worktop's shell set (materials.SHELL_SLOTS), named by no style slot
+                   "marble_01"}
     assert ("hdri", "kloppenheim_06", "1k") in calls
+    assert ("texture", "marble_01", "1k") in calls and ("texture", "marble_01", "2k") in calls   # at --size
     out = capsys.readouterr().out
     assert "1 failed" in out and "Metal032" in out
+    assert ("shell sets: 3 of 4 ready (ceiling white_plaster_02 ok, worktop marble_01 ok, front white_planks_clean ok, "
+            "metal Metal032 FAILED)") in out
 
 
 # --------------------------------------------------------------------------
@@ -523,3 +528,197 @@ def test_a_cut_ambientcg_zip_is_fetched_once_more(tmp_path, monkeypatch):
     bodies[:] = [whole[:100], whole[:200]]
     with pytest.raises(web.IncompleteBody, match="Tiles074_2K-JPG.zip: not a whole zip after 2 downloads"):
         fetch.fetch_texture("Tiles074", tmp_path / "b", size="2k", source="ambientcg")
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 round 4 (docs/milestone13.md §14.8, the CPU pre-flight of pod P3): the shell slots' texture sets
+# --------------------------------------------------------------------------
+
+SHELL_ROWS = [("polyhaven", "white_plaster_02", "shell:ceiling"), ("polyhaven", "marble_01", "shell:worktop"),
+              ("polyhaven", "white_planks_clean", "shell:front"), ("ambientcg", "Metal032", "shell:metal")]
+
+
+def _real04_like_profile():
+    """A profile like P3's real04 style.json (dark bronze window frames, oak floor): it names neither the worktop's
+    marble_01 nor the handles' Metal032, the two shell sets pod P1 and the pre-flight found missing."""
+    from wenart.style import profile as SP
+
+    profile = SP.profile_from_text("dark bronze window frames, oak floor")
+    named = {asset_id for _, asset_id, _ in SP.assets_in_profile(profile)["textures"]}
+    assert not named & {"marble_01", "Metal032"}, named
+    return profile
+
+
+def test_shell_texture_rows_are_the_materials_table():
+    """One source of truth: the rows are read from wenart/blender/materials.py SHELL_SLOTS (importable without bpy),
+    every id is a vocabulary id the committed check record lists as an existing CC0 set with 2k jpg maps."""
+    import subprocess
+    import sys
+
+    from wenart.blender import materials as M
+
+    # The pure table: a fresh interpreter imports materials.py and reads it without loading bpy.
+    probe = ("import sys; from wenart.assets import fetch; rows = fetch.shell_texture_rows(); "
+             "assert 'bpy' not in sys.modules, 'bpy loaded'; print(len(rows))")
+    done = subprocess.run([sys.executable, "-c", probe], cwd=ROOT, capture_output=True, text=True, timeout=120)
+    assert done.returncode == 0 and done.stdout.strip() == "4", done.stderr
+    rows = fetch.shell_texture_rows()
+    assert rows == SHELL_ROWS
+    assert [a for _, a, _ in rows] == [a for a in M.shell_assets().values() if a]
+    checks = json.loads(fetch.CHECKS_PATH.read_text(encoding="utf-8"))
+    for source, asset_id, label in rows:
+        record = checks["textures"][f"{source}:{asset_id}"]
+        assert record["exists"] is True and record["licence"] == "CC0" and record["jpg_1k_2k"] is True, label
+        assert record["has_required_maps"] is True and source in M.CC0_SOURCES and fetch.LICENCES[source] == "CC0"
+    # The style's own slot set (ceiling.asset, trim.asset; materials.shell_slot_spec) is added, the table's stays.
+    style = {"ceiling": {"material": "plaster_white", "asset": "plastered_wall"}}
+    assert fetch.shell_texture_rows(style) == [SHELL_ROWS[0], ("polyhaven", "plastered_wall", "shell:ceiling")] \
+        + SHELL_ROWS[1:]
+
+
+def test_shell_texture_rows_follow_a_change_of_the_table(monkeypatch):
+    """No copy of the ids in the fetcher: a new set in the table is what the stage fetches."""
+    from wenart.blender import materials as M
+
+    monkeypatch.setitem(M.SHELL_SLOTS["worktop"], "asset", "Marble012")
+    monkeypatch.setitem(M.SHELL_SLOTS["ceramic"], "asset", "Porcelain001")
+    rows = fetch.shell_texture_rows()
+    assert ("ambientcg", "Marble012", "shell:worktop") in rows and ("ambientcg", "Porcelain001", "shell:ceramic") in rows
+    assert "marble_01" not in {a for _, a, _ in rows}
+
+
+def test_the_fetch_plan_adds_the_shell_sets_a_style_does_not_name():
+    """P3's real04 case: the plan holds marble_01 and Metal032 (labelled by their slot), after the style's and the
+    furniture's sets, once each; a set the style already names keeps the style's label."""
+    from wenart.style import profile as SP
+
+    profile = _real04_like_profile()
+    plan = fetch.texture_plan(profile)
+    ids = [a for _, a, _ in plan]
+    assert len(ids) == len(set(ids))
+    assert ("polyhaven", "marble_01", "shell:worktop") in plan and ("ambientcg", "Metal032", "shell:metal") in plan
+    style_rows = SP.assets_in_profile(profile)["textures"]
+    assert plan[:len(style_rows)] == [tuple(r) for r in style_rows]
+    assert ids.index("marble_01") > max(ids.index(a) for _, a, _ in V.furniture_textures())
+    labels = {a: label for _, a, label in plan}
+    assert labels["white_plaster_02"] == "plaster_white" and labels["white_planks_clean"] == "painted_wood_white"
+    assert set(ids) == ({a for _, a, _ in style_rows} | {a for _, a, _ in V.furniture_textures()}
+                        | {a for _, a, _ in SHELL_ROWS})
+
+
+def test_fetch_for_style_fetches_the_shell_sets_at_the_stage_size(tmp_path, monkeypatch):
+    calls = []
+
+    def fake_texture(asset_id, out_dir, size="2k", source=None, licence=None):
+        calls.append((asset_id, source, size))
+        if asset_id == "Metal032":
+            raise web.NetworkError("blocked host (simulated)")
+        return {"id": asset_id, "source": source, "licence": "CC0", "size_m": [1.5, 1.5], "files": {}}
+
+    monkeypatch.setattr(fetch, "fetch_texture", fake_texture)
+    monkeypatch.setattr(fetch, "fetch_hdri", lambda *a, **k: {"file": "x.hdr"})
+    result = fetch.fetch_for_style(_real04_like_profile(), tmp_path, size="2k", log=lambda *_: None)
+    assert ("marble_01", "polyhaven", "2k") in calls and ("Metal032", "ambientcg", "2k") in calls
+    assert len(calls) == len({c[0] for c in calls})
+    assert result["shell"] == [
+        {"slot": "ceiling", "asset": "white_plaster_02", "source": "polyhaven", "ready": True},
+        {"slot": "worktop", "asset": "marble_01", "source": "polyhaven", "ready": True},
+        {"slot": "front", "asset": "white_planks_clean", "source": "polyhaven", "ready": True},
+        {"slot": "metal", "asset": "Metal032", "source": "ambientcg", "ready": False}]
+    assert "Metal032" in result["failed"] and "marble_01" in result["textures"]
+
+
+def test_an_unreadable_shell_table_is_recorded_and_the_style_sets_still_come(tmp_path, monkeypatch):
+    def broken(style=None):
+        raise ImportError("simulated")
+
+    monkeypatch.setattr(fetch, "shell_texture_rows", broken)
+    monkeypatch.setattr(fetch, "fetch_texture", lambda aid, out, size="2k", source=None, licence=None:
+                        {"id": aid, "source": source, "licence": "CC0", "size_m": [1, 1], "files": {}})
+    monkeypatch.setattr(fetch, "fetch_hdri", lambda *a, **k: {"file": "x.hdr"})
+    result = fetch.fetch_for_style(_real04_like_profile(), tmp_path, log=lambda *_: None)
+    assert "ImportError: simulated" in result["failed"]["shell_slots"] and result["shell"] == []
+    assert "WoodFloor051" in result["textures"] and "marble_01" not in result["textures"]
+
+
+def test_the_shell_sets_go_through_the_fetchers_into_the_manifest_and_are_kept(tmp_path, monkeypatch):
+    """Poly Haven and ambientCG faked at the API and download level: the four shell sets land in the manifest at 2k
+    (CC0, the source, sha256 per map); a second run keeps the present files and makes no network call."""
+    import hashlib
+
+    monkeypatch.setattr(V, "furniture_textures", lambda: [])      # only the shell sets: style {} names nothing
+    bodies, served = {}, []
+    ph_ids = [a for s, a, _ in SHELL_ROWS if s == "polyhaven"]
+    for aid in ph_ids:
+        for key, colour in (("diff", (200, 190, 180)), ("nor_gl", (128, 128, 255)), ("rough", (90, 90, 90))):
+            bodies[f"https://dl.polyhaven.org/{aid}_{key}_2k.jpg"] = _fake_jpg(colour)
+
+    def ph_files(aid):
+        assert aid in ph_ids, aid
+        table = {}
+        for key, name in (("diff", "Diffuse"), ("nor_gl", "nor_gl"), ("rough", "Rough")):
+            url = f"https://dl.polyhaven.org/{aid}_{key}_2k.jpg"
+            table[name] = {"2k": {"jpg": {"url": url, "md5": hashlib.md5(bodies[url]).hexdigest(),
+                                          "size": len(bodies[url])}}}
+        return table
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        for suffix, colour in (("Color", (150, 150, 150)), ("NormalGL", (128, 128, 255)), ("Roughness", (80, 80, 80))):
+            zf.writestr(f"Metal032_2K-JPG_{suffix}.jpg", _fake_jpg(colour))
+    zip_url = "https://ambientcg.com/get?file=Metal032_2K-JPG.zip"
+    bodies[zip_url] = buf.getvalue()
+    acg_record = {"assetId": "Metal032", "displayName": "Metal 032", "dimensionX": 0, "dimensionY": 0,
+                  "downloadFolders": {"default": {"downloadFiletypeCategories": {"zip": {"downloads": [
+                      {"attribute": "2K-JPG", "downloadLink": zip_url, "fileName": "Metal032_2K-JPG.zip",
+                       "size": len(bodies[zip_url])}]}}}}}
+
+    def fake_download(url, path, expected_md5=None, timeout=60):
+        served.append(url)
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        Path(path).write_bytes(bodies[url])
+        return Path(path)
+
+    monkeypatch.setattr(polyhaven, "info", lambda aid: {"name": aid, "type": 1, "dimensions": [1500.0, 1500.0]})
+    monkeypatch.setattr(polyhaven, "files", ph_files)
+    monkeypatch.setattr(ambientcg, "info", lambda aid: acg_record if aid == "Metal032" else None)
+    monkeypatch.setattr(web, "download", fake_download)
+    result = fetch.fetch_for_style({}, tmp_path, size="2k", log=lambda *_: None)
+    assert result["failed"] == {} and [r["ready"] for r in result["shell"]] == [True] * 4
+    assert len(served) == 3 * 3 + 1
+    manifest = fetch.load_manifest(tmp_path)
+    assert sorted(manifest["textures"]) == sorted(a for _, a, _ in SHELL_ROWS)
+    for source, aid, _ in SHELL_ROWS:
+        entry = manifest["textures"][aid]
+        assert entry["source"] == source and entry["licence"] == "CC0" and entry["resolution"] == "2k"
+        assert set(entry["files"]) == {"albedo", "normal", "roughness"}
+        for key, rel in entry["files"].items():
+            assert web.sha256_file(tmp_path / rel) == entry["sha256"][key]
+    assert manifest["textures"]["marble_01"]["size_m"] == [1.5, 1.5]
+    assert manifest["textures"]["Metal032"]["size_assumed"] is True       # ambientCG gives 0 x 0 for Metal032
+
+    def no_network(*args, **kwargs):
+        raise AssertionError("network call for a set already on the volume")
+
+    for module, name in ((web, "download"), (web, "get_json"), (polyhaven, "info"), (polyhaven, "files"),
+                         (ambientcg, "info")):
+        monkeypatch.setattr(module, name, no_network)
+    again = fetch.fetch_for_style({}, tmp_path, size="2k", log=lambda *_: None)
+    assert again["failed"] == {} and again["textures"] == result["textures"]
+    assert fetch.load_manifest(tmp_path) == manifest
+
+
+def test_the_shell_sets_exist_on_their_sites_at_2k():
+    """Live APIs (listing and file tables only, no download): every shell set exists on its site with the 2k jpg
+    maps the stage fetches."""
+    for source, asset_id, label in fetch.shell_texture_rows():
+        if source == "polyhaven":
+            record = network_or_skip(polyhaven.info, asset_id)
+            assert polyhaven.is_texture(record), label
+            urls = polyhaven.texture_urls(network_or_skip(polyhaven.files, asset_id), size="2k", fmt="jpg")
+            assert {"albedo", "normal", "roughness"} <= set(urls), label
+        else:
+            record = network_or_skip(ambientcg.info, asset_id)
+            assert record is not None, label
+            assert {"color", "normal", "roughness"} <= set(record.get("maps") or []), label
+            assert ambientcg.zip_download(record, size="2k", fmt="JPG")["fileName"] == f"{asset_id}_2K-JPG.zip"

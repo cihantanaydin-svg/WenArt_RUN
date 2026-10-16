@@ -3,8 +3,12 @@
 ``python -m wenart.assets fetch --style style.json --assets assets [--size 2k] [--strict]``
     downloads every texture set and the HDRI of a style profile and the
     furniture texture maps (veneers, linen; docs/milestone6.md §5 row 8)
+    and (Milestone 13 round 4) every texture set the shell slots of
+    ``wenart/blender/materials.py`` can use (the worktop's marble_01, the
+    handles' Metal032, ...; ``fetch.shell_texture_rows``), all at ``--size``
     (idempotent); failures are printed and, with ``--strict``, make the exit
-    code 1. A failed texture leaves the flat colour in the scene.
+    code 1. A failed texture leaves the flat colour in the scene. The last
+    line lists the shell slots' sets and whether each is ready.
 ``python -m wenart.assets verify``
     lists the vocabulary ids (style and furniture textures, HDRIs) against
     the APIs (no download); furniture textures must also have the size the
@@ -81,6 +85,11 @@ def main(argv=None) -> int:
           f"{len(result['failed'])} failed")
     for asset_id, reason in result["failed"].items():
         print(f"  failed {asset_id}: {reason}")
+    # Milestone 13 round 4: the shell slots' sets in the stage log (pod P1 had no worktop set and nothing said so)
+    shell = result.get("shell") or []
+    ready = sum(1 for row in shell if row["ready"])
+    print(f"shell sets: {ready} of {len(shell)} ready ("
+          + ", ".join(f"{row['slot']} {row['asset']} {'ok' if row['ready'] else 'FAILED'}" for row in shell) + ")")
     return 1 if (args.strict and result["failed"]) else 0
 
 

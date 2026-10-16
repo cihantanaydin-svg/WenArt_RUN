@@ -53,7 +53,11 @@ Milestone 12 (docs/milestone12.md §5.2, §5.3, §4.1 U1; owner: track G), tools
   not turned 90° against a drawn front); the ``change_type`` locks hold;
 - ``mark_not_furniture(piece_id, kind, evidence)``: a drawn piece read from a symbol is not built (``build: false``)
   and recorded in ``symbols[]`` (``former_piece_id``, the crop as evidence); the solver and the checks ignore it; it
-  leaves ``needs_review`` (pre-flight of 16 Oct 2026);
+  leaves ``needs_review`` (pre-flight of 16 Oct 2026). Round 4 of Milestone 13: drawn fixed equipment
+  (``schemas.FIXED_TYPES``) is treated like walls and is never marked (``fix_fixture`` fixes a misread size or
+  place); only fixed equipment in a room that never holds it (``schemas.misplaced_fixed``, a reading error that
+  ``remove_piece`` and ``retype_piece`` may already fix) may be. The CPU pre-flight's scripted round marked 5 real03
+  toilets as not furniture and left 5 bathrooms without a toilet (G10 major);
 - ``fix_fixture(piece_id, size?, center?)`` (U1): drawn fixed equipment more than 30 % outside its type's real range
   takes the nearest real size (or the given one); a fixed piece through a wall or in a door swing moves at most 0.5 m
   (to ``center``, or the nearest valid spot); ``locked.check`` accepts exactly that;
@@ -120,8 +124,10 @@ TOOL_OPS: dict[str, str] = {"move_piece": "move", "rotate_piece": "rotate", "res
 # Ops that place whole groups with the solver: accepted when no critical or major finding is new (a minor one, an
 # armchair not quite facing, may come with a group) and the placer checks hold.
 GROUP_OPS = ("place_group", "complete_group", "move_group", "relayout_room")
-# Reading corrections: a misread symbol left out may leave the room without a piece it needs (a bathroom without its
-# toilet); the new findings are reported in the message, not held against the edit (the placer checks still hold).
+# Reading corrections: a misread symbol left out may leave the room without a piece it needs; the new findings are
+# reported in the message, not held against the edit (the placer checks still hold). Round 4: drawn fixed equipment
+# is never marked (``_mark_not_furniture``), and the agent's acceptance (``wenart.agent.causes.accept_edit``) refuses
+# an edit whose dry re-check shows a new room-set finding (G9 / G10) for a fixture it removed.
 CORRECTION_OPS = ("mark_not_furniture",)
 SNAP_MAX_M = 0.3                 # §5: a drawn piece may move (snap to a wall) by at most this
 LAYOUT_OPS = ("relayout_room", "set_room_type")
@@ -1110,11 +1116,28 @@ SYMBOL_KINDS = ("level_mark", "room_number", "north_arrow", "axis_bubble", "sect
                 "dimension_outline", "text_frame", "other")
 
 
+def fixed_mark_refusal(building: dict, item: dict) -> Optional[str]:
+    """Round 4: why a drawn piece of a fixed type may not be marked as not furniture (CLAUDE.md furniture rules:
+    fixed equipment is treated like walls; the AI fixes only a clear drawing or reading error), else None. Fixed
+    equipment in a room that never holds it (``schemas.misplaced_fixed``) is such an error and may be marked."""
+    if not _fixed(item):
+        return None
+    room = next((r for r in building.get("rooms") or [] if r.get("id") == item.get("room_id")), None) or {}
+    if schemas.misplaced_fixed(item["type"], room.get("room_type")):
+        return None
+    return (f"{item['id']}: drawn fixed equipment ({item['type']}) is treated like walls and is never marked as not "
+            f"furniture (fix_fixture fixes a misread size or a piece through a wall or in a door swing)")
+
+
 def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     item = _piece(b, args["piece_id"])
     if not _drawn(item):
         raise EditRejected("drawn_only", f"{item['id']} is {item.get('source')}: only a drawn piece can be a misread "
                                          f"symbol (remove_piece removes an added one)")
+    # Round 4 (CPU pre-flight of 16 Oct 2026: 5 real03 toilets marked, 5 bathrooms left without a toilet)
+    refusal = fixed_mark_refusal(b, item)
+    if refusal is not None:
+        raise EditRejected("drawn_lock", refusal)
     if any(s.get("former_piece_id") == item["id"] for s in b.get("symbols") or []):
         raise EditRejected("no_change", f"{item['id']} is marked as not furniture already")
     before = copy.deepcopy(item)
@@ -1478,7 +1501,8 @@ def allowed_edits(building: dict, piece_id: str) -> dict:
     put("change_type", *retype)
     put("swap_model", built, "a catalogue model of its type" if built else "the piece is not built")
     if drawn and fixed and not misplaced:
-        put("remove_piece", False, "drawn fixed equipment is never removed (mark_not_furniture for a misread symbol)")
+        put("remove_piece", False, "drawn fixed equipment is never removed (treated like walls; fix_fixture for a "
+                                   "misread size or place)")
     elif drawn:
         put("remove_piece", item.get("build") is not False, "a drawn piece is left out (build: false) only with a "
                                                             "reason" if item.get("build") is not False else
@@ -1486,8 +1510,14 @@ def allowed_edits(building: dict, piece_id: str) -> dict:
     else:
         put("remove_piece", True, "an added piece may be removed")
     marked = any(s.get("former_piece_id") == item["id"] for s in building.get("symbols") or [])
-    put("mark_not_furniture", drawn and not marked, "a drawn piece read from a symbol, mark or line" if drawn and not
-        marked else ("marked already" if marked else "only a drawn piece can be a misread symbol"))
+    refusal = fixed_mark_refusal(building, item) if drawn else None
+    if refusal is not None:
+        put("mark_not_furniture", False, refusal)
+    else:
+        put("mark_not_furniture", drawn and not marked, (
+            "drawn fixed equipment in a room that never holds it (a reading error): it may be marked with its evidence"
+            if misplaced else "a drawn piece read from a symbol, mark or line") if drawn and not marked else
+            ("marked already" if marked else "only a drawn piece can be a misread symbol"))
     if fixed:
         probs = fixture_problems(building, item)
         fix = probs["size"] is not None or probs["place"] is not None

@@ -26,11 +26,26 @@ What:
   round's findings and the dry re-check after the edit); ``edit`` carries ``target_finding`` (one ``{check, target}``
   or a list of them) and may carry ``penalty_before`` / ``penalty_after`` (or ``score_before`` / ``score_after``).
   Accepted only when (1) the targeted finding is among ``before`` and gone in ``after``, (2) no critical finding is
-  new in ``after``, and (3) the old rule as a second condition: the plausibility penalty did not rise (the M12 rule
-  of ``edit_ops.apply_edit`` was the only rule; 139 of 183 accepted edits left the score unchanged, 125 of 160 left
-  their finding in place).
+  new in ``after`` and (round 4) no new critical or major room-set finding asks for a fixture the edit removed
+  (``edit["removed"]``, see below), and (3) the old rule as a second condition: the plausibility penalty did not
+  rise (the M12 rule of ``edit_ops.apply_edit`` was the only rule; 139 of 183 accepted edits left the score
+  unchanged, 125 of 160 left their finding in place).
 - ``findings_removed(before, after, severities=("critical", "major"))``: how many finding keys of ``before`` are
   gone in ``after`` (the success number of the loop and the metrics; "edits accepted" is none).
+
+Round 4 of Milestone 13 (before pod P3's second attempt, 16 Oct 2026):
+
+- ``lighting_dark`` (``wenart.blender.render.lighting_dark_entry``: a view whose metered EV passed the +3 cap, read by
+  ``critic_code.lighting_items``) has the cause ``lighting`` (``set_lighting`` on the view's room: the room's lights
+  and rig x factor); an exterior view (no room) has the cause ``lighting_exterior``: no agent tool sets the sun or
+  the sky strength, so the finding is report-only with the reason (P1 decision, docs/milestone13.md §14.3: "a capped
+  view is a lighting_dark finding routed to the lighting tools"; the CPU pre-flight found nothing read it);
+- the acceptance refuses an edit that took a fixture out of the scene (``edit["removed"]``, from ``removed_pieces``)
+  when the dry re-check shows a NEW critical or major room-set finding (``ROOM_SET_CHECKS``: G9 a kitchen without
+  its sink / hob / fridge, G10 a bathroom or WC without its toilet / washbasin / shower or bathtub) that names that
+  fixture: fixed equipment is treated like walls (CLAUDE.md furniture rules). The CPU pre-flight's scripted round
+  marked 5 real03 toilets as not furniture and the old rule (only new CRITICAL findings) accepted it with a major
+  G10 "bathroom without a toilet" in each room.
 
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
@@ -70,6 +85,7 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "decor_look": ("swap_model",),
     "under_roof": ("move_piece", "move_group", "remove_piece", "relayout_room"),
     "room_type": ("set_room_type",),
+    # R5 and the render's lighting_dark (a view above the +3 EV cap): the room's lights x factor (tools.set_lighting)
     "lighting": ("set_lighting",),
     "material": ("set_material",),
     "geometry": ("correct_geometry",),
@@ -91,6 +107,7 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "ceiling": (),
     "scale": (),
     "polish": (),
+    "lighting_exterior": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -106,8 +123,14 @@ NO_TOOL_REASON: dict[str, str] = {
     "ceiling": "ceiling heights come from the drawings",
     "scale": "storey and door sizes come from the drawings",
     "polish": "the polish check is a build setting",
+    "lighting_exterior": "an exterior view is lit by the sun lamp and the sky world; no agent tool sets their strength "
+                         "(set_exterior moves the sun only), so a view above the EV cap is reported only",
     "unknown": "no agent tool fixes this check",
 }
+# The render's finding of a view whose metered EV passed the cap (``wenart.blender.render.LIGHTING_DARK_CHECK``; the
+# report and the agent read it from the render manifest).
+LIGHTING_DARK_CHECK = "lighting_dark"
+LIGHTING_CHECKS: tuple[str, ...] = (LIGHTING_DARK_CHECK,)
 # Tools only the building session may call (docs/milestone13.md §3.0 K4: "building-wide tools only from the
 # building session"); the camera tools join them for an exterior view (``is_building_wide``).
 BUILDING_WIDE_TOOLS: tuple[str, ...] = ("set_exterior", "set_material", "correct_geometry", "rerun_stage",
@@ -134,6 +157,7 @@ CHECK_CAUSE: dict[str, str] = {
     "L1": "entrance", "L2": "entrance", "L3": "terrain", "L4": "levels", "L5": "entrance", "L6": "terrain",
     "L7": "exterior_camera",
     "D1": "decor_look", "D2": "wrong_model",
+    LIGHTING_DARK_CHECK: "lighting",
 }
 _PIECE_PREFIXES = ("f_", "furn_", "decor_", "dec_")
 _MISSING_WORDS = ("missing", " no ", "without", "lacks", "needs a", "has no", " only")
@@ -223,6 +247,11 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return "soft_minimum" if metrics.get("tier") else "fixture_clearance"
     if check == "V1":
         return "exterior_camera" if str(target or "").startswith(EXTERIOR_VIEW_PREFIX) else "interior_camera"
+    if check in LIGHTING_CHECKS:
+        # round 4: set_lighting needs the view's room; an exterior view (no room) is lit by the sun and the sky only
+        if not finding.get("room_id") or str(target or "").startswith(EXTERIOR_VIEW_PREFIX):
+            return "lighting_exterior"
+        return "lighting"
     if check == "LG":
         if building is not None:
             piece = next((f for f in building.get("furniture") or [] if f.get("id") == target), None)
@@ -320,6 +349,78 @@ def _penalties(edit: dict) -> tuple[Optional[float], Optional[float]]:
         return None, None
 
 
+# Round 4: the room-set checks of ``wenart.furniture.group_checks`` (``_g8_g9``: G9 "kitchen <zone> has no <kind>";
+# ``_g10``: G10 "<room type> without a <type>") carry ``metrics.missing``, the fixture kind the room needs; kind ->
+# the piece types that give it (G9's kinds are ``group_checks.KITCHEN_FIXTURES``; pinned equal by
+# tests/test_m13_agent.py). Several G10 findings of one room share the key (G10, room id), so the missing kind is
+# part of their identity here.
+ROOM_SET_CHECKS: tuple[str, ...] = ("G9", "G10")
+SET_KIND_TYPES: dict[str, tuple[str, ...]] = {
+    "toilet": ("toilet",), "washbasin": ("washbasin",), "shower|bathtub": ("shower", "bathtub"),
+    "sink": ("sink_kitchen",), "hob": ("stove",), "fridge": ("fridge",),
+}
+
+
+def in_scene(piece: dict) -> bool:
+    """A piece the build makes: ``build`` not false (a removed, not-furniture or unbuilt piece is out)."""
+    return isinstance(piece, dict) and piece.get("build", True) is not False
+
+
+def removed_pieces(before: Optional[dict], after: Optional[dict]) -> list[dict]:
+    """``[{id, type, room_id}]``: the pieces of ``before`` in the scene (``in_scene``) that ``after`` no longer has
+    there as the same type (deleted, ``build: false`` such as ``mark_not_furniture``, or typed differently). Pure."""
+    now = {f.get("id"): f for f in (after or {}).get("furniture") or [] if isinstance(f, dict)}
+    out = []
+    for f in (before or {}).get("furniture") or []:
+        if not in_scene(f):
+            continue
+        g = now.get(f.get("id"))
+        if g is None or not in_scene(g) or g.get("type") != f.get("type"):
+            out.append({"id": f.get("id"), "type": f.get("type"), "room_id": f.get("room_id")})
+    return out
+
+
+def _set_kind(finding: dict) -> Optional[str]:
+    missing = _metrics(finding).get("missing")
+    return None if missing is None else str(missing)
+
+
+def _set_key(finding: dict) -> tuple[str, str, str]:
+    return finding_key(finding) + (str(_set_kind(finding) or _text(finding)),)
+
+
+def _kind_types(kind: Optional[str], text: str) -> set:
+    """The piece types a room-set finding asks for: from ``metrics.missing``, else the words of its message."""
+    if kind is not None:
+        return set(SET_KIND_TYPES.get(kind) or kind.split("|"))
+    words = set(text.replace("/", " ").replace("(", " ").replace(")", " ").split())
+    out: set = set()
+    for k, types in SET_KIND_TYPES.items():
+        if k in words or words & set(types):
+            out |= set(types)
+    return out
+
+
+def removed_fixture_findings(before: list[dict], after: list[dict], removed: list[dict]) -> list[tuple[dict, dict]]:
+    """``[(finding, piece)]``: the critical / major room-set findings (``ROOM_SET_CHECKS``) of ``after`` that are new
+    against ``before`` (by check, target and missing kind) and ask for a fixture the edit removed (``removed``:
+    ``removed_pieces``) in the same room."""
+    if not removed:
+        return []
+    seen = {_set_key(f) for f in before or [] if str(f.get("check") or f.get("checklist")) in ROOM_SET_CHECKS}
+    out = []
+    for f in after or []:
+        if str(f.get("check") or f.get("checklist")) not in ROOM_SET_CHECKS or \
+                f.get("severity") not in ("critical", "major") or _set_key(f) in seen:
+            continue
+        types = _kind_types(_set_kind(f), _text(f))
+        hit = next((p for p in removed if p.get("type") in types and (
+            not f.get("room_id") or not p.get("room_id") or p.get("room_id") == f.get("room_id"))), None)
+        if hit is not None:
+            out.append((f, hit))
+    return out
+
+
 def findings_removed(before: list[dict], after: list[dict], severities=("critical", "major")) -> int:
     """How many finding keys of ``before`` with a severity in ``severities`` are gone in ``after``."""
     after_keys = {finding_key(f) for f in after or []}
@@ -350,6 +451,16 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
         return False, (f"new critical finding {_fmt(new_critical[0])}: "
                        f"{str(f.get('message') or f.get('finding') or '')[:160]}"
                        + (f"; {len(new_critical) - 1} more" if len(new_critical) > 1 else ""))
+    # Round 4 (module docstring): an edit that removed a fixture the room needs is refused even when the room-set
+    # finding it creates is only major (real03 pre-flight: 5 toilets marked as not furniture, 5 G10 "bathroom without
+    # a toilet" accepted).
+    lost = removed_fixture_findings(before, after, list(edit.get("removed") or []))
+    if lost:
+        f, p = lost[0]
+        return False, (f"new {f.get('severity')} finding {_fmt(finding_key(f))} "
+                       f"({str(f.get('message') or f.get('finding') or '')[:120]}): the edit removed {p.get('type')} "
+                       f"{p.get('id')}, the fixture the room needs; fixed equipment is treated like walls (CLAUDE.md "
+                       f"furniture rules)" + (f"; {len(lost) - 1} more" if len(lost) > 1 else ""))
     pb, pa = _penalties(edit)
     if pb is not None and pa is not None and pa > pb + 1e-9:
         return False, (f"plausibility penalty rose {pb:g} -> {pa:g} (the old score rule, kept as the second "

@@ -24,6 +24,7 @@ The schemas sent to vLLM (``VLMClient.run_schema`` / ``run_task`` / ``build_text
   ``{materials: [...]}``, built from the slot indexes of the sheet).
 """
 import copy
+import json
 
 import pytest
 
@@ -167,3 +168,52 @@ def test_the_checker_refuses_number_and_string_rules_xgrammar_lacks():
     deep = {"$defs": {"x": {"anyOf": [{"type": "array", "items": {"type": "array", "uniqueItems": True}}]}},
             "type": "object", "properties": {"a": {"$ref": "#/$defs/x"}}}
     assert any("uniqueItems" in p and "$defs/x/anyOf/0/items" in p for p in RS.grammar_problems(deep))
+
+
+# --------------------------------------------------------------------------
+# Milestone 13 round 4: max_tokens sized from the schema (pod P3, 16 Oct 2026)
+# --------------------------------------------------------------------------
+
+def _worst_instance(schema, root=None):
+    """The longest answer a flat recognition schema allows: the longest enum value, every string at its maxLength
+    (or ``FREE_STRING_CHARS``) of a Turkish capital (0.92 Qwen tokens per character, the worst measured), every
+    array at maxItems, numbers with 17 digits."""
+    from wenart.recognition import vlm_client as V
+    root = schema if root is None else root
+    if "enum" in schema:
+        return max(schema["enum"], key=lambda v: len(json.dumps(v, ensure_ascii=False)))
+    types = schema.get("type")
+    kinds = [types] if isinstance(types, str) else list(types or [])
+    options = []
+    for kind in kinds:
+        if kind == "string":
+            options.append("Ş" * int(schema.get("maxLength", V.FREE_STRING_CHARS)))
+        elif kind in ("number", "integer"):
+            options.append(-0.12345678901234567)
+        elif kind == "array":
+            options.append([_worst_instance(schema["items"], root)] * int(schema["maxItems"]))
+        elif kind == "object":
+            options.append({k: _worst_instance(v, root) for k, v in schema["properties"].items()})
+        elif kind == "null":
+            options.append(None)
+        elif kind == "boolean":
+            options.append(False)
+    return max(options, key=lambda v: len(json.dumps(v, ensure_ascii=False)))
+
+
+def test_recognition_questions_get_a_schema_sized_max_tokens_that_holds_their_longest_answer():
+    """P3: 4,096 tokens let one whitespace run cost about 50 s per request; every recognition question (what
+    ``answers.call_args`` sends) gets a budget sized from its schema, below half of that, yet above the longest
+    answer its schema allows written with 4-space indentation (one token per character or less)."""
+    from wenart.recognition import vlm_client as V
+    found = {name: schema for name, schema in _recognition().items()
+             if name.split("/")[1].split(" ")[0] in ("symbol_type", "room_label", "sheet_region")}
+    assert len(found) == 8, sorted(found)
+    for name, schema in found.items():
+        budget = V.schema_max_tokens(schema)
+        longest = json.dumps(_worst_instance(schema), indent=4, ensure_ascii=False)
+        assert len(longest) <= budget < V.DEFAULT_MAX_TOKENS // 2, (name, len(longest), budget)
+    # A list without maxItems (the M2 page tasks text_items, symbols, room_labels) has no bound: the default.
+    for task in ("text_items", "symbols", "room_labels"):
+        assert V.schema_max_tokens(RS.grammar_schema(task)) == V.DEFAULT_MAX_TOKENS
+    assert V.schema_max_tokens({"type": "object", "properties": {"a": {"type": "string"}}}) == V.DEFAULT_MAX_TOKENS

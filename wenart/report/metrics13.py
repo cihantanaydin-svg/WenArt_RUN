@@ -57,7 +57,11 @@ How (the definitions):
     stretch > 5 % (max / min of ``fit_scale`` - 1), audit quality <= 3 (the lower M8 judge score of ``asset.quality``
     <= 3, or a ``vision_doubt`` on the catalogue entry).
 9.  interior views at EV >= +5 (value) and the median EV gap between the views of rooms without a window and the
-    views of rooms with one (window rooms from the scene manifest's window objects).
+    views of rooms with one (window rooms from the scene manifest's window objects). Round 4: a view the +3 cap held
+    (a ``lighting_dark`` record of the render: the view entry's, its exposure's or the render manifest's list) counts
+    at its METERED EV (``metrics.ev_wanted``), not at the +3 it was rendered with, in both numbers; without it a dark
+    room capped at +3 never reached the +5 count and the cap hid it (P1: the real02 kitchen metered +9.2, capped
+    +3.0). Parts add the lighting_dark views by severity. Runs before Milestone 13 have no record: unchanged.
 10. shell material slots on PBR sets with normal + roughness maps (a ``maps`` / ``textures`` record of the scene
     manifest's materials; "no data" when the manifest records no maps) and the brief's fabric colour applied to the
     built upholstered pieces (``UPHOLSTERED_TYPES``; applied = the scene object's ``recolour`` has a ``fabric`` slot).
@@ -579,34 +583,62 @@ def _window_rooms(run: Run) -> Optional[set]:
     return rooms
 
 
+def _dark(run: Run, view: dict) -> Optional[dict]:
+    """The view's ``lighting_dark`` record (round 4): the view's own, its exposure's, else the render manifest's list
+    entry for its camera; None within the cap or in a run before Milestone 13."""
+    exp = view.get("exposure") if isinstance(view.get("exposure"), dict) else {}
+    rec = view.get("lighting_dark") or exp.get("lighting_dark")
+    if not isinstance(rec, dict):
+        rec = next((d for d in (run.render or {}).get("lighting_dark") or []
+                    if isinstance(d, dict) and d.get("target") == view.get("camera")), None)
+    return rec if isinstance(rec, dict) else None
+
+
+def _ev_metered(run: Run, view: dict) -> Optional[float]:
+    """The EV metric 9 counts (module docstring): the metered EV of a view the cap held, else the EV used."""
+    rec = _dark(run, view)
+    wanted = (rec.get("metrics") or {}).get("ev_wanted") if rec is not None else None
+    return float(wanted) if isinstance(wanted, (int, float)) else _ev(view)
+
+
 def metric_9(run: Run) -> dict:
-    src = "render_manifest.json (else final_manifest.json views) exposure.ev of the interior views; window rooms " \
-          "from the scene manifest's window objects (room_ids); gap = median EV (no window) - median EV (window)"
+    src = "render_manifest.json (else final_manifest.json views) exposure.ev of the interior views, the metered EV " \
+          "(lighting_dark metrics.ev_wanted) for a view the +3 cap held; window rooms from the scene manifest's " \
+          "window objects (room_ids); gap = median EV (no window) - median EV (window)"
     views = _views(run)
     cams = _scene_cameras(run)
     interior = [v for v in views if not _is_exterior(v, cams) and _ev(v) is not None]
     if not interior:
         return _metric(9, NO_DATA, source=src)
-    high = [v["camera"] for v in interior if _ev(v) >= EV_HIGH]
+    ev_of = {v["camera"]: _ev_metered(run, v) for v in interior}
+    high = [v["camera"] for v in interior if ev_of[v["camera"]] >= EV_HIGH]
+    dark = {v["camera"]: _dark(run, v) for v in views}
+    dark = {cam: rec for cam, rec in dark.items() if rec is not None}
     win = _window_rooms(run)
     gap: Any = NO_DATA
     med_lit: Any = NO_DATA
     med_day: Any = NO_DATA
     lit = day = []
     if win is not None:
-        day = [_ev(v) for v in interior if str(v.get("room_id")) in win]
-        lit = [_ev(v) for v in interior if str(v.get("room_id")) not in win]
+        day = [ev_of[v["camera"]] for v in interior if str(v.get("room_id")) in win]
+        lit = [ev_of[v["camera"]] for v in interior if str(v.get("room_id")) not in win]
         if day and lit:
             med_day = round(statistics.median(day), 2)
             med_lit = round(statistics.median(lit), 2)
             gap = round(abs(med_lit - med_day), 2)
+    crit = sorted(c for c, r in dark.items() if r.get("severity") == "critical")
     text = f"{len(high)} of {len(interior)} interior views at EV >= +5; gap {gap}" + \
            (f" EV (median {med_lit:+.2f} over {len(lit)} views of rooms without a window vs {med_day:+.2f} over "
             f"{len(day)} views of rooms with one)" if gap != NO_DATA else
-            " (window rooms unknown without the scene manifest)" if win is None else " (one group is empty)")
+            " (window rooms unknown without the scene manifest)" if win is None else " (one group is empty)") + \
+           (f"; {len(dark)} view(s) held at the EV cap (lighting_dark: {len(crit)} critical, {len(dark) - len(crit)} "
+            f"major), counted at their metered EV" if dark else "")
     return _metric(9, len(high), text, {"views_ev_ge_5": len(high), "interior_views": len(interior),
                                         "ev_gap": gap, "median_ev_no_window": med_lit, "median_ev_window": med_day,
-                                        "cameras": high}, src)
+                                        "cameras": high, "lighting_dark": len(dark),
+                                        "lighting_dark_critical": len(crit),
+                                        "lighting_dark_major": len(dark) - len(crit),
+                                        "lighting_dark_cameras": sorted(dark)}, src)
 
 
 def _material_maps(m: dict) -> Optional[list]:
@@ -905,6 +937,9 @@ def view_rows(run: Run) -> list[dict]:
                      "room_type": rtypes.get(v.get("room_id")) or v.get("room_type"),
                      "kind": "exterior" if _is_exterior(v, cams) else "interior",
                      "ev": round(_ev(v), 2) if _ev(v) is not None else None,
+                     # round 4: the metered EV of a view the cap held and its lighting_dark severity (None within it)
+                     "ev_metered": round(_ev_metered(run, v), 2) if _ev_metered(run, v) is not None else None,
+                     "lighting_dark": (_dark(run, v) or {}).get("severity"),
                      "bare_wall": _bare_wall(run, v["camera"]),
                      "in_json_not_rendered": len(cc.get("in_json_not_rendered") or []) if cc else NO_DATA,
                      "commercial_safe": commercial_safe_line(cs) if cs is not None else "commercial-safe: not recorded",

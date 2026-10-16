@@ -160,22 +160,24 @@ def test_retype_piece_takes_only_types_that_fit_the_footprint_and_the_room():
 
 
 def test_mark_not_furniture_leaves_a_misread_symbol_out():
+    # Round 4: a drawn armchair outline that is really the room-number circle (fixed equipment is never marked, see
+    # test_mark_not_furniture_refuses_drawn_fixed_equipment)
     toilet = M.fp("t1", "toilet", (4.6, 3.6), (0.4, 0.7), front=270.0)
-    b = M.building(room_type="bathroom", furniture=[toilet])
-    res = E.apply_edit(b, edit("mark_not_furniture", piece_id="t1", kind="room_number", evidence="crops/t1.png"))
+    circle = M.fp("c1", "armchair", (2.5, 2.0), (0.8, 0.8), front=270.0)
+    b = M.building(room_type="living", furniture=[circle, toilet])
+    res = E.apply_edit(b, edit("mark_not_furniture", piece_id="c1", kind="room_number", evidence="crops/c1.png"))
     assert res["accepted"], res["failed_checks"]
-    assert "new findings: G10" in res["message"]                       # reported, not held against the fix
-    t = piece(res["building"], "t1")
+    t = piece(res["building"], "c1")
     assert t["build"] is False and t["adjusted_by_ai"]["not_furniture"] == "room_number"
     sym = res["building"]["symbols"][0]
-    assert sym["former_piece_id"] == "t1" and sym["crop"] == "crops/t1.png" and sym["kind"] == "room_number"
+    assert sym["former_piece_id"] == "c1" and sym["crop"] == "crops/c1.png" and sym["kind"] == "room_number"
     assert sym["id"] == "sym_L0_001" and sym["evidence"][0]["method"] == "ai"
     assert LK.check(b, res["building"], "complete") == []
-    assert not [f for f in SV._fixed_items(res["building"], ROOM, set()) if f["id"] == "t1"]
+    assert not [f for f in SV._fixed_items(res["building"], ROOM, set()) if f["id"] == "c1"]
     removed = copy.deepcopy(b)
-    removed["furniture"][0].update(build=False, adjusted_by_ai={"reason": "x", "changed": {"build": None}})
+    removed["furniture"][1].update(build=False, adjusted_by_ai={"reason": "x", "changed": {"build": None}})
     assert any("fixed equipment removed" in v for v in LK.check(b, removed, "complete"))   # no symbol: refused
-    twice = E.apply_edit(res["building"], edit("mark_not_furniture", piece_id="t1", kind="other", evidence="x"))
+    twice = E.apply_edit(res["building"], edit("mark_not_furniture", piece_id="c1", kind="other", evidence="x"))
     assert not twice["accepted"]
     ai = M.fp("a1", "chair", (2.5, 2.0), (0.45, 0.45), source="added_by_ai")
     assert not E.apply_edit(M.building(furniture=[ai]), edit("mark_not_furniture", piece_id="a1", kind="other",
@@ -275,8 +277,11 @@ def test_allowed_edits_per_tool_from_the_locks():
     assert not t["move_piece"]["allowed"] and "fix_fixture moves it up to 0.5 m" in t["move_piece"]["why"]
     assert t["fix_fixture"]["allowed"] and t["fix_fixture"]["move_left_m"] == 0.5 and "through a wall" in \
         t["fix_fixture"]["why"]
-    assert not t["remove_piece"]["allowed"] and t["mark_not_furniture"]["allowed"]
+    # round 4: drawn fixed equipment is treated like walls: never removed, never marked as not furniture
+    assert not t["remove_piece"]["allowed"] and not t["mark_not_furniture"]["allowed"]
+    assert "treated like walls" in t["mark_not_furniture"]["why"] and "fix_fixture" in t["mark_not_furniture"]["why"]
     s = E.allowed_edits(b, "s1")
+    assert s["mark_not_furniture"]["allowed"]
     assert s["move_piece"]["allowed"] and s["move_piece"]["move_left_m"] == 0.3
     assert s["set_front"]["allowed"] and not s["fix_fixture"]["allowed"]
     c = E.allowed_edits(b, "c1")
@@ -431,21 +436,58 @@ def test_mark_not_furniture_takes_the_piece_off_the_review_list():
 
 def test_a_second_edit_keeps_the_fix_fixture_allowance_for_the_locked_check():
     """Fails on the old code: every edit rebuilt ``adjusted_by_ai`` and kept only ``snapped_wall`` of the earlier
-    labels, so a toilet fixed by ``fix_fixture`` and then marked as not furniture (or turned) lost its
-    ``fix_fixture`` record and the refit's locked check refused it as "fixed equipment moved or resized" (CPU
-    pre-flight of 16 Oct 2026, real03: five toilets 1.145 x 0.356 m; the scheduler then rolled back both edits)."""
-    big = M.fp("t1", "toilet", (2.5, 3.802), (1.145, 0.356), front=270.0)
+    labels, so a toilet fixed by ``fix_fixture`` and then edited again (marked as not furniture in the pre-flight,
+    given a front here) lost its ``fix_fixture`` record and the refit's locked check refused it as "fixed equipment
+    moved or resized" (CPU pre-flight of 16 Oct 2026, real03: five toilets 1.145 x 0.356 m; the scheduler then rolled
+    back both edits). Round 4: marking the fixed toilet is refused now, so the second edit is ``set_front``."""
+    big = M.fp("t1", "toilet", (2.5, 3.802), (1.145, 0.356), front=None)
     b = M.building(room_type="bathroom", furniture=[big])
     fixed = E.apply_edit(b, edit("fix_fixture", piece_id="t1"))
     assert fixed["accepted"], fixed["failed_checks"]
-    marked = E.apply_edit(fixed["building"], edit("mark_not_furniture", piece_id="t1", kind="other",
-                                                  evidence="crops/t1.png"))
-    assert marked["accepted"], marked["failed_checks"]
-    t = piece(marked["building"], "t1")
+    fronted = E.apply_edit(fixed["building"], edit("set_front", piece_id="t1", front_deg=270.0))
+    assert fronted["accepted"], fronted["failed_checks"]
+    t = piece(fronted["building"], "t1")
     assert t["adjusted_by_ai"]["fix_fixture"] == piece(fixed["building"], "t1")["adjusted_by_ai"]["fix_fixture"]
-    assert t["adjusted_by_ai"]["not_furniture"] == "other"
-    assert LK.check(b, marked["building"], "complete") == []
+    assert t["front_deg"] == 270.0
+    assert LK.check(b, fronted["building"], "complete") == []
     # A forged larger move under the kept label is still refused: the allowance is the fix's, not a free pass.
-    hand = copy.deepcopy(marked["building"])
+    hand = copy.deepcopy(fronted["building"])
     piece(hand, "t1")["footprint"]["center"] = [2.5, 3.0]
     assert any("by fix_fixture (> 0.5 m)" in v for v in LK.check(b, hand, "complete"))
+    # the pre-flight's second edit is refused now (round 4)
+    marked = E.apply_edit(fixed["building"], edit("mark_not_furniture", piece_id="t1", kind="other",
+                                                  evidence="crops/t1.png"))
+    assert not marked["accepted"] and marked["failed_checks"][0].startswith("drawn_lock: t1: drawn fixed equipment")
+
+
+def test_mark_not_furniture_refuses_drawn_fixed_equipment():
+    """Round 4 of Milestone 13 (CLAUDE.md furniture rules: fixed equipment is treated like walls). Fails on the old
+    code: the CPU pre-flight's scripted round marked 5 real03 toilets as not furniture and the edit was accepted,
+    leaving 5 bathrooms without a toilet (G10 major). ``apply_edit``, ``dry_run`` and ``allowed_edits`` all refuse it
+    with the reason; fixed equipment in a room that never holds it (a reading error, ``schemas.misplaced_fixed``) and
+    an untyped drawn piece may still be marked."""
+    toilet = M.fp("t1", "toilet", (4.6, 3.6), (0.4, 0.7), front=270.0)
+    blob = M.fp("u1", "unknown", (2.0, 2.0), (0.5, 0.5), front=None, status="unverified")
+    b = M.building(room_type="bathroom", furniture=[toilet, blob])
+    for fn in (E.apply_edit, E.dry_run):
+        res = fn(b, edit("mark_not_furniture", piece_id="t1", kind="other", evidence="crops/t1.png"))
+        assert not res["accepted"] and res["building"] is None
+        assert res["failed_checks"] == ["drawn_lock: t1: drawn fixed equipment (toilet) is treated like walls and is "
+                                        "never marked as not furniture (fix_fixture fixes a misread size or a piece "
+                                        "through a wall or in a door swing)"]
+    allowed = E.allowed_edits(b, "t1")["mark_not_furniture"]
+    assert allowed["allowed"] is False and "treated like walls" in allowed["why"]
+    for ftype in ("stair", "kitchen_counter", "sink_kitchen", "stove", "fridge", "washbasin", "shower", "bathtub"):
+        other = M.building(room_type="bathroom", furniture=[dict(toilet, type=ftype)])
+        assert not E.apply_edit(other, edit("mark_not_furniture", piece_id="t1", kind="other",
+                                            evidence="x"))["accepted"], ftype
+    # an untyped drawn piece: still marked
+    assert E.allowed_edits(b, "u1")["mark_not_furniture"]["allowed"]
+    assert E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="room_number", evidence="crops/u1.png"))[
+        "accepted"]
+    # a toilet read in a stair room is a reading error: it may be marked (as remove_piece and retype_piece may act)
+    stair = M.building(room_type="stair", furniture=[toilet])
+    a = E.allowed_edits(stair, "t1")
+    assert a["mark_not_furniture"]["allowed"] and "reading error" in a["mark_not_furniture"]["why"]
+    res = E.apply_edit(stair, edit("mark_not_furniture", piece_id="t1", kind="other", evidence="crops/t1.png"))
+    assert res["accepted"], res["failed_checks"]

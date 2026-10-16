@@ -314,7 +314,8 @@ PLANNER_SYSTEM_M12 = (
     "move_group (to a free wall span). Use move_piece only for a small fix of one piece.\n"
     "2. Drawn fixed equipment (stairs, kitchen runs, appliances, sanitary ware) keeps type, place and footprint; only "
     "rotate_piece for a front into a wall, fix_fixture for a misread size or a piece through a wall or in a door swing "
-    "(at most 0.5 m), retype_piece or mark_not_furniture when it is clearly a reading error.\n"
+    "(at most 0.5 m), retype_piece or mark_not_furniture only for a fixture read in a room that never holds it "
+    "(a clear reading error; the piece's allowed tools say so). It is never marked as not furniture otherwise.\n"
     "3. Drawn furniture is kept; a symbol, mark or line read as furniture: mark_not_furniture with the evidence.\n"
     "4. rotate_piece turns a piece; set_front only gives a front to a piece that has none (front_inferred). front_deg "
     "is the direction the front faces, degrees counter-clockwise from +x; a piece with its back on a "
@@ -324,14 +325,16 @@ PLANNER_SYSTEM_M12 = (
     "6. Every edit needs a short reason. When your checklist is done or nothing more can be fixed, call finish with "
     "the findings that stay open.\n"
     "7. An edit is accepted only when the finding it targets is gone in the code re-check and no new critical "
-    "finding appears; an edit that changes nothing measurable is rejected. The brief's drawn_groups move as one "
+    "finding appears (nor a G9 / G10 for a fixture the edit removed); an edit that changes nothing measurable is "
+    "rejected. The brief's drawn_groups move as one "
     "unit (place_group re-solves them around the drawn anchor); below_library pieces are our module or parametric "
     "builds, not wrong models (the library gap is already recorded); the licence_mode says which library models "
     "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only.\n"
     "8. A fixable finding may name an edit_target: the piece the tool must act on instead of the finding's target "
     "(a chair or nightstand stands around an anchor the fit left unbuilt: retype_piece types and builds an unknown "
-    "anchor, place_group re-solves the drawn group so the refit builds a typed one). Use the edit_target as the "
-    "step's target; never move the piece that stands around it.")
+    "anchor, place_group re-solves the drawn group so the refit builds a typed one), or the room set_lighting acts "
+    "on for a view too dark for the EV cap (lighting_dark). Use the edit_target as the step's target; never move "
+    "the piece that stands around it.")
 
 PLAN_SCHEMA: dict = {
     "type": "object", "additionalProperties": False, "required": ["room_id", "program", "steps"],

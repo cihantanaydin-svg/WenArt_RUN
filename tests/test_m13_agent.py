@@ -676,3 +676,240 @@ def test_the_default_checklist_names_the_kitchen_group_a_g9_completes():
     b = brief("r_mutfak", eat_in)
     b["room"]["id"] = "r_mutfak"
     assert LP.default_checklist(b)[0]["target"] == "r_mutfak.kitchen_run"
+
+
+# --------------------------------------------------------------------------
+# Round 4 (before pod P3's second attempt): lighting_dark findings for the lighting tool; fixed equipment and the
+# room-set rule of the acceptance
+# --------------------------------------------------------------------------
+
+def dark_manifest():
+    """A render manifest with the render's own ``lighting_dark`` records (``render.lighting_dark_entry``): the CPU
+    pre-flight's real04 basement salon (wanted +6.37 EV at incident p50 0.010868, critical), a real02-like bedroom
+    (+3.87, major) in the same room r1 here, a view within the cap and an exterior view above it."""
+    from wenart.blender import render as R
+    lim = (-10.3808, 3.0)
+    salon = R.lighting_dark_entry("cam_r1_1", "r1", 6.3718, 3.0, lim, 0.010868)
+    bed_ = R.lighting_dark_entry("cam_r1_2", "r1", 3.8672, 3.0, lim, 0.05)
+    ext = R.lighting_dark_entry("ext_1", None, 4.2, 3.0, lim, 0.01)
+    return {"exposure_limits": [-2.0, 3.0],
+            "renders": [{"camera": "cam_r1_1", "room_id": "r1", "lighting_dark": salon,
+                         "exposure": {"ev": 3.0, "ev_raw": 6.3718, "lighting_dark": salon}},
+                        {"camera": "cam_r1_2", "room_id": "r1", "exposure": {"ev": 3.0, "lighting_dark": bed_}},
+                        {"camera": "cam_r2_1", "room_id": "r2", "exposure": {"ev": 1.2, "lighting_dark": None}},
+                        {"camera": "ext_1", "room_id": None, "exposure": {"ev": 3.0, "lighting_dark": ext}}],
+            "lighting_dark": [salon, bed_, ext]}
+
+
+def quiet_critic(**kw):
+    return dict(dict(plausibility_fn=lambda x: {"rooms": {}}, exterior_fn=lambda *a: {"violations": []},
+                     views_fn=lambda *a: {"views": {}}, groups_fn=lambda x: {"rooms": {}}, levels_fn=lambda *a: []),
+                **kw)
+
+
+def test_lighting_dark_entries_become_findings_routed_to_set_lighting():
+    """Fails on the old code: render.py writes lighting_dark per view (a view whose metered EV passed the +3 cap; P1
+    decision §14.3: "a capped view is a lighting_dark finding routed to the lighting tools"), but no agent code read
+    them (CPU pre-flight of 16 Oct 2026: grep found only blender/ and run/ab.py)."""
+    from wenart.blender import render as R
+    assert CC.LIGHTING_DARK_CHECK == CS.LIGHTING_DARK_CHECK == R.LIGHTING_DARK_CHECK
+    res = CC.run(building(), {}, dark_manifest(), **quiet_critic())
+    assert {c["source"]: c["status"] for c in res["checks"]}["lighting"] == "ok"
+    dark = {f["target"]: f for f in res["findings"] if f["check"] == "lighting_dark"}
+    assert sorted(dark) == ["cam_r1_1", "cam_r1_2", "ext_1"]          # one per view (entries and list are the same)
+    salon, bed_, ext = dark["cam_r1_1"], dark["cam_r1_2"], dark["ext_1"]
+    assert salon["id"] == "c:lighting_dark:cam_r1_1" and salon["severity"] == "critical" and salon["room_id"] == "r1"
+    m = salon["evidence"]["metrics"]
+    assert m["ev_wanted"] == 6.3718 and m["ev_cap"] == 3.0 and m["factor_needed"] == round(2 ** 3.3718, 2) == 10.35
+    assert "the room needs about x10.35 its light, set_lighting gives up to x3" in salon["message"]
+    assert bed_["severity"] == "major" and "set_lighting factor about x1.82 on r1" in bed_["message"]
+    # routing: the lighting cause and set_lighting; an exterior view is report-only with the reason
+    assert CS.cause_of(salon) == "lighting" and CS.tools_for_finding(salon) == ["set_lighting"]
+    assert CS.cause_of(ext) == "lighting_exterior" and CS.tools_for_finding(ext) == []
+    assert "no agent tool sets their strength" in CS.no_tool_reason(ext)
+    fixable, not_yours = BR.classify([salon, bed_], building(), "r1", {}, {}, {})
+    assert [(f["target"], f["tools"], f["cause"]) for f in fixable] == [("cam_r1_1", ["set_lighting"], "lighting"),
+                                                                        ("cam_r1_2", ["set_lighting"], "lighting")]
+    # review of round 4: set_lighting takes a room id, so the step acts on the view's room (``edit_target``), and the
+    # room's accepted set_lighting closes both steps (before, the checklist said "set_lighting on cam_r1_1" and the
+    # step stayed open into the next round)
+    assert [f["edit_target"] for f in fixable] == ["r1", "r1"]
+    steps = LP.default_checklist({"room": {"id": "r1"}, "groups": [], "findings": {"fixable": fixable}})
+    assert [(s["tool"], s["target"], s["finding_ids"]) for s in steps] == [
+        ("set_lighting", "r1", ["c:lighting_dark:cam_r1_1"]), ("set_lighting", "r1", ["c:lighting_dark:cam_r1_2"])]
+    assert all(LP.step_done(s, "set_lighting", {"room_id": "r1", "factor": 3.0}, {}) for s in steps)
+    assert "or the room set_lighting acts on for a view too dark for the EV cap" in P.PLANNER_SYSTEM_M12
+    fixable, not_yours = BR.classify([ext], building(), None, {}, {}, {})
+    assert fixable == [] and not_yours[0]["cause"] == "lighting_exterior"
+    # no render manifest: the family is unavailable, never a silent "ok, nothing dark"
+    none = CC.run(building(), {}, None, **quiet_critic())
+    assert {c["source"]: c["status"] for c in none["checks"]}["lighting"] == "unavailable"
+    assert CC.FAMILY_OF["lighting_dark"] == "lighting" and "lighting_dark" in LP.NOT_REMEASURED
+    # review of round 4: set_lighting's factor is absolute and the render metered the room at the factor it has, so
+    # the factor to ask for is that factor x factor_needed (before: a room at x1.5, 0.87 stops over, was told "about
+    # x1.82", hardly brighter; at x2 it was told a darker x1.82)
+    assert bed_["evidence"]["metrics"]["lighting_factor_now"] == 1.0
+    assert bed_["evidence"]["metrics"]["set_lighting_factor"] == 1.82
+    lit = building()
+    for factor, text, want in ((1.5, "set_lighting factor about x2.74 on r1 (it has x1.5 now)", 2.74),
+                               (2.0, "the room needs about x1.82 its light, set_lighting gives up to x3 (it has x2 "
+                                     "now)", 3.65)):
+        lit["agent_overrides"] = {"lighting": {"r1": {"factor": factor, "reason": "dark"}}}
+        got = next(f for f in CC.run(lit, {}, dark_manifest(), **quiet_critic())["findings"]
+                   if f["target"] == "cam_r1_2")
+        assert text in got["message"], got["message"]
+        assert got["evidence"]["metrics"]["set_lighting_factor"] == want
+        assert got["evidence"]["metrics"]["factor_needed"] == 1.82
+
+
+def test_set_lighting_clears_the_dark_views_of_its_room_in_the_dry_recheck(tmp_path):
+    """Fails on the old code: the dry re-check cannot re-render, so the render's lighting_dark stayed in the after
+    list and the acceptance refused every set_lighting ("finding ... is still there"). Now the room's dark views count
+    as gone after set_lighting on the room (both of them, not only the targeted one) and the next round re-meters
+    them; the edit re-renders the room's views."""
+    found = [f for f in CC.run(building(), {}, dark_manifest(), **quiet_critic())["findings"]
+             if f["check"] == "lighting_dark" and f["room_id"] == "r1"]
+    violations = [{k: f[k] for k in ("check", "severity", "target", "room_id", "message")}
+                  | {"metrics": f["evidence"]["metrics"]} for f in found]
+    light = {"tool_calls": [{"name": "set_lighting", "arguments": {"room_id": "r1", "factor": 3.0,
+                                                                    "reason": "the basement room is too dark"}}]}
+    loop, out, _ = make(tmp_path, [light, FINISH], [violations, []],
+                        recheck=lambda b, s, m: [CC.finding(v) for v in violations])     # the render did not change
+    summary = loop.run()
+    assert summary["accepted"] == 1 and summary["findings_removed"] == 2, summary
+    ed = next(e for e in log_of(out)["events"] if e["kind"] == "edit")
+    assert ed["tool"] == "set_lighting" and ed["evidence"]["acceptance"]["removed"] == 2
+    assert ed["evidence"]["acceptance"]["target"] == ["lighting_dark:cam_r1_1"]           # the critical one first
+    assert OV.Overrides(out).agent_overrides()["lighting"]["r1"]["factor"] == 3.0
+    assert TL.changed_targets("set_lighting", {"room_id": "r1"}, {}, [], findings=found) == {"r1", "cam_r1_1",
+                                                                                          "cam_r1_2"}
+
+
+def test_accept_edit_refuses_an_edit_that_removed_the_fixture_a_new_room_set_finding_asks_for():
+    """Fails on the old code: only a new CRITICAL finding refused an edit, and the room-set findings of one room share
+    the key (G10, room id). The CPU pre-flight's scripted round marked 5 real03 toilets as not furniture: 5 major
+    G10 "bathroom without a toilet", accepted (102 findings "removed")."""
+    shower = finding("G10", "major", "r_bath", "r_bath", "bathroom without a shower or a bathtub",
+                     missing="shower|bathtub")
+    before = [finding("F7", "critical", "t1", "r_bath", "toilet blocks door d1"), shower]
+    no_toilet = finding("G10", "major", "r_bath", "r_bath", "bathroom without a toilet", missing="toilet")
+    after = [shower, no_toilet]
+    edit_ = {"target_finding": {"check": "F7", "target": "t1"},
+             "removed": [{"id": "t1", "type": "toilet", "room_id": "r_bath"}]}
+    ok, why = LP.accept_edit(before, after, edit_)
+    assert not ok and why == ("new major finding G10:r_bath (bathroom without a toilet): the edit removed toilet t1, "
+                              "the fixture the room needs; fixed equipment is treated like walls (CLAUDE.md furniture "
+                              "rules)")
+    # what stays accepted: the finding was there before; another fixture kind; another room; a minor one (a WC
+    # without a washbasin); an edit that removed nothing (no ``removed``: the M13 round-3 callers)
+    assert LP.accept_edit(before + [no_toilet], after, edit_)[0]
+    assert LP.accept_edit(before, after, dict(edit_, removed=[{"id": "t1", "type": "unknown", "room_id": "r_bath"}]))[0]
+    assert LP.accept_edit(before, after, dict(edit_, removed=[{"id": "t1", "type": "toilet", "room_id": "r_wc"}]))[0]
+    minor = finding("G10", "minor", "r_bath", "r_bath", "wc without a washbasin", missing="washbasin")
+    assert LP.accept_edit(before, [minor], dict(edit_, removed=[{"id": "t1", "type": "washbasin",
+                                                                  "room_id": "r_bath"}]))[0]
+    assert LP.accept_edit(before, after, {"target_finding": {"check": "F7", "target": "t1"}})[0]
+    # G9: the kitchen's hob is a stove; a finding without metrics.missing is read from its words
+    k_before = [finding("F7", "critical", "s1", "r_k", "stove blocks door d2")]
+    hob = finding("G9", "major", "r_k_kitchen", "r_k", "kitchen r_k_kitchen has no hob (stove)", missing="hob")
+    stove = {"target_finding": {"check": "F7", "target": "s1"}, "removed": [{"id": "s1", "type": "stove",
+                                                                             "room_id": "r_k"}]}
+    assert not LP.accept_edit(k_before, [hob], stove)[0]
+    assert not LP.accept_edit(k_before, [finding("G9", "major", "r_k", "r_k", "kitchen has no stove")], stove)[0]
+    # the kinds are group_checks' own
+    from wenart.furniture import group_checks as GC
+    assert {k: CS.SET_KIND_TYPES[k] for k in GC.KITCHEN_FIXTURES} == GC.KITCHEN_FIXTURES
+    assert set(CS.SET_KIND_TYPES) >= {"toilet", "washbasin", "shower|bathtub"}
+
+
+def test_removed_pieces_are_the_pieces_an_edit_took_out_of_the_scene():
+    keep = M.fp("k1", "chair", (1.0, 1.0), (0.45, 0.45))
+    gone_ = M.fp("g1", "toilet", (2.0, 1.0), (0.4, 0.7), source="added_by_ai")
+    marked = M.fp("m1", "washbasin", (3.0, 1.0), (0.6, 0.45))
+    retyped = M.fp("r1", "unknown", (4.0, 1.0), (0.5, 0.5))
+    unbuilt = dict(M.fp("u1", "stove", (4.0, 3.0), (0.6, 0.6)), build=False)
+    before = M.building(furniture=[keep, gone_, marked, retyped, unbuilt])
+    after = M.building(furniture=[keep, dict(marked, build=False), dict(retyped, type="nightstand"), unbuilt])
+    assert CS.removed_pieces(before, after) == [{"id": "g1", "type": "toilet", "room_id": M.ROOM_ID},
+                                                {"id": "m1", "type": "washbasin", "room_id": M.ROOM_ID},
+                                                {"id": "r1", "type": "unknown", "room_id": M.ROOM_ID}]
+    assert CS.removed_pieces(before, before) == [] and CS.removed_pieces(None, after) == []
+
+
+def bath_project(tmp_path):
+    """A bathroom whose added toilet stands in the door swing (F7 critical, R3 critical) with its drawn washbasin and
+    shower: removing the toilet clears F7 and leaves "bathroom without a toilet" (G10 major, the real critic)."""
+    from test_agent_helpers import write_json
+    basin = M.fp("f_b", "washbasin", (3.0, 3.775), (0.6, 0.45), front=270.0)
+    shower = M.fp("f_s", "shower", (4.55, 3.55), (0.9, 0.9), front=270.0)
+    toilet = M.fp("a_t", "toilet", (1.0, 0.5), (0.4, 0.7), front=90.0, source="added_by_ai")
+    b = M.building(room_type="bathroom", furniture=[basin, shower, toilet])
+    out = tmp_path / "bath"
+    for name in ("building_decor.json", "building_final.json", "building.json"):
+        write_json(out / name, b)
+    write_json(out / "style.json", {"palette": {}})
+    write_json(out / "scene" / "scene_manifest.json", {"cameras": []})
+    return out, b
+
+
+def test_the_loop_refuses_removing_the_toilet_a_bathroom_needs(tmp_path):
+    """End to end with the real edit_ops and the real code critic as the dry re-check. Fails on the old code: the
+    removal clears the critical F7 (the toilet in the door swing) and only a MAJOR G10 "bathroom without a toilet" is
+    new, so it was accepted. Now the loop passes the removed pieces to the acceptance and the edit is refused with
+    the reason; a move of the toilet stays possible."""
+    out, b = bath_project(tmp_path)
+    loop = LP.AgentLoop(out, MM.MockModel(chat=[]), vision=False, out=lambda s: None, workers=1)
+    ctx = loop.context(1)
+    ctx.findings = CC.run(b, {}, None)["findings"]
+    assert {(f["check"], f["target"]) for f in ctx.findings} >= {("F7", "a_t"), ("R3", "d1")}
+    res = loop.registry.call(ctx, "remove_piece", {"piece_id": "a_t", "reason": "the toilet blocks the door"})
+    assert not res["accepted"], res
+    reason = res["acceptance"]["reason"]
+    assert reason.startswith("new major finding G10:r_L0_oda (bathroom without a toilet): the edit removed toilet a_t")
+    assert any(f["id"] == "a_t" for f in ctx.building["furniture"])                     # nothing changed
+    # the planner's tool for the same F7: mark_not_furniture is never offered on fixed equipment (allowed_edits)
+    drawn = dict(b, furniture=[dict(f, source="from_documents") for f in b["furniture"]])
+    assert not E.allowed_edits(drawn, "a_t")["mark_not_furniture"]["allowed"]
+    # review of round 4: the planner's rules say the same (rule 2 offered mark_not_furniture for any "clear reading
+    # error"; rule 7 named only new critical findings)
+    assert "It is never marked as not furniture otherwise" in P.PLANNER_SYSTEM_M12
+    assert "nor a G9 / G10 for a fixture the edit removed" in P.PLANNER_SYSTEM_M12
+
+
+def test_set_lighting_is_idempotent_and_a_room_at_the_maximum_is_report_only(tmp_path):
+    """Fails on the old code: set_lighting with the factor the room already has was accepted again (the dry re-check
+    counts the room's dark views as gone, only a render re-meters them), so a room that needs more than the maximum
+    x3 (the CPU pre-flight's real04 basement salon: about x10) got the same edit and a re-render every round. Now the
+    repeat is a no-op with the reason, and the brief of a room at the maximum gives its dark views as "not yours"."""
+    ctx = ctx_for(tmp_path)
+    reg = TL.build_registry()
+    first = reg.call(ctx, "set_lighting", {"room_id": "r1", "factor": 3.0, "reason": "the room is too dark"})
+    assert first["accepted"], first
+    again = reg.call(ctx, "set_lighting", {"room_id": "r1", "factor": 3.0, "reason": "still too dark"})
+    assert not again["accepted"] and again["failed_checks"] == ["no_change: r1 has room lights x 3 already (the "
+                                                                "maximum, 3)"]
+    assert TL.lighting_state(ctx) == {"r1": 3.0}
+    assert reg.call(ctx, "set_lighting", {"room_id": "r1", "factor": 2.0, "reason": "a bit less"})["accepted"]
+    # the next round: the building carries the factor (overrides.apply); the brief knows it
+    b = building()
+    b["agent_overrides"] = {"lighting": {"r1": {"factor": 3.0, "reason": "dark"}}}
+    salon = next(f for f in CC.run(b, {}, dark_manifest(), **quiet_critic())["findings"]
+                 if f["target"] == "cam_r1_1")
+    out = BR.room_brief(b, "r1", findings=[salon], members_fn=lambda b_, r: [], group_checks_fn=lambda b_, r: [],
+                        program_fn=lambda b_, r: {}, solver_fn=lambda b_, r, k=3: [], allowed_fn=lambda b_, p: {})
+    assert out["lighting_factor"] == 3.0 and out["findings"]["fixable"] == []
+    assert "set_lighting: the room's lights are at the maximum factor already" in \
+        out["findings"]["not_yours"][0]["why"]
+    # review of round 4: the lock is for the views too dark for the cap; a vision R5 (a blown-out window) of the same
+    # room keeps set_lighting (a lower factor is still possible)
+    r5 = {"id": "v:R5:r1", "check": "R5", "severity": "major", "target": "r1", "room_id": "r1", "source": "vision",
+          "message": "the window is blown out"}
+    out_r5 = BR.room_brief(b, "r1", findings=[salon, r5], members_fn=lambda b_, r: [],
+                           group_checks_fn=lambda b_, r: [], program_fn=lambda b_, r: {},
+                           solver_fn=lambda b_, r, k=3: [], allowed_fn=lambda b_, p: {})
+    assert [(f["check"], f["tools"]) for f in out_r5["findings"]["fixable"]] == [("R5", ["set_lighting"])]
+    assert [f["check"] for f in out_r5["findings"]["not_yours"]] == ["lighting_dark"]
+    b["agent_overrides"]["lighting"]["r1"]["factor"] = 2.0
+    out2 = BR.room_brief(b, "r1", findings=[salon], members_fn=lambda b_, r: [], group_checks_fn=lambda b_, r: [],
+                         program_fn=lambda b_, r: {}, solver_fn=lambda b_, r, k=3: [], allowed_fn=lambda b_, p: {})
+    assert [f["tools"] for f in out2["findings"]["fixable"]] == [["set_lighting"]]

@@ -161,6 +161,14 @@ below the library level.
   one line per view, ``commercial-safe: yes`` or ``commercial-safe: no (flagged assets: id [flag], ...)``, and the
   section "Built below library level" (a table; ``wenart.run.pack3d`` repeats both in its README); a flagged view in
   ``commercial`` mode is an advisory flag. ``wenart.report.metrics13`` reads the manifest fields (metric 16).
+
+Round 4 of Milestone 13 (before pod P3's second attempt): the views too dark for the EV cap. The render keeps the +3
+cap and writes a ``lighting_dark`` record per view (``wenart.blender.render.lighting_dark_entry``, §13.2 "for the T8
+report"); the report now reads it: each view carries ``lighting_dark`` (its record or None), the manifest's
+``lighting`` block lists every such view with the metered EV, the EV used, the cap, the stops over it, the incident
+light and the agent's ``set_lighting`` factor of the room, the summary counts them (``summary.lighting_dark``, by
+severity), an advisory flag names them, the per-view EV column shows the metered EV of a capped view and
+``final_report.md`` has the section "Views too dark for the EV cap".
 """
 from __future__ import annotations
 
@@ -348,6 +356,12 @@ FINAL_MANIFEST = {
         "licence": {"type": ["object", "null"], "properties": {"mode": {"type": "string"},
                                                                "flagged_assets": {"type": "array"}}},
         "below_library": {"type": "array", "items": {"type": "object", "required": ["id", "type", "method"]}},
+        # round 4: the views whose metered EV passed the cap (``lighting_block``)
+        "lighting": {"type": ["object", "null"], "required": ["views", "critical", "major"],
+                     "properties": {"cap_ev": NUM, "critical": {"type": "integer", "minimum": 0},
+                                    "major": {"type": "integer", "minimum": 0},
+                                    "views": {"type": "array", "items": {
+                                        "type": "object", "required": ["camera", "severity", "ev_wanted", "ev_cap"]}}}},
     },
 }
 
@@ -1049,9 +1063,91 @@ def below_library(building: Optional[dict]) -> list[dict]:
     return out
 
 
+# Round 4 of Milestone 13 (before pod P3's second attempt): the render's finding of a view whose metered EV passed the
+# +3 cap (``wenart.blender.render.LIGHTING_DARK_CHECK``; pinned equal by tests/test_m13_report.py).
+LIGHTING_DARK_CHECK = "lighting_dark"
+
+
+def lighting_dark_record(entry: Optional[dict]) -> Optional[dict]:
+    """The ``lighting_dark`` record of a render entry (the entry's own, else its ``exposure``'s); None within the
+    cap."""
+    if not isinstance(entry, dict):
+        return None
+    rec = entry.get("lighting_dark") or (entry.get("exposure") or {}).get("lighting_dark")
+    return rec if isinstance(rec, dict) else None
+
+
+def lighting_block(inp: "Inputs", views: list[dict]) -> dict:
+    """The manifest's ``lighting`` block (round 4): every view of this report whose metered EV passed the cap, from
+    the render entries' ``lighting_dark`` and the render manifest's ``lighting_dark`` list (the same records): camera,
+    room, severity, the metered EV (``ev_wanted``), the EV used, the cap, the stops over it, the incident light, and
+    the agent's ``set_lighting`` factor of the room when the built building has one (``agent_overrides.lighting``).
+    ``cap_ev``: the render manifest's ``exposure_limits[1]`` (the run's cap). Nothing read it before round 4: the CPU
+    pre-flight's real04 basement salon wanted +6.37 EV (3.37 stops over) and the report did not say so."""
+    rm = inp.render_manifest or {}
+    by_cam: dict = {}
+    for cam, e in inp.entries.items():
+        rec = lighting_dark_record(e)
+        if rec is not None:
+            by_cam[cam] = dict(rec, room_id=rec.get("room_id") or e.get("room_id"))
+    for rec in rm.get("lighting_dark") or []:
+        if isinstance(rec, dict) and rec.get("target") in inp.entries:
+            by_cam.setdefault(str(rec["target"]), dict(rec))
+    agent = ((inp.building or {}).get("agent_overrides") or {}).get("lighting") or {} \
+        if isinstance((inp.building or {}).get("agent_overrides"), dict) else {}
+    rows = []
+    for v in views:
+        rec = by_cam.get(v["camera"])
+        if rec is None:
+            continue
+        m = rec.get("metrics") or {}
+        room = rec.get("room_id") or v.get("room_id")
+        factor = (agent.get(str(room)) or {}).get("factor") if room and isinstance(agent, dict) else None
+        rows.append({"camera": v["camera"], "room_id": room, "room_type": v.get("room_type"),
+                     "view_kind": v.get("view_kind"), "severity": rec.get("severity"),
+                     "ev_wanted": m.get("ev_wanted"), "ev_used": m.get("ev_used"), "ev_cap": m.get("ev_cap"),
+                     "stops_over_cap": m.get("stops_over_cap"), "incident_p50": m.get("incident_p50"),
+                     "set_lighting_factor": factor, "message": rec.get("message")})
+    limits = rm.get("exposure_limits")
+    cap = limits[1] if isinstance(limits, list) and len(limits) == 2 else None
+    return {"check": LIGHTING_DARK_CHECK, "cap_ev": cap, "views": rows,
+            "critical": sum(r["severity"] == "critical" for r in rows),
+            "major": sum(r["severity"] == "major" for r in rows),
+            "recorded": "lighting_dark" in rm or any("lighting_dark" in e for e in inp.entries.values())}
+
+
+def _ev_or_dash(value) -> str:
+    return f"{float(value):+.2f}" if isinstance(value, (int, float)) else "-"
+
+
+def lighting_lines(manifest: dict) -> list[str]:
+    """Round 4: the section of the views the EV cap held too dark (``lighting_block``), one row per view."""
+    block = manifest.get("lighting") or {}
+    rows = block.get("views") or []
+    lines = ["", "## Views too dark for the EV cap (Milestone 13)", ""]
+    cap = block.get("cap_ev")
+    lines.append(f"{len(rows)} view(s) whose metered exposure passed the cap "
+                 f"{_ev_or_dash(cap) + ' EV' if cap is not None else '(not recorded)'} "
+                 f"({block.get('critical', 0)} critical, {block.get('major', 0)} major: critical from 2 stops over). "
+                 f"The render keeps the cap, so the room shows darker than metered; the agent's set_lighting raises "
+                 f"the room's lights (docs/milestone13.md §14.3)."
+                 + ("" if block.get("recorded") else " The render manifest records no lighting_dark field (a run "
+                                                      "before Milestone 13)."))
+    if rows:
+        lines += [""] + C.table(
+            ["view", "room", "severity", "metered EV", "EV used", "cap", "stops over", "incident p50", "set_lighting"],
+            [[r["camera"], r.get("room_id") or "-", r.get("severity"), _ev_or_dash(r.get("ev_wanted")),
+              _ev_or_dash(r.get("ev_used")), _ev_or_dash(r.get("ev_cap")),
+              "-" if r.get("stops_over_cap") is None else f"{float(r['stops_over_cap']):.2f}",
+              "-" if r.get("incident_p50") is None else f"{float(r['incident_p50']):.5f}",
+              "-" if r.get("set_lighting_factor") is None else f"x{float(r['set_lighting_factor']):g}"]
+             for r in rows])
+    return lines
+
+
 def m13_lines(manifest: dict) -> list[str]:
     """The report sections of Milestone 13: the commercial-safe line per view and the project line, then the table
-    of the pieces built below the library level."""
+    of the pieces built below the library level, then (round 4) the views too dark for the EV cap."""
     lic = manifest.get("licence") or {}
     lines = ["", "## Commercial-safe per view (Milestone 13)", ""]
     mode = lic.get("mode") or "unknown"
@@ -1075,6 +1171,7 @@ def m13_lines(manifest: dict) -> list[str]:
                                 [[b["id"], b["type"], b["method"], b["builder"], b.get("room_id"),
                                   b.get("room_type"), b.get("source"), "yes" if b.get("gap") else "no (by design)",
                                   b.get("used")] for b in below])
+    lines += lighting_lines(manifest)
     return lines
 
 
@@ -1468,6 +1565,8 @@ def build_views(inp: Inputs) -> list[dict]:
             "detector": detector_view((cview or {}).get("detector")),
             # Milestone 13 (docs/milestone13.md §6): the licence line of the view
             "commercial_safe": commercial_safe_of_view(entry, by_index, catalog),
+            # round 4: the view's lighting_dark record (its metered EV passed the cap), None within the cap
+            "lighting_dark": lighting_dark_record(entry),
         })
     return out
 
@@ -2400,6 +2499,14 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         flags.append(f"commercial licence mode but {licence['views_flagged']} view(s) show flagged assets "
                      f"({', '.join(licence['flagged_assets'])}): re-run the fit in commercial mode "
                      f"(docs/milestone13.md §6)")
+    lighting = lighting_block(inp, views)
+    if lighting["views"]:
+        flags.append(f"{len(lighting['views'])} view(s) too dark for the EV cap (lighting_dark: "
+                     f"{lighting['critical']} critical, {lighting['major']} major): "
+                     + ", ".join(f"{r['camera']} metered {_ev_or_dash(r.get('ev_wanted'))} EV"
+                                 for r in lighting["views"][:6])
+                     + (f" and {len(lighting['views']) - 6} more" if len(lighting["views"]) > 6 else "")
+                     + "; the agent's set_lighting raises the room's lights")
     stages = {
         "render": "run" if inp.render_manifest is not None else "not_run",
         "polish": ("not_run" if inp.polish is None else "incomplete" if inp.polish.get("incomplete") else "run"),
@@ -2460,6 +2567,9 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
             "rooms_mixed": sum(r["mixed"] for r in rooms.values()),
             "interior_views": sum(v.get("view_kind") != "exterior" for v in views),
             "exterior_views": sum(v.get("view_kind") == "exterior" for v in views),
+            # round 4: the views the EV cap held too dark (``lighting`` block)
+            "lighting_dark": {"views": len(lighting["views"]), "critical": lighting["critical"],
+                              "major": lighting["major"]},
         },
         "views": views,
         "rooms": rooms,
@@ -2497,6 +2607,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         # below the library level
         "licence": licence,
         "below_library": below_library(inp.building),
+        # round 4: every view whose metered EV passed the cap, with the metered EV and the cap
+        "lighting": lighting,
         "warnings": list(inp.warnings),
     }
 
@@ -2710,7 +2822,18 @@ def _sources_text(ids: dict) -> str:
 def _ev_text(exp: Optional[dict]) -> str:
     if not isinstance(exp, dict) or exp.get("ev") is None:
         return "-"
+    dark = exp.get("lighting_dark") if isinstance(exp.get("lighting_dark"), dict) else None
+    if dark is not None and (dark.get("metrics") or {}).get("ev_wanted") is not None:
+        # round 4: a view held at the cap shows what it metered (the room is darker than the image suggests)
+        return f"{float(exp['ev']):+.2f} (cap; metered {float(dark['metrics']['ev_wanted']):+.2f})"
     return f"{float(exp['ev']):+.2f}" + (" (limit)" if exp.get("at_limit") else "")
+
+
+def _dark_text(s: Optional[dict]) -> str:
+    """The summary line of the views too dark for the EV cap (round 4)."""
+    if not isinstance(s, dict):
+        return "not recorded"
+    return f"{s.get('views', 0)} ({s.get('critical', 0)} critical, {s.get('major', 0)} major)"
 
 
 def _camera_text(cp: Optional[dict]) -> str:
@@ -3116,6 +3239,7 @@ def report_markdown(manifest: dict) -> str:
         ["advisory", "yes" if manifest["advisory"] else "no"],
         ["advisory flags", len(manifest["advisory_flags"])],
         ["exposure", ev_range + (f", modes {', '.join(exp['modes'])}" if exp["modes"] else "")],
+        ["views too dark for the EV cap (lighting_dark)", _dark_text(s.get("lighting_dark"))],
         ["window pull", "-" if not exp.get("window_pull", {}).get("views") else
          f"{exp['window_pull']['views']} view(s), {exp['window_pull']['min']:g} .. {exp['window_pull']['max']:g} EV"],
         ["camera policy", ", ".join(f"{k} {n}" for k, n in s["cameras"]["policies"].items()) or "-"],

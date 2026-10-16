@@ -142,6 +142,10 @@ which must look like a real product, never a flat grey box:
 - nightstand and dresser: a recessed plinth, a carcass, a top with drawer fronts and handles in the design's
   front style; tv unit: a low carcass on steel legs with drawer fronts; bookshelf: plinth, sides, a painted back
   panel and shelves; wardrobe: plinth, carcass, top and 0.50 m door modules with vertical handles.
+- chair (round 4, docs/milestone13.md §14.8; ``chair_parts``): four legs on floor glides with seat rails, or a
+  steel sled base for a ``metal`` design; an upholstered pad on a seat board (or a shaped wooden / rattan seat) with
+  its top at 0.45 m; a back of two posts, a top rail and a back panel on the rear band the camera search models.
+  The long table module builds its chairs with it (``build_parts("chair")``).
 
 Every family gives the object several material slots (wood, fabric, bedding, front, handle, dark, steel, painted)
 and keeps its box: the XY box equals the footprint within 1 cm, the lowest point is on the floor, ``back`` parts
@@ -221,7 +225,9 @@ COUNTER_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
 # Milestone 13 (docs/milestone13.md §13.2): the types with a v2 family (real proportions, several material slots,
 # bevelled edges); the fit's ladder builds them when no library model and no module plan fits.
 FAMILY_TYPES: tuple[str, ...] = ("bed", "bed_single", "bed_double", "sofa", "armchair", "table_dining", "table_coffee",
-                                 "desk", "nightstand", "dresser", "bookshelf", "tv_unit", "wardrobe")
+                                 "desk", "nightstand", "dresser", "bookshelf", "tv_unit", "wardrobe",
+                                 # round 4 (§14.8): the chair (``chair_parts``), was the one-material box chair
+                                 "chair")
 # Bed v2 and the textile bedding (docs/milestone12.md §4.7 "every bed whose model has no bedding gets a duvet and two
 # pillows"; the numbers of wenart.blender.textiles since Milestone 12, kept here so the pure bed family and the
 # draped bedding of a library bed share them).
@@ -642,17 +648,155 @@ def sofa_seat_height(h: float) -> float:
     return min(0.45, h * 0.55)
 
 
-def _chair(w: float, d: float, h: float) -> list[Part]:
-    seat_h = min(0.45, h / 2.0)
-    leg = min(0.04, w * 0.1)
-    t = min(0.04, d * 0.1)
-    parts = [_box(0.0, 0.0, seat_h - 0.04, w, d, 0.04, "wood", "top"),
-             _box(0.0, d / 2.0 - t / 2.0, seat_h, w, t, h - seat_h, "wood", "back")]
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            parts.append(_box(sx * (w / 2.0 - leg / 2.0), sy * (d / 2.0 - leg / 2.0), 0.0, leg, leg, seat_h - 0.04,
-                              "wood", "leg"))
+# Chair v2 (round 4, docs/milestone13.md §14.8: "a chair below library level is a one-material box", P3's fit sends
+# f_L1_023 and f_L1_025 to it and every chair whose library GLB fails to import falls back to it). Real dining-chair
+# proportions, from secondary compilations on GitHub (opened 16 Oct 2026): "Dining chair seat height 450-470 mm"
+# (interaeronav/TokenEfficiencyEngine, knowledge-base/19_interior_design/06_principles-and-technical-knowledge.md);
+# "Dining chair 0.46 x 0.52 x 0.9 ... Seat pad at 0.45 with a 0.42 seat depth" and "Stacking chair 0.54 x 0.5 x
+# 0.84 ... Seat at 0.45-0.46" (Flynn-Mac-97/BGE, agents/skills/blockout/real-world-sizes.md); the size table's chair
+# product 0.48 x 0.55 x 0.88 m (wenart/recognition/size_table.yaml, ABO median 0.52 x 0.57 x 0.92). So: the sitting
+# surface at 0.45 m, 0.40-0.45 m deep, the back's top 0.80-0.90 m (the type height 0.9, proxies.PROXY_HEIGHTS).
+CHAIR_SEAT_HEIGHT_M = 0.45            # the sitting surface (the pad's or the shaped seat's top)
+CHAIR_SEAT_HEIGHT_SHARE = 0.5625      # a chair lower than 0.80 m keeps the 0.45 / 0.80 proportion
+CHAIR_SEAT_DEPTH_M = (0.40, 0.45)     # the sitting surface's depth (front edge to the back)
+CHAIR_BACK_T_M = 0.04                 # the back's band on the rear edge: camsearch.piece_profile models the back as
+#                                       this slab (min(0.04, 0.1 x depth), as the Milestone 4 chair; pinned there)
+CHAIR_LEG_M = 0.035                   # legs and back posts (square; the front legs taper to 80 % at the floor)
+CHAIR_APRON_M = 0.06                  # the seat rails under the seat
+CHAIR_BOARD_M = 0.018                 # the seat board under the pad
+CHAIR_PAD_M = 0.05                    # the upholstered pad
+CHAIR_SHAPED_SEAT_M = 0.035           # a wooden or rattan seat without a pad
+CHAIR_GLIDE_M = 0.008                 # the floor glides under the legs
+CHAIR_TOP_RAIL_M = 0.07               # the back's top rail
+CHAIR_BACK_GAP_M = 0.10               # the open gap between the sitting surface and the back panel
+CHAIR_SLED_TUBE_M = 0.011             # a sled base's steel tube radius
+
+
+def chair_seat_height(h: float) -> float:
+    """The sitting surface of the chair family at the type height ``h`` (0.45 m from a 0.80 m back up)."""
+    return min(CHAIR_SEAT_HEIGHT_M, h * CHAIR_SEAT_HEIGHT_SHARE)
+
+
+def chair_design(piece: dict | None) -> dict:
+    """The chair family's materials from the design's ``material_tags`` (pure): ``frame`` (``steel`` for a ``metal``
+    tag, else ``wood``), ``seat`` (``rattan`` for a rattan tag, ``wood`` for a wood tag without ``fabric``, else the
+    upholstered ``fabric`` pad), ``base`` (``sled`` for a metal frame, else ``legs``) and ``back`` (``rail and
+    panel`` on a wooden frame: a top rail over a back panel; ``panel`` on a sled), the panel in the seat's
+    material (wood under a wooden seat)."""
+    tags = set(piece_design(piece).get("material_tags") or ())
+    frame = "steel" if "metal" in tags else "wood"
+    if "rattan" in tags:
+        seat = "rattan"
+    elif "wood" in tags and "fabric" not in tags:
+        seat = "wood"
+    else:
+        seat = "fabric"
+    base = "sled" if frame == "steel" else "legs"
+    return {"frame": frame, "seat": seat, "base": base, "back": "panel" if base == "sled" else "rail and panel"}
+
+
+def _square_frustum(cx: float, cy: float, z0: float, s0: float, s1: float, h: float, key: str, role: str) -> Part:
+    """A square leg from side ``s0`` at ``z0`` to ``s1`` at the top, centred on (cx, cy), wound outwards."""
+    b0, b1 = s0 / 2.0, s1 / 2.0
+    verts = [(cx - b0, cy - b0, z0), (cx + b0, cy - b0, z0), (cx + b0, cy + b0, z0), (cx - b0, cy + b0, z0),
+             (cx - b1, cy - b1, z0 + h), (cx + b1, cy - b1, z0 + h), (cx + b1, cy + b1, z0 + h), (cx - b1, cy + b1, z0 + h)]
+    faces = [[3, 2, 1, 0], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
+    return {"verts": verts, "faces": faces, "key": key, "role": role}
+
+
+def chair_parts(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """Chair v2 (round 4): the parts of a dining chair in the box ``w x d x h`` (pure; front -Y, back +Y).
+
+    Four legs (the front ones tapered) on dark floor glides with seat rails between them, or a steel sled base
+    (two floor runners, uprights, seat rails) for a ``metal`` design; a seat: a board with an upholstered pad
+    (``fabric``, the brief's fabric colour) or a shaped wooden or rattan seat (role ``top``, its top at
+    ``chair_seat_height``, the pad ``CHAIR_SEAT_DEPTH_M`` deep against the back); a back on the rear edge (role
+    ``back``, inside ``CHAIR_BACK_T_M``): two posts and a back panel ``CHAIR_BACK_GAP_M`` above the seat
+    (upholstered on a padded chair), under a top rail on a wooden frame. At least two material slots (frame, seat,
+    glides); edges bevelled by role (``part_bevel_radius``), the pads smooth. The box is the footprint, ``h`` high,
+    on the floor."""
+    look = chair_design(piece)
+    frame = look["frame"]
+    t = min(CHAIR_BACK_T_M, d * 0.1)
+    leg = min(CHAIR_LEG_M, w * 0.09, d * 0.09)
+    seat_h = chair_seat_height(h)
+    sitting = d - t - FRONT_GAP                              # front edge to the back's face
+    seat_d = min(CHAIR_SEAT_DEPTH_M[1], sitting)
+    y_back = d / 2.0 - t                                     # the back's front face
+    parts: list[Part] = []
+    # the seat: its top is the sitting surface at seat_h
+    if look["seat"] == "fabric":
+        pad = min(CHAIR_PAD_M, seat_h * 0.12)
+        board_top = seat_h - pad
+        board = min(CHAIR_BOARD_M, board_top * 0.1)
+        parts.append(_box(0.0, (-d / 2.0 + y_back - FRONT_GAP) / 2.0, board_top - board, w, sitting, board,
+                          "dark" if frame == "steel" else frame, "top"))
+        # the pad covers the board's full width (flush with the frame): its side points then lie inside a
+        # neighbouring chair that cuts into this one, so the S2 vertex sampling (scene_checks, rest.penetration)
+        # measures the cut (tests/test_m13_placement.py: two chairs 3 cm into each other, depth > 0.02 m)
+        parts.append(_superellipsoid(0.0, y_back - FRONT_GAP - seat_d / 2.0, board_top, w, seat_d, pad, 0.3,
+                                     0.25, "fabric", "top", n_eta=8, n_om=32))
+        seat_bottom = board_top - board
+    else:
+        shell = min(CHAIR_SHAPED_SEAT_M, seat_h * 0.1)
+        parts.append(_superellipsoid(0.0, (-d / 2.0 + y_back - FRONT_GAP) / 2.0, seat_h - shell, w, sitting, shell,
+                                     0.2, 0.2, look["seat"], "top", n_eta=8, n_om=32))
+        seat_bottom = seat_h - shell
+    apron = min(CHAIR_APRON_M, seat_bottom * 0.2)
+    rail_z = seat_bottom - apron - FRONT_GAP
+    if look["base"] == "legs":
+        glide = CHAIR_GLIDE_M
+        for sx in (-1, 1):
+            cx = sx * (w / 2.0 - leg / 2.0)
+            # front legs, tapered, under the seat; the glides inset 2 mm under them
+            parts.append(_square_frustum(cx, -d / 2.0 + leg / 2.0, glide, leg * 0.8, leg, seat_bottom - glide - FRONT_GAP,
+                                         frame, "leg"))
+            for cy, side in ((-d / 2.0 + leg / 2.0, leg * 0.8), (d / 2.0 - t / 2.0, min(leg, t))):
+                parts.append(_box(cx, cy, 0.0, side - 0.004, side - 0.004, glide, "dark", "foot"))
+            # the back posts: the rear legs running up to the top of the back, on the rear edge
+            parts.append(_box(cx, d / 2.0 - t / 2.0, glide, leg, t, h - glide, frame, "back"))
+        inner_w = w - 2.0 * leg
+        span_y = d - leg - t
+        # seat rails between the legs (front and sides; the rear one sits in the back band), 1 mm under the seat
+        parts.append(_box(0.0, -d / 2.0 + leg / 2.0, rail_z, inner_w + 0.004, leg * 0.6, apron, frame, "apron"))
+        for sx in (-1, 1):
+            parts.append(_box(sx * (w / 2.0 - leg / 2.0), -d / 2.0 + leg + span_y / 2.0, rail_z, leg * 0.6,
+                              span_y + 0.004, apron, frame, "apron"))
+        rail_t = t * 0.7
+        parts.append(_box(0.0, d / 2.0 - rail_t / 2.0, rail_z, inner_w + 0.004, rail_t, apron, frame, "back"))
+        # the back: a top rail between the posts and a back panel under it (upholstered on a padded chair), all
+        # flush with the rear edge. A closed panel, not slats: camsearch.piece_profile models the back as a solid
+        # slab and tests/test_camsearch.py holds the built chair's ray share to the profile's within 0.005 (a
+        # slatted back measured 0.0052 over it in the table cases).
+        top_z = h - CHAIR_TOP_RAIL_M - 0.003
+        parts.append(_box(0.0, d / 2.0 - rail_t / 2.0, top_z, inner_w + 0.004, rail_t, CHAIR_TOP_RAIL_M, frame, "back"))
+        panel_t = rail_t * 0.8
+        panel_z = min(seat_h + CHAIR_BACK_GAP_M, top_z - 0.10)
+        parts.append(_box(0.0, d / 2.0 - panel_t / 2.0, panel_z, inner_w + 0.004, panel_t, top_z - panel_z + 0.002,
+                          frame if look["seat"] == "wood" else look["seat"], "back"))
+    else:
+        r = min(CHAIR_SLED_TUBE_M, leg / 2.0, t / 2.0)
+        for sx in (-1, 1):
+            cx = sx * (w / 2.0 - r)
+            # the floor runner from the front edge to the rear edge, the front upright and the rear post on it
+            parts.append(_cylinder_y(cx, -d / 2.0 + r, r, r, r, d - 2.0 * r, "steel", "base", n=12))
+            parts.append(_cylinder_z(cx, -d / 2.0 + r, r, r, r, seat_bottom - r - FRONT_GAP, "steel", "leg", n=12))
+            parts.append(_cylinder_z(cx, d / 2.0 - r, r, r, r, h - r, "steel", "back", n=12))
+            # the seat rail under the seat, from the front upright to the rear post
+            parts.append(_cylinder_y(cx, -d / 2.0 + 2.0 * r, seat_bottom - r - FRONT_GAP, r, r, d - 4.0 * r, "steel",
+                                     "apron", n=12))
+        # an upholstered (or wooden / rattan) back panel between the posts, flush with the rear
+        panel_t = t * 0.75
+        panel_z = min(seat_h + CHAIR_BACK_GAP_M, h - 0.12)
+        parts.append(_box(0.0, d / 2.0 - panel_t / 2.0, panel_z, w - 4.0 * r, panel_t, h - 0.02 - panel_z,
+                          look["seat"], "back"))
     return parts
+
+
+def _chair(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
+    """The chair family v2 (``chair_parts``); ``piece`` is optional, so the Milestone 4 call ``_chair(w, d, h)``
+    and the long table module's chairs (``modules._table_parts``) keep working."""
+    return chair_parts(w, d, h, piece)
 
 
 def _table(w: float, d: float, h: float, desk: bool = False) -> list[Part]:
@@ -2412,7 +2556,9 @@ _PIECE_BUILDERS = ("stair", "side_table", "table_dining", "table_coffee", "desk"
                    "display_cabinet", "tall_cabinet", "wall_cabinet",
                    # Milestone 13 families v2 read the design (fabric colour, front style, wood)
                    "bed", "bed_single", "bed_double", "sofa", "armchair", "nightstand", "dresser", "tv_unit",
-                   "bookshelf")
+                   "bookshelf",
+                   # round 4: the chair family v2 reads the design's material tags (frame, seat, base)
+                   "chair")
 
 
 def build_parts(ftype: str, w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:

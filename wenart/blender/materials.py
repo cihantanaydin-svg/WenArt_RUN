@@ -83,6 +83,10 @@ shell, and the ceiling, worktops, fronts, sanitary ware, handles and the wet-roo
   (``direct_sun: "lamp"``, ``sun_disc_camera_only``, the ``world_mix`` record; render.py keeps the lamp shown).
   ``sun_intensity`` stays for the disc's look. ``disc_camera_only=False`` gives the P1 world (the disc for every
   ray, ``direct_sun: "sky disc"``, the lamp hidden under it). The HDRI path of the interior views stays.
+  Round 4 (§14.8, the P3 pre-flight): the sky's Background Strength is the one whose own sun equals the lamp
+  (``exterior_sky_strength``, the measured sky/sun pair ``SKY_SUN_TABLE``: 7.71 at 1000 W/m² and 35 degrees, was
+  0.5); the disc keeps its image brightness; the horizontal diffuse-to-direct ratio of the pair (0.166 at 35
+  degrees) lies in the clear-sky range; the record's ``sky_calibration`` keeps the derivation.
 - ``fixture_material``: the emissive surface of a light-rig fixture (``lighting.room_rig``), its colour from the
   blackbody temperature of the fixture, its radiance the fixed ``lighting.SHADE_EMISSION_WM2SR`` (round 3: the
   shade no longer follows the lamp power, so it never clips at the project EV range).
@@ -1005,7 +1009,17 @@ MOOD_STRENGTH = {"warm daylight": 1.0, "cool daylight": 1.2, "golden evening": 0
 def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
     """World from the style: HDRI when a file is available, else a physical
     sky (sky texture, multiple scattering) at the style's sun position.
-    Returns what was used for the manifest."""
+    Returns what was used for the manifest.
+
+    Round 4 check of the interior HDRI against the 1000 W/m² sun lamp (bpy 5.2.2, the measurement of the exterior
+    pair): Poly Haven's kloppenheim_06 (1k, the warm-daylight HDRI of real02/03/04) at Strength 1.0 puts 2.54 W/m²
+    on a horizontal plane, 0.0044 of the lamp's direct light there (573.6 W/m² at 35 degrees); the clear-sky pair
+    of the exterior sky gives 0.166 (``exterior_sky_strength``), about 38 x (5.2 stops) more sky. Not changed: the
+    P1 sun1000 sheets (results/review/m13_p1/levers, decided in docs/milestone13.md §14.3) were rendered with this
+    balance and the lead read them as right (§14.3: "a real sun patch through the window, clean contrast, warm;
+    sun1000 reads most natural, no clipping seen"), and the P1 EV numbers, the EV cap and the rig gain rest on it.
+    The HDRI is a look (its own units, no real sun disc: the 3 degrees around its brightest pixel hold 0.1 % of its
+    irradiance), not a calibrated sky. A brighter interior HDRI is a lever for a pod A/B, not a silent change."""
     import bpy
 
     world = scene.world or bpy.data.worlds.new("World")
@@ -1052,6 +1066,9 @@ EXTERIOR_WORLD = "wenart_world_exterior"
 # The physical sky of the exterior views (Blender 5.2 ShaderNodeTexSky, sky_type MULTIPLE_SCATTERING: the Nishita
 # model of Blender 4.x, checked with bpy.types.ShaderNodeTexSky.bl_rna on 5.2.2; enum SINGLE_SCATTERING,
 # MULTIPLE_SCATTERING, PREETHAM, HOSEK_WILKIE). Clean air, a little haze.
+# ``strength_factor`` is the Milestone 11 sky strength (x the mood's strength). Since round 4 it is used only when no
+# sun lamp is given or the mood has no sun (``exterior_sky_strength``); a lit scene's sky strength comes from the
+# lamp through the measured sky/sun pair below.
 EXTERIOR_SKY = {"sky_type": "MULTIPLE_SCATTERING", "air_density": 1.0, "aerosol_density": 1.0, "ozone_density": 1.0,
                 "altitude": 0.0, "strength_factor": 0.5}
 # Milestone 13: the sun disc of the exterior sky (bpy.types.ShaderNodeTexSky: sun_disc "Include the sun itself in the
@@ -1064,6 +1081,105 @@ EXTERIOR_SKY = {"sky_type": "MULTIPLE_SCATTERING", "air_density": 1.0, "aerosol_
 # measures the disc's irradiance against the lamp's and the lead corrects the reference from P1.
 SUN_DISC_SIZE_DEG = 0.545
 EXTERIOR_SUN_DISC_REFERENCE_WM2 = 1000.0
+
+# Round 4 (16 Oct 2026; docs/milestone13.md §14.8: "the exterior sky world is about 4 stops too dark against the
+# 1000 W/m² lamp"): the strength of the exterior sky comes from the physics, not from taste.
+#
+# 1. The MULTIPLE_SCATTERING sky and its own sun are one physical pair: one atmosphere (the air, aerosol and ozone
+#    densities of EXTERIOR_SKY) scatters the sky light and dims the sun. Per sun elevation, SKY_SUN_TABLE holds
+#    (elevation_deg, sun_ratio, dome_ratio): sun_ratio = the sky's own sun (sun_intensity 1, Background Strength 1)
+#    on a white plane facing it, over a SKY_PAIR_REFERENCE_WM2 sun lamp on the same plane; dome_ratio = the sky
+#    without the disc (Strength 1) on a horizontal plane, over the same lamp facing its plane. Measured on bpy 5.2.2
+#    (CPU Cycles, 256 samples, the Diffuse Direct pass of a white Lambert plane, the median pixel; 16 Oct 2026).
+#    The 35-degree row repeats the P1 measurement SUN_DISC_RATIO 0.129 (tests/gpu/test_m13_light.py).
+# 2. The world strength whose sun equals the lamp is k = lamp_wm2 / (SKY_PAIR_REFERENCE_WM2 x sun_ratio(e)):
+#    7.71 for the 1000 W/m² lamp at 35 degrees, x15.4 the Milestone 11 value 0.5. The P3 pre-flight (agent B)
+#    found that about x15.5 turns the real04 ext_7 sky band at the metered EV -7.67 from 14/255 (nearly black, grey
+#    only through the haze) into a blue (106, 130, 146).
+# 3. The visible disc keeps its image brightness: sky_sun_intensity divides by k, so k x sun_intensity stays
+#    lamp_wm2 / EXTERIOR_SUN_DISC_REFERENCE_WM2 (the P1 disc); the disc stays camera-only and the lamp stays the one
+#    direct sun (round 3).
+# 4. Check: the sky's diffuse light over the sun's direct light on a horizontal plane is
+#    dome_ratio / (sun_ratio x sin e), a property of the pair whatever k is: 0.166 at 35 degrees, 0.11-0.22 from 25
+#    to 85 degrees, higher for a low sun (0.45 at 12 degrees). The clear-sky models of pvlib 0.13.1
+#    (raw.githubusercontent.com/pvlib/pvlib-python/main/pvlib/clearsky.py, ``bird`` and ``ineichen``; run on CPU,
+#    sea level) give DHI / (DNI x sin e) at 35 degrees of 0.149 (Bird, AOD500 0.05), 0.212 (Bird, AOD500 0.1) and
+#    0.173 (Ineichen-Perez, Linke turbidity 3); from 25 to 85 degrees 0.095-0.194 (Bird, AOD500 0.05), 0.129-0.282
+#    (Bird, AOD500 0.1) and 0.119-0.220 (Ineichen-Perez, TL 3). The pair lies between Bird at AOD500 0.05 and 0.1
+#    at every row from 10 to 85 degrees (pinned in tests/test_m13_light.py), and inside the usual clear-sky range
+#    CLEAR_SKY_DIFFUSE_RANGE (about 0.1-0.25). Below CLEAR_SKY_RANGE_MIN_ELEVATION_DEG a clear
+#    sky's share rises (Bird at 12 degrees: 0.35-0.55), so the range is checked only above it.
+# 5. Moods: the mood's sky strength over its sun factor (MOOD_STRENGTH over the style's sun_strength / 3 W/m²) keeps
+#    the Milestone 11 balance between the moods; warm daylight (every PoC project) is exactly the pair. Without a
+#    lamp (no ``sun_wm2``, a sunless mood) there is no sun to pair with: the Milestone 11 strength stays.
+# The table is valid for EXTERIOR_SKY's air (SKY_TABLE_AIR, pinned in tests/test_m13_light.py): re-measure it when
+# the air changes. tests/gpu/test_m13_light.py re-measures rows with the same method (test_sky_sun_table_rows_
+# reproduce: 12, 45 and 65 degrees, the elevations of the golden-evening, overcast and bright-noon moods; its
+# script takes any elevation list) and its sun-disc test checks the 35-degree pair in the production world.
+SKY_PAIR_REFERENCE_WM2 = 1000.0
+SKY_TABLE_AIR = {"air_density": 1.0, "aerosol_density": 1.0, "ozone_density": 1.0, "altitude": 0.0}
+SKY_SUN_TABLE: tuple[tuple[float, float, float], ...] = (
+    (5.0, 0.0408, 0.00469), (10.0, 0.0757, 0.00722), (12.0, 0.0853, 0.00796), (15.0, 0.0967, 0.00887),
+    (20.0, 0.1098, 0.01003), (25.0, 0.1187, 0.01095), (30.0, 0.1250, 0.01172), (35.0, 0.1297, 0.01238),
+    (40.0, 0.1331, 0.01296), (45.0, 0.1359, 0.01348), (55.0, 0.1397, 0.01434), (65.0, 0.1421, 0.01499),
+    (75.0, 0.1435, 0.01542), (85.0, 0.1442, 0.01564),
+)
+SKY_TABLE_SOURCE = ("bpy 5.2.2 CPU Cycles, 16 Oct 2026: Diffuse Direct of a white plane, the MULTIPLE_SCATTERING "
+                    "sky (EXTERIOR_SKY air) against a 1000 W/m2 sun lamp (round 4)")
+CLEAR_SKY_DIFFUSE_RANGE = (0.10, 0.25)
+CLEAR_SKY_RANGE_MIN_ELEVATION_DEG = 25.0
+CLEAR_SKY_SOURCE = ("pvlib 0.13.1 clear-sky models at sea level (pvlib/clearsky.py bird, ineichen): DHI / (DNI x "
+                    "sin e) at 35 degrees 0.149-0.212 (Bird, AOD500 0.05-0.1), 0.173 (Ineichen-Perez, Linke "
+                    "turbidity 3); 25-85 degrees 0.095-0.282 (Bird), 0.119-0.220 (Ineichen-Perez)")
+
+
+def sky_pair_ratios(elevation_deg: float) -> tuple[float, float]:
+    """``(sun_ratio, dome_ratio)`` of the exterior sky at a sun elevation (pure): ``SKY_SUN_TABLE`` read linearly
+    between its rows and held at its first and last rows outside them (5 and 85 degrees)."""
+    e = float(elevation_deg)
+    rows = SKY_SUN_TABLE
+    if e <= rows[0][0]:
+        return rows[0][1], rows[0][2]
+    for (e0, s0, d0), (e1, s1, d1) in zip(rows, rows[1:]):
+        if e <= e1:
+            t = (e - e0) / (e1 - e0)
+            return s0 + t * (s1 - s0), d0 + t * (d1 - d0)
+    return rows[-1][1], rows[-1][2]
+
+
+def exterior_sky_strength(sun_wm2: float | None, elevation_deg: float, mood_strength: float = 1.0,
+                          mood_factor: float = 1.0) -> dict:
+    """The exterior sky's Background Strength for a sun lamp of ``sun_wm2`` at ``elevation_deg`` (pure; the
+    derivation is the comment above ``SKY_SUN_TABLE``). ``mood_strength`` is the mood's sky strength
+    (``MOOD_STRENGTH``, 1.0 for warm daylight), ``mood_factor`` the lamp's mood factor (the style's sun_strength
+    over 3 W/m², ``lighting.sun_strength_wm2``; 1.0 for warm daylight). Returns the record the scene manifest keeps:
+    ``strength``, ``rule`` ("sun pair" or "m11"), the table's ``sun_ratio`` / ``dome_ratio`` at the elevation,
+    ``sky_sun_wm2`` (the sky's own sun at Strength 1), ``mood_balance``, the horizontal diffuse-to-direct ratio of
+    the pair and of this sky (``pair_diffuse_to_direct``, ``diffuse_to_direct``), the clear-sky range and whether
+    the pair lies in it (None below ``CLEAR_SKY_RANGE_MIN_ELEVATION_DEG``), and the sources."""
+    sun_ratio, dome_ratio = sky_pair_ratios(elevation_deg)
+    sky_sun = SKY_PAIR_REFERENCE_WM2 * sun_ratio
+    sin_e = math.sin(math.radians(max(1.0, float(elevation_deg))))
+    pair_ratio = dome_ratio / (sun_ratio * sin_e)
+    rec = {"elevation_deg": float(elevation_deg), "sun_ratio": round(sun_ratio, 6), "dome_ratio": round(dome_ratio, 6),
+           "sky_sun_wm2": round(sky_sun, 4), "lamp_wm2": None if sun_wm2 is None else float(sun_wm2),
+           "mood_strength": float(mood_strength), "mood_factor": float(mood_factor),
+           "pair_diffuse_to_direct": round(pair_ratio, 4), "clear_sky_range": list(CLEAR_SKY_DIFFUSE_RANGE),
+           "pair_in_clear_sky_range": (CLEAR_SKY_DIFFUSE_RANGE[0] <= pair_ratio <= CLEAR_SKY_DIFFUSE_RANGE[1])
+           if float(elevation_deg) >= CLEAR_SKY_RANGE_MIN_ELEVATION_DEG else None,
+           "table_source": SKY_TABLE_SOURCE, "clear_sky_source": CLEAR_SKY_SOURCE}
+    if sun_wm2 is None or float(sun_wm2) <= 0.0 or float(mood_factor) <= 0.0:
+        strength = float(mood_strength) * EXTERIOR_SKY["strength_factor"]
+        rec.update(rule="m11", strength=round(strength, 6), mood_balance=None, diffuse_to_direct=None,
+                   reason="no sun lamp to pair the sky with: the Milestone 11 strength (0.5 x the mood's)")
+        return rec
+    balance = float(mood_strength) / float(mood_factor)
+    strength = balance * float(sun_wm2) / sky_sun
+    rec.update(rule="sun pair", strength=round(strength, 6), mood_balance=round(balance, 6),
+               diffuse_to_direct=round(balance * pair_ratio, 4),
+               reason=f"the sky's own sun equals the {float(sun_wm2):g} W/m2 lamp: {float(sun_wm2):g} / "
+                      f"({SKY_PAIR_REFERENCE_WM2:g} x {sun_ratio:.4f}) x the mood balance {balance:.3g}")
+    return rec
 
 
 def sky_sun_rotation_rad(azimuth_deg: float) -> float:
@@ -1080,9 +1196,10 @@ def sky_sun_intensity(sun_wm2: float | None, reference_wm2: float = EXTERIOR_SUN
                       world_strength: float = 1.0) -> float:
     """The sky's ``sun_intensity`` for a sun lamp of ``sun_wm2`` (pure): ``sun_wm2 / (reference_wm2 x
     world_strength)`` clamped to the node's range [0, 1000]; 1.0 (the model's own scale) when the lamp strength is
-    not given. ``world_strength`` is the Background node's Strength of the exterior world (``EXTERIOR_SKY``
-    ``strength_factor`` x the mood's strength): it multiplies the whole sky texture, the disc included, so without
-    it the disc would deliver ``world_strength x sun_wm2`` and vary by mood (T5 review, 15 Oct 2026)."""
+    not given. ``world_strength`` is the Background node's Strength of the exterior world (since round 4
+    ``exterior_sky_strength``, before it ``EXTERIOR_SKY`` ``strength_factor`` x the mood's strength): it multiplies
+    the whole sky texture, the disc included, so without it the disc would deliver ``world_strength x sun_wm2`` and
+    vary by mood (T5 review, 15 Oct 2026); with it the disc's image brightness stays ``sun_wm2 / reference_wm2``."""
     if sun_wm2 is None:
         return 1.0
     scale = float(reference_wm2) * max(float(world_strength), 1e-6)
@@ -1102,14 +1219,24 @@ def exterior_world(lighting: dict, sun_disc: bool = False, sun_elevation_deg: fl
     ``disc_camera_only`` (the default) shows the disc to camera rays only (``world_mix``: a Mix Shader on the
     Light Path 'Is Camera Ray' between the sky with the disc and the same sky without it), so the lamp is the one
     direct sun (``direct_sun: "lamp"``, ``sun_disc_camera_only: True``); ``False`` is the P1 world (the disc for
-    every ray, ``"sky disc"``, the lamp hidden under it). Without a disc the Milestone 11 world (``"lamp"``)."""
+    every ray, ``"sky disc"``, the lamp hidden under it). Without a disc the Milestone 11 world (``"lamp"``).
+
+    Round 4: ``strength`` comes from ``exterior_sky_strength`` (the sky whose own sun equals the lamp of
+    ``sun_wm2``, the measured pair of ``SKY_SUN_TABLE``; the Milestone 11 0.5 x the mood's strength without a
+    lamp); the record keeps the derivation as ``sky_calibration``."""
+    from wenart.blender.lighting import sun_strength_wm2
+
     mood = str(lighting.get("mood", "")).lower()
-    strength = MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0)) * EXTERIOR_SKY["strength_factor"]
+    mood_strength = MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0))
     elevation = float(lighting.get("sun_elevation_deg", 35.0) if sun_elevation_deg is None else sun_elevation_deg)
     azimuth = float(lighting.get("sun_azimuth_deg", 210.0) if sun_azimuth_deg is None else sun_azimuth_deg)
+    # the lamp's mood factor (the style's sun_strength over 3 W/m²), the one formula of lighting.sun_strength_wm2
+    _, mood_factor = sun_strength_wm2(lighting, {"sun_wm2": 1.0})
+    calibration = exterior_sky_strength(sun_wm2, elevation, mood_strength, mood_factor)
+    strength = calibration["strength"]
     rec = {"kind": "sky", "name": EXTERIOR_WORLD, "sky_type": EXTERIOR_SKY["sky_type"], "file": None,
            "strength": strength, "sun_elevation_deg": elevation, "sun_azimuth_deg": azimuth, "sun_disc": bool(sun_disc),
-           "reason": "exterior views: a physical sky matched to the sun lamp (E13)"}
+           "reason": "exterior views: a physical sky matched to the sun lamp (E13)", "sky_calibration": calibration}
     if sun_disc:
         rec.update(sun_intensity=sky_sun_intensity(sun_wm2, world_strength=strength), sun_size_deg=SUN_DISC_SIZE_DEG,
                    sun_disc_reference_wm2=EXTERIOR_SUN_DISC_REFERENCE_WM2, sun_lamp_wm2=sun_wm2,

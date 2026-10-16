@@ -56,6 +56,11 @@ Milestone 13 (docs/milestone13.md §3.0 K4, §13.2; track T4):
 - ``retype_piece`` and ``swap_model`` get the catalogue (the retype refits the piece through ``fit.fit_piece``) and
   every furniture edit carries its ``target_finding`` (check, target, metrics) so ``swap_model`` can refuse an S2
   cut below 0.03 m; ``dry_run`` answers with the acceptance too.
+
+Round 4 (before pod P3's second attempt): ``set_lighting`` is the tool of the render's ``lighting_dark`` findings
+(``critic_code.lighting_items``); it changes every view of its room (``changed_targets``) and, like ``set_exterior``,
+is a no-op with the reason when the room has that factor already (``lighting_state``: the building's
+``agent_overrides.lighting`` under this run's accepted edits).
 """
 from __future__ import annotations
 
@@ -188,7 +193,8 @@ DESCRIPTIONS = {
     "set_exterior": "Change the roof (type, pitch, overhang), ground, site items or the sun (the building session "
                     "only; values the building already has are a no-op).",
     "set_lighting": "Make a room's ceiling lights stronger or weaker (factor 0.5-3; a dark or windowless room, a long "
-                    "corridor). Long rooms already get one light per 3 m of length.",
+                    "corridor, a lighting_dark view: the EV cap could not lift it, its finding names the factor the "
+                    "room needs). Long rooms already get one light per 3 m of length.",
     "correct_geometry": "Record a clear geometry error: close a gap <= 0.15 m, merge a duplicate wall within 0.02 m, "
                         "put an opening <= 0.10 m off its wall back on it.",
     "rerun_stage": "Re-run a stage with white-listed settings (e.g. polish enabled false).",
@@ -908,13 +914,18 @@ def target_findings(ctx: ToolContext, tool: str, args: dict) -> list[dict]:
     return cands[:1]
 
 
-def changed_targets(tool: str, args: dict, result: dict, targets: list[dict]) -> set:
+def changed_targets(tool: str, args: dict, result: dict, targets: list[dict], findings: Optional[list] = None) -> set:
     """Milestone 13: the ids an edit changed (for the dry re-check): the edit's piece, room, group or view, the
     validator's ``changed_ids``, the targets of the findings it addresses; a building-wide edit changes
-    ``building`` and the exterior as a whole."""
+    ``building`` and the exterior as a whole. Round 4: ``set_lighting`` changes the light of every view of its room,
+    so the views of the room's ``lighting_dark`` findings in ``findings`` (the round's) are changed too (the next
+    render re-meters them); without that a room with two dark views kept one of them as "still there"."""
     out = {args.get(k) for k in ("piece_id", "room_id", "group_id", "view_id") if args.get(k)}
     out |= {str(i) for i in (result.get("changed_ids") or [])}
     out |= {f.get("target") for f in targets if f.get("target") is not None}
+    if tool == "set_lighting" and args.get("room_id"):
+        out |= {f.get("target") for f in findings or [] if f.get("room_id") == args["room_id"]
+                and str(f.get("check")) in CS.LIGHTING_CHECKS and f.get("target") is not None}
     if CS.is_building_wide(tool, args):
         out.add(BUILDING)
     return {t for t in out if t}
@@ -1140,6 +1151,24 @@ def t_set_material(ctx: ToolContext, args: dict) -> dict:
                              lambda: ctx.checks().validate_material_override(ctx.style, override), "build")
 
 
+def lighting_state(ctx: ToolContext) -> dict:
+    """Round 4: ``{room_id: factor}`` the next build applies: the building's ``agent_overrides.lighting`` (earlier
+    rounds, ``overrides.apply``) under the accepted ``set_lighting`` edits of this run
+    (``Overrides.agent_overrides``)."""
+    out: dict = {}
+    ov = ctx.building.get("agent_overrides") if isinstance(ctx.building.get("agent_overrides"), dict) else {}
+    sources = [ov.get("lighting") or {}]
+    if ctx.overrides is not None:
+        sources.append(ctx.overrides.agent_overrides().get("lighting") or {})
+    for src in sources:
+        for rid, entry in (src.items() if isinstance(src, dict) else ()):
+            try:
+                out[str(rid)] = float((entry or {}).get("factor"))
+            except (TypeError, ValueError, AttributeError):
+                continue
+    return out
+
+
 def t_set_lighting(ctx: ToolContext, args: dict) -> dict:
     def check() -> dict:
         room = ctx.room(args["room_id"])
@@ -1148,6 +1177,15 @@ def t_set_lighting(ctx: ToolContext, args: dict) -> dict:
         factor = float(args["factor"])
         if not LIGHTING_FACTOR[0] <= factor <= LIGHTING_FACTOR[1]:
             return {"ok": False, "failed": ["factor"], "message": f"factor must lie in {LIGHTING_FACTOR}"}
+        now = lighting_state(ctx).get(room["id"])
+        if now is not None and abs(now - factor) < 1e-9:
+            # Round 4: idempotent like set_exterior. The dry re-check counts the room's lighting_dark views as gone
+            # (only a render re-meters them), so a repeated set_lighting with the factor the room has would be
+            # accepted every round and re-render the room for nothing (real04's basement salon needs about x10).
+            return {"ok": False, "failed": [f"no_change: {room['id']} has room lights x {factor:g} already"
+                                            + (f" (the maximum, {LIGHTING_FACTOR[1]:g})"
+                                               if factor >= LIGHTING_FACTOR[1] - 1e-9 else "")],
+                    "message": "no-op: set_lighting with the factor the room has"}
         return {"ok": True, "message": f"{room['id']}: room lights x {factor:g} in the next build"}
     return _validator_result(ctx, "set_lighting", args, check, "build")
 

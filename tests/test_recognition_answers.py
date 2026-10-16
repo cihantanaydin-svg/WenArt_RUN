@@ -595,6 +595,122 @@ def test_cli_asks_room_label_requests_with_one_image(tmp_path):
     assert res["label"] is None and res["status"] == "unverified"
 
 
+class P3VLM:
+    """Milestone 13 round 4: a server that answers like Qwen3-VL-8B on pod P3 (16 Oct 2026, 5 of 8 sheet_region
+    questions): the JSON starts, then "\\n  " until max_tokens; asked for one-line JSON it answers properly.
+    ``bodies`` keeps every completion request."""
+
+    PREFIX = '{\n  "class": "floor_plan",\n  "level_word": null,\n  "variant_word": null'
+    GOOD = {"class": "floor_plan", "level_word": None, "variant_word": None, "confidence": 0.9,
+            "reason": "Walls and room names seen from above."}
+
+    def __init__(self):
+        bodies = self.bodies = []
+        outer = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                return
+
+            def _send(self, code, data):
+                raw = json.dumps(data).encode("utf-8") if data is not None else b""
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+
+            def do_GET(self):  # noqa: N802
+                self._send(200, None if self.path == "/health" else {"data": [{"id": MODELS["qwen"]["id"]}]})
+
+            def do_POST(self):  # noqa: N802
+                body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)))
+                bodies.append(body)
+                prompt = [p for p in body["messages"][1]["content"] if p["type"] == "text"][-1]["text"]
+                from wenart.recognition import vlm_client
+                if prompt.endswith(vlm_client.COMPACT_RETRY_NOTE):
+                    content, finish = json.dumps(outer.GOOD), "stop"
+                else:                                      # stopped by vLLM's repetition_detection after 16 runs
+                    content, finish = outer.PREFIX + "\n  " * 16, "repetition"
+                self._send(200, {"choices": [{"message": {"content": content}, "finish_reason": finish}],
+                                 "usage": {}})
+
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.server.daemon_threads = True
+
+    def __enter__(self):
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        return f"http://127.0.0.1:{self.server.server_address[1]}/v1"
+
+    def __exit__(self, *exc):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+def test_p3_sheet_region_whitespace_run_is_answered_with_a_sized_max_tokens_and_logged(tmp_path, capsys):
+    """Pod P3 (runs/20261016-104256-full/results/run/real04/logs/recognize.log): 'ask qwen (sheets)' exited 2 with 5
+    of 8 answers 'Expecting , delimiter', each after 3 identical requests of up to 4,096 tokens (151 s). Now the
+    request carries a schema-sized max_tokens and vLLM's repetition stop, the run is asked once more in one line,
+    the item is answered, and the answer record and the log keep the guard's step."""
+    from PIL import Image
+
+    from wenart.recognition import vlm_client
+    from wenart.sheets import question
+    rec = tmp_path / "sheets"
+    (rec / "crops").mkdir(parents=True)
+    Image.new("L", (64, 48), 255).save(rec / "crops" / "sheet_a_dwg_s1_r2.png")
+    item = {"key": "sheet_a_dwg_s1_r2", "task": "sheet_region", "page": 1, "images": ["crops/sheet_a_dwg_s1_r2.png"],
+            "context": {"file": "a.dwg", "sheet": "s1", "region": "r2", "box": [0, 0, 10, 10]},
+            "input_sha256": "ab" * 32}
+    A.write_requests(rec, "toy", [item], crop_version=question.CROP_VERSION)
+    fake = P3VLM()
+    with fake as url:
+        assert run_cli("ask", rec, "--model-key", "qwen", "--server", url, "--retries", "3") == 0
+    assert len(fake.bodies) == 2                                        # the old client: 3 identical requests, rc 2
+    first, second = fake.bodies
+    sized = vlm_client.schema_max_tokens(question.SCHEMA)
+    assert first["max_tokens"] == sized == A.call_args(item, rec)["max_tokens"] < vlm_client.DEFAULT_MAX_TOKENS
+    assert first["repetition_detection"] == vlm_client.REPETITION_DETECTION and first["temperature"] == 0
+    assert second["max_tokens"] == sized and second["structured_outputs"] == first["structured_outputs"]
+    saved = json.loads((rec / f"answers_{MODELS['qwen']['slug']}.json").read_text(encoding="utf-8"))
+    call = saved["calls"]["sheet_a_dwg_s1_r2"]
+    assert call["data"] == P3VLM.GOOD and call["error"] is None and call["attempts"] == 2
+    assert call["max_tokens"] == sized and call["finish_reason"] == "stop"
+    assert call["guard"] == [{"attempt": 1, "finish_reason": "repetition", "whitespace_run": 48,
+                              "action": "compact_retry"}]
+    out = capsys.readouterr().out
+    assert "sheet_a_dwg_s1_r2: guard: attempt 1: whitespace run 48 chars, finish repetition -> compact_retry " \
+           "(answered)" in out and "1 asked (0 failed, 1 guarded)" in out
+    assert A.load(rec)["sheet_a_dwg_s1_r2"]["qwen"] == P3VLM.GOOD
+
+
+def test_every_question_type_gets_its_schema_sized_max_tokens(toy, tmp_path):
+    """call_args sizes max_tokens from the schema it sends (symbol_type narrowed, room_label, sheet_region) and ask
+    hands it to the client."""
+    from wenart.recognition import vlm_client
+    rec, items = toy
+    for item in items:
+        args = A.call_args(item, rec)
+        assert args["max_tokens"] == vlm_client.schema_max_tokens(args["schema"]) < vlm_client.DEFAULT_MAX_TOKENS
+    room = {"key": "lbl_L0_1", "task": "room_label", "images": ["crops/lbl_L0_1.png"], "input_sha256": "0" * 64}
+    assert A.call_args(room, rec)["max_tokens"] == vlm_client.schema_max_tokens(schemas.ROOM_LABEL)
+    seen = []
+
+    class Client:
+        model = MODELS["qwen"]["id"]
+
+        def run_schema(self, images, prompt, schema, **kw):
+            seen.append(kw["max_tokens"])
+            return vlm_client.VLMResult(task=kw["task"], model=self.model, data=None, raw_text="", latency_s=0.0,
+                                        attempts=1, error="test")
+
+    store = A.AnswerStore(tmp_path / "answers.json", "qwen", MODELS["qwen"]["slug"], MODELS["qwen"]["id"])
+    A.ask(items, store, Client(), rec, log=lambda *a: None)
+    assert seen == [A.call_args(i, rec)["max_tokens"] for i in items]
+    rec0 = store.get(items[0]["key"])
+    assert rec0["guard"] == [] and rec0["finish_reason"] is None and rec0["max_tokens"] == 0
+
+
 def test_cli_runs_as_a_module(toy):
     rec, _ = toy
     proc = subprocess.run([sys.executable, "-m", "wenart.recognition.answers", "status", str(rec)],
