@@ -58,6 +58,17 @@ What, in order (each step deterministic, every change logged in the piece's evid
    (``rooms[].zones``, contract §13.3) around them; the room-type rules apply per zone (track G).
 7. **Never a box**: a piece still untyped is not built and listed in ``building["needs_review"]`` with its crop
    and reason (a piece whose question waits is not built and not listed: the pipeline lists the open questions).
+
+Fix round after P3 (16-17 Oct 2026): only the questions of the pages the pipeline writes to ``requests.json`` (the
+master of a level, a furniture plan that furnishes it) can be answered. A secondary page of a level (real04: the
+second plan region r16 of the ground floor) numbers its candidates like the master (``sym_L0_001`` ...) and its
+questions are never asked, so its report carries ``NOT_ASKED_KEY`` (set by ``pipeline._assemble_level``): nothing
+waits for its questions (``_pending``, ``open_questions``), its items never stand for a piece the asked page drew
+(``_items``: the asked page's item wins) and none of its keys is withdrawn (``withdraw_questions``). Before, a master
+piece the second region drew too (f_L0_021, f_L0_024: both AI answers in the building) and the second region's own
+pieces kept "waits for the answers" in the run with the answers, not built and missing from the review list.
+``never_a_box`` also clears that reason on a piece that no longer waits (a building read again), so it is typed or
+listed. A secondary page's crops live in its own folder (``details["crop_dir"]``, ``_crop``).
 """
 from __future__ import annotations
 
@@ -109,6 +120,11 @@ VANITY_SHARE = 0.3                 # an unknown counter under >= 30 % of a washb
 DUPLICATE_SHARE = 0.6              # a fixed piece this much inside a block-named one of its type is drawn twice
 L_SEAT_MIN_M = 0.65                # the arms of an L corner sofa are seat-deep (a counter's legs are 0.6 m)
 EXPLAINED_AS = ("rug", "detail", "column", "decor")
+# Fix round after P3 (16-17 Oct 2026): the extraction report key of a page whose recognition questions are never asked
+# (``pipeline._assemble_level`` sets it on a secondary page of a level; its value says why), and the reason a piece
+# whose question waits is not built (``never_a_box``).
+NOT_ASKED_KEY = "questions_not_asked"
+WAITS_REASON = "untyped: its AI question waits for the answers"
 
 
 # --------------------------------------------------------------------------
@@ -180,18 +196,41 @@ def _ev(item: dict, rule: str, text: str, confidence: float = 0.7, method: str =
 
 
 def _crop(item_details: Optional[dict]) -> Optional[str]:
+    """The plan crop of a piece's question (``recognition/crops/<key>_ctx.png``). Fix round after P3: a secondary
+    page's crops are in its own folder (``details["crop_dir"]``, set by the pipeline), never the asked page's crop
+    of the same key."""
     key = (item_details or {}).get("candidate_key")
-    return f"{CROP_DIR}/{key}_ctx.png" if key else None
+    return f"{(item_details or {}).get('crop_dir') or CROP_DIR}/{key}_ctx.png" if key else None
 
 
-def _items(build, works: dict) -> dict:
-    """Building piece id -> the core's FurnitureItem (its ``details`` carry what the strokes said)."""
-    out = {}
-    seen = set()
+def _not_asked(w) -> bool:
+    """Fix round after P3: True for a page whose questions are never asked (``NOT_ASKED_KEY`` in its report)."""
+    report = getattr(getattr(w, "extraction", None), "report", None)
+    return isinstance(report, dict) and bool(report.get(NOT_ASKED_KEY))
+
+
+def _works(build, works: dict, asked_only: bool = False) -> list:
+    """The page works of a reading run, each once (``works`` and ``build.generic``). Fix round after P3: the pages whose
+    questions are never asked come first (so an asked page's item wins in ``_items``), or are left out
+    (``asked_only``)."""
+    out, seen = [], set()
     for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
         if id(w) in seen:
             continue
         seen.add(id(w))
+        out.append(w)
+    if asked_only:
+        return [w for w in out if not _not_asked(w)]
+    return sorted(out, key=lambda w: 0 if _not_asked(w) else 1)
+
+
+def _items(build, works: dict, asked_only: bool = False) -> dict:
+    """Building piece id -> the core's FurnitureItem (its ``details`` carry what the strokes said). Fix round after
+    P3: a piece two pages drew maps to the item of the page whose questions are asked (the master), not to the
+    secondary page's item of the same piece (another candidate key, another crop); ``asked_only`` leaves the
+    secondary pages out."""
+    out = {}
+    for w in _works(build, works, asked_only):
         for f in getattr(w.extraction, "furniture", []) or []:
             if getattr(f, "element_id", None):
                 out[f.element_id] = f
@@ -201,9 +240,10 @@ def _items(build, works: dict) -> dict:
 def _pending(build, works: dict) -> set[str]:
     """Pieces whose AI question still waits for its answers: nothing is decided for them before. A page that got
     answers in this round waits for none of its questions (a question without answers there was not asked in that
-    round: the pipeline lists it as unanswered, nothing waits for it)."""
+    round: the pipeline lists it as unanswered, nothing waits for it). Fix round after P3: a page whose questions
+    are never asked (``NOT_ASKED_KEY``: a secondary page of its level) waits for none of them either."""
     out = set()
-    for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
+    for w in _works(build, works, asked_only=True):
         report = w.extraction.report or {}
         if report.get("answers_applied"):
             continue
@@ -802,12 +842,10 @@ def code_first(build) -> tuple[list[str], dict[str, str]]:
 
 
 def _reports(build, works: dict) -> list[dict]:
-    """The page extraction reports of a reading run (each once)."""
-    out, seen = [], set()
-    for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
-        if id(w) in seen:
-            continue
-        seen.add(id(w))
+    """The page extraction reports of a reading run (each once). Fix round after P3: the reports of the pages whose
+    questions are asked only (a secondary page's keys, never asked and numbered like the master's, decide nothing)."""
+    out = []
+    for w in _works(build, works, asked_only=True):
         report = getattr(w.extraction, "report", None)
         if isinstance(report, dict):
             out.append(report)
@@ -839,7 +877,10 @@ def open_questions(build, works: dict, items: dict) -> set[str]:
         keys |= {str(k) for k in report.get("pending") or []}
     keys -= answered_keys(build, works)
     by_id = {f["id"]: f for f in build.building.get("furniture") or []}
-    return {pid for pid, item in items.items() if str((item.details or {}).get("candidate_key")) in keys
+    # Fix round after P3: a piece only a secondary page drew has no asked question (its key may equal an asked one).
+    asked = _items(build, works, asked_only=True)
+    return {pid for pid, item in items.items()
+            if pid in asked and str((item.details or {}).get("candidate_key")) in keys
             and (by_id.get(pid) or {}).get("type") == "unknown"}
 
 
@@ -855,8 +896,11 @@ def withdraw_questions(build, works: dict, items: dict, coded: list[str],
     kinds with their method; without ``methods`` the piece's ``type_method`` is used."""
     keys = {}
     answered = answered_keys(build, works)
+    # Fix round after P3: a piece only a secondary page drew has no asked question to withdraw (its key, numbered like
+    # the master's, would withdraw the master's question of another piece).
+    asked = _items(build, works, asked_only=True)
     for pid in coded:
-        key = (items[pid].details or {}).get("candidate_key") if pid in items else None
+        key = (items[pid].details or {}).get("candidate_key") if pid in items and pid in asked else None
         if key and str(key) in answered:
             # Build round 3 (K3): a question asked and answered in this round stays listed (the code type stands
             # beside the AI's answer), so the run with the answers asks what the first run asked.
@@ -870,11 +914,7 @@ def withdraw_questions(build, works: dict, items: dict, coded: list[str],
     by_id = {f["id"]: f for f in build.building.get("furniture") or []}
     how = {key: str((methods or {}).get(pid) or (by_id.get(pid) or {}).get("type_method") or "code")
            for key, pid in keys.items()}
-    seen = set()
-    for w in list((works or {}).values()) + list(getattr(build, "generic", []) or []):
-        if id(w) in seen:
-            continue
-        seen.add(id(w))
+    for w in _works(build, works, asked_only=True):
         report = w.extraction.report
         if report is None:
             continue
@@ -1261,7 +1301,12 @@ def kitchen_zones(build) -> int:
 def never_a_box(build, items: dict, pending: Optional[set] = None) -> int:
     """Step 7: every piece still ``unknown`` is not built and listed in ``building["needs_review"]`` (its crop and
     reason); outlines, details, columns and decor (``inferred_as``) are explained and not listed. A piece whose AI
-    question waits for its answers is not built either, but not listed (the pipeline lists the open questions)."""
+    question waits for its answers is not built either, but not listed (the pipeline lists the open questions).
+
+    Fix round after P3 (16-17 Oct 2026): a piece that carries the waiting reason (``WAITS_REASON``) from an earlier
+    pass but no longer waits (not in ``pending``) gets its build flag and reason back and goes through the rule like
+    any untyped piece (listed in ``needs_review``): the reason never outlives the wait (CLAUDE.md: no untyped piece
+    is left unexplained)."""
     b = build.building
     b.setdefault("needs_review", [])
     listed = {n["id"] for n in b["needs_review"]}
@@ -1272,8 +1317,12 @@ def never_a_box(build, items: dict, pending: Optional[set] = None) -> int:
         if f["id"] in (pending or set()):
             if f.get("build") is not False:
                 f["build"] = False
-                f["not_built_reason"] = "untyped: its AI question waits for the answers"
+                f["not_built_reason"] = WAITS_REASON
             continue
+        if f.get("not_built_reason") == WAITS_REASON:
+            # The wait is over (fix round after P3): the flag and the reason were the wait's alone.
+            f.pop("not_built_reason", None)
+            f["build"] = True
         det = items[f["id"]].details if f["id"] in items else {}
         if f.get("build") is False and not det.get("oversize"):
             # Already not built for a reason (both AI passes: not furniture; a detail of a counter leg): the

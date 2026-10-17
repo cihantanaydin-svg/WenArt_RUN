@@ -287,3 +287,75 @@ def test_committed_buildings_parametric_only_by_design_gaps_listed(project):
             assert max(drawn, got) / min(drawn, got) <= cap + 1e-6 and lo - 1e-6 <= sx <= hi + 1e-6, p["id"]
     below = sum(1 for p in built if p["asset"]["method"] != "library" and not p["asset"].get("by_design"))
     assert below < 0.25 * len(built)
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026): S2 no longer lets a sink or stove stand buried inside a kitchen run
+# --------------------------------------------------------------------------
+
+def _k_piece(pid, ftype, center, size, rot=0.0, **extra):
+    return dict({"id": pid, "type": ftype, "level_id": "L0", "room_id": "r_k", "status": "verified",
+                 "source": "from_documents", "front_deg": (270.0 + rot) % 360.0,
+                 "footprint": {"center": list(center), "size": list(size), "rotation_deg": rot},
+                 "asset": {"method": "parametric", "asset_id": f"parametric:{ftype}"}}, **extra)
+
+
+def _k_mesh(p, plan=None, base=0.0):
+    from wenart.blender import modules as MOD
+    from wenart.blender import parametric as PM
+
+    fp = p["footprint"]
+    if plan is not None:
+        parts = MOD.module_parts(plan)
+    else:
+        parts = PM.build_parts(p["type"], *fp["size"], PM.proxy_height(p["type"], p.get("height"))[0], piece=p)
+    v, f, _k = PM.world_mesh(parts, fp["center"], fp["rotation_deg"], base)
+    return {"verts": v, "faces": f}
+
+
+def _k_building(furniture):
+    return {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}],
+            "rooms": [{"id": "r_k", "level_id": "L0"}], "walls": [], "furniture": list(furniture), "decor": []}
+
+
+def test_s2_finds_a_sink_or_stove_buried_in_a_kitchen_run_and_not_one_built_in_or_in_its_gap():
+    from wenart.blender import modules as MOD
+    from wenart.blender import scene_checks as SC
+
+    run = _k_piece("k_run", "kitchen_counter", (2.0, 1.0), (2.4, 0.6), height=0.9)
+    sink = _k_piece("k_sink", "sink_kitchen", (1.2, 1.0), (0.8, 0.5))
+    stove = _k_piece("k_stove", "stove", (2.75, 1.0), (0.6, 0.6))
+    plain = MOD.module_plan(run)                                        # P3: full base units, an uncut worktop
+    meshes = {"k_run": _k_mesh(run, plain), "k_sink": _k_mesh(sink), "k_stove": _k_mesh(stove)}
+    report = SC.measure_pure(meshes, _k_building([run, sink, stove]))
+    s2 = {v["target"]: v for v in report["violations"] if v["check"] == "S2"}
+    assert set(s2) == {"k_sink", "k_stove"}                             # the old exemption said nothing
+    assert s2["k_sink"]["metrics"]["other"] == "k_run" and s2["k_sink"]["metrics"]["inside_share"] > 0.4
+    assert "buried in the kitchen_counter k_run" in s2["k_stove"]["message"]
+    # the fix: the sink is built into the run (no object of its own), the stove stands in its gap
+    hints = {"sink_pos_m": [1.2, 1.0], "sink_w_m": 0.8, "sink_piece": "k_sink",
+             "ranges": [dict(MOD.member_in_run(run, stove), id="k_stove", type="stove")]}
+    fixed = MOD.module_plan(dict(run, module_hints=hints))
+    assert fixed["built_ins"][0]["id"] == "k_sink" and fixed["gaps"][0]["id"] == "k_stove"
+    meshes = {"k_run": _k_mesh(run, fixed), "k_stove": _k_mesh(stove)}
+    report = SC.measure_pure(meshes, _k_building([run, sink, stove]))
+    assert not [v for v in report["violations"] if v["check"] == "S2"]
+    assert report["measured"]["k_stove"]["kitchen_run"]["inside_share"] < 0.05
+
+
+def test_s2_keeps_the_allowance_for_kitchen_pieces_that_only_meet_the_run():
+    from wenart.blender import modules as MOD
+    from wenart.blender import scene_checks as SC
+
+    run = _k_piece("k_run", "kitchen_counter", (2.0, 1.0), (2.4, 0.6), height=0.9)
+    fridge = _k_piece("k_fridge", "fridge", (3.45, 1.0), (0.6, 0.6))   # 5 cm into the run's end (a drawing slip)
+    wall = _k_piece("k_wall", "wall_cabinet", (2.0, 1.125), (1.2, 0.35), mount_bottom_m=1.4)
+    other = _k_piece("k_run2", "kitchen_counter", (0.5, 1.9), (0.6, 1.8), height=0.9)        # an L corner overlap
+    meshes = {"k_run": _k_mesh(run, MOD.module_plan(run)), "k_fridge": _k_mesh(fridge),
+              "k_wall": _k_mesh(wall, base=1.4), "k_run2": _k_mesh(other, MOD.module_plan(other))}
+    report = SC.measure_pure(meshes, _k_building([run, fridge, wall, other]))
+    assert not [v for v in report["violations"] if v["check"] == "S2"]
+    assert report["measured"]["k_fridge"]["kitchen_run"]["inside_share"] < SC.TOLERANCES["kitchen_buried_share"]
+    assert "kitchen_run" not in report["measured"]["k_wall"]
+    assert SC.kitchen_host_member(run, wall) == (None, None) and SC.kitchen_host_member(run, other) == (None, None)
+    assert SC.kitchen_host_member(fridge, run) == (run, fridge)

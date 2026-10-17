@@ -13,6 +13,12 @@ pure parts, no Blender.
 - the lever A/B job script (``bash -n`` and its contract lines);
 - the fabric colour path (bug B1) and the stage / plan pass-through.
 Every test here fails on the Milestone 12 code (the constants, functions and flags did not exist).
+
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8; the ``test_fixround_p3_*`` tests, each failing on the
+P3 code 3724033 / 5bd7bab): the view white point mixed from the project's daylight and the rig by the view's rig
+share; the roof terraces (``balcony``) under the exterior world and the cameras marked with their room type; the
+window pull to 10 stops with the pane target; the sky pull of the views under the exterior sky; a rig replaces the
+fill light only with a ceiling fixture; the hall and stair fixtures carry bulbs for 450 lm per m².
 """
 from __future__ import annotations
 
@@ -208,7 +214,8 @@ def test_project_white_balance_helpers(tmp_path):
     assert R.load_project_whitepoint(manifest)["whitepoint"] == [1.1, 1.0, 0.8]
     manifest.write_text(json.dumps({"white_balance_project": {"whitepoint": None}}))
     assert R.load_project_whitepoint(manifest) is None
-    assert R.RENDER_CODE_VERSION == "m13.1"
+    # fix round after P3 (16-17 Oct 2026): the view white point, the open-air world, the sky and window pulls -> m13.2
+    assert R.RENDER_CODE_VERSION == "m13.2"
     # The sun lamp hides under the exterior world with a sun disc for every ray only (the P1 world); round 3:
     # with the disc for camera rays only the lamp stays, it is the one direct sun outdoors.
     props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_exterior_sun_disc": True}
@@ -334,13 +341,16 @@ def test_shell_slot_table_resolves_to_existing_cc0_assets():
     assert tuple(M.SHELL_SLOTS) == M.SHELL_SLOT_NAMES == ("ceiling", "worktop", "front", "ceramic", "metal", "tile", "plaster")
     for slot, asset in M.shell_assets().items():
         if asset is None:
-            assert slot in ("ceramic", "tile", "plaster")
+            assert slot in ("front", "ceramic", "tile", "plaster")     # fix round after P3: the front is a paint
             continue
         assert asset in known, (slot, asset)                       # an id of the style vocabulary, never invented
         assert checked[asset]["exists"] is True and checked[asset]["licence"] == "CC0", (slot, asset)
         assert checked[asset]["source"] in M.CC0_SOURCES
-    assert M.shell_assets()["ceiling"] == "white_plaster_02" and M.shell_assets()["worktop"] == "marble_01"
-    assert M.shell_assets()["front"] == "white_planks_clean" and M.shell_assets()["metal"] == "Metal032"
+    # fix round after P3 (16-17 Oct 2026): the worktop is ambientCG Marble012 (marble_01 reads as tiles) and the
+    # painted front has no photo set (white_planks_clean showed plank joints every 10 cm); it is a paint finish
+    assert M.shell_assets()["ceiling"] == "white_plaster_02" and M.shell_assets()["worktop"] == "Marble012"
+    assert M.shell_assets()["front"] is None and M.shell_slot_spec("front", {})["paint"]
+    assert M.shell_assets()["metal"] == "Metal032"
     # Slugs -> slots: the ceiling is plaster_white asked without an asset (the style profiles' ceiling slot).
     assert M.shell_slot_of("plaster_white", None) == "ceiling" and M.shell_slot_of("plaster_white", "white_plaster_02") == "plaster"
     assert M.shell_slot_of("paint", "plastered_wall") == "plaster" and M.shell_slot_of("lime_plaster") == "plaster"
@@ -831,3 +841,240 @@ def test_preflight_p3_replayed_cameras_the_build_did_not_use_are_listed_with_the
     assert record["replayed"] == len(made) and len(record["dropped"]) == 8
     jsonschema_validate = __import__("jsonschema").validate
     jsonschema_validate(record, schemas.CAMERAS_FROM)
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8): the light and colour of P3's real04 views
+# --------------------------------------------------------------------------
+
+# P3's project white point (cam_r_L1_teras_1, daylight only, 5,635 K, tint 5.26, residual 0.35) and Blender's white
+# point at 2700 K, tint 0 (bpy 5.2.2: the colour of a 2700 K lamp; render.kelvin_whitepoint), both luminance 1.
+P3_ANCHOR = [1.106758, 0.981679, 0.867122]
+RIG_2700K = [1.9353, 0.8035, 0.1922]
+
+
+def _rb(rgb) -> float:
+    return float(rgb[0]) / float(rgb[2])
+
+
+def test_fixround_p3_the_view_white_point_mixes_daylight_and_the_rig_by_its_share():
+    """P3 applied the daylight point to rooms lit only by the 2700 K rig: 24 of 48 views over R/B 1.6. The view's
+    white point is the project's daylight colour mixed with the rig's colour by the view's rig share, corrected with
+    the same residual; share 0 is the project point exactly, share 1 the rig's own white point."""
+    lum = 0.2126 * P3_ANCHOR[0] + 0.7152 * P3_ANCHOR[1] + 0.0722 * P3_ANCHOR[2]
+    assert lum == pytest.approx(1.0, abs=1e-4)
+    assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 0.0, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
+    # the project's daylight colour is recovered from its white point: the residual-corrected mix of share 0 is it
+    day = R.normalise_whitepoint([v ** (1 / 0.65) for v in P3_ANCHOR])
+    assert R.whitepoint_from(day, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
+    full = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 0.35)
+    assert full == pytest.approx(R.whitepoint_from(RIG_2700K, 0.35), abs=1e-6)
+    ratios = [_rb(R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, s, 0.35)) for s in (0.0, 0.25, 0.5, 0.75, 1.0)]
+    assert ratios == sorted(ratios) and ratios[0] < ratios[-1]                    # warmer with the rig's share
+    # A white tile lit by the rig alone, scene-linear (pixel = light / white point): under the project point it is
+    # 7.9 times redder than blue (P3's peach baths), under the view's own point the residual's cast is left.
+    under_anchor = _rb([RIG_2700K[i] / P3_ANCHOR[i] for i in range(3)])
+    under_view = _rb([RIG_2700K[i] / full[i] for i in range(3)])
+    assert under_anchor > 7.0 and under_view == pytest.approx(_rb(RIG_2700K) ** 0.35, rel=1e-3)
+    assert under_view < 2.3
+    # no correction at all (a residual of 1) and bad shares keep the anchor; residual 0 neutralises the rig fully
+    assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 1.0) == pytest.approx(P3_ANCHOR, abs=1e-5)
+    assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, None, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
+    assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, float("nan"), 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
+    assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 2.0, 0.35) == pytest.approx(full, abs=1e-6)
+    neutral = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 0.0)
+    assert _rb([RIG_2700K[i] / neutral[i] for i in range(3)]) == pytest.approx(1.0, abs=1e-4)
+    # the rig share: 1 - daylight / all light (luminance of the two metered illuminants)
+    assert R.rig_share([1.0, 1.0, 1.0], [0.25, 0.25, 0.25]) == pytest.approx(0.75)
+    assert R.rig_share([1.0, 1.0, 1.0], None) == 1.0 and R.rig_share([1.0, 1.0, 1.0], [2.0, 2.0, 2.0]) == 0.0
+    assert R.rig_share(None, [1.0, 1.0, 1.0]) is None and R.rig_share([0.0, 0.0, 0.0], None) is None
+    assert 0.0 < R.WB_RIG_SHARE_MIN <= 0.05 and "rig share" in R.WB_VIEW_RULE
+
+
+def test_fixround_p3_roof_terraces_render_under_the_exterior_world():
+    """P3: real04's six terrace views rendered under the interior HDRI (5.2 stops under the sun pair): a black sky
+    at the sunlit EV -7.5, a dusk sky beside hard sun shadows. A camera of an open-air room (shell.OUTDOOR_ROOM_TYPES,
+    'balcony': the TERAS rooms of real02 and real04) renders under the exterior world and follows its lamp rule."""
+    from wenart.blender.shell import OUTDOOR_ROOM_TYPES
+
+    real04 = json.loads((ROOT / "results" / "furniture" / "real04" / "building_final.json").read_text(encoding="utf-8"))
+    terraces = {r["id"]: r.get("room_type") for r in real04["rooms"] if r["id"] in ("r_L1_teras", "r_L1_teras_2")}
+    assert terraces == {"r_L1_teras": "balcony", "r_L1_teras_2": "balcony"} and "balcony" in OUTDOOR_ROOM_TYPES
+    assert R.open_air("balcony") and not R.open_air("living") and not R.open_air(None) and not R.open_air("")
+    props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_interior": "World",
+             "wenart_world_exterior_sun_disc": True, "wenart_world_exterior_disc_camera_only": True}
+    assert R.world_for(props, None, "balcony") == R.world_for(props, "interior", "balcony") == "wenart_world_exterior"
+    assert R.world_for(props, "interior", "living") == R.world_for(props, "interior") == "World"
+    assert R.world_for(props, "exterior") == "wenart_world_exterior"
+    assert R.world_for({"wenart_world_interior": "World"}, None, "balcony") == "World"     # no exterior build
+    assert R.world_for({}, None, "balcony") is None and R.world_for({}, "exterior") is None
+    assert R.under_exterior_sky(props, None, "balcony") and not R.under_exterior_sky(props, None, "bedroom")
+    assert not R.under_exterior_sky({"wenart_world_interior": "World"}, None, "balcony")
+    p1 = dict(props, wenart_world_exterior_disc_camera_only=False)                       # the P1 world
+    assert R.sun_hidden_for(p1, None, "balcony") == R.sun_hidden_for(p1, "exterior") is True
+    assert R.sun_hidden_for(props, None, "balcony") == R.sun_hidden_for(props, "exterior") is False
+    assert not R.sun_hidden_for(p1, None, "living")
+    # the room type: the camera's property first, else the scene manifest's room floors (real02's committed
+    # manifest: its terrace camera cam_r_L1_teras_1; door thresholds carry the room they open into and are left out)
+    manifest = json.loads(REAL02.read_text(encoding="utf-8"))
+    types = R.room_types_from_manifest(manifest)
+    assert types["r_L1_teras"] == types["r_L1_teras_2"] == "balcony" and all(k.startswith("r_") for k in types)
+    assert "cam_r_L1_teras_1" in {c["name"] for c in manifest["cameras"]}
+    assert R.camera_room_type("", "r_L1_teras", types) == "balcony"
+    assert R.camera_room_type("bedroom", "r_L1_teras", types) == "bedroom"
+    assert R.camera_room_type(None, None, types) is None and R.room_types_from_manifest(None) == {}
+
+
+def _fake_blender(monkeypatch):
+    """A stand-in for bpy and mathutils, enough for cameras.create_cameras (the CPU tests have no Blender)."""
+    import sys
+    import types
+
+    class Obj(dict):
+        def __init__(self, name, data=None):
+            super().__init__()
+            self.name, self.data, self.location, self.rotation_euler = name, data, None, None
+
+    class Vec(list):
+        def __sub__(self, other):
+            return Vec(a - b for a, b in zip(self, other))
+
+        def to_track_quat(self, *_):
+            return types.SimpleNamespace(to_euler=lambda: (0.0, 0.0, 0.0))
+
+    data = types.SimpleNamespace(cameras=types.SimpleNamespace(new=lambda name: types.SimpleNamespace(name=name)),
+                                 objects=types.SimpleNamespace(new=lambda name, cam: Obj(name, cam)))
+    monkeypatch.setitem(sys.modules, "bpy", types.SimpleNamespace(data=data))
+    monkeypatch.setitem(sys.modules, "mathutils", types.SimpleNamespace(Vector=Vec))
+    linked = []
+    return types.SimpleNamespace(objects=types.SimpleNamespace(link=linked.append)), linked
+
+
+def test_fixround_p3_cameras_carry_their_room_type(monkeypatch):
+    """The build marks every room camera with its room's type (replayed cameras included), so render.py finds the
+    terrace cameras without the scene manifest."""
+    building = json.loads((ROOT / "results" / "furniture" / "real02" / "building_final.json").read_text(encoding="utf-8"))
+    room_types = {r["id"]: r.get("room_type") for r in building["rooms"]}
+    plans = [p for p in C.replay_cameras(json.loads(REAL02.read_text(encoding="utf-8")))["plans"]
+             if p["kind"] == "interior"]
+    assert C.camera_room_type({"room_id": "r_L1_teras"}, room_types) == "balcony"
+    assert C.camera_room_type({"room_id": "r_L1_teras", "room_type": "living"}, room_types) == "living"
+    assert C.camera_room_type({"room_id": None}, room_types) == "" and C.camera_room_type({"room_id": "r_x"}) == ""
+    collection, linked = _fake_blender(monkeypatch)
+    manifest_objects: list = []
+    made = C.create_cameras(plans, collection, manifest_objects, room_types=room_types)
+    assert len(made) == len(plans) == len(linked) == len(manifest_objects)
+    by_name = {ob.name: ob for ob in made}
+    assert by_name["cam_r_L1_teras_1"]["wenart_room_type"] == "balcony"
+    assert all(ob["wenart_room_type"] == room_types[ob["wenart_room"]] for ob in made)
+    assert R.world_for({"wenart_world_exterior": "sky", "wenart_world_interior": "World"},
+                       by_name["cam_r_L1_teras_1"].get("wenart_camera_kind"),
+                       by_name["cam_r_L1_teras_1"]["wenart_room_type"]) == "sky"
+    assert next(o for o in manifest_objects if o["name"] == "cam_r_L1_teras_1")["assumed"]["room_type"] == "balcony"
+    # without the building's map the property is empty and render.py types the camera from the scene manifest
+    collection, _ = _fake_blender(monkeypatch)
+    made = C.create_cameras(plans[:1], collection, [])
+    assert made[0]["wenart_room_type"] == ""
+
+
+def test_fixround_p3_the_window_pull_reaches_the_pane_target():
+    """P3: the pull stopped at the first k with pane clip <= 1 % (k 1-2), leaving pane medians of 0.86-0.97 (the
+    sunlit outside 5-8 stops over): a blank pale window. A k now also needs the pane highlights under the AgX
+    shoulder (p90 <= 0.85) or the pane median at mid-tone (0.65), up to 10 stops, panes still brighter than the
+    walls."""
+    assert R.PULL_STEPS == tuple(range(1, 11)) and R.PULL_P90_MAX == 0.85 and R.PULL_MEDIAN_TARGET == 0.65
+
+    def c(k, clip, median, p90):
+        return {"k": k, "clip": clip, "median": median, "p90": p90}
+    salon_1 = c(1, 0.0, 0.9672, 0.985)                       # P3 cam_r_L-1_salon_1 at k 1: clip 0, median 0.967
+    assert not R.pull_qualifies(salon_1, 0.5)                # the Milestone 6 rule took it
+    assert R.pull_qualifies({k: v for k, v in salon_1.items() if k != "p90"}, 0.5)   # a record of the old rule
+    cands = [salon_1, c(2, 0.0, 0.93, 0.97), c(3, 0.0, 0.88, 0.95), c(4, 0.0, 0.82, 0.92), c(5, 0.0, 0.74, 0.86),
+             c(6, 0.0, 0.70, 0.80), c(7, 0.0, 0.60, 0.70)]
+    assert R.choose_pull(cands, 0.5) == (6, "smallest k with pane clip <= 1 %, the pane target and panes brighter "
+                                            "than the walls")
+    assert R.choose_pull(cands, None)[0] == 6
+    assert R.choose_pull(cands, 0.72)[0] == 5                # k 6 darker than the walls: the deepest k still brighter
+    assert R.choose_pull(cands, 0.99)[0] == 0
+    wide = [c(1, 0.0, 0.80, 0.99), c(2, 0.0, 0.64, 0.97)]   # a sun patch keeps p90 high: the median target stops it
+    assert R.choose_pull(wide, 0.3)[0] == 2
+    assert not R.pull_qualifies(c(3, 0.02, 0.6, 0.7), 0.3)  # the clip rule stays
+
+
+def test_fixround_p3_the_sky_pull_keeps_the_facade_exposure():
+    """P3: ext_1/2/4 metered on shaded facades (EV -4.0..-4.5) had a near-white sky (median 0.81-0.92, saturation
+    0.03-0.13) while ext_3/7 (-7.67) were blue. The sky (no surface hit) is pulled by the smallest k that brings
+    its median under 0.8 with saturation >= 0.12; a sky that already reads blue, or one that never does (beside the
+    sun), stays as rendered."""
+    import numpy as np
+
+    assert R.SKY_PULL_STEPS == (1, 2, 3, 4) and R.SKY_PULL_MEDIAN_MAX == 0.8 and R.SKY_PULL_SAT_MIN == 0.12
+    ext_2 = {"median": 0.84, "saturation": 0.08}
+    cands = [{"k": 1, "median": 0.78, "saturation": 0.10}, {"k": 2, "median": 0.70, "saturation": 0.14},
+             {"k": 3, "median": 0.60, "saturation": 0.17}]
+    assert R.choose_sky_pull(ext_2, cands)[0] == 2
+    assert R.choose_sky_pull({"median": 0.5, "saturation": 0.3}, cands) == \
+        (0, "the sky is under the shoulder and saturated as rendered: no pull")
+    assert R.choose_sky_pull({"median": 0.92, "saturation": 0.03},
+                             [{"k": k, "median": 0.9 - 0.1 * k, "saturation": 0.05} for k in (1, 2, 3, 4)])[0] == 0
+    depth = np.array([[1e10, 5.0], [np.inf, np.nan]])
+    assert R.sky_mask(depth).tolist() == [[True, False], [True, True]]
+    img = np.array([[[100, 116, 127], [200, 200, 200]], [[0, 0, 0], [100, 116, 127]]], dtype=np.uint8)
+    mask = np.array([[True, True], [False, True]])
+    assert R.masked_saturation(img, mask) == pytest.approx((127 - 100) / 127, abs=1e-6)     # P3 ext_7's blue sky
+    assert R.masked_saturation(img, np.array([[False, True], [True, False]])) == 0.0
+    assert R.masked_percentile(np.full((2, 2, 3), 255, np.uint8), np.ones((2, 2), bool), 90) == pytest.approx(1.0)
+
+
+def test_fixround_p3_a_rig_replaces_the_fill_light_only_with_a_ceiling_fixture():
+    """P3: r_L0_yatak_odasi_4 has no daylight window; its bedroom rig (two 470 lm bedside lamps) replaced the 150 W
+    fill light and the room rendered night-dark (+6.1..+6.5 EV wanted, beyond set_lighting's x3). Bedside lamps or a
+    pendant add to the fill light; halls, kitchens and baths (a ceiling fixture) keep the round-3 rule."""
+    why = "room has no window"
+    bedroom = {"id": "r_L0_yatak_odasi_4", "room_type": "bedroom", "polygon": [[0, 0], [4.2, 0], [4.2, 4], [0, 4]]}
+    bed = _piece("bed", "bed_double", (2.1, 3.0), (1.8, 2.0), front=270.0)
+    plan = L.rig_plan(bedroom, [bed], 0.0, 2.7)
+    assert [f["kind"] for f in plan["fixtures"]] == ["bedside", "bedside"]
+    assert L.rig_replaces_fill(plan, why) is False
+    hall = {"id": "r_h", "room_type": "hall", "polygon": [[0, 0], [6, 0], [6, 2], [0, 2]]}
+    assert L.rig_replaces_fill(L.rig_plan(hall, [], 0.0, 2.7), why) is True
+    assert L.rig_replaces_fill(L.rig_plan(hall, [], 0.0, 2.7), None) is False          # a daylit room: no fill light
+    kitchen = {"id": "r_k", "room_type": "kitchen", "polygon": [[0, 0], [4, 0], [4, 3], [0, 3]]}
+    assert L.rig_replaces_fill(L.rig_plan(kitchen, [], 0.0, 2.7), why) is True
+    dining = {"id": "r_d", "room_type": "dining", "polygon": [[0, 0], [5, 0], [5, 4], [0, 4]]}
+    assert L.rig_replaces_fill(L.rig_plan(dining, [_piece("t", "table_dining", (2.5, 2), (1.8, 0.9))], 0.0, 2.7),
+                               why) is False
+    assert L.rig_replaces_fill({"fixtures": []}, why) is False
+
+
+def test_fixround_p3_hall_and_stair_fixtures_carry_bulbs_for_the_floor_area():
+    """P3: the halls had one 1100 lm fixture for 11.9-15.3 m² and metered +3.0..+3.6 EV even after the agent's
+    x2.8-x3.0 (10 lighting_dark views); the baths, two fixtures in 5 m², metered +1.5..+2.0. Hall and stair fixtures
+    now carry 1100 lm bulbs for 450 lm per m²; the other rigs are unchanged."""
+    hall_spec = L.room_rig("hall")[0]
+    assert hall_spec["lumens_per_m2"] == L.RIG_CIRCULATION_LUMENS_PER_M2 == 450.0
+    assert L.room_rig("stair")[0]["lumens_per_m2"] == 450.0
+    assert L.rig_bulbs(hall_spec, 11.9, 1) == 5 and L.rig_bulbs(hall_spec, 15.3, 1) == 7
+    assert L.rig_bulbs(hall_spec, 7.6, 2) == 2 and L.rig_bulbs(hall_spec, 1.0, 1) == 1
+    for room_type in ("bathroom", "wc", "kitchen", "bedroom", "dining", "living"):
+        assert all(L.rig_bulbs(f, 50.0, 1) == 1 and "lumens_per_m2" not in f for f in L.room_rig(room_type))
+    hall = {"id": "r_L-1_koridor_2", "room_type": "hall", "polygon": [[0, 0], [3.5, 0], [3.5, 3.4], [0, 3.4]]}
+    (fixture,) = L.rig_plan(hall, [], 0.0, 2.7)["fixtures"]
+    assert fixture["bulbs"] == 5 and fixture["lumens_per_bulb"] == 1100.0 and fixture["lumens"] == 5500.0
+    assert fixture["light"]["energy_w"] == pytest.approx(5 * hall_spec["watts_applied"])
+    assert fixture["watts_applied"] == pytest.approx(5 * L.watts_for_lumens(1100.0) * L.RIG_GAIN)
+    assert "5 x 1100 lm bulbs" in fixture["reason"]
+    long_hall = {"id": "r1", "room_type": "hall", "polygon": [[0, 0], [12, 0], [12, 1.5], [0, 1.5]]}
+    fixtures = L.rig_plan(long_hall, [], 0.0, 2.7, agent_factor=2.0)["fixtures"]
+    assert len(fixtures) == 4 and all(f["bulbs"] == 2 for f in fixtures)          # 18 m² x 450 / (4 x 1100)
+    assert fixtures[0]["light"]["energy_w"] == pytest.approx(2.0 * 2 * hall_spec["watts_applied"])
+    bath = {"id": "r_b", "room_type": "bathroom", "polygon": [[0, 0], [2.5, 0], [2.5, 2], [0, 2]]}
+    ceiling = L.rig_plan(bath, [], 0.0, 2.5)["fixtures"][0]
+    assert "bulbs" not in ceiling and ceiling["light"]["energy_w"] == L.room_rig("bathroom")[1]["watts_applied"]
+    # P3's evidence: incident light per applied W/m² of the halls' views (L-1 koridor_2 0.0498-0.0682, L1 koridor
+    # 0.0678-0.0918) at the old and the new density; the metered EV is log2(0.9 / incident)
+    for area, per_wm2 in ((11.9, (0.0498, 0.0682)), (15.3, (0.0678, 0.0918))):
+        old = 1 * hall_spec["watts_applied"] / area
+        new = L.rig_bulbs(hall_spec, area, 1) * hall_spec["watts_applied"] / area
+        assert all(math.log2(0.9 / (k * old)) > 4.5 for k in per_wm2)              # over the +3 cap without the agent
+        assert all(math.log2(0.9 / (k * new)) < 2.85 for k in per_wm2)             # within it before any agent edit

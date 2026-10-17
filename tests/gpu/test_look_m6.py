@@ -6,7 +6,10 @@ to old outputs on the volume). They read ``$WENART_OUTPUTS/<p>/scene`` and
 ``/renders``:
 
 - the renders are Milestone 6 renders with the Milestone 7 look (render
-  code ``m7.1``, look ``AgX - Punchy``, a ``window_pull`` record per view);
+  code ``render.RENDER_CODE_VERSION``: ``m7.1`` in Milestone 7, ``m13.1`` since Milestone 13, ``m13.2`` since the
+  fix round after P3; look ``AgX - Punchy``, a ``window_pull`` record per view). Fix round after P3 (16-17 Oct
+  2026): the test read the constant ``m7.1`` and failed on P3 (``'m13.1' == 'm7.1'``); it reads the module's
+  constant now, as its CPU twin tests/test_look_m6.py does;
 - views of rooms with an unverified piece have no colour cast from the
   stripes: |white-balance tint| <= 40 (Milestone 5: -92 to -97);
 - parametric kitchen counters are not black: the mean display luminance of
@@ -26,6 +29,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
+from wenart.blender import render as R      # no bpy at import: render.py imports bpy inside its functions
 
 pytestmark = pytest.mark.gpu
 OUTPUTS = Path(os.environ.get("WENART_OUTPUTS", "/workspace/repo/outputs"))
@@ -69,7 +74,7 @@ def _assumed(scene: dict, kind: str) -> list[dict]:
 
 def test_renders_are_milestone_6_renders(project):
     name, _scene, render = project
-    assert render["render_code_version"] == "m7.1" and render["look"] == "AgX - Punchy", name
+    assert render["render_code_version"] == R.RENDER_CODE_VERSION and render["look"] == R.LOOK == "AgX - Punchy", name
     missing = [r["camera"] for r in render["renders"] if "window_pull" not in r]
     assert not missing, f"{name}: entries without a window_pull record: {missing}"
 

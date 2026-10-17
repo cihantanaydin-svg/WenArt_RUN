@@ -29,6 +29,18 @@ Milestone 12 (docs/milestone12.md §5.4, §1.4 "critic quality", bug B5):
 - a finding is a duplicate when code already has a finding on the same target in the same family of checks
   (``RELATED``: placement, type, size, decor), not only under the same id (run 3: 60 of 101 vision findings
   repeated code findings under other ids).
+
+Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"): a code record outranks AI vision.
+``roof_record(building)`` is the roof the build makes: the drawn type and pitches with the agent's
+``exterior.roof`` override on top (``wenart.blender.roof.apply_override``, the build's own rule); the exterior prompt
+states its type, source, pitches and overhang. An X2 vision finding that judges the roof TYPE (``is_roof_type_claim``:
+it names a roof type with a mismatch word and is not about coverage or a gap) is dropped with the reason when the
+built type is the drawn one (``roof_matches``: a known type, no override to another type). Why: P3's vision critic
+read the built mansard (type_source plan_roof_lines) as "a standard hipped or gable roof, not a mansard roof as
+specified in the brief" in rounds 2-4 (critical in rounds 3-4); an accepted ``set_exterior`` (mansard, 45 deg) was
+counted as removing it, and it came back. A roof the agent overrode to another type keeps the vision finding (M12
+real04: a corridor session flattened the roof; "the roof is flat, but the building specification requires a
+mansard roof" was right).
 """
 from __future__ import annotations
 
@@ -198,18 +210,110 @@ def storeys_of(building: dict) -> int:
     return len(ids)
 
 
+# Fix round after P3 (module docstring): the roof types of a claim ("hipped" and "gabled" are the hip and gable
+# types), the words of a mismatch claim, and the words of a coverage problem (a roof-type word in such a finding is
+# no type claim: "the mansard roof does not cover the rear facade" stays).
+ROOF_TYPE_WORDS = {"mansard": "mansard", "gambrel": "gambrel", "gable": "gable", "gabled": "gable",
+                   "hip": "hip", "hipped": "hip", "shed": "shed", "mono-pitch": "shed", "lean-to": "shed",
+                   "flat": "flat", "pitched": "pitched"}
+ROOF_MISMATCH_WORDS = ("not a", "not the", "instead of", "rather than", "but", "requires", "required", "specified",
+                       "specifies", "specification", "brief", "described", "should be", "expected", "roof type")
+ROOF_COVERAGE_WORDS = ("cover", "missing", "gap", "hole", "poke", "through", "expose", "transparent", "open",
+                       "float", "furniture", "visible from above", "wall rises", "above the roof")
+
+
+def roof_record(building: dict) -> dict:
+    """The roof the build makes (module docstring): ``{"type", "drawn_type", "source", "pitches", "overhang_m",
+    "override"}``; ``type`` None when the building has no roof record."""
+    from wenart.blender import roof as RF
+    drawn = building.get("roof") if isinstance(building.get("roof"), dict) else None
+    override = RF.override_of(building)
+    built, _changes = RF.apply_override(drawn, override)
+    built = built or {}
+
+    def value(v):
+        v = v.get("value") if isinstance(v, dict) else v
+        try:
+            return round(float(v), 1)
+        except (TypeError, ValueError):
+            return None
+
+    pitches = [p for p in (value(x) for x in built.get("pitches_deg") or []) if p is not None]
+    btype, dtype = (built.get("type") if drawn else None), (drawn or {}).get("type")
+    # an override that keeps the drawn type keeps its source (the drawings); another type is the agent's
+    source = (drawn or {}).get("type_source") if btype == dtype else "agent override"
+    return {"type": btype, "drawn_type": dtype, "source": source, "pitches": pitches,
+            "overhang_m": value(built.get("overhang")), "override": dict(override) if override else None}
+
+
+def roof_note(building: dict) -> str:
+    """The roof sentence of the exterior prompt: the type, where it comes from, the pitches and the overhang."""
+    rec = roof_record(building)
+    if not rec["type"]:
+        return "roof: unknown."
+    parts = [f"roof as built: {rec['type']}"]
+    if rec["source"]:
+        parts.append(f"(from {rec['source']})")
+    text = " ".join(parts)
+    if rec["pitches"]:
+        text += f", pitch {' / '.join(f'{p:g}' for p in rec['pitches'])} deg"
+    if rec["overhang_m"] is not None:
+        text += f", overhang {rec['overhang_m']:g} m"
+    if rec["drawn_type"] and rec["drawn_type"] != rec["type"]:
+        text += f" (the drawings say {rec['drawn_type']})"
+    return text + "."
+
+
+def roof_matches(building: dict) -> bool:
+    """The built roof type is the drawn one and a known type (no agent override to another type): code knows the
+    roof type, so a vision claim about it is no finding."""
+    from wenart.blender.roof import ROOF_TYPES
+    rec = roof_record(building)
+    return bool(rec["type"]) and rec["type"] in ROOF_TYPES and rec["type"] != "other" \
+        and rec["type"] == rec["drawn_type"]
+
+
+def is_roof_type_claim(message: str) -> bool:
+    """An X2 message that judges the roof's TYPE (module docstring): a roof-type word, a mismatch word, the word
+    roof, and no coverage word."""
+    text = f" {str(message or '').lower()} "
+    if "roof" not in text or any(w in text for w in ROOF_COVERAGE_WORDS):
+        return False
+    words = set(re.findall(r"[a-z][a-z-]*", text))
+    return bool(words & set(ROOF_TYPE_WORDS)) and any(w in text for w in ROOF_MISMATCH_WORDS)
+
+
+def drop_roof_type_claims(kept: list[dict], dropped: list[dict], building: dict) -> tuple[list[dict], list[dict]]:
+    """Fix round after P3: the X2 roof-type claims of ``kept`` move to ``dropped`` with the code's reason when
+    ``roof_matches`` (a code record outranks AI vision)."""
+    if not any(f.get("check") == "X2" for f in kept) or not roof_matches(building):
+        return kept, dropped
+    rec = roof_record(building)
+    out = []
+    for f in kept:
+        if f.get("check") == "X2" and is_roof_type_claim(f.get("message")):
+            dropped.append(dict(f, dropped=f"code contradicts: the build makes the drawn {rec['type']} roof "
+                                          f"(type from {rec['source'] or 'the building JSON'}); a code record "
+                                          f"outranks AI vision on the roof type"))
+        else:
+            out.append(f)
+    return out, dropped
+
+
 def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_crop: Optional[Path], code: dict,
                       call_id: str, camera: Optional[dict] = None) -> dict:
     """One exterior view. ``camera`` (round 2, Milestone 13 D8 / T6): the view's camera record of the scene manifest;
     a record with ``aerial_allowed`` (the one true aerial view, the site view) is told to the critic
-    (``prompts.camera_note``): a true aerial is allowed by the policy and is not a finding."""
+    (``prompts.camera_note``): a true aerial is allowed by the policy and is not a finding. Fix round after P3: the
+    prompt states the built roof (``roof_note``) and a roof-type claim is dropped when the built type is the drawn
+    one (``drop_roof_type_claims``)."""
     images, labels = [preview], [f"render of exterior view {view}"]
     if plan_crop is not None:
         images.append(plan_crop)
         labels.append("crop of the source drawing")
     # Milestone 13 (bug B5): the storeys, not len(levels): a level variant (L-1b) is no storey of its own
     levels = storeys_of(building)
-    note = f"The building has {levels} storey(s); roof: {(building.get('roof') or {}).get('type', 'unknown')}."
+    note = f"The building has {levels} storey(s); {roof_note(building)}"
     note = " ".join(part for part in (note, P.camera_note(camera)) if part)
     ids = exterior_ids(building, view)
     ext_code = [f for f in code.get("findings") or [] if f.get("check", "").startswith("X") or f.get("target") == view]
@@ -220,4 +324,5 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
     if reply.data is None:
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, ids, len(images), code, None, call_id=call_id)
+    kept, dropped = drop_roof_type_claims(kept, dropped, building)
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}

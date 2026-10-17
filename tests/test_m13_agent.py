@@ -748,7 +748,9 @@ def test_lighting_dark_entries_become_findings_routed_to_set_lighting():
     m = salon["evidence"]["metrics"]
     assert m["ev_wanted"] == 6.3718 and m["ev_cap"] == 3.0 and m["factor_needed"] == round(2 ** 3.3718, 2) == 10.35
     assert "the room needs about x10.35 its light, set_lighting gives up to x3" in salon["message"]
-    assert bed_["severity"] == "major" and "set_lighting factor about x1.82 on r1" in bed_["message"]
+    # fix round after P3: the message asks for half a stop of headroom (x1.82 x 2 ** 0.5 = x2.57); the view needs x1.82
+    assert bed_["severity"] == "major" and "set_lighting factor x2.57 on r1 (the view needs about x1.82" in \
+        bed_["message"]
     # routing: the lighting cause and set_lighting; an exterior view is report-only with the reason
     assert CS.cause_of(bed_) == "lighting" and CS.tools_for_finding(bed_) == ["set_lighting"]
     assert CS.cause_of(ext) == "lighting_exterior" and CS.tools_for_finding(ext) == []
@@ -785,7 +787,8 @@ def test_lighting_dark_entries_become_findings_routed_to_set_lighting():
     assert bed_["evidence"]["metrics"]["lighting_factor_now"] == 1.0
     assert bed_["evidence"]["metrics"]["set_lighting_factor"] == 1.82
     lit = building()
-    for factor, text, want in ((1.5, "set_lighting factor about x2.74 on r1 (it has x1.5 now)", 2.74),
+    for factor, text, want in ((1.5, "set_lighting factor x3 on r1 (the view needs about x2.74; the headroom covers "
+                                     "light that does not scale with the room's lights; it has x1.5 now)", 2.74),
                                (2.0, "the room needs about x1.82 its light, set_lighting gives up to x3 (it has x2 "
                                      "now)", 3.65)):
         lit["agent_overrides"] = {"lighting": {"r1": {"factor": factor, "reason": "dark"}}}
@@ -812,7 +815,10 @@ def test_set_lighting_clears_the_dark_views_of_its_room_in_the_dry_recheck(tmp_p
     loop, out, _ = make(tmp_path, [light, FINISH], [violations, []],
                         recheck=lambda b, s, m: [CC.finding(v) for v in violations])     # the render did not change
     summary = loop.run()
-    assert summary["accepted"] == 1 and summary["findings_removed"] == 1, summary
+    # fix round after P3: the dry re-check's count is the prediction; the scripted next round finds nothing, so the
+    # measured number is both views
+    assert summary["accepted"] == 1 and summary["findings_removed_predicted"] == 1, summary
+    assert summary["findings_removed"] == 2 and summary["findings_removed_per_round"] == {"1": 2}
     ed = next(e for e in log_of(out)["events"] if e["kind"] == "edit")
     assert ed["tool"] == "set_lighting" and ed["evidence"]["acceptance"]["removed"] == 1
     assert ed["evidence"]["acceptance"]["target"] == ["lighting_dark:cam_r1_2"]           # the view x3 can clear

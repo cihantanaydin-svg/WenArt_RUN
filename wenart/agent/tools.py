@@ -61,6 +61,10 @@ Round 4 (before pod P3's second attempt): ``set_lighting`` is the tool of the re
 (``critic_code.lighting_items``); it changes every view of its room (``changed_targets``) and, like ``set_exterior``,
 is a no-op with the reason when the room has that factor already (``lighting_state``: the building's
 ``agent_overrides.lighting`` under this run's accepted edits).
+
+Fix round after P3 (16-17 Oct 2026): an edit's ``log_seq`` is the seq its log event gets (``_next_log_seq``
+reserves it in the log, ``AgentLog.reserve``; the loop logs the edit with it), so ``overrides.json`` and
+``adjusted_by_ai`` join the log exactly under parallel sessions.
 """
 from __future__ import annotations
 
@@ -982,7 +986,13 @@ def _reject(ctx: ToolContext, tool: str, args: dict, result: dict) -> dict:
 
 
 def _next_log_seq(ctx: ToolContext) -> int:
-    return ctx.log.next_seq() if ctx.log is not None else 0
+    """The ``log_seq`` of an edit: the seq its log event will get. Fix round after P3 (16-17 Oct 2026): reserved in
+    the log (``AgentLog.reserve``) and used by the loop's ``log_edit`` for the edit's event; before, it was predicted
+    with ``next_seq()`` and a parallel session's event took that seq first (7 of 39 P3 edits off by 1-2)."""
+    if ctx.log is None:
+        return 0
+    reserve = getattr(ctx.log, "reserve", None)
+    return int(reserve()) if callable(reserve) else int(ctx.log.next_seq())
 
 
 def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Callable[[dict], dict],

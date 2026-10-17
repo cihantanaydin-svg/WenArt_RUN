@@ -1326,6 +1326,99 @@ bedroom alcove with a drawn desk. Agent: one session per round ran out of the 32
 cushion, a mirror-chrome bathtub and a sporting-goods rack as a bookshelf passed the audit. These go to the fix round
 (§14.9) before P4.
 
+### 14.9 Fix round after P3 (16-17 Oct 2026; no pod)
+
+Six tracks worked in parallel on the P3 analysis (every proposed fix checked by a second agent; where a verifier
+corrected a fix, its better fix was built), then one integration step applied the cross-track asks and ran the full
+CPU suite. Nothing here has run on a GPU yet: the GPU checks named below run in P4/P5.
+
+**Agent (track A).**
+
+| P3 problem | Fix | Test |
+|---|---|---|
+| One planner session per round passed the 32,768-token context; the 400 was retried and logged as "the agent model did not answer" | `loop.ContextBudget` estimates the next prompt; tool results enter the conversation cut at 6,000 characters (was 12,000); when the prompt plus the answer budget pass `max_model_len` − 1024, the results older than the last 2 replies become one-line stubs, then older ones, then the latest are cut to 2,000 characters. A refused prompt (`model.ContextFullError`, never retried) is cut and sent once more; a second refusal ends the session with the new stop `context_full` and a `check` event (tool `context_budget`). `model_error` stays for timeouts, server errors and no connection | `tests/test_agent_loop_p3.py`, `tests/test_agent_model.py` |
+| No repetition guard on agent calls; planner answers up to 4,096 tokens | `repetition_detection` on every agent request (as the recognition client); the planner's answer budget is `PLANNER_MAX_TOKENS` = 1536 with thinking off; the call log keeps `finish_reason` and `max_tokens`; a JSON answer stopped for repetition is asked again once on one line; `max_model_len` read from the served key's `--max-model-len` (default 32768) | `tests/test_agent_model.py` |
+| "Findings removed" printed the dry re-check's prediction | the stop note, `summary()["findings_removed"]` and the scheduler's note give the measured number (the next round's critics); the dry re-check count is labelled predicted (`findings_removed_predicted`) | `tests/test_agent_loop_p3.py`, `tests/test_run_agent.py` |
+| set_lighting gains below the linear prediction | acceptance unchanged (linear); the finding message and `metrics.set_lighting_suggested` suggest min(x3, needed × √2) of headroom | `tests/test_agent_loop_p3.py` |
+| The mirror dec_L1_009 through the roof was sent to the building session | decor pieces map to their room; cause `decor_under_roof` has no tool and is reported to the decor stage (`report_to: decor`, `not_yours`); the report lists it (integration) | `tests/test_agent_loop_p3.py` |
+| Vision "not a mansard roof" against the built mansard roof | an X2 roof-type claim is dropped when the build makes the drawn type (`critic_vision.drop_roof_type_claims`); an overridden roof keeps the claim | `tests/test_agent_loop_p3.py` |
+| `log_seq` off by 1-2 under parallel sessions | `AgentLog.reserve()`: the edit's event takes the reserved seq | `tests/test_agent_loop_p3.py` |
+
+**Light and colour (track L).** `RENDER_CODE_VERSION` m13.2.
+
+| P3 problem | Fix | Check |
+|---|---|---|
+| Orange cast in 24 of 48 views (2700 K rig under the daylight white point) | each interior view meters twice (rig on, rig hidden); its white point mixes the project anchor and the rig's white point by the rig's share of the light (`render.mixed_whitepoint`; share 0 = anchor, 1 = the rig's own); exterior and open-air views keep the anchor | bpy shim, synthetic-01 wall R/B: bath 1.343 → 1.058, hall 1.80 → 1.29, salon 1.181 unchanged |
+| Roof-terrace views under the interior HDRI (black or dusk sky) | open-air rooms (room type `balcony`) render under the exterior world; cameras carry `wenart_room_type` (build passes the room types: integration) | real02 shim: teras_1 under the exterior world, 0 % black sky |
+| Exterior EV spread 3.7 stops, washed-out sky | per view a sky pull (depth-pass sky mask, k = 1..4 stops) to sky median ≤ 0.8 and saturation ≥ 0.12; none qualifies (beside the sun) = no pull | real02 shim: ext_2 k = 2, ext_1 no pull |
+| Blank pale windows (pull stopped at 1-2 stops) | window pull up to 10 stops to pane p90 ≤ 0.85 or median ≤ 0.65 (schema `window_pull.k` 0..10: integration) | synthetic-01 salon k = 1, p90 0.837 |
+| Night-dark windowless bedroom | a rig replaces the fill light only when it has a ceiling fixture (`lighting.rig_replaces_fill`) | real02 shim: r_L0_yatak_odasi_3 gets its fill back |
+| Halls and stairs over the EV cap | hall/stair fixtures carry bulbs for 450 lm/m² (the bath density) | predicted +1.8..+2.8 EV (P3 +4.6..+5.1) |
+
+**Geometry (track G).** Door stops on every framed door (Milestone 6 doors via `shell.door_m6_parts`, Milestone 10
+doors via `parametric.door_parts`; the stop sits on the leaf face away from the swing, pocket doors on both faces, an
+astragal on double and folding doors): P3's 196 m depth through the slit of a closed door is gone (5 of 5 test rays
+hit the door in the bpy module; with the old code all 5 pass through). A drawn sink inside a counter run is built into
+it (`fit.kitchen_built_ins`, `asset.built_in`, no object of its own; the run's plan lists it under `built_ins`); a
+drawn stove stands in a gap of the run (`plan.gaps`: no base unit, plinth or worktop over it). Check S2 now reports a
+sink, stove, fridge or washing machine buried in a run (share ≥ 0.25 of its box inside the run's mesh; the committed
+real02 "fridge" blocks inside four counters will show as buried). The agent's refit of a run passes the same hints
+(integration, `edit_ops._build_retyped`).
+
+**Site (track S).** The aerial ext_5 pitches for the horizon at 0.86 of the frame (15.66° at 26 mm, was 30°: no
+sky); the CLAUDE.md horizon rule now also covers the one true aerial. Site finish sets are fetched
+(`fetch.site_texture_rows`, from `exterior.build_finish_slugs`; the fetch log prints them: integration): the retaining,
+terrace and pool walls get Poly Haven concrete_wall_001 (CC0). The worktop is ambientCG Marble012 (CC0) with a 2 m
+repeat (marble_01 reads as tiles); painted trim and fronts are a paint finish without the plank photo. Plants stand on
+their terrace (`site.stand_terrain`); hedges keep their hull on their planting side (`site.fit_hedges`, at most 0.5 m,
+logged `inferred`). The lawn relief only goes down and keeps the ground's edges. The 100 real04 tree symbols (crown
+0.36 m) were checked: they are shrubs by the CLAUDE.md rule. ATTRIBUTION lists Marble012 and concrete_wall_001 when
+used.
+
+**Ingest (track I).** A secondary plan page (real04's region r16) adds an extra element only when it neither repeats
+nor crosses the master's: the wall that sealed a bedroom bay with its drawn desk is no longer added; doors, wardrobes,
+beds and desks drawn twice are not added (listed as `not_added` in the conflict). A secondary page's questions are
+never asked and keep no piece waiting; its crops go to their own folder. The camera model treats a wall inside a room
+outline as a wall.
+
+**Report and library (track R).** `metrics13` counts the latest run of an appended log only (`run_first_seq`):
+corrected P3 numbers m6 38 (round 4) and m7 29 of 39; m2 adds the share without the 38 explained non-furniture pieces
+(178 of 202, 88 %). `results/review/m13_p3/metrics13_p3_vs_m12.*` were regenerated (integration). `final/` moves the
+previews and plan crops of cameras a run does not have into `final/earlier_run/` (never deleted). The audit gains the
+hard title flags `branded` and `other_use` and the `sanitary_finish` check; 7 catalogue entries are removed (the 5 P3
+findings plus Holywell Copper and gen_bathtub_industrial_3). Removing 2 cushions and 1 books entry shifts
+`fit.pick_index` (sha256 % n) for every cushion and books host in every project, real02 and real03 included.
+
+**Integration (this step).** Applied asks: the decor stage keeps wall decor (picture, mirror, clock) under the sloped
+ceiling at its own wall (`decor.wall_art_for_host` reads `ceiling_over`; P3's mirror, 0.80 m of ceiling over its
+wall, is left out); the build passes the room types to the cameras and the built-in list into the scene manifest's
+furniture summary; the render schema takes the deeper window pull, the sky pull and the new white-point fields; the
+run plan counts 4 s per view for the pulls and the second metering pass (was 1 s); the scheduler's agent note names
+measured and predicted removals; the agent report lists the findings reported to other stages and the context-budget
+events; the log schema documents `finish_reason`, `max_tokens`, `cause`, `not_yours` and `report_to`; the assets
+stage prints the site sets; the agent's run refit passes the kitchen hints. New GPU checks: `tests/gpu/test_agent.py`
+(repetition stop and call log on the served key, a context-full 400 sent once, the served `max_model_len`) and
+`tests/gpu/test_render.py::test_closed_door_views_end_on_the_door` (cam_r_L1_koridor_2_2: depth < 60 m, coverage
+≥ 0.9999). Pins updated on purpose: S2 buried sink (`tests/test_scene_checks.py`), the aerial pitch
+(`tests/test_blender_exterior.py`), the worktop and front slots (`tests/test_m13_light.py`,
+`tests/test_blender_look.py`), the moved stale preview (`tests/test_report.py`), the plan minutes
+(`tests/test_run_plan.py`). Not applied: the sun-azimuth penalty for exterior corner views (needs the sun direction
+in `plan_exterior`; tracked for P5), unique recognition keys across pages (optional; I's changes make the clash
+harmless) and the GLB metallic factor in the audit (optional follow-up). Full CPU suite after the integration
+(`pytest -m "not gpu"`): 5147 passed, 212 skipped (no Blender binary), 4 xfailed, 0 failed, 45:54 min.
+`tests/test_blender_build.py` through the Blender 5.2.2 Python module: 27 passed; a synthetic-01 L0 build there records
+the room type on every camera and the `built_in` list in the furniture summary. Every new test of the integration
+(`tests/test_m13_p3_integration.py`) fails on the code without it.
+
+Decisions for the user (from the tracks): the planner's 1536-token answer budget (raise to 2048 if P4/P5 show
+`length` stops); `context_full` as its own stop; the lamp-lit halls at bath density instead of the Milestone 12 fill
+light; whether open-air rooms drop the invisible fill light; whether P4 runs the interior-HDRI/sun pairing A/B with
+the deeper window pull; the stove gaps (revert = drop the `ranges` hints); the S2 buried threshold 0.25; the built-in
+sink representation (build true, no object of its own).
+
+GPU checks for P4/P5: `pytest -m gpu tests/gpu/test_agent.py tests/gpu/test_render.py tests/gpu/test_m13_modules.py
+tests/gpu/test_m13_light.py tests/gpu/test_m13_site.py tests/gpu/test_look_m6.py` on the real04 run.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

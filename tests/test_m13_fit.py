@@ -914,3 +914,106 @@ def test_cli_licence_mode_and_project_flags(tmp_path, monkeypatch, capsys):
     assert furniture_main(["licence-fields", str(copy_path)]) == 0
     assert '"changed": 0' in capsys.readouterr().out
     assert furniture_main(["licence-fields", str(tmp_path / "nope.json")]) == 2
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026): drawn sinks built into the kitchen runs, gaps for drawn stoves
+# --------------------------------------------------------------------------
+
+def _real04_kitchen(room="r_L-1_mutfak"):
+    path = ROOT / "results" / "furniture" / "real04" / "building.json"
+    if not path.is_file():
+        pytest.skip("no committed real04 building")
+    building = json.loads(path.read_text(encoding="utf-8"))
+    return dict(building, furniture=[p for p in building["furniture"] if p.get("room_id") == room], decor=[])
+
+
+def test_kitchen_built_ins_on_the_real04_kitchen():
+    """P3's drawing: f_L-1_003 holds four sink_kitchen pieces at 100 %; only f_L-1_067 is built (the 0.51 x 0.11 m
+    f_L-1_009 and the 0.35 x 0.44 m bowls f_L-1_081 / f_L-1_083 are build false), so it is the sink built in;
+    f_L-1_002 holds the stove f_L-1_008 (98.6 %): a gap at its drawn span."""
+    found = F.kitchen_built_ins(_real04_kitchen())
+    assert found["sinks"] == {"f_L-1_067": "f_L-1_003"}
+    assert found["hints"]["f_L-1_003"] == {"sink_pos_m": [1.4507, 10.2592], "sink_w_m": pytest.approx(0.7885, abs=1e-4),
+                                           "sink_piece": "f_L-1_067"}
+    assert found["hints"]["f_L-1_002"] == {"ranges": [{"id": "f_L-1_008", "type": "stove",
+                                                       "x0_m": pytest.approx(-0.1531, abs=1e-4),
+                                                       "x1_m": pytest.approx(0.5969, abs=1e-4)}]}
+    assert set(found["hints"]) == {"f_L-1_002", "f_L-1_003"}                  # f_L-1_001 / 004 hold nothing
+
+
+def test_the_fit_builds_the_drawn_sink_into_its_run_and_changes_only_assets(library):
+    """The verifier's better fix: the hints reach the plan on a copy and live in ``asset.module_hints``; the sink's
+    asset is ``built_in`` (method module, the run's asset id, by design, ours), its build, type and evidence stay;
+    ``assert_only_assets_changed`` and ``FROZEN_KEYS`` hold; the stove keeps its own model."""
+    building = _real04_kitchen()
+    fitted = F.fit_building(copy.deepcopy(building), library, style_family="modern", mode="relaxed")
+    F.assert_only_assets_changed(building, fitted)
+    after = {p["id"]: p for p in fitted["furniture"]}
+    assert not [p for p in fitted["furniture"] if "module_hints" in p or "built_in" in p]
+    run = after["f_L-1_003"]["asset"]
+    assert run["method"] == "module" and run["module_plan"]["cutouts"] == ["sink"]
+    assert [b["id"] for b in run["module_plan"]["built_ins"]] == ["f_L-1_067"]
+    assert run["module_hints"]["sink_piece"] == "f_L-1_067"
+    sink = after["f_L-1_067"]
+    a = sink["asset"]
+    assert (a["method"], a["asset_id"], a["built_in"]) == ("module", "module:kitchen_counter:kitchen_run", "f_L-1_003")
+    assert a["by_design"] and a["commercial_safe"] is True and a["licence_flag"] == "none" and a["licence"] == "n/a"
+    assert [s["step"] for s in a["ladder"]] == ["library", "module"] and "library_gap" not in sink
+    assert sink.get("build", True) is not False and sink["type"] == "sink_kitchen"
+    assert sink["evidence"] == next(p for p in building["furniture"] if p["id"] == "f_L-1_067")["evidence"]
+    for bowl in ("f_L-1_009", "f_L-1_081", "f_L-1_083"):                     # build false: not built, no built_in
+        assert after[bowl]["asset"]["method"] == "none" and "built_in" not in after[bowl]["asset"]
+    stove_run = after["f_L-1_002"]["asset"]["module_plan"]
+    assert stove_run["gaps"][0]["id"] == "f_L-1_008" and stove_run["gaps"][0]["w_m"] == pytest.approx(0.75)
+    assert after["f_L-1_008"]["asset"]["method"] in ("library", "parametric") and "built_in" not in after["f_L-1_008"]["asset"]
+    report = F.fit_report(fitted)
+    assert "## Kitchen runs" in report and "f_L-1_067 (sink_kitchen): built into the kitchen run f_L-1_003" in report
+    assert "a 0.75 m gap for the drawn stove f_L-1_008" in report
+
+
+def test_the_synthetic03_run_takes_its_sink_and_leaves_a_gap_for_its_stove(library):
+    building = load_truth("synthetic-03")
+    fitted = F.fit_building(copy.deepcopy(building), library, mode="commercial")
+    F.assert_only_assets_changed(building, fitted)
+    after = {p["id"]: p for p in fitted["furniture"]}
+    plan = after["f_L0_007"]["asset"]["module_plan"]
+    assert [b["id"] for b in plan["built_ins"]] == ["f_L0_008"] and [g["id"] for g in plan["gaps"]] == ["f_L0_009"]
+    assert after["f_L0_008"]["asset"]["built_in"] == "f_L0_007"
+    assert "built_in" not in after["f_L0_009"]["asset"]
+
+
+def test_a_sink_beside_its_run_a_pinned_sink_and_a_run_without_modules_keep_the_sink_s_own_model(library, monkeypatch):
+    run = drawn("kitchen_counter", 2.4, 0.6, "f_run", room="r_k", front=0.0, center=(0.0, 0.0), height=0.9)
+    # the run lies along y (``drawn``: front 0 -> rotation 90), from y -1.2 to 1.2
+    beside = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(0.0, 1.7))
+    inside = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(0.0, -0.2))
+    assert F.kitchen_built_ins({"furniture": [run, inside]})["sinks"] == {"f_sink": "f_run"}
+    assert F.kitchen_built_ins({"furniture": [run, beside]}) == {"hints": {}, "sinks": {}}
+    one = F.fit_building({"furniture": [copy.deepcopy(run), copy.deepcopy(beside)]}, library, mode="relaxed")
+    assert "built_in" not in one["furniture"][1]["asset"] and "built_ins" not in one["furniture"][0]["asset"]["module_plan"]
+    pinned = dict(inside, asset_pin="some_model")
+    assert F.kitchen_built_ins({"furniture": [run, pinned]})["sinks"] == {}       # the agent's model wins
+    other_room = dict(inside, room_id="r_other")
+    assert F.kitchen_built_ins({"furniture": [run, other_room]})["sinks"] == {}
+    # the run has no module plan (no module builder): the sink is fitted as before, never left out
+    monkeypatch.setattr(F, "module_plan_for", lambda piece, style=None: (None, "mocked: no module builder"))
+    two = F.fit_building({"furniture": [copy.deepcopy(run), copy.deepcopy(inside)]}, library, mode="relaxed")
+    sink = two["furniture"][1]["asset"]
+    assert "built_in" not in sink and sink["method"] in ("library", "parametric")
+
+
+def test_the_build_loop_skips_a_built_in_only_when_its_run_holds_it():
+    """furniture.built_in_ids: the scene does not build a sink its run builds in; when the run's plan does not hold
+    it (the agent refitted the run without the hints), the sink is built on its own."""
+    from wenart.blender import furniture as BF
+
+    plan = {"builder": "kitchen_run", "modules": [{"kind": "plinth"}], "built_ins": [{"id": "f_sink", "kind": "sink"}]}
+    run = {"id": "f_run", "type": "kitchen_counter", "asset": {"method": "module", "module_plan": plan}}
+    sink = {"id": "f_sink", "type": "sink_kitchen", "asset": {"method": "module", "built_in": "f_run"}}
+    assert BF.built_in_ids([run, sink]) == {"f_sink": "f_run"}
+    lost = dict(run, asset={"method": "module", "module_plan": dict(plan, built_ins=[])})
+    assert BF.built_in_ids([lost, sink]) == {}
+    assert BF.built_in_ids([dict(run, build=False), sink]) == {}
+    assert BF.built_in_ids([sink]) == {}
+    assert BF.built_in_ids([run, dict(sink, asset={"method": "library"})]) == {}

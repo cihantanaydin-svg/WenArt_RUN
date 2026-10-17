@@ -173,6 +173,41 @@ Milestone 13 (docs/milestone13.md §13.2 render.py, K5; ``RENDER_CODE_VERSION`` 
   without ``wenart_world_exterior_disc_camera_only``, the P1 world) the sun lamp is hidden, so the sky's disc is
   the one direct sun. Round 3: the exterior world shows the disc to camera rays only (``materials.
   exterior_world_nodes``), so the lamp stays shown under it (``sun_hidden_for``) and is the one direct sun.
+
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8; ``RENDER_CODE_VERSION`` ``m13.2``). What: four
+changes to the light and colour of the views. Why: pod P3 (real04) rendered 24 of 48 views with an orange cast, the
+roof terraces under the interior HDRI (a black or dusk sky), the exteriors 3.7 stops apart and every window as a
+blank pale plane. How:
+
+- White balance per view (``mixed_whitepoint``): the project white point stays the anchor (metered on daylight, the
+  rig hidden, as round 3). For every interior view a second metering pass with the rig hidden gives the view's
+  daylight; ``rig_share`` = 1 - daylight / all light (luminance of the metered illuminants). The view's white point
+  is the project's daylight colour mixed with the rig's light colour by that share (light adds linearly) and
+  corrected with the mood's residual, as the project white point is: a daylight view (share < ``WB_RIG_SHARE_MIN``)
+  keeps the project white point exactly, a room lit only by the rig gets the rig's own white point (the 2700 K rig
+  under the 5,635 K daylight point turned P3's windowless baths and halls orange), a mixed room (P3's basement
+  kitchen: daylight + strips + a ceiling fixture) moves part of the way. The rig's light colour is Blender's white
+  point at the rig's temperature and tint 0 (``kelvin_whitepoint``; measured on bpy 5.2.2: a white plane under a
+  2700 K point light gave G-normalised (2.4082, 1, 0.2386), the white point at 2700 K (2.4086, 1, 0.2393)). Wall
+  bounce colours do not move the white point (only the luminance share and the two light colours do). The record
+  keeps ``wb_mode: project`` and adds ``wb_project_whitepoint``, ``wb_rig_share``, ``wb_rig_kelvin``,
+  ``wb_rig_whitepoint``, ``wb_view_rule`` and ``wb_view_shift_mired``; exterior and open-air views keep the
+  project white point.
+- Open-air rooms (``open_air``: ``shell.OUTDOOR_ROOM_TYPES``, the roof terraces and balconies of real02 / real04)
+  render under the exterior world and follow its sun-lamp rule (``world_for`` / ``sun_hidden_for`` take the room
+  type). The type comes from the camera's ``wenart_room_type`` (``cameras.create_cameras``), else from the scene
+  manifest's room floors (``room_types_from_manifest``). The project white point is still metered under the interior
+  world (``lock_project_whitepoint`` passes no room type), so P3's 5,635 K does not move.
+- Sky pull (``choose_sky_pull``): a view under the exterior sky meters its facades (Milestone 10) and keeps that
+  exposure; the sky (no surface hit in the depth pass) is saved again at EV - k like the window panes, k the smallest
+  of ``SKY_PULL_STEPS`` whose sky median is at most ``SKY_PULL_MEDIAN_MAX`` (under the AgX shoulder) and whose median
+  saturation is at least ``SKY_PULL_SAT_MIN``; none qualifies or the sky already does: no pull. Recorded as
+  ``sky_pull``. No state is shared between cameras, so subset renders, agent previews and variants agree.
+- Window pull down to 10 stops (``PULL_STEPS``) with a pane target: a k qualifies when the pane clip is at most 1 %
+  and the pane highlights are under the shoulder (pane p90 <= ``PULL_P90_MAX``) or the pane median has reached
+  ``PULL_MEDIAN_TARGET``, and the panes stay brighter than the walls. P3 stopped at k 1-2 with pane medians of
+  0.86-0.97 (the sunlit outside 5-8 stops over), the blank pale windows. The pairing of the interior HDRI with the
+  sun stays an A/B lever (off).
 """
 from __future__ import annotations
 
@@ -206,15 +241,29 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # m7.1: the look AgX - Punchy (docs/milestone7.md §6.1); view transform and look also enter the key.
 # m13.1: the EV cap +3 with the lighting_dark record, the project white balance, the sun lamp hidden under the
 # exterior sky with a sun disc (docs/milestone13.md §13.2).
-RENDER_CODE_VERSION = "m13.1"
+# m13.2 (fix round after P3, 16-17 Oct 2026): the view's white point mixed from the project's daylight and the rig by
+# the view's rig share, open-air rooms under the exterior world, the sky pull, the window pull to 10 stops.
+RENDER_CODE_VERSION = "m13.2"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
 LOOK = "AgX - Punchy"
 PREVIEW_QUALITIES = (85, 70, 55, 40, 30, 20)
 
-# Window pull (docs/milestone6.md §5 row 7).
-PULL_STEPS = (1, 2, 3, 4)          # stops tried, smallest first
+# Window pull (docs/milestone6.md §5 row 7). Fix round after P3 (16-17 Oct 2026): up to 10 stops (P3's interiors
+# metered +0.3..+2.5 EV, the sunlit outside -4..-7.7: k 1-2 left the panes at medians 0.86-0.97, a blank pale plane);
+# a k qualifies when the pane highlights are under the AgX shoulder (p90 <= PULL_P90_MAX) or the pane median has
+# reached PULL_MEDIAN_TARGET (a deeper pull would only darken the outside), with the clip and wall rules as before.
+PULL_STEPS = tuple(range(1, 11))   # stops tried, smallest first
 PULL_MAX_CLIP = 0.01               # pane clip share a pull should reach
+PULL_P90_MAX = 0.85                # pane display luminance p90 a pull should reach (the AgX shoulder)
+PULL_MEDIAN_TARGET = 0.65          # ... or the pane median at mid-tone: stop pulling there
+# Sky pull (fix round after P3): a view under the exterior sky keeps its facade exposure; its sky is pulled by the
+# smallest k whose median is under the shoulder and whose median saturation reaches the floor (P3: ext_1/2/4 skies
+# 0.92 / 0.84 / 0.81 at saturation 0.03-0.13, ext_3 0.27 and ext_7 0.20 read blue).
+SKY_PULL_STEPS = (1, 2, 3, 4)
+SKY_PULL_MEDIAN_MAX = 0.8
+SKY_PULL_SAT_MIN = 0.12
+SKY_PULL_MIN_SHARE = 0.005         # a sky smaller than this share of the frame is not pulled
 PANE_ALBEDO_MAX = 0.05             # pane = window index and Diffuse Color luminance below this (glass, not frame)
 PULL_FEATHER_PX = 3                # the mask edge blends over this many pixels, inside the mask
 DISPLAY_PNG_LEVEL = 1              # zlib level of the pulled display PNGs (OIIO)
@@ -256,6 +305,12 @@ WB_METER_MAX_CAMERAS = 3
 # A window faces the sun when the sun's travel direction and the portal's inward axis (unit vectors) have at least
 # this dot product: about 87 degrees between them, grazing sun excluded.
 SUNLIT_DOT_MIN = 0.05
+# Fix round after P3 (16-17 Oct 2026): the white point of a view moves from the project's daylight white toward the
+# rig's white by the view's rig share (``mixed_whitepoint``); below this share (metering noise, a pendant in a sunlit
+# living room) the view keeps the project white point exactly.
+WB_RIG_SHARE_MIN = 0.02
+WB_VIEW_RULE = ("the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - "
+                "daylight / all metered light), corrected with the mood's residual")
 # The scene properties of the worlds (build.py / materials.exterior_world_nodes) that select_world reads.
 WORLD_PROPS = ("wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc",
                "wenart_world_exterior_disc_camera_only")
@@ -651,6 +706,47 @@ def whitepoint_from(illuminant, residual: float) -> list[float] | None:
     return normalise_whitepoint([(v / g) ** k for v in ill])
 
 
+def rig_share(all_illuminant, day_illuminant) -> float | None:
+    """The share of a view's metered light that comes from the room-light rig (pure; fix round after P3, 16-17 Oct
+    2026): ``1 - luminance(day) / luminance(all)``, clamped to 0..1, where ``all_illuminant`` is the metering pass's
+    illuminant (``meter_stats``) with everything lit and ``day_illuminant`` the same view metered with every rig
+    object hidden. None when the view has no light to meter; 1 when nothing is left without the rig."""
+    if all_illuminant is None or len(all_illuminant) != 3:
+        return None
+    total = float(luminance([float(v) for v in all_illuminant]))
+    if not math.isfinite(total) or total <= 0.0:
+        return None
+    day = 0.0 if day_illuminant is None or len(day_illuminant) != 3 else \
+        float(luminance([float(v) for v in day_illuminant]))
+    if not math.isfinite(day):
+        return None
+    return round(min(1.0, max(0.0, 1.0 - day / total)), 6)
+
+
+def mixed_whitepoint(project_wp, rig_rgb, share, residual) -> list[float]:
+    """The white point of one view (pure; fix round after P3, 16-17 Oct 2026). What: the project white point
+    ``project_wp`` (metered on daylight, the anchor) moved toward the rig by the view's ``share`` of rig light. Why:
+    P3 applied the 5,635 K daylight point to rooms lit only by the 2700 K rig (24 of 48 views orange). How: the
+    project's daylight colour is recovered from its white point (``whitepoint_from`` is ``normalise((ill / G) ^ (1 -
+    residual))``, so the illuminant is the white point to the power ``1 / (1 - residual)``), both light colours are
+    scaled to luminance 1, mixed linearly by ``share`` (light adds; the share is a luminance share) and turned into a
+    white point with the same residual. ``share`` 0 (or a residual of 1: no correction at all) gives the project
+    white point, ``share`` 1 the rig's own white point (``whitepoint_from(rig_rgb, residual)``). ``rig_rgb`` is the
+    rig's light colour (``kelvin_whitepoint`` at the rig temperature)."""
+    wp = normalise_whitepoint([float(v) for v in project_wp])
+    try:
+        s = min(1.0, max(0.0, float(share)))
+    except (TypeError, ValueError):
+        return wp
+    k = 1.0 - float(residual or 0.0)
+    if s <= 0.0 or k <= 1e-6 or not math.isfinite(s):
+        return wp
+    day = normalise_whitepoint([max(v, 1e-9) ** (1.0 / k) for v in wp])
+    rig = normalise_whitepoint([max(float(v), 1e-9) for v in rig_rgb])
+    mixed = whitepoint_from([(1.0 - s) * d + s * r for d, r in zip(day, rig)], residual)
+    return wp if mixed is None else mixed
+
+
 def wb_residual(mood: str | None) -> tuple[float, str | None]:
     """``(residual, note)`` for a light mood: ``WB_RESIDUAL`` (the Milestone 5 moods), else the mood's
     ``wb_residual`` in the vocabulary's ``LIGHTING`` table (Milestone 10's moods of ``wenart/style/finishes.py``:
@@ -814,31 +910,93 @@ def masked_median(rgb, mask) -> float:
     return float(np.median(display_luminance(np.asarray(rgb)[np.asarray(mask, dtype=bool)])))
 
 
+def masked_percentile(rgb, mask, q: float) -> float:
+    """The ``q``-th percentile (0-100) of the display luminance of the ``mask`` pixels of ``rgb``."""
+    import numpy as np
+
+    return float(np.percentile(display_luminance(np.asarray(rgb)[np.asarray(mask, dtype=bool)]), float(q)))
+
+
+def masked_saturation(rgb, mask) -> float:
+    """Median HSV saturation ``(max - min) / max`` of the ``mask`` pixels of display ``rgb`` (0 for black pixels);
+    the sky check of the sky pull (fix round after P3)."""
+    import numpy as np
+
+    a = np.asarray(rgb)[np.asarray(mask, dtype=bool)][:, :3]
+    a = a.astype(np.float64) / 255.0 if a.dtype == np.uint8 else a.astype(np.float64)
+    hi, lo = a.max(axis=-1), a.min(axis=-1)
+    sat = np.where(hi > 0, (hi - lo) / np.where(hi > 0, hi, 1.0), 0.0)
+    return float(np.median(sat))
+
+
+def pull_reaches_target(candidate: dict, p90_max: float = PULL_P90_MAX,
+                        median_target: float = PULL_MEDIAN_TARGET) -> bool:
+    """The pane target of a pull (pure; fix round after P3): the pane highlights under the AgX shoulder
+    (``p90 <= p90_max``) or the pane median down to ``median_target``. A candidate without ``p90`` (a record of the
+    Milestone 6-13.1 rule) meets the target by its clip alone."""
+    if candidate.get("p90") is None:
+        return True
+    return candidate["p90"] <= p90_max or candidate["median"] <= median_target
+
+
 def pull_qualifies(candidate: dict, wall_median: float | None, max_clip: float = PULL_MAX_CLIP) -> bool:
-    """A pull of ``candidate["k"]`` stops is enough: pane clip <= ``max_clip`` and
-    the pane median above the wall median (no wall: the clip rule alone)."""
-    return candidate["clip"] <= max_clip and (wall_median is None or candidate["median"] > wall_median)
+    """A pull of ``candidate["k"]`` stops is enough: pane clip <= ``max_clip``, the pane target reached
+    (``pull_reaches_target``; fix round after P3: the clip rule alone stopped P3's pulls at pane medians of
+    0.86-0.97) and the pane median above the wall median (no wall: the clip and target rules alone)."""
+    return candidate["clip"] <= max_clip and pull_reaches_target(candidate) and \
+        (wall_median is None or candidate["median"] > wall_median)
 
 
 def choose_pull(candidates: list[dict], wall_median: float | None,
                 max_clip: float = PULL_MAX_CLIP) -> tuple[int, str]:
-    """``(k, rule)`` from ``[{"k", "clip", "median"}]`` (the EV - k saves,
-    ``clip`` and ``median`` over the pane mask): the smallest k that
-    ``pull_qualifies``; else the k with the lowest clip that keeps the pane
-    median above the wall median (ties: the smaller k); with no wall
-    (``wall_median`` None) the lowest clip; ``(0, ...)`` = no pull when no k
-    keeps the panes brighter than the walls (or nothing was tried)."""
+    """``(k, rule)`` from ``[{"k", "clip", "median", "p90"}]`` (the EV - k saves,
+    ``clip``, ``median`` and ``p90`` over the pane mask): the smallest k that
+    ``pull_qualifies``; else the k with the lowest clip, then the lowest p90 (the deepest pull), that keeps the pane
+    median above the wall median; with no wall (``wall_median`` None) the lowest clip and p90; ``(0, ...)`` = no
+    pull when no k keeps the panes brighter than the walls (or nothing was tried)."""
     cands = sorted(candidates, key=lambda c: c["k"])
     for c in cands:
         if pull_qualifies(c, wall_median, max_clip):
-            return int(c["k"]), ("smallest k with pane clip <= 1 % and panes brighter than the walls"
-                                 if wall_median is not None else "smallest k with pane clip <= 1 % (no wall in view)")
+            return int(c["k"]), ("smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls"
+                                 if wall_median is not None else
+                                 "smallest k with pane clip <= 1 % and the pane target (no wall in view)")
     bright = [c for c in cands if wall_median is None or c["median"] > wall_median]
     if bright:
-        best = min(bright, key=lambda c: (c["clip"], c["k"]))
-        return int(best["k"]), ("lowest pane clip that keeps the panes brighter than the walls"
-                                if wall_median is not None else "lowest pane clip (no wall in view)")
+        best = min(bright, key=lambda c: (c["clip"], c["p90"] if c.get("p90") is not None else 0.0, c["k"]))
+        return int(best["k"]), ("lowest pane clip and highlights that keep the panes brighter than the walls"
+                                if wall_median is not None else "lowest pane clip and highlights (no wall in view)")
     return 0, "no k keeps the panes brighter than the walls: no pull"
+
+
+def sky_mask(depth):
+    """bool H x W: the world-background pixels (no surface hit in the Cycles depth pass: not finite or at
+    ``DEPTH_BACKGROUND``), the sky of a view under the exterior world (fix round after P3)."""
+    import numpy as np
+
+    d = np.asarray(depth, dtype=np.float64)
+    with np.errstate(invalid="ignore"):
+        return ~(np.isfinite(d) & (d < DEPTH_BACKGROUND))
+
+
+def sky_pull_qualifies(candidate: dict, median_max: float = SKY_PULL_MEDIAN_MAX,
+                       sat_min: float = SKY_PULL_SAT_MIN) -> bool:
+    """A sky reads as sky (pure): median display luminance at most ``median_max`` (under the AgX shoulder) and median
+    saturation at least ``sat_min``."""
+    return candidate["median"] <= median_max and candidate["saturation"] >= sat_min
+
+
+def choose_sky_pull(before: dict, candidates: list[dict]) -> tuple[int, str]:
+    """``(k, rule)`` of the sky pull (pure; fix round after P3): ``before`` = ``{"median", "saturation"}`` of the
+    sky as rendered, ``candidates`` = ``[{"k", "median", "saturation"}]`` of the EV - k saves. 0 when the sky already
+    qualifies (``sky_pull_qualifies``); else the smallest qualifying k; else 0 (no k gives a blue sky under the
+    shoulder: a near-white sky beside the sun stays as rendered rather than turning grey)."""
+    if sky_pull_qualifies(before):
+        return 0, "the sky is under the shoulder and saturated as rendered: no pull"
+    for c in sorted(candidates, key=lambda c: c["k"]):
+        if sky_pull_qualifies(c):
+            return int(c["k"]), (f"smallest k with the sky median <= {SKY_PULL_MEDIAN_MAX:g} and saturation >= "
+                                 f"{SKY_PULL_SAT_MIN:g}")
+    return 0, "no k brings the sky under the shoulder with saturation: no pull"
 
 
 def blend_pull(main, pulled, weights):
@@ -1134,38 +1292,87 @@ def look_from_values(entry: dict | None) -> dict | None:
 # Blender side
 # --------------------------------------------------------------------------
 
-def world_for(scene_props: dict, camera_kind: str | None) -> str | None:
+def open_air(room_type) -> bool:
+    """Whether a room type is open to the sky (pure; fix round after P3, 16-17 Oct 2026): the types of
+    ``shell.OUTDOOR_ROOM_TYPES`` (``balcony``: the TERAS / BALKON rooms of real02, real04 and the synthetic
+    projects). A camera of such a room renders under the exterior world (``world_for``)."""
+    from wenart.blender.shell import OUTDOOR_ROOM_TYPES
+
+    return bool(room_type) and str(room_type) in OUTDOOR_ROOM_TYPES
+
+
+def world_for(scene_props: dict, camera_kind: str | None, room_type: str | None = None) -> str | None:
     """The world name a camera renders under (pure; Milestone 11, docs/milestone11.md §1.1 E13): an exterior camera
     the build's exterior world (``wenart_world_exterior``: a physical sky matched to the sun lamp), any other the
     interior one (``wenart_world_interior``: the style's HDRI); None when the scene has no such property (a scene
-    built before Milestone 11 keeps its one world)."""
-    key = "wenart_world_exterior" if camera_kind == "exterior" else "wenart_world_interior"
-    name = scene_props.get(key)
+    built before Milestone 11 keeps its one world). Fix round after P3 (16-17 Oct 2026): a camera of an open-air room
+    (``open_air(room_type)``: a roof terrace) is outdoors too and gets the exterior world (P3: real04's terrace views
+    under the interior HDRI, 5.2 stops under the sun, had a black sky at the sunlit EV -7.5); without an exterior
+    world in the scene it keeps the interior one."""
+    outdoors = camera_kind == "exterior" or open_air(room_type)
+    name = scene_props.get("wenart_world_exterior") if outdoors else None
+    if not name:
+        name = None if camera_kind == "exterior" else scene_props.get("wenart_world_interior")
     return str(name) if name else None
 
 
-def sun_hidden_for(scene_props: dict, camera_kind: str | None) -> bool:
+def under_exterior_sky(scene_props: dict, camera_kind: str | None, room_type: str | None = None) -> bool:
+    """Whether a camera renders under the exterior world (pure; fix round after P3): its sky gets the sky pull and
+    its white point stays the project's."""
+    name = scene_props.get("wenart_world_exterior")
+    return bool(name) and world_for(scene_props, camera_kind, room_type) == str(name)
+
+
+def sun_hidden_for(scene_props: dict, camera_kind: str | None, room_type: str | None = None) -> bool:
     """Whether the sun lamp is hidden for a camera (pure; Milestone 13): under the exterior world whose sky carries
     the sun disc for every ray (``wenart_world_exterior_sun_disc``, the P1 world) the disc is the one direct sun.
     Round 3: with ``wenart_world_exterior_disc_camera_only`` the disc is in the image only and the lamp stays (it
-    is the one direct sun outdoors)."""
-    return camera_kind == "exterior" and bool(scene_props.get("wenart_world_exterior_sun_disc")) \
-        and bool(scene_props.get("wenart_world_exterior")) \
+    is the one direct sun outdoors). Fix round after P3: a camera of an open-air room follows the exterior rule."""
+    return under_exterior_sky(scene_props, camera_kind, room_type) \
+        and bool(scene_props.get("wenart_world_exterior_sun_disc")) \
         and not bool(scene_props.get("wenart_world_exterior_disc_camera_only"))
 
 
-def select_world(scene, cam) -> str | None:
+def room_types_from_manifest(manifest: dict | None) -> dict[str, str]:
+    """``{room id: room type}`` from a scene manifest (pure; fix round after P3): the room floors (kind ``floor``,
+    ``wenart_id`` = the room id, no ``room_id`` of their own; door thresholds carry the room they open into and are
+    left out) record the room's ``room_type``. The fallback of ``camera_room_type`` for scenes whose cameras carry no
+    ``wenart_room_type``."""
+    out: dict[str, str] = {}
+    for o in (manifest or {}).get("objects") or []:
+        if isinstance(o, dict) and o.get("kind") == "floor" and o.get("room_type") and o.get("wenart_id") \
+                and not o.get("room_id"):
+            out.setdefault(str(o["wenart_id"]), str(o["room_type"]))
+    return out
+
+
+def camera_room_type(prop_room_type, room_id, manifest_types: dict | None = None) -> str | None:
+    """The room type of a camera (pure; fix round after P3): its ``wenart_room_type`` property (set by
+    ``cameras.create_cameras``), else the scene manifest's type of its room (``room_types_from_manifest``), else
+    None (an exterior camera, or a scene built before the property and without room floors)."""
+    if prop_room_type:
+        return str(prop_room_type)
+    if room_id and manifest_types:
+        return manifest_types.get(str(room_id))
+    return None
+
+
+def select_world(scene, cam, room_type: str | None = None) -> str | None:
     """Switch ``scene.world`` to the world of ``cam`` (``world_for``); returns the world's name. Milestone 13: the
     sun lamp (``wenart_id`` ``sun``) is hidden under the exterior world with a sun disc for every ray
-    (``sun_hidden_for``) and shown again for every other camera (round 3: always shown under the camera-only disc)."""
+    (``sun_hidden_for``) and shown again for every other camera (round 3: always shown under the camera-only disc).
+    Fix round after P3: ``room_type`` (``camera_room_type``) puts the camera of an open-air room under the exterior
+    world; the project white-point metering passes none, so those candidates are metered under the interior world as
+    on P3 (5,635 K on real04: under the 5.2 stops brighter sky the half-shaded terrace would read blue and warm
+    every room view)."""
     import bpy
 
     props = {k: scene.get(k) for k in WORLD_PROPS}
-    want = world_for(props, cam.get("wenart_camera_kind"))
+    want = world_for(props, cam.get("wenart_camera_kind"), room_type)
     world = bpy.data.worlds.get(want) if want else None
     if world is not None:
         scene.world = world
-    hide = sun_hidden_for(props, cam.get("wenart_camera_kind"))
+    hide = sun_hidden_for(props, cam.get("wenart_camera_kind"), room_type)
     for ob in scene.objects:
         if ob.type == "LIGHT" and ob.data.type == "SUN" and ob.get("wenart_id") == "sun":
             ob.hide_render = hide
@@ -1242,6 +1449,33 @@ def whitepoint_kelvin(scene, whitepoint) -> tuple[float, float]:
         return round(float(vs.white_balance_temperature), 1), round(float(vs.white_balance_tint), 2)
     finally:
         vs.use_white_balance, vs.white_balance_whitepoint = saved
+
+
+def kelvin_whitepoint(scene, kelvin: float, tint: float = 0.0) -> list[float]:
+    """The white point (luminance 1) Blender's white balance uses for ``kelvin`` / ``tint``
+    (``white_balance_temperature`` / ``white_balance_tint`` -> ``white_balance_whitepoint``); the view settings are
+    restored. Fix round after P3: at tint 0 it is the colour of a lamp at that temperature (bpy 5.2.2, 16 Oct 2026: a
+    white plane under a 2700 K point light, Diffuse Direct G-normalised (2.4082, 1, 0.2386); the white point at
+    2700 K, tint 0: (2.4086, 1, 0.2393)), so ``mixed_whitepoint`` takes it as the rig's light colour."""
+    vs = scene.view_settings
+    saved = (vs.use_white_balance, tuple(vs.white_balance_whitepoint))
+    try:
+        vs.use_white_balance = True
+        vs.white_balance_temperature = float(kelvin)
+        vs.white_balance_tint = float(tint)
+        return normalise_whitepoint([float(v) for v in vs.white_balance_whitepoint])
+    finally:
+        vs.use_white_balance, vs.white_balance_whitepoint = saved
+
+
+def rig_temperature(scene) -> float | None:
+    """The colour temperature of the scene's room-light rig (the rig lights carry ``use_temperature``,
+    ``lighting.build_room_rig``; ``lighting.rig_temperature_k`` gives every fixture of a build the same one), None
+    without a shown rig light with a temperature."""
+    for ob in rig_objects(scene):
+        if ob.type == "LIGHT" and not ob.hide_render and getattr(ob.data, "use_temperature", False):
+            return round(float(ob.data.temperature), 1)
+    return None
 
 
 def previous_whitepoint_usable(previous: dict | None) -> bool:
@@ -1553,6 +1787,13 @@ class Look:
         # pre-flight of P3: the stops the floor moves down for the scene's sun (main sets it, sun_floor_shift)
         self.floor_shift = 0.0
         self.sun_wm2 = None
+        # fix round after P3: the scene manifest's room types (main sets them, room_types_from_manifest), the
+        # fallback of a camera without ``wenart_room_type``
+        self.room_types: dict[str, str] = {}
+
+    def room_type(self, cam) -> str | None:
+        """The room type of ``cam`` (``camera_room_type``: its property, else the scene manifest's)."""
+        return camera_room_type(cam.get("wenart_room_type"), cam.get("wenart_room"), self.room_types)
 
     def view_limits(self) -> tuple[float, float]:
         """The limits a view is metered against: the run's limits, the floor moved for the sun (``view_limits``)."""
@@ -1631,10 +1872,49 @@ class Look:
                 rec["wb_from_camera"] = project["from_camera"]
             if rec["whitepoint"] is None:
                 rec["notes"].append("no project whitepoint (nothing to meter): white balance off")
+            elif self.wb_mode == "project":
+                self._view_white(cam, rec, meter, out_dir, res)
         return rec
 
+    def _view_white(self, cam, rec: dict, meter: dict | None, out_dir: Path, res: tuple[int, int]) -> None:
+        """Fix round after P3 (16-17 Oct 2026): the view's own white point from the project anchor and the view's rig
+        share (``mixed_whitepoint``, module docstring). A second metering pass with every rig object hidden gives the
+        view's daylight; exterior and open-air views, views without a metering pass and scenes without a rig keep
+        the project white point. Every case records ``wb_project_whitepoint`` and ``wb_view_rule``."""
+        anchor = [float(v) for v in rec["whitepoint"]]
+        rec.update(wb_project_whitepoint=anchor, wb_rig_share=None, wb_rig_kelvin=None, wb_rig_whitepoint=None)
+        if under_exterior_sky({k: self.scene.get(k) for k in WORLD_PROPS}, cam.get("wenart_camera_kind"),
+                              self.room_type(cam)) or cam.get("wenart_camera_kind") == "exterior":
+            rec["wb_view_rule"] = "under the exterior sky (daylight): the project white point"
+            return
+        if meter is None or not meter.get("illuminant"):
+            rec["wb_view_rule"] = "no metering pass with light: the project white point"
+            return
+        rigs = rig_objects(self.scene)
+        kelvin = rig_temperature(self.scene)
+        if not rigs or kelvin is None:
+            rec["wb_view_rule"] = "no rig light in the scene: the project white point"
+            return
+        hidden = hide_objects(rigs)
+        try:
+            day = meter_camera(self.scene, cam, out_dir, res, self.windows)
+        finally:
+            unhide_objects(hidden)
+        rec["meter_seconds"] = round(float(rec["meter_seconds"] or 0.0) + float(day.pop("seconds", 0.0)), 3)
+        share = rig_share(meter["illuminant"], day.get("illuminant"))
+        rig_rgb = kelvin_whitepoint(self.scene, kelvin)
+        rec.update(wb_rig_share=share, wb_rig_kelvin=kelvin, wb_rig_whitepoint=rig_rgb,
+                   wb_day_incident_p50=None if day.get("incident_p50") is None else round(day["incident_p50"], 6))
+        if share is None or share < WB_RIG_SHARE_MIN:
+            rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point"
+            return
+        rec["whitepoint"] = mixed_whitepoint(anchor, rig_rgb, share, (self.project or {}).get("residual") or 0.0)
+        rec["wb_view_rule"] = WB_VIEW_RULE
+
     def apply(self, rec: dict) -> None:
-        """Set view transform, look, exposure and white balance; read back temperature and tint."""
+        """Set view transform, look, exposure and white balance; read back temperature and tint. Fix round after P3:
+        a view with a ``wb_project_whitepoint`` records ``wb_view_shift_mired``, its white point's mired minus the
+        project's (0 for a view that kept the project white point, > 0 toward the warm rig)."""
         vs = self.scene.view_settings
         vs.view_transform = VIEW_TRANSFORM
         vs.look = LOOK
@@ -1644,6 +1924,9 @@ class Look:
             vs.white_balance_whitepoint = tuple(float(v) for v in rec["whitepoint"])
             rec["wb_temperature"] = round(float(vs.white_balance_temperature), 1)
             rec["wb_tint"] = round(float(vs.white_balance_tint), 2)
+            project_k = (self.project or {}).get("kelvin")
+            if rec.get("wb_project_whitepoint") and project_k and rec["wb_temperature"]:
+                rec["wb_view_shift_mired"] = round(1e6 / float(rec["wb_temperature"]) - 1e6 / float(project_k), 2)
         else:
             vs.use_white_balance = False
             rec["wb_temperature"] = rec["wb_tint"] = None
@@ -1691,7 +1974,9 @@ class Look:
                             not is_day and any(r["daylight"] and r["whitepoint"] for r in rows)):
                         break
                     # the camera's own world (an exterior candidate meters under the exterior sky, as it renders;
-                    # every render selects its world again, so nothing needs restoring)
+                    # every render selects its world again, so nothing needs restoring). Fix round after P3: no room
+                    # type here, so an open-air room's candidate is metered under the interior world as on P3 (its
+                    # render takes the exterior world): the project white point does not move.
                     select_world(self.scene, cam)
                     meter = meter_camera(self.scene, cam, out_dir, res, self.windows)
                     rows.append({"camera": cam_name, "room_id": None if room is None else str(room), "daylight": is_day,
@@ -2044,7 +2329,11 @@ class RenderRun:
             print(f"RERENDER {cam.name}: {reason}")
         scene = ctx.scene
         scene.camera = cam
-        world = select_world(scene, cam)          # Milestone 11 E13: the exterior views under the physical sky
+        # Milestone 11 E13: the exterior views under the physical sky; fix round after P3: the open-air rooms too
+        room_type = ctx.look.room_type(cam)
+        world = select_world(scene, cam, room_type)
+        props = {k: scene.get(k) for k in WORLD_PROPS}
+        under_sky = under_exterior_sky(props, cam.get("wenart_camera_kind"), room_type)
         look = ctx.look.decide(cam, self.out, ctx.res)
         ctx.look.apply(look)
         set_output(scene, "OPEN_EXR_MULTILAYER")
@@ -2060,13 +2349,23 @@ class RenderRun:
         if products["index"] is None or products["depth_mm"] is None or products["normal"] is None:
             raise RuntimeError(f"{cam.name}: the EXR lacks the index, depth or normal pass")
         quality = ctx.args.preview_quality
-        pull, weights, final = self.window_pull(cam, look, result, read_display_png(f["png"]), channels, products)
+        main_img = read_display_png(f["png"])
+        pull, weights, final = self.window_pull(cam, look, result, main_img, channels, products)
+        sky = sky_weights = None
+        if under_sky:
+            # fix round after P3: the sky of a view under the exterior world (the panes and the sky never overlap:
+            # a pane is a surface hit, the sky none)
+            sky, sky_weights, sky_img = self.sky_pull(cam, look, result, final if final is not None else main_img,
+                                                      channels)
+            if sky_img is not None:
+                final = sky_img
         if final is not None:
-            write_png(f["png"], final, DISPLAY_PNG_LEVEL)    # the pulled panes, everything else as saved
+            write_png(f["png"], final, DISPLAY_PNG_LEVEL)    # the pulled panes and sky, everything else as saved
             preview_bytes = encode_preview(scene, f["png"], f["preview"], quality)
         else:
             preview_bytes = save_preview(scene, result, f["preview"], quality)
-        alt_bytes = self.alt_preview(cam, look, result, pull, weights, f["alt_preview"]) if ctx.args.alt_look else None
+        pulls = [(int(p["k"]), w) for p, w in ((pull, weights), (sky, sky_weights)) if p and w is not None]
+        alt_bytes = self.alt_preview(cam, look, result, pulls, f["alt_preview"]) if ctx.args.alt_look else None
         write_png(f["index"], products["index"])
         write_png(f["depth_mm"], products["depth_mm"])
         write_png(f["normal"], products["normal"])
@@ -2086,7 +2385,9 @@ class RenderRun:
             "camera": cam.name, "room_id": cam.get("wenart_room"), "level_id": cam.get("wenart_level"),
             **camera_lens(cam),
             "lighting_dark": look.get("lighting_dark"),
-            "sun_hidden": sun_hidden_for({k: scene.get(k) for k in WORLD_PROPS}, cam.get("wenart_camera_kind")),
+            "sun_hidden": sun_hidden_for(props, cam.get("wenart_camera_kind"), room_type),
+            # fix round after P3: the room type the world was chosen by, and the sky pull of a view under the sky
+            "room_type": room_type, "open_air": open_air(room_type), "sky_pull": sky,
             "vram_mib": vram_used_mib() if ctx.device != "CPU" else None,
             "png": f["png"].name, "exr": f["exr"].name, "preview": f["preview"].name,
             "depth_png": f["depth"].name if f["depth"].exists() else None, "index_png": f["index"].name,
@@ -2104,9 +2405,10 @@ class RenderRun:
         self.rendered += 1
         self.write_manifest()   # after every camera: a killed run keeps what it rendered
         pull_text = "none" if pull is None else f"{pull['ev']:+g}EV clip {pull['clip_before']}->{pull['clip_after']}"
+        sky_text = "none" if sky is None else f"k={sky['k']} sat {sky['saturation_before']}->{sky['saturation_after']}"
         print(f"RENDERED {cam.name} in {seconds:.1f}s ev={look['ev']:+.3f} wb={look['wb_temperature']} "
-              f"meter={look['meter_seconds']}s pull={pull_text} depth={products['depth']} "
-              f"indices={products['index_values']}")
+              f"rig_share={look.get('wb_rig_share')} meter={look['meter_seconds']}s pull={pull_text} sky={sky_text} "
+              f"world={world} depth={products['depth']} indices={products['index_values']}")
 
     def window_pull(self, cam, look: dict, result, main, channels: dict, products: dict):
         """``(record, weights, final)`` of the window pull of one camera
@@ -2132,18 +2434,24 @@ class RenderRun:
         candidates, images = [], {}
         for k in PULL_STEPS:
             img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k, look=LOOK)
-            cand = {"k": k, "clip": clip_share(img, mask), "median": masked_median(img, mask)}
+            cand = {"k": k, "clip": clip_share(img, mask), "median": masked_median(img, mask),
+                    "p90": masked_percentile(img, mask, 90.0)}
             candidates.append(cand)
             images[k] = img
             if pull_qualifies(cand, wall_median):
                 break                    # the smallest qualifying k: later ones are not needed
+            if wall_median is not None and cand["median"] <= wall_median:
+                break                    # darker than the walls: a deeper k is darker still and never chosen
         k, rule = choose_pull(candidates, wall_median)
         clip_before = clip_share(main, mask)
         record = {"ev": -float(k) if k else 0.0, "k": k, "pane_ev": round(float(look["ev"]) - k, 6),
                   "clip_before": clip_before, "clip_after": clip_before, "pane_px": int(np.count_nonzero(mask)),
                   "pane_median": round(masked_median(main, mask), 4),
+                  "pane_p90": round(masked_percentile(main, mask, 90.0), 4),
                   "wall_median": None if wall_median is None else round(wall_median, 4), "rule": rule,
-                  "tried": [{"k": c["k"], "clip": c["clip"], "median": round(c["median"], 4)} for c in candidates]}
+                  "targets": {"p90_max": PULL_P90_MAX, "median_target": PULL_MEDIAN_TARGET, "max_clip": PULL_MAX_CLIP},
+                  "tried": [{"k": c["k"], "clip": c["clip"], "median": round(c["median"], 4),
+                             "p90": round(c["p90"], 4)} for c in candidates]}
         if k == 0:
             record["seconds"] = round(time.time() - t0, 3)
             return record, None, None
@@ -2151,16 +2459,63 @@ class RenderRun:
         final = blend_pull(main, images[k], weights)
         record["clip_after"] = clip_share(final, mask)
         record["pane_median_after"] = round(masked_median(final, mask), 4)
+        record["pane_p90_after"] = round(masked_percentile(final, mask, 90.0), 4)
         record["seconds"] = round(time.time() - t0, 3)
         return record, weights, final
 
-    def alt_preview(self, cam, look: dict, result, pull: dict | None, weights, path: Path) -> int:
+    def sky_pull(self, cam, look: dict, result, main, channels: dict):
+        """``(record, weights, final)`` of the sky pull of a view under the exterior sky (fix round after P3, module
+        docstring; ``choose_sky_pull``): ``record`` None when the depth pass is missing or the sky covers less than
+        ``SKY_PULL_MIN_SHARE`` of the frame, ``final`` None when no k is chosen. ``main`` is the display image after
+        the window pull; only sky pixels change (feathered inwards like the panes)."""
+        import numpy as np
+
+        depth = find_channel(channels, "Depth.Z")
+        if depth is None:
+            self.warnings.append(f"{cam.name}: the EXR has no depth pass: no sky pull")
+            return None, None, None
+        mask = sky_mask(depth)
+        share = float(mask.mean()) if mask.size else 0.0
+        if share < SKY_PULL_MIN_SHARE:
+            return None, None, None
+        t0 = time.time()
+        before = {"median": masked_median(main, mask), "saturation": masked_saturation(main, mask)}
+        tmp = self.out / f".sky_{cam.name}.png"
+        candidates, images = [], {}
+        if not sky_pull_qualifies(before):
+            for k in SKY_PULL_STEPS:
+                img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k, look=LOOK)
+                cand = {"k": k, "median": masked_median(img, mask), "saturation": masked_saturation(img, mask)}
+                candidates.append(cand)
+                images[k] = img
+                if sky_pull_qualifies(cand):
+                    break                # the smallest qualifying k
+        k, rule = choose_sky_pull(before, candidates)
+        record = {"ev": -float(k) if k else 0.0, "k": k, "sky_ev": round(float(look["ev"]) - k, 6),
+                  "sky_px": int(np.count_nonzero(mask)), "sky_share": round(share, 4),
+                  "median_before": round(before["median"], 4), "saturation_before": round(before["saturation"], 4),
+                  "median_after": round(before["median"], 4), "saturation_after": round(before["saturation"], 4),
+                  "rule": rule, "targets": {"median_max": SKY_PULL_MEDIAN_MAX, "saturation_min": SKY_PULL_SAT_MIN},
+                  "tried": [{"k": c["k"], "median": round(c["median"], 4), "saturation": round(c["saturation"], 4)}
+                            for c in candidates]}
+        if k == 0:
+            record["seconds"] = round(time.time() - t0, 3)
+            return record, None, None
+        weights = feather_weights(mask)
+        final = blend_pull(main, images[k], weights)
+        record["median_after"] = round(masked_median(final, mask), 4)
+        record["saturation_after"] = round(masked_saturation(final, mask), 4)
+        record["seconds"] = round(time.time() - t0, 3)
+        return record, weights, final
+
+    def alt_preview(self, cam, look: dict, result, pulls: list, path: Path) -> int:
         """``<cam>_alt_preview.jpg``: the Render Result with ``--alt-look`` at the
         camera's EV; with a window pull the alt look is also saved at EV - k
-        (the main image's k) and blended with the main image's weights."""
+        (the main image's k) and blended with the main image's weights. Fix round after P3: ``pulls`` =
+        ``[(k, weights)]`` of every pull the main image got (the panes, the sky), blended in that order."""
         scene, quality = self.ctx.scene, self.ctx.args.preview_quality
         alt = self.ctx.args.alt_look
-        if weights is None:
+        if not pulls:
             vs = scene.view_settings
             saved = (vs.look, vs.exposure)
             try:
@@ -2169,10 +2524,12 @@ class RenderRun:
             finally:
                 vs.look, vs.exposure = saved
         tmp = self.out / f".alt_{cam.name}.png"
-        plain = save_display(scene, result, tmp, float(look["ev"]), look=alt)
-        pulled = save_display(scene, result, tmp, float(look["ev"]) - int(pull["k"]), look=alt)
+        image = save_display(scene, result, tmp, float(look["ev"]), look=alt)
+        for k, weights in pulls:
+            pulled = save_display(scene, result, tmp, float(look["ev"]) - int(k), look=alt)
+            image = blend_pull(image, pulled, weights)
         try:
-            write_png(tmp, blend_pull(plain, pulled, weights), DISPLAY_PNG_LEVEL)
+            write_png(tmp, image, DISPLAY_PNG_LEVEL)
             return encode_preview(scene, tmp, path, quality)
         finally:
             tmp.unlink(missing_ok=True)
@@ -2312,6 +2669,8 @@ def main(argv: list[str]) -> int:
         return 2
     look = Look(scene, args, mood, windows, look_from, look_from_path, limits=exposure_limits_for(levers))
     look.variant = levers["variant"]
+    # fix round after P3: the room types of the scene manifest, for cameras built without wenart_room_type
+    look.room_types = room_types_from_manifest(hider.manifest)
     # pre-flight of P3: the EV floor follows the built scene's sun lamp (sun_floor_shift; 0 under the M11 sun)
     look.sun_wm2 = scene_sun_wm2(scene)
     look.floor_shift = sun_floor_shift(look.sun_wm2)

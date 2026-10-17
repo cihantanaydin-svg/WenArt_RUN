@@ -11,6 +11,13 @@ WEIGHT) or bevelled geometry, and a bounding box equal to the plan's (``modules.
 and records ``module`` (builder, products, fit) on their entries. Round 4: the chair family v2 is built in its
 default look and in three design variants (``CHAIR_VARIANTS``: sled, wooden seat, rattan seat), each with one
 material slot per part key.
+
+Fix round after P3 (16-17 Oct 2026): a second scene (``KITCHEN_DOORS``) checks in Blender what the CPU tests check
+on the pure parts: a kitchen run with a drawn sink built into it (no object of its own, the run's manifest entry
+names it) and a drawn stove in a gap of the run (a ray down onto the gap meets the stove, not the worktop; scene
+check S2 has no finding), and the door stops (rays across the wall through the old 5 mm slit at the jambs, the
+head and the meeting stiles meet the door, for the Milestone 6 swing door and a Milestone 10 double door; P3's
+cam_r_L1_koridor_2_2 saw the terrace through that slit).
 """
 from __future__ import annotations
 
@@ -220,3 +227,128 @@ def test_every_family_object_has_slots_a_bevel_and_its_box(built):
         if piece["type"] == "chair":                 # round 4: the chair v2's slots are its design's keys
             keys = {p["key"] for p in P.build_parts("chair", w, d, h, piece=piece)}
             assert len([s for s in row["slots"] if s]) == len(keys) >= 2, (piece["id"], row["slots"], keys)
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3: the kitchen run's built-in sink and stove gap, the door stops
+# --------------------------------------------------------------------------
+
+RAYS_SCRIPT = textwrap.dedent("""
+    import bpy, json, sys
+    from mathutils import Vector
+    args = sys.argv[sys.argv.index("--") + 1:]
+    rays = json.load(open(args[0]))
+    scene = bpy.context.scene
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    out = {}
+    for name, r in rays.items():
+        hit, loc, _n, _i, ob, _m = scene.ray_cast(depsgraph, Vector(r["origin"]), Vector(r["direction"]),
+                                                  distance=r["distance"])
+        out[name] = {"hit": bool(hit), "object": ob.name if hit and ob is not None else None,
+                     "z": float(loc[2]) if hit else None}
+    json.dump(out, open(args[1], "w"))
+""")
+
+
+def _kitchen_doors_building() -> tuple[dict, dict]:
+    """An 8 x 6 m level split by an interior wall (x = 4.0, 0.1 m) with a swing door (the Milestone 6 door of the
+    fixture style) and a double door (Milestone 10, drawn operation); in r_a a 2.4 m kitchen run with a drawn sink
+    built into it and a drawn stove in its gap (the assets as fit.fit_building writes them)."""
+    W, D, t = 8.0, 6.0, 0.25
+    ev = [{"file": "plan.dxf", "method": "vector", "confidence": 1.0}]
+    walls = [{"id": "w_s", "start": [-t, -t / 2], "end": [W + t, -t / 2]},
+             {"id": "w_e", "start": [W + t / 2, -t], "end": [W + t / 2, D + t]},
+             {"id": "w_n", "start": [W + t, D + t / 2], "end": [-t, D + t / 2]},
+             {"id": "w_w", "start": [-t / 2, D + t], "end": [-t / 2, -t]}]
+    walls = [dict(w, level_id="L0", thickness=t, status="verified", evidence=ev, exterior=True) for w in walls]
+    walls.append({"id": "w_m", "start": [4.0, 0.0], "end": [4.0, D], "level_id": "L0", "thickness": 0.1,
+                  "status": "verified", "evidence": ev, "exterior": False})
+    rooms = [{"id": "r_a", "label": "kitchen", "room_type": "kitchen", "polygon": [[0, 0], [3.95, 0], [3.95, D], [0, D]]},
+             {"id": "r_b", "label": "living", "room_type": "living", "polygon": [[4.05, 0], [W, 0], [W, D], [4.05, D]]}]
+    rooms = [dict(r, level_id="L0", status="verified", evidence=ev, area_computed=1.0,
+                  has_documented_furniture=True) for r in rooms]
+    openings = [{"id": "d_swing", "type": "door", "wall_id": "w_m", "center": [4.0, 1.5], "width": 0.9, "height": 2.1,
+                 "sill_height": 0.0, "operation": None, "swing_side": "r_b"},
+                {"id": "d_double", "type": "door", "wall_id": "w_m", "center": [4.0, 4.0], "width": 1.3, "height": 2.1,
+                 "sill_height": 0.0, "operation": "double", "operation_source": "block_name", "swing_side": "r_b"}]
+    openings = [dict(o, level_id="L0", status="verified", evidence=ev) for o in openings]
+    run = _piece("k_run", "kitchen_counter", (2.0, 3.0), (2.4, 0.6), room_id="r_a", height=0.9)
+    sink = _piece("k_sink", "sink_kitchen", (1.2, 3.0), (0.8, 0.5), room_id="r_a")
+    stove = _piece("k_stove", "stove", (2.75, 3.0), (0.6, 0.6), room_id="r_a")
+    hints = {"sink_pos_m": [1.2, 3.0], "sink_w_m": 0.8, "sink_piece": "k_sink",
+             "ranges": [dict(M.member_in_run(run, stove), id="k_stove", type="stove")]}
+    plan = M.module_plan(dict(run, module_hints=hints))
+    assert plan["built_ins"][0]["id"] == "k_sink" and plan["gaps"][0]["id"] == "k_stove"
+    run["asset"] = {"method": "module", "library": "module", "asset_id": "module:kitchen_counter:kitchen_run",
+                    "licence": "n/a", "module_plan": plan, "module_hints": hints, "fit_scale": [1.0, 1.0, 1.0],
+                    "bbox_m": list(M.plan_bbox(plan)), "by_design": True}
+    sink["asset"] = {"method": "module", "library": "module", "asset_id": "module:kitchen_counter:kitchen_run",
+                     "licence": "n/a", "built_in": "k_run", "by_design": True, "fit_scale": [1.0, 1.0, 1.0],
+                     "module_plan": {"builder": "kitchen_run", "built_into": "k_run", "kind": "sink"},
+                     "bbox_m": [0.8, 0.5, 0.9]}
+    stove["asset"] = {"method": "parametric", "library": "parametric", "asset_id": "parametric:stove", "licence": "n/a",
+                      "fit_scale": [1.0, 1.0, 1.0], "bbox_m": [0.6, 0.6, 0.9], "by_design": True}
+    building = {"schema_version": "0.1", "status": "ok", "project": {"id": "m13-kitchen-doors-test"},
+                "levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}], "walls": walls,
+                "openings": openings, "rooms": rooms, "furniture": [run, sink, stove], "decor": [], "warnings": [],
+                "unverified": []}
+    # rays across the interior wall (x = 4.0) through the old slits: jambs (5 mm; 6 mm for the double door), the
+    # head (5 mm), the double door's meeting stiles; and down onto the stove gap and the sink unit
+    across = {"direction": [1.0, 0.0, 0.0], "distance": 0.6}
+    rays = {"swing_jamb_hi": dict(across, origin=[3.7, 1.5 + 0.4 - 0.0025, 1.2]),
+            "swing_jamb_lo": dict(across, origin=[3.7, 1.5 - 0.4 + 0.0025, 1.2]),
+            "swing_head": dict(across, origin=[3.7, 1.5, 2.1 - 0.05 - 0.0025]),
+            "double_jamb": dict(across, origin=[3.7, 4.0 + 0.6 - 0.003, 1.2]),
+            "double_meeting": dict(across, origin=[3.7, 4.0, 1.2]),
+            "stove_gap": {"origin": [2.75, 3.0, 1.2], "direction": [0.0, 0.0, -1.0], "distance": 1.2},
+            "sink_unit": {"origin": [1.2, 2.9, 1.2], "direction": [0.0, 0.0, -1.0], "distance": 1.2}}
+    return building, rays
+
+
+@pytest.fixture(scope="module")
+def kitchen_doors(tmp_path_factory):
+    pytest.importorskip("jsonschema")
+    if cli.find_blender() is None:
+        pytest.skip("no Blender binary (WENART_BLENDER, /workspace/tools/blender, /opt/wenart/blender)")
+    tmp = tmp_path_factory.mktemp("m13_kitchen_doors")
+    building, rays = _kitchen_doors_building()
+    path = tmp / "building.json"
+    path.write_text(json.dumps(building), encoding="utf-8")
+    (tmp / "assets").mkdir()
+    out = tmp / "scene"
+    cli.run_blender(Path(cli.BUILD_SCRIPT), ["--building", str(path), "--style", str(STYLE), "--assets",
+                                             str(tmp / "assets"), "--out", str(out), "--no-textures", "--no-preview",
+                                             "--no-glb"], log_path=out / "build.log")
+    manifest = json.loads((out / "scene_manifest.json").read_text(encoding="utf-8"))
+    (tmp / "rays.py").write_text(RAYS_SCRIPT, encoding="utf-8")
+    (tmp / "rays.json").write_text(json.dumps(rays), encoding="utf-8")
+    cli.run_blender(tmp / "rays.py", [str(tmp / "rays.json"), str(tmp / "hits.json")], blend=str(out / "scene.blend"))
+    (tmp / "dump.py").write_text(DUMP_SCRIPT, encoding="utf-8")
+    cli.run_blender(tmp / "dump.py", [str(tmp / "dump.json")], blend=str(out / "scene.blend"))
+    scene_checks = json.loads((out / "checks" / "scene_L0.json").read_text(encoding="utf-8"))
+    return {"manifest": manifest, "hits": json.loads((tmp / "hits.json").read_text(encoding="utf-8")),
+            "objects": json.loads((tmp / "dump.json").read_text(encoding="utf-8")), "scene_checks": scene_checks}
+
+
+def test_the_built_in_sink_has_no_object_and_the_stove_stands_in_the_gap(kitchen_doors):
+    objects, hits = kitchen_doors["objects"], kitchen_doors["hits"]
+    assert "furn_k_run" in objects and "furn_k_stove" in objects and "furn_k_sink" not in objects
+    entries = {o["element_id"]: o for o in kitchen_doors["manifest"]["objects"] if o["kind"] == "furniture"}
+    assert "k_sink" not in entries and entries["k_run"]["built_ins"] == [{"id": "k_sink", "type": "sink_kitchen"}]
+    assert entries["k_run"]["module"]["gaps"][0]["id"] == "k_stove"
+    assert hits["stove_gap"]["object"] == "furn_k_stove"                 # no worktop over the stove
+    assert hits["sink_unit"]["object"] == "furn_k_run"                   # the run's own sink unit
+    s2 = [v for v in kitchen_doors["scene_checks"]["violations"] if v["check"] == "S2"]
+    assert not s2, s2
+
+
+def test_closed_doors_have_no_slit_to_see_through(kitchen_doors):
+    hits = kitchen_doors["hits"]
+    for name in ("swing_jamb_hi", "swing_jamb_lo", "swing_head"):
+        assert hits[name]["hit"] and hits[name]["object"].startswith("d_swing_"), (name, hits[name])
+    for name in ("double_jamb", "double_meeting"):
+        assert hits[name]["hit"] and hits[name]["object"].startswith("d_double_"), (name, hits[name])
+    entries = {o["name"]: o for o in kitchen_doors["manifest"]["objects"]}
+    assert entries["d_double_leaf"]["door"]["stop_side"] in (1.0, -1.0) and "stop" in entries["d_double_leaf"]["door"]["parts"]
+    rays = {r["opening_id"]: r for r in kitchen_doors["manifest"]["checks"]["door_rays"]}
+    assert not rays["d_swing"]["hit"] and not rays["d_double"]["hit"]  # both still cut through their wall

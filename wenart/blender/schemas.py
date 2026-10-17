@@ -112,6 +112,7 @@ CAMERAS_FROM = {
                    "reason": {"type": "string"}},
 }
 
+_RGB = {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 3, "maxItems": 3}
 EXPOSURE = {
     "type": "object",
     "required": ["mode", "ev", "ev_raw", "at_limit", "target", "incident_p50", "whitepoint", "wb_temperature",
@@ -144,6 +145,16 @@ EXPOSURE = {
         "floor_shift_stops": {"type": "number", "minimum": 0},
         "wb_source": {"type": ["string", "null"]},
         "wb_from_camera": {"type": "string"},
+        # Fix round after P3 (16-17 Oct 2026, render.Look._view_white): the project anchor, the view's rig share and
+        # the rig's white point; ``whitepoint`` is then mixed_whitepoint(anchor, rig, share). Optional (older
+        # manifests have none).
+        "wb_project_whitepoint": {"oneOf": [{"type": "null"}, _RGB]},
+        "wb_rig_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "wb_rig_kelvin": {"type": ["number", "null"]},
+        "wb_rig_whitepoint": {"oneOf": [{"type": "null"}, _RGB]},
+        "wb_view_rule": {"type": "string"},
+        "wb_view_shift_mired": {"type": "number"},
+        "wb_day_incident_p50": {"type": ["number", "null"]},
     },
 }
 _SHARE = {"type": ["number", "null"], "minimum": 0, "maximum": 1}
@@ -151,10 +162,26 @@ WINDOW_PULL = {
     "oneOf": [
         {"type": "null"},
         {"type": "object", "required": ["ev", "clip_before", "clip_after", "pane_px"],
-         "properties": {"ev": {"type": "number", "maximum": 0}, "k": {"enum": [0, 1, 2, 3, 4]},
+         # fix round after P3 (16-17 Oct 2026): render.PULL_STEPS is 1..10 (was 1..4); pane_p90 and the targets
+         "properties": {"ev": {"type": "number", "maximum": 0}, "k": {"type": "integer", "minimum": 0, "maximum": 10},
                         "pane_ev": {"type": "number"}, "clip_before": _SHARE, "clip_after": _SHARE,
                         "pane_px": {"type": "integer", "minimum": 1}, "pane_median": {"type": "number"},
+                        "pane_p90": {"type": "number"}, "pane_p90_after": {"type": "number"},
+                        "targets": {"type": "object"},
                         "wall_median": {"type": ["number", "null"]}, "rule": {"type": "string"}}},
+    ],
+}
+# Fix round after P3 (16-17 Oct 2026): the sky pull of a view under the exterior sky (render.Renderer.sky_pull);
+# k 0 = no pull (render.SKY_PULL_STEPS is 1..4).
+SKY_PULL = {
+    "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["ev", "k", "sky_px", "sky_share", "median_before", "median_after", "rule"],
+         "properties": {"ev": {"type": "number", "maximum": 0}, "k": {"type": "integer", "minimum": 0, "maximum": 4},
+                        "sky_ev": {"type": "number"}, "sky_px": {"type": "integer", "minimum": 1},
+                        "sky_share": _SHARE, "median_before": {"type": "number"}, "median_after": {"type": "number"},
+                        "saturation_before": {"type": "number"}, "saturation_after": {"type": "number"},
+                        "rule": {"type": "string"}, "targets": {"type": "object"}, "tried": {"type": "array"}}},
     ],
 }
 # Milestone 10 (docs/milestone10.md §1.6b row 11): object kinds of the whole building; views.KIND_MAP never maps
@@ -445,6 +472,11 @@ RENDER_ENTRY = {
         "lighting_dark": {"oneOf": [{"type": "null"}, LIGHTING_DARK]},
         "sun_hidden": {"type": "boolean"},
         "vram_mib": {"type": ["integer", "null"], "minimum": 0},
+        # Fix round after P3 (16-17 Oct 2026): the camera's room type, whether it is an open-air room (rendered under
+        # the exterior world) and the sky pull of a view under the exterior sky.
+        "room_type": {"type": ["string", "null"]},
+        "open_air": {"type": "boolean"},
+        "sky_pull": SKY_PULL,
     },
 }
 

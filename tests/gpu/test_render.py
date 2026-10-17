@@ -71,6 +71,12 @@ Milestone 10 (docs/milestone10.md §1.6b row 10, §3.2, §3.3; fixed after pod F
   footprint centre and the fitted width and depth (± ``BOX3D_TOLERANCE_M``).
   Listed as "library box edge only"; parametric pieces and proxies, which fill
   their boxes, keep the strict rule.
+
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8; render code m13.2): every view keeps the project
+white point or mixes it with the rig by its rig share (real04's anchor stays P3's 5,635 K within 250 K); the walls of
+rig-lit views have a display R/B of at most 1.5; open-air views render under the exterior world with no black sky;
+the sky pulls meet their targets and the pulled panes sit under the AgX shoulder; rooms whose rig adds to the fill
+light are not dark, and at most a quarter of the hall / stair views pass the +3 cap.
 """
 import hashlib
 import json
@@ -355,6 +361,25 @@ def test_passes_exist_and_depth_is_plausible(project):
     assert not bad, f"{name}: views with missing files or an implausible depth pass: {bad}"
 
 
+# Fix round after P3 (16-17 Oct 2026; G_geometry's ask): P3's cam_r_L1_koridor_2_2 looked through the slit between a
+# closed door leaf and its frame (no door stops) into the far site: depth past the 60 m interior bound. With the
+# stops (shell.door_m6_parts, parametric.door_stop_boxes) the view ends on the door. P3: max 196.3 m, coverage
+# 0.99966 (the slit's sky pixels); the other corridor views: coverage 1.0.
+CLOSED_DOOR_VIEWS = ("cam_r_L1_koridor_2_2",)
+CLOSED_DOOR_MIN_COVERAGE = 0.9999
+
+
+def test_closed_door_views_end_on_the_door(project):
+    name, _scene, render = project
+    entries = {r["camera"]: r for r in render["renders"] if r["camera"] in CLOSED_DOOR_VIEWS}
+    if not entries:
+        pytest.skip(f"{name}: none of {CLOSED_DOOR_VIEWS} rendered")
+    for cam, r in entries.items():
+        depth = r.get("depth") or {}
+        assert depth.get("max") is not None and depth["max"] < MAX_INDOOR_DEPTH_M, (cam, depth)
+        assert depth.get("coverage", 0.0) >= CLOSED_DOOR_MIN_COVERAGE, (cam, depth)
+
+
 def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dict) -> bool:
     """True when the model sees a library piece only at the outer edge of its fitted box (Milestone 10, pod F1):
     with ``asset.bbox_m`` shrunk by ``LIBRARY_BOX_SLACK_M`` per side (height kept) its model share falls under
@@ -508,3 +533,180 @@ def test_white_plaster_walls_are_neutral(project):
     ratio = float(total[0] / max(total[2], 1e-6))
     print(f"{name}: white wall display R/B {ratio:.3f} over {len(per_view)} views; per view {per_view}")
     assert ratio <= WHITE_WALL_MAX_RB, f"{name}: white walls render warm (R/B {ratio:.3f}); per view {per_view}"
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8): the light and colour of the views. P3 (real04)
+# rendered 24 of 48 views with an orange cast (the 2700 K rig under the 5,635 K daylight point), the roof terraces
+# under the interior HDRI (22-31 % black pixels), the windows as a blank pale plane (pane medians 0.86-0.97), a
+# windowless bedroom night-dark and 10 hall views over the +3 cap. These checks read the run's own manifests; a
+# project rendered before the fix (render code m13.1) fails them by design.
+# --------------------------------------------------------------------------
+
+RIG_ROOM_MAX_RB = 1.5           # wall display R/B of a view lit mostly by the rig (P3: 1.86-4.2 under the anchor)
+RIG_DOMINANT_SHARE = 0.8        # wb_rig_share from which a view counts as lit by the rig
+NEAR_BLACK = 8                  # display value under which a pixel is black (every channel)
+OPEN_AIR_MAX_BLACK = 0.02       # black share of an open-air view's sky pixels (P3: 22-31 % of the whole frame)
+P3_REAL04_WB_K = 5635.0         # P3's real04 project white point (cam_r_L1_teras_1, daylight only, interior world)
+P3_WB_TOLERANCE_K = 250.0
+PANE_MEDIAN_MAX = 0.85          # pulled panes at or under the AgX shoulder
+PANE_PULLED_SHARE = 0.8         # ... in at least this share of the interior views with a pull
+HALL_DARK_MAX_SHARE = 0.25      # hall / stair views still over the +3 cap (P3: 10 of 13 after the agent's x3)
+
+
+def _project_wb(render: dict) -> bool:
+    return render.get("white_balance_mode") == "project" and bool((render.get("white_balance_project") or {})
+                                                                  .get("whitepoint"))
+
+
+def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
+    """Every view's white point is the project anchor, or the anchor mixed with the rig's colour by the view's rig
+    share (``render.mixed_whitepoint``); real04's anchor stays P3's (the terraces are still metered under the
+    interior world)."""
+    from wenart.blender import render as R
+
+    name, _scene, render = project
+    if not _project_wb(render):
+        pytest.skip(f"{name}: not rendered with --white-balance project")
+    anchor = [float(v) for v in render["white_balance_project"]["whitepoint"]]
+    residual = render["white_balance_project"].get("residual") or 0.0
+    bad = []
+    for r in render["renders"]:
+        x = r["exposure"]
+        if x.get("wb_project_whitepoint") is None:
+            bad.append((r["camera"], "no wb_project_whitepoint (rendered before the fix round?)"))
+            continue
+        if max(abs(a - b) for a, b in zip(x["wb_project_whitepoint"], anchor)) > 1e-6:
+            bad.append((r["camera"], "another anchor", x["wb_project_whitepoint"]))
+        share = x.get("wb_rig_share")
+        want = anchor if share is None or share < R.WB_RIG_SHARE_MIN else \
+            R.mixed_whitepoint(anchor, x["wb_rig_whitepoint"], share, residual)
+        if max(abs(a - b) for a, b in zip(x["whitepoint"], want)) > 1e-5:
+            bad.append((r["camera"], share, x["whitepoint"], want))
+    assert not bad, f"{name}: white points off the rule: {bad}"
+    if name == "real04":
+        kelvin = render["white_balance_project"].get("kelvin")
+        assert kelvin is not None and abs(kelvin - P3_REAL04_WB_K) <= P3_WB_TOLERANCE_K, \
+            f"real04: the project white point moved from P3's {P3_REAL04_WB_K} K to {kelvin} K"
+    print(f"{name}: rig shares " + ", ".join(f"{r['camera']}={r['exposure'].get('wb_rig_share')}"
+                                             for r in render["renders"]))
+
+
+def test_rig_lit_rooms_have_no_orange_cast(project):
+    """The walls of a view lit mostly by the rig (``wb_rig_share`` >= 0.8) and metered within the cap have a display
+    R/B of at most 1.5 (``views.regions`` walls, as ``test_white_plaster_walls_are_neutral``; P3: 1.86-4.2)."""
+    from wenart import views
+
+    name, scene, render = project
+    if not _project_wb(render):
+        pytest.skip(f"{name}: not rendered with --white-balance project")
+    entries = {r["camera"]: r for r in render["renders"]}
+    rig_lit = [c for c, r in entries.items() if (r["exposure"].get("wb_rig_share") or 0.0) >= RIG_DOMINANT_SHARE
+               and not r["exposure"].get("lighting_dark")]
+    if not rig_lit:
+        pytest.skip(f"{name}: no view lit mostly by the rig within the cap")
+    table = views.index_table(scene)
+    loaded = views.load_views(OUTPUTS / name / "renders", cameras=rig_lit)
+    per_view, warm = {}, []
+    for cam, v in loaded.items():
+        mask = views.regions(v.read_index(), v.read_depth_mm(), v.read_normal(), table).masks.get(views.STRUCT_WALLS)
+        if mask is None or mask.sum() < 0.01 * mask.size:
+            continue
+        mean = v.read_rgb()[mask].astype(np.float64).mean(axis=0)
+        per_view[cam] = round(float(mean[0] / max(mean[2], 1e-6)), 3)
+        if per_view[cam] > RIG_ROOM_MAX_RB:
+            warm.append((cam, per_view[cam], entries[cam]["exposure"].get("wb_rig_share")))
+    print(f"{name}: wall R/B of the rig-lit views {per_view}")
+    assert not warm, f"{name}: rig-lit views still orange (wall R/B > {RIG_ROOM_MAX_RB}): {warm}"
+
+
+def test_open_air_views_render_under_the_exterior_sky(project):
+    """A camera of an open-air room (``render.open_air``: real02 / real04's terraces) renders under the exterior
+    world when the scene has one, its sun lamp follows the exterior rule, and its sky has no black pixels."""
+    from wenart import views
+    from wenart.blender import render as R
+
+    name, scene, render = project
+    exterior_world = ((scene.get("lighting") or {}).get("world_exterior") or {})
+    types = R.room_types_from_manifest(scene)
+    open_air = [r for r in render["renders"] if R.open_air(types.get(r.get("room_id") or ""))]
+    if not open_air:
+        pytest.skip(f"{name}: no view of an open-air room")
+    bad, black = [], {}
+    for r in open_air:
+        if not r.get("open_air"):
+            bad.append((r["camera"], "entry without open_air (rendered before the fix round?)"))
+        if exterior_world and r.get("world") != exterior_world.get("name"):
+            bad.append((r["camera"], f"rendered under {r.get('world')}, not the exterior world "
+                                     f"{exterior_world.get('name')}"))
+    if exterior_world:
+        loaded = views.load_views(OUTPUTS / name / "renders", cameras=[r["camera"] for r in open_air])
+        for cam, v in loaded.items():
+            sky = v.read_depth_mm() == 0                     # no surface within 65 m: the sky and the far ground
+            sky[sky.shape[0] // 2:, :] = False                # the upper half: the sky
+            if sky.sum() < 0.01 * sky.size:
+                continue
+            rgb = v.read_rgb()[sky]
+            black[cam] = round(float((rgb < NEAR_BLACK).all(axis=-1).mean()), 4)
+            if black[cam] > OPEN_AIR_MAX_BLACK:
+                bad.append((cam, f"{black[cam]:.1%} black sky pixels"))
+    print(f"{name}: open-air views {[r['camera'] for r in open_air]}, black sky share {black}")
+    assert not bad, f"{name}: open-air views: {bad}"
+
+
+def test_sky_and_window_pulls_reach_their_targets(project):
+    """Every view under the exterior sky carries a ``sky_pull`` record, and a chosen sky pull's save reads as sky
+    (median under the shoulder, saturation over the floor) and darkens and saturates the blended sky; the pulled
+    panes of the interior views are at or under the AgX shoulder in at least 80 % of them (P3: pane medians
+    0.86-0.97 after k 1-2)."""
+    from wenart.blender import render as R
+
+    name, scene, render = project
+    exterior_world = ((scene.get("lighting") or {}).get("world_exterior") or {})
+    bad, skies = [], {}
+    for r in render["renders"]:
+        if exterior_world and (r.get("room_id") is None or r.get("open_air")):
+            if "sky_pull" not in r:
+                bad.append((r["camera"], "no sky_pull record"))
+            elif r["sky_pull"] and r["sky_pull"]["k"]:
+                # the chosen save meets the targets; the blended sky (feathered 3 px inwards at the silhouettes: a
+                # sky between leaves keeps part of the rendered one, CPU check on real02 at 240 x 135) is bluer and
+                # darker than the rendered one
+                s = r["sky_pull"]
+                chosen = next((c for c in s.get("tried") or [] if c["k"] == s["k"]), None)
+                skies[r["camera"]] = (s["k"], s["median_after"], s["saturation_after"])
+                if chosen is None or not R.sky_pull_qualifies(chosen) or s["median_after"] > s["median_before"] \
+                        or s["saturation_after"] < s["saturation_before"]:
+                    bad.append((r["camera"], "sky pull off its targets", s))
+    pulled = [(r["camera"], r["window_pull"].get("pane_median_after")) for r in render["renders"]
+              if r.get("room_id") is not None and not r.get("open_air") and (r.get("window_pull") or {}).get("k")]
+    over = [(c, m) for c, m in pulled if m is None or m > PANE_MEDIAN_MAX]
+    print(f"{name}: sky pulls {skies}; pulled panes {len(pulled)}, over {PANE_MEDIAN_MAX}: {over}")
+    if pulled and (len(pulled) - len(over)) / len(pulled) < PANE_PULLED_SHARE:
+        bad.append(("window pull", f"{len(over)} of {len(pulled)} pulled views keep pane medians over "
+                                   f"{PANE_MEDIAN_MAX}", over))
+    assert not bad, f"{name}: {bad}"
+
+
+def test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(project):
+    """A room whose rig has no ceiling fixture keeps the fill light (``lighting.rig_replaces_fill``): none of its
+    views is ``lighting_dark`` (P3: r_L0_yatak_odasi_4 +6.1..+6.5 EV wanted). The hall and stair views (bulbs for
+    450 lm/m², ``lighting.rig_bulbs``) are over the cap in at most a quarter of them (P3: 10 of 13)."""
+    from wenart.blender import render as R
+
+    name, scene, render = project
+    rig = (scene.get("lighting") or {}).get("rig") or {}
+    if not rig.get("on"):
+        pytest.skip(f"{name}: built without the rig")
+    rooms = rig.get("rooms") or {}
+    adds = {rid for rid, rec in rooms.items() if rec.get("adds_to_fill_light")}
+    dark = [(r["camera"], r["exposure"]["ev_raw"]) for r in render["renders"]
+            if r.get("room_id") in adds and r["exposure"].get("lighting_dark")]
+    types = R.room_types_from_manifest(scene)
+    halls = [r for r in render["renders"] if types.get(r.get("room_id") or "") in ("hall", "stair")]
+    dark_halls = [(r["camera"], r["exposure"]["ev_raw"]) for r in halls if r["exposure"].get("lighting_dark")]
+    print(f"{name}: rooms whose rig adds to the fill light {sorted(adds)}; hall views {len(halls)}, over the cap "
+          f"{dark_halls}")
+    assert not dark, f"{name}: rooms with the fill light back are still dark: {dark}"
+    assert not halls or len(dark_halls) / len(halls) <= HALL_DARK_MAX_SHARE, \
+        f"{name}: {len(dark_halls)} of {len(halls)} hall / stair views over the cap: {dark_halls}"

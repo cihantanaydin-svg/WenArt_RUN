@@ -169,6 +169,20 @@ report"); the report now reads it: each view carries ``lighting_dark`` (its reco
 light and the agent's ``set_lighting`` factor of the room, the summary counts them (``summary.lighting_dark``, by
 severity), an advisory flag names them, the per-view EV column shows the metered EV of a capped view and
 ``final_report.md`` has the section "Views too dark for the EV cap".
+
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8): previews and plan crops of cameras this run does not
+have leave ``final/``.
+
+- What: after the images of this run are written, every ``<cam>_final_preview.jpg`` and ``<cam>_plan.jpg`` in
+  ``final/`` that this run did not write (a camera the new scene does not have, a view without an image) is moved to
+  ``final/earlier_run/`` (``move_stale_view_files``); the warning names each moved file and the manifest lists them
+  (``earlier_run_files``). Contact sheets and debug images of an earlier run stay listed as before.
+- Why: P3's ``final/`` on the volume still held the M12 previews and plan crops of ``cam_r_L0_koridor_2`` / ``_3``
+  (the render manifest dropped those cameras); the results copy took them and they looked like P3 renders.
+- How: a move, not a delete (CLAUDE.md: nothing is deleted from the volume without the user's OK);
+  ``earlier_run/`` is a sub-folder no copy rule reads (``wenart.run.copy`` copies only the files directly in
+  ``final/``), so the results of the run hold only its own views. A name already in ``earlier_run/`` gets a
+  ``_2``, ``_3`` ... suffix.
 """
 from __future__ import annotations
 
@@ -201,6 +215,8 @@ GATE_EFFECT = {
     "not_validated": "no polish for this project: every final image is the Cycles render",
 }
 DEBUG_DIR = "debug"
+STALE_DIR = "earlier_run"            # fix round after P3: previews and plan crops of cameras this run does not have
+STALE_VIEW_PATTERNS = ("*_final_preview.jpg", "*_plan.jpg")
 # status_note of a report without a render manifest (the orchestrator records the report stage of a project
 # that a deadline or a failure stopped before its first render as a warning with the same words).
 NO_RENDERS = "no renders in this run"
@@ -324,6 +340,8 @@ FINAL_MANIFEST = {
         "models": {"type": "array"},
         "contact_sheets": {"type": "object", "additionalProperties": {"type": "string"}},
         "warnings": {"type": "array", "items": {"type": "string"}},
+        # fix round after P3: the previews and plan crops moved to final/earlier_run/ (move_stale_view_files)
+        "earlier_run_files": {"type": "array", "items": {"type": "string"}},
         # Milestone 7 (§9.4)
         "units": {"type": ["object", "null"], "properties": {"system": {"enum": ["metric", "imperial"]}}},
         "side_by_side": {"type": "object", "required": ["sheets"],
@@ -467,6 +485,7 @@ class Inputs:
     debug_previews: list = field(default_factory=list)   # [{source, preview, bytes}] written by write_sheets_block
     variant_sheets: dict = field(default_factory=dict)   # variant id -> {"interior": name, "exterior": name}
     sheets_block: Optional[dict] = None                  # the Sheets block of the report (m10.sheets_block)
+    earlier_run_files: list = field(default_factory=list)   # fix round after P3: files moved to final/earlier_run/
 
     @property
     def gate_dir(self) -> Path:
@@ -1827,14 +1846,15 @@ def write_images(inp: Inputs, views: list[dict]) -> dict:
         inp.exterior_sheets[variant] = name
     inp.variant_sheets = write_variant_sheets(inp)
     inp.side_by_side = write_side_by_side(inp, views)
-    # Files of an earlier run that this run did not write are listed, not deleted.
+    # Files of an earlier run that this run did not write: the previews and plan crops of cameras this run does not
+    # have move to final/earlier_run/ (fix round after P3, never deleted); contact sheets are listed, not moved.
     written = ({v["preview"] for v in views} | {v["plan"] for v in views} | set(sheets.values())
                | set(inp.side_by_side.values()) | set(inp.exterior_sheets.values())
                | {n for sheet in inp.variant_sheets.values() for n in sheet.values()})
-    for pattern in ("*_final_preview.jpg", "*_plan.jpg", "contact_*.jpg"):
-        for f in sorted(out.glob(pattern)):
-            if f.name not in written:
-                inp.warnings.append(f"final/{f.name} is from an earlier run (not part of this report)")
+    inp.earlier_run_files = move_stale_view_files(out, written, inp.warnings)
+    for f in sorted(out.glob("contact_*.jpg")):
+        if f.name not in written:
+            inp.warnings.append(f"final/{f.name} is from an earlier run (not part of this report)")
     inp.sheets_block = write_sheets_block(inp)
     # Debug previews too (as write_review_images does): real02's final/debug/one_building_dwg_p1.jpg came from a run
     # before the sheet regions and stayed next to this run's sheet image without a word.
@@ -1844,6 +1864,38 @@ def write_images(inp: Inputs, views: list[dict]) -> dict:
         if rel not in debug_written:
             inp.warnings.append(f"final/{rel} is from an earlier run (not part of this report)")
     return sheets
+
+
+def _free_path(path: Path) -> Path:
+    """``path``, or ``<stem>_2<suffix>``, ``_3`` ... when it exists (an earlier run's file is never overwritten)."""
+    n = 2
+    out = path
+    while out.exists():
+        out = path.with_name(f"{path.stem}_{n}{path.suffix}")
+        n += 1
+    return out
+
+
+def move_stale_view_files(out_dir: Path, written: set, warnings: list) -> list[str]:
+    """Fix round after P3 (module docstring): every ``<cam>_final_preview.jpg`` / ``<cam>_plan.jpg`` directly in
+    ``out_dir`` that is not in ``written`` (this run's file names) moves to ``out_dir/earlier_run/``; a warning names
+    each one. Returns the moved names (as they were in ``final/``), sorted."""
+    out_dir = Path(out_dir)
+    moved = []
+    for pattern in STALE_VIEW_PATTERNS:
+        for f in sorted(out_dir.glob(pattern)):
+            if f.name in written or not f.is_file():
+                continue
+            if f.is_symlink():                       # not this run's file either, but a link is never moved
+                warnings.append(f"final/{f.name} is from an earlier run (not part of this report)")
+                continue
+            target = _free_path(out_dir / STALE_DIR / f.name)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            f.replace(target)
+            moved.append(f.name)
+            warnings.append(f"final/{f.name} is from an earlier run (not part of this report): moved to "
+                            f"final/{target.relative_to(out_dir).as_posix()}")
+    return sorted(moved)
 
 
 def _safe_name(text: str) -> str:
@@ -2609,6 +2661,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         "below_library": below_library(inp.building),
         # round 4: every view whose metered EV passed the cap, with the metered EV and the cap
         "lighting": lighting,
+        # fix round after P3: the previews and plan crops of cameras this run does not have (final/earlier_run/)
+        "earlier_run_files": list(inp.earlier_run_files),
         "warnings": list(inp.warnings),
     }
 

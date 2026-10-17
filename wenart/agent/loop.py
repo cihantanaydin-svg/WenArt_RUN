@@ -58,6 +58,31 @@ Milestone 13 (docs/milestone13.md §1.5, §3.0 K4, §13.2; track T4):
   (``no_edit``); three rounds bound the GPU time to what the measured removals justify (§1.5 T9: $0.133 per removed
   finding).
 
+Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
+
+- context budget: before every planner call ``plan_session`` estimates the NEXT prompt (``ContextBudget``: the last
+  answer's ``prompt_tokens`` plus the text and images added since; before the first answer, the whole text) against
+  the model's ``max_model_len`` (the served key's ``--max-model-len``) minus ``CONTEXT_MARGIN_TOKENS``; when the
+  prompt plus the answer budget do not fit, the tool results older than the last ``KEEP_REPLIES`` = 2 replies become
+  one-line stubs, then those older than the latest reply, then the latest reply's results are cut to
+  ``LATEST_RESULT_CHARS``; the answer budget is ``min(model.max_tokens, room left)``, never below
+  ``MIN_REPLY_TOKENS``. A tool result enters the conversation cut to ``TOOL_RESULT_CHARS`` = 6,000 characters
+  (was 12,000). When the server still refuses the prompt (``ContextFullError``), everything but the latest reply is
+  cut and the call is sent once more; a second refusal ends the session like a used-up budget
+  (``context_full``, no error). The round stops ``context_full`` when a session ended so and no edit was accepted;
+  ``model_error`` stays for the other model errors (timeout, 5xx, no connection);
+- measured, not predicted: the loop's printed line, the stop event and ``summary()`` report the findings the next
+  round's critics measured gone (``metrics.findings_removed_metrics``); the dry re-checks' count is labelled
+  "predicted" (``findings_removed_predicted``); the acceptance rule is unchanged;
+- a decor piece (``building["decor"]``) belongs to its room in ``sessions_for`` (and in the code critic); an X2 on a
+  decor piece has the cause ``decor_under_roof`` (no agent tool edits decor) and is logged with ``report_to:
+  decor``, so the building session is not sent to fix it (P3: 4 rounds of "relayout_room on building");
+- every finding event carries its ``cause``; a finding no tool fixes carries ``not_yours`` (the reason).
+
+Why: in P3 the building session's prompt grew 6,866 -> 17,606 -> 19,745 -> 22,294 -> >=28,673 tokens with its tool
+results, the 5th call passed the 32,768-token context, and the round stopped "the agent model did not answer"
+although the model had answered 4 times (the same overflow ended one session in each of rounds 1-3).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -88,7 +113,7 @@ from wenart.agent import overrides as OV
 from wenart.agent import prompts as P
 from wenart.agent import tools as TL
 from wenart.agent.causes import accept_edit, cause_of, findings_removed, tools_for_finding  # noqa: F401 (§13.2)
-from wenart.agent.model import MAX_IMAGES, ModelError, user_message
+from wenart.agent.model import MAX_IMAGES, ContextFullError, ModelError, count_images, user_message
 
 STAGE_ORDER = ("pipeline_final", "layout", "refit", "build", "polish")
 # Milestone 13: 3 rounds (module docstring): real04 removed 20 findings in 6 rounds and 84.5 % of the round-1
@@ -106,9 +131,25 @@ STOPS = {
     "max_rounds": "max rounds reached",
     "deadline": "time budget: the final stages need the time left before the deadline - 20 min",
     "rerun_failed": "the re-run of the changed stages failed",
-    "model_error": "the agent model did not answer",
+    # fix round after P3: a model error other than a full context (a full context is ``context_full``)
+    "model_error": "the agent model did not answer (a timeout, a server error or no connection)",
+    # fix round after P3: a session's prompt no longer fit the server's context, even after cutting old tool results
+    "context_full": "a session's conversation no longer fit the agent model's context and no edit was accepted",
 }
 BUILDING = "building"
+# Fix round after P3 (module docstring): the context budget of a planner session.
+CONTEXT_MARGIN_TOKENS = 1024     # kept free under the server's --max-model-len (chat template, estimate error)
+CHARS_PER_TOKEN_ADDED = 2.0      # text added since the last answer (P3's JSON tool results: about 2.3 per token)
+CHARS_PER_TOKEN_REMOVED = 4.0    # text cut out: counted low, so a cut never looks bigger than it is
+IMAGE_TOKENS = 1500              # an image added since the last answer (a 1280-px render is about 1,000 tokens)
+TOOL_RESULT_CHARS = 6000         # a tool result as it enters the conversation (was 12,000)
+TOOL_STUB_CHARS = 200            # what an old tool result keeps when the context is full
+LATEST_RESULT_CHARS = 2000       # the latest reply's tool results when cutting the older ones was not enough
+MIN_REPLY_TOKENS = 1024          # the planner's answer budget never goes below this
+KEEP_REPLIES = 2                 # the tool results of the last 2 replies stay whole while the older ones are cut
+STUB_NOTE = "[older tool result removed to fit the context; call the tool again if you need it]"
+CONTEXT_CHECK = "context_budget"  # the ``check`` event of a session whose context was cut or full (tool field)
+CUT_NOTE = "[cut to fit the context]"
 
 
 def route(accepted: list[dict]) -> Optional[str]:
@@ -166,6 +207,125 @@ def prune_images(messages: list, keep: int = MAX_IMAGES) -> None:
                 seen += 1
                 if seen > keep:
                     content[i] = {"type": "text", "text": "[an older image was removed: at most 4 images per call]"}
+
+
+# --------------------------------------------------------------------------
+# The context budget of a session (fix round after P3)
+# --------------------------------------------------------------------------
+
+def message_chars(message: dict) -> int:
+    """The text characters of one message: its text content, its text parts and its tool calls' names and
+    arguments (images are counted apart, ``count_images``)."""
+    content = message.get("content")
+    n = 0
+    if isinstance(content, str):
+        n += len(content)
+    elif isinstance(content, list):
+        n += sum(len(str(part.get("text") or "")) for part in content
+                 if isinstance(part, dict) and part.get("type") == "text")
+    for tc in message.get("tool_calls") or []:
+        fn = (tc or {}).get("function") or {}
+        n += len(str(fn.get("name") or "")) + len(str(fn.get("arguments") or ""))
+    return n
+
+
+def conversation_chars(messages: list) -> int:
+    return sum(message_chars(m) for m in messages)
+
+
+def tool_result_text(result) -> str:
+    """A tool result as it enters the conversation: JSON, cut to ``TOOL_RESULT_CHARS`` with ``CUT_NOTE``."""
+    text = json.dumps(result, ensure_ascii=False, default=str)
+    if len(text) <= TOOL_RESULT_CHARS:
+        return text
+    return text[:TOOL_RESULT_CHARS] + f" ... {CUT_NOTE}"
+
+
+def cut_tool_results(messages: list, keep_replies: int, cap: int, stub: bool) -> int:
+    """Cut the tool results of every reply but the last ``keep_replies`` (a tool message belongs to the assistant
+    message before it): to a one-line stub with ``STUB_NOTE``, the tool's name and its first ``cap`` characters
+    (``stub``), else to its first ``cap`` characters with ``CUT_NOTE``. In place; the characters removed."""
+    names: dict = {}
+    reply_of: list = []
+    replies = 0
+    for m in messages:
+        if m.get("role") == "assistant":
+            replies += 1
+            for tc in m.get("tool_calls") or []:
+                names[str((tc or {}).get("id"))] = str(((tc or {}).get("function") or {}).get("name") or "tool")
+        reply_of.append(replies)
+    last_cut = replies - int(keep_replies)
+    removed = 0
+    for m, reply in zip(messages, reply_of):
+        if m.get("role") != "tool" or reply > last_cut or not isinstance(m.get("content"), str):
+            continue
+        text = m["content"]
+        if text.startswith(STUB_NOTE):
+            continue
+        if stub:
+            new = f"{STUB_NOTE} {names.get(str(m.get('tool_call_id')), 'tool')}: {text[:cap]}"
+        else:
+            if text.endswith(CUT_NOTE) and len(text) <= cap + len(CUT_NOTE) + 8:
+                continue
+            new = f"{text[:cap]} ... {CUT_NOTE}"
+        if len(new) < len(text):
+            removed += len(text) - len(new)
+            m["content"] = new
+    return removed
+
+
+class ContextBudget:
+    """The context budget of one planner session (module docstring, fix round after P3). ``max_model_len`` None:
+    no budget (a model without the attribute). ``want``: the answer budget the model asks for by default."""
+
+    def __init__(self, max_model_len: Optional[int], want: int, specs: Optional[list] = None):
+        self.limit = int(max_model_len) - CONTEXT_MARGIN_TOKENS if max_model_len else None
+        self.want = max(1, int(want))
+        self.spec_chars = len(json.dumps(specs or [], ensure_ascii=False, default=str))
+        self.last: Optional[dict] = None      # the last measured prompt: tokens, messages, characters
+        self.cuts: list[dict] = []           # what was cut, for the log
+
+    def measured(self, messages: list, prompt_tokens) -> None:
+        """The server's prompt size for ``messages`` (an answer's ``usage.prompt_tokens``, or the size a context-full
+        refusal names)."""
+        try:
+            tokens = int(prompt_tokens)
+        except (TypeError, ValueError):
+            return
+        if tokens > 0:
+            self.last = {"tokens": tokens, "n": len(messages), "chars": conversation_chars(messages)}
+
+    def estimate(self, messages: list) -> int:
+        """The NEXT prompt's tokens: the last measured prompt, plus the text (2 characters a token) and images added
+        since, minus the text cut out of it since (4 characters a token); before any measure, the whole text and the
+        tool specs at 2 characters a token plus the images."""
+        if self.last is None:
+            return int((conversation_chars(messages) + self.spec_chars) / CHARS_PER_TOKEN_ADDED
+                       + count_images(messages) * IMAGE_TOKENS)
+        n = self.last["n"]
+        old, new = messages[:n], messages[n:]
+        removed = max(0, self.last["chars"] - conversation_chars(old))
+        return int(self.last["tokens"] + conversation_chars(new) / CHARS_PER_TOKEN_ADDED
+                   + count_images(new) * IMAGE_TOKENS - removed / CHARS_PER_TOKEN_REMOVED)
+
+    def fits(self, messages: list, tokens: Optional[int] = None) -> bool:
+        return self.limit is None or self.estimate(messages) + int(tokens or self.want) <= self.limit
+
+    def fit(self, messages: list, force: bool = False) -> int:
+        """Cut old tool results until the next prompt plus the answer budget fit (module docstring); ``force`` (after
+        a context-full refusal): cut everything but the latest reply first. Returns the ``max_tokens`` to ask for."""
+        if self.limit is None:
+            return self.want
+        steps = ((KEEP_REPLIES, TOOL_STUB_CHARS, True), (1, TOOL_STUB_CHARS, True), (0, LATEST_RESULT_CHARS, False))
+        for i, (keep, cap, stub) in enumerate(steps):
+            if not (force and i < 2) and self.fits(messages):
+                break
+            removed = cut_tool_results(messages, keep, cap, stub)
+            if removed:
+                self.cuts.append({"keep_replies": keep, "chars_removed": removed,
+                                  "estimate": self.estimate(messages)})
+        room = self.limit - self.estimate(messages)
+        return int(min(self.want, max(room, min(self.want, MIN_REPLY_TOKENS))))
 
 
 # --------------------------------------------------------------------------
@@ -637,12 +797,18 @@ class AgentLoop:
                            model=self.log.model, revision=self.log.revision,
                            evidence={"images": c.get("images") or []})
         for f in (code.get("findings") or []) + (vision.get("kept") or []) + (vision.get("dropped") or []):
+            # fix round after P3: the cause, and for a finding no agent tool fixes the reason and the stage it is
+            # reported to (``causes.REPORT_TO``: a decor piece through the roof goes back to the decor stage)
+            cause = f.get("cause")
+            no_tool = cause in CS.CAUSE_TOOLS and not CS.CAUSE_TOOLS[cause] and not f.get("dropped")
             self.log.event("finding", round_no, source=f["source"], checklist=f["check"], severity=f["severity"],
                            target=f["target"], room_id=f.get("room_id"), finding=f["message"],
                            evidence=f.get("evidence"), dropped=f.get("dropped"),
                            call_id=(f.get("evidence") or {}).get("call_id"),
                            model=self.log.model if f["source"] != "code" else None,
-                           revision=self.log.revision if f["source"] != "code" else None)
+                           revision=self.log.revision if f["source"] != "code" else None,
+                           cause=cause, not_yours=CS.no_tool_reason(f) if no_tool else None,
+                           report_to=CS.REPORT_TO.get(cause) if no_tool else None)
 
     def log_edit(self, round_no: int, call_id: str, tool: str, args: Optional[dict], result: dict,
                  label: Optional[str], findings: list[dict], room_id: Optional[str] = None) -> None:
@@ -660,7 +826,9 @@ class AgentLoop:
             evidence = {"acceptance": {k: verdict.get(k) for k in ("accepted", "reason", "target", "before", "after",
                                                                    "removed", "note", "carried")
                                        if verdict.get(k) is not None}}
-        self.log.event("edit" if accepted else "rejected_edit", round_no, model=self.log.model or "unknown",
+        # fix round after P3: the seq the tool reserved for this edit (its ``log_seq`` in overrides.json)
+        self.log.event("edit" if accepted else "rejected_edit", round_no, seq=result.get("log_seq") or None,
+                       model=self.log.model or "unknown",
                        revision=self.log.revision, call_id=call_id, tool=tool, args=dict(args or {}),
                        target=target, checklist=match["check"] if match else None,
                        severity=match["severity"] if match else None, finding=match["message"] if match else None,
@@ -688,7 +856,10 @@ class AgentLoop:
         and how many open findings are not fixable."""
         open_ = [f for f in found if f["severity"] in wanted]
         rooms = {r.get("id"): r for r in ctx.building.get("rooms") or []}
-        piece_room = {p.get("id"): p.get("room_id") for p in ctx.building.get("furniture") or []}
+        # fix round after P3: a decor piece belongs to its room too (P3: an X2 on the mirror dec_L1_009 had no room
+        # and went to the building session, whose relayout_room on "building" was refused for 4 rounds)
+        piece_room = {p.get("id"): p.get("room_id") for p in (ctx.building.get("decor") or [])
+                      + (ctx.building.get("furniture") or []) if isinstance(p, dict)}
         by_room: dict = {}
         for f in found:
             rid = f.get("room_id") or piece_room.get(f.get("target")) or (f.get("target") if f.get("target") in rooms
@@ -723,9 +894,10 @@ class AgentLoop:
     def plan(self, ctx: TL.ToolContext, round_no: int, sessions: list[dict], critical_only: bool = False) -> dict:
         """The planner part of one round: the sessions in their order, ``workers`` at a time; a session starts only
         before the round's time cap and while the time budget allows (the first one always). ``{"calls",
-        "schema_errors", "replies", "error", "sessions", "rooms", "plans_ok"}``."""
+        "schema_errors", "replies", "error", "sessions", "rooms", "plans_ok", "context_full"}`` (fix round after P3:
+        ``error`` is a model error other than a full context; ``context_full`` counts the sessions it ended)."""
         total = {"calls": 0, "replies": 0, "error": None, "sessions": 0, "rooms": [], "plans_ok": 0,
-                 "steps_done": 0, "steps": 0}
+                 "steps_done": 0, "steps": 0, "context_full": 0}
         budget = CallBudget(self.max_calls)
         cap_at = self.clock() + self.round_cap_s
         lock = threading.Lock()
@@ -752,6 +924,7 @@ class AgentLoop:
             for k in ("calls", "replies", "steps_done", "steps"):
                 total[k] += res[k]
             total["plans_ok"] += 1 if res["plan_ok"] else 0
+            total["context_full"] += 1 if res.get("context_full") else 0
             if res["error"]:
                 total["error"] = res["error"]
         return dict(total, schema_errors=ctx.schema_errors)
@@ -801,6 +974,10 @@ class AgentLoop:
         specs = self.registry.specs(offered)
         calls = replies = 0
         error = None
+        context_full = False
+        # fix round after P3: the next prompt is budgeted against the served context (module docstring)
+        window = ContextBudget(getattr(self.model, "max_model_len", None),
+                               int(getattr(self.model, "max_tokens", 0) or MIN_REPLY_TOKENS), specs)
         done = [False] * len(checklist)
         try:
             while calls < self.calls_per_room and state.finished is None and not all(done or [False]) \
@@ -811,11 +988,22 @@ class AgentLoop:
                     break
                 replies += 1
                 prune_images(messages)
+                ask = window.fit(messages)
                 try:
-                    reply = self.model.chat(messages, specs, call_id=f"{tag}-p{replies}")
+                    try:
+                        reply = self.model.chat(messages, specs, call_id=f"{tag}-p{replies}", max_tokens=ask)
+                    except ContextFullError as exc:
+                        # the server's own count: cut everything but the latest reply and ask once more
+                        window.measured(messages, getattr(exc, "prompt_tokens", None))
+                        ask = window.fit(messages, force=True)
+                        reply = self.model.chat(messages, specs, call_id=f"{tag}-p{replies}-cut", max_tokens=ask)
+                except ContextFullError:
+                    context_full = True            # like a used-up budget: the session ends, no model error
+                    break
                 except ModelError as exc:
                     error = str(exc)
                     break
+                window.measured(messages, (reply.usage or {}).get("prompt_tokens"))
                 messages.append(reply.assistant_message())
                 if not reply.tool_calls:
                     break
@@ -842,8 +1030,7 @@ class AgentLoop:
                                     if not done[k] and step_done(step, tc.name, tc.parsed or {}, result,
                                                                  findings=ctx.findings):
                                         done[k] = True
-                    messages.append({"role": "tool", "tool_call_id": tc.id,
-                                     "content": json.dumps(result, ensure_ascii=False, default=str)[:12000]})
+                    messages.append({"role": "tool", "tool_call_id": tc.id, "content": tool_result_text(result)})
                 if state.pending_images:
                     shown = state.pending_images[-MAX_IMAGES:]
                     labels = [f"Image from a tool: {Path(p).name}" for p in shown]
@@ -855,8 +1042,21 @@ class AgentLoop:
             open_steps += [str(x) for x in ((state.finished or {}).get("open_findings") or [])]
             self.memory.set_open(room_id, open_steps)
             ctx.end_session()
+        if context_full or window.cuts:
+            # fix round after P3: what the context budget cut, and a session ended by a full context (logged)
+            self.log.event("check", round_no, source="code", tool=CONTEXT_CHECK, target=room_id,
+                           call_id=f"{tag}-p{replies}",
+                           status="context_full" if context_full else "cut", model=self.log.model,
+                           revision=self.log.revision,
+                           note=("the conversation no longer fit the model's context after cutting the old tool "
+                                 "results: the session ends like a used-up budget" if context_full else
+                                 "old tool results cut to fit the model's context"),
+                           counts={"cuts": len(window.cuts),
+                                   "chars_removed": sum(int(c["chars_removed"]) for c in window.cuts),
+                                   "max_model_len": getattr(self.model, "max_model_len", None)})
         return {"room_id": room_id, "calls": calls, "replies": replies, "error": error, "plan_ok": plan_ok,
-                "steps": len(checklist), "steps_done": sum(done), "seconds": round(self.clock() - t0, 2)}
+                "steps": len(checklist), "steps_done": sum(done), "seconds": round(self.clock() - t0, 2),
+                "context_full": context_full}
 
     # ----- one round ---------------------------------------------------------------------------------
 
@@ -904,7 +1104,7 @@ class AgentLoop:
                                            if c.get("target") in {r.get("id") for r in ctx.building.get("rooms")
                                                                    or []}}),
                    "rooms_planner": [], "rooms_fixable": [], "unfixable_open": 0, "sessions": 0, "plans_ok": 0,
-                   "refused_repeats": 0, "dry_runs": 0, "findings_removed": 0}
+                   "refused_repeats": 0, "dry_runs": 0, "findings_removed": 0, "context_full": 0}
         self.rounds.append(summary)
         if not open_:
             summary["stop"] = "no_finding"
@@ -921,9 +1121,13 @@ class AgentLoop:
         summary.update(calls=plan["calls"], schema_errors=plan["schema_errors"], accepted=len(ctx.accepted),
                        rejected=len(ctx.rejected), rooms_planner=plan["rooms"], sessions=plan["sessions"],
                        plans_ok=plan["plans_ok"], refused_repeats=ctx.refused_repeats, dry_runs=ctx.dry_runs,
-                       findings_removed=removed)
+                       findings_removed=removed, context_full=int(plan.get("context_full") or 0))
         if plan["error"] and not ctx.accepted:
             summary["stop"] = "model_error"
+            return self._end_round(summary, t0)
+        if plan.get("context_full") and not ctx.accepted:
+            # fix round after P3: the model answered; a conversation outgrew the context (not "did not answer")
+            summary["stop"] = "context_full"
             return self._end_round(summary, t0)
         if not ctx.accepted:
             summary["stop"] = "no_edit"
@@ -973,15 +1177,17 @@ class AgentLoop:
     def _end_round(self, summary: dict, t0: float) -> dict:
         summary["seconds"] = round(self.clock() - t0, 1)
         self.log.event("round", summary["round"], status=summary["stop"] or "done", seconds=summary["seconds"],
-                       counts={k: summary[k] for k in ("accepted", "rejected", "calls", "schema_errors", "dropped",
-                                                       "rooms_code", "sessions", "plans_ok", "refused_repeats",
-                                                       "dry_runs", "unfixable_open", "findings_removed")},
+                       counts={k: summary.get(k) for k in ("accepted", "rejected", "calls", "schema_errors",
+                                                           "dropped", "rooms_code", "sessions", "plans_ok",
+                                                           "refused_repeats", "dry_runs", "unfixable_open",
+                                                           "findings_removed", "context_full")},
                        evidence={"findings": summary["findings"], "rooms_vision": summary["rooms_vision"],
                                  "rooms_planner": summary["rooms_planner"],
                                  "rooms_fixable": summary["rooms_fixable"], "final": summary["final"]})
         self.save()
+        # fix round after P3: the dry re-checks' count is a prediction (the next round's critics measure it)
         self.out(f"agent round {summary['round']}: findings {summary['findings']}, findings removed "
-                 f"{summary['findings_removed']}, accepted {summary['accepted']}, "
+                 f"{summary['findings_removed']} (predicted by the dry re-check), accepted {summary['accepted']}, "
                  f"rejected {summary['rejected']}, rooms {len(summary['rooms_planner'])}/"
                  f"{len(summary['rooms_fixable'])} fixable, re-run {summary['rerun_from'] or '-'} "
                  f"({len(summary['views'])} views)" + (f", stop: {STOPS[summary['stop']]}" if summary["stop"] else ""))
@@ -1014,13 +1220,28 @@ class AgentLoop:
         if stop is None:
             stop = "max_rounds"
         self.stop = {"round": last, "reason": stop}
+        # fix round after P3: the measured number (the next round's critics) leads; the dry re-checks' is "predicted"
+        measured = self.measured_removed()
+        accepted = sum(r["accepted"] for r in self.rounds)
         self.log.event("stop", last, reason=STOPS[stop], status=stop,
-                       note=f"{self.findings_removed} findings removed by "
-                            f"{sum(r['accepted'] for r in self.rounds)} accepted edits in {len(self.rounds)} rounds",
-                       counts={"findings_removed": self.findings_removed,
-                               "accepted": sum(r["accepted"] for r in self.rounds)})
+                       note=f"{measured['total']} findings removed by {accepted} accepted edits in "
+                            f"{len(self.rounds)} rounds (measured by the next round's critics; the dry re-checks "
+                            f"predicted {self.findings_removed})",
+                       counts={"findings_removed": measured["total"],
+                               "findings_removed_predicted": self.findings_removed, "accepted": accepted})
         self.save()
         return self.summary()
+
+    def measured_removed(self) -> dict:
+        """Fix round after P3: ``{"total", "per_round"}`` of this run: the critical / major findings of a round that
+        the next round's critics no longer found (``metrics.findings_removed_metrics``, the success number); zeros
+        when the log cannot be read."""
+        try:
+            from wenart.agent import metrics as MX
+            got = MX.compute(self.log.data()).get("findings_removed") or {}
+            return {"total": int(got.get("total") or 0), "per_round": dict(got.get("per_round") or {})}
+        except Exception:  # noqa: BLE001 - the numbers never stop the loop
+            return {"total": 0, "per_round": {}}
 
     def final_round(self, round_no: int) -> dict:
         """The extra round after the final check: critical findings only, on the final renders (§8 "final")."""
@@ -1035,8 +1256,13 @@ class AgentLoop:
         return res
 
     def summary(self) -> dict:
+        """The loop's summary. Fix round after P3: ``findings_removed`` is the measured number (``measured_removed``;
+        the scheduler's "N finding(s) removed" line), ``findings_removed_predicted`` the dry re-checks' sum."""
+        measured = self.measured_removed()
         return {"rounds": list(self.rounds), "stop": self.stop,
                 "accepted": sum(r["accepted"] for r in self.rounds),
                 "rejected": sum(r["rejected"] for r in self.rounds),
-                "findings_removed": sum(int(r.get("findings_removed") or 0) for r in self.rounds),
+                "findings_removed": measured["total"],
+                "findings_removed_per_round": measured["per_round"],
+                "findings_removed_predicted": sum(int(r.get("findings_removed") or 0) for r in self.rounds),
                 "log": str(self.log.dir / LG.LOG_JSON)}

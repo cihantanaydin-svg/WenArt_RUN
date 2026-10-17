@@ -41,7 +41,10 @@ How (the definitions):
 
 1.  drawn anchors built: ``from_documents`` pieces whose type (or ``drawn_type``) is in ``ANCHOR_TYPES``; built =
     ``build`` not false and ``asset.method`` in library / module / parametric.
-2.  drawn pieces in the scene: the same rule over every ``from_documents`` piece.
+2.  drawn pieces in the scene: the same rule over every ``from_documents`` piece. A second number (parts
+    ``furniture``, ``built_of_furniture``) leaves out the explained non-furniture: unbuilt pieces the pipeline
+    explained as an outline, a detail, a column or decor (``inferred_as`` in ``EXPLAINED_AS``), a symbol both AI
+    passes call ``not_furniture``, or a detail inside a kitchen counter leg (``EXPLAINED_REASONS``).
 3.  pieces with ``asset.method: none``.
 4.  parametric share of the built pieces (parts: parametric and module shares of the built pieces, parametric
     share of every fitted piece = a piece with an ``asset`` whose method is not ``none`` (§7: 115 of 246 for real04,
@@ -49,10 +52,11 @@ How (the definitions):
     manifest).
 5.  rooms with a complete group set (``ROOM_SETS`` by room type, over built furniture and decor): share of the
     furnished main rooms (rooms of those types with at least one built piece); parts per room type.
-6.  findings of the last orchestrator round: F8, S2 deeper than 3 cm (``evidence.metrics.depth_m``), G10, LG
-    (non-dropped ``finding`` events); value = their sum, parts = each.
-7.  accepted edits whose finding is gone in the next round: accepted ``edit`` events of round r < last with a
-    checklist and a target; gone = no non-dropped finding with the same checklist and target in round r + 1.
+6.  findings of the last orchestrator round of the latest run (``run_first_seq``): F8, S2 deeper than 3 cm
+    (``evidence.metrics.depth_m``), G10, LG (non-dropped ``finding`` events); value = their sum, parts = each.
+7.  accepted edits of the latest run (``run_first_seq``) whose finding is gone in the next round: accepted ``edit``
+    events of round r < last with a checklist and a target; gone = no non-dropped finding with the same checklist
+    and target in round r + 1.
 8.  built library pieces: top model share (value), distinct models, units unknown (``asset.units_known`` false),
     stretch > 5 % (max / min of ``fit_scale`` - 1), audit quality <= 3 (the lower M8 judge score of ``asset.quality``
     <= 3, or a ``vision_doubt`` on the catalogue entry).
@@ -79,6 +83,18 @@ How (the definitions):
 17. minutes and USD per full run: the stage seconds of the run (``run/*.json`` records of the run id, else the
     final manifest's ``run_stages``) at ``PRICE_USD_PER_H`` (env ``WENART_GPU_USD_PER_H`` overrides; the §7 price
     of the RTX PRO 6000). The pod's wall minutes (docs/gpu-log.md) are longer: setup and downloads are not stages.
+
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8):
+
+- What: ``locate`` keeps only the events of the latest run of an appended orchestrator log (``seq >=
+  run_first_seq``, the rule of ``wenart.agent.metrics.compute``); metric 2 adds the share without the explained
+  non-furniture next to the §7 number.
+- Why: the volume's real04 ``log.json`` is re-used by every run (``AgentLog`` appends): P3's "after" read the M12
+  round 7 (m6 123, as the baseline) and 222 accepted edits (183 of them M12); counting P3 alone gives m6 38
+  (round 4) and m7 29 of 39. Metric 2 counted 12 duplicate sink details, 10 columns, rug outlines and AI-confirmed
+  not-furniture symbols as missing pieces (178 of 240; 178 of 202 without them).
+- How: the filter applies only when ``run_first_seq`` > 1 (a log without it, or a hand-built one whose events carry
+  no ``seq``, keeps every event); ``parts.run_first_seq`` of metrics 6 and 7 says which run was read.
 """
 from __future__ import annotations
 
@@ -98,6 +114,12 @@ BUILT_METHODS = ("library", "module", "parametric")
 NOT_BUILT_METHOD = "none"
 HALL_TYPES = ("hall", "corridor", "vestibule", "landing", "stair")
 UPHOLSTERED_TYPES = ("sofa", "sofa_corner", "armchair", "ottoman")
+# Metric 2, fix round after P3: unbuilt drawn pieces the pipeline explained as no piece of furniture.
+# = wenart.ingest.generic.reading.EXPLAINED_AS (tests/test_m13_report.py keeps them equal)
+EXPLAINED_AS = ("rug", "detail", "column", "decor")
+# the not_built_reason of a detail inside a kitchen counter leg (wenart.ingest.generic.symbols, M11 split)
+EXPLAINED_REASONS = ("detail inside a kitchen counter leg",)
+NOT_FURNITURE = "not_furniture"
 # Room type -> the group set a furnished room of that type needs (docs/milestone13.md §7 metric 5):
 # (name, types that satisfy it, how many).
 ROOM_SETS: dict[str, tuple] = {
@@ -164,6 +186,7 @@ class Run:
     report_md: Optional[str] = None
     attribution_md: Optional[str] = None
     log: Optional[dict] = None
+    log_first_seq: int = 1                        # the latest run's first event of an appended log (run_first_seq)
     rubric: Optional[list] = None
     stage_records: list = field(default_factory=list)
     preview_dirs: list = field(default_factory=list)
@@ -249,6 +272,7 @@ def locate(project_out) -> Run:
     run.render = _read_json(run.paths["render"], w)
     run.final = _read_json(run.paths["final"], w)
     run.log = _read_json(run.paths["log"], w)
+    _latest_run_only(run)
     rubric = _read_json(run.paths["rubric"], w)
     run.rubric = rubric if isinstance(rubric, list) else None
     for key, attr in (("report", "report_md"), ("attribution", "attribution_md")):
@@ -263,6 +287,33 @@ def locate(project_out) -> Run:
     for key in run.missing:
         w.append(f"{key}: no file ({run.layout} layout under {run.root})")
     return run
+
+
+def _latest_run_only(run: Run) -> None:
+    """Keep the events of the latest run of an appended orchestrator log (fix round after P3, module docstring):
+    ``seq >= run_first_seq``, as ``wenart.agent.metrics.compute``; nothing changes when ``run_first_seq`` is missing
+    or 1."""
+    if not isinstance(run.log, dict):
+        return
+    try:
+        first = int(run.log.get("run_first_seq") or 1)
+    except (TypeError, ValueError):
+        first = 1
+    run.log_first_seq = first
+    if first <= 1:
+        return
+    events = [e for e in run.log.get("events") or [] if isinstance(e, dict)]
+    kept = [e for e in events if _seq(e) >= first]
+    run.log = dict(run.log, events=kept)
+    run.warnings.append(f"orchestrator log: the latest run from seq {first} ({len(kept)} of {len(events)} events; "
+                        "earlier runs of the appended log left out)")
+
+
+def _seq(event: dict) -> int:
+    try:
+        return int(event.get("seq") or 0)
+    except (TypeError, ValueError):
+        return 0
 
 
 def _stage_records(folder: Path, warnings: list) -> list[dict]:
@@ -393,16 +444,47 @@ def metric_1(run: Run) -> dict:
                     "not_built": sorted(p.get("id") for p in anchors if not _built(p))}, src)
 
 
+def explained_not_furniture(piece: dict) -> Optional[str]:
+    """Why an unbuilt drawn piece is no piece of furniture (metric 2, fix round after P3), or None: ``inferred_as``
+    in ``EXPLAINED_AS`` (an outline, a detail, a column, decor), every AI pass (two or more) says
+    ``not_furniture``, or the counter-leg detail of the kitchen split (``EXPLAINED_REASONS``). A built piece is never
+    explained away."""
+    if _built(piece):
+        return None
+    if piece.get("inferred_as") in EXPLAINED_AS:
+        return str(piece["inferred_as"])
+    passes = [c for c in piece.get("type_candidates") or [] if isinstance(c, dict)]
+    if len(passes) >= 2 and all(c.get("type") == NOT_FURNITURE for c in passes):
+        return NOT_FURNITURE
+    reason = str(piece.get("not_built_reason") or "")
+    if any(reason.startswith(r) for r in EXPLAINED_REASONS):
+        return "detail"
+    return None
+
+
 def metric_2(run: Run) -> dict:
-    src = "building_final.json furniture[]: source from_documents; built = build not false and asset.method not none"
+    src = "building_final.json furniture[]: source from_documents; built = build not false and asset.method not " \
+          "none; parts furniture / built_of_furniture leave out the unbuilt pieces explained as no furniture " \
+          "(inferred_as rug / detail / column / decor, both AI passes not_furniture, a counter-leg detail)"
     if run.building is None:
         return _metric(2, NO_DATA, source=src)
     drawn = [p for p in _furniture(run) if p.get("source") == "from_documents"]
     built = [p for p in drawn if _built(p)]
-    return _metric(2, _pct(len(built), len(drawn)), _of(len(built), len(drawn)),
+    explained: dict = {}
+    for p in drawn:
+        why = explained_not_furniture(p)
+        if why is not None:
+            explained[why] = explained.get(why, 0) + 1
+    n_explained = sum(explained.values())
+    furniture = len(drawn) - n_explained
+    text = f"{_of(len(built), len(drawn))}; without the {n_explained} explained non-furniture pieces: " \
+           f"{_of(len(built), furniture)}"
+    return _metric(2, _pct(len(built), len(drawn)), text,
                    {"built": len(built), "drawn": len(drawn),
                     "build_false": sum(1 for p in drawn if p.get("build") is False),
-                    "method_none": sum(1 for p in drawn if _method(p) == NOT_BUILT_METHOD)}, src)
+                    "method_none": sum(1 for p in drawn if _method(p) == NOT_BUILT_METHOD),
+                    "explained": n_explained, "explained_by": dict(sorted(explained.items())),
+                    "furniture": furniture, "built_of_furniture": _pct(len(built), furniture)}, src)
 
 
 def metric_3(run: Run) -> dict:
@@ -485,8 +567,8 @@ def _last_round(run: Run) -> Optional[int]:
 
 
 def metric_6(run: Run) -> dict:
-    src = "orchestrator log.json finding events of the last round (not dropped) by checklist; S2 counted when " \
-          f"evidence.metrics.depth_m > {S2_DEPTH_M} m"
+    src = "orchestrator log.json finding events of the last round of the latest run (run_first_seq; not dropped) by " \
+          f"checklist; S2 counted when evidence.metrics.depth_m > {S2_DEPTH_M} m"
     last = _last_round(run)
     if run.log is None or last is None:
         return _metric(6, NO_DATA, source=src)
@@ -504,12 +586,13 @@ def metric_6(run: Run) -> dict:
             counts[c] += 1
     text = f"round {last}: F8 {counts['F8']} / S2 > 3 cm {counts['S2']} (S2 all {s2_all}) / G10 {counts['G10']} " \
            f"/ LG {counts['LG']}"
-    return _metric(6, sum(counts.values()), text, dict(counts, S2_all=s2_all, round=last, findings=len(found)), src)
+    return _metric(6, sum(counts.values()), text, dict(counts, S2_all=s2_all, round=last, findings=len(found),
+                                                      run_first_seq=run.log_first_seq), src)
 
 
 def metric_7(run: Run) -> dict:
-    src = "orchestrator log.json: accepted edit events of round r < last with checklist and target; gone = no " \
-          "finding with the same checklist and target in round r + 1"
+    src = "orchestrator log.json of the latest run (run_first_seq): accepted edit events of round r < last with " \
+          "checklist and target; gone = no finding with the same checklist and target in round r + 1"
     last = _last_round(run)
     if run.log is None or last is None:
         return _metric(7, NO_DATA, source=src)
@@ -522,7 +605,8 @@ def metric_7(run: Run) -> dict:
     accepted = sum(1 for e in run.log.get("events") or [] if isinstance(e, dict) and e.get("kind") == "edit")
     return _metric(7, _pct(len(gone), len(edits)), f"{_of(len(gone), len(edits))} (accepted edits {accepted}, "
                                                     f"rounds {last})",
-                   {"gone": len(gone), "judged": len(edits), "accepted": accepted, "rounds": last}, src)
+                   {"gone": len(gone), "judged": len(edits), "accepted": accepted, "rounds": last,
+                    "run_first_seq": run.log_first_seq}, src)
 
 
 def _quality_low(asset: dict, entry: Optional[dict]) -> Optional[bool]:

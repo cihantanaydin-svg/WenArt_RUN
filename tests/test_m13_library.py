@@ -3,7 +3,11 @@ drawn demands and the size grid of the committed buildings, the coverage per lic
 entries, the growth lists, the growth job's steps and the audit gates.
 
 CPU only: the HSSD metadata and the Hub are never touched (a small fake table and fake fetchers); the committed
-lists under results/library/growth are read as data."""
+lists under results/library/growth are read as data.
+
+Fix round after P3 (16-17 Oct 2026): the title flags ``branded`` / ``other_use``, the ``sanitary_finish`` check and
+the committed catalogue's audit records of the P3 findings (a Disney CARS cushion, a sporting-goods rack as a
+bookshelf, a gold bathtub)."""
 from __future__ import annotations
 
 import json
@@ -21,6 +25,7 @@ from wenart.assets.audit import gaps as GP
 from wenart.assets.audit import growth as GR
 from wenart.assets.audit import growth_entries as GE
 from wenart.assets.audit import growth_run as RUN
+from wenart.assets.audit import keywords as K
 from wenart.assets.audit import load_config
 from wenart.assets.audit import write as W
 from wenart.furniture import catalog as C
@@ -741,3 +746,105 @@ def test_ambientcg_ingest_retries_a_cut_api_answer_and_records_a_failure_only_af
     err = by["Tiles074"]["error"]
     assert err.startswith("IncompleteBody: https://ambientcg.com/api/v2/full_json?id=Tiles074") and "try 3 of 3" in err
     assert "growth ingest ambientcg: Tiles074 failed: IncompleteBody" in capsys.readouterr().out
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026): brands, other uses and metal sanitary ware
+# --------------------------------------------------------------------------
+
+P3_REMOVED = {
+    "hssd_50549dea6434f912fa0134d5ed43f35f164908a4": "disney",          # the CARS cushion of the real04 salon
+    "hssd_071d7e49a3865750863d8086f18b2dd650d2287a": "disney",          # "Disneys Cars Cuddle Pillow"
+    "objaverse_b08a7135cad84e0ca222a8cff075109b": "harry potter",
+    "abo_B07L96X7MN": "sporting goods",                                 # the wire rack used as a bookshelf
+    "hssd_df8abd46ef3dd6017f6863558381655f1510d275": "oro",             # the gold bathtub rendered as a mirror
+    "hssd_9217adecf2924d759f38708b72d3bc1eb711406b": "copper",          # the same rule: "Holywell FS Bath, Copper"
+    "gen_bathtub_industrial_3_154b1fde": "judged slot",                 # both judges: one metal slot, 100 %
+}
+
+
+def test_branded_and_other_use_titles_are_hard_flags():
+    """P3: a Disney CARS cushion (keep) showed in the real04 living room and a "Sporting Goods" rack stood in as its
+    bookshelf; the old keywords had neither category (this test fails on them)."""
+    for title in ("Disney CARS Racer's Edge Cushion Cover - 45x45 cms", "Disneys Cars Cuddle Pillow",
+                  "Harry Potter Books Stack", "Pokémon Pikachu Plush", "Star Wars Darth Vader Lamp"):
+        assert "branded" in K.flags(title), title
+    for title in ("AmazonBasics Classic Office Desk Computer Chair", "Frozen glass vase", "Toy cars storage box",
+                  "Amazon Brand – Rivet Industrial Wood and Metal Round Dining Kitchen Table",
+                  "Vintage cars wall art"):
+        assert "branded" not in K.flags(title), title                 # no bare "cars" or "frozen"
+    assert K.flags("AmazonBasics Sporting Goods Storage Organizer Shelf - Black") == {"other_use": ["sporting goods"]}
+    assert K.flags("Heavy Duty Garage Shelving Unit")["other_use"] == ["garage shelving"]
+    for title in ("AmazonBasics Foldable Metal Platform Bed Frame with Tool-Free Assembly", "Ball & Cast End Table",
+                  "Amazon Brand – Stone & Beam Industrial Pallet Wood Coffee Table", "Hidden Home Office"):
+        assert "other_use" not in K.flags(title), title
+    assert set(CK.HARD_FLAGS) >= {"branded", "other_use"} and "§2.6" in CK.FLAG_TEXT["branded"]
+    it = gate_item(id="hssd_x", type="cushion", kind="decor", source="hssd", title="Disneys Cars Cuddle Pillow",
+                   bbox_m=[0.45, 0.15, 0.45])
+    recs = [r for r in CK.item_checks(it, CFG, {"cushion"}) if r["check"] == "title_flag"]
+    assert recs and recs[0]["status"] == "remove" and recs[0]["metrics"]["category"] == "branded"
+    d = D.decide(it, CK.item_checks(it, CFG, {"cushion"}), None, None, CFG)
+    assert d["status"] == "removed" and any("licensed brand" in r for r in d["reasons"])
+
+
+def test_sanitary_ware_with_a_metal_main_material_is_removed():
+    """P3: the HSSD bathtub "Regia Jolie ... oro" (gold) rendered as polished mirror metal in cam_r_L1_banyo_2; the
+    old audit had no surface check (no record, this test fails). The title's finish word removes it unless a part or
+    a non-metal body is named; the Milestone 10 slot judgement removes a metal main slot both judges agree on."""
+    def tub(title, **kw):
+        return gate_item(id="hssd_t", type="bathtub", source="hssd", title=title, bbox_m=[1.7, 0.75, 0.6], **kw)
+
+    for title in ("Regia Jolie, free standing bathtub, art. 200820, oro", "Holywell FS Bath, Copper",
+                  "Chrome plated slipper bath", "Polished brass roll top bath"):
+        r = CK.sanitary_finish_check(tub(title))
+        assert r["status"] == "remove" and "polished metal" in r["reason"], title
+    for title in ("Holywell FS Bath, Steel", "Kaldewei CLASSIC DUO, 180 x 80 x 43 cm", "Stone Bath"):
+        assert CK.sanitary_finish_check(tub(title))["status"] == "ok", title
+    acrylic = CK.sanitary_finish_check(tub("Gold acrylic bath"))
+    assert acrylic["status"] == "warn" and "acrylic body" in acrylic["reason"]
+    basin = gate_item(id="hssd_b", type="washbasin", source="hssd", bbox_m=[0.8, 0.5, 0.85],
+                      title="Sink Console with Haden Faucet Set - Satin Nickel finish Knobs &amp; Faucet")
+    r = CK.sanitary_finish_check(basin)
+    assert r["status"] == "warn" and r["metrics"]["part"] == ["faucet", "knob"]
+    slot = {"index": 0, "material": "metal", "share": 1.0, "agreed": True}
+    assert CK.sanitary_finish_check(tub("Generated industrial bathtub (3)", material_slots=[slot]))["status"] == "remove"
+    assert CK.sanitary_finish_check(tub("Generated industrial bathtub (1)",
+                                        material_slots=[dict(slot, agreed=False)]))["status"] == "warn"
+    small = [dict(slot, share=0.2), {"index": 1, "material": "other", "share": 0.8, "agreed": True}]
+    assert CK.sanitary_finish_check(tub("Bath", material_slots=small))["status"] == "ok"   # metal taps only
+    lamp = gate_item(type="floor_lamp", title="Polished brass floor lamp")
+    assert CK.sanitary_finish_check(lamp)["status"] == "skip"
+    oro = tub("Regia Jolie, free standing bathtub, art. 200820, oro")
+    assert "sanitary_finish" in [r["check"] for r in CK.item_checks(oro, CFG, {"bathtub"})]
+    assert D.decide(oro, CK.item_checks(oro, CFG, {"bathtub"}), None, None, CFG)["status"] == "removed"
+
+
+def test_the_committed_catalogue_keeps_the_p3_findings_out_of_the_fit():
+    """The 3 branded entries, the sporting-goods rack and the gold bathtub of P3 (and the two other entries the same
+    checks remove) carry audit status ``removed`` with the check's reason and the decision_sha decide() gives, so a
+    later audit write is idempotent; none is usable in either licence mode. No other kept entry trips the new
+    checks."""
+    from wenart.assets.audit import items as I
+
+    cat = C.load()
+    doc = json.loads(I.LIBRARY_PATH.read_text(encoding="utf-8"))
+    entries = {e["id"]: (e, s) for s in ("entries", "decor") for e in doc[s]}
+    known = set(SZ.types()) | set(SZ.decor_types())
+    for aid, word in P3_REMOVED.items():
+        e, section = entries[aid]
+        a = e["audit"]
+        assert a["status"] == "removed" and any(word in r for r in a["reasons"]), aid
+        assert not C.usable(cat.entry(aid), "relaxed") and not C.usable(cat.entry(aid), "commercial"), aid
+        assert C.unusable_reason(cat.entry(aid), "relaxed").startswith("audit: removed"), aid
+        assert any("fix round after P3" in n for n in a["notes"]), aid
+        item = I.item_of(e, "library", section)
+        d = D.decide(item, CK.item_checks(item, CFG, known), None, None, CFG)
+        assert d["status"] == "removed" and a["decision_sha"] == W.decision_sha(d) and a["reasons"] == d["reasons"]
+    new = ("branded", "other_use")
+    for item in I.load_items():
+        if (item.get("audit") or {}).get("status") not in ("keep", "fix"):
+            continue
+        recs = CK.item_checks(item, CFG, known)
+        hit = [r for r in recs if r["status"] == "remove" and (r["check"] == "sanitary_finish" or (
+            r["check"] == "title_flag" and r["metrics"]["category"] in new))]
+        assert not hit, (item["id"], hit)

@@ -65,6 +65,23 @@ Round 3 (pod P1 of 15 Oct 2026, docs/milestone13.md §14.3): no retaining wall t
 wall; every platform record says ``wall_max_m`` and the terrain under it); the hedge core is a hull with rounded
 shoulders (``hedge_hull_profile``); the lawn material gets its tiling and variation (``vegetation.lawn_material``);
 ``terrain_record`` never raises on a bare terrain record.
+
+Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 attempt 2, P3's real04 exterior views):
+
+- plants stand on the surface under them: ``stand_terrain`` gives the terrain model the flat platforms' levels
+  (``stand``; ``ground_z`` of a point inside one is its level), and ``tree_parts`` / ``hedge_parts`` take it in
+  ``build_site`` and in the exterior camera model. P3 built every hedge and shrub on the terrain under the
+  terraces: real04's hedge_003 stood 1.2-1.8 m under the -3.0 m terrace sp_001, so its hull showed only as dark
+  triangles and loose leaf cards on the terrace's retaining wall, and shrubs on the stepped bands were buried;
+- ``fit_hedges`` keeps a hedge's hull on its planting side: a hedge on a terrace stays on the slab (inside its
+  edges by half its width), a hedge beside a terrace or the building stays outside its retaining wall or facade;
+  the polyline moves at most ``HEDGE_FIT["max_shift_m"]``, else the hedge gets narrower (never under
+  ``min_width_m``); the hedge records ``fit`` (drawn polyline and width, the shift, the reason) and an ``assumed``
+  entry;
+- the lawn's far relief only goes down (``vegetation.LAWN_RELIEF``) and keeps every edge of the ground at its level:
+  P3's +-3 cm relief pushed the lawn through the paving (lifted ``PAVING_LIFT`` = 1.2 cm) of the paths;
+- ``SITE_FALLBACK_LOOKS`` names the slugs the builder puts on by itself (``exterior.build_finish_slugs``: their
+  texture sets are fetched since).
 """
 from __future__ import annotations
 
@@ -365,7 +382,11 @@ def door_terrain(building: dict, levels: Sequence[dict], terrain: dict, outline:
 
 
 def ground_z(model: dict, x: float, y: float) -> float:
-    """The ground level at ``(x, y)`` (``terrain_model``)."""
+    """The ground level at ``(x, y)`` (``terrain_model``). A model of ``stand_terrain`` (fix round after P3) gives a
+    point inside one of its flat platforms that platform's level (the highest one when they overlap)."""
+    for poly, level in model.get("stand") or ():
+        if G.point_in_polygon((x, y), poly):
+            return float(level)
     z = model["z"]
     if model["kind"] == "flat":
         return float(z["+x"])
@@ -387,6 +408,17 @@ def ground_z(model: dict, x: float, y: float) -> float:
     w = math.atan2(abs(y - cy), abs(x - cx)) / (math.pi / 2.0)      # 0 along the x side, 1 along the y side
     zx, zy = float(z["+x" if dx > 0 else "-x"]), float(z["+y" if dy > 0 else "-y"])
     return (1.0 - w) * zx + w * zy
+
+
+def stand_terrain(terrain: dict, platforms: Sequence[dict] = ()) -> dict:
+    """The surface plants stand on (pure; fix round after P3, 16-17 Oct 2026): ``terrain`` with ``stand``, the
+    polygon and level of every platform with a flat slab (``platforms``; a sloped one is draped on the terrain), the
+    highest first, so ``ground_z`` gives a tree, a shrub or a hedge on a terrace the terrace's level. ``terrain``
+    itself when no platform has a flat slab. The ground mesh, the walls and the platforms keep using ``terrain``."""
+    stand = sorted(((geom2d.ccw([(float(p[0]), float(p[1])) for p in pf["polygon"]]), float(pf["z"]))
+                    for pf in platforms or () if not pf.get("sloped") and len(pf.get("polygon") or []) >= 3),
+                   key=lambda r: -r[1])
+    return dict(terrain, stand=stand) if stand else terrain
 
 
 def is_flat(model: dict) -> bool:
@@ -1471,6 +1503,179 @@ def hedge_parts(hedge: dict, terrain: dict) -> tuple[list, list, dict]:
                           "top_round_m": round(r, 3)}
 
 
+# Fix round after P3 (16-17 Oct 2026): a hedge's hull stays on its planting side (``fit_hedges``). real04's hedge
+# rows run 0.01-0.2 m from terrace edges with a 0.72 m wide hull: hedge_003 and hedge_004 overhung their terraces'
+# retaining walls by 0.16-0.22 m, hedge_001 cut 0.35 m into a stepped band.
+HEDGE_FIT = {"max_shift_m": 0.5, "min_width_m": 0.3, "sample_m": 0.25, "tol_m": 0.01, "rounds": 3,
+             # how far a leaf card reaches out of the hull (vegetation: a 0.18 x 0.22 m cherry-laurel card at up to
+             # 1.25 x its size, tilted up to 45 degrees off the hull's normal: about 0.13 m)
+             "card_reach_m": 0.15}
+
+
+def _boundary_nearest(p, poly) -> tuple[float, tuple[float, float], tuple[float, float]]:
+    """``(distance, nearest point, outward normal of that edge)`` of ``p`` to the edges of the ccw ``poly`` (pure)."""
+    best = (math.inf, (float(p[0]), float(p[1])), (0.0, 0.0))
+    n = len(poly)
+    for k in range(n):
+        a, b = poly[k], poly[(k + 1) % n]
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        l2 = dx * dx + dy * dy
+        if l2 <= 0.0:
+            continue
+        t = max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2))
+        q = (a[0] + t * dx, a[1] + t * dy)
+        d = math.hypot(p[0] - q[0], p[1] - q[1])
+        if d < best[0]:
+            length = math.sqrt(l2)
+            best = (d, q, (dy / length, -dx / length))            # ccw: the right side of an edge is outside
+    return best
+
+
+def _hedge_samples(pts: list, hw: float, step: float) -> list[tuple[tuple[float, float], int, bool]]:
+    """``[(point, vertex, core)]`` along a hedge polyline (pure): a point every ``step`` (``vertex``: the polyline
+    vertex it moves with, the nearer end of its segment; ``core`` True) and the hull's two ends, ``hw`` beyond the end
+    points (``core`` False: they do not decide on which side of a platform the hedge stands, and they are the hull's
+    edge already, so they need ``hw`` less clearance)."""
+    out = []
+    for i, (a, b) in enumerate(zip(pts, pts[1:])):
+        length = G.distance(a, b)
+        if length < 1e-9:
+            continue
+        n = max(1, int(math.ceil(length / step)))
+        for k in range(n + 1):
+            t = k / n
+            out.append(((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t), i if t < 0.5 else i + 1, True))
+    if len(pts) >= 2:
+        for p, q, idx in ((pts[0], pts[1], 0), (pts[-1], pts[-2], len(pts) - 1)):
+            length = G.distance(p, q)
+            if length > 1e-9:
+                out.append(((p[0] + (p[0] - q[0]) / length * hw, p[1] + (p[1] - q[1]) / length * hw), idx, False))
+    return out
+
+
+def _hedge_keeps(samples: list, hw: float, platforms_: Sequence[dict], keep_out: Sequence) -> list[dict]:
+    """The sides a hedge keeps (pure): ``[{"name", "poly", "inside", "margin"}]``. A flat platform with every core
+    sample inside: the hull stays on its slab (margin ``hw``; its leaf cards may spill over the edge, over the
+    retaining wall outside it); a flat platform with none inside but within reach: the hull stays ``hw`` +
+    ``card_reach_m`` off its edge, so no leaf card reaches through its retaining wall onto the slab; the building
+    and the copies (``keep_out``) the same way with margin ``hw`` (the cards end inside the outer wall). A hedge
+    that crosses a polygon is left alone for it (drawn across on purpose); a sloped platform (draped on the terrain,
+    no wall) and the stepped bands of the platform a hedge stands on (they share its edge) set nothing."""
+    core = [p for p, _v, c in samples if c]
+    flat = [pf for pf in platforms_ or () if not pf.get("sloped") and len(pf.get("polygon") or []) >= 3]
+    polys = [(pf, geom2d.ccw(pf["polygon"])) for pf in flat]
+    on = {str(pf.get("id")) for pf, poly in polys if core and all(G.point_in_polygon(p, poly) for p in core)}
+    related = {str(pf.get("parent")) for pf, _poly in polys if str(pf.get("id")) in on and pf.get("parent")}
+    related |= {str(pf.get("id")) for pf, _poly in polys if str(pf.get("parent")) in on}
+    rows = [(str(pf.get("id")), poly, str(pf.get("id")) in on, hw + HEDGE_FIT["card_reach_m"]) for pf, poly in polys
+            if str(pf.get("id")) not in related]
+    rows += [(f"footprint_{k}", geom2d.ccw(poly), False, hw) for k, poly in enumerate(keep_out or ()) if len(poly) >= 3]
+    keeps = []
+    for name, poly, is_on, out_margin in rows:
+        if is_on:
+            keeps.append({"name": name, "poly": poly, "inside": True, "margin": hw})
+        elif not any(G.point_in_polygon(p, poly) for p in core):
+            near = min(_boundary_nearest(p, poly)[0] for p, _v, _c in samples)
+            if near < out_margin + HEDGE_FIT["tol_m"]:
+                keeps.append({"name": name, "poly": poly, "inside": False, "margin": out_margin})
+    return keeps
+
+
+def _violation(p, keep, end_off: float = 0.0) -> tuple[float, tuple[float, float]]:
+    """``(metres the hull crosses the keep's line, the direction that fixes it)`` for one sample (pure); ``end_off``:
+    the clearance a hull end sample already is (its half-width)."""
+    d, q, normal = _boundary_nearest(p, keep["poly"])
+    inside = G.point_in_polygon(p, keep["poly"])
+    margin = max(0.0, keep["margin"] - end_off)
+    if d < 1e-6:                                                # on the line: the edge's normal says the side
+        return margin, (normal if not keep["inside"] else (-normal[0], -normal[1]))
+    away = ((p[0] - q[0]) / d, (p[1] - q[1]) / d)              # from the boundary to the sample
+    if inside == keep["inside"]:                                # on the right side: needs ``margin`` from the line
+        return margin - d, away
+    return margin + d, (-away[0], -away[1])                    # on the wrong side: back across the line
+
+
+def fit_hedges(hedges: Sequence[dict], platforms_: Sequence[dict] = (), keep_out: Sequence = ()
+               ) -> tuple[list[dict], list[dict]]:
+    """``(hedges, assumed)``: every hedge with its hull kept on its planting side (pure; fix round after P3,
+    16-17 Oct 2026). A hedge on a flat terrace (every point of its polyline inside the platform) keeps its hull on
+    the slab, half its width inside the edges; a hedge beside a platform keeps its hull outside the retaining wall
+    (``PLATFORM["wall_t"]``); no hedge reaches into the building or a copy (``keep_out``). The polyline vertices move
+    (``HEDGE_FIT["rounds"]`` rounds, each vertex at most ``max_shift_m`` from where it was drawn); what still crosses
+    makes the hedge narrower (down to ``min_width_m``). A changed hedge keeps ``fit``: ``polyline_drawn``,
+    ``width_m_drawn``, ``shift_m`` per vertex, ``narrowed``, ``crossing_left_m``, ``keeps`` and the reason; the
+    change is ``assumed`` (a hedge row drawn along a terrace edge is planted on the terrace). Why: P3's leaf cards and
+    dark hull triangles on real04's retaining walls (ext_4)."""
+    out, assumed = [], []
+    cfg = HEDGE_FIT
+    for h in hedges or ():
+        pts = [(float(x), float(y)) for x, y in h.get("polyline") or []]
+        w = float(h.get("width_m") or 0.0)
+        if len(pts) < 2 or w <= 0.0:
+            out.append(h)
+            continue
+        drawn = list(pts)
+        keeps = _hedge_keeps(_hedge_samples(pts, w / 2.0, cfg["sample_m"]), w / 2.0, platforms_, keep_out)
+        if not keeps:
+            out.append(h)
+            continue
+        for _ in range(int(cfg["rounds"])):
+            samples = _hedge_samples(pts, w / 2.0, cfg["sample_m"])
+            push = [[0.0, 0.0] for _p in pts]
+            moved = False
+            for keep in keeps:
+                worst: dict = {}
+                for p, v, c in samples:
+                    amount, direction = _violation(p, keep, 0.0 if c else w / 2.0)
+                    if amount > cfg["tol_m"] and amount > worst.get(v, (0.0, None))[0]:
+                        worst[v] = (amount, direction)
+                for v, (amount, direction) in worst.items():
+                    push[v][0] += amount * direction[0]
+                    push[v][1] += amount * direction[1]
+                    moved = True
+            if not moved:
+                break
+            for i, (dx, dy) in enumerate(push):
+                nx, ny = pts[i][0] + dx, pts[i][1] + dy
+                off = math.hypot(nx - drawn[i][0], ny - drawn[i][1])
+                if off > cfg["max_shift_m"]:                   # never further than max_shift_m from the drawing
+                    k = cfg["max_shift_m"] / off
+                    nx, ny = drawn[i][0] + (nx - drawn[i][0]) * k, drawn[i][1] + (ny - drawn[i][1]) * k
+                pts[i] = (nx, ny)
+
+        def crossing(width):
+            samples_ = _hedge_samples(pts, width / 2.0, cfg["sample_m"])
+            worst_ = 0.0
+            for keep in keeps:
+                margin = keep["margin"] - (w - width) / 2.0     # the margin shrinks with the half-width
+                for p, _v, c in samples_:
+                    amount, _d = _violation(p, dict(keep, margin=margin), 0.0 if c else width / 2.0)
+                    worst_ = max(worst_, amount)
+            return worst_
+
+        left = crossing(w)
+        width = w
+        if left > cfg["tol_m"]:
+            width = max(cfg["min_width_m"], round(w - 2.0 * left, 3))
+            left = crossing(width)
+        shift = [round(G.distance(a, b), 3) for a, b in zip(drawn, pts)]
+        if max(shift) <= cfg["tol_m"] and width == w:
+            out.append(h)
+            continue
+        names = sorted({k["name"] for k in keeps})
+        reason = (f"hedge {h.get('id')}: its {w:.2f} m hull kept on its planting side of {', '.join(names)} "
+                  f"(moved up to {max(shift):.2f} m" + (f", narrowed to {width:.2f} m" if width < w else "")
+                  + "; a row drawn along a terrace edge or a wall is planted beside it, inferred)")
+        new = dict(h, polyline=[[round(x, 4), round(y, 4)] for x, y in pts], width_m=width,
+                   fit={"polyline_drawn": [list(p) for p in drawn], "width_m_drawn": w, "shift_m": shift,
+                        "narrowed": width < w, "crossing_left_m": round(max(0.0, left), 3), "keeps": names,
+                        "reason": reason})
+        out.append(new)
+        assumed.append({"field": f"hedge:{h.get('id')}:fit", "value": {"shift_m": max(shift), "width_m": width},
+                        "reason": reason})
+    return out, assumed
+
+
 PLATFORM = {"mark_reach": 2.0, "level_tol": 0.15, "max_spread": 1.0, "step_max_drop": 1.2, "wall_t": 0.25,
             "kerb_h": 0.12, "kerb_w": 0.15, "step_rise": 0.16, "step_tread": 0.30, "step_width": 1.2, "lip": 0.04,
             "pool_join_m": 0.5, "pool_deck_m": 0.9, "railing_drop": 0.5, "below": 0.3, "round": 0.05,
@@ -2482,6 +2687,9 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
                     a["platform_id"] = a["id"]
             for pf in pfs:
                 assumed.append({"field": f"platform:{pf['id']}", "value": pf["z"], "reason": pf["reason"]})
+        if hedges:                                   # fix round after P3: every hull on its planting side
+            hedges, fit_assumed = fit_hedges(hedges, pfs, [geom2d.ccw(outline)] + copy_holes)
+            assumed += fit_assumed
         for t in trees:
             parts = tree_parts(t, terrain, climate["climate"])
             species[str(t.get("id"))] = {"species": parts["species"], "size_class": parts["size_class"],
@@ -2531,6 +2739,13 @@ PLATFORM_LOOKS = {"slab": {"terrace": "paving", "pool": "paving", "parking": "pa
                   "wall": ("concrete_exposed", None, "retaining wall: exposed concrete (not drawn)"),
                   "kerb": ("concrete_exposed", None, "kerb: concrete (not drawn)"),
                   "steps": None, "railing": None}
+# Fix round after P3 (16-17 Oct 2026). What: the slugs the site builder puts on by itself when no look names one: the
+# railing and the fence of the inferred boundary, the neutral concrete of a retaining wall whose concrete_exposed
+# resolved to the facade material. Why: P3's real04 retaining, terrace and pool walls were flat boxes (concrete_exposed
+# names Poly Haven concrete_wall_001, which the assets stage never fetched: the style names none of these). How:
+# exterior.build_finish_slugs lists these with PLATFORM_LOOKS, so wenart.assets.fetch fetches their texture sets and
+# build.referenced_asset_ids follows them; build_site reads the slugs from here.
+SITE_FALLBACK_LOOKS = {"railing": "painted_metal_white", "fence": "wood_cladding", "retaining": "concrete"}
 
 
 def terrain_record(terrain: dict) -> dict:
@@ -2610,7 +2825,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
            "lawn": lawn})
     summary["lawn"] = lawn
     if levers.get("instances") and plan["mode"] == "full":
-        VG.lawn_relief(ob)                                   # the far lawn: a gentle displacement (no blades)
+        VG.lawn_relief(ob)          # the far lawn: a gentle displacement (no blades); down only, its edges kept
+        summary["lawn_relief"] = {"range_m": list(VG.relief_range()), "edges_kept": True}
     outer_rect = list(plan["extent"])
     if not is_flat(terrain):                     # 11 Oct 2026 (real04): a sloped ground reaches the horizon too
         sv, sf = skirt_faces(plan["extent"], terrain)
@@ -2694,11 +2910,12 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         concrete = make_material({"material": PLATFORM_LOOKS["wall"][0], "colour": None, "source": "build",
                                   "assumed": True, "reason": PLATFORM_LOOKS["wall"][2]})
         if facade_name and getattr(concrete, "name", None) == facade_name:
-            concrete = make_material({"material": "concrete", "colour": "grey", "source": "build", "assumed": True,
+            concrete = make_material({"material": SITE_FALLBACK_LOOKS["retaining"], "colour": "grey", "source": "build",
+                                      "assumed": True,
                                       "reason": "retaining wall: neutral concrete (the vocabulary slug resolved to "
                                                 "the facade material)"})
         step_mat = make_material(looks.get("steps") or looks["paving"])
-        rail_mat = make_material(looks.get("railing") or {"material": "painted_metal_white", "colour": None})
+        rail_mat = make_material(looks.get("railing") or {"material": SITE_FALLBACK_LOOKS["railing"], "colour": None})
         for pf in pfs:
             slab_area = {"kind": "paving" if pf["kind"] in ("terrace", "pool", "path") else "parking",
                          "id": pf["id"], "material": pf.get("material"), "colour": pf.get("colour")}
@@ -2774,8 +2991,11 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                "evidence": [], "source": "inferred_boundary", "symbol_ids": [],
                                "reason": "no site plan: a low hedge on the inferred plot boundary (inferred)"})
     foliage_mat = make_material(looks["foliage"]) if hedge_recs or plan["trees"] else None
+    # fix round after P3: hedges, trees and shrubs stand on the surface under them (a terrace's level, not the
+    # terrain under the terrace: P3 buried real04's terrace hedges and the shrubs of the stepped bands)
+    stand = stand_terrain(terrain, pfs)
     for h in hedge_recs:
-        v, f, info = hedge_parts(h, terrain)
+        v, f, info = hedge_parts(h, stand)
         if not f:
             continue
         name = f"hedge_{h['id']}" if not h["id"].startswith(("hedge_", "boundary_")) else h["id"]
@@ -2809,7 +3029,11 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                   "species": h["species"], "method": rec.get("method"), "symbols": len(h.get("symbol_ids") or []),
                                   "cards": rec.get("cards"), "cards_per_m2": rec.get("density"),
                                   "card_m": rec.get("card_m"), "cover_layers": rec.get("cover_layers"),
-                                  "atlas": rec.get("atlas"), "core": info.get("core")})
+                                  "atlas": rec.get("atlas"), "core": info.get("core"),
+                                  # fix round after P3: the hull kept on its planting side (fit_hedges), the level
+                                  # it stands on (stand_terrain)
+                                  "fit": {k: v for k, v in (h.get("fit") or {}).items() if k != "polyline_drawn"}
+                                  or None, "z_range": info["z_range"]})
         # pre-flight of pod P3: ``parent`` with ``kind`` (schemas.ASSUMED_ENTRY), as the trees below
         assumed.append({"object": name, "field": "hedge", "value": [h["height_m"], h["species"]], "reason": h["reason"],
                         "parent": str(h["id"]), "kind": "site_hedge"})
@@ -2817,7 +3041,7 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     bark = make_material(looks["bark"]) if plan["trees"] else None
     near_pts = plan.get("near_extent") or plan["extent"]
     for k, item in enumerate(plan["trees"]):
-        parts = tree_parts(item, terrain, climate)
+        parts = tree_parts(item, stand, climate)
         wid = f"tree_{item.get('id') or len(summary['objects'])}"
         cx, cy = float(item["center"][0]), float(item["center"][1])
         near = geom2d.distance_to_polygon_edges((cx, cy), plan["outline"]) <= VG.NEAR_CAMERA_M \
@@ -2868,7 +3092,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             + [a["polygon"] for a in plan["areas"] if not a.get("platform_id")]
         try:
             gob, grec = VG.grass_patch(lawn, VG.GRASS_DENSITY_NEAR, collection=collection, terrain=terrain,
-                                       holes=lawn_holes, name="grass_near")
+                                       holes=lawn_holes, name="grass_near",
+                                       relief=True)    # the lawn below has the same relief (lawn_relief above)
         except Exception as exc:
             gob, grec = None, {"method": "none", "error": f"{type(exc).__name__}: {exc}"}
         if gob is not None:
@@ -2880,7 +3105,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         summary["grass"] = grec
     if inferred:                                     # Milestone 11 E11: steps and the fence (inferred)
         step_mat = make_material(looks.get("steps") or looks["paving"]) if inferred["steps"] else None
-        rail_mat = make_material(looks.get("railing") or {"material": "painted_metal_white", "colour": None}) \
+        rail_mat = make_material(looks.get("railing") or {"material": SITE_FALLBACK_LOOKS["railing"],
+                                                          "colour": None}) \
             if any(st.get("rails") for st in inferred["steps"]) else None
         for st in inferred["steps"]:
             # Milestone 12: landing, flights, cheek walls, a ramp and handrails (entrance_meshes); one object each.
@@ -2899,8 +3125,8 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
             if kind == "hedge" and levers.get("hedge"):
                 continue                              # built above as leaf-card hedges
             segs = [seg for seg in inferred["boundary"] if seg["kind"] == kind]
-            look = looks.get(kind) or (looks["foliage"] if kind == "hedge" else {"material": "wood_cladding",
-                                                                                   "colour": None})
+            look = looks.get(kind) or (looks["foliage"] if kind == "hedge"
+                                       else {"material": SITE_FALLBACK_LOOKS["fence"], "colour": None})
             mat = make_material(look)
             parts = [boundary_parts(seg, terrain)[:2] for seg in segs]
             v, f = geom2d.merge(parts)

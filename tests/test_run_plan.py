@@ -54,9 +54,12 @@ def test_views_per_room_by_area():
 
 
 def test_time_rule_and_server_starts():
-    assert P.project_minutes(29, 7) == pytest.approx(4 + (0.63 + 1 / 60) * 29 + 7 / 6, abs=0.01)
+    # fix round after P3 (16-17 Oct 2026): the window pull, sky pull and rig-hidden metering term is 4 s per view
+    # (was 1 s: the pull tries up to 10 stops and every interior view meters twice for its white point)
+    assert P.MIN_WINDOW_PULL_PER_VIEW == pytest.approx(4 / 60)
+    assert P.project_minutes(29, 7) == pytest.approx(4 + (0.63 + 4 / 60) * 29 + 7 / 6, abs=0.01)
     assert P.project_minutes(29, 7, recognition=1.5, speed=2.0) == pytest.approx(
-        (4 + (0.63 + 1 / 60) * 29 + 7 / 6 + 1.5) / 2, abs=0.01)
+        (4 + (0.63 + 4 / 60) * 29 + 7 / 6 + 1.5) / 2, abs=0.01)
     assert P.project_minutes(None, 0) == 4.0                          # views unknown (a raster page before answers)
     assert P.recognition_minutes({"qwen": 17, "glm": 17}, {"qwen": 8, "glm": 2}) == pytest.approx(
         (17 * 4.4 / 8 + 17 * 4.4 / 2) / 60)
@@ -134,9 +137,10 @@ def test_golden_plan_of_the_committed_projects(golden):
     s1, s3 = by["synthetic-01"], by["synthetic-03"]
     assert (s1["status"], s1["levels"], s1["rooms"], s1["empty_rooms"], s1["views"]) == ("ok", 2, 10, 7, 34)
     # Milestone 10: + 5 exterior views (4 corners, 1 aerial; no drawn elevation) of every project (29 before).
-    assert P.project_minutes(34, 7) == 27.15                          # the PRO 4500 time, divided by the speed
+    # the PRO 4500 time, divided by the speed (fix round after P3: 4 s per view for the pulls, was 27.15 at 1 s)
+    assert P.project_minutes(34, 7) == 28.85
     # Milestone 10: the 3 furnished rooms the layout completes count as AI rooms too (review finding #47).
-    assert s1["completed_rooms"] == 3 and s1["minutes"] == P.project_minutes(34, 7 + 3, speed=SPEED) == 16.92
+    assert s1["completed_rooms"] == 3 and s1["minutes"] == P.project_minutes(34, 7 + 3, speed=SPEED) == 17.96
     assert s1["server_starts"] == 3 and s1["photos"] == 0
     # §6.2: rooms that stay without furniture (a bath, a hall) get one view before the layout too.
     # Milestone 12 (track G): balconies are furnished now (a table and chairs), so synthetic-03's balcony is an AI room
@@ -227,7 +231,7 @@ def test_gpu_speed_and_sequences_change_the_minutes(golden, monkeypatch):
     assert r_slow["minutes"] > r_fast["minutes"]                     # speed 1.0 (and, unseeded, 34 calls at 2)
     monkeypatch.setitem(P.GPU_SPEED, "RTX PRO 6000", 2.0)
     fast = P.make_plan(["synthetic-01"], outputs=out, gpu=GPU)
-    assert fast["projects"][0]["minutes"] == round(P.project_minutes(34, 10, speed=2.0), 2) == 13.83
+    assert fast["projects"][0]["minutes"] == round(P.project_minutes(34, 10, speed=2.0), 2) == 14.68   # was 13.83
     assert "speed 2" in P.plan_text(fast)
 
 
@@ -249,7 +253,7 @@ def test_plan_cli(golden, tmp_path, capsys):
                    str(tmp_path / "run_plan.json")])
     assert rc == 0
     text = capsys.readouterr().out
-    assert "| synthetic-01 | ok | 2 | 10 | 7 | 34 | - | - | 16.92 | 3 | 1 |" in text
+    assert "| synthetic-01 | ok | 2 | 10 | 7 | 34 | - | - | 17.96 | 3 | 1 |" in text      # 16.92 before the P3 fix round
     assert "- review-01: needs_review, no pod time" in text
     assert any(line.startswith("GPU: RTX PRO 6000 (speed 1.634;") for line in text.splitlines())
     data = json.loads((tmp_path / "run_plan.json").read_text())

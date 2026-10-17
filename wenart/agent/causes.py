@@ -52,6 +52,16 @@ Round 4 of Milestone 13 (before pod P3's second attempt, 16 Oct 2026):
   marked 5 real03 toilets as not furniture and the old rule (only new CRITICAL findings) accepted it with a major
   G10 "bathroom without a toilet" in each room.
 
+Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
+
+- an X2 on a DECOR piece (``building["decor"]``, or a ``dec_`` / ``decor_`` id that is no furniture) has the cause
+  ``decor_under_roof``: no agent tool edits decor (the edit tools act on ``building["furniture"]``), so it is "not
+  yours" with the reason and is reported to the decor stage (``REPORT_TO``; the loop logs ``report_to: decor`` on
+  the finding). Why: P3's wall mirror dec_L1_009 (top 5.26 m under the sloped L1 roof) was ``under_roof`` with the
+  furniture tools, had no room, went to the building session and stayed critical for 4 rounds;
+- ``accept_edit``'s reason labels its count "predicted": the dry re-check cannot re-render, and the next round's
+  critics measure what is really gone (``metrics.findings_removed``).
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -89,6 +99,8 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "library_gap": ("report_library_gap", "swap_model"),
     "decor_look": ("swap_model",),
     "under_roof": ("move_piece", "move_group", "remove_piece", "relayout_room"),
+    # fix round after P3: a decor piece through the roof; no agent tool edits decor (module docstring)
+    "decor_under_roof": (),
     "room_type": ("set_room_type",),
     # R5 and the render's lighting_dark (a view above the +3 EV cap): the room's lights x factor (tools.set_lighting)
     "lighting": ("set_lighting",),
@@ -133,8 +145,13 @@ NO_TOOL_REASON: dict[str, str] = {
                          "(set_exterior moves the sun only), so a view above the EV cap is reported only",
     "lighting_beyond_cap": "the view needs more light than set_lighting's maximum (the room's lights x3): no factor "
                            "clears it and there is no add-lamp tool, so it is reported only",
+    "decor_under_roof": "a decor piece placed by the decor stage pokes through the roof: no agent tool edits decor "
+                        "(the edit tools act on furniture), so it is reported to the decor stage",
     "unknown": "no agent tool fixes this check",
 }
+# Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
+# finding event as ``report_to``).
+REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor"}
 # The render's finding of a view whose metered EV passed the cap (``wenart.blender.render.LIGHTING_DARK_CHECK``; the
 # report and the agent read it from the render manifest).
 LIGHTING_DARK_CHECK = "lighting_dark"
@@ -179,6 +196,19 @@ def _metrics(finding: dict) -> dict:
     ev = finding.get("evidence") if isinstance(finding.get("evidence"), dict) else {}
     m = ev.get("metrics") if isinstance(ev.get("metrics"), dict) else finding.get("metrics")
     return m if isinstance(m, dict) else {}
+
+
+def is_decor(target: Optional[str], building: Optional[dict] = None) -> bool:
+    """Fix round after P3: ``target`` is a decor piece: an id of ``building["decor"]``, or (without a building, or an
+    id that is in neither list) a ``dec_`` / ``decor_`` id; never a furniture id."""
+    if not target:
+        return False
+    if building is not None:
+        if any(f.get("id") == target for f in building.get("furniture") or [] if isinstance(f, dict)):
+            return False
+        if any(d.get("id") == target for d in building.get("decor") or [] if isinstance(d, dict)):
+            return True
+    return str(target).startswith(("dec_", "decor_"))
 
 
 def _is_piece(target: Optional[str], building: Optional[dict]) -> bool:
@@ -238,6 +268,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
             return "wrong_type"
         return "wrong_type"
     if check == "X2":
+        if is_decor(target, building):
+            return "decor_under_roof"          # fix round after P3: no agent tool edits decor
         if _is_piece(target, building):
             return "under_roof"
         return "roof"
@@ -483,8 +515,9 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
         return False, (f"plausibility penalty rose {pb:g} -> {pa:g} (the old score rule, kept as the second "
                        f"condition)")
     removed = findings_removed(before, after)
+    # fix round after P3: the dry re-check's count is a prediction; the next round's critics measure it
     return True, (f"finding {', '.join(_fmt(t) for t in present)} gone in the dry re-check; no new critical "
-                  f"finding; {removed} critical/major finding(s) removed")
+                  f"finding; {removed} critical/major finding(s) removed (predicted; the next round measures)")
 
 
 def key_list(findings: list[dict], severities=("critical", "major"), limit: int = 60) -> list[str]:

@@ -402,7 +402,9 @@ def _style_for_fingerprint(style_path: str | None) -> dict:
 def referenced_asset_ids(building: dict, style: dict) -> list[str]:
     """Asset ids a build of ``building`` with ``style`` reads from the asset
     manifest: the textures named by the style slots, its HDRI, and the
-    furniture and decor models of the building."""
+    furniture and decor models of the building; since Milestone 13 the shell
+    slots' sets and (fix round after P3) the sets of the outside finishes the
+    build puts on by itself (``exterior.build_finish_slugs``)."""
     ids: set[str] = set()
     for slot in STYLE_ASSET_SLOTS:
         entry = style.get(slot)
@@ -435,6 +437,19 @@ def referenced_asset_ids(building: dict, style: dict) -> list[str]:
             for asset_id in (M.SHELL_SLOTS[slot].get("asset"), M.shell_slot_spec(slot, style).get("asset")):
                 if asset_id:
                     ids.add(str(asset_id))
+    except (ImportError, AttributeError, KeyError, TypeError):
+        pass
+    # Fix round after P3 (16-17 Oct 2026): the sets of the finishes the outside build puts on by itself (retaining
+    # walls and kerbs concrete_exposed -> concrete_wall_001, the family's plinth, the site fallbacks), the same ids the
+    # assets stage fetches (wenart.assets.fetch.site_texture_rows reads the same exterior.build_finish_slugs): a build
+    # cached before concrete_wall_001 reached the volume (P3) is redone once it is there.
+    try:
+        from wenart.blender import exterior as E
+        from wenart.style import vocabulary as V
+        for slug, _part in E.build_finish_slugs(style):
+            entry = V.MATERIALS.get(slug) or V.FURNITURE_MATERIALS.get(slug) or {}
+            if entry.get("asset"):
+                ids.add(str(entry["asset"]))
     except (ImportError, AttributeError, KeyError, TypeError):
         pass
     # The furniture texture maps (veneers, linen; Milestone 6): every build may use them.
@@ -1095,7 +1110,9 @@ def main(argv: list[str]) -> int:
         scene_report = SC.run_scene_checks(level_furniture, summary.get("objects") or {},
                                            out / "checks" / f"scene_{level['id']}.json")
         furniture_summary.setdefault("scene_checks", {})[level["id"]] = scene_report.get("counts") or {}
-        for key in ("decor_not_rested", "dressed_beds"):            # decor not built (S5 twice), dressed beds
+        # decor not built (S5 twice), dressed beds; fix round after P3 (16-17 Oct 2026): the pieces built into a
+        # kitchen run (a drawn sink in its counter: furniture.built_in_ids), [{id, type, host, reason}]
+        for key in ("decor_not_rested", "dressed_beds", "built_in"):
             furniture_summary.setdefault(key, []).extend(summary.get(key) or [])
         if (scene_report.get("counts") or {}).get("failed_build"):
             # a built item failing S5 cannot happen by construction (rest.plan_decor checks it); recorded as a failed
@@ -1141,7 +1158,10 @@ def main(argv: list[str]) -> int:
         for plan in replayed:
             interior_camera_fields(plan, prep["variant"])
         plans = replayed + plans
-        cams.create_cameras(plans, col, manifest_objects)
+        # fix round after P3 (16-17 Oct 2026): every room camera, replayed ones included, carries its room type
+        # (wenart_room_type), so render.py puts the views of open-air rooms (terraces) under the exterior world
+        cams.create_cameras(plans, col, manifest_objects,
+                            room_types={r["id"]: r.get("room_type") for r in building["rooms"]})
         camera_plans.extend(plans)
         for plan in plans:
             if plan.get("warning"):

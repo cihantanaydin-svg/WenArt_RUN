@@ -65,6 +65,10 @@ rotation, lens, sensor, shift, clip), so the render stage of a later build takes
 ``create_cameras`` honours a plan's ``rotation_euler_deg`` (when it has no target) and ``clip_start`` /
 ``clip_end``. Every plan of a build carries ``source``: ``searched`` (the search, the m5 rules or the agent's fixed
 cameras) or ``replayed``.
+
+Fix round after P3 (16-17 Oct 2026): ``create_cameras(..., room_types=)`` marks every room camera with its room's
+type (``wenart_room_type``, ``camera_room_type``), so render.py renders the cameras of open-air rooms (roof
+terraces, balconies) under the exterior world. The plans themselves are unchanged (the m5 plans stay byte for byte).
 """
 from __future__ import annotations
 
@@ -540,12 +544,29 @@ def _plan(room: dict, index: int, pos2, target2, floor_z: float, warning, how: s
     }
 
 
-def create_cameras(plans: list[dict], collection, manifest_objects: list) -> list:
+def camera_room_type(plan: dict, room_types: dict | None = None) -> str:
+    """The room type a room camera is marked with (pure; fix round after P3, 16-17 Oct 2026): the plan's
+    ``room_type``, else ``room_types[plan["room_id"]]`` (the building's rooms), else ``""``; ``""`` for a camera
+    without a room. render.py renders a camera of an open-air room (``shell.OUTDOOR_ROOM_TYPES``: real04's roof
+    terraces r_L1_teras / r_L1_teras_2 are ``balcony``) under the exterior world."""
+    if not plan.get("room_id"):
+        return ""
+    value = plan.get("room_type") or (room_types or {}).get(plan["room_id"])
+    return str(value) if value else ""
+
+
+def create_cameras(plans: list[dict], collection, manifest_objects: list, room_types: dict | None = None) -> list:
     """Create a Blender camera object per plan (needs bpy).
 
     The lens shift of a plan (``shift_x``/``shift_y``, in units of the image
     width; absent = 0 for the M5 plans) goes to ``Camera.shift_x/shift_y``;
-    the projection readers use the same convention (docs/milestone6.md §1.3)."""
+    the projection readers use the same convention (docs/milestone6.md §1.3).
+
+    Fix round after P3 (16-17 Oct 2026): every room camera carries ``wenart_room_type`` (``camera_room_type``:
+    the plan's, else ``room_types`` = ``{room id: room type}`` of the building, which also covers replayed cameras,
+    else ``""``), so render.py puts the cameras of open-air rooms under the exterior world (P3: real04's terrace
+    views under the interior HDRI had a black or dusk sky). The manifest entry's ``assumed`` records it. A camera
+    marked ``""`` is typed by render.py from the scene manifest's room floors."""
     import bpy
     from mathutils import Vector
 
@@ -573,11 +594,13 @@ def create_cameras(plans: list[dict], collection, manifest_objects: list) -> lis
         ob["wenart_room"] = plan["room_id"]
         ob["wenart_level"] = plan["level_id"]
         ob["wenart_camera_source"] = plan.get("source") or "searched"
+        room_type = camera_room_type(plan, room_types)
+        ob["wenart_room_type"] = room_type             # fix round after P3: the world of open-air rooms
         manifest_objects.append({
             "name": plan["name"], "wenart_id": plan["name"], "kind": "camera", "status": "assumed",
             "level_id": plan["level_id"], "element_id": plan["room_id"], "evidence": [],
             "material": None, "textured": False, "pass_index": None,
-            "assumed": {"source": plan.get("source") or "searched"},
+            "assumed": {"source": plan.get("source") or "searched", "room_type": room_type or None},
         })
         created.append(ob)
     return created

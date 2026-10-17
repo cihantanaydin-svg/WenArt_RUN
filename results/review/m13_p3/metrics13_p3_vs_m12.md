@@ -20,7 +20,7 @@ After: `/home/user/WenArt_RUN/runs/20261016-172855-full/results/final/real04` (r
 | # | metric | before | after | target | unit |
 |---|---|---|---|---|---|
 | 1 | drawn anchors built (sofa, sofa_corner, bed_double, table_dining, wardrobe, desk) | 12 of 34 (35 %) | 34 of 34 (100 %) | 100 % | % |
-| 2 | drawn pieces in the scene (built, method not none) | 128 of 240 (53 %) | 178 of 240 (74 %) | >= 90 % | % |
+| 2 | drawn pieces in the scene (built, method not none) | 128 of 240 (53 %); without the 38 explained non-furniture pieces: 128 of 202 (63 %) | 178 of 240 (74 %); without the 38 explained non-furniture pieces: 178 of 202 (88 %) | >= 90 % | % |
 | 3 | pieces with asset.method none | 43 | 18 | 0 | count |
 | 4 | parametric share of the built pieces; grey boxes | 58 of 177 (33 %) parametric of the built pieces; 115 of 246 (47 %) of every fitted piece; module 0; grey boxes no data | 24 of 236 (10 %) parametric of the built pieces; 68 of 280 (24 %) of every fitted piece; module 20; grey boxes 0 | <= 25 %; 0 | % |
 | 5 | rooms with a complete group set | bathroom 8/10; bedroom 4/8; kitchen 0/2; living 0/4 | bathroom 10/10; bedroom 4/8; kitchen 2/2; living 0/4 | >= 90 % of the furnished main rooms | % |
@@ -40,12 +40,12 @@ After: `/home/user/WenArt_RUN/runs/20261016-172855-full/results/final/real04` (r
 Sources:
 
 - 1: building_final.json furniture[]: source from_documents, type or drawn_type in ANCHOR_TYPES; built = build not false and asset.method in library / module / parametric
-- 2: building_final.json furniture[]: source from_documents; built = build not false and asset.method not none
+- 2: building_final.json furniture[]: source from_documents; built = build not false and asset.method not none; parts furniture / built_of_furniture leave out the unbuilt pieces explained as no furniture (inferred_as rug / detail / column / decor, both AI passes not_furniture, a counter-leg detail)
 - 3: building_final.json furniture[].asset.method == none
 - 4: building_final.json: built pieces (build not false, method not none) by asset.method; fitted = pieces with an asset whose method is not none (the unbuilt ones count, §7); grey boxes = scene_manifest.json objects of kind furniture_proxy
 - 5: building_final.json rooms[].room_type x ROOM_SETS over the built furniture and decor of each room (furnished main rooms: rooms of a set type with at least one built piece)
-- 6: orchestrator log.json finding events of the last round (not dropped) by checklist; S2 counted when evidence.metrics.depth_m > 0.03 m
-- 7: orchestrator log.json: accepted edit events of round r < last with checklist and target; gone = no finding with the same checklist and target in round r + 1
+- 6: orchestrator log.json finding events of the last round of the latest run (run_first_seq; not dropped) by checklist; S2 counted when evidence.metrics.depth_m > 0.03 m
+- 7: orchestrator log.json of the latest run (run_first_seq): accepted edit events of round r < last with checklist and target; gone = no finding with the same checklist and target in round r + 1
 - 8: building_final.json built pieces with asset.method library: asset_id counts, units_known, fit_scale (max / min - 1 > 5 %), quality (lower M8 judge <= 3) or a catalogue audit vision_doubt
 - 9: render_manifest.json (else final_manifest.json views) exposure.ev of the interior views, the metered EV (lighting_dark metrics.ev_wanted) for a view the +3 cap held; window rooms from the scene manifest's window objects (room_ids); gap = median EV (no window) - median EV (window)
 - 10: scene_manifest.json materials[] (textured shell slots with a maps record naming normal and roughness); built upholstered pieces (sofa, sofa_corner, armchair, ottoman) whose scene object recolour has a fabric slot
@@ -114,6 +114,7 @@ Views only in the baseline: cam_r_L0_koridor_2, cam_r_L0_koridor_3.
 
 ## Warnings
 
+- orchestrator log: the latest run from seq 2925 (1439 of 4363 events; earlier runs of the appended log left out)
 - rubric: no file (results layout under /home/user/WenArt_RUN/runs/20261016-172855-full/results/final/real04)
 - baseline: render: no file (results layout under /home/user/WenArt_RUN/results/final/real04)
 - baseline: scene: no file (results layout under /home/user/WenArt_RUN/results/final/real04)

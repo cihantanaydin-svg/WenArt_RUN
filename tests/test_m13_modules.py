@@ -553,3 +553,118 @@ def test_round4_chair_v2_follows_the_design_tags_and_the_long_table_builds_it():
     assert chairs and M.material_keys(plan) and {"fabric", "dark"} <= set(M.material_keys(plan))
     parts = M.module_parts(plan)
     assert sum(p["role"] == "foot" and p["key"] == "dark" for p in parts) == 4 * len(chairs)
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026): drawn sinks built into a run, gaps for drawn stoves
+# --------------------------------------------------------------------------
+
+def _xspan(parts, roles):
+    xs = [v[0] for p in parts if p["role"] in roles for v in p["verts"]]
+    return (min(xs), max(xs)) if xs else None
+
+
+def _covers(parts, roles, x0, x1):
+    """True when a part of these roles reaches into the open interval (x0, x1) of the run's x axis."""
+    return any(min(v[0] for v in p["verts"]) < x1 - 1e-6 and max(v[0] for v in p["verts"]) > x0 + 1e-6
+               for p in parts if p["role"] in roles)
+
+
+def test_member_in_run_measures_the_share_and_the_span_along_the_run():
+    run = _piece("kitchen_counter", 1.8766, 0.6, center=(1.5007, 10.2618), rot=90.0)
+    sink = _piece("sink_kitchen", 0.7885, 0.5, center=(1.4507, 10.2592), rot=90.0)     # real04 f_L-1_067
+    got = M.member_in_run(run, sink)
+    assert got["share"] == pytest.approx(1.0) and got["w_m"] == pytest.approx(0.7885, abs=1e-4)
+    assert got["x_m"] == pytest.approx(10.2592 - 10.2618, abs=1e-4)                    # along the run (rot 90: +y)
+    stove = _piece("stove", 0.75, 0.5491, center=(2.5832, 11.4672))                    # real04 f_L-1_008 in f_L-1_002
+    run2 = _piece("kitchen_counter", 2.3213, 0.5999, center=(2.3613, 11.5001))
+    got2 = M.member_in_run(run2, stove)
+    assert 0.98 < got2["share"] < 0.99 and (got2["x0_m"], got2["x1_m"]) == pytest.approx((-0.1531, 0.5969), abs=1e-4)
+    beside = _piece("sink_kitchen", 0.8, 0.5, center=(3.0, 0.0))                       # next to a 2.4 m run
+    assert M.member_in_run(_piece("kitchen_counter", 2.4, 0.6), beside)["share"] == 0.0
+    turned = _piece("stove", 0.6, 0.6, center=(0.0, 0.3), rot=45.0)                    # half out, turned
+    assert 0.0 < M.member_in_run(_piece("kitchen_counter", 2.4, 0.6), turned)["share"] < 0.7
+    assert M.member_in_run(_piece("kitchen_counter", 2.4, 0.6), {"id": "x", "type": "stove"}) is None
+
+
+def test_a_drawn_stove_stands_in_a_gap_of_the_run():
+    """The verifier's case (gpu_tests lens of P3): a 1.88 m run with a centred 0.79 m stove gets no base unit, no
+    plinth and no worktop over [-0.395, 0.395]; the rest of the run is real units and fillers; the plan lists the
+    gap; the box the planners read keeps the run's width."""
+    piece = _piece("kitchen_counter", 1.88, 0.6,
+                   module_hints={"ranges": [{"id": "f_st", "type": "stove", "x0_m": -0.395, "x1_m": 0.395}]})
+    plan = M.module_plan(piece)
+    assert plan["gaps"] == [{"id": "f_st", "kind": "range", "type": "stove", "x_m": 0.0, "w_m": 0.79}]
+    assert plan["cutouts"] == [] and any("gap for the drawn stove f_st" in n for n in plan["notes"])
+    parts = M.module_parts(plan)
+    for roles in (("body", "front", "handle"), ("plinth",), ("top",)):
+        assert not _covers(parts, roles, -0.395, 0.395), roles
+    units = [m for m in plan["modules"] if m["kind"] in ("base_unit", "filler")]
+    assert sum(m["size_m"][0] for m in units) == pytest.approx(1.88 - 0.79)
+    assert all(m["size_m"][0] in M.KITCHEN_BASE_WIDTHS_M for m in units if m["kind"] == "base_unit")
+    tops = [m for m in plan["modules"] if m["kind"] == "worktop"]
+    assert [(m["size_m"][0], m["pos_m"][0]) for m in tops] == [(pytest.approx(0.545), pytest.approx(-0.6675)),
+                                                                (pytest.approx(0.545), pytest.approx(0.6675))]
+    assert _xspan(parts, ("top",)) == pytest.approx((-0.94, 0.94))
+    assert M.plan_bbox(plan)[0] == pytest.approx(1.88) and M.module_record(plan)["gaps"] == plan["gaps"]
+    _no_degenerate_faces(parts)
+    # a stove at the run's end: the gap stays where it is drawn (no end shift), the worktop stops at it
+    end = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "ranges": [{"id": "f_st", "type": "stove", "x0_m": 0.55, "x1_m": 1.15}]}))
+    assert end["gaps"][0]["x_m"] == pytest.approx(0.85) and end["gaps"][0]["w_m"] == pytest.approx(0.6)
+    eparts = M.module_parts(end)
+    assert not _covers(eparts, ("body", "front", "top", "plinth"), 0.55, 1.15)
+    assert _covers(eparts, ("front",), 1.15, 1.2)                         # the 5 cm slit to the wall is a filler
+    assert M.plan_bbox(end)[0] == pytest.approx(2.4)                      # the planners' box keeps the run
+    # without hints the plan is the one of before (one plinth, one worktop over the run)
+    plain = M.module_plan(_piece("kitchen_counter", 1.88, 0.6))
+    assert [m["kind"] for m in plain["modules"]].count("worktop") == 1 and "gaps" not in plain
+
+
+def test_the_drawn_sink_is_built_into_the_run_and_a_stove_gap_never_moves():
+    """real04 f_L-1_003 with its drawn sink f_L-1_067 (0.79 m, centred): an 0.80 m sink unit at the drawn centre,
+    the cutout with the bowl and the tap, ``built_ins`` naming the sink. synthetic-03's run: the sink at the run's
+    end and a 0.60 m stove gap at its drawn span; a sink unit that would overlap a gap is not made."""
+    run = _piece("kitchen_counter", 1.8766, 0.6, center=(1.5007, 10.2618), rot=90.0,
+                 module_hints={"sink_pos_m": [1.4507, 10.2592], "sink_w_m": 0.7885, "sink_piece": "f_L-1_067"})
+    plan = M.module_plan(run)
+    assert plan["cutouts"] == ["sink"]
+    assert plan["built_ins"] == [{"id": "f_L-1_067", "kind": "sink", "x_m": pytest.approx(-0.0026, abs=1e-4),
+                                  "w_m": 0.8}]
+    roles = {p["role"] for p in M.module_parts(plan)}
+    assert {"basin", "tap"} <= roles and M.module_record(plan)["built_ins"] == plan["built_ins"]
+    both = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "sink_pos_m": [-0.8, 0.0], "sink_w_m": 0.8, "sink_piece": "f_sink",
+        "ranges": [{"id": "f_stove", "type": "stove", "x0_m": 0.45, "x1_m": 1.05}]}))
+    sink = next(m for m in both["modules"] if m.get("holds") == "sink")
+    assert sink["pos_m"][0] == pytest.approx(-0.8) and both["gaps"][0]["x_m"] == pytest.approx(0.75)
+    parts = M.module_parts(both)
+    assert not _covers(parts, ("body", "front", "top", "plinth"), 0.45, 1.05)
+    basin = _xspan(parts, ("basin",))
+    assert (basin[0] + basin[1]) / 2.0 == pytest.approx(-0.8, abs=0.01)
+    clash = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "sink_x_m": 0.6, "sink_w_m": 0.8, "sink_piece": "f_sink",
+        "ranges": [{"id": "f_stove", "type": "stove", "x0_m": 0.45, "x1_m": 1.05}]}))
+    assert clash["cutouts"] == [] and "built_ins" not in clash
+    assert any("no sink unit" in n for n in clash["notes"])
+
+
+def test_an_island_with_a_stove_gap_has_no_panel_across_it():
+    plan = M.module_plan(_piece("kitchen_island", 2.13, 0.9, module_hints={
+        "ranges": [{"id": "f_st", "type": "stove", "x0_m": -0.3, "x1_m": 0.3}]}))
+    parts = M.module_parts(plan)
+    assert not _covers(parts, ("panel", "plinth", "top", "body"), -0.3, 0.3)
+    assert _xspan(parts, ("panel",)) == pytest.approx((-1.065, 1.065))
+    plinths = [m for m in plan["modules"] if m["kind"] == "plinth"]
+    assert plinths[0]["pos_m"][0] - plinths[0]["size_m"][0] / 2.0 == pytest.approx(-1.065 + M.KITCHEN_PLINTH_RECESS_M)
+    assert plinths[-1]["pos_m"][0] + plinths[-1]["size_m"][0] / 2.0 == pytest.approx(1.065 - M.KITCHEN_PLINTH_RECESS_M)
+
+
+def test_module_plan_of_reads_the_hints_the_fit_kept_in_the_asset():
+    """The fit never writes ``module_hints`` onto the building piece; furniture.module_plan_of merges
+    ``asset.module_hints`` into the piece when it must make the plan itself."""
+    piece = _piece("kitchen_counter", 2.4, 0.6)
+    hints = {"ranges": [{"id": "f_st", "type": "stove", "x0_m": 0.45, "x1_m": 1.05}]}
+    plan, why = F.module_plan_of(dict(piece, asset={"method": "module", "module_hints": hints}))
+    assert "stored none" in why and plan["gaps"][0]["id"] == "f_st"
+    assert "module_hints" not in piece

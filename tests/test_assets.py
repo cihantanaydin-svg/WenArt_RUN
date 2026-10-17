@@ -242,14 +242,22 @@ def test_fetch_cli_collects_style_assets(tmp_path, monkeypatch, capsys):
                    # furniture veneers (docs/milestone10.md §1.6b row 14); procedural looks have nothing to fetch
                    "grey_plaster", "grey_roof_01", "large_square_pattern_01", "Grass004",
                    "oak_veneer_02", "ash_veneer", "white_maple_veneer", "teak_veneer", "black_oak_veneer", "cherry_veneer",
-                   # Milestone 13 round 4: the worktop's shell set (materials.SHELL_SLOTS), named by no style slot
-                   "marble_01"}
+                   # Milestone 13 round 4: the worktop's shell set (materials.SHELL_SLOTS), named by no style slot;
+                   # fix round after P3: Marble012 (one jointless slab) instead of marble_01 (tiles)
+                   "Marble012",
+                   # fix round after P3: the site finishes the build puts on by itself (exterior.build_finish_slugs:
+                   # the retaining walls' concrete_exposed, the inferred fence's wood_cladding)
+                   "concrete_wall_001", "weathered_plank_siding"}
     assert ("hdri", "kloppenheim_06", "1k") in calls
-    assert ("texture", "marble_01", "1k") in calls and ("texture", "marble_01", "2k") in calls   # at --size
+    assert ("texture", "Marble012", "1k") in calls and ("texture", "Marble012", "2k") in calls   # at --size
     out = capsys.readouterr().out
     assert "1 failed" in out and "Metal032" in out
-    assert ("shell sets: 3 of 4 ready (ceiling white_plaster_02 ok, worktop marble_01 ok, front white_planks_clean ok, "
+    # fix round after P3: the front slot is a paint finish (no set), so three shell slots carry a set
+    assert ("shell sets: 2 of 3 ready (ceiling white_plaster_02 ok, worktop Marble012 ok, "
             "metal Metal032 FAILED)") in out
+    # fix round after P3 (integration): the site finish sets are in the stage log too (P3 never fetched them)
+    site_line = next(line for line in out.splitlines() if line.startswith("site sets: "))
+    assert "platform_wall concrete_wall_001 ok" in site_line and "FAILED" in site_line     # Metal032 (kit) failed
 
 
 # --------------------------------------------------------------------------
@@ -534,8 +542,10 @@ def test_a_cut_ambientcg_zip_is_fetched_once_more(tmp_path, monkeypatch):
 # Milestone 13 round 4 (docs/milestone13.md §14.8, the CPU pre-flight of pod P3): the shell slots' texture sets
 # --------------------------------------------------------------------------
 
-SHELL_ROWS = [("polyhaven", "white_plaster_02", "shell:ceiling"), ("polyhaven", "marble_01", "shell:worktop"),
-              ("polyhaven", "white_planks_clean", "shell:front"), ("ambientcg", "Metal032", "shell:metal")]
+# Fix round after P3 (16-17 Oct 2026): the worktop is ambientCG Marble012 (one jointless slab; Poly Haven marble_01 is a
+# set of tiles), the front slot is a paint finish without a set (the plank photo's seams showed on the skirting).
+SHELL_ROWS = [("polyhaven", "white_plaster_02", "shell:ceiling"), ("ambientcg", "Marble012", "shell:worktop"),
+              ("ambientcg", "Metal032", "shell:metal")]
 
 
 def _real04_like_profile():
@@ -545,7 +555,7 @@ def _real04_like_profile():
 
     profile = SP.profile_from_text("dark bronze window frames, oak floor")
     named = {asset_id for _, asset_id, _ in SP.assets_in_profile(profile)["textures"]}
-    assert not named & {"marble_01", "Metal032"}, named
+    assert not named & {"marble_01", "Marble012", "Metal032"}, named
     return profile
 
 
@@ -561,7 +571,7 @@ def test_shell_texture_rows_are_the_materials_table():
     probe = ("import sys; from wenart.assets import fetch; rows = fetch.shell_texture_rows(); "
              "assert 'bpy' not in sys.modules, 'bpy loaded'; print(len(rows))")
     done = subprocess.run([sys.executable, "-c", probe], cwd=ROOT, capture_output=True, text=True, timeout=120)
-    assert done.returncode == 0 and done.stdout.strip() == "4", done.stderr
+    assert done.returncode == 0 and done.stdout.strip() == "3", done.stderr
     rows = fetch.shell_texture_rows()
     assert rows == SHELL_ROWS
     assert [a for _, a, _ in rows] == [a for a in M.shell_assets().values() if a]
@@ -580,30 +590,32 @@ def test_shell_texture_rows_follow_a_change_of_the_table(monkeypatch):
     """No copy of the ids in the fetcher: a new set in the table is what the stage fetches."""
     from wenart.blender import materials as M
 
-    monkeypatch.setitem(M.SHELL_SLOTS["worktop"], "asset", "Marble012")
+    monkeypatch.setitem(M.SHELL_SLOTS["worktop"], "asset", "Marble006")
     monkeypatch.setitem(M.SHELL_SLOTS["ceramic"], "asset", "Porcelain001")
     rows = fetch.shell_texture_rows()
-    assert ("ambientcg", "Marble012", "shell:worktop") in rows and ("ambientcg", "Porcelain001", "shell:ceramic") in rows
-    assert "marble_01" not in {a for _, a, _ in rows}
+    assert ("ambientcg", "Marble006", "shell:worktop") in rows and ("ambientcg", "Porcelain001", "shell:ceramic") in rows
+    assert "Marble012" not in {a for _, a, _ in rows}
 
 
 def test_the_fetch_plan_adds_the_shell_sets_a_style_does_not_name():
-    """P3's real04 case: the plan holds marble_01 and Metal032 (labelled by their slot), after the style's and the
-    furniture's sets, once each; a set the style already names keeps the style's label."""
+    """P3's real04 case: the plan holds the worktop's set and Metal032 (labelled by their slot), after the style's and
+    the furniture's sets, once each; a set the style already names keeps the style's label. Fix round after P3: the
+    worktop's set is Marble012 and the site finishes' sets come last (``site:<part>``)."""
     from wenart.style import profile as SP
 
     profile = _real04_like_profile()
     plan = fetch.texture_plan(profile)
     ids = [a for _, a, _ in plan]
     assert len(ids) == len(set(ids))
-    assert ("polyhaven", "marble_01", "shell:worktop") in plan and ("ambientcg", "Metal032", "shell:metal") in plan
+    assert ("ambientcg", "Marble012", "shell:worktop") in plan and ("ambientcg", "Metal032", "shell:metal") in plan
     style_rows = SP.assets_in_profile(profile)["textures"]
     assert plan[:len(style_rows)] == [tuple(r) for r in style_rows]
-    assert ids.index("marble_01") > max(ids.index(a) for _, a, _ in V.furniture_textures())
+    assert ids.index("Marble012") > max(ids.index(a) for _, a, _ in V.furniture_textures())
     labels = {a: label for _, a, label in plan}
     assert labels["white_plaster_02"] == "plaster_white" and labels["white_planks_clean"] == "painted_wood_white"
+    assert labels["concrete_wall_001"] == "site:platform_wall" and ids.index("concrete_wall_001") > ids.index("Marble012")
     assert set(ids) == ({a for _, a, _ in style_rows} | {a for _, a, _ in V.furniture_textures()}
-                        | {a for _, a, _ in SHELL_ROWS})
+                        | {a for _, a, _ in SHELL_ROWS} | {a for _, a, _ in fetch.site_texture_rows(profile)})
 
 
 def test_fetch_for_style_fetches_the_shell_sets_at_the_stage_size(tmp_path, monkeypatch):
@@ -618,14 +630,16 @@ def test_fetch_for_style_fetches_the_shell_sets_at_the_stage_size(tmp_path, monk
     monkeypatch.setattr(fetch, "fetch_texture", fake_texture)
     monkeypatch.setattr(fetch, "fetch_hdri", lambda *a, **k: {"file": "x.hdr"})
     result = fetch.fetch_for_style(_real04_like_profile(), tmp_path, size="2k", log=lambda *_: None)
-    assert ("marble_01", "polyhaven", "2k") in calls and ("Metal032", "ambientcg", "2k") in calls
+    assert ("Marble012", "ambientcg", "2k") in calls and ("Metal032", "ambientcg", "2k") in calls
+    assert ("concrete_wall_001", "polyhaven", "2k") in calls                   # fix round after P3: a site finish
     assert len(calls) == len({c[0] for c in calls})
     assert result["shell"] == [
         {"slot": "ceiling", "asset": "white_plaster_02", "source": "polyhaven", "ready": True},
-        {"slot": "worktop", "asset": "marble_01", "source": "polyhaven", "ready": True},
-        {"slot": "front", "asset": "white_planks_clean", "source": "polyhaven", "ready": True},
+        {"slot": "worktop", "asset": "Marble012", "source": "ambientcg", "ready": True},
         {"slot": "metal", "asset": "Metal032", "source": "ambientcg", "ready": False}]
-    assert "Metal032" in result["failed"] and "marble_01" in result["textures"]
+    assert result["site"][0] == {"part": "platform_wall", "asset": "concrete_wall_001", "source": "polyhaven",
+                                 "ready": True}
+    assert "Metal032" in result["failed"] and "Marble012" in result["textures"]
 
 
 def test_an_unreadable_shell_table_is_recorded_and_the_style_sets_still_come(tmp_path, monkeypatch):
@@ -638,12 +652,13 @@ def test_an_unreadable_shell_table_is_recorded_and_the_style_sets_still_come(tmp
     monkeypatch.setattr(fetch, "fetch_hdri", lambda *a, **k: {"file": "x.hdr"})
     result = fetch.fetch_for_style(_real04_like_profile(), tmp_path, log=lambda *_: None)
     assert "ImportError: simulated" in result["failed"]["shell_slots"] and result["shell"] == []
-    assert "WoodFloor051" in result["textures"] and "marble_01" not in result["textures"]
+    assert "WoodFloor051" in result["textures"] and "Marble012" not in result["textures"]
 
 
 def test_the_shell_sets_go_through_the_fetchers_into_the_manifest_and_are_kept(tmp_path, monkeypatch):
-    """Poly Haven and ambientCG faked at the API and download level: the four shell sets land in the manifest at 2k
-    (CC0, the source, sha256 per map); a second run keeps the present files and makes no network call."""
+    """Poly Haven and ambientCG faked at the API and download level: the shell sets (three since the fix round after
+    P3) land in the manifest at 2k (CC0, the source, sha256 per map); a second run keeps the present files and makes
+    no network call."""
     import hashlib
 
     monkeypatch.setattr(V, "furniture_textures", lambda: [])      # only the shell sets: style {} names nothing
@@ -662,16 +677,19 @@ def test_the_shell_sets_go_through_the_fetchers_into_the_manifest_and_are_kept(t
                                           "size": len(bodies[url])}}}
         return table
 
-    buf = io.BytesIO()
-    with zipfile.ZipFile(buf, "w") as zf:
-        for suffix, colour in (("Color", (150, 150, 150)), ("NormalGL", (128, 128, 255)), ("Roughness", (80, 80, 80))):
-            zf.writestr(f"Metal032_2K-JPG_{suffix}.jpg", _fake_jpg(colour))
-    zip_url = "https://ambientcg.com/get?file=Metal032_2K-JPG.zip"
-    bodies[zip_url] = buf.getvalue()
-    acg_record = {"assetId": "Metal032", "displayName": "Metal 032", "dimensionX": 0, "dimensionY": 0,
-                  "downloadFolders": {"default": {"downloadFiletypeCategories": {"zip": {"downloads": [
-                      {"attribute": "2K-JPG", "downloadLink": zip_url, "fileName": "Metal032_2K-JPG.zip",
-                       "size": len(bodies[zip_url])}]}}}}}
+    acg_records = {}
+    for aid in [a for src, a, _ in SHELL_ROWS if src == "ambientcg"]:     # Marble012 (worktop), Metal032 (handles)
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            for suffix, colour in (("Color", (150, 150, 150)), ("NormalGL", (128, 128, 255)),
+                                   ("Roughness", (80, 80, 80))):
+                zf.writestr(f"{aid}_2K-JPG_{suffix}.jpg", _fake_jpg(colour))
+        zip_url = f"https://ambientcg.com/get?file={aid}_2K-JPG.zip"
+        bodies[zip_url] = buf.getvalue()
+        acg_records[aid] = {"assetId": aid, "displayName": aid, "dimensionX": 0, "dimensionY": 0,
+                            "downloadFolders": {"default": {"downloadFiletypeCategories": {"zip": {"downloads": [
+                                {"attribute": "2K-JPG", "downloadLink": zip_url, "fileName": f"{aid}_2K-JPG.zip",
+                                 "size": len(bodies[zip_url])}]}}}}}
 
     def fake_download(url, path, expected_md5=None, timeout=60):
         served.append(url)
@@ -681,11 +699,12 @@ def test_the_shell_sets_go_through_the_fetchers_into_the_manifest_and_are_kept(t
 
     monkeypatch.setattr(polyhaven, "info", lambda aid: {"name": aid, "type": 1, "dimensions": [1500.0, 1500.0]})
     monkeypatch.setattr(polyhaven, "files", ph_files)
-    monkeypatch.setattr(ambientcg, "info", lambda aid: acg_record if aid == "Metal032" else None)
+    monkeypatch.setattr(ambientcg, "info", lambda aid: acg_records.get(aid))
     monkeypatch.setattr(web, "download", fake_download)
+    monkeypatch.setattr(fetch, "site_texture_rows", lambda style=None: [])   # this test: the shell sets only
     result = fetch.fetch_for_style({}, tmp_path, size="2k", log=lambda *_: None)
-    assert result["failed"] == {} and [r["ready"] for r in result["shell"]] == [True] * 4
-    assert len(served) == 3 * 3 + 1
+    assert result["failed"] == {} and [r["ready"] for r in result["shell"]] == [True] * 3
+    assert len(served) == 3 * 1 + 2                       # 3 maps of white_plaster_02, the 2 ambientCG zips
     manifest = fetch.load_manifest(tmp_path)
     assert sorted(manifest["textures"]) == sorted(a for _, a, _ in SHELL_ROWS)
     for source, aid, _ in SHELL_ROWS:
@@ -694,8 +713,9 @@ def test_the_shell_sets_go_through_the_fetchers_into_the_manifest_and_are_kept(t
         assert set(entry["files"]) == {"albedo", "normal", "roughness"}
         for key, rel in entry["files"].items():
             assert web.sha256_file(tmp_path / rel) == entry["sha256"][key]
-    assert manifest["textures"]["marble_01"]["size_m"] == [1.5, 1.5]
+    assert manifest["textures"]["white_plaster_02"]["size_m"] == [1.5, 1.5]
     assert manifest["textures"]["Metal032"]["size_assumed"] is True       # ambientCG gives 0 x 0 for Metal032
+    assert manifest["textures"]["Marble012"]["size_assumed"] is True      # and for Marble012 (materials.slot_repeat_m)
 
     def no_network(*args, **kwargs):
         raise AssertionError("network call for a set already on the volume")

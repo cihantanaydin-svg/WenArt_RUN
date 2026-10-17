@@ -303,6 +303,17 @@ def test_real04_site_builds_and_the_site_view_sees_the_sky(tmp_path, monkeypatch
     cams = {c["name"]: c for c in m["cameras"] if c.get("kind") == "exterior"}
     assert {"ext_1", "ext_2", "ext_3", "ext_4", "ext_5", "ext_7"} <= set(cams)
     assert 1 / 3 < cams["ext_7"]["horizon_frac"] < 1.0
+    # fix round after P3 (16-17 Oct 2026): the aerial view ext_5 keeps the horizon in the upper part of its frame
+    # (P3: 30 degrees down at 26.87 mm, horizon at 1.27, no sky); the terrace hedges stand on their terraces, kept on
+    # the slab (hedge_003 on sp_001, hedge_004 on sp_004)
+    assert cams["ext_5"]["view"] == "aerial" and 0.5 < cams["ext_5"]["horizon_frac"] < 0.95
+    hedges = {h["id"]: h for h in site["hedges"]}
+    levels = {p["id"]: p["z"] for p in site["platforms"]}
+    for hid, pid in (("hedge_003", "sp_001"), ("hedge_004", "sp_004")):
+        assert hedges[hid]["z_range"][0] == pytest.approx(levels[pid] - 0.1, abs=1e-3), hid
+        assert hedges[hid]["fit"]["keeps"] == [pid] and not hedges[hid]["fit"]["narrowed"], hid
+    if site.get("lawn_relief"):                                                      # the instances lever is on
+        assert site["lawn_relief"]["range_m"][1] <= 0.0 and site["lawn_relief"]["edges_kept"]   # never rises
     (tmp_path / "dump.py").write_text(DUMP_SCRIPT, encoding="utf-8")
     dump = tmp_path / "dump.json"
     cli.run_blender(tmp_path / "dump.py", [str(dump)], blend=str(manifest_path.parent / "scene.blend"))
@@ -331,3 +342,119 @@ def test_real04_site_builds_and_the_site_view_sees_the_sky(tmp_path, monkeypatch
     assert mean_top > 25 and black < 0.05
     if os.environ.get("CUDA_VISIBLE_DEVICES", "x") != "":
         assert rec.get("vram_mib") is None or rec["vram_mib"] > 0
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 attempt 2)
+# --------------------------------------------------------------------------
+
+FIX_SCRIPT = textwrap.dedent("""
+    import bpy, json, os, sys
+    sys.path.insert(0, sys.argv[sys.argv.index("--") + 2])
+    out, maps = sys.argv[sys.argv.index("--") + 1], sys.argv[sys.argv.index("--") + 3]
+    from wenart.blender import materials as M
+    from wenart.blender import site as S
+    from wenart.blender import vegetation as VG
+    res = {}
+    # 1. a terrace on a sloped ground with a hedge drawn 0.1 m inside its west edge (site_plan fits it, build_site
+    #    builds it on the terrace's level), the far lawn's relief and the grass on it
+    sloped = S.terrain_model({"site": {"ground": {"levels": [{"side": "left", "z": {"value": -6.0}},
+                                                              {"side": "right", "z": {"value": 0.0}}]}}},
+                             [(60, 0), (70, 0), (70, 8), (60, 8)])
+    tsite = {"ground": {"levels": [], "points": []}, "paving": [{"id": "t1", "polygon": [[52, -8], [58, -8], [58, -2],
+                                                                                         [52, -2]], "build": True}],
+             "parking": [], "pools": []}
+    pfs = S.platforms(tsite, sloped)
+    t1 = next(p for p in pfs if p["id"] == "t1")
+    hedge = {"id": "hedge_t", "polyline": [[52.1, -7], [52.1, -3]], "width_m": 0.7, "height_m": 1.2,
+             "height_class": "mid", "species": "cherry_laurel", "species_inferred": True, "inferred": True,
+             "evidence": [], "source": "site.hedges", "symbol_ids": [], "reason": "a test hedge"}
+    hedges, fit_assumed = S.fit_hedges([hedge], pfs, [[(60, 0), (70, 0), (70, 8), (60, 8)]])
+    plan = {"mode": "full", "terrain": sloped, "outline": [(60, 0), (70, 0), (70, 8), (60, 8)], "plot": [],
+            "plot_source": "none", "extent": [(40, -12), (80, -12), (80, 20), (40, 20)], "wells": [], "plot_walls": [],
+            "areas": [{"id": "t1", "kind": "paving", "polygon": [[52, -8], [58, -8], [58, -2], [52, -2]], "z": None,
+                       "material": None, "colour": None, "source": "site_plan", "area_id": None,
+                       "lift": S.PAVING_LIFT, "platform_id": "t1"}],
+            "trees": [{"id": "shrub_t", "kind": "tree", "center": [55.0, -5.0], "size": [0.718, 0.718]}],
+            "not_built": [], "assumed": fit_assumed, "warnings": [], "ground_is_grass": True, "inferred": None,
+            "copy_holes": [], "pools": [], "hedges": hedges, "platforms": pfs, "climate": {"climate": "temperate"},
+            "levers": {k: (k != "sky") for k in S.SITE_LEVERS}, "near_extent": [(40, -12), (80, -12), (80, 20), (40, 20)],
+            "species": {}}
+    def mk(look):
+        return bpy.data.materials.get(str(look.get("material"))) or bpy.data.materials.new(str(look.get("material")))
+    looks = {k: {"material": k, "colour": None, "source": "build"} for k in ("garden", "paving", "plot_wall",
+             "light_well", "bark", "foliage", "ground", "steps", "railing", "facade")}
+    col = bpy.data.collections.new("fix_site"); bpy.context.scene.collection.children.link(col)
+    objs, assumed = [], []
+    summary = S.build_site(plan, col, looks, mk, objs, assumed)
+    hob = bpy.data.objects["hedge_t"]
+    hz = [(hob.matrix_world @ v.co).z for v in hob.data.vertices]
+    hx = [(hob.matrix_world @ v.co).x for v in hob.data.vertices]
+    tree = next(o for o in col.objects if o.name.startswith("tree_shrub_t"))
+    ground = bpy.data.objects["ground"]
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = ground.evaluated_get(dg).to_mesh()
+    rise = max(ev.vertices[i].co.z - ground.data.vertices[i].co.z for i in range(len(ground.data.vertices)))
+    drop = min(ev.vertices[i].co.z - ground.data.vertices[i].co.z for i in range(len(ground.data.vertices)))
+    grass = bpy.data.objects.get("grass_near")
+    res["site"] = {"t1_z": t1["z"], "hedge_z": [min(hz), max(hz)], "hedge_x": [min(hx), max(hx)],
+                   "hedge_fit": summary["hedges"][0].get("fit"), "tree_z": tree.location.z,
+                   "relief": {"mid": ground.modifiers["lawn_relief"].mid_level,
+                              "group": ground.modifiers["lawn_relief"].vertex_group, "rise": rise, "drop": drop},
+                   "lawn_relief": summary.get("lawn_relief"),
+                   "grass_mods": [m.type for m in grass.modifiers] if grass else None}
+    # 2. the shell slots: the front slot paints (no plank photo), the worktop's Marble012 repeats every 2 m
+    tex = {}
+    for aid, assumed_size in (("white_planks_clean", False), ("Marble012", True)):
+        tex[aid] = {"id": aid, "source": "ambientcg" if aid == "Marble012" else "polyhaven", "licence": "CC0",
+                    "size_m": [1.0, 1.0] if assumed_size else [1.8, 1.8],
+                    "files": {k: os.path.join(maps, f"{aid}_{k}.jpg") for k in ("albedo", "normal", "roughness")},
+                    **({"size_assumed": True} if assumed_size else {})}
+    lib = M.MaterialLibrary(tex, maps, levers={"shell": True})
+    mats = {}
+    for name, mat in (("trim", lib.get("painted_wood_white")), ("front", lib.get("painted_wood_white", "white_planks_clean", colour="white")),
+                      ("worktop", lib.get("stone_worktop"))):
+        rec = lib.records[mat.name]
+        mats[name] = {"images": sorted(n.image.name for n in mat.node_tree.nodes
+                                       if n.bl_idname == "ShaderNodeTexImage" and n.image),
+                      "mapping": [list(n.inputs["Scale"].default_value) for n in mat.node_tree.nodes
+                                  if n.bl_idname == "ShaderNodeMapping"],
+                      "dropped": rec.get("shell_photo_dropped"), "size_m": rec.get("size_m"), "slot": rec.get("shell_slot")}
+    res["materials"] = mats
+    json.dump(res, open(out, "w"), indent=1, default=str)
+""")
+
+
+@needs_blender
+def test_p3_fix_round_plants_on_the_terrace_lawn_relief_and_shell_finishes_in_blender(tmp_path):
+    """Fix round after P3 in Blender 5.2: a hedge drawn 0.1 m inside a terrace edge is built on the terrace's level
+    with its hull on the slab (``fit_hedges`` + ``stand_terrain``), a shrub on the terrace stands on it; the far
+    lawn's Displace relief only goes down and keeps the ground's edges (``lawn_relief``: mid level 1, the vertex
+    group), the grass surface gets the same relief before its scatter; the front shell slot paints without the plank
+    photo (``paint_drop``) and the worktop's Marble012 repeats every 2 m (``slot_repeat_m``)."""
+    from PIL import Image
+
+    maps = tmp_path / "maps"
+    maps.mkdir()
+    for aid in ("white_planks_clean", "Marble012"):
+        for key in ("albedo", "normal", "roughness"):
+            Image.new("RGB", (8, 8), (180, 180, 180)).save(maps / f"{aid}_{key}.jpg")
+    script = tmp_path / "fix.py"
+    script.write_text(FIX_SCRIPT, encoding="utf-8")
+    out = tmp_path / "fix.json"
+    cli.run_blender(script, [str(out), str(ROOT), str(maps)], log_path=tmp_path / "fix.log")
+    res = json.loads(out.read_text(encoding="utf-8"))
+    site = res["site"]
+    assert site["hedge_z"][0] == pytest.approx(site["t1_z"] - 0.1, abs=1e-3)
+    assert site["hedge_z"][1] == pytest.approx(site["t1_z"] + 1.2, abs=1e-3)
+    assert site["hedge_x"][0] >= 52.0 - 1e-3 and site["hedge_fit"]["keeps"] == ["t1"]      # the hull on the slab
+    assert site["tree_z"] == pytest.approx(site["t1_z"], abs=1e-3)
+    assert site["relief"]["mid"] == 1.0 and site["relief"]["group"] == VG.LAWN_RELIEF_GROUP
+    assert site["relief"]["rise"] <= 1e-5 and site["relief"]["drop"] < -1e-3
+    assert site["lawn_relief"]["range_m"] == list(VG.relief_range())
+    assert site["grass_mods"] == ["DISPLACE", "NODES"]
+    mats = res["materials"]
+    assert mats["trim"]["images"] == [] and mats["front"]["images"] == [] and mats["trim"]["slot"] == "front"
+    assert mats["front"]["dropped"]["asset"] == "white_planks_clean"
+    assert len(mats["worktop"]["images"]) == 3 and mats["worktop"]["size_m"] == [2.0, 2.0]
+    assert mats["worktop"]["mapping"] and mats["worktop"]["mapping"][0][:2] == [pytest.approx(0.5)] * 2

@@ -76,6 +76,21 @@ ceiling light and was pushed +3..+8 EV):
   ``SHADE_EMISSION_WM2SR`` (``materials.fixture_material``), no longer tied to the lamp power, so a shade never
   clips at the project EV range; every rig object (the shade mesh and its light) carries ``wenart_rig`` so render.py
   can hide the rig while it meters the project white point on daylight only.
+
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8; pod P3 rendered real04 with 13 ``lighting_dark``
+views):
+
+- A rig replaces the fill light only when it has a ceiling fixture (``rig_replaces_fill``). The windowless bedroom
+  r_L0_yatak_odasi_4 got two 470 lm bedside lamps in place of the 150 W fill light and rendered night-dark (+6.1..+6.5
+  EV wanted, beyond set_lighting's x3); a rig of bedside lamps or a pendant now adds to the Milestone 6 fill light
+  (assumed kind ``rig_adds_to_fill_light``; the lighting block's ``rig.rooms[...].adds_to_fill_light``). Rooms with
+  a window are unchanged; real04's L0 yatak_odasi_3/4 and L-1b oda / oda_2 and real02's L0 yatak_odasi_3/4 get the
+  fill light back (M12 lit yatak_odasi_4 at -0.17 EV with it).
+- The hall and stair ceiling fixtures carry bulbs for ``RIG_CIRCULATION_LUMENS_PER_M2`` (``rig_bulbs``): P3's halls
+  had a fifth of the baths' rig power per m² and stayed +3.0..+3.6 EV after the agent's x3 (the constant's comment
+  has the numbers). Each fixture records ``bulbs``, ``lumens_per_bulb`` and the fixture's lumens and watts.
+- ``RIG_GAIN``, ``RIG_WARM_K``, the other rigs and the walls' ``exterior`` flags are unchanged (the P1 decisions of
+  §14.3); render.py corrects the rig's colour per view (``render.mixed_whitepoint``).
 """
 from __future__ import annotations
 
@@ -546,6 +561,18 @@ RIG_BEDSIDE_OFFSET_M = 0.35           # ... this far beside the bed's head corne
 # is 800 lm, a 75 W-equivalent 1100 lm (the US FTC lumen labelling rule used by every bulb box: 800 lm ≈ 60 W,
 # 1100 lm ≈ 75 W, 1600 lm ≈ 100 W); LED strips 400-600 lm per metre (product class); the manual's own table rows
 # (800 / 1000 / 1500 / 2500 lm) anchor the conversion. Flagged as assumed in every manifest entry.
+# Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8). What: the hall and stair ceiling fixtures carry as
+# many 1100 lm bulbs as give RIG_CIRCULATION_LUMENS_PER_M2 over the room's floor (the spec's ``lumens_per_m2``;
+# ``rig_bulbs``). Why: P3's halls had one 1100 lm fixture for 11.9-15.3 m² (72-92 lm/m², 0.4-0.5 W/m² applied) where
+# the windowless baths had two for 5 m² (440 lm/m², 2.5 W/m²): the baths metered +1.5..+2.0 EV, the halls +3.0..+3.6
+# EV even after the agent's set_lighting x2.8-x3.0 (10 lighting_dark views; without the agent +4.6..+5.1). Per
+# applied W/m² the halls metered 0.05-0.09 incident against the baths' 0.07-0.13, so the bath's density brings P3's
+# L-1 and L1 halls to about +1.8..+2.8 EV before any agent edit (the L0 hall, metered on its shaded stair side at
+# 0.016 per W/m², stays over the cap: a finding for set_lighting). More bulbs, not more lumens per bulb: the manual's
+# table gives a 2500 lm tube only 4.5 W against 3.1 W for 1100 lm, so a brighter bulb would add little light. The
+# bathroom, wc, kitchen, bedroom and dining rigs keep their lumens (P3: the baths and kitchens metered within the
+# cap).
+RIG_CIRCULATION_LUMENS_PER_M2 = 450.0
 ROOM_RIGS: dict[str, list[dict]] = {
     # kind: pendant | ceiling | bedside | strip | mirror; anchor: the piece type the fixture needs (None = the room);
     # size_m: [w, d, h] of the visible fixture; lumens per fixture (a strip: per metre, length from the counter).
@@ -569,9 +596,12 @@ ROOM_RIGS: dict[str, list[dict]] = {
            {"kind": "ceiling", "anchor": None, "lumens": 800.0, "count": 1, "size_m": [0.22, 0.22, 0.08],
             "source": "ceiling fixture with an 800 lm (60 W-equivalent) LED bulb"}],
     "hall": [{"kind": "ceiling", "anchor": None, "lumens": 1100.0, "count": 1, "size_m": [0.30, 0.30, 0.08],
-              "source": "ceiling fixture with a 1100 lm (75 W-equivalent) LED bulb, one per 3 m of a long hall"}],
+              "lumens_per_m2": RIG_CIRCULATION_LUMENS_PER_M2,
+              "source": "ceiling fixture with 1100 lm (75 W-equivalent) LED bulbs, one per 3 m of a long hall, "
+                        "bulbs for 450 lm per m2 of floor"}],
     "stair": [{"kind": "ceiling", "anchor": None, "lumens": 1100.0, "count": 1, "size_m": [0.30, 0.30, 0.08],
-               "source": "ceiling fixture with a 1100 lm (75 W-equivalent) LED bulb"}],
+               "lumens_per_m2": RIG_CIRCULATION_LUMENS_PER_M2,
+               "source": "ceiling fixture with 1100 lm (75 W-equivalent) LED bulbs, bulbs for 450 lm per m2 of floor"}],
 }
 RIG_KINDS = ("pendant", "ceiling", "bedside", "strip", "mirror")
 
@@ -615,6 +645,29 @@ def room_rig(room_type: str | None) -> list[dict]:
     return out
 
 
+def rig_bulbs(spec: dict, floor_area_m2: float, fixtures: int) -> int:
+    """How many bulbs of ``spec["lumens"]`` each of ``fixtures`` ceiling fixtures carries (pure; fix round after P3,
+    16-17 Oct 2026): ``ceil(area x lumens_per_m2 / (fixtures x lumens))`` for a spec with ``lumens_per_m2`` (the hall
+    and stair rigs: ``RIG_CIRCULATION_LUMENS_PER_M2``), at least 1; 1 for every other spec."""
+    density = spec.get("lumens_per_m2")
+    lumens = float(spec.get("lumens") or 0.0)
+    if not density or lumens <= 0.0 or int(fixtures) < 1:
+        return 1
+    return max(1, math.ceil(float(floor_area_m2) * float(density) / (int(fixtures) * lumens) - 1e-9))
+
+
+def rig_replaces_fill(plan: dict, why: str | None) -> bool:
+    """Whether a room's rig replaces the Milestone 6 fill light (pure; fix round after P3, 16-17 Oct 2026, verifier of
+    the P3 look review). What: only a room that needs the fill light (``why``: no window, or little daylight) and
+    whose rig has a ceiling fixture. Why: P3's windowless bedroom r_L0_yatak_odasi_4 got only its two 470 lm bedside
+    lamps (4.9 W) in place of the 150 W fill light and rendered night-dark (+6.1..+6.5 EV wanted, x9-x11 the light the
+    cap allows, beyond set_lighting's x3); M12 lit it with the fill light at -0.17 EV. How: a rig without a ceiling
+    fixture (bedside lamps, a dining pendant) adds to the fill light instead (``build_lighting`` records
+    ``rig_adds_to_fill_light``); halls, stairs, kitchens, baths and WCs have a ceiling fixture and keep the round-3
+    rule."""
+    return why is not None and any(f.get("kind") == "ceiling" for f in plan.get("fixtures") or [])
+
+
 def _piece_frame(piece: dict) -> tuple[tuple[float, float], tuple[float, float], float, float]:
     """``(centre, front unit vector, width across the front, depth)`` of a piece (pure; ``looks.piece_back_mid``
     convention: the front_deg points out of the front face, else the footprint's -Y side in its frame)."""
@@ -640,7 +693,9 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
     ``radius_m``}, ``temperature_k``, ``anchor_id`` and ``reason``. ``pieces`` are the room's built pieces
     (``footprint``, ``type``, ``front_deg``); ``holes`` the stair openings of the level (ceiling fixtures stay out
     of them, as the Milestone 6 light does). A fixture whose anchor is missing is listed under ``dropped`` with the
-    reason, except ``optional`` ones, which are silently left out."""
+    reason, except ``optional`` ones, which are silently left out. Fix round after P3 (16-17 Oct 2026): a ceiling
+    spec with ``lumens_per_m2`` (hall, stair) gives each fixture ``rig_bulbs`` bulbs; the fixture records ``bulbs``,
+    ``lumens_per_bulb`` and its own ``lumens`` / ``watts_radiometric`` / ``watts_applied`` (bulbs x the spec's)."""
     polygon = [tuple(p[:2]) for p in room.get("polygon") or []]
     if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
         polygon = polygon[:-1]
@@ -684,11 +739,22 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             plans = area_light_plans(polygon, holes=holes) if room.get("room_type") in ("hall", "stair") else \
                 [area_light_plan(polygon, holes=holes)]
             h = float(spec["size_m"][2])
+            # fix round after P3: the hall and stair fixtures carry bulbs for RIG_CIRCULATION_LUMENS_PER_M2
+            bulbs = rig_bulbs(spec, G.polygon_area(polygon), len(plans))
+            fspec = spec
+            reason = f"ceiling fixture at the pole of inaccessibility of {room['id']}"
+            if spec.get("lumens_per_m2"):
+                fspec = dict(spec, bulbs=bulbs, lumens_per_bulb=spec["lumens"],
+                             lumens=round(float(spec["lumens"]) * bulbs, 1),
+                             watts_radiometric=round(float(spec["watts_radiometric"]) * bulbs, 4),
+                             watts_applied=round(float(spec["watts_applied"]) * bulbs, 4))
+                reason += (f", {bulbs} x {float(spec['lumens']):g} lm bulbs for {float(spec['lumens_per_m2']):g} lm/m2 "
+                           f"over {G.polygon_area(polygon):.1f} m2 and {len(plans)} fixture(s)")
             for plan in plans:
                 cx, cy = plan["center"]
                 z = ceil_z - RIG_MOUNT_GAP_M - h / 2.0
-                add(spec, (cx, cy, z), (cx, cy, z - h / 2.0 - 0.02), "POINT", spec["watts_applied"], spec["size_m"],
-                    radius=0.08, reason=f"ceiling fixture at the pole of inaccessibility of {room['id']}")
+                add(fspec, (cx, cy, z), (cx, cy, z - h / 2.0 - 0.02), "POINT", fspec["watts_applied"], spec["size_m"],
+                    radius=0.08, reason=reason)
         elif kind == "bedside":
             beds = (by_type.get("bed_double") or []) + (by_type.get("bed") or []) + (by_type.get("bed_single") or [])
             if not beds:
@@ -805,7 +871,8 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
             "name": ob.name, "wenart_id": f["name"], "kind": "decor", "status": "assumed", "level_id": level["id"],
             "element_id": room["id"], "parent": room["id"], "evidence": [], "material": mat.name, "textured": False,
             "pass_index": None, "method": "rig", "type": f"rig_{f['kind']}", "rotation_deg": f.get("rotation_deg") or 0.0,
-            "assumed": {"rig": f["kind"], "lumens": f.get("lumens"), "watts_radiometric": f.get("watts_radiometric"),
+            "assumed": {"rig": f["kind"], "lumens": f.get("lumens"), "bulbs": f.get("bulbs", 1),
+                        "watts_radiometric": f.get("watts_radiometric"),
                         "watts_applied": f["light"]["energy_w"], "gain": f.get("gain"), "temperature_k": f["temperature_k"],
                         "anchor_id": f.get("anchor_id"), "reason": f["reason"], "source": f.get("source"),
                         "lumen_watt_source": f.get("lumen_watt_source"),
@@ -841,7 +908,8 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
             "element_id": room["id"], "parent": room["id"], "evidence": [], "material": None, "textured": False,
             "pass_index": None, "center": spec["center"], "size": spec["size_m"],
             "assumed": {"power_w": spec["energy_w"], "rig": f["kind"], "fixture": f["name"], "temperature_k":
-                        f["temperature_k"], "visible_camera": False, "reason": f["reason"], "lumens": f.get("lumens")},
+                        f["temperature_k"], "visible_camera": False, "reason": f["reason"], "lumens": f.get("lumens"),
+                        "bulbs": f.get("bulbs", 1)},
         })
         assumed.append({"object": lob.name, "field": "rig_light", "value": spec["energy_w"],
                         "reason": f"{room['id']}: {f['reason']}; {f.get('lumens') or '?'} lm -> "
@@ -971,15 +1039,24 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                 built = build_room_rig(bpy, common, collection, manifest_objects, assumed, room, level, plan,
                                        fixture_material)
                 rig_lights.extend(built)
+                # fix round after P3: only a rig with a ceiling fixture replaces the fill light (rig_replaces_fill);
+                # bedside lamps or a pendant add to it (P3: r_L0_yatak_odasi_4 night-dark under two bedside lamps)
+                replaces = bool(built) and rig_replaces_fill(plan, why)
+                adds = bool(built) and why is not None and not replaces
                 rig_rooms[room["id"]] = {"fixtures": [f["name"] for f in plan["fixtures"]],
-                                         "dropped": plan["dropped"], "replaces_fill_light": why is not None and bool(built),
-                                         "fill_light_reason": why}
-                if built and why is not None:
+                                         "dropped": plan["dropped"], "replaces_fill_light": replaces,
+                                         "adds_to_fill_light": adds, "fill_light_reason": why}
+                if replaces:
                     assumed.append({"object": f"rig_{room['id']}", "field": "area_light", "value": None,
                                     "reason": f"{room['id']}: {why}; the room's light rig ({len(built)} fixtures) "
                                               f"carries the light instead of the invisible ceiling light",
                                     "parent": room["id"], "kind": "rig_replaces_fill_light"})
                     continue
+                if adds:
+                    assumed.append({"object": f"rig_{room['id']}", "field": "area_light", "value": None,
+                                    "reason": f"{room['id']}: {why}; the room's light rig ({len(built)} fixtures) has "
+                                              f"no ceiling fixture, so it adds to the invisible ceiling light",
+                                    "parent": room["id"], "kind": "rig_adds_to_fill_light"})
             if why is None and agent is None:
                 continue
             if why is None:

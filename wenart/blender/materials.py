@@ -87,6 +87,11 @@ shell, and the ceiling, worktops, fronts, sanitary ware, handles and the wet-roo
   (``exterior_sky_strength``, the measured sky/sun pair ``SKY_SUN_TABLE``: 7.71 at 1000 W/m² and 35 degrees, was
   0.5); the disc keeps its image brightness; the horizontal diffuse-to-direct ratio of the pair (0.166 at 35
   degrees) lies in the clear-sky range; the record's ``sky_calibration`` keeps the derivation.
+- Fix round after P3 (16-17 Oct 2026): the ``worktop`` slot is ambientCG Marble012 (one jointless polished slab;
+  Poly Haven marble_01 is a set of tiles and P3's worktops read as tiles), repeated every ``size_m`` (2 m) while the
+  manifest knows no real size for it (``slot_repeat_m``); the ``front`` slot is a ``paint`` slot: painted trim and
+  fronts leave the slug's own plank photo (white_planks_clean) out (``paint_drop``; its board seams showed every
+  ~10 cm on P3's skirting), the record says ``shell_photo_dropped``.
 - ``fixture_material``: the emissive surface of a light-rig fixture (``lighting.room_rig``), its colour from the
   blackbody temperature of the fixture, its radiance the fixed ``lighting.SHADE_EMISSION_WM2SR`` (round 3: the
   shade no longer follows the lamp power, so it never clips at the project EV range).
@@ -369,11 +374,24 @@ class MaterialLibrary:
         if (spec and spec.get("asset") and not asset_id and slug in (spec.get("asset_for") or spec.get("slugs") or (slug,))
                 and self.texture_set(spec["asset"])[0] is not None):
             asset_id = spec["asset"]
+        # Fix round after P3 (16-17 Oct 2026): a paint slot (front: painted trim and fronts) leaves the slug's plank
+        # photo out (its seams showed every ~10 cm on the skirting)
+        dropped = paint_drop(spec, slug, asset_id)
+        if dropped:
+            asset_id = None
         key = (slug, asset_id, tuple(tint) if tint else None, unverified, colour or None, pkey, slot,
                bool(kind_layers))
         if key in self._cache:
             return self._cache[key]
         tset, reason = self.texture_set(asset_id)
+        if spec and spec.get("paint") and tset is None and self.use_textures:
+            reason = (f"paint finish of the {slot} shell slot: the set {dropped} (board seams) is left out" if dropped
+                      else f"paint finish of the {slot} shell slot (no plank photo: no board seams)")
+        # Fix round after P3: the slot's own set without a known real size repeats at the slot's size (the worktop's
+        # Marble012: 2 m, one slab, instead of the fetcher's assumed 1 m)
+        repeat = slot_repeat_m(spec, tset["id"] if tset else None, self.textures.get(tset["id"]) if tset else None)
+        if repeat:
+            tset = dict(tset, size_m=repeat)
         # One Blender material per (slug, asset, tint, unverified, colour, params); the record
         # is keyed by the material's name so a slug used both textured (floor
         # with an asset) and flat (door leaf without one) is reported twice, and
@@ -432,6 +450,12 @@ class MaterialLibrary:
             if wanted and not used and meant and asset_id in (None, wanted):
                 self.records[mat.name]["shell_asset_missing"] = {"asset": wanted,
                                                                  "reason": self.texture_set(wanted)[1]}
+            if dropped:
+                self.records[mat.name]["shell_photo_dropped"] = {
+                    "asset": dropped, "reason": "paint finish: the plank photo's board seams are left out"}
+            if repeat:
+                self.records[mat.name]["size_note"] = (f"the set's real size is unknown (size_assumed): the "
+                                                       f"{slot} slot repeats it every {repeat[0]:g} m")
         if colour:
             self.records[mat.name].update(colour=str(colour), colour_rgb=[round(v, 4) for v in rgb] if rgb else None,
                                           colour_applied=rgb is not None)
@@ -1345,16 +1369,25 @@ SHELL_SLOTS: dict[str, dict] = {
                            "imperfection": {"amount": 0.10, "scale_m": 0.80}},
                 "reason": "ceiling plaster on the Poly Haven white_plaster_02 set (flat albedo mode: the colour stays "
                           "the ceiling's, the photo adds its detail), corner AO and a 4 mm edge bevel"},
-    "worktop": {"slugs": ("stone_worktop",), "asset": "marble_01", "mode": "texture",
+    # Fix round after P3 (16-17 Oct 2026): the worktop was Poly Haven marble_01 ("smooth, even cream-beige tiles",
+    # tag "tiles"): P3's kitchen worktops showed a square joint every 0.75 m and read as tiles. ambientCG Marble012
+    # (CC0; tags kitchen, polished, veined; a procedural, seamless set, vocabulary slug marble_slab, checked in
+    # asset_checks_m10.json) is one jointless slab. Its API gives no real size (the fetcher assumes 1 m and flags
+    # size_assumed), so the slot repeats it every size_m (slot_repeat_m): a 3 m run shows the veins 1.5 times.
+    "worktop": {"slugs": ("stone_worktop",), "asset": "Marble012", "mode": "texture", "size_m": [2.0, 2.0],
                 "layers": {"coat": {"weight": 0.6, "roughness": 0.10, "ior": 1.5}, "bevel": {"radius_m": 0.002},
                            "imperfection": {"amount": 0.15, "scale_m": 0.30}},
-                "reason": "stone worktop on the Poly Haven marble_01 set (texture mode, gain-matched to the slug's "
-                          "grey), a polished coat and a 2 mm edge bevel"},
-    "front": {"slugs": ("painted_wood_white",), "asset": "white_planks_clean", "mode": "flat",
+                "reason": "stone worktop on the ambientCG Marble012 set (one jointless slab, repeated every 2 m; "
+                          "texture mode, gain-matched to the slug's grey), a polished coat and a 2 mm edge bevel"},
+    # Fix round after P3: painted fronts and trim (skirting, door frames, sills) were the Poly Haven
+    # white_planks_clean photo in flat mode: its board seams showed as a joint every ~10 cm along every skirting.
+    # Painted MDF has no seam: the slot is a paint finish (``paint``: the slug's own plank set is left out, also when a
+    # caller passes it, as furniture.py does for painted cabinet fronts); a set the style names itself still applies.
+    "front": {"slugs": ("painted_wood_white",), "asset": None, "mode": "flat", "paint": True,
               "layers": {"coat": {"weight": 0.3, "roughness": 0.25, "ior": 1.45}, "bevel": {"radius_m": 0.0015},
                          "imperfection": {"amount": 0.12, "scale_m": 0.25}},
-              "reason": "painted fronts and trim on the Poly Haven white_planks_clean set (flat mode, the paint colour "
-                        "of the style), a satin lacquer coat and a 1.5 mm edge bevel"},
+              "reason": "painted fronts and trim: a seamless paint finish in the style's colour (no plank photo), a "
+                        "satin lacquer coat, a 1.5 mm edge bevel and roughness variation"},
     "ceramic": {"slugs": ("ceramic_white",), "asset": None, "mode": "flat", "roughness": 0.12,
                 "layers": {"coat": {"weight": 1.0, "roughness": 0.03, "ior": 1.5}, "bevel": {"radius_m": 0.003},
                            "imperfection": {"amount": 0.06, "scale_m": 0.20}},
@@ -1427,6 +1460,29 @@ def shell_slot_spec(slot: str, style: dict | None = None) -> dict:
     spec["slot"] = slot
     spec["layers"] = {k: dict(v) for k, v in spec["layers"].items()}
     return spec
+
+
+def slot_repeat_m(spec: dict | None, asset_id: str | None, manifest_entry: dict | None) -> list[float] | None:
+    """The repeat in metres a shell slot gives its own texture set (pure; fix round after P3, 16-17 Oct 2026): the
+    slot's ``size_m`` when ``asset_id`` is the slot's set and the assets manifest knows no real size for it
+    (``size_assumed``, or no ``size_m``: ambientCG gives 0 x 0 for Marble012 and the fetcher assumes 1 m), else None
+    (the set's own size stays)."""
+    if not spec or not spec.get("size_m") or not asset_id or asset_id != spec.get("asset"):
+        return None
+    entry = manifest_entry if isinstance(manifest_entry, dict) else {}
+    if entry.get("size_m") and not entry.get("size_assumed"):
+        return None
+    return [float(v) for v in spec["size_m"]][:2]
+
+
+def paint_drop(spec: dict | None, slug: str, asset_id: str | None) -> str | None:
+    """The texture set a paint slot leaves out (pure; fix round after P3): the slug's own vocabulary set (the plank
+    photo of ``painted_wood_white``) when the slot is a ``paint`` slot and ``asset_id`` is that set, else None (a set
+    the style names itself stays)."""
+    if not spec or not spec.get("paint") or not asset_id or slug not in (spec.get("slugs") or ()):
+        return None
+    own = (ENTRIES.get(slug) or {}).get("asset")
+    return asset_id if own and asset_id == own else None
 
 
 def shell_assets() -> dict[str, str | None]:

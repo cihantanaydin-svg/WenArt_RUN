@@ -16,6 +16,11 @@ old outputs on the volume):
   or ``reused`` in this run (or ``warning`` for second-round questions it
   left unanswered with ``--no-ai``, wenart/run/stages.py
   ``SECOND_ROUND_NOTE``), whose building has no pending question; the
+  ``sheets`` stage may be ``pending`` too (Milestone 10: it wrote
+  sheet_region questions; fix round after P3, 16-17 Oct 2026) only with a
+  ``pipeline_final`` that ended ``ok``, ``reused`` or ``warning`` (``sheet
+  answers missing``, printed) and recorded the ``sheets.json`` the outputs
+  hold, i.e. it applied the sheet answers; the
   final report's view count equals the render manifest; a project whose
   gate decision is ``polish_disabled`` or ``not_validated`` has Cycles
   finals only;
@@ -46,6 +51,8 @@ RUN = [p for p in os.environ.get("RUN_TEST_PROJECTS", "").split() if p]
 NEEDS_REVIEW = [p for p in os.environ.get("NEEDS_REVIEW_TEST_PROJECTS", "").split() if p]
 SELFTEST = os.environ.get("SELFTEST_TEST_ALIAS", "").strip()
 ALLOWED = ("ok", "reused", "warning", "skipped")
+# wenart/run/scheduler.py stage_pipeline_final: the note of a pipeline_final that ran without the sheet answers
+SHEETS_MISSING = "sheet answers missing"
 # final/ATTRIBUTION.md: the credits of the public library models a private project's images show (M7 §7.3).
 PRIVATE_ALLOWED = re.compile(r"^(final/(final_report\.md|final_manifest\.json|[^/]+_final_preview\.jpg|contact_[^/]+\.jpg"
                              r"|ATTRIBUTION\.md)|run/[^/]+\.json)$")
@@ -87,8 +94,9 @@ def test_run_project_is_ok_with_allowed_stage_states(manifest, project):
     assert entry["state"] == "ok", entry
     bad, warnings = [], []
     for stage in entry["stages"]:
-        if stage["stage"] == "pipeline" and stage["status"] == "pending":
+        if stage["stage"] in ("pipeline", "sheets") and stage["status"] == "pending":
             continue                                   # checked by test_pending_pipeline_has_its_final_building
+                                                       # (M10: sheet_region questions; P3 real04: 8 of them)
         if stage["status"] not in ALLOWED:
             bad.append(stage)
         elif stage["status"] == "skipped" and stage["note"] not in SKIP_REASONS:
@@ -108,15 +116,30 @@ def test_pending_pipeline_has_its_final_building(manifest, project):
     """M7 §9.1: a pipeline that wrote recognition questions (pending) is ok only with this run's recognize stage
     and a pipeline_final that ended ok or reused; that building is the one the later stages used. A pipeline_final
     whose answers opened second-round questions ran once more with --no-ai and is a warning with exactly
-    SECOND_ROUND_NOTE (the new pieces stay unknown/unverified, listed in its report): allowed, printed."""
+    SECOND_ROUND_NOTE (the new pieces stay unknown/unverified, listed in its report): allowed, printed.
+
+    Fix round after P3: a ``sheets`` stage left ``pending`` (its sheet_region questions, Milestone 10) is answered by
+    pipeline_final: it must end ok, reused or warning (a warning with "sheet answers missing" is allowed and
+    printed, as scheduler.stage_pipeline_final writes it) and its record's ``sheets.json`` must be the file the
+    outputs hold (P3 real04: 8 questions, both models' answers, sheets.json 484c08e6...)."""
     stages = {s["stage"]: s for s in _entry(manifest, project)["stages"]}
+    sheets_missing = False
+    if stages.get("sheets", {}).get("status") == "pending":
+        final = stages.get("pipeline_final", {})
+        assert final.get("status") in ("ok", "reused", "warning"), final
+        record = _load(project, "run/pipeline_final.json")
+        assert record["written"].get("sheets.json") == canonical_sha256(OUTPUTS / project / "sheets.json"), \
+            record["written"]
+        sheets_missing = final.get("status") == "warning" and SHEETS_MISSING in str(final.get("note") or "")
+        if final.get("status") == "warning":
+            print(f"{project} warning pipeline_final: {final.get('note')}")
     if stages.get("pipeline", {}).get("status") != "pending":
         assert stages.get("pipeline_final", {}).get("note") == "no questions", stages.get("pipeline_final")
         return
     assert "recognize" in stages and stages["recognize"]["status"] in ("ok", "reused", "warning"), stages
     final = stages.get("pipeline_final", {})
     second_round = final.get("status") == "warning" and final.get("note") == SECOND_ROUND_NOTE
-    assert final.get("status") in ("ok", "reused") or second_round, final
+    assert final.get("status") in ("ok", "reused") or second_round or sheets_missing, final
     record = _load(project, "run/pipeline_final.json")
     building = OUTPUTS / project / "building.json"
     assert record["written"]["building.json"] == canonical_sha256(building)

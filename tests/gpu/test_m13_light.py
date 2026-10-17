@@ -14,6 +14,9 @@ exterior world while the lamp stays the one direct sun.
   when the metered EV passed the cap; one project whitepoint for every view, metered on daylight (every rig object
   hidden; the daylight candidate with the most incident light, a sunlit room under a sun of 300 W/m² or more, its
   white point within ``SUNLIT_WB_K``; ``kelvin`` and the candidates recorded); ``vram_mib`` recorded on the GPU.
+  Fix round after P3 (16-17 Oct 2026): the project white point is the anchor of every view
+  (``wb_project_whitepoint``); a view's own white point is the anchor mixed with the rig's colour by its rig share
+  (``render.mixed_whitepoint``), the anchor itself without the rig or below ``render.WB_RIG_SHARE_MIN``.
 - ``test_exterior_sky_carries_a_visible_sun_disc``: the exterior world of ``materials.exterior_world_nodes`` (the
   round-3 world: the disc for camera rays only) rendered from a camera looking at the sun: the disc's pixels are far
   brighter than the sky beside them. Then a white plane facing the sun measures the Diffuse Direct light of (a) the
@@ -137,8 +140,27 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
         # a real sun: a sunlit room is metered and the white point is daylight, not the blue of a sky-lit window
         assert wbp["sunlit_rooms"] and wbp["sunlit_camera"] is True, wbp
         assert SUNLIT_WB_K[0] <= wbp["kelvin"] <= SUNLIT_WB_K[1], wbp
-    wps = {tuple(r["exposure"]["whitepoint"]) for r in rm["renders"]}
-    assert len(wps) == 1, "one whitepoint for every view of the project"
+    # Fix round after P3 (16-17 Oct 2026): one project white point (the anchor, metered on daylight) for every view;
+    # each view's own white point is the anchor mixed with the rig's light colour by the view's rig share
+    # (render.mixed_whitepoint; P3 put the 2700 K rig under the 5,635 K daylight point and 24 of 48 views turned
+    # orange). Without the rig, or below WB_RIG_SHARE_MIN, a view keeps the anchor exactly.
+    anchor = [float(v) for v in wbp["whitepoint"]]
+    for r in rm["renders"]:
+        ex = r["exposure"]
+        assert ex["wb_project_whitepoint"] == pytest.approx(anchor, abs=1e-6), r["camera"]
+        share = ex.get("wb_rig_share")
+        if not levers["rig"]:
+            assert share is None and ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
+            continue
+        assert share is not None and 0.0 <= share <= 1.0 and ex["wb_rig_kelvin"] == L.RIG_WARM_K, (r["camera"], ex)
+        if share < R.WB_RIG_SHARE_MIN:
+            assert ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
+        else:
+            want = R.mixed_whitepoint(anchor, ex["wb_rig_whitepoint"], share, wbp["residual"])
+            assert ex["whitepoint"] == pytest.approx(want, abs=1e-5) and ex["wb_view_rule"] == R.WB_VIEW_RULE
+            assert ex["wb_view_shift_mired"] >= -0.5, (r["camera"], ex)     # toward the warm rig, never cooler
+        print(f"M13_WB_VIEW {variant} {r['camera']}: rig share {share} -> {ex['wb_temperature']} K "
+              f"(shift {ex.get('wb_view_shift_mired')} mired; {ex['wb_view_rule']})")
     # pre-flight of P3 (16 Oct 2026): the floor moves down with the scene's sun (render.sun_floor_shift); the cap of
     # exposure_limits stays, and each view is metered against its own ``limits``
     floor = rm["exposure_floor"]

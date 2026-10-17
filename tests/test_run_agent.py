@@ -11,6 +11,7 @@ the import closure of ``python -m wenart.agent`` is covered by the agent stages'
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -159,6 +160,8 @@ def test_the_orchestrated_run(tmp_path, models):
     # Milestone 13 (K4): the note states the findings removed, not the edits accepted (the metric of §13.1 T4)
     assert agent["status"] == "ok" and "1 finding(s) removed by 1 accepted edit(s)" in agent["note"] \
         and "no critical or major" in agent["note"]
+    # fix round after P3 (16-17 Oct 2026): the number is the measured one; the dry re-checks' sum is named a prediction
+    assert re.search(r"accepted edit\(s\) \(measured; \d+ predicted by the dry re-checks\)", agent["note"])
     assert r.record("p1", "agent_apply")["status"] == "ok" and r.record("p1", "agent_previews")["status"] == "ok"
     out = tmp_path / "outputs" / "p1"
     log = json.loads((out / "orchestrator" / "log.json").read_text())

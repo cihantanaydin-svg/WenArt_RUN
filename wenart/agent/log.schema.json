@@ -61,7 +61,10 @@
         "status": {"type": ["string", "null"]},
         "note": {"type": ["string", "null"]},
         "counts": {"type": ["object", "null"]},
-        "seconds": {"type": ["number", "null"]}
+        "seconds": {"type": ["number", "null"]},
+        "cause": {"type": ["string", "null"], "description": "fix round after P3: the finding's cause (wenart.agent.causes)"},
+        "not_yours": {"type": ["string", "null"], "description": "fix round after P3: why no agent tool fixes the finding"},
+        "report_to": {"type": ["string", "null"], "description": "fix round after P3: the stage the finding is reported to (causes.REPORT_TO)"}
       },
       "allOf": [
         {
@@ -98,7 +101,9 @@
         "completion_tokens": {"type": ["integer", "null"]},
         "images": {"type": ["integer", "null"]},
         "tool_calls": {"type": ["integer", "null"]},
-        "error": {"type": ["string", "null"]}
+        "error": {"type": ["string", "null"]},
+        "finish_reason": {"type": ["string", "null"], "description": "fix round after P3: stop, length, repetition, tool_calls or context_full"},
+        "max_tokens": {"type": ["integer", "null"], "description": "fix round after P3: the answer budget of the request"}
       }
     }
   }

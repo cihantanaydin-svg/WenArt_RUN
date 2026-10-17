@@ -53,7 +53,10 @@ from wenart.run.projects import check_name, public_project
 
 MIN_PER_PROJECT = 4.0
 MIN_PER_VIEW = 0.63
-MIN_WINDOW_PULL_PER_VIEW = 1.0 / 60.0      # M7 §9.3: + 1 s per view
+# M7 §9.3: + 1 s per view; fix round after P3 (16-17 Oct 2026): + 4 s per view, since the window pull tries up to 10
+# stops (about 0.25-0.3 s per save on P3), the sky pull up to 4 and every interior view gets a second metering pass
+# with the rig hidden (about 0.9 s on P3's RTX PRO 6000) for its white point
+MIN_WINDOW_PULL_PER_VIEW = 4.0 / 60.0
 MIN_PER_AI_ROOM = 10.0 / 60.0
 EXTERIOR_FIXED_VIEWS = 5                   # Milestone 10 (§3.3): 4 corner views and 1 aerial view
 FIXED_BASE_MIN = 7.7
@@ -173,7 +176,8 @@ def recognition_minutes(calls: dict, seqs: dict) -> float:
 
 
 def project_minutes(views: Optional[int], ai_rooms: int, recognition: float = 0.0, speed: float = 1.0) -> float:
-    """§8.1 + M7 §9.3: (4 + (0.63 + 1/60) per view + 10 s per AI room + recognition minutes) / GPU speed."""
+    """§8.1 + M7 §9.3: (4 + (0.63 + 4/60) per view + 10 s per AI room + recognition minutes) / GPU speed (the window
+    pull and white-point term is 4/60 since the fix round after P3, was 1/60)."""
     work = (MIN_PER_PROJECT + (MIN_PER_VIEW + MIN_WINDOW_PULL_PER_VIEW) * (views or 0)
             + MIN_PER_AI_ROOM * ai_rooms + recognition)
     return round(work / (speed or 1.0), 2)

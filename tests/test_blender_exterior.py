@@ -14,6 +14,7 @@ import pytest
 import yaml
 
 from wenart import views as V
+from wenart.blender import copies as CP
 from wenart.blender import exterior as E
 from wenart.blender import geom2d
 from wenart.blender import render as RD
@@ -137,7 +138,11 @@ def test_the_exterior_views_of_the_example():
             assert p["position"][2] == pytest.approx(gz + E.EYE_HEIGHT, abs=1e-3)
             assert p["pitch_deg"] == pytest.approx(0.0, abs=1e-6) and abs(p["shift_y"]) <= E.MAX_SHIFT_Y
         else:
-            assert p["pitch_deg"] == pytest.approx(-E.AERIAL_PITCH_DEG, abs=0.5)
+            # fix round after P3 (16-17 Oct 2026): the aerial pitches for the horizon (AERIAL_HORIZON_FRAC), capped
+            # at AERIAL_PITCH_DEG, with a lens no longer than AERIAL_LENS_MM (was a fixed 30 degrees: no sky in P3)
+            assert p["pitch_deg"] == pytest.approx(
+                -CP.pitch_for_horizon(E.AERIAL_HORIZON_FRAC, E.AERIAL_LENS_MM, E.AERIAL_PITCH_DEG), abs=0.05)
+            assert 0.5 < p["horizon_frac"] < 1.0 and p["lens_mm"] <= E.AERIAL_LENS_MM
         if p["view"] == "corner":
             assert len(p["sides"]) == 2 and p["region_id"] is None
     # the south elevation (facade.elevations r7, view bearing 90: looking +Y) looks square at the south facade

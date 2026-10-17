@@ -95,6 +95,16 @@ def test_s2_walls_pieces_and_the_exceptions():
     run = piece("k1", "kitchen_counter", (6.0, 3.0), (2.4, 0.6))
     sink = piece("k2", "sink_kitchen", (6.2, 3.0), (0.8, 0.6))                        # drawn inside its run
     report = SC.measure_pure({"k1": parametric_mesh(run), "k2": parametric_mesh(sink)}, building([run, sink]))
+    # fix round after P3 (16-17 Oct 2026): a sink buried in its run's mesh (share >= kitchen_buried_share) is now an
+    # S2 'buried in the run' violation; before, every counter/member pair was exempt and P3's buried sinks were silent
+    (v,) = checks_of(report, "S2")
+    assert v["target"] == "k2" and v["metrics"]["kitchen_run"] and v["metrics"]["other"] == "k1"
+    assert v["metrics"]["inside_share"] >= SC.TOLERANCES["kitchen_buried_share"]
+    # the old allowance stays for pieces that only meet the run: a wall cabinet over it, a fridge at its end
+    cab = piece("k3", "wall_cabinet", (6.0, 3.1), (2.4, 0.35), mount_bottom_m=1.45)
+    fridge = piece("k4", "fridge", (7.53, 3.0), (0.7, 0.6))                          # 5 cm into the run's end
+    report = SC.measure_pure({"k1": parametric_mesh(run), "k3": parametric_mesh(cab, base=1.45),
+                              "k4": parametric_mesh(fridge)}, building([run, cab, fridge]))
     assert not checks_of(report, "S2")
 
 

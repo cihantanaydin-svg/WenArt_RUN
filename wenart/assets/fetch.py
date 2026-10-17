@@ -51,6 +51,11 @@ every texture set the shell slots of the build can use (``shell_texture_rows``: 
 as the style's sets; ``texture_plan`` is the whole list in fetch order (pure). The result's ``shell`` list says per
 slot which set it uses and whether it is ready.
 
+Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 attempt 2): the same for the finishes the outside
+build puts on by itself (``site_texture_rows``: ``wenart/blender/exterior.py`` ``build_finish_slugs``): P3's retaining,
+terrace and pool walls were flat boxes because concrete_wall_001 (``concrete_exposed``) was never fetched. The
+result's ``site`` list says per part which set it uses and whether it is ready.
+
 Idempotent: an asset whose manifest entry and files are present with the
 recorded sha256 is returned without any network call.
 """
@@ -405,16 +410,49 @@ def shell_texture_rows(style: Optional[dict] = None) -> list[tuple[str, str, str
     return rows
 
 
-def texture_plan(style: dict, shell_rows: Optional[list] = None) -> list[tuple[str, str, str]]:
+SITE_LABEL = "site:"           # label prefix of a site finish's row (``site:platform_wall``)
+
+
+def site_texture_rows(style: Optional[dict] = None) -> list[tuple[str, str, str]]:
+    """``[(source, asset_id, "site:<part>")]``: the texture sets of the finishes the outside build puts on by itself
+    (pure, no download), one row per set, in ``exterior.build_finish_slugs`` order.
+
+    What (fix round after P3, 16-17 Oct 2026): the slugs of ``wenart.blender.exterior.build_finish_slugs(style)`` (the
+    retaining walls and kerbs of the platforms, the site's fallback railing / fence / concrete, the style family's
+    plinth and window surrounds, the facade kit, the build's details) that carry a texture set in the vocabulary
+    (``MATERIALS`` / ``FURNITURE_MATERIALS``; procedural and flat slugs give no row).
+    Why: P3's real04 scene manifest said ``concrete_exposed: textured false, asset concrete_wall_001 not in the assets
+    manifest`` for 29 objects (retaining, terrace and pool walls, kerbs): the style names none of these slugs, so
+    this stage fetched their sets never (the round-4 fix covered the shell slots only).
+    How: one source of truth: the slugs are read from the build's own tables (exterior.py, site.py and facade.py
+    import without bpy); ``build.referenced_asset_ids`` lists the same ids, so a build cached before a set reached
+    the volume is redone once it is there."""
+    from wenart.blender import exterior as E
+
+    rows, seen = [], set()
+    for slug, part in E.build_finish_slugs(style):
+        entry = V.MATERIALS.get(slug) or V.FURNITURE_MATERIALS.get(slug) or {}
+        asset_id = entry.get("asset")
+        if asset_id and asset_id not in seen:
+            seen.add(asset_id)
+            rows.append((entry.get("source") or source_of_texture(str(asset_id)), str(asset_id), f"{SITE_LABEL}{part}"))
+    return rows
+
+
+def texture_plan(style: dict, shell_rows: Optional[list] = None,
+                 site_rows: Optional[list] = None) -> list[tuple[str, str, str]]:
     """The texture sets ``fetch_for_style`` fetches, in fetch order, one row ``(source, asset_id, label)`` per asset
     id (pure): the style's sets (``assets_in_profile``, label the slug), the furniture texture maps
     (``vocabulary.furniture_textures``, label the slug), then the shell slots' sets (``shell_texture_rows(style)``
-    unless ``shell_rows`` is given, label ``shell:<slot>``). An id already in the list keeps its first label."""
+    unless ``shell_rows`` is given, label ``shell:<slot>``), then (fix round after P3) the site finishes' sets
+    (``site_texture_rows(style)`` unless ``site_rows`` is given, label ``site:<part>``). An id already in the list
+    keeps its first label."""
     from wenart.style.profile import assets_in_profile
 
     shell = shell_texture_rows(style) if shell_rows is None else shell_rows
+    site = site_texture_rows(style) if site_rows is None else site_rows
     rows, seen = [], set()
-    for row in list(assets_in_profile(style)["textures"]) + list(V.furniture_textures()) + list(shell):
+    for row in list(assets_in_profile(style)["textures"]) + list(V.furniture_textures()) + list(shell) + list(site):
         if row[1] not in seen:
             seen.add(row[1])
             rows.append(tuple(row))
@@ -426,13 +464,16 @@ def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Opt
     """Fetch every texture set and the HDRI a style profile uses, plus the
     furniture texture maps (``vocabulary.furniture_textures``: the veneers and
     the linen weave every parametric piece and wood door uses, docs/milestone6.md
-    §5 row 8) and (Milestone 13 round 4) every set the shell slots can use
-    (``shell_texture_rows``), all at ``size``; ``texture_plan`` is the list.
+    §5 row 8), (Milestone 13 round 4) every set the shell slots can use
+    (``shell_texture_rows``) and (fix round after P3) the sets of the site
+    finishes the build puts on by itself (``site_texture_rows``: retaining
+    walls, kerbs, plinth), all at ``size``; ``texture_plan`` is the list.
 
     Failures (blocked host, unknown id, licence) do not stop the run: they are
     returned under ``"failed"`` so the scene builder can fall back to flat
     colours and record that in its manifest. ``"shell"``: ``[{"slot", "asset",
-    "source", "ready"}]`` (``ready``: the set is in the manifest after this run).
+    "source", "ready"}]`` (``ready``: the set is in the manifest after this run);
+    ``"site"``: ``[{"part", "asset", "source", "ready"}]`` the same way.
     """
     from wenart.style.profile import assets_in_profile
 
@@ -441,11 +482,18 @@ def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Opt
         shell_rows, shell_error = shell_texture_rows(style), None
     except Exception as exc:  # noqa: BLE001 - the style's own sets are still fetched; the failure is recorded
         shell_rows, shell_error = [], f"{type(exc).__name__}: {exc}"
-    textures = texture_plan(style, shell_rows)
-    result = {"textures": {}, "hdris": {}, "failed": {}, "shell": []}
+    try:                      # fix round after P3: the site finishes (retaining walls, kerbs, plinth, ...)
+        site_rows, site_error = site_texture_rows(style), None
+    except Exception as exc:  # noqa: BLE001 - as the shell rows: recorded, the other sets still come
+        site_rows, site_error = [], f"{type(exc).__name__}: {exc}"
+    textures = texture_plan(style, shell_rows, site_rows)
+    result = {"textures": {}, "hdris": {}, "failed": {}, "shell": [], "site": []}
     if shell_error:
         result["failed"]["shell_slots"] = f"the shell slot table could not be read: {shell_error}"
         log(f"texture {'(shell slot table)':<28} {'':<10} {'':<20} FAILED: {shell_error}")
+    if site_error:
+        result["failed"]["site_finishes"] = f"the site finish tables could not be read: {site_error}"
+        log(f"texture {'(site finish tables)':<28} {'':<10} {'':<20} FAILED: {site_error}")
     for source, asset_id, slug in textures:
         try:
             entry = fetch_texture(asset_id, out_dir, size=size, source=source)
@@ -465,6 +513,9 @@ def fetch_for_style(style: dict, out_dir: Path, size: str = "2k", hdri_size: Opt
     for source, asset_id, label in shell_rows:
         result["shell"].append({"slot": label[len(SHELL_LABEL):], "asset": asset_id, "source": source,
                                 "ready": asset_id in result["textures"]})
+    for source, asset_id, label in site_rows:
+        result["site"].append({"part": label[len(SITE_LABEL):], "asset": asset_id, "source": source,
+                               "ready": asset_id in result["textures"]})
     return result
 
 

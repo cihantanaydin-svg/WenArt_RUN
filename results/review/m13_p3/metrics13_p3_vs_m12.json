@@ -129,22 +129,42 @@
    "name": "drawn pieces in the scene (built, method not none)",
    "value": 74.2,
    "unit": "%",
-   "source": "building_final.json furniture[]: source from_documents; built = build not false and asset.method not none",
-   "text": "178 of 240 (74 %)",
+   "source": "building_final.json furniture[]: source from_documents; built = build not false and asset.method not none; parts furniture / built_of_furniture leave out the unbuilt pieces explained as no furniture (inferred_as rug / detail / column / decor, both AI passes not_furniture, a counter-leg detail)",
+   "text": "178 of 240 (74 %); without the 38 explained non-furniture pieces: 178 of 202 (88 %)",
    "parts": {
     "built": 178,
     "drawn": 240,
     "build_false": 62,
-    "method_none": 18
+    "method_none": 18,
+    "explained": 38,
+    "explained_by": {
+     "column": 10,
+     "decor": 4,
+     "detail": 18,
+     "not_furniture": 2,
+     "rug": 4
+    },
+    "furniture": 202,
+    "built_of_furniture": 88.1
    },
    "target": ">= 90 %",
    "baseline": 53.3,
-   "baseline_text": "128 of 240 (53 %)",
+   "baseline_text": "128 of 240 (53 %); without the 38 explained non-furniture pieces: 128 of 202 (63 %)",
    "baseline_parts": {
     "built": 128,
     "drawn": 240,
     "build_false": 72,
-    "method_none": 43
+    "method_none": 43,
+    "explained": 38,
+    "explained_by": {
+     "column": 10,
+     "decor": 4,
+     "detail": 18,
+     "not_furniture": 2,
+     "rug": 4
+    },
+    "furniture": 202,
+    "built_of_furniture": 63.4
    }
   },
   "m3": {
@@ -406,7 +426,7 @@
    "name": "last-round findings F8 + S2 (> 3 cm) + G10 + LG",
    "value": 38,
    "unit": "count",
-   "source": "orchestrator log.json finding events of the last round (not dropped) by checklist; S2 counted when evidence.metrics.depth_m > 0.03 m",
+   "source": "orchestrator log.json finding events of the last round of the latest run (run_first_seq; not dropped) by checklist; S2 counted when evidence.metrics.depth_m > 0.03 m",
    "text": "round 4: F8 2 / S2 > 3 cm 10 (S2 all 25) / G10 18 / LG 8",
    "parts": {
     "F8": 2,
@@ -415,7 +435,8 @@
     "LG": 8,
     "S2_all": 25,
     "round": 4,
-    "findings": 232
+    "findings": 232,
+    "run_first_seq": 2925
    },
    "target": "<= 5 / <= 3 / report-only / <= 5",
    "baseline": 123,
@@ -427,7 +448,8 @@
     "LG": 66,
     "S2_all": 17,
     "round": 7,
-    "findings": 241
+    "findings": 241,
+    "run_first_seq": 1
    }
   },
   "m7": {
@@ -435,13 +457,14 @@
    "name": "accepted agent edits whose finding is gone next round",
    "value": 74.4,
    "unit": "%",
-   "source": "orchestrator log.json: accepted edit events of round r < last with checklist and target; gone = no finding with the same checklist and target in round r + 1",
+   "source": "orchestrator log.json of the latest run (run_first_seq): accepted edit events of round r < last with checklist and target; gone = no finding with the same checklist and target in round r + 1",
    "text": "29 of 39 (74 %) (accepted edits 39, rounds 4)",
    "parts": {
     "gone": 29,
     "judged": 39,
     "accepted": 39,
-    "rounds": 4
+    "rounds": 4,
+    "run_first_seq": 2925
    },
    "target": ">= 60 % (or the agent is off)",
    "baseline": 17.5,
@@ -450,7 +473,8 @@
     "gone": 28,
     "judged": 160,
     "accepted": 183,
-    "rounds": 7
+    "rounds": 7,
+    "run_first_seq": 1
    }
   },
   "m8": {
@@ -2391,6 +2415,7 @@
   "cam_r_L0_koridor_3"
  ],
  "warnings": [
+  "orchestrator log: the latest run from seq 2925 (1439 of 4363 events; earlier runs of the appended log left out)",
   "rubric: no file (results layout under /home/user/WenArt_RUN/runs/20261016-172855-full/results/final/real04)",
   "baseline: render: no file (results layout under /home/user/WenArt_RUN/results/final/real04)",
   "baseline: scene: no file (results layout under /home/user/WenArt_RUN/results/final/real04)"

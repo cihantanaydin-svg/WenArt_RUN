@@ -107,6 +107,14 @@ folding and fixed doors as drawn, a fixed one without handles), the frame materi
 mullions and transoms, an inside sill on the room side (assumed), the outside sill from the frame's outer edge;
 the ``door`` / ``window`` records in the manifest. The others keep the Milestone 6-9 door and window. The floor,
 ceiling, trim, skirting, stair and slab slots take their colour name and ``params`` (``slot_material``).
+
+Fix round after P3 (16-17 Oct 2026): door stops. What: every door in a frame has jamb and head stops on the leaf
+face away from the room it opens into (``door_m6_parts`` for the Milestone 6 door, ``parametric.door_parts`` for
+the Milestone 10 styles; ``parametric.door_stop_boxes``), in the ``<id>_frame`` object. Why: the closed leaf is
+5 mm smaller than its frame on every side, so a slit ran straight through the wall; pod P3's corridor view
+cam_r_L1_koridor_2_2 saw the sunlit roof terrace through it (a glowing line round the leaf, depth 196 m against the
+60 m interior bound). How: the stops overlap the leaf by 10 mm (5 mm under a Milestone 10 head), stay inside the
+wall depth and leave the leaf, its material and the door rays as they were.
 """
 from __future__ import annotations
 
@@ -478,6 +486,43 @@ def door_handle_parts(width: float, height: float, sill: float = 0.0,
         parts.append(geom2d.box((hx - 0.055, sgn * (lt / 2.0 + HANDLE_DEPTH - 0.009), lever_z),
                                 (0.13, 0.018, 0.018)))                                                 # lever
     return parts
+
+
+# The roles of ``parametric.door_parts`` that go into a Milestone 10 door's ``<id>_frame`` object (``build_door_m10``);
+# fix round after P3: the door stops too.
+FRAME_ROLES: tuple[str, ...] = ("frame", "rail", "stop")
+# The Milestone 6 leaf is this much smaller than the frame opening on every side (5 mm per side).
+M6_LEAF_CLEARANCE = 0.01
+
+
+def door_m6_parts(width: float, height: float, thickness: float, swing_side: float = -1.0,
+                  frame_width: float = DEFAULTS["frame_width"],
+                  leaf_thickness: float = DEFAULTS["leaf_thickness"]) -> dict[str, list[tuple[list, list]]]:
+    """The boxes of a Milestone 6 door in the opening's local frame (pure; ``geom2d.box`` tuples; X along the wall,
+    Y across, Z up from the opening bottom): ``{"frame": jambs and head as deep as the wall, then the stops, "leaf":
+    the closed leaf, "stops": the stops alone}``.
+
+    What (fix round after P3, 16-17 Oct 2026): the jamb and head stops of ``parametric.door_stop_boxes`` on the leaf
+    face away from ``swing_side`` (+1 / -1: the y side of the room the door opens into, ``opening_room_side``), so on
+    ``-swing_side``; no threshold stop (light under a door is real; a camera at 1.25 m cannot see through 5 mm).
+    Why: the leaf is ``M6_LEAF_CLEARANCE`` smaller than the frame opening, so a 5 mm slit ran straight through the
+    wall round every closed door; pod P3's cam_r_L1_koridor_2_2 saw the sunlit terrace through it (depth 196 m, a
+    glowing line round the leaf).
+    How: the frame and leaf boxes are the Milestone 6 ones, unchanged (they moved here from ``build_openings`` so the
+    CPU tests guard this path); the stops go into the frame object (its material and pass index)."""
+    fw = float(frame_width)
+    lt = float(leaf_thickness)
+    w, h, t = float(width), float(height), float(thickness)
+    frame = [
+        geom2d.box((-(w / 2.0 - fw / 2.0), 0.0, h / 2.0), (fw, t, h)),
+        geom2d.box((w / 2.0 - fw / 2.0, 0.0, h / 2.0), (fw, t, h)),
+        geom2d.box((0.0, 0.0, h - fw / 2.0), (w - 2 * fw, t, fw)),
+    ]
+    stops = [geom2d.box((cx, cy, z0 + bh / 2.0), (bw, bd, bh))
+             for cx, cy, z0, bw, bd, bh in P.door_stop_boxes(w, h, fw, lt / 2.0, t, -float(swing_side))]
+    # Leaf: closed (0 deg), slightly smaller than the frame opening.
+    leaf = [geom2d.box((0.0, 0.0, (h - fw) / 2.0), (w - 2 * fw - M6_LEAF_CLEARANCE, lt, h - fw - M6_LEAF_CLEARANCE))]
+    return {"frame": frame + stops, "leaf": leaf, "stops": stops}
 
 
 def skirting_spans(polygon, gaps, min_span: float = SKIRTING_MIN_SPAN) -> list[tuple[int, float, float]]:
@@ -1283,13 +1328,11 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             created += build_door_m10(opening, wall, dlook, geo, ctx, {"frame": frame_mat, "leaf": leaf_mat,
                                                                        "glass": glass_mat}, op_assumed, shift)
         elif opening["type"] == "door":
-            # Frame: two jambs and a head, as deep as the wall.
-            parts = [
-                geom2d.box((-(width / 2.0 - fw / 2.0), 0.0, height / 2.0), (fw, thickness, height)),
-                geom2d.box((width / 2.0 - fw / 2.0, 0.0, height / 2.0), (fw, thickness, height)),
-                geom2d.box((0.0, 0.0, height - fw / 2.0), (width - 2 * fw, thickness, fw)),
-            ]
-            frame = _local_to_world(parts, (cx, cy, bottom), angle)
+            # Frame: two jambs and a head, as deep as the wall, and (fix round after P3) the jamb and head stops on
+            # the leaf face away from the room the door opens into (door_m6_parts).
+            swing, _swing_room, _swing_assumed = opening_room_side((cx, cy), wall, rooms, opening.get("swing_side"))
+            m6 = door_m6_parts(width, height, thickness, swing)
+            frame = _local_to_world(m6["frame"], (cx, cy, bottom), angle)
             ob = common.new_mesh_object(f"{opening['id']}_frame", *frame, collection=collection,
                                         wenart_id=opening["id"], kind="door", status=status, materials=[frame_mat])
             ob.pass_index = index
@@ -1297,9 +1340,7 @@ def build_openings(building: dict, level: dict, collection, library, style: dict
             manifest_objects.append(_opening_entry(opening, ob.name, level_id, frame_mat.name,
                                                    _textured(library, frame_mat), index, op_assumed, shift))
             # Leaf: closed (0 deg), slightly smaller than the frame opening.
-            leaf = _local_to_world([geom2d.box((0.0, 0.0, (height - fw) / 2.0),
-                                               (width - 2 * fw - 0.01, DEFAULTS["leaf_thickness"], height - fw - 0.01))],
-                                   (cx, cy, bottom), angle)
+            leaf = _local_to_world(m6["leaf"], (cx, cy, bottom), angle)
             ob = common.new_mesh_object(f"{opening['id']}_leaf", *leaf, collection=collection,
                                         wenart_id=opening["id"], kind="door", status=status, materials=[leaf_mat])
             ob.pass_index = index
@@ -1438,8 +1479,10 @@ def build_door_m10(opening: dict, wall: dict, look: dict, geo: dict, ctx: dict, 
     handle_mat = library.get(look.get("handle_material") or "steel_brushed")
     by = {"frame": mats["frame"], "rail": handle_mat, "groove": handle_mat, "leaf": mats["leaf"],
           "glass": mats["glass"], "handle": handle_mat}
-    groups = {"frame": [p for p in parts if p["role"] in ("frame", "rail")],
-              "leaf": [p for p in parts if p["role"] not in ("frame", "rail") and p["key"] != "handle"],
+    # fix round after P3 (16-17 Oct 2026): the stops (role ``stop``) belong to the frame object, so the leaf object
+    # and its manifest material stay as they were
+    groups = {"frame": [p for p in parts if p["role"] in FRAME_ROLES],
+              "leaf": [p for p in parts if p["role"] not in FRAME_ROLES and p["key"] != "handle"],
               "handle": [p for p in parts if p["key"] == "handle"]}
     record = dict(record, operation=look.get("operation"), operation_assumed=bool(look.get("operation_assumed")),
                   handle=look.get("handle"), handle_material=handle_mat.name if groups["handle"] else None,

@@ -2,7 +2,8 @@
 
 What: ``plan_exterior(model, building, ...)`` places the exterior views of a variant: four eye-level corner
 views (1.6 m above the ground, from the plot corners, else 10-15 m from each building corner along its
-diagonal, aimed so both facades show), one 3/4 aerial view (30 degrees down) from the corner whose two
+diagonal, aimed so both facades show), one 3/4 aerial view (at most 30 degrees down; since the fix round after P3
+the pitch that keeps the horizon in the upper part of the frame, ``AERIAL_HORIZON_FRAC``) from the corner whose two
 facades carry the most openings, and one view per drawn elevation (``facade.elevations[]``: looking along its
 ``view_bearing_deg``, counter-clockwise from +X, else square to its side; its ``region_id``). Camera ids
 ``ext_<n>`` (corners 1-4, aerial 5, elevations from 6 on), kind ``exterior``, with the scene manifest's camera
@@ -43,7 +44,17 @@ from wenart.blender import roof as R
 from wenart.blender import site as S
 
 EYE_HEIGHT = 1.6
-AERIAL_PITCH_DEG = 30.0
+AERIAL_PITCH_DEG = 30.0                                 # the cap of the aerial view's downward pitch
+# Fix round after P3 (16-17 Oct 2026). What: the aerial view (ext_5) pitches only so far down that the horizon line
+# lies at AERIAL_HORIZON_FRAC of the frame height (copies.pitch_for_horizon for AERIAL_LENS_MM, at most
+# AERIAL_PITCH_DEG), and its lens is at most AERIAL_LENS_MM (frame() may pick a wider one, never a longer one).
+# Why: P3's ext_5 (30 degrees down, 26.87 mm) had the horizon at 1.27 of the frame height: lawn at the top, no sky;
+# CLAUDE.md: "the sky, the sun and the horizon are always in the image". A longer lens than the one the pitch was
+# chosen for would push the horizon out of the frame again (at 16 degrees frame() picks about 40 mm for real04).
+# How: the candidates keep their distance to the aim (the building centre); only the pitch, so the height and the
+# horizontal offset, change; a wider lens than the guess only lowers the horizon in the frame.
+AERIAL_HORIZON_FRAC = 0.86                              # the horizon line in the upper part of the frame
+AERIAL_LENS_MM = 26.0                                   # the aerial's longest lens (as EYE_LENS_MM)
 DIAGONAL_M = (12.0, 10.0, 11.0, 13.0, 14.0, 15.0)      # nominal first, then along the diagonal
 PLOT_CORNER_INSET = 0.6
 ELEVATION_STEPS = (1.0, 0.85, 0.7, 0.55, 0.4)          # fractions of the fit distance tried for an elevation
@@ -89,6 +100,36 @@ BUILD_LOOKS = {"sill": ("stone", None, "exterior sill not drawn"),
                "soffit": ("soffit", None, "roof soffit: painted (not drawn)"),
                "bark": ("bark", None, "parametric tree"), "foliage": ("foliage", None, "parametric tree"),
                "ground": ("soil", None, "neutral ground (brief site: ground)")}
+
+
+def build_finish_slugs(style: Optional[dict] = None) -> list[tuple[str, str]]:
+    """``[(slug, part)]``: every vocabulary slug the outside build puts on by itself, whatever the style names (pure).
+
+    What (fix round after P3, 16-17 Oct 2026): the retaining walls and kerbs of the platforms (``site.PLATFORM_LOOKS``)
+    and the site's own fallbacks (``site.SITE_FALLBACK_LOOKS``: railing, fence, neutral concrete), the plinth and the
+    window surrounds of the style family (``facade.family_rules``), the facade kit (``facade.KIT_LOOKS``) and the
+    details of ``BUILD_LOOKS``; each slug once, in that order, ``part`` naming where it goes (``platform_wall``,
+    ``plinth``, ``kit_gutter``, ``railing_fallback`` ...).
+    Why: P3's real04 retaining, terrace and pool walls (29 objects) and the plinth were flat untextured boxes: their
+    slug ``concrete_exposed`` names the Poly Haven set concrete_wall_001, which the assets stage never fetched (the
+    style profile names none of these slugs; ``wenart.assets.fetch`` fetched the style's sets and the shell slots').
+    How: one source of truth for the assets stage (``wenart.assets.fetch.site_texture_rows`` keeps the slugs with a
+    texture set) and for the build fingerprint (``build.referenced_asset_ids``)."""
+    from wenart.blender import facade as FA
+
+    rows: list[tuple[str, str]] = [(S.PLATFORM_LOOKS["wall"][0], "platform_wall"),
+                                   (S.PLATFORM_LOOKS["kerb"][0], "platform_kerb")]
+    rows += [(slug, f"{name}_fallback") for name, slug in S.SITE_FALLBACK_LOOKS.items()]
+    rules = FA.family_rules(style)
+    rows += [(rules.get("plinth"), "plinth"), (rules.get("surround"), "window_surround")]
+    rows += [(slug, f"kit_{kind}") for kind, (slug, _colour, _why) in FA.KIT_LOOKS.items()]
+    rows += [(slug, f"build_{name}") for name, (slug, _colour, _why) in BUILD_LOOKS.items()]
+    out, seen = [], set()
+    for slug, part in rows:
+        if slug and slug not in seen:
+            seen.add(slug)
+            out.append((str(slug), part))
+    return out
 
 
 def look_from_words(slot: str, phrase: str) -> Optional[dict]:
@@ -406,8 +447,10 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
                 continue
             m.add_mesh(v, f, "plot_wall")
             m.walls.append((tuple(seg["start"]), tuple(seg["end"]), S.INFERRED["fence_post"] / 2.0, info["z_range"][1]))
+        # fix round after P3: plants stand on the surface under them (a terrace's level), as build_site builds them
+        stand = S.stand_terrain(m.terrain, site_plan.get("platforms") or [])
         for h in site_plan.get("hedges") or []:        # Milestone 13: the drawn hedge rows (site.hedges)
-            v, f, info = S.hedge_parts(h, m.terrain)
+            v, f, info = S.hedge_parts(h, stand)
             if not f:
                 continue
             m.add_mesh(v, f, "hedge")
@@ -415,7 +458,7 @@ def build_model(building: dict, levels: Sequence[dict], roof_model: Optional[dic
             for a, b in zip(pts, pts[1:]):
                 m.hedges.append((a, b, float(h["width_m"]) / 2.0, info["z_range"][1]))
         for item in site_plan["trees"]:
-            parts = S.tree_parts(item, m.terrain)
+            parts = S.tree_parts(item, stand)
             for mesh in (parts["trunk"], parts["crown"]):
                 if mesh is not None:
                     m.add_mesh(*mesh, "tree")
@@ -701,10 +744,11 @@ def _opening_counts(building: dict, levels: Sequence[dict], outline) -> dict[str
 
 
 def _try(model, building, levels, name, view, candidates, aim, level_cam=True, extra=None,
-         lens_mm: Optional[float] = None) -> dict:
+         lens_mm: Optional[float] = None, lens_max: Optional[float] = None) -> dict:
     """The first candidate position that is free and sees the building; the plan or the drop record (the
     camera record with ``dropped: true`` and ``dropped_reason``). ``lens_mm`` (Milestone 11): a fixed lens for a
-    level camera (``frame_fixed``; the plan records the ``fill``)."""
+    level camera (``frame_fixed``; the plan records the ``fill``). ``lens_max`` (fix round after P3, 16-17 Oct
+    2026): the longest lens ``frame`` may pick (the aerial view: a longer lens would cut its horizon off)."""
     extra = dict({"sides": [], "region_id": None, "variant": None}, **(extra or {}))
     pts = building_points(model)
     reasons = []
@@ -721,6 +765,8 @@ def _try(model, building, levels, name, view, candidates, aim, level_cam=True, e
                 warn = "; ".join(w for w in (warn, "the building does not fit the frame") if w)
         else:
             lens, shift_y, target, warn = frame(pos, aim, pts, level=level_cam)
+            if lens_max is not None and lens > lens_max:
+                lens = float(lens_max)
         check = view_check(model, pos, target, lens, shift_y, aim)
         if not check["ok"]:
             reasons.append(f"{how}: {check['why']}")
@@ -827,12 +873,18 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
     d = (d[0] / n, d[1] / n)
     pts = building_points(model)
     radius = float(np.max(np.linalg.norm(pts - np.array([cx, cy, zmid]), axis=1)))
-    cands = []
-    for scale in (1.0, 1.2, 1.5):
-        dist = radius / math.tan(math.radians(20.0)) * scale
-        h = dist * math.sin(math.radians(AERIAL_PITCH_DEG))
-        horiz = dist * math.cos(math.radians(AERIAL_PITCH_DEG))
-        cands.append(((cx + d[0] * horiz, cy + d[1] * horiz, zmid + h), f"aerial {dist:.1f} m from the centre"))
+    from wenart.blender import copies as CP
+
+    def aerial_cands(pitch_deg):
+        out = []
+        for scale in (1.0, 1.2, 1.5):
+            dist = radius / math.tan(math.radians(20.0)) * scale
+            h = dist * math.sin(math.radians(pitch_deg))
+            horiz = dist * math.cos(math.radians(pitch_deg))
+            out.append(((cx + d[0] * horiz, cy + d[1] * horiz, zmid + h),
+                        f"aerial {dist:.1f} m from the centre, {pitch_deg:g} degrees down"))
+        return out
+
     if flat_cut(building):
         # Milestone 12 (docs/milestone12.md §3.4, U2): a single drawn ground floor: no aerial view (it would show the
         # cut roof of a building whose upper floors are not drawn); eye-level views of the entrances instead.
@@ -842,9 +894,16 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
                         "dropped_reason": "flat_cut roof (upper floors not drawn): no aerial view"})
     else:
         # Milestone 13 (D8): the one true aerial view of the policy (the vision critic's eye-level rule applies to
-        # the corner and frontal views only; exterior_checks X6 allows one aerial and the site view)
-        keep(_try(model, building, levels, "ext_5", "aerial", cands, (cx, cy, zmid), level_cam=False,
-                  extra={"corner": best + 1, "sides": sides_at(corner), "variant": variant, "aerial_allowed": True}))
+        # the corner and frontal views only; exterior_checks X6 allows one aerial and the site view). Fix round after
+        # P3: the pitch keeps the horizon in the upper part of the frame (AERIAL_HORIZON_FRAC); the plan records
+        # ``horizon_frac`` as the site view does.
+        pitch = CP.pitch_for_horizon(AERIAL_HORIZON_FRAC, AERIAL_LENS_MM, AERIAL_PITCH_DEG)
+        plan = _try(model, building, levels, "ext_5", "aerial", aerial_cands(pitch), (cx, cy, zmid), level_cam=False,
+                    extra={"corner": best + 1, "sides": sides_at(corner), "variant": variant, "aerial_allowed": True},
+                    lens_max=AERIAL_LENS_MM)
+        if not plan.get("dropped"):
+            plan["horizon_frac"] = round(CP.horizon_fraction(-plan["pitch_deg"], plan["lens_mm"]), 4)
+        keep(plan)
 
     views, _warnings = elevation_views(building)
     height = model.z_range[1] - model.z_range[0]

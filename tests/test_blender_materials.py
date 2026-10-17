@@ -402,7 +402,47 @@ def test_preflight_p3_a_shell_slot_set_is_recorded_only_when_the_material_uses_i
     assert out["plaster_white"]["shell_asset_missing"] is None
     worktop = out["stone_worktop"]
     assert worktop["shell_slot"] == "worktop" and not worktop["textured"] and worktop["shell_asset"] is None
-    assert worktop["shell_asset_missing"]["asset"] == "marble_01" and "marble_01" in worktop["shell_asset_missing"]["reason"]
+    # fix round after P3: the worktop's set is Marble012 (one jointless slab), not in the repo's assets either
+    assert worktop["shell_asset_missing"]["asset"] == "Marble012" and "Marble012" in worktop["shell_asset_missing"]["reason"]
     assert out["steel_brushed"]["shell_asset"] is None and out["steel_brushed"]["shell_asset_missing"]["asset"] == "Metal032"
     # the metal slot's set stands in for brushed steel only: black metal never claims or misses it
     assert out["metal_black"]["shell_asset"] is None and out["metal_black"]["shell_asset_missing"] is None
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026): the worktop is one jointless slab, painted trim has no plank seams
+# --------------------------------------------------------------------------
+
+def test_p3_the_worktop_is_one_jointless_slab_and_painted_trim_has_no_plank_seams():
+    """P3's kitchen worktops read as tiles (Poly Haven marble_01: "smooth, even cream-beige tiles", a joint every
+    0.75 m) and the skirting showed a plank joint every ~10 cm (the white_planks_clean photo under the paint). The
+    worktop slot is ambientCG Marble012 (CC0, a seamless polished slab, the vocabulary's marble_slab), repeated every
+    2 m while its real size is unknown (``slot_repeat_m``); the front slot is a paint finish that leaves the plank
+    photo out (``paint_drop``), also when a caller passes it; a set the style names itself stays. Fails on the code of
+    the P3 results commit (marble_01, white_planks_clean, no slot_repeat_m / paint_drop)."""
+    from wenart.blender import materials as M
+
+    assets = M.shell_assets()
+    assert assets["worktop"] == "Marble012" and assets["front"] is None
+    checks = json.loads(fetch.CHECKS_PATH.read_text(encoding="utf-8"))["textures"]
+    record = checks["ambientcg:Marble012"]
+    assert record["exists"] and record["licence"] == "CC0" and record["has_required_maps"] and record["jpg_1k_2k"]
+    assert V.MATERIALS["marble_slab"]["asset"] == "Marble012" and V.MATERIALS["marble"]["asset"] == "marble_01"
+    worktop, front = M.shell_slot_spec("worktop", {}), M.shell_slot_spec("front", {})
+    # the repeat: only for the slot's own set and only while the manifest knows no real size
+    assert M.slot_repeat_m(worktop, "Marble012", {"size_m": [1.0, 1.0], "size_assumed": True}) == [2.0, 2.0]
+    assert M.slot_repeat_m(worktop, "Marble012", {"files": {}}) == [2.0, 2.0]
+    assert M.slot_repeat_m(worktop, "Marble012", {"size_m": [2.4, 2.4]}) is None
+    assert M.slot_repeat_m(worktop, "marble_01", {"size_assumed": True}) is None
+    assert M.slot_repeat_m(front, None, None) is None and M.slot_repeat_m(None, "Marble012", {}) is None
+    # the paint finish: the slug's own plank set is dropped, another set (the style's) stays, other slots untouched
+    assert front["paint"] and V.MATERIALS["painted_wood_white"]["asset"] == "white_planks_clean"
+    assert M.paint_drop(front, "painted_wood_white", "white_planks_clean") == "white_planks_clean"
+    assert M.paint_drop(front, "painted_wood_white", "oak_veneer_01") is None
+    assert M.paint_drop(front, "painted_wood_white", None) is None
+    assert M.paint_drop(worktop, "stone_worktop", "Marble012") is None
+    assert M.shell_slot_spec("front", {"trim": {"material": "painted_wood_white", "asset": "oak_veneer_01"}})["asset"] \
+        == "oak_veneer_01"
+    # the assets stage fetches the new worktop set and no front set any more
+    rows = fetch.shell_texture_rows()
+    assert ("ambientcg", "Marble012", "shell:worktop") in rows and not [r for r in rows if r[2] == "shell:front"]

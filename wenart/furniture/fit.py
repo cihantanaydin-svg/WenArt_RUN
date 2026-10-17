@@ -166,6 +166,19 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   decides, the library pick is logged as ``split_over``); a footprint drawn with its long side as the depth is not
   split first (``plan_table_long`` has no orientation check); ``assert_only_assets_changed`` accepts the snap of a
   split table's part (the width only).
+- Fix round after P3 (16-17 Oct 2026), kitchen runs. What: ``kitchen_built_ins`` (pure, before the per-piece fit)
+  finds, per built kitchen counter or island, the built drawn sinks and stoves of its level and room with at least
+  ``BUILT_IN_SHARE`` of their footprint inside it (``modules.member_in_run``). The largest sink is built into the run:
+  the run's plan gets ``sink_pos_m`` / ``sink_w_m`` / ``sink_piece`` (a sink unit with the bowl and tap at its
+  cutout, ``plan["built_ins"]``) and the sink's asset says ``built_in: <run id>`` (``method: module``, the run's
+  ``asset_id``, by design; build, type and evidence unchanged, so the group checks and the metrics still see a
+  sink); the scene does not build it again (``furniture.built_in_ids``). Each stove becomes a gap of the run
+  (``ranges``: no base unit, plinth or worktop at its drawn span); the stove keeps its own model. Why: pod P3 built
+  every drawn sink and stove inside full-depth base units under an uncut worktop (only a tap and a stove front
+  showed). How: the hints reach the plan on a copy of the run (``dict(piece, module_hints=...)``) and are stored as
+  ``asset.module_hints`` beside ``asset.module_plan``: the building piece itself never gets ``module_hints``, so
+  ``FROZEN_KEYS`` and ``assert_only_assets_changed`` hold. A sink is made a built-in only when the run's plan holds
+  it; otherwise it is fitted as before. A pinned sink (``asset_pin``, the agent's model) is never a built-in.
 """
 from __future__ import annotations
 
@@ -884,6 +897,99 @@ def module_plan_for(piece: dict, style: Optional[dict] = None) -> tuple[Optional
     if not isinstance(plan, dict) or not plan.get("builder"):
         return None, f"no module builder for {piece['type']} (module_plan returned None)"
     return plan, ""
+
+
+# Fix round after P3 (16-17 Oct 2026, module docstring): the drawn kitchen pieces a kitchen run takes in.
+KITCHEN_RUN_HOSTS: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
+BUILT_IN_SHARE = 0.60            # a drawn sink or stove with at least this share of its footprint inside a run
+BUILT_IN_SINK_TYPES: tuple[str, ...] = ("sink_kitchen",)
+RANGE_TYPES: tuple[str, ...] = ("stove",)
+
+
+def _usable_footprint(piece: dict) -> bool:
+    fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else {}
+    try:
+        return float(fp["size"][0]) > 0 and float(fp["size"][1]) > 0 and len(fp["center"]) >= 2
+    except (KeyError, TypeError, ValueError, IndexError):
+        return False
+
+
+def kitchen_built_ins(building: dict) -> dict:
+    """The kitchen pre-pass of ``fit_building`` (pure; fix round after P3, module docstring): ``{"hints": {run id:
+    module hints}, "sinks": {sink id: run id}}``.
+
+    For every kitchen counter or island with ``build`` not false, the pieces of its level and room with ``build``
+    not false and at least ``BUILT_IN_SHARE`` of their footprint inside it (``modules.member_in_run``): the largest
+    sink (``BUILT_IN_SINK_TYPES``; not one the agent pinned a model to) gives ``sink_pos_m`` (its centre),
+    ``sink_w_m`` (its drawn width along the run) and ``sink_piece``; the stoves (``RANGE_TYPES``) give ``ranges``
+    (``{id, type, x0_m, x1_m}``: their drawn span along the run). A piece belongs to one run at most. Without the
+    module builders (import guarded, as ``module_plan_for``) nothing is found."""
+    out: dict = {"hints": {}, "sinks": {}}
+    try:
+        from wenart.blender import modules as MOD
+    except ImportError:
+        return out
+    pieces = [p for p in building.get("furniture") or [] if isinstance(p, dict)]
+    runs = [p for p in pieces if p.get("type") in KITCHEN_RUN_HOSTS and p.get("build", True) is not False
+            and _usable_footprint(p)]
+    members = [p for p in pieces if p.get("type") in BUILT_IN_SINK_TYPES + RANGE_TYPES
+               and p.get("build", True) is not False and _usable_footprint(p)]
+    claimed: set = set()
+    for run in runs:
+        sinks, ranges = [], []
+        for m in members:
+            if m.get("id") in claimed or m.get("level_id") != run.get("level_id") \
+                    or m.get("room_id") != run.get("room_id"):
+                continue
+            got = MOD.member_in_run(run, m)
+            if got is None or got["share"] < BUILT_IN_SHARE - 1e-9:
+                continue
+            if m["type"] in BUILT_IN_SINK_TYPES:
+                if not m.get("asset_pin"):
+                    sinks.append((m, got))
+            else:
+                ranges.append((m, got))
+        hints: dict = {}
+        if sinks:
+            sink, got = max(sinks, key=lambda mg: (float(mg[0]["footprint"]["size"][0])
+                                                   * float(mg[0]["footprint"]["size"][1]), str(mg[0]["id"])))
+            hints.update(sink_pos_m=[round(float(v), 4) for v in sink["footprint"]["center"][:2]],
+                         sink_w_m=got["w_m"], sink_piece=sink["id"])
+            out["sinks"][sink["id"]] = run["id"]
+            claimed.add(sink["id"])
+        if ranges:
+            hints["ranges"] = [{"id": m["id"], "type": m["type"], "x0_m": got["x0_m"], "x1_m": got["x1_m"]}
+                               for m, got in sorted(ranges, key=lambda mg: (mg[1]["x0_m"], str(mg[0]["id"])))]
+            claimed.update(m["id"] for m, _got in ranges)
+        if hints:
+            out["hints"][run["id"]] = hints
+    return out
+
+
+def holds_built_in(run: Optional[dict], piece_id: str) -> bool:
+    """True when ``run``'s fitted module plan builds ``piece_id`` into it (``plan["built_ins"]``)."""
+    plan = ((run or {}).get("asset") or {}).get("module_plan") or {}
+    return any(b.get("id") == piece_id for b in plan.get("built_ins") or [] if isinstance(b, dict))
+
+
+def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] = None) -> dict:
+    """The asset of a drawn sink built into a kitchen run (fix round after P3): ``method: module``, the run's
+    ``asset_id`` (``module:<run type>:kitchen_run``), ``built_in: <run id>``, ours (licence ``n/a``, flag ``none``,
+    commercial-safe), by design; ``module_plan`` is only the reference ``{builder, built_into, kind, x_m, w_m}`` (no
+    modules: the run's plan builds it, ``parametric.piece_bbox`` keeps the sink's own box); the ladder ends at the
+    module step. No library model is searched (none would be built)."""
+    plan = (run.get("asset") or {}).get("module_plan") or {}
+    record = next((b for b in plan.get("built_ins") or [] if b.get("id") == piece["id"]), {})
+    builder = plan.get("builder") or "kitchen_run"
+    why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m sink unit with the "
+           "bowl and the tap at its cutout (the drawn sink lies inside the drawn run)")
+    asset = parametric_fit(piece, why, style_family=style_family)
+    asset.update({"library": MODULE_METHOD, "method": MODULE_METHOD, "asset_id": f"module:{run['type']}:{builder}",
+                  "built_in": run["id"], "by_design": True,
+                  "module_plan": {"builder": builder, "built_into": run["id"], "kind": "sink",
+                                  "x_m": record.get("x_m"), "w_m": record.get("w_m")}})
+    return _finish(asset, mode, [_step("library", "not tried", why),
+                                 _step(MODULE_METHOD, f"built into {run['id']} (sink unit and cutout)", None)])
 
 
 def module_fit(piece: dict, plan: dict, reason: str, candidates: Optional[list] = None,
@@ -1649,21 +1755,34 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
             project["size_snap"]["split_first"] = split_first
     used_project: Counter = Counter()
     used_rooms: dict[str, Counter] = {}
-    for piece in fitted.get("furniture", []):
+    # fix round after P3 (module docstring): the drawn sinks and stoves inside the kitchen runs
+    kitchen = kitchen_built_ins(fitted)
+    by_id = {p.get("id"): p for p in fitted.get("furniture", [])}
+
+    def fit_one(piece: dict, built_into: Optional[dict] = None) -> None:
         frozen = {k: copy.deepcopy(piece.get(k)) for k in FROZEN_KEYS}
-        design = design_of(piece, style) if (style is not None or piece.get("design")) else None
         room = str(piece.get("room_id") or "")
         used = {"project": used_project, "room": used_rooms.setdefault(room, Counter())}
-        asset = fit_piece(piece, catalog, cap=cap, style_family=style_family, design=design or None, mode=mode,
-                          used=used, style=style)
-        if piece.get("id") in split_first:
-            # review of build round 3 item 2: a piece the split labelled is built by its module plan (the split
-            # decides; a library table at the full depth would erase the chairs the label names)
-            asset = split_module_fit(piece, asset, style, style_family, mode)
-        colour, source = fabric_colour_of(piece, style)
-        if colour:
-            asset["fabric_colour"] = colour
-            asset["fabric_colour_source"] = source
+        if built_into is not None:
+            asset = built_in_fit(piece, built_into, mode, style_family)
+        else:
+            design = design_of(piece, style) if (style is not None or piece.get("design")) else None
+            hints = kitchen["hints"].get(piece.get("id"))
+            # the run's hints reach its plan on a copy: the building piece never gets module_hints (FROZEN_KEYS,
+            # assert_only_assets_changed); the asset keeps them beside the plan (furniture.module_plan_of)
+            target = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints}) if hints else piece
+            asset = fit_piece(target, catalog, cap=cap, style_family=style_family, design=design or None, mode=mode,
+                              used=used, style=style)
+            if hints and asset.get("method") == MODULE_METHOD:
+                asset["module_hints"] = copy.deepcopy(hints)
+            if piece.get("id") in split_first:
+                # review of build round 3 item 2: a piece the split labelled is built by its module plan (the split
+                # decides; a library table at the full depth would erase the chairs the label names)
+                asset = split_module_fit(piece, asset, style, style_family, mode)
+            colour, source = fabric_colour_of(piece, style)
+            if colour:
+                asset["fabric_colour"] = colour
+                asset["fabric_colour_source"] = source
         piece["asset"] = asset
         apply_split_label(piece, asset)                 # a table footprint split into table + chairs (modules)
         if asset.get("method") == "library":
@@ -1677,6 +1796,16 @@ def fit_building(building: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CA
         for key in FROZEN_KEYS:
             if frozen.get(key) != piece.get(key):  # cannot happen; guards future edits
                 raise RuntimeError(f"fit changed {key} of {piece['id']}")
+
+    deferred = []
+    for piece in fitted.get("furniture", []):
+        if piece.get("id") in kitchen["sinks"]:
+            deferred.append(piece)             # after its run: built in only when the run's plan holds it
+            continue
+        fit_one(piece)
+    for piece in deferred:
+        run = by_id.get(kitchen["sinks"][piece["id"]])
+        fit_one(piece, run if holds_built_in(run, piece["id"]) else None)
     for item in fitted.get("decor") or []:
         item["asset"] = fit_decor_item(item, catalog, style_family=style_family, mode=mode)
     return fitted
@@ -1867,6 +1996,14 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += ["", "## Built below the library level (Milestone 13 ladder: module or parametric family; close "
                       "the gap with a real model)", ""]
         lines += [f"- {pid} ({ftype}): {method}: {used}" for pid, ftype, method, used in below]
+    built_ins = [(p["id"], p["type"], p["asset"]["built_in"]) for p in pieces if (p.get("asset") or {}).get("built_in")]
+    run_gaps = [(p["id"], g) for p in pieces for g in ((p.get("asset") or {}).get("module_plan") or {}).get("gaps") or []]
+    if built_ins or run_gaps:                         # fix round after P3 (module docstring)
+        lines += ["", "## Kitchen runs (drawn sinks built in, gaps for drawn stoves)", ""]
+        lines += [f"- {pid} ({ftype}): built into the kitchen run {rid} (its sink unit, bowl and tap; not built "
+                  "again)" for pid, ftype, rid in built_ins]
+        lines += [f"- {rid}: a {float(g.get('w_m') or 0.0):.2f} m gap for the drawn {g.get('type') or 'stove'} "
+                  f"{g.get('id')} (no base unit, plinth or worktop there)" for rid, g in run_gaps]
     lines += ["", "## Parametric fallbacks", "", "(Milestone 13: the module builders of the ladder's step 2 are "
               "listed here too; the method column says which)"]
     if fallbacks:

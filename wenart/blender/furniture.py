@@ -272,6 +272,29 @@ def is_built(piece: dict) -> bool:
     return piece.get("build", True) is not False
 
 
+BUILT_IN_REASON = "built into its kitchen run (the run's sink unit, bowl and tap; fix round after P3)"
+
+
+def built_in_ids(pieces: Sequence[dict]) -> dict[str, str]:
+    """``{piece id: run id}`` of the pieces a built kitchen run builds into itself (pure; fix round after P3,
+    16-17 Oct 2026): a piece whose ``asset.built_in`` names a built, typed piece of ``pieces`` (the level's) whose
+    fitted module plan lists it under ``built_ins`` (``wenart.furniture.fit.kitchen_built_ins``). The scene builds
+    such a piece once, as the run's sink unit, never again as its own object (P3 built the drawn sink inside the
+    base units). When the run's plan does not hold it (the agent refitted the run without the hints), the piece is
+    built on its own as before."""
+    by_id = {p.get("id"): p for p in pieces}
+    out: dict[str, str] = {}
+    for p in pieces:
+        host_id = (p.get("asset") or {}).get("built_in")
+        host = by_id.get(host_id) if host_id else None
+        if host is None or host is p or not is_built(host) or refused_piece(host):
+            continue
+        plan = (host.get("asset") or {}).get("module_plan") or {}
+        if any(isinstance(b, dict) and b.get("id") == p.get("id") for b in plan.get("built_ins") or []):
+            out[str(p["id"])] = str(host_id)
+    return out
+
+
 def resolve_asset(asset: dict | None, assets_dir: str | None) -> tuple[Path | None, str | None]:
     """``(file, reason)``: the glTF/GLB file of a fitted library asset, or
     None and why the parametric fallback is used (docs/milestone4.md §2:
@@ -1033,17 +1056,23 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     on_level = [p for p in building.get("furniture", []) if p["level_id"] == level["id"]]
     pieces = [p for p in on_level if is_built(p)]
     not_built = [{"id": p["id"], "type": p["type"], "reason": NOT_BUILT_REASON} for p in on_level if not is_built(p)]
+    built_in: dict[str, str] = {}
     if not use_proxies:
         refused = [(p, refused_piece(p)) for p in pieces]
         not_built += [{"id": p["id"], "type": p["type"], "reason": why} for p, why in refused if why]
         pieces = [p for p, why in refused if not why]
+        # fix round after P3: a drawn sink built into its kitchen run is that run's sink unit, no object of its own
+        built_in = built_in_ids(pieces)
+        pieces = [p for p in pieces if p["id"] not in built_in]
     proxy_pieces = [p for p in pieces if use_proxies or p["type"] not in P.PARAMETRIC_TYPES]
     for p in proxy_pieces:
         if p["type"] != "unknown" and not use_proxies:
             warnings.append(f"{p['id']}: furniture type {p['type']!r} has no parametric builder; proxy box used")
     summary = {"pieces": len(pieces), "by_method": {}, "fallbacks": [], "proxies": len(proxy_pieces), "decor": 0,
                "proxies_forced": bool(use_proxies), "not_built": not_built, "decor_skipped": [],
-               "decor_not_rested": [], "dressed_beds": [], "objects": {}}
+               "decor_not_rested": [], "dressed_beds": [], "objects": {},
+               "built_in": [{"id": p["id"], "type": p["type"], "host": built_in[p["id"]], "reason": BUILT_IN_REASON}
+                            for p in on_level if p["id"] in built_in]}
     if proxy_pieces:
         proxies.create_proxies({"furniture": proxy_pieces}, level, collection, {
             "proxy": library.proxy("proxy"), "proxy_glass": library.proxy("proxy_glass"),
@@ -1090,6 +1119,11 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
             if dress is not None:
                 summary["objects"][f"{piece['id']}#dressing"] = dress     # S5 rests on it; S2 skips it
                 summary["dressed_beds"].append(piece["id"])
+
+    for record in summary["built_in"]:              # the run's manifest entry names what it holds (fix round after P3)
+        host_entry = entries.get(record["host"])
+        if host_entry is not None:
+            host_entry.setdefault("built_ins", []).append({"id": record["id"], "type": record["type"]})
 
     for host_id in unknown_decor_hosts(building):
         if host_id not in {p["id"] for p in building.get("furniture", [])}:
@@ -1470,6 +1504,10 @@ def module_plan_of(piece: dict, style: dict | None = None) -> tuple[dict | None,
     plan = asset.get("module_plan")
     if isinstance(plan, dict) and plan.get("builder") in MOD._PART_BUILDERS and plan.get("modules"):
         return plan, "the fit's module plan"
+    hints = asset.get("module_hints")
+    if isinstance(hints, dict) and hints:
+        # fix round after P3: the fit keeps a run's hints (its drawn sink and stoves) in the asset, never on the piece
+        piece = dict(piece, module_hints={**(piece.get("module_hints") or {}), **hints})
     plan = MOD.module_plan(piece, style)
     if plan is not None:
         return plan, "module plan of the piece (the fit stored none)"

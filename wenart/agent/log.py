@@ -15,6 +15,16 @@ this file.
 How: ``event(kind, round, **fields)`` numbers the entries (``seq`` from 1) and stamps them with the injectable
 clock (UTC ISO text); ``save()`` writes both files atomically after every round, so a pod cut by its deadline
 keeps the log of the finished rounds.
+
+Fix round after P3 (16-17 Oct 2026):
+
+- ``reserve()`` hands out the ``seq`` an edit's event will get before the edit is validated, and
+  ``event(..., seq=<reserved>)`` uses it (the event is put in seq order). Why: the tools stamp an edit's ``log_seq``
+  (``overrides.json``, ``adjusted_by_ai``) before the loop logs the edit; they predicted it with ``next_seq()``, and
+  with 4 parallel room sessions another session's event took that seq first: 7 of 39 P3 edits had a ``log_seq``
+  1-2 below their event. A reserved seq that is never logged (a tool that raised) leaves a gap in the numbering.
+- the call log keeps ``finish_reason`` (stop, length, repetition, tool_calls; ``context_full`` for a refused
+  prompt) and the ``max_tokens`` asked for, so length and repetition stops show in log.json.
 """
 from __future__ import annotations
 
@@ -79,6 +89,7 @@ class AgentLog:
         self.started_utc = utc_text(clock())
         self.finished_utc: Optional[str] = None
         self.lock = threading.RLock()        # Milestone 12: parallel room sessions log from several threads
+        self.reserved: set[int] = set()      # fix round after P3: seqs handed out by ``reserve`` and not logged yet
         existing = self.dir / LOG_JSON
         if existing.is_file():
             # A resumed pod continues the earlier log (the rounds of the cut run stay listed).
@@ -109,15 +120,33 @@ class AgentLog:
             return Path(path).as_posix()
 
     def next_seq(self) -> int:
-        return (self.events[-1]["seq"] + 1) if self.events else 1
+        """The seq the next event gets (after every event and every seq ``reserve`` handed out)."""
+        with self.lock:
+            top = max([int(e["seq"]) for e in self.events[-1:]] + list(self.reserved) + [0])
+            return top + 1
 
-    def event(self, kind: str, round_no: int, **fields) -> dict:
+    def reserve(self) -> int:
+        """Fix round after P3 (module docstring): a seq for an event logged later with ``event(..., seq=...)``."""
+        with self.lock:
+            seq = self.next_seq()
+            self.reserved.add(seq)
+            return seq
+
+    def event(self, kind: str, round_no: int, seq: Optional[int] = None, **fields) -> dict:
+        """One event; ``seq``: a seq from ``reserve`` (ignored when it was not reserved or is used already)."""
         if kind not in KINDS:
             raise ValueError(f"unknown log event kind {kind!r}")
         with self.lock:
-            entry = {"seq": self.next_seq(), "round": int(round_no), "t": utc_text(self.clock()), "kind": kind}
+            use = int(seq) if seq is not None and int(seq) in self.reserved else None
+            if use is not None:
+                self.reserved.discard(use)
+            entry = {"seq": use if use is not None else self.next_seq(), "round": int(round_no),
+                     "t": utc_text(self.clock()), "kind": kind}
             entry.update({k: v for k, v in fields.items() if v is not None})
-            self.events.append(entry)
+            i = len(self.events)
+            while i > 0 and int(self.events[i - 1]["seq"]) > entry["seq"]:
+                i -= 1                       # a reserved seq goes before the events logged since it was handed out
+            self.events.insert(i, entry)
             if kind == "stop":
                 self.stop = {"round": int(round_no), "reason": fields.get("reason"), "seq": entry["seq"]}
             return entry
@@ -125,7 +154,7 @@ class AgentLog:
     def call(self, entry: dict) -> None:
         """One model call (``AgentModel.on_call``)."""
         keep = ("call_id", "kind", "model", "revision", "seconds", "attempts", "prompt_tokens",
-                "completion_tokens", "images", "tool_calls", "error")
+                "completion_tokens", "images", "tool_calls", "error", "finish_reason", "max_tokens")
         with self.lock:
             self.calls.append({k: entry.get(k) for k in keep if k in entry})
 

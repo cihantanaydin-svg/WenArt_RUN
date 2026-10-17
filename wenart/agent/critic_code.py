@@ -29,6 +29,17 @@ finding on the camera with its room, the metered EV, the cap and the light facto
 (``factor_needed`` = 2 ** stops over the cap); ``causes.cause_of`` routes it to ``set_lighting`` (an exterior view:
 report-only). Before this nothing in the agent read them (CPU pre-flight of 16 Oct 2026: real04's basement salon
 wanted +6.37 EV, 3.37 stops over the cap, and no finding reached the agent or the report).
+
+Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
+
+- a ``lighting_dark`` finding asks for headroom: the message suggests ``min(x3, needed x LIGHTING_HEADROOM)``
+  (``metrics.set_lighting_suggested``; ``LIGHTING_HEADROOM`` = 2 ** 0.5, half a stop), while
+  ``set_lighting_factor`` (what the view needs) stays the acceptance threshold of ``loop.lighting_kept`` and the
+  ``lighting_beyond_cap`` rule of ``causes.cause_of``. Why: P3's next renders gained 0.1-1.3 stops where x2.8-2.87
+  predicted about 1.5 (part of a view's light does not scale with the room's lights), so the planner set x2.83 and
+  then x2.95 on the same room; asking once for the headroom (often x3, the maximum) saves the second round;
+- a violation on a decor piece gets the decor's room (before: furniture only; P3's X2 on the mirror dec_L1_009 had
+  no room and went to the building session).
 """
 from __future__ import annotations
 
@@ -156,6 +167,9 @@ def library_gaps(building: dict) -> list[dict]:
 
 
 LIGHTING_DARK_CHECK = "lighting_dark"       # = wenart.blender.render.LIGHTING_DARK_CHECK (pinned by the tests)
+# Fix round after P3: the factor a lighting_dark message suggests is the needed one x this (half a stop of headroom),
+# capped at set_lighting's maximum; the acceptance still counts the view clear at the needed factor.
+LIGHTING_HEADROOM = 2.0 ** 0.5
 
 
 def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = None) -> list[dict]:
@@ -206,10 +220,17 @@ def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = N
                 want = round(now * 2.0 ** over, 2)
                 metrics["lighting_factor_now"] = now
                 metrics["set_lighting_factor"] = want
-                has = f" (it has x{now:g} now)" if abs(now - 1.0) > 1e-9 else ""
-                message += (f"; the room needs about x{need:g} its light, set_lighting gives up to x{top:g}{has}"
-                            if want > top + 1e-9 else
-                            f"; set_lighting factor about x{want:g} on {rec['room_id']}{has}")
+                has = f"; it has x{now:g} now" if abs(now - 1.0) > 1e-9 else ""
+                if want > top + 1e-9:
+                    message += (f"; the room needs about x{need:g} its light, set_lighting gives up to x{top:g}"
+                                + (f" ({has[2:]})" if has else ""))
+                else:
+                    # fix round after P3: ask for half a stop more than the view needs (module docstring)
+                    ask = round(min(top, want * LIGHTING_HEADROOM), 2)
+                    metrics["set_lighting_suggested"] = ask
+                    message += (f"; set_lighting factor x{ask:g} on {rec['room_id']} (the view needs about "
+                                f"x{want:g}; the headroom covers light that does not scale with the room's lights"
+                                f"{has})")
         out.append({"check": LIGHTING_DARK_CHECK, "severity": rec.get("severity") or "major", "target": cam,
                     "room_id": rec.get("room_id"), "message": message, "metrics": metrics})
     return out
@@ -252,7 +273,9 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
     checks: list[dict] = []
     scores: dict = {}
     mean = None
-    room_of = {f.get("id"): f.get("room_id") for f in building.get("furniture") or []}
+    # fix round after P3: a decor piece's violation gets the decor's room too
+    room_of = {f.get("id"): f.get("room_id") for f in (building.get("decor") or []) + (building.get("furniture") or [])
+               if isinstance(f, dict)}
 
     def family(source: str, fn_name: Optional[str], fn: Optional[Callable], call: Callable[[Callable], list]) -> None:
         try:

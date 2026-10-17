@@ -19,6 +19,16 @@ building the run rendered and the ``agent`` stage record, and returns the manife
 
 ``agent_lines(manifest)`` renders it as markdown; both return nothing for a run without the orchestrator, so the
 M10 report is unchanged.
+
+Fix round after P3 (16-17 Oct 2026; the agent track's ask). What: ``reported``: the findings no agent tool fixes,
+which the loop reports to another stage (finding events with ``report_to`` / ``not_yours``, e.g. a decor piece
+through the roof, cause ``decor_under_roof`` -> ``decor``), one row per check, target and stage with the rounds it
+was seen in; ``context``: the planner sessions whose context the loop cut or that ended full (``check`` events with
+tool ``context_budget``: status ``cut`` / ``context_full``, ``chars_removed``, ``max_model_len``). The metrics table
+quotes the findings removed as measured by the next round's critics (``metrics.findings_removed.total``) and the dry
+re-checks' count as a prediction. Why: P3's dec_L1_009 stayed critical in all 4 rounds with no stage told, its
+building session ended on a full context without a word in the report, and the dry re-checks' count read as a
+result.
 """
 from __future__ import annotations
 
@@ -203,7 +213,38 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
             "inferred": inferred_items(building, overrides), "before_after": before_after,
             "minutes": round(seconds / 60.0, 1), "calls": len(calls), "tokens": tokens,
             "comparison": compare_rows(project_out, final_dir, private), "metrics": metrics,
-            "library_gaps": gaps}
+            "library_gaps": gaps, "reported": reported_findings(events), "context": context_checks(events)}
+
+
+def reported_findings(events: list[dict]) -> list[dict]:
+    """Fix round after P3: the findings the loop reports to another stage (finding events with ``report_to`` or
+    ``not_yours``, not dropped), one row per (check, target, stage) with the rounds it was seen in (pure)."""
+    rows: dict = {}
+    for e in events:
+        if e.get("kind") != "finding" or e.get("dropped") or not (e.get("report_to") or e.get("not_yours")):
+            continue
+        key = (str(e.get("checklist")), str(e.get("target")), str(e.get("report_to") or "-"))
+        row = rows.setdefault(key, {"check": key[0], "target": key[1], "report_to": e.get("report_to"),
+                                    "severity": e.get("severity"), "cause": e.get("cause"),
+                                    "room_id": e.get("room_id"), "why": e.get("not_yours"),
+                                    "finding": e.get("finding"), "rounds": []})
+        if int(e.get("round") or 0) not in row["rounds"]:
+            row["rounds"].append(int(e.get("round") or 0))
+    return [rows[k] for k in sorted(rows)]
+
+
+def context_checks(events: list[dict]) -> list[dict]:
+    """Fix round after P3: the planner sessions whose context was cut or full (``check`` events with tool
+    ``context_budget``, ``wenart.agent.loop.CONTEXT_CHECK``) (pure)."""
+    out = []
+    for e in events:
+        if e.get("kind") != "check" or e.get("tool") != "context_budget":
+            continue
+        counts = e.get("counts") or {}
+        out.append({"round": e.get("round"), "target": e.get("target"), "status": e.get("status"),
+                    "cuts": counts.get("cuts"), "chars_removed": counts.get("chars_removed"),
+                    "max_model_len": counts.get("max_model_len"), "call_id": e.get("call_id")})
+    return out
 
 
 def metrics_lines(m: Optional[dict]) -> list[str]:
@@ -224,6 +265,12 @@ def metrics_lines(m: Optional[dict]) -> list[str]:
             ["agent minutes; first accepted edit after", f"{t['agent_minutes']}; {t['first_accepted_edit_s']} s"],
             ["repeats refused by the memory; dry runs; plans (valid)",
              f"{mem['repeats_refused']}; {mem['dry_runs']}; {mem['plans']} ({mem['plans_valid']})"]]
+    removed = m.get("findings_removed")
+    if removed:
+        # fix round after P3: the measured number (the next round's critics) leads; the dry re-checks only predict
+        predicted = sum(int(v or 0) for v in (removed.get("dry_recheck") or {}).values())
+        rows.append(["critical/major findings removed (measured by the next round; predicted by the dry re-checks)",
+                     f"{removed.get('total', 0)} measured; {predicted} predicted"])
     return ["", "### Agent metrics", ""] + C.table(["metric", "value"], rows)
 
 
@@ -273,6 +320,18 @@ def agent_lines(manifest: dict) -> list[str]:
     if a["rolled_back"]:
         lines += ["", "Rolled back (the refit refused them): "
                   + ", ".join(f"#{r['seq']} {r['tool']} ({r['why']})" for r in a["rolled_back"]) + "."]
+    if a.get("reported"):
+        # fix round after P3: findings no agent tool fixes go back to the stage that caused them
+        lines += ["", "### Reported to other stages", ""]
+        lines += C.table(["check", "severity", "target", "room", "stage", "cause", "rounds", "why"],
+                         [[r["check"], r["severity"] or "-", r["target"], r.get("room_id") or "-",
+                           r.get("report_to") or "-", r.get("cause") or "-", ", ".join(str(n) for n in r["rounds"]),
+                           r.get("why") or r.get("finding") or "-"] for r in a["reported"]])
+    if a.get("context"):
+        lines += ["", "### Context budget of the planner sessions", ""]
+        lines += C.table(["round", "session", "status", "cuts", "characters removed", "context (tokens)"],
+                         [[c["round"], c.get("target") or "building", c["status"], c.get("cuts") or 0,
+                           c.get("chars_removed") or 0, c.get("max_model_len") or "-"] for c in a["context"]])
     lines += ["", "### Inferred and AI-changed items", ""]
     if a["inferred"]:
         lines += C.table(["id", "kind", "type", "room", "labels", "reason"],

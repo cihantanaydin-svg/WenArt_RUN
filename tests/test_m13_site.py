@@ -1171,3 +1171,242 @@ def test_preflight_p3_draped_faces_never_use_a_vertex_twice():
             # the faces still cover the region (10 x 10 minus the 3 x 3 hole) within the dropped slivers
             area = sum(abs(G.polygon_area([verts[i][:2] for i in f])) for f in faces)
             assert area == pytest.approx(91.0, abs=1e-2), (kw, area)
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 attempt 2: P3's real04 exterior views). Every test
+# below fails on the code of the P3 results commit (5bd7bab): the aerial pitched 30 degrees with the horizon at 1.27
+# of the frame, no site finish set fetched (no ``site_texture_rows``), hedges and shrubs built on the terrain under the
+# terraces (no ``stand_terrain``), hedge hulls through the retaining walls (no ``fit_hedges``), a lawn relief of +-3 cm
+# over 1.2 cm paving (no ``relief_range``).
+# --------------------------------------------------------------------------
+
+def _example_exterior():
+    """The docs example building's exterior camera model (as tests/test_blender_exterior.py builds it)."""
+    from wenart import views as V
+    from wenart.blender import roof as R
+
+    b = V.variant_building(EXAMPLE, "base")
+    plan = S.site_plan(b, b["levels"], geom2d.ccw(b["slabs"][0]["outline"]), "full")
+    return b, E.build_model(b, b["levels"], R.roof_model(b["roof"], b), plan), plan
+
+
+def _real04_prep(monkeypatch):
+    from wenart.blender import build as BB
+
+    monkeypatch.delenv(S.SITE_VARIANT_ENV, raising=False)
+    return BB.prepare(json.loads(REAL04.read_text(encoding="utf-8")), "base", None)
+
+
+def test_p3_the_aerial_view_keeps_the_horizon_in_the_upper_part_of_the_frame(monkeypatch):
+    """CLAUDE.md: "the sky, the sun and the horizon are always in the image". P3's ext_5 pitched 30 degrees at
+    26.87 mm: horizon at 1.27 of the frame height, lawn at the top, no sky. The aerial pitch now comes from
+    copies.pitch_for_horizon (the horizon at AERIAL_HORIZON_FRAC) and its lens never gets longer than AERIAL_LENS_MM;
+    the site view (ext_7) and the one-aerial policy flags stay as they were."""
+    pitch = CP.pitch_for_horizon(E.AERIAL_HORIZON_FRAC, E.AERIAL_LENS_MM, E.AERIAL_PITCH_DEG)
+    assert 14.0 <= pitch <= 18.0 and pitch < E.AERIAL_PITCH_DEG
+    assert CP.horizon_fraction(E.AERIAL_PITCH_DEG, 26.87) > 1.0            # P3's ext_5: above the frame
+    b, m, plan = _example_exterior()
+    plans, _dropped = E.plan_exterior(m, b, b["levels"], plan["plot"], variant="base")
+    cases = [(next(p for p in plans if p["name"] == "ext_5"), m)]
+    if REAL04.is_file():
+        prep = _real04_prep(monkeypatch)
+        vb, sp = prep["building"], prep["site"]
+        model = E.build_model(vb, vb["levels"], prep["roof"], sp)
+        rplans, _ = E.plan_exterior(model, vb, vb["levels"], sp["plot"] or [], variant="base")
+        cases.append((next(p for p in rplans if p["name"] == "ext_5"), model))
+        site_view = next(p for p in rplans if p.get("site_view"))
+        assert site_view["horizon_frac"] == pytest.approx(CP.SITE_VIEW_HORIZON_FRAC, abs=1e-3)
+        assert [p["name"] for p in rplans if p["view"] == "aerial"] == ["ext_5", site_view["name"]]
+    for ext5, cam_model in cases:
+        assert ext5["view"] == "aerial" and ext5["aerial_allowed"] and not ext5.get("dropped")
+        assert -E.AERIAL_PITCH_DEG <= ext5["pitch_deg"] < 0 and ext5["pitch_deg"] == pytest.approx(-pitch, abs=0.05)
+        assert ext5["lens_mm"] <= E.AERIAL_LENS_MM and ext5["shift_y"] == 0.0
+        frac = CP.horizon_fraction(-ext5["pitch_deg"], ext5["lens_mm"])
+        assert ext5["horizon_frac"] == pytest.approx(frac, abs=1e-3) and 0.5 < frac <= E.AERIAL_HORIZON_FRAC + 1e-3
+        assert cam_model.inside(ext5["position"]) is None
+        assert ext5["score"]["ok"] and ext5["score"]["aim_visible"]
+
+
+def test_p3_the_site_finish_sets_are_fetched_and_follow_the_build_fingerprint():
+    """P3: concrete_exposed (the platforms' retaining walls and kerbs, 29 objects, and the plinth) said ``textured
+    false, asset concrete_wall_001 not in the assets manifest``: the style names none of the finishes the outside
+    build puts on by itself. The assets stage now fetches their sets (fetch.site_texture_rows, read from
+    exterior.build_finish_slugs) and the build fingerprint lists the same ids (build.referenced_asset_ids), like
+    test_referenced_assets_follow_the_shell_sets_the_assets_stage_fetches does for the shell slots."""
+    from wenart.assets import fetch
+    from wenart.blender import build as BB
+    from wenart.style import profile as SP
+    from wenart.style import vocabulary as V
+
+    slugs = dict(E.build_finish_slugs({}))
+    assert slugs["concrete_exposed"] == "platform_wall" and S.PLATFORM_LOOKS["wall"][0] == "concrete_exposed"
+    assert slugs["concrete_exposed"] and set(S.SITE_FALLBACK_LOOKS.values()) <= set(slugs)
+    rows = fetch.site_texture_rows({})
+    assert ("polyhaven", "concrete_wall_001", "site:platform_wall") in rows
+    checks = json.loads(fetch.CHECKS_PATH.read_text(encoding="utf-8"))["textures"]
+    vocab = {e.get("asset") for e in list(V.MATERIALS.values()) + list(V.FURNITURE_MATERIALS.values())}
+    for source, asset_id, label in rows:                    # existing CC0 sets of the vocabulary, never invented
+        record = checks[f"{source}:{asset_id}"]
+        assert asset_id in vocab and record["exists"] and record["licence"] == "CC0", label
+        assert record["has_required_maps"] and record["jpg_1k_2k"] and fetch.LICENCES[source] == "CC0", label
+    # a family with a stone plinth and window surrounds fetches those sets too (facade.ARTICULATION)
+    classic = {a for _s, a, _l in fetch.site_texture_rows({"family": "classic"})}
+    assert {"rustic_stone_wall", "floor_tiles_02"} <= classic and "rustic_stone_wall" not in {a for _s, a, _l in rows}
+    # P3's case: a profile that names none of them; the fetch plan and the fingerprint both hold the walls' set
+    profile = SP.profile_from_text("dark bronze window frames, oak floor")
+    assert "concrete_wall_001" not in {a for _s, a, _l in SP.assets_in_profile(profile)["textures"]}
+    assert "concrete_wall_001" in {a for _s, a, _l in fetch.texture_plan(profile)}
+    building = json.loads(REAL04.read_text(encoding="utf-8")) if REAL04.is_file() else {}
+    ids = set(BB.referenced_asset_ids(building, profile))
+    assert {a for _s, a, _l in fetch.site_texture_rows(profile)} <= ids
+
+
+def test_p3_trees_shrubs_and_hedges_stand_on_the_terrace_they_are_drawn_on(monkeypatch):
+    """P3 built every plant on the terrain under the terraces: real04's hedge_003 (on the -3.0 m terrace sp_001)
+    stood on the terrain at -4.8 .. -4.0 m, so its 1.2 m hull ended under the slab and showed as dark triangles and
+    loose leaf cards on the retaining wall; the shrubs on the stepped bands were buried. stand_terrain gives a point
+    on a flat platform its level, for build_site and for the exterior camera model alike."""
+    terrain = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
+    pfs = [{"id": "t", "polygon": [[0, 0], [6, 0], [6, 4], [0, 4]], "z": -2.0, "sloped": False},
+           {"id": "band", "polygon": [[6, 0], [7, 0], [7, 4], [6, 4]], "z": -1.0, "sloped": False},
+           {"id": "park", "polygon": [[0, 5], [6, 5], [6, 9], [0, 9]], "z": 0.5, "sloped": True}]
+    stand = S.stand_terrain(terrain, pfs)
+    assert S.ground_z(stand, 3, 2) == -2.0 and S.ground_z(stand, 6.5, 2) == -1.0
+    assert S.ground_z(stand, 3, 7) == 0.0 and S.ground_z(stand, 20, 20) == 0.0     # sloped: draped on the terrain
+    assert "stand" not in terrain and S.stand_terrain(terrain, []) is terrain
+    hedge = {"id": "h", "polyline": [[1, 2], [5, 2]], "width_m": 0.7, "height_m": 1.2}
+    _v, _f, info = S.hedge_parts(hedge, stand)
+    assert info["z_range"] == pytest.approx([-2.1, -0.8])
+    shrub = S.tree_parts({"center": [3, 2], "size": [0.718, 0.718], "kind": "tree"}, stand)
+    assert shrub["ground_z"] == -2.0 and shrub["size_class"] == "shrub"
+    if not REAL04.is_file():
+        return
+    prep = _real04_prep(monkeypatch)
+    sp, vb = prep["site"], prep["building"]
+    real = S.stand_terrain(sp["terrain"], sp["platforms"])
+    by_id = {pf["id"]: pf for pf in sp["platforms"]}
+    h3 = next(h for h in sp["hedges"] if h["id"] == "hedge_003")
+    _v, _f, info = S.hedge_parts(h3, real)
+    assert info["z_range"][0] == pytest.approx(by_id["sp_001"]["z"] - 0.1, abs=1e-6)        # was -4.9 (terrain)
+    _v, _f, old = S.hedge_parts(h3, sp["terrain"])
+    assert old["z_range"][1] < by_id["sp_001"]["z"] + 0.5                                   # P3: mostly buried
+    on_band = 0
+    for t in sp["trees"]:
+        pf = next((p for p in sp["platforms"] if not p.get("sloped")
+                   and G.point_in_polygon(tuple(t["center"]), p["polygon"])), None)
+        if pf is not None:
+            on_band += 1
+            assert S.tree_parts(t, real)["ground_z"] == pytest.approx(pf["z"]), t["id"]
+    assert on_band >= 5
+    # the camera model's obstacles stand where build_site builds them
+    model = E.build_model(vb, vb["levels"], prep["roof"], sp)
+    tops = sorted(round(h[3], 3) for h in model.hedges)
+    assert max(tops) >= by_id["sp_001"]["z"] + h3["height_m"] - 1e-3 or any(
+        t == pytest.approx(by_id["sp_001"]["z"] + h3["height_m"], abs=1e-3) for t in tops)
+
+
+def test_p3_hedges_keep_their_hull_on_their_planting_side(monkeypatch):
+    """fit_hedges: a hedge on a terrace keeps its hull on the slab (half its width inside the edges), a hedge beside a
+    terrace keeps its hull HEDGE_FIT card_reach_m off the terrace (no leaf card through the retaining wall), no hull
+    reaches into the building; the polyline moves at most max_shift_m, then the hedge gets narrower; a hedge drawn
+    across a platform is left alone. Synthetic cases and real04 (hedge_003 / hedge_004 overhung their terraces by
+    0.22 / 0.16 m in P3)."""
+    shapely = pytest.importorskip("shapely.geometry")
+    hw = 0.35
+    terrace = {"id": "t", "polygon": [[0, 0], [8, 0], [8, 6], [0, 6]], "z": 1.0}
+    on = {"id": "on", "polyline": [[0.1, 1], [0.1, 5]], "width_m": 2 * hw, "height_m": 1.2}       # 0.1 m from the edge
+    beside = {"id": "beside", "polyline": [[8.05, 1], [8.05, 5]], "width_m": 2 * hw, "height_m": 1.2}
+    across = {"id": "across", "polyline": [[-3, 3], [11, 3]], "width_m": 2 * hw, "height_m": 1.2}
+    far = {"id": "far", "polyline": [[20, 1], [20, 5]], "width_m": 2 * hw, "height_m": 1.2}
+    out, assumed = S.fit_hedges([on, beside, across, far], [terrace], [[[30, 0], [40, 0], [40, 8], [30, 8]]])
+    got = {h["id"]: h for h in out}
+    assert got["on"]["polyline"] == [[pytest.approx(hw), 1.0], [pytest.approx(hw), 5.0]]
+    assert got["on"]["fit"]["shift_m"] == [pytest.approx(hw - 0.1, abs=1e-3)] * 2 and not got["on"]["fit"]["narrowed"]
+    assert got["on"]["fit"]["polyline_drawn"] == [[0.1, 1.0], [0.1, 5.0]] and got["on"]["fit"]["width_m_drawn"] == 0.7
+    reach = S.HEDGE_FIT["card_reach_m"]
+    assert got["beside"]["polyline"][0][0] == pytest.approx(8.0 + hw + reach, abs=1e-3)
+    assert got["across"] is across and got["far"] is far                     # crossing / out of reach: unchanged
+    assert {a["field"] for a in assumed} == {"hedge:on:fit", "hedge:beside:fit"}
+    # a strip too narrow for the drawn width: moved at most max_shift_m, then narrowed (never under min_width_m)
+    strip = {"id": "s", "polygon": [[0, 0], [0.2, 0], [0.2, 6], [0, 6]], "z": 1.0}
+    narrow, _ = S.fit_hedges([dict(on, id="n", polyline=[[0.1, 1], [0.1, 5]])], [strip], [])
+    assert narrow[0]["width_m"] == pytest.approx(S.HEDGE_FIT["min_width_m"]) and narrow[0]["fit"]["narrowed"]
+    assert narrow[0]["fit"]["crossing_left_m"] > 0.0                        # the 0.3 m minimum still crosses
+    # a 1.4 m hedge 0.1 m outside the terrace needs 0.75 m: it moves the 0.5 m cap, then is 0.9 m wide
+    big = {"id": "b", "polyline": [[-0.1, 1], [-0.1, 5]], "width_m": 1.4, "height_m": 1.2}
+    moved, _ = S.fit_hedges([big], [terrace], [])
+    assert moved[0]["fit"]["shift_m"] == [pytest.approx(S.HEDGE_FIT["max_shift_m"])] * 2
+    assert moved[0]["width_m"] == pytest.approx(0.9) and moved[0]["fit"]["crossing_left_m"] == 0.0
+    far_out = {"id": "f", "polyline": [[-0.8, 1], [-0.8, 5]], "width_m": 0.7, "height_m": 1.2}
+    assert S.fit_hedges([far_out], [terrace], [])[0] == [far_out]           # 0.8 m off: clear already
+    if not REAL04.is_file():
+        return
+    prep = _real04_prep(monkeypatch)
+    sp = prep["site"]
+    flat = [pf for pf in sp["platforms"] if not pf.get("sloped")]
+    by_id = {h["id"]: h for h in sp["hedges"]}
+    for hid, pid in (("hedge_003", "sp_001"), ("hedge_004", "sp_004")):
+        h = by_id[hid]
+        hull = shapely.LineString(h["polyline"]).buffer(h["width_m"] / 2.0, cap_style=3)
+        pf = next(p for p in flat if p["id"] == pid)
+        assert shapely.Polygon(pf["polygon"]).buffer(2e-3).contains(hull), hid
+        assert h["fit"]["keeps"] == [pid] and max(h["fit"]["shift_m"]) <= S.HEDGE_FIT["max_shift_m"]
+        assert not h["fit"]["narrowed"] and h["width_m"] == pytest.approx(0.718)
+        assert any(a["field"] == f"hedge:{hid}:fit" for a in sp["assumed"])
+    outline = shapely.Polygon(sp["outline"])
+    for h in sp["hedges"]:
+        hull = shapely.LineString(h["polyline"]).buffer(h["width_m"] / 2.0, cap_style=2)
+        assert hull.intersection(outline).area < 1e-6, h["id"]
+        for pf in flat:
+            poly = shapely.Polygon(pf["polygon"])
+            core = [shapely.Point(p) for p in h["polyline"]]
+            if all(poly.contains(c) for c in core) or not any(poly.contains(c) for c in core) and \
+                    hull.distance(poly) > 0:
+                continue
+            crossing = hull.intersection(poly).area / hull.area
+            assert crossing < 0.1 or h["id"] == "hedge_002", (h["id"], pf["id"], crossing)
+
+
+def test_p3_the_lawn_relief_goes_down_only_and_keeps_the_ground_edges():
+    """P3: green lawn blobs poked through the paved paths (ext_3, ext_7): the far lawn's Displace relief (strength
+    0.06 m, mid level 0.5) lifted the ground up to 3 cm, over paving draped PAVING_LIFT (1.2 cm) above it. The relief
+    now only goes down, and the ground's boundary vertices (the rim, the building, platforms, wells, pools) keep their
+    level (vertex weights 0)."""
+    lo, hi = VG.relief_range()
+    assert hi <= 0.0 < S.PAVING_LIFT and S.GRASS_LIFT > hi and -0.05 <= lo < 0.0
+    assert VG.relief_range(0.06, 0.5) == (-0.03, 0.03) and VG.relief_range(0.06, 0.5)[1] > S.PAVING_LIFT    # P3
+    verts, faces = S.draped_faces([(0, 0), (10, 0), (10, 10), (0, 10)], [[(4, 4), (6, 4), (6, 6), (4, 6)]],
+                                  S.terrain_model({"site": {"ground": {"levels": [
+                                      {"side": "left", "z": {"value": -2.0}}, {"side": "right", "z": {"value": 0.0}}]}}},
+                                      [(20, 0), (30, 0), (30, 8), (20, 8)]), step=1.0)
+    weights = VG.relief_weights(len(verts), faces)
+    assert len(weights) == len(verts) and set(weights) == {0.0, 1.0}
+    for i, (x, y, _z) in enumerate(verts):
+        on_rim = x in (0, 10) or y in (0, 10)
+        on_hole = 4 <= x <= 6 and 4 <= y <= 6 and (x in (4, 6) or y in (4, 6))
+        if on_rim or on_hole:
+            assert weights[i] == 0.0, (x, y)
+    assert sum(weights) > 0.5 * len(weights)                 # the inner lawn keeps its relief
+    tri = VG.relief_weights(5, [[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]])
+    assert tri == [0.0, 0.0, 0.0, 0.0, 1.0]
+
+
+def test_p3_real04_tree_symbols_are_shrubs_by_their_drawn_crown(monkeypatch):
+    """Item 4 of the P3 analysis: "every drawn tree symbol became a shrub". Checked, not a misreading: real04's 100
+    tree symbols (the committed building: 19 single ones, 81 in the four hedge rows; P3's: 20 single ones) are
+    INSERTs of one block on layer BS_09_AGAC with a 0.359 m crown radius as drawn (the DXF reader explodes the block
+    with its insert scale, virtual_entities), 0.7-0.8 m apart; CLAUDE.md: "tree height follows the crown radius by
+    size class (a crown under 1.5 m is a shrub)". So they stay 0.86 m shrubs (tree_height), now standing on the
+    terrace or band they are drawn on."""
+    if not REAL04.is_file():
+        pytest.skip("no committed real04 building")
+    b = json.loads(REAL04.read_text(encoding="utf-8"))
+    symbols = [d for d in b["site"]["decor"] if d.get("kind") == "tree"]
+    assert len(symbols) == 100 and {tuple(t["size"]) for t in symbols} == {(0.718, 0.718)}
+    prep = _real04_prep(monkeypatch)
+    singles, hedges = prep["site"]["trees"], prep["site"]["hedges"]
+    assert len(hedges) == 4 and len(singles) + sum(len(h["symbol_ids"]) for h in hedges) == 100
+    assert S.tree_height(0.718 / 2.0) == (pytest.approx(0.862), "shrub")
+    assert {S.tree_parts(t, prep["site"]["terrain"])["size_class"] for t in singles} == {"shrub"}
+    assert S.tree_height(1.5)[1] == "small"

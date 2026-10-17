@@ -26,6 +26,16 @@ Exceptions (documented, §4.6): wall-hung pieces (``wall_cabinet``, any ``mount_
 of S2; the members of a kitchen run (counter, island, sink, hob, fridge, wall cabinet, washing machine) may overlap
 each other (the drawn sink and hob are inside the drawn counter run).
 
+Fix round after P3 (16-17 Oct 2026): a floor-standing member (``KITCHEN_RUN_MEMBERS``: sink, stove, fridge, washing
+machine) is no longer silently allowed INSIDE a counter or island. What: for such a pair, the share of the member's
+drawn box (footprint x built height, a grid of points inside it) that lies inside the run's mesh (``buried_share``);
+at ``TOLERANCES["kitchen_buried_share"]`` (0.25) or more the member is buried in the run: an S2 violation on the
+member. Why: pod P3 built every drawn sink and stove of real04 inside full-depth base units under an uncut worktop,
+and S2 said nothing. How: a drawn sink inside a run is now built into it (no object of its own:
+``furniture.built_in_ids``) and a drawn stove stands in a gap of the run (``modules.plan_kitchen_run``), so neither
+is measured as buried; a member that only meets the run (a fridge at the run's end, a stove beside its gap) keeps
+the old allowance. Two runs, two members or a wall cabinet stay exempt.
+
 Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3): S2 tolerances by class. 16 of real04's 17 S2
 findings were 1.2-2.5 cm cuts of drawn toilets, armchair / ottoman pairs and wardrobes (noise the agent chased with
 39 edits). ``TOLERANCES["overlap_fixture"]`` (0.03 m) applies to fixed equipment and kitchen appliances
@@ -54,7 +64,10 @@ CHECKS: tuple[str, ...] = ("S1", "S2", "S3", "S4", "S5", "S6")
 TOLERANCES: dict[str, float] = {"floor_gap_m": 0.010, "floor_sink_m": 0.005, "overlap_m": 0.010, "front_deg": 10.0,
                                 "size_rel": 0.15, **REST_TOLERANCES,
                                 # Milestone 13 (§13.2): S2 by class (the module docstring).
-                                "overlap_fixture": 0.03, "overlap_soft": 0.05}
+                                "overlap_fixture": 0.03, "overlap_soft": 0.05,
+                                # fix round after P3: a kitchen-run member with this share of its box inside a
+                                # run is buried in it (a quarter of a 0.6 m appliance is 15 cm deep: no drawing slip)
+                                "kitchen_buried_share": 0.25}
 S2_CLASSES: dict[str, tuple[str, ...]] = {
     "fixture": ("toilet", "washbasin", "shower", "bathtub", "washing_machine", "sink_kitchen", "stove", "fridge",
                 "kitchen_counter", "kitchen_island", "tall_cabinet"),
@@ -87,7 +100,52 @@ UNMEASURED_DECOR: tuple[str, ...] = ("wall_art", "mirror", "clock", "curtain", "
                                      "ceiling_light")
 KITCHEN_RUN_TYPES: tuple[str, ...] = ("kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge",
                                       "wall_cabinet", "washing_machine")
+# Fix round after P3 (module docstring): the runs, and the floor-standing members that must not stand inside one.
+KITCHEN_RUN_HOSTS: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
+KITCHEN_RUN_MEMBERS: tuple[str, ...] = ("sink_kitchen", "stove", "fridge", "washing_machine")
 MAX_PAIR_SAMPLES = 200
+
+
+def kitchen_host_member(pa: dict, pb: dict) -> tuple[Optional[dict], Optional[dict]]:
+    """``(run, member)`` of a pair of kitchen-run pieces when one is a counter or island (``KITCHEN_RUN_HOSTS``) and
+    the other a floor-standing member (``KITCHEN_RUN_MEMBERS``), else ``(None, None)`` (fix round after P3)."""
+    for run, member in ((pa, pb), (pb, pa)):
+        if run.get("type") in KITCHEN_RUN_HOSTS and member.get("type") in KITCHEN_RUN_MEMBERS and not wall_hung(member):
+            return run, member
+    return None, None
+
+
+BURIED_GRID = 5                  # buried_share: a 5 x 5 x 5 grid in the member's drawn box ...
+BURIED_INSET = 0.10              # ... 10 % in from each side (never on a face, where ray parity is unsure)
+
+
+def buried_share(caster, piece: dict, z_range: tuple[float, float]) -> float:
+    """The share of the member's drawn box (its footprint, rotated, from ``z_range[0]`` to ``z_range[1]``: its
+    built height) that lies inside the mesh of ``caster`` (fix round after P3): a ``BURIED_GRID`` cube of points
+    ``BURIED_INSET`` in from each side, each tested by ray parity (``rest.is_inside``). A sink or stove built inside
+    full-depth base units fills most of it; one that only meets the run, or stands in a gap of it, almost none."""
+    from wenart.blender import rest as R
+
+    fp = piece["footprint"]
+    cx, cy = (float(v) for v in fp["center"][:2])
+    w, d = (float(v) for v in fp["size"][:2])
+    rad = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(rad), math.sin(rad)
+    z0, z1 = float(z_range[0]), float(z_range[1])
+    steps = [-0.5 + BURIED_INSET + (1.0 - 2.0 * BURIED_INSET) * i / (BURIED_GRID - 1) for i in range(BURIED_GRID)]
+    lo, hi = caster.bounds
+    inside = total = 0
+    for fx in steps:
+        for fy in steps:
+            x, y = fx * w, fy * d
+            wx, wy = cx + c * x - s * y, cy + s * x + c * y
+            for fz in steps:
+                point = (wx, wy, z0 + (fz + 0.5) * (z1 - z0))
+                total += 1
+                if all(float(lo[i]) - 1e-9 <= point[i] <= float(hi[i]) + 1e-9 for i in range(3)) \
+                        and R.is_inside(caster, point):
+                    inside += 1
+    return inside / total if total else 0.0
 
 
 def _violation(check: str, target: str, room_id, message: str, metrics: dict) -> dict:
@@ -315,6 +373,20 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
             if pa.get("level_id") != pb.get("level_id"):
                 continue
             if pa["type"] in KITCHEN_RUN_TYPES and pb["type"] in KITCHEN_RUN_TYPES:
+                run, member = kitchen_host_member(pa, pb)
+                if run is None or not _boxes_overlap(boxes[run["id"]], boxes[member["id"]], 0.0):
+                    continue                    # two runs, two members, a wall cabinet, or apart: may overlap
+                mb = boxes[member["id"]]
+                share = buried_share(caster(run["id"]), member, (mb[0][2], mb[1][2]))
+                counts["S2"]["checked"] += 1
+                limit = float(tol["kitchen_buried_share"])
+                measured[member["id"]]["kitchen_run"] = {"run": run["id"], "inside_share": round(share, 3)}
+                if share >= limit - 1e-9:
+                    fail("S2", member["id"], member.get("room_id"),
+                         f"{member['type']} {member['id']} is buried in the {run['type']} {run['id']}: "
+                         f"{share:.0%} of its box is inside the run (allowed under {limit:.0%}; a drawn sink inside "
+                         "a run is built into it, a drawn stove stands in a gap of it)",
+                         {"inside_share": round(share, 3), "other": run["id"], "kitchen_run": True})
                 continue
             pair_tol = overlap_tolerance(pa["type"], pb["type"])
             if not _boxes_overlap(boxes[a], boxes[b], pair_tol):

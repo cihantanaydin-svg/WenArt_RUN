@@ -1338,11 +1338,13 @@ def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, 
 
 
 def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: Optional[dict] = None,
-                holes: Sequence = (), name: str = "grass_near", seed: int = 7) -> tuple:
+                holes: Sequence = (), name: str = "grass_near", seed: int = 7, relief: bool = False) -> tuple:
     """Grass clumps over ``polygon`` (bpy; Milestone 13 T6): a draped surface of the polygon minus ``holes``
     (``site.draped_faces``) carrying a geometry-nodes scatter of ``density`` clumps per m²: the Poly Haven clump
     (``grass_medium_02`` / ``grass_bermuda_01``, CC0) when the assets hold it, else the crossed grass cards. The
-    surface itself is hidden from the render (the ground shows through). Returns ``(object, record)``."""
+    surface itself is hidden from the render (the ground shows through). ``relief`` (fix round after P3): the
+    surface gets the lawn's relief first (``lawn_relief``, every vertex), so the clumps follow the lowered lawn.
+    Returns ``(object, record)``."""
     import bpy
     from wenart.blender import site as S
     terrain = terrain or {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
@@ -1375,6 +1377,8 @@ def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: 
     scale = (0.6, 1.1) if method == "cards" else (0.25, 0.45)
     ng = scatter_group(f"veg_grass_{method}_{int(density)}", clump, float(density), seed, scale_range=scale,
                        tilt_deg=8.0, keep_surface=False, align_normal=True)
+    if relief:                                       # before the scatter: the clumps stand on the displaced surface
+        lawn_relief(ob, pin_edges=False)
     mod = ob.modifiers.new("grass", "NODES")
     mod.node_group = ng
     from wenart import geometry as G
@@ -1383,7 +1387,7 @@ def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: 
     count = int(max(0.0, area) * float(density))
     _tag(ob, "site_grass", "lawn", method, asset, licence, 0.3)
     return ob, {"method": method, "asset": asset, "licence": licence, "density": float(density), "count": count,
-                "area_m2": round(max(0.0, area), 2)}
+                "area_m2": round(max(0.0, area), 2), "relief": bool(relief)}
 
 
 # The lawn's look (round 3, P1 §14.3: every exterior view of real02 and real04 rendered the lawn as a flat saturated
@@ -1477,17 +1481,62 @@ def lawn_material(mat) -> dict:
     return dict(rec, applied=True)
 
 
-def lawn_relief(ground_ob, strength: float = 0.06, scale: float = 2.5) -> None:
+# Fix round after P3 (16-17 Oct 2026; P3's real04 ext_3 / ext_7: green lawn blobs poked through the paved paths).
+# What: the far lawn's relief only goes down (Displace mid level 1: offset = (texture - 1) x strength, 0 .. -strength)
+# and the ground's edges keep their level (a vertex group without the boundary vertices: the edges along the building,
+# the platforms, the light wells, the pools and the ground's rim). Why: the Milestone 13 relief (strength 0.06 m, mid
+# level 0.5) lifted the lawn up to 3 cm, over the draped paths and parking (site.PAVING_LIFT = 1.2 cm) and the grass
+# areas (0.4 cm). How: ``relief_range`` and ``relief_weights`` are pure (tests/test_m13_site.py); the grass clumps'
+# surface gets the same relief (``grass_patch(..., relief=True)``), so the clumps stay on the lowered lawn.
+LAWN_RELIEF = {"strength_m": 0.04, "mid_level": 1.0, "scale": 2.5}
+LAWN_RELIEF_GROUP = "lawn_relief"
+
+
+def relief_range(strength_m: float = LAWN_RELIEF["strength_m"], mid_level: float = LAWN_RELIEF["mid_level"]
+                 ) -> tuple[float, float]:
+    """``(lowest, highest)`` offset of the lawn relief in metres (pure): Blender's Displace modifier moves a vertex
+    by ``(texture value - mid level) x strength`` along Z, the Clouds texture's value lies in 0..1."""
+    lo, hi = (0.0 - float(mid_level)) * float(strength_m), (1.0 - float(mid_level)) * float(strength_m)
+    return round(min(lo, hi), 6), round(max(lo, hi), 6)
+
+
+def relief_weights(n_verts: int, faces: Sequence[Sequence[int]]) -> list[float]:
+    """The relief's vertex weights (pure): 0 on a boundary vertex (one end of an edge only one face uses: the ground's
+    rim and every hole's edge), 1 elsewhere, so the ground meets the building, the platforms, the wells, the pools and
+    the skirt at its own level."""
+    count: dict = {}
+    for f in faces:
+        n = len(f)
+        for k in range(n):
+            a, b = int(f[k]), int(f[(k + 1) % n])
+            key = (a, b) if a < b else (b, a)
+            count[key] = count.get(key, 0) + 1
+    edge_verts = {v for key, c in count.items() if c == 1 for v in key}
+    return [0.0 if i in edge_verts else 1.0 for i in range(int(n_verts))]
+
+
+def lawn_relief(ground_ob, strength: Optional[float] = None, scale: Optional[float] = None,
+                pin_edges: bool = True) -> None:
     """The far lawn's gentle relief (bpy): a Displace modifier with a Clouds texture on the ground mesh (no blades
-    far from the cameras; the grass texture stays). Idempotent."""
+    far from the cameras; the grass texture stays). Fix round after P3: down only (``LAWN_RELIEF``: mid level 1) and,
+    with ``pin_edges``, only on the vertices of ``relief_weights`` (the vertex group ``LAWN_RELIEF_GROUP``).
+    Idempotent."""
     import bpy
     if ground_ob is None or ground_ob.type != "MESH" or "lawn_relief" in ground_ob.modifiers:
         return
     tex = bpy.data.textures.get("veg_lawn_relief") or bpy.data.textures.new("veg_lawn_relief", type="CLOUDS")
-    tex.noise_scale = float(scale)
+    tex.noise_scale = float(LAWN_RELIEF["scale"] if scale is None else scale)
     tex.noise_depth = 2
     mod = ground_ob.modifiers.new("lawn_relief", "DISPLACE")
     mod.texture = tex
-    mod.strength = float(strength)
-    mod.mid_level = 0.5
+    mod.strength = float(LAWN_RELIEF["strength_m"] if strength is None else strength)
+    mod.mid_level = float(LAWN_RELIEF["mid_level"])
     mod.direction = "Z"
+    if pin_edges:
+        me = ground_ob.data
+        weights = relief_weights(len(me.vertices), [list(p.vertices) for p in me.polygons])
+        group = ground_ob.vertex_groups.get(LAWN_RELIEF_GROUP) or ground_ob.vertex_groups.new(name=LAWN_RELIEF_GROUP)
+        inner = [i for i, w in enumerate(weights) if w > 0.0]
+        if inner:
+            group.add(inner, 1.0, "REPLACE")
+        mod.vertex_group = group.name

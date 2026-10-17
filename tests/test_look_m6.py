@@ -483,8 +483,10 @@ def test_choose_pull_rules():
     assert R.choose_pull(cands, 0.99)[0] == 0                         # nothing stays brighter: no pull
     assert R.choose_pull(cands, None)[0] == 3                         # no walls: the clip rule alone
     assert R.choose_pull([c(1, 0.3, 0.9), c(2, 0.2, 0.8)], None)[0] == 2
-    assert R.choose_pull([c(1, 0.0, 0.9)], 0.5) == (1, "smallest k with pane clip <= 1 % and panes brighter than "
-                                                       "the walls")
+    # fix round after P3 (16-17 Oct 2026): the rule also names the pane target (render.pull_reaches_target; a
+    # candidate without p90, as here, meets it by its clip alone; the target itself is tested in test_m13_light.py)
+    assert R.choose_pull([c(1, 0.0, 0.9)], 0.5) == (1, "smallest k with pane clip <= 1 %, the pane target and panes "
+                                                       "brighter than the walls")
     assert R.choose_pull([], 0.5)[0] == 0
     assert R.pull_qualifies(c(1, 0.01, 0.6), 0.5) and not R.pull_qualifies(c(1, 0.011, 0.6), 0.5)
 
@@ -958,7 +960,9 @@ def test_row5_hall_light_inside_the_l(hall):
     (docs/milestone13.md §14.3): the light rig is a production default, so the hall's light is its ceiling fixture
     (``rig_r_hall_ceiling_1``, a visible drum with a point light inside, lumens through the manual's table x gain
     2.0) at the same pole; the Milestone 6 invisible area light ``light_r_hall`` is no longer built. The storage
-    room has no rig, so it keeps the Milestone 6 light."""
+    room has no rig, so it keeps the Milestone 6 light. Fix round after P3 (16-17 Oct 2026): the hall fixture
+    carries bulbs for ``lighting.RIG_CIRCULATION_LUMENS_PER_M2`` (8.32 m2 x 450 lm / 1100 lm: 4 bulbs) and, having a
+    ceiling fixture, the rig still replaces the fill light (``lighting.rig_replaces_fill``)."""
     plan = lighting.area_light_plan(L_HALL)
     assert "light_r_hall" not in hall["objects"]
     fixture = hall["objects"]["rig_r_hall_ceiling_1"]
@@ -968,8 +972,10 @@ def test_row5_hall_light_inside_the_l(hall):
     assert light["location"][:2] == pytest.approx(plan["center"], abs=1e-4)
     assert fixture["bounds"][2][1] == pytest.approx(2.7 - lighting.RIG_MOUNT_GAP_M, abs=1e-4)   # hangs under the ceiling
     assert light["light_type"] == "POINT" and light["visible_camera"] is False
-    assert light["energy"] == pytest.approx(lighting.watts_for_lumens(1100.0) * 2.0)
+    bulbs = lighting.rig_bulbs(lighting.room_rig("hall")[0], G.polygon_area(L_HALL), 1)
+    assert bulbs == 4 and light["energy"] == pytest.approx(lighting.watts_for_lumens(1100.0) * 2.0 * bulbs)
     entry = next(o for o in hall["manifest"]["objects"] if o["name"] == "rig_r_hall_ceiling_1_light")
+    assert entry["assumed"]["bulbs"] == bulbs
     assert entry["parent"] == "r_hall" and entry["assumed"]["rig"] == "ceiling"
     replaced = next(a for a in hall["manifest"]["assumed"] if a.get("kind") == "rig_replaces_fill_light")
     assert replaced["parent"] == "r_hall" and "room has no window" in replaced["reason"]
@@ -1178,14 +1184,16 @@ def test_row7_window_pull_changes_only_the_panes(pulled):
     schemas.validate_render_manifest(pulled["manifest"])
     pull = e["window_pull"]
     assert pull is not None and r["mask_px"] == pull["pane_px"] > 50
-    assert pull["k"] in (1, 2, 3, 4) and pull["ev"] == -pull["k"] and pull["pane_ev"] == pytest.approx(
+    # fix round after P3 (16-17 Oct 2026): the pull goes down to 10 stops (render.PULL_STEPS)
+    assert pull["k"] in R.PULL_STEPS and pull["ev"] == -pull["k"] and pull["pane_ev"] == pytest.approx(
         e["exposure"]["ev"] - pull["k"])
     assert pull["clip_after"] <= pull["clip_before"] and pull["clip_after"] == r["clip_after"]
     assert pull["rule"] and pull["tried"][-1]["k"] == pull["k"] or pull["rule"].startswith("lowest")
     assert r["outside_max_diff"] == 0 and r["inside_changed"] > 0             # pixels outside the mask unchanged
     assert r["final_is_blend"]
     # The look is still Milestone 7's AgX - Punchy; the render code version moved on (m13.1 since Milestone 13 round 1,
-    # pinned in tests/test_blender_look.py and tests/test_m13_light.py), so this row reads the module's constant.
+    # m13.2 since the fix round after P3, pinned in tests/test_blender_look.py and tests/test_m13_light.py), so this
+    # row reads the module's constant.
     assert pulled["manifest"]["render_code_version"] == R.RENDER_CODE_VERSION and pulled["manifest"]["look"] == R.LOOK
     assert R.LOOK == "AgX - Punchy"
     assert r["main_look"] == R.LOOK == "AgX - Punchy"                         # the pull saved with the main look

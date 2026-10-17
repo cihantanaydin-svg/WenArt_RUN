@@ -531,7 +531,9 @@ def test_rerun_is_stable_and_lists_stale_files(tmp_path):
     assert (out / "final" / "final_manifest.json").read_text(encoding="utf-8") == first
     (out / "final" / "cam_gone_final_preview.jpg").write_bytes(b"x")
     manifest = F.write_final(out)
-    assert (out / "final" / "cam_gone_final_preview.jpg").is_file()          # listed, never deleted
+    # fix round after P3 (16-17 Oct 2026): a stale preview is moved into final/earlier_run/, never deleted
+    assert not (out / "final" / "cam_gone_final_preview.jpg").exists()
+    assert (out / "final" / "earlier_run" / "cam_gone_final_preview.jpg").is_file()   # moved, never deleted
     assert any("cam_gone_final_preview.jpg is from an earlier run" in w for w in manifest["warnings"])
 
 

@@ -16,7 +16,10 @@ How:
 
 - Model of a room (``RoomModel``): the room prism (floor at the level
   elevation, ceiling at the level's ceiling height, every polygon edge a
-  vertical wall), the door and window rectangles on its edges
+  vertical wall; fix round after P3, 16-17 Oct 2026: also every wall of the
+  level standing inside the outline, ``inner_walls``, with both faces, its
+  end faces and its openings, and as an obstacle of the camera points,
+  ``inner_wall_rects``), the door and window rectangles on its edges
   (``cameras.room_openings`` and ``shell.opening_vertical``; a plain
   opening is labelled ``opening``, it is neither wall nor element) and the
   room's furniture boxes (``parametric.piece_bbox`` turned by the footprint
@@ -274,6 +277,120 @@ def shown_pieces(room: dict, building: dict) -> list[dict]:
 
     return [f for f in building.get("furniture") or []
             if f.get("room_id") == room["id"] and f.get("kind") != "decor" and piece_built(f)]
+
+
+# Fix round after P3 (16-17 Oct 2026): walls of the level standing inside a room outline.
+INNER_WALL_MIN_M = 0.10      # metres of a wall's centre line inside the outline: the wall stands in the room
+INNER_WALL_EDGE_M = 0.01     # a centre line this close to the outline runs along it (a bounding wall), not inside
+
+
+def _segment_params(p, q, a, b) -> Optional[float]:
+    """Parameter ``t`` (0..1) along ``p -> q`` where it crosses the segment ``a -> b``; None when parallel or apart."""
+    dx, dy = q[0] - p[0], q[1] - p[1]
+    ex, ey = b[0] - a[0], b[1] - a[1]
+    den = dx * ey - dy * ex
+    if abs(den) < 1e-12:
+        return None
+    t = ((a[0] - p[0]) * ey - (a[1] - p[1]) * ex) / den
+    u = ((a[0] - p[0]) * dy - (a[1] - p[1]) * dx) / den
+    if -1e-9 <= u <= 1.0 + 1e-9 and -1e-9 <= t <= 1.0 + 1e-9:
+        return min(max(t, 0.0), 1.0)
+    return None
+
+
+_TRIM_CACHE: dict = {}
+
+
+def _trimmed_walls(level_walls: list[dict]) -> dict:
+    """``shell.trim_wall_overlaps`` of a level's walls, computed once per wall set (the search builds a room model per
+    room and per scored camera: the trim is quadratic in the level's walls)."""
+    from wenart.blender.shell import trim_wall_overlaps
+
+    key = tuple((w["id"], tuple(float(v) for v in w["start"][:2]), tuple(float(v) for v in w["end"][:2]),
+                 float(w["thickness"])) for w in level_walls)
+    hit = _TRIM_CACHE.get(key)
+    if hit is None:
+        if len(_TRIM_CACHE) > 64:
+            _TRIM_CACHE.clear()
+        hit = _TRIM_CACHE[key] = trim_wall_overlaps(level_walls)
+    return hit
+
+
+def inner_walls(room: dict, building: dict, polygon=None) -> list[dict]:
+    """Fix round after P3 (16-17 Oct 2026): the walls of the room's level whose centre line, after the shell's overlap
+    trim (``shell.trim_wall_overlaps``, as the scene builds them), runs through the inside of the room outline for
+    at least ``INNER_WALL_MIN_M``: ``[{"id", "thickness", "parts": [(start, end)], "faces": [(a, b)]}]`` with the
+    inside parts of the centre line and their wall faces (both sides, and the end face where the wall itself ends).
+
+    Why: the room model had one wall per outline edge only; a wall the shell builds inside the outline (real04: the
+    unverified extra wall of the second plan region across a bedroom bay, real03: a 0.74 m stub in the living
+    room) was absent, so the search planned and scored a view of a desk the wall hides (model share 0.088, nothing
+    in the render). How: pure Python (build.py runs this inside Blender's Python): the crossings of the centre line
+    with the outline split it, a part whose middle lies inside (more than ``INNER_WALL_EDGE_M`` from the outline)
+    is inside."""
+    polygon = list(polygon) if polygon is not None else room_polygon(room)
+    n = len(polygon)
+    level_walls = [w for w in building.get("walls") or [] if w.get("level_id") == room.get("level_id")
+                   and w.get("start") is not None and w.get("end") is not None]
+    if n < 3 or not level_walls:
+        return []
+    trimmed = _trimmed_walls(level_walls)
+    xs, ys = [p[0] for p in polygon], [p[1] for p in polygon]
+    box = (min(xs) - 1e-6, min(ys) - 1e-6, max(xs) + 1e-6, max(ys) + 1e-6)
+    out = []
+    for w in level_walls:
+        t = trimmed.get(w["id"]) or w
+        p, q = (float(t["start"][0]), float(t["start"][1])), (float(t["end"][0]), float(t["end"][1]))
+        length = G.distance(p, q)
+        if length < 1e-9 or max(p[0], q[0]) < box[0] or min(p[0], q[0]) > box[2] or max(p[1], q[1]) < box[1] \
+                or min(p[1], q[1]) > box[3]:
+            continue                                    # nowhere near the room
+        cuts = {0.0, 1.0}
+        for i in range(n):
+            s = _segment_params(p, q, polygon[i], polygon[(i + 1) % n])
+            if s is not None:
+                cuts.add(s)
+        cuts = sorted(cuts)
+        inside: list[list[float]] = []
+        for t0, t1 in zip(cuts, cuts[1:]):
+            if t1 - t0 < 1e-9:
+                continue
+            mid = G.point_along_segment(p, q, (t0 + t1) / 2.0)
+            edge = min(G.point_segment_distance(mid, polygon[i], polygon[(i + 1) % n]) for i in range(n))
+            if edge <= INNER_WALL_EDGE_M or not G.point_in_polygon(mid, polygon):
+                continue
+            if inside and abs(inside[-1][1] - t0) < 1e-9:
+                inside[-1][1] = t1                      # a crossing at a touching vertex: one part
+            else:
+                inside.append([t0, t1])
+        parts = [(t0, t1) for t0, t1 in inside if (t1 - t0) * length >= INNER_WALL_MIN_M]
+        if not parts:
+            continue
+        h = float(w["thickness"]) / 2.0
+        nx, ny = G.unit_normal_left(p, q)
+        faces, segs = [], []
+        for t0, t1 in parts:
+            a, b = G.point_along_segment(p, q, t0), G.point_along_segment(p, q, t1)
+            segs.append((a, b))
+            for side in (1.0, -1.0):
+                faces.append(((a[0] + side * nx * h, a[1] + side * ny * h),
+                              (b[0] + side * nx * h, b[1] + side * ny * h)))
+            for end, at in ((t0, a), (t1, b)):
+                if end <= 1e-9 or end >= 1.0 - 1e-9:     # the wall itself ends here: its end face is seen too
+                    faces.append(((at[0] - nx * h, at[1] - ny * h), (at[0] + nx * h, at[1] + ny * h)))
+        out.append({"id": w["id"], "thickness": float(w["thickness"]), "parts": segs, "faces": faces})
+    return out
+
+
+def inner_wall_rects(room: dict, building: dict, polygon=None) -> list[dict]:
+    """Fix round after P3: the inside parts of ``inner_walls`` as obstacle rectangles (``center``, ``size``,
+    ``rotation_deg``, as ``parametric.obstacle_rect``) for the camera points: no camera inside a wall band."""
+    out = []
+    for wall in inner_walls(room, building, polygon):
+        for a, b in wall["parts"]:
+            out.append({"center": [(a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0],
+                        "size": [G.distance(a, b), wall["thickness"]], "rotation_deg": G.segment_angle_deg(a, b)})
+    return out
 
 
 def room_view_count(room: dict, building: Optional[dict] = None) -> int:
@@ -638,6 +755,30 @@ class RoomModel:
                 spans.append((along, float(o["width"]) / 2.0, bottom, top, code))
             self.edges.append((a[0], a[1], b[0] - a[0], b[1] - a[1], length, spans))
 
+        # Fix round after P3 (16-17 Oct 2026): a wall of the level standing inside the outline (``inner_walls``:
+        # real04's bay wall, real03's stub) is a wall of the model too: both faces and its end faces, with that wall's
+        # own openings on its faces (a door or window the room's outline does not carry is a plain opening label).
+        self.inner_walls = inner_walls(room, building, self.polygon)
+        for wall in self.inner_walls:
+            mine = [o for o in building.get("openings") or [] if o.get("wall_id") == wall["id"]
+                    and o.get("level_id") == room["level_id"] and o.get("center") is not None and not o.get("virtual")]
+            for a, b in wall["faces"]:
+                length = G.distance(a, b)
+                if length < 1e-9:
+                    continue
+                ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+                spans = []
+                for o in mine:
+                    c = o["center"]
+                    along = (c[0] - a[0]) * ux + (c[1] - a[1]) * uy
+                    across = abs((c[0] - a[0]) * -uy + (c[1] - a[1]) * ux)
+                    if across > wall["thickness"] + cameras.OPENING_EDGE_SLACK or \
+                            along < -cameras.OPENING_EDGE_SLACK or along > length + cameras.OPENING_EDGE_SLACK:
+                        continue
+                    bottom, top, _ = opening_vertical(o, self.level, levels_above)
+                    spans.append((along, float(o["width"]) / 2.0, bottom, top, codes.get(o["id"], OPENING)))
+                self.edges.append((a[0], a[1], b[0] - a[0], b[1] - a[1], length, spans))
+
         # Furniture boxes: the piece's height profile (piece_profile: piece_bbox, or the low part, the
         # sides and the back slab of a piece with a back) in the footprint frame, standing on the floor;
         # the boxes of one piece share its label. A stair (fixed equipment, parametric.SHELL_TYPES) is its
@@ -852,7 +993,9 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     polygon = room_polygon(room)
     # Wall-hung pieces (mount_bottom_m, docs/milestone10.md §1.6b row 15) are not floor obstacles.
     pieces = [f for f in shown_pieces(room, building) if mount_bottom(f) <= 0.0]
-    obstacles = [obstacle_rect(f) for f in pieces] + floor_decor_rects(room, building)
+    # Fix round after P3: a wall standing inside the outline (``inner_wall_rects``) keeps the camera points away too.
+    walls_in = inner_wall_rects(room, building, polygon)
+    obstacles = [obstacle_rect(f) for f in pieces] + floor_decor_rects(room, building) + walls_in
     corners = [p for p in convex_corner_points(polygon)
                if geom2d.point_is_free(p, polygon, obstacles, WALL_CLEARANCE, OBSTACLE_CLEARANCE)]
     grid = geom2d.free_points(polygon, obstacles, step=GRID_STEP, wall_clearance=WALL_CLEARANCE,
@@ -869,7 +1012,7 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     points = clear or points
     if points:
         return points, None
-    tall = [obstacle_rect(f) for f in pieces if piece_bbox(f)[2] >= CAMERA_HEIGHT]
+    tall = [obstacle_rect(f) for f in pieces if piece_bbox(f)[2] >= CAMERA_HEIGHT] + walls_in
     p, warning = fallback_position(polygon, obstacles, tall)
     return [(round(float(p[0]), 9), round(float(p[1]), 9))], warning
 

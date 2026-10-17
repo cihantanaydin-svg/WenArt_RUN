@@ -1791,11 +1791,16 @@ class Orchestrator:
         return ok
 
     def make_agent_model(self, url: str, pr: ProjectRun):
+        """The agent model client of the served key. Fix round after P3 (16-17 Oct 2026): it gets the served key's
+        context (``--max-model-len`` of its ``server_flags``, ``model.max_model_len_of``, default 32768), which the
+        loop budgets every planner prompt against (P3: the building session passed 32,768 tokens); a dotted key
+        (``bakeoff.<name>``) is read as the nested entry (``servers.model_entry``), as the server starts it."""
         if self.agent_model_factory is not None:
             return self.agent_model_factory(url, pr)
-        from wenart.agent.model import AgentModel
-        m = self.models.get(self.opts.agent_key) or {}
-        return AgentModel(url, str(m.get("id") or self.opts.agent_key), str(m.get("revision") or ""))
+        from wenart.agent.model import AgentModel, max_model_len_of
+        m = SV.model_entry(self.models, self.opts.agent_key) or {}
+        return AgentModel(url, str(m.get("id") or self.opts.agent_key), str(m.get("revision") or ""),
+                          max_model_len=max_model_len_of(m))
 
     def final_estimate(self, pr: ProjectRun) -> float:
         """Seconds the final stages of ``pr`` need: the loop stops when they would not fit before the deadline - 20
@@ -1968,10 +1973,13 @@ class Orchestrator:
         pr.parts.setdefault("agent", []).append({"name": "rounds", "rc": 0, "seconds": round(self.now() - t0, 2)})
         stop = (summary.get("stop") or {}).get("reason")
         from wenart.agent.loop import STOPS
-        # Milestone 13 (K4): "findings removed" is the metric, not "edits accepted" (CLAUDE.md evidence rules).
+        # Milestone 13 (K4): "findings removed" is the metric, not "edits accepted" (CLAUDE.md evidence rules). Fix
+        # round after P3 (16-17 Oct 2026): summary["findings_removed"] is the measured number (the next round's
+        # critics); the dry re-checks' sum is only a prediction and is named as such.
         self.finish(pr, "agent", "ok", f"{len(summary['rounds'])} round(s), {summary.get('findings_removed', 0)} "
-                                       f"finding(s) removed by {summary['accepted']} accepted edit(s), "
-                                       f"{summary['rejected']} rejected; stop: {STOPS.get(stop, stop)}")
+                                       f"finding(s) removed by {summary['accepted']} accepted edit(s) (measured; "
+                                       f"{summary.get('findings_removed_predicted', 0)} predicted by the dry "
+                                       f"re-checks), {summary['rejected']} rejected; stop: {STOPS.get(stop, stop)}")
 
     def rollback_round(self, pr: ProjectRun, round_no: Optional[int], why: str) -> int:
         """The accepted edits of ``round_no`` (every round when None) are taken back (a refit that refuses them would

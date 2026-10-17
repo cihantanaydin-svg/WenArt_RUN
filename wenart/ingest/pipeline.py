@@ -11,6 +11,17 @@ Several documents may show the same level. The best source becomes the
 order); the others add evidence to the master's elements. Elements the
 master lacks are added as ``unverified`` with a ``count_mismatch`` conflict,
 elements a secondary page lacks are kept (the master wins) and reported.
+Fix round after P3 (16-17 Oct 2026): an extra element is added only when it
+neither repeats nor crosses the master's (``_merge_secondary``: a wall on the
+line of a master wall is trimmed, and not added when nothing is left or what is
+left runs through a master room; a door or window beside a master one of its
+kind on the same wall, or a piece over a master piece, is that element drawn
+again); the conflict lists what was not added (``not_added``, with the entity
+ids and the reason). A secondary page's recognition questions are never asked
+(only the pages in ``furniture_works`` are): its report says so
+(``reading.NOT_ASKED_KEY``) so the reading step waits for none of them, and its
+crops are written to ``recognition/secondary/<page>/crops`` so they never
+overwrite the asked page's crops of the same key.
 A matched element that the second document draws differently (furniture
 footprint or facing, room label) keeps the master's values, carries both
 evidences, becomes ``unverified`` and gets a ``type_disagreement`` conflict.
@@ -196,6 +207,9 @@ class ProjectBuild:
         # round 3: ``code_typed_methods`` (key -> twin | level | block | group_member | context:<type>) says how.
         self.code_typed: dict[str, str] = {}
         self.code_typed_methods: dict[str, str] = {}
+        # Fix round after P3: the output folder (``run_project``), where a page's crops are published
+        # (``_publish_crops``); None in hand-made builds (tests).
+        self.out_dir: Optional[Path] = None
 
     def warn(self, text: str) -> None:
         if text not in self.building["warnings"]:
@@ -481,6 +495,7 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
         # Its questions go to requests.json: furniture candidates, and the room_label questions of a raster page
         # (asked for every room face, furnished or not, §3.4).
         build.furniture_works.append(master)
+        _publish_crops(build, master)               # fix round after P3: its questions are asked, so are its crops
     if generic:
         _add_site(build, level_id, ex)
     if record.region_id is not None:
@@ -494,6 +509,13 @@ def _assemble_level(build: ProjectBuild, level_id: str, works: list[PageWork]) -
             _merge_raster_evidence(build, level_id, level["label"], master, work, walls, openings, furniture, rooms)
         else:
             _merge_secondary(build, level_id, level["label"], master, work, walls, openings, furniture, rooms)
+    # Fix round after P3 (16-17 Oct 2026): a secondary page's questions are never asked (only ``furniture_works`` go to
+    # requests.json): the reading step must wait for none of them (``reading.NOT_ASKED_KEY``).
+    from wenart.ingest.generic import reading as RD
+    for work in works[1:]:
+        if isinstance(work.extraction.report, dict) and all(w is not work for w in build.furniture_works):
+            work.extraction.report[RD.NOT_ASKED_KEY] = (f"secondary page of {level_id}: the questions of "
+                                                        f"{master.where} are asked")
 
     for work in works:
         _check_dimensions(build, work, walls, evidence_only=work is not master and work.record.kind in RASTER_KINDS)
@@ -680,8 +702,175 @@ def _footprint_disagreement(item: FurnitureItem, piece: dict, master_where: str,
     return None
 
 
+# Fix round after P3 (16-17 Oct 2026): what a secondary page draws beyond the master is added only when it neither
+# repeats nor crosses the master's elements (``_extra_wall_problem``, ``_extra_opening_problem``,
+# ``_extra_furniture_problem``). real04: the second plan region of the ground floor
+# (r16, another drawing of the level) added its 10 m wall on the line of a 7.5 m master wall; the 2.6 m left over
+# closed a bedroom bay with a drawn desk in it (no door), and its doors, wardrobes, beds and desks were added as
+# second copies 0.12-0.16 m beside the master's.
+EXTRA_WALL_LINE_SLACK = 0.02        # metres past half the thicker wall: an extra wall on a master wall's line
+EXTRA_WALL_ANGLE_DEG = 2.0          # ... and parallel within this
+EXTRA_WALL_MIN_LEFT = 0.05          # metres: less than this left after the trim is nothing left
+EXTRA_WALL_IN_ROOM_MAX = 0.10       # metres of what is left that may lie inside the master's rooms
+ROOM_INSIDE_MARGIN = 0.02           # metres: a centre line on a room outline (a bounding wall) is not inside it
+EXTRA_OPENING_NEAR = 0.20           # metres: an extra door / window this close to a master one of its kind on its wall
+EXTRA_FURNITURE_OVERLAP = 0.50      # share of the smaller footprint over a master piece: the same piece drawn again
+EXTRA_FURNITURE_MISSED = 0.25       # ... over a master piece the secondary page does not draw at its place
+
+
+def _short_entity(entity: Optional[str]) -> str:
+    """The first entity id of an evidence entity list, with the count of the others (for report text)."""
+    parts = [p for p in str(entity or "").split(",") if p]
+    if not parts:
+        return "?"
+    return parts[0] + (f" (+{len(parts) - 1})" if len(parts) > 1 else "")
+
+
+def _extra_wall_problem(item: WallItem, walls: list[dict], rooms: list[dict]) -> Optional[tuple[str, list[str]]]:
+    """Why an extra wall of a secondary page is not added, as ``(reason, element ids it repeats or crosses)``, or
+    None (it is added). The parts that lie on the line of a level wall (parallel within ``EXTRA_WALL_ANGLE_DEG``,
+    centre lines at most half the thicker wall + ``EXTRA_WALL_LINE_SLACK`` apart) are trimmed off as the shell's
+    overlap trim does; nothing left means the same wall drawn again; more than ``EXTRA_WALL_IN_ROOM_MAX`` of what is
+    left inside the master's room outlines means a wall through a room the master draws open (CLAUDE.md: source
+    geometry is the anchor, the master's rooms win over another drawing of the level)."""
+    from shapely.geometry import LineString
+
+    length = G.distance(item.start, item.end)
+    if length < 1e-9:
+        return "a wall of zero length", []
+    ux, uy = (item.end[0] - item.start[0]) / length, (item.end[1] - item.start[1]) / length
+    covered: list[tuple[float, float]] = []
+    on_line: list[str] = []
+    for wall in walls:
+        wl = G.distance(wall["start"], wall["end"])
+        if wl < 1e-9:
+            continue
+        diff = G.angle_difference_deg(G.segment_angle_deg(wall["start"], wall["end"]),
+                                      G.segment_angle_deg(item.start, item.end))
+        if min(diff, 180.0 - diff) > EXTRA_WALL_ANGLE_DEG:
+            continue
+        slack = max(float(wall["thickness"]), float(item.thickness)) / 2.0 + EXTRA_WALL_LINE_SLACK
+        offsets = [abs((p[0] - item.start[0]) * -uy + (p[1] - item.start[1]) * ux)
+                   for p in (wall["start"], wall["end"])]
+        if max(offsets) > slack:
+            continue
+        a = (wall["start"][0] - item.start[0]) * ux + (wall["start"][1] - item.start[1]) * uy
+        b = (wall["end"][0] - item.start[0]) * ux + (wall["end"][1] - item.start[1]) * uy
+        lo, hi = max(min(a, b), 0.0), min(max(a, b), length)
+        if hi - lo > 1e-9:
+            covered.append((lo, hi))
+            on_line.append(wall["id"])
+    left: list[tuple[float, float]] = []
+    start = 0.0
+    for lo, hi in sorted(covered):
+        if lo - start >= EXTRA_WALL_MIN_LEFT:
+            left.append((start, lo))
+        start = max(start, hi)
+    if length - start >= EXTRA_WALL_MIN_LEFT:
+        left.append((start, length))
+    if not left:
+        return f"it lies on the line of {', '.join(on_line)}: the same wall drawn again", on_line
+    pieces = [LineString([(item.start[0] + ux * s0, item.start[1] + uy * s0),
+                          (item.start[0] + ux * s1, item.start[1] + uy * s1)]) for s0, s1 in left]
+    inside: dict[str, float] = {}
+    for room in rooms:
+        if len(room.get("polygon") or []) < 3:
+            continue
+        poly = Polygon(room["polygon"])
+        if not poly.is_valid:
+            poly = poly.buffer(0)
+        core = poly.buffer(-ROOM_INSIDE_MARGIN)
+        if core.is_empty:
+            continue
+        run = sum(piece.intersection(core).length for piece in pieces)
+        if run > 1e-9:
+            inside[room["id"]] = run
+    total = sum(inside.values())
+    if total <= EXTRA_WALL_IN_ROOM_MAX:
+        return None
+    kept = sum(s1 - s0 for s0, s1 in left)
+    names = ", ".join(f"{rid} ({run:.2f} m)" for rid, run in sorted(inside.items(), key=lambda kv: -kv[1]))
+    trimmed = f"after the trim on the line of {', '.join(on_line)} " if on_line else ""
+    return (f"the {kept:.2f} m left {trimmed}runs through the master's room(s) {names}: a wall through a room the "
+            f"master draws open"), on_line + sorted(inside, key=lambda rid: -inside[rid])
+
+
+def _extra_opening_problem(item: OpeningItem, candidates: list[dict],
+                           walls: list[dict]) -> Optional[tuple[str, list[str]]]:
+    """Why an extra door or window of a secondary page is not added, or None: on the wall of a master opening of its
+    kind, within ``EXTRA_OPENING_NEAR`` of it or with the two spans overlapping (two leaves in one place cannot be
+    built; the master's opening is that one drawn again)."""
+    wall, dist = _nearest_wall(item.center, item.rotation_deg, walls)
+    if wall is None or dist > wall["thickness"] / 2 + WALL_TOL:
+        return None
+    for o in candidates:
+        if o.get("wall_id") != wall["id"]:
+            continue
+        d = G.distance(item.center, o["center"])
+        if d <= EXTRA_OPENING_NEAR or d < (float(item.width) + float(o["width"])) / 2.0 - 1e-9:
+            return (f"{d:.2f} m from the master's {o['type']} {o['id']} on wall {wall['id']}: that {o['type']} drawn "
+                    f"again"), [o["id"]]
+    return None
+
+
+def _extra_furniture_problem(item: FurnitureItem, candidates: list[dict], missing: list[dict], rooms: list[dict],
+                             used: set) -> Optional[tuple[str, list[str]]]:
+    """Why an extra piece of a secondary page is not added, or None: its footprint covers ``EXTRA_FURNITURE_OVERLAP``
+    of a master piece (or of itself, the smaller one counts), or ``EXTRA_FURNITURE_MISSED`` of a master piece the
+    secondary page does not draw at its place (``missing``: its own version of that piece), or it has the type and
+    size (within ``FURNITURE_TOL``; an unknown type matches any) of such a missed piece in the same room (that piece
+    drawn at another place; each missed piece explains one extra, ``used``)."""
+    mine = Polygon(G.rotated_rectangle(item.center, item.size, item.rotation_deg))
+    missed = {m["id"] for m in missing}
+    for piece in candidates:
+        fp = piece["footprint"]
+        other = Polygon(G.rotated_rectangle(fp["center"], fp["size"], fp["rotation_deg"]))
+        smaller = min(mine.area, other.area)
+        if smaller <= 1e-9:
+            continue
+        share = mine.intersection(other).area / smaller
+        limit = EXTRA_FURNITURE_MISSED if piece["id"] in missed else EXTRA_FURNITURE_OVERLAP
+        if share >= limit:
+            where = ", which the page does not draw at its place" if piece["id"] in missed else ""
+            return (f"it overlaps the master's {piece['type']} {piece['id']} by {share:.0%} of the smaller footprint"
+                    f"{where}: that piece drawn again"), [piece["id"]]
+    room = R.room_containing(rooms, item.center)
+    if room is None:
+        return None
+    size = sorted(float(v) for v in item.size)
+    for piece in missing:
+        if piece["id"] in used or piece.get("room_id") != room["id"]:
+            continue
+        if not (item.type == piece["type"] or "unknown" in (item.type, piece["type"])):
+            continue
+        if all(abs(a - b) <= FURNITURE_TOL for a, b in zip(size, sorted(float(v) for v in piece["footprint"]["size"]))):
+            used.add(piece["id"])
+            return (f"the same {piece['type']} footprint {size[1]:.2f} x {size[0]:.2f} m as the master's {piece['id']} "
+                    f"in {room['id']}, which the secondary page does not draw at its place: that piece drawn "
+                    f"elsewhere"), [piece["id"]]
+    return None
+
+
 def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, master: PageWork, work: PageWork,
                      walls: list[dict], openings: list[dict], furniture: list[dict], rooms: list[dict]) -> None:
+    """A secondary page of a level (not a raster page: ``_merge_raster_evidence``) against the master.
+
+    What: its walls, doors, windows and furniture that match the master's add their evidence (a furniture piece drawn
+    differently is a ``type_disagreement``); a count difference is a ``count_mismatch`` conflict naming the master's
+    elements the page lacks and the page's extras. Its room labels confirm the master's rooms or disagree.
+
+    Fix round after P3 (16-17 Oct 2026): an extra is added (``unverified``) only when it neither repeats nor crosses
+    the master's elements: a wall is trimmed where it lies on the line of a level wall, and not added when nothing is
+    left or when more than ``EXTRA_WALL_IN_ROOM_MAX`` of what is left runs through a master room
+    (``_extra_wall_problem``); a door or window on the wall of a master one of its kind, within
+    ``EXTRA_OPENING_NEAR`` or with overlapping spans, is not added (``_extra_opening_problem``); a piece covering
+    half of a master piece, a quarter of one the page does not draw at its place, or with the type and size of such a
+    missed piece in the same room, is not added (``_extra_furniture_problem``). The conflict lists every extra not
+    added under ``not_added`` (kind, entity ids, region, reason, the master elements) and in its resolution
+    ("... not added"); the master elements named are added to its ``element_ids``.
+    Why: real04's second plan region of the ground floor (r16, another drawing of the level, registered 0.25 m RMS
+    off the master r5) sealed a bedroom bay with a drawn desk in it and added second copies of doors, wardrobes, beds
+    and desks beside the master's. How: the master's walls, openings and furniture at the time of the merge."""
     ex = work.extraction
     master_name = SOURCE_NAME.get(source_key(master.record), "document")
     sec_name = SOURCE_NAME.get(source_key(work.record), "document")
@@ -721,6 +910,7 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
             build.building["furniture"].append(element)
             furniture.append(element)
         build.furniture_works.append(work)
+        _publish_crops(build, work)                 # fix round after P3: its questions are asked, so are its crops
         build.warn(f"{level_label}: furniture taken from {work.where} ({len(ex.furniture)} pieces); "
                    f"{master.where} draws none")
     elif ex.furniture or (furniture and furniture_plan):
@@ -746,7 +936,26 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
         if not extra and not missing:
             continue
         element_ids = [m["id"] for m in missing]
+        added = 0
+        not_added: list[dict] = []
+        used: set = set()
         for item in extra:
+            # Fix round after P3: an extra that repeats or crosses the master's elements is not added.
+            if kind == "wall":
+                problem = _extra_wall_problem(item, walls, rooms)
+            elif kind in ("door", "window"):
+                problem = _extra_opening_problem(item, candidates, walls)
+            else:
+                problem = _extra_furniture_problem(item, candidates, missing, rooms, used)
+            if problem is not None:
+                reason, involved = problem
+                evidence = item.evidence or {}
+                not_added.append({"kind": kind, "entity": evidence.get("entity") or item.entity,
+                                  "region_id": evidence.get("region_id"), "reason": reason,
+                                  "element_ids": list(involved)})
+                build.warn(f"{level_label}: extra {kind} {_short_entity(evidence.get('entity') or item.entity)} of "
+                           f"{work.where} not added: {reason}")
+                continue
             item.status = "unverified"
             element = make(item, build.ids.next(kind, level_id))
             element["status"] = "unverified"
@@ -758,12 +967,20 @@ def _merge_secondary(build: ProjectBuild, level_id: str, level_label: str, maste
             else:
                 furniture.append(element)
             element_ids.append(element["id"])
+            added += 1
+        for entry in not_added:
+            element_ids.extend(i for i in entry["element_ids"] if i not in element_ids)
         description = (f"{level_label}: {master.where} has {master_count} {plural[kind]}, "
                        f"{work.where} has {secondary_count}")
         resolution = f"{master_name} wins over {sec_name}, {kind} kept"
-        if extra:
-            resolution += f"; {len(extra)} extra from {sec_name} added as unverified"
-        build.conflict("count_mismatch", element_ids, description, resolution)
+        if added:
+            resolution += f"; {added} extra from {sec_name} added as unverified"
+        if not_added:
+            resolution += (f"; {len(not_added)} extra from {sec_name} not added ("
+                           + "; ".join(f"{_short_entity(e['entity'])}: {e['reason']}" for e in not_added) + ")")
+        entry = build.conflict("count_mismatch", element_ids, description, resolution)
+        if not_added:
+            entry["not_added"] = not_added
 
     # Room labels of the secondary page confirm the master's rooms, or disagree.
     for text in ex.labels:
@@ -1530,18 +1747,96 @@ def write_report(building: dict, out_path: Path, review_reasons: list[str],
 # Entry point
 # --------------------------------------------------------------------------
 
+SECONDARY_CROPS_DIR = "secondary"     # fix round after P3: <out>/recognition/secondary/<page>/crops
+
+
+def _page_tag(record: PageRecord) -> str:
+    """A folder name for one page or region (``r16``, ``plan_p2``)."""
+    import re
+
+    raw = record.region_id or f"{Path(record.file).stem}_p{record.page}"
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", str(raw)) or "page"
+
+
+def _crop_leads(records: list[PageRecord], selected_alts: set, sheets: Optional[dict]) -> set:
+    """Fix round after P3 (16-17 Oct 2026): the keys of the generic plan pages that write their recognition crops to
+    ``<out>/recognition/crops``: per level, the page that ranks first (``page_rank``, then the read order, as
+    ``_assemble_level`` picks the master). Why: the core numbers a page's candidates per level (``sym_L0_001`` ...),
+    so a second page of the level (real04: the plan regions r5 and r16 of the ground floor) wrote its crops over the
+    master's of the same key, and the AI read r16's shower for r5's desk question. The other pages write theirs to
+    ``recognition/secondary/<page>/crops`` (never asked); a page that turns out to be asked after all (its level's
+    first page could not be read, or a furniture plan furnishes the level) is published by ``_publish_crops``."""
+    best: dict[str, tuple] = {}
+    for record in records:
+        if record.extractor != "generic" or record.level_id is None or record.kind != "vector" \
+                or record.page_class not in ("floor_plan", "furniture_plan") or record.level_problem \
+                or (record.skip_reason and (record.region_id is not None or record.format == "dwg"
+                                            or record.skip_reason == SHX_TEXT_REASON)):
+            continue
+        if sheets is not None and record.region_id is not None and record.base_level_id \
+                and record.level_id not in selected_alts:
+            continue
+        rank = page_rank(record)
+        if record.level_id not in best or rank < best[record.level_id][0]:
+            best[record.level_id] = (rank, record.key)
+    return {key for _rank, key in best.values()}
+
+
+def _publish_crops(build: ProjectBuild, work: PageWork) -> int:
+    """Fix round after P3: a page whose crops went to its own folder (``report["crop_dir"]``) and whose questions are
+    asked after all: its question images are copied to ``<out>/recognition/crops`` (where requests.json points)
+    and its pieces point there again. Returns the number of files copied."""
+    import shutil
+
+    from wenart.recognition import answers as A
+
+    report = work.extraction.report if isinstance(work.extraction.report, dict) else {}
+    rel = report.get("crop_dir")
+    if not rel:
+        return 0
+    copied = 0
+    if build.out_dir is not None:
+        src = Path(build.out_dir) / rel
+        dst = Path(build.out_dir) / RECOGNITION_DIR / A.CROPS_DIR
+        for q in report.get("questions") or []:
+            for image in q.get("images") or []:
+                name = Path(str(image)).name
+                if (src / name).is_file():
+                    dst.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(src / name, dst / name)
+                    copied += 1
+    report.pop("crop_dir", None)
+    for item in work.extraction.furniture:
+        item.details.pop("crop_dir", None)
+    build.warn(f"{work.where}: its recognition questions are asked; {copied} crop images published to "
+               f"{RECOGNITION_DIR}/{A.CROPS_DIR}")
+    return copied
+
+
 def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
-                     build: Optional[ProjectBuild] = None) -> LevelExtraction:
+                     build: Optional[ProjectBuild] = None, lead: bool = True) -> LevelExtraction:
     """A page for the generic core: the page the classifier already read, else read now by its adapter.
 
     Milestone 10: a region record reads only its region (``dxf_generic.clip_page``), a CAD region at the drawing
     unit of the unit check, and lands in the registered frame of the sheets stage (``origin`` from the region's
     ``transform_to_building`` when it is a pure scale and shift at the core's scale). The reference region keeps the
     core's own origin (the min corner of its outer wall faces, docs/milestone10.md §1.6b row 1); how far that lies
-    from the sheets outline corner (``build.frame_shift``) moves every other region with it."""
+    from the sheets outline corner (``build.frame_shift``) moves every other region with it.
+
+    Fix round after P3 (16-17 Oct 2026): ``lead`` False (not its level's first page, ``_crop_leads``): the crops go to
+    ``recognition/secondary/<page>/crops`` (``report["crop_dir"]`` and each candidate's ``details["crop_dir"]`` say
+    where); the questions, keys and input hashes are the same."""
     from wenart.ingest import dxf_generic
     from wenart.ingest.generic import core
+    from wenart.recognition import answers as A
 
+    # Fix round after P3: a page that is not its level's first (``lead``, ``_crop_leads``) writes its crops to its own
+    # folder, never over the first page's crops of the same key.
+    rec_dir = out_dir / RECOGNITION_DIR
+    crop_rel = None
+    if not lead:
+        rec_dir = out_dir / RECOGNITION_DIR / SECONDARY_CROPS_DIR / _page_tag(record)
+        crop_rel = f"{RECOGNITION_DIR}/{SECONDARY_CROPS_DIR}/{_page_tag(record)}/{A.CROPS_DIR}"
     page = record.generic_page
     if page is None:
         if record.format == "pdf":
@@ -1564,7 +1859,7 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
     if origin is not None and build is not None and not is_reference:
         origin = (origin[0] + build.frame_shift[0], origin[1] + build.frame_shift[1])
     ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
-                      rec_dir=out_dir / RECOGNITION_DIR, origin=None if is_reference else origin)
+                      rec_dir=rec_dir, origin=None if is_reference else origin)
     if origin is not None and not record.units_override and ex.transform_to_building:
         # A PDF region: its origin holds only at the registered scale; the core read the scale on its own.
         core_s, reg_s = float(ex.transform_to_building[0]), float(record.region_transform[0])
@@ -1573,7 +1868,7 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
             origin = None
             if not is_reference:
                 ex = core.extract(page, record.level_id, record.file, answers=answers, no_ai=no_ai,
-                                  rec_dir=out_dir / RECOGNITION_DIR, origin=None)
+                                  rec_dir=rec_dir, origin=None)
     if is_reference and origin is not None and ex.walls and ex.report.get("origin_m"):
         core_origin = ex.report["origin_m"]
         build.frame_shift = (round(core_origin[0] - origin[0], 6) + 0.0, round(core_origin[1] - origin[1], 6) + 0.0)
@@ -1588,6 +1883,11 @@ def _extract_generic(record: PageRecord, out_dir: Path, answers, no_ai: bool,
                                f"(origin at its walls)")
         if record.units_override and ex.scale and ex.scale.get("method") == "dxf_insunits" and record.scale:
             ex.scale = dict(ex.scale, evidence=dict(record.scale["evidence"]))
+    if crop_rel is not None and isinstance(ex.report, dict):
+        ex.report["crop_dir"] = crop_rel
+        for item in ex.furniture:
+            if item.details.get("candidate_key"):
+                item.details["crop_dir"] = crop_rel
     return ex
 
 
@@ -2013,9 +2313,15 @@ def _building_m10(build: ProjectBuild, project_dir: Path) -> None:
 
 def _pending_piece_ids(build: ProjectBuild) -> set[str]:
     """Ids of the drawn pieces whose AI question is still waiting for its answers (the run with the answers decides
-    them; nothing is inferred before)."""
+    them; nothing is inferred before). Fix round after P3 (16-17 Oct 2026): a secondary page's questions are never
+    asked (``reading.NOT_ASKED_KEY``), so none of its pieces waits (real04: r16's pending keys held the master's
+    f_L0_021 / f_L0_024 and r16's own pieces out of the inference in the run with the answers)."""
+    from wenart.ingest.generic import reading as RD
+
     out = set()
     for work in build.generic:
+        if RD._not_asked(work):
+            continue
         pending = set((work.extraction.report or {}).get("pending") or [])
         for f in work.extraction.furniture:
             if f.details.get("candidate_key") in pending and getattr(f, "element_id", None):
@@ -2159,6 +2465,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     building = B.empty_building(project_dir.name, project_dir.as_posix(), pipeline_commit(), brief=brief)
     build = ProjectBuild(building)
     build.no_ai = bool(no_ai)
+    build.out_dir = out_dir
     asked = _asked_before(answers)              # read before this run rewrites requests.json
 
     sheets = _sheets_for(project_dir, out_dir, build)
@@ -2174,8 +2481,9 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
     not_selected: list[PageRecord] = []         # Milestone 10: alternatives the brief's variants leave out
     selected_alts = {lid for v in (build.sheets or {}).get("variants") or [] if not v["base"] for lid in v["levels"]}
     # M10: the reference region is read first: its outer wall faces fix the building origin for every region.
-    for record in sorted(records, key=lambda r: 0 if r.region_id is not None and r.region_id ==
-                         build.reference_region else 1):
+    order = sorted(records, key=lambda r: 0 if r.region_id is not None and r.region_id == build.reference_region else 1)
+    leads = _crop_leads(order, selected_alts, build.sheets)    # fix round after P3: who writes recognition/crops
+    for record in order:
         if record.region_id is not None and record.skip_reason:
             # Milestone 10: a region that is no plan (title block, section, ...) is listed, never a review.
             build.warn(f"{record.file} {record.region_id}: {record.skip_reason}")
@@ -2228,7 +2536,7 @@ def run_project(project_dir: str | Path, out_dir: str | Path, ocr: Optional[Call
             extraction = _extract_raster(record, out_dir, answers, no_ai, secondary)
             extraction.level_assumed = record.label_source == "assumed"
         elif record.extractor == "generic":
-            extraction = _extract_generic(record, out_dir, answers, no_ai, build)
+            extraction = _extract_generic(record, out_dir, answers, no_ai, build, lead=record.key in leads)
             extraction.level_assumed = record.label_source == "assumed"
         elif record.format in ("dxf", "dwg"):
             extraction = extract_dxf(record.source_path, record.level_id, record.file)

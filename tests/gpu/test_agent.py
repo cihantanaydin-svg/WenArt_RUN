@@ -14,7 +14,10 @@ orchestrator starts it.
   critical problem;
 - Milestone 12 (pod P1, ``scripts/jobs/bakeoff_m12.sh`` runs this module against the live server of
   ``bakeoff.fp8``): one item of every bake-off task (``wenart.agent.bakeoff``) gets a valid answer: T1-T4 JSON that
-  passes its schema, T5 a plan or tool calls on the room brief.
+  passes its schema, T5 a plan or tool calls on the room brief;
+- fix round after P3 (16-17 Oct 2026): every agent request carries the repetition stop and the call log its
+  ``finish_reason`` and ``max_tokens`` (1536 for the planner without thinking); a prompt past the served context is
+  sent once and raised as ``ContextFullError`` with the prompt size; the client's ``max_model_len`` is the served one.
 """
 from __future__ import annotations
 
@@ -140,3 +143,56 @@ def test_every_bakeoff_task_answers_on_this_model(model):
             assert res["answer"]["plan"] is not None or res["answer"]["calls"], res["answer"]
         else:
             assert res["answer"] is not None, (task, res)
+
+
+# ----- fix round after P3 (16-17 Oct 2026; the agent track's ask): the client against the served agent key --------
+
+def _counting(model):
+    """Wrap the model's POST so the test sees every request body it sends."""
+    sent = []
+    post = model._post
+
+    def counted(url, body, timeout_s):
+        sent.append(body)
+        return post(url, body, timeout_s)
+
+    model._post = counted
+    return sent
+
+
+def test_the_planner_call_sends_the_repetition_stop_and_logs_its_finish_and_budget(model):
+    # P3: no repetition guard on the agent calls and no finish_reason in the call log
+    sent = _counting(model)
+    tool = PC.tool_call_check(model)
+    assert tool["ok"], tool
+    assert sent and all(b.get("repetition_detection") == model.repetition_detection for b in sent)
+    call = model.calls[-1]
+    assert call["finish_reason"] in ("stop", "tool_calls") and call["max_tokens"] == model.max_tokens
+    if not model.planner_thinking:
+        assert model.max_tokens == M.PLANNER_MAX_TOKENS == 1536
+
+
+def test_a_prompt_past_the_served_context_is_refused_once_and_raised_as_context_full(model):
+    # P3 r4-p5: HTTP 400 'maximum context length' (28,673 prompt + 4,096 answer > 32,768), retried and logged as
+    # 'the agent model did not answer'. A prompt of about max_model_len - 800 tokens plus the 1536-token answer
+    # budget passes the context; the prompt alone fits, so vLLM names its size ("at least N input tokens").
+    sent = _counting(model)
+    words = " ".join(["word"] * (model.max_model_len - 800))
+    with pytest.raises(M.ContextFullError) as info:
+        model.chat([{"role": "user", "content": words}], None, call_id="context-full", max_tokens=1536)
+    assert len(sent) == 1 and info.value.attempts == 1 and info.value.status == 400
+    assert info.value.prompt_tokens is not None and info.value.prompt_tokens + 1536 > model.max_model_len
+    assert model.calls[-1]["finish_reason"] == "context_full" and model.calls[-1]["attempts"] == 1
+
+
+def test_the_client_knows_the_served_context_of_the_key(agent_url):
+    import urllib.request
+
+    model = M.from_check_yaml(agent_url, KEY)
+    if KEY == "agent":
+        assert model.max_model_len == 32768
+    with urllib.request.urlopen(f"{agent_url.rstrip('/')}/models", timeout=30) as resp:
+        card = json.loads(resp.read().decode("utf-8"))
+    served = [m.get("max_model_len") for m in card.get("data") or [] if m.get("max_model_len")]
+    assert served, card                                       # vLLM's /v1/models names max_model_len
+    assert model.max_model_len == served[0]

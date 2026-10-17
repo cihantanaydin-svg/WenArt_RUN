@@ -637,18 +637,34 @@ def wall_art_for_host(host: dict, ctx: placer.RoomContext, building: dict, level
                       f"leave {max(0.0, width_out):.2f} m for {what_item} (min {min_w} m)")
     top = float(placer_bbox_height(host))
     bottom = round(top + gap, 3)
-    ceiling = float(level.get("ceiling_height") or 2.7)
-    max_h = round(ceiling - WALL_ART_CEILING_M - bottom, 3)
-    if max_h < WALL_ART_MIN_H - 1e-9:
-        return None, f"above {host['id']}: {max(0.0, max_h):.2f} m left under the ceiling (min {WALL_ART_MIN_H} m)"
     wall_point = (a[0] + u[0] * s_c, a[1] + u[1] * s_c)
     center = (wall_point[0] + n[0] * WALL_ART_DEPTH_M / 2.0, wall_point[1] + n[1] * WALL_ART_DEPTH_M / 2.0)
     rotation = G.normalise_angle(math.degrees(math.atan2(n[0], -n[1])))    # local +Y = out of the room
+    ceiling = flat = float(level.get("ceiling_height") or 2.7)
+    # Fix round after P3 (16-17 Oct 2026). What: under a sloped roof the art's top stays WALL_ART_CEILING_M under the
+    # sloped ceiling at its own wall position (``ceiling_over`` over its footprint on the wall), not the level's flat
+    # ceiling height; it is made lower, or left out below WALL_ART_MIN_H. Why: P3's dec_L1_009, a mirror above a
+    # console in r_L1_koridor, hung up to 2.35 m where the slope over the wall is 0.80 m high: it poked through the
+    # L1 roof (X2 critical in all 4 agent rounds). How: the decor stage's own ceiling (``ceiling_planes``, the roof as
+    # the build makes it); a level with a flat ceiling keeps the old rule.
+    level_id = level.get("id") or host.get("level_id")
+    planes = ceiling_planes(building, level_id) if level_id else []
+    sloped = None
+    if planes:
+        sloped = ceiling_over(building, level_id, center, (width_out, WALL_ART_DEPTH_M), rotation, planes=planes)
+        ceiling = min(ceiling, sloped)
+    max_h = round(ceiling - WALL_ART_CEILING_M - bottom, 3)
+    if max_h < WALL_ART_MIN_H - 1e-9:
+        where = "the ceiling" if sloped is None or sloped >= flat else \
+            f"the sloped ceiling ({sloped:.2f} m high over the wall)"
+        return None, f"above {host['id']}: {max(0.0, max_h):.2f} m left under {where} (min {WALL_ART_MIN_H} m)"
     what = {"sofa": "a sofa", "bed_double": "a bed's headboard", "bed_single": "a bed's headboard",
             "dresser": "a dresser"}.get(host["type"], "a " + host["type"].replace("_", " "))
     reason = f"{dtype.replace('_', ' ')} centred above {what} on the wall behind it"
     if narrowed:
         reason += f" (narrowed for {', '.join(narrowed)})"
+    if sloped is not None and sloped < flat:
+        reason += f" (kept under the sloped ceiling, {sloped:.2f} m high over the wall)"
     return {"type": dtype, "center": [round(center[0], 3), round(center[1], 3)], "rotation_deg": round(rotation, 3),
             "size": [width_out, WALL_ART_DEPTH_M], "anchor_ids": [host["id"]],
             "wall_point": [round(wall_point[0], 3), round(wall_point[1], 3)],

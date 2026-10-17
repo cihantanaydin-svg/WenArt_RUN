@@ -90,6 +90,12 @@ def main(argv=None) -> int:
     ready = sum(1 for row in shell if row["ready"])
     print(f"shell sets: {ready} of {len(shell)} ready ("
           + ", ".join(f"{row['slot']} {row['asset']} {'ok' if row['ready'] else 'FAILED'}" for row in shell) + ")")
+    # Fix round after P3 (16-17 Oct 2026): the site finish sets the outside build puts on by itself (retaining walls
+    # concrete_wall_001, plinth ...) in the stage log too; P3 never fetched concrete_wall_001 and only a log shows it
+    site = result.get("site") or []
+    ready = sum(1 for row in site if row["ready"])
+    print(f"site sets: {ready} of {len(site)} ready ("
+          + ", ".join(f"{row['part']} {row['asset']} {'ok' if row['ready'] else 'FAILED'}" for row in site) + ")")
     return 1 if (args.strict and result["failed"]) else 0
 
 

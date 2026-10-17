@@ -1072,17 +1072,35 @@ def _style_family_of(b: dict) -> Optional[str]:
 def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:
     """Milestone 13 (B2): the retyped piece is fitted again (``fit.fit_piece``, the ladder) in the project's licence
     mode and built: ``asset`` set, ``status`` verified, ``build`` true, no ``needs_review`` entry; the fit's method
-    and mode are recorded under ``adjusted_by_ai.retype``. Returns the asset."""
+    and mode are recorded under ``adjusted_by_ai.retype``. Returns the asset.
+
+    Fix round after P3 (16-17 Oct 2026; G_geometry's ask). What: a kitchen counter or island is refitted with the
+    hints of the drawn sink and stoves inside it (``fit.kitchen_built_ins``), as ``fit.fit_building`` fits it; a
+    sink whose run's fitted plan already builds it (``fit.holds_built_in``) gets the built-in asset
+    (``fit.built_in_fit``). Why: without the hints an agent refit of a run dropped its sink unit and stove gap until
+    the stage-12 refit (the sink then stood buried in the run, S2). How: the hints go on a copy of the piece and into
+    ``asset.module_hints``; the building piece never gets ``module_hints``."""
     from wenart.furniture import fit as F
 
     if catalog is None:
         from wenart.furniture import catalog as C
         catalog = C.load()
     mode = licence_mode_of(b)
+    family = _style_family_of(b)
     trial = dict(item, build=True)
     trial.pop("asset_pin", None)
+    kitchen = F.kitchen_built_ins(b)
+    hints = kitchen["hints"].get(item["id"])
+    host_id = kitchen["sinks"].get(item["id"])
+    host = next((p for p in b.get("furniture") or [] if p.get("id") == host_id), None) if host_id else None
     try:
-        asset = F.fit_piece(trial, catalog, mode=mode, style_family=_style_family_of(b))
+        if host is not None and F.holds_built_in(host, item["id"]):
+            asset = F.built_in_fit(trial, host, mode, family)
+        else:
+            target = dict(trial, module_hints={**(trial.get("module_hints") or {}), **hints}) if hints else trial
+            asset = F.fit_piece(target, catalog, mode=mode, style_family=family)
+            if hints and asset.get("method") == F.MODULE_METHOD:
+                asset["module_hints"] = copy.deepcopy(hints)
     except Exception as exc:  # noqa: BLE001 - review (T4): a refit error is a rejected edit with its reason, never a
         # crash of the session or of the replay (``apply_edit`` turns only EditRejected into a rejection)
         raise EditRejected("refit", f"{item['id']}: the refit as {item['type']} failed ({type(exc).__name__}: "

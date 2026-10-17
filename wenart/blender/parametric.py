@@ -2180,6 +2180,16 @@ SLIDING_OVERLAP_M = 0.05         # a surface-mounted sliding / barn leaf covers 
 SLIDING_STANDOFF_M = 0.012       # off the wall face
 RAIL_H = 0.04
 LEVER_HEIGHT_M = 1.0
+# Door stops (fix round after P3, 16-17 Oct 2026): a closed leaf stood 5 mm off its jambs (10 mm under the head of a
+# Milestone 10 door) with no stop, so the sun lit a straight slit round every closed door and the camera saw the
+# terrace through it (pod P3: cam_r_L1_koridor_2_2, depth 196 m). A stop on the jambs and the head (no threshold
+# stop: the M10 leaf reaches the floor, light under a door is real) covers the slit with 10 mm (5 mm at the M10
+# head) of overlap, on the leaf face away from the swing: the face the leaf closes against. Typical joinery sizes
+# (assumed: no drawing gives them); a stop is never thinner than DOOR_STOP_MIN_T_M, even in a wall as thin as the leaf.
+DOOR_STOP_W_M = 0.015
+DOOR_STOP_T_M = 0.012
+DOOR_STOP_MIN_T_M = 0.004
+DOOR_ASTRAGAL_W_M = 0.03         # the strip over the meeting stiles of a double or folding door (on the stop face)
 # Window frames by material (docs/milestone10.md §4.7): (frame width, frame depth) in metres, typical profiles
 # (assumed; no drawing gives them).
 WINDOW_PROFILES: dict[str, tuple[float, float]] = {
@@ -2200,6 +2210,32 @@ def _leaf_box(cx: float, z0: float, lw: float, lh: float, t: float, y: float = 0
     return _box(cx, y, z0, lw, t, lh, "leaf", "leaf")
 
 
+def door_stop_boxes(width: float, height: float, frame_w: float, face_y: float, thickness: float,
+                    side: float) -> list[tuple[float, float, float, float, float, float]]:
+    """``[(cx, cy, z0, w, d, h)]`` of a door's stops in the opening's frame (pure; fix round after P3, 16-17 Oct 2026).
+
+    What: two jamb stops (``DOOR_STOP_W_M`` wide, from the floor to the head) and a head stop between them, each
+    ``DOOR_STOP_T_M`` thick, on the ``side`` face (+1 / -1: the y side), from the leaf face ``face_y`` (its distance
+    from the wall centre line, proud panels included) outwards.
+    Why: the leaf of a closed door is a few mm smaller than its frame; without a stop that slit runs straight through
+    the wall and leaks light and view (``DOOR_STOP_W_M``).
+    How: the stop's outer face is clamped to the wall face (``thickness / 2``) and never thinner than
+    ``DOOR_STOP_MIN_T_M`` (a leaf that fills the wall depth: the stop stands that much proud); no head stop when the
+    opening is narrower than the two jamb stops."""
+    s = -1.0 if float(side) < 0 else 1.0
+    y0 = max(0.0, float(face_y))
+    y1 = max(y0 + DOOR_STOP_MIN_T_M, min(y0 + DOOR_STOP_T_M, float(thickness) / 2.0))
+    cy, d = s * (y0 + y1) / 2.0, y1 - y0
+    inner = float(width) / 2.0 - float(frame_w)           # the jamb's inner face
+    top = float(height) - float(frame_w)                  # the head's underside
+    boxes = [(-(inner - DOOR_STOP_W_M / 2.0), cy, 0.0, DOOR_STOP_W_M, d, top),
+             (inner - DOOR_STOP_W_M / 2.0, cy, 0.0, DOOR_STOP_W_M, d, top)]
+    head_w = 2.0 * (inner - DOOR_STOP_W_M)
+    if head_w > 1e-6:
+        boxes.append((0.0, cy, top - DOOR_STOP_W_M, head_w, d, DOOR_STOP_W_M))
+    return boxes
+
+
 def _lever_pair(x: float, z: float, t: float, y: float = 0.0) -> list[Part]:
     """Lever handles on both faces of a leaf of thickness ``t`` centred on ``y``."""
     out = []
@@ -2217,7 +2253,14 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     (flush, shaker panel, glazed, entrance) and double / folding doors sit in a frame as deep as the wall;
     pocket doors are a flush leaf with a recessed pull; sliding and barn doors hang on the room face of the wall
     (``look["side"]``: +1 / -1, the y side of the room; default -1) from a rail and overlap the opening. A drawn
-    ``fixed`` door (``look["operation"]``) has no handles."""
+    ``fixed`` door (``look["operation"]``) has no handles.
+
+    Fix round after P3 (16-17 Oct 2026): every door in a frame gets jamb and head stops (``door_stop_boxes``, role
+    ``stop``, key ``frame``: the frame object and its material) over the slit round the closed leaf: a swing door
+    (flush, shaker panel, glazed, entrance, double, folding) on the face away from the room it opens into
+    (``look["side"]``, so on ``-side``), against the leaf face (a shaker panel's proud stiles included); a pocket
+    door on both faces (split jambs: the leaf slides between them). A double or folding door also gets an astragal
+    over its meeting stiles (role ``astragal``, key ``leaf``: the leaf object), on the stop face."""
     style = door_style_of(look)
     side = -1.0 if float((look or {}).get("side") or -1.0) < 0 else 1.0
     w, h, t = float(width), float(height), float(thickness)
@@ -2230,6 +2273,11 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
     lw, lh = w - 2 * frame_w - 0.01, h - frame_w - 0.01
     leaf_t = ENTRANCE_LEAF_T if style == "entrance" else DOOR_LEAF_T
     lever_z = min(LEVER_HEIGHT_M, lh - 0.1)
+    if not surface:                                                      # the stops (fix round after P3)
+        face = leaf_t / 2.0 + (DOOR_PANEL_PROUD_M if style == "shaker_panel" else 0.0)
+        for s in ((-1.0, 1.0) if style == "pocket" else (-side,)):
+            parts += [_box(cx, cy, z0, bw, bd, bh, "frame", "stop")
+                      for cx, cy, z0, bw, bd, bh in door_stop_boxes(w, h, frame_w, face, t, s)]
     if style in ("flush", "pocket", "entrance", "shaker_panel", "glazed"):
         if style == "glazed":
             f = min(GLAZED_FRAME_M, lw * 0.2)
@@ -2266,6 +2314,9 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         half = lw / 2.0 - 0.002
         for s in (-1, 1):
             parts.append(_leaf_box(s * (half / 2.0 + 0.001), 0.0, half, lh, DOOR_LEAF_T))
+        # the astragal over the meeting stiles, on the stop face (fix round after P3)
+        (_cx, cy, _z0, _bw, bd, _bh) = door_stop_boxes(w, h, frame_w, DOOR_LEAF_T / 2.0, t, -side)[0]
+        parts.append(_box(0.0, cy, 0.0, DOOR_ASTRAGAL_W_M, bd, lh, "leaf", "astragal"))
         if style == "double":
             for s in (-1, 1):
                 parts += _lever_pair(s * 0.06, lever_z, DOOR_LEAF_T)
@@ -2294,7 +2345,9 @@ def door_parts(look: dict | None, width: float, height: float, thickness: float,
         parts = [p for p in parts if p["key"] != "handle"]
     record = {"door_style": style, "leaf_thickness": leaf_t, "frame_width": None if surface else frame_w,
               "surface_mounted": surface, "side": side if surface else None, "handles": not fixed,
-              "parts": sorted({p["role"] for p in parts})}
+              "parts": sorted({p["role"] for p in parts}),
+              # fix round after P3: the y face of the stops (both for a pocket door's split jambs), None without
+              "stop_side": None if surface else ("both" if style == "pocket" else -side)}
     return parts, record
 
 

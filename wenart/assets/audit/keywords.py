@@ -18,6 +18,22 @@ folded title. Overlapping matches go to the longest keyword ("coffee table" beat
 makes the title a ``match`` even when other families are named too ("Side End Table Nightstand"). ``indoor`` in the
 title cancels the outdoor words ("Indoor Outdoor Stoneware Vase"). Generated models carry our own titles: their
 title says nothing (``generated``). Pure and deterministic.
+
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8: a Disney CARS cushion in the real04 living room, a
+"Sporting Goods" wire rack as its bookshelf, a gold "oro" bathtub rendered as mirror metal):
+
+- What: two flag categories, ``branded`` (a licensed brand or character: Disney, Pixar, Marvel, Harry Potter, ...)
+  and ``other_use`` (a product made for another use: sporting goods, tools, a garage, a warehouse), and the metal
+  finish words of sanitary ware (``metal_finish``: the finish words, the part words such as tap or faucet, the
+  non-metal body words such as acrylic or ceramic).
+- Why: CC BY-NC covers a mesh, not the trademark or the character printed on it (docs/milestone13.md §2.6), and
+  such a print fits no project style; a title that names a non-home use contradicts the type it is filed as even
+  when it names the type ("... Storage Organizer Shelf" as a bookshelf); a bathtub, washbasin or toilet with a metal
+  finish renders as polished metal, not as glazed ceramic.
+- How: the same token matching as every flag word (``fold`` splits camelCase, so "AmazonBasics" is "amazon
+  basics"; a plural ``s`` matches, so "Disneys" is "disney"). Only names that are clear on their own or several
+  words long: no bare "cars" or "frozen" ("toy cars storage box", "frozen glass vase" are no brands).
+  ``checks.py`` makes both flags hard (removed) and runs the sanitary finish check.
 """
 from __future__ import annotations
 
@@ -306,11 +322,38 @@ FLAG_WORDS: dict[str, tuple[str, ...]] = {
     "part": ("component", "sectional component", "spare part", "replacement part", "replacement"),
     "scene": ("scene", "diorama", "dining set", "table and chairs", "table chairs", "with chairs", "room set",
               "furniture set", "furniture pack", "props pack"),
+    # fix round after P3: a licensed brand or character print (no bare "cars" or "frozen": the module docstring)
+    "branded": ("disney", "pixar", "marvel", "star wars", "harry potter", "hogwarts", "hello kitty", "sanrio",
+                "pokemon", "paw patrol", "peppa pig", "lightning mcqueen", "mickey mouse", "minnie mouse", "spiderman",
+                "spider man", "batman", "avengers", "barbie"),
+    # fix round after P3: a product made for another use than a home (the "Sporting Goods Storage Organizer Shelf")
+    "other_use": ("sporting goods", "sports equipment", "sports gear", "sports storage", "ball storage", "ball rack",
+                  "tool rack", "tool storage", "tool chest", "tool cabinet", "garage storage", "garage shelf",
+                  "garage shelving", "garage cabinet", "gun rack", "gun safe", "gun cabinet", "bike rack",
+                  "bicycle rack", "bike storage", "warehouse", "pallet rack", "pallet racking", "boltless shelving",
+                  "workbench", "work bench", "~werkbank"),
 }
 # Phrases that cancel a flag word inside them (an indoor ceramic "garden stool"; "indoor outdoor" vases and rugs).
 FLAG_EXCEPTIONS: dict[str, tuple[str, ...]] = {
     "outdoor": ("garden stool", "indoor", "king street"),
 }
+
+# Fix round after P3: the finish of sanitary ware (checks.sanitary_finish_check). A finish word names a metal surface
+# (no bare "steel", "iron" or "metal": enamelled steel and cast-iron baths look like ceramic); a part word says the
+# metal is a tap, a handle or the feet; a body word names a non-metal body (the metal word is then a trim colour).
+METAL_FINISH_WORDS: tuple[str, ...] = (
+    "gold", "golden", "gilded", "oro", "dorato", "dore", "chrome", "chromed", "chrome plated", "cromo", "cromato",
+    "chrom", "verchromt", "brass", "ottone", "laiton", "messing", "copper", "rame", "cuivre", "kupfer", "koper",
+    "bronze", "bronzo", "nickel", "nichel", "silver", "argento", "argent", "stainless", "stainless steel", "inox",
+    "acciaio inox", "brushed steel", "polished steel", "edelstahl", "metallic", "titanium", "mirror finish")
+METAL_PART_WORDS: tuple[str, ...] = (
+    "tap", "taps", "faucet", "mixer", "knob", "handle", "feet", "foot", "leg", "legs", "frame", "waste", "overflow",
+    "flush", "button", "plate", "rail", "plug", "trim", "accent", "accents", "hardware", "fittings", "pop up",
+    "rubinetto", "miscelatore", "robinet", "armatur", "kraan", "piedini", "pieds", "fusse")
+METAL_BODY_WORDS: tuple[str, ...] = (
+    "acrylic", "ceramic", "ceramica", "keramik", "ceramique", "porcelain", "porcellana", "vitreous china", "fireclay",
+    "enamel", "enamelled", "enameled", "emaille", "smaltato", "stone", "marble", "resin", "solid surface",
+    "composite", "glass", "vetro", "terrazzo", "concrete", "mineral", "quaril", "solidskin", "acrilico", "acryl")
 
 _CJK = re.compile(r"[⺀-鿿぀-ヿ가-힯]")
 _CAMEL = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
@@ -396,6 +439,19 @@ def flags(title: str) -> dict[str, list[str]]:
         if found:
             out[cat] = sorted(set(found), key=found.index)
     return out
+
+
+def _words_in(toks: list[str], folded: str, words) -> list[str]:
+    found = [c[4] for c in _resolve([(s, e, n, "w", w) for w in words for s, e, n in _matches(toks, folded, w)])]
+    return sorted(set(found), key=found.index)
+
+
+def metal_finish(title: Optional[str]) -> dict:
+    """Fix round after P3: the metal finish a title names (``{"metal": [...], "part": [...], "body": [...]}``, each
+    the words found in title order; ``METAL_FINISH_WORDS``, ``METAL_PART_WORDS``, ``METAL_BODY_WORDS``)."""
+    toks, folded = tokens(title or ""), fold(title or "")
+    return {"metal": _words_in(toks, folded, METAL_FINISH_WORDS), "part": _words_in(toks, folded, METAL_PART_WORDS),
+            "body": _words_in(toks, folded, METAL_BODY_WORDS)}
 
 
 def near(a: str, b: str) -> bool:

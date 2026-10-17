@@ -1,7 +1,11 @@
 """Milestone 13, track T8 (docs/milestone13.md §6, §7, §12 D4, §13.2): ATTRIBUTION.md with its four sections in
 both licence modes, the commercial-safe line per view and the "built below library level" section of the final
 report, the pack3d README, the 17 metrics (on a fake run and on the committed real02 results) and the before | after
-sheets. Every test here fails on the Milestone 12 code (no sections, no fields, no modules)."""
+sheets. Every test here fails on the Milestone 12 code (no sections, no fields, no modules).
+
+Fix round after P3 (16-17 Oct 2026): metrics 6 and 7 of the latest run of an appended orchestrator log
+(``run_first_seq``), metric 2 without the explained non-furniture, and the previews and plan crops of cameras a run
+does not have moved out of ``final/``."""
 from __future__ import annotations
 
 import json
@@ -558,7 +562,11 @@ def test_the_17_metrics_on_the_committed_real02_results():
     for k, v in m.items():
         assert v["value"] == MX.NO_DATA or isinstance(v["value"], (int, float)), (k, v["value"])
         assert v["text"] and v["source"]
-    assert m["m1"]["text"] == "29 of 30 (97 %)" and m["m2"]["text"] == "185 of 210 (88 %)"
+    # fix round after P3: metric 2 also says the share without the explained non-furniture (7 details, 4 rug
+    # outlines, 1 symbol both AI passes call not furniture)
+    assert m["m1"]["text"] == "29 of 30 (97 %)" and m["m2"]["text"] == "185 of 210 (88 %); without the 12 explained " \
+        "non-furniture pieces: 185 of 198 (93 %)"
+    assert m["m2"]["parts"]["explained_by"] == {"detail": 7, "not_furniture": 1, "rug": 4}
     assert m["m3"]["value"] == 0 and m["m4"]["parts"]["grey_boxes"] == 21
     assert m["m9"]["value"] == 9 and m["m9"]["parts"]["interior_views"] == 35
     assert m["m12"]["text"] == "6 of 6 (0 dropped)" and m["m13"]["parts"]["hall_views"] == 9
@@ -567,6 +575,133 @@ def test_the_17_metrics_on_the_committed_real02_results():
     assert m["m10"]["parts"]["shell_slots_pbr"] == MX.NO_DATA    # maps not recorded in the M11 scene manifest
     assert isinstance(m["m17"]["value"], float) and m["m17"]["value"] > 0
     assert len(result["views"]) == 41 and all(r["score"] != MX.NO_DATA for r in result["views"])
+
+
+def appended_log(log: dict) -> dict:
+    """The toy log after an older run of the same project (``AgentLog`` appends to the volume's ``log.json``): an
+    older run of rounds 1-3 with 4 findings in its round 3 and one accepted edit, then the toy run renumbered after
+    it with ``run_first_seq`` = its first seq."""
+    old = [{"seq": 1, "round": 1, "kind": "finding", "source": "code", "checklist": "F8", "severity": "major",
+            "target": "f_5", "evidence": {"metrics": {}}},
+           {"seq": 2, "round": 1, "kind": "edit", "tool": "move_piece", "target": "f_5", "checklist": "F8",
+            "validation": {"accepted": True}},
+           {"seq": 3, "round": 2, "kind": "finding", "source": "code", "checklist": "F8", "severity": "major",
+            "target": "f_5", "evidence": {"metrics": {}}}]
+    old += [{"seq": 4 + i, "round": 3, "kind": "finding", "source": "code", "checklist": c, "severity": "major",
+             "target": t, "evidence": {"metrics": {"depth_m": 0.2}}}
+            for i, (c, t) in enumerate((("F8", "f_5"), ("LG", "f_3"), ("LG", "f_6"), ("S2", "f_2")))]
+    shift = len(old)
+    new = [dict(e, seq=int(e["seq"]) + shift) for e in log["events"]]
+    return dict(log, events=old + new, run_first_seq=shift + 1)
+
+
+def test_metrics_6_and_7_read_the_latest_run_of_an_appended_log(tmp_path):
+    """Fix round after P3: the volume's orchestrator log keeps every run (P3's real04 log.json: run_first_seq 2925 of
+    4363 events). The old code read every event: m6 came from the older run's last round (round 3 here; P3: the M12
+    round 7, 123 as the baseline) and m7 counted the older run's edits. Now only seq >= run_first_seq counts."""
+    out = make_run(tmp_path)
+    path = out / "orchestrator" / "log.json"
+    path.write_text(json.dumps(appended_log(agent_log())), encoding="utf-8")
+    m = MX.metrics(out)["metrics"]
+    assert m["m6"]["parts"]["round"] == 2 and m["m6"]["value"] == 3 and m["m6"]["parts"]["LG"] == 1
+    assert m["m6"]["parts"]["run_first_seq"] == 8 and m["m7"]["parts"]["run_first_seq"] == 8
+    assert m["m7"]["parts"]["judged"] == 2 and m["m7"]["parts"]["accepted"] == 2 and m["m7"]["parts"]["gone"] == 1
+    run = MX.locate(out)
+    assert run.log_first_seq == 8 and len(run.log["events"]) == len(agent_log()["events"])
+    assert any("the latest run from seq 8" in w for w in run.warnings)
+    # a log without run_first_seq (or 1) keeps every event, also events without a seq (a hand-built log)
+    plain = agent_log()
+    for e in plain["events"]:
+        e.pop("seq")
+    path.write_text(json.dumps(plain), encoding="utf-8")
+    m2 = MX.metrics(out)["metrics"]
+    assert m2["m6"]["value"] == 3 and m2["m7"]["parts"]["judged"] == 2 and m2["m6"]["parts"]["run_first_seq"] == 1
+
+
+@pytest.mark.skipif(not (ROOT / "runs" / "20261016-172855-full" / "results" / "agent" / "real04" / "log.json").is_file(),
+                    reason="the P3 run folder is not here (runs/ is not committed)")
+def test_metrics_2_6_7_on_the_p3_results():
+    """P3 attempt 2 (real04): the analysis numbers of docs/milestone13.md §14.8 (m6 38 in round 4, m7 29 of 39, m2
+    178 of 202 without the explained non-furniture) instead of the M12 round 7 (123) and 52 of 199."""
+    m = MX.metrics(ROOT / "runs" / "20261016-172855-full" / "results" / "final" / "real04")["metrics"]
+    assert m["m6"]["value"] == 38 and m["m6"]["parts"]["round"] == 4 and m["m6"]["parts"]["run_first_seq"] == 2925
+    assert m["m7"]["text"].startswith("29 of 39 (74 %)") and m["m7"]["parts"]["accepted"] == 39
+    assert m["m2"]["text"] == "178 of 240 (74 %); without the 38 explained non-furniture pieces: 178 of 202 (88 %)"
+    assert m["m2"]["parts"]["explained_by"] == {"column": 10, "decor": 4, "detail": 18, "not_furniture": 2, "rug": 4}
+
+
+def test_metric_2_leaves_out_the_explained_non_furniture(tmp_path):
+    """Fix round after P3 (the analysis of metric 2): unbuilt drawn pieces that the pipeline explained as no
+    furniture (an outline, a detail, a column, decor; both AI passes not_furniture; a counter-leg detail) are left
+    out of the second number. An untyped piece, one AI pass alone, or a built piece stays in. The §7 number stays the
+    value. Fails on the old code (no such part)."""
+    from wenart.ingest.generic import reading as RD
+
+    assert MX.EXPLAINED_AS == RD.EXPLAINED_AS
+    out = make_run(tmp_path)
+    b = json.loads((out / "building_final.json").read_text(encoding="utf-8"))
+    none = {"library": "none", "asset_id": "none:x", "method": "none", "licence": "n/a"}
+    para = {"library": "parametric", "asset_id": "parametric:unknown", "method": "parametric", "licence": "n/a"}
+    nf = [{"type": "not_furniture", "pass": 1}, {"type": "not_furniture", "pass": 2}]
+    b["furniture"] += [
+        piece("f_8", "sink_kitchen", "r_mutfak", build=False, asset=none, inferred_as="detail"),
+        piece("f_9", "unknown", "r_salon", build=False, asset=para, type_candidates=nf),
+        piece("f_10", "unknown", "r_mutfak", build=False, asset=para,
+              not_built_reason="detail inside a kitchen counter leg (an appliance front or drawers, M11 split): "
+                               "not built"),
+        piece("f_11", "unknown", "r_salon", build=False, asset=para,
+              not_built_reason="untyped (CLAUDE.md: no untyped piece is built)"),
+        piece("f_12", "unknown", "r_salon", build=False, asset=para,
+              type_candidates=[{"type": "not_furniture", "pass": 1}, {"type": "sofa", "pass": 2}]),
+        piece("f_13", "rug", "r_salon", asset=asset_abo("abo_B0RUG01", "Wool Rug"), inferred_as="rug"),
+    ]
+    (out / "building_final.json").write_text(json.dumps(b), encoding="utf-8")
+    m = MX.metrics(out)["metrics"]["m2"]
+    # drawn: 5 + 6 = 11; built: 4 + the rug = 5; explained: f_8, f_9, f_10 (the built rug f_13 is never left out)
+    assert m["value"] == round(100 * 5 / 11, 1) and m["parts"]["explained"] == 3
+    assert m["parts"]["explained_by"] == {"detail": 2, "not_furniture": 1}
+    assert m["parts"]["furniture"] == 8 and m["parts"]["built_of_furniture"] == 62.5
+    assert m["text"] == "5 of 11 (45 %); without the 3 explained non-furniture pieces: 5 of 8 (62 %)"
+    assert MX.explained_not_furniture(b["furniture"][-1]) is None
+
+
+def test_final_moves_previews_and_plans_of_cameras_this_run_does_not_have(tmp_path):
+    """Fix round after P3: P3's final/ on the volume kept the M12 previews and plan crops of cam_r_L0_koridor_2/3 (no
+    such cameras in the P3 scene); the old code only listed them, so the results copy took them as P3 renders. Now
+    they move to final/earlier_run/ (never deleted, a second one with the same name gets _2), the warning and the
+    manifest name them, and the results copy holds only this run's views. Contact sheets stay listed."""
+    from wenart.run.projects import ProjectRef
+
+    out = make_run(tmp_path)
+    F.write_final(out)
+    final = out / "final"
+    for name in ("cam_gone_final_preview.jpg", "cam_gone_plan.jpg", "contact_L9.jpg"):
+        (final / name).write_bytes(b"old")
+    manifest = F.write_final(out)
+    assert not (final / "cam_gone_final_preview.jpg").exists() and not (final / "cam_gone_plan.jpg").exists()
+    assert (final / "earlier_run" / "cam_gone_final_preview.jpg").read_bytes() == b"old"
+    assert (final / "earlier_run" / "cam_gone_plan.jpg").is_file()
+    assert manifest["earlier_run_files"] == ["cam_gone_final_preview.jpg", "cam_gone_plan.jpg"]
+    assert "final/cam_gone_final_preview.jpg is from an earlier run (not part of this report): moved to " \
+        "final/earlier_run/cam_gone_final_preview.jpg" in manifest["warnings"]
+    assert (final / "contact_L9.jpg").is_file()                                   # listed, not moved
+    assert "final/contact_L9.jpg is from an earlier run (not part of this report)" in manifest["warnings"]
+    assert (final / "cam_salon_1_final_preview.jpg").is_file()                    # this run's views stay
+    assert F.validate_final_manifest(manifest) == []
+    # a second stale file of the same name never overwrites the first; a clean re-run moves nothing
+    (final / "cam_gone_plan.jpg").write_bytes(b"older")
+    again = F.write_final(out)
+    assert again["earlier_run_files"] == ["cam_gone_plan.jpg"]
+    assert (final / "earlier_run" / "cam_gone_plan_2.jpg").read_bytes() == b"older"
+    assert F.write_final(out)["earlier_run_files"] == []
+    # the results copy takes this run's previews only (earlier_run/ is no copy rule's folder)
+    results = tmp_path / "results"
+    ref = ProjectRef(name="toy", private=False, project_dir=tmp_path / "projects" / "toy", out_dir=out,
+                     results_dir=results)
+    CP.copy_project(ref)
+    copied = {f.name for f in (results / "final" / "toy").iterdir()}
+    assert "cam_salon_1_final_preview.jpg" in copied and not any(n.startswith("cam_gone") for n in copied)
+    assert not (results / "final" / "toy" / "earlier_run").exists()
 
 
 def test_metrics13_cli_writes_json_and_markdown(tmp_path, capsys):

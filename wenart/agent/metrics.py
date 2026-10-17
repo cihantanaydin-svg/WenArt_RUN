@@ -14,6 +14,11 @@ latest run: ``run_first_seq`` / ``run_first_call``) and the memory, and returns:
 | ``memory`` | edits refused by the memory, dry runs, plans (valid / default) |
 | ``findings_removed`` | Milestone 13 (docs/milestone13.md §3.0 K4): the success number. ``per_round``: the critical / major finding keys (check, target) of a round that are gone in the next round (measured by the critics, the only truth); ``total`` their sum; ``dry_recheck``: what the loop's dry re-checks counted per round (the ``round`` events); ``edits_removing_finding``: accepted edits whose logged finding is gone in the next round; ``accepted_edits``: for the ratio (M12 real04: 183 accepted, 20 removed their finding) |
 
+Fix round after P3 (16-17 Oct 2026): ``findings_removed.dry_recheck`` is labelled a prediction (``dry_recheck_is``:
+"predicted"; P3: the dry re-checks counted 56, the next rounds' critics measured 38), ``per_round`` / ``total`` stay
+the measured success number; ``calls`` counts the planner answers stopped by length or repetition
+(``finish_reasons``, from the call log's ``finish_reason``) and the calls refused for a full context.
+
 ``write(project_out)`` writes ``orchestrator/metrics.json`` (the loop calls it after every round);
 ``compare_rows`` / ``update_compare(md_path, label, metrics)`` keep ``results/compare/<p>/agent_metrics.md`` (and its
 ``agent_metrics.json`` with every row) across runs; ``python -m wenart.agent metrics`` is the CLI.
@@ -183,6 +188,7 @@ def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int
                    "dry_runs": sum(1 for e in events if e.get("kind") == "dry_run"),
                    "plans": len(plans), "plans_valid": sum(1 for e in plans if e.get("status") == "ok")},
         "findings_removed": removed,
+        "finish_reasons": finish_reasons(calls),
     }
 
 
@@ -212,7 +218,20 @@ def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
     dry = {str(int(e.get("round") or 0)): int((e.get("counts") or {}).get("findings_removed") or 0)
            for e in events if e.get("kind") == "round" and (e.get("counts") or {}).get("findings_removed") is not None}
     return {"per_round": per_round, "total": sum(per_round.values()), "dry_recheck": dry,
-            "edits_removing_finding": edits_removing, "accepted_edits": len(accepted)}
+            "dry_recheck_is": "predicted", "edits_removing_finding": edits_removing, "accepted_edits": len(accepted)}
+
+
+def finish_reasons(calls: list[dict]) -> dict:
+    """Fix round after P3: ``{kind: {finish_reason: n}}`` of the model calls that logged one (``length``,
+    ``repetition`` and ``context_full`` show the answers cut, stopped or refused)."""
+    out: dict = {}
+    for c in calls:
+        reason = c.get("finish_reason")
+        if not reason:
+            continue
+        row = out.setdefault(str(c.get("kind")), {})
+        row[str(reason)] = row.get(str(reason), 0) + 1
+    return {k: {r: out[k][r] for r in sorted(out[k])} for k in sorted(out)}
 
 
 def write(project_out) -> Path:

@@ -25,7 +25,22 @@ a warning, the record a ``fix`` that writes the field), ``material_tags`` (every
 every entry: a warning; the fields are written by ``python -m wenart.furniture licence-fields`` and the growth
 entries). Decision 1a of 11 Oct 2026 stays: vision findings keep the model with ``vision_doubt``.
 
-How: pure, deterministic; the thresholds come from ``wenart/assets/audit.yaml``.
+Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8; P3 showed a Disney CARS cushion, a "Sporting Goods"
+wire rack as a bookshelf and a gold bathtub rendered as mirror metal, all audited ``keep`` or ``fix``):
+
+- What: the title flags ``branded`` (a licensed brand or character) and ``other_use`` (a product made for another
+  use than a home) are hard flags (``title_flag`` with status ``remove``: ``decide`` gives ``removed``); the check
+  ``sanitary_finish`` removes a bathtub, washbasin or toilet (``SANITARY_TYPES``) whose main material is metal: the
+  title names a metal finish (``keywords.metal_finish``: gold / oro, chrome, brass, copper, nickel, stainless ...)
+  and no part (tap, faucet, feet ...) and no non-metal body (acrylic, ceramic, enamel ...), or the Milestone 10 slot
+  judgement's largest slot (``material_slots``, share >= ``METAL_MAIN_SHARE``, both judges agreeing) is metal (a
+  metal slot the judges disagree on is a note).
+- Why: the audit saw licence, size, units and PBR maps but no brand, no purpose and no surface; the vision check kept
+  all three (decision 1a keeps vision doubts). A licence covers the mesh, not a trademark (§2.6); glazed sanitary
+  ware is ceramic (the shell's ``ceramic`` slot), a metal one renders as a mirror.
+- How: code evidence from the catalogue fields the audit already reads (title, ``material_slots``); the catalogue has
+  no per-material metallic factor, so a model whose title is silent and whose slots were never judged is not
+  flagged (the final vision check still sees it). The status values are the audit's own (``removed``); no new one.
 """
 from __future__ import annotations
 
@@ -39,9 +54,14 @@ from wenart.furniture import sizes as SZ
 
 NOT_ALLOWED = (("-NC", "non-commercial"), ("-SA", "share-alike"), ("-ND", "no-derivatives"))
 SOURCE_RANK = {"abo": 0, "polyhaven": 1, "gso": 2, "hssd": 3, "objaverse": 4, "generated": 5}   # hssd: M13
-HARD_FLAGS = ("outdoor", "crude", "wrong", "part")
+HARD_FLAGS = ("outdoor", "crude", "wrong", "part", "branded", "other_use")    # branded, other_use: fix round after P3
 FLAG_TEXT = {"outdoor": "an outdoor piece", "crude": "not photoreal", "wrong": "not the object",
-             "part": "a part of a piece", "scene": "several objects (a set or a scene)"}
+             "part": "a part of a piece", "scene": "several objects (a set or a scene)",
+             "branded": "a licensed brand or character print (trademarks are not licensed, docs/milestone13.md §2.6)",
+             "other_use": "a product made for another use than a home, not the type it is filed as"}
+# Fix round after P3: sanitary ware is glazed ceramic; a metal main material renders as a mirror (sanitary_finish_check)
+SANITARY_TYPES = ("bathtub", "washbasin", "toilet")
+METAL_MAIN_SHARE = 0.5
 
 
 def rec(check: str, status: str, reason: str = "", **extra) -> dict:
@@ -116,6 +136,36 @@ def title_check(item: dict, known_types) -> list[dict]:
         out.append(rec("title_flag", status, f"the title says {', '.join(words)}: {FLAG_TEXT.get(cat, cat)}",
                        metrics={"category": cat, "words": words}))
     return out
+
+
+def sanitary_finish_check(item: dict) -> dict:
+    """Fix round after P3 (module docstring): a bathtub, washbasin or toilet whose main material is metal is removed:
+    the title names a metal finish with no part word and no non-metal body word, or the largest judged material slot
+    (share >= ``METAL_MAIN_SHARE``, the judges not disagreeing) is metal. A metal word next to a part or a body word,
+    or a metal main slot the judges disagree on, is a note."""
+    if item.get("type") not in SANITARY_TYPES or item.get("kind") == "decor":
+        return rec("sanitary_finish", "skip", f"a {item.get('type')} is no sanitary ware")
+    words = K.metal_finish(item.get("title"))
+    slots = [sl for sl in item.get("material_slots") or [] if isinstance(sl, dict)
+             and isinstance(sl.get("share"), (int, float))]
+    main = max(slots, key=lambda sl: float(sl["share"])) if slots else None
+    metrics = {"metal": words["metal"], "part": words["part"], "body": words["body"],
+               "main_slot": ({"material": main.get("material"), "share": main.get("share")} if main else None)}
+    metal_main = main is not None and main.get("material") == "metal" and float(main["share"]) >= METAL_MAIN_SHARE
+    if metal_main and main.get("agreed") is not False:
+        return rec("sanitary_finish", "remove", f"a {item['type']} whose main material is metal (judged slot share "
+                   f"{float(main['share']):.0%}): it renders as polished metal, not glazed ceramic", metrics=metrics)
+    if words["metal"] and not words["part"] and not words["body"]:
+        return rec("sanitary_finish", "remove", f"a {item['type']} with a metal finish (the title says "
+                   f"{', '.join(words['metal'])}): it renders as polished metal, not glazed ceramic", metrics=metrics)
+    if words["metal"]:
+        what = f"a part ({', '.join(words['part'])})" if words["part"] else f"a {', '.join(words['body'])} body"
+        return rec("sanitary_finish", "warn", f"the title's metal word ({', '.join(words['metal'])}) names {what}, not "
+                   "the main material", metrics=metrics)
+    if metal_main:
+        return rec("sanitary_finish", "warn", f"the largest material slot ({float(main['share']):.0%}) is judged metal "
+                   "but the judges disagree: kept (the final vision check sees it)", metrics=metrics)
+    return rec("sanitary_finish", "ok", "no metal main material named or judged", metrics=metrics)
 
 
 _SIZE_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(?:cm)?\s*[xX×]\s*(\d+(?:[.,]\d+)?)(?:\s*(?:cm)?\s*[xX×]\s*"
@@ -576,6 +626,8 @@ def item_checks(item: dict, cfg: dict, known_types, measure: Optional[dict] = No
     out.append(material_tags_check(item, cfg))
     out.append(chaise_check(item, cfg, measure))
     out.append(licence_fields_check(item, cfg))
+    # fix round after P3
+    out.append(sanitary_finish_check(item))
     return out
 
 
