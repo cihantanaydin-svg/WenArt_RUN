@@ -63,6 +63,13 @@ group member, before the context rules; build round 3: the context rules of the 
 questions too, as ``context:<type>``); such a candidate's question is withdrawn
 (``generic.reading.withdraw_questions``, ``build.code_typed`` with ``build.code_typed_methods``) and is not
 written to ``requests.json``: the AI types only the rest, the same questions in every run.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03). What: a late question (asked by this run, not in the round the
+answers belong to: ``_write_questions``) whose drawn piece is still untyped says so in its ``needs_review`` entry and
+in a warning (``LATE_REVIEW_NOTE``): its question was not among the first reading's questions (withdrawn there, or new
+in this reading), and the run's late recognition pass (``wenart.run.scheduler``) asks it and runs this pipeline again.
+A piece the size inference types gets ``type_method: "inferred"`` (``reading.mark_inferred``). Why: P4b's six drawn
+washbasins were listed as plain "has no type" boxes, with nothing saying that their questions had never been asked.
 """
 from __future__ import annotations
 
@@ -2060,6 +2067,35 @@ def _mount_wall_cabinets(building: dict) -> None:
                                     f"rule of docs/milestone10.md §4.4, the documents give no height)")
 
 
+LATE_REVIEW_NOTE = ("its question {key} was not among the first reading's questions (withdrawn there, or new in this "
+                    "reading) and is untyped now: the run's late recognition pass asks it")
+
+
+def _late_review(build: ProjectBuild, late: list[str]) -> int:
+    """Fix round after P4b (module docstring): the drawn pieces of the late questions ``late`` that are still
+    untyped get ``LATE_REVIEW_NOTE`` in their ``needs_review`` entry and a warning. Returns how many."""
+    by_key: dict[str, str] = {}
+    for w in build.furniture_works:
+        for f in getattr(w.extraction, "furniture", None) or []:
+            key = (getattr(f, "details", None) or {}).get("candidate_key")
+            if key in late and getattr(f, "element_id", None):
+                by_key.setdefault(str(key), f.element_id)
+    pieces = {f["id"]: f for f in build.building.get("furniture") or []}
+    review = {n.get("id"): n for n in build.building.get("needs_review") or [] if isinstance(n, dict)}
+    n = 0
+    for key in late:
+        pid = by_key.get(key)
+        if pid is None or (pieces.get(pid) or {}).get("type") != "unknown":
+            continue
+        note = LATE_REVIEW_NOTE.format(key=key)
+        entry = review.get(pid)
+        if entry is not None and note not in str(entry.get("reason") or ""):
+            entry["reason"] = f"{entry.get('reason') or 'untyped drawn piece'}; {note}"
+        build.warn(f"{pid}: {note}")
+        n += 1
+    return n
+
+
 def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = None, answers=None) -> None:
     """``<out>/recognition/requests.json`` with the questions of the pages whose furniture is in the building
     (§1.4); an earlier file is rewritten (empty when nothing is asked) so it never lists stale questions.
@@ -2091,6 +2127,7 @@ def _write_questions(build: ProjectBuild, out_dir: Path, asked: Optional[set] = 
             build.warn(f"{len(late)} recognition questions were not in the round the answers belong to "
                        f"({', '.join(late)}): not answered, they stay unknown / unverified (one round of questions, "
                        f"§1.4)")
+            _late_review(build, late)
     build.questions, build.pending = items, pending
     rec_dir = out_dir / RECOGNITION_DIR
     if items or (rec_dir / A.REQUESTS_NAME).is_file():
@@ -2348,6 +2385,7 @@ def _infer_types(build: ProjectBuild) -> None:
     if not proposals:
         return
     b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
+    RD.mark_inferred(b, proposals)          # fix round after P4b: a size-inferred piece says so in type_method
     coded = []
     for p in proposals:
         if p.get("type_method") in INF.CODE_TYPE_METHODS:

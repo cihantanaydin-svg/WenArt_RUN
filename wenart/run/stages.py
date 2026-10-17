@@ -106,8 +106,14 @@ LEVELS_CODE = ("wenart/levels/**", "wenart/blender/**", "wenart/canonical.py", "
                "wenart/furniture/catalog.py", "wenart/furniture/sizes.py", CATALOG, "wenart/furniture/catalog*.json")
 # Milestone 12 (track G): the groups (groups.yaml), the group checks, the room program and the solver; plausibility
 # runs the group checks, so every stage that scores a room reaches them.
+# Integration of the fix round after P4b (17 Oct 2026): program.duplicate_anchor reads edit_ops.family_host_of (a
+# corner sofa's seat segment drawn as a sofa), and edit_ops reaches the fit, the layout, the completion and the
+# assets (function-level imports): every stage that reaches the program lists them.
 GROUPS_CODE = ("wenart/furniture/groups.py", "wenart/furniture/groups.yaml", "wenart/furniture/group_checks.py",
-               "wenart/furniture/program.py", "wenart/furniture/solver.py")
+               "wenart/furniture/program.py", "wenart/furniture/solver.py",
+               "wenart/furniture/edit_ops.py", "wenart/furniture/fit.py", "wenart/furniture/layout.py",
+               "wenart/furniture/complete.py", "wenart/furniture/locked.py", "wenart/furniture/prompts.py",
+               "wenart/assets/**")
 # catalog*.json: catalog.json and, once committed, catalog_objaverse.json (catalog.load merges it).
 FIT_CODE = ("wenart/furniture/fit.py", "wenart/furniture/catalog.py", CATALOG, "wenart/furniture/catalog*.json",
             "wenart/blender/parametric.py", "wenart/blender/proxies.py", "wenart/blender/geom2d.py",

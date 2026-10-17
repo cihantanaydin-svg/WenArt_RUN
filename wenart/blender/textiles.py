@@ -28,6 +28,12 @@ Deterministic: fixed grids, fold phases from the sizes only. The mesh makers tha
 ``lying_cushion_mesh``, ``flat_cloth``, ``cloth_solid``, ``curtain_parts``, ``blind_parts``) live in
 ``wenart.blender.parametric`` (its ``decor_parts`` builds them; the fit and gate stages read it without this module)
 and are re-exported here; this module drapes cloth on a built host (``rest``).
+
+Fix round after P4b (17 Oct 2026; integration of the furniture track's ask): the pillows look for the headboard in
+the bed's head half (``rest.place_leaning(bed=True)``: a footboard or a duvet roll at the foot is no headboard; P4b
+real03 laid oda_01's pillow at the foot and 7 of 10 beds got no bedding). The dressing record adds each pillow's
+local y (``pillow_local_y``, + = the head half) and ``head_problems`` (``bedding_head_problems``: a pillow or the
+duvet's head edge in the foot half), so the scene manifest shows a misplaced bedding.
 """
 from __future__ import annotations
 
@@ -164,7 +170,7 @@ def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
     for k in range(n):
         lx = 0.0 if n == 1 else (-1 if k == 0 else 1) * (pw / 2.0 + 0.02)
         planned = rest.to_world(hc, rot, lx, d / 2.0 - ph / 2.0)
-        pose = rest.place_leaning(caster, host_fp, planned, (pw, pt, ph), lean_deg=90.0 - PILLOW_TILT_DEG)
+        pose = rest.place_leaning(caster, host_fp, planned, (pw, pt, ph), lean_deg=90.0 - PILLOW_TILT_DEG, bed=True)
         if pose is None:
             return None
         mesh = cushion_mesh(pose["size"][0], pt, ph, key="bedding", role="pillow")
@@ -184,8 +190,25 @@ def duvet_and_pillows(caster, host_fp: dict, floor_z: float) -> Optional[dict]:
         parts.append(band)
     record = {"pillows": n, "pillow_size_m": [round(pw, 3), pt, ph], "duvet_rect_local": [round(v, 3) for v in rect],
               "duvet_share": DUVET_SHARE, "top_z": round(float(got["top_z"]), 4), "on_top_share": round(got["share"], 3),
-              "rule": "procedural bedding: the bed model has no bedding (docs/milestone12.md §4.7)"}
+              "rule": "procedural bedding: the bed model has no bedding (docs/milestone12.md §4.7)",
+              # fix round after P4b: where the pillows lie along the bed (local y, + = the head half) and the check
+              "pillow_local_y": [round(rest.to_local(hc, rot, p["center"][0], p["center"][1])[1], 3) for p in poses]}
+    record["head_problems"] = bedding_head_problems(record)
     return {"parts": parts, "pillows": poses, "duvet": got, "record": record}
+
+
+def bedding_head_problems(record: dict) -> list[str]:
+    """Fix round after P4b (17 Oct 2026; integration of the furniture track's ask): why the bedding of a dressing
+    record is not at the head of the bed: a pillow centre at local y <= 0 (the foot half) or the duvet's head edge
+    (``duvet_rect_local`` y1) at local y <= 0; [] when it is right. P4b real03 laid oda_01's pillow at the foot."""
+    out = []
+    for k, y in enumerate(record.get("pillow_local_y") or []):
+        if float(y) <= 0.0:
+            out.append(f"pillow {k + 1} lies in the foot half (local y {float(y):.2f} m)")
+    rect = record.get("duvet_rect_local") or []
+    if len(rect) == 4 and float(rect[3]) <= 0.0:
+        out.append(f"the duvet's head edge is in the foot half (local y {float(rect[3]):.2f} m)")
+    return out
 
 
 def _turn_down(got: dict, rect, band_rect, host_fp: dict) -> Optional[Part]:

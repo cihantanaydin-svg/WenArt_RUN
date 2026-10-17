@@ -12,6 +12,11 @@ finding of the check targets (``building``, ``room``, ``piece``, ``opening``, ``
 only the checks it can see (``V`` and ``CV``) plus the ``C`` ones as context; a ``C``-only finding of the vision
 critic that the code measured without a violation is dropped (``critic_vision``).
 
+Fix round after P4b (17 Oct 2026): the X6 rubric is the code's (one rubric: each exterior view keeps its role, a
+frontal view is square to the entrance facade by design, an entrance view shows the door up close), and
+``camera_note`` tells the exterior critic every camera's role, its measured eye height and pitch, and that a
+replayed (set 1) camera is fixed. Why: P4b's cameras flipped between frontal and corner each round.
+
 Fix round after P4a (17 Oct 2026): ``plan_prompt`` and ``session_task`` take ``lighting`` (the final round: critical
 findings and the views too dark for the EV cap that one ``set_lighting`` clears, ``loop.FINAL_ROUND_LIGHTING``), and
 the session task says that the ``set_lighting`` steps come first (``loop.lighting_first``). Why: P4a's salon
@@ -39,9 +44,11 @@ CHECKLIST: dict[str, dict] = {
                    "grade when the section says so", "how": "CV", "scope": "building"},
     "X5": {"what": "believable scale: storey 2.6-3.3 m, door 2.0-2.2 m, window sill 0.8-1.1 m", "how": "C",
            "scope": "building"},
-    "X6": {"what": "exterior camera at eye level 1.5-1.7 m, outside the building, 3/4 corner view with two facades, "
-                   "the whole building in frame, verticals straight; one frontal view of the entrance", "how": "CV",
-           "scope": "view"},
+    # fix round after P4b: one rubric with the code's X6 (exterior_checks._x6): each view keeps its role
+    "X6": {"what": "exterior camera outside the building at eye level 1.5-1.7 m above the ground, level (verticals "
+                   "straight); each view keeps its role: a corner view shows two facades and the whole building, the "
+                   "one frontal view looks square at the entrance facade (one facade, by design), an entrance view "
+                   "shows the entrance door up close (not the whole building)", "how": "CV", "scope": "view"},
     "X7": {"what": "sun 25-50 deg above the horizon from the side of the main facade, shadows visible; the sky "
                    "matches the lighting", "how": "CV", "scope": "building"},
     "X8": {"what": "facade, roof and frame materials follow the brief", "how": "C", "scope": "building"},
@@ -168,20 +175,52 @@ def room_critic_prompt(room: dict, pieces: list[dict], openings: list[dict], vie
         "image that shows it."])
 
 
-def camera_note(camera: Optional[dict]) -> str:
+# Fix round after P4b (camera_note): what each exterior camera role is, for the critic.
+CAMERA_ROLES = {
+    "corner": "a 3/4 corner view that shows two facades ({sides}) and the whole building",
+    "frontal": "the one frontal view of the {sides} (entrance) facade that X6 asks for: a view square to that facade, "
+               "showing one facade, is by design and NOT a finding (do not report that it is not a corner view)",
+    "elevation": "a frontal elevation view of the {sides} facade: a view square to that facade is by design and NOT a "
+                 "finding (do not report that it is not a corner view)",
+    "entrance": "the eye-level view of the entrance door ({sides} facade): the door up close with its path and steps "
+                "is by design and NOT a finding (do not report that it is not a corner view or that the whole "
+                "building is not in the frame)",
+    "agent": "a view the agent placed",
+}
+
+
+def camera_note(camera: Optional[dict], eye: Optional[dict] = None) -> str:
     """Round 2 (Milestone 13 D8, track T6): what the exterior critic is told about a camera the policy allows above
     eye level: a record with ``aerial_allowed`` (the one true aerial view ``ext_5``, the site view) or ``view``
     aerial. A true aerial is not a finding: its height, pitch and the missing eye level are by design; the critic
-    judges the building and the site in it. '' for an eye-level camera or without a record."""
+    judges the building and the site in it. '' without a record.
+
+    Fix round after P4b (17 Oct 2026; pod P4b, real03): every other exterior camera is told its role
+    (``CAMERA_ROLES``: corner, frontal, elevation, entrance, agent) and, with ``eye``
+    (``critic_vision.camera_eye``), its eye height above the ground and its pitch measured by code; a camera replayed
+    from the baseline (set 1) is told that its pose is fixed (decision 1 of 17 Oct 2026). Why: the X6 rubric asked
+    every view for a 3/4 corner at 1.5-1.7 m, so the critic called the frontal and the entrance view wrong and 5 views
+    "low angle" at 1.60 m above the ground; the cameras flipped between frontal and corner each round."""
     if not isinstance(camera, dict):
         return ""
-    if not (camera.get("aerial_allowed") or camera.get("site_view") or camera.get("view") == "aerial"):
-        return ""
-    what = "site view (the building in its plot, with the horizon)" if camera.get("site_view") else "aerial view"
-    return (f"This view is the {what} the camera policy allows (one true aerial view beside the eye-level corner "
-            f"and frontal views): its height above eye level, its downward pitch and the whole-building framing are "
-            f"by design and are NOT a finding (do not report X6 or V1 for the camera of this view); judge the roof, "
-            f"the facades, the site and the lighting it shows.")
+    if camera.get("aerial_allowed") or camera.get("site_view") or camera.get("view") == "aerial":
+        what = "site view (the building in its plot, with the horizon)" if camera.get("site_view") else "aerial view"
+        return (f"This view is the {what} the camera policy allows (one true aerial view beside the eye-level corner "
+                f"and frontal views): its height above eye level, its downward pitch and the whole-building framing "
+                f"are by design and are NOT a finding (do not report X6 or V1 for the camera of this view); judge the "
+                f"roof, the facades, the site and the lighting it shows.")
+    role = camera.get("view")
+    parts = []
+    if role in CAMERA_ROLES:
+        sides = ", ".join(str(x) for x in camera.get("sides") or []) or "its"
+        parts.append(f"The camera of this view is {CAMERA_ROLES[role].format(sides=sides)}.")
+    if isinstance(eye, dict) and eye.get("eye_m") is not None:
+        parts.append(f"Measured by code: the eye is {float(eye['eye_m']):.2f} m above the ground, pitch "
+                     f"{float(eye.get('pitch_deg') or 0.0):.1f} deg; do not report its height or angle from the image.")
+    if camera.get("source") == "replayed" or isinstance(camera.get("replaced_replayed"), dict):
+        parts.append("The camera is replayed from the baseline run (set 1): its pose is fixed for the before/after "
+                     "comparison; judge the building and the site, not the camera placement.")
+    return " ".join(parts)
 
 
 def exterior_critic_prompt(view: str, building_note: str, ids: list[str], image_labels: list[str],
@@ -320,13 +359,15 @@ PLANNER_SYSTEM_M12 = (
     "2. Drawn fixed equipment (stairs, kitchen runs, appliances, sanitary ware) keeps type, place and footprint; only "
     "rotate_piece for a front into a wall, fix_fixture for a misread size or a piece through a wall or in a door swing "
     "(at most 0.5 m), retype_piece or mark_not_furniture only for a fixture read in a room that never holds it "
-    "(a clear reading error; the piece's allowed tools say so). It is never marked as not furniture otherwise.\n"
+    "(a clear reading error; the piece's allowed tools say so). It is never marked as not furniture otherwise. Call "
+    "fix_fixture without center first; when it answers 'no valid spot', no centre will do: the finding stays for "
+    "review.\n"
     "3. Drawn furniture is kept; a symbol, mark or line read as furniture: mark_not_furniture with the evidence.\n"
     "4. rotate_piece turns a piece; set_front only gives a front to a piece that has none (front_inferred). front_deg "
     "is the direction the front faces, degrees counter-clockwise from +x; a piece with its back on a "
     "free wall span faces that span's into_room_deg.\n"
-    "5. When you are not sure an edit passes, call dry_run first (it is free). One edit per piece at a time: look at "
-    "its result before the next.\n"
+    "5. When you are not sure an edit passes, call dry_run first (it is free; the same dry run again is answered "
+    "from the first one and counts as a try). One edit per piece at a time: look at its result before the next.\n"
     "6. Every edit needs a short reason. When your checklist is done or nothing more can be fixed, call finish with "
     "the findings that stay open.\n"
     "7. An edit is accepted only when the finding it targets is gone in the code re-check and no new critical "
@@ -334,7 +375,9 @@ PLANNER_SYSTEM_M12 = (
     "rejected. The brief's drawn_groups move as one "
     "unit (place_group re-solves them around the drawn anchor); below_library pieces are our module or parametric "
     "builds, not wrong models (the library gap is already recorded); the licence_mode says which library models "
-    "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only.\n"
+    "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only. "
+    "Cameras replayed from the baseline run (set 1) are fixed: never set or remove them (add_camera with a new view "
+    "id adds a view); a frontal view stays square to its facade, an entrance view stays close in front of its door.\n"
     "8. A fixable finding may name an edit_target: the piece the tool must act on instead of the finding's target "
     "(a chair or nightstand stands around an anchor the fit left unbuilt: retype_piece types and builds an unknown "
     "anchor, place_group re-solves the drawn group so the refit builds a typed one), or the room set_lighting acts "

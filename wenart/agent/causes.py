@@ -83,6 +83,27 @@ Fix round after P4a (17 Oct 2026; pod P4a, real02 with the M11 cameras replayed)
   ``mark_not_furniture``, which deleted the drawn wardrobe anchor f_L-1_024 for a 2 cm cut; ``edit_ops`` now refuses
   that mark for a drawn, code-typed piece, so without this routing the F9 had no tool at all.
 
+Fix round after P4b (17 Oct 2026; pod P4b, real03, and the review of the P4a fix round; lead decisions of 17 Oct
+2026):
+
+- decision 1: a camera replayed from the baseline (set 1: ``source: replayed``, or a record that already replaced one,
+  ``replaced_replayed``) is frozen for the before/after comparison (docs/milestone13.md §7). A camera-placement
+  finding on it (``CAMERA_PLACEMENT_CHECKS``: X6, V1; ``mark_replayed`` sets ``metrics.replayed_camera`` from the
+  scene manifest's cameras) has the cause ``replayed_camera``: no tool, reported (``REPORT_TO``: cameras). The agent
+  may still add a new camera (an X6 "no frontal view" of the building keeps ``add_camera``);
+- a ``lighting_dark`` view less than one exposure step (``critic_code.LIGHTING_STEP_STOPS``, 1/6 stop) over the cap
+  is minor with ``metrics.below_exposure_step`` and the cause ``lighting_within_step``: no tool. Why: P4b re-lit and
+  re-rendered three rooms for 0.01-0.04 stops; the render rounds the EV to 1/6 stop;
+- a vision finding re-targeted to a decor light (``critic_vision``: a table lamp on the nightstand, a pendant over the
+  table) has the cause ``decor_model``: no agent tool edits decor, reported to the decor stage;
+- a vision X7 on one exterior view about over-exposure ("overexposed", "washed out", "blown") is
+  ``lighting_exterior`` (the view's exposure, report-only), not ``sun``: P4b moved the sun to 55 degrees for the
+  blown-out far pose of ext_7, outside the code's own 25-50 degrees;
+- ``override_touches(cause, override)``: a ``set_exterior`` changes what a finding of that cause is about only when
+  it sets one of the cause's slots (``EXTERIOR_SLOTS_OF_CAUSE``: site -> site or ground, roof -> roof, sun -> sun).
+  The loop keeps a vision finding the override does not touch (P4b: a ground and a sun edit each counted the vision
+  X4 "no path" as removed).
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -152,6 +173,11 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     # about a light fixture put on a piece (the rig's lights are the lighting stage's)
     "opening_under_roof": (),
     "light_fixture": (),
+    # fix round after P4b (module docstring): a camera of the replayed set 1 (decision 1 of 17 Oct 2026), a view
+    # less than one exposure step over the cap, a decor light's model
+    "replayed_camera": (),
+    "lighting_within_step": (),
+    "decor_model": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -178,11 +204,22 @@ NO_TOOL_REASON: dict[str, str] = {
                           "fix it, so it is reported only",
     "light_fixture": "the finding is about a light fixture (the room's lighting rig), not the piece it names: no "
                      "agent tool changes a light's model, so it is reported to the lighting stage",
+    "replayed_camera": "the camera is replayed from the baseline run (set 1): its pose is frozen for the before/after "
+                       "comparison (docs/milestone13.md §7, decision of 17 Oct 2026), so set_camera and remove_camera "
+                       "are refused for it; the finding is reported (add_camera with a new view id may add another "
+                       "view)",
+    "lighting_within_step": "the view is less than one exposure step (1/6 stop) over the EV cap: the render rounds "
+                            "the exposure to that step, so a set_lighting re-render changes nothing visible; reported "
+                            "only",
+    "decor_model": "the finding is about a decor piece (a table lamp, a pendant or ceiling light the decor stage "
+                   "placed): no agent tool edits decor, so it is reported to the decor stage",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
 # finding event as ``report_to``). Fix round after P4a: a light fixture's look goes to the lighting stage.
-REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor", "light_fixture": "lighting"}
+REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor", "light_fixture": "lighting",
+                             # fix round after P4b: a frozen replayed camera, a decor light's model
+                             "replayed_camera": "cameras", "decor_model": "decor"}
 # Fix round after P4a: the X2 kind of an opening the build clipped under the roof (``exterior_checks._x2``), and the
 # words of its message when an older finding has no kind.
 OPENING_CLIP_KIND = "opening_clip"
@@ -222,6 +259,14 @@ CHECK_CAUSE: dict[str, str] = {
     LIGHTING_DARK_CHECK: "lighting",
 }
 _PIECE_PREFIXES = ("f_", "furn_", "decor_", "dec_")
+# Fix round after P4b (module docstring): the camera-placement checks a replayed camera is frozen for, the metrics flag
+# ``mark_replayed`` sets, the words of a single view's over-exposure (X7), and the set_exterior slots of a cause.
+CAMERA_PLACEMENT_CHECKS: tuple[str, ...] = ("X6", "V1")
+REPLAYED_FLAG = "replayed_camera"
+OVEREXPOSED_WORDS = ("overexpos", "over-expos", "over expos", "washed out", "washed-out", "blown", "too bright",
+                     "blinding", "burnt out", "burned out", "clipped white")
+EXTERIOR_SLOTS_OF_CAUSE: dict[str, tuple[str, ...]] = {"site": ("site", "ground"), "roof": ("roof",),
+                                                       "sun": ("sun",)}
 _MISSING_WORDS = ("missing", " no ", "without", "lacks", "needs a", "has no", " only")
 
 
@@ -333,12 +378,19 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return "off_wall" if (metrics.get("part") == "headboard" or "headboard" in text) else "clearance"
     if check == "G8":
         return "soft_minimum" if metrics.get("tier") else "fixture_clearance"
+    if check in CAMERA_PLACEMENT_CHECKS and metrics.get(REPLAYED_FLAG):
+        return "replayed_camera"               # fix round after P4b, decision 1: set 1 is frozen (module docstring)
     if check == "V1":
         return "exterior_camera" if str(target or "").startswith(EXTERIOR_VIEW_PREFIX) else "interior_camera"
+    if check == "X7" and str(target or "").startswith(EXTERIOR_VIEW_PREFIX) \
+            and any(w in text for w in OVEREXPOSED_WORDS):
+        return "lighting_exterior"             # fix round after P4b: one view's exposure, not the sun
     if check in LIGHTING_CHECKS:
         # round 4: set_lighting needs the view's room; an exterior view (no room) is lit by the sun and the sky only
         if not finding.get("room_id") or str(target or "").startswith(EXTERIOR_VIEW_PREFIX):
             return "lighting_exterior"
+        if metrics.get("below_exposure_step"):
+            return "lighting_within_step"      # fix round after P4b: under the 1/6-stop exposure step
         # review of 16 Oct 2026: a view no set_lighting factor can clear (module docstring)
         try:
             want = float(metrics["set_lighting_factor"])
@@ -397,6 +449,45 @@ def is_building_wide(tool: str, args: Optional[dict] = None) -> bool:
         a = args or {}
         return str(a.get("view_id") or "").startswith(EXTERIOR_VIEW_PREFIX) or a.get("kind") == "exterior"
     return False
+
+
+def frozen_camera(camera: Optional[dict]) -> bool:
+    """Fix round after P4b (decision 1 of 17 Oct 2026): a camera of the replayed set 1: ``source: replayed``, or a
+    record that already replaced a replayed one (``replaced_replayed``: its name is still set 1's)."""
+    return isinstance(camera, dict) and (camera.get("source") == "replayed"
+                                         or isinstance(camera.get("replaced_replayed"), dict))
+
+
+def mark_replayed(findings: list[dict], cameras) -> list[dict]:
+    """Fix round after P4b (module docstring): every finding of ``CAMERA_PLACEMENT_CHECKS`` on a frozen camera
+    (``frozen_camera``; ``cameras``: the scene manifest's camera records) gets ``metrics.replayed_camera`` (in its
+    ``evidence.metrics``, where ``cause_of`` reads it) and a ``cause`` it carried before is dropped, so the cause is
+    taken again. Changes the findings in place and returns them."""
+    frozen = {str(c.get("name")) for c in cameras or [] if frozen_camera(c) and c.get("name")}
+    if not frozen:
+        return findings
+    for f in findings or []:
+        check = str(f.get("check") or f.get("checklist") or "")
+        if check not in CAMERA_PLACEMENT_CHECKS or str(f.get("target")) not in frozen:
+            continue
+        evidence = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
+        evidence["metrics"] = dict(_metrics(f), **{REPLAYED_FLAG: True})
+        f["evidence"] = evidence
+        if f.get("cause") not in (None, "replayed_camera"):
+            f.pop("cause", None)
+    return findings
+
+
+def override_slots(override: Optional[dict]) -> set:
+    """Fix round after P4b: the top-level slots a ``set_exterior`` override sets (``roof``, ``site``, ``ground``,
+    ``sun``), without ``reason`` and empty values."""
+    return {str(k) for k, v in (override or {}).items() if k != "reason" and v not in (None, {}, [])}
+
+
+def override_touches(cause: Optional[str], override: Optional[dict]) -> bool:
+    """Fix round after P4b (module docstring): a ``set_exterior`` override changes what a finding of ``cause`` is
+    about (``EXTERIOR_SLOTS_OF_CAUSE``); False for a cause without exterior slots (a facade, a camera, a material)."""
+    return bool(set(EXTERIOR_SLOTS_OF_CAUSE.get(str(cause), ())) & override_slots(override))
 
 
 # --------------------------------------------------------------------------

@@ -164,6 +164,14 @@ Fix round after P4a (17 Oct 2026; the asks of the rig track, applied at integrat
   its cord ends at the ceiling over its slot (``pendant_hang``); under a ceiling less than ``PENDANT_MIN_DROP_M`` above
   that bottom it is not built (``decor_skipped``, warning "ceiling X m over its slot too low"). Before, the shade
   was lowered to fit under the slope: P4a's dec_L1_006 rested 0.244 m above the floor, through table f_L1_045.
+
+Fix round after P4b (17 Oct 2026; the review of the P4a fix round, track R_rig):
+
+- Every decor entry of the scene manifest records ``decor_id``, the item's own id: ``_create_decor`` (a lamp, a
+  pendant, a curtain, a floor plant, or a hosted item the builder places without rays) and ``_create_wall_art`` as
+  ``_create_hosted_decor`` already did. A hosted item's ``element_id`` and ``wenart_id`` stay its host's (one pass
+  index per piece), so ``lighting.built_decor_boxes`` keys decor by ``decor_id``: P4a's fix round keyed it by the
+  host, and the rig lamp stood through the plant on its own nightstand unflagged.
 """
 from __future__ import annotations
 
@@ -2031,6 +2039,8 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
         "center": [footprint["center"][0], footprint["center"][1], floor_z + z_above + h / 2.0],
         "size": [w, d, h], "rotation_deg": rot, "asset": item.get("asset"), "method": None, "bbox_m": None,
         "fit_scale": [1.0, 1.0, 1.0], "materials": [], "material": None, "textured": False, "fallback_reason": None,
+        # fix round after P4b: the item's own id (a hosted item's element_id and wenart_id are its host's)
+        "decor_id": item.get("id"),
     }
     file, reason = resolve_asset(item.get("asset"), assets_dir)
     ob = None
@@ -2221,6 +2231,7 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
         "fit_scale": info["fit_scale"], "fit": info, "file": str(file) if file else None, "materials": materials,
         "material": materials[0] if materials else None, "textured": textured,
         "fallback_reason": reason if parametric else None, "mount": mount, "anchor_ids": anchors,
+        "decor_id": owner_id,                         # fix round after P4b: every decor entry names its item
     }
     if mirror_glass is not None:
         entry["mirror_glass"] = mirror_glass

@@ -1651,6 +1651,161 @@ tests/gpu/test_look_m6.py tests/gpu/test_m13_modules.py tests/gpu/test_m13_site.
 real02's 12 halls, 7 baths, 3 kitchens, 14 window views and 6 sky views beside M11 to judge the colour; the
 rig-lit/daylight bound of 1.1 comes from real02 only, so read the printed per-view values for real03/real04.
 
+### 14.11 Fix round after P4b (17 Oct 2026; no pod)
+
+Pod P4b ran real03 (the M11 cameras replayed; `runs/20261017-091212-full`) on the code of 03881bc while the P4a fix
+round ran (§14.10). Its analysts read it by lens (look, agent, library), a verifier checked every proposed fix (where
+it refuted a fix, its better fix was built; where it found no evidence, nothing changed), and a review read the P4a
+fix round. Seven tracks then fixed their items in parallel on 11949a9, each behaviour change with a CPU test that
+fails on 11949a9 or on a mutation of the fixed code, and one integration step applied the cross-track asks and ran the
+full CPU suite. Nothing here has run on a GPU yet: the new GPU checks run in P5.
+
+**Lead decisions of 17 Oct 2026** (recorded in the docstrings of the code they touch):
+
+- Decision 1: Replayed (set 1) cameras are frozen: the agent may not set or remove them (it may add a new camera); X6 and other
+  placement findings on replayed views are report-only (`agent/tools.py`, `agent/causes.py`, `agent/loop.py`).
+- Decision 2: The one frontal view X6 asks for is never turned into a non-frontal pose by the agent; an entrance view keeps its
+  door (`agent/tools.role_problem`; the build's `agent_exterior_view` keeps recording what a pose is).
+- Decision 4: real02's assumed north stays; views into the sun are only listed (`render.py`, `exterior_checks.py`,
+  `agent/tools.sun_problems`).
+- Decision 6: `FINAL_ROUND_LIGHTING` stays off (`agent/loop.py`: it was True at 11949a9, now False; the mechanism stays).
+- Decision 9: The late recognition questions get a second short recognition pass (about 5 min accepted), also for real03
+  (`run/scheduler.py`).
+- Decision 10: The terrace table abo_B07ML7P94G stays (no change).
+
+**What each track changed.**
+
+- **Agent (A).** Frozen set 1 (`causes.frozen_camera`: refused `set`/`remove`/`add` of the same name, counted as a
+  try; new cause `replayed_camera`, report-only). Camera roles kept (a frontal view stays within 30° of square to its
+  facade, an entrance view within 14 m and 30° of its door; the only frontal or entrance view is not removed), the
+  eye-height refusal names the ground z and the z to use, one X6 rubric for the critic (`prompts.camera_note` gives
+  the role and the code-measured eye height and pitch; `critic_vision.drop_camera_claims` drops only the claims the
+  code record answers). S2 wall cuts: the depth is exact (`loop.footprint_wall_depth`), chained moves start from the
+  predicted cut, cuts under 3 cm count as gone, a `swap_model`/`set_front` that keeps the footprint keeps the cut
+  (less `swap_depth_slack`; P4b 5 of 5). A light finding goes to the lamp it names (new cause `decor_model` for decor
+  lamps). `set_exterior`: a vision finding stays unless the override sets a slot of its cause, the built site and
+  garden are the no-op state, the sun is checked against X7 before the validator, the dry re-check reads the new sun.
+  `fix_fixture` is not tried again after the code's own search found no spot (memory `no_spot`; that piece's S2/F9
+  become "not yours"), an identical dry run is answered from the first one, and a view less than one exposure step
+  over the cap is minor and report-only (new cause `lighting_within_step`). Tests: `tests/test_agent_loop_p4b.py`
+  (17), 23 of 23 mutations killed.
+- **Rig (R).** Decor on a host is keyed by its own id (`lighting.decor_own_id`; `furniture.py` writes `decor_id`), so
+  a rig table lamp never stands through the plant on its nightstand (it takes a free spot of the top, else the
+  head-wall sconce: P3 real04's two bedrooms). Hosted lights reach the room: 3 cm under a decor pendant, under a
+  parametric shade, in a library shade only, and at build time rays against the host's own mesh move an enclosed
+  light out (`light_escapes`, `free_light_point`; an enclosed light is an assumed `rig_light_enclosed`). Fixtures have
+  hardware (a pendant's 6 mm cord and canopy up to the ceiling, a ceiling fixture's canopy, a table lamp's base and
+  stem) in a non-emissive dark bronze slot; a pendant's cord is checked like its shade. Tests: `tests/test_m13_rig.py`
+  (Blender test included), `tests/test_blender_furniture.py`.
+- **Furniture (F).** The duplicate-outline rule takes a larger built drawn piece of the same family (the phantom
+  1.30 m sofa f_L-1_061/062 inside real02's corner sofa may be marked; the program adds nothing around it); a plan crop
+  in the evidence lifts the mark lock, a top-down render never does (`edit_ops.crop_of`). A drawn washing machine may
+  stand in a hall (F1), and `complete_group` is refused where the program completes nothing. A drawn washer whose
+  front faces a wall keeps its one open side free (`solver.access_zone`: real03's 4 hall consoles are no longer added).
+  A code-typed corner sofa with no drawn L takes the chaise side that leaves its drawn coffee table free
+  (`infer.chaise_sides`: f_L0_190 left, f_L0_196 right). Tests: `tests/test_m13_fixround_furniture.py` (8 new), 14 of
+  14 mutations killed.
+- **Ingest and recognition (I).** Decision 9: after `pipeline_final`, a late pass answers the late questions from the
+  committed seeds (real03: no server, about 105 s), then Qwen in its session, then one GLM session, and runs
+  `pipeline_final` and `fit` again; unanswered ones are a warning, never `incomplete`. The code typing reads the first
+  reading's building in the run with the answers (`reading.code_first(reset)`), so the six real03 showers typed by
+  `group_member` in pass 1 stay typed. An axis line through an unnamed vanity is left out of its footprint
+  (`symbols.trim_axis_lines`: 0.85 x 0.80 → 0.50 x 0.80 m, then `group_member` types the six washbasins). Context and
+  size typing write the schema values `rule` / `inferred` (was `none`), and a two-pass disagreement between two
+  fitting types is decided by code (`reading.tie_break`: the type the room misses, else the nearer product size).
+  Tests: `tests/test_m13_p4b_recognition.py`, `tests/test_run_scheduler.py`.
+- **Light and colour (L).** `render.room_rig_kelvin`: each view is balanced for its own room's rig lights; interior
+  glazing is not pulled and is recorded (`interior_glazing`, delta R/B per view); an unclipped pull at ≥ 0.8 of the
+  wall median comes before a clipped one; the exterior exposure is capped by the sunlit ground (`ground_cap`, H =
+  1.5 stops; real02 shim: ext_1 −4.0 → −6.17, ext_2/ext_5 −4.33 → −6.33, sunlit views unchanged; the verifier marked
+  this as a lead decision: "metered per view on the facade" becomes "facade, capped by the ground"); the lawn record;
+  a `lighting_dark` under one exposure step is minor. Render code stays m13.3. New GPU checks: the orange check from
+  share 0.4 at daylight + 0.15, |delta R/B| ≤ 0.3 through interior glazing on 3 real03 views.
+- **Site and exterior (S).** Trees: a second, relaxed pass (window band 4 m out, 1 m aside) when the first places
+  fewer than 2, and every build lists "inferred trees: placed k of n" with the filter that removed most (real03: 0 → 2
+  trees behind the building; real02 unchanged). A flat_cut roof's slab edge and parapet take the facade look. Stairs
+  meet their walls (a flight side or landing edge within 5 cm of a parallel wall face is built 1 cm into it; the drawn
+  footprint stays) and the stair structure is a smooth paint of the wall colour (real03's fire-stair light slit and
+  coarse stringer). Agent exterior cameras that are no aerial or site pose lose the aerial flags.
+- **Report (P).** The final report's models table and ATTRIBUTION.md name the recognition models with their answer
+  counts (GLM-4.6V-Flash, MIT, pass 2: 66 of 72 answers on real03); metric 12 counts each camera name once (P4b real03
+  6 of 7, ext_6 re-added by the agent), metric 11 measures black pixels in an aerial or site view only.
+
+**Integration (this step).** Applied asks:
+
+| From | Change | Test |
+|---|---|---|
+| I | `building.schema.json`: `nightstand_symbol` in the `type_method` enum (P5 real04 would have stopped at pipeline_final: 6 schema errors) | `tests/test_m13_p4b_integration.py` |
+| I | pins changed on purpose: `test_reading_building.py` (a context-typed table carries `rule`), `test_real01.py` (`rule` / `inferred` allowed; the --no-ai chaise is size-inferred) | same files |
+| A, S | `exterior_checks`: an `entrance` view is judged by `entrance_view_problem` (its door in `visible_openings` and in the frame, at most 14 m from the door face, within 30° of the door's axis seen from the door), not by `FILL_RANGE` / "does not fit". The verifier's "looks within 30°" was changed to the bearing from the door: the planner's own ext_7 looks 42° off the axis (`frame_fixed` turns it to the building's middle). `agent/tools.entrance_problem` and `build.agent_exterior_view` (which now keeps `entrance` while the pose meets the rule, else relabels it `agent` with `view_was`) use the same function | `tests/test_m13_p4b_integration.py` (real03: the planner's ext_7 has no X6, the (40, −45) pose fails) |
+| A | `exterior_checks.validate_exterior_override`: the sun within `SUN_ELEVATION_RANGE` (25-50°) and an azimuth that lights the main facade in the building frame (`sun_override_problems`); decision 4 recorded | same (real02 fixture: 55° and 210° refused, 45° and 225° with north 180 accepted) |
+| A | `overrides.CAMERA_KEEP_KEYS` and `cameras.REPLAY_OPTIONAL` keep `entrance` (pin in `tests/test_m13_site.py` changed on purpose) | same |
+| A | `build.facade_sun_applies`: the main-facade sun also under an elevation-only override | same |
+| A | `exterior._try(keep_best_share=True)` for the E14 frontal and the elevation views: when no candidate passes, the best free one that failed on `MIN_BUILDING_SHARE` alone is kept with `SHARE_KEPT_WARNING` and `share_kept` (real03 with the agent's overhang 0.5 m and fence: ext_6 frontal at 7.6 % share; X6 has no "no frontal view"). "Every candidate fails on the share" was relaxed to "the best share-only candidate": one of real03's seven was also blocked by the agent's fence | same |
+| A | `render.lighting_dark_entry` under one exposure step: already done by L (minor, `below_exposure_step`, reported only), matching the agent's `lighting_within_step` | `tests/test_m13_light.py` |
+| R, L | `tests/test_look_m6.py`: the hall fixture's bounds reach the ceiling through the canopy (rig_box 3 cm under it); `choose_pull(cands, 0.75)` is k 3 (unclipped at 93 % of the walls) | same file (Blender shim for row 5) |
+| L | `lighting.rig_temperature_for`: halls, stairs, bathrooms and WCs at `RIG_NEUTRAL_K` 4000 K, bedside, living, dining and kitchen at 2700 K (the kitchen staying warm is a look decision), the evening rule unchanged; the manifest's `lighting.rig.temperature_k_by_type`. This supersedes §14.3's single 2700 K rig for those room types | `tests/test_m13_p4b_integration.py` |
+| F | `group_checks._g14` skips a piece `plausibility.drawn_anywhere` lets stand (the G14 twin of F's F1 change) | same |
+| F | `symbols.py` candidate path: the L's `l_front` travels with the candidate (as on the re-read path), so the corner-sofa context rule turns the piece to its open corner (real03 f_L0_138 / f_L0_139 had no front) | same |
+| F | `rest.place_leaning(bed=True)` for the `headboard` support and the pillows: the mattress probed at 0.55-0.75 of the depth from the foot, back rays from mid-bed skipping hits under 2 cm, at least 3 cm above the mattress, the back edge when a hit would leave the centre in the foot half; the dressing record adds `pillow_local_y` and `head_problems` (`textiles.bedding_head_problems`) | same (footboard, duvet roll and crowned beds: cushion and pillows at the headboard; at 11949a9 the first two were "not rested" with no bedding) |
+| S | `agent/tools.duplicate_view_problem`: an exterior set/add within 6 m and 15° of another exterior view (its pose after this session's accepted overrides; the same name left out) is refused and counted as a try. It does not catch P4b's own pair (15-23 m apart); decision 2's role rules refuse those moves | same |
+| P, I | `run/stages.py` `GROUPS_CODE` lists `edit_ops`, `fit`, `layout`, `complete`, `locked`, `prompts` and `wenart/assets/**`: `program.duplicate_anchor` imports `edit_ops`, so every stage that reaches the program has them in its fingerprint | `tests/test_run_stages.py` |
+
+Every change above has a test in `tests/test_m13_p4b_integration.py` (17 tests) or the named file; 29 of 29 single-line
+mutations of the integration's code are caught (scratch script `lead_p4b/mutate.py`).
+
+Not applied, with the reason: the corner sofa's L fields in `reading.code_first` (needs a CPU re-read of tekkat.dwg to
+confirm that f_L0_190/196 carry `l_outline`, and there is no `dwg2dxf` here; F's `infer.chaise_sides` covers them); the
+pass-order fix of `withdraw_questions` (I's `code_first(reset)` fixes the same root cause; the hall area conflict and
+the 'islik'/'camasir' keywords are left for the ingest owner); the agent memory key of a repeated `complete_group`
+refusal with the room's state (needs the agent owner's design of which tools are state-keyed; P4b shows one case) and
+`rotate_piece` for F3/F4 on a drawn anchor (the `l_front` fix removes f_L0_139's cause); treating `rule`-typed anchors
+as code-typed in `program.unsure_anchor`, `decor.trusted_host` and G4-G6 (optional, broad); the report lines for
+`ground_cap`, `interior_glazing` and the lawn (optional); `tests/test_m13_camera_replay.py` (decision 1 is enforced in
+the agent's tool, not in `overrides.apply_cameras`, so its pins stay); the P5 pod job (the lead's: run the pipeline
+without answers on real02 and real04 where `dwg2dxf` exists and diff the candidate keys and sizes against
+`results/recognition/<p>/requests.json`; expect changes only on symbols with `details.axis_lines`, and check that no
+other bathroom candidate's hash changes).
+
+Full CPU suite after the integration (`pytest -m "not gpu"`, temp folder in /dev/shm for the low disk): 5388 passed,
+0 failed, 219 skipped (no Blender binary), 166 deselected (GPU), 4 xfailed, 42:17 min. Pins changed on purpose:
+`tests/test_reading_building.py` and `tests/test_real01.py` (type methods `rule` / `inferred`), `tests/test_look_m6.py`
+(row 5's canopy, `choose_pull` k 3), `tests/test_m13_site.py` (`CAMERA_KEEP_KEYS` with `entrance`). Through the
+Blender 5.2.2 Python module (`WENART_BLENDER` shim): `test_decor_rest.py`, `test_look_m6.py`, `test_m13_rig.py`,
+`test_m13_light.py` and `test_blender_bedframe_decor.py` 157 passed and the known row-8 cushion pin (0.735 vs 0.60 m, as
+on 03881bc); `test_blender_furniture.py`, `test_m11_exterior.py`, `test_blender_exterior.py`, `test_blender_variants.py`,
+`test_m13_camera_replay.py`, `test_blender_build.py`, `test_decor_m10.py`, `test_top_stair_m10.py` and
+`test_site_buildings.py` 238 passed and 5 failed, all 5 the same on 11949a9 and left for their owners: the two decor
+pins of `test_blender_furniture.py` (the library cushion dec_T04 penetrates 0.031 m), `test_m11_exterior.py`'s
+`sun_disc is False` (M13 T5 added the sun disc), `test_blender_variants.py`'s `terrain == {"ground"}` (M13 T6 added
+`ground_skirt` and `ground_backdrop`) and `test_site_buildings.py`'s pool objects (M13 T6 added `pool_001_coping`).
+
+**Decisions for the user.**
+
+1. FINAL_ROUND_LIGHTING was True at 11949a9; decision 6 "stays off" was read as off (now False). Confirm.
+2. Neutral 4000 K rig in halls, stairs, bathrooms and WCs, 2700 K elsewhere; the kitchen stays warm (look decision).
+3. The exterior exposure capped by the sunlit ground (L): the "metered per view on the facade" rule becomes "facade,
+   capped by the ground".
+4. S2 after a swap: the cut is kept, less `swap_depth_slack` (a depth cut may shrink by depth × (1 − 1/1.10)); P4b 5 of
+   5. The entrance rule: 14 m and 30° from the door, the door in the frame; the frontal rule 30° of square.
+5. Once the code's `fix_fixture` search finds no spot, it holds for the rest of the run (the piece's S2/F9 go to
+   review).
+6. The rig table lamp becomes a head-wall sconce when built decor takes the nightstand top (real04's two bedrooms); the
+   cord, canopy and stem share the shade object and cast no shadow (a separate object would rename the rig objects).
+7. real03's 4 entrance halls get no console now (no spot passes; the entrance group is optional): an empty hall, or a
+   smaller piece with relaxed checks?
+8. A plan crop named in the evidence lifts the mark lock for any code-typed drawn piece (the P4b agent cited one in
+   all 9 NR marks): keep, or only the family-duplicate rule?
+9. Not verified, for the furniture owner and the user: should a drawn bathtub or shower 2-5 cm longer than its bay be
+   snapped to the clear bay width (a CLAUDE.md "misread size")?
+10. The policy frontal view is kept below the 8 % share floor rather than dropped (real03 7.6 %); the corner, aerial and
+    entrance views keep the floor.
+
+**GPU checks for P5.** As §14.10, plus `tests/gpu/test_render.py` and `tests/gpu/test_m13_light.py` as changed in this
+round (interior glazing |delta R/B| ≤ 0.3 with the 4000 K circulation and bath rig, the orange check from share 0.4).
+Read the P5 scene manifest's `escape` / `rig_light_enclosed` entries for the HSSD floor lamp and ABO B0742D9X4R (their
+GLBs were not here), the `head_problems` of every dressing record, and the `share_kept` of any frontal view.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

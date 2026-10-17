@@ -10,6 +10,10 @@ with fitted boxes.
 The pure parts (parametric parts, frame rotation, fitting maths, asset
 resolution, decor rules) need no Blender; the scene tests are skipped with
 a reason when no Blender binary is found.
+
+Fix round after P4b (17 Oct 2026): every decor entry of the scene manifest
+records the item's own id (``decor_id``), hosted or not, placed by rays or
+not; the light rig keys built decor by it (``lighting.decor_own_id``).
 """
 from __future__ import annotations
 
@@ -530,15 +534,17 @@ def _building(assets_dir: Path) -> dict:
     desk = next(f for f in furniture if f["type"] == "desk")
     bed = next(f for f in furniture if f["type"] == "bed_double")
     decor = [
-        {"type": "cushion", "host_id": sofa["id"], "center": [sofa["footprint"]["center"][0] - 0.5,
+        # fix round after P4b (17 Oct 2026): the hosted items carry ids, so the manifest's decor_id can be pinned
+        {"id": "dec_T01", "type": "cushion", "host_id": sofa["id"], "center": [sofa["footprint"]["center"][0] - 0.5,
                                                                 sofa["footprint"]["center"][1] + 0.1],
          "rotation_deg": 0.0, "size": [0.45, 0.45], "asset": None},
-        {"type": "plant", "host_id": sofa["id"], "center": [sofa["footprint"]["center"][0] + 1.6,
+        {"id": "dec_T02", "type": "plant", "host_id": sofa["id"], "center": [sofa["footprint"]["center"][0] + 1.6,
                                                               sofa["footprint"]["center"][1]],
          "rotation_deg": 0.0, "size": [0.9, 0.9, 1.4], "asset": None},
-        {"type": "book_set", "host_id": desk["id"], "center": list(desk["footprint"]["center"]), "rotation_deg": 90.0,
+        {"id": "dec_T03", "type": "book_set", "host_id": desk["id"], "center": list(desk["footprint"]["center"]),
+         "rotation_deg": 90.0,
          "size": [0.3, 0.15, 0.22], "asset": None},
-        {"type": "cushion", "host_id": bed["id"], "center": [bed["footprint"]["center"][0],
+        {"id": "dec_T04", "type": "cushion", "host_id": bed["id"], "center": [bed["footprint"]["center"][0],
                                                               bed["footprint"]["center"][1] + 0.5],
          "rotation_deg": 0.0, "size": [0.4, 0.25], "asset": _library_asset([0.8, 0.5, 0.9], asset_id="test_cube")},
         {"type": "cushion", "host_id": "f_nope", "center": [1, 1], "rotation_deg": 0.0, "size": [0.4, 0.4],
@@ -794,6 +800,21 @@ def test_decor_sits_on_its_hosts_and_shares_their_pass_index(scene):
 
 
 @needs_blender
+def test_every_decor_entry_records_its_own_id(scene):
+    """Fix round after P4b (17 Oct 2026): every decor entry names its own item (``decor_id``), hosted (placed by rays)
+    or not (the floor plant, through ``_create_decor``), and the light rig keys built decor by it, never by the host
+    (``lighting.decor_own_id``)."""
+    from wenart.blender import lighting
+    m = scene["manifest"]
+    ids = {d.get("id") for d in scene["building"]["decor"]}
+    decor = [o for o in m["objects"] if o["kind"] == "decor" and o.get("method") != "rig"]
+    assert len(decor) >= 4 and all(o["decor_id"] in ids for o in decor)
+    (plant,) = [o for o in decor if o["host_id"] is None]
+    assert plant["decor_id"] == "dec_L0_001"
+    assert all(lighting.decor_own_id(o) == o["decor_id"] != o["host_id"] for o in decor)
+
+
+@needs_blender
 def test_proxies_flag_restores_the_milestone_3_boxes(tmp_path, glb):
     scene = _build(tmp_path, glb, extra=["--proxies"])
     m = scene["manifest"]
@@ -813,6 +834,10 @@ def test_proxies_flag_restores_the_milestone_3_boxes(tmp_path, glb):
             assert o["pass_index"] == m["pass_index"][o["wenart_id"]]
         else:
             assert o["pass_index"] == m["pass_index"][f"proxy:{o['host_id']}"]
+    # Fix round after P4b: decor placed without rays (here on the proxies) records its own id too, its element_id
+    # stays the host's (P4a's fix round keyed such an item by its host in the light rig)
+    assert sorted(o["decor_id"] for o in decor) == ["dec_L0_001", "dec_T01", "dec_T02", "dec_T03", "dec_T04"]
+    assert all(o["element_id"] == o["host_id"] for o in decor if o["host_id"] is not None)
 
 
 # --------------------------------------------------------------------------

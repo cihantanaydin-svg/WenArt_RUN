@@ -138,7 +138,9 @@ def test_a_table_with_seats_drawn_around_it_is_a_dining_set():
     build = _build([table, lone] + seats, room_type="dining", window=None)
     _context_only(build)          # build round 3: read_furniture types the table by code first (the missing anchor)
     t = _piece(build.building, "t")
-    assert t["type"] == "table_dining" and t["inferred"] is True and t.get("type_method") is None
+    # Fix round after P4b (17 Oct 2026, pinned on purpose): a context-typed piece now carries type_method "rule"
+    # (reading.CONTEXT_METHOD), a schema value, instead of none.
+    assert t["type"] == "table_dining" and t["inferred"] is True and t["type_method"] == RD.CONTEXT_METHOD
     assert "5 seats drawn around it on 3 sides" in t["inferred_reason"]
     fronts = {f["id"]: f["front_deg"] for f in build.building["furniture"] if f["type"] == "chair"}
     assert fronts == {"c0": 90.0, "c1": 90.0, "c2": 270.0, "c3": 270.0, "c4": 0.0}

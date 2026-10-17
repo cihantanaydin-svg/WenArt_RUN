@@ -167,6 +167,21 @@ of the back facade, which hid X6's "no frontal view of the entrance"); else its 
 its nearest axis, and the build log says so. Never two cameras with one name: a clash is renamed ``<name>_dup<k>``
 with a log line (``dedupe_camera_names``), and the build stops when Blender renames a camera object
 (``check_camera_objects``). Each exterior camera object carries ``wenart_camera_source``, as the interior ones.
+
+Fix round after P4b (17 Oct 2026): an agent exterior camera whose view is not aerial / site after
+``agent_exterior_view`` loses the ``aerial_allowed`` and ``site_view`` flags it copied from the camera it replaced,
+and its ``horizon_frac`` is measured from its own pose (``plan_horizon_fraction``; review of the P4a fix round: an
+eye-level pose kept "the aerial view the policy allows, not a finding" for the vision critic). A flat_cut roof's slab
+edge and parapet (roof slot 2) take the facade look, not the roof covering (``roof_slot_looks``; P4b's real03 parapet
+read as a tiled mansard on a flat roof). The lead's decisions of 17 Oct 2026 recorded here: replayed cameras (set 1)
+are frozen and the frontal view X6 asks for is never turned into a non-frontal pose by the agent (both are rules of
+the agent's camera tool, wenart/agent/tools.py; the build's view check stays the record of what a pose is).
+Integration of the fix round after P4b: an agent pose on an ``entrance`` view keeps ``entrance`` while it still
+frames its door (``exterior_checks.entrance_view_problem``: at most 14 m from the door face, within 30 degrees
+of its axis, the door in the frame; ``site.entrances``), else it becomes ``agent`` with ``view_was`` (``agent_exterior_view``; the
+door id is kept through ``overrides.CAMERA_KEEP_KEYS``). The sun from the main facade (no north arrow) also applies
+when the agent's sun override gives no ``azimuth_deg`` (``facade_sun_applies``: an elevation-only override skipped it
+and the style's 210 degrees lit real02's back).
 """
 from __future__ import annotations
 
@@ -1012,7 +1027,7 @@ def main(argv: list[str]) -> int:
     if prep["overrides_applied"] is not None:
         prep["overrides_applied"]["materials"] += applied
         prep["overrides_applied"]["sun"] = sun_applied
-    if whole and sun_applied is None:
+    if whole and facade_sun_applies(sun_applied):
         style, sun_rule = sun_from_main_facade(style, prep.get("main_facade"), building)
         if sun_rule:
             assumed.append({"object": "sun", "field": "azimuth_deg", "value": sun_rule["azimuth_deg"],
@@ -1223,9 +1238,13 @@ def main(argv: list[str]) -> int:
             roof_col = common.get_or_make_collection("roof")
             extra_collections.append(roof_col)
             ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
-            mats = [shell.look_material(library, looks["roof"]),
+            # fix round after P4b (17 Oct 2026): a flat_cut roof's slab edge and parapet carry the facade look
+            covering, fascia, fascia_note = roof_slot_looks(roof, looks)
+            mats = [shell.look_material(library, covering),
                     library.get(ceiling_style["material"], ceiling_style.get("asset")),
-                    shell.look_material(library, looks["roof"])]
+                    shell.look_material(library, fascia)]
+            if fascia_note is not None:
+                assumed.append(fascia_note)
             R.build_roof(roof, roof_col, mats, manifest_objects, assumed)
             over = next(lv for lv in levels if lv["id"] == roof["over_level_id"])
             parapets = R.parapet_cuts(roof, building, over)
@@ -1320,7 +1339,8 @@ def main(argv: list[str]) -> int:
                 lines = finish_agent_exterior_plans(
                     ext_plans, prep["variant"], geom_centre(model.outline), north, not src.startswith("assumed"),
                     visible=lambda p: E.visible_openings(model, building, levels, p["position"], p["target"],
-                                                         p["lens_mm"], 0.0))
+                                                         p["lens_mm"], 0.0),
+                    entrances=(building.get("site") or {}).get("entrances"))
                 for line in lines:
                     print(f"agent camera: {line}")
                     warnings.append(line)
@@ -1473,6 +1493,29 @@ def main(argv: list[str]) -> int:
     return 0
 
 
+FLAT_CUT_FASCIA_REASON = ("flat_cut roof: the slab edge and the {h:.2f} m parapet are walling finished like the "
+                          "facade ({material}), with the coping on top, not the roof covering ({covering})")
+
+
+def roof_slot_looks(roof: dict, looks: dict) -> tuple[dict, dict, dict | None]:
+    """``(covering, fascia, assumed entry or None)``: the looks of the roof's slot 0 (``roof.SLOT_COVERING``) and slot
+    2 (``roof.SLOT_FASCIA``: the eaves fascia, the edges of roof terraces and, on a ``flat_cut`` roof, the slab edge and
+    the parapet ring; pure; fix round after P4b, 17 Oct 2026). Pod P4b (real03, a single drawn ground floor): the
+    0.30 m parapet and the slab edge under it carried the roof covering (``concrete_tiles``), so the 0.6 m band read
+    as a tiled mansard on a flat roof. A ``flat_cut`` roof's fascia slot now takes ``looks["facade"]`` (the parapet is
+    a wall; ``facade.py`` adds the coping on top) and the build lists it as assumed with the reason; every other roof
+    (real02 pitched, real04 mansard) keeps the roof look on both slots."""
+    covering = looks["roof"]
+    if roof.get("kind") == "flat_cut" and isinstance(looks.get("facade"), dict):
+        facade = looks["facade"]
+        note = {"object": "roof", "field": "parapet_material", "value": facade.get("material"),
+                "reason": FLAT_CUT_FASCIA_REASON.format(h=float(roof.get("parapet") or 0.0),
+                                                        material=facade.get("material"),
+                                                        covering=covering.get("material"))}
+        return covering, facade, note
+    return covering, covering, None
+
+
 def unused_replayed(plans: list[dict], camera_plans: list[dict], dropped: list[dict] | None = None) -> list[dict]:
     """The replayed camera plans the build did not create (pure; pre-flight of pod P3): ``[{"name", "reason"}]`` for
     every plan of ``plans`` (``cameras.replay_cameras``) whose name is not among ``camera_plans`` and not already in
@@ -1593,6 +1636,8 @@ AGENT_REMOVED_REASON = "removed by the agent{seq}: {reason}"
 AGENT_FRONTAL_MAX_DEG = 30.0       # a frontal / elevation view looks square at its facade (exterior_checks._faces)
 AGENT_CORNER_MAX_DEG = 80.0        # a corner view looks at each of its two facades less than this off its normal
 AGENT_AERIAL_MIN_DOWN_DEG = 5.0    # an aerial / site view looks down at least this much (eye-level views are level)
+AGENT_AERIAL_VIEWS = ("aerial", "site")
+AGENT_AERIAL_FLAGS = ("aerial_allowed", "site_view")   # fix round after P4b: only on a plan of an aerial / site view
 DUPLICATE_CAMERA_SUFFIX = "_dup"
 
 
@@ -1635,7 +1680,8 @@ def _look_dir(plan: dict) -> tuple[float, float] | None:
     return (dx / n, dy / n) if n > 1e-9 else None
 
 
-def agent_exterior_view(plan: dict, centre, north: float = 0.0, north_known: bool = False) -> dict | None:
+def agent_exterior_view(plan: dict, centre, north: float = 0.0, north_known: bool = False,
+                        entrances=None) -> dict | None:
     """Check an agent exterior plan's ``view`` and ``sides`` against its own pose (pure; fix round after P4a, 17 Oct
     2026). ``overrides.fixed_plan`` copies them from the camera the agent replaces, so P4a's corner pose for ext_6
     stayed "frontal, back", which hid the code finding X6 "no frontal view of the entrance". The copied view stays
@@ -1645,7 +1691,25 @@ def agent_exterior_view(plan: dict, centre, north: float = 0.0, north_known: boo
     (exterior_checks then judges the frontal view by the pose itself) and the sides are re-derived; the plan's
     ``agent`` record keeps ``view_was`` and ``sides_was``. A plan without sides gets the side of its nearest axis
     from ``centre`` (as the build did for an added agent camera). Returns ``{"view_was", "sides_was", "view",
-    "sides"}`` when the view changed, else None."""
+    "sides"}`` when the view changed, else None.
+
+    Fix round after P4b (17 Oct 2026; review of the P4a fix round): ``fixed_plan`` also copies ``aerial_allowed``,
+    ``site_view`` and ``horizon_frac`` (``overrides.CAMERA_KEEP_KEYS``) from the camera it replaces. A plan whose view
+    is not ``aerial`` / ``site`` after the check (an aerial or site pose the agent brought to eye level, real04's
+    ext_5 / ext_7) loses ``aerial_allowed`` and ``site_view`` (kept in the ``agent`` record as ``flags_was``, and in
+    the returned dict as ``flags_dropped``): the vision critic was told "the aerial view the policy allows, not a
+    finding" for an eye-level camera. ``horizon_frac`` is measured again from the plan's own pose
+    (``plan_horizon_fraction``; the copied value was the replaced camera's, e.g. 0.78 for a level pose at 0.5); the
+    old value is kept as ``horizon_frac_was``. The lead's decisions of 17 Oct 2026: (1) a replayed camera (set 1) is
+    frozen and (2) the one frontal view X6 asks for is never turned into a non-frontal pose by the agent; both are
+    rules of the agent's camera tool (wenart/agent/tools.py), this check stays the build's record of what a pose
+    really is.
+
+    Integration of the fix round after P4b: an ``entrance`` view stays ``entrance`` while the pose still frames its
+    door (``entrances``: the ``site.entrances`` records; ``exterior_checks.entrance_view_problem``: at most 14 m from
+    the door face, within 30 degrees of its axis, the door in the frame), else it becomes ``agent`` with
+    ``view_was``. Without
+    entrance records nothing can be judged and the view stays."""
     from wenart.blender import site as S
 
     view, sides = plan.get("view"), list(plan.get("sides") or [])
@@ -1659,6 +1723,11 @@ def agent_exterior_view(plan: dict, centre, north: float = 0.0, north_known: boo
             n is not None and -(look[0] * n[0] + look[1] * n[1]) > math.cos(math.radians(limit)) for n in normals)
     elif view in ("aerial", "site") and plan.get("target") is not None:
         keep = _down_pitch_deg(plan["position"], plan["target"]) >= AGENT_AERIAL_MIN_DOWN_DEG
+    elif view == "entrance" and look is not None and entrances:
+        from wenart.blender import exterior_checks as X        # integration after P4b (docstring)
+
+        rec = X.entrance_record({"site": {"entrances": list(entrances)}}, plan)
+        keep = X.entrance_view_problem(rec, plan["position"], plan["target"], plan.get("lens_mm")) is None
     change = None
     if not keep:
         change = {"view_was": view, "sides_was": sides}
@@ -1666,18 +1735,55 @@ def agent_exterior_view(plan: dict, centre, north: float = 0.0, north_known: boo
     if not plan.get("sides"):
         d = (float(plan["position"][0]) - float(centre[0]), float(plan["position"][1]) - float(centre[1]))
         plan["sides"] = [S.side_of(S.AXES[S.nearest_axis(d)], north, north_known)]
+    # fix round after P4b (docstring): the aerial / site flags only on an aerial / site pose, the horizon of this pose
+    flags = {}
+    if plan.get("view") not in AGENT_AERIAL_VIEWS:
+        flags = {k: plan.pop(k) for k in AGENT_AERIAL_FLAGS if k in plan}
+    frac_was = plan.get("horizon_frac")
+    if frac_was is not None:
+        frac = plan_horizon_fraction(plan)
+        if frac is None:
+            plan.pop("horizon_frac")
+        else:
+            plan["horizon_frac"] = frac
+    if flags or (frac_was is not None and plan.get("horizon_frac") != frac_was):
+        plan["agent"] = dict(plan.get("agent") or {})
+        if flags:
+            plan["agent"]["flags_was"] = flags
+        if frac_was is not None and plan.get("horizon_frac") != frac_was:
+            plan["agent"]["horizon_frac_was"] = frac_was
     if change is not None:
         change.update(view=plan["view"], sides=list(plan["sides"]))
+        if flags:
+            change["flags_dropped"] = sorted(flags)
         plan["agent"] = dict(plan.get("agent") or {}, view_was=change["view_was"], sides_was=change["sides_was"])
     return change
 
 
+def plan_horizon_fraction(plan: dict) -> float | None:
+    """Where the horizon lies in the frame of ``plan``'s own pose (pure; fix round after P4b, 17 Oct 2026):
+    ``copies.horizon_fraction`` of the downward pitch from ``position`` to ``target``, the lens, the sensor and the
+    aspect of the resolution, less the vertical shift (as ``repitch_replayed_aerials``), rounded to 4 places. None
+    without a target or with the target on the camera."""
+    from wenart.blender import copies as CP
+
+    pos, tgt = plan.get("position"), plan.get("target")
+    if pos is None or tgt is None or math.dist([float(v) for v in pos], [float(v) for v in tgt]) <= 1e-6:
+        return None
+    res = plan.get("resolution") or [1920, 1080]
+    aspect = float(res[1]) / float(res[0]) if res and float(res[0]) > 0 else CP.ASPECT
+    sensor = float(plan.get("sensor_mm") or CP.SENSOR_MM)
+    frac = CP.horizon_fraction(_down_pitch_deg(pos, tgt), float(plan["lens_mm"]), sensor, aspect)
+    return round(frac - float(plan.get("shift_y") or 0.0) / aspect, 4)
+
+
 def finish_agent_exterior_plans(plans: list[dict], variant, centre, north: float = 0.0, north_known: bool = False,
-                                visible=None) -> list[str]:
+                                visible=None, entrances=None) -> list[str]:
     """The build's fields of this build's agent exterior plans (``policy: agent``, not replayed; pure but for
     ``visible``, ``plan -> visible opening ids``): ``index`` from the name's number (else the plan's own, at least
     1: ``ext_6_s`` gave 0 before, under the schema's minimum), ``variant``, ``visible_openings`` and the view check
-    of ``agent_exterior_view``. Returns the log lines of the views it changed (fix round after P4a)."""
+    of ``agent_exterior_view`` (``entrances``: the ``site.entrances`` records, integration after P4b). Returns the
+    log lines of the views it changed (fix round after P4a)."""
     lines = []
     for p in plans:
         if p.get("policy") != "agent" or p.get("source") == "replayed":
@@ -1687,11 +1793,12 @@ def finish_agent_exterior_plans(plans: list[dict], variant, centre, north: float
         p["variant"] = variant
         if visible is not None:
             p["visible_openings"] = visible(p)
-        change = agent_exterior_view(p, centre, north, north_known)
+        change = agent_exterior_view(p, centre, north, north_known, entrances)
         if change is not None:
             lines.append(f"{p['name']}: the agent's pose is no longer the {change['view_was']} view of "
                          f"{', '.join(change['sides_was']) or 'no side'}; recorded as view agent "
-                         f"({', '.join(change['sides'])})")
+                         f"({', '.join(change['sides'])})"
+                         + (f"; {', '.join(change['flags_dropped'])} dropped" if change.get("flags_dropped") else ""))
     return lines
 
 
@@ -1739,6 +1846,13 @@ def geom_centre(outline) -> tuple[float, float]:
 
 
 SUN_TO_MAIN_FACADE_DEG = 45.0    # Milestone 11 (§7): the sun 45 degrees off the main facade's normal
+
+
+def facade_sun_applies(sun_applied: dict | None) -> bool:
+    """True when the build turns the sun to the main facade (``sun_from_main_facade``; pure; integration after
+    P4b): no agent sun override, or one without ``azimuth_deg`` (an elevation-only override keeps the facade rule;
+    it skipped it before and the style's azimuth lit real02's back)."""
+    return sun_applied is None or "azimuth_deg" not in sun_applied
 
 
 def sun_from_main_facade(style: dict, main: dict | None, building: dict) -> tuple[dict, dict | None]:

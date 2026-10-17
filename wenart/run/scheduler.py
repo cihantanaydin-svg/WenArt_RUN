@@ -82,6 +82,23 @@ detect below 80 GB; expected; the check with the agent model alone, one pass, D8
 (``agent_apply``, ``agent_previews``, ``agent``) never decide a project's state; a failed agent server leaves the
 M10 result (the check then fails as in M10).
 
+Fix round after P4b (17 Oct 2026; lead decision 9: the late recognition questions get a second short recognition
+pass, about 5 min accepted). What: after ``pipeline_final`` ends ok or warning, a project whose final
+``recognition/requests.json`` lists questions that ``<out>/recognition`` does not answer for both models (questions
+the first pipeline did not ask: the pipeline writes them, warns and leaves their pieces for review) gets one late
+pass (``late_pass``): (a) the stored and committed answers of each model whose set they complete (no server); (b) in
+an orchestrated run the open Qwen session of phase 3 asks Qwen's missing ones, and after it ``late_sessions`` starts
+one session per model still missing (GLM) when the deadline allows; (c) once every answer is in, pipeline_final and
+fit run again (``LATE_NOTE`` in the record) before the layout. The pass is gated on ``<out>/recognition`` being
+incomplete, not on ``recognition_missing`` (which counts the committed seeds as answered). Questions left without
+both answers (no session, the deadline, a server error; the M10 chain lays out in its Qwen session and asks there
+only when Qwen is the one model missing) are a ``warning``
+on recognize (``LATE_LEFT_NOTE``), never ``incomplete``: the project keeps its final building. Why: P4a (real02) and
+P4b (real03) each ended with 6 late questions that were never asked. On real03 all six had current answers of both
+models in the committed seeds, so step (a) alone completes them with no server start (about 105 s of pipeline_final
+and fit); on real02 a GLM start is needed. ``wenart.run.prep`` (the M7-M10 prep pod) is not changed: the M13 runs
+use this scheduler.
+
 How: every subprocess goes through ONE injectable function
 ``runner(cmd, env, cwd, timeout, log_path) -> rc`` (cwd = repo root, output
 into ``<out>/run/logs/<stage>.log``); the clock, the server sessions, the
@@ -138,6 +155,10 @@ PHASE_NAMES = {
     12: "agent (M11): previews, critic and planner rounds; inside: phases 5-8 with the agent model's one-pass check",
 }
 AGENT_PHASE = 12
+# Fix round after P4b (lead decision 9 of 17 Oct 2026, module docstring): the late question pass.
+LATE_NOTE = "late questions ({n}) answered in a second short recognition pass: pipeline_final ran again"
+LATE_LEFT_NOTE = ("{n} late recognition question(s) left unanswered ({why}): their pieces stay unknown and are listed "
+                  "for review")
 OVERRIDES_REL = f"{S.AGENT_DIR}/overrides.json"
 AGENT_SLEEP_ENV = "WENART_AGENT_SLEEP"         # on | off | auto (default: sleep only below 80 GB of VRAM)
 # The control renders of the control project (M6 §6.2): ab/renders plus one render folder per control set.
@@ -391,6 +412,10 @@ class ProjectRun:
     # Milestone 12 (B6): round 0 measured on this pod: {"build_s", "previews_s", "views"} (the final-stage estimate)
     round0: dict = field(default_factory=dict)
     agent_model: object = None          # the agent model client of the loop (its critic calls give the call seconds)
+    # Fix round after P4b (lead decision 9 of 17 Oct 2026): the late question pass of this project ("" not started,
+    # "open" its questions wait for a model, "done") and how many late questions it found.
+    late: str = ""
+    late_keys: int = 0
 
     @property
     def name(self) -> str:
@@ -963,23 +988,27 @@ class Orchestrator:
             return True
         return A.is_complete(A.load(self.recognition_dir(pr, qdir), items, self.models))
 
-    def recognize_part(self, pr: ProjectRun, key: str, url: Optional[str], seqs: int = 1) -> None:
+    def recognize_part(self, pr: ProjectRun, key: str, url: Optional[str], seqs: int = 1, late: bool = False) -> None:
         """One model's answers for every question folder (``url`` None: the stored and committed answers only, no
-        server)."""
-        missing = self.recognition_missing(pr, key) if url is not None else []
+        server). Fix round after P4b: ``late`` (the late question pass, ``late_pass``) answers the ``recognition``
+        folder only, and a deadline there is a ``warning``: the project already has its final building."""
+        missing = self.recognition_missing(pr, key, S.RECOGNITION_DIR if late else None) if url is not None else []
         if url is not None and not self.can_start(S.est_calls(len(missing), seqs)):
-            self.finish(pr, "recognize", "incomplete", f"deadline: recognition ({key}) not started", merge=True,
+            self.finish(pr, "recognize", "warning" if late else "incomplete",
+                        f"deadline: recognition ({key}{', late questions' if late else ''}) not started", merge=True,
                         outputs=self.recognition_outputs(pr))
             return
-        for qdir in self.question_dirs(pr):
+        for qdir in ([S.RECOGNITION_DIR] if late else self.question_dirs(pr)):
             seeds = S.recognition_seeds(pr.ref, self.repo_root, qdir)
             cmd = S.recognize(self.tools, pr.ref, key, url, seqs, seeds if seeds is not None and seeds.is_dir() else None,
                               qdir=qdir)
             what = "" if qdir == S.RECOGNITION_DIR else f" ({qdir})"
-            step = f"{'ask' if url is not None else 'stored answers'} {key}{what}"
+            step = f"{'ask' if url is not None else 'stored answers'} {key}{what}{' (late)' if late else ''}"
             rc = self.run_step(pr, "recognize", step, cmd)
             if rc == 0:
                 status, note = ("ok", None) if url is not None else ("reused", None)
+            elif rc in (3, TIMEOUT_RC) and late:
+                status, note = "warning", f"deadline: recognition ({key}, late questions) cut"
             elif rc in (3, TIMEOUT_RC):
                 status, note = "incomplete", f"deadline: recognition ({key}{what}) cut"
             else:
@@ -1004,6 +1033,104 @@ class Orchestrator:
         self.stage_pipeline_final(pr)
         if pr.active:
             self.stage_fit(pr)
+
+    # ----- fix round after P4b: the late recognition questions (lead decision 9 of 17 Oct 2026) ----------------
+
+    def late_missing(self, pr: ProjectRun) -> list:
+        """The question keys of ``<out>/recognition/requests.json`` that ``<out>/recognition`` does not answer for
+        every recognition model (the pipeline's rule; the committed seeds do not count here: they still have to be
+        copied in)."""
+        from wenart.recognition import answers as A    # lazy: jsonschema
+        items = self.recognition_items(pr, S.RECOGNITION_DIR)
+        if not items:
+            return []
+        loaded = A.load(self.recognition_dir(pr), items, self.models)
+        return [i["key"] for i in items if not A.is_complete(loaded, [i["key"]])]
+
+    def late_pass(self, pr: ProjectRun, key: Optional[str] = None, url: Optional[str] = None) -> None:
+        """Fix round after P4b (module docstring): right after ``finalize``. When the final building's
+        ``requests.json`` lists questions without both answers (questions the first pipeline did not ask: the
+        pipeline writes them, warns and leaves their pieces for review), the project's late pass opens once: the
+        stored and committed answers first (no server; real03's late keys are all in its committed seeds), then
+        ``key``'s open session (``url``). ``late_close`` runs pipeline_final and fit again once every answer is in;
+        what still waits for a model is asked by ``late_sessions``."""
+        if pr.late or not pr.active or not pr.finalized or self.opts.smoke \
+                or self.status_of(pr, "pipeline_final") not in ("ok", "warning"):
+            return
+        missing = self.late_missing(pr)
+        if not missing:
+            return
+        pr.late, pr.late_keys = "open", len(missing)
+        self.out(f"{pr.name}: {len(missing)} late recognition question(s): a second short recognition pass")
+        for k in self.recognition_keys():
+            if not self.recognition_missing(pr, k, S.RECOGNITION_DIR):
+                self.recognize_part(pr, k, None, late=True)     # the stored / committed answers complete it
+        if url is not None and self.late_asks(pr, key):
+            self.recognize_part(pr, key, url, self.seqs(key), late=True)
+        self.late_close(pr)
+
+    def late_asks(self, pr: ProjectRun, key: Optional[str]) -> bool:
+        """``key``'s open session answers ``pr``'s late questions: some wait for it, and either a late session of
+        the other models follows (an orchestrated run, ``late_sessions``) or no other model's answer is missing (the
+        M10 chain lays out in the Qwen session and starts no late GLM session)."""
+        if key not in self.recognition_keys() or not pr.active or pr.late != "open" \
+                or not self.recognition_missing(pr, key, S.RECOGNITION_DIR):
+            return False
+        return self.layout_key() != "qwen" or not any(self.recognition_missing(pr, k, S.RECOGNITION_DIR)
+                                                      for k in self.recognition_keys() if k != key)
+
+    def late_needs(self, key: str) -> list:
+        """Projects whose late pass waits for an answer of ``key``."""
+        if key not in self.recognition_keys():
+            return []
+        return [pr for pr in self.runs if pr.active and pr.late == "open"
+                and self.recognition_missing(pr, key, S.RECOGNITION_DIR)]
+
+    def late_close(self, pr: ProjectRun, why: Optional[str] = None) -> None:
+        """Every answer in: pipeline_final and fit again with them (``LATE_NOTE``). ``why`` (the pass ends without
+        them): the questions stay unanswered, their pieces stay for review, a ``warning`` on recognize."""
+        if pr.late != "open" or not pr.active:
+            return
+        if self.recognition_complete(pr, S.RECOGNITION_DIR):
+            pr.late = "done"
+            self.stage_pipeline_final(pr)
+            if pr.active:
+                self.stage_fit(pr)
+        elif why is not None:
+            pr.late = "done"
+            left = len(self.late_missing(pr))
+            self.finish(pr, "recognize", "warning", LATE_LEFT_NOTE.format(n=left, why=why), merge=True,
+                        outputs=self.recognition_outputs(pr))
+
+    def late_sessions(self) -> None:
+        """The late passes that still wait for a model (orchestrated runs, after phase 3's Qwen session and before
+        the agent's layout session): one session per model that some project still needs (``CHECK_MODELS`` order),
+        then pipeline_final and fit again for every project whose answers are complete (``late_close``)."""
+        for key in self.recognition_keys():
+            need = self.late_needs(key)
+            if not need:
+                continue
+
+            def fail(pr, status, note):
+                self.late_close(pr, note)
+
+            cm = self.start_session(key, need, fail)
+            if cm is None:
+                continue
+            try:
+                with cm as url:
+                    for pr in need:
+                        if pr.active and pr.late == "open":
+                            self.recognize_part(pr, key, url, self.seqs(key), late=True)
+            except SV.ServerError as exc:
+                self.out(f"late questions: {exc}")
+                for pr in need:
+                    self.late_close(pr, f"server {key}: {exc.reason}")
+        for pr in self.runs:
+            if pr.late == "open":
+                self.late_close(pr, "no answer of every model")
+            if pr.active and pr.finalized and pr.late == "done":
+                self.layout_prepare(pr)
 
     def pipeline_final_inputs(self, pr: ProjectRun) -> dict:
         ins = ST.file_hashes([pr.ref.project_dir] + [self.answers_file(pr, k, q) for q in S.QUESTION_DIRS
@@ -1075,6 +1202,8 @@ class Orchestrator:
                else "--no-ai: the unanswered pieces stay unknown, unverified")
         if sheets_missing:                      # M10: as prep.do_pipeline_final, never a silent "answers applied"
             how += "; sheet answers missing: sheets --no-ai (regions decided by title and geometry)"
+        if pr.late == "done" and complete and not smoke:
+            how += "; " + LATE_NOTE.format(n=pr.late_keys)      # fix round after P4b: the late question pass
         if second_round and rc == 0 and status == "ok":
             self.finish(pr, "pipeline_final", "warning", S.SECOND_ROUND_NOTE + platforms_note, **rec)
         elif rc == 0 and status == "ok":
@@ -1514,8 +1643,12 @@ class Orchestrator:
         for pr in self.runs:
             if pr.active and pr.pending and pr not in need_recog:
                 self.finalize(pr)
+                self.late_pass(pr)              # fix round after P4b: the late questions' stored answers first
+        # Fix round after P4b: a late pass that still needs Qwen asks in this phase's Qwen session (started for it
+        # when nothing else needs one); a project whose late pass is open gets its layout after it.
+        late_qwen = self.late_needs("qwen")
         for pr in self.runs:
-            if pr.active and not (pr.pending and not pr.finalized):
+            if pr.active and not (pr.pending and not pr.finalized) and pr.late != "open":
                 self.layout_prepare(pr)
         need_photos = [pr for pr in self.runs if pr.active and pr.photos and "qwen" in self.opts.check_models
                        and self.photo_missing(pr, "qwen")]
@@ -1523,9 +1656,10 @@ class Orchestrator:
         # Milestone 9: the AI decor asks after the layout, in the same session (a reused layout keeps its building).
         need_decor = [pr for pr in self.runs if pr.active and not (pr.pending and not pr.finalized)
                       and pr not in need_layout and self.decor_wanted(pr)]
-        if not need_photos and not need_layout and not need_recog and not need_decor:
+        if not need_photos and not need_layout and not need_recog and not need_decor and not late_qwen:
             self.out("phase 3: no project needs Qwen recognition answers, a layout, a Qwen photo answer or decor "
                      "answers: no server")
+            self.late_sessions()                # fix round after P4b: GLM for the late questions, if any
             for pr in self.runs:
                 if pr.active and pr.layout_rooms:
                     self.stage_layout(pr, None)
@@ -1538,6 +1672,7 @@ class Orchestrator:
         agent_layout = self.layout_key() != "qwen"
         later = [] if agent_layout else need_layout + need_decor
         need = need_recog + [pr for pr in need_photos + later if pr not in need_recog]
+        need += [pr for pr in late_qwen if pr not in need]
 
         def fail(pr, status, note):
             if pr in need_recog and not pr.finalized:
@@ -1549,6 +1684,8 @@ class Orchestrator:
                 self.finish(pr, "photos", "incomplete", note, merge=True)
             if pr in need_decor and "decor_ask" not in pr.records and not agent_layout:
                 self.finish(pr, "decor_ask", "warning", f"{note}: rule decor")
+            if pr in late_qwen:                 # fix round after P4b: the late questions stay unanswered
+                self.late_close(pr, note)
 
         def layout_and_decor(url: Optional[str]) -> None:
             for pr in self.runs:
@@ -1565,8 +1702,20 @@ class Orchestrator:
                         if pr.active:
                             self.recognize_part(pr, "qwen", url, self.seqs("qwen"))
                         self.finalize(pr)
-                        if pr.active:
+                        self.late_pass(pr, "qwen", url)       # fix round after P4b: the late questions
+                        if pr.active and pr.late != "open":
                             self.layout_prepare(pr)
+                    for pr in late_qwen:
+                        # fix round after P4b: projects finalized before the session whose late pass needs Qwen
+                        if self.late_asks(pr, "qwen"):
+                            self.recognize_part(pr, "qwen", url, self.seqs("qwen"), late=True)
+                            self.late_close(pr)
+                    if not agent_layout:
+                        # The M10 chain lays out in this session: no second GLM session for the late questions.
+                        for pr in self.runs:
+                            self.late_close(pr, "the M10 chain asks no late GLM session")
+                            if pr.active and pr.late == "done":
+                                self.layout_prepare(pr)
                     for pr in need_photos:
                         if pr.active:
                             self.photos_session_part(pr, "qwen", url, self.seqs("qwen"))
@@ -1590,8 +1739,13 @@ class Orchestrator:
                     if pr.active and "decor_ask" not in pr.records:
                         self.finish(pr, "decor_ask", "warning", f"server qwen: {exc.reason}: rule decor")
         if agent_layout:
+            self.late_sessions()                # fix round after P4b: GLM (or Qwen) for the late questions
             self.agent_layout_session(layout_and_decor)
         for pr in self.runs:
+            if pr.late == "open":               # fix round after P4b: no session answered them
+                self.late_close(pr, "no session for them")
+                if pr.active:
+                    self.layout_prepare(pr)
             # Questions without a Qwen session (a server error): the final building with the answers there are.
             if pr.active and pr.pending and not pr.finalized:
                 self.finalize(pr)

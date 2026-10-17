@@ -76,6 +76,18 @@ chairs of one table are still typed one by one (each lowers the count).
   front kept, the plan crop of the reading's question as evidence when the piece has one). Why: real02's YATAK blocks
   draw a nightstand with a table lamp on each side of the bed; both VLMs read the round lamp and answered
   ``floor_lamp``, the lamps then held the nightstand places and r_L0_e_yatak_odasi and _2 got no nightstand.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03). What: ``chaise_sides(building)`` proposes the chaise side of a
+built drawn ``sofa_corner`` that carries no L from the drawing (no ``shape`` and no ``chaise_side``: typed by code,
+not by the reading's L-outline rule) when a drawn coffee table of its room reaches into its footprint box: the side
+whose chaise (``schemas.l_parts``, default seat depth and chaise width, in the piece's front frame) leaves the table
+free while the other side's chaise covers it; nothing when both or neither do. ``apply_chaise_sides`` writes
+``shape: L``, ``chaise_side``, ``chaise_depth`` and ``inferred`` with the evidence (rule ``CHAISE_RULE``, the table
+ids); the completion runs it (``complete.complete_building``). Why: real03's f_L0_190 was typed by the group-member
+rule and lost the drawn L; the fit took a right-chaise model and the chaise covered the drawn coffee table f_L0_191
+(the agent could not fix it in 3 rounds). The pin: f_L0_190 left, f_L0_196 right (its table already sits in the open
+corner of a right chaise). The drawing's own L (the ingest's ``l_outline``) always wins; this is the fallback when
+the documents are silent.
 """
 from __future__ import annotations
 
@@ -827,6 +839,80 @@ def _apply_nightstand(item: dict, prop: dict) -> None:
     if prop.get("crop"):
         label["crop"] = prop["crop"]
     item["adjusted_by_ai"] = label
+
+
+CHAISE_RULE = "furniture.infer.chaise_sides"
+CONF_CHAISE = 0.6
+
+
+def chaise_sides(building: dict) -> list[dict]:
+    """Fix round after P4b (module docstring): ``{"piece_id", "chaise_side", "chaise_depth", "reason", "evidence"}``
+    for every built drawn ``sofa_corner`` without the drawing's L (no ``shape``, no ``chaise_side``) whose footprint
+    box a drawn coffee table of its room reaches into, when the chaise on one side (``schemas.l_parts`` with the
+    default seat depth and chaise width, in the piece's front frame) covers the table and the chaise on the other
+    side leaves it free: that other side. Pure; the building is unchanged."""
+    import dataclasses
+
+    furniture = building.get("furniture") or []
+    out: list[dict] = []
+    for f in furniture:
+        if f.get("type") != "sofa_corner" or f.get("source") != "from_documents" or f.get("build") is False:
+            continue
+        if f.get("shape") or f.get("chaise_side") or not f.get("footprint"):
+            continue                                    # the drawing's L (reading.context_types) decides
+        try:
+            p = placer.drawn_piece(f)
+        except (KeyError, TypeError, ValueError):
+            continue
+        box = p.polygon()
+        tables = []
+        for t in furniture:
+            if t.get("room_id") != f.get("room_id") or t.get("type") != "table_coffee" or not t.get("footprint") \
+                    or t.get("source") != "from_documents" or t.get("build") is False:
+                continue
+            try:
+                tp = placer.drawn_piece(t).polygon()
+            except (KeyError, TypeError, ValueError):
+                continue
+            if tp.intersection(box).area > placer.AREA_EPS:
+                tables.append((str(t["id"]), tp))
+        if not tables:
+            continue
+        cover = {}
+        for side in ("right", "left"):
+            lp = dataclasses.replace(p, shape="L", chaise_side=side, chaise_depth=p.size[1], seat_depth=None,
+                                     chaise_width=None).polygon()
+            cover[side] = sum(lp.intersection(tp).area for _tid, tp in tables)
+        free = [side for side in ("right", "left") if cover[side] <= placer.AREA_EPS]
+        if len(free) != 1:
+            continue                                    # both sides free or both cover it: the documents decide
+        side = free[0]
+        other = "left" if side == "right" else "right"
+        ids = ", ".join(tid for tid, _tp in tables)
+        text = (f"chaise on the {side}: the drawing gives no L outline for {f['id']}, and a chaise on the {other} "
+                f"would cover {cover[other]:.2f} m² of the drawn coffee table {ids}, which stands in the sofa's open "
+                f"corner with the chaise on the {side}")
+        ev = _evidence_code(f, "chaise_side", text, CONF_CHAISE, tables=[tid for tid, _tp in tables])
+        ev["rule"] = CHAISE_RULE
+        out.append({"piece_id": f["id"], "chaise_side": side, "chaise_depth": round(float(p.size[1]), 4),
+                    "reason": text, "evidence": ev})
+    return out
+
+
+def apply_chaise_sides(building: dict, proposals: list[dict]) -> None:
+    """Fix round after P4b: write ``chaise_sides`` proposals in place: ``shape: L``, ``chaise_side``, ``chaise_depth``
+    (the footprint depth; seat depth and chaise width stay the schema defaults), ``inferred: true`` and the evidence
+    (CLAUDE.md: where the documents are silent the AI infers and marks it ``inferred``)."""
+    by_id = {f["id"]: f for f in building.get("furniture") or []}
+    for prop in proposals:
+        item = by_id.get(prop["piece_id"])
+        if item is None or item.get("shape") or item.get("chaise_side"):
+            continue
+        item["shape"] = "L"
+        item["chaise_side"] = prop["chaise_side"]
+        item["chaise_depth"] = prop["chaise_depth"]
+        item["inferred"] = True
+        item.setdefault("evidence", []).append(dict(prop["evidence"]))
 
 
 def _room_ring(room: dict):

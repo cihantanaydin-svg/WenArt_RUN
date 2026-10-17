@@ -57,6 +57,18 @@ hashes; an untyped cluster is re-read (``reread``: symbol strokes out, counter r
 stroke group, each typed on its own); its unknown parts that fit a type are asked under content keys
 (``extra_candidate``, ``extra_key``); a named block with a stray axis line keeps the named footprint
 (``trim_stray_lines``).
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03). What: an unnamed single-part piece (an AI candidate) drawn with a
+straight axis line through its middle that sticks out of its closed outline at both ends gets the footprint of the
+outline without that line (``trim_axis_lines``: at most ``STRAY_MAX`` lines parallel to the plan axes, crossing the
+outline within ``AXIS_CENTRE_SHARE`` of its centre and sticking out at least ``AXIS_OVERHANG_M`` at both ends; the
+other strokes within ``AXIS_BOX_M`` of the outline's box; only when the trimmed size fits a size-table type). The
+evidence note names the lines and the size with them; the candidate keeps ``axis_lines`` and ``untrimmed_size`` in
+its details. Why: real03's six bathroom vanities (washbasin, tap, drain) carry an axis line through the drain, so
+their footprints were 0.85 x 0.80 m and 1.00 x 0.85 m instead of 0.50 x 0.80 m and 1.00 x 0.50 m. Washbasin was then
+out of their size range: it was missing from the question's choices and from the room's missing-member rule, so both
+models answered shower and 6 of 8 bathrooms ended without a washbasin. Pieces without such a line, and named blocks
+(``trim_stray_lines``), are read as before.
 """
 from __future__ import annotations
 
@@ -1904,6 +1916,11 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                                      info.get("note") or "split (M11)"))
             continue
         shape = l_details(lsh) if lsh else (round_shape(part.segs) if n == 1 else {})
+        if lsh:
+            # Integration of the fix round after P4b (the P4b verifier's better fix 1 for the corner sofas): the L's
+            # front travels with the candidate as on the re-read path, so the reading's context rule (and the code
+            # typing) turns the piece to its open inner corner (real03's f_L0_139 lost it: rotation 90 / front 0)
+            shape = dict(shape, l_front=lsh["front_deg"])
         block_item = None if info.get("no_name") else _block_item(part, fp, ctx, raster_page, table, lsh,
                                                                    wall_polys, [o for o in infos if o is not info],
                                                                    extended=False)
@@ -1913,6 +1930,15 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
                 block_item.evidence["note"] = "; ".join(x for x in (block_item.evidence.get("note"), info["note"]) if x)
             pieces.append(block_item)
             continue
+        axis_trim = trim_axis_lines(part, ctx.theta) if n == 1 and not lsh else None
+        if axis_trim is not None and not fitting_types(table, (axis_trim[0][1], axis_trim[0][2])):
+            axis_trim = None                    # only a piece the trimmed outline makes a candidate of
+        if axis_trim is not None:
+            # Fix round after P4b (module docstring): an axis line through an unnamed piece is no part of it
+            # (real03's vanities: 0.85 x 0.80 m with the line, 0.50 x 0.80 m without).
+            fp = axis_trim[0]
+            info.update(fp=fp, size=(fp[1], fp[2]), poly=Polygon(fp[4]),
+                        note="; ".join(x for x in (info.get("note"), axis_trim[1]) if x))
         types = fitting_types(table, (fp[1], fp[2]), "L" if lsh else None)
         if (n > 1 or not types) and not lsh:
             # Milestone 11 (U10, U8): a composite that is a table with its chairs, or a kitchen counter run with its
@@ -1952,6 +1978,8 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             fronts = front_candidates(part.segs, fp[0], fp[4], wall_polys, others, ctx.theta, table)
         cand = _candidate(part, fp, ctx, raster_page, faces, fronts, types, len(cands) + 1)
         cand["item"].details.update(shape)
+        if axis_trim is not None:
+            cand["item"].details.update(axis_lines=list(axis_trim[3]), untrimmed_size=list(axis_trim[2]))
         if not lsh:
             # M11: the fronts that would face a wall (an AI front there is vetoed, recognition.symbols._front) and
             # the corner rule's front (used once the type is known to have its back on the long side, core).
@@ -2222,6 +2250,66 @@ def trim_stray_lines(part: Cluster, ftype: str, table: dict, theta: float) -> Op
             return fp, (f"{len(left_out)} straight line(s) drawn past the {ftype} ({', '.join(left_out)}: an axis or "
                         f"reference line) left out of its footprint")
     return None
+
+
+AXIS_BOX_M = 0.02                  # the rest of an unnamed piece lies within this of its outline's box ...
+AXIS_OVERHANG_M = 0.05             # ... and an axis line sticks out at least this far past the outline at both ends ...
+AXIS_CENTRE_SHARE = 0.25           # ... and runs at most this share of the crossed side off the outline's centre
+
+
+def trim_axis_lines(part: Cluster, theta: float) -> Optional[tuple[tuple, str, tuple[float, float], list[str]]]:
+    """Fix round after P4b (module docstring): the footprint of an unnamed piece without the straight
+    axis lines drawn through it, or None. A line is left out only when all of these hold (in the plan's aligned frame):
+    it is one straight stroke (no curve, no dot), parallel to a frame axis (``SNAP_DEG``); it crosses the inside of the
+    piece's largest closed outline (``contours``, both sides >= ``CONTOUR_MIN_M``) within ``AXIS_CENTRE_SHARE`` of
+    that outline's side it runs across from its centre; it sticks out at least ``AXIS_OVERHANG_M`` past the outline
+    at both ends. At most ``STRAY_MAX`` lines (longest first), and the strokes left must lie within ``AXIS_BOX_M`` of
+    the outline's box. Returns ``(footprint, note, untrimmed size, line ids)``."""
+    to_f, _ = _frame(theta)
+    outline = max((p for p, _m in contours(part.segs) if min(_rect_sides(p)) >= CONTOUR_MIN_M),
+                  key=lambda p: p.area, default=None)
+    if outline is None:
+        return None
+    ring = [to_f(p) for p in outline.exterior.coords]
+    ox0, oy0 = min(p[0] for p in ring), min(p[1] for p in ring)
+    ox1, oy1 = max(p[0] for p in ring), max(p[1] for p in ring)
+    cx, cy = (ox0 + ox1) / 2.0, (oy0 + oy1) / 2.0
+    by_stroke: dict[str, list[Seg]] = {}
+    for s in part.segs:
+        by_stroke.setdefault(s.stroke.id, []).append(s)
+    axis: list[str] = []
+    for sid in sorted(by_stroke, key=lambda k: (-sum(s.length for s in by_stroke[k]), k)):
+        ss = by_stroke[sid]
+        if len(ss) != 1 or ss[0].curve or ss[0].dot or len(set(ss[0].pts)) != 2 or len(axis) >= STRAY_MAX:
+            continue
+        (ax, ay), (bx, by) = (to_f(p) for p in ss[0].pts)
+        if abs(ay - by) <= abs(ax - bx) * math.tan(math.radians(SNAP_DEG)):        # along x: crosses the x sides
+            lo, hi, off, side = min(ax, bx), max(ax, bx), (ay + by) / 2.0 - cy, oy1 - oy0
+            reach = (ox0 - lo, hi - ox1)
+        elif abs(ax - bx) <= abs(ay - by) * math.tan(math.radians(SNAP_DEG)):      # along y
+            lo, hi, off, side = min(ay, by), max(ay, by), (ax + bx) / 2.0 - cx, ox1 - ox0
+            reach = (oy0 - lo, hi - oy1)
+        else:
+            continue
+        if min(reach) < AXIS_OVERHANG_M or abs(off) > AXIS_CENTRE_SHARE * side:
+            continue
+        if not ss[0].geom.intersects(outline.buffer(-1e-4)):
+            continue
+        axis.append(sid)
+    if not axis:
+        return None
+    rest = [p for k, ss in by_stroke.items() if k not in axis for s in ss for p in s.pts]
+    if len(rest) < 3:
+        return None
+    fr = [to_f(p) for p in rest]
+    box = (min(p[0] for p in fr), min(p[1] for p in fr), max(p[0] for p in fr), max(p[1] for p in fr))
+    if any(abs(a - b) > AXIS_BOX_M for a, b in zip(box, (ox0, oy0, ox1, oy1))):
+        return None
+    full = footprint([p for s in part.segs for p in s.pts], theta)
+    fp = footprint(rest, theta)
+    note = (f"{len(axis)} straight line(s) drawn through and past the outline ({', '.join(axis)}: an axis line) left "
+            f"out of its footprint ({full[1]:.2f} x {full[2]:.2f} m with them)")
+    return fp, note, (round(full[1], 4), round(full[2], 4)), axis
 
 
 def _unique_front(fronts: list[dict]) -> Optional[dict]:

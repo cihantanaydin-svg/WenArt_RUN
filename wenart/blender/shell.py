@@ -115,6 +115,18 @@ the Milestone 10 styles; ``parametric.door_stop_boxes``), in the ``<id>_frame`` 
 cam_r_L1_koridor_2_2 saw the sunlit roof terrace through it (a glowing line round the leaf, depth 196 m against the
 60 m interior bound). How: the stops overlap the leaf by 10 mm (5 mm under a Milestone 10 head), stay inside the
 wall depth and leave the leaf, its material and the door rays as they were.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03's fire stair, yangin_merdiveni_3): stairs meet their walls and
+their structure is smooth. What: ``build_stairs`` builds every plan through ``stair_build_plan``
+(``stair_wall_joints`` on the level's walls; ``plan_stairs`` and ``parametric.stair_plan`` keep their plans): a
+flight side or landing edge within ``STAIR_JOINT_SNAP_M`` of a parallel wall face is built ``STAIR_JOINT_EMBED_M``
+into the wall (``plan["wall_joints"]``, an assumed ``stair_wall_joint`` entry, the stair record's ``wall_joints``);
+the stair's
+structure slot (stringer sides, soffit, landing edge) is the wall colour as a smooth paint (``stair_structure_slot``:
+no wall texture set). Why: the drawn U-stair is exactly as wide as its stairwell but its centre was read 0.9 mm off,
+so the right flight and the landing stopped 0.9 mm short of the wall and the rig light came through as a slit down
+the wall; the wall set's bump, at wall scale, read as coarse plaster on the 0.6 m stringer seen up close. How: the
+drawn footprint stays in the building JSON (fixed equipment as drawn); only the mesh widens, by at most 6 cm.
 """
 from __future__ import annotations
 
@@ -2191,6 +2203,123 @@ def top_level_stair(building: dict, level: dict, piece: dict, walls: list[dict])
     return {"piece": piece, "plan": plan, "arrival": None, "reason": None}
 
 
+# Fix round after P4b (17 Oct 2026; pod P4b, real03's fire stair yangin_merdiveni_3): the drawn U-stair is exactly
+# as wide as its 2.6 m stairwell, but its centre was read 0.9 mm off (8.403 vs 8.4039), so the right flight and the
+# landing stopped 0.9 mm short of the wall face and the rig light above came through as a vertical slit down the wall.
+# A flight side or a landing edge within STAIR_JOINT_SNAP_M of a parallel wall face (the wall beside it over at least
+# STAIR_JOINT_OVERLAP of its length) now meets the wall, STAIR_JOINT_EMBED_M into it, as two walls meet at a joint.
+# The drawn footprint stays in the building JSON; the mesh widens by at most SNAP + EMBED and the build lists it.
+STAIR_JOINT_SNAP_M = 0.05
+STAIR_JOINT_EMBED_M = 0.01
+STAIR_JOINT_OVERLAP = 0.5
+STAIR_JOINT_PARALLEL_DEG = 2.0
+# The stair's structure (the stringer sides, the soffit and the landing edge): the wall colour as a smooth paint, not
+# the wall's texture set. P4b: the plastered_wall set's bump, at wall scale, showed as large bumps on the 0.6 m stringer
+# face seen up close under the flight (M11's flat paint was smooth).
+STAIR_STRUCTURE_REASON = "stair structure: the wall colour as a smooth paint (no wall texture set: its bump at wall " \
+                         "scale reads as coarse plaster on the stringer seen up close)"
+
+
+def _wall_gap(a, b, normal, walls) -> list[tuple[float, dict]]:
+    """``[(gap, wall)]``: the walls parallel to the segment ``a``-``b`` on the side of the unit ``normal`` whose
+    near face lies ``gap`` metres out from the segment (negative: the segment is inside the wall), with their axis
+    beside at least ``STAIR_JOINT_OVERLAP`` of the segment's length (pure)."""
+    length = G.distance(a, b)
+    if length < 1e-9:
+        return []
+    u = ((b[0] - a[0]) / length, (b[1] - a[1]) / length)
+    out = []
+    for w in walls:
+        ws, we = w["start"], w["end"]
+        wl = G.distance(ws, we)
+        if wl < 1e-9:
+            continue
+        wu = ((we[0] - ws[0]) / wl, (we[1] - ws[1]) / wl)
+        if abs(u[0] * wu[1] - u[1] * wu[0]) > math.sin(math.radians(STAIR_JOINT_PARALLEL_DEG)):
+            continue
+        q = ((ws[0] - a[0]) * normal[0] + (ws[1] - a[1]) * normal[1]
+             + (we[0] - a[0]) * normal[0] + (we[1] - a[1]) * normal[1]) / 2.0
+        if q <= 0.0:
+            continue                                              # the wall's axis lies on the other side
+        t0 = (ws[0] - a[0]) * u[0] + (ws[1] - a[1]) * u[1]
+        t1 = (we[0] - a[0]) * u[0] + (we[1] - a[1]) * u[1]
+        overlap = min(max(t0, t1), length) - max(min(t0, t1), 0.0)
+        if overlap < STAIR_JOINT_OVERLAP * length:
+            continue
+        out.append((q - float(w["thickness"]) / 2.0, w))
+    return out
+
+
+def stair_wall_joints(plan: dict, walls: list[dict]) -> list[dict]:
+    """Close the gaps between a planned stair and the walls beside it (pure; fix round after P4b, 17 Oct 2026, see
+    ``STAIR_JOINT_SNAP_M``). Every flight side (left / right of its rise direction, along its steps) and every edge
+    of a ``mid`` / ``top`` landing whose nearest parallel wall face lies between ``-STAIR_JOINT_EMBED_M`` and
+    ``STAIR_JOINT_SNAP_M`` out gets ``extend_m`` = that gap + ``STAIR_JOINT_EMBED_M`` (it ends ``EMBED`` inside the
+    wall). Sets ``plan["wall_joints"]``: ``[{"part": "flight" | "landing", "flight" | "edge", "side", "wall_id",
+    "gap_m", "extend_m"}]`` (``parametric.stair_parts`` widens the steps, the riser plates and the landing by it) and,
+    when there is one, appends a ``stair_wall_joint`` assumed entry. Returns the joints."""
+    joints = []
+    for f in plan.get("flights") or []:
+        r = f["rise_dir"]
+        p = (-r[1], r[0])
+        hw = float(f["width"]) / 2.0
+        o = f["nosings"][0]
+        sn = (int(f["lines"]) - 1) * float(f["going"])
+        if sn <= 1e-6:
+            continue
+        for side, sgn in (("left", 1.0), ("right", -1.0)):
+            nrm = (p[0] * sgn, p[1] * sgn)
+            a = (o[0] + nrm[0] * hw, o[1] + nrm[1] * hw)
+            b = (a[0] + r[0] * sn, a[1] + r[1] * sn)
+            gaps = [(g, w) for g, w in _wall_gap(a, b, nrm, walls) if -STAIR_JOINT_EMBED_M < g <= STAIR_JOINT_SNAP_M]
+            if gaps:
+                g, w = min(gaps, key=lambda x: x[0])
+                joints.append({"part": "flight", "flight": f["index"], "side": side, "wall_id": w.get("id"),
+                               "gap_m": round(g, 4), "extend_m": round(g + STAIR_JOINT_EMBED_M, 4)})
+    landing = plan.get("landing")
+    if landing is not None and landing.get("role") in ("mid", "top"):
+        poly = geom2d.ccw(landing["polygon"])
+        n = len(poly)
+        for k in range(n):
+            a, b = poly[k], poly[(k + 1) % n]
+            length = G.distance(a, b)
+            if length < 1e-9:
+                continue
+            nrm = ((b[1] - a[1]) / length, -(b[0] - a[0]) / length)       # outward of a counter-clockwise polygon
+            gaps = [(g, w) for g, w in _wall_gap(a, b, nrm, walls) if -STAIR_JOINT_EMBED_M < g <= STAIR_JOINT_SNAP_M]
+            if gaps:
+                g, w = min(gaps, key=lambda x: x[0])
+                joints.append({"part": "landing", "edge": k, "side": "edge", "wall_id": w.get("id"),
+                               "gap_m": round(g, 4), "extend_m": round(g + STAIR_JOINT_EMBED_M, 4)})
+    plan["wall_joints"] = joints
+    if joints:
+        what = "; ".join(f"{'flight ' + str(j['flight'] + 1) + ' ' + j['side'] if j['part'] == 'flight' else 'landing'}"
+                         f" to {j['wall_id']} (gap {j['gap_m'] * 1000:.1f} mm)" for j in joints)
+        plan["assumed"].append({"field": "wall_joint", "kind": "stair_wall_joint",
+                                "value": f"{len(joints)} side(s) meet the wall {STAIR_JOINT_EMBED_M * 100:.0f} cm "
+                                         f"into it: {what}",
+                                "reason": f"a flight side or landing edge within {STAIR_JOINT_SNAP_M * 100:.0f} cm of "
+                                          f"a wall face meets it (a gap lets the light through as a slit); the drawn "
+                                          f"footprint is kept"})
+    return joints
+
+
+def stair_build_plan(plan: dict, walls: list[dict]) -> dict:
+    """The plan ``build_stairs`` builds (pure; fix round after P4b): a copy of ``plan`` (its ``assumed`` list copied
+    too) with ``stair_wall_joints`` on the level's ``walls``. ``plan_stairs`` and ``parametric.stair_plan`` keep their
+    plan as it was (the camera search, the slab voids and the lights read it)."""
+    out = dict(plan, assumed=list(plan.get("assumed") or []))
+    stair_wall_joints(out, walls)
+    return out
+
+
+def stair_structure_slot(walls_style: dict) -> dict:
+    """The material slot of a stair's structure (pure; fix round after P4b, ``STAIR_STRUCTURE_REASON``): the walls'
+    material and colour (and procedural params) without their texture set and tint."""
+    return {k: v for k, v in dict(walls_style or {"material": "plaster_white"}).items()
+            if k not in ("asset", "tint")}
+
+
 def stair_mesh(plan: dict, floor_z: float) -> tuple[list, list, list[int], list[dict]]:
     """``(verts, faces, slots, parts)`` of a planned stair in world metres
     (pure): ``parametric.stair_parts`` lifted to the floor, one material slot
@@ -2229,6 +2358,7 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
     floor_z = float(level["elevation"])
     plans = plan_stairs(building, level) if plans is None else plans
     rooms = [r for r in building["rooms"] if r["level_id"] == level["id"]]
+    level_walls = [w for w in building.get("walls") or [] if w.get("level_id") == level["id"]]
     summary = {"pieces": 0, "ids": [], "not_built": []}
     walls_style = style.get("walls") or {"material": "plaster_white"}
     ceiling_style = style.get("ceiling") or {"material": "plaster_white"}
@@ -2252,7 +2382,9 @@ def build_stairs(building: dict, level: dict, collection, library, style: dict, 
         room = stair_room(piece, rooms)
         slot, _wet = floor_style(room or {}, style)
         tread = slot_material(library, slot, unverified=unverified)
-        structure = slot_material(library, dict(walls_style, tint=None), unverified=unverified)
+        # fix round after P4b (17 Oct 2026): a smooth paint of the wall colour (STAIR_STRUCTURE_REASON)
+        structure = slot_material(library, stair_structure_slot(walls_style), unverified=unverified)
+        plan = stair_build_plan(plan, level_walls)          # fix round after P4b: the stair meets its walls
         verts, faces, slots, parts = stair_mesh(plan, floor_z)
         name = f"furn_{piece['id']}"
         ob = common.new_mesh_object(name, verts, faces, collection=collection, wenart_id=piece["id"],
@@ -2359,6 +2491,8 @@ def stair_record(plan: dict, parts: list[dict]) -> dict:
         "landing": None if plan["landing"] is None else {"role": plan["landing"]["role"],
                                                          "z": round(plan["landing"]["z"], 4)},
         "rails": plan["rails"], "notes": plan["notes"],
+        # fix round after P4b (17 Oct 2026): the sides that meet a wall (stair_wall_joints) and the structure finish
+        "wall_joints": list(plan.get("wall_joints") or []), "structure_finish": STAIR_STRUCTURE_REASON,
     }
 
 

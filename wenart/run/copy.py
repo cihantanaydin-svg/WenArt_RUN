@@ -145,6 +145,20 @@ the run's own.
   rewrites the file when the text changes (``_write_if_changed``), so the copy after the report corrects the one
   written before it.
 
+Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis): section 1 names the second recognition pass.
+
+- What: ``TOOLS_AND_GENERATORS`` lists ``zai-org/GLM-4.6V-Flash`` (MIT; the plan symbols and sheet regions, pass 2)
+  next to Qwen3-VL-8B (pass 1); every model of ``wenart/vision_check/check.yaml`` that the recognition asks (keys
+  ``qwen``, ``glm``) has a row with check.yaml's licence (tests/test_m13_report.py keeps them equal). The rows of
+  the final report's models table that ``run_model_rows`` reads now include the recognition models with their
+  revisions and answer counts (``wenart.report.final.recognition_model_rows``, same fix round).
+- Why: P4b's real03 ATTRIBUTION.md listed 9 tools and no GLM, and P4a's real02 file had the same gap, although
+  GLM-4.6V-Flash answered 66 of 72 recognition questions on real03 and 48 of 54 on real02 (the pass-2 answers of
+  the AI-typed pieces in both reports).
+- How: the licence was read on 17 Oct 2026 from the Hugging Face model API (``license: mit``, sha = the pinned
+  revision 411bb4d77144); the late recognition pass of lead decision 9 uses the same two models, so nothing else
+  is added.
+
 ``copy_lock(path)``: the job's copy lock (``full.sh`` exports it as
 ``WENART_COPY_LOCK``; the same ``flock`` the background loop takes), so the
 orchestrator's own copy before the GPU tests never interleaves with the loop.
@@ -215,7 +229,14 @@ TOOLS_AND_GENERATORS = (
      "role": "agent and critic (orchestrator), vision judge (wenart/vision_check/check.yaml models.agent)"},
     {"name": "Qwen/Qwen3-VL-8B-Instruct", "licence": "Apache-2.0",
      "url": "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct",
-     "role": "recognition of plan symbols, layout proposals, decor, vision check"},
+     "role": "recognition of plan symbols and sheet regions (pass 1), layout proposals, decor, vision check "
+             "(wenart/vision_check/check.yaml models.qwen)"},
+    # Fix round after P4b (17 Oct 2026): the second recognition pass. Verified on 17 Oct 2026 against the Hugging Face
+    # model API (https://huggingface.co/api/models/zai-org/GLM-4.6V-Flash: license "mit", sha 411bb4d77144 = the
+    # revision check.yaml pins); docs/plan.md §4.1 and docs/milestone5.md §1.6 record MIT as well.
+    {"name": "zai-org/GLM-4.6V-Flash", "licence": "MIT", "url": "https://huggingface.co/zai-org/GLM-4.6V-Flash",
+     "role": "recognition of plan symbols and sheet regions (pass 2, the independent second opinion; "
+             "wenart/vision_check/check.yaml models.glm)"},
     {"name": "microsoft/TRELLIS.2-4B", "licence": "MIT (weights and code)",
      "url": "https://huggingface.co/microsoft/TRELLIS.2-4B",
      "role": "generated library models (image to 3D); its image condition is facebook/dinov3-vitl16-pretrain-lvd1689m "

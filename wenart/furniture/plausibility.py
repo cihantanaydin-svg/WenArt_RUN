@@ -74,6 +74,15 @@ Fix round after P4a (17 Oct 2026; pod P4a, real02):
   through the outline, a 0.020 m cut along its 2.57 m back (its S2 said the same); the area alone read like a
   misplaced piece and the agent removed the drawn anchor as "not furniture". The agent's causes route a cut below
   the S2 tolerance as within tolerance and a deeper one to the move tools (``wenart.agent.causes``).
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03). What: F1 does not flag a drawn piece of a
+``DRAWN_ANYWHERE_TYPES`` type (a washing machine) in a room whose types do not list it, unless the room never holds
+it (``schemas.misplaced_fixed``: a stair room or a shaft, still a major F1). Why: real03 draws a washing machine
+(block "TEF - BANYO - ÇAMAŞIR MAKİNESİ") in each of the 4 entrance halls (a utility closet İŞLİK shares the hall's
+face); F1 and G14 flagged them as the wrong type in every round, and the agent spent about 30 tool calls on them
+(set_room_type to bathroom, complete_group bathroom_set, fix_fixture), all refused. CLAUDE.md treats drawn fixed
+equipment like walls. The rows of ``schemas.ALLOWED_TYPES`` (what the AI may add to a hall) are unchanged; only this
+narrow type list is skipped, so a drawn toilet in a bedroom or a drawn stove in a living room stays a finding.
 """
 from __future__ import annotations
 
@@ -258,8 +267,22 @@ def allowed_in(building: dict, room: dict) -> set:
     return out
 
 
+# Fix round after P4b (module docstring): drawn fixed types that any room may hold unless it never holds them
+# (``schemas.misplaced_fixed``: a stair room, a shaft). The rows of ``schemas.ALLOWED_TYPES`` (what the AI may add)
+# stay as they are.
+DRAWN_ANYWHERE_TYPES: tuple[str, ...] = ("washing_machine",)
+
+
+def drawn_anywhere(f: dict, room_type_list) -> bool:
+    """Fix round after P4b: a drawn piece of a ``DRAWN_ANYWHERE_TYPES`` type in a room none of whose types
+    (``room_types``) never holds it: no wrong-room finding (F1)."""
+    return (f.get("source") == "from_documents" and f.get("type") in DRAWN_ANYWHERE_TYPES
+            and not any(schemas.misplaced_fixed(f["type"], t) for t in room_type_list))
+
+
 def _f1(r: _Room) -> list[dict]:
-    if not any(t in schemas.ALLOWED_TYPES for t in room_types(r.building, r.room)):
+    types = room_types(r.building, r.room)
+    if not any(t in schemas.ALLOWED_TYPES for t in types):
         return []
     zoned = bool(r.room.get("zones"))
     allowed = allowed_in(r.building, r.room)
@@ -267,6 +290,8 @@ def _f1(r: _Room) -> list[dict]:
     for f in r.built:
         if zoned and f["id"] in r.pieces:     # Milestone 12: the zone a piece stands in (G14)
             allowed = GC.allowed_types_at(r.building, r.room, r.pieces[f["id"]].center)
+        if f["type"] not in allowed and drawn_anywhere(f, types):
+            continue                          # fix round after P4b: a drawn washer in a hall or a utility closet
         if f["type"] not in allowed:
             # A drawn piece says what the room holds (its row may be narrow, e.g. a sofa in an "other" room): minor,
             # unless it is fixed equipment in the wrong room (a kitchen counter read in a bedroom wardrobe, U12).

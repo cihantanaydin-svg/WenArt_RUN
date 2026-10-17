@@ -485,7 +485,9 @@ def test_choose_pull_rules():
         return {"k": k, "clip": clip, "median": median}
     cands = [c(1, 0.30, 0.95), c(2, 0.05, 0.85), c(3, 0.004, 0.70), c(4, 0.0, 0.50)]
     assert R.choose_pull(cands, 0.6)[0] == 3                          # first with clip <= 1 % and above the walls
-    assert R.choose_pull(cands, 0.75)[0] == 2                         # k 3 too dark: the lowest clip that stays brighter
+    # fix round after P4b (17 Oct 2026, pinned on purpose): k 3 is unclipped at 93 % of the walls (render.choose_pull
+    # rule 2, PULL_WALL_RATIO_MIN 0.8) and comes before the clipped k 2
+    assert R.choose_pull(cands, 0.75)[0] == 3
     assert R.choose_pull(cands, 0.99)[0] == 0                         # nothing stays brighter: no pull
     assert R.choose_pull(cands, None)[0] == 3                         # no walls: the clip rule alone
     assert R.choose_pull([c(1, 0.3, 0.9), c(2, 0.2, 0.8)], None)[0] == 2
@@ -976,7 +978,11 @@ def test_row5_hall_light_inside_the_l(hall):
     cx, cy = [(b[0] + b[1]) / 2.0 for b in fixture["bounds"][:2]]
     assert [cx, cy] == pytest.approx(plan["center"], abs=1e-3) and _square_inside(plan, L_HALL)
     assert light["location"][:2] == pytest.approx(plan["center"], abs=1e-4)
-    assert fixture["bounds"][2][1] == pytest.approx(2.7 - lighting.RIG_MOUNT_GAP_M, abs=1e-4)   # hangs under the ceiling
+    # fix round after P4b (17 Oct 2026, pinned on purpose): the canopy reaches the ceiling; the shade (rig_box) hangs
+    # RIG_MOUNT_GAP_M under it
+    assert fixture["bounds"][2][1] == pytest.approx(2.7, abs=1e-4)
+    box = next(o for o in hall["manifest"]["objects"] if o["name"] == "rig_r_hall_ceiling_1")["rig_box"]
+    assert box["center"][2] + box["size"][2] / 2.0 == pytest.approx(2.7 - lighting.RIG_MOUNT_GAP_M, abs=1e-4)
     assert light["light_type"] == "POINT" and light["visible_camera"] is False
     bulbs = lighting.rig_bulbs(lighting.room_rig("hall")[0], G.polygon_area(L_HALL), 1)
     assert bulbs == 4 and light["energy"] == pytest.approx(lighting.watts_for_lumens(1100.0) * 2.0 * bulbs)

@@ -60,6 +60,15 @@ Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3; user decisi
   ``drawn_front_deg`` / ``drawn_height`` kept, ``drawn_group`` written); the record's ``resolved`` lists the ids. Off
   with ``furnished_rooms: keep``, ``furnished_rooms_keep_size`` or a room in ``furnished_rooms_keep``. A twin or
   ``same_as`` partner whose completion moved its drawn group is not copied: the room is completed itself.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03). What: after the code typing, a drawn corner sofa that carries no
+L from the drawing (no ``shape``: it was typed by code, not by the L-outline rule) gets its chaise side from its drawn
+coffee table (``infer.chaise_sides``): the side whose chaise leaves the table free when the other side's chaise
+covers it; ``shape: L``, ``chaise_side``, ``chaise_depth``, ``inferred`` with the evidence, and a warning line. Not in
+``keep`` mode and not in kept rooms. Why: real03's f_L0_190 (yasama) was typed ``sofa_corner`` by the group-member
+rule, so it had no L; the fit took a right-chaise model and the scene put the chaise over the drawn coffee table
+f_L0_191 (S2 0.099 m, F9 0.26 m², G2 in every agent round). With the chaise on the left the table stands in the open
+corner, as in the six living rooms whose L the reading measured. The reading's own L (the ingest) stays first.
 """
 from __future__ import annotations
 
@@ -806,6 +815,13 @@ def complete_building(building: dict, style_text: str, client, settings: Setting
                     {"id": p["piece_id"], "type": p["type"], "method": p["type_method"], "reason": p["reason"]})
             out["warnings"] = list(out.get("warnings", [])) + [
                 f"{p['piece_id']}: typed {p['type']} by code ({p['type_method']}): {p['reason']}" for p in props]
+        # Fix round after P4b (module docstring): the chaise side of a drawn corner sofa without the drawing's L
+        chaise = [p for p in INF.chaise_sides(out) if next((f.get("room_id") for f in out["furniture"]
+                                                            if f["id"] == p["piece_id"]), None) not in kept_ids]
+        if chaise:
+            INF.apply_chaise_sides(out, chaise)
+            out["warnings"] = list(out.get("warnings", [])) + [
+                f"{p['piece_id']}: inferred {p['reason']}" for p in chaise]
 
     def solve(room: dict) -> RoomCompletion:
         rec = complete_room(room, building, out, style_text, client, settings, passes, family, image_dir)

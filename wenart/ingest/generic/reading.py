@@ -69,6 +69,32 @@ piece the second region drew too (f_L0_021, f_L0_024: both AI answers in the bui
 pieces kept "waits for the answers" in the run with the answers, not built and missing from the review list.
 ``never_a_box`` also clears that reason on a piece that no longer waits (a building read again), so it is typed or
 listed. A secondary page's crops live in its own folder (``details["crop_dir"]``, ``_crop``).
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03). What:
+
+- **The code typing reads the first reading's building in every pass** (``code_first(build, reset)``). In the run with
+  the answers, the pieces typed only because of this round's answers (``answer_typed``: an asked and answered
+  question whose piece has a type when the reading starts, and the block copies ``copies`` typed from such a piece)
+  are reset to ``unknown`` in a copy of the building before ``infer.code_types`` runs (``inferred_as: "answered"`` in
+  that copy only, so code never types them). Only the proposals for pieces that are still untyped in the real
+  building are applied: an AI type is never replaced by code, and a piece the AI left unknown is still typed by code
+  as before. Without answers nothing is reset, so the first run and ``--no-ai`` are unchanged. Why: in P4b's run with
+  the answers, the AI's bathtubs and showers filled the bath sets, so the rule "the bath set misses shower|bathtub"
+  that typed six drawn symbols in the first reading (and withdrew their questions) no longer found the slot. The six
+  stayed untyped, their questions were late (never asked), and the agent marked them as not furniture.
+- **Type method of the context rules and the size inference**: a piece a context rule or a block copy types gets
+  ``type_method: "rule"`` (a reading rule of the drawing; ``report["typed_by"]`` keeps ``context:<type>``); a piece
+  the size inference types gets ``type_method: "inferred"`` (``mark_inferred``; ``pipeline._infer_types`` does the
+  same). Both values are in the building schema. Before, both kept ``none``: P4b's 24 typed drawn pieces (6 corner
+  sofas among them) counted as untyped in the final manifest.
+- **A two-pass disagreement is decided by code** (``tie_break``, after the size inference): an untyped drawn piece
+  whose two AI passes named two different furniture types, both fitting its drawn size and both allowed in its room,
+  gets the one the room misses (``room_misses``: the missing members of its drawn groups and the anchors of its
+  program's groups), else the one whose real product size is nearer. It is marked ``inferred`` with the reason and
+  the plan crop (``type_method: "inferred"``, status ``unverified``), and the ``symbol_type_disagreement`` conflict
+  stays in the report with this decision as its resolution. Why: real03's bedroom oda_01 draws a 1.5 x 0.6 m piece;
+  Qwen said dresser, GLM said wardrobe, and the piece stayed an unbuilt unknown in a room with no storage (CLAUDE.md:
+  the AI infers the type and marks it inferred; never an unexplained box).
 """
 from __future__ import annotations
 
@@ -125,6 +151,13 @@ EXPLAINED_AS = ("rug", "detail", "column", "decor")
 # whose question waits is not built (``never_a_box``).
 NOT_ASKED_KEY = "questions_not_asked"
 WAITS_REASON = "untyped: its AI question waits for the answers"
+# Fix round after P4b (17 Oct 2026, module docstring): the code typing's view of a piece typed by this round's answers
+# (never written to the building), the type methods of the context rules and of the size inference (both in the
+# building schema's enum), and the rule of the two-pass tie-break.
+ANSWERED_AS = "answered"
+CONTEXT_METHOD = "rule"
+INFER_METHOD = "inferred"
+TIE_RULE = "reading.tie_break"
 
 
 # --------------------------------------------------------------------------
@@ -364,10 +397,12 @@ def _is_mark(f: dict, det: dict, LM) -> bool:
 # 1b. Copies of one block drawing
 # --------------------------------------------------------------------------
 
-def copies(build, items: dict, pending=()) -> int:
+def copies(build, items: dict, pending=(), typed_from: Optional[dict] = None) -> int:
     """Pieces drawn by the same entities of the same block definition in different inserts of it (``copy_keys``:
     real03's four 1+1 B flats are one block inserted four times) are the same piece: an untyped copy takes the type
-    its typed copies agree on, and a copy of symbols becomes a symbol too. Returns the number of pieces changed."""
+    its typed copies agree on, and a copy of symbols becomes a symbol too. Returns the number of pieces changed.
+    Fix round after P4b: ``typed_from`` (a dict) receives ``{typed copy id: [the ids of the copies it took its type
+    from]}`` (``code_first`` resets a copy of a piece the answers typed)."""
     b = build.building
     groups: dict[str, list[str]] = {}
     for pid, item in sorted(items.items()):
@@ -406,6 +441,8 @@ def copies(build, items: dict, pending=()) -> int:
                 continue
             _set_type(build, f, ftype, f"drawn by the same block entities as {mates} (typed {ftype}): the same "
                       "piece in another insert of the block", confidence=0.8)
+            if typed_from is not None:
+                typed_from[f["id"]] = sorted(t["id"] for t in typed)
             changed += 1
     if changed:
         move_symbols(build, items, {})
@@ -420,10 +457,13 @@ def _set_type(build, f: dict, ftype: str, reason: str, front: Optional[float] = 
               confidence: float = 0.75) -> None:
     from wenart.furniture import infer as INF
 
-    # Typed from its neighbours: an inference (CLAUDE.md), so like ``wenart.furniture.infer`` the piece keeps its
-    # ``type_method`` and ``status`` and carries ``inferred`` with its reason (listed in the report).
+    # Typed from its neighbours: an inference (CLAUDE.md), so the piece keeps its ``status`` and carries ``inferred``
+    # with its reason (listed in the report). Fix round after P4b: an untyped piece's ``type_method`` becomes
+    # ``CONTEXT_METHOD`` (a reading rule of the drawing), so the rules keyed on the method see it typed.
     old = f["type"]
     f["type"] = ftype
+    if f.get("type_method") in (None, "none"):
+        f["type_method"] = CONTEXT_METHOD
     f["inferred"] = True
     f["inferred_reason"] = reason
     f.setdefault("evidence", []).append(_ev(f, CONTEXT_RULE, reason, confidence))
@@ -805,6 +845,7 @@ def infer(build, pending: set[str]) -> tuple[int, list[str]]:
     if not proposals:
         return 0, []
     b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
+    mark_inferred(b, proposals)
     coded = []
     for p in proposals:
         if p.get("type_method") in INF.CODE_TYPE_METHODS:
@@ -816,20 +857,75 @@ def infer(build, pending: set[str]) -> tuple[int, list[str]]:
     return len(proposals), coded
 
 
+def mark_inferred(b: dict, proposals: list[dict]) -> int:
+    """Fix round after P4b (module docstring): a piece the size inference typed (a proposal of
+    ``infer.infer_types`` that is neither a code method nor a nightstand symbol, and that gave a furniture type)
+    gets ``type_method: INFER_METHOD`` when it had none. Returns the number of pieces marked."""
+    from wenart.furniture import infer as INF
+
+    by_id = {f["id"]: f for f in b.get("furniture") or []}
+    n = 0
+    for p in proposals:
+        if p.get("type_method") is not None or p.get("build") is False:
+            continue
+        f = by_id.get(p["piece_id"])
+        if f is None or f.get("type") != p.get("type") or f.get("inferred_as"):
+            continue
+        if f.get("type_method") in (None, "none") and p.get("type") not in (None, "unknown", INF.OUTLINE_TYPE):
+            f["type_method"] = INFER_METHOD
+            n += 1
+    return n
+
+
 CODE_TYPED_KEY = "typed_by_code"      # the extraction report's list of question keys withdrawn by the code typing
 CODE_METHODS_KEY = "typed_by_code_methods"   # ... and {key: method} (twin | level | block | group_member | context:<type>)
 
 
-def code_first(build) -> tuple[list[str], dict[str, str]]:
+def answer_typed(build, works: dict, items: dict, typed_from: Optional[dict] = None) -> set[str]:
+    """Fix round after P4b (module docstring): the pieces typed only because of this round's answers: a piece of an
+    asked page whose question was asked and answered in this round (``answered_keys``) and that has a type now, and
+    (``typed_from``, from ``copies``) the block copies typed from such a piece. Empty without answers."""
+    answered = answered_keys(build, works)
+    if not answered:
+        return set()
+    by_id = {f["id"]: f for f in build.building.get("furniture") or []}
+    asked = _items(build, works, asked_only=True)
+    out = {pid for pid, item in asked.items() if str((item.details or {}).get("candidate_key")) in answered
+           and (by_id.get(pid) or {}).get("type") not in (None, "unknown")}
+    for pid, sources in sorted((typed_from or {}).items()):
+        if set(sources) & out:
+            out.add(pid)
+    return out
+
+
+def _first_reading_view(b: dict, reset) -> dict:
+    """A copy of ``b`` where every piece in ``reset`` is untyped again, as the first reading saw it (``ANSWERED_AS``:
+    code never types it in the copy)."""
+    view = copy.deepcopy(b)
+    for f in view.get("furniture") or []:
+        if f.get("id") in reset:
+            f.update(type="unknown", type_method="none", inferred_as=ANSWERED_AS)
+    return view
+
+
+def code_first(build, reset=()) -> tuple[list[str], dict[str, str]]:
     """Build round 3 (K3, lead decision): ``infer.code_types`` applied to the building before the context rules and
     before any AI (the twin room, another level, the block name, the room's missing group member), on every untyped
     drawn piece, the ones whose question waits included (code needs no answer). Returns the typed ids and
-    ``{id: method}``; every typing is a warning."""
+    ``{id: method}``; every typing is a warning.
+
+    Fix round after P4b (module docstring): ``reset`` (``answer_typed``) are the pieces this round's answers typed;
+    code reads a copy of the building where they are untyped again, as in the first reading, and only the proposals
+    for pieces still untyped in the real building are applied (an AI type is never replaced)."""
     from wenart.furniture import infer as INF
 
     b = build.building
     view = dict(b, conflicts=list(b.get("conflicts") or []) + list(getattr(build, "raw_conflicts", []) or []))
-    proposals = [p for p in INF.code_types(view) if p.get("type_method") in INF.CODE_TYPE_METHODS]
+    if reset:
+        view = _first_reading_view(view, set(reset))
+    by_id = {f["id"]: f for f in b.get("furniture") or []}
+    proposals = [p for p in INF.code_types(view) if p.get("type_method") in INF.CODE_TYPE_METHODS
+                 and INF.untyped_drawn(by_id.get(p["piece_id"]) or {})]
     if not proposals:
         return [], {}
     b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
@@ -936,6 +1032,112 @@ def withdraw_questions(build, works: dict, items: dict, coded: list[str],
     for key, pid in sorted(keys.items()):
         build.warn(f"{pid}: recognition question {key} withdrawn: typed by code before the AI ({how[key]}, K3)")
     return keys
+
+
+# --------------------------------------------------------------------------
+# 3b. Two AI passes that disagree (fix round after P4b)
+# --------------------------------------------------------------------------
+
+def room_misses(b: dict, room: dict) -> dict[str, str]:
+    """Fix round after P4b (module docstring): ``{type: why}`` for the types ``room`` misses: the missing members of
+    its drawn groups (``infer._group_wants``) and the anchors of its program's groups (``program._rows`` of the room
+    kind, required or not) that no built piece of the room is."""
+    from wenart.furniture import groups as GR, infer as INF, placer, program as PR
+
+    out = {t: lines[0] for t, lines in sorted(INF._group_wants(b, room).items()) if lines}
+    kind = PR.room_kind(b, room)
+    present = {f.get("type") for f in b.get("furniture") or [] if f.get("room_id") == room["id"]
+               and f.get("type") not in (None, "unknown") and f.get("build") is not False}
+    templates = GR.load_groups()
+    for group, _required, _opts in PR._rows(kind, PR._area(room), placer.room_context(b, room).polygon, b, room,
+                                            room.get("room_subtype")):
+        t = templates.get(group) or {}
+        anchors = list((t.get("anchor") or {}).get("types") or []) if t.get("layout") == "anchored" else []
+        if anchors and not set(anchors) & present:
+            for a in anchors:
+                out.setdefault(a, f"the {kind} room's {group} group has no {' or '.join(anchors)}")
+    return out
+
+
+def _disagreeing_types(f: dict) -> list[str]:
+    """The two different types the AI passes named for ``f`` (``type_candidates``), else []."""
+    seen: list[str] = []
+    for c in f.get("type_candidates") or []:
+        t = c.get("type") if isinstance(c, dict) else None
+        if t and t not in seen:
+            seen.append(t)
+    return seen if len(seen) == 2 else []
+
+
+def tie_break(build, items: dict, pending=()) -> list[str]:
+    """Fix round after P4b (module docstring): an untyped drawn piece whose two AI passes named two different
+    furniture types, both fitting its drawn size (the size table, +15 %, and the type's shape) and both allowed in its
+    room, is typed by code: the type the room misses (``room_misses``), else the one whose real product size is
+    nearer (``infer._product_distance``; then the higher AI confidence, then the name). The piece is ``inferred``
+    (``type_method: INFER_METHOD``, status kept), its evidence names the rule, both answers and the plan crop, and
+    its ``symbol_type_disagreement`` conflict gets the decision as its resolution. Returns the typed ids."""
+    from wenart.furniture import infer as INF, placer, plausibility as PL, program as PR, schemas
+    from wenart.furniture import sizes as SZ
+
+    b = build.building
+    raw = list(getattr(build, "raw_conflicts", []) or [])
+    view = dict(b, conflicts=list(b.get("conflicts") or []) + raw)
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
+    typed: list[str] = []
+    for f in b["furniture"]:
+        if f["id"] in pending or not INF.untyped_drawn(f) or f.get("room_id") not in rooms:
+            continue
+        pair = _disagreeing_types(f)
+        if not pair or not all(t in schemas.SIZE_OPTIONS for t in pair):
+            continue
+        room = rooms[f["room_id"]]
+        size = [float(v) for v in f["footprint"]["size"]]
+        kind = PR.room_kind(view, room)
+        allowed = PL.allowed_in(view, room) | set(schemas.allowed_types(kind, room.get("room_subtype")))
+        if not all(t in allowed and SZ.fits(t, size, 0.15) and INF._shape_ok(t, size) for t in pair):
+            continue
+        misses = room_misses(view, room)
+        missing = [t for t in pair if t in misses]
+        # Fixed equipment is taken as drawn, never guessed (CLAUDE.md): a fixed type the room does not miss is no
+        # choice (real02's salon sofa f_L-1b_045, kitchen_island / sofa, beside the open kitchen's own island).
+        choices = [t for t in pair if t not in schemas.FIXED_TYPES or t in missing]
+        conf = {c.get("type"): float(c.get("confidence") or 0.0) for c in f.get("type_candidates") or []
+                if isinstance(c, dict)}
+        if len(missing) == 1:
+            ftype = missing[0]
+            why = f"the room misses it ({misses[ftype]})"
+        elif len(choices) == 1:
+            ftype = choices[0]
+            why = "the other answer is fixed equipment the room does not miss (taken as drawn, never guessed)"
+        elif len(choices) == 2:
+            ftype = min(pair, key=lambda t: (round(INF._product_distance(t, size), 4), -conf.get(t, 0.0), t))
+            why = "its real product size is the nearer one to the drawn size" + \
+                  (" (the room misses both)" if missing else "")
+        else:
+            continue                            # two fixed types the room does not miss: the plan crop decides
+        other = next(t for t in pair if t != ftype)
+        det = items[f["id"]].details if f["id"] in items else {}
+        crop = _crop(det)
+        reason = (f"the two AI passes disagree ({pair[0]} / {pair[1]}); both fit the drawn {size[0]:.2f} x "
+                  f"{size[1]:.2f} m and the room: {ftype}, because {why}"
+                  + (f"; plan crop {crop}" if crop else ""))
+        f["type"] = ftype
+        f["type_method"] = INFER_METHOD
+        f["inferred"] = True
+        f["inferred_reason"] = reason
+        if f.get("build") is False:
+            f["build"] = True                   # unbuilt only because it was untyped (``infer.untyped_drawn``)
+            f.pop("not_built_reason", None)
+        f.setdefault("evidence", []).append(_ev(f, TIE_RULE, reason, 0.55))
+        if f.get("height") is None and schemas.HEIGHTS.get(ftype) is not None:
+            f["height"] = schemas.HEIGHTS[ftype]
+        for c in raw + list(b.get("conflicts") or []):
+            if c.get("kind") == "symbol_type_disagreement" and f["id"] in (c.get("element_ids") or []):
+                c["resolution"] = (f"typed {ftype} by code (not {other}): {why}; inferred, listed in the report "
+                                   f"({TIE_RULE})")
+        build.warn(f"{f['id']}: unknown -> {ftype} by code ({TIE_RULE}): {reason}")
+        typed.append(f["id"])
+    return typed
 
 
 # --------------------------------------------------------------------------
@@ -1370,7 +1572,11 @@ def read_furniture(build, works: dict) -> None:
     # Build round 3 (K3): the open questions are held in every mode by the steps before the size inference (a block
     # copy never decides one: the code typing below does, and withdraws it, or the AI does).
     held = set(pending) | open_questions(build, works, items)
-    copied = copies(build, items, held)
+    # Fix round after P4b (module docstring): the pieces this round's answers typed (and their block copies) are
+    # untyped again in the code typing's view of the building, as in the first reading.
+    copied_from: dict[str, list[str]] = {}
+    copied = copies(build, items, held, copied_from)
+    from_answers = answer_typed(build, works, items, copied_from)
     # Milestone 13 (K3), build round 3 (lead decision): code first, in every run. ``infer.code_types`` runs before
     # the context rules (the twin room, another level, the block name, the missing group member), on the open
     # questions too; then the context rules type what code left, on the open questions too; both kinds withdraw
@@ -1384,7 +1590,7 @@ def read_furniture(build, works: dict) -> None:
 
     def code_pass() -> list[str]:
         """``code_first`` on every untyped piece; the typed ones withdraw their questions."""
-        coded, methods = code_first(build)
+        coded, methods = code_first(build, from_answers)
         if coded:
             typed_by.update(methods)
             withdrawn.update(withdraw_questions(build, works, items, coded, methods))
@@ -1426,6 +1632,7 @@ def read_furniture(build, works: dict) -> None:
     typed_by.update(methods2)
     withdrawn.update(withdraw_questions(build, works, items, coded2, methods2))
     pending = pending - set(coded2)
+    tied = tie_break(build, items, pending)          # fix round after P4b: two passes that disagree
     fixed = fix_fixed(build, items)
     fronts += infer_fronts(build, pending)
     # Partners of the anchors the inference typed (real01 --no-ai: the chaise by its size): the Milestone 12 rules on
@@ -1440,6 +1647,7 @@ def read_furniture(build, works: dict) -> None:
     b.setdefault("symbols", [])
     b.setdefault("needs_review", [])
     build.reading = {"symbols": symbols, "context": context, "inferred": inferred, "fixed": fixed,
-                     "fronts": fronts, "zones": zones, "needs_review": review,
+                     "fronts": fronts, "zones": zones, "needs_review": review, "tie_break": sorted(tied),
+                     "answer_typed": sorted(from_answers),
                      "code_typed": sorted(typed_by), "questions_withdrawn": sorted(withdrawn),
                      "typed_by": dict(sorted(typed_by.items()))}

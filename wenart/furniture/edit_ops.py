@@ -106,10 +106,33 @@ f_L-1_024 (a 0.020 m cut, within tolerance; its twin f_L-1_023 stayed built), al
 piece is removed only when it is clearly not furniture; a cut is fixed by the snap or a move. Untyped pieces, pieces
 outside their range, AI-typed pieces (a rug outline or a cushion read as a piece) and misplaced fixed equipment keep
 the old rule. No twin rule: refusing the first of two mirrored misreads while its twin is built would lock both.
+
+Fix round after P4b (17 Oct 2026; the review of the P4a fix round, pod P4b, real03). What:
+
+- the duplicate outline of the mark lock also counts a larger built drawn piece of the same family
+  (``DUPLICATE_FAMILIES``: sofa / corner sofa / armchair / chaise; the storage types; the beds) whose footprint box
+  holds at least ``DUPLICATE_SHARE`` of the piece (``family_host_of``). Tucked pairs (a chair under its table) and a
+  bed block's nightstand are of other families. Why: real02's 1.30 m "sofa" f_L-1_061 is drawn 84 % inside the
+  corner sofa f_L-1_053 (the seat segment of its block, typed by the group-member rule); the lock refused its mark in
+  every case, the agent spent about 12 rejected moves on its F9 overlap and finally moved the drawn corner sofa;
+- the lock is lifted when the edit's evidence names a plan crop (``plan_crop_of``: ``recognition/crops/<key>_ctx`` or
+  ``_iso.png``, a camera's ``check/<cam>_plan`` crop): the verifier's second way out of the P4a fix, which the P4a
+  fix round left out. A text-only evidence or a top-down render still leaves the lock on (P4a's 0.020 m wardrobe cut
+  and the chair and coffee table marked from top-down renders stay refused);
+- ``crop_of`` records only a plan crop (or another image that is not one of the agent's own renders,
+  ``AGENT_IMAGE``) as the crop of a not-furniture symbol; a top-down render (P4a seq 264: "top-down image
+  r1_044_topdown_r_L-1_salon_2.png: ...") gives ``crop: null`` and its text stays in the evidence. CLAUDE.md asks for
+  the plan crop as evidence of a removal and the AI never judges a bare top-down image;
+- ``complete_group`` (and ``allowed_edits``) refuses at once (``no_completion``, ``program_refusal``) a group whose
+  row in the room's program completes nothing: a group that does not belong in the room ("no completion: a
+  bathroom_set group does not belong in a hall room") or a duplicate outline (``program.duplicate_anchor``). Why:
+  real03's agent sent ``complete_group`` for the bathroom set of the drawn washers in 3 entrance halls; each ran the
+  solver and was refused with "no place passes the checks" (and the brief still offered the tool).
 """
 from __future__ import annotations
 
 import copy
+import dataclasses
 import math
 import re
 from typing import Any, Optional
@@ -928,8 +951,30 @@ def _resolve_group(b: dict, room: dict, anchor_id: Optional[str]) -> Optional[di
     return next((g for g in GR.drawn_groups(b, room["id"]) if g.get("anchor_id") == anchor_id), None)
 
 
+NO_COMPLETION_NOTES: tuple[str, ...] = ("no completion", "duplicate outline")
+
+
+def program_refusal(building: dict, room: dict, g: dict) -> Optional[str]:
+    """Fix round after P4b (module docstring): why ``complete_group`` adds nothing to the group ``g`` (a
+    ``groups.group_members`` entry) because the room's program completes nothing there (its row's note: a group that
+    does not belong in the room, a duplicate outline), else None."""
+    from wenart.furniture import program as PR
+
+    rows = PR.room_program(building, room["id"])["groups"]
+    row = next((r for r in rows if r.get("drawn") and r.get("anchor_id") == g.get("anchor_id")
+                and r.get("group") == g.get("group")), None)
+    note = str((row or {}).get("note") or "")
+    if not note.startswith(NO_COMPLETION_NOTES):
+        return None
+    return f"{g['group_id']}: the room's program completes nothing here ({note})"
+
+
 def _complete_group(b: dict, args: dict) -> list[str]:
     room, g = _find_group(b, args["group_id"])
+    if g.get("missing"):
+        refusal = program_refusal(b, room, g)        # fix round after P4b: before the solver runs
+        if refusal is not None:
+            raise EditRejected("no_completion", refusal)
     anchor = next((f for f in b["furniture"] if f["id"] == g.get("anchor_id")), None)
     if anchor is not None and anchor.get("status") == "unverified":
         raise EditRejected("unverified", f"{g['group_id']}: the anchor {anchor['id']} is unverified (retype_piece "
@@ -1167,14 +1212,39 @@ def fixed_mark_refusal(building: dict, item: dict) -> Optional[str]:
 MARK_LOCK_METHODS: tuple[str, ...] = ("block_name", "block", "rule", "twin", "level", "group_member")
 READING_CHECKS: tuple[str, ...] = ("NR", "RC")       # the critic's reading findings (wenart.agent.critic_code)
 DUPLICATE_SHARE = 0.5            # a drawn piece this much inside a built drawn piece of its type is a duplicate outline
+# Fix round after P4b (module docstring): a drawn piece this much inside a larger built drawn piece of the same family
+# is a duplicate outline too (real02: the 1.30 m "sofa" f_L-1_061, 84 % inside the corner sofa f_L-1_053). The tucked
+# pairs (a chair under its table) and the members of a bed block (a nightstand) are of other families.
+DUPLICATE_FAMILIES: tuple[tuple[str, ...], ...] = (
+    ("sofa", "sofa_corner", "armchair", "chaise"),
+    ("wardrobe", "tall_cabinet", "display_cabinet", "dresser", "sideboard", "bookshelf", "shoe_cabinet"),
+    ("bed_single", "bed_double", "bunk_bed", "crib"),
+)
 IMAGE_PATH = re.compile(r"[^\s'\"()\[\],;:]+\.(?:png|jpe?g|webp)\b", re.I)
+# Fix round after P4b: a plan crop is the reading's crop of a drawn symbol (``recognition/crops/<key>_ctx.png`` or
+# ``_iso.png``) or a camera's plan crop (``check/<cam>_plan.png``); the agent's own images (``r1_044_topdown_...``,
+# ``r1_140_rotate_piece_before_...``) are renders of the 3D layout, never the plan.
+PLAN_CROP = re.compile(r"(?:^|/)(?:crops/[^/]+_(?:ctx|iso)\.png|[^/]+_plan\.(?:png|jpe?g|webp))$", re.I)
+AGENT_IMAGE = re.compile(r"(?:^r\d+_|topdown)", re.I)
+
+
+def plan_crop_of(evidence: str) -> Optional[str]:
+    """Fix round after P4b: the first plan crop (``PLAN_CROP``) named in an evidence text, else None."""
+    return next((m.group(0) for m in IMAGE_PATH.finditer(str(evidence or "")) if PLAN_CROP.search(m.group(0))), None)
 
 
 def crop_of(evidence: str) -> Optional[str]:
-    """Fix round after P4a: the first image path in an evidence text (``recognition/crops/sym_L1_003_ctx.png: ...``),
-    else None."""
-    m = IMAGE_PATH.search(str(evidence or ""))
-    return m.group(0) if m else None
+    """Fix round after P4a: the image path an evidence text names as the plan crop (``recognition/crops/sym_L1_003_
+    ctx.png: ...``), else None. Fix round after P4b: a plan crop first (``plan_crop_of``), else the first image that
+    is not one of the agent's own renders (``AGENT_IMAGE``: a ``topdown`` image, a round-prefixed ``r1_...`` image);
+    a top-down render is never recorded as the plan crop (its text stays in the evidence)."""
+    found = plan_crop_of(evidence)
+    if found is not None:
+        return found
+    for m in IMAGE_PATH.finditer(str(evidence or "")):
+        if not AGENT_IMAGE.search(m.group(0).rsplit("/", 1)[-1]):
+            return m.group(0)
+    return None
 
 
 def _in_range(ftype: str, size) -> bool:
@@ -1187,33 +1257,62 @@ def _in_range(ftype: str, size) -> bool:
         (w0 - 1e-9 <= d <= w1 + 1e-9 and d0 - 1e-9 <= w <= d1 + 1e-9)
 
 
-def _duplicate_of(building: dict, item: dict) -> Optional[str]:
-    """The id of a built drawn piece of the same type that holds at least ``DUPLICATE_SHARE`` of ``item``'s footprint
-    (a duplicate outline: real04's wardrobe f_L0_038 inside the storage run f_L0_026), else None."""
+def _family(ftype: Optional[str]) -> tuple[str, ...]:
+    """The duplicate family of a type (``DUPLICATE_FAMILIES``), else the type alone."""
+    return next((fam for fam in DUPLICATE_FAMILIES if ftype in fam), (str(ftype),))
+
+
+def _host_share(building: dict, item: dict, same_type: bool) -> Optional[str]:
+    """The id of the first built drawn piece of ``item``'s room that holds at least ``DUPLICATE_SHARE`` of its
+    footprint: of the same type (``same_type``; the host's own outline, an L sofa's L) or of another type of its
+    family (``DUPLICATE_FAMILIES``, at least as large; the host's footprint box), else None."""
     try:
         poly = placer.drawn_piece(item).polygon()
     except (KeyError, TypeError, ValueError):
         return None
     if poly.area <= 0:
         return None
+    family = _family(item.get("type"))
     for other in building.get("furniture") or []:
-        if other is item or other.get("id") == item.get("id") or other.get("type") != item.get("type"):
+        if other is item or other.get("id") == item.get("id"):
+            continue
+        if (other.get("type") == item.get("type")) != same_type or other.get("type") not in family:
             continue
         if other.get("room_id") != item.get("room_id") or not _drawn(other) or not GR.piece_is_built(other):
             continue
         try:
-            share = poly.intersection(placer.drawn_piece(other).polygon()).area / poly.area
+            hp = placer.drawn_piece(other)
+            host = hp.polygon() if same_type else dataclasses.replace(hp, shape=None).polygon()
         except (KeyError, TypeError, ValueError):
             continue
-        if share >= DUPLICATE_SHARE - 1e-9:
+        if not same_type and host.area < poly.area - 1e-9:
+            continue                        # another type of the family: only the larger outline holds a duplicate
+        if poly.intersection(host).area / poly.area >= DUPLICATE_SHARE - 1e-9:
             return str(other["id"])
     return None
 
 
-def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None) -> Optional[str]:
+def family_host_of(building: dict, item: dict) -> Optional[str]:
+    """Fix round after P4b (module docstring): the id of a larger built drawn piece of another type of ``item``'s
+    family (``DUPLICATE_FAMILIES``) whose footprint box holds at least ``DUPLICATE_SHARE`` of ``item``: real02's
+    1.30 m "sofa" f_L-1_061 drawn 84 % inside the corner sofa f_L-1_053 (the seat segment of its block), and its twin
+    f_L-1_062 in front of the twin L f_L-1_054, whose front the reading lost. Else None."""
+    return _host_share(building, item, same_type=False)
+
+
+def _duplicate_of(building: dict, item: dict) -> Optional[str]:
+    """The id of a built drawn piece of the same type that holds at least ``DUPLICATE_SHARE`` of ``item``'s footprint
+    (a duplicate outline: real04's wardrobe f_L0_038 inside the storage run f_L0_026) or, fix round after P4b, the
+    family host of ``family_host_of``, else None."""
+    return _host_share(building, item, same_type=True) or family_host_of(building, item)
+
+
+def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None,
+                      evidence: Optional[str] = None) -> Optional[str]:
     """Fix round after P4a (module docstring): why a drawn piece may not be marked as not furniture although it is
     no fixed equipment (``fixed_mark_refusal`` covers that), else None. ``target``: the edit's ``target_finding``
-    (a dict or a list of dicts with ``check``)."""
+    (a dict or a list of dicts with ``check``); ``evidence`` (fix round after P4b): the edit's evidence text, which
+    lifts the lock when it names a plan crop (``plan_crop_of``)."""
     if not _drawn(item) or _fixed(item) or item.get("build") is False or item.get("type") in (None, "unknown"):
         return None
     method = item.get("type_method")
@@ -1237,10 +1336,13 @@ def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None)
         return None
     if _duplicate_of(building, item) is not None:
         return None
+    if plan_crop_of(evidence or "") is not None:
+        return None                     # fix round after P4b: the plan crop is the evidence CLAUDE.md asks for
     w, d = (float(v) for v in size)
     return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real size "
             f"({w:.2f} x {d:.2f} m) is furniture: mark_not_furniture is for reading errors (an NR or RC finding, a "
-            f"duplicate outline); a wall cut is fixed by move_piece / the wall snap, a wrong room type by retype_piece")
+            f"duplicate outline, evidence that names its plan crop recognition/crops/<key>_ctx.png); a wall cut is "
+            f"fixed by move_piece / the wall snap, a wrong room type by retype_piece")
 
 
 def _mark_not_furniture(b: dict, args: dict) -> list[str]:
@@ -1253,7 +1355,7 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     if refusal is not None:
         raise EditRejected("drawn_lock", refusal)
     # Fix round after P4a (module docstring): never a drawn, code-typed piece of a real size for a placement finding
-    refusal = mark_lock_refusal(b, item, args.get("target_finding"))
+    refusal = mark_lock_refusal(b, item, args.get("target_finding"), str(args.get("evidence") or ""))
     if refusal is not None:
         raise EditRejected("drawn_lock", refusal)
     if any(s.get("former_piece_id") == item["id"] for s in b.get("symbols") or []):
@@ -1263,7 +1365,7 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     _label(item, before, args, ["build"])
     item["adjusted_by_ai"]["not_furniture"] = args["kind"]
     evidence = str(args["evidence"])
-    crop = crop_of(evidence)            # fix round after P4a: the first image path anywhere in the text
+    crop = crop_of(evidence)            # fix rounds after P4a / P4b: a plan crop anywhere, never a top-down render
     pattern = re.compile(rf"^sym_{re.escape(item['level_id'])}_(\d+)$")
     number = max((int(m.group(1)) for s in b.get("symbols") or [] for m in [pattern.match(str(s.get("id")))] if m),
                  default=0) + 1
@@ -1656,8 +1758,13 @@ def allowed_edits(building: dict, piece_id: str) -> dict:
         put("complete_group", False, "the piece belongs to no group")
         put("move_group", False, "the piece belongs to no group")
     else:
-        put("complete_group", bool(group.get("missing")), f"{group['group_id']} misses "
-            f"{', '.join(group['missing'])}" if group.get("missing") else f"{group['group_id']}: nothing missing")
+        no_completion = program_refusal(building, _room(building, item["room_id"]), group) \
+            if group.get("missing") else None        # fix round after P4b
+        if no_completion is not None:
+            put("complete_group", False, no_completion)
+        else:
+            put("complete_group", bool(group.get("missing")), f"{group['group_id']} misses "
+                f"{', '.join(group['missing'])}" if group.get("missing") else f"{group['group_id']}: nothing missing")
         members = [f for f in building["furniture"] if f["id"] in [group.get("anchor_id")] + list(group["member_ids"])]
         ai = all(f.get("source") == "added_by_ai" for f in members)
         put("move_group", ai, f"{group['group_id']}: added pieces, moved as one" if ai else

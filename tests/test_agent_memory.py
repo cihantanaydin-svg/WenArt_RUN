@@ -74,8 +74,10 @@ def test_a_dry_run_is_free(tmp_path):
     edits = FakeEdits()
     reg = TL.build_registry()
     ctx = ctx_for(out, 1, MEM.Memory(out), edits)
-    for _ in range(5):                                   # more than MAX_TRIES: dry runs count no try
-        res = reg.call(ctx, "dry_run", {"tool": "rotate_piece", "args": {"piece_id": "f2", "front_deg": 90}})
+    # more than MAX_TRIES: dry runs count no try (fix round after P4b, changed on purpose: five DIFFERENT dry runs;
+    # the same one again is answered from the first and counts as a try, test_agent_loop_p4b.py)
+    for k in range(5):
+        res = reg.call(ctx, "dry_run", {"tool": "rotate_piece", "args": {"piece_id": "f2", "front_deg": 90 + k}})
         assert res["would_accept"] and "nothing was applied" in res["note"]
     assert ctx.tries == {} and ctx.accepted == [] and not OV.overrides_path(out).exists()
     assert ctx.piece("f2")["front_deg"] == 270.0 and MEM.Memory(out).room("r1")["accepted"] == []

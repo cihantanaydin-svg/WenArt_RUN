@@ -42,6 +42,16 @@ white rims round the silhouettes) and records the views into the sun; the views 
 haze from their camera rays (P4a's grey-card windows); CPU replays of the GPU checks: the rig-lit walls against the
 same project's daylight walls, the pulled sky's floor by its rule, the panes' saturation. The Blender-bound twin
 (the kitchen window with and without the haze in view) is in tests/test_look_m6.py.
+
+Fix round after P4b (17 Oct 2026, pod P4b, real03; the ``test_fixround_p4b_*`` tests, each failing on 11949a9 or on the
+mutation its docstring names): ``RenderRun.sky_pull`` records whether the view looks into the sun (the review of the
+P4a fix round; lead decision (4): such views are only listed); the GPU pane floor holds under the clear-sky moods
+only; an unclipped pull near the walls comes before a clipped one (``render.choose_pull``); the interior glazing is
+not pulled and is recorded against the room's walls; a view is balanced for its own room's rig lights
+(``render.room_rig_kelvin``) with a block-median share for diagnosis; a ``lighting_dark`` view under one exposure step
+over the cap is minor; the exterior exposure is capped by the sunlit ground (``render.exterior_exposure``) and the
+lawn is recorded; CPU replays of the new and changed GPU checks (the orange check from a rig share of 0.4, the named
+sky views, the pull, glazing, ground and lawn pins).
 """
 from __future__ import annotations
 
@@ -1021,8 +1031,15 @@ def test_fixround_p3_the_window_pull_reaches_the_pane_target():
     assert R.choose_pull(cands, 0.5) == (6, "smallest k with pane clip <= 1 %, the pane target and panes brighter "
                                             "than the walls")
     assert R.choose_pull(cands, None)[0] == 6
-    assert R.choose_pull(cands, 0.72)[0] == 5                # k 6 darker than the walls: the deepest k still brighter
-    assert R.choose_pull(cands, 0.99)[0] == 0
+    # k 6 is a little darker than the walls (0.70 against 0.72) but unclipped with the pane target: fix round after P4b,
+    # it comes before k 5 (the deepest k still brighter, without the target; render.choose_pull's second rule)
+    assert R.choose_pull(cands, 0.72)[0] == 6
+    # walls at 0.99: k 1 is unclipped at 98 % of the walls (fix round after P4b: the fourth rule; no pull before), and
+    # nothing is pulled when every unclipped k is under 0.8 of the walls
+    assert R.choose_pull(cands, 0.99)[0] == 1
+    assert R.choose_pull(cands[4:], 0.99)[0] == 0
+    # ... and only when the panes as rendered are clipped: unclipped panes are not darkened under the walls for nothing
+    assert R.choose_pull(cands, 0.99, clip_before=0.0)[0] == 0 and R.choose_pull(cands, 0.99, clip_before=0.3)[0] == 1
     wide = [c(1, 0.0, 0.80, 0.99), c(2, 0.0, 0.64, 0.97)]   # a sun patch keeps p90 high: the median target stops it
     assert R.choose_pull(wide, 0.3)[0] == 2
     assert not R.pull_qualifies(c(3, 0.02, 0.6, 0.7), 0.3)  # the clip rule stays
@@ -1865,7 +1882,9 @@ def test_fixround_p4a_gpu_orange_check_compares_rig_lit_walls_with_the_daylight_
     compares the walls of the rig-lit views with the walls of the same project's daylight views of the same kind
     (painted, or tiled in the rooms with a wet floor): at most ``RIG_ROOM_REL_MAX`` (1.1) times their median, set from
     the bpy shim re-render of P4a's scene at P4a's EV (painted daylight median 1.36; halls 1.64-1.78 with m13.2's white
-    point, 1.26-1.36 with m13.3's). The fixed 1.5 stays only where no daylight view of that kind exists."""
+    point, 1.26-1.36 with m13.3's). The fixed 1.5 stays only where no daylight view of that kind exists. Fix round after
+    P4b: the bound is the median plus ``RIG_ROOM_ABOVE_DAY`` (0.15; the same verdicts here) and the views from a rig
+    share of 0.4 are checked (``test_fixround_p4b_gpu_orange_check_covers_the_mixed_views``)."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
     assert gpu.RIG_ROOM_REL_MAX == 1.1 and gpu.RIG_ROOM_MAX_RB == 1.5
     day = {"cam_r_bed_1": ("r_bed", 1.40, 0.0), "cam_r_bed_2": ("r_bed", 1.36, 0.0),
@@ -1893,8 +1912,9 @@ def test_fixround_p4a_gpu_orange_check_compares_rig_lit_walls_with_the_daylight_
     with pytest.raises(AssertionError, match="cam_r_bath_1.*tiled"):
         check("bath_day", {**day, "cam_r_bath_2": ("r_bath_2", 1.05, 0.0), "cam_r_bath_1": ("r_bath", 1.25, 1.0)},
               wet=("r_bath", "r_bath_2"))
-    # the views of a mixed room (share between WB_RIG_SHARE_MIN and 0.8) are neither reference nor checked
-    check("mixed", {**day, "cam_r_kit_1": ("r_kit", 2.5, 0.5), "cam_r_hall_1": ("r_hall", 1.2, 1.0)})
+    # the views of a mixed room (share between WB_RIG_SHARE_MIN and RIG_CHECK_SHARE: 0.4 since the fix round after
+    # P4b, 0.8 before) are neither reference nor checked
+    check("mixed", {**day, "cam_r_kit_1": ("r_kit", 2.5, 0.3), "cam_r_hall_1": ("r_hall", 1.2, 1.0)})
     # no daylight painted view: the fixed 1.5
     check("fallback", {"cam_r_hall_1": ("r_hall", 1.45, 1.0)})
     with pytest.raises(AssertionError, match="cam_r_hall_1"):
@@ -1906,7 +1926,8 @@ def test_fixround_p4a_gpu_sky_and_pane_checks(tmp_path, monkeypatch):
     floor 0.10, else 0.12, each less the allowance), and lists the views into the sun; the pane check fails a project
     whose interior panes are grey cards (P4a: 0.00-0.07) and a window pull rendered before m13.3."""
     gpu = _gpu_render_module(monkeypatch, tmp_path)
-    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}}}
+    # fix round after P4b: the pane floor holds under the clear-sky moods only (real02's warm daylight here)
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}}, "wenart_mood": "warm daylight"}
     tried = [{"k": 1, "median": 0.8028, "saturation": 0.0529}, {"k": 2, "median": 0.7026, "saturation": 0.0785},
              {"k": 3, "median": 0.576, "saturation": 0.1176}]                       # P4a's terrace up to k 3
     teras = _sky(3, before=(0.8793, 0.0386), after=(0.5762, 0.095), tried=tried, full=0.99)
@@ -1936,3 +1957,488 @@ def test_fixround_p4a_gpu_sky_and_pane_checks(tmp_path, monkeypatch):
     with pytest.raises(AssertionError, match="before m13.3"):
         gpu.test_sky_and_window_pulls_reach_their_targets(old)
     assert gpu.PANE_SAT_MIN <= 0.13                                                # M11's skies pass
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4b (17 Oct 2026; pod P4b, real03): the ``test_fixround_p4b_*`` tests, each failing on 11949a9 or on
+# the mutation its docstring names
+# --------------------------------------------------------------------------
+
+# Blender's white points at tint 0 (bpy 5.2.2, ``white_balance_temperature`` -> ``white_balance_whitepoint``,
+# G-normalised; measured for this round): the rig colours of render.kelvin_whitepoint
+WP_2700K = [2.4086, 1.0, 0.2393]
+WP_4000K = [1.5303, 1.0, 0.5772]
+P4B_ANCHOR = [1.115, 0.995, 0.714]          # real03's project white point (5,153 K, P4b render_manifest)
+
+
+def _sun_view(deg, down=-0.1):
+    return (math.cos(math.radians(deg)), math.sin(math.radians(deg)), down)
+
+
+P4A_SUN_TRAVEL = (-math.cos(math.radians(35.0)) * math.cos(math.radians(45.0)),
+                  -math.cos(math.radians(35.0)) * math.sin(math.radians(45.0)), -math.sin(math.radians(35.0)))
+
+
+def test_fixround_p4b_the_sky_pull_records_whether_the_view_looks_into_the_sun(tmp_path, monkeypatch):
+    """The review of the P4a fix round: no CPU test ran ``RenderRun.sky_pull`` with a scene, so ``sun_offset_deg`` was
+    always None there and two mutations passed (``offset >= SKY_INTO_SUN_DEG``; the camera's direction passed for the
+    sun's). On the edge frame with P4a's geometry (sun azimuth 45, elevation 35): a view 6 degrees off the sun whose
+    sky never qualifies is recorded ``into_sun`` with the rule's note; a view with the sun behind (180 degrees) is not.
+    Lead decision (4): the views into the sun are only listed."""
+    import types
+
+    import numpy as np
+
+    channels = _edge_frame()
+    h, w = channels["ViewLayer.Depth.Z"].shape
+    main = np.full((h, w, 3), 236, dtype=np.uint8)
+
+    def white_sky(scene, result, path, ev, look=R.LOOK):
+        return np.full((h, w, 3), 230, dtype=np.uint8)           # a white sky beside the sun at every k
+    monkeypatch.setattr(R, "save_display", white_sky)
+    monkeypatch.setattr(R, "sun_travel", lambda scene: P4A_SUN_TRAVEL)
+    run = types.SimpleNamespace(ctx=types.SimpleNamespace(scene=types.SimpleNamespace(name="scene"),
+                                                          haze={HAZE_INDEX}), out=tmp_path, warnings=[])
+    for deg, offset, into in ((39.0, 6.0, True), (225.0, 180.0, False), (75.0, 30.0, True), (76.0, 31.0, False)):
+        monkeypatch.setattr(R, "camera_forward", lambda cam, d=deg: _sun_view(d))
+        record, _w, final = R.RenderRun.sky_pull(run, types.SimpleNamespace(name="ext_1"), {"ev": -4.0}, None,
+                                                 main, channels)
+        assert record["k"] == 0 and final is None and record["tried"], deg
+        assert record["sun_offset_deg"] == pytest.approx(offset, abs=0.01) and record["into_sun"] is into, deg
+        note = f" (the view looks into the sun: {record['sun_offset_deg']:g} degrees off its azimuth)"
+        assert record["rule"].endswith(note) is into, (deg, record["rule"])
+    assert record["rule"] == "no k brings the sky under the shoulder with saturation: no pull"
+
+
+def test_fixround_p4b_gpu_pane_floor_holds_under_the_clear_sky_moods(tmp_path, monkeypatch):
+    """The review of the P4a fix round: the pane-saturation floor (0.08, set under real02's warm daylight) failed a
+    correct overcast, blue-hour or night window as a "grey card". It holds under the clear-sky moods only (warm
+    daylight, cool daylight, bright noon, golden evening); for the others (and a project without a mood) the value is
+    printed."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    assert gpu.PANE_SAT_MOODS == ("warm daylight", "cool daylight", "bright noon", "golden evening")
+    assert set(gpu.PANE_SAT_MOODS) <= set(V.LIGHTING)
+
+    def project(mood, sats, where="scene"):
+        renders = [{"camera": f"cam_r_bed_{i}", "room_id": "r_bed", "open_air": False,
+                    "exposure": {"mood": mood if where == "exposure" else None},
+                    "window_pull": {"k": 1, "pane_median_after": 0.6, "pane_saturation": s, "pane_saturation_after": s}}
+                   for i, s in enumerate(sats)]
+        scene = {"lighting": {}} if where != "scene" else {"lighting": {}, "wenart_mood": mood}
+        return "real05", scene, {"renders": renders}
+    grey = [0.01, 0.02, 0.03]
+    for mood in ("warm daylight", "Cool Daylight", "bright noon", "golden evening"):
+        with pytest.raises(AssertionError, match="grey cards"):
+            gpu.test_sky_and_window_pulls_reach_their_targets(project(mood, grey))
+    with pytest.raises(AssertionError, match="grey cards"):                     # the mood on the exposure records
+        gpu.test_sky_and_window_pulls_reach_their_targets(project("warm daylight", grey, "exposure"))
+    for mood in ("overcast", "cloudy soft", "blue hour", "night", "interior evening", None):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(mood, grey))
+    gpu.test_sky_and_window_pulls_reach_their_targets(project("warm daylight", [0.12, 0.14, 0.2]))
+
+
+# P4b's window pull records (render_manifest.json): tried k (clip, median, p90) and the wall median
+P4B_PULLS = {
+    "cam_r_L0_yasama_8_3": (0.4855, [(1, 0.1377, 0.6088, 0.9818), (2, 0.0, 0.467, 0.9381)]),
+    "cam_r_L0_ebeveyn_odasi_5_3": (0.4783, [(1, 0.0112, 0.5536, 0.9762), (2, 0.0, 0.4041, 0.9308)]),
+    "cam_r_L0_ebeveyn_odasi_6_2": (0.5091, [(1, 0.011, 0.6315, 0.9619), (2, 0.0, 0.4895, 0.9109)]),
+    "cam_r_L0_ruzgarlik_2": (0.4686, [(1, 0.0028, 0.3907, 0.9348)]),
+    "cam_r_L0_giris_holu_3_1": (0.4582, [(1, 0.039, 0.4657, 0.9785), (2, 0.0, 0.3226, 0.9345)]),
+    "cam_r_L0_yasama_4_2": (0.5836, [(1, 0.0, 0.3801, 0.9235)]),
+    "cam_r_L0_yangin_merdiveni_1": (0.4531, [(1, 0.0, 0.535, 0.7248)]),
+}
+
+
+def test_fixround_p4b_an_unclipped_pull_near_the_walls_comes_before_a_clipped_one():
+    """P4b: 10 real03 views kept clipped panes (P4a: 0) because a clip-free k made the panes a little darker than the
+    bright greige walls: yasama_8_3 kept 13.9 % at k 1 although k 2 was clip-free at 0.467 against walls of 0.486. The
+    smallest unclipped k with the pane target whose panes are at least 0.8 of the wall median now comes before a
+    clipped k that stays brighter; panes under 0.8 of the walls still get no pull (yasama_4_2: 0.38 against 0.58).
+    The search goes on past the walls and stops under 0.8 of them (``pull_search_done``). Fails on 11949a9 (k 1 / 1 /
+    1 / 0)."""
+    assert R.PULL_WALL_RATIO_MIN == 0.8
+
+    def cands(rows):
+        return [{"k": k, "clip": c, "median": m, "p90": p} for k, c, m, p in rows]
+    chosen = {cam: R.choose_pull(cands(rows), wall) for cam, (wall, rows) in P4B_PULLS.items()}
+    assert {cam: k for cam, (k, _r) in chosen.items()} == {
+        "cam_r_L0_yasama_8_3": 2, "cam_r_L0_ebeveyn_odasi_5_3": 2, "cam_r_L0_ebeveyn_odasi_6_2": 2,
+        "cam_r_L0_ruzgarlik_2": 1, "cam_r_L0_giris_holu_3_1": 1, "cam_r_L0_yasama_4_2": 0,
+        "cam_r_L0_yangin_merdiveni_1": 1}
+    assert "slightly darker than the walls" in chosen["cam_r_L0_yasama_8_3"][1]
+    assert chosen["cam_r_L0_yangin_merdiveni_1"][1].startswith("smallest k with pane clip <= 1 %, the pane target and")
+    assert chosen["cam_r_L0_giris_holu_3_1"][1].startswith("lowest pane clip")      # k 2 is under 0.8 of the walls
+    # without the pane target: an unclipped k that keeps the panes brighter first, then one near the walls
+    no_target = [{"k": 1, "clip": 0.02, "median": 0.8, "p90": 0.99}, {"k": 2, "clip": 0.0, "median": 0.75, "p90": 0.97}]
+    assert R.choose_pull(no_target, 0.7) == (2, "unclipped panes brighter than the walls, the lowest highlights (no k "
+                                                "reached the target)")
+    assert R.choose_pull(no_target, 0.9)[0] == 2 and "no k reached the target" in R.choose_pull(no_target, 0.9)[1]
+    assert R.choose_pull(no_target, 0.95)[0] == 0                                   # 0.75 < 0.8 x 0.95
+    # the pane target near the walls comes before an unclipped k that stays brighter without it
+    bright_pale = [{"k": 1, "clip": 0.0, "median": 0.8, "p90": 0.95}, {"k": 2, "clip": 0.0, "median": 0.55, "p90": 0.9}]
+    assert R.choose_pull(bright_pale, 0.6)[0] == 2
+    # the search: done at a qualifying k, at the smallest unclipped k near the walls, and under 0.8 of the walls
+    y83 = cands(P4B_PULLS["cam_r_L0_yasama_8_3"][1])
+    assert not R.pull_search_done(y83[0], 0.4855) and R.pull_search_done(y83[1], 0.4855)
+    assert R.pull_search_done({"k": 3, "clip": 0.0, "median": 0.38, "p90": 0.9}, 0.4855)        # too dark: stop
+    assert not R.pull_search_done({"k": 1, "clip": 0.0, "median": 0.70, "p90": 0.97}, 0.4855)   # no target yet: go on
+    # under the walls, still clipped and over 0.8 of them: the next k may be clip-free
+    assert not R.pull_search_done({"k": 2, "clip": 0.02, "median": 0.45, "p90": 0.95}, 0.4855)
+    assert not R.pull_search_done({"k": 1, "clip": 0.03, "median": 0.9, "p90": 0.99}, None)
+    assert R.pull_search_done({"k": 1, "clip": 0.0, "median": 0.6, "p90": 0.8}, None)
+    from wenart.blender import schemas
+
+    assert schemas.WINDOW_PULL["oneOf"][1]["properties"]["interior_pane_px"] == {"type": "integer", "minimum": 0}
+
+
+def _glazing_frame():
+    """A view of 20 x 30 px: an exterior window (index 5, columns 2-8) whose panes clip, an interior window between
+    two rooms (index 6, columns 15-25) showing an amber hall, the room's walls (index 0) elsewhere; rows 2-10 glass
+    (Diffuse Color 0.01), every other pixel albedo 0.5."""
+    import numpy as np
+
+    h, w = 20, 30
+    index = np.zeros((h, w))
+    index[2:11, 2:9] = 5
+    index[2:11, 15:26] = 6
+    albedo = np.full((h, w, 3), 0.5)
+    albedo[index > 0] = 0.01
+    main = np.zeros((h, w, 3), dtype=np.uint8)
+    main[...] = (120, 110, 100)                       # greige walls
+    main[index == 5] = (252, 252, 252)                # the sunlit outside, clipped
+    main[index == 6] = (230, 180, 120)                # the 2700 K hall next door
+    channels = {"ViewLayer.Diffuse Color.R": albedo[..., 0], "ViewLayer.Diffuse Color.G": albedo[..., 1],
+                "ViewLayer.Diffuse Color.B": albedo[..., 2]}
+    return index, channels, main
+
+
+def test_fixround_p4b_interior_glazing_is_not_pulled_and_is_recorded(tmp_path, monkeypatch):
+    """P4b: real03's 19 windows between halls, stairs, studios and bedrooms were pulled like outside windows
+    (yasama_8_3, giris_holu_3_1 and yangin_merdiveni_1 at k 1: the neighbouring room a stop darker and more saturated,
+    13.9 % clipped panes in yasama_8_3). A window whose ``room_ids`` name two indoor rooms is interior glazing
+    (``interior_window_ids``; a window onto a roof terrace is not); the window pull leaves its panes out
+    (``interior_pane_px``), and the view records them against its walls (``interior_glazing``: display R/B of each).
+    Fails on 11949a9 (no ``interior_window_ids``; the interior panes in the pull's mask)."""
+    import types
+
+    import numpy as np
+
+    real03 = json.loads(REAL03.read_text(encoding="utf-8"))
+    ids = R.interior_window_ids(real03)
+    assert len(ids) == 19 and {"win_L0_055", "win_L0_056", "win_L0_028"} <= ids and "win_L0_046" not in ids
+    real02 = json.loads(REAL02.read_text(encoding="utf-8"))
+    assert R.interior_window_ids(real02) == set()            # its two-room windows open onto the roof terraces
+    assert R.interior_window_indices([("win_L0_055", 41), ("win_L0_046", 33), (None, 7)], real03) == {41}
+    assert R.interior_window_indices([("win_L0_055", 41)], None) == set()
+    index, channels, main = _glazing_frame()
+    walls = index == 0
+
+    def fake_save(scene, result, path, ev, look=R.LOOK):
+        return (main.astype(np.float64) * 0.5 ** round(-float(ev))).astype(np.uint8)
+    monkeypatch.setattr(R, "save_display", fake_save)
+    ctx = types.SimpleNamespace(scene=None, windows={5, 6}, interior_windows={6}, haze=set(),
+                                pass_index={"win_L0_046": 5, "win_L0_055": 6})
+    run = types.SimpleNamespace(ctx=ctx, out=tmp_path, warnings=[])
+    cam = types.SimpleNamespace(name="cam_r_L0_yasama_8_3")
+    products = {"index": index.astype(np.uint16)}
+    record, weights, final = R.RenderRun.window_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls)
+    assert record["pane_px"] == 63 and record["interior_pane_px"] == 99 and record["k"] >= 1
+    assert record["targets"]["wall_ratio_min"] == R.PULL_WALL_RATIO_MIN
+    assert np.array_equal(final[index == 6], main[index == 6])          # the hall next door as rendered
+    assert (weights[index == 6] == 0).all() and (final[index == 5] < main[index == 5]).all()
+    glazing = R.RenderRun.interior_glazing(run, final, channels, products, walls)
+    assert glazing["windows"] == ["win_L0_055"] and glazing["pane_px"] == 99
+    assert glazing["pane_rb"] == pytest.approx(230 / 120, abs=1e-3) and glazing["wall_rb"] == pytest.approx(1.2)
+    assert glazing["delta_rb"] == pytest.approx(230 / 120 - 1.2, abs=2e-3)
+    # without interior glazing in the scene: every window is pulled and nothing is recorded
+    ctx.interior_windows = set()
+    record, _w, final = R.RenderRun.window_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls)
+    assert record["pane_px"] == 162 and record["interior_pane_px"] == 0
+    assert R.RenderRun.interior_glazing(run, final, channels, products, walls) is None
+    from wenart.blender import schemas
+
+    jsonschema = pytest.importorskip("jsonschema")
+    jsonschema.validate(glazing, schemas.RENDER_ENTRY["properties"]["interior_glazing"])
+    jsonschema.validate(None, schemas.RENDER_ENTRY["properties"]["interior_glazing"])
+
+
+def test_fixround_p4b_the_white_point_follows_the_camera_rooms_rig(tmp_path, monkeypatch):
+    """The P4b interior-glazing verifier: the build may light halls, stairs and baths at a neutral 4000 K, but the
+    render balanced every view for the scene's first rig light (real03: a 2700 K bedside lamp), which would put a
+    white wall of a 4000 K hall at linear R/B 0.33 (blue) instead of the daylight rooms' 1.27. A view is now balanced
+    for its own room's rig lights (``room_rig_kelvin``; energy-weighted in mired when a room mixes temperatures), the
+    scene's first light only when its room has none; the record says the source and a block-median share for
+    diagnosis (``wb_rig_share_p50``; the white point still uses ``rig_share``, the verifier refuted a share change).
+    Fails on 11949a9 (no ``room_rig_kelvin``; ``wb_rig_kelvin`` 2700 for the hall)."""
+    import types
+
+    lights = [("r_bed", 2700.0, 2.5), ("r_hall", 4000.0, 9.0), ("r_hall", 4000.0, 3.0), ("r_mix", 2700.0, 1.0),
+              ("r_mix", 4000.0, 1.0)]
+    assert R.room_rig_kelvin(lights, "r_hall") == (4000.0, "room")
+    assert R.room_rig_kelvin(lights, "r_bed") == (2700.0, "room")
+    assert R.room_rig_kelvin(lights, "r_living") == (2700.0, "scene")             # no rig light: the first one
+    assert R.room_rig_kelvin(lights, "r_mix") == (round(1e6 / ((1e6 / 2700 + 1e6 / 4000) / 2), 1), "room")
+    assert R.room_rig_kelvin([("r_mix", 2700.0, 3.0), ("r_mix", 4000.0, 1.0)], "r_mix")[0] == \
+        round(1e6 / ((3 * 1e6 / 2700 + 1e6 / 4000) / 4), 1)
+    assert R.room_rig_kelvin([], "r_hall") == (None, None)
+    # the colour check: a white wall of a 4000 K hall at share 1, corrected for 4000 K, keeps the daylight cast; for
+    # 2700 K it turns blue (the verifier's 0.33)
+    day = R.normalise_whitepoint([v ** (1 / 0.65) for v in P4B_ANCHOR])
+    cast = _rb([d ** 0.35 for d in day])
+    hall = R.normalise_whitepoint(WP_4000K)
+    right = R.mixed_whitepoint(P4B_ANCHOR, WP_4000K, 1.0, 0.35)
+    wrong = R.mixed_whitepoint(P4B_ANCHOR, WP_2700K, 1.0, 0.35)
+    assert cast == pytest.approx(1.271, abs=2e-3)
+    assert _rb([a / b for a, b in zip(hall, right)]) == pytest.approx(cast, abs=1e-3)
+    assert _rb([a / b for a, b in zip(hall, wrong)]) == pytest.approx(0.335, abs=2e-3)
+    # Look._view_white with stand-ins: the hall view takes the hall's 4000 K
+    look = object.__new__(R.Look)
+    look.scene, look.windows, look.haze, look.room_types = {}, set(), set(), {}
+    look.project = {"residual": 0.35}
+    monkeypatch.setattr(R, "rig_objects", lambda scene: ["rig"])
+    monkeypatch.setattr(R, "rig_lights", lambda scene: lights)
+    monkeypatch.setattr(R, "hide_objects", lambda objs: [])
+    monkeypatch.setattr(R, "unhide_objects", lambda saved: None)
+    monkeypatch.setattr(R, "meter_camera", lambda *a, **k: {"illuminant": [0.01, 0.01, 0.01], "incident_p50": 0.002,
+                                                            "seconds": 0.5})
+    monkeypatch.setattr(R, "kelvin_whitepoint", lambda scene, k: R.normalise_whitepoint(
+        {2700.0: WP_2700K, 4000.0: WP_4000K}[k]))
+    for room, kelvin, source in (("r_hall", 4000.0, "room"), ("r_living", 2700.0, "scene")):
+        cam = types.SimpleNamespace(name=f"cam_{room}_1", get={"wenart_room": room,
+                                                                "wenart_camera_kind": "interior"}.get)
+        rec = {"whitepoint": list(P4B_ANCHOR), "meter_seconds": 1.0}
+        meter = {"illuminant": [0.1, 0.1, 0.1], "incident_p50": 0.02}
+        look._view_white(cam, rec, meter, tmp_path, (64, 36))
+        assert rec["wb_rig_kelvin"] == kelvin and rec["wb_rig_kelvin_source"] == source, room
+        assert rec["wb_rig_share"] == pytest.approx(0.9) and rec["wb_rig_share_p50"] == pytest.approx(0.9)
+        rig = R.normalise_whitepoint({2700.0: WP_2700K, 4000.0: WP_4000K}[kelvin])
+        assert rec["whitepoint"] == pytest.approx(R.mixed_whitepoint(P4B_ANCHOR, rig, 0.9, 0.35, 0.0), abs=1e-9)
+    # the diagnostic share: the block medians, clamped; never None for a view with light
+    assert R.rig_share_p50(0.18159, 0.089643) == pytest.approx(0.506, abs=1e-3)       # P4b banyo_6_1 (sums: 0.439)
+    assert R.rig_share_p50(0.1, 0.2) == 0.0 and R.rig_share_p50(0.1, None) == 1.0
+    assert R.rig_share_p50(None, 0.1) is None and R.rig_share_p50(0.0, 0.0) is None
+
+
+def test_fixround_p4b_lighting_dark_under_one_exposure_step_is_minor():
+    """P4b re-lit and re-rendered giris_holu_2_1 (0.01 stops over the cap) and giris_holu_4_2 / yasama_7_1 (0.04): the
+    EV is rounded to 1/6 stop, so such a view renders at the cap anyway. Less than one exposure step over the cap is a
+    minor, report-only finding with ``metrics.below_exposure_step``; the schema takes it; from one step it is major as
+    before. Fails on 11949a9 (major)."""
+    from wenart.blender import schemas
+
+    assert R.LIGHTING_DARK_MINOR_STOPS == R.EXPOSURE_STEP == 1.0 / 6.0
+    for over in (0.01, 0.04, 0.16):
+        rec = R.lighting_dark_entry("cam_r_L0_giris_holu_2_1", "r_L0_giris_holu_2", 3.0 + over, 3.0, (-10.38, 3.0),
+                                    0.0112)
+        assert rec["severity"] == "minor" and rec["metrics"]["below_exposure_step"] is True, over
+        assert "reported only" in rec["message"]
+        pytest.importorskip("jsonschema").validate(rec, schemas.LIGHTING_DARK)
+    step = R.lighting_dark_entry("c", "r", 3.0 + 1.0 / 6.0, 3.0, (-2.0, 3.0))
+    assert step["severity"] == "major" and "below_exposure_step" not in step["metrics"]
+    assert "reported only" not in step["message"]
+    assert R.lighting_dark_entry("c", "r", 5.2, 3.0, (-2.0, 3.0))["severity"] == "critical"
+
+
+def _meter_frame():
+    """A metering frame of an exterior view, 24 x 48 px: rows 0-7 the shaded facade (normal z 0, incident 19), rows
+    8-11 the far ground behind the haze shell (300 m, incident 50), rows 12-23 the sunlit near ground (8 m, incident
+    265); the haze shell at 40 m takes the first column of rows 8-11 at sample 0."""
+    import numpy as np
+
+    h, w = 24, 48
+    light = np.zeros((h, w, 3))
+    nz = np.zeros((h, w))
+    depth = np.full((h, w), 12.0)
+    index = np.zeros((h, w))
+    light[:8] = 19.0
+    light[8:12], nz[8:12], depth[8:12] = 50.0, 1.0, 300.0
+    light[12:], nz[12:], depth[12:] = 265.0, 1.0, 8.0
+    depth[8:12, 0], index[8:12, 0] = 40.0, HAZE_INDEX
+    albedo = np.full((h, w, 3), 0.4)
+    return light, albedo, index, depth, nz
+
+
+def test_fixround_p4b_the_exterior_exposure_caps_the_sunlit_ground(tmp_path, monkeypatch):
+    """P4b: real03's ext_3 / ext_4 metered the shaded back facade (incident 19-22 against 79-123) at -4.33 / -4.67 EV
+    and the sunlit lawn came out cream (saturation 0.11-0.19 against 0.35-0.42). The metering pass also gives the sunlit
+    ground in front of the haze shell (``ground_p50``), and the facade exposure is capped at the ground's plus 1.5 stops
+    (``exterior_exposure``, per view): a shaded facade (19) under a ground of 265 is capped, a sunlit one (110) is not,
+    no ground means no cap. ``Look._decide`` records the cap. Fails on 11949a9 (no ``exterior_exposure``)."""
+    import types
+
+    assert R.EXTERIOR_GROUND_HEADROOM_STOPS == 1.5 and R.GROUND_NZ_MIN == 0.9
+    light, albedo, index, depth, nz = _meter_frame()
+    s = R.meter_stats(light, albedo, index, depth, set(), blocks_across=12, normal_z=nz, haze_indices={HAZE_INDEX})
+    assert s["metered"] == "facade" and s["incident_p50"] == pytest.approx(19.0)       # the facade rule is unchanged
+    assert s["ground_p50"] == pytest.approx(265.0) and s["ground_blocks_used"] == 36   # the far ground is left out
+    no_haze = R.meter_stats(light, albedo, index, depth, set(), blocks_across=12, normal_z=nz)
+    assert no_haze["ground_blocks_used"] == 48 and no_haze["incident_p50"] == pytest.approx(19.0)
+    assert "ground_p50" not in R.meter_stats(light, albedo, index, depth, set(), blocks_across=12)
+    limits = (-10.3808, 3.0)
+    ev, raw, at_limit, rec = R.exterior_exposure(19.0, 265.0, 0.9, limits)
+    assert rec["ground_cap"] is True and raw == pytest.approx(math.log2(0.9 / 265.0) + 1.5, abs=1e-3)
+    assert ev == pytest.approx(-40 / 6) and not at_limit                               # -6.70 rounded to 1/6
+    assert rec["ev_facade"] == pytest.approx(-4.333333) and rec["ev_ground"] == pytest.approx(-8.2019, abs=1e-3)
+    assert ev <= rec["ev_ground"] + rec["ground_headroom_stops"] + R.EXPOSURE_STEP / 2
+    sunlit = R.exterior_exposure(110.0, 265.0, 0.9, limits)
+    assert sunlit[:3] == R.exposure_from(110.0, 0.9, limits) and sunlit[3]["ground_cap"] is False
+    for ground in (None, 0.0, float("nan")):
+        none = R.exterior_exposure(19.0, ground, 0.9, limits)
+        assert none[:3] == R.exposure_from(19.0, 0.9, limits) and none[3]["ground_cap"] is False
+    # real02 (P4a, the CPU shim re-meter): ext_1 14.1 / ground 176.5 is capped to -6.17; ext_3 169.4 / 210.7 is not
+    assert R.exterior_exposure(14.145, 176.54, 0.9, limits)[0] == pytest.approx(-37 / 6)
+    assert R.exterior_exposure(169.41, 210.71, 0.9, limits)[0] == R.exposure_from(169.41, 0.9, limits)[0] == -7.5
+    # Look._decide records the cap for an exterior view and leaves an interior view as it was
+    look = object.__new__(R.Look)
+    look.scene, look.windows, look.haze, look.look_from = {}, set(), {HAZE_INDEX}, None
+    look.exposure_mode, look.exposure_value, look.target, look.wb_mode = "auto", None, 0.9, "off"
+    look.limits, look.floor_shift, look.mood, look.ev_offset = (-2.0, 3.0), 8.3808, "warm daylight", 0.0
+    seen = []
+
+    def meter(scene, cam, out, res, windows, haze=()):
+        seen.append(haze)
+        base = {"seconds": 0.2, "resolution": [8, 4], "samples": 16, "blocks": 32, "blocks_used": 8, "block_px": 1,
+                "interior_frac": 0.3, "illuminant": [1.0, 1.0, 1.0], "incident_p50": 19.0}
+        if cam.get("wenart_camera_kind") == "exterior":
+            base.update(metered="facade", ground_p50=265.0, ground_blocks_used=12)
+        return base
+    monkeypatch.setattr(R, "meter_camera", meter)
+    ext = types.SimpleNamespace(name="ext_3", get={"wenart_camera_kind": "exterior"}.get)
+    rec = look.decide(ext, tmp_path, (64, 36))
+    assert rec["ev"] == pytest.approx(-40 / 6) and rec["ground_cap"] is True
+    assert rec["ev_facade"] == pytest.approx(-4.333333)
+    assert rec["meter"]["ground_blocks_used"] == 12 and seen == [{HAZE_INDEX}] and rec["lighting_dark"] is None
+    room = types.SimpleNamespace(name="cam_r_1", get={"wenart_camera_kind": "interior", "wenart_room": "r"}.get)
+    rec = look.decide(room, tmp_path, (64, 36))
+    assert "ground_cap" not in rec and rec["ev"] == R.exposure_from(19.0, 0.9, look.view_limits())[0]
+    from wenart.blender import schemas
+
+    props = schemas.EXPOSURE["properties"]
+    assert {"ev_facade", "ev_ground", "ground_p50", "ground_headroom_stops", "ground_cap", "ground_rule",
+            "wb_rig_kelvin_source", "wb_rig_share_p50"} <= set(props)
+
+
+def test_fixround_p4b_the_lawn_is_the_green_ground_in_front_of_the_haze():
+    """The lawn record of an exterior view (``lawn_mask`` / ``lawn_record``, the GPU pin of its saturation): surface
+    hits facing up with a green albedo, nearer than the haze shell; not the facade, the grey paving, the far ground
+    behind the shell or the sky."""
+    import numpy as np
+
+    h, w = 10, 10
+    albedo = np.full((h, w, 3), 0.4)
+    albedo[5:, :] = (0.12, 0.2, 0.06)                 # the grass (Grass004-like)
+    albedo[5:, 8:] = (0.3, 0.3, 0.3)                  # grey paving
+    normal = np.zeros((h, w, 3))
+    normal[5:, :, 2] = 1.0
+    depth = np.full((h, w), 10.0)
+    depth[:2] = 1e10                                  # the sky
+    depth[5:7, :] = 400.0                             # far grass behind the shell
+    index = np.zeros((h, w))
+    depth[2, 0], index[2, 0] = 60.0, HAZE_INDEX
+    mask = R.lawn_mask(albedo, normal, depth, index, {HAZE_INDEX})
+    want = np.zeros((h, w), dtype=bool)
+    want[7:, :8] = True
+    assert np.array_equal(mask, want)
+    assert R.lawn_mask(albedo, normal, depth)[5:7, :8].all()             # no haze: the far grass counts
+    img = np.zeros((h, w, 3), dtype=np.uint8)
+    img[...] = (110, 140, 80)
+    rec = R.lawn_record(img, mask)
+    assert rec == {"px_share": 0.24, "saturation": pytest.approx((140 - 80) / 140, abs=1e-4),
+                   "median": pytest.approx(R.masked_median(img, mask), abs=1e-4)}
+    assert R.lawn_record(img, np.zeros((h, w), dtype=bool)) is None
+
+
+def test_fixround_p4b_gpu_orange_check_covers_the_mixed_views(tmp_path, monkeypatch):
+    """The verifier's better fix of the P4b orange finding: the GPU check covered only views with a rig share of 0.8 or
+    more, and P4b's mixed halls and baths (0.44-0.65) read 1.40-1.69 unchecked. The views from 0.4 are checked against
+    the daylight walls of their kind plus 0.15. Fails on 11949a9 (a share-0.5 view at 2.5 passed)."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    assert gpu.RIG_CHECK_SHARE == 0.4 and gpu.RIG_ROOM_ABOVE_DAY == 0.15
+    day = {"cam_r_bed_1": ("r_bed", 1.29, 0.0), "cam_r_bed_2": ("r_bed", 1.31, 0.0)}      # real03's lit greige
+
+    def check(case, views):
+        monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)
+        gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, views, ("r_bath",)))
+    with pytest.raises(AssertionError, match="cam_r_hall_1"):
+        check("mixed", {**day, "cam_r_hall_1": ("r_hall", 1.69, 0.62)})                # giris_holu_3_1 in P4b
+    check("mixed_fixed", {**day, "cam_r_hall_1": ("r_hall", 1.42, 0.49)})           # ruzgarlik_1 predicted
+    with pytest.raises(AssertionError, match="cam_r_hall_1"):
+        check("over", {**day, "cam_r_hall_1": ("r_hall", 1.46, 1.0)})               # 0.16 over 1.30
+    check("under_04", {**day, "cam_r_hall_1": ("r_hall", 2.0, 0.35),                # under 0.4: not checked
+                       "cam_r_hall_2": ("r_hall", 1.40, 1.0)})
+
+
+def test_fixround_p4b_gpu_named_sky_views_pass_when_their_sky_already_qualifies(tmp_path, monkeypatch):
+    """The exterior ground cap renders the shaded-facade views darker, so a named view of ``SKY_PULLED_VIEWS`` may need
+    no sky pull: it passes when its rendered sky already qualifies (``render.sky_pull_qualifies``), and still fails
+    when the sky is over the shoulder and not pulled. Fails on 11949a9 (k 0 failed whatever the sky)."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}}}
+
+    def project(ext_2):
+        return "real02", scene, {"renders": [{"camera": "ext_2", "room_id": None, "sky_pull": ext_2}]}
+    blue = _sky(0, before=(0.66, 0.14), tried=[])
+    gpu.test_sky_and_window_pulls_reach_their_targets(project(blue))
+    with pytest.raises(AssertionError, match="ext_2.*not pulled"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(_sky(0, before=(0.86, 0.06), tried=[])))
+
+
+def test_fixround_p4b_gpu_pull_glazing_and_exterior_checks(tmp_path, monkeypatch):
+    """CPU replays of the three new GPU checks: a window pull that kept clipped panes although a clip-free k near the
+    walls was tried fails (P4b's yasama_8_3); the named real03 interior-glazing views fail over 0.3 of their walls and
+    without a record; an exterior view over its ground EV plus the headroom, or with a bleached lawn, fails; a minor
+    lighting_dark view is not dark for the hall check."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    # the window pull
+    wall, rows = P4B_PULLS["cam_r_L0_yasama_8_3"]
+    tried = [{"k": k, "clip": c, "median": m, "p90": p} for k, c, m, p in rows]
+
+    def pulls(k, clip_after):
+        return "real03", {}, {"renders": [{"camera": "cam_r_L0_yasama_8_3", "room_id": "r_L0_yasama_8",
+                                           "window_pull": {"k": k, "tried": tried, "wall_median": wall,
+                                                           "clip_after": clip_after, "rule": "r"}}]}
+    gpu.test_window_pull_takes_an_unclipped_k_when_one_was_tried(pulls(2, 0.004))
+    with pytest.raises(AssertionError, match="cam_r_L0_yasama_8_3"):
+        gpu.test_window_pull_takes_an_unclipped_k_when_one_was_tried(pulls(1, 0.1386))     # P4b
+    gpu.test_window_pull_takes_an_unclipped_k_when_one_was_tried(pulls(0, 0.004))           # unclipped as rendered
+    with pytest.raises(AssertionError, match="cam_r_L0_yasama_8_3"):
+        gpu.test_window_pull_takes_an_unclipped_k_when_one_was_tried(pulls(0, 0.307))       # clipped, not pulled
+    # the interior glazing of the named views
+    names = gpu.INTERIOR_GLAZING_VIEWS["real03"]
+    assert gpu.INTERIOR_GLAZING_MAX_DELTA == 0.3 and "cam_r_L0_yasama_8_3" in names
+
+    def glazing(delta, missing=()):
+        renders = []
+        for cam in names:
+            e = {"camera": cam, "room_id": "r"}
+            if cam not in missing:
+                e["interior_glazing"] = {"pane_rb": 1.29 + delta, "wall_rb": 1.29, "delta_rb": delta,
+                                         "windows": ["win_L0_055"], "pane_px": 900, "rule": "r"}
+            renders.append(e)
+        return "real03", {}, {"renders": renders}
+    gpu.test_interior_glazing_keeps_one_white_point(glazing(0.2))
+    with pytest.raises(AssertionError, match="two white points"):
+        gpu.test_interior_glazing_keeps_one_white_point(glazing(0.53))                  # yasama_8_3 in P4b
+    with pytest.raises(AssertionError, match="no interior_glazing record"):
+        gpu.test_interior_glazing_keeps_one_white_point(glazing(0.1, missing=names[:1]))
+    # the exterior views
+    def ext(ev, lawn_sat, ground_ev=-8.2, share=0.4):
+        x = {"mode": "auto", "ev": ev, "ev_offset": 0.0, "at_limit": False, "meter": {"metered": "facade"},
+             "ev_facade": -4.33, "ev_ground": ground_ev, "ground_headroom_stops": 1.5, "ground_cap": True}
+        return "real03", {}, {"renders": [{"camera": "ext_3", "room_id": None, "exposure": x,
+                                           "lawn": {"px_share": share, "saturation": lawn_sat, "median": 0.5}}]}
+    gpu.test_exterior_views_cap_the_ground_and_keep_the_lawn_green(ext(-6.667, 0.34))
+    with pytest.raises(AssertionError, match="over the ground EV"):
+        gpu.test_exterior_views_cap_the_ground_and_keep_the_lawn_green(ext(-4.333, 0.34))      # P4b's ext_3
+    with pytest.raises(AssertionError, match="bleached lawn"):
+        gpu.test_exterior_views_cap_the_ground_and_keep_the_lawn_green(ext(-6.667, 0.11))
+    gpu.test_exterior_views_cap_the_ground_and_keep_the_lawn_green(ext(-6.667, 0.11, share=0.05))   # little lawn
+    into_sun = ext(-6.167, 0.246, ground_ev=-7.619)                 # real02's ext_1 (shim), 6 degrees off the sun
+    into_sun[2]["renders"][0]["sky_pull"] = {"into_sun": True, "sun_offset_deg": 6.01}
+    gpu.test_exterior_views_cap_the_ground_and_keep_the_lawn_green(into_sun)
+    assert gpu.LAWN_SAT_MIN == 0.25 and gpu.LAWN_MIN_SHARE == 0.10
+    # a minor lighting_dark (under one exposure step) is not dark
+    minor = R.lighting_dark_entry("cam_r_h_1", "r_h", 3.01, 3.0, (-2.0, 3.0))
+    major = R.lighting_dark_entry("cam_r_h_1", "r_h", 3.5, 3.0, (-2.0, 3.0))
+    assert not gpu._dark({"exposure": {"lighting_dark": minor}}) and gpu._dark({"exposure": {"lighting_dark": major}})
+    assert not gpu._dark({"exposure": {"lighting_dark": None}})

@@ -308,7 +308,9 @@ def test_the_exterior_critic_is_told_that_an_allowed_aerial_view_is_no_finding(t
             "position": [-30, -30, 9], "target": [4, 2, 1.6], "lens_mm": 24.0, "horizon_frac": 0.42}
     corner = {"name": "ext_1", "kind": "exterior", "view": "corner", "position": [-8, -8, 1.6],
               "target": [4, 2, 1.6], "lens_mm": 28.0}
-    assert P.camera_note(None) == "" and P.camera_note(corner) == ""
+    # fix round after P4b (changed on purpose): a corner view is told its role, without "NOT a finding"
+    assert P.camera_note(None) == "" and P.camera_note(corner).startswith("The camera of this view is a 3/4 corner")
+    assert "NOT a finding" not in P.camera_note(corner)
     assert "NOT a finding" in P.camera_note(aerial) and "aerial view" in P.camera_note(aerial)
     assert "site view" in P.camera_note(site) and "X6" in P.camera_note(site)
     assert P.camera_note({"view": "aerial"}).startswith("This view is the aerial view")

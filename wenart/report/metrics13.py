@@ -73,9 +73,11 @@ How (the definitions):
     ``site.vegetation`` / ``site.trees`` records with a method other than a primitive; tree objects without such a
     record count as primitives), hedges built from the drawn rows (``site.hedges`` of the building vs the scene's
     hedge records or objects), black pixels of the site view (the aerial / site camera's final preview; the
-    exterior preview with most black when the scene manifest does not say which camera is the site view). Fix round
-    after P4a: with no drawn tree the value is the share of the scene's (inferred) trees built as real geometry.
-12. exterior views rendered of planned (planned = the scene manifest's exterior cameras + the dropped ones).
+    exterior preview with most black only when the run records no view kind at all; no data, with the reason, when
+    the run records its views and none is aerial or site). Fix round after P4a: with no drawn tree the value is the
+    share of the scene's (inferred) trees built as real geometry.
+12. exterior views rendered of planned (planned = the names of the scene manifest's exterior cameras and of the
+    dropped ones, each name once; rendered = the planned cameras with an exterior view).
 13. views in halls (``HALL_TYPES``) or with >= 50 % bare wall (the scene camera's ``score.shares.wall``).
 14. ``in_json_not_rendered`` mismatches of the final check (final manifest ``json_crosscheck``).
 15. rubric score of the reviewer (mean over the views of the final report; parts: views at 1, share at 4-5).
@@ -117,6 +119,30 @@ Fix round after P4a (17 Oct 2026, the library lens of the P4a analysis):
   report and ``orchestrator/metrics.json`` agree. Before, an edit was keyed by its logged checklist and room, so
   P4a's set_lighting edits (findings on cameras) never counted, and a target its round did not have counted as gone
   (P3 real04: 29 of 39 before, 22 of 39 now; P4a real02: 17 of 25 before, 17 of 24 now).
+
+Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis):
+
+- What: metric 12 counts each camera name once (``planned`` = exterior cameras | ``cameras_dropped`` by name),
+  ``dropped`` are the dropped names that are not in the final camera list, a dropped name that is back in it is
+  ``re_added`` (named in the text, "(agent)" when the camera carries the agent's record), and a rendered exterior
+  view of no planned camera is listed apart (``not_planned``), not counted. Metric 11 measures the black pixels only
+  in an aerial or site view (``site_view_black``: the scene cameras' ``view``, else the final manifest's
+  ``exterior_view``); when the run records its views and none is one, the part is "no data" with the reason
+  (``black_reason``: the dropped aerial / site cameras and their ``dropped_reason``) and ``black_basis: "none"``. The
+  old rule (the darkest exterior preview) stays only for a run that records no view kind at all (``black_basis:
+  "darkest exterior"``, said in the text).
+- Why: P4b (real03) reported m12 "6 of 8 (2 dropped)": ext_6 was dropped (frontal, too small) and the agent's "set
+  ext_6" re-created it, so it was counted in both lists; the truth is 6 of 7 (ext_5 dropped, ext_6 re-added). m11
+  reported "black pixels 1.9 % (ext_6)": ext_6 is an eye-level 3/4 view and its black pixels are window glass; real03
+  has no site view at all (the aerial ext_5 was dropped: "flat_cut roof (upper floors not drawn): no aerial view").
+  P4a (real02) had "7 of 6": a duplicate camera rendered as "ext_6.001" next to the planned six.
+- How: lead decision 1 of 17 Oct 2026 (replayed cameras are frozen; the agent may add a camera, never set or remove a
+  replayed one) makes a re-add an added camera; it still counts once. On the job results (runs/, not committed):
+  P4b real03 m12 "6 of 7 (1 dropped: ext_5; re-added after the drop: ext_6 (agent))", m11 black "no data (no aerial
+  or site view: ext_5 (aerial) dropped: flat_cut roof ...)"; P4a real02 m12 "6 of 6 (0 dropped); also rendered, not a
+  planned camera: ext_6.001"; P3 real04 unchanged (6 of 7, black 6.6 % in ext_5). The committed baselines are
+  unchanged (real02 M11 6 of 6, black 0.0 % in ext_5; real04 M12 black 29.8 % in ext_7, now marked as the darkest
+  exterior).
 """
 from __future__ import annotations
 
@@ -164,6 +190,8 @@ BLACK_LEVEL = 16                  # a pixel is black when every channel is below
 PRICE_USD_PER_H = 2.49            # docs/milestone13.md §7 / §8: RTX PRO 6000 median price of 9 Oct 2026
 PRICE_ENV = "WENART_GPU_USD_PER_H"
 VEGETATION_PRIMITIVES = ("", "primitive", "ellipsoid", "sphere", "proxy", "box", "none")
+SITE_VIEWS = ("aerial", "site")   # the exterior camera views whose final preview metric 11 measures for black pixels
+DROP_REASON_CHARS = 160           # metric 11: a dropped site camera's reason is cut after this many characters
 RESULT_AREAS = ("furniture", "renders", "agent", "final", "run", "review")
 
 # id -> (name, unit of the value, target of §7)
@@ -876,22 +904,7 @@ def metric_11(run: Run) -> dict:
             hedges_built = len(hedge_recs)
         else:
             hedges_built = sum(1 for n in site_s.get("objects") or [] if "hedge" in str(n).lower())
-    cams = _scene_cameras(run)
-    site_cams = [n for n, c in cams.items() if c.get("kind") == "exterior" and c.get("view") in ("aerial", "site")]
-    black: Any = NO_DATA
-    black_cam = None
-    if site_cams:
-        black_cam = site_cams[0]
-        black = _black_share(_preview(run, black_cam))
-    else:
-        best = []
-        for v in _views(run):
-            if _is_exterior(v, cams):
-                share = _black_share(_preview(run, v["camera"]))
-                if share != NO_DATA:
-                    best.append((share, v["camera"]))
-        if best:
-            black, black_cam = max(best)
+    black, black_cam, black_basis, black_reason = site_view_black(run)
     if trees:
         basis = "drawn"
         value = _pct(built, len(trees)) if built != NO_DATA else NO_DATA
@@ -906,28 +919,101 @@ def metric_11(run: Run) -> dict:
         value = NO_DATA                                               # no tree drawn or built (or no scene): no share
         tree_text = "no drawn tree" + ("; no tree in the scene" if n_scene == 0 else
                                        "; trees in the scene: no data (no scene manifest)")
-    text = (f"{tree_text}; hedges {hedges_built} built of {hedges_drawn} drawn rows; black pixels in the site view "
-            f"{black}" + (f" % ({black_cam})" if black != NO_DATA else ""))
+    if black != NO_DATA:
+        black_text = f"{black} % ({black_cam}" + (", the darkest exterior: the run records no view kinds)"
+                                                  if black_basis == "darkest exterior" else ")")
+    else:
+        black_text = NO_DATA + (f" ({black_reason})" if black_reason else "")
+    text = f"{tree_text}; hedges {hedges_built} built of {hedges_drawn} drawn rows; black pixels in the site view " \
+           f"{black_text}"
     return _metric(11, value, text, {"trees_drawn": len(trees), "trees_built": built, "trees_scene": n_scene,
                                      "trees_scene_real": n_real, "tree_basis": basis, "hedges_drawn": hedges_drawn,
-                                     "hedges_built": hedges_built, "black_pct": black, "site_camera": black_cam}, src)
+                                     "hedges_built": hedges_built, "black_pct": black, "site_camera": black_cam,
+                                     "black_basis": black_basis, "black_reason": black_reason}, src)
+
+
+def _dropped_records(run: Run) -> list[dict]:
+    """The scene manifest's ``cameras_dropped`` as dicts (a bare name becomes ``{"name": name}``; a record without a
+    name gets ``dropped_<i>``, so it still counts once)."""
+    out = []
+    for i, d in enumerate((run.scene or {}).get("cameras_dropped") or []):
+        if isinstance(d, dict):
+            out.append(dict(d, name=str(d.get("name") or f"dropped_{i}")))
+        elif d:
+            out.append({"name": str(d)})
+    return out
+
+
+def site_view_black(run: Run) -> tuple[Any, Optional[str], Optional[str], Optional[str]]:
+    """Fix round after P4b (module docstring): ``(black %, camera, basis, reason)`` of metric 11's site view.
+
+    - basis ``site view``: the first exterior camera whose ``view`` is aerial or site (the scene manifest's cameras,
+      else the final manifest's ``exterior_view``) is measured;
+    - basis ``none``: the run records the view of its exterior cameras (or of a dropped one) and none is a site view:
+      no data, and ``reason`` names the dropped aerial / site cameras with their ``dropped_reason`` (real03: "ext_5
+      (aerial) dropped: flat_cut roof ..."), else "no aerial or site camera planned";
+    - basis ``darkest exterior``: a run that records no view kind at all (the M12 real04 baseline: no scene manifest,
+      no ``exterior_view``) keeps the old rule, the exterior preview with the most black, and says so."""
+    cams = _scene_cameras(run)
+    views = _views(run)
+    ext = {n: c for n, c in cams.items() if c.get("kind") == "exterior"}
+    site_cams = [n for n, c in ext.items() if c.get("view") in SITE_VIEWS]
+    site_cams += [v["camera"] for v in views if v.get("exterior_view") in SITE_VIEWS and v["camera"] not in site_cams]
+    if site_cams:
+        return _black_share(_preview(run, site_cams[0])), site_cams[0], "site view", None
+    dropped = _dropped_records(run)
+    if any(c.get("view") for c in ext.values()) or any(v.get("exterior_view") for v in views) or \
+            any(d.get("view") for d in dropped):
+        why = []
+        for d in dropped:
+            if d.get("view") in SITE_VIEWS:
+                reason = str(d.get("dropped_reason") or "no reason recorded")
+                if len(reason) > DROP_REASON_CHARS:
+                    reason = reason[:DROP_REASON_CHARS - 3].rstrip() + "..."
+                again = f"; re-added as a {ext[d['name']].get('view') or 'other'} view" if d["name"] in ext else ""
+                why.append(f"{d['name']} ({d['view']}) dropped: {reason}{again}")
+        return NO_DATA, None, "none", "no aerial or site view: " + ("; ".join(why) or
+                                                                    "no aerial or site camera planned")
+    best = []
+    for v in views:
+        if _is_exterior(v, cams):
+            share = _black_share(_preview(run, v["camera"]))
+            if share != NO_DATA:
+                best.append((share, v["camera"]))
+    if not best:
+        return NO_DATA, None, None, None
+    black, cam = max(best)
+    return black, cam, "darkest exterior", None
 
 
 def metric_12(run: Run) -> dict:
-    src = "scene_manifest.json cameras (kind exterior) + cameras_dropped = planned; render_manifest.json / " \
-          "final_manifest.json exterior views = rendered"
+    src = "scene_manifest.json cameras (kind exterior) | cameras_dropped, by name = planned; render_manifest.json / " \
+          "final_manifest.json exterior views of a planned camera = rendered"
     views = _views(run)
     cams = _scene_cameras(run)
-    rendered = [v["camera"] for v in views if _is_exterior(v, cams)]
+    rendered = list(dict.fromkeys(v["camera"] for v in views if _is_exterior(v, cams)))
     if run.scene is None:
         return _metric(12, len(rendered) if views else NO_DATA,
                        f"{len(rendered)} rendered of {NO_DATA} planned (no scene manifest)" if views else NO_DATA,
                        {"rendered": len(rendered) if views else NO_DATA, "planned": NO_DATA, "cameras": rendered}, src)
-    planned = [n for n, c in cams.items() if c.get("kind") == "exterior"]
-    dropped = [d for d in run.scene.get("cameras_dropped") or [] if d]
-    n_planned = len(planned) + len(dropped)
-    return _metric(12, len(rendered), f"{len(rendered)} of {n_planned} ({len(dropped)} dropped)",
-                   {"rendered": len(rendered), "planned": n_planned, "dropped": len(dropped), "cameras": rendered}, src)
+    # fix round after P4b: one name is one planned view. A camera that was dropped and then re-added (real03: the
+    # agent's "set ext_6" re-created the dropped frontal ext_6) counts once, and dropped means dropped and not in the
+    # final camera list (lead decision 1 of 17 Oct 2026: the agent may add a camera, never set or remove a replayed one)
+    ext = [n for n, c in cams.items() if c.get("kind") == "exterior"]
+    dropped_names = list(dict.fromkeys(d["name"] for d in _dropped_records(run)))
+    planned = list(dict.fromkeys(ext + dropped_names))
+    dropped = [n for n in dropped_names if n not in ext]
+    re_added = [n for n in dropped_names if n in ext]
+    shown = [n for n in rendered if n in planned]
+    extra = [n for n in rendered if n not in planned]       # P4a: a duplicate camera rendered as "ext_6.001"
+    text = f"{len(shown)} of {len(planned)} ({len(dropped)} dropped" + (f": {', '.join(dropped)}" if dropped else "")
+    if re_added:
+        text += "; re-added after the drop: " + ", ".join(
+            f"{n} (agent)" if isinstance(cams[n].get("agent"), dict) and cams[n]["agent"] else n for n in re_added)
+    text += ")" + (f"; also rendered, not a planned camera: {', '.join(extra)}" if extra else "")
+    return _metric(12, len(shown), text,
+                   {"rendered": len(shown), "planned": len(planned), "dropped": len(dropped),
+                    "dropped_cameras": dropped, "re_added": re_added, "not_planned": extra, "cameras": shown}, src)
 
 
 def _bare_wall(run: Run, camera: str) -> Any:

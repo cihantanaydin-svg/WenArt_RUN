@@ -11,6 +11,15 @@ Every test here fails on the code of commit 03881bc (or names the mutation it gu
 - a code-typed (unverified) drawn bed gets its nightstands; a re-solved drawn group places its drawn members at
   their own box;
 - the JSON cross-check does not report a piece the scene built into its host.
+
+Fix round after P4b (17 Oct 2026; the review of the P4a fix round, pod P4b, real03), every test of that section
+fails on commit 11949a9:
+
+- the mark lock lets a duplicate outline of the same family through (a seat segment of a corner sofa read as a
+  sofa) and a plan crop as evidence; a top-down render is never recorded as the plan crop; the program adds nothing
+  around such a duplicate and ``complete_group`` refuses a group the program does not complete;
+- F1 lets a drawn washing machine stand in a hall; the solver keeps the open side of a drawn washer that faces a wall
+  free; the chaise of a drawn corner sofa without its L goes to the side away from the drawn coffee table.
 """
 from __future__ import annotations
 
@@ -18,14 +27,17 @@ import copy
 import json
 
 import pytest
+from shapely.geometry import Polygon
 
 import _m11_room as M
 import vc_toy as T
 from wenart import views as V
+from wenart.furniture import complete as C
 from wenart.furniture import edit_ops as E
 from wenart.furniture import groups as GR
 from wenart.furniture import infer as INF
 from wenart.furniture import locked as LK
+from wenart.furniture import placer as P
 from wenart.furniture import plausibility as PL
 from wenart.furniture import program as PR
 from wenart.furniture import solver as SV
@@ -371,3 +383,270 @@ def test_crosscheck_still_reports_a_missing_host(tmp_path):
     scene.setdefault("furniture", {})["built_in"] = [{"id": "f_sink", "type": "sink_kitchen", "host": "f_sofa"}]
     cc = X.expected_view(view, scene, building)["json_crosscheck"]
     assert "f_sofa" in [x["id"] for x in cc["in_json_not_rendered"]]
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4b: the mark lock, the plan crop, the program
+# --------------------------------------------------------------------------
+
+def _salon_l(twin: bool = False) -> dict:
+    """real02's basement salon (P4a building_fitted.json): the drawn corner sofa f_L-1_053 (an L, chaise right) and
+    the 1.30 m "sofa" f_L-1_061 the group-member rule typed, the seat segment of the corner sofa's block (84 % inside
+    its box). ``twin``: the mirrored salon_2, whose L f_L-1_054 kept the same rotation (the reading lost its front),
+    so its "sofa" f_L-1_062 stands in the L's open corner."""
+    if twin:
+        corner = M.fp("f_L-1_054", "sofa_corner", (3.0797, 3.2721), (4.3761, 1.9657), rotation=90.0, front=None,
+                      status="unverified", type_method="none", shape="L", chaise_side="left")
+        cx = 3.0797 + (12.8641 - 12.0934)
+        pid = "f_L-1_062"
+    else:
+        corner = M.fp("f_L-1_053", "sofa_corner", (3.0797, 3.2721), (4.3761, 1.9657), rotation=90.0, front=None,
+                      status="unverified", type_method="none", shape="L", chaise_side="right")
+        cx, pid = 2.309, "f_L-1_061"
+    sofa = M.fp(pid, "sofa", (cx, 3.1748), (1.3, 0.85), rotation=90.0, front=None, status="unverified",
+                type_method="group_member" if not twin else "twin", inferred=True,
+                drawn_footprint={"center": [cx, 3.1748], "size": [1.2958, 0.6314], "rotation_deg": 90.0})
+    sofa["evidence"] = [{"file": "one_building.dwg", "method": "vector", "confidence": 0.9, "entity": "INSERT:365FB/0"}]
+    return M.building(w=9.0, h=6.0, room_type="living", door_x=7.0, window=None, furniture=[corner, sofa])
+
+
+SALON_F9 = {"check": "F9", "severity": "major", "message": "sofa overlaps sofa_corner by 0.83 m²"}
+
+
+def test_mark_lock_lets_the_seat_segment_of_a_corner_sofa_through():
+    """Fails on 11949a9 (review of the P4a fix round, major): ``_duplicate_of`` counted only a host of the identical
+    type, so the lock refused marking real02's phantom sofa f_L-1_061 in every case (apply_edit, dry_run and
+    allowed_edits) and the agent moved the drawn corner sofa instead."""
+    for twin in (False, True):
+        b = _salon_l(twin)
+        pid = "f_L-1_062" if twin else "f_L-1_061"
+        host = "f_L-1_054" if twin else "f_L-1_053"
+        assert E.family_host_of(b, _by(b, pid)) == host and E._duplicate_of(b, _by(b, pid)) == host
+        for fn in (E.apply_edit, E.dry_run):
+            res = fn(b, edit("mark_not_furniture", piece_id=pid, kind="other",
+                             target_finding=dict(SALON_F9, target=pid),
+                             evidence=f"drawn inside the corner sofa {host}: the seat segment of its block"))
+            assert res["accepted"], res["failed_checks"]
+        assert E.allowed_edits(b, pid)["mark_not_furniture"]["allowed"] is True
+    # the larger outline holds the duplicate, never the smaller one: an armchair inside a sofa is no host of it
+    sofa = fp("s1", "sofa", (2.5, 0.6), (1.3, 0.85), 90.0, type_method="rule")
+    chair = fp("a1", "armchair", (2.5, 0.6), (1.0, 1.0), 90.0, type_method="rule")
+    b2 = M.building(w=5.0, h=4.0, room_type="living", window=None, furniture=[sofa, chair])
+    assert E.family_host_of(b2, _by(b2, "a1")) == "s1" and E.family_host_of(b2, _by(b2, "s1")) is None
+    # other families stay locked: a chair tucked under its table, a nightstand inside a bed block
+    table = fp("t1", "table_dining", (2.5, 2.0), (1.6, 0.9), 90.0, type_method="rule")
+    tucked = fp("c1", "chair", (2.5, 2.35), (0.45, 0.45), 90.0, type_method="rule")
+    bed = fp("b1", "bed_double", (2.5, 2.97), (2.55, 2.0), 270.0, type_method="block_name")
+    stand = fp("n1", "nightstand", (1.475, 3.745), (0.5, 0.45), 270.0, type_method="block_name")
+    for room_type, items, pid in (("dining", [table, tucked], "c1"), ("bedroom", [bed, stand], "n1")):
+        b3 = M.building(w=5.0, h=4.0, room_type=room_type, window=None, furniture=items)
+        assert E._duplicate_of(b3, _by(b3, pid)) is None
+        assert E.mark_lock_refusal(b3, _by(b3, pid), {"check": "F9"}) is not None
+    # the P4a wardrobe with a 2 cm cut stays refused
+    b4 = M.building(w=5.0, h=4.0, room_type="living", window=None, furniture=[_dolap()])
+    assert E.mark_lock_refusal(b4, _by(b4, "f_L-1_024"), OUTLINE_F9, "plan crop r_L-1_salon: strip") is not None
+
+
+def test_mark_lock_lifts_for_a_plan_crop_and_never_for_a_top_down_render():
+    """Fails on 11949a9 (review of the P4a fix round): the verifier's second way out, evidence that names the plan
+    crop, was left out; P4a's agent cited top-down renders (seq 264, 276, 331, 350), which stay refused."""
+    b = M.building(w=5.0, h=4.0, room_type="living", window=None, furniture=[_dolap()])
+    for ev, crop in (("plan crop recognition/crops/sym_L-1_009_ctx.png: a 2.57 x 0.6 m strip, no cabinet doors",
+                      "recognition/crops/sym_L-1_009_ctx.png"),
+                     ("plan crop check/cam_r_L-1_salon_1_plan.jpg shows a dimension strip",
+                      "check/cam_r_L-1_salon_1_plan.jpg")):
+        res = E.apply_edit(b, edit("mark_not_furniture", piece_id="f_L-1_024", kind="dimension_outline", evidence=ev,
+                                   target_finding=OUTLINE_F9))
+        assert res["accepted"], res["failed_checks"]
+        assert res["building"]["symbols"][-1]["crop"] == crop
+    for ev in ("top-down image r1_044_topdown_r_L-1_salon_2.png: a 5.54 x 0.60 m band along the top wall",
+               "top-down r1_091_topdown_r_L1_teras.png: the chair straddles the wall",
+               "plan crop r_L-1_salon: 2.57 x 0.6 m strip along the wall"):
+        res = E.apply_edit(b, edit("mark_not_furniture", piece_id="f_L-1_024", kind="dimension_outline", evidence=ev,
+                                   target_finding=OUTLINE_F9))
+        assert not res["accepted"] and res["failed_checks"][0].startswith("drawn_lock: f_L-1_024")
+        assert "plan crop" in res["failed_checks"][0]
+
+
+def test_crop_of_never_records_a_top_down_render_as_the_plan_crop():
+    """Fails on 11949a9 (review of the P4a fix round, minor): ``crop_of`` took the first image of any kind, so P4a's
+    symbols for f_L-1_022 and f_L-1b_001 recorded the agent's top-down renders as their plan crop."""
+    assert E.crop_of("top-down image r1_044_topdown_r_L-1_salon_2.png: a 5.54 x 0.60 m band") is None
+    assert E.crop_of("top-down images/r1_035_topdown_r_L-1b_salon_2.png: the 5.14 x 2.37 m outline") is None
+    assert E.crop_of("before image r1_140_rotate_piece_before_r_L0_giris_holu_3.png") is None
+    assert E.crop_of("plan crop recognition/crops/sym_L1_003_ctx.png: 1.63 x 1.52 m") == \
+        "recognition/crops/sym_L1_003_ctx.png"
+    assert E.crop_of("r1_091_topdown_x.png, plan crop recognition/crops/sym_L1_004_iso.png") == \
+        "recognition/crops/sym_L1_004_iso.png"
+    assert E.crop_of("crops/c1.png") == "crops/c1.png" and E.crop_of("no image") is None
+    blob = M.fp("u1", "unknown", (2.5, 2.0), (1.63, 1.52), front=None, status="unverified")
+    b = M.building(furniture=[blob])
+    text = "top-down image r1_044_topdown_r_L-1_salon_2.png: a 5.54 x 0.60 m band along the top wall"
+    res = E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="other", evidence=text))
+    assert res["accepted"], res["failed_checks"]
+    sym = res["building"]["symbols"][0]
+    assert sym["crop"] is None and sym["evidence"][0]["file"] == E.EVIDENCE_FILE
+    assert "r1_044_topdown_r_L-1_salon_2.png" in sym["evidence"][0]["text"]
+
+
+def test_the_program_adds_nothing_around_a_duplicate_outline():
+    """Fails on 11949a9 (review of the P4a fix round): the code-typed phantom f_L-1_061 counted as a sure anchor, so
+    its seating group was marked for a re-solve (a TV unit and a coffee table around a phantom sofa)."""
+    b = _salon_l()
+    entry = next(g for g in PR.room_program(b, ROOM)["groups"] if g["anchor_id"] == "f_L-1_061")
+    assert entry["note"].startswith("duplicate outline: drawn inside the sofa_corner f_L-1_053")
+    assert entry["missing"] == [] and not entry.get("resolve")
+    assert PR.duplicate_anchor(b, _by(b, "f_L-1_061")) == "f_L-1_053"
+    assert PR.duplicate_anchor(b, _by(b, "f_L-1_053")) is None
+    group = next(g for g in GR.group_members(b, ROOM) if g["anchor_id"] == "f_L-1_061")
+    if group.get("missing"):
+        res = E.apply_edit(b, edit("complete_group", group_id=group["group_id"]))
+        assert not res["accepted"] and res["failed_checks"][0].startswith("no_completion:")
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4b: the drawn washing machines of real03's entrance halls
+# --------------------------------------------------------------------------
+
+def _wall(wid, a, c, t=0.1) -> dict:
+    return {"id": wid, "level_id": "L0", "start": list(a), "end": list(c), "thickness": t, "exterior": False,
+            "status": "verified", "evidence": []}
+
+
+def _hall(washer_front: float = 0.0) -> dict:
+    """real03's r_L0_giris_holu_3 (P4b building_fitted.json, moved by -28.1039, -7.5503): a hall that ends in a 0.45 m
+    strip with the drawn washer f_L0_076 (block TEF - BANYO - ÇAMAŞIR MAKİNESİ) at its end, its drawn front towards the
+    strip's east wall; the entrance door d_L0_007, two doors to other rooms and the window band win_L0_028."""
+    washer = M.fp("f_L0_076", "washing_machine", (1.5169, 2.3002), (0.65, 0.6), rotation=(washer_front + 90.0) % 360,
+                  front=washer_front, type_method="block_name")
+    b = M.building(w=1.4196, h=1.9, room_type="hall", window=None, furniture=[washer])
+    b["rooms"][0].update(polygon=[[0.0, 0.0], [1.4196, 0.0], [1.4196, 0.8202], [1.6483, 0.8202], [1.6483, 2.65],
+                                  [1.2, 2.65], [1.2, 1.9], [0.0, 1.9]], area_computed=3.28, label="Giriş Holü",
+                         label_raw="Giriş Holü")
+    b["walls"] = [_wall("w_s", (0.0, -0.075), (1.6483, -0.075), 0.15), _wall("w_w", (-0.05, 0.0), (-0.05, 1.9)),
+                  _wall("w_n", (0.0, 1.95), (1.2, 1.95)), _wall("w_e", (1.8058, 0.0), (1.8058, 2.65), 0.315),
+                  _wall("w_n2", (1.2, 2.70), (1.6483, 2.70)), _wall("w_m", (1.25, 1.9), (1.25, 2.65)),
+                  _wall("w_k", (1.4196, -0.075), (1.4196, 0.8202)), _wall("w_k2", (1.4196, 0.8202), (1.6483, 0.8202))]
+    b["openings"] = [
+        {"id": "d_007", "type": "door", "level_id": "L0", "wall_id": "w_s", "center": [0.6991, -0.075], "width": 0.9,
+         "swing_side": ROOM, "status": "verified", "evidence": []},
+        {"id": "d_008", "type": "door", "level_id": "L0", "wall_id": "w_w", "center": [-0.05, 1.1503], "width": 0.7,
+         "swing_side": "r_other", "status": "verified", "evidence": []},
+        {"id": "d_009", "type": "door", "level_id": "L0", "wall_id": "w_n", "center": [0.5491, 1.95], "width": 0.8,
+         "swing_side": "r_other_2", "status": "verified", "evidence": []},
+        {"id": "win_028", "type": "window", "level_id": "L0", "wall_id": "w_e", "center": [1.8058, 1.3351],
+         "width": 2.6298, "sill_height": 0.9, "status": "verified", "evidence": []}]
+    return b
+
+
+def test_f1_lets_a_drawn_washing_machine_stand_in_a_hall():
+    """Fails on 11949a9 (P4b, agent lens, refuted: the verifier's better_fix 1): real03's 4 drawn hall washers got
+    F1 (and G14) in every round; about 30 tool calls (set_room_type to bathroom, complete_group, fix_fixture) were
+    spent on them. An added washer and other drawn fixed types keep F1; a stair room or a shaft never holds one."""
+    def f1(b):
+        return [(v["target"], v["severity"]) for v in PL.room_violations(b, b["rooms"][0]) if v["check"] == "F1"]
+
+    assert f1(_hall()) == []
+    added = _hall()
+    added["furniture"][0]["source"] = "added_by_ai"
+    assert [t for t, _s in f1(added)] == ["f_L0_076"]
+    # a room that never holds a washer (schemas.misplaced_fixed: a stair room, a shaft) is no such room
+    assert PL.drawn_anywhere(_hall()["furniture"][0], ["stair"]) is False
+    assert PL.drawn_anywhere(_hall()["furniture"][0], ["shaft", "other"]) is False
+    bedroom = M.building(w=4.0, h=4.0, room_type="bedroom", window=None,
+                         furniture=[fp("t1", "toilet", (1.5, 3.6), (0.4, 0.7), 270.0)])
+    assert [t for t, _s in f1(bedroom)] == ["t1"]
+    assert PL.drawn_anywhere(_hall()["furniture"][0], ["hall", "other"]) is True
+
+
+def test_complete_group_refuses_a_group_the_program_does_not_complete():
+    """Fails on 11949a9 (P4b, the verifier's better_fix 3): complete_group on the bathroom set of a drawn hall washer
+    ran the solver and was refused with "no place passes the checks" (3 halls), and the brief offered the tool."""
+    b = _hall()
+    group = next(g for g in GR.group_members(b, ROOM) if g["anchor_id"] == "f_L0_076")
+    assert group["missing"]                                     # the set misses its toilet, washbasin and shower
+    res = E.apply_edit(b, edit("complete_group", group_id=group["group_id"]))
+    assert not res["accepted"]
+    assert res["failed_checks"][0].startswith("no_completion:") and "does not belong in a hall room" in \
+        res["failed_checks"][0]
+    allowed = E.allowed_edits(b, "f_L0_076")["complete_group"]
+    assert allowed["allowed"] is False and "completes nothing" in allowed["why"]
+
+
+def test_a_drawn_washer_facing_a_wall_keeps_its_open_side_free():
+    """Fails on 11949a9 (P4b, look lens, minor; not verified, checked here on the data): the completion put a 0.9 m
+    console in the strip 0.11-0.26 m in front of the washers' only open side (real03's giris_holu_3 at x 1.48,
+    y 0.84-1.74 here). The drawn front looks at the wall, so a front clearance in the table would not have helped."""
+    b = _hall()
+    zone_box = Polygon([(1.2169, 1.4452), (1.6483, 1.4452), (1.6483, 1.9752), (1.2169, 1.9752)])  # 0.53 m south
+    for cand in SV.solve_room(b, ROOM, k=2):
+        for q in cand["pieces"]:
+            poly = P.drawn_piece(q).polygon()
+            assert poly.intersection(zone_box).area < 1e-4, (q["type"], q["footprint"])
+    room = b["rooms"][0]
+    space = SV.Space(b, room, SV._fixed_items(b, ROOM, set()))
+    acc = SV.access_zone(space, space.fixed_items[0], space.fixed_pieces[0])
+    assert acc is not None and acc[0] == "access"
+    poly = SV._zone_poly(acc)
+    assert poly.within(space.ctx.polygon.buffer(1e-6)) and poly.bounds[3] <= 1.9752 + 1e-3
+    assert any(z[0] == "access" for z in SV.fixed_zones(space))
+    # a washer whose drawn front opens into the room keeps its own use zone only
+    bath = M.building(w=2.5, h=2.0, room_type="bathroom", window=None,
+                      furniture=[fp("w1", "washing_machine", (1.0, 1.7), (0.6, 0.6), 270.0)])
+    sp = SV.Space(bath, bath["rooms"][0], SV._fixed_items(bath, ROOM, set()))
+    assert SV.access_zone(sp, sp.fixed_items[0], sp.fixed_pieces[0]) is None
+    # facing a wall with three open sides: the side is unclear, nothing is reserved
+    free = M.building(w=3.0, h=3.0, room_type="other", window=None,
+                      furniture=[fp("w2", "washing_machine", (1.5, 2.7), (0.6, 0.6), 90.0)])
+    sp = SV.Space(free, free["rooms"][0], SV._fixed_items(free, ROOM, set()))
+    assert SV.access_zone(sp, sp.fixed_items[0], sp.fixed_pieces[0]) is None
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4b: the chaise side of a corner sofa typed by code
+# --------------------------------------------------------------------------
+
+def _yasama(table_y: float = 1.8581) -> dict:
+    """real03's r_L0_yasama (P4b building.json): the corner sofa f_L0_190 typed by the group-member rule (no L) and
+    its drawn coffee table f_L0_191; ``table_y`` 1.0843 mirrors the table to the sofa's other side (as in
+    r_L0_yasama_4)."""
+    sofa = M.fp("f_L0_190", "sofa_corner", (7.8788, 1.4712), (2.1, 1.5), rotation=90.0, front=0.0,
+                status="unverified", type_method="group_member", inferred=True, height=0.85)
+    table = M.fp("f_L0_191", "table_coffee", (8.7014, table_y), (0.8, 0.8), rotation=90.0, front=None,
+                 status="unverified", type_method="group_member", inferred=True)
+    return M.building(w=10.0, h=5.0, room_type="living", door_x=2.0, window=None, furniture=[sofa, table])
+
+
+def test_the_chaise_of_a_code_typed_corner_sofa_leaves_its_drawn_coffee_table_free():
+    """Fails on 11949a9 (P4b, look lens, refuted: the verifier's better_fix 2, the fallback part): f_L0_190 lost the
+    drawn L (typed by code), the fit took a right-chaise model and the chaise covered the coffee table (S2 0.099 m,
+    F9 0.26 m², in all 4 agent rounds). Pin: f_L0_190 left, f_L0_196 (yasama_4) right."""
+    b = _yasama()
+    props = INF.chaise_sides(b)
+    assert [(p["piece_id"], p["chaise_side"]) for p in props] == [("f_L0_190", "left")]
+    assert "f_L0_191" in props[0]["reason"] and props[0]["evidence"]["rule"] == INF.CHAISE_RULE
+    # the table on the other side: the right chaise leaves it free (yasama_4's f_L0_196 kept right by luck)
+    mirrored = _yasama(table_y=2 * 1.4712 - 1.8581)
+    assert [(p["piece_id"], p["chaise_side"]) for p in INF.chaise_sides(mirrored)] == [("f_L0_190", "right")]
+    # the drawing's own L wins; no table, no inference
+    measured = _yasama()
+    _by(measured, "f_L0_190").update(shape="L", chaise_side="right")
+    assert INF.chaise_sides(measured) == []
+    alone = _yasama()
+    alone["furniture"] = alone["furniture"][:1]
+    assert INF.chaise_sides(alone) == []
+    # a small table between the two chaise places: either side leaves it free, the documents decide (nothing)
+    middle = _yasama()
+    _by(middle, "f_L0_191")["footprint"] = {"center": [8.4788, 1.4712], "size": [0.28, 0.28], "rotation_deg": 0.0}
+    assert INF.chaise_sides(middle) == []
+    # the completion writes it before the solver: shape L, the side, inferred with the evidence, a warning line
+    out, _records = C.complete_building(b, "x", object(), C.Settings())
+    sofa = _by(out, "f_L0_190")
+    assert (sofa["shape"], sofa["chaise_side"], sofa["chaise_depth"]) == ("L", "left", 1.5)
+    assert sofa["inferred"] is True and sofa["evidence"][-1]["rule"] == INF.CHAISE_RULE
+    assert any(w.startswith("f_L0_190: inferred chaise on the left") for w in out["warnings"])
+    assert LK.check(b, out, "complete") == []
+    parts = P.drawn_piece(sofa).polygon()
+    assert parts.intersection(P.drawn_piece(_by(out, "f_L0_191")).polygon()).area < 1e-6
+    kept, _r = C.complete_building(b, "x", object(), C.Settings(mode="keep"))
+    assert "shape" not in _by(kept, "f_L0_190")

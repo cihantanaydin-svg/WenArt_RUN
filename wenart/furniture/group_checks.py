@@ -49,6 +49,10 @@ Fix round after P4a (17 Oct 2026; the furniture track's ask, applied at integrat
 reading could not agree on (``program.unsure_anchor``). A vector-drawn bed or table the reading typed by code
 (``infer.CODE_TYPE_METHODS``), which the completion now completes like a verified one, is checked by G4/G5 (its
 nightstands and free sides) and G6 (its chairs) too; before, P4a's code-typed beds f_L0_019-022 were skipped.
+
+Fix round after P4b (17 Oct 2026; the furniture track's ask, applied at integration): G14 skips a drawn piece that
+``plausibility.drawn_anywhere`` lets stand in its room (a drawn washing machine in a hall, unless the room never holds
+one), as F1 does: real03's 4 hall washers were flagged in every agent round as the wrong type.
 """
 from __future__ import annotations
 
@@ -1229,7 +1233,8 @@ def allowed_types_at(building: dict, room: dict, point) -> set:
 def _g14(r: RoomView) -> list[dict]:
     from wenart.furniture import plausibility as PL
 
-    if not any(t in schemas.ALLOWED_TYPES for t in PL.room_types(r.building, r.room)):
+    types = PL.room_types(r.building, r.room)
+    if not any(t in schemas.ALLOWED_TYPES for t in types):
         return []
     out = []
     for f in r.floor:
@@ -1237,6 +1242,10 @@ def _g14(r: RoomView) -> list[dict]:
             continue
         allowed = allowed_types_at(r.building, r.room, r.pieces[f["id"]].center)
         if f["type"] in allowed:
+            continue
+        if PL.drawn_anywhere(f, types):
+            # integration of the fix round after P4b (17 Oct 2026): the G14 twin of plausibility's F1 rule. A drawn
+            # washing machine stands where it is drawn (real03's 4 entrance halls; fixed equipment as drawn, CLAUDE.md)
             continue
         drawn = f.get("source") == "from_documents"
         sev = "minor" if drawn and f["type"] not in schemas.FIXED_TYPES else "major"

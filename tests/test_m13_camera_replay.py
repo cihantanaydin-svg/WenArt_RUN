@@ -152,6 +152,59 @@ def test_agent_view_follows_the_pose(name, position, target, view):
     assert plan["view"] == view and plan["sides"]
 
 
+# real04's P3 aerial and site view (scene_manifest.json of runs/20261016-172855-full/results/renders/real04)
+P3_AERIALS = [dict(_ext("ext_5", 5, "aerial", ["right", "back"], [29.273, 22.1488, 17.1562], [9.0224, 5.4568, 2.0046]),
+                   lens_mm=26.87, aerial_allowed=True, pitch_deg=-30.0),
+              dict(_ext("ext_7", 7, "aerial", [], [44.0704, 14.0365, 11.8884], [8.5825, 14.0292, 3.5046]),
+                   lens_mm=24.0, aerial_allowed=True, site_view=True, horizon_frac=0.78, pitch_deg=-13.29)]
+P3_CENTRE = (8.58, 6.0)
+
+
+@pytest.mark.parametrize("name,position,target,view,frac", [
+    ("ext_5", [44.0, 14.0, 1.6], [8.58, 14.03, 1.6], "agent", None),          # the review's eye-level pose
+    ("ext_7", [44.0, 14.0, 1.6], [8.58, 14.03, 1.6], "agent", 0.5),           # level: the horizon mid-frame
+    ("ext_7", [44.0704, 14.0365, 11.8884], [8.5825, 14.0292, 3.5046], "aerial", 0.78),   # the site pose itself
+    ("ext_7", [40.0, 14.0, 16.0], [8.58, 14.03, 3.5], "aerial", None),        # still a site view, steeper
+])
+def test_agent_aerial_flags_follow_the_pose(name, position, target, view, frac):
+    """Fix round after P4b (review of the P4a fix round, track C_cameras): ``fixed_plan`` copies ``aerial_allowed``,
+    ``site_view`` and ``horizon_frac`` from the camera the agent replaces. An aerial or site pose brought to eye level
+    is view ``agent`` and loses both flags (``agent.flags_was``, the log line names them); the vision critic is no
+    longer told "the aerial view the policy allows ... NOT a finding" (``prompts.camera_note``). ``horizon_frac`` is
+    the plan's own (0.5 for a level pose; it was the site view's 0.78). A pose that still looks down keeps its flags.
+    Mutation: without the flag and horizon step of ``agent_exterior_view`` the eye-level plans keep
+    ``aerial_allowed`` (and ext_7 ``site_view`` and 0.78)."""
+    from wenart.agent import prompts
+
+    replay = _replay(P3_AERIALS)
+    entry = {"action": "set", "view_id": name, "kind": "exterior", "position": position, "target": target,
+             "reason": "test", "seq": 1}
+    plans, _ = B.merge_agent_cameras(replay["plans"], [], [entry], replay=replay)
+    lines = B.finish_agent_exterior_plans(plans, "base", P3_CENTRE)
+    plan = next(p for p in plans if p["name"] == name)
+    assert plan["view"] == view
+    want = B.plan_horizon_fraction(plan)
+    if name == "ext_7":
+        assert plan["horizon_frac"] == want
+    if frac is not None:
+        assert want == pytest.approx(frac, abs=0.01)
+    note = prompts.camera_note(plan)
+    if view == "agent":
+        assert "aerial_allowed" not in plan and "site_view" not in plan
+        assert set(plan["agent"]["flags_was"]) == ({"aerial_allowed", "site_view"} if name == "ext_7"
+                                                   else {"aerial_allowed"})
+        assert "the camera policy allows" not in note and "NOT a finding" not in note
+        assert lines and lines[0].endswith("dropped") and "aerial_allowed" in lines[0]
+        if name == "ext_7":
+            assert plan["agent"]["horizon_frac_was"] == 0.78
+    else:
+        assert plan["aerial_allowed"] is True and "flags_was" not in plan["agent"] and lines == []
+        assert "the camera policy allows" in note
+        if name == "ext_7":
+            assert plan["site_view"] is True
+    jsonschema.validate(plan, schemas.SCENE_CAMERA)
+
+
 def test_remove_of_a_replayed_camera_is_dropped_with_the_agent_reason():
     """A ``remove`` of a replayed camera now removes it (03881bc: ``not found`` on the empty planned set, the
     camera stayed) and lists it in ``cameras_from.dropped`` with the agent's reason and seq, so

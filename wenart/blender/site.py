@@ -95,6 +95,16 @@ Fix round part 2 (17 Oct 2026; review of part 1):
 - the near-camera grass gets the relief only when the ground got one (``summary["grass"]``: ``relief``,
   ``relief_requested``, ``relief_reason``): on a flat site the ground of convex pieces has no inner vertex, so no
   relief, and the clumps sank 2.1 cm into it; the grass surface takes the ground's keep polygons, reach and grid.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03, the look lens's "bare paddock", verified in part): the documents
+draw no planting and ``place_trees`` kept none of its 122 candidates on real03 (a 33 m bungalow with 22 outside
+windows: their 8 m window bands removed 108), silently. When its first pass places fewer than ``TREE_RELAXED
+["tree_min"]`` trees, a second pass narrows the window band (4 m out, 1 m on each side) and keeps every other rule
+(the building, the paths, the corner views' lines of sight, the front garden; no tree at the plot corners): real03
+gets 2 trees behind the building, real02 keeps its 2 first-pass trees. Every build that infers trees lists
+``inferred trees: placed k of n`` with the filter that removed the most candidates (``trees_record``: an ``assumed``
+entry, a site warning when short, ``inferred.tree_stats`` and the manifest's ``site.inferred.tree_stats``). The
+agent's fence choice stays; the exterior framing is not changed (the camera policy of Milestone 11 stays).
 """
 from __future__ import annotations
 
@@ -1233,8 +1243,19 @@ def boundary_parts(seg: dict, terrain: dict) -> tuple[list, list, dict]:
                           "segments": k, "steps": 1, "z_range": [round(min(zs), 4), round(max(zs), 4)]}
 
 
+# Fix round after P4b (17 Oct 2026; pod P4b, real03: a 33 x 15 m bungalow with 22 outside windows on a 6 m plot
+# margin). The first pass kept none of its 122 candidates (window band 108, front zone 51, corner sightlines 36, path
+# 6; a candidate counts for every filter that removes it), so the exterior showed a bare lawn and nothing said so.
+# When the first pass places fewer than ``tree_min`` trees (and fewer than asked), a second pass over the same
+# candidates narrows the window band to ``tree_window_reach_relaxed`` out and ``tree_window_side_relaxed`` on each
+# side; the building, path, corner-sightline and front-garden rules stay (the corner and entrance views stay open,
+# no tree at the plot corners). real02 (2 trees in the first pass) is unchanged.
+TREE_RELAXED = {"tree_min": 2, "tree_window_reach_relaxed": 4.0, "tree_window_side_relaxed": 1.0}
+TREE_FILTERS = ("building", "path", "sightline", "window", "front")
+
+
 def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], windows: Sequence[dict], main: dict,
-                count: int) -> list[dict]:
+                count: int, stats: Optional[dict] = None) -> list[dict]:
     """Up to ``count`` inferred trees inside the plot (pure; docs/milestone11.md §1.1 E11): candidates every
     ``tree_step`` along the plot edges ``tree_inset`` inside; a candidate is kept ``tree_from_building`` clear
     of the building, ``tree_from_path`` of every path, out of the band in front of every outside window
@@ -1242,7 +1263,18 @@ def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], window
     (nothing nearer the main facade's side than ``front_zone_extra`` behind its face, so the frontal and corner
     views of the entrance stay open); picked greedily, beside the side facades first (nearest their middle), then
     behind the building, at least ``tree_spacing`` apart. Each tree is site decor ``{"id",
-    "kind": "tree", "center", "size", "inferred": true, "reason"}``."""
+    "kind": "tree", "center", "size", "inferred": true, "reason"}``.
+
+    Fix round after P4b (17 Oct 2026, ``TREE_RELAXED``): when the first pass places fewer than ``min(count,
+    tree_min)`` trees, a second pass with the narrower window band (``tree_window_reach_relaxed`` /
+    ``tree_window_side_relaxed``) adds trees up to ``count``; those carry ``relaxed: true`` and say so in their
+    reason. ``stats`` (a dict, filled when given): ``candidates``, ``removed`` (per filter of ``TREE_FILTERS``, the
+    candidates it removes in the first pass; one candidate can count for several), ``spacing`` (kept candidates
+    left out for ``tree_spacing``), ``placed_first``, ``relaxed`` (the second pass ran), ``placed_relaxed``,
+    ``placed``, ``count`` and ``top_filter`` (the filter that removed the most candidates, None when none)."""
+    st = stats if stats is not None else {}
+    st.update(candidates=0, removed={k: 0 for k in TREE_FILTERS}, spacing=0, placed_first=0, relaxed=False,
+              placed_relaxed=0, placed=0, count=max(0, int(count)), top_filter=None)
     if count <= 0 or len(plot) < 3 or len(outline) < 3:
         return []
     inner = geom2d.offset_polygon(plot, INFERRED["tree_inset"])
@@ -1261,7 +1293,6 @@ def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], window
         for j in range(k + 1):
             p = G.point_along_segment(a, b, j / k)
             cands.append((round(p[0], 6), round(p[1], 6)))
-    keep = []
     r = INFERRED["tree_crown"] / 2.0
     # the lines of sight of the corner views (exterior.plan_exterior, E14): from every corner of the outline's
     # rectangle, sightline_deg off each of its two facades
@@ -1276,43 +1307,92 @@ def place_trees(plot: Sequence, outline: Sequence, paths: Sequence[dict], window
         for a, b in ((n1, n2), (n2, n1)):
             d = (math.cos(ang) * a[0] + math.sin(ang) * b[0], math.cos(ang) * a[1] + math.sin(ang) * b[1])
             sightlines.append((tuple(c), (c[0] + d[0] * INFERRED["sightline_m"], c[1] + d[1] * INFERRED["sightline_m"])))
-    for p in sorted(set(cands)):
+
+    def failed(p, reach: float, side_m: float) -> list[str]:
+        """The filters of ``TREE_FILTERS`` that remove the candidate ``p`` with this window band."""
+        out = []
         if G.point_in_polygon(p, outline) or geom2d.distance_to_polygon_edges(p, outline) < INFERRED["tree_from_building"]:
-            continue
+            out.append("building")
         if any(G.point_in_polygon(p, q["polygon"]) or geom2d.distance_to_polygon_edges(p, q["polygon"])
                < INFERRED["tree_from_path"] for q in paths):
-            continue
+            out.append("path")
         if any(G.point_segment_distance(p, a, b) < r + INFERRED["tree_sightline"] for a, b in sightlines):
-            continue                                  # the corner views stay open (E14)
-        blocked = False
+            out.append("sightline")                   # the corner views stay open (E14)
         for w in windows:
             (cx, cy), (ox, oy) = w["centre"], w["outward"]
             dx, dy = p[0] - cx, p[1] - cy
             along, side = dx * ox + dy * oy, abs(dx * -oy + dy * ox)
-            if 0.0 < along < INFERRED["tree_window_reach"] + r and \
-                    side < float(w["opening"]["width"]) / 2.0 + INFERRED["tree_window_side"] + r:
-                blocked = True
+            if 0.0 < along < reach + r and side < float(w["opening"]["width"]) / 2.0 + side_m + r:
+                out.append("window")
                 break
-        if blocked:
-            continue
-        pm = p[0] * md[0] + p[1] * md[1]
-        pa = p[0] * -md[1] + p[1] * md[0]
-        if pm > front_edge - INFERRED["front_zone_extra"]:
-            continue                                  # the front garden and the entrance views stay open
-        # beside the side facades first (nearest their middle), then behind the building
-        rank = 0 if (pa < min(across) or pa > max(across)) else 1
-        keep.append((rank, round(abs(pm - (min(proj) + max(proj)) / 2.0), 6) if rank == 0 else round(pm, 6), p))
-    keep.sort()
-    out = []
-    for _rank, _key, p in keep:
-        if len(out) >= count:
-            break
-        if all(G.distance(p, t["center"]) >= INFERRED["tree_spacing"] for t in out):
-            out.append({"id": f"tree_inferred_{len(out) + 1}", "kind": "tree", "center": [p[0], p[1]],
-                        "size": [INFERRED["tree_crown"], INFERRED["tree_crown"]], "inferred": True,
-                        "reason": "no site plan: a tree clear of the windows, the paths and the front garden "
-                                  "(inferred, docs/milestone11.md §1.1 E11)"})
+        if p[0] * md[0] + p[1] * md[1] > front_edge - INFERRED["front_zone_extra"]:
+            out.append("front")                       # the front garden and the entrance views stay open
+        return out
+
+    def ranked(reach: float, side_m: float, counting: bool) -> list:
+        keep = []
+        for p in sorted(set(cands)):
+            why = failed(p, reach, side_m)
+            if counting:
+                for k in why:
+                    st["removed"][k] += 1
+            if why:
+                continue
+            pm = p[0] * md[0] + p[1] * md[1]
+            pa = p[0] * -md[1] + p[1] * md[0]
+            # beside the side facades first (nearest their middle), then behind the building
+            rank = 0 if (pa < min(across) or pa > max(across)) else 1
+            keep.append((rank, round(abs(pm - (min(proj) + max(proj)) / 2.0), 6) if rank == 0 else round(pm, 6), p))
+        keep.sort()
+        return keep
+
+    def pick(keep: list, out: list, reason: str, relaxed: bool, counting: bool) -> None:
+        for _rank, _key, p in keep:
+            if len(out) >= count:
+                break
+            if all(G.distance(p, t["center"]) >= INFERRED["tree_spacing"] for t in out):
+                tree = {"id": f"tree_inferred_{len(out) + 1}", "kind": "tree", "center": [p[0], p[1]],
+                        "size": [INFERRED["tree_crown"], INFERRED["tree_crown"]], "inferred": True, "reason": reason}
+                if relaxed:
+                    tree["relaxed"] = True
+                out.append(tree)
+            elif counting:
+                st["spacing"] += 1
+
+    st["candidates"] = len(set(cands))
+    out: list[dict] = []
+    pick(ranked(INFERRED["tree_window_reach"], INFERRED["tree_window_side"], True), out,
+         "no site plan: a tree clear of the windows, the paths and the front garden "
+         "(inferred, docs/milestone11.md §1.1 E11)", False, True)
+    st["placed_first"] = len(out)
+    if len(out) < min(int(count), TREE_RELAXED["tree_min"]):
+        st["relaxed"] = True
+        reach, side_m = TREE_RELAXED["tree_window_reach_relaxed"], TREE_RELAXED["tree_window_side_relaxed"]
+        pick(ranked(reach, side_m, False), out,
+             f"no site plan: a tree clear of the paths and the front garden; the window band narrowed to {reach:g} m "
+             f"out and {side_m:g} m on each side because the first pass placed {st['placed_first']} of {int(count)} "
+             f"(inferred, docs/milestone11.md §1.1 E11; fix round after P4b)", True, False)
+        st["placed_relaxed"] = len(out) - st["placed_first"]
+    st["placed"] = len(out)
+    top = max(TREE_FILTERS, key=lambda k: st["removed"][k])
+    st["top_filter"] = top if st["removed"][top] > 0 else None
     return out
+
+
+def trees_record(stats: dict) -> tuple[dict, Optional[str]]:
+    """``(assumed entry, warning or None)`` of ``place_trees``' ``stats`` (pure; fix round after P4b, 17 Oct 2026):
+    every build that infers trees lists ``inferred trees: placed k of n`` with the first and the relaxed pass and
+    the filter that removed the most candidates (CLAUDE.md: everything inferred is listed; P4b's real03 got 0 of 3
+    in silence); a warning when fewer than asked are placed."""
+    removed = ", ".join(f"{k} {v}" for k, v in stats["removed"].items() if v) or "none"
+    text = (f"inferred trees: placed {stats['placed']} of {stats['count']} ({stats['candidates']} candidates; "
+            f"removed by {removed}; most by {stats['top_filter'] or 'none'}")
+    if stats["relaxed"]:
+        text += (f"; the first pass placed {stats['placed_first']}, the second pass with the window band narrowed to "
+                 f"{TREE_RELAXED['tree_window_reach_relaxed']:g} m added {stats['placed_relaxed']}")
+    text += ")"
+    entry = {"field": "trees", "value": stats["placed"], "reason": text}
+    return entry, (text if stats["placed"] < stats["count"] else None)
 
 
 def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline: Sequence[Sequence[float]],
@@ -1322,9 +1402,11 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
     evidence rules: every item ``inferred`` and listed): the plot (``inferred_plot`` when none is drawn), the
     entrances with their steps, the paths, the boundary (hedge or fence on an inferred plot), the trees (when
     none is drawn). ``options``: ``overrides.site_options``. Returns ``{"plot", "plot_inferred", "main",
-    "entrances", "steps", "paths", "boundary", "trees", "assumed"}``."""
+    "entrances", "steps", "paths", "boundary", "trees", "assumed", "warnings", "tree_stats"}``. Fix round after P4b
+    (17 Oct 2026): when it infers trees, ``assumed`` gets ``trees_record``'s entry (placed k of n, the filters) and
+    ``warnings`` its warning when fewer than asked are placed; ``tree_stats`` keeps ``place_trees``' stats."""
     out = {"plot": list(plot), "plot_inferred": False, "main": None, "entrances": [], "steps": [], "paths": [],
-           "boundary": [], "trees": [], "assumed": []}
+           "boundary": [], "trees": [], "assumed": [], "warnings": [], "tree_stats": None}
     if len(outline) < 3:
         return out
     if not plot:
@@ -1354,7 +1436,15 @@ def inferred_site(building: dict, levels: Sequence[dict], terrain: dict, outline
                                "reason": f"no site plan: a low {kind} on the inferred plot boundary (inferred)"})
     if not drawn_trees:
         windows = outer_openings(building, levels, outline, outlines, kinds=("window",))
-        out["trees"] = place_trees(out["plot"], outline, out["paths"], windows, out["main"], int(options.get("trees", 3)))
+        stats: dict = {}
+        out["trees"] = place_trees(out["plot"], outline, out["paths"], windows, out["main"],
+                                   int(options.get("trees", 3)), stats=stats)
+        if stats.get("count"):                    # fix round after P4b: never a silent 0 (trees_record)
+            entry, warning = trees_record(stats)
+            out["assumed"].append(entry)
+            if warning:
+                out["warnings"].append(warning)
+            out["tree_stats"] = stats
     return out
 
 
@@ -2660,6 +2750,7 @@ def site_plan(building: dict, levels: Sequence[dict], outline: Sequence[Sequence
         drawn_trees = any(t.get("kind") == "tree" for t in trees)
         inferred = inferred_site(building, levels, terrain, outline, outlines, plot, plot_src, options, drawn_trees)
         assumed += inferred["assumed"]
+        warnings += inferred["warnings"]           # fix round after P4b: fewer inferred trees than asked
         for p in inferred["paths"]:
             areas.append({"id": f"path_{'_'.join(p['opening_ids'])}", "kind": "path", "polygon": p["polygon"],
                           "z": None, "material": None, "colour": None, "source": "assumed", "area_id": None,
@@ -3283,7 +3374,10 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                        "handrails": bool(s.get("rails"))} for s in inferred["steps"]],
             "paths": [{"opening_ids": p["opening_ids"], "length": p["length"], "width": p["width"]}
                       for p in inferred["paths"]],
-            "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]]}
+            "boundary": kinds[0] if kinds else None, "trees": [t["id"] for t in inferred["trees"]],
+            # fix round after P4b (17 Oct 2026): how the trees were placed (place_trees' stats), never a silent 0
+            "tree_stats": inferred.get("tree_stats"),
+            "trees_relaxed": [t["id"] for t in inferred["trees"] if t.get("relaxed")]}
     for a in plan["assumed"]:
         assumed.append({"object": "site", "field": a["field"], "value": a["value"], "reason": a["reason"]})
     summary["vegetation_counts"] = vegetation_counts(summary)       # Milestone 13 (T8 metric 11): per source

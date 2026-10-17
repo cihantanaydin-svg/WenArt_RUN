@@ -574,7 +574,8 @@ def test_agent_camera_overrides_keep_the_aerial_and_horizon_flags():
     camera it replaces, an ``add`` takes them from the entry, and a plain corner camera gets none."""
     from wenart.blender import overrides as O
 
-    assert O.CAMERA_KEEP_KEYS == ("site_view", "aerial_allowed", "horizon_frac")
+    # integration of the fix round after P4b (17 Oct 2026, pinned on purpose): the entrance view's door id too
+    assert O.CAMERA_KEEP_KEYS == ("site_view", "aerial_allowed", "horizon_frac", "entrance")
     plans = [{"name": "ext_5", "kind": "exterior", "position": [0, 0, 20], "target": [5, 5, 0], "lens_mm": 24.0,
               "view": "aerial", "aerial_allowed": True, "index": 5},
              {"name": "ext_7", "kind": "exterior", "position": [0, -30, 12], "target": [5, 5, 0], "lens_mm": 24.0,
@@ -1687,3 +1688,233 @@ def test_p3_real04_tree_symbols_are_shrubs_by_their_drawn_crown(monkeypatch):
     assert S.tree_height(0.718 / 2.0) == (pytest.approx(0.862), "shrub")
     assert {S.tree_parts(t, prep["site"]["terrain"])["size_class"] for t in singles} == {"shrub"}
     assert S.tree_height(1.5)[1] == "small"
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4b (17 Oct 2026; pod P4b, real03: runs/20261017-091212-full/results, not committed)
+# --------------------------------------------------------------------------
+
+# P4b's real03 inputs of site.place_trees (build.prepare of the run's building_final.json): the ground outline (a
+# 33.3 x 14.8 m bungalow), the inferred plot (6 m margin), the inferred path and the 22 outside windows
+# (centre, outward, width); the entrance facade faces -y.
+P4B_REAL03_OUTLINE = [
+    [0, 6.179], [0.004, 6.179], [0.004, 0.925], [0.154, 0.925], [0.154, 0.941], [0.404, 0.941], [0.404, 1],
+    [3.154, 1], [3.154, 0.15], [3.079, 0.15], [3.079, 0], [3.154, 0], [3.154, -0.009], [3.454, -0.009], [3.454, 0],
+    [13.638, 0], [13.638, 0], [16.579, 0], [16.579, 0], [19.564, 0], [19.564, -0.095], [20.053, -0.095],
+    [20.053, 0], [29.752, 0], [29.752, -0.017], [30.067, -0.017], [30.067, 0], [30.129, 0], [30.129, 0.15],
+    [30.067, 0.15], [30.067, 1], [32.804, 1], [32.804, 0.941], [33.054, 0.941], [33.054, 0.925], [33.204, 0.925],
+    [33.204, 6.418], [33.332, 6.418], [33.332, 6.973], [33.204, 6.973], [33.204, 12.475], [33.054, 12.475],
+    [33.054, 12.45], [32.804, 12.45], [32.804, 12.4], [30.067, 12.4], [30.067, 13.408], [30.054, 13.408],
+    [30.054, 13.45], [29.954, 13.45], [29.954, 13.408], [29.752, 13.408], [29.752, 13.4], [26.404, 13.4],
+    [26.404, 14.75], [26.104, 14.75], [26.104, 14.6], [23.504, 14.6], [23.504, 14.75], [23.204, 14.75],
+    [23.204, 14.2], [10.004, 14.2], [10.004, 14.75], [9.704, 14.75], [9.704, 14.6], [7.104, 14.6], [7.104, 14.75],
+    [6.804, 14.75], [6.804, 13.4], [3.454, 13.4], [3.454, 13.4], [3.254, 13.4], [3.254, 13.45], [3.154, 13.45],
+    [3.154, 12.4], [0.404, 12.4], [0.404, 12.45], [0.154, 12.45], [0.154, 12.475], [0.004, 12.475], [0.004, 7.208],
+    [0, 7.208]]
+P4B_REAL03_PLOT = [(-6.0, -6.0948), (39.3318, -6.0948), (39.3318, 20.7503), (-6.0, 20.7503)]
+P4B_REAL03_PATHS = [{"polygon": [[14.103, -6.1448], [16.203, -6.1448], [16.203, -1.1997], [14.103, -1.1997]]}]
+P4B_REAL03_WINDOWS = [
+    ((15.204, 0.225), (0, -1), 2.9), ((18.079, 0.225), (0, -1), 2.55), ((5.028, 0.075), (0, -1), 1.6),
+    ((8.753, 0.075), (0, -1), 1.6), ((11.603, 0.075), (0, -1), 1.6), ((21.603, 0.075), (0, -1), 1.6),
+    ((24.453, 0.075), (0, -1), 1.6), ((28.178, 0.075), (0, -1), 1.6), ((1.753, 1.075), (0, -1), 1.6),
+    ((31.453, 1.075), (0, -1), 1.6), ((1.753, 12.325), (0, 1), 1.6), ((31.453, 12.325), (0, 1), 1.6),
+    ((5.028, 13.325), (0, 1), 1.6), ((28.178, 13.325), (0, 1), 1.6), ((12.203, 14.125), (0, 1), 1.6),
+    ((15.241, 14.125), (0, 1), 1.6), ((17.965, 14.125), (0, 1), 1.6), ((21.003, 14.125), (0, 1), 1.6),
+    ((0.079, 3.526), (-1, 0), 1.6), ((0.079, 9.876), (-1, 0), 1.6), ((33.129, 3.526), (1, 0), 1.6),
+    ((33.129, 9.876), (1, 0), 1.6)]
+
+
+def _p4b_windows():
+    return [{"centre": c, "outward": o, "opening": {"width": w}} for c, o, w in P4B_REAL03_WINDOWS]
+
+
+def _corner_sightlines(outline):
+    """The 30 degree lines of sight of the corner views from the corners of an axis-aligned outline (E14)."""
+    xs, ys = [p[0] for p in outline], [p[1] for p in outline]
+    out = []
+    for cx, sx in ((min(xs), -1.0), (max(xs), 1.0)):
+        for cy, sy in ((min(ys), -1.0), (max(ys), 1.0)):
+            a = math.radians(S.INFERRED["sightline_deg"])
+            for d in ((sx * math.cos(a), sy * math.sin(a)), (sx * math.sin(a), sy * math.cos(a))):
+                out.append(((cx, cy), (cx + d[0] * S.INFERRED["sightline_m"], cy + d[1] * S.INFERRED["sightline_m"])))
+    return out
+
+
+def test_p4b_real03_gets_inferred_trees_from_the_relaxed_pass_and_says_how():
+    """P4b look lens (verified in part): real03's exterior was a bare paddock; the documents draw no planting and
+    site.place_trees kept none of its 122 candidates (the 8 m window bands of the 22 windows removed 108), silently.
+    Now the relaxed second pass (window band 4 m out, 1 m on each side) places 2 trees behind the building, never in
+    the front garden, on a corner view's line of sight, at a plot corner or near the building, 6 m apart; the stats
+    name the window band; ``trees_record`` lists "placed 2 of 3" and warns. Fails on HEAD 11949a9 (0 trees, no
+    stats)."""
+    stats = {}
+    trees = S.place_trees(P4B_REAL03_PLOT, P4B_REAL03_OUTLINE, P4B_REAL03_PATHS, _p4b_windows(),
+                          {"direction": (0.0, -1.0)}, 3, stats=stats)
+    assert len(trees) >= 2 and all(t["inferred"] and t.get("relaxed") for t in trees)
+    assert stats["candidates"] == 122 and stats["placed_first"] == 0 and stats["relaxed"]
+    assert stats["placed"] == len(trees) and stats["top_filter"] == "window" and stats["removed"]["window"] == 108
+    r = S.INFERRED["tree_crown"] / 2.0
+    front_edge = max(-p[1] for p in P4B_REAL03_OUTLINE)
+    lines = _corner_sightlines(P4B_REAL03_OUTLINE)
+    for t in trees:
+        x, y = t["center"]
+        assert -y <= front_edge - S.INFERRED["front_zone_extra"]                          # not in the front garden
+        assert all(G.point_segment_distance((x, y), a, b) >= r + S.INFERRED["tree_sightline"] for a, b in lines)
+        assert geom2d.distance_to_polygon_edges((x, y), P4B_REAL03_OUTLINE) >= S.INFERRED["tree_from_building"] - 1e-6
+        assert min(math.dist((x, y), c) for c in P4B_REAL03_PLOT) > 5.0                  # not at a plot corner
+        for (cx, cy), (ox, oy), w in P4B_REAL03_WINDOWS:                                  # out of the relaxed band
+            along, side = (x - cx) * ox + (y - cy) * oy, abs((x - cx) * -oy + (y - cy) * ox)
+            assert not (0 < along < S.TREE_RELAXED["tree_window_reach_relaxed"] + r
+                        and side < w / 2 + S.TREE_RELAXED["tree_window_side_relaxed"] + r)
+        assert "window band narrowed to 4 m" in t["reason"] and "placed 0 of 3" in t["reason"]
+    assert all(math.dist(a["center"], b["center"]) >= S.INFERRED["tree_spacing"]
+               for i, a in enumerate(trees) for b in trees[i + 1:])
+    entry, warning = S.trees_record(stats)
+    assert entry["field"] == "trees" and entry["value"] == len(trees)
+    assert f"placed {len(trees)} of 3" in entry["reason"] and "most by window" in entry["reason"]
+    assert warning == entry["reason"]
+    # without the relaxed pass (its minimum at 0) the old silent result: nothing
+    old = dict(S.TREE_RELAXED)
+    try:
+        S.TREE_RELAXED["tree_min"] = 0
+        assert S.place_trees(P4B_REAL03_PLOT, P4B_REAL03_OUTLINE, P4B_REAL03_PATHS, _p4b_windows(),
+                             {"direction": (0.0, -1.0)}, 3) == []
+    finally:
+        S.TREE_RELAXED.update(old)
+
+
+def test_p4b_inferred_site_lists_its_trees_and_warns_when_short():
+    """Every build that infers trees lists ``inferred trees: placed k of n`` in ``assumed`` (CLAUDE.md: everything
+    inferred is listed); fewer than asked also gives a site warning (site_plan's warnings). The first pass is
+    enough on an open plot (no relaxed pass, no warning); real02's two first-pass trees stay as they were (its
+    test_e11 pins them at x -3.6 and 18.8)."""
+    pts = [(0, 0), (10, 0), (10, 8), (0, 8)]
+    walls = [{"id": f"w{i}", "level_id": "L0", "start": list(pts[i]), "end": list(pts[(i + 1) % 4]),
+              "thickness": 0.25, "exterior": True} for i in range(4)]
+    b = {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.8}], "walls": walls, "openings": [],
+         "rooms": [], "slabs": [], "site": {"ground": {"levels": [{"side": "all", "z": {"value": 0.0,
+                                                                                         "method": "vector"}}]}},
+         "facade": {}}
+    outline, _ = geom2d.wall_outline(b["walls"])
+    plan = S.site_plan(b, b["levels"], outline, "full", options={"path": False, "fence": "none", "trees": 2})
+    inf = plan["inferred"]
+    assert len(inf["trees"]) == 2 and not inf["tree_stats"]["relaxed"] and inf["warnings"] == []
+    [entry] = [a for a in plan["assumed"] if a["field"] == "trees"]
+    assert entry["value"] == 2 and entry["reason"].startswith("inferred trees: placed 2 of 2")
+    many = S.site_plan(b, b["levels"], outline, "full", options={"path": False, "fence": "none", "trees": 40})
+    short = [w for w in many["warnings"] if w.startswith("inferred trees: placed ")]
+    assert len(short) == 1 and f"placed {len(many['inferred']['trees'])} of 40" in short[0]
+    # trees: 0 (the agent's choice) infers nothing and lists nothing
+    none = S.site_plan(b, b["levels"], outline, "full", options={"path": False, "fence": "none", "trees": 0})
+    assert none["inferred"]["trees"] == [] and not [a for a in none["assumed"] if a["field"] == "trees"]
+
+
+def test_p4b_flat_cut_parapet_and_slab_edge_take_the_facade_look():
+    """P4b look lens (the cause the verifier confirmed): real03's flat_cut roof gave its 0.30 m parapet and the slab
+    edge (roof slot 2, ``roof.SLOT_FASCIA``) the roof covering (concrete_tiles), so the band read as a tiled
+    mansard. ``build.roof_slot_looks`` gives a flat_cut roof's fascia slot the facade look and an assumed entry with
+    the reason; pitched (real02) and mansard (real04) roofs keep the roof look on both slots; the build uses it.
+    Fails on HEAD 11949a9 (no roof_slot_looks; the build passed looks["roof"] to slot 2)."""
+    import inspect
+
+    from wenart.blender import build as BB
+    from wenart.blender import roof as R
+
+    looks = {"roof": {"material": "concrete_tiles", "colour": "anthracite"},
+             "facade": {"material": "render", "colour": "warm greige", "asset": "grey_plaster"}}
+    covering, fascia, note = BB.roof_slot_looks({"kind": "flat_cut", "parapet": 0.3}, looks)
+    assert covering is looks["roof"] and fascia is looks["facade"]
+    assert note["object"] == "roof" and note["field"] == "parapet_material" and note["value"] == "render"
+    assert "0.30 m parapet" in note["reason"] and "concrete_tiles" in note["reason"]
+    for kind in (None, "pitched", "mansard"):
+        assert BB.roof_slot_looks({"kind": kind}, looks) == (looks["roof"], looks["roof"], None)
+    src = inspect.getsource(BB.main)
+    assert "roof_slot_looks(roof, looks)" in src and "shell.look_material(library, fascia)" in src
+    # the parapet ring and the slab edge are the faces of slot 2
+    model = {"kind": "flat_cut", "parapet": 0.3, "equations": [(0.0, 0.0, 3.0)],
+             "outline": [(0, 0), (10, 0), (10, 8), (0, 8)], "openings": [], "planes": [], "thickness": 0.2}
+    ring = R.parapet_ring(model)
+    assert len(ring) == 4
+    _verts, faces, slots = R.roof_solid(dict(model, equations=[[0.0, 0.0, 3.0]]))
+    assert slots.count(R.SLOT_FASCIA) >= 4 * 6
+
+
+# real03's fire stair (P4b building_final.json, f_L0_032) and the two walls of its 2.6 m stairwell
+P4B_FIRE_STAIR = {
+    "id": "f_L0_032", "level_id": "L0", "type": "stair", "room_id": "r_L0_yangin_merdiveni",
+    "footprint": {"center": [8.403, 12.0018], "size": [3.6375, 2.6], "rotation_deg": 90.0},
+    "stair": {"flights": [{"start": [7.703, 10.2355], "end": [7.703, 13.2055], "width": 1.2, "lines": 12,
+                           "spacing": 0.27},
+                          {"start": [9.103, 10.2655], "end": [9.103, 13.2355], "width": 1.2, "lines": 12,
+                           "spacing": 0.27}],
+              "landing": {"polygon": [[7.103, 13.2355], [9.703, 13.2355], [9.703, 13.8205], [7.103, 13.8205]],
+                          "depth": 0.585},
+              "direction": [0.0, 1.0], "direction_assumed": True, "turn": "U", "turn_assumed": True,
+              "void_assumed": True, "riser_m": None, "riser_source": None}}
+P4B_STAIRWELL = [{"id": "w_L0_097", "level_id": "L0", "start": [6.9539, 7.5503], "end": [6.9539, 14.6003],
+                  "thickness": 0.3},
+                 {"id": "w_L0_103", "level_id": "L0", "start": [9.8539, 11.4905], "end": [9.8539, 14.6003],
+                  "thickness": 0.3}]
+
+
+def test_p4b_fire_stair_meets_its_walls_and_its_structure_is_smooth_paint():
+    """P4b look lens, yangin_merdiveni_3: a light slit down the wall at the joint of the flight and the wall, and
+    coarse plaster on the stringer. Measured: the drawn U-stair is as wide as its stairwell, but its centre was read
+    0.9 mm off, so flight 2 and the landing stop 0.9 mm short of w_L0_103's face (flight 1 and the landing's other
+    edge are 0.9 mm inside w_L0_097). ``shell.stair_wall_joints`` takes every flight side and landing edge within
+    5 cm of a parallel wall face 1 cm into the wall (an assumed ``stair_wall_joint`` entry; the drawn footprint
+    stays); ``parametric.stair_parts`` builds the steps and the landing to it; the rails keep the drawn width;
+    ``build_stairs`` builds through ``stair_build_plan`` (plan_stairs' plan is unchanged). The
+    structure slot is the wall colour as a smooth paint (``stair_structure_slot``: no wall texture set). Fails on HEAD
+    11949a9 (no wall joints; the right flight ends at x 9.703 < the face 9.7039)."""
+    import inspect
+
+    from wenart.blender import parametric as P
+    from wenart.blender import shell as SH
+
+    face_r = 9.8539 - 0.15
+    face_l = 6.9539 + 0.15
+    plan = P.stair_plan(copy.deepcopy(P4B_FIRE_STAIR), 2.85, 2.7, walls=P4B_STAIRWELL)
+    bare = P.stair_parts(plan)
+    assert max(v[0] for p in bare if p["role"] in ("step", "landing") for v in p["verts"]) < face_r    # the slit
+    joints = SH.stair_wall_joints(plan, P4B_STAIRWELL)
+    got = {(j["part"], j.get("flight", j.get("edge")), j["wall_id"]): (j["gap_m"], j["extend_m"]) for j in joints}
+    assert got == {("flight", 0, "w_L0_097"): (-0.0009, 0.0091), ("flight", 1, "w_L0_103"): (0.0009, 0.0109),
+                   ("landing", 1, "w_L0_103"): (0.0009, 0.0109), ("landing", 3, "w_L0_097"): (-0.0009, 0.0091)}
+    [entry] = [a for a in plan["assumed"] if a["kind"] == "stair_wall_joint"]
+    assert "drawn footprint is kept" in entry["reason"] and set(entry) == {"field", "kind", "value", "reason"}
+    parts = P.stair_parts(plan)
+    for role in ("step", "landing"):
+        xs = [v[0] for p in parts if p["role"] == role for v in p["verts"]]
+        assert max(xs) == pytest.approx(face_r + SH.STAIR_JOINT_EMBED_M, abs=1e-4)
+        assert min(xs) == pytest.approx(face_l - SH.STAIR_JOINT_EMBED_M, abs=1e-4)
+    # the inner sides (the 0.2 m well between the flights), the landing's open edges and the rails stay as drawn
+    inner = [v[0] for p in parts if p["role"] == "step" and p["flight"] == 0 for v in p["verts"]]
+    assert max(inner) == pytest.approx(7.703 + 0.6, abs=1e-6)
+    land = [v for p in parts if p["role"] == "landing" for v in p["verts"]]
+    assert min(v[1] for v in land) == pytest.approx(13.2355) and max(v[1] for v in land) == pytest.approx(13.8205)
+    assert [p for p in parts if p["key"] == "steel"] == [p for p in bare if p["key"] == "steel"]
+    assert len(parts) == len(bare) and SH.stair_record(plan, parts)["wall_joints"] == joints
+    # nothing near a wall: no joint, the parts as drawn
+    free = P.stair_plan(copy.deepcopy(P4B_FIRE_STAIR), 2.85, 2.7, walls=[])
+    assert SH.stair_wall_joints(free, []) == [] and P.stair_parts(free) == P.stair_parts(
+        P.stair_plan(copy.deepcopy(P4B_FIRE_STAIR), 2.85, 2.7, walls=[]))
+    # a wall 8 cm away is a real gap of the drawing, not a joint
+    far = [dict(w, start=[w["start"][0] + 0.08, w["start"][1]], end=[w["end"][0] + 0.08, w["end"][1]])
+           if w["id"] == "w_L0_103" else w for w in P4B_STAIRWELL]
+    assert {j["wall_id"] for j in SH.stair_wall_joints(P.stair_plan(copy.deepcopy(P4B_FIRE_STAIR), 2.85, 2.7,
+                                                                    walls=far), far)} == {"w_L0_097"}
+    # build_stairs builds a copy with the joints on the level's walls; plan_stairs' plan stays as it was
+    level = {"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}
+    building = {"levels": [level], "walls": P4B_STAIRWELL, "rooms": [], "openings": [],
+                "furniture": [copy.deepcopy(P4B_FIRE_STAIR)]}
+    [item] = SH.plan_stairs(building, level)
+    built = SH.stair_build_plan(item["plan"], P4B_STAIRWELL)
+    assert len(built["wall_joints"]) == 4 and "wall_joints" not in item["plan"]
+    assert len(built["assumed"]) == len(item["plan"]["assumed"]) + 1
+    src = inspect.getsource(SH.build_stairs)
+    assert "stair_build_plan(plan, level_walls)" in src and src.index("stair_build_plan(") < src.index("stair_mesh(")
+    # the structure slot: the wall colour without its texture set and tint
+    walls_style = {"material": "paint", "asset": "plastered_wall", "colour": "warm greige", "tint": [1.0, 0.9, 0.8]}
+    assert SH.stair_structure_slot(walls_style) == {"material": "paint", "colour": "warm greige"}
+    assert "stair_structure_slot(walls_style)" in inspect.getsource(SH.build_stairs)

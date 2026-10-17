@@ -48,9 +48,28 @@ is no light) is re-routed (``reroute_light_findings``): its target becomes the r
 tool, reported to the lighting stage: ``causes.REPORT_TO``), and its evidence keeps the piece it named
 (``metrics.target_was``). Why: P4a's "the wall-mounted lamp next to the desk is rendered as a crude, flat rectangular
 box" (a rig wall light) was put on the desk f_L0_029; a swap_model of the desk was accepted and the finding came back.
+
+Fix round after P4b (17 Oct 2026; the review of the P4a fix round, pod P4b's real03 and the lead's decisions):
+
+- a light-fixture finding goes to the piece that IS the light before the rig gets it (``light_target``): a decor lamp
+  or light on the piece or over it (``host_id``, a ``ceiling:over_<piece>`` slot: the table lamp on the nightstand,
+  the pendant over the table) takes it with the cause ``decor_model`` (reported to the decor stage); a floor lamp of
+  the room (the nearest built lamp piece) takes it with its own tools (``swap_model``); only a wall light, or a light
+  with no such piece, is the rig's (``light_fixture``). Why: real02 has 2 hosted table lamps and 10 floor lamps;
+  "the floor lamp beside the sofa is a plain cylinder" was sent to the lighting stage and its fixable path was lost;
+- the exterior critic is told every camera's role and its eye height and pitch measured by code
+  (``prompts.camera_note``, ``camera_eye``: the camera z over the scene manifest's terrain, ``scene_ground_z``), and
+  an X6 claim the code contradicts is dropped (``drop_camera_claims``): a height or angle claim when the measured eye
+  height is within ``exterior_checks.EYE_LEVEL_RANGE_M``, the pitch within 0.5 degrees and the code has no X6 on the
+  view; a "frontal, not a corner view" claim only on a frontal or entrance view; a "not the whole building" claim
+  only on an entrance view. A corner view keeps a "frontal" claim (P4b's round-3 ext_2 claim was right). Why: P4b's
+  vision X6 asked every view for a 3/4 corner at 1.5-1.7 m while the code's X6 asked for a frontal entrance view, so
+  the cameras flipped between frontal and corner each round and 5 "low angle" claims sat on cameras 1.60 m above the
+  ground.
 """
 from __future__ import annotations
 
+import math
 import re
 from pathlib import Path
 from typing import Optional
@@ -167,9 +186,78 @@ def light_subject(message: str, piece: Optional[dict]) -> Optional[str]:
     return m.group(0)
 
 
+# Fix round after P4b (module docstring): the kind of light a message names, from the two words before the light word
+# and the light word itself, and the decor types of a ceiling light.
+WALL_LIGHT_WORDS = ("wall", "wall-mounted", "sconce", "sconces", "mirror", "vanity", "strip", "mounted")
+CEILING_LIGHT_WORDS = ("pendant", "ceiling", "chandelier", "chandeliers", "recessed", "downlight", "downlights",
+                       "spotlight", "spotlights", "panel", "hanging", "suspended")
+FLOOR_LIGHT_WORDS = ("floor", "standing", "arc", "tripod")
+TABLE_LIGHT_WORDS = ("table", "bedside", "desk", "nightstand", "reading")
+CEILING_DECOR_WORDS = ("pendant", "ceiling", "chandelier")
+DECOR_CAUSE = "decor_model"                 # = causes (no tool, REPORT_TO decor)
+
+
+def light_kind(message: str) -> str:
+    """Fix round after P4b: ``wall``, ``ceiling``, ``floor``, ``table`` or ``generic``: the light a message names
+    (``LIGHT_WORDS``), by the words just before it ("the wall-mounted lamp", "the floor lamp") and the light word
+    itself ("pendant light", "sconce"); "on the wall" anywhere makes it a wall light."""
+    text = str(message or "").lower()
+    m = LIGHT_WORDS.search(text)
+    if m is None:
+        return "generic"
+    words = re.findall(r"[a-z][a-z-]*", text[:m.start()])[-2:] + re.findall(r"[a-z][a-z-]*", m.group(0))
+    words += [x for w in words if "-" in w for x in w.split("-")]
+    for kind, table in (("wall", WALL_LIGHT_WORDS), ("ceiling", CEILING_LIGHT_WORDS), ("floor", FLOOR_LIGHT_WORDS),
+                        ("table", TABLE_LIGHT_WORDS)):
+        if any(w in table for w in words):
+            return kind
+    if "on the wall" in text or "wall-mounted" in text or "wall mounted" in text:
+        return "wall"
+    return "generic"
+
+
+def _is_light_type(ptype) -> bool:
+    t = str(ptype or "").lower()
+    return any(w in t for w in LIGHT_TYPE_WORDS)
+
+
+def light_target(message: str, piece: dict, building: dict, room_id: str) -> Optional[dict]:
+    """Fix round after P4b (module docstring): the piece a light-fixture finding on ``piece`` is really about:
+    ``{"kind": "decor" | "furniture", "id", "type"}``, or None for the room's lighting rig (a wall light, or no
+    lamp or light piece on, over or near ``piece``)."""
+    kind = light_kind(message)
+    if kind == "wall":
+        return None
+    pid = piece.get("id")
+    tied = [d for d in building.get("decor") or [] if isinstance(d, dict) and _is_light_type(d.get("type"))
+            and (d.get("host_id") == pid or str(d.get("slot") or "").endswith(f"over_{pid}"))]
+    on = [d for d in tied if "lamp" in str(d.get("type")).lower()]
+    over = [d for d in tied if any(w in str(d.get("type")).lower() for w in CEILING_DECOR_WORDS)]
+    centre = (piece.get("footprint") or {}).get("center") or [0.0, 0.0]
+
+    def dist(f):
+        c = (f.get("footprint") or {}).get("center") or centre
+        return math.dist([float(v) for v in c[:2]], [float(v) for v in centre[:2]])
+
+    lamps = sorted((f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("room_id") == room_id
+                    and f.get("id") != pid and _is_light_type(f.get("type")) and TD.is_built(f)),
+                   key=lambda f: (dist(f), str(f.get("id"))))
+    if kind == "floor":
+        lamps = [f for f in lamps if "floor" in str(f.get("type")).lower()] or lamps
+    order = {"table": [on], "ceiling": [over], "floor": [[], lamps], "generic": [on, over, lamps]}[kind]
+    for group in order:
+        if not group:
+            continue
+        hit = group[0]
+        return {"kind": "furniture" if group is lamps else "decor", "id": hit.get("id"), "type": hit.get("type")}
+    return None
+
+
 def reroute_light_findings(kept: list[dict], building: dict, room_id: Optional[str]) -> list[dict]:
-    """Fix round after P4a (module docstring): the kept findings, with those about a light fixture re-routed to the
-    room (cause ``light_fixture``; ``evidence.metrics``: ``named``, ``target_was``, ``target_type``)."""
+    """Fix round after P4a (module docstring): the kept findings, with those about a light fixture re-routed
+    (``evidence.metrics``: ``named``, ``target_was``, ``target_type``). Fix round after P4b: to the decor light
+    (cause ``decor_model``) or the lamp piece (its own cause and tools) the message is about (``light_target``,
+    ``metrics.light_kind``, ``retarget``), else to the room (cause ``light_fixture``)."""
     pieces = {f.get("id"): f for f in building.get("furniture") or [] if isinstance(f, dict)}
     out = []
     for f in kept:
@@ -178,10 +266,18 @@ def reroute_light_findings(kept: list[dict], building: dict, room_id: Optional[s
         if subject is None:
             out.append(f)
             continue
+        hit = light_target(f.get("message"), piece, building, room_id)
         evidence = dict(f.get("evidence") or {})
         evidence["metrics"] = dict(evidence.get("metrics") or {}, named=subject, target_was=piece.get("id"),
-                                   target_type=piece.get("type"))
-        out.append(dict(f, target=room_id, cause=LIGHT_CAUSE, evidence=evidence))
+                                   target_type=piece.get("type"), light_kind=light_kind(f.get("message")),
+                                   retarget=(hit or {}).get("kind") or "rig")
+        if hit is None:
+            out.append(dict(f, target=room_id, cause=LIGHT_CAUSE, evidence=evidence))
+        elif hit["kind"] == "decor":
+            out.append(dict(f, target=hit["id"], cause=DECOR_CAUSE, evidence=evidence))
+        else:
+            g = {k: v for k, v in f.items() if k != "cause"}
+            out.append(dict(g, target=hit["id"], evidence=evidence))
     return out
 
 
@@ -355,13 +451,103 @@ def drop_roof_type_claims(kept: list[dict], dropped: list[dict], building: dict)
     return out, dropped
 
 
+def scene_ground_z(scene: Optional[dict], x: float, y: float) -> Optional[float]:
+    """Fix round after P4b: the ground z at ``(x, y)`` from the scene manifest's terrain (``site.terrain``, the
+    build's ``site.ground_z``); None when the terrain is not there or its record is not enough (a summary without
+    the surface)."""
+    from wenart.blender import site as S
+    terrain = (((scene or {}).get("site") or {}).get("terrain")) if isinstance(scene, dict) else None
+    if not isinstance(terrain, dict):
+        return None
+    try:
+        return float(S.ground_z(terrain, float(x), float(y)))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+
+
+def camera_eye(camera: Optional[dict], scene: Optional[dict]) -> Optional[dict]:
+    """Fix round after P4b (module docstring): ``{"eye_m", "pitch_deg", "ground_z"}`` of an exterior camera
+    measured by code: the camera z over the ground under it (``scene_ground_z``; None when unknown) and the pitch of
+    its line of sight; None without a pose."""
+    if not isinstance(camera, dict) or not camera.get("position") or not camera.get("target"):
+        return None
+    try:
+        x, y, z = (float(v) for v in camera["position"][:3])
+        tx, ty, tz = (float(v) for v in camera["target"][:3])
+    except (TypeError, ValueError):
+        return None
+    pitch = math.degrees(math.atan2(tz - z, math.hypot(tx - x, ty - y)))
+    ground = scene_ground_z(scene, x, y)
+    return {"eye_m": None if ground is None else round(z - ground, 3), "pitch_deg": round(pitch, 2),
+            "ground_z": ground}
+
+
+# Fix round after P4b (module docstring): the claims of a vision X6 by kind (any word of a kind makes the claim).
+HEIGHT_CLAIM_WORDS = ("eye level", "eye-level", "height", "low angle", "low-angle", "high angle", "high-angle",
+                      "looking up", "looking down", "worm", "tilt", "pitch", "too low", "too high", "ground level",
+                      "from below", "upward", "downward")
+FRONTAL_CLAIM_WORDS = ("frontal", "front-on", "straight-on", "straight on", "head-on", "flat elevation",
+                       "elevation view", "3/4", "three-quarter", "three quarter", "corner view", "single facade",
+                       "one facade", "only one facade", "two facades")
+FRAME_CLAIM_WORDS = ("whole building", "entire building", "not in frame", "out of frame", "cut off", "cropped",
+                     "partial view", "part of the building", "too close")
+PITCH_LEVEL_DEG = 0.5                      # = exterior_checks._x6's level camera (a minor X6 above it)
+
+
+def camera_claims(message: str) -> set:
+    """Fix round after P4b: the kinds of an X6 claim in ``message``: ``height``, ``frontal``, ``frame``."""
+    text = str(message or "").lower()
+    out = set()
+    for kind, words in (("height", HEIGHT_CLAIM_WORDS), ("frontal", FRONTAL_CLAIM_WORDS),
+                        ("frame", FRAME_CLAIM_WORDS)):
+        if any(w in text for w in words):
+            out.add(kind)
+    return out
+
+
+def drop_camera_claims(kept: list[dict], dropped: list[dict], view: str, camera: Optional[dict],
+                       eye: Optional[dict], code: dict) -> tuple[list[dict], list[dict]]:
+    """Fix round after P4b (module docstring): the X6 claims on ``view`` that the code contradicts move to
+    ``dropped`` with the reason: every claim kind of the message (``camera_claims``) must be one the code record
+    answers (height: the measured eye height within ``EYE_LEVEL_RANGE_M``, level within ``PITCH_LEVEL_DEG`` and no
+    code X6 on the view; frontal: the camera's role is frontal or entrance; frame: the role is entrance). A message
+    with no known claim, or one kind the code does not answer, stays."""
+    from wenart.blender import exterior_checks as X
+    if not any(f.get("check") == "X6" and f.get("target") == view for f in kept) or not isinstance(camera, dict):
+        return kept, dropped
+    role = camera.get("view")
+    code_x6 = any(f.get("check") == "X6" and f.get("target") == view for f in code.get("findings") or [])
+    eye_ok = bool(eye) and eye.get("eye_m") is not None and not code_x6 \
+        and X.EYE_LEVEL_RANGE_M[0] - 1e-3 <= float(eye["eye_m"]) <= X.EYE_LEVEL_RANGE_M[1] + 1e-3 \
+        and abs(float(eye.get("pitch_deg") or 0.0)) <= PITCH_LEVEL_DEG + 1e-9
+    answers = {"height": eye_ok, "frontal": role in ("frontal", "elevation", "entrance"), "frame": role == "entrance"}
+    out = []
+    for f in kept:
+        claims = camera_claims(f.get("message")) if f.get("check") == "X6" and f.get("target") == view else set()
+        if not claims or not all(answers.get(c) for c in claims):
+            out.append(f)
+            continue
+        parts = []
+        if "height" in claims:
+            parts.append(f"eye {float(eye['eye_m']):.2f} m above the ground, pitch {float(eye['pitch_deg']):.1f} deg "
+                         f"(measured by code, within {X.EYE_LEVEL_RANGE_M[0]:g}-{X.EYE_LEVEL_RANGE_M[1]:g} m)")
+        if claims & {"frontal", "frame"}:
+            parts.append(f"{view} is the {role} view the camera policy requires (square to one facade"
+                         + (", the door up close, not the whole building" if role == "entrance" else "") + ")")
+        dropped.append(dict(f, dropped="code contradicts: " + "; ".join(parts)))
+    return out, dropped
+
+
 def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_crop: Optional[Path], code: dict,
-                      call_id: str, camera: Optional[dict] = None) -> dict:
+                      call_id: str, camera: Optional[dict] = None, scene: Optional[dict] = None) -> dict:
     """One exterior view. ``camera`` (round 2, Milestone 13 D8 / T6): the view's camera record of the scene manifest;
     a record with ``aerial_allowed`` (the one true aerial view, the site view) is told to the critic
     (``prompts.camera_note``): a true aerial is allowed by the policy and is not a finding. Fix round after P3: the
     prompt states the built roof (``roof_note``) and a roof-type claim is dropped when the built type is the drawn
-    one (``drop_roof_type_claims``)."""
+    one (``drop_roof_type_claims``). Fix round after P4b: ``scene`` (the round's scene manifest) gives the camera's
+    measured eye height (``camera_eye``); the prompt states the camera's role and its eye height
+    (``prompts.camera_note``) and the X6 claims the code contradicts are dropped (``drop_camera_claims``)."""
+    eye = camera_eye(camera, scene)
     images, labels = [preview], [f"render of exterior view {view}"]
     if plan_crop is not None:
         images.append(plan_crop)
@@ -369,7 +555,7 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
     # Milestone 13 (bug B5): the storeys, not len(levels): a level variant (L-1b) is no storey of its own
     levels = storeys_of(building)
     note = f"The building has {levels} storey(s); {roof_note(building)}"
-    note = " ".join(part for part in (note, P.camera_note(camera)) if part)
+    note = " ".join(part for part in (note, P.camera_note(camera, eye)) if part)
     ids = exterior_ids(building, view)
     ext_code = [f for f in code.get("findings") or [] if f.get("check", "").startswith("X") or f.get("target") == view]
     prompt = P.exterior_critic_prompt(view, note, sorted(ids)[:60], labels, ext_code)
@@ -380,4 +566,5 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, ids, len(images), code, None, call_id=call_id)
     kept, dropped = drop_roof_type_claims(kept, dropped, building)
+    kept, dropped = drop_camera_claims(kept, dropped, view, camera, eye, code)      # fix round after P4b
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}

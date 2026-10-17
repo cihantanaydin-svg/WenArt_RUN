@@ -16,6 +16,12 @@ with ``entry = {"round", "tool", "args", "key", "reasons"}`` (``reasons``: the f
 - ``visit``, ``set_open``, ``add_plan``, ``tried``: the coverage, the open checklist of the next round, the plans
   (fix round after P4a: each plan with its status and the planner's skip list).
 
+Fix round after P4b (17 Oct 2026; pod P4b, real03): ``no_spot(room)`` names the pieces whose ``fix_fixture``
+without ``center`` and ``size`` (the code's own search within 0.5 m) was rejected "no valid spot", with the round and
+the reason: the tools refuse a later ``fix_fixture`` on such a piece without a new size, and the room brief lists
+its wall and outline cuts as "not yours" (for review). Why: P4b's bathtubs f_L0_184-187 got 21 guessed centres in
+5 cm steps and 13 max_tries after the code had searched every spot.
+
 Why: M11 started a fresh conversation per room and a fresh tool context per round, so every rejection was forgotten
 (§1.4). The ledger is the loop's, not the model's: the room brief shows it to the model, the tools enforce it.
 
@@ -35,6 +41,7 @@ from wenart.agent import log as LG
 MEMORY_JSON = "memory.json"
 VERSION = 1
 META = ("reason",)              # arguments that do not change what an edit does
+NO_SPOT_WORDS = "no valid spot"  # fix round after P4b: edit_ops._fix_fixture's "no valid spot within 0.50 m"
 
 
 def memory_path(project_out) -> Path:
@@ -97,6 +104,21 @@ class Memory:
                 if e.get("key") == key:
                     return copy.deepcopy(e)
         return None
+
+    def no_spot(self, room_id: Optional[str]) -> dict:
+        """Fix round after P4b (module docstring): ``{piece_id: {"round", "reason"}}`` of the room's rejected
+        ``fix_fixture`` edits without ``center`` and ``size`` whose reasons say "no valid spot" (the first one)."""
+        out: dict = {}
+        with self.lock:
+            for e in (self.data["rooms"].get(str(room_id)) or {}).get("rejected") or []:
+                args = e.get("args") or {}
+                if e.get("tool") != "fix_fixture" or args.get("center") is not None or args.get("size") is not None:
+                    continue
+                why = next((str(r) for r in e.get("reasons") or [] if NO_SPOT_WORDS in str(r)), None)
+                pid = args.get("piece_id")
+                if why and pid and str(pid) not in out:
+                    out[str(pid)] = {"round": e.get("round"), "reason": why}
+        return out
 
     @property
     def refused_repeats(self) -> int:

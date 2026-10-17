@@ -30,6 +30,15 @@ when no place works it is dropped and listed with the reason. Eye-level cameras 
 frame the building with a vertical lens shift (straight verticals); the lens is chosen so the building fills
 at most ``FRAME_FILL`` of the frame (``LENS_RANGE_MM``). Every plan lists the outer openings it sees
 (facing the camera, centre in the frame, the ray to it unblocked): the expected openings of the checks.
+
+Integration of the fix round after P4b (17 Oct 2026; pod P4b, real03): the policy's frontal view of the entrance
+facade (E14) and the views of the drawn elevations are never dropped only because the building fills less than
+``MIN_BUILDING_SHARE`` of the frame: when no candidate passes, the candidate with the best share among those that
+failed on that rule alone (free, the aim visible, not blocked) is kept with a warning
+(``_try(keep_best_share=True)``, ``SHARE_KEPT_WARNING``; on real03 with the overhang and the agent's fence, one of
+the seven candidates was also blocked by the fence). Why: real03 is a 33 m long, 3.5 m high bungalow; its frontal view was already marginal
+(share 0.0833) and the agent's roof overhang of 0.5 m pushed every candidate under 8 %, so the planner dropped
+ext_6 and X6 reported "no frontal view" in the next round. The corner, aerial and entrance views keep the rule.
 """
 from __future__ import annotations
 
@@ -65,6 +74,9 @@ FRAME_FILL = 0.85
 MAX_SHIFT_Y = 0.35
 RAY_GRID = (32, 18)
 MIN_BUILDING_SHARE = 0.08
+# Integration after P4b (module docstring): the warning of a policy view kept at its best share under the floor.
+SHARE_KEPT_WARNING = ("kept: no candidate passed; the best free one fills {share:.1%} of the frame (< {floor:.0%}) "
+                      "and is kept (the policy view is never dropped for its share alone)")
 MAX_BLOCKED = 0.35
 CLEARANCE = 0.3
 CLIP_END = 3000.0                                       # beyond the flat ground (site.HORIZON_M)
@@ -743,15 +755,25 @@ def _opening_counts(building: dict, levels: Sequence[dict], outline) -> dict[str
     return counts
 
 
+def share_only(check: dict) -> bool:
+    """True when a refused view check failed only on ``MIN_BUILDING_SHARE`` (pure; integration after P4b): not
+    blocked over ``MAX_BLOCKED``, the aim visible, the share under the floor."""
+    return (not check.get("ok") and float(check.get("blocked") or 0.0) <= MAX_BLOCKED and bool(check.get("aim_visible"))
+            and float(check.get("building_share") or 0.0) < MIN_BUILDING_SHARE)
+
+
 def _try(model, building, levels, name, view, candidates, aim, level_cam=True, extra=None,
-         lens_mm: Optional[float] = None, lens_max: Optional[float] = None) -> dict:
+         lens_mm: Optional[float] = None, lens_max: Optional[float] = None, keep_best_share: bool = False) -> dict:
     """The first candidate position that is free and sees the building; the plan or the drop record (the
     camera record with ``dropped: true`` and ``dropped_reason``). ``lens_mm`` (Milestone 11): a fixed lens for a
     level camera (``frame_fixed``; the plan records the ``fill``). ``lens_max`` (fix round after P3, 16-17 Oct
-    2026): the longest lens ``frame`` may pick (the aerial view: a longer lens would cut its horizon off)."""
+    2026): the longest lens ``frame`` may pick (the aerial view: a longer lens would cut its horizon off).
+    ``keep_best_share`` (integration after P4b, module docstring): when no candidate passed, the one with the best
+    share among those that failed on the share alone (``share_only``) is the plan, with ``SHARE_KEPT_WARNING``."""
     extra = dict({"sides": [], "region_id": None, "variant": None}, **(extra or {}))
     pts = building_points(model)
     reasons = []
+    best = None                 # (share, k, pos, how, lens, shift_y, target, warn, fill, check) of a share-only fail
     for k, (pos, how) in enumerate(candidates):
         inside = model.inside(pos)
         if inside:
@@ -770,23 +792,40 @@ def _try(model, building, levels, name, view, candidates, aim, level_cam=True, e
         check = view_check(model, pos, target, lens, shift_y, aim)
         if not check["ok"]:
             reasons.append(f"{how}: {check['why']}")
+            if share_only(check) and (best is None or check["building_share"] > best[0]):
+                best = (check["building_share"], k, pos, how, lens, shift_y, target, warn, fill, check)
             continue
         warning = "; ".join([w for w in ([warn] + ([f"moved: {reasons[-1]}"] if reasons else [])) if w]) or None
-        pitch = math.degrees(math.atan2(target[2] - pos[2], math.hypot(target[0] - pos[0], target[1] - pos[1])))
-        plan = {"name": name, "kind": KIND, "view": view, "room_id": None, "level_id": None,
-                "index": int(name.split("_")[1]), "position": [round(float(c), 4) for c in pos], "target": target,
-                "lens_mm": lens, "sensor_mm": SENSOR_MM, "resolution": list(RESOLUTION), "shift_x": 0.0,
-                "shift_y": shift_y, "pitch_deg": round(pitch, 2), "placement": how, "warning": warning,
-                "visible_openings": visible_openings(model, building, levels, pos, target, lens, shift_y),
-                "visible_furniture": [], "score": {**check, "tried": k + 1}, "status": "assumed",
-                "dropped_reason": None}
-        if fill is not None:
-            plan["fill"] = fill
-        plan.update(extra)
+        return _plan_of(model, building, levels, name, view, k, pos, how, lens, shift_y, target, warning, fill,
+                        check, extra)
+    if keep_best_share and best is not None:
+        share, k, pos, how, lens, shift_y, target, warn, fill, check = best
+        kept = SHARE_KEPT_WARNING.format(share=share, floor=MIN_BUILDING_SHARE)
+        warning = "; ".join(w for w in (warn, kept) if w)
+        plan = _plan_of(model, building, levels, name, view, k, pos, how, lens, shift_y, target, warning, fill,
+                        check, extra)
+        plan["share_kept"] = True
         return plan
     return {"name": name, "kind": KIND, "view": view, "room_id": None, "level_id": None,
             "index": int(name.split("_")[1]), "dropped": True, "dropped_reason": "; ".join(reasons) or "no candidate",
             **extra}
+
+
+def _plan_of(model, building, levels, name, view, k, pos, how, lens, shift_y, target, warning, fill, check,
+             extra) -> dict:
+    """The camera plan of ``_try``'s candidate ``k`` (pure but for the ray casts of ``visible_openings``)."""
+    pitch = math.degrees(math.atan2(target[2] - pos[2], math.hypot(target[0] - pos[0], target[1] - pos[1])))
+    plan = {"name": name, "kind": KIND, "view": view, "room_id": None, "level_id": None,
+            "index": int(name.split("_")[1]), "position": [round(float(c), 4) for c in pos], "target": target,
+            "lens_mm": lens, "sensor_mm": SENSOR_MM, "resolution": list(RESOLUTION), "shift_x": 0.0,
+            "shift_y": shift_y, "pitch_deg": round(pitch, 2), "placement": how, "warning": warning,
+            "visible_openings": visible_openings(model, building, levels, pos, target, lens, shift_y),
+            "visible_furniture": [], "score": {**check, "tried": k + 1}, "status": "assumed",
+            "dropped_reason": None}
+    if fill is not None:
+        plan["fill"] = fill
+    plan.update(extra)
+    return plan
 
 
 def elevation_views(building: dict) -> tuple[list[dict], list[str]]:
@@ -925,7 +964,8 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
             p = (face[0] + u[0] * dist, face[1] + u[1] * dist)
             cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:.1f} m in front of the {side} facade"))
         keep(_try(model, building, levels, name, "elevation", cands, (face[0], face[1], zmid),
-                  extra={"side": side, "sides": [side], "region_id": ev["region_id"], "variant": variant}))
+                  extra={"side": side, "sides": [side], "region_id": ev["region_id"], "variant": variant},
+                  keep_best_share=True))
 
     # Milestone 11 E14: one frontal view of the entrance facade, unless a drawn elevation already looks at it.
     main_side = S.side_of(md, north, north_known)
@@ -946,7 +986,7 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
             cands.append(((p[0], p[1], _eye(model, *p)), f"{dist:.1f} m in front of the {main_side} (entrance) facade"))
         keep(_try(model, building, levels, f"ext_{6 + len(views)}", "frontal", cands, aim, lens_mm=EYE_LENS_MM,
                   extra={"side": main_side, "sides": [main_side], "variant": variant, "main_facade": main["axis"],
-                         "main_facade_source": main["source"]}))
+                         "main_facade_source": main["source"]}, keep_best_share=True))
     # 11 Oct 2026 (real04): one view of every building on the plot (copies.site_view)
     from wenart.blender import copies as CP
     sv = CP.site_view(model.outline, building, model.z_range, plot)

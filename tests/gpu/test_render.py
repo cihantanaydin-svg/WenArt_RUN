@@ -96,6 +96,23 @@ the walls of the rig-lit views are compared with the walls of the same project's
 no daylight view of that kind; a pulled sky keeps the floor of the rule its k was chosen by
 (``render.sky_pull_floor``) and the views into the sun are listed; the panes of the interior views show the sky
 (median pane saturation at least ``PANE_SAT_MIN``; P4a's grey cards 0.00-0.07).
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03; CPU replays in tests/test_m13_light.py):
+
+- the orange check covers the views with a rig share of at least ``RIG_CHECK_SHARE`` (0.4; was 0.8: P4b's mixed
+  halls and baths at 0.44-0.65 were not checked) against the project's daylight walls of the same kind plus
+  ``RIG_ROOM_ABOVE_DAY`` (the verifier's relative limit; was 1.1 x their median);
+- the pane-saturation floor holds only under the clear-sky moods (``PANE_SAT_MOODS``: an overcast, blue-hour or night
+  window is grey or dark by design; the review of the P4a fix round);
+- a named shaded-facade view passes the sky check when it was pulled to its target or its rendered sky already
+  qualifies (``render.sky_pull_qualifies``): the exterior ground cap darkens those views;
+- a window pull takes a clip-free k whenever one it tried kept the panes near the walls
+  (``test_window_pull_takes_an_unclipped_k_when_one_was_tried``; P4b: 10 views with clipped panes);
+- the interior glazing (windows between two rooms, never pulled) of ``INTERIOR_GLAZING_VIEWS`` stays within
+  ``INTERIOR_GLAZING_MAX_DELTA`` of the room's walls in display R/B (P4b: 1.82 vs 1.26, 2.15 vs 1.29, 1.02 vs 2.05);
+- every exterior view's EV is at most its ground EV plus ``render.EXTERIOR_GROUND_HEADROOM_STOPS`` and its lawn, where
+  it fills at least ``LAWN_MIN_SHARE`` of the frame, keeps a saturation of at least ``LAWN_SAT_MIN`` (P4b ext_3 /
+  ext_4: about 0.11 / 0.19 on the previews); no horizon-band pin (the haze toward the sun stays white).
 """
 import hashlib
 import json
@@ -647,8 +664,15 @@ RIG_ROOM_MAX_RB = 1.5           # wall display R/B of a view lit mostly by the r
 # (480 x 270, 64 spp; its m13.2 hall values match P4a's pod values within 0.04): the painted walls of 10 daylight views
 # 1.30-1.55, median 1.36; the 12 halls with m13.2's white point 1.64-1.78 (ratio 1.20-1.30, all over), with m13.3's
 # 1.26-1.36 (0.92-1.00); the baths (tiled, no daylight bath: the fixed 1.5) 1.21-1.32 and 1.02-1.08.
-RIG_ROOM_REL_MAX = 1.1
-RIG_DOMINANT_SHARE = 0.8        # wb_rig_share from which a view counts as lit by the rig
+RIG_ROOM_REL_MAX = 1.1          # fix round after P4a; replaced by RIG_ROOM_ABOVE_DAY after P4b (kept for the record)
+# Fix round after P4b (17 Oct 2026): the orange check covers the views from this rig share (was 0.8, "lit mostly by
+# the rig"; P4b's mixed halls and baths at 0.44-0.65 read 1.40-1.69 and were not checked) ...
+RIG_CHECK_SHARE = 0.4
+# ... at most this much over the median wall R/B of the project's daylight views of the same kind (the verifier's
+# relative limit of the P4b analysis; RIG_ROOM_REL_MAX = 1.1 x the median before: the same 1.50-1.51 at real02's 1.36,
+# 1.42 against 1.44 at real03's greige 1.29). Its prediction for real03 with the fix-round white point: kat_holu_1
+# 1.46, ruzgarlik_1 1.42, giris_holu_3_1 1.49, yangin_merdiveni_1 1.49, oda_7_1 1.29.
+RIG_ROOM_ABOVE_DAY = 0.15
 NEAR_BLACK = 8                  # display value under which a pixel is black (every channel)
 OPEN_AIR_MAX_BLACK = 0.02       # black share of an open-air view's sky pixels (P3: 22-31 % of the whole frame)
 P3_REAL04_WB_K = 5635.0         # P3's real04 project white point (cam_r_L1_teras_1, daylight only, interior world)
@@ -661,6 +685,20 @@ HALL_DARK_MAX_SHARE = 0.25      # hall / stair views still over the +3 cap (P3: 
 # cards) and 0.14-0.22 without it, the basement windows (light wells, no haze in their view) 0.02-0.17 either way;
 # median 0.06 with the haze in view, 0.14 without (M11: 0.13-0.25).
 PANE_SAT_MIN = 0.08
+# Fix round after P4b (17 Oct 2026; the review of the P4a fix round): the floor holds only under the clear-sky moods
+# (wenart/style/finishes.py LIGHTING); overcast, cloudy soft, blue hour, night and interior evening show a grey or dark
+# sky through the glass by design (the value is printed for them).
+PANE_SAT_MOODS = ("warm daylight", "cool daylight", "bright noon", "golden evening")
+# Fix round after P4b: the interior glazing of real03 named by the P4b analysis (a 2700 K hall or stair seen from a
+# daylight room and the reverse); the display R/B of the panes within this of the room's walls (the verifier's model:
+# only a 4000 K hall / stair / bath rig passes both directions; render.interior_glazing_record)
+INTERIOR_GLAZING_VIEWS = {"real03": ("cam_r_L0_yasama_8_3", "cam_r_L0_ebeveyn_odasi_2_1",
+                                      "cam_r_L0_yangin_merdiveni_1")}
+INTERIOR_GLAZING_MAX_DELTA = 0.3
+# Fix round after P4b: an exterior view's lawn (render.lawn_record) where it fills this share of the frame keeps this
+# display saturation (P4b real03 previews: 0.35-0.42 in the sunlit views, 0.11 / 0.19 in ext_3 / ext_4).
+LAWN_MIN_SHARE = 0.10
+LAWN_SAT_MIN = 0.25
 # Fix round part 2 (17 Oct 2026)
 RIG_ONLY_MEDIAN_SHARE = 0.5     # median rig share of the views of rooms whose rig replaces the fill light (no
 #                                 daylight window, a ceiling fixture; shim: real02 hall 0.78, synthetic-01 bath 0.82)
@@ -685,6 +723,13 @@ SKY_MASK_FULL_WEIGHT_MIN = 0.8
 FILL_LIGHT_ROOMS = {"real04": {"r_L0_yatak_odasi_3": True, "r_L0_yatak_odasi_4": True, "r_L-1b_oda": False,
                                "r_L-1b_oda_2": False},
                     "real02": {"r_L0_yatak_odasi_3": True, "r_L0_yatak_odasi_4": True}}
+
+
+def _dark(entry: dict) -> bool:
+    """A view over the +3 cap (``lighting_dark``), not counting a ``minor`` one (fix round after P4b: less than one
+    exposure step over, ``render.LIGHTING_DARK_MINOR_STOPS``: it renders at the cap)."""
+    rec = (entry.get("exposure") or {}).get("lighting_dark") or entry.get("lighting_dark")
+    return bool(rec) and rec.get("severity") != "minor"
 
 
 def _project_wb(render: dict) -> bool:
@@ -767,7 +812,10 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     of a rig-lit view are compared with the walls of the same project's daylight views (rig share under
     ``render.WB_RIG_SHARE_MIN``, under the interior world, within the cap) of the same kind, painted or tiled (the
     rooms with a wet floor have tiled walls): at most ``RIG_ROOM_REL_MAX`` times their median; the fixed
-    ``RIG_ROOM_MAX_RB`` only where the project has no daylight view of that kind. Every view's value is printed."""
+    ``RIG_ROOM_MAX_RB`` only where the project has no daylight view of that kind. Every view's value is printed.
+    Fix round after P4b (17 Oct 2026; the verifier's better fix of the P4b orange finding): the views from a rig share
+    of ``RIG_CHECK_SHARE`` (0.4) are checked, at most ``RIG_ROOM_ABOVE_DAY`` over the daylight median of their kind
+    (P4b's mixed views at 0.44-0.65 were left out at 0.8)."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -777,12 +825,12 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
     wet = {o["wenart_id"] for o in scene.get("objects") or [] if o.get("kind") == "floor" and o.get("wet")}
     entries = {r["camera"]: r for r in render["renders"]}
-    indoor = {c: r for c, r in entries.items() if r.get("room_id") is not None and not r["exposure"].get("lighting_dark")
+    indoor = {c: r for c, r in entries.items() if r.get("room_id") is not None and not _dark(r)
               and not (exterior_world and r.get("world") == exterior_world)}
-    rig_lit = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) >= RIG_DOMINANT_SHARE]
+    rig_lit = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) >= RIG_CHECK_SHARE]
     daylight = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) < R.WB_RIG_SHARE_MIN]
     if not rig_lit:
-        pytest.skip(f"{name}: no view lit mostly by the rig within the cap")
+        pytest.skip(f"{name}: no view with a rig share of {RIG_CHECK_SHARE} or more within the cap")
     table = views.index_table(scene)
     loaded = views.load_views(OUTPUTS / name / "renders", cameras=rig_lit + daylight)
     measured = {cam: _wall_rb(v, table) for cam, v in loaded.items()}
@@ -799,7 +847,7 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
         if value is None:
             continue
         ref = reference[kind(cam)]
-        bound = RIG_ROOM_MAX_RB if ref is None else round(RIG_ROOM_REL_MAX * ref, 3)
+        bound = RIG_ROOM_MAX_RB if ref is None else round(ref + RIG_ROOM_ABOVE_DAY, 3)     # fix round after P4b
         per_view[cam] = (value, kind(cam), bound)
         if value > bound:
             warm.append((cam, value, kind(cam), bound, entries[cam]["exposure"].get("wb_rig_share")))
@@ -924,6 +972,11 @@ def test_sky_and_window_pulls_reach_their_targets(project):
             s = (entries.get(cam) or {}).get("sky_pull") if cam in entries else "absent"
             if s == "absent":
                 continue
+            # fix round after P4b (17 Oct 2026): the exterior ground cap renders these shaded-facade views darker, so
+            # their sky may already read as sky as rendered (k 0 by render.choose_sky_pull's first rule): that passes
+            if s and not s.get("k") and R.sky_pull_qualifies({"median": s["median_before"],
+                                                              "saturation": s["saturation_before"]}):
+                continue
             chosen = next((c for c in (s or {}).get("tried") or [] if c["k"] == (s or {}).get("k")), None)
             floor = R.sky_pull_floor(chosen) if chosen else R.SKY_PULL_SAT_MIN    # fix round after P4a: its rule's
             if not s or not s.get("k") or s["median_after"] > R.SKY_PULL_MEDIAN_MAX \
@@ -983,11 +1036,117 @@ def test_sky_and_window_pulls_reach_their_targets(project):
             continue
         panes.append((r["camera"], wp.get("pane_saturation_after") if wp.get("k") else wp["pane_saturation"]))
     sats = sorted(v for _c, v in panes if v is not None)
-    print(f"{name}: pane saturation {panes}")
-    if sats and sats[len(sats) // 2] < PANE_SAT_MIN:
+    # fix round after P4b (17 Oct 2026; the review of the P4a fix round): the floor holds under the clear-sky moods only
+    moods = {str(m).strip().lower() for m in [scene.get("wenart_mood")] + [(r.get("exposure") or {}).get("mood")
+                                                                            for r in render["renders"]] if m}
+    clear = bool(moods) and moods <= set(PANE_SAT_MOODS)
+    print(f"{name}: pane saturation {panes}; moods {sorted(moods)} ("
+          f"{'clear sky: floor ' + str(PANE_SAT_MIN) if clear else 'no clear-sky mood: printed only'})")
+    if clear and sats and sats[len(sats) // 2] < PANE_SAT_MIN:
         bad.append(("window panes", f"median pane saturation {sats[len(sats) // 2]} under {PANE_SAT_MIN}: grey "
                                     f"cards, not the sky", panes))
     assert not bad, f"{name}: {bad}"
+
+
+PULL_CLIP_FEATHER_ALLOWANCE = 0.005  # the 3 px feather keeps part of the unpulled pane at its edge (clip_after)
+
+
+def test_window_pull_takes_an_unclipped_k_when_one_was_tried(project):
+    """Fix round after P4b (17 Oct 2026): P4b left clipped panes in 10 real03 views (yasama_8_3 13.9 % at k 1) because a
+    clip-free k made the panes a little darker than the bright greige walls. Whenever a tried k had a pane clip of at
+    most ``render.PULL_MAX_CLIP`` and kept the panes at least ``render.PULL_WALL_RATIO_MIN`` of the wall median (or the
+    view has no wall), the chosen k is unclipped and the written panes are too (``clip_after`` within the feather's
+    ``PULL_CLIP_FEATHER_ALLOWANCE``)."""
+    from wenart.blender import render as R
+
+    name, _scene, render = project
+    bad, checked = [], []
+    for r in render["renders"]:
+        wp = r.get("window_pull") or {}
+        tried = wp.get("tried") or []
+        wall = wp.get("wall_median")
+        ok = [c for c in tried if c["clip"] <= R.PULL_MAX_CLIP and (wall is None or
+                                                                    c["median"] >= R.PULL_WALL_RATIO_MIN * wall)]
+        if not ok:
+            continue
+        checked.append(r["camera"])
+        # no pull is right only when the panes were unclipped as rendered (render.choose_pull's fourth rule)
+        chosen = next((c for c in tried if c["k"] == wp.get("k")), None) if wp.get("k") else \
+            {"clip": wp.get("clip_after")}
+        if chosen is None or chosen["clip"] is None or chosen["clip"] > R.PULL_MAX_CLIP \
+                or wp.get("clip_after") is None or wp["clip_after"] > R.PULL_MAX_CLIP + PULL_CLIP_FEATHER_ALLOWANCE:
+            bad.append((r["camera"], wp.get("k"), wp.get("clip_after"), wp.get("rule"), ok[0]))
+    print(f"{name}: {len(checked)} views with an unclipped k near the walls tried; clipped after the pull: {bad}")
+    assert not bad, f"{name}: window pulls that kept clipped panes although a clip-free k was tried: {bad}"
+
+
+def test_interior_glazing_keeps_one_white_point(project):
+    """Fix round after P4b (17 Oct 2026; the verifier's better fix of the P4b interior-glazing finding): a window
+    between two indoor rooms is never pulled and its panes are recorded against the camera room's walls
+    (``interior_glazing``, ``render.interior_glazing_record``). The named real03 views (``INTERIOR_GLAZING_VIEWS``: a
+    daylight room looking into a rig-lit stair or vestibule, and the stair looking back; P4b 1.82 / 2.15 against walls
+    of 1.26 / 1.29, 1.02 against 2.05) keep the panes within ``INTERIOR_GLAZING_MAX_DELTA`` of the walls in display
+    R/B; every view's values are printed."""
+    name, _scene, render = project
+    entries = {r["camera"]: r for r in render["renders"]}
+    rows = {c: (g["pane_rb"], g["wall_rb"], g["delta_rb"], g["windows"]) for c, e in entries.items()
+            if (g := e.get("interior_glazing"))}
+    named = [c for c in INTERIOR_GLAZING_VIEWS.get(name, ()) if c in entries]
+    print(f"{name}: interior glazing (pane R/B, wall R/B, delta, windows) {rows}")
+    if not named:
+        pytest.skip(f"{name}: none of the named interior-glazing views was rendered")
+    bad = []
+    for cam in named:
+        e = entries[cam]
+        if "interior_glazing" not in e:
+            bad.append((cam, "no interior_glazing record (rendered before the fix round after P4b?)"))
+        elif not e["interior_glazing"]:
+            bad.append((cam, "no interior glazing in view (the window's room_ids no longer name two rooms?)"))
+        elif e["interior_glazing"]["delta_rb"] is None:
+            bad.append((cam, "no wall R/B to compare with", e["interior_glazing"]))
+        elif abs(e["interior_glazing"]["delta_rb"]) > INTERIOR_GLAZING_MAX_DELTA:
+            bad.append((cam, f"pane R/B {e['interior_glazing']['pane_rb']} against the walls' "
+                             f"{e['interior_glazing']['wall_rb']}: two white points in one frame"))
+    assert not bad, f"{name}: interior glazing: {bad}"
+
+
+def test_exterior_views_cap_the_ground_and_keep_the_lawn_green(project):
+    """Fix round after P4b (17 Oct 2026; the verifier's better fix of the P4b exterior finding): an exterior view keeps
+    its facade exposure unless that would show the sunlit ground more than
+    ``render.EXTERIOR_GROUND_HEADROOM_STOPS`` over the target (``render.exterior_exposure``): every metered exterior
+    entry has ``ev <= ev_ground + headroom`` (half an exposure step of rounding; an EV held at a limit is exempt). Its
+    lawn (``lawn``, ``render.lawn_record``: green albedo facing up in front of the haze shell), where it fills at least
+    ``LAWN_MIN_SHARE`` of the frame, keeps a display saturation of at least ``LAWN_SAT_MIN`` (P4b's ext_3 / ext_4:
+    cream lawns). No horizon-band pin: the haze toward the sun stays white at any EV, and a view into the sun
+    (``sky_pull.into_sun``; lead decision (4) of 17 Oct 2026: such views are only listed) is printed, not pinned (the
+    CPU shim render of real02's ext_1, 6 degrees off the sun, capped to -6.17 EV: lawn saturation 0.246)."""
+    from wenart.blender import render as R
+
+    name, _scene, render = project
+    ext = [r for r in render["renders"] if r.get("room_id") is None and (r.get("exposure") or {}).get("mode") == "auto"
+           and ((r["exposure"].get("meter") or {}).get("metered"))]
+    if not ext:
+        pytest.skip(f"{name}: no metered exterior view")
+    bad, rows = [], {}
+    for r in ext:
+        x, cam = r["exposure"], r["camera"]
+        if "ground_cap" not in x or "lawn" not in r:
+            bad.append((cam, "no ground cap or lawn record (rendered before the fix round after P4b?)"))
+            continue
+        lawn = r["lawn"]
+        rows[cam] = (x["ev"], x.get("ev_facade"), x.get("ev_ground"), x["ground_cap"],
+                     None if not lawn else (lawn["px_share"], lawn["saturation"]))
+        ev = float(x["ev"]) - float(x.get("ev_offset") or 0.0)
+        if x.get("ev_ground") is not None and not x.get("at_limit") and \
+                ev > float(x["ev_ground"]) + float(x["ground_headroom_stops"]) + R.EXPOSURE_STEP / 2 + 1e-6:
+            bad.append((cam, f"EV {ev:+.3f} over the ground EV {x['ev_ground']:+.3f} + "
+                             f"{x['ground_headroom_stops']:g} stops"))
+        into_sun = bool((r.get("sky_pull") or {}).get("into_sun"))     # lead decision (4): only listed
+        if lawn and lawn["px_share"] >= LAWN_MIN_SHARE and lawn["saturation"] < LAWN_SAT_MIN and not into_sun:
+            bad.append((cam, f"lawn saturation {lawn['saturation']} under {LAWN_SAT_MIN} ({lawn['px_share']:.0%} of "
+                             f"the frame): a bleached lawn"))
+    print(f"{name}: exterior (ev, ev_facade, ev_ground, capped, lawn share and saturation) {rows}")
+    assert not bad, f"{name}: exterior exposure: {bad}"
 
 
 def test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(project):
@@ -1032,9 +1191,9 @@ def test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(project):
                 missing.append((room, "rig fixtures without their lights", lost))
     assert not missing, f"{name}: windowless bedrooms without the fill light next to their rig: {missing}"
     dark = [(r["camera"], r["exposure"]["ev_raw"]) for r in render["renders"]
-            if r.get("room_id") in adds | set(FILL_LIGHT_ROOMS.get(name, {})) and r["exposure"].get("lighting_dark")]
+            if r.get("room_id") in adds | set(FILL_LIGHT_ROOMS.get(name, {})) and _dark(r)]
     halls = [r for r in render["renders"] if types.get(r.get("room_id") or "") in ("hall", "stair")]
-    dark_halls = [(r["camera"], r["exposure"]["ev_raw"]) for r in halls if r["exposure"].get("lighting_dark")]
+    dark_halls = [(r["camera"], r["exposure"]["ev_raw"]) for r in halls if _dark(r)]
     print(f"{name}: rooms whose rig adds to the fill light {sorted(adds)}; hall views {len(halls)}, over the cap "
           f"{dark_halls}")
     assert not dark, f"{name}: rooms with the fill light back are still dark: {dark}"

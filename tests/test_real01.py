@@ -355,15 +355,19 @@ def test_rule_types_stair_and_counter_legs(run):
         run_info = f["counter_run"]
         assert run_info["wall_id"] in walls and run_info["strokes"]
     # Nothing else is read as a type without AI answers (--no-ai). Since Milestone 11 the ingest may infer a
-    # type from size, room and neighbours (wenart/furniture/infer.py): such a piece stays unverified with
-    # type_method none and carries inferred: true with its reason, so it is listed in the report.
+    # type from size, room and neighbours (wenart/furniture/infer.py): such a piece stays unverified and carries
+    # inferred: true with its reason, so it is listed in the report.
     # Milestone 13 (K3, docs/milestone13.md §13.2 T3): the code typing (twin / level / block / missing group member,
     # wenart.furniture.infer.type_by_code) types the beds, nightstands, sofa and coffee table before any AI; such a
     # piece carries its code method as type_method, stays unverified and is inferred with its reason as well.
+    # Fix round after P4b (17 Oct 2026, pinned on purpose): a context-typed piece carries type_method "rule"
+    # (reading.CONTEXT_METHOD) and a size-inferred one "inferred" (reading.INFER_METHOD), both schema values; an
+    # untyped piece keeps none.
     from wenart.furniture import infer as INF
     others = [f for f in b["furniture"] if f["type"] not in ("stair", "kitchen_counter")]
-    assert others and all(f["status"] == "unverified" and f["type_method"] in ("none",) + INF.CODE_TYPE_METHODS
-                          for f in others)
+    assert others and all(f["status"] == "unverified" and f["type_method"] in ("none", RD.CONTEXT_METHOD,
+                                                                                RD.INFER_METHOD)
+                          + INF.CODE_TYPE_METHODS for f in others)
     assert any(f["type_method"] in INF.CODE_TYPE_METHODS for f in others)
     assert all(f["type"] == "unknown" or (f.get("inferred") and f.get("inferred_reason")) for f in others)
     assert any(f["type"] == "unknown" for f in others)
@@ -448,7 +452,8 @@ def test_debug_image_report_and_questions(run):
     # context rules type the open questions too, both withdraw): the code typing (infer.code_types, type_method
     # group_member here) types 9 of them before any AI (the two beds and their four nightstands, the dining table,
     # the sofa and its coffee table: the rooms' missing anchors and members), the context rule "chairs at a table"
-    # types the six chairs (method context:chair, type_method none: an inference of the drawing), and every one of
+    # types the six chairs (method context:chair, type_method rule since the fix round after P4b: an inference of
+    # the drawing), and every one of
     # those 15 questions is withdrawn (reading.withdraw_questions), so requests.json holds the 2 the AI must answer:
     # the chaise (sym_L0_015; the size inference calls it a chaise with --no-ai, the AI decides with answers) and the
     # unknown 0.4 m piece (sym_L0_017). The count is the same with --no-ai, in the first plain run and in the run
@@ -460,7 +465,9 @@ def test_debug_image_report_and_questions(run):
     from wenart.furniture import infer as INF
     coded = [f for f in run["building"]["furniture"] if f["type_method"] in INF.CODE_TYPE_METHODS]
     chairs = [f for f in run["building"]["furniture"] if f["type"] == "chair"]
-    asked = [f for f in run["building"]["furniture"] if f["type_method"] == "none" and f["type"] != "chair"]
+    # Fix round after P4b (pinned on purpose): the --no-ai chaise is size-inferred (type_method "inferred").
+    asked = [f for f in run["building"]["furniture"] if f["type_method"] in ("none", RD.INFER_METHOD)
+             and f["type"] != "chair"]
     assert len(coded) == 9 and len(chairs) == 6 and len(asked) == len(keys) == 2
     assert sorted(f["type"] for f in coded) == ["bed_double"] * 2 + ["nightstand"] * 4 + ["sofa", "table_coffee",
                                                                                             "table_dining"]

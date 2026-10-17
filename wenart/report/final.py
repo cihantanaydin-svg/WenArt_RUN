@@ -210,6 +210,22 @@ changes of this run.
   they look into the sun (``into_sun``: camera, ``sun_offset_deg``, ``k``; ``into_sun_views``) and the section "Views
   too dark for the EV cap" names them, so a white sky beside the sun reads as the sun's place, not as a pull that
   failed (P4a real02: ext_1 at 6.0 and ext_5 at 5.5 degrees off the sun).
+
+Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis): the models table names the recognition models.
+
+- What: ``model_rows`` adds one row per recognition model that answered a question of this output
+  (``recognition_model_rows``): the ``models`` of ``recognition/requests.json`` and ``sheets/requests.json`` (role
+  ``recognition pass <n>``), with ``questions`` and ``answered`` counted from ``answers_<slug>.json`` and shown in the
+  "from" column, and the revision and licence of ``wenart/vision_check/check.yaml`` when its model of that key has the
+  same id (requests.json records id, slug and pass only). ``wenart.run.copy`` lists these rows under section 1 of
+  ``ATTRIBUTION.md`` ("Models recorded by this run's final report").
+- Why: P4b's (real03) report listed only the check agent Qwen3.8-27B-FP8, while GLM-4.6V-Flash (MIT) typed the plan
+  symbols as pass 2 (66 answers; ``recognition.ai_typed`` names it). The models table took only the polish, gate and
+  check manifests.
+- How: the late recognition pass (lead decision 9 of 17 Oct 2026, ``wenart.run.scheduler``) writes into the same
+  ``recognition/requests.json`` and answer files, so its answers are counted with the first pass's. A model named in
+  requests.json with no answer in this output is left out. A variant output without its own questions reads its base
+  project's folder (``Inputs.root``).
 """
 from __future__ import annotations
 
@@ -2155,7 +2171,68 @@ def model_rows(inp: Inputs) -> list[dict]:
     if isinstance(det_model, dict) and det_model.get("repo"):
         rows.append({"role": "detector", "repo": det_model.get("repo"), "revision": det_model.get("revision"),
                      "licence": det_model.get("licence"), "source": "check_manifest.json"})
+    rows += recognition_model_rows(inp.project_out, inp.root)        # fix round after P4b
     return rows
+
+
+# Fix round after P4b (module docstring): the question folders whose requests.json names the recognition models.
+RECOGNITION_FOLDERS = ("recognition", "sheets")
+
+
+def _answered(folder: Path, slug: str, keys: list) -> int:
+    """How many of the question ``keys`` the model ``slug`` answered in ``folder`` (``answers_<slug>.json``: a call
+    with JSON data and no error); 0 without the file. The report imports no recognition code (as for the labels)."""
+    doc = C.read_json(folder / f"answers_{slug}.json")
+    calls = doc.get("calls") if isinstance(doc, dict) else None
+    if not isinstance(calls, dict):
+        return 0
+    return sum(1 for k in keys if isinstance(calls.get(k), dict) and isinstance(calls[k].get("data"), dict)
+               and not calls[k].get("error"))
+
+
+def recognition_model_rows(project_out: Path, root: Optional[Path] = None) -> list[dict]:
+    """Fix round after P4b (module docstring): ``[{role, repo, revision, licence, source, questions, answered}]`` of
+    the recognition models of the run, one row per model: the ``models`` of ``recognition/requests.json`` (pass 1
+    Qwen3-VL-8B, pass 2 GLM-4.6V-Flash) and of ``sheets/requests.json`` (the Milestone 10 sheet regions) that answered
+    at least one of their questions. requests.json records id, slug and pass only; the revision and the licence come
+    from ``wenart/vision_check/check.yaml`` (the pins the servers load) when its model of that key has the same id,
+    else they stay unrecorded. A variant output without its own questions reads its base project's (``root``)."""
+    bases = [Path(project_out)] + ([Path(root)] if root is not None and Path(root) != Path(project_out) else [])
+    found: list[tuple[Path, dict, list]] = []
+    for base in bases:
+        for name in RECOGNITION_FOLDERS:
+            doc = C.read_json(base / name / "requests.json")
+            if isinstance(doc, dict) and isinstance(doc.get("models"), dict):
+                keys = [i.get("key") for i in doc.get("items") or [] if isinstance(i, dict) and i.get("key")]
+                found.append((base / name, doc["models"], keys))
+        if found:
+            break                                     # the output's own questions, else its base project's
+    if not found:
+        return []
+    try:
+        from wenart.vision_check.config import load_config
+        cfg_models = load_config().get("models") or {}
+    except Exception:  # noqa: BLE001 - the revision and the licence then show as not recorded
+        cfg_models = {}
+    rows: dict[str, dict] = {}
+    for folder, models, keys in found:
+        for key, m in sorted(models.items(), key=lambda kv: (str((kv[1] or {}).get("pass") or ""), kv[0])):
+            if not isinstance(m, dict) or not m.get("id") or not m.get("slug"):
+                continue
+            answered = _answered(folder, str(m["slug"]), keys)
+            if not answered:
+                continue                              # named but silent in this run: not a model of these images
+            cfg = cfg_models.get(key) if isinstance(cfg_models.get(key), dict) else {}
+            same = cfg.get("id") == m["id"]
+            row = rows.setdefault(m["id"], {
+                "role": f"recognition pass {m.get('pass') or '?'}", "repo": m["id"],
+                "revision": cfg.get("revision") if same else None, "licence": cfg.get("licence") if same else None,
+                "source": "", "questions": 0, "answered": 0})
+            row["questions"] += len(keys)
+            row["answered"] += answered
+            part = f"{folder.name}/requests.json ({answered} of {len(keys)} answered)"
+            row["source"] = f"{row['source']}; {part}" if row["source"] else part
+    return list(rows.values())
 
 
 def asset_licences(inp: Inputs) -> dict:

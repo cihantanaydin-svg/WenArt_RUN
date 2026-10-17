@@ -48,7 +48,10 @@ SITE_KEYS = ("path", "fence", "trees", "front_court")
 # Milestone 13 (T6, D8): the flags of an exterior camera record that an agent override keeps (the one true aerial
 # view ``ext_5`` and the site view: ``cameras.REPLAY_OPTIONAL`` carries them through a replay, ``fixed_plan`` through
 # an agent ``set`` / ``add``): from the entry when it says so, else from the camera it replaces.
-CAMERA_KEEP_KEYS = ("site_view", "aerial_allowed", "horizon_frac")
+# Integration of the fix round after P4b (17 Oct 2026): also ``entrance`` (the door id of an entrance view), so an
+# agent ``set`` on an entrance view keeps its door (P4b: the agent-moved ext_7 had entrance None, and the agent's
+# role rule and X6 fell back to the main entrance).
+CAMERA_KEEP_KEYS = ("site_view", "aerial_allowed", "horizon_frac", "entrance")
 # Fix round after P4a (17 Oct 2026): what a plan keeps of the replayed record it replaces (``replaced_replayed``).
 REPLACED_REPLAYED_KEYS = ("position", "target", "rotation_euler_deg", "lens_mm", "shift_x", "shift_y", "view", "sides",
                           "replayed_from", "replay")

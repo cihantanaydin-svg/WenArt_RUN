@@ -256,6 +256,33 @@ flat dark slate sky on the terrace (k 4), white skies in ext_1 / ext_5 and every
   light do not change. The entry records ``haze_hidden`` (null without haze) and the window pull its
   ``pane_saturation`` before and after.
 - ``RENDER_CODE_VERSION`` ``m13.3``: the render key changes, so P4a's views are rendered again.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03; still ``m13.3``: no pod has rendered m13.3 yet, so its key keeps
+P4a's and P4b's views from being reused). What: five changes. Why: P4b's real03 has many windows between rooms, bright
+greige walls and a shaded back facade, and showed amber halls through the glass, clipped panes in 10 views, a cream
+lawn in ext_3 / ext_4 and re-lit rooms 0.01-0.04 stops over the cap. How:
+
+- Interior glazing (``interior_window_ids``): a window whose ``room_ids`` name two indoor rooms is never pulled (the
+  pull is for the sunlit outside; P4b pulled the neighbouring room a stop darker); its panes are recorded as
+  ``interior_glazing`` (``pane_rb`` / ``wall_rb`` / ``delta_rb``, ``interior_glazing_record``) for the GPU check of
+  two white points in one frame, and the pull record counts them (``interior_pane_px``).
+- White point by room (``room_rig_kelvin``): a view is balanced for the rig lights of its own room (the scene's first
+  rig light only when its room has none), so a neutral hall, stair or bath rig (the verifier's 4000 K; the build
+  side is lighting.py's) is not corrected as if lit by a 2700 K bedside lamp. ``mixed_whitepoint`` and ``rig_share``
+  are unchanged (the verifier refuted a share change); ``wb_rig_share_p50`` (``rig_share_p50``) is recorded for
+  diagnosis only and ``wb_rig_kelvin_source`` says ``room`` or ``scene``.
+- Window pull (``choose_pull``): an unclipped k whose panes are at least ``PULL_WALL_RATIO_MIN`` of the wall median
+  ("panes slightly darker than the walls") comes before a clipped k that keeps the panes brighter (P4b: yasama_8_3
+  13.9 % clipped at k 1 although k 2 was clip-free at 96 % of the walls); the search stops at ``pull_search_done``.
+- Exterior exposure (``exterior_exposure``): the facade exposure is capped so the sunlit ground in front of the haze
+  (``meter_stats`` ``ground_p50``) is at most ``EXTERIOR_GROUND_HEADROOM_STOPS`` over the target; per view, no
+  shared state; a sunlit-facade view does not change. The record adds ``ev_facade``, ``ev_ground``, ``ground_p50``,
+  ``ground_headroom_stops``, ``ground_cap`` and ``ground_rule``; the entry records the view's ``lawn`` as written
+  (``lawn_mask``: green albedo facing up in front of the haze shell) for the GPU pin. The facade colour and the
+  into-sun haze are left alone (the verifier's analysis); lead decision (4): real02's assumed north stays and the
+  views into the sun are only listed.
+- ``lighting_dark`` under one exposure step over the cap is ``minor`` with ``metrics.below_exposure_step`` (the view
+  renders at the cap; ``critic_code.lighting_items`` gives it no tool).
 """
 from __future__ import annotations
 
@@ -297,7 +324,8 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # pull blends by the sky's coverage with no inward feather and a ring outside the mask (sky_pull_weights), tries up to
 # 6 stops and stops at a mid-tone median, the haze is hidden from the camera and transmission rays of the views under
 # the interior world (the windows), the pane saturation is recorded. Without the bump the render key would reuse P4a's
-# corridor and bath views.
+# corridor and bath views. The fix round after P4b (17 Oct 2026: interior glazing not pulled, the white point by the
+# camera room's rig, the unclipped pull near the walls, the exterior ground cap) keeps m13.3: no pod has rendered m13.3.
 RENDER_CODE_VERSION = "m13.3"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
@@ -312,6 +340,11 @@ PULL_STEPS = tuple(range(1, 11))   # stops tried, smallest first
 PULL_MAX_CLIP = 0.01               # pane clip share a pull should reach
 PULL_P90_MAX = 0.85                # pane display luminance p90 a pull should reach (the AgX shoulder)
 PULL_MEDIAN_TARGET = 0.65          # ... or the pane median at mid-tone: stop pulling there
+# Fix round after P4b (17 Oct 2026): when no k keeps the panes brighter than the walls without clipping, the smallest
+# unclipped k whose pane median is at least this share of the wall median is taken ("panes slightly darker than the
+# walls"). P4b's real03 has bright greige walls (wall medians 0.45-0.58): yasama_8_3 kept 13.9 % clipped panes at k 1
+# (median 0.61) although k 2 was clip-free at 0.467 against walls of 0.486 (96 %).
+PULL_WALL_RATIO_MIN = 0.8
 # Sky pull (fix round after P3): a view under the exterior sky keeps its facade exposure; its sky is pulled by the
 # smallest k whose median is under the shoulder and whose median saturation reaches the floor (P3: ext_1/2/4 skies
 # 0.92 / 0.84 / 0.81 at saturation 0.03-0.13, ext_3 0.27 and ext_7 0.20 read blue).
@@ -361,6 +394,24 @@ SUN_FLOOR_REFERENCE_WM2 = 3.0
 EXPOSURE_STEP = 1.0 / 6.0
 LIGHTING_DARK_CHECK = "lighting_dark"
 LIGHTING_DARK_CRITICAL_STOPS = 2.0     # this many stops over the cap: critical, else major
+# Fix round after P4b (17 Oct 2026): a view less than one exposure step over the cap is a minor, report-only finding
+# (the EV is rounded to EXPOSURE_STEP, so it renders at the cap anyway; P4b re-lit three rooms 0.01-0.04 stops over).
+LIGHTING_DARK_MINOR_STOPS = EXPOSURE_STEP
+# Fix round after P4b (17 Oct 2026): an exterior view is metered on its facade (Milestone 10) but never shows the sunlit
+# ground more than this many stops over the exposure target: ev = min(ev_facade, ev_ground + headroom). P4b's real03
+# ext_3 / ext_4 metered the shaded back facade (incident 19-22 against 79-123 in the sunlit views) and the sunlit
+# lawn came out cream (lightness 172-188, saturation 0.12-0.20 against 0.37-0.45). The ground is the surface pixels
+# facing up (world normal z above GROUND_NZ_MIN) nearer than the first haze-shell hit. 1.5 stops: the sunlit lawn of
+# real03's good views (ext_1/2/6/7) sits about 1.0-1.7 stops over the target (saturation 0.35-0.42 on the previews),
+# ext_3 / ext_4 about 3.5-3.9 (0.11-0.19); about 0.25 is reached near 2.7 stops. CPU bpy 5.2.2 shim re-meter of P4a's
+# real02 scene (240 x 135, 16 spp; facade p50 within 10 % of the pod's): ground p50 176-213; ext_3 / ext_4 / ext_6 /
+# ext_6.001 (sunlit facades, -7.5 / -6.67) do not change, ext_1 -4.0 -> -6.17, ext_2 and ext_5 -4.33 -> -6.33.
+EXTERIOR_GROUND_HEADROOM_STOPS = 1.5
+GROUND_NZ_MIN = 0.9
+# ... and every exterior view records its lawn as written (``lawn_mask``: the ground facing up whose albedo is green,
+# in front of the haze shell; ``lawn``), for the GPU pin of the lawn's saturation (P4b ext_3 / ext_4: 0.11 / 0.19).
+LAWN_GREEN_RATIO = 1.05            # albedo G at least this times max(R, B)
+LAWN_MIN_ALBEDO = 0.02             # albedo luminance below this is not judged
 WB_MODES = ("auto", "off", "fixed", "project", "kelvin")
 WB_RESIDUAL = {"warm daylight": 0.35, "golden evening": 0.5, "cool daylight": 0.0, "overcast": 0.0, "night": 0.5}
 # Round 3: the project white point is metered on daylight (rig hidden). Up to this many candidate cameras are
@@ -549,23 +600,34 @@ def lighting_dark_entry(camera: str, room_id, ev_raw: float | None, ev: float, l
                         target: float = EXPOSURE_TARGET) -> dict | None:
     """The ``lighting_dark`` finding of a view whose metered EV would pass the cap (pure; the ``Violation`` shape
     of docs/milestone13.md §13.2): None when the wanted EV is within ``limits``. Severity ``major``, or
-    ``critical`` from ``LIGHTING_DARK_CRITICAL_STOPS`` over the cap."""
+    ``critical`` from ``LIGHTING_DARK_CRITICAL_STOPS`` over the cap. Fix round after P4b (17 Oct 2026): less than
+    ``LIGHTING_DARK_MINOR_STOPS`` (one exposure step) over the cap is ``minor`` with ``metrics.below_exposure_step``
+    and a message that says it is reported only: the EV is rounded to the step, so the view renders at the cap
+    anyway (P4b re-lit and re-rendered giris_holu_2_1, 0.01 stops over, and giris_holu_4_2 / yasama_7_1, 0.04).
+    The agent's ``critic_code.lighting_items`` gives such a view no tool."""
     if ev_raw is None or not math.isfinite(float(ev_raw)):
         return None
     hi = float(limits[1])
     over = float(ev_raw) - hi
     if over <= 1e-9:
         return None
-    return {"check": LIGHTING_DARK_CHECK, "severity": "critical" if over >= LIGHTING_DARK_CRITICAL_STOPS else "major",
-            "target": camera, "room_id": room_id,
-            "message": (f"{camera}: the metered exposure wanted {float(ev_raw):+.2f} EV, the cap is {hi:+.2f} EV "
-                        f"({over:.2f} stops over); the room is too dark for the camera (incident p50 "
-                        f"{float(incident_p50):.5f} at target {target:g})" if incident_p50 is not None else
-                        f"{camera}: the metered exposure wanted {float(ev_raw):+.2f} EV, the cap is {hi:+.2f} EV "
-                        f"({over:.2f} stops over); the room is too dark for the camera"),
-            "metrics": {"ev_wanted": round(float(ev_raw), 4), "ev_used": round(float(ev), 6), "ev_cap": hi,
-                        "stops_over_cap": round(over, 4),
-                        "incident_p50": None if incident_p50 is None else round(float(incident_p50), 6)}}
+    below_step = over < LIGHTING_DARK_MINOR_STOPS - 1e-9
+    severity = "minor" if below_step else ("critical" if over >= LIGHTING_DARK_CRITICAL_STOPS else "major")
+    tail = (f"; {over:.2f} stops is less than one exposure step ({LIGHTING_DARK_MINOR_STOPS:.2f} stop): the view "
+            f"renders at the cap, reported only" if below_step else "")
+    entry = {"check": LIGHTING_DARK_CHECK, "severity": severity,
+             "target": camera, "room_id": room_id,
+             "message": (f"{camera}: the metered exposure wanted {float(ev_raw):+.2f} EV, the cap is {hi:+.2f} EV "
+                         f"({over:.2f} stops over); the room is too dark for the camera (incident p50 "
+                         f"{float(incident_p50):.5f} at target {target:g})" if incident_p50 is not None else
+                         f"{camera}: the metered exposure wanted {float(ev_raw):+.2f} EV, the cap is {hi:+.2f} EV "
+                         f"({over:.2f} stops over); the room is too dark for the camera") + tail,
+             "metrics": {"ev_wanted": round(float(ev_raw), 4), "ev_used": round(float(ev), 6), "ev_cap": hi,
+                         "stops_over_cap": round(over, 4),
+                         "incident_p50": None if incident_p50 is None else round(float(incident_p50), 6)}}
+    if below_step:
+        entry["metrics"]["below_exposure_step"] = True
+    return entry
 
 
 def wb_camera_order(cameras: list, daylight_rooms=None, sunlit_rooms=None) -> list[str]:
@@ -700,7 +762,7 @@ FACADE_MIN_SHARE = 0.02           # ... when that leaves at least this share of 
 
 def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int = METER_BLOCKS_ACROSS,
                 min_coverage: float = METER_BLOCK_COVERAGE, min_albedo: float = METER_MIN_ALBEDO,
-                normal_z=None) -> dict:
+                normal_z=None, haze_indices=()) -> dict:
     """Incident-light statistics of a metering render.
 
     ``light`` = Diffuse Direct + Indirect (H x W x 3, colour-free), ``albedo``
@@ -717,21 +779,36 @@ def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int 
     view) narrows the mask to the facades (``|z| < FACADE_NZ_MAX``: walls, not
     the ground, the roof or the sky) when they cover at least
     ``FACADE_MIN_SHARE`` of the frame; ``metered`` says ``facade`` or
-    ``surfaces``."""
+    ``surfaces``.
+
+    Fix round after P4b (17 Oct 2026): with ``normal_z`` the same pass also
+    gives ``ground_p50`` (the block median of the incident light on the
+    surface pixels facing up, ``normal_z > GROUND_NZ_MIN``, nearer than the
+    first hit on the haze shell, the objects of ``haze_indices``; every
+    ground pixel without haze) and ``ground_blocks_used``, for the ground cap
+    of ``exterior_exposure``. ``incident_p50``, the mask and ``metered`` do
+    not change."""
     import numpy as np
 
     light = np.nan_to_num(np.asarray(light, dtype=np.float64), nan=0.0, posinf=0.0, neginf=0.0)
     albedo = np.nan_to_num(np.asarray(albedo, dtype=np.float64), nan=0.0, posinf=0.0, neginf=0.0)
     idx = np.rint(np.nan_to_num(np.asarray(index, dtype=np.float64))).astype(np.int64)
     d = np.nan_to_num(np.asarray(depth, dtype=np.float64), nan=DEPTH_BACKGROUND, posinf=DEPTH_BACKGROUND)
-    mask = (~np.isin(idx, sorted(int(v) for v in window_indices))) & (d < DEPTH_BACKGROUND) & \
-           (luminance(albedo) >= min_albedo)
+    surfaces = (~np.isin(idx, sorted(int(v) for v in window_indices))) & (d < DEPTH_BACKGROUND) & \
+        (luminance(albedo) >= min_albedo)
+    mask = surfaces
     metered = "surfaces"
+    ground = None
     if normal_z is not None:
         nz = np.nan_to_num(np.asarray(normal_z, dtype=np.float64), nan=1.0)
         facade = mask & (np.abs(nz) < FACADE_NZ_MAX)
         if facade.size and float(facade.mean()) >= FACADE_MIN_SHARE:
             mask, metered = facade, "facade"
+        # fix round after P4b: the sunlit ground in front of the haze shell (the ground cap of exterior_exposure)
+        ground = surfaces & (nz > GROUND_NZ_MIN)
+        shell = (d < DEPTH_BACKGROUND) & np.isin(idx, sorted(int(v) for v in haze_indices or ()))
+        if shell.any():
+            ground &= d < float(d[shell].min())
     y = luminance(light)
     h, w = mask.shape
     b = max(1, w // max(1, blocks_across))
@@ -739,17 +816,19 @@ def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int 
     stats = {"incident_p50": None, "illuminant": None, "interior_frac": round(float(mask.mean()), 4) if mask.size else 0.0,
              "blocks": 0, "blocks_used": 0, "block_px": b}
     if normal_z is not None:
-        stats["metered"] = metered
-    if hh and ww:
+        stats.update(metered=metered, ground_p50=None, ground_blocks_used=0)
+
+    def block_median(sel):
         shape = (hh // b, b, ww // b, b)
-        m = mask[:hh, :ww]
+        m = sel[:hh, :ww]
         count = m.reshape(shape).sum(axis=(1, 3))
         ysum = np.where(m, y[:hh, :ww], 0.0).reshape(shape).sum(axis=(1, 3))
         good = count >= min_coverage * b * b
-        stats["blocks"] = int(count.size)
-        stats["blocks_used"] = int(good.sum())
-        if good.any():
-            stats["incident_p50"] = float(np.median(ysum[good] / count[good]))
+        return int(count.size), int(good.sum()), (float(np.median(ysum[good] / count[good])) if good.any() else None)
+    if hh and ww:
+        stats["blocks"], stats["blocks_used"], stats["incident_p50"] = block_median(mask)
+        if ground is not None:
+            _n, stats["ground_blocks_used"], stats["ground_p50"] = block_median(ground)
     if mask.any():
         total = light[mask].sum(axis=0)
         if float(total.sum()) > 0:
@@ -766,6 +845,42 @@ def exposure_from(y50: float, target: float = EXPOSURE_TARGET, limits: tuple[flo
     clamped = min(hi, max(lo, raw))
     ev = round(round(clamped / step) * step, 6)
     return ev, round(raw, 4), bool(raw < lo or raw > hi)
+
+
+def exterior_exposure(facade_p50: float, ground_p50, target: float = EXPOSURE_TARGET,
+                      limits: tuple[float, float] = EXPOSURE_LIMITS,
+                      headroom: float = EXTERIOR_GROUND_HEADROOM_STOPS) -> tuple[float, float, bool, dict]:
+    """``(ev, ev_raw, at_limit, record)`` of an exterior view (pure; fix round after P4b, 17 Oct 2026). What: the
+    facade exposure (Milestone 10, ``exposure_from(facade_p50)``) capped so the sunlit ground is never more than
+    ``headroom`` stops over the target: ``ev_raw = min(raw_facade, raw_ground + headroom)``, then the limits and the
+    1/6-stop rounding of ``exposure_from``. Why: P4b's real03 ext_3 / ext_4 metered the shaded back facade 2.5 stops
+    over the sunlit views and the sunlit lawn came out cream. How: per view, no state shared between cameras (subset
+    renders, agent previews and variants keep agreeing; the lead's rule "metered per view on the facade" stays, the
+    ground only caps it). A sunlit-facade view has ``raw_facade <= raw_ground + headroom`` and does not change; no
+    ground blocks (``ground_p50`` None) means no cap. ``record`` = ``{"ev_facade", "ev_ground", "ground_p50",
+    "ground_headroom_stops", "ground_cap", "ground_rule"}`` for the exposure record."""
+    ev_f, raw_f, _lim = exposure_from(facade_p50, target, limits)
+    rec = {"ev_facade": ev_f, "ev_ground": None, "ground_p50": None, "ground_headroom_stops": float(headroom),
+           "ground_cap": False, "ground_rule": "no ground in front of the haze to meter: the facade exposure"}
+    try:
+        ground = float(ground_p50)
+    except (TypeError, ValueError):
+        ground = float("nan")
+    if not math.isfinite(ground) or ground <= 0.0:
+        return (*exposure_from(facade_p50, target, limits), rec)
+    raw_g = math.log2(float(target) / ground)
+    rec.update(ev_ground=round(raw_g, 4), ground_p50=round(ground, 6))
+    capped = raw_g + float(headroom)
+    if capped < raw_f:
+        rec.update(ground_cap=True,
+                   ground_rule=(f"the facade exposure would show the sunlit ground {raw_f - raw_g:.2f} stops over the "
+                                f"target (more than {float(headroom):g}): the ground exposure + {float(headroom):g} "
+                                f"stops"))
+        lo, hi = limits
+        ev = round(round(min(hi, max(lo, capped)) / EXPOSURE_STEP) * EXPOSURE_STEP, 6)
+        return ev, round(capped, 4), bool(capped < lo or capped > hi), rec
+    rec["ground_rule"] = f"the ground within {float(headroom):g} stops of the target: the facade exposure"
+    return (*exposure_from(facade_p50, target, limits), rec)
 
 
 def normalise_whitepoint(rgb) -> list[float]:
@@ -801,6 +916,45 @@ def rig_share(all_illuminant, day_illuminant) -> float | None:
     if not math.isfinite(day):
         return None
     return round(min(1.0, max(0.0, 1.0 - day / total)), 6)
+
+
+def rig_share_p50(all_p50, day_p50) -> float | None:
+    """A second rig share for diagnosis only (pure; fix round after P4b, 17 Oct 2026, the verifier's better fix of the
+    "orange cast does not rise with the share" finding): ``clamp(1 - day_p50 / all_p50, 0, 1)`` from the block
+    medians of the two metering passes, recorded as ``wb_rig_share_p50`` next to ``wb_rig_share`` (the ratio of
+    sums, an incident-light-weighted mean of the block shares, which sets the white point). It never moves the white
+    point; it gives the data to decide later whether the share should be measured differently. None without light."""
+    try:
+        total, day = float(all_p50), float(day_p50 if day_p50 is not None else 0.0)
+    except (TypeError, ValueError):
+        return None
+    if not (math.isfinite(total) and math.isfinite(day)) or total <= 0.0:
+        return None
+    return round(min(1.0, max(0.0, 1.0 - day / total)), 6)
+
+
+def room_rig_kelvin(lights, room_id) -> tuple[float | None, str | None]:
+    """``(kelvin, source)``: the colour temperature of the rig light a view of ``room_id`` is balanced for (pure; fix
+    round after P4b, 17 Oct 2026). ``lights`` = ``[(room_id, kelvin, energy)]`` of the shown rig lights with a
+    temperature, in scene order. The camera room's own lights give it (``source`` ``room``; lights of several
+    temperatures in one room: their energy-weighted mean in mired); a room without rig lights falls back to the first
+    light of the scene (``scene``); no light: ``(None, None)``. Why: the rig may light halls, stairs and baths at a
+    neutral temperature and bedrooms and living rooms at 2700 K (the P4b interior glazing finding: a 2700 K hall seen
+    through the glass from a daylight room reads amber); the scene-wide first light (P4b: a 2700 K bedside lamp)
+    would balance a 4000 K hall as if lit at 2700 K, a white wall at share 1 at linear R/B 0.33 (blue)."""
+    rows = [(None if r is None else str(r), float(k), max(0.0, float(e or 0.0))) for r, k, e in lights or ()
+            if k is not None and math.isfinite(float(k)) and float(k) > 0.0]
+    if not rows:
+        return None, None
+    own = [(k, e) for r, k, e in rows if room_id is not None and r == str(room_id)]
+    if not own:
+        return round(rows[0][1], 1), "scene"
+    if len({k for k, _e in own}) == 1:
+        return round(own[0][0], 1), "room"
+    total = sum(e for _k, e in own)
+    weights = [e if total > 0.0 else 1.0 for _k, e in own]
+    mired = sum(w * 1e6 / k for w, (k, _e) in zip(weights, own)) / sum(weights)
+    return round(1e6 / mired, 1), "room"
 
 
 def mixed_whitepoint(project_wp, rig_rgb, share, residual, rig_residual: float | None = None) -> list[float]:
@@ -952,6 +1106,103 @@ def pane_mask(index, albedo, window_indices, albedo_max: float = PANE_ALBEDO_MAX
     return win & (alb < albedo_max)
 
 
+def interior_window_ids(manifest: dict | None) -> set[str]:
+    """The wenart ids of the interior glazing of a scene manifest (pure; fix round after P4b, 17 Oct 2026): the
+    window entries whose ``room_ids`` (``cameras.opening_rooms``: the rooms whose outline carries the opening) name
+    two or more rooms, none of them open-air (``open_air``: a window onto a roof terrace looks outside). Why: the
+    window pull is meant for the sunlit outside; real03 has 19 windows between halls, stairs, studios and bedrooms and
+    P4b pulled them like outside windows (yasama_8_3, giris_holu_3_1 and yangin_merdiveni_1 at k 1: the neighbouring
+    room a stop darker and more saturated; 13.9 % clipped panes in yasama_8_3). The walls' ``exterior`` flags are not
+    used: real03 flags 8 of these walls exterior."""
+    types = room_types_from_manifest(manifest)
+    out: set[str] = set()
+    for o in (manifest or {}).get("objects") or []:
+        rooms = [str(r) for r in o.get("room_ids") or [] if r]
+        if o.get("kind") == "window" and o.get("wenart_id") and len(set(rooms)) >= 2 \
+                and not any(open_air(types.get(r)) for r in rooms):
+            out.add(str(o["wenart_id"]))
+    return out
+
+
+def interior_window_indices(window_objects, manifest: dict | None) -> set[int]:
+    """Pass indices of the interior glazing (pure; fix round after P4b): ``window_objects`` = ``[(wenart_id,
+    pass_index)]`` of the scene's window objects (frame and glass share the index), ``interior_window_ids`` of the
+    scene manifest. Empty without a manifest (every window is pulled, as before)."""
+    ids = interior_window_ids(manifest)
+    return {int(p) for w, p in window_objects or () if w is not None and str(w) in ids and int(p) > 0}
+
+
+def lawn_mask(albedo, normal, depth, index=None, haze_indices=()):
+    """bool H x W: the lawn of an exterior view (pure; fix round after P4b, 17 Oct 2026): surface hits facing up
+    (world normal z above ``GROUND_NZ_MIN``) whose Diffuse Color is green (G at least ``LAWN_GREEN_RATIO`` times the
+    larger of R and B, luminance at least ``LAWN_MIN_ALBEDO``), nearer than the first hit on the haze shell (the
+    objects of ``haze_indices``; the far ground behind the shell is haze-whitened by design). The lawn has no pass
+    index of its own (the terrain is index 0), so its albedo picks it out."""
+    import numpy as np
+
+    alb = np.nan_to_num(np.asarray(albedo, dtype=np.float64))[..., :3]
+    n = np.nan_to_num(np.asarray(normal, dtype=np.float64))
+    d = np.nan_to_num(np.asarray(depth, dtype=np.float64), nan=DEPTH_BACKGROUND, posinf=DEPTH_BACKGROUND)
+    hit = d < DEPTH_BACKGROUND
+    green = (alb[..., 1] >= LAWN_GREEN_RATIO * np.maximum(alb[..., 0], alb[..., 2])) & \
+        (luminance(alb) >= LAWN_MIN_ALBEDO)
+    out = hit & green & (n[..., 2] > GROUND_NZ_MIN)
+    if index is not None and haze_indices:
+        idx = np.rint(np.nan_to_num(np.asarray(index, dtype=np.float64))).astype(np.int64)
+        shell = hit & np.isin(idx, sorted(int(v) for v in haze_indices))
+        if shell.any():
+            out &= d < float(d[shell].min())
+    return out
+
+
+def lawn_record(image, mask) -> dict | None:
+    """``{"px_share", "saturation", "median"}`` of the lawn pixels of a written exterior view (fix round after P4b;
+    ``masked_saturation`` / ``masked_median`` of the display image), None without lawn in view."""
+    import numpy as np
+
+    m = np.asarray(mask, dtype=bool)
+    if not m.any():
+        return None
+    return {"px_share": round(float(m.mean()), 4), "saturation": round(masked_saturation(image, m), 4),
+            "median": round(masked_median(image, m), 4)}
+
+
+def display_rb(rgb, mask) -> float | None:
+    """Display R/B of the mean colour of the ``mask`` pixels of ``rgb`` (fix round after P4b; the measure of the GPU
+    wall checks), None for an empty mask."""
+    import numpy as np
+
+    m = np.asarray(mask, dtype=bool)
+    if not m.any():
+        return None
+    mean = np.asarray(rgb)[m][:, :3].astype(np.float64).mean(axis=0)
+    return round(float(mean[0] / max(float(mean[2]), 1e-6)), 3)
+
+
+INTERIOR_GLAZING_WALL_MIN = 0.01   # wall pixels below this share of the frame: no wall R/B (the GPU wall checks' rule)
+
+
+def interior_glazing_record(image, pane, walls, window_ids=()) -> dict | None:
+    """The ``interior_glazing`` record of a view (pure; fix round after P4b): the panes of the interior windows in
+    view (``pane``: their glass pixels, never pulled) against the camera room's walls (``walls``: ``views.regions``
+    walls), display R/B of each (``display_rb``) and their difference, for the GPU check of two white points in one
+    frame (P4b: a 2700 K hall seen at R/B 1.8-2.15 from daylight rooms whose walls read 1.26-1.29). None when no
+    interior pane is in view."""
+    import numpy as np
+
+    p = np.asarray(pane, dtype=bool)
+    if not p.any():
+        return None
+    w = None if walls is None else np.asarray(walls, dtype=bool)
+    pane_rb = display_rb(image, p)
+    wall_rb = display_rb(image, w) if w is not None and w.sum() >= INTERIOR_GLAZING_WALL_MIN * w.size else None
+    return {"windows": sorted(str(i) for i in window_ids), "pane_px": int(np.count_nonzero(p)), "pane_rb": pane_rb,
+            "wall_rb": wall_rb,
+            "delta_rb": None if pane_rb is None or wall_rb is None else round(pane_rb - wall_rb, 3),
+            "rule": "interior glazing (a window between two indoor rooms): not pulled, the neighbouring room at the "
+                    "view's exposure"}
+
+
 def feather_weights(mask, px: int = PULL_FEATHER_PX):
     """float H x W in 0..1: 0 outside ``mask``; inside, k / px for a pixel at
     chessboard distance k (< px) from the nearest pixel outside it, else 1
@@ -1036,20 +1287,66 @@ def pull_qualifies(candidate: dict, wall_median: float | None, max_clip: float =
         (wall_median is None or candidate["median"] > wall_median)
 
 
+def pull_near_walls(candidate: dict, wall_median: float | None, ratio: float = PULL_WALL_RATIO_MIN) -> bool:
+    """The panes of ``candidate`` are at least ``ratio`` of the wall median (pure; fix round after P4b): "slightly
+    darker than the walls" is accepted for an unclipped pull. False without walls (the clip rule alone applies)."""
+    return wall_median is not None and candidate["median"] >= float(ratio) * float(wall_median)
+
+
+def pull_search_done(candidate: dict, wall_median: float | None, max_clip: float = PULL_MAX_CLIP,
+                     ratio: float = PULL_WALL_RATIO_MIN) -> bool:
+    """Whether ``RenderRun.window_pull`` can stop trying deeper k after ``candidate`` (pure; fix round after P4b): it
+    qualifies (``pull_qualifies``), or it is unclipped with the pane target and near the walls (``choose_pull``'s
+    second rule, the smallest such k), or its panes are under ``ratio`` of the walls (a deeper k is darker still and
+    never chosen)."""
+    if pull_qualifies(candidate, wall_median, max_clip):
+        return True
+    if wall_median is None:
+        return False
+    if candidate["clip"] <= max_clip and pull_reaches_target(candidate) and pull_near_walls(candidate, wall_median,
+                                                                                            ratio):
+        return True
+    return candidate["median"] < float(ratio) * float(wall_median)
+
+
 def choose_pull(candidates: list[dict], wall_median: float | None,
-                max_clip: float = PULL_MAX_CLIP) -> tuple[int, str]:
+                max_clip: float = PULL_MAX_CLIP, clip_before: float | None = None) -> tuple[int, str]:
     """``(k, rule)`` from ``[{"k", "clip", "median", "p90"}]`` (the EV - k saves,
-    ``clip``, ``median`` and ``p90`` over the pane mask): the smallest k that
-    ``pull_qualifies``; else the k with the lowest clip, then the lowest p90 (the deepest pull), that keeps the pane
-    median above the wall median; with no wall (``wall_median`` None) the lowest clip and p90; ``(0, ...)`` = no
-    pull when no k keeps the panes brighter than the walls (or nothing was tried)."""
+    ``clip``, ``median`` and ``p90`` over the pane mask), in this order:
+
+    1. the smallest k that ``pull_qualifies`` (clip <= 1 %, the pane target, panes brighter than the walls);
+    2. fix round after P4b (17 Oct 2026): the smallest unclipped k with the pane target whose panes are at least
+       ``PULL_WALL_RATIO_MIN`` of the wall median ("panes slightly darker than the walls"; P4b's real03 bright greige
+       walls left 10 views with clipped panes, yasama_8_3 13.9 % at k 1 although k 2 was clip-free at 96 % of the
+       walls);
+    3. the unclipped k that keeps the panes brighter than the walls, the lowest p90 first (the deepest);
+    4. fix round after P4b: the smallest unclipped k near the walls without the pane target, only when the panes as
+       rendered are clipped (``clip_before`` over ``max_clip``, or not given): it removes clipping, nothing else;
+    5. the k with the lowest clip, then the lowest p90, that keeps the panes brighter than the walls (the rule before
+       P4b); with no wall (``wall_median`` None) the lowest clip and p90;
+    6. ``(0, ...)`` = no pull (nothing kept the panes near the walls, or nothing was tried)."""
     cands = sorted(candidates, key=lambda c: c["k"])
     for c in cands:
         if pull_qualifies(c, wall_median, max_clip):
             return int(c["k"]), ("smallest k with pane clip <= 1 %, the pane target and panes brighter than the walls"
                                  if wall_median is not None else
                                  "smallest k with pane clip <= 1 % and the pane target (no wall in view)")
+    ratio_text = f"{PULL_WALL_RATIO_MIN:g} x the wall median"
+    for c in cands:
+        if c["clip"] <= max_clip and pull_reaches_target(c) and pull_near_walls(c, wall_median):
+            return int(c["k"]), (f"smallest k with pane clip <= 1 % and the pane target; panes slightly darker than "
+                                 f"the walls (median >= {ratio_text})")
     bright = [c for c in cands if wall_median is None or c["median"] > wall_median]
+    unclipped = [c for c in bright if c["clip"] <= max_clip]
+    if unclipped and wall_median is not None:
+        best = min(unclipped, key=lambda c: (c["p90"] if c.get("p90") is not None else 0.0, c["k"]))
+        return int(best["k"]), ("unclipped panes brighter than the walls, the lowest highlights (no k reached the "
+                                "target)")
+    clipped = clip_before is None or clip_before > max_clip
+    for c in cands if clipped else ():
+        if c["clip"] <= max_clip and pull_near_walls(c, wall_median):
+            return int(c["k"]), (f"smallest k with pane clip <= 1 %; panes slightly darker than the walls (median >= "
+                                 f"{ratio_text}; no k reached the target)")
     if bright:
         best = min(bright, key=lambda c: (c["clip"], c["p90"] if c.get("p90") is not None else 0.0, c["k"]))
         return int(best["k"]), ("lowest pane clip and highlights that keep the panes brighter than the walls"
@@ -1755,14 +2052,20 @@ def kelvin_whitepoint(scene, kelvin: float, tint: float = 0.0) -> list[float]:
         vs.use_white_balance, vs.white_balance_whitepoint = saved
 
 
-def rig_temperature(scene) -> float | None:
-    """The colour temperature of the scene's room-light rig (the rig lights carry ``use_temperature``,
-    ``lighting.build_room_rig``; ``lighting.rig_temperature_k`` gives every fixture of a build the same one), None
-    without a shown rig light with a temperature."""
-    for ob in rig_objects(scene):
-        if ob.type == "LIGHT" and not ob.hide_render and getattr(ob.data, "use_temperature", False):
-            return round(float(ob.data.temperature), 1)
-    return None
+def rig_lights(scene) -> list[tuple]:
+    """``[(room_id, kelvin, energy)]`` of the shown rig lights with a temperature (``use_temperature``,
+    ``lighting.build_room_rig`` tags each with ``wenart_room``), in scene order (fix round after P4b)."""
+    return [(ob.get("wenart_room"), float(ob.data.temperature), float(getattr(ob.data, "energy", 0.0) or 0.0))
+            for ob in rig_objects(scene)
+            if ob.type == "LIGHT" and not ob.hide_render and getattr(ob.data, "use_temperature", False)]
+
+
+def rig_temperature(scene, room_id=None) -> float | None:
+    """The colour temperature of the room-light rig a view is balanced for (the rig lights carry
+    ``use_temperature``, ``lighting.build_room_rig``), None without a shown rig light with a temperature. Fix round
+    after P4b (17 Oct 2026): the lights of the camera's room ``room_id`` (``room_rig_kelvin``), else the first rig
+    light of the scene (the rule before, when every fixture of a build had ``lighting.rig_temperature_k``)."""
+    return room_rig_kelvin(rig_lights(scene), room_id)[0]
 
 
 def previous_whitepoint_usable(previous: dict | None) -> bool:
@@ -2128,6 +2431,9 @@ class Look:
         # fix round after P3: the scene manifest's room types (main sets them, room_types_from_manifest), the
         # fallback of a camera without ``wenart_room_type``
         self.room_types: dict[str, str] = {}
+        # fix round after P4b: the haze's reserved pass index (main sets it, reserve_haze_index), so the metering of
+        # an exterior view finds its ground in front of the haze shell (meter_stats ground_p50)
+        self.haze: set[int] = set()
 
     def room_type(self, cam) -> str | None:
         """The room type of ``cam`` (``camera_room_type``: its property, else the scene manifest's)."""
@@ -2169,12 +2475,13 @@ class Look:
             return rec
         meter = None
         if self.exposure_mode == "auto" or self.wb_mode == "auto":
-            meter = meter_camera(self.scene, cam, out_dir, res, self.windows)
+            meter = meter_camera(self.scene, cam, out_dir, res, self.windows, self.haze)
             rec["meter_seconds"] = meter.pop("seconds")
             rec["meter"] = {k: meter[k] for k in ("resolution", "samples", "blocks", "blocks_used", "block_px",
                                                    "interior_frac")}
             if "metered" in meter:               # Milestone 10: an exterior view meters its facades
                 rec["meter"]["metered"] = meter["metered"]
+                rec["meter"]["ground_blocks_used"] = meter.get("ground_blocks_used", 0)    # fix round after P4b
             rec["incident_p50"] = None if meter["incident_p50"] is None else round(meter["incident_p50"], 6)
         if self.exposure_mode == "auto":
             limits = self.view_limits()
@@ -2183,9 +2490,15 @@ class Look:
                 rec["floor_shift_stops"] = self.floor_shift
             if meter["incident_p50"] is None or meter["incident_p50"] <= 0:
                 rec["notes"].append("no interior block to meter: EV 0 used")
+            elif "ground_p50" in meter:
+                # fix round after P4b (17 Oct 2026): an exterior view's facade exposure, capped by its sunlit ground
+                ev, raw, at_limit, ground = exterior_exposure(meter["incident_p50"], meter["ground_p50"], self.target,
+                                                              limits)
+                rec.update(ev=ev, ev_raw=raw, at_limit=at_limit, **ground)
             else:
                 ev, raw, at_limit = exposure_from(meter["incident_p50"], self.target, limits)
                 rec.update(ev=ev, ev_raw=raw, at_limit=at_limit)
+            if rec["ev_raw"] is not None:
                 rec["lighting_dark"] = lighting_dark_entry(cam.name, cam.get("wenart_room"), raw, ev, limits,
                                                            meter["incident_p50"], self.target)
         elif self.exposure_mode == "fixed":
@@ -2229,20 +2542,25 @@ class Look:
             rec["wb_view_rule"] = "no metering pass with light: the project white point"
             return
         rigs = rig_objects(self.scene)
-        kelvin = rig_temperature(self.scene)
+        # fix round after P4b (17 Oct 2026): the temperature of the camera room's rig lights (room_rig_kelvin), so a
+        # neutral hall rig is not balanced as if lit by the 2700 K bedside lamp that comes first in the scene
+        kelvin, kelvin_source = room_rig_kelvin(rig_lights(self.scene), cam.get("wenart_room"))
         if not rigs or kelvin is None:
             rec["wb_view_rule"] = "no rig light in the scene: the project white point"
             return
         hidden = hide_objects(rigs)
         try:
-            day = meter_camera(self.scene, cam, out_dir, res, self.windows)
+            day = meter_camera(self.scene, cam, out_dir, res, self.windows, self.haze)
         finally:
             unhide_objects(hidden)
         rec["meter_seconds"] = round(float(rec["meter_seconds"] or 0.0) + float(day.pop("seconds", 0.0)), 3)
         share = rig_share(meter["illuminant"], day.get("illuminant"))
         rig_rgb = kelvin_whitepoint(self.scene, kelvin)
         rec.update(wb_rig_share=share, wb_rig_kelvin=kelvin, wb_rig_whitepoint=rig_rgb,
-                   wb_day_incident_p50=None if day.get("incident_p50") is None else round(day["incident_p50"], 6))
+                   wb_rig_kelvin_source=kelvin_source,
+                   wb_day_incident_p50=None if day.get("incident_p50") is None else round(day["incident_p50"], 6),
+                   # fix round after P4b: the block-median share, for diagnosis only (rig_share_p50)
+                   wb_rig_share_p50=rig_share_p50(meter.get("incident_p50"), day.get("incident_p50")))
         if share is None or share < WB_RIG_SHARE_MIN:
             rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point"
             return
@@ -2318,7 +2636,7 @@ class Look:
                     # type here, so an open-air room's candidate is metered under the interior world as on P3 (its
                     # render takes the exterior world): the project white point does not move.
                     select_world(self.scene, cam)
-                    meter = meter_camera(self.scene, cam, out_dir, res, self.windows)
+                    meter = meter_camera(self.scene, cam, out_dir, res, self.windows, self.haze)
                     rows.append({"camera": cam_name, "room_id": None if room is None else str(room), "daylight": is_day,
                                  "sunlit": is_day and str(room) in sunlit, "incident_p50": meter.get("incident_p50"),
                                  "whitepoint": whitepoint_from(meter["illuminant"], residual) if meter["illuminant"]
@@ -2348,10 +2666,12 @@ class Look:
         return record
 
 
-def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[int]) -> dict:
+def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[int], haze=()) -> dict:
     """Metering pre-render of ``cam`` (1/8 resolution, 16 samples, no denoiser,
     no adaptive sampling, diffuse light passes on), read back and measured
-    with ``meter_stats``. Every changed setting is restored."""
+    with ``meter_stats``. Every changed setting is restored. Fix round after
+    P4b: ``haze`` (the haze's reserved pass index) bounds the ground of an
+    exterior view (``meter_stats`` ``ground_p50``)."""
     import bpy
 
     r, c = scene.render, scene.cycles
@@ -2386,7 +2706,7 @@ def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[i
     if cam.get("wenart_camera_kind") == "exterior":        # Milestone 10: meter the facades
         normal = find_rgb(channels, "Normal")
         normal_z = None if normal is None else normal[..., 2]
-    stats = meter_stats(direct + indirect, albedo, index, depth, windows, normal_z=normal_z)
+    stats = meter_stats(direct + indirect, albedo, index, depth, windows, normal_z=normal_z, haze_indices=haze)
     stats.update(resolution=[w, h], samples=METER_SAMPLES, seconds=round(time.time() - t0, 3))
     return stats
 
@@ -2483,6 +2803,17 @@ class Hider:
 # --------------------------------------------------------------------------
 # One output folder
 # --------------------------------------------------------------------------
+
+def view_walls(products: dict):
+    """bool H x W: the wall pixels of a view (``views.regions`` ``struct:walls`` from the index, depth and normal
+    maps), the reference of the window pull and of the interior glazing; None when the maps give none."""
+    from wenart import views
+
+    if products.get("index") is None or products.get("depth_mm") is None or products.get("normal") is None:
+        return None
+    return views.regions(products["index"], products["depth_mm"], products["normal"], {}).masks.get(
+        views.STRUCT_WALLS)
+
 
 class RenderRun:
     """Renders cameras into one folder and keeps its ``render_manifest.json``."""
@@ -2701,7 +3032,10 @@ class RenderRun:
             raise RuntimeError(f"{cam.name}: the EXR lacks the index, depth or normal pass")
         quality = ctx.args.preview_quality
         main_img = read_display_png(f["png"])
-        pull, weights, final = self.window_pull(cam, look, result, main_img, channels, products)
+        # fix round after P4b: the walls of the window pull and of the interior glazing, measured once (only for a view
+        # with a window in it)
+        walls = view_walls(products) if set(products["index_values"]) & set(ctx.windows) else None
+        pull, weights, final = self.window_pull(cam, look, result, main_img, channels, products, walls)
         sky = sky_weights = None
         if under_sky:
             # fix round after P3: the sky of a view under the exterior world (the panes and the sky never overlap:
@@ -2710,6 +3044,10 @@ class RenderRun:
                                                       channels)
             if sky_img is not None:
                 final = sky_img
+        # fix round after P4b: the interior glazing in view (never pulled) against the room's walls, as written
+        glazing = self.interior_glazing(final if final is not None else main_img, channels, products, walls)
+        # fix round after P4b: an exterior view's lawn as written (the GPU pin of its saturation)
+        lawn = self.lawn(cam, final if final is not None else main_img, channels)
         if final is not None:
             write_png(f["png"], final, DISPLAY_PNG_LEVEL)    # the pulled panes and sky, everything else as saved
             preview_bytes = encode_preview(scene, f["png"], f["preview"], quality)
@@ -2751,6 +3089,8 @@ class RenderRun:
             "index_stats": products["index_stats"], "skipped": False, "scene_sha256": ctx.fingerprint,
             "render_key": key, "exposure": look, "hidden": self.hidden, "plugged": self.plugged,
             "window_pull": pull,
+            "interior_glazing": glazing,    # fix round after P4b: the panes of the windows between two rooms
+            "lawn": lawn,                   # fix round after P4b: an exterior view's lawn (lawn_mask), else None
             "alt_preview": f["alt_preview"].name if alt_bytes is not None else None,
             "alt_preview_bytes": alt_bytes,
             "world": world,
@@ -2763,26 +3103,31 @@ class RenderRun:
               f"rig_share={look.get('wb_rig_share')} meter={look['meter_seconds']}s pull={pull_text} sky={sky_text} "
               f"world={world} depth={products['depth']} indices={products['index_values']}")
 
-    def window_pull(self, cam, look: dict, result, main, channels: dict, products: dict):
+    def window_pull(self, cam, look: dict, result, main, channels: dict, products: dict, walls=None):
         """``(record, weights, final)`` of the window pull of one camera
         (module docstring): ``record`` None when no pane is in view (or the EXR
         has no Diffuse Color pass), ``final`` None when no k was chosen (the
-        PNG stays as saved)."""
+        PNG stays as saved). Fix round after P4b (17 Oct 2026): the panes of the
+        interior glazing (``Context.interior_windows``) are not in the mask and
+        never pulled (``interior_pane_px`` counts them; ``interior_glazing``
+        records them), the k follows ``choose_pull``'s rules (an unclipped k
+        with the panes slightly darker than the walls before a clipped one) and
+        the search stops at ``pull_search_done``. ``walls`` = the view's wall
+        mask when the caller has it (``view_walls``)."""
         import numpy as np
-
-        from wenart import views
 
         albedo = find_rgb(channels, "Diffuse Color", "DiffCol")
         if albedo is None:
             self.warnings.append(f"{cam.name}: the EXR has no Diffuse Color pass: no window pull")
             return None, None, None
-        mask = pane_mask(products["index"], albedo, self.ctx.windows)
+        interior = set(getattr(self.ctx, "interior_windows", None) or ())
+        mask = pane_mask(products["index"], albedo, set(self.ctx.windows) - interior)
         if not mask.any():
             return None, None, None
         t0 = time.time()
-        walls = views.regions(products["index"], products["depth_mm"], products["normal"], {}).masks.get(
-            views.STRUCT_WALLS)
-        wall_median = masked_median(main, walls) if walls is not None else None
+        if walls is None:
+            walls = view_walls(products)
+        wall_median = masked_median(main, walls) if walls is not None and walls.any() else None
         tmp = self.out / f".pull_{cam.name}.png"
         candidates, images = [], {}
         for k in PULL_STEPS:
@@ -2791,12 +3136,10 @@ class RenderRun:
                     "p90": masked_percentile(img, mask, 90.0)}
             candidates.append(cand)
             images[k] = img
-            if pull_qualifies(cand, wall_median):
-                break                    # the smallest qualifying k: later ones are not needed
-            if wall_median is not None and cand["median"] <= wall_median:
-                break                    # darker than the walls: a deeper k is darker still and never chosen
-        k, rule = choose_pull(candidates, wall_median)
+            if pull_search_done(cand, wall_median):
+                break                    # the smallest k of its rule, or darker than the walls allow
         clip_before = clip_share(main, mask)
+        k, rule = choose_pull(candidates, wall_median, clip_before=clip_before)
         record = {"ev": -float(k) if k else 0.0, "k": k, "pane_ev": round(float(look["ev"]) - k, 6),
                   "clip_before": clip_before, "clip_after": clip_before, "pane_px": int(np.count_nonzero(mask)),
                   "pane_median": round(masked_median(main, mask), 4),
@@ -2804,7 +3147,11 @@ class RenderRun:
                   # fix round after P4a: the panes' median saturation (P4a's grey cards 0.00-0.07, M11's sky 0.13-0.25)
                   "pane_saturation": round(masked_saturation(main, mask), 4),
                   "wall_median": None if wall_median is None else round(wall_median, 4), "rule": rule,
-                  "targets": {"p90_max": PULL_P90_MAX, "median_target": PULL_MEDIAN_TARGET, "max_clip": PULL_MAX_CLIP},
+                  # fix round after P4b: the interior glazing's panes left out of the pull
+                  "interior_pane_px": int(np.count_nonzero(pane_mask(products["index"], albedo, interior)))
+                  if interior else 0,
+                  "targets": {"p90_max": PULL_P90_MAX, "median_target": PULL_MEDIAN_TARGET, "max_clip": PULL_MAX_CLIP,
+                              "wall_ratio_min": PULL_WALL_RATIO_MIN},
                   "tried": [{"k": c["k"], "clip": c["clip"], "median": round(c["median"], 4),
                              "p90": round(c["p90"], 4)} for c in candidates]}
         if k == 0:
@@ -2818,6 +3165,41 @@ class RenderRun:
         record["pane_saturation_after"] = round(masked_saturation(final, mask), 4)
         record["seconds"] = round(time.time() - t0, 3)
         return record, weights, final
+
+    def lawn(self, cam, image, channels: dict) -> dict | None:
+        """The ``lawn`` record of an exterior view (fix round after P4b; ``lawn_mask``, ``lawn_record``) measured on
+        the image as written; None for the other views or without the Diffuse Color, Normal or depth pass."""
+        if cam.get("wenart_camera_kind") != "exterior":
+            return None
+        albedo = find_rgb(channels, "Diffuse Color", "DiffCol")
+        normal = find_rgb(channels, "Normal")
+        depth = find_channel(channels, "Depth.Z")
+        if albedo is None or normal is None or depth is None:
+            return None
+        index = find_channel(channels, "Object Index.X", "IndexOB.X")
+        return lawn_record(image, lawn_mask(albedo, normal, depth, index, self.ctx.haze))
+
+    def interior_glazing(self, image, channels: dict, products: dict, walls=None) -> dict | None:
+        """The ``interior_glazing`` record of a view (fix round after P4b, ``interior_glazing_record``): the glass
+        pixels of the interior windows in view (window index of ``Context.interior_windows`` and a dark Diffuse
+        Color, as the pane mask) against the camera room's walls, measured on the image as written. None without
+        interior glazing in view or without a Diffuse Color pass."""
+        import numpy as np
+
+        interior = set(getattr(self.ctx, "interior_windows", None) or ())
+        if not interior or products.get("index") is None:
+            return None
+        albedo = find_rgb(channels, "Diffuse Color", "DiffCol")
+        if albedo is None:
+            return None
+        pane = pane_mask(products["index"], albedo, interior)
+        if not pane.any():
+            return None
+        if walls is None:
+            walls = view_walls(products)
+        by_index = {int(v): k for k, v in (getattr(self.ctx, "pass_index", None) or {}).items()}
+        seen = {int(v) for v in np.unique(np.asarray(products["index"])[pane])}
+        return interior_glazing_record(image, pane, walls, [by_index.get(i, str(i)) for i in sorted(seen)])
 
     def sky_pull(self, cam, look: dict, result, main, channels: dict):
         """``(record, weights, final)`` of the sky pull of a view under the exterior sky (fix round after P3, module
@@ -2858,6 +3240,8 @@ class RenderRun:
                     break                # the smallest qualifying k
         k, rule = choose_sky_pull(before, candidates)
         weights, ring = sky_pull_weights(mask, normal, SKY_RING_PX, SKY_REF_PX, depth, index, self.ctx.haze)
+        # lead decision (4) of 17 Oct 2026: real02's assumed north stays; the views into the sun are only listed (the
+        # report's into_sun_views), never pinned or turned
         offset = sun_offset_deg(camera_forward(cam), None if self.ctx.scene is None else sun_travel(self.ctx.scene))
         into_sun = offset is not None and offset <= SKY_INTO_SUN_DEG
         if k == 0 and into_sun and candidates:
@@ -2915,7 +3299,7 @@ class Context:
     """What every output folder of one Blender process shares."""
 
     def __init__(self, scene, args, device, denoiser, res, look: Look, camera_names: set[str],
-                 deadline: float | None = None):
+                 deadline: float | None = None, scene_manifest: dict | None = None):
         import bpy
 
         self.scene = scene
@@ -2935,6 +3319,11 @@ class Context:
         self.haze_objects = [o for o in scene.objects if is_haze(o)]
         self.pass_index = pass_index_table(scene)
         self.windows = window_indices(scene)
+        # fix round after P4b: the pass indices of the interior glazing (windows between two indoor rooms of the
+        # scene manifest, interior_window_ids): never pulled, recorded as interior_glazing
+        self.interior_windows = interior_window_indices(
+            [(o.get("wenart_id"), int(o.pass_index)) for o in scene.objects
+             if o.pass_index > 0 and o.get("wenart_kind") == "window"], scene_manifest)
         # Milestone 13: the variant the render runs under (the build's is in the scene, wenart_light_variant)
         self.light_variant = {"render": look.variant, "build": scene.get("wenart_light_variant") or None}
 
@@ -3055,6 +3444,8 @@ def main(argv: list[str]) -> int:
     look.variant = levers["variant"]
     # fix round after P3: the room types of the scene manifest, for cameras built without wenart_room_type
     look.room_types = room_types_from_manifest(hider.manifest)
+    # fix round after P4b: the haze's reserved index bounds the ground an exterior view is capped by (ground_p50)
+    look.haze = set(haze)
     # pre-flight of P3: the EV floor follows the built scene's sun lamp (sun_floor_shift; 0 under the M11 sun)
     look.sun_wm2 = scene_sun_wm2(scene)
     look.floor_shift = sun_floor_shift(look.sun_wm2)
@@ -3064,7 +3455,10 @@ def main(argv: list[str]) -> int:
         previous = load_project_whitepoint(out / "render_manifest.json") if sets is None else None
         record = look.lock_project_whitepoint(all_cameras, out, (width, height), previous)
         print(f"WHITE_BALANCE project: {record['source']} whitepoint={record['whitepoint']}")
-    ctx = Context(scene, args, device, denoiser, (width, height), look, set(by_name), deadline)
+    ctx = Context(scene, args, device, denoiser, (width, height), look, set(by_name), deadline, hider.manifest)
+    if ctx.interior_windows:
+        print(f"INTERIOR_GLAZING {len(ctx.interior_windows)} window pass indices between two rooms: no window pull "
+              f"on them (recorded as interior_glazing)")
     print(f"LIGHT_VARIANT render={levers['variant'] or 'none'} build={scene.get('wenart_light_variant') or 'none'} "
           f"ev_limits={list(look.limits)} view_limits={list(look.view_limits())} sun_wm2={look.sun_wm2}")
     if mood is None:

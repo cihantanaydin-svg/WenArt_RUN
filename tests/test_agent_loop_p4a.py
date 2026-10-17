@@ -193,8 +193,8 @@ def test_an_s2_wall_cut_is_predicted_from_the_footprint_not_dropped():
     # a footprint that stands off the wall face to begin with (only the mesh cuts): moving further off clears it
     off_before, off_after = corridor_with_table((12.39, 9.80)), corridor_with_table((12.39, 9.75))
     assert LP.after_findings([], [WALL_CUT], {"f_L1_024"}, off_after, building_before=off_before) == []
-    # unchanged footprint (swap_model), a pair cut, a buried kitchen member, a removed piece: as before, gone
-    assert LP.after_findings([], [WALL_CUT], {"f_L1_024"}, before_b, building_before=before_b) == []
+    # a pair cut, a buried kitchen member, a removed piece: as before, gone. (Fix round after P4b, changed on
+    # purpose: an edit that keeps the footprint, swap_model, now KEEPS the wall cut: test_agent_loop_p4b.py)
     assert LP.after_findings([], [CHAIR_CUT], {"f_L1_024"}, along, building_before=before_b) == []
     buried = finding("S2", "major", "f_L1_024", None, "buried", depth_m=0.2, other="f9", kitchen_run=True,
                      wall_id="w_L1_006")
@@ -349,9 +349,12 @@ def test_set_lighting_steps_come_first_in_every_checklist():
     assert "too dark for the EV cap" in P.plan_prompt(4, {"room": {"id": "r1"}}, ["set_lighting"], True, lighting=True)
 
 
-def test_the_final_round_lights_a_major_dark_view_when_a_rerender_follows(tmp_path):
+def test_the_final_round_lights_a_major_dark_view_when_a_rerender_follows(tmp_path, monkeypatch):
     """Fails on 03881bc: the final round is critical-only, so P4a's salon views (major lighting_dark, x1.88 and
-    x1.48 fixable) were never lit. A final round without a re-render function stays critical-only."""
+    x1.48 fixable) were never lit. A final round without a re-render function stays critical-only. Fix round after
+    P4b: ``FINAL_ROUND_LIGHTING`` is off (decision 6 of 17 Oct 2026); the mechanism is tested with the switch on
+    (test_agent_loop_p4b.py pins the default)."""
+    monkeypatch.setattr(LP, "FINAL_ROUND_LIGHTING", True)
     loop, out, model = make(tmp_path, [LIGHT, FINISH], [[DARK], []], recheck=lambda b, s, m: [])
     res = loop.final_round(4)
     assert res["accepted"] == 1 and res["rerun_from"] and "cam_r1_1" in res["views"]

@@ -61,6 +61,16 @@ pull's ``pane_saturation`` / ``pane_saturation_after``, the sky pull's ``k`` up 
 camera's rays of a view under the interior world; null without haze). The camera replay of the same round: a scene
 camera's ``replaced_replayed`` (the replayed record an agent camera replaced) and ``renamed_from`` (a name clash the
 build renamed), ``cameras_from.agent`` and ``cameras_from.agent_replaced``.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03; render code still m13.3), all optional so the P4a / P4b manifests
+stay valid: a ``lighting_dark`` finding may be ``minor`` (less than one exposure step over the cap, with
+``metrics.below_exposure_step``: reported only); the exposure's ground cap of an exterior view (``ev_facade``,
+``ev_ground``, ``ground_p50``, ``ground_headroom_stops``, ``ground_cap``, ``ground_rule``; ``render.exterior_exposure``)
+and the white point's ``wb_rig_kelvin_source`` (``room`` | ``scene``, ``render.room_rig_kelvin``) and
+``wb_rig_share_p50`` (a block-median share for diagnosis, ``render.rig_share_p50``); the window pull's
+``interior_pane_px`` (the panes of the interior glazing it left out) and the render entry's ``interior_glazing``
+(``INTERIOR_GLAZING``: the panes of the windows between two indoor rooms against the room's walls,
+``render.interior_glazing_record``) and ``lawn`` (an exterior view's lawn as written, ``render.lawn_record``).
 """
 from __future__ import annotations
 
@@ -85,13 +95,15 @@ CAMERA_SOURCES = ("searched", "replayed")
 LIGHTING_DARK = {
     "type": "object",
     "required": ["check", "severity", "target", "room_id", "message", "metrics"],
-    "properties": {"check": {"const": "lighting_dark"}, "severity": {"enum": ["major", "critical"]},
+    # fix round after P4b (17 Oct 2026): ``minor`` = less than one exposure step over the cap (reported only)
+    "properties": {"check": {"const": "lighting_dark"}, "severity": {"enum": ["minor", "major", "critical"]},
                    "target": {"type": "string"}, "room_id": {"type": ["string", "null"]},
                    "message": {"type": "string"},
                    "metrics": {"type": "object", "required": ["ev_wanted", "ev_used", "ev_cap", "stops_over_cap"],
                                "properties": {"ev_wanted": {"type": "number"}, "ev_used": {"type": "number"},
                                               "ev_cap": {"type": "number"}, "stops_over_cap": {"type": "number"},
-                                              "incident_p50": {"type": ["number", "null"]}}}},
+                                              "incident_p50": {"type": ["number", "null"]},
+                                              "below_exposure_step": {"type": "boolean"}}}},
 }
 # The one whitepoint of a project (``render.py --white-balance project | kelvin:K``, ``lock_project_whitepoint``):
 # ``whitepoint`` null when no interior camera gave light to meter (every view then renders without a white
@@ -172,6 +184,17 @@ EXPOSURE = {
         # Fix round after P4a (17 Oct 2026): the rig part's extra warmth the view's white point was mixed with
         # (render.WB_RIG_RESIDUAL; 0 = every view keeps the project's daylight cast). Optional.
         "wb_rig_residual": {"type": "number", "minimum": 0, "maximum": 1},
+        # Fix round after P4b (17 Oct 2026), optional: whose rig light the view was balanced for
+        # (render.room_rig_kelvin: its own room's, or the scene's first), the block-median rig share (diagnosis only,
+        # render.rig_share_p50) and the ground cap of an exterior view's exposure (render.exterior_exposure).
+        "wb_rig_kelvin_source": {"enum": ["room", "scene"]},
+        "wb_rig_share_p50": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "ev_facade": {"type": "number"},
+        "ev_ground": {"type": ["number", "null"]},
+        "ground_p50": {"type": ["number", "null"]},
+        "ground_headroom_stops": {"type": "number", "minimum": 0},
+        "ground_cap": {"type": "boolean"},
+        "ground_rule": {"type": "string"},
     },
 }
 _SHARE = {"type": ["number", "null"], "minimum": 0, "maximum": 1}
@@ -189,7 +212,23 @@ WINDOW_PULL = {
                         "pane_saturation": {"type": "number", "minimum": 0, "maximum": 1},
                         "pane_saturation_after": {"type": "number", "minimum": 0, "maximum": 1},
                         "targets": {"type": "object"},
-                        "wall_median": {"type": ["number", "null"]}, "rule": {"type": "string"}}},
+                        "wall_median": {"type": ["number", "null"]}, "rule": {"type": "string"},
+                        # fix round after P4b (17 Oct 2026; optional): the pixels of the interior glazing's panes the
+                        # pull left out (render.interior_window_ids)
+                        "interior_pane_px": {"type": "integer", "minimum": 0}}},
+    ],
+}
+# Fix round after P4b (17 Oct 2026): the panes of the interior glazing in a view (windows between two indoor rooms,
+# never pulled) against the camera room's walls, display R/B of each (render.interior_glazing_record); null when none
+# is in view.
+INTERIOR_GLAZING = {
+    "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["windows", "pane_px", "pane_rb", "wall_rb", "delta_rb", "rule"],
+         "properties": {"windows": {"type": "array", "items": {"type": "string"}},
+                        "pane_px": {"type": "integer", "minimum": 1}, "pane_rb": {"type": ["number", "null"]},
+                        "wall_rb": {"type": ["number", "null"]}, "delta_rb": {"type": ["number", "null"]},
+                        "rule": {"type": "string"}}},
     ],
 }
 # Fix round after P3 (16-17 Oct 2026): the sky pull of a view under the exterior sky (render.Renderer.sky_pull);
@@ -547,6 +586,12 @@ RENDER_ENTRY = {
         # Fix round after P4a (17 Oct 2026): whether the haze volume was hidden from the camera's rays (a view under the
         # interior world, render.haze_hidden_for); null in a scene without haze. Optional.
         "haze_hidden": {"type": ["boolean", "null"]},
+        # Fix round after P4b (17 Oct 2026; optional): the interior glazing in view (INTERIOR_GLAZING) and an exterior
+        # view's lawn as written (render.lawn_mask / lawn_record: share of the frame, display saturation and median).
+        "interior_glazing": INTERIOR_GLAZING,
+        "lawn": {"oneOf": [{"type": "null"},
+                           {"type": "object", "required": ["px_share", "saturation", "median"],
+                            "properties": {"px_share": _SHARE, "saturation": _SHARE, "median": {"type": "number"}}}]},
     },
 }
 

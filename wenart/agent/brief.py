@@ -31,6 +31,13 @@ Round 4 (before pod P3's second attempt): the brief states ``lighting_factor`` (
 the building's ``agent_overrides.lighting``, ``lighting_factor_of``); a room at the maximum factor gets no
 ``set_lighting``, so its ``lighting_dark`` findings are "not yours" with that reason.
 
+Fix round after P4b (17 Oct 2026; pod P4b, real03): a drawn fixture whose ``fix_fixture`` search (no centre, no new
+size) found no valid spot within 0.5 m in an earlier round (``memory.Memory.no_spot``) has its wall and outline cuts
+(``NO_SPOT_CHECKS``: S2, F9) in "not yours" with that reason (``no_spot_findings``): the code searched every spot, the
+cut is a wall or outline conflict for review, and no other tool may move drawn fixed equipment. Why: P4b sent 21
+guessed centres in 5 cm steps and 13 max_tries to bathtubs 2-5 cm longer than their bay, and about 60 calls to the
+hall washers whose walls were read 0.15 m into a closet.
+
 How: the other tracks' functions are called through their frozen contracts (§13.2) and may be stubs: an empty
 answer (or an exception, noted in ``notes``) leaves that part empty. ``edit_ops.allowed_edits`` (track G) gives
 the lock state; while it answers ``{}`` (its stub) ``allowed_fallback`` applies the M11 rules of CLAUDE.md (fixed
@@ -600,6 +607,31 @@ def drawn_group_lines(building: dict, room_id: str) -> list[dict]:
     return out
 
 
+# Fix round after P4b (module docstring): the checks of a fixture's wall or outline cut.
+NO_SPOT_CHECKS = ("S2", "F9")
+
+
+def no_spot_findings(fixable: list[dict], not_yours: list[dict], memory, room_id: str
+                     ) -> tuple[list[dict], list[dict]]:
+    """Fix round after P4b (module docstring): ``(fixable, not_yours)`` with the S2 / F9 findings of the pieces the
+    memory's ``no_spot`` names moved to "not yours" with the reason."""
+    spots = memory.no_spot(room_id) if memory is not None and hasattr(memory, "no_spot") else {}
+    if not spots:
+        return fixable, not_yours
+    keep = []
+    for f in fixable:
+        pid = f.get("edit_target") or f.get("target")
+        hit = spots.get(str(pid)) if str(f.get("check")) in NO_SPOT_CHECKS else None
+        if hit is None:
+            keep.append(f)
+            continue
+        not_yours.append(dict({k: v for k, v in f.items() if k != "tools"},
+                              why=f"drawn fixed equipment: the code found no valid spot within 0.5 m for {pid} "
+                                  f"(fix_fixture, round {hit.get('round')}); the wall or outline conflict is listed "
+                                  f"for review"))
+    return keep, not_yours
+
+
 def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None, memory=None,
                image_of: Optional[Callable] = None, allowed_fn: Optional[Callable] = None,
                program_fn: Optional[Callable] = None, members_fn: Optional[Callable] = None,
@@ -686,6 +718,7 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
     fixable, not_yours = classify(list(findings or []), building, room_id,
                                   {pid: a for pid, a in allowed.items()}, group_of, room_tools_ok,
                                   locked_groups=locked_groups, completable=completable if members else None)
+    fixable, not_yours = no_spot_findings(fixable, not_yours, memory, room_id)     # fix round after P4b
     candidates = []
     for c in cands[:k]:
         rank = int(c.get("rank") or len(candidates) + 1)

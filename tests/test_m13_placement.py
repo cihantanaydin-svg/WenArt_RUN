@@ -676,3 +676,25 @@ def test_the_group_checks_of_verify_measure_the_fitted_boxes():
     plain = M.building(w=4.5, h=5.0, room_type="living", window=(2.25, 1.2), furniture=[dict(sofa, asset=None)])
     assert not [h for h in SV.verify(plain, ROOM, [new])[0] if h.startswith("G2")]
     assert not [h for h in SV.verify(b, ROOM, [])[0] if h.startswith("G2")]          # the drawn pair: not new
+
+
+def test_a_vanity_drawn_without_its_axis_line_is_typed_washbasin_by_its_bath_set():
+    """Fix round after P4b (17 Oct 2026; pod P4b, real03, agent lens, refuted in part; a pin, no code change here):
+    real03 draws six bathroom vanities (sym_L0_005/006/055-058) with a straight axis line through the drain that
+    sticks out of the counter outline on both sides; the reading's footprint kept the line (0.85 x 0.80 m, outside
+    the washbasin range), so code typing could not give the bath set its missing washbasin and the six stayed untyped.
+    Once the ingest leaves the axis line out (the I_ingest ask: ``symbols.trim_axis_lines``) the true 0.80 x 0.50 m
+    outline is the bath set's missing washbasin by the group-member rule, with no AI question."""
+    bath = M.building(w=2.7, h=1.9, room_type="bathroom", window=None, door_x=0.6)
+    toilet = fp("to", "toilet", (2.3, 1.55), (0.4, 0.7), 270.0)
+    tub = fp("tb", "bathtub", (2.3, 0.4), (1.7, 0.75), 90.0)
+    vanity = unknown("u1", (1.2, 1.65), (0.8, 0.5))                                  # back on the north wall
+    bath["furniture"] = [toilet, tub, vanity]
+    got = INF.type_by_code(bath, vanity)
+    assert got and (got["type"], got["method"]) == ("washbasin", "group_member")
+    assert "washbasin" in got["reason"] and got["confidence"] == INF.CONF_GROUP
+    # the footprint with the axis line (P4b: 0.85 x 0.80 m) fits no washbasin: code leaves it to the reading
+    inflated = unknown("u2", (1.2, 1.5), (0.85, 0.8))
+    bath["furniture"] = [toilet, tub, inflated]
+    got = INF.type_by_code(bath, inflated)
+    assert got is None or got["type"] != "washbasin"

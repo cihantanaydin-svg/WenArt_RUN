@@ -126,6 +126,27 @@ Fix round after P4a (17 Oct 2026; pod P4a, real02 with the M11 cameras replayed)
   as a ``camera_effect`` check with status ``no_effect``. Why: P4a's three accepted set_camera ext_6 edits changed
   nothing (a second ext_6 was added and Blender renamed it ext_6.001).
 
+Fix round after P4b (17 Oct 2026; pod P4b, real03, the review of the P4a fix round and the lead's decisions of the
+same day):
+
+- S2 wall cuts (``s2_wall_kept``): the footprint's depth in the wall is exact (``footprint_wall_depth``; the 7 x 7
+  grid missed the wall's axis, so real02's f_L1_024 moved 0.05 m INTO w_L1_006 was predicted 0.0016 m and accepted);
+  chained edits of one round start from the depth the earlier edit predicted; a predicted cut below 0.03 m is gone
+  (it would be a minor within-tolerance finding); an edit that keeps the footprint (``swap_model``) keeps the cut,
+  less what another model's depth may change (``swap_depth_slack``; P4b: 4 of 5 accepted swaps for an S2 still had
+  it);
+- decision 1: a camera-placement finding (X6, V1) on a camera replayed from the baseline (set 1) is report-only
+  (``causes.mark_replayed`` on the round's code and vision findings: cause ``replayed_camera``, reported to the
+  cameras); the tools refuse to set or remove such a camera;
+- ``set_exterior``: the dry re-check's critic reads the round's scene manifest with the override's sun
+  (``scene_after``), so the code's X7 measures the new sun; a vision finding whose cause the override does not touch
+  stays (``after_findings(override=...)``, ``exterior_kept``). Why: P4b accepted a ground and a 55 degree sun edit
+  for a vision X4 "no path", and X7 "sun 55 degrees" came in round 4;
+- decision 6: ``FINAL_ROUND_LIGHTING`` is off (the final round stays critical-only; the mechanism stays);
+- the exterior critic gets the round's scene manifest (``critic_vision.critique_exterior(scene=...)``: the camera's
+  measured eye height and role); a checklist step closed by a tool says why (``closed_why``: the memory refused its
+  edit twice, or the code's fix_fixture search found no valid spot).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -195,8 +216,9 @@ KEEP_REPLIES = 2                 # the tool results of the last 2 replies stay w
 STUB_NOTE = "[older tool result removed to fit the context; call the tool again if you need it]"
 CONTEXT_CHECK = "context_budget"  # the ``check`` event of a session whose context was cut or full (tool field)
 CUT_NOTE = "[cut to fit the context]"
-# Fix round after P4a (module docstring): the final round also takes a major lighting_dark view one set_lighting clears
-FINAL_ROUND_LIGHTING = True
+# Fix round after P4a (module docstring): the final round also takes a major lighting_dark view one set_lighting clears.
+# Fix round after P4b: off (decision 6 of 17 Oct 2026, the lead: FINAL_ROUND_LIGHTING stays off); the mechanism stays.
+FINAL_ROUND_LIGHTING = False
 CAMERA_EFFECT_CHECK = "camera_effect"   # the ``check`` event of an accepted camera edit checked after the re-run
 
 
@@ -483,7 +505,6 @@ def lighting_kept(finding: Optional[dict], building_after: Optional[dict]) -> Op
 # Fix round after P4a (module docstring): ``metrics.source`` of a finding measured on the round's scene manifest
 # (``wenart.blender.exterior_checks.SCENE_MANIFEST_SOURCE``: the critical X2 of a built box through the roof).
 MANIFEST_SOURCE = "scene_manifest"
-S2_FOOTPRINT_GRID = 7            # points per side of the footprint grid of the S2 wall-cut prediction
 S2_DEFAULT_TOLERANCE_M = 0.010   # scene_checks.TOLERANCES["overlap_m"]: an S2 without its tolerance_m
 
 
@@ -504,48 +525,147 @@ def _footprint_state(piece: dict) -> tuple:
             tuple(round(float(v), 4) for v in (fp.get("size") or [])[:2]), round(float(fp.get("rotation_deg") or 0), 3))
 
 
-def footprint_points(fp: dict, n: int = S2_FOOTPRINT_GRID) -> list[tuple[float, float]]:
-    """A ``n`` x ``n`` grid of points over a footprint ``{center, size, rotation_deg}`` (edges included)."""
+def footprint_corners(fp: dict) -> list[tuple[float, float]]:
+    """The 4 corners of a footprint ``{center, size, rotation_deg}`` in order (a convex polygon)."""
     from wenart import geometry as G
     cx, cy = (float(v) for v in fp["center"][:2])
     w, d = (float(v) for v in fp["size"][:2])
     rot = float(fp.get("rotation_deg") or 0.0)
-    steps = [i / (n - 1) - 0.5 for i in range(n)] if n > 1 else [0.0]
-    return [G.rotate_point((cx + u * w, cy + v * d), rot, (cx, cy)) for u in steps for v in steps]
+    return [G.rotate_point((cx + u * w / 2.0, cy + v * d / 2.0), rot, (cx, cy))
+            for u, v in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+
+
+def _clip(poly: list, keep: Callable[[tuple], float]) -> list:
+    """Sutherland-Hodgman: the part of the convex polygon ``poly`` where ``keep(p) >= 0`` (``keep`` linear)."""
+    out = []
+    for i, p in enumerate(poly):
+        q = poly[(i + 1) % len(poly)]
+        kp, kq = keep(p), keep(q)
+        if kp >= 0:
+            out.append(p)
+        if (kp >= 0) != (kq >= 0):
+            t = kp / (kp - kq)
+            out.append((p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])))
+    return out
+
+
+def _inside(poly: list, p: tuple, eps: float = 1e-9) -> bool:
+    """``p`` in the convex polygon ``poly`` (either winding; edges included)."""
+    sign = 0
+    for i, a in enumerate(poly):
+        b = poly[(i + 1) % len(poly)]
+        cross = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
+        if abs(cross) <= eps:
+            continue
+        s = 1 if cross > 0 else -1
+        if sign and s != sign:
+            return False
+        sign = s
+    return True
 
 
 def footprint_wall_depth(piece: dict, wall: dict) -> Optional[float]:
-    """How deep a piece's footprint reaches into a wall box (``scene_checks.wall_boxes``), signed: the largest
-    ``thickness / 2 - |distance to the wall's axis|`` over the footprint's grid points beside the wall (negative: the
-    gap to the wall's face); None when no point stands beside the wall's length."""
-    ax, ay = wall["a"]
-    bx, by = wall["b"]
+    """How deep a piece's footprint reaches into a wall box (``scene_checks.wall_boxes``), signed and exact: the
+    largest ``min(thickness / 2 - |n|, s, length - s)`` over the footprint's part beside the wall (``s`` along the
+    wall's axis, ``n`` across it; the depth of ``scene_checks.depth_in_wall``, negative: the gap to the wall's face);
+    None when no part of the footprint stands beside the wall's length.
+
+    Fix round after P4b (17 Oct 2026; review of the P4a fix round): the footprint is convex and the depth is a concave
+    piecewise-linear function of the point, so its maximum lies on a vertex of the footprint clipped to the wall's
+    length, where an edge crosses a break line of the function (the axis ``n = 0``, the diagonals at the wall ends,
+    the middle of the wall), or where two break lines cross inside it. All of them are tried. The 7 x 7 grid before
+    missed the axis: real02's f_L1_024 moved 0.05 m INTO w_L1_006 was predicted 0.0016 m deep and accepted."""
+    ax, ay = (float(v) for v in wall["a"])
+    bx, by = (float(v) for v in wall["b"])
     length = math.hypot(bx - ax, by - ay)
     if length < 1e-9:
         return None
     ux, uy = (bx - ax) / length, (by - ay) / length
     half = float(wall["thickness"]) / 2.0
-    best = None
-    for x, y in footprint_points(piece["footprint"]):
-        s = (x - ax) * ux + (y - ay) * uy
-        if not 0.0 < s < length:
-            continue
-        d = half - abs(-(x - ax) * uy + (y - ay) * ux)
-        if d > 0:
-            d = min(d, s, length - s)
-        best = d if best is None else max(best, d)
-    return best
+    local = [((x - ax) * ux + (y - ay) * uy, -(x - ax) * uy + (y - ay) * ux)
+             for x, y in footprint_corners(piece["footprint"])]
+    poly = _clip(_clip(local, lambda p: p[0]), lambda p: length - p[0])
+    if len(poly) < 2 or max(p[0] for p in poly) - min(p[0] for p in poly) < 1e-9:
+        return None                                    # nothing beside the wall's length (or only an end point)
+
+    def depth(p) -> float:
+        return min(half - abs(p[1]), p[0], length - p[0])
+
+    # the break lines of ``depth``, as (a, b, c): a * s + b * n = c
+    lines = [(0.0, 1.0, 0.0), (1.0, 1.0, half), (-1.0, 1.0, half - length), (1.0, -1.0, half),
+             (1.0, 1.0, length - half), (1.0, 0.0, length / 2.0)]
+    cands = list(poly)
+    for i, p in enumerate(poly):
+        q = poly[(i + 1) % len(poly)]
+        for a, b, c in lines:
+            fp, fq = a * p[0] + b * p[1] - c, a * q[0] + b * q[1] - c
+            if (fp <= 0 <= fq or fq <= 0 <= fp) and abs(fp - fq) > 1e-12:
+                t = fp / (fp - fq)
+                cands.append((p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])))
+    for i, (a1, b1, c1) in enumerate(lines):
+        for a2, b2, c2 in lines[i + 1:]:
+            det = a1 * b2 - a2 * b1
+            if abs(det) < 1e-12:
+                continue
+            p = ((c1 * b2 - c2 * b1) / det, (a1 * c2 - a2 * c1) / det)
+            if _inside(poly, p):
+                cands.append(p)
+    return max(depth(p) for p in cands)
+
+
+# Fix round after P4b (17 Oct 2026): the metrics key of the measured S2 message a predicted copy rebuilds from.
+S2_MEASURED_MESSAGE = "message_measured"
+
+
+def swap_depth_slack(piece: dict, wall: dict) -> float:
+    """Fix round after P4b: how much a wall cut of ``piece`` can shrink when only its model changes (the footprint
+    kept, ``swap_model``). The fit scales a model to the footprint's WIDTH (``fit.scale_for``, Milestone 13 K2), so a
+    cut across the width (the wall's normal along the piece's local x) cannot change: 0. The model's depth may differ
+    from the drawn depth up to ``fit.NON_UNIFORM_CAP`` (x1.10), so a cut across the depth can shrink by at most
+    ``depth x (1 - 1 / cap)``. P4b: the bathtub f_L0_184 (a width cut, 0.049 m) and the washers f_L0_075 / 077 (depth
+    cuts of 0.14-0.16 m, slack 0.055 m) kept their cuts after the swaps; the shower f_L0_180 (a depth cut of 0.041 m,
+    slack 0.088 m) lost it."""
+    try:
+        from wenart.furniture.fit import NON_UNIFORM_CAP as cap
+    except ImportError:                    # the fit's value on 17 Oct 2026
+        cap = 1.10
+    ax, ay = (float(v) for v in wall["a"])
+    bx, by = (float(v) for v in wall["b"])
+    length = math.hypot(bx - ax, by - ay)
+    if length < 1e-9:
+        return 0.0
+    nx, ny = -(by - ay) / length, (bx - ax) / length
+    rot = math.radians(float(piece["footprint"].get("rotation_deg") or 0.0))
+    along_x = abs(nx * math.cos(rot) + ny * math.sin(rot))
+    along_y = abs(-nx * math.sin(rot) + ny * math.cos(rot))
+    if along_x >= along_y:
+        return 0.0
+    return float(piece["footprint"]["size"][1]) * (1.0 - 1.0 / float(cap))
 
 
 def s2_wall_kept(finding: Optional[dict], building_before: Optional[dict], building_after: Optional[dict]
                  ) -> Optional[dict]:
     """Fix round after P4a (module docstring): an S2 WALL cut of the round (``finding``: ``metrics.wall_id`` and
-    ``depth_m``, no ``other``, no ``kitchen_run``) that the edit's new footprint does not clear, with the prediction
-    in its metrics and message; None when the finding counts as gone: the piece was removed or is not built, its
-    footprint did not change (``swap_model``: the next round measures the new model), nothing can be predicted, or the
-    predicted cut (the measured one plus the change of ``footprint_wall_depth``) is within the cut's ``tolerance_m``.
+    ``depth_m``, no ``other``, no ``kitchen_run``) that the edit does not clear, with the prediction in its metrics
+    and message; None when the finding counts as gone: the piece was removed or is not built, its type changed (the
+    next round measures the new model), nothing can be predicted, or the predicted cut (the cut before the edit plus
+    the change of ``footprint_wall_depth``) is within the cut's ``tolerance_m`` or below ``causes.S2_TOLERANCE_M``.
     Why: the mesh cut and the footprint differ by up to 0.05 m, but a move changes both by the same amount; a move
-    along the wall (P4a edit 332, real02 f_L1_024) cannot shrink the cut."""
+    along the wall (P4a edit 332, real02 f_L1_024) cannot shrink the cut.
+
+    Fix round after P4b (17 Oct 2026; the review of the P4a fix round and the P4b analysis):
+
+    - the depth is exact (``footprint_wall_depth``), not sampled on a grid;
+    - the cut before the edit is the round's measured ``depth_m``, or the ``predicted_depth_after`` an earlier
+      accepted edit of the round left on the finding (``building_before`` is the building after that edit): two
+      chained moves are predicted from where the first one left the piece, and the message is rebuilt from the
+      measured text (``S2_MEASURED_MESSAGE``) instead of stacking another prefix;
+    - a predicted cut below ``causes.S2_TOLERANCE_M`` (0.03 m) counts as gone, the rule of
+      ``critic_code.within_tolerance_minor``: such a cut is a minor finding no tool is asked to fix, so a move that
+      leaves 0.02 m is no longer rejected (and stored in the memory as a rejection);
+    - an edit that keeps the footprint and the type (``swap_model``: the model is fitted to the kept footprint;
+      ``set_front``) keeps the cut, less what another model's depth may change (``swap_depth_slack``): P4b accepted 5
+      swaps for an S2 wall cut and 4 cuts were still there (the bathtub f_L0_184 at 0.049 m twice)."""
     if finding is None or not isinstance(building_before, dict) or not isinstance(building_after, dict):
         return None
     metrics = CS._metrics(finding)
@@ -553,7 +673,8 @@ def s2_wall_kept(finding: Optional[dict], building_before: Optional[dict], build
     if not wall_id or metrics.get("other") or metrics.get("kitchen_run"):
         return None
     try:
-        depth = float(metrics["depth_m"])
+        depth = float(metrics["predicted_depth_after"] if metrics.get("predicted_depth_after") is not None
+                      else metrics["depth_m"])
         tolerance = float(metrics.get("tolerance_m") if metrics.get("tolerance_m") is not None
                           else S2_DEFAULT_TOLERANCE_M)
     except (KeyError, TypeError, ValueError):
@@ -562,32 +683,82 @@ def s2_wall_kept(finding: Optional[dict], building_before: Optional[dict], build
     old, new = _piece_of(building_before, pid), _piece_of(building_after, pid)
     if old is None or new is None or not CS.in_scene(new) or not old.get("footprint") or not new.get("footprint"):
         return None
-    if _footprint_state(old) == _footprint_state(new):
-        return None
+    if old.get("type") != new.get("type"):
+        return None                        # retyped: another model and class tolerance, the next round measures it
     from wenart.blender import scene_checks as SC
     try:
         wall = next((w for w in SC.wall_boxes(building_before, old.get("level_id")) if w["id"] == wall_id), None)
         if wall is None:
             return None
-        d_old, d_new = footprint_wall_depth(old, wall), footprint_wall_depth(new, wall)
+        if _footprint_state(old) == _footprint_state(new):
+            slack = swap_depth_slack(new, wall)
+            d_old = d_new = None
+        else:
+            d_old, d_new = footprint_wall_depth(old, wall), footprint_wall_depth(new, wall)
     except (KeyError, TypeError, ValueError, IndexError):
         return None
-    if d_old is None:
-        return None                        # the footprint never stood beside the wall: no prediction
-    if d_new is None:
-        return None                        # moved off the wall's length: the next round measures it
-    predicted = depth + (d_new - d_old)
-    if predicted <= tolerance + 1e-9:
+    if d_old is None and d_new is None:
+        # fix round after P4b: the footprint is kept (swap_model); the cut can shrink only by what another model's
+        # depth may differ (swap_depth_slack), so ``predicted`` is the least cut after the edit
+        predicted = depth - slack
+        size = [float(v) for v in (new["footprint"].get("size") or [0, 0])[:2]]
+        what = (f"the edit keeps the footprint {size[0]:.2f} x {size[1]:.2f} m (the model is fitted to its width"
+                + (f", its depth within {slack:.3f} m" if slack > 0 else "") + f"), so the cut into {wall_id} stays "
+                f"at least {predicted:.3f} m")
+    else:
+        if d_old is None:
+            return None                        # the footprint never stood beside the wall: no prediction
+        if d_new is None:
+            return None                        # moved off the wall's length: the next round measures it
+        predicted = depth + (d_new - d_old)
+        what = f"after the edit the cut into {wall_id} is about {predicted:.3f} m"
+    if predicted <= tolerance + 1e-9 or predicted < CS.S2_TOLERANCE_M - 1e-9:
         return None
     evidence = finding.get("evidence") if isinstance(finding.get("evidence"), dict) else {}
-    kept_metrics = dict(metrics, predicted_depth_after=round(predicted, 4))
+    original = str(metrics.get(S2_MEASURED_MESSAGE) or finding.get("message") or "")
+    kept_metrics = dict(metrics, predicted_depth_after=round(predicted, 4), **{S2_MEASURED_MESSAGE: original})
     return dict(finding, metrics=kept_metrics, evidence=dict(evidence, metrics=kept_metrics),
-                message=f"after the edit the cut into {wall_id} is about {predicted:.3f} m (predicted from the "
-                        f"footprint, not rebuilt; allowed {tolerance:.3f} m); " + str(finding.get("message") or ""))
+                message=f"{what} (predicted from the footprint, not rebuilt; allowed "
+                        f"{max(tolerance, CS.S2_TOLERANCE_M):.3f} m); " + original)
+
+
+def exterior_kept(finding: dict, cause: str, override: dict) -> dict:
+    """Fix round after P4b: a vision finding a ``set_exterior`` override does not touch (``causes.override_touches``),
+    kept with the reason leading its message (the acceptance quotes it)."""
+    slots = ", ".join(sorted(CS.override_slots(override))) or "nothing"
+    wants = " or ".join(CS.EXTERIOR_SLOTS_OF_CAUSE.get(cause, ())) or "no exterior slot"
+    return dict(finding, cause=cause,
+                message=f"the edit does not change what the finding is about (the override sets {slots}; the cause "
+                        f"{cause} needs {wants}); " + str(finding.get("message") or ""))
+
+
+def scene_after(scene: Optional[dict], tool: str, args: Optional[dict], building: Optional[dict]) -> dict:
+    """Fix round after P4b: the round's scene manifest as the dry re-check's critic reads it after the edit: a
+    ``set_exterior`` sun override is written into a copy (``lighting.sun``: ``elevation_deg``, the compass
+    ``azimuth_deg`` and ``azimuth_building_deg`` with ``site.north_deg``), so the code's X7 measures the new sun
+    (P4b's 55 degree sun was accepted and X7 came in the next round); any other edit gets ``scene`` itself."""
+    sun = (args or {}).get("sun") if tool == "set_exterior" else None
+    if not isinstance(sun, dict) or not sun:
+        return scene if scene is not None else {}
+    from wenart.blender import lighting as LT
+    from wenart.blender import site as S
+    out = dict(scene or {})
+    lighting = dict(out.get("lighting") or {})
+    now = dict(lighting.get("sun") or {})
+    if isinstance(sun.get("elevation_deg"), (int, float)):
+        now["elevation_deg"] = float(sun["elevation_deg"])
+    if isinstance(sun.get("azimuth_deg"), (int, float)):
+        north = S.north_deg(building or {})[0]
+        now["azimuth_deg"] = float(sun["azimuth_deg"])
+        now["azimuth_building_deg"] = LT.building_azimuth(float(sun["azimuth_deg"]), north)
+    now["source"] = "agent"
+    lighting["sun"] = now
+    out["lighting"] = lighting
+    return out
 
 
 def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None,
-                   building_before: Optional[dict] = None) -> list[dict]:
+                   building_before: Optional[dict] = None, override: Optional[dict] = None) -> list[dict]:
     """The finding list after an edit for ``accept_edit`` (module docstring): the code critic's findings on the
     changed building (``code_after``) without the ``NOT_REMEASURED`` ones, plus the ``NOT_REMEASURED`` and vision
     findings of ``before`` whose target the edit did not change (a vision finding on a changed target is re-judged
@@ -602,7 +773,11 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
 
     Fix round after P4a: a ``code_after`` finding measured on the round's scene manifest (``manifest_measured``: the
     critical X2 of a built box through the roof) is left out on a changed target, for the same reason; the finding
-    re-measured on the building after the edit (the major X2 under the slope, same key) stays."""
+    re-measured on the building after the edit (the major X2 under the slope, same key) stays.
+
+    Fix round after P4b: ``override`` (a ``set_exterior``'s) keeps every vision finding whose cause it does not touch
+    (``exterior_kept``), whatever its target: a building-wide edit changes ``building`` and the views, so a ground
+    or sun edit counted the vision X4 "no path to the entrance" as gone (P4b seq 951 and 1357; it came back)."""
     out = []
     for f in code_after:
         if f.get("check") in NOT_REMEASURED:
@@ -612,8 +787,11 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     for f in before:
         if f.get("source") == "vision":
+            cause = f.get("cause") or CS.cause_of(f, building_after)
             if f.get("target") not in changed:
-                out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
+                out.append(dict(f, cause=cause))
+            elif override is not None and not CS.override_touches(cause, override):
+                out.append(exterior_kept(f, cause, override))
             continue
         if f.get("check") not in NOT_REMEASURED:
             continue
@@ -896,15 +1074,18 @@ class AgentLoop:
 
     # ----- acceptance (Milestone 13) ------------------------------------------------------------------
 
-    def code_findings(self, building: dict, ctx: TL.ToolContext, manifest: Optional[dict]) -> list[dict]:
+    def code_findings(self, building: dict, ctx: TL.ToolContext, manifest: Optional[dict],
+                      scene: Optional[dict] = None) -> list[dict]:
         """The code critic's findings of ``building`` (the dry re-check: ``recheck`` when injected, else the code
-        critic of the round, else ``critic_code.run`` with the same functions as ``run_code_critic``)."""
+        critic of the round, else ``critic_code.run`` with the same functions as ``run_code_critic``). Fix round
+        after P4b: ``scene`` (default the round's ``ctx.scene``) is the scene manifest the critic reads."""
+        scene = ctx.scene if scene is None else scene
         if self.recheck is not None:
-            got = self.recheck(building, ctx.scene, manifest)
+            got = self.recheck(building, scene, manifest)
         elif self.code_critic is not None:
-            got = self.code_critic(building, ctx.scene, manifest)
+            got = self.code_critic(building, scene, manifest)
         else:
-            got = CC.run(building, ctx.scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
+            got = CC.run(building, scene, manifest, scene_dir=self.scene_dir or CC.scene_checks_dir(self.project_out),
                          **self.critic_kwargs())
         if isinstance(got, dict):
             got = got.get("findings") or []
@@ -931,9 +1112,14 @@ class AgentLoop:
         targets = TL.target_findings(ctx, tool, args)
         before = list(ctx.findings)
         changed = TL.changed_targets(tool, args, result, targets, findings=before)
-        code_after = self.code_findings(building_after, ctx, self.render_manifest(ctx.preview_dir))
-        # fix round after P4a: the building before the edit predicts an S2 wall cut of a moved piece (s2_wall_kept)
-        after = after_findings(code_after, before, changed, building_after, building_before=ctx.building)
+        # fix round after P4b: the critic reads the sun a set_exterior sets (scene_after)
+        code_after = self.code_findings(building_after, ctx, self.render_manifest(ctx.preview_dir),
+                                        scene=scene_after(ctx.scene, tool, args, ctx.building))
+        # fix round after P4a: the building before the edit predicts an S2 wall cut of a moved piece (s2_wall_kept);
+        # fix round after P4b: a set_exterior keeps the vision findings it does not touch
+        override = {k: v for k, v in (args or {}).items() if k != "reason"} if tool == "set_exterior" else None
+        after = after_findings(code_after, before, changed, building_after, building_before=ctx.building,
+                               override=override)
         # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed);
         # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``)
         edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target"), "metrics": CS._metrics(f)}
@@ -1019,7 +1205,8 @@ class AgentLoop:
                                            plan_crop=ctx.plan_crop_path(key), code=code, call_id=call_id, looks=True)
                 else:
                     res = CV.critique_exterior(self.model, building, key, preview=ctx.preview_path(key),
-                                               plan_crop=None, code=code, call_id=call_id, camera=ctx.camera(key))
+                                               plan_crop=None, code=code, call_id=call_id, camera=ctx.camera(key),
+                                               scene=ctx.scene)
             except ModelError as exc:
                 checks.append({"source": "vision", "target": key, "status": "error", "note": str(exc),
                                "call_id": call_id})
@@ -1313,10 +1500,12 @@ class AgentLoop:
                                                                  findings=ctx.findings):
                                         done[k] = True
                             elif result.get("step_closed"):
-                                # fix round after P4a: the memory refused this edit twice in the session
+                                # fix round after P4a: the memory refused this edit twice in the session; fix round
+                                # after P4b: or the code's fix_fixture search found no valid spot
                                 for k, step in enumerate(checklist):
                                     if not done[k] and step_hit(step, tc.name, tc.parsed or {}, result):
-                                        closed[k] = True
+                                        closed[k] = str(result.get("closed_why")
+                                                        or "the memory refused its edit twice")
                     messages.append({"role": "tool", "tool_call_id": tc.id, "content": tool_result_text(result)})
                 if state.pending_images:
                     shown = state.pending_images[-MAX_IMAGES:]
@@ -1325,7 +1514,8 @@ class AgentLoop:
                     state.pending_images.clear()
         finally:
             open_steps = [(f"{s['tool']} on {s['target']}: {s.get('why', '')}"[:180]
-                           + (" [closed: the memory refused its edit twice]" if c else ""))
+                           + (f" [closed: {c if isinstance(c, str) else 'the memory refused its edit twice'}]"
+                              if c else ""))
                           for s, d, c in zip(checklist, done, closed) if not d]
             open_steps += [str(x) for x in ((state.finished or {}).get("open_findings") or [])]
             self.memory.set_open(room_id, open_steps)
@@ -1343,7 +1533,7 @@ class AgentLoop:
                                    "chars_removed": sum(int(c["chars_removed"]) for c in window.cuts),
                                    "max_model_len": getattr(self.model, "max_model_len", None)})
         return {"room_id": room_id, "calls": calls, "replies": replies, "error": error, "plan_ok": plan_ok,
-                "steps": len(checklist), "steps_done": sum(done), "steps_closed": sum(closed),
+                "steps": len(checklist), "steps_done": sum(done), "steps_closed": sum(1 for c in closed if c),
                 "seconds": round(self.clock() - t0, 2), "context_full": context_full}
 
     # ----- one round ---------------------------------------------------------------------------------
@@ -1364,12 +1554,15 @@ class AgentLoop:
         ctx = self.context(round_no, preview_dir)
         code = self.run_code_critic(ctx, preview_dir)
         rendered = self.rendered_building(ctx)
+        # fix round after P4b, decision 1: a placement finding on a replayed (set 1) camera is report-only
+        CS.mark_replayed(code.get("findings") or [], ctx.cameras())
         for f in code.get("findings") or []:
             f["cause"] = CS.cause_of(f, rendered)
         ctx.violations = list(code.get("findings") or [])
         vision = self.run_vision_critic(ctx, code, round_no)
         # Milestone 13: the vision critic's findings are work only where a tool exists for the cause
         kept = []
+        CS.mark_replayed(vision.get("kept") or [], ctx.cameras())
         for f in list(vision.get("kept") or []):
             f["cause"] = CS.cause_of(f, rendered)
             if CS.tools_for_finding(f):

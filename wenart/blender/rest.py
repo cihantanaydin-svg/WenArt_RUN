@@ -36,6 +36,16 @@ positions. A pose is ``{"center": [x, y], "z": bottom z (world), "rotation_deg",
 "how", ...}``; ``pose_vertices`` turns item-local vertices (bottom at z = 0, front -Y) into world vertices: lean
 about local X (the top towards +Y), lift so the lowest point is on z = 0, turn, move. Everything is deterministic
 (fixed grids, fixed order, no random numbers).
+
+Fix round after P4b (17 Oct 2026; integration of the furniture track's ask, the P4b verifier's better fix 1 and 4 of
+the bed-decor finding): ``place_leaning(bed=True)`` (``plan_decor`` for the ``headboard`` support,
+``textiles.duvet_and_pillows``) looks for the headboard in the head half only: the mattress is probed at
+``BED_SEAT_PROBE_SHARES`` of the depth from the foot, the back rays start at mid-bed (local y 0) and skip hits closer
+than ``BED_BACK_MIN_HIT_M`` (a start inside a duvet bulge), the rays run at least ``BED_PROBE_MIN_Z_M`` above the
+mattress (a lying pillow's lowest ray was 3 mm up), and a back that would still leave the item's centre in the foot
+half gives way to the footprint's back edge. Why: the rays started 0.2 m in front of the foot and took a footboard
+taller than the mattress, or a duvet roll at the foot, for the headboard (P4b real03: 9 of 14 bed cushions not
+rested, two at the foot, 7 of 10 beds without bedding). Sofas are unchanged.
 """
 from __future__ import annotations
 
@@ -58,6 +68,10 @@ LEAN_DEG = 12.0                   # cushions lean 10-15 degrees on the back (§4
 BACK_PROBE_SHARES = (0.03, 0.15, 0.5, 0.85, 1.0)   # horizontal back rays at these shares of the item's height
 ARM_PROBE_SHARES = (0.1, 0.5)     # side rays at these shares of the item's height (an arm lower than its middle)
 SEAT_PROBE_SHARES = (0.30, 0.45, 0.60, 0.75)   # the seat is probed at these shares of the host depth from its front
+# Fix round after P4b (module docstring): a bed's headboard is searched in its head half.
+BED_SEAT_PROBE_SHARES = (0.55, 0.65, 0.75)     # the mattress under the pillows, never the foot
+BED_BACK_MIN_HIT_M = 0.02                      # back rays start mid-bed; a closer hit is the start inside a bulge
+BED_PROBE_MIN_Z_M = 0.03                       # back rays at least this far above the mattress
 ARM_GAP_M = 0.005                 # a cushion stays this far off an arm
 MIN_CUSHION_W = 0.30              # a cushion squeezed narrower than this between the arms is not placed
 SHIFT_STEPS = 4                   # a top item tries its spot, then this many steps towards the host centre
@@ -371,9 +385,13 @@ def place_on_top(caster, center, size, rotation_deg: float, soft: bool, host_cen
     return None
 
 
-def _horizontal(caster, origin, direction, max_dist: float = 5.0) -> Optional[float]:
-    h = caster.ray(origin, direction, max_dist)
-    return None if h is None else float(h[0])
+def _horizontal(caster, origin, direction, max_dist: float = 5.0, min_dist: float = 0.0) -> Optional[float]:
+    """The distance to the first hit along a ray (``min_dist``: the first hit at least that far; fix round after
+    P4b, a bed's back ray that starts inside a duvet bulge), None without one."""
+    if min_dist <= 0.0:
+        h = caster.ray(origin, direction, max_dist)
+        return None if h is None else float(h[0])
+    return next((float(t) for t, _p, _n in caster.hits(origin, direction, max_dist) if float(t) >= min_dist), None)
 
 
 def back_face_offset(t: float, s: float, lean_deg: float) -> tuple[float, float]:
@@ -384,7 +402,7 @@ def back_face_offset(t: float, s: float, lean_deg: float) -> tuple[float, float]
 
 
 def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LEAN_DEG, soft_host: bool = True,
-                  turn_deg: float = 0.0, attempt: int = 0) -> Optional[dict]:
+                  turn_deg: float = 0.0, attempt: int = 0, bed: bool = False) -> Optional[dict]:
     """A cushion against the real back of a seat, or a pillow against the headboard of a bed (§4.7).
 
     ``host_fp``: the host footprint (``center``, ``size``, ``rotation_deg``); ``item_center``: the item's planned
@@ -393,7 +411,8 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
     towards its back at three heights of the item find the back (none: the footprint's back edge, said in
     ``how``); the item's centre moves so its leaning back face touches the nearest of them; rays to the sides keep
     it ``ARM_GAP_M`` off the arms (shifted, else narrowed, else None); two passes settle the seat height at the
-    final spot. ``attempt`` = 1 (the S5 re-placement) moves the planned spot 0.10 m towards the host centre line."""
+    final spot. ``attempt`` = 1 (the S5 re-placement) moves the planned spot 0.10 m towards the host centre line.
+    ``bed`` (fix round after P4b, module docstring): the headboard of a bed, searched in its head half."""
     w, t, h = (float(v) for v in size)
     hc, (hw, hd), rot = host_fp["center"], (float(host_fp["size"][0]), float(host_fp["size"][1])), \
         float(host_fp["rotation_deg"])
@@ -407,7 +426,7 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
     side_dir = direction_world(rot, 1.0, 0.0)
     # 1. the seat in front of the item (the front part of a sofa or the head part of a bed is seat or mattress)
     seat = None
-    for share in SEAT_PROBE_SHARES:               # from the front towards the back: an L sofa's inner corner is empty
+    for share in (BED_SEAT_PROBE_SHARES if bed else SEAT_PROBE_SHARES):   # front to back: an L sofa's corner is empty
         seat_y = -hd / 2.0 + share * hd
         probe = [to_world(hc, rot, lx + k * w / 4.0, seat_y) for k in (0, -1, 1)]
         hits = _down_hits(caster, probe, top)
@@ -419,6 +438,9 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
         return None
     how = []
     cy_local = None
+    # fix round after P4b (module docstring): a bed's back rays start mid-bed, skip a bulge and run above the mattress
+    start, reach = (0.0, hd / 2.0 + 0.2) if bed else (-hd / 2.0 - 0.2, hd + 0.4)
+    min_hit = BED_BACK_MIN_HIT_M if bed else 0.0
     # Milestone 13: the back is probed with the centre ray first; when the item is then squeezed between two things
     # narrower than a cushion (the centre ray passed through the gap between the two pillows of a made bed and found
     # the headboard behind them), three rays over the item's width probe again and the nearest hit is the back.
@@ -428,22 +450,24 @@ def place_leaning(caster, host_fp: dict, item_center, size, lean_deg: float = LE
             for f in BACK_PROBE_SHARES:
                 s = f * h
                 _yb, zb = back_face_offset(t, s, lean_deg)
-                z = seat + zb
+                z = seat + (max(zb, BED_PROBE_MIN_Z_M) if bed else zb)
                 dists = []
                 for k in probe_xs:
-                    ox, oy = to_world(hc, rot, lx + k * w / 4.0, -hd / 2.0 - 0.2)
-                    dist = _horizontal(caster, (ox, oy, z), (back_dir[0], back_dir[1], 0.0), hd + 0.4)
-                    if dist is None or (k and -hd / 2.0 - 0.2 + dist <= seat_y):
+                    ox, oy = to_world(hc, rot, lx + k * w / 4.0, start)
+                    dist = _horizontal(caster, (ox, oy, z), (back_dir[0], back_dir[1], 0.0), reach, min_hit)
+                    if dist is None or (k and start + dist <= seat_y):
                         continue              # a side ray stopped in front of the seat (an arm) is not a back
                     dists.append(dist)
                 if dists:
-                    backs.append((-hd / 2.0 - 0.2 + min(dists), s))
+                    backs.append((start + min(dists), s))
             if backs:
                 cy_local = min(yb - back_face_offset(t, s, lean_deg)[0] for yb, s in backs)
                 what = "the backrest found by horizontal rays"
                 if len(probe_xs) > 1:
                     what += " (the nearest of three over the item's width: the centre ray passed between two things)"
-            else:
+            if bed and backs and cy_local < 0.0:
+                backs = []                    # fix round after P4b: a "headboard" that leaves the item at the foot
+            if not backs:
                 cy_local = hd / 2.0 - back_face_offset(t, h * 0.5, lean_deg)[0]
                 what = "no backrest hit: against the footprint's back edge (the wall)"
             # the seat under the item's spot (soft: median of the grid over its middle: never an arm's top)
@@ -639,10 +663,12 @@ ATTEMPTS = 2                      # placed, then placed once more, then not buil
 def place_item(support: str, caster, host_fp: dict, center, size, rotation_deg: float, soft_item: bool,
                lean_deg: float = 0.0, shelf: Optional[int] = None, attempt: int = 0) -> Optional[dict]:
     """The pose of an item on its support (``host_frame.support``): leaning on a back or a headboard, on a shelf
-    board, or lying on a top, a seat or a mattress; None when the host offers no support there."""
+    board, or lying on a top, a seat or a mattress; None when the host offers no support there. Fix round after
+    P4b: a ``headboard`` is searched in the bed's head half (``place_leaning(bed=True)``)."""
     if support in ("back", "headboard"):
         return place_leaning(caster, host_fp, center, size, lean_deg or LEAN_DEG,
-                             turn_deg=float(rotation_deg) - float(host_fp["rotation_deg"]), attempt=attempt)
+                             turn_deg=float(rotation_deg) - float(host_fp["rotation_deg"]), attempt=attempt,
+                             bed=support == "headboard")
     if support == "shelf":
         return place_on_shelf(caster, center, size, rotation_deg, shelf, attempt)
     if support in ("top", "seat", "mattress"):

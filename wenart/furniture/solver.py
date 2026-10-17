@@ -92,6 +92,17 @@ Fix round after P4a (17 Oct 2026):
   (``_match_members``), so a 0.45 m deep drawn nightstand on a place made for a 0.40 m one reached 2.5 cm into the
   headboard wall, failed the exact test and the whole group got no candidate (real02's YATAK beds with their drawn
   nightstands, ``infer.nightstand_symbols``: the misread 2.55 m bed then stayed as drawn).
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03). What: a drawn appliance of ``ACCESS_ZONE_TYPES`` (a washing
+machine) whose drawn front opens out of the room (less than ``ACCESS_INSIDE_SHARE`` of its use zone in front lies in
+the room: the drawing turned it towards a wall) keeps a use zone free on the one other side that opens into the room
+(``access_zone``: at least that share inside, off every other drawn piece; the part inside the room, named
+``access``). No added piece stands there and the walkways keep reaching it. With no such side, or more than one,
+nothing is reserved (the side is unclear). The drawn piece is not changed (fixed equipment, CLAUDE.md). Why: real03's
+4 entrance halls each end in a 0.45 m strip with a drawn washer whose block faces the strip's wall; its only open
+side is the strip, and the completion put a 0.9 m console there, 0.11-0.26 m in front of the door of the machine
+(the agent later turned the washers to face the strip, onto the console). A front clearance in the clearance table
+would not have stopped it: the drawn front looks at the wall.
 """
 from __future__ import annotations
 
@@ -122,6 +133,10 @@ MERGE_M = 0.5                  # same option and turn, anchor within this: one c
 DIVERSE_M = 1.0                # the top k differ by an option, a turn or an anchor this far apart
 ZONE_INFLATE_M = 0.02          # use zones are tested 2 cm larger on the raster (sub-cell safety)
 FIXED_ZONE_INFLATE_M = -0.03   # a drawn piece's zone is tested 3 cm smaller: it touches the piece's own cells
+# Fix round after P4b (module docstring): drawn appliances whose use zone is kept free on their open side when the
+# drawn front opens out of the room.
+ACCESS_ZONE_TYPES: tuple[str, ...] = ("washing_machine",)
+ACCESS_INSIDE_SHARE = 0.5      # a use zone with less than this share inside the room opens out of it
 CLOSE_M = 0.05                 # pieces closer than this get an exact shapely overlap test
 GAP = placer.SNAP_GAP_M        # back edge to wall face
 EVIDENCE_FILE = "building.json"
@@ -2036,9 +2051,64 @@ def _info(space: Space, building: dict, room_id: str, prog: dict, budget: dict) 
             "drawn_run": drawn_run}
 
 
+def _zone_poly(zone) -> Polygon:
+    _name, center, rotation, box = zone
+    return placer._local_box(center, rotation, *box)
+
+
+def access_zone(space: Space, f: dict, p: placer.Piece) -> Optional[tuple]:
+    """Fix round after P4b (module docstring): ``("access", centre, rotation, box)`` for a drawn ``ACCESS_ZONE_TYPES``
+    piece whose drawn front zone lies mostly outside the room: its use zone on the one other side with at least
+    ``ACCESS_INSIDE_SHARE`` inside the room and off every other drawn piece, cut to the room (the box of its part in
+    the room); None when the drawn front opens into the room or no single side does."""
+    if f.get("type") not in ACCESS_ZONE_TYPES or f.get("source") != "from_documents":
+        return None
+    room = space.ctx.polygon
+
+    def front_of(rotation: float, size) -> Optional[tuple]:
+        spot = Spot(f["type"], p.center, rotation, size, "fixed", False, existing_id=f["id"])
+        return next((z for z in spot.zones(overrides=space.overrides) if z[0] == "front"), None)
+
+    def share(zone) -> float:
+        poly = _zone_poly(zone)
+        return poly.intersection(room).area / poly.area if poly.area > 0 else 0.0
+
+    drawn = front_of(p.rotation_deg, p.size)
+    if drawn is None or share(drawn) >= ACCESS_INSIDE_SHARE - 1e-9:
+        return None
+    others = [q for g, q in zip(space.fixed_items, space.fixed_polys) if g.get("id") != f.get("id")
+              and g.get("build") is not False and g.get("type") != "unknown"]
+    open_sides = []
+    for turn in (90.0, 180.0, 270.0):
+        size = (p.size[1], p.size[0]) if turn != 180.0 else p.size
+        zone = front_of(G.normalise_angle(p.rotation_deg + turn), size)
+        if zone is None or share(zone) < ACCESS_INSIDE_SHARE - 1e-9:
+            continue
+        poly = _zone_poly(zone)
+        if any(poly.intersection(q).area > placer.AREA_EPS for q in others):
+            continue
+        open_sides.append(zone)
+    if len(open_sides) != 1:
+        return None                              # no open side, or several: the access side is unclear
+    _name, center, rotation, box = open_sides[0]
+    inside = _zone_poly(open_sides[0]).intersection(room)
+    r = math.radians(rotation)
+    c, s_ = math.cos(r), math.sin(r)
+    pts = [((x - center[0]) * c + (y - center[1]) * s_, -(x - center[0]) * s_ + (y - center[1]) * c)
+           for geom in getattr(inside, "geoms", [inside]) for x, y in getattr(geom, "exterior", geom).coords]
+    if not pts:
+        return None
+    xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+    cut = (max(box[0], min(xs)), min(box[1], max(xs)), max(box[2], min(ys)), min(box[3], max(ys)))
+    if cut[1] - cut[0] <= 1e-6 or cut[3] - cut[2] <= 1e-6:
+        return None
+    return ("access", center, rotation, tuple(round(v, 4) for v in cut))
+
+
 def fixed_zones(space: Space) -> list:
     """The use zones of the fixed (drawn) built pieces that are free with the fixed pieces alone: no new piece may
-    stand there (a wardrobe in a drawn bed's side clearance), and the walkways must keep reaching them."""
+    stand there (a wardrobe in a drawn bed's side clearance), and the walkways must keep reaching them. Fix round after
+    P4b: plus the ``access_zone`` of a drawn washer whose drawn front opens out of the room."""
     out = []
     chairs = [(f, p) for f, p in zip(space.fixed_items, space.fixed_pieces) if f.get("type") in GC.SEAT_TYPES
               and f.get("build") is not False]
@@ -2051,6 +2121,9 @@ def fixed_zones(space: Space) -> list:
         if zones is None:
             zones = [z for z in spot.zones(overrides=space.overrides) if z[0] not in ("left", "right")]
         out += [z for z in zones if not space.zone_layer.hit(space.zone_fp(z, FIXED_ZONE_INFLATE_M))]
+        access = access_zone(space, f, p)            # fix round after P4b (module docstring)
+        if access is not None:
+            out.append(access)
         if f["type"] == "table_dining":
             # A drawn table keeps the pull-out room behind its drawn chairs (they stand in it, so it is not tested).
             poly = p.polygon()

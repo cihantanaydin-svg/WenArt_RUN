@@ -76,12 +76,62 @@ Fix round after P4a (17 Oct 2026; pod P4a, real02):
   accepted override, else its scene camera; ``camera_pose_now``, ``same_pose``: 1 cm, 0.05 mm of lens) is a no-op
   with the reason (``no_change``), never an accepted edit. Why: P4a accepted the same set_camera ext_6 in rounds 2
   and 3; the dry re-check cannot measure X6 and counted it gone each time.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03, the review of the P4a fix round and the lead's decisions of the
+same day):
+
+- decision 1: a camera replayed from the baseline (set 1; ``causes.frozen_camera``: ``source: replayed`` or a record
+  that already replaced one) is frozen: ``set_camera``, ``remove_camera`` and an ``add_camera`` of its name are
+  refused (``frozen``, counted as a try), with the reason; a new camera under a new view id may be added. Why: the
+  P4a fix round's build merge made the agent's set really replace the replayed ext_6, so the frozen entrance view
+  [7.59, 29.50] would have become a near-duplicate of ext_3 (docs/milestone13.md §7: set 1 keeps the old poses);
+- decision 2: the role of an exterior camera stays: a ``frontal`` / ``elevation`` view is never turned into a pose
+  that is no longer square to its facade (``build.agent_exterior_view``, the build's own rule: within 30 degrees),
+  an ``entrance`` view keeps its door close and in front (``entrance_problem``: at most ``ENTRANCE_VIEW_MAX_M`` from
+  the door face, within ``ENTRANCE_VIEW_MAX_DEG`` of the door's axis), and the only view of either
+  role is not removed (``role_problem``). Why: P4b turned the frontal ext_6 and the entrance ext_7 into corner views
+  for the vision critic's 3/4 rubric, then back to frontal for the code's X6 (8 accepted set_camera edits), and the
+  final set had no entrance view; the far pose (40, -45) rendered blown out;
+- an exterior camera refused for its eye height gets the ground under it and the z to use (``eye_height_hint``:
+  "ground -0.15 m: use z 1.35-1.55"; P4b's 1.6 m tries were refused "eye height 1.75 m" without it);
+- ``set_exterior``: the state it is compared with is the one the build makes (``exterior_state``: the site options'
+  defaults and the brief's front court, the building's own site keys, the garden look the ground override writes,
+  ``scene_manifest.exterior_looks.garden``), so P4b's ground 'grass' on a 'grass' garden is a no-op; a sun override
+  is checked against the code's own X7 rule before the validator (``sun_problems``:
+  ``exterior_checks.SUN_ELEVATION_RANGE``, 25-50 degrees, and the main facade's side, the compass azimuth turned to
+  the building frame with ``site.north_deg``; decision 4: real02's assumed north stays). P4b set the sun to 55
+  degrees for a vision X4 "no path". ``changed_targets`` adds a vision finding's target only when the override sets
+  a slot of its cause (``causes.override_touches``);
+- ``fix_fixture``: once the code's own search (no ``center``, no ``size``) found no valid spot for a piece, a later
+  ``fix_fixture`` on that piece without a new size is refused (``no_spot``, counted as a try), in this session from
+  its result and in later rounds from the memory (``memory.Memory.no_spot``). Why: P4b sent 21 centres in 5 cm steps
+  after "no valid spot within 0.50 m" (and 13 max_tries);
+- a ``dry_run`` repeated with the same arguments in a session, while no edit was accepted in between, is answered
+  from the first one ("same as dry run #n"), counted as a try of its target and not validated again. Why: P4b sent
+  one move of f_L0_141 nine times as a dry run, with the same answer;
+- a ``swap_model`` result says that the footprint is kept (``footprint_kept``): the model is fitted to its width, so
+  a swap does not change a wall cut across the width and changes one across the depth by a few cm at most
+  (``loop.s2_wall_kept``, ``loop.swap_depth_slack``).
+
+Integration of the fix round after P4b (17 Oct 2026; the site track's ask, the P4b verifier's better fix (c)):
+
+- the entrance rule is ``exterior_checks.entrance_view_problem`` (one function for X6, the build's view check and
+  this tool): the bearing is taken from the door (within 30 degrees of its axis, at most 14 m), and the door must be
+  in the frame; the look-direction rule refused the planner's own entrance pose (real03's ext_7 looks 42 degrees off
+  the axis, turned to the building's middle by ``exterior.frame_fixed``);
+- an exterior ``set_camera`` / ``add_camera`` whose position lies within ``DUPLICATE_VIEW_M`` of another exterior
+  camera (its pose the next build gives it: this session's accepted overrides first) and whose horizontal view
+  direction is within ``DUPLICATE_VIEW_DEG`` of that camera's is refused (``duplicate_view_problem``, counted as a
+  try; the camera of the same name, which the edit replaces, is left out). It compares geometry, not the ``sides``
+  that ``overrides.fixed_plan`` copies. P4b's ext_6 and ext_7 stood 15-23 m apart when they showed the same facade;
+  the role rules of decision 2 refuse those moves, this rule refuses a near copy of a view.
 """
 from __future__ import annotations
 
 import copy
 import itertools
 import json
+import math
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -99,6 +149,17 @@ MAX_TRIES = 3
 MEMORY_REFUSALS_CLOSE = 2              # fix round after P4a: identical memory refusals in a session that close a step
 POSE_TOLERANCE_M = 0.01                # fix round after P4a: two camera positions / targets this close are the same
 LENS_TOLERANCE_MM = 0.05
+# Fix round after P4b (module docstring): the camera roles the agent keeps, and the dry-run and no-spot refusals.
+FRONTAL_VIEWS = ("frontal", "elevation")
+ENTRANCE_VIEW = "entrance"
+ENTRANCE_VIEW_MAX_M = 14.0             # the planner's farthest entrance view (exterior.ENTRANCE_VIEW_M, 12 m) + 2 m
+ENTRANCE_VIEW_MAX_DEG = 30.0           # the planner's entrance view looks 20 degrees off the door's axis
+DUPLICATE_VIEW_M = 6.0                 # integration after P4b: another exterior camera this close ...
+DUPLICATE_VIEW_DEG = 15.0              # ... looking within this many degrees of it shows the same view
+FROZEN_CAMERA = ("frozen: {view} is a camera replayed from the baseline run (set 1): its pose is fixed for the "
+                 "before/after comparison (docs/milestone13.md §7, decision of 17 Oct 2026); add_camera with a new "
+                 "view id adds another view")
+NO_SPOT_PREFIX = "no valid spot within"   # edit_ops._fix_fixture: the code's own search found no spot
 PREVIEW_DIR = "agent/previews"         # the round previews (960x540, 32 samples)
 FINAL_RENDER_DIR = "renders"
 EDIT_META = ("op", "round", "log_seq", "model", "target_finding")      # set by the loop, never by the model
@@ -204,9 +265,12 @@ DESCRIPTIONS = {
     "remove_piece": "Remove a piece. A drawn piece only when it is clearly not furniture (give the evidence).",
     "relayout_room": "Re-place the AI pieces of a room (drawn pieces stay locked).",
     "set_room_type": "Change a room's type when it does not fit its area, fixtures and doors.",
-    "set_camera": "Move an existing camera (position, target, lens).",
-    "add_camera": "Add a camera view.",
-    "remove_camera": "Remove a camera view (e.g. a view of a bare wall).",
+    "set_camera": "Move an existing camera (position, target, lens). A camera replayed from the baseline (set 1) "
+                  "is frozen and refused; a frontal view stays square to its facade and an entrance view stays "
+                  "close in front of its door.",
+    "add_camera": "Add a camera view under a new view id.",
+    "remove_camera": "Remove a camera view (e.g. a view of a bare wall); never a replayed (set 1) camera, nor the "
+                     "only frontal or entrance view.",
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
                     "frames ...).",
     "set_exterior": "Change the roof (type, pitch, overhang), ground, site items or the sun (the building session "
@@ -236,7 +300,8 @@ DESCRIPTIONS = {
                           "evidence.",
     "fix_fixture": "Misread fixed equipment: a real product size and/or a move of at most 0.5 m (through a wall, in "
                    "a door swing). Leave out center: the code moves it to the nearest valid spot (pod P5: 32 of 35 "
-                   "guessed centres were still in a wall or a door swing).",
+                   "guessed centres were still in a wall or a door swing). When the code answers 'no valid spot', no "
+                   "centre will do: the finding stays for review.",
     "set_front": "Give a drawn piece without a front (front_inferred) the direction its front faces (degrees "
                  "counter-clockwise from +x, along a side of its footprint); to turn a piece use rotate_piece.",
     "set_mark_kind": "Correct the kind of a level mark (with the reason).",
@@ -246,7 +311,8 @@ DESCRIPTIONS = {
     "set_terrain": "Choose the terrain model: flat, planar or tin.",
     "report_library_gap": "Record that no audited library model of a type and style exists (a library gap).",
     "dry_run": "Ask the validator about an edit WITHOUT applying it (free: no try is counted): accepted or the failed "
-               "checks with their numbers.",
+               "checks with their numbers. The same dry run twice is answered from the first one and counts as a "
+               "try.",
 }
 STAGE_OF = {"set_camera": "build", "add_camera": "build", "remove_camera": "build", "set_material": "build",
             "set_exterior": "build", "set_lighting": "build", "correct_geometry": "pipeline_final"}
@@ -295,6 +361,11 @@ class SessionState:
         self.finished: Optional[dict] = None
         self.checklist: list = []
         self.refusals: dict = {}             # fix round after P4a: memory refusals per edit key in this session
+        # fix round after P4b: the dry runs of the session (key -> {n, out, accepted}) and the pieces whose
+        # fix_fixture search found no valid spot (piece id -> the refusal)
+        self.dry_runs: dict = {}
+        self.dry_n = 0
+        self.no_spot: dict = {}
 
 
 @dataclass
@@ -623,14 +694,22 @@ class Registry:
                                       "something else", refused_by_memory=True)
                 if closed:
                     out["step_closed"] = True
+                    out["closed_why"] = "the memory refused its edit twice"
                     out["message"] = (f"refused again without validation ({state.refusals[key]} times in this "
                                       "session): this exact edit was rejected before. Its checklist step is closed: "
                                       "go on with the next step, or call finish")
+                return _reject(ctx, name, args, out)
+        if name == "fix_fixture":
+            # fix round after P4b (module docstring): the code's search found no spot; no centre will
+            out = no_spot_refusal(ctx, args)
+            if out is not None:
                 return _reject(ctx, name, args, out)
         try:
             res = tool.handler(ctx, args)
         except Exception as exc:  # noqa: BLE001 - the model sees the error and may try another way
             return {"error": f"{name} failed: {type(exc).__name__}: {exc}"}
+        if name == "fix_fixture":
+            note_no_spot(ctx, args, res)
         failed = list(res.get("failed_checks") or [])
         if remember and "accepted" in res and not (failed and (failed[0].startswith("max_tries")
                                                               or failed[0] == "validator_unavailable")):
@@ -967,7 +1046,12 @@ def changed_targets(tool: str, args: dict, result: dict, targets: list[dict], fi
     render re-meters them); without that a room with two dark views kept one of them as "still there"."""
     out = {args.get(k) for k in ("piece_id", "room_id", "group_id", "view_id") if args.get(k)}
     out |= {str(i) for i in (result.get("changed_ids") or [])}
-    out |= {f.get("target") for f in targets if f.get("target") is not None}
+    override = {k: v for k, v in args.items() if k != "reason"} if tool == "set_exterior" else None
+    # fix round after P4b: a set_exterior changes a vision finding's target only through a slot of its cause
+    out |= {f.get("target") for f in targets if f.get("target") is not None
+            and (override is None or f.get("source") != "vision"
+                 or CS.override_touches(f.get("cause") if f.get("cause") in CS.CAUSE_TOOLS else CS.cause_of(f),
+                                        override))}
     if tool == "set_lighting" and args.get("room_id"):
         out |= {f.get("target") for f in findings or [] if f.get("room_id") == args["room_id"]
                 and str(f.get("check")) in CS.LIGHTING_CHECKS and f.get("target") is not None}
@@ -1089,6 +1173,56 @@ def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Cal
     return _accept(ctx, tool, args, out)
 
 
+def no_spot_of(ctx: ToolContext, piece_id: Optional[str]) -> Optional[str]:
+    """Fix round after P4b (module docstring): why the code's own ``fix_fixture`` search found no spot for
+    ``piece_id``: this session's result, else an earlier round's rejection in the memory; None when it did not run
+    or found one."""
+    if not piece_id:
+        return None
+    seen = ctx.session().no_spot.get(str(piece_id))
+    if seen:
+        return seen
+    if ctx.memory is not None and hasattr(ctx.memory, "no_spot"):
+        hit = ctx.memory.no_spot(edit_room(ctx, {"piece_id": piece_id})).get(str(piece_id))
+        if hit:
+            return f"{hit['reason']} (round {hit['round']})"
+    return None
+
+
+def no_spot_refusal(ctx: ToolContext, args: dict) -> Optional[dict]:
+    """Fix round after P4b: the refusal of a ``fix_fixture`` without a new ``size`` on a piece the code's search
+    found no spot for (``no_spot_of``); counted as a try of the piece; it closes the step. None otherwise."""
+    if args.get("size") is not None:
+        return None                      # a real product size is another search (edit_ops decides)
+    why = no_spot_of(ctx, args.get("piece_id"))
+    if why is None:
+        return None
+    target = _target("fix_fixture", args)
+    with ctx.lock:
+        ctx.tries[target] = ctx.tries.get(target, 0) + 1
+    return _result(False, [f"no_spot: {args.get('piece_id')}: the code searched every spot within 0.5 m and found "
+                           f"none ({why[:200]}); do not try centres: the finding stays for review"],
+                   message="refused without validation: no valid spot exists within 0.5 m (searched by the code); "
+                           "do not try centres. Its checklist step is closed: go on with the next step, or call "
+                           "finish", tool="fix_fixture", no_spot=True, step_closed=True,
+                   closed_why="the code found no valid spot within 0.5 m")
+
+
+def note_no_spot(ctx: ToolContext, args: dict, res: dict) -> None:
+    """Fix round after P4b: a ``fix_fixture`` without ``center`` and ``size`` whose search found no valid spot is
+    remembered for the session (``SessionState.no_spot``) and closes its step."""
+    if args.get("center") is not None or args.get("size") is not None or res.get("accepted"):
+        return
+    hit = next((str(f) for f in res.get("failed_checks") or [] if NO_SPOT_PREFIX in str(f)), None)
+    if hit is None:
+        return
+    ctx.session().no_spot[str(args.get("piece_id"))] = hit
+    res["step_closed"] = True
+    res["closed_why"] = "the code found no valid spot within 0.5 m"
+    res["message"] = (str(res.get("message") or "") + "; " if res.get("message") else "") + \
+        "no valid spot exists within 0.5 m: do not try centres, the finding stays for review"
+
+
 def furniture_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
     op = OV.FURNITURE_TOOLS[tool]
 
@@ -1107,7 +1241,16 @@ def furniture_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
         def run(building):
             catalog = ctx.catalog() if edit["op"] in CATALOG_OPS else None
             return ctx.edit_fn()(building, edit, catalog=catalog)
-        return _building_edit(ctx, tool, args, edit, run, "refit")
+        out = _building_edit(ctx, tool, args, edit, run, "refit")
+        if tool == "swap_model":
+            # fix round after P4b (module docstring): a swap keeps the footprint
+            piece = ctx.piece(args.get("piece_id") or "") or {}
+            size = (piece.get("footprint") or {}).get("size") or []
+            if len(size) >= 2:
+                out["footprint_kept"] = (f"the footprint {float(size[0]):.2f} x {float(size[1]):.2f} m is kept; the "
+                                         f"model is fitted to its width, so a swap does not change a wall cut across "
+                                         f"the width and changes one across the depth by a few cm at most")
+        return out
 
     return handler
 
@@ -1229,6 +1372,162 @@ def camera_pose_now(ctx: ToolContext, view_id: str) -> tuple[Optional[dict], str
     return (cam, "its camera in the scene manifest") if cam is not None else (None, "")
 
 
+def entrance_of(building: dict, camera: dict) -> Optional[dict]:
+    """Fix round after P4b: the entrance record (``site.entrances``: ``door_id``, ``face`` or ``centre``,
+    ``outward``) an entrance view frames: the camera's own ``entrance`` door, else the main entrance, else the one
+    nearest the camera's target; None without entrances."""
+    recs = [r for r in ((building.get("site") or {}).get("entrances") or [])
+            if isinstance(r, dict) and r.get("outward") and (r.get("face") or r.get("centre"))]
+    if not recs:
+        return None
+    door = camera.get("entrance") or camera.get("door_id")
+    rec = next((r for r in recs if door and r.get("door_id") == door), None) or \
+        next((r for r in recs if r.get("main")), None)
+    if rec is None:
+        aim = camera.get("target") or camera.get("position") or [0.0, 0.0]
+        rec = min(recs, key=lambda r: math.dist([float(v) for v in (r.get("face") or r["centre"])[:2]],
+                                                [float(v) for v in aim[:2]]))
+    return rec
+
+
+def entrance_problem(building: dict, camera: dict, position, target, lens_mm=None) -> Optional[str]:
+    """Fix round after P4b (module docstring, decision 2): why the pose ``position`` -> ``target`` is no longer the
+    entrance view of ``camera``; None when it still is, or without an entrance record. Integration of the fix round:
+    the rule is ``exterior_checks.entrance_view_problem`` (the same function as X6 and the build's view check; at
+    most ``ENTRANCE_VIEW_MAX_M`` from the door face, within ``ENTRANCE_VIEW_MAX_DEG`` of the door's axis seen from the
+    door, the door in the frame of ``lens_mm``): the look-direction rule refused the planner's own entrance pose,
+    which ``exterior.frame_fixed`` turns 42 degrees off the axis on real03."""
+    from wenart.blender import exterior_checks as X
+
+    return X.entrance_view_problem(entrance_of(building, camera), position, target,
+                                   lens_mm or camera.get("lens_mm"))
+
+
+def frontal_problem(building: dict, camera: dict, position, target) -> Optional[str]:
+    """Fix round after P4b (module docstring, decision 2): why the pose is no longer the frontal view of ``camera``
+    (``build.agent_exterior_view``, the build's own rule: square, within 30 degrees, to the facade of its first
+    side); None when it still is."""
+    from wenart.blender import build as B
+    from wenart.blender import site as S
+
+    if not camera.get("sides"):
+        return None                      # no facade to be square to: nothing to judge
+    north, src = S.north_deg(building)
+    plan = copy.deepcopy(dict(camera, position=list(position), target=list(target)))
+    change = B.agent_exterior_view(plan, (0.0, 0.0), north, not str(src).startswith("assumed"))
+    if change is None:
+        return None
+    sides = ", ".join(change.get("sides_was") or []) or "its"
+    return (f"the pose no longer looks square (within {B.AGENT_FRONTAL_MAX_DEG:g} degrees) at the {sides} facade")
+
+
+def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Optional[str]:
+    """Fix round after P4b (module docstring, decision 2): why a camera edit would lose the view's role: a ``set`` /
+    ``add`` that turns a frontal view into another pose or moves an entrance view away from its door, a ``remove`` of
+    the only frontal or entrance view; None otherwise."""
+    cam = ctx.camera(view_id)
+    if not isinstance(cam, dict) or (cam.get("kind") or ("exterior" if not cam.get("room_id") else "interior")) \
+            != "exterior":
+        return None
+    view = cam.get("view")
+    if view not in FRONTAL_VIEWS and view != ENTRANCE_VIEW:
+        return None
+    role = "frontal" if view in FRONTAL_VIEWS else ENTRANCE_VIEW
+    if action == "remove":
+        same = [c.get("name") for c in ctx.cameras() if c.get("name") != view_id
+                and (c.get("view") in FRONTAL_VIEWS if role == "frontal" else c.get("view") == ENTRANCE_VIEW)]
+        if same:
+            return None
+        return (f"role: {view_id} is the only {role} view (the frontal view of the entrance facade X6 asks for, or "
+                f"the view of the entrance door): it is not removed; add_camera with a new view id adds another view")
+    if not entry.get("position") or not entry.get("target"):
+        return None
+    try:
+        why = (frontal_problem(ctx.building, cam, entry["position"], entry["target"]) if role == "frontal" else
+               entrance_problem(ctx.building, cam, entry["position"], entry["target"], entry.get("lens_mm")))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+    if why is None:
+        return None
+    return (f"role: {view_id} is the {role} view and keeps its role (decision of 17 Oct 2026): {why}; add_camera "
+            f"with a new view id for another view")
+
+
+def eye_height_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
+    """Fix round after P4b (module docstring): an exterior camera refused for its eye height gets the ground z under
+    it and the z to use (``critic_vision.scene_ground_z`` on the round's scene manifest); ``failed`` unchanged when
+    the ground is not known."""
+    if not any("eye height" in str(f) for f in failed or []) or not entry.get("position"):
+        return failed
+    from wenart.agent import critic_vision as CV
+    from wenart.blender import exterior_checks as X
+
+    x, y = (float(v) for v in entry["position"][:2])
+    ground = CV.scene_ground_z(ctx.scene, x, y)
+    if ground is None:
+        return failed
+    lo, hi = (ground + v for v in X.EYE_LEVEL_RANGE_M)
+    return list(failed) + [f"the ground at ({x:g}, {y:g}) is at z {ground:.2f} m: use z {lo:.2f}-{hi:.2f} for an "
+                           f"eye-level view"]
+
+
+def _look_2d(position, target) -> Optional[tuple[float, float]]:
+    """The horizontal view direction (unit) from ``position`` to ``target``, None when it looks straight down."""
+    dx, dy = float(target[0]) - float(position[0]), float(target[1]) - float(position[1])
+    n = math.hypot(dx, dy)
+    return (dx / n, dy / n) if n > 1e-9 else None
+
+
+def exterior_poses(ctx: ToolContext) -> dict[str, dict]:
+    """``{name: pose}`` of the exterior cameras the next build makes (integration after P4b): the scene's exterior
+    cameras and this session's accepted ``add`` entries, each at its last accepted ``set`` / ``add``
+    (``camera_pose_now``); a camera whose last accepted entry is a ``remove`` is left out."""
+    if ctx.overrides is not None:
+        source = ctx.overrides.agent_overrides()
+    else:
+        source = ctx.building.get("agent_overrides") if isinstance(ctx.building.get("agent_overrides"), dict) else {}
+    entries = [e for e in source.get("cameras") or [] if isinstance(e, dict)]
+    last = {}
+    for e in entries:
+        last[str(e.get("view_id"))] = e
+    names = [str(c.get("name")) for c in ctx.cameras()
+             if (c.get("kind") or ("exterior" if not c.get("room_id") else "interior")) == "exterior"]
+    names += [n for n, e in last.items() if e.get("kind") == "exterior" and n not in names]
+    out = {}
+    for name in names:
+        if (last.get(name) or {}).get("action") == "remove":
+            continue
+        pose, _where = camera_pose_now(ctx, name)
+        if isinstance(pose, dict) and pose.get("position") and pose.get("target"):
+            out[name] = pose
+    return out
+
+
+def duplicate_view_problem(ctx: ToolContext, view_id: str, entry: dict) -> Optional[str]:
+    """Integration after P4b (module docstring): why an exterior ``set`` / ``add`` pose would copy another exterior
+    view (within ``DUPLICATE_VIEW_M`` and ``DUPLICATE_VIEW_DEG``), else None."""
+    if entry.get("kind") != "exterior" or not entry.get("position") or not entry.get("target"):
+        return None
+    look = _look_2d(entry["position"], entry["target"])
+    if look is None:
+        return None
+    for name, pose in sorted(exterior_poses(ctx).items()):
+        if name == str(view_id):
+            continue
+        dist = math.dist([float(v) for v in entry["position"][:2]], [float(v) for v in pose["position"][:2]])
+        if dist > DUPLICATE_VIEW_M + 1e-9:
+            continue
+        other = _look_2d(pose["position"], pose["target"])
+        if other is None:
+            continue
+        ang = math.degrees(math.acos(max(-1.0, min(1.0, look[0] * other[0] + look[1] * other[1]))))
+        if ang <= DUPLICATE_VIEW_DEG + 1e-9:
+            return (f"duplicate: {view_id} would stand {dist:.1f} m from {name} and look {ang:.0f} degrees off its "
+                    f"direction (within {DUPLICATE_VIEW_M:g} m and {DUPLICATE_VIEW_DEG:g} degrees it shows the same "
+                    f"view): choose a pose that shows another facade or part of the site")
+    return None
+
+
 def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
     action = OV.CAMERA_TOOLS[tool]
 
@@ -1236,6 +1535,25 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
         entry = dict({k: v for k, v in args.items() if k != "reason"}, action=action, reason=args.get("reason"))
         if action != "add" and ctx.camera(args["view_id"]) is None:
             out = _result(False, [f"no view {args['view_id']}"], tool=tool)
+            ctx.rejected.append({"tool": tool, "args": args, "result": out})
+            return out
+        # fix round after P4b, decision 1: the replayed set 1 is frozen; decision 2: a view keeps its role
+        refusal = None
+        if CS.frozen_camera(ctx.camera(args["view_id"])):
+            refusal = FROZEN_CAMERA.format(view=args["view_id"])
+        else:
+            refusal = role_problem(ctx, action, args["view_id"], entry)
+        if refusal is None and action in ("set", "add"):
+            refusal = duplicate_view_problem(ctx, args["view_id"], entry)      # integration after P4b
+        if refusal is not None:
+            target = str(args["view_id"])          # the view's try (an interior camera's _target is its room)
+            with ctx.lock:
+                ctx.tries[target] = ctx.tries.get(target, 0) + 1
+            frozen = refusal.startswith("frozen")
+            out = _result(False, [refusal], tool=tool, frozen=frozen,
+                          message="refused: a replayed (set 1) camera is frozen" if frozen else
+                          "refused: a near copy of another exterior view" if refusal.startswith("duplicate") else
+                          "refused: the view keeps its role (frontal or entrance)")
             ctx.rejected.append({"tool": tool, "args": args, "result": out})
             return out
         if action in ("set", "add"):
@@ -1255,8 +1573,13 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
             entry.setdefault("kind", cam.get("kind") or ("exterior" if not cam.get("room_id") else "interior"))
             entry.setdefault("room_id", cam.get("room_id"))
         stored = {k: v for k, v in entry.items() if k != "action"}
-        return _validator_result(ctx, tool, stored,
-                                 lambda: ctx.checks().validate_camera_override(ctx.building, entry), "build")
+
+        def check() -> dict:
+            verdict = dict(ctx.checks().validate_camera_override(ctx.building, entry) or {})
+            if not verdict.get("ok") and entry.get("kind") == "exterior":
+                verdict["failed"] = eye_height_hint(ctx, entry, list(verdict.get("failed") or []))
+            return verdict
+        return _validator_result(ctx, tool, stored, check, "build")
     return handler
 
 
@@ -1318,19 +1641,47 @@ def t_set_lighting(ctx: ToolContext, args: dict) -> dict:
     return _validator_result(ctx, "set_lighting", args, check, "build", trial=trial)
 
 
+def _front_court(scene: dict) -> str:
+    """The brief's ``site_options.front_court`` the build used (``scene_manifest.brief``), else ``auto``."""
+    rec = ((scene or {}).get("brief") or {}).get("site_options.front_court")
+    value = rec.get("value") if isinstance(rec, dict) else rec
+    return value if value in ("auto", "yes", "no") else "auto"
+
+
+def _site_values(site: Optional[dict], front_court: str = "auto") -> dict:
+    """The site keys of ``site`` (an override's ``site`` or the building's) as the build reads them
+    (``blender.overrides.site_options``: ``fence`` true is a hedge, ``trees`` true is 3); only the keys it sets."""
+    from wenart.blender import overrides as BO
+    if not isinstance(site, dict) or not site:
+        return {}
+    opts = BO.site_options({"agent_overrides": {"exterior": {"site": site}}}, front_court)
+    return {k: opts[k] for k in BO.SITE_KEYS if opts["source"].get(k) == "agent"}
+
+
 def exterior_state(ctx: ToolContext) -> dict:
     """What the exterior is now: the building's own roof, site and sun values under the accepted ``set_exterior``
-    overrides (``Overrides.agent_overrides``), in the override's shape (``roof``, ``ground``, ``site``, ``sun``)."""
+    overrides (``Overrides.agent_overrides``), in the override's shape (``roof``, ``ground``, ``site``, ``sun``).
+
+    Fix round after P4b (module docstring): the site is what the build makes (``blender.overrides.site_options``:
+    a path, a hedge, 3 trees and the brief's front court by default; the building's own site keys on top) and the
+    ground is the garden look the ground override writes (``scene_manifest.exterior_looks.garden``; the build's
+    neutral ``ground`` slot is another one), so an override with those values is a no-op. P4b's ground 'grass' on the
+    'grass' garden was accepted as a change."""
+    from wenart.blender import overrides as BO
     b = ctx.building
     state: dict = {}
     roof = b.get("roof") if isinstance(b.get("roof"), dict) else {}
     if roof:
         state["roof"] = {k: roof.get(k) for k in ("type", "pitch_deg", "overhang_m") if roof.get(k) is not None}
     site = b.get("site") if isinstance(b.get("site"), dict) else {}
-    keep = {k: site.get(k) for k in ("path", "fence", "trees", "front_court") if site.get(k) is not None}
-    if keep:
-        state["site"] = keep
-    ground = (site.get("ground") or {}).get("look") if isinstance(site.get("ground"), dict) else None
+    front_court = _front_court(ctx.scene)
+    defaults = BO.site_options({}, front_court)
+    state["site"] = dict({k: defaults[k] for k in BO.SITE_KEYS},
+                         **_site_values({k: site.get(k) for k in BO.SITE_KEYS if site.get(k) is not None},
+                                        front_court))
+    looks = ctx.scene.get("exterior_looks") if isinstance(ctx.scene.get("exterior_looks"), dict) else {}
+    garden = (looks.get("garden") or {}).get("material") if isinstance(looks.get("garden"), dict) else None
+    ground = garden or ((site.get("ground") or {}).get("look") if isinstance(site.get("ground"), dict) else None)
     if ground is not None:
         state["ground"] = ground
     sun = (ctx.scene.get("lighting") or {}).get("sun") if isinstance(ctx.scene.get("lighting"), dict) else None
@@ -1340,7 +1691,58 @@ def exterior_state(ctx: ToolContext) -> dict:
         else {}
     if ctx.overrides is not None:
         accepted = OV.merge_dict(accepted, ctx.overrides.agent_overrides().get("exterior") or {})
-    return OV.merge_dict(state, accepted)
+    return OV.merge_dict(state, normalised_override(accepted, front_court))
+
+
+def normalised_override(override: dict, front_court: str = "auto") -> dict:
+    """Fix round after P4b: a ``set_exterior`` override with its ``site`` as the build reads it (``_site_values``)."""
+    out = dict(override or {})
+    if isinstance(out.get("site"), dict):
+        out["site"] = _site_values(out["site"], front_court) or dict(out["site"])
+    return out
+
+
+def main_facade_of(ctx: ToolContext) -> Optional[dict]:
+    """The main facade ``{axis, direction}`` the build used (``scene_manifest.whole_building.main_facade``, else
+    ``site.inferred.main_facade``), else ``exterior_checks._prep`` of the building; None when none is known."""
+    for rec in ((ctx.scene.get("whole_building") or {}).get("main_facade"),
+                ((ctx.scene.get("site") or {}).get("inferred") or {}).get("main_facade")):
+        if isinstance(rec, dict) and rec.get("direction"):
+            return rec
+    try:
+        prep = ctx.checks()._prep(ctx.building) if hasattr(ctx.checks(), "_prep") else None
+    except Exception:  # noqa: BLE001 - no main facade: the azimuth is not checked here (the validator still runs)
+        prep = None
+    rec = (prep or {}).get("main_facade")
+    return rec if isinstance(rec, dict) and rec.get("direction") else None
+
+
+def sun_problems(ctx: ToolContext, sun: Optional[dict]) -> list[str]:
+    """Fix round after P4b (module docstring): a sun override against the code's own X7 rule
+    (``exterior_checks._x7``): the elevation within ``SUN_ELEVATION_RANGE`` (25-50 degrees), and the compass azimuth,
+    turned to the building frame with ``site.north_deg`` (``lighting.building_azimuth``), on the side of the main
+    facade (``main_facade_of``). Decision 4 of 17 Oct 2026: real02's assumed north stays as it is."""
+    if not isinstance(sun, dict) or not sun:
+        return []
+    from wenart.blender import exterior_checks as X
+    from wenart.blender import site as S
+    out = []
+    lo, hi = X.SUN_ELEVATION_RANGE
+    el = sun.get("elevation_deg")
+    if isinstance(el, (int, float)) and not lo - 1e-6 <= float(el) <= hi + 1e-6:
+        out.append(f"sun: {float(el):g} degrees above the horizon is outside the X7 rule ({lo:g}-{hi:g} degrees)")
+    az = sun.get("azimuth_deg")
+    main = main_facade_of(ctx) if isinstance(az, (int, float)) else None
+    if main is not None:
+        north, src = S.north_deg(ctx.building)
+        az_b = (float(az) - float(north)) % 360.0
+        a = math.radians(az_b)
+        dot = math.sin(a) * float(main["direction"][0]) + math.cos(a) * float(main["direction"][1])
+        if dot <= 0.0:
+            out.append(f"sun: azimuth {float(az):g} degrees (compass; {az_b:g} in the building frame, north "
+                       f"{float(north):g}, {src}) lights the back: the X7 rule wants the sun on the side of the main "
+                       f"({main.get('axis')}) facade")
+    return out
 
 
 def t_set_exterior(ctx: ToolContext, args: dict) -> dict:
@@ -1348,7 +1750,7 @@ def t_set_exterior(ctx: ToolContext, args: dict) -> dict:
     if not override:
         return _result(False, ["nothing to change"], tool="set_exterior")
     current = exterior_state(ctx)
-    if OV.merge_dict(current, override) == current:
+    if OV.merge_dict(current, normalised_override(override, _front_court(ctx.scene))) == current:
         # Milestone 13: idempotent: the same override twice (or values the building has) is a no-op with a reason
         out = _result(False, ["no_change: the exterior already has these values "
                               f"({json.dumps(override, sort_keys=True, default=str)[:200]}): nothing to change"],
@@ -1362,9 +1764,14 @@ def t_set_exterior(ctx: ToolContext, args: dict) -> dict:
                                       exterior=OV.merge_dict((out.get("agent_overrides") or {}).get("exterior") or {},
                                                              override))
         return out
-    return _validator_result(ctx, "set_exterior", args,
-                             lambda: ctx.checks().validate_exterior_override(ctx.building, override), "build",
-                             trial=trial)
+
+    def check() -> dict:
+        # fix round after P4b: the sun against the code's own X7 rule first (module docstring)
+        problems = sun_problems(ctx, override.get("sun"))
+        if problems:
+            return {"ok": False, "failed": problems, "message": "the sun override breaks the X7 rule"}
+        return ctx.checks().validate_exterior_override(ctx.building, override)
+    return _validator_result(ctx, "set_exterior", args, check, "build", trial=trial)
 
 
 def t_correct_geometry(ctx: ToolContext, args: dict) -> dict:
@@ -1520,9 +1927,31 @@ def level_schemas() -> dict:
     return {op: given.get(op) or {"type": "object"} for op in OV.LEVEL_TOOLS}
 
 
+def dry_run_repeat(ctx: ToolContext, name: str, inner: dict) -> Optional[dict]:
+    """Fix round after P4b (module docstring): the answer to a dry run this session already sent with the same
+    arguments (``memory.edit_key``) while no edit of the round was accepted in between: the first answer, marked
+    ``repeat_of``, with "same as dry run #n"; counted as a try of its target (``_target``). None for a new one."""
+    state = ctx.session()
+    key = MEM.edit_key(name, inner)
+    with ctx.lock:
+        prev = state.dry_runs.get(key)
+        if prev is None or prev["accepted"] != len(ctx.accepted):
+            return None
+        target = _target(name, inner)
+        ctx.tries[target] = ctx.tries.get(target, 0) + 1
+    first = prev["out"]
+    reason = "; ".join(first.get("failed_checks") or []) or ("it would be accepted" if first.get("would_accept")
+                                                              else "rejected")
+    return dict(first, repeat_of=prev["n"], note="dry run repeated: answered from the first one, nothing was "
+                                                 "validated again; counted as a try",
+                message=f"same as dry run #{prev['n']} of this session: {reason[:300]}; try something else (a "
+                        f"repeated dry run counts as a try of {target})")
+
+
 def dry_run_handler(table: dict) -> Callable[[ToolContext, dict], dict]:
     """Milestone 12 (§5.3): the validator's answer for an edit without applying it. Free: no try is counted, nothing
-    goes to the overrides or the memory; logged as a ``dry_run`` event."""
+    goes to the overrides or the memory; logged as a ``dry_run`` event. Fix round after P4b: a repeat in the session
+    is answered from the first one and counts as a try (``dry_run_repeat``)."""
     def handler(ctx: ToolContext, args: dict) -> dict:
         from wenart.recognition.vlm_client import schema_errors
         name, inner = args["tool"], dict(args.get("args") or {})
@@ -1531,6 +1960,12 @@ def dry_run_handler(table: dict) -> Callable[[ToolContext, dict], dict]:
         errors = schema_errors(tool.parameters, inner)
         with ctx.lock:
             ctx.dry_runs += 1
+        repeat = None if errors else dry_run_repeat(ctx, name, inner)
+        if repeat is not None:
+            if ctx.log is not None:
+                ctx.log.event("dry_run", ctx.round, tool=name, args=inner, status="repeat",
+                              note=repeat["message"][:300], room_id=edit_room(ctx, inner))
+            return repeat
         if errors:
             out = {"would_accept": False, "failed_checks": [f"schema: {e}" for e in errors[:5]]}
         else:
@@ -1570,6 +2005,12 @@ def dry_run_handler(table: dict) -> Callable[[ToolContext, dict], dict]:
                 except NotImplementedError as exc:
                     out = {"would_accept": False, "failed_checks": ["validator_unavailable"], "message": str(exc)}
         out["note"] = "dry run: nothing was applied, no try was counted"
+        if not errors:
+            state = ctx.session()
+            with ctx.lock:
+                state.dry_n += 1
+                state.dry_runs[MEM.edit_key(name, inner)] = {"n": state.dry_n, "out": dict(out),
+                                                             "accepted": len(ctx.accepted)}
         if ctx.log is not None:
             ctx.log.event("dry_run", ctx.round, tool=name, args=inner, status="would_accept" if out["would_accept"]
                           else "would_reject", note="; ".join(out["failed_checks"])[:300] or None,

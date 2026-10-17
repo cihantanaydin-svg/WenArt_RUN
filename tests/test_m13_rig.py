@@ -16,6 +16,17 @@ bathroom mirror light running across the decor mirrors (r_L1_banyo, r_L0_banyo_2
 - ``rig_fixture_problems`` on hand-made fixtures and on the rig of the committed real01-04 buildings;
 - in Blender (skipped without a binary): every shade has ``visible_shadow`` off, so the light inside a closed drum
   reaches the floor (P3/P4a: it never left the drum), and a hosted fixture builds a light and no mesh.
+
+Fix round after P4b (17 Oct 2026; the review of the P4a fix round and the P4b look review of real03):
+
+- built decor is keyed by its own id with manifest-shaped entries (``element_id`` = the host, ``decor_id`` = the
+  item): a plant on the lamp's nightstand is a crossing; the lamp takes a free spot of the top or the side falls
+  through to the sconce; a decor lamp hosts the light under its own id (P3 real04 r_L0_yatak_odasi / _2);
+- a hosted light reaches the room: under a decor pendant, under the shade of a parametric lamp, in the shade of a
+  library lamp only; in Blender a hosted light inside a closed shade (the parametric pendant; a library lamp whose
+  closed shade encloses its in-shade spot) meters more floor light on than off;
+- the fixture hardware: a pendant's cord and canopy reach the ceiling (also a sloped one), a ceiling fixture's canopy
+  fills its gap, a table lamp has a base and a stem; the hardware is slot 1 (not emissive), the shade slot 0.
 """
 import json
 import subprocess
@@ -84,19 +95,36 @@ def test_bedside_lamp_without_a_nightstand_is_a_wall_sconce_on_the_head_wall():
 
 def test_bedside_light_goes_into_a_floor_lamp_already_beside_the_bed():
     """P4a: e_yatak_odasi / _2 have the AI's floor lamps beside the bed head (f_L0_031..034); the rig lamp stood inside
-    them. Now the rig light sits in the lamp's shade (``RIG_HOST_LAMP_SHADE_M`` under its top), no rig mesh, the
-    anchor and host the lamp."""
+    them. Now the rig light goes into the lamp, no rig mesh, the anchor and host the lamp. Fix round after P4b: in the
+    shade (``RIG_HOST_LAMP_SHADE_M`` under its top) only for a library model; under the closed shade of a parametric
+    lamp (``RIG_HOST_LAMP_BELOW_SHADE_M``, as ``furniture.lamp_light_point``); the scene manifest's build method wins
+    over the asset (a library asset built as the parametric fallback)."""
+    from wenart.blender import furniture as FU
+    from wenart.blender import parametric as P
     lamps = [_piece("fl1", "floor_lamp", (0.75, 2.7), (0.45, 0.45)), _piece("fl2", "floor_lamp", (3.25, 2.7),
                                                                                   (0.45, 0.45))]
     plan = L.rig_plan(BEDROOM, [BED] + lamps, 0.0, 2.7)
     assert [f["mount"] for f in plan["fixtures"]] == ["host", "host"] and plan["dropped"] == []
-    from wenart.blender.parametric import piece_bbox
-    top = piece_bbox(lamps[0])[2]
+    top = P.piece_bbox(lamps[0])[2]
+    parts = P.build_parts("floor_lamp", 0.45, 0.45, top)
+    below = FU.lamp_light_point("floor_lamp", parts, (0.75, 2.7), 0.0, 0.0)[2]
+    shade_bottom = min(v[2] for p in parts if p["role"] == "shade" for v in p["verts"])
     for f in plan["fixtures"]:
         assert f["mesh"] is False and f["host_id"] == f["anchor_id"] in ("fl1", "fl2")
-        assert f["light"]["center"][2] == pytest.approx(top - L.RIG_HOST_LAMP_SHADE_M)
-        assert L._fixture_mesh(f) == ([], [])
+        assert f["light"]["center"][2] == pytest.approx(below) and below < shade_bottom - 0.04
+        assert f["light_where"] == "below_shade" and "under the shade of the floor lamp" in f["reason"]
+        assert L._fixture_mesh(f) == ([], []) and L._fixture_hardware(f) == ([], [])
     assert {f["host_id"] for f in plan["fixtures"]} == {"fl1", "fl2"}                 # one light per lamp
+    library = [dict(p, asset={"method": "library", "bbox_m": [0.45, 0.45, 1.5]}) for p in lamps]
+    plan = L.rig_plan(BEDROOM, [BED] + library, 0.0, 2.7)
+    for f in plan["fixtures"]:
+        assert f["light"]["center"][2] == pytest.approx(1.5 - L.RIG_HOST_LAMP_SHADE_M)
+        assert f["light_where"] == "in_shade" and "in the shade of the floor lamp" in f["reason"]
+        assert f["escape_low_z"] == pytest.approx(L.RIG_ESCAPE_LOW_SHARE * 1.5)
+    fallback = L.rig_plan(BEDROOM, [BED] + library, 0.0, 2.7,
+                          piece_methods={"fl1": "parametric (fallback: file missing)", "fl2": "library"})
+    where = {f["host_id"]: f["light_where"] for f in fallback["fixtures"]}
+    assert where == {"fl1": "below_shade", "fl2": "in_shade"}
 
 
 def test_a_decor_table_lamp_on_the_nightstand_hosts_the_light_and_gets_no_second_lamp():
@@ -115,9 +143,19 @@ def test_a_decor_table_lamp_on_the_nightstand_hosts_the_light_and_gets_no_second
     stand = by_mount["stand"]
     assert stand["anchor_id"] == stand["host_id"] == "n2"
     assert _bottom(stand) == pytest.approx(top)
-    verts, _faces = L._fixture_mesh(stand)
+    verts, faces, slots = L._fixture_geometry(stand)
     assert min(v[2] for v in verts) == pytest.approx(top)                            # nothing below its base
+    # fix round after P4b: the base and the stem are the hardware (slot 1, not emissive), the shade is slot 0
+    shade_z0 = top + stand["size_m"][2] * L.RIG_STAND_STEM_SHARE
+    for f, slot in zip(faces, slots):
+        zs = [verts[i][2] for i in f]
+        assert (min(zs) >= shade_z0 - 1e-9) if slot == 0 else (max(zs) <= shade_z0 + 1e-9), (slot, zs)
+    base = [verts[i] for f, slot in zip(faces, slots) if slot == 1 for i in f if verts[i][2] < top + 1e-9]
+    assert base and max(abs(v[0] - stand["center"][0]) for v in base) == pytest.approx(L.RIG_STAND_BASE_R_M)
     assert L.rig_fixture_problems(plan["fixtures"], BEDROOM["polygon"], [BED] + stands, [lamp], 0.0) == []
+    # the decor lamp is parametric here (no ``method: library``): its light sits under its closed shade
+    host = by_mount["host"]
+    assert host["light"]["center"][2] == pytest.approx(top + 0.55 * 0.5 - L.RIG_HOST_LAMP_BELOW_SHADE_M)
 
 
 def test_bed_away_from_every_wall_gets_no_lamp_and_says_why():
@@ -183,7 +221,9 @@ def test_pendant_and_ceiling_fixture_use_a_built_decor_light_as_host():
     pendant = _decor("dec_p", "pendant_light", (2.5, 2.0, 1.5 + 0.35), (0.45, 0.45, 0.7))
     (f,) = L.rig_plan(dining, [table], 0.0, 2.7, decor=[pendant])["fixtures"]
     assert f["mesh"] is False and f["host_id"] == "dec_p" and f["anchor_id"] == "t"
-    assert f["light"]["center"][2] == pytest.approx(1.5 + L.RIG_HOSTED_PENDANT_MAX_M)
+    # fix round after P4b: under the pendant, never in it (P4a: inside the closed bulb of abo_B07HKCRWJH)
+    assert f["light"]["center"][2] == pytest.approx(1.5 - L.RIG_HOSTED_PENDANT_GAP_M)
+    assert f["light_where"] == "under_host" and "under the decor pendant dec_p" in f["reason"]
     sunk = _decor("dec_p", "pendant_light", (2.5, 2.0, 0.244 + 0.97), (0.45, 0.45, 1.94))  # through the table (P4a)
     plan = L.rig_plan(dining, [table], 0.0, 2.7, decor=[sunk])
     assert plan["fixtures"] == [] and "crosses pendant_light dec_p" in plan["dropped"][0]["reason"]
@@ -207,6 +247,75 @@ def test_ceiling_fixtures_hang_under_the_sloped_ceiling_at_their_own_spot():
         - f["size_m"][2] / 2.0
     assert f["center"][2] == pytest.approx(expected, abs=1e-3)
     assert f["center"][2] + f["size_m"][2] / 2.0 < slope(f["center"][0], f["center"][1])
+
+
+DINING = {"id": "r1", "room_type": "dining", "polygon": [[0, 0], [5, 0], [5, 4], [0, 4]]}
+TABLE = _piece("t", "table_dining", (2.5, 2.0), (1.8, 0.9))
+
+
+def _hardware_faces(fixture):
+    verts, faces, slots = L._fixture_geometry(fixture)
+    return verts, [f for f, s in zip(faces, slots) if s == 1], [f for f, s in zip(faces, slots) if s == 0]
+
+
+def test_pendant_hangs_from_the_ceiling_by_a_cord_and_a_canopy():
+    """The P4b look review (refuted fix, the verifier's better fix): all 6 rig pendants of real03's living rooms hung
+    as cordless 8-sided drums about 1 m under the 2.67 m ceiling. Now the pendant records ``mount_z`` (the ceiling over
+    its canopy) and has a cord from the shade's top to the canopy and a canopy whose top is on the ceiling, as
+    hardware (slot 1, not emissive); no emissive face lies above the shade; a sloped ceiling is honoured; the shade
+    itself is unchanged (16 vertices, 10 faces)."""
+    (f,) = L.rig_plan(DINING, [TABLE], 0.0, 2.67)["fixtures"]
+    assert f["mount_z"] == pytest.approx(2.67)
+    shade_top = f["center"][2] + f["size_m"][2] / 2.0
+    verts, hw, shade = _hardware_faces(f)
+    assert len(L._fixture_mesh(f)[0]) == 16 and len(shade) == 10
+    hz = [verts[i][2] for face in hw for i in face]
+    assert max(hz) == pytest.approx(2.67) and min(hz) == pytest.approx(shade_top)
+    assert max(verts[i][2] for face in shade for i in face) == pytest.approx(shade_top)   # nothing glows above it
+    cord = [face for face in hw if max(abs(verts[i][0] - f["center"][0]) for i in face) < L.RIG_CORD_M]
+    cord_z = [verts[i][2] for face in cord for i in face]
+    assert min(cord_z) == pytest.approx(shade_top) and max(cord_z) == pytest.approx(2.67 - L.RIG_CANOPY_H_M)
+    canopy = [verts[i] for face in hw for i in face if verts[i][2] > 2.67 - L.RIG_CANOPY_H_M + 1e-6]
+    assert max(abs(v[0] - f["center"][0]) for v in canopy) == pytest.approx(L.RIG_CANOPY_R_M)
+    box = L.pendant_cord_box(f)
+    assert box["size"][2] == pytest.approx(2.67 - shade_top) and box["size"][0] == L.RIG_CORD_M
+
+    def slope(x, y):
+        return 3.2 - 0.1 * x
+
+    (g,) = L.rig_plan(DINING, [TABLE], 0.0, 3.2, ceiling_fn=slope)["fixtures"]
+    r = L.RIG_CANOPY_R_M
+    assert g["mount_z"] == pytest.approx(min(slope(g["center"][0] + sx * r, 0.0) for sx in (-1, 0, 1)), abs=1e-4)
+    verts, hw, _shade = _hardware_faces(g)
+    assert max(verts[i][2] for face in hw for i in face) == pytest.approx(g["mount_z"])
+    assert g["mount_z"] < slope(g["center"][0], g["center"][1]) + 1e-9                  # the canopy meets the slope
+
+
+def test_ceiling_fixture_has_a_canopy_up_to_the_ceiling_and_no_cord():
+    """A ceiling fixture hangs ``RIG_MOUNT_GAP_M`` under the ceiling: its canopy fills that gap (a 3 cm gap is under
+    the canopy height plus ``RIG_CORD_MIN_M``, so no cord); a pendant clamped under a low ceiling gets the same."""
+    hall = {"id": "r1", "room_type": "hall", "polygon": [[0, 0], [3, 0], [3, 1.5], [0, 1.5]]}
+    (f,) = L.rig_plan(hall, [], 0.0, 2.6)["fixtures"]
+    top = f["center"][2] + f["size_m"][2] / 2.0
+    assert f["mount_z"] == pytest.approx(2.6) and 2.6 - top == pytest.approx(L.RIG_MOUNT_GAP_M)
+    verts, hw, _shade = _hardware_faces(f)
+    hz = [verts[i][2] for face in hw for i in face]
+    assert len(hw) == 10 and min(hz) == pytest.approx(top) and max(hz) == pytest.approx(2.6)     # one prism
+    assert L.pendant_cord_box(f) is None
+    (low,) = L.rig_plan(DINING, [TABLE], 0.0, 1.66)["fixtures"]               # clamped under an attic's 1.66 m
+    verts, hw, _shade = _hardware_faces(low)
+    assert len(hw) == 10 and max(verts[i][2] for face in hw for i in face) == pytest.approx(1.66)
+    strip_and_sconce = L.rig_plan(BEDROOM, [BED], 0.0, 2.7)["fixtures"]
+    assert all(L._fixture_hardware(x) == ([], []) for x in strip_and_sconce)        # a sconce has no hardware
+
+
+def test_pendant_whose_cord_crosses_built_decor_is_dropped():
+    """The cord is checked like the shade (the verifier's optional item 5): a built item hanging between the shade
+    and the ceiling over the table (here a decor shelf box) drops the pendant with the reason."""
+    shelf = {"id": "dec_s", "type": "sculpture", "center": [2.5, 2.0, 2.3], "size": [0.3, 0.3, 0.1],
+             "rotation_deg": 0.0, "host_id": None}
+    plan = L.rig_plan(DINING, [TABLE], 0.0, 2.67, decor=[shelf])
+    assert plan["fixtures"] == [] and "cord crosses sculpture dec_s" in plan["dropped"][0]["reason"]
 
 
 def test_polylabel_keeps_holes_beyond_the_room_outside():
@@ -265,7 +374,101 @@ def test_built_decor_boxes_reads_the_manifest_of_the_room():
              "size": [1.6, 2.0, 0.5]}]
     (box,) = L.built_decor_boxes(objs, "r1")
     assert box == {"id": "d1", "type": "mirror", "center": [1.0, 2.0, 1.5], "size": [0.6, 0.04, 0.9],
-                   "rotation_deg": 180.0, "host_id": None, "has_light": False}
+                   "rotation_deg": 180.0, "host_id": None, "has_light": False, "name": None, "method": None}
+
+
+def test_built_decor_boxes_key_hosted_decor_by_its_own_id():
+    """Fix round after P4b: furniture.py writes hosted decor with ``element_id`` = ``wenart_id`` = the host piece and
+    the item's id in ``decor_id``; the box is the item's, its host apart. An older entry without ``decor_id`` whose
+    ``element_id`` names its host falls back to its object name, never the host's id."""
+    objs = [{"name": "decor_n1_3", "wenart_id": "n1", "element_id": "n1", "decor_id": "dec_7", "host_id": "n1",
+             "kind": "decor", "room_id": "r1", "type": "plant_small", "center": [0.8, 2.75, 0.7],
+             "size": [0.2, 0.2, 0.26], "method": "library"},
+            {"name": "decor_n2_4", "wenart_id": "n2", "element_id": "n2", "host_id": "n2", "kind": "decor",
+             "room_id": "r1", "type": "book_set", "center": [3.2, 2.75, 0.6], "size": [0.2, 0.15, 0.05]}]
+    boxes = L.built_decor_boxes(objs, "r1")
+    assert [(b["id"], b["host_id"], b["name"]) for b in boxes] == [("dec_7", "n1", "decor_n1_3"),
+                                                                   ("decor_n2_4", "n2", "decor_n2_4")]
+    assert L.host_object_name(objs, "dec_7") == "decor_n1_3" and L.host_object_name(objs, "n1") is None
+
+
+# P3 real04 r_L0_yatak_odasi in small: the decor stage put a plant at the centre of one nightstand and a table lamp on
+# the other, as furniture.py records them in the scene manifest (element_id = the nightstand, decor_id = the item).
+STANDS = [_piece("n1", "nightstand", (0.8, 2.75), (0.45, 0.4)), _piece("n2", "nightstand", (3.2, 2.75), (0.45, 0.4))]
+
+
+def _manifest_decor(stand_top):
+    return [{"name": "decor_n1_9", "wenart_id": "n1", "element_id": "n1", "decor_id": "dec_plant", "host_id": "n1",
+             "kind": "decor", "room_id": "r1", "type": "plant_small", "method": "library", "support": "top",
+             "center": [0.8, 2.75, stand_top + 0.13], "size": [0.22, 0.2, 0.26]},
+            {"name": "decor_n2_10", "wenart_id": "n2", "element_id": "n2", "decor_id": "dec_lamp", "host_id": "n2",
+             "kind": "decor", "room_id": "r1", "type": "table_lamp", "method": "library", "support": "top",
+             "center": [3.2, 2.75, stand_top + 0.25], "size": [0.3, 0.3, 0.5]}]
+
+
+def test_rig_lamp_never_stands_through_decor_on_its_own_nightstand():
+    """The review of the P4a fix round (P3 real04 r_L0_yatak_odasi / _2, f_L0_050 / f_L0_054): the rig lamp stood at
+    the centre of a nightstand through the plant on it, and nothing flagged it (the decor was keyed by the host's id,
+    and the check skipped the host). Now: no rig box crosses the plant; with no free spot on the top that side falls
+    through to the wall sconce and the reason names the plant; the lamp side hosts the light under the lamp's own id,
+    on its nightstand; the plan's own check finds nothing."""
+    from wenart.blender.parametric import piece_bbox
+    top = piece_bbox(STANDS[0])[2]
+    objs = _manifest_decor(top)
+    decor = L.built_decor_boxes(objs, "r1")
+    plant = next(d for d in decor if d["type"] == "plant_small")
+    plan = L.rig_plan(BEDROOM, [BED] + STANDS, 0.0, 2.7, decor=decor)
+    for f in plan["fixtures"]:
+        if f["mesh"]:
+            assert not L.boxes_collide(L.fixture_box(f), plant), f            # P4a's fix round: through the plant
+    by_mount = {f["mount"]: f for f in plan["fixtures"]}
+    assert set(by_mount) == {"wall", "host"} and plan["dropped"] == []
+    assert "the top of the nightstand n1 is taken by the plant_small dec_plant" in by_mount["wall"]["reason"]
+    host = by_mount["host"]
+    assert host["host_id"] == host["anchor_id"] == "dec_lamp" and "table lamp dec_lamp on n2" in host["reason"]
+    assert host["light_where"] == "in_shade"                                   # a library lamp: in its shade
+    assert L.rig_fixture_problems(plan["fixtures"], BEDROOM["polygon"], [BED] + STANDS, decor, 0.0) == []
+
+
+def test_rig_lamp_takes_a_free_spot_of_a_wide_nightstand_top():
+    """A small item at the centre of a wide top: the lamp stands beside it (nearest the bed's head corner first),
+    its base still on the top, its shade inside the top's edge; the reason names the item."""
+    from wenart.blender.parametric import piece_bbox
+    wide = [_piece("n1", "nightstand", (0.8, 2.75), (0.6, 0.45)), _piece("n2", "nightstand", (3.2, 2.75), (0.6, 0.45))]
+    top = piece_bbox(wide[0])[2]
+    vase = [{"name": "decor_n1_1", "wenart_id": "n1", "element_id": "n1", "decor_id": "dec_vase", "host_id": "n1",
+             "kind": "decor", "room_id": "r1", "type": "vase", "center": [0.8, 2.75, top + 0.1],
+             "size": [0.1, 0.1, 0.2]}]
+    decor = L.built_decor_boxes(vase, "r1")
+    plan = L.rig_plan(BEDROOM, [BED] + wide, 0.0, 2.7, decor=decor)
+    lamp = next(f for f in plan["fixtures"] if f["anchor_id"] == "n1")
+    assert lamp["mount"] == "stand" and "beside the vase dec_vase" in lamp["reason"]
+    assert _bottom(lamp) == pytest.approx(top) and not L.boxes_collide(L.fixture_box(lamp), decor[0])
+    half = max(lamp["size_m"][:2]) / 2.0
+    bw, bd = piece_bbox(wide[0])[:2]                                          # the built top (with its handles)
+    assert abs(lamp["center"][0] - 0.8) + half <= bw / 2.0 - L.RIG_STAND_EDGE_M + 1e-4
+    assert abs(lamp["center"][1] - 2.75) + half <= bd / 2.0 - L.RIG_STAND_EDGE_M + 1e-4
+    assert lamp["center"][0] > 0.8                                            # the side towards the bed's corner
+    other = next(f for f in plan["fixtures"] if f["anchor_id"] == "n2")
+    assert other["center"][:2] == [3.2, 2.75] and other["reason"] == "bedside lamp on the nightstand n2"
+    assert L.rig_fixture_problems(plan["fixtures"], BEDROOM["polygon"], [BED] + wide, decor, 0.0) == []
+
+
+def test_fixture_check_reads_the_nightstand_top_from_the_piece_not_its_decor():
+    """The review of the P4a fix round: ``rig_fixture_problems`` without ``stand_tops`` (as a scene check calls it)
+    took the nightstand's top from the last decor box keyed by its id and reported a lamp that stands correctly. With
+    manifest-shaped decor a correct lamp passes and a lamp through the item on its top is flagged."""
+    from wenart.blender.parametric import piece_bbox
+    top = piece_bbox(STANDS[0])[2]
+    objs = _manifest_decor(top)
+    objs[1] = dict(objs[1], type="book_set", center=[3.0, 2.75, top + 0.03], size=[0.1, 0.15, 0.06])
+    decor = L.built_decor_boxes(objs, "r1")
+    lamp = {"name": "rig_r1_bedside_9", "kind": "bedside", "mount": "stand", "anchor_id": "n2", "host_id": "n2",
+            "size_m": [0.24, 0.24, 0.42], "center": [3.32, 2.75, top + 0.21]}
+    assert L.rig_fixture_problems([lamp], BEDROOM["polygon"], [BED] + STANDS, decor, 0.0) == []
+    through = dict(lamp, name="through", anchor_id="n1", host_id="n1", center=[0.8, 2.75, top + 0.21])
+    problems = L.rig_fixture_problems([through], BEDROOM["polygon"], [BED] + STANDS, decor, 0.0)
+    assert [p["problem"] for p in problems] == ["crosses plant_small dec_plant"]
 
 
 def _committed_rigs(project: str):
@@ -341,7 +544,8 @@ import bpy, json, sys
 sys.path.insert(0, %(root)r)
 from wenart.blender import common, lighting as L, materials as M
 
-def floor_light(plan, tag):
+def floor_light(case, tag):
+    plan, hosts = case["plan"], case.get("hosts") or []
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sc = bpy.context.scene
     sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 8
@@ -351,6 +555,10 @@ def floor_light(plan, tag):
     me.from_pydata([(-3, -3, 0), (6, -3, 0), (6, 6, 0), (-3, 6, 0)], [], [[0, 1, 2, 3]])
     sc.collection.objects.link(bpy.data.objects.new("floor", me))
     objs, assumed = [], []
+    for h in hosts:                                   # the host models (closed shades), as furniture.py records them
+        common.new_mesh_object(h["entry"]["name"], h["verts"], h["faces"], collection=sc.collection,
+                               wenart_id=h["entry"]["wenart_id"], kind=h["entry"]["kind"], status="assumed")
+        objs.append(dict(h["entry"]))
     lights = L.build_room_rig(bpy, common, sc.collection, objs, assumed, {"id": "r1"}, {"id": "L0"}, plan,
                               lambda k: M.fixture_material("rig_fixture_2700K", k))
     cam = bpy.data.cameras.new("c"); cam.type = "ORTHO"; cam.ortho_scale = 1.0
@@ -360,26 +568,54 @@ def floor_light(plan, tag):
     px = list(bpy.data.images.load(sc.render.filepath).pixels)
     lum = sum(px[i] + px[i + 1] + px[i + 2] for i in range(0, len(px), 4)) / (len(px) / 4) / 3
     meshes = [o for o in sc.objects if o.type == "MESH" and o.name.startswith("rig_")]
+    slots = {}
+    for o in meshes:
+        mats = [m.name for m in o.data.materials]
+        counts = [sum(1 for p in o.data.polygons if p.material_index == i) for i in range(len(mats))]
+        emit = []
+        for m in o.data.materials:
+            nodes = m.node_tree.nodes if m.node_tree else []
+            e = [n.inputs["Strength"].default_value for n in nodes if n.bl_idname == "ShaderNodeEmission"]
+            e += [n.inputs["Emission Strength"].default_value for n in nodes
+                  if n.bl_idname == "ShaderNodeBsdfPrincipled"]
+            emit.append(max(e) if e else 0.0)
+        slots[o.name] = {"materials": mats, "faces": counts, "emission": emit}
     return {"lum": lum, "meshes": [o.name for o in meshes], "shadow": [o.visible_shadow for o in meshes],
             "lights": [o.name for o in lights], "entries": [e.get("rig_box") is not None for e in objs
-                                                            if e["kind"] == "decor"]}
+                                                            if e["kind"] == "decor" and e.get("method") == "rig"],
+            "slots": slots, "light_z": [round(o.location.z, 4) for o in lights],
+            "escape": [e["assumed"].get("escape") for e in objs if e["kind"] == "light"],
+            "enclosed": [a for a in assumed if a.get("kind") == "rig_light_enclosed"]}
 
-plan = json.loads(%(plan)r)
-on = floor_light(plan, "on")
-for f in plan["fixtures"]:
-    f["light"]["energy_w"] = 0.0
-off = floor_light(plan, "off")
-hosted = json.loads(%(hosted)r)
-host = floor_light(hosted, "host")
-print("RESULT " + json.dumps({"on": on, "off": off, "host": host}))
+out = {}
+for name, case in json.loads(%(cases)r).items():
+    out[name + "_on"] = floor_light(case, name + "_on")
+    for f in case["plan"]["fixtures"]:
+        f["light"]["energy_w"] = 0.0
+    out[name + "_off"] = floor_light(case, name + "_off")
+print("RESULT " + json.dumps(out))
 """
+
+
+def _host_case(entry, parts, center, rot, z0):
+    """A host model for the Blender script: its world mesh and its manifest entry."""
+    from wenart.blender import parametric as P
+    verts, faces, _keys = P.world_mesh(parts, center, rot, z0)
+    return {"entry": entry, "verts": [list(v) for v in verts], "faces": [list(f) for f in faces]}
 
 
 @pytest.mark.skipif(BLENDER is None, reason="no Blender binary")
 def test_blender_shades_let_their_light_out_and_hosted_fixtures_build_no_mesh(tmp_path):
     """The table lamp's point light sits inside its closed drum shade (top + 0.7 h). P3/P4a: the Emission-only shade
     blocked it (bpy 5.2.2: the floor metered the same with the light on or off). With ``visible_shadow`` off the floor
-    under the lamp gets its light; a hosted fixture (``mesh: False``) builds its light and no mesh."""
+    under the lamp gets its light; a hosted fixture (``mesh: False``) builds its light and no mesh.
+
+    Fix round after P4b (17 Oct 2026; the review of the P4a fix round): a hosted light inside a closed host reached
+    nothing. Now (1) the light hosted by a parametric decor pendant (a closed frustum shade and a bulb) hangs under it
+    and lights the floor; (2) the light hosted by a library floor lamp whose closed shade encloses the in-shade spot is
+    moved out by the ray check (``free_light_point``) and lights the floor, recorded ``escapes`` with the distance;
+    (3) the table lamp's object has the emissive shade slot and the non-emissive hardware slot (base and stem)."""
+    from wenart.blender import parametric as P
     stands = [_piece("n1", "nightstand", (0.8, 2.75), (0.45, 0.4)), _piece("n2", "nightstand", (3.2, 2.75),
                                                                            (0.45, 0.4))]
     plan = L.rig_plan(BEDROOM, [BED] + stands, 0.0, 2.7)
@@ -388,14 +624,54 @@ def test_blender_shades_let_their_light_out_and_hosted_fixtures_build_no_mesh(tm
     lamps = [_piece("fl1", "floor_lamp", (0.75, 2.7), (0.45, 0.45))]
     hosted = L.rig_plan(BEDROOM, [BED] + lamps, 0.0, 2.7)
     hosted["fixtures"] = [f for f in hosted["fixtures"] if f["mesh"] is False]
-    script = RIG_SCRIPT % {"root": str(ROOT), "out": str(tmp_path), "plan": json.dumps(plan),
-                           "hosted": json.dumps(hosted)}
+    # (1) a parametric decor pendant over a table under the camera's patch: a closed frustum from 1.5 m up
+    pendant = {"name": "decor_dec_p", "wenart_id": "dec_p", "element_id": "dec_p", "decor_id": "dec_p",
+               "host_id": None, "kind": "decor", "room_id": "r1", "type": "pendant_light",
+               "method": "parametric (fallback: no asset)", "center": [0.8, 2.0, 1.85], "size": [0.45, 0.45, 0.7]}
+    dining = {"id": "r1", "room_type": "dining", "polygon": [[-1, 0], [4, 0], [4, 4], [-1, 4]]}
+    hung = L.rig_plan(dining, [_piece("t", "table_dining", (0.8, 2.0), (1.6, 0.9))], 0.0, 2.7,
+                      decor=L.built_decor_boxes([pendant], "r1"))
+    assert [(f["mesh"], f["host_id"]) for f in hung["fixtures"]] == [(False, "dec_p")]
+    pend = _host_case(pendant, P.decor_parts("pendant_light", 0.45, 0.45, 0.7), (0.8, 2.0), 0.0, 1.5)
+    # (2) a library floor lamp beside the bed, its model a closed shade (the parametric floor lamp's parts)
+    lib = _piece("fl1", "floor_lamp", (0.8, 2.9), (0.45, 0.45), asset={"method": "library",
+                                                                           "bbox_m": [0.45, 0.45, 1.6]})
+    lit = L.rig_plan(BEDROOM, [BED, lib], 0.0, 2.7, piece_methods={"fl1": "library"})
+    lit["fixtures"] = [f for f in lit["fixtures"] if f["mesh"] is False]
+    assert [f["light_where"] for f in lit["fixtures"]] == ["in_shade"]
+    in_shade = lit["fixtures"][0]["light"]["center"][2]
+    lamp = _host_case({"name": "furn_fl1", "wenart_id": "fl1", "element_id": "fl1", "kind": "furniture",
+                       "room_id": "r1", "type": "floor_lamp", "method": "library"},
+                      P.build_parts("floor_lamp", 0.45, 0.45, 1.6), (0.8, 2.9), 0.0, 0.0)
+    cases = {"lamp": {"plan": plan}, "hosted": {"plan": hosted}, "pendant": {"plan": hung, "hosts": [pend]},
+             "library": {"plan": lit, "hosts": [lamp]}}
+    script = RIG_SCRIPT % {"root": str(ROOT), "out": str(tmp_path), "cases": json.dumps(cases)}
     proc = subprocess.run([BLENDER, "-b", "--factory-startup", "--python-exit-code", "1", "--python-expr", script],
                           capture_output=True, text=True, timeout=600, cwd=str(ROOT))
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     out = json.loads(next(ln for ln in proc.stdout.splitlines() if ln.startswith("RESULT "))[7:])
-    print(f"floor under the table lamp: light on {out['on']['lum']:.5f}, off {out['off']['lum']:.5f}")
-    assert out["on"]["meshes"] == ["rig_r1_bedside_1"] and out["on"]["shadow"] == [False]
-    assert out["on"]["entries"] == [True]
-    assert out["on"]["lum"] > 1.2 * out["off"]["lum"] + 1e-4, out          # the light reaches the floor
-    assert out["host"]["meshes"] == [] and out["host"]["lights"] == ["rig_r1_bedside_1_light"]
+    for name in ("lamp", "pendant", "library"):
+        print(f"floor light, {name}: on {out[name + '_on']['lum']:.5f}, off {out[name + '_off']['lum']:.5f}, "
+              f"light z {out[name + '_on']['light_z']}, escape {out[name + '_on']['escape']}")
+    on, off = out["lamp_on"], out["lamp_off"]
+    assert on["meshes"] == ["rig_r1_bedside_1"] and on["shadow"] == [False]
+    assert on["entries"] == [True]
+    assert on["lum"] > 1.2 * off["lum"] + 1e-4, out                         # the light reaches the floor
+    assert out["hosted_on"]["meshes"] == [] and out["hosted_on"]["lights"] == ["rig_r1_bedside_1_light"]
+    # (3) the shade emits, the hardware (base and stem) does not
+    slot = on["slots"]["rig_r1_bedside_1"]
+    assert slot["materials"] == ["rig_fixture_2700K", "rig_hardware"] and slot["faces"] == [10, 16]
+    assert slot["emission"][0] > 0 and slot["emission"][1] == 0
+    # (1) the parametric pendant: the light under its closed shade reaches the floor
+    p_on, p_off = out["pendant_on"], out["pendant_off"]
+    assert p_on["meshes"] == [] and p_on["escape"] == [{"host_object": "decor_dec_p", "escapes": True, "moved_m": 0.0}]
+    assert p_on["light_z"] == [pytest.approx(1.5 - L.RIG_HOSTED_PENDANT_GAP_M)]
+    assert p_on["lum"] > 1.2 * p_off["lum"] + 1e-4, out
+    # (2) the library lamp's closed shade: the ray check moves the light out, under the shade, and it lights the floor
+    l_on, l_off = out["library_on"], out["library_off"]
+    (esc,) = l_on["escape"]
+    assert esc["host_object"] == "furn_fl1" and esc["escapes"] is True and esc["moved_m"] > 0.1
+    shade_bottom = 1.6 - min(0.4, 1.6 * 0.3)
+    assert l_on["light_z"] == [pytest.approx(shade_bottom - L.RIG_ESCAPE_STEP_M, abs=1e-3)]
+    assert l_on["light_z"][0] == pytest.approx(in_shade - esc["moved_m"], abs=1e-3) and l_on["enclosed"] == []
+    assert l_on["lum"] > 1.2 * l_off["lum"] + 1e-4, out

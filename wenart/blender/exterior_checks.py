@@ -39,6 +39,22 @@ edit that moved or removed the piece must not read it as still there (``wenart.a
 bookshelf f_L1_058 kept a stale 5.17 m top through 3 rounds and every remove or move was rejected). A door or window
 the build clipped under the roof below a usable height carries ``kind: opening_clip`` (``OPENING_CLIP_KIND``): the
 agent reports it ("needs a dormer: review", ``causes.opening_under_roof``) instead of offering ``set_exterior``.
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03; integration of the agent track's asks):
+
+- **The entrance view has its own X6 rule.** The planner frames an entrance door at 6-12 m with a fixed frame
+  (``exterior.entrance_views``), so the whole-building rules (``FILL_RANGE``, "does not fit") always fired on a long
+  building (real03's ext_7), and the agent moved the entrance view away from its door. An ``entrance`` view is now
+  judged by ``entrance_view_problem`` instead: its door (``entrance``, else the main entrance of ``site.entrances``)
+  is in ``visible_openings`` and in the horizontal field of view, and the camera stands at most
+  ``ENTRANCE_VIEW_MAX_M`` from the door face and within ``ENTRANCE_VIEW_MAX_DEG`` of the door's axis (the agent's
+  ``tools.entrance_problem`` and the build's ``agent_exterior_view`` use the same function). The bearing is taken
+  from the door: the planner's own entrance view looks 42 degrees off the axis, because ``frame_fixed`` turns it to
+  the building's middle.
+- **The sun override follows the X7 rule.** ``validate_exterior_override`` takes the sun elevation only within
+  ``SUN_ELEVATION_RANGE`` (25-50 degrees, was 5-89), and an ``azimuth_deg`` only when, turned to the building frame
+  with ``site.north_deg``, it lights the main facade (P4b's sun at 55 degrees was accepted, then X7 reported it).
+  Lead decision 4 (17 Oct 2026): real02's assumed north stays; a view into the sun is only listed.
 """
 from __future__ import annotations
 
@@ -68,6 +84,10 @@ FENCES = ("hedge", "fence", "none")
 SCENE_MANIFEST_SOURCE = "scene_manifest"     # metrics.source of an X2 measured on the scene manifest's boxes
 OPENING_CLIP_KIND = "opening_clip"           # metrics.kind of an opening clipped under the roof (= causes)
 COURTS = ("auto", "yes", "no")
+# Fix round after P4b (module docstring): an entrance view's rule (= the agent's tools.ENTRANCE_VIEW_MAX_M / _DEG).
+ENTRANCE_VIEW = "entrance"
+ENTRANCE_VIEW_MAX_M = 14.0              # the planner's farthest entrance view (exterior.ENTRANCE_VIEW_M, 12 m) + 2 m
+ENTRANCE_VIEW_MAX_DEG = 30.0            # the planner looks 20 degrees off the door's axis
 _NUM = {"type": "number"}
 _VEC3 = {"type": "array", "items": _NUM, "minItems": 3, "maxItems": 3}
 
@@ -197,6 +217,75 @@ def _exterior_cameras(scene_manifest: Optional[dict], render_manifest: Optional[
                     and all(c.get("name") != x.get("name") for x in cams):
                 cams.append(c)
     return cams
+
+
+def entrance_record(building: dict, camera: dict) -> Optional[dict]:
+    """Fix round after P4b (module docstring): the ``site.entrances`` record an entrance view frames: the camera's
+    own ``entrance`` door, else the main entrance, else the one nearest the camera's target; None without one."""
+    recs = [r for r in ((building.get("site") or {}).get("entrances") or [])
+            if isinstance(r, dict) and r.get("outward") and (r.get("face") or r.get("centre"))]
+    if not recs:
+        return None
+    door = camera.get("entrance") or camera.get("door_id")
+    rec = next((r for r in recs if door and r.get("door_id") == door), None) or \
+        next((r for r in recs if r.get("main")), None)
+    if rec is None:
+        aim = camera.get("target") or camera.get("position") or [0.0, 0.0]
+        rec = min(recs, key=lambda r: math.dist([float(v) for v in (r.get("face") or r["centre"])[:2]],
+                                                [float(v) for v in aim[:2]]))
+    return rec
+
+
+def entrance_view_problem(rec: Optional[dict], position, target, lens_mm: Optional[float] = None) -> Optional[str]:
+    """Fix round after P4b (module docstring; pure): why the pose ``position`` -> ``target`` is no entrance view of
+    the door ``rec``: the camera stands farther than ``ENTRANCE_VIEW_MAX_M`` from the door face, or more than
+    ``ENTRANCE_VIEW_MAX_DEG`` off the door's outward axis (seen from the door), or the door lies outside the
+    horizontal field of view of ``lens_mm`` (default ``exterior.EYE_LENS_MM``); None when it is one, or without a
+    record. The bearing is measured from the door, not along the look: the planner's entrance view stands 20 degrees
+    off the axis and ``exterior.frame_fixed`` turns its yaw to the building's middle (real03's ext_7 looks 42 degrees
+    off the axis with the door in the frame)."""
+    from wenart.blender import exterior as E
+
+    if not rec or target is None:
+        return None
+    face = [float(v) for v in (rec.get("face") or rec["centre"])[:2]]
+    o = [float(v) for v in rec["outward"][:2]]
+    n = math.hypot(*o)
+    if n < 1e-9:
+        return None
+    o = [o[0] / n, o[1] / n]
+    px, py = float(position[0]) - face[0], float(position[1]) - face[1]
+    dist = math.hypot(px, py)
+    door = rec.get("door_id")
+    if dist > ENTRANCE_VIEW_MAX_M + 1e-6:
+        return (f"{dist:.1f} m from the door {door} (an entrance view stands at most {ENTRANCE_VIEW_MAX_M:g} m in "
+                f"front of it)")
+    bearing = 0.0 if dist < 1e-9 else math.degrees(math.acos(max(-1.0, min(1.0, (px * o[0] + py * o[1]) / dist))))
+    if bearing > ENTRANCE_VIEW_MAX_DEG + 1e-6:
+        return (f"standing {bearing:.0f} degrees off the door {door}'s axis (an entrance view stands within "
+                f"{ENTRANCE_VIEW_MAX_DEG:g} degrees of it, in front of the door)")
+    dx, dy = float(target[0]) - float(position[0]), float(target[1]) - float(position[1])
+    look = math.hypot(dx, dy)
+    if look > 1e-9 and dist > 1e-9:
+        half = math.degrees(math.atan(E.SENSOR_MM / 2.0 / float(lens_mm or E.EYE_LENS_MM)))
+        off = math.degrees(math.acos(max(-1.0, min(1.0, -(dx * px + dy * py) / (look * dist)))))
+        if off > half + 1e-6:
+            return (f"the door {door} is {off:.0f} degrees off the view direction (outside the {half:.0f} degree "
+                    f"half width of the frame)")
+    return None
+
+
+def _entrance_x6(building: dict, c: dict, name, out: list) -> None:
+    """Fix round after P4b (module docstring): the X6 of an ``entrance`` view: its door in the frame, the camera
+    close to the door and looking along its axis (no whole-building fill or fit rule)."""
+    rec = entrance_record(building, c)
+    door = c.get("entrance") or (rec or {}).get("door_id")
+    vis = c.get("visible_openings")
+    if door and isinstance(vis, list) and (vis or c.get("source") == "searched") and door not in vis:
+        out.append(_v("X6", "major", name, f"{name}: the entrance view does not show its door {door}", door=door))
+    why = entrance_view_problem(rec, c["position"], c.get("target"), c.get("lens_mm"))
+    if why is not None:
+        out.append(_v("X6", "major", name, f"{name}: not an entrance view any more: {why}", door=door))
 
 
 # --------------------------------------------------------------------------
@@ -452,6 +541,10 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
         if c.get("view") == "corner" and len(c.get("sides") or []) != 2:
             out.append(_v("X6", "major", name, f"{name}: a corner view that shows {len(c.get('sides') or [])} "
                                                f"facades", sides=c.get("sides")))
+        if c.get("view") == ENTRANCE_VIEW:
+            # fix round after P4b (module docstring): an entrance view frames its door, not the whole building
+            _entrance_x6(building, c, name, out)
+            continue
         fill = c.get("fill")
         if isinstance(fill, (int, float)) and not FILL_RANGE[0] - 0.05 <= fill <= FILL_RANGE[1] + 0.05:
             out.append(_v("X6", "minor", name, f"{name}: the building fills {fill:.0%} of the frame width (wanted "
@@ -735,7 +828,8 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
 def validate_exterior_override(building: dict, override: dict) -> dict:
     """``{"ok", "failed"}``: the schema, then: the roof with the override still covers the top level's outline
     (``roof.apply_override`` + ``roof_model``), a pitched roof at 5-60 degrees, the ground look is a ground of the
-    vocabulary, the sun above the horizon (5-89 degrees)."""
+    vocabulary, the sun by the X7 rule (fix round after P4b, module docstring: the elevation within
+    ``SUN_ELEVATION_RANGE``, an azimuth on the side of the main facade in the building frame)."""
     failed = _schema_errors(EXTERIOR_OVERRIDE_SCHEMA, override)
     if failed:
         return {"ok": False, "failed": failed}
@@ -765,10 +859,36 @@ def validate_exterior_override(building: dict, override: dict) -> dict:
                 failed.append("the roof planes would not be convex")
     if override.get("ground") is not None:
         failed += _look_problems("ground", override["ground"])
-    sun = override.get("sun") or {}
-    if sun.get("elevation_deg") is not None and not 5.0 <= float(sun["elevation_deg"]) <= 89.0:
-        failed.append(f"sun {sun['elevation_deg']} degrees: not above the horizon (5-89)")
+    failed += sun_override_problems(building, override.get("sun") or {})
     return {"ok": not failed, "failed": failed}
+
+
+def sun_override_problems(building: dict, sun: dict, main: Optional[dict] = None) -> list[str]:
+    """Fix round after P4b (module docstring): a sun override against X7 (``_x7``): the elevation within
+    ``SUN_ELEVATION_RANGE``; an ``azimuth_deg`` (compass, clockwise from north) turned to the building frame with
+    ``site.north_deg`` must light the main facade (``main``, else ``build.prepare``'s ``main_facade``; dot > 0).
+    Lead decision 4 (17 Oct 2026): an assumed north (real02) stays as it is."""
+    from wenart.blender import site as S
+
+    out = []
+    el = sun.get("elevation_deg") if isinstance(sun, dict) else None
+    lo, hi = SUN_ELEVATION_RANGE
+    if el is not None and not lo - 1e-6 <= float(el) <= hi + 1e-6:
+        out.append(f"sun {float(el):g} degrees above the horizon: outside the X7 range ({lo:g}-{hi:g} degrees)")
+    az = sun.get("azimuth_deg") if isinstance(sun, dict) else None
+    if az is not None:
+        if main is None:
+            main = (_prep(building) or {}).get("main_facade")
+        if isinstance(main, dict) and main.get("direction"):
+            north, src = S.north_deg(building)
+            az_b = (float(az) - float(north)) % 360.0
+            a = math.radians(az_b)
+            dot = math.sin(a) * float(main["direction"][0]) + math.cos(a) * float(main["direction"][1])
+            if dot <= 0.0:
+                out.append(f"sun azimuth {float(az):g} degrees (compass; {az_b:g} in the building frame, north "
+                           f"{float(north):g}, {src}) lights the back: X7 wants the sun on the side of the main "
+                           f"({main.get('axis')}) facade")
+    return out
 
 
 def _look_problems(slot: str, look_id: str) -> list[str]:

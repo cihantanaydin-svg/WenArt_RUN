@@ -152,6 +152,10 @@ and keeps its box: the XY box equals the footprint within 1 cm, the lowest point
 touch +Y, fronts and handles sit on -Y (the Bevel modifier of ``furniture.add_bevel`` rounds the edges by role).
 ``piece_bbox`` reads a module plan (``asset.method == "module"``, ``asset.module_plan``) through
 ``wenart.blender.modules.plan_bbox``.
+
+Fix round after P4b (17 Oct 2026): ``stair_parts`` builds a stair's steps, riser plates and landing to the walls its
+``plan["wall_joints"]`` names (``shell.stair_wall_joints``; ``landing_with_joints``), so no slit is left between a
+stair and its wall; a plan without joints is built as before.
 """
 from __future__ import annotations
 
@@ -1538,16 +1542,27 @@ def stair_parts(plan: dict) -> list[Part]:
     ``STAIR_WAIST_M`` waist slab, never below the floor) and the riser plate
     of the last riser; the landing slab (``mid`` / ``top`` landings); the
     rails and their two posts, cut ``STAIR_CAP_CLEARANCE`` below the cap.
-    Steps, plates and the landing carry ``rise_dir`` for ``stair_face_slots``."""
+    Steps, plates and the landing carry ``rise_dir`` for ``stair_face_slots``.
+
+    Fix round after P4b (17 Oct 2026): ``plan["wall_joints"]`` (``shell.stair_wall_joints``) widens a flight's steps
+    and riser plate on the side that meets a wall and moves a landing edge out by its ``extend_m``, so no slit is left
+    between the stair and the wall; the rails keep the drawn flight width. A plan without joints is built as drawn."""
     riser = float(plan["riser_m"])
     limit = plan.get("top_limit")
     parts: list[Part] = []
     rails = {}
     for rail in plan["rails"]:
         rails.setdefault(rail["flight"], []).append(rail)
+    joints = plan.get("wall_joints") or []
     for f in plan["flights"]:
         n, g, width, base = f["lines"], f["going"], f["width"], f["base_z"]
         r, origin = f["rise_dir"], f["nosings"][0]
+        ext = {j["side"]: float(j["extend_m"]) for j in joints if j["part"] == "flight" and j["flight"] == f["index"]}
+        if ext:
+            el, er = ext.get("left", 0.0), ext.get("right", 0.0)
+            shift = (el - er) / 2.0
+            origin = (origin[0] - r[1] * shift, origin[1] + r[0] * shift)     # left of the rise direction
+            width = width + el + er
         k = riser / g
         t_v = STAIR_WAIST_M * math.sqrt(1.0 + k * k)            # waist measured square to the soffit
         extra = {"flight": f["index"], "rise_dir": [r[0], r[1]]}
@@ -1573,9 +1588,32 @@ def stair_parts(plan: dict) -> list[Part]:
     landing = plan.get("landing")
     if landing is not None and landing["role"] in ("mid", "top"):
         z_top = landing["z"] if limit is None else min(landing["z"], limit)
-        parts.append(_part(geom2d.prism(landing["polygon"], z_top - landing["thickness"], z_top),
+        poly = landing["polygon"]
+        moves = {j["edge"]: float(j["extend_m"]) for j in joints if j["part"] == "landing"}
+        if moves:
+            poly = landing_with_joints(poly, moves)
+        parts.append(_part(geom2d.prism(poly, z_top - landing["thickness"], z_top),
                            "worktop", "landing", flight=None, rise_dir=None))
     return parts
+
+
+def landing_with_joints(polygon, moves: dict) -> list[tuple[float, float]]:
+    """The landing polygon (counter-clockwise, as ``shell.stair_wall_joints`` numbers its edges) with edge ``k``
+    moved out by ``moves[k]`` metres (pure; fix round after P4b): each vertex moves by the outward normals of the
+    moved edges it ends, so a rectangle stays a rectangle."""
+    pts = geom2d.ccw([tuple(p[:2]) for p in polygon])
+    n = len(pts)
+    shift = [[0.0, 0.0] for _ in pts]
+    for k, d in moves.items():
+        a, b = pts[k], pts[(k + 1) % n]
+        length = G.distance(a, b)
+        if length < 1e-9:
+            continue
+        nx, ny = (b[1] - a[1]) / length, -(b[0] - a[0]) / length
+        for i in (k, (k + 1) % n):
+            shift[i][0] += nx * d
+            shift[i][1] += ny * d
+    return [(p[0] + sx, p[1] + sy) for p, (sx, sy) in zip(pts, shift)]
 
 
 def _rail_parts(f: dict, offset: float, riser: float, limit: float) -> list[Part]:

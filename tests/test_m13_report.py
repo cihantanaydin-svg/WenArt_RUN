@@ -11,7 +11,13 @@ results copy before and after the report holds only the views of this run's mani
 Fix round after P4a (17 Oct 2026, the library lens of the P4a analysis): the sheets' labels sit on a dark box and a grey
 tile's text below it, long commercial-safe lines wrap instead of being cut, a baseline preview is used only for a
 camera the baseline report lists, "not recorded" is no flagged colour; metric 11 counts the scene's inferred trees when
-none is drawn; the report's Attribution section leaves out "AI-retouched" when no view was polished."""
+none is drawn; the report's Attribution section leaves out "AI-retouched" when no view was polished.
+
+Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis): ATTRIBUTION.md section 1 names
+GLM-4.6V-Flash (the second recognition pass) with check.yaml's licence; the report's models table (and so the run's
+ATTRIBUTION.md) lists the recognition models with their revisions and answer counts; metric 12 counts a
+dropped-then-re-added camera once and lists a rendered camera no plan names apart; metric 11 measures black pixels
+only in an aerial or site view (no data with the drop reason when there is none)."""
 from __future__ import annotations
 
 import json
@@ -1192,3 +1198,191 @@ def test_the_final_report_names_the_views_that_look_into_the_sun(tmp_path):
     text = (out / "final" / "final_report.md").read_text(encoding="utf-8")
     assert "Views that look into the sun" in text and "ext_1 (6.0 degrees off the sun, sky pull k 0)" in text
     assert F.validate_final_manifest(dict(manifest, lighting=dict(manifest["lighting"], into_sun=[{"camera": 1}])))
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis): the second recognition pass in
+# ATTRIBUTION.md and in the report's models table; metric 12 counts a dropped-then-re-added camera once and metric 11
+# measures black pixels only in an aerial or site view.
+# --------------------------------------------------------------------------
+
+def _check_models() -> dict:
+    from wenart.vision_check.config import load_config
+    return load_config()["models"]
+
+
+def _questions(folder: Path, models: dict, answered: dict, n: int = 3) -> None:
+    """``folder/requests.json`` with ``n`` symbol questions and the ``models``; ``answers_<slug>.json`` per entry of
+    ``answered`` (slug -> how many questions have JSON data; the next one has an error)."""
+    folder.mkdir(parents=True, exist_ok=True)
+    items = [{"key": f"sym_L0_00{i}", "task": "symbol_type", "input_sha256": f"h{i}"} for i in range(1, n + 1)]
+    C.write_json(folder / "requests.json", {"schema_version": "0.1", "kind": "recognition_requests",
+                                            "models": models, "items": items})
+    for slug, k in answered.items():
+        calls = {it["key"]: {"data": {"type": "bed_double", "confidence": 0.9}, "error": None} for it in items[:k]}
+        if k < n:
+            calls[items[k]["key"]] = {"data": None, "error": "timeout"}
+        C.write_json(folder / f"answers_{slug}.json", {"schema_version": "0.1", "kind": "recognition_answers",
+                                                        "slug": slug, "calls": calls})
+
+
+def test_attribution_tools_name_every_recognition_model_with_the_check_yaml_licence():
+    """Fails on the old code: P4b's real03 ATTRIBUTION.md listed 9 tools and no GLM-4.6V-Flash, the second recognition
+    pass (66 of 72 answers on real03, MIT per the Hugging Face model API and docs/plan.md)."""
+    cfg = _check_models()
+    tools = {t["name"]: t for t in CP.TOOLS_AND_GENERATORS}
+    for key in ("glm", "qwen"):                        # the recognition passes (wenart.recognition.answers MODEL_KEYS)
+        row = tools.get(cfg[key]["id"])
+        assert row is not None, key
+        assert row["licence"] == cfg[key]["licence"] and row["url"] == f"https://huggingface.co/{cfg[key]['id']}"
+        assert f"models.{key}" in row["role"]
+    tools_text = sections(CP.attribution_text("x", fake_credits(), mode="relaxed"))["1. Tools and generators"]
+    assert ("- zai-org/GLM-4.6V-Flash: MIT (https://huggingface.co/zai-org/GLM-4.6V-Flash); recognition of plan "
+            "symbols and sheet regions (pass 2") in tools_text
+
+
+def test_the_final_report_and_attribution_list_the_recognition_models(tmp_path):
+    """Fails on the old code: P4b's report table listed only the check agent Qwen3.8-27B-FP8 (the models came from the
+    polish and check manifests alone), so the run's ATTRIBUTION.md ("Models recorded by this run's final report") had
+    no recognition model either."""
+    cfg = _check_models()
+    out = make_run(tmp_path)
+    models = {key: {"id": cfg[key]["id"], "slug": cfg[key]["slug"], "pass": p} for key, p in (("qwen", 1), ("glm", 2))}
+    _questions(out / "recognition", models, {cfg["qwen"]["slug"]: 3, cfg["glm"]["slug"]: 2})
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    rows = {m["role"]: m for m in manifest["models"]}
+    assert rows["recognition pass 2"] == {
+        "role": "recognition pass 2", "repo": "zai-org/GLM-4.6V-Flash", "revision": cfg["glm"]["revision"],
+        "licence": "MIT", "source": "recognition/requests.json (2 of 3 answered)", "questions": 3, "answered": 2}
+    assert rows["recognition pass 1"]["repo"] == cfg["qwen"]["id"] and rows["recognition pass 1"]["answered"] == 3
+    assert rows["recognition pass 1"]["licence"] == "Apache-2.0"
+    table = (out / "final" / "final_report.md").read_text(encoding="utf-8").split("## Models and licences", 1)[1]
+    assert (f"| recognition pass 2 | zai-org/GLM-4.6V-Flash | {cfg['glm']['revision']} | MIT | "
+            "recognition/requests.json (2 of 3 answered) |") in table
+    text = CP.attribution_text("x", [dict(m, kind="run_model") for m in CP.run_model_rows(out)], mode="relaxed")
+    assert (f"- recognition pass 2: zai-org/GLM-4.6V-Flash @ {cfg['glm']['revision'][:12]} (MIT)"
+            in sections(text)["1. Tools and generators"])
+
+
+def test_recognition_model_rows_skip_silent_models_and_unpinned_ids_and_read_the_base_of_a_variant(tmp_path):
+    """A model named in requests.json that answered nothing is no model of these images; a model whose id is not the
+    one check.yaml pins for its key gets no revision or licence (never a borrowed one); the sheet-region questions of
+    the same model add to its row; a variant output with no questions of its own reads its base project's."""
+    cfg = _check_models()
+    base = tmp_path / "out"
+    other = {"id": "zai-org/GLM-other", "slug": "glm-other", "pass": 2}
+    _questions(base / "recognition", {"qwen": {"id": cfg["qwen"]["id"], "slug": cfg["qwen"]["slug"], "pass": 1},
+                                      "glm": other}, {cfg["qwen"]["slug"]: 0, "glm-other": 1})
+    _questions(base / "sheets", {"glm": other}, {"glm-other": 2})
+    rows = F.recognition_model_rows(base)
+    assert rows == [{"role": "recognition pass 2", "repo": "zai-org/GLM-other", "revision": None, "licence": None,
+                     "source": "recognition/requests.json (1 of 3 answered); sheets/requests.json (2 of 3 answered)",
+                     "questions": 6, "answered": 3}]
+    variant = base / "variants" / "v1"
+    variant.mkdir(parents=True)
+    assert F.recognition_model_rows(variant, base) == rows and F.recognition_model_rows(variant) == []
+    assert F.recognition_model_rows(tmp_path / "none") == []
+    _questions(variant / "recognition", {"glm": other}, {"glm-other": 3})     # its own questions win over the base's
+    assert [r["source"] for r in F.recognition_model_rows(variant, base)] == \
+        ["recognition/requests.json (3 of 3 answered)"]
+
+
+def _scene_cameras_edit(out: Path, **ext1) -> None:
+    """The fake run's scene manifest with ``ext1`` merged into camera ext_1 (None values remove a key) and the
+    ``cameras_dropped`` given as ``dropped``."""
+    path = out / "scene" / "scene_manifest.json"
+    sc = json.loads(path.read_text(encoding="utf-8"))
+    dropped = ext1.pop("dropped", None)
+    for c in sc["cameras"]:
+        if c["name"] == "ext_1":
+            c.update({k: v for k, v in ext1.items() if v is not None})
+            for k in [k for k, v in ext1.items() if v is None]:
+                c.pop(k, None)
+    if dropped is not None:
+        sc["cameras_dropped"] = dropped
+    path.write_text(json.dumps(sc), encoding="utf-8")
+
+
+ROOF_REASON = "flat_cut roof (upper floors not drawn): no aerial view"
+
+
+def test_metric_12_and_11_on_a_re_added_camera_and_no_site_view(tmp_path):
+    """Fails on the old code. Metric 12: P4b (real03) reported "6 of 8 (2 dropped)": ext_6 was dropped (frontal, too
+    small) and the agent's "set ext_6" re-created it, so it was in both lists; here ext_1 plays ext_6 and ext_5 is the
+    aerial view dropped for the flat_cut roof: 1 of 2, 1 dropped, ext_1 re-added. Metric 11: P4b reported "black
+    pixels 1.9 % (ext_6)", the window glass of an eye-level 3/4 view, because no aerial or site camera existed; now no
+    data, with the drop reason."""
+    out = make_run(tmp_path)
+    _scene_cameras_edit(out, view="agent", agent={"action": "set", "reason": "a 3/4 corner view"}, dropped=[
+        {"name": "ext_5", "kind": "exterior", "view": "aerial", "dropped": True, "dropped_reason": ROOF_REASON},
+        {"name": "ext_1", "kind": "exterior", "view": "frontal", "dropped": True,
+         "dropped_reason": "35.0 m in front of the front (entrance) facade: the building fills 8% of the frame"}])
+    m = MX.metrics(out)["metrics"]
+    m12 = m["m12"]
+    assert m12["text"] == "1 of 2 (1 dropped: ext_5; re-added after the drop: ext_1 (agent))" and m12["value"] == 1
+    assert (m12["parts"]["planned"], m12["parts"]["dropped"], m12["parts"]["re_added"]) == (2, 1, ["ext_1"])
+    assert m12["parts"]["dropped_cameras"] == ["ext_5"] and m12["parts"]["not_planned"] == []
+    m11 = m["m11"]
+    assert m11["parts"]["black_pct"] == MX.NO_DATA and m11["parts"]["site_camera"] is None
+    assert m11["parts"]["black_basis"] == "none"
+    assert m11["parts"]["black_reason"] == f"no aerial or site view: ext_5 (aerial) dropped: {ROOF_REASON}"
+    assert m11["text"].endswith(f"black pixels in the site view no data (no aerial or site view: ext_5 (aerial) "
+                                f"dropped: {ROOF_REASON})")
+    assert m11["value"] == 100.0                        # the tree share is unchanged (the drawn oak, a real model)
+    # no aerial camera planned at all; a long drop reason is cut
+    _scene_cameras_edit(out, dropped=[])
+    assert MX.metrics(out)["metrics"]["m11"]["parts"]["black_reason"] == \
+        "no aerial or site view: no aerial or site camera planned"
+    _scene_cameras_edit(out, dropped=[{"name": "ext_9", "view": "site", "dropped_reason": "x" * 400}])
+    reason = MX.metrics(out)["metrics"]["m11"]["parts"]["black_reason"]
+    assert reason.startswith("no aerial or site view: ext_9 (site) dropped: xxx") and reason.endswith("...")
+    assert len(reason) == len("no aerial or site view: ext_9 (site) dropped: ") + MX.DROP_REASON_CHARS
+
+
+def test_metric_12_lists_a_rendered_camera_that_no_plan_names_apart(tmp_path):
+    """Fails on the old code: P4a (real02) reported "7 of 6": a duplicate camera rendered as "ext_6.001" was counted
+    as one of the planned exterior views."""
+    out = make_run(tmp_path)
+    path = out / "renders" / "render_manifest.json"
+    rm = json.loads(path.read_text(encoding="utf-8"))
+    ext = next(e for e in rm["renders"] if e["camera"] == "ext_1")
+    rm["renders"].append(dict(ext, camera="ext_1.001", preview="ext_1_preview.jpg"))
+    path.write_text(json.dumps(rm), encoding="utf-8")
+    m12 = MX.metrics(out)["metrics"]["m12"]
+    assert m12["text"] == "1 of 1 (0 dropped); also rendered, not a planned camera: ext_1.001"
+    assert m12["value"] == 1 and m12["parts"]["not_planned"] == ["ext_1.001"]
+
+
+def test_metric_11_keeps_the_darkest_exterior_only_for_a_run_that_records_no_view_kind(tmp_path):
+    """The M12 real04 baseline has no scene manifest and its final views carry no exterior_view: the old rule (the
+    exterior preview with most black) stays and the text says so. A site view named only by the final manifest's
+    exterior_view is measured as the site view."""
+    out = make_run(tmp_path)
+    _scene_cameras_edit(out, view=None)
+    m11 = MX.metrics(out)["metrics"]["m11"]
+    assert (m11["parts"]["black_pct"], m11["parts"]["site_camera"], m11["parts"]["black_basis"]) == \
+        (50.0, "ext_1", "darkest exterior")
+    assert m11["text"].endswith("black pixels in the site view 50.0 % (ext_1, the darkest exterior: the run records "
+                                "no view kinds)")
+    _scene_cameras_edit(out, view="aerial")
+    F.write_final(out)                                  # the final manifest records exterior_view "aerial"
+    (out / "scene" / "scene_manifest.json").unlink()
+    m11 = MX.metrics(out)["metrics"]["m11"]
+    assert (m11["parts"]["black_pct"], m11["parts"]["site_camera"], m11["parts"]["black_basis"]) == \
+        (50.0, "ext_1", "site view")
+    assert m11["text"].endswith("black pixels in the site view 50.0 % (ext_1)")
+
+
+RUN_P4B = ROOT / "runs" / "20261017-091212-full" / "results"
+
+
+@pytest.mark.skipif(not (RUN_P4B / "final" / "real03" / "final_manifest.json").is_file(),
+                    reason="no P4b results in runs/")
+def test_metrics_11_and_12_on_the_p4b_real03_results():
+    """The P4b run of real03 (runs/20261017-091212-full): 6 of 7 (ext_5 dropped, ext_6 re-added by the agent), no site
+    view (the aerial ext_5 was dropped for the flat_cut roof)."""
+    m = MX.metrics(RUN_P4B / "final" / "real03")["metrics"]
+    assert m["m12"]["text"] == "6 of 7 (1 dropped: ext_5; re-added after the drop: ext_6 (agent))"
+    assert m["m11"]["parts"]["black_pct"] == MX.NO_DATA and m["m11"]["parts"]["black_reason"] == \
+        "no aerial or site view: ext_5 (aerial) dropped: flat_cut roof (upper floors not drawn): no aerial view"

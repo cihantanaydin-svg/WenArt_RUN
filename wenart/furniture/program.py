@@ -71,6 +71,14 @@ beds f_L0_019-022 (typed "the bedroom misses its bed" and by their twins) got "u
 r_L0_yatak_odasi, _2, _3 and _4 lost their nightstands (and the bed group's rug); in Milestone 11 both VLMs had
 agreed ``bed_double`` and the beds were verified. The U10 rule (no chairs around an unverified table,
 ``groups._expected_missing``) is unchanged.
+
+Fix round after P4b (17 Oct 2026; the review of the P4a fix round). What: a drawn anchor that is a duplicate outline
+(``duplicate_anchor``: a larger built drawn piece of its family holds it, ``edit_ops.family_host_of``) gets nothing
+added (note "duplicate outline: drawn inside ...") and is never re-solved. Why: real02's 1.30 m "sofa" f_L-1_061 is
+the seat segment of the corner sofa f_L-1_053's block, typed by the group-member rule; since the P4a fix it counted
+as a sure anchor, so its seating group was marked for a re-solve (a TV unit and a coffee table around a phantom); the
+solver found no place and the phantom stayed. It is listed for review and the agent may mark it (the edit lock lets
+a duplicate outline through).
 """
 from __future__ import annotations
 
@@ -114,6 +122,17 @@ def unsure_anchor(anchor: Optional[dict]) -> bool:
 
     vector = any(isinstance(e, dict) and e.get("method") == "vector" for e in anchor.get("evidence") or [])
     return not (vector and anchor.get("type_method") in INF.CODE_TYPE_METHODS)
+
+
+def duplicate_anchor(building: dict, anchor: Optional[dict]) -> Optional[str]:
+    """Fix round after P4b (module docstring): the id of the larger drawn piece of the anchor's family whose footprint
+    holds the drawn anchor (``edit_ops.family_host_of``: a seat segment of a corner sofa's block read as a sofa), else
+    None. Such an anchor gets nothing added and is not re-solved."""
+    if not anchor or anchor.get("source") != "from_documents":
+        return None
+    from wenart.furniture import edit_ops as E     # lazy: edit_ops reads the program
+
+    return E.family_host_of(building, anchor)
 
 
 def _room(building: dict, room_id: str) -> dict:
@@ -474,10 +493,13 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         options = own or list(template["options"])
         if template["layout"] == "anchored":
             options = _option_of_anchor(name, anchor["type"], options)
-        unsure = unsure_anchor(anchor) and template["layout"] == "anchored"       # fix round after P4a
+        host = duplicate_anchor(building, anchor) if template["layout"] == "anchored" else None   # after P4b
+        unsure = (unsure_anchor(anchor) or host is not None) and template["layout"] == "anchored"   # after P4a
         kinds = set(room_kinds(building, room)) | {ZONE_ROOM_TYPE.get(z.get("kind") or "") for z in zones}
         foreign = not (set(template["room_types"]) & kinds)
-        note = ("unverified anchor: nothing added" if unsure else
+        note = (f"duplicate outline: drawn inside the {drawn[host]['type'] if host in drawn else 'piece'} {host}, "
+                f"nothing added (listed for review)" if host is not None else
+                "unverified anchor: nothing added" if unsure else
                 f"no completion: a {name} group does not belong in a {rtype} room" if foreign else "")
         drawn_members = [m for m in g["member_ids"] if (drawn.get(m) or {}).get("source") == "from_documents"]
         entry = _entry(room_id, name, True, options, zone_id=(same or {}).get("zone_id"),
@@ -504,6 +526,8 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         anchor = drawn[g["anchor_id"]]
         if unsure_anchor(anchor):                      # fix round after P4a: a code-typed anchor is re-solved too
             continue
+        if duplicate_anchor(building, anchor) is not None:
+            continue                                   # fix round after P4b: a duplicate outline is never re-solved
         kinds = set(room_kinds(building, room)) | {ZONE_ROOM_TYPE.get(z.get("kind") or "") for z in zones}
         template = GR.load_groups()[g["template"]]
         if not (set(template["room_types"]) & kinds):

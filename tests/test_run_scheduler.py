@@ -43,6 +43,12 @@ RECOGNITION_ANSWERS = {"symbol_type": {"type": "sofa", "front": "none", "confide
                                         "reason": "fake"}}
 
 
+def late_item(project: str, k: int) -> dict:
+    """Fix round after P4b: the k-th late question of the fake pipeline_final (flag ``late_questions``)."""
+    return {"key": f"sym_L0_9{k:02d}", "task": "symbol_type", "page": 1, "images": [f"crops/sym_L0_9{k:02d}_ctx.png"],
+            "input_sha256": hashlib.sha256(f"{project}:late:{k}".encode()).hexdigest()}
+
+
 def opt(cmd, name, default=None):
     return cmd[cmd.index(name) + 1] if name in cmd else default
 
@@ -295,6 +301,20 @@ class FakeCLI:
             write(out / "building.json", building)
             return 4
         building.update(status=status, stage="final", answers=opt(cmd, "--answers"), no_ai="--no-ai" in cmd)
+        late = int(self.flags.get("late_questions", {}).get(project, 0))
+        if late and opt(cmd, "--answers"):
+            # Fix round after P4b: the run with the answers asks questions the first run did not (the pipeline writes
+            # them to requests.json, not pending, exit 0); the building records which of them both models answered.
+            req = out / "recognition" / "requests.json"
+            doc = json.loads(req.read_text())
+            keys = {i["key"] for i in doc["items"]}
+            doc["items"] += [late_item(project, k) for k in range(1, late + 1) if f"sym_L0_9{k:02d}" not in keys]
+            write(req, doc)
+            stores = [json.loads(p.read_text()).get("calls", {}) if p.is_file() else {}
+                      for p in (out / "recognition" / f"answers_{MODELS[m]['slug']}.json" for m in ("qwen", "glm"))]
+            building["late_unanswered"] = [
+                i["key"] for i in (late_item(project, k) for k in range(1, late + 1))
+                if not all((s.get(i["key"]) or {}).get("input_sha256") == i["input_sha256"] for s in stores)]
         if status != "ok":
             building["rooms"] = []
         write(out / "building.json", building)
@@ -2206,3 +2226,82 @@ def test_m13_site_platforms_step_after_the_pipeline_and_its_sha_in_the_record(tm
     rec = r3.record("p1", "pipeline_final")
     assert rec["status"] == "warning" and "site platforms exit 1" in rec["note"]
     assert r3.record("p1", "fit")["status"] in ("ok", "reused") and "report" in r3.cli.names("p1")
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4b (17 Oct 2026; lead decision 9): the late recognition questions
+# --------------------------------------------------------------------------
+
+def _seed_answers(repo: Path, project: str, items: list) -> Path:
+    """Committed answers of both models (results/recognition/<p>/) for ``items``, as the fake recognizer writes them."""
+    seeds = repo / "results" / "recognition" / project
+    for key in ("qwen", "glm"):
+        calls = {i["key"]: {"task": i["task"], "input_sha256": i["input_sha256"], "model": MODELS[key]["id"],
+                            "data": RECOGNITION_ANSWERS[i["task"]], "error": None} for i in items}
+        write(seeds / f"answers_{MODELS[key]['slug']}.json", {"model": MODELS[key]["id"], "slug": MODELS[key]["slug"],
+                                                              "model_key": key, "calls": calls})
+    return seeds
+
+
+def _first_items(project: str, n: int, tag: str = "h1") -> list:
+    return [{"key": f"sym_L0_{i:03d}", "task": "symbol_type",
+             "input_sha256": hashlib.sha256(f"{project}:{i}:{tag}".encode()).hexdigest()} for i in range(1, n + 1)]
+
+
+def test_late_questions_answered_by_the_committed_seeds_without_a_server(tmp_path):
+    """real03 (P4b): pipeline_final wrote 6 questions the first pipeline did not ask, and both models' current answers
+    were in the committed seeds. The late pass copies them (no server: they are counted as answered by
+    ``recognition_missing``, so a pass gated on it never started) and runs pipeline_final and fit again with them,
+    before the layout. Fails on the old scheduler (one pipeline_final, the late pieces unanswered)."""
+    make_repo(tmp_path, {"p1": {}})
+    _seed_answers(tmp_path / "repo", "p1", _first_items("p1", 2) + [late_item("p1", 1), late_item("p1", 2)])
+    r = Run(tmp_path, buildings={"p1": {"questions": 2}}, projects=["p1"], flags={"late_questions": {"p1": 2}})
+    assert r.run() == 0
+    assert r.servers.starts == ["qwen", "qwen", "glm"]               # layout + checks: no recognition session
+    finals = r.cli.find("pipeline_final", "p1")
+    assert len(finals) == 2 and all("--no-ai" not in c["cmd"] and opt(c["cmd"], "--answers") for c in finals)
+    names = r.cli.names("p1")
+    fits = [i for i, n in enumerate(names) if n == "fit"]
+    finals_at = [i for i, n in enumerate(names) if n == "pipeline_final"]
+    assert len(fits) == 2 and finals_at[0] < fits[0] < finals_at[1] < fits[1] < names.index("layout")
+    building = json.loads((tmp_path / "outputs" / "p1" / "building.json").read_text())
+    assert building["late_unanswered"] == []
+    rec = r.record("p1", "pipeline_final")
+    assert rec["status"] == "ok" and SC.LATE_NOTE.format(n=2) in rec["note"]
+    assert rec["written"]["building.json"] == ST.canonical_sha256(tmp_path / "outputs" / "p1" / "building.json")
+    steps = [s["name"] for s in r.record("p1", "recognize")["steps"]]
+    assert steps == ["stored answers qwen", "stored answers glm", "stored answers qwen (late)",
+                     "stored answers glm (late)"]
+    assert all("--server" not in c["cmd"] for c in r.cli.find("recognize"))
+    assert r.record("p1", "recognize")["status"] == "reused" and r.manifest()["projects"][0]["state"] == "ok"
+    # Without late questions nothing changes: one pipeline_final.
+    tmp2 = tmp_path / "plain"
+    make_repo(tmp2, {"p1": {}})
+    _seed_answers(tmp2 / "repo", "p1", _first_items("p1", 2))
+    r2 = Run(tmp2, buildings={"p1": {"questions": 2}}, projects=["p1"])
+    assert r2.run() == 0 and len(r2.cli.find("pipeline_final", "p1")) == 1
+
+
+def test_late_questions_without_answers_in_the_m10_chain_are_a_warning(tmp_path):
+    """The M10 chain lays out in the Qwen session and starts no late GLM session: late questions that neither the
+    seeds nor a model answer stay unanswered, a warning on recognize (never incomplete), one pipeline_final."""
+    r = Run(tmp_path, {"p1": {}}, buildings={"p1": {"questions": 2}}, projects=["p1"],
+            flags={"late_questions": {"p1": 1}})
+    assert r.run() == 0
+    assert len(r.cli.find("pipeline_final", "p1")) == 1
+    assert [opt(c["cmd"], "--model-key") for c in r.cli.find("recognize", "p1")] == ["glm", "qwen"]
+    rec = r.record("p1", "recognize")
+    assert rec["status"] == "warning" and "1 late recognition question(s) left unanswered" in rec["note"]
+    assert r.manifest()["projects"][0]["state"] == "ok"
+    # Only Qwen missing (the committed GLM answers hold the late key): the open Qwen session answers it, then
+    # pipeline_final runs again.
+    tmp2 = tmp_path / "glm-seeded"
+    make_repo(tmp2, {"p1": {}})
+    seeds = _seed_answers(tmp2 / "repo", "p1", _first_items("p1", 2) + [late_item("p1", 1)])
+    (seeds / f"answers_{MODELS['qwen']['slug']}.json").unlink()
+    r2 = Run(tmp2, buildings={"p1": {"questions": 2}}, projects=["p1"], flags={"late_questions": {"p1": 1}})
+    assert r2.run() == 0
+    asks = [(opt(c["cmd"], "--model-key"), bool(opt(c["cmd"], "--server"))) for c in r2.cli.find("recognize", "p1")]
+    assert asks == [("glm", False), ("qwen", True), ("glm", False), ("qwen", True)]
+    assert len(r2.cli.find("pipeline_final", "p1")) == 2
+    assert json.loads((tmp2 / "outputs" / "p1" / "building.json").read_text())["late_unanswered"] == []

@@ -23,6 +23,10 @@ exterior world while the lamp stays the one direct sun.
   Fix round after P4a (17 Oct 2026): every view keeps the project's daylight cast (``render.mixed_whitepoint`` with
   the rig part's extra warmth ``render.WB_RIG_RESIDUAL``, recorded as ``wb_rig_residual``); the rule above recomputes
   each view's white point with it, so a manifest rendered with m13.2 no longer passes (re-run on m13.3 renders).
+  Fix round after P4b (17 Oct 2026): ``wb_rig_kelvin`` is no longer ``lighting.RIG_WARM_K`` for every view: a view is
+  balanced for its own room's rig lights (``render.room_rig_kelvin``, ``wb_rig_kelvin_source`` ``room``), the scene's
+  first rig light when its room has none (``scene``); the expected value comes from the scene manifest's rig lights
+  (``rig_kelvin_from_manifest``), so the build may give halls, stairs and baths a neutral temperature.
 - ``test_exterior_sky_carries_a_visible_sun_disc``: the exterior world of ``materials.exterior_world_nodes`` (the
   round-3 world: the disc for camera rays only) rendered from a camera looking at the sun: the disc's pixels are far
   brighter than the sky beside them. Then a white plane facing the sun measures the Diffuse Direct light of (a) the
@@ -81,6 +85,24 @@ RIG_ONLY_MIN_SHARE = 0.5                # the bath's rig share (bpy 5.2.2 shim r
 # rendered orange); under a real sun the white point must sit near daylight. The ordering and the choice are
 # pinned pure in tests/test_m13_light.py.
 SUNLIT_WB_K = (4000.0, 7000.0)          # the white point when the sun (>= 300 W/m2) lights the metered room
+
+
+def rig_lights_from_manifest(manifest: dict) -> list[tuple]:
+    """``[(room_id, kelvin, watts)]`` of the scene manifest's rig lights (kind ``light`` with ``assumed.rig``; their
+    ``parent`` is the room, ``assumed.temperature_k`` / ``power_w`` the fixture's), in manifest order (fix round
+    after P4b, 17 Oct 2026)."""
+    out = []
+    for o in manifest.get("objects") or []:
+        a = o.get("assumed") or {}
+        if o.get("kind") == "light" and a.get("rig") and a.get("temperature_k"):
+            out.append((o.get("parent"), float(a["temperature_k"]), float(a.get("power_w") or 0.0)))
+    return out
+
+
+def rig_kelvin_from_manifest(manifest: dict, room_id) -> tuple:
+    """The temperature a view of ``room_id`` must be balanced for (``render.room_rig_kelvin`` on the manifest's rig
+    lights) and its source (``room`` | ``scene``)."""
+    return R.room_rig_kelvin(rig_lights_from_manifest(manifest), room_id)
 
 
 @pytest.fixture(scope="module")
@@ -163,7 +185,15 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
         if not levers["rig"]:
             assert share is None and ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
             continue
-        assert share is not None and 0.0 <= share <= 1.0 and ex["wb_rig_kelvin"] == L.RIG_WARM_K, (r["camera"], ex)
+        assert share is not None and 0.0 <= share <= 1.0, (r["camera"], ex)
+        # fix round after P4b (17 Oct 2026): the view is balanced for its own room's rig lights (render.room_rig_kelvin;
+        # the build may light halls, stairs and baths at a neutral temperature), the scene's first rig light only when
+        # its room has none (scene order: any of the scene's rig temperatures)
+        kelvin, source = rig_kelvin_from_manifest(manifest, r.get("room_id"))
+        temps = {k for _r, k, _e in rig_lights_from_manifest(manifest)}
+        assert ex["wb_rig_kelvin_source"] == source, (r["camera"], ex, source)
+        assert (ex["wb_rig_kelvin"] == kelvin) if source == "room" else (ex["wb_rig_kelvin"] in temps), \
+            (r["camera"], ex["wb_rig_kelvin"], kelvin, temps)
         # fix round part 2 (17 Oct 2026): the mixing rule below reads the view's own share, so it cannot see a share
         # that is wrong; two pins that do not: the daylight living room keeps the project white point (bpy 5.2.2
         # shim run of part 1: share 0.0 in base, rig and all), the bath lit mostly by its rig is corrected toward

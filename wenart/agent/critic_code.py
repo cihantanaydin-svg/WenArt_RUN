@@ -49,6 +49,14 @@ Integration of the same round (the furniture track's ask): ``library_gaps`` leav
 design (``asset.by_design`` or ``catalog.by_design_parametric``: kitchen runs, stairs, sanitary fixtures, a vanity, a
 built-in wardrobe), the rule of the final report's "built below library level" list (``report.final``), so the agent
 and the report agree. P4a raised LG for the showers f_L0_013 / f_L0_014, which the report lists as "no (by design)".
+
+Fix round after P4b (17 Oct 2026; pod P4b, real03): a ``lighting_dark`` view less than one exposure step
+(``LIGHTING_STEP_STOPS`` = 1/6 stop, ``wenart.blender.render.EXPOSURE_STEP``) over the cap is a MINOR finding with
+``metrics.below_exposure_step`` (``metrics.severity_was`` keeps the render's severity) and the message says it is
+reported only; ``causes.cause_of`` gives it the cause ``lighting_within_step`` (no tool). Why: P4b re-lit and
+re-rendered cam_r_L0_giris_holu_2_1 (0.01 stops over), giris_holu_4_2 and yasama_7_1 (0.04): the render rounds the
+EV to 1/6 stop, so such a view is at the cap once rounded. The render side (whether the render raises it at all) is
+the render track's.
 """
 from __future__ import annotations
 
@@ -202,6 +210,8 @@ LIGHTING_DARK_CHECK = "lighting_dark"       # = wenart.blender.render.LIGHTING_D
 # Fix round after P3: the factor a lighting_dark message suggests is the needed one x this (half a stop of headroom),
 # capped at set_lighting's maximum; the acceptance still counts the view clear at the needed factor.
 LIGHTING_HEADROOM = 2.0 ** 0.5
+# Fix round after P4b (module docstring): an overage below one exposure step is minor and report-only.
+LIGHTING_STEP_STOPS = 1.0 / 6.0             # = wenart.blender.render.EXPOSURE_STEP (pinned by the tests)
 
 
 def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = None) -> list[dict]:
@@ -244,7 +254,14 @@ def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = N
             over = float(metrics.get("stops_over_cap"))
         except (TypeError, ValueError):
             over = None
-        if over is not None and over > 0:
+        severity = rec.get("severity") or "major"
+        if over is not None and 0 < over < LIGHTING_STEP_STOPS - 1e-9:
+            # fix round after P4b (module docstring): under one exposure step, report only
+            metrics.update(below_exposure_step=True, severity_was=severity)
+            severity = "minor"
+            message += (f"; {over:.2f} stops is less than one exposure step ({LIGHTING_STEP_STOPS:.2f} stop): "
+                        f"reported only, no set_lighting")
+        elif over is not None and over > 0:
             need = round(2.0 ** over, 2)
             metrics["factor_needed"] = need
             if rec.get("room_id"):
@@ -263,7 +280,7 @@ def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = N
                     message += (f"; set_lighting factor x{ask:g} on {rec['room_id']} (the view needs about "
                                 f"x{want:g}; the headroom covers light that does not scale with the room's lights"
                                 f"{has})")
-        out.append({"check": LIGHTING_DARK_CHECK, "severity": rec.get("severity") or "major", "target": cam,
+        out.append({"check": LIGHTING_DARK_CHECK, "severity": severity, "target": cam,
                     "room_id": rec.get("room_id"), "message": message, "metrics": metrics})
     return out
 
