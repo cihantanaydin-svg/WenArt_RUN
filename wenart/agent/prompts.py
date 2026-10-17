@@ -21,6 +21,14 @@ Fix round after P4a (17 Oct 2026): ``plan_prompt`` and ``session_task`` take ``l
 findings and the views too dark for the EV cap that one ``set_lighting`` clears, ``loop.FINAL_ROUND_LIGHTING``), and
 the session task says that the ``set_lighting`` steps come first (``loop.lighting_first``). Why: P4a's salon
 set_lighting was the last of 14 steps and the session's calls ran out before it.
+
+Pass before P5, integration (17 Oct 2026; track F's ask). What: rule 3 of ``PLANNER_SYSTEM_M12`` (the planner the
+loop uses) says that a room's plan crop or a view is no evidence that a drawn piece typed from the drawing is not
+furniture (only the piece's own recognition crop, which ``plan_crop`` with its piece_id shows), and that a placement
+finding (F9, S2, G*) on such a piece is fixed by moving, snapping or turning it. Why: the code refuses that removal
+since the pass before P5 (``edit_ops.own_crop_named``), but the agent cited the room's camera crop for it (P3 real04
+seq 3282 / 3689 / 3692: ``check/cam_r_L1_koridor_2_1_plan.jpg`` for an F9 / S2 finding on a coffee table), each a
+refused try. The Milestone 11 ``PLANNER_SYSTEM`` (the model check of pod G1 only) is unchanged.
 """
 from __future__ import annotations
 
@@ -189,7 +197,7 @@ CAMERA_ROLES = {
 }
 
 
-def camera_note(camera: Optional[dict], eye: Optional[dict] = None) -> str:
+def camera_note(camera: Optional[dict], eye: Optional[dict] = None, role: Optional[str] = None) -> str:
     """Round 2 (Milestone 13 D8, track T6): what the exterior critic is told about a camera the policy allows above
     eye level: a record with ``aerial_allowed`` (the one true aerial view ``ext_5``, the site view) or ``view``
     aerial. A true aerial is not a finding: its height, pitch and the missing eye level are by design; the critic
@@ -200,7 +208,11 @@ def camera_note(camera: Optional[dict], eye: Optional[dict] = None) -> str:
     (``critic_vision.camera_eye``), its eye height above the ground and its pitch measured by code; a camera replayed
     from the baseline (set 1) is told that its pose is fixed (decision 1 of 17 Oct 2026). Why: the X6 rubric asked
     every view for a 3/4 corner at 1.5-1.7 m, so the critic called the frontal and the entrance view wrong and 5 views
-    "low angle" at 1.60 m above the ground; the cameras flipped between frontal and corner each round."""
+    "low angle" at 1.60 m above the ground; the cameras flipped between frontal and corner each round.
+
+    Pass before P5 (17 Oct 2026): ``role`` (``critic_vision.camera_role``) replaces the camera's ``view``: an agent
+    view that is X6's frontal view (square to the main facade) is told as ``CAMERA_ROLES["frontal"]``, not "a view
+    the agent placed" (real04's frontal view is one the agent adds: the planner drops ext_6)."""
     if not isinstance(camera, dict):
         return ""
     if camera.get("aerial_allowed") or camera.get("site_view") or camera.get("view") == "aerial":
@@ -209,7 +221,7 @@ def camera_note(camera: Optional[dict], eye: Optional[dict] = None) -> str:
                 f"and frontal views): its height above eye level, its downward pitch and the whole-building framing "
                 f"are by design and are NOT a finding (do not report X6 or V1 for the camera of this view); judge the "
                 f"roof, the facades, the site and the lighting it shows.")
-    role = camera.get("view")
+    role = role or camera.get("view")
     parts = []
     if role in CAMERA_ROLES:
         sides = ", ".join(str(x) for x in camera.get("sides") or []) or "its"
@@ -362,7 +374,10 @@ PLANNER_SYSTEM_M12 = (
     "(a clear reading error; the piece's allowed tools say so). It is never marked as not furniture otherwise. Call "
     "fix_fixture without center first; when it answers 'no valid spot', no centre will do: the finding stays for "
     "review.\n"
-    "3. Drawn furniture is kept; a symbol, mark or line read as furniture: mark_not_furniture with the evidence.\n"
+    "3. Drawn furniture is kept; a symbol, mark or line read as furniture: mark_not_furniture with the evidence. "
+    "The room's plan crop or a view is no evidence that a drawn piece typed from the drawing is not furniture (only "
+    "its own recognition crop is: plan_crop with its piece_id shows it); for a placement finding (F9, S2, G*) on such "
+    "a piece, move, snap or turn it.\n"
     "4. rotate_piece turns a piece; set_front only gives a front to a piece that has none (front_inferred). front_deg "
     "is the direction the front faces, degrees counter-clockwise from +x; a piece with its back on a "
     "free wall span faces that span's into_room_deg.\n"

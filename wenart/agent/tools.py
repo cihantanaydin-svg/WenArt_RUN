@@ -125,6 +125,31 @@ Integration of the fix round after P4b (17 Oct 2026; the site track's ask, the P
   try; the camera of the same name, which the edit replaces, is left out). It compares geometry, not the ``sides``
   that ``overrides.fixed_plan`` copies. P4b's ext_6 and ext_7 stood 15-23 m apart when they showed the same facade;
   the role rules of decision 2 refuse those moves, this rule refuses a near copy of a view.
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b):
+
+- decision 2 covers the frontal view by X6's own rule (``critic_vision.x6_frontal``: a ``frontal`` view, or an
+  ``elevation`` / ``agent`` view square to the main facade, ``critic_vision.main_facade_of``): an ``agent`` view
+  that is the frontal view (as the next build labels it, ``built_view``: an accepted set of a corner camera that no
+  longer fits a corner is ``agent``) keeps a pose square to the main facade, and the only frontal view by that rule
+  is not removed (the other views counted at the poses the next build gives them, ``exterior_poses``). Why:
+  real04's planner drops ext_6 (P3: "inside the copy; 100% of the view blocked by trees") and code X6 "no frontal
+  view of the entrance (+y) facade" fired in all 4 P3 rounds, so its frontal view is one the agent adds, labelled
+  ``agent``; ``role_problem`` protected only the ``frontal`` / ``elevation`` labels, so the next set to a corner pose
+  or a remove was accepted and the ping-pong of P4b could come back;
+- the eye-height hint measures the ground as the validator does (``critic_vision.ground_z``: the building's site;
+  the scene's terrain only without one) and names the z range with "to" ("use z -2.54 to -2.44"). Why: real04's
+  ``tin`` terrain record in the scene manifest has no surface, so the hint said nothing on the project with the most
+  sloped ground (its ground lies 0-4 m below zero, where "-2.54--2.44" is hard to read).
+
+Pass before P5, integration (17 Oct 2026; track F's ask). What: ``plan_crop`` with a ``piece_id`` also shows the
+piece's own recognition crop when one is on disk (``ToolContext.own_crop_path``: ``edit_ops.own_crops``, the crop a
+review entry or conflict records for the piece first, else ``RECOGNITION_CROP_DIR``/<name>, the context crop before
+the isolated one), as ``piece_crop`` with ``PIECE_CROP_NOTE``. Why: since the pass before P5 only that crop lifts the
+mark lock of a drawn piece typed from the drawing (``edit_ops.own_crop_named``), but the tool returned only the room's
+``check/<cam>_plan.jpg``, which never lifts it (P3 real04 seq 3282 / 3689 / 3692 cited that crop). On P3's real04
+buildings 80 drawn pieces have their own crop in ``recognition/crops``; a piece without one gets the room crop only,
+as before.
 """
 from __future__ import annotations
 
@@ -156,6 +181,12 @@ ENTRANCE_VIEW_MAX_M = 14.0             # the planner's farthest entrance view (e
 ENTRANCE_VIEW_MAX_DEG = 30.0           # the planner's entrance view looks 20 degrees off the door's axis
 DUPLICATE_VIEW_M = 6.0                 # integration after P4b: another exterior camera this close ...
 DUPLICATE_VIEW_DEG = 15.0              # ... looking within this many degrees of it shows the same view
+# Pass before P5, integration (module docstring): the folder of the reading's question crops (reading.CROP_DIR; a
+# secondary page's crops are where its review entry records them) and what plan_crop says with a piece's own crop.
+RECOGNITION_CROP_DIR = "recognition/crops"
+PIECE_CROP_NOTE = ("piece_crop is the piece's own recognition crop (what the reading asked about it): the plan crop "
+                   "mark_not_furniture accepts as evidence for a drawn piece typed from the drawing; the room's plan "
+                   "crop (image) is no such evidence")
 FROZEN_CAMERA = ("frozen: {view} is a camera replayed from the baseline run (set 1): its pose is fixed for the "
                  "before/after comparison (docs/milestone13.md §7, decision of 17 Oct 2026); add_camera with a new "
                  "view id adds another view")
@@ -248,7 +279,8 @@ DESCRIPTIONS = {
             "footprint, front_deg, source, labels, failed checks).",
     "room_topdown": "A top-down image of the room: pieces with front arrows and ids, door swings, window bands, "
                     "failed checks in red.",
-    "plan_crop": "The source plan crop of a room or of the room of a piece (what the drawing shows).",
+    "plan_crop": "The source plan crop of a room or of the room of a piece (what the drawing shows); with a "
+                 "piece_id also the piece's own recognition crop when it has one (piece_crop).",
     "plausibility": "Plausibility score 0-100 and the violations of the checklist, for a room or the building.",
     "view": "One camera view: its preview image, camera position, target and lens, the visible elements.",
     "exterior_summary": "Outline, levels, roof, openings, site, sun and the exterior cameras.",
@@ -600,6 +632,28 @@ class ToolContext:
                 return pick[0]
         return None
 
+    def own_crop_path(self, piece_id: Optional[str]) -> Optional[Path]:
+        """Pass before P5, integration (module docstring): the piece's own recognition crop on disk
+        (``edit_ops.own_crops``), else None: the crop path a ``needs_review`` entry or a conflict records for the
+        piece, then ``RECOGNITION_CROP_DIR``/<name> (``_ctx`` before ``_iso`` before the single crop). Never the room's
+        or a camera's plan crop."""
+        item = self.piece(piece_id) if piece_id else None
+        if item is None:
+            return None
+        from wenart.furniture import edit_ops as EO
+
+        names = EO.own_crops(self.building, item)
+        if not names:
+            return None
+        recorded = [str(n.get("crop") or "") for n in self.building.get("needs_review") or []
+                    if isinstance(n, dict) and n.get("id") == item.get("id")]
+        recorded += [str(c.get("crop") or "") for c in self.building.get("conflicts") or []
+                     if isinstance(c, dict) and item.get("id") in (c.get("element_ids") or [])]
+        order = sorted(names, key=lambda n: (0 if n.endswith("_ctx.png") else 1 if n.endswith("_iso.png") else 2, n))
+        paths = [self.project_out / r for r in recorded if r and not Path(r).is_absolute() and Path(r).name in names]
+        paths += [self.project_out / RECOGNITION_CROP_DIR / n for n in order]
+        return next((p for p in paths if p.is_file()), None)
+
     def room_of(self, target: Optional[str]) -> Optional[str]:
         if not target:
             return None
@@ -884,9 +938,15 @@ def t_plan_crop(ctx: ToolContext, args: dict) -> dict:
         return {"error": "give a room_id or a piece_id of this building"}
     path = ctx.plan_crop_path(room_id)
     if path is None:
-        return {"room_id": room_id, "image": None, "note": "no plan crop on disk for this room"}
-    ctx.pending_images.append(path)
-    return {"room_id": room_id, "image": str(path.relative_to(ctx.project_out)), "shown": True}
+        out = {"room_id": room_id, "image": None, "note": "no plan crop on disk for this room"}
+    else:
+        ctx.pending_images.append(path)
+        out = {"room_id": room_id, "image": str(path.relative_to(ctx.project_out)), "shown": True}
+    own = ctx.own_crop_path(args.get("piece_id"))     # pass before P5, integration: the piece's own crop, newest last
+    if own is not None:
+        ctx.pending_images.append(own)
+        out.update(piece_crop=str(own.relative_to(ctx.project_out)), piece_crop_note=PIECE_CROP_NOTE)
+    return out
 
 
 def t_plausibility(ctx: ToolContext, args: dict) -> dict:
@@ -1421,21 +1481,75 @@ def frontal_problem(building: dict, camera: dict, position, target) -> Optional[
     return (f"the pose no longer looks square (within {B.AGENT_FRONTAL_MAX_DEG:g} degrees) at the {sides} facade")
 
 
+def built_view(ctx: ToolContext, name: str) -> tuple[Optional[str], Optional[dict]]:
+    """Pass before P5 (module docstring): ``(view, pose)`` the next build gives the exterior camera ``name``: its
+    pose now (``camera_pose_now``); the scene camera's own ``view`` when that pose is the scene's, else the view
+    ``build.agent_exterior_view`` records for the accepted override's pose (the scene camera's view and sides, as
+    ``overrides.fixed_plan`` copies them; ``agent`` for a new view). ``(None, None)`` without a pose."""
+    pose, _where = camera_pose_now(ctx, name)
+    cam = ctx.camera(name)
+    if not isinstance(pose, dict) or not pose.get("position") or not pose.get("target"):
+        return None, None
+    if pose is cam:
+        return cam.get("view"), cam
+    base = cam if isinstance(cam, dict) else {}
+    plan = {"name": str(name), "view": base.get("view") or "agent", "sides": list(base.get("sides") or []),
+            "position": [float(v) for v in pose["position"]], "target": [float(v) for v in pose["target"]],
+            "lens_mm": float(pose.get("lens_mm") or base.get("lens_mm") or 26.0)}
+    for key in ("entrance", "door_id"):
+        if base.get(key):
+            plan[key] = base[key]
+    try:
+        from wenart.blender import build as B
+        from wenart.blender import site as S
+        north, src = S.north_deg(ctx.building)
+        B.agent_exterior_view(plan, (0.0, 0.0), north, not str(src).startswith("assumed"),
+                              (ctx.building.get("site") or {}).get("entrances"))
+    except (KeyError, TypeError, ValueError, IndexError):
+        pass                                 # the copied view stays (the build's check cannot be made)
+    return plan.get("view"), plan
+
+
+def x6_frontal_now(ctx: ToolContext, name: str, main: Optional[dict]) -> bool:
+    """Pass before P5: the camera ``name`` is the frontal view X6 asks for at the pose and view the next build gives
+    it (``built_view``, ``critic_vision.x6_frontal``)."""
+    from wenart.agent import critic_vision as CV
+
+    view, pose = built_view(ctx, name)
+    return pose is not None and CV.x6_frontal(dict(pose, view=view), main)
+
+
 def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Optional[str]:
     """Fix round after P4b (module docstring, decision 2): why a camera edit would lose the view's role: a ``set`` /
     ``add`` that turns a frontal view into another pose or moves an entrance view away from its door, a ``remove`` of
-    the only frontal or entrance view; None otherwise."""
+    the only frontal or entrance view; None otherwise. Pass before P5: an ``agent`` view that is X6's frontal view
+    (``x6_frontal_now``) has the frontal role too: its pose stays square (within 30 degrees) to the main facade, and
+    a frontal view by X6's rule is removed only while another one stays (``exterior_poses``)."""
+    from wenart.agent import critic_vision as CV
+
     cam = ctx.camera(view_id)
     if not isinstance(cam, dict) or (cam.get("kind") or ("exterior" if not cam.get("room_id") else "interior")) \
             != "exterior":
         return None
     view = cam.get("view")
-    if view not in FRONTAL_VIEWS and view != ENTRANCE_VIEW:
+    main = CV.main_facade_of(ctx.scene, ctx.building)
+    by_pose = False                          # the frontal role by X6's rule alone (an agent view), not by the label
+    if view == ENTRANCE_VIEW:
+        role = ENTRANCE_VIEW
+    elif view in FRONTAL_VIEWS:
+        role = "frontal"
+    elif x6_frontal_now(ctx, view_id, main):
+        role, by_pose = "frontal", True
+    else:
         return None
-    role = "frontal" if view in FRONTAL_VIEWS else ENTRANCE_VIEW
     if action == "remove":
-        same = [c.get("name") for c in ctx.cameras() if c.get("name") != view_id
-                and (c.get("view") in FRONTAL_VIEWS if role == "frontal" else c.get("view") == ENTRANCE_VIEW)]
+        others = [n for n in exterior_poses(ctx) if n != str(view_id)]
+        if role == ENTRANCE_VIEW:
+            same = [n for n in others if built_view(ctx, n)[0] == ENTRANCE_VIEW]
+        elif by_pose or x6_frontal_now(ctx, view_id, main):
+            same = [n for n in others if x6_frontal_now(ctx, n, main)]     # X6 still finds a frontal view
+        else:                                # an elevation of another facade: any other frontal or elevation view
+            same = [n for n in others if built_view(ctx, n)[0] in FRONTAL_VIEWS or x6_frontal_now(ctx, n, main)]
         if same:
             return None
         return (f"role: {view_id} is the only {role} view (the frontal view of the entrance facade X6 asks for, or "
@@ -1443,8 +1557,17 @@ def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Op
     if not entry.get("position") or not entry.get("target"):
         return None
     try:
-        why = (frontal_problem(ctx.building, cam, entry["position"], entry["target"]) if role == "frontal" else
-               entrance_problem(ctx.building, cam, entry["position"], entry["target"], entry.get("lens_mm")))
+        if by_pose:
+            from wenart.blender import build as B
+            from wenart.blender import exterior_checks as X
+
+            why = None if X._faces({"position": entry["position"], "target": entry["target"]}, main["direction"]) \
+                else (f"the pose no longer looks square (within {B.AGENT_FRONTAL_MAX_DEG:g} degrees) at the main "
+                      f"({main.get('axis')}) entrance facade, the frontal view X6 asks for")
+        elif role == "frontal":
+            why = frontal_problem(ctx.building, cam, entry["position"], entry["target"])
+        else:
+            why = entrance_problem(ctx.building, cam, entry["position"], entry["target"], entry.get("lens_mm"))
     except (KeyError, TypeError, ValueError, IndexError):
         return None
     if why is None:
@@ -1455,19 +1578,21 @@ def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Op
 
 def eye_height_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
     """Fix round after P4b (module docstring): an exterior camera refused for its eye height gets the ground z under
-    it and the z to use (``critic_vision.scene_ground_z`` on the round's scene manifest); ``failed`` unchanged when
-    the ground is not known."""
+    it and the z to use; ``failed`` unchanged when the ground is not known. Pass before P5: the ground is
+    ``critic_vision.ground_z`` on ``ctx.building``, the validator's own (the round's scene manifest only for a
+    building the build makes no site of)."""
     if not any("eye height" in str(f) for f in failed or []) or not entry.get("position"):
         return failed
     from wenart.agent import critic_vision as CV
     from wenart.blender import exterior_checks as X
 
     x, y = (float(v) for v in entry["position"][:2])
-    ground = CV.scene_ground_z(ctx.scene, x, y)
+    ground = CV.ground_z(ctx.building, ctx.scene, x, y)
     if ground is None:
         return failed
     lo, hi = (ground + v for v in X.EYE_LEVEL_RANGE_M)
-    return list(failed) + [f"the ground at ({x:g}, {y:g}) is at z {ground:.2f} m: use z {lo:.2f}-{hi:.2f} for an "
+    # pass before P5: "z -2.54 to -2.44", not "z -2.54--2.44" (real04's ground lies 0-4 m below zero)
+    return list(failed) + [f"the ground at ({x:g}, {y:g}) is at z {ground:.2f} m: use z {lo:.2f} to {hi:.2f} for an "
                            f"eye-level view"]
 
 

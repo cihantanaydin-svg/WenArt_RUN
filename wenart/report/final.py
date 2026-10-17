@@ -226,6 +226,25 @@ Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis): the mod
   ``recognition/requests.json`` and answer files, so its answers are counted with the first pass's. A model named in
   requests.json with no answer in this output is left out. A variant output without its own questions reads its base
   project's folder (``Inputs.root``).
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b). What: ``answered`` counts an item by the
+recognition rule (``_answered``: the answer ``wenart.recognition.answers`` gives the pipeline, ``AnswerStore.valid``
+under the model id of requests.json). Why: a call with JSON data and no error counted even when its ``input_sha256`` or
+model was not the request's (an earlier run's answer left on the volume after a crop changed, its re-ask cut by the
+deadline: ``status`` says stale and the piece stays unknown, but the table said "100 of 100 answered"), and an answer
+the pipeline uses under a renumbered key (the Milestone 11 U8 group split) did not count. How: the recognition code is
+imported lazily, as ``wenart.vision_check.config``; P3 real04 (100 and 8 of 8 sheet regions), P4a real02 (48 of 54) and
+P4b real03 (66 of 72) give the same numbers as before, the same as ``answers status``.
+
+Pass before P5, integration (17 Oct 2026; track L's ask). What: a view's ``interior_glazing`` record (the render
+entry's: the panes of the windows between two indoor rooms, their ``clip`` as written and the interior ``pull``) goes
+into the view of the manifest, the per-view "pull EV" cell names it next to the window pull (``_interior_pull_text``:
+``interior k<k>, clip <before> -> <after>`` when it was pulled, ``interior clip <clip> (not pulled)`` when its panes
+clip over ``INTERIOR_CLIP_MAX`` and no k was chosen), and the exposure summary counts it (``interior_pull``: views with
+interior glazing, pulled, still clipped, the k range; the summary table's "interior glazing pull" row). Why: the render
+pulls clipped interior panes since the pass before P5 (``render.choose_interior_pull``), but the report listed the
+window pull only, so clipped interior panes (P4b real03's giris_holu views: 8-13 %) were not visible in it. Unpulled,
+unclipped interior glazing adds nothing to the cell; a manifest without the record reads as before.
 """
 from __future__ import annotations
 
@@ -328,6 +347,10 @@ LABEL_TESSERACT_CONFIDENCE = 0.8
 LABEL_PATHS = {"two_pass": "two passes agree", "tesseract": "one pass equals the Tesseract text",
                "tesseract_only": "Tesseract only (not confirmed by the passes)",
                "not_accepted": "not accepted (the passes disagree)", "none": "no label read"}
+# Pass before P5 (module docstring): the pane clip share over which the report calls interior glazing clipped
+# (wenart.blender.render.PULL_MAX_CLIP, mirrored: the report imports no render code; the integration test pins them
+# equal).
+INTERIOR_CLIP_MAX = 0.01
 
 NUM = {"type": ["number", "null"]}
 STR = {"type": ["string", "null"]}
@@ -1641,6 +1664,8 @@ def build_views(inp: Inputs) -> list[dict]:
             "preference": pol_entry.get("preference") if isinstance(pol_entry, dict) else None,
             "exposure": entry.get("exposure"),
             "window_pull": entry.get("window_pull"),
+            # pass before P5 (module docstring): the interior glazing's panes, their clip and the interior pull
+            "interior_glazing": entry.get("interior_glazing"),
             "camera_plan": camera_plan(inp.cameras.get(cam)),
             "plan_kept": None,
             "ids_by_source": ids_by_source(elements),
@@ -2076,7 +2101,19 @@ def exposure_summary(inp: Inputs) -> dict:
     return {"min": min(evs) if evs else None, "max": max(evs) if evs else None, "views": len(evs),
             "at_limit": at_limit, "modes": sorted(modes),
             "window_pull": {"views": len(pulls), "min": min(pulls) if pulls else None,
-                            "max": max(pulls) if pulls else None}}
+                            "max": max(pulls) if pulls else None},
+            "interior_pull": interior_pull_summary(e.get("interior_glazing") for e in inp.entries.values())}
+
+
+def interior_pull_summary(records) -> dict:
+    """Pass before P5 (module docstring): ``{views, pulled, clipped, k_min, k_max}`` of the views' ``interior_glazing``
+    records: the views with interior glazing in view, those whose panes were pulled (``pull.k`` > 0), those whose
+    panes still clip as written (``clip`` over ``INTERIOR_CLIP_MAX``) and the k range of the pulls."""
+    glazing = [g for g in records if isinstance(g, dict)]
+    ks = [int(g["pull"]["k"]) for g in glazing if isinstance(g.get("pull"), dict) and g["pull"].get("k")]
+    clipped = sum(1 for g in glazing if isinstance(g.get("clip"), (int, float)) and g["clip"] > INTERIOR_CLIP_MAX)
+    return {"views": len(glazing), "pulled": len(ks), "clipped": clipped,
+            "k_min": min(ks) if ks else None, "k_max": max(ks) if ks else None}
 
 
 def camera_summary(views: list[dict]) -> dict:
@@ -2179,32 +2216,44 @@ def model_rows(inp: Inputs) -> list[dict]:
 RECOGNITION_FOLDERS = ("recognition", "sheets")
 
 
-def _answered(folder: Path, slug: str, keys: list) -> int:
-    """How many of the question ``keys`` the model ``slug`` answered in ``folder`` (``answers_<slug>.json``: a call
-    with JSON data and no error); 0 without the file. The report imports no recognition code (as for the labels)."""
-    doc = C.read_json(folder / f"answers_{slug}.json")
-    calls = doc.get("calls") if isinstance(doc, dict) else None
-    if not isinstance(calls, dict):
+def _answered(folder: Path, model: dict, items: list) -> int:
+    """How many of the request ``items`` the recognition model ``model`` (``{id, slug}`` of requests.json) answered in
+    ``folder``, by the recognition rule (pass before P5, module docstring): the answer ``wenart.recognition.answers``
+    gives the pipeline for the item (``AnswerStore.valid`` of ``answers_<slug>.json`` under the model's id: the record
+    of the item's key with its ``input_sha256``, from that model id when the record names one, schema-valid; else a
+    current, schema-valid record of another key with the same ``input_sha256``, the Milestone 11 re-keyed answer).
+    The recognition code is imported lazily, as ``wenart.vision_check.config`` is; 0 when it or the file cannot be
+    read (the row is then left out, never counted unchecked)."""
+    try:
+        from wenart.recognition import answers as A
+        store = A.AnswerStore(A.answers_path(folder, str(model["slug"])), "", str(model["slug"]), str(model["id"]))
+    except Exception:  # noqa: BLE001 - a broken answers file or import gives no count, never a report failure
         return 0
-    return sum(1 for k in keys if isinstance(calls.get(k), dict) and isinstance(calls[k].get("data"), dict)
-               and not calls[k].get("error"))
+    count = 0
+    for item in items:
+        try:
+            count += store.valid(item) is not None
+        except (KeyError, TypeError, ValueError):      # an item without key, task or input hash: not answered
+            continue
+    return count
 
 
 def recognition_model_rows(project_out: Path, root: Optional[Path] = None) -> list[dict]:
     """Fix round after P4b (module docstring): ``[{role, repo, revision, licence, source, questions, answered}]`` of
     the recognition models of the run, one row per model: the ``models`` of ``recognition/requests.json`` (pass 1
     Qwen3-VL-8B, pass 2 GLM-4.6V-Flash) and of ``sheets/requests.json`` (the Milestone 10 sheet regions) that answered
-    at least one of their questions. requests.json records id, slug and pass only; the revision and the licence come
-    from ``wenart/vision_check/check.yaml`` (the pins the servers load) when its model of that key has the same id,
-    else they stay unrecorded. A variant output without its own questions reads its base project's (``root``)."""
+    at least one of their questions (``_answered``: the recognition rule). requests.json records id, slug and pass
+    only; the revision and the licence come from ``wenart/vision_check/check.yaml`` (the pins the servers load) when
+    its model of that key has the same id, else they stay unrecorded. A variant output without its own questions reads
+    its base project's (``root``)."""
     bases = [Path(project_out)] + ([Path(root)] if root is not None and Path(root) != Path(project_out) else [])
     found: list[tuple[Path, dict, list]] = []
     for base in bases:
         for name in RECOGNITION_FOLDERS:
             doc = C.read_json(base / name / "requests.json")
             if isinstance(doc, dict) and isinstance(doc.get("models"), dict):
-                keys = [i.get("key") for i in doc.get("items") or [] if isinstance(i, dict) and i.get("key")]
-                found.append((base / name, doc["models"], keys))
+                items = [i for i in doc.get("items") or [] if isinstance(i, dict) and i.get("key")]
+                found.append((base / name, doc["models"], items))
         if found:
             break                                     # the output's own questions, else its base project's
     if not found:
@@ -2215,11 +2264,11 @@ def recognition_model_rows(project_out: Path, root: Optional[Path] = None) -> li
     except Exception:  # noqa: BLE001 - the revision and the licence then show as not recorded
         cfg_models = {}
     rows: dict[str, dict] = {}
-    for folder, models, keys in found:
+    for folder, models, items in found:
         for key, m in sorted(models.items(), key=lambda kv: (str((kv[1] or {}).get("pass") or ""), kv[0])):
             if not isinstance(m, dict) or not m.get("id") or not m.get("slug"):
                 continue
-            answered = _answered(folder, str(m["slug"]), keys)
+            answered = _answered(folder, m, items)
             if not answered:
                 continue                              # named but silent in this run: not a model of these images
             cfg = cfg_models.get(key) if isinstance(cfg_models.get(key), dict) else {}
@@ -2228,9 +2277,9 @@ def recognition_model_rows(project_out: Path, root: Optional[Path] = None) -> li
                 "role": f"recognition pass {m.get('pass') or '?'}", "repo": m["id"],
                 "revision": cfg.get("revision") if same else None, "licence": cfg.get("licence") if same else None,
                 "source": "", "questions": 0, "answered": 0})
-            row["questions"] += len(keys)
+            row["questions"] += len(items)
             row["answered"] += answered
-            part = f"{folder.name}/requests.json ({answered} of {len(keys)} answered)"
+            part = f"{folder.name}/requests.json ({answered} of {len(items)} answered)"
             row["source"] = f"{row['source']}; {part}" if row["source"] else part
     return list(rows.values())
 
@@ -3030,10 +3079,44 @@ def _camera_text(cp: Optional[dict]) -> str:
     return text
 
 
-def _pull_text(wp: Optional[dict]) -> str:
-    if not isinstance(wp, dict) or wp.get("ev") is None:
+def _share_text(value) -> str:
+    return f"{100.0 * float(value):.1f} %" if isinstance(value, (int, float)) else "?"
+
+
+def _interior_pull_text(ig: Optional[dict]) -> str:
+    """Pass before P5 (module docstring): the interior glazing's part of the "pull EV" cell: ``interior k<k>, clip
+    <before> -> <after>`` when its panes were pulled (``pull.k``; before = the pull's ``clip_before``, after = the
+    record's ``clip`` as written), ``interior clip <clip> (not pulled)`` when they clip over ``INTERIOR_CLIP_MAX``
+    without a pull, else '' (no interior glazing in view, or unclipped and not pulled)."""
+    if not isinstance(ig, dict):
+        return ""
+    pull = ig.get("pull") if isinstance(ig.get("pull"), dict) else {}
+    clip = ig.get("clip")
+    if pull.get("k"):
+        return f"interior k{int(pull['k'])}, clip {_share_text(pull.get('clip_before'))} -> {_share_text(clip)}"
+    if isinstance(clip, (int, float)) and clip > INTERIOR_CLIP_MAX:
+        return f"interior clip {_share_text(clip)} (not pulled)"
+    return ""
+
+
+def _pull_text(wp: Optional[dict], ig: Optional[dict] = None) -> str:
+    """The "pull EV" cell of a view: the window pull's EV, then (pass before P5) the interior glazing's pull
+    (``_interior_pull_text``); "-" when neither has anything to say."""
+    parts = [f"{float(wp['ev']):g}"] if isinstance(wp, dict) and wp.get("ev") is not None else []
+    interior = _interior_pull_text(ig)
+    if interior:
+        parts.append(interior)
+    return "; ".join(parts) or "-"
+
+
+def _interior_pull_row(ip: Optional[dict]) -> str:
+    """Pass before P5 (module docstring): the summary's "interior glazing pull" value (``interior_pull_summary``)."""
+    if not isinstance(ip, dict) or not ip.get("views"):
         return "-"
-    return f"{float(wp['ev']):g}"
+    k = "" if not ip.get("pulled") else (f" (k {ip['k_min']})" if ip["k_min"] == ip["k_max"]
+                                         else f" (k {ip['k_min']} .. {ip['k_max']})")
+    return (f"{ip['views']} view(s) with interior glazing, {ip['pulled']} pulled{k}, {ip['clipped']} still clipped "
+            f"over {_share_text(INTERIOR_CLIP_MAX)}")
 
 
 def gate_validation_lines(g: Optional[dict], polish_ok: bool, polish_ran: bool) -> list[str]:
@@ -3442,6 +3525,7 @@ def report_markdown(manifest: dict) -> str:
         ["views too dark for the EV cap (lighting_dark)", _dark_text(s.get("lighting_dark"))],
         ["window pull", "-" if not exp.get("window_pull", {}).get("views") else
          f"{exp['window_pull']['views']} view(s), {exp['window_pull']['min']:g} .. {exp['window_pull']['max']:g} EV"],
+        ["interior glazing pull", _interior_pull_row(exp.get("interior_pull"))],
         ["camera policy", ", ".join(f"{k} {n}" for k, n in s["cameras"]["policies"].items()) or "-"],
         ["camera score (min / mean / max)", "-" if s["cameras"]["score_mean"] is None else
          f"{s['cameras']['score_min']:.2f} / {s['cameras']['score_mean']:.2f} / {s['cameras']['score_max']:.2f}"],
@@ -3479,7 +3563,7 @@ def report_markdown(manifest: dict) -> str:
         rows.append([v["camera"], v["room_id"], v["level_id"], v["final"], v["reason"], _attempt_text(v["attempt"]),
                      _short_gate(v["gate"]), _verdict(v["vision_check"], "cycles"),
                      _verdict(v["vision_check"], "polished"), _pref_text(v["preference"]), _ev_text(v["exposure"]),
-                     _pull_text(v.get("window_pull")), _camera_text(v.get("camera_plan")),
+                     _pull_text(v.get("window_pull"), v.get("interior_glazing")), _camera_text(v.get("camera_plan")),
                      _sources_text(v["ids_by_source"]), len(v["unverified"]), v["needs_review"],
                      " ".join(files) or "-"])
     lines += C.table(["view", "room", "level", "final", "reason", "polish attempt", "gate", "check Cycles",
@@ -3487,9 +3571,11 @@ def report_markdown(manifest: dict) -> str:
                      rows)
     lines.append("")
     lines.append("polish attempt: the polish candidate (used only when final is polished). pull EV: the window "
-                 "pull of the render (window panes darkened by that many EV, §5). camera: policy (`search` = "
-                 "ray-cast camera search, `m5` = the fixed rules) and score. ids: D from_documents, A added_by_ai, "
-                 "R rule (elements in view). check: verdict (confirmed mismatches). U: unverified pieces in view.")
+                 "pull of the render (window panes darkened by that many EV, §5); interior: the panes of a window "
+                 "between two rooms, pulled k EV steps only where they clip (clip before -> as written). camera: "
+                 "policy (`search` = ray-cast camera search, `m5` = the fixed rules) and score. ids: D from_documents, "
+                 "A added_by_ai, R rule (elements in view). check: verdict (confirmed mismatches). U: unverified "
+                 "pieces in view.")
     lines += ["", "## Views per room", ""]
     room_rows = []
     for rid, r in manifest["rooms"].items():

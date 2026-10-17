@@ -66,6 +66,21 @@ Fix round after P4b (17 Oct 2026; the review of the P4a fix round, pod P4b's rea
   vision X6 asked every view for a 3/4 corner at 1.5-1.7 m while the code's X6 asked for a frontal entrance view, so
   the cameras flipped between frontal and corner each round and 5 "low angle" claims sat on cameras 1.60 m above the
   ground.
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b):
+
+- the eye height is measured on the ground the code's X6 and the camera validator use (``ground_z``:
+  ``exterior_checks._ground_z`` on the site of ``build.prepare`` of the building); the scene manifest's terrain
+  (``scene_ground_z``) only stands in when the build makes no site of the building. Why: real04's terrain is a
+  ``tin`` whose manifest record has no surface, so ``camera_eye`` gave no eye height for any of its 6 exterior
+  cameras (P3, ``runs/20261016-172855-full``), while X6 measured 1.60 m for ext_1-ext_4; the critic was never told
+  the height and P3's "low angle, looking up" on ext_3 (z 2.87 over the ground at 1.27) was never dropped;
+- the frontal view is X6's own rule (``x6_frontal``: a ``frontal`` view, or an ``elevation`` / ``agent`` view that
+  looks square at the main facade, ``main_facade_of``), so a view the agent placed in front of the entrance facade
+  is told as the frontal view (``camera_role`` -> ``prompts.camera_note``) and a "flat frontal, not a 3/4 corner"
+  claim on it is dropped. Why: real04's planner drops ext_6 (P3: "inside the copy; 100% of the view blocked by
+  trees"), so its frontal view is one the agent adds, labelled ``agent`` by the build; the critic was told only "a
+  view the agent placed", kept the claim and sent the camera to a corner pose again (decision 2).
 """
 from __future__ import annotations
 
@@ -465,10 +480,29 @@ def scene_ground_z(scene: Optional[dict], x: float, y: float) -> Optional[float]
         return None
 
 
-def camera_eye(camera: Optional[dict], scene: Optional[dict]) -> Optional[dict]:
+def ground_z(building: Optional[dict], scene: Optional[dict], x: float, y: float,
+             prep: Optional[dict] = None) -> Optional[float]:
+    """Pass before P5 (module docstring): the ground z at ``(x, y)`` as the code's X6 and the camera validator
+    measure it: ``exterior_checks._ground_z`` on the site of ``build.prepare`` of ``building`` (``prep``: that plan
+    when the caller has it already); the scene manifest's terrain (``scene_ground_z``) only when the build makes no
+    site of the building (or no building is given). None when neither knows the ground."""
+    if isinstance(building, dict):
+        from wenart.blender import exterior_checks as X
+        plan = prep if prep is not None else X._prep(building)
+        if isinstance(plan, dict) and plan.get("site"):
+            try:
+                return float(X._ground_z(plan, float(x), float(y)))
+            except (KeyError, TypeError, ValueError, IndexError):
+                pass
+    return scene_ground_z(scene, x, y)
+
+
+def camera_eye(camera: Optional[dict], scene: Optional[dict], building: Optional[dict] = None,
+               prep: Optional[dict] = None) -> Optional[dict]:
     """Fix round after P4b (module docstring): ``{"eye_m", "pitch_deg", "ground_z"}`` of an exterior camera
-    measured by code: the camera z over the ground under it (``scene_ground_z``; None when unknown) and the pitch of
-    its line of sight; None without a pose."""
+    measured by code: the camera z over the ground under it and the pitch of its line of sight; None without a pose.
+    Pass before P5: the ground is ``ground_z`` (the building's site as X6 measures it, the scene's terrain only
+    without one; None when unknown)."""
     if not isinstance(camera, dict) or not camera.get("position") or not camera.get("target"):
         return None
     try:
@@ -477,9 +511,53 @@ def camera_eye(camera: Optional[dict], scene: Optional[dict]) -> Optional[dict]:
     except (TypeError, ValueError):
         return None
     pitch = math.degrees(math.atan2(tz - z, math.hypot(tx - x, ty - y)))
-    ground = scene_ground_z(scene, x, y)
+    ground = ground_z(building, scene, x, y, prep)
     return {"eye_m": None if ground is None else round(z - ground, 3), "pitch_deg": round(pitch, 2),
             "ground_z": ground}
+
+
+def main_facade_of(scene: Optional[dict], building: Optional[dict] = None,
+                   prep: Optional[dict] = None) -> Optional[dict]:
+    """Pass before P5 (module docstring): the main (entrance) facade whose frontal view X6 asks for
+    (``axis``, ``direction``): the scene manifest's ``whole_building.main_facade``, else ``build.prepare``'s of
+    ``building`` (``prep`` when the caller has it); None without a direction."""
+    main = ((scene.get("whole_building") or {}).get("main_facade")) if isinstance(scene, dict) else None
+    if not (isinstance(main, dict) and main.get("direction")) and isinstance(building, dict):
+        from wenart.blender import exterior_checks as X
+        plan = prep if prep is not None else X._prep(building)
+        main = (plan or {}).get("main_facade") if isinstance(plan, dict) else None
+    return main if isinstance(main, dict) and main.get("direction") else None
+
+
+X6_FRONTAL_POSE_VIEWS = ("elevation", "agent")      # = exterior_checks._x6: these count when square to the main facade
+
+
+def x6_frontal(camera: Optional[dict], main: Optional[dict]) -> bool:
+    """Pass before P5 (module docstring): ``camera`` is the frontal view X6 asks for, by X6's own rule
+    (``exterior_checks._x6``): its view is ``frontal``, or ``elevation`` / ``agent`` with a pose that looks square
+    (``exterior_checks._faces``, within 30 degrees) at the main facade ``main`` (``main_facade_of``)."""
+    if not isinstance(camera, dict):
+        return False
+    view = camera.get("view")
+    if view == "frontal":
+        return True
+    if view not in X6_FRONTAL_POSE_VIEWS or not camera.get("position") or not (main or {}).get("direction"):
+        return False
+    from wenart.blender import exterior_checks as X
+    try:
+        return bool(X._faces(camera, main["direction"]))
+    except (KeyError, TypeError, ValueError, IndexError):
+        return False
+
+
+def camera_role(camera: Optional[dict], main: Optional[dict]) -> Optional[str]:
+    """Pass before P5 (module docstring): the role the critic is told and the claims are judged by: ``frontal`` for
+    an ``agent`` view that is X6's frontal view (``x6_frontal``), else the camera's own ``view``."""
+    if not isinstance(camera, dict):
+        return None
+    if camera.get("view") == "agent" and x6_frontal(camera, main):
+        return "frontal"
+    return camera.get("view")
 
 
 # Fix round after P4b (module docstring): the claims of a vision X6 by kind (any word of a kind makes the claim).
@@ -506,16 +584,17 @@ def camera_claims(message: str) -> set:
 
 
 def drop_camera_claims(kept: list[dict], dropped: list[dict], view: str, camera: Optional[dict],
-                       eye: Optional[dict], code: dict) -> tuple[list[dict], list[dict]]:
+                       eye: Optional[dict], code: dict, role: Optional[str] = None) -> tuple[list[dict], list[dict]]:
     """Fix round after P4b (module docstring): the X6 claims on ``view`` that the code contradicts move to
     ``dropped`` with the reason: every claim kind of the message (``camera_claims``) must be one the code record
     answers (height: the measured eye height within ``EYE_LEVEL_RANGE_M``, level within ``PITCH_LEVEL_DEG`` and no
     code X6 on the view; frontal: the camera's role is frontal or entrance; frame: the role is entrance). A message
-    with no known claim, or one kind the code does not answer, stays."""
+    with no known claim, or one kind the code does not answer, stays. Pass before P5: ``role`` (``camera_role``:
+    ``frontal`` for an agent view that is X6's frontal view) replaces the camera's ``view``."""
     from wenart.blender import exterior_checks as X
     if not any(f.get("check") == "X6" and f.get("target") == view for f in kept) or not isinstance(camera, dict):
         return kept, dropped
-    role = camera.get("view")
+    role = role or camera.get("view")
     code_x6 = any(f.get("check") == "X6" and f.get("target") == view for f in code.get("findings") or [])
     eye_ok = bool(eye) and eye.get("eye_m") is not None and not code_x6 \
         and X.EYE_LEVEL_RANGE_M[0] - 1e-3 <= float(eye["eye_m"]) <= X.EYE_LEVEL_RANGE_M[1] + 1e-3 \
@@ -546,8 +625,15 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
     prompt states the built roof (``roof_note``) and a roof-type claim is dropped when the built type is the drawn
     one (``drop_roof_type_claims``). Fix round after P4b: ``scene`` (the round's scene manifest) gives the camera's
     measured eye height (``camera_eye``); the prompt states the camera's role and its eye height
-    (``prompts.camera_note``) and the X6 claims the code contradicts are dropped (``drop_camera_claims``)."""
-    eye = camera_eye(camera, scene)
+    (``prompts.camera_note``) and the X6 claims the code contradicts are dropped (``drop_camera_claims``). Pass
+    before P5: the eye height is measured on ``building``'s site (``ground_z``, the scene's terrain only without one)
+    and the role is ``camera_role`` (an agent view square to the main facade is the frontal view)."""
+    prep = None
+    if isinstance(camera, dict) and camera.get("position") and isinstance(building, dict):
+        from wenart.blender import exterior_checks as X
+        prep = X._prep(building)                 # one plan for the ground and the main facade of this view
+    eye = camera_eye(camera, scene, building, prep)
+    role = camera_role(camera, main_facade_of(scene, building, prep)) if isinstance(camera, dict) else None
     images, labels = [preview], [f"render of exterior view {view}"]
     if plan_crop is not None:
         images.append(plan_crop)
@@ -555,7 +641,7 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
     # Milestone 13 (bug B5): the storeys, not len(levels): a level variant (L-1b) is no storey of its own
     levels = storeys_of(building)
     note = f"The building has {levels} storey(s); {roof_note(building)}"
-    note = " ".join(part for part in (note, P.camera_note(camera, eye)) if part)
+    note = " ".join(part for part in (note, P.camera_note(camera, eye, role=role)) if part)
     ids = exterior_ids(building, view)
     ext_code = [f for f in code.get("findings") or [] if f.get("check", "").startswith("X") or f.get("target") == view]
     prompt = P.exterior_critic_prompt(view, note, sorted(ids)[:60], labels, ext_code)
@@ -566,5 +652,5 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, ids, len(images), code, None, call_id=call_id)
     kept, dropped = drop_roof_type_claims(kept, dropped, building)
-    kept, dropped = drop_camera_claims(kept, dropped, view, camera, eye, code)      # fix round after P4b
+    kept, dropped = drop_camera_claims(kept, dropped, view, camera, eye, code, role=role)   # after P4b, P5 pass
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}

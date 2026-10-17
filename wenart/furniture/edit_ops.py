@@ -128,6 +128,22 @@ Fix round after P4b (17 Oct 2026; the review of the P4a fix round, pod P4b, real
   bathroom_set group does not belong in a hall room") or a duplicate outline (``program.duplicate_anchor``). Why:
   real03's agent sent ``complete_group`` for the bathroom set of the drawn washers in 3 entrance halls; each ran the
   solver and was refused with "no place passes the checks" (and the brief still offered the tool).
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b). What: the plan-crop way out of the mark lock
+(the bullet above) takes only a crop of the piece itself (``own_crop_named``): the reading's crop of its own question
+(an evidence entry ``recognition:<key>``: ``<key>_ctx.png``, ``<key>_iso.png`` or ``<key>.png`` in a ``crops/``
+folder) or a recognition crop recorded for its id in ``needs_review`` or ``conflicts``. A room's or camera's plan crop
+(``check/<cam>_plan.jpg``, what the ``plan_crop`` and ``view`` tools return) and the crop of another symbol leave the
+lock on, and the refusal no longer hands out a crop path pattern. The symbol of a marked piece records its own crop
+when the evidence names it, else ``crop_of`` as before. Why: any crop-like path lifted the lock, and the agent cites
+the room's camera crop as removal evidence for placement findings (P3 real04 seq 3282, 3689, 3692: "plan crop
+check/cam_r_L1_koridor_2_1_plan.jpg: ... not a built table; it pokes through wall w_L1_006" for an F9 / S2 finding on
+the coffee table f_L1_024, which a ``type_disagreement`` conflict leaves outside the lock). On P4a's real02 buildings
+such a crop let the coffee table f_L1_021 through, and the crop of the unrelated symbol sym_L-1_009 the wardrobe
+f_L-1_024: a drawn piece removed as not furniture for a placement finding, which the P4a fix round's lock was built
+to stop. On P3's real04 buildings 72 drawn pieces are under the lock; a room crop or another symbol's crop lifts it
+for none of them now, and 2 have a crop of their own (the round coffee tables f_L1_015 / f_L1_016: sym_L1_001 /
+sym_L1_002). No accepted mark of the P3, P4a or P4b logs changes.
 """
 from __future__ import annotations
 
@@ -1226,11 +1242,52 @@ IMAGE_PATH = re.compile(r"[^\s'\"()\[\],;:]+\.(?:png|jpe?g|webp)\b", re.I)
 # ``r1_140_rotate_piece_before_...``) are renders of the 3D layout, never the plan.
 PLAN_CROP = re.compile(r"(?:^|/)(?:crops/[^/]+_(?:ctx|iso)\.png|[^/]+_plan\.(?:png|jpe?g|webp))$", re.I)
 AGENT_IMAGE = re.compile(r"(?:^r\d+_|topdown)", re.I)
+# Pass before P5 (module docstring): a recognition crop of a question (recognition.crops: ``<key>_ctx.png``,
+# ``<key>_iso.png``, or ``<key>.png`` for a single crop) in a ``crops/`` folder; group 1 is its file name.
+RECOGNITION_CROP = re.compile(r"(?:^|/)crops/([^/]+\.png)$")
+QUESTION_CROPS: tuple[str, ...] = ("{key}_ctx.png", "{key}_iso.png", "{key}.png")
 
 
 def plan_crop_of(evidence: str) -> Optional[str]:
     """Fix round after P4b: the first plan crop (``PLAN_CROP``) named in an evidence text, else None."""
     return next((m.group(0) for m in IMAGE_PATH.finditer(str(evidence or "")) if PLAN_CROP.search(m.group(0))), None)
+
+
+def own_crops(building: dict, item: dict) -> set[str]:
+    """Pass before P5 (module docstring): the file names of the recognition crops of ``item`` itself: the crops of
+    its own question (each evidence entry ``recognition:<key>``, ``QUESTION_CROPS``) and a recognition crop
+    (``RECOGNITION_CROP``) recorded for its id in ``needs_review`` or ``conflicts``. Never a room's or camera's plan
+    crop (``check/<cam>_plan.jpg``) and never another symbol's crop. Empty when the piece has none (real04: 70 of
+    the 72 drawn pieces under the mark lock)."""
+    names: set[str] = set()
+    for e in item.get("evidence") or []:
+        entity = str(e.get("entity") or "") if isinstance(e, dict) else ""
+        key = entity.split(":", 1)[1].strip() if entity.startswith("recognition:") else ""
+        if key and "/" not in key:
+            names.update(pattern.format(key=key) for pattern in QUESTION_CROPS)
+    pid = item.get("id")
+    records = [n for n in building.get("needs_review") or [] if isinstance(n, dict) and n.get("id") == pid]
+    records += [c for c in building.get("conflicts") or []
+                if isinstance(c, dict) and pid in (c.get("element_ids") or [])]
+    for rec in records:
+        m = RECOGNITION_CROP.search(str(rec.get("crop") or ""))
+        if m:
+            names.add(m.group(1))
+    return names
+
+
+def own_crop_named(building: dict, item: dict, evidence: Optional[str]) -> Optional[str]:
+    """Pass before P5 (module docstring): the first image path in ``evidence`` that is one of ``item``'s own
+    recognition crops (``own_crops``: a ``crops/<file>`` path whose file name is the piece's), as written; else
+    None (a room's or camera's plan crop, another symbol's crop, a top-down render, no image)."""
+    names = own_crops(building, item)
+    if not names:
+        return None
+    for m in IMAGE_PATH.finditer(str(evidence or "")):
+        crop = RECOGNITION_CROP.search(m.group(0))
+        if crop and crop.group(1) in names:
+            return m.group(0)
+    return None
 
 
 def crop_of(evidence: str) -> Optional[str]:
@@ -1312,7 +1369,8 @@ def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None,
     """Fix round after P4a (module docstring): why a drawn piece may not be marked as not furniture although it is
     no fixed equipment (``fixed_mark_refusal`` covers that), else None. ``target``: the edit's ``target_finding``
     (a dict or a list of dicts with ``check``); ``evidence`` (fix round after P4b): the edit's evidence text, which
-    lifts the lock when it names a plan crop (``plan_crop_of``)."""
+    lifts the lock when it names a plan crop; pass before P5: only a crop of the piece itself (``own_crop_named``),
+    never a room's or camera's plan crop or another symbol's crop."""
     if not _drawn(item) or _fixed(item) or item.get("build") is False or item.get("type") in (None, "unknown"):
         return None
     method = item.get("type_method")
@@ -1336,12 +1394,12 @@ def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None,
         return None
     if _duplicate_of(building, item) is not None:
         return None
-    if plan_crop_of(evidence or "") is not None:
-        return None                     # fix round after P4b: the plan crop is the evidence CLAUDE.md asks for
+    if own_crop_named(building, item, evidence) is not None:
+        return None                     # pass before P5: the piece's own plan crop is the evidence CLAUDE.md asks for
     w, d = (float(v) for v in size)
     return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real size "
             f"({w:.2f} x {d:.2f} m) is furniture: mark_not_furniture is for reading errors (an NR or RC finding, a "
-            f"duplicate outline, evidence that names its plan crop recognition/crops/<key>_ctx.png); a wall cut is "
+            f"duplicate outline, evidence that names its own recognition crop, when it has one); a wall cut is "
             f"fixed by move_piece / the wall snap, a wrong room type by retype_piece")
 
 
@@ -1365,7 +1423,9 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     _label(item, before, args, ["build"])
     item["adjusted_by_ai"]["not_furniture"] = args["kind"]
     evidence = str(args["evidence"])
-    crop = crop_of(evidence)            # fix rounds after P4a / P4b: a plan crop anywhere, never a top-down render
+    # fix rounds after P4a / P4b: a plan crop anywhere, never a top-down render; pass before P5: the piece's own crop
+    # first, when the evidence names it
+    crop = own_crop_named(b, item, evidence) or crop_of(evidence)
     pattern = re.compile(rf"^sym_{re.escape(item['level_id'])}_(\d+)$")
     number = max((int(m.group(1)) for s in b.get("symbols") or [] for m in [pattern.match(str(s.get("id")))] if m),
                  default=0) + 1

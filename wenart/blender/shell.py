@@ -127,6 +127,18 @@ no wall texture set). Why: the drawn U-stair is exactly as wide as its stairwell
 so the right flight and the landing stopped 0.9 mm short of the wall and the rig light came through as a slit down
 the wall; the wall set's bump, at wall scale, read as coarse plaster on the 0.6 m stringer seen up close. How: the
 drawn footprint stays in the building JSON (fixed equipment as drawn); only the mesh widens, by at most 6 cm.
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b). What: a walls slug whose bare request gets a
+shell slot's texture set back (``shell_stand_in``: ``plaster_white``, the ceiling slot's white_plaster_02) gives the
+stair structure ``STAIR_STRUCTURE_PAINT`` in the walls' colour (``stair_structure_slot``). Why: every "white walls"
+style (synthetic-01/02/05/06/07, real01, the profile fallback) is ``plaster_white`` + white_plaster_02; dropping the
+asset left a bare ``plaster_white``, which ``materials.MaterialLibrary.get`` with the shell lever on maps to the
+ceiling slot and gives white_plaster_02 back, so the stringer kept the wall's plaster photo and normal map (material
+``plaster_white__white_plaster_02__ceiling``) while its record said "smooth paint". How: the paint takes the walls'
+colour phrase when it colours the walls, else the slug's own flat colour as a ``tint`` over the paint's, so the
+colour stays the walls' (0.85, 0.84, 0.80 for ``plaster_white``) and the paint's ``plaster`` slot gives its layers
+(corner AO, 4 mm bevel) with no set. real02/03/04 (``paint`` + plastered_wall in warm greige) keep
+``paint`` in warm greige, as before.
 """
 from __future__ import annotations
 
@@ -2218,6 +2230,8 @@ STAIR_JOINT_PARALLEL_DEG = 2.0
 # face seen up close under the flight (M11's flat paint was smooth).
 STAIR_STRUCTURE_REASON = "stair structure: the wall colour as a smooth paint (no wall texture set: its bump at wall " \
                          "scale reads as coarse plaster on the stringer seen up close)"
+# pass before P5 (module docstring): the slug of the structure when the walls' slug has a shell stand-in set
+STAIR_STRUCTURE_PAINT = "paint"
 
 
 def _wall_gap(a, b, normal, walls) -> list[tuple[float, dict]]:
@@ -2313,11 +2327,42 @@ def stair_build_plan(plan: dict, walls: list[dict]) -> dict:
     return out
 
 
+def shell_stand_in(slug: str) -> str | None:
+    """The texture set a bare request of ``slug`` gets from its shell slot (pure; pass before P5, module docstring):
+    the set of the slot ``materials.shell_slot_of(slug)`` names when that set stands in for the slug (the rule of
+    ``materials.MaterialLibrary.get``: the slot's ``asset_for``, else its ``slugs``), else None. In the table:
+    ``plaster_white`` (the ceiling slot, white_plaster_02), ``stone_worktop`` (Marble012), ``steel_brushed``
+    (Metal032)."""
+    from wenart.blender import materials as M
+
+    slot = M.shell_slot_of(slug, None)
+    spec = M.SHELL_SLOTS.get(slot) if slot else None
+    if not spec or not spec.get("asset"):
+        return None
+    return spec["asset"] if slug in (spec.get("asset_for") or spec.get("slugs") or (slug,)) else None
+
+
 def stair_structure_slot(walls_style: dict) -> dict:
     """The material slot of a stair's structure (pure; fix round after P4b, ``STAIR_STRUCTURE_REASON``): the walls'
-    material and colour (and procedural params) without their texture set and tint."""
-    return {k: v for k, v in dict(walls_style or {"material": "plaster_white"}).items()
-            if k not in ("asset", "tint")}
+    material and colour (and procedural params) without their texture set and tint.
+
+    Pass before P5 (module docstring): a walls slug with a ``shell_stand_in`` set is ``STAIR_STRUCTURE_PAINT``
+    instead, in the walls' colour phrase when that phrase colours the walls (``materials.colour_linear``,
+    ``materials.takes_colour``), else with ``tint`` = the slug's flat colour over the paint's, so no set comes back
+    and the colour stays the walls'."""
+    from wenart.blender import materials as M
+
+    walls = dict(walls_style or {"material": "plaster_white"})
+    out = {k: v for k, v in walls.items() if k not in ("asset", "tint")}
+    slug = str(out.get("material") or "plaster_white")
+    if shell_stand_in(slug) is None:
+        return out
+    out["material"] = STAIR_STRUCTURE_PAINT
+    if M.colour_linear(out.get("colour")) is None or not M.takes_colour(slug, bool(walls.get("asset"))):
+        out.pop("colour", None)
+        own, paint = M.flat_colour(slug), M.flat_colour(STAIR_STRUCTURE_PAINT)
+        out["tint"] = [round(float(o) / float(p), 4) for o, p in zip(own, paint)]
+    return out
 
 
 def stair_mesh(plan: dict, floor_z: float) -> tuple[list, list, list[int], list[dict]]:

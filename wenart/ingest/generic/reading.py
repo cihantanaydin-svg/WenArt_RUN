@@ -95,6 +95,22 @@ Fix round after P4b (17 Oct 2026; pod P4b, real03). What:
   stays in the report with this decision as its resolution. Why: real03's bedroom oda_01 draws a 1.5 x 0.6 m piece;
   Qwen said dresser, GLM said wardrobe, and the piece stayed an unbuilt unknown in a room with no storage (CLAUDE.md:
   the AI infers the type and marks it inferred; never an unexplained box).
+
+Pass before P5 (17 Oct 2026). What: the tie-break decides twins together, and the code typing runs once more after
+it. A disputed piece with the same footprint at the mirrored spot of a twin room (``_twins_of``: ``infer._twin_rooms``,
+the centre within ``infer.SAME_CENTRE_M``, the size within ``infer.SAME_FOOTPRINT_M``) is decided with that twin,
+when one of them at least could be decided alone (two answers that both fit; else they stay for review, as before):
+when the AI passes of both name one type that fits the drawn size and both rooms, both get it (``TWIN_TIE_NOTE``);
+else one of them is decided alone, so is a twin whose passes named that type, and the other twins wait for the twin
+rule; a piece whose twin is already typed is left to the twin rule as well. Then, when the tie-break typed or left a
+piece to its twin, ``code_first`` runs again (no reset: the AI's and the tie-break's types count) before the fronts and
+the review list; ``withdraw_questions`` keeps a question asked and answered in this round listed and withdraws one
+that was not (a late one), as ``pipeline._infer_types`` did right after this step before. Why: on P3's real04
+building the tie-break typed f_L1_035 sideboard (sideboard / tv_unit) and left its mirror twin f_L1_033 (sideboard /
+bench; a bench is not allowed in that room) untyped and listed for review until the pipeline's later inference; the
+mirrored twins f_L1_034 (bookshelf / tv_unit) and f_L1_036 (bookshelf / console_table) got bookshelf and
+console_table at the same drawn spot of the two mirrored flats. Now the tie-break types f_L1_033 sideboard and
+f_L1_036 bookshelf (both twins named them); its 12 other decisions on that building are unchanged.
 """
 from __future__ import annotations
 
@@ -158,6 +174,8 @@ ANSWERED_AS = "answered"
 CONTEXT_METHOD = "rule"
 INFER_METHOD = "inferred"
 TIE_RULE = "reading.tie_break"
+# Pass before P5 (17 Oct 2026, module docstring): the reason of a type both twins' AI passes named.
+TWIN_TIE_NOTE = "the AI passes of its twin {twin} in the twin room {room} named it too: the twins get one type"
 
 
 # --------------------------------------------------------------------------
@@ -1059,85 +1077,179 @@ def room_misses(b: dict, room: dict) -> dict[str, str]:
     return out
 
 
-def _disagreeing_types(f: dict) -> list[str]:
-    """The two different types the AI passes named for ``f`` (``type_candidates``), else []."""
+def _named_types(f: dict) -> list[str]:
+    """The different types the AI passes named for ``f`` (``type_candidates``), in pass order."""
     seen: list[str] = []
     for c in f.get("type_candidates") or []:
         t = c.get("type") if isinstance(c, dict) else None
         if t and t not in seen:
             seen.append(t)
+    return seen
+
+
+def _disagreeing_types(f: dict) -> list[str]:
+    """The two different types the AI passes named for ``f`` (``type_candidates``), else []."""
+    seen = _named_types(f)
     return seen if len(seen) == 2 else []
 
 
-def tie_break(build, items: dict, pending=()) -> list[str]:
+def _twins_of(view: dict, f: dict) -> list[tuple[dict, dict]]:
+    """Pass before P5 (module docstring): ``(piece, its room)`` for the drawn pieces at ``f``'s spot in the twin rooms
+    of ``f``'s room, typed or not: the twin rule's match (``infer._twin_type``: ``infer._twin_rooms``, the mirrored
+    centre within ``infer.SAME_CENTRE_M``, the size within ``infer.SAME_FOOTPRINT_M``)."""
+    from wenart.furniture import infer as INF
+    from wenart.ingest import twins as TW
+
+    room = INF._rooms(view).get(f.get("room_id") or "")
+    if room is None or not f.get("footprint"):
+        return []
+    out = []
+    for other, t in INF._twin_rooms(view, room):
+        mapped = TW._apply(t, f["footprint"]["center"])
+        for g in view.get("furniture") or []:
+            if g.get("room_id") != other["id"] or g["id"] == f["id"] or g.get("source") != "from_documents" \
+                    or not g.get("footprint"):
+                continue
+            if G.distance(mapped, tuple(g["footprint"]["center"])) <= INF.SAME_CENTRE_M + 1e-9 \
+                    and INF._same_size(f, g):
+                out.append((g, other))
+    return out
+
+
+def tie_break(build, items: dict, pending=(), deferred: Optional[set] = None) -> list[str]:
     """Fix round after P4b (module docstring): an untyped drawn piece whose two AI passes named two different
     furniture types, both fitting its drawn size (the size table, +15 %, and the type's shape) and both allowed in its
     room, is typed by code: the type the room misses (``room_misses``), else the one whose real product size is
     nearer (``infer._product_distance``; then the higher AI confidence, then the name). The piece is ``inferred``
     (``type_method: INFER_METHOD``, status kept), its evidence names the rule, both answers and the plan crop, and
-    its ``symbol_type_disagreement`` conflict gets the decision as its resolution. Returns the typed ids."""
-    from wenart.furniture import infer as INF, placer, plausibility as PL, program as PR, schemas
+    its ``symbol_type_disagreement`` conflict gets the decision as its resolution. Returns the typed ids.
+
+    Pass before P5 (module docstring): twins are decided together (``_twins_of``). A piece whose twin is typed is left
+    to the twin rule. With untyped twins, one of which at least the rule above could decide alone (two answers, both
+    fitting; else all stay for review, as a single piece does), the one type that the passes of the piece and of
+    every twin with answers named, that fits the drawn size and the room of each and that is no fixed type a room
+    does not miss, goes to all of them (``TWIN_TIE_NOTE``); else the piece is decided as above (when it can be) and so
+    is every twin whose passes named that type; the other twins are left to the twin rule.
+    ``deferred`` (a set, filled when given) gets the ids left to the twin rule: the caller's ``code_first`` after this
+    step types them."""
+    from wenart.furniture import infer as INF, plausibility as PL, program as PR, schemas
     from wenart.furniture import sizes as SZ
 
     b = build.building
     raw = list(getattr(build, "raw_conflicts", []) or [])
     view = dict(b, conflicts=list(b.get("conflicts") or []) + raw)
     rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
+    later = deferred if deferred is not None else set()
+    allowed: dict[str, set] = {}
+
+    def fits(p: dict, t: str) -> bool:
+        """``t`` fits the drawn size of ``p`` and is allowed in its room."""
+        room = rooms.get(p.get("room_id") or "")
+        if room is None or t not in schemas.SIZE_OPTIONS:
+            return False
+        if room["id"] not in allowed:
+            allowed[room["id"]] = PL.allowed_in(view, room) | set(
+                schemas.allowed_types(PR.room_kind(view, room), room.get("room_subtype")))
+        size = [float(v) for v in p["footprint"]["size"]]
+        return t in allowed[room["id"]] and SZ.fits(t, size, 0.15) and INF._shape_ok(t, size)
+
+    def misses_of(p: dict) -> dict:
+        """``room_misses`` of the room of ``p`` now (the pieces this step typed count)."""
+        return room_misses(view, rooms[p["room_id"]])
+
     typed: list[str] = []
     for f in b["furniture"]:
-        if f["id"] in pending or not INF.untyped_drawn(f) or f.get("room_id") not in rooms:
+        if f["id"] in pending or f["id"] in later or not INF.untyped_drawn(f) or f.get("room_id") not in rooms:
             continue
         pair = _disagreeing_types(f)
-        if not pair or not all(t in schemas.SIZE_OPTIONS for t in pair):
+        if not pair:
             continue
-        room = rooms[f["room_id"]]
-        size = [float(v) for v in f["footprint"]["size"]]
-        kind = PR.room_kind(view, room)
-        allowed = PL.allowed_in(view, room) | set(schemas.allowed_types(kind, room.get("room_subtype")))
-        if not all(t in allowed and SZ.fits(t, size, 0.15) and INF._shape_ok(t, size) for t in pair):
+        twins = [(g, r) for g, r in _twins_of(view, f) if g["id"] not in pending]
+        if any(INF._typed_drawn(g) for g, _r in twins):
+            later.add(f["id"])                  # pass before P5: its typed twin decides (the twin rule)
             continue
-        misses = room_misses(view, room)
-        missing = [t for t in pair if t in misses]
-        # Fixed equipment is taken as drawn, never guessed (CLAUDE.md): a fixed type the room does not miss is no
-        # choice (real02's salon sofa f_L-1b_045, kitchen_island / sofa, beside the open kitchen's own island).
-        choices = [t for t in pair if t not in schemas.FIXED_TYPES or t in missing]
-        conf = {c.get("type"): float(c.get("confidence") or 0.0) for c in f.get("type_candidates") or []
-                if isinstance(c, dict)}
-        if len(missing) == 1:
-            ftype = missing[0]
-            why = f"the room misses it ({misses[ftype]})"
-        elif len(choices) == 1:
-            ftype = choices[0]
-            why = "the other answer is fixed equipment the room does not miss (taken as drawn, never guessed)"
-        elif len(choices) == 2:
-            ftype = min(pair, key=lambda t: (round(INF._product_distance(t, size), 4), -conf.get(t, 0.0), t))
-            why = "its real product size is the nearer one to the drawn size" + \
-                  (" (the room misses both)" if missing else "")
+        twins = [(g, r) for g, r in twins if INF.untyped_drawn(g) and g.get("room_id") in rooms]
+        answered = [(g, r) for g, r in twins if _named_types(g)]
+        group = [f] + [g for g, _r in answered]
+        # Only a group with a piece the rule below could decide alone (two answers, both fitting) is decided: twins
+        # whose passes all name one type that fits besides one that does not stay for review, as a single piece does.
+        deciders = {p["id"] for p in group if len(_named_types(p)) == 2 and all(fits(p, t) for t in _named_types(p))}
+        if not deciders:
+            continue
+        shared = [t for t in pair if answered and all(t in _named_types(g) for g in group)
+                  and all(fits(p, t) and (t not in schemas.FIXED_TYPES or t in misses_of(p))
+                          for p in [f] + [g for g, _r in twins])]
+        if len(shared) == 1:
+            ftype = shared[0]
+            why = TWIN_TIE_NOTE.format(twin=answered[0][0]["id"], room=answered[0][1]["id"])
         else:
-            continue                            # two fixed types the room does not miss: the plan crop decides
-        other = next(t for t in pair if t != ftype)
-        det = items[f["id"]].details if f["id"] in items else {}
-        crop = _crop(det)
-        reason = (f"the two AI passes disagree ({pair[0]} / {pair[1]}); both fit the drawn {size[0]:.2f} x "
-                  f"{size[1]:.2f} m and the room: {ftype}, because {why}"
-                  + (f"; plan crop {crop}" if crop else ""))
-        f["type"] = ftype
-        f["type_method"] = INFER_METHOD
-        f["inferred"] = True
-        f["inferred_reason"] = reason
-        if f.get("build") is False:
-            f["build"] = True                   # unbuilt only because it was untyped (``infer.untyped_drawn``)
-            f.pop("not_built_reason", None)
-        f.setdefault("evidence", []).append(_ev(f, TIE_RULE, reason, 0.55))
-        if f.get("height") is None and schemas.HEIGHTS.get(ftype) is not None:
-            f["height"] = schemas.HEIGHTS[ftype]
-        for c in raw + list(b.get("conflicts") or []):
-            if c.get("kind") == "symbol_type_disagreement" and f["id"] in (c.get("element_ids") or []):
-                c["resolution"] = (f"typed {ftype} by code (not {other}): {why}; inferred, listed in the report "
-                                   f"({TIE_RULE})")
-        build.warn(f"{f['id']}: unknown -> {ftype} by code ({TIE_RULE}): {reason}")
+            if f["id"] not in deciders:
+                continue                        # a twin decides when its turn comes (its type reaches this piece)
+            room = rooms[f["room_id"]]
+            size = [float(v) for v in f["footprint"]["size"]]
+            misses = misses_of(f)
+            missing = [t for t in pair if t in misses]
+            # Fixed equipment is taken as drawn, never guessed (CLAUDE.md): a fixed type the room does not miss is no
+            # choice (real02's salon sofa f_L-1b_045, kitchen_island / sofa, beside the open kitchen's own island).
+            choices = [t for t in pair if t not in schemas.FIXED_TYPES or t in missing]
+            conf = {c.get("type"): float(c.get("confidence") or 0.0) for c in f.get("type_candidates") or []
+                    if isinstance(c, dict)}
+            if len(missing) == 1:
+                ftype = missing[0]
+                why = f"the room misses it ({misses[ftype]})"
+            elif len(choices) == 1:
+                ftype = choices[0]
+                why = "the other answer is fixed equipment the room does not miss (taken as drawn, never guessed)"
+            elif len(choices) == 2:
+                ftype = min(pair, key=lambda t: (round(INF._product_distance(t, size), 4), -conf.get(t, 0.0), t))
+                why = "its real product size is the nearer one to the drawn size" + \
+                      (" (the room misses both)" if missing else "")
+            else:
+                continue                        # two fixed types the room does not miss: the plan crop decides
+        _tie_type(build, f, ftype, why, items, raw, fits)
         typed.append(f["id"])
+        note = TWIN_TIE_NOTE.format(twin=f["id"], room=f["room_id"])
+        for g, _r in twins:
+            if ftype in _named_types(g) and fits(g, ftype):
+                _tie_type(build, g, ftype, note, items, raw, fits)
+                typed.append(g["id"])
+            else:
+                later.add(g["id"])              # the twin rule types it from ``f`` (code_first after this step)
     return typed
+
+
+def _tie_type(build, f: dict, ftype: str, why: str, items: dict, raw: list, fits) -> None:
+    """``tie_break``'s decision ``ftype`` (``why``) applied to ``f``: type, ``type_method: INFER_METHOD``, ``inferred``
+    with the reason (both answers, the plan crop), built, the rule's evidence, the type's height, and its
+    ``symbol_type_disagreement`` conflict resolved; a warning."""
+    from wenart.furniture import schemas
+
+    b = build.building
+    named = _named_types(f)
+    size = [float(v) for v in f["footprint"]["size"]]
+    others = [t for t in named if t != ftype]
+    det = items[f["id"]].details if f["id"] in items else {}
+    crop = _crop(det)
+    said = (f"the two AI passes disagree ({named[0]} / {named[1]})" if len(named) == 2
+            else f"the AI passes named {' / '.join(named)}")
+    reason = (f"{said}; {'both fit' if all(fits(f, t) for t in named) else ftype + ' fits'} the drawn "
+              f"{size[0]:.2f} x {size[1]:.2f} m and the room: {ftype}, because {why}"
+              + (f"; plan crop {crop}" if crop else ""))
+    f["type"] = ftype
+    f["type_method"] = INFER_METHOD
+    f["inferred"] = True
+    f["inferred_reason"] = reason
+    if f.get("build") is False:
+        f["build"] = True                       # unbuilt only because it was untyped (``infer.untyped_drawn``)
+        f.pop("not_built_reason", None)
+    f.setdefault("evidence", []).append(_ev(f, TIE_RULE, reason, 0.55))
+    if f.get("height") is None and schemas.HEIGHTS.get(ftype) is not None:
+        f["height"] = schemas.HEIGHTS[ftype]
+    for c in raw + list(b.get("conflicts") or []):
+        if c.get("kind") == "symbol_type_disagreement" and f["id"] in (c.get("element_ids") or []):
+            c["resolution"] = (f"typed {ftype} by code (not {' or '.join(others) or 'another type'}): {why}; "
+                               f"inferred, listed in the report ({TIE_RULE})")
+    build.warn(f"{f['id']}: unknown -> {ftype} by code ({TIE_RULE}): {reason}")
 
 
 # --------------------------------------------------------------------------
@@ -1632,7 +1744,18 @@ def read_furniture(build, works: dict) -> None:
     typed_by.update(methods2)
     withdrawn.update(withdraw_questions(build, works, items, coded2, methods2))
     pending = pending - set(coded2)
-    tied = tie_break(build, items, pending)          # fix round after P4b: two passes that disagree
+    to_twin: set[str] = set()
+    tied = tie_break(build, items, pending, to_twin)  # fix round after P4b: two passes that disagree
+    if tied or to_twin:
+        # Pass before P5 (module docstring): the code typing once more, so a twin of a decided piece gets its type
+        # (the twin rule) before the fronts and the review list. No reset: the AI's and the tie-break's types count.
+        # A question asked and answered in this round stays listed (``withdraw_questions``); one that was not (a late
+        # one) is withdrawn, as ``pipeline._infer_types`` withdrew it right after this step before.
+        coded3, methods3 = code_first(build)
+        if coded3:
+            typed_by.update(methods3)
+            withdrawn.update(withdraw_questions(build, works, items, coded3, methods3))
+            pending = pending - set(coded3)
     fixed = fix_fixed(build, items)
     fronts += infer_fronts(build, pending)
     # Partners of the anchors the inference typed (real01 --no-ai: the chaise by its size): the Milestone 12 rules on

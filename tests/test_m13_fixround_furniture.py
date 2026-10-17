@@ -20,6 +20,12 @@ fails on commit 11949a9:
   around such a duplicate and ``complete_group`` refuses a group the program does not complete;
 - F1 lets a drawn washing machine stand in a hall; the solver keeps the open side of a drawn washer that faces a wall
   free; the chaise of a drawn corner sofa without its L goes to the side away from the drawn coffee table.
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b), every test of that kind fails on commit adc3004:
+
+- the plan-crop way out of the mark lock takes only the piece's own recognition crop (its question's crop, or one
+  recorded for its id in ``needs_review`` / ``conflicts``), never a room's camera plan crop or another symbol's crop;
+  the refusal names no crop path pattern; the marked piece's symbol records its own crop.
 """
 from __future__ import annotations
 
@@ -447,25 +453,90 @@ def test_mark_lock_lets_the_seat_segment_of_a_corner_sofa_through():
     assert E.mark_lock_refusal(b4, _by(b4, "f_L-1_024"), OUTLINE_F9, "plan crop r_L-1_salon: strip") is not None
 
 
-def test_mark_lock_lifts_for_a_plan_crop_and_never_for_a_top_down_render():
-    """Fails on 11949a9 (review of the P4a fix round): the verifier's second way out, evidence that names the plan
-    crop, was left out; P4a's agent cited top-down renders (seq 264, 276, 331, 350), which stay refused."""
+def _round_table(pid="f_L1_015", key="sym_L1_001") -> dict:
+    """P3 real04's f_L1_015: a drawn round coffee table typed by the group-member rule (vector ARC + CIRCLE) whose
+    own question ``recognition:<key>`` the reading asked (the passes said unknown / potted_plant)."""
+    t = fp(pid, "table_coffee", (2.5, 2.0), (1.027, 0.6932), 90.0, type_method="group_member", status="unverified")
+    t["evidence"] = [{"file": "deneme1.dwg", "method": "vector", "confidence": 0.9, "entity": "ARC:36BA5,CIRCLE:36BA6"},
+                     {"file": "deneme1.dwg", "method": "ai", "confidence": 0.85, "entity": f"recognition:{key}",
+                      "pass": 1, "text": "unknown"}]
+    return t
+
+
+def _mark(b, pid, ev, target, fn=None):
+    return (fn or E.apply_edit)(b, edit("mark_not_furniture", piece_id=pid, kind="dimension_outline", evidence=ev,
+                                        target_finding=target))
+
+
+def test_mark_lock_lifts_only_for_the_pieces_own_crop():
+    """Fails on adc3004 (review of the fix round after P4b, major): any crop-like path lifted the lock, so a room's
+    camera plan crop (the agent's evidence in P3 real04 seq 3282 / 3689 / 3692: "plan crop check/cam_r_L1_koridor_2_1_
+    plan.jpg: ... it pokes through wall w_L1_006") or the crop of an unrelated symbol let a drawn, code-typed piece of
+    a real size be marked as not furniture for a placement finding (P4a seq 647 again; P4a's real02 f_L1_021 and
+    f_L-1_024). Only the piece's own recognition crop lifts it; top-down renders never do (P4a seq 264, 276, 331,
+    350)."""
     b = M.building(w=5.0, h=4.0, room_type="living", window=None, furniture=[_dolap()])
-    for ev, crop in (("plan crop recognition/crops/sym_L-1_009_ctx.png: a 2.57 x 0.6 m strip, no cabinet doors",
-                      "recognition/crops/sym_L-1_009_ctx.png"),
-                     ("plan crop check/cam_r_L-1_salon_1_plan.jpg shows a dimension strip",
-                      "check/cam_r_L-1_salon_1_plan.jpg")):
-        res = E.apply_edit(b, edit("mark_not_furniture", piece_id="f_L-1_024", kind="dimension_outline", evidence=ev,
-                                   target_finding=OUTLINE_F9))
-        assert res["accepted"], res["failed_checks"]
-        assert res["building"]["symbols"][-1]["crop"] == crop
-    for ev in ("top-down image r1_044_topdown_r_L-1_salon_2.png: a 5.54 x 0.60 m band along the top wall",
+    for ev in ("plan crop recognition/crops/sym_L-1_009_ctx.png: a 2.57 x 0.6 m strip, no cabinet doors",
+               "plan crop recognition/crops/sym_L-1_024_ctx.png: strip",     # the symbol numbering is not the pieces'
+               "plan crop check/cam_r_L-1_salon_1_plan.jpg shows a dimension strip",
+               "top-down image r1_044_topdown_r_L-1_salon_2.png: a 5.54 x 0.60 m band along the top wall",
                "top-down r1_091_topdown_r_L1_teras.png: the chair straddles the wall",
                "plan crop r_L-1_salon: 2.57 x 0.6 m strip along the wall"):
-        res = E.apply_edit(b, edit("mark_not_furniture", piece_id="f_L-1_024", kind="dimension_outline", evidence=ev,
-                                   target_finding=OUTLINE_F9))
-        assert not res["accepted"] and res["failed_checks"][0].startswith("drawn_lock: f_L-1_024")
-        assert "plan crop" in res["failed_checks"][0]
+        for target in (OUTLINE_F9, {"check": "S2", "target": "f_L-1_024"}):
+            for fn in (E.apply_edit, E.dry_run):
+                res = _mark(b, "f_L-1_024", ev, target, fn)
+                assert not res["accepted"] and res["failed_checks"][0].startswith("drawn_lock: f_L-1_024"), (ev, fn)
+                assert "its own recognition crop, when it has one" in res["failed_checks"][0]
+                assert "<key>" not in res["failed_checks"][0] and "crops/" not in res["failed_checks"][0]
+    assert E.own_crops(b, _by(b, "f_L-1_024")) == set()
+    # P4a real02: the coffee table f_L1_021 (rule; drawn 1.52 x 0.60 m, snapped to 1.20 x 0.70 m) with the corridor's
+    # camera plan crop and an F9 target stays refused
+    table = fp("f_L1_021", "table_coffee", (2.5, 2.0), (1.2, 0.7), 90.0, type_method="rule",
+               drawn_footprint={"center": [2.5, 2.0], "size": [1.52, 0.6], "rotation_deg": 90.0})
+    b2 = M.building(w=5.0, h=4.0, room_type="living", window=None, furniture=[table])
+    res = _mark(b2, "f_L1_021", "plan crop check/cam_r_L1_koridor_1_plan.jpg: a thin outline, not a built table",
+                {"check": "F9", "target": "f_L1_021"})
+    assert not res["accepted"] and res["failed_checks"][0].startswith("drawn_lock: f_L1_021")
+    # the piece's own question crop (_ctx or _iso, in any crops/ folder) lifts the lock and is the symbol's crop, also
+    # when a room crop comes first; another symbol's crop or a room crop alone does not
+    b3 = M.building(w=5.0, h=4.0, room_type="living", window=None, furniture=[_round_table()])
+    assert E.mark_lock_refusal(b3, _by(b3, "f_L1_015"), {"check": "F9"}) is not None
+    for ev, crop in (("plan crop recognition/crops/sym_L1_001_ctx.png: a round outline, a planter, no table",
+                      "recognition/crops/sym_L1_001_ctx.png"),
+                     ("plan crop recognition/L1/crops/sym_L1_001_iso.png: a round planter",
+                      "recognition/L1/crops/sym_L1_001_iso.png"),
+                     ("plan crop check/cam_r_L1_salon_1_plan.jpg and recognition/crops/sym_L1_001_ctx.png: a planter",
+                      "recognition/crops/sym_L1_001_ctx.png")):
+        for fn in (E.dry_run, E.apply_edit):
+            res = _mark(b3, "f_L1_015", ev, {"check": "F9", "target": "f_L1_015"}, fn)
+            assert res["accepted"], (ev, res["failed_checks"])
+        assert res["building"]["symbols"][-1]["crop"] == crop
+    for ev in ("plan crop recognition/crops/sym_L1_002_ctx.png: a planter",
+               "plan crop recognition/crops/xsym_L1_001_ctx.png: a planter",
+               "plan crop check/cam_r_L1_salon_1_plan.jpg: a planter",
+               "plan crop sym_L1_001_ctx.png: a planter"):              # no crops/ folder: not a recognition crop
+        res = _mark(b3, "f_L1_015", ev, {"check": "F9", "target": "f_L1_015"})
+        assert not res["accepted"] and res["failed_checks"][0].startswith("drawn_lock: f_L1_015"), ev
+    assert E.allowed_edits(b3, "f_L1_015")["mark_not_furniture"]["allowed"] is False
+    assert E.own_crops(b3, _by(b3, "f_L1_015")) == {"sym_L1_001_ctx.png", "sym_L1_001_iso.png", "sym_L1_001.png"}
+
+
+def test_own_crops_takes_a_recognition_crop_recorded_for_the_piece_and_never_a_room_crop():
+    """Pass before P5: a recognition crop recorded for the piece's id in ``needs_review`` or ``conflicts`` is its own;
+    a camera plan crop recorded there, or a crop recorded for another piece, is not."""
+    piece = _dolap()
+    b = M.building(w=5.0, h=4.0, room_type="living", window=None, furniture=[piece])
+    b["conflicts"] = [{"kind": "symbol_front_disagreement", "element_ids": ["f_L-1_024"],
+                       "crop": "recognition/crops/sym_L-1_007_ctx.png"},
+                      {"kind": "other", "element_ids": ["f_L-1_024"], "crop": "check/cam_r_L-1_salon_1_plan.jpg"},
+                      {"kind": "other", "element_ids": ["f_L-1_023"], "crop": "recognition/crops/sym_L-1_008_ctx.png"}]
+    b["needs_review"] = [{"id": "f_L-1_023", "kind": "untyped_piece", "crop": "recognition/crops/sym_L-1_009_ctx.png"}]
+    for ev in ("plan crop recognition/crops/sym_L-1_008_ctx.png: strip",
+               "plan crop recognition/crops/sym_L-1_009_ctx.png: strip",
+               "plan crop check/cam_r_L-1_salon_1_plan.jpg: strip"):
+        assert E.mark_lock_refusal(b, piece, OUTLINE_F9, ev) is not None, ev
+    assert E.mark_lock_refusal(b, piece, OUTLINE_F9, "plan crop recognition/crops/sym_L-1_007_ctx.png: strip") is None
+    assert E.own_crops(b, piece) == {"sym_L-1_007_ctx.png"}
 
 
 def test_crop_of_never_records_a_top_down_render_as_the_plan_crop():

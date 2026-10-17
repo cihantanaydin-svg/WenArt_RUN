@@ -99,6 +99,19 @@ models in the committed seeds, so step (a) alone completes them with no server s
 and fit); on real02 a GLM start is needed. ``wenart.run.prep`` (the M7-M10 prep pod) is not changed: the M13 runs
 use this scheduler.
 
+Pass before P5 (17 Oct 2026; review of the fix round after P4b). What: (1) a question is late only when it was not
+in the round's ``requests.json`` before the first pipeline_final of the run (``ProjectRun.asked``, recorded by
+``finalize``; the pipeline's own rule, ``pipeline._asked_before``): a first-round question that a failed server
+(phase 2 or 3) or a recognition exit 2 left without its answers opens no late pass; (2) a recognition server that
+failed in this run (``_server_errors``) is not started again by ``late_sessions`` (the pass ends with
+``LATE_FAILED_NOTE``); (3) phase 3 never takes its no-server branch while a late pass is open (an orchestrated run's
+late session and the agent's layout session follow), and the M10 chain ends a late pass its Qwen session cannot
+complete before it counts the layout rooms (``M10_LATE_NOTE``), so its layout runs in its Qwen session and no late
+GLM session starts. Why: with the late keys answered for Qwen only and no other Qwen need, the late GLM session ran
+inside the no-server branch, pipeline_final and fit ran again, and the layout then failed without a server (both
+chains, project failed, exit 1); after a phase-2 GLM failure the pass opened on every first-round question and
+started the failed GLM server again (up to 25 min more on a GLM timeout).
+
 How: every subprocess goes through ONE injectable function
 ``runner(cmd, env, cwd, timeout, log_path) -> rc`` (cwd = repo root, output
 into ``<out>/run/logs/<stage>.log``); the clock, the server sessions, the
@@ -159,6 +172,10 @@ AGENT_PHASE = 12
 LATE_NOTE = "late questions ({n}) answered in a second short recognition pass: pipeline_final ran again"
 LATE_LEFT_NOTE = ("{n} late recognition question(s) left unanswered ({why}): their pieces stay unknown and are listed "
                   "for review")
+# Pass before P5 (17 Oct 2026, module docstring): why a late pass ends in the M10 chain before its Qwen session, and
+# why a model whose server failed in this run is not started again for the late questions.
+M10_LATE_NOTE = "the M10 chain asks no late GLM session"
+LATE_FAILED_NOTE = "server {key}: {reason} earlier in this run, not started again"
 OVERRIDES_REL = f"{S.AGENT_DIR}/overrides.json"
 AGENT_SLEEP_ENV = "WENART_AGENT_SLEEP"         # on | off | auto (default: sleep only below 80 GB of VRAM)
 # The control renders of the control project (M6 §6.2): ab/renders plus one render folder per control set.
@@ -416,6 +433,9 @@ class ProjectRun:
     # "open" its questions wait for a model, "done") and how many late questions it found.
     late: str = ""
     late_keys: int = 0
+    # Pass before P5 (module docstring): the (key, input_sha256) pairs of recognition/requests.json before the first
+    # pipeline_final of this run (``finalize``): the questions that round asked; the late pass counts only the others.
+    asked: Optional[set] = None
 
     @property
     def name(self) -> str:
@@ -491,6 +511,9 @@ class Orchestrator:
         self._agent_stack: Optional[ExitStack] = None
         self._agent_url: Optional[str] = None
         self._agent_error: Optional[SV.ServerError] = None   # the agent server did not start (not tried again)
+        # Pass before P5: the recognition servers that failed in this run (model key -> error; ``late_sessions`` does
+        # not start them again for the late questions)
+        self._server_errors: dict = {}
         self._layout_fallback = False                        # then the layout ran on Qwen
 
     # ----- small helpers -------------------------------------------------
@@ -1030,6 +1053,9 @@ class Orchestrator:
             # No model was asked in this run (no recognition model in CHECK_MODELS).
             self.finish(pr, "recognize", "warning", "no recognition model in CHECK_MODELS: the pieces stay unknown, "
                         "unverified", outputs=self.recognition_outputs(pr))
+        # Pass before P5: the round's questions, as the pipeline reads them before it rewrites requests.json
+        # (``pipeline._asked_before``); a question pipeline_final adds is late (``late_missing``).
+        pr.asked = {(i["key"], i["input_sha256"]) for i in self.recognition_items(pr, S.RECOGNITION_DIR)}
         self.stage_pipeline_final(pr)
         if pr.active:
             self.stage_fit(pr)
@@ -1039,9 +1065,14 @@ class Orchestrator:
     def late_missing(self, pr: ProjectRun) -> list:
         """The question keys of ``<out>/recognition/requests.json`` that ``<out>/recognition`` does not answer for
         every recognition model (the pipeline's rule; the committed seeds do not count here: they still have to be
-        copied in)."""
+        copied in). Pass before P5: only the late ones, the questions that were not in the round's requests before
+        pipeline_final (``pr.asked``, the pipeline's own rule); a first-round question a failed server left without
+        its answers is not late (P4b review: after a phase-2 GLM failure the pass opened on every first-round question
+        and started the failed server again)."""
         from wenart.recognition import answers as A    # lazy: jsonschema
         items = self.recognition_items(pr, S.RECOGNITION_DIR)
+        if pr.asked is not None:
+            items = [i for i in items if (i["key"], i["input_sha256"]) not in pr.asked]
         if not items:
             return []
         loaded = A.load(self.recognition_dir(pr), items, self.models)
@@ -1076,15 +1107,27 @@ class Orchestrator:
         if key not in self.recognition_keys() or not pr.active or pr.late != "open" \
                 or not self.recognition_missing(pr, key, S.RECOGNITION_DIR):
             return False
+        if self.late_dead(pr) is not None:
+            return False                        # pass before P5: a model whose server failed never completes them
         return self.layout_key() != "qwen" or not any(self.recognition_missing(pr, k, S.RECOGNITION_DIR)
                                                       for k in self.recognition_keys() if k != key)
 
+    def late_dead(self, pr: ProjectRun) -> Optional[str]:
+        """Pass before P5 (module docstring): ``LATE_FAILED_NOTE`` for the first recognition model whose answers
+        ``pr``'s late pass misses and whose server failed in this run (the pass never completes), else None."""
+        for k in self.recognition_keys():
+            exc = self._server_errors.get(k)
+            if exc is not None and self.recognition_missing(pr, k, S.RECOGNITION_DIR):
+                return LATE_FAILED_NOTE.format(key=k, reason=exc.reason)
+        return None
+
     def late_needs(self, key: str) -> list:
-        """Projects whose late pass waits for an answer of ``key``."""
+        """Projects whose late pass waits for an answer of ``key`` (pass before P5: and can still complete:
+        ``late_dead``)."""
         if key not in self.recognition_keys():
             return []
         return [pr for pr in self.runs if pr.active and pr.late == "open"
-                and self.recognition_missing(pr, key, S.RECOGNITION_DIR)]
+                and self.recognition_missing(pr, key, S.RECOGNITION_DIR) and self.late_dead(pr) is None]
 
     def late_close(self, pr: ProjectRun, why: Optional[str] = None) -> None:
         """Every answer in: pipeline_final and fit again with them (``LATE_NOTE``). ``why`` (the pass ends without
@@ -1106,6 +1149,12 @@ class Orchestrator:
         """The late passes that still wait for a model (orchestrated runs, after phase 3's Qwen session and before
         the agent's layout session): one session per model that some project still needs (``CHECK_MODELS`` order),
         then pipeline_final and fit again for every project whose answers are complete (``late_close``)."""
+        for pr in self.runs:
+            # Pass before P5: a server that failed in this run is not started again (a GLM timeout in phase 2 would
+            # cost another wait of up to SERVER_WAIT_S before the same failure): the passes that need it end here.
+            dead = self.late_dead(pr) if pr.active and pr.late == "open" else None
+            if dead is not None:
+                self.late_close(pr, dead)
         for key in self.recognition_keys():
             need = self.late_needs(key)
             if not need:
@@ -1124,6 +1173,7 @@ class Orchestrator:
                             self.recognize_part(pr, key, url, self.seqs(key), late=True)
             except SV.ServerError as exc:
                 self.out(f"late questions: {exc}")
+                self._server_errors[key] = exc
                 for pr in need:
                     self.late_close(pr, f"server {key}: {exc.reason}")
         for pr in self.runs:
@@ -1568,6 +1618,7 @@ class Orchestrator:
                         self.photos_session_part(pr, "glm", url, self.seqs("glm"))
         except SV.ServerError as exc:
             self.out(f"phase 2: {exc}")
+            self._server_errors["glm"] = exc        # pass before P5: not started again for the late questions
             for pr in need_recog:
                 if pr.active and "ask glm" not in [s["name"] for s in pr.parts.get("recognize", [])]:
                     self.recognition_server_failed(pr, "glm", exc)
@@ -1644,6 +1695,13 @@ class Orchestrator:
             if pr.active and pr.pending and pr not in need_recog:
                 self.finalize(pr)
                 self.late_pass(pr)              # fix round after P4b: the late questions' stored answers first
+        if self.layout_key() == "qwen":
+            # Pass before P5: the M10 chain lays out in its Qwen session and starts no late GLM session, so a late
+            # pass that session cannot complete (another model's answer is missing) ends now: its project's layout
+            # rooms are counted on its final building and the session starts only when something needs it.
+            for pr in self.runs:
+                if pr.active and pr.late == "open" and not self.late_asks(pr, "qwen"):
+                    self.late_close(pr, M10_LATE_NOTE)
         # Fix round after P4b: a late pass that still needs Qwen asks in this phase's Qwen session (started for it
         # when nothing else needs one); a project whose late pass is open gets its layout after it.
         late_qwen = self.late_needs("qwen")
@@ -1656,10 +1714,13 @@ class Orchestrator:
         # Milestone 9: the AI decor asks after the layout, in the same session (a reused layout keeps its building).
         need_decor = [pr for pr in self.runs if pr.active and not (pr.pending and not pr.finalized)
                       and pr not in need_layout and self.decor_wanted(pr)]
-        if not need_photos and not need_layout and not need_recog and not need_decor and not late_qwen:
+        # Pass before P5: never while a late pass is open: its project's layout rooms are not counted yet (its layout
+        # follows the late session; P4b review: the late GLM session ran here, then the layout failed without a
+        # server).
+        if not need_photos and not need_layout and not need_recog and not need_decor and not late_qwen \
+                and not any(pr.active and pr.late == "open" for pr in self.runs):
             self.out("phase 3: no project needs Qwen recognition answers, a layout, a Qwen photo answer or decor "
                      "answers: no server")
-            self.late_sessions()                # fix round after P4b: GLM for the late questions, if any
             for pr in self.runs:
                 if pr.active and pr.layout_rooms:
                     self.stage_layout(pr, None)
@@ -1713,7 +1774,7 @@ class Orchestrator:
                     if not agent_layout:
                         # The M10 chain lays out in this session: no second GLM session for the late questions.
                         for pr in self.runs:
-                            self.late_close(pr, "the M10 chain asks no late GLM session")
+                            self.late_close(pr, M10_LATE_NOTE)
                             if pr.active and pr.late == "done":
                                 self.layout_prepare(pr)
                     for pr in need_photos:
@@ -1727,6 +1788,7 @@ class Orchestrator:
                         layout_and_decor(url)
             except SV.ServerError as exc:
                 self.out(f"phase 3: {exc}")
+                self._server_errors["qwen"] = exc   # pass before P5: not started again for the late questions
                 status = "incomplete" if exc.reason == "deadline" else "failed"
                 for pr in need_recog:
                     if pr.active and not pr.finalized and \

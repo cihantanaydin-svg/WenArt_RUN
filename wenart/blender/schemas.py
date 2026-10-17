@@ -71,6 +71,10 @@ and the white point's ``wb_rig_kelvin_source`` (``room`` | ``scene``, ``render.r
 ``interior_pane_px`` (the panes of the interior glazing it left out) and the render entry's ``interior_glazing``
 (``INTERIOR_GLAZING``: the panes of the windows between two indoor rooms against the room's walls,
 ``render.interior_glazing_record``) and ``lawn`` (an exterior view's lawn as written, ``render.lawn_record``).
+
+Pass before P5 (17 Oct 2026): ``interior_glazing`` requires the panes' ``clip`` as written and may carry ``pull``
+(``INTERIOR_PULL``: the pull of clipped interior panes, ``render.RenderRun.interior_pull``); no pod has written an
+``interior_glazing`` record yet, so no manifest loses its validity.
 """
 from __future__ import annotations
 
@@ -219,16 +223,34 @@ WINDOW_PULL = {
     ],
 }
 # Fix round after P4b (17 Oct 2026): the panes of the interior glazing in a view (windows between two indoor rooms,
-# never pulled) against the camera room's walls, display R/B of each (render.interior_glazing_record); null when none
-# is in view.
+# left out of the window pull) against the camera room's walls, display R/B of each (render.interior_glazing_record);
+# null when none is in view. Pass before P5 (17 Oct 2026; no pod has written the record yet, so ``clip`` is required):
+# ``clip`` = the panes' clip share as written, ``pull`` = the interior pull (render.RenderRun.interior_pull: only
+# clipped interior panes, by render.choose_interior_pull; k 0 = no pull).
+INTERIOR_PULL = {
+    "oneOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["ev", "k", "clip_before", "clip_after", "pane_px", "rule", "tried"],
+         "properties": {"ev": {"type": "number", "maximum": 0}, "k": {"type": "integer", "minimum": 0, "maximum": 10},
+                        "pane_ev": {"type": "number"}, "clip_before": _SHARE, "clip_after": _SHARE,
+                        "pane_px": {"type": "integer", "minimum": 1}, "pane_median": {"type": "number"},
+                        "pane_median_after": {"type": "number"}, "wall_median": {"type": ["number", "null"]},
+                        "rule": {"type": "string"}, "targets": {"type": "object"},
+                        "tried": {"type": "array", "items": {
+                            "type": "object", "required": ["k", "clip", "median"],
+                            "properties": {"k": {"type": "integer", "minimum": 1, "maximum": 10}, "clip": _SHARE,
+                                           "median": {"type": "number"}}}},
+                        "seconds": {"type": "number", "minimum": 0}}},
+    ],
+}
 INTERIOR_GLAZING = {
     "oneOf": [
         {"type": "null"},
-        {"type": "object", "required": ["windows", "pane_px", "pane_rb", "wall_rb", "delta_rb", "rule"],
+        {"type": "object", "required": ["windows", "pane_px", "pane_rb", "wall_rb", "delta_rb", "clip", "rule"],
          "properties": {"windows": {"type": "array", "items": {"type": "string"}},
                         "pane_px": {"type": "integer", "minimum": 1}, "pane_rb": {"type": ["number", "null"]},
                         "wall_rb": {"type": ["number", "null"]}, "delta_rb": {"type": ["number", "null"]},
-                        "rule": {"type": "string"}}},
+                        "clip": _SHARE, "pull": INTERIOR_PULL, "rule": {"type": "string"}}},
     ],
 }
 # Fix round after P3 (16-17 Oct 2026): the sky pull of a view under the exterior sky (render.Renderer.sky_pull);

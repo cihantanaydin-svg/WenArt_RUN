@@ -191,7 +191,8 @@ def test_an_eye_height_refusal_names_the_ground_and_the_z_to_use(tmp_path):
     ctx = camera_project(tmp_path, validators=validators)
     res = TL.build_registry().call(ctx, "add_camera", cam("ext_9", [-9.0, 6.0, 1.6], [4.0, 2.0, 1.6]))
     assert not res["accepted"]
-    assert res["failed_checks"][-1] == "the ground at (-9, 6) is at z -0.15 m: use z 1.35-1.55 for an eye-level view"
+    # pass before P5 (pin changed on purpose): "z 1.35 to 1.55", readable below zero too ("z -2.54 to -2.44")
+    assert res["failed_checks"][-1] == "the ground at (-9, 6) is at z -0.15 m: use z 1.35 to 1.55 for an eye-level view"
     assert CV.scene_ground_z({"site": {"terrain": FLAT}}, 3, 4) == -0.15
     assert CV.scene_ground_z({}, 3, 4) is None
     assert CV.scene_ground_z({"site": {"terrain": {"kind": "tin"}}}, 1, 1) is None
@@ -463,14 +464,17 @@ def test_a_set_exterior_keeps_the_vision_findings_it_does_not_touch():
     """Fails on 11949a9: changed_targets added the step's finding target and after_findings dropped every vision
     finding on a changed target, so P4b's ground (seq 951) and sun (seq 1357) edits each counted the vision X4 "no
     path" as removed; it came back. Now only an override of a slot of the cause (X4/site: site or ground; X2: roof;
-    X7: sun) touches it."""
+    X7: sun) touches it. Pass before P5 (changed on purpose): ``changed`` is changed_targets' own output (the
+    hand-made ``changed | {"ext_1"}`` pinned a path the pipeline never takes) and the edit's target goes in as
+    ``targets``; the reason is checked in accept_edit's text (tests/test_agent_pass_before_p5.py runs it through the
+    loop)."""
     x4 = dict(X4, cause=CS.cause_of(X4))
     assert x4["cause"] == "site"
     sun = {"sun": {"elevation_deg": 40.0}}
     changed = TL.changed_targets("set_exterior", dict(sun, reason="x"), {}, [x4], findings=[x4])
     assert "ext_1" not in changed and LP.BUILDING in changed
     assert "ext_1" in TL.changed_targets("set_exterior", {"site": {"path": True}}, {}, [x4], findings=[x4])
-    kept = LP.after_findings([], [x4], changed | {"ext_1"}, {}, override=sun)
+    kept = LP.after_findings([], [x4], changed, {}, override=sun, targets=[x4])
     assert [CS.finding_key(f) for f in kept] == [("X4", "ext_1")]
     assert kept[0]["message"].startswith("the edit does not change what the finding is about (the override sets sun")
     ok, why = LP.accept_edit([x4], kept, {"target_finding": [x4]})

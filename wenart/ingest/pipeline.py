@@ -70,6 +70,14 @@ in a warning (``LATE_REVIEW_NOTE``): its question was not among the first readin
 in this reading), and the run's late recognition pass (``wenart.run.scheduler``) asks it and runs this pipeline again.
 A piece the size inference types gets ``type_method: "inferred"`` (``reading.mark_inferred``). Why: P4b's six drawn
 washbasins were listed as plain "has no type" boxes, with nothing saying that their questions had never been asked.
+
+Pass before P5, integration (17 Oct 2026; track I's ask). What: a piece ``_infer_types`` types and builds leaves the
+review list: its ``untyped_piece`` entry (``reading.never_a_box``, ``UNTYPED_REVIEW_KIND``) is dropped and the
+reading's review count follows (``_drop_typed_reviews``), as ``edit_ops`` drops the entry of a piece the agent types.
+Why: ``_infer_types`` runs after ``never_a_box``, so a piece it typed by code kept "has no type: not built" while it
+was built, and that stale entry is an NR finding for the agent (``critic_code``) and lifts the piece's mark lock
+(``edit_ops.mark_lock_refusal``). P3's real04 twin case is typed inside ``read_furniture`` now, so this matters only
+for rarer chains; the committed real02 / real03 / real04 buildings have no such entry.
 """
 from __future__ import annotations
 
@@ -2386,6 +2394,7 @@ def _infer_types(build: ProjectBuild) -> None:
         return
     b["furniture"] = INF.apply_inferences(b, proposals)["furniture"]
     RD.mark_inferred(b, proposals)          # fix round after P4b: a size-inferred piece says so in type_method
+    _drop_typed_reviews(build, {p["piece_id"] for p in proposals})      # pass before P5, integration
     coded = []
     for p in proposals:
         if p.get("type_method") in INF.CODE_TYPE_METHODS:
@@ -2404,6 +2413,29 @@ def _infer_types(build: ProjectBuild) -> None:
         stats["questions_withdrawn"] = sorted(set(stats.get("questions_withdrawn") or []) | set(withdrawn))
         stats["typed_by"] = dict(sorted({**(stats.get("typed_by") or {}), **methods}.items()))
         build.reading = stats
+
+
+# Pass before P5, integration (module docstring): the kind of the review entry of an untyped piece (reading.never_a_box)
+UNTYPED_REVIEW_KIND = "untyped_piece"
+
+
+def _drop_typed_reviews(build: ProjectBuild, piece_ids: set) -> int:
+    """Pass before P5, integration (module docstring): drop the ``UNTYPED_REVIEW_KIND`` review entries of the pieces of
+    ``piece_ids`` that now have a type and are built (another entry, or a piece still unknown or not built, stays);
+    the reading's ``needs_review`` count follows. Returns how many were dropped."""
+    b = build.building
+    typed = {f["id"] for f in b.get("furniture") or [] if f.get("id") in piece_ids
+             and f.get("type") not in (None, "unknown") and f.get("build") is not False}
+    review = b.get("needs_review") or []
+    kept = [n for n in review if not (isinstance(n, dict) and n.get("kind") == UNTYPED_REVIEW_KIND
+                                      and n.get("id") in typed)]
+    dropped = len(review) - len(kept)
+    if dropped:
+        b["needs_review"] = kept
+        stats = build.reading if isinstance(build.reading, dict) else {}
+        if isinstance(stats.get("needs_review"), int):
+            stats["needs_review"] = max(0, stats["needs_review"] - dropped)
+    return dropped
 
 
 def _inferred_section(b: dict) -> list[str]:

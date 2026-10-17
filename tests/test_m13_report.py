@@ -1211,19 +1211,31 @@ def _check_models() -> dict:
     return load_config()["models"]
 
 
-def _questions(folder: Path, models: dict, answered: dict, n: int = 3) -> None:
+SYMBOL_ANSWER = {"type": "bed_double", "front": "top", "confidence": 0.9, "reason": "two pillows at the head"}
+
+
+def _call(item: dict, **extra) -> dict:
+    """A stored answer record of ``item`` (``wenart.recognition.answers`` shape: its input hash, schema-valid data)."""
+    return {"task": item["task"], "input_sha256": item["input_sha256"], "data": dict(SYMBOL_ANSWER), "error": None,
+            **extra}
+
+
+def _questions(folder: Path, models: dict, answered: dict, n: int = 3) -> list[dict]:
     """``folder/requests.json`` with ``n`` symbol questions and the ``models``; ``answers_<slug>.json`` per entry of
-    ``answered`` (slug -> how many questions have JSON data; the next one has an error)."""
+    ``answered`` (slug -> how many questions have a current, schema-valid answer; the next one has an error).
+    Returns the request items."""
     folder.mkdir(parents=True, exist_ok=True)
-    items = [{"key": f"sym_L0_00{i}", "task": "symbol_type", "input_sha256": f"h{i}"} for i in range(1, n + 1)]
+    items = [{"key": f"sym_L0_00{i}", "task": "symbol_type", "images": [f"crops/sym_L0_00{i}.png"],
+              "input_sha256": f"{i:064x}"} for i in range(1, n + 1)]
     C.write_json(folder / "requests.json", {"schema_version": "0.1", "kind": "recognition_requests",
                                             "models": models, "items": items})
     for slug, k in answered.items():
-        calls = {it["key"]: {"data": {"type": "bed_double", "confidence": 0.9}, "error": None} for it in items[:k]}
+        calls = {it["key"]: _call(it) for it in items[:k]}
         if k < n:
-            calls[items[k]["key"]] = {"data": None, "error": "timeout"}
+            calls[items[k]["key"]] = dict(_call(items[k]), data=None, error="timeout")
         C.write_json(folder / f"answers_{slug}.json", {"schema_version": "0.1", "kind": "recognition_answers",
                                                         "slug": slug, "calls": calls})
+    return items
 
 
 def test_attribution_tools_name_every_recognition_model_with_the_check_yaml_licence():
@@ -1386,3 +1398,92 @@ def test_metrics_11_and_12_on_the_p4b_real03_results():
     assert m["m12"]["text"] == "6 of 7 (1 dropped: ext_5; re-added after the drop: ext_6 (agent))"
     assert m["m11"]["parts"]["black_pct"] == MX.NO_DATA and m["m11"]["parts"]["black_reason"] == \
         "no aerial or site view: ext_5 (aerial) dropped: flat_cut roof (upper floors not drawn): no aerial view"
+
+
+# --------------------------------------------------------------------------
+# Pass before P5 (17 Oct 2026; the review of the fix round after P4b): metric 11 measures the camera flagged as the site
+# view; the models table counts a recognition answer by the recognition rule.
+# --------------------------------------------------------------------------
+
+def _add_camera(out: Path, name: str, black_rows: int = 0, **fields) -> None:
+    """An exterior camera ``name`` in the fake run's scene manifest (``fields`` over kind exterior, view aerial) and
+    its preview: ``black_rows`` black rows over a grey frame."""
+    path = out / "scene" / "scene_manifest.json"
+    sc = json.loads(path.read_text(encoding="utf-8"))
+    sc["cameras"].append({"name": name, "room_id": None, "level_id": None, "lens_mm": 18.0, "sensor_mm": 36.0,
+                          "policy": "search", "score": {"total": 2.0, "shares": {"wall": 0.0, "furn": 0.0}},
+                          "kind": "exterior", "view": "aerial", "status": "assumed", "variant": "base", **fields})
+    path.write_text(json.dumps(sc), encoding="utf-8")
+    rgb = np.full((H, W, 3), 120, dtype=np.uint8)
+    rgb[:black_rows] = 0
+    Image.fromarray(rgb).save(out / "renders" / f"{name}_preview.jpg", quality=80)
+
+
+def test_p5_metric_11_measures_the_camera_flagged_as_the_site_view(tmp_path):
+    """Review of the fix round after P4b (P_report): real04 plans two aerial cameras, ext_5 (no flag) and ext_7 (the
+    ``copies.site_view`` camera, ``site_view: true``); the first-aerial rule measured ext_5 (P3: "6.6 % (ext_5)"; its
+    site view ext_7 has 4.1 %). Here ext_1 plays ext_5 (aerial, 50 % black) and ext_7 is the flagged site view (no
+    black). Fails on HEAD adc3004 (site_camera ext_1, 50.0 %)."""
+    out = make_run(tmp_path)
+    _add_camera(out, "ext_7", site_view=True)
+    m11 = MX.metrics(out)["metrics"]["m11"]
+    assert (m11["parts"]["black_pct"], m11["parts"]["site_camera"], m11["parts"]["black_basis"]) == \
+        (0.0, "ext_7", "site view")
+    assert m11["text"].endswith("black pixels in the site view 0.0 % (ext_7)")
+    # the flag wins over the view kind; without any flag the first aerial view stays the rule
+    _scene_cameras_edit(out, view="corner")
+    assert MX.site_view_black(MX.locate(out))[1] == "ext_7"
+    path = out / "scene" / "scene_manifest.json"
+    sc = json.loads(path.read_text(encoding="utf-8"))
+    for c in sc["cameras"]:
+        c.pop("site_view", None)
+        c["view"] = "aerial" if c["name"] in ("ext_1", "ext_7") else c.get("view")
+    path.write_text(json.dumps(sc), encoding="utf-8")
+    assert MX.site_view_black(MX.locate(out))[:3] == (50.0, "ext_1", "site view")
+
+
+RUN_P3 = ROOT / "runs" / "20261016-172855-full" / "results"
+
+
+@pytest.mark.skipif(not (RUN_P3 / "renders" / "real04" / "scene_manifest.json").is_file(),
+                    reason="no P3 results in runs/")
+def test_p5_metric_11_on_the_p3_real04_results_is_the_site_view_ext_7():
+    """P3 (runs/20261016-172855-full): ext_5 and ext_7 are aerial, ext_7 carries ``site_view``: 4.1 % in ext_7, not the
+    6.6 % of ext_5. Fails on HEAD adc3004."""
+    m11 = MX.metrics(RUN_P3 / "final" / "real04")["metrics"]["m11"]
+    assert (m11["parts"]["black_pct"], m11["parts"]["site_camera"], m11["parts"]["black_basis"]) == \
+        (4.1, "ext_7", "site view")
+
+
+def test_p5_recognition_rows_count_by_the_recognition_rule(tmp_path):
+    """Review of the fix round after P4b (P_report): ``_answered`` counted a call with JSON data and no error. Of four
+    questions, the first is answered; the second holds an earlier run's answer (another ``input_sha256``: a crop that
+    changed, its re-ask cut by the deadline); the third was answered by another model id under the same slug; the
+    fourth's answer sits under a renumbered key with its input hash (the Milestone 11 U8 group split, used by the
+    pipeline). The recognition rule (``answers status``) says 2 answered; a model with only stale answers is no model
+    of these images. Fails on HEAD adc3004 ("3 of 4 answered", and a row for the stale-only model)."""
+    from wenart.recognition import answers as A
+
+    cfg = _check_models()
+    folder = tmp_path / "out" / "recognition"
+    models = {key: {"id": cfg[key]["id"], "slug": cfg[key]["slug"], "pass": p} for key, p in (("qwen", 1), ("glm", 2))}
+    items = _questions(folder, models, {}, n=4)
+    calls = {items[0]["key"]: _call(items[0], model=cfg["qwen"]["id"]),
+             items[1]["key"]: _call(dict(items[1], input_sha256="f" * 64), model=cfg["qwen"]["id"]),
+             items[2]["key"]: _call(items[2], model="Qwen/Qwen3-VL-8B-other"),
+             "sym_L0_099": _call(items[3], model=cfg["qwen"]["id"])}
+    C.write_json(folder / f"answers_{cfg['qwen']['slug']}.json", {
+        "schema_version": "0.1", "kind": "recognition_answers", "model_key": "qwen", "model": cfg["qwen"]["id"],
+        "slug": cfg["qwen"]["slug"], "calls": calls})
+    stale = {it["key"]: _call(dict(it, input_sha256="e" * 64)) for it in items}
+    C.write_json(folder / f"answers_{cfg['glm']['slug']}.json", {
+        "schema_version": "0.1", "kind": "recognition_answers", "model_key": "glm", "model": cfg["glm"]["id"],
+        "slug": cfg["glm"]["slug"], "calls": stale})
+    rows = F.recognition_model_rows(tmp_path / "out")
+    assert [(r["repo"], r["answered"], r["questions"], r["source"]) for r in rows] == \
+        [(cfg["qwen"]["id"], 2, 4, "recognition/requests.json (2 of 4 answered)")]
+    status = A.status(folder, A.load_models())["models"]
+    assert (status["qwen"]["answered"], status["qwen"]["stale"], status["glm"]["answered"]) == (2, 2, 0)
+    # an item the recognition code cannot read (no input hash) is not answered and breaks nothing
+    assert F._answered(folder, models["qwen"], [{"key": items[0]["key"], "task": "symbol_type"}]) == 0
+    assert F._answered(tmp_path / "none", models["qwen"], items) == 0

@@ -283,6 +283,22 @@ lawn in ext_3 / ext_4 and re-lit rooms 0.01-0.04 stops over the cap. How:
   views into the sun are only listed.
 - ``lighting_dark`` under one exposure step over the cap is ``minor`` with ``metrics.below_exposure_step`` (the view
   renders at the cap; ``critic_code.lighting_items`` gives it no tool).
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b; still ``m13.3``: no pod has rendered it). What: two
+changes to the window pull. Why: the replay of P4a's and P4b's pull records showed panes that were fine taken under
+their walls, and the interior glazing's clipped panes left clipped and unmeasured. How:
+
+- ``choose_pull``'s second rule (an unclipped k slightly darker than the walls) applies only when the panes as rendered
+  need a pull (``pull_needed``: clipped, or off the pane target); ``window_pull`` passes the as-rendered pane median
+  and p90. P4a real02 cam_r_L1_teras_2_2 and P4b real03 yasama_3 / yasama_4_1 keep k 0; yasama_8_3,
+  ebeveyn_odasi_5_3 / 6_2, ruzgarlik_2 and real02 mutfak_1 (clipped as rendered) keep the new k. P3's real04 records
+  do not change.
+- The interior glazing is pulled when its panes clip (``interior_pull``, ``choose_interior_pull``: the smallest k
+  that unclips them with the panes at least ``PULL_WALL_RATIO_MIN`` of the walls, else the lowest clip at that
+  bound, else none); unclipped interior panes stay at the view's exposure. ``interior_glazing`` records the panes'
+  ``clip`` as written and the pull (``pull``). The window and interior pulls share their EV - k saves. P4b real03:
+  giris_holu_1 / 2 / 3_1 (only interior glazing, 8-13 % clipped) are pulled again; P3's real04 interior glazing
+  (win_L0_005 in yatak_odasi_4_1..3, clip 0.0) is not.
 """
 from __future__ import annotations
 
@@ -1106,6 +1122,20 @@ def pane_mask(index, albedo, window_indices, albedo_max: float = PANE_ALBEDO_MAX
     return win & (alb < albedo_max)
 
 
+def interior_pane_mask(channels: dict, products: dict, interior_windows):
+    """bool H x W: the glass pixels of the interior windows in view (``pane_mask`` of the window indices
+    ``interior_windows``, ``Context.interior_windows``); None without interior glazing in the scene or without the
+    index or the Diffuse Color pass (pass before P5, 17 Oct 2026: shared by ``RenderRun.interior_pull`` and
+    ``RenderRun.interior_glazing``)."""
+    interior = set(interior_windows or ())
+    if not interior or products.get("index") is None:
+        return None
+    albedo = find_rgb(channels, "Diffuse Color", "DiffCol")
+    if albedo is None:
+        return None
+    return pane_mask(products["index"], albedo, interior)
+
+
 def interior_window_ids(manifest: dict | None) -> set[str]:
     """The wenart ids of the interior glazing of a scene manifest (pure; fix round after P4b, 17 Oct 2026): the
     window entries whose ``room_ids`` (``cameras.opening_rooms``: the rooms whose outline carries the opening) name
@@ -1182,12 +1212,15 @@ def display_rb(rgb, mask) -> float | None:
 INTERIOR_GLAZING_WALL_MIN = 0.01   # wall pixels below this share of the frame: no wall R/B (the GPU wall checks' rule)
 
 
-def interior_glazing_record(image, pane, walls, window_ids=()) -> dict | None:
+def interior_glazing_record(image, pane, walls, window_ids=(), pull: dict | None = None) -> dict | None:
     """The ``interior_glazing`` record of a view (pure; fix round after P4b): the panes of the interior windows in
-    view (``pane``: their glass pixels, never pulled) against the camera room's walls (``walls``: ``views.regions``
-    walls), display R/B of each (``display_rb``) and their difference, for the GPU check of two white points in one
-    frame (P4b: a 2700 K hall seen at R/B 1.8-2.15 from daylight rooms whose walls read 1.26-1.29). None when no
-    interior pane is in view."""
+    view (``pane``: their glass pixels, left out of the window pull) against the camera room's walls (``walls``:
+    ``views.regions`` walls), display R/B of each (``display_rb``) and their difference, for the GPU check of two
+    white points in one frame (P4b: a 2700 K hall seen at R/B 1.8-2.15 from daylight rooms whose walls read
+    1.26-1.29). None when no interior pane is in view. Pass before P5 (17 Oct 2026): ``clip`` is the panes' clip share
+    of ``image`` as written (``clip_share``) and ``pull`` the interior pull's record (``RenderRun.interior_pull``,
+    ``choose_interior_pull``: only clipped interior panes are pulled), so clipped interior panes are measured and
+    pinned (P4b real03's giris_holu_1 / 2 / 3_1 look through a daylit room to the sunlit outside: 8-13 % clipped)."""
     import numpy as np
 
     p = np.asarray(pane, dtype=bool)
@@ -1196,11 +1229,13 @@ def interior_glazing_record(image, pane, walls, window_ids=()) -> dict | None:
     w = None if walls is None else np.asarray(walls, dtype=bool)
     pane_rb = display_rb(image, p)
     wall_rb = display_rb(image, w) if w is not None and w.sum() >= INTERIOR_GLAZING_WALL_MIN * w.size else None
+    pulled = bool(pull and pull.get("k"))
     return {"windows": sorted(str(i) for i in window_ids), "pane_px": int(np.count_nonzero(p)), "pane_rb": pane_rb,
             "wall_rb": wall_rb,
             "delta_rb": None if pane_rb is None or wall_rb is None else round(pane_rb - wall_rb, 3),
-            "rule": "interior glazing (a window between two indoor rooms): not pulled, the neighbouring room at the "
-                    "view's exposure"}
+            "clip": clip_share(image, p), "pull": pull,
+            "rule": "interior glazing (a window between two indoor rooms): pulled only to remove clipped panes, else "
+                    "the neighbouring room at the view's exposure" + (f" (pulled k {pull['k']})" if pulled else "")}
 
 
 def feather_weights(mask, px: int = PULL_FEATHER_PX):
@@ -1293,12 +1328,31 @@ def pull_near_walls(candidate: dict, wall_median: float | None, ratio: float = P
     return wall_median is not None and candidate["median"] >= float(ratio) * float(wall_median)
 
 
+def pull_needed(clip_before: float | None, pane_median: float | None = None, pane_p90: float | None = None,
+                max_clip: float = PULL_MAX_CLIP) -> bool:
+    """Whether the panes as rendered need a pull (pure; pass before P5, 17 Oct 2026): they clip (``clip_before`` over
+    ``max_clip``) or miss the pane target (``pull_reaches_target`` of the as-rendered ``pane_median`` and
+    ``pane_p90``; a p90 of None meets it, as for a candidate). True when ``clip_before`` is not given (a caller of the
+    rules before this pass), False for unclipped panes without a median (nothing says they miss the target).
+    Why: ``choose_pull``'s second rule took panes that were unclipped and on target a stop under their walls (P4a
+    real02 cam_r_L1_teras_2_2: 0.4787 against walls of 0.37, p90 0.65, to 0.3348 at k 1; P4b real03 yasama_3 and
+    yasama_4_1 the same way)."""
+    if clip_before is None or clip_before > max_clip:
+        return True
+    if pane_median is None:
+        return False
+    return not pull_reaches_target({"median": pane_median, "p90": pane_p90})
+
+
 def pull_search_done(candidate: dict, wall_median: float | None, max_clip: float = PULL_MAX_CLIP,
                      ratio: float = PULL_WALL_RATIO_MIN) -> bool:
     """Whether ``RenderRun.window_pull`` can stop trying deeper k after ``candidate`` (pure; fix round after P4b): it
     qualifies (``pull_qualifies``), or it is unclipped with the pane target and near the walls (``choose_pull``'s
     second rule, the smallest such k), or its panes are under ``ratio`` of the walls (a deeper k is darker still and
-    never chosen)."""
+    never chosen). Pass before P5 (17 Oct 2026): the stop at a second-rule k holds also when the panes as rendered
+    need no pull (``pull_needed`` False, the second rule off): such a k is not brighter than the walls (else it would
+    qualify), so no deeper k can be chosen either (rules 1, 3 and 5 want panes brighter than the walls, rule 4 clipped
+    panes as rendered)."""
     if pull_qualifies(candidate, wall_median, max_clip):
         return True
     if wall_median is None:
@@ -1310,7 +1364,8 @@ def pull_search_done(candidate: dict, wall_median: float | None, max_clip: float
 
 
 def choose_pull(candidates: list[dict], wall_median: float | None,
-                max_clip: float = PULL_MAX_CLIP, clip_before: float | None = None) -> tuple[int, str]:
+                max_clip: float = PULL_MAX_CLIP, clip_before: float | None = None,
+                pane_median: float | None = None, pane_p90: float | None = None) -> tuple[int, str]:
     """``(k, rule)`` from ``[{"k", "clip", "median", "p90"}]`` (the EV - k saves,
     ``clip``, ``median`` and ``p90`` over the pane mask), in this order:
 
@@ -1318,7 +1373,10 @@ def choose_pull(candidates: list[dict], wall_median: float | None,
     2. fix round after P4b (17 Oct 2026): the smallest unclipped k with the pane target whose panes are at least
        ``PULL_WALL_RATIO_MIN`` of the wall median ("panes slightly darker than the walls"; P4b's real03 bright greige
        walls left 10 views with clipped panes, yasama_8_3 13.9 % at k 1 although k 2 was clip-free at 96 % of the
-       walls);
+       walls). Pass before P5 (17 Oct 2026): only when the panes as rendered need a pull (``pull_needed`` of
+       ``clip_before``, ``pane_median`` and ``pane_p90``: clipped or off the pane target); panes that are unclipped and
+       on target as rendered are not taken under their walls (P4a real02 cam_r_L1_teras_2_2 and P4b real03 yasama_3 /
+       yasama_4_1 went to k 1 at 0.69-0.84 of their walls although k 0 was fine);
     3. the unclipped k that keeps the panes brighter than the walls, the lowest p90 first (the deepest);
     4. fix round after P4b: the smallest unclipped k near the walls without the pane target, only when the panes as
        rendered are clipped (``clip_before`` over ``max_clip``, or not given): it removes clipping, nothing else;
@@ -1332,7 +1390,8 @@ def choose_pull(candidates: list[dict], wall_median: float | None,
                                  if wall_median is not None else
                                  "smallest k with pane clip <= 1 % and the pane target (no wall in view)")
     ratio_text = f"{PULL_WALL_RATIO_MIN:g} x the wall median"
-    for c in cands:
+    needed = pull_needed(clip_before, pane_median, pane_p90, max_clip)
+    for c in cands if needed else ():
         if c["clip"] <= max_clip and pull_reaches_target(c) and pull_near_walls(c, wall_median):
             return int(c["k"]), (f"smallest k with pane clip <= 1 % and the pane target; panes slightly darker than "
                                  f"the walls (median >= {ratio_text})")
@@ -1352,6 +1411,54 @@ def choose_pull(candidates: list[dict], wall_median: float | None,
         return int(best["k"]), ("lowest pane clip and highlights that keep the panes brighter than the walls"
                                 if wall_median is not None else "lowest pane clip and highlights (no wall in view)")
     return 0, "no k keeps the panes brighter than the walls: no pull"
+
+
+def interior_pull_search_done(candidate: dict, wall_median: float | None, max_clip: float = PULL_MAX_CLIP,
+                              ratio: float = PULL_WALL_RATIO_MIN) -> bool:
+    """Whether ``RenderRun.interior_pull`` can stop trying deeper k after ``candidate`` (pure; pass before P5,
+    17 Oct 2026): its interior panes are unclipped (``choose_interior_pull`` takes the smallest such k), or they are
+    under ``ratio`` of the wall median (a deeper k is darker still and never chosen)."""
+    if candidate["clip"] is not None and candidate["clip"] <= max_clip:
+        return True
+    return wall_median is not None and candidate["median"] < float(ratio) * float(wall_median)
+
+
+def choose_interior_pull(candidates: list[dict], wall_median: float | None, clip_before: float | None,
+                         max_clip: float = PULL_MAX_CLIP, ratio: float = PULL_WALL_RATIO_MIN) -> tuple[int, str]:
+    """``(k, rule)`` of the pull of the interior glazing's panes (pure; pass before P5, 17 Oct 2026) from
+    ``[{"k", "clip", "median"}]`` (the EV - k saves over the interior pane mask). It removes clipping, nothing else:
+
+    1. panes unclipped as rendered (``clip_before`` at most ``max_clip``, or not measured): no pull (the verifier's
+       point of the fix round after P4b: the neighbouring room stays at the view's exposure, not a stop darker and
+       more saturated);
+    2. the smallest k whose interior panes are unclipped and at least ``ratio`` of the wall median (any k without a
+       wall in view);
+    3. with walls: the k with the lowest clip, at least ``ratio`` of the walls, when it is under ``clip_before``
+       (P4b's giris_holu_3_1: 13.2 % to 3.9 % at k 1, k 2 clip-free at 0.70 of the walls);
+    4. else no pull (a lamp seen through the glass that clips at any k must not take the neighbouring room many stops
+       down: P4b's yangin_merdiveni_2, 1.4 % clipped panes whose k 1 median was 0.02 against walls of 0.48).
+
+    Why: the fix round after P4b left the interior glazing out of the window pull, so a hall that looks through a
+    daylit room to the sunlit outside went back to clipped panes (P4b real03 giris_holu_1 12.7 %, giris_holu_2 8.4 %,
+    giris_holu_3_1 13.2 %, the interior panes of ebeveyn_odasi_5_3 / 6_2 at 0.34-0.37) with nothing recording it."""
+    if clip_before is None or clip_before <= max_clip:
+        return 0, "interior panes unclipped as rendered: no pull (the neighbouring room at the view's exposure)"
+    cands = sorted(candidates, key=lambda c: c["k"])
+    near = [c for c in cands if wall_median is None or c["median"] >= float(ratio) * float(wall_median)]
+    ratio_text = f"{float(ratio):g} x the wall median"
+    for c in near:
+        if c["clip"] is not None and c["clip"] <= max_clip:
+            return int(c["k"]), (f"smallest k with interior pane clip <= 1 % (panes >= {ratio_text}): removes the "
+                                 f"clipping only" if wall_median is not None else
+                                 "smallest k with interior pane clip <= 1 % (no wall in view): removes the clipping "
+                                 "only")
+    measured = [c for c in near if c["clip"] is not None]
+    if wall_median is not None and measured:
+        best = min(measured, key=lambda c: (c["clip"], c["k"]))
+        if best["clip"] < clip_before:
+            return int(best["k"]), (f"lowest interior pane clip with the panes >= {ratio_text} (no k reached 1 %)")
+    return 0, (f"no k lowers the interior pane clip with the panes >= {ratio_text}: no pull"
+               if wall_median is not None else "no k unclips the interior panes (no wall in view): no pull")
 
 
 def haze_sky(depth, index, normal, haze_indices):
@@ -3035,7 +3142,14 @@ class RenderRun:
         # fix round after P4b: the walls of the window pull and of the interior glazing, measured once (only for a view
         # with a window in it)
         walls = view_walls(products) if set(products["index_values"]) & set(ctx.windows) else None
-        pull, weights, final = self.window_pull(cam, look, result, main_img, channels, products, walls)
+        saves = {}                       # pass before P5: the EV - k saves, shared by the window and interior pulls
+        pull, weights, final = self.window_pull(cam, look, result, main_img, channels, products, walls, saves)
+        # pass before P5 (17 Oct 2026): the interior glazing's panes, pulled only when they clip (interior_pull)
+        ipull, iweights, ifinal = self.interior_pull(cam, look, result, final if final is not None else main_img,
+                                                     channels, products, walls, saves)
+        if ifinal is not None:
+            final = ifinal
+        saves.clear()
         sky = sky_weights = None
         if under_sky:
             # fix round after P3: the sky of a view under the exterior world (the panes and the sky never overlap:
@@ -3044,8 +3158,9 @@ class RenderRun:
                                                       channels)
             if sky_img is not None:
                 final = sky_img
-        # fix round after P4b: the interior glazing in view (never pulled) against the room's walls, as written
-        glazing = self.interior_glazing(final if final is not None else main_img, channels, products, walls)
+        # fix round after P4b: the interior glazing in view against the room's walls, as written (pass before P5: with
+        # its clip as written and the interior pull's record)
+        glazing = self.interior_glazing(final if final is not None else main_img, channels, products, walls, ipull)
         # fix round after P4b: an exterior view's lawn as written (the GPU pin of its saturation)
         lawn = self.lawn(cam, final if final is not None else main_img, channels)
         if final is not None:
@@ -3053,7 +3168,8 @@ class RenderRun:
             preview_bytes = encode_preview(scene, f["png"], f["preview"], quality)
         else:
             preview_bytes = save_preview(scene, result, f["preview"], quality)
-        pulls = [(int(p["k"]), w) for p, w in ((pull, weights), (sky, sky_weights)) if p and w is not None]
+        pulls = [(int(p["k"]), w) for p, w in ((pull, weights), (ipull, iweights), (sky, sky_weights))
+                 if p and w is not None]
         alt_bytes = self.alt_preview(cam, look, result, pulls, f["alt_preview"]) if ctx.args.alt_look else None
         write_png(f["index"], products["index"])
         write_png(f["depth_mm"], products["depth_mm"])
@@ -3099,21 +3215,27 @@ class RenderRun:
         self.write_manifest()   # after every camera: a killed run keeps what it rendered
         pull_text = "none" if pull is None else f"{pull['ev']:+g}EV clip {pull['clip_before']}->{pull['clip_after']}"
         sky_text = "none" if sky is None else f"k={sky['k']} sat {sky['saturation_before']}->{sky['saturation_after']}"
+        ipull_text = "none" if ipull is None else f"k={ipull['k']} clip {ipull['clip_before']}->{ipull['clip_after']}"
         print(f"RENDERED {cam.name} in {seconds:.1f}s ev={look['ev']:+.3f} wb={look['wb_temperature']} "
-              f"rig_share={look.get('wb_rig_share')} meter={look['meter_seconds']}s pull={pull_text} sky={sky_text} "
+              f"rig_share={look.get('wb_rig_share')} meter={look['meter_seconds']}s pull={pull_text} "
+              f"interior_pull={ipull_text} sky={sky_text} "
               f"world={world} depth={products['depth']} indices={products['index_values']}")
 
-    def window_pull(self, cam, look: dict, result, main, channels: dict, products: dict, walls=None):
+    def window_pull(self, cam, look: dict, result, main, channels: dict, products: dict, walls=None,
+                    saves: dict | None = None):
         """``(record, weights, final)`` of the window pull of one camera
         (module docstring): ``record`` None when no pane is in view (or the EXR
         has no Diffuse Color pass), ``final`` None when no k was chosen (the
         PNG stays as saved). Fix round after P4b (17 Oct 2026): the panes of the
-        interior glazing (``Context.interior_windows``) are not in the mask and
-        never pulled (``interior_pane_px`` counts them; ``interior_glazing``
-        records them), the k follows ``choose_pull``'s rules (an unclipped k
-        with the panes slightly darker than the walls before a clipped one) and
-        the search stops at ``pull_search_done``. ``walls`` = the view's wall
-        mask when the caller has it (``view_walls``)."""
+        interior glazing (``Context.interior_windows``) are not in the mask
+        (``interior_pane_px`` counts them; ``interior_pull`` pulls them only
+        when they clip, ``interior_glazing`` records them), the k follows
+        ``choose_pull``'s rules (an unclipped k with the panes slightly darker
+        than the walls before a clipped one) and the search stops at
+        ``pull_search_done``. ``walls`` = the view's wall mask when the caller
+        has it (``view_walls``). Pass before P5 (17 Oct 2026): ``choose_pull``
+        gets the as-rendered pane median and p90 (``pull_needed``), and the
+        EV - k saves go into ``saves`` (``{k: image}``) for ``interior_pull``."""
         import numpy as np
 
         albedo = find_rgb(channels, "Diffuse Color", "DiffCol")
@@ -3129,9 +3251,11 @@ class RenderRun:
             walls = view_walls(products)
         wall_median = masked_median(main, walls) if walls is not None and walls.any() else None
         tmp = self.out / f".pull_{cam.name}.png"
-        candidates, images = [], {}
+        candidates, images = [], {} if saves is None else saves
         for k in PULL_STEPS:
-            img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k, look=LOOK)
+            img = images.get(k)
+            if img is None:
+                img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k, look=LOOK)
             cand = {"k": k, "clip": clip_share(img, mask), "median": masked_median(img, mask),
                     "p90": masked_percentile(img, mask, 90.0)}
             candidates.append(cand)
@@ -3139,11 +3263,14 @@ class RenderRun:
             if pull_search_done(cand, wall_median):
                 break                    # the smallest k of its rule, or darker than the walls allow
         clip_before = clip_share(main, mask)
-        k, rule = choose_pull(candidates, wall_median, clip_before=clip_before)
+        pane_median, pane_p90 = masked_median(main, mask), masked_percentile(main, mask, 90.0)
+        # pass before P5: the as-rendered panes tell choose_pull whether they need a pull at all (pull_needed)
+        k, rule = choose_pull(candidates, wall_median, clip_before=clip_before, pane_median=pane_median,
+                              pane_p90=pane_p90)
         record = {"ev": -float(k) if k else 0.0, "k": k, "pane_ev": round(float(look["ev"]) - k, 6),
                   "clip_before": clip_before, "clip_after": clip_before, "pane_px": int(np.count_nonzero(mask)),
-                  "pane_median": round(masked_median(main, mask), 4),
-                  "pane_p90": round(masked_percentile(main, mask, 90.0), 4),
+                  "pane_median": round(pane_median, 4),
+                  "pane_p90": round(pane_p90, 4),
                   # fix round after P4a: the panes' median saturation (P4a's grey cards 0.00-0.07, M11's sky 0.13-0.25)
                   "pane_saturation": round(masked_saturation(main, mask), 4),
                   "wall_median": None if wall_median is None else round(wall_median, 4), "rule": rule,
@@ -3179,27 +3306,72 @@ class RenderRun:
         index = find_channel(channels, "Object Index.X", "IndexOB.X")
         return lawn_record(image, lawn_mask(albedo, normal, depth, index, self.ctx.haze))
 
-    def interior_glazing(self, image, channels: dict, products: dict, walls=None) -> dict | None:
-        """The ``interior_glazing`` record of a view (fix round after P4b, ``interior_glazing_record``): the glass
-        pixels of the interior windows in view (window index of ``Context.interior_windows`` and a dark Diffuse
-        Color, as the pane mask) against the camera room's walls, measured on the image as written. None without
-        interior glazing in view or without a Diffuse Color pass."""
+    def interior_pull(self, cam, look: dict, result, main, channels: dict, products: dict, walls=None,
+                      saves: dict | None = None):
+        """``(record, weights, final)`` of the pull of the interior glazing's panes (pass before P5, 17 Oct 2026;
+        ``choose_interior_pull``): ``record`` None without interior panes in view, ``final`` None when no k is chosen.
+        Only clipped interior panes are pulled (``clip_before`` over ``PULL_MAX_CLIP``), by the smallest k that
+        unclips them while they stay at least ``PULL_WALL_RATIO_MIN`` of the wall median; unclipped ones keep the
+        neighbouring room at the view's exposure (the fix round after P4b). ``main`` is the image after the window
+        pull (its mask never touches the interior panes); ``saves`` = ``{k: EV - k save}`` shared with
+        ``window_pull``, so a k it saved is not saved again. Why: P4b real03's giris_holu_1 / 2 / 3_1 see only an
+        interior window that looks through a daylit room to the sunlit outside (8-13 % clipped panes)."""
         import numpy as np
 
-        interior = set(getattr(self.ctx, "interior_windows", None) or ())
-        if not interior or products.get("index") is None:
-            return None
-        albedo = find_rgb(channels, "Diffuse Color", "DiffCol")
-        if albedo is None:
-            return None
-        pane = pane_mask(products["index"], albedo, interior)
-        if not pane.any():
+        mask = interior_pane_mask(channels, products, getattr(self.ctx, "interior_windows", None))
+        if mask is None or not mask.any():
+            return None, None, None
+        t0 = time.time()
+        if walls is None:
+            walls = view_walls(products)
+        wall_median = masked_median(main, walls) if walls is not None and walls.any() else None
+        clip_before = clip_share(main, mask)
+        images = {} if saves is None else saves
+        candidates = []
+        if clip_before is not None and clip_before > PULL_MAX_CLIP:
+            tmp = self.out / f".ipull_{cam.name}.png"
+            for k in PULL_STEPS:
+                img = images.get(k)
+                if img is None:
+                    img = save_display(self.ctx.scene, result, tmp, float(look["ev"]) - k, look=LOOK)
+                    images[k] = img
+                cand = {"k": k, "clip": clip_share(img, mask), "median": masked_median(img, mask)}
+                candidates.append(cand)
+                if interior_pull_search_done(cand, wall_median):
+                    break                # unclipped, or darker than the walls allow
+        k, rule = choose_interior_pull(candidates, wall_median, clip_before)
+        record = {"ev": -float(k) if k else 0.0, "k": k, "pane_ev": round(float(look["ev"]) - k, 6),
+                  "clip_before": clip_before, "clip_after": clip_before, "pane_px": int(np.count_nonzero(mask)),
+                  "pane_median": round(masked_median(main, mask), 4),
+                  "wall_median": None if wall_median is None else round(wall_median, 4), "rule": rule,
+                  "targets": {"max_clip": PULL_MAX_CLIP, "wall_ratio_min": PULL_WALL_RATIO_MIN},
+                  "tried": [{"k": c["k"], "clip": c["clip"], "median": round(c["median"], 4)} for c in candidates]}
+        if k == 0:
+            record["seconds"] = round(time.time() - t0, 3)
+            return record, None, None
+        weights = feather_weights(mask)
+        final = blend_pull(main, images[k], weights)
+        record["clip_after"] = clip_share(final, mask)
+        record["pane_median_after"] = round(masked_median(final, mask), 4)
+        record["seconds"] = round(time.time() - t0, 3)
+        return record, weights, final
+
+    def interior_glazing(self, image, channels: dict, products: dict, walls=None, pull: dict | None = None) \
+            -> dict | None:
+        """The ``interior_glazing`` record of a view (fix round after P4b, ``interior_glazing_record``): the glass
+        pixels of the interior windows in view (``interior_pane_mask``) against the camera room's walls, measured on
+        the image as written. None without interior glazing in view or without a Diffuse Color pass. Pass before P5
+        (17 Oct 2026): the record adds the panes' ``clip`` as written and ``pull``, the ``interior_pull`` record."""
+        import numpy as np
+
+        pane = interior_pane_mask(channels, products, getattr(self.ctx, "interior_windows", None))
+        if pane is None or not pane.any():
             return None
         if walls is None:
             walls = view_walls(products)
         by_index = {int(v): k for k, v in (getattr(self.ctx, "pass_index", None) or {}).items()}
         seen = {int(v) for v in np.unique(np.asarray(products["index"])[pane])}
-        return interior_glazing_record(image, pane, walls, [by_index.get(i, str(i)) for i in sorted(seen)])
+        return interior_glazing_record(image, pane, walls, [by_index.get(i, str(i)) for i in sorted(seen)], pull)
 
     def sky_pull(self, cam, look: dict, result, main, channels: dict):
         """``(record, weights, final)`` of the sky pull of a view under the exterior sky (fix round after P3, module
@@ -3457,8 +3629,8 @@ def main(argv: list[str]) -> int:
         print(f"WHITE_BALANCE project: {record['source']} whitepoint={record['whitepoint']}")
     ctx = Context(scene, args, device, denoiser, (width, height), look, set(by_name), deadline, hider.manifest)
     if ctx.interior_windows:
-        print(f"INTERIOR_GLAZING {len(ctx.interior_windows)} window pass indices between two rooms: no window pull "
-              f"on them (recorded as interior_glazing)")
+        print(f"INTERIOR_GLAZING {len(ctx.interior_windows)} window pass indices between two rooms: left out of the "
+              f"window pull, pulled only where their panes clip (interior_pull; recorded as interior_glazing)")
     print(f"LIGHT_VARIANT render={levers['variant'] or 'none'} build={scene.get('wenart_light_variant') or 'none'} "
           f"ev_limits={list(look.limits)} view_limits={list(look.view_limits())} sun_wm2={look.sun_wm2}")
     if mood is None:

@@ -16,6 +16,12 @@ What:
 6. ``scheduler``: the late question pass of an orchestrated run starts the GLM session the late questions need and
    runs pipeline_final and fit again before the layout (real02 shape; real03's seed-only case is in
    ``tests/test_run_scheduler.py``).
+7. Pass before P5 (17 Oct 2026), ``reading.tie_break``: mirrored twins with disputed answers get the type both
+   twins' passes named (real04's f_L1_033 / f_L1_035 sideboard, f_L1_034 / f_L1_036 bookshelf), and the code typing
+   runs again after the tie-break (the twin rule types the twin of a decided piece before the review list).
+8. Pass before P5, ``scheduler``: a late pass with no other Qwen need still lays out on a server (both chains; the M10
+   chain starts no late GLM session); only the questions pipeline_final adds are late (a failed GLM server or a
+   recognition exit 2 opens no pass on the first round), and a server that failed in this run is not started again.
 Why: P4b real03: six drawn vanities (read as showers) lost their type between the two ingest passes, their questions
 were never asked and the agent marked them as not furniture (6 of 8 bathrooms without a washbasin); 24 typed drawn
 pieces kept ``type_method: none``; the bedroom oda_01's 1.5 x 0.6 m piece (dresser / wardrobe) stayed an unbuilt box.
@@ -266,6 +272,97 @@ def test_a_disagreement_never_guesses_fixed_equipment_the_room_does_not_miss():
     assert RD.tie_break(build3, {}) == []
 
 
+def _twin_flats(furniture: list, room_type: str = "other", label: str = "OYUN AKTİVİTE VE DİNLENME ODASI") -> dict:
+    """Two 4 x 4 m rooms side by side, the second the mirror of the first about x = 4.5 (real04's two play and rest
+    rooms, ``r_L1_oyun_aktivite_ve_dinlenme_odasi`` and its ``_2``: type other, kind living by the label, so the size
+    inference allows a bench and the tie-break does not)."""
+    b = M.building(w=4.0, h=4.0, room_type=room_type, window=None, furniture=furniture)
+    b["rooms"][0].update(label=label, label_raw=label)
+    second = copy.deepcopy(b["rooms"][0])
+    second.update(id="r_L0_oda_2", polygon=[[5.0, 0.0], [9.0, 0.0], [9.0, 4.0], [5.0, 4.0]],
+                  twin_of=b["rooms"][0]["id"], twin_transform=[-1.0, 0.0, 9.0, 0.0, 1.0, 0.0])
+    b["rooms"].append(second)
+    return b
+
+
+def _disputed_at(pid, center, size, room, *pair, rotation=0.0):
+    f = M.fp(pid, "unknown", center, size, rotation=rotation, front=None, status="unverified", type_method="none",
+             type_candidates=_answers(*pair))
+    f["room_id"] = room
+    return f
+
+
+def test_mirrored_twins_with_disputed_answers_get_one_type_and_the_twin_rule_runs_after_the_tie_break():
+    """Pass before P5, real04 (P3's building): the tie-break typed f_L1_035 (2.17 x 0.40 m, sideboard / tv_unit)
+    sideboard and left its mirror twin f_L1_033 (sideboard / bench; no bench in that room) an unbuilt unknown; it
+    typed f_L1_034 (1.09 x 0.40 m, bookshelf / tv_unit) bookshelf and its twin f_L1_036 (bookshelf / console_table)
+    console_table. Now the twins get the type both twins' passes named, built and inferred. A disputed piece whose twin
+    is already typed gets the twin's type (the code pass after the tie-break), and so does a piece whose question was
+    not answered in this round (a late one: its question is withdrawn, as the pipeline's inference withdrew it after
+    the reading before). Fails on HEAD adc3004 (f_L1_033 untyped, f_L1_036 console_table, no code pass)."""
+    a2, rest = "r_L0_oda_2", M.ROOM_ID
+    side_b = _disputed_at("f033", (7.0, 3.78), (2.17, 0.40), a2, ("qwen", "sideboard", 0.95), ("glm", "bench", 0.8))
+    side_a = _disputed_at("f035", (2.0, 3.78), (2.17, 0.40), rest, ("qwen", "sideboard", 0.95),
+                          ("glm", "tv_unit", 0.9))
+    shelf_b = _disputed_at("f036", (8.78, 2.0), (1.09, 0.40), a2, ("qwen", "bookshelf", 0.95),
+                           ("glm", "console_table", 0.9), rotation=90.0)
+    shelf_a = _disputed_at("f034", (0.22, 2.0), (1.09, 0.40), rest, ("qwen", "bookshelf", 0.95),
+                           ("glm", "tv_unit", 0.9), rotation=90.0)
+    # A pair whose first twin the AI typed (both passes console_table) and whose second the passes dispute.
+    typed = M.fp("f040", "console_table", (2.6, 0.22), (1.09, 0.40), front=90.0, status="verified",
+                 type_method="ai_two_pass")
+    disputed = _disputed_at("f041", (6.4, 0.22), (1.09, 0.40), a2, ("qwen", "bookshelf", 0.95),
+                            ("glm", "tv_unit", 0.9))
+    # A piece whose question has no answers in this round (late), at the mirrored spot of a piece the tie-break types.
+    waits = M.fp("f050", "unknown", (5.22, 1.6), (1.09, 0.40), rotation=90.0, front=None, status="unverified",
+                 type_method="none")
+    waits["room_id"] = a2
+    shelf_c = _disputed_at("f051", (3.78, 1.6), (1.09, 0.40), rest, ("qwen", "bookshelf", 0.95),
+                           ("glm", "console_table", 0.9), rotation=90.0)
+    pieces = [side_b, side_a, shelf_b, shelf_a, typed, disputed, waits, shelf_c]       # real04's order: f033 first
+    build = PL.ProjectBuild(_twin_flats(pieces))
+    for f in pieces:
+        if f.get("type_candidates"):
+            build.conflict("symbol_type_disagreement", [f["id"]], f"{f['id']}: the passes disagree",
+                           "unresolved: the drawn footprint is kept as unknown, unverified")
+    keys = {f["id"]: f"sym_L0_{n:03d}" for n, f in enumerate(pieces, start=1)}
+    works = _page(build, keys, {"questions": _questions(keys.values()), "pending": [keys["f050"]],
+                                "answers_applied": 1})
+    RD.read_furniture(build, works)
+    got = {f["id"]: (f["type"], f.get("type_method"), f.get("build") is not False) for f in build.building["furniture"]}
+    assert got["f033"] == got["f035"] == ("sideboard", RD.INFER_METHOD, True)
+    assert got["f034"] == got["f036"] == ("bookshelf", RD.INFER_METHOD, True)
+    for pid, twin in (("f033", "f035"), ("f035", "f033"), ("f036", "f034"), ("f034", "f036")):
+        f = _piece(build.building, pid)
+        assert f["inferred"] is True and f"its twin {twin}" in f["inferred_reason"] and \
+            "the twins get one type" in f["inferred_reason"]
+    (c,) = [c for c in build.raw_conflicts if c["element_ids"] == ["f033"]]
+    assert c["resolution"].startswith("typed sideboard by code (not bench)")
+    # The typed twin decides (the twin rule, after the tie-break), and the twin of a decided piece gets its type.
+    assert got["f041"] == ("console_table", "twin", True)
+    assert got["f051"] == ("console_table", RD.INFER_METHOD, True) and got["f050"] == ("console_table", "twin", True)
+    assert {k: build.reading["typed_by"][k] for k in ("f041", "f050")} == {"f041": "twin", "f050": "twin"}
+    assert sorted(build.reading["tie_break"]) == ["f033", "f034", "f035", "f036", "f051"]
+    # Only the late question is withdrawn; the answered one of f041 stays listed.
+    assert build.reading["questions_withdrawn"] == [keys["f050"]] and build.code_typed == {keys["f050"]: "f050"}
+    report = works["page"].extraction.report
+    assert report["pending"] == [] and report[RD.CODE_TYPED_KEY] == [keys["f050"]]
+    assert build.building["needs_review"] == []
+    assert all(_piece(build.building, pid).get("front_deg") is not None for pid in ("f041", "f050"))
+    # tie_break alone: a disputed piece whose twin is typed is left to the twin rule (``deferred``), never decided.
+    pair = [M.fp("f040", "console_table", (2.6, 0.22), (1.09, 0.40), front=90.0, status="verified",
+                 type_method="ai_two_pass"),
+            _disputed_at("f041", (6.4, 0.22), (1.09, 0.40), a2, ("qwen", "bookshelf", 0.95), ("glm", "tv_unit", 0.9))]
+    later: set = set()
+    assert RD.tie_break(PL.ProjectBuild(_twin_flats(pair)), {}, (), later) == [] and later == {"f041"}
+    # Twins whose passes both name one type that fits besides one that does not stay for review (as a single piece):
+    # real04's f_L0_021 / f_L0_024 (desk / sofa in two bedrooms).
+    lone = [_disputed_at("d1", (2.0, 2.0), (1.45, 0.91), rest, ("qwen", "desk", 0.9), ("glm", "sofa", 0.8)),
+            _disputed_at("d2", (7.0, 2.0), (1.45, 0.91), a2, ("qwen", "desk", 0.9), ("glm", "sofa", 0.8))]
+    build2 = PL.ProjectBuild(_twin_flats(lone, room_type="bedroom", label="YATAK ODASI"))
+    assert RD.tie_break(build2, {}) == [] and {f["type"] for f in build2.building["furniture"]} == {"unknown"}
+
+
 # --------------------------------------------------------------------------
 # 5. An axis line through an unnamed piece
 # --------------------------------------------------------------------------
@@ -386,3 +483,111 @@ def test_no_time_for_the_late_glm_session_is_a_warning_never_incomplete(tmp_path
     rec = r.record("p1", "recognize")
     assert rec["status"] == "warning" and "1 late recognition question(s) left unanswered" in rec["note"]
     assert r.manifest()["projects"][0]["state"] == "ok" and "layout" in r.cli.names("p1")
+
+
+# --------------------------------------------------------------------------
+# 7. Pass before P5 (17 Oct 2026): the late pass with no other Qwen need, after a failed server
+# --------------------------------------------------------------------------
+
+def _late_for_qwen_only(tmp_path) -> None:
+    """A repo whose committed seeds answer the first round for both models and the late key for Qwen only; the brief
+    asks for rule decor (no decor question): phase 3 has no other Qwen need."""
+    TRS.make_repo(tmp_path, {"p1": {"brief": {"decor": "rules"}}})
+    seeds = TRS._seed_answers(tmp_path / "repo", "p1", TRS._first_items("p1", 2))
+    qwen = seeds / f"answers_{TRS.MODELS['qwen']['slug']}.json"
+    data = json.loads(qwen.read_text())
+    late = TRS.late_item("p1", 1)
+    data["calls"][late["key"]] = {"task": late["task"], "input_sha256": late["input_sha256"],
+                                  "model": TRS.MODELS["qwen"]["id"], "data": TRS.RECOGNITION_ANSWERS[late["task"]],
+                                  "error": None}
+    qwen.write_text(json.dumps(data))
+
+
+@pytest.mark.parametrize("chain", ["m10", "orchestrated"])
+def test_a_late_pass_with_no_other_qwen_need_still_lays_out_on_a_server(tmp_path, agent_models, chain):
+    """Review of the fix round after P4b: phase 3 put off the layout of a project whose late pass was open and, with no
+    other Qwen need, took its no-server branch: the late GLM session ran there, pipeline_final and fit ran again, and
+    the layout failed without a server ('server agent not available' / 'server qwen not available'; project failed,
+    exit 1; both chains). Now the orchestrated run asks GLM in its late session and lays out on the agent session; the
+    M10 chain ends the pass before its Qwen session (no late GLM session) and lays out there. Fails on HEAD adc3004."""
+    _late_for_qwen_only(tmp_path)
+    buildings = {"p1": {"questions": 2, "brief": {"decor": "rules"}}}
+    if chain == "orchestrated":
+        r = TRA.orchestrated(tmp_path, [TRA.FINISH], [[]], buildings=buildings)
+        r.cli.flags = {"late_questions": {"p1": 1}}
+        assert r.run(**r.kwargs) == 0
+        assert r.servers.starts == ["glm", "agent"]
+        assert len(r.cli.find("pipeline_final", "p1")) == 2
+        assert r.record("p1", "pipeline_final")["note"].endswith(SC.LATE_NOTE.format(n=1))
+        assert [s["name"] for s in r.record("p1", "recognize")["steps"]][-2:] == ["stored answers qwen (late)",
+                                                                                 "ask glm (late)"]
+    else:
+        r = TRS.Run(tmp_path, buildings=buildings, projects=["p1"], flags={"late_questions": {"p1": 1}})
+        assert r.run() == 0
+        assert r.servers.starts == ["qwen", "qwen", "glm"]          # the layout session, then the two checks
+        assert len(r.cli.find("pipeline_final", "p1")) == 1
+        rec = r.record("p1", "recognize")
+        assert rec["status"] == "warning" and f"({SC.M10_LATE_NOTE})" in rec["note"]
+        layout = r.cli.find("layout", "p1")
+        assert len(layout) == 1 and TRS.opt(layout[0]["cmd"], "--server") == "http://fake-qwen/v1"
+    assert r.record("p1", "layout")["status"] == "ok" and r.manifest()["projects"][0]["state"] == "ok"
+
+
+def test_a_failed_glm_server_opens_no_late_pass_on_the_first_round_questions(tmp_path, agent_models):
+    """Review of the fix round after P4b: after a phase-2 GLM failure pipeline_final ran --no-ai and the late pass
+    opened on every first-round question ('2 late recognition question(s)') and started the failed GLM server again
+    (on a pod: up to 25 min more before the same failure). Now only the questions pipeline_final adds are late, and a
+    server that failed in this run is not started again: no second GLM start, with or without late questions. Fails on
+    HEAD adc3004 (server starts glm, qwen, glm, agent)."""
+    r = TRA.orchestrated(tmp_path, [TRA.FINISH], [[]], buildings={"p1": {"questions": 2}}, fail={"glm": "early_exit"})
+    assert r.run(**r.kwargs) == 0
+    assert r.servers.starts == ["glm", "qwen", "agent"]
+    assert not [line for line in r.lines if "late recognition question" in line]
+    assert [s["name"] for s in r.record("p1", "recognize")["steps"]] == ["ask qwen"]
+    assert len(r.cli.find("pipeline_final", "p1")) == 1 and r.record("p1", "layout")["status"] == "ok"
+    # With a real late question: the pass opens on it alone and ends without a GLM start (and no Qwen ask for it).
+    tmp2 = tmp_path / "late"
+    tmp2.mkdir()
+    r2 = TRA.orchestrated(tmp2, [TRA.FINISH], [[]], buildings={"p1": {"questions": 2}}, fail={"glm": "early_exit"})
+    r2.cli.flags = {"late_questions": {"p1": 1}}
+    assert r2.run(**r2.kwargs) == 0
+    assert r2.servers.starts == ["glm", "qwen", "agent"]
+    assert "p1: 1 late recognition question(s): a second short recognition pass" in r2.lines
+    rec = r2.record("p1", "recognize")
+    assert rec["status"] == "warning" and SC.LATE_FAILED_NOTE.format(key="glm", reason="early_exit") in rec["note"]
+    assert [s["name"] for s in rec["steps"]] == ["ask qwen"]
+    assert r2.manifest()["projects"][0]["state"] == "ok"
+    # Qwen's first round in the committed seeds: nothing else needs a Qwen session, and the late pass that GLM can no
+    # longer complete starts none either.
+    tmp3 = tmp_path / "qwen-seeded"
+    TRS.make_repo(tmp3, {"p1": {}})
+    seeds = TRS._seed_answers(tmp3 / "repo", "p1", TRS._first_items("p1", 2))
+    (seeds / f"answers_{TRS.MODELS['glm']['slug']}.json").unlink()
+    r3 = TRA.orchestrated(tmp3, [TRA.FINISH], [[]], buildings={"p1": {"questions": 2}}, fail={"glm": "early_exit"})
+    r3.cli.flags = {"late_questions": {"p1": 1}}
+    assert r3.run(**r3.kwargs) == 0
+    assert r3.servers.starts == ["glm", "agent"]
+    assert SC.LATE_FAILED_NOTE.format(key="glm", reason="early_exit") in r3.record("p1", "recognize")["note"]
+
+
+def test_a_recognition_exit_2_or_a_failed_qwen_server_is_not_asked_again_as_late(tmp_path, agent_models):
+    """The same for a GLM recognition that answers nothing (exit 2, the server up): its first-round questions are no
+    late ones (one GLM start); and a Qwen server that fails in phase 3 is not started again for a late question that
+    needs it. Both fail on HEAD adc3004 (a second GLM start, a second Qwen start)."""
+    r = TRA.orchestrated(tmp_path, [TRA.FINISH], [[]], buildings={"p1": {"questions": 2}})
+    r.cli.flags = {"recog_fail": {("p1", "glm")}}
+    assert r.run(**r.kwargs) == 0
+    assert r.servers.starts == ["glm", "qwen", "agent"]
+    assert [s["name"] for s in r.record("p1", "recognize")["steps"]] == ["ask glm", "ask qwen"]
+    # Qwen fails in phase 3: the project finalized before that session (first round in the seeds) keeps its late
+    # question unanswered, and no second Qwen session starts for it.
+    tmp2 = tmp_path / "qwen"
+    TRS.make_repo(tmp2, {"p1": {}})
+    TRS._seed_answers(tmp2 / "repo", "p1", TRS._first_items("p1", 2))
+    r2 = TRA.orchestrated(tmp2, [TRA.FINISH], [[]], buildings={"p1": {"questions": 2}}, fail={"qwen": "early_exit"})
+    r2.cli.flags = {"late_questions": {"p1": 1}}
+    r2.run(**r2.kwargs)
+    assert r2.servers.starts.count("qwen") == 1 and "glm" not in r2.servers.starts
+    rec = r2.record("p1", "recognize")
+    assert rec["status"] == "warning" and "1 late recognition question(s) left unanswered" in rec["note"]
+    assert SC.LATE_FAILED_NOTE.format(key="qwen", reason="early_exit") in rec["note"]

@@ -143,6 +143,14 @@ Fix round after P4b (17 Oct 2026, the library lens of the P4b analysis):
   planned camera: ext_6.001"; P3 real04 unchanged (6 of 7, black 6.6 % in ext_5). The committed baselines are
   unchanged (real02 M11 6 of 6, black 0.0 % in ext_5; real04 M12 black 29.8 % in ext_7, now marked as the darkest
   exterior).
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b). What: metric 11 measures the exterior camera the
+build flagged ``site_view`` (``exterior.py``'s ``copies.site_view`` camera, kept on replay) first, then the aerial /
+site views in camera order (``site_view_black``). Why: real04 plans two aerial cameras, ext_5 (no flag) and ext_7 (the
+site view); the first-aerial rule measured ext_5, and P3 reported "black pixels in the site view 6.6 % (ext_5)" while
+its site view ext_7 has 4.1 %; the M12 baseline's 29.8 % is ext_7 too. No camera has ``view`` "site", so the flag is
+the only mark of the site view. How: on the job results (runs/, not committed): P3 real04 now 4.1 % in ext_7; P4a
+real02 (ext_5, no flag) 0.0 % and P4b real03 (no site view) unchanged; the committed baselines unchanged.
 """
 from __future__ import annotations
 
@@ -947,8 +955,9 @@ def _dropped_records(run: Run) -> list[dict]:
 def site_view_black(run: Run) -> tuple[Any, Optional[str], Optional[str], Optional[str]]:
     """Fix round after P4b (module docstring): ``(black %, camera, basis, reason)`` of metric 11's site view.
 
-    - basis ``site view``: the first exterior camera whose ``view`` is aerial or site (the scene manifest's cameras,
-      else the final manifest's ``exterior_view``) is measured;
+    - basis ``site view``: the exterior camera the build flagged ``site_view`` (pass before P5: the copies'
+      site-view camera, real04's ext_7), else the first one whose ``view`` is aerial or site (the scene manifest's
+      cameras, else the final manifest's ``exterior_view``), is measured;
     - basis ``none``: the run records the view of its exterior cameras (or of a dropped one) and none is a site view:
       no data, and ``reason`` names the dropped aerial / site cameras with their ``dropped_reason`` (real03: "ext_5
       (aerial) dropped: flat_cut roof ..."), else "no aerial or site camera planned";
@@ -957,7 +966,9 @@ def site_view_black(run: Run) -> tuple[Any, Optional[str], Optional[str], Option
     cams = _scene_cameras(run)
     views = _views(run)
     ext = {n: c for n, c in cams.items() if c.get("kind") == "exterior"}
-    site_cams = [n for n, c in ext.items() if c.get("view") in SITE_VIEWS]
+    # pass before P5: the camera flagged as the site view first, then the aerial / site views in camera order
+    site_cams = [n for n, c in ext.items() if c.get("site_view")]
+    site_cams += [n for n, c in ext.items() if c.get("view") in SITE_VIEWS and n not in site_cams]
     site_cams += [v["camera"] for v in views if v.get("exterior_view") in SITE_VIEWS and v["camera"] not in site_cams]
     if site_cams:
         return _black_share(_preview(run, site_cams[0])), site_cams[0], "site view", None

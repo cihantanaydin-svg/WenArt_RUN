@@ -1918,3 +1918,83 @@ def test_p4b_fire_stair_meets_its_walls_and_its_structure_is_smooth_paint():
     walls_style = {"material": "paint", "asset": "plastered_wall", "colour": "warm greige", "tint": [1.0, 0.9, 0.8]}
     assert SH.stair_structure_slot(walls_style) == {"material": "paint", "colour": "warm greige"}
     assert "stair_structure_slot(walls_style)" in inspect.getsource(SH.build_stairs)
+
+
+# --------------------------------------------------------------------------
+# Pass before P5 (17 Oct 2026; the review of the fix round after P4b): the stair structure of "white walls" styles
+# --------------------------------------------------------------------------
+
+class _Mat(dict):
+    """A Blender material stand-in: the name and what ``materials.pbr_material`` was given."""
+
+    def __init__(self, name, slug, tset, tint, base_rgb):
+        super().__init__()
+        self.name, self.slug, self.tset, self.tint, self.base_rgb = name, slug, tset, tint, base_rgb
+
+
+def _bpy_free_library(monkeypatch, tmp_path, shell: bool = True):
+    """A ``MaterialLibrary`` whose manifest holds every vocabulary set as a usable CC0 set (files on disk), with
+    ``pbr_material`` and ``apply_shell_layers`` replaced by recorders: ``MaterialLibrary.get``'s choice of the texture
+    set, the shell slot and the colour run as on the pod."""
+    from wenart.blender import materials as M
+
+    monkeypatch.setattr(M, "pbr_material", lambda name, slug, tset, tint=None, unverified=False, procedural=None,
+                        base_rgb=None, params=None: _Mat(name, slug, tset, tint, base_rgb))
+    monkeypatch.setattr(M, "apply_shell_layers", lambda mat, spec, textured, procedural: sorted(spec["layers"]))
+    textures = {}
+    for entry in M.ENTRIES.values():
+        aid = entry.get("asset")
+        if aid and entry.get("source") in M.CC0_SOURCES and aid not in textures:
+            files = {}
+            for key in ("albedo", "normal", "roughness"):
+                path = tmp_path / f"{aid}_{key}.png"
+                path.write_bytes(b"png")
+                files[key] = str(path)
+            textures[aid] = {"source": entry["source"], "licence": "CC0", "files": files, "size_m": [1.0, 1.0]}
+    return M, M.MaterialLibrary(textures, None, levers={"shell": shell})
+
+
+def test_p5_stair_structure_of_white_plaster_walls_gets_no_texture_set_back(monkeypatch, tmp_path):
+    """Review of the fix round after P4b (S_site): every "white walls" style (synthetic-01/02/05/06/07, real01, the
+    profile fallback) has walls ``plaster_white`` + white_plaster_02. ``stair_structure_slot`` dropped the asset, and
+    ``MaterialLibrary.get`` with the shell lever on maps a bare ``plaster_white`` to the ceiling slot and puts
+    white_plaster_02 back: the stringer kept the wall's plaster photo and normal map, as the material
+    ``plaster_white__white_plaster_02__ceiling``. Fails on HEAD adc3004 (the structure is that textured ceiling
+    material). Now it is ``paint`` with the walls' colour (the slug's flat colour as a tint) and the paint's plaster
+    layers, no set; real04's walls (P3: ``paint`` + plastered_wall in warm greige) keep ``paint`` in warm greige."""
+    from wenart.blender import shell as SH
+
+    M, lib = _bpy_free_library(monkeypatch, tmp_path)
+    white = json.loads((ROOT / "results" / "renders" / "synthetic-01" / "style.json").read_text(encoding="utf-8"))
+    walls = white["walls"]
+    assert walls == {"material": "plaster_white", "asset": "white_plaster_02", "colour": None}
+    wall = SH.slot_material(lib, walls)
+    ceiling = SH.slot_material(lib, {"material": "plaster_white", "colour": None})
+    assert lib.records[wall.name]["textured"] and lib.records[ceiling.name]["shell_slot"] == "ceiling"
+    assert lib.records[ceiling.name]["textured"]                    # the stand-in the structure must not get
+    slot = SH.stair_structure_slot(walls)
+    assert slot == {"material": "paint", "tint": [0.8656, 0.92, 1.0114]}
+    structure = SH.slot_material(lib, slot)
+    rec = lib.records[structure.name]
+    assert (rec["textured"], rec["asset"], rec["maps"], structure.tset) == (False, None, [], None)
+    assert structure.name not in (wall.name, ceiling.name)
+    assert rec["shell_slot"] == "plaster" and rec["shell_layers"] == ["ao", "bevel", "imperfection"]
+    colour = M._tinted(M.flat_colour(structure.slug), structure.tint)
+    assert colour == pytest.approx(M.flat_colour("plaster_white"), abs=1e-4)    # the walls' colour, no photo
+    # a colour phrase that colours the walls is the paint's colour
+    sage = SH.slot_material(lib, SH.stair_structure_slot(dict(walls, colour="sage")))
+    assert not lib.records[sage.name]["textured"] and sage.base_rgb == M.colour_linear("sage") and sage.tint is None
+    # real04 (P3's style when the run folder is here): unchanged
+    p3 = ROOT / "runs" / "20261016-172855-full" / "results" / "renders" / "real04" / "style.json"
+    real04 = (json.loads(p3.read_text(encoding="utf-8"))["walls"] if p3.is_file() else
+              {"material": "paint", "asset": "plastered_wall", "colour": "warm greige"})
+    assert SH.stair_structure_slot(real04) == {"material": "paint", "colour": "warm greige"}
+    greige = SH.slot_material(lib, SH.stair_structure_slot(real04))
+    assert greige.name == "paint__warm_greige" and not lib.records[greige.name]["textured"]
+    # every vocabulary wall slug with its own set: the structure never ends up textured, lever on or off
+    for shell in (True, False):
+        _, lib2 = _bpy_free_library(monkeypatch, tmp_path, shell=shell)
+        for slug, entry in M.ENTRIES.items():
+            mat = SH.slot_material(lib2, SH.stair_structure_slot({"material": slug, "asset": entry.get("asset")}))
+            assert not lib2.records[mat.name]["textured"], (shell, slug, mat.name)
+    assert {s for s in M.ENTRIES if SH.shell_stand_in(s)} == {"plaster_white", "stone_worktop", "steel_brushed"}

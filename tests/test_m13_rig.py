@@ -27,6 +27,11 @@ Fix round after P4b (17 Oct 2026; the review of the P4a fix round and the P4b lo
   closed shade encloses its in-shade spot) meters more floor light on than off;
 - the fixture hardware: a pendant's cord and canopy reach the ceiling (also a sloped one), a ceiling fixture's canopy
   fills its gap, a table lamp has a base and a stem; the hardware is slot 1 (not emissive), the shade slot 0.
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b): a hosted light the ray check moved down out of
+a closed shade is recorded where it is built (``light_where`` ``below_host_surface``, the move in its reason and the
+scene's ``rig_light`` entry, ``escape.from_where`` / ``from_z``, an assumed ``rig_light_moved`` entry); on CPU with a
+stand-in bpy whose host is a closed box (``test_pass_p5_*``), and in the Blender test's library case.
 """
 import json
 import subprocess
@@ -585,6 +590,10 @@ def floor_light(case, tag):
                                                             if e["kind"] == "decor" and e.get("method") == "rig"],
             "slots": slots, "light_z": [round(o.location.z, 4) for o in lights],
             "escape": [e["assumed"].get("escape") for e in objs if e["kind"] == "light"],
+            "where": [e["assumed"].get("light_where") for e in objs if e["kind"] == "light"],
+            "reasons": [e["assumed"].get("reason") for e in objs if e["kind"] == "light"],
+            "rig_reasons": [a["reason"] for a in assumed if a.get("kind") == "rig_light"],
+            "moved": [a for a in assumed if a.get("kind") == "rig_light_moved"],
             "enclosed": [a for a in assumed if a.get("kind") == "rig_light_enclosed"]}
 
 out = {}
@@ -675,3 +684,140 @@ def test_blender_shades_let_their_light_out_and_hosted_fixtures_build_no_mesh(tm
     assert l_on["light_z"] == [pytest.approx(shade_bottom - L.RIG_ESCAPE_STEP_M, abs=1e-3)]
     assert l_on["light_z"][0] == pytest.approx(in_shade - esc["moved_m"], abs=1e-3) and l_on["enclosed"] == []
     assert l_on["lum"] > 1.2 * l_off["lum"] + 1e-4, out
+    # pass before P5: the records say where the light is built (before: "in the shade", 0.30 m above it)
+    assert esc["from_where"] == "in_shade" and esc["from_z"] == pytest.approx(in_shade)
+    assert l_on["where"] == ["below_host_surface"]
+    moved = f"moved {esc['moved_m']:.2f} m down by the ray check"
+    assert moved in l_on["reasons"][0] and moved in l_on["rig_reasons"][0] and "furn_fl1" in l_on["reasons"][0]
+    assert [a["value"] for a in l_on["moved"]] == [esc["moved_m"]]
+    assert p_on["where"] == ["under_host"] and p_on["moved"] == []                  # not moved: unchanged
+
+
+# --------------------------------------------------------------------------
+# Pass before P5: a light the ray check moved is recorded where it is built
+# --------------------------------------------------------------------------
+
+class _Vec(tuple):
+    """mathutils.Vector, as much of it as build_room_rig and the ray check use."""
+
+    def __new__(cls, v):
+        return super().__new__(cls, (float(a) for a in v))
+
+    def normalized(self):
+        n = sum(a * a for a in self) ** 0.5
+        return _Vec(a / n for a in self)
+
+
+class _Identity:
+    """An object's matrix_world at the origin, unrotated."""
+
+    def inverted(self):
+        return self
+
+    def to_3x3(self):
+        return self
+
+    def __matmul__(self, v):
+        return _Vec(v)
+
+
+class _ClosedShade:
+    """A host lamp's mesh object: a closed box (a closed shade) that rays hit from inside and from outside, as
+    ``bpy.types.Object.ray_cast`` hits front and back faces."""
+    type = "MESH"
+    matrix_world = _Identity()
+
+    def __init__(self, lo, hi):
+        self.lo, self.hi = lo, hi
+
+    def ray_cast(self, o, d, depsgraph=None):
+        t0, t1 = float("-inf"), float("inf")
+        for a in range(3):
+            if abs(d[a]) < 1e-12:
+                if not self.lo[a] - 1e-9 <= o[a] <= self.hi[a] + 1e-9:
+                    return False, None, None, None
+                continue
+            ta, tb = (self.lo[a] - o[a]) / d[a], (self.hi[a] - o[a]) / d[a]
+            t0, t1 = max(t0, min(ta, tb)), min(t1, max(ta, tb))
+        if t0 > t1 or t1 <= 1e-9:
+            return False, None, None, None
+        t = t0 if t0 > 1e-9 else t1
+        return True, _Vec(o[i] + t * d[i] for i in range(3)), None, None
+
+
+class _Ob(dict):
+    """A Blender object: attributes plus custom properties."""
+
+    def __init__(self, name, data):
+        super().__init__()
+        self.name, self.data, self.type = name, data, "LIGHT"
+        self.location = self.rotation_euler = None
+        self.visible_camera = True
+
+
+class _Objects(dict):
+    def new(self, name, data):
+        self[name] = _Ob(name, data)
+        return self[name]
+
+
+def _rig_with_host(monkeypatch, shade):
+    """``build_room_rig`` on the library floor lamp fl1 beside the bed (1.6 m, its light planned in its shade) with a
+    stand-in bpy whose host object ``furn_fl1`` is ``shade``: (the plan's fixture, the light's manifest entry, the
+    light object, the assumed list)."""
+    import sys
+    import types
+    from types import SimpleNamespace as NS
+
+    monkeypatch.setitem(sys.modules, "mathutils", types.ModuleType("mathutils"))
+    sys.modules["mathutils"].Vector = _Vec
+    lib = _piece("fl1", "floor_lamp", (0.8, 2.9), (0.45, 0.45), asset={"method": "library",
+                                                                           "bbox_m": [0.45, 0.45, 1.6]})
+    plan = L.rig_plan(BEDROOM, [BED, lib], 0.0, 2.7, piece_methods={"fl1": "library"})
+    plan["fixtures"] = [f for f in plan["fixtures"] if f["mesh"] is False]
+    assert [f["light_where"] for f in plan["fixtures"]] == ["in_shade"]
+    objects = _Objects({"furn_fl1": shade})
+    bpy = NS(data=NS(objects=objects, lights=NS(new=lambda name, kind: NS(name=name, type=kind))),
+             context=NS(evaluated_depsgraph_get=lambda: None))
+    objs = [{"name": "furn_fl1", "wenart_id": "fl1", "element_id": "fl1", "kind": "furniture", "room_id": "r1",
+             "type": "floor_lamp", "method": "library"}]
+    assumed: list = []
+    lights = L.build_room_rig(bpy, NS(set_props=lambda ob, **kw: ob.update(kw)), NS(objects=NS(link=lambda ob: None)),
+                              objs, assumed, {"id": "r1"}, {"id": "L0"}, plan, None)
+    (entry,) = [o for o in objs if o["kind"] == "light"]
+    (light,) = lights
+    return plan["fixtures"][0], entry, light, assumed
+
+
+def test_pass_p5_a_light_moved_out_of_a_closed_shade_is_recorded_where_it_is_built(monkeypatch):
+    """Pass before P5 (17 Oct 2026; the review of the fix round after P4b): the light hosted by a library floor lamp
+    whose model is a closed shade (z 1.20-1.60 m) is planned in the shade (z 1.45 m); the ray check moves it under
+    the shade (``RIG_ESCAPE_STEP_M`` under 1.20 m). On HEAD adc3004 only the light's centre and ``escape.moved_m``
+    said so: its ``light_where``, its reason and the scene's ``rig_light`` entry still said "in the shade", 0.30 m
+    above where it was built. Now ``light_where`` is ``below_host_surface``, the reason adds the move, ``escape``
+    keeps the planned spot and an assumed ``rig_light_moved`` entry records the distance. A shade that lets the
+    light out where the plan put it changes nothing (the four library lamps of P3's real04 at their in-shade spots)."""
+    in_shade = 1.6 - L.RIG_HOST_LAMP_SHADE_M
+    built = 1.2 - L.RIG_ESCAPE_STEP_M
+    f, entry, light, assumed = _rig_with_host(monkeypatch, _ClosedShade((0.6, 2.7, 1.2), (1.0, 3.1, 1.6)))
+    a = entry["assumed"]
+    assert light.location[2] == pytest.approx(built) and entry["center"][2] == pytest.approx(built)
+    assert a["escape"] == {"host_object": "furn_fl1", "escapes": True, "moved_m": pytest.approx(in_shade - built),
+                           "from_where": "in_shade", "from_z": pytest.approx(in_shade)}
+    assert a["light_where"] == f["light_where"] == "below_host_surface"
+    moved = f"moved {in_shade - built:.2f} m down by the ray check (z {in_shade:.2f} -> {built:.2f} m)"
+    assert a["reason"].startswith("bedside light in the shade of the floor lamp fl1") and moved in a["reason"]
+    assert "furn_fl1" in a["reason"] and "under its closed shade or bulb" in a["reason"]
+    (rig,) = [x for x in assumed if x["kind"] == "rig_light"]
+    assert moved in rig["reason"]
+    (mv,) = [x for x in assumed if x["kind"] == "rig_light_moved"]
+    assert mv["object"] == "rig_r1_bedside_1_light" and mv["value"] == pytest.approx(in_shade - built)
+    assert mv["parent"] == "r1" and "furn_fl1" in mv["reason"] and f"z {built:.2f} m" in mv["reason"]
+    assert [x for x in assumed if x["kind"] == "rig_light_enclosed"] == []
+    # an open model (the shade's box elsewhere): the light gets out where the plan put it; no record changes
+    f, entry, light, assumed = _rig_with_host(monkeypatch, _ClosedShade((2.0, 0.5, 1.2), (2.4, 0.9, 1.6)))
+    a = entry["assumed"]
+    assert light.location[2] == pytest.approx(in_shade)
+    assert a["escape"] == {"host_object": "furn_fl1", "escapes": True, "moved_m": 0.0}
+    assert a["light_where"] == "in_shade" and "moved" not in a["reason"]
+    assert [x["kind"] for x in assumed] == ["rig_light"]

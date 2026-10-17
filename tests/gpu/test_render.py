@@ -113,6 +113,16 @@ Fix round after P4b (17 Oct 2026; pod P4b, real03; CPU replays in tests/test_m13
 - every exterior view's EV is at most its ground EV plus ``render.EXTERIOR_GROUND_HEADROOM_STOPS`` and its lawn, where
   it fills at least ``LAWN_MIN_SHARE`` of the frame, keeps a saturation of at least ``LAWN_SAT_MIN`` (P4b ext_3 /
   ext_4: about 0.11 / 0.19 on the previews); no horizon-band pin (the haze toward the sun stays white).
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b; CPU replays in tests/test_m13_light.py):
+
+- a window pull never takes panes that were unclipped and on target as rendered to or under the wall median
+  (``test_window_pull_leaves_panes_that_need_no_pull``, ``render.pull_needed``; the replay of P4a real02
+  cam_r_L1_teras_2_2 and P4b real03 yasama_3 / yasama_4_1 with the fix round's rule: k 1 at 0.69-0.84 of the walls);
+- every interior-glazing record carries its panes' clip as written; clipped interior panes are pulled to at most
+  ``render.PULL_MAX_CLIP`` plus ``PULL_CLIP_FEATHER_ALLOWANCE`` whenever a tried k unclipped them at
+  ``render.PULL_WALL_RATIO_MIN`` of the walls, and unclipped ones are not pulled
+  (``test_interior_glazing_pull_removes_clipping``; P4b real03 giris_holu_1 / 2 / 3_1: 8-13 % clipped).
 """
 import hashlib
 import json
@@ -1078,6 +1088,74 @@ def test_window_pull_takes_an_unclipped_k_when_one_was_tried(project):
             bad.append((r["camera"], wp.get("k"), wp.get("clip_after"), wp.get("rule"), ok[0]))
     print(f"{name}: {len(checked)} views with an unclipped k near the walls tried; clipped after the pull: {bad}")
     assert not bad, f"{name}: window pulls that kept clipped panes although a clip-free k was tried: {bad}"
+
+
+def test_window_pull_leaves_panes_that_need_no_pull(project):
+    """Pass before P5 (17 Oct 2026): a window pull takes panes to or under the wall median only when the panes as
+    rendered needed a pull (``render.pull_needed``: clipped, or off the pane target). The replay of P4a's real02
+    cam_r_L1_teras_2_2 (panes 0.4787 against walls of 0.37, p90 0.65, clip 0) and P4b's real03 yasama_3 / yasama_4_1
+    with the fix round's ``choose_pull`` pulled them a stop under their walls."""
+    from wenart.blender import render as R
+
+    name, _scene, render = project
+    bad, pulled = [], 0
+    for r in render["renders"]:
+        wp = r.get("window_pull") or {}
+        wall = wp.get("wall_median")
+        if not wp.get("k") or wall is None:
+            continue
+        pulled += 1
+        chosen = next((c for c in wp.get("tried") or [] if c["k"] == wp["k"]), None)
+        median = wp.get("pane_median_after", chosen["median"] if chosen else None)
+        if median is None or median > wall:
+            continue
+        if not R.pull_needed(wp.get("clip_before"), wp.get("pane_median"), wp.get("pane_p90")):
+            bad.append((r["camera"], wp["k"], wp.get("clip_before"), wp.get("pane_median"), wp.get("pane_p90"),
+                        median, wall, wp.get("rule")))
+    print(f"{name}: {pulled} pulled views with walls; panes fine as rendered but pulled under the walls: {bad}")
+    assert not bad, f"{name}: window pulls that took unclipped, on-target panes under the walls: {bad}"
+
+
+def test_interior_glazing_pull_removes_clipping(project):
+    """Pass before P5 (17 Oct 2026; the review of the fix round after P4b): the interior glazing (windows between two
+    indoor rooms, left out of the window pull) records its panes' clip share as written (``interior_glazing.clip``)
+    and its pull (``interior_glazing.pull``, ``render.choose_interior_pull``). Clipped interior panes (over
+    ``render.PULL_MAX_CLIP`` as rendered) are written at most ``PULL_MAX_CLIP + PULL_CLIP_FEATHER_ALLOWANCE`` whenever
+    a tried k unclipped them with the panes at least ``render.PULL_WALL_RATIO_MIN`` of the wall median (any k without
+    a wall); unclipped ones are not pulled (the neighbouring room stays at the view's exposure). P4b real03:
+    giris_holu_1 / 2 / 3_1 see only an interior window onto a daylit room and the sunlit outside (8-13 % clipped)."""
+    from wenart.blender import render as R
+
+    name, _scene, render = project
+    bad, rows = [], {}
+    for r in render["renders"]:
+        g = r.get("interior_glazing")
+        if not g:
+            continue
+        if g.get("clip") is None or "pull" not in g:
+            bad.append((r["camera"], "no clip or pull in interior_glazing (rendered before the pass before P5?)"))
+            continue
+        p = g["pull"] or {}
+        before, k = p.get("clip_before"), p.get("k") or 0
+        rows[r["camera"]] = (before, k, g["clip"])
+        if before is None:
+            bad.append((r["camera"], "no interior pull record", g))
+            continue
+        if before <= R.PULL_MAX_CLIP:
+            if k:
+                bad.append((r["camera"], f"unclipped interior panes ({before}) pulled k {k}"))
+            continue
+        tried, wall = p.get("tried") or [], p.get("wall_median")
+        if not tried:
+            bad.append((r["camera"], f"interior panes clipped ({before}) and no k tried"))
+            continue
+        ok = [c for c in tried if c["clip"] is not None and c["clip"] <= R.PULL_MAX_CLIP
+              and (wall is None or c["median"] >= R.PULL_WALL_RATIO_MIN * wall)]
+        if ok and g["clip"] > R.PULL_MAX_CLIP + PULL_CLIP_FEATHER_ALLOWANCE:
+            bad.append((r["camera"], (f"interior panes {g['clip']} clipped as written although k {ok[0]['k']} "
+                                      f"unclipped them"), p.get("rule")))
+    print(f"{name}: interior glazing (clip before, k, clip as written) {rows}")
+    assert not bad, f"{name}: interior glazing clipping: {bad}"
 
 
 def test_interior_glazing_keeps_one_white_point(project):

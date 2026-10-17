@@ -52,6 +52,13 @@ not pulled and is recorded against the room's walls; a view is balanced for its 
 over the cap is minor; the exterior exposure is capped by the sunlit ground (``render.exterior_exposure``) and the
 lawn is recorded; CPU replays of the new and changed GPU checks (the orange check from a rig share of 0.4, the named
 sky views, the pull, glazing, ground and lawn pins).
+
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b; the ``test_pass_p5_*`` tests, each failing on
+adc3004): ``render.choose_pull``'s second rule applies only to panes that need a pull as rendered
+(``render.pull_needed``; the pod records of P4a real02 cam_r_L1_teras_2_2 and P4b real03 yasama_3 / yasama_4_1 keep
+k 0), and the interior glazing's clipped panes are pulled and their clip recorded (``render.choose_interior_pull``,
+``RenderRun.interior_pull``, ``interior_glazing.clip`` / ``pull``; P4b real03 giris_holu_1 / 2 / 3_1), with CPU
+replays of the two new GPU pins.
 """
 from __future__ import annotations
 
@@ -2442,3 +2449,323 @@ def test_fixround_p4b_gpu_pull_glazing_and_exterior_checks(tmp_path, monkeypatch
     major = R.lighting_dark_entry("cam_r_h_1", "r_h", 3.5, 3.0, (-2.0, 3.0))
     assert not gpu._dark({"exposure": {"lighting_dark": minor}}) and gpu._dark({"exposure": {"lighting_dark": major}})
     assert not gpu._dark({"exposure": {"lighting_dark": None}})
+
+
+# --------------------------------------------------------------------------
+# Pass before P5 (17 Oct 2026): the review of the fix round after P4b
+# --------------------------------------------------------------------------
+
+# The pod records the review replayed (render_manifest.json window_pull): the walls, the panes as rendered (clip,
+# median, p90) and the tried k (clip, median, p90). P4a real02 (runs/20261017-072801-full), P4b real03
+# (runs/20261017-091212-full).
+P5_PULLS = {
+    "real02/cam_r_L1_teras_2_2": (0.37, (0.0, 0.4787, 0.6516), [(1, 0.0, 0.3348, 0.5129)]),
+    "real03/cam_r_L0_yasama_3": (0.4906, (0.0, 0.5614, 0.6639), [(1, 0.0, 0.4129, 0.5281)]),
+    "real03/cam_r_L0_yasama_4_1": (0.4668, (0.0, 0.537, 0.6702), [(1, 0.0, 0.3882, 0.5348)]),
+    "real03/cam_r_L0_yasama_8_3": (0.4855, (0.307, 0.7288, 1.0),
+                                   [(1, 0.1377, 0.6088, 0.9818), (2, 0.0, 0.467, 0.9381)]),
+    "real03/cam_r_L0_ebeveyn_odasi_5_3": (0.4783, (0.367, 0.6849, 0.9994),
+                                          [(1, 0.0112, 0.5536, 0.9762), (2, 0.0, 0.4041, 0.9308)]),
+    "real03/cam_r_L0_ebeveyn_odasi_6_2": (0.5091, (0.3442, 0.7469, 0.9992),
+                                          [(1, 0.011, 0.6315, 0.9619), (2, 0.0, 0.4895, 0.9109)]),
+    "real03/cam_r_L0_ruzgarlik_2": (0.4686, (0.0431, 0.5382, 0.979), [(1, 0.0028, 0.3907, 0.9348)]),
+    "real02/cam_r_L-1_mutfak_1": (0.5984, (0.3434, 0.8502, 0.9967),
+                                  [(1, 0.0, 0.7679, 0.9583), (2, 0.0, 0.6567, 0.9062), (3, 0.0, 0.5201, 0.8416)]),
+}
+
+
+def _p5_cands(rows):
+    return [{"k": k, "clip": c, "median": m, "p90": p} for k, c, m, p in rows]
+
+
+def test_pass_p5_panes_fine_as_rendered_are_not_pulled_under_their_walls(tmp_path, monkeypatch):
+    """The review of the fix round after P4b: ``choose_pull``'s second rule (an unclipped k slightly darker than the
+    walls) had no check on the panes as rendered, so panes that were unclipped and on target went a stop under their
+    walls (P4a real02 cam_r_L1_teras_2_2: 0.4787 against walls of 0.37 -> 0.3348 at k 1; P4b real03 yasama_3 and
+    yasama_4_1 the same). It now applies only when the panes need a pull (``pull_needed``: clipped, or off the pane
+    target); the clipped views keep the fix round's k. ``RenderRun.window_pull`` passes the as-rendered median and
+    p90. Fails on adc3004 (k 1 for the three fine views and for the window_pull frame)."""
+    import types
+
+    import numpy as np
+
+    chosen = {cam: R.choose_pull(_p5_cands(rows), wall, clip_before=before[0], pane_median=before[1],
+                                 pane_p90=before[2])[0] for cam, (wall, before, rows) in P5_PULLS.items()}
+    assert chosen == {"real02/cam_r_L1_teras_2_2": 0, "real03/cam_r_L0_yasama_3": 0, "real03/cam_r_L0_yasama_4_1": 0,
+                      "real03/cam_r_L0_yasama_8_3": 2, "real03/cam_r_L0_ebeveyn_odasi_5_3": 2,
+                      "real03/cam_r_L0_ebeveyn_odasi_6_2": 2, "real03/cam_r_L0_ruzgarlik_2": 1,
+                      "real02/cam_r_L-1_mutfak_1": 3}
+    wall, before, rows = P5_PULLS["real02/cam_r_L1_teras_2_2"]
+    # the same record with clipped panes, or with panes off the target (p90 and median over it), takes k 1
+    assert R.choose_pull(_p5_cands(rows), wall, clip_before=0.3, pane_median=before[1], pane_p90=before[2])[0] == 1
+    assert R.choose_pull(_p5_cands(rows), wall, clip_before=0.0, pane_median=0.7, pane_p90=0.9)[0] == 1
+    # pull_needed: not given -> True (the rules before this pass), clipped or off target -> True
+    assert R.pull_needed(None) and R.pull_needed(0.02) and R.pull_needed(0.0, 0.7, 0.9)
+    assert not R.pull_needed(0.0) and not R.pull_needed(0.01, 0.4787, 0.6516) and not R.pull_needed(0.0, 0.7, None)
+    assert not R.pull_needed(0.0, 0.64, 0.95)                 # the median target alone is enough
+    # the walls rule of the fix round after P4b without the as-rendered panes is unchanged
+    assert R.choose_pull(_p5_cands(rows), wall)[0] == 1
+    # window_pull end to end: walls (120, 110, 100) at 0.437, panes (200, 200, 200) at 0.784, unclipped, p90 under
+    # the shoulder; k 1 (0.392) is unclipped at 0.90 of the walls but the panes need no pull
+    index, channels, main = _glazing_frame()
+    main[index == 5] = (200, 200, 200)
+    walls = index == 0
+
+    def fake_save(scene, result, path, ev, look=R.LOOK):
+        return (main.astype(np.float64) * 0.5 ** round(-float(ev))).astype(np.uint8)
+    monkeypatch.setattr(R, "save_display", fake_save)
+    ctx = types.SimpleNamespace(scene=None, windows={5}, interior_windows=set(), haze=set(), pass_index={})
+    run = types.SimpleNamespace(ctx=ctx, out=tmp_path, warnings=[])
+    cam = types.SimpleNamespace(name="cam_r_L1_teras_2_2")
+    products = {"index": index.astype(np.uint16)}
+    record, weights, final = R.RenderRun.window_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls)
+    assert record["clip_before"] == 0.0 and record["pane_p90"] == pytest.approx(0.784, abs=2e-3)
+    assert record["tried"][0]["median"] >= R.PULL_WALL_RATIO_MIN * record["wall_median"]
+    assert record["k"] == 0 and weights is None and final is None
+    # panes (220, 220, 220) at 0.863: unclipped but off the pane target (p90 over the shoulder, median over 0.65), so
+    # they need a pull and k 1 (0.431, under the walls and over 0.8 of them) is taken by the second rule
+    main[index == 5] = (220, 220, 220)
+    record, _w, final = R.RenderRun.window_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls)
+    assert record["clip_before"] == 0.0 and record["pane_p90"] > R.PULL_P90_MAX
+    assert R.PULL_WALL_RATIO_MIN * record["wall_median"] <= record["tried"][0]["median"] <= record["wall_median"]
+    assert record["k"] == 1 and "slightly darker than the walls" in record["rule"]
+    # ... and with clipped panes the same frame takes the unclipped k near the walls
+    main[index == 5] = (252, 252, 252)
+    record, _w, final = R.RenderRun.window_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls)
+    assert record["k"] >= 1 and record["clip_after"] <= R.PULL_MAX_CLIP
+
+
+def test_pass_p5_gpu_pin_of_panes_pulled_without_need(tmp_path, monkeypatch):
+    """CPU replay of ``test_window_pull_leaves_panes_that_need_no_pull`` (tests/gpu/test_render.py): the fix round's
+    choice for P4a's cam_r_L1_teras_2_2 (k 1, panes under the walls although fine as rendered) fails; k 0, the
+    clipped ruzgarlik_2 at k 1 and a pull that keeps the panes brighter pass. Fails on adc3004 (no such check)."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+
+    def manifest(cam, k, median_after):
+        wall, before, rows = P5_PULLS[cam]
+        wp = {"k": k, "ev": -float(k), "wall_median": wall, "clip_before": before[0], "pane_median": before[1],
+              "pane_p90": before[2], "tried": _p5_cands(rows), "rule": "r"}
+        if k:
+            wp["pane_median_after"] = median_after
+        return cam.split("/")[0], {}, {"renders": [{"camera": cam.split("/")[1], "window_pull": wp}]}
+    with pytest.raises(AssertionError, match="cam_r_L1_teras_2_2"):
+        gpu.test_window_pull_leaves_panes_that_need_no_pull(manifest("real02/cam_r_L1_teras_2_2", 1, 0.3348))
+    gpu.test_window_pull_leaves_panes_that_need_no_pull(manifest("real02/cam_r_L1_teras_2_2", 0, None))
+    gpu.test_window_pull_leaves_panes_that_need_no_pull(manifest("real03/cam_r_L0_ruzgarlik_2", 1, 0.3907))
+    gpu.test_window_pull_leaves_panes_that_need_no_pull(manifest("real03/cam_r_L0_yasama_3", 1, 0.52))  # brighter
+
+
+# P4b real03's interior-only views (their one window is interior glazing, so the P4b record's mask was the interior
+# panes): the walls, the clip as rendered and the tried k (clip, median)
+P5_INTERIOR = {
+    "cam_r_L0_giris_holu_1": (0.4812, 0.127, [(1, 0.0342, 0.632), (2, 0.0, 0.4896)]),
+    "cam_r_L0_giris_holu_2": (0.4553, 0.0842, [(1, 0.0435, 0.6748), (2, 0.0028, 0.5408)]),
+    "cam_r_L0_giris_holu_3_1": (0.4582, 0.1316, [(1, 0.039, 0.4657), (2, 0.0, 0.3226)]),
+    "cam_r_L0_kat_merdiveni_3": (0.4137, 0.2693, [(1, 0.0216, 0.7325), (2, 0.0, 0.6129)]),
+    "cam_r_L0_yangin_merdiveni_2": (0.4817, 0.0144, [(1, 0.0, 0.0182)]),
+    "cam_r_L0_giris_holu_2_1": (0.4642, 0.0011, [(1, 0.0, 0.29)]),
+}
+
+
+def test_pass_p5_clipped_interior_glazing_is_pulled_and_its_clip_recorded(tmp_path, monkeypatch):
+    """The review of the fix round after P4b: the interior glazing was left out of the window pull and its clip was
+    not recorded, so the halls that look through a daylit room to the sunlit outside went back to clipped panes
+    (P4b real03 giris_holu_1 12.7 %, giris_holu_2 8.4 %, giris_holu_3_1 13.2 %) with no record of it. Clipped interior
+    panes are now pulled by the smallest k that unclips them at 0.8 of the walls or more (``choose_interior_pull``;
+    giris_holu_3_1 the lowest clip at that bound, as P4b; a lamp through the glass that only unclips far under the
+    walls is not pulled), unclipped ones are not, and ``interior_glazing`` records ``clip`` as written and ``pull``.
+    The window and interior pulls share their saves. Fails on adc3004 (no ``choose_interior_pull``, no
+    ``interior_pull``, no ``clip``)."""
+    import types
+
+    import numpy as np
+
+    chosen = {cam: R.choose_interior_pull([{"k": k, "clip": c, "median": m} for k, c, m in rows], wall, before)
+              for cam, (wall, before, rows) in P5_INTERIOR.items()}
+    assert {cam: k for cam, (k, _r) in chosen.items()} == {
+        "cam_r_L0_giris_holu_1": 2, "cam_r_L0_giris_holu_2": 2, "cam_r_L0_giris_holu_3_1": 1,
+        "cam_r_L0_kat_merdiveni_3": 2, "cam_r_L0_yangin_merdiveni_2": 0, "cam_r_L0_giris_holu_2_1": 0}
+    assert chosen["cam_r_L0_giris_holu_3_1"][1].startswith("lowest interior pane clip")
+    assert chosen["cam_r_L0_giris_holu_2_1"][1].startswith("interior panes unclipped as rendered")
+    assert R.choose_interior_pull([{"k": 1, "clip": 0.0, "median": 0.05}], None, 0.2)[0] == 1     # no wall in view
+    assert R.choose_interior_pull([{"k": 1, "clip": 0.3, "median": 0.05}], None, 0.4)[0] == 0     # ... never the lowest
+    assert R.choose_interior_pull([], 0.5, None)[0] == 0
+    # the lowest clip at the bound is taken only when it is under the clip as rendered (a lamp that k 1 does not help)
+    assert R.choose_interior_pull([{"k": 1, "clip": 0.0144, "median": 0.45}], 0.4817, 0.0144)[0] == 0
+    assert R.choose_interior_pull([{"k": 1, "clip": 0.0100001, "median": 0.45}], 0.4817, 0.0144)[0] == 1
+    # the search stops at an unclipped k or under 0.8 of the walls
+    assert R.interior_pull_search_done({"k": 2, "clip": 0.0, "median": 0.49}, 0.4812)
+    assert R.interior_pull_search_done({"k": 2, "clip": 0.02, "median": 0.30}, 0.4582)
+    assert not R.interior_pull_search_done({"k": 1, "clip": 0.0342, "median": 0.632}, 0.4812)
+    assert not R.interior_pull_search_done({"k": 1, "clip": 0.0342, "median": 0.05}, None)
+    # the frame: index 5 an exterior window (clipped), index 6 interior glazing whose panes clip (the sunlit outside
+    # through the neighbouring room)
+    index, channels, main = _glazing_frame()
+    main[index == 6] = (252, 252, 252)
+    walls = index == 0
+    saved = []
+
+    def fake_save(scene, result, path, ev, look=R.LOOK):
+        saved.append(round(-float(ev)))
+        return (main.astype(np.float64) * 0.5 ** round(-float(ev))).astype(np.uint8)
+    monkeypatch.setattr(R, "save_display", fake_save)
+    ctx = types.SimpleNamespace(scene=None, windows={5, 6}, interior_windows={6}, haze=set(),
+                                pass_index={"win_L0_046": 5, "win_L0_008": 6})
+    run = types.SimpleNamespace(ctx=ctx, out=tmp_path, warnings=[])
+    cam = types.SimpleNamespace(name="cam_r_L0_giris_holu_1")
+    products = {"index": index.astype(np.uint16)}
+    saves = {}
+    record, _w, final = R.RenderRun.window_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls, saves)
+    assert record["k"] == 1 and np.array_equal(final[index == 6], main[index == 6]) and sorted(saves) == [1]
+    ipull, iweights, ifinal = R.RenderRun.interior_pull(run, cam, {"ev": 0.0}, None, final, channels, products, walls,
+                                                        saves)
+    assert saved == [1]                                          # the interior pull reused the window pull's save
+    assert ipull["k"] == 1 and ipull["clip_before"] == 1.0 and ipull["clip_after"] <= R.PULL_MAX_CLIP
+    assert ipull["tried"] == [{"k": 1, "clip": 0.0, "median": pytest.approx(0.4941, abs=1e-3)}]
+    assert (iweights[index != 6] == 0).all() and (ifinal[index == 6] < 252).all()
+    assert np.array_equal(ifinal[index != 6], final[index != 6])      # the exterior pull and the walls as they were
+    glazing = R.RenderRun.interior_glazing(run, ifinal, channels, products, walls, ipull)
+    assert glazing["windows"] == ["win_L0_008"] and glazing["clip"] == 0.0 and glazing["pull"]["k"] == 1
+    assert glazing["rule"].endswith("(pulled k 1)")
+    # unpulled, the record says the panes are clipped as written
+    assert R.RenderRun.interior_glazing(run, final, channels, products, walls)["clip"] == 1.0
+    # the amber hall of the fix round after P4b (unclipped): not pulled, recorded with clip 0
+    index, channels, main = _glazing_frame()
+    saved.clear()
+    ipull, iweights, ifinal = R.RenderRun.interior_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls)
+    assert ipull["k"] == 0 and ipull["tried"] == [] and iweights is None and ifinal is None and saved == []
+    glazing = R.RenderRun.interior_glazing(run, main, channels, products, walls, ipull)
+    assert glazing["clip"] == 0.0 and glazing["pull"]["k"] == 0 and not glazing["rule"].endswith(")")
+    # a lamp seen through the glass in a dark neighbouring room (P4b's yangin_merdiveni_2): 3 of 99 pane pixels clip
+    # at any k up to 4 while the room is under 0.8 of the walls from k 1: one k is tried and nothing is pulled
+    scene_lin = main.astype(np.float64)
+    scene_lin[index == 6] = 40.0
+    lamp = np.argwhere(index == 6)[:3]
+    scene_lin[lamp[:, 0], lamp[:, 1]] = 4000.0
+    lit = np.clip(scene_lin, 0, 255).astype(np.uint8)
+    monkeypatch.setattr(R, "save_display", lambda scene, result, path, ev, look=R.LOOK: np.clip(
+        scene_lin * 0.5 ** round(-float(ev)), 0, 255).astype(np.uint8))
+    ipull, iweights, ifinal = R.RenderRun.interior_pull(run, cam, {"ev": 0.0}, None, lit, channels, products, walls)
+    assert ipull["clip_before"] == pytest.approx(3 / 99, abs=1e-4) and len(ipull["tried"]) == 1
+    assert ipull["k"] == 0 and ifinal is None and ipull["rule"].startswith("no k lowers the interior pane clip")
+    # a view without interior glazing in the scene: no interior record
+    ctx.interior_windows = set()
+    assert R.RenderRun.interior_pull(run, cam, {"ev": 0.0}, None, main, channels, products, walls) == (None, None, None)
+    from wenart.blender import schemas
+
+    jsonschema = pytest.importorskip("jsonschema")
+    prop = schemas.RENDER_ENTRY["properties"]["interior_glazing"]
+    jsonschema.validate(glazing, prop)
+    pulled = R.interior_glazing_record(ifinal if ifinal is not None else main, index == 6, walls, ["w"],
+                                       {**ipull, "k": 1, "ev": -1.0, "clip_after": 0.0,
+                                        "tried": [{"k": 1, "clip": 0.0, "median": 0.49}]})
+    jsonschema.validate(pulled, prop)
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate({k: v for k, v in glazing.items() if k != "clip"}, prop)
+    assert prop["oneOf"][1]["required"].count("clip") == 1
+
+
+def test_pass_p5_gpu_pin_of_the_interior_glazing_clip(tmp_path, monkeypatch):
+    """CPU replay of ``test_interior_glazing_pull_removes_clipping`` (tests/gpu/test_render.py): clipped interior
+    panes written over ``PULL_MAX_CLIP`` plus the feather allowance although a tried k unclipped them near the walls
+    fail (the fix round after P4b: giris_holu_1 not pulled, 12.7 %), as do an unclipped interior pane that was pulled
+    and a record without ``clip``; a pull that unclipped them, and a lamp no k unclipped near the walls, pass. Fails
+    on adc3004 (no such check)."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+
+    def manifest(cam, k, clip_written, drop=()):
+        wall, before, rows = P5_INTERIOR[cam]
+        pull = {"k": k, "ev": -float(k), "clip_before": before, "clip_after": clip_written, "wall_median": wall,
+                "tried": [{"k": kk, "clip": c, "median": m} for kk, c, m in rows] if before > 0.01 else [],
+                "rule": "r"}
+        g = {"windows": ["win_L0_008"], "pane_px": 900, "pane_rb": 1.3, "wall_rb": 1.29, "delta_rb": 0.01,
+             "clip": clip_written, "pull": pull, "rule": "r"}
+        for key in drop:
+            g.pop(key)
+        return "real03", {}, {"renders": [{"camera": cam, "interior_glazing": g}]}
+    gpu.test_interior_glazing_pull_removes_clipping(manifest("cam_r_L0_giris_holu_1", 2, 0.0))
+    gpu.test_interior_glazing_pull_removes_clipping(manifest("cam_r_L0_giris_holu_2", 2, 0.0028 + 0.004))
+    with pytest.raises(AssertionError, match="cam_r_L0_giris_holu_1.*clipped as written"):
+        gpu.test_interior_glazing_pull_removes_clipping(manifest("cam_r_L0_giris_holu_1", 0, 0.127))
+    gpu.test_interior_glazing_pull_removes_clipping(manifest("cam_r_L0_giris_holu_3_1", 1, 0.039))   # k 2 too dark
+    gpu.test_interior_glazing_pull_removes_clipping(manifest("cam_r_L0_yangin_merdiveni_2", 0, 0.0144))   # a lamp
+    with pytest.raises(AssertionError, match="unclipped interior panes"):
+        gpu.test_interior_glazing_pull_removes_clipping(manifest("cam_r_L0_giris_holu_2_1", 1, 0.0))
+    with pytest.raises(AssertionError, match="no clip or pull"):
+        gpu.test_interior_glazing_pull_removes_clipping(manifest("cam_r_L0_giris_holu_1", 2, 0.0, drop=("clip",)))
+    gpu.test_interior_glazing_pull_removes_clipping(("real03", {}, {"renders": [{"camera": "c", "interior_glazing":
+                                                                                 None}]}))
+
+
+def test_pass_p5_render_writes_the_interior_pull_and_records_it(tmp_path, monkeypatch):
+    """``RenderRun.render`` wires the interior pull between the window pull and the sky pull: the written PNG has the
+    clipped interior panes pulled, ``interior_glazing`` records their ``clip`` as written and the ``pull``, and the
+    alt preview gets the interior pull's weights. Blender and the file helpers are stand-ins (the CPU tests have no
+    Blender). Fails on adc3004 (the interior panes written clipped, no ``clip``) and on the mutations that drop
+    ``final = ifinal``, the ``ipull`` argument of ``interior_glazing`` or ``(ipull, iweights)`` in the alt pulls."""
+    import sys
+    import types
+
+    import numpy as np
+
+    index, channels, main = _glazing_frame()
+    main[index == 6] = (252, 252, 252)                    # the interior panes clip (the sunlit outside behind them)
+    walls = index == 0
+
+    def fake_save(scene, result, path, ev, look=R.LOOK):
+        return (main.astype(np.float64) * 0.5 ** round(-float(ev))).astype(np.uint8)
+    written, alt_pulls = {}, []
+    monkeypatch.setattr(R, "save_display", fake_save)
+    monkeypatch.setattr(R, "select_world", lambda scene, cam, room_type=None: "interior")
+    monkeypatch.setattr(R, "set_view_clip", lambda cam, props, room_type=None: ({"end": 60.0}, 60.0))
+    monkeypatch.setattr(R, "set_output", lambda scene, fmt, quality=90: None)
+    monkeypatch.setattr(R, "read_exr", lambda path: channels)
+    products = {"index": index.astype(np.uint16), "depth_mm": np.full(index.shape, 3000, dtype=np.uint16),
+                "normal": np.zeros(index.shape + (3,), dtype=np.uint8), "index_values": [0, 5, 6],
+                "depth": {"min": 1.0, "max": 5.0}, "index_stats": {}, "depth_legacy": None}
+    monkeypatch.setattr(R, "pass_products", lambda ch, haze=(): products)
+    monkeypatch.setattr(R, "read_display_png", lambda path: main.copy())
+    monkeypatch.setattr(R, "view_walls", lambda prods: walls)
+    monkeypatch.setattr(R, "write_png", lambda path, array, compression=None: written.__setitem__(Path(path).name,
+                                                                                                   np.array(array)))
+    monkeypatch.setattr(R, "encode_preview", lambda scene, png, path, quality=None: 100)
+    monkeypatch.setattr(R, "save_preview", lambda scene, result, path, quality=None: 100)
+    result = types.SimpleNamespace(save_render=lambda path, scene=None: None)
+    monkeypatch.setitem(sys.modules, "bpy", types.SimpleNamespace(
+        ops=types.SimpleNamespace(render=types.SimpleNamespace(render=lambda write_still=True: None)),
+        data=types.SimpleNamespace(images=types.SimpleNamespace(get=lambda name: result))))
+
+    class Cam(dict):
+        name = "cam_r_L0_giris_holu_1"
+        data = types.SimpleNamespace(clip_end=60.0, lens=18.0, sensor_width=36.0)
+
+    class Scene(dict):
+        camera = None
+        render = types.SimpleNamespace(filepath="")
+    look = {"ev": 0.0, "at_limit": False, "notes": [], "wb_temperature": 5600, "meter_seconds": 0.1}
+    ctx = types.SimpleNamespace(
+        scene=Scene(), res=(30, 20), haze_objects=[], haze=set(), windows={5, 6}, interior_windows={6},
+        pass_index={"win_L0_046": 5, "win_L0_008": 6}, device="CPU", fingerprint="f",
+        args=types.SimpleNamespace(preview_quality=None, alt_look="None", samples=16),
+        look=types.SimpleNamespace(room_type=lambda cam: "hall", decide=lambda cam, out, res: dict(look),
+                                   apply=lambda lk: None))
+    run = object.__new__(R.RenderRun)
+    run.ctx, run.out, run.entries, run.warnings, run.hidden, run.plugged, run.rendered = \
+        ctx, tmp_path, {}, [], [], [], 0
+    run.write_manifest = lambda: None
+    run.alt_preview = lambda cam, lk, res, pulls, path: alt_pulls.extend(pulls) or 50
+    R.RenderRun.render(run, Cam(), "k", "test")
+    entry = run.entries["cam_r_L0_giris_holu_1"]
+    png = written["cam_r_L0_giris_holu_1.png"]
+    assert entry["window_pull"]["k"] == 1 and entry["window_pull"]["interior_pane_px"] == 99
+    g = entry["interior_glazing"]
+    assert g["pull"]["k"] == 1 and g["pull"]["clip_before"] == 1.0 and g["clip"] <= R.PULL_MAX_CLIP
+    assert (png[index == 6] < 252).all() and (png[index == 5] < 252).all()
+    assert np.array_equal(png[index == 0], main[index == 0])                 # the walls as rendered
+    assert [k for k, _w in alt_pulls] == [1, 1] and (alt_pulls[1][1][index == 5] == 0).all()
+    assert (alt_pulls[1][1][index == 6] > 0).all()
+    from wenart.blender import schemas
+
+    jsonschema = pytest.importorskip("jsonschema")
+    jsonschema.validate(g, schemas.RENDER_ENTRY["properties"]["interior_glazing"])
+    jsonschema.validate(entry["window_pull"], schemas.RENDER_ENTRY["properties"]["window_pull"])

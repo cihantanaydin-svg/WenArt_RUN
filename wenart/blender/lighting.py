@@ -141,7 +141,10 @@ Fix round after P4b (17 Oct 2026; the review of the P4a fix round and the P4b lo
   ``furniture.lamp_light_point``: the parametric shades are closed solids), in the shade of a library lamp only; when
   the scene is built, rays check every hosted light against its host's object and step it down out of a closed
   shade or bulb (``light_escapes``, ``free_light_point``; recorded per light as ``escape``, an enclosed light as
-  ``rig_light_enclosed``), so each library model is checked, not only the two ABO lamps measured for P4a.
+  ``rig_light_enclosed``), so each library model is checked, not only the two ABO lamps measured for P4a. Pass
+  before P5 (17 Oct 2026; the review of the fix round after P4b): a light moved down out of a closed shade is
+  recorded where it is built (``light_where`` ``below_host_surface``, the move in its reason, ``escape.from_where`` /
+  ``from_z``, an assumed entry of kind ``rig_light_moved``); before, its records still said "in the shade".
 - Fixtures have hardware (the verifier's better fix of the P4b finding "rig fixtures read as primitives": all 6
   pendants of real03's living rooms hung as cordless drums about 1 m under the ceiling, and the bedside stems
   glowed in the nightstands' open shelves): a pendant's cord and canopy up to its ``mount_z`` (the ceiling over it),
@@ -1694,7 +1697,15 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
     (``mesh: False``) is checked by rays against its host's object (``host_object_name``, ``free_light_point``): when
     the host's geometry encloses it, it goes under the host's surface below it, not lower than the fixture's
     ``escape_low_z``; the light entry records ``escape`` (``host_object``, ``escapes``, ``moved_m``) and a light still
-    enclosed adds an ``assumed`` entry of kind ``rig_light_enclosed``."""
+    enclosed adds an ``assumed`` entry of kind ``rig_light_enclosed``.
+
+    Pass before P5 (17 Oct 2026; the review of the fix round after P4b): a light the ray check moved down
+    (``moved_m`` > 0) said "in the shade" in its reason, its ``light_where`` and the scene's ``rig_light`` entry,
+    0.30 m above where it was built (the Blender test's library floor lamp with a closed shade). Now, before those
+    entries are written, the fixture's ``light_where`` becomes ``below_host_surface``, its ``reason`` adds the move
+    (the distance, both heights, the host object), ``escape`` adds ``from_where`` and ``from_z`` (the planned spot),
+    and an ``assumed`` entry of kind ``rig_light_moved`` (value: the distance) records it. A light that gets out where
+    the plan put it keeps its records unchanged."""
     from mathutils import Vector
 
     lights = []
@@ -1738,11 +1749,26 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
             host_ob = bpy.data.objects.get(host_name) if host_name is not None else None
             if host_ob is not None and host_ob.type == "MESH":
                 depsgraph = bpy.context.evaluated_depsgraph_get()
+                from_z = float(f["light"]["center"][2])
                 point, escapes, moved = free_light_point(host_ob, depsgraph, f["light"]["center"],
                                                          float(f["light"].get("radius_m") or 0.05),
                                                          f.get("escape_low_z"))
                 f["light"]["center"] = [round(float(v), 4) for v in point]
                 escape = {"host_object": host_name, "escapes": bool(escapes), "moved_m": moved}
+                if escapes and moved > 0:
+                    # pass before P5: the records say where the light is built, not only where the plan put it
+                    escape.update(from_where=f.get("light_where"), from_z=round(from_z, 4))
+                    spot = str(f.get("light_where") or "planned").replace("_", "-")
+                    f["light_where"] = "below_host_surface"
+                    f["reason"] = (f"{f['reason']}; moved {moved:.2f} m down by the ray check (z {from_z:.2f} -> "
+                                   f"{float(point[2]):.2f} m): no ray left the model {host_name} at the {spot} spot, "
+                                   f"so the light sits under its closed shade or bulb")
+                    assumed.append({"object": f"{f['name']}_light", "field": "rig_light_escape", "value": moved,
+                                    "reason": f"{room['id']}: the rig light of {f['name']} was enclosed by its host "
+                                              f"{f.get('host_id')} ({host_name}) at the {spot} spot, z "
+                                              f"{from_z:.2f} m; moved {moved:.2f} m down to z "
+                                              f"{float(point[2]):.2f} m, where it gets out",
+                                    "parent": room["id"], "kind": "rig_light_moved"})
                 if not escapes:
                     assumed.append({"object": f"{f['name']}_light", "field": "rig_light_escape", "value": None,
                                     "reason": f"{room['id']}: the rig light of {f['name']} is enclosed by its host "

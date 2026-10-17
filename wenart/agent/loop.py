@@ -147,6 +147,12 @@ same day):
   measured eye height and role); a checklist step closed by a tool says why (``closed_why``: the memory refused its
   edit twice, or the code's fix_fixture search found no valid spot).
 
+Pass before P5 (17 Oct 2026; the review of the fix round after P4b): a ``set_exterior`` keeps the vision finding it
+targets with the reason (``exterior_kept``: "the edit does not change what the finding is about") whatever its
+target: ``tools.changed_targets`` leaves an untouched target out of ``changed``, so the finding was kept through the
+"target not changed" branch without the reason, and the model was not told that a sun or ground edit cannot fix a
+"no path" finding (``after_findings(targets=...)``; the other vision findings keep their message).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -758,7 +764,8 @@ def scene_after(scene: Optional[dict], tool: str, args: Optional[dict], building
 
 
 def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None,
-                   building_before: Optional[dict] = None, override: Optional[dict] = None) -> list[dict]:
+                   building_before: Optional[dict] = None, override: Optional[dict] = None,
+                   targets: Optional[list] = None) -> list[dict]:
     """The finding list after an edit for ``accept_edit`` (module docstring): the code critic's findings on the
     changed building (``code_after``) without the ``NOT_REMEASURED`` ones, plus the ``NOT_REMEASURED`` and vision
     findings of ``before`` whose target the edit did not change (a vision finding on a changed target is re-judged
@@ -777,7 +784,13 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
 
     Fix round after P4b: ``override`` (a ``set_exterior``'s) keeps every vision finding whose cause it does not touch
     (``exterior_kept``), whatever its target: a building-wide edit changes ``building`` and the views, so a ground
-    or sun edit counted the vision X4 "no path to the entrance" as gone (P4b seq 951 and 1357; it came back)."""
+    or sun edit counted the vision X4 "no path to the entrance" as gone (P4b seq 951 and 1357; it came back).
+
+    Pass before P5: ``targets`` (the edit's target findings, ``tools.target_findings``): a vision target the
+    override does not touch is kept through ``exterior_kept`` (with the reason) also when its target is not in
+    ``changed`` (``tools.changed_targets`` leaves it out); the other vision findings keep their message, so the
+    round's list (an accepted edit's ``after_findings``) carries no reason of an edit that was not about them."""
+    target_keys = {CS.finding_key(t) for t in targets or [] if isinstance(t, dict)}
     out = []
     for f in code_after:
         if f.get("check") in NOT_REMEASURED:
@@ -788,10 +801,11 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
     for f in before:
         if f.get("source") == "vision":
             cause = f.get("cause") or CS.cause_of(f, building_after)
-            if f.get("target") not in changed:
-                out.append(dict(f, cause=cause))
-            elif override is not None and not CS.override_touches(cause, override):
+            untouched = override is not None and not CS.override_touches(cause, override)
+            if untouched and (f.get("target") in changed or CS.finding_key(f) in target_keys):
                 out.append(exterior_kept(f, cause, override))
+            elif f.get("target") not in changed:
+                out.append(dict(f, cause=cause))
             continue
         if f.get("check") not in NOT_REMEASURED:
             continue
@@ -1119,7 +1133,7 @@ class AgentLoop:
         # fix round after P4b: a set_exterior keeps the vision findings it does not touch
         override = {k: v for k, v in (args or {}).items() if k != "reason"} if tool == "set_exterior" else None
         after = after_findings(code_after, before, changed, building_after, building_before=ctx.building,
-                               override=override)
+                               override=override, targets=targets)
         # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed);
         # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``)
         edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target"), "metrics": CS._metrics(f)}

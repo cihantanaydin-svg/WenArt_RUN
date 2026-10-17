@@ -1693,16 +1693,19 @@ full CPU suite. Nothing here has run on a GPU yet: the new GPU checks run in P5.
   a rig table lamp never stands through the plant on its nightstand (it takes a free spot of the top, else the
   head-wall sconce: P3 real04's two bedrooms). Hosted lights reach the room: 3 cm under a decor pendant, under a
   parametric shade, in a library shade only, and at build time rays against the host's own mesh move an enclosed
-  light out (`light_escapes`, `free_light_point`; an enclosed light is an assumed `rig_light_enclosed`). Fixtures have
-  hardware (a pendant's 6 mm cord and canopy up to the ceiling, a ceiling fixture's canopy, a table lamp's base and
-  stem) in a non-emissive dark bronze slot; a pendant's cord is checked like its shade. Tests: `tests/test_m13_rig.py`
-  (Blender test included), `tests/test_blender_furniture.py`.
+  light out (`light_escapes`, `free_light_point`; an enclosed light is an assumed `rig_light_enclosed`; pass before P5,
+  §14.12: a light the ray check moved out of a closed shade has `light_where: below_host_surface`, the move in its
+  reason, `escape.from_where` / `escape.from_z` and an assumed entry of kind `rig_light_moved`, value = metres moved).
+  Fixtures have hardware (a pendant's 6 mm cord and canopy up to the ceiling, a ceiling fixture's canopy, a table
+  lamp's base and stem) in a non-emissive dark bronze slot; a pendant's cord is checked like its shade. Tests:
+  `tests/test_m13_rig.py` (Blender test included), `tests/test_blender_furniture.py`.
 - **Furniture (F).** The duplicate-outline rule takes a larger built drawn piece of the same family (the phantom
   1.30 m sofa f_L-1_061/062 inside real02's corner sofa may be marked; the program adds nothing around it); a plan crop
-  in the evidence lifts the mark lock, a top-down render never does (`edit_ops.crop_of`). A drawn washing machine may
-  stand in a hall (F1), and `complete_group` is refused where the program completes nothing. A drawn washer whose
-  front faces a wall keeps its one open side free (`solver.access_zone`: real03's 4 hall consoles are no longer added).
-  A code-typed corner sofa with no drawn L takes the chaise side that leaves its drawn coffee table free
+  in the evidence lifts the mark lock, a top-down render never does (`edit_ops.crop_of`; pass before P5, §14.12: only
+  the piece's own recognition crop, `edit_ops.own_crop_named`, never a room's or camera's plan crop). A drawn washing
+  machine may stand in a hall (F1), and `complete_group` is refused where the program completes nothing. A drawn
+  washer whose front faces a wall keeps its one open side free (`solver.access_zone`: real03's 4 hall consoles are no
+  longer added). A code-typed corner sofa with no drawn L takes the chaise side that leaves its drawn coffee table free
   (`infer.chaise_sides`: f_L0_190 left, f_L0_196 right). Tests: `tests/test_m13_fixround_furniture.py` (8 new), 14 of
   14 mutations killed.
 - **Ingest and recognition (I).** Decision 9: after `pipeline_final`, a late pass answers the late questions from the
@@ -1794,8 +1797,12 @@ pins of `test_blender_furniture.py` (the library cushion dec_T04 penetrates 0.03
    cord, canopy and stem share the shade object and cast no shadow (a separate object would rename the rig objects).
 7. real03's 4 entrance halls get no console now (no spot passes; the entrance group is optional): an empty hall, or a
    smaller piece with relaxed checks?
-8. A plan crop named in the evidence lifts the mark lock for any code-typed drawn piece (the P4b agent cited one in
-   all 9 NR marks): keep, or only the family-duplicate rule?
+8. Answered by code in the pass before P5 (§14.12). The question was: a plan crop named in the evidence lifts the mark
+   lock for any code-typed drawn piece (the P4b agent cited one in all 9 NR marks): keep, or only the family-duplicate
+   rule? Now only the piece's own recognition crop lifts it (`edit_ops.own_crop_named`: the crop of its own
+   `recognition:<key>` question, or a recognition crop recorded for its id in `needs_review` / `conflicts`); a room or
+   camera plan crop (`check/*_plan.jpg`) or another symbol's crop never does. NR marks are not affected (the NR target
+   lifts the lock anyway).
 9. Not verified, for the furniture owner and the user: should a drawn bathtub or shower 2-5 cm longer than its bay be
    snapped to the clear bay width (a CLAUDE.md "misread size")?
 10. The policy frontal view is kept below the 8 % share floor rather than dropped (real03 7.6 %); the corner, aerial and
@@ -1804,7 +1811,81 @@ pins of `test_blender_furniture.py` (the library cushion dec_T04 penetrates 0.03
 **GPU checks for P5.** As §14.10, plus `tests/gpu/test_render.py` and `tests/gpu/test_m13_light.py` as changed in this
 round (interior glazing |delta R/B| ≤ 0.3 with the 4000 K circulation and bath rig, the orange check from share 0.4).
 Read the P5 scene manifest's `escape` / `rig_light_enclosed` entries for the HSSD floor lamp and ABO B0742D9X4R (their
-GLBs were not here), the `head_problems` of every dressing record, and the `share_kept` of any frontal view.
+GLBs were not here), and since the pass before P5 (§14.12) its `rig_light_moved` entries as well (a light moved out of
+a closed shade: `light_where: below_host_surface`, `escape.from_where` / `escape.from_z`, value = metres moved); the
+`head_problems` of every dressing record, and the `share_kept` of any frontal view.
+
+### 14.12 Pass before P5 (17 Oct 2026; no pod)
+
+A review read the fix round after P4b (adc3004) with P5 in mind (real04 full run, searched cameras; P3's real04
+results in `runs/20261016-172855-full/results` are the data the fixes were checked on). The tracks fixed its 14
+findings on adc3004, each with a CPU test that fails on adc3004 or on a mutation of the fixed code, and one
+integration step applied their small asks and ran the suites. Nothing here has run on a GPU yet.
+
+- **Agent (A).** Decision 2 now uses X6's rule for the frontal view: an `agent` view square to the main facade keeps
+  its pose, the only such view is not removed, and an elevation of another facade no longer stands in for it
+  (`critic_vision.x6_frontal`, `tools.role_problem`; real04's frontal view is one the agent adds, since the planner
+  drops ext_6). The critic's eye height is measured on the building's site (`critic_vision.ground_z`; the scene's tin
+  terrain record has no surface): on P3's real04 data this drops 7 of 7 low-angle claims on corners. The eye-height
+  hint now reads "use z A to B". A `set_exterior` refusal names the reason through `after_findings(targets=...)`.
+  Tests: `tests/test_agent_pass_before_p5.py` (9 tests); 23 of 23 single-line mutations were caught (scratch script
+  `mutate_a_agent.py`).
+- **Rig (R).** A light moved out of a closed shade by the ray check has `light_where: below_host_surface`, the move in
+  its reason, `escape.from_where` / `escape.from_z`, and an assumed entry of kind `rig_light_moved` (value = metres
+  moved); a light that gets out where the plan put it keeps its records (`lighting.py`; `tests/test_m13_rig.py`).
+- **Furniture (F).** Only the piece's own recognition crop lifts the mark lock (`edit_ops.own_crop_named`: the crop of
+  its own `recognition:<key>` question, or a recognition crop recorded for its id in `needs_review` / `conflicts`); a
+  room or camera plan crop (`check/*_plan.jpg`) or another symbol's crop never does, and the refusal no longer hands
+  out a crop path pattern. This answers question 8 of §14.11. On P3's real04 buildings 72 drawn pieces are under the
+  lock; 2 have a crop of their own (the round coffee tables f_L1_015 / f_L1_016).
+  `tests/test_m13_fixround_furniture.py`.
+- **Ingest and recognition (I).** `reading.tie_break` decides mirrored twins together and the code typing runs once
+  more after it (P3 real04: f_L1_033 sideboard and f_L1_036 bookshelf, as their twins, before the review list). The
+  scheduler's late pass counts only the questions pipeline_final adds (`ProjectRun.asked`), never starts a server that
+  failed in this run again, and lays out on a server when the late pass has no other Qwen need (both chains).
+  `tests/test_m13_p4b_recognition.py`.
+- **Light and render (L).** `render.choose_pull` rule 2 now applies only when `render.pull_needed` is True (panes
+  clipped or off target as rendered): P4a real02 cam_r_L1_teras_2_2 and P4b real03 yasama_3 / yasama_4_1 go back to
+  k 0. Interior glazing is pulled only when its panes clip (`render.choose_interior_pull` / `RenderRun.interior_pull`:
+  the smallest unclipping k at >= 0.8 x the walls, else the lowest clip at that bound, else none; a wall guard against
+  lamps seen through glass); `interior_glazing` now carries `clip` (required) and `pull`. Two new GPU checks in
+  `tests/gpu/test_render.py`: `test_window_pull_leaves_panes_that_need_no_pull` and
+  `test_interior_glazing_pull_removes_clipping`. Render code stays m13.3. `tests/test_m13_light.py`.
+- **Site (S).** A walls slug whose bare request gets a shell slot's texture set back (`shell.shell_stand_in`:
+  `plaster_white` gives the ceiling slot's white_plaster_02) gives the stair structure a smooth `paint` in the walls'
+  colour (`shell.stair_structure_slot`), so no "white walls" style puts the plaster photo on the stringer.
+  `tests/test_m13_site.py`.
+- **Report (P).** Metric 11 measures the camera flagged `site_view` first (P3 real04: ext_7, 4.1 % black, was ext_5
+  6.6 %); the final report's recognition model table counts an answer by the recognition rule (`AnswerStore.valid`),
+  with the same numbers on P3, P4a and P4b. `tests/test_m13_report.py`.
+
+**Integration (this step).** Applied asks:
+
+| From | Change | Test |
+|---|---|---|
+| L | `report/final.py`: a view's `interior_glazing` record goes into the final manifest; the per-view "pull EV" cell names the interior pull next to the window pull (`interior k<k>, clip <before> -> <after>`, or `interior clip <c> (not pulled)` over `INTERIOR_CLIP_MAX` = `render.PULL_MAX_CLIP`); the exposure summary counts it (`interior_pull`: views, pulled, still clipped, k range) with an "interior glazing pull" row. A manifest without the record reads as before (P3 real04: every cell unchanged) | `tests/test_m13_pre_p5_integration.py` |
+| F | `agent/tools.py`: `plan_crop` with a `piece_id` also shows the piece's own recognition crop (`piece_crop`, `ToolContext.own_crop_path`: the crop its review entry or conflict records first, else `recognition/crops/<key>_ctx.png`, then `_iso`), the one crop that lifts the mark lock. On P3's real04 building 80 drawn pieces have one on disk (f_L1_015 / f_L1_016 among them), the coffee table f_L1_024 none | same (P3 data where on disk) |
+| F | `agent/prompts.py`: rule 3 of `PLANNER_SYSTEM_M12` (the planner the loop uses; the ask named the Milestone 11 `PLANNER_SYSTEM`, which only pod G1's model check uses and stays) says that the room's plan crop or a view is no evidence that a drawn piece typed from the drawing is not furniture, and that a placement finding (F9, S2, G*) on it is fixed by a move, a snap or a turn | same |
+| I | `ingest/pipeline.py`: a piece `_infer_types` types and builds leaves the review list (`_drop_typed_reviews`: its `untyped_piece` entry only; the reading's review count follows). A stale entry was an NR finding for the agent and lifted the mark lock. The committed real02 / real03 / real04 buildings have no such entry | same |
+| A, L, F, R | this section, §14.11's rig paragraph, its plan-crop bullet, question 8 and the P5 reading | - |
+
+22 of 22 single-line mutations of the integration's code are caught, and every test of
+`tests/test_m13_pre_p5_integration.py` (10) fails on the adc3004 versions of the four files (scratch script
+`mutate_pre_p5.py`). Not applied, with the reason: `blender/materials.py`'s tint tag in `material_name` (low
+priority: no current style asks for an untinted bare `paint` next to `plaster_white` walls, and a name change reaches
+every Blender test's material names; left for the render owner).
+
+CPU suites after the integration (`-m "not gpu"`, temp folder in /dev/shm for the low disk): the agent, light, rig,
+furniture, recognition, ingest, site, report, integration, contract and run suites of the pass (`tests/test_agent_*.py`
+and the 17 named files) 712 passed, 0 failed, 23 skipped (21 need a Blender binary, 2 the M5 git history), 9:10 min;
+`tests/test_m13_pre_p5_integration.py` with the report suites (`test_report*.py`, `test_agent_podcheck.py`) 138
+passed; the ingest suites the pipeline change reaches (`test_m11_ingest.py`, `test_real01.py`,
+`test_real02_pipeline.py`, `test_levels_read.py`, `test_dxf_generic.py`, `test_classify.py`, `test_raster.py`,
+`test_outline_walls.py`, `test_sheets_pipeline.py`, `test_recognition_answers.py`, `test_furniture_fit.py`) 212 passed,
+14 skipped, 4 xfailed, 16:09 min. No pin changed.
+
+**GPU checks for P5.** As §14.11, plus `tests/gpu/test_render.py`'s two new checks (the window pull leaves panes that
+need no pull; the interior glazing pull removes clipping) and the scene manifest's `rig_light_moved` entries.
 
 ### 14.4 Open items and risks by track
 
