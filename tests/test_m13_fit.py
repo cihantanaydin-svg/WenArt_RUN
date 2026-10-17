@@ -1135,3 +1135,45 @@ def test_part2_a_sink_off_its_unit_keeps_its_own_model_and_a_small_shift_is_reco
     assert "0.05 m from the drawn sink centre" in s["asset"]["fallback_reason"]
     assert "f_sink (sink_kitchen): built into the kitchen run f_run" in F.fit_report(fitted)
     assert "the sink unit stands 0.05 m from the drawn centre" in F.fit_report(fitted)
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3, part 3 (17 Oct 2026): a drawn sink is measured across its run too
+# --------------------------------------------------------------------------
+
+def test_part3_a_sink_over_the_run_s_front_keeps_its_own_model_and_an_offset_across_is_recorded(library):
+    """The review's case, through ``fit_building``: a 2.4 x 0.6 m run (front 0, rotation 90) and a drawn 0.8 x 0.5 m
+    sink centred 0.25 m in front of the run's centreline (60 % inside, so the pre-pass claims it). Part 2 built it in
+    on the centreline, 0.25 m from where it is drawn, with ``shift_m`` 0 and no record. Now it is not built in: it
+    keeps its own model at its drawn place, the run leaves a gap at its drawn span and the report says why. A sink
+    0.05 m behind the centreline (as real04's) is built in, and the offset across is in its asset and the report."""
+    run = drawn("kitchen_counter", 2.4, 0.6, "f_run", room="r_k", front=0.0, center=(0.0, 0.0), height=0.9)
+    # the run lies along y (front 0 -> rotation 90, its front faces +x), from x -0.3 to 0.3; the sink spans x 0-0.5
+    over = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(0.25, 0.0))
+    assert F.kitchen_built_ins({"furniture": [run, over]})["sinks"] == {"f_sink": "f_run"}
+    before = {"furniture": [run, over]}
+    fitted = F.fit_building(copy.deepcopy(before), library, mode="relaxed")
+    F.assert_only_assets_changed(before, fitted)
+    r, s = fitted["furniture"]
+    plan = r["asset"]["module_plan"]
+    assert "built_ins" not in plan and plan["cutouts"] == []
+    (gap,) = plan["gaps"]
+    assert (gap["id"], gap["type"], gap["x_m"], gap["w_m"]) == ("f_sink", "sink_kitchen", pytest.approx(0.0),
+                                                                pytest.approx(0.8))
+    assert "built_in" not in s["asset"] and s["asset"]["method"] in ("library", "parametric")
+    report = F.fit_report(fitted)
+    assert "a 0.80 m gap for the drawn sink_kitchen f_sink" in report and "0.25 m across it" in report
+    assert "built into the kitchen run" not in report
+    assert not _scene_s2(fitted)
+    # 0.05 m behind the centreline: built in, the bowl's 0.05 m across named in the sink's asset and in the report
+    back = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(-0.05, 0.0))
+    fitted = F.fit_building({"furniture": [copy.deepcopy(run), back]}, library, mode="relaxed")
+    r, s = fitted["furniture"]
+    (b,) = r["asset"]["module_plan"]["built_ins"]
+    assert (b["shift_m"], b["drawn_y_m"], b["shift_y_m"]) == (pytest.approx(0.0), pytest.approx(0.05),
+                                                              pytest.approx(-0.05))
+    assert s["asset"]["built_in"] == "f_run" and s["asset"]["module_plan"]["shift_y_m"] == pytest.approx(-0.05)
+    assert "the bowl stands 0.05 m in front of the drawn sink centre" in s["asset"]["fallback_reason"]
+    (line,) = [ln for ln in F.fit_report(fitted).splitlines()                       # the "Kitchen runs" line
+               if ln.startswith("- f_sink (sink_kitchen): built into the kitchen run f_run (its sink unit")]
+    assert line.endswith("; the bowl stands 0.05 m in front of the drawn sink centre, on the run's centreline")

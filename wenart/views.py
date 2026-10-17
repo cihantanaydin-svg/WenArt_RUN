@@ -66,8 +66,9 @@ WALL_NZ_ABS_MAX = 0.3           # walls: |nz| < 0.3
 KIND_MAP = {"door": "door", "window": "window", "furniture": "furniture",
             "furniture_proxy": "furniture", "decor": "decor"}
 # Milestone 13 (T6): the site parts of wenart/blender/site.py and vegetation.py (common.KINDS). They never count
-# as furniture or decor: each maps to itself (an element kind of its own, never in a view's index table since the
-# site objects carry no pass index).
+# as furniture or decor: each maps to itself (an element kind of its own). Fix round part 3 (17 Oct 2026): the haze
+# object carries site.HAZE_PASS_INDEX, so index_table may list it as an 'atmosphere' element; no pixel maps to it,
+# because the index map writes 0 there (render.haze_sky counts its hits with no normal as sky).
 SITE_PART_KINDS = ("site_platform", "site_hedge", "site_grass", "atmosphere")
 KIND_MAP.update({kind: kind for kind in SITE_PART_KINDS})
 OBJECT_KINDS = ("door", "window", "furniture", "decor")

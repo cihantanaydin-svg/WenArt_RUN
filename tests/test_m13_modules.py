@@ -633,7 +633,9 @@ def test_the_drawn_sink_is_built_into_the_run_and_a_stove_gap_never_moves():
     assert plan["cutouts"] == ["sink"]
     assert plan["built_ins"] == [{"id": "f_L-1_067", "kind": "sink", "x_m": pytest.approx(-0.0026, abs=1e-4),
                                   "w_m": 0.8, "drawn_x_m": pytest.approx(-0.0026, abs=1e-4),
-                                  "shift_m": pytest.approx(0.0, abs=1e-4)}]   # part 2: the shift is recorded
+                                  "shift_m": pytest.approx(0.0, abs=1e-4),     # part 2: the shift is recorded
+                                  "drawn_y_m": pytest.approx(0.05, abs=1e-4),  # part 3: and the offset across
+                                  "shift_y_m": pytest.approx(-0.05, abs=1e-4)}]
     roles = {p["role"] for p in M.module_parts(plan)}
     assert {"basin", "tap"} <= roles and M.module_record(plan)["built_ins"] == plan["built_ins"]
     both = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
@@ -784,3 +786,57 @@ def test_part2_a_stove_over_its_whole_run_never_empties_the_plan():
     _no_degenerate_faces(M.module_parts(island))
     with pytest.raises(ValueError, match="no parts"):
         M.build_module({"builder": "kitchen_run", "modules": [], "footprint_m": [0.6, 0.6]}, run, {})
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3, part 3 (17 Oct 2026): the drawn sink is measured across the run too
+# --------------------------------------------------------------------------
+
+def test_part3_a_drawn_sink_off_the_run_s_centreline_is_not_built_in_and_stands_in_a_gap():
+    """The review's case: a 2.4 x 0.6 m run (rotation 90) and a drawn 0.8 x 0.5 m sink centred 0.25 m in front of the
+    run's centreline (40 % of it over the front edge). Part 2 measured only along the run (shift 0) and built the bowl
+    on the centreline, 0.25 m from the drawn centre, with no record. Now the bowl's distance to the drawn centre is
+    measured across the run too: past KITCHEN_END_SHIFT_MAX_M the sink is not built in and gets a gap at its drawn
+    span with the reason; within it, it is built in and the offset across is recorded and named."""
+    run = _piece("kitchen_counter", 2.4, 0.6, rot=90.0)
+    front = M.module_plan(dict(run, module_hints={"sink_pos_m": [0.25, 0.0], "sink_w_m": 0.8, "sink_piece": "f_sink"}))
+    assert "built_ins" not in front and front["cutouts"] == []
+    (gap,) = front["gaps"]
+    assert (gap["id"], gap["type"], gap["x_m"], gap["w_m"]) == ("f_sink", "sink_kitchen", pytest.approx(0.0),
+                                                                pytest.approx(0.8))
+    assert "0.25 m from the drawn centre" in gap["reason"] and "0.25 m across it" in gap["reason"]
+    assert "toward the run's front edge" in gap["reason"]
+    assert any("f_sink is not built in" in n and "gap at its drawn span" in n for n in front["notes"])
+    parts = M.module_parts(front)
+    assert not _covers(parts, ("body", "front", "handle", "top", "plinth", "basin", "tap"), -0.4, 0.4)
+    assert _covers(parts, ("top",), -1.2, -0.4) and _covers(parts, ("top",), 0.4, 1.2)
+    assert M.plan_bbox(front)[0] == pytest.approx(2.4)
+    # the same place in the run's frame (sink_x_m / sink_y_m); toward the back edge too
+    local = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "sink_x_m": 0.0, "sink_y_m": -0.25, "sink_w_m": 0.8, "sink_piece": "f_sink"}))
+    assert local["gaps"] == front["gaps"]
+    back = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "sink_x_m": 0.0, "sink_y_m": 0.15, "sink_w_m": 0.8, "sink_piece": "f_sink"}))
+    assert "built_ins" not in back and "toward the run's back edge" in back["gaps"][0]["reason"]
+    # one distance for both axes: 0.08 m along (the unit clamped to the run's end) and 0.08 m across is 0.11 m
+    both = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "sink_x_m": 0.88, "sink_y_m": 0.08, "sink_w_m": 0.8, "sink_piece": "f_sink"}))
+    assert "built_ins" not in both
+    assert "0.11 m from the drawn centre (0.08 m along the run" in both["gaps"][0]["reason"]
+    # at the limit across (0.10 m) it is built in, the offset recorded and named; the bowl stays on the centreline
+    at = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "sink_x_m": 0.0, "sink_y_m": -0.10, "sink_w_m": 0.8, "sink_piece": "f_sink"}))
+    (b,) = at["built_ins"]
+    assert (b["shift_m"], b["drawn_y_m"], b["shift_y_m"]) == (pytest.approx(0.0), pytest.approx(-0.10),
+                                                              pytest.approx(0.10))
+    assert any("the bowl stands 0.10 m behind the drawn sink centre" in n for n in at["notes"]) and "gaps" not in at
+    (x0, x1, y0, y1, _zb, _rim), = assert_open_bowls(M.module_parts(at))
+    assert (x0 + x1) / 2.0 == pytest.approx(0.0, abs=0.01) and (y0 + y1) / 2.0 == pytest.approx(0.0, abs=0.01)
+    # real04's sinks lie 0.05 m behind the centreline: built in as before, the 0.05 m named
+    real = M.module_plan(dict(run, module_hints={"sink_pos_m": [-0.05, 0.0], "sink_w_m": 0.8, "sink_piece": "f_sink"}))
+    assert real["built_ins"][0]["shift_y_m"] == pytest.approx(-0.05)
+    assert any("the bowl stands 0.05 m in front of the drawn sink centre" in n for n in real["notes"])
+    # without a drawn place across the run (sink_x_m only) the decision is the one along the run, as in part 2
+    along = M.module_plan(_piece("kitchen_counter", 2.4, 0.6, module_hints={
+        "sink_x_m": 0.0, "sink_w_m": 0.8, "sink_piece": "f_sink"}))
+    assert "shift_y_m" not in along["built_ins"][0] and "gaps" not in along

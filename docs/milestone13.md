@@ -1438,9 +1438,10 @@ strengthened until a mutation of the code it covers makes it fail), then one int
   `OPEN_AIR_BAND_SKY_RATIO`, `HORIZON_MARGIN_PX`), `SKY_PULLED_VIEWS` (real04 ext_2 / ext_4, real02 ext_2 must be
   pulled), `FILL_LIGHT_ROOMS` (the windowless bedrooms keep their fill light next to the rig) and
   `RIG_ONLY_MEDIAN_SHARE`; `tests/gpu/test_m13_light.py` pins the salon (the project white point) and the bath (rig
-  share ≥ 0.5). For P5: the terrace views now see the haze volume and the backdrop ring as the exterior views do; in the
-  shim at 16 spp the terrace sky shows haze noise, its sky share falls from 0.189 to 0.084 and the sky pull goes from
-  k 1 to k 4. Check the terrace skies on the P5 contact sheets.
+  share ≥ 0.5). For P5: the terrace views now see the haze volume and the backdrop ring as the exterior views do. The
+  terrace rays cross the haze shell, which Cycles writes into the depth and index passes on a random half of them at
+  any sample count; part 2's depth-only sky mask covered half the sky and the pull speckled it (fixed in part 3, below).
+  The terrace k 4 pull now darkens the whole terrace sky (median about 0.43): judge that look on the P5 contact sheets.
 - **Geometry (G).** Sink and vanity carcasses are hollow above the bowl (`parametric.open_carcass`: the modules' sink
   unit and vanity, parametric `_sink` and `_vanity`; the outer box is unchanged); part 1's built-in sink unit filled its
   own bowl up to 4 cm under the rim (major). A pinned drawn sink inside a run gets a gap and keeps its pinned model
@@ -1491,6 +1492,20 @@ round: a second, unpinned sink of a run gets no gap (no committed building has o
 the grass surface still differs from the ground where its clip vertices miss the ground's grid (up to ±6.6 cm at the
 corners of a synthetic sloped terrain; there at 62b2b3c too, not from the relief); `swap_model` on a built-in sink is
 allowed (the refit stands the library sink in a gap of the run).
+
+**Part 3 (17 Oct 2026):** the 5 review findings of part 2, fixed with tests that fail on eb80db2 or on a mutation.
+- **Sky mask (major).** The haze object carries `site.HAZE_PASS_INDEX` (32767) and `render.haze_sky` counts its hits
+  with no surface normal as sky, so the sky pull blends on the whole sky: real02 terrace (shim, 128 spp) mask 0.48 →
+  1.00 of the open sky, full-weight share 0 → 0.96, blended saturation 0.057 → 0.146; ext_2 likewise. The GPU sky
+  check has its saturation floor back (allowance 0.02 for the feather) and a mask-coherence pin (`full_weight_share`).
+- **Kitchen sink across the run.** A drawn sink is built into its run only when its centre lies within 0.10 m of
+  the sink unit along and across the run (`shift_y_m` recorded; real04's four sinks sit 0.003-0.05 m across and stay
+  built in); further off, it keeps its model in a gap at its drawn span, with the reason. Known and kept for later:
+  a sink drawn wholly inside a deep island but 0.25 m off its centreline now gets a gap through the whole island
+  depth instead of a basin at its drawn place (no committed project has one; the fix places the basin at the drawn
+  local y).
+- **Copy of alternatives.** An alternative's "this run" is the base project's run id, so a job that stops before the
+  alternative never ships its earlier previews; a test covers base and alternative manifests with stale files.
 
 ### 14.4 Open items and risks by track
 

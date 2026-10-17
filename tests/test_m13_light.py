@@ -26,6 +26,13 @@ GPU checks of tests/gpu/test_render.py on hand-made manifests: the white-point p
 share, the sky pull that must fire, the named windowless bedrooms that keep their fill light, the clip and the dark
 band under the horizon of the open-air views. The Blender-bound twins (a windowless bedroom's build, an open-air view
 rendered with the exterior clip) are in tests/test_look_m6.py.
+
+Fix round part 3 (17 Oct 2026, the review of part 2; the ``test_fixround_part3_*`` tests, each failing on eb80db2):
+the sky pull's mask counts the haze shell as sky (``render.haze_sky``: the haze's reserved pass index
+``site.HAZE_PASS_INDEX`` and no normal behind it), so the pull is blended on the whole sky at full weight and never on
+the far ground behind the shell; the reserved index stays out of the index map and the pass index tables; the GPU sky
+check holds the blended sky to the saturation floor (with a feather allowance) and pins the mask's coherence
+(``full_weight_share``).
 """
 from __future__ import annotations
 
@@ -1200,12 +1207,13 @@ def test_fixround_part2_gpu_white_point_pins_do_not_read_the_views_own_share(tmp
     assert gpu.RIG_ONLY_MEDIAN_SHARE == 0.5
 
 
-def _sky(k, before=(0.84, 0.06), after=(0.70, 0.14), tried=None):
+def _sky(k, before=(0.84, 0.06), after=(0.70, 0.14), tried=None, full=0.93):
     tried = tried if tried is not None else [{"k": 1, "median": 0.78, "saturation": 0.10},
                                              {"k": 2, "median": 0.70, "saturation": 0.14}][:max(k, 2)]
     return {"ev": -float(k), "k": k, "sky_px": 5000, "sky_share": 0.2, "median_before": before[0],
             "saturation_before": before[1], "median_after": after[0] if k else before[0],
-            "saturation_after": after[1] if k else before[1], "rule": "r", "tried": tried}
+            "saturation_after": after[1] if k else before[1], "rule": "r", "tried": tried,
+            "haze_px": 2400, "full_weight_share": full}
 
 
 def test_fixround_part2_gpu_sky_pull_check_fails_when_no_sky_is_pulled(tmp_path, monkeypatch):
@@ -1345,3 +1353,198 @@ def test_fixround_part2_gpu_open_air_check_sees_the_clip_and_the_horizon_band(tm
     # the part-1 black-pixel check still catches a black band
     with pytest.raises(AssertionError, match="black sky pixels"):
         check("black", band_rows=3, black_band=True)
+
+
+# --------------------------------------------------------------------------
+# Fix round part 3 (17 Oct 2026, the review of part 2): the haze shell is sky
+# --------------------------------------------------------------------------
+
+HAZE_INDEX = 32767
+
+
+def _haze_frame(seed: int = 0, h: int = 60, w: int = 80):
+    """The passes of a view under the exterior sky as Cycles 5.2.2 writes them (real02's terrace and ext_2 in the
+    shim): rows 0-29 sky with a building block (rows 12-29, columns 30-49, 10 m), rows 30-37 far ground behind the haze
+    (300 m), rows 38-59 near ground (5 m). The haze shell (30 m, the reserved index) takes a random half of the sky's
+    and the far ground's pixels at sample 0 (depth and index); the Normal pass is zero on the sky's shell hits and
+    carries the far ground's normal (from the samples that passed the shell) on the far ground's.
+    ``(channels, regions)``."""
+    import numpy as np
+
+    rng = np.random.default_rng(seed)
+    depth = np.full((h, w), 1e10, dtype=np.float32)
+    index = np.zeros((h, w), dtype=np.float32)
+    normal = np.zeros((h, w, 3), dtype=np.float32)
+    rows = np.arange(h)[:, None] * np.ones((1, w), dtype=int)
+    building = np.zeros((h, w), dtype=bool)
+    building[12:30, 30:50] = True
+    sky = (rows < 30) & ~building
+    far = (rows >= 30) & (rows < 38)
+    near = rows >= 38
+    depth[building], index[building], normal[building] = 10.0, 5.0, (0.0, -1.0, 0.0)
+    depth[far], normal[far] = 300.0, (0.0, 0.0, 1.0)
+    depth[near], normal[near] = 5.0, (0.0, 0.0, 1.0)
+    shell = rng.random((h, w)) < 0.5
+    sky_shell, far_shell = sky & shell, far & shell
+    depth[sky_shell | far_shell], index[sky_shell | far_shell] = 30.0, HAZE_INDEX
+    normal[far_shell] = (0.0, 0.0, 0.5)              # the far ground's normal from the samples past the shell
+    channels = {"ViewLayer.Depth.Z": depth, "ViewLayer.Object Index.X": index, "ViewLayer.Normal.X": normal[..., 0],
+                "ViewLayer.Normal.Y": normal[..., 1], "ViewLayer.Normal.Z": normal[..., 2]}
+    return channels, {"sky": sky, "building": building, "far": far, "near": near, "sky_shell": sky_shell,
+                      "far_shell": far_shell}
+
+
+def _passes(channels):
+    return (channels["ViewLayer.Depth.Z"], channels["ViewLayer.Object Index.X"],
+            R.find_rgb(channels, "Normal"))
+
+
+def test_fixround_part3_the_sky_mask_counts_the_haze_shell_as_sky():
+    """Review of part 2: with the exterior clip end the camera rays cross the haze shell (``site.haze_box``), and
+    Cycles writes the shell into the depth and index passes on a random half of them (real02's terrace at 16 and
+    128 spp: 0.48 / 0.47 of the open sky left as no-hit). The depth-only mask (eb80db2) marked that random half, so
+    no sky pixel reached full feather weight. The mask now adds the hits with the haze's reserved index and a zero
+    normal (``haze_sky``), and never the haze hits in front of the far ground (they carry its normal)."""
+    import numpy as np
+
+    channels, reg = _haze_frame()
+    depth, index, normal = _passes(channels)
+    old = R.sky_mask(depth)                                                  # the depth alone: eb80db2's mask
+    assert np.array_equal(old, reg["sky"] & ~reg["sky_shell"])
+    assert 0.4 < old.sum() / reg["sky"].sum() < 0.6
+    assert R.full_weight_share(old, R.feather_weights(old)) < 0.02          # speckled: no pixel at full weight
+    mask = R.sky_mask(depth, index, normal, {HAZE_INDEX})
+    assert np.array_equal(mask, reg["sky"])                                  # the whole sky and nothing else
+    assert not (mask & reg["far_shell"]).any()                               # the far ground behind the shell stays
+    assert np.array_equal(R.haze_sky(depth, index, normal, {HAZE_INDEX}), reg["sky_shell"])
+    assert R.full_weight_share(mask, R.feather_weights(mask)) >= 0.8
+    # a zero-normal hit of another object is no sky; without the haze set or a pass: the depth alone
+    other = index.copy()
+    other[reg["sky_shell"]] = 7.0
+    assert np.array_equal(R.sky_mask(depth, other, normal, {HAZE_INDEX}), old)
+    assert np.array_equal(R.sky_mask(depth, index, normal, ()), old)
+    assert np.array_equal(R.sky_mask(depth, index, None, {HAZE_INDEX}), old)
+    assert np.array_equal(R.sky_mask(depth, None, normal, {HAZE_INDEX}), old)
+    assert R.full_weight_share(np.zeros((2, 2), dtype=bool), np.zeros((2, 2))) is None
+
+
+def test_fixround_part3_the_sky_pull_blends_the_whole_sky_and_not_the_far_ground(tmp_path, monkeypatch):
+    """Review of part 2: on the speckled mask every pulled sky pixel got a third of the pull, the PNG sky alternated
+    between luminance 184 and 223 (19.6 levels between neighbours against 0.4) and the blended saturation stayed at
+    0.057 against the 0.12 floor. ``RenderRun.sky_pull`` on the haze frame (``save_display`` stands in for Blender):
+    the k 2 save reaches the whole sky, the full-weight sky has no neighbour step, the blended saturation reaches the
+    floor, the record says ``haze_px`` and ``full_weight_share``, and nothing outside the sky changes (the haze hits in
+    front of the far ground included)."""
+    import types
+
+    import numpy as np
+
+    from wenart import views
+
+    channels, reg = _haze_frame()
+    h, w = reg["sky"].shape
+    main = np.zeros((h, w, 3), dtype=np.uint8)
+    main[reg["sky"]] = (223, 225, 228)          # the near-white sky at the facade EV (the denoised sky is smooth)
+    main[reg["building"]] = (150, 140, 130)
+    main[reg["far"]] = (120, 130, 110)
+    main[reg["near"]] = (100, 100, 100)
+    skies = {1: (205, 215, 232), 2: (150, 172, 206), 3: (110, 128, 160), 4: (80, 94, 120)}
+
+    def fake_save(scene, result, path, ev, look=R.LOOK):
+        k = int(round(-4.0 - float(ev)))
+        img = (main.astype(np.float64) * 0.5 ** k).astype(np.uint8)      # everything darker at EV - k
+        img[reg["sky"]] = skies[k]
+        return img
+
+    run = types.SimpleNamespace(ctx=types.SimpleNamespace(scene=None, haze={HAZE_INDEX}), out=tmp_path, warnings=[])
+    cam = types.SimpleNamespace(name="cam_r_L1_teras_1")
+    monkeypatch.setattr(R, "save_display", fake_save)
+    record, weights, final = R.RenderRun.sky_pull(run, cam, {"ev": -4.0}, None, main, channels)
+    assert record["k"] == 2 and record["sky_px"] == int(reg["sky"].sum())
+    assert record["haze_px"] == int(reg["sky_shell"].sum()) > 0
+    assert record["full_weight_share"] >= 0.8
+    assert record["saturation_after"] >= R.SKY_PULL_SAT_MIN and record["median_after"] <= R.SKY_PULL_MEDIAN_MAX
+    assert np.array_equal(final[~reg["sky"]], main[~reg["sky"]])            # the far ground behind the haze too
+    lum = final[..., :3].astype(np.float64) @ np.array([0.2126, 0.7152, 0.0722])
+    core = views.erode(reg["sky"], 2)                                        # the sky at full feather weight
+    pairs = core[:, :-1] & core[:, 1:]
+    assert pairs.sum() > 1000 and float(np.abs(np.diff(lum, axis=1))[pairs].max()) < 1.0
+    assert np.array_equal(final[core], np.broadcast_to(np.array(skies[2], dtype=np.uint8), final[core].shape))
+
+
+def test_fixround_part3_the_haze_index_is_reserved_and_kept_out_of_the_tables():
+    """The haze objects get ``site.HAZE_PASS_INDEX`` (Blender's ``Object.pass_index`` maximum; a scene built before
+    part 3 has them at 0, and ``reserve_haze_index`` gives it at render time), found by ``wenart_id`` or the
+    ``wenart_haze`` material. The index stays out of the pass index table (it equals the scene manifest's), of what
+    ``--hide`` can hide, and of the index map and its statistics (the haze is no object in view)."""
+    import types
+
+    from wenart.blender import site as SITE
+
+    class Ob(dict):
+        def __init__(self, name, pass_index=0, slots=(), **props):
+            super().__init__(props)
+            self.name, self.pass_index, self.material_slots = name, pass_index, list(slots)
+
+    assert SITE.HAZE_PASS_INDEX == R._haze_index() == HAZE_INDEX
+    objs = [Ob("haze", wenart_id="haze", wenart_kind="atmosphere"),
+            Ob("haze.001", slots=[types.SimpleNamespace(material={"wenart_haze": True})]),
+            Ob("win_1_glass", 3, wenart_id="win_1", wenart_kind="window"),
+            Ob("furn_f_1", 4, wenart_id="f_1", wenart_kind="furniture"),
+            Ob("ground", 0, slots=[types.SimpleNamespace(material=None)], wenart_id="ground", wenart_kind="terrain")]
+    scene = types.SimpleNamespace(objects=objs)
+    assert R.reserve_haze_index(scene) == {HAZE_INDEX}
+    assert [o.pass_index for o in objs] == [HAZE_INDEX, HAZE_INDEX, 3, 4, 0]
+    assert R.reserve_haze_index(scene) == {HAZE_INDEX}                       # idempotent
+    assert R.pass_index_table(scene) == {"win_1": 3, "f_1": 4}
+    assert sorted(R.indexed_objects(scene)) == ["f_1", "win_1"]              # --hide haze stays an unknown id
+    assert R.window_indices(scene) == {3}
+    assert R.reserve_haze_index(types.SimpleNamespace(objects=objs[2:])) == set()
+    channels, _ = _haze_frame()
+    products = R.pass_products(channels, {HAZE_INDEX})
+    assert not (products["index"] == HAZE_INDEX).any() and products["index_values"] == [5]
+    assert list(products["index_stats"]) == ["5"]
+    assert HAZE_INDEX in R.pass_products(channels)["index_values"]          # without the set it would be an object
+
+
+def test_fixround_part3_gpu_sky_pull_check_holds_the_floor_and_the_mask(tmp_path, monkeypatch):
+    """The part-2 GPU check let the blended sky off the saturation floor (it blamed the feather at the silhouettes), so
+    the reviewer's 128 spp shim re-render of real02 on eb80db2 passed it: terrace k 4 with saturation 0.034 -> 0.057,
+    ext_2 k 2 with 0.059 -> 0.079, every sky pixel at a third of the pull. The blended sky now keeps the floor within
+    ``SKY_PULL_SAT_ALLOWANCE`` and a pulled sky's mask is coherent (``full_weight_share`` at least
+    ``SKY_MASK_FULL_WEIGHT_MIN``); the fixed shim render (0.146 / 0.128, full weight 0.961 / 0.957) passes."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}}}
+    assert gpu.SKY_PULL_SAT_ALLOWANCE == 0.02 and gpu.SKY_MASK_FULL_WEIGHT_MIN == 0.8
+
+    def project(**skies):
+        return "real02", scene, {"renders": [
+            {"camera": c, "room_id": "r_L1_teras" if c.startswith("cam_") else None,
+             "open_air": c.startswith("cam_"), "sky_pull": s} for c, s in skies.items()]}
+    tried_t = [{"k": 1, "median": 0.8017, "saturation": 0.0476}, {"k": 2, "median": 0.702, "saturation": 0.0688},
+               {"k": 3, "median": 0.5755, "saturation": 0.1037}, {"k": 4, "median": 0.4258, "saturation": 0.1481}]
+    tried_e = [{"k": 1, "median": 0.7511, "saturation": 0.0882}, {"k": 2, "median": 0.6365, "saturation": 0.1285}]
+    # the fixed shim render (480 x 270, 128 spp)
+    teras = _sky(4, before=(0.879, 0.0311), after=(0.4261, 0.1463), tried=tried_t, full=0.9614)
+    ext_2 = _sky(2, before=(0.839, 0.0591), after=(0.6365, 0.1279), tried=tried_e, full=0.9565)
+    gpu.test_sky_and_window_pulls_reach_their_targets(project(cam_r_L1_teras_1=teras, ext_2=ext_2))
+    # eb80db2's records on the same scene: the speckled blend under the floor, no mask record
+    head_t = {k: v for k, v in _sky(4, before=(0.8793, 0.0342), after=(0.7284, 0.0573), tried=tried_t).items()
+              if k not in ("haze_px", "full_weight_share")}
+    head_e = {k: v for k, v in _sky(2, before=(0.839, 0.0594), after=(0.7715, 0.0788), tried=tried_e).items()
+              if k not in ("haze_px", "full_weight_share")}
+    with pytest.raises(AssertionError, match="cam_r_L1_teras_1.*under the floor"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(cam_r_L1_teras_1=head_t, ext_2=ext_2))
+    with pytest.raises(AssertionError, match="ext_2.*not pulled to its target"):         # a named view, too
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(cam_r_L1_teras_1=teras, ext_2=head_e))
+    with pytest.raises(AssertionError, match="without full_weight_share"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(
+            project(cam_r_L1_teras_1={k: v for k, v in teras.items() if k != "full_weight_share"}, ext_2=ext_2))
+    # a speckled mask fails on its own, even with the blend at the floor
+    with pytest.raises(AssertionError, match="speckled sky mask"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(cam_r_L1_teras_1=dict(teras, full_weight_share=0.0),
+                                                                  ext_2=ext_2))
+    # the allowance: 0.10 passes, 0.099 fails
+    gpu.test_sky_and_window_pulls_reach_their_targets(project(ext_2=dict(ext_2, saturation_after=0.10)))
+    with pytest.raises(AssertionError, match="under the floor"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(ext_2=dict(ext_2, saturation_after=0.099)))

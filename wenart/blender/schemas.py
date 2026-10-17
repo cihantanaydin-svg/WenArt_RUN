@@ -183,7 +183,11 @@ SKY_PULL = {
                         "sky_ev": {"type": "number"}, "sky_px": {"type": "integer", "minimum": 1},
                         "sky_share": _SHARE, "median_before": {"type": "number"}, "median_after": {"type": "number"},
                         "saturation_before": {"type": "number"}, "saturation_after": {"type": "number"},
-                        "rule": {"type": "string"}, "targets": {"type": "object"}, "tried": {"type": "array"}}},
+                        "rule": {"type": "string"}, "targets": {"type": "object"}, "tried": {"type": "array"},
+                        # fix round part 3 (17 Oct 2026): the haze-shell pixels counted as sky (render.haze_sky) and
+                        # the share of the sky at full feather weight (render.full_weight_share; optional, older
+                        # records have neither)
+                        "haze_px": {"type": "integer", "minimum": 0}, "full_weight_share": _SHARE}},
     ],
 }
 # Milestone 10 (docs/milestone10.md §1.6b row 11): object kinds of the whole building; views.KIND_MAP never maps

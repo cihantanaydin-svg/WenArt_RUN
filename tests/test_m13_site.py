@@ -1581,6 +1581,39 @@ def test_fix2_build_site_keeps_the_relief_off_built_things_and_gives_the_grass_t
     assert summary["grass"]["relief_requested"] is False and "no relief" in summary["grass"]["relief_reason"]
 
 
+def test_fix3_build_site_gives_the_haze_its_reserved_pass_index(monkeypatch):
+    """Fix round part 3 (17 Oct 2026; review of part 2): Cycles writes the haze shell into the depth and index passes
+    on a random half of the rays that cross it (bpy 5.2.2, real02's terrace and ext_2), and with index 0 the render
+    could not tell the shell from a wall, so its sky pull ran on a speckled mask. build_site gives the haze object
+    ``HAZE_PASS_INDEX`` (Blender's ``Object.pass_index`` maximum, above every index the build counts from 1) and records
+    it in the haze's manifest entry; render.py reads the same constant (and stands it in for a scene built before)."""
+    import jsonschema
+
+    from wenart.blender import common
+    from wenart.blender import render as R
+    from wenart.blender import schemas as SC
+
+    assert S.HAZE_PASS_INDEX == R._haze_index() == 32767
+    monkeypatch.setattr(S, "haze_material", lambda: _FakeOb("site_haze"))
+    terrain = S.terrain_model(_SLOPED, _OUTLINE)
+    plan = dict(_relief_plan(terrain), levers={k: k == "sky" for k in S.SITE_LEVERS})
+    objs, assumed = [], []
+    made = {}
+    monkeypatch.setattr(common, "new_mesh_object",
+                        lambda name, verts, faces, **kw: made.setdefault(name, _FakeOb(name, verts, faces, **kw)))
+    looks = {k: {"material": k, "colour": None, "source": "build"} for k in (
+        "garden", "paving", "plot_wall", "light_well", "bark", "foliage", "ground", "steps", "railing")}
+    S.build_site(plan, None, looks, lambda look: _FakeOb(str(look.get("material"))), objs, assumed)
+    haze = made["haze"]
+    assert haze.pass_index == S.HAZE_PASS_INDEX and haze.kw["wenart_id"] == "haze"
+    (entry,) = [o for o in objs if o["wenart_id"] == "haze"]
+    assert entry["pass_index"] == S.HAZE_PASS_INDEX and entry["kind"] == S.site_kind("haze")
+    assert entry["material"] == "site_haze" and entry["site_part"] == "haze"
+    jsonschema.validate(entry, SC.SCENE_OBJECT)                         # the scene manifest takes the record
+    # no other site object carries an index: the haze is the only reserved one
+    assert all(o["pass_index"] is None for o in objs if o["wenart_id"] != "haze")
+
+
 def test_fix2_a_replayed_aerial_without_sky_is_repitched_about_its_target():
     """Fix round part 2 (17 Oct 2026; the lead's decision on the review of part 1: the CLAUDE.md horizon rule wins):
     P4 replays real02's M11 ext_5 (aerial, 30 degrees down at 28.54 mm: the horizon at 1.31 of the frame height, no

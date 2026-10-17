@@ -2374,6 +2374,12 @@ def backdrop_faces(inner: Sequence[Sequence[float]], terrain: dict, outer_reach:
 
 HAZE = {"reach_m": 1200.0, "below_m": 50.0, "above_m": 250.0, "hole_above_m": 80.0, "hole_below_m": 5.0,
         "density": 0.0009, "anisotropy": 0.3, "colour": (0.78, 0.84, 0.92)}
+# Fix round part 3 (17 Oct 2026): the haze object's reserved pass index (Blender's ``Object.pass_index`` maximum; the
+# build's indices count up from 1), recorded in its manifest entry. Cycles writes the haze shell into the depth and
+# index passes on a random half of the rays that cross it (bpy 5.2.2: real02's terrace and ext_2 at 16 and 128 spp),
+# so ``render.sky_mask`` reads a hit with this index and no normal behind it as sky; the render keeps the index out of
+# its helper maps and its pass index table (the haze is no object in view).
+HAZE_PASS_INDEX = 32767
 
 
 def haze_box(near: Sequence[Sequence[float]], z_range: tuple[float, float], cfg: Optional[dict] = None
@@ -2983,8 +2989,10 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                                     status="assumed", materials=[haze_mat])
         ob.display_type = "WIRE"
         ob.visible_shadow = False
+        ob.pass_index = HAZE_PASS_INDEX              # fix round part 3: the render's sky mask knows the shell by it
         entry(ob.name, "haze", site_kind("haze"), haze_mat, "assumed",
-              {"site_part": "haze", "assumed": {"reason": "distance haze: a closed hollow mesh volume (Volume Scatter) beyond the near "
+              {"site_part": "haze", "pass_index": HAZE_PASS_INDEX,       # fix round part 3: the reserved index
+               "assumed": {"reason": "distance haze: a closed hollow mesh volume (Volume Scatter) beyond the near "
                                      "ground, not a World volume (that disables the sun and the sky)",
                            "density_per_m": HAZE["density"]}, "inferred": True})
     well_mat = make_material(looks["light_well"])

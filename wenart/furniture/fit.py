@@ -189,6 +189,14 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   overhanging the run's end was built in up to 0.4 of its width from where it is drawn, with no record (the CLAUDE.md
   fixed-equipment rule: as drawn). How: the gap goes through the run's hints like a stove's; nothing on the piece
   changes (``assert_only_assets_changed``).
+- Fix round after P3, part 3 (17 Oct 2026), kitchen runs. What: the run's plan measures the drawn sink across the run
+  too (``modules.plan_kitchen_run``: the bowl stands on the run's centreline; its centre within
+  ``modules.KITCHEN_END_SHIFT_MAX_M`` of the drawn centre, both axes together, else no built-in and a gap at its
+  drawn span with the reason); a built-in records ``shift_y_m`` (the bowl's y minus the drawn y) beside ``shift_m``,
+  which the sink's asset (``module_plan.shift_y_m`` and its reason) and the fit report's "Kitchen runs" line name.
+  Why: part 2 read only the position along the run, so a drawn sink overhanging the counter's front was built in on
+  the run's centreline, up to about 0.25 m from where it is drawn, with no record. How: ``kitchen_built_ins`` already
+  gives the sink's world centre (``sink_pos_m``); nothing on the piece changes.
 """
 from __future__ import annotations
 
@@ -986,27 +994,39 @@ def holds_built_in(run: Optional[dict], piece_id: str) -> bool:
     return any(b.get("id") == piece_id for b in plan.get("built_ins") or [] if isinstance(b, dict))
 
 
+def _bowl_across_text(shift_y: float) -> str:
+    """The words for a built-in bowl's offset across its run (fix round after P3, part 3; as
+    ``modules.sink_across_text``): ``shift_y`` is the bowl's local y (the run's centreline) minus the drawn centre's."""
+    return (f"the bowl stands {abs(shift_y):.2f} m {'behind' if shift_y > 0 else 'in front of'} the drawn sink centre, "
+            "on the run's centreline")
+
+
 def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] = None) -> dict:
     """The asset of a drawn sink built into a kitchen run (fix round after P3): ``method: module``, the run's
     ``asset_id`` (``module:<run type>:kitchen_run``), ``built_in: <run id>``, ours (licence ``n/a``, flag ``none``,
     commercial-safe), by design; ``module_plan`` is only the reference ``{builder, built_into, kind, x_m, w_m}`` (no
     modules: the run's plan builds it, ``parametric.piece_bbox`` keeps the sink's own box); the ladder ends at the
-    module step. No library model is searched (none would be built)."""
+    module step. No library model is searched (none would be built). Fix round after P3, part 3 (17 Oct 2026): the
+    reference also carries ``shift_m`` and ``shift_y_m`` (the bowl's offset along and across the run from the drawn
+    centre, ``built_ins`` of the run's plan) and the reason names both when they are over 5 mm."""
     plan = (run.get("asset") or {}).get("module_plan") or {}
     record = next((b for b in plan.get("built_ins") or [] if b.get("id") == piece["id"]), {})
     builder = plan.get("builder") or "kitchen_run"
     shift = float(record.get("shift_m") or 0.0)
+    across = float(record.get("shift_y_m") or 0.0)
     why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m sink unit with the "
            "bowl and the tap at its cutout (the drawn sink lies inside the drawn run)"
            # fix round after P3, part 2: a unit off the drawn centre (at most modules.KITCHEN_END_SHIFT_MAX_M) is named
            + (f"; the unit stands {abs(shift):.2f} m from the drawn sink centre (unit width, run end)"
-              if abs(shift) > 0.005 else ""))
+              if abs(shift) > 0.005 else "")
+           # part 3: and the bowl's offset across the run (it stands on the run's centreline)
+           + (f"; {_bowl_across_text(across)}" if abs(across) > 0.005 else ""))
     asset = parametric_fit(piece, why, style_family=style_family)
     asset.update({"library": MODULE_METHOD, "method": MODULE_METHOD, "asset_id": f"module:{run['type']}:{builder}",
                   "built_in": run["id"], "by_design": True,
                   "module_plan": {"builder": builder, "built_into": run["id"], "kind": "sink",
                                   "x_m": record.get("x_m"), "w_m": record.get("w_m"),
-                                  "shift_m": round(shift, 4)}})
+                                  "shift_m": round(shift, 4), "shift_y_m": round(across, 4) + 0.0}})
     return _finish(asset, mode, [_step("library", "not tried", why),
                                  _step(MODULE_METHOD, f"built into {run['id']} (sink unit and cutout)", None)])
 
@@ -2016,14 +2036,17 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
                       "the gap with a real model)", ""]
         lines += [f"- {pid} ({ftype}): {method}: {used}" for pid, ftype, method, used in below]
     built_ins = [(p["id"], p["type"], p["asset"]["built_in"], float((p["asset"].get("module_plan") or {}).get("shift_m")
-                                                                     or 0.0))
+                                                                     or 0.0),
+                  float((p["asset"].get("module_plan") or {}).get("shift_y_m") or 0.0))    # part 3: across the run
                  for p in pieces if (p.get("asset") or {}).get("built_in")]
     run_gaps = [(p["id"], g) for p in pieces for g in ((p.get("asset") or {}).get("module_plan") or {}).get("gaps") or []]
     if built_ins or run_gaps:                         # fix round after P3 (module docstring; part 2: shifts, reasons)
         lines += ["", "## Kitchen runs (drawn sinks built in, gaps for drawn stoves and sinks)", ""]
         lines += [f"- {pid} ({ftype}): built into the kitchen run {rid} (its sink unit, bowl and tap; not built "
                   "again)" + (f"; the sink unit stands {abs(shift):.2f} m from the drawn centre" if abs(shift) > 0.005
-                              else "") for pid, ftype, rid, shift in built_ins]
+                              else "")
+                  + (f"; {_bowl_across_text(across)}" if abs(across) > 0.005 else "")
+                  for pid, ftype, rid, shift, across in built_ins]
         lines += [f"- {rid}: a {float(g.get('w_m') or 0.0):.2f} m gap for the drawn {g.get('type') or 'stove'} "
                   f"{g.get('id')} (no base unit, plinth or worktop there"
                   + (f"; {g['reason']}" if g.get("reason") else "") + ")" for rid, g in run_gaps]

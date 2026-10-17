@@ -84,6 +84,10 @@ project white point exactly (no rig share), the rooms whose rig replaces the fil
 (rays under the horizon that hit nothing, darker than half the sky); the shaded-facade exteriors of real04 / real02
 (``SKY_PULLED_VIEWS``) are pulled, and some view is pulled whenever a sky is over the shoulder with a qualifying k;
 the windowless bedrooms of ``FILL_LIGHT_ROOMS`` keep their fill light next to their bedside rig.
+
+Fix round part 3 (17 Oct 2026; CPU replays in tests/test_m13_light.py): a pulled sky keeps the saturation floor
+within ``SKY_PULL_SAT_ALLOWANCE`` and its mask is coherent (``full_weight_share`` at least
+``SKY_MASK_FULL_WEIGHT_MIN``): the haze shell no longer leaves a random half of the sky out of the mask.
 """
 import hashlib
 import json
@@ -571,6 +575,14 @@ HORIZON_MARGIN_PX = 2.0         # rays this close to the horizon (in pixels at t
 # The shaded-facade exteriors whose sky must be pulled: P3's real04 ext_2 / ext_4 (sky median 0.84 / 0.81, saturation
 # 0.06-0.13 at the facade EV); real02's ext_2 was pulled k 2 in the part-1 shim run (240 x 135, median 0.84 -> 0.77).
 SKY_PULLED_VIEWS = {"real04": ("ext_2", "ext_4"), "real02": ("ext_2",)}
+# Fix round part 3 (17 Oct 2026): the blended sky of a pulled view keeps the saturation floor (render.SKY_PULL_SAT_MIN)
+# within this allowance (the 3 px feather keeps part of the rendered sky along the silhouettes and the hill line; shim,
+# real02 at 480 x 270, 128 spp: terrace chosen save 0.1481 -> blended 0.1463, ext_2 0.1285 -> 0.1279; eb80db2 blended
+# them at a third of the pull on a speckled mask: 0.057 and 0.079) ...
+SKY_PULL_SAT_ALLOWANCE = 0.02
+# ... and its sky mask is coherent: at least this share of the mask at full feather weight (render.full_weight_share;
+# the same shim run: 0.961 / 0.957; eb80db2's mask with the haze shell left out at random: 0.000 / 0.000)
+SKY_MASK_FULL_WEIGHT_MIN = 0.8
 # The windowless bedrooms whose bedside rig adds to the fill light (the verifier's list of the fix round; P3:
 # r_L0_yatak_odasi_4 night-dark at +6.1..+6.5 EV). True: the room must be in the scene (level L0 is always built);
 # False: checked where its level is built (L-1b).
@@ -760,7 +772,11 @@ def test_sky_and_window_pulls_reach_their_targets(project):
     panes of the interior views are at or under the AgX shoulder in at least 80 % of them (P3: pane medians
     0.86-0.97 after k 1-2). Fix round part 2 (17 Oct 2026): the shaded-facade views of ``SKY_PULLED_VIEWS`` are
     pulled, and some view is pulled whenever a sky over the shoulder has a qualifying k (a pull that never fires
-    passed the per-pull checks)."""
+    passed the per-pull checks). Fix round part 3 (17 Oct 2026): the blended sky keeps the saturation floor within
+    ``SKY_PULL_SAT_ALLOWANCE``, and a pulled sky's mask is coherent (``full_weight_share`` at least
+    ``SKY_MASK_FULL_WEIGHT_MIN``): eb80db2's depth-only mask left the haze shell out on a random half of the sky, every
+    pixel got a third of the pull, and the speckled skies passed (real02 shim, 128 spp: terrace 0.034 -> 0.057, ext_2
+    0.059 -> 0.079)."""
     from wenart.blender import render as R
 
     name, scene, render = project
@@ -769,16 +785,18 @@ def test_sky_and_window_pulls_reach_their_targets(project):
     entries = {r["camera"]: r for r in render["renders"]}
     if exterior_world:
         # fix round part 2 (17 Oct 2026): the checks below only judge the pulls that happened; a sky pull that never
-        # fires must fail too. The named shaded-facade views are pulled (k >= 1, the blended sky under the shoulder
-        # and more saturated than rendered; the blended saturation is not held to the floor: the 3 px feather keeps
-        # part of the rendered sky at every silhouette, real02 shim run at 240 x 135: chosen save 0.129, blended
-        # 0.081), and whenever a view's sky is over the shoulder and one of its tried k qualifies, some view is pulled.
+        # fires must fail too. The named shaded-facade views are pulled (k >= 1, the blended sky under the shoulder,
+        # more saturated than rendered and, fix round part 3, at the floor within SKY_PULL_SAT_ALLOWANCE: part 2 let
+        # the blended sky off the floor and blamed the feather at the silhouettes; the low blended saturation of its
+        # shim run (chosen save 0.129, blended 0.081) came from the speckled mask, every sky pixel at a third of the
+        # pull), and whenever a view's sky is over the shoulder and one of its tried k qualifies, some view is pulled.
         for cam in SKY_PULLED_VIEWS.get(name, ()):
             s = (entries.get(cam) or {}).get("sky_pull") if cam in entries else "absent"
             if s == "absent":
                 continue
             if not s or not s.get("k") or s["median_after"] > R.SKY_PULL_MEDIAN_MAX \
-                    or not s["saturation_after"] > s["saturation_before"]:
+                    or not s["saturation_after"] > s["saturation_before"] \
+                    or s["saturation_after"] < R.SKY_PULL_SAT_MIN - SKY_PULL_SAT_ALLOWANCE:
                 bad.append((cam, "a shaded-facade view whose sky was not pulled to its target", s))
         over = [r["camera"] for r in render["renders"] if (r.get("sky_pull") or {}).get("median_before", 0.0)
                 > R.SKY_PULL_MEDIAN_MAX and any(R.sky_pull_qualifies(c) for c in r["sky_pull"].get("tried") or [])]
@@ -789,15 +807,25 @@ def test_sky_and_window_pulls_reach_their_targets(project):
             if "sky_pull" not in r:
                 bad.append((r["camera"], "no sky_pull record"))
             elif r["sky_pull"] and r["sky_pull"]["k"]:
-                # the chosen save meets the targets; the blended sky (feathered 3 px inwards at the silhouettes: a
-                # sky between leaves keeps part of the rendered one, CPU check on real02 at 240 x 135) is bluer and
-                # darker than the rendered one
+                # the chosen save meets the targets; the blended sky is bluer and darker than the rendered one and
+                # keeps the floor within the feather's allowance (fix round part 3: on a coherent mask the 3 px
+                # feather costs about 0.002 of saturation, shim 128 spp); its mask is coherent (most of it at full
+                # feather weight: a mask that misses the haze shell on a random half of the sky has none)
                 s = r["sky_pull"]
                 chosen = next((c for c in s.get("tried") or [] if c["k"] == s["k"]), None)
-                skies[r["camera"]] = (s["k"], s["median_after"], s["saturation_after"])
+                skies[r["camera"]] = (s["k"], s["median_after"], s["saturation_after"], s.get("full_weight_share"))
                 if chosen is None or not R.sky_pull_qualifies(chosen) or s["median_after"] > s["median_before"] \
                         or s["saturation_after"] < s["saturation_before"]:
                     bad.append((r["camera"], "sky pull off its targets", s))
+                if s["saturation_after"] < R.SKY_PULL_SAT_MIN - SKY_PULL_SAT_ALLOWANCE:
+                    bad.append((r["camera"], f"blended sky saturation {s['saturation_after']} under the floor "
+                                             f"{R.SKY_PULL_SAT_MIN:g} - {SKY_PULL_SAT_ALLOWANCE:g}", s))
+                full = s.get("full_weight_share")
+                if full is None:
+                    bad.append((r["camera"], "sky pull without full_weight_share (rendered before fix round part 3?)"))
+                elif full < SKY_MASK_FULL_WEIGHT_MIN:
+                    bad.append((r["camera"], f"speckled sky mask: {full:.1%} of it at full feather weight (minimum "
+                                             f"{SKY_MASK_FULL_WEIGHT_MIN:.0%})", s))
     pulled = [(r["camera"], r["window_pull"].get("pane_median_after")) for r in render["renders"]
               if r.get("room_id") is not None and not r.get("open_air") and (r.get("window_pull") or {}).get("k")]
     over = [(c, m) for c, m in pulled if m is None or m > PANE_MEDIAN_MAX]

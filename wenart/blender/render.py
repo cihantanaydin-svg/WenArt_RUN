@@ -208,6 +208,15 @@ blank pale plane. How:
   of ``SKY_PULL_STEPS`` whose sky median is at most ``SKY_PULL_MEDIAN_MAX`` (under the AgX shoulder) and whose median
   saturation is at least ``SKY_PULL_SAT_MIN``; none qualifies or the sky already does: no pull. Recorded as
   ``sky_pull``. No state is shared between cameras, so subset renders, agent previews and variants agree.
+  Fix round part 3 (17 Oct 2026): the haze volume's shell (``site.haze_box``) is sky too. Cycles writes the shell into
+  the depth and index passes at sample 0 on a random half of the rays that cross it, with no normal (bpy 5.2.2,
+  real02's terrace and ext_2 at 16 and 128 spp), so the depth-only mask marked a random half of the sky, the feather
+  gave every masked pixel a third of the pull and the sky came out salt-and-pepper (luminance 184 / 223). The haze
+  objects carry ``site.HAZE_PASS_INDEX`` (``reserve_haze_index`` gives it to a scene built before), and
+  ``sky_mask`` adds the hits with that index and a zero Normal pass (``haze_sky``: nothing with a normal behind the
+  shell; far ground or a far tree behind it adds its normal in the samples that pass the shell). The record adds
+  ``haze_px`` and ``full_weight_share`` (the share of the sky at full feather weight; a speckled mask has none). The
+  reserved index stays out of the index map, the index statistics and the pass index table.
 - Window pull down to 10 stops (``PULL_STEPS``) with a pane target: a k qualifies when the pane clip is at most 1 %
   and the pane highlights are under the shoulder (pane p90 <= ``PULL_P90_MAX``) or the pane median has reached
   ``PULL_MEDIAN_TARGET``, and the panes stay brighter than the walls. P3 stopped at k 1-2 with pane medians of
@@ -248,7 +257,8 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # exterior sky with a sun disc (docs/milestone13.md §13.2).
 # m13.2 (fix round after P3, 16-17 Oct 2026): the view's white point mixed from the project's daylight and the rig by
 # the view's rig share, open-air rooms under the exterior world, the sky pull, the window pull to 10 stops; part 2
-# (17 Oct 2026, before any pod rendered m13.2): the open-air views with the exterior clip end.
+# (17 Oct 2026, before any pod rendered m13.2): the open-air views with the exterior clip end; part 3 (17 Oct 2026,
+# still before any pod rendered m13.2): the sky pull's mask counts the haze shell as sky (haze_sky).
 RENDER_CODE_VERSION = "m13.2"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
@@ -270,6 +280,7 @@ SKY_PULL_STEPS = (1, 2, 3, 4)
 SKY_PULL_MEDIAN_MAX = 0.8
 SKY_PULL_SAT_MIN = 0.12
 SKY_PULL_MIN_SHARE = 0.005         # a sky smaller than this share of the frame is not pulled
+HAZE_NORMAL_EPS = 1e-6             # fix round part 3: a Normal pass component above this is a surface behind the haze
 PANE_ALBEDO_MAX = 0.05             # pane = window index and Diffuse Color luminance below this (glass, not frame)
 PULL_FEATHER_PX = 3                # the mask edge blends over this many pixels, inside the mask
 DISPLAY_PNG_LEVEL = 1              # zlib level of the pulled display PNGs (OIIO)
@@ -977,14 +988,49 @@ def choose_pull(candidates: list[dict], wall_median: float | None,
     return 0, "no k keeps the panes brighter than the walls: no pull"
 
 
-def sky_mask(depth):
+def haze_sky(depth, index, normal, haze_indices):
+    """bool H x W: the depth hits on the haze volume's shell with nothing behind it (fix round part 3, 17 Oct 2026):
+    a surface hit whose object index is one of ``haze_indices`` (``site.HAZE_PASS_INDEX``) and whose Normal pass is
+    zero. Cycles writes the depth and the index at sample 0 only, and the shell on a random half of the rays that
+    cross it, with no normal (bpy 5.2.2); a surface behind the shell (the far ground, the backdrop, a far tree) adds
+    its normal in the samples that pass the shell, so a hit with the haze index and a normal is not sky. All False
+    without ``haze_indices`` or without the index or normal pass."""
+    import numpy as np
+
+    d = np.asarray(depth, dtype=np.float64)
+    if index is None or normal is None or not haze_indices:
+        return np.zeros(d.shape, dtype=bool)
+    with np.errstate(invalid="ignore"):
+        hit = np.isfinite(d) & (d < DEPTH_BACKGROUND)
+    idx = np.rint(np.nan_to_num(np.asarray(index, dtype=np.float64))).astype(np.int64)
+    n = np.nan_to_num(np.asarray(normal, dtype=np.float64))
+    no_normal = ~(np.abs(n) > HAZE_NORMAL_EPS).any(axis=-1)
+    return hit & np.isin(idx, sorted(int(v) for v in haze_indices)) & no_normal
+
+
+def sky_mask(depth, index=None, normal=None, haze_indices=()):
     """bool H x W: the world-background pixels (no surface hit in the Cycles depth pass: not finite or at
-    ``DEPTH_BACKGROUND``), the sky of a view under the exterior world (fix round after P3)."""
+    ``DEPTH_BACKGROUND``), the sky of a view under the exterior world (fix round after P3). Fix round part 3
+    (17 Oct 2026): with the index and normal passes and the haze objects' ``haze_indices``, the hits on the haze shell
+    with nothing behind it (``haze_sky``) are sky too; the depth alone marked a random half of the sky."""
     import numpy as np
 
     d = np.asarray(depth, dtype=np.float64)
     with np.errstate(invalid="ignore"):
-        return ~(np.isfinite(d) & (d < DEPTH_BACKGROUND))
+        background = ~(np.isfinite(d) & (d < DEPTH_BACKGROUND))
+    return background | haze_sky(d, index, normal, haze_indices)
+
+
+def full_weight_share(mask, weights) -> float | None:
+    """Share of the ``mask`` pixels whose feather weight (``feather_weights``) is 1 (fix round part 3): a coherent sky
+    is mostly at full weight, a speckled mask (every pixel within the feather of a hole) has none. None for an empty
+    mask."""
+    import numpy as np
+
+    m = np.asarray(mask, dtype=bool)
+    if not m.any():
+        return None
+    return round(float(np.count_nonzero(np.asarray(weights)[m] >= 1.0)) / float(np.count_nonzero(m)), 4)
 
 
 def sky_pull_qualifies(candidate: dict, median_max: float = SKY_PULL_MEDIAN_MAX,
@@ -1046,12 +1092,14 @@ def find_rgb(channels: dict, *names: str):
     return None
 
 
-def pass_products(channels: dict) -> dict:
+def pass_products(channels: dict, haze_indices=()) -> dict:
     """Statistics and helper maps from the EXR channels of one camera:
     ``depth`` stats ``{min, max, mean, coverage}`` (None without a depth
     pass), ``index_values``, ``index_stats`` (``{str(index): {pixels, box}}``)
     and the arrays ``index`` (uint16), ``depth_mm`` (uint16), ``normal``
-    (uint8 RGB) and ``depth_legacy`` (uint16, per-view min..max, near = dark)."""
+    (uint8 RGB) and ``depth_legacy`` (uint16, per-view min..max, near = dark).
+    Fix round part 3 (17 Oct 2026): the haze objects' ``haze_indices`` (``site.HAZE_PASS_INDEX``) are written as 0 in
+    the index map and its statistics, as before the haze had an index (the haze is no object in view)."""
     import numpy as np
 
     from wenart import views
@@ -1078,6 +1126,8 @@ def pass_products(channels: dict) -> dict:
         out["depth_mm"] = views.encode_depth_mm(depth)
     if index is not None:
         idx16 = views.encode_index(index)
+        if haze_indices:
+            idx16[np.isin(idx16, sorted(int(v) for v in haze_indices))] = 0
         out["index"] = idx16
         stats = views.compute_index_stats(idx16)
         out["index_values"] = sorted(stats)
@@ -1781,12 +1831,47 @@ def vram_used_mib() -> int | None:
     return max(values) if values else None
 
 
+def _haze_index() -> int:
+    from wenart.blender.site import HAZE_PASS_INDEX
+
+    return HAZE_PASS_INDEX
+
+
+def is_haze(o) -> bool:
+    """The haze volume's object (fix round part 3): ``wenart_id`` ``haze`` (``site.build_site``) or a material flagged
+    ``wenart_haze`` (``site.haze_material``)."""
+    if o.get("wenart_id") == "haze":
+        return True
+    return any(getattr(s, "material", None) is not None and s.material.get("wenart_haze")
+               for s in getattr(o, "material_slots", None) or ())
+
+
+def reserve_haze_index(scene) -> set[int]:
+    """Give every haze object ``site.HAZE_PASS_INDEX`` (fix round part 3, 17 Oct 2026; a scene built before has it at 0,
+    and the render never saves the scene) and return ``{HAZE_PASS_INDEX}``, or an empty set when the scene has no
+    haze (``sky_mask`` then reads the depth alone)."""
+    reserved = _haze_index()
+    found = False
+    for o in scene.objects:
+        if is_haze(o):
+            if o.pass_index != reserved:
+                o.pass_index = reserved
+            found = True
+    return {reserved} if found else set()
+
+
+def _indexed(o) -> bool:
+    """An object with a pass index of its own: the reserved haze index is no object (fix round part 3)."""
+    return o.pass_index > 0 and o.pass_index != _haze_index()
+
+
 def pass_index_table(scene) -> dict[str, int]:
     """``{wenart_id: pass_index}`` of every object with an index, the table of the scene
-    manifest (a door's frame and leaf share the id and the index, so one key each)."""
+    manifest (a door's frame and leaf share the id and the index, so one key each). The haze's reserved index is
+    not in it (fix round part 3: the build's table has no haze)."""
     table: dict[str, int] = {}
     for o in scene.objects:
-        if o.pass_index > 0:
+        if _indexed(o):
             key = o.get("wenart_id") or o.name
             table[key] = int(o.pass_index)
     return table
@@ -1801,7 +1886,7 @@ def indexed_objects(scene) -> dict[str, list]:
     """``{wenart id without proxy:: [objects with a pass index]}`` (what --hide can hide)."""
     out: dict[str, list] = {}
     for o in scene.objects:
-        if o.pass_index > 0 and o.get("wenart_id"):
+        if _indexed(o) and o.get("wenart_id"):
             key = str(o["wenart_id"])
             if key.startswith("proxy:"):
                 key = key[len("proxy:"):]
@@ -2344,7 +2429,7 @@ class RenderRun:
         prev = self.previous[cam.name]
         f = self.files(cam.name)
         try:
-            products = pass_products(read_exr(f["exr"]))
+            products = pass_products(read_exr(f["exr"]), self.ctx.haze)
         except Exception as exc:  # noqa: BLE001 - fall back to the stored statistics, loudly
             products = None
             self.warnings.append(f"{cam.name}: pass readback failed ({exc}); statistics copied from the previous "
@@ -2395,7 +2480,7 @@ class RenderRun:
         set_output(scene, "PNG")
         result.save_render(str(f["png"]), scene=scene)
         channels = read_exr(f["exr"])
-        products = pass_products(channels)
+        products = pass_products(channels, ctx.haze)
         if products["index"] is None or products["depth_mm"] is None or products["normal"] is None:
             raise RuntimeError(f"{cam.name}: the EXR lacks the index, depth or normal pass")
         quality = ctx.args.preview_quality
@@ -2518,14 +2603,20 @@ class RenderRun:
         """``(record, weights, final)`` of the sky pull of a view under the exterior sky (fix round after P3, module
         docstring; ``choose_sky_pull``): ``record`` None when the depth pass is missing or the sky covers less than
         ``SKY_PULL_MIN_SHARE`` of the frame, ``final`` None when no k is chosen. ``main`` is the display image after
-        the window pull; only sky pixels change (feathered inwards like the panes)."""
+        the window pull; only sky pixels change (feathered inwards like the panes). Fix round part 3: the sky is
+        ``sky_mask`` with the haze shell (``haze_sky``; ``haze_px`` of them) and the record says its
+        ``full_weight_share``."""
         import numpy as np
 
         depth = find_channel(channels, "Depth.Z")
         if depth is None:
             self.warnings.append(f"{cam.name}: the EXR has no depth pass: no sky pull")
             return None, None, None
-        mask = sky_mask(depth)
+        # fix round part 3: the haze shell with nothing behind it is sky (the depth alone marked a random half of it)
+        index = find_channel(channels, "Object Index.X", "IndexOB.X")
+        normal = find_rgb(channels, "Normal")
+        haze = haze_sky(depth, index, normal, self.ctx.haze)
+        mask = sky_mask(depth) | haze
         share = float(mask.mean()) if mask.size else 0.0
         if share < SKY_PULL_MIN_SHARE:
             return None, None, None
@@ -2542,8 +2633,10 @@ class RenderRun:
                 if sky_pull_qualifies(cand):
                     break                # the smallest qualifying k
         k, rule = choose_sky_pull(before, candidates)
+        weights = feather_weights(mask)
         record = {"ev": -float(k) if k else 0.0, "k": k, "sky_ev": round(float(look["ev"]) - k, 6),
                   "sky_px": int(np.count_nonzero(mask)), "sky_share": round(share, 4),
+                  "haze_px": int(np.count_nonzero(haze)), "full_weight_share": full_weight_share(mask, weights),
                   "median_before": round(before["median"], 4), "saturation_before": round(before["saturation"], 4),
                   "median_after": round(before["median"], 4), "saturation_after": round(before["saturation"], 4),
                   "rule": rule, "targets": {"median_max": SKY_PULL_MEDIAN_MAX, "saturation_min": SKY_PULL_SAT_MIN},
@@ -2552,7 +2645,6 @@ class RenderRun:
         if k == 0:
             record["seconds"] = round(time.time() - t0, 3)
             return record, None, None
-        weights = feather_weights(mask)
         final = blend_pull(main, images[k], weights)
         record["median_after"] = round(masked_median(final, mask), 4)
         record["saturation_after"] = round(masked_saturation(final, mask), 4)
@@ -2604,6 +2696,8 @@ class Context:
         self.blend_path = bpy.data.filepath or None
         self.fingerprint = scene_fingerprint(bpy.data.filepath)
         self.blender_version = bpy.app.version_string
+        # fix round part 3: the haze's reserved index (main reserved it already; idempotent), kept out of the table
+        self.haze = reserve_haze_index(scene)
         self.pass_index = pass_index_table(scene)
         self.windows = window_indices(scene)
         # Milestone 13: the variant the render runs under (the build's is in the scene, wenart_light_variant)
@@ -2676,6 +2770,10 @@ def main(argv: list[str]) -> int:
         print("no cameras to render")
         return 2
 
+    # fix round part 3 (17 Oct 2026): the haze shell under its reserved index before any render (the sky mask)
+    haze = reserve_haze_index(scene)
+    if haze:
+        print(f"HAZE pass index {sorted(haze)}: the haze shell with nothing behind it is sky in the sky pull")
     hider = Hider(scene, _load_scene_manifest())
     asked = hide_ids + [i for s in (sets or []) for i in s["ids"]]
     unknown = hider.unknown(asked)

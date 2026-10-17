@@ -113,6 +113,21 @@ manifest of this run, public and private alike, for a project and for each of it
   newest run's: the copy takes the views it names, and they move to ``earlier_run/`` of the results at the first
   copy after this run's first record.
 
+Fix round after P3, part 3 (17 Oct 2026, docs/milestone13.md §14.9): an alternative's "this run" is its base
+project's.
+
+- What: ``copy_project`` reads this run's id once from the base project's ``run/`` (``this_run_id``) and hands it to
+  the copy of the project and of each ``variants/<id>`` (``final_view_names(out_dir, run_id)``); an alternative's
+  final manifest names view files only when its ``run_id`` is the base project's run id.
+- Why: the scheduler writes an alternative's first record only in phase 5 (``add_variant_runs``, after the base
+  project's refit). A job whose base project fails or stops in phases 1-4 never writes one, so the alternative's own
+  ``run/`` still ended in the earlier run, its earlier manifest counted as this run's, and every copy (the EXIT trap's
+  full copy too) put that run's previews and plan crops into ``final/<p>/variants/<id>/`` of the results as if this
+  job had made them, while the base folder rightly held none (real02 and real04 have ``l-1b-acik-mutfak``).
+- How: the scheduler gives a project and its alternatives one ``run_id``, so a job that reaches the alternative
+  copies the same files as before; one that does not copies none of the alternative's views, and the ones an earlier
+  copy of the job took move to ``variants/<id>/earlier_run/`` of the results (``move_stale_view_files``).
+
 ``copy_lock(path)``: the job's copy lock (``full.sh`` exports it as
 ``WENART_COPY_LOCK``; the same ``flock`` the background loop takes), so the
 orchestrator's own copy before the GPU tests never interleaves with the loop.
@@ -384,9 +399,10 @@ def copy_project(ref: ProjectRef, since: Optional[float] = None) -> int:
     out_dir = Path(ref.out_dir)
     if not out_dir.is_dir():
         return 0
-    count = _copy_tree(ref, out_dir, "", since)
+    run_id = this_run_id(out_dir)            # fix round part 3: the base project's run decides for its alternatives
+    count = _copy_tree(ref, out_dir, "", since, run_id)
     for vid in variant_folders(out_dir):
-        count += _copy_tree(ref, out_dir / VARIANTS_DIR / vid, f"{VARIANTS_DIR}/{vid}", since)
+        count += _copy_tree(ref, out_dir / VARIANTS_DIR / vid, f"{VARIANTS_DIR}/{vid}", since, run_id)
     count += write_attributions(ref)
     return count
 
@@ -404,13 +420,24 @@ def variant_folders(out_dir: Path) -> list[str]:
             if (root / vid).is_dir() and not (root / vid).is_symlink()]
 
 
-def final_view_names(out_dir: Path) -> set:
+def this_run_id(project_out: Path) -> Optional[str]:
+    """Fix round after P3, part 3 (module docstring): this run's id for a project output and its alternatives, by
+    the report's own rule: the run id of the newest stage record of ``<project_out>/run/``
+    (``wenart.report.final.split_runs`` over ``load_stage_records``); None for a hand run without run ids. For an
+    alternative pass its base project's folder: the alternative's own ``run/`` gets this run's first record only in
+    phase 5."""
+    from wenart.report import final as F
+
+    return F.split_runs(F.load_stage_records(Path(project_out)))[2]
+
+
+def final_view_names(out_dir: Path, run_id: Optional[str]) -> set:
     """Fix round after P3, part 2 (module docstring): the preview and plan-crop names that
     ``<out>/final/final_manifest.json`` names (``views[].preview``, ``views[].plan``) when that manifest is this
-    run's, else an empty set (no manifest, an earlier run's manifest, a needs-review manifest: no view). This run is
-    the report's own rule: the run id of the newest stage record of ``<out>/run/`` (``wenart.report.final.split_runs``
-    over ``load_stage_records``); the manifest is this run's when its ``run_id`` is that id (both None for a hand run
-    without run ids)."""
+    run's, else an empty set (no manifest, an earlier run's manifest, a needs-review manifest: no view). The manifest
+    is this run's when its ``run_id`` is ``run_id`` (both None for a hand run without run ids). Part 3: ``run_id`` is
+    this run's id of the base project (``this_run_id`` of the project folder, also for its ``variants/<id>``), never
+    the one of an alternative's own ``run/``."""
     from wenart.report import final as F
 
     out_dir = Path(out_dir)
@@ -420,8 +447,7 @@ def final_view_names(out_dir: Path) -> set:
         return set()
     if not isinstance(manifest, dict):
         return set()
-    _this, _earlier, run_id = F.split_runs(F.load_stage_records(out_dir))
-    if (manifest.get("run_id") or None) != run_id:
+    if (manifest.get("run_id") or None) != (run_id or None):
         return set()
     views = manifest.get("views") if isinstance(manifest.get("views"), list) else []
     return {str(v[key]) for v in views if isinstance(v, dict) for key in ("preview", "plan")
@@ -443,14 +469,15 @@ def _view_due(path: Path, target: Path, since: Optional[float]) -> bool:
         return True
 
 
-def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[float]) -> int:
+def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[float], run_id: Optional[str]) -> int:
     """The rules over one output folder: the project's (``prefix`` "") or an alternative's (``variants/<id>``).
     Fix round after P3, part 2: the view files of ``final/`` follow this run's final manifest (``final_view_names``)
-    and an earlier run's view files in the results' ``final`` folder move to its ``earlier_run/``."""
+    and an earlier run's view files in the results' ``final`` folder move to its ``earlier_run/``. Part 3: this run
+    is ``run_id``, the base project's (``copy_project``)."""
     from wenart.report import final as F
 
     rules = PRIVATE_RULES if ref.private else PUBLIC_RULES
-    views = final_view_names(out_dir)
+    views = final_view_names(out_dir, run_id)
     count = 0
     for rule in rules:
         final_rule = rule.src == F.FINAL_DIR

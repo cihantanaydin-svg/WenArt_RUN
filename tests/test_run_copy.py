@@ -3,7 +3,9 @@ count-only output (docs/milestone6.md §2.1); the Milestone 7 rules (debug and r
 questions, answers and crops, detections, pairs_v2) and ATTRIBUTION.md (docs/milestone7.md §9.1, §7.3).
 
 Fix round after P3, part 2 (17 Oct 2026): the previews and plan crops of ``final/`` follow this run's final manifest
-(an earlier run's never reach the results; the ones copied before this run's report leave the results' final folder)."""
+(an earlier run's never reach the results; the ones copied before this run's report leave the results' final folder).
+Part 3 (17 Oct 2026): an alternative's views follow its own manifest into its own results folder, and its "this run" is
+its base project's (a job that never reached the alternative ships none of its earlier views)."""
 from __future__ import annotations
 
 import json
@@ -681,3 +683,106 @@ def test_final_view_files_follow_this_runs_manifest_through_the_jobs_copies(tmp_
     assert views() == want_r2
     assert not any("cam_gone" in f for f in files(ref.results_dir))
     assert "cam_b_final_preview.jpg" not in views()
+
+
+def _views(folder: Path) -> list:
+    """The previews and plan crops directly in a results folder, sorted."""
+    return sorted(f.name for f in folder.iterdir() if f.is_file()
+                  and f.name.endswith(("_final_preview.jpg", "_plan.jpg"))) if folder.is_dir() else []
+
+
+def _view_files(cams, plans: bool) -> list:
+    return sorted([f"{c}_final_preview.jpg" for c in cams] + ([f"{c}_plan.jpg" for c in cams] if plans else []))
+
+
+def _put_views(folder: Path, cams, data: bytes, age: float) -> None:
+    for c in cams:
+        put(folder / "final" / f"{c}_final_preview.jpg", data, age=age)
+        put(folder / "final" / f"{c}_plan.jpg", data, age=age)
+
+
+def _variant_project(ref, vid: str) -> Path:
+    """A project output whose building_final.json lists the alternative ``vid``; its folder ``variants/<vid>``."""
+    put(ref.out_dir / "building_final.json", {"rooms": [], "variants": [{"id": "base"}, {"id": vid}]})
+    return ref.out_dir / "variants" / vid
+
+
+@pytest.mark.parametrize("kind", ["public", "private"])
+def test_an_alternatives_view_files_go_to_its_own_results_folder(tmp_path, kind):
+    """Fix round after P3, part 3: the base project and its alternative ran in the same run with different cameras;
+    each results folder ends with exactly its own manifest's views, the earlier run's views a copy took before move to
+    the earlier_run/ of their own folder, and a leftover no manifest names never reaches the results. (A copy that
+    moved the stale views of the base folder with the alternative's names, or read the base manifest for the
+    alternative, fails here.)"""
+    _results, pub, priv = refs(tmp_path)
+    ref = pub if kind == "public" else priv
+    out, res = ref.out_dir, ref.results_area("final")
+    vid = "l-1b-acik-mutfak"
+    alt = _variant_project(ref, vid)
+    res_alt = res / "variants" / vid
+    plans = kind == "public"
+    # run R1 on the volume: base cam_a, alternative cam_v, each with a plan crop and a leftover of an older run
+    for folder, cam in ((out, "cam_a"), (alt, "cam_v")):
+        _record(folder, "render", "R1", "2026-10-15T00:00:00Z")
+        _final_manifest(folder, "R1", [cam], plans=[cam])
+        _put_views(folder, [cam, f"{cam}_gone"], b"R1", age=900)
+    stamp = tmp_path / "logs" / "copy.stamp"
+    CP.copy_results([ref], stamp)                      # the job's first copy (pod setup): R1 is the newest run
+    assert _views(res) == _view_files(["cam_a"], plans) and _views(res_alt) == _view_files(["cam_v"], plans)
+    # run R2 reaches the alternative (the scheduler gives both one run id): base cam_b, alternative cam_w and cam_x
+    _record(out, "intake", "R2", "2026-10-17T00:00:00Z")
+    _record(alt, "build", "R2", "2026-10-17T01:00:00Z")
+    for folder, cams in ((out, ["cam_b"]), (alt, ["cam_w", "cam_x"])):
+        _put_views(folder, cams, b"R2", age=60)
+        _final_manifest(folder, "R2", cams, plans=cams)
+    CP.copy_results([ref], stamp)
+    CP.copy_results([ref])                             # the EXIT trap's full copy
+    assert _views(res) == _view_files(["cam_b"], plans)
+    assert _views(res_alt) == _view_files(["cam_w", "cam_x"], plans)
+    assert _views(res / "earlier_run") == _view_files(["cam_a"], plans)
+    assert _views(res_alt / "earlier_run") == _view_files(["cam_v"], plans)
+    assert (res_alt / "cam_w_final_preview.jpg").read_bytes() == b"R2"
+    assert not any("_gone_" in f for f in files(ref.results_dir))
+
+
+@pytest.mark.parametrize("kind", ["public", "private"])
+def test_an_alternative_the_job_never_reached_ships_no_earlier_views(tmp_path, kind):
+    """Fix round after P3, part 3: the scheduler writes an alternative's first record only in phase 5, after its base
+    project's refit. A job whose base project stopped before (P4 on real02: intake ok, layout failed) left the
+    alternative's run/ on the earlier run R1, and the copy took R1's alternative previews and plan crops as this
+    run's. This run is the base project's: the alternative's R1 manifest names nothing, the views an earlier copy of
+    the job took move to variants/<id>/earlier_run/ of the results, and a fresh copy takes none of them."""
+    _results, pub, priv = refs(tmp_path)
+    ref = pub if kind == "public" else priv
+    out, res = ref.out_dir, ref.results_area("final")
+    vid = "l-1b-acik-mutfak"
+    alt = _variant_project(ref, vid)
+    res_alt = res / "variants" / vid
+    plans = kind == "public"
+    for folder, cam in ((out, "cam_a"), (alt, "cam_v")):
+        _record(folder, "render", "R1", "2026-10-15T00:00:00Z")
+        _final_manifest(folder, "R1", [cam], plans=[cam])
+        _put_views(folder, [cam], b"R1", age=900)
+    put(alt / "final" / "final_report.md", "# R1 alternative")
+    stamp = tmp_path / "logs" / "copy.stamp"
+    CP.copy_results([ref], stamp)                      # pod setup: R1 is still the newest run of the base project
+    assert _views(res_alt) == _view_files(["cam_v"], plans)
+    # P4 writes the base project's intake and a failed layout; the alternative never gets a record of this run
+    _record(out, "intake", "P4", "2026-10-17T00:00:00Z")
+    put(out / "run" / "layout.json", {"kind": "stage_record", "project": out.name, "stage": "layout",
+                                      "status": "failed", "run_id": "P4", "started_utc": "2026-10-17T00:10:00Z"})
+    CP.copy_results([ref], stamp)
+    CP.copy_results([ref])                             # the EXIT trap's full copy
+    assert _views(res) == [] and _views(res_alt) == []
+    assert _views(res / "earlier_run") == _view_files(["cam_a"], plans)
+    assert _views(res_alt / "earlier_run") == _view_files(["cam_v"], plans)
+    assert (res_alt / "earlier_run" / "cam_v_final_preview.jpg").read_bytes() == b"R1"
+    # a job's results that never held them: one full copy takes no view file of the base or the alternative, while
+    # the alternative's manifest and report are copied as before
+    from dataclasses import replace
+    fresh = replace(ref, results_dir=tmp_path / "fresh")
+    CP.copy_project(fresh)
+    got = files(fresh.results_dir)
+    assert not any(f.endswith(("_final_preview.jpg", "_plan.jpg")) for f in got)
+    prefix = "final/" if kind == "private" else "final/p/"
+    assert {f"{prefix}variants/{vid}/final_manifest.json", f"{prefix}variants/{vid}/final_report.md"} <= got

@@ -32,7 +32,8 @@ Builders (``MODULE_BUILDERS``: furniture type -> builder):
   plinth or worktop at their drawn spans: ``plan["gaps"]``); P3 had built both inside full-depth base units. Part 2
   (17 Oct 2026): the sink unit is hollow above its bowl (``parametric.open_carcass``), the sink is built in only
   within ``KITCHEN_END_SHIFT_MAX_M`` of its drawn centre (else it stands as drawn in a gap of the run, as a pinned
-  sink does), and a gap never takes the whole run;
+  sink does), and a gap never takes the whole run. Part 3 (17 Oct 2026): that distance is measured across the run
+  too (the bowl sits on the run's centreline), so a sink drawn over the run's front or back edge is not built in;
 - ``bath_set`` (washbasin at least 0.45 m deep: a wall-hung vanity with drawer fronts, a ceramic top with one or
   two inset basins and taps and a framed mirror above, the vanity hollow above the basins since the fix round after
   P3, part 2; shower: a tray of a real product size with the glass screen and shower set of
@@ -245,6 +246,17 @@ def _local_x(piece: dict, pos) -> Optional[float]:
     rot = math.radians(float(fp.get("rotation_deg") or 0.0))
     dx, dy = float(pos[0]) - float(c[0]), float(pos[1]) - float(c[1])
     return math.cos(rot) * dx + math.sin(rot) * dy
+
+
+def _local_y(piece: dict, pos) -> Optional[float]:
+    """A world point's y in the piece frame (across the run, front -Y), or None (fix round after P3, part 3)."""
+    if not pos or len(pos) < 2:
+        return None
+    fp = piece.get("footprint") or {}
+    c = fp.get("center") or [0.0, 0.0]
+    rot = math.radians(float(fp.get("rotation_deg") or 0.0))
+    dx, dy = float(pos[0]) - float(c[0]), float(pos[1]) - float(c[1])
+    return -math.sin(rot) * dx + math.cos(rot) * dy
 
 
 def _local_corners(piece: dict, other: dict) -> Optional[list[tuple[float, float]]]:
@@ -590,7 +602,18 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     has no plinth. Why: a drawn sink overhanging the run's end was built up to 0.4 of its width away from where it
     is drawn with no record (the CLAUDE.md fixed-equipment rule: as drawn), and a stove drawn over its whole run
     gave a plan with no module (an empty object in the scene). How: the sink unit is checked after the end shifts;
-    ``_gap_problem`` decides every gap."""
+    ``_gap_problem`` decides every gap.
+
+    Fix round after P3, part 3 (17 Oct 2026). What: the distance to the drawn centre is measured across the run too:
+    the bowl stands at the sink unit's centre along the run and on the run's centreline (local y 0) across it, the
+    drawn centre's local y comes from ``sink_pos_m`` (or ``module_hints["sink_y_m"]``, in the run's frame), and the
+    sink is built in only when the bowl's centre is within ``KITCHEN_END_SHIFT_MAX_M`` of the drawn centre (both
+    axes together); ``built_ins`` also records ``drawn_y_m`` and ``shift_y_m`` (the bowl's y minus the drawn y).
+    Farther away the sink is not built in and gets a gap at its drawn span, with the reason, as in part 2. Why: the
+    part 2 check read only the position along the run, so a drawn sink overhanging the counter's front (centred
+    0.25 m in front of the centreline, 40 % of it outside the run) was built in on the centreline, 0.25 m from where
+    it is drawn, with no record (the CLAUDE.md fixed-equipment rule: as drawn; nothing changes silently). How: one
+    distance for both axes; without a drawn y (an inferred place) the offset across is 0 as before."""
     w, d, h = _piece_size(piece)
     if w < min(KITCHEN_BASE_WIDTHS_M) - 1e-9 or d < 0.45 - 1e-9:
         return None
@@ -605,6 +628,10 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     sink_x = hints.get("sink_x_m")
     if sink_x is None:
         sink_x = _local_x(piece, hints.get("sink_pos_m")) if hints.get("sink_pos_m") else _local_x(piece, hints.get("window_pos_m"))
+    # fix round after P3, part 3: the drawn sink's centre across the run (the bowl is built on its centreline, y 0)
+    sink_y = hints.get("sink_y_m")
+    if sink_y is None and hints.get("sink_pos_m"):
+        sink_y = _local_y(piece, hints["sink_pos_m"])
     hob_x = hints.get("hob_x_m")
     if hob_x is None and hints.get("hob_pos_m"):
         hob_x = _local_x(piece, hints["hob_pos_m"])
@@ -642,18 +669,19 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     # fix round after P3, part 2: the drawn sink (``sink_piece``) is built in only where its sink unit stands within
     # KITCHEN_END_SHIFT_MAX_M of the drawn centre (the fixed-equipment rule: as drawn); else it keeps its own model
     # and stands as drawn, in a gap of the run (as a pinned sink and a drawn stove do)
+    # (part 3: measured across the run too, where the bowl stands on the run's centreline, y 0)
     built_in = None
     sink_piece = hints.get("sink_piece")
     if sink_piece and sink_x is not None:
         unit = next(((f0, f1) for f0, f1, k in fixed if k == "sink"), None)
         shift = None if unit is None else (unit[0] + unit[1]) / 2.0 - float(sink_x)
-        if shift is not None and abs(shift) <= KITCHEN_END_SHIFT_MAX_M + 1e-9:
-            built_in = (unit, shift)
+        across = 0.0 - float(sink_y) if sink_y is not None else 0.0     # the bowl's y (0) minus the drawn y
+        if shift is not None and math.hypot(shift, across) <= KITCHEN_END_SHIFT_MAX_M + 1e-9:
+            built_in = (unit, shift, across)
         else:
             fixed = [f for f in fixed if f[2] != "sink"]
             why = ("its sink unit would overlap the gap of a drawn stove" if unit is None else
-                   f"its {unit[1] - unit[0]:.2f} m sink unit would stand {abs(shift):.2f} m from the drawn centre, "
-                   f"more than {KITCHEN_END_SHIFT_MAX_M:.2f} m (the drawn sink overhangs the run)")
+                   _sink_off_reason(unit[1] - unit[0], shift, across))
             sw_drawn = float(hints.get("sink_w_m") or (unit[1] - unit[0] if unit else KITCHEN_SINK_UNIT_WIDTHS_M[0]))
             g0, g1 = max(float(sink_x) - sw_drawn / 2.0, -w / 2.0), min(float(sink_x) + sw_drawn / 2.0, w / 2.0)
             problem = _gap_problem(w, g0, g1, gap_spans + fixed)
@@ -741,14 +769,38 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     if gaps:
         plan["gaps"] = gaps
     if built_in is not None:
-        (s0, s1), shift = built_in
-        plan["built_ins"] = [{"id": str(sink_piece), "kind": "sink", "x_m": round((s0 + s1) / 2.0, 4),
-                              "w_m": round(s1 - s0, 4), "drawn_x_m": round(float(sink_x), 4),
-                              "shift_m": round(shift, 4)}]
+        (s0, s1), shift, across = built_in
+        record = {"id": str(sink_piece), "kind": "sink", "x_m": round((s0 + s1) / 2.0, 4), "w_m": round(s1 - s0, 4),
+                  "drawn_x_m": round(float(sink_x), 4), "shift_m": round(shift, 4)}
+        if sink_y is not None:                            # part 3: the offset across the run is recorded too
+            record.update(drawn_y_m=round(float(sink_y), 4) + 0.0, shift_y_m=round(across, 4) + 0.0)
+        plan["built_ins"] = [record]
         notes.append(f"the drawn sink {sink_piece} is built into the run: a {s1 - s0:.2f} m sink unit with the bowl "
                      "and the tap at its cutout" + (f", {abs(shift):.2f} m from the drawn centre (unit width, run end)"
-                                                    if abs(shift) > 0.005 else ""))
+                                                    if abs(shift) > 0.005 else "")
+                     + (f"; {sink_across_text(across)}" if abs(across) > 0.005 else ""))
     return plan
+
+
+def sink_across_text(shift_y: float) -> str:
+    """The words for a built-in bowl's offset across the run (fix round after P3, part 3): ``shift_y`` is the bowl's
+    local y (0, the run's centreline) minus the drawn sink centre's (front -Y); ``wenart.furniture.fit.built_in_fit``
+    and ``fit_report`` say the same from ``built_ins[].shift_y_m``."""
+    return (f"the bowl stands {abs(shift_y):.2f} m {'behind' if shift_y > 0 else 'in front of'} the drawn sink centre, "
+            "on the run's centreline")
+
+
+def _sink_off_reason(unit_w: float, shift: float, across: float) -> str:
+    """Why a drawn sink is not built in (fix round after P3, parts 2 and 3): its bowl would stand farther than
+    ``KITCHEN_END_SHIFT_MAX_M`` from the drawn centre, along the run (unit width, run end) and across it (the bowl on
+    the run's centreline)."""
+    if abs(across) <= 0.005:
+        return (f"its {unit_w:.2f} m sink unit would stand {abs(shift):.2f} m from the drawn centre, more than "
+                f"{KITCHEN_END_SHIFT_MAX_M:.2f} m (the drawn sink overhangs the run)")
+    return (f"its bowl would stand {math.hypot(shift, across):.2f} m from the drawn centre ({abs(shift):.2f} m along "
+            f"the run, at its {unit_w:.2f} m sink unit's centre; {abs(across):.2f} m across it, on the run's "
+            f"centreline), more than {KITCHEN_END_SHIFT_MAX_M:.2f} m (the drawn sink lies toward the run's "
+            f"{'front' if across > 0 else 'back'} edge)")
 
 
 def plan_bath_set(piece: dict, style: Optional[dict] = None) -> Optional[dict]:
