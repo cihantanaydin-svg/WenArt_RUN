@@ -128,6 +128,23 @@ project's.
   copies the same files as before; one that does not copies none of the alternative's views, and the ones an earlier
   copy of the job took move to ``variants/<id>/earlier_run/`` of the results (``move_stale_view_files``).
 
+Fix round after P4a (17 Oct 2026, the library lens of the P4a analysis): the change list of ``ATTRIBUTION.md`` is
+the run's own.
+
+- What: ``write_attributions`` reads how many views of this run were polished (``run_polish``: the views of this
+  run's final manifest, and of its alternatives' manifests, whose ``final`` is ``polished``) and hands the count to
+  ``attribution_text`` as a ``kind: "run_polish"`` row of the credits (as the ``run_model`` rows, so the frozen
+  signature stays). When none was, the text leaves the change "AI-retouched" out of every credit line and dataset
+  notice (``without_retouch``) and says so under section 2; when some were, it says how many and keeps it. Without
+  this run's manifest (a copy before the report, an earlier run's manifest) the text is as before.
+- Why: P4a's real02 ATTRIBUTION.md said "rendered, AI-retouched" 122 times while its report shows 48 views and 0
+  polished (AI polish is off in Milestone 13, CLAUDE.md): the change text is the catalogue's static ``attribution``
+  string (``catalog_library.json``, the ABO / GSO / HSSD notices), copied as it is. The CC BY credit must name the
+  changes that were made, not one that was not.
+- How: the catalogue entries keep their text (a run with polish still uses it); only the run's file changes. The copy
+  rewrites the file when the text changes (``_write_if_changed``), so the copy after the report corrects the one
+  written before it.
+
 ``copy_lock(path)``: the job's copy lock (``full.sh`` exports it as
 ``WENART_COPY_LOCK``; the same ``flock`` the background loop takes), so the
 orchestrator's own copy before the GPU tests never interleaves with the loop.
@@ -145,6 +162,7 @@ from __future__ import annotations
 import fnmatch
 import json
 import os
+import re
 import shutil
 import time
 from collections import deque
@@ -246,6 +264,9 @@ SAPLING_TOOL = {"name": "Sapling Tree Gen 0.3.7 (Blender extension sapling_tree_
 POLYHAVEN_PAGE = "https://polyhaven.com/a/{id}"            # = wenart.assets.models.PAGE_URL
 VEGETATION_TABLE_NOTE = "per the vegetation table (wenart/blender/vegetation.py; the manifest entry names no atlas)"
 DEFAULT_CHANGES = "scaled to the drawn footprint, re-oriented, rendered"
+# Fix round after P4a: the change the catalogue's credit texts name for AI polish; left out when no view of the run
+# was polished (``without_retouch``, ``run_polish``).
+RETOUCH_CHANGE = "AI-retouched"
 # The library work folder's files that never go to $RESULTS (``library_files``): model files (the GLBs live in the
 # sources' caches and <assets>/models/<source>/) and anything larger than the text limit.
 LIBRARY_SKIP_SUFFIXES = (".glb", ".gltf", ".bin", ".blend", ".ply", ".obj", ".fbx", ".part", ".tmp")
@@ -820,6 +841,60 @@ def _credit_line(c: dict) -> str:
     return f"- {c['credit']}{text}" + (f" (used for {pieces})" if pieces else "") + aid
 
 
+def without_retouch(text: str) -> str:
+    """Fix round after P4a: ``text`` without the change ``RETOUCH_CHANGE`` of a change list ("rendered,
+    AI-retouched; PoC use" -> "rendered; PoC use", "AI-retouched, scaled" -> "scaled"); other text is kept."""
+    word = re.escape(RETOUCH_CHANGE)
+    text = re.sub(rf",\s*{word}\b", "", text)
+    text = re.sub(rf"\b{word},\s*", "", text)
+    return re.sub(rf"\s*\b{word}\b", "", text)
+
+
+def _manifest_polish(path: Path, run_id: Optional[str]) -> Optional[tuple[int, int]]:
+    """``(polished views, views)`` of a final manifest of this run (``run_id``, both None for a hand run), else None
+    (no manifest, an earlier run's, no view that records its ``final`` image: ``polished`` or ``cycles``)."""
+    try:
+        manifest = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(manifest, dict) or (manifest.get("run_id") or None) != (run_id or None):
+        return None
+    views = [v for v in manifest.get("views") or [] if isinstance(v, dict) and v.get("final") in ("polished", "cycles")]
+    if not views:
+        return None
+    return sum(1 for v in views if v.get("final") == "polished"), len(views)
+
+
+def run_polish(out_dir: Path) -> Optional[dict]:
+    """Fix round after P4a (module docstring): ``{"polished": n, "views": m}`` over this run's final manifest of the
+    project and of each alternative (``variants/<id>/final/final_manifest.json`` of the same run id), or None when the
+    project's own manifest is missing, an earlier run's, or has no view (then the change list is not known)."""
+    from wenart.report import final as F
+
+    out_dir = Path(out_dir)
+    run_id = this_run_id(out_dir)
+    base = _manifest_polish(out_dir / F.FINAL_DIR / F.MANIFEST_NAME, run_id)
+    if base is None:
+        return None
+    polished, views = base
+    for vid in variant_folders(out_dir):
+        got = _manifest_polish(out_dir / VARIANTS_DIR / vid / F.FINAL_DIR / F.MANIFEST_NAME, run_id)
+        if got is not None:
+            polished, views = polished + got[0], views + got[1]
+    return {"polished": polished, "views": views}
+
+
+def polish_note(polish: Optional[dict]) -> Optional[str]:
+    """The line under section 2 that says whether the change list names AI polish (fix round after P4a)."""
+    if not isinstance(polish, dict):
+        return None
+    n, m = int(polish.get("polished") or 0), int(polish.get("views") or 0)
+    if n == 0:
+        return (f"Changes made for these images: no view of this run was AI-retouched (0 of {m} views polished), so "
+                f"the change \"{RETOUCH_CHANGE}\" of the catalogue's credit texts is left out below.")
+    return f"Changes made for these images: {n} of {m} views were AI-retouched (the polish stage)."
+
+
 def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial") -> str:
     """The ``ATTRIBUTION.md`` text (Milestone 13, docs/milestone13.md §6, §13.2): the licence mode, then
 
@@ -836,6 +911,10 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
     rows. Build round 2: a ``kind: "tool"`` row (the Sapling add-on of the site build, ``vegetation_credits``) is
     listed under section 1 with the trees it made; the HSSD notice comes from ``wenart.assets.hssd.DATASET``
     (``hssd_notice``); ambientCG textures and leaf atlases add ``AMBIENTCG_NOTICE`` to section 4.
+
+    Fix round after P4a: a ``kind: "run_polish"`` row (``run_polish``: ``polished``, ``views``) with no polished
+    view leaves "AI-retouched" out of the credit lines and notices (``without_retouch``) and says so under section 2
+    (``polish_note``); without the row the texts stay as they are.
     """
     from wenart.furniture import catalog as CAT
 
@@ -843,6 +922,7 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
     models = [c for c in credits if c.get("kind", "model") == "model"]
     textures = [c for c in credits if c.get("kind") in ("texture", "hdri")]
     run_models = [c for c in credits if c.get("kind") == "run_model"]
+    polish = next((c for c in reversed(credits) if c.get("kind") == "run_polish"), None)    # fix round after P4a
     tools = [c for c in credits if c.get("kind") == "tool"]
     sources = sorted({c.get("source") or "objaverse" for c in models},
                      key=lambda s: SOURCE_ORDER.index(s) if s in SOURCE_ORDER else len(SOURCE_ORDER))
@@ -907,6 +987,12 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
         lines.append("None: no dataset asset in these images.")
     for text in notices:
         lines += [text, ""]
+    note = polish_note(polish)
+    if note is not None:                              # fix round after P4a: the run's own change list
+        if int(polish.get("polished") or 0) == 0:
+            lines = [without_retouch(line) for line in lines]
+        at = lines.index("## 2. CC0 / CC BY assets (author, source, licence, changes)") + 2
+        lines[at:at] = [note, ""]
     return "\n".join(lines)
 
 
@@ -938,6 +1024,9 @@ def write_attributions(ref: ProjectRef) -> int:
     credits = credits + texture_credits(ref.out_dir) + vegetation
     credits += [dict(m, kind="run_model") for m in run_model_rows(ref.out_dir)]
     areas = ("final",) if ref.private else IMAGE_AREAS
+    polish = run_polish(ref.out_dir)                      # fix round after P4a: the run's own change list
+    if polish is not None:
+        credits.append(dict(polish, kind="run_polish"))
     text = attribution_text(f"The images of project {ref.name}", credits, mode=project_licence_mode(ref.out_dir))
     n = 0
     for area in areas:

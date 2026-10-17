@@ -27,6 +27,10 @@ Milestone 13 (docs/milestone13.md §7, §13.2; track T8):
   volume's project output or a committed ``results/<area>/<p>`` folder. Exit 0; exit 2 for a missing folder.
 - ``sheets13 --out <project_out> --baseline <dir> --dir <out_dir>``: one before | after JPEG per camera
   (``wenart.report.sheets13``). Exit 0; exit 2 for a missing folder.
+
+Fix round after P4a (17 Oct 2026; the report track's ask, applied at integration): the metrics13 line names why a
+metric has no data (its text, e.g. "m11 (no drawn tree; no tree in the scene)"), so a run without trees does not read
+like a missing input; the sheets13 line counts the baseline previews left out (``before_left_out``).
 """
 from __future__ import annotations
 
@@ -95,6 +99,14 @@ def main(argv=None) -> int:
     return 0
 
 
+def _no_data_reason(metric: dict, no_data: str) -> str:
+    """Fix round after P4a: `` (<why>)`` for a metric without data: its text without the "no data" words, or ""."""
+    text = str(metric.get("text") or "").strip()
+    if text.startswith(no_data):
+        text = text[len(no_data):].strip(" :;,-()")
+    return f" ({text})" if text else ""
+
+
 def _m13(args, parser) -> int:
     """``metrics13`` and ``sheets13`` (Milestone 13)."""
     run = args.out or args.project_out
@@ -112,9 +124,11 @@ def _m13(args, parser) -> int:
         from wenart.report import metrics13 as MX
         result = MX.write(run, args.baseline, args.json, args.md)
         no_data = [k for k, m in result["metrics"].items() if m["value"] == MX.NO_DATA]
+        named = [k + _no_data_reason(result["metrics"][k], MX.NO_DATA)
+                 for k in sorted(no_data, key=lambda k: int(k[1:]))]
         print(f"report metrics13 {result['project']}: {len(result['metrics'])} metrics, {len(result['views'])} views"
               + (f", baseline {result['baseline_project']}" if result.get("baseline_out") else "")
-              + (f", no data: {', '.join(sorted(no_data, key=lambda k: int(k[1:])))}" if no_data else "")
+              + (f", no data: {', '.join(named)}" if no_data else "")
               + f" -> {args.json}" + (f", {args.md}" if args.md else ""))
         for w in result["warnings"]:
             print(f"  warning: {w}")
@@ -128,7 +142,9 @@ def _m13(args, parser) -> int:
     print(f"report sheets13 {result['project']}: {len(result['sheets'])} sheet(s) -> {args.dir}"
           + (f"; no baseline preview: {len(result['missing_before'])}" if result["missing_before"] else "")
           + (f"; no preview of the run: {len(result['missing_after'])}" if result["missing_after"] else "")
-          + (f"; baseline only: {len(result['baseline_only'])}" if result["baseline_only"] else ""))
+          + (f"; baseline only: {len(result['baseline_only'])}" if result["baseline_only"] else "")
+          + (f"; baseline previews left out: {len(result['before_left_out'])}" if result.get("before_left_out")
+             else ""))
     for w in result["warnings"]:
         print(f"  warning: {w}")
     return 0

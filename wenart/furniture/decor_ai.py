@@ -64,6 +64,13 @@ so it follows its host after the agent's edits (``decor.sync_to_hosts``); the pl
 only a start, the scene builder finds the real back, headboard and mattress on the built mesh (``wenart.blender.rest``).
 Throws are our own procedural cloth (``wenart.blender.textiles``: draped on the host, never a library object squashed
 to 5 cm); a seat or bed whose model has its own cushions or bedding gets no cushion slot (``decor.takes_cushions``).
+
+Fix round after P4a (17 Oct 2026; the rig track's ask, applied at integration): a ceiling slot hangs from the ceiling
+over it (``ceiling_items`` with the building: ``decor.ceiling_over`` with the level's sloped attic ceiling), not from
+the level's flat ceiling height. Under a slope a pendant keeps its bottom (a dining table's top + 0.75 m, elsewhere
+at least 2.0 m) and gets the drop that is there; where that drop is under ``PENDANT_MIN_DROP_M`` only the flush
+ceiling light is offered. P4a's real02 L1 had a flat 3.433 m ceiling height but 2.05-2.18 m of slope over the
+pendant slots, and the builder lowered the shades through the dining table.
 """
 from __future__ import annotations
 
@@ -367,7 +374,7 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
                 slots.append(Slot(f"window:{wid}", "window", types, None, None, items={t: made[t] for t in types},
                                   note=f"window {wid}"))
     if allowed & {"pendant_light", "ceiling_light"}:            # Milestone 10: lights hanging from the ceiling
-        for sid, made in ceiling_items(room, pieces, ceiling):
+        for sid, made in ceiling_items(room, pieces, ceiling, building=building):     # fix round after P4a
             types = tuple(t for t in ("pendant_light", "ceiling_light") if t in made and t in allowed)
             if types:
                 host_id = sid.split("over_", 1)[1] if ":over_" in sid else None
@@ -1142,25 +1149,41 @@ def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Roo
     return out, notes
 
 
-def ceiling_items(room: dict, pieces: list[dict], ceiling: float) -> list[tuple[str, dict]]:
+def ceiling_items(room: dict, pieces: list[dict], ceiling: float, building: Optional[dict] = None,
+                  planes: Optional[list] = None) -> list[tuple[str, dict]]:
     """``[(slot id, {type: item})]``: pendants and ceiling lights over a dining table (a pendant
     ``PENDANT_OVER_TABLE_M`` above its top), a coffee table and a bed (a pendant only where its bottom stays at
     ``PENDANT_MIN_BOTTOM_M``), and at the room centre when it is inside the room, off a stair and
-    ``CEILING_SLOT_GAP_M`` from the others. Items hang from the level's ceiling (``center[2]`` = their bottom)."""
+    ``CEILING_SLOT_GAP_M`` from the others. Items hang from the level's ceiling (``center[2]`` = their bottom).
+    Fix round after P4a: with ``building`` each item hangs from the ceiling over its own footprint
+    (``decor.ceiling_over``; ``planes``: the level's sloped ceiling, computed when None), so a pendant under a low
+    slope is left out (the drop rule) and its slot keeps only the flush ceiling light."""
     out: list[tuple[str, dict]] = []
     taken: list[tuple[float, float]] = []
+    if building is not None and planes is None:
+        planes = D.ceiling_planes(building, room["level_id"])
+
+    def over(centre, size) -> tuple[float, str]:
+        if building is None or not planes:
+            return ceiling, ""
+        here = D.ceiling_over(building, room["level_id"], centre, size, planes=planes)
+        return here, (f" (sloped ceiling {here:.2f} m over it)" if here < ceiling - 1e-6 else "")
 
     def lights(types, centre, bottom_pendant, why):
         made = {}
         for t in types:
-            if t == "pendant_light" and ceiling - bottom_pendant >= PENDANT_MIN_DROP_M:
-                made[t] = {"type": t, "center": [round(centre[0], 3), round(centre[1], 3), round(bottom_pendant, 3)],
-                           "rotation_deg": 0.0, "size": [*PENDANT_SIZE, round(ceiling - bottom_pendant, 3)],
-                           "reason": f"pendant {why}"}
+            if t == "pendant_light":
+                top, note = over(centre, PENDANT_SIZE)
+                if top - bottom_pendant >= PENDANT_MIN_DROP_M:
+                    made[t] = {"type": t,
+                               "center": [round(centre[0], 3), round(centre[1], 3), round(bottom_pendant, 3)],
+                               "rotation_deg": 0.0, "size": [*PENDANT_SIZE, round(top - bottom_pendant, 3)],
+                               "reason": f"pendant {why}{note}"}
             elif t == "ceiling_light":
                 w, d, h = CEILING_LIGHT_SIZE
-                made[t] = {"type": t, "center": [round(centre[0], 3), round(centre[1], 3), round(ceiling - h, 3)],
-                           "rotation_deg": 0.0, "size": [w, d, h], "reason": f"ceiling light {why}"}
+                top, note = over(centre, (w, d))
+                made[t] = {"type": t, "center": [round(centre[0], 3), round(centre[1], 3), round(top - h, 3)],
+                           "rotation_deg": 0.0, "size": [w, d, h], "reason": f"ceiling light {why}{note}"}
         return made
 
     for host in sorted((p for p in pieces if usable_host(p) and p["type"] in LIGHT_HOSTS), key=lambda p: p["id"]):

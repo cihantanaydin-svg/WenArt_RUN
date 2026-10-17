@@ -1507,6 +1507,150 @@ allowed (the refit stands the library sink in a gap of the run).
 - **Copy of alternatives.** An alternative's "this run" is the base project's run id, so a job that stops before the
   alternative never ships its earlier previews; a test covers base and alternative manifests with stale files.
 
+### 14.10 Fix round after P4a (17 Oct 2026; no pod)
+
+Pod P4a ran real02 with the M11 cameras replayed (`runs/20261017-072801-full`; 41 views shared with M11: 27 better,
+4 same, 10 worse). Fifteen analysts read it by lens; a verifier checked every proposed fix (where it refuted a fix, its
+better fix was built; where it found no evidence, nothing changed). Seven tracks then fixed their items in parallel,
+each behaviour change with a CPU test that fails on 03881bc or on a mutation of the fixed code, and one integration
+step applied the cross-track asks and ran the full CPU suite. Nothing here has run on a GPU yet: the new GPU checks run
+in P5. Pod P4b (real03, `runs/20261017-091212-full`) ran on the old code during this round.
+
+- **Cameras (C).** The agent's `set_camera` on a replayed exterior camera made a second `ext_6` (Blender's
+  `ext_6.001`): its move never reached the view it judged and two GPU tests failed on the unknown name. The build now
+  merges the replayed and planned cameras first and then applies the agent's entries (`build.merge_agent_cameras`,
+  both camera paths); a set on a replayed name replaces it and keeps the old record in `replaced_replayed` (pose, lens,
+  shift, view, sides, replay trail; carried through chained sets); a remove of a replayed camera goes to
+  `cameras_from.dropped` with the agent's reason. Agent cameras keep the frozen sources (`source: searched`,
+  `policy: agent`). An agent exterior camera keeps the view it took over only while its pose still is that view
+  (`build.agent_exterior_view`): P4a's ext_6 is now "agent, right", not "frontal, back", so X6 can report the lost
+  entrance view. Guards: a name clash is renamed `<name>_dup<k>` with `renamed_from` and a warning; the build stops
+  when Blender renamed a camera object. New GPU file `tests/gpu/test_camera_replay.py` (one camera per name, every
+  record of the camera file kept or dropped with a reason, agent views that match their pose); on P4a's outputs it
+  fails as it should (2 of 3).
+- **Light and colour (L).** `RENDER_CODE_VERSION` m13.3. Every view keeps the project's daylight cast: the white point
+  is normalise(light / (day^r × (rig/day)^(share × rig residual))) with `WB_RIG_RESIDUAL` = 0, so §14.9's "the rig's
+  own white point" for a rig-lit room no longer holds (bpy shim at P4a's EV: halls R/B 1.64-1.78 → 1.26-1.36, baths
+  1.21-1.32 → 1.02-1.08, kitchens 1.28-1.32 → 1.10-1.14; the GPU pin compares rig-lit walls with the same project's
+  daylight walls of the same kind, at most 1.1 × their median). Interior views hide the haze from camera and
+  transmission rays (`render.haze_hidden_for`): pane saturation median 0.06 → 0.14 (M11: 0.13-0.25); new GPU floor
+  `PANE_SAT_MIN` 0.08. The sky pull tries up to 6 stops, also stops at mid-tone (median ≤ 0.6 at saturation ≥ 0.10:
+  teras_1 k 4 → 3), records `sun_offset_deg` / `into_sun` and blends by sky coverage plus a 2 px ring
+  (`sky_pull_weights`): the white halo band around trees, ridge and chimney falls from 27-71 % to 4-24 % of the pixels.
+  Per-view facade metering is kept (the verifier refuted the EV lock).
+- **Rig (R).** Bedside light: an existing floor or table lamp hosts it (no second mesh), else a lamp on the nightstand
+  top (the stem now stands on the top), else a wall sconce (0.12 × 0.12 × 0.20 m drum, never over an opening, past the
+  wall end or through a piece), else none with the reason; `rig_fixture_problems` drops a fixture that floats, crosses a
+  piece or a decor box or leaves its room. Measured in bpy: a point light inside a closed shade never got out (floor
+  0.263 with the light on or off; 0.377 with the shade's shadow off), so the shades no longer cast shadows
+  (`visible_shadow` False). The mirror bar sits 0.05 m above the highest wall item behind the basin, or is dropped under
+  a low slope; ceiling fixtures and pendants hang under the sloped ceiling at their own spot and use a built decor light
+  as host. `materials.mirror_glass_material` turns a library mirror's neutral grey glass texels into a real mirror (real
+  ABO GLBs: reflection std 0.03 → 0.40 and 0.04 → 0.32, frames unchanged). The polylabel fix moves real02/real04
+  r_L0_merdiven's fixture into its own room. The terrace table's checkerboard is the model's own albedo: no change.
+- **Agent (A).** The X2 rebuilt from the round's stale scene-manifest box no longer blocks an edit that changed its
+  target (the re-measured X2 still does); an S2 wall cut is predicted from the footprint (P4a edit 332 would now be
+  rejected); S2 cuts under 0.03 m are minor and S2 keys name their cut; set_lighting steps come first and the final
+  round may light a major dark view when a re-render follows (`FINAL_ROUND_LIGHTING`); a memory refusal counts as a
+  try and two close the step; a vision finding about a light fixture goes to the lighting stage (`light_fixture`); a
+  door clipped under the roof is reported (`opening_under_roof`), not sent to set_exterior; a camera override that
+  changes nothing is refused (`no_change`) and `camera_effect` checks run after the re-render; plan statuses
+  ok / empty / refused / default are logged with the skip lists; `edits_removing_finding` counts by the targeted keys
+  (P4a: 17 of 24, was 13 of 25).
+- **Furniture (F).** F9 no longer reports the sink and stove a kitchen run holds (P4a: 17 → 9 F9); the outline F9
+  carries `depth_m`. `mark_not_furniture` refuses a drawn, code-typed piece of real size unless a reading reason holds
+  (`drawn_lock`; P4a's marks of f_L1_021/022 and the wardrobe f_L-1_024 are refused, the 5 legitimate NR marks still
+  pass). `group_member` typing only when the group takes the piece in (one coffee table per salon, not 7). A
+  vector-drawn anchor typed by code is completed like a verified one (`program.unsure_anchor`; 4 bedrooms get their
+  nightstands); a drawn lamp of nightstand size at a bed's head becomes its nightstand (`infer.nightstand_symbols`,
+  `adjusted_by_ai` by code, plan crop as evidence); a re-solved group searches its drawn members at their own size.
+  The vision cross-check no longer reports a sink the scene built into its run.
+- **Report (P).** Sheet labels on a dark box, captions that wrap, "not recorded" in grey; a baseline preview is used
+  only for a camera the baseline report lists (P4a: 3 left out). ATTRIBUTION.md and the report drop "AI-retouched"
+  when no view of the run was polished. Metric 11 counts the scene's inferred trees when none is drawn (P4a real02:
+  0 of 2 → 2 of 2).
+- **Recognition (I).** An answer seeded by input hash takes its item's own crop paths (`seeded_key`,
+  `seeded_images`). The 6 late questions of P4a's pipeline_final are a scheduler matter (a second GLM start; see the
+  decisions); the pipeline half is pinned by a contract test.
+
+**Integration (this step).** Applied asks:
+
+| From | Change | Test |
+|---|---|---|
+| C | `tests/gpu/test_render.py`: replayed rooms keep the camera file's view count; a hall counts the stair of the next-door stair core it shows; a render without a scene camera (`ext_6.001`) is listed, no KeyError | dry run on P4a outputs (view count passes; the index and pass tests name `ext_6.001`) |
+| C | `wenart/run/scheduler.py`: `tests/gpu/test_camera_replay.py` runs after `test_render.py` in the full group | `tests/test_run_scheduler.py` |
+| C | `sheets13.camera_note`: "camera moved by the agent from (x, y, z) to (x, y, z): not the baseline pose (reason)" | `tests/test_m13_report.py` |
+| C | `schemas.py` types `replaced_replayed`, `renamed_from`, `cameras_from.agent` / `agent_replaced` | `tests/test_m13_camera_replay.py` |
+| R | `furniture._create_wall_art` builds a library mirror from `mirror_glass_materials` (`wall_art_materials`; the entry records `mirror_glass`) | `tests/test_m13_p4a_integration.py` |
+| R | `furniture._create_decor`: a pendant keeps its shade bottom, the cord ends at the ceiling over its slot, under 0.3 m of drop it is not built (`pendant_hang`; P4a's dec_L1_006 rested 0.244 m above the floor) | same |
+| R | `decor_ai.ceiling_items` hangs each slot from the sloped ceiling over it (P4a L1: 006/019 drop 0.677 m, the f_L1_024 slot a flush ceiling light) | same |
+| F | `causes.cause_of`: an outline F9 is `within_tolerance` under 0.03 m deep, else `collision`; never `mark_not_furniture` | same |
+| F | `critic_code.library_gaps` skips pieces parametric by design (the report's rule; P4a's showers) | same |
+| F | `decor.trusted_host` and `group_checks` G4-G6 treat a code-typed drawn anchor as the completion does | same |
+| F | `fit.vision_quality_of` reads the quality from `audit.vision_doubt` (the tie-break never fired: 0 of 2028 numeric); a pin to a generated model is refused while a real product fits; the agent's `catalog` tool labels generated models | same (real catalogue: f_L-1_023 and f_L-1_096 take doubt-free models of the same size step) |
+| A | metric 7 is the agent's own count (P3 real04: 29 of 39 → 22 of 39, pin changed on purpose; P4a: 17 of 24); the agent report adds "edits removing their finding" and "plans ok / empty / refused / default" | `tests/test_m13_report.py`, `tests/test_m13_p4a_integration.py` |
+| P | the metrics13 CLI names why a metric has no data (m15: "no reviewer rubric file"); sheets13 counts the left-out baseline previews | `tests/test_m13_p4a_integration.py` |
+| L | the final report lists the views that look into the sun (`lighting.into_sun`) | `tests/test_m13_report.py` |
+
+Not applied, with the reason: refusing set/remove on replayed cameras and making X6 on replayed views report-only
+(`agent/tools.py`, `agent/causes.py`; a decision for the user below; the identical-repeat `no_change` is already in
+track A's tools); a warning for replayed cameras blocked by a piece within 1.2 m (new camera code, next round); the
+completion's ceiling check for added pieces under a slope (solver change, needs real02/real04 replays, next round); a
+real model for the rig's wall sconce (R built a drum; next round); the GPU scene check of rig fixtures (rig_plan already
+drops failing fixtures with the same rule; a GPU replay is for P5's test owner); the narrow pendant check in
+`scene_checks` (optional); the optional dining rule in `groups._expected_missing` (applied, then reverted: the reading's
+code typing then typed a code-typed table's seats as `group_member` instead of the context rule, 4 pinned tests in
+`test_reading_building.py`, `test_pipeline.py` and `test_real01.py` changed; it needs the furniture owner's look); the
+scheduler's late question pass (a decision below); re-generating P4a's committed sheets13 / metrics13 / ATTRIBUTION with
+the fixed code (the lead, after the commit); the library decision on the terrace table. Pins left for their owners:
+`tests/test_look_m6.py::test_row8_bed_bevel_veneer_and_metal` (cushion 0.735 vs 0.60 m) and
+`tests/test_blender_look.py::test_flat_albedo_renders_the_tan_photo_white` (albedo R 0.82 vs 0.85): both fail the same
+way on 03881bc in the bpy 5.2.2 module and are skipped without a Blender binary.
+
+Full CPU suite after the integration (`pytest -m "not gpu"`, temp folder in /dev/shm for the low disk): 5292 passed, 4
+failed, 218 skipped (no Blender binary), 160 deselected (GPU), 4 xfailed, 39:52 min. The 4 failures
+(`test_reading_building.py` x2, `test_pipeline.py::test_questions_new_in_the_answer_run_are_not_pending`,
+`test_real01.py::test_debug_image_report_and_questions`) came from the optional `groups._expected_missing` change, which
+was reverted; those files and the group, completion, placement, fit and integration suites then gave 279 passed, 0
+failed. Pins changed on purpose: metric 7 on P3 (`tests/test_m13_report.py`, 29 → 22 of 39), the generated-model pin in
+relaxed mode (`tests/test_m13_fit.py`: refused while abo_scandi fits, taken when it is alone), the scheduler's full
+group (`tests/test_run_scheduler.py`) and a stale comment in `tests/test_m13_light.py`. Every new test of
+`tests/test_m13_p4a_integration.py` fails on the tree before the integration. Through the Blender 5.2.2 Python module:
+`test_cabinets.py` and `test_blender_bedframe_decor.py` 56 passed; `test_look_m6.py`, `test_decor_m10.py` and
+`test_blender_materials.py` 82 passed and the known row-8 pin; `test_blender_furniture.py` and `test_m13_rig.py` 107
+passed and 2 decor-count pins of `test_blender_furniture.py` that fail the same way on 03881bc.
+
+**Decisions for the user.**
+
+1. Replayed (set 1) cameras: may the agent move them? §7 says set 1 keeps the old poses; the build now records an
+   agent move honestly (`replaced_replayed`, sheet note). Default proposed by tracks C and A: refuse set/remove on a
+   replayed camera (add_camera with a new name instead) and make X6 on replayed views report-only.
+2. ext_6 is real02's only frontal entrance view; the critic judged it by the 3/4-corner rule. Describe a frontal view
+   as "the one frontal view X6 asks for" in the camera note, or refuse turning it into a non-frontal pose.
+3. `WB_RIG_RESIDUAL` 0 (halls 1.26-1.36, a little cooler than the sunlit bedrooms) or 0.1 (1.35-1.46, lamp-lit
+   warmth, near the 1.5 bound): decide on the P5 sheets.
+4. real02's north is assumed and ext_1 / ext_5 look 6° off the sun: turn the building-frame sun to about 270° (moves
+   the interior sun too) or keep it and list the views as "into the sun" (now in the report).
+5. The rig shades cast no shadow: bedrooms and dining/living rooms with a rig pendant are brighter in P5; check EV and
+   colour. Wall sconces as the default bedside fixture when there is no nightstand or lamp; the r_L1_banyo/_2 mirror
+   light dropped under the slope; rig-hosted decor lamps stay visually off.
+6. `FINAL_ROUND_LIGHTING` (a final-quality re-render of the views one set_lighting clears) on or off.
+7. Code retypes a drawn lamp of nightstand size at a bed's head as its nightstand (overrides two VLMs; real02 4,
+   real04 6 symbols): is that a "clear reading error" of CLAUDE.md? Code-typed anchors: the minimal option (1b) is
+   built; (1a), asking the VLM about them too, costs more questions. About 12 salon squares go back to the VLM.
+8. Metric 11 scores the inferred trees when none is drawn, and metric 7 now uses the agent's rule: both change §7's
+   definitions.
+9. The 6 late recognition questions: a second GLM start and pipeline_final (about 5 min, $0.20 per run) or keep the
+   one-round rule (the pieces stay inferred and listed).
+10. The terrace table abo_B07ML7P94G: its checkerboard is the product's finger-jointed pine top; keep, or exclude it
+    for modern/minimal styles.
+
+**GPU checks for P5.** Run the GPU tests only on m13.3 renders (m13.2 manifests fail the new white-point and pane
+checks): `pytest -m gpu tests/gpu/test_render.py tests/gpu/test_camera_replay.py tests/gpu/test_m13_light.py
+tests/gpu/test_look_m6.py tests/gpu/test_m13_modules.py tests/gpu/test_m13_site.py tests/gpu/test_agent.py`. Re-render
+real02's 12 halls, 7 baths, 3 kitchens, 14 window views and 6 sky views beside M11 to judge the colour; the
+rig-lit/daylight bound of 1.1 comes from real02 only, so read the printed per-view values for real03/real04.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

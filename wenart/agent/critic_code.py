@@ -40,6 +40,15 @@ Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
   then x2.95 on the same room; asking once for the headroom (often x3, the maximum) saves the second round;
 - a violation on a decor piece gets the decor's room (before: furniture only; P3's X2 on the mirror dec_L1_009 had
   no room and went to the building session).
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02): an S2 cut below ``causes.S2_TOLERANCE_M`` (0.03 m, the cause
+``within_tolerance``: invisible, no tool) is a MINOR finding (``within_tolerance_minor``; ``metrics.severity_was``
+keeps the build's severity). Why: the build's default S2 tolerance is 0.010 m, so P4a logged 6-7 such cuts per round
+as major findings no tool may fix; they inflated every round's major count and the report's "reported" rows.
+Integration of the same round (the furniture track's ask): ``library_gaps`` leaves out a piece built from code by
+design (``asset.by_design`` or ``catalog.by_design_parametric``: kitchen runs, stairs, sanitary fixtures, a vanity, a
+built-in wardrobe), the rule of the final report's "built below library level" list (``report.final``), so the agent
+and the report agree. P4a raised LG for the showers f_L0_013 / f_L0_014, which the report lists as "no (by design)".
 """
 from __future__ import annotations
 
@@ -138,6 +147,23 @@ def _unique(findings: list[dict]) -> list[dict]:
     return findings
 
 
+def within_tolerance_minor(v: dict) -> dict:
+    """Fix round after P4a (module docstring): an S2 violation whose cut (``metrics.depth_m``) is below
+    ``causes.S2_TOLERANCE_M`` becomes minor, with ``metrics.severity_was`` and ``metrics.within_tolerance``; any other
+    violation is returned as it is."""
+    from wenart.agent.causes import S2_TOLERANCE_M
+    metrics = v.get("metrics") if isinstance(v.get("metrics"), dict) else {}
+    if str(v.get("check")) != "S2" or v.get("severity") == "minor":
+        return v
+    try:
+        depth = float(metrics["depth_m"])
+    except (KeyError, TypeError, ValueError):
+        return v
+    if depth >= S2_TOLERANCE_M - 1e-9:
+        return v
+    return dict(v, severity="minor", metrics=dict(metrics, severity_was=v.get("severity"), within_tolerance=True))
+
+
 def scene_violations(scene_dir) -> list[dict]:
     """The violations of every ``scene_<level>.json`` in ``scene_dir`` (track S); FileNotFoundError without one."""
     folder = Path(scene_dir)
@@ -152,11 +178,17 @@ def scene_violations(scene_dir) -> list[dict]:
 
 
 def library_gaps(building: dict) -> list[dict]:
-    """One ``LG`` violation (minor) per built piece whose fit found no audited model (``library_gap``, track S)."""
+    """One ``LG`` violation (minor) per built piece whose fit found no audited model (``library_gap``, track S);
+    fix round after P4a: none for a piece built from code by design (module docstring)."""
+    from wenart.furniture import catalog as CAT
+
     out = []
     for f in building.get("furniture") or []:
         gap = f.get("library_gap")
         if not gap or f.get("build", True) is False:
+            continue
+        asset = f.get("asset") if isinstance(f.get("asset"), dict) else {}
+        if asset.get("by_design") or CAT.by_design_parametric(f):
             continue
         g = gap if isinstance(gap, dict) else {"note": str(gap)}
         what = ", ".join(f"{k} {v}" for k, v in sorted(g.items()) if not isinstance(v, (dict, list)))[:200]
@@ -345,7 +377,8 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
     def scene(fn):
         got = list(fn() or [])
         scene_read.extend(got)
-        return got
+        # fix round after P4a: a cut below 0.03 m is invisible and no agent's work: minor (module docstring)
+        return [within_tolerance_minor(v) if isinstance(v, dict) else v for v in got]
 
     if scene_fn is not None or scene_dir is not None:
         family("scene", None, scene_fn or (lambda: scene_violations(scene_dir)), scene)

@@ -88,6 +88,14 @@ the windowless bedrooms of ``FILL_LIGHT_ROOMS`` keep their fill light next to th
 Fix round part 3 (17 Oct 2026; CPU replays in tests/test_m13_light.py): a pulled sky keeps the saturation floor
 within ``SKY_PULL_SAT_ALLOWANCE`` and its mask is coherent (``full_weight_share`` at least
 ``SKY_MASK_FULL_WEIGHT_MIN``): the haze shell no longer leaves a random half of the sky out of the mask.
+
+Fix round after P4a (17 Oct 2026; render code m13.3; CPU replays in tests/test_m13_light.py): every view's white point
+is recomputed with the rig part's extra warmth it records (``wb_rig_residual``), so m13.2 manifests no longer pass;
+the walls of the rig-lit views are compared with the walls of the same project's daylight views of the same kind
+(painted or tiled: ``RIG_ROOM_REL_MAX`` times their median), the fixed ``RIG_ROOM_MAX_RB`` only where the project has
+no daylight view of that kind; a pulled sky keeps the floor of the rule its k was chosen by
+(``render.sky_pull_floor``) and the views into the sun are listed; the panes of the interior views show the sky
+(median pane saturation at least ``PANE_SAT_MIN``; P4a's grey cards 0.00-0.07).
 """
 import hashlib
 import json
@@ -202,14 +210,82 @@ def test_every_room_has_three_views(project):
         f"{sorted(set(by_room) & expected)}"
     empty = sorted(r for r in by_room if not camsearch.shown_pieces(rooms[r], building))
     print(f"{name}: rooms with nothing to show (one view): {empty}; without a view: {sorted(expected)}")
+    # fix round after P4a (17 Oct 2026): the replayed views of --cameras-from (set 1, docs/milestone13.md §7) keep the
+    # baseline's count, bounded by the camera file instead of today's area rule; a hall may count the stair of the
+    # next-door stair core it shows (camsearch.STAIR_CORE_REASON: "the hall shows it")
+    replay_rooms = _replayed_rooms(name, scene)
+    extra = bool((scene.get("cameras_from") or {}).get("extra"))
+    cores = {r["room_id"] for r in listed.values() if r.get("reason") == camsearch.STAIR_CORE_REASON}
     for room_id, cams in by_room.items():
-        n = camsearch.room_view_count(rooms[room_id], building)
+        n = max(camsearch.room_view_count(rooms[room_id], building),
+                _view_count_with_stair_cores(rooms[room_id], building, cores))
         # the planned views (searched, or moved by the agent under their name); a view the agent added is extra
         planned_views = [c for c in cams if _policy(c) != "agent" or c["name"].startswith(f"cam_{room_id}_")]
+        replayed = [c for c in planned_views if c.get("source") == "replayed" or c.get("replaced_replayed")]
+        suffix = ""
+        if replayed:
+            got = sorted(c["name"] for c in replayed)
+            if replay_rooms is not None:
+                want = sorted(replay_rooms.get(room_id, ()))
+                assert got == want, f"{name}: {room_id} replays {got}, the camera file has {want}"
+            searched = [c for c in planned_views if c not in replayed]
+            assert extra or not searched, \
+                f"{name}: {room_id} has searched views {sorted(c['name'] for c in searched)} next to its replayed " \
+                f"ones without --cameras-extra"
+            if not searched:
+                continue
+            planned_views, suffix = searched, "_s"      # --cameras-extra: the searched set of a replayed room
         names = sorted(c["name"] for c in planned_views)
         assert 1 <= len(planned_views) <= n, \
             f"{name}: {room_id} has {len(planned_views)} views, the view rule allows 1..{n}"
-        assert names == sorted(f"cam_{room_id}_{i}" for i in range(1, len(planned_views) + 1)), names
+        assert names == sorted(f"cam_{room_id}_{i}{suffix}" for i in range(1, len(planned_views) + 1)), names
+
+
+def _replayed_rooms(name: str, scene: dict):
+    """Fix round after P4a (17 Oct 2026): ``{room_id: {camera names}}`` of the interior records of the scene's camera
+    file (``cameras_from``: ``--cameras-from``) less the records ``cameras_from.dropped`` lists (rooms this build does
+    not render, cameras the agent removed), None without a readable file or when its sha256 is not the one the build
+    read."""
+    import hashlib
+
+    from wenart import views
+    from wenart.blender import cameras as CA
+
+    cf = scene.get("cameras_from") or {}
+    if not cf.get("path") or cf.get("missing"):
+        return None
+    path = views._resolve_repo_path(cf["path"], OUTPUTS / name)
+    if path is None or not path.is_file():
+        return None
+    data = path.read_bytes()
+    if cf.get("sha256") and hashlib.sha256(data).hexdigest() != cf["sha256"]:
+        return None
+    gone = {d.get("name") for d in cf.get("dropped") or []}
+    out: dict = {}
+    for p in CA.replay_cameras(json.loads(data.decode("utf-8")))["plans"]:
+        if p.get("kind") != "exterior" and p.get("room_id") and p["name"] not in gone:
+            out.setdefault(p["room_id"], set()).add(p["name"])
+    return out
+
+
+def _view_count_with_stair_cores(room: dict, building: dict, cores: set) -> int:
+    """Fix round after P4a (17 Oct 2026): the view rule of a hall that shows the stair of a next-door stair core
+    (``camsearch.STAIR_CORE_REASON``: "the hall shows it"): ``room_view_count`` with the pieces of the stair cores that
+    share an opening with the hall (``cameras.opening_rooms``) counted as the hall's; 0 without such a core. The frustum
+    lists of a view hold only its own room's pieces, so the opening is the link (real02: r_L0_koridor and
+    r_L0_merdiven share o_L0_001)."""
+    from wenart.blender import camsearch
+    from wenart.blender import cameras as CA
+
+    if not cores:
+        return 0
+    near = {r for rooms in CA.opening_rooms(building, room["level_id"]).values() if room["id"] in rooms
+            for r in rooms if r in cores}
+    ids = {f["id"] for f in building.get("furniture") or [] if f.get("room_id") in near}
+    if not ids:
+        return 0
+    moved = [dict(f, room_id=room["id"]) if f.get("id") in ids else f for f in building["furniture"]]
+    return camsearch.room_view_count(room, dict(building, furniture=moved))
 
 
 def _blocked(render_entry: dict, out: Path, lens_mm: float = 24.0) -> dict:
@@ -349,7 +425,12 @@ def test_passes_exist_and_depth_is_plausible(project):
         if depth is None:
             bad.append((cam, "no depth statistics"))
             continue
-        plan = plans.get(cam) or {}
+        plan = plans.get(cam)
+        if plan is None:
+            # fix round after P4a (17 Oct 2026): a render without a scene camera (P4a: Blender's ext_6.001) is listed;
+            # its limits follow the kind of the rendered camera (an exterior view has no room and no level)
+            bad.append((cam, "rendered but not in the scene manifest"))
+            plan = {"kind": "exterior" if r.get("room_id") is None and r.get("level_id") is None else "interior"}
         if plan.get("kind") == "exterior":
             far, coverage = exterior.CLIP_END, EXTERIOR_MIN_COVERAGE
         else:
@@ -428,7 +509,10 @@ def test_index_pass_contains_every_visible_proxy(project):
     missing, hidden, edge = [], [], []
     building = None
     for r in render["renders"]:
-        plan = plans[r["camera"]]
+        plan = plans.get(r["camera"])
+        if plan is None:                        # fix round after P4a (17 Oct 2026): P4a's KeyError 'ext_6.001'
+            missing.append((r["camera"], ["rendered but not in the scene manifest"]))
+            continue
         seen = set(r["index_values"])
         absent = []
         for f in plan["visible_furniture"]:
@@ -556,7 +640,14 @@ def test_white_plaster_walls_are_neutral(project):
 # project rendered before the fix (render code m13.1) fails them by design.
 # --------------------------------------------------------------------------
 
-RIG_ROOM_MAX_RB = 1.5           # wall display R/B of a view lit mostly by the rig (P3: 1.86-4.2 under the anchor)
+RIG_ROOM_MAX_RB = 1.5           # wall display R/B of a view lit mostly by the rig (P3: 1.86-4.2 under the anchor);
+#                                 fix round after P4a: only where the project has no daylight view with such walls
+# Fix round after P4a (17 Oct 2026): the rig-lit walls at most this times the median wall R/B of the project's daylight
+# views of the same kind. Set before the re-render from a bpy 5.2.2 shim re-render of P4a's real02 scene at P4a's EV
+# (480 x 270, 64 spp; its m13.2 hall values match P4a's pod values within 0.04): the painted walls of 10 daylight views
+# 1.30-1.55, median 1.36; the 12 halls with m13.2's white point 1.64-1.78 (ratio 1.20-1.30, all over), with m13.3's
+# 1.26-1.36 (0.92-1.00); the baths (tiled, no daylight bath: the fixed 1.5) 1.21-1.32 and 1.02-1.08.
+RIG_ROOM_REL_MAX = 1.1
 RIG_DOMINANT_SHARE = 0.8        # wb_rig_share from which a view counts as lit by the rig
 NEAR_BLACK = 8                  # display value under which a pixel is black (every channel)
 OPEN_AIR_MAX_BLACK = 0.02       # black share of an open-air view's sky pixels (P3: 22-31 % of the whole frame)
@@ -565,6 +656,11 @@ P3_WB_TOLERANCE_K = 250.0
 PANE_MEDIAN_MAX = 0.85          # pulled panes at or under the AgX shoulder
 PANE_PULLED_SHARE = 0.8         # ... in at least this share of the interior views with a pull
 HALL_DARK_MAX_SHARE = 0.25      # hall / stair views still over the +3 cap (P3: 10 of 13 after the agent's x3)
+# Fix round after P4a (17 Oct 2026): the median pane saturation of the interior views with a window pull. The shim
+# re-render of P4a's real02 scene at P4a's EV: the L0 / L1 windows 0.005 with the haze in the camera's view (P4a's grey
+# cards) and 0.14-0.22 without it, the basement windows (light wells, no haze in their view) 0.02-0.17 either way;
+# median 0.06 with the haze in view, 0.14 without (M11: 0.13-0.25).
+PANE_SAT_MIN = 0.08
 # Fix round part 2 (17 Oct 2026)
 RIG_ONLY_MEDIAN_SHARE = 0.5     # median rig share of the views of rooms whose rig replaces the fill light (no
 #                                 daylight window, a ceiling fixture; shim: real02 hall 0.78, synthetic-01 bath 0.82)
@@ -623,8 +719,10 @@ def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
         if max(abs(a - b) for a, b in zip(x["wb_project_whitepoint"], anchor)) > 1e-6:
             bad.append((r["camera"], "another anchor", x["wb_project_whitepoint"]))
         share = x.get("wb_rig_share")
+        # fix round after P4a (17 Oct 2026): the rig part's extra warmth the view was mixed with (wb_rig_residual;
+        # absent on m13.2 renders, which this check no longer passes: re-run it on m13.3 renders only)
         want = anchor if share is None or share < R.WB_RIG_SHARE_MIN else \
-            R.mixed_whitepoint(anchor, x["wb_rig_whitepoint"], share, residual)
+            R.mixed_whitepoint(anchor, x["wb_rig_whitepoint"], share, residual, x.get("wb_rig_residual"))
         if max(abs(a - b) for a, b in zip(x["whitepoint"], want)) > 1e-5:
             bad.append((r["camera"], share, x["whitepoint"], want))
         if r.get("room_id") is None or (exterior_world and r.get("world") == exterior_world):
@@ -650,32 +748,64 @@ def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
                                              for r in render["renders"]))
 
 
+def _wall_rb(view, table) -> float | None:
+    """Display R/B of the mean of a view's wall pixels (``views.regions`` walls), None under 1 % of the frame."""
+    from wenart import views
+
+    mask = views.regions(view.read_index(), view.read_depth_mm(), view.read_normal(), table).masks.get(
+        views.STRUCT_WALLS)
+    if mask is None or mask.sum() < 0.01 * mask.size:
+        return None
+    mean = view.read_rgb()[mask].astype(np.float64).mean(axis=0)
+    return round(float(mean[0] / max(mean[2], 1e-6)), 3)
+
+
 def test_rig_lit_rooms_have_no_orange_cast(project):
     """The walls of a view lit mostly by the rig (``wb_rig_share`` >= 0.8) and metered within the cap have a display
-    R/B of at most 1.5 (``views.regions`` walls, as ``test_white_plaster_walls_are_neutral``; P3: 1.86-4.2)."""
+    R/B of at most 1.5 (``views.regions`` walls, as ``test_white_plaster_walls_are_neutral``; P3: 1.86-4.2). Fix round
+    after P4a (17 Oct 2026): the fixed 1.5 ignored the wall paint (real02's warm greige, linear R/B 1.34): the walls
+    of a rig-lit view are compared with the walls of the same project's daylight views (rig share under
+    ``render.WB_RIG_SHARE_MIN``, under the interior world, within the cap) of the same kind, painted or tiled (the
+    rooms with a wet floor have tiled walls): at most ``RIG_ROOM_REL_MAX`` times their median; the fixed
+    ``RIG_ROOM_MAX_RB`` only where the project has no daylight view of that kind. Every view's value is printed."""
     from wenart import views
+    from wenart.blender import render as R
 
     name, scene, render = project
     if not _project_wb(render):
         pytest.skip(f"{name}: not rendered with --white-balance project")
+    exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
+    wet = {o["wenart_id"] for o in scene.get("objects") or [] if o.get("kind") == "floor" and o.get("wet")}
     entries = {r["camera"]: r for r in render["renders"]}
-    rig_lit = [c for c, r in entries.items() if (r["exposure"].get("wb_rig_share") or 0.0) >= RIG_DOMINANT_SHARE
-               and not r["exposure"].get("lighting_dark")]
+    indoor = {c: r for c, r in entries.items() if r.get("room_id") is not None and not r["exposure"].get("lighting_dark")
+              and not (exterior_world and r.get("world") == exterior_world)}
+    rig_lit = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) >= RIG_DOMINANT_SHARE]
+    daylight = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) < R.WB_RIG_SHARE_MIN]
     if not rig_lit:
         pytest.skip(f"{name}: no view lit mostly by the rig within the cap")
     table = views.index_table(scene)
-    loaded = views.load_views(OUTPUTS / name / "renders", cameras=rig_lit)
+    loaded = views.load_views(OUTPUTS / name / "renders", cameras=rig_lit + daylight)
+    measured = {cam: _wall_rb(v, table) for cam, v in loaded.items()}
+
+    def kind(cam):
+        return "tiled" if entries[cam].get("room_id") in wet else "painted"
+    reference = {}
+    for k in ("painted", "tiled"):
+        values = sorted(measured[c] for c in daylight if kind(c) == k and measured.get(c) is not None)
+        reference[k] = float(np.median(values)) if values else None
     per_view, warm = {}, []
-    for cam, v in loaded.items():
-        mask = views.regions(v.read_index(), v.read_depth_mm(), v.read_normal(), table).masks.get(views.STRUCT_WALLS)
-        if mask is None or mask.sum() < 0.01 * mask.size:
+    for cam in rig_lit:
+        value = measured.get(cam)
+        if value is None:
             continue
-        mean = v.read_rgb()[mask].astype(np.float64).mean(axis=0)
-        per_view[cam] = round(float(mean[0] / max(mean[2], 1e-6)), 3)
-        if per_view[cam] > RIG_ROOM_MAX_RB:
-            warm.append((cam, per_view[cam], entries[cam]["exposure"].get("wb_rig_share")))
-    print(f"{name}: wall R/B of the rig-lit views {per_view}")
-    assert not warm, f"{name}: rig-lit views still orange (wall R/B > {RIG_ROOM_MAX_RB}): {warm}"
+        ref = reference[kind(cam)]
+        bound = RIG_ROOM_MAX_RB if ref is None else round(RIG_ROOM_REL_MAX * ref, 3)
+        per_view[cam] = (value, kind(cam), bound)
+        if value > bound:
+            warm.append((cam, value, kind(cam), bound, entries[cam]["exposure"].get("wb_rig_share")))
+    print(f"{name}: daylight wall R/B {[(c, measured.get(c), kind(c)) for c in daylight]}; references {reference}")
+    print(f"{name}: wall R/B of the rig-lit views (value, kind, bound) {per_view}")
+    assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
 
 
 def _euler_xyz(deg) -> np.ndarray:
@@ -794,9 +924,11 @@ def test_sky_and_window_pulls_reach_their_targets(project):
             s = (entries.get(cam) or {}).get("sky_pull") if cam in entries else "absent"
             if s == "absent":
                 continue
+            chosen = next((c for c in (s or {}).get("tried") or [] if c["k"] == (s or {}).get("k")), None)
+            floor = R.sky_pull_floor(chosen) if chosen else R.SKY_PULL_SAT_MIN    # fix round after P4a: its rule's
             if not s or not s.get("k") or s["median_after"] > R.SKY_PULL_MEDIAN_MAX \
                     or not s["saturation_after"] > s["saturation_before"] \
-                    or s["saturation_after"] < R.SKY_PULL_SAT_MIN - SKY_PULL_SAT_ALLOWANCE:
+                    or s["saturation_after"] < floor - SKY_PULL_SAT_ALLOWANCE:
                 bad.append((cam, "a shaded-facade view whose sky was not pulled to its target", s))
         over = [r["camera"] for r in render["renders"] if (r.get("sky_pull") or {}).get("median_before", 0.0)
                 > R.SKY_PULL_MEDIAN_MAX and any(R.sky_pull_qualifies(c) for c in r["sky_pull"].get("tried") or [])]
@@ -817,9 +949,12 @@ def test_sky_and_window_pulls_reach_their_targets(project):
                 if chosen is None or not R.sky_pull_qualifies(chosen) or s["median_after"] > s["median_before"] \
                         or s["saturation_after"] < s["saturation_before"]:
                     bad.append((r["camera"], "sky pull off its targets", s))
-                if s["saturation_after"] < R.SKY_PULL_SAT_MIN - SKY_PULL_SAT_ALLOWANCE:
+                # fix round after P4a (17 Oct 2026): the floor of the rule the k was chosen by (the mid-tone rule's
+                # SKY_PULL_SAT_NEAR, else SKY_PULL_SAT_MIN)
+                floor = R.sky_pull_floor(chosen) if chosen else R.SKY_PULL_SAT_MIN
+                if s["saturation_after"] < floor - SKY_PULL_SAT_ALLOWANCE:
                     bad.append((r["camera"], f"blended sky saturation {s['saturation_after']} under the floor "
-                                             f"{R.SKY_PULL_SAT_MIN:g} - {SKY_PULL_SAT_ALLOWANCE:g}", s))
+                                             f"{floor:g} - {SKY_PULL_SAT_ALLOWANCE:g}", s))
                 full = s.get("full_weight_share")
                 if full is None:
                     bad.append((r["camera"], "sky pull without full_weight_share (rendered before fix round part 3?)"))
@@ -829,10 +964,29 @@ def test_sky_and_window_pulls_reach_their_targets(project):
     pulled = [(r["camera"], r["window_pull"].get("pane_median_after")) for r in render["renders"]
               if r.get("room_id") is not None and not r.get("open_air") and (r.get("window_pull") or {}).get("k")]
     over = [(c, m) for c, m in pulled if m is None or m > PANE_MEDIAN_MAX]
-    print(f"{name}: sky pulls {skies}; pulled panes {len(pulled)}, over {PANE_MEDIAN_MAX}: {over}")
+    into_sun = [r["camera"] for r in render["renders"] if (r.get("sky_pull") or {}).get("into_sun")]
+    print(f"{name}: sky pulls {skies}; views into the sun {into_sun}; pulled panes {len(pulled)}, over "
+          f"{PANE_MEDIAN_MAX}: {over}")
     if pulled and (len(pulled) - len(over)) / len(pulled) < PANE_PULLED_SHARE:
         bad.append(("window pull", f"{len(over)} of {len(pulled)} pulled views keep pane medians over "
                                    f"{PANE_MEDIAN_MAX}", over))
+    # fix round after P4a (17 Oct 2026): the panes show the sky, not a grey card: the median pane saturation of the
+    # interior views as written (after the pull) is at least PANE_SAT_MIN (P4a 0.00-0.07 with the haze in the camera's
+    # view through the glass; M11 0.13-0.25). A view whose record has no pane_saturation was rendered before m13.3.
+    panes = []
+    for r in render["renders"]:
+        wp = r.get("window_pull") or {}
+        if r.get("room_id") is None or r.get("open_air") or not wp:
+            continue
+        if "pane_saturation" not in wp:
+            bad.append((r["camera"], "window pull without pane_saturation (rendered before m13.3?)"))
+            continue
+        panes.append((r["camera"], wp.get("pane_saturation_after") if wp.get("k") else wp["pane_saturation"]))
+    sats = sorted(v for _c, v in panes if v is not None)
+    print(f"{name}: pane saturation {panes}")
+    if sats and sats[len(sats) // 2] < PANE_SAT_MIN:
+        bad.append(("window panes", f"median pane saturation {sats[len(sats) // 2]} under {PANE_SAT_MIN}: grey "
+                                    f"cards, not the sky", panes))
     assert not bad, f"{name}: {bad}"
 
 

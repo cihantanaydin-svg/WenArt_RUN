@@ -673,7 +673,9 @@ def test_findings_removed_on_the_committed_real04_log():
     log = json.loads((ROOT / "results" / "agent" / "real04" / "log.json").read_text())
     m = MX.compute(log)
     fr = m["findings_removed"]
-    assert fr["accepted_edits"] == 183 and fr["edits_removing_finding"] == 20          # §1.5: 20 of 183
+    # §1.5: 20 of 183; fix round after P4a: one of the 20 was a record-only report_library_gap whose F9 went for
+    # another reason (record-only edits target no finding: ``metrics.RECORD_ONLY_TOOLS``), so 19 of 147 with a target
+    assert fr["accepted_edits"] == 183 and fr["edits_removing_finding"] == 19 and fr["edits_with_target"] == 147
     assert fr["dry_recheck"] == {} and set(fr["per_round"]) == {"1", "2", "3", "4", "5", "6"}
     assert MX.COMPARE_HEADER[-1] == "findings removed" and MX.compare_row("x", m)[-1] == fr["total"]
 

@@ -153,6 +153,20 @@ about its target at the same distance (``repitch_replayed_aerials``): the pitch 
 exterior.AERIAL_PITCH_DEG)``, and its lens at most ``AERIAL_LENS_MM``. The camera record says ``replay: {"status":
 "repitched", ...}`` with the old and new pitch, lens, horizon and position and the reason, the build log has a
 warning line and ``cameras_from.repitched`` names the cameras.
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02 with the M11 cameras replayed): the agent's camera entries are
+applied after the replayed and the planned cameras are merged (``merge_agent_cameras``), inside and outside. P4a
+applied its three ``set ext_6`` to the empty planned exterior set (the replayed set stands in for it), so ``ext_6``
+was added a second time; Blender named the object ``ext_6.001``, the agent's move never reached the view it judged,
+and two GPU tests failed on the unknown name. Now a ``set`` on a replayed name replaces that record: the camera has
+``policy: agent`` and ``source: searched`` (the frozen ``CAMERA_SOURCES``) and keeps the replaced record in
+``replaced_replayed``; ``cameras_from`` lists ``agent`` and ``agent_replaced``; a ``remove`` of a replayed camera is
+listed in ``cameras_from.dropped`` with the agent's reason. An agent exterior camera keeps the view it took over
+only while its pose still is that view (``agent_exterior_view``: P4a's corner pose was recorded as the frontal view
+of the back facade, which hid X6's "no frontal view of the entrance"); else its view is ``agent`` with the side of
+its nearest axis, and the build log says so. Never two cameras with one name: a clash is renamed ``<name>_dup<k>``
+with a log line (``dedupe_camera_names``), and the build stops when Blender renames a camera object
+(``check_camera_objects``). Each exterior camera object carries ``wenart_camera_source``, as the interior ones.
 """
 from __future__ import annotations
 
@@ -1157,21 +1171,25 @@ def main(argv: list[str]) -> int:
                    if r.get("room_id") in render_rooms and r.get("room_id") not in covered]
         rooms_without_view.extend(no_view)
         warnings.extend(f"{r['room_id']}: no view ({r['reason']})" for r in no_view)
-        entries = O.camera_entries(building_all, "interior")
-        if entries:                                    # Milestone 11 §17.3: the agent's fixed cameras
-            plans, applied = O.apply_cameras(plans, entries, level["id"], level_room_ids)
-            prep["overrides_applied"]["cameras"] += applied
         for plan in plans:
             plan.setdefault("policy", args.camera_policy)
             plan.setdefault("source", "searched")
+        # Milestone 11 §17.3: the agent's fixed cameras. Fix round after P4a (17 Oct 2026): applied to the replayed
+        # and the searched cameras together (merge_agent_cameras), so a set on a replayed name replaces it
+        entries = O.camera_entries(building_all, "interior")
+        plans, applied = merge_agent_cameras(replayed, plans, entries, level["id"], level_room_ids, replay)
+        if entries:
+            prep["overrides_applied"]["cameras"] += applied
+        for plan in plans:
             interior_camera_fields(plan, prep["variant"])
-        for plan in replayed:
-            interior_camera_fields(plan, prep["variant"])
-        plans = replayed + plans
+        for line in dedupe_camera_names(plans, {p["name"] for p in camera_plans}):
+            print(f"camera name: {line}")
+            warnings.append(line)
         # fix round after P3 (16-17 Oct 2026): every room camera, replayed ones included, carries its room type
         # (wenart_room_type), so render.py puts the views of open-air rooms (terraces) under the exterior world
-        cams.create_cameras(plans, col, manifest_objects,
-                            room_types={r["id"]: r.get("room_type") for r in building["rooms"]})
+        check_camera_objects(cams.create_cameras(plans, col, manifest_objects,
+                                                 room_types={r["id"]: r.get("room_type") for r in building["rooms"]}),
+                             plans)
         camera_plans.extend(plans)
         for plan in plans:
             if plan.get("warning"):
@@ -1292,30 +1310,28 @@ def main(argv: list[str]) -> int:
                         p["extra"] = True
             for p in ext_plans:
                 p.setdefault("source", "searched")
+            # Milestone 11 §17.3: the agent's fixed exterior cameras. Fix round after P4a (17 Oct 2026): applied to the
+            # replayed and the planned set together (merge_agent_cameras): P4a's three "set ext_6" went to an empty
+            # planned set, added a second ext_6 and Blender rendered the agent's pose as ext_6.001
             entries = O.camera_entries(building_all, "exterior")
-            if entries:                                # Milestone 11 §17.3: the agent's fixed exterior cameras
-                ext_plans, applied = O.apply_cameras(ext_plans, entries)
-                for p in ext_plans:
-                    if p.get("policy") == "agent":
-                        p["index"] = int(p["name"].split("_")[1]) if p["name"].split("_")[-1].isdigit() else 0
-                        p["variant"] = prep["variant"]
-                        p["visible_openings"] = E.visible_openings(model, building, levels, p["position"],
-                                                                   p["target"], p["lens_mm"], 0.0)
-                        if not p.get("sides"):          # the facade it looks at (its nearest axis)
-                            cx_, cy_ = geom_centre(model.outline)
-                            north, src = S.north_deg(building)
-                            d = (p["position"][0] - cx_, p["position"][1] - cy_)
-                            p["sides"] = [S.side_of(S.AXES[S.nearest_axis(d)], north,
-                                                    not src.startswith("assumed"))]
+            ext_plans, applied = merge_agent_cameras(ext_replayed, ext_plans, entries, replay=replay)
+            if entries:
+                north, src = S.north_deg(building)
+                lines = finish_agent_exterior_plans(
+                    ext_plans, prep["variant"], geom_centre(model.outline), north, not src.startswith("assumed"),
+                    visible=lambda p: E.visible_openings(model, building, levels, p["position"], p["target"],
+                                                         p["lens_mm"], 0.0))
+                for line in lines:
+                    print(f"agent camera: {line}")
+                    warnings.append(line)
                 prep["overrides_applied"]["cameras"] += applied
-            for p in ext_plans:
-                p.setdefault("source", "searched")
-            ext_plans = ext_replayed + ext_plans
-            E.create_cameras(ext_plans, ext_col, manifest_objects)
-            for p in ext_replayed:                     # the replayed record's source, as for the interior cameras
-                ob = bpy.data.objects.get(p["name"])
-                if ob is not None:
-                    ob["wenart_camera_source"] = "replayed"
+            for line in dedupe_camera_names(ext_plans, {p["name"] for p in camera_plans}):
+                print(f"camera name: {line}")
+                warnings.append(line)
+            created = E.create_cameras(ext_plans, ext_col, manifest_objects)
+            check_camera_objects(created, ext_plans)
+            for p, ob in zip(ext_plans, created):      # each camera's source, as for the interior cameras
+                ob["wenart_camera_source"] = p.get("source") or "searched"
             camera_plans.extend(ext_plans)
             for d in dropped:
                 warnings.append(f"{d['name']}: exterior view dropped ({d['dropped_reason']})")
@@ -1548,7 +1564,9 @@ def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: l
     """The scene manifest's ``cameras_from`` (pure): the file record, the counts of replayed and searched cameras
     of the build, the dropped records and a ``reason`` when the search ran for everything (no file, a missing file,
     a file without camera records, real04's case). Fix round part 2 (17 Oct 2026): ``repitched``, the replayed
-    aerials ``repitch_replayed_aerials`` re-pitched (none: an empty list)."""
+    aerials ``repitch_replayed_aerials`` re-pitched (none: an empty list). Fix round after P4a (17 Oct 2026):
+    ``agent``, this build's agent cameras (``policy: agent``, source ``searched``: counted in ``searched``), and
+    ``agent_replaced``, those that replace a replayed record (``replaced_replayed``)."""
     if camera_file is None:
         return None
     replayed = [p["name"] for p in camera_plans if p.get("source") == "replayed"]
@@ -1556,7 +1574,11 @@ def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: l
     out = dict(camera_file, replayed=len(replayed), searched=len(searched), extra=bool(extra),
                dropped=list(replay.get("dropped") or []),
                repitched=[p["name"] for p in camera_plans
-                          if (p.get("replay") or {}).get("status") == "repitched"])
+                          if (p.get("replay") or {}).get("status") == "repitched"],
+               # fix round after P4a (17 Oct 2026): this build's agent cameras (counted with the searched ones) and
+               # those of them that replace a replayed record (``replaced_replayed``: the baseline pose is gone)
+               agent=[p["name"] for p in camera_plans if p.get("policy") == "agent" and p.get("source") != "replayed"],
+               agent_replaced=[p["name"] for p in camera_plans if isinstance(p.get("replaced_replayed"), dict)])
     if camera_file.get("missing"):
         out["reason"] = "the camera file does not exist: the camera search ran for every room"
     elif not replay.get("plans"):
@@ -1564,6 +1586,150 @@ def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: l
     elif not replayed:
         out["reason"] = "no replayed camera matched a rendered room of this variant: the camera search ran"
     return out
+
+
+# Fix round after P4a (17 Oct 2026): the agent's cameras over the replayed ones (module docstring).
+AGENT_REMOVED_REASON = "removed by the agent{seq}: {reason}"
+AGENT_FRONTAL_MAX_DEG = 30.0       # a frontal / elevation view looks square at its facade (exterior_checks._faces)
+AGENT_CORNER_MAX_DEG = 80.0        # a corner view looks at each of its two facades less than this off its normal
+AGENT_AERIAL_MIN_DOWN_DEG = 5.0    # an aerial / site view looks down at least this much (eye-level views are level)
+DUPLICATE_CAMERA_SUFFIX = "_dup"
+
+
+def merge_agent_cameras(replayed: list[dict], planned: list[dict], entries, level_id: str | None = None,
+                        rooms: set | None = None, replay: dict | None = None) -> tuple[list[dict], list[dict]]:
+    """``(plans, applied)`` (pure; fix round after P4a, 17 Oct 2026): the replayed cameras and the planned ones
+    merged first (``replayed + planned``: the order the build creates them in), then the agent's camera ``entries``
+    applied to the merged list (``overrides.apply_cameras``), so a ``set`` on a replayed name replaces that record
+    instead of adding a second camera of that name (P4a: ``ext_6`` twice, Blender's ``ext_6.001``). Every agent
+    plan gets ``source: searched`` (the frozen ``CAMERA_SOURCES``: searched | replayed; an agent camera is told by
+    ``policy: agent``, the replaced record is kept in ``replaced_replayed``). A ``remove`` of a replayed camera goes
+    to ``replay["dropped"]`` with the agent's reason (``AGENT_REMOVED_REASON``), so ``unused_replayed`` gives no
+    false reason for it. Without entries the result is the merged list itself."""
+    from wenart.blender import overrides as O
+
+    plans = list(replayed) + list(planned)
+    if not entries:
+        return plans, []
+    plans, applied = O.apply_cameras(plans, entries, level_id, rooms)
+    for p in plans:
+        if p.get("policy") == "agent" and p.get("source") != "replayed":
+            p["source"] = "searched"
+    if replay is not None:
+        for rec in applied:
+            if rec.get("result") == "removed" and rec.get("replayed"):
+                seq = f" (overrides seq {rec['seq']})" if rec.get("seq") is not None else ""
+                replay.setdefault("dropped", []).append(
+                    {"name": rec["view_id"], "reason": AGENT_REMOVED_REASON.format(
+                        seq=seq, reason=rec.get("reason") or "no reason given")})
+    return plans, applied
+
+
+def _look_dir(plan: dict) -> tuple[float, float] | None:
+    """The plan's horizontal view direction (unit; pure), None without a target or when it looks straight down."""
+    pos, tgt = plan.get("position"), plan.get("target")
+    if pos is None or tgt is None:
+        return None
+    dx, dy = float(tgt[0]) - float(pos[0]), float(tgt[1]) - float(pos[1])
+    n = math.hypot(dx, dy)
+    return (dx / n, dy / n) if n > 1e-9 else None
+
+
+def agent_exterior_view(plan: dict, centre, north: float = 0.0, north_known: bool = False) -> dict | None:
+    """Check an agent exterior plan's ``view`` and ``sides`` against its own pose (pure; fix round after P4a, 17 Oct
+    2026). ``overrides.fixed_plan`` copies them from the camera the agent replaces, so P4a's corner pose for ext_6
+    stayed "frontal, back", which hid the code finding X6 "no frontal view of the entrance". The copied view stays
+    when the pose still is one: ``frontal`` / ``elevation`` look square (within ``AGENT_FRONTAL_MAX_DEG``) at the
+    facade of their side, ``corner`` looks at each of its sides within ``AGENT_CORNER_MAX_DEG`` of its normal,
+    ``aerial`` / ``site`` look down at least ``AGENT_AERIAL_MIN_DOWN_DEG``. Otherwise the view becomes ``agent``
+    (exterior_checks then judges the frontal view by the pose itself) and the sides are re-derived; the plan's
+    ``agent`` record keeps ``view_was`` and ``sides_was``. A plan without sides gets the side of its nearest axis
+    from ``centre`` (as the build did for an added agent camera). Returns ``{"view_was", "sides_was", "view",
+    "sides"}`` when the view changed, else None."""
+    from wenart.blender import site as S
+
+    view, sides = plan.get("view"), list(plan.get("sides") or [])
+    look = _look_dir(plan)
+    keep = True
+    if view in ("frontal", "elevation", "corner") and look is not None:
+        limit = AGENT_FRONTAL_MAX_DEG if view != "corner" else AGENT_CORNER_MAX_DEG
+        wanted = sides[:1] if view != "corner" else sides
+        normals = [S.side_direction(side, north) for side in wanted]
+        keep = bool(normals) and all(
+            n is not None and -(look[0] * n[0] + look[1] * n[1]) > math.cos(math.radians(limit)) for n in normals)
+    elif view in ("aerial", "site") and plan.get("target") is not None:
+        keep = _down_pitch_deg(plan["position"], plan["target"]) >= AGENT_AERIAL_MIN_DOWN_DEG
+    change = None
+    if not keep:
+        change = {"view_was": view, "sides_was": sides}
+        plan["view"], plan["sides"] = "agent", []
+    if not plan.get("sides"):
+        d = (float(plan["position"][0]) - float(centre[0]), float(plan["position"][1]) - float(centre[1]))
+        plan["sides"] = [S.side_of(S.AXES[S.nearest_axis(d)], north, north_known)]
+    if change is not None:
+        change.update(view=plan["view"], sides=list(plan["sides"]))
+        plan["agent"] = dict(plan.get("agent") or {}, view_was=change["view_was"], sides_was=change["sides_was"])
+    return change
+
+
+def finish_agent_exterior_plans(plans: list[dict], variant, centre, north: float = 0.0, north_known: bool = False,
+                                visible=None) -> list[str]:
+    """The build's fields of this build's agent exterior plans (``policy: agent``, not replayed; pure but for
+    ``visible``, ``plan -> visible opening ids``): ``index`` from the name's number (else the plan's own, at least
+    1: ``ext_6_s`` gave 0 before, under the schema's minimum), ``variant``, ``visible_openings`` and the view check
+    of ``agent_exterior_view``. Returns the log lines of the views it changed (fix round after P4a)."""
+    lines = []
+    for p in plans:
+        if p.get("policy") != "agent" or p.get("source") == "replayed":
+            continue
+        tail = str(p["name"]).rsplit("_", 1)[-1]
+        p["index"] = int(tail) if tail.isdigit() and int(tail) >= 1 else max(1, int(p.get("index") or 1))
+        p["variant"] = variant
+        if visible is not None:
+            p["visible_openings"] = visible(p)
+        change = agent_exterior_view(p, centre, north, north_known)
+        if change is not None:
+            lines.append(f"{p['name']}: the agent's pose is no longer the {change['view_was']} view of "
+                         f"{', '.join(change['sides_was']) or 'no side'}; recorded as view agent "
+                         f"({', '.join(change['sides'])})")
+    return lines
+
+
+def dedupe_camera_names(plans: list[dict], taken=()) -> list[str]:
+    """Never two cameras with one name (pure; fix round after P4a, 17 Oct 2026): Blender renames a second object of
+    a name silently (``ext_6.001``) while the scene manifest keeps the name twice, so the render, the tests and the
+    report lose the camera. Every plan whose name an earlier camera of the build (``taken``) or an earlier plan of
+    ``plans`` already holds is renamed ``<name>_dup<k>`` (the first free k from 2) with ``renamed_from``; returns
+    one log line per rename (the build's warnings)."""
+    seen = set(taken or ())
+    lines = []
+    for p in plans:
+        name = str(p["name"])
+        if name in seen:
+            k = 2
+            while f"{name}{DUPLICATE_CAMERA_SUFFIX}{k}" in seen or any(
+                    q.get("name") == f"{name}{DUPLICATE_CAMERA_SUFFIX}{k}" for q in plans):
+                k += 1
+            new = f"{name}{DUPLICATE_CAMERA_SUFFIX}{k}"
+            p["renamed_from"], p["name"] = name, new
+            lines.append(f"{name}: a second camera of this name ({p.get('policy') or p.get('source') or 'planned'}) "
+                         f"renamed {new}; never two cameras with one name")
+        seen.add(p["name"])
+    return lines
+
+
+def check_camera_objects(created, plans: list[dict]) -> None:
+    """Every camera object carries its plan's name (fix round after P4a): raises RuntimeError naming the plans
+    whose object Blender renamed (an object of that name existed: ``ext_6`` became ``ext_6.001`` in P4a), so the
+    build stops before any render instead of writing a manifest the render cannot follow."""
+    created = list(created or [])
+    bad = [(p["name"], getattr(ob, "name", None)) for p, ob in zip(plans, created) if getattr(ob, "name", None)
+           != p["name"]]
+    if len(created) != len(plans):
+        bad.append((f"{len(plans)} plans", f"{len(created)} camera objects"))
+    if bad:
+        raise RuntimeError("camera objects not named as their plans (plan, object): "
+                           + ", ".join(f"{a} -> {b}" for a, b in bad))
 
 
 def geom_centre(outline) -> tuple[float, float]:

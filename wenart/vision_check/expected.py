@@ -70,6 +70,15 @@ Milestone 10 (docs/milestone10.md §2.8, §3.3 item 4):
   roof; the record ``exterior`` lists the facades in view with their openings (the advisory VLM count) and the
   roof check. ``json_crosscheck(..., scope=)`` takes the exterior scope.
 
+Fix round after P4a (17 Oct 2026; pod P4a, real02): a drawn piece the scene built into its host (the scene
+manifest's ``furniture.built_in`` records ``{id, type, host, reason}``: a sink built into its kitchen run,
+``wenart.blender.furniture.built_in_ids``) has no object and no pass index of its own (its pixels carry the run's
+index), so the JSON cross-check does not test it (``skip``, as the stair arrivals); the host is still tested. Why:
+P4a reported the built-in sink f_L-1_067 as ``in_json_not_rendered`` in all three mutfak views (and f_L-1b_064 in
+the variant), metric 14, although its bowl and tap are in the image. The skip reads what the scene did, never the
+building's ``asset.built_in``: with ``--proxies``, or when the run's plan does not hold the sink, the scene builds
+the sink as its own object and a missing one is still reported.
+
 Imports only stdlib, numpy, yaml (lazily), ``wenart.views``, ``wenart.geometry`` and
 ``wenart.vision_check.exterior`` at import time; the pure Blender helpers named above are
 imported lazily inside the functions that need them (no ``bpy``).
@@ -525,9 +534,11 @@ def expected_view(view: "views.View", scene_manifest: dict, building: dict, cfg:
     elements.sort(key=lambda e: (-e["pixels"], e["index"]))
 
     # Milestone 10: the drawn upper end of a stair built on the level below (shell.stair_arrival) is not built.
-    arrived = frozenset(n["id"] for n in (scene_manifest.get("furniture") or {}).get("not_built") or []
-                        if n.get("arrives_from"))
-    crosscheck = json_crosscheck(view, camera, building, table, cfg, level_id, scope=sc, skip=arrived)
+    furn = scene_manifest.get("furniture") or {}
+    arrived = frozenset(n["id"] for n in furn.get("not_built") or [] if n.get("arrives_from"))
+    # Fix round after P4a (module docstring): a piece the scene built into its host has no object of its own.
+    built_in = frozenset(r["id"] for r in furn.get("built_in") or [] if isinstance(r, dict) and r.get("id"))
+    crosscheck = json_crosscheck(view, camera, building, table, cfg, level_id, scope=sc, skip=arrived | built_in)
     result = {
         "camera": view.camera,
         "view_kind": "exterior" if exterior else "interior",
@@ -761,7 +772,9 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
     """The §5.1 building-JSON cross-check of one view (see the module docstring).
 
     ``skip`` (Milestone 10): furniture ids the scene does not build on purpose (the scene manifest's
-    ``furniture.not_built`` entries with ``arrives_from``); they are not tested.
+    ``furniture.not_built`` entries with ``arrives_from``); they are not tested. Fix round after P4a: also the ids
+    the scene built into their host (``furniture.built_in``: a sink in its kitchen run), whose pixels carry the
+    host's index.
 
     ``scope`` (Milestone 10, ``exterior.scope``): an exterior view. It tests the outer openings of the camera's
     variant (each on its own level, thresholds ``check.yaml: crosscheck_exterior``) and no furniture; the result
@@ -840,7 +853,8 @@ def json_crosscheck(view, camera: Optional[dict], building: dict, table: dict, c
         if piece.get("build") is False:
             continue        # a drawn symbol both AI passes call not furniture: never built (docs/milestone7.md §3.3)
         if piece["id"] in skip:
-            continue        # the drawn upper end of a stair built on the level below (shell.stair_arrival)
+            continue        # the drawn upper end of a stair built on the level below (shell.stair_arrival), or a
+            #                 piece built into its host (fix round after P4a: a sink in its kitchen run)
         try:
             box3d = furniture_box3d(piece, level, built_height.get(piece["id"]))
         except (KeyError, TypeError, ValueError):

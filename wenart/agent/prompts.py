@@ -11,6 +11,11 @@ How: ``how`` is ``C`` (code measures it), ``V`` (only an image shows it) or ``CV
 finding of the check targets (``building``, ``room``, ``piece``, ``opening``, ``view``). The vision critic is asked
 only the checks it can see (``V`` and ``CV``) plus the ``C`` ones as context; a ``C``-only finding of the vision
 critic that the code measured without a violation is dropped (``critic_vision``).
+
+Fix round after P4a (17 Oct 2026): ``plan_prompt`` and ``session_task`` take ``lighting`` (the final round: critical
+findings and the views too dark for the EV cap that one ``set_lighting`` clears, ``loop.FINAL_ROUND_LIGHTING``), and
+the session task says that the ``set_lighting`` steps come first (``loop.lighting_first``). Why: P4a's salon
+set_lighting was the last of 14 steps and the session's calls ran out before it.
 """
 from __future__ import annotations
 
@@ -363,9 +368,15 @@ def _brief_text(brief: dict) -> str:
     return json.dumps(brief, ensure_ascii=False, separators=(",", ":"), default=str)
 
 
-def plan_prompt(round_no: int, brief: dict, tools: list[str], critical_only: bool) -> str:
-    """The first call of a room session: a JSON plan (``PLAN_SCHEMA``) checked against the brief (§5.4)."""
+FINAL_LIGHTING_WORDS = "the views too dark for the EV cap that one set_lighting clears"
+
+
+def plan_prompt(round_no: int, brief: dict, tools: list[str], critical_only: bool, lighting: bool = False) -> str:
+    """The first call of a room session: a JSON plan (``PLAN_SCHEMA``) checked against the brief (§5.4).
+    ``lighting`` (fix round after P4a): the final round also takes ``FINAL_LIGHTING_WORDS``."""
     what = "critical" if critical_only else "critical and major"
+    if critical_only and lighting:
+        what += f" (and {FINAL_LIGHTING_WORDS})"
     return "\n".join([
         f"Round {round_no}. Make a plan for the {what} fixable findings of {brief['room']['id']}.",
         "Room brief (JSON):", _brief_text(brief), "",
@@ -377,8 +388,9 @@ def plan_prompt(round_no: int, brief: dict, tools: list[str], critical_only: boo
 
 
 def session_task(round_no: int, brief: dict, checklist: list[dict], problems: list[str], budget: int,
-                 critical_only: bool) -> str:
-    """The tool session after the plan: the brief, the checked plan as a checklist, the plan problems."""
+                 critical_only: bool, lighting: bool = False) -> str:
+    """The tool session after the plan: the brief, the checked plan as a checklist, the plan problems. Fix round
+    after P4a: the ``set_lighting`` steps first; ``lighting``: the final round also lights the too-dark views."""
     lines = [f"Round {round_no}, room {brief['room']['id']}: carry out the checklist with the tools "
              f"({budget} tool calls at most; dry_run is free).", "Room brief (JSON):", _brief_text(brief), "",
              "Checklist (your checked plan):"]
@@ -386,8 +398,14 @@ def session_task(round_no: int, brief: dict, checklist: list[dict], problems: li
               f"{s.get('why', '')}" for i, s in enumerate(checklist)] or ["- (empty)"]
     if problems:
         lines += ["", "Plan steps refused by the check (do not do them):", *[f"- {p}" for p in problems]]
-    lines += ["", ("Only critical findings this time. " if critical_only else "")
-              + "Call finish when the checklist is done."]
+    if any(s.get("tool") == "set_lighting" for s in checklist):
+        lines += ["", "Do the set_lighting steps first: they do not depend on the furniture, and the factor the "
+                      "finding names is what the view needs."]
+    only = ""
+    if critical_only:
+        only = (f"Only critical findings and {FINAL_LIGHTING_WORDS} this time. " if lighting
+                else "Only critical findings this time. ")
+    lines += ["", only + "Call finish when the checklist is done."]
     return "\n".join(lines)
 
 

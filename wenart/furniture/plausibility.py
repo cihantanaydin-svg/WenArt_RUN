@@ -59,6 +59,21 @@ stands around a drawn partner the fit did not build is reported as "stands aroun
 (<reason>)" with ``metrics.missing_anchor`` (the cause for the agent's tools), not as "stands alone". The room
 types read the aliases of ``program.room_kind`` (``room_types``): a sofa in real04's "Oyun Aktivite Ve Dinlenme
 Odası" (``other``) is no F1 finding.
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02):
+
+- F9 no longer counts a piece a kitchen run holds as an overlap: a sink built into its run (both sides: the sink's
+  ``asset.built_in`` names the run and the run's ``asset.module_plan.built_ins`` lists the sink, the rule of
+  ``wenart.blender.furniture.built_in_ids``) or a stove / pinned sink in its run's gap (``module_plan.gaps``) is no
+  overlap (``_run_held``). Why: P4a logged 8 major F9 findings per round for the 4 built-in sinks and 4 stoves of the
+  real02 kitchens (each overlap was the whole drawn footprint, by design of the fix round after P3), and the agent
+  spent 8 rejected ``swap_model`` edits on them. A sink whose run does not hold it (or that names another run), and
+  any other piece, keeps its F9;
+- the "through the room outline" finding carries ``metrics.depth_m``: how deep the footprint reaches past the outline
+  (the largest distance of the outside part's corners from the room). Why: P4a's wardrobe f_L-1_024 reached 0.05 m²
+  through the outline, a 0.020 m cut along its 2.57 m back (its S2 said the same); the area alone read like a
+  misplaced piece and the agent removed the drawn anchor as "not furniture". The agent's causes route a cut below
+  the S2 tolerance as within tolerance and a deeper one to the move tools (``wenart.agent.causes``).
 """
 from __future__ import annotations
 
@@ -605,14 +620,56 @@ def _tucked(a: str, b: str) -> bool:
     return (a in TUCKED_TYPES and b in UNDER_TYPES) or (b in TUCKED_TYPES and a in UNDER_TYPES)
 
 
+def _dict(value) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
+def _run_held(r: _Room) -> set:
+    """Fix round after P4a (module docstring): the pairs ``frozenset({run id, piece id})`` a kitchen run of the room
+    holds by its fitted module plan: every ``plan.gaps`` record (a stove or a pinned sink standing in the run's gap)
+    and every ``plan.built_ins`` record whose piece's ``asset.built_in`` names that run (both sides, as
+    ``wenart.blender.furniture.built_in_ids``: a plan the agent refitted without the sink, or a sink naming another
+    run, holds nothing)."""
+    by_id = {f["id"]: f for f in r.floor}
+    held: set = set()
+    for host in r.floor:
+        plan = _dict(_dict(host.get("asset")).get("module_plan"))
+        for rec in plan.get("gaps") or []:
+            if isinstance(rec, dict) and rec.get("id") in by_id:
+                held.add(frozenset((host["id"], rec["id"])))
+        for rec in plan.get("built_ins") or []:
+            if not isinstance(rec, dict) or rec.get("id") not in by_id:
+                continue
+            if _dict(by_id[rec["id"]].get("asset")).get("built_in") == host["id"]:
+                held.add(frozenset((host["id"], rec["id"])))
+    return held
+
+
+def outside_depth(poly, outline) -> float:
+    """Fix round after P4a: how far a footprint ``poly`` reaches past a room ``outline`` (metres): the largest
+    distance of a corner of the part outside the outline from the outline; 0 when it stays inside."""
+    part = poly.difference(outline)
+    if part.is_empty:
+        return 0.0
+    best = 0.0
+    for g in getattr(part, "geoms", [part]):
+        ring = getattr(g, "exterior", None)
+        coords = ring.coords if ring is not None else getattr(g, "coords", [])
+        for c in coords:
+            best = max(best, outline.distance(Point(c[0], c[1])))
+    return best
+
+
 def _f9(r: _Room) -> list[dict]:
     out = []
     ids = [f["id"] for f in r.floor]
+    held = _run_held(r)
     for i, a in enumerate(ids):
         ta = r.item(a)["type"]
         for b in ids[i + 1:]:
             tb = r.item(b)["type"]
-            if _tucked(ta, tb):
+            # fix round after P4a: a sink built into its run or a stove in its run's gap is no overlap
+            if _tucked(ta, tb) or frozenset((a, b)) in held:
                 continue
             area = r.polys[a].intersection(r.polys[b]).area
             if area > OVERLAP_MIN_M2:
@@ -621,8 +678,10 @@ def _f9(r: _Room) -> list[dict]:
     for f in (x for x in r.floor if x["type"] != "stair"):         # a stair runs into the storey opening
         outside = r.polys[f["id"]].difference(r.polygon).area
         if outside > OUTSIDE_MIN_M2:
+            depth = outside_depth(r.polys[f["id"]], r.polygon)       # fix round after P4a: the cut's depth
             out.append(_violation("F9", f["id"], r.id, f"{f['type']} reaches {outside:.2f} m² through the room "
-                                  f"outline", {"outside_m2": round(outside, 3)}))
+                                  f"outline, up to {depth:.3f} m deep",
+                                  {"outside_m2": round(outside, 3), "depth_m": round(depth, 4)}))
     for f in r.built:
         if f["type"] != "unknown" or f["id"] not in r.polys:
             continue

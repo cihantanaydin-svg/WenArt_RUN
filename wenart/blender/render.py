@@ -222,6 +222,40 @@ blank pale plane. How:
   ``PULL_MEDIAN_TARGET``, and the panes stay brighter than the walls. P3 stopped at k 1-2 with pane medians of
   0.86-0.97 (the sunlit outside 5-8 stops over), the blank pale windows. The pairing of the interior HDRI with the
   sun stays an A/B lever (off).
+
+Fix round after P4a (17 Oct 2026; ``RENDER_CODE_VERSION`` ``m13.3``). What: five changes to the colour of the views,
+the sky pull and the windows. Why: pod P4a (real02, the M11 cameras replayed) rendered all 12 rig-lit halls orange
+(wall R/B 1.64-1.81 against the 1.5 pin), white rims round the leaves, the ridge and the chimney of every pulled sky, a
+flat dark slate sky on the terrace (k 4), white skies in ext_1 / ext_5 and every window as a flat grey card. How:
+
+- White point (``mixed_whitepoint``): every view keeps the residual cast of the project's daylight (the mood's
+  residual applied to the daylight colour), whatever its rig share; P4a applied the residual to the 2700 K rig's own
+  colour (2700 K ^ 0.35 kept: linear R/B 2.24 on a white wall against 1.145 in the daylight rooms). The optional extra
+  warmth of the rig part is ``WB_RIG_RESIDUAL`` (0), recorded as ``wb_rig_residual``. Share 0 is still the anchor
+  exactly; the white point moves with the share continuously (no step at the kitchens' 0.70-0.79).
+- Sky pull weights (``sky_pull_weights``): every pixel of the sky mask and of a ring of ``SKY_RING_PX`` outside it is
+  blended by its sky coverage from the Normal pass (Cycles averages the normal over the samples; the background and
+  the haze add none): ``1 - |N|`` on the mask, ``1 - |N| / ref`` in the ring with ``ref`` the normal a fully covered
+  pixel of that surface keeps nearby (``local_max`` over ``SKY_REF_PX``: foliage and the far ground behind the haze
+  keep less than 1). A pure sky pixel gets the full pull, an anti-aliased edge pixel its share of it, a covered pixel
+  none. P4a fed the binary mask's inward feather: the edge pixels kept the bright unpulled sky and the first two sky
+  pixels got 1/3 and 2/3 of the pull (rims of 177-223 against a sky of 109-168). A bpy 5.2.2 shim re-render of P4a's
+  five pulled views at P4a's EV: pixels 25 levels over the sky in the 3 px band round the sky 27-71 % with the
+  feather, 4-21 % now (the rest are bright walls and the white far ground). ``full_weight_share`` keeps the feather's
+  meaning (the coherence of the mask for the GPU check).
+- Sky pull steps and target: up to ``SKY_PULL_STEPS`` 6 stops (P4a's ext_1 reached saturation 0.115 at k 4); a k also
+  qualifies at a mid-tone median (``SKY_PULL_MEDIAN_TARGET``) with a near-floor saturation (``SKY_PULL_SAT_NEAR``), so
+  a hazy sky stops at mid-tone (teras_1: k 3, median 0.58, instead of k 4, median 0.43, a flat dark slate). A white
+  sky beside the sun still never qualifies. The record says ``sun_offset_deg`` and ``into_sun`` (``sun_offset_deg``,
+  ``SKY_INTO_SUN_DEG``): P4a's ext_1 and ext_5 look 6 degrees off the sun, so the report can name them. The exposure
+  stays metered per view on the facade (the verifier's analysis of P4a: the 3.5-stop spread is physical, a locked
+  exterior EV would leave the shaded facades under a still white sky).
+- Windows (``haze_hidden_for``): a view under the interior world renders with the haze volume hidden from the camera
+  and transmission rays (``hide_haze_from_view``, restored after the render), so the camera sees the interior HDRI
+  through the glass instead of up to 1200 m of haze; diffuse and glossy rays still see the haze, so metering and
+  light do not change. The entry records ``haze_hidden`` (null without haze) and the window pull its
+  ``pane_saturation`` before and after.
+- ``RENDER_CODE_VERSION`` ``m13.3``: the render key changes, so P4a's views are rendered again.
 """
 from __future__ import annotations
 
@@ -259,7 +293,12 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # the view's rig share, open-air rooms under the exterior world, the sky pull, the window pull to 10 stops; part 2
 # (17 Oct 2026, before any pod rendered m13.2): the open-air views with the exterior clip end; part 3 (17 Oct 2026,
 # still before any pod rendered m13.2): the sky pull's mask counts the haze shell as sky (haze_sky).
-RENDER_CODE_VERSION = "m13.2"
+# m13.3 (fix round after P4a, 17 Oct 2026): every view keeps the project's daylight cast (mixed_whitepoint), the sky
+# pull blends by the sky's coverage with no inward feather and a ring outside the mask (sky_pull_weights), tries up to
+# 6 stops and stops at a mid-tone median, the haze is hidden from the camera and transmission rays of the views under
+# the interior world (the windows), the pane saturation is recorded. Without the bump the render key would reuse P4a's
+# corridor and bath views.
+RENDER_CODE_VERSION = "m13.3"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
 LOOK = "AgX - Punchy"
@@ -276,10 +315,22 @@ PULL_MEDIAN_TARGET = 0.65          # ... or the pane median at mid-tone: stop pu
 # Sky pull (fix round after P3): a view under the exterior sky keeps its facade exposure; its sky is pulled by the
 # smallest k whose median is under the shoulder and whose median saturation reaches the floor (P3: ext_1/2/4 skies
 # 0.92 / 0.84 / 0.81 at saturation 0.03-0.13, ext_3 0.27 and ext_7 0.20 read blue).
-SKY_PULL_STEPS = (1, 2, 3, 4)
+# Fix round after P4a (17 Oct 2026): up to 6 stops (P4a's ext_1 reached saturation 0.115 at k 4, median 0.58), and a
+# k also qualifies at a mid-tone median with a near-floor saturation (SKY_PULL_MEDIAN_TARGET, SKY_PULL_SAT_NEAR): a
+# hazy, pale sky reaches the 0.12 floor only far down (P4a's teras_1: k 4, median 0.43, saturation 0.17, a flat dark
+# slate sky), so it stops at mid-tone instead (teras_1 k 3: median 0.58, saturation 0.118). A white sky beside the
+# sun (ext_5: saturation 0.04 at k 4) still never qualifies and stays as rendered.
+SKY_PULL_STEPS = (1, 2, 3, 4, 5, 6)
 SKY_PULL_MEDIAN_MAX = 0.8
 SKY_PULL_SAT_MIN = 0.12
+SKY_PULL_MEDIAN_TARGET = 0.6       # ... or the median at mid-tone ...
+SKY_PULL_SAT_NEAR = 0.10           # ... with at least this saturation (the GPU check's allowance under the floor)
 SKY_PULL_MIN_SHARE = 0.005         # a sky smaller than this share of the frame is not pulled
+SKY_RING_PX = 2                    # fix round after P4a: the pull also reaches this many pixels outside the sky mask
+SKY_REF_PX = 4                     # ... where the full-coverage normal is the largest |N| outside the mask this close
+SKY_REF_MIN = 0.05                 # ... and at least this (a ring pixel with only sky round it)
+SKY_FAR_MARGIN_M = 100.0           # surfaces this far beyond the nearest haze-shell hit are seen through the haze
+SKY_INTO_SUN_DEG = 30.0            # a view whose azimuth is this close to the sun's looks into the sun (recorded)
 HAZE_NORMAL_EPS = 1e-6             # fix round part 3: a Normal pass component above this is a surface behind the haze
 PANE_ALBEDO_MAX = 0.05             # pane = window index and Diffuse Color luminance below this (glass, not frame)
 PULL_FEATHER_PX = 3                # the mask edge blends over this many pixels, inside the mask
@@ -326,8 +377,17 @@ SUNLIT_DOT_MIN = 0.05
 # rig's white by the view's rig share (``mixed_whitepoint``); below this share (metering noise, a pendant in a sunlit
 # living room) the view keeps the project white point exactly.
 WB_RIG_SHARE_MIN = 0.02
+# Fix round after P4a (17 Oct 2026): the cast a view keeps is the project's daylight cast (the mood's residual applied
+# to the daylight colour), whatever its rig share; P4a applied the residual to the 2700 K rig's own colour, so rooms lit
+# by the rig kept 2700 K ^ 0.35 (linear R/B 2.24 on white against 1.145 in the daylight rooms) and every real02 hall
+# turned orange. WB_RIG_RESIDUAL is the optional extra warmth of the rig part (a share of the rig's colour over the
+# daylight's, never more than the mood's residual). A bpy 5.2.2 shim re-render of P4a's real02 scene at P4a's EV (its
+# m13.2 halls matched the pod's display wall R/B within 0.04): with 0 the 12 halls read 1.26-1.36 and the baths
+# 1.02-1.08 against the painted daylight walls' 1.30-1.55 (median 1.36); with 0.1 the halls read 1.35-1.46, close to
+# the 1.5 pin. 0 until a look decision asks for lamp-lit warmth.
+WB_RIG_RESIDUAL = 0.0
 WB_VIEW_RULE = ("the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - "
-                "daylight / all metered light), corrected with the mood's residual")
+                "daylight / all metered light), with the residual cast of the project's daylight kept for every view")
 # Fix round part 2 (17 Oct 2026): the clip rule of an open-air view under the exterior world (view_clip_end).
 OPEN_AIR_CLIP_RULE = ("open-air room under the exterior world: the exterior views' clip end (exterior.CLIP_END), so "
                       "the far ground and the backdrop close the horizon")
@@ -743,28 +803,37 @@ def rig_share(all_illuminant, day_illuminant) -> float | None:
     return round(min(1.0, max(0.0, 1.0 - day / total)), 6)
 
 
-def mixed_whitepoint(project_wp, rig_rgb, share, residual) -> list[float]:
-    """The white point of one view (pure; fix round after P3, 16-17 Oct 2026). What: the project white point
-    ``project_wp`` (metered on daylight, the anchor) moved toward the rig by the view's ``share`` of rig light. Why:
-    P3 applied the 5,635 K daylight point to rooms lit only by the 2700 K rig (24 of 48 views orange). How: the
-    project's daylight colour is recovered from its white point (``whitepoint_from`` is ``normalise((ill / G) ^ (1 -
-    residual))``, so the illuminant is the white point to the power ``1 / (1 - residual)``), both light colours are
-    scaled to luminance 1, mixed linearly by ``share`` (light adds; the share is a luminance share) and turned into a
-    white point with the same residual. ``share`` 0 (or a residual of 1: no correction at all) gives the project
-    white point, ``share`` 1 the rig's own white point (``whitepoint_from(rig_rgb, residual)``). ``rig_rgb`` is the
-    rig's light colour (``kelvin_whitepoint`` at the rig temperature)."""
+def mixed_whitepoint(project_wp, rig_rgb, share, residual, rig_residual: float | None = None) -> list[float]:
+    """The white point of one view (pure; fix round after P3, 16-17 Oct 2026; fix round after P4a, 17 Oct 2026).
+    What: the project white point ``project_wp`` (metered on daylight, the anchor) moved toward the rig by the view's
+    ``share`` of rig light. Why: P3 applied the 5,635 K daylight point to rooms lit only by the 2700 K rig (24 of 48
+    views orange). How: the project's daylight colour is recovered from its white point (``whitepoint_from`` is
+    ``normalise((ill / G) ^ (1 - residual))``, so the illuminant is the white point to the power ``1 / (1 -
+    residual)``), both light colours are scaled to luminance 1 and mixed linearly by ``share`` (light adds; the share
+    is a luminance share). The white point is that light divided by the cast the view keeps: the project's daylight
+    colour to the power ``residual`` (the mood's cast of the daylight rooms) times ``(rig / day) ^ (share x
+    rig_residual)``, the optional extra warmth of the rig part (``WB_RIG_RESIDUAL`` when None, at most ``residual``).
+    So a white surface lit by the view's own light keeps the daylight rooms' cast at every share (P4a: the residual
+    applied to the rig's own colour left 2700 K ^ 0.35 in every rig-lit hall, linear R/B 2.24 on white against
+    1.145 in the daylight rooms). ``share`` 0 (or a residual of 1: no correction at all) gives the project white
+    point, ``share`` 1 ``normalise(rig / day ^ residual)`` with no extra warmth. ``rig_rgb`` is the rig's light colour
+    (``kelvin_whitepoint`` at the rig temperature)."""
     wp = normalise_whitepoint([float(v) for v in project_wp])
     try:
         s = min(1.0, max(0.0, float(share)))
     except (TypeError, ValueError):
         return wp
-    k = 1.0 - float(residual or 0.0)
+    r = float(residual or 0.0)
+    k = 1.0 - r
     if s <= 0.0 or k <= 1e-6 or not math.isfinite(s):
         return wp
+    extra = WB_RIG_RESIDUAL if rig_residual is None else float(rig_residual)
+    extra = min(max(r, 0.0), max(0.0, extra)) if math.isfinite(extra) else 0.0
     day = normalise_whitepoint([max(v, 1e-9) ** (1.0 / k) for v in wp])
     rig = normalise_whitepoint([max(float(v), 1e-9) for v in rig_rgb])
-    mixed = whitepoint_from([(1.0 - s) * d + s * r for d, r in zip(day, rig)], residual)
-    return wp if mixed is None else mixed
+    light = [(1.0 - s) * d + s * q for d, q in zip(day, rig)]
+    cast = [d ** r * (q / d) ** (s * extra) for d, q in zip(day, rig)]
+    return normalise_whitepoint([v / c for v, c in zip(light, cast)])
 
 
 def wb_residual(mood: str | None) -> tuple[float, str | None]:
@@ -1021,6 +1090,88 @@ def sky_mask(depth, index=None, normal=None, haze_indices=()):
     return background | haze_sky(d, index, normal, haze_indices)
 
 
+def sun_offset_deg(view_dir, travel) -> float | None:
+    """Degrees (0..180) between a camera's view azimuth and the sun's azimuth (pure; fix round after P4a): ``view_dir``
+    the camera's forward axis in the world, ``travel`` the sun lamp's light direction (``sun_travel``; the sun lies
+    at ``-travel``), both projected on the ground plane. None without one of them or for a vertical one. P4a's ext_1
+    and ext_5 look 6 degrees off the sun (azimuth 45 degrees): their skies stay white at any EV (circumsolar and hazy
+    horizon sky), so the record names them (``SKY_INTO_SUN_DEG``) for the report instead of a pin."""
+    if view_dir is None or travel is None:
+        return None
+    vx, vy = float(view_dir[0]), float(view_dir[1])
+    sx, sy = -float(travel[0]), -float(travel[1])
+    if math.hypot(vx, vy) < 1e-9 or math.hypot(sx, sy) < 1e-9:
+        return None
+    diff = abs(math.degrees(math.atan2(vy, vx) - math.atan2(sy, sx))) % 360.0
+    return round(min(diff, 360.0 - diff), 2)
+
+
+def local_max(values, radius: int):
+    """float H x W: the maximum of ``values`` over the (2r+1) x (2r+1) square round each pixel (numpy, separable;
+    outside the image counts as 0)."""
+    import numpy as np
+
+    a = np.asarray(values, dtype=np.float64)
+    r = max(0, int(radius))
+    if r == 0:
+        return a.copy()
+    h, w = a.shape
+    pad = np.pad(a, r, constant_values=0.0)
+    rows = np.zeros((h + 2 * r, w))
+    for s in range(2 * r + 1):
+        np.maximum(rows, pad[:, s:s + w], out=rows)
+    out = np.zeros((h, w))
+    for s in range(2 * r + 1):
+        np.maximum(out, rows[s:s + h, :], out=out)
+    return out
+
+
+def sky_pull_weights(mask, normal=None, ring_px: int = SKY_RING_PX, ref_px: int = SKY_REF_PX, depth=None, index=None,
+                     haze_indices=()):
+    """``(weights, ring)`` of the sky pull (numpy; fix round after P4a, 17 Oct 2026). What: float H x W blend weights
+    and the bool ring, the pixels within ``ring_px`` (chessboard) outside ``mask``. Why: P4a's pull feathered inwards
+    from a binary mask, so the anti-aliased edge pixels kept the unpulled sky and the first two sky pixels got 1/3 and
+    2/3 of the pull: white rims of 2-4 px round the leaves, the roof ridge and the chimney of every pulled view. How:
+    the weight is the pixel's sky coverage from the Normal pass (Cycles averages the normal over the samples; the
+    background and the haze add none, ``haze_sky`` relies on it): on the mask ``1 - |N|``, in the ring ``1 - |N| /
+    ref`` with ``ref`` the largest ``|N|`` of the pixels outside the mask within ``ref_px`` (the normal a fully covered
+    pixel of that surface keeps: about 1 for a roof or a near tree, less for foliage whose leaf normals partly cancel
+    and for the far ground and the backdrop behind the haze, whose samples that scatter in it add no normal either; the
+    3 km backdrop behind 1200 m of haze keeps about a third). With ``depth``, ``index`` and the haze objects'
+    ``haze_indices`` the reference is taken within three groups so a roof does not set the far ground's: the hits on
+    the haze shell, the surfaces more than ``SKY_FAR_MARGIN_M`` beyond the nearest shell hit (seen through the haze),
+    the rest. So a pure sky pixel gets the full pull, an edge pixel its sky share and a covered pixel none; 0
+    everywhere else. Without a Normal pass the mask gets weight 1 and the ring is empty."""
+    import numpy as np
+
+    from wenart import views
+
+    m = np.asarray(mask, dtype=bool)
+    ring = ~m & ~views.erode(~m, max(1, int(ring_px)))
+    if normal is None:
+        return m.astype(np.float64), np.zeros(m.shape, dtype=bool)
+    n = np.nan_to_num(np.asarray(normal, dtype=np.float64))
+    mag = np.sqrt((n[..., :3] ** 2).sum(axis=-1))
+    groups = [~m]
+    if depth is not None and index is not None and haze_indices:
+        d = np.asarray(depth, dtype=np.float64)
+        idx = np.rint(np.nan_to_num(np.asarray(index, dtype=np.float64))).astype(np.int64)
+        with np.errstate(invalid="ignore"):
+            hit = np.isfinite(d) & (d < DEPTH_BACKGROUND)
+        shell = hit & np.isin(idx, sorted(int(v) for v in haze_indices))
+        far = np.zeros(m.shape, dtype=bool)
+        if shell.any():
+            far = hit & ~shell & (d >= float(d[shell].min()) + SKY_FAR_MARGIN_M)
+        groups = [~m & shell, ~m & far, ~m & ~shell & ~far]
+    ref = np.full(m.shape, SKY_REF_MIN)
+    for g in groups:
+        sel = ring & g
+        if sel.any():
+            ref[sel] = np.maximum(local_max(np.where(g, mag, 0.0), ref_px)[sel], SKY_REF_MIN)
+    weights = np.where(m, np.clip(1.0 - mag, 0.0, 1.0), np.where(ring, np.clip(1.0 - mag / ref, 0.0, 1.0), 0.0))
+    return weights, ring
+
+
 def full_weight_share(mask, weights) -> float | None:
     """Share of the ``mask`` pixels whose feather weight (``feather_weights``) is 1 (fix round part 3): a coherent sky
     is mostly at full weight, a speckled mask (every pixel within the feather of a hole) has none. None for an empty
@@ -1033,11 +1184,28 @@ def full_weight_share(mask, weights) -> float | None:
     return round(float(np.count_nonzero(np.asarray(weights)[m] >= 1.0)) / float(np.count_nonzero(m)), 4)
 
 
+def sky_pull_saturated(candidate: dict, sat_min: float = SKY_PULL_SAT_MIN) -> bool:
+    """The sky's median saturation reaches the floor ``sat_min`` (pure; fix round after P4a)."""
+    return candidate["saturation"] >= sat_min
+
+
 def sky_pull_qualifies(candidate: dict, median_max: float = SKY_PULL_MEDIAN_MAX,
-                       sat_min: float = SKY_PULL_SAT_MIN) -> bool:
+                       sat_min: float = SKY_PULL_SAT_MIN, median_target: float = SKY_PULL_MEDIAN_TARGET,
+                       sat_near: float = SKY_PULL_SAT_NEAR) -> bool:
     """A sky reads as sky (pure): median display luminance at most ``median_max`` (under the AgX shoulder) and median
-    saturation at least ``sat_min``."""
-    return candidate["median"] <= median_max and candidate["saturation"] >= sat_min
+    saturation at least ``sat_min``. Fix round after P4a (17 Oct 2026): or, at a mid-tone median (at most
+    ``median_target``), a saturation of at least ``sat_near``: a hazy sky that reaches the floor only far down
+    stops there (P4a's teras_1 went to k 4, median 0.43: a flat dark slate sky)."""
+    if candidate["median"] > median_max:
+        return False
+    return sky_pull_saturated(candidate, sat_min) or (candidate["median"] <= median_target
+                                                       and candidate["saturation"] >= sat_near)
+
+
+def sky_pull_floor(candidate: dict) -> float:
+    """The saturation a pull of ``candidate`` was chosen against (pure; fix round after P4a): ``SKY_PULL_SAT_MIN``
+    when it reaches it, else ``SKY_PULL_SAT_NEAR`` (the mid-tone rule of ``sky_pull_qualifies``)."""
+    return SKY_PULL_SAT_MIN if sky_pull_saturated(candidate) else SKY_PULL_SAT_NEAR
 
 
 def choose_sky_pull(before: dict, candidates: list[dict]) -> tuple[int, str]:
@@ -1049,8 +1217,11 @@ def choose_sky_pull(before: dict, candidates: list[dict]) -> tuple[int, str]:
         return 0, "the sky is under the shoulder and saturated as rendered: no pull"
     for c in sorted(candidates, key=lambda c: c["k"]):
         if sky_pull_qualifies(c):
-            return int(c["k"]), (f"smallest k with the sky median <= {SKY_PULL_MEDIAN_MAX:g} and saturation >= "
-                                 f"{SKY_PULL_SAT_MIN:g}")
+            if sky_pull_saturated(c):
+                return int(c["k"]), (f"smallest k with the sky median <= {SKY_PULL_MEDIAN_MAX:g} and saturation >= "
+                                     f"{SKY_PULL_SAT_MIN:g}")
+            return int(c["k"]), (f"smallest k with the sky median <= {SKY_PULL_MEDIAN_TARGET:g} (mid-tone) and "
+                                 f"saturation >= {SKY_PULL_SAT_NEAR:g}")
     return 0, "no k brings the sky under the shoulder with saturation: no pull"
 
 
@@ -1392,6 +1563,17 @@ def sun_hidden_for(scene_props: dict, camera_kind: str | None, room_type: str | 
         and not bool(scene_props.get("wenart_world_exterior_disc_camera_only"))
 
 
+def haze_hidden_for(scene_props: dict, camera_kind: str | None, room_type: str | None = None) -> bool:
+    """Whether a camera renders with the haze volume hidden from the camera and transmission rays (pure; fix round
+    after P4a, 17 Oct 2026): every view that is not under the exterior sky (an interior camera of a room that is not
+    open-air). Why: P4a's windows showed a flat grey card (pane saturation 0.00-0.07 against M11's clouds at
+    0.13-0.25): the camera's ray through the glass (a singular transmission ray, ``materials.window_glass_material``)
+    crossed up to 1200 m of haze (``site.HAZE``, optical depth up to about 1) before it reached the interior world's
+    HDRI. The haze keeps lighting the room (diffuse and glossy rays still see it; it casts no shadow), so the meter
+    and the white point do not move."""
+    return camera_kind != "exterior" and not under_exterior_sky(scene_props, camera_kind, room_type)
+
+
 def room_types_from_manifest(manifest: dict | None) -> dict[str, str]:
     """``{room id: room type}`` from a scene manifest (pure; fix round after P3): the room floors (kind ``floor``,
     ``wenart_id`` = the room id, no ``room_id`` of their own; door thresholds carry the room they open into and are
@@ -1508,6 +1690,17 @@ def sun_travel(scene) -> tuple | None:
                 and float(ob.data.energy) > 0.0:
             return tuple(float(c) for c in ob.matrix_world.to_3x3() @ Vector((0.0, 0.0, -1.0)))
     return None
+
+
+def camera_forward(cam) -> tuple | None:
+    """The camera's view direction (its local -Z in the world, xyz; fix round after P4a), None for an object without a
+    world matrix (the CPU tests' stand-ins)."""
+    mw = getattr(cam, "matrix_world", None)
+    if mw is None:
+        return None
+    from mathutils import Vector
+
+    return tuple(float(c) for c in mw.to_3x3() @ Vector((0.0, 0.0, -1.0)))
 
 
 def sunlit_rooms(scene) -> set[str]:
@@ -1846,6 +2039,22 @@ def is_haze(o) -> bool:
                for s in getattr(o, "material_slots", None) or ())
 
 
+def hide_haze_from_view(objects) -> list:
+    """Hide the haze objects from camera and transmission rays (fix round after P4a, ``haze_hidden_for``); returns
+    ``[(object, visible_camera, visible_transmission)]`` for ``restore_haze``."""
+    saved = []
+    for o in objects:
+        saved.append((o, bool(o.visible_camera), bool(o.visible_transmission)))
+        o.visible_camera = False
+        o.visible_transmission = False
+    return saved
+
+
+def restore_haze(saved) -> None:
+    for o, camera, transmission in saved:
+        o.visible_camera, o.visible_transmission = camera, transmission
+
+
 def reserve_haze_index(scene) -> set[int]:
     """Give every haze object ``site.HAZE_PASS_INDEX`` (fix round part 3, 17 Oct 2026; a scene built before has it at 0,
     and the render never saves the scene) and return ``{HAZE_PASS_INDEX}``, or an empty set when the scene has no
@@ -2037,8 +2246,10 @@ class Look:
         if share is None or share < WB_RIG_SHARE_MIN:
             rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point"
             return
-        rec["whitepoint"] = mixed_whitepoint(anchor, rig_rgb, share, (self.project or {}).get("residual") or 0.0)
+        rec["whitepoint"] = mixed_whitepoint(anchor, rig_rgb, share, (self.project or {}).get("residual") or 0.0,
+                                             WB_RIG_RESIDUAL)
         rec["wb_view_rule"] = WB_VIEW_RULE
+        rec["wb_rig_residual"] = WB_RIG_RESIDUAL     # fix round after P4a: the rig part's extra warmth (0: none)
 
     def apply(self, rec: dict) -> None:
         """Set view transform, look, exposure and white balance; read back temperature and tint. Fix round after P3:
@@ -2466,6 +2677,10 @@ class RenderRun:
         # fix round part 2 (17 Oct 2026): an open-air view under the exterior world meters and renders with the
         # exterior clip range (view_clip_end); the build's clip end is back on the camera after the render
         clip, built_end = set_view_clip(cam, props, room_type)
+        # fix round after P4a (17 Oct 2026): a view under the interior world sees the outside without the haze (the
+        # camera's rays through the windows; haze_hidden_for); metering and lighting are unchanged
+        haze_hidden = haze_hidden_for(props, cam.get("wenart_camera_kind"), room_type) if ctx.haze_objects else None
+        haze_saved = hide_haze_from_view(ctx.haze_objects) if haze_hidden else []
         try:
             look = ctx.look.decide(cam, self.out, ctx.res)
             ctx.look.apply(look)
@@ -2476,6 +2691,7 @@ class RenderRun:
             seconds = time.time() - t0
         finally:
             cam.data.clip_end = built_end
+            restore_haze(haze_saved)
         result = bpy.data.images.get("Render Result")
         set_output(scene, "PNG")
         result.save_render(str(f["png"]), scene=scene)
@@ -2524,6 +2740,7 @@ class RenderRun:
             # fix round after P3: the room type the world was chosen by, and the sky pull of a view under the sky
             "room_type": room_type, "open_air": open_air(room_type), "sky_pull": sky,
             "clip": clip,                   # fix round part 2: the clip range the view was rendered with
+            "haze_hidden": haze_hidden,     # fix round after P4a: haze hidden from the camera's rays (None: no haze)
             "vram_mib": vram_used_mib() if ctx.device != "CPU" else None,
             "png": f["png"].name, "exr": f["exr"].name, "preview": f["preview"].name,
             "depth_png": f["depth"].name if f["depth"].exists() else None, "index_png": f["index"].name,
@@ -2584,6 +2801,8 @@ class RenderRun:
                   "clip_before": clip_before, "clip_after": clip_before, "pane_px": int(np.count_nonzero(mask)),
                   "pane_median": round(masked_median(main, mask), 4),
                   "pane_p90": round(masked_percentile(main, mask, 90.0), 4),
+                  # fix round after P4a: the panes' median saturation (P4a's grey cards 0.00-0.07, M11's sky 0.13-0.25)
+                  "pane_saturation": round(masked_saturation(main, mask), 4),
                   "wall_median": None if wall_median is None else round(wall_median, 4), "rule": rule,
                   "targets": {"p90_max": PULL_P90_MAX, "median_target": PULL_MEDIAN_TARGET, "max_clip": PULL_MAX_CLIP},
                   "tried": [{"k": c["k"], "clip": c["clip"], "median": round(c["median"], 4),
@@ -2596,6 +2815,7 @@ class RenderRun:
         record["clip_after"] = clip_share(final, mask)
         record["pane_median_after"] = round(masked_median(final, mask), 4)
         record["pane_p90_after"] = round(masked_percentile(final, mask, 90.0), 4)
+        record["pane_saturation_after"] = round(masked_saturation(final, mask), 4)
         record["seconds"] = round(time.time() - t0, 3)
         return record, weights, final
 
@@ -2605,7 +2825,11 @@ class RenderRun:
         ``SKY_PULL_MIN_SHARE`` of the frame, ``final`` None when no k is chosen. ``main`` is the display image after
         the window pull; only sky pixels change (feathered inwards like the panes). Fix round part 3: the sky is
         ``sky_mask`` with the haze shell (``haze_sky``; ``haze_px`` of them) and the record says its
-        ``full_weight_share``."""
+        ``full_weight_share``. Fix round after P4a (17 Oct 2026): the blend weights are the sky's coverage on the mask
+        and a ring of ``SKY_RING_PX`` outside it (``sky_pull_weights``: no white rims round the silhouettes; only the
+        mask and the ring change), ``ring_px`` counts the ring pixels that got part of the pull, ``full_weight_share``
+        stays the feather's (the coherence of the mask, as the GPU check reads it) and ``sun_offset_deg`` /
+        ``into_sun`` say whether the view looks into the sun (``sun_offset_deg``, ``SKY_INTO_SUN_DEG``)."""
         import numpy as np
 
         depth = find_channel(channels, "Depth.Z")
@@ -2633,13 +2857,22 @@ class RenderRun:
                 if sky_pull_qualifies(cand):
                     break                # the smallest qualifying k
         k, rule = choose_sky_pull(before, candidates)
-        weights = feather_weights(mask)
+        weights, ring = sky_pull_weights(mask, normal, SKY_RING_PX, SKY_REF_PX, depth, index, self.ctx.haze)
+        offset = sun_offset_deg(camera_forward(cam), None if self.ctx.scene is None else sun_travel(self.ctx.scene))
+        into_sun = offset is not None and offset <= SKY_INTO_SUN_DEG
+        if k == 0 and into_sun and candidates:
+            rule += f" (the view looks into the sun: {offset:g} degrees off its azimuth)"
         record = {"ev": -float(k) if k else 0.0, "k": k, "sky_ev": round(float(look["ev"]) - k, 6),
                   "sky_px": int(np.count_nonzero(mask)), "sky_share": round(share, 4),
-                  "haze_px": int(np.count_nonzero(haze)), "full_weight_share": full_weight_share(mask, weights),
+                  "haze_px": int(np.count_nonzero(haze)),
+                  "full_weight_share": full_weight_share(mask, feather_weights(mask)),
+                  "ring_px": int(np.count_nonzero(ring & (weights > 0.0))),
+                  "sun_offset_deg": offset, "into_sun": into_sun,
                   "median_before": round(before["median"], 4), "saturation_before": round(before["saturation"], 4),
                   "median_after": round(before["median"], 4), "saturation_after": round(before["saturation"], 4),
-                  "rule": rule, "targets": {"median_max": SKY_PULL_MEDIAN_MAX, "saturation_min": SKY_PULL_SAT_MIN},
+                  "rule": rule, "targets": {"median_max": SKY_PULL_MEDIAN_MAX, "saturation_min": SKY_PULL_SAT_MIN,
+                                            "median_target": SKY_PULL_MEDIAN_TARGET,
+                                            "saturation_near": SKY_PULL_SAT_NEAR, "ring_px": SKY_RING_PX},
                   "tried": [{"k": c["k"], "median": round(c["median"], 4), "saturation": round(c["saturation"], 4)}
                             for c in candidates]}
         if k == 0:
@@ -2698,6 +2931,8 @@ class Context:
         self.blender_version = bpy.app.version_string
         # fix round part 3: the haze's reserved index (main reserved it already; idempotent), kept out of the table
         self.haze = reserve_haze_index(scene)
+        # fix round after P4a: the haze objects a view under the interior world hides from its camera rays
+        self.haze_objects = [o for o in scene.objects if is_haze(o)]
         self.pass_index = pass_index_table(scene)
         self.windows = window_indices(scene)
         # Milestone 13: the variant the render runs under (the build's is in the scene, wenart_light_variant)

@@ -20,6 +20,9 @@ exterior world while the lamp stays the one direct sun.
   Fix round part 2 (17 Oct 2026): that rule reads each view's own share, so two pins that do not: with the rig on,
   the sunlit living room keeps the project white point (share under ``render.WB_RIG_SHARE_MIN``, no mired shift)
   and the bath lit mostly by its rig has a share of at least ``RIG_ONLY_MIN_SHARE`` and a warmer white point.
+  Fix round after P4a (17 Oct 2026): every view keeps the project's daylight cast (``render.mixed_whitepoint`` with
+  the rig part's extra warmth ``render.WB_RIG_RESIDUAL``, recorded as ``wb_rig_residual``); the rule above recomputes
+  each view's white point with it, so a manifest rendered with m13.2 no longer passes (re-run on m13.3 renders).
 - ``test_exterior_sky_carries_a_visible_sun_disc``: the exterior world of ``materials.exterior_world_nodes`` (the
   round-3 world: the disc for camera rays only) rendered from a camera looking at the sun: the disc's pixels are far
   brighter than the sky beside them. Then a white plane facing the sun measures the Diffuse Direct light of (a) the
@@ -173,8 +176,10 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
         if share < R.WB_RIG_SHARE_MIN:
             assert ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
         else:
-            want = R.mixed_whitepoint(anchor, ex["wb_rig_whitepoint"], share, wbp["residual"])
+            # fix round after P4a (17 Oct 2026): with the rig part's extra warmth the view was mixed with
+            want = R.mixed_whitepoint(anchor, ex["wb_rig_whitepoint"], share, wbp["residual"], ex.get("wb_rig_residual"))
             assert ex["whitepoint"] == pytest.approx(want, abs=1e-5) and ex["wb_view_rule"] == R.WB_VIEW_RULE
+            assert ex.get("wb_rig_residual") == R.WB_RIG_RESIDUAL, (r["camera"], ex)       # fix round after P4a
             assert ex["wb_view_shift_mired"] >= -0.5, (r["camera"], ex)     # toward the warm rig, never cooler
         print(f"M13_WB_VIEW {variant} {r['camera']}: rig share {share} -> {ex['wb_temperature']} K "
               f"(shift {ex.get('wb_view_shift_mired')} mired; {ex['wb_view_rule']})")

@@ -60,6 +60,17 @@ Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3; user decisi
    "never a second anchor" rule kept the room without a bed). Off with ``furnished_rooms: keep``,
    ``furnished_rooms_keep_size`` or a room in ``furnished_rooms_keep`` (``resolve_allowed``; the ``brief`` argument or
    the building's ``project.brief`` carry the keys).
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02). What: a drawn anchor is "unsure" (``unsure_anchor``: its group
+gets nothing added, it is not re-solved, the solver never uses it as drawn) only when it is ``unverified`` because
+the reading could not agree on it, or when it is a type proposal of the completion (``type_proposal``, as before); a
+vector-drawn anchor the reading typed by code (``infer.CODE_TYPE_METHODS``: the twin room, another level, the block
+name, the room's missing anchor) is completed like a verified one. Why: the reading types such anchors by code and
+withdraws their VLM question, and code typing keeps ``status: unverified``; real02's four
+beds f_L0_019-022 (typed "the bedroom misses its bed" and by their twins) got "unverified anchor: nothing added", so
+r_L0_yatak_odasi, _2, _3 and _4 lost their nightstands (and the bed group's rug); in Milestone 11 both VLMs had
+agreed ``bed_double`` and the beds were verified. The U10 rule (no chairs around an unverified table,
+``groups._expected_missing``) is unchanged.
 """
 from __future__ import annotations
 
@@ -88,6 +99,21 @@ RESOLVE_OUTSIDE_M2 = 0.02          # ... or reaching this far through the room o
 # wardrobe drawn from wall to wall is a built-in run, not a misread 3.2 m product).
 RUN_LIKE_TYPES = ("wardrobe", "bookshelf", "sideboard", "display_cabinet", "tall_cabinet", "console_table", "dresser",
                   "shoe_cabinet", "tv_unit", "kitchen_counter")
+
+
+def unsure_anchor(anchor: Optional[dict]) -> bool:
+    """Fix round after P4a (module docstring): True for an ``unverified`` drawn anchor the reading could not agree on
+    (its group gets nothing added) and for a type proposal of the completion (``type_proposal``); False for a
+    verified one and for a vector-drawn anchor the reading typed by code (``type_method`` in
+    ``infer.CODE_TYPE_METHODS``), which is completed like a verified one."""
+    if not anchor or anchor.get("status") != "unverified":
+        return False
+    if anchor.get("type_proposal") is True:
+        return True                                 # typed by code in the completion: a proposal, nothing added
+    from wenart.furniture import infer as INF      # lazy: infer reads the program (room kinds)
+
+    vector = any(isinstance(e, dict) and e.get("method") == "vector" for e in anchor.get("evidence") or [])
+    return not (vector and anchor.get("type_method") in INF.CODE_TYPE_METHODS)
 
 
 def _room(building: dict, room_id: str) -> dict:
@@ -448,7 +474,7 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         options = own or list(template["options"])
         if template["layout"] == "anchored":
             options = _option_of_anchor(name, anchor["type"], options)
-        unsure = anchor.get("status") == "unverified" and template["layout"] == "anchored"
+        unsure = unsure_anchor(anchor) and template["layout"] == "anchored"       # fix round after P4a
         kinds = set(room_kinds(building, room)) | {ZONE_ROOM_TYPE.get(z.get("kind") or "") for z in zones}
         foreign = not (set(template["room_types"]) & kinds)
         note = ("unverified anchor: nothing added" if unsure else
@@ -476,7 +502,7 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
                 continue
     for g in GR.drawn_groups(building, room_id):
         anchor = drawn[g["anchor_id"]]
-        if anchor.get("status") == "unverified":
+        if unsure_anchor(anchor):                      # fix round after P4a: a code-typed anchor is re-solved too
             continue
         kinds = set(room_kinds(building, room)) | {ZONE_ROOM_TYPE.get(z.get("kind") or "") for z in zones}
         template = GR.load_groups()[g["template"]]

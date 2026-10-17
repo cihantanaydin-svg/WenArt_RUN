@@ -6,7 +6,12 @@ sheets. Every test here fails on the Milestone 12 code (no sections, no fields, 
 Fix round after P3 (16-17 Oct 2026): metrics 6 and 7 of the latest run of an appended orchestrator log
 (``run_first_seq``), metric 2 without the explained non-furniture, and the previews and plan crops of cameras a run
 does not have moved out of ``final/``. Part 2 (17 Oct 2026): the needs-review report moves them as well, and the
-results copy before and after the report holds only the views of this run's manifest."""
+results copy before and after the report holds only the views of this run's manifest.
+
+Fix round after P4a (17 Oct 2026, the library lens of the P4a analysis): the sheets' labels sit on a dark box and a grey
+tile's text below it, long commercial-safe lines wrap instead of being cut, a baseline preview is used only for a
+camera the baseline report lists, "not recorded" is no flagged colour; metric 11 counts the scene's inferred trees when
+none is drawn; the report's Attribution section leaves out "AI-retouched" when no view was polished."""
 from __future__ import annotations
 
 import json
@@ -626,9 +631,30 @@ def test_metrics_2_6_7_on_the_p3_results():
     178 of 202 without the explained non-furniture) instead of the M12 round 7 (123) and 52 of 199."""
     m = MX.metrics(ROOT / "runs" / "20261016-172855-full" / "results" / "final" / "real04")["metrics"]
     assert m["m6"]["value"] == 38 and m["m6"]["parts"]["round"] == 4 and m["m6"]["parts"]["run_first_seq"] == 2925
-    assert m["m7"]["text"].startswith("29 of 39 (74 %)") and m["m7"]["parts"]["accepted"] == 39
+    # fix round after P4a (integration): metric 7 follows the agent's own rule (edits_removing_finding of
+    # edits_with_target); the old 29 of 39 counted an edit whose (checklist, target) its round did not have as gone
+    assert m["m7"]["text"].startswith("22 of 39 (56 %)") and m["m7"]["parts"]["accepted"] == 39
     assert m["m2"]["text"] == "178 of 240 (74 %); without the 38 explained non-furniture pieces: 178 of 202 (88 %)"
     assert m["m2"]["parts"]["explained_by"] == {"column": 10, "decor": 4, "detail": 18, "not_furniture": 2, "rug": 4}
+
+
+@pytest.mark.skipif(not (ROOT / "runs" / "20261017-072801-full" / "results" / "agent" / "real02" / "log.json").is_file(),
+                    reason="the P4a run folder is not here (runs/ is not committed)")
+def test_metric_7_on_the_p4a_results_is_the_agents_own_count():
+    """Fix round after P4a (integration of the agent track's ask): metric 7 keys an edit as the agent's metric does
+    (``agent.metrics.edit_target_keys``): P4a's 4 set_lighting edits log the room while their findings are on cameras.
+    The report and the agent's metrics now give the same 17 of 24 (the old metric 7: 17 of 25, the old agent metric:
+    13 of 25)."""
+    from wenart.agent import metrics as AM
+
+    out = ROOT / "runs" / "20261017-072801-full" / "results" / "final" / "real02"
+    m = MX.metrics(out)["metrics"]
+    assert m["m7"]["text"].startswith("17 of 24 (71 %)") and m["m7"]["parts"]["accepted"] == 25
+    run = MX.locate(out)
+    events = [e for e in run.log["events"] if isinstance(e, dict)]
+    rounds = sorted({int(e.get("round") or 0) for e in events if e.get("kind") == "round"})
+    removed = AM.findings_removed_metrics(events, rounds)
+    assert (removed["edits_removing_finding"], removed["edits_with_target"]) == (17, 24)
 
 
 def test_metric_2_leaves_out_the_explained_non_furniture(tmp_path):
@@ -973,3 +999,196 @@ def test_metric_9_reads_the_lighting_dark_records(tmp_path):
     rows = {r["camera"]: r for r in result["views"]}
     assert rows["cam_hol_1"]["ev"] == 3.0 and rows["cam_hol_1"]["ev_metered"] == 6.37
     assert rows["cam_hol_1"]["lighting_dark"] == "critical" and rows["cam_salon_1"]["lighting_dark"] is None
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4a (17 Oct 2026): sheets, metric 11, the report's Attribution section
+# --------------------------------------------------------------------------
+
+def test_sheet_labels_sit_on_a_dark_box_and_the_grey_tile_text_below_them(tmp_path):
+    """Fails on the old code: on P4a's ext_5 sheet the "after" label (light text, no backing) vanished on the white
+    sky, and on ext_6.001 "before" and "before: no preview" were drawn over each other at the same spot."""
+    white = tmp_path / "white.jpg"
+    Image.new("RGB", (W, H), (250, 250, 250)).save(white, quality=95)
+    sheet = np.asarray(SH.compose(None, white, [("cam", SH.TEXT)])).astype(int)
+    x0 = round(SH.TILE_HEIGHT * 16 / 9) + SH.GAP + SH.MARGIN          # where the "after" label starts
+    assert sheet[10:22, x0 - 3:x0 - 1].max() < 40                     # the dark box around it, on a white image
+    assert sheet[10:22, x0:x0 + 40].min() < 40 and sheet[10:22, x0:x0 + 40].max() > 200   # light text on the box
+    left = np.asarray(SH._tile(None, "before")).astype(int)
+    band = left[:SH.TILE_TEXT_Y - 4, 80:400]                           # right of the label box, above the tile text
+    assert (np.abs(band - np.array(SH.MISSING_TILE)) <= 1).all()     # nothing drawn over the label row
+    assert left[SH.TILE_TEXT_Y:SH.TILE_TEXT_Y + 22, SH.MARGIN:300].max() > 200    # the tile's own text below it
+
+
+def test_long_caption_lines_wrap_instead_of_being_cut():
+    """Fails on the old code: P4a's salon, banyo_2 and mutfak captions were cut with "..." after 150 characters, so
+    flagged asset ids of the commercial-safe line were missing on the sheet."""
+    ids = [f"hssd_{i:040d}" for i in range(3)]
+    line = "after:  commercial-safe: no (flagged assets: " + ", ".join(f"{a} [non_commercial]" for a in ids) + ")"
+    font = SH._font(16)
+    width = 2 * round(SH.TILE_HEIGHT * 16 / 9) + SH.GAP - 2 * SH.MARGIN
+    lines = SH.wrap(line, font, width)
+    assert 2 <= len(lines) <= SH.CAPTION_MAX_LINES and not any(x.endswith("...") for x in lines)
+    assert " ".join(x.strip() for x in lines) == line                # nothing cut: every id is on the sheet
+    assert all(x.startswith(SH.CAPTION_INDENT) for x in lines[1:])
+    sheet = SH.compose(None, None, [("cam_r_L-1_salon_1  (r_L-1_salon, living)", SH.TEXT),
+                                    ("before: commercial-safe: not recorded", SH.NOT_RECORDED_COLOUR),
+                                    (line, SH.FLAGGED_COLOUR)])
+    assert sheet.height == SH.TILE_HEIGHT + 6 + SH.LINE_HEIGHT * (2 + len(lines)) + 3 > \
+        SH.TILE_HEIGHT + SH.CAPTION_HEIGHT
+    # a line longer than three sheet lines ends with the pointer to sheets13.md
+    many = SH.wrap(" ".join(f"hssd_{i:040d} [non_commercial]," for i in range(40)), font, width)
+    assert len(many) == SH.CAPTION_MAX_LINES and many[-1].endswith(SH.MORE)
+
+
+def test_commercial_safe_colours_tell_not_recorded_from_flagged():
+    """Fails on the old code: "commercial-safe: not recorded" contains ": no" and was drawn in the flagged orange."""
+    assert SH._colour("commercial-safe: not recorded") == SH.NOT_RECORDED_COLOUR
+    assert SH._colour("no view in this run") == SH.NOT_RECORDED_COLOUR
+    assert SH._colour("commercial-safe: no (flagged assets: x [tool_nc])") == SH.FLAGGED_COLOUR
+    assert SH._colour("commercial-safe: yes") == SH.SAFE_COLOUR
+
+
+def test_sheets_use_only_previews_of_the_baseline_reports_views(tmp_path):
+    """Fails on the old code: the M11 baseline folder holds cam_r_L1_koridor_2_1/2/3 previews of an earlier run (its
+    final manifest has 41 views without them); the sheets showed them as "before" while the caption said "no view in
+    this run". Now only a camera of the baseline's views gets its preview; the file found by name is named as left out
+    on the sheet, in the record and in the index."""
+    after = make_run(tmp_path / "a", "toy")
+    F.write_final(after)
+    before = make_run(tmp_path / "b", "toy")                 # renders/ holds a preview of every camera
+    bf = before / "final"
+    (bf / "final_manifest.json").write_text(json.dumps({"views": [
+        {"camera": c, "room_id": r, "view_kind": "interior"} for c, r, *_ in CAMERAS[:3]]}), encoding="utf-8")
+    for cam, *_ in CAMERAS[:3]:
+        Image.new("RGB", (W, H), (200, 50, 50)).save(bf / f"{cam}_final_preview.jpg", quality=80)
+    out = tmp_path / "sheets"
+    result = SH.sheets(after, before, out)
+    rec = {r["camera"]: r for r in result["records"]}
+    assert result["missing_before"] == ["cam_hol_1", "ext_1"]
+    assert [(r["camera"], Path(r["file"]).name) for r in result["before_left_out"]] == \
+        [("cam_hol_1", "cam_hol_1_preview.jpg"), ("ext_1", "ext_1_preview.jpg")]
+    assert rec["cam_hol_1"]["before"] is None and rec["cam_hol_1"]["before_left_out"].endswith("cam_hol_1_preview.jpg")
+    assert rec["cam_salon_1"]["before"].endswith("cam_salon_1_final_preview.jpg") and \
+        rec["cam_salon_1"]["before_left_out"] is None
+    left = Image.open(out / result["sheets"]["cam_hol_1"]).convert("RGB").getpixel((400, 300))
+    assert all(abs(a - b) <= 12 for a, b in zip(left, SH.MISSING_TILE)), left      # the grey tile, not the old file
+    index = (out / SH.INDEX_MD).read_text(encoding="utf-8")
+    assert "Baseline previews left out" in index and "- cam_hol_1: `" in index
+
+
+def _no_drawn_trees(out: Path, vegetation=None, tree_objects=()) -> None:
+    """The toy run without drawn trees; the scene holds ``vegetation`` records and tree objects (``(id, veg_method)``)."""
+    bpath = out / "building_final.json"
+    b = json.loads(bpath.read_text(encoding="utf-8"))
+    b["site"]["decor"] = []
+    b["site"]["hedges"] = []
+    bpath.write_text(json.dumps(b), encoding="utf-8")
+    spath = out / "scene" / "scene_manifest.json"
+    sc = json.loads(spath.read_text(encoding="utf-8"))
+    if vegetation is None:
+        sc["site"].pop("vegetation", None)
+    else:
+        sc["site"]["vegetation"] = vegetation
+    sc["objects"] += [obj(tid, tid, "site_decor", None, site_kind="tree", **({"veg_method": m} if m else {}))
+                      for tid, m in tree_objects]
+    spath.write_text(json.dumps(sc), encoding="utf-8")
+
+
+def test_metric_11_counts_the_inferred_trees_when_none_is_drawn(tmp_path):
+    """Fails on the old code: P4a's real02 has no drawn tree; its two inferred olive trees are Poly Haven models, but
+    metric 11 said "no data" (the CLI listed it so) and "trees built 2 of 0". The M11 lollipop trees (tree objects
+    without a vegetation record) were never counted as primitives."""
+    p4a = make_run(tmp_path / "p4a")
+    _no_drawn_trees(p4a, [{"id": "tree_tree_inferred_1", "kind": "tree", "method": "polyhaven", "species": "olive"},
+                          {"id": "tree_tree_inferred_2", "kind": "tree", "method": "polyhaven", "species": "olive"}],
+                    [("tree_tree_inferred_1", "polyhaven"), ("tree_tree_inferred_2", "polyhaven")])
+    m = MX.metrics(p4a)["metrics"]["m11"]
+    assert m["value"] == 100.0 and m["parts"]["tree_basis"] == "scene"
+    assert (m["parts"]["trees_scene"], m["parts"]["trees_scene_real"], m["parts"]["trees_drawn"]) == (2, 2, 0)
+    assert m["text"].startswith("no drawn tree; trees in the scene (inferred) as real geometry 2 of 2 (100 %); "
+                                "hedges 1 built of 0 drawn rows; black pixels in the site view 50.0 % (ext_1)")
+    m11 = make_run(tmp_path / "m11")                         # M11: parametric trees, no vegetation record
+    _no_drawn_trees(m11, None, [("tree_tree_inferred_1", None), ("tree_tree_inferred_2", None)])
+    m = MX.metrics(m11)["metrics"]["m11"]
+    assert m["value"] == 0.0 and m["text"].startswith("no drawn tree; trees in the scene (inferred) as real geometry "
+                                                      "0 of 2 (0 %)")
+    bare = make_run(tmp_path / "bare")                       # no tree drawn or built: still no share
+    _no_drawn_trees(bare, [])
+    m = MX.metrics(bare)["metrics"]["m11"]
+    assert m["value"] == MX.NO_DATA and m["parts"]["tree_basis"] is None
+    assert m["text"].startswith("no drawn tree; no tree in the scene; ")
+    # drawn trees: the drawn basis, as before (the fake run's oak)
+    assert MX.metrics(make_run(tmp_path / "drawn"))["metrics"]["m11"]["parts"]["tree_basis"] == "drawn"
+
+
+@pytest.mark.skipif(not (RESULTS / "renders" / "real02" / "scene_manifest.json").is_file(),
+                    reason="no committed real02 results")
+def test_metric_11_on_the_committed_m11_baseline_counts_its_primitive_trees():
+    """The M11 run of real02 (the D6 baseline): its two inferred trees are parametric lollipops: 0 of 2 (was "no
+    data")."""
+    m = MX.metrics(RESULTS / "final" / "real02")["metrics"]["m11"]
+    assert m["value"] == 0.0 and m["parts"]["trees_scene"] == 2 and m["parts"]["black_pct"] == 0.0
+
+
+def test_the_reports_attribution_leaves_out_ai_retouched_when_no_view_was_polished(tmp_path):
+    """Fails on the old code: P4a's report listed its Objaverse credits with "changes: ..., rendered, AI-retouched"
+    while it shows 48 views and 0 polished (AI polish is off in Milestone 13)."""
+    out = make_run(tmp_path)
+    bpath = out / "building_final.json"
+    b = json.loads(bpath.read_text(encoding="utf-8"))
+    b["decor"][0]["asset"]["attribution"] += ", AI-retouched"
+    bpath.write_text(json.dumps(b), encoding="utf-8")
+    manifest = F.write_final(out)
+    assert manifest["summary"]["polished"] == 0 and manifest["summary"]["views"] == 5 and F.no_view_polished(manifest)
+    assert manifest["attribution"]["credits"][0]["credit"].endswith("rendered, AI-retouched")   # the data is kept
+    text = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    section = text.split("## Attribution", 1)[1].split("## Added-object detector", 1)[0]
+    assert "rendered, AI-retouched" not in section and "changes: scaled to the drawn footprint, re-oriented, " \
+        "rendered (used for dec_1)" in section
+    assert "No view of this run was AI-retouched (0 of 5 views polished)" in section
+    # a report with a polished view keeps the catalogue's change list
+    polished = dict(manifest, summary=dict(manifest["summary"], polished=1))
+    assert not F.no_view_polished(polished)
+    assert any("rendered, AI-retouched (used for dec_1)" in line for line in F.m7_model_lines(polished))
+
+
+def test_sheet_note_names_a_camera_the_agent_moved_off_its_replayed_pose():
+    """Integration of the fix round after P4a: P4a's ext_6 (replayed from M11) was moved by the agent's set_camera;
+    the build keeps the old pose in ``replaced_replayed`` and the sheet says the two frames are two poses."""
+    moved = {"name": "ext_6", "kind": "exterior", "source": "searched", "policy": "agent",
+             "position": [-14.42, 7.08, 1.6], "target": [3.0, 2.0, 2.5],
+             "agent": {"action": "set", "reason": "a 3/4 corner view"},
+             "replaced_replayed": {"position": [5.21, 19.88, 1.6], "target": [5.2, 4.0, 2.5], "lens_mm": 26.0,
+                                   "view": "frontal", "sides": ["back"]},
+             "replay": {"status": "repitched", "pitch_deg_old": -10, "pitch_deg": -5, "lens_mm": 26,
+                        "lens_mm_old": 26, "horizon_frac_old": 0.6, "horizon_frac": 0.5}}
+    note = SH.camera_note(moved)
+    assert note == ("camera moved by the agent from (5.2, 19.9, 1.6) to (-14.4, 7.1, 1.6): not the baseline pose "
+                    "(a 3/4 corner view)")
+    no_pose = dict(moved, position=None, agent={})
+    assert SH.camera_note(no_pose) == "camera moved by the agent: not the baseline pose"
+    plain = {k: v for k, v in moved.items() if k != "replaced_replayed"}
+    assert SH.camera_note(plain).startswith("replayed aerial re-pitched")    # the re-pitch note is unchanged
+    assert SH.camera_note({"name": "ext_1", "source": "replayed"}) is None
+
+
+def test_the_final_report_names_the_views_that_look_into_the_sun(tmp_path):
+    """Fix round after P4a (integration of the render track's ask): the render records ``sky_pull.into_sun`` and
+    ``sun_offset_deg`` (real02: ext_1 6.0 and ext_5 5.5 degrees off the sun, a white sky at any pull); the report lists
+    them in the lighting block and the section, so the white sky reads as the sun's place."""
+    out = make_run(tmp_path)
+    path = out / "renders" / "render_manifest.json"
+    rm = json.loads(path.read_text(encoding="utf-8"))
+    for e in rm["renders"]:
+        if e["camera"] == "ext_1":
+            e["sky_pull"] = {"k": 0, "ev": 0.0, "sun_offset_deg": 6.0, "into_sun": True, "rule": "no pull"}
+        elif e["camera"] == "cam_salon_1":
+            e["sky_pull"] = {"k": 2, "ev": -2.0, "sun_offset_deg": 95.0, "into_sun": False, "rule": "pulled"}
+    path.write_text(json.dumps(rm), encoding="utf-8")
+    manifest = F.write_final(out)
+    assert F.validate_final_manifest(manifest) == []
+    assert manifest["lighting"]["into_sun"] == [{"camera": "ext_1", "sun_offset_deg": 6.0, "k": 0}]
+    text = (out / "final" / "final_report.md").read_text(encoding="utf-8")
+    assert "Views that look into the sun" in text and "ext_1 (6.0 degrees off the sun, sky pull k 0)" in text
+    assert F.validate_final_manifest(dict(manifest, lighting=dict(manifest["lighting"], into_sun=[{"camera": 1}])))

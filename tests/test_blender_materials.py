@@ -8,6 +8,10 @@
   private copy), warns loudly, records it as assumed and textures the walls
   when the asset is in the manifest (one Blender build of synthetic-01 L0,
   skipped without a Blender binary).
+
+Fix round after P4a (17 Oct 2026; P4a's bathroom mirrors rendered as blank frosted panels): the glass texels of a
+library mirror (neutral albedo, ``materials.mirror_glass_texel``) become the vocabulary's mirror, the frame keeps
+its maps (``materials.mirror_glass_material``; a Cycles render in Blender, skipped without a binary).
 """
 import json
 import subprocess
@@ -446,3 +450,139 @@ def test_p3_the_worktop_is_one_jointless_slab_and_painted_trim_has_no_plank_seam
     # the assets stage fetches the new worktop set and no front set any more
     rows = fetch.shell_texture_rows()
     assert ("ambientcg", "Marble012", "shell:worktop") in rows and not [r for r in rows if r[2] == "shell:front"]
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4a (17 Oct 2026): the glass of a library mirror is a mirror
+# --------------------------------------------------------------------------
+
+def _srgb(*c):
+    return tuple(materials.srgb_to_linear(v) for v in c)
+
+
+def test_p4a_mirror_glass_texels_are_the_neutral_ones():
+    """The seven ABO mirrors of real02 (abo_B07B4W5R8N, B071HBBDZ1, B0718ZKQK8, B07RNMMYNR, B071V8LJQJ, B071V8M937,
+    B084HTY39G) paint their glass as an exactly neutral grey ramp on one atlas with the frame, at roughness 1.0 / 0.4
+    / 0 dielectric or 0.1 metal: P4a's "blank frosted panels". Their measured albedos (sRGB, means of the texel
+    clusters): glass 0.81 / 0.53 / 0.83 / 0.74 / 0.62 / 0.50 / 0.66 grey; frames: walnut (0.41, 0.25, 0.17), painted
+    white trim (0.89, 0.88, 0.87), hammered metal (0.37, 0.36, 0.33), gold (0.77, 0.62, 0.37); a black back 0.14
+    grey. The rule keeps every frame and takes every glass."""
+    for v in (0.81, 0.53, 0.83, 0.74, 0.62, 0.50, 0.66):
+        assert materials.mirror_glass_texel(_srgb(v, v, v)), v
+    for frame in ((0.41, 0.25, 0.17), (0.89, 0.88, 0.87), (0.37, 0.36, 0.33), (0.77, 0.62, 0.37), (0.14, 0.14, 0.14),
+                  (0.63, 0.41, 0.25)):
+        assert not materials.mirror_glass_texel(_srgb(*frame)), frame
+    spec = materials.mirror_glass_spec()
+    entry = V.FURNITURE_MATERIALS.get("mirror") or V.MATERIALS.get("mirror")
+    assert spec["base"] == pytest.approx(tuple(entry["flat"])) and spec["roughness"] == entry["roughness"]
+    assert spec["metallic"] == 1.0 and materials.srgb_to_linear(0.5) == pytest.approx(0.2140, abs=1e-4)
+
+
+MIRROR_GLASS = r"""
+import bpy, json, sys
+sys.path.insert(0, %(root)r)
+from wenart.blender import materials as M
+
+def importer_like(name):
+    # wired like the glTF importer's ABO material: albedo -> Base Color; a Non-Color metal/roughness image ->
+    # Separate Color -> Green: Roughness, Blue: Metallic. Left half of the atlas: the painted grey ramp of the glass
+    # (roughness 1, dielectric); right half: walnut (roughness 0.7).
+    w, h = 64, 32
+    alb, mr = bpy.data.images.new(name + "_alb", w, h), bpy.data.images.new(name + "_mr", w, h)
+    mr.colorspace_settings.name = "Non-Color"
+    pa, pm = [], []
+    for y in range(h):
+        for x in range(w):
+            glass = x < w // 2
+            v = 0.55 + 0.3 * x / w
+            pa += [v, v, v, 1.0] if glass else [0.42, 0.25, 0.15, 1.0]
+            pm += [1.0, 1.0, 0.0, 1.0] if glass else [1.0, 0.7, 0.0, 1.0]
+    alb.pixels, mr.pixels = pa, pm
+    mat = bpy.data.materials.new(name); mat.use_nodes = True
+    nt = mat.node_tree; bsdf = nt.nodes["Principled BSDF"]
+    ta = nt.nodes.new("ShaderNodeTexImage"); ta.image = alb; ta.interpolation = "Closest"
+    tm = nt.nodes.new("ShaderNodeTexImage"); tm.image = mr; tm.interpolation = "Closest"
+    sep = nt.nodes.new("ShaderNodeSeparateColor")
+    nt.links.new(ta.outputs["Color"], bsdf.inputs["Base Color"])
+    nt.links.new(tm.outputs["Color"], sep.inputs["Color"])
+    nt.links.new(sep.outputs["Green"], bsdf.inputs["Roughness"])
+    nt.links.new(sep.outputs["Blue"], bsdf.inputs["Metallic"])
+    return mat
+
+def render(make, tag):
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    sc = bpy.context.scene
+    sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 16
+    sc.render.resolution_x, sc.render.resolution_y = 64, 32
+    sc.world = bpy.data.worlds.new("w"); sc.world.color = (0.0, 0.0, 0.0)
+    me = bpy.data.meshes.new("p"); me.from_pydata([(-1, -0.5, 0), (1, -0.5, 0), (1, 0.5, 0), (-1, 0.5, 0)], [],
+                                                  [[0, 1, 2, 3]])
+    uv = me.uv_layers.new(name="UVMap")
+    for li, c in enumerate([(0, 0), (1, 0), (1, 1), (0, 1)]):
+        uv.data[li].uv = c
+    sc.collection.objects.link(bpy.data.objects.new("p", me)); me.materials.append(make())
+    em = bpy.data.materials.new("em"); em.use_nodes = True; nt = em.node_tree      # a checker seen only reflected
+    nt.nodes.remove(nt.nodes["Principled BSDF"])
+    ch = nt.nodes.new("ShaderNodeTexChecker"); ch.inputs["Scale"].default_value = 12.0
+    ch.inputs["Color1"].default_value = (1, 1, 1, 1); ch.inputs["Color2"].default_value = (0, 0, 0, 1)
+    es = nt.nodes.new("ShaderNodeEmission"); es.inputs["Strength"].default_value = 3.0
+    nt.links.new(ch.outputs["Color"], es.inputs["Color"])
+    nt.links.new(es.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+    me2 = bpy.data.meshes.new("e")
+    me2.from_pydata([(-4, -4, 4), (4, -4, 4), (4, 4, 4), (-4, 4, 4)], [], [[0, 3, 2, 1]])
+    sc.collection.objects.link(bpy.data.objects.new("e", me2)); me2.materials.append(em)
+    cam = bpy.data.cameras.new("c"); cam.type = "ORTHO"; cam.ortho_scale = 2.0
+    co = bpy.data.objects.new("c", cam); co.location = (0, 0, 2); sc.collection.objects.link(co); sc.camera = co
+    sc.render.filepath = %(out)r + f"/mirror_{tag}.png"; sc.render.image_settings.file_format = "PNG"
+    bpy.ops.render.render(write_still=True)
+    img = bpy.data.images.load(sc.render.filepath); px = list(img.pixels); w, h = img.size
+    out = {}
+    for half, xs in (("glass", range(4, w // 2 - 4)), ("wood", range(w // 2 + 4, w - 4))):
+        vals = [sum(px[(y * w + x) * 4:(y * w + x) * 4 + 3]) / 3 for y in range(4, h - 4) for x in xs]
+        m = sum(vals) / len(vals)
+        out[half] = {"mean": m, "std": (sum((v - m) ** 2 for v in vals) / len(vals)) ** 0.5}
+    return out
+
+res = {"before": render(lambda: importer_like("abo"), "before"),
+       "after": render(lambda: M.mirror_glass_material(importer_like("abo")), "after")}
+res["record"] = json.loads(bpy.data.materials["abo__mirror"]["wenart_mirror_glass"])
+bpy.ops.wm.read_factory_settings(use_empty=True)
+grey = bpy.data.materials.new("grey"); grey.use_nodes = True
+grey.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.6, 0.6, 0.6, 1.0)
+wood = bpy.data.materials.new("wood"); wood.use_nodes = True
+wood.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.4, 0.2, 0.1, 1.0)
+mats, record = M.mirror_glass_materials([grey, None, wood])
+g = mats[0].node_tree.nodes["Principled BSDF"].inputs
+wd = mats[2].node_tree.nodes["Principled BSDF"].inputs
+res["const"] = {"names": [m.name if m else None for m in mats], "record": record,
+                "grey": [g["Metallic"].default_value, g["Roughness"].default_value,
+                         list(g["Base Color"].default_value)[:3]],
+                "wood": [wd["Metallic"].default_value, wd["Roughness"].default_value],
+                "again": M.mirror_glass_material(grey).name == mats[0].name}
+print("RESULT " + json.dumps(res))
+"""
+
+
+@pytest.mark.skipif(BLENDER is None, reason="no Blender binary")
+def test_p4a_library_mirror_glass_reflects_and_its_frame_stays(tmp_path):
+    """A material wired as the glTF importer wires the ABO mirrors: before, the glass half is a matte grey panel (a
+    checker above the camera, seen only in a reflection, leaves no pattern); after ``mirror_glass_material`` it
+    reflects the checker and the walnut half renders as before. Measured on the real abo_B07B4W5R8N and
+    abo_B071V8M937 GLBs (17 Oct 2026, same render): the centre's std 0.03 -> 0.40 and 0.04 -> 0.32, frames
+    unchanged. A constant neutral base colour is all glass; a brown one is left alone; the copy is cached."""
+    proc = subprocess.run([BLENDER, "-b", "--factory-startup", "--python-exit-code", "1", "--python-expr",
+                           MIRROR_GLASS % {"root": str(ROOT), "out": str(tmp_path)}],
+                          capture_output=True, text=True, timeout=600, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    out = json.loads(next(ln for ln in proc.stdout.splitlines() if ln.startswith("RESULT "))[7:])
+    before, after = out["before"], out["after"]
+    assert before["glass"]["std"] < 0.06 and after["glass"]["std"] > 0.25, out    # the checker shows: a mirror
+    assert after["wood"]["mean"] == pytest.approx(before["wood"]["mean"], abs=0.01)
+    assert after["wood"]["std"] < 0.02                                            # the frame does not reflect
+    assert out["record"]["mask"] == "texture" and out["record"]["slug"] == "mirror"
+    const = out["const"]
+    assert const["names"] == ["grey__mirror", None, "wood__mirror"] and const["again"]
+    assert const["record"] == {"grey": "all", "wood": "none"}
+    assert const["grey"][:2] == pytest.approx([1.0, 0.03]) and const["grey"][2] == pytest.approx([0.9, 0.9, 0.9])
+    assert const["wood"][0] == pytest.approx(0.0) and const["wood"][1] == pytest.approx(0.5)
+

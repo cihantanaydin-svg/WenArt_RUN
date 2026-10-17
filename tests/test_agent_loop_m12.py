@@ -127,7 +127,7 @@ def test_the_plan_comes_first_and_is_checked_against_the_brief(tmp_path):
     assert MEM.Memory(out).room("r1")["plans"][0] == {"round": 1, "ok": True, "problems": [
         "step 2 (mark_not_furniture on f5): c:F9:f5 is not yours", "step 3 (teleport on f1): tool teleport is not "
         "offered", "step 4 (fix_fixture on f1): f1 does not allow fix_fixture: fix_fixture is for drawn fixed "
-        "equipment"], "steps": 4}
+        "equipment"], "steps": 4, "status": "ok", "skip": []}      # fix round after P4a: the status and skip list
     assert LG.validate_log(log_of(out)) == []
 
 

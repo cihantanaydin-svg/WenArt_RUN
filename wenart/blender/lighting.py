@@ -91,6 +91,40 @@ views):
   has the numbers). Each fixture records ``bulbs``, ``lumens_per_bulb`` and the fixture's lumens and watts.
 - ``RIG_GAIN``, ``RIG_WARM_K``, the other rigs and the walls' ``exterior`` flags are unchanged (the P1 decisions of
   §14.3); render.py corrects the rig's colour per view (``render.mixed_whitepoint``).
+
+Fix round after P4a (17 Oct 2026; pod P4a rendered real02 with the Milestone 11 cameras replayed, look review):
+
+- Bedside lamps never float. P4a: with no nightstand the lamp stood 0.35 m beside the bed head with its base at
+  0.60 m and its stem ending 22 cm above the floor (r_L0_yatak_odasi, _3), half inside the head wall; in
+  e_yatak_odasi / _2 it stood inside the AI's floor lamps f_L0_031..034. ``rig_plan`` now picks a host per side, in
+  this order: (1) a lamp already there (a ``floor_lamp`` / ``table_lamp`` piece, or a built table or floor lamp of the
+  decor) within ``RIG_BEDSIDE_HOST_M`` of the head corner: the rig light goes into its shade, no rig mesh
+  (``mesh: False``, ``anchor_id`` the lamp; a lamp on a nightstand comes first, so the rig never puts a second lamp
+  on it); (2) a nightstand within ``RIG_BEDSIDE_HOST_M``: the lamp stands on its top (stem from the top, shade
+  above it); (3) a head edge on the room boundary (its midpoint within ``RIG_HEAD_WALL_M`` of a room edge): a wall
+  sconce (``mount: "wall"``, ``RIG_SCONCE_SIZE_M``, centre at ``RIG_SCONCE_Z_M``, ``RIG_SCONCE_BEYOND_M`` beyond the
+  corner, back ``RIG_SCONCE_WALL_GAP_M`` off the wall, no stem), unless it would cover a door or window, run past
+  the end of the wall, hit a piece or decor or reach the ceiling; (4) else no lamp, with the reason. The floating
+  path (``RIG_BEDSIDE_Z_M``) is gone. Names (``rig_<room>_bedside_N``) and anchors stay.
+- The mirror light sits above whatever hangs on the wall behind the basin: the basin's own built top (a vanity
+  module with its mirror) and every built wall decor (mirror, wall art, clock) whose plan box comes within
+  ``RIG_WALL_ITEM_REACH_M`` of the bar's, ``RIG_MIRROR_LIGHT_GAP_M`` above their top; when that leaves less than
+  ``RIG_MIRROR_CEILING_CLEAR_M`` under the ceiling the bar is dropped with the reason (P4a: the bar at 1.95 m ran
+  across the diamond mirror dec_L1_010 of r_L1_banyo and the top of dec_L0_017 in r_L0_banyo_2).
+- A pendant or ceiling fixture whose spot is under a built decor light (``pendant_light`` / ``ceiling_light`` of
+  the decor stage) uses that light as its host: no second fixture mesh in the same place (P4a: the rig drum of
+  r_L-1_salon at the decor pendant dec_L-1_002, the bathroom rig fixtures at the decor ceiling lights).
+- Ceiling fixtures and pendants hang under the ceiling at their own spot (``ceiling_fn``, the sloped ceiling of
+  ``build_lighting``'s ``ceiling_at``), not at the room's centroid.
+- Every rig shade is ``visible_shadow = False``. The point light of a pendant and of a bedside lamp sits inside its
+  closed drum; an Emission-only surface blocks shadow rays, so that light never left the drum (bpy 5.2.2 CPU
+  Cycles, 17 Oct 2026: the floor under a closed drum metered the same with the 5 W light on or off, 0.263; +43 %
+  with the shade's shadow off, 0.377). The shade is what the camera sees; the light inside now lights the room.
+- ``rig_fixture_problems`` (pure) checks every fixture with a mesh: inside the room, no 3D overlap with a piece or a
+  built decor item other than its anchor and host, a table lamp's base on its nightstand top (within 0.01 m), a
+  sconce's back on a wall face and its bottom above ``RIG_BEDSIDE_MIN_WALL_Z_M``. ``rig_plan`` drops a fixture that
+  fails it, with the reason. The manifest records each fixture's box (``center``, ``size``, ``rotation_deg``),
+  ``mount``, ``mesh`` and ``host_id``, so a scene check can run the same rule on the built scene.
 """
 from __future__ import annotations
 
@@ -266,10 +300,16 @@ LIGHT_ACROSS_SAMPLES = 9
 def _signed_distance(x: float, y: float, polygon, holes=()) -> float:
     """Distance from (x, y) to the polygon boundary, negative outside.
     ``holes`` (Milestone 7: stair openings in the ceiling) count as outside,
-    and their edges as boundary (even-odd over all rings, as Mapbox's polylabel)."""
-    inside = False
+    and their edges as boundary. Fix round after P4a (17 Oct 2026): inside means
+    inside the polygon and in no hole. The Mapbox even-odd rule over all rings
+    counted a point in a hole beyond the polygon as inside: ``build_lighting``
+    passes every stair opening of the level, the search cells reach one cell past
+    the room's box, and real02's r_L0_merdiven got its ceiling fixture at
+    (8.40, 8.24), in the other stair's opening of r_L0_merdiven_2 (P4a)."""
     best = math.inf
+    rings_inside = []
     for ring in (polygon, *holes):
+        inside = False
         n = len(ring)
         for i in range(n):
             ax, ay = ring[i]
@@ -281,8 +321,9 @@ def _signed_distance(x: float, y: float, polygon, holes=()) -> float:
             t = 0.0 if length_sq == 0 else max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / length_sq))
             px, py = ax + t * dx - x, ay + t * dy - y
             best = min(best, px * px + py * py)
+        rings_inside.append(inside)
     d = math.sqrt(best)
-    return d if inside else -d
+    return d if rings_inside[0] and not any(rings_inside[1:]) else -d
 
 
 def polylabel(polygon, precision: float = POLYLABEL_PRECISION_M, holes=()) -> tuple[float, float, float]:
@@ -554,9 +595,41 @@ RIG_PENDANT_OVER_TABLE_M = 0.75       # the pendant shade's bottom above the tab
 RIG_TABLE_TOP_M = 0.75
 RIG_WALL_CABINET_BOTTOM_M = 1.45      # the kitchen wall cabinets' bottom (parametric wall_cabinet mount, M10)
 RIG_STRIP_SETBACK_M = 0.30            # the under-cabinet strip this far in front of the wall (cabinet depth 0.35)
-RIG_MIRROR_LIGHT_Z_M = 1.95           # the bathroom mirror light's centre above the floor
-RIG_BEDSIDE_Z_M = 0.60                # a bedside lamp without a nightstand: its base above the floor
-RIG_BEDSIDE_OFFSET_M = 0.35           # ... this far beside the bed's head corners
+RIG_MIRROR_LIGHT_Z_M = 1.95           # the bathroom mirror light's centre above the floor (nothing under it)
+# Fix round after P4a (17 Oct 2026): the mirror light goes above the wall items behind the basin ...
+RIG_MIRROR_LIGHT_GAP_M = 0.05         # its bottom this far above the top of the mirror, art or vanity under it
+RIG_MIRROR_CEILING_CLEAR_M = 0.13     # its top at least this far under the ceiling (the old 0.15 m centre cap)
+RIG_WALL_ITEM_REACH_M = 0.10          # wall decor whose plan box comes this close to the bar's hangs under it
+RIG_WALL_DECOR_TYPES = ("mirror", "wall_art", "clock")
+# ... a bedside lamp has a host: a lamp already there, a nightstand, or the head wall (a sconce), never the air.
+RIG_BEDSIDE_HOST_M = 0.9              # a lamp or nightstand within this of the bed's head corner hosts the lamp
+RIG_HOST_LAMP_TYPES = ("floor_lamp", "table_lamp")
+RIG_HOST_LAMP_SHADE_M = 0.15          # a hosted light this far under the host lamp's top (in its shade) ...
+RIG_HOST_LAMP_SHADE_SHARE = 0.25      # ... at most this share of the lamp's height
+RIG_STAND_STEM_SHARE = 0.4            # a rig table lamp: the stem is the lower 40 % of its height, the shade the rest
+RIG_HEAD_WALL_M = 0.10                # the bed head's midpoint within this of a room edge: that edge is the head wall
+RIG_HEAD_WALL_PARALLEL_DEG = 10.0     # ... and the edge runs along the head within this angle
+RIG_SCONCE_SIZE_M = (0.12, 0.12, 0.20)  # a bedside wall sconce: a drum shade 12 cm across and 20 cm tall
+RIG_SCONCE_Z_M = 1.15                 # its centre above the floor (bottom 1.05 m: above a mattress and a nightstand)
+RIG_SCONCE_BEYOND_M = 0.20            # its centre this far beyond the bed's head corner, along the head wall
+RIG_SCONCE_WALL_GAP_M = 0.005         # its back this far off the wall face
+RIG_SCONCE_END_MARGIN_M = 0.02        # it stays this far inside the ends of its wall edge
+RIG_SCONCE_LIGHT_FRONT_M = 0.03       # its light this far in front of the shade (outside the shell)
+RIG_SCONCE_CEILING_CLEAR_M = 0.10     # its top at least this far under the ceiling
+RIG_OPENING_MARGIN_M = 0.05           # a sconce stays this far off a door or window of its wall
+RIG_OPENING_WALL_M = 0.35             # an opening whose centre is this close to the head-wall line is on that wall
+RIG_BEDSIDE_MIN_WALL_Z_M = 0.9        # a bedside fixture not on a nightstand has its bottom above this
+RIG_DECOR_HOST_TYPES = ("pendant_light", "ceiling_light")   # built decor lights that host a pendant or ceiling fixture
+RIG_HOSTED_CEILING_GAP_M = 0.02       # a hosted ceiling light this far under its decor fixture
+RIG_HOSTED_PENDANT_SHARE = 0.3        # a hosted pendant light this share of the decor pendant's height above its bottom
+RIG_HOSTED_PENDANT_MAX_M = 0.12       # ... at most this far
+RIG_HOSTED_MIN_Z_M = 1.2              # a hosted light lower than this above the floor has no host (a pendant
+                                      # through a table)
+RIG_COLLISION_TOL_M = 0.005           # boxes that overlap by less than this do not collide (touching is fine)
+# Pieces whose box is not their shape: a rug lies on the floor; a stair's box rises to the next floor over the whole
+# flight, while a ceiling fixture at the pole stays out of its opening (the holes of polylabel), over the low steps.
+RIG_COLLISION_SKIP_TYPES = ("rug", "stair")
+RIG_STAND_TOL_M = 0.01                # a table lamp's base within this of its nightstand top
 # Sources of the lumen values (real fixtures, the ranges typical of the product class): a 60 W-equivalent LED bulb
 # is 800 lm, a 75 W-equivalent 1100 lm (the US FTC lumen labelling rule used by every bulb box: 800 lm ≈ 60 W,
 # 1100 lm ≈ 75 W, 1600 lm ≈ 100 W); LED strips 400-600 lm per metre (product class); the manual's own table rows
@@ -685,8 +758,232 @@ def _piece_frame(piece: dict) -> tuple[tuple[float, float], tuple[float, float],
     return (cx, cy), (fx, fy), d, w
 
 
+# --------------------------------------------------------------------------
+# Fix round after P4a (17 Oct 2026): hosts, boxes and the fixture check (pure)
+# --------------------------------------------------------------------------
+
+def _convex_overlap(p, q, tol: float = 0.0) -> bool:
+    """Whether two convex polygons overlap by more than ``tol`` on every separating axis (pure; the separating axis
+    test, no shapely: this module runs in Blender's Python)."""
+    for poly in (p, q):
+        n = len(poly)
+        for i in range(n):
+            ax, ay = poly[i]
+            bx, by = poly[(i + 1) % n]
+            nx, ny = -(by - ay), bx - ax
+            ln = math.hypot(nx, ny)
+            if ln < 1e-12:
+                continue
+            nx, ny = nx / ln, ny / ln
+            pp = [x * nx + y * ny for x, y in p]
+            qq = [x * nx + y * ny for x, y in q]
+            if max(pp) <= min(qq) + tol or max(qq) <= min(pp) + tol:
+                return False
+    return True
+
+
+def boxes_collide(a: dict, b: dict, tol: float = RIG_COLLISION_TOL_M) -> bool:
+    """Whether two boxes ``{"center": [x, y, z_mid], "size": [w, d, h], "rotation_deg"}`` overlap in 3D by more than
+    ``tol`` (pure): their height ranges and their rotated plan rectangles."""
+    az, ah = float(a["center"][2]), float(a["size"][2])
+    bz, bh = float(b["center"][2]), float(b["size"][2])
+    if az + ah / 2.0 <= bz - bh / 2.0 + tol or bz + bh / 2.0 <= az - ah / 2.0 + tol:
+        return False
+    pa = G.rotated_rectangle(a["center"][:2], a["size"][:2], float(a.get("rotation_deg") or 0.0))
+    pb = G.rotated_rectangle(b["center"][:2], b["size"][:2], float(b.get("rotation_deg") or 0.0))
+    return _convex_overlap(pa, pb, tol)
+
+
+def piece_box(piece: dict, floor_z: float) -> dict:
+    """The built box of a piece (pure): its footprint from the floor up to ``parametric.piece_bbox``'s height (the
+    fitted library box, the module plan or the parametric family)."""
+    from wenart.blender.parametric import piece_bbox
+
+    fp = piece["footprint"]
+    h = float(piece_bbox(piece)[2])
+    return {"id": piece.get("id"), "type": piece.get("type"), "center": [float(fp["center"][0]),
+            float(fp["center"][1]), float(floor_z) + h / 2.0], "size": [float(fp["size"][0]), float(fp["size"][1]), h],
+            "rotation_deg": float(fp.get("rotation_deg") or 0.0)}
+
+
+def fixture_box(fixture: dict) -> dict:
+    """The box a rig fixture's mesh fills (pure): its ``center`` and ``size_m`` (a strip's ``length_m``), turned by
+    ``rotation_deg``."""
+    w, d, h = (float(v) for v in fixture.get("size_m") or (0.2, 0.2, 0.1))
+    if fixture.get("length_m"):
+        w = float(fixture["length_m"])
+    return {"center": [float(v) for v in fixture["center"]], "size": [w, d, h],
+            "rotation_deg": float(fixture.get("rotation_deg") or 0.0)}
+
+
+def built_decor_boxes(manifest_objects: list, room_id: str) -> list[dict]:
+    """The built decor of a room as world boxes (pure): ``[{"id", "type", "center" [x, y, z_mid], "size" [w, d, h],
+    "rotation_deg", "host_id", "has_light"}]`` from the scene manifest's decor entries (furniture.py records the built
+    box: ``center`` and ``size``), the rig's own fixtures left out. ``build_lighting`` runs after the furniture, so
+    only what was really built is here (a decor item skipped by the builder hosts nothing)."""
+    out = []
+    for o in manifest_objects:
+        if o.get("kind") != "decor" or o.get("method") == "rig" or o.get("room_id") != room_id:
+            continue
+        c, s = o.get("center"), o.get("size")
+        if not (isinstance(c, (list, tuple)) and len(c) >= 3 and isinstance(s, (list, tuple)) and len(s) >= 3):
+            continue
+        out.append({"id": o.get("element_id") or o.get("wenart_id") or o.get("name"), "type": o.get("type"),
+                    "center": [float(v) for v in c[:3]], "size": [float(v) for v in s[:3]],
+                    "rotation_deg": float(o.get("rotation_deg") or 0.0), "host_id": o.get("host_id"),
+                    "has_light": bool(o.get("light"))})
+    return out
+
+
+def _ceiling_at(ceiling_fn, ceil_z: float, x: float, y: float, half: float = 0.0) -> float:
+    """The ceiling over a point (absolute z; pure): ``ceiling_fn(x, y)`` at the point and the corners of a square of
+    half side ``half`` when given (the sloped ceiling), else the room's ``ceil_z``."""
+    if ceiling_fn is None:
+        return float(ceil_z)
+    pts = [(x, y)] + ([(x + sx * half, y + sy * half) for sx in (-1.0, 1.0) for sy in (-1.0, 1.0)] if half > 0 else [])
+    return min(float(ceiling_fn(px, py)) for px, py in pts)
+
+
+def _head_wall(polygon, head_mid, side) -> dict | None:
+    """The room edge the bed head stands against (pure): the edge whose distance to the head edge's midpoint is at most
+    ``RIG_HEAD_WALL_M`` and that runs along the head (within ``RIG_HEAD_WALL_PARALLEL_DEG``); ``{"a", "b", "u" (unit
+    along the edge), "n" (unit normal into the room), "length"}`` or None."""
+    best = None
+    n = len(polygon)
+    for i in range(n):
+        a, b = polygon[i], polygon[(i + 1) % n]
+        length = G.distance(a, b)
+        if length < 1e-6:
+            continue
+        dist = G.point_segment_distance(head_mid, a, b)
+        if dist > RIG_HEAD_WALL_M:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        cos = abs(ux * side[0] + uy * side[1])
+        if cos < math.cos(math.radians(RIG_HEAD_WALL_PARALLEL_DEG)):
+            continue
+        nx, ny = -uy, ux                                   # the left normal; into the room when inside
+        mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
+        if not G.point_in_polygon((mx + nx * 0.02, my + ny * 0.02), polygon):
+            nx, ny = -nx, -ny
+        if best is None or dist < best[0]:
+            best = (dist, {"a": tuple(a), "b": tuple(b), "u": (ux, uy), "n": (nx, ny), "length": length})
+    return best[1] if best else None
+
+
+def _opening_on_wall(opening: dict, wall: dict, t0: float, t1: float, z0: float, z1: float, floor_z: float) -> bool:
+    """Whether a door or window of the head wall overlaps the span ``t0..t1`` along the wall (from its start ``a``)
+    and the height ``z0..z1`` (absolute) of a sconce, ``RIG_OPENING_MARGIN_M`` around it (pure)."""
+    c = opening.get("center") or [0.0, 0.0]
+    ax, ay = wall["a"]
+    ux, uy = wall["u"]
+    rx, ry = float(c[0]) - ax, float(c[1]) - ay
+    along = rx * ux + ry * uy
+    off = abs(-rx * uy + ry * ux)
+    if off > RIG_OPENING_WALL_M:
+        return False
+    half = float(opening.get("width") or 0.0) / 2.0
+    if along + half <= t0 - RIG_OPENING_MARGIN_M or along - half >= t1 + RIG_OPENING_MARGIN_M:
+        return False
+    sill = float(opening.get("sill_height") or 0.0) if opening.get("type") == "window" else 0.0
+    top = sill + float(opening.get("height") or 2.1)
+    return not (floor_z + top <= z0 - RIG_OPENING_MARGIN_M or floor_z + sill >= z1 + RIG_OPENING_MARGIN_M)
+
+
+def _host_lamps(pieces: list[dict], decor: list[dict], floor_z: float) -> list[dict]:
+    """The lamps already in the room that can carry a bedside light (pure): ``floor_lamp`` / ``table_lamp`` pieces
+    (their built height from ``parametric.piece_bbox``) and built decor lamps of those types; ``{"id", "type", "xy",
+    "top", "height", "source"}`` (top absolute)."""
+    from wenart.blender.parametric import piece_bbox
+
+    out = []
+    for p in pieces:
+        if p.get("type") in RIG_HOST_LAMP_TYPES and p.get("footprint"):
+            h = float(piece_bbox(p)[2])
+            out.append({"id": p["id"], "type": p["type"], "xy": (float(p["footprint"]["center"][0]),
+                        float(p["footprint"]["center"][1])), "top": float(floor_z) + h, "height": h,
+                        "source": "furniture"})
+    for d in decor:
+        if d.get("type") in RIG_HOST_LAMP_TYPES:
+            h = float(d["size"][2])
+            out.append({"id": d["id"], "type": d["type"], "xy": (float(d["center"][0]), float(d["center"][1])),
+                        "top": float(d["center"][2]) + h / 2.0, "height": h, "source": "decor"})
+    return out
+
+
+def _decor_light_host(decor: list[dict], x: float, y: float, reach: float) -> dict | None:
+    """A built decor pendant or ceiling light whose plan box comes within ``reach`` of ``(x, y)`` (pure): the
+    nearest, or None."""
+    best = None
+    for d in decor:
+        if d.get("type") not in RIG_DECOR_HOST_TYPES:
+            continue
+        rect = G.rotated_rectangle(d["center"][:2], d["size"][:2], float(d.get("rotation_deg") or 0.0))
+        inside = G.point_in_polygon((x, y), rect)
+        dist = 0.0 if inside else min(G.point_segment_distance((x, y), rect[i], rect[(i + 1) % 4]) for i in range(4))
+        if dist <= reach and (best is None or dist < best[0]):
+            best = (dist, d)
+    return best[1] if best else None
+
+
+def rig_fixture_problems(fixtures: list[dict], polygon, pieces: list[dict], decor: list[dict], floor_z: float,
+                         stand_tops: dict | None = None) -> list[dict]:
+    """What is wrong with the built rig fixtures of a room (pure; fix round after P4a, 17 Oct 2026):
+    ``[{"name", "kind", "problem"}]``. Every fixture with a mesh: its plan centre in the room, its box (``fixture_box``)
+    clear of every piece box (``piece_box``) and every built decor box except its anchor and host; a bedside lamp on a
+    nightstand (``mount: "stand"``) has its base on that nightstand's top (``stand_tops`` {id: top z} or the
+    nightstand's ``piece_box``, within ``RIG_STAND_TOL_M``); a sconce (``mount: "wall"``) has its back within
+    ``RIG_SCONCE_WALL_GAP_M`` + 0.01 m of a room edge and its bottom ``RIG_BEDSIDE_MIN_WALL_Z_M`` above the floor; no
+    other bedside fixture has a mesh. A fixture without a mesh (``mesh: False``) needs its ``host_id``."""
+    poly = [tuple(p[:2]) for p in polygon]
+    boxes = [piece_box(p, floor_z) for p in pieces if p.get("footprint")] + list(decor or [])
+    by_id = {b.get("id"): b for b in boxes}
+    out = []
+    for f in fixtures:
+        name, kind = f.get("name"), f.get("kind")
+        if f.get("mesh") is False:
+            if not f.get("host_id"):
+                out.append({"name": name, "kind": kind, "problem": "no mesh and no host"})
+            continue
+        box = fixture_box(f)
+        cx, cy = box["center"][0], box["center"][1]
+        if not G.point_in_polygon((cx, cy), poly):
+            out.append({"name": name, "kind": kind, "problem": "outside the room"})
+        skip = {f.get("anchor_id"), f.get("host_id")} - {None}
+        for b in boxes:
+            if b.get("id") in skip or b.get("type") in RIG_COLLISION_SKIP_TYPES:
+                continue
+            if boxes_collide(box, b):
+                out.append({"name": name, "kind": kind, "problem": f"crosses {b.get('type')} {b.get('id')}"})
+        if kind != "bedside":
+            continue
+        bottom = box["center"][2] - box["size"][2] / 2.0
+        mount = f.get("mount")
+        if mount == "stand":
+            host = f.get("host_id") or f.get("anchor_id")
+            top = (stand_tops or {}).get(host)
+            if top is None and host in by_id:
+                top = by_id[host]["center"][2] + by_id[host]["size"][2] / 2.0
+            if top is None or abs(bottom - float(top)) > RIG_STAND_TOL_M:
+                out.append({"name": name, "kind": kind, "problem": f"base at {bottom - floor_z:.2f} m is not on the "
+                                                                   f"top of its nightstand {host}"})
+        elif mount == "wall":
+            if bottom < floor_z + RIG_BEDSIDE_MIN_WALL_Z_M - 1e-6:
+                out.append({"name": name, "kind": kind, "problem": f"sconce bottom {bottom - floor_z:.2f} m above the "
+                                                                   f"floor (< {RIG_BEDSIDE_MIN_WALL_Z_M} m)"})
+            rect = G.rotated_rectangle(box["center"][:2], box["size"][:2], box["rotation_deg"])
+            gap = min(G.point_segment_distance(c, poly[i], poly[(i + 1) % len(poly)])
+                      for c in rect for i in range(len(poly)))
+            if gap > RIG_SCONCE_WALL_GAP_M + 0.01:
+                out.append({"name": name, "kind": kind, "problem": f"sconce back {gap:.3f} m off every wall"})
+        else:
+            out.append({"name": name, "kind": kind, "problem": "a bedside lamp with a mesh on no nightstand or wall"})
+    return out
+
+
 def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, holes=(),
-             lighting: dict | None = None, agent_factor: float = 1.0) -> dict:
+             lighting: dict | None = None, agent_factor: float = 1.0, decor=(), openings=(),
+             ceiling_fn=None) -> dict:
     """Where the fixtures of ``room_rig(room["room_type"])`` go (pure): ``{"fixtures": [...], "dropped": [...]}``.
     Each fixture: the ``room_rig`` record plus ``name``, ``center`` [x, y, z] (the visible fixture's centre),
     ``light`` {``type`` POINT | AREA, ``center``, ``size_m``, ``direction`` (an area light's -Z), ``energy_w``,
@@ -695,13 +992,25 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
     of them, as the Milestone 6 light does). A fixture whose anchor is missing is listed under ``dropped`` with the
     reason, except ``optional`` ones, which are silently left out. Fix round after P3 (16-17 Oct 2026): a ceiling
     spec with ``lumens_per_m2`` (hall, stair) gives each fixture ``rig_bulbs`` bulbs; the fixture records ``bulbs``,
-    ``lumens_per_bulb`` and its own ``lumens`` / ``watts_radiometric`` / ``watts_applied`` (bulbs x the spec's)."""
+    ``lumens_per_bulb`` and its own ``lumens`` / ``watts_radiometric`` / ``watts_applied`` (bulbs x the spec's).
+
+    Fix round after P4a (17 Oct 2026): ``decor`` is the room's built decor as world boxes (``built_decor_boxes``),
+    ``openings`` its doors and windows (building records), ``ceiling_fn(x, y)`` the ceiling's absolute height at a
+    point (the sloped ceiling; ``ceil_z`` without it). Every fixture also records ``mount`` (``ceiling``, ``stand``,
+    ``wall``, ``host``), ``mesh`` (False: the light sits in a host lamp, no rig mesh), ``host_id`` and
+    ``rotation_deg``. Bedside lamps: a lamp already there, else a nightstand, else a wall sconce on the head wall,
+    else none (the module docstring). The mirror light goes above the wall items behind the basin. A pendant or
+    ceiling fixture under a built decor light uses it as host. ``rig_fixture_problems`` checks the result; a fixture
+    that fails it is dropped with the reason."""
+    from wenart.blender.parametric import piece_bbox
+
     polygon = [tuple(p[:2]) for p in room.get("polygon") or []]
     if len(polygon) > 1 and G.distance(polygon[0], polygon[-1]) < 1e-9:
         polygon = polygon[:-1]
     out: dict = {"fixtures": [], "dropped": []}
     if len(polygon) < 3:
         return out
+    decor = [d for d in decor or []]
     temperature = rig_temperature_k(lighting)
     by_type: dict[str, list[dict]] = {}
     for p in pieces:
@@ -709,16 +1018,28 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
     count = 0
 
     def add(spec: dict, centre, light_centre, light_type: str, energy: float, size, direction=None, anchor=None,
-            radius: float = 0.05, reason: str = "") -> None:
+            radius: float = 0.05, reason: str = "", mount: str = "ceiling", mesh: bool = True, host=None,
+            rotation=None) -> None:
         nonlocal count
         count += 1
         f = dict(spec)
         f.update(name=f"rig_{room['id']}_{spec['kind']}_{count}", center=[round(float(v), 4) for v in centre],
-                 temperature_k=temperature, anchor_id=anchor, reason=reason,
+                 temperature_k=temperature, anchor_id=anchor, reason=reason, mount=mount, mesh=bool(mesh),
+                 host_id=host,
                  light={"type": light_type, "center": [round(float(v), 4) for v in light_centre],
-                        "size_m": [round(float(v), 4) for v in size], "energy_w": round(float(energy) * agent_factor, 4),
-                        "radius_m": radius, "direction": [round(float(v), 4) for v in direction] if direction else None})
+                        "size_m": [round(float(v), 4) for v in size],
+                        "energy_w": round(float(energy) * agent_factor, 4), "radius_m": radius,
+                        "direction": [round(float(v), 4) for v in direction] if direction else None})
+        if rotation is not None:
+            f["rotation_deg"] = round(float(rotation), 3)
         out["fixtures"].append(f)
+
+    def hosted_z(host: dict) -> float:
+        """The light's height in a decor host: in a pendant's shade, under a ceiling light."""
+        bottom = float(host["center"][2]) - float(host["size"][2]) / 2.0
+        if host.get("type") == "pendant_light":
+            return bottom + min(RIG_HOSTED_PENDANT_MAX_M, RIG_HOSTED_PENDANT_SHARE * float(host["size"][2]))
+        return bottom - RIG_HOSTED_CEILING_GAP_M
 
     for spec in room_rig(room.get("room_type")):
         kind = spec["kind"]
@@ -731,14 +1052,24 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             table = max(tables, key=lambda p: float(p["footprint"]["size"][0]) * float(p["footprint"]["size"][1]))
             (cx, cy), _f, _w, _d = _piece_frame(table)
             h = float(spec["size_m"][2])
+            r = max(float(spec["size_m"][0]), float(spec["size_m"][1])) / 2.0
+            host = _decor_light_host([d for d in decor if d.get("type") == "pendant_light"], cx, cy, r)
+            if host is not None and hosted_z(host) >= floor_z + RIG_HOSTED_MIN_Z_M:
+                hx, hy, lz = float(host["center"][0]), float(host["center"][1]), hosted_z(host)
+                add(spec, (hx, hy, lz), (hx, hy, lz), "POINT", spec["watts_applied"], spec["size_m"],
+                    anchor=table["id"], radius=0.06, mount="host", mesh=False, host=host["id"],
+                    reason=f"pendant light over the dining table {table['id']} in the decor pendant {host['id']}")
+                continue
             z = floor_z + RIG_TABLE_TOP_M + RIG_PENDANT_OVER_TABLE_M + h / 2.0
-            z = min(z, ceil_z - RIG_MOUNT_GAP_M - h / 2.0)
+            z = min(z, _ceiling_at(ceiling_fn, ceil_z, cx, cy, r) - RIG_MOUNT_GAP_M - h / 2.0)
             add(spec, (cx, cy, z), (cx, cy, z - h * 0.2), "POINT", spec["watts_applied"], spec["size_m"],
-                anchor=table["id"], radius=0.06, reason=f"pendant over the dining table {table['id']}")
+                anchor=table["id"], radius=0.06, reason=f"pendant over the dining table {table['id']}",
+                mount="ceiling")
         elif kind == "ceiling":
             plans = area_light_plans(polygon, holes=holes) if room.get("room_type") in ("hall", "stair") else \
                 [area_light_plan(polygon, holes=holes)]
             h = float(spec["size_m"][2])
+            r = max(float(spec["size_m"][0]), float(spec["size_m"][1])) / 2.0
             # fix round after P3: the hall and stair fixtures carry bulbs for RIG_CIRCULATION_LUMENS_PER_M2
             bulbs = rig_bulbs(spec, G.polygon_area(polygon), len(plans))
             fspec = spec
@@ -752,9 +1083,16 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                            f"over {G.polygon_area(polygon):.1f} m2 and {len(plans)} fixture(s)")
             for plan in plans:
                 cx, cy = plan["center"]
-                z = ceil_z - RIG_MOUNT_GAP_M - h / 2.0
+                host = _decor_light_host(decor, cx, cy, r)
+                if host is not None and hosted_z(host) >= floor_z + RIG_HOSTED_MIN_Z_M:
+                    hx, hy, lz = float(host["center"][0]), float(host["center"][1]), hosted_z(host)
+                    add(fspec, (hx, hy, lz), (hx, hy, lz), "POINT", fspec["watts_applied"], spec["size_m"],
+                        radius=0.08, mount="host", mesh=False, host=host["id"],
+                        reason=f"{reason}; its light in the decor {host['type'].replace('_', ' ')} {host['id']}")
+                    continue
+                z = _ceiling_at(ceiling_fn, ceil_z, cx, cy, r) - RIG_MOUNT_GAP_M - h / 2.0
                 add(fspec, (cx, cy, z), (cx, cy, z - h / 2.0 - 0.02), "POINT", fspec["watts_applied"], spec["size_m"],
-                    radius=0.08, reason=reason)
+                    radius=0.08, reason=reason, mount="ceiling")
         elif kind == "bedside":
             beds = (by_type.get("bed_double") or []) + (by_type.get("bed") or []) + (by_type.get("bed_single") or [])
             if not beds:
@@ -765,26 +1103,79 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             sx, sy = -fy, fx                                           # along the bed head
             hx, hy = cx - fx * depth / 2.0, cy - fy * depth / 2.0      # the head edge's midpoint
             nightstands = by_type.get("nightstand") or []
+            lamps = _host_lamps(pieces, decor, floor_z)
+            wall = _head_wall(polygon, (hx, hy), (sx, sy))
+            used: set = set()
             h = float(spec["size_m"][2])
             for side in (-1.0, 1.0):
                 corner = (hx + sx * side * width / 2.0, hy + sy * side * width / 2.0)
-                stand = min(nightstands, key=lambda p: G.distance(p["footprint"]["center"][:2], corner),
-                            default=None)
-                if stand is not None and G.distance(stand["footprint"]["center"][:2], corner) <= 0.9:
-                    from wenart.blender.parametric import piece_bbox
+                lamp = min((lp for lp in lamps if lp["id"] not in used), default=None,
+                           key=lambda lp: G.distance(lp["xy"], corner))
+                stand = min((p for p in nightstands if p["id"] not in used), default=None,
+                            key=lambda p: G.distance(p["footprint"]["center"][:2], corner))
+                if lamp is not None and G.distance(lamp["xy"], corner) <= RIG_BEDSIDE_HOST_M:
+                    # (1) a lamp already there (the AI's floor lamp, a decor lamp on the nightstand): its light only
+                    used.add(lamp["id"])
+                    lz = lamp["top"] - min(RIG_HOST_LAMP_SHADE_M, RIG_HOST_LAMP_SHADE_SHARE * lamp["height"])
+                    px, py = lamp["xy"]
+                    add(spec, (px, py, lz), (px, py, lz), "POINT", spec["watts_applied"], spec["size_m"],
+                        anchor=lamp["id"], radius=0.05, mount="host", mesh=False, host=lamp["id"],
+                        reason=f"bedside light in the {lamp['type'].replace('_', ' ')} {lamp['id']} beside the bed "
+                               f"{bed['id']}")
+                    continue
+                if stand is not None and G.distance(stand["footprint"]["center"][:2], corner) <= RIG_BEDSIDE_HOST_M:
+                    # (2) a nightstand: the lamp stands on its top
+                    used.add(stand["id"])
                     top = floor_z + float(piece_bbox(stand)[2])
                     px, py = float(stand["footprint"]["center"][0]), float(stand["footprint"]["center"][1])
-                    anchor, why = stand["id"], f"bedside lamp on the nightstand {stand['id']}"
-                else:
-                    top = floor_z + RIG_BEDSIDE_Z_M
-                    px, py = corner[0] + sx * side * RIG_BEDSIDE_OFFSET_M, corner[1] + sy * side * RIG_BEDSIDE_OFFSET_M
-                    anchor, why = bed["id"], f"bedside lamp beside the head of the bed {bed['id']} (no nightstand)"
-                if not G.point_in_polygon((px, py), polygon):
-                    out["dropped"].append({"kind": kind, "reason": f"{why}: the lamp would stand outside the room"})
+                    add(spec, (px, py, top + h / 2.0), (px, py, top + h * 0.7), "POINT", spec["watts_applied"],
+                        spec["size_m"], anchor=stand["id"], radius=0.05, mount="stand", host=stand["id"],
+                        reason=f"bedside lamp on the nightstand {stand['id']}")
                     continue
-                z = top + h / 2.0
-                add(spec, (px, py, z), (px, py, top + h * 0.7), "POINT", spec["watts_applied"], spec["size_m"],
-                    anchor=anchor, radius=0.05, reason=why)
+                why = f"bedside lamp beside the head of the bed {bed['id']} (no nightstand, no lamp)"
+                if wall is None:
+                    # (4) no host at all: no lamp (P4a: the lamp floated beside the bed with its stem in the air)
+                    out["dropped"].append({"kind": kind, "reason": f"{why}: the bed head is not against a wall, so no "
+                                                                   f"wall sconce"})
+                    continue
+                # (3) a wall sconce on the head wall, beside the corner
+                sw, sd, sh = (float(v) for v in RIG_SCONCE_SIZE_M)
+                ax, ay = wall["a"]
+                ux, uy = wall["u"]
+                nx, ny = wall["n"]
+                qx = corner[0] + sx * side * RIG_SCONCE_BEYOND_M
+                qy = corner[1] + sy * side * RIG_SCONCE_BEYOND_M
+                t = (qx - ax) * ux + (qy - ay) * uy
+                off = sd / 2.0 + RIG_SCONCE_WALL_GAP_M
+                px, py = ax + ux * t + nx * off, ay + uy * t + ny * off
+                pz = floor_z + RIG_SCONCE_Z_M
+                rot = math.degrees(math.atan2(uy, ux))
+                sconce = {"center": [px, py, pz], "size": [sw, sd, sh], "rotation_deg": rot}
+                problem = None
+                if t - sw / 2.0 < RIG_SCONCE_END_MARGIN_M or t + sw / 2.0 > wall["length"] - RIG_SCONCE_END_MARGIN_M:
+                    problem = "the wall sconce would run past the end of the head wall"
+                elif not G.point_in_polygon((px, py), polygon):
+                    problem = "the wall sconce would stand outside the room"
+                elif pz + sh / 2.0 > _ceiling_at(ceiling_fn, ceil_z, px, py, sw / 2.0) - RIG_SCONCE_CEILING_CLEAR_M:
+                    problem = "the wall sconce would reach the ceiling"
+                else:
+                    hit = next((o for o in openings or [] if o.get("type") in ("door", "window") and _opening_on_wall(
+                        o, wall, t - sw / 2.0, t + sw / 2.0, pz - sh / 2.0, pz + sh / 2.0, floor_z)), None)
+                    if hit is not None:
+                        problem = f"the wall sconce would cover the {hit.get('type')} {hit.get('id')}"
+                    else:
+                        boxes = [piece_box(p, floor_z) for p in pieces if p.get("footprint")] + decor
+                        crossed = next((b for b in boxes if b.get("type") not in RIG_COLLISION_SKIP_TYPES
+                                        and boxes_collide(sconce, b)), None)
+                        if crossed is not None:
+                            problem = f"the wall sconce would cross the {crossed.get('type')} {crossed.get('id')}"
+                if problem:
+                    out["dropped"].append({"kind": kind, "reason": f"{why}: {problem}"})
+                    continue
+                lf = sd / 2.0 + RIG_SCONCE_LIGHT_FRONT_M                        # in front of the shade
+                add(dict(spec, size_m=[sw, sd, sh]), (px, py, pz), (px + nx * lf, py + ny * lf, pz), "POINT",
+                    spec["watts_applied"], [sw, sd, sh], anchor=bed["id"], radius=0.04, mount="wall", rotation=rot,
+                    reason=f"bedside wall sconce on the head wall beside the bed {bed['id']} (no nightstand, no lamp)")
         elif kind == "strip":
             counters = by_type.get("kitchen_counter") or []
             if not counters:
@@ -802,8 +1193,8 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                 watts = round(watts_for_lumens(lumens) * RIG_GAIN, 4)
                 f = dict(spec, lumens=round(lumens, 1), watts_radiometric=watts_for_lumens(lumens), watts_applied=watts,
                          length_m=round(length, 3), rotation_deg=round(math.degrees(math.atan2(fy, fx)) + 90.0, 3))
-                add(f, (px, py, z), (px, py, z - 0.012), "AREA", watts, [length, 0.02, 0.015], direction=(0.0, 0.0, -1.0),
-                    anchor=counter["id"], radius=0.0,
+                add(f, (px, py, z), (px, py, z - 0.012), "AREA", watts, [length, 0.02, 0.015],
+                    direction=(0.0, 0.0, -1.0), anchor=counter["id"], radius=0.0, mount="cabinet",
                     reason=f"LED strip under the wall cabinets along the counter {counter['id']}")
         elif kind == "mirror":
             basins = by_type.get("washbasin") or []
@@ -814,20 +1205,65 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
             (cx, cy), (fx, fy), width, depth = _piece_frame(basin)
             bx, by = cx - fx * depth / 2.0, cy - fy * depth / 2.0
             px, py = bx + fx * 0.04, by + fy * 0.04                       # 4 cm off the wall behind the basin
+            bar_w, bar_d, bar_h = float(spec["size_m"][0]), 0.04, 0.04
+            rot = round(math.degrees(math.atan2(fy, fx)) + 90.0, 3)
+            # fix round after P4a: above the basin's own top (a vanity module's mirror) and the wall decor behind it
+            reach = {"center": [px, py, 0.0], "size": [bar_w + 2 * RIG_WALL_ITEM_REACH_M,
+                                                         bar_d + 2 * RIG_WALL_ITEM_REACH_M, 1.0], "rotation_deg": rot}
+            under = [(floor_z + float(piece_bbox(basin)[2]), f"the basin {basin['id']}")]
+            for d in decor:
+                if d.get("type") in RIG_WALL_DECOR_TYPES and _convex_overlap(
+                        G.rotated_rectangle(reach["center"][:2], reach["size"][:2], rot),
+                        G.rotated_rectangle(d["center"][:2], d["size"][:2], float(d.get("rotation_deg") or 0.0))):
+                    under.append((float(d["center"][2]) + float(d["size"][2]) / 2.0,
+                                  f"the {d['type'].replace('_', ' ')} {d['id']}"))
+            top, top_what = max(under, key=lambda u: u[0])
             z = floor_z + RIG_MIRROR_LIGHT_Z_M
-            z = min(z, ceil_z - 0.15)
-            f = dict(spec, rotation_deg=round(math.degrees(math.atan2(fy, fx)) + 90.0, 3))
+            ceiling = _ceiling_at(ceiling_fn, ceil_z, px, py, bar_w / 2.0)
+            low = top + RIG_MIRROR_LIGHT_GAP_M + bar_h / 2.0
+            cap = ceiling - RIG_MIRROR_CEILING_CLEAR_M - bar_h / 2.0
+            if z < low:
+                z = low
+            z = min(z, cap)
+            if z < low - 1e-6:
+                out["dropped"].append({"kind": kind, "reason": f"mirror light over the washbasin {basin['id']}: "
+                                       f"{top_what} reaches {top - floor_z:.2f} m and the ceiling is at "
+                                       f"{ceiling - floor_z:.2f} m, so the bar would cross it"})
+                continue
+            moved = f", above {top_what} (top {top - floor_z:.2f} m)" if low > floor_z + RIG_MIRROR_LIGHT_Z_M else ""
+            f = dict(spec, rotation_deg=rot)
             add(f, (px, py, z), (px + fx * 0.03, py + fy * 0.03, z - 0.03), "AREA", spec["watts_applied"],
-                [float(spec["size_m"][0]), 0.04, 0.04], direction=(fx * 0.7, fy * 0.7, -0.7), anchor=basin["id"],
-                radius=0.0, reason=f"mirror light over the washbasin {basin['id']}")
+                [bar_w, bar_d, bar_h], direction=(fx * 0.7, fy * 0.7, -0.7), anchor=basin["id"],
+                radius=0.0, mount="wall", reason=f"mirror light over the washbasin {basin['id']}{moved}")
+    # fix round after P4a: every fixture with a mesh passes the code check, or it is dropped with the reason
+    stand_tops = {p["id"]: floor_z + float(piece_bbox(p)[2]) for p in by_type.get("nightstand") or []}
+    problems = rig_fixture_problems(out["fixtures"], polygon, pieces, decor, floor_z, stand_tops)
+    if problems:
+        bad: dict = {}
+        for p in problems:
+            bad.setdefault(p["name"], []).append(p["problem"])
+        keep = []
+        for f in out["fixtures"]:
+            if f["name"] in bad:
+                out["dropped"].append({"kind": f["kind"], "name": f["name"],
+                                       "reason": f"{f['reason']}: {'; '.join(bad[f['name']])}"})
+            else:
+                keep.append(f)
+        out["fixtures"] = keep
     return out
 
 
 def _fixture_mesh(fixture: dict) -> tuple[list, list]:
     """World-space vertices and faces of a visible fixture (pure, ``geom2d.box``): pendants and ceiling fixtures are
-    8-sided drums, bedside lamps a drum shade over a thin stem, strips and mirror lights flat bars."""
+    8-sided drums, bedside lamps a drum shade over a thin stem, strips and mirror lights flat bars. Fix round after
+    P4a (17 Oct 2026): a table lamp (``mount: "stand"``) has its stem from its base (the nightstand top) up the lower
+    ``RIG_STAND_STEM_SHARE`` of its height and the shade above it (the P3/P4a stem hung under the base, into the
+    nightstand or the air); a wall sconce (``mount: "wall"``) is a drum as deep as its box, no stem; a fixture without
+    a mesh (``mesh: False``) has no geometry."""
     from wenart.blender import geom2d
 
+    if fixture.get("mesh") is False:
+        return [], []
     cx, cy, cz = fixture["center"]
     w, d, h = [float(v) for v in fixture.get("size_m") or (0.2, 0.2, 0.1)]
     kind = fixture["kind"]
@@ -835,16 +1271,21 @@ def _fixture_mesh(fixture: dict) -> tuple[list, list]:
     if kind in ("strip", "mirror"):
         size = (float(fixture.get("length_m") or w), d, h)
         return geom2d.box((cx, cy, cz), size, rot)
-    r = max(w, d) / 2.0
+    mount = fixture.get("mount")
+    r = min(w, d) / 2.0 if mount == "wall" else max(w, d) / 2.0
     n = 8
     z0, z1 = cz - h / 2.0, cz + h / 2.0
+    stand = kind == "bedside" and mount != "wall"
+    if stand:                                                         # the shade over the stem
+        z0 = cz - h / 2.0 + h * RIG_STAND_STEM_SHARE
     verts = [(cx + r * math.cos(2 * math.pi * i / n), cy + r * math.sin(2 * math.pi * i / n), z0) for i in range(n)]
     verts += [(cx + r * math.cos(2 * math.pi * i / n), cy + r * math.sin(2 * math.pi * i / n), z1) for i in range(n)]
     faces = [[i, (i + 1) % n, n + (i + 1) % n, n + i] for i in range(n)]
     faces.append(list(range(n))[::-1])
     faces.append([n + i for i in range(n)])
-    if kind == "bedside":                                             # a stem under the shade
-        stem = geom2d.box((cx, cy, z0 - (h * 0.45)), (0.03, 0.03, h * 0.9), 0.0)
+    if stand:                                                         # a stem from the base up to the shade
+        base = cz - h / 2.0
+        stem = geom2d.box((cx, cy, base + h * RIG_STAND_STEM_SHARE / 2.0), (0.03, 0.03, h * RIG_STAND_STEM_SHARE), 0.0)
         verts2, faces2 = stem
         off = len(verts)
         verts += list(verts2)
@@ -856,29 +1297,37 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
                    plan: dict, fixture_material) -> list:
     """The fixtures of ``rig_plan`` as objects: an emissive mesh (kind ``decor``, status ``assumed``, the camera sees
     it) and a POINT or AREA light inside (``use_temperature``, ``shadow_soft_size``, soft falloff where the light
-    type has it: bpy.types.PointLight / SpotLight.use_soft_falloff). Returns the light objects."""
+    type has it: bpy.types.PointLight / SpotLight.use_soft_falloff). Returns the light objects. Fix round after P4a
+    (17 Oct 2026): a fixture with ``mesh: False`` (its light in a host lamp) gets the light only; every shade is
+    ``visible_shadow = False`` (bpy.types.Object.visible_shadow), so the light inside its closed drum reaches the room
+    (an Emission-only surface blocks shadow rays: the P3/P4a pendant and bedside lights never left their drums); the
+    mesh entry records ``rig_box`` (``fixture_box``) and the fixture's ``mount`` and ``host_id``."""
     from mathutils import Vector
 
     lights = []
     for f in plan["fixtures"]:
-        verts, faces = _fixture_mesh(f)
-        mat = fixture_material(f["temperature_k"])
-        ob = common.new_mesh_object(f["name"], verts, faces, collection=collection, wenart_id=f["name"], kind="decor",
-                                    status="assumed", materials=[mat])
-        ob["wenart_room"] = room["id"]
-        ob["wenart_rig"] = f["kind"]
-        manifest_objects.append({
-            "name": ob.name, "wenart_id": f["name"], "kind": "decor", "status": "assumed", "level_id": level["id"],
-            "element_id": room["id"], "parent": room["id"], "evidence": [], "material": mat.name, "textured": False,
-            "pass_index": None, "method": "rig", "type": f"rig_{f['kind']}", "rotation_deg": f.get("rotation_deg") or 0.0,
-            "assumed": {"rig": f["kind"], "lumens": f.get("lumens"), "bulbs": f.get("bulbs", 1),
-                        "watts_radiometric": f.get("watts_radiometric"),
-                        "watts_applied": f["light"]["energy_w"], "gain": f.get("gain"), "temperature_k": f["temperature_k"],
-                        "anchor_id": f.get("anchor_id"), "reason": f["reason"], "source": f.get("source"),
-                        "lumen_watt_source": f.get("lumen_watt_source"),
-                        # round 3: the shade's own radiance, decoupled from the lamp power (never clips at EV <= +3)
-                        "shade_emission_wm2sr": float(mat.get("wenart_light") or SHADE_EMISSION_WM2SR)},
-        })
+        if f.get("mesh") is not False:
+            verts, faces = _fixture_mesh(f)
+            mat = fixture_material(f["temperature_k"])
+            ob = common.new_mesh_object(f["name"], verts, faces, collection=collection, wenart_id=f["name"],
+                                        kind="decor", status="assumed", materials=[mat])
+            ob["wenart_room"] = room["id"]
+            ob["wenart_rig"] = f["kind"]
+            ob.visible_shadow = False             # fix round after P4a: the light inside the shade gets out
+            manifest_objects.append({
+                "name": ob.name, "wenart_id": f["name"], "kind": "decor", "status": "assumed", "level_id": level["id"],
+                "element_id": room["id"], "parent": room["id"], "evidence": [], "material": mat.name,
+                "textured": False, "pass_index": None, "method": "rig", "type": f"rig_{f['kind']}",
+                "rotation_deg": f.get("rotation_deg") or 0.0, "rig_box": fixture_box(f), "visible_shadow": False,
+                "assumed": {"rig": f["kind"], "lumens": f.get("lumens"), "bulbs": f.get("bulbs", 1),
+                            "watts_radiometric": f.get("watts_radiometric"),
+                            "watts_applied": f["light"]["energy_w"], "gain": f.get("gain"),
+                            "temperature_k": f["temperature_k"], "anchor_id": f.get("anchor_id"),
+                            "host_id": f.get("host_id"), "mount": f.get("mount"), "reason": f["reason"],
+                            "source": f.get("source"), "lumen_watt_source": f.get("lumen_watt_source"),
+                            # round 3: the shade's own radiance, decoupled from the lamp power (never clips at EV <= +3)
+                            "shade_emission_wm2sr": float(mat.get("wenart_light") or SHADE_EMISSION_WM2SR)},
+            })
         spec = f["light"]
         light = bpy.data.lights.new(f"{f['name']}_light", spec["type"])
         light.energy = float(spec["energy_w"])
@@ -909,7 +1358,8 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
             "pass_index": None, "center": spec["center"], "size": spec["size_m"],
             "assumed": {"power_w": spec["energy_w"], "rig": f["kind"], "fixture": f["name"], "temperature_k":
                         f["temperature_k"], "visible_camera": False, "reason": f["reason"], "lumens": f.get("lumens"),
-                        "bulbs": f.get("bulbs", 1)},
+                        "bulbs": f.get("bulbs", 1), "mesh": f.get("mesh") is not False, "host_id": f.get("host_id"),
+                        "mount": f.get("mount")},
         })
         assumed.append({"object": lob.name, "field": "rig_light", "value": spec["energy_w"],
                         "reason": f"{room['id']}: {f['reason']}; {f.get('lumens') or '?'} lm -> "
@@ -1022,8 +1472,8 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                 polygon = polygon[:-1]
             if len(polygon) < 3:
                 continue
-            windows = [o for o in room_openings(room, polygon, building) if o["type"] == "window"
-                       and daylight_window(o, walls_by_id, flagged)]
+            openings = room_openings(room, polygon, building)
+            windows = [o for o in openings if o["type"] == "window" and daylight_window(o, walls_by_id, flagged)]
             area = G.polygon_area(polygon)
             ratio = window_floor_ratio(windows, level, levels_above, area) if windows else None
             why = fill_light_reason(windows, ratio, sun_wm2=strength)
@@ -1035,7 +1485,12 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                 room_ceil = ceil_z if ceiling_at is None else min(ceil_z, float(ceiling_at(level, *G.polygon_centroid(polygon))))
                 pieces = [p for p in building.get("furniture") or [] if p.get("room_id") == room["id"]
                           and p.get("kind") != "decor" and piece_built(p) and p.get("footprint")]
-                plan = rig_plan(room, pieces, room_floor, room_ceil, holes=voids, lighting=lighting, agent_factor=factor)
+                # fix round after P4a: the built decor (hosts, the mirror under the mirror light), the doors and
+                # windows (no sconce on them) and the sloped ceiling at each fixture
+                ceiling_fn = None if ceiling_at is None else (lambda x, y, _lv=level: float(ceiling_at(_lv, x, y)))
+                plan = rig_plan(room, pieces, room_floor, room_ceil, holes=voids, lighting=lighting,
+                                agent_factor=factor, decor=built_decor_boxes(manifest_objects, room["id"]),
+                                openings=openings, ceiling_fn=ceiling_fn)
                 built = build_room_rig(bpy, common, collection, manifest_objects, assumed, room, level, plan,
                                        fixture_material)
                 rig_lights.extend(built)

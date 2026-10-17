@@ -93,6 +93,39 @@ r3-s4-p3) whose tool call comes after the prose; cut at 1,536 (``finish_reason``
 session ends at ``if not reply.tool_calls``. The runaway answers are stopped by the request's ``repetition_detection``
 and the context budget; a "length" stop is still logged and counted (``metrics.finish_reasons``).
 
+Fix round after P4a (17 Oct 2026; pod P4a, real02 with the M11 cameras replayed):
+
+- a stale built box: the critical X2 "pokes through the roof" is measured on the round's scene manifest
+  (``metrics.source`` ``scene_manifest``, ``MANIFEST_SOURCE``), which no edit changes; on a target the edit changed
+  ``after_findings`` leaves it out (the next build re-measures it). The major X2 of the same key, re-measured on the
+  building after the edit (``build.pieces_above_ceiling``), keeps the acceptance strict: a piece still under the slope
+  is still rejected. Why: P4a rejected every remove and move of the bookshelf f_L1_058 (top 5.17 m from the stale box)
+  for 3 rounds; that critical was the only reason the final round ran;
+- an S2 WALL cut on a moved piece is predicted, not dropped (``s2_wall_kept``): the cut after the edit is the
+  measured cut plus the change of the footprint's depth in that wall (``scene_checks.wall_boxes``); when the
+  prediction stays over the cut's tolerance, the finding stays (so the edit that targets it is rejected). Pair cuts,
+  buried kitchen members and edits that keep the footprint (``swap_model``) still count as gone and are re-measured
+  by the next round. Why: 10 of 10 S2 wall moves accepted in P3 and P4a were still over tolerance when measured (a
+  move along the wall cannot shrink the cut);
+- plans: the plan event's status says why the default checklist ran: ``ok``, ``empty`` (a valid plan without
+  steps), ``refused`` (every step refused by ``check_plan``) or ``default`` (no valid plan); the planner's ``skip``
+  list and program choices are logged in the event's evidence and stored in the memory. The default checklist still
+  runs for the three (no behaviour change: the skip lists are logged so a later pod can check them);
+- ``set_lighting`` steps come first in every checklist (``lighting_first``): they do not depend on the furniture and
+  code predicts them. The final round (critical findings only) also takes a major ``lighting_dark`` view one
+  ``set_lighting`` clears (``FINAL_ROUND_LIGHTING``) when a re-render follows. Why: P4a's salon set_lighting was the
+  last of 14 default steps and the session's 12 calls ran out before it; the final salon views stayed 0.42 and
+  0.07 stops over the cap;
+- a step whose edit the memory refused twice in the session is closed (``tools``: the refusal counts as a try and the
+  result says ``step_closed``); the session ends when every step is done or closed. Why: P4a's r1-s19 sent the same
+  refused move 7 times, 7 of its 12 calls;
+- a vision finding about a light fixture (``causes.light_fixture``) stays in the round's list as a reported finding
+  (``report_to: lighting``) instead of being dropped as "no tool";
+- after a re-run, every accepted ``set_camera`` / ``add_camera`` of the round is checked against the rebuilt scene
+  manifest (``camera_effects``): a view that is not at the override's pose, or has two cameras of its name, is logged
+  as a ``camera_effect`` check with status ``no_effect``. Why: P4a's three accepted set_camera ext_6 edits changed
+  nothing (a second ext_6 was added and Blender renamed it ext_6.001).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -105,6 +138,7 @@ Deterministic for ``workers=1``; with parallel sessions only the interleaving of
 from __future__ import annotations
 
 import json
+import math
 import re
 import shutil
 import threading
@@ -161,6 +195,9 @@ KEEP_REPLIES = 2                 # the tool results of the last 2 replies stay w
 STUB_NOTE = "[older tool result removed to fit the context; call the tool again if you need it]"
 CONTEXT_CHECK = "context_budget"  # the ``check`` event of a session whose context was cut or full (tool field)
 CUT_NOTE = "[cut to fit the context]"
+# Fix round after P4a (module docstring): the final round also takes a major lighting_dark view one set_lighting clears
+FINAL_ROUND_LIGHTING = True
+CAMERA_EFFECT_CHECK = "camera_effect"   # the ``check`` event of an accepted camera edit checked after the re-run
 
 
 def route(accepted: list[dict]) -> Optional[str]:
@@ -202,6 +239,41 @@ def changed_views(cameras: list[dict], accepted: list[dict], room_of: Callable[[
         if everything or c.get("room_id") in rooms or (exterior and kind == "exterior"):
             views.add(name)
     return sorted(v for v in views if v)
+
+
+CAMERA_POSE_TOOLS = ("set_camera", "add_camera")
+
+
+def camera_effects(scene_manifest: Optional[dict], accepted: list[dict]) -> list[dict]:
+    """Fix round after P4a (module docstring): per accepted ``set_camera`` / ``add_camera`` (``[{tool, args}]``),
+    whether the rebuilt scene manifest has exactly one camera of its view id, at the override's pose
+    (``tools.same_pose``): ``[{view_id, status: ok | no_effect, cameras, note, override, poses}]``. Pure."""
+    cams = [c for c in (scene_manifest or {}).get("cameras") or [] if isinstance(c, dict)]
+    last: dict = {}                     # the last camera edit of each view counts (an earlier one was overridden)
+    for a in accepted:
+        if a.get("tool") in CAMERA_POSE_TOOLS:
+            last.pop((a.get("args") or {}).get("view_id"), None)
+            last[(a.get("args") or {}).get("view_id")] = a
+    out = []
+    for a in last.values():
+        args = a.get("args") or {}
+        vid = args.get("view_id")
+        same = [c for c in cams if c.get("name") == vid]
+        hit = [c for c in same if TL.same_pose(args, c)]
+        if len(same) == 1 and hit:
+            status, note = "ok", f"{vid} is rendered at the override's pose"
+        elif not same:
+            status, note = "no_effect", f"{vid} is not in the rebuilt scene manifest: the override had no effect"
+        elif len(same) > 1:
+            status, note = "no_effect", (f"{len(same)} cameras are named {vid} in the rebuilt scene manifest (Blender "
+                                         f"renames the second one {vid}.001, the view {vid} keeps the first): the "
+                                         f"override did not replace the camera")
+        else:
+            status, note = "no_effect", f"{vid} is rendered at another pose than the override's: it had no effect"
+        out.append({"view_id": vid, "status": status, "cameras": len(same), "note": note,
+                    "override": {k: args.get(k) for k in ("position", "target", "lens_mm") if args.get(k) is not None},
+                    "poses": [{k: c.get(k) for k in ("position", "target", "lens_mm")} for c in same]})
+    return out
 
 
 def prune_images(messages: list, keep: int = MAX_IMAGES) -> None:
@@ -408,21 +480,134 @@ def lighting_kept(finding: Optional[dict], building_after: Optional[dict]) -> Op
                         f"re-rendered); " + str(finding.get("message") or ""))
 
 
-def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None
-                   ) -> list[dict]:
+# Fix round after P4a (module docstring): ``metrics.source`` of a finding measured on the round's scene manifest
+# (``wenart.blender.exterior_checks.SCENE_MANIFEST_SOURCE``: the critical X2 of a built box through the roof).
+MANIFEST_SOURCE = "scene_manifest"
+S2_FOOTPRINT_GRID = 7            # points per side of the footprint grid of the S2 wall-cut prediction
+S2_DEFAULT_TOLERANCE_M = 0.010   # scene_checks.TOLERANCES["overlap_m"]: an S2 without its tolerance_m
+
+
+def manifest_measured(finding: dict) -> bool:
+    """Fix round after P4a: a finding measured on the round's scene manifest (``MANIFEST_SOURCE``)."""
+    return CS._metrics(finding).get("source") == MANIFEST_SOURCE
+
+
+def _piece_of(building: Optional[dict], pid) -> Optional[dict]:
+    if not isinstance(building, dict) or not pid:
+        return None
+    return next((f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id") == pid), None)
+
+
+def _footprint_state(piece: dict) -> tuple:
+    fp = piece.get("footprint") or {}
+    return (piece.get("level_id"), tuple(round(float(v), 4) for v in (fp.get("center") or [])[:2]),
+            tuple(round(float(v), 4) for v in (fp.get("size") or [])[:2]), round(float(fp.get("rotation_deg") or 0), 3))
+
+
+def footprint_points(fp: dict, n: int = S2_FOOTPRINT_GRID) -> list[tuple[float, float]]:
+    """A ``n`` x ``n`` grid of points over a footprint ``{center, size, rotation_deg}`` (edges included)."""
+    from wenart import geometry as G
+    cx, cy = (float(v) for v in fp["center"][:2])
+    w, d = (float(v) for v in fp["size"][:2])
+    rot = float(fp.get("rotation_deg") or 0.0)
+    steps = [i / (n - 1) - 0.5 for i in range(n)] if n > 1 else [0.0]
+    return [G.rotate_point((cx + u * w, cy + v * d), rot, (cx, cy)) for u in steps for v in steps]
+
+
+def footprint_wall_depth(piece: dict, wall: dict) -> Optional[float]:
+    """How deep a piece's footprint reaches into a wall box (``scene_checks.wall_boxes``), signed: the largest
+    ``thickness / 2 - |distance to the wall's axis|`` over the footprint's grid points beside the wall (negative: the
+    gap to the wall's face); None when no point stands beside the wall's length."""
+    ax, ay = wall["a"]
+    bx, by = wall["b"]
+    length = math.hypot(bx - ax, by - ay)
+    if length < 1e-9:
+        return None
+    ux, uy = (bx - ax) / length, (by - ay) / length
+    half = float(wall["thickness"]) / 2.0
+    best = None
+    for x, y in footprint_points(piece["footprint"]):
+        s = (x - ax) * ux + (y - ay) * uy
+        if not 0.0 < s < length:
+            continue
+        d = half - abs(-(x - ax) * uy + (y - ay) * ux)
+        if d > 0:
+            d = min(d, s, length - s)
+        best = d if best is None else max(best, d)
+    return best
+
+
+def s2_wall_kept(finding: Optional[dict], building_before: Optional[dict], building_after: Optional[dict]
+                 ) -> Optional[dict]:
+    """Fix round after P4a (module docstring): an S2 WALL cut of the round (``finding``: ``metrics.wall_id`` and
+    ``depth_m``, no ``other``, no ``kitchen_run``) that the edit's new footprint does not clear, with the prediction
+    in its metrics and message; None when the finding counts as gone: the piece was removed or is not built, its
+    footprint did not change (``swap_model``: the next round measures the new model), nothing can be predicted, or the
+    predicted cut (the measured one plus the change of ``footprint_wall_depth``) is within the cut's ``tolerance_m``.
+    Why: the mesh cut and the footprint differ by up to 0.05 m, but a move changes both by the same amount; a move
+    along the wall (P4a edit 332, real02 f_L1_024) cannot shrink the cut."""
+    if finding is None or not isinstance(building_before, dict) or not isinstance(building_after, dict):
+        return None
+    metrics = CS._metrics(finding)
+    wall_id = metrics.get("wall_id")
+    if not wall_id or metrics.get("other") or metrics.get("kitchen_run"):
+        return None
+    try:
+        depth = float(metrics["depth_m"])
+        tolerance = float(metrics.get("tolerance_m") if metrics.get("tolerance_m") is not None
+                          else S2_DEFAULT_TOLERANCE_M)
+    except (KeyError, TypeError, ValueError):
+        return None
+    pid = finding.get("target")
+    old, new = _piece_of(building_before, pid), _piece_of(building_after, pid)
+    if old is None or new is None or not CS.in_scene(new) or not old.get("footprint") or not new.get("footprint"):
+        return None
+    if _footprint_state(old) == _footprint_state(new):
+        return None
+    from wenart.blender import scene_checks as SC
+    try:
+        wall = next((w for w in SC.wall_boxes(building_before, old.get("level_id")) if w["id"] == wall_id), None)
+        if wall is None:
+            return None
+        d_old, d_new = footprint_wall_depth(old, wall), footprint_wall_depth(new, wall)
+    except (KeyError, TypeError, ValueError, IndexError):
+        return None
+    if d_old is None:
+        return None                        # the footprint never stood beside the wall: no prediction
+    if d_new is None:
+        return None                        # moved off the wall's length: the next round measures it
+    predicted = depth + (d_new - d_old)
+    if predicted <= tolerance + 1e-9:
+        return None
+    evidence = finding.get("evidence") if isinstance(finding.get("evidence"), dict) else {}
+    kept_metrics = dict(metrics, predicted_depth_after=round(predicted, 4))
+    return dict(finding, metrics=kept_metrics, evidence=dict(evidence, metrics=kept_metrics),
+                message=f"after the edit the cut into {wall_id} is about {predicted:.3f} m (predicted from the "
+                        f"footprint, not rebuilt; allowed {tolerance:.3f} m); " + str(finding.get("message") or ""))
+
+
+def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None,
+                   building_before: Optional[dict] = None) -> list[dict]:
     """The finding list after an edit for ``accept_edit`` (module docstring): the code critic's findings on the
     changed building (``code_after``) without the ``NOT_REMEASURED`` ones, plus the ``NOT_REMEASURED`` and vision
     findings of ``before`` whose target the edit did not change (a vision finding on a changed target is re-judged
     after the re-render; a ``NOT_REMEASURED`` one is re-measured by the next round, except a ``lighting_dark`` view the
-    edit's room light cannot clear, ``lighting_kept``). Every finding gets its ``cause``.
+    edit's room light cannot clear, ``lighting_kept``, and an S2 wall cut the new footprint does not clear,
+    ``s2_wall_kept``, which needs ``building_before``). Every finding gets its ``cause``.
 
     Review of 16 Oct 2026: the ``NOT_REMEASURED`` findings come from ``before``, not from ``code_after``. The dry
     re-check rebuilds them from the round's scene and render manifests, which no edit changes, so a finding an
     earlier edit of the round had removed came back on the next edit as a new one (a new critical finding rejected an
-    unrelated edit), and the lighting metrics were recomputed against factors the render had not used."""
+    unrelated edit), and the lighting metrics were recomputed against factors the render had not used.
+
+    Fix round after P4a: a ``code_after`` finding measured on the round's scene manifest (``manifest_measured``: the
+    critical X2 of a built box through the roof) is left out on a changed target, for the same reason; the finding
+    re-measured on the building after the edit (the major X2 under the slope, same key) stays."""
     out = []
     for f in code_after:
         if f.get("check") in NOT_REMEASURED:
+            continue
+        if f.get("target") in changed and manifest_measured(f):
             continue
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     for f in before:
@@ -433,7 +618,11 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
         if f.get("check") not in NOT_REMEASURED:
             continue
         if f.get("target") in changed:
-            kept = lighting_kept(f, building_after) if f.get("check") in CS.LIGHTING_CHECKS else None
+            kept = None
+            if f.get("check") in CS.LIGHTING_CHECKS:
+                kept = lighting_kept(f, building_after)
+            elif f.get("check") == "S2":
+                kept = s2_wall_kept(f, building_before, building_after)
             if kept is not None:
                 out.append(dict(kept, cause=kept.get("cause") or CS.cause_of(kept, building_after)))
             continue
@@ -441,14 +630,33 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
     return out
 
 
-def default_checklist(brief: dict, wanted=("critical", "major")) -> list[dict]:
-    """One step per fixable finding of the wanted severities: its first tool on its target (the room for a finding
-    without a piece target)."""
+def lighting_first(steps: list[dict]) -> list[dict]:
+    """Fix round after P4a: the ``set_lighting`` steps first, the others in their order (module docstring)."""
+    return [s for s in steps if s.get("tool") == "set_lighting"] + [s for s in steps if s.get("tool") != "set_lighting"]
+
+
+def final_lighting(finding: dict) -> bool:
+    """Fix round after P4a: a critical or major ``lighting_dark`` view that one ``set_lighting`` clears (cause
+    ``lighting``): the final round takes it too (``FINAL_ROUND_LIGHTING``)."""
+    cause = finding.get("cause") if finding.get("cause") in CS.CAUSE_TOOLS else CS.cause_of(finding)
+    return str(finding.get("check")) in CS.LIGHTING_CHECKS and finding.get("severity") in ("critical", "major") \
+        and cause == "lighting"
+
+
+def is_wanted(finding: dict, wanted, lighting: bool = False) -> bool:
+    """A finding of the round's work: a wanted severity, or (``lighting``, the final round) ``final_lighting``."""
+    return finding.get("severity") in wanted or (lighting and final_lighting(finding))
+
+
+def default_checklist(brief: dict, wanted=("critical", "major"), lighting: bool = False) -> list[dict]:
+    """One step per fixable finding of the wanted severities (``lighting``: and the final round's ``final_lighting``
+    views): its first tool on its target (the room for a finding without a piece target). Fix round after P4a: the
+    ``set_lighting`` steps come first (``lighting_first``)."""
     room_id = brief["room"]["id"]
     groups = [g for g in brief.get("groups") or [] if g.get("group_id")]
     steps = []
     for f in (brief.get("findings") or {}).get("fixable") or []:
-        if f.get("severity") not in wanted:
+        if not is_wanted(f, wanted, lighting):
             continue
         tool, target = f["tools"][0], BR.step_target(f, room_id)
         if tool == "complete_group" and target not in {g["group_id"] for g in groups}:
@@ -465,7 +673,7 @@ def default_checklist(brief: dict, wanted=("critical", "major")) -> list[dict]:
                 target = own[0]["group_id"]
         steps.append({"finding_ids": [f["id"]], "tool": tool, "target": target,
                       "why": str(f.get("message") or f.get("check"))[:300]})
-    return steps
+    return lighting_first(steps)
 
 
 def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[list[dict], list[str]]:
@@ -528,6 +736,45 @@ def check_plan(plan: Optional[dict], brief: dict, offered: list[str]) -> tuple[l
     return steps, problems
 
 
+PLAN_STATUSES = ("ok", "empty", "refused", "default")
+
+
+def plan_status(plan, checked: list[dict]) -> str:
+    """Fix round after P4a: why a session runs the checklist it runs: ``ok`` (the checked plan has steps),
+    ``empty`` (a valid plan without steps), ``refused`` (a valid plan whose steps ``check_plan`` all refused) or
+    ``default`` (no valid plan: a model error or an answer outside the schema)."""
+    if not isinstance(plan, dict):
+        return "default"
+    if checked:
+        return "ok"
+    return "refused" if plan.get("steps") else "empty"
+
+
+def plan_skip(plan) -> list[dict]:
+    """Fix round after P4a: the planner's ``skip`` list (``prompts.PLAN_SCHEMA``: ``finding_id``, ``why``), for the log
+    and the memory (at most 20, ``why`` cut to 300 characters)."""
+    items = plan.get("skip") if isinstance(plan, dict) else None
+    return [{"finding_id": str(s.get("finding_id")), "why": str(s.get("why") or "")[:300]}
+            for s in (items if isinstance(items, list) else []) if isinstance(s, dict)][:20]
+
+
+def plan_choices(plan) -> list[dict]:
+    """Fix round after P4a: the plan's program choices (``group_id``, ``option``), for the log."""
+    program = plan.get("program") if isinstance(plan, dict) else None
+    items = program.get("choices") if isinstance(program, dict) else None
+    return [{"group_id": c.get("group_id"), "option": c.get("option")}
+            for c in (items if isinstance(items, list) else []) if isinstance(c, dict)][:8]
+
+
+def step_hit(step: dict, tool: str, args: dict, result: dict) -> bool:
+    """An edit ``tool(args)`` is the one of a checklist step: the same tool on the step's target."""
+    if step.get("tool") != tool:
+        return False
+    target = step.get("target")
+    return target in {args.get(k) for k in ("piece_id", "room_id", "group_id", "view_id", "span_id")} or \
+        target in (result.get("changed_ids") or [])
+
+
 def step_done(step: dict, tool: str, args: dict, result: dict, findings: Optional[list] = None) -> bool:
     """An accepted edit ``tool(args)`` completes a checklist step with the same tool on the same target. Review of
     16 Oct 2026: a ``set_lighting`` step stays open while its finding is still in ``findings`` (the round's list after
@@ -539,9 +786,7 @@ def step_done(step: dict, tool: str, args: dict, result: dict, findings: Optiona
         open_ids = {f.get("id") for f in findings if f.get("id")}
         if any(fid in open_ids for fid in step.get("finding_ids") or []):
             return False
-    target = step.get("target")
-    return target in {args.get(k) for k in ("piece_id", "room_id", "group_id", "view_id", "span_id")} or \
-        target in (result.get("changed_ids") or [])
+    return step_hit(step, tool, args, result)
 
 
 class CallBudget:
@@ -687,9 +932,12 @@ class AgentLoop:
         before = list(ctx.findings)
         changed = TL.changed_targets(tool, args, result, targets, findings=before)
         code_after = self.code_findings(building_after, ctx, self.render_manifest(ctx.preview_dir))
-        after = after_findings(code_after, before, changed, building_after)
-        # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed)
-        edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target")} for f in targets],
+        # fix round after P4a: the building before the edit predicts an S2 wall cut of a moved piece (s2_wall_kept)
+        after = after_findings(code_after, before, changed, building_after, building_before=ctx.building)
+        # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed);
+        # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``)
+        edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target"), "metrics": CS._metrics(f)}
+                                   for f in targets],
                 "penalty_before": result.get("penalty_before"), "penalty_after": result.get("penalty_after"),
                 "score_before": result.get("score_before"), "score_after": result.get("score_after"),
                 "removed": CS.removed_pieces(ctx.building, building_after)}
@@ -700,15 +948,16 @@ class AgentLoop:
         def mine(f: dict) -> bool:
             return f.get("room_id") == room or f.get("target") in scope or (room == BUILDING and not f.get("room_id"))
 
-        carried = sorted({f"{f['check']}:{f.get('target')}" for f in after
+        carried = sorted({CS._fmt(CS.finding_key(f)) for f in after
                           if f.get("target") in changed and (f.get("source") == "vision"
                                                              or f.get("check") in NOT_REMEASURED)})
         note = None
-        if ok and any(f.get("target") in changed and (f.get("source") == "vision" or f.get("check") in NOT_REMEASURED)
+        if ok and any(f.get("target") in changed and (f.get("source") == "vision" or f.get("check") in NOT_REMEASURED
+                                                      or manifest_measured(f))
                       for f in before):
-            note = "findings the dry re-check cannot measure on the changed target (scene, view, look or vision) " \
-                   "count as gone and are re-measured by the next round"
-        return {"accepted": ok, "reason": reason, "target": [f"{f.get('check')}:{f.get('target')}" for f in targets],
+            note = "findings the dry re-check cannot measure on the changed target (scene, view, look, vision or " \
+                   "the built scene's boxes) count as gone and are re-measured by the next round"
+        return {"accepted": ok, "reason": reason, "target": [CS._fmt(CS.finding_key(f)) for f in targets],
                 "target_findings": targets, "before": CS.key_list([f for f in before if mine(f)]),
                 "after": CS.key_list([f for f in after if mine(f)]), "removed": findings_removed(before, after),
                 "after_findings": after, "note": note, "carried": carried}
@@ -864,11 +1113,13 @@ class AgentLoop:
                 "memory": self.memory.summary(BUILDING), "pieces": [], "not_built": [], "groups": [],
                 "free_wall_spans": [], "candidates": [], "program": {"groups": []}}
 
-    def sessions_for(self, ctx: TL.ToolContext, found: list[dict], wanted: tuple) -> tuple[list[dict], dict]:
+    def sessions_for(self, ctx: TL.ToolContext, found: list[dict], wanted: tuple, lighting: bool = False
+                     ) -> tuple[list[dict], dict]:
         """``(sessions, coverage)``: one session per room (and one for the building) with a fixable finding of the
-        wanted severities, in the order of the module docstring; ``coverage`` lists the rooms with fixable findings
-        and how many open findings are not fixable."""
-        open_ = [f for f in found if f["severity"] in wanted]
+        wanted severities (``lighting``, the final round: and the ``final_lighting`` views), in the order of the
+        module docstring; ``coverage`` lists the rooms with fixable findings and how many open findings are not
+        fixable."""
+        open_ = [f for f in found if is_wanted(f, wanted, lighting)]
         rooms = {r.get("id"): r for r in ctx.building.get("rooms") or []}
         # fix round after P3: a decor piece belongs to its room too (P3: an X2 on the mirror dec_L1_009 had no room
         # and went to the building session, whose relayout_room on "building" was refused for 4 rounds)
@@ -887,7 +1138,7 @@ class AgentLoop:
                 continue
             ctx.findings = found
             brief = self.building_brief(ctx, fs) if rid == BUILDING else ctx.brief(rid)
-            fixable = [f for f in (brief.get("findings") or {}).get("fixable") or [] if f["severity"] in wanted]
+            fixable = [f for f in (brief.get("findings") or {}).get("fixable") or [] if is_wanted(f, wanted, lighting)]
             unfixable += sum(1 for f in (brief.get("findings") or {}).get("not_yours") or []
                              if f.get("severity") in wanted)
             if not fixable:
@@ -905,7 +1156,8 @@ class AgentLoop:
 
     # ----- planner -------------------------------------------------------------------------------
 
-    def plan(self, ctx: TL.ToolContext, round_no: int, sessions: list[dict], critical_only: bool = False) -> dict:
+    def plan(self, ctx: TL.ToolContext, round_no: int, sessions: list[dict], critical_only: bool = False,
+             lighting: bool = False) -> dict:
         """The planner part of one round: the sessions in their order, ``workers`` at a time; a session starts only
         before the round's time cap and while the time budget allows (the first one always). ``{"calls",
         "schema_errors", "replies", "error", "sessions", "rooms", "plans_ok", "context_full"}`` (fix round after P3:
@@ -922,7 +1174,8 @@ class AgentLoop:
                 if started["n"] and (self.clock() > cap_at or not self.time_ok() or budget.empty()):
                     return None
                 started["n"] += 1
-            return self.plan_session(ctx, round_no, item, budget, critical_only, session=index, cap_at=cap_at)
+            return self.plan_session(ctx, round_no, item, budget, critical_only, session=index, cap_at=cap_at,
+                                     lighting=lighting)
 
         if self.workers <= 1:
             results = [one(i, s) for i, s in enumerate(sessions)]
@@ -944,13 +1197,17 @@ class AgentLoop:
         return dict(total, schema_errors=ctx.schema_errors)
 
     def make_plan(self, ctx: TL.ToolContext, round_no: int, brief: dict, offered: list[str], critical_only: bool,
-                  tag: str) -> tuple[list[dict], list[str], bool]:
-        """The plan call (``prompts.PLAN_SCHEMA``), checked against the brief: ``(checklist, problems, plan_ok)``."""
+                  tag: str, lighting: bool = False) -> tuple[list[dict], list[str], bool]:
+        """The plan call (``prompts.PLAN_SCHEMA``), checked against the brief: ``(checklist, problems, plan_ok)``.
+        Fix round after P4a: the plan event's status is ``plan_status`` (ok / empty / refused / default) and its
+        evidence holds the planner's ``skip`` list and program ``choices`` (the memory stores both); the default
+        checklist still runs for every status but ok; the ``set_lighting`` steps come first (``lighting_first``)."""
         wanted = ("critical",) if critical_only else ("critical", "major")
         plan = None
         if self.plan_first:
             messages = [{"role": "system", "content": P.PLANNER_SYSTEM_M12},
-                        {"role": "user", "content": P.plan_prompt(round_no, brief, offered, critical_only)}]
+                        {"role": "user", "content": P.plan_prompt(round_no, brief, offered, critical_only,
+                                                                  lighting=lighting)}]
             try:
                 reply = self.model.structured(messages, P.PLAN_SCHEMA, call_id=f"{tag}-plan", name="plan",
                                               kind="plan", thinking=getattr(self.model, "planner_thinking", False))
@@ -958,20 +1215,27 @@ class AgentLoop:
             except ModelError:
                 plan = None
         steps, problems = check_plan(plan, brief, offered)
-        plan_ok = plan is not None and bool(steps)
+        status = plan_status(plan, steps)
+        plan_ok = status == "ok"
         if not steps:
-            steps = default_checklist(brief, wanted)
+            steps = default_checklist(brief, wanted, lighting)
+        steps = lighting_first(steps)
         room_id = brief["room"]["id"]
-        self.memory.add_plan(room_id, round_no, plan, plan_ok, problems)
-        self.log.event("plan", round_no, room_id=room_id, call_id=f"{tag}-plan", status="ok" if plan_ok else
-                       "default", counts={"steps": len(steps), "problems": len(problems)},
+        skip, choices = plan_skip(plan), plan_choices(plan)
+        self.memory.add_plan(room_id, round_no, plan, plan_ok, problems, status=status)
+        self.log.event("plan", round_no, room_id=room_id, call_id=f"{tag}-plan", status=status,
+                       counts={"steps": len(steps), "problems": len(problems)},
                        note="; ".join(problems)[:600] or None, model=self.log.model, revision=self.log.revision,
-                       evidence={"steps": [{k: s.get(k) for k in ("tool", "target", "finding_ids")} for s in steps]})
+                       evidence={"steps": [{k: s.get(k) for k in ("tool", "target", "finding_ids")} for s in steps],
+                                 "skip": skip, "choices": choices})
         return steps, problems, plan_ok
 
     def plan_session(self, ctx: TL.ToolContext, round_no: int, item: dict, budget: CallBudget,
-                     critical_only: bool = False, session: int = 0, cap_at: Optional[float] = None) -> dict:
-        """One room session: the plan, then the tools on the checked checklist (module docstring)."""
+                     critical_only: bool = False, session: int = 0, cap_at: Optional[float] = None,
+                     lighting: bool = False) -> dict:
+        """One room session: the plan, then the tools on the checked checklist (module docstring). Fix round after
+        P4a: a step whose edit the memory refused twice (``step_closed`` in the tool result) is closed; the session
+        ends when every step is done or closed."""
         brief = item["brief"]
         room_id = item["room_id"]
         state = ctx.begin_session(room_id)
@@ -979,12 +1243,14 @@ class AgentLoop:
         t0 = self.clock()
         self.memory.visit(room_id, round_no)
         offered = self.session_tools(brief)
-        checklist, problems, plan_ok = self.make_plan(ctx, round_no, brief, offered, critical_only, tag)
+        checklist, problems, plan_ok = self.make_plan(ctx, round_no, brief, offered, critical_only, tag,
+                                                      lighting=lighting)
         state.checklist = list(checklist)          # Milestone 13: the steps name the findings an edit targets
         findings = item["fixable"] + [f for f in ctx.findings if f.get("room_id") == room_id]
         messages = [{"role": "system", "content": P.PLANNER_SYSTEM_M12},
                     {"role": "user", "content": P.session_task(round_no, brief, checklist, problems,
-                                                               self.calls_per_room, critical_only)}]
+                                                               self.calls_per_room, critical_only,
+                                                               lighting=lighting)}]
         specs = self.registry.specs(offered)
         calls = replies = 0
         error = None
@@ -994,9 +1260,10 @@ class AgentLoop:
         window = ContextBudget(getattr(self.model, "max_model_len", None),
                                int(getattr(self.model, "max_tokens", 0) or DEFAULT_MAX_TOKENS), specs)
         done = [False] * len(checklist)
+        closed = [False] * len(checklist)          # fix round after P4a: refused twice by the memory
         try:
-            while calls < self.calls_per_room and state.finished is None and not all(done or [False]) \
-                    and not budget.empty():
+            while calls < self.calls_per_room and state.finished is None \
+                    and not all([d or c for d, c in zip(done, closed)] or [False]) and not budget.empty():
                 if cap_at is not None and replies and self.clock() > cap_at:
                     break
                 if replies and not self.time_ok():
@@ -1045,6 +1312,11 @@ class AgentLoop:
                                     if not done[k] and step_done(step, tc.name, tc.parsed or {}, result,
                                                                  findings=ctx.findings):
                                         done[k] = True
+                            elif result.get("step_closed"):
+                                # fix round after P4a: the memory refused this edit twice in the session
+                                for k, step in enumerate(checklist):
+                                    if not done[k] and step_hit(step, tc.name, tc.parsed or {}, result):
+                                        closed[k] = True
                     messages.append({"role": "tool", "tool_call_id": tc.id, "content": tool_result_text(result)})
                 if state.pending_images:
                     shown = state.pending_images[-MAX_IMAGES:]
@@ -1052,8 +1324,9 @@ class AgentLoop:
                     messages.append(user_message("The images the tools returned, newest last.", shown, labels))
                     state.pending_images.clear()
         finally:
-            open_steps = [f"{s['tool']} on {s['target']}: {s.get('why', '')}"[:200]
-                          for s, d in zip(checklist, done) if not d]
+            open_steps = [(f"{s['tool']} on {s['target']}: {s.get('why', '')}"[:180]
+                           + (" [closed: the memory refused its edit twice]" if c else ""))
+                          for s, d, c in zip(checklist, done, closed) if not d]
             open_steps += [str(x) for x in ((state.finished or {}).get("open_findings") or [])]
             self.memory.set_open(room_id, open_steps)
             ctx.end_session()
@@ -1070,8 +1343,8 @@ class AgentLoop:
                                    "chars_removed": sum(int(c["chars_removed"]) for c in window.cuts),
                                    "max_model_len": getattr(self.model, "max_model_len", None)})
         return {"room_id": room_id, "calls": calls, "replies": replies, "error": error, "plan_ok": plan_ok,
-                "steps": len(checklist), "steps_done": sum(done), "seconds": round(self.clock() - t0, 2),
-                "context_full": context_full}
+                "steps": len(checklist), "steps_done": sum(done), "steps_closed": sum(closed),
+                "seconds": round(self.clock() - t0, 2), "context_full": context_full}
 
     # ----- one round ---------------------------------------------------------------------------------
 
@@ -1101,6 +1374,10 @@ class AgentLoop:
             f["cause"] = CS.cause_of(f, rendered)
             if CS.tools_for_finding(f):
                 kept.append(f)
+            elif CS.REPORT_TO.get(f["cause"]):
+                # fix round after P4a: a finding the critic re-routed to another stage (a light fixture's look) is
+                # reported like a code finding (not_yours, report_to), not dropped
+                kept.append(f)
             else:
                 vision.setdefault("dropped", []).append(dict(f, dropped=f"no agent tool for the cause "
                                                                          f"{f['cause']}: {CS.no_tool_reason(f)}"))
@@ -1109,7 +1386,9 @@ class AgentLoop:
         found = list(code.get("findings") or []) + list(vision.get("kept") or [])
         ctx.findings = found
         wanted = ("critical",) if critical_only else ("critical", "major")
-        open_ = [f for f in found if f["severity"] in wanted]
+        # fix round after P4a: the final round also lights a view one set_lighting clears, when a re-render follows
+        lighting = bool(final and critical_only and FINAL_ROUND_LIGHTING and self.rerun is not None)
+        open_ = [f for f in found if is_wanted(f, wanted, lighting)]
         summary = {"round": round_no, "final": final, "findings": {s: sum(1 for f in found if f["severity"] == s)
                                                                     for s in P.SEVERITIES},
                    "dropped": len(vision.get("dropped") or []), "accepted": 0, "rejected": 0, "calls": 0,
@@ -1119,17 +1398,18 @@ class AgentLoop:
                                            if c.get("target") in {r.get("id") for r in ctx.building.get("rooms")
                                                                    or []}}),
                    "rooms_planner": [], "rooms_fixable": [], "unfixable_open": 0, "sessions": 0, "plans_ok": 0,
-                   "refused_repeats": 0, "dry_runs": 0, "findings_removed": 0, "context_full": 0}
+                   "refused_repeats": 0, "dry_runs": 0, "findings_removed": 0, "context_full": 0,
+                   "camera_no_effect": 0}
         self.rounds.append(summary)
         if not open_:
             summary["stop"] = "no_finding"
             return self._end_round(summary, t0)
-        sessions, coverage = self.sessions_for(ctx, found, wanted)
+        sessions, coverage = self.sessions_for(ctx, found, wanted, lighting=lighting)
         summary.update(rooms_fixable=coverage["fixable_rooms"], unfixable_open=coverage["unfixable_open"])
         if not sessions:
             summary["stop"] = "no_fixable"
             return self._end_round(summary, t0)
-        plan = self.plan(ctx, round_no, sessions, critical_only)
+        plan = self.plan(ctx, round_no, sessions, critical_only, lighting=lighting)
         removed = sum(int(((a.get("result") or {}).get("acceptance") or {}).get("removed") or 0)
                       for a in ctx.accepted)
         self.findings_removed += removed
@@ -1185,9 +1465,28 @@ class AgentLoop:
             if v in before or v in after:
                 self.log.event("render", round_no, views=[v], before=before.get(v), after=after.get(v),
                                status="final" if final else "preview")
+        if status in ("ok", "reused", "warning"):
+            summary["camera_no_effect"] = self.check_camera_effects(round_no, ctx.accepted)
         if status not in ("ok", "reused", "warning", "skipped"):
             summary["stop"] = "rerun_failed"
         return self._end_round(summary, t0)
+
+    def check_camera_effects(self, round_no: int, accepted: list[dict]) -> int:
+        """Fix round after P4a: the accepted camera edits of the round against the rebuilt scene manifest
+        (``camera_effects``), one ``camera_effect`` check event per edit; the number with no effect."""
+        edits = [a for a in accepted if a.get("tool") in CAMERA_POSE_TOOLS]
+        if not edits:
+            return 0
+        scene = TL.read_json(self.project_out / "scene" / "scene_manifest.json")
+        if scene is None:
+            return 0
+        n = 0
+        for rec in camera_effects(scene, edits):
+            n += rec["status"] == "no_effect"
+            self.log.event("check", round_no, source="code", tool=CAMERA_EFFECT_CHECK, target=rec["view_id"],
+                           status=rec["status"], note=rec["note"], counts={"cameras": rec["cameras"]},
+                           evidence={"override": rec["override"], "poses": rec["poses"]})
+        return n
 
     def _end_round(self, summary: dict, t0: float) -> dict:
         summary["seconds"] = round(self.clock() - t0, 1)
@@ -1195,7 +1494,7 @@ class AgentLoop:
                        counts={k: summary.get(k) for k in ("accepted", "rejected", "calls", "schema_errors",
                                                            "dropped", "rooms_code", "sessions", "plans_ok",
                                                            "refused_repeats", "dry_runs", "unfixable_open",
-                                                           "findings_removed", "context_full")},
+                                                           "findings_removed", "context_full", "camera_no_effect")},
                        evidence={"findings": summary["findings"], "rooms_vision": summary["rooms_vision"],
                                  "rooms_planner": summary["rooms_planner"],
                                  "rooms_fixable": summary["rooms_fixable"], "final": summary["final"]})

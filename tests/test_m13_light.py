@@ -33,6 +33,15 @@ the sky pull's mask counts the haze shell as sky (``render.haze_sky``: the haze'
 the far ground behind the shell; the reserved index stays out of the index map and the pass index tables; the GPU sky
 check holds the blended sky to the saturation floor (with a feather allowance) and pins the mask's coherence
 (``full_weight_share``).
+
+Fix round after P4a (17 Oct 2026, render code m13.3; the ``test_fixround_p4a_*`` tests, each failing on 03881bc):
+every view keeps the project's daylight cast (``render.mixed_whitepoint``: P4a's rig-lit halls kept 2700 K ^ 0.35,
+linear R/B 2.24 on white); the sky pull tries up to 6 stops and stops at a mid-tone median (P4a's terrace: a flat
+dark slate sky at k 4), blends by the sky's coverage on the mask and a 2 px ring (``render.sky_pull_weights``: P4a's
+white rims round the silhouettes) and records the views into the sun; the views under the interior world hide the
+haze from their camera rays (P4a's grey-card windows); CPU replays of the GPU checks: the rig-lit walls against the
+same project's daylight walls, the pulled sky's floor by its rule, the panes' saturation. The Blender-bound twin
+(the kitchen window with and without the haze in view) is in tests/test_look_m6.py.
 """
 from __future__ import annotations
 
@@ -228,8 +237,10 @@ def test_project_white_balance_helpers(tmp_path):
     assert R.load_project_whitepoint(manifest)["whitepoint"] == [1.1, 1.0, 0.8]
     manifest.write_text(json.dumps({"white_balance_project": {"whitepoint": None}}))
     assert R.load_project_whitepoint(manifest) is None
-    # fix round after P3 (16-17 Oct 2026): the view white point, the open-air world, the sky and window pulls -> m13.2
-    assert R.RENDER_CODE_VERSION == "m13.2"
+    # fix round after P3 (16-17 Oct 2026): the view white point, the open-air world, the sky and window pulls -> m13.2;
+    # fix round after P4a (17 Oct 2026): the daylight cast in every view, the sky pull's coverage weights, steps and
+    # mid-tone target, the haze hidden from the interior views' camera rays -> m13.3 (P4a's views are not reused)
+    assert R.RENDER_CODE_VERSION == "m13.3"
     # The sun lamp hides under the exterior world with a sun disc for every ray only (the P1 world); round 3:
     # with the disc for camera rays only the lamp stays, it is the one direct sun outdoors.
     props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_exterior_sun_disc": True}
@@ -873,8 +884,10 @@ def _rb(rgb) -> float:
 
 def test_fixround_p3_the_view_white_point_mixes_daylight_and_the_rig_by_its_share():
     """P3 applied the daylight point to rooms lit only by the 2700 K rig: 24 of 48 views over R/B 1.6. The view's
-    white point is the project's daylight colour mixed with the rig's colour by the view's rig share, corrected with
-    the same residual; share 0 is the project point exactly, share 1 the rig's own white point."""
+    white point is the project's daylight colour mixed with the rig's colour by the view's rig share; share 0 is the
+    project point exactly. Fix round after P4a (17 Oct 2026): share 1 is no longer the rig's own white point (the
+    residual applied to the rig's colour, 2700 K ^ 0.35 left on white: P4a's orange halls) but the rig's colour
+    divided by the project's daylight cast (``test_fixround_p4a_every_view_keeps_the_project_daylight_cast``)."""
     lum = 0.2126 * P3_ANCHOR[0] + 0.7152 * P3_ANCHOR[1] + 0.0722 * P3_ANCHOR[2]
     assert lum == pytest.approx(1.0, abs=1e-4)
     assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 0.0, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
@@ -882,15 +895,15 @@ def test_fixround_p3_the_view_white_point_mixes_daylight_and_the_rig_by_its_shar
     day = R.normalise_whitepoint([v ** (1 / 0.65) for v in P3_ANCHOR])
     assert R.whitepoint_from(day, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
     full = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 0.35)
-    assert full == pytest.approx(R.whitepoint_from(RIG_2700K, 0.35), abs=1e-6)
+    rig = R.normalise_whitepoint(RIG_2700K)
+    assert full == pytest.approx(R.normalise_whitepoint([rig[i] / day[i] ** 0.35 for i in range(3)]), abs=1e-6)
     ratios = [_rb(R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, s, 0.35)) for s in (0.0, 0.25, 0.5, 0.75, 1.0)]
     assert ratios == sorted(ratios) and ratios[0] < ratios[-1]                    # warmer with the rig's share
     # A white tile lit by the rig alone, scene-linear (pixel = light / white point): under the project point it is
-    # 7.9 times redder than blue (P3's peach baths), under the view's own point the residual's cast is left.
+    # 7.9 times redder than blue (P3's peach baths), under the view's own point the daylight rooms' cast is left.
     under_anchor = _rb([RIG_2700K[i] / P3_ANCHOR[i] for i in range(3)])
     under_view = _rb([RIG_2700K[i] / full[i] for i in range(3)])
-    assert under_anchor > 7.0 and under_view == pytest.approx(_rb(RIG_2700K) ** 0.35, rel=1e-3)
-    assert under_view < 2.3
+    assert under_anchor > 7.0 and under_view == pytest.approx(_rb([d ** 0.35 for d in day]), abs=1e-3)
     # no correction at all (a residual of 1) and bad shares keep the anchor; residual 0 neutralises the rig fully
     assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 1.0, 1.0) == pytest.approx(P3_ANCHOR, abs=1e-5)
     assert R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, None, 0.35) == pytest.approx(P3_ANCHOR, abs=1e-5)
@@ -1022,7 +1035,8 @@ def test_fixround_p3_the_sky_pull_keeps_the_facade_exposure():
     sun), stays as rendered."""
     import numpy as np
 
-    assert R.SKY_PULL_STEPS == (1, 2, 3, 4) and R.SKY_PULL_MEDIAN_MAX == 0.8 and R.SKY_PULL_SAT_MIN == 0.12
+    # fix round after P4a (17 Oct 2026): up to 6 stops (test_fixround_p4a_the_sky_pull_tries_six_stops_...)
+    assert R.SKY_PULL_STEPS == (1, 2, 3, 4, 5, 6) and R.SKY_PULL_MEDIAN_MAX == 0.8 and R.SKY_PULL_SAT_MIN == 0.12
     ext_2 = {"median": 0.84, "saturation": 0.08}
     cands = [{"k": 1, "median": 0.78, "saturation": 0.10}, {"k": 2, "median": 0.70, "saturation": 0.14},
              {"k": 3, "median": 0.60, "saturation": 0.17}]
@@ -1277,8 +1291,8 @@ def test_fixround_part2_gpu_fill_light_check_names_its_rooms(tmp_path, monkeypat
                                    lights[:2]), render))
     assert gpu.FILL_LIGHT_ROOMS["real04"] == {"r_L0_yatak_odasi_3": True, "r_L0_yatak_odasi_4": True,
                                               "r_L-1b_oda": False, "r_L-1b_oda_2": False}
-    # a room whose rig built no fixture (real02's r_L0_yatak_odasi_4: the bedside lamps would stand outside the
-    # room) needs only its fill light
+    # a room whose rig built no fixture needs only its fill light (a synthetic case: real02's r_L0_yatak_odasi_4,
+    # whose bedside lamps once stood outside the room, gets two wall sconces since the fix round after P4a)
     bare = dict(good, r_L0_yatak_odasi_4={"fixtures": [], "dropped": [{"kind": "bedside"}],
                                           "replaces_fill_light": False, "adds_to_fill_light": False})
     gpu.test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(
@@ -1548,3 +1562,377 @@ def test_fixround_part3_gpu_sky_pull_check_holds_the_floor_and_the_mask(tmp_path
     gpu.test_sky_and_window_pulls_reach_their_targets(project(ext_2=dict(ext_2, saturation_after=0.10)))
     with pytest.raises(AssertionError, match="under the floor"):
         gpu.test_sky_and_window_pulls_reach_their_targets(project(ext_2=dict(ext_2, saturation_after=0.099)))
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4a (17 Oct 2026): the daylight cast in every view, the sky pull's weights, steps and mid-tone
+# target, the views into the sun, the haze hidden from the interior views' camera rays
+# --------------------------------------------------------------------------
+
+# P4a (runs/20261017-072801-full, real02, not committed): the project white point (5,608.6 K, metered on the terrace
+# with the rig hidden, residual 0.35) and the rig's white point at 2700 K (kelvin_whitepoint), as render_manifest.json
+# recorded them.
+P4A_ANCHOR = [1.114215, 0.979539, 0.866367]
+P4A_RIG = [1.935351, 0.803501, 0.19225]
+
+
+def test_fixround_p4a_every_view_keeps_the_project_daylight_cast():
+    """P4a: all 12 rig-lit hall views of real02 were orange (wall R/B 1.64-1.81 against the 1.5 pin). The m13.2 white
+    point applied the mood's residual to the rig's own colour, so a room lit by the rig alone kept 2700 K ^ 0.35: a
+    white wall at linear R/B 2.244, against 1.145 in the daylight rooms under the same anchor. Every view now keeps the
+    project's daylight cast: a white surface lit by the view's own mixed light reads 1.145 at every share (the
+    verifier's pin at 0.25 / 0.5 / 0.9 and the kitchens' 0.70-0.79), the white point moves with the share with no
+    step, and the rig's optional extra warmth (``WB_RIG_RESIDUAL``, 0) is capped at the mood's residual. Fails on
+    03881bc (2.244 at share 1; no ``rig_residual``)."""
+    day = R.normalise_whitepoint([v ** (1 / 0.65) for v in P4A_ANCHOR])
+    rig = R.normalise_whitepoint(P4A_RIG)
+    cast = _rb([d ** 0.35 for d in day])                       # a white wall in a daylight room: the mood's cast
+    assert cast == pytest.approx(1.145, abs=1e-3)
+    assert R.WB_RIG_RESIDUAL == 0.0 and "kept for every view" in R.WB_VIEW_RULE
+    for s in (0.02, 0.25, 0.5, 0.70, 0.79, 0.9, 1.0):
+        wp = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, s, 0.35)
+        light = [(1 - s) * d + s * q for d, q in zip(day, rig)]
+        assert _rb([v / w for v, w in zip(light, wp)]) == pytest.approx(cast, abs=1e-3), s
+        assert wp[2] < P4A_ANCHOR[2] and wp[0] > P4A_ANCHOR[0], s     # warmer than the anchor: a positive mired shift
+    # P4a's hall white point (share 1, the residual on the rig's colour) left 2.244 on white
+    m132 = R.whitepoint_from(rig, 0.35)
+    assert _rb([rig[i] / m132[i] for i in range(3)]) == pytest.approx(2.244, abs=2e-3)
+    full = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.35)
+    assert _rb([rig[i] / full[i] for i in range(3)]) == pytest.approx(cast, abs=1e-3)
+    # continuous in the share: no step between the kitchens (0.70-0.79) and the halls (0.90-1.0)
+    blue = [R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 0.70 + 0.01 * i, 0.35)[2] for i in range(31)]
+    steps = [b1 - b2 for b1, b2 in zip(blue, blue[1:])]
+    assert min(steps) > 0.0 and max(steps) < 0.01
+    # the lever: the rig part's extra warmth, a share of the rig's colour over the daylight's, none at share 0,
+    # never more than the mood's residual, nothing under a mood with residual 0 (cool daylight: full correction)
+    warm = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.35, 0.1)
+    under = _rb([rig[i] / warm[i] for i in range(3)])
+    assert under == pytest.approx(cast * (_rb(rig) / _rb(day)) ** 0.1, rel=1e-3) and cast < under < 1.5
+    assert R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 0.0, 0.35, 0.1) == pytest.approx(
+        R.normalise_whitepoint(P4A_ANCHOR), abs=1e-6)
+    assert R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.35, 0.9) == pytest.approx(
+        R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.35, 0.35), abs=1e-9)
+    neutral = R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.0, 0.1)
+    assert _rb([rig[i] / neutral[i] for i in range(3)]) == pytest.approx(1.0, abs=1e-4)
+    assert R.mixed_whitepoint(P4A_ANCHOR, P4A_RIG, 1.0, 0.35, float("nan")) == pytest.approx(full, abs=1e-9)
+
+
+# P4a's sky pull records (render_manifest.json, ``tried``: k, median, saturation of the EV - k saves)
+P4A_SKY_TRIED = {
+    "cam_r_L1_teras_1": ((0.8793, 0.0386), [(1, 0.8028, 0.0529), (2, 0.7026, 0.0785), (3, 0.576, 0.1176),
+                                            (4, 0.4261, 0.1681)]),
+    "cam_r_L1_teras_2_1": ((0.6606, 0.0694), [(1, 0.5247, 0.1056), (2, 0.3754, 0.1389)]),
+    "cam_r_L1_teras_2_2": ((0.795, 0.067), [(1, 0.6931, 0.099), (2, 0.564, 0.1494)]),
+    "ext_1": ((0.9395, 0.0249), [(1, 0.881, 0.0351), (2, 0.8085, 0.0516), (3, 0.7101, 0.0781), (4, 0.5841, 0.1154)]),
+    "ext_2": ((0.8516, 0.0622), [(1, 0.7673, 0.0905), (2, 0.6567, 0.1325)]),
+    "ext_5": ((0.9406, 0.0083), [(1, 0.8852, 0.0131), (2, 0.8109, 0.0146), (3, 0.7152, 0.0266), (4, 0.5905, 0.0382)]),
+}
+
+
+def test_fixround_p4a_the_sky_pull_tries_six_stops_and_stops_at_mid_tone():
+    """P4a: the terrace's hazy sky reached the saturation floor only at k 4 (median 0.43, saturation 0.17: a flat dark
+    slate sky against M11's bright clouds), ext_1 stayed white (k 4 gave 0.115, just under the floor; no k 5) and
+    ext_5, 6 degrees off the sun, never turns blue. A k now also qualifies at a mid-tone median (<= 0.6) with a
+    saturation of at least 0.10, and up to 6 stops are tried: the terrace stops at k 3 (median 0.58), ext_1 is pulled
+    at k 4, teras_2_1 at k 1 (median 0.52 instead of 0.38), ext_2 and teras_2_2 keep k 2, ext_5 stays as rendered.
+    Fails on 03881bc (k 4 / 0 / 2 and steps 1-4)."""
+    from wenart.blender import schemas
+
+    assert R.SKY_PULL_STEPS == (1, 2, 3, 4, 5, 6) and max(R.SKY_PULL_STEPS) == \
+        schemas.SKY_PULL["oneOf"][1]["properties"]["k"]["maximum"]
+    assert R.SKY_PULL_MEDIAN_TARGET == 0.6 and R.SKY_PULL_SAT_NEAR == 0.10 and R.SKY_PULL_SAT_MIN == 0.12
+    chosen = {}
+    for cam, (before, tried) in P4A_SKY_TRIED.items():
+        cands = [{"k": k, "median": m, "saturation": s} for k, m, s in tried]
+        chosen[cam] = R.choose_sky_pull({"median": before[0], "saturation": before[1]}, cands)
+    assert {c: k for c, (k, _rule) in chosen.items()} == {"cam_r_L1_teras_1": 3, "cam_r_L1_teras_2_1": 1,
+                                                          "cam_r_L1_teras_2_2": 2, "ext_1": 4, "ext_2": 2, "ext_5": 0}
+    assert "mid-tone" in chosen["cam_r_L1_teras_1"][1] and "mid-tone" in chosen["ext_1"][1]
+    assert "mid-tone" not in chosen["ext_2"][1] and chosen["ext_5"][1].startswith("no k")
+    # the floor each pull was chosen against (the GPU check's blended-sky floor)
+    assert R.sky_pull_floor({"median": 0.58, "saturation": 0.1176}) == R.SKY_PULL_SAT_NEAR
+    assert R.sky_pull_floor({"median": 0.66, "saturation": 0.1325}) == R.SKY_PULL_SAT_MIN
+    # the mid-tone rule needs both: a pale sky at mid-tone (ext_5 at k 4) or a saturated one over the shoulder fails
+    assert not R.sky_pull_qualifies({"median": 0.59, "saturation": 0.038})
+    assert not R.sky_pull_qualifies({"median": 0.65, "saturation": 0.11})
+    assert not R.sky_pull_qualifies({"median": 0.85, "saturation": 0.3})
+    # a sky already at mid-tone with the near floor is not pulled (P4a's teras_2_3 read 0.47 / 0.21)
+    assert R.choose_sky_pull({"median": 0.55, "saturation": 0.105}, [])[0] == 0
+    # k 5 and 6 are tried when nothing up to 4 qualifies
+    deep = [{"k": k, "median": 0.95 - 0.1 * k, "saturation": 0.02 * k} for k in R.SKY_PULL_STEPS]
+    assert R.choose_sky_pull({"median": 0.95, "saturation": 0.01}, deep)[0] == 5
+
+
+def _edge_frame():
+    """A pulled view at 12 x 10 as Cycles 5.2.2 writes it (the bpy shim, a plane's edge at 64 spp: Normal pass
+    magnitudes 0.05 / 0.75 / 1 ... 1 / 0.95 / 0.30 across the edge, the depth hit where sample 0 hit): rows 0-4 sky
+    with a chimney (rows 2-9, columns 4-7, 8 m) and its anti-aliased edges, rows 5-9 far ground behind the haze
+    (300 m, |N| 0.4: the samples that scatter in the haze add no normal; at row 5, column 10 a hill-line pixel half
+    sky, |N| 0.2), a haze-shell hit at 40 m in the sky."""
+    import numpy as np
+
+    h, w = 10, 12
+    depth = np.full((h, w), 1e10)
+    index = np.zeros((h, w))
+    normal = np.zeros((h, w, 3))
+    depth[5:] = 300.0
+    normal[5:] = (0.0, 0.0, 0.4)
+    normal[5, 10] = (0.0, 0.0, 0.2)                 # the hill line: half the samples reach the far ground
+    depth[2:, 4:8], index[2:, 4:8], normal[2:, 4:8] = 8.0, 5.0, (0.0, -1.0, 0.0)
+    normal[2:5, 3] = (0.0, -0.05, 0.0)              # sky, a sliver of the chimney in some samples (no hit at sample 0)
+    normal[2:5, 4] = (0.0, -0.75, 0.0)              # the chimney's edge (hit), a quarter sky
+    normal[2:5, 7] = (0.0, -0.95, 0.0)              # the other edge (hit), 5 % sky
+    normal[2:5, 8] = (0.0, -0.30, 0.0)              # sky (no hit), 30 % chimney
+    depth[0, 0], index[0, 0] = 40.0, HAZE_INDEX     # the shell, nothing behind it
+    channels = {"ViewLayer.Depth.Z": depth, "ViewLayer.Object Index.X": index, "ViewLayer.Normal.X": normal[..., 0],
+                "ViewLayer.Normal.Y": normal[..., 1], "ViewLayer.Normal.Z": normal[..., 2]}
+    return channels
+
+
+def test_fixround_p4a_sky_pull_weights_follow_the_sky_coverage():
+    """P4a: 2-4 px white rims round the leaves, the roof ridge and the chimney of every pulled view (ext_2 ridge rims
+    177-217 against a sky of 168; teras_1 159-223 against 125): the binary mask left the anti-aliased edge pixels at
+    the unpulled sky and the inward feather gave the first two sky pixels 1/3 and 2/3 of the pull. The weights are now
+    the sky coverage from the Normal pass on the mask and on a 2 px ring outside it: ``1 - |N|`` on the mask, ``1 -
+    |N| / ref`` in the ring with ``ref`` the normal a fully covered pixel of that surface keeps nearby (the chimney 1,
+    the far ground behind the haze 0.4), taken apart for the surfaces seen through the haze. A pure sky pixel next to
+    the silhouette gets the full pull, an edge pixel its sky share, a covered pixel none (the far ground too, and its
+    hill line half). Fails on 03881bc (no ``sky_pull_weights``)."""
+    import numpy as np
+
+    channels = _edge_frame()
+    depth, index, normal = _passes(channels)
+    mask = R.sky_mask(depth, index, normal, {HAZE_INDEX})
+    assert mask[:5, :4].all() and mask[0:2, 4:8].all() and not mask[2:, 4:8].any() and not mask[5:].any()
+    weights, ring = R.sky_pull_weights(mask, normal, depth=depth, index=index, haze_indices={HAZE_INDEX})
+    assert R.SKY_RING_PX == 2 and R.SKY_REF_PX == 4 and R.SKY_FAR_MARGIN_M == 100.0
+    assert weights[0, 0] == 1.0 and weights[1, 5] == 1.0                     # the shell's sky and the sky over it
+    assert weights[3, 2] == 1.0                                              # one pixel from the edge: full pull
+    assert weights[3, 3] == pytest.approx(0.95) and weights[3, 8] == pytest.approx(0.70)   # sky with a sliver
+    assert ring[3, 4] and weights[3, 4] == pytest.approx(0.25)               # the edge, a quarter sky
+    assert ring[3, 7] and weights[3, 7] == pytest.approx(0.05)
+    assert ring[3, 5] and weights[3, 5] == 0.0                               # the chimney: no sky in it
+    assert ring[6, 5] and not ring[7:, 4:8].any() and (weights[7:] == 0.0).all()   # 2 px from the sky, not 3
+    far = np.zeros(ring.shape, dtype=bool)
+    far[5:, :4] = far[5:, 8:] = True
+    far[5, 10] = False
+    assert ring[5, 0] and ring[6, 9] and (weights[far] == 0.0).all()         # the far ground behind the haze: covered
+    assert weights[5, 10] == pytest.approx(0.5)                              # the hill line: half sky
+    # 03881bc's feather: the first sky pixels got a third and two thirds of the pull, the edge pixels none
+    feather = R.feather_weights(mask)
+    assert feather[3, 3] == pytest.approx(1 / 3) and feather[3, 4] == 0.0
+    # without the depth and the haze set the chimney (1) sets the far ground's reference: its haze would count as sky
+    _w, ring_all = R.sky_pull_weights(mask, normal)
+    assert np.array_equal(ring_all, ring) and _w[5, 0] == pytest.approx(0.6) and _w[3, 4] == pytest.approx(0.25)
+    # foliage keeps less than 1 when fully covered (its leaf normals partly cancel): its own reference
+    leaf = normal.copy()
+    leaf[2:, 4:8] = (0.0, -0.7, 0.0)
+    leaf[2:5, 4] = (0.0, -0.35, 0.0)                                         # half sky
+    lw, _r = R.sky_pull_weights(mask, leaf, depth=depth, index=index, haze_indices={HAZE_INDEX})
+    assert lw[3, 4] == pytest.approx(0.5) and lw[3, 5] == 0.0
+    # without a Normal pass: the mask at full weight, no ring
+    w0, r0 = R.sky_pull_weights(mask)
+    assert np.array_equal(w0, mask.astype(float)) and not r0.any()
+
+
+def test_fixround_p4a_the_sky_pull_blends_the_edges_by_their_sky_share(tmp_path, monkeypatch):
+    """``RenderRun.sky_pull`` on the edge frame: the whole sky takes the k 2 save, the chimney's edge pixels are
+    blended by their sky share, nothing outside the mask and the ring changes, and the record says the ring and the
+    sun offset (none without a sun lamp in the stand-in scene). Fails on 03881bc (the sky next to the chimney at a
+    third of the pull, the edge unchanged)."""
+    import types
+
+    import numpy as np
+
+    channels = _edge_frame()
+    depth, index, normal = _passes(channels)
+    h, w = depth.shape
+    main = np.zeros((h, w, 3), dtype=np.uint8)
+    main[:5] = (224, 226, 228)                     # the near-white sky at the facade EV
+    main[2:, 4:8] = (200, 200, 200)                # the white chimney
+    main[5:] = (110, 120, 100)                     # far ground
+    main[2:5, 4] = (218, 219, 220)                 # its edge pixels as rendered (mostly chimney)
+    pulled = {1: (200, 212, 230), 2: (150, 172, 206), 3: (110, 128, 160)}
+
+    def fake_save(scene, result, path, ev, look=R.LOOK):
+        k = int(round(-4.0 - float(ev)))
+        img = (main.astype(np.float64) * 0.5 ** k).astype(np.uint8)
+        img[:2] = pulled[k]
+        img[2:5, :4] = pulled[k]
+        img[2:5, 8:] = pulled[k]
+        return img
+
+    run = types.SimpleNamespace(ctx=types.SimpleNamespace(scene=None, haze={HAZE_INDEX}), out=tmp_path, warnings=[])
+    cam = types.SimpleNamespace(name="ext_2")
+    monkeypatch.setattr(R, "save_display", fake_save)
+    record, weights, final = R.RenderRun.sky_pull(run, cam, {"ev": -4.0}, None, main, channels)
+    assert record["k"] == 2 and record["ring_px"] == 7                      # columns 4 and 7, rows 2-4; the hill line
+    assert record["sun_offset_deg"] is None and record["into_sun"] is False
+    assert record["targets"]["ring_px"] == R.SKY_RING_PX
+    mask = R.sky_mask(depth, index, normal, {HAZE_INDEX})
+    pure = mask & (np.abs(normal).sum(axis=-1) == 0)
+    assert np.array_equal(final[pure], np.broadcast_to(np.array(pulled[2], np.uint8), final[pure].shape))
+    k2 = (main.astype(np.float64) * 0.25).astype(np.uint8)                 # the k 2 save outside the sky
+    assert np.array_equal(final[3, 4], np.rint(main[3, 4] * 0.75 + k2[3, 4] * 0.25).astype(np.uint8))
+    assert np.array_equal(final[3, 3], np.rint(main[3, 3] * 0.05 + np.array(pulled[2]) * 0.95).astype(np.uint8))
+    _w, ring = R.sky_pull_weights(mask, normal, depth=depth, index=index, haze_indices={HAZE_INDEX})
+    assert np.array_equal(final[5, 10], np.rint(main[5, 10] * 0.5 + k2[5, 10] * 0.5).astype(np.uint8))
+    still = ~mask & (weights == 0.0)
+    assert np.array_equal(final[still], main[still])                         # the chimney's core and the far ground
+    assert (still | mask | ring).all()                                       # only the mask and the ring can change
+
+
+def test_fixround_p4a_the_record_names_the_views_into_the_sun():
+    """P4a's ext_1 and ext_5 look 6 degrees off the sun (azimuth 45, elevation 35, north assumed): their skies stay
+    white at any EV, and a locked exterior EV would not change that (the verifier's analysis). The sky pull records
+    the angle between the view's and the sun's azimuth and ``into_sun`` within ``SKY_INTO_SUN_DEG``, for the report."""
+    el, az = math.radians(35.0), math.radians(45.0)
+    travel = (-math.cos(el) * math.cos(az), -math.cos(el) * math.sin(az), -math.sin(el))   # the light's direction
+
+    def view(deg, down=-0.1):
+        return (math.cos(math.radians(deg)), math.sin(math.radians(deg)), down)
+    assert R.sun_offset_deg(view(39.0), travel) == pytest.approx(6.0, abs=0.01)           # ext_1
+    assert R.sun_offset_deg(view(51.0, -0.27), travel) == pytest.approx(6.0, abs=0.01)    # ext_5, the aerial
+    assert R.sun_offset_deg(view(225.0), travel) == pytest.approx(180.0, abs=0.01)        # the sun behind (ext_3)
+    assert R.sun_offset_deg(view(135.0), travel) == pytest.approx(90.0, abs=0.01)         # ext_2 / ext_4 (84-96)
+    assert R.sun_offset_deg(view(-170.0), travel) == pytest.approx(145.0, abs=0.01)       # across +-180
+    assert R.sun_offset_deg((0.0, 0.0, -1.0), travel) is None and R.sun_offset_deg(view(10.0), None) is None
+    assert R.sun_offset_deg(None, travel) is None and R.SKY_INTO_SUN_DEG == 30.0
+    import types
+
+    assert R.camera_forward(types.SimpleNamespace(name="cam")) is None       # a stand-in without a world matrix
+
+
+def test_fixround_p4a_views_under_the_interior_world_hide_the_haze_from_their_camera_rays():
+    """P4a's windows showed a flat grey card (pane saturation 0.00-0.07 against M11's clouds at 0.13-0.25): the camera's
+    ray through the glass crossed up to 1200 m of haze before it reached the interior world. Every view that is not
+    under the exterior sky renders with the haze hidden from its camera and transmission rays; the exterior views and
+    the open-air rooms keep it (their sky is the haze and the sky world). The helpers hide and restore exactly those
+    two ray types."""
+    import types
+
+    props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_interior": "World"}
+    assert R.haze_hidden_for(props, "interior", "bedroom") and R.haze_hidden_for(props, None, "hall")
+    assert not R.haze_hidden_for(props, "exterior") and not R.haze_hidden_for(props, None, "balcony")
+    assert not R.haze_hidden_for({}, "exterior")                               # no exterior world: no change outdoors
+    assert R.haze_hidden_for({"wenart_world_interior": "World"}, None, "balcony")    # a terrace under the interior HDRI
+    objs = [types.SimpleNamespace(name="haze", visible_camera=True, visible_transmission=True, visible_diffuse=True,
+                                  visible_glossy=True),
+            types.SimpleNamespace(name="haze.001", visible_camera=False, visible_transmission=True,
+                                  visible_diffuse=True, visible_glossy=True)]
+    saved = R.hide_haze_from_view(objs)
+    assert [(o.visible_camera, o.visible_transmission, o.visible_diffuse, o.visible_glossy) for o in objs] == \
+        [(False, False, True, True)] * 2
+    R.restore_haze(saved)
+    assert [(o.visible_camera, o.visible_transmission) for o in objs] == [(True, True), (False, True)]
+
+
+def _wall_views(out: Path, views_rb: dict, wet_rooms=()):
+    """Hand-made renders of a project (32 x 18): every view all wall (index 0, a hit, a horizontal normal) of display
+    R/B ``views_rb[cam][1]``; ``views_rb[cam]`` = (room_id, R/B, rig share). Returns ``(name, scene, render)``."""
+    import numpy as np
+
+    from wenart import views
+
+    w, h = 32, 18
+    renders = out / "real02" / "renders"
+    renders.mkdir(parents=True)
+    entries = []
+    for cam, (room, rb, share) in views_rb.items():
+        rgb = np.zeros((h, w, 3), np.uint8)
+        rgb[...] = (int(round(100 * rb)), 110, 100)
+        normal = np.zeros((h, w, 3), np.uint8)
+        normal[...] = (255, 128, 128)                                       # +X: a wall
+        views.write_png_rgb(renders / f"{cam}.png", rgb)
+        views.write_png_rgb(renders / f"{cam}_normal.png", normal)
+        views.write_png16(renders / f"{cam}_depth_mm.png", np.full((h, w), 2000, np.uint16))
+        views.write_png16(renders / f"{cam}_index.png", np.zeros((h, w), np.uint16))
+        entries.append({"camera": cam, "room_id": room, "level_id": "L0", "resolution": [w, h], "png": f"{cam}.png",
+                        "render_key": "0" * 16, "index_stats": {}, "world": "World",
+                        "files": {"index": f"{cam}_index.png", "depth_mm": f"{cam}_depth_mm.png",
+                                  "normal": f"{cam}_normal.png"},
+                        "exposure": {"wb_rig_share": share, "lighting_dark": None}})
+    render = {"white_balance_mode": "project", "white_balance_project": {"whitepoint": P4A_ANCHOR, "residual": 0.35},
+              "renders": entries}
+    (renders / "render_manifest.json").write_text(json.dumps(render), encoding="utf-8")
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}},
+             "objects": [{"kind": "floor", "wenart_id": r, "wet": True} for r in wet_rooms]}
+    return "real02", scene, render
+
+
+def test_fixround_p4a_gpu_orange_check_compares_rig_lit_walls_with_the_daylight_walls(tmp_path, monkeypatch):
+    """P4a: the fixed 1.5 pin ignored the paint (real02's warm greige walls, linear R/B 1.34). The GPU check now
+    compares the walls of the rig-lit views with the walls of the same project's daylight views of the same kind
+    (painted, or tiled in the rooms with a wet floor): at most ``RIG_ROOM_REL_MAX`` (1.1) times their median, set from
+    the bpy shim re-render of P4a's scene at P4a's EV (painted daylight median 1.36; halls 1.64-1.78 with m13.2's white
+    point, 1.26-1.36 with m13.3's). The fixed 1.5 stays only where no daylight view of that kind exists."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    assert gpu.RIG_ROOM_REL_MAX == 1.1 and gpu.RIG_ROOM_MAX_RB == 1.5
+    day = {"cam_r_bed_1": ("r_bed", 1.40, 0.0), "cam_r_bed_2": ("r_bed", 1.36, 0.0),
+           "cam_r_salon_1": ("r_salon", 1.38, 0.0)}                        # like real02's painted daylight walls
+
+    def check(case, rig_views, wet=("r_bath",)):
+        monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)
+        gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, rig_views, wet))
+    # real02 with m13.3: halls 1.26-1.36, baths 1.02-1.08 (no daylight bath: the fixed 1.5)
+    check("m133", {**day, "cam_r_hall_1": ("r_hall", 1.36, 1.0), "cam_r_hall_2": ("r_hall", 1.305, 0.97),
+                   "cam_r_bath_1": ("r_bath", 1.08, 1.0)})
+    # real02 with m13.2: halls 1.64-1.78 over 1.1 x 1.38
+    with pytest.raises(AssertionError, match="cam_r_hall_1.*painted"):
+        check("m132", {**day, "cam_r_hall_1": ("r_hall", 1.654, 1.0), "cam_r_bath_1": ("r_bath", 1.25, 1.0)})
+    # white walls (daylight 1.05): a hall at 1.3 is orange there, though under the fixed 1.5 ...
+    white = {"cam_r_bed_1": ("r_bed", 1.05, 0.0), "cam_r_bed_2": ("r_bed", 1.06, 0.0)}
+    with pytest.raises(AssertionError, match="cam_r_hall_1.*painted"):
+        check("white", {**white, "cam_r_hall_1": ("r_hall", 1.30, 1.0)})
+    # ... and a warmer paint (daylight 1.48) lets a hall at 1.55 pass, over the fixed 1.5
+    warm = {"cam_r_bed_1": ("r_bed", 1.48, 0.0), "cam_r_bed_2": ("r_bed", 1.47, 0.0), "cam_r_bed_3": ("r_bed", 1.49, 0.0)}
+    check("warm", {**warm, "cam_r_hall_1": ("r_hall", 1.55, 1.0)})
+    # a tiled bath over the fixed 1.5 fails; a daylight bath sets the tiled walls' own bound
+    with pytest.raises(AssertionError, match="cam_r_bath_1.*tiled"):
+        check("bath", {**day, "cam_r_bath_1": ("r_bath", 1.55, 1.0)})
+    with pytest.raises(AssertionError, match="cam_r_bath_1.*tiled"):
+        check("bath_day", {**day, "cam_r_bath_2": ("r_bath_2", 1.05, 0.0), "cam_r_bath_1": ("r_bath", 1.25, 1.0)},
+              wet=("r_bath", "r_bath_2"))
+    # the views of a mixed room (share between WB_RIG_SHARE_MIN and 0.8) are neither reference nor checked
+    check("mixed", {**day, "cam_r_kit_1": ("r_kit", 2.5, 0.5), "cam_r_hall_1": ("r_hall", 1.2, 1.0)})
+    # no daylight painted view: the fixed 1.5
+    check("fallback", {"cam_r_hall_1": ("r_hall", 1.45, 1.0)})
+    with pytest.raises(AssertionError, match="cam_r_hall_1"):
+        check("fallback_warm", {"cam_r_hall_1": ("r_hall", 1.55, 1.0)})
+
+
+def test_fixround_p4a_gpu_sky_and_pane_checks(tmp_path, monkeypatch):
+    """The GPU sky check holds a pulled sky to the floor of the rule its k was chosen by (a mid-tone pull: the near
+    floor 0.10, else 0.12, each less the allowance), and lists the views into the sun; the pane check fails a project
+    whose interior panes are grey cards (P4a: 0.00-0.07) and a window pull rendered before m13.3."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}}}
+    tried = [{"k": 1, "median": 0.8028, "saturation": 0.0529}, {"k": 2, "median": 0.7026, "saturation": 0.0785},
+             {"k": 3, "median": 0.576, "saturation": 0.1176}]                       # P4a's terrace up to k 3
+    teras = _sky(3, before=(0.8793, 0.0386), after=(0.5762, 0.095), tried=tried, full=0.99)
+
+    def project(sky=teras, panes=None, cam="cam_r_L1_teras_1"):
+        renders = [{"camera": cam, "room_id": "r_L1_teras", "open_air": True, "sky_pull": sky}]
+        for i, (sat, k) in enumerate(panes or []):
+            wp = {"k": k, "pane_median_after": 0.7, "pane_saturation": sat}
+            if k:
+                wp["pane_saturation_after"] = sat
+            renders.append({"camera": f"cam_r_bed_{i + 1}", "room_id": "r_bed", "open_air": False, "window_pull": wp})
+        return "real02", scene, {"renders": renders}
+    gpu.test_sky_and_window_pulls_reach_their_targets(project())                  # 0.095 >= 0.10 - 0.02
+    with pytest.raises(AssertionError, match="under the floor 0.1 - 0.02"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(dict(teras, saturation_after=0.079)))
+    # the same blend after a pull chosen by the 0.12 floor fails (03881bc held every pull to it)
+    saturated = dict(teras, tried=tried[:2] + [dict(tried[2], saturation=0.13)])
+    with pytest.raises(AssertionError, match="under the floor 0.12 - 0.02"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(saturated))
+    # the panes: P4a's grey cards fail, the sky passes, a record without pane_saturation is an older render
+    good = [(0.14, 1), (0.17, 1), (0.13, 2), (0.02, 1)]
+    gpu.test_sky_and_window_pulls_reach_their_targets(project(panes=good))
+    with pytest.raises(AssertionError, match="grey cards"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(panes=[(0.005, 1), (0.006, 2), (0.07, 0)]))
+    old = project(panes=good)
+    del old[2]["renders"][1]["window_pull"]["pane_saturation"]
+    with pytest.raises(AssertionError, match="before m13.3"):
+        gpu.test_sky_and_window_pulls_reach_their_targets(old)
+    assert gpu.PANE_SAT_MIN <= 0.13                                                # M11's skies pass

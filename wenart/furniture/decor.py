@@ -95,6 +95,12 @@ those rugs (``solver_rugs``) instead of resetting the decor: the rule rugs are l
 left without one, off the kept rugs (``rugs_for_room``), the new ids count on after the kept ones
 (``decor_counters``), a partner copy never doubles a room's own solver rug, and the report row counts the kept
 rugs. With ``brief.decor`` false the solver's rugs are left out too (listed): no decor means no rug.
+
+Fix round after P4a (17 Oct 2026; the furniture track's ask, applied at integration): a vector-drawn piece the
+reading typed by code (``type_method`` in ``infer.CODE_TYPE_METHODS``; it stays ``unverified`` until two passes agree)
+hosts decor like a verified one (``trusted_host``: ``program.unsure_anchor`` is False for it), as the completion
+completes it. P4a's r_L0_yatak_odasi kept only a curtain (2 decor slots against 10 in M11) because its code-typed bed
+hosted nothing. A piece the reading could not agree on still hosts nothing.
 """
 from __future__ import annotations
 
@@ -311,10 +317,23 @@ def plant_position(room: dict, furniture: list[dict], building: dict) -> tuple[O
     return None, "no free corner (" + "; ".join(reasons) + ")"
 
 
+def trusted_host(piece: dict) -> bool:
+    """Fix round after P4a (module docstring): a piece whose type and place decor may trust: verified, or a
+    vector-drawn piece the reading typed by code (``program.unsure_anchor`` False for an ``unverified`` piece)."""
+    if piece.get("status") == "verified":
+        return True
+    if piece.get("status") != "unverified":
+        return False
+    from wenart.furniture import program as PR     # lazy: program reads the groups
+
+    return not PR.unsure_anchor(piece)
+
+
 def _usable_anchor(piece: dict) -> bool:
-    """A piece decor may be placed around: verified (type and place trusted) and built (Milestone 12:
-    ``piece_is_built``: no untyped piece, no library gap)."""
-    return piece.get("status") == "verified" and piece_is_built(piece)
+    """A piece decor may be placed around: verified (type and place trusted; fix round after P4a: or typed by code
+    from the drawing, ``trusted_host``) and built (Milestone 12: ``piece_is_built``: no untyped piece, no library
+    gap)."""
+    return trusted_host(piece) and piece_is_built(piece)
 
 
 def _to_local(geom, center, rotation_deg: float):
@@ -764,7 +783,7 @@ def rule_decor_room(building: dict, room: dict, pieces: list[dict], new_id) -> t
         row["note"] = f"{room['room_type']} room: no decor (docs/milestone7.md §0)"
         return items, row
     for host in pieces:
-        if host.get("status") != "verified" or host["type"] not in HOST_TYPES or not piece_is_built(host):
+        if not trusted_host(host) or host["type"] not in HOST_TYPES or not piece_is_built(host):
             continue
         if HOST_TYPES[host["type"]] == "cushion" and not takes_cushions(host):
             continue                                  # Milestone 12: the model has its own cushions or bedding

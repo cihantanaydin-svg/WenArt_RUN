@@ -1379,6 +1379,9 @@ def test_gpu_test_groups_lists_and_junit(tmp_path):
     assert full["cmd"][3:6] == ["-m", "gpu", "tests/gpu/test_full_run.py"]
     assert "tests/gpu/test_realism.py" not in full["cmd"]           # no A/B project
     assert "tests/gpu/test_render.py" in full["cmd"] and "tests/gpu/test_check.py" in full["cmd"]
+    # fix round after P4a (17 Oct 2026): the camera replay checks run right after test_render.py
+    i = full["cmd"].index("tests/gpu/test_render.py")
+    assert full["cmd"][i + 1] == "tests/gpu/test_camera_replay.py"
     assert f"--junitxml={tmp_path / 'results' / 'junit-full.xml'}" in full["cmd"]
     assert polish["cmd"][5:7] == ["tests/gpu/test_polish.py", "tests/gpu/test_polish_backend.py"]
     env = full["env"]

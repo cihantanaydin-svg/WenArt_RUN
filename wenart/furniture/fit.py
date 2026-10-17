@@ -197,6 +197,17 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   Why: part 2 read only the position along the run, so a drawn sink overhanging the counter's front was built in on
   the run's centreline, up to about 0.25 m from where it is drawn, with no record. How: ``kitchen_built_ins`` already
   gives the sink's world centre (``sink_pos_m``); nothing on the piece changes.
+- Fix round after P4a (17 Oct 2026; the library verifier's better_fix, applied at integration). What: (1) the audit's
+  vision quality tie-break reads the quality the audit wrote into ``audit.vision_doubt`` ("vision quality 2 (<= 2)")
+  when no numeric field is there (``vision_quality_of``); a "not a <type>" doubt is not read (the dining tables it
+  names are real dining tables). (2) A pin (the agent's ``swap_model``) to a generated model (``source:
+  generated``, units guessed) is refused while the normal ranking fits a real product of the type within the caps:
+  the "generated last" rule applied to pins (``pin_refused`` names both). Why: (1) ``assets/audit/write.py`` writes
+  only the doubt strings, so 0 of 2028 models had a numeric quality and doubtful models won exact ties (P4a: the
+  wardrobe f_L-1_023 took ``hssd_7094e304``, the fridge f_L-1_096 ``hssd_78a02cbe``, each tied with doubt-free
+  models); (2) P4a's agent pinned ``gen_fridge_mediterranean_3`` on f_L-1_090 ("a real compact fridge model") and it
+  rendered as a faceted column, while the fit had a real fridge for the same footprint. Still no gate: a model alone
+  within the caps is taken whatever its doubt (decision 1a of 11 Oct).
 """
 from __future__ import annotations
 
@@ -205,6 +216,7 @@ import copy
 import hashlib
 import json
 import math
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -366,13 +378,23 @@ def size_error(scales) -> float:
     return sum(abs(float(s) - 1.0) for s in scales) / len(scales)
 
 
+VISION_DOUBT_QUALITY = re.compile(r"vision quality (\d)")   # the audit's doubt text (assets/audit/decide.py)
+
+
 def vision_quality_of(entry: dict) -> Optional[float]:
     """The audit's single-pass vision quality (1-5) when the catalogue records it (``audit.vision.quality`` or
-    ``audit.vision_quality``; track T7 writes it for the new entries), else None."""
+    ``audit.vision_quality``; track T7 writes it for the new entries), else (fix round after P4a) the quality its
+    ``audit.vision_doubt`` text names ("vision quality 2 (<= 2)"), else None."""
     audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
     value = audit.get("vision_quality")
     if value is None and isinstance(audit.get("vision"), dict):
         value = audit["vision"].get("quality")
+    if value is None:
+        doubts = audit.get("vision_doubt")
+        for text in (doubts if isinstance(doubts, list) else [doubts] if isinstance(doubts, str) else []):
+            found = VISION_DOUBT_QUALITY.search(str(text))
+            if found:
+                return float(found.group(1))
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
         return None
     return float(value)
@@ -679,6 +701,15 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         # filter (the agent's choice is the decision), the caps and the licence mode still apply; when it fails them
         # the normal ranking decides and the asset says so.
         entry = next((e for e in catalog.candidates(ftype) if e.get("id") == pin), None)
+        if entry is not None and C.usable(entry, mode) and entry.get("source") == GENERATED:
+            # fix round after P4a (module docstring): no pin to a generated model while a real product fits
+            ranked = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design,
+                               mode=mode, used=used, style=style)
+            chosen = next((e for e in catalog.candidates(ftype) if e.get("id") == ranked.get("asset_id")), None)
+            if ranked.get("method") == "library" and chosen is not None and chosen.get("source") != GENERATED:
+                ranked["pin_refused"] = (f"{pin}: a generated model (units guessed) while a real product of the "
+                                         f"type fits within the caps ({chosen['id']})")
+                return ranked
         if entry is not None and C.usable(entry, mode):
             pinned = fit_piece(dict(piece, asset_pin=None), _OneModel(catalog, entry), cap, uniform_range, None,
                                design, mode=mode, used=used, style=style)

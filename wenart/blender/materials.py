@@ -100,6 +100,25 @@ shell, and the ceiling, worktops, fronts, sanitary ware, handles and the wet-roo
   the ceilings' ``plaster_white__white_plaster_02__ceiling`` are two materials with two layer sets, never a
   Blender ``.001`` twin (``material_name``, pure).
 
+Fix round after P4a (17 Oct 2026; pod P4a rendered real02, look review: "bathroom mirrors render as blank frosted
+panels"):
+
+- ``mirror_glass_material(mat)``: the glass of a library mirror becomes a real mirror. The cause, measured on the
+  seven ABO mirrors real02 used (abo_B07B4W5R8N, B071HBBDZ1, B0718ZKQK8, B07RNMMYNR, B071V8LJQJ, B071V8M937,
+  B084HTY39G; their glTF textures read from the ABO bucket on 17 Oct 2026): each model has one material for frame and
+  glass (one texture atlas), and the glass is a painted grey ramp whose metal/roughness texels are roughness 1.0
+  dielectric (B07B4W5R8N, B071V8LJQJ, B071V8M937, B084HTY39G), roughness 0.4 dielectric (B071HBBDZ1), roughness 0
+  dielectric (B0718ZKQK8: a 4 % grey reflector) or roughness 0.1 metal (B07RNMMYNR): a matte grey panel, not a mirror.
+  What the glass texels share is an exactly neutral albedo: the linear chroma ``(max - min) / max`` is below
+  ``MIRROR_GLASS_CHROMA_MAX`` and the brightest channel above ``MIRROR_GLASS_VALUE_MIN`` for 90-100 % of each model's
+  glass texels and for 0.00-2.7 % of every other texel (wood 0.3-0.75, painted white trim 0.05, hammered metal
+  0.1; the terrace table abo_B07ML7P94G, a control: 0.01 %). The copy masks those texels in the node tree (Separate
+  Color -> max, min -> LESS_THAN / GREATER_THAN) and mixes the vocabulary's ``mirror`` slug in where the mask is 1:
+  Base Color 0.9, Metallic 1.0, Roughness 0.03; the frame keeps its own maps. A material whose base colour is a
+  constant is all glass or not at all by the same rule. The copy records ``wenart_mirror_glass``.
+  ``mirror_glass_materials`` maps a model's material list for the builder (furniture.py calls it for library
+  mirrors).
+
 Node names were checked against Blender 5.2.2: Principled BSDF inputs 'Base
 Color', 'Roughness', 'Normal', 'Emission Color', 'Emission Strength', 'Metallic';
 Milestone 13 (the 5.2 manual, render/shader_nodes/shader/principled.html; API bpy.types.ShaderNodeBevel,
@@ -129,6 +148,7 @@ in_out=..., socket_type=...)``. Milestone 10: Vector Math WRAP (inputs 0 value, 
 """
 from __future__ import annotations
 
+import json
 import math
 import os
 from pathlib import Path
@@ -2117,3 +2137,110 @@ def light_material(name: str, rgb=(1.0, 0.78, 0.55), strength: float = 8.0):
     links.new(emit.outputs["Emission"], nodes.get("Material Output").inputs["Surface"])
     mat["wenart_light"] = float(strength)
     return mat
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4a (17 Oct 2026): the glass of a library mirror
+# --------------------------------------------------------------------------
+
+MIRROR_GLASS_CHROMA_MAX = 0.02      # linear (max - min) / max of the albedo under this: a neutral grey texel ...
+MIRROR_GLASS_VALUE_MIN = 0.07       # ... whose brightest linear channel is above this (sRGB about 0.30): the glass
+MIRROR_GLASS_SLUG = "mirror"        # the vocabulary's mirror: flat 0.90, roughness 0.03, metallic 1.0
+
+
+def srgb_to_linear(c: float) -> float:
+    """One sRGB channel (0..1) in linear light (pure; the IEC 61966-2-1 curve, as Blender's sRGB colour space)."""
+    c = float(c)
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def mirror_glass_texel(rgb_linear) -> bool:
+    """Whether a linear albedo colour is mirror glass by the rule of ``mirror_glass_material`` (pure): neutral (the
+    chroma ``(max - min) / max`` under ``MIRROR_GLASS_CHROMA_MAX``) and bright enough (max over
+    ``MIRROR_GLASS_VALUE_MIN``)."""
+    r, g, b = (float(v) for v in tuple(rgb_linear)[:3])
+    hi, lo = max(r, g, b), min(r, g, b)
+    return hi > MIRROR_GLASS_VALUE_MIN and (hi - lo) / max(hi, 1e-4) < MIRROR_GLASS_CHROMA_MAX
+
+
+def mirror_glass_spec() -> dict:
+    """The mirror the glass becomes (pure): the vocabulary's ``mirror`` slug (``base`` linear grey, ``roughness``,
+    ``metallic``)."""
+    base = flat_colour(MIRROR_GLASS_SLUG)
+    return {"slug": MIRROR_GLASS_SLUG, "base": tuple(float(v) for v in base),
+            "roughness": float(ROUGHNESS.get(MIRROR_GLASS_SLUG, 0.03)), "metallic": metallic(MIRROR_GLASS_SLUG)}
+
+
+def mirror_glass_material(mat):
+    """A copy of a library mirror's material whose glass is a real mirror (fix round after P4a, 17 Oct 2026; the
+    module docstring has the measurement): where the albedo is neutral grey (``mirror_glass_texel``, built as nodes on
+    the Base Color's own input) the Principled BSDF gets the ``mirror`` slug's base colour, Metallic and Roughness;
+    elsewhere the model's own values. A constant base colour decides for the whole material. The copy is cached by name
+    (``<name>__mirror``) and records ``wenart_mirror_glass`` (``mask``: ``texture`` | ``all`` | ``none``). A material
+    without a Principled BSDF is returned unchanged."""
+    import bpy
+
+    if mat is None or not getattr(mat, "use_nodes", False) or mat.node_tree is None:
+        return mat
+    name = f"{mat.name}__mirror"
+    found = bpy.data.materials.get(name)
+    if found is not None:
+        return found
+    if _bsdf_of(mat) is None:
+        return mat
+    copy = mat.copy()
+    copy.name = name
+    bsdf = _bsdf_of(copy)
+    spec = mirror_glass_spec()
+    g = _Graph(copy.node_tree)
+    base_in, metal_in, rough_in = bsdf.inputs["Base Color"], bsdf.inputs["Metallic"], bsdf.inputs["Roughness"]
+    record = {"slug": spec["slug"], "chroma_max": MIRROR_GLASS_CHROMA_MAX, "value_min": MIRROR_GLASS_VALUE_MIN,
+              "base": list(spec["base"]), "roughness": spec["roughness"], "metallic": spec["metallic"]}
+    if not base_in.is_linked:
+        glass = mirror_glass_texel(tuple(base_in.default_value)[:3])
+        record["mask"] = "all" if glass else "none"
+        if glass:
+            for socket in (metal_in, rough_in):
+                for link in list(socket.links):
+                    copy.node_tree.links.remove(link)
+            base_in.default_value = (*spec["base"], 1.0)
+            metal_in.default_value = spec["metallic"]
+            rough_in.default_value = spec["roughness"]
+        copy["wenart_mirror_glass"] = json.dumps(record)
+        return copy
+    src = base_in.links[0].from_socket
+    sep = copy.node_tree.nodes.new("ShaderNodeSeparateColor")
+    copy.node_tree.links.new(src, sep.inputs["Color"])
+    r, gg, b = sep.outputs["Red"], sep.outputs["Green"], sep.outputs["Blue"]
+    hi = g.math("MAXIMUM", g.math("MAXIMUM", r, gg), b)
+    lo = g.math("MINIMUM", g.math("MINIMUM", r, gg), b)
+    rel = g.math("DIVIDE", g.math("SUBTRACT", hi, lo), g.math("MAXIMUM", hi, 1e-4))
+    mask = g.math("MULTIPLY", g.math("LESS_THAN", rel, MIRROR_GLASS_CHROMA_MAX),
+                  g.math("GREATER_THAN", hi, MIRROR_GLASS_VALUE_MIN))
+    mask.node.name = "wenart_mirror_glass_mask"
+
+    def own(socket):
+        return socket.links[0].from_socket if socket.is_linked else float(socket.default_value)
+
+    metal_src, rough_src = own(metal_in), own(rough_in)
+    g.links.new(g.mix("RGBA", mask, src, (*spec["base"], 1.0)), base_in)
+    g.links.new(g.mix("FLOAT", mask, metal_src, spec["metallic"]), metal_in)
+    g.links.new(g.mix("FLOAT", mask, rough_src, spec["roughness"]), rough_in)
+    record["mask"] = "texture"
+    copy["wenart_mirror_glass"] = json.dumps(record)
+    return copy
+
+
+def mirror_glass_materials(materials_list: list) -> tuple[list, dict]:
+    """``(materials, record)``: ``mirror_glass_material`` of each material of a library mirror model (None stays None)
+    and ``{material name: mask}`` for the manifest entry (pure apart from bpy)."""
+    out, record = [], {}
+    for mat in materials_list:
+        if mat is None:
+            out.append(None)
+            continue
+        new = mirror_glass_material(mat)
+        out.append(new)
+        if new is not mat:
+            record[mat.name] = json.loads(new.get("wenart_mirror_glass") or "{}").get("mask")
+    return out, record

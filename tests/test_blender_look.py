@@ -266,8 +266,10 @@ def test_render_key_covers_every_setting():
     # Milestone 13 (docs/milestone13.md §13.2): the EV cap, the project white balance and the hidden sun lamp
     # under the exterior sky change the pixels, so the code version is m13.1 (m7.1 renders are not reused). Fix round
     # after P3 (16-17 Oct 2026): the view white point mixed by the rig share, the open-air rooms under the exterior
-    # world, the sky pull and the deeper window pull change them again: m13.2 (m13.1 renders are not reused).
-    assert settings["code"] == R.RENDER_CODE_VERSION == "m13.2" and settings["passes"] == list(R.PASSES)
+    # world, the sky pull and the deeper window pull change them again: m13.2 (m13.1 renders are not reused). Fix round
+    # after P4a (17 Oct 2026): the daylight cast in every view, the sky pull's coverage weights and the haze hidden from
+    # the interior views' camera rays: m13.3 (P4a's m13.2 renders are not reused).
+    assert settings["code"] == R.RENDER_CODE_VERSION == "m13.3" and settings["passes"] == list(R.PASSES)
     assert settings["exposure"]["limits"] == [-2.0, 3.0]
     assert R.key_settings(**dict(base, limits=R.EXPOSURE_LIMITS_M11))["exposure"]["limits"] == [-2.0, 8.0]
     assert R.render_key(R.key_settings(**dict(base, limits=R.EXPOSURE_LIMITS_M11))) != k0
@@ -804,7 +806,7 @@ def test_metering_records_a_clamped_exposure_and_a_whitepoint(room):
     schemas.validate_render_manifest(manifest)
     assert manifest["exposure_mode"] == "auto" and manifest["white_balance_mode"] == "auto"
     assert manifest["scene"] == "../scene/scene.blend" and manifest["view_transform"] == "AgX"
-    assert manifest["look"] == "AgX - Punchy" and manifest["render_code_version"] == "m13.2"    # M7 / M13 fix round
+    assert manifest["look"] == "AgX - Punchy" and manifest["render_code_version"] == "m13.3"    # M7 / M13 fix rounds
     # Milestone 13 (docs/milestone13.md §13.2): the EV cap (-2, +3) is the run's limit; a metered EV past it keeps
     # +3, says at_limit and carries the lighting_dark finding.
     lo, hi = manifest["exposure_limits"]

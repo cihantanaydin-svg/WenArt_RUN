@@ -20,6 +20,14 @@ a re-run is deterministic and ``--no-orchestrator`` (no ``agent_overrides``) bui
 
 How: pure Python (Blender's Python runs it too); every function returns its input unchanged when there is no
 override, and lists what it applied (the scene manifest's ``agent_overrides``).
+
+Fix round after P4a (17 Oct 2026): the build hands ``apply_cameras`` the replayed cameras of ``--cameras-from`` and
+the planned ones together (``build.merge_agent_cameras``), so a ``set`` on a replayed name replaces that record
+(P4a: the agent's three ``set ext_6`` went to an empty list, ``ext_6`` was added a second time and Blender named
+the object ``ext_6.001``). A plan that replaces a replayed record (``source: replayed``, or an earlier agent plan
+that replaced one) carries ``replaced_replayed`` (``replaced_replayed_of``: the record's pose, lens, view, sides,
+``replayed_from`` and ``replay``), so the baseline pose stays on file; its ``applied`` record says
+``replayed: true`` (also for a ``remove``) and carries the entry's ``seq`` when the entry has one.
 """
 from __future__ import annotations
 
@@ -41,6 +49,9 @@ SITE_KEYS = ("path", "fence", "trees", "front_court")
 # view ``ext_5`` and the site view: ``cameras.REPLAY_OPTIONAL`` carries them through a replay, ``fixed_plan`` through
 # an agent ``set`` / ``add``): from the entry when it says so, else from the camera it replaces.
 CAMERA_KEEP_KEYS = ("site_view", "aerial_allowed", "horizon_frac")
+# Fix round after P4a (17 Oct 2026): what a plan keeps of the replayed record it replaces (``replaced_replayed``).
+REPLACED_REPLAYED_KEYS = ("position", "target", "rotation_euler_deg", "lens_mm", "shift_x", "shift_y", "view", "sides",
+                          "replayed_from", "replay")
 
 
 def overrides_of(building: dict) -> Optional[dict]:
@@ -140,13 +151,29 @@ def fixed_plan(entry: dict, level_id: Optional[str] = None, index: int = 1, base
     return plan
 
 
+def replaced_replayed_of(base: Optional[dict]) -> Optional[dict]:
+    """The replayed camera record a ``set`` / ``add`` / ``remove`` on ``base`` replaces (pure; fix round after P4a,
+    17 Oct 2026): ``base``'s own ``replaced_replayed`` when an earlier agent entry already replaced the replayed
+    record (P4a: three ``set ext_6`` in a row), else ``REPLACED_REPLAYED_KEYS`` of ``base`` when it is a replayed
+    record (``source: replayed``), else None (a searched camera, or no camera of that name)."""
+    if not isinstance(base, dict):
+        return None
+    if isinstance(base.get("replaced_replayed"), dict):
+        return copy.deepcopy(base["replaced_replayed"])
+    if base.get("source") != "replayed":
+        return None
+    return {k: copy.deepcopy(base[k]) for k in REPLACED_REPLAYED_KEYS if k in base}
+
+
 def apply_cameras(plans: list[dict], entries: Sequence[dict], level_id: Optional[str] = None,
                   rooms: Optional[set] = None) -> tuple[list[dict], list[dict]]:
     """``(plans, applied)``: the planned cameras with the override entries applied in order (pure). ``set``
     replaces the plan of the same name (added when there is none), ``add`` adds a plan (replacing one of the same
     name), ``remove`` drops it. Interior entries apply on their room's level (``rooms``: the room ids of
     ``level_id``; None = every entry). ``applied``: ``{"view_id", "action", "kind", "result": replaced | added |
-    removed | not found, "reason"}``."""
+    removed | not found, "reason"}``. Fix round after P4a: ``plans`` holds the replayed cameras too
+    (``build.merge_agent_cameras``); a plan that replaces a replayed record carries ``replaced_replayed``, its
+    ``applied`` record ``replayed: true`` (a ``remove`` of one too) and every record the entry's ``seq``."""
     out = list(plans)
     applied = []
     for e in entries:
@@ -155,6 +182,11 @@ def apply_cameras(plans: list[dict], entries: Sequence[dict], level_id: Optional
         name = str(e["view_id"])
         at = next((i for i, p in enumerate(out) if p.get("name") == name), None)
         rec = {"view_id": name, "action": e["action"], "kind": e.get("kind"), "reason": e.get("reason")}
+        if e.get("seq") is not None:                 # fix round after P4a: the overrides.json entry it came from
+            rec["seq"] = e["seq"]
+        base = out[at] if at is not None else None
+        if replaced_replayed_of(base) is not None:   # fix round after P4a: the target is a replayed camera
+            rec["replayed"] = True
         if e["action"] == "remove":
             if at is None:
                 rec["result"] = "not found"
@@ -168,9 +200,11 @@ def apply_cameras(plans: list[dict], entries: Sequence[dict], level_id: Optional
             rec["result"] = "not applied: no position or target"
             applied.append(rec)
             continue
-        base = out[at] if at is not None else None
         index = (base or {}).get("index") or (1 + sum(1 for p in out if p.get("room_id") == e.get("room_id")))
         plan = fixed_plan(e, level_id, index, base)
+        replaced = replaced_replayed_of(base)
+        if replaced is not None:
+            plan["replaced_replayed"] = replaced
         if at is None:
             out.append(plan)
             rec["result"] = "added"

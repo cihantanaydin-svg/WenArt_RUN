@@ -13,7 +13,8 @@ with ``entry = {"round", "tool", "args", "key", "reasons"}`` (``reasons``: the f
 - ``repeat_of(room, tool, args)``: the earlier rejection of the same edit (any round) or None; the tools refuse such
   an edit before any validator or model call (real02 G2d: 108 of 177 rejections were exact repeats);
 - ``record(room, round, tool, args, result)``: one validated edit (accepted or rejected; dry runs are not recorded);
-- ``visit``, ``set_open``, ``add_plan``, ``tried``: the coverage, the open checklist of the next round, the plans.
+- ``visit``, ``set_open``, ``add_plan``, ``tried``: the coverage, the open checklist of the next round, the plans
+  (fix round after P4a: each plan with its status and the planner's skip list).
 
 Why: M11 started a fresh conversation per room and a fresh tool context per round, so every rejection was forgotten
 (§1.4). The ledger is the loop's, not the model's: the room brief shows it to the model, the tools enforce it.
@@ -138,11 +139,18 @@ class Memory:
             self._room(room_id)["open"] = [str(i) for i in items][:20]
             self.save()
 
-    def add_plan(self, room_id: str, round_no: int, plan: Optional[dict], ok: bool, problems: list) -> None:
+    def add_plan(self, room_id: str, round_no: int, plan: Optional[dict], ok: bool, problems: list,
+                 status: Optional[str] = None) -> None:
+        """One plan of a session. Fix round after P4a: with the loop's ``status`` (ok / empty / refused / default;
+        without one: ok or default) and the planner's ``skip`` list (``finding_id``, ``why``)."""
+        plan = plan if isinstance(plan, dict) else None
+        skip = [{"finding_id": str(s.get("finding_id")), "why": str(s.get("why") or "")[:300]}
+                for s in ((plan or {}).get("skip") or []) if isinstance(s, dict)][:20]
         with self.lock:
             self._room(room_id)["plans"].append({"round": int(round_no), "ok": bool(ok),
+                                                 "status": str(status or ("ok" if ok else "default")),
                                                  "problems": [str(p) for p in problems][:10],
-                                                 "steps": len((plan or {}).get("steps") or [])})
+                                                 "steps": len((plan or {}).get("steps") or []), "skip": skip})
             self.save()
 
     def save(self) -> Path:

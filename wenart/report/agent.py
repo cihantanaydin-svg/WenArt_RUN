@@ -29,6 +29,11 @@ quotes the findings removed as measured by the next round's critics (``metrics.f
 re-checks' count as a prediction. Why: P3's dec_L1_009 stayed critical in all 4 rounds with no stage told, its
 building session ended on a full context without a word in the report, and the dry re-checks' count read as a
 result.
+
+Fix round after P4a (17 Oct 2026; the agent track's ask, applied at integration): the metrics table adds "edits
+removing their finding" (``findings_removed.edits_removing_finding`` of ``edits_with_target``) and "plans ok / empty
+/ refused / default" (``memory.plans_valid``, ``plans_empty``, ``plans_refused``, ``plans_default``: why the default
+checklist ran); a log without these keys keeps the old table.
 """
 from __future__ import annotations
 
@@ -271,6 +276,15 @@ def metrics_lines(m: Optional[dict]) -> list[str]:
         predicted = sum(int(v or 0) for v in (removed.get("dry_recheck") or {}).values())
         rows.append(["critical/major findings removed (measured by the next round; predicted by the dry re-checks)",
                      f"{removed.get('total', 0)} measured; {predicted} predicted"])
+        # fix round after P4a (integration of the agent track's ask): the edits that removed what they targeted
+        if removed.get("edits_with_target") is not None:
+            rows.append(["edits removing their finding",
+                         f"{removed.get('edits_removing_finding', 0)} of {removed['edits_with_target']}"])
+    if any(k in mem for k in ("plans_empty", "plans_refused", "plans_default")):
+        # fix round after P4a: why the default checklist ran (loop.plan_status)
+        rows.append(["plans ok / empty / refused / default",
+                     " / ".join(str(mem.get(k, 0)) for k in ("plans_valid", "plans_empty", "plans_refused",
+                                                             "plans_default"))])
     return ["", "### Agent metrics", ""] + C.table(["metric", "value"], rows)
 
 

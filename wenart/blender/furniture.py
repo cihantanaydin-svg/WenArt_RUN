@@ -152,6 +152,18 @@ Build round 2 (15 Oct 2026; docs/milestone13.md §3.0 K2, §12 D2):
   every other piece stays centred. The depth warning of such a fit fires only beyond the cap
   (``fit_mismatch_warnings``); a non-uniform fit (an older building) keeps the 1 cm rule on both axes. The manifest
   entry's ``fit.depth_align`` records the mode, the shift and the depth difference.
+
+Fix round after P4a (17 Oct 2026; the asks of the rig track, applied at integration):
+
+- A library mirror's glass is a real mirror: ``_create_wall_art`` builds a mirror model from
+  ``materials.mirror_glass_materials`` (the neutral grey glass texels of the model's own albedo get the vocabulary
+  mirror; the frame keeps its maps) through ``wall_art_materials``, never changing the cached geometry's list; the
+  entry records ``mirror_glass`` (material name -> ``texture`` | ``all`` | ``none``). P4a's ABO bathroom mirrors
+  rendered as matte grey panels.
+- A pendant keeps its shade bottom where the decor stage put it (over a dining table's top, above head height) and
+  its cord ends at the ceiling over its slot (``pendant_hang``); under a ceiling less than ``PENDANT_MIN_DROP_M`` above
+  that bottom it is not built (``decor_skipped``, warning "ceiling X m over its slot too low"). Before, the shade
+  was lowered to fit under the slope: P4a's dec_L1_006 rested 0.244 m above the floor, through table f_L1_045.
 """
 from __future__ import annotations
 
@@ -1916,6 +1928,32 @@ def decor_lit(item: dict, lamps_on_mood: bool) -> bool:
     return lamps_on_mood
 
 
+PENDANT_MIN_DROP_M = 0.3      # as wenart.furniture.decor_ai.PENDANT_MIN_DROP_M: the least drop under the ceiling
+
+
+def pendant_hang(z_above: float, ceiling: float) -> tuple[float, str | None]:
+    """Fix round after P4a (17 Oct 2026; module docstring): ``(height, why not)`` of a pendant whose shade bottom is
+    ``z_above`` m over the floor under a ceiling ``ceiling`` m over the floor at its slot (pure). The cord always
+    ends at the ceiling (height = ceiling - bottom) and the bottom never moves; ``why not`` is None, or the reason
+    the pendant is not built when that drop is under ``PENDANT_MIN_DROP_M`` (a low, sloped ceiling over its slot)."""
+    drop = round(float(ceiling) - float(z_above), 4)
+    if drop < PENDANT_MIN_DROP_M - 1e-9:
+        return drop, (f"ceiling {float(ceiling):.2f} m over its slot too low (bottom {float(z_above):.2f} m, drop "
+                      f"{drop:.2f} m < {PENDANT_MIN_DROP_M:g} m)")
+    return drop, None
+
+
+def wall_art_materials(dtype: str, materials_list: list) -> tuple[list, dict | None]:
+    """Fix round after P4a (17 Oct 2026; module docstring): ``(materials, mirror_glass record)`` of a library wall
+    decor model: for a mirror a new list from ``materials.mirror_glass_materials`` (the cached geometry's list is
+    shared per file and never changed), else the model's own list and None."""
+    if dtype != "mirror":
+        return materials_list, None
+    from wenart.blender import materials as M
+
+    return M.mirror_glass_materials(list(materials_list))
+
+
 def ceiling_above(level: dict, center, size, rotation_deg: float = 0.0) -> tuple[float, str]:
     """``(ceiling height above the floor, how)`` over a footprint (pure): the level's ``ceiling_height``; under a
     roof (``level["ceiling_planes"]``, the sloped attic ceiling the shell builds) the lowest ceiling plane over the
@@ -1952,11 +1990,19 @@ def _create_decor(item, host, n, level, floor_z, collection, library, mats, asse
     ceiling, ceiling_how = ceiling_above(level, center, (w, d), rot)    # Milestone 10: sloped under a roof
     if dtype == "ceiling_light" and z_how != "center[2]":
         z_above, z_how = round(ceiling - h, 4), f"ceiling (flush, {ceiling_how})"
-    if dtype == "pendant_light" and ceiling - z_above > h:
-        h = round(ceiling - z_above, 4)                 # Milestone 10: the cord reaches the ceiling
-    elif dtype == "pendant_light" and z_above + h > ceiling + 1e-6:
-        z_above = round(max(0.0, ceiling - h), 4)       # a low (sloped) ceiling: the shade hangs lower
-        z_how = f"hung from {ceiling_how}, lowered to fit"
+    if dtype == "pendant_light":
+        # Milestone 10: the cord reaches the ceiling. Fix round after P4a: the shade bottom stays where the decor stage
+        # put it and the cord gets shorter under a low (sloped) ceiling; too low a drop is not built (pendant_hang)
+        cut_to_fit = z_above + h > ceiling + 1e-6
+        h, too_low = pendant_hang(z_above, ceiling)
+        if too_low is not None:
+            room_of = host.get("room_id") if host is not None else item.get("room_id")
+            warnings.append(f"decor {dtype} {where}: {too_low} ({ceiling_how}); not built")
+            if skipped is not None:
+                skipped.append({"id": item.get("id"), "type": dtype, "room_id": room_of, "reason": too_low})
+            return None
+        if cut_to_fit:
+            z_how = f"{z_how}; cord shortened to {ceiling_how}"
     if host is not None:
         owner_id, room_id = host["id"], host.get("room_id")
         name = f"decor_{host['id']}_{n}"
@@ -2123,6 +2169,7 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
     name = f"decor_{owner_id}"
     w, dp, h = mount["box_m"]
     status = item.get("status") if item.get("status") in ("verified", "unverified", "assumed") else "assumed"
+    mirror_glass = None
     if parametric:
         parts = P.decor_parts(dtype, w, dp, h, item)
         verts, faces, keys = P.world_mesh(parts, footprint["center"], footprint["rotation_deg"],
@@ -2151,7 +2198,8 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
                             "reason": f"import of {file} failed: {type(exc).__name__}"})
             pass_indices.pop(owner_id, None)
             return None
-        ob = _mesh_object(name, verts, geo["faces"], geo["materials"], geo["face_materials"], collection, owner_id,
+        model_mats, mirror_glass = wall_art_materials(dtype, geo["materials"])    # fix round after P4a: the glass
+        ob = _mesh_object(name, verts, geo["faces"], model_mats, geo["face_materials"], collection, owner_id,
                           "decor", status, uvs=geo["uvs"], uv_name=geo["uv_name"],
                           fallback_material=library.proxy("proxy"))
         materials = [m.name for m in ob.data.materials if m is not None]
@@ -2174,6 +2222,8 @@ def _create_wall_art(item, n, level, floor_z, collection, library, assets_dir, p
         "material": materials[0] if materials else None, "textured": textured,
         "fallback_reason": reason if parametric else None, "mount": mount, "anchor_ids": anchors,
     }
+    if mirror_glass is not None:
+        entry["mirror_glass"] = mirror_glass
     ob["wenart_type"] = dtype
     ob["wenart_room"] = room_id or ""
     ob["wenart_source"] = "added_by_ai"

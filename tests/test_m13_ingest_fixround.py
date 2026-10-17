@@ -25,6 +25,11 @@ plan's and a second master's published), the camera points of the bay without it
 beside a wall stub; each fails when the part of the fix it covers is taken out. 4. ``scripts/jobs/full.sh``
 ``RUN_FRESH_RECOGNITION`` (lead decision for pod P5): real04's stored answers, given on the wrong crops, are moved
 aside once so their questions are asked again (fails on the old full.sh).
+5. Fix round after P4a (17 Oct 2026, track I_recog): the pipeline's half of a late question round. In real02's run
+with the answers the re-read of the disputed clusters made 6 new questions; the one-round rule (§1.4) left them
+unasked. The pipeline writes them to requests.json (not pending, warned); a later pass that has both answers for them
+applies them and waits for none, one with only one model's answer waits for it (exit 4). The scheduler's late pass
+(an ask of the run track) relies on this; the test fails when the late questions are left out of requests.json.
 How: synthetic DXF pages (wenart.synthetic), generic DXF pages from tests/fixtures/synthetic-06-titled, the hand-made
 rooms of tests/_m11_room.py, a hand-made L room, the full.sh sandbox of tests/test_full_job.py.
 """
@@ -708,3 +713,78 @@ def test_full_job_header_documents_run_fresh_recognition():
                   "fresh_recognition.log", "\"<p>:<tag>\"",
                   "Committed seeds (results/recognition/<p>/) are not touched"):
         assert words in entry, words
+
+
+# --------------------------------------------------------------------------
+# 5. The late questions of the run with the answers (fix round after P4a)
+# --------------------------------------------------------------------------
+
+TOY_REQUESTS = Path(__file__).resolve().parent / "fixtures" / "recognition_answers" / "toy" / "requests.json"
+
+
+def _question_build(items: list[dict], pending: list[str]) -> "PL.ProjectBuild":
+    """A hand-made build with one asked page whose report holds ``items`` and the keys still waiting."""
+    from wenart import building as B
+
+    build = PL.ProjectBuild(B.empty_building("p4a", "projects/p4a", "test"))
+    report = {"questions": [dict(it) for it in items], "pending": list(pending)}
+    build.furniture_works.append(SimpleNamespace(extraction=SimpleNamespace(report=report)))
+    return build
+
+
+def _answer(rec: Path, items: list[dict], models: tuple) -> None:
+    """Schema-valid fake answers of ``models`` for ``items`` (no model ran)."""
+    import json
+
+    from wenart.recognition import answers as A
+
+    data = {"type": "chair", "front": "none", "confidence": 0.5, "reason": "fake answer"}
+    for key in models:
+        store = A.AnswerStore.for_model(rec, key)
+        for it in items:
+            store.put(it["key"], {"task": it["task"], "input_sha256": it["input_sha256"], "data": dict(data),
+                                  "raw_text": json.dumps(data), "error": None, "attempts": 1, "latency_s": 0.0,
+                                  "model": store.data["model"], "seed": 0, "images": list(it["images"])},
+                      save=False)
+        store.save()
+
+
+def test_a_late_question_is_written_for_a_later_pass_that_applies_its_answers(tmp_path):
+    """real02 (P4a): pipeline 48 questions, answers, pipeline_final 54 questions (6 unanswered, never asked). The
+    first pass writes the late question to requests.json with the others (not pending, warned, exit 0). A second
+    pass after both models answered it reads it as asked: nothing waits, nothing is unanswered, no late warning. With
+    one model's answer only, it waits (exit 4), so the scheduler re-runs pipeline_final only with both answers."""
+    import json
+
+    from wenart.recognition import answers as A
+
+    items = json.loads(TOY_REQUESTS.read_text(encoding="utf-8"))["items"]
+    first, late = items[:2], items[2]
+    out = tmp_path / "out"
+    rec = out / PL.RECOGNITION_DIR
+    # The first pipeline: two questions, exit 4; both models answer them.
+    build = _question_build(first, [it["key"] for it in first])
+    PL._write_questions(build, out, PL._asked_before(None), None)
+    assert [it["key"] for it in A.read_requests(rec)["items"]] == [it["key"] for it in first]
+    _answer(rec, first, A.MODEL_KEYS)
+    # pipeline_final: the answers' re-read asks a third question that was not in the round.
+    asked = PL._asked_before(rec)
+    build = _question_build(items, [late["key"]])
+    PL._write_questions(build, out, asked, rec)
+    assert build.pending == [] and build.unanswered == [late["key"]]
+    assert any(late["key"] in w and "not in the round the answers belong to" in w
+               for w in build.building["warnings"])
+    assert [it["key"] for it in A.read_requests(rec)["items"]] == [it["key"] for it in items]
+    assert PL.exit_code(build.building, build) == PL.EXIT_OK
+    # The late pass with one model's answer only: the question is in the round now and waits for the other.
+    _answer(rec, [late], ("qwen",))
+    build = _question_build(items, [late["key"]])
+    PL._write_questions(build, out, PL._asked_before(rec), rec)
+    assert build.pending == [late["key"]] and PL.exit_code(build.building, build) == PL.EXIT_QUESTIONS
+    assert not any("not in the round" in w for w in build.building["warnings"])
+    # Both answers: applied, nothing waits, nothing unanswered.
+    _answer(rec, [late], A.MODEL_KEYS)
+    build = _question_build(items, [])
+    PL._write_questions(build, out, PL._asked_before(rec), rec)
+    assert build.pending == [] and build.unanswered == [] and PL.exit_code(build.building, build) == PL.EXIT_OK
+    assert not any("not in the round" in w for w in build.building["warnings"])

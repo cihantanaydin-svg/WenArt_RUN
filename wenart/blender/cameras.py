@@ -69,6 +69,11 @@ cameras) or ``replayed``.
 Fix round after P3 (16-17 Oct 2026): ``create_cameras(..., room_types=)`` marks every room camera with its room's
 type (``wenart_room_type``, ``camera_room_type``), so render.py renders the cameras of open-air rooms (roof
 terraces, balconies) under the exterior world. The plans themselves are unchanged (the m5 plans stay byte for byte).
+
+Fix round after P4a (17 Oct 2026): ``source`` stays ``searched`` | ``replayed``. An agent camera that replaces a
+replayed one (``build.merge_agent_cameras``) is ``searched`` with ``policy: agent`` and keeps the replayed record in
+``replaced_replayed``; ``source: replayed`` always means the baseline's own pose (or the build's re-pitch of it,
+``replay``).
 """
 from __future__ import annotations
 

@@ -31,6 +31,14 @@ violation (at least 0).
 Fix round after P3, part 2 (17 Oct 2026, docs/milestone13.md §14.9): X6 counts the true aerial views per camera set.
 P4 builds with ``--cameras-from`` (the replayed M11 set: ext_5) and ``--cameras-extra`` (the searched set, renamed
 with ``_s`` and marked ``extra``: ext_5_s); each set may have one, so the two sets together no longer give a minor X6.
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02): two X2 findings say where they come from in their metrics.
+The critical "pokes through the roof" measured on the scene manifest's object boxes carries ``source:
+scene_manifest`` (``SCENE_MANIFEST_SOURCE``): the box is the round's built scene, so the agent's dry re-check of an
+edit that moved or removed the piece must not read it as still there (``wenart.agent.loop.after_findings``; P4a: the
+bookshelf f_L1_058 kept a stale 5.17 m top through 3 rounds and every remove or move was rejected). A door or window
+the build clipped under the roof below a usable height carries ``kind: opening_clip`` (``OPENING_CLIP_KIND``): the
+agent reports it ("needs a dormer: review", ``causes.opening_under_roof``) instead of offering ``set_exterior``.
 """
 from __future__ import annotations
 
@@ -56,6 +64,9 @@ HABITABLE = ("bedroom", "living", "dining", "kitchen", "study", "office", "kids"
 CAMERA_ACTIONS = ("set", "add", "remove")
 ROOF_TYPES = ("flat", "gable", "hip", "mansard", "gambrel", "shed")
 FENCES = ("hedge", "fence", "none")
+# Fix round after P4a (module docstring): the X2 metrics that tell where a finding comes from.
+SCENE_MANIFEST_SOURCE = "scene_manifest"     # metrics.source of an X2 measured on the scene manifest's boxes
+OPENING_CLIP_KIND = "opening_clip"           # metrics.kind of an opening clipped under the roof (= causes)
 COURTS = ("auto", "yes", "no")
 _NUM = {"type": "number"}
 _VEC3 = {"type": "array", "items": _NUM, "minItems": 3, "maxItems": 3}
@@ -248,7 +259,8 @@ def _x2(building: dict, prep: dict, scene_manifest: Optional[dict], out: list) -
                           decision=d["decision"]))
     for c in prep.get("clips") or []:
         if not c["fits"]:
-            out.append(_v("X2", "major", c["opening_id"], c["reason"], height=c["height"]))
+            # fix round after P4a: the kind lets the agent report it (a dormer, review) instead of a roof edit
+            out.append(_v("X2", "major", c["opening_id"], c["reason"], height=c["height"], kind=OPENING_CLIP_KIND))
     if over is not None:
         cut = R.wall_cut(roof)
         for w in B.openings_through_roof(prep["building"], over, cut):
@@ -262,8 +274,10 @@ def _x2(building: dict, prep: dict, scene_manifest: Optional[dict], out: list) -
         cx, cy, cz = (float(v) for v in box["center"])
         top = cz + float(box["size"][2]) / 2.0
         if R.covers(roof, cx, cy) and top > R.surface_z(roof["equations"], cx, cy) + 0.02:
+            # fix round after P4a: the box is the round's built scene, not the building checked (``source``)
             out.append(_v("X2", "critical", o.get("wenart_id") or o.get("name"),
-                          f"{o.get('name')} pokes through the roof (top {top:.2f} m)", top=top))
+                          f"{o.get('name')} pokes through the roof (top {top:.2f} m)", top=top,
+                          source=SCENE_MANIFEST_SOURCE))
 
 
 def _room_outer_length(room: dict, outline) -> float:

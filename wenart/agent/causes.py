@@ -62,11 +62,33 @@ Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
 - ``accept_edit``'s reason labels its count "predicted": the dry re-check cannot re-render, and the next round's
   critics measure what is really gone (``metrics.findings_removed``).
 
+Fix round after P4a (17 Oct 2026; pod P4a, real02 with the M11 cameras replayed):
+
+- a door or window the build clipped under the sloped roof below a usable height (the X2 of ``build.prepare``'s
+  clips: ``metrics.kind`` ``opening_clip``, "needs a dormer: review") has the cause ``opening_under_roof``: no tool,
+  report-only with the reason. Why: P4a offered ``set_exterior`` for d_L1_004 / d_L1_005 and rejected 5 roof edits
+  (one asked for a 70 degree gable); the roof comes from the drawings, a dormer is a design change;
+- a vision finding the critic put on a piece while its message is about a light fixture (``critic_vision``: "the
+  wall-mounted lamp next to the desk" on the desk) has the cause ``light_fixture``: no tool, reported to the lighting
+  stage (``REPORT_TO``). Why: P4a sent a rig wall light's look to the desk; ``swap_model`` on the desk was accepted
+  and the finding came back;
+- S2 keys name the cut: ``finding_key`` of an S2 with ``metrics.other`` (a piece-piece cut) or ``metrics.wall_id``
+  (a wall cut) is ``(S2, "<target>/<other or wall>")``. Why: P4a's ``S2:f_L1_021`` held a 0.055 m wall cut and a
+  0.011 m chair cut under one key, so the acceptance and the metrics could not tell which one an edit removed. An
+  edit target that names an S2 without its cut (no metrics) stands for every cut of the piece, as the old key did.
+- (integration, the furniture track's ask) an F9 "through the room outline" (``metrics.outside_m2``) is a wall cut,
+  never a wrong type: below ``S2_TOLERANCE_M`` deep (``metrics.depth_m``, ``plausibility._f9``) it is
+  ``within_tolerance`` (report only), else ``collision`` (move the piece or its group, snap it to its wall; fix a
+  drawn fixture). Why: P4a's seq-647 wardrobe F9 (0.052 m², 0.020 m deep) was ``wrong_type`` and offered
+  ``mark_not_furniture``, which deleted the drawn wardrobe anchor f_L-1_024 for a 2 cm cut; ``edit_ops`` now refuses
+  that mark for a drawn, code-typed piece, so without this routing the F9 had no tool at all.
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
 How: pure functions of dicts, a finding key is ``(check, target)`` (a finding dict of the critics or an ``edit`` /
-``finding`` event of the log: ``check`` or ``checklist``, ``message`` or ``finding``); deterministic.
+``finding`` event of the log: ``check`` or ``checklist``, ``message`` or ``finding``; an S2 adds its cut to the
+target, ``finding_key``); deterministic.
 """
 from __future__ import annotations
 
@@ -126,6 +148,10 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "polish": (),
     "lighting_exterior": (),
     "lighting_beyond_cap": (),
+    # fix round after P4a: a door or window clipped under the roof (a dormer is a design change); a vision finding
+    # about a light fixture put on a piece (the rig's lights are the lighting stage's)
+    "opening_under_roof": (),
+    "light_fixture": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -147,11 +173,22 @@ NO_TOOL_REASON: dict[str, str] = {
                            "clears it and there is no add-lamp tool, so it is reported only",
     "decor_under_roof": "a decor piece placed by the decor stage pokes through the roof: no agent tool edits decor "
                         "(the edit tools act on furniture), so it is reported to the decor stage",
+    "opening_under_roof": "a door or window under the sloped roof is clipped below a usable height: it needs a "
+                          "dormer (a design change, review); the roof comes from the drawings and set_exterior cannot "
+                          "fix it, so it is reported only",
+    "light_fixture": "the finding is about a light fixture (the room's lighting rig), not the piece it names: no "
+                     "agent tool changes a light's model, so it is reported to the lighting stage",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
-# finding event as ``report_to``).
-REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor"}
+# finding event as ``report_to``). Fix round after P4a: a light fixture's look goes to the lighting stage.
+REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor", "light_fixture": "lighting"}
+# Fix round after P4a: the X2 kind of an opening the build clipped under the roof (``exterior_checks._x2``), and the
+# words of its message when an older finding has no kind.
+OPENING_CLIP_KIND = "opening_clip"
+OPENING_CLIP_WORDS = ("needs a dormer",)
+# Fix round after P4a: an S2 key is "<target>/<other piece or wall>" (module docstring).
+S2_KEY_SEP = "/"
 # The render's finding of a view whose metered EV passed the cap (``wenart.blender.render.LIGHTING_DARK_CHECK``; the
 # report and the agent read it from the render manifest).
 LIGHTING_DARK_CHECK = "lighting_dark"
@@ -260,6 +297,15 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
             pass
         return "collision"
     if check == "F9":
+        if metrics.get("outside_m2") is not None or "through the room outline" in text:
+            # fix round after P4a (module docstring): a cut through the outline is no wrong type
+            depth = metrics.get("depth_m")
+            try:
+                if depth is not None and float(depth) < S2_TOLERANCE_M - 1e-9:
+                    return "within_tolerance"
+            except (TypeError, ValueError):
+                pass
+            return "collision"
         if "overlap" in text or "through a wall" in text or metrics.get("overlap_m2") or metrics.get("other"):
             return "collision"
         if "float" in text or "middle of the room" in text:
@@ -272,6 +318,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
             return "decor_under_roof"          # fix round after P3: no agent tool edits decor
         if _is_piece(target, building):
             return "under_roof"
+        if metrics.get("kind") == OPENING_CLIP_KIND or any(w in text for w in OPENING_CLIP_WORDS):
+            return "opening_under_roof"        # fix round after P4a: a dormer is no set_exterior (module docstring)
         return "roof"
     if check in ("G2", "G4", "G7", "G9", "G10", "G6", "F5"):
         if _missing(text, metrics):
@@ -356,8 +404,30 @@ def is_building_wide(tool: str, args: Optional[dict] = None) -> bool:
 # --------------------------------------------------------------------------
 
 def finding_key(finding: dict) -> tuple[str, str]:
-    """``(check, target)``: the identity of a finding across rounds (the ids of vision findings change per call)."""
-    return (str(finding.get("check") or finding.get("checklist") or "?"), str(finding.get("target")))
+    """``(check, target)``: the identity of a finding across rounds (the ids of vision findings change per call).
+    Fix round after P4a: an S2 names its cut, ``(S2, "<target>/<metrics.other or metrics.wall_id>")``, so a wall cut
+    and a chair cut of one piece are two findings (an S2 without either keeps ``(S2, target)``)."""
+    check = str(finding.get("check") or finding.get("checklist") or "?")
+    target = str(finding.get("target"))
+    if check == "S2":
+        metrics = _metrics(finding)
+        part = metrics.get("other") or metrics.get("wall_id")
+        if part:
+            target = f"{target}{S2_KEY_SEP}{part}"
+    return (check, target)
+
+
+def base_key(key: tuple[str, str]) -> tuple[str, str]:
+    """Fix round after P4a: ``(check, target)`` of a key without the S2 cut (``finding_key``): the key an older log
+    names."""
+    check, target = key
+    return (check, target.split(S2_KEY_SEP, 1)[0]) if check == "S2" else (check, target)
+
+
+def parse_key(text: str) -> tuple[str, str]:
+    """A ``check:target`` string of the log (``key_list``, ``evidence.acceptance.target``) as a key."""
+    check, _, target = str(text).partition(":")
+    return (check, target)
 
 
 def _fmt(key) -> str:
@@ -366,7 +436,7 @@ def _fmt(key) -> str:
 
 def target_keys(edit: dict) -> list[tuple[str, str]]:
     """The finding keys an edit targets: ``edit["target_finding"]`` (a dict or a list of dicts with ``check`` and
-    ``target``), else ``edit["target_findings"]``; [] without one."""
+    ``target``, and for an S2 its ``metrics``: ``finding_key``), else ``edit["target_findings"]``; [] without one."""
     raw = edit.get("target_finding")
     if raw is None:
         raw = edit.get("target_findings")
@@ -485,6 +555,14 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
         return False, "no target finding: an edit must name the finding it fixes (check id and target id)"
     before_by = {finding_key(f): f for f in before or []}
     after_by = {finding_key(f): f for f in after or []}
+    # fix round after P4a: an S2 target without its cut (a caller that passes no metrics) stands for every cut of its
+    # piece, as the old (check, target) key did
+    expanded: list = []
+    for t in targets:
+        cuts = [] if t in before_by or t[0] != "S2" or S2_KEY_SEP in t[1] else \
+            [k for k in before_by if k[0] == "S2" and base_key(k) == t]
+        expanded += cuts or [t]
+    targets = list(dict.fromkeys(expanded))
     present = [t for t in targets if t in before_by]
     if not present:
         return False, (f"target finding {', '.join(_fmt(t) for t in targets)} is not among the findings before the "

@@ -5,7 +5,9 @@
   value pinned in ``tests/fixtures/recognition_answers/toy/requests.json`` (the same in the session and on any pod);
   raster crops hash their decoded source pixels; the iso crop's 80 % fill and 1 m bar;
 - requests and the answer store (current key + hash + schema-valid data only), ``load`` and ``is_complete``,
-  seeding from a results folder (matching key, hash and model id only);
+  seeding from a results folder (matching key, hash and model id only); fix round after P4a (17 Oct 2026): an
+  answer seeded by its input hash from another key gets the item's own crop paths and keeps the seed's key and crop
+  paths for the trail;
 - the CLI with a fake vLLM server: exit 0 (all answered, reused on the next run), 3 (deadline), 2 (no server,
   answers that are not schema-valid, usage errors), ``status``;
 - raster room labels: the one rule for every field (two passes, or one pass equal to Tesseract), null never agrees,
@@ -455,6 +457,35 @@ def test_seeding_copies_only_matching_key_hash_and_model(toy, tmp_path):
     assert any("not " + MODELS["qwen"]["id"] in m for m in logs)
     # No file for the slug: nothing.
     assert A.seed_answers(other, items, tmp_path / "empty", log=logs.append) == 0
+
+
+def test_an_answer_seeded_by_input_hash_points_at_the_items_own_crops(toy, tmp_path):
+    """Fix round after P4a (real02, 17 Oct 2026): the seed file held the answers of six run keys under other keys
+    with the same input hash (a renumbered page). The copies kept the seed keys' crop paths, which in the run's crops
+    folder show other symbols. A seeded record now carries the item's own crop paths; ``seeded_key`` and
+    ``seeded_images`` keep where it came from. Fails on the old ``seed_answers`` (images copied from the seed)."""
+    rec, items = toy
+    seed_dir = tmp_path / "results"
+    shutil.copytree(FIXTURE, seed_dir)
+    slug = MODELS["qwen"]["slug"]
+    seed_file = seed_dir / f"answers_{slug}.json"
+    doc = json.loads(seed_file.read_text(encoding="utf-8"))
+    moved = dict(doc["calls"].pop("sym_T0_1"), images=["crops/sym_T0_9_ctx.png", "crops/sym_T0_9_iso.png"])
+    doc["calls"]["sym_T0_9"] = moved                       # the bed's answer under another key, same input hash
+    seed_file.write_text(json.dumps(doc), encoding="utf-8")
+    store = A.AnswerStore.for_model(rec, "qwen", MODELS)
+    assert A.seed_answers(store, items, seed_dir, log=lambda _m: None) == 3
+    saved = json.loads(store.path.read_text(encoding="utf-8"))["calls"]
+    bed, chair = saved["sym_T0_1"], saved["sym_T0_2"]
+    by_key = {it["key"]: it for it in items}
+    assert bed["images"] == by_key["sym_T0_1"]["images"] == ["crops/sym_T0_1_ctx.png", "crops/sym_T0_1_iso.png"]
+    assert bed["seeded_key"] == "sym_T0_9" and bed["seeded_images"] == moved["images"]
+    assert bed["data"] == moved["data"] and bed["input_sha256"] == by_key["sym_T0_1"]["input_sha256"]
+    # A seed under the item's own key: the same paths, its own key in the trail.
+    assert chair["images"] == by_key["sym_T0_2"]["images"] and chair["seeded_key"] == "sym_T0_2"
+    assert chair["seeded_images"] == doc["calls"]["sym_T0_2"]["images"]
+    assert "sym_T0_9" not in saved                         # only the items' keys are written
+    assert A.load(rec, items, MODELS)["sym_T0_1"]["qwen"] == moved["data"]
 
 
 # --------------------------------------------------------------------------

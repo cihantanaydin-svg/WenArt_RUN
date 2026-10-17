@@ -55,6 +55,27 @@ block, the rule, the confidence: twin / level ``CONF_TWIN``, block ``CONF_BLOCK`
 AI types the rest (the existing path). ``apply_code_types(building, proposal=False)`` applies the proposals and
 returns the new building with them; ``proposal=True`` (the completion path, after the locked source was written)
 records a ``type_proposal`` with ``drawn_type`` and keeps the footprint and status, as ``locked.check`` requires.
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02). What: a **group member** type (rule 0d) is given only when the
+group that misses it really takes the piece in: the piece typed on a copy of the building must lower that type's
+count in the room's missing lists (``groups.group_members`` and the unbuilt drawn groups), i.e. it stands within
+the role's reach of that group's anchor and no other anchor is nearer (``_adopted``); else code leaves it to the AI
+(the plan crop). The room kind's missing anchor ("the bedroom misses its bed") is kept as it was. Why: the rule
+ignored where the footprint stands, so every small square of a room was "the only missing member" of the same
+group: P4a typed 7 coffee tables in each basement salon (the group named in the reason, seating.2 of the 1.30 m
+"sofa" f_L-1_061, never took any of them: they joined the corner sofa's group or none, so the coffee table stayed
+missing for every later footprint), 2-3 in each L1 play room. The check is made from the building on every call,
+so it holds across the reading's code passes, ``infer_types`` and the completion; two nightstands of one bed or the
+chairs of one table are still typed one by one (each lowers the count).
+
+- **Nightstand symbols** (``nightstand_symbols``, run first in ``infer_types``): a drawn ``floor_lamp`` or
+  ``side_table`` of a nightstand's size (``plausibility.size_range("nightstand")``) standing at a drawn bed's head
+  end, beside the bed (from inside a bed block that holds it up to ``groups.yaml`` ``nightstand_gap`` outside the
+  bed's long side), with no nightstand on that side yet, is that bed's nightstand: type ``nightstand``, the bed's
+  front, ``inferred`` with the reason and ``adjusted_by_ai`` (``by: code``, ``drawn_type`` and the drawn footprint and
+  front kept, the plan crop of the reading's question as evidence when the piece has one). Why: real02's YATAK blocks
+  draw a nightstand with a table lamp on each side of the bed; both VLMs read the round lamp and answered
+  ``floor_lamp``, the lamps then held the nightstand places and r_L0_e_yatak_odasi and _2 got no nightstand.
 """
 from __future__ import annotations
 
@@ -78,6 +99,14 @@ CONF_BLOCK = 0.7
 CONF_GROUP = 0.6
 BLOCK_SIZE_TOL = 0.40            # a block-named type must fit the footprint within this (a misread YATAK block is 27 % out)
 CODE_ROUNDS = 3                  # chains: a twin of a piece typed by another level
+
+# Fix round after P4a (module docstring): a drawn lamp or side table of a nightstand's size at a bed's head is the
+# bed's nightstand (a nightstand with its table lamp drawn from above).
+NIGHTSTAND_METHOD = "nightstand_symbol"
+NIGHTSTAND_SYMBOL_TYPES = ("floor_lamp", "side_table")
+CONF_NIGHTSTAND = 0.7
+NIGHTSTAND_SIDE_IN_M = 0.05       # the symbol's outer side reaches at least this close to the bed's side line
+RECOGNITION_CROP = "recognition/crops/{key}_ctx.png"     # the reading's plan crop of a question (reading.CROP_DIR)
 
 OUTLINE_TYPE = "rug"              # what an outline holding other pieces is (a decor type, not a furniture type)
 WALL_SIDE_M = 0.10                # a side this close to the room outline stands on a wall
@@ -395,10 +424,9 @@ def _product_distance(ftype: str, size) -> float:
     return max(abs(math.log(max(w, 1e-3) / pw)), abs(math.log(max(d, 1e-3) / pd)))
 
 
-def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict]:
-    from wenart.furniture import program as PR
-    from wenart.furniture import sizes as SZ
-
+def _group_wants(building: dict, room: dict) -> dict[str, list[str]]:
+    """type -> one line per missing member of that type in the room's groups (``groups.group_members``) and in its
+    unbuilt drawn groups (``groups.drawn_groups``, whose built anchor's group is in the first list already)."""
     wanted: dict[str, list[str]] = {}
     for g in GR.group_members(building, room["id"]):
         for miss in g.get("missing") or []:
@@ -413,6 +441,27 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
         for miss in GR._expected_missing(g["template"], anchor, members, room, building):
             for t in str(miss).split("|"):
                 wanted.setdefault(t, []).append(f"the drawn {g['template']} group of {g['anchor_id']} misses {miss}")
+    return wanted
+
+
+def _adopted(building: dict, piece: dict, room: dict, ftype: str, before: int) -> bool:
+    """Fix round after P4a (module docstring): True when ``piece`` typed ``ftype`` (on a copy) lowers the count of
+    ``ftype`` in the room's missing lists below ``before``: a group really takes it in."""
+    trial_piece = dict(piece, type=ftype, type_method="group_member")
+    if trial_piece.get("build") is False:
+        trial_piece["build"] = True                     # untyped and unbuilt: built once typed (_apply_code_type)
+        trial_piece.pop("not_built_reason", None)
+    trial = dict(building, furniture=[trial_piece if f.get("id") == piece["id"] else f
+                                      for f in building.get("furniture") or []])
+    return len(_group_wants(trial, room).get(ftype, [])) < before
+
+
+def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict]:
+    from wenart.furniture import program as PR
+    from wenart.furniture import sizes as SZ
+
+    wanted = _group_wants(building, room)
+    by_group = {t: len(v) for t, v in wanted.items()}   # fix round after P4a: the groups' own count per type
     kind = PR.room_kind(building, room)
     present = {f.get("type") for f in building.get("furniture") or [] if f.get("room_id") == room["id"]
                and f.get("type") not in (None, "unknown") and f.get("build") is not False}
@@ -446,6 +495,10 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
             return None                         # two members fit about equally: the plan crop decides (AI)
         fits = [best]
     ftype = fits[0]
+    if by_group.get(ftype) and not _adopted(building, piece, room, ftype, by_group[ftype]):
+        # fix round after P4a (module docstring): no group takes this footprint in (too far from the anchor that
+        # misses the type, or nearer another one): the plan crop decides (AI), never one more member of that type
+        return None
     text = (f"{ftype}: {'; '.join(wanted[ftype][:2])}, and the type's product range fits {size[0]:.2f} x "
             f"{size[1]:.2f} m (the only missing member of that size)")
     return {"type": ftype, "method": "group_member", "confidence": CONF_GROUP, "reason": text,
@@ -650,7 +703,130 @@ def infer_types(building: dict) -> list[dict]:
             if front is not None:
                 prop["front_deg"] = front
         out.append(prop)
+    # fix round after P4a: the drawn nightstand-with-lamp symbols at a bed's head (module docstring)
+    out += nightstand_symbols(building)
     return out
+
+
+def _nightstand_size(size) -> bool:
+    rng = PL.size_range("nightstand")
+    if rng is None:
+        return False
+    (w0, w1), (d0, d1) = rng
+    w, d = (float(v) for v in size)
+    return (w0 <= w <= w1 and d0 <= d <= d1) or (w0 <= d <= w1 and d0 <= w <= d1)
+
+
+def _crop_of(item: dict) -> Optional[str]:
+    """The reading's plan crop of the piece's question (an AI evidence entry ``recognition:<key>``), else None."""
+    for e in item.get("evidence") or []:
+        entity = str((e or {}).get("entity") or "") if isinstance(e, dict) else ""
+        if entity.startswith("recognition:") and len(entity) > len("recognition:"):
+            return RECOGNITION_CROP.format(key=entity.split(":", 1)[1])
+    return None
+
+
+def nightstand_symbols(building: dict) -> list[dict]:
+    """Fix round after P4a (module docstring): proposals ``{"piece_id", "type": "nightstand", "type_method":
+    NIGHTSTAND_METHOD, "reason", "confidence", "evidence", "front_deg", "drawn_type", "bed_id", "side", "crop"}``
+    for the drawn ``floor_lamp`` / ``side_table`` pieces of a nightstand's size standing beside a drawn bed's head
+    (``group_checks.nightstand_place``: the back within ``nightstand_gap`` of the headboard line; the symbol from inside
+    the bed block up to ``nightstand_gap`` outside the long side), one per free side and at most the bed's
+    nightstands (``schemas.NIGHTSTANDS_PER_BED``); nearest first. Pure; the building is unchanged."""
+    from wenart.furniture import group_checks as GC
+
+    gap_max = float(GR.rule("nightstand_gap")["max"])
+    furniture = building.get("furniture") or []
+    out: list[dict] = []
+    taken: set = set()
+    for room in building.get("rooms") or []:
+        items = [f for f in furniture if f.get("room_id") == room.get("id") and f.get("source") == "from_documents"
+                 and f.get("build") is not False and f.get("footprint")]
+        beds = sorted((f for f in items if schemas.NIGHTSTANDS_PER_BED.get(f.get("type"), 0) > 0),
+                      key=lambda f: str(f["id"]))
+        cands = [f for f in items if f.get("type") in NIGHTSTAND_SYMBOL_TYPES
+                 and _nightstand_size(f["footprint"]["size"])]
+        if not beds or not cands:
+            continue
+        stands = [f for f in items if f.get("type") == "nightstand"]
+        for bed in beds:
+            try:
+                bp = placer.drawn_piece(bed)
+            except (KeyError, TypeError, ValueError):
+                continue
+            half = bp.size[0] / 2.0
+
+            def beside(f) -> Optional[dict]:
+                try:
+                    piece = placer.drawn_piece(f)
+                except (KeyError, TypeError, ValueError):
+                    return None
+                xs = [abs(GC.to_local(bp, c)[0]) for c in piece.polygon().exterior.coords]
+                if max(xs) < half - NIGHTSTAND_SIDE_IN_M or min(xs) > half + gap_max + 1e-9:
+                    return None                     # not at the bed's long side (the middle of the bed, or too far)
+                place = GC.nightstand_place(bp, piece)
+                return place if place["head_offset_m"] <= gap_max + 1e-9 else None
+
+            have = {pl["side"] for pl in (beside(f) for f in stands) if pl is not None}
+            best: dict[str, tuple] = {}
+            for f in cands:
+                if f["id"] in taken:
+                    continue
+                pl = beside(f)
+                if pl is None or pl["side"] in have:
+                    continue
+                key = (round(pl["head_offset_m"] + abs(pl["side_gap_m"]), 4), str(f["id"]))
+                if pl["side"] not in best or key < best[pl["side"]][0]:
+                    best[pl["side"]] = (key, f, pl)
+            want = schemas.NIGHTSTANDS_PER_BED[bed["type"]] - len(have)
+            front = bed.get("front_deg")
+            if front is None:
+                front = G.front_direction_deg(bp.rotation_deg)
+            for side, (_key, f, pl) in sorted(best.items(), key=lambda kv: kv[1][0])[:max(0, want)]:
+                taken.add(f["id"])
+                w, d = (float(v) for v in f["footprint"]["size"])
+                crop = _crop_of(f)
+                text = (f"nightstand: a drawn {f['type']} of a nightstand's size ({w:.2f} x {d:.2f} m) at the {side} "
+                        f"side of the drawn {bed['type']} {bed['id']}'s head (back {pl['head_offset_m']:.2f} m from "
+                        f"the headboard line, {pl['side_gap_m']:.2f} m from the bed side; nightstand_gap "
+                        f"{gap_max:.2f} m): the bed's nightstand drawn with its table lamp, not a floor lamp"
+                        + (f" (plan crop {crop})" if crop else ""))
+                ev = _evidence_code(f, NIGHTSTAND_METHOD, text, CONF_NIGHTSTAND, bed=bed["id"], side=side,
+                                    drawn_type=f["type"])
+                ev["rule"] = "furniture.infer.nightstand_symbols"
+                if crop:
+                    ev["crop"] = crop
+                out.append({"piece_id": f["id"], "type": "nightstand", "type_method": NIGHTSTAND_METHOD,
+                            "reason": text, "confidence": CONF_NIGHTSTAND, "evidence": ev,
+                            "front_deg": round(float(front) % 360.0, 3), "drawn_type": f["type"], "bed_id": bed["id"],
+                            "side": side, "crop": crop})
+    return out
+
+
+def _apply_nightstand(item: dict, prop: dict) -> None:
+    """A nightstand symbol (``nightstand_symbols``): the type, the bed's front, ``inferred`` with the reason and
+    ``adjusted_by_ai`` (``by: code``) with the drawn values kept (CLAUDE.md: every change keeps ``drawn_type``,
+    ``drawn_footprint``, ``drawn_front_deg``, ``drawn_height`` and is labelled with the reason)."""
+    item.setdefault("drawn_type", item.get("type"))
+    item.setdefault("drawn_footprint", copy.deepcopy(item.get("footprint")))
+    item.setdefault("drawn_front_deg", item.get("front_deg"))
+    item.setdefault("drawn_height", item.get("height"))
+    changed = {"type": item.get("type"), "front_deg": item.get("front_deg")}
+    item["type"] = prop["type"]
+    item["type_method"] = prop["type_method"]
+    item["inferred"] = True
+    item["inferred_reason"] = prop["reason"]
+    item.setdefault("evidence", []).append(dict(prop["evidence"]))
+    if prop.get("front_deg") is not None and (item.get("front_deg") is None or G.angle_difference_deg(
+            float(item["front_deg"]), float(prop["front_deg"])) > 1.0):
+        set_front(item, float(prop["front_deg"]))
+    if isinstance(item.get("assumed"), list) and item.get("front_deg") is not None:
+        item["assumed"] = [a for a in item["assumed"] if a != "front_deg"]
+    label = {"by": "code", "stage": "reading", "rule": prop["type_method"], "reason": prop["reason"],
+             "changed": changed}
+    if prop.get("crop"):
+        label["crop"] = prop["crop"]
+    item["adjusted_by_ai"] = label
 
 
 def _room_ring(room: dict):
@@ -681,6 +857,9 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
             continue
         if prop.get("type_method") in CODE_TYPE_METHODS:          # Milestone 13: typed by code
             _apply_code_type(item, prop, proposal=False)
+            continue
+        if prop.get("type_method") == NIGHTSTAND_METHOD:          # fix round after P4a: a nightstand symbol
+            _apply_nightstand(item, prop)
             continue
         ev = dict(prop.get("evidence") or _evidence(item, prop["reason"], float(prop.get("confidence", 0.5))))
         item.setdefault("evidence", []).append(ev)

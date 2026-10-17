@@ -19,6 +19,15 @@ Fix round after P3 (16-17 Oct 2026): ``findings_removed.dry_recheck`` is labelle
 the measured success number; ``calls`` counts the planner answers stopped by length or repetition
 (``finish_reasons``, from the call log's ``finish_reason``) and the calls refused for a full context.
 
+Fix round after P4a (17 Oct 2026; pod P4a, real02): ``edits_removing_finding`` counts an accepted edit by the
+finding keys it targeted (``edit_target_keys``: ``evidence.acceptance.target``, those of its round all gone in the
+next one), else by its logged ``(checklist, target)``; ``edits_with_target`` (the denominator) leaves out the edits
+without a target (``RECORD_ONLY_TOOLS``: ``report_library_gap``, ``correct_geometry``, ``rerun_stage``). Why: the 4
+``set_lighting`` edits target camera findings but log the room, so P4a reported 13 of 25 where 17 of 24 removed
+their finding. The finding keys are ``causes.finding_key`` (an S2 names its cut; an older log's ``S2:<target>``
+matches any cut of the target). ``memory`` adds ``plans_empty``, ``plans_refused`` and ``plans_default`` (the plan
+events' status, ``loop.plan_status``).
+
 ``write(project_out)`` writes ``orchestrator/metrics.json`` (the loop calls it after every round);
 ``compare_rows`` / ``update_compare(md_path, label, metrics)`` keep ``results/compare/<p>/agent_metrics.md`` (and its
 ``agent_metrics.json`` with every row) across runs; ``python -m wenart.agent metrics`` is the CLI.
@@ -36,10 +45,13 @@ import time
 from pathlib import Path
 from typing import Optional
 
+from wenart.agent import causes as CS
 from wenart.agent import log as LG
 from wenart.agent import memory as MEM
 
 METRICS_JSON = "metrics.json"
+# Fix round after P4a: edits that record something and target no finding (left out of edits_removing_finding)
+RECORD_ONLY_TOOLS = ("report_library_gap", "correct_geometry", "rerun_stage")
 SEVERITIES = ("critical", "major", "minor")
 
 
@@ -186,39 +198,71 @@ def compute(log: dict, memory: Optional[dict] = None, *, since_seq: Optional[int
         "memory": {"repeats_refused": max(memory_refused, int((memory or {}).get("refused_repeats") or 0)
                                           if since_seq is None else memory_refused),
                    "dry_runs": sum(1 for e in events if e.get("kind") == "dry_run"),
-                   "plans": len(plans), "plans_valid": sum(1 for e in plans if e.get("status") == "ok")},
+                   "plans": len(plans), "plans_valid": sum(1 for e in plans if e.get("status") == "ok"),
+                   # fix round after P4a: why the default checklist ran (loop.plan_status)
+                   "plans_empty": sum(1 for e in plans if e.get("status") == "empty"),
+                   "plans_refused": sum(1 for e in plans if e.get("status") == "refused"),
+                   "plans_default": sum(1 for e in plans if e.get("status") == "default")},
         "findings_removed": removed,
         "finish_reasons": finish_reasons(calls),
     }
 
 
 def _finding_keys(findings: list[dict], severities=("critical", "major")) -> set:
-    return {(str(e.get("checklist")), str(e.get("target"))) for e in findings if e.get("severity") in severities}
+    """The ``causes.finding_key`` of the critical / major finding events (fix round after P4a: an S2 names its
+    cut)."""
+    return {CS.finding_key(e) for e in findings if e.get("severity") in severities}
+
+
+def edit_target_keys(e: dict) -> list[tuple[str, str]]:
+    """Fix round after P4a: the finding keys an accepted edit targeted: its ``evidence.acceptance.target`` (the
+    loop's ``check:target`` strings), else its logged ``(checklist, target)``; [] without either."""
+    acc = ((e.get("evidence") or {}).get("acceptance") or {}) if isinstance(e.get("evidence"), dict) else {}
+    keys = [CS.parse_key(t) for t in acc.get("target") or [] if t]
+    if keys:
+        return list(dict.fromkeys(keys))
+    if e.get("checklist") and e.get("target") is not None:
+        return [(str(e.get("checklist")), str(e.get("target")))]
+    return []
+
+
+def _key_in(key: tuple[str, str], keys: set, bases: set) -> bool:
+    """``key`` among a round's keys: itself, or (an older log's ``S2:<target>`` without the cut) any cut of the
+    target (``causes.base_key``)."""
+    return key in keys or (key == CS.base_key(key) and key in bases)
 
 
 def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
     """Milestone 13: ``{"per_round": {round: n}, "total", "dry_recheck": {round: n}, "edits_removing_finding",
-    "accepted_edits"}`` (module docstring) from the finding, edit and round events of one run. A round counts
-    against the next round that has findings; the last round has nothing to compare with."""
+    "edits_with_target", "accepted_edits"}`` (module docstring) from the finding, edit and round events of one run. A
+    round counts against the next round that has findings; the last round has nothing to compare with. Fix round
+    after P4a: an edit removes its finding when the critical / major keys it targeted (``edit_target_keys``) that its
+    round has are all gone in the next one; ``edits_with_target`` counts the accepted edits that have a target and a
+    next round (record-only edits, ``RECORD_ONLY_TOOLS``, have none)."""
     findings = [e for e in events if e.get("kind") == "finding" and not e.get("dropped")]
     by_round = {r: _finding_keys([e for e in findings if int(e.get("round") or 0) == r]) for r in round_ids}
+    bases = {r: {CS.base_key(k) for k in keys} for r, keys in by_round.items()}
     per_round: dict = {}
     for a, b in zip(round_ids, round_ids[1:]):
         per_round[str(a)] = len(by_round[a] - by_round[b])
-    edits_removing = 0
+    edits_removing = with_target = 0
     accepted = [e for e in events if e.get("kind") == "edit"]
     for e in accepted:
         r = int(e.get("round") or 0)
         nxt = next((k for k in round_ids if k > r), None)
-        if nxt is None or not e.get("checklist"):
+        keys = [] if e.get("tool") in RECORD_ONLY_TOOLS else edit_target_keys(e)
+        if nxt is None or not keys:
             continue
-        key = (str(e.get("checklist")), str(e.get("target")))
-        if key in by_round.get(r, set()) and key not in by_round.get(nxt, set()):
+        with_target += 1
+        # the targeted critical / major findings of its round (a checklist step may also name minor ones)
+        present = [k for k in keys if _key_in(k, by_round.get(r, set()), bases.get(r, set()))]
+        if present and not any(_key_in(k, by_round.get(nxt, set()), bases.get(nxt, set())) for k in present):
             edits_removing += 1
     dry = {str(int(e.get("round") or 0)): int((e.get("counts") or {}).get("findings_removed") or 0)
            for e in events if e.get("kind") == "round" and (e.get("counts") or {}).get("findings_removed") is not None}
     return {"per_round": per_round, "total": sum(per_round.values()), "dry_recheck": dry,
-            "dry_recheck_is": "predicted", "edits_removing_finding": edits_removing, "accepted_edits": len(accepted)}
+            "dry_recheck_is": "predicted", "edits_removing_finding": edits_removing,
+            "edits_with_target": with_target, "accepted_edits": len(accepted)}
 
 
 def finish_reasons(calls: list[dict]) -> dict:

@@ -44,6 +44,11 @@ beside a drawn counter run the work triangle and the fridge landing of an added 
 hob cannot move; the kitchen gets its fridge). G5 reads the room-size variant R14 (one free bed side in a bedroom
 under 10 m²). G14 and ``allowed_types_at`` read the aliased room kind (``plausibility.room_types``: a sofa in real04's
 play room is allowed).
+
+Fix round after P4a (17 Oct 2026; the furniture track's ask, applied at integration): "unverified" means an anchor the
+reading could not agree on (``program.unsure_anchor``). A vector-drawn bed or table the reading typed by code
+(``infer.CODE_TYPE_METHODS``), which the completion now completes like a verified one, is checked by G4/G5 (its
+nightstands and free sides) and G6 (its chairs) too; before, P4a's code-typed beds f_L0_019-022 were skipped.
 """
 from __future__ import annotations
 
@@ -514,6 +519,13 @@ def nightstand_place(bed: placer.Piece, ns: placer.Piece) -> dict:
             "front_deg_off": _deg(off)}
 
 
+def _unsure(anchor: dict) -> bool:
+    """Fix round after P4a (module docstring): an anchor whose group the checks skip (``program.unsure_anchor``)."""
+    from wenart.furniture import program as PR     # lazy: program imports the groups
+
+    return PR.unsure_anchor(anchor)
+
+
 def _g4_g5(r: RoomView) -> list[dict]:
     out = []
     gap_max = GR.rule("nightstand_gap")["max"]
@@ -524,7 +536,7 @@ def _g4_g5(r: RoomView) -> list[dict]:
         item = r.by_id[bid]
         btype = item["type"]
         bed = r.pieces[bid]
-        if item.get("status") == "unverified" or btype not in BED_TYPES:
+        if _unsure(item) or btype not in BED_TYPES:      # fix round after P4a: a code-typed bed is checked
             continue
         # G4
         nss = [m for m in g["member_ids"] if r.by_id.get(m, {}).get("type") == "nightstand" and m in r.pieces]
@@ -649,7 +661,7 @@ def _g6(r: RoomView) -> list[dict]:
         if g["group"] not in ("dining", "balcony") or g["anchor_id"] not in r.pieces:
             continue
         tid = g["anchor_id"]
-        if r.by_id[tid].get("status") == "unverified":
+        if _unsure(r.by_id[tid]):                       # fix round after P4a: a code-typed table is checked
             continue
         table = r.pieces[tid]
         chairs = [m for m in g["member_ids"] if r.by_id.get(m, {}).get("type") in SEAT_TYPES and m in r.pieces]

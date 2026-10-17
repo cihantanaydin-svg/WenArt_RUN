@@ -796,7 +796,15 @@ def test_pins_skip_the_style_filter_but_not_the_caps_or_the_licence():
     assert refused["asset_id"] == "abo_scandi" and refused["pin_refused"] == "abo_big: fails the fit rules (caps, height)"
     nc = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin=gen["id"]), cat, style_family="scandinavian")
     assert nc["asset_id"] == "abo_scandi" and "tool_nc" in nc["pin_refused"] and "commercial mode" in nc["pin_refused"]
-    ok = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin=gen["id"]), cat, style_family="scandinavian", mode="relaxed")
+    # fix round after P4a (integration, the library verifier's better_fix): a pin to a generated model is refused while
+    # a real product of the type fits within the caps (here abo_scandi) ...
+    real = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin=gen["id"]), cat, style_family="scandinavian",
+                       mode="relaxed")
+    assert real["asset_id"] == "abo_scandi" and "generated model (units guessed)" in real["pin_refused"]
+    # ... and taken, with its licence flag, in relaxed mode when no real product fits
+    alone = FakeCatalog([big, gen])
+    ok = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin=gen["id"]), alone, style_family="scandinavian",
+                     mode="relaxed")
     assert ok["pinned"] == gen["id"] and ok["licence_flag"] == "tool_nc" and ok["commercial_safe"] is False
     unknown = F.fit_piece(dict(piece("sofa", 2.0, 0.9), asset_pin="abo_nope"), cat, style_family="scandinavian")
     assert unknown["pin_refused"] == "abo_nope: not a sofa model of the catalogue"

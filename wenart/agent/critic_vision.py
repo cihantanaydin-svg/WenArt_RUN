@@ -41,6 +41,13 @@ specified in the brief" in rounds 2-4 (critical in rounds 3-4); an accepted ``se
 counted as removing it, and it came back. A roof the agent overrode to another type keeps the vision finding (M12
 real04: a corridor session flattened the roof; "the roof is flat, but the building specification requires a
 mansard roof" was right).
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02): a D2 / F1 / F9 finding on a piece whose message is about a light
+fixture (``light_subject``: a lamp, sconce, wall light ... named before the piece's id or type words, and the piece
+is no light) is re-routed (``reroute_light_findings``): its target becomes the room, its cause ``light_fixture`` (no
+tool, reported to the lighting stage: ``causes.REPORT_TO``), and its evidence keeps the piece it named
+(``metrics.target_was``). Why: P4a's "the wall-mounted lamp next to the desk is rendered as a crude, flat rectangular
+box" (a rig wall light) was put on the desk f_L0_029; a swap_model of the desk was accepted and the finding came back.
 """
 from __future__ import annotations
 
@@ -131,6 +138,53 @@ def screen(answer: Optional[dict], allowed: set, n_images: int, code: dict, room
     return kept, dropped
 
 
+# Fix round after P4a (module docstring): the words of a light fixture in a finding's message (never the adjective
+# "light": "a light grey sofa"), the piece types that are lights, and the checks a re-route applies to.
+LIGHT_WORDS = re.compile(r"\b(?:lamps?|sconces?|chandeliers?|luminaires?|spotlights?|downlights?|pendant lights?|"
+                         r"(?:wall|ceiling|bedside|reading|wall-mounted|wall mounted|recessed|panel|strip)[ -]lights?|"
+                         r"light[ -](?:fixtures?|fittings?|panels?))\b")
+LIGHT_TYPE_WORDS = ("lamp", "light", "sconce", "chandelier", "pendant")
+REROUTE_CHECKS = ("D2", "F1", "F9")
+LIGHT_CAUSE = "light_fixture"               # = causes (no tool, REPORT_TO lighting)
+
+
+def light_subject(message: str, piece: Optional[dict]) -> Optional[str]:
+    """The light fixture a finding's ``message`` is about (``LIGHT_WORDS``) when it names it before the piece (its id
+    or a word of its type, 3 letters or more) and the piece is no light; else None."""
+    if not isinstance(piece, dict):
+        return None
+    text = str(message or "").lower()
+    m = LIGHT_WORDS.search(text)
+    if m is None:
+        return None
+    ptype = str(piece.get("type") or "").lower()
+    if any(w in ptype for w in LIGHT_TYPE_WORDS):
+        return None
+    words = [str(piece.get("id") or "").lower()] + [w for w in re.split(r"[_\s]+", ptype) if len(w) >= 3]
+    hits = [h.start() for w in words if w for h in [re.search(rf"\b{re.escape(w)}s?\b", text)] if h]
+    if hits and min(hits) < m.start():
+        return None
+    return m.group(0)
+
+
+def reroute_light_findings(kept: list[dict], building: dict, room_id: Optional[str]) -> list[dict]:
+    """Fix round after P4a (module docstring): the kept findings, with those about a light fixture re-routed to the
+    room (cause ``light_fixture``; ``evidence.metrics``: ``named``, ``target_was``, ``target_type``)."""
+    pieces = {f.get("id"): f for f in building.get("furniture") or [] if isinstance(f, dict)}
+    out = []
+    for f in kept:
+        piece = pieces.get(f.get("target"))
+        subject = light_subject(f.get("message"), piece) if f.get("check") in REROUTE_CHECKS and room_id else None
+        if subject is None:
+            out.append(f)
+            continue
+        evidence = dict(f.get("evidence") or {})
+        evidence["metrics"] = dict(evidence.get("metrics") or {}, named=subject, target_was=piece.get("id"),
+                                   target_type=piece.get("type"))
+        out.append(dict(f, target=room_id, cause=LIGHT_CAUSE, evidence=evidence))
+    return out
+
+
 def with_decor_doubts(pieces: list[dict], building: dict) -> list[dict]:
     """Copies of ``pieces`` with ``decor_doubt`` [{type, doubt}]: the decor models on them that the library audit
     kept with a vision doubt (decision 1a; the prompt marks them for D2)."""
@@ -193,6 +247,7 @@ def critique_room(model, building: dict, room_id: str, *, previews: list[tuple[s
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, room_ids(building, room_id, [v for v, _ in previews]), len(images), code,
                            room_id, call_id=call_id)
+    kept = reroute_light_findings(kept, building, room_id)      # fix round after P4a
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}
 
 

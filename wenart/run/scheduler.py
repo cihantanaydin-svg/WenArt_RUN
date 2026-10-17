@@ -152,6 +152,9 @@ GPU_TEST_GROUPS = (
     ("full", "py", [("tests/gpu/test_full_run.py", ("RUN_TEST_PROJECTS", "NEEDS_REVIEW_TEST_PROJECTS",
                                                     "SELFTEST_TEST_ALIAS")),
                     ("tests/gpu/test_render.py", ("RENDER_TEST_PROJECTS",)),
+                    # fix round after P4a (17 Oct 2026): one camera per name, the --cameras-from records kept or
+                    # dropped with a reason, agent cameras that tell their view from their pose
+                    ("tests/gpu/test_camera_replay.py", ("RENDER_TEST_PROJECTS",)),
                     ("tests/gpu/test_look_m6.py", ("RENDER_TEST_PROJECTS",)),
                     ("tests/gpu/test_furnish.py", ("FURNISH_TEST_PROJECTS",)),
                     ("tests/gpu/test_check.py", ("CHECK_TEST_PROJECTS",)),

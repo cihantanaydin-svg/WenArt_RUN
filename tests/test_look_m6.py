@@ -1198,8 +1198,8 @@ def test_row7_window_pull_changes_only_the_panes(pulled):
     assert r["outside_max_diff"] == 0 and r["inside_changed"] > 0             # pixels outside the mask unchanged
     assert r["final_is_blend"]
     # The look is still Milestone 7's AgX - Punchy; the render code version moved on (m13.1 since Milestone 13 round 1,
-    # m13.2 since the fix round after P3, pinned in tests/test_blender_look.py and tests/test_m13_light.py), so this
-    # row reads the module's constant.
+    # m13.2 since the fix round after P3, m13.3 since the fix round after P4a, pinned in tests/test_blender_look.py and
+    # tests/test_m13_light.py), so this row reads the module's constant.
     assert pulled["manifest"]["render_code_version"] == R.RENDER_CODE_VERSION and pulled["manifest"]["look"] == R.LOOK
     assert R.LOOK == "AgX - Punchy"
     assert r["main_look"] == R.LOOK == "AgX - Punchy"                         # the pull saved with the main look
@@ -1471,3 +1471,82 @@ def test_fixround_part2_open_air_view_renders_with_the_exterior_clip(flat):
     depth = terrace["depth"]                                   # the far wall is in the final render's depth pass
     assert depth["coverage"] > 0.99 and 999.0 < depth["min"] <= depth["max"] < exterior.CLIP_END, depth
     assert result["clip_after"] == {"cam_r_bed_1": C.CLIP_END_M, KITCHEN_CAM: C.CLIP_END_M}   # restored
+
+
+# ==========================================================================
+# Fix round after P4a (17 Oct 2026): the haze is hidden from the interior views' camera rays
+# ==========================================================================
+
+HAZE_SCRIPT = textwrap.dedent("""
+    import bmesh, bpy, json, os, sys
+    sys.path.insert(0, os.environ["WENART_REPO_ROOT"])
+    from wenart.blender import render as R
+    from wenart.blender import site as SITE
+    spec = json.load(open(sys.argv[sys.argv.index("--") + 1]))
+    scene = bpy.context.scene
+    # a saturated blue interior world, so the panes show whether the camera sees it
+    world = bpy.data.worlds.new("blue_sky")
+    world.use_nodes = True
+    bg = world.node_tree.nodes["Background"]
+    bg.inputs["Color"].default_value = (0.05, 0.2, 1.0, 1.0)
+    bg.inputs["Strength"].default_value = 1.0
+    scene.world = world
+    scene["wenart_world_interior"] = world.name
+    # site.haze_material (flagged wenart_haze), denser, in a 200 x 100 x 100 m box south of the kitchen window: the
+    # stand-in for P4a's 1200 m of haze (optical depth about 1) between the windows and the interior world
+    mat = SITE.haze_material()
+    next(n for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeVolumeScatter").inputs["Density"].default_value = 0.05
+    mesh = bpy.data.meshes.new("haze")
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    bm.to_mesh(mesh)
+    bm.free()
+    ob = bpy.data.objects.new("haze", mesh)
+    ob.scale, ob.location = (200.0, 100.0, 100.0), (5.85, -60.5, 0.0)
+    ob.data.materials.append(mat)
+    ob["wenart_id"] = "haze"
+    ob.visible_shadow = False
+    scene.collection.objects.link(ob)
+    if spec["visible"]:
+        R.haze_hidden_for = lambda *a, **k: False          # m13.2: the camera sees the haze
+    code = R.main(["--out", spec["out"], "--cameras", spec["camera"], "--samples", "8", "--res", "128x72",
+                   "--device", "cpu"])
+    json.dump({"code": code, "after": [ob.visible_camera, ob.visible_transmission, ob.visible_diffuse,
+                                       ob.visible_glossy]}, open(spec["result"], "w"))
+""")
+
+
+@needs_blender
+def test_fixround_p4a_interior_view_sees_the_world_through_the_window_not_the_haze(flat):
+    """P4a: every window of real02 showed a flat grey card (pane saturation 0.00-0.07; M11's clouds 0.13-0.25): the
+    camera's rays through the glass crossed up to 1200 m of the haze volume before they reached the interior world.
+    The flat's kitchen camera, with a dense haze box between its window and a blue interior world: rendered as the
+    render does now (the haze hidden from its camera and transmission rays) the panes are blue; with the haze shown
+    to the camera (m13.2) they are grey. The haze's ray visibility is back after the render, the entry records
+    ``haze_hidden`` and the window pull ``pane_saturation``, and the meter does not move (diffuse rays still see the
+    haze)."""
+    tmp = flat["tmp"]
+    (tmp / "haze.py").write_text(HAZE_SCRIPT, encoding="utf-8")
+    runs = {}
+    for name, visible in (("hidden", False), ("visible", True)):
+        out = tmp / f"haze_{name}"
+        spec = tmp / f"haze_{name}.json"
+        spec.write_text(json.dumps({"out": str(out), "camera": KITCHEN_CAM, "visible": visible,
+                                    "result": str(tmp / f"haze_{name}_result.json")}), encoding="utf-8")
+        cli.run_blender(tmp / "haze.py", [str(spec)], blend=str(flat["scene"] / "scene.blend"), timeout=900,
+                        log_path=tmp / f"haze_{name}.log")
+        manifest = json.loads((out / "render_manifest.json").read_text(encoding="utf-8"))
+        schemas.validate_render_manifest(manifest)
+        runs[name] = {"result": json.loads((tmp / f"haze_{name}_result.json").read_text(encoding="utf-8")),
+                      "entry": manifest["renders"][0]}
+    hidden, visible = runs["hidden"], runs["visible"]
+    assert hidden["result"]["code"] == visible["result"]["code"] == 0
+    assert hidden["result"]["after"] == visible["result"]["after"] == [True, True, True, True]   # restored
+    assert hidden["entry"]["haze_hidden"] is True and visible["entry"]["haze_hidden"] is False
+    sat_hidden = hidden["entry"]["window_pull"]["pane_saturation"]
+    sat_visible = visible["entry"]["window_pull"]["pane_saturation"]
+    print(f"pane saturation: haze hidden {sat_hidden}, haze in view {sat_visible}")
+    assert sat_hidden >= 0.3 and sat_visible <= sat_hidden - 0.2
+    assert hidden["entry"]["exposure"]["ev"] == visible["entry"]["exposure"]["ev"]
+    assert hidden["entry"]["exposure"]["whitepoint"] == pytest.approx(visible["entry"]["exposure"]["whitepoint"],
+                                                                      abs=1e-3)

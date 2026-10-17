@@ -81,6 +81,17 @@ Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3; user decisi
   the fitted boxes); a re-solved drawn piece at its drawn size is planned with the fitted box too (``_planned_of``,
   ``Spot.record``) and recorded at its drawn size where the builder makes that box (``Spot.record_box``: a sofa's
   back stays on the wall). The drawn footprint stays the record everywhere.
+
+Fix round after P4a (17 Oct 2026):
+
+- a drawn anchor that is ``unverified`` only because code typed it (vector-drawn, ``infer.CODE_TYPE_METHODS``) is
+  used as drawn and gets its partners (``program.unsure_anchor``). Why: real02's code-typed beds f_L0_019-022 got no
+  candidate at all, so four bedrooms had no nightstands;
+- in a re-solved drawn group the partner places of a role are searched at the drawn members' own boxes first
+  (``_member_boxes``), then at the template's sizes. Why: the members take a matched place at their own box
+  (``_match_members``), so a 0.45 m deep drawn nightstand on a place made for a 0.40 m one reached 2.5 cm into the
+  headboard wall, failed the exact test and the whole group got no candidate (real02's YATAK beds with their drawn
+  nightstands, ``infer.nightstand_symbols``: the misread 2.55 m bed then stayed as drawn).
 """
 from __future__ import annotations
 
@@ -876,6 +887,22 @@ def _resolve_count(resolve: Optional[dict], role: str) -> int:
     return sum(1 for _m, r in (resolve or {}).get("members", []) if r == role)
 
 
+def _member_boxes(resolve: Optional[dict], role: str) -> list[tuple]:
+    """Fix round after P4a: the front-frame boxes the drawn members of ``role`` take in a re-solve (their drawn size,
+    or the planned box of a uniform library fit, as ``_match_members``), rounded, without repeats."""
+    out = []
+    for m, r in (resolve or {}).get("members", []):
+        if r != role:
+            continue
+        try:
+            p = placer.drawn_piece(m)
+        except (KeyError, TypeError, ValueError):
+            continue
+        box = p.size if _planned_of(m) is None else p.planned_size
+        out.append((round(float(box[0]), 4), round(float(box[1]), 4)))
+    return list(dict.fromkeys(out))
+
+
 def _match_members(space: Space, by_role: dict, resolve: dict) -> Optional[tuple[dict, list[Spot], list[float]]]:
     """Milestone 13: the drawn members of a re-solved group take the partner places of their role nearest their
     drawn centres (greedy, at most ``GROUP_MEMBER_MOVE_MAX_M`` away). Returns the spots by role with the matched
@@ -973,6 +1000,10 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
                 continue                       # the room cannot hold it: the group goes without it
         found: list[Spot] = []
         sizes = [tuple(s) for s in spec["sizes"]]
+        if resolve is not None:
+            # fix round after P4a: the drawn members of a re-solved group are placed at their own box (the box
+            # _match_members gives them), so their places are searched at that size first (the template's after)
+            sizes = list(dict.fromkeys(_member_boxes(resolve, role) + sizes))
         if place == "facing_wall":
             for s in _tv_spots(space, anchor, sizes):
                 dist = GC.tv_geometry(anchor.piece(), s.piece())["distance_m"]
@@ -1272,7 +1303,8 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
         opt = template["options"][oname]
         atype = opt["anchor"]
         if drawn is not None:
-            if drawn.get("status") == "unverified" or drawn.get("build") is False or drawn["type"] != atype:
+            # fix round after P4a: a code-typed (unverified) drawn anchor is used as drawn (program.unsure_anchor)
+            if PR.unsure_anchor(drawn) or drawn.get("build") is False or drawn["type"] != atype:
                 continue
             tries.append((1.0, ("drawn", oname), (oname,), (oname, _spot_from(drawn), None)))
             continue

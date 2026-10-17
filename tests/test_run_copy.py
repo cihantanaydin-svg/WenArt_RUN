@@ -5,7 +5,9 @@ questions, answers and crops, detections, pairs_v2) and ATTRIBUTION.md (docs/mil
 Fix round after P3, part 2 (17 Oct 2026): the previews and plan crops of ``final/`` follow this run's final manifest
 (an earlier run's never reach the results; the ones copied before this run's report leave the results' final folder).
 Part 3 (17 Oct 2026): an alternative's views follow its own manifest into its own results folder, and its "this run" is
-its base project's (a job that never reached the alternative ships none of its earlier views)."""
+its base project's (a job that never reached the alternative ships none of its earlier views).
+
+Fix round after P4a (17 Oct 2026): ATTRIBUTION.md names "AI-retouched" only when a view of this run was polished."""
 from __future__ import annotations
 
 import json
@@ -786,3 +788,64 @@ def test_an_alternative_the_job_never_reached_ships_no_earlier_views(tmp_path, k
     assert not any(f.endswith(("_final_preview.jpg", "_plan.jpg")) for f in got)
     prefix = "final/" if kind == "private" else "final/p/"
     assert {f"{prefix}variants/{vid}/final_manifest.json", f"{prefix}variants/{vid}/final_report.md"} <= got
+
+
+# --------------------------------------------------------------------------
+# Fix round after P4a (17 Oct 2026): the run's own change list
+# --------------------------------------------------------------------------
+
+def test_without_retouch_drops_only_the_ai_retouch_change():
+    assert CP.without_retouch("changes: scaled, re-oriented, rendered, AI-retouched") == \
+        "changes: scaled, re-oriented, rendered"
+    assert CP.without_retouch("rendered, AI-retouched; PoC use in relaxed mode") == "rendered; PoC use in relaxed mode"
+    assert CP.without_retouch("Changes: converted, rendered, AI-retouched.") == "Changes: converted, rendered."
+    assert CP.without_retouch("AI-retouched, scaled") == "scaled"
+    assert CP.without_retouch("no change named") == "no change named"
+
+
+def abo_asset(aid, title):
+    return {"library": "abo", "method": "library", "asset_id": aid, "licence": "CC-BY-4.0", "licence_flag": "none",
+            "attribution": f'"{title}" by Amazon.com, Amazon Berkeley Objects (CC BY 4.0), '
+                           "https://amazon-berkeley-objects.s3.amazonaws.com/index.html; changes: scaled to the drawn "
+                           "footprint, re-oriented, rendered, AI-retouched"}
+
+
+def test_attribution_names_ai_retouch_only_when_a_view_of_this_run_was_polished(tmp_path):
+    """Fails on the old code: P4a's real02 ATTRIBUTION.md said "rendered, AI-retouched" 122 times (every credit line
+    and the ABO / GSO notices: the catalogue's static text) while its report shows 48 views and 0 polished."""
+    results, pub, _priv = refs(tmp_path)
+    out = pub.out_dir
+    put(out / "building_final.json", {"project": {"licence_mode": "relaxed"}, "furniture": [
+        {"id": "f_L0_001", "type": "sofa", "asset": objaverse_asset("u1", "Grey sofa")},
+        {"id": "f_L0_002", "type": "table_coffee", "asset": abo_asset("abo_B01", "Glass table")}]})
+    put(out / "renders" / "cam_a_preview.jpg", size=10)
+    _record(out, "render", "R2", "2026-10-17T00:00:00Z")
+
+    def manifest(run_id, finals):
+        put(out / "final" / "final_manifest.json", {"kind": "final", "status": "ok", "run_id": run_id, "views": [
+            {"camera": f"cam_{i}", "final": f, "preview": f"cam_{i}_final_preview.jpg"} for i, f in enumerate(finals)]})
+
+    def text():
+        CP.copy_project(pub)                              # copies the preview, then writes ATTRIBUTION.md
+        return (results / "renders" / "p" / CP.ATTRIBUTION).read_text(encoding="utf-8")
+
+    # this run's report: 2 views, none polished
+    manifest("R2", ["cycles", "cycles"])
+    assert CP.run_polish(out) == {"polished": 0, "views": 2}
+    t = text()
+    assert "rendered, AI-retouched" not in t and "re-oriented, rendered (used for f_L0_001 (sofa))" in t
+    assert "Changes made for these images: no view of this run was AI-retouched (0 of 2 views polished)" in t
+    s4 = t.split("## 4. Dataset notices", 1)[1]
+    assert "Amazon Berkeley Objects" in s4 and "Changes: scaled to the drawn footprint, re-oriented, rendered." in s4
+    s2 = t.split("## 2. ", 1)[1].split("## 3. ", 1)[0]
+    assert s2.index("Changes made for these images") < s2.index('"Grey sofa" by Ana')
+    # one polished view: the catalogue's change list stays, and the line says how many
+    manifest("R2", ["polished", "cycles"])
+    t = text()
+    assert "rendered, AI-retouched (used for f_L0_001 (sofa))" in t
+    assert "Changes made for these images: 1 of 2 views were AI-retouched (the polish stage)." in t
+    # an earlier run's manifest (before this run's report): not known, the texts as before, no line
+    manifest("R1", ["cycles", "cycles"])
+    assert CP.run_polish(out) is None
+    t = text()
+    assert "rendered, AI-retouched (used for f_L0_001 (sofa))" in t and "Changes made for these images" not in t

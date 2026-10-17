@@ -65,6 +65,17 @@ is a no-op with the reason when the room has that factor already (``lighting_sta
 Fix round after P3 (16-17 Oct 2026): an edit's ``log_seq`` is the seq its log event gets (``_next_log_seq``
 reserves it in the log, ``AgentLog.reserve``; the loop logs the edit with it), so ``overrides.json`` and
 ``adjusted_by_ai`` join the log exactly under parallel sessions.
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02):
+
+- a memory refusal counts as a try of its target (``max_tries``), and the second refusal of the same edit in one
+  session closes its checklist step: the result says ``step_closed`` and tells the model to go on (the loop ends the
+  session when every step is done or closed). Why: P4a's session r1-s19 sent one refused move 7 times, 7 of its 12
+  calls, and max_tries never fired;
+- ``set_camera`` / ``add_camera`` are idempotent like ``set_exterior``: a pose the view already has (its last
+  accepted override, else its scene camera; ``camera_pose_now``, ``same_pose``: 1 cm, 0.05 mm of lens) is a no-op
+  with the reason (``no_change``), never an accepted edit. Why: P4a accepted the same set_camera ext_6 in rounds 2
+  and 3; the dry re-check cannot measure X6 and counted it gone each time.
 """
 from __future__ import annotations
 
@@ -79,11 +90,15 @@ from typing import Any, Callable, Optional
 from wenart.agent import causes as CS
 from wenart.agent import geometry_fix as GF
 from wenart.agent import log as LG
+from wenart.agent import memory as MEM
 from wenart.agent import overrides as OV
 from wenart.agent import topdown as TD
 from wenart.agent.model import tool_spec
 
 MAX_TRIES = 3
+MEMORY_REFUSALS_CLOSE = 2              # fix round after P4a: identical memory refusals in a session that close a step
+POSE_TOLERANCE_M = 0.01                # fix round after P4a: two camera positions / targets this close are the same
+LENS_TOLERANCE_MM = 0.05
 PREVIEW_DIR = "agent/previews"         # the round previews (960x540, 32 samples)
 FINAL_RENDER_DIR = "renders"
 EDIT_META = ("op", "round", "log_seq", "model", "target_finding")      # set by the loop, never by the model
@@ -279,6 +294,7 @@ class SessionState:
         self.pending_images: list = []
         self.finished: Optional[dict] = None
         self.checklist: list = []
+        self.refusals: dict = {}             # fix round after P4a: memory refusals per edit key in this session
 
 
 @dataclass
@@ -591,12 +607,25 @@ class Registry:
             prev = ctx.memory.repeat_of(room, name, args)
             if prev is not None:
                 ctx.memory.refused()
+                state = ctx.session()
+                key = MEM.edit_key(name, args)
                 with ctx.lock:
                     ctx.refused_repeats += 1
+                    # fix round after P4a: a refusal is a try of its target (max_tries), and the second identical
+                    # refusal in the session closes the checklist step (module docstring)
+                    target = _target(name, args)
+                    ctx.tries[target] = ctx.tries.get(target, 0) + 1
+                    state.refusals[key] = state.refusals.get(key, 0) + 1
+                    closed = state.refusals[key] >= MEMORY_REFUSALS_CLOSE
                 out = _result(False, [f"memory: the same edit was rejected in round {prev.get('round')}: "
                                       + "; ".join(prev.get("reasons") or ["rejected"])[:300]],
                               message="refused without validation: this exact edit was rejected before; try "
                                       "something else", refused_by_memory=True)
+                if closed:
+                    out["step_closed"] = True
+                    out["message"] = (f"refused again without validation ({state.refusals[key]} times in this "
+                                      "session): this exact edit was rejected before. Its checklist step is closed: "
+                                      "go on with the next step, or call finish")
                 return _reject(ctx, name, args, out)
         try:
             res = tool.handler(ctx, args)
@@ -831,6 +860,12 @@ def t_exterior_summary(ctx: ToolContext, args: dict) -> dict:
             "agent_overrides": (b.get("agent_overrides") or {}).get("exterior")}
 
 
+# Fix round after P4a (integration of the library verifier's better_fix): how ``catalog`` names a generated model to the
+# agent (P4a's agent called gen_fridge_mediterranean_3 "a real compact fridge model"); fit.fit_piece refuses a pin to
+# one while a real product of the type fits within the caps.
+GENERATED_MODEL_NOTE = "generated, units guessed (not a real product; a pin is refused while a real product fits)"
+
+
 def t_catalog(ctx: ToolContext, args: dict) -> dict:
     entries = list(ctx.catalog().candidates(args["type"]))
     if args.get("style"):
@@ -844,7 +879,13 @@ def t_catalog(ctx: ToolContext, args: dict) -> dict:
             return abs(float(bb[0]) - float(size[0])) + abs(float(bb[1]) - float(size[1]))
         entries = sorted(entries, key=dist)
     keep = ("id", "type", "source", "licence", "bbox_m", "styles", "style_family", "name")
-    return {"type": args["type"], "count": len(entries), "models": [{k: e.get(k) for k in keep} for e in entries[:10]]}
+
+    def row(e):
+        out = {k: e.get(k) for k in keep}
+        if e.get("source") == "generated":       # fix round after P4a: the fit refuses such a pin when a real one fits
+            out["note"] = GENERATED_MODEL_NOTE
+        return out
+    return {"type": args["type"], "count": len(entries), "models": [row(e) for e in entries[:10]]}
 
 
 def t_stage_status(ctx: ToolContext, args: dict) -> dict:
@@ -1147,6 +1188,47 @@ def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[
     return _accept(ctx, tool, args, out)
 
 
+def same_pose(want: dict, have: Optional[dict]) -> bool:
+    """Fix round after P4a: ``want`` (a camera override's ``position``, ``target`` and, when it names one,
+    ``lens_mm``) is the pose ``have`` has already, within ``POSE_TOLERANCE_M`` / ``LENS_TOLERANCE_MM``."""
+    if not isinstance(have, dict):
+        return False
+    try:
+        for k in ("position", "target"):
+            a, b = want.get(k), have.get(k)
+            if not a or not b or len(a) != len(b) or \
+                    any(abs(float(x) - float(y)) > POSE_TOLERANCE_M + 1e-9 for x, y in zip(a, b)):
+                return False
+        if want.get("lens_mm") is not None:
+            if have.get("lens_mm") is None or \
+                    abs(float(want["lens_mm"]) - float(have["lens_mm"])) > LENS_TOLERANCE_MM + 1e-9:
+                return False
+    except (TypeError, ValueError):
+        return False
+    return True
+
+
+def camera_pose_now(ctx: ToolContext, view_id: str) -> tuple[Optional[dict], str]:
+    """Fix round after P4a: ``(pose, where)`` the next build gives ``view_id``: its last accepted ``set`` / ``add``
+    override (``overrides.json``, the accepted edits after the scheduler's rollbacks; without it the building's
+    ``agent_overrides.cameras``; a later ``remove`` clears it), else its scene camera; ``(None, "")`` without
+    either."""
+    if ctx.overrides is not None:
+        source = ctx.overrides.agent_overrides()
+    else:
+        source = ctx.building.get("agent_overrides") if isinstance(ctx.building.get("agent_overrides"), dict) else {}
+    entries = [e for e in source.get("cameras") or [] if isinstance(e, dict)]
+    last = None
+    for e in entries:
+        if e.get("view_id") != view_id:
+            continue
+        last = e if e.get("action") in ("set", "add") else None
+    if last is not None:
+        return last, f"the accepted override (overrides.json seq {last.get('seq')})"
+    cam = ctx.camera(view_id)
+    return (cam, "its camera in the scene manifest") if cam is not None else (None, "")
+
+
 def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
     action = OV.CAMERA_TOOLS[tool]
 
@@ -1156,6 +1238,17 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
             out = _result(False, [f"no view {args['view_id']}"], tool=tool)
             ctx.rejected.append({"tool": tool, "args": args, "result": out})
             return out
+        if action in ("set", "add"):
+            # fix round after P4a: a pose the view has already is a no-op with the reason (module docstring)
+            pose, where = camera_pose_now(ctx, args["view_id"])
+            if same_pose(entry, pose):
+                out = _result(False, [f"no_change: {args['view_id']} has this pose already ({where}): position "
+                                      f"{entry.get('position')}, target {entry.get('target')}"
+                                      + (f", lens {entry.get('lens_mm')} mm" if entry.get("lens_mm") is not None
+                                         else "") + "; nothing to change"],
+                              message="no-op: a camera override that changes nothing", tool=tool, no_op=True)
+                ctx.rejected.append({"tool": tool, "args": args, "result": out})
+                return out
         if action == "remove":
             # The camera entry of §17.3 names its kind and room: taken from the scene manifest.
             cam = ctx.camera(args["view_id"]) or {}

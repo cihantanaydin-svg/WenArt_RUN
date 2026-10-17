@@ -196,6 +196,20 @@ results copy follows the manifest.
   the files the report moves later (the copy only added files).
 - How: the same ``move_stale_view_files`` (``written`` empty); ``earlier_run_files`` is an optional key of both
   manifest schemas.
+
+Fix round after P4a (17 Oct 2026, the library lens of the P4a analysis): the report's Attribution section names the
+changes of this run.
+
+- What: when no view of the report was polished (``summary.polished`` 0 over at least one view), the credit lines and
+  the notice of the "Attribution" section leave out "AI-retouched" (``wenart.run.copy.without_retouch``) and a line
+  says so; the manifest's ``attribution`` block keeps the catalogue's texts (they are data).
+- Why: P4a's real02 report listed its Objaverse credits with "changes: ..., rendered, AI-retouched" while it shows
+  48 views and 0 polished (AI polish is off in Milestone 13); ``ATTRIBUTION.md`` had the same fault
+  (``wenart.run.copy``, same fix round).
+- Integration of the same round (the render track's ask): the ``lighting`` block lists the views whose sky pull says
+  they look into the sun (``into_sun``: camera, ``sun_offset_deg``, ``k``; ``into_sun_views``) and the section "Views
+  too dark for the EV cap" names them, so a white sky beside the sun reads as the sun's place, not as a pull that
+  failed (P4a real02: ext_1 at 6.0 and ext_5 at 5.5 degrees off the sun).
 """
 from __future__ import annotations
 
@@ -392,7 +406,10 @@ FINAL_MANIFEST = {
                      "properties": {"cap_ev": NUM, "critical": {"type": "integer", "minimum": 0},
                                     "major": {"type": "integer", "minimum": 0},
                                     "views": {"type": "array", "items": {
-                                        "type": "object", "required": ["camera", "severity", "ev_wanted", "ev_cap"]}}}},
+                                        "type": "object", "required": ["camera", "severity", "ev_wanted", "ev_cap"]}},
+                                    # fix round after P4a: the views that look into the sun (into_sun_views)
+                                    "into_sun": {"type": "array", "items": {
+                                        "type": "object", "required": ["camera", "sun_offset_deg"]}}}},
     },
 }
 
@@ -1146,7 +1163,21 @@ def lighting_block(inp: "Inputs", views: list[dict]) -> dict:
     return {"check": LIGHTING_DARK_CHECK, "cap_ev": cap, "views": rows,
             "critical": sum(r["severity"] == "critical" for r in rows),
             "major": sum(r["severity"] == "major" for r in rows),
-            "recorded": "lighting_dark" in rm or any("lighting_dark" in e for e in inp.entries.values())}
+            "recorded": "lighting_dark" in rm or any("lighting_dark" in e for e in inp.entries.values()),
+            "into_sun": into_sun_views(inp, views)}
+
+
+def into_sun_views(inp: "Inputs", views: list[dict]) -> list[dict]:
+    """Fix round after P4a (integration of the render track's ask): the views of this report whose sky pull says they
+    look into the sun (the render entry's ``sky_pull.into_sun``, ``render.SKY_INTO_SUN_DEG``): camera, the angle
+    between the view's azimuth and the sun's (``sun_offset_deg``) and the pull step ``k``. Their sky can stay white
+    whatever the pull (real02 P4a: ext_1 at 6.0 and ext_5 at 5.5 degrees)."""
+    rows = []
+    for v in views:
+        sky = (inp.entries.get(v["camera"]) or {}).get("sky_pull")
+        if isinstance(sky, dict) and sky.get("into_sun") is True:
+            rows.append({"camera": v["camera"], "sun_offset_deg": sky.get("sun_offset_deg"), "k": sky.get("k")})
+    return rows
 
 
 def _ev_or_dash(value) -> str:
@@ -1175,6 +1206,13 @@ def lighting_lines(manifest: dict) -> list[str]:
               "-" if r.get("incident_p50") is None else f"{float(r['incident_p50']):.5f}",
               "-" if r.get("set_lighting_factor") is None else f"x{float(r['set_lighting_factor']):g}"]
              for r in rows])
+    sun = block.get("into_sun") or []
+    if sun:                                     # fix round after P4a (into_sun_views)
+        lines += ["", "Views that look into the sun (their sky may stay white whatever the sky pull; a project "
+                      "decision on the sun azimuth or the camera, docs/milestone13.md §14.10): " + ", ".join(
+                          f"{r['camera']} ({float(r['sun_offset_deg']):.1f} degrees off the sun, sky pull k "
+                          f"{r.get('k') if r.get('k') is not None else '-'})"
+                          if isinstance(r.get("sun_offset_deg"), (int, float)) else r["camera"] for r in sun) + "."]
     return lines
 
 
@@ -3157,16 +3195,31 @@ def m7_building_lines(manifest: dict) -> list[str]:
     return lines
 
 
+def no_view_polished(manifest: dict) -> bool:
+    """Fix round after P4a (module docstring): the report has views and none of them is polished."""
+    summary = manifest.get("summary") if isinstance(manifest.get("summary"), dict) else {}
+    views, polished = summary.get("views"), summary.get("polished")
+    return isinstance(views, int) and views > 0 and polished == 0
+
+
 def m7_model_lines(manifest: dict) -> list[str]:
-    """Attribution (§7.3) and the added-object detector (§8.1)."""
+    """Attribution (§7.3) and the added-object detector (§8.1); fix round after P4a: without a polished view the
+    credit lines leave out "AI-retouched"."""
     att = manifest.get("attribution") or {}
     lines = ["", "## Attribution", ""]
     if att.get("credits"):
+        from wenart.run import copy as CP
+        plain = no_view_polished(manifest)
+        changes = CP.without_retouch if plain else (lambda text: text)
         lines.append("3D models from Objaverse 1.0 used in these images (§7.3):")
-        lines += [""] + [f"- {c['credit'] or c['asset_id'] + ': no attribution recorded (check the catalogue entry)'}"
-                         f" (used for {', '.join(c['pieces'])})" for c in att["credits"]]
+        if plain:
+            lines += ["", f"No view of this run was AI-retouched (0 of {manifest['summary']['views']} views polished), "
+                          f"so the change \"{CP.RETOUCH_CHANGE}\" of the catalogue's credit texts is left out."]
+        missing = ": no attribution recorded (check the catalogue entry)"
+        lines += [""] + [changes(f"- {c['credit'] or c['asset_id'] + missing} (used for {', '.join(c['pieces'])})")
+                         for c in att["credits"]]
         if att.get("notice"):
-            lines += ["", att["notice"]]
+            lines += ["", changes(att["notice"])]
     else:
         lines.append("No CC BY or Objaverse model in this project (Poly Haven CC0 models and parametric meshes need "
                      "no credit).")

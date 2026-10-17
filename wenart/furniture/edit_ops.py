@@ -90,6 +90,22 @@ Round 2 of the build (15 Oct 2026, the integration's asks): ``_solve_apply`` app
 passes the drawn group (``groups.drawn_groups``) to ``solve_room`` when the room's program marks it for a re-solve
 (a misread, unbuilt or failing anchor: ``_resolve_group``), else the drawn anchor stays and only the partners are
 placed, as in Milestone 12.
+
+Fix round after P4a (17 Oct 2026; pod P4a, real02). What: ``mark_not_furniture`` is a reading-error tool. A built
+drawn piece that code typed from the drawing (``type_method`` in ``MARK_LOCK_METHODS``: a block name, a reading
+rule, a twin, another level or a group member, with vector evidence) and that has a real size (drawn within its
+type's range with the size table's 15 %, or snapped by the fit into ``plausibility.size_range``) is refused
+(``drawn_lock``, ``mark_lock_refusal``) unless a reading reason holds: the edit targets an ``NR`` / ``RC`` finding,
+the piece waits for review (``needs_review``) or a ``type_disagreement`` conflict names it, or it is a duplicate
+outline (at least ``DUPLICATE_SHARE`` of it lies in another built drawn piece of its type: real04's wardrobe
+f_L0_038 inside the storage run f_L0_026). The evidence's
+plan crop is the first image path anywhere in the text (before: only a text that ended with one). Why: P4a's agent
+marked three drawn, typed pieces as not furniture to clear wall cuts and wrong-room findings: the vector chair
+f_L1_022 (0.58 x 0.45 m, "half through the wall"), the coffee table f_L1_021 and the dolap01 wardrobe anchor
+f_L-1_024 (a 0.020 m cut, within tolerance; its twin f_L-1_023 stayed built), all with crop null. CLAUDE.md: a drawn
+piece is removed only when it is clearly not furniture; a cut is fixed by the snap or a move. Untyped pieces, pieces
+outside their range, AI-typed pieces (a rug outline or a cushion read as a piece) and misplaced fixed equipment keep
+the old rule. No twin rule: refusing the first of two mirrored misreads while its twin is built would lock both.
 """
 from __future__ import annotations
 
@@ -1147,6 +1163,86 @@ def fixed_mark_refusal(building: dict, item: dict) -> Optional[str]:
             f"furniture (fix_fixture fixes a misread size or a piece through a wall or in a door swing)")
 
 
+# Fix round after P4a (module docstring): mark_not_furniture is a reading-error tool.
+MARK_LOCK_METHODS: tuple[str, ...] = ("block_name", "block", "rule", "twin", "level", "group_member")
+READING_CHECKS: tuple[str, ...] = ("NR", "RC")       # the critic's reading findings (wenart.agent.critic_code)
+DUPLICATE_SHARE = 0.5            # a drawn piece this much inside a built drawn piece of its type is a duplicate outline
+IMAGE_PATH = re.compile(r"[^\s'\"()\[\],;:]+\.(?:png|jpe?g|webp)\b", re.I)
+
+
+def crop_of(evidence: str) -> Optional[str]:
+    """Fix round after P4a: the first image path in an evidence text (``recognition/crops/sym_L1_003_ctx.png: ...``),
+    else None."""
+    m = IMAGE_PATH.search(str(evidence or ""))
+    return m.group(0) if m else None
+
+
+def _in_range(ftype: str, size) -> bool:
+    rng = PL.size_range(ftype)
+    if rng is None:
+        return False
+    w, d = (float(v) for v in size)
+    (w0, w1), (d0, d1) = rng
+    return (w0 - 1e-9 <= w <= w1 + 1e-9 and d0 - 1e-9 <= d <= d1 + 1e-9) or \
+        (w0 - 1e-9 <= d <= w1 + 1e-9 and d0 - 1e-9 <= w <= d1 + 1e-9)
+
+
+def _duplicate_of(building: dict, item: dict) -> Optional[str]:
+    """The id of a built drawn piece of the same type that holds at least ``DUPLICATE_SHARE`` of ``item``'s footprint
+    (a duplicate outline: real04's wardrobe f_L0_038 inside the storage run f_L0_026), else None."""
+    try:
+        poly = placer.drawn_piece(item).polygon()
+    except (KeyError, TypeError, ValueError):
+        return None
+    if poly.area <= 0:
+        return None
+    for other in building.get("furniture") or []:
+        if other is item or other.get("id") == item.get("id") or other.get("type") != item.get("type"):
+            continue
+        if other.get("room_id") != item.get("room_id") or not _drawn(other) or not GR.piece_is_built(other):
+            continue
+        try:
+            share = poly.intersection(placer.drawn_piece(other).polygon()).area / poly.area
+        except (KeyError, TypeError, ValueError):
+            continue
+        if share >= DUPLICATE_SHARE - 1e-9:
+            return str(other["id"])
+    return None
+
+
+def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None) -> Optional[str]:
+    """Fix round after P4a (module docstring): why a drawn piece may not be marked as not furniture although it is
+    no fixed equipment (``fixed_mark_refusal`` covers that), else None. ``target``: the edit's ``target_finding``
+    (a dict or a list of dicts with ``check``)."""
+    if not _drawn(item) or _fixed(item) or item.get("build") is False or item.get("type") in (None, "unknown"):
+        return None
+    method = item.get("type_method")
+    if method not in MARK_LOCK_METHODS:
+        return None
+    if not any(isinstance(e, dict) and e.get("method") == "vector" for e in item.get("evidence") or []):
+        return None
+    drawn = (item.get("drawn_footprint") or item.get("footprint") or {}).get("size")
+    size = (item.get("footprint") or {}).get("size")
+    # a real size: as drawn (the size table, +15 %) or as the fit snapped it (P4a: the coffee table f_L1_021 drawn
+    # 1.52 x 0.60 m, snapped to 1.20 x 0.70 m; the wardrobe f_L-1_024 drawn 0.74 m deep, snapped to 0.60 m)
+    if not size or not drawn or not (PL._fits(item["type"], drawn) or _in_range(item["type"], size)):
+        return None
+    targets = target if isinstance(target, list) else [target] if isinstance(target, dict) else []
+    if any(isinstance(t, dict) and t.get("check") in READING_CHECKS for t in targets):
+        return None
+    if any(n.get("id") == item["id"] for n in building.get("needs_review") or [] if isinstance(n, dict)):
+        return None
+    if any(c.get("kind") == "type_disagreement" and item["id"] in (c.get("element_ids") or [])
+           for c in building.get("conflicts") or [] if isinstance(c, dict)):
+        return None
+    if _duplicate_of(building, item) is not None:
+        return None
+    w, d = (float(v) for v in size)
+    return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real size "
+            f"({w:.2f} x {d:.2f} m) is furniture: mark_not_furniture is for reading errors (an NR or RC finding, a "
+            f"duplicate outline); a wall cut is fixed by move_piece / the wall snap, a wrong room type by retype_piece")
+
+
 def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     item = _piece(b, args["piece_id"])
     if not _drawn(item):
@@ -1156,6 +1252,10 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     refusal = fixed_mark_refusal(b, item)
     if refusal is not None:
         raise EditRejected("drawn_lock", refusal)
+    # Fix round after P4a (module docstring): never a drawn, code-typed piece of a real size for a placement finding
+    refusal = mark_lock_refusal(b, item, args.get("target_finding"))
+    if refusal is not None:
+        raise EditRejected("drawn_lock", refusal)
     if any(s.get("former_piece_id") == item["id"] for s in b.get("symbols") or []):
         raise EditRejected("no_change", f"{item['id']} is marked as not furniture already")
     before = copy.deepcopy(item)
@@ -1163,7 +1263,7 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
     _label(item, before, args, ["build"])
     item["adjusted_by_ai"]["not_furniture"] = args["kind"]
     evidence = str(args["evidence"])
-    crop = evidence if re.search(r"\.(png|jpe?g|webp)$", evidence, re.I) else None
+    crop = crop_of(evidence)            # fix round after P4a: the first image path anywhere in the text
     pattern = re.compile(rf"^sym_{re.escape(item['level_id'])}_(\d+)$")
     number = max((int(m.group(1)) for s in b.get("symbols") or [] for m in [pattern.match(str(s.get("id")))] if m),
                  default=0) + 1
@@ -1528,7 +1628,7 @@ def allowed_edits(building: dict, piece_id: str) -> dict:
     else:
         put("remove_piece", True, "an added piece may be removed")
     marked = any(s.get("former_piece_id") == item["id"] for s in building.get("symbols") or [])
-    refusal = fixed_mark_refusal(building, item) if drawn else None
+    refusal = (fixed_mark_refusal(building, item) or mark_lock_refusal(building, item)) if drawn else None
     if refusal is not None:
         put("mark_not_furniture", False, refusal)
     else:

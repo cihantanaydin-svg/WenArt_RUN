@@ -14,7 +14,8 @@ runs again and reads the answers with ``load``.
   without facts get the generic question and the full type list.
 - ``answers_<slug>.json`` (``slug`` from ``check.yaml models.<key>.slug``) = the M5 answer-store pattern:
   ``{"schema_version", "kind": "recognition_answers", "model_key", "model", "slug", "incomplete", "calls": {<key>:
-  {task, input_sha256, data, raw_text, error, attempts, latency_s, model, seed, images[, seeded_from]}}}``,
+  {task, input_sha256, data, raw_text, error, attempts, latency_s, model, seed, images[, seeded_from, seeded_key,
+  seeded_images]}}}``,
   rewritten (calls in key order) after every answer. An answer counts only while its key **and** ``input_sha256``
   match the request, it comes from the model id configured for its key, and its ``data`` passes the task's JSON
   schema (validated again on every read, so a hand-edited or truncated file can never reach the building).
@@ -50,6 +51,11 @@ sized from its schema (``call_args``: ``vlm_client.schema_max_tokens``; 1,322 to
 instead of 4,096) and through the client's whitespace guard (vLLM ``repetition_detection``, a repair of an answer
 whose run is at its end, else one retry asking for one-line JSON; ``vlm_client`` module docstring). Each answer
 record keeps ``max_tokens``, ``finish_reason`` and ``guard`` (the guard's steps), and ``ask`` logs every step.
+
+Fix round after P4a (17 Oct 2026; real02: six answers seeded by input hash from other keys kept those keys' crop
+paths, which in the run's ``crops`` folder show other symbols): a seeded record's ``images`` are the request item's
+own crops (the input hash covers the crop description, so they show what was answered); ``seeded_key`` and
+``seeded_images`` keep the key and the crop paths it had in the seed file, for the trail.
 """
 from __future__ import annotations
 
@@ -224,9 +230,9 @@ def valid_answer(task: str, data) -> bool:
     return data is not None and task in tasks() and not task_errors(task, data)
 
 
-def find_by_input(calls: dict, item: dict, current: Callable) -> Optional[dict]:
-    """Milestone 11: the record (in key order) of ``calls`` whose input hash is the item's, current by ``current`` and
-    schema-valid, else None."""
+def key_by_input(calls: dict, item: dict, current: Callable) -> Optional[str]:
+    """The first key (in key order) of ``calls`` whose record has the item's input hash, is current by ``current``
+    and is schema-valid, else None (fix round after P4a: the seed's key goes into the seeded record's trail)."""
     sha = item.get("input_sha256")
     if not sha:
         return None
@@ -234,8 +240,15 @@ def find_by_input(calls: dict, item: dict, current: Callable) -> Optional[dict]:
         rec = calls[key]
         if isinstance(rec, dict) and rec.get("input_sha256") == sha and current(rec, item) \
                 and valid_answer(item["task"], rec.get("data")):
-            return rec
+            return key
     return None
+
+
+def find_by_input(calls: dict, item: dict, current: Callable) -> Optional[dict]:
+    """Milestone 11: the record (in key order) of ``calls`` whose input hash is the item's, current by ``current`` and
+    schema-valid, else None."""
+    key = key_by_input(calls, item, current)
+    return None if key is None else calls[key]
 
 
 class AnswerStore:
@@ -356,7 +369,11 @@ def status(out_dir: Path, models: Optional[dict] = None) -> dict:
 
 def seed_answers(store: AnswerStore, items: list[dict], seed_dir: Path, log: Callable = print) -> int:
     """Copy the answers of ``<seed_dir>/answers_<slug>.json`` whose key, input hash and model id match and whose data
-    is schema-valid into ``store`` (only for items that have no current answer). Returns the number copied."""
+    is schema-valid into ``store`` (only for items that have no current answer). Returns the number copied.
+
+    Fix round after P4a: the copy's ``images`` are the item's own crop paths (an answer found under another key by
+    the input hash kept that key's paths, which in this run's crops show another symbol); ``seeded_key`` and
+    ``seeded_images`` record the key and the crop paths the answer had in the seed file."""
     seed_path = answers_path(seed_dir, store.data["slug"])
     seed = read_json(seed_path)
     if seed is None:
@@ -371,13 +388,16 @@ def seed_answers(store: AnswerStore, items: list[dict], seed_dir: Path, log: Cal
     for item in items:
         if store.valid(item) is not None:
             continue
-        rec = calls.get(item["key"])
+        seed_key = item["key"]
+        rec = calls.get(seed_key)
         if not store.current(rec, item) or not valid_answer(item["task"], rec.get("data")):
-            rec = find_by_input(calls, item, store.current)      # Milestone 11: the same crop under another key
-            if rec is None:
+            seed_key = key_by_input(calls, item, store.current)  # Milestone 11: the same crop under another key
+            if seed_key is None:
                 continue
+            rec = calls[seed_key]
         new = dict(rec)
-        new["seeded_from"] = str(seed_path)
+        new.update(images=list(item["images"]), seeded_from=str(seed_path), seeded_key=seed_key,
+                   seeded_images=list(rec.get("images") or []))
         store.put(item["key"], new, save=False)
         copied += 1
     if copied:

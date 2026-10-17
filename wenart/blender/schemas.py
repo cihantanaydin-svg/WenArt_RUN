@@ -53,6 +53,14 @@ whitepoint of the project, ``WHITE_BALANCE_PROJECT``) and ``light_variant`` (``{
 ``--white-balance project``), its ``limits`` is null outside mode ``auto`` (``--look-from``, ``--exposure fixed``), and
 a replayed camera record may carry ``rotation_euler_deg`` instead of a ``target`` (``_TARGET_OR_ROTATION``: one of
 the two is required).
+
+Fix round after P4a (17 Oct 2026; render code m13.3), all optional so the m13.2 manifests stay valid: the exposure's
+``wb_rig_residual`` (the rig part's extra warmth of the view's white point, ``render.WB_RIG_RESIDUAL``), the window
+pull's ``pane_saturation`` / ``pane_saturation_after``, the sky pull's ``k`` up to 6 (``render.SKY_PULL_STEPS``) with
+``ring_px``, ``sun_offset_deg`` and ``into_sun``, and the render entry's ``haze_hidden`` (the haze hidden from the
+camera's rays of a view under the interior world; null without haze). The camera replay of the same round: a scene
+camera's ``replaced_replayed`` (the replayed record an agent camera replaced) and ``renamed_from`` (a name clash the
+build renamed), ``cameras_from.agent`` and ``cameras_from.agent_replaced``.
 """
 from __future__ import annotations
 
@@ -111,7 +119,11 @@ CAMERAS_FROM = {
                    "dropped": {"type": "array", "items": {"type": "object", "required": ["name", "reason"]}},
                    "reason": {"type": "string"},
                    # fix round part 2 (17 Oct 2026): the replayed aerials the build re-pitched for the horizon
-                   "repitched": {"type": "array", "items": {"type": "string"}}},
+                   "repitched": {"type": "array", "items": {"type": "string"}},
+                   # fix round after P4a (17 Oct 2026, build.cameras_from_summary): this build's agent cameras (also
+                   # counted in ``searched``) and those of them that replace a replayed record
+                   "agent": {"type": "array", "items": {"type": "string"}},
+                   "agent_replaced": {"type": "array", "items": {"type": "string"}}},
 }
 
 _RGB = {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 3, "maxItems": 3}
@@ -157,6 +169,9 @@ EXPOSURE = {
         "wb_view_rule": {"type": "string"},
         "wb_view_shift_mired": {"type": "number"},
         "wb_day_incident_p50": {"type": ["number", "null"]},
+        # Fix round after P4a (17 Oct 2026): the rig part's extra warmth the view's white point was mixed with
+        # (render.WB_RIG_RESIDUAL; 0 = every view keeps the project's daylight cast). Optional.
+        "wb_rig_residual": {"type": "number", "minimum": 0, "maximum": 1},
     },
 }
 _SHARE = {"type": ["number", "null"], "minimum": 0, "maximum": 1}
@@ -169,17 +184,21 @@ WINDOW_PULL = {
                         "pane_ev": {"type": "number"}, "clip_before": _SHARE, "clip_after": _SHARE,
                         "pane_px": {"type": "integer", "minimum": 1}, "pane_median": {"type": "number"},
                         "pane_p90": {"type": "number"}, "pane_p90_after": {"type": "number"},
+                        # fix round after P4a (17 Oct 2026): the panes' median saturation before and after the pull
+                        # (optional; P4a's grey cards had 0.00-0.07)
+                        "pane_saturation": {"type": "number", "minimum": 0, "maximum": 1},
+                        "pane_saturation_after": {"type": "number", "minimum": 0, "maximum": 1},
                         "targets": {"type": "object"},
                         "wall_median": {"type": ["number", "null"]}, "rule": {"type": "string"}}},
     ],
 }
 # Fix round after P3 (16-17 Oct 2026): the sky pull of a view under the exterior sky (render.Renderer.sky_pull);
-# k 0 = no pull (render.SKY_PULL_STEPS is 1..4).
+# k 0 = no pull (render.SKY_PULL_STEPS is 1..4; 1..6 since the fix round after P4a, 17 Oct 2026).
 SKY_PULL = {
     "oneOf": [
         {"type": "null"},
         {"type": "object", "required": ["ev", "k", "sky_px", "sky_share", "median_before", "median_after", "rule"],
-         "properties": {"ev": {"type": "number", "maximum": 0}, "k": {"type": "integer", "minimum": 0, "maximum": 4},
+         "properties": {"ev": {"type": "number", "maximum": 0}, "k": {"type": "integer", "minimum": 0, "maximum": 6},
                         "sky_ev": {"type": "number"}, "sky_px": {"type": "integer", "minimum": 1},
                         "sky_share": _SHARE, "median_before": {"type": "number"}, "median_after": {"type": "number"},
                         "saturation_before": {"type": "number"}, "saturation_after": {"type": "number"},
@@ -187,7 +206,13 @@ SKY_PULL = {
                         # fix round part 3 (17 Oct 2026): the haze-shell pixels counted as sky (render.haze_sky) and
                         # the share of the sky at full feather weight (render.full_weight_share; optional, older
                         # records have neither)
-                        "haze_px": {"type": "integer", "minimum": 0}, "full_weight_share": _SHARE}},
+                        "haze_px": {"type": "integer", "minimum": 0}, "full_weight_share": _SHARE,
+                        # fix round after P4a (17 Oct 2026; optional): the ring pixels outside the mask that got part
+                        # of the pull (render.sky_pull_weights), the degrees between the view's and the sun's azimuth
+                        # (render.sun_offset_deg, null without a sun lamp) and whether the view looks into the sun
+                        "ring_px": {"type": "integer", "minimum": 0},
+                        "sun_offset_deg": {"type": ["number", "null"], "minimum": 0, "maximum": 180},
+                        "into_sun": {"type": "boolean"}}},
     ],
 }
 # Milestone 10 (docs/milestone10.md §1.6b row 11): object kinds of the whole building; views.KIND_MAP never maps
@@ -357,6 +382,18 @@ SCENE_CAMERA = {
         "pitch_deg": {"type": "number"},
         "horizon_frac": {"type": "number"},
         "replay": _CAMERA_REPLAY,
+        # fix round after P4a (17 Oct 2026, build.merge_agent_cameras, overrides.replaced_replayed_of): the replayed
+        # record an agent camera replaced (its pose, lens, shift, view, sides and replay trail), and the name a camera
+        # had before build.dedupe_camera_names renamed a clash to <name>_dup<k>; both optional
+        "replaced_replayed": {"type": "object",
+                              "properties": {"position": _VEC3,
+                                             "target": {"oneOf": [{"type": "null"}, _VEC3]},
+                                             "rotation_euler_deg": _VEC3, "lens_mm": {"type": "number"},
+                                             "shift_x": {"type": "number"}, "shift_y": {"type": "number"},
+                                             "view": {"type": ["string", "null"]},
+                                             "sides": {"type": "array", "items": {"type": "string"}},
+                                             "replayed_from": {"type": "object"}, "replay": {"type": "object"}}},
+        "renamed_from": {"type": "string"},
     },
 }
 
@@ -507,6 +544,9 @@ RENDER_ENTRY = {
                                 "end_m": {"type": "number", "exclusiveMinimum": 0},
                                 "built_end_m": {"type": "number", "exclusiveMinimum": 0},
                                 "rule": {"type": ["string", "null"]}}},
+        # Fix round after P4a (17 Oct 2026): whether the haze volume was hidden from the camera's rays (a view under the
+        # interior world, render.haze_hidden_for); null in a scene without haze. Optional.
+        "haze_hidden": {"type": ["boolean", "null"]},
     },
 }
 

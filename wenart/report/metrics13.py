@@ -73,7 +73,8 @@ How (the definitions):
     ``site.vegetation`` / ``site.trees`` records with a method other than a primitive; tree objects without such a
     record count as primitives), hedges built from the drawn rows (``site.hedges`` of the building vs the scene's
     hedge records or objects), black pixels of the site view (the aerial / site camera's final preview; the
-    exterior preview with most black when the scene manifest does not say which camera is the site view).
+    exterior preview with most black when the scene manifest does not say which camera is the site view). Fix round
+    after P4a: with no drawn tree the value is the share of the scene's (inferred) trees built as real geometry.
 12. exterior views rendered of planned (planned = the scene manifest's exterior cameras + the dropped ones).
 13. views in halls (``HALL_TYPES``) or with >= 50 % bare wall (the scene camera's ``score.shares.wall``).
 14. ``in_json_not_rendered`` mismatches of the final check (final manifest ``json_crosscheck``).
@@ -95,6 +96,27 @@ Fix round after P3 (16-17 Oct 2026, docs/milestone13.md §14.8):
   not-furniture symbols as missing pieces (178 of 240; 178 of 202 without them).
 - How: the filter applies only when ``run_first_seq`` > 1 (a log without it, or a hand-built one whose events carry
   no ``seq``, keeps every event); ``parts.run_first_seq`` of metrics 6 and 7 says which run was read.
+
+Fix round after P4a (17 Oct 2026, the library lens of the P4a analysis):
+
+- What: metric 11 counts the trees of the scene as well (``scene_trees``): the scene manifest's tree records
+  (``site.vegetation`` kind ``tree``) and its tree objects (``site_kind: tree``) by id, real when the record's method
+  (else the object's ``veg_method``) is not a primitive. When no tree is drawn, the value is the share of the scene's
+  trees (the ones the pipeline inferred) built as real geometry (``parts.tree_basis: "scene"``), not "no data";
+  with drawn trees nothing changes (``tree_basis: "drawn"``). "no data" stays for a run with no tree drawn or built
+  and for a run without a scene manifest.
+- Why: P4a's real02 has no drawn tree; its two inferred olive trees are Poly Haven models, its six boundary hedges
+  leaf cards, its site view 0.0 % black, but the CLI listed m11 under "no data" and the text read "trees built 2 of
+  0". The M11 baseline's two inferred trees were parametric lollipops with no vegetation record and were not
+  counted at all (the docstring's "tree objects without such a record count as primitives" was never coded):
+  before 0 of 2, after 2 of 2.
+- How: no input was missing (the analyst's numbers are the parts metrics13 already had); only the value rule and
+  the text change.
+- Integration of the same round (the agent track's ask): metric 7 is the agent's own count
+  (``wenart.agent.metrics.findings_removed_metrics``: ``edits_removing_finding`` of ``edits_with_target``), so the
+  report and ``orchestrator/metrics.json`` agree. Before, an edit was keyed by its logged checklist and room, so
+  P4a's set_lighting edits (findings on cameras) never counted, and a target its round did not have counted as gone
+  (P3 real04: 29 of 39 before, 22 of 39 now; P4a real02: 17 of 25 before, 17 of 24 now).
 """
 from __future__ import annotations
 
@@ -591,21 +613,29 @@ def metric_6(run: Run) -> dict:
 
 
 def metric_7(run: Run) -> dict:
-    src = "orchestrator log.json of the latest run (run_first_seq): accepted edit events of round r < last with " \
-          "checklist and target; gone = no finding with the same checklist and target in round r + 1"
+    """Fix round after P4a (integration of the agent track's ask): the agent's own rule
+    (``wenart.agent.metrics.findings_removed_metrics``): an accepted edit is judged when it targets a finding (the keys
+    of ``evidence.acceptance.target``, else its checklist and target; record-only tools left out) and its round has a
+    next one; it is gone when every critical / major finding it targeted that its round has is gone in the next
+    round (``causes.finding_key``: an S2 names its cut). Before, an edit was keyed by its logged checklist and room
+    (a set_lighting edit logs the room while its findings are on cameras) and a target its round did not have
+    counted as gone."""
+    from wenart.agent import metrics as AM
+
+    src = "orchestrator log.json of the latest run (run_first_seq): accepted edits that target a finding and have a " \
+          "next round (agent.metrics edits_with_target); gone = every critical / major finding they targeted that " \
+          "their round has is gone in the next round (edits_removing_finding)"
     last = _last_round(run)
     if run.log is None or last is None:
         return _metric(7, NO_DATA, source=src)
-    next_keys: dict = {}
-    for e in _findings(run):
-        next_keys.setdefault(int(e.get("round") or 0), set()).add((str(e.get("checklist")), str(e.get("target"))))
-    edits = [e for e in run.log.get("events") or [] if isinstance(e, dict) and e.get("kind") == "edit"
-             and e.get("checklist") and e.get("target") and int(e.get("round") or 0) < last]
-    gone = [e for e in edits if (str(e["checklist"]), str(e["target"])) not in next_keys.get(int(e["round"]) + 1, set())]
-    accepted = sum(1 for e in run.log.get("events") or [] if isinstance(e, dict) and e.get("kind") == "edit")
-    return _metric(7, _pct(len(gone), len(edits)), f"{_of(len(gone), len(edits))} (accepted edits {accepted}, "
-                                                    f"rounds {last})",
-                   {"gone": len(gone), "judged": len(edits), "accepted": accepted, "rounds": last,
+    events = [e for e in run.log.get("events") or [] if isinstance(e, dict)]
+    rounds = [e for e in events if e.get("kind") == "round"]
+    round_ids = sorted({int(e.get("round") or 0) for e in (rounds or _findings(run))})
+    removed = AM.findings_removed_metrics(events, round_ids)
+    gone, judged, accepted = (removed["edits_removing_finding"], removed["edits_with_target"],
+                              removed["accepted_edits"])
+    return _metric(7, _pct(gone, judged), f"{_of(gone, judged)} (accepted edits {accepted}, rounds {last})",
+                   {"gone": gone, "judged": judged, "accepted": accepted, "rounds": last,
                     "run_first_seq": run.log_first_seq}, src)
 
 
@@ -799,10 +829,33 @@ def _black_share(path: Optional[Path]) -> Any:
     return round(100.0 * float(black), 1)
 
 
+def _primitive(method) -> bool:
+    return str(method or "").lower() in VEGETATION_PRIMITIVES
+
+
+def scene_trees(run: Run) -> tuple[Any, Any]:
+    """Fix round after P4a (module docstring): ``(trees, real)`` of the scene manifest, drawn or inferred: its tree
+    records (``site.vegetation`` / ``site.trees`` kind ``tree``) and its tree objects (``site_kind: tree``) by id; a
+    tree is real when its record's method (else its object's ``veg_method``) is not a primitive (an M11 tree object
+    without a record is a parametric primitive). ``(NO_DATA, NO_DATA)`` without a scene manifest."""
+    if run.scene is None:
+        return NO_DATA, NO_DATA
+    methods: dict = {}
+    for o in run.scene.get("objects") or []:
+        if isinstance(o, dict) and o.get("site_kind") == "tree":
+            oid = str(o.get("wenart_id") or o.get("element_id") or o.get("name") or f"object_{len(methods)}")
+            methods[oid] = o.get("veg_method")
+    for i, r in enumerate(_vegetation_records(run) or []):
+        if r.get("kind", "tree") == "tree":
+            methods[str(r.get("id") or f"record_{i}")] = r.get("method") or r.get("source")
+    return len(methods), sum(1 for m in methods.values() if not _primitive(m))
+
+
 def metric_11(run: Run) -> dict:
     src = "building_final.json site.decor (kind tree) and site.hedges; scene_manifest.json site.vegetation / " \
           "site.trees records (method not a primitive), site hedge objects; black pixels (every channel < 16) of " \
-          "the aerial / site camera's final preview"
+          "the aerial / site camera's final preview; with no drawn tree, the scene's trees (records and site_kind " \
+          "tree objects; an object without a record is a primitive) built as real geometry"
     if run.building is None:
         return _metric(11, NO_DATA, source=src)
     site = run.building.get("site") if isinstance(run.building.get("site"), dict) else {}
@@ -812,8 +865,9 @@ def metric_11(run: Run) -> dict:
     built: Any = NO_DATA
     if records is not None:
         real = [r for r in records if r.get("kind", "tree") == "tree"
-                and str(r.get("method") or r.get("source") or "").lower() not in VEGETATION_PRIMITIVES]
+                and not _primitive(r.get("method") or r.get("source"))]
         built = len(real)
+    n_scene, n_real = scene_trees(run)
     hedges_built: Any = NO_DATA
     if run.scene is not None:
         site_s = run.scene.get("site") if isinstance(run.scene.get("site"), dict) else {}
@@ -838,11 +892,24 @@ def metric_11(run: Run) -> dict:
                     best.append((share, v["camera"]))
         if best:
             black, black_cam = max(best)
-    text = (f"trees built {NO_DATA if built == NO_DATA else _of(built, len(trees))} ({len(trees)} drawn); hedges "
-            f"{hedges_built} built of {hedges_drawn} drawn rows; black pixels in the site view {black}"
-            + (f" % ({black_cam})" if black != NO_DATA else ""))
-    value = _pct(built, len(trees)) if built != NO_DATA else NO_DATA      # no drawn tree: no share
-    return _metric(11, value, text, {"trees_drawn": len(trees), "trees_built": built, "hedges_drawn": hedges_drawn,
+    if trees:
+        basis = "drawn"
+        value = _pct(built, len(trees)) if built != NO_DATA else NO_DATA
+        tree_text = f"trees built {NO_DATA if built == NO_DATA else _of(built, len(trees))} ({len(trees)} drawn)"
+    elif n_scene != NO_DATA and n_scene > 0:
+        # fix round after P4a: no drawn tree, but the pipeline inferred some: the share of those built as real geometry
+        basis = "scene"
+        value = _pct(n_real, n_scene)
+        tree_text = f"no drawn tree; trees in the scene (inferred) as real geometry {_of(n_real, n_scene)}"
+    else:
+        basis = None
+        value = NO_DATA                                               # no tree drawn or built (or no scene): no share
+        tree_text = "no drawn tree" + ("; no tree in the scene" if n_scene == 0 else
+                                       "; trees in the scene: no data (no scene manifest)")
+    text = (f"{tree_text}; hedges {hedges_built} built of {hedges_drawn} drawn rows; black pixels in the site view "
+            f"{black}" + (f" % ({black_cam})" if black != NO_DATA else ""))
+    return _metric(11, value, text, {"trees_drawn": len(trees), "trees_built": built, "trees_scene": n_scene,
+                                     "trees_scene_real": n_real, "tree_basis": basis, "hedges_drawn": hedges_drawn,
                                      "hedges_built": hedges_built, "black_pct": black, "site_camera": black_cam}, src)
 
 
@@ -914,7 +981,7 @@ def metric_14(run: Run) -> dict:
 def metric_15(run: Run) -> dict:
     src = "the reviewer's per-view rubric file (client_ready_score 1-5), over the views of the final report"
     if not run.rubric:
-        return _metric(15, NO_DATA, source=src)
+        return _metric(15, NO_DATA, "no reviewer rubric file", {}, src)   # fix round after P4a: the CLI names why
     cams = {v["camera"] for v in _views(run)}
     rows = [r for r in run.rubric if isinstance(r, dict) and isinstance(r.get("client_ready_score"), (int, float))]
     if cams:
