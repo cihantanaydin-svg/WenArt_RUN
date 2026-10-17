@@ -142,6 +142,39 @@ Pass before P5 (17 Oct 2026; the review of the fix round after P4b):
   ``tin`` terrain record in the scene manifest has no surface, so the hint said nothing on the project with the most
   sloped ground (its ground lies 0-4 m below zero, where "-2.54--2.44" is hard to read).
 
+Pass before P5, round 2 (17 Oct 2026; the review of the pass before P5 and P3's real04 log):
+
+- the frontal role follows the label the next build gives the pose, not only the pose's direction: ``next_view``
+  starts from the planner's view and sides (``planner_view``: ``agent.view_was`` / ``agent.sides_was`` of a scene
+  camera an earlier build relabelled, because the build plans the camera again and re-applies every override to it)
+  and runs ``build.agent_exterior_view`` on the pose; a ``set`` / ``add`` of X6's frontal view (by label or by pose)
+  is refused unless that label is still X6's frontal view or another camera stays one (``frontal_pose_problem``).
+  Why: real04's corner ext_4 (left, back; back is the entrance +y facade) set square to the facade is ``agent``, X6's
+  frontal view; a second set 25.8 degrees off the +y normal passed the direction check, but the build keeps that pose
+  the corner of left, back (within 80 degrees of both normals), so code X6 "no frontal view" came back; in the round
+  after, ``built_view`` took the scene's ``agent`` as the base, counted the corner pose as frontal and let the agent's
+  added frontal view go;
+- the aerial or site view the camera policy allows (``aerial_role``: ``aerial_allowed`` / ``site_view`` on an aerial
+  or site label) is never brought down to eye level (``aerial_problem``: the next build would no longer label the
+  pose aerial and would drop the flags); it may move to another aerial pose or be removed. Why: P3's critic called
+  ext_5 and ext_7 "high angle, not at eye level" 9 times, and its round-6 ``set_camera`` brought ext_5 to z 2.46
+  (accepted); the critic now drops those claims (``critic_vision.allowed_aerial``), this rule closes the tool path.
+
+Pass before P5, round 2, review (17 Oct 2026):
+
+- an aerial pose also stands on or above the high-view line of the camera validator and code X6
+  (``critic_vision.high_view_line``: the roof's ``ridge_z`` + 1.0 m, 7.01 m on real04); ``aerial_problem`` refuses a
+  pose below it as well as a pose that looks down less than 5 degrees, and its refusal states both rules. Why:
+  real04's ext_5 set 1.60 m over the ground and aimed 6 degrees down passed the 5-degree rule, the validator passed
+  its eye height, and the build kept it ``aerial`` with ``aerial_allowed`` (X6 skips the eye-level checks of an
+  ``aerial`` view); the refusal of a level pose named only the 5 degrees and so invited that retry;
+- an exterior camera added in this session is guarded like a scene camera (``added_camera``: the record
+  ``role_problem`` judges when the scene manifest has no camera of that name but its last accepted entry is an
+  exterior ``add``; ``next_view`` gives it the build's label of a new view, ``agent``). Why: ``role_problem``
+  returned None for it, so the agent's own frontal view could be added again at a corner pose; with the "another
+  camera stays X6's frontal view" exception (ext_4 set to a corner pose while the added ext_8 was frontal) that left
+  real04 without a frontal view (code X6 "no frontal view of the entrance (+y) facade").
+
 Pass before P5, integration (17 Oct 2026; track F's ask). What: ``plan_crop`` with a ``piece_id`` also shows the
 piece's own recognition crop when one is on disk (``ToolContext.own_crop_path``: ``edit_ops.own_crops``, the crop a
 review entry or conflict records for the piece first, else ``RECOGNITION_CROP_DIR``/<name>, the context crop before
@@ -298,8 +331,9 @@ DESCRIPTIONS = {
     "relayout_room": "Re-place the AI pieces of a room (drawn pieces stay locked).",
     "set_room_type": "Change a room's type when it does not fit its area, fixtures and doors.",
     "set_camera": "Move an existing camera (position, target, lens). A camera replayed from the baseline (set 1) "
-                  "is frozen and refused; a frontal view stays square to its facade and an entrance view stays "
-                  "close in front of its door.",
+                  "is frozen and refused; a frontal view stays square to its facade, an entrance view stays "
+                  "close in front of its door and the allowed aerial or site view stays an aerial view (never "
+                  "brought to eye level).",
     "add_camera": "Add a camera view under a new view id.",
     "remove_camera": "Remove a camera view (e.g. a view of a bare wall); never a replayed (set 1) camera, nor the "
                      "only frontal or entrance view.",
@@ -1481,24 +1515,43 @@ def frontal_problem(building: dict, camera: dict, position, target) -> Optional[
     return (f"the pose no longer looks square (within {B.AGENT_FRONTAL_MAX_DEG:g} degrees) at the {sides} facade")
 
 
-def built_view(ctx: ToolContext, name: str) -> tuple[Optional[str], Optional[dict]]:
-    """Pass before P5 (module docstring): ``(view, pose)`` the next build gives the exterior camera ``name``: its
-    pose now (``camera_pose_now``); the scene camera's own ``view`` when that pose is the scene's, else the view
-    ``build.agent_exterior_view`` records for the accepted override's pose (the scene camera's view and sides, as
-    ``overrides.fixed_plan`` copies them; ``agent`` for a new view). ``(None, None)`` without a pose."""
-    pose, _where = camera_pose_now(ctx, name)
+def planner_view(camera: Optional[dict]) -> tuple[Optional[str], list]:
+    """Pass before P5, round 2 (module docstring): ``(view, sides)`` of the planner's record the next build re-applies
+    the agent's overrides to: ``agent.view_was`` / ``agent.sides_was`` when ``camera`` carries them (an earlier
+    build's relabel, ``build.agent_exterior_view``: the build plans the camera again and ``overrides.fixed_plan``
+    copies the planner's view and sides), else the camera's own ``view`` and ``sides``."""
+    if not isinstance(camera, dict):
+        return None, []
+    was = camera.get("agent") if isinstance(camera.get("agent"), dict) else {}
+    if was.get("view_was"):
+        return was["view_was"], list(was.get("sides_was") or [])
+    return camera.get("view"), list(camera.get("sides") or [])
+
+
+def next_view(ctx: ToolContext, name: str, pose: dict) -> tuple[Optional[str], dict]:
+    """Pass before P5, round 2 (module docstring): ``(view, plan)`` the next build gives the exterior camera ``name``
+    at ``pose`` (an override entry or a pose with ``position``, ``target`` and ``lens_mm``): the planner's view and
+    sides (``planner_view``; ``agent`` for a new view) and the flags ``overrides.fixed_plan`` copies
+    (``overrides.CAMERA_KEEP_KEYS``; the aerial flags an earlier build dropped, ``agent.flags_was``, are the planner's
+    again), checked by ``build.agent_exterior_view`` on that pose as the build checks them."""
+    from wenart.blender import overrides as BO
+
     cam = ctx.camera(name)
-    if not isinstance(pose, dict) or not pose.get("position") or not pose.get("target"):
-        return None, None
-    if pose is cam:
-        return cam.get("view"), cam
     base = cam if isinstance(cam, dict) else {}
-    plan = {"name": str(name), "view": base.get("view") or "agent", "sides": list(base.get("sides") or []),
+    view, sides = planner_view(base)
+    plan = {"name": str(name), "view": view or "agent", "sides": sides,
             "position": [float(v) for v in pose["position"]], "target": [float(v) for v in pose["target"]],
             "lens_mm": float(pose.get("lens_mm") or base.get("lens_mm") or 26.0)}
-    for key in ("entrance", "door_id"):
-        if base.get(key):
+    was = base.get("agent") if isinstance(base.get("agent"), dict) else {}
+    for key in BO.CAMERA_KEEP_KEYS:
+        if key in pose:
+            plan[key] = pose[key]
+        elif key in base and base[key] is not None:
             plan[key] = base[key]
+        elif key in (was.get("flags_was") or {}):
+            plan[key] = was["flags_was"][key]
+    if base.get("door_id"):
+        plan["door_id"] = base["door_id"]
     try:
         from wenart.blender import build as B
         from wenart.blender import site as S
@@ -1510,6 +1563,21 @@ def built_view(ctx: ToolContext, name: str) -> tuple[Optional[str], Optional[dic
     return plan.get("view"), plan
 
 
+def built_view(ctx: ToolContext, name: str) -> tuple[Optional[str], Optional[dict]]:
+    """Pass before P5 (module docstring): ``(view, pose)`` the next build gives the exterior camera ``name``: its
+    pose now (``camera_pose_now``); the scene camera's own ``view`` when that pose is the scene's, else the view
+    ``build.agent_exterior_view`` records for the accepted override's pose (``next_view``: the planner's view and
+    sides, as ``overrides.fixed_plan`` copies them, ``agent.view_was`` / ``sides_was`` of a scene camera an earlier
+    build relabelled; ``agent`` for a new view). ``(None, None)`` without a pose."""
+    pose, _where = camera_pose_now(ctx, name)
+    cam = ctx.camera(name)
+    if not isinstance(pose, dict) or not pose.get("position") or not pose.get("target"):
+        return None, None
+    if pose is cam:
+        return cam.get("view"), cam
+    return next_view(ctx, name, pose)
+
+
 def x6_frontal_now(ctx: ToolContext, name: str, main: Optional[dict]) -> bool:
     """Pass before P5: the camera ``name`` is the frontal view X6 asks for at the pose and view the next build gives
     it (``built_view``, ``critic_vision.x6_frontal``)."""
@@ -1519,34 +1587,146 @@ def x6_frontal_now(ctx: ToolContext, name: str, main: Optional[dict]) -> bool:
     return pose is not None and CV.x6_frontal(dict(pose, view=view), main)
 
 
+def frontal_pose_problem(ctx: ToolContext, view_id: str, entry: dict, main: Optional[dict]) -> Optional[str]:
+    """Pass before P5, round 2 (module docstring): why the ``set`` / ``add`` pose ``entry`` of X6's frontal view
+    ``view_id`` would leave X6 without a frontal view: the next build's label of that pose (``next_view``) is not
+    X6's frontal view (``critic_vision.x6_frontal``: a corner the build keeps, or a pose not square to the main
+    facade) and no other camera stays X6's frontal view (``exterior_poses``, ``x6_frontal_now``); None otherwise."""
+    from wenart.agent import critic_vision as CV
+    from wenart.blender import build as B
+    from wenart.blender import site as S
+
+    view, plan = next_view(ctx, view_id, entry)
+    if CV.x6_frontal(dict(plan, view=view), main):
+        return None
+    if any(x6_frontal_now(ctx, n, main) for n in exterior_poses(ctx) if n != str(view_id)):
+        return None                          # another camera stays X6's frontal view
+    axis = (main or {}).get("axis")
+    if view == "corner" and main:
+        sides = [str(x) for x in plan.get("sides") or []]
+        north, _src = S.north_deg(ctx.building)
+        md = main["direction"]
+        normals = {x: S.side_direction(x, north) for x in sides}
+        other = [x for x, n in normals.items() if n is None or n[0] * md[0] + n[1] * md[1] < 0.99] or sides
+        return (f"the next build keeps this pose the corner view of {', '.join(sides)} (it looks at each of those "
+                f"facades less than {B.AGENT_CORNER_MAX_DEG:g} degrees off square), and X6 counts no corner view as "
+                f"the frontal view of the main ({axis}) entrance facade: look square (within "
+                f"{B.AGENT_FRONTAL_MAX_DEG:g} degrees) at that facade and at least {B.AGENT_CORNER_MAX_DEG:g} degrees "
+                f"off square at the {', '.join(other)} facade")
+    base_view, base_sides = planner_view(ctx.camera(view_id))
+    if base_view in FRONTAL_VIEWS or not main:
+        why = frontal_problem(ctx.building, dict(ctx.camera(view_id) or {}, view=base_view, sides=base_sides),
+                              entry["position"], entry["target"])
+        if why is not None:
+            return why
+    return (f"the pose no longer looks square (within {B.AGENT_FRONTAL_MAX_DEG:g} degrees) at the main ({axis}) "
+            f"entrance facade, the frontal view X6 asks for")
+
+
+AERIAL_ROLE_SOURCE = "docs/milestone13.md D8 and the site view rule"
+
+
+def aerial_problem(ctx: ToolContext, view_id: str, entry: dict) -> Optional[str]:
+    """Pass before P5, round 2 (module docstring): why the ``set`` / ``add`` pose ``entry`` would bring the aerial
+    or site view the camera policy allows down to eye level: the next build would no longer label it ``aerial`` /
+    ``site`` (``next_view``; ``build.agent_exterior_view``: it looks down less than ``AGENT_AERIAL_MIN_DOWN_DEG``) and
+    would drop its ``aerial_allowed`` / ``site_view``; None while the pose stays an aerial one. Review of round 2: or
+    the pose stands below the high-view line of the camera validator and code X6 (``critic_vision.high_view_line``:
+    ``ridge_z`` + 1.0 m), where they judge it as an eye-level view. The reason states both rules."""
+    from wenart.agent import critic_vision as CV
+    from wenart.blender import build as B
+
+    view, _plan = next_view(ctx, view_id, entry)
+    ridge, line = CV.high_view_line(ctx.building)
+    z = float(entry["position"][2])
+    low = z < line                           # = validate_camera_override / _x6: below the line an eye-level view
+    level = view not in B.AGENT_AERIAL_VIEWS
+    if not low and not level:
+        return None
+    parts = []
+    if low:
+        parts.append(f"stands at z {z:.2f} m, below that line (the camera validator and code X6 judge it as an "
+                     f"eye-level view)")
+    if level:
+        down = round(B._down_pitch_deg(entry["position"], entry["target"]), 1) + 0.0      # never "-0.0"
+        parts.append(f"looks {down:.1f} degrees down, less than the {B.AGENT_AERIAL_MIN_DOWN_DEG:g} degrees (the "
+                     f"next build would make it an eye-level view)")
+    return (f"an aerial view stands at least {CV.HIGH_VIEW_ABOVE_RIDGE_M:g} m above the ridge (z {line:.2f} m or "
+            f"more; the ridge is at {ridge:.2f} m) and looks down at least {B.AGENT_AERIAL_MIN_DOWN_DEG:g} degrees; "
+            f"this pose {' and '.join(parts)}; its height above eye level and its downward pitch are by design, not "
+            f"a finding")
+
+
+def aerial_role(camera: Optional[dict], view: Optional[str]) -> Optional[str]:
+    """Pass before P5, round 2: ``site view`` / ``aerial view`` for a camera (as the next build gives it) of view
+    ``aerial`` / ``site`` with ``site_view`` / ``aerial_allowed`` (the views the camera policy allows above eye
+    level, ``build.AGENT_AERIAL_FLAGS``), else None."""
+    from wenart.blender import build as B
+
+    if not isinstance(camera, dict) or view not in B.AGENT_AERIAL_VIEWS:
+        return None
+    if camera.get("site_view"):
+        return "site view"
+    return "aerial view" if camera.get("aerial_allowed") else None
+
+
+def added_camera(ctx: ToolContext, view_id: str) -> Optional[dict]:
+    """Pass before P5, round 2, review (module docstring): the record ``role_problem`` judges for an exterior camera
+    added in this session: ``{"name", "kind": "exterior", "room_id": None}`` when the scene manifest has no camera
+    ``view_id`` and its last accepted ``set`` / ``add`` entry (``camera_pose_now``; a later ``remove`` clears it) is
+    an exterior one; None otherwise. It carries no view: ``next_view`` gives it the label the build gives a new view
+    (``agent``, then ``build.agent_exterior_view`` on its pose)."""
+    if ctx.camera(view_id) is not None:
+        return None
+    pose, _where = camera_pose_now(ctx, view_id)
+    if not isinstance(pose, dict) or pose.get("kind") != "exterior":
+        return None
+    return {"name": str(view_id), "kind": "exterior", "room_id": None}
+
+
 def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Optional[str]:
     """Fix round after P4b (module docstring, decision 2): why a camera edit would lose the view's role: a ``set`` /
     ``add`` that turns a frontal view into another pose or moves an entrance view away from its door, a ``remove`` of
     the only frontal or entrance view; None otherwise. Pass before P5: an ``agent`` view that is X6's frontal view
     (``x6_frontal_now``) has the frontal role too: its pose stays square (within 30 degrees) to the main facade, and
-    a frontal view by X6's rule is removed only while another one stays (``exterior_poses``)."""
+    a frontal view by X6's rule is removed only while another one stays (``exterior_poses``).
+
+    Pass before P5, round 2 (module docstring): the role is read from the label the next build gives the camera
+    (``built_view``). A ``set`` / ``add`` of X6's frontal view (by label or by pose) is refused unless the next build
+    still counts the new pose as X6's frontal view (``frontal_pose_problem``: a corner the build keeps a corner is not)
+    or another camera stays one. The aerial or site view the camera policy allows (``aerial_role``) is never brought
+    down to eye level (``aerial_problem``); it may move to another aerial pose or be removed. Review of round 2: an
+    exterior camera added in this session (``added_camera``) is guarded like a scene camera, so the frontal view the
+    agent added is not added again at another pose, and the "another camera stays X6's frontal view" exception never
+    rests on an unguarded camera."""
     from wenart.agent import critic_vision as CV
 
     cam = ctx.camera(view_id)
+    if cam is None:
+        cam = added_camera(ctx, view_id)
     if not isinstance(cam, dict) or (cam.get("kind") or ("exterior" if not cam.get("room_id") else "interior")) \
             != "exterior":
         return None
-    view = cam.get("view")
+    built, plan = built_view(ctx, view_id)
+    view = built or cam.get("view")
     main = CV.main_facade_of(ctx.scene, ctx.building)
-    by_pose = False                          # the frontal role by X6's rule alone (an agent view), not by the label
+    frontal_now = plan is not None and CV.x6_frontal(dict(plan, view=view), main)   # = x6_frontal_now
+    aerial = aerial_role(plan if plan is not None else cam, view)
     if view == ENTRANCE_VIEW:
         role = ENTRANCE_VIEW
-    elif view in FRONTAL_VIEWS:
+    elif frontal_now or view in FRONTAL_VIEWS:
         role = "frontal"
-    elif x6_frontal_now(ctx, view_id, main):
-        role, by_pose = "frontal", True
+    elif aerial:
+        role = "aerial"
     else:
         return None
     if action == "remove":
+        if role == "aerial":
+            return None                      # removing the allowed aerial does not bring it to eye level
         others = [n for n in exterior_poses(ctx) if n != str(view_id)]
         if role == ENTRANCE_VIEW:
             same = [n for n in others if built_view(ctx, n)[0] == ENTRANCE_VIEW]
-        elif by_pose or x6_frontal_now(ctx, view_id, main):
+        elif frontal_now:
             same = [n for n in others if x6_frontal_now(ctx, n, main)]     # X6 still finds a frontal view
         else:                                # an elevation of another facade: any other frontal or elevation view
             same = [n for n in others if built_view(ctx, n)[0] in FRONTAL_VIEWS or x6_frontal_now(ctx, n, main)]
@@ -1557,21 +1737,23 @@ def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Op
     if not entry.get("position") or not entry.get("target"):
         return None
     try:
-        if by_pose:
-            from wenart.blender import build as B
-            from wenart.blender import exterior_checks as X
-
-            why = None if X._faces({"position": entry["position"], "target": entry["target"]}, main["direction"]) \
-                else (f"the pose no longer looks square (within {B.AGENT_FRONTAL_MAX_DEG:g} degrees) at the main "
-                      f"({main.get('axis')}) entrance facade, the frontal view X6 asks for")
-        elif role == "frontal":
-            why = frontal_problem(ctx.building, cam, entry["position"], entry["target"])
-        else:
+        if role == ENTRANCE_VIEW:
             why = entrance_problem(ctx.building, cam, entry["position"], entry["target"], entry.get("lens_mm"))
+        elif role == "aerial":
+            why = aerial_problem(ctx, view_id, entry)
+        elif frontal_now:
+            why = frontal_pose_problem(ctx, view_id, entry, main)
+        else:                                # an elevation of another facade: square to its own facade
+            base_view, base_sides = planner_view(cam)
+            why = frontal_problem(ctx.building, dict(cam, view=base_view, sides=base_sides), entry["position"],
+                                  entry["target"])
     except (KeyError, TypeError, ValueError, IndexError):
         return None
     if why is None:
         return None
+    if role == "aerial":
+        return (f"role: {view_id} is the {aerial} the camera policy allows and keeps its role ({AERIAL_ROLE_SOURCE}): "
+                f"{why}; add_camera with a new view id for an eye-level view")
     return (f"role: {view_id} is the {role} view and keeps its role (decision of 17 Oct 2026): {why}; add_camera "
             f"with a new view id for another view")
 
@@ -1678,7 +1860,7 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
             out = _result(False, [refusal], tool=tool, frozen=frozen,
                           message="refused: a replayed (set 1) camera is frozen" if frozen else
                           "refused: a near copy of another exterior view" if refusal.startswith("duplicate") else
-                          "refused: the view keeps its role (frontal or entrance)")
+                          "refused: the view keeps its role (frontal, entrance or the allowed aerial)")
             ctx.rejected.append({"tool": tool, "args": args, "result": out})
             return out
         if action in ("set", "add"):

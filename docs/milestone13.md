@@ -1887,6 +1887,16 @@ passed; the ingest suites the pipeline change reaches (`test_m11_ingest.py`, `te
 **GPU checks for P5.** As §14.11, plus `tests/gpu/test_render.py`'s two new checks (the window pull leaves panes that
 need no pull; the interior glazing pull removes clipping) and the scene manifest's `rig_light_moved` entries.
 
+**Pass before P5, round 2 (17 Oct 2026, agent camera guards on real04):** the frontal role follows the label the next
+build gives a pose (`tools.next_view`, `frontal_pose_problem`), so a corner turned frontal and then set to an oblique
+pose is refused while it is X6's only frontal view; a camera added in the same session is guarded like a scene camera
+(`tools.added_camera`); the aerial and site views the camera policy allows are never brought down to eye level (below
+the ridge + 1 m line of the validator and X6, or less than 5° down); a vision height claim on such a view above that
+line is dropped with the reason (a code record outranks AI vision). On P3's real04 log all 16 vision X6 claims are now
+dropped (9 aerial, 7 low-angle corners). Agent suites 234 passed; every new test fails on the tree before the change.
+Left as is: the build and X6 still treat a flagged pose that looks 5° or more down as aerial at any height (the agent can
+no longer make one).
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

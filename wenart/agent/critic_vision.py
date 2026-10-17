@@ -81,6 +81,19 @@ Pass before P5 (17 Oct 2026; the review of the fix round after P4b):
   claim on it is dropped. Why: real04's planner drops ext_6 (P3: "inside the copy; 100% of the view blocked by
   trees"), so its frontal view is one the agent adds, labelled ``agent`` by the build; the critic was told only "a
   view the agent placed", kept the claim and sent the camera to a corner pose again (decision 2).
+
+Pass before P5, round 2 (17 Oct 2026; P3's real04 log): a height claim on the aerial or site view the camera policy
+allows (``allowed_aerial``: ``aerial_allowed`` / ``site_view`` on a pose that looks down at least
+``build.AGENT_AERIAL_MIN_DOWN_DEG``, the build's aerial rule) is dropped with the reason: the view above eye level is
+a design choice (docs/milestone13.md D8 and the site view rule), and a code record outranks AI vision. Why: on P3 the
+critic said "high angle looking down, not at eye level" 9 times on ext_5 (aerial_allowed) and ext_7 (aerial_allowed,
+site_view) in rounds 1-6 although the prompt told it the view is allowed; each claim was kept with the cause
+exterior_camera (set_camera offered) and the round-6 set brought ext_5 down to z 2.46. ``tools.role_problem`` refuses
+such a set too (the aerial role). Review of round 2: the pose must also stand on or above the high-view line of the
+camera validator and code X6 (``high_view_line``: the roof's ``ridge_z`` + ``HIGH_VIEW_ABOVE_RIDGE_M``, 7.01 m on
+real04); below it the validator and X6 judge the camera as an eye-level view, so a claim "at eye level looking down"
+on a flagged record there is kept. Why: real04's ext_5 set 1.60 m over the ground and aimed 6 degrees down passed the
+5-degree rule, the build kept it ``aerial`` with ``aerial_allowed``, and such a claim was dropped.
 """
 from __future__ import annotations
 
@@ -583,14 +596,79 @@ def camera_claims(message: str) -> set:
     return out
 
 
+AERIAL_SOURCE = "docs/milestone13.md D8 and the site view rule"
+HIGH_VIEW_ABOVE_RIDGE_M = 1.0   # = exterior_checks.validate_camera_override and _x6: z >= ridge_z + 1.0 is a high view
+
+
+def high_view_line(building: Optional[dict] = None, prep: Optional[dict] = None) -> Optional[tuple[float, float]]:
+    """Pass before P5, round 2, review (module docstring): ``(ridge_z, line)`` of the high-view line the camera
+    validator and code X6 use (``exterior_checks.validate_camera_override`` / ``_x6``: an exterior camera with
+    ``z >= ridge_z + 1.0`` is a high view, below it the eye height must lie in ``EYE_LEVEL_RANGE_M``): the roof's
+    ``ridge_z`` of ``build.prepare`` (``prep``: that plan when the caller has it, else ``exterior_checks._prep`` of
+    ``building``; 0.0 without a roof, as the validator reads it) and that ridge + ``HIGH_VIEW_ABOVE_RIDGE_M``. None
+    without a building or a plan."""
+    if not isinstance(prep, dict):
+        if not isinstance(building, dict):
+            return None
+        from wenart.blender import exterior_checks as X
+        prep = X._prep(building) or {}
+    try:
+        ridge = float(((prep.get("roof") or {}).get("ridge_z")) or 0.0)
+    except (TypeError, ValueError, AttributeError):
+        ridge = 0.0
+    return ridge, ridge + HIGH_VIEW_ABOVE_RIDGE_M
+
+
+def allowed_aerial(camera: Optional[dict], eye: Optional[dict] = None, *, building: Optional[dict] = None,
+                   prep: Optional[dict] = None) -> Optional[str]:
+    """Pass before P5, round 2 (module docstring): ``site view`` / ``aerial view`` when ``camera`` is the view the
+    camera policy allows above eye level: it carries ``site_view`` / ``aerial_allowed`` (the build keeps them only on
+    an aerial or site pose, ``build.AGENT_AERIAL_FLAGS``) and its pose looks down at least
+    ``build.AGENT_AERIAL_MIN_DOWN_DEG`` (the build's aerial rule; ``eye``: ``camera_eye`` when the caller has it);
+    None otherwise. Review of round 2: the pose also stands on or above the high-view line of the validator and X6
+    (``high_view_line`` of ``building`` / ``prep``); without either, its measured eye height (``eye["eye_m"]``) lies
+    above ``EYE_LEVEL_RANGE_M``. A pose below the line, or of an unknown height, is no allowed aerial: the claim
+    stays."""
+    if not isinstance(camera, dict) or not (camera.get("aerial_allowed") or camera.get("site_view")):
+        return None
+    from wenart.blender import build as B
+    from wenart.blender import exterior_checks as X
+    pitch = (eye or {}).get("pitch_deg")
+    if pitch is None:
+        if not camera.get("position") or not camera.get("target"):
+            return None
+        try:
+            pitch = -B._down_pitch_deg(camera["position"], camera["target"])
+        except (TypeError, ValueError, IndexError):
+            return None
+    if -float(pitch) < B.AGENT_AERIAL_MIN_DOWN_DEG - 1e-9:
+        return None
+    line = high_view_line(building, prep)
+    if line is not None:
+        try:
+            if float(camera["position"][2]) < line[1]:
+                return None                  # the validator and X6 judge it as an eye-level view
+        except (KeyError, TypeError, ValueError, IndexError):
+            return None
+    elif (eye or {}).get("eye_m") is None or float(eye["eye_m"]) <= X.EYE_LEVEL_RANGE_M[1] + 1e-3:
+        return None
+    return "site view" if camera.get("site_view") else "aerial view"
+
+
 def drop_camera_claims(kept: list[dict], dropped: list[dict], view: str, camera: Optional[dict],
-                       eye: Optional[dict], code: dict, role: Optional[str] = None) -> tuple[list[dict], list[dict]]:
+                       eye: Optional[dict], code: dict, role: Optional[str] = None, *, building: Optional[dict] = None,
+                       prep: Optional[dict] = None) -> tuple[list[dict], list[dict]]:
     """Fix round after P4b (module docstring): the X6 claims on ``view`` that the code contradicts move to
     ``dropped`` with the reason: every claim kind of the message (``camera_claims``) must be one the code record
     answers (height: the measured eye height within ``EYE_LEVEL_RANGE_M``, level within ``PITCH_LEVEL_DEG`` and no
     code X6 on the view; frontal: the camera's role is frontal or entrance; frame: the role is entrance). A message
     with no known claim, or one kind the code does not answer, stays. Pass before P5: ``role`` (``camera_role``:
-    ``frontal`` for an agent view that is X6's frontal view) replaces the camera's ``view``."""
+    ``frontal`` for an agent view that is X6's frontal view) replaces the camera's ``view``. Pass before P5, round 2:
+    a height claim on the aerial or site view the camera policy allows (``allowed_aerial``) is answered by that
+    record: its height and downward pitch are by design (``AERIAL_SOURCE``), so the claim is dropped and no camera
+    tool is offered to bring the view down to eye level (P3's 9 "high angle, not at eye level" claims on real04's
+    ext_5 / ext_7). Review of round 2: only for a pose on or above the high-view line (``allowed_aerial`` with
+    ``building`` / ``prep``)."""
     from wenart.blender import exterior_checks as X
     if not any(f.get("check") == "X6" and f.get("target") == view for f in kept) or not isinstance(camera, dict):
         return kept, dropped
@@ -599,7 +677,9 @@ def drop_camera_claims(kept: list[dict], dropped: list[dict], view: str, camera:
     eye_ok = bool(eye) and eye.get("eye_m") is not None and not code_x6 \
         and X.EYE_LEVEL_RANGE_M[0] - 1e-3 <= float(eye["eye_m"]) <= X.EYE_LEVEL_RANGE_M[1] + 1e-3 \
         and abs(float(eye.get("pitch_deg") or 0.0)) <= PITCH_LEVEL_DEG + 1e-9
-    answers = {"height": eye_ok, "frontal": role in ("frontal", "elevation", "entrance"), "frame": role == "entrance"}
+    aerial = allowed_aerial(camera, eye, building=building, prep=prep)
+    answers = {"height": eye_ok or bool(aerial), "frontal": role in ("frontal", "elevation", "entrance"),
+               "frame": role == "entrance"}
     out = []
     for f in kept:
         claims = camera_claims(f.get("message")) if f.get("check") == "X6" and f.get("target") == view else set()
@@ -607,7 +687,18 @@ def drop_camera_claims(kept: list[dict], dropped: list[dict], view: str, camera:
             out.append(f)
             continue
         parts = []
-        if "height" in claims:
+        if "height" in claims and aerial:
+            flags = ", ".join(k for k in ("aerial_allowed", "site_view") if camera.get(k))
+            measured = []
+            if eye and eye.get("eye_m") is not None:
+                measured.append(f"eye {float(eye['eye_m']):.2f} m above the ground")
+            if eye and eye.get("pitch_deg") is not None:
+                measured.append(f"looking {round(-float(eye['pitch_deg']), 1) + 0.0:.1f} deg down")
+            parts.append(f"{view} is the {aerial} the camera policy allows ({flags}; {AERIAL_SOURCE}): its height "
+                         f"above eye level and its downward pitch are by design"
+                         + (f" ({', '.join(measured)}, measured by code)" if measured else "")
+                         + "; a code record outranks AI vision")
+        elif "height" in claims:
             parts.append(f"eye {float(eye['eye_m']):.2f} m above the ground, pitch {float(eye['pitch_deg']):.1f} deg "
                          f"(measured by code, within {X.EYE_LEVEL_RANGE_M[0]:g}-{X.EYE_LEVEL_RANGE_M[1]:g} m)")
         if claims & {"frontal", "frame"}:
@@ -652,5 +743,6 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
         return {"kept": [], "dropped": [], "error": "; ".join(reply.errors[:3]) or "no answer", "images": images}
     kept, dropped = screen(reply.data, ids, len(images), code, None, call_id=call_id)
     kept, dropped = drop_roof_type_claims(kept, dropped, building)
-    kept, dropped = drop_camera_claims(kept, dropped, view, camera, eye, code, role=role)   # after P4b, P5 pass
+    kept, dropped = drop_camera_claims(kept, dropped, view, camera, eye, code, role=role,  # after P4b, P5 pass
+                                       building=building, prep=prep)
     return {"kept": kept, "dropped": dropped, "error": None, "images": images}
