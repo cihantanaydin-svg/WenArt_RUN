@@ -43,6 +43,17 @@
 #   CAMERAS_EXTRA=1     with CAMERAS_FROM also search every room and add those cameras (default $WENART_CAMERAS_EXTRA)
 #   WHITE_BALANCE       Milestone 13 (K5): project (one whitepoint per project) | kelvin:K; default: the brief's
 #                       render.white_balance_k, else project
+#   RUN_FRESH_RECOGNITION  fix round after P3 (part 2, 17 Oct 2026, pod P5): project ids (spaces or commas) whose
+#                       stored AI answers must be asked again (real04's L0 answers were given on the wrong crops: the
+#                       second plan region r16 wrote its crops over r5's of the same key). Before the run, the
+#                       project's recognition/answers*.json and sheets/answers*.json (under $WENART_OUTPUTS/<p>, or
+#                       /workspace/outputs-private/<p>) are MOVED, never deleted, to <p>/recognition/set_aside_<UTC
+#                       stamp>/ (the sheets ones to its sheets/), with a log line; requests.json and the crops stay.
+#                       Idempotent: done once per id (the ledger /workspace/logs/fresh_recognition.log lists each
+#                       set-aside), so the resumed command keeps the answers asked since; "<p>:<tag>" sets them
+#                       aside again once per new tag. Committed seeds (results/recognition/<p>/) are not touched: a
+#                       warning names them (the recognition step copies a seed back when its key and input hash
+#                       match). A failed move stops the job before the setup (the run would use the stale answers).
 #   WENART_AGENT_SLEEP  on | off | auto (default: the agent server sleeps for the gate and polish below 80 GB)
 #   RUN_THREADS         CPU threads per process (default: the pod's cgroup CPU quota, see cpu_budget)
 #
@@ -78,6 +89,7 @@ if [ -n "${WENART_LICENCE_MODE:-}" ]; then export WENART_LICENCE_MODE; fi
 export WENART_JOB_DIR="$JOB_DIR" WENART_RESULTS="$RESULTS" WENART_ASSETS="$ASSETS" WENART_FAST="$FAST" \
   WENART_POLISH_PY="$POLISH_PY" WENART_LOGS="$LOGS"
 RUN_PROJECTS="${RUN_PROJECTS:-}" PRIVATE_PROJECTS="${PRIVATE_PROJECTS:-}" AB_PROJECTS="${AB_PROJECTS:-}"
+RUN_FRESH_RECOGNITION="${RUN_FRESH_RECOGNITION:-}"
 AB_PHASE="${AB_PHASE:-all}"
 COPY_EVERY_S="${RUN_COPY_EVERY_S:-300}"
 LOCK=$LOGS/full-$JOB.copy.lock
@@ -260,6 +272,66 @@ kill_vllm() {
   rm -f "$PID_FILE"
 }
 
+# set_aside_answers <p>[:<tag>]: fix round after P3 (part 2, 17 Oct 2026, RUN_FRESH_RECOGNITION): move (never delete)
+# the stored AI answers of project <p> (recognition/answers*.json, sheets/answers*.json) to
+# <p>/recognition/set_aside_<UTC stamp>/ (the sheets ones to its sheets/), so the run asks those questions again.
+# Once per <p> and <tag> (default "fresh"): the ledger $LOGS/fresh_recognition.log gets "<p> <tag> <stamp> <folder>
+# <recognition files>+<sheets files>" per set-aside, also when there was nothing to move (folder "-"; a resumed run
+# keeps what the first one asked). Nothing is created in an out_dir that has no answers (the orchestrator moves an
+# out_dir without run/ to the archive, a marker there would go with it). An id that names no project is logged and
+# skipped; returns 1 when a move or the ledger line fails.
+set_aside_answers() {
+  local entry="$1" p tag="fresh" out rec done_line="" stamp dest folder="-" n=1 f
+  local ledger="$LOGS/fresh_recognition.log"
+  local -a found=() sheets=()
+  p="${entry%%:*}"
+  if [[ "$entry" == *:* ]]; then tag="${entry#*:}"; fi
+  if ! [[ "$p" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || ! [[ "$tag" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    log "RUN_FRESH_RECOGNITION: '$entry' is no project id[:tag]: skipped"
+    return 0
+  fi
+  out="$WENART_OUTPUTS/$p"
+  if [ ! -d "$out" ] && [ -d "$WS/outputs-private/$p" ]; then out="$WS/outputs-private/$p"; fi
+  if [ ! -d "$out" ] && [ ! -d "$REPO/projects/$p" ] && [ ! -d "$WS/projects-private/$p" ]; then
+    log "RUN_FRESH_RECOGNITION: no project '$p' (no outputs, no project folder): skipped"
+    return 0
+  fi
+  if [ -f "$ledger" ]; then
+    done_line=$(awk -v p="$p" -v t="$tag" '$1 == p && $2 == t { print; exit }' "$ledger") || done_line=""
+  fi
+  if [ -n "$done_line" ]; then
+    log "$p: the stored answers were set aside for '$tag' before (${done_line#"$p $tag "}): the answers asked" \
+        "since are kept"
+    return 0
+  fi
+  rec="$out/recognition"
+  for f in "$rec"/answers*.json; do if [ -f "$f" ]; then found+=("$f"); fi; done
+  for f in "$out/sheets"/answers*.json; do if [ -f "$f" ]; then sheets+=("$f"); fi; done
+  stamp=$(date -u +%Y%m%dT%H%M%SZ) || return 1
+  if [ "${#found[@]}" -gt 0 ] || [ "${#sheets[@]}" -gt 0 ]; then
+    dest="$rec/set_aside_$stamp"
+    while [ -e "$dest" ]; do n=$((n + 1)); dest="$rec/set_aside_${stamp}_$n"; done
+    mkdir -p "$dest" || return 1
+    if [ "${#found[@]}" -gt 0 ]; then mv -- "${found[@]}" "$dest/" || return 1; fi
+    if [ "${#sheets[@]}" -gt 0 ]; then
+      { mkdir -p "$dest/sheets" && mv -- "${sheets[@]}" "$dest/sheets/"; } || return 1
+    fi
+    folder="recognition/${dest##*/}"
+    log "$p: ${#found[@]} recognition and ${#sheets[@]} sheets answer file(s) moved to $folder/" \
+        "(RUN_FRESH_RECOGNITION '$tag'): their questions are asked again"
+  else
+    log "$p: no stored answers to set aside (RUN_FRESH_RECOGNITION '$tag')"
+  fi
+  echo "$p $tag $stamp $folder ${#found[@]}+${#sheets[@]}" >> "$ledger" || return 1
+  for f in "$REPO/results/recognition/$p"/answers*.json "$REPO/results/recognition/$p/sheets"/answers*.json; do
+    if [ -f "$f" ]; then
+      log "warning: $p: committed answers in results/recognition/$p/ are copied back where their key and input" \
+          "hash match (ask --seed-answers): move them in git to ask those questions afresh"
+      break
+    fi
+  done
+}
+
 on_error() { log "ERROR at line $1: $2"; exit 1; }
 trap 'on_error $LINENO "$BASH_COMMAND"' ERR
 on_exit() {
@@ -286,6 +358,15 @@ mkdir -p "$RESULTS" "$ASSETS" "$WENART_OUTPUTS" "$JOB_DIR"
 log "job $JOB: projects [${RUN_PROJECTS:-}], private [${PRIVATE_PROJECTS:-}] selftest ${PRIVATE_SELFTEST:-0}," \
     "A/B [${AB_PROJECTS:-}] (${AB_PHASE}, controls ${AB_CONTROL_PROJECT:-none}), force [${RUN_FORCE:-}]," \
     "samples $RENDER_SAMPLES, check models $CHECK_MODELS, agent ${AGENT_SETUP:-off}, deadline ${WENART_DEADLINE:-none}"
+# Fix round after P3 (part 2, 17 Oct 2026): the stored answers of RUN_FRESH_RECOGNITION are set aside before anything
+# else runs (header); a failed move stops the job here, before the setup.
+if [ -n "${RUN_FRESH_RECOGNITION//[[:space:],]/}" ]; then
+  read -r -a FRESH_LIST <<< "${RUN_FRESH_RECOGNITION//,/ }"
+  for entry in "${FRESH_LIST[@]}"; do
+    set_aside_answers "$entry" || { log "RUN_FRESH_RECOGNITION: the stored answers of '$entry' could not be set" \
+                                        "aside: stopping (the run would use them)"; exit 1; }
+  done
+fi
 set_threads
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 copy_loop &

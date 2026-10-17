@@ -109,7 +109,9 @@ CAMERAS_FROM = {
                    "replayed": {"type": "integer", "minimum": 0}, "searched": {"type": "integer", "minimum": 0},
                    "extra": {"type": "boolean"},
                    "dropped": {"type": "array", "items": {"type": "object", "required": ["name", "reason"]}},
-                   "reason": {"type": "string"}},
+                   "reason": {"type": "string"},
+                   # fix round part 2 (17 Oct 2026): the replayed aerials the build re-pitched for the horizon
+                   "repitched": {"type": "array", "items": {"type": "string"}}},
 }
 
 _RGB = {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 3, "maxItems": 3}
@@ -295,6 +297,16 @@ _EXTERIOR_NO_ROOM = {"if": {"properties": {"kind": {"const": "exterior"}}, "requ
 # only (``cameras.replay_cameras``, ``create_cameras``) has ``rotation_euler_deg`` and a null or absent ``target``.
 _TARGET_OR_ROTATION = {"anyOf": [{"required": ["target"], "properties": {"target": {"type": "array"}}},
                                  {"required": ["rotation_euler_deg"]}]}
+_CAMERA_REPLAY = {
+    "type": "object",
+    "required": ["status", "pitch_deg_old", "pitch_deg", "lens_mm_old", "lens_mm", "horizon_frac_old", "horizon_frac"],
+    "properties": {"status": {"enum": ["repitched"]}, "pitch_deg_old": {"type": "number"},
+                   "pitch_deg": {"type": "number"}, "lens_mm_old": {"type": "number", "exclusiveMinimum": 0},
+                   "lens_mm": {"type": "number", "exclusiveMinimum": 0}, "horizon_frac_old": {"type": "number"},
+                   "horizon_frac": {"type": "number"}, "shift_y_old": {"type": "number"},
+                   "position_old": _VEC3, "distance_m": {"type": "number", "exclusiveMinimum": 0},
+                   "reason": {"type": "string"}},
+}
 SCENE_CAMERA = {
     "type": "object",
     "required": ["name", "room_id", "level_id", "index", "position", "lens_mm", "sensor_mm",
@@ -335,6 +347,12 @@ SCENE_CAMERA = {
         "clip_start": {"type": "number", "exclusiveMinimum": 0},
         "clip_end": {"type": "number", "exclusiveMinimum": 0},
         "extra": {"type": "boolean"},
+        # Exterior plans (``exterior.plan_exterior``): the pitch (negative = down) and where the horizon lies in the
+        # frame (0 bottom, 1 top). Fix round part 2 (17 Oct 2026): ``replay`` of a replayed aerial the build re-pitched
+        # so the horizon is in its frame (``build.repitch_replayed_aerials``, CLAUDE.md horizon rule); optional.
+        "pitch_deg": {"type": "number"},
+        "horizon_frac": {"type": "number"},
+        "replay": _CAMERA_REPLAY,
     },
 }
 
@@ -477,6 +495,14 @@ RENDER_ENTRY = {
         "room_type": {"type": ["string", "null"]},
         "open_air": {"type": "boolean"},
         "sky_pull": SKY_PULL,
+        # Fix round part 2 (17 Oct 2026): the clip range the view was rendered with (render.set_view_clip): an
+        # open-air view under the exterior world takes the exterior clip end (rule set), every other view its own
+        # (rule null); optional, older manifests have none.
+        "clip": {"type": "object", "required": ["start_m", "end_m", "built_end_m", "rule"],
+                 "properties": {"start_m": {"type": "number", "exclusiveMinimum": 0},
+                                "end_m": {"type": "number", "exclusiveMinimum": 0},
+                                "built_end_m": {"type": "number", "exclusiveMinimum": 0},
+                                "rule": {"type": ["string", "null"]}}},
     },
 }
 

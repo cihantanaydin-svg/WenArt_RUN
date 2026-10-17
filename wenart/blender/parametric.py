@@ -1015,13 +1015,48 @@ def _basin(cx: float, cy: float, z0: float, bw: float, bd: float, depth: float, 
     ]
 
 
+# Basins in cabinets (fix round after P3, part 2, 17 Oct 2026): a carcass under an inset basin is a hollow box, as a
+# real sink or vanity cabinet is. P3's sink cabinets (and the vanities) were one solid body up to the top's
+# underside, so the body's top face closed the bowl a few centimetres under the rim (the kitchen sink unit of
+# ``modules`` showed a 4 cm tray with a cabinet-paint floor). ``open_carcass`` keeps the solid body only up to
+# ``BASIN_CLEAR_M`` under the basin bottom and closes the rest with ``CARCASS_PANEL_M`` boards.
+BASIN_CLEAR_M = 0.005
+CARCASS_PANEL_M = 0.018           # an 18 mm carcass board (the island back panel of ``modules`` uses the same)
+
+
+def open_carcass(cx: float, cy: float, z0: float, w: float, d: float, h: float, open_z: float, key: str,
+                 front: bool = False, role: str = "body") -> list[Part]:
+    """A carcass box ``(cx, cy, z0, w, d, h)`` that is hollow above ``open_z`` (fix round after P3, part 2, 17 Oct
+    2026; see ``BASIN_CLEAR_M``): the solid body from ``z0`` to ``open_z`` (its top face is the cavity's floor,
+    under the basin), then a side board at each x end and a back board (+Y), and a front board (-Y) when ``front``
+    (a carcass whose fronts do not close it up to the top), each ``CARCASS_PANEL_M`` thick, up to ``z0 + h``. The
+    outer box is the solid carcass's, so every bounding box stays as it was. ``open_z`` is clamped to the carcass."""
+    top = z0 + h
+    open_z = min(max(float(open_z), z0), top)
+    t = min(CARCASS_PANEL_M, w / 4.0, d / 4.0)
+    parts: list[Part] = []
+    if open_z - z0 > 1e-3:
+        parts.append(_box(cx, cy, z0, w, d, open_z - z0, key, role))
+    ph = top - open_z
+    if ph > 1e-3:
+        parts += [_box(cx - w / 2.0 + t / 2.0, cy, open_z, t, d, ph, key, role),
+                  _box(cx + w / 2.0 - t / 2.0, cy, open_z, t, d, ph, key, role),
+                  _box(cx, cy + d / 2.0 - t / 2.0, open_z, w - 2 * t, t, ph, key, role)]
+        if front:
+            parts.append(_box(cx, cy - d / 2.0 + t / 2.0, open_z, w - 2 * t, t, ph, key, role))
+    return parts
+
+
 def _sink(w: float, d: float, h: float) -> list[Part]:
+    """A freestanding sink cabinet: a carcass, a front, a steel top with the basin and a tap. Fix round after P3,
+    part 2 (17 Oct 2026): the carcass is hollow above the basin bottom (``open_carcass``), so the bowl is 18 cm deep
+    (its solid body had closed the bowl 2 cm under the rim)."""
     top_t = 0.02
     bw = min(w - 0.16, 0.5)
     bd = min(d - 0.16, 0.4)
     sx, sy = (w - bw) / 2.0, (d - bd) / 2.0  # strip widths around the basin hole
     parts = [
-        _box(0.0, 0.01, 0.0, w, d - 0.02, h - top_t, "painted", "body"),
+        *open_carcass(0.0, 0.01, 0.0, w, d - 0.02, h - top_t, h - 0.18 - BASIN_CLEAR_M, "painted", front=True),
         _box(0.0, -d / 2.0 + 0.01, 0.02, w - 0.04, 0.02, h - top_t - 0.04, "painted", "front"),
         _box(0.0, -d / 2.0 + sy / 2.0, h - top_t, w, sy, top_t, "steel", "top"),
         _box(0.0, d / 2.0 - sy / 2.0, h - top_t, w, sy, top_t, "steel", "top"),
@@ -1857,13 +1892,17 @@ def _counter_m10(w: float, d: float, h: float, island: bool = False, piece: dict
 def _vanity(w: float, d: float, h: float, piece: dict | None = None) -> list[Part]:
     """A washbasin with the vanity look (docs/milestone10.md §4.4: a drawn washbasin at least 0.45 m deep; its
     type stays ``washbasin``): a wall-hung cabinet with the design's fronts under a ceramic top with an inset
-    basin and a tap."""
+    basin and a tap. Fix round after P3, part 2 (17 Oct 2026): the cabinet is hollow above the basin bottom
+    (``open_carcass``; its solid body had closed the bowl 3 cm under the rim)."""
     design = piece_design(piece)
     top_t = 0.03
     basin_h = min(0.15, h * 0.2)
     bottom = min(0.3, h * 0.35)                     # wall-hung: free floor under the cabinet
     body, face = _carcass(w, d, bottom, h - top_t - bottom)
-    parts = [body, _box(0.0, d / 2.0 - 0.01, 0.0, w * 0.3, 0.02, bottom, "dark", "back")]   # the wall bracket
+    inset = FRONT_GAP + FRONT_THICKNESS                 # the box of ``_carcass``, hollow above the basin bottom
+    parts = open_carcass(0.0, inset / 2.0, bottom, w, d - inset, h - top_t - bottom, h - basin_h - BASIN_CLEAR_M,
+                         body["key"])
+    parts.append(_box(0.0, d / 2.0 - 0.01, 0.0, w * 0.3, 0.02, bottom, "dark", "back"))   # the wall bracket
     bw, bd = min(w - 0.12, 0.5), min(d - 0.12, 0.36)
     sx, sy = (w - bw) / 2.0, (d - bd) / 2.0
     z_top = h - top_t

@@ -17,6 +17,12 @@ How: the previews are ``final/<cam>_final_preview.jpg`` (else ``renders/<cam>_pr
 ``wenart.report.metrics13.locate`` knows (the volume's project output or the committed ``results/<area>/<p>``);
 PIL only; the JPEGs stay under the repo's 300 KB limit (``wenart.report.common.save_jpeg_under``); the cameras are
 matched by name (real04's baseline has no camera records, so name and room are the match, §12 D6).
+
+Fix round after P3, part 2 (17 Oct 2026, docs/milestone13.md §14.9): a replayed aerial that the build re-pitched
+for the CLAUDE.md horizon rule (``build.repitch_replayed_aerials``: the scene manifest camera's ``replay`` with
+``status: repitched``) is not frame-identical to its baseline. Its sheet gets a fourth caption line
+(``camera_note``), its record a ``camera_note`` and the index table a ``note`` column, so the viewer knows why the two
+frames differ; the caption band grows by one line for it (the other sheets keep their size).
 """
 from __future__ import annotations
 
@@ -94,7 +100,8 @@ def compose(before: Optional[Path], after: Optional[Path], caption: list[tuple[s
     left = _tile(before, "before")
     right = _tile(after, "after")
     width = left.width + GAP + right.width
-    sheet = Image.new("RGB", (width, TILE_HEIGHT + CAPTION_HEIGHT), BACKGROUND)
+    band = max(CAPTION_HEIGHT, 6 + 21 * len(caption) + 3)      # part 2: a fourth line (camera_note) adds 21 px
+    sheet = Image.new("RGB", (width, TILE_HEIGHT + band), BACKGROUND)
     sheet.paste(left, (0, 0))
     sheet.paste(right, (left.width + GAP, 0))
     draw = ImageDraw.Draw(sheet)
@@ -106,6 +113,23 @@ def compose(before: Optional[Path], after: Optional[Path], caption: list[tuple[s
     draw.text((MARGIN, 4), "before", fill=TEXT, font=font)
     draw.text((left.width + GAP + MARGIN, 4), "after", fill=TEXT, font=font)
     return sheet
+
+
+def camera_note(cam: Optional[dict]) -> Optional[str]:
+    """Fix round part 2 (module docstring): the note of a replayed camera the build re-pitched, from the scene
+    manifest camera record (``replay.status == "repitched"``), else None."""
+    rp = (cam or {}).get("replay")
+    if not isinstance(rp, dict) or rp.get("status") != "repitched":
+        return None
+    try:
+        old, new = abs(float(rp["pitch_deg_old"])), abs(float(rp["pitch_deg"]))
+        lens, lens_old = float(rp["lens_mm"]), float(rp["lens_mm_old"])
+        h_old, h_new = float(rp["horizon_frac_old"]), float(rp["horizon_frac"])
+    except (KeyError, TypeError, ValueError):
+        return "replayed camera re-pitched by the build (CLAUDE.md horizon rule)"
+    lens_text = f"{lens:g} mm" + (f" (was {lens_old:g} mm)" if abs(lens - lens_old) > 1e-6 else "")
+    return (f"replayed aerial re-pitched from {old:.1f} to {new:.1f} degrees down at {lens_text} (horizon "
+            f"{h_old:.2f} -> {h_new:.2f} of the frame height; CLAUDE.md horizon rule)")
 
 
 def _truncate(text: str, limit: int = 150) -> str:
@@ -123,6 +147,7 @@ def sheets(project_out, baseline_out, out_dir) -> dict:
     views_after = _view_map(after)
     views_before = _view_map(before)
     rtypes = M._room_types(after) or M._room_types(before)
+    cams_after = M._scene_cameras(after)
     records = []
     written: dict = {}
     missing_before, missing_after = [], []
@@ -140,13 +165,16 @@ def sheets(project_out, baseline_out, out_dir) -> dict:
         caption = [(f"{cam}  ({room}{', ' + str(rtype) if rtype else ''})", TEXT),
                    (_truncate(f"before: {line_b}"), _colour(line_b)),
                    (_truncate(f"after:  {line_a}"), _colour(line_a))]
+        note = camera_note(cams_after.get(cam))
+        if note:
+            caption.append((_truncate(f"after:  {note}", 170), TEXT))
         sheet = compose(pb, pa, caption)
         name = f"{cam}{SUFFIX}"
         info = C.save_jpeg_under(sheet, out / name)
         written[cam] = name
         records.append({"camera": cam, "room_id": room, "room_type": rtype, "file": name,
                         "before": str(pb) if pb else None, "after": str(pa) if pa else None,
-                        "before_line": line_b, "after_line": line_a, "bytes": info["bytes"]})
+                        "before_line": line_b, "after_line": line_a, "camera_note": note, "bytes": info["bytes"]})
     baseline_only = sorted(set(views_before) - set(views_after))
     result = {"project": after.name, "project_out": str(after.root), "baseline_out": str(before.root),
               "sheets": written, "records": records, "missing_before": missing_before,
@@ -163,8 +191,8 @@ def index_markdown(result: dict) -> str:
              "after run (docs/milestone13.md §7, same views by camera name); the caption carries the commercial-safe "
              "line of each side.", ""]
     rows = [[r["camera"], r["room_id"], r["room_type"], r["before_line"], r["after_line"],
-             f"[{r['file']}]({r['file']})"] for r in result["records"]]
-    lines += C.table(["camera", "room", "type", "before", "after", "sheet"], rows) if rows else ["No view."]
+             f"[{r['file']}]({r['file']})", r.get("camera_note") or ""] for r in result["records"]]
+    lines += C.table(["camera", "room", "type", "before", "after", "sheet", "note"], rows) if rows else ["No view."]
     for key, label in (("missing_before", "No baseline preview"), ("missing_after", "No preview of the run"),
                        ("baseline_only", "Cameras only in the baseline")):
         if result.get(key):

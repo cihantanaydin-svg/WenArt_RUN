@@ -16,8 +16,9 @@ orchestrator starts it.
   ``bakeoff.fp8``): one item of every bake-off task (``wenart.agent.bakeoff``) gets a valid answer: T1-T4 JSON that
   passes its schema, T5 a plan or tool calls on the room brief;
 - fix round after P3 (16-17 Oct 2026): every agent request carries the repetition stop and the call log its
-  ``finish_reason`` and ``max_tokens`` (1536 for the planner without thinking); a prompt past the served context is
-  sent once and raised as ``ContextFullError`` with the prompt size; the client's ``max_model_len`` is the served one.
+  ``finish_reason`` and ``max_tokens`` (part 2, 17 Oct 2026: ``DEFAULT_MAX_TOKENS`` = 4096 for the planner with
+  thinking on or off; part 1's fixed 1536 cut valid answers); a prompt past the served context is sent once and
+  raised as ``ContextFullError`` with the prompt size; the client's ``max_model_len`` is the served one.
 """
 from __future__ import annotations
 
@@ -168,14 +169,14 @@ def test_the_planner_call_sends_the_repetition_stop_and_logs_its_finish_and_budg
     assert sent and all(b.get("repetition_detection") == model.repetition_detection for b in sent)
     call = model.calls[-1]
     assert call["finish_reason"] in ("stop", "tool_calls") and call["max_tokens"] == model.max_tokens
-    if not model.planner_thinking:
-        assert model.max_tokens == M.PLANNER_MAX_TOKENS == 1536
+    assert model.max_tokens == M.DEFAULT_MAX_TOKENS == 4096                   # part 2: thinking on or off
 
 
 def test_a_prompt_past_the_served_context_is_refused_once_and_raised_as_context_full(model):
     # P3 r4-p5: HTTP 400 'maximum context length' (28,673 prompt + 4,096 answer > 32,768), retried and logged as
-    # 'the agent model did not answer'. A prompt of about max_model_len - 800 tokens plus the 1536-token answer
-    # budget passes the context; the prompt alone fits, so vLLM names its size ("at least N input tokens").
+    # 'the agent model did not answer'. A prompt of about max_model_len - 800 tokens plus an answer budget of 1536
+    # tokens (asked for explicitly) passes the context; the prompt alone fits, so vLLM names its size ("at least N
+    # input tokens").
     sent = _counting(model)
     words = " ".join(["word"] * (model.max_model_len - 800))
     with pytest.raises(M.ContextFullError) as info:

@@ -179,6 +179,16 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   ``asset.module_hints`` beside ``asset.module_plan``: the building piece itself never gets ``module_hints``, so
   ``FROZEN_KEYS`` and ``assert_only_assets_changed`` hold. A sink is made a built-in only when the run's plan holds
   it; otherwise it is fitted as before. A pinned sink (``asset_pin``, the agent's model) is never a built-in.
+- Fix round after P3, part 2 (17 Oct 2026), kitchen runs. What: a pinned sink inside a run gets a gap of the run
+  (``ranges`` entry ``type: sink_kitchen`` with its reason; it keeps its pinned model and stands as drawn); a sink the
+  run's plan does not build in because its sink unit would stand more than ``modules.KITCHEN_END_SHIFT_MAX_M`` from
+  the drawn centre gets a gap from the plan itself (``modules.plan_kitchen_run``); a built-in records the unit's
+  ``shift_m`` from the drawn centre, which the sink's asset reason and the fit report's "Kitchen runs" section name.
+  Why: a pinned sink inside a run was neither built in nor given a gap, so it stood buried in full-depth base units
+  under an uncut worktop again (the P3 defect; only S2 reported it, and no agent tool clears that); a drawn sink
+  overhanging the run's end was built in up to 0.4 of its width from where it is drawn, with no record (the CLAUDE.md
+  fixed-equipment rule: as drawn). How: the gap goes through the run's hints like a stove's; nothing on the piece
+  changes (``assert_only_assets_changed``).
 """
 from __future__ import annotations
 
@@ -904,6 +914,8 @@ KITCHEN_RUN_HOSTS: tuple[str, ...] = ("kitchen_counter", "kitchen_island")
 BUILT_IN_SHARE = 0.60            # a drawn sink or stove with at least this share of its footprint inside a run
 BUILT_IN_SINK_TYPES: tuple[str, ...] = ("sink_kitchen",)
 RANGE_TYPES: tuple[str, ...] = ("stove",)
+PINNED_SINK_GAP_REASON = ("the agent pinned a library model (asset_pin): it stands as drawn in a gap of the run, not "
+                          "built in")                   # fix round after P3, part 2
 
 
 def _usable_footprint(piece: dict) -> bool:
@@ -923,7 +935,9 @@ def kitchen_built_ins(building: dict) -> dict:
     sink (``BUILT_IN_SINK_TYPES``; not one the agent pinned a model to) gives ``sink_pos_m`` (its centre),
     ``sink_w_m`` (its drawn width along the run) and ``sink_piece``; the stoves (``RANGE_TYPES``) give ``ranges``
     (``{id, type, x0_m, x1_m}``: their drawn span along the run). A piece belongs to one run at most. Without the
-    module builders (import guarded, as ``module_plan_for``) nothing is found."""
+    module builders (import guarded, as ``module_plan_for``) nothing is found. Fix round after P3, part 2 (17 Oct
+    2026): a pinned sink (``asset_pin``) gives a ``ranges`` entry too (``type: sink_kitchen``, ``reason``): the run
+    leaves a gap at its drawn span, where its pinned model stands (it is never in ``sinks``)."""
     out: dict = {"hints": {}, "sinks": {}}
     try:
         from wenart.blender import modules as MOD
@@ -944,11 +958,10 @@ def kitchen_built_ins(building: dict) -> dict:
             got = MOD.member_in_run(run, m)
             if got is None or got["share"] < BUILT_IN_SHARE - 1e-9:
                 continue
-            if m["type"] in BUILT_IN_SINK_TYPES:
-                if not m.get("asset_pin"):
-                    sinks.append((m, got))
+            if m["type"] in BUILT_IN_SINK_TYPES and not m.get("asset_pin"):
+                sinks.append((m, got))
             else:
-                ranges.append((m, got))
+                ranges.append((m, got))         # a stove, or a pinned sink (part 2): a gap, its own model in it
         hints: dict = {}
         if sinks:
             sink, got = max(sinks, key=lambda mg: (float(mg[0]["footprint"]["size"][0])
@@ -958,7 +971,8 @@ def kitchen_built_ins(building: dict) -> dict:
             out["sinks"][sink["id"]] = run["id"]
             claimed.add(sink["id"])
         if ranges:
-            hints["ranges"] = [{"id": m["id"], "type": m["type"], "x0_m": got["x0_m"], "x1_m": got["x1_m"]}
+            hints["ranges"] = [dict({"id": m["id"], "type": m["type"], "x0_m": got["x0_m"], "x1_m": got["x1_m"]},
+                                    **({"reason": PINNED_SINK_GAP_REASON} if m["type"] in BUILT_IN_SINK_TYPES else {}))
                                for m, got in sorted(ranges, key=lambda mg: (mg[1]["x0_m"], str(mg[0]["id"])))]
             claimed.update(m["id"] for m, _got in ranges)
         if hints:
@@ -981,13 +995,18 @@ def built_in_fit(piece: dict, run: dict, mode: str, style_family: Optional[str] 
     plan = (run.get("asset") or {}).get("module_plan") or {}
     record = next((b for b in plan.get("built_ins") or [] if b.get("id") == piece["id"]), {})
     builder = plan.get("builder") or "kitchen_run"
+    shift = float(record.get("shift_m") or 0.0)
     why = (f"built into the kitchen run {run['id']}: a {float(record.get('w_m') or 0.0):.2f} m sink unit with the "
-           "bowl and the tap at its cutout (the drawn sink lies inside the drawn run)")
+           "bowl and the tap at its cutout (the drawn sink lies inside the drawn run)"
+           # fix round after P3, part 2: a unit off the drawn centre (at most modules.KITCHEN_END_SHIFT_MAX_M) is named
+           + (f"; the unit stands {abs(shift):.2f} m from the drawn sink centre (unit width, run end)"
+              if abs(shift) > 0.005 else ""))
     asset = parametric_fit(piece, why, style_family=style_family)
     asset.update({"library": MODULE_METHOD, "method": MODULE_METHOD, "asset_id": f"module:{run['type']}:{builder}",
                   "built_in": run["id"], "by_design": True,
                   "module_plan": {"builder": builder, "built_into": run["id"], "kind": "sink",
-                                  "x_m": record.get("x_m"), "w_m": record.get("w_m")}})
+                                  "x_m": record.get("x_m"), "w_m": record.get("w_m"),
+                                  "shift_m": round(shift, 4)}})
     return _finish(asset, mode, [_step("library", "not tried", why),
                                  _step(MODULE_METHOD, f"built into {run['id']} (sink unit and cutout)", None)])
 
@@ -1996,14 +2015,18 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         lines += ["", "## Built below the library level (Milestone 13 ladder: module or parametric family; close "
                       "the gap with a real model)", ""]
         lines += [f"- {pid} ({ftype}): {method}: {used}" for pid, ftype, method, used in below]
-    built_ins = [(p["id"], p["type"], p["asset"]["built_in"]) for p in pieces if (p.get("asset") or {}).get("built_in")]
+    built_ins = [(p["id"], p["type"], p["asset"]["built_in"], float((p["asset"].get("module_plan") or {}).get("shift_m")
+                                                                     or 0.0))
+                 for p in pieces if (p.get("asset") or {}).get("built_in")]
     run_gaps = [(p["id"], g) for p in pieces for g in ((p.get("asset") or {}).get("module_plan") or {}).get("gaps") or []]
-    if built_ins or run_gaps:                         # fix round after P3 (module docstring)
-        lines += ["", "## Kitchen runs (drawn sinks built in, gaps for drawn stoves)", ""]
+    if built_ins or run_gaps:                         # fix round after P3 (module docstring; part 2: shifts, reasons)
+        lines += ["", "## Kitchen runs (drawn sinks built in, gaps for drawn stoves and sinks)", ""]
         lines += [f"- {pid} ({ftype}): built into the kitchen run {rid} (its sink unit, bowl and tap; not built "
-                  "again)" for pid, ftype, rid in built_ins]
+                  "again)" + (f"; the sink unit stands {abs(shift):.2f} m from the drawn centre" if abs(shift) > 0.005
+                              else "") for pid, ftype, rid, shift in built_ins]
         lines += [f"- {rid}: a {float(g.get('w_m') or 0.0):.2f} m gap for the drawn {g.get('type') or 'stove'} "
-                  f"{g.get('id')} (no base unit, plinth or worktop there)" for rid, g in run_gaps]
+                  f"{g.get('id')} (no base unit, plinth or worktop there"
+                  + (f"; {g['reason']}" if g.get("reason") else "") + ")" for rid, g in run_gaps]
     lines += ["", "## Parametric fallbacks", "", "(Milestone 13: the module builders of the ladder's step 2 are "
               "listed here too; the method column says which)"]
     if fallbacks:

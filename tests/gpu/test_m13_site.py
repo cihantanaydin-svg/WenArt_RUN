@@ -314,6 +314,11 @@ def test_real04_site_builds_and_the_site_view_sees_the_sky(tmp_path, monkeypatch
         assert hedges[hid]["fit"]["keeps"] == [pid] and not hedges[hid]["fit"]["narrowed"], hid
     if site.get("lawn_relief"):                                                      # the instances lever is on
         assert site["lawn_relief"]["range_m"][1] <= 0.0 and site["lawn_relief"]["edges_kept"]   # never rises
+        # fix round part 2 (17 Oct 2026): level under real04's two entrance paths, the sloped parking, the 19 shrubs
+        # and the hedges (CPU: 8776 of the 11138 inner vertices keep the relief), and the grass follows the ground
+        keep = site["lawn_relief"]["keep"]
+        assert keep.get("area", 0) >= 2 and keep.get("sloped_platform", 0) >= 1 and keep.get("shrub", 0) >= 19, keep
+        assert site["lawn_relief"]["weighted"] > 0 and site["grass"]["relief"] and site["grass"]["relief_requested"]
     (tmp_path / "dump.py").write_text(DUMP_SCRIPT, encoding="utf-8")
     dump = tmp_path / "dump.json"
     cli.run_blender(tmp_path / "dump.py", [str(dump)], blend=str(manifest_path.parent / "scene.blend"))
@@ -374,8 +379,13 @@ FIX_SCRIPT = textwrap.dedent("""
             "plot_source": "none", "extent": [(40, -12), (80, -12), (80, 20), (40, 20)], "wells": [], "plot_walls": [],
             "areas": [{"id": "t1", "kind": "paving", "polygon": [[52, -8], [58, -8], [58, -2], [52, -2]], "z": None,
                        "material": None, "colour": None, "source": "site_plan", "area_id": None,
-                       "lift": S.PAVING_LIFT, "platform_id": "t1"}],
-            "trees": [{"id": "shrub_t", "kind": "tree", "center": [55.0, -5.0], "size": [0.718, 0.718]}],
+                       "lift": S.PAVING_LIFT, "platform_id": "t1"},
+                      # fix round part 2: a draped path on the lawn (no platform) and a shrub on the lawn
+                      {"id": "path_g", "kind": "path", "polygon": [[42, -7], [50, -7], [50, -5.8], [42, -5.8]],
+                       "z": None, "material": None, "colour": None, "source": "assumed", "area_id": None,
+                       "lift": S.PAVING_LIFT, "inferred": True}],
+            "trees": [{"id": "shrub_t", "kind": "tree", "center": [55.0, -5.0], "size": [0.718, 0.718]},
+                      {"id": "shrub_l", "kind": "tree", "center": [45.0, 5.0], "size": [0.718, 0.718]}],
             "not_built": [], "assumed": fit_assumed, "warnings": [], "ground_is_grass": True, "inferred": None,
             "copy_holes": [], "pools": [], "hedges": hedges, "platforms": pfs, "climate": {"climate": "temperate"},
             "levers": {k: (k != "sky") for k in S.SITE_LEVERS}, "near_extent": [(40, -12), (80, -12), (80, 20), (40, 20)],
@@ -397,12 +407,32 @@ FIX_SCRIPT = textwrap.dedent("""
     rise = max(ev.vertices[i].co.z - ground.data.vertices[i].co.z for i in range(len(ground.data.vertices)))
     drop = min(ev.vertices[i].co.z - ground.data.vertices[i].co.z for i in range(len(ground.data.vertices)))
     grass = bpy.data.objects.get("grass_near")
+    # fix round part 2: the relief leaves the ground level under the draped path and around the lawn shrub
+    off = [(v.co.x, v.co.y, ev.vertices[i].co.z - v.co.z) for i, v in enumerate(ground.data.vertices)]
+    under_path = [d for x, y, d in off if 42 <= x <= 50 and -7 <= y <= -5.8]
+    at_shrub = [d for x, y, d in off if (x - 45.0) ** 2 + (y - 5.0) ** 2 <= 0.6 ** 2]
+    lawn_shrub = next(o for o in col.objects if o.name.startswith("tree_shrub_l"))
     res["site"] = {"t1_z": t1["z"], "hedge_z": [min(hz), max(hz)], "hedge_x": [min(hx), max(hx)],
                    "hedge_fit": summary["hedges"][0].get("fit"), "tree_z": tree.location.z,
                    "relief": {"mid": ground.modifiers["lawn_relief"].mid_level,
                               "group": ground.modifiers["lawn_relief"].vertex_group, "rise": rise, "drop": drop},
                    "lawn_relief": summary.get("lawn_relief"),
-                   "grass_mods": [m.type for m in grass.modifiers] if grass else None}
+                   "grass_mods": [m.type for m in grass.modifiers] if grass else None,
+                   "under_path": [len(under_path), max(abs(d) for d in under_path)],
+                   "at_shrub": [len(at_shrub), max(abs(d) for d in at_shrub)],
+                   "lawn_shrub_z": lawn_shrub.location.z, "shrub_ground_z": S.ground_z(sloped, 45.0, 5.0),
+                   "grass": {k: summary["grass"].get(k) for k in ("relief", "relief_requested")}}
+    # fix round part 2: a flat site: the ground gets no relief (convex pieces: no inner vertex), nor does the grass
+    for o in list(col.objects):
+        bpy.data.objects.remove(o, do_unlink=True)
+    flat = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}, "warnings": [], "assumed": []}
+    fplan = dict(plan, terrain=flat, platforms=[], hedges=[], areas=plan["areas"][1:], trees=plan["trees"][1:])
+    col2 = bpy.data.collections.new("fix_site_flat"); bpy.context.scene.collection.children.link(col2)
+    fsummary = S.build_site(fplan, col2, looks, mk, [], [])
+    fground = next(o for o in col2.objects if o.name.startswith("ground"))
+    fgrass = next(o for o in col2.objects if o.name.startswith("grass_near"))
+    res["flat"] = {"ground_mods": [m.type for m in fground.modifiers], "grass_mods": [m.type for m in fgrass.modifiers],
+                   "lawn_relief": fsummary.get("lawn_relief"), "grass_relief": fsummary["grass"].get("relief")}
     # 2. the shell slots: the front slot paints (no plank photo), the worktop's Marble012 repeats every 2 m
     tex = {}
     for aid, assumed_size in (("white_planks_clean", False), ("Marble012", True)):
@@ -431,7 +461,9 @@ def test_p3_fix_round_plants_on_the_terrace_lawn_relief_and_shell_finishes_in_bl
     with its hull on the slab (``fit_hedges`` + ``stand_terrain``), a shrub on the terrace stands on it; the far
     lawn's Displace relief only goes down and keeps the ground's edges (``lawn_relief``: mid level 1, the vertex
     group), the grass surface gets the same relief before its scatter; the front shell slot paints without the plank
-    photo (``paint_drop``) and the worktop's Marble012 repeats every 2 m (``slot_repeat_m``)."""
+    photo (``paint_drop``) and the worktop's Marble012 repeats every 2 m (``slot_repeat_m``). Fix round part 2
+    (17 Oct 2026): the relief leaves the ground level under a draped path and around a lawn shrub
+    (``site.relief_keep``), and a flat site's ground and grass get no relief."""
     from PIL import Image
 
     maps = tmp_path / "maps"
@@ -453,6 +485,17 @@ def test_p3_fix_round_plants_on_the_terrace_lawn_relief_and_shell_finishes_in_bl
     assert site["relief"]["rise"] <= 1e-5 and site["relief"]["drop"] < -1e-3
     assert site["lawn_relief"]["range_m"] == list(VG.relief_range())
     assert site["grass_mods"] == ["DISPLACE", "NODES"]
+    # fix round part 2 (17 Oct 2026): level under the draped path and around the lawn shrub, which stands on it; the
+    # grass follows the ground's relief; on a flat site neither the ground nor the grass gets a relief
+    assert site["under_path"][0] >= 10 and site["under_path"][1] <= 1e-6
+    assert site["at_shrub"][0] >= 1 and site["at_shrub"][1] <= 1e-6
+    assert site["lawn_shrub_z"] == pytest.approx(site["shrub_ground_z"], abs=1e-4)
+    assert site["lawn_relief"]["weighted"] > 0 and site["lawn_relief"]["keep"]["area"] == 1
+    assert site["lawn_relief"]["keep"]["shrub"] == 2 and site["lawn_relief"]["keep"]["hedge"] == 1
+    assert site["grass"] == {"relief": True, "relief_requested": True}
+    flat = res["flat"]
+    assert flat["ground_mods"] == [] and flat["grass_mods"] == ["NODES"] and flat["grass_relief"] is False
+    assert flat["lawn_relief"]["weighted"] == 0 and not flat["lawn_relief"]["applied"]
     mats = res["materials"]
     assert mats["trim"]["images"] == [] and mats["front"]["images"] == [] and mats["trim"]["slot"] == "front"
     assert mats["front"]["dropped"]["asset"] == "white_planks_clean"

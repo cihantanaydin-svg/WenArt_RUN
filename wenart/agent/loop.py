@@ -66,11 +66,12 @@ Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
   prompt plus the answer budget do not fit, the tool results older than the last ``KEEP_REPLIES`` = 2 replies become
   one-line stubs, then those older than the latest reply, then the latest reply's results are cut to
   ``LATEST_RESULT_CHARS``; the answer budget is ``min(model.max_tokens, room left)``, never below
-  ``MIN_REPLY_TOKENS``. A tool result enters the conversation cut to ``TOOL_RESULT_CHARS`` = 6,000 characters
-  (was 12,000). When the server still refuses the prompt (``ContextFullError``), everything but the latest reply is
-  cut and the call is sent once more; a second refusal ends the session like a used-up budget
-  (``context_full``, no error). The round stops ``context_full`` when a session ended so and no edit was accepted;
-  ``model_error`` stays for the other model errors (timeout, 5xx, no connection);
+  ``MIN_REPLY_TOKENS`` (part 2: ``model.max_tokens`` is ``DEFAULT_MAX_TOKENS``, 4096). A tool result enters the
+  conversation cut to ``TOOL_RESULT_CHARS`` = 6,000 characters (was 12,000). When the server still refuses the
+  prompt (``ContextFullError``), everything but the latest reply is cut and the call is sent once more; a second
+  refusal ends the session like a used-up budget (``context_full``, no error). The round stops ``context_full``
+  when a session ended so and no edit was accepted; ``model_error`` stays for the other model errors (timeout, 5xx,
+  no connection);
 - measured, not predicted: the loop's printed line, the stop event and ``summary()`` report the findings the next
   round's critics measured gone (``metrics.findings_removed_metrics``); the dry re-checks' count is labelled
   "predicted" (``findings_removed_predicted``); the acceptance rule is unchanged;
@@ -82,6 +83,15 @@ Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
 Why: in P3 the building session's prompt grew 6,866 -> 17,606 -> 19,745 -> 22,294 -> >=28,673 tokens with its tool
 results, the 5th call passed the 32,768-token context, and the round stopped "the agent model did not answer"
 although the model had answered 4 times (the same overflow ended one session in each of rounds 1-3).
+
+Fix round after P3, part 2 (17 Oct 2026; docs/milestone13.md §14.9): the planner's answer budget is the model's
+``max_tokens``, ``model.DEFAULT_MAX_TOKENS`` (4096) with thinking on or off (part 1 asked for a fixed 1536 with
+thinking off), and 4096 for a model without the attribute too (was 1,024): ``ContextBudget`` cuts the old tool
+results until the next prompt plus 4096 tokens fit and asks for ``min(4096, room left)``, never below
+``MIN_REPLY_TOKENS``. Why: the M12 real04 log has valid planner answers of 2,740 and 1,604 tokens (r3-s4-p6,
+r3-s4-p3) whose tool call comes after the prose; cut at 1,536 (``finish_reason`` "length") the call is lost and the
+session ends at ``if not reply.tool_calls``. The runaway answers are stopped by the request's ``repetition_detection``
+and the context budget; a "length" stop is still logged and counted (``metrics.finish_reasons``).
 
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
@@ -113,7 +123,8 @@ from wenart.agent import overrides as OV
 from wenart.agent import prompts as P
 from wenart.agent import tools as TL
 from wenart.agent.causes import accept_edit, cause_of, findings_removed, tools_for_finding  # noqa: F401 (§13.2)
-from wenart.agent.model import MAX_IMAGES, ContextFullError, ModelError, count_images, user_message
+from wenart.agent.model import (DEFAULT_MAX_TOKENS, MAX_IMAGES, ContextFullError, ModelError, count_images,
+                                 user_message)
 
 STAGE_ORDER = ("pipeline_final", "layout", "refit", "build", "polish")
 # Milestone 13: 3 rounds (module docstring): real04 removed 20 findings in 6 rounds and 84.5 % of the round-1
@@ -276,9 +287,11 @@ def cut_tool_results(messages: list, keep_replies: int, cap: int, stub: bool) ->
 
 class ContextBudget:
     """The context budget of one planner session (module docstring, fix round after P3). ``max_model_len`` None:
-    no budget (a model without the attribute). ``want``: the answer budget the model asks for by default."""
+    no budget (a model without the attribute). ``want``: the answer budget the model asks for by default (part 2:
+    ``DEFAULT_MAX_TOKENS``, 4096, the model's ``max_tokens``); ``fit`` asks for ``min(want, room left)``, never
+    below ``MIN_REPLY_TOKENS``."""
 
-    def __init__(self, max_model_len: Optional[int], want: int, specs: Optional[list] = None):
+    def __init__(self, max_model_len: Optional[int], want: int = DEFAULT_MAX_TOKENS, specs: Optional[list] = None):
         self.limit = int(max_model_len) - CONTEXT_MARGIN_TOKENS if max_model_len else None
         self.want = max(1, int(want))
         self.spec_chars = len(json.dumps(specs or [], ensure_ascii=False, default=str))
@@ -313,7 +326,8 @@ class ContextBudget:
 
     def fit(self, messages: list, force: bool = False) -> int:
         """Cut old tool results until the next prompt plus the answer budget fit (module docstring); ``force`` (after
-        a context-full refusal): cut everything but the latest reply first. Returns the ``max_tokens`` to ask for."""
+        a context-full refusal): cut everything but the latest reply first. Returns the ``max_tokens`` to ask for:
+        ``min(want, room left)``, never below ``MIN_REPLY_TOKENS`` (nor above ``want``)."""
         if self.limit is None:
             return self.want
         steps = ((KEEP_REPLIES, TOOL_STUB_CHARS, True), (1, TOOL_STUB_CHARS, True), (0, LATEST_RESULT_CHARS, False))
@@ -975,9 +989,10 @@ class AgentLoop:
         calls = replies = 0
         error = None
         context_full = False
-        # fix round after P3: the next prompt is budgeted against the served context (module docstring)
+        # fix round after P3: the next prompt is budgeted against the served context (module docstring); part 2: the
+        # answer budget is the model's max_tokens (DEFAULT_MAX_TOKENS, 4096), lowered to the room left
         window = ContextBudget(getattr(self.model, "max_model_len", None),
-                               int(getattr(self.model, "max_tokens", 0) or MIN_REPLY_TOKENS), specs)
+                               int(getattr(self.model, "max_tokens", 0) or DEFAULT_MAX_TOKENS), specs)
         done = [False] * len(checklist)
         try:
             while calls < self.calls_per_room and state.finished is None and not all(done or [False]) \

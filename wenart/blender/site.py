@@ -82,6 +82,19 @@ Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 attempt 2, P3's r
   P3's +-3 cm relief pushed the lawn through the paving (lifted ``PAVING_LIFT`` = 1.2 cm) of the paths;
 - ``SITE_FALLBACK_LOOKS`` names the slugs the builder puts on by itself (``exterior.build_finish_slugs``: their
   texture sets are fetched since).
+
+Fix round part 2 (17 Oct 2026; review of part 1):
+
+- the down-only lawn relief lowered the lawn under everything placed at terrain height (bpy 5.2.2, a sloped synthetic
+  site: a draped path and a sloped parking 2.1 / 2.0 cm over the lawn with no edge under them, a shrub's and a tree's
+  base 2.6 / 2.8 cm in the air). ``relief_keep`` lists the footprints the relief leaves level (the ground's holes,
+  the draped areas, the sloped platforms, the inferred entrance steps, every tree, shrub and hedge), ``build_site``
+  gives them to ``vegetation.lawn_relief`` with ``vegetation.relief_reach`` (the margin plus a ground cell's
+  diagonal); measured again: 0 cm under the path, the parking and the shrub, 0.1 cm at the tree (the mesh's own
+  interpolation);
+- the near-camera grass gets the relief only when the ground got one (``summary["grass"]``: ``relief``,
+  ``relief_requested``, ``relief_reason``): on a flat site the ground of convex pieces has no inner vertex, so no
+  relief, and the clumps sank 2.1 cm into it; the grass surface takes the ground's keep polygons, reach and grid.
 """
 from __future__ import annotations
 
@@ -2760,6 +2773,114 @@ def terrain_record(terrain: dict) -> dict:
             "north_source": terrain.get("north_source"), "changes": list(terrain.get("changes") or [])}
 
 
+# Fix round part 2 (17 Oct 2026; review of part 1). What: the lawn relief (``vegetation.lawn_relief``, down only since
+# part 1) leaves the ground at its level under and around everything that stands on the terrain: ``relief_keep``
+# lists those footprints for ``build_site`` (the ground's holes, the draped areas, the sloped platforms, the inferred
+# entrance steps, every tree, shrub and hedge). Why: measured in the bpy 5.2.2 module on a sloped synthetic site, the
+# relief lowered the lawn 1.8 cm on average (up to 3.4 cm) under the draped path and parking, which kept their level
+# (2.1 cm mean gap with no edge under them), and under the shrubs and trees (bases 2.6-2.8 cm in the air). How: pure
+# polygons (trees as ``disc_polygon``); ``vegetation.relief_weights`` keeps every ground vertex within
+# ``vegetation.relief_reach`` of one level (the margin plus a ground cell's diagonal); the grass surface gets the same
+# polygons and reach on the ground's grid, and the relief only where the ground got one.
+RELIEF_KEEP_TREE_BASE_M = 0.75      # a tree's footprint for the relief: the trunk with its root flare (assumed)
+RELIEF_KEEP_DISC_SIDES = 12
+
+
+def disc_polygon(center: Sequence[float], radius: float, sides: int = RELIEF_KEEP_DISC_SIDES
+                 ) -> list[tuple[float, float]]:
+    """A regular polygon around the circle of ``radius`` at ``center`` (pure; its edges touch the circle), ccw."""
+    n = max(3, int(sides))
+    r = max(0.0, float(radius)) / math.cos(math.pi / n)
+    cx, cy = float(center[0]), float(center[1])
+    return [(cx + r * math.cos(2.0 * math.pi * k / n), cy + r * math.sin(2.0 * math.pi * k / n)) for k in range(n)]
+
+
+def ground_holes(plan: dict) -> list:
+    """The holes of the ground mesh (pure; ``build_site``): the building's outline, the light wells, the other
+    buildings (``copy_holes``), the pools no platform holds and every platform with a flat slab."""
+    pfs = list(plan.get("platforms") or [])
+    pooled = {pid for pf in pfs for pid in pf.get("pools") or []}
+    return [plan["outline"]] + [w["polygon"] for w in plan.get("wells") or []] + list(plan.get("copy_holes") or []) \
+        + [p["polygon"] for p in plan.get("pools") or [] if p["id"] not in pooled] \
+        + [pf["polygon"] for pf in pfs if not pf.get("sloped")]
+
+
+def hedge_records(plan: dict, levers: Optional[dict] = None) -> list[dict]:
+    """The hedges ``build_site`` builds (pure): the plan's hedge rows (``hedges_of`` fitted by ``fit_hedges``) and,
+    with the ``hedge`` lever and an inferred site, a low hedge on every inferred boundary segment of kind ``hedge``
+    (Milestone 11 E11, Milestone 13 T6)."""
+    levers = levers if levers is not None else (plan.get("levers") or site_levers())
+    out = list(plan.get("hedges") or [])
+    inferred = plan.get("inferred")
+    if inferred and levers.get("hedge"):
+        segs = [seg for seg in inferred["boundary"] if seg["kind"] == "hedge"]
+        for k, seg in enumerate(segs):
+            out.append({"id": f"boundary_hedge_{k + 1:02d}", "polyline": [list(seg["start"]), list(seg["end"])],
+                        "width_m": INFERRED["hedge_thickness"], "height_m": INFERRED["hedge_height"],
+                        "height_class": "low", "species": species_for("low", (plan.get("climate") or {}).get(
+                            "climate", "temperate"), kind="hedge"), "species_inferred": True, "inferred": True,
+                        "evidence": [], "source": "inferred_boundary", "symbol_ids": [],
+                        "reason": "no site plan: a low hedge on the inferred plot boundary (inferred)"})
+    return out
+
+
+def _hedge_footprints(hedge: dict) -> list[list[tuple[float, float]]]:
+    """One rectangle per polyline segment of a hedge: half its width to each side, half its width past each end
+    (``hedge_parts`` overlaps its steps by the width)."""
+    pts = [(float(x), float(y)) for x, y in hedge.get("polyline") or []]
+    hw = float(hedge.get("width_m") or 0.0) / 2.0
+    out = []
+    for a, b in zip(pts, pts[1:]):
+        length = G.distance(a, b)
+        if length < 0.05:
+            continue
+        ux, uy = (b[0] - a[0]) / length, (b[1] - a[1]) / length
+        nx, ny = -uy * hw, ux * hw
+        a0, b0 = (a[0] - ux * hw, a[1] - uy * hw), (b[0] + ux * hw, b[1] + uy * hw)
+        out.append(geom2d.ccw([(a0[0] - nx, a0[1] - ny), (b0[0] - nx, b0[1] - ny), (b0[0] + nx, b0[1] + ny),
+                               (a0[0] + nx, a0[1] + ny)]))
+    return out
+
+
+def relief_keep(plan: dict, hedges: Optional[Sequence[dict]] = None) -> list[dict]:
+    """The places the lawn relief leaves at the ground's level (pure; fix round part 2, 17 Oct 2026):
+    ``[{"kind", "id", "polygon"}]`` of kind ``hole`` (``ground_holes``), ``area`` (the draped areas: paths, paving,
+    parking and grass without a platform), ``sloped_platform``, ``steps`` (the inferred entrance steps' landings,
+    flights, cheek walls and ramps), ``shrub`` (a shrub's or bush's drawn crown), ``tree`` (``RELIEF_KEEP_TREE_BASE_M``
+    around the trunk) and ``hedge`` (``_hedge_footprints``). ``hedges``: the hedges ``build_site`` builds (default
+    ``hedge_records``)."""
+    out: list[dict] = []
+    for k, hole in enumerate(ground_holes(plan)):
+        out.append({"kind": "hole", "id": f"hole_{k}", "polygon": [tuple(map(float, q[:2])) for q in hole]})
+    for a in plan.get("areas") or []:
+        if not a.get("platform_id") and len(a.get("polygon") or []) >= 3:
+            out.append({"kind": "area", "id": a.get("id"), "polygon": [tuple(map(float, q[:2])) for q in a["polygon"]]})
+    for pf in plan.get("platforms") or []:
+        if pf.get("sloped") and len(pf.get("polygon") or []) >= 3:
+            out.append({"kind": "sloped_platform", "id": pf.get("id"),
+                        "polygon": [tuple(map(float, q[:2])) for q in pf["polygon"]]})
+    for st in (plan.get("inferred") or {}).get("steps") or []:
+        polys = [b["polygon"] for b in list(st.get("blocks") or []) + list(st.get("cheeks") or [])]
+        if st.get("ramp"):
+            polys.append(st["ramp"]["polygon"])
+        for poly in polys:
+            if len(poly) >= 3:
+                out.append({"kind": "steps", "id": st.get("opening_id"),
+                            "polygon": [tuple(map(float, q[:2])) for q in poly]})
+    for item in plan.get("trees") or []:
+        size = [float(v) for v in (item.get("size") or [1.0, 1.0])[:2]]
+        dia = max(0.3, max(size))
+        _h, cls = tree_height(dia / 2.0)
+        shrub = item.get("kind") == "plant" or cls == "shrub"
+        radius = dia / 2.0 if shrub else RELIEF_KEEP_TREE_BASE_M
+        out.append({"kind": "shrub" if shrub else "tree", "id": item.get("id"),
+                    "polygon": disc_polygon(item["center"], radius)})
+    for h in hedge_records(plan) if hedges is None else hedges:
+        for poly in _hedge_footprints(h):
+            out.append({"kind": "hedge", "id": h.get("id"), "polygon": poly})
+    return out
+
+
 def build_site(plan: dict, collection, looks: dict, make_material, manifest_objects: list, assumed: list) -> dict:
     """The site objects of ``site_plan``: the ground (kind ``terrain``), ``lightwell_<opening>`` (kind
     ``light_well``), the plot walls (``site_wall``, their ids), the areas (``site_area``, their ids) and
@@ -2784,10 +2905,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
     terrain = plan["terrain"]
     levers = plan.get("levers") or site_levers()
     pfs = [pf for pf in plan.get("platforms") or []]
-    platform_holes = [pf["polygon"] for pf in pfs if not pf.get("sloped")]
-    pooled = {pid for pf in pfs for pid in pf["pools"]}
-    holes = [plan["outline"]] + [w["polygon"] for w in plan["wells"]] + list(plan.get("copy_holes") or []) \
-        + [p["polygon"] for p in plan.get("pools") or [] if p["id"] not in pooled] + platform_holes
+    holes = ground_holes(plan)
+    # the hedges (drawn rows and the inferred boundary) before the ground: the lawn relief keeps their footprints
+    hedge_recs = hedge_records(plan, levers)
     summary = {"built": True, "mode": plan["mode"], "objects": [],
                "reason": f"brief site: {plan['mode']} (docs/milestone10.md §3.2 item 5)",
                "terrain": terrain_record(terrain),
@@ -2824,9 +2944,16 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
            "z_range": [round(min(zs), 4), round(max(zs), 4)], "look_source": ground_look.get("source"),
            "lawn": lawn})
     summary["lawn"] = lawn
+    keep: list = []
     if levers.get("instances") and plan["mode"] == "full":
-        VG.lawn_relief(ob)          # the far lawn: a gentle displacement (no blades); down only, its edges kept
-        summary["lawn_relief"] = {"range_m": list(VG.relief_range()), "edges_kept": True}
+        # the far lawn: a gentle displacement (no blades); down only, its edges kept; fix round part 2: level under
+        # and around everything that stands on the terrain (relief_keep)
+        keep = relief_keep(plan, hedge_recs)
+        rec = VG.lawn_relief(ob, keep=[k["polygon"] for k in keep], reach=VG.relief_reach(grid_step(plan["extent"])))
+        kinds: dict = {}
+        for k in keep:
+            kinds[k["kind"]] = kinds.get(k["kind"], 0) + 1
+        summary["lawn_relief"] = dict(rec or {}, range_m=list(VG.relief_range()), edges_kept=True, keep=kinds)
     outer_rect = list(plan["extent"])
     if not is_flat(terrain):                     # 11 Oct 2026 (real04): a sloped ground reaches the horizon too
         sv, sf = skirt_faces(plan["extent"], terrain)
@@ -2978,18 +3105,9 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
                        "deck_z": pool.get("deck_z"), "platform": pool.get("platform_id"),
                        "assumed": {"depth": pool["depth"], "reason": "no pool section drawn"
                                    + ("; coping, tiles and rippled water assumed" if levers.get("pools") else "")}})
-    # Milestone 13 (T6): hedges (drawn rows and the inferred boundary) and the trees through the vegetation module
+    # Milestone 13 (T6): hedges (drawn rows and the inferred boundary: hedge_records above) and the trees through the
+    # vegetation module
     inferred = plan.get("inferred")
-    hedge_recs = list(plan.get("hedges") or [])
-    if inferred and levers.get("hedge"):
-        segs = [seg for seg in inferred["boundary"] if seg["kind"] == "hedge"]
-        for k, seg in enumerate(segs):
-            hedge_recs.append({"id": f"boundary_hedge_{k + 1:02d}", "polyline": [list(seg["start"]), list(seg["end"])],
-                               "width_m": INFERRED["hedge_thickness"], "height_m": INFERRED["hedge_height"],
-                               "height_class": "low", "species": species_for("low", (plan.get("climate") or {}).get(
-                                   "climate", "temperate"), kind="hedge"), "species_inferred": True, "inferred": True,
-                               "evidence": [], "source": "inferred_boundary", "symbol_ids": [],
-                               "reason": "no site plan: a low hedge on the inferred plot boundary (inferred)"})
     foliage_mat = make_material(looks["foliage"]) if hedge_recs or plan["trees"] else None
     # fix round after P3: hedges, trees and shrubs stand on the surface under them (a terrace's level, not the
     # terrain under the terrace: P3 buried real04's terrace hedges and the shrubs of the stepped bands)
@@ -3090,12 +3208,23 @@ def build_site(plan: dict, collection, looks: dict, make_material, manifest_obje
         lawn = plan["plot"] if len(plan["plot"]) >= 3 else geom2d.offset_polygon(plan["outline"], -8.0)
         lawn_holes = holes + [pf["polygon"] for pf in pfs if pf.get("sloped")] \
             + [a["polygon"] for a in plan["areas"] if not a.get("platform_id")]
+        # fix round part 2 (17 Oct 2026): the clumps' surface gets the relief only when the ground got one (a flat
+        # ground of convex pieces gets none: its clumps sank 2 cm into the lawn), with the ground's keep polygons and
+        # on the ground's grid, so the clumps follow the lawn under them
+        ground_relief = summary.get("lawn_relief") or {}
+        relief_on = bool(ground_relief.get("weighted"))
+        relief_reason = (f"the ground got the relief ({ground_relief.get('weighted')} vertices move): the clumps' "
+                         f"surface follows it" if relief_on else
+                         "the ground got no relief (no vertex away from its edges and the keep polygons: a flat ground "
+                         "of convex pieces): the clumps' surface keeps the ground's level")
         try:
             gob, grec = VG.grass_patch(lawn, VG.GRASS_DENSITY_NEAR, collection=collection, terrain=terrain,
-                                       holes=lawn_holes, name="grass_near",
-                                       relief=True)    # the lawn below has the same relief (lawn_relief above)
+                                       holes=lawn_holes, name="grass_near", relief=relief_on,
+                                       keep=[k["polygon"] for k in keep], step=grid_step(plan["extent"]),
+                                       reach=VG.relief_reach(grid_step(plan["extent"])))
         except Exception as exc:
             gob, grec = None, {"method": "none", "error": f"{type(exc).__name__}: {exc}"}
+        grec = dict(grec, relief_requested=relief_on, relief_reason=relief_reason)
         if gob is not None:
             entry(gob.name, "grass_near", site_kind("grass"), None, "assumed",
                   {"site_part": "grass", "inferred": True, "veg_method": grec.get("method"), "asset": grec.get("asset"),

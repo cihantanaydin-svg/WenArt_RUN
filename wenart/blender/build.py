@@ -143,6 +143,16 @@ Milestone 13 (docs/milestone13.md §13.2 build.py, K8 camera replay; the camera 
   of the build fingerprint, so a changed camera file rebuilds the scene.
 - The scene manifest's ``lighting`` block carries the light variant and the levers (``lighting.build_lighting``);
   the material library gets the style and the levers for the shell material table (``materials.MaterialLibrary``).
+
+Fix round part 2 (17 Oct 2026; the lead's decision on the review of part 1: the CLAUDE.md rule "the sky, the sun and
+the horizon are always in the image" wins over the frozen Milestone 11 view): a replayed exterior record of view
+``aerial`` (not the site view) whose horizon lies at or above the top of its frame (``copies.horizon_fraction`` >= 1;
+real02's M11 ext_5: 30 degrees down at 28.54 mm, the horizon at 1.31 of the frame height, no sky) is re-pitched
+about its target at the same distance (``repitch_replayed_aerials``): the pitch of the planner's aerial,
+``copies.pitch_for_horizon(exterior.AERIAL_HORIZON_FRAC, min(lens, exterior.AERIAL_LENS_MM),
+exterior.AERIAL_PITCH_DEG)``, and its lens at most ``AERIAL_LENS_MM``. The camera record says ``replay: {"status":
+"repitched", ...}`` with the old and new pitch, lens, horizon and position and the reason, the build log has a
+warning line and ``cameras_from.repitched`` names the cameras.
 """
 from __future__ import annotations
 
@@ -1258,6 +1268,13 @@ def main(argv: list[str]) -> int:
                                                                          "exterior camera needs one"})
                 warnings.append(f"{p['name']}: replayed exterior camera dropped (no target in the record)")
             ext_replayed = [p for p in ext_replayed if p.get("target") is not None]
+            # fix round part 2 (17 Oct 2026): a replayed aerial without sky keeps its target and distance, re-pitched
+            # so the horizon is in its frame (CLAUDE.md: the sky, the sun and the horizon are always in the image)
+            for name in repitch_replayed_aerials(ext_replayed):
+                rp = next(p for p in ext_replayed if p["name"] == name)["replay"]
+                warnings.append(f"{name}: replayed aerial re-pitched from {-rp['pitch_deg_old']:.1f} to "
+                                f"{-rp['pitch_deg']:.1f} degrees down at {rp['lens_mm']:g} mm (its horizon lay at "
+                                f"{rp['horizon_frac_old']:.2f} of the frame height, now {rp['horizon_frac']:.2f})")
             for p in ext_replayed:
                 p.setdefault("view", None)
                 p.setdefault("variant", prep["variant"])
@@ -1463,16 +1480,83 @@ def unused_replayed(plans: list[dict], camera_plans: list[dict], dropped: list[d
     return out
 
 
+REPITCH_REASON = ("CLAUDE.md: the sky, the sun and the horizon are always in the image; the replayed aerial's horizon "
+                  "lay at {old:.2f} of the frame height (at or above its top: no sky), so it is re-pitched about its "
+                  "target at the same distance to the planner's aerial pitch (exterior.AERIAL_HORIZON_FRAC, lens at "
+                  "most exterior.AERIAL_LENS_MM); the lead's decision of 17 Oct 2026 (fix round part 2)")
+
+
+def _down_pitch_deg(position, target) -> float:
+    """The downward pitch of a camera at ``position`` aimed at ``target`` in degrees (pure; positive = down)."""
+    dx, dy, dz = (float(target[k]) - float(position[k]) for k in range(3))
+    return math.degrees(math.atan2(-dz, math.hypot(dx, dy)))
+
+
+def repitch_replayed_aerials(plans: list[dict]) -> list[str]:
+    """Re-pitch the replayed aerials without sky (pure; fix round part 2, 17 Oct 2026; the lead's decision): every
+    exterior plan of view ``aerial`` with a target that is not the site view (``site_view``) and whose horizon lies
+    at or above the top of its frame (``copies.horizon_fraction`` of its downward pitch, lens, sensor and aspect, less
+    its vertical shift, >= 1) keeps its target and its distance to it and its compass direction; its pitch becomes
+    ``copies.pitch_for_horizon(exterior.AERIAL_HORIZON_FRAC, min(lens, exterior.AERIAL_LENS_MM),
+    exterior.AERIAL_PITCH_DEG)``, its lens at most ``AERIAL_LENS_MM``, its vertical shift 0. The plan gets
+    ``position``, ``lens_mm``, ``shift_y``, ``pitch_deg`` (negative = down, as the planner's), ``horizon_frac`` and
+    ``replay``: ``{"status": "repitched", "pitch_deg_old", "pitch_deg", "lens_mm_old", "lens_mm", "horizon_frac_old",
+    "horizon_frac", "shift_y_old", "position_old", "distance_m", "reason"}``. Returns the names re-pitched."""
+    from wenart.blender import copies as CP
+    from wenart.blender import exterior as E
+
+    done = []
+    for p in plans or []:
+        if p.get("kind") != "exterior" or p.get("view") != "aerial" or p.get("site_view"):
+            continue
+        pos, tgt = p.get("position"), p.get("target")
+        if pos is None or tgt is None:
+            continue
+        pos, tgt = [float(v) for v in pos], [float(v) for v in tgt]
+        dist = math.dist(pos, tgt)
+        if dist <= 1e-6:
+            continue
+        sensor = float(p.get("sensor_mm") or CP.SENSOR_MM)
+        res = p.get("resolution") or [1920, 1080]
+        aspect = float(res[1]) / float(res[0]) if res and float(res[0]) > 0 else CP.ASPECT
+        lens = float(p["lens_mm"])
+        shift = float(p.get("shift_y") or 0.0)
+        down = _down_pitch_deg(pos, tgt)
+        frac = CP.horizon_fraction(down, lens, sensor, aspect) - shift / aspect
+        if frac < 1.0:
+            continue
+        new_lens = min(lens, E.AERIAL_LENS_MM)
+        new_down = CP.pitch_for_horizon(E.AERIAL_HORIZON_FRAC, new_lens, E.AERIAL_PITCH_DEG)
+        hx, hy = pos[0] - tgt[0], pos[1] - tgt[1]
+        h = math.hypot(hx, hy)
+        ux, uy = (hx / h, hy / h) if h > 1e-9 else (1.0, 0.0)       # from the target to the camera, in plan
+        a = math.radians(new_down)
+        new_pos = [round(tgt[0] + ux * dist * math.cos(a), 4), round(tgt[1] + uy * dist * math.cos(a), 4),
+                   round(tgt[2] + dist * math.sin(a), 4)]
+        new_frac = CP.horizon_fraction(new_down, new_lens, sensor, aspect)
+        p["replay"] = {"status": "repitched", "pitch_deg_old": round(-down, 3), "pitch_deg": round(-new_down, 3),
+                       "lens_mm_old": lens, "lens_mm": new_lens, "horizon_frac_old": round(frac, 4),
+                       "horizon_frac": round(new_frac, 4), "shift_y_old": shift, "position_old": pos,
+                       "distance_m": round(dist, 4), "reason": REPITCH_REASON.format(old=frac)}
+        p.update(position=new_pos, lens_mm=new_lens, shift_y=0.0, pitch_deg=round(-new_down, 3),
+                 horizon_frac=round(new_frac, 4))
+        done.append(p["name"])
+    return done
+
+
 def cameras_from_summary(camera_file: dict | None, replay: dict, camera_plans: list[dict], extra: bool) -> dict | None:
     """The scene manifest's ``cameras_from`` (pure): the file record, the counts of replayed and searched cameras
     of the build, the dropped records and a ``reason`` when the search ran for everything (no file, a missing file,
-    a file without camera records, real04's case)."""
+    a file without camera records, real04's case). Fix round part 2 (17 Oct 2026): ``repitched``, the replayed
+    aerials ``repitch_replayed_aerials`` re-pitched (none: an empty list)."""
     if camera_file is None:
         return None
     replayed = [p["name"] for p in camera_plans if p.get("source") == "replayed"]
     searched = [p["name"] for p in camera_plans if p.get("source") != "replayed"]
     out = dict(camera_file, replayed=len(replayed), searched=len(searched), extra=bool(extra),
-               dropped=list(replay.get("dropped") or []))
+               dropped=list(replay.get("dropped") or []),
+               repitched=[p["name"] for p in camera_plans
+                          if (p.get("replay") or {}).get("status") == "repitched"])
     if camera_file.get("missing"):
         out["reason"] = "the camera file does not exist: the camera search ran for every room"
     elif not replay.get("plans"):

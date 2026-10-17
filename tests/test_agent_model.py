@@ -156,7 +156,7 @@ def test_a_context_full_400_is_sent_once_and_raised_as_its_own_error():
     assert len(posts) == 1 and info.value.attempts == 1 and info.value.status == 400
     assert info.value.prompt_tokens == 28673 and isinstance(info.value, M.ModelError)
     assert model.calls[-1]["attempts"] == 1 and model.calls[-1]["finish_reason"] == "context_full"
-    assert model.calls[-1]["max_tokens"] == M.PLANNER_MAX_TOKENS
+    assert model.calls[-1]["max_tokens"] == M.DEFAULT_MAX_TOKENS
     # another 4xx: one POST, a plain ModelError; 408 / 429 and 5xx are retried
     for status, sent in ((404, 1), (422, 1), (429, 3), (408, 3), (503, 3)):
         n = []
@@ -173,12 +173,51 @@ def test_a_context_full_400_is_sent_once_and_raised_as_its_own_error():
     assert M.http_status(VC.VLMError("cannot reach http://x")) is None
 
 
+# r3-s4-p6 of the M12 real04 log (results/agent/real04/log.json, the same model): a valid planner answer of 2,740
+# completion tokens with one tool call after the prose (also r3-s4-p3: 1,604 tokens, one call).
+M12_LONG_ANSWER_TOKENS = 2740
+M12_LONG_ANSWER_CALL = {"name": "rotate_piece", "arguments": {"piece_id": "f1", "front_deg": 90.0,
+                                                             "reason": "the headboard belongs on the wall"}}
+
+
+def m12_long_answer(url, body, timeout):
+    """vLLM's answer to the r3-s4-p6 prompt: under 2,740 answer tokens the answer stops at ``max_tokens``
+    (``finish_reason`` "length") before its tool call, so the qwen3_coder parser finds no call; with room for it the
+    prose and the call (``finish_reason`` "tool_calls")."""
+    limit = int(body["max_tokens"])
+    if limit < M12_LONG_ANSWER_TOKENS:
+        return {"choices": [{"message": {"role": "assistant", "content": "The bed faces the wall, so ..."},
+                             "finish_reason": "length"}],
+                "usage": {"prompt_tokens": 9000, "completion_tokens": limit}}
+    call = {"id": "call_0", "type": "function",
+            "function": {"name": M12_LONG_ANSWER_CALL["name"],
+                         "arguments": json.dumps(M12_LONG_ANSWER_CALL["arguments"])}}
+    return {"choices": [{"message": {"role": "assistant", "content": "The bed faces the wall, so ...",
+                                     "tool_calls": [call]}, "finish_reason": "tool_calls"}],
+            "usage": {"prompt_tokens": 9000, "completion_tokens": M12_LONG_ANSWER_TOKENS}}
+
+
 def test_the_planner_answer_budget_and_the_served_context():
-    """Fails on the old code: every planner call asked for 4096 tokens (P3: p99 609, the largest valid answer 1,086;
-    a runaway answer of 4,096 filled a session's context) and the client did not know the server's context."""
+    """Fix round after P3, part 2 (17 Oct 2026): fails on part 1's code, which asked for a fixed 1536 answer tokens
+    with thinking off (``PLANNER_MAX_TOKENS``) and so cut the valid r3-s4-p6 answer of the M12 real04 log (2,740
+    tokens, its tool call after the prose) at "length": the planner got no tool call and the session ended. Now the
+    planner asks for ``DEFAULT_MAX_TOKENS`` = 4096 with thinking on or off (the loop lowers it to the room left in
+    the context); the request's repetition stop ends a runaway answer. Before part 1 (the old code) every planner
+    call already asked for 4096, but the client did not know the server's context."""
+    model = M.AgentModel("http://x/v1", "m", post=m12_long_answer)
+    assert model.max_tokens == M.DEFAULT_MAX_TOKENS == 4096 and not model.planner_thinking
+    reply = model.chat([{"role": "user", "content": "go"}], call_id="r3-s4-p6")
+    assert [tc.name for tc in reply.tool_calls] == ["rotate_piece"] and reply.finish_reason == "tool_calls"
+    assert reply.tool_calls[0].parsed == M12_LONG_ANSWER_CALL["arguments"]
+    assert model.calls[-1]["max_tokens"] == 4096 and model.calls[-1]["completion_tokens"] == M12_LONG_ANSWER_TOKENS
+    assert model.calls[-1]["finish_reason"] == "tool_calls"
+    # an answer cut by its budget (a smaller max_tokens from the loop) keeps its "length" in the call log
+    cut = model.chat([{"role": "user", "content": "go"}], call_id="cut", max_tokens=1536)
+    assert cut.tool_calls == [] and cut.finish_reason == "length"
+    assert (model.calls[-1]["finish_reason"], model.calls[-1]["max_tokens"]) == ("length", 1536)
     mock = M.MockModel()
     mock.chat([{"role": "user", "content": "go"}], call_id="c1")
-    assert mock.max_tokens == M.PLANNER_MAX_TOKENS == 1536 and mock.chat_requests()[0]["max_tokens"] == 1536
+    assert mock.max_tokens == M.DEFAULT_MAX_TOKENS and mock.chat_requests()[0]["max_tokens"] == 4096
     assert M.AgentModel("http://x/v1", "m", planner_thinking=True).max_tokens == M.DEFAULT_MAX_TOKENS
     assert M.AgentModel("http://x/v1", "m", max_tokens=700).max_tokens == 700
     mock.chat([{"role": "user", "content": "go"}], call_id="c2", max_tokens=1100)
@@ -198,6 +237,60 @@ def test_the_planner_answer_budget_and_the_served_context():
     assert M.from_check_yaml("http://127.0.0.1:8001/v1", max_model_len=4000).max_model_len == 4000
 
 
+def test_an_answer_with_no_choices_logs_the_posts_it_took():
+    """Fix round after P3, part 2 (17 Oct 2026): fails on part 1's code. ``_message`` raised its ``ModelError``
+    without ``attempts``, so ``chat()`` and ``structured()`` logged ``retries + 1`` = 3 attempts after ONE POST of a
+    200 answer with no choices (the misreport part 1 set out to remove); a ``ModelError`` that ``post`` raised itself
+    carried no count either. Now every ``ModelError`` carries the POSTs sent and the call log records them."""
+    posts = []
+
+    def empty(url, body, timeout):
+        posts.append(body)
+        return {"choices": [], "usage": {"prompt_tokens": 5}}
+
+    model = M.AgentModel("http://x/v1", "m", "r", post=empty, sleep=lambda s: None, retries=2)
+    with pytest.raises(M.ModelError) as info:
+        model.chat([{"role": "user", "content": "go"}], call_id="c1")
+    assert len(posts) == 1 and info.value.attempts == 1 and info.value.status is None
+    assert model.calls[-1]["attempts"] == 1 and "no choices" in model.calls[-1]["error"]
+
+    def scripted(items):
+        def post(url, body, timeout):
+            item = items.pop(0)
+            if isinstance(item, Exception):
+                raise item
+            return item
+        return post
+
+    # a 503, the retry, then no choices: 2 POSTs (chat and a JSON-schema call)
+    for call in ("chat", "critic"):
+        model = M.AgentModel("http://x/v1", "m", "r", sleep=lambda s: None, retries=2,
+                             post=scripted([VC.VLMError("HTTP 503 from http://x: busy"), {"choices": []}]))
+        with pytest.raises(M.ModelError) as info:
+            model.chat([], call_id="c2") if call == "chat" else model.critic([], SCHEMA, call_id="v2")
+        assert info.value.attempts == 2 and model.calls[-1]["attempts"] == 2, call
+    # a JSON answer that does not validate, the one more try, then no choices: 2 POSTs in all
+    bad = {"choices": [{"message": {"role": "assistant", "content": "no json"}, "finish_reason": "stop"}]}
+    model = M.AgentModel("http://x/v1", "m", "r", sleep=lambda s: None, retries=2,
+                         post=scripted([bad, {"choices": []}]))
+    with pytest.raises(M.ModelError):
+        model.critic([], SCHEMA, call_id="v3")
+    assert model.calls[-1]["attempts"] == 2 and len(model.calls) == 1
+    # a ModelError the post raises itself (after a 503 and the retry) is not retried and carries its 2 POSTs
+    model = M.AgentModel("http://x/v1", "m", "r", sleep=lambda s: None, retries=2,
+                         post=scripted([VC.VLMError("HTTP 503 from http://x: busy"), M.ModelError("bad answer"),
+                                        ok_answer("never sent")]))
+    with pytest.raises(M.ModelError) as info:
+        model.chat([], call_id="c4")
+    assert info.value.attempts == 2 and model.calls[-1]["attempts"] == 2
+    # a count it already carries is kept
+    model = M.AgentModel("http://x/v1", "m", "r", sleep=lambda s: None, retries=2,
+                         post=scripted([M.ModelError("its own count", attempts=5)]))
+    with pytest.raises(M.ModelError) as info:
+        model.chat([], call_id="c5")
+    assert info.value.attempts == 5 and model.calls[-1]["attempts"] == 5
+
+
 def test_every_request_sends_the_repetition_stop_and_the_log_keeps_the_finish_reason(tmp_path):
     """Fails on the old code: the agent's chat and JSON calls had no repetition stop (the recognition client's
     ``REPETITION_DETECTION`` stopped P3's whitespace runs), and the call log dropped ``finish_reason``."""
@@ -211,7 +304,7 @@ def test_every_request_sends_the_repetition_stop_and_the_log_keeps_the_finish_re
         assert body["repetition_detection"] == VC.REPETITION_DETECTION == {"max_pattern_size": 4,
                                                                            "min_pattern_size": 1, "min_count": 16}
     assert [(c["call_id"], c["finish_reason"], c["max_tokens"]) for c in log.calls] == [
-        ("c1", "repetition", 1536), ("v1", "stop", M.CRITIC_MAX_TOKENS)]
+        ("c1", "repetition", M.DEFAULT_MAX_TOKENS), ("v1", "stop", M.CRITIC_MAX_TOKENS)]
     assert "repetition_detection" not in M.chat_body("m", [], None)          # only when given
     off = M.AgentModel("http://x/v1", "m", repetition_detection=None, post=lambda u, b, t: ok_answer("y"))
     assert off.repetition_detection is None

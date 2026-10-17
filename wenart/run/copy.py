@@ -92,6 +92,27 @@ library models only) and ``run/<stage>.json`` without its ``inputs`` map.
 Nothing else (documents, plan crops, debug overlays, building JSON, check
 answers, logs) ever leaves ``/workspace/outputs-private/<alias>/``.
 
+Fix round after P3, part 2 (17 Oct 2026, docs/milestone13.md §14.9): the view files of ``final/``
+(``<cam>_final_preview.jpg``, ``<cam>_plan.jpg``: ``wenart.report.final.STALE_VIEW_PATTERNS``) follow the final
+manifest of this run, public and private alike, for a project and for each of its alternatives.
+
+- What: such a file is copied only when ``final/final_manifest.json`` names it (``views[].preview`` /
+  ``views[].plan``) and that manifest is this run's (``final_view_names``); a named file that the results miss, or
+  hold an older copy of, is copied even when it is older than the ``--since`` stamp. After every copy, each view file
+  in the results' ``final`` folder that the manifest does not name moves to that folder's ``earlier_run/``
+  (``wenart.report.final.move_stale_view_files``: a free name ``_2``, ``_3`` ...; moved, never deleted).
+- Why: ``full.sh``'s first copy (300 s after the start, long before this run's report) took every preview and plan
+  crop then in ``final/`` on the volume: the M12 previews of ``cam_r_L0_koridor_2`` / ``_3`` and an earlier run's
+  previews of cameras this run does not render. The report moves them on the volume much later, but the copy only
+  added files, so the job's results kept showing them next to the new views (the P3 symptom).
+- How: this run is the report's own rule (``wenart.report.final.split_runs`` over ``run/*.json``: the run id of the
+  newest stage record); the manifest is this run's when its ``run_id`` is that id (both None for a hand run). The
+  orchestrator writes a record of this run for every project at the start of phase 1 (the intake, or its skip; an
+  alternative gets its first one with its first stage), so from then on an earlier run's manifest names nothing; a
+  needs-review manifest has no view. Before that first record (the pod setup) the volume's manifest is still the
+  newest run's: the copy takes the views it names, and they move to ``earlier_run/`` of the results at the first
+  copy after this run's first record.
+
 ``copy_lock(path)``: the job's copy lock (``full.sh`` exports it as
 ``WENART_COPY_LOCK``; the same ``flock`` the background loop takes), so the
 orchestrator's own copy before the GPU tests never interleaves with the loop.
@@ -383,11 +404,56 @@ def variant_folders(out_dir: Path) -> list[str]:
             if (root / vid).is_dir() and not (root / vid).is_symlink()]
 
 
+def final_view_names(out_dir: Path) -> set:
+    """Fix round after P3, part 2 (module docstring): the preview and plan-crop names that
+    ``<out>/final/final_manifest.json`` names (``views[].preview``, ``views[].plan``) when that manifest is this
+    run's, else an empty set (no manifest, an earlier run's manifest, a needs-review manifest: no view). This run is
+    the report's own rule: the run id of the newest stage record of ``<out>/run/`` (``wenart.report.final.split_runs``
+    over ``load_stage_records``); the manifest is this run's when its ``run_id`` is that id (both None for a hand run
+    without run ids)."""
+    from wenart.report import final as F
+
+    out_dir = Path(out_dir)
+    try:
+        manifest = json.loads((out_dir / F.FINAL_DIR / F.MANIFEST_NAME).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    if not isinstance(manifest, dict):
+        return set()
+    _this, _earlier, run_id = F.split_runs(F.load_stage_records(out_dir))
+    if (manifest.get("run_id") or None) != run_id:
+        return set()
+    views = manifest.get("views") if isinstance(manifest.get("views"), list) else []
+    return {str(v[key]) for v in views if isinstance(v, dict) for key in ("preview", "plan")
+            if isinstance(v.get(key), str) and v[key]}
+
+
+def _view_due(path: Path, target: Path, since: Optional[float]) -> bool:
+    """A view file of this run is copied when it is new since the stamp, or when the results miss it or hold an
+    older copy (a preview written while the volume's manifest was still an earlier run's is taken by the next copy,
+    not only by the job's last full copy)."""
+    if since is None:
+        return True
+    mtime = path.stat().st_mtime
+    if mtime > since:
+        return True
+    try:
+        return target.stat().st_mtime < mtime
+    except OSError:
+        return True
+
+
 def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[float]) -> int:
-    """The rules over one output folder: the project's (``prefix`` "") or an alternative's (``variants/<id>``)."""
+    """The rules over one output folder: the project's (``prefix`` "") or an alternative's (``variants/<id>``).
+    Fix round after P3, part 2: the view files of ``final/`` follow this run's final manifest (``final_view_names``)
+    and an earlier run's view files in the results' ``final`` folder move to its ``earlier_run/``."""
+    from wenart.report import final as F
+
     rules = PRIVATE_RULES if ref.private else PUBLIC_RULES
+    views = final_view_names(out_dir)
     count = 0
     for rule in rules:
+        final_rule = rule.src == F.FINAL_DIR
         for folder, sub in _sources(out_dir, rule):
             sub = "/".join(p for p in (prefix, sub) if p)
             dst_dir = ref.results_area(rule.area) / sub if sub else ref.results_area(rule.area)
@@ -400,7 +466,12 @@ def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[floa
                     taken += 1                       # the first MAX_CROPS crops by name, new or not
                     if taken > MAX_CROPS:
                         continue
-                if how is None or (since is not None and path.stat().st_mtime <= since):
+                if how is None:
+                    continue
+                if final_rule and _match(path.name, F.STALE_VIEW_PATTERNS):
+                    if path.name not in views or not _view_due(path, dst_dir / path.name, since):
+                        continue                     # an earlier run's view file, or this run's already copied
+                elif since is not None and path.stat().st_mtime <= since:
                     continue
                 dst_dir.mkdir(parents=True, exist_ok=True)
                 target = dst_dir / path.name
@@ -418,6 +489,11 @@ def _copy_tree(ref: ProjectRef, out_dir: Path, prefix: str, since: Optional[floa
                     target.write_text(json.dumps(private_record(data), indent=1, ensure_ascii=False) + "\n",
                                       encoding="utf-8")
                 count += 1
+        if final_rule:
+            # The view files the results took before (earlier in this job, before this run's report) that this run's
+            # manifest does not name leave the results' final folder: moved to its earlier_run/, never deleted.
+            area = ref.results_area(rule.area)
+            F.move_stale_view_files(area / prefix if prefix else area, views, [])
     return count
 
 

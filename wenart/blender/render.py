@@ -198,6 +198,11 @@ blank pale plane. How:
   type). The type comes from the camera's ``wenart_room_type`` (``cameras.create_cameras``), else from the scene
   manifest's room floors (``room_types_from_manifest``). The project white point is still metered under the interior
   world (``lock_project_whitepoint`` passes no room type), so P3's 5,635 K does not move.
+  Fix round part 2 (17 Oct 2026): such a view also takes the exterior views' clip end (``view_clip_end``:
+  ``exterior.CLIP_END``, 3000 m, for metering and render; the room cameras are built with 200 m, which ended the
+  ground 1.3 degrees under the horizon and left a dark band of below-horizon sky there). The entry records it as
+  ``clip`` (``start_m``, ``end_m``, ``built_end_m``, ``rule``); the camera gets its built clip end back after the
+  render.
 - Sky pull (``choose_sky_pull``): a view under the exterior sky meters its facades (Milestone 10) and keeps that
   exposure; the sky (no surface hit in the depth pass) is saved again at EV - k like the window panes, k the smallest
   of ``SKY_PULL_STEPS`` whose sky median is at most ``SKY_PULL_MEDIAN_MAX`` (under the AgX shoulder) and whose median
@@ -242,7 +247,8 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # m13.1: the EV cap +3 with the lighting_dark record, the project white balance, the sun lamp hidden under the
 # exterior sky with a sun disc (docs/milestone13.md §13.2).
 # m13.2 (fix round after P3, 16-17 Oct 2026): the view's white point mixed from the project's daylight and the rig by
-# the view's rig share, open-air rooms under the exterior world, the sky pull, the window pull to 10 stops.
+# the view's rig share, open-air rooms under the exterior world, the sky pull, the window pull to 10 stops; part 2
+# (17 Oct 2026, before any pod rendered m13.2): the open-air views with the exterior clip end.
 RENDER_CODE_VERSION = "m13.2"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
@@ -311,6 +317,9 @@ SUNLIT_DOT_MIN = 0.05
 WB_RIG_SHARE_MIN = 0.02
 WB_VIEW_RULE = ("the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - "
                 "daylight / all metered light), corrected with the mood's residual")
+# Fix round part 2 (17 Oct 2026): the clip rule of an open-air view under the exterior world (view_clip_end).
+OPEN_AIR_CLIP_RULE = ("open-air room under the exterior world: the exterior views' clip end (exterior.CLIP_END), so "
+                      "the far ground and the backdrop close the horizon")
 # The scene properties of the worlds (build.py / materials.exterior_world_nodes) that select_world reads.
 WORLD_PROPS = ("wenart_world_exterior", "wenart_world_interior", "wenart_world_exterior_sun_disc",
                "wenart_world_exterior_disc_camera_only")
@@ -1379,6 +1388,41 @@ def select_world(scene, cam, room_type: str | None = None) -> str | None:
     return scene.world.name if scene.world is not None else None
 
 
+def view_clip_end(clip_end, scene_props: dict, camera_kind: str | None, room_type: str | None = None
+                  ) -> tuple[float, str | None]:
+    """``(clip end, rule)`` a camera renders with (pure; fix round part 2, 17 Oct 2026). What: the camera of an
+    open-air room (``open_air``) under the exterior world (``under_exterior_sky``) renders with at least
+    ``exterior.CLIP_END`` (3000 m, the exterior views' clip end); every other camera keeps its own clip end and the
+    rule is None. Why: the room cameras are built with ``cameras.CLIP_END_M`` = 200 m (P3's terrace views: depth max
+    196.97-199.62 m). Under the exterior world (fix round part 1) the ground then ends 200 m out, about 1.3 degrees
+    under the horizon from a terrace camera 4.4 m up (some 19 rows at 16 mm and 1920 px), and the rays between the
+    clipped ground and the horizon show the sky's colour under the horizon (0.004-0.023 against 20-80 above it,
+    bpy 5.2.2): a dark band along the horizon of every terrace view, which the sky pull darkens further. How: the
+    exterior clip end lets those rays reach the far ground (``site.HORIZON_M``), the skirt and the backdrop ring,
+    which close the horizon as they do for the exterior views (Milestone 13 T6)."""
+    from wenart.blender.exterior import CLIP_END
+
+    end = float(clip_end)
+    if camera_kind != "exterior" and open_air(room_type) and under_exterior_sky(scene_props, camera_kind, room_type):
+        return max(end, float(CLIP_END)), OPEN_AIR_CLIP_RULE
+    return end, None
+
+
+def set_view_clip(cam, scene_props: dict, room_type: str | None = None) -> tuple[dict, float]:
+    """Set the clip end ``cam`` renders with (``view_clip_end``; fix round part 2, 17 Oct 2026). Returns ``(record,
+    built clip end)``: the record ``{"start_m", "end_m", "built_end_m", "rule"}`` goes into the render entry
+    (``end_m`` read back from Blender after the change), and the caller puts the built clip end back after the
+    render, so the next camera, a re-meter and the project white point (metered under the interior world with the
+    built clip) see the build's camera."""
+    built = float(cam.data.clip_end)
+    end, rule = view_clip_end(built, scene_props, cam.get("wenart_camera_kind"), room_type)
+    if end != built:
+        cam.data.clip_end = end
+    record = {"start_m": round(float(cam.data.clip_start), 4), "end_m": round(float(cam.data.clip_end), 4),
+              "built_end_m": round(built, 4), "rule": rule}
+    return record, built
+
+
 def rig_objects(scene) -> list:
     """The light-rig objects of the scene (round 3): the emissive shades and their lights, tagged ``wenart_rig`` by
     ``lighting.build_room_rig``; hidden while the project white point is metered on daylight."""
@@ -2334,13 +2378,19 @@ class RenderRun:
         world = select_world(scene, cam, room_type)
         props = {k: scene.get(k) for k in WORLD_PROPS}
         under_sky = under_exterior_sky(props, cam.get("wenart_camera_kind"), room_type)
-        look = ctx.look.decide(cam, self.out, ctx.res)
-        ctx.look.apply(look)
-        set_output(scene, "OPEN_EXR_MULTILAYER")
-        scene.render.filepath = str(f["exr"])
-        t0 = time.time()
-        bpy.ops.render.render(write_still=True)
-        seconds = time.time() - t0
+        # fix round part 2 (17 Oct 2026): an open-air view under the exterior world meters and renders with the
+        # exterior clip range (view_clip_end); the build's clip end is back on the camera after the render
+        clip, built_end = set_view_clip(cam, props, room_type)
+        try:
+            look = ctx.look.decide(cam, self.out, ctx.res)
+            ctx.look.apply(look)
+            set_output(scene, "OPEN_EXR_MULTILAYER")
+            scene.render.filepath = str(f["exr"])
+            t0 = time.time()
+            bpy.ops.render.render(write_still=True)
+            seconds = time.time() - t0
+        finally:
+            cam.data.clip_end = built_end
         result = bpy.data.images.get("Render Result")
         set_output(scene, "PNG")
         result.save_render(str(f["png"]), scene=scene)
@@ -2388,6 +2438,7 @@ class RenderRun:
             "sun_hidden": sun_hidden_for(props, cam.get("wenart_camera_kind"), room_type),
             # fix round after P3: the room type the world was chosen by, and the sky pull of a view under the sky
             "room_type": room_type, "open_air": open_air(room_type), "sky_pull": sky,
+            "clip": clip,                   # fix round part 2: the clip range the view was rendered with
             "vram_mib": vram_used_mib() if ctx.device != "CPU" else None,
             "png": f["png"].name, "exr": f["exr"].name, "preview": f["preview"].name,
             "depth_png": f["depth"].name if f["depth"].exists() else None, "index_png": f["index"].name,

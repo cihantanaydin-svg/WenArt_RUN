@@ -17,7 +17,8 @@ on the pure parts: a kitchen run with a drawn sink built into it (no object of i
 names it) and a drawn stove in a gap of the run (a ray down onto the gap meets the stove, not the worktop; scene
 check S2 has no finding), and the door stops (rays across the wall through the old 5 mm slit at the jambs, the
 head and the meeting stiles meet the door, for the Milestone 6 swing door and a Milestone 10 double door; P3's
-cam_r_L1_koridor_2_2 saw the terrace through that slit).
+cam_r_L1_koridor_2_2 saw the terrace through that slit). Part 2 (17 Oct 2026): the ray down through the built-in
+sink meets the bowl's bottom, under the worktop by more than 15 cm (the sink unit is hollow above it).
 """
 from __future__ import annotations
 
@@ -338,6 +339,9 @@ def test_the_built_in_sink_has_no_object_and_the_stove_stands_in_the_gap(kitchen
     assert entries["k_run"]["module"]["gaps"][0]["id"] == "k_stove"
     assert hits["stove_gap"]["object"] == "furn_k_stove"                 # no worktop over the stove
     assert hits["sink_unit"]["object"] == "furn_k_run"                   # the run's own sink unit
+    # fix round after P3, part 2: the ray meets the bowl's steel bottom (0.73 m), not the sink unit's carcass top at
+    # the worktop's underside (0.86 m: the 4 cm tray of part 1)
+    assert hits["sink_unit"]["z"] < 0.90 - 0.15, hits["sink_unit"]
     s2 = [v for v in kitchen_doors["scene_checks"]["violations"] if v["check"] == "S2"]
     assert not s2, s2
 

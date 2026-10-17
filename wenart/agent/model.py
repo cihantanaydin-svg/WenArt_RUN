@@ -26,8 +26,8 @@ Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
   ``ContextFullError`` (a ``ModelError``) with the prompt size the server names; every error carries the real
   number of POSTs (``attempts``), which the call log records. ``AgentModel.max_model_len`` is the served model's
   ``--max-model-len`` (``max_model_len_of``: the key's ``server_flags`` in check.yaml, default 32768), read by the
-  loop's context budget. The planner's chat answer is capped at ``PLANNER_MAX_TOKENS`` = 1536 tokens (thinking
-  off; P3: p50 109, p99 609, the largest valid answer 1,086). Every chat and JSON-schema call sends vLLM 0.30.0's
+  loop's context budget. The planner's chat answer budget is ``DEFAULT_MAX_TOKENS`` = 4096, which the loop lowers
+  to the room left in the context (part 2 below). Every chat and JSON-schema call sends vLLM 0.30.0's
   ``repetition_detection`` (``vlm_client.REPETITION_DETECTION``, as the recognition client does), the call log keeps
   ``finish_reason`` and ``max_tokens``, and a JSON answer stopped for repetition is asked again once with a one-line
   note (the same request at temperature 0 gives the same run).
@@ -36,6 +36,22 @@ Fix round after P3 (16-17 Oct 2026; docs/milestone13.md §14.8 "Attempt 2"):
   "the agent model did not answer" although the model had answered 4 times. One planner answer ran to its 4,096
   tokens (r3-s18-p3, 91 s) and filled the session's context.
 - How: ``_send`` reads the status from the ``VLMError`` text (``vlm_client.post_json``: "HTTP <code> from ...").
+
+Fix round after P3, part 2 (17 Oct 2026; docs/milestone13.md §14.9):
+
+- What: the planner asks for ``DEFAULT_MAX_TOKENS`` = 4096 answer tokens with thinking off too (part 1 capped it
+  at a fixed ``PLANNER_MAX_TOKENS`` = 1536, now gone); the loop's ``ContextBudget`` asks for ``min(4096, room
+  left)``, never below ``loop.MIN_REPLY_TOKENS`` = 1,024. A 200 answer with no choices raises a ``ModelError`` that
+  carries the POSTs sent, and so does a ``ModelError`` that ``post`` raises itself: the call log never says
+  ``retries + 1`` attempts after one POST.
+- Why: the M12 real04 log (``results/agent/real04/log.json``, the same model) has valid planner answers of 2,740
+  and 1,604 tokens with one tool call each (r3-s4-p6, r3-s4-p3) and two of 1,532 and 1,528 with 15 calls each; cut
+  at 1,536 (``finish_reason`` "length") the call is lost or cut, and the session ends with its budget unused. The
+  runaway answers the cap was for (M12: three of 4,096; P3: r3-s18-p3) are stopped by ``repetition_detection``,
+  and the context budget keeps the prompt plus the answer under ``--max-model-len``; a "length" stop is still
+  logged and counted (``metrics.finish_reasons``).
+- How: ``AgentModel.max_tokens`` defaults to ``DEFAULT_MAX_TOKENS`` whatever ``planner_thinking`` is;
+  ``_message(resp, attempts)`` raises with the POSTs ``_send`` counted.
 """
 from __future__ import annotations
 
@@ -52,11 +68,10 @@ from typing import Any, Callable, Optional, Sequence
 from wenart.recognition import vlm_client as VC
 
 MAX_IMAGES = 4                   # --limit-mm-per-prompt '{"image":4}' of the agent server (§11)
+# The planner's answer budget, thinking on or off (fix round part 2: part 1's fixed 1536 with thinking off cut valid
+# answers of the M12 real04 log, up to 2,740 tokens; the repetition stop ends a runaway answer and the loop asks for
+# min(4096, room left in the context), never below loop.MIN_REPLY_TOKENS).
 DEFAULT_MAX_TOKENS = 4096
-# Fix round after P3: the planner's chat answer with thinking off (P3 real04: 1,068 answers, p50 109, p99 609, the
-# largest valid one 1,086 tokens; one runaway answer of 4,096 tokens filled a session's context). With thinking on
-# the reasoning counts too, so the planner keeps DEFAULT_MAX_TOKENS.
-PLANNER_MAX_TOKENS = 1536
 CRITIC_MAX_TOKENS = 2048
 THINKING_MAX_TOKENS = 8192       # a structured answer with thinking on: room for the reasoning before the JSON
 DEFAULT_TIMEOUT_S = 600.0
@@ -78,8 +93,9 @@ COMPACT_RETRY_NOTE = VC.COMPACT_RETRY_NOTE
 
 class ModelError(RuntimeError):
     """The server did not give a usable answer after the retries. ``attempts``: the POSTs sent (fix round after P3:
-    the call log records this number, not the retry setting); ``status``: the HTTP status of the last answer (None
-    for a transport error)."""
+    the call log records this number, not the retry setting; part 2: also for an answer with no choices and for a
+    ``ModelError`` that ``post`` raises); ``status``: the HTTP status of the last answer (None for a transport error
+    or a 200 answer with no choices)."""
 
     def __init__(self, message: str, *, attempts: int = 0, status: Optional[int] = None):
         super().__init__(message)
@@ -332,10 +348,10 @@ class AgentModel:
         self.timeout_s = float(timeout_s)
         self.retries = int(retries)
         self.planner_thinking = bool(planner_thinking)
-        # Fix round after P3: the planner's answer budget (``PLANNER_MAX_TOKENS`` with thinking off) and the served
-        # context (the loop budgets every planner prompt against it); the repetition stop of every request.
-        self.max_tokens = int(max_tokens) if max_tokens else (DEFAULT_MAX_TOKENS if self.planner_thinking
-                                                              else PLANNER_MAX_TOKENS)
+        # Fix round after P3: the planner's answer budget (part 2: ``DEFAULT_MAX_TOKENS`` with thinking on or off;
+        # the loop asks for min(it, room left)) and the served context (the loop budgets every planner prompt
+        # against it); the repetition stop of every request.
+        self.max_tokens = int(max_tokens or DEFAULT_MAX_TOKENS)
         self.max_model_len = int(max_model_len or DEFAULT_MAX_MODEL_LEN)
         self.repetition_detection = None if repetition_detection is None else dict(repetition_detection)
         # Milestone 12 (bake-off, docs/milestone12.md §5.1): the critic with thinking on, and the model's own chat
@@ -354,7 +370,8 @@ class AgentModel:
     def _send(self, body: dict) -> tuple[dict, int, float]:
         """POST with retries; ``(response, attempts, seconds)``; ModelError after the last attempt. Fix round after
         P3: an HTTP 4xx answer (but 408 and 429) is the request's own fault and is raised at once, a context-full 400
-        as ``ContextFullError``; the error carries the POSTs sent (``attempts``)."""
+        as ``ContextFullError``; the error carries the POSTs sent (``attempts``; part 2: also a ``ModelError`` that
+        ``post`` raises itself, which is not retried)."""
         t0 = self.clock()
         last = None
         status = None
@@ -372,6 +389,10 @@ class AgentModel:
                     raise ModelError(f"{self.model}: {exc}", attempts=attempt, status=status) from exc
                 if attempt <= self.retries:
                     self.sleep(min(30.0, 2.0 * attempt))
+            except ModelError as exc:
+                if not exc.attempts:
+                    exc.attempts = attempt
+                raise
         raise ModelError(f"{self.model}: {last}", attempts=self.retries + 1, status=status)
 
     def post(self, body: dict) -> dict:
@@ -391,10 +412,12 @@ class AgentModel:
         return n
 
     @staticmethod
-    def _message(resp: dict) -> tuple[dict, Optional[str], dict]:
+    def _message(resp: dict, attempts: int = 1) -> tuple[dict, Optional[str], dict]:
+        """``(message, finish_reason, usage)`` of an answer; ``ModelError`` when it has no choices, carrying the
+        ``attempts`` (POSTs) that ``_send`` counted (fix round part 2: not the retry setting)."""
         choices = resp.get("choices") or []
         if not choices:
-            raise ModelError(f"no choices in the answer: {json.dumps(resp)[:300]}")
+            raise ModelError(f"no choices in the answer: {json.dumps(resp)[:300]}", attempts=attempts)
         return choices[0].get("message") or {}, choices[0].get("finish_reason"), dict(resp.get("usage") or {})
 
     # ----- the two kinds of calls ------------------------------------------------
@@ -402,18 +425,19 @@ class AgentModel:
     def chat(self, messages: list, tools: Optional[list] = None, *, call_id: str,
              max_tokens: Optional[int] = None) -> ModelReply:
         """The planner's call: tools offered, ``tool_choice: auto`` (thinking as ``planner_thinking``). Fix round
-        after P3: the repetition stop in the request; the call log records the real attempts (also of an error), the
-        answer's ``finish_reason`` and the ``max_tokens`` asked for."""
+        after P3: the repetition stop in the request; the call log records the real attempts (also of an error, part
+        2: also of an answer with no choices), the answer's ``finish_reason`` and the ``max_tokens`` asked for
+        (default ``self.max_tokens`` = ``DEFAULT_MAX_TOKENS``; the loop passes ``min(it, room left)``)."""
         images = self._check_images(messages)
         limit = int(max_tokens or self.max_tokens)
         body = chat_body(self.model, messages, tools, max_tokens=limit, thinking=self.planner_thinking,
                          extra_template=self.extra_template, repetition_detection=self.repetition_detection)
         try:
             resp, attempts, seconds = self._send(body)
-            msg, finish, usage = self._message(resp)
+            msg, finish, usage = self._message(resp, attempts)
         except ModelError as exc:
             self._log({"call_id": call_id, "kind": "chat", "images": images, "error": str(exc), "seconds": None,
-                       "attempts": exc.attempts or self.retries + 1, "prompt_tokens": None,
+                       "attempts": exc.attempts, "prompt_tokens": None,
                        "completion_tokens": None, "max_tokens": limit,
                        "finish_reason": "context_full" if isinstance(exc, ContextFullError) else None})
             raise
@@ -448,10 +472,10 @@ class AgentModel:
         for _try in range(2):
             try:
                 resp, attempts, seconds = self._send(body)
-                msg, finish, usage = self._message(resp)
+                msg, finish, usage = self._message(resp, attempts)
             except ModelError as exc:
                 self._log({"call_id": call_id, "kind": kind, "images": images, "error": str(exc),
-                           "seconds": None, "attempts": attempts_total + (exc.attempts or self.retries + 1),
+                           "seconds": None, "attempts": attempts_total + exc.attempts,
                            "prompt_tokens": None, "completion_tokens": None, "max_tokens": limit,
                            "finish_reason": "context_full" if isinstance(exc, ContextFullError) else None})
                 raise

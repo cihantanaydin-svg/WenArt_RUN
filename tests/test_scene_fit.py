@@ -332,6 +332,12 @@ def test_s2_finds_a_sink_or_stove_buried_in_a_kitchen_run_and_not_one_built_in_o
     assert set(s2) == {"k_sink", "k_stove"}                             # the old exemption said nothing
     assert s2["k_sink"]["metrics"]["other"] == "k_run" and s2["k_sink"]["metrics"]["inside_share"] > 0.4
     assert "buried in the kitchen_counter k_run" in s2["k_stove"]["message"]
+    # fix round after P3, part 2: the buried member's depth (inside_share x its smaller drawn side), so metrics13's
+    # "S2 > 3 cm" and the agent's causes count it as a deep cut
+    for pid, side in (("k_sink", 0.5), ("k_stove", 0.6)):
+        m = s2[pid]["metrics"]
+        assert m["depth_m"] == pytest.approx(m["inside_share"] * side, abs=1e-3) and m["depth_m"] > 0.03
+        assert report["measured"][pid]["kitchen_run"]["depth_m"] == pytest.approx(m["depth_m"])
     # the fix: the sink is built into the run (no object of its own), the stove stands in its gap
     hints = {"sink_pos_m": [1.2, 1.0], "sink_w_m": 0.8, "sink_piece": "k_sink",
              "ranges": [dict(MOD.member_in_run(run, stove), id="k_stove", type="stove")]}
@@ -359,3 +365,28 @@ def test_s2_keeps_the_allowance_for_kitchen_pieces_that_only_meet_the_run():
     assert "kitchen_run" not in report["measured"]["k_wall"]
     assert SC.kitchen_host_member(run, wall) == (None, None) and SC.kitchen_host_member(run, other) == (None, None)
     assert SC.kitchen_host_member(fridge, run) == (run, fridge)
+
+
+def test_part2_the_buried_s2_depth_counts_in_metrics13_and_in_the_agent_causes():
+    """Fix round after P3, part 2 (17 Oct 2026): the review's case. The 'buried in the run' S2 violation had no
+    ``depth_m``, so metrics13's metric 6 counted it only under S2_all, never under "S2 > 3 cm"; now it counts, and
+    the agent's cause is a collision (never within tolerance)."""
+    from types import SimpleNamespace
+
+    from wenart.agent import causes as CA
+    from wenart.blender import modules as MOD
+    from wenart.blender import scene_checks as SC
+    from wenart.report import metrics13 as M13
+
+    run = _k_piece("k_run", "kitchen_counter", (2.0, 1.0), (2.4, 0.6), height=0.9)
+    sink = _k_piece("k_sink", "sink_kitchen", (1.2, 1.0), (0.8, 0.5))
+    report = SC.measure_pure({"k_run": _k_mesh(run, MOD.module_plan(run)), "k_sink": _k_mesh(sink)},
+                             _k_building([run, sink]))
+    (v,) = [v for v in report["violations"] if v["check"] == "S2"]
+    events = [{"kind": "finding", "round": 1, "checklist": "S2", "target": v["target"],
+               "evidence": {"metrics": v["metrics"]}}]
+    m6 = M13.metric_6(SimpleNamespace(log={"events": events}, log_first_seq=0))
+    assert m6["parts"]["S2"] == 1 and m6["parts"]["S2_all"] == 1
+    assert CA.cause_of(v) == "collision"
+    assert SC.buried_depth(sink, 0.5) == pytest.approx(0.25) and SC.buried_depth(sink, 0.0) == 0.0
+    assert SC.buried_depth({"id": "x"}, 0.9) == 0.0

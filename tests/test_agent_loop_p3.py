@@ -13,7 +13,10 @@ What the P3 real04 run showed and these tests pin (CPU only: MockModel, the fake
   acceptance still clears a view at the factor it needs;
 - a decor piece through the roof (the mirror dec_L1_009) is the decor stage's, not the building session's;
 - the vision critic's "not a mansard roof" when the build makes the drawn mansard: a code record outranks AI vision;
-- an edit's ``log_seq`` is the seq of its log event, also when a parallel session logs in between.
+- an edit's ``log_seq`` is the seq of its log event, also when a parallel session logs in between;
+- fix round after P3, part 2 (17 Oct 2026; §14.9): the planner's answer budget is ``min(DEFAULT_MAX_TOKENS 4096,
+  room left)``, never below ``MIN_REPLY_TOKENS``, with thinking off too (part 1 asked for a fixed 1536, which cut the
+  M12 real04 answer r3-s4-p6 of 2,740 tokens before its tool call); a "length" stop is still logged and counted.
 """
 from __future__ import annotations
 
@@ -21,7 +24,7 @@ import json
 import types
 
 from test_agent_helpers import building, jpg, project, violation
-from test_agent_model import P3_CONTEXT_400
+from test_agent_model import M12_LONG_ANSWER_CALL, M12_LONG_ANSWER_TOKENS, P3_CONTEXT_400
 from test_m13_agent import F3, FINISH, dark_manifest, log_of, make, quiet_critic, rotate
 from wenart.agent import brief as BR
 from wenart.agent import causes as CS
@@ -72,7 +75,8 @@ def _tool(cid: str, ch: str, n: int = 6000) -> dict:
 def test_the_budget_counts_the_text_added_since_the_last_answer_and_stubs_the_old_results_first():
     """Fails on the old code (no budget: every tool result stayed up to 12,000 characters until the server refused
     the prompt). The server reports 100 prompt tokens after every answer (as MockModel does), so only the estimate of
-    the ADDED text can push the next prompt over the limit."""
+    the ADDED text can push the next prompt over the limit. An explicit answer budget of 1536 (the planner's own is
+    ``DEFAULT_MAX_TOKENS``, next test)."""
     budget = LP.ContextBudget(8000, 1536)
     assert budget.limit == 8000 - LP.CONTEXT_MARGIN_TOKENS == 6976
     messages = [{"role": "system", "content": "s" * 100}, {"role": "user", "content": "task"}]
@@ -110,10 +114,35 @@ def test_the_budget_counts_the_text_added_since_the_last_answer_and_stubs_the_ol
     assert LP.tool_result_text({"x": 1}) == '{"x": 1}'
 
 
+def test_the_budget_asks_for_4096_or_the_room_left_never_below_1024():
+    """Fix round after P3, part 2 (17 Oct 2026): fails on part 1's code, where the budget had no default answer
+    budget and the loop gave it the planner's fixed 1536. Now it asks for ``min(DEFAULT_MAX_TOKENS, room left)``,
+    never below ``MIN_REPLY_TOKENS``: 4096 while it fits, the room left when less is left and nothing can be cut,
+    1,024 when even that is not left (the server then refuses and the loop cuts everything but the latest reply)."""
+    budget = LP.ContextBudget(32768)
+    assert budget.want == MM.DEFAULT_MAX_TOKENS == 4096 and budget.limit == 32768 - LP.CONTEXT_MARGIN_TOKENS
+    messages = [{"role": "system", "content": "s" * 100}, {"role": "user", "content": "task"}]
+    budget.measured(messages, 1000)
+    assert budget.fit(messages) == 4096
+    budget.measured(messages, budget.limit - 4096)                      # just fits
+    assert budget.fit(messages) == 4096
+    budget.measured(messages, budget.limit - 2740)                      # room for the M12 answer r3-s4-p6, no more
+    assert budget.fit(messages) == 2740 and budget.cuts == []           # no tool result to cut: the room left
+    budget.measured(messages, budget.limit - 300)
+    assert budget.fit(messages) == LP.MIN_REPLY_TOKENS == 1024
+    # an old tool result is cut before the answer budget is lowered
+    big = messages + [_assistant("c1"), _tool("c1", "a"), _assistant("c2"), _tool("c2", "b"),
+                      _assistant("c3"), _tool("c3", "c")]
+    budget.measured(big, budget.limit - 3000)
+    assert budget.fit(big) == 4096 and [c["keep_replies"] for c in budget.cuts] == [LP.KEEP_REPLIES]
+    assert [m["content"].startswith(LP.STUB_NOTE) for m in big if m["role"] == "tool"] == [True, False, False]
+
+
 def test_a_session_whose_prompt_grows_like_p3_cuts_the_old_tool_results_before_the_server_refuses(tmp_path):
     """Fails on the old code: P3's building session (prompts 6,866 -> 17,606 -> 19,745 -> 22,294 tokens, as the
     server reported them) sent its 5th prompt whole and got the context-full 400. Now the 5th prompt has the results
-    of replies 1-2 as stubs, replies 3-4 whole, and asks for the planner's 1,536 tokens."""
+    of replies 1-2 as stubs, replies 3-4 whole, and asks for the planner's 4,096 tokens (part 2; part 1 asked for a
+    fixed 1,536)."""
     chat = [reads(4, 6866), reads(4, 17606), reads(4, 19745), reads(4, 22294), FINISH]
     loop, out, model = make(tmp_path, chat, [[F3]], calls_per_room=20)
     assert model.max_model_len == 32768
@@ -124,11 +153,49 @@ def test_a_session_whose_prompt_grows_like_p3_cuts_the_old_tool_results_before_t
     assert all(r.startswith(LP.STUB_NOTE) for r in results[:8])        # replies 1 and 2
     assert not any(r.startswith(LP.STUB_NOTE) for r in results[8:])    # replies 3 and 4 stay whole
     assert all(json.loads(r)["room"]["id"] == "r1" for r in results[8:])
-    assert fifth["max_tokens"] == MM.PLANNER_MAX_TOKENS == 1536
-    assert all(r["max_tokens"] <= 1536 for r in model.chat_requests())
+    assert fifth["max_tokens"] == MM.DEFAULT_MAX_TOKENS == 4096
+    assert [r["max_tokens"] for r in model.chat_requests()] == [4096] * 5
     cut = [e for e in log_of(out)["events"] if e["kind"] == "check" and e.get("tool") == LP.CONTEXT_CHECK]
     assert len(cut) == 1 and cut[0]["status"] == "cut" and cut[0]["counts"]["max_model_len"] == 32768
     assert LG.validate_log(log_of(out)) == []
+
+
+def m12_long(body):
+    """The planner's answer r3-s4-p6 of the M12 real04 log (``test_agent_model.m12_long_answer``) as a MockModel
+    answer: cut at "length" before its tool call when ``max_tokens`` is under its 2,740 tokens."""
+    if int(body["max_tokens"]) < M12_LONG_ANSWER_TOKENS:
+        return {"content": "The bed faces the wall, so ...", "finish_reason": "length",
+                "usage": {"completion_tokens": int(body["max_tokens"])}}
+    return {"content": "The bed faces the wall, so ...", "tool_calls": [M12_LONG_ANSWER_CALL],
+            "usage": {"completion_tokens": M12_LONG_ANSWER_TOKENS}}
+
+
+def test_a_long_valid_planner_answer_keeps_its_tool_call_and_a_length_stop_is_counted(tmp_path):
+    """Fix round after P3, part 2 (17 Oct 2026): fails on part 1's code. The planner asked for a fixed 1536 tokens
+    with thinking off, so the 2,740-token answer r3-s4-p6 of the M12 real04 log stopped at "length" before its tool
+    call, ``plan_session`` saw no tool call and ended the room session with its budget unused (no edit). Now the
+    loop asks for ``min(4096, room left)`` and the edit is made; an answer that is still cut is logged with its
+    "length" and counted in ``metrics.json``."""
+    loop, out, model = make(tmp_path, [m12_long, FINISH], [[F3], []])
+    summary = loop.run()
+    assert summary["accepted"] == 1
+    first = model.chat_requests()[0]
+    assert first["max_tokens"] == MM.DEFAULT_MAX_TOKENS == 4096
+    calls = {c["call_id"]: c for c in log_of(out)["calls"]}
+    assert (calls["r1-p1"]["finish_reason"], calls["r1-p1"]["completion_tokens"]) == ("tool_calls", 2740)
+    # a model given a smaller budget (here 2048): the answer is cut, the session ends, "length" is logged and counted
+    loop, out, model = make(tmp_path / "small", [m12_long, FINISH], [[F3], []])
+    model.max_tokens = 2048
+    summary = loop.run()
+    assert summary["accepted"] == 0 and model.chat_requests()[0]["max_tokens"] == 2048
+    assert {c["call_id"]: c["finish_reason"] for c in log_of(out)["calls"]}["r1-p1"] == "length"
+    m = json.loads((out / "orchestrator" / "metrics.json").read_text())
+    assert m["finish_reasons"]["chat"]["length"] == 1
+    # a model without its own budget asks for DEFAULT_MAX_TOKENS too (part 1: MIN_REPLY_TOKENS = 1,024)
+    loop, out, model = make(tmp_path / "none", [m12_long, FINISH], [[F3], []])
+    model.max_tokens = None
+    summary = loop.run()
+    assert summary["accepted"] == 1 and model.chat_requests()[0]["max_tokens"] == 4096
 
 
 def test_a_refused_prompt_is_cut_and_sent_once_more_and_a_second_refusal_ends_the_session_not_the_model(tmp_path):
@@ -373,6 +440,7 @@ def test_the_scheduler_gives_the_agent_model_the_served_keys_context():
                                      opts=types.SimpleNamespace(agent_key=key))
 
     m = Orchestrator.make_agent_model(fake("agent"), "http://127.0.0.1:8001/v1", None)
-    assert m.model == "Qwen/Qwen3.8-27B-FP8" and m.max_model_len == 16384 and m.max_tokens == 1536
+    assert m.model == "Qwen/Qwen3.8-27B-FP8" and m.max_model_len == 16384
+    assert m.max_tokens == MM.DEFAULT_MAX_TOKENS == 4096              # part 2: thinking off too (part 1: 1536)
     b = Orchestrator.make_agent_model(fake("bakeoff.fp8"), "http://127.0.0.1:8001/v1", None)
     assert b.model == "org/model-fp8" and b.revision == "r2" and b.max_model_len == 32768

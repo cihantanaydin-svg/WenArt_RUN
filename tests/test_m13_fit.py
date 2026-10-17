@@ -1017,3 +1017,121 @@ def test_the_build_loop_skips_a_built_in_only_when_its_run_holds_it():
     assert BF.built_in_ids([dict(run, build=False), sink]) == {}
     assert BF.built_in_ids([sink]) == {}
     assert BF.built_in_ids([run, dict(sink, asset={"method": "library"})]) == {}
+
+
+# --------------------------------------------------------------------------
+# Fix round after P3, part 2 (17 Oct 2026): a pinned sink gets a gap; a sink off its unit is not built in
+# --------------------------------------------------------------------------
+
+def _scene_s2(fitted):
+    """The S2 findings of the fitted kitchen, built as the scene builds it: the run from its module plan, the other
+    built pieces (not built in) from the parametric family at their drawn place (pure, no ``bpy``)."""
+    from wenart.blender import furniture as BF
+    from wenart.blender import modules as MOD
+    from wenart.blender import parametric as PM
+    from wenart.blender import scene_checks as SCK
+
+    built_in = BF.built_in_ids(fitted["furniture"])
+    meshes = {}
+    for p in fitted["furniture"]:
+        if p.get("build") is False or p["id"] in built_in:
+            continue
+        fp = p["footprint"]
+        plan = (p.get("asset") or {}).get("module_plan")
+        parts = (MOD.module_parts(plan) if plan and plan.get("modules") else
+                 PM.build_parts(p["type"], *fp["size"], PM.proxy_height(p["type"], p.get("height"))[0], piece=p))
+        v, f, _k = PM.world_mesh(parts, fp["center"], fp["rotation_deg"], 0.0)
+        meshes[p["id"]] = {"verts": v, "faces": f}
+    building = {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.7}],
+                "rooms": [{"id": "r_k", "level_id": "L0"}], "walls": [], "furniture": fitted["furniture"], "decor": []}
+    return [v for v in SCK.measure_pure(meshes, building)["violations"] if v["check"] == "S2"]
+
+
+def _plan_without_hints(run):
+    """The run's module plan as part 1 made it for a pinned sink: no hints (no sink unit, no gap)."""
+    from wenart.blender import modules as MOD
+
+    return MOD.module_plan({k: v for k, v in run.items() if k != "asset"})
+
+
+def test_part2_a_pinned_sink_inside_its_run_stands_in_a_gap_with_its_pinned_model():
+    """The review's case: the agent's swap_model pins a library model on a drawn sink inside a run; part 1 then gave
+    the run no sink unit and no gap, so the pinned sink stood buried in full-depth base units under an uncut worktop
+    (P3's defect, only S2 reported it). Now the run leaves a gap at the sink's drawn span and the pinned model stands
+    in it; S2 finds nothing."""
+    run = drawn("kitchen_counter", 2.4, 0.6, "f_run", room="r_k", front=0.0, center=(0.0, 0.0), height=0.9)
+    sink = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(0.0, -0.2), asset_pin="abo_pinned")
+    found = F.kitchen_built_ins({"furniture": [run, sink]})
+    assert found["sinks"] == {}
+    assert found["hints"]["f_run"]["ranges"] == [{"id": "f_sink", "type": "sink_kitchen",
+                                                   "x0_m": pytest.approx(-0.6), "x1_m": pytest.approx(0.2),
+                                                   "reason": F.PINNED_SINK_GAP_REASON}]
+    cat = FakeCatalog([model("pinned", "sink_kitchen", 0.8, 0.5, 0.9, quality=2),
+                       model("best", "sink_kitchen", 0.8, 0.5, 0.9, quality=5)])
+    before = {"furniture": [run, sink]}
+    fitted = F.fit_building(copy.deepcopy(before), cat, mode="commercial")
+    F.assert_only_assets_changed(before, fitted)
+    after = {p["id"]: p for p in fitted["furniture"]}
+    plan = after["f_run"]["asset"]["module_plan"]
+    assert plan["cutouts"] == [] and "built_ins" not in plan
+    assert [(g["id"], g["type"], g["x_m"], g["w_m"]) for g in plan["gaps"]] == [
+        ("f_sink", "sink_kitchen", pytest.approx(-0.2), pytest.approx(0.8))]
+    a = after["f_sink"]["asset"]
+    assert (a["method"], a["asset_id"], a.get("pinned")) == ("library", "abo_pinned", "abo_pinned")
+    assert "built_in" not in a and after["f_run"]["asset"]["module_hints"]["ranges"][0]["id"] == "f_sink"
+    assert "a 0.80 m gap for the drawn sink_kitchen f_sink" in F.fit_report(fitted)
+    assert not _scene_s2(fitted)
+    # part 1's plan (no gap) leaves the pinned sink buried: the S2 finding this fix removes
+    buried = copy.deepcopy(fitted)
+    for p in buried["furniture"]:
+        if p["id"] == "f_run":
+            p["asset"]["module_plan"] = _plan_without_hints(p)
+    (s2,) = _scene_s2(buried)
+    assert s2["target"] == "f_sink" and s2["metrics"]["depth_m"] > 0.03
+
+
+def test_part2_the_real04_pinned_sinks_get_their_gaps():
+    """The M12 real04 run pinned all three drawn sinks (results/furniture/real04/building_final.json: f_L-1_067,
+    f_L-1_068, f_L-1b_064 with ``asset_pin``); a refit now leaves a gap for each in its run."""
+    path = ROOT / "results" / "furniture" / "real04" / "building_final.json"
+    if not path.is_file():
+        pytest.skip("no committed real04 final building")
+    building = json.loads(path.read_text(encoding="utf-8"))
+    found = F.kitchen_built_ins(building)
+    gaps = {r["id"]: (run_id, r.get("reason")) for run_id, h in found["hints"].items() for r in h.get("ranges") or []}
+    for sink_id, run_id in (("f_L-1_067", "f_L-1_003"), ("f_L-1_068", "f_L-1_012"), ("f_L-1b_064", "f_L-1b_010")):
+        assert gaps[sink_id] == (run_id, F.PINNED_SINK_GAP_REASON) and sink_id not in found["sinks"]
+
+
+def test_part2_a_sink_off_its_unit_keeps_its_own_model_and_a_small_shift_is_recorded(library):
+    """The review's case: a drawn 0.8 m sink 62 % inside the end of a 2.4 m run; part 1 built its sink unit 0.30 m
+    from the drawn centre with no record. Now it is not built in: it keeps its own model, the run leaves a gap at
+    its drawn span, the report says why. A sink whose unit stands within 0.10 m is built in, and the shift is in its
+    asset and in the report."""
+    run = drawn("kitchen_counter", 2.4, 0.6, "f_run", room="r_k", front=0.0, center=(0.0, 0.0), height=0.9)
+    # the run lies along y (front 0 -> rotation 90), from y -1.2 to 1.2; the sink spans y 0.70-1.50
+    over = drawn("sink_kitchen", 0.8, 0.5, "f_sink", room="r_k", front=0.0, center=(0.0, 1.1))
+    assert F.kitchen_built_ins({"furniture": [run, over]})["sinks"] == {"f_sink": "f_run"}
+    before = {"furniture": [run, over]}
+    fitted = F.fit_building(copy.deepcopy(before), library, mode="relaxed")
+    F.assert_only_assets_changed(before, fitted)
+    r, s = fitted["furniture"]
+    assert "built_ins" not in r["asset"]["module_plan"] and r["asset"]["module_plan"]["cutouts"] == []
+    (gap,) = r["asset"]["module_plan"]["gaps"]
+    assert (gap["id"], gap["type"], gap["x_m"], gap["w_m"]) == ("f_sink", "sink_kitchen", pytest.approx(0.95),
+                                                                pytest.approx(0.5))
+    assert "built_in" not in s["asset"] and s["asset"]["method"] in ("library", "parametric")
+    report = F.fit_report(fitted)
+    assert "a 0.50 m gap for the drawn sink_kitchen f_sink" in report and "0.30 m from the drawn centre" in report
+    assert "built into the kitchen run" not in report
+    assert not _scene_s2(fitted)
+    # within KITCHEN_END_SHIFT_MAX_M: built in, the 0.05 m shift named in the sink's asset and in the report
+    near = drawn("sink_kitchen", 0.75, 0.5, "f_sink", room="r_k", front=0.0, center=(0.0, 0.85))
+    fitted = F.fit_building({"furniture": [copy.deepcopy(run), near]}, library, mode="relaxed")
+    r, s = fitted["furniture"]
+    (b,) = r["asset"]["module_plan"]["built_ins"]
+    assert (b["x_m"], b["drawn_x_m"], b["shift_m"]) == (pytest.approx(0.8), pytest.approx(0.85), pytest.approx(-0.05))
+    assert s["asset"]["built_in"] == "f_run" and s["asset"]["module_plan"]["shift_m"] == pytest.approx(-0.05)
+    assert "0.05 m from the drawn sink centre" in s["asset"]["fallback_reason"]
+    assert "f_sink (sink_kitchen): built into the kitchen run f_run" in F.fit_report(fitted)
+    assert "the sink unit stands 0.05 m from the drawn centre" in F.fit_report(fitted)

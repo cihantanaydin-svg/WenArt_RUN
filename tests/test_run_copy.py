@@ -1,6 +1,9 @@
 """``python -m wenart.run copy``: public mapping and filters, the private allow-list, ``--since`` stamps and the
 count-only output (docs/milestone6.md §2.1); the Milestone 7 rules (debug and rectified PNGs, recognition
-questions, answers and crops, detections, pairs_v2) and ATTRIBUTION.md (docs/milestone7.md §9.1, §7.3)."""
+questions, answers and crops, detections, pairs_v2) and ATTRIBUTION.md (docs/milestone7.md §9.1, §7.3).
+
+Fix round after P3, part 2 (17 Oct 2026): the previews and plan crops of ``final/`` follow this run's final manifest
+(an earlier run's never reach the results; the ones copied before this run's report leave the results' final folder)."""
 from __future__ import annotations
 
 import json
@@ -73,7 +76,10 @@ def fill(out: Path) -> None:
     put(out / "check" / "cam_a_plan.jpg", size=10)
     put(out / "check" / "random.jpg", size=10)
     put(out / "final" / "final_report.md", "# f")
-    put(out / "final" / "final_manifest.json", {})
+    # fix round after P3, part 2: the copy takes the previews and plan crops this run's manifest names (the run/
+    # records below carry no run id: a hand run, whose manifest has none either)
+    put(out / "final" / "final_manifest.json", {"kind": "final", "views": [
+        {"camera": "cam_a", "preview": "cam_a_final_preview.jpg", "plan": "cam_a_plan.jpg"}]})
     put(out / "final" / "cam_a_final_preview.jpg", size=10)
     put(out / "final" / "contact_1.jpg", size=10)
     put(out / "final" / "cam_a_plan.jpg", size=10)
@@ -605,3 +611,73 @@ def test_m10_sheet_questions_answers_and_debug_images_are_copied(tmp_path):
     assert "furniture/p/sheets_debug/big_s2.png" not in got                     # over 3 MB
     CP.copy_project(priv)
     assert not any("sheets" in f for f in files(tmp_path / "pr" / "real-01"))
+
+
+def _record(out: Path, stage: str, run_id: str, started: str) -> None:
+    put(out / "run" / f"{stage}.json", {"kind": "stage_record", "project": out.name, "stage": stage, "status": "ok",
+                                        "run_id": run_id, "started_utc": started})
+
+
+def _final_manifest(out: Path, run_id: str, cams, plans=()) -> None:
+    put(out / "final" / "final_manifest.json", {"kind": "final", "status": "ok", "run_id": run_id, "views": [
+        {"camera": c, "preview": f"{c}_final_preview.jpg", "plan": f"{c}_plan.jpg" if c in plans else None}
+        for c in cams]})
+
+
+@pytest.mark.parametrize("kind", ["public", "private"])
+def test_final_view_files_follow_this_runs_manifest_through_the_jobs_copies(tmp_path, kind):
+    """Fix round after P3, part 2: full.sh's first copy ran minutes before the report and took every preview and plan
+    crop then in final/ (the M12 cam_r_L0_koridor_2/3 leftovers, an earlier run's views); the copy only added files,
+    so they stayed in the job's results. Now a view file is copied only when this run's manifest names it, the ones
+    copied before this run's first stage record move to earlier_run/ of the results, and a named file the results
+    miss (or hold an older copy of) is taken even when it is older than the stamp. The same for a private project
+    (its plan crops never leave the volume)."""
+    _results, pub, priv = refs(tmp_path)
+    ref = pub if kind == "public" else priv
+    out, res = ref.out_dir, ref.results_area("final")
+    plans = kind == "public"
+
+    def views():
+        return sorted(f.name for f in res.iterdir() if f.name.endswith(("_final_preview.jpg", "_plan.jpg"))) \
+            if res.is_dir() else []
+
+    # The volume after run R1: its manifest names cam_a (with a plan crop) and cam_b; cam_gone is a leftover of an
+    # older run that no manifest names.
+    _record(out, "render", "R1", "2026-10-15T00:00:00Z")
+    _final_manifest(out, "R1", ["cam_a", "cam_b"], plans=["cam_a"])
+    for name in ("cam_a_final_preview.jpg", "cam_a_plan.jpg", "cam_b_final_preview.jpg", "cam_gone_final_preview.jpg",
+                 "cam_gone_plan.jpg"):
+        put(out / "final" / name, b"R1", age=900)
+    stamp = tmp_path / "logs" / "copy.stamp"
+    # 1. the job's first copy, before this run's first record (the pod setup): the views of R1's manifest only
+    assert CP.copy_results([ref], stamp)["full"]
+    want_r1 = ["cam_a_final_preview.jpg"] + (["cam_a_plan.jpg"] if plans else []) + ["cam_b_final_preview.jpg"]
+    assert views() == want_r1
+    # 2. run R2 writes its first record (phase 1): R1's manifest names nothing now; the views copied in step 1 move
+    #    to earlier_run/ of the results (never deleted); the manifest itself is copied as before
+    _record(out, "intake", "R2", "2026-10-17T00:00:00Z")
+    CP.copy_results([ref], stamp)
+    assert views() == [] and sorted(f.name for f in (res / "earlier_run").iterdir()) == want_r1
+    assert (res / "final_manifest.json").is_file()
+    # 3. R2's report writes its previews and plan crops first and its manifest last: a copy in between takes none
+    for name in ("cam_a_final_preview.jpg", "cam_c_final_preview.jpg", "cam_c_plan.jpg"):
+        put(out / "final" / name, b"R2", age=60)
+    CP.copy_results([ref], stamp)
+    assert views() == []
+    # 4. R2's manifest names cam_a and cam_c: the next copy takes them although they are older than the stamp
+    _final_manifest(out, "R2", ["cam_a", "cam_c"], plans=["cam_c"])
+    CP.copy_results([ref], stamp)
+    want_r2 = ["cam_a_final_preview.jpg", "cam_c_final_preview.jpg"] + (["cam_c_plan.jpg"] if plans else [])
+    assert views() == want_r2
+    assert (res / "cam_a_final_preview.jpg").read_bytes() == b"R2"
+    assert (res / "earlier_run" / "cam_a_final_preview.jpg").read_bytes() == b"R1"       # never overwritten
+    # 5. an older copy in the results is replaced although the source is older than the stamp
+    put(res / "cam_c_final_preview.jpg", b"older", age=3600)
+    CP.copy_results([ref], stamp)
+    assert (res / "cam_c_final_preview.jpg").read_bytes() == b"R2"
+    # 6. the job's last full copy (the EXIT trap) keeps the same set; the leftover and R1's cam_b never reach the
+    #    results' final folder
+    CP.copy_results([ref])
+    assert views() == want_r2
+    assert not any("cam_gone" in f for f in files(ref.results_dir))
+    assert "cam_b_final_preview.jpg" not in views()

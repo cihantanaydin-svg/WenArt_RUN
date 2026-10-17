@@ -23,6 +23,12 @@ of synthetic-03:
 Pinned contracts: ``piece_bbox`` / ``obstacle_rect`` of every parametric
 type equal the Milestone 5 values, and the ``m5`` cameras of the committed
 synthetic-01 / -03 buildings equal their committed scene manifests.
+
+Fix round part 2 (17 Oct 2026, the review of part 1): ``dark``, a windowless
+bedroom with a bed and a nightstand, built to pin the wiring of the fill
+light next to the bedside rig (``lighting.build_lighting``); the flat's
+bedroom camera marked ``balcony`` under an added exterior world renders with
+the exterior clip end (``render.view_clip_end``).
 """
 import json
 import math
@@ -1350,3 +1356,118 @@ def test_row1_stripes_stay_visible_and_light_nothing(hall):
     assert r["wall_diff_as_built"] == 0.0                                     # walls neutral: no red light
     assert r["wall_red_ratio_every"] > 1.02 and r["wall_rg_every"] > r["wall_rg_none"]
     assert r["red_px_as_built"] > 0.1 * r["piece_px"] and r["red_px_none"] == 0
+
+
+# ==========================================================================
+# Fix round part 2 (17 Oct 2026): the review of part 1 (docs/milestone13.md §14.9)
+# ==========================================================================
+
+def dark_bedroom_building() -> dict:
+    """A windowless 4 x 3 m bedroom (one door to the outside, no window: the Milestone 6 fill light is due) with the
+    flat's double bed and nightstand, so its rig is two bedside lamps and no ceiling fixture (P3's
+    r_L0_yatak_odasi_4)."""
+    walls = [_wall("d_s", (-0.2, -0.1), (4.2, -0.1)), _wall("d_n", (-0.2, 3.1), (4.2, 3.1)),
+             _wall("d_w", (-0.1, -0.2), (-0.1, 3.2)), _wall("d_e", (4.1, -0.2), (4.1, 3.2))]
+    openings = [_opening("door_dark", "door", "d_s", (3.2, -0.1), 0.9)]
+    rooms = [_room("r_dark", "Yatak Odasi", "bedroom", [(0, 0), (4, 0), (4, 3), (0, 3)])]
+    furniture = [_piece("f_bed", "r_dark", "bed_double", (2.0, 1.95), (1.6, 2.0), 0.0, 270.0),
+                 _piece("f_night", "r_dark", "nightstand", (0.45, 2.75), (0.5, 0.4), 0.0, 270.0)]
+    return _building("dark", walls, openings, rooms, furniture)
+
+
+@pytest.fixture(scope="module")
+def dark(tmp_path_factory):
+    if BLENDER is None:
+        pytest.skip("no Blender binary")
+    tmp = tmp_path_factory.mktemp("m13_dark_bedroom")
+    return _build(tmp, dark_bedroom_building(), None, ["--no-textures"])
+
+
+@needs_blender
+def test_fixround_part2_windowless_bedroom_keeps_the_fill_light_next_to_its_bedside_lamps(dark):
+    """Fix round after P3, item 5, wired in ``lighting.build_lighting``: a rig without a ceiling fixture adds to the
+    fill light instead of replacing it (P3: r_L0_yatak_odasi_4 got only its two 470 lm bedside lamps and rendered
+    night-dark, +6.1..+6.5 EV wanted). Part 1 pinned only the pure ``lighting.rig_replaces_fill``; this build through
+    Blender fails when the wiring goes back to 'any rig replaces the fill light'."""
+    lamps = sorted(n for n in dark["objects"] if n.startswith("rig_r_dark_bedside_") and not n.endswith("_light"))
+    assert lamps == ["rig_r_dark_bedside_1", "rig_r_dark_bedside_2"]
+    assert all(dark["objects"][f"{n}_light"]["light_type"] == "POINT" for n in lamps)
+    assert not [n for n in dark["objects"] if n.startswith("rig_r_dark_ceiling")]
+    fill = dark["objects"]["light_r_dark"]                                    # the Milestone 6 fill light is built
+    assert fill["light_type"] == "AREA" and fill["visible_camera"] is False and fill["energy"] > 0
+    light = dark["manifest"]["lighting"]
+    assert light["rig"]["rooms"]["r_dark"] == {"fixtures": lamps, "dropped": [], "replaces_fill_light": False,
+                                               "adds_to_fill_light": True, "fill_light_reason": "room has no window"}
+    assert "light_r_dark" in light["area_lights"] and {f"{n}_light" for n in lamps} <= set(light["rig"]["lights"])
+    kinds = {a["kind"] for a in dark["manifest"]["assumed"] if a.get("parent") == "r_dark"}
+    assert {"rig_adds_to_fill_light", "windowless_room_light", "rig_light"} <= kinds
+    assert "rig_replaces_fill_light" not in kinds
+    adds = next(a for a in dark["manifest"]["assumed"] if a.get("kind") == "rig_adds_to_fill_light")
+    assert "no ceiling fixture" in adds["reason"] and "room has no window" in adds["reason"]
+
+
+OPEN_AIR_SCRIPT = textwrap.dedent("""
+    import bpy, json, os, sys
+    sys.path.insert(0, os.environ["WENART_REPO_ROOT"])
+    from mathutils import Vector
+    from wenart.blender import lighting as L
+    from wenart.blender import materials as M
+    from wenart.blender import render as R
+    spec = json.load(open(sys.argv[sys.argv.index("--") + 1]))
+    scene = bpy.context.scene
+    # the exterior world of a build with exterior views (build.py makes it only then)
+    M.exterior_world_nodes(scene, L.world_lighting({}, 210.0), sun_disc=True, sun_elevation_deg=35.0,
+                           sun_azimuth_deg=210.0, sun_wm2=1000.0)
+    cam = bpy.data.objects[spec["open_air"]]
+    cam["wenart_room_type"] = "balcony"                    # a roof terrace's camera (cameras.create_cameras)
+    # nothing in view but a wall 1000 m in front of that camera: inside the exterior clip end, beyond the room
+    # cameras' 200 m, so the depth pass tells which clip the final render used
+    for ob in scene.objects:
+        if ob.type == "MESH":
+            ob.hide_render = True
+    m = cam.matrix_world
+    fwd, right, up = (m.to_3x3() @ Vector(v) for v in ((0, 0, -1), (1, 0, 0), (0, 1, 0)))
+    c = m.translation + fwd * 1000.0
+    verts = [tuple(c + right * sx * 2000.0 + up * sy * 2000.0) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    mesh = bpy.data.meshes.new("far_wall")
+    mesh.from_pydata(verts, [], [(0, 1, 2, 3)])
+    scene.collection.objects.link(bpy.data.objects.new("far_wall", mesh))
+    code = R.main(["--out", spec["out"], "--cameras", spec["open_air"] + "," + spec["room"], "--samples", "2",
+                   "--res", "32x18", "--device", "cpu"])
+    json.dump({"code": code, "clip_after": {n: bpy.data.objects[n].data.clip_end
+                                            for n in (spec["open_air"], spec["room"])}}, open(spec["result"], "w"))
+""")
+
+
+@needs_blender
+def test_fixround_part2_open_air_view_renders_with_the_exterior_clip(flat):
+    """Part 1 put the cameras of open-air rooms under the exterior world with the room cameras' 200 m clip: the
+    ground ended 1.3 degrees under the horizon and a dark band of below-horizon sky ran along every terrace view.
+    The flat's bedroom camera, marked ``balcony`` in a scene with the exterior world, meters and renders with the
+    exterior clip end (a wall 1000 m away fills its depth pass), records it and gets the built 200 m back; the
+    kitchen camera keeps its own clip."""
+    from wenart.blender import exterior
+
+    tmp = flat["tmp"]
+    out = tmp / "open_air"
+    spec = tmp / "open_air_spec.json"
+    spec.write_text(json.dumps({"out": str(out), "open_air": "cam_r_bed_1", "room": KITCHEN_CAM,
+                                "result": str(tmp / "open_air.json")}), encoding="utf-8")
+    (tmp / "open_air.py").write_text(OPEN_AIR_SCRIPT, encoding="utf-8")
+    cli.run_blender(tmp / "open_air.py", [str(spec)], blend=str(flat["scene"] / "scene.blend"), timeout=900,
+                    log_path=tmp / "open_air.log")
+    result = json.loads((tmp / "open_air.json").read_text(encoding="utf-8"))
+    manifest = json.loads((out / "render_manifest.json").read_text(encoding="utf-8"))
+    schemas.validate_render_manifest(manifest)
+    entries = {e["camera"]: e for e in manifest["renders"]}
+    terrace, room = entries["cam_r_bed_1"], entries[KITCHEN_CAM]
+    assert result["code"] == 0
+    assert terrace["open_air"] is True and terrace["room_type"] == "balcony"
+    assert terrace["world"] == "wenart_world_exterior" and room["world"] != "wenart_world_exterior"
+    assert terrace["clip"] == {"start_m": C.CLIP_START_M, "end_m": exterior.CLIP_END, "built_end_m": C.CLIP_END_M,
+                               "rule": R.OPEN_AIR_CLIP_RULE}
+    assert room["clip"] == {"start_m": C.CLIP_START_M, "end_m": C.CLIP_END_M, "built_end_m": C.CLIP_END_M,
+                            "rule": None}
+    depth = terrace["depth"]                                   # the far wall is in the final render's depth pass
+    assert depth["coverage"] > 0.99 and 999.0 < depth["min"] <= depth["max"] < exterior.CLIP_END, depth
+    assert result["clip_after"] == {"cam_r_bed_1": C.CLIP_END_M, KITCHEN_CAM: C.CLIP_END_M}   # restored

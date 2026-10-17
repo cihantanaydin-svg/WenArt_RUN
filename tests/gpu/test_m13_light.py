@@ -17,6 +17,9 @@ exterior world while the lamp stays the one direct sun.
   Fix round after P3 (16-17 Oct 2026): the project white point is the anchor of every view
   (``wb_project_whitepoint``); a view's own white point is the anchor mixed with the rig's colour by its rig share
   (``render.mixed_whitepoint``), the anchor itself without the rig or below ``render.WB_RIG_SHARE_MIN``.
+  Fix round part 2 (17 Oct 2026): that rule reads each view's own share, so two pins that do not: with the rig on,
+  the sunlit living room keeps the project white point (share under ``render.WB_RIG_SHARE_MIN``, no mired shift)
+  and the bath lit mostly by its rig has a share of at least ``RIG_ONLY_MIN_SHARE`` and a warmer white point.
 - ``test_exterior_sky_carries_a_visible_sun_disc``: the exterior world of ``materials.exterior_world_nodes`` (the
   round-3 world: the disc for camera rays only) rendered from a camera looking at the sun: the disc's pixels are far
   brighter than the sky beside them. Then a white plane facing the sun measures the Diffuse Direct light of (a) the
@@ -62,7 +65,12 @@ BLENDER = cli.find_blender()
 needs_blender = pytest.mark.skipif(BLENDER is None, reason="no Blender binary (WENART_BLENDER, "
                                    "/workspace/tools/blender, /opt/wenart/blender, PATH)")
 VARIANTS = ("m11", "base", "sun300", "evcap", "rig", "shell", "all")
-CAMERAS = "cam_r_L0_salon_1,cam_r_L0_banyo_1"          # a daylight living room and a windowless bath of synthetic-01
+CAMERAS = "cam_r_L0_salon_1,cam_r_L0_banyo_1"          # a sunlit living room and a sky-lit bath of synthetic-01
+# Fix round part 2 (17 Oct 2026): the white-balance pins of the two views (rig on): the living room (three windows)
+# keeps the project white point; the bath (one small sky-lit window, win_L0_006; its rig: a mirror light and a
+# ceiling fixture) is lit mostly by the rig.
+DAYLIGHT_CAMERA, RIG_ONLY_CAMERA = CAMERAS.split(",")
+RIG_ONLY_MIN_SHARE = 0.5                # the bath's rig share (bpy 5.2.2 shim run of part 1: 0.819-0.824)
 # The white point is metered on daylight (rig hidden): up to render.WB_METER_MAX_CAMERAS cameras of rooms with a
 # window portal (rooms whose window faces the sun first) and the one with the most incident light wins. Round-3
 # review (16 Oct 2026, a local bpy 5.2.2 run of this test): the first windowed room in name order,
@@ -153,6 +161,15 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
             assert share is None and ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
             continue
         assert share is not None and 0.0 <= share <= 1.0 and ex["wb_rig_kelvin"] == L.RIG_WARM_K, (r["camera"], ex)
+        # fix round part 2 (17 Oct 2026): the mixing rule below reads the view's own share, so it cannot see a share
+        # that is wrong; two pins that do not: the daylight living room keeps the project white point (bpy 5.2.2
+        # shim run of part 1: share 0.0 in base, rig and all), the bath lit mostly by its rig is corrected toward
+        # the rig (0.82 there; a share stuck at 0 would leave it orange, as P3's baths)
+        if r["camera"] == DAYLIGHT_CAMERA:
+            assert share < R.WB_RIG_SHARE_MIN and ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
+            assert abs(ex["wb_view_shift_mired"]) <= 0.5, (r["camera"], ex)
+        elif r["camera"] == RIG_ONLY_CAMERA:
+            assert share >= RIG_ONLY_MIN_SHARE and ex["wb_view_shift_mired"] > 0.0, (r["camera"], ex)
         if share < R.WB_RIG_SHARE_MIN:
             assert ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
         else:

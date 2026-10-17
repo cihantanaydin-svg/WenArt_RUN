@@ -1337,7 +1337,7 @@ CPU suite. Nothing here has run on a GPU yet: the GPU checks named below run in 
 | P3 problem | Fix | Test |
 |---|---|---|
 | One planner session per round passed the 32,768-token context; the 400 was retried and logged as "the agent model did not answer" | `loop.ContextBudget` estimates the next prompt; tool results enter the conversation cut at 6,000 characters (was 12,000); when the prompt plus the answer budget pass `max_model_len` − 1024, the results older than the last 2 replies become one-line stubs, then older ones, then the latest are cut to 2,000 characters. A refused prompt (`model.ContextFullError`, never retried) is cut and sent once more; a second refusal ends the session with the new stop `context_full` and a `check` event (tool `context_budget`). `model_error` stays for timeouts, server errors and no connection | `tests/test_agent_loop_p3.py`, `tests/test_agent_model.py` |
-| No repetition guard on agent calls; planner answers up to 4,096 tokens | `repetition_detection` on every agent request (as the recognition client); the planner's answer budget is `PLANNER_MAX_TOKENS` = 1536 with thinking off; the call log keeps `finish_reason` and `max_tokens`; a JSON answer stopped for repetition is asked again once on one line; `max_model_len` read from the served key's `--max-model-len` (default 32768) | `tests/test_agent_model.py` |
+| No repetition guard on agent calls; planner answers up to 4,096 tokens | `repetition_detection` on every agent request (as the recognition client); the planner's answer budget is min(`DEFAULT_MAX_TOKENS` 4096, room left in the context), never below 1,024, thinking on or off (part 2, 17 Oct 2026: part 1's fixed 1536 cut valid answers of the M12 real04 log, up to 2,740 tokens; a `length` stop is still logged and counted in metrics.finish_reasons); the call log keeps `finish_reason` and `max_tokens`; a JSON answer stopped for repetition is asked again once on one line; `max_model_len` read from the served key's `--max-model-len` (default 32768) | `tests/test_agent_model.py`, `tests/test_agent_loop_p3.py` |
 | "Findings removed" printed the dry re-check's prediction | the stop note, `summary()["findings_removed"]` and the scheduler's note give the measured number (the next round's critics); the dry re-check count is labelled predicted (`findings_removed_predicted`) | `tests/test_agent_loop_p3.py`, `tests/test_run_agent.py` |
 | set_lighting gains below the linear prediction | acceptance unchanged (linear); the finding message and `metrics.set_lighting_suggested` suggest min(x3, needed × √2) of headroom | `tests/test_agent_loop_p3.py` |
 | The mirror dec_L1_009 through the roof was sent to the building session | decor pieces map to their room; cause `decor_under_roof` has no tool and is reported to the decor stage (`report_to: decor`, `not_yours`); the report lists it (integration) | `tests/test_agent_loop_p3.py` |
@@ -1410,14 +1410,87 @@ harmless) and the GLB metallic factor in the audit (optional follow-up). Full CP
 the room type on every camera and the `built_in` list in the furniture summary. Every new test of the integration
 (`tests/test_m13_p3_integration.py`) fails on the code without it.
 
-Decisions for the user (from the tracks): the planner's 1536-token answer budget (raise to 2048 if P4/P5 show
-`length` stops); `context_full` as its own stop; the lamp-lit halls at bath density instead of the Milestone 12 fill
-light; whether open-air rooms drop the invisible fill light; whether P4 runs the interior-HDRI/sun pairing A/B with
-the deeper window pull; the stove gaps (revert = drop the `ranges` hints); the S2 buried threshold 0.25; the built-in
-sink representation (build true, no object of its own).
+Decisions for the user (from the tracks): the planner's answer budget is min(4096, room left), never below 1,024
+(settled in part 2; P4/P5 watch `metrics.json` `finish_reasons.chat.length` and the repetition stops);
+`context_full` as its own stop; the lamp-lit halls at bath density instead of the Milestone 12 fill light; whether
+open-air rooms drop the invisible fill light; whether P4 runs the interior-HDRI/sun pairing A/B with the deeper window
+pull; the stove gaps (revert = drop the `ranges` hints); the S2 buried threshold 0.25; the built-in sink
+representation (build true, no object of its own).
 
 GPU checks for P4/P5: `pytest -m gpu tests/gpu/test_agent.py tests/gpu/test_render.py tests/gpu/test_m13_modules.py
 tests/gpu/test_m13_light.py tests/gpu/test_m13_site.py tests/gpu/test_look_m6.py` on the real04 run.
+
+**Part 2 (17 Oct 2026; no pod).** Two reviewers per track read part 1 (62b2b3c) and found 22 defects (3 major); the
+six tracks fixed all of them (each behaviour fix with a CPU test that fails on 62b2b3c; each test that was too weak
+strengthened until a mutation of the code it covers makes it fail), then one integration step applied the asks.
+
+- **Agent (A).** The planner's answer budget is min(`DEFAULT_MAX_TOKENS` 4096, room left in the context), never below
+  1,024, thinking on or off (the lead's decision, the verifier's better fix #4): part 1's fixed 1536 cut valid answers
+  (the M12 real04 log has r3-s4-p6 at 2,740 tokens with its tool call after the prose). A `length` stop is still
+  logged and counted (`metrics.json` `finish_reasons.chat.length`). A 200 answer with no choices, and a `ModelError`
+  that `post()` raises, now carry the real number of POSTs; the call log no longer says retries + 1 attempts after one
+  POST (`tests/test_agent_model.py::test_an_answer_with_no_choices_logs_the_posts_it_took`).
+- **Light (L).** Open-air views under the exterior world meter and render with `exterior.CLIP_END` = 3000 m
+  (`render.view_clip_end` / `set_view_clip`); each render entry has `clip` {start_m, end_m, built_end_m, rule}, and the
+  camera gets its 200 m back after the render. real02's terrace re-rendered in the bpy shim: the no-hit band under the
+  horizon goes from 0.54 % of the frame (luminance 0.024 against a 0.752 sky) to 0, depth max 2683 m, EV unchanged.
+  New GPU pins in `tests/gpu/test_render.py`: the band under the horizon (`OPEN_AIR_BAND_MAX`,
+  `OPEN_AIR_BAND_SKY_RATIO`, `HORIZON_MARGIN_PX`), `SKY_PULLED_VIEWS` (real04 ext_2 / ext_4, real02 ext_2 must be
+  pulled), `FILL_LIGHT_ROOMS` (the windowless bedrooms keep their fill light next to the rig) and
+  `RIG_ONLY_MEDIAN_SHARE`; `tests/gpu/test_m13_light.py` pins the salon (the project white point) and the bath (rig
+  share ≥ 0.5). For P5: the terrace views now see the haze volume and the backdrop ring as the exterior views do; in the
+  shim at 16 spp the terrace sky shows haze noise, its sky share falls from 0.189 to 0.084 and the sky pull goes from
+  k 1 to k 4. Check the terrace skies on the P5 contact sheets.
+- **Geometry (G).** Sink and vanity carcasses are hollow above the bowl (`parametric.open_carcass`: the modules' sink
+  unit and vanity, parametric `_sink` and `_vanity`; the outer box is unchanged); part 1's built-in sink unit filled its
+  own bowl up to 4 cm under the rim (major). A pinned drawn sink inside a run gets a gap and keeps its pinned model
+  (real04's f_L-1_067, f_L-1_068 and f_L-1b_064 on a refit). A drawn sink is built in only within 0.10 m of its drawn
+  centre, and the shift is recorded (`built_ins.shift_m`, the sink's asset, the fit report); farther away it keeps its
+  own model in a gap at its drawn span (this replaces the review's "S2 reports it": a sink buried under an uncut
+  worktop has no agent fix). A gap never takes the whole run, and `build_module` refuses a plan with no parts (an
+  island stretch narrower than the plinth recess gets no plinth). The S2 "buried" violation has `depth_m` = inside
+  share × the smaller drawn side, so metric 6 ("S2 > 3 cm") counts it. For P5: check the L-1 / L-1b kitchen views for
+  open sink bowls; `tests/gpu/test_m13_modules.py` now asserts that the ray into the sink unit ends under the rim
+  (z < 0.75 m).
+- **Site (S).** The lawn relief keeps the ground level under draped paths and parking, sloped platforms, entrance
+  steps, trees, shrubs and hedges (`site.relief_keep`, `vegetation.relief_weights`); in the bpy 5.2.2 module the gaps
+  under a path, the parking, a shrub and a tree go from 2.1 / 2.0 / 2.6 / 2.8 cm to 0. On a flat site neither the
+  ground nor the grass gets a relief (part 1 sank the grass clumps 2 cm into the lawn); the grass shares the ground's
+  grid and keep zones. By the lead's decision on the CLAUDE.md horizon rule, P4's set 1 re-pitches the replayed M11
+  aerial ext_5 (30° at 28.54 mm, horizon at 1.31 of the frame height: no sky) to 15.66° at 26 mm (horizon 0.86) about
+  its target and distance (`build.repitch_replayed_aerials`; the camera record's `replay`, `cameras_from.repitched`), so
+  ext_5 in P4 is not frame-identical to M11. The plants-on-terrace test now fails when the camera model puts trees or
+  hedges on the raw terrain.
+- **Ingest (I).** Tests now cover the inner-wall camera obstacle (the points and the fallback), the crop collision
+  through `run_project`, the 25 % missed-piece rule, the one-extra-per-missed-piece rule and the door span rule in the
+  two-page run, and the never-asked `open_questions` and withdraw paths; each test was checked with a mutation of the
+  code it covers (`pipeline.py`, `reading.py`, `camsearch.py` unchanged). `scripts/jobs/full.sh` gains
+  `RUN_FRESH_RECOGNITION` (the lead's decision for P5: real04's stored L0 answers were given on the wrong crops, the
+  crop collision that part 1 fixed).
+- **Report (R).** The needs-review report also moves an earlier run's previews and plan crops to `final/earlier_run/`
+  (`earlier_run_files`), and the results copy takes a view file only when this run's final manifest names it and moves
+  the others in the results' `final` folder to its `earlier_run/` (major: the job's first copy had taken the stale
+  previews minutes before the report moved them).
+
+**P5 command.** Add `--env RUN_FRESH_RECOGNITION=real04` to the P5 `gpu_run.py` command. The job moves (never deletes)
+real04's recognition and sheets answer files to `outputs/real04/recognition/set_aside_<stamp>/` (the sheets answers in
+its `sheets/` sub-folder), logs the move in `/workspace/logs/fresh_recognition.log`, and the questions are asked again.
+A resumed P5 command keeps the new answers (the log already has the line); `real04:<tag>` sets them aside again, once
+per new tag. `results/recognition/real04/` must not receive the P3 answers: a committed seed whose key and input hash
+match is copied back.
+
+**Integration of part 2.** Applied asks: X6 counts one true aerial per camera set (the replayed set and the searched
+set of `--cameras-extra`), so P4's ext_5 + ext_5_s give no minor X6 (`exterior_checks._x6`); the before | after sheet
+of a re-pitched replayed aerial has a fourth caption line, a `camera_note` in `sheets13.json` and a note column in
+`sheets13.md` (`sheets13.camera_note`); the scene manifest schema documents `replay`, `pitch_deg`, `horizon_frac` and
+`cameras_from.repitched`; these notes and `docs/progress.md`. Tests: `tests/test_m13_p3_integration2.py` (each test
+fails with its module of 62b2b3c). Full CPU suite after the part-2 integration (`pytest -m "not gpu"`): 5191
+passed, 214 skipped (no Blender binary), 154 deselected (GPU), 4 xfailed, 0 failed, 59:21 min; no test needed a
+change. Nothing of part 2 has run on a GPU: the new GPU pins run in P4/P5 (same command as above). Left for a later
+round: a second, unpinned sink of a run gets no gap (no committed building has one; S2 reports it with `depth_m`);
+the grass surface still differs from the ground where its clip vertices miss the ground's grid (up to ±6.6 cm at the
+corners of a synthetic sloped terrain; there at 62b2b3c too, not from the relief); `swap_model` on a built-in sink is
+allowed (the refit stands the library sink in a gap of the run).
 
 ### 14.4 Open items and risks by track
 

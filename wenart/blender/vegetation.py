@@ -1338,17 +1338,22 @@ def tree_object(species: str, height_m: float, seed: int, near_camera: bool, *, 
 
 
 def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: Optional[dict] = None,
-                holes: Sequence = (), name: str = "grass_near", seed: int = 7, relief: bool = False) -> tuple:
+                holes: Sequence = (), name: str = "grass_near", seed: int = 7, relief: bool = False,
+                keep: Sequence = (), step: Optional[float] = None, reach: Optional[float] = None) -> tuple:
     """Grass clumps over ``polygon`` (bpy; Milestone 13 T6): a draped surface of the polygon minus ``holes``
     (``site.draped_faces``) carrying a geometry-nodes scatter of ``density`` clumps per m²: the Poly Haven clump
     (``grass_medium_02`` / ``grass_bermuda_01``, CC0) when the assets hold it, else the crossed grass cards. The
     surface itself is hidden from the render (the ground shows through). ``relief`` (fix round after P3): the
-    surface gets the lawn's relief first (``lawn_relief``, every vertex), so the clumps follow the lowered lawn.
-    Returns ``(object, record)``."""
+    surface gets the lawn's relief first (``lawn_relief``), so the clumps follow the lowered lawn. Fix round part 2
+    (17 Oct 2026): ``keep`` and ``reach`` (the ground's keep polygons, ``site.relief_keep``, and its
+    ``relief_reach``) leave the same places at their level and ``step`` (the ground's grid, ``site.grid_step`` of the
+    ground's extent) puts the surface's vertices on the ground's, so the clumps follow the ground's own relief
+    (measured in bpy 5.2.2: within -0.5 / +0.8 cm of it, 0.02 cm on average; 0.08 cm and down to -2.9 cm before);
+    ``site.build_site`` asks for ``relief`` only when the ground got one. Returns ``(object, record)``."""
     import bpy
     from wenart.blender import site as S
     terrain = terrain or {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
-    verts, faces = S.draped_faces(polygon, list(holes), terrain, lift=0.02)
+    verts, faces = S.draped_faces(polygon, list(holes), terrain, lift=0.02, step=step)
     if not faces:
         raise ValueError("grass_patch: an empty lawn polygon")
     ob = _mesh_object(name, verts, faces, collection, [])
@@ -1377,8 +1382,9 @@ def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: 
     scale = (0.6, 1.1) if method == "cards" else (0.25, 0.45)
     ng = scatter_group(f"veg_grass_{method}_{int(density)}", clump, float(density), seed, scale_range=scale,
                        tilt_deg=8.0, keep_surface=False, align_normal=True)
+    relief_rec = None
     if relief:                                       # before the scatter: the clumps stand on the displaced surface
-        lawn_relief(ob, pin_edges=False)
+        relief_rec = lawn_relief(ob, pin_edges=False, keep=keep, reach=reach)
     mod = ob.modifiers.new("grass", "NODES")
     mod.node_group = ng
     from wenart import geometry as G
@@ -1387,7 +1393,8 @@ def grass_patch(polygon: Sequence, density: float, *, collection=None, terrain: 
     count = int(max(0.0, area) * float(density))
     _tag(ob, "site_grass", "lawn", method, asset, licence, 0.3)
     return ob, {"method": method, "asset": asset, "licence": licence, "density": float(density), "count": count,
-                "area_m2": round(max(0.0, area), 2), "relief": bool(relief)}
+                "area_m2": round(max(0.0, area), 2), "relief": bool(relief and (relief_rec or {}).get("applied")),
+                "relief_weighted": (relief_rec or {}).get("weighted"), "keep_polygons": len(keep or ())}
 
 
 # The lawn's look (round 3, P1 §14.3: every exterior view of real02 and real04 rendered the lawn as a flat saturated
@@ -1488,8 +1495,24 @@ def lawn_material(mat) -> dict:
 # level 0.5) lifted the lawn up to 3 cm, over the draped paths and parking (site.PAVING_LIFT = 1.2 cm) and the grass
 # areas (0.4 cm). How: ``relief_range`` and ``relief_weights`` are pure (tests/test_m13_site.py); the grass clumps'
 # surface gets the same relief (``grass_patch(..., relief=True)``), so the clumps stay on the lowered lawn.
+#
+# Fix round part 2 (17 Oct 2026; review of part 1). What: the relief also leaves the ground at its level under and
+# around every object that stands on the terrain (``keep``: the polygons ``site.relief_keep`` collects: the ground's
+# holes, the draped areas, the sloped platforms, the inferred entrance steps, every tree, shrub and hedge footprint):
+# every ground vertex inside a keep polygon or within ``relief_reach`` of it (``RELIEF_KEEP["margin_m"]`` plus a grid
+# cell's diagonal: every face that comes within the margin stays level as a whole) gets weight 0. The grass surface
+# gets the same keep polygons and reach on the ground's grid (``grass_patch(..., keep=, step=, reach=)``: its vertices
+# are the ground's, with the same weights), and the relief only where the ground got one (``site.build_site``: a flat
+# ground of convex pieces has no inner vertex, so no relief, and its grass gets none either). Why: measured in
+# the bpy 5.2.2 module on a sloped synthetic site, the down-only relief (mean -1.8 cm, up to -3.4 cm, 92 % of the
+# vertices moved) left a draped path and a sloped parking 2.1 / 2.0 cm (up to 3.0 cm) over the lawn with no edge under
+# them and a shrub's and a tree's base 2.6 / 2.8 cm in the air; on a flat site the grass clumps sat 2.1 cm in the
+# lawn. How: ``relief_weights(..., verts=, keep=, reach=)`` is pure (the vertices in buckets, each keep polygon
+# tested against the vertices near it); ``lawn_relief`` returns its record (``weighted``: the vertices that move; no
+# modifier when none does).
 LAWN_RELIEF = {"strength_m": 0.04, "mid_level": 1.0, "scale": 2.5}
 LAWN_RELIEF_GROUP = "lawn_relief"
+RELIEF_KEEP = {"margin_m": 0.3, "bucket_m": 4.0}
 
 
 def relief_range(strength_m: float = LAWN_RELIEF["strength_m"], mid_level: float = LAWN_RELIEF["mid_level"]
@@ -1500,30 +1523,118 @@ def relief_range(strength_m: float = LAWN_RELIEF["strength_m"], mid_level: float
     return round(min(lo, hi), 6), round(max(lo, hi), 6)
 
 
-def relief_weights(n_verts: int, faces: Sequence[Sequence[int]]) -> list[float]:
-    """The relief's vertex weights (pure): 0 on a boundary vertex (one end of an edge only one face uses: the ground's
-    rim and every hole's edge), 1 elsewhere, so the ground meets the building, the platforms, the wells, the pools and
-    the skirt at its own level."""
-    count: dict = {}
-    for f in faces:
-        n = len(f)
-        for k in range(n):
-            a, b = int(f[k]), int(f[(k + 1) % n])
-            key = (a, b) if a < b else (b, a)
-            count[key] = count.get(key, 0) + 1
-    edge_verts = {v for key, c in count.items() if c == 1 for v in key}
-    return [0.0 if i in edge_verts else 1.0 for i in range(int(n_verts))]
+def _point_segment_distance(p, a, b) -> float:
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    n = dx * dx + dy * dy
+    t = 0.0 if n <= 1e-18 else max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / n))
+    return math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy))
+
+
+def _inside(p, poly) -> bool:
+    """Even-odd point in polygon (pure; a point on an edge may go either way, the reach catches it)."""
+    x, y = p
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        (x1, y1), (x2, y2) = poly[i], poly[(i + 1) % n]
+        if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1:
+            inside = not inside
+    return inside
+
+
+def near_polygon(p, poly, reach: float) -> bool:
+    """True when the point ``p`` lies inside the polygon or within ``reach`` of its edges (pure)."""
+    if len(poly) >= 3 and _inside(p, poly):
+        return True
+    n = len(poly)
+    return any(_point_segment_distance(p, poly[i], poly[(i + 1) % n]) <= reach for i in range(n))
+
+
+def relief_reach(step_m: float, margin_m: Optional[float] = None) -> float:
+    """How far from a keep polygon the ground's vertices stay level (pure; fix round part 2): ``margin_m``
+    (``RELIEF_KEEP["margin_m"]``) plus the diagonal of a ground cell of ``step_m`` (``site.grid_step``), so every
+    vertex of a ground face that comes within the margin of the polygon stays level, and with it every point of the
+    face. The grass surface uses the same reach on the same grid (``grass_patch``), so its clumps follow the lawn."""
+    m = float(RELIEF_KEEP["margin_m"] if margin_m is None else margin_m)
+    return round(m + math.sqrt(2.0) * max(0.0, float(step_m)), 6)
+
+
+def relief_weights(n_verts: int, faces: Sequence[Sequence[int]], verts: Optional[Sequence] = None,
+                   keep: Sequence = (), reach: Optional[float] = None, pin_edges: bool = True) -> list[float]:
+    """The relief's vertex weights (pure): 0 on a boundary vertex with ``pin_edges`` (one end of an edge only one face
+    uses: the ground's rim and every hole's edge), so the ground meets the building, the platforms, the wells, the
+    pools and the skirt at its own level; fix round part 2 (17 Oct 2026): 0 on every vertex (``verts``: x, y) inside
+    a ``keep`` polygon or within ``reach`` of one (default ``RELIEF_KEEP["margin_m"]``; ``relief_reach`` for a ground
+    mesh), so the ground under a draped path, a sloped platform, entrance steps, a tree, a shrub or a hedge keeps its
+    level; 1 elsewhere."""
+    n_verts = int(n_verts)
+    zero: set = set()
+    if pin_edges:
+        count: dict = {}
+        for f in faces:
+            n = len(f)
+            for k in range(n):
+                a, b = int(f[k]), int(f[(k + 1) % n])
+                key = (a, b) if a < b else (b, a)
+                count[key] = count.get(key, 0) + 1
+        zero = {v for key, c in count.items() if c == 1 for v in key}
+    polys = [[(float(q[0]), float(q[1])) for q in poly] for poly in keep or () if len(poly) >= 3]
+    if polys and verts is not None:
+        r = float(RELIEF_KEEP["margin_m"] if reach is None else reach)
+        cell = max(float(RELIEF_KEEP["bucket_m"]), r)
+        buckets: dict = {}
+        for i in range(n_verts):
+            if i in zero:
+                continue
+            x, y = float(verts[i][0]), float(verts[i][1])
+            buckets.setdefault((math.floor(x / cell), math.floor(y / cell)), []).append(i)
+        for poly in polys:
+            px, py = [q[0] for q in poly], [q[1] for q in poly]
+            x0, y0, x1, y1 = min(px) - r, min(py) - r, max(px) + r, max(py) + r
+            for bi in range(math.floor(x0 / cell), math.floor(x1 / cell) + 1):
+                for bj in range(math.floor(y0 / cell), math.floor(y1 / cell) + 1):
+                    for i in buckets.get((bi, bj), ()):
+                        if i in zero:
+                            continue
+                        x, y = float(verts[i][0]), float(verts[i][1])
+                        if x0 <= x <= x1 and y0 <= y <= y1 and near_polygon((x, y), poly, r):
+                            zero.add(i)
+    return [0.0 if i in zero else 1.0 for i in range(n_verts)]
 
 
 def lawn_relief(ground_ob, strength: Optional[float] = None, scale: Optional[float] = None,
-                pin_edges: bool = True) -> None:
+                pin_edges: bool = True, keep: Sequence = (), reach: Optional[float] = None) -> dict:
     """The far lawn's gentle relief (bpy): a Displace modifier with a Clouds texture on the ground mesh (no blades
     far from the cameras; the grass texture stays). Fix round after P3: down only (``LAWN_RELIEF``: mid level 1) and,
-    with ``pin_edges``, only on the vertices of ``relief_weights`` (the vertex group ``LAWN_RELIEF_GROUP``).
-    Idempotent."""
+    with ``pin_edges``, only on the vertices of ``relief_weights`` (the vertex group ``LAWN_RELIEF_GROUP``). Fix round
+    part 2 (17 Oct 2026): ``keep`` (``site.relief_keep``) leaves the vertices in and within ``reach`` of those
+    polygons at their level too (the group then also holds without ``pin_edges``); no modifier when no vertex would
+    move (a flat ground of convex pieces). Returns ``{"applied", "weighted", "vertices", "edges_kept",
+    "keep_polygons", "reach_m"}`` (the object's ``wenart_lawn_relief``). Idempotent."""
     import bpy
-    if ground_ob is None or ground_ob.type != "MESH" or "lawn_relief" in ground_ob.modifiers:
-        return
+    if ground_ob is None or ground_ob.type != "MESH":
+        return {"applied": False, "weighted": 0, "reason": "no mesh"}
+    if "lawn_relief" in ground_ob.modifiers or ground_ob.get("wenart_lawn_relief"):
+        try:
+            return json.loads(ground_ob["wenart_lawn_relief"])
+        except (KeyError, TypeError, ValueError):
+            return {"applied": "lawn_relief" in ground_ob.modifiers, "weighted": None}
+    me = ground_ob.data
+    keep = [p for p in keep or () if len(p) >= 3]
+    grouped = bool(pin_edges or keep)
+    if grouped:
+        weights = relief_weights(len(me.vertices), [list(p.vertices) for p in me.polygons],
+                                 verts=[(v.co.x, v.co.y) for v in me.vertices], keep=keep, reach=reach,
+                                 pin_edges=pin_edges)
+        inner = [i for i, w in enumerate(weights) if w > 0.0]
+    else:
+        inner = list(range(len(me.vertices)))
+    rec = {"applied": bool(inner), "weighted": len(inner), "vertices": len(me.vertices), "edges_kept": bool(pin_edges),
+           "keep_polygons": len(keep), "reach_m": float(RELIEF_KEEP["margin_m"] if reach is None else reach)}
+    if not inner:
+        rec["reason"] = "no vertex away from the ground's edges and the keep polygons (a flat ground of convex pieces)"
+        ground_ob["wenart_lawn_relief"] = json.dumps(rec)
+        return rec
     tex = bpy.data.textures.get("veg_lawn_relief") or bpy.data.textures.new("veg_lawn_relief", type="CLOUDS")
     tex.noise_scale = float(LAWN_RELIEF["scale"] if scale is None else scale)
     tex.noise_depth = 2
@@ -1532,11 +1643,9 @@ def lawn_relief(ground_ob, strength: Optional[float] = None, scale: Optional[flo
     mod.strength = float(LAWN_RELIEF["strength_m"] if strength is None else strength)
     mod.mid_level = float(LAWN_RELIEF["mid_level"])
     mod.direction = "Z"
-    if pin_edges:
-        me = ground_ob.data
-        weights = relief_weights(len(me.vertices), [list(p.vertices) for p in me.polygons])
+    if grouped:
         group = ground_ob.vertex_groups.get(LAWN_RELIEF_GROUP) or ground_ob.vertex_groups.new(name=LAWN_RELIEF_GROUP)
-        inner = [i for i, w in enumerate(weights) if w > 0.0]
-        if inner:
-            group.add(inner, 1.0, "REPLACE")
+        group.add(inner, 1.0, "REPLACE")
         mod.vertex_group = group.name
+    ground_ob["wenart_lawn_relief"] = json.dumps(rec)
+    return rec

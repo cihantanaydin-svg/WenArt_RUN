@@ -19,6 +19,13 @@ P3 code 3724033 / 5bd7bab): the view white point mixed from the project's daylig
 share; the roof terraces (``balcony``) under the exterior world and the cameras marked with their room type; the
 window pull to 10 stops with the pane target; the sky pull of the views under the exterior sky; a rig replaces the
 fill light only with a ceiling fixture; the hall and stair fixtures carry bulbs for 450 lm per m².
+
+Fix round part 2 (17 Oct 2026, the review of part 1; the ``test_fixround_part2_*`` tests, each failing on 62b2b3c):
+the open-air views take the exterior clip end (``render.view_clip_end`` / ``set_view_clip``), and CPU replays of the
+GPU checks of tests/gpu/test_render.py on hand-made manifests: the white-point pins that do not read the view's own
+share, the sky pull that must fire, the named windowless bedrooms that keep their fill light, the clip and the dark
+band under the horizon of the open-air views. The Blender-bound twins (a windowless bedroom's build, an open-air view
+rendered with the exterior clip) are in tests/test_look_m6.py.
 """
 from __future__ import annotations
 
@@ -1078,3 +1085,263 @@ def test_fixround_p3_hall_and_stair_fixtures_carry_bulbs_for_the_floor_area():
         new = L.rig_bulbs(hall_spec, area, 1) * hall_spec["watts_applied"] / area
         assert all(math.log2(0.9 / (k * old)) > 4.5 for k in per_wm2)              # over the +3 cap without the agent
         assert all(math.log2(0.9 / (k * new)) < 2.85 for k in per_wm2)             # within it before any agent edit
+
+
+# --------------------------------------------------------------------------
+# Fix round part 2 (17 Oct 2026, the review of part 1): the open-air clip, and CPU replays of the GPU checks of
+# tests/gpu/test_render.py on hand-made manifests (each replay fails on the part-1 GPU checks, which passed them)
+# --------------------------------------------------------------------------
+
+EXT_PROPS = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_interior": "World",
+             "wenart_world_exterior_sun_disc": True, "wenart_world_exterior_disc_camera_only": True}
+
+
+class _Cam(dict):
+    """A stand-in for a Blender camera object: custom properties and ``data.clip_start`` / ``data.clip_end``."""
+
+    def __init__(self, kind=None, clip_end=200.0):
+        super().__init__(wenart_camera_kind=kind)
+        import types
+        self.data = types.SimpleNamespace(clip_start=0.05, clip_end=clip_end)
+
+
+def test_fixround_part2_open_air_views_take_the_exterior_clip_end():
+    """Part 1 put the terrace views under the exterior world but kept the room cameras' 200 m clip: the ground ended
+    1.3 degrees under the horizon and the rays above it showed the sky's below-horizon colour, a dark band along the
+    horizon of every terrace view. An open-air view under the exterior world now takes the exterior views' clip end
+    (``exterior.CLIP_END``) for metering and render, records it and gets the built clip back afterwards."""
+    from wenart.blender import exterior as E
+
+    rule = R.OPEN_AIR_CLIP_RULE
+    assert C.CLIP_END_M == 200.0 and E.CLIP_END == 3000.0 and "exterior.CLIP_END" in rule
+    assert R.view_clip_end(200.0, EXT_PROPS, "interior", "balcony") == (3000.0, rule)
+    assert R.view_clip_end(200, EXT_PROPS, None, "balcony") == (3000.0, rule)
+    assert R.view_clip_end(5000.0, EXT_PROPS, None, "balcony") == (5000.0, rule)          # never shortened
+    assert R.view_clip_end(200.0, EXT_PROPS, "interior", "living") == (200.0, None)
+    assert R.view_clip_end(200.0, EXT_PROPS, None, None) == (200.0, None)
+    assert R.view_clip_end(200.0, {"wenart_world_interior": "World"}, None, "balcony") == (200.0, None)  # no exterior
+    assert R.view_clip_end(150.0, EXT_PROPS, "exterior") == (150.0, None)        # an exterior view keeps its own clip
+    # The band's geometry on real02's committed terrace camera (4.4 m up, level, 16 mm on 36 mm, 1920 px): the ground
+    # at the clip end lies h / d under the horizon; 200 m: about 19 rows (the review: ~19 px), the exterior clip end:
+    # under the GPU check's HORIZON_MARGIN_PX (and the skirt and the backdrop ring catch those rays before it).
+    manifest = json.loads(REAL02.read_text(encoding="utf-8"))
+    cam = next(c for c in manifest["cameras"] if c["name"] == "cam_r_L1_teras_1")
+    fpx = cam["lens_mm"] / cam["sensor_mm"] * cam["resolution"][0]
+    rows = {d: fpx * cam["position"][2] / d for d in (C.CLIP_END_M, E.CLIP_END)}
+    assert 17.0 < rows[200.0] < 21.0 and rows[3000.0] < 2.0
+    # the Blender side on a stand-in camera: set, read back, the built clip end returned for the restore
+    terrace = _Cam("interior")
+    record, built = R.set_view_clip(terrace, EXT_PROPS, "balcony")
+    assert terrace.data.clip_end == 3000.0 and built == 200.0
+    assert record == {"start_m": 0.05, "end_m": 3000.0, "built_end_m": 200.0, "rule": rule}
+    living = _Cam("interior")
+    record, built = R.set_view_clip(living, EXT_PROPS, "living")
+    assert living.data.clip_end == built == 200.0 and record["rule"] is None and record["end_m"] == 200.0
+    from wenart.blender import schemas
+
+    __import__("jsonschema").validate(record, schemas.RENDER_ENTRY["properties"]["clip"])
+
+
+def _gpu_render_module(monkeypatch, outputs: Path):
+    """tests/gpu/test_render.py imported against ``outputs`` (its env is read at import), as
+    tests/test_blender_render.py does."""
+    import importlib.util
+
+    monkeypatch.setenv("WENART_OUTPUTS", str(outputs))
+    monkeypatch.setenv("RENDER_TEST_PROJECTS", "real04")
+    spec = importlib.util.spec_from_file_location("gpu_test_render_m13_light",
+                                                  ROOT / "tests" / "gpu" / "test_render.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _wb_project(anchor, entries, rig_rooms=("r_b",)):
+    rooms = {r: {"replaces_fill_light": True, "fixtures": [f"rig_{r}_ceiling_1"]} for r in rig_rooms}
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}, "rig": {"on": True, "rooms": rooms}}}
+    render = {"white_balance_mode": "project", "renders": entries,
+              "white_balance_project": {"whitepoint": anchor, "residual": 0.35, "kelvin": 5635.0}}
+    return "real04", scene, render
+
+
+def _wb_entry(camera, room_id, whitepoint, share=None, anchor=P3_ANCHOR, shift=0.0, world="World"):
+    return {"camera": camera, "room_id": room_id, "world": world,
+            "exposure": {"wb_project_whitepoint": list(anchor), "whitepoint": list(whitepoint), "wb_rig_share": share,
+                         "wb_rig_whitepoint": RIG_2700K if share is not None else None, "wb_view_shift_mired": shift}}
+
+
+def test_fixround_part2_gpu_white_point_pins_do_not_read_the_views_own_share(tmp_path, monkeypatch):
+    """The part-1 GPU check computed each view's expected white point from the view's own recorded share, so a share
+    that is wrong passed: a daylight view with an inflated share, or a rig-lit room whose share stuck at 0. The views
+    under the exterior sky must keep the anchor with no share; the rooms whose rig replaces the fill light must be
+    corrected toward the rig."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    mixed = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 0.8, 0.35)
+    good = [_wb_entry("ext_2", None, P3_ANCHOR, world="wenart_world_exterior"),
+            _wb_entry("cam_r_L1_teras_1", "r_L1_teras", P3_ANCHOR, world="wenart_world_exterior"),
+            _wb_entry("cam_r_s_1", "r_s", P3_ANCHOR, share=0.0),
+            _wb_entry("cam_r_b_1", "r_b", mixed, share=0.8, shift=90.0)]
+    gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P3_ANCHOR, good))
+    # a terrace view metered with an inflated share (self-consistent: the mix of that share)
+    inflated = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 0.4, 0.35)
+    bad = good[:1] + [_wb_entry("cam_r_L1_teras_1", "r_L1_teras", inflated, share=0.4, shift=40.0,
+                                world="wenart_world_exterior")] + good[2:]
+    with pytest.raises(AssertionError, match="cam_r_L1_teras_1.*under the exterior sky"):
+        gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P3_ANCHOR, bad))
+    # the rig-lit bath with its share stuck at 0 (the anchor itself: self-consistent, P3's orange bath)
+    bad = good[:3] + [_wb_entry("cam_r_b_1", "r_b", P3_ANCHOR, share=0.0)]
+    with pytest.raises(AssertionError, match="cam_r_b_1.*lit by its rig alone"):
+        gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P3_ANCHOR, bad))
+    # a rig-lit room barely corrected: each share over the floor, the median under RIG_ONLY_MEDIAN_SHARE
+    weak = R.mixed_whitepoint(P3_ANCHOR, RIG_2700K, 0.1, 0.35)
+    bad = good[:3] + [_wb_entry("cam_r_b_1", "r_b", weak, share=0.1, shift=10.0)]
+    with pytest.raises(AssertionError, match="median rig share"):
+        gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P3_ANCHOR, bad))
+    assert gpu.RIG_ONLY_MEDIAN_SHARE == 0.5
+
+
+def _sky(k, before=(0.84, 0.06), after=(0.70, 0.14), tried=None):
+    tried = tried if tried is not None else [{"k": 1, "median": 0.78, "saturation": 0.10},
+                                             {"k": 2, "median": 0.70, "saturation": 0.14}][:max(k, 2)]
+    return {"ev": -float(k), "k": k, "sky_px": 5000, "sky_share": 0.2, "median_before": before[0],
+            "saturation_before": before[1], "median_after": after[0] if k else before[0],
+            "saturation_after": after[1] if k else before[1], "rule": "r", "tried": tried}
+
+
+def test_fixround_part2_gpu_sky_pull_check_fails_when_no_sky_is_pulled(tmp_path, monkeypatch):
+    """The part-1 GPU check judged only the pulls that happened: with the sky pull never firing (sky_pull None, or
+    k 0 although a tried k qualifies) real04's ext_2 / ext_4 kept P3's near-white skies and the check passed."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}}}
+
+    def project(*skies):
+        return "real04", scene, {"renders": [{"camera": c, "room_id": None, "sky_pull": s}
+                                             for c, s in zip(("ext_1", "ext_2", "ext_4"), skies)]}
+    unpullable = _sky(0, before=(0.92, 0.03), tried=[{"k": k, "median": 0.9 - 0.08 * k, "saturation": 0.05}
+                                                     for k in (1, 2, 3, 4)])
+    k1 = _sky(1, before=(0.81, 0.10), after=(0.72, 0.13), tried=[{"k": 1, "median": 0.72, "saturation": 0.13}])
+    gpu.test_sky_and_window_pulls_reach_their_targets(project(unpullable, _sky(2), k1))
+    assert gpu.SKY_PULLED_VIEWS["real04"] == ("ext_2", "ext_4")
+    with pytest.raises(AssertionError, match="ext_2.*not pulled"):              # no sky record at all
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(unpullable, None, k1))
+    with pytest.raises(AssertionError, match="ext_4.*not pulled"):              # k 0 with a qualifying k tried
+        gpu.test_sky_and_window_pulls_reach_their_targets(project(unpullable, _sky(2), _sky(0)))
+    with pytest.raises(AssertionError, match="no view pulled"):                 # none pulled anywhere
+        gpu.test_sky_and_window_pulls_reach_their_targets(
+            ("real03", scene, {"renders": [{"camera": "ext_9", "room_id": None, "sky_pull": _sky(0)}]}))
+
+
+def _fill_scene(rooms: dict, objects=(), assumed=(), lights=()):
+    floors = [{"kind": "floor", "wenart_id": r, "room_type": "bedroom"} for r in rooms]
+    return {"lighting": {"rig": {"on": True, "rooms": rooms, "lights": list(lights)}},
+            "objects": floors + [{"name": n} for n in objects], "assumed": list(assumed)}
+
+
+def test_fixround_part2_gpu_fill_light_check_names_its_rooms(tmp_path, monkeypatch):
+    """The part-1 GPU check took its rooms from the manifest's own ``adds_to_fill_light`` flags: with the old wiring
+    (the bedside rig replaced the fill light) no room had the flag, nothing was checked and it passed, while
+    r_L0_yatak_odasi_4 rendered night-dark. The windowless bedrooms are named now."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    names = ("r_L0_yatak_odasi_3", "r_L0_yatak_odasi_4")
+    fixtures = {r: [f"rig_{r}_bedside_1", f"rig_{r}_bedside_2"] for r in names}
+    good = {r: {"fixtures": fixtures[r], "dropped": [], "replaces_fill_light": False, "adds_to_fill_light": True,
+                "fill_light_reason": "room has no window"} for r in names}
+    lights = [f"{f}_light" for r in names for f in fixtures[r]]
+    assumed = [{"kind": "rig_adds_to_fill_light", "parent": r} for r in names]
+    render = {"renders": []}
+    gpu.test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(
+        ("real04", _fill_scene(good, [f"light_{r}" for r in names], assumed, lights), render))
+    # the part-1 wiring undone: the bedside rig replaces the fill light, no flag, no light_<room>
+    old = {r: dict(good[r], replaces_fill_light=True, adds_to_fill_light=False) for r in names}
+    replaced = [{"kind": "rig_replaces_fill_light", "parent": r} for r in names]
+    with pytest.raises(AssertionError, match="r_L0_yatak_odasi_3.*no fill light"):
+        gpu.test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(
+            ("real04", _fill_scene(old, (), replaced, lights), render))
+    # the fill light built but the room not flagged and its bedside lights lost
+    lost = {r: dict(good[r], adds_to_fill_light=False) for r in names}
+    with pytest.raises(AssertionError, match="without adds_to_fill_light.*without their lights"):
+        gpu.test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(
+            ("real04", _fill_scene(lost, [f"light_{r}" for r in names], assumed, ()), render))
+    # a required room missing from the scene; the L-1b rooms are checked only where L-1b is built
+    with pytest.raises(AssertionError, match="r_L0_yatak_odasi_4.*not in the scene"):
+        gpu.test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(
+            ("real04", _fill_scene({names[0]: good[names[0]]}, [f"light_{names[0]}"], assumed[:1],
+                                   lights[:2]), render))
+    assert gpu.FILL_LIGHT_ROOMS["real04"] == {"r_L0_yatak_odasi_3": True, "r_L0_yatak_odasi_4": True,
+                                              "r_L-1b_oda": False, "r_L-1b_oda_2": False}
+    # a room whose rig built no fixture (real02's r_L0_yatak_odasi_4: the bedside lamps would stand outside the
+    # room) needs only its fill light
+    bare = dict(good, r_L0_yatak_odasi_4={"fixtures": [], "dropped": [{"kind": "bedside"}],
+                                          "replaces_fill_light": False, "adds_to_fill_light": False})
+    gpu.test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit(
+        ("real04", _fill_scene(bare, [f"light_{r}" for r in names], assumed[:1], lights[:2]), render))
+
+
+def _open_air_project(out: Path, band_rows: int = 0, clip: bool = True, black_band: bool = False):
+    """A real04-like open-air view at 192 x 108 (real02's terrace camera: 4.4 m up, level, 16 mm, shift_y -0.1:
+    the horizon at row 54 - 0.1 x 192 = 34.8): sky above the horizon (no hit), far ground under it (hit, beyond
+    the 65 m of depth_mm), and ``band_rows`` rows of no-hit dark sky under the horizon (the 200 m clip's band)."""
+    import numpy as np
+
+    from wenart import views
+
+    w, h = 192, 108
+    renders = out / "real04" / "renders"
+    renders.mkdir(parents=True)
+    rgb = np.zeros((h, w, 3), np.uint8)
+    normal = np.zeros((h, w, 3), np.uint8)
+    rgb[:35] = (150, 175, 215)                              # sky (rows 0..34; the horizon at 34.8)
+    rgb[35:] = (95, 105, 85)                                # far ground and terrace
+    normal[35:] = (128, 128, 255)                           # hit, normal up
+    if band_rows:
+        rgb[35:35 + band_rows] = (6, 6, 7) if black_band else (34, 36, 40)    # haze-lifted dark grey
+        normal[35:35 + band_rows] = 0
+    views.write_png_rgb(renders / "cam_r_L1_teras_1.png", rgb)
+    views.write_png_rgb(renders / "cam_r_L1_teras_1_normal.png", normal)
+    views.write_png16(renders / "cam_r_L1_teras_1_depth_mm.png", np.zeros((h, w), np.uint16))
+    views.write_png16(renders / "cam_r_L1_teras_1_index.png", np.zeros((h, w), np.uint16))
+    entry = {"camera": "cam_r_L1_teras_1", "room_id": "r_L1_teras", "level_id": "L1", "resolution": [w, h],
+             "png": "cam_r_L1_teras_1.png", "render_key": "0" * 16, "index_stats": {},
+             "files": {"index": "cam_r_L1_teras_1_index.png", "depth_mm": "cam_r_L1_teras_1_depth_mm.png",
+                       "normal": "cam_r_L1_teras_1_normal.png"},
+             "open_air": True, "world": "wenart_world_exterior"}
+    if clip:
+        entry["clip"] = {"start_m": 0.05, "end_m": 3000.0, "built_end_m": 200.0, "rule": R.OPEN_AIR_CLIP_RULE}
+    render = {"renders": [entry]}
+    (renders / "render_manifest.json").write_text(json.dumps(render), encoding="utf-8")
+    scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}},
+             "objects": [{"kind": "floor", "wenart_id": "r_L1_teras", "room_type": "balcony"}],
+             "cameras": [{"name": "cam_r_L1_teras_1", "position": [1.2005, 4.701, 4.4], "target": [1.2005, 5.701, 4.4],
+                          "lens_mm": 16.0, "sensor_mm": 36.0, "shift_x": 0.0, "shift_y": -0.1,
+                          "resolution": [1920, 1080]}]}
+    return "real04", scene, render
+
+
+def test_fixround_part2_gpu_open_air_check_sees_the_clip_and_the_horizon_band(tmp_path, monkeypatch):
+    """The part-1 GPU check counted only near-black pixels among the no-hit pixels of the upper half: a haze-lifted
+    dark-grey band of below-horizon sky under the horizon passed it. The check now needs the exterior clip end on
+    the entry and no dark no-hit pixels under the horizon (the rays from the scene manifest's camera plan)."""
+    import numpy as np
+
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    # the horizon from the plan: real02's terrace camera at 192 x 108 has it at row 34.8
+    below = gpu._below_horizon({"position": [0, 0, 4.4], "target": [0, 1, 4.4], "lens_mm": 16.0, "sensor_mm": 36.0,
+                                "shift_y": -0.1}, (108, 192))
+    # rows 35 and 36 (0.7 and 1.7 px under it at the centre) are within HORIZON_MARGIN_PX; from row 38 every pixel
+    # is under the horizon by more than the margin (the corners' rays are longer, so row 37 only near the centre)
+    assert not below[:37].any() and below[37].any() and below[38:].all()
+    # a replayed record with a rotation only: the same camera (looking along +Y: X 90 degrees)
+    replayed = gpu._below_horizon({"position": [0, 0, 4.4], "rotation_euler_deg": [90.0, 0.0, 0.0], "lens_mm": 16.0,
+                                   "sensor_mm": 36.0, "shift_y": -0.1}, (108, 192))
+    assert np.array_equal(replayed, below) and gpu._below_horizon({"lens_mm": 16.0}, (108, 192)) is None
+    def check(case: str, **kw):
+        monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)       # the module reads its outputs folder at call time
+        gpu.test_open_air_views_render_under_the_exterior_sky(_open_air_project(tmp_path / case, **kw))
+    check("good")
+    with pytest.raises(AssertionError, match="dark"):                           # a dark-grey band of 6 rows
+        check("band", band_rows=6)
+    with pytest.raises(AssertionError, match="exterior clip end"):              # rendered with the room camera's clip
+        check("clip", clip=False)
+    # the part-1 black-pixel check still catches a black band
+    with pytest.raises(AssertionError, match="black sky pixels"):
+        check("black", band_rows=3, black_band=True)

@@ -991,3 +991,19 @@ GPU cost of this step: $0.00. Project total: **$130.54 of $200**. No pod is runn
   a night-dark bedroom, black terrace skies, blank windows); 4 GPU tests failed (2 stale pins, 2 real defects).
   Sheets and metrics: `results/review/m13_p3/`. Next: a fix round on CPU, then P4 (real02 + real03) and P5
   (real04 again with the GPU tests). GPU spent: $146.53 of $300. No pod running.
+- **Fix round after P3** (16-17 Oct, CPU only, no pod; `docs/milestone13.md` §14.9). Part 1 (62b2b3c): light and
+  colour (mixed white point, terraces under the exterior sky, sky and deeper window pulls, the fill light back in
+  windowless bedrooms), door stops, drawn sinks built into their run and stove gaps, no extra wall from a secondary
+  plan page, the agent's context budget, audit title flags, corrected metrics. Part 2: a review of part 1 found 22
+  defects (3 major: the built-in sink's own unit filled its bowl, the results copy still shipped stale previews, the
+  inner-wall camera rule had no test that could fail); all fixed, each with a test that fails on 62b2b3c or on a
+  mutation of the code it covers. The planner's answer
+  budget is now min(4096, room left); terraces render with the exterior clip; the lawn relief keeps paths, steps and
+  plants on the ground; P4 re-pitches the replayed aerial ext_5 so it shows the sky.
+  Track I_ingest: tests now cover the inner-wall camera obstacle (points and fallback), the crop collision through
+  `run_project`, the 25 % missed-piece rule, the one-extra-per-missed-piece rule and the door span rule in the
+  two-page run, and the never-asked `open_questions` and withdraw paths. Each test was checked with a mutation of the
+  code it covers. `full.sh` gains `RUN_FRESH_RECOGNITION` for P5. Module code (`pipeline.py`, `reading.py`,
+  `camsearch.py`) is unchanged.
+  Full CPU suite after the part-2 integration: 5191 passed, 214 skipped, 4 xfailed, 0 failed (59 min). GPU spent
+  in the fix round: $0.00. Next: P4 (real02 + real03) and P5 (real04 with `--env RUN_FRESH_RECOGNITION=real04`).

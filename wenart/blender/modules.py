@@ -29,10 +29,14 @@ Builders (``MODULE_BUILDERS``: furniture type -> builder):
   (16-17 Oct 2026): the fit's kitchen pre-pass (``wenart.furniture.fit.kitchen_built_ins``, with
   ``member_in_run``) gives the drawn sink inside a run as ``sink_pos_m`` / ``sink_w_m`` / ``sink_piece`` (the sink
   unit holds it: ``plan["built_ins"]``) and the drawn stoves inside it as ``ranges`` (gaps with no base unit,
-  plinth or worktop at their drawn spans: ``plan["gaps"]``); P3 had built both inside full-depth base units;
+  plinth or worktop at their drawn spans: ``plan["gaps"]``); P3 had built both inside full-depth base units. Part 2
+  (17 Oct 2026): the sink unit is hollow above its bowl (``parametric.open_carcass``), the sink is built in only
+  within ``KITCHEN_END_SHIFT_MAX_M`` of its drawn centre (else it stands as drawn in a gap of the run, as a pinned
+  sink does), and a gap never takes the whole run;
 - ``bath_set`` (washbasin at least 0.45 m deep: a wall-hung vanity with drawer fronts, a ceramic top with one or
-  two inset basins and taps and a framed mirror above; shower: a tray of a real product size with the glass
-  screen and shower set of ``parametric._shower``). The toilet stays with the parametric family.
+  two inset basins and taps and a framed mirror above, the vanity hollow above the basins since the fix round after
+  P3, part 2; shower: a tray of a real product size with the glass screen and shower set of
+  ``parametric._shower``). The toilet stays with the parametric family.
 
 Why: the three real projects left 43 (real04), 46 and 25 drawn pieces unbuilt or as plain boxes because the
 library has no model near the drawn size (docs/milestone13.md §1.3: 3.35 m tables, 2.57 and 3.11 m wardrobe runs,
@@ -121,6 +125,8 @@ KITCHEN_END_SHIFT_MAX_M = 0.10        # a sink or hob unit this close to the run
                                       # thinner than a filler); a wider slit beside it becomes a filler panel
 KITCHEN_SINK_UNIT_WIDTHS_M: tuple[float, ...] = (0.60, 0.80, 0.90)   # METOD 60 sink base; US 30 / 36 in sink bases
 KITCHEN_HOB_UNIT_WIDTHS_M: tuple[float, ...] = (0.60, 0.90)          # 60 cm hob class (size table stove 0.60); 36 in
+KITCHEN_SINK_BOWL_M = 0.18            # the steel bowl's depth under the worktop's top face (the depth it had since
+                                      # Milestone 13); fix round after P3, part 2: the sink unit is hollow above it
 KITCHEN_HOB_PLATE_M = (0.58, 0.51)    # a 60 cm class hob plate on the worktop (US 30 in cutout 699-749 x 508-533 mm
                                       # per the utariga compilation; the 60 cm class is the contract's EU size)
 KITCHEN_WALL_WIDTHS_M: tuple[float, ...] = (0.40, 0.60, 0.80)        # METOD wall carcasses 40 / 60 / 80
@@ -498,11 +504,36 @@ def _place_fixed(w: float, x: Optional[float], unit_w: float) -> Optional[tuple[
     return (x0, x0 + unit_w)
 
 
+def _gap_problem(w: float, x0: float, x1: float, taken: Sequence[tuple[float, float, str]]) -> Optional[str]:
+    """Why a gap ``[x0, x1]`` (already clipped to a run of width ``w``) cannot be made, or None: narrower than
+    ``KITCHEN_GAP_MIN_M``, overlapping a span of ``taken`` (another gap or a fixed unit), or leaving no stretch of
+    the run (fix round after P3, part 2: a stove drawn over its whole run gave a plan with no module at all, and the
+    build linked an empty object)."""
+    if x1 - x0 < KITCHEN_GAP_MIN_M - 1e-9:
+        return f"{max(x1 - x0, 0.0):.2f} m of it lies inside the run"
+    if any(x0 < f1 - 1e-9 and x1 > f0 + 1e-9 for f0, f1, _k in taken):
+        return "it overlaps another gap or the sink unit"
+    if not _segments(w, [(f0, f1, k) for f0, f1, k in taken if k == KITCHEN_GAP_KIND] + [(x0, x1, KITCHEN_GAP_KIND)]):
+        return "it would leave nothing of the run (the run is the appliance's own outline: the run is built whole)"
+    return None
+
+
+def _gap_record(rid: str, gtype: str, x0: float, x1: float, reason: Optional[str]) -> dict:
+    """A ``plan["gaps"]`` record (fix round after P3, part 2: with the ``reason`` of a sink's gap)."""
+    rec = {"id": rid, "kind": KITCHEN_GAP_KIND, "type": gtype, "x_m": round((x0 + x1) / 2.0, 4),
+           "w_m": round(x1 - x0, 4)}
+    if reason:
+        rec["reason"] = str(reason)
+    return rec
+
+
 def _range_gaps(w: float, hints: dict) -> tuple[list[tuple[float, float, str]], list[dict], list[str]]:
     """``(fixed spans, gap records, notes)`` of the drawn ranges in a run of width ``w`` (fix round after P3): each
     ``module_hints["ranges"]`` entry ``{id, x0_m, x1_m}`` (the drawn stove's span in the run's frame) clipped to the
     run and kept exactly where it is drawn; one narrower than ``KITCHEN_GAP_MIN_M`` after the clip, or overlapping an
-    earlier one, is dropped with a note."""
+    earlier one, is dropped with a note. Fix round after P3, part 2 (17 Oct 2026): a gap that would leave nothing of
+    the run is dropped too (``_gap_problem``), and an entry's ``reason`` (a pinned sink's gap) is kept on its
+    record."""
     spans: list[tuple[float, float, str]] = []
     gaps: list[dict] = []
     notes: list[str] = []
@@ -513,18 +544,15 @@ def _range_gaps(w: float, hints: dict) -> tuple[list[tuple[float, float, str]], 
             continue
         x0, x1 = max(x0, -w / 2.0), min(x1, w / 2.0)
         rid = str(r.get("id") or "?")
-        if x1 - x0 < KITCHEN_GAP_MIN_M - 1e-9:
-            notes.append(f"no gap for the drawn {r.get('type') or 'stove'} {rid}: {max(x1 - x0, 0.0):.2f} m of it "
-                         "lies inside the run")
-            continue
-        if any(x0 < f1 - 1e-9 and x1 > f0 + 1e-9 for f0, f1, _k in spans):
-            notes.append(f"no gap for the drawn {r.get('type') or 'stove'} {rid}: it overlaps another gap")
+        gtype = r.get("type") or "stove"
+        problem = _gap_problem(w, x0, x1, spans)
+        if problem:
+            notes.append(f"no gap for the drawn {gtype} {rid}: {problem}")
             continue
         spans.append((x0, x1, KITCHEN_GAP_KIND))
-        gaps.append({"id": rid, "kind": KITCHEN_GAP_KIND, "type": r.get("type") or "stove",
-                     "x_m": round((x0 + x1) / 2.0, 4), "w_m": round(x1 - x0, 4)})
-        notes.append(f"a {x1 - x0:.2f} m gap for the drawn {r.get('type') or 'stove'} {rid}: no base unit, plinth or "
-                     "worktop over it (the drawn appliance stands there, as drawn)")
+        gaps.append(_gap_record(rid, gtype, x0, x1, r.get("reason")))
+        notes.append(f"a {x1 - x0:.2f} m gap for the drawn {gtype} {rid}: no base unit, plinth or worktop over it (the "
+                     "drawn piece stands there, as drawn, with its own model)")
     return spans, gaps, notes
 
 
@@ -552,7 +580,17 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
     (``plan["built_ins"]``: the fit builds that sink into the run, the scene does not build it again). Why: pod P3
     built the drawn sink and stove inside full-depth base units under an uncut worktop (only a tap and a stove front
     showed). How: a sink or hob unit that would overlap a gap is not made (noted); without hints the plan is the one
-    of before."""
+    of before.
+
+    Fix round after P3, part 2 (17 Oct 2026). What: the drawn sink is built in only when its sink unit (unit width,
+    clamped into the run, end shift) stands within ``KITCHEN_END_SHIFT_MAX_M`` of the drawn centre; ``built_ins``
+    records ``drawn_x_m`` and ``shift_m``. Otherwise the sink is not built in: it keeps its own model and gets a gap
+    at its drawn span (``gaps``: ``type: sink_kitchen`` with the ``reason``), as a pinned sink and a drawn stove do;
+    a gap that would leave nothing of the run is never made, and a stretch narrower than an island's plinth recess
+    has no plinth. Why: a drawn sink overhanging the run's end was built up to 0.4 of its width away from where it
+    is drawn with no record (the CLAUDE.md fixed-equipment rule: as drawn), and a stove drawn over its whole run
+    gave a plan with no module (an empty object in the scene). How: the sink unit is checked after the end shifts;
+    ``_gap_problem`` decides every gap."""
     w, d, h = _piece_size(piece)
     if w < min(KITCHEN_BASE_WIDTHS_M) - 1e-9 or d < 0.45 - 1e-9:
         return None
@@ -601,14 +639,43 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
         if 1e-6 < w / 2.0 - f1 <= KITCHEN_END_SHIFT_MAX_M and not any(
                 g0 < shifted[1] - 1e-9 and g1 > shifted[0] + 1e-9 for g0, g1, _k in gap_spans):
             fixed[-1] = shifted
+    # fix round after P3, part 2: the drawn sink (``sink_piece``) is built in only where its sink unit stands within
+    # KITCHEN_END_SHIFT_MAX_M of the drawn centre (the fixed-equipment rule: as drawn); else it keeps its own model
+    # and stands as drawn, in a gap of the run (as a pinned sink and a drawn stove do)
+    built_in = None
+    sink_piece = hints.get("sink_piece")
+    if sink_piece and sink_x is not None:
+        unit = next(((f0, f1) for f0, f1, k in fixed if k == "sink"), None)
+        shift = None if unit is None else (unit[0] + unit[1]) / 2.0 - float(sink_x)
+        if shift is not None and abs(shift) <= KITCHEN_END_SHIFT_MAX_M + 1e-9:
+            built_in = (unit, shift)
+        else:
+            fixed = [f for f in fixed if f[2] != "sink"]
+            why = ("its sink unit would overlap the gap of a drawn stove" if unit is None else
+                   f"its {unit[1] - unit[0]:.2f} m sink unit would stand {abs(shift):.2f} m from the drawn centre, "
+                   f"more than {KITCHEN_END_SHIFT_MAX_M:.2f} m (the drawn sink overhangs the run)")
+            sw_drawn = float(hints.get("sink_w_m") or (unit[1] - unit[0] if unit else KITCHEN_SINK_UNIT_WIDTHS_M[0]))
+            g0, g1 = max(float(sink_x) - sw_drawn / 2.0, -w / 2.0), min(float(sink_x) + sw_drawn / 2.0, w / 2.0)
+            problem = _gap_problem(w, g0, g1, gap_spans + fixed)
+            if problem is None:
+                gap_spans.append((g0, g1, KITCHEN_GAP_KIND))
+                gaps.append(_gap_record(str(sink_piece), "sink_kitchen", g0, g1, f"not built in: {why}"))
+                notes.append(f"the drawn sink {sink_piece} is not built in: {why}; a {g1 - g0:.2f} m gap at its "
+                             "drawn span, where it stands as drawn with its own model")
+            else:
+                notes.append(f"the drawn sink {sink_piece} is not built in: {why}; no gap either ({problem}): it "
+                             "stands on its own as drawn")
     segments = _segments(w, fixed + gap_spans)
     base_h = worktop_z - KITCHEN_WORKTOP_M - KITCHEN_PLINTH_M
     stretches = _segments(w, gap_spans)                   # the plinth and the worktop run between the gaps
     modules = []
     for x0, x1 in stretches:
-        # an island's plinth is recessed at the run's ends (all round), a counter's only at the front
+        # an island's plinth is recessed at the run's ends (all round), a counter's only at the front; a stretch
+        # narrower than the recess has no plinth (fix round after P3, part 2: its width was negative)
         r0 = KITCHEN_PLINTH_RECESS_M if island and abs(x0 + w / 2.0) < 1e-6 else 0.0
         r1 = KITCHEN_PLINTH_RECESS_M if island and abs(x1 - w / 2.0) < 1e-6 else 0.0
+        if x1 - x0 - r0 - r1 <= 1e-3:
+            continue
         modules.append(_module("plinth", (x1 - x0 - r0 - r1, d - KITCHEN_PLINTH_RECESS_M * (2 if island else 1),
                                           KITCHEN_PLINTH_M),
                                ((x0 + r0 + x1 - r1) / 2.0, 0.0 if island else KITCHEN_PLINTH_RECESS_M / 2.0), "dark"))
@@ -673,12 +740,14 @@ def plan_kitchen_run(piece: dict, style: Optional[dict] = None) -> Optional[dict
             "cutouts": [k for _f0, _f1, k in fixed], "notes": notes, "design": P.piece_design(piece)}
     if gaps:
         plan["gaps"] = gaps
-    sink = next(((f0, f1) for f0, f1, k in fixed if k == "sink"), None)
-    if sink is not None and hints.get("sink_piece"):
-        plan["built_ins"] = [{"id": str(hints["sink_piece"]), "kind": "sink",
-                              "x_m": round((sink[0] + sink[1]) / 2.0, 4), "w_m": round(sink[1] - sink[0], 4)}]
-        notes.append(f"the drawn sink {hints['sink_piece']} is built into the run: a {sink[1] - sink[0]:.2f} m sink "
-                     "unit with the bowl and the tap at its cutout")
+    if built_in is not None:
+        (s0, s1), shift = built_in
+        plan["built_ins"] = [{"id": str(sink_piece), "kind": "sink", "x_m": round((s0 + s1) / 2.0, 4),
+                              "w_m": round(s1 - s0, 4), "drawn_x_m": round(float(sink_x), 4),
+                              "shift_m": round(shift, 4)}]
+        notes.append(f"the drawn sink {sink_piece} is built into the run: a {s1 - s0:.2f} m sink unit with the bowl "
+                     "and the tap at its cutout" + (f", {abs(shift):.2f} m from the drawn centre (unit width, run end)"
+                                                    if abs(shift) > 0.005 else ""))
     return plan
 
 
@@ -911,13 +980,22 @@ def _sofa_l_parts(plan: dict) -> list[Part]:
 
 
 def _base_unit_parts(m: dict, design: dict, d_run: float) -> list[Part]:
-    """One kitchen base unit: carcass, fronts (door, pair of doors or three drawers) with handles."""
+    """One kitchen base unit: carcass, fronts (door, pair of doors or three drawers) with handles. Fix round after
+    P3, part 2 (17 Oct 2026): the carcass of the sink unit (``holds: sink``) is hollow above the bowl's bottom
+    (``parametric.open_carcass``: side and back boards up to the worktop); its solid body had filled the lower 14 cm
+    of the bowl, which rendered as a 4 cm tray with a cabinet-paint floor."""
     w, d, h = m["size_m"]
     x, _y = m["pos_m"]
     z0 = float(m.get("z_m") or 0.0)
     inset = P.FRONT_GAP + P.FRONT_THICKNESS + 0.015          # the worktop overhangs the fronts by 15 mm
     face = -d_run / 2.0 + inset
-    parts = [P._box(x, inset / 2.0, z0, w - 0.002, d_run - inset, h, "painted", "body")]
+    if m.get("holds") == "sink":
+        # the bowl hangs KITCHEN_SINK_BOWL_M under the worktop's top face (``_worktop_parts``); the body ends under it
+        bowl_bottom = z0 + h + KITCHEN_WORKTOP_M - KITCHEN_SINK_BOWL_M
+        parts = P.open_carcass(x, inset / 2.0, z0, w - 0.002, d_run - inset, h, bowl_bottom - P.BASIN_CLEAR_M,
+                               "painted")
+    else:
+        parts = [P._box(x, inset / 2.0, z0, w - 0.002, d_run - inset, h, "painted", "body")]
     kind = m.get("front") or "door"
     if kind == "drawers":
         fronts = P.cabinet_fronts(w - 0.004, face, z0 + 0.003, z0 + h - 0.003, 3, 1, design, doors=False)
@@ -982,7 +1060,7 @@ def _worktop_parts(m: dict, w_run: float, d_run: float) -> list[Part]:
                   P._box((right + xb) / 2.0, 0.0, z0, xb - right, d, t, "worktop", "top"),
                   P._box(sx, -d / 2.0 + strip / 2.0, z0, bw, strip, t, "worktop", "top"),
                   P._box(sx, d / 2.0 - strip / 2.0, z0, bw, strip, t, "worktop", "top")]
-        parts += P._basin(sx, 0.0, z0 + t - 0.18, bw, bd, 0.18, 0.008, "steel")
+        parts += P._basin(sx, 0.0, z0 + t - KITCHEN_SINK_BOWL_M, bw, bd, KITCHEN_SINK_BOWL_M, 0.008, "steel")
         parts.append(P._cylinder_z(sx, bd / 2.0 + 0.05, z0 + t, 0.015, 0.015, 0.28, "steel", "tap", n=12))
         parts.append(P._cylinder_y(sx, bd / 2.0 + 0.05 - 0.18, z0 + t + 0.27, 0.01, 0.01, 0.18, "steel", "tap", n=10))
     hob = next((c for c in cutouts if c["kind"] == "hob"), None)
@@ -1010,7 +1088,15 @@ def _bath_parts(plan: dict) -> list[Part]:
         z0 = float(m.get("z_m") or 0.0)
         if m["kind"] == "vanity":
             body, face = P._carcass(mw, md, z0, mh)
-            parts += [body, P._box(0.0, md / 2.0 - 0.01, 0.0, mw * 0.3, 0.02, z0, "dark", "back")]
+            basin_z = [float(b.get("z_m") or 0.0) for b in plan["modules"] if b["kind"] == "basin"]
+            if basin_z:
+                # fix round after P3, part 2 (17 Oct 2026): hollow above the bowls' bottom, as the kitchen sink unit
+                inset = P.FRONT_GAP + P.FRONT_THICKNESS                  # the box of ``parametric._carcass``
+                parts += P.open_carcass(0.0, inset / 2.0, z0, mw, md - inset, mh, min(basin_z) - P.BASIN_CLEAR_M,
+                                        body["key"])
+            else:
+                parts.append(body)
+            parts.append(P._box(0.0, md / 2.0 - 0.01, 0.0, mw * 0.3, 0.02, z0, "dark", "back"))
             parts += P.cabinet_fronts(mw - 0.004, face, z0 + 0.003, z0 + mh - 0.003, int(m.get("drawers") or 1), 1,
                                       design, doors=False)
         elif m["kind"] == "top":
@@ -1114,14 +1200,21 @@ def build_module(plan: dict, piece: dict, materials):
     (``piece["footprint"]``: centre, rotation) on ``materials.floor_z``, one material slot per part key from
     ``materials.get(key)`` (a ``ModuleMaterials`` or a mapping), the Bevel modifier of ``furniture.add_bevel``,
     smooth cushions, and the custom properties ``wenart_method = "module"``, ``wenart_module`` (the builder) and
-    ``wenart_type``. Returns the object; its ``["wenart_module_record"]`` holds ``module_record(plan)`` as JSON."""
+    ``wenart_type``. Returns the object; its ``["wenart_module_record"]`` holds ``module_record(plan)`` as JSON.
+
+    Fix round after P3, part 2 (17 Oct 2026): a plan without parts raises ``ValueError`` before anything is linked
+    (an empty object named ``furn_<id>`` had taken the name, and the parametric fallback became ``furn_<id>.001``
+    while the manifest still named the empty one)."""
     import json
+
+    parts = module_parts(plan)
+    if not parts:
+        raise ValueError(f"the {plan.get('builder')} plan of {piece.get('id')} has no parts (nothing to build)")
 
     import bpy
 
     from wenart.blender import furniture as F
 
-    parts = module_parts(plan)
     fp = piece["footprint"]
     if isinstance(materials, dict):
         get = materials.__getitem__

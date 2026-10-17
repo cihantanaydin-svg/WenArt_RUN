@@ -34,7 +34,12 @@ member. Why: pod P3 built every drawn sink and stove of real04 inside full-depth
 and S2 said nothing. How: a drawn sink inside a run is now built into it (no object of its own:
 ``furniture.built_in_ids``) and a drawn stove stands in a gap of the run (``modules.plan_kitchen_run``), so neither
 is measured as buried; a member that only meets the run (a fridge at the run's end, a stove beside its gap) keeps
-the old allowance. Two runs, two members or a wall cabinet stay exempt.
+the old allowance. Two runs, two members or a wall cabinet stay exempt. Part 2 (17 Oct 2026): the violation carries
+``depth_m`` (``buried_depth``: ``inside_share`` x the member's smaller drawn side, the depth of its buried part), so
+the M13 metric "S2 > 3 cm" (``metrics13``, ``depth_m`` > 0.03) and the agent's cause (``causes``) count it as the
+deep cut it is; without it a buried sink counted only under "S2 all". The mesh penetration of the other pairs is no
+measure here: a member wholly inside a run has its vertices on the run's module faces (a buried sink measured
+3.6 cm).
 
 Milestone 13 (docs/milestone13.md §1.4, §3.0 K3, §13.2; track T3): S2 tolerances by class. 16 of real04's 17 S2
 findings were 1.2-2.5 cm cuts of drawn toilets, armchair / ottoman pairs and wardrobes (noise the agent chased with
@@ -146,6 +151,17 @@ def buried_share(caster, piece: dict, z_range: tuple[float, float]) -> float:
                         and R.is_inside(caster, point):
                     inside += 1
     return inside / total if total else 0.0
+
+
+def buried_depth(piece: dict, share: float) -> float:
+    """The depth (metres) of a kitchen-run member's buried part (fix round after P3, part 2): ``share`` (its
+    ``buried_share``) times the smaller side of its drawn footprint; 0 without a usable footprint. A sink 0.5 m deep
+    wholly inside a run is 0.5 m deep in it, one with a quarter of its box inside 0.125 m."""
+    try:
+        side = min(float(v) for v in piece["footprint"]["size"][:2])
+    except (KeyError, TypeError, ValueError):
+        return 0.0
+    return max(0.0, float(share)) * max(0.0, side)
 
 
 def _violation(check: str, target: str, room_id, message: str, metrics: dict) -> dict:
@@ -380,13 +396,17 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
                 share = buried_share(caster(run["id"]), member, (mb[0][2], mb[1][2]))
                 counts["S2"]["checked"] += 1
                 limit = float(tol["kitchen_buried_share"])
-                measured[member["id"]]["kitchen_run"] = {"run": run["id"], "inside_share": round(share, 3)}
+                depth = buried_depth(member, share)     # fix round after P3, part 2: metrics13 and causes read it
+                measured[member["id"]]["kitchen_run"] = {"run": run["id"], "inside_share": round(share, 3),
+                                                         "depth_m": round(depth, 4)}
                 if share >= limit - 1e-9:
                     fail("S2", member["id"], member.get("room_id"),
                          f"{member['type']} {member['id']} is buried in the {run['type']} {run['id']}: "
-                         f"{share:.0%} of its box is inside the run (allowed under {limit:.0%}; a drawn sink inside "
-                         "a run is built into it, a drawn stove stands in a gap of it)",
-                         {"inside_share": round(share, 3), "other": run["id"], "kitchen_run": True})
+                         f"{share:.0%} of its box is inside the run, {depth:.2f} m deep (allowed under {limit:.0%}; "
+                         "a drawn sink inside a run is built into it, a drawn stove stands in a gap of it)",
+                         {"inside_share": round(share, 3), "depth_m": round(depth, 4),
+                          "depth_from": "inside_share x the smaller drawn side", "other": run["id"],
+                          "kitchen_run": True})
                 continue
             pair_tol = overlap_tolerance(pa["type"], pb["type"])
             if not _boxes_overlap(boxes[a], boxes[b], pair_tol):

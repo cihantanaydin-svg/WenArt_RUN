@@ -181,8 +181,21 @@ have leave ``final/``.
   (the render manifest dropped those cameras); the results copy took them and they looked like P3 renders.
 - How: a move, not a delete (CLAUDE.md: nothing is deleted from the volume without the user's OK);
   ``earlier_run/`` is a sub-folder no copy rule reads (``wenart.run.copy`` copies only the files directly in
-  ``final/``), so the results of the run hold only its own views. A name already in ``earlier_run/`` gets a
-  ``_2``, ``_3`` ... suffix.
+  ``final/``). A name already in ``earlier_run/`` gets a ``_2``, ``_3`` ... suffix.
+
+Fix round after P3, part 2 (17 Oct 2026, docs/milestone13.md §14.9): the needs-review report moves them too, and the
+results copy follows the manifest.
+
+- What: ``write_review_images`` moves every ``<cam>_final_preview.jpg`` and ``<cam>_plan.jpg`` of ``final/`` to
+  ``final/earlier_run/`` (a needs-review report writes no view, so all of them are an earlier run's) and the
+  needs-review manifest lists them (``earlier_run_files``); debug images and contact sheets stay listed as before.
+  ``wenart.run.copy`` takes a view file only when this run's ``final_manifest.json`` names it and moves the view files
+  the manifest does not name out of the results' ``final`` folder (``move_stale_view_files`` on that folder).
+- Why: part 1 moved them only on the rendered path, so a later run of a project that ended ``needs_review`` still
+  shipped the earlier run's renders; and the job's first results copy, minutes before the report, had already taken
+  the files the report moves later (the copy only added files).
+- How: the same ``move_stale_view_files`` (``written`` empty); ``earlier_run_files`` is an optional key of both
+  manifest schemas.
 """
 from __future__ import annotations
 
@@ -403,6 +416,7 @@ NEEDS_REVIEW_MANIFEST = {
         "run_id": STR,
         "run_stages": {"type": "array"},
         "earlier_run_stages": {"type": "array"},
+        "earlier_run_files": {"type": "array", "items": {"type": "string"}},     # fix round after P3, part 2
         "summary": {"type": "object", "required": ["views", "polished", "cycles", "cycles_by_reason"]},
         "views": {"type": "array", "maxItems": 0},
         "advisory_flags": {"type": "array", "items": {"type": "string"}},
@@ -1879,7 +1893,9 @@ def _free_path(path: Path) -> Path:
 def move_stale_view_files(out_dir: Path, written: set, warnings: list) -> list[str]:
     """Fix round after P3 (module docstring): every ``<cam>_final_preview.jpg`` / ``<cam>_plan.jpg`` directly in
     ``out_dir`` that is not in ``written`` (this run's file names) moves to ``out_dir/earlier_run/``; a warning names
-    each one. Returns the moved names (as they were in ``final/``), sorted."""
+    each one. Returns the moved names (as they were in ``final/``), sorted. Part 2: the needs-review report calls it
+    with ``written`` empty, and ``wenart.run.copy`` on the results' ``final`` folder with the names of this run's
+    manifest."""
     out_dir = Path(out_dir)
     moved = []
     for pattern in STALE_VIEW_PATTERNS:
@@ -3484,6 +3500,7 @@ class ReviewInputs:
     earlier: list = field(default_factory=list)
     run_id: Optional[str] = None
     sheets: Optional[dict] = None            # sheets.json of a project that stopped at the sheets stage (M10)
+    earlier_run_files: list = field(default_factory=list)   # fix round part 2: files moved to final/earlier_run/
 
 
 def review_inputs(project_out, out_dir=None, private: bool = False) -> Optional[ReviewInputs]:
@@ -3641,10 +3658,14 @@ def write_debug_previews(project_out: Path, out_dir: Path, private: bool, warnin
 
 def write_review_images(ri: ReviewInputs, docs: list[dict]) -> list[dict]:
     """Debug images of the pages as JPEG <= 300 KB under ``final/debug/`` (public projects); a private
-    project's debug images are only named (paths relative to the project output)."""
+    project's debug images are only named (paths relative to the project output). Fix round after P3, part 2: a
+    needs-review report writes no view, so every ``<cam>_final_preview.jpg`` / ``<cam>_plan.jpg`` in ``final/`` is
+    an earlier run's and moves to ``final/earlier_run/`` (``move_stale_view_files``, ``ri.earlier_run_files``);
+    an earlier run's debug images and contact sheets are listed as before."""
     out = write_debug_previews(ri.project_out, ri.out_dir, ri.private, ri.warnings, docs)
     written = {e["preview"] for e in out if e["preview"]}
-    for pattern in (f"{DEBUG_DIR}/*.jpg", "*_final_preview.jpg", "*_plan.jpg", "contact_*.jpg"):
+    ri.earlier_run_files = move_stale_view_files(ri.out_dir, set(), ri.warnings)
+    for pattern in (f"{DEBUG_DIR}/*.jpg", "contact_*.jpg"):
         for f in sorted(ri.out_dir.glob(pattern)):
             rel = f.relative_to(ri.out_dir).as_posix()
             if rel not in written:
@@ -3716,6 +3737,8 @@ def build_review_manifest(ri: ReviewInputs, docs: list[dict], images: list[dict]
         "run_id": ri.run_id,
         "run_stages": list(ri.records),
         "earlier_run_stages": list(ri.earlier),
+        # fix round after P3, part 2: the previews and plan crops of an earlier run moved to final/earlier_run/
+        "earlier_run_files": list(ri.earlier_run_files),
         "summary": {"views": 0, "polished": 0, "cycles": 0, "cycles_by_reason": {}, "needs_review": 0},
         "views": [],
         "advisory_flags": [f"needs review: {r}" for r in ri.reasons] + intake_flags(intake),

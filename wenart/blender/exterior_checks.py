@@ -27,6 +27,10 @@ disagree.
 
 How: every check is a small function adding Violations; the score is 100 minus ``SEVERITY_WEIGHT`` per
 violation (at least 0).
+
+Fix round after P3, part 2 (17 Oct 2026, docs/milestone13.md §14.9): X6 counts the true aerial views per camera set.
+P4 builds with ``--cameras-from`` (the replayed M11 set: ext_5) and ``--cameras-extra`` (the searched set, renamed
+with ``_s`` and marked ``extra``: ext_5_s); each set may have one, so the two sets together no longer give a minor X6.
 """
 from __future__ import annotations
 
@@ -446,11 +450,17 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
     if main and not frontal:
         out.append(_v("X6", "major", "exterior", f"no frontal view of the entrance ({main.get('axis')}) facade",
                       main_facade=main.get("axis")))
-    # Milestone 13 (D8): one true aerial view is allowed (and the site view of the copies); a second one is noted
-    aerials = [c.get("name") for c in cams if c.get("view") == "aerial" and not c.get("site_view")]
-    if len(aerials) > 1:
-        out.append(_v("X6", "minor", "exterior", f"{len(aerials)} aerial views ({', '.join(str(a) for a in aerials)}): "
-                                                 f"one true aerial view is the policy", aerials=aerials))
+    # Milestone 13 (D8): one true aerial view is allowed (and the site view of the copies); a second one is noted.
+    # Fix round after P3, part 2 (17 Oct 2026): counted per camera set. With --cameras-from and --cameras-extra (P4)
+    # the replayed set (ext_5) and the searched set (``extra``: ext_5_s) each carry their own aerial; one per set.
+    for extra in (False, True):
+        aerials = [c.get("name") for c in cams if c.get("view") == "aerial" and not c.get("site_view")
+                   and bool(c.get("extra")) == extra]
+        if len(aerials) > 1:
+            out.append(_v("X6", "minor", "exterior",
+                          f"{len(aerials)} aerial views ({', '.join(str(a) for a in aerials)}): one true aerial view "
+                          f"is the policy" + (" (the searched set of --cameras-extra)" if extra else ""),
+                          aerials=aerials))
 
 
 def _faces(cam: dict, direction) -> bool:

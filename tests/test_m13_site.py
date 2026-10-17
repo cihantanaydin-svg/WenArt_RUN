@@ -1266,7 +1266,12 @@ def test_p3_trees_shrubs_and_hedges_stand_on_the_terrace_they_are_drawn_on(monke
     """P3 built every plant on the terrain under the terraces: real04's hedge_003 (on the -3.0 m terrace sp_001)
     stood on the terrain at -4.8 .. -4.0 m, so its 1.2 m hull ended under the slab and showed as dark triangles and
     loose leaf cards on the retaining wall; the shrubs on the stepped bands were buried. stand_terrain gives a point
-    on a flat platform its level, for build_site and for the exterior camera model alike."""
+    on a flat platform its level, for build_site and for the exterior camera model alike.
+
+    Fix round part 2 (17 Oct 2026; review of part 1): the camera model's half is checked on its own records: the
+    docs example's tree (a trunk tree, so a ``model.trees`` record) on a terrace stands at the terrace's level, and
+    real04's hedge_003 segments in ``model.hedges`` top out at sp_001's level + the hedge's height (part 1's check
+    ``max(tops) >= ...`` held for the raw terrain too: another hedge's top is 1.58 m)."""
     terrain = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}}
     pfs = [{"id": "t", "polygon": [[0, 0], [6, 0], [6, 4], [0, 4]], "z": -2.0, "sloped": False},
            {"id": "band", "polygon": [[6, 0], [7, 0], [7, 4], [6, 4]], "z": -1.0, "sloped": False},
@@ -1280,6 +1285,19 @@ def test_p3_trees_shrubs_and_hedges_stand_on_the_terrace_they_are_drawn_on(monke
     assert info["z_range"] == pytest.approx([-2.1, -0.8])
     shrub = S.tree_parts({"center": [3, 2], "size": [0.718, 0.718], "kind": "tree"}, stand)
     assert shrub["ground_z"] == -2.0 and shrub["size_class"] == "shrub"
+    # the camera model (exterior.build_model): the docs example's 3 m tree on a terrace at +0.5 m (terrain -1.78 there)
+    from wenart import views as V
+    from wenart.blender import roof as R
+    b = V.variant_building(EXAMPLE, "base")
+    plan = S.site_plan(b, b["levels"], geom2d.ccw(b["slabs"][0]["outline"]), "full")
+    tree = next(t for t in plan["trees"] if t["id"] == "sd_L0_001")
+    cx, cy = tree["center"]
+    terrace = {"id": "tt", "polygon": [[cx - 2.5, cy - 2.5], [cx + 2.5, cy - 2.5], [cx + 2.5, cy + 2.5],
+                                       [cx - 2.5, cy + 2.5]], "z": 0.5, "sloped": False}
+    assert S.ground_z(plan["terrain"], cx, cy) < -1.0                               # the raw terrain under it
+    cam = E.build_model(b, b["levels"], R.roof_model(b["roof"], b), dict(plan, platforms=[terrace]))
+    rec = next(t for t in cam.trees if t[0] == (cx, cy))
+    assert rec[6] == pytest.approx(0.5) and rec[3] > 0.5                           # ground z, crown bottom
     if not REAL04.is_file():
         return
     prep = _real04_prep(monkeypatch)
@@ -1299,11 +1317,13 @@ def test_p3_trees_shrubs_and_hedges_stand_on_the_terrace_they_are_drawn_on(monke
             on_band += 1
             assert S.tree_parts(t, real)["ground_z"] == pytest.approx(pf["z"]), t["id"]
     assert on_band >= 5
-    # the camera model's obstacles stand where build_site builds them
+    # the camera model's obstacles stand where build_site builds them: every segment of hedge_003 (its fitted polyline)
+    # tops out at sp_001's level + its height (the raw terrain gave -2.72 / -2.37 m tops there)
     model = E.build_model(vb, vb["levels"], prep["roof"], sp)
-    tops = sorted(round(h[3], 3) for h in model.hedges)
-    assert max(tops) >= by_id["sp_001"]["z"] + h3["height_m"] - 1e-3 or any(
-        t == pytest.approx(by_id["sp_001"]["z"] + h3["height_m"], abs=1e-3) for t in tops)
+    segs = list(zip([tuple(map(float, q)) for q in h3["polyline"]], [tuple(map(float, q)) for q in h3["polyline"][1:]]))
+    tops = [h[3] for h in model.hedges if (h[0], h[1]) in segs]
+    assert len(tops) == len(segs) >= 1
+    assert all(t == pytest.approx(by_id["sp_001"]["z"] + h3["height_m"], abs=1e-3) for t in tops), tops
 
 
 def test_p3_hedges_keep_their_hull_on_their_planting_side(monkeypatch):
@@ -1390,6 +1410,230 @@ def test_p3_the_lawn_relief_goes_down_only_and_keeps_the_ground_edges():
     assert sum(weights) > 0.5 * len(weights)                 # the inner lawn keeps its relief
     tri = VG.relief_weights(5, [[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]])
     assert tri == [0.0, 0.0, 0.0, 0.0, 1.0]
+
+
+_SLOPED = {"site": {"ground": {"levels": [{"side": "left", "z": {"value": -6.0}},
+                                           {"side": "right", "z": {"value": 0.0}}]}}}
+_OUTLINE = [(60.0, 0.0), (70.0, 0.0), (70.0, 8.0), (60.0, 8.0)]
+_PATH = [(45.0, -10.0), (58.0, -10.0), (58.0, -8.8), (45.0, -8.8)]
+_PARK = [(42.0, 4.0), (52.0, 4.0), (52.0, 12.0), (42.0, 12.0)]
+_TERRACE = [(74.0, 2.0), (80.0, 2.0), (80.0, 7.0), (74.0, 7.0)]
+
+
+def _relief_plan(terrain: dict) -> dict:
+    """A site plan for the lawn relief tests (fix round part 2): a building, a draped inferred path, a sloped parking,
+    a flat terrace (a hole), a shrub and a tree on the lawn, a hedge and inferred entrance steps with a ramp."""
+    site = {"ground": {"levels": [], "points": []}, "pools": [],
+            "paving": [{"id": "tt", "polygon": [list(q) for q in _TERRACE], "build": True}],
+            "parking": [{"id": "pk", "polygon": [list(q) for q in _PARK], "build": True}]}
+    pfs = [dict(pf, sloped=pf["id"] == "pk") for pf in S.platforms(site, terrain)]     # the parking draped (sloped)
+    steps = {"opening_id": "d1", "blocks": [{"polygon": [(63.0, -1.2), (65.0, -1.2), (65.0, 0.0), (63.0, 0.0)],
+                                             "z_top": 0.3}],
+             "cheeks": [], "count": 1, "rise": 0.3, "rails": [], "posts": [],
+             "ramp": {"polygon": [(65.0, -1.2), (68.0, -1.2), (68.0, -0.2), (65.0, -0.2)], "z_start": 0.3,
+                      "z_end": 0.0, "s": [1.0, 4.0], "d": [0.0, 1.0], "length": 3.0, "slope": 0.1}}
+    return {"mode": "full", "terrain": terrain, "outline": list(_OUTLINE), "plot": [(40, -14), (82, -14), (82, 16),
+                                                                                   (40, 16)],
+            "plot_source": "test", "extent": [(30, -24), (90, -24), (90, 26), (30, 26)], "wells": [], "plot_walls": [],
+            "areas": [{"id": "path_d1", "kind": "path", "polygon": [list(q) for q in _PATH], "z": None,
+                       "material": None, "colour": None, "source": "assumed", "area_id": None, "lift": S.PAVING_LIFT,
+                       "inferred": True},
+                      {"id": "pk", "kind": "parking", "polygon": [list(q) for q in _PARK], "z": None, "material": None,
+                       "colour": None, "source": "site_plan", "area_id": None, "lift": S.PAVING_LIFT,
+                       "platform_id": "pk"}],
+            "trees": [{"id": "shrub_1", "kind": "tree", "center": [48.3, 0.7], "size": [0.718, 0.718]},
+                      {"id": "tree_1", "kind": "tree", "center": [74.3, -9.6], "size": [4.0, 4.0]}],
+            "not_built": [], "assumed": [], "warnings": [], "ground_is_grass": True,
+            "inferred": {"steps": [steps], "boundary": [], "plot": [], "plot_inferred": False, "main": None,
+                         "entrances": [], "paths": [], "trees": []},
+            "copy_holes": [], "pools": [], "platforms": pfs, "climate": {"climate": "temperate"},
+            "hedges": [{"id": "hedge_1", "polyline": [[44.0, -4.0], [54.0, -4.0]], "width_m": 0.7, "height_m": 1.2,
+                        "height_class": "mid", "species": "cherry_laurel", "species_inferred": True,
+                        "inferred": True, "evidence": [], "source": "site.hedges", "symbol_ids": [],
+                        "reason": "a test hedge"}],
+            "levers": {k: (k not in ("sky", "pools")) for k in S.SITE_LEVERS},
+            "near_extent": [(30, -24), (90, -24), (90, 26), (30, 26)], "species": {}}
+
+
+def test_fix2_the_lawn_relief_keeps_the_ground_level_under_paths_platforms_steps_and_plants():
+    """Fix round part 2 (17 Oct 2026; review of part 1): the down-only relief lowered the lawn about 2 cm under
+    everything built at terrain height (bpy 5.2.2: a draped path and a sloped parking 2.1 / 2.0 cm over the lawn, a
+    shrub's and a tree's base 2.6 / 2.8 cm in the air). relief_keep lists those footprints, relief_weights keeps every
+    ground vertex within relief_reach (the margin plus a cell's diagonal) of one at its level, so every ground face
+    under a path, a platform, steps, a shrub, a tree or a hedge stays level as a whole."""
+    terrain = S.terrain_model(_SLOPED, _OUTLINE)
+    plan = _relief_plan(terrain)
+    keep = S.relief_keep(plan)
+    kinds = {}
+    for k in keep:
+        kinds[k["kind"]] = kinds.get(k["kind"], 0) + 1
+    # holes: the building and the flat terrace; the parking's draped area has a platform (the sloped one stands in)
+    assert kinds == {"hole": 2, "area": 1, "sloped_platform": 1, "steps": 2, "shrub": 1, "tree": 1, "hedge": 1}
+    by = {(k["kind"], k["id"]): k["polygon"] for k in keep}
+    assert G.point_in_polygon((48.3, 0.7), by[("shrub", "shrub_1")]) and G.point_in_polygon(
+        (48.3 + 0.35, 0.7), by[("shrub", "shrub_1")])                       # the shrub's drawn crown (r 0.359 m)
+    assert not G.point_in_polygon((74.3 + 1.0, -9.6), by[("tree", "tree_1")])        # a tree: its base only
+    assert G.point_in_polygon((74.3 + S.RELIEF_KEEP_TREE_BASE_M - 0.01, -9.6), by[("tree", "tree_1")])
+    assert G.point_in_polygon((44.0 - 0.3, -4.0 + 0.3), by[("hedge", "hedge_1")])    # half the width past each end
+    step = S.grid_step(plan["extent"])
+    reach = VG.relief_reach(step)
+    assert reach == pytest.approx(VG.RELIEF_KEEP["margin_m"] + math.sqrt(2.0) * step)
+    verts, faces = S.draped_faces(plan["extent"], S.ground_holes(plan), terrain)
+    weights = VG.relief_weights(len(verts), faces, verts=verts, keep=[k["polygon"] for k in keep], reach=reach)
+    old = VG.relief_weights(len(verts), faces)                              # part 1: the boundary vertices only
+
+    def face_weights(x, y):
+        """The weights of the ground face that holds (x, y)."""
+        for f in faces:
+            if G.point_in_polygon((x, y), [verts[i][:2] for i in f]):
+                return [weights[i] for i in f], [old[i] for i in f]
+        raise AssertionError((x, y))
+
+    probes = [(51.5, -9.4), (45.1, -8.9), (57.9, -9.95), (47.0, 8.0), (42.1, 11.9), (48.3, 0.7), (74.3, -9.6),
+              (49.0, -4.0), (64.0, -0.6), (67.5, -0.7)]
+    for x, y in probes:                                   # path, parking, shrub, tree, hedge, steps, ramp
+        new_w, old_w = face_weights(x, y)
+        assert new_w and all(w == 0.0 for w in new_w), (x, y, new_w)
+        assert any(w == 1.0 for w in old_w), (x, y)       # part 1 let these faces drop
+    far = [i for i, (x, y, _z) in enumerate(verts) if all(not VG.near_polygon((x, y), k["polygon"], reach + 1.0)
+                                                         for k in keep) and old[i] == 1.0]
+    assert len(far) > 100 and all(weights[i] == 1.0 for i in far)         # the open lawn keeps its relief
+    assert sum(weights) > 0.5 * sum(old)
+    # the reach: a vertex just inside it stays level, one just outside moves
+    square = [[(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]]
+    pts = [(0.5, 0.5), (1.0 + reach - 0.01, 0.5), (1.0 + reach + 0.01, 0.5), (0.5, -reach - 0.01)]
+    assert VG.relief_weights(4, [[0, 1, 2, 3]], verts=pts, keep=square, reach=reach, pin_edges=False) == [
+        0.0, 0.0, 1.0, 1.0]
+
+
+class _FakeOb:
+    """Stands in for a Blender object in build_site (fix round part 2 tests): the mesh and the attributes it sets."""
+
+    def __init__(self, name, verts=(), faces=(), **kw):
+        self.name, self.verts, self.faces, self.kw = name, list(verts), [list(f) for f in faces], kw
+
+
+def _fake_build_site(monkeypatch, plan):
+    """build_site on the CPU: the bpy calls replaced (common.new_mesh_object, vegetation.lawn_relief computes the
+    real relief_weights on the fake ground's mesh, vegetation.grass_patch records its arguments)."""
+    from wenart.blender import common
+    calls = {"relief": [], "grass": []}
+    monkeypatch.setattr(common, "new_mesh_object",
+                        lambda name, verts, faces, **kw: _FakeOb(name, verts, faces, **kw))
+
+    def fake_relief(ob, strength=None, scale=None, pin_edges=True, keep=(), reach=None):
+        w = VG.relief_weights(len(ob.verts), ob.faces, verts=ob.verts, keep=keep, reach=reach, pin_edges=pin_edges)
+        calls["relief"].append({"ob": ob, "keep": list(keep), "reach": reach, "weights": w})
+        n = sum(1 for v in w if v > 0)
+        return {"applied": n > 0, "weighted": n, "vertices": len(w)}
+
+    def fake_grass(polygon, density, **kw):
+        calls["grass"].append(dict(kw, polygon=polygon))
+        return _FakeOb("grass_near"), {"method": "cards", "relief": bool(kw.get("relief")), "count": 1}
+
+    def no_bpy(*_a, **_k):
+        raise RuntimeError("no bpy in the CPU tests")
+
+    monkeypatch.setattr(VG, "lawn_relief", fake_relief)
+    monkeypatch.setattr(VG, "grass_patch", fake_grass)
+    monkeypatch.setattr(VG, "tree_object", no_bpy)
+    monkeypatch.setattr(VG, "hedge_object", no_bpy)
+    looks = {k: {"material": k, "colour": None, "source": "build"} for k in (
+        "garden", "paving", "plot_wall", "light_well", "bark", "foliage", "ground", "steps", "railing")}
+    objs, assumed = [], []
+    summary = S.build_site(plan, None, looks, lambda look: _FakeOb(str(look.get("material"))), objs, assumed)
+    return summary, calls
+
+
+def test_fix2_build_site_keeps_the_relief_off_built_things_and_gives_the_grass_the_ground_s_relief(monkeypatch):
+    """Fix round part 2 (17 Oct 2026; review of part 1): build_site gives the ground's lawn relief the keep polygons of
+    relief_keep with the ground's reach (the ground under the path, the sloped parking, the steps, the shrub and the
+    tree stays level), and the near-camera grass the relief only when the ground got one, with the same polygons,
+    reach and grid. On a flat site (the ground of convex pieces has no inner vertex, so no relief) the grass got the
+    down-only relief alone and its clumps sank 2.1 cm into the lawn (bpy 5.2.2); now it gets none."""
+    terrain = S.terrain_model(_SLOPED, _OUTLINE)
+    plan = _relief_plan(terrain)
+    summary, calls = _fake_build_site(monkeypatch, plan)
+    (relief,) = calls["relief"]
+    assert relief["ob"].name == "ground" and relief["reach"] == pytest.approx(VG.relief_reach(S.grid_step(
+        plan["extent"])))
+    keep = [k["polygon"] for k in S.relief_keep(plan)]
+    assert relief["keep"] == keep
+    verts, faces, w = relief["ob"].verts, relief["ob"].faces, relief["weights"]
+    for x, y in ((51.5, -9.4), (47.0, 8.0), (48.3, 0.7), (74.3, -9.6), (49.0, -4.0), (64.0, -0.6)):
+        face = next(f for f in faces if G.point_in_polygon((x, y), [verts[i][:2] for i in f]))
+        assert all(w[i] == 0.0 for i in face), (x, y)
+    lr = summary["lawn_relief"]
+    assert lr["weighted"] > 0 and lr["range_m"] == list(VG.relief_range()) and lr["edges_kept"]
+    assert lr["keep"] == {"hole": 2, "area": 1, "sloped_platform": 1, "steps": 2, "shrub": 1, "tree": 1, "hedge": 1}
+    (grass,) = calls["grass"]
+    assert grass["relief"] is True and grass["keep"] == keep and grass["reach"] == relief["reach"]
+    assert grass["step"] == S.grid_step(plan["extent"])
+    assert summary["grass"]["relief_requested"] is True and "follows" in summary["grass"]["relief_reason"]
+    # a flat site: no relief on the ground, so none on the grass
+    flat = {"kind": "flat", "z": {k: 0.0 for k in S.AXES}, "warnings": [], "assumed": []}
+    fplan = dict(_relief_plan(flat), platforms=[], areas=_relief_plan(flat)["areas"][:1])
+    summary, calls = _fake_build_site(monkeypatch, fplan)
+    assert calls["relief"][0]["weights"] and not any(calls["relief"][0]["weights"])
+    assert summary["lawn_relief"]["weighted"] == 0
+    (grass,) = calls["grass"]
+    assert grass["relief"] is False and summary["grass"]["relief"] is False
+    assert summary["grass"]["relief_requested"] is False and "no relief" in summary["grass"]["relief_reason"]
+
+
+def test_fix2_a_replayed_aerial_without_sky_is_repitched_about_its_target():
+    """Fix round part 2 (17 Oct 2026; the lead's decision on the review of part 1: the CLAUDE.md horizon rule wins):
+    P4 replays real02's M11 ext_5 (aerial, 30 degrees down at 28.54 mm: the horizon at 1.31 of the frame height, no
+    sky). build.repitch_replayed_aerials keeps its target, its distance and its compass direction and gives it the
+    planner's aerial pitch (copies.pitch_for_horizon(AERIAL_HORIZON_FRAC, min(lens, AERIAL_LENS_MM),
+    AERIAL_PITCH_DEG)) with its lens at most AERIAL_LENS_MM; the record says ``replay: repitched`` with the old and
+    new pitch and the reason. A corner view, the site view and an aerial that already shows the sky stay as replayed."""
+    from wenart.blender import build as BB
+    from wenart.blender import cameras as C
+
+    ext5 = {"name": "ext_5", "kind": "exterior", "view": "aerial", "lens_mm": 28.54, "sensor_mm": 36.0,
+            "resolution": [1920, 1080], "shift_y": 0.0, "position": [-12.1724, -9.4236, 16.2917],
+            "target": [7.1726, 6.517, 1.8195], "room_id": None, "level_id": None}
+    corner = dict(ext5, name="ext_1", view="corner", lens_mm=26.0, position=[-6.3495, -10.8243, 1.6],
+                  target=[1.5159, -1.1091, 1.6], shift_y=0.0455)
+    site_view = dict(ext5, name="ext_7", site_view=True, lens_mm=24.0)
+    low = dict(ext5, name="ext_9", lens_mm=26.0, position=[-20.0, 6.517, 4.0])         # 7.4 degrees down: sky
+    plans = C.replay_cameras({"cameras": [ext5, corner, site_view, low]})["plans"]
+    before = {p["name"]: json.loads(json.dumps(p)) for p in plans}
+    assert CP.horizon_fraction(30.0, 28.54) > 1.3                         # the M11 aerial: no sky
+    assert BB.repitch_replayed_aerials(plans) == ["ext_5"]
+    got = {p["name"]: p for p in plans}
+    for name in ("ext_1", "ext_7", "ext_9"):
+        assert got[name] == before[name] and "replay" not in got[name], name
+    p = got["ext_5"]
+    pitch = CP.pitch_for_horizon(E.AERIAL_HORIZON_FRAC, min(28.54, E.AERIAL_LENS_MM), E.AERIAL_PITCH_DEG)
+    rp = p["replay"]
+    assert rp["status"] == "repitched" and rp["pitch_deg_old"] == pytest.approx(-30.0, abs=0.01)
+    assert rp["pitch_deg"] == pytest.approx(-pitch) and p["pitch_deg"] == pytest.approx(-pitch)
+    assert rp["lens_mm_old"] == 28.54 and rp["lens_mm"] == p["lens_mm"] == E.AERIAL_LENS_MM
+    assert rp["horizon_frac_old"] == pytest.approx(CP.horizon_fraction(30.0, 28.54), abs=1e-3)
+    assert rp["horizon_frac"] == p["horizon_frac"] == pytest.approx(E.AERIAL_HORIZON_FRAC, abs=1e-3)
+    assert rp["position_old"] == ext5["position"] and "CLAUDE.md" in rp["reason"] and "horizon" in rp["reason"]
+    assert p["target"] == ext5["target"]                                   # the target, the distance, the direction
+    assert math.dist(p["position"], p["target"]) == pytest.approx(math.dist(ext5["position"], ext5["target"]),
+                                                                  abs=1e-3)
+    az = lambda q: math.atan2(q[1] - ext5["target"][1], q[0] - ext5["target"][0])  # noqa: E731
+    assert az(p["position"]) == pytest.approx(az(ext5["position"]), abs=1e-4)
+    down = math.degrees(math.atan2(p["target"][2] - p["position"][2],
+                                   math.hypot(p["target"][0] - p["position"][0], p["target"][1] - p["position"][1])))
+    assert down == pytest.approx(-pitch, abs=0.01) and CP.horizon_fraction(-down, p["lens_mm"]) < 1.0
+    summary = BB.cameras_from_summary({"path": "m.json"}, {"plans": plans, "dropped": []}, plans, False)
+    assert summary["repitched"] == ["ext_5"]
+    import inspect                                                        # the build re-pitches the replayed set
+    assert "repitch_replayed_aerials(ext_replayed)" in inspect.getsource(BB.main)
+    m11 = ROOT / "results" / "renders" / "real02" / "scene_manifest.json"
+    if m11.is_file():                                                     # P4's camera file
+        rplans = [q for q in C.replay_cameras(json.loads(m11.read_text(encoding="utf-8")))["plans"]
+                  if q["kind"] == "exterior"]
+        assert BB.repitch_replayed_aerials(rplans) == ["ext_5"]
+        q = next(q for q in rplans if q["name"] == "ext_5")
+        assert q["replay"]["pitch_deg_old"] == pytest.approx(-30.0, abs=0.01)
+        assert q["horizon_frac"] == pytest.approx(E.AERIAL_HORIZON_FRAC, abs=1e-3)
 
 
 def test_p3_real04_tree_symbols_are_shrubs_by_their_drawn_crown(monkeypatch):

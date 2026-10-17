@@ -5,7 +5,8 @@ sheets. Every test here fails on the Milestone 12 code (no sections, no fields, 
 
 Fix round after P3 (16-17 Oct 2026): metrics 6 and 7 of the latest run of an appended orchestrator log
 (``run_first_seq``), metric 2 without the explained non-furniture, and the previews and plan crops of cameras a run
-does not have moved out of ``final/``."""
+does not have moved out of ``final/``. Part 2 (17 Oct 2026): the needs-review report moves them as well, and the
+results copy before and after the report holds only the views of this run's manifest."""
 from __future__ import annotations
 
 import json
@@ -702,6 +703,100 @@ def test_final_moves_previews_and_plans_of_cameras_this_run_does_not_have(tmp_pa
     copied = {f.name for f in (results / "final" / "toy").iterdir()}
     assert "cam_salon_1_final_preview.jpg" in copied and not any(n.startswith("cam_gone") for n in copied)
     assert not (results / "final" / "toy" / "earlier_run").exists()
+
+
+def _view_files(folder: Path) -> list[str]:
+    return sorted(f.name for f in folder.iterdir() if f.name.endswith(("_final_preview.jpg", "_plan.jpg"))) \
+        if folder.is_dir() else []
+
+
+def _toy_ref(tmp_path: Path, out: Path):
+    from wenart.run.projects import ProjectRef
+    return ProjectRef(name="toy", private=False, project_dir=tmp_path / "projects" / "toy", out_dir=out,
+                      results_dir=tmp_path / "results")
+
+
+def test_results_copies_before_and_after_the_report_hold_only_this_runs_views(tmp_path):
+    """Fix round after P3, part 2 (review of part 1): full.sh's first copy runs minutes before the report. It took
+    the leftovers of an older run (no manifest names them) and the earlier run's views into the job's results, and the
+    copy only added files, so they stayed next to the new views although the report moved them on the volume later.
+    Now: the first copy takes only the views the volume's newest manifest names; once this run has a stage record that
+    manifest names nothing and those copies move to earlier_run/ of the results; after this run's report the results'
+    final folder holds exactly the views of its manifest."""
+    out = make_run(tmp_path)
+    (out / "check").mkdir()
+    for cam in ("cam_salon_1", "cam_hol_1"):
+        Image.new("RGB", (64, 48), (255, 255, 255)).save(out / "check" / f"{cam}_plan.jpg")
+    earlier = F.write_final(out)                                  # the earlier run (20261015-000000-full)
+    final = out / "final"
+    for name in ("cam_gone_final_preview.jpg", "cam_gone_plan.jpg"):        # an older run's leftovers
+        (final / name).write_bytes(b"m12")
+    ref = _toy_ref(tmp_path, out)
+    res = tmp_path / "results" / "final" / "toy"
+    stamp = tmp_path / "logs" / "copy.stamp"
+    named = sorted({v[k] for v in earlier["views"] for k in ("preview", "plan") if v[k]})
+    assert "cam_hol_1_plan.jpg" in named and "cam_hol_1_final_preview.jpg" in named
+    # the job's first copy (the pod setup: no record of this run yet): the earlier manifest's views, no leftover
+    CP.copy_results([ref], stamp)
+    assert _view_files(res) == named
+    # this run's stages: their records carry its run id, and its render drops cam_hol_1
+    rm = json.loads((out / "renders" / "render_manifest.json").read_text(encoding="utf-8"))
+    rm["renders"] = [e for e in rm["renders"] if e["camera"] != "cam_hol_1"]
+    (out / "renders" / "render_manifest.json").write_text(json.dumps(rm), encoding="utf-8")
+    (out / "check" / "cam_hol_1_plan.jpg").unlink()
+    for stage in ("build", "render", "agent"):
+        path = out / "run" / f"{stage}.json"
+        rec = json.loads(path.read_text(encoding="utf-8"))
+        path.write_text(json.dumps(dict(rec, run_id="20261017-000000-full", started_utc="2026-10-17T00:00:00Z")),
+                        encoding="utf-8")
+    CP.copy_results([ref], stamp)
+    assert _view_files(res) == [] and _view_files(res / "earlier_run") == named     # moved, never deleted
+    manifest = F.write_final(out)                                 # this run's report
+    assert manifest["run_id"] == "20261017-000000-full"
+    assert manifest["earlier_run_files"] == ["cam_gone_final_preview.jpg", "cam_gone_plan.jpg",
+                                             "cam_hol_1_final_preview.jpg", "cam_hol_1_plan.jpg"]
+    CP.copy_results([ref], stamp)
+    this = sorted({v[k] for v in manifest["views"] for k in ("preview", "plan") if v[k]})
+    assert _view_files(res) == this and "cam_hol_1_final_preview.jpg" not in this and "cam_salon_1_plan.jpg" in this
+    CP.copy_results([ref])                                        # the EXIT trap's full copy
+    assert _view_files(res) == this
+    assert json.loads((res / "final_manifest.json").read_text(encoding="utf-8"))["run_id"] == "20261017-000000-full"
+    assert not any("cam_gone" in f.name for f in (tmp_path / "results").rglob("*"))
+
+
+def test_needs_review_report_moves_earlier_previews_and_plans_and_the_copy_takes_none(tmp_path):
+    """Fix round after P3, part 2 (review of part 1): part 1 moved an earlier run's previews and plan crops only on
+    the rendered path; a later run that ended needs_review left them in final/ and the results copy shipped them. A
+    needs-review report writes no view: every preview and plan crop moves to final/earlier_run/, the manifest lists
+    them (earlier_run_files, in its schema), contact sheets and debug images stay listed, and the copy takes none (an
+    earlier copy of this job in the results moves to earlier_run/ there)."""
+    from test_report import make_review_project
+
+    out = make_review_project(tmp_path)
+    final = out / "final"
+    final.mkdir(parents=True, exist_ok=True)
+    for name in ("cam_old_final_preview.jpg", "cam_old_plan.jpg", "contact_L0.jpg"):
+        (final / name).write_bytes(b"earlier")
+    res = tmp_path / "results" / "final" / "toy"
+    res.mkdir(parents=True)
+    (res / "cam_old_final_preview.jpg").write_bytes(b"earlier")          # copied earlier in this job
+    m = F.write_final(out)
+    assert m["status"] == "needs_review" and F.validate_final_manifest(m) == []
+    assert _view_files(final) == []
+    assert (final / "earlier_run" / "cam_old_final_preview.jpg").read_bytes() == b"earlier"
+    assert (final / "earlier_run" / "cam_old_plan.jpg").is_file()
+    assert m["earlier_run_files"] == ["cam_old_final_preview.jpg", "cam_old_plan.jpg"]
+    assert json.loads((final / "final_manifest.json").read_text(encoding="utf-8"))["earlier_run_files"] == \
+        m["earlier_run_files"]
+    assert "final/cam_old_plan.jpg is from an earlier run (not part of this report): moved to " \
+        "final/earlier_run/cam_old_plan.jpg" in m["warnings"]
+    assert (final / "contact_L0.jpg").is_file()                                  # listed, not moved
+    assert "final/contact_L0.jpg is from an earlier run (not part of this report)" in m["warnings"]
+    assert "moved to final/earlier_run/cam_old_final_preview.jpg" in (final / "final_report.md").read_text("utf-8")
+    assert F.validate_final_manifest(dict(m, earlier_run_files=[1]))           # a typed key of the schema
+    CP.copy_project(_toy_ref(tmp_path, out))
+    assert _view_files(res) == [] and (res / "final_manifest.json").is_file()
+    assert _view_files(res / "earlier_run") == ["cam_old_final_preview.jpg"]
 
 
 def test_metrics13_cli_writes_json_and_markdown(tmp_path, capsys):
