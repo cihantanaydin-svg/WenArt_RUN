@@ -99,5 +99,6 @@ runner could not write it). Costs are estimates from the on-demand price at star
 | 2026-10-17 11:30 | rrdnbch5z8tam6 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 139 | 5.75 | M13 P4b: real03 full run with the M11 cameras replayed (fix round parts 1-3; polish off; 256 spp; commit 03881bc) | exit 1, self-stop ok (runner re-attached) |
 | 2026-10-17 22:48 | pending:20261017-224848-full | RTX PRO 6000 | 240 | 9.96 | M13 P5: real04 full run with all fix rounds (fresh recognition answers; polish off; 256 spp; GPU tests; commit 7d5ea06) | creating (provisional, worst case) |
 | 2026-10-18 01:12 | lbrkxysutj2e58 | NVIDIA RTX PRO 6000 Blackwell Server Edition | 144 | 5.98 | M13 P5: real04 full run with all fix rounds (fresh recognition answers; polish off; 256 spp; GPU tests; commit 7d5ea06) | exit 1, self-stop ok (runner re-attached) |
+| 2026-10-22 13:56 | pending:20261022-135644-m13_p6 | RTX PRO 6000 | 240 | 9.96 | M13 P6a: real04 final full run (fix round after P5; polish off; 256 spp; GPU tests) + interior sky A/B (base, +2, +3.5, +5.2 stops; 6 views, 128 spp; commit 8e8cc97) | creating (provisional, worst case) |
 
-**Total spent so far: $172.51** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
+**Total spent so far: $182.47** (budget: $300, raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026 (Milestone 13); limits: $5.00/GPU-hour, $30/day ($60 on 11 Oct 2026, real04), 4 h/run since 11 Oct 2026)
