@@ -896,12 +896,13 @@ def fabric_status(run: Run, pieces: list[dict]) -> dict:
     fabric colour, read from the scene that builds it (the base scene, else an alternative's scene manifest:
     ``Run.variant_scenes``; the L-1b sofas of real04 exist only in the variant's scene). ``recoloured``: a library
     model whose scene object's ``recolour`` has a ``fabric`` slot; ``fabric_slot``: a module or parametric piece
-    whose scene object has a ``fabric`` material key (built in the project fabric in the brief's colour);
-    ``not_recolourable``: ``{id: model}`` of the library models the fit could not recolour although a fabric colour
-    was asked (``asset.fabric_colour`` / ``design.fabric_colour``); ``no_colour_asked``: ``{id: model}`` of the library
-    models no fabric colour was asked for (the style names none for their type); both listed apart, not hidden, and
-    both count as not applied; ``no_scene``: pieces no scene builds; ``from_variant``: ``{id:
-    alternative}`` (pure over the run's manifests)."""
+    whose scene object has a ``fabric`` material key (built in the project fabric in the brief's colour) and that was
+    asked a fabric colour; ``not_recolourable``: ``{id: model}`` of the library models the fit could not recolour
+    although a fabric colour was asked (``asset.fabric_colour`` / ``design.fabric_colour``); ``no_colour_asked``:
+    ``{id: model}`` of the pieces no fabric colour was asked for (the style names none for their type; fix round after
+    P5 (22 Oct 2026), review: a module or parametric piece too, whose fabric key then holds the default fabric); both
+    listed apart, not hidden, and both count as not applied; ``no_scene``: pieces no scene builds; ``from_variant``:
+    ``{id: alternative}`` (pure over the run's manifests)."""
     base = _scene_objects_by_id(run)
     variants = {vid: _objects_by_id(sc) for vid, sc in sorted(run.variant_scenes.items())}
     out: dict = {"recoloured": [], "fabric_slot": [], "not_recolourable": {}, "no_colour_asked": {}, "no_scene": [],
@@ -919,14 +920,18 @@ def fabric_status(run: Run, pieces: list[dict]) -> dict:
             continue
         rec = obj.get("recolour")
         keys = obj.get("material_keys") if isinstance(obj.get("material_keys"), dict) else {}
+        asked = (p.get("asset") or {}).get("fabric_colour") or (p.get("design") or {}).get("fabric_colour")
+        model = str((p.get("asset") or {}).get("asset_id") or obj.get("method") or "?")
         if isinstance(rec, dict) and rec.get("fabric"):
             out["recoloured"].append(pid)
+        elif not asked:
+            # fix round after P5 (22 Oct 2026), review: a module / parametric piece always has a fabric key (the
+            # default fabric when no colour is asked); it counts as applied only when a colour was asked
+            out["no_colour_asked"][pid] = model
         elif _method(p) in ("module", "parametric") and keys.get("fabric"):
             out["fabric_slot"].append(pid)
         else:
-            model = str((p.get("asset") or {}).get("asset_id") or obj.get("method") or "?")
-            asked = (p.get("asset") or {}).get("fabric_colour") or (p.get("design") or {}).get("fabric_colour")
-            out["not_recolourable" if asked else "no_colour_asked"][pid] = model
+            out["not_recolourable"][pid] = model
     return out
 
 

@@ -238896,18 +238896,46 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the SAMSUNG logo on the control panel, part of the texture set this mesh family shares with the WF8704RSW (this model was not in any committed view yet); the same mesh family as hssd_031024e00569909d466d87df9fead90355ba29e5 (3853 faces, 3779 vertices, box 0.60 x 0.61 x 0.90 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with the same texture set (5 materials, 2 with a base colour, 4 images), whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T11:51:15Z",
+    "decision_sha": "ebea9128d5acbb5f",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_031024e00569909d466d87df9fead90355ba29e5, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the SAMSUNG logo on the control panel, part of the texture set this mesh family shares with the WF8704RSW (this model was not in any committed view yet)",
+     "same_mesh_as": {
+      "id": "hssd_031024e00569909d466d87df9fead90355ba29e5",
+      "match": "family",
+      "polycount": 3853,
+      "vertices": 3779,
+      "bbox_model_m": [
+       0.5982,
+       0.61,
+       0.897
+      ],
+      "pbr_maps": {
+       "materials": 5,
+       "materials_with_base_colour": 2,
+       "images": 4
+      }
+     },
+     "sha256_glb": "512f927f197b2563cc41092612ed12a0af3a3b53983daea8e62f918122fae948",
+     "why_recorded": "the real03 refit (relaxed, style family modern) of P4b f_L0_061 (cam_r_L0_banyo_4_2) picked this model after the WF8704RSW's removal",
+     "recorded": "fix round after P5 (22 Oct 2026), review"
+    }
+   ]
   },
   {
    "id": "hssd_2c2b2914fc526f6e8bbe65511ecf58bba0027ec0",
@@ -239367,18 +239395,47 @@
     "fits_caps": false
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was not in any committed view yet: P4b built it only as f_L0_082, which no view shows); the same mesh family as hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c (5902 faces, 4771 vertices, box 0.62 x 0.66 x 0.85 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with its title naming the maker Hotpoint, whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T11:51:15Z",
+    "decision_sha": "d746fc2421893dd4",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was not in any committed view yet: P4b built it only as f_L0_082, which no view shows)",
+     "maker": "Hotpoint",
+     "same_mesh_as": {
+      "id": "hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c",
+      "match": "family",
+      "polycount": 5902,
+      "vertices": 4771,
+      "bbox_model_m": [
+       0.625,
+       0.6647,
+       0.85
+      ],
+      "pbr_maps": {
+       "materials": 5,
+       "materials_with_base_colour": 3,
+       "images": 7
+      }
+     },
+     "sha256_glb": "5f1d03191918761c72356b8c0d70a301342d9e5de76d08258a775de5404e8e43",
+     "why_recorded": "the real03 refit (relaxed, style family modern) of P4b f_L0_057 (cam_r_L0_banyo_3_1) picked this model after the removal of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c",
+     "recorded": "fix round after P5 (22 Oct 2026), review"
+    }
+   ]
   },
   {
    "id": "hssd_4bc6f883a374400355bcf95e611a4e8f8b950ed5",
@@ -239847,18 +239904,47 @@
     "fits_caps": false
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was never built in a committed run); the same mesh family as hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c (5902 faces, 4771 vertices, box 0.62 x 0.66 x 0.85 m; faces and vertices within 1%, two box sides within 1 cm, the third within 10%) with its title naming the maker Hotpoint, whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T11:51:15Z",
+    "decision_sha": "255d8408c07ff697",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print), review: a mesh-family twin of hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c, whose render shows the logo; the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the Hotpoint script logo on the front below the control panel: '...tpoint' is seen on this mesh family's hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c and the title names Hotpoint (this model was never built in a committed run)",
+     "maker": "Hotpoint",
+     "same_mesh_as": {
+      "id": "hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c",
+      "match": "family",
+      "polycount": 5902,
+      "vertices": 4771,
+      "bbox_model_m": [
+       0.625,
+       0.6647,
+       0.85
+      ],
+      "pbr_maps": {
+       "materials": 5,
+       "materials_with_base_colour": 3,
+       "images": 7
+      }
+     },
+     "sha256_glb": "797b85e4d219b8c0d4e6a168032bc54858269fd52e4a88a493d377bd362e900a",
+     "why_recorded": "the next model of the same mesh family in the relaxed washing_machine bin once its Hotpoint twin is removed",
+     "recorded": "fix round after P5 (22 Oct 2026), review"
+    }
+   ]
   },
   {
    "id": "hssd_cfcb3d204d92b039136f28eadba5a7d408edfbae",

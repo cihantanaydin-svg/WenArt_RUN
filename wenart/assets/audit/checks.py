@@ -58,6 +58,22 @@ cam_r_L-1_mutfak_3, chalk lettering on the "Chalk Board Coffee Table" in the oyu
   audit's own (``removed``); the model file stays on the volume.
 - How: per item, from its own fields (no vision call, no file read), so a later audit write gives the same
   decision (``decision_sha``) and keeps the model out.
+
+Fix round after P5 (22 Oct 2026), review: refitting the P4b real03 washers of the two logo views picked
+hssd_16c33... (the Samsung WF8704RSW mesh, 4 faces and 5.7 cm of height apart, the same texture set) and
+hssd_434d62df... "Hotpoint WMF740K" (the 5902 faces of the '...tpoint' washer at 2.5 cm less width): mesh-family
+twins the exact ``same_mesh_as`` rule cannot record, so the next real03 pod would show the same logos again.
+
+- What: a ``same_mesh_as`` record with ``match: family`` counts when the entry and the recorded twin are of one mesh
+  family (``mesh_family``: the audit's own duplicate tolerances, faces and vertices within ``duplicates.faces_share``,
+  two model box sides within ``duplicates.box_m``, the third within ``FAMILY_THIRD_AXIS_SHARE``) and the record shows
+  the look carries over: the entry has the twin's texture set (the ``pbr_maps`` counts the record names,
+  ``FAMILY_LOOK_KEYS``) or its title names the ``maker`` the record names (a whole word). Without ``match`` (or with
+  ``exact``) the exact rule stays; another ``match`` value is no evidence (a warning).
+- Why: a product line in HSSD is one mesh at a few sizes; the logo is in the mesh or in the shared texture set, so a
+  member of the family carries it; another texture set alone is no evidence, the maker named in the title is.
+- How: the record names the twin's numbers and texture counts (the mesh match it rests on), checked against the
+  entry's own fields; per item as above.
 """
 from __future__ import annotations
 
@@ -89,6 +105,9 @@ RENDER_FINDING_WHY = {
     "text_print": "a novelty print fits no project style and no catalogue fix removes it",
 }
 SAME_MESH_KEYS = ("polycount", "vertices", "bbox_model_m")
+# fix round after P5 (22 Oct 2026), review: a mesh family (same_mesh_as with match "family"; module docstring)
+FAMILY_THIRD_AXIS_SHARE = 0.10        # the one box side that may differ (a product line's other size), at most 10 %
+FAMILY_LOOK_KEYS = ("materials", "materials_with_base_colour", "images")      # the texture set's pbr_maps counts
 
 
 def rec(check: str, status: str, reason: str = "", **extra) -> dict:
@@ -195,8 +214,59 @@ def sanitary_finish_check(item: dict) -> dict:
     return rec("sanitary_finish", "ok", "no metal main material named or judged", metrics=metrics)
 
 
-def _same_mesh(item: dict, twin: dict) -> bool:
-    """The entry's own faces, vertices and model box equal the ones ``same_mesh_as`` records (box +- 1 mm)."""
+def _dup_tolerances(cfg: Optional[dict]) -> tuple[float, float]:
+    """``(box_m, faces_share)`` of the audit's duplicate check (``audit.yaml duplicates``: 1 cm, 1 %)."""
+    dc = (cfg or {}).get("duplicates") or {}
+    return float(dc.get("box_m", 0.01)), float(dc.get("faces_share", 0.01))
+
+
+def mesh_family(a: dict, b: dict, cfg: Optional[dict] = None) -> bool:
+    """Fix round after P5 (22 Oct 2026), review (module docstring): ``a`` and ``b`` (entries, audit items or a
+    ``same_mesh_as`` record) are one mesh family: faces and vertices within ``duplicates.faces_share``, two model box
+    sides within ``duplicates.box_m`` and the third within ``FAMILY_THIRD_AXIS_SHARE``. A missing or malformed
+    number is no family."""
+    box_tol, face_tol = _dup_tolerances(cfg)
+    try:
+        for key in ("polycount", "vertices"):
+            x, y = int(a[key]), int(b[key])
+            if x <= 0 or y <= 0 or abs(x - y) > face_tol * max(x, y):
+                return False
+        ba, bb = [float(v) for v in a["bbox_model_m"]], [float(v) for v in b["bbox_model_m"]]
+    except (KeyError, TypeError, ValueError):
+        return False
+    if len(ba) != 3 or len(bb) != 3:
+        return False
+    order = sorted(range(3), key=lambda i: abs(ba[i] - bb[i]))
+    if abs(ba[order[1]] - bb[order[1]]) > box_tol:
+        return False
+    i = order[2]
+    return abs(ba[i] - bb[i]) <= FAMILY_THIRD_AXIS_SHARE * max(ba[i], bb[i])
+
+
+def _family_look(item: dict, f: dict, twin: dict) -> Optional[str]:
+    """Fix round after P5, review: what shows that a mesh-family twin carries the look: the twin's texture set (the
+    ``pbr_maps`` counts the record names) on the entry, or the ``maker`` the record names, a whole word of the entry's
+    title (None: neither)."""
+    tp, ip = twin.get("pbr_maps"), item.get("pbr_maps")
+    if isinstance(tp, dict) and isinstance(ip, dict) and all(tp.get(k) is not None and tp.get(k) == ip.get(k)
+                                                             for k in FAMILY_LOOK_KEYS):
+        return (f"the same texture set ({tp['materials']} materials, {tp['materials_with_base_colour']} with a base "
+                f"colour, {tp['images']} images)")
+    maker = str(f.get("maker") or "").strip()
+    if maker and re.search(rf"(?<!\w){re.escape(maker)}(?!\w)", str(item.get("title") or ""), re.I):
+        return f"its title naming the maker {maker}"
+    return None
+
+
+def _same_mesh(item: dict, twin: dict, cfg: Optional[dict] = None) -> bool:
+    """The entry's own faces, vertices and model box equal the ones ``same_mesh_as`` records (box +- 1 mm); with
+    ``match: family`` (fix round after P5, review) the two are of one mesh family (``mesh_family``); another
+    ``match`` value is no evidence."""
+    match = twin.get("match", "exact")
+    if match == "family":
+        return mesh_family(item, twin, cfg)
+    if match != "exact":
+        return False
     try:
         for key in SAME_MESH_KEYS:
             mine, theirs = item.get(key), twin.get(key)
@@ -213,7 +283,7 @@ def _same_mesh(item: dict, twin: dict) -> bool:
     return True
 
 
-def _render_finding_problem(item: dict, f) -> Optional[str]:
+def _render_finding_problem(item: dict, f, cfg: Optional[dict] = None) -> Optional[str]:
     """Why a ``render_findings`` record cannot remove the model (None: it can)."""
     if not isinstance(f, dict):
         return "not a record"
@@ -227,23 +297,42 @@ def _render_finding_problem(item: dict, f) -> Optional[str]:
     if isinstance(seen, dict) and seen.get("run") and seen.get("view"):
         return None
     if isinstance(twin, dict) and twin.get("id"):
-        return None if _same_mesh(item, twin) else f"the mesh differs from {twin['id']} (faces, vertices or box)"
+        match = twin.get("match", "exact")
+        if match not in ("exact", "family"):
+            return f"unknown match {match!r} for {twin['id']} (known: exact, family)"
+        if match == "exact":
+            return (None if _same_mesh(item, twin, cfg)
+                    else f"the mesh differs from {twin['id']} (faces, vertices or box)")
+        if not _same_mesh(item, twin, cfg):
+            box_tol, face_tol = _dup_tolerances(cfg)
+            return (f"the mesh is not of the family of {twin['id']} (faces and vertices within {face_tol:.0%}, two box "
+                    f"sides within {box_tol * 100:.0f} cm, the third within {FAMILY_THIRD_AXIS_SHARE:.0%})")
+        if _family_look(item, f, twin) is None:
+            return (f"the mesh family of {twin['id']} but neither its texture set (pbr_maps counts) nor the maker "
+                    f"{f.get('maker')!r} named in the title")
+        return None
     return "no evidence (a run view or a model of the same mesh)"
 
 
-def _render_finding_where(f: dict) -> str:
+def _render_finding_where(item: dict, f: dict, cfg: Optional[dict] = None) -> str:
     seen = f.get("seen_in")
     if isinstance(seen, dict) and seen.get("run") and seen.get("view"):
         return "seen in " + " ".join(str(v) for v in (seen["run"], seen.get("project"), seen["view"]) if v)
     twin = f["same_mesh_as"]
-    return (f"the same mesh as {twin['id']} ({int(twin['polycount'])} faces, {int(twin['vertices'])} vertices, box "
-            f"{_fmt(twin['bbox_model_m'])} m), whose render shows it")
+    nums = f"{int(twin['polycount'])} faces, {int(twin['vertices'])} vertices, box {_fmt(twin['bbox_model_m'])} m"
+    if twin.get("match", "exact") == "family":
+        box_tol, face_tol = _dup_tolerances(cfg)
+        return (f"the same mesh family as {twin['id']} ({nums}; faces and vertices within {face_tol:.0%}, two box "
+                f"sides within {box_tol * 100:.0f} cm, the third within {FAMILY_THIRD_AXIS_SHARE:.0%}) with "
+                f"{_family_look(item, f, twin)}, whose render shows it")
+    return f"the same mesh as {twin['id']} ({nums}), whose render shows it"
 
 
-def render_print_check(item: dict) -> dict:
+def render_print_check(item: dict, cfg: Optional[dict] = None) -> dict:
     """Fix round after P5 (module docstring): a model whose ``render_findings`` record a brand logo or a text print
-    seen in a run's render (or on a model of the same mesh) is removed; a record without evidence, of an unknown kind
-    or seen on another file is a warning."""
+    seen in a run's render (or on a model of the same mesh, or of its mesh family with the same look: review) is
+    removed; a record without evidence, of an unknown kind or seen on another file is a warning. ``cfg``: the audit
+    config (the duplicate tolerances of a family record)."""
     records = item.get("render_findings")
     if not records:
         return rec("render_print", "skip", "no render finding recorded")
@@ -251,7 +340,7 @@ def render_print_check(item: dict) -> dict:
         records = [records]
     found, problems = [], []
     for f in records:
-        why = _render_finding_problem(item, f)
+        why = _render_finding_problem(item, f, cfg)
         if why:
             problems.append(why)
         else:
@@ -259,7 +348,7 @@ def render_print_check(item: dict) -> dict:
     metrics = {"findings": [f["finding"] for f in found], "not_used": problems}
     if not found:
         return rec("render_print", "warn", "render finding(s) not used: " + "; ".join(problems), metrics=metrics)
-    reasons = [f"{RENDER_FINDINGS[f['finding']]}: {str(f['detail']).strip()}; {_render_finding_where(f)}; "
+    reasons = [f"{RENDER_FINDINGS[f['finding']]}: {str(f['detail']).strip()}; {_render_finding_where(item, f, cfg)}; "
                f"{RENDER_FINDING_WHY[f['finding']]}" for f in found]
     return rec("render_print", "remove", " / ".join(reasons), metrics=metrics)
 
@@ -649,8 +738,7 @@ def rank_key(item: dict) -> tuple:
 def duplicates(items: list[dict], cfg: dict, measures: Optional[dict] = None) -> dict:
     """``{id: record}`` for every lower-ranked copy: the same GLB (sha256), or the same type, every box side within
     ``duplicates.box_m``, the face count within ``duplicates.faces_share`` and the same texture key."""
-    dc = cfg.get("duplicates") or {}
-    box_tol, face_tol = float(dc.get("box_m", 0.01)), float(dc.get("faces_share", 0.01))
+    box_tol, face_tol = _dup_tolerances(cfg)
     measures = measures or {}
     out: dict = {}
     ordered = sorted(items, key=rank_key)
@@ -725,7 +813,7 @@ def item_checks(item: dict, cfg: dict, known_types, measure: Optional[dict] = No
     # fix round after P3
     out.append(sanitary_finish_check(item))
     # fix round after P5: a brand logo or a text print a run's render showed (entry render_findings)
-    out.append(render_print_check(item))
+    out.append(render_print_check(item, cfg))
     return out
 
 

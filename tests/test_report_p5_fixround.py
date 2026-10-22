@@ -11,6 +11,11 @@
 - The pieces changed under the user's decisions of 22 Oct 2026 (code retypes of vision-typed pieces, bath / shower
   shrinks) are listed in the inferred / AI-changed section, also without the orchestrator, and an unlabelled one is
   an advisory flag.
+- Fix round after P5 (22 Oct 2026), review (section 5): a code retype the agent moved later keeps the code's reason and
+  its plan crop; a bath / shower shrunk across its depth is a wet shrink; a cut run's edits replayed into this building
+  stay in the section; "measured" and "net" share one finding key; the agent's not-furniture mark follows the
+  reading's reason; Metric 10 counts a module / parametric fabric slot only when a colour was asked. Each of these
+  tests failed before its fix.
 
 Every test fails on BASE (29e54d0)."""
 from __future__ import annotations
@@ -95,7 +100,7 @@ def test_the_orchestrator_section_reads_only_the_latest_run_of_an_appended_log(t
     assert "F3" not in block["findings_by_check"] and block["findings_by_check"]["S2"]["major"] == 2
     assert block["calls"] == 1 and block["tokens"] == 12
     assert [g["type"] for g in block["library_gaps"]] == ["chair"] and block["rolled_back"] == []
-    assert block["first_seq"] == 10 and block["earlier"] == {"events": 5, "calls": 1, "edits": 2}
+    assert block["first_seq"] == 10 and block["earlier"] == {"events": 5, "calls": 1, "edits": 2, "replayed": 0}
     assert block["metrics"]["first_seq"] == 10 and block["metrics"]["edits"]["accepted"] == 2
     # round 1 -> 2: F4:f1 gone, G6:f3 new (the dry re-checks predicted 1 for round 1 and 4 for the last round)
     assert block["removed_net"] == {"per_round": {"1": {"gone": 1, "new": 1}}, "gone": 1, "new": 1, "net": 0,
@@ -118,7 +123,7 @@ def test_a_log_without_run_first_seq_keeps_every_run():
     log.pop("run_first_call")
     scope = AG.run_scope(log, {"edits": [{"seq": 1, "result": {"log_seq": 3}}]})
     assert len(scope["events"]) == len(log["events"]) and len(scope["calls"]) == 2 and len(scope["edits"]) == 1
-    assert scope["earlier"] == {"events": 0, "calls": 0, "edits": 0}
+    assert scope["earlier"] == {"events": 0, "calls": 0, "edits": 0, "replayed": 0}
     # an override without a log_seq counts when it was made on the current building_decor.json
     log = appended_log()
     edits = {"edits": [{"seq": 1, "source_sha": "old"}, {"seq": 2, "source_sha": "now"}, {"seq": 3}]}
@@ -326,3 +331,225 @@ def test_the_final_report_lists_them_without_and_with_the_orchestrator(tmp_path)
     assert "\n## Inferred and AI-changed items\n" not in md                   # the orchestrator's section lists them
     section = md.split("### Inferred and AI-changed items")[1].split("\n### ")[0]
     assert "| f_b | piece | nightstand |" in section and "code retype of a vision-typed piece" in section
+
+
+# --------------------------------------------------------------------------
+# 5. Fix round after P5 (22 Oct 2026), review of the report track
+# --------------------------------------------------------------------------
+
+NIGHTSTAND_TEXT = ("nightstand: a drawn floor_lamp of a nightstand's size (0.50 x 0.45 m) at the left side of the "
+                   "drawn bed_double f_L0_007's head: the bed's nightstand drawn with its table lamp, not a floor lamp "
+                   "(plan crop recognition/crops/sym_L0_016_ctx.png)")
+MOVE_TEXT = "Shift the lower nightstand away from the bed edge to clear the 0.06 m² overlap"
+
+
+def moved_retypes() -> list[dict]:
+    """P5 f_L0_032: retyped by the nightstand_symbol rule, then moved by the agent, whose record replaced the code's
+    (data written before edit_ops kept ``previous``); f_g: the same with the code's record under ``previous``."""
+    fp = {"center": [1.0, 1.0], "size": [0.5, 0.45], "rotation_deg": 0.0}
+    move = {"reason": MOVE_TEXT, "round": 1, "log_seq": 4639, "model": "Qwen/Qwen3.8-27B-FP8",
+            "changed": {"type": "floor_lamp", "footprint": fp}}
+    old = _drawn("f_L0_032", "nightstand", drawn_type="floor_lamp", type_method="nightstand_symbol",
+                 type_candidates=_cand("floor_lamp", "floor_lamp"), footprint=fp, drawn_footprint=fp, inferred=True,
+                 inferred_reason=NIGHTSTAND_TEXT, adjusted_by_ai=dict(move),
+                 evidence=[{"method": "inferred", "rule": "furniture.infer.nightstand_symbols", "text": NIGHTSTAND_TEXT,
+                            "crop": "recognition/crops/sym_L0_016_ctx.png"}])
+    code = {"by": "code", "stage": "reading", "rule": "nightstand_symbol", "reason": "a lamp of a nightstand's size",
+            "plan_crop": "recognition/crops/sym_L0_017_ctx.png", "changed": {"type": "floor_lamp"}}
+    new = _drawn("f_g", "nightstand", drawn_type="floor_lamp", type_method="nightstand_symbol",
+                 type_candidates=_cand("floor_lamp", "floor_lamp"), footprint=fp, drawn_footprint=fp,
+                 adjusted_by_ai=dict(move, previous=[code]))
+    return [old, new]
+
+
+def test_a_code_retype_moved_later_keeps_its_own_reason_and_plan_crop():
+    """Review finding: the row of a code retype the agent moved later showed the move's reason and no plan crop."""
+    rows = {i["id"]: i for i in AG.inferred_items({"furniture": moved_retypes()}, None)}
+    assert rows["f_L0_032"]["reason"] == f"{NIGHTSTAND_TEXT}; then: {MOVE_TEXT}"
+    assert rows["f_L0_032"]["plan_crop"] == "recognition/crops/sym_L0_016_ctx.png"
+    assert rows["f_L0_032"]["by"] == "code, then Qwen/Qwen3.8-27B-FP8"
+    assert rows["f_g"]["reason"] == f"a lamp of a nightstand's size; then: {MOVE_TEXT}"
+    assert rows["f_g"]["plan_crop"] == "recognition/crops/sym_L0_017_ctx.png" and rows["f_g"]["rule"] == \
+        "nightstand_symbol"
+    changes = {c["id"]: c for c in AG.decision_changes({"furniture": moved_retypes()})}
+    assert changes["f_L0_032"]["reason"] == rows["f_L0_032"]["reason"]
+    assert changes["f_g"]["plan_crop"] == "recognition/crops/sym_L0_017_ctx.png"
+    md = "\n".join(AG.inferred_lines(list(rows.values())))
+    # the crop already named in the reason is not repeated; one only in the record is added
+    assert md.count("sym_L0_016_ctx.png") == 1
+    assert f"a lamp of a nightstand's size; then: {MOVE_TEXT} (plan crop recognition/crops/sym_L0_017_ctx.png) |" in md
+    labelled = {i["id"]: i for i in AG.inferred_items(decision_building(), None)}
+    assert labelled["f_a"]["plan_crop"] == "recognition/crops/sym_L0_031_ctx.png"
+    assert labelled["f_a"]["reason"] == "a lamp of a nightstand's size"           # the code's own record: as before
+
+
+@pytest.mark.skipif(not (P5 / "furniture" / "real04" / "building_final.json").is_file(),
+                    reason="the P5 run folder is not here (runs/ is not committed)")
+def test_the_moved_nightstand_retypes_on_the_p5_building():
+    b = json.loads((P5 / "furniture" / "real04" / "building_final.json").read_text(encoding="utf-8"))
+    rows = {i["id"]: i for i in AG.inferred_items(b, None)}
+    for pid, crop in (("f_L0_032", "sym_L0_016"), ("f_L0_034", "sym_L0_018"), ("f_L0_036", "sym_L0_020"),
+                      ("f_L0_038", "sym_L0_022")):
+        row = rows[pid]
+        assert row["decision"] == "code_retype" and row["reason"].startswith("nightstand: a drawn floor_lamp")
+        assert "; then: " in row["reason"] and row["plan_crop"] == f"recognition/crops/{crop}_ctx.png"
+        assert row["by"] == "code, then Qwen/Qwen3.8-27B-FP8" and row["rule"] == "nightstand_symbol"
+    assert rows["f_L0_031"]["reason"].startswith("nightstand:") and "; then:" not in rows["f_L0_031"]["reason"]
+    assert rows["f_L0_031"]["plan_crop"] == "recognition/crops/sym_L0_015_ctx.png"
+
+
+def test_a_bath_or_shower_shrunk_across_its_depth_is_a_wet_shrink():
+    """Review finding: only the longest sides were compared (a 1.70 x 0.78 m bath in a 0.75 m deep bay)."""
+    from wenart.ingest.generic import reading as R
+
+    assert R.bay_product("bathtub", (1.70, 0.78), (1.70, 0.75)) == (1.7, 0.75)
+    assert R.bay_product("shower", (1.00, 0.83), (1.00, 0.80)) == (1.0, 0.8)
+
+    def wet(ftype, drawn, now):
+        return _drawn("f_w", ftype, footprint={"center": [1.0, 1.0], "size": now, "rotation_deg": 0.0},
+                      drawn_footprint={"center": [1.0, 1.0], "size": drawn, "rotation_deg": 0.0})
+
+    assert AG.decision_kind(wet("bathtub", [1.70, 0.78], [1.70, 0.75])) == "wet_shrink"
+    assert AG.decision_kind(wet("shower", [1.00, 0.83], [1.00, 0.80])) == "wet_shrink"
+    assert AG.decision_kind(wet("bathtub", [0.78, 1.70], [1.70, 0.75])) == "wet_shrink"      # either way round
+    assert AG.decision_kind(wet("bathtub", [1.70, 0.75], [1.70, 0.75])) is None
+    assert AG.decision_kind(wet("bathtub", [1.70, 0.752], [1.70, 0.75])) is None             # rounding
+    assert AG.decision_kind(wet("bathtub", [1.68, 0.75], [1.70, 0.75])) is None              # grown, not shrunk
+    changes = AG.decision_changes({"furniture": [wet("bathtub", [1.70, 0.78], [1.70, 0.75])]})
+    assert [(c["decision"], c["change"], c["labelled"]) for c in changes] == [
+        ("wet_shrink", "size 1.70 x 0.78 m -> 1.70 x 0.75 m", False)]
+
+
+def test_edits_of_a_cut_run_replayed_into_this_building_stay_in_the_section(tmp_path):
+    """Review finding: a resumed run on the same building_decor.json replays the cut run's accepted edits; the
+    section left them out as "earlier runs"."""
+    from wenart.agent import overrides as OV
+
+    out = tmp_path / "toy"
+    write_appended(out)
+    (out / "building_decor.json").write_text(json.dumps({"furniture": []}), encoding="utf-8")
+    sha = OV.source_sha(out)
+    edits = [{"seq": 1, "round": 1, "tool": "move_piece", "args": {"piece_id": "f_old"}, "source_sha": sha,
+              "result": {"accepted": True, "log_seq": 3}},                                # replayed: kept
+             {"seq": 2, "round": 1, "tool": "report_library_gap", "args": {"type": "stair", "reason": "cut run"},
+              "source_sha": sha, "result": {"accepted": True, "log_seq": 2}},             # replayed: kept
+             {"seq": 3, "round": 1, "tool": "report_library_gap", "args": {"type": "bed", "reason": "other run"},
+              "source_sha": "other", "result": {"accepted": True, "log_seq": 2}},         # another reading: left out
+             {"seq": 4, "round": 1, "tool": "move_piece", "args": {"piece_id": "f_old"}, "source_sha": sha,
+              "result": {"accepted": False, "rolled_back": "refit failed", "log_seq": 4}},  # not accepted: left out
+             {"seq": 5, "round": 1, "tool": "rotate_piece", "args": {"piece_id": "f_old"}, "source_sha": sha,
+              "result": {"accepted": True, "log_seq": 1}},                                # failed its replay: left out
+             {"seq": 6, "round": 1, "tool": "report_library_gap", "args": {"type": "chair", "reason": "this run"},
+              "source_sha": sha, "result": {"accepted": True, "log_seq": 12}}]
+    (out / "orchestrator" / "overrides.json").write_text(json.dumps({"project": "toy", "edits": edits}),
+                                                         encoding="utf-8")
+    building = {"furniture": [], "agent_overrides": {"not_replayed": [{"seq": 5, "failed_checks": ["no_overlap"]}]}}
+    block = AG.agent_block(out, out / "final", building=building)
+    assert [g["type"] for g in block["library_gaps"]] == ["stair", "chair"]
+    assert [e["seq"] for e in block["edits"]] == [12, 16]                    # this run's accepted edits, as before
+    assert [e["seq"] for e in block["replayed"]] == [3] and block["replayed"][0]["target"] == "f_old"
+    assert block["earlier"]["edits"] == 3 and block["earlier"]["replayed"] == 2
+    md = "\n".join(AG.agent_lines({"agent": block}))
+    assert "2 accepted edit(s) of an earlier run on the same `building_decor.json` were replayed into this building " \
+           "(listed under Replayed edits and the library gaps)" in md
+    assert "### Replayed edits of an earlier run on the same building" in md and "| 3 | 1 | move_piece | f_old |" in md
+    # no sha now (no building_decor.json): nothing counts as replayed, as before
+    scope = AG.run_scope(appended_log(), {"edits": edits}, "")
+    assert [e["seq"] for e in scope["edits"]] == [6] and scope["replayed"] == []
+
+
+def test_the_measured_and_net_rows_come_from_one_finding_key(tmp_path):
+    """Review finding: a stored metrics.json written with an older finding key (real02: total 24) sat next to the net
+    computed with the current key (gone 27): "24 measured" and "4 new; net 23" contradicted each other."""
+    out = tmp_path / "toy"
+    write_appended(out)
+    log = appended_log()
+    log.pop("run_first_seq")
+    log.pop("run_first_call")
+    (out / "orchestrator" / "log.json").write_text(json.dumps(log), encoding="utf-8")
+    from wenart.agent import metrics as AM
+    stale = AM.compute(log)
+    stale["findings_removed"]["total"] = 5                                   # an older key's count
+    (out / "orchestrator" / "metrics.json").write_text(json.dumps(stale), encoding="utf-8")
+    block = AG.agent_block(out, out / "final", building={})
+    net = block["removed_net"]
+    assert block["metrics"]["findings_removed"]["total"] == net["gone"]
+    md = "\n".join(AG.agent_lines({"agent": block}))
+    assert f"| {net['gone']} measured;" in md and f"{net['new']} new; net {net['net']} |" in md
+    assert "| 5 measured;" not in md
+    # metrics_lines alone: the net row's own gone count leads
+    lines = "\n".join(AG.metrics_lines(stale, net, None))
+    assert f"| {net['gone']} measured;" in lines
+
+
+P4A = ROOT / "runs" / "20261017-072801-full" / "results"
+
+
+@pytest.mark.skipif(not (P4A / "agent" / "real02" / "log.json").is_file(),
+                    reason="the P4a run folder is not here (runs/ is not committed)")
+def test_the_measured_and_net_rows_agree_on_the_p4a_results(tmp_path):
+    p4a = P4A
+    out = tmp_path / "real02"
+    out.mkdir()
+    os.symlink(p4a / "agent" / "real02", out / "orchestrator")
+    os.symlink(p4a / "run" / "real02", out / "run")
+    for name in ("building_final.json", "building_decor.json"):
+        os.symlink(p4a / "furniture" / "real02" / name, out / name)
+    block = AG.agent_block(out, tmp_path / "final", private=True)
+    net = block["removed_net"]
+    assert (net["gone"], net["new"], net["net"]) == (27, 4, 23)
+    md = "\n".join(AG.agent_lines({"agent": block}))
+    assert "| 27 measured; " in md and "| 4 new; net 23 |" in md                # was "24 measured" next to "net 23"
+
+
+def test_the_agent_mark_follows_the_reading_reason_of_a_piece_not_built():
+    """Review finding: P5 f_L1_017/018 read "untyped" in the recognition table; the agent's later mark (a rug
+    outline, round 3) was hidden."""
+    f = _drawn("f_L1_017", "unknown", type_method="none", type_candidates=_cand("sofa", "rug"), build=False,
+               not_built_reason="untyped (CLAUDE.md: no untyped piece is built)",
+               adjusted_by_ai={"reason": "a decorative rug/area outline", "model": "Qwen/Qwen3.8-27B-FP8", "round": 3,
+                               "not_furniture": "other"})
+    assert F.not_built_text(f) == ("untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) "
+                                   "by Qwen/Qwen3.8-27B-FP8, round 3: a decorative rug/area outline")
+    g = dict(f, not_built_reason=None, inferred_reason="drawn on the 'A-BA' layer(s): structure")
+    assert F.not_built_text(g).startswith("drawn on the 'A-BA' layer(s): structure; then marked not furniture")
+    # an agent record that is no mark (a move) does not replace the reading's reason
+    h = dict(f, adjusted_by_ai={"reason": "moved", "model": "m", "round": 1})
+    assert F.not_built_text(h) == "untyped (CLAUDE.md: no untyped piece is built)"
+    assert F.not_built_text(dict(f, not_built_reason=None)) == (
+        "marked not furniture (other) by Qwen/Qwen3.8-27B-FP8, round 3: a decorative rug/area outline")
+
+
+@pytest.mark.skipif(not (P5 / "furniture" / "real04" / "building_final.json").is_file(),
+                    reason="the P5 run folder is not here (runs/ is not committed)")
+def test_the_agent_marks_on_the_p5_building():
+    b = json.loads((P5 / "furniture" / "real04" / "building_final.json").read_text(encoding="utf-8"))
+    pieces = {f["id"]: f for f in b["furniture"]}
+    for pid, rnd in (("f_L1_017", 3), ("f_L1_018", 2)):
+        text = F.not_built_text(pieces[pid])
+        assert text.startswith("untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (other) by "
+                               f"Qwen/Qwen3.8-27B-FP8, round {rnd}: ")
+
+
+def test_metric_10_counts_a_module_or_parametric_fabric_slot_only_when_a_colour_was_asked(tmp_path):
+    """Review finding: a parametric armchair or ottoman (a library gap) always has a fabric key with the default
+    fabric; it counted as "colour applied" although the style asks no colour for it."""
+    out = make_run(tmp_path)
+    b = json.loads((out / "building_final.json").read_text(encoding="utf-8"))
+    para = {"library": "parametric", "asset_id": "parametric:armchair", "method": "parametric", "licence": "n/a",
+            "licence_flag": "none"}
+    sofa_l = {"library": "module", "asset_id": "module:sofa_corner:sofa_l", "method": "module", "licence": "n/a",
+              "licence_flag": "none", "fabric_colour": "light grey"}
+    b["furniture"] += [piece("f_8", "sofa_corner", "r_salon", asset=sofa_l),
+                       piece("f_9", "armchair", "r_salon", asset=dict(para)),
+                       piece("f_10", "armchair", "r_salon", asset=dict(para), design={"fabric_colour": "ochre"})]
+    (out / "building_final.json").write_text(json.dumps(b), encoding="utf-8")
+    sc = json.loads((out / "scene" / "scene_manifest.json").read_text(encoding="utf-8"))
+    keys = {"fabric": "fabric_linen", "wood": "wood_veneer_oak_light"}
+    sc["objects"] += [obj("furn_f_8", "f_8", "furniture", 9, type="sofa_corner", asset=sofa_l, material_keys=keys),
+                      obj("furn_f_9", "f_9", "furniture", 10, type="armchair", asset=para, material_keys=keys),
+                      obj("furn_f_10", "f_10", "furniture", 11, type="armchair", asset=para, material_keys=keys)]
+    (out / "scene" / "scene_manifest.json").write_text(json.dumps(sc), encoding="utf-8")
+    p = MX.metric_10(MX.locate(out))["parts"]
+    assert p["fabric_slot"] == ["f_10", "f_8"]
+    assert p["no_colour_asked"]["f_9"] == "parametric:armchair" and "f_9" not in p["fabric_slot"]

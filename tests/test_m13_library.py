@@ -11,7 +11,9 @@ bookshelf, a gold bathtub).
 
 Fix round after P5 (22 Oct 2026): the ``render_print`` check (``render_findings``: a brand logo or a text print a
 run's render showed) and the committed catalogue's records of the P5 / P4b findings (the SMEG fridge, the chalk
-board coffee table, three washing machines with a maker's logo and the fridge of the same mesh as the SMEG one)."""
+board coffee table, three washing machines with a maker's logo and the fridge of the same mesh as the SMEG one).
+Fix round after P5 (22 Oct 2026), review: the mesh-family records (``same_mesh_as`` with ``match: family``), the
+three washers of the same mesh family as two of them, and the real03 refit of the two logo views."""
 from __future__ import annotations
 
 import json
@@ -868,6 +870,16 @@ P5_REMOVED = {
     "hssd_031024e00569909d466d87df9fead90355ba29e5": ("brand_logo", "SAMSUNG"),       # P4b cam_r_L0_banyo_4_2
     "hssd_2c2b2914fc526f6e8bbe65511ecf58bba0027ec0": ("brand_logo", "LG"),            # P4b cam_r_L0_giris_holu_1
     "hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c": ("brand_logo", "tpoint"),        # P4b cam_r_L0_banyo_3_1
+    # fix round after P5 (22 Oct 2026), review: the mesh-family twins the real03 refit picked for those two views
+    "hssd_16c33cffd5b62d0d5df5ed6dd607f690ce2ee7c7": ("brand_logo", "SAMSUNG"),       # the WF8704RSW mesh family
+    "hssd_434d62df4ddc67fbd923c529eaf27c9dc08b4abc": ("brand_logo", "Hotpoint"),      # the '...tpoint' mesh family
+    "hssd_912447108f21083d877aab6653742fceccc6ce7d": ("brand_logo", "Hotpoint"),      # the '...tpoint' mesh family
+}
+# The drawn washers of the two P4b real03 views whose maker's logo was seen (runs/20261017-091212-full, git-ignored:
+# the drawn type is washing_machine, the footprint is kept here): piece -> (view, drawn footprint size, P4b model)
+P4B_LOGO_WASHERS = {
+    "f_L0_061": ("cam_r_L0_banyo_4_2", [0.6, 0.6], "hssd_031024e00569909d466d87df9fead90355ba29e5"),
+    "f_L0_057": ("cam_r_L0_banyo_3_1", [0.6, 0.65], "hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c"),
 }
 
 
@@ -925,6 +937,63 @@ def test_render_findings_remove_a_model_with_a_brand_logo_or_a_text_print():
     assert "render_findings" in I.FIELDS
 
 
+def test_render_findings_of_a_mesh_family_twin_remove_it_with_the_family_evidence():
+    """Fix round after P5 (22 Oct 2026), review: the exact ``same_mesh_as`` rule (faces, vertices, box +- 1 mm) could
+    not record the twins of the removed washers: hssd_16c33... is the Samsung WF8704RSW mesh 4 faces and 5.7 cm of
+    height apart, the two Hotpoint WMF740 models share the 5902 faces of the '...tpoint' washer at another width, so
+    the real03 refit of the two logo views picked them. A record with ``match: family`` counts with the audit's own
+    duplicate tolerances (faces and vertices within 1 %, two box sides within 1 cm, the third within 10 %) plus the
+    look evidence (the same PBR texture set, or the title names the ``maker`` the record names); the exact rule stays
+    the default (this test fails on that code: the family record was a warning)."""
+    sha = "c" * 64
+    pbr = {"base_colour": True, "materials": 5, "materials_with_base_colour": 2, "images": 4}
+    twin = {"id": "hssd_seen", "match": "family", "polycount": 3853, "vertices": 3779,
+            "bbox_model_m": [0.5982, 0.61, 0.897],
+            "pbr_maps": {"materials": 5, "materials_with_base_colour": 2, "images": 4}}
+    fam = {"finding": "brand_logo", "detail": "the SAMSUNG logo printed on the control panel", "same_mesh_as": twin,
+           "sha256_glb": sha}
+
+    def washer(**kw):
+        base = dict(id="hssd_w", type="washing_machine", source="hssd", title="Washing machine", sha256_glb=sha,
+                    polycount=3849, vertices=3781, bbox_model_m=[0.5982, 0.61, 0.8396],
+                    bbox_m=[0.5982, 0.61, 0.8396], pbr_maps=pbr)
+        base.update(kw)
+        return gate_item(**base)
+
+    r = CK.render_print_check(washer(render_findings=[fam]), CFG)
+    assert r["status"] == "remove", r
+    assert "the same mesh family as hssd_seen (3853 faces, 3779 vertices" in r["reason"]
+    assert "the same texture set" in r["reason"] and "§2.6" in r["reason"]
+    d = D.decide(washer(render_findings=[fam]), CK.item_checks(washer(render_findings=[fam]), CFG, {"washing_machine"}),
+                 None, None, CFG)
+    assert d["status"] == "removed" and d["reasons"] == [r["reason"]]
+    assert CK.mesh_family(washer(), twin, CFG) and CK.mesh_family(twin, washer(), CFG)
+    # the exact rule stays the default: the same numbers without match "family" are no evidence
+    exact = dict(fam, same_mesh_as={k: v for k, v in twin.items() if k != "match"})
+    r = CK.render_print_check(washer(render_findings=[exact]), CFG)
+    assert r["status"] == "warn" and "the mesh differs from hssd_seen" in r["reason"]
+    # outside the family tolerances (or an unknown match kind): a warning
+    for key, value in (("polycount", 3940), ("vertices", 3830), ("bbox_model_m", [0.5982, 0.63, 0.897]),
+                       ("bbox_model_m", [0.5982, 0.61, 0.95]), ("match", "similar"), ("polycount", None)):
+        r = CK.render_print_check(washer(render_findings=[dict(fam, same_mesh_as=dict(twin, **{key: value}))]), CFG)
+        assert r["status"] == "warn" and "hssd_seen" in r["reason"], (key, value, r)
+    # another texture set: only the maker the record names, in the entry's title, keeps it evidence
+    other = {"base_colour": True, "materials": 5, "materials_with_base_colour": 3, "images": 5}
+    r = CK.render_print_check(washer(pbr_maps=other, render_findings=[fam]), CFG)
+    assert r["status"] == "warn" and "texture set" in r["reason"]
+    hot = dict(fam, maker="Hotpoint", detail="the Hotpoint script logo on the front")
+    r = CK.render_print_check(washer(pbr_maps=other, render_findings=[hot]), CFG)
+    assert r["status"] == "warn"                                              # the title does not name Hotpoint
+    r = CK.render_print_check(washer(pbr_maps=other, title="Hotpoint WMF740K Black Washing Machine",
+                                     render_findings=[hot]), CFG)
+    assert r["status"] == "remove" and "its title naming the maker Hotpoint" in r["reason"]
+    r = CK.render_print_check(washer(pbr_maps=other, title="Hotpointless", render_findings=[hot]), CFG)
+    assert r["status"] == "warn"                                              # a whole word, not a part
+    # a republished file stays a warning, as for the exact rule
+    r = CK.render_print_check(washer(render_findings=[dict(fam, sha256_glb="d" * 64)]), CFG)
+    assert r["status"] == "warn" and "another file" in r["reason"]
+
+
 def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
     """The SMEG fridge (P5 cam_r_L-1_mutfak_3), the chalk board coffee table (P5 / P3 / P4a oyun views), the three
     washing machines whose maker's logo P4b showed and the fridge of the same mesh as the SMEG one carry audit status
@@ -964,10 +1033,52 @@ def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
         else:
             twin = entries[f["same_mesh_as"]["id"]][0]
             assert twin["id"] in P5_REMOVED and "seen_in" in twin["render_findings"][0]
-            assert all(twin[k] == e[k] == f["same_mesh_as"][k] for k in CK.SAME_MESH_KEYS), aid
-            assert twin["pbr_maps"]["images"] == e["pbr_maps"]["images"] == 0      # the logo is geometry
+            # the record names the twin's own numbers (the mesh match it rests on)
+            assert all(twin[k] == f["same_mesh_as"][k] for k in CK.SAME_MESH_KEYS), aid
+            if f["same_mesh_as"].get("match", "exact") == "exact":
+                assert all(twin[k] == e[k] for k in CK.SAME_MESH_KEYS), aid
+                assert twin["pbr_maps"]["images"] == e["pbr_maps"]["images"] == 0  # the logo is geometry
+            else:                    # fix round after P5, review: a mesh family with the same look or the maker
+                assert f["same_mesh_as"]["match"] == "family" and CK.mesh_family(e, twin, CFG), aid
+                assert all(f["same_mesh_as"]["pbr_maps"][k] == twin["pbr_maps"][k] for k in CK.FAMILY_LOOK_KEYS)
+                assert (all(e["pbr_maps"][k] == twin["pbr_maps"][k] for k in CK.FAMILY_LOOK_KEYS)
+                        or f["maker"] in e["title"]), aid
+    seen_models = [it for it in I.load_items() if any(isinstance(f, dict) and f.get("seen_in")
+                                                      for f in it.get("render_findings") or [])]
     for item in I.load_items():
         if (item.get("audit") or {}).get("status") in ("keep", "fix"):
             assert CK.render_print_check(item)["status"] in ("skip", "warn"), item["id"]
+            # fix round after P5, review: no usable model is a mesh-family twin of a model whose render showed a
+            # logo or a print (the twin would bring it back in the same views)
+            twins = [s["id"] for s in seen_models if s["type"] == item["type"] and CK.mesh_family(item, s, CFG)]
+            assert not twins, (item["id"], twins)
         elif item.get("render_findings"):
             assert item["id"] in P5_REMOVED, item["id"]
+
+
+def test_the_real03_logo_washers_refit_to_no_twin_of_a_model_whose_render_showed_a_logo():
+    """Fix round after P5 (22 Oct 2026), review: refitting the P4b real03 washers of cam_r_L0_banyo_4_2 (SAMSUNG logo)
+    and cam_r_L0_banyo_3_1 ('...tpoint' logo) in relaxed mode (the PoC projects' mode, style family modern as in P4b)
+    picked hssd_16c33... and hssd_434d62df..., mesh-family twins of the removed models (this test fails on that
+    catalogue). Now each gets a library model that is no mesh-family twin of a model with a render_findings view,
+    and never the P4b model. The run folder is git-ignored: where it is on this machine the real piece is refitted
+    and its drawn type and footprint are checked against the ones kept here."""
+    from wenart.assets.audit import items as I
+
+    cat = C.load()
+    seen_models = [it for it in I.load_items() if any(isinstance(f, dict) and f.get("seen_in")
+                                                      for f in it.get("render_findings") or [])]
+    built = ROOT / "runs" / "20261017-091212-full" / "results" / "furniture" / "real03" / "building_final.json"
+    real = ({p["id"]: p for p in json.loads(built.read_text(encoding="utf-8"))["furniture"]} if built.is_file()
+            else {})
+    for pid, (view, size, before) in P4B_LOGO_WASHERS.items():
+        piece = {"id": pid, "type": "washing_machine", "footprint": {"size": size}, "build": True}
+        if pid in real:
+            assert real[pid]["type"] == "washing_machine" and real[pid]["footprint"]["size"] == size, pid
+            assert (real[pid].get("asset") or {}).get("asset_id") == before, pid
+            piece = {k: v for k, v in real[pid].items() if k != "asset"}
+        asset = F.fit_piece(piece, cat, style_family="modern", mode="relaxed")
+        assert asset["method"] == "library" and asset["asset_id"] != before, (pid, view, asset.get("asset_id"))
+        chosen = cat.entry(asset["asset_id"])
+        twins = [s["id"] for s in seen_models if s["type"] == chosen["type"] and CK.mesh_family(chosen, s, CFG)]
+        assert not twins, (pid, view, chosen["id"], twins)

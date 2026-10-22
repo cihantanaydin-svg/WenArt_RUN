@@ -2442,12 +2442,19 @@ def not_built_text(f: dict) -> str:
     """Fix round after P5 (the library lens of the P5 analysis): the actual reason a drawn piece is not built, from
     the building: its ``not_built_reason``, the reading's ``inferred_reason`` (a column, an outline, a detail), the
     agent's mark (``adjusted_by_ai`` reason), both recognition passes calling it ``not_furniture``; never the generic
-    "drawn symbol" text, which named A-BA columns typed ottoman and never-asked pieces alike (pure)."""
-    if f.get("not_built_reason"):
-        return str(f["not_built_reason"])
-    if f.get("inferred_reason"):
-        return str(f["inferred_reason"])
+    "drawn symbol" text, which named A-BA columns typed ottoman and never-asked pieces alike (pure).
+
+    Fix round after P5 (22 Oct 2026), review: the agent's later mark (``adjusted_by_ai.not_furniture``) follows the
+    reading's reason: "<not_built_reason>; then marked not furniture (<kind>) by <model>, round n: <reason>" (P5
+    f_L1_017/018 read only "untyped", the agent's round-3 mark as a rug outline was hidden)."""
     adj = f.get("adjusted_by_ai") if isinstance(f.get("adjusted_by_ai"), dict) else {}
+    base = f.get("not_built_reason") or f.get("inferred_reason")
+    if base and adj.get("not_furniture"):
+        who = f" by {adj['model']}, round {adj.get('round')}" if adj.get("model") else ""
+        return (f"{base}; then marked not furniture ({adj['not_furniture']}){who}: "
+                f"{adj.get('reason') or 'no reason recorded'}")
+    if base:
+        return str(base)
     if adj.get("not_furniture") or adj.get("reason"):
         who = f" by {adj['model']}, round {adj.get('round')}" if adj.get("model") else ""
         what = (f"marked not furniture ({adj['not_furniture']}){who}" if adj.get("not_furniture")

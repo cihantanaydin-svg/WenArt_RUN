@@ -57,6 +57,18 @@ record), and ``decision``: ``code_retype`` (code retyped a piece the vision mode
 ``wet_shrink`` (a drawn bathtub or shower shrunk to a real product size that fits its bay). Such a piece without an
 ``adjusted_by_ai`` label is listed anyway (label ``unlabelled``), so no change is silent; the final report lists the
 inferred items in its own section (``inferred_lines``) when there is no orchestrator section.
+
+Fix round after P5 (22 Oct 2026), review:
+
+- What: a row of a code change the agent edited later reads "<the code's reason>; then: <the agent's reason>" with
+  its plan crop (``plan_crop``, shown after the reason when the reason does not name it); the code's record comes
+  from ``adjusted_by_ai`` or its ``previous`` records, else the reading's text. ``wet_shrink`` compares both axes.
+  ``run_scope`` keeps an earlier run's accepted edits made on the current ``building_decor.json`` (replayed into this
+  building after a deadline cut), listed as "Replayed edits". The "measured" findings removed and the net come from
+  one finding key (a stored ``metrics.json`` whose total differs from ``removed_net`` is computed again).
+- Why: P5 f_L0_032/034/036/038 showed the agent's move reason and no plan crop; a bath shrunk across its depth was no
+  ``wet_shrink``; a resumed run's report would leave out edits that are in its building; the P4a report read "24
+  measured" next to "4 new; net 23" (27 gone by the current key).
 """
 from __future__ import annotations
 
@@ -117,8 +129,8 @@ def decision_kind(f: dict) -> Optional[str]:
     """Fix round after P5 (the user's decisions of 22 Oct 2026): ``code_retype`` when code retyped a drawn piece the
     vision models typed (its vision type differs from its type, its ``type_method`` is not the vision models' and no
     agent ``retype`` is recorded; ``unknown`` / ``not_furniture`` type nothing), ``wet_shrink`` when a drawn bathtub
-    or shower is shorter than drawn (shrunk to a real product size that fits its bay, ``drawn_footprint`` kept); None
-    otherwise (pure)."""
+    or shower is smaller than drawn along its length or its depth (shrunk to a real product size that fits its bay,
+    ``drawn_footprint`` kept); None otherwise (pure)."""
     if not isinstance(f, dict) or f.get("source") not in (None, "from_documents"):
         return None
     adj = f.get("adjusted_by_ai") if isinstance(f.get("adjusted_by_ai"), dict) else {}
@@ -129,7 +141,9 @@ def decision_kind(f: dict) -> Optional[str]:
         return "code_retype"
     if f.get("type") in WET_TYPES:
         drawn, now = _size(f.get("drawn_footprint")), _size(f.get("footprint"))
-        if drawn and now and max(drawn) > max(now) + SIZE_EPS_M:
+        # fix round after P5 (22 Oct 2026), review: per axis, either way round (``reading.bay_fit`` also shrinks the
+        # depth: a 1.70 x 0.78 m bath in a 0.75 m deep bay becomes 1.70 x 0.75 m)
+        if drawn and now and any(a > b + SIZE_EPS_M for a, b in zip(sorted(drawn), sorted(now))):
             return "wet_shrink"
     return None
 
@@ -149,22 +163,40 @@ def change_text(f: dict) -> str:
 _CROP_IN_TEXT = re.compile(r"plan crop ([\w./-]+\.(?:png|jpg))")   # "... (plan crop recognition/crops/x.png)"
 
 
+def _records(adj: dict) -> list[dict]:
+    """The adjusted_by_ai record and its earlier records (``previous``, oldest first, kept by ``edit_ops._label``),
+    latest first."""
+    prev = [r for r in adj.get("previous") or [] if isinstance(r, dict)]
+    return ([adj] if adj else []) + prev[::-1]
+
+
+def _code_record(adj: dict) -> dict:
+    """Fix round after P5 (22 Oct 2026), review: the code's own adjusted_by_ai record of a piece (``by: code``): the
+    record itself, else the latest earlier record by code (an agent edit after it keeps it under ``previous``); {}
+    without one."""
+    return next((r for r in _records(adj) if r.get("by") == "code"), {})
+
+
 def _plan_crop(f: dict, adj: dict) -> Optional[str]:
-    """The plan crop of a change: the adjusted_by_ai record's ``plan_crop`` / ``crop`` / evidence, else the piece's
-    evidence, else the path a reason or evidence text names ("plan crop <path>", as the reading rules write it)."""
-    for key in ("plan_crop", "crop"):
-        if adj.get(key):
-            return str(adj[key])
-    ev = adj.get("evidence")
-    for e in (ev if isinstance(ev, list) else [ev]):
-        if isinstance(e, dict) and (e.get("plan_crop") or e.get("crop")):
-            return str(e.get("plan_crop") or e.get("crop"))
-    texts = [adj.get("reason"), f.get("inferred_reason")]
+    """The plan crop of a change: the adjusted_by_ai record's (or an earlier record's) ``plan_crop`` / ``crop`` /
+    evidence, else the piece's evidence (``plan_crop`` / ``crop``), else the path a reason or evidence text names
+    ("plan crop <path>", as the reading rules write it)."""
+    texts: list = []
+    for rec in _records(adj):
+        for key in ("plan_crop", "crop"):
+            if rec.get(key):
+                return str(rec[key])
+        ev = rec.get("evidence")
+        for e in (ev if isinstance(ev, list) else [ev]):
+            if isinstance(e, dict) and (e.get("plan_crop") or e.get("crop")):
+                return str(e.get("plan_crop") or e.get("crop"))
+        texts.append(rec.get("reason"))
+    texts.append(f.get("inferred_reason"))
     piece_ev = f.get("evidence")
     for e in (piece_ev if isinstance(piece_ev, list) else [piece_ev]):
         if isinstance(e, dict):
-            if e.get("plan_crop"):
-                return str(e["plan_crop"])
+            if e.get("plan_crop") or e.get("crop"):
+                return str(e.get("plan_crop") or e.get("crop"))
             texts += [e.get("text"), e.get("reason"), e.get("note")]
     for text in texts:
         hit = _CROP_IN_TEXT.search(str(text or ""))
@@ -173,11 +205,36 @@ def _plan_crop(f: dict, adj: dict) -> Optional[str]:
     return None
 
 
+def _change_reason(f: dict, adj: dict, decision: Optional[str]) -> Optional[str]:
+    """Fix round after P5 (22 Oct 2026), review: the reason of a piece's row. A change under the decisions of 22 Oct
+    2026 that an agent edit followed reads "<the code's reason>; then: <the agent's reason>": the code's record
+    (``_code_record``), else, for data written before ``edit_ops`` kept the earlier records (P5: the nightstand retypes
+    of f_L0_032/034/036/038, moved in round 1), the reading's text (``inferred_reason`` of a retype, else the last
+    ``inferred`` evidence text). Any other row: the record's reason, else ``inferred_reason`` (as before)."""
+    own = adj.get("reason") or f.get("inferred_reason")
+    if not decision or not adj or adj.get("by") == "code":
+        return own
+    code = _code_record(adj).get("reason")
+    if not code:
+        texts = [str(e.get("text")) for e in f.get("evidence") or []
+                 if isinstance(e, dict) and e.get("method") == "inferred" and e.get("text")]
+        code = (f.get("inferred_reason") if decision == "code_retype" else None) or (texts[-1] if texts else None)
+    if not code or code == adj.get("reason"):
+        return own
+    return f"{code}; then: {adj['reason']}" if adj.get("reason") else str(code)
+
+
+def _rule_of(f: dict, adj: dict, decision: Optional[str]) -> Optional[str]:
+    """The rule of a row: the code record's, else the record's, else a code retype's ``type_method``."""
+    return (_code_record(adj).get("rule") or adj.get("rule")
+            or (f.get("type_method") if decision == "code_retype" else None))
+
+
 def _by_of(adj: dict, decision: Optional[str]) -> Optional[str]:
     """Who made a piece's change: the adjusted_by_ai record's ``by`` or ``model`` ("code" for a record without
     either); a code retype that a model edited later reads "code, then <model>"."""
     by = adj.get("by") or adj.get("model") or ("code" if adj else None)
-    if decision == "code_retype" and by != "code":
+    if (decision == "code_retype" or (decision and _code_record(adj))) and by != "code":
         return f"code, then {by}" if by else "code"
     return by
 
@@ -185,6 +242,13 @@ def _by_of(adj: dict, decision: Optional[str]) -> Optional[str]:
 def _by_text(item: dict) -> str:
     by, rule = item.get("by"), item.get("rule")
     return f"{by or '-'} ({rule})" if rule else (by or "-")
+
+
+def _reason_text(item: dict) -> str:
+    """Fix round after P5 (22 Oct 2026), review: a row's reason with its plan crop ("(plan crop <path>)") when the
+    reason does not name it already."""
+    reason, crop = item.get("reason") or "-", item.get("plan_crop")
+    return f"{reason} (plan crop {crop})" if crop and str(crop) not in reason else reason
 
 
 def decision_changes(building: Optional[dict]) -> list[dict]:
@@ -197,10 +261,10 @@ def decision_changes(building: Optional[dict]) -> list[dict]:
             continue
         adj = f.get("adjusted_by_ai") if isinstance(f.get("adjusted_by_ai"), dict) else {}
         by = _by_of(adj, kind)
+        # fix round after P5 (22 Oct 2026), review: the code's own reason and rule first, then the agent's later edit
         out.append({"id": f.get("id"), "type": f.get("type"), "room_id": f.get("room_id"), "decision": kind,
-                    "change": change_text(f), "reason": adj.get("reason"),
-                    "rule": adj.get("rule") or (f.get("type_method") if kind == "code_retype" else None),
-                    "type_method": f.get("type_method"), "by": by,
+                    "change": change_text(f), "reason": _change_reason(f, adj, kind) if adj else None,
+                    "rule": _rule_of(f, adj, kind), "type_method": f.get("type_method"), "by": by,
                     "plan_crop": _plan_crop(f, adj), "labelled": bool(f.get("adjusted_by_ai"))})
     return out
 
@@ -216,11 +280,13 @@ def inferred_items(building: Optional[dict], overrides: Optional[dict]) -> list[
             labels.append("unlabelled")         # fix round after P5: a 22 Oct change without its label is listed
         if labels:
             adj = f.get("adjusted_by_ai") if isinstance(f.get("adjusted_by_ai"), dict) else {}
+            # fix round after P5 (22 Oct 2026), review: the code's reason before the agent's later edit, and the
+            # plan crop (CLAUDE.md keeps it with a code retype; P5 f_L0_032 showed only the agent's move reason)
             out.append({"id": f.get("id"), "kind": "piece", "type": f.get("type"), "room_id": f.get("room_id"),
-                        "labels": labels, "reason": adj.get("reason") or f.get("inferred_reason"),
+                        "labels": labels, "reason": _change_reason(f, adj, decision),
                         "drawn_type": f.get("drawn_type"), "change": change_text(f),
-                        "rule": adj.get("rule") or (f.get("type_method") if decision == "code_retype" else None),
-                        "by": _by_of(adj, decision), "decision": decision})
+                        "rule": _rule_of(f, adj, decision), "by": _by_of(adj, decision), "decision": decision,
+                        "plan_crop": _plan_crop(f, adj)})
     for r in (building or {}).get("rooms") or []:
         labels = [k for k in ("inferred", "corrected_by_ai") if r.get(k)]
         if labels:
@@ -295,33 +361,47 @@ def _int(value, default: int = 0) -> int:
         return default
 
 
-def run_scope(log: dict, overrides: Optional[dict], sha_now: str = "") -> dict:
+def run_scope(log: dict, overrides: Optional[dict], sha_now: str = "", not_replayed=()) -> dict:
     """Fix round after P5 (module docstring): the latest run of an appended log (pure). ``{"first_seq",
-    "first_call", "events", "calls", "edits", "earlier": {"events", "calls", "edits"}}``: the events with ``seq >=
-    run_first_seq``, the calls from ``run_first_call``, the overrides with ``result.log_seq >= run_first_seq`` (one
-    without a ``log_seq``: made on ``sha_now``, the current ``building_decor.json``, or without a recorded sha). A log
-    without ``run_first_seq`` (or 1) keeps everything."""
+    "first_call", "events", "calls", "edits", "replayed", "earlier": {"events", "calls", "edits", "replayed"}}``: the
+    events with ``seq >= run_first_seq``, the calls from ``run_first_call``, the overrides with ``result.log_seq >=
+    run_first_seq`` (one without a ``log_seq``: made on ``sha_now``, the current ``building_decor.json``, or without a
+    recorded sha). A log without ``run_first_seq`` (or 1) keeps everything.
+
+    Fix round after P5 (22 Oct 2026), review: an accepted edit of an earlier run made on ``sha_now`` (a deadline-cut
+    run resumed on the same ``building_decor.json``: ``agent_apply`` replays it into this building, as
+    ``Overrides.accepted``) stays in ``edits``, unless its override seq is in ``not_replayed`` (the building's
+    ``agent_overrides.not_replayed``: its replay failed); ``replayed`` holds its log events (the accepted ``edit``
+    events of those log seqs), listed apart from this run's rounds."""
     first = max(1, _int(log.get("run_first_seq"), 1))
     events = [e for e in log.get("events") or [] if isinstance(e, dict)]
     calls = [c for c in log.get("calls") or [] if isinstance(c, dict)]
     edits = [e for e in (overrides or {}).get("edits") or [] if isinstance(e, dict)]
     if first <= 1:
-        return {"first_seq": 1, "first_call": 0, "events": events, "calls": calls, "edits": edits,
-                "earlier": {"events": 0, "calls": 0, "edits": 0}}
+        return {"first_seq": 1, "first_call": 0, "events": events, "calls": calls, "edits": edits, "replayed": [],
+                "earlier": {"events": 0, "calls": 0, "edits": 0, "replayed": 0}}
     first_call = max(0, _int(log.get("run_first_call"), 0))
+    failed = {_int(n.get("seq") if isinstance(n, dict) else n, -1) for n in not_replayed or ()}
+
+    def replayed(e: dict) -> bool:
+        return bool((e.get("result") or {}).get("accepted") and sha_now and e.get("source_sha") == sha_now
+                    and _int(e.get("seq"), -1) not in failed)
 
     def this_run(e: dict) -> bool:
         seq = (e.get("result") or {}).get("log_seq")
         if seq is not None and _int(seq, -1) >= 0:
-            return _int(seq) >= first
+            return _int(seq) >= first or replayed(e)
         return not e.get("source_sha") or not sha_now or e.get("source_sha") == sha_now
 
     kept_events = [e for e in events if _int(e.get("seq")) >= first]
     kept_edits = [e for e in edits if this_run(e)]
+    from_earlier = [e for e in kept_edits if 0 <= _int((e.get("result") or {}).get("log_seq"), -1) < first]
+    earlier_seqs = {_int(e["result"]["log_seq"]) for e in from_earlier}
+    replayed_events = [e for e in events if e.get("kind") == "edit" and _int(e.get("seq")) in earlier_seqs]
     return {"first_seq": first, "first_call": first_call, "events": kept_events, "calls": calls[first_call:],
-            "edits": kept_edits, "earlier": {"events": len(events) - len(kept_events),
-                                             "calls": min(first_call, len(calls)),
-                                             "edits": len(edits) - len(kept_edits)}}
+            "edits": kept_edits, "replayed": replayed_events,
+            "earlier": {"events": len(events) - len(kept_events), "calls": min(first_call, len(calls)),
+                        "edits": len(edits) - len(kept_edits), "replayed": len(from_earlier)}}
 
 
 def removed_net(events: list[dict]) -> Optional[dict]:
@@ -356,7 +436,12 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
         sha_now = OV.source_sha(project_out)
     except Exception:  # noqa: BLE001 - without the sha an override without a log_seq counts as this run's
         sha_now = ""
-    scope = run_scope(log, overrides, sha_now)
+    if building is None:
+        building = _read(project_out / "building_final.json")
+    # fix round after P5 (22 Oct 2026), review: an earlier run's edit whose replay failed is not in this building
+    agent_ov = (building or {}).get("agent_overrides") if isinstance(building, dict) else None
+    scope = run_scope(log, overrides, sha_now,
+                      (agent_ov.get("not_replayed") or []) if isinstance(agent_ov, dict) else [])
     overrides = {"edits": scope["edits"]}
     events = scope["events"]
     rounds: dict = {}
@@ -388,10 +473,7 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
     def image(rel: Optional[str]) -> Optional[str]:
         return _copy_image(orch / rel, final_dir, private, project_out) if rel else None
 
-    edits, rejected = [], []
-    for e in events:
-        if e["kind"] not in ("edit", "rejected_edit"):
-            continue
+    def edit_row(e: dict) -> dict:
         v = e.get("validation") or {}
         row = {"seq": e["seq"], "round": e.get("round"), "tool": e.get("tool"), "target": e.get("target"),
                "label": e.get("label"), "reason": e.get("reason"), "check": e.get("checklist"),
@@ -400,10 +482,14 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
         if e["kind"] == "edit":
             row["before"] = image(e.get("before"))
             row["after"] = image(e.get("after"))
-            edits.append(row)
         else:
             row["failed_checks"] = list(v.get("failed_checks") or [])
-            rejected.append(row)
+        return row
+
+    edits = [edit_row(e) for e in events if e["kind"] == "edit"]
+    rejected = [edit_row(e) for e in events if e["kind"] == "rejected_edit"]
+    # fix round after P5 (22 Oct 2026), review: an earlier run's accepted edits replayed into this building
+    replayed = [edit_row(e) for e in scope["replayed"]]
     before_after = []
     for e in events:
         if e["kind"] == "render" and (e.get("before") or e.get("after")):
@@ -412,8 +498,6 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
     rolled_back = [{"seq": e["seq"], "round": e.get("round"), "tool": e.get("tool"),
                     "why": (e.get("result") or {}).get("rolled_back")}
                    for e in overrides.get("edits") or [] if (e.get("result") or {}).get("rolled_back")]
-    if building is None:
-        building = _read(project_out / "building_final.json")
     seconds = 0.0
     for stage in ("agent", "agent_previews", "agent_apply"):
         rec = _read(project_out / "run" / f"{stage}.json")
@@ -425,6 +509,13 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
     # metrics.json of another run (its first_seq is not this log's run_first_seq) is computed again
     metrics = _read(orch / "metrics.json")
     if metrics is not None and scope["first_seq"] > 1 and _int(metrics.get("first_seq"), -1) != scope["first_seq"]:
+        metrics = None
+    net = removed_net(events)
+    removed = (metrics or {}).get("findings_removed") if isinstance((metrics or {}).get("findings_removed"),
+                                                                     dict) else None
+    if metrics is not None and net is not None and removed and _int(removed.get("total"), -1) != net["gone"]:
+        # fix round after P5 (22 Oct 2026), review: a metrics.json counted with an older finding key (real02 of P4a:
+        # 24 measured, 27 gone by the current key) is computed again, so "measured" and "net" share one key
         metrics = None
     if metrics is None:
         try:
@@ -442,8 +533,8 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
             "comparison": compare_rows(project_out, final_dir, private), "metrics": metrics,
             "library_gaps": gaps, "reported": reported_findings(events), "context": context_checks(events),
             # fix round after P5: this run only (run_scope), the net findings removed and the last round's edits
-            "first_seq": scope["first_seq"], "earlier": scope["earlier"], "removed_net": removed_net(events),
-            "last_round_accepted": _last_round_accepted(events)}
+            "first_seq": scope["first_seq"], "earlier": scope["earlier"], "removed_net": net,
+            "last_round_accepted": _last_round_accepted(events), "replayed": replayed}
 
 
 def _last_round_accepted(events: list[dict]) -> dict:
@@ -531,9 +622,11 @@ def metrics_lines(m: Optional[dict], net: Optional[dict] = None, last: Optional[
         predicted = sum(int(dry[k] or 0) for k in same)
         rest = sum(int(dry[k] or 0) for k in dry if k not in same)
         scope = _rounds_text(measured_rounds) if measured_rounds else "-"
+        # fix round after P5 (22 Oct 2026), review: with the net, "measured" is its gone count (one finding key)
+        measured = net["gone"] if net else removed.get("total", 0)
         rows.append([f"critical/major findings removed in {scope} (measured by the next round; predicted by the dry "
                      "re-checks of the same rounds)",
-                     f"{removed.get('total', 0)} measured; {predicted} predicted"
+                     f"{measured} measured; {predicted} predicted"
                      + (f" (the last round's dry re-checks predicted {rest} more, not measured)" if rest else "")])
         if net:
             rows.append([f"new critical/major findings in {_rounds_text(net.get('rounds_measured') or [])}; net "
@@ -569,7 +662,7 @@ def inferred_lines(items: list[dict], heading: str = "### Inferred and AI-change
     lines += C.table(["id", "kind", "type", "room", "labels", "change", "by (rule)", "reason"],
                      [[i["id"], i["kind"], i["type"], i.get("room_id") or "-",
                        ", ".join(i["labels"]) + (f" ({DECISION_TEXT[i['decision']]})" if i.get("decision") else ""),
-                       i.get("change") or "-", _by_text(i), i.get("reason") or "-"] for i in items])
+                       i.get("change") or "-", _by_text(i), _reason_text(i)] for i in items])
     if any(i["kind"] == "geometry" for i in items):
         lines.append("")
         lines.append("Geometry corrections are record-only in M11: the drawn geometry was not changed; they are "
@@ -596,7 +689,11 @@ def agent_lines(manifest: dict) -> list[str]:
         # fix round after P5: the latest run of the appended log only (run_scope)
         lines += ["", f"This run only (log events from seq {a.get('first_seq')}): earlier runs of the appended log "
                       f"are left out ({earlier.get('events', 0)} events, {earlier.get('calls', 0)} model calls, "
-                      f"{earlier.get('edits', 0)} stored edits); `orchestrator/log.md` has them."]
+                      f"{earlier.get('edits', 0)} stored edits); `orchestrator/log.md` has them."
+                  # fix round after P5 (22 Oct 2026), review: a cut run's edits replayed into this building
+                  + (f" {earlier['replayed']} accepted edit(s) of an earlier run on the same `building_decor.json` "
+                     "were replayed into this building (listed under Replayed edits and the library gaps)."
+                     if earlier.get("replayed") else "")]
     lines += metrics_lines(a.get("metrics"), a.get("removed_net"), a.get("last_round_accepted"))
     if a.get("library_gaps"):
         lines += ["", "Library gaps reported by the agent: " + ", ".join(
@@ -621,6 +718,13 @@ def agent_lines(manifest: dict) -> list[str]:
                            e["reason"], _img(e.get("before")), _img(e.get("after"))] for e in a["edits"]])
     else:
         lines.append("None.")
+    if a.get("replayed"):
+        # fix round after P5 (22 Oct 2026), review: run_scope's replayed edits (a resumed deadline-cut run)
+        lines += ["", "### Replayed edits of an earlier run on the same building", ""]
+        lines += C.table(["#", "round", "tool", "target", "label", "score", "reason"],
+                         [[e["seq"], e["round"], e["tool"], e["target"], e["label"] or "-",
+                           f"{e['score_before']} -> {e['score_after']}" if e["score_before"] is not None else "-",
+                           e["reason"]] for e in a["replayed"]])
     if a["rejected"]:
         lines += ["", "### Rejected edits", ""]
         lines += C.table(["#", "round", "tool", "target", "failed checks", "reason"],
