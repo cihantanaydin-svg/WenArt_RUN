@@ -375,7 +375,8 @@ def _set_footprint(item: dict, center, rotation: float, size, front: Optional[fl
 
 
 def _label(item: dict, before: dict, args: dict, fields: list[str]) -> None:
-    """``adjusted_by_ai`` (first old values kept over several edits) and, on a drawn piece, the drawn values."""
+    """``adjusted_by_ai`` (first old values kept over several edits; the earlier records under ``previous``) and, on a
+    drawn piece, the drawn values."""
     if _drawn(item):
         item.setdefault("drawn_type", before.get("type"))
         item.setdefault("drawn_footprint", copy.deepcopy(before.get("footprint")))
@@ -397,6 +398,14 @@ def _label(item: dict, before: dict, args: dict, fields: list[str]) -> None:
     for key in ("snapped_wall", "fix_fixture", "drawn_group"):
         if old.get(key):
             label[key] = old[key]
+    # Integration of the fix round after P5 (P_report's ask): the earlier records stay under ``previous`` (oldest
+    # first), so an agent edit no longer replaces the code's own record (P5: the nightstand retypes of
+    # f_L0_032/034/036/038, rule nightstand_symbol with their plan crops, were overwritten by the agent's moves)
+    previous = [copy.deepcopy(r) for r in old.get("previous") or [] if isinstance(r, dict)]
+    if old:
+        previous.append({k: copy.deepcopy(v) for k, v in old.items() if k != "previous"})
+    if previous:
+        label["previous"] = previous
     item["adjusted_by_ai"] = label
 
 
@@ -576,6 +585,8 @@ def _change_type(b: dict, args: dict) -> list[str]:
     room = _room(b, item.get("room_id"))
     new = args["type"]
     old = item["type"]
+    if new == old and item.get("status") == "unverified":
+        return _confirm_type(b, item, room, args)
     if new == old:
         raise EditRejected("no_change", f"{item['id']} is already a {new}")
     rtype, sub = room.get("room_type"), room.get("room_subtype")
@@ -612,6 +623,30 @@ def _change_type(b: dict, args: dict) -> list[str]:
         item.setdefault("evidence", []).append({"file": EVIDENCE_FILE, "method": "inferred", "confidence": 0.7,
                                                 "text": f"type {new} inferred by the agent: {args.get('reason')}"})
     _label(item, before, args, ["type", "height"])
+    return [item["id"]]
+
+
+def _confirm_type(b: dict, item: dict, room: dict, args: dict) -> list[str]:
+    """Integration of the fix round after P5 (A_agent's ask): ``retype_piece`` / ``change_type`` with the piece's own
+    type confirms an unverified piece (``status`` verified, ``adjusted_by_ai`` with the reason, the AI passes'
+    ``type_candidates`` kept, its ``needs_review`` entry closed) when its room may hold the type and its footprint fits
+    it. Why: complete_group refuses a group whose anchor is unverified ("retype_piece first") and retype_piece refused
+    the anchor's own type as no_change, a deadlock (P5 seq 4730/4732, 5111/5113: the desks f_L0_026 / f_L0_024)."""
+    new = item["type"]
+    rtype, sub = room.get("room_type"), room.get("room_subtype")
+    if new in (None, "unknown") or new not in set(schemas.allowed_types(rtype, sub)) | set(PL.ALWAYS_ALLOWED):
+        raise EditRejected("room_type", f"{item['id']}: a {rtype} room does not hold a {new}: retype it instead")
+    size = item["footprint"]["size"]
+    if not PL._fits(new, size):
+        raise EditRejected("product_size", f"{item['id']}: {float(size[0]):.2f} x {float(size[1]):.2f} m does not fit "
+                                           f"a {new} (size table): retype it instead")
+    before = copy.deepcopy(item)
+    item["status"] = "verified"
+    item.setdefault("evidence", []).extend(_ai_evidence(args, f"type {new} confirmed by the agent: "
+                                                              f"{args.get('reason')}"))
+    _label(item, before, args, ["status"])
+    item["adjusted_by_ai"]["confirmed_type"] = new
+    b["needs_review"] = [n for n in b.get("needs_review") or [] if n.get("id") != item["id"]]
     return [item["id"]]
 
 
@@ -1141,8 +1176,10 @@ def _retype(b: dict, args: dict, catalog=None) -> list[str]:
         raise EditRejected("retype", f"{args['type']} is no candidate for {item['id']} ({p.size[0]:.2f} x "
                                      f"{p.size[1]:.2f} m at [{p.center[0]:.2f}, {p.center[1]:.2f}]): the size table and "
                                      f"the room / zone give {', '.join(candidates) or 'none'}")
+    confirm = item["type"] == args["type"] and item.get("status") == "unverified"
     changed = _change_type(b, args)
-    _build_retyped(b, _piece(b, item["id"]), args, catalog)
+    if not confirm:                  # integration after P5: a confirmed piece keeps its fitted asset
+        _build_retyped(b, _piece(b, item["id"]), args, catalog)
     return changed
 
 
@@ -1158,14 +1195,29 @@ def licence_mode_of(b: dict) -> str:
 
 def _style_family_of(b: dict) -> Optional[str]:
     """The style family the fit used on this building: the most common ``asset.style_family`` of its fitted pieces
-    (the refit's style.json is not part of the building); None without one (no style filter)."""
+    (the refit's style.json is not part of the building), else the family of the brief's style text
+    (``project.brief``; integration after P5); None without either (no style filter)."""
     counts: dict = {}
     for f in b.get("furniture") or []:
         asset = f.get("asset") if isinstance(f.get("asset"), dict) else {}
         fam = asset.get("style_family")
         if fam:
             counts[str(fam)] = counts.get(str(fam), 0) + 1
-    return max(sorted(counts), key=lambda k: counts[k]) if counts else None
+    if counts:
+        return max(sorted(counts), key=lambda k: counts[k])
+    # Integration of the fix round after P5 (A_agent's ask): the working building's first fit has no style family
+    # (P5: None, the refit used "modern" from style.json); the family of the brief's style text is the one the style
+    # stage writes to style.json (real02 / real03 / real04: "modern" both ways)
+    project = b.get("project") if isinstance(b.get("project"), dict) else {}
+    brief = project.get("brief") if isinstance(project.get("brief"), dict) else None
+    try:
+        from wenart.furniture.fit import style_family_of
+        from wenart.style import profile as SPF
+        if not SPF.style_texts(brief):
+            return None
+        return style_family_of(SPF.profiles_from_brief(brief))[0]
+    except Exception:  # noqa: BLE001 - no family (no style filter), as before
+        return None
 
 
 def _build_retyped(b: dict, item: dict, args: dict, catalog=None) -> dict:

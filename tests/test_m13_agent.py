@@ -378,7 +378,9 @@ def test_an_edit_that_removes_its_finding_is_accepted_and_findings_removed_is_th
     rnd = next(e for e in events if e["kind"] == "round")
     assert rnd["counts"]["findings_removed"] == 1
     stop = next(e for e in events if e["kind"] == "stop")
-    assert stop["note"].startswith("1 findings removed by 1 accepted edits") and stop["counts"]["findings_removed"] == 1
+    # integration of the fix round after P5: the note names the measured rounds (loop.stop_note)
+    assert stop["note"].startswith("1 critical/major findings removed in round 1") and \
+        stop["note"].endswith("; 1 accepted edits in 2 rounds") and stop["counts"]["findings_removed"] == 1
     assert OV.Overrides(out).accepted()[0]["result"]["acceptance"]["removed"] == 1
     m = json.loads((out / "orchestrator" / "metrics.json").read_text())
     assert m["findings_removed"]["dry_recheck"] == {"1": 1, "2": 0} and m["findings_removed"]["per_round"] == {"1": 1}

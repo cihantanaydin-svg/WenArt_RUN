@@ -358,8 +358,10 @@ def test_a_tub_a_few_cm_longer_than_its_bay_is_shrunk_to_a_real_product_at_the_r
     build = ProjectBuild(_bay(1.62))
     assert RD.fix_fixed(build, {}) == ["tub"]
     tub = _piece(build.building, "tub")
-    assert tub["footprint"]["size"] == [1.5, 0.7]
-    assert tub["footprint"]["center"] == pytest.approx([0.785, 2.5 - 0.35])
+    # pin changed on purpose at the integration of the fix round after P5: the size table now lists 1.55 x 0.75 m
+    # (and the other intermediate tubs), so the nearest real product that fits the 1.57 m bay is a few cm smaller
+    assert tub["footprint"]["size"] == [1.55, 0.75]
+    assert tub["footprint"]["center"] == pytest.approx([0.785, 2.5 - 0.375])
     assert tub["drawn_footprint"]["size"] == [1.62, 0.8] and tub["adjusted_by_ai"]["by"] == "code"
     assert tub["adjusted_by_ai"]["rule"] == RD.BAY_RULE and "misread size" in tub["adjusted_by_ai"]["reason"]
     over = RD.bay_overrun(_piece(_bay(1.62), "tub"), M_poly(_bay(1.62)))
@@ -381,7 +383,8 @@ def test_fix_fixture_shrinks_a_tub_a_few_cm_longer_than_its_bay():
     res = E.apply_edit(b, edit("fix_fixture", piece_id="tub"))
     assert res["accepted"], res["failed_checks"]
     tub = _piece(res["building"], "tub")
-    assert tub["footprint"]["size"] == [1.5, 0.7] and tub["adjusted_by_ai"]["fix_fixture"]["bay"]["overrun_m"] > 0.04
+    # 1.55 x 0.75 since the integration of the fix round after P5 (intermediate tubs in the size table; was 1.50 x 0.70)
+    assert tub["footprint"]["size"] == [1.55, 0.75] and tub["adjusted_by_ai"]["fix_fixture"]["bay"]["overrun_m"] > 0.04
     assert tub["drawn_footprint"]["size"] == [1.62, 0.8]
     far = _bay(1.70)
     res = E.apply_edit(far, edit("fix_fixture", piece_id="tub", center=[0.80, 2.1]))

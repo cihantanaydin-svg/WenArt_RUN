@@ -2195,10 +2195,14 @@ class Orchestrator:
         # Milestone 13 (K4): "findings removed" is the metric, not "edits accepted" (CLAUDE.md evidence rules). Fix
         # round after P3 (16-17 Oct 2026): summary["findings_removed"] is the measured number (the next round's
         # critics); the dry re-checks' sum is only a prediction and is named as such.
+        # Integration of the fix round after P5: the prediction of the same (measured) rounds, the new findings and
+        # the net (gone - new), as the stop note and the final report
+        predicted = summary.get("findings_removed_predicted_same_rounds", summary.get("findings_removed_predicted", 0))
         self.finish(pr, "agent", "ok", f"{len(summary['rounds'])} round(s), {summary.get('findings_removed', 0)} "
                                        f"finding(s) removed by {summary['accepted']} accepted edit(s) (measured; "
-                                       f"{summary.get('findings_removed_predicted', 0)} predicted by the dry "
-                                       f"re-checks), {summary['rejected']} rejected; stop: {STOPS.get(stop, stop)}")
+                                       f"{predicted} predicted by the dry re-checks), {summary.get('findings_new', 0)} "
+                                       f"new, net {summary.get('findings_net', 0)}, {summary['rejected']} rejected; "
+                                       f"stop: {STOPS.get(stop, stop)}")
 
     def rollback_round(self, pr: ProjectRun, round_no: Optional[int], why: str) -> int:
         """The accepted edits of ``round_no`` (every round when None) are taken back (a refit that refuses them would

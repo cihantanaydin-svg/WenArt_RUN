@@ -452,3 +452,18 @@ def test_lens_clearance_on_p5s_scene_lists_only_the_bath_camera():
     m = json.loads((P5 / "renders" / "real04" / "scene_manifest.json").read_text(encoding="utf-8"))
     hits = CS.lens_clearance(m["cameras"], m["objects"])
     assert [(h["camera"], h["object"]) for h in hits] == [("cam_r_L1_banyo_1", "dec_L1_011")]
+
+
+def test_the_build_wires_the_fix_round_calls():
+    """The review of the fix round after P5 (22 Oct 2026): the helpers above are tested on their own, so a ``build.main``
+    that dropped one of their calls would keep the CPU suite green while the pod brings back P5's look (the stair-core
+    fixture in the slab opening, the bath camera placed against unbuilt decor, no lens warning). ``main`` plans the
+    cameras on ``camera_building`` (only the built decor), passes the slab openings to the light rig and lists the lens
+    clearance after the 3D boxes of the scene manifest are written."""
+    import inspect
+
+    src = inspect.getsource(B.main)
+    assert "cams.plan_cameras(camera_building(building, fit_not_built)" in src
+    assert "ceiling_voids=ceiling_voids(slabs)" in src
+    assert "camsearch.lens_clearance(camera_plans, manifest_objects)" in src
+    assert src.index("add_box3d(manifest_objects") < src.index("lens_clearance(camera_plans")

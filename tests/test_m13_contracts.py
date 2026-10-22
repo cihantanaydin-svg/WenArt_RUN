@@ -194,7 +194,8 @@ def test_lighting_and_material_interfaces():
     assert params(L.room_rig) == ["room_type"]
     assert L.room_rig(None) == [] and all({"kind", "source", "size_m"} <= set(f) for f in L.room_rig("bedroom"))
     assert params(L.build_lighting) == ["building", "levels", "style", "hdri_path", "collection", "manifest_objects",
-                                        "assumed", "north_deg", "north_source", "ceiling_at", "exterior"]
+                                        "assumed", "north_deg", "north_source", "ceiling_at", "exterior",
+                                        "ceiling_voids"]    # fix round after P5: the slab openings above each level
     assert params(M.shell_material) == ["slot", "style", "assets"]
     assert set(M.SHELL_SLOTS) == {"ceiling", "worktop", "front", "ceramic", "metal", "tile", "plaster"}
     assert params(M.exterior_world_nodes)[:2] == ["scene", "lighting"]

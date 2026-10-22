@@ -616,7 +616,9 @@ def test_demands_and_size_grid_steps_write_their_files(tmp_path):
     rep = tmp_path / "g" / "report"
     dem = json.loads((rep / "demands.json").read_text())
     cov = json.loads((rep / "coverage.json").read_text())
-    assert dem["pieces"] == 809 and cov["bins_demanded"] == 90 and "before the growth" in cov["scope"]
+    # 91 bins since the integration of the fix round after P5 (was 90): the size table's new 0.90 x 0.80 m shower tray
+    # is the nearest bin of real03's three 0.80 x 0.85 m showers (before: the 0.80 x 0.80 bin)
+    assert dem["pieces"] == 809 and cov["bins_demanded"] == 91 and "before the growth" in cov["scope"]
     assert (rep / "gaps_demand.md").read_text().startswith("# Library gaps by drawn demand")
     assert cov["pick_plan"]["hssd"]["picked"] == 874
 

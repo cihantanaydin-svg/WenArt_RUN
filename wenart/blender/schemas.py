@@ -198,6 +198,11 @@ EXPOSURE = {
         "ground_p50": {"type": ["number", "null"]},
         "ground_headroom_stops": {"type": "number", "minimum": 0},
         "ground_cap": {"type": "boolean"},
+        # Fix round after P5 (22 Oct 2026, optional): the green ratio of the view's own daylight (render.green_ratio,
+        # null without a metered daylight) and the G gain of its white point (render.view_tint_gain, clamped to
+        # 1 / WB_TINT_GAIN_MAX .. WB_TINT_GAIN_MAX = 1.3 and rounded to 6 places).
+        "wb_day_green": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "wb_view_tint_gain": {"type": "number", "minimum": 0.769231, "maximum": 1.3},
         "ground_rule": {"type": "string"},
     },
 }
@@ -273,7 +278,11 @@ SKY_PULL = {
                         # (render.sun_offset_deg, null without a sun lamp) and whether the view looks into the sun
                         "ring_px": {"type": "integer", "minimum": 0},
                         "sun_offset_deg": {"type": ["number", "null"], "minimum": 0, "maximum": 180},
-                        "into_sun": {"type": "boolean"}}},
+                        "into_sun": {"type": "boolean"},
+                        # fix round after P5 (22 Oct 2026; optional): the edge pixels left brighter than the pulled
+                        # sky and the surface beside them, and the edge pixels looked at (render.sky_edge_dots)
+                        "edge_dot_px": {"type": "integer", "minimum": 0},
+                        "edge_px": {"type": "integer", "minimum": 0}}},
     ],
 }
 # Milestone 10 (docs/milestone10.md §1.6b row 11): object kinds of the whole building; views.KIND_MAP never maps

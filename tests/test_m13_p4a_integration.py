@@ -113,11 +113,13 @@ def test_ceiling_slots_hang_from_the_sloped_ceiling_over_them(monkeypatch):
     top = D.ceiling_over(b, "L0", pendant["center"], DA.PENDANT_SIZE, planes=[[-0.12, 0.0, 2.6]])
     assert pendant["center"][2] == pytest.approx(1.5) and pendant["size"][2] == pytest.approx(top - 1.5, abs=1e-3)
     assert top < 2.7 and "sloped ceiling" in pendant["reason"]
-    over_coffee = sloped["ceiling:over_c1"]                 # bottom 2.0 m under a ~2.07 m slope: no pendant
-    assert "pendant_light" not in over_coffee and "pendant_light" in flat["ceiling:over_c1"]
-    light = over_coffee["ceiling_light"]
-    assert light["center"][2] + light["size"][2] == pytest.approx(
-        D.ceiling_over(b, "L0", light["center"], DA.CEILING_LIGHT_SIZE[:2], planes=[[-0.12, 0.0, 2.6]]), abs=1e-3)
+    # bottom 2.0 m under a ~2.07 m slope: no pendant. Pin changed on purpose in the fix round after P5: the flush
+    # light's bottom would be 1.95 m (< decor.MIN_LIGHT_BOTTOM_M), so the slot is left out with a note
+    assert "ceiling:over_c1" not in sloped and "pendant_light" in flat["ceiling:over_c1"]
+    notes: list = []
+    DA.ceiling_items(room, pieces, ceiling, building=b, notes=notes)
+    assert any(n.startswith("ceiling light over table coffee c1: the sloped ceiling over it is 2.07 m high, its "
+                            "bottom would be 1.95 m") and n.endswith("left out") for n in notes), notes
 
 
 # --------------------------------------------------------------------------
@@ -243,13 +245,21 @@ def test_the_vision_quality_tie_break_reads_the_audit_doubt_text(catalog):
     assert F.vision_quality_of({"audit": {"vision_quality": 4, "vision_doubt": ["vision quality 2"]}}) == 4.0
     by_id = {e["id"]: e for t in ("wardrobe", "fridge") for e in catalog.candidates(t)}
     for pid, ftype, size, height, old in (
-            ("f_L-1_023", "wardrobe", (2.5685, 0.6), None, "hssd_7094e30496b2735c235819e99c509769dc30502d"),
-            ("f_L-1_096", "fridge", (0.6, 0.65), 1.8, "hssd_78a02cbe18b9bac0aedf264e100a73f34fd05023")):
+            ("f_L-1_023", "wardrobe", (2.5685, 0.6), None, "hssd_7094e30496b2735c235819e99c509769dc30502d"),):
         asset = F.fit_piece(_piece(pid, ftype, size, height), catalog, style_family="modern", mode="relaxed")
         assert asset["method"] == "library" and asset["asset_id"] != old, (pid, asset["asset_id"])
         chosen = by_id[asset["asset_id"]]
         assert not (chosen.get("audit") or {}).get("vision_doubt"), (pid, chosen["id"])
         assert F.rank_key(chosen, *size)[2] == F.rank_key(by_id[old], *size)[2]        # the same size step
+    # Pin changed on purpose at the integration of the fix round after P5: the doubt-free fridges that fit f_L-1_096
+    # (Smeg FAB28LV and its same-mesh twin FAB28XS6) were removed for a readable logo (audit check render_print), the
+    # other doubt-free Smeg fridges fail the caps (17 % non-uniform), so the "vision quality 2" model wins again: the
+    # tie-break still passes over no better-ranked model that fits
+    asset = F.fit_piece(_piece("f_L-1_096", "fridge", (0.6, 0.65), 1.8), catalog, style_family="modern",
+                        mode="relaxed")
+    assert asset["method"] == "library" and asset["asset_id"] == "hssd_78a02cbe18b9bac0aedf264e100a73f34fd05023"
+    assert "hssd_404146070e07145" not in str(asset["ranking"]) and asset["ranking"]["passed_over"]
+    assert all(p["why"].startswith("outside the caps") for p in asset["ranking"]["passed_over"])
 
 
 def test_a_pin_to_a_generated_model_is_refused_while_a_real_product_fits(catalog):

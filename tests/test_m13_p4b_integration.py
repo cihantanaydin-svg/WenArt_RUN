@@ -201,7 +201,12 @@ def test_real03_keeps_its_frontal_view_under_the_agents_roof_overhang_and_its_en
     plans, _dropped = E.plan_exterior(model, prep["building"], levels, (prep["site"] or {}).get("plot") or [],
                                       variant=prep["variant"])
     by = {p["name"]: p for p in plans}
-    assert by["ext_6"]["view"] == "frontal" and by["ext_6"]["share_kept"] is True
+    # pin changed on purpose in the fix round after P5: the long, low framing (exterior.long_low, user decision of
+    # 22 Oct 2026) lifts the frontal view from 0.076 to about 0.146, so it passes MIN_BUILDING_SHARE without the keep;
+    # the keep_best_share path stays pinned by the synthetic test above
+    assert by["ext_6"]["view"] == "frontal" and not by["ext_6"].get("share_kept")
+    assert by["ext_6"]["score"]["building_share"] >= E.MIN_BUILDING_SHARE
+    assert by["ext_6"]["long_low"]["ratio"] > E.LONG_LOW_RATIO
     assert by["ext_7"]["view"] == "entrance" and by["ext_7"]["entrance"] == "d_L0_019"
     out: list = []
     X._x6(b, prep, {"cameras": plans}, None, out)

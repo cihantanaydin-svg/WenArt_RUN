@@ -755,8 +755,8 @@ def free_floor_problems(building: dict, camera: dict) -> list[str]:
     ``camsearch.OBSTACLE_CLEARANCE`` from every floor piece and free-standing decor, ``AGENT_WALL_CLEARANCE_M`` from
     the walls. real03's ``cam_r_L0_banyo_2_1`` was moved 0.05 m beside the shower glass: half the frame was the
     glass (depth 0.05 m at the lens). In a room with no free point (the search's fallback camera) only the pieces
-    reaching camera height count. The search's own points always pass; the
-    message names the nearest one."""
+    reaching camera height count, plus the floor decor (fix round after P5: the search's fallback avoids it too).
+    The search's own points always pass; the message names the nearest one."""
     from wenart.blender import camsearch as CS, geom2d
     from wenart.blender.parametric import piece_bbox
 
@@ -774,8 +774,8 @@ def free_floor_problems(building: dict, camera: dict) -> list[str]:
     obstacles = [(f["id"], CS.obstacle_rect(f)) for f in pieces]
     if warning:                                         # no free point: only what stands at camera height counts
         obstacles = [(f["id"], CS.obstacle_rect(f)) for f in pieces if piece_bbox(f)[2] >= CS.CAMERA_HEIGHT]
-    else:
-        obstacles += [("floor decor", r) for r in CS.floor_decor_rects(room, building)]
+    # fix round after P5: the floor decor counts in a room without a free point too, as in the search's fallback
+    obstacles += [("floor decor", r) for r in CS.floor_decor_rects(room, building)]
     if geom2d.point_is_free((x, y), polygon, [r for _i, r in obstacles], AGENT_WALL_CLEARANCE_M,
                             CS.OBSTACLE_CLEARANCE):
         return []

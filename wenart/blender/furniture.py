@@ -292,6 +292,29 @@ def is_built(piece: dict) -> bool:
     return piece.get("build", True) is not False
 
 
+def not_built_reason(piece: dict) -> str:
+    """Integration of the fix round after P5 (P_report's ask): the actual reason a ``build: false`` piece is not built,
+    in the order of ``wenart.report.final.not_built_text`` (the scene manifest and the report agree): its
+    ``not_built_reason``, the reading's ``inferred_reason`` (a column, an outline, a detail), the agent's or the
+    code's ``adjusted_by_ai`` record (a mark with its model and round), both recognition passes calling it
+    ``not_furniture`` (``NOT_BUILT_REASON``), else "build false, no reason recorded". Before, every piece carried
+    ``NOT_BUILT_REASON`` (P5: A-BA columns typed ottoman, never-asked unknowns and the agent's mark of f_L1_021)."""
+    if piece.get("not_built_reason"):
+        return str(piece["not_built_reason"])
+    if piece.get("inferred_reason"):
+        return str(piece["inferred_reason"])
+    adj = piece.get("adjusted_by_ai") if isinstance(piece.get("adjusted_by_ai"), dict) else {}
+    if adj.get("not_furniture") or adj.get("reason"):
+        who = f" by {adj['model']}, round {adj.get('round')}" if adj.get("model") else ""
+        what = (f"marked not furniture ({adj['not_furniture']}){who}" if adj.get("not_furniture")
+                else f"adjusted_by_ai{who}")
+        return f"{what}: {adj.get('reason') or 'no reason recorded'}"
+    answers = [str(c.get("type")) for c in piece.get("type_candidates") or [] if isinstance(c, dict)]
+    if len(answers) >= 2 and set(answers) == {"not_furniture"}:
+        return NOT_BUILT_REASON
+    return "build false, no reason recorded"
+
+
 BUILT_IN_REASON = "built into its kitchen run (the run's sink unit, bowl and tap; fix round after P3)"
 
 
@@ -1075,7 +1098,7 @@ def create_furniture(building: dict, level: dict, collection, library, style: di
     mats.collection = collection
     on_level = [p for p in building.get("furniture", []) if p["level_id"] == level["id"]]
     pieces = [p for p in on_level if is_built(p)]
-    not_built = [{"id": p["id"], "type": p["type"], "reason": NOT_BUILT_REASON} for p in on_level if not is_built(p)]
+    not_built = [{"id": p["id"], "type": p["type"], "reason": not_built_reason(p)} for p in on_level if not is_built(p)]
     built_in: dict[str, str] = {}
     if not use_proxies:
         refused = [(p, refused_piece(p)) for p in pieces]

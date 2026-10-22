@@ -280,8 +280,9 @@ RANKING_RULE = ("style -> bed rule -> generated last -> real size (known units f
                 f"uniform scale to the drawn width in {round(SIZE_BUCKET * 100)} % steps, plus the diversity penalty: "
                 f"{PROJECT_REUSE_STEP} step per earlier use in another room of the project, {ROOM_REUSE_STEPS} steps "
                 f"from the {ROOM_REUSE_MAX + 1}. use in a room except for a matched set of "
-                f"{', '.join(SET_TYPES)}) -> real product -> design shown (tags, fabric colour) -> audit vision "
-                f"quality (missing = {VISION_QUALITY_DEFAULT:g}) -> texture maps -> judge quality (missing = "
+                f"{', '.join(SET_TYPES)}) -> real product -> design shown (tags, fabric colour) -> no other audit "
+                f"vision doubt (type, objects, real product) -> audit vision quality (missing = "
+                f"{VISION_QUALITY_DEFAULT:g}) -> texture maps -> judge quality (missing = "
                 f"{DEFAULT_QUALITY:g}) -> faces (< {FACES_LOW} last) -> aspect error -> source "
                 f"({', '.join(SOURCE_ORDER)}) -> id")
 
@@ -379,6 +380,19 @@ def size_error(scales) -> float:
 
 
 VISION_DOUBT_QUALITY = re.compile(r"vision quality (\d)")   # the audit's doubt text (assets/audit/decide.py)
+# integration of the fix round after P5: a doubt text that is only the vision quality ("vision quality 2 (<= 2)")
+VISION_QUALITY_ONLY = re.compile(r"^vision quality \d( \(<= \d\))?$")
+
+
+def other_doubt_of(entry: dict) -> int:
+    """Integration of the fix round after P5 (the P5 library finding, track D_data's ask): 1 when the audit's
+    ``vision_doubt`` holds a doubt other than the vision quality text (not the type, more than one object, not a
+    real product, ...), else 0. ``rank_key`` ranks a doubt-free model first within its size step, before the vision
+    quality, so a doubtful model no longer wins a tie on a drawn anchor."""
+    audit = entry.get("audit") if isinstance(entry.get("audit"), dict) else {}
+    doubts = audit.get("vision_doubt")
+    texts = doubts if isinstance(doubts, list) else [doubts] if isinstance(doubts, str) else []
+    return int(any(str(t).strip() and not VISION_QUALITY_ONLY.match(str(t).strip()) for t in texts))
 
 
 def vision_quality_of(entry: dict) -> Optional[float]:
@@ -470,7 +484,8 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     """The order of a candidate on a ``width x depth`` footprint (lower first, docs/milestone8.md §1; Milestone 13
     K2): generated last, known units before normalised ones, the real-size step of the uniform scale plus the
     diversity penalty (``diversity_steps``), an audited real product (``real_product: true``) before the others of its
-    step, the design preference (``prefs``: 0 shows the design, 1 does not), the audit's vision quality, the texture
+    step, the design preference (``prefs``: 0 shows the design, 1 does not), no other audit vision doubt
+    (``other_doubt_of``; integration after P5), the audit's vision quality, the texture
     maps, the judges' quality, the face count, aspect error, source order and the id. The first three keys keep their
     Milestone 8 places (tests read ``rank_key(...)[2]`` as the size step)."""
     scales, _ = scale_for(entry, width, depth)
@@ -480,7 +495,7 @@ def rank_key(entry: dict, width: float, depth: float, used: Optional[dict] = Non
     real = 0 if entry.get("real_product") is True else 1
     pref = int((prefs or {}).get(entry["id"], 0) or 0)
     vq = vision_quality_of(entry)
-    return (1 if entry.get("source") == GENERATED else 0, 0 if known else 1, bucket, real, pref,
+    return (1 if entry.get("source") == GENERATED else 0, 0 if known else 1, bucket, real, pref, other_doubt_of(entry),
             -(vq if vq is not None else VISION_QUALITY_DEFAULT), maps_rank(entry), -quality_of(entry),
             faces_rank(entry), round(C.aspect_error(entry, width, depth), 6), source_rank(entry), entry["id"])
 

@@ -36,7 +36,9 @@ from typing import Optional
 from wenart import geometry as G
 
 LEVEL_EDIT_OPS: tuple[str, ...] = ("set_mark_kind", "set_room_floor", "set_ground_point", "set_entrance", "set_terrain")
-META_KEYS = ("round", "log_seq", "model", "seq")
+# integration of the fix round after P5: ``target_finding`` (edit_ops.META_KEYS) is a meta key here too, a guard: the
+# agent no longer sends it to level edits (its dry run did, and every level dry run failed with a schema error)
+META_KEYS = ("round", "log_seq", "model", "seq", "target_finding")
 _REASON = {"type": "string", "minLength": 3, "maxLength": 600}
 _EVIDENCE = {"type": "object", "additionalProperties": False, "minProperties": 1,
              "properties": {"mark_id": {"type": "string", "minLength": 1}, "step_line": {"type": "string", "minLength": 1},

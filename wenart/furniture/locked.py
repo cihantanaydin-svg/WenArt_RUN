@@ -238,6 +238,11 @@ def _fixture_fix_problems(src: dict, fin: dict, moved: float, same_box: bool) ->
     out = []
     if moved > FIXTURE_MOVE_M + 1e-6:
         out.append(f"{pid}: fixed equipment moved {moved:.3f} m by fix_fixture (> {FIXTURE_MOVE_M} m)")
+    bay = ((fin.get("adjusted_by_ai") or {}).get("fix_fixture") or {}).get("bay")
+    if not same_box and isinstance(bay, dict):
+        # integration of the fix round after P5 (user decision of 22 Oct 2026): fix_fixture's bay shrink of a bath
+        # or shower a few cm longer than its bay (edit_ops._bay_fix) is a misread size, not an off-range one
+        return out + _bay_shrink_problems(src, fin, bay)
     if not same_box:
         rng = PL.size_range(src["type"])
         drawn = placer.drawn_piece(src).size
@@ -252,6 +257,45 @@ def _fixture_fix_problems(src: dict, fin: dict, moved: float, same_box: bool) ->
         if any(not (lo / 1.05 - 1e-9 <= v <= hi * 1.05 + 1e-9) for v, (lo, hi) in zip(now, rng)):
             out.append(f"{pid}: fixed equipment resized to {now[0]:.2f} x {now[1]:.2f} m, not a real {src['type']} "
                        f"size")
+    return out
+
+
+BAY_OVERRUN_MAX_M = 0.05        # integration after P5: reading.BAY_OVERRUN_M[1] (Blender-free copy, pinned by a test)
+
+
+def _fp_rect(fp: dict) -> Polygon:
+    """The rectangle of a footprint ``{center, size, rotation_deg}`` (as ``reading.rect_fp``)."""
+    import math
+
+    cx, cy = (float(v) for v in fp["center"][:2])
+    w, d = (float(v) for v in fp["size"][:2])
+    t = math.radians(float(fp.get("rotation_deg") or 0.0))
+    c, s = math.cos(t), math.sin(t)
+    return Polygon([(cx + c * x - s * y, cy + s * x + c * y)
+                    for x, y in ((-w / 2, -d / 2), (w / 2, -d / 2), (w / 2, d / 2), (-w / 2, d / 2))])
+
+
+def _bay_shrink_problems(src: dict, fin: dict, bay: dict) -> list[str]:
+    """Integration of the fix round after P5: a ``fix_fixture`` bay shrink (``adjusted_by_ai.fix_fixture.bay``) is
+    accepted when the drawn piece ran at most ``BAY_OVERRUN_MAX_M`` past its bay and the new footprint is a real
+    product of its type (``sizes.products``, either way round, 5 mm) that lies inside the drawn box (1 mm)."""
+    from wenart.furniture import sizes     # lazy: the size table (PyYAML)
+
+    pid = src["id"]
+    out = []
+    try:
+        overrun = float(bay.get("overrun_m"))
+    except (TypeError, ValueError):
+        overrun = None
+    if overrun is None or overrun > BAY_OVERRUN_MAX_M + 1e-6:
+        out.append(f"{pid}: fixed equipment shrunk to its bay although it ran {overrun} m past it (at most "
+                   f"{BAY_OVERRUN_MAX_M:g} m)")
+    w, d = (float(v) for v in placer.drawn_piece(fin).size[:2])
+    if not any(abs(w - a) <= 0.005 and abs(d - b) <= 0.005 for p in sizes.products(src["type"])
+               for a, b in ((float(p[0]), float(p[1])), (float(p[1]), float(p[0])))):
+        out.append(f"{pid}: fixed equipment shrunk to {w:.2f} x {d:.2f} m, not a real {src['type']} product")
+    if not _fp_rect(src["footprint"]).buffer(1e-3, join_style=2).contains(_fp_rect(fin["footprint"])):
+        out.append(f"{pid}: fixed equipment shrunk to its bay but no longer inside its drawn box")
     return out
 
 

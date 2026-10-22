@@ -1017,9 +1017,25 @@
     [
      1.8,
      0.8
+    ],
+    [
+     1.5,
+     0.75
+    ],
+    [
+     1.55,
+     0.7
+    ],
+    [
+     1.55,
+     0.75
+    ],
+    [
+     1.6,
+     0.75
     ]
    ],
-   "source": "std (built-in with a panel 0.55-0.60 m high, freestanding 0.55-0.72 m); syn 1.5-1.8 x 0.7-0.8",
+   "source": "std (built-in with a panel 0.55-0.60 m high, freestanding 0.55-0.72 m); syn 1.5-1.8 x 0.7-0.8; p5 (fix round after P5, 22 Oct 2026, for the bay shrink of a tub a few cm too long: real03 1.62 x 0.80 in a 1.57 m bay): 1.50 x 0.75 (Raumspar TIGRA 150 x 75), 1.55 x 0.70 (BADLAND Quadro 155 x 70), 1.55 x 0.75 (Ideal Standard Adapto 155 x 75, NBS Source), 1.60 x 0.75 (Kaldewei Saniform Plus 1600 x 750); retailer and NBS listings read 22 Oct 2026",
    "width": [
     1.4,
     1.9
@@ -1814,9 +1830,13 @@
     [
      1.2,
      0.9
+    ],
+    [
+     0.9,
+     0.8
     ]
    ],
-   "source": "std (trays 0.7-1.6, glass 1.9-2.0 m); syn 0.8-1.2 x 0.8-0.9; height lib",
+   "source": "std (trays 0.7-1.6, glass 1.9-2.0 m); syn 0.8-1.2 x 0.8-0.9; height lib; p5 (fix round after P5, 22 Oct 2026, for the bay shrink): 0.90 x 0.80 (Kaldewei Superplan 1840 tray 80 x 90; retailer listing read 22 Oct 2026)",
    "width": [
     0.7,
     1.6

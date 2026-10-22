@@ -234,7 +234,9 @@ def _key_in(key: tuple[str, str], keys: set, bases: set) -> bool:
 
 def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
     """Milestone 13: ``{"per_round": {round: n}, "total", "dry_recheck": {round: n}, "edits_removing_finding",
-    "edits_with_target", "accepted_edits"}`` (module docstring) from the finding, edit and round events of one run. A
+    "edits_with_target", "accepted_edits"}`` (module docstring) from the finding, edit and round events of one run;
+    since the integration after P5 also ``new_per_round``, ``new``, ``net`` (total - new),
+    ``dry_recheck_same_rounds`` (the prediction of the measured rounds) and ``dry_recheck_unmeasured``. A
     round counts against the next round that has findings; the last round has nothing to compare with. Fix round
     after P4a: an edit removes its finding when the critical / major keys it targeted (``edit_target_keys``) that its
     round has are all gone in the next one; ``edits_with_target`` counts the accepted edits that have a target and a
@@ -243,8 +245,10 @@ def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
     by_round = {r: _finding_keys([e for e in findings if int(e.get("round") or 0) == r]) for r in round_ids}
     bases = {r: {CS.base_key(k) for k in keys} for r, keys in by_round.items()}
     per_round: dict = {}
+    new_per_round: dict = {}
     for a, b in zip(round_ids, round_ids[1:]):
         per_round[str(a)] = len(by_round[a] - by_round[b])
+        new_per_round[str(a)] = len(by_round[b] - by_round[a])     # integration after P5: the new ones too
     edits_removing = with_target = 0
     accepted = [e for e in events if e.get("kind") == "edit"]
     for e in accepted:
@@ -260,9 +264,15 @@ def findings_removed_metrics(events: list[dict], round_ids: list[int]) -> dict:
             edits_removing += 1
     dry = {str(int(e.get("round") or 0)): int((e.get("counts") or {}).get("findings_removed") or 0)
            for e in events if e.get("kind") == "round" and (e.get("counts") or {}).get("findings_removed") is not None}
-    return {"per_round": per_round, "total": sum(per_round.values()), "dry_recheck": dry,
+    total, new = sum(per_round.values()), sum(new_per_round.values())
+    # integration of the fix round after P5 (P_report's ask): the new findings, the net (gone - new) and the dry
+    # re-checks' prediction of the measured rounds only (the last round's prediction has no next round to measure it)
+    return {"per_round": per_round, "total": total, "dry_recheck": dry,
             "dry_recheck_is": "predicted", "edits_removing_finding": edits_removing,
-            "edits_with_target": with_target, "accepted_edits": len(accepted)}
+            "edits_with_target": with_target, "accepted_edits": len(accepted),
+            "new_per_round": new_per_round, "new": new, "net": total - new,
+            "dry_recheck_same_rounds": sum(n for r, n in dry.items() if r in per_round),
+            "dry_recheck_unmeasured": sum(n for r, n in dry.items() if r not in per_round)}
 
 
 def finish_reasons(calls: list[dict]) -> dict:

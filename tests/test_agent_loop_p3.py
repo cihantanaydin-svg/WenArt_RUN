@@ -251,9 +251,12 @@ def test_the_loop_reports_the_measured_number_and_labels_the_dry_recheck_count_p
     assert summary["findings_removed"] == 2 and summary["findings_removed_per_round"] == {"1": 2}   # measured
     assert any("findings removed 1 (predicted by the dry re-check)" in line for line in lines)
     stop = next(e for e in log_of(out)["events"] if e["kind"] == "stop")
-    assert stop["note"].startswith("2 findings removed by 1 accepted edits in 2 rounds (measured by the next "
-                                   "round's critics; the dry re-checks predicted 1)")
-    assert stop["counts"] == {"findings_removed": 2, "findings_removed_predicted": 1, "accepted": 1}
+    # pins changed on purpose at the integration of the fix round after P5 (loop.stop_note): the measured rounds are
+    # named, the prediction is the same rounds' only, and the new findings and the net follow
+    assert stop["note"] == ("2 critical/major findings removed in round 1 (measured by the next round's critics; the "
+                            "dry re-checks of the same rounds predicted 1); 0 new, net 2; 1 accepted edits in 2 rounds")
+    assert stop["counts"] == {"findings_removed": 2, "findings_removed_predicted": 1, "accepted": 1,
+                              "findings_new": 0, "findings_net": 2, "findings_removed_predicted_same_rounds": 1}
     ed = next(e for e in log_of(out)["events"] if e["kind"] == "edit")
     assert "(predicted; the next round measures)" in ed["evidence"]["acceptance"]["reason"]
     m = json.loads((out / "orchestrator" / "metrics.json").read_text())

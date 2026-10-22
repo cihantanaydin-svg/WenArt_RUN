@@ -454,6 +454,18 @@ def _m12_named(part, ctx, raster: bool, table: dict, wall_polys: list):
     return item
 
 
+def split_override_text(split: dict, key: str, ai_type: str, n_made: int) -> tuple[str, str]:
+    """``(ai_overridden reason, extraction note)`` of a ``symbols.split_table_chairs`` split that outranks the AI
+    passes' type. Integration of the fix round after P5: a coat closet (``split["wardrobe"]``: a hanging rail with
+    hangers) is one wardrobe, not "a table with chairs drawn around it" (real04 f_L1_021..026)."""
+    if split.get("wardrobe"):
+        return ("a coat closet: hanging rail with hangers (vector geometry outranks the AI passes)",
+                f"{key}: typed {ai_type} by the AI passes, but drawn as a coat closet (hanging rail with hangers): one "
+                f"wardrobe (fix round after P5)")
+    return ("a table with chairs drawn around it (vector geometry outranks the AI passes)",
+            f"{key}: typed {ai_type} by the AI passes, but drawn as a table with {n_made - 1} chairs: split (M12)")
+
+
 def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict], symbols: list[dict], walls: list,
                      openings: list, texts_m: list, rows: list[dict], level_id: str, file_rel: str,
                      page_no: Optional[int], s: float, no_ai: bool, raster: bool,
@@ -500,12 +512,11 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
                 made = SY.table_chair_items(split, ctx, raster, table)
                 for it in made:
                     it.details["reread_of"] = cand["key"]
+                reason, note = split_override_text(split, cand["key"], item.type, len(made))
                 made[0].details["ai_overridden"] = {"type": item.type, "type_candidates": list(item.type_candidates),
-                                                    "reason": "a table with chairs drawn around it (vector geometry "
-                                                              "outranks the AI passes)"}
+                                                    "reason": reason}
                 replaced[cand["key"]] = made
-                ex.notes.append(f"{cand['key']}: typed {item.type} by the AI passes, but drawn as a table with "
-                                f"{len(made) - 1} chairs: split (M12)")
+                ex.notes.append(note)
             continue
         if not item.type_candidates:
             # Not answered (``--no-ai``, or a question whose answers no longer apply): its question stays open and the

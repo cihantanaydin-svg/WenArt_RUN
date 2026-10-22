@@ -1117,6 +1117,22 @@ class CallBudget:
             return self.left is not None and self.left <= 0
 
 
+def stop_note(measured: dict, accepted: int, rounds: list) -> str:
+    """The stop event's note. Integration of the fix round after P5 (P_report's ask): the measured number names its
+    rounds and is compared with the dry re-checks of the same rounds; the last round's prediction is named as not
+    measured; the new findings and the net (gone - new) follow. P5's note compared rounds 1-2 measured (23) with
+    rounds 1-3 predicted (38)."""
+    done = sorted(int(r) for r in measured.get("per_round") or {})
+    where = ("no round (no next round measured one)" if not done else f"round {done[0]}" if len(done) == 1
+             else f"rounds {done[0]}-{done[-1]}")
+    unmeasured = int(measured.get("predicted_unmeasured") or 0)
+    last = f", the last round predicted {unmeasured} more, not measured" if unmeasured else ""
+    return (f"{measured['total']} critical/major findings removed in {where} (measured by the next round's critics; "
+            f"the dry re-checks of the same rounds predicted {measured.get('predicted_same_rounds', 0)}{last}); "
+            f"{measured.get('new', 0)} new, net {measured.get('net', 0)}; {accepted} accepted edits in {len(rounds)} "
+            f"rounds")
+
+
 class AgentLoop:
     """Rounds, router, stop rules and the log of one project (module docstring)."""
 
@@ -1952,12 +1968,11 @@ class AgentLoop:
         # fix round after P3: the measured number (the next round's critics) leads; the dry re-checks' is "predicted"
         measured = self.measured_removed()
         accepted = sum(r["accepted"] for r in self.rounds)
-        self.log.event("stop", last, reason=STOPS[stop], status=stop,
-                       note=f"{measured['total']} findings removed by {accepted} accepted edits in "
-                            f"{len(self.rounds)} rounds (measured by the next round's critics; the dry re-checks "
-                            f"predicted {self.findings_removed})",
+        self.log.event("stop", last, reason=STOPS[stop], status=stop, note=stop_note(measured, accepted, self.rounds),
                        counts={"findings_removed": measured["total"],
-                               "findings_removed_predicted": self.findings_removed, "accepted": accepted})
+                               "findings_removed_predicted": self.findings_removed, "accepted": accepted,
+                               "findings_new": measured["new"], "findings_net": measured["net"],
+                               "findings_removed_predicted_same_rounds": measured["predicted_same_rounds"]})
         self.save()
         return self.summary()
 
@@ -1968,9 +1983,13 @@ class AgentLoop:
         try:
             from wenart.agent import metrics as MX
             got = MX.compute(self.log.data()).get("findings_removed") or {}
-            return {"total": int(got.get("total") or 0), "per_round": dict(got.get("per_round") or {})}
+            return {"total": int(got.get("total") or 0), "per_round": dict(got.get("per_round") or {}),
+                    "new": int(got.get("new") or 0), "net": int(got.get("net") or 0),
+                    "predicted_same_rounds": int(got.get("dry_recheck_same_rounds") or 0),
+                    "predicted_unmeasured": int(got.get("dry_recheck_unmeasured") or 0)}
         except Exception:  # noqa: BLE001 - the numbers never stop the loop
-            return {"total": 0, "per_round": {}}
+            return {"total": 0, "per_round": {}, "new": 0, "net": 0, "predicted_same_rounds": 0,
+                    "predicted_unmeasured": 0}
 
     def final_round(self, round_no: int) -> dict:
         """The extra round after the final check: critical findings only, on the final renders (§8 "final")."""
@@ -1994,4 +2013,7 @@ class AgentLoop:
                 "findings_removed": measured["total"],
                 "findings_removed_per_round": measured["per_round"],
                 "findings_removed_predicted": sum(int(r.get("findings_removed") or 0) for r in self.rounds),
+                # integration after P5: the prediction of the measured rounds, the new findings and the net
+                "findings_removed_predicted_same_rounds": measured["predicted_same_rounds"],
+                "findings_new": measured["new"], "findings_net": measured["net"],
                 "log": str(self.log.dir / LG.LOG_JSON)}
