@@ -153,6 +153,37 @@ target: ``tools.changed_targets`` leaves an untouched target out of ``changed``,
 "target not changed" branch without the reason, and the model was not told that a sun or ground edit cannot fix a
 "no path" finding (``after_findings(targets=...)``; the other vision findings keep their message).
 
+Fix round after P5 (22 Oct 2026; pod P5, real04, the review of its agent log):
+
+- the dry re-check measures the fitted boxes the round's critic measured (``fitted_view``): ``AgentLoop.acceptance``
+  gives every piece of the building after the edit that matches its piece in ``building_final.json`` (same id, type,
+  footprint size, ``asset_pin`` and build flag; ``fit_key``) that piece's fitted ``asset`` record, and fits a built
+  piece without a match (added, retyped, resized, re-pinned) with ``fit.fit_piece`` in the project's licence mode and
+  style family (``dry_fit``, cached per piece state; a failed fit keeps the box it had). Only the dry re-check's copy
+  changes; the validators, ``ctx.building`` and the overrides replay do not. A refit is a prediction (the refit's
+  choice among equal models can differ) and the acceptance says so (``fitted``). Why: the working building
+  (``building_agent.json``) carries no fitted asset for the decor stage's 54 pieces and the first, style-free fit for
+  the rest, so the console table f_L1_049 measured 0.80 m in the dry re-check and 0.84 m (under a 0.82 m slope, X2) in
+  the critic's: its X2 vanished after the first accepted edit of round 1, its remove_piece was rejected "no target
+  finding" and refused by the memory after that, and the shoe cabinet f_L1_050 got a false X2 at its 1.00 m proxy
+  height (fitted 0.44 m);
+- an edit that removes the piece of its target finding and adds a piece of the same type in the same room
+  (``causes.added_pieces``; ``edit["added"]``) keeps the finding when the dry re-check has the same check on the added
+  piece (``causes.accept_edit``): P5's relayout_room "removed" X2:f_L1_049 by re-creating the console table at the same
+  centre as f_L1_056, and round 4 measured X2:f_L1_056 at the same 0.84 / 0.82 m;
+- a finding measured on the round's scene manifest (``manifest_measured``) is left out of ``code_after`` on every
+  target an accepted edit of the round changed (``ctx.round_changed``, filled where a verdict is applied:
+  ``tools.apply_verdict``), and, while the edit keeps the roof (``roof_kept``), whenever its key is not among the
+  findings before the edit: the boxes are the round's and only a roof change can make one of them new. Why: after the
+  accepted remove_piece f_L1_056 (seq 4681) its stale manifest box came back as "new critical finding X2:f_L1_056" in
+  every later dry re-check and rejected 8 edits in four other rooms (plus 3 memory echoes and 9 dry runs). A roof
+  override still meets every manifest box: a lower roof over an untouched piece or decor box is a new critical;
+- the memory is scoped to the building and the code (``memory.Memory``; ``context`` refreshes the scope every round);
+- a session ends after ``REFUSALS_END_SESSION`` = 2 edits in a row refused without validation (max tries, the memory,
+  the code's fix_fixture search, a frozen camera) on targets this session had already been refused for; a
+  ``max_tries`` refusal closes every checklist step on its target (``tools._too_many``). Why: P5's r2-s13 sent
+  move_piece f_L1_024 six times after its max_tries refusal (about 17-20k prompt tokens each).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -164,6 +195,7 @@ Deterministic for ``workers=1``; with parallel sessions only the interleaving of
 """
 from __future__ import annotations
 
+import copy
 import json
 import math
 import re
@@ -226,6 +258,10 @@ CUT_NOTE = "[cut to fit the context]"
 # Fix round after P4b: off (decision 6 of 17 Oct 2026, the lead: FINAL_ROUND_LIGHTING stays off); the mechanism stays.
 FINAL_ROUND_LIGHTING = False
 CAMERA_EFFECT_CHECK = "camera_effect"   # the ``check`` event of an accepted camera edit checked after the re-run
+# Fix round after P5 (module docstring): edits in a row refused without validation on already-refused targets that end
+# a session, and the ``check`` event that says so.
+REFUSALS_END_SESSION = 2
+REFUSALS_CHECK = "session_refusals"
 
 
 def route(accepted: list[dict]) -> Optional[str]:
@@ -471,7 +507,7 @@ def offered_tools(registry, brief: dict) -> list[str]:
 # Round 4: the render's lighting_dark (a view above the +3 EV cap) is measured by the next render only; a
 # set_lighting on its room changes its view (``tools.changed_targets``).
 NOT_REMEASURED = frozenset({"S1", "S2", "S3", "S4", "S5", "S6", "V1", "V2", "V3", "X6", "L7", "R4", "R5", "X8",
-                            *CS.LIGHTING_CHECKS})
+                            *CS.LIGHTING_CHECKS, CS.CAMERA_BLOCKED_CHECK})      # fix round after P5: + blocked view
 
 
 def lighting_kept(finding: Optional[dict], building_after: Optional[dict]) -> Optional[dict]:
@@ -517,6 +553,75 @@ S2_DEFAULT_TOLERANCE_M = 0.010   # scene_checks.TOLERANCES["overlap_m"]: an S2 w
 def manifest_measured(finding: dict) -> bool:
     """Fix round after P4a: a finding measured on the round's scene manifest (``MANIFEST_SOURCE``)."""
     return CS._metrics(finding).get("source") == MANIFEST_SOURCE
+
+
+def _roof_state(building: Optional[dict]) -> str:
+    b = building if isinstance(building, dict) else {}
+    ext = (b.get("agent_overrides") or {}).get("exterior") if isinstance(b.get("agent_overrides"), dict) else None
+    return json.dumps([b.get("roof"), (ext or {}).get("roof") if isinstance(ext, dict) else None], sort_keys=True,
+                      default=str)
+
+
+def roof_kept(override: Optional[dict], building_before: Optional[dict], building_after: Optional[dict]) -> bool:
+    """Fix round after P5 (module docstring): the edit leaves the roof as it was: no ``roof`` in a ``set_exterior``
+    override and the same roof (``roof``, ``agent_overrides.exterior.roof``) before and after."""
+    if (override or {}).get("roof"):
+        return False
+    return building_before is None or _roof_state(building_before) == _roof_state(building_after)
+
+
+def fit_key(piece: dict) -> str:
+    """Fix round after P5: what makes a fitted asset reusable for a piece: its id, type, footprint size (mm), pin and
+    build flag (a move or a turn keeps the asset; a reused id of another type or size does not)."""
+    fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else {}
+    size = [round(float(v), 3) for v in (fp.get("size") or [])[:2]]
+    return json.dumps([piece.get("id"), piece.get("type"), size, piece.get("asset_pin"),
+                       piece.get("build", True) is not False], sort_keys=True, default=str)
+
+
+def _fitted(asset) -> bool:
+    return isinstance(asset, dict) and asset.get("method") not in (None, "none")
+
+
+def fitted_view(building_after: Optional[dict], final: Optional[dict],
+                fit: Optional[Callable[[dict, dict], Optional[dict]]] = None) -> tuple[Optional[dict], dict]:
+    """Fix round after P5 (module docstring): ``(building, note)``: ``building_after`` as the round's critic would
+    measure it after the refit. A piece whose ``fit_key`` matches its piece in ``final`` (``building_final.json``) gets
+    that piece's fitted ``asset`` record (a deep copy); a built, typed piece without a match gets ``fit(piece,
+    building_after)`` (None or a failed fit keeps its box) when ``final`` holds fitted pieces at all. ``note``:
+    ``{"overlaid": n, "refit": [ids]}``. ``building_after`` itself is returned unchanged when nothing applies (no
+    ``final``, a test project without fitted assets); otherwise a shallow copy with new piece dicts for the changed
+    pieces only."""
+    note = {"overlaid": 0, "refit": []}
+    if not isinstance(building_after, dict) or not isinstance(final, dict):
+        return building_after, note
+    fin = {p.get("id"): p for p in final.get("furniture") or [] if isinstance(p, dict) and p.get("id")}
+    fitted_final = any(_fitted(p.get("asset")) for p in fin.values())
+    out: list = []
+    changed = False
+    for p in building_after.get("furniture") or []:
+        if not isinstance(p, dict):
+            out.append(p)
+            continue
+        q = fin.get(p.get("id"))
+        if q is not None and isinstance(q.get("asset"), dict) and fit_key(p) == fit_key(q):
+            if p.get("asset") != q["asset"]:
+                p = dict(p, asset=copy.deepcopy(q["asset"]))
+                changed = True
+            note["overlaid"] += 1
+        elif fit is not None and fitted_final and CS.in_scene(p) and p.get("type") not in (None, "unknown"):
+            try:
+                asset = fit(p, building_after)
+            except Exception:  # noqa: BLE001 - a prediction only: the box the piece had stays
+                asset = None
+            if _fitted(asset):
+                p = dict(p, asset=asset)
+                changed = True
+                note["refit"].append(str(p.get("id")))
+        out.append(p)
+    if not changed:
+        return building_after, note
+    return dict(building_after, furniture=out), note
 
 
 def _piece_of(building: Optional[dict], pid) -> Optional[dict]:
@@ -765,7 +870,7 @@ def scene_after(scene: Optional[dict], tool: str, args: Optional[dict], building
 
 def after_findings(code_after: list[dict], before: list[dict], changed: set, building_after: Optional[dict] = None,
                    building_before: Optional[dict] = None, override: Optional[dict] = None,
-                   targets: Optional[list] = None) -> list[dict]:
+                   targets: Optional[list] = None, round_changed: Optional[set] = None) -> list[dict]:
     """The finding list after an edit for ``accept_edit`` (module docstring): the code critic's findings on the
     changed building (``code_after``) without the ``NOT_REMEASURED`` ones, plus the ``NOT_REMEASURED`` and vision
     findings of ``before`` whose target the edit did not change (a vision finding on a changed target is re-judged
@@ -789,13 +894,22 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
     Pass before P5: ``targets`` (the edit's target findings, ``tools.target_findings``): a vision target the
     override does not touch is kept through ``exterior_kept`` (with the reason) also when its target is not in
     ``changed`` (``tools.changed_targets`` leaves it out); the other vision findings keep their message, so the
-    round's list (an accepted edit's ``after_findings``) carries no reason of an edit that was not about them."""
+    round's list (an accepted edit's ``after_findings``) carries no reason of an edit that was not about them.
+
+    Fix round after P5 (module docstring): a ``manifest_measured`` finding of ``code_after`` is also left out on a
+    target an accepted edit of the round changed (``round_changed``, ``ctx.round_changed``), and when its key is not
+    among ``before`` while the edit keeps the roof (``roof_kept``): the round's boxes are fixed, so only a roof change
+    can make one new (P5: the box of the removed f_L1_056 came back as a new critical in every later dry re-check)."""
     target_keys = {CS.finding_key(t) for t in targets or [] if isinstance(t, dict)}
+    before_keys = {CS.finding_key(f) for f in before}
+    stale = set(changed) | set(round_changed or ())
+    same_roof = roof_kept(override, building_before, building_after)
     out = []
     for f in code_after:
         if f.get("check") in NOT_REMEASURED:
             continue
-        if f.get("target") in changed and manifest_measured(f):
+        if manifest_measured(f) and (f.get("target") in stale
+                                     or (same_roof and CS.finding_key(f) not in before_keys)):
             continue
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     for f in before:
@@ -1016,8 +1130,14 @@ class AgentLoop:
                  plan_first: bool = True, brief_fns: Optional[dict] = None, level_edit: Optional[Callable] = None,
                  level_checks: Optional[Callable] = None, sync: Optional[Callable] = None,
                  groups_fn: Optional[Callable] = None, scene_dir=None, recheck: Optional[Callable] = None,
-                 acceptance: bool = True):
+                 acceptance: bool = True, fit_fn: Optional[Callable] = None):
         self.project_out = Path(project_out)
+        # fix round after P5: ``fit_fn(piece, building) -> asset`` fits a piece the refit has not fitted yet for the
+        # dry re-check (``fitted_view``; default ``dry_fit``); the fitted ``building_final.json`` is read once per file
+        self.fit_fn = fit_fn
+        self._final: tuple = (None, None)
+        self._fit_cache: dict = {}
+        self._fit_lock = threading.Lock()
         # Milestone 13: ``recheck(building, scene, render_manifest) -> [findings]`` is the dry re-check after an
         # edit (default: the code critic on the changed building); ``acceptance`` False keeps the M12 rule (replay).
         self.recheck = recheck
@@ -1078,6 +1198,8 @@ class AgentLoop:
 
     def context(self, round_no: int, preview_dir: Optional[str] = None) -> TL.ToolContext:
         self.overrides.reload()              # the scheduler's rollbacks between rounds (``Overrides.reload``)
+        if hasattr(self.memory, "refresh"):
+            self.memory.refresh()            # fix round after P5: the memory's scope (the building and the code)
         return TL.ToolContext.load(self.project_out, round=round_no, model_id=getattr(self.model, "model", ""),
                                    log=self.log, overrides=self.overrides,
                                    preview_dir=preview_dir or self.preview_dir, apply_edit=self.apply_edit,
@@ -1126,21 +1248,27 @@ class AgentLoop:
         targets = TL.target_findings(ctx, tool, args)
         before = list(ctx.findings)
         changed = TL.changed_targets(tool, args, result, targets, findings=before)
+        # fix round after P5: the fitted boxes the round's critic measured (fitted_view)
+        measured, fitted = self.fitted_after(ctx, building_after)
         # fix round after P4b: the critic reads the sun a set_exterior sets (scene_after)
-        code_after = self.code_findings(building_after, ctx, self.render_manifest(ctx.preview_dir),
+        code_after = self.code_findings(measured, ctx, self.render_manifest(ctx.preview_dir),
                                         scene=scene_after(ctx.scene, tool, args, ctx.building))
         # fix round after P4a: the building before the edit predicts an S2 wall cut of a moved piece (s2_wall_kept);
-        # fix round after P4b: a set_exterior keeps the vision findings it does not touch
+        # fix round after P4b: a set_exterior keeps the vision findings it does not touch; fix round after P5: the
+        # stale boxes of the round's earlier accepted edits (round_changed)
         override = {k: v for k, v in (args or {}).items() if k != "reason"} if tool == "set_exterior" else None
-        after = after_findings(code_after, before, changed, building_after, building_before=ctx.building,
-                               override=override, targets=targets)
+        after = after_findings(code_after, before, changed, measured, building_before=ctx.building,
+                               override=override, targets=targets,
+                               round_changed=set(getattr(ctx, "round_changed", None) or ()))
         # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed);
-        # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``)
+        # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``); fix round after P5: the pieces it
+        # added (a re-created piece keeps its finding)
         edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target"), "metrics": CS._metrics(f)}
                                    for f in targets],
                 "penalty_before": result.get("penalty_before"), "penalty_after": result.get("penalty_after"),
                 "score_before": result.get("score_before"), "score_after": result.get("score_after"),
-                "removed": CS.removed_pieces(ctx.building, building_after)}
+                "removed": CS.removed_pieces(ctx.building, building_after),
+                "added": CS.added_pieces(ctx.building, building_after)}
         ok, reason = accept_edit(before, after, edit)
         room = TL.edit_room(ctx, args)
         scope = set(changed) | {f.get("target") for f in targets}
@@ -1157,10 +1285,56 @@ class AgentLoop:
                       for f in before):
             note = "findings the dry re-check cannot measure on the changed target (scene, view, look, vision or " \
                    "the built scene's boxes) count as gone and are re-measured by the next round"
+        if fitted["refit"]:
+            # fix round after P5: a piece the refit has not fitted yet was fitted for the dry re-check
+            note = (note + "; " if note else "") + (f"fitted for the dry re-check (predicted; the refit may choose "
+                                                    f"another model): {', '.join(fitted['refit'][:8])}")
         return {"accepted": ok, "reason": reason, "target": [CS._fmt(CS.finding_key(f)) for f in targets],
                 "target_findings": targets, "before": CS.key_list([f for f in before if mine(f)]),
                 "after": CS.key_list([f for f in after if mine(f)]), "removed": findings_removed(before, after),
-                "after_findings": after, "note": note, "carried": carried}
+                "after_findings": after, "note": note, "carried": carried, "changed": sorted(map(str, changed)),
+                "fitted": fitted}
+
+    # ----- the fitted boxes of the dry re-check (fix round after P5) ------------------------------------------
+
+    def final_building(self) -> Optional[dict]:
+        """``building_final.json`` (the refit's building the round's critic measured), read again only when the file
+        changed; None without one."""
+        path = self.project_out / "building_final.json"
+        try:
+            stamp = path.stat().st_mtime_ns
+        except OSError:
+            return None
+        if self._final[0] != stamp:
+            self._final = (stamp, TL.read_json(path))
+        return self._final[1]
+
+    def dry_fit(self, ctx: TL.ToolContext, piece: dict, building: dict) -> Optional[dict]:
+        """The asset ``fit.fit_piece`` gives ``piece`` in the building's licence mode and style family (as
+        ``edit_ops``' retype refit does), cached per piece state; None when the fit fails or builds nothing."""
+        key = fit_key(piece) + json.dumps([piece.get("room_id"), piece.get("level_id")], default=str)
+        with self._fit_lock:
+            if key in self._fit_cache:
+                return copy.deepcopy(self._fit_cache[key])
+        if self.fit_fn is not None:
+            asset = self.fit_fn(piece, building)
+        else:
+            from wenart.furniture import edit_ops as EO
+            from wenart.furniture import fit as F
+            try:
+                asset = F.fit_piece(dict(piece, build=True), ctx.catalog(), mode=EO.licence_mode_of(building),
+                                    style_family=EO._style_family_of(building))
+            except Exception:  # noqa: BLE001 - a prediction only: the piece keeps its box
+                asset = None
+        asset = asset if _fitted(asset) else None
+        with self._fit_lock:
+            self._fit_cache[key] = copy.deepcopy(asset)
+        return asset
+
+    def fitted_after(self, ctx: TL.ToolContext, building_after: dict) -> tuple[dict, dict]:
+        """``fitted_view`` of ``building_after`` against ``building_final.json`` with ``dry_fit``."""
+        return fitted_view(building_after, self.final_building(),
+                           fit=lambda piece, building: self.dry_fit(ctx, piece, building))
 
     def rendered_building(self, ctx: TL.ToolContext) -> dict:
         """What the renders show: ``building_final.json`` (after refit), else the working building."""
@@ -1436,7 +1610,9 @@ class AgentLoop:
                      lighting: bool = False) -> dict:
         """One room session: the plan, then the tools on the checked checklist (module docstring). Fix round after
         P4a: a step whose edit the memory refused twice (``step_closed`` in the tool result) is closed; the session
-        ends when every step is done or closed."""
+        ends when every step is done or closed. Fix round after P5: a ``max_tries`` refusal closes every step on its
+        target, and ``REFUSALS_END_SESSION`` edits in a row refused without validation (``tools.refused_unvalidated``)
+        on targets refused before in the session end it (a ``check`` event ``REFUSALS_CHECK``)."""
         brief = item["brief"]
         room_id = item["room_id"]
         state = ctx.begin_session(room_id)
@@ -1462,8 +1638,11 @@ class AgentLoop:
                                int(getattr(self.model, "max_tokens", 0) or DEFAULT_MAX_TOKENS), specs)
         done = [False] * len(checklist)
         closed = [False] * len(checklist)          # fix round after P4a: refused twice by the memory
+        refused_targets: set = set()               # fix round after P5: targets refused without validation
+        stale_refusals = 0
+        ended_by_refusals = False
         try:
-            while calls < self.calls_per_room and state.finished is None \
+            while calls < self.calls_per_room and state.finished is None and not ended_by_refusals \
                     and not all([d or c for d, c in zip(done, closed)] or [False]) and not budget.empty():
                 if cap_at is not None and replies and self.clock() > cap_at:
                     break
@@ -1515,11 +1694,22 @@ class AgentLoop:
                                         done[k] = True
                             elif result.get("step_closed"):
                                 # fix round after P4a: the memory refused this edit twice in the session; fix round
-                                # after P4b: or the code's fix_fixture search found no valid spot
+                                # after P4b: or the code's fix_fixture search found no valid spot; fix round after
+                                # P5: or the target used its tries (every step on it closes)
+                                spent = result.get("max_tries_target")
                                 for k, step in enumerate(checklist):
-                                    if not done[k] and step_hit(step, tc.name, tc.parsed or {}, result):
+                                    if not done[k] and (step_hit(step, tc.name, tc.parsed or {}, result)
+                                                        or (spent is not None and step.get("target") == spent)):
                                         closed[k] = str(result.get("closed_why")
                                                         or "the memory refused its edit twice")
+                            # fix round after P5 (module docstring): refusals in a row on refused targets end it
+                            if TL.refused_unvalidated(result):
+                                stale_refusals = stale_refusals + 1 if target in refused_targets else 0
+                                refused_targets.add(target)
+                            else:
+                                stale_refusals = 0
+                            if stale_refusals >= REFUSALS_END_SESSION:
+                                ended_by_refusals = True
                     messages.append({"role": "tool", "tool_call_id": tc.id, "content": tool_result_text(result)})
                 if state.pending_images:
                     shown = state.pending_images[-MAX_IMAGES:]
@@ -1534,6 +1724,15 @@ class AgentLoop:
             open_steps += [str(x) for x in ((state.finished or {}).get("open_findings") or [])]
             self.memory.set_open(room_id, open_steps)
             ctx.end_session()
+        if ended_by_refusals:
+            # fix round after P5: the session sent edits the tools had refused already (logged)
+            self.log.event("check", round_no, source="code", tool=REFUSALS_CHECK, target=room_id,
+                           call_id=f"{tag}-p{replies}", status="session_end", model=self.log.model,
+                           revision=self.log.revision,
+                           note=(f"{REFUSALS_END_SESSION} edits in a row were refused without validation on targets "
+                                 f"refused before in this session ({', '.join(sorted(map(str, refused_targets)))[:200]})"
+                                 f": the session ends"),
+                           counts={"refused_targets": len(refused_targets), "calls": calls})
         if context_full or window.cuts:
             # fix round after P3: what the context budget cut, and a session ended by a full context (logged)
             self.log.event("check", round_no, source="code", tool=CONTEXT_CHECK, target=room_id,
@@ -1548,7 +1747,8 @@ class AgentLoop:
                                    "max_model_len": getattr(self.model, "max_model_len", None)})
         return {"room_id": room_id, "calls": calls, "replies": replies, "error": error, "plan_ok": plan_ok,
                 "steps": len(checklist), "steps_done": sum(done), "steps_closed": sum(1 for c in closed if c),
-                "seconds": round(self.clock() - t0, 2), "context_full": context_full}
+                "seconds": round(self.clock() - t0, 2), "context_full": context_full,
+                "ended_by_refusals": ended_by_refusals}
 
     # ----- one round ---------------------------------------------------------------------------------
 

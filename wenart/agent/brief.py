@@ -38,6 +38,17 @@ cut is a wall or outline conflict for review, and no other tool may move drawn f
 guessed centres in 5 cm steps and 13 max_tries to bathtubs 2-5 cm longer than their bay, and about 60 calls to the
 hall washers whose walls were read 0.15 m into a closet.
 
+Fix round after P5 (22 Oct 2026; pod P5, real04; the user's decisions of 22 Oct 2026): a placement finding that says a
+piece's type does not fit its room (``DISPUTED_TYPE_CHECKS``: F1, G14; the cause ``wrong_type``) on a drawn piece the
+code typed from the drawing (``code_typed``: ``type_method`` in ``edit_ops.MARK_LOCK_METHODS`` with vector evidence)
+offers ``retype_piece`` (and ``set_room_type``), never ``mark_not_furniture`` or ``remove_piece``: the drawing shows a
+piece there, so the answer is a type that fits (CLAUDE.md: drawn furniture is kept; a piece is removed only when it
+is clearly not furniture, with its own plan crop). Why: P5 marked the drawn, code-typed coffee table f_L1_021 (a
+coat closet the reading split into a table and two chairs) as "a stair" for F1 "table_coffee is not a piece of a
+hall room", with a camera plan crop as evidence; its twin in the other hall stayed, and its chair stood alone. The
+code's own retype of a piece the vision models typed (decision 1 of 22 Oct 2026) happens in the reading, before the
+agent; its pieces arrive ``adjusted_by_ai`` with ``drawn_type`` kept.
+
 How: the other tracks' functions are called through their frozen contracts (§13.2) and may be stubs: an empty
 answer (or an exception, noted in ``notes``) leaves that part empty. ``edit_ops.allowed_edits`` (track G) gives
 the lock state; while it answers ``{}`` (its stub) ``allowed_fallback`` applies the M11 rules of CLAUDE.md (fixed
@@ -83,6 +94,24 @@ NOT_YOURS_REASON = dict(CS.NO_TOOL_REASON, S5=CS.NO_TOOL_REASON["decor_rest"], V
                         V2=CS.NO_TOOL_REASON["render_match"], X5=CS.NO_TOOL_REASON["scale"],
                         R2=CS.NO_TOOL_REASON["ceiling"])
 BELOW_LIBRARY_METHODS = ("module", "parametric")
+# Fix round after P5 (module docstring): the placement checks of a type that does not fit the room, and the tools a
+# drawn, code-typed piece never gets for them.
+DISPUTED_TYPE_CHECKS = ("F1", "G14")
+NOT_FOR_CODE_TYPED = ("mark_not_furniture", "remove_piece")
+
+
+def code_typed(piece: Optional[dict]) -> bool:
+    """Fix round after P5: a drawn piece the code typed from the drawing (``type_method`` in
+    ``edit_ops.MARK_LOCK_METHODS``: a block name, a rule, a twin, a level, a group member) with vector evidence."""
+    if not isinstance(piece, dict) or piece.get("source") != "from_documents":
+        return False
+    try:
+        from wenart.furniture.edit_ops import MARK_LOCK_METHODS
+    except ImportError:
+        return False
+    if piece.get("type_method") not in MARK_LOCK_METHODS:
+        return False
+    return any(isinstance(e, dict) and e.get("method") == "vector" for e in piece.get("evidence") or [])
 
 
 def _f(v, n=3):
@@ -432,6 +461,14 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
         piece = pieces.get(edit_target or target)
         ok: list = []
         whys: list = []
+        if cause == "wrong_type" and check in DISPUTED_TYPE_CHECKS and code_typed(piece):
+            # fix round after P5 (module docstring): a type that fits, never a removal of a drawn piece
+            dropped = [t for t in tools if t in NOT_FOR_CODE_TYPED]
+            tools = tuple(t for t in tools if t not in NOT_FOR_CODE_TYPED)
+            if dropped:
+                whys.append(f"{', '.join(dropped)}: {piece.get('id')} is drawn and typed from the drawing "
+                            f"({piece.get('type_method')}): a type that does not fit the room is answered with "
+                            f"retype_piece (a type that fits the footprint and the room), never a removal")
         if piece is not None:
             if not built(piece) and check not in UNBUILT_FIXABLE and edit_target is None:
                 not_yours.append(dict(base, why="not built: it is in no render; leave it"))

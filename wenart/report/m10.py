@@ -24,6 +24,12 @@ added, and the outside views per variant. Nothing is invented here: a missing bl
 
 How: no file access, no image work and no import of ``final.py`` (it imports this module). Lengths go through
 a ``fmt`` function the caller gives (metric or imperial text), so the unit system of the project is kept.
+
+Fix round after P5 (22 Oct 2026; the library lens of the P5 analysis): ``drawn_block(check, building)`` adds
+``changed``, the drawn pieces of the final building with an ``adjusted_by_ai`` / ``modified_by_ai`` /
+``corrected_by_ai`` label (``changed_drawn_pieces``), and ``drawn_lines`` quotes that number; P5's line "0 changed by
+the AI" (the check's ``modified``: the M10 key only) stood next to 50 adjusted drawn pieces. Without a building the
+check's own number stays.
 """
 from __future__ import annotations
 
@@ -621,15 +627,31 @@ def completion_lines(block: dict, fmt: Fmt = metres) -> list[str]:
     return lines
 
 
-def drawn_block(check: Optional[dict]) -> Optional[dict]:
+AI_CHANGE_LABELS = ("modified_by_ai", "adjusted_by_ai", "corrected_by_ai")
+
+
+def changed_drawn_pieces(building: Optional[dict]) -> Optional[list[str]]:
+    """Fix round after P5 (the library lens of the P5 analysis): the drawn pieces (``from_documents``) of the final
+    building that carry an AI or code change label (``AI_CHANGE_LABELS``), in id order; None without a building."""
+    if not isinstance(building, dict):
+        return None
+    return sorted(str(f.get("id")) for f in building.get("furniture") or [] if isinstance(f, dict)
+                  and f.get("source") == "from_documents" and any(f.get(k) for k in AI_CHANGE_LABELS))
+
+
+def drawn_block(check: Optional[dict], building: Optional[dict] = None) -> Optional[dict]:
     """The drawn-piece check of the check manifest (every drawn piece against the source plan: anchor +-5 cm,
     front +-1 deg, same wall, the locked rules): counts, the failed pieces, the locked violations and the notes.
-    None when the check manifest has none."""
+    None when the check manifest has none. Fix round after P5: ``changed`` lists the drawn pieces of the final
+    ``building`` with an ``adjusted_by_ai`` / ``modified_by_ai`` / ``corrected_by_ai`` label (P5: the check's
+    ``modified`` counts only the M10 ``modified_by_ai`` key and said "0 changed by the AI" next to 50 adjusted
+    pieces); ``modified`` keeps the check manifest's number."""
     d = (check or {}).get("drawn_check") if isinstance(check, dict) else None
     if not isinstance(d, dict):
         return None
     failed = set(d.get("failed") or [])
-    return {"reference": d.get("reference"), "mode": d.get("mode"), "tolerance_m": d.get("tolerance_m"),
+    return {"changed": changed_drawn_pieces(building),
+            "reference": d.get("reference"), "mode": d.get("mode"), "tolerance_m": d.get("tolerance_m"),
             "tolerance_deg": d.get("tolerance_deg"), "pieces": len(d.get("pieces") or []),
             "checked": d.get("checked"), "ok": d.get("ok"), "failed": sorted(failed),
             "modified": len(d.get("modified") or []), "proposals": list(d.get("proposals") or []),
@@ -646,7 +668,10 @@ def drawn_lines(block: dict) -> list[str]:
              f"Reference: {block.get('reference')}; mode `{block.get('mode')}`. {block['checked']} of "
              f"{block['pieces']} drawn piece(s) checked: anchor within {block.get('tolerance_m')} m, front within "
              f"{block.get('tolerance_deg')} deg, the same wall; {block['ok']} ok, {len(block['failed'])} failed; "
-             f"{block['modified']} changed by the AI."]
+             + (f"{block['modified']} changed by the AI." if block.get("changed") is None else
+                f"{len(block['changed'])} changed by the AI or by code (an adjusted_by_ai, modified_by_ai or "
+                "corrected_by_ai label in the final building; listed with their reasons under Inferred and "
+                "AI-changed items).")]
     if block["failed_rows"]:
         lines += [""] + C.table(["piece", "type (drawn)", "anchor moved (m)", "front turned (deg)", "same wall", "notes"],
                                 [[r["id"], f"{r['type']} ({r['drawn_type']})", r["anchor_distance_m"],

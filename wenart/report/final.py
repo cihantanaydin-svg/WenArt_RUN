@@ -245,6 +245,25 @@ interior glazing, pulled, still clipped, the k range; the summary table's "inter
 pulls clipped interior panes since the pass before P5 (``render.choose_interior_pull``), but the report listed the
 window pull only, so clipped interior panes (P4b real03's giris_holu views: 8-13 %) were not visible in it. Unpulled,
 unclipped interior glazing adds nothing to the cell; a manifest without the record reads as before.
+
+Fix round after P5 (22 Oct 2026; the library lens of the P5 analysis, "Report texts contradict the building"):
+
+- What: the advisory "drawn piece(s) not typed" names only the pieces whose passes disagreed and that are still
+  untyped (``recognition.ai_typed[].typed``); the recognition table says how such a piece was typed afterwards
+  ("no (typed by <type_method>)") and why a drawn piece is not built (``not_built_text``: the building's
+  ``not_built_reason``, ``inferred_reason``, the agent's not-furniture mark or both passes' ``not_furniture``); the
+  drawn-piece check counts the AI / code changes from the final building (``m10.drawn_block``: ``changed``).
+- Why: P5's real04 report listed 28 "not typed" pieces, among them f_L-1_069..073 and f_L-1b_045/046, which the
+  twin, group-member and size rules had typed (armchair, table_coffee, sofa); A-BA columns typed ottoman and the
+  agent's stair mark read "drawn symbol, not built"; the drawn-piece check said "0 changed by the AI" while 50 drawn
+  pieces carry ``adjusted_by_ai`` (it counted the M10 ``modified_by_ai`` key only).
+- How: read from ``inp.building`` (the scene's building, ``building_final.json``), never from an earlier stage.
+
+Fix round after P5 (22 Oct 2026; the user's decisions of 22 Oct 2026): the manifest carries ``decision_changes``
+(``wenart.report.agent.decision_changes``: code retypes of vision-typed pieces, bath / shower shrinks) and
+``inferred_items`` (every inferred / AI-changed item of the final building); a run without the orchestrator section
+lists the inferred items in its own section "Inferred and AI-changed items" (the orchestrator's section lists them
+otherwise), and such a change without an ``adjusted_by_ai`` label is an advisory flag.
 """
 from __future__ import annotations
 
@@ -2416,6 +2435,30 @@ def label_path(room: dict) -> str:
     return "none"
 
 
+UNTYPED = ("unknown", "", "none")
+
+
+def not_built_text(f: dict) -> str:
+    """Fix round after P5 (the library lens of the P5 analysis): the actual reason a drawn piece is not built, from
+    the building: its ``not_built_reason``, the reading's ``inferred_reason`` (a column, an outline, a detail), the
+    agent's mark (``adjusted_by_ai`` reason), both recognition passes calling it ``not_furniture``; never the generic
+    "drawn symbol" text, which named A-BA columns typed ottoman and never-asked pieces alike (pure)."""
+    if f.get("not_built_reason"):
+        return str(f["not_built_reason"])
+    if f.get("inferred_reason"):
+        return str(f["inferred_reason"])
+    adj = f.get("adjusted_by_ai") if isinstance(f.get("adjusted_by_ai"), dict) else {}
+    if adj.get("not_furniture") or adj.get("reason"):
+        who = f" by {adj['model']}, round {adj.get('round')}" if adj.get("model") else ""
+        what = (f"marked not furniture ({adj['not_furniture']}){who}" if adj.get("not_furniture")
+                else f"adjusted_by_ai{who}")
+        return f"{what}: {adj.get('reason') or 'no reason recorded'}"
+    answers = [str(c.get("type")) for c in f.get("type_candidates") or [] if isinstance(c, dict)]
+    if len(answers) >= 2 and set(answers) == {"not_furniture"}:
+        return "both recognition passes call it not_furniture"
+    return "build false, no reason recorded"
+
+
 def recognition_summary(inp: Inputs) -> Optional[dict]:
     """The AI typing and the raster labels of the building (§3, §4, §9.4): type methods, AI-typed pieces with both
     passes' answers, composites, raster pages and, per room labelled from a raster page, its acceptance path."""
@@ -2438,6 +2481,9 @@ def recognition_summary(inp: Inputs) -> Optional[dict]:
             ai.append({"id": f.get("id"), "room_id": f.get("room_id"), "type": f.get("type"),
                        "type_method": f.get("type_method"), "status": f.get("status"),
                        "build": f.get("build", True) is not False, "agreed": f.get("type_method") == "ai_two_pass",
+                       # fix round after P5: typed after all (code, a twin, the size inference) and why not built
+                       "typed": str(f.get("type") or "unknown") not in UNTYPED,
+                       "not_built_reason": None if f.get("build", True) is not False else not_built_text(f),
                        "answers": [{"pass": c.get("pass"), "model": c.get("model") or c.get("model_key"),
                                     "type": c.get("type"), "front": c.get("front"), "confidence": c.get("confidence"),
                                     "reason": c.get("reason")} for c in cands]})
@@ -2668,7 +2714,7 @@ def m10_blocks(inp: Inputs, views: list[dict]) -> dict:
         "sheets": inp.sheets_block,
         "building_detail": M.building_block(inp.building, inp.private),
         "completion": M.completion_block(inp.completion),
-        "drawn_check": M.drawn_block(inp.check),
+        "drawn_check": M.drawn_block(inp.check, inp.building),
         "exterior": M.exterior_block(inp.scene, inp.check, views, inp.exterior_gate, inp.variant),
         "exterior_sheets": dict(inp.exterior_sheets),
         "variants": variants,
@@ -2726,6 +2772,11 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
     flags.extend(m7_flags(recognition, attribution, detector))
     blocks = m10_blocks(inp, views)
     flags.extend(m10_flags(blocks))
+    unlabelled = [c["id"] for c in AG.decision_changes(inp.building) if not c["labelled"]]
+    if unlabelled:
+        # fix round after P5: a change under the decisions of 22 Oct 2026 must carry adjusted_by_ai (CLAUDE.md)
+        flags.append(f"{len(unlabelled)} drawn piece(s) retyped or resized by code without an adjusted_by_ai label "
+                     f"(listed under Inferred and AI-changed items): {', '.join(str(x) for x in unlabelled[:8])}")
     licence = licence_block(inp, views)
     if licence["mode"] == "commercial" and licence["flagged_assets"]:
         flags.append(f"commercial licence mode but {licence['views_flagged']} view(s) show flagged assets "
@@ -2841,6 +2892,11 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         "below_library": below_library(inp.building),
         # round 4: every view whose metered EV passed the cap, with the metered EV and the cap
         "lighting": lighting,
+        # fix round after P5: every piece changed under the user's decisions of 22 Oct 2026 (code retypes of
+        # vision-typed pieces, bath / shower shrinks), and the inferred / AI-changed items of the final building
+        # (listed by the report itself when the orchestrator section is not there)
+        "decision_changes": AG.decision_changes(inp.building),
+        "inferred_items": AG.inferred_items(inp.building, None),
         # fix round after P3: the previews and plan crops of cameras this run does not have (final/earlier_run/)
         "earlier_run_files": list(inp.earlier_run_files),
         "warnings": list(inp.warnings),
@@ -2904,7 +2960,10 @@ def m7_flags(recognition: Optional[dict], attribution: dict, detector: Optional[
     line, an advisory or uncomputed detector, views the detector rejected."""
     flags = []
     rec = recognition or {}
-    open_types = [p["id"] for p in rec.get("ai_typed") or [] if not p["agreed"] and p["build"]]
+    # fix round after P5: a piece the passes disagreed on but code, a twin or the size inference typed afterwards is
+    # typed (the recognition table shows how); only a piece still without a type is open
+    open_types = [p["id"] for p in rec.get("ai_typed") or [] if not p["agreed"] and p["build"]
+                  and not p.get("typed")]
     if open_types:
         flags.append(f"{len(open_types)} drawn piece(s) not typed: the two AI passes disagree or did not answer "
                      f"(unknown, unverified; footprint kept): {', '.join(str(x) for x in open_types[:8])}")
@@ -3286,12 +3345,16 @@ def m7_building_lines(manifest: dict) -> list[str]:
         lines.append(f"Furniture type methods: {methods}. Recognition questions: "
                      f"{'-' if q is None else q}; answer files: {', '.join(rec.get('answer_files') or []) or 'none'}. "
                      "A type counts only when both passes agree and the drawn footprint fits the type's size range; "
-                     "otherwise the piece stays `unknown` and `unverified` with both answers.")
+                     "otherwise the piece stays `unknown` and `unverified` with both answers, unless code types it "
+                     "afterwards (a twin, a group member, the size inference: the `agreed` column names the method).")
         if rec.get("ai_typed"):
             lines += ["", "AI-typed pieces:", ""]
             lines += C.table(["piece", "room", "type", "agreed", "status", "built", "answers"],
-                             [[p["id"], p["room_id"], p["type"], "yes" if p["agreed"] else "no", p["status"],
-                               "yes" if p["build"] else "no (drawn symbol, not built)",
+                             [[p["id"], p["room_id"], p["type"],
+                               "yes" if p["agreed"] else (f"no (typed by {p.get('type_method') or 'code'})"
+                                                          if p.get("typed") else "no"), p["status"],
+                               "yes" if p["build"]
+                               else f"no ({p.get('not_built_reason') or 'drawn symbol, not built'})",
                                "; ".join(_answer_text(a) for a in p["answers"]) or "no answer"]
                               for p in rec["ai_typed"]])
         if rec.get("composites"):
@@ -3688,6 +3751,10 @@ def report_markdown(manifest: dict) -> str:
                      "stay in the project output on the volume (paths relative to it; see docs/intake.md):")
         lines += [""] + C.bullets(manifest.get("kept_on_volume") or [], empty="No plan crop was made.")
     lines += AG.agent_lines(manifest)
+    if not manifest.get("agent") and manifest.get("inferred_items"):
+        # fix round after P5: without the orchestrator section the report lists the inferred and AI-changed items
+        # itself (the decisions of 22 Oct 2026 included), so no change is listed nowhere
+        lines += AG.inferred_lines(manifest["inferred_items"], heading="## Inferred and AI-changed items")
     lines += ["", "## Warnings", ""]
     lines += C.bullets(manifest["warnings"])
     return "\n".join(lines) + "\n"

@@ -162,6 +162,24 @@ VANITY_SHARE = 0.3                 # an unknown counter under >= 30 % of a washb
 DUPLICATE_SHARE = 0.6              # a fixed piece this much inside a block-named one of its type is drawn twice
 L_SEAT_MIN_M = 0.65                # the arms of an L corner sofa are seat-deep (a counter's legs are 0.6 m)
 EXPLAINED_AS = ("rug", "detail", "column", "decor")
+# Fix round after P5 (module docstring).
+BAY_TYPES = ("bathtub", "shower")
+BAY_OVERRUN_M = (0.01, 0.05)       # a bath or shower 1-5 cm longer than its bay is a misread size (user, 22 Oct 2026)
+BAY_SPAN = 0.6                     # the cut at an end spans at least this share of the side (else a corner or column)
+BAY_RULE = "reading.bay_size"
+LONG_FRONT_TYPES = ("sofa", "desk", "wardrobe", "tv_unit", "bench", "sideboard", "dresser", "bookshelf",
+                    "console_table", "shoe_cabinet", "display_cabinet")
+LONG_FRONT_RATIO = 1.25            # a front on a side this much shorter than the other is on a short side
+LONG_FRONT_RULE = "reading.long_side_front"
+SEAT_TABLE_M = 1.2                 # a sofa or armchair without a front faces the nearest coffee table this close
+DESK_SPLIT_DEPTH_M = 0.80          # a desk symbol deeper than this holds its chair (CLAUDE.md: a table footprint ...)
+DESK_DEPTH_M = 0.60                # ... the desk keeps this depth at its wall ...
+DESK_CHAIR_M = (0.50, 0.50)        # ... and its chair (width, depth) stands in front, tucked in
+DESK_RULE = "reading.desk_chair"
+CUSHION_MAX_M = 0.50               # a drawn piece this small ...
+CUSHION_INSIDE = 0.75              # ... at least this much inside a larger drawn seat is its seat cushion
+CUSHION_SEATS = ("sofa", "sofa_corner", "armchair", "chaise")
+CUSHION_RULE = "reading.seat_cushion"
 # Fix round after P3 (16-17 Oct 2026): the extraction report key of a page whose recognition questions are never asked
 # (``pipeline._assemble_level`` sets it on a secondary page of a level; its value says why), and the reason a piece
 # whose question waits is not built (``never_a_box``).
@@ -538,6 +556,42 @@ def _facing(seat: dict, other: Polygon) -> Optional[tuple[float, float, float]]:
     return along, across, abs(math.degrees(math.atan2(across, along + depth / 2.0)))
 
 
+def _corner_sofas(build, items: dict, room: dict, pieces: list[dict], pending=()) -> list[dict]:
+    """The corner-sofa context rule on one room (an L outline with seat-deep arms in a living room, away from the
+    kitchen run): the pieces it typed ``sofa_corner`` with their L. Fix round after P5: ``corner_sofa_pass`` runs it
+    before the first code typing too."""
+    from wenart.furniture import sizes
+
+    built = [f for f in pieces if f.get("build") is not False]
+    kitchen = [f for f in built if f["type"] in KITCHEN_ZONE_TYPES]
+    out = []
+    for f in _unknowns(pieces, pending):
+        det = items[f["id"]].details if f["id"] in items else {}
+        lo = det.get("l_outline")
+        if lo and room.get("room_type") == "living" and sizes.fits("sofa_corner", tuple(f["footprint"]["size"])) \
+                and min(lo["seat_depth"], lo["chaise_width"]) >= L_SEAT_MIN_M and not any(
+                    rect(k).distance(rect(f)) <= 0.15 for k in kitchen):
+            front = det.get("l_front")
+            _set_type(build, f, "sofa_corner", "an L outline with 0.5-1.3 m deep arms in a living room (a corner "
+                      "sofa; the open inner corner is its front)", float(front) if front is not None else None)
+            f.update(shape="L", chaise_side=lo["chaise_side"], chaise_depth=lo["chaise_depth"],
+                     seat_depth=lo["seat_depth"], chaise_width=lo["chaise_width"])
+            out.append(f)
+    return out
+
+
+def corner_sofa_pass(build, items: dict) -> list[str]:
+    """Fix round after P5 (module docstring): the corner-sofa rule of ``context_types`` on every room, before the
+    first code typing, so the room's seating anchor is there when ``infer.code_types`` looks for missing members.
+    Returns the typed ids."""
+    b = build.building
+    out = []
+    for room in sorted((r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3), key=lambda r: r["id"]):
+        pieces = [f for f in b["furniture"] if f.get("room_id") == room["id"]]
+        out += [f["id"] for f in _corner_sofas(build, items, room, pieces)]
+    return out
+
+
 def context_types(build, items: dict, pending=()) -> dict:
     """Step 2 (see the module docstring). Returns counts by rule."""
     from wenart.furniture import sizes
@@ -557,19 +611,8 @@ def context_types(build, items: dict, pending=()) -> dict:
         built = [f for f in pieces if f.get("build") is not False]
         # Corner sofa: an L outline with seat-deep arms (0.65-1.3 m, generic core ``l_shape``) in a living room, not
         # touching the kitchen run (a counter is an L of 0.6 m deep legs).
-        kitchen = [f for f in built if f["type"] in KITCHEN_ZONE_TYPES]
-        for f in _unknowns(pieces, pending):
-            det = items[f["id"]].details if f["id"] in items else {}
-            lo = det.get("l_outline")
-            if lo and room.get("room_type") == "living" and sizes.fits("sofa_corner", tuple(f["footprint"]["size"])) \
-                    and min(lo["seat_depth"], lo["chaise_width"]) >= L_SEAT_MIN_M and not any(
-                        rect(k).distance(rect(f)) <= 0.15 for k in kitchen):
-                front = det.get("l_front")
-                _set_type(build, f, "sofa_corner", "an L outline with 0.5-1.3 m deep arms in a living room (a corner "
-                          "sofa; the open inner corner is its front)", float(front) if front is not None else None)
-                f.update(shape="L", chaise_side=lo["chaise_side"], chaise_depth=lo["chaise_depth"],
-                         seat_depth=lo["seat_depth"], chaise_width=lo["chaise_width"])
-                bump("sofa_corner")
+        for _f in _corner_sofas(build, items, room, pieces, pending):
+            bump("sofa_corner")
         # Fridge: a box drawn with its door swing beside the kitchen run.
         kitchen = [f for f in built if f["type"] in ("kitchen_counter", "sink_kitchen", "stove", "kitchen_island")]
         doors = [rect_fp(s["footprint"]) for s in b.get("symbols") or [] if s.get("kind") == "door_arc"
@@ -1367,6 +1410,10 @@ def fix_fixed(build, items: Optional[dict] = None) -> list[str]:
         share = misread_share(f["type"], f["footprint"]["size"])
         found = problems(rect(f), room_poly, swings, others)
         if share <= MISREAD_SHARE and not found:
+            # Fix round after P5 (user decision of 22 Oct 2026): a bath or shower a few cm longer than its bay
+            item = (items or {}).get(f["id"])
+            if shrink_to_bay(build, f, room_poly, _crop(item.details if item is not None else None)):
+                done.append(f["id"])
             continue
         reasons = []
         new = copy.deepcopy(f)
@@ -1467,6 +1514,146 @@ def _nearest_valid(f: dict, room_poly: Polygon, swings: list, others: list) -> O
             if _fits_room(rect(cand), room_poly, swings, others):
                 best = (d, abs(j), cand)
     return best[2] if best else None
+
+
+def _local_room(p, room_poly: Polygon):
+    """``room_poly`` in the frame of the placer piece ``p`` (x along its front edge, y towards its back)."""
+    from shapely import affinity
+
+    moved = affinity.translate(room_poly, -p.center[0], -p.center[1])
+    return affinity.rotate(moved, -p.rotation_deg, origin=(0.0, 0.0))
+
+
+def bay_overrun(f: dict, room_poly: Polygon) -> Optional[dict]:
+    """Fix round after P5 (user decision of 22 Oct 2026, CLAUDE.md fixed equipment): how far a drawn bathtub or shower
+    runs past the walls of its bay. In the piece's front frame the part outside the room must lie in end strips only
+    (a strip across the whole depth at a short end, or across the whole width at a long side; a corner or a column
+    cut is no bay overrun), each axis overrun at most ``BAY_OVERRUN_M[1]`` and one of them more than
+    ``BAY_OVERRUN_M[0]``. Returns ``{"cut": {"left", "right", "front", "back"}, "clear": (width, depth),
+    "overrun_m"}`` (metres, the clear box between the cut ends) or None."""
+    from shapely.geometry import box as sbox
+    from wenart.furniture import placer
+
+    if f.get("type") not in BAY_TYPES or not f.get("footprint"):
+        return None
+    try:
+        p = placer.drawn_piece(f)
+    except (KeyError, TypeError, ValueError):
+        return None
+    w, d = float(p.size[0]), float(p.size[1])
+    local = _local_room(p, room_poly)
+    piece = sbox(-w / 2.0, -d / 2.0, w / 2.0, d / 2.0)
+    out = piece.difference(local)
+    if out.is_empty or out.area <= 1e-6:
+        return None
+    cut = {"left": 0.0, "right": 0.0, "front": 0.0, "back": 0.0}
+    for g in getattr(out, "geoms", [out]):
+        if g.area <= 1e-7:
+            continue
+        x0, y0, x1, y1 = g.bounds
+        if (y1 - y0) >= BAY_SPAN * d and x0 <= -w / 2.0 + 1e-6 and x1 < 0.0:
+            cut["left"] = max(cut["left"], x1 + w / 2.0)
+        elif (y1 - y0) >= BAY_SPAN * d and x1 >= w / 2.0 - 1e-6 and x0 > 0.0:
+            cut["right"] = max(cut["right"], w / 2.0 - x0)
+        elif (x1 - x0) >= BAY_SPAN * w and y0 <= -d / 2.0 + 1e-6 and y1 < 0.0:
+            cut["front"] = max(cut["front"], y1 + d / 2.0)
+        elif (x1 - x0) >= BAY_SPAN * w and y1 >= d / 2.0 - 1e-6 and y0 > 0.0:
+            cut["back"] = max(cut["back"], d / 2.0 - y0)
+        else:
+            return None                                  # a corner or column cut: no bay overrun
+    over_x, over_y = cut["left"] + cut["right"], cut["front"] + cut["back"]
+    if max(over_x, over_y) <= BAY_OVERRUN_M[0] + 1e-9 or max(over_x, over_y) > BAY_OVERRUN_M[1] + 1e-6:
+        return None
+    clear = sbox(-w / 2.0 + cut["left"], -d / 2.0 + cut["front"], w / 2.0 - cut["right"], d / 2.0 - cut["back"])
+    if clear.difference(local).area > 1e-4:
+        return None
+    return {"cut": {k: round(v, 4) for k, v in cut.items()}, "clear": (round(w - over_x, 4), round(d - over_y, 4)),
+            "overrun_m": round(max(over_x, over_y), 4)}
+
+
+def bay_product(ftype: str, size, clear) -> Optional[tuple[float, float]]:
+    """Fix round after P5: the real product (``sizes.products``, either way round) that fits the clear box
+    ``clear`` (width, depth in the piece's front frame) and is nearest to the drawn ``size`` (log distance), else
+    None."""
+    from wenart.furniture import sizes
+
+    w, d = float(size[0]), float(size[1])
+    best = None
+    for prod in sizes.products(ftype):
+        for pw, pd in ((float(prod[0]), float(prod[1])), (float(prod[1]), float(prod[0]))):
+            if pw > float(clear[0]) + 1e-9 or pd > float(clear[1]) + 1e-9:
+                continue
+            key = (round(abs(math.log(w / pw)) + abs(math.log(d / pd)), 6), -pw * pd)
+            if best is None or key < best[0]:
+                best = (key, (pw, pd))
+    return best[1] if best else None
+
+
+def bay_fit(f: dict, room_poly: Polygon) -> Optional[dict]:
+    """Fix round after P5: the bay-overrun fix of a drawn bathtub or shower (``bay_overrun``): ``{"footprint", "size",
+    "overrun", "reason"}`` with the nearest real product that fits the clear bay (``bay_product``), its back kept on its
+    wall, an end kept on the wall it was cut at (centred between the walls when both ends were cut), else None. Pure:
+    ``f`` is unchanged (``edit_ops.fix_fixture`` uses it too)."""
+    from wenart.furniture import group_checks as GC
+    from wenart.furniture import placer
+
+    over = bay_overrun(f, room_poly)
+    if over is None:
+        return None
+    p = placer.drawn_piece(f)
+    w, d = float(p.size[0]), float(p.size[1])
+    prod = bay_product(f["type"], (w, d), over["clear"])
+    if prod is None:
+        return None
+    pw, pd = prod
+    cut = over["cut"]
+    x0, x1 = -w / 2.0 + cut["left"], w / 2.0 - cut["right"]
+    y0, y1 = -d / 2.0 + cut["front"], d / 2.0 - cut["back"]
+    if cut["left"] > 0 and cut["right"] > 0:
+        cx = (x0 + x1) / 2.0
+    elif cut["left"] > 0:
+        cx = x0 + pw / 2.0
+    elif cut["right"] > 0:
+        cx = x1 - pw / 2.0
+    else:
+        cx = min(max(0.0, x0 + pw / 2.0), x1 - pw / 2.0)
+    if f.get("front_deg") is not None:
+        cy = y1 - pd / 2.0                               # the back (+y) stays on its wall
+    elif cut["front"] > 0 and cut["back"] > 0:
+        cy = (y0 + y1) / 2.0
+    elif cut["front"] > 0:
+        cy = y0 + pd / 2.0
+    else:
+        cy = y1 - pd / 2.0 if cut["back"] > 0 else min(max(0.0, y0 + pd / 2.0), y1 - pd / 2.0)
+    centre = GC.to_world(p, (cx, cy))
+    fp = {"center": [round(centre[0], 4), round(centre[1], 4)], "size": [round(pw, 4), round(pd, 4)],
+          "rotation_deg": round(float(p.rotation_deg), 3)}
+    reason = (f"misread size (CLAUDE.md, user OK of 22 Oct 2026): the drawn {f['type']} {w:.2f} x {d:.2f} m runs "
+              f"{over['overrun_m'] * 100:.0f} cm past the walls of its bay (clear {over['clear'][0]:.2f} x "
+              f"{over['clear'][1]:.2f} m): the nearest real product that fits, {pw:.2f} x {pd:.2f} m")
+    return {"footprint": fp, "size": (pw, pd), "overrun": over, "reason": reason}
+
+
+def shrink_to_bay(build, f: dict, room_poly: Polygon, crop: Optional[str] = None) -> bool:
+    """Fix round after P5 (module docstring): ``bay_fit`` applied to a drawn bathtub or shower at the reading
+    (before the fit): the product footprint, ``drawn_*`` kept, ``adjusted_by_ai`` (``by: code``, the reason, the
+    changed footprint, the rule, the plan crop) and the rule's evidence entry. Returns True when it changed ``f``."""
+    if f.get("source") != "from_documents" or f.get("build") is False:
+        return False
+    fix = bay_fit(f, room_poly)
+    if fix is None:
+        return False
+    before = copy.deepcopy(f["footprint"])
+    f.setdefault("drawn_type", f["type"])
+    f.setdefault("drawn_footprint", before)
+    f.setdefault("drawn_front_deg", f.get("front_deg"))
+    f.setdefault("drawn_height", f.get("height"))
+    f["footprint"] = fix["footprint"]
+    f["adjusted_by_ai"] = {"by": "code", "reason": fix["reason"], "changed": {"footprint": before}, "rule": BAY_RULE,
+                           "crop": crop}
+    f.setdefault("evidence", []).append(_ev(f, BAY_RULE, fix["reason"] + (f"; plan crop {crop}" if crop else ""), 0.8))
+    build.warn(f"{f['id']}: {f['type']} adjusted at ingest: {fix['reason']}")
+    return True
 
 
 # --------------------------------------------------------------------------
@@ -1710,12 +1897,17 @@ def read_furniture(build, works: dict) -> None:
             held.difference_update(coded)
         return coded
 
-    def context_pass() -> None:
+    def context_pass(corner_only: bool = False) -> None:
         """One pass of the context rules on every unknown piece, open questions included; the typed ones withdraw
-        their questions."""
+        their questions. Fix round after P5: ``corner_only`` runs the corner-sofa rule alone (``corner_sofa_pass``)."""
         before = unknown_ids(build)
-        for k, v in context_types(build, items).items():
-            context[k] = context.get(k, 0) + v
+        if corner_only:
+            n = len(corner_sofa_pass(build, items))
+            if n:
+                context["sofa_corner"] = context.get("sofa_corner", 0) + n
+        else:
+            for k, v in context_types(build, items).items():
+                context[k] = context.get(k, 0) + v
         typed = context_typed(build, before)
         if typed:
             typed_by.update(typed)
@@ -1723,6 +1915,9 @@ def read_furniture(build, works: dict) -> None:
             pending.difference_update(typed)
             held.difference_update(typed)
 
+    # Fix round after P5 (module docstring): the drawn L corner sofas first, so the code typing sees the room's
+    # seating anchor (P5: the 1.30 m outline f_L-1_061 in the L's open corner became "the missing sofa").
+    context_pass(corner_only=True)
     code_pass()
     context_pass()
     fronts = infer_fronts(build, held)

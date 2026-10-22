@@ -7,7 +7,11 @@ lists under results/library/growth are read as data.
 
 Fix round after P3 (16-17 Oct 2026): the title flags ``branded`` / ``other_use``, the ``sanitary_finish`` check and
 the committed catalogue's audit records of the P3 findings (a Disney CARS cushion, a sporting-goods rack as a
-bookshelf, a gold bathtub)."""
+bookshelf, a gold bathtub).
+
+Fix round after P5 (22 Oct 2026): the ``render_print`` check (``render_findings``: a brand logo or a text print a
+run's render showed) and the committed catalogue's records of the P5 / P4b findings (the SMEG fridge, the chalk
+board coffee table, three washing machines with a maker's logo and the fridge of the same mesh as the SMEG one)."""
 from __future__ import annotations
 
 import json
@@ -848,3 +852,120 @@ def test_the_committed_catalogue_keeps_the_p3_findings_out_of_the_fit():
         hit = [r for r in recs if r["status"] == "remove" and (r["check"] == "sanitary_finish" or (
             r["check"] == "title_flag" and r["metrics"]["category"] in new))]
         assert not hit, (item["id"], hit)
+
+
+# --------------------------------------------------------------------------
+# Fix round after P5 (22 Oct 2026): brand logos and text prints the run renders showed
+# --------------------------------------------------------------------------
+
+# id -> (finding, a word of its detail); the views are in each entry's render_findings
+P5_REMOVED = {
+    "hssd_404146070e071454f055cfe3be7811fcdcb7ddbd": ("brand_logo", "SMEG"),          # P5 cam_r_L-1_mutfak_3
+    "hssd_9660ea4405f304d30c4610f676185305d0e03c8b": ("brand_logo", "SMEG"),          # FAB28XS6: the FAB28LV mesh
+    "hssd_cc238b28d54e7452ba790f3332d4ba0f6da18b82": ("text_print", "GET SOME MILK"),  # the oyun coffee table
+    "hssd_031024e00569909d466d87df9fead90355ba29e5": ("brand_logo", "SAMSUNG"),       # P4b cam_r_L0_banyo_4_2
+    "hssd_2c2b2914fc526f6e8bbe65511ecf58bba0027ec0": ("brand_logo", "LG"),            # P4b cam_r_L0_giris_holu_1
+    "hssd_856317b238f6a70ae6f0afffed1f6d5e3ab7b80c": ("brand_logo", "tpoint"),        # P4b cam_r_L0_banyo_3_1
+}
+
+
+def test_render_findings_remove_a_model_with_a_brand_logo_or_a_text_print():
+    """P5: the SMEG logo on a fridge (cam_r_L-1_mutfak_3) and chalk lettering on a coffee table (oyun views) were
+    audited keep: the audit had no check of what a render shows on a model (this test fails on that code). A record
+    with its evidence (a run view, or the same mesh as such a model, on the same file) removes the model; one
+    without evidence, of an unknown kind or of a republished file is a warning."""
+    sha = "a" * 64
+    seen = {"run": "P5", "project": "real04", "view": "cam_r_L-1_mutfak_3", "piece": "f_L-1_090"}
+    logo = {"finding": "brand_logo", "detail": "the SMEG logo is readable on the door", "seen_in": seen,
+            "sha256_glb": sha}
+
+    def fridge(**kw):
+        return gate_item(id="hssd_f", type="fridge", source="hssd", title="Smeg Fridge FAB28LV", sha256_glb=sha,
+                         polycount=2542, vertices=4990, bbox_model_m=[0.5936, 0.696, 1.455],
+                         bbox_m=[0.5936, 0.696, 1.455], **kw)
+
+    assert CK.render_print_check(fridge())["status"] == "skip"
+    r = CK.render_print_check(fridge(render_findings=[logo]))
+    assert r["status"] == "remove" and r["metrics"]["findings"] == ["brand_logo"]
+    assert "SMEG logo" in r["reason"] and "seen in P5 real04 cam_r_L-1_mutfak_3" in r["reason"]
+    assert "§2.6" in r["reason"]
+    assert "render_print" in [c["check"] for c in CK.item_checks(fridge(render_findings=[logo]), CFG, {"fridge"})]
+    d = D.decide(fridge(render_findings=[logo]), CK.item_checks(fridge(render_findings=[logo]), CFG, {"fridge"}),
+                 None, None, CFG)
+    assert d["status"] == "removed" and d["reasons"] == [r["reason"]]
+    table = gate_item(id="hssd_t", type="table_coffee", source="hssd", sha256_glb=sha, title="Chalk Board Coffee Table",
+                      render_findings=[dict(logo, finding="text_print", detail="chalk lettering on the top")])
+    r = CK.render_print_check(table)
+    assert r["status"] == "remove" and "printed lettering" in r["reason"] and "no project style" in r["reason"]
+    # no evidence, an unknown kind, another file, an empty detail: a warning (decide never removes on it)
+    for bad, why in ((dict(logo, seen_in={"run": "P5"}), "no evidence"), (dict(logo, finding="ugly"), "unknown"),
+                     (dict(logo, sha256_glb="b" * 64), "another file"), (dict(logo, detail=" "), "no detail"),
+                     ("SMEG", "not a record")):
+        r = CK.render_print_check(fridge(render_findings=[bad]))
+        assert r["status"] == "warn" and why in r["reason"], (bad, r)
+        d = D.decide(fridge(render_findings=[bad]), CK.item_checks(fridge(render_findings=[bad]), CFG, {"fridge"}),
+                     None, None, CFG)
+        assert d["status"] != "removed" and not any("brand name" in x for x in d["reasons"])
+    # the same mesh as a model whose render shows the logo: faces, vertices and model box must all match
+    twin = {"id": "hssd_seen", "polycount": 2542, "vertices": 4990, "bbox_model_m": [0.5936, 0.696, 1.455]}
+    same = dict(logo, seen_in=None, same_mesh_as=twin)
+    r = CK.render_print_check(fridge(render_findings=[same]))
+    assert r["status"] == "remove" and "the same mesh as hssd_seen (2542 faces, 4990 vertices" in r["reason"]
+    for key, value in (("vertices", 4991), ("polycount", 2900), ("bbox_model_m", [0.5936, 0.7534, 1.679]),
+                       ("vertices", "many"), ("bbox_model_m", None)):
+        r = CK.render_print_check(fridge(render_findings=[dict(same, same_mesh_as=dict(twin, **{key: value}))]))
+        assert r["status"] == "warn" and "the mesh differs from hssd_seen" in r["reason"], key
+    # one usable record is enough; the others are listed as not used
+    r = CK.render_print_check(fridge(render_findings=[dict(logo, finding="ugly"), logo]))
+    assert r["status"] == "remove" and r["metrics"]["not_used"] and r["metrics"]["findings"] == ["brand_logo"]
+    # the audit's items carry the field from the catalogue entry
+    from wenart.assets.audit import items as I
+    assert "render_findings" in I.FIELDS
+
+
+def test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit():
+    """The SMEG fridge (P5 cam_r_L-1_mutfak_3), the chalk board coffee table (P5 / P3 / P4a oyun views), the three
+    washing machines whose maker's logo P4b showed and the fridge of the same mesh as the SMEG one carry audit status
+    ``removed`` with the render_print reason and the decision_sha decide() gives (a later audit write is
+    idempotent); none is usable in either licence mode. Every record names its evidence: a committed before | after
+    sheet of the view (and, where the run folder is on this machine, the piece built with that model), or the twin
+    model of the same mesh that is itself removed. No kept or fixed entry carries a finding that would remove it."""
+    from wenart.assets.audit import items as I
+
+    cat = C.load()
+    doc = json.loads(I.LIBRARY_PATH.read_text(encoding="utf-8"))
+    entries = {e["id"]: (e, s) for s in ("entries", "decor") for e in doc[s]}
+    known = set(SZ.types()) | set(SZ.decor_types())
+    for aid, (kind, word) in P5_REMOVED.items():
+        e, section = entries[aid]
+        a = e["audit"]
+        assert a["status"] == "removed" and any(word in r and CK.RENDER_FINDINGS[kind] in r for r in a["reasons"]), aid
+        assert not C.usable(cat.entry(aid), "relaxed") and not C.usable(cat.entry(aid), "commercial"), aid
+        assert C.unusable_reason(cat.entry(aid), "relaxed").startswith("audit: removed"), aid
+        assert any(n.startswith("fix round after P5 (22 Oct 2026): removed by the code audit's new check "
+                                "(render_print)") for n in a["notes"]), aid
+        item = I.item_of(e, "library", section)
+        d = D.decide(item, CK.item_checks(item, CFG, known), None, None, CFG)
+        assert d["status"] == "removed" and a["decision_sha"] == W.decision_sha(d) and a["reasons"] == d["reasons"]
+        (f,) = e["render_findings"]
+        assert f["finding"] == kind and f["sha256_glb"] == e["sha256_glb"]
+        if f.get("seen_in"):
+            seen = f["seen_in"]
+            assert (ROOT / seen["sheet"]).is_file(), seen["sheet"]                  # committed evidence
+            assert seen["sheet"].endswith(f"/{seen['view']}_before_after.jpg")
+            run_dir = ROOT / seen["render"].split("/results/")[0]
+            built = run_dir / "results" / "furniture" / seen["project"] / "building_final.json"
+            if built.is_file():                                                     # the run folder is git-ignored
+                pieces = {p["id"]: (p.get("asset") or {}).get("asset_id")
+                          for p in json.loads(built.read_text(encoding="utf-8"))["furniture"]}
+                assert pieces[seen["piece"]] == aid, (aid, seen)
+        else:
+            twin = entries[f["same_mesh_as"]["id"]][0]
+            assert twin["id"] in P5_REMOVED and "seen_in" in twin["render_findings"][0]
+            assert all(twin[k] == e[k] == f["same_mesh_as"][k] for k in CK.SAME_MESH_KEYS), aid
+            assert twin["pbr_maps"]["images"] == e["pbr_maps"]["images"] == 0      # the logo is geometry
+    for item in I.load_items():
+        if (item.get("audit") or {}).get("status") in ("keep", "fix"):
+            assert CK.render_print_check(item)["status"] in ("skip", "warn"), item["id"]
+        elif item.get("render_findings"):
+            assert item["id"] in P5_REMOVED, item["id"]

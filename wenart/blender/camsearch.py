@@ -150,9 +150,10 @@ Fix round after P5 (22 Oct 2026; pod P5, real04):
   level's roof ``ceiling_planes`` were in the model and the headroom filter of every L1 room, the open terraces too;
   under P5's drawn 32.5 degree roof that fake ceiling stood 1.13 m above the terrace floor, only the inner corner
   passed ``headroom_ok`` and both terraces got one view framed on the parapet corner (scores 0.23 and 0.25, P3 had
-  2.18-2.67). Simulated on P5's building: 3 views per terrace, 2.22-2.70, each terrace's table in frame. real02's
-  searched terrace (P4a ``r_L1_teras_2``: 1.38-1.77, two views without furniture) gets 2.19-2.72; its replayed
-  ``cam_r_L1_teras_1`` stays (frozen set).
+  2.18-2.67). Simulated on P5's building: 3 views per terrace, 2.22-2.70, each terrace's table in frame. On P4a's
+  real02 building the terrace views go from 1.20-1.77 (two views without furniture) to 2.19-2.79, every view with
+  the terrace furniture; in a replay run only ``r_L1_teras_2`` is searched (2.19-2.72): ``r_L1_teras`` keeps its
+  replayed ``cam_r_L1_teras_1`` (frozen set).
 - The fallback camera (the verifier's better fix of "the camera blocked check never sees the built scene"). What: the
   free-standing and hanging decor under camera height + 0.2 m (``floor_decor_rects``) is a tall obstacle of the
   fallback as it already was of the free points, and under a sloped ceiling the fallback point must pass
@@ -1310,7 +1311,8 @@ def lens_clearance(plans: Sequence[dict], objects: Sequence[dict], min_m: Option
     a built box (pure; fix round after P5, 22 Oct 2026; warning only, no camera is moved).
 
     What: for every plan with a ``room_id``, ``kind`` interior (or none), ``source`` searched (or none: a plan of
-    the search) and a ``position``, the nearest ``box3d`` of the scene manifest ``objects`` of kind furniture,
+    the search; the agent's own cameras carry it too, ``build.merge_agent_cameras``) and a ``position``, the nearest
+    ``box3d`` of the scene manifest ``objects`` of kind furniture,
     furniture_proxy or decor (the rig's fixture meshes are decor entries) that is not behind the lens (its nearest
     point is in front of, beside, above or under the lens, ``(q - p) . forward >= 0``, or the lens is inside it);
     ``[{"camera", "room_id", "object", "kind", "distance_m", "warning"}]``, sorted by camera. Why: the ray model of

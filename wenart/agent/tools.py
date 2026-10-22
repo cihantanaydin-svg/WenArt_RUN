@@ -183,6 +183,29 @@ mark lock of a drawn piece typed from the drawing (``edit_ops.own_crop_named``),
 ``check/<cam>_plan.jpg``, which never lifts it (P3 real04 seq 3282 / 3689 / 3692 cited that crop). On P3's real04
 buildings 80 drawn pieces have their own crop in ``recognition/crops``; a piece without one gets the room crop only,
 as before.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04, and the user's decisions of the same day):
+
+- a ``max_tries`` refusal (``_too_many``) closes every checklist step on its target (``step_closed``,
+  ``max_tries_target``) and says that every further edit of it is refused until the next round; an edit refused
+  before any validator ran (``refused_unvalidated``: max tries, the memory, the code's fix_fixture search, a frozen
+  camera) counts toward the loop's session end (``loop.REFUSALS_END_SESSION``). Why: P5's r2-s13 sent move_piece
+  f_L1_024 six times after its max_tries refusal, 17-20k prompt tokens each;
+- an accepted edit's verdict is applied by ``apply_verdict``: its finding list becomes the round's and the ids it
+  changed join ``ctx.round_changed`` (the loop's dry re-check leaves the stale scene-manifest boxes of those targets
+  out; P5 rejected 8 unrelated edits "new critical finding X2:f_L1_056" after the box's piece was removed);
+- the memory refuses a repeat of a rejection about the round's finding list ("no target finding") in that round only
+  (``_repeat_of`` passes ``ctx.round``; ``memory.Memory`` is scoped to the building and the code);
+- ``dry_run`` of a level tool no longer carries ``target_finding`` (the level schemas have none: P5's dry_run
+  set_terrain was refused "'target_finding' was unexpected"); a furniture dry run still carries it, as the real edit;
+- an exterior camera refused for standing inside a building (the main one or another on the plot) gets the free
+  stretch of its view line (``free_strip_hint``: P5's three add_camera ext_front_y stood inside b2 while 6 m in front
+  of the entrance facade were free);
+- the descriptions of ``retype_piece``, ``mark_not_furniture``, ``fix_fixture``, ``set_camera`` and ``add_camera`` name
+  the user's decisions of 22 Oct 2026 where they change what a tool may do: a drawn piece typed from the drawing whose
+  type does not fit its room is retyped, never removed, and a piece the code retyped from its size, room and
+  neighbours keeps that type (the code's retype, not the agent's); a drawn bathtub or shower up to 5 cm longer than
+  its bay is a misread size (``fix_fixture``); an exterior view of a long, low building may be framed wider or tilted.
 """
 from __future__ import annotations
 
@@ -333,8 +356,10 @@ DESCRIPTIONS = {
     "set_camera": "Move an existing camera (position, target, lens). A camera replayed from the baseline (set 1) "
                   "is frozen and refused; a frontal view stays square to its facade, an entrance view stays "
                   "close in front of its door and the allowed aerial or site view stays an aerial view (never "
-                  "brought to eye level).",
-    "add_camera": "Add a camera view under a new view id.",
+                  "brought to eye level). A camera_blocked interior view moves to a free point with headroom.",
+    "add_camera": "Add a camera view under a new view id. An exterior view of a long, low building may take a wider "
+                  "lens (16-18 mm) or a tilted framing; a refusal for standing inside a building names the free "
+                  "stretch of the view line.",
     "remove_camera": "Remove a camera view (e.g. a view of a bare wall); never a replayed (set 1) camera, nor the "
                      "only frontal or entrance view.",
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
@@ -361,13 +386,17 @@ DESCRIPTIONS = {
     "move_group": "Move a whole group to a free wall span (partners follow).",
     "retype_piece": "Change a piece's type to a type that fits its size and its room (zone); the piece is then "
                     "fitted and built (library model, module builder or parametric family in the project's licence "
-                    "mode) and leaves the review list.",
+                    "mode) and leaves the review list. The answer to a drawn piece typed from the drawing whose type "
+                    "does not fit its room (F1, G14). A piece the code retyped from its size, room and neighbours "
+                    "(adjusted_by_ai by code) keeps that type.",
     "mark_not_furniture": "Record a drawn symbol, mark or line that was read as furniture (not built), with the "
-                          "evidence.",
+                          "evidence (the piece's own recognition crop for a piece typed from the drawing); never for a "
+                          "type that only does not fit the room (retype_piece).",
     "fix_fixture": "Misread fixed equipment: a real product size and/or a move of at most 0.5 m (through a wall, in "
                    "a door swing). Leave out center: the code moves it to the nearest valid spot (pod P5: 32 of 35 "
                    "guessed centres were still in a wall or a door swing). When the code answers 'no valid spot', no "
-                   "centre will do: the finding stays for review.",
+                   "centre will do: the finding stays for review. A drawn bathtub or shower up to 5 cm longer than its "
+                   "bay is a misread size: shrunk to the nearest real product size that fits (drawn footprint kept).",
     "set_front": "Give a drawn piece without a front (front_inferred) the direction its front faces (degrees "
                  "counter-clockwise from +x, along a side of its footprint); to turn a piece use rotate_piece.",
     "set_mark_kind": "Correct the kind of a level mark (with the reason).",
@@ -470,6 +499,9 @@ class ToolContext:
     # Milestone 13: ``acceptance(ctx, tool, args, result, building_after) -> {"accepted", "reason", ...}`` (the
     # loop's dry re-check + ``causes.accept_edit``); None keeps the validator's verdict (replay, old tests).
     acceptance: Optional[Callable] = None
+    # fix round after P5: the ids the round's accepted edits changed (``apply_verdict``; ``loop.after_findings`` leaves
+    # the round's stale scene-manifest boxes of these targets out of every later dry re-check)
+    round_changed: set = field(default_factory=set)
     _default_session: Any = None
     _local: Any = None
     _lock: Any = None
@@ -763,7 +795,7 @@ class Registry:
                 ctx.memory.record(room, ctx.round, name, args, out)
             return _reject(ctx, name, args, out)
         if remember:
-            prev = ctx.memory.repeat_of(room, name, args)
+            prev = _repeat_of(ctx, room, name, args)
             if prev is not None:
                 ctx.memory.refused()
                 state = ctx.session()
@@ -803,6 +835,15 @@ class Registry:
                                                               or failed[0] == "validator_unavailable")):
             ctx.memory.record(room, ctx.round, name, args, res)
         return res
+
+
+def _repeat_of(ctx: ToolContext, room: Optional[str], name: str, args: dict) -> Optional[dict]:
+    """The memory's earlier rejection of this edit (``memory.Memory.repeat_of``); fix round after P5: with the round,
+    so a rejection about the round's finding list only refuses its repeat in that round."""
+    try:
+        return ctx.memory.repeat_of(room, name, args, round_no=ctx.round)
+    except TypeError:                    # a memory without the round argument (an older one, a test fake)
+        return ctx.memory.repeat_of(room, name, args)
 
 
 # --------------------------------------------------------------------------
@@ -1155,12 +1196,42 @@ def changed_targets(tool: str, args: dict, result: dict, targets: list[dict], fi
 
 
 def _too_many(ctx: ToolContext, tool: str, args: dict) -> Optional[dict]:
+    """The refusal of an edit on a target that used its ``max_tries`` this round, else None (the try is counted).
+    Fix round after P5: the refusal closes every checklist step on the target (``step_closed``,
+    ``max_tries_target``) and says that every further edit of it is refused until the next round (P5's r2-s13 sent
+    the same move six times after it)."""
     target = _target(tool, args)
     with ctx.lock:
         ctx.tries[target] = ctx.tries.get(target, 0) + 1
         if ctx.tries[target] > ctx.max_tries:
-            return _result(False, [f"max_tries: {target} was edited {ctx.max_tries} times in this round"], tool=tool)
+            why = f"max_tries: {target} was edited {ctx.max_tries} times in this round"
+            return _result(False, [why], tool=tool, step_closed=True, closed_why=why, max_tries_target=target,
+                           message=f"refused without validation: {target} was edited {ctx.max_tries} times in this "
+                                   f"round, so every further edit of {target} is refused until the next round (the "
+                                   f"same edit again changes nothing). Its checklist steps are closed: go on with "
+                                   f"another target, or call finish")
     return None
+
+
+# Fix round after P5: result flags of an edit refused before any validator ran (max tries, the memory, the code's
+# fix_fixture search, a frozen camera)
+UNVALIDATED_FLAGS = ("max_tries_target", "refused_by_memory", "no_spot", "frozen")
+
+
+def refused_unvalidated(result: Optional[dict]) -> bool:
+    """Fix round after P5: an edit result refused without validation (``UNVALIDATED_FLAGS``); the loop ends a
+    session after ``loop.REFUSALS_END_SESSION`` of them in a row on already-refused targets."""
+    return isinstance(result, dict) and not result.get("accepted") and any(result.get(k) for k in UNVALIDATED_FLAGS)
+
+
+def apply_verdict(ctx: ToolContext, verdict: Optional[dict]) -> None:
+    """An accepted edit's acceptance verdict (call under ``ctx.lock``): its finding list becomes the round's
+    (``ctx.findings``) and, fix round after P5, the ids it changed join ``ctx.round_changed``."""
+    if not isinstance(verdict, dict):
+        return
+    if isinstance(verdict.get("after_findings"), list):
+        ctx.findings = list(verdict["after_findings"])
+    ctx.round_changed |= {str(t) for t in verdict.get("changed") or [] if t}
 
 
 def edit_room(ctx: ToolContext, args: dict) -> str:
@@ -1237,8 +1308,7 @@ def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Cal
             accepted = bool(verdict.get("accepted"))
         if accepted:
             ctx.building = ctx.sync_fn()(res["building"])
-            if verdict and isinstance(verdict.get("after_findings"), list):
-                ctx.findings = list(verdict["after_findings"])
+            apply_verdict(ctx, verdict)
     failed = list(res.get("failed_checks") or ([] if accepted else ["rejected"]))
     message = str(res.get("message") or "")
     if verdict is not None and not accepted:
@@ -1252,7 +1322,7 @@ def _building_edit(ctx: ToolContext, tool: str, args: dict, edit: dict, run: Cal
                   # the second condition is decided on the unfloored penalty (a score floored at 0 hides gains)
                   penalty_before=res.get("penalty_before"), penalty_after=res.get("penalty_after"))
     if verdict is not None:
-        out["acceptance"] = {k: v for k, v in verdict.items() if k != "after_findings"}
+        out["acceptance"] = {k: v for k, v in verdict.items() if k not in ("after_findings", "fitted")}
     if before_png is not None:
         out["before_image"] = ctx.rel(before_png)
     if room_id:
@@ -1407,11 +1477,11 @@ def _validator_result(ctx: ToolContext, tool: str, args: dict, check: Callable[[
             after = trial() if trial is not None else None
             acc = ctx.acceptance(ctx, tool, args, out, after if after is not None else ctx.building) or {}
             ok = bool(acc.get("accepted"))
-            if ok and isinstance(acc.get("after_findings"), list):
-                ctx.findings = list(acc["after_findings"])
+            if ok:
+                apply_verdict(ctx, acc)
             if ok and isinstance(after, dict):
                 ctx.building = dict(ctx.building, agent_overrides=copy.deepcopy(after.get("agent_overrides") or {}))
-        out["acceptance"] = {k: v for k, v in acc.items() if k != "after_findings"}
+        out["acceptance"] = {k: v for k, v in acc.items() if k not in ("after_findings", "fitted")}
         out["accepted"] = ok
         if not ok:
             out["failed_checks"] = [f"acceptance: {acc.get('reason')}"]
@@ -1778,6 +1848,70 @@ def eye_height_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
                            f"eye-level view"]
 
 
+FREE_STRIP_STEP_M = 0.1          # fix round after P5: the sampling step along the view line
+FREE_STRIP_BEYOND_M = 10.0       # ... sampled this far beyond the refused position
+FREE_STRIP_MIN_M = 1.0           # a free stretch shorter than this is not named
+INSIDE_WORDS = "inside the building"
+
+
+def free_strip_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
+    """Fix round after P5: an exterior camera refused because it stands inside a building (the main one or another
+    on the plot, ``exterior_checks.validate_camera_override``) gets the free stretches of its view line, from the
+    target back through the refused position (and ``FREE_STRIP_BEYOND_M`` beyond it), with the same 0.3 m margin as
+    the validator, and the framing the camera policy allows there (decision of 22 Oct 2026: a long, low building may be
+    framed wider or tilted); only the first free stretch is named (a building stands between any later one and the
+    target). ``failed`` unchanged when there is nothing to name. Why: P5's add_camera ext_front_y was
+    refused three times "inside the building b2" (y 28 and y 20) while the 6 m between the house (y 12) and b2
+    (y 18.57) was free; X6 "no frontal view" stayed open in all 4 rounds."""
+    if not any(INSIDE_WORDS in str(f) for f in failed or []) or not entry.get("position") or not entry.get("target"):
+        return failed
+    from wenart import geometry as G
+    from wenart.blender import copies as CP
+    from wenart.blender import exterior_checks as X
+    from wenart.blender import geom2d
+
+    try:
+        prep = X._prep(ctx.building) or {}
+        shapes = [o for o in (prep.get("outlines") or {}).values() if len(o) >= 3]
+        shapes += [fp for fp in CP.footprints(ctx.building) if len(fp) >= 3]
+    except Exception:  # noqa: BLE001 - a hint only: the refusal stays as it is
+        return failed
+    if not shapes:
+        return failed
+    tx, ty = (float(v) for v in entry["target"][:2])
+    px, py = (float(v) for v in entry["position"][:2])
+    length = math.hypot(px - tx, py - ty)
+    if length < 1e-6:
+        return failed
+    ux, uy = (px - tx) / length, (py - ty) / length
+
+    def free(x: float, y: float) -> bool:
+        return not any(G.point_in_polygon((x, y), o) or geom2d.distance_to_polygon_edges((x, y), o) < 0.3
+                       for o in shapes)
+
+    spans: list = []
+    start = None
+    steps = int((length + FREE_STRIP_BEYOND_M) / FREE_STRIP_STEP_M) + 1
+    for k in range(steps + 1):
+        d = k * FREE_STRIP_STEP_M
+        ok = free(tx + ux * d, ty + uy * d)
+        if ok and start is None:
+            start = d
+        if (not ok or k == steps) and start is not None:
+            end = d if ok else d - FREE_STRIP_STEP_M
+            if end - start >= FREE_STRIP_MIN_M:
+                spans.append((start, end))
+            start = None
+    if not spans:
+        return failed
+    # only the first free stretch sees the target: a building lies between it and any later one
+    a, b = spans[0]
+    return list(failed) + [f"free on the view line from the target: ({tx + ux * a:.2f}, {ty + uy * a:.2f}) to "
+                           f"({tx + ux * b:.2f}, {ty + uy * b:.2f}), {a:.1f}-{b:.1f} m from the target (a building "
+                           f"stands beyond it); a close view there may take the 16-18 mm lens or a tilted framing (a "
+                           f"long, low building, decision of 22 Oct 2026), at eye height over the ground there"]
+
+
 def _look_2d(position, target) -> Optional[tuple[float, float]]:
     """The horizontal view direction (unit) from ``position`` to ``target``, None when it looks straight down."""
     dx, dy = float(target[0]) - float(position[0]), float(target[1]) - float(position[1])
@@ -1885,6 +2019,7 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
             verdict = dict(ctx.checks().validate_camera_override(ctx.building, entry) or {})
             if not verdict.get("ok") and entry.get("kind") == "exterior":
                 verdict["failed"] = eye_height_hint(ctx, entry, list(verdict.get("failed") or []))
+                verdict["failed"] = free_strip_hint(ctx, entry, verdict["failed"])     # fix round after P5
             return verdict
         return _validator_result(ctx, tool, stored, check, "build")
     return handler
@@ -2276,7 +2411,7 @@ def dry_run_handler(table: dict) -> Callable[[ToolContext, dict], dict]:
         if errors:
             out = {"would_accept": False, "failed_checks": [f"schema: {e}" for e in errors[:5]]}
         else:
-            prev = ctx.memory.repeat_of(edit_room(ctx, inner), name, inner) if ctx.memory is not None else None
+            prev = _repeat_of(ctx, edit_room(ctx, inner), name, inner) if ctx.memory is not None else None
             if prev is not None:
                 out = {"would_accept": False, "failed_checks": [f"memory: rejected in round {prev.get('round')}: "
                                                                  + "; ".join(prev.get("reasons") or [])[:300]]}
@@ -2284,7 +2419,10 @@ def dry_run_handler(table: dict) -> Callable[[ToolContext, dict], dict]:
                 edit = {"op": name if tool.kind == "level" else OV.FURNITURE_TOOLS[name], **inner,
                         "round": ctx.round, "log_seq": 0, "model": ctx.model_id}
                 targeted = target_findings(ctx, name, inner)
-                if targeted:
+                if targeted and tool.kind != "level":
+                    # fix round after P5: as the real edits do: a furniture edit carries its finding to the validator,
+                    # a level edit never (its schema has no target_finding: P5's dry_run set_terrain was refused
+                    # "'target_finding' was unexpected" every time)
                     edit["target_finding"] = finding_record(targeted[0])
                 try:
                     with ctx.lock:

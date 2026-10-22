@@ -29,6 +29,16 @@ finding (F9, S2, G*) on such a piece is fixed by moving, snapping or turning it.
 since the pass before P5 (``edit_ops.own_crop_named``), but the agent cited the room's camera crop for it (P3 real04
 seq 3282 / 3689 / 3692: ``check/cam_r_L1_koridor_2_1_plan.jpg`` for an F9 / S2 finding on a coffee table), each a
 refused try. The Milestone 11 ``PLANNER_SYSTEM`` (the model check of pod G1 only) is unchanged.
+
+Fix round after P5 (22 Oct 2026; the user's decisions of the same day, CLAUDE.md): ``PLANNER_SYSTEM_M12`` names what
+the decisions change for the tools. Rule 2: a drawn bathtub or shower up to 5 cm longer than its bay is a misread
+size that ``fix_fixture`` shrinks to the nearest real product size that fits (drawn footprint kept). Rule 3: a
+placement finding that a drawn piece typed from the drawing does not fit its room (F1, G14) is answered with
+``retype_piece``, never a removal (P5 marked the code-typed coffee table f_L1_021 "a stair" with a camera crop), and
+the code's own retype of a vision-typed piece (``adjusted_by_ai`` by code, ``drawn_type`` kept) is the reading's,
+not the agent's to undo. Rule 7: a long, low building's exterior view may take a wider lens or a tilted framing, a
+refused exterior camera names the free stretch of its view line, and a ``camera_blocked`` view (the lens touches a
+surface, one element fills the frame) is moved to a free point with headroom.
 """
 from __future__ import annotations
 
@@ -373,11 +383,14 @@ PLANNER_SYSTEM_M12 = (
     "(at most 0.5 m), retype_piece or mark_not_furniture only for a fixture read in a room that never holds it "
     "(a clear reading error; the piece's allowed tools say so). It is never marked as not furniture otherwise. Call "
     "fix_fixture without center first; when it answers 'no valid spot', no centre will do: the finding stays for "
-    "review.\n"
+    "review. A drawn bathtub or shower up to 5 cm longer than its bay is a misread size: fix_fixture shrinks it to "
+    "the nearest real product size that fits (its drawn footprint is kept).\n"
     "3. Drawn furniture is kept; a symbol, mark or line read as furniture: mark_not_furniture with the evidence. "
     "The room's plan crop or a view is no evidence that a drawn piece typed from the drawing is not furniture (only "
     "its own recognition crop is: plan_crop with its piece_id shows it); for a placement finding (F9, S2, G*) on such "
-    "a piece, move, snap or turn it.\n"
+    "a piece, move, snap or turn it. When such a piece's type does not fit its room (F1, G14), retype_piece gives it "
+    "a type that fits its footprint and the room; never mark it or remove it for that. A piece the code already "
+    "retyped from its size, room and neighbours (adjusted_by_ai by code, drawn_type kept) keeps that type.\n"
     "4. rotate_piece turns a piece; set_front only gives a front to a piece that has none (front_inferred). front_deg "
     "is the direction the front faces, degrees counter-clockwise from +x; a piece with its back on a "
     "free wall span faces that span's into_room_deg.\n"
@@ -392,7 +405,10 @@ PLANNER_SYSTEM_M12 = (
     "builds, not wrong models (the library gap is already recorded); the licence_mode says which library models "
     "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only. "
     "Cameras replayed from the baseline run (set 1) are fixed: never set or remove them (add_camera with a new view "
-    "id adds a view); a frontal view stays square to its facade, an entrance view stays close in front of its door.\n"
+    "id adds a view); a frontal view stays square to its facade, an entrance view stays close in front of its door. "
+    "An exterior view of a long, low building may take a wider lens (16-18 mm) or a tilted framing; a refused "
+    "exterior camera names the free stretch of its view line. A camera_blocked view (the lens touches a surface or "
+    "one element fills the frame) is moved to a free point of its room with headroom (set_camera).\n"
     "8. A fixable finding may name an edit_target: the piece the tool must act on instead of the finding's target "
     "(a chair or nightstand stands around an anchor the fit left unbuilt: retype_piece types and builds an unknown "
     "anchor, place_group re-solves the drawn group so the refit builds a typed one), or the room set_lighting acts "

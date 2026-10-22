@@ -57,6 +57,18 @@ reported only; ``causes.cause_of`` gives it the cause ``lighting_within_step`` (
 re-rendered cam_r_L0_giris_holu_2_1 (0.01 stops over), giris_holu_4_2 and yasama_7_1 (0.04): the render rounds the
 EV to 1/6 stop, so such a view is at the cap once rounded. The render side (whether the render raises it at all) is
 the render track's.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04): the ``blocked`` family reads the render manifest's depth and index
+statistics of every interior preview (``blocked_items``): a view whose nearest depth is within ``LENS_TOUCH_M``
+(0.01 m) of the camera's clip start (the lens touches a surface) is CRITICAL, a view one element fills over
+``camsearch.SCORE["blocked_single"]`` (0.50) of the frame is MAJOR; the finding ``camera_blocked`` names the element
+(``pass_index``), the depth and the share, and goes to the camera tools (``causes``: ``interior_camera``; a
+replayed camera is frozen, ``replayed_camera``). A view the camera search already marked unavoidable (its scene
+camera's warning holds ``camsearch.BLOCKED_WARNING``, which the GPU test allows) is minor with
+``metrics.blocked_unavoidable`` and reported only. Exterior views are left out (a facade fills them by design, as in
+the GPU test). Why: P5's cam_r_L1_banyo_1 preview had depth min 0.0502 m (clip start 0.05) and the ceiling light
+dec_L1_011 filling 55.7 % of the frame in every round; nothing in the agent read depth or index, the vision critic
+kept 0 findings for the room, and three GPU tests failed on it.
 """
 from __future__ import annotations
 
@@ -285,6 +297,82 @@ def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = N
     return out
 
 
+CAMERA_BLOCKED_CHECK = "camera_blocked"     # = causes.CAMERA_BLOCKED_CHECK (fix round after P5)
+LENS_TOUCH_M = 0.01                         # a nearest depth this close to the clip start: the lens touches a surface
+
+
+def blocked_items(render_manifest: Optional[dict], scene_manifest: Optional[dict] = None) -> list[dict]:
+    """Fix round after P5 (module docstring): one ``camera_blocked`` violation per interior preview whose lens touches
+    a surface (``depth.min`` <= ``clip.start_m`` + ``LENS_TOUCH_M``: critical) or whose frame one element fills over
+    ``camsearch.SCORE["blocked_single"]`` (index pass, index 0 left out: major). FileNotFoundError without a render
+    manifest (the family is then ``unavailable``)."""
+    if not isinstance(render_manifest, dict):
+        raise FileNotFoundError("no render manifest: the depth and index of the views are not known")
+    from wenart.blender import camsearch as CAM
+
+    single_max = float(CAM.SCORE["blocked_single"])
+    names = {int(v): str(k) for k, v in (render_manifest.get("pass_index") or {}).items()
+             if isinstance(v, (int, float)) and not isinstance(v, bool)}
+    cams = {str(c.get("name")): c for c in (scene_manifest or {}).get("cameras") or []
+            if isinstance(c, dict) and c.get("name")}
+    # a view carried from an earlier build was rendered from that build's scene: its index values are not this
+    # manifest's pass_index (P5: index 254 of cam_r_L1_banyo_1 is dec_L1_011 of the earlier scene)
+    carried = {str(c) for c in render_manifest.get("carried_from_earlier_build") or []}
+    out = []
+    for e in render_manifest.get("renders") or []:
+        if not isinstance(e, dict) or not e.get("camera") or e.get("skipped"):
+            continue
+        cam = str(e["camera"])
+        plan = cams.get(cam) or {}
+        kind = plan.get("kind") or ("exterior" if cam.startswith("ext_") or not (e.get("room_id")
+                                                                                 or plan.get("room_id"))
+                                    else "interior")
+        if kind == "exterior":
+            continue
+        depth = e.get("depth") if isinstance(e.get("depth"), dict) else {}
+        clip = e.get("clip") if isinstance(e.get("clip"), dict) else {}
+        try:
+            near = float(depth["min"])
+        except (KeyError, TypeError, ValueError):
+            near = None
+        start = float(clip.get("start_m") or 0.0)
+        res = e.get("resolution") or []
+        total = float(res[0]) * float(res[1]) if len(res) >= 2 else 0.0
+        share, element = 0.0, None
+        for k, v in (e.get("index_stats") or {}).items():
+            try:
+                idx, px = int(k), float((v or {}).get("pixels") or 0.0)
+            except (TypeError, ValueError, AttributeError):
+                continue
+            if idx != 0 and total > 0 and px / total > share:
+                share = px / total
+                element = (f"index {idx} (an earlier build's pass index)" if cam in carried
+                           else names.get(idx, f"index {idx}"))
+        touch = near is not None and near <= start + LENS_TOUCH_M
+        fills = share > single_max
+        if not touch and not fills:
+            continue
+        parts = []
+        if touch:
+            parts.append(f"the lens touches a surface (nearest depth {near:.3f} m, clip start {start:g} m)")
+        if fills:
+            parts.append(f"{element} fills {share * 100:.1f} % of the frame (over {single_max * 100:.0f} %)")
+        metrics = {"depth_min_m": None if near is None else round(near, 4), "clip_start_m": start,
+                   "largest_share": round(share, 4), "largest_element": element,
+                   "lens_mm": e.get("lens_mm") or plan.get("lens_mm")}
+        severity = "critical" if touch else "major"
+        message = f"{cam}: the view is blocked: " + " and ".join(parts)
+        if CAM.BLOCKED_WARNING in str(plan.get("warning") or ""):
+            metrics.update(blocked_unavoidable=True, severity_was=severity)
+            severity = "minor"
+            message += f"; the camera search found no free point ({CAM.BLOCKED_WARNING}): reported only"
+        else:
+            message += "; move the camera to a free point of the room with headroom (set_camera)"
+        out.append({"check": CAMERA_BLOCKED_CHECK, "severity": severity, "target": cam,
+                    "room_id": e.get("room_id") or plan.get("room_id"), "message": message, "metrics": metrics})
+    return out
+
+
 NEEDS_REVIEW_CHECK = "NR"
 READING_CONFLICT_CHECK = "RC"
 
@@ -405,6 +493,8 @@ def run(building: dict, scene_manifest: Optional[dict] = None, render_manifest: 
     family("reading", None, lambda: reading_items(building), lambda fn: fn())
     # round 4: the views the EV cap held too dark (render manifest; unavailable without one)
     family("lighting", None, lambda: lighting_items(render_manifest, building), lambda fn: fn())
+    # fix round after P5: the views whose lens touches a surface or that one element fills (render manifest)
+    family("blocked", None, lambda: blocked_items(render_manifest, scene_manifest), lambda fn: fn())
     return {"findings": _unique(findings), "checks": checks, "scores": scores, "mean": mean,
             "scene_summary": manifest_summary(scene_manifest)}
 
@@ -422,4 +512,4 @@ FAMILY_OF = {**{k: "plausibility" for k in ("F1", "F2", "F3", "F4", "F5", "F6", 
              **{f"L{i}": "levels" for i in range(1, 8)},
              **{f"S{i}": "scene" for i in range(1, 7)},
              LIBRARY_GAP_CHECK: "library", NEEDS_REVIEW_CHECK: "reading", READING_CONFLICT_CHECK: "reading",
-             LIGHTING_DARK_CHECK: "lighting"}
+             LIGHTING_DARK_CHECK: "lighting", CAMERA_BLOCKED_CHECK: "blocked"}

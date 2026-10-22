@@ -41,6 +41,23 @@ wire rack as a bookshelf and a gold bathtub rendered as mirror metal, all audite
 - How: code evidence from the catalogue fields the audit already reads (title, ``material_slots``); the catalogue has
   no per-material metallic factor, so a model whose title is silent and whose slots were never judged is not
   flagged (the final vision check still sees it). The status values are the audit's own (``removed``); no new one.
+
+Fix round after P5 (22 Oct 2026; the library lens of P5: the SMEG logo readable on a fridge in
+cam_r_L-1_mutfak_3, chalk lettering on the "Chalk Board Coffee Table" in the oyun views, both audited ``keep``):
+
+- What: the check ``render_print`` reads the entry field ``render_findings`` (catalogue data: what a run's render
+  showed on the model) and removes a model with a ``brand_logo`` (a maker's logo or brand name readable on the
+  model) or a ``text_print`` (decorative lettering on its visible surface; the functional labels of an appliance's
+  control panel are no finding). A record counts only with its evidence: the run, project and view it was seen in
+  (``seen_in``) or the mesh it shares with such a model (``same_mesh_as``: faces, vertices and model box equal to the
+  entry's own), and the ``sha256_glb`` of the file it was seen on. A record without evidence, of an unknown kind or
+  of another file (the model was republished) is a warning, never a removal.
+- Why: the audit's ``branded`` flag reads titles only (licensed characters); a manufacturer's logo modelled into
+  the mesh or printed on the texture is a trademark too (docs/milestone13.md §2.6: trademarks are not licensed), and
+  a text print fits no project style; no catalogue fix (front, scale, type) can take either away. The status is the
+  audit's own (``removed``); the model file stays on the volume.
+- How: per item, from its own fields (no vision call, no file read), so a later audit write gives the same
+  decision (``decision_sha``) and keeps the model out.
 """
 from __future__ import annotations
 
@@ -62,6 +79,16 @@ FLAG_TEXT = {"outdoor": "an outdoor piece", "crude": "not photoreal", "wrong": "
 # Fix round after P3: sanitary ware is glazed ceramic; a metal main material renders as a mirror (sanitary_finish_check)
 SANITARY_TYPES = ("bathtub", "washbasin", "toilet")
 METAL_MAIN_SHARE = 0.5
+# Fix round after P5 (22 Oct 2026): what a run's render showed on a model (render_print_check; entry render_findings)
+RENDER_FINDINGS = {
+    "brand_logo": "a maker's logo or brand name on the model",
+    "text_print": "printed lettering on the model's visible surface",
+}
+RENDER_FINDING_WHY = {
+    "brand_logo": "trademarks are not licensed (docs/milestone13.md §2.6)",
+    "text_print": "a novelty print fits no project style and no catalogue fix removes it",
+}
+SAME_MESH_KEYS = ("polycount", "vertices", "bbox_model_m")
 
 
 def rec(check: str, status: str, reason: str = "", **extra) -> dict:
@@ -166,6 +193,75 @@ def sanitary_finish_check(item: dict) -> dict:
         return rec("sanitary_finish", "warn", f"the largest material slot ({float(main['share']):.0%}) is judged metal "
                    "but the judges disagree: kept (the final vision check sees it)", metrics=metrics)
     return rec("sanitary_finish", "ok", "no metal main material named or judged", metrics=metrics)
+
+
+def _same_mesh(item: dict, twin: dict) -> bool:
+    """The entry's own faces, vertices and model box equal the ones ``same_mesh_as`` records (box +- 1 mm)."""
+    try:
+        for key in SAME_MESH_KEYS:
+            mine, theirs = item.get(key), twin.get(key)
+            if mine is None or theirs is None:
+                return False
+            if key == "bbox_model_m":
+                if len(mine) != 3 or len(theirs) != 3 or any(abs(float(a) - float(b)) > 1e-3
+                                                             for a, b in zip(mine, theirs)):
+                    return False
+            elif int(mine) != int(theirs):
+                return False
+    except (TypeError, ValueError):
+        return False                      # a malformed record is no evidence
+    return True
+
+
+def _render_finding_problem(item: dict, f) -> Optional[str]:
+    """Why a ``render_findings`` record cannot remove the model (None: it can)."""
+    if not isinstance(f, dict):
+        return "not a record"
+    if f.get("finding") not in RENDER_FINDINGS:
+        return f"unknown finding {f.get('finding')!r} (known: {', '.join(RENDER_FINDINGS)})"
+    if not str(f.get("detail") or "").strip():
+        return "no detail of what is seen"
+    if f.get("sha256_glb") != item.get("sha256_glb"):
+        return "seen on another file (the model was republished): the new file needs a new look"
+    seen, twin = f.get("seen_in"), f.get("same_mesh_as")
+    if isinstance(seen, dict) and seen.get("run") and seen.get("view"):
+        return None
+    if isinstance(twin, dict) and twin.get("id"):
+        return None if _same_mesh(item, twin) else f"the mesh differs from {twin['id']} (faces, vertices or box)"
+    return "no evidence (a run view or a model of the same mesh)"
+
+
+def _render_finding_where(f: dict) -> str:
+    seen = f.get("seen_in")
+    if isinstance(seen, dict) and seen.get("run") and seen.get("view"):
+        return "seen in " + " ".join(str(v) for v in (seen["run"], seen.get("project"), seen["view"]) if v)
+    twin = f["same_mesh_as"]
+    return (f"the same mesh as {twin['id']} ({int(twin['polycount'])} faces, {int(twin['vertices'])} vertices, box "
+            f"{_fmt(twin['bbox_model_m'])} m), whose render shows it")
+
+
+def render_print_check(item: dict) -> dict:
+    """Fix round after P5 (module docstring): a model whose ``render_findings`` record a brand logo or a text print
+    seen in a run's render (or on a model of the same mesh) is removed; a record without evidence, of an unknown kind
+    or seen on another file is a warning."""
+    records = item.get("render_findings")
+    if not records:
+        return rec("render_print", "skip", "no render finding recorded")
+    if not isinstance(records, list):
+        records = [records]
+    found, problems = [], []
+    for f in records:
+        why = _render_finding_problem(item, f)
+        if why:
+            problems.append(why)
+        else:
+            found.append(f)
+    metrics = {"findings": [f["finding"] for f in found], "not_used": problems}
+    if not found:
+        return rec("render_print", "warn", "render finding(s) not used: " + "; ".join(problems), metrics=metrics)
+    reasons = [f"{RENDER_FINDINGS[f['finding']]}: {str(f['detail']).strip()}; {_render_finding_where(f)}; "
+               f"{RENDER_FINDING_WHY[f['finding']]}" for f in found]
+    return rec("render_print", "remove", " / ".join(reasons), metrics=metrics)
 
 
 _SIZE_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(?:cm)?\s*[xX×]\s*(\d+(?:[.,]\d+)?)(?:\s*(?:cm)?\s*[xX×]\s*"
@@ -628,6 +724,8 @@ def item_checks(item: dict, cfg: dict, known_types, measure: Optional[dict] = No
     out.append(licence_fields_check(item, cfg))
     # fix round after P3
     out.append(sanitary_finish_check(item))
+    # fix round after P5: a brand logo or a text print a run's render showed (entry render_findings)
+    out.append(render_print_check(item))
     return out
 
 

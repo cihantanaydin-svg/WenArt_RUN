@@ -29,7 +29,9 @@ FIELDS = ("bbox_m", "bbox_model_m", "bbox_min_m", "bbox_max_m", "origin_offset",
           "brand", "audit", "real_product", "has_bedding", "has_cushions", "has_pillows", "contact",
           # Milestone 13 gates (checks.py): the licence fields, the material tags, the chaise side, the PBR record
           "licence_url", "licence_declared_by", "commercial_safe", "attribution", "material_tags", "chaise_side",
-          "pbr_maps", "growth", "hssd")
+          "pbr_maps", "growth", "hssd",
+          # fix round after P5 (22 Oct 2026): what a run's render showed on the model (checks.render_print_check)
+          "render_findings")
 
 
 def read_json(path) -> Optional[dict]:

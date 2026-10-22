@@ -55,6 +55,13 @@ Fix round after P4b (17 Oct 2026; pod P4b, real03; integration of the agent trac
   ``SUN_ELEVATION_RANGE`` (25-50 degrees, was 5-89), and an ``azimuth_deg`` only when, turned to the building frame
   with ``site.north_deg``, it lights the main facade (P4b's sun at 55 degrees was accepted, then X7 reported it).
   Lead decision 4 (17 Oct 2026): real02's assumed north stays; a view into the sun is only listed.
+
+Fix round after P5 (22 Oct 2026; user decision (2) of 22 Oct 2026: wider or tilted framing for long, low buildings):
+the planner frames the corner and frontal views of a long, low building to ``exterior.LONG_LOW_FILL`` (0.9) of the
+frame width and records ``long_low`` in the plan (``exterior.long_low``). X6 takes ``exterior.LONG_LOW_FILL_RANGE``
+(60-90 %) for those views (``fill_range``); every other view keeps ``FILL_RANGE``. Without it, each of real03's five
+closer views would get a minor X6 ("fills 89 % of the frame width (wanted 60%-80%)") and the agent would move them
+back out.
 """
 from __future__ import annotations
 
@@ -546,9 +553,10 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
             _entrance_x6(building, c, name, out)
             continue
         fill = c.get("fill")
-        if isinstance(fill, (int, float)) and not FILL_RANGE[0] - 0.05 <= fill <= FILL_RANGE[1] + 0.05:
+        lo, hi = fill_range(c)
+        if isinstance(fill, (int, float)) and not lo - 0.05 <= fill <= hi + 0.05:
             out.append(_v("X6", "minor", name, f"{name}: the building fills {fill:.0%} of the frame width (wanted "
-                                               f"{FILL_RANGE[0]:.0%}-{FILL_RANGE[1]:.0%})", fill=float(fill)))
+                                               f"{lo:.0%}-{hi:.0%})", fill=float(fill)))
         if "does not fit" in str(c.get("warning") or ""):
             out.append(_v("X6", "major", name, f"{name}: the whole building is not in the frame"))
         if c.get("view") == "frontal" or (c.get("view") in ("elevation", "agent") and main.get("direction")
@@ -568,6 +576,16 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
                           f"{len(aerials)} aerial views ({', '.join(str(a) for a in aerials)}): one true aerial view "
                           f"is the policy" + (" (the searched set of --cameras-extra)" if extra else ""),
                           aerials=aerials))
+
+
+def fill_range(camera: dict) -> tuple[float, float]:
+    """The share of the frame width X6 wants the building to fill in ``camera`` (pure): ``FILL_RANGE``, or
+    ``exterior.LONG_LOW_FILL_RANGE`` for a corner or frontal view the planner framed closer for a long, low building
+    (fix round after P5, 22 Oct 2026, user decision (2): the plan records ``long_low``, ``exterior.long_low``)."""
+    if camera.get("view") in ("corner", "frontal") and isinstance(camera.get("long_low"), dict):
+        from wenart.blender import exterior as E
+        return E.LONG_LOW_FILL_RANGE
+    return FILL_RANGE
 
 
 def _faces(cam: dict, direction) -> bool:

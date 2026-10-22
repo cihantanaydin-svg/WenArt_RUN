@@ -68,7 +68,9 @@ How (the definitions):
     +3.0). Parts add the lighting_dark views by severity. Runs before Milestone 13 have no record: unchanged.
 10. shell material slots on PBR sets with normal + roughness maps (a ``maps`` / ``textures`` record of the scene
     manifest's materials; "no data" when the manifest records no maps) and the brief's fabric colour applied to the
-    built upholstered pieces (``UPHOLSTERED_TYPES``; applied = the scene object's ``recolour`` has a ``fabric`` slot).
+    built upholstered pieces (``UPHOLSTERED_TYPES``; applied = the scene object's ``recolour`` has a ``fabric`` slot;
+    fix round after P5: or a module / parametric piece's ``fabric`` material key, read from the alternative's scene
+    for a piece the base scene does not build; ``fabric_status``).
 11. drawn trees (``site.decor`` kind ``tree``) built as real or generated geometry (the scene manifest's
     ``site.vegetation`` / ``site.trees`` records with a method other than a primitive; tree objects without such a
     record count as primitives), hedges built from the drawn rows (``site.hedges`` of the building vs the scene's
@@ -151,6 +153,20 @@ site view); the first-aerial rule measured ext_5, and P3 reported "black pixels 
 its site view ext_7 has 4.1 %; the M12 baseline's 29.8 % is ext_7 too. No camera has ``view`` "site", so the flag is
 the only mark of the site view. How: on the job results (runs/, not committed): P3 real04 now 4.1 % in ext_7; P4a
 real02 (ext_5, no flag) 0.0 % and P4b real03 (no site view) unchanged; the committed baselines unchanged.
+
+Fix round after P5 (22 Oct 2026; the library lens of the P5 analysis). What: metric 10's fabric part reads each built
+upholstered piece from the scene that builds it: the base scene manifest, else an alternative's
+(``variants/<id>/scene/scene_manifest.json`` on the volume, ``renders/<p>/variants/<id>/scene_manifest.json`` in the
+results; ``Run.variant_scenes``); a module or parametric piece with a ``fabric`` material key counts as applied (its
+fabric part is built in the project fabric in the brief's colour), a library model with a ``recolour.fabric`` record
+as before; the library models the fit could not recolour are listed apart (``parts.not_recolourable``,
+``not_recolourable_models``; a fabric colour was asked), as are those no colour was asked for (``no_colour_asked``:
+the style names none for their type), and a piece no scene builds is named (``no_scene``), not counted. Why: P5's
+real04 said "0 of 26": the 4 L-1b sofas exist only in the variant's scene (f_L-1b_041 carries ``recolour.fabric``
+there), the two L-shaped module sofas and the parametric L-1b sofa carry ``material_keys.fabric`` but no recolour
+record, and the rest are models the fit did not recolour (the L1 sofas moved from the recolourable abo_B072555T67 to
+abo_B075X4F5CS). How: on the P5 results (runs/, not committed) fabric colour applied 4 of 26 (recoloured 1, fabric
+slot 3; colour asked but not recolourable 8 pieces of 6 models; no colour asked 14: the armchairs and ottomans).
 """
 from __future__ import annotations
 
@@ -246,6 +262,7 @@ class Run:
     log: Optional[dict] = None
     log_first_seq: int = 1                        # the latest run's first event of an appended log (run_first_seq)
     rubric: Optional[list] = None
+    variant_scenes: dict = field(default_factory=dict)  # fix round after P5: alternative id -> its scene manifest
     stage_records: list = field(default_factory=list)
     preview_dirs: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
@@ -309,6 +326,7 @@ def locate(project_out) -> Run:
         }
         run.stage_records = _stage_records(out / "run", run.warnings)
         run.preview_dirs = [out / "final", out / "renders"]
+        variant_paths = {d.name: d / "scene" / "scene_manifest.json" for d in _dirs(out / "variants")}
     else:
         root, name = hit
         run = Run(root=out, name=name, layout="results")       # root: the folder given; the areas are its siblings
@@ -324,9 +342,14 @@ def locate(project_out) -> Run:
         }
         run.stage_records = _stage_records(root / "run" / name, run.warnings)
         run.preview_dirs = [root / "final" / name, root / "renders" / name]
+        variant_paths = {d.name: d / "scene_manifest.json" for d in _dirs(root / "renders" / name / "variants")}
     w = run.warnings
     run.building = _read_json(run.paths["building"], w)
     run.scene = _read_json(run.paths["scene"], w)
+    for vid, path in sorted(variant_paths.items()):
+        data = _read_json(path, w) if path.is_file() else None
+        if isinstance(data, dict):
+            run.variant_scenes[vid] = data
     run.render = _read_json(run.paths["render"], w)
     run.final = _read_json(run.paths["final"], w)
     run.log = _read_json(run.paths["log"], w)
@@ -365,6 +388,11 @@ def _latest_run_only(run: Run) -> None:
     run.log = dict(run.log, events=kept)
     run.warnings.append(f"orchestrator log: the latest run from seq {first} ({len(kept)} of {len(events)} events; "
                         "earlier runs of the appended log left out)")
+
+
+def _dirs(folder: Path) -> list[Path]:
+    """The sub-folders of ``folder`` (none when it is missing), in name order."""
+    return sorted(d for d in folder.iterdir() if d.is_dir()) if folder.is_dir() else []
 
 
 def _seq(event: dict) -> int:
@@ -465,8 +493,12 @@ def _preview(run: Run, camera: str) -> Optional[Path]:
 
 
 def _scene_objects_by_id(run: Run) -> dict:
+    return _objects_by_id(run.scene)
+
+
+def _objects_by_id(scene: Optional[dict]) -> dict:
     out: dict = {}
-    for o in (run.scene or {}).get("objects") or []:
+    for o in (scene or {}).get("objects") or []:
         if isinstance(o, dict) and o.get("wenart_id") and o.get("kind") == "furniture":
             out.setdefault(str(o["wenart_id"]), o)
     return out
@@ -803,7 +835,9 @@ def _material_maps(m: dict) -> Optional[list]:
 
 def metric_10(run: Run) -> dict:
     src = "scene_manifest.json materials[] (textured shell slots with a maps record naming normal and roughness); " \
-          "built upholstered pieces (sofa, sofa_corner, armchair, ottoman) whose scene object recolour has a fabric slot"
+          "built upholstered pieces (sofa, sofa_corner, armchair, ottoman) of the scene that builds them (base, else " \
+          "an alternative's scene manifest): applied = a recolour with a fabric slot (library model) or a fabric " \
+          "material key (module / parametric); models without a recolourable fabric slot are listed apart"
     if run.building is None and run.scene is None:
         return _metric(10, NO_DATA, source=src)
     shell: Any = NO_DATA
@@ -824,21 +858,76 @@ def metric_10(run: Run) -> dict:
             shell = _pct(with_maps, textured)
     uph = [p for p in _furniture(run) if _built(p) and p.get("type") in UPHOLSTERED_TYPES] if run.building else []
     applied: Any = NO_DATA
-    n_applied = 0
-    if run.scene is not None and run.building is not None:
-        objs = _scene_objects_by_id(run)
-        for p in uph:
-            rec = (objs.get(str(p.get("id"))) or {}).get("recolour")
-            if isinstance(rec, dict) and rec.get("fabric"):
-                n_applied += 1
-        applied = _pct(n_applied, len(uph))
+    fabric = fabric_status(run, uph) if run.scene is not None and run.building is not None else None
+    n_applied = n_scene = 0
+    extra = ""
+    if fabric is not None:
+        n_applied = len(fabric["recoloured"]) + len(fabric["fabric_slot"])
+        n_scene = n_applied + len(fabric["not_recolourable"]) + len(fabric["no_colour_asked"])
+        applied = _pct(n_applied, n_scene)
+        models = sorted(set(fabric["not_recolourable"].values()))
+        extra = (f" (recoloured {len(fabric['recoloured'])}, module / parametric fabric slot "
+                 f"{len(fabric['fabric_slot'])}; colour asked but the model has no recolourable fabric slot: "
+                 f"{len(fabric['not_recolourable'])} piece(s), {len(models)} model(s); no fabric colour asked: "
+                 f"{len(fabric['no_colour_asked'])} piece(s)"
+                 + (f"; read from the alternatives' scenes: {len(fabric['from_variant'])}" if fabric["from_variant"]
+                    else "")
+                 + (f"; in no scene: {', '.join(fabric['no_scene'])}" if fabric["no_scene"] else "") + ")")
     text = (f"shell slots with normal + roughness: {NO_DATA if shell == NO_DATA else _of(with_maps, textured)}"
             + (" (maps not recorded in the scene manifest)" if shell == NO_DATA and run.scene is not None else "")
-            + f"; fabric colour applied: {NO_DATA if applied == NO_DATA else _of(n_applied, len(uph))}"
+            + f"; fabric colour applied: {NO_DATA if applied == NO_DATA else _of(n_applied, n_scene)}" + extra
             + (f" ({len(uph)} upholstered pieces built)" if run.building else ""))
     value = shell if shell != NO_DATA else applied
-    return _metric(10, value, text, {"shell_slots_pbr": shell, "textured_slots": textured, "fabric_applied": applied,
-                                     "upholstered_built": len(uph), "fabric_applied_n": n_applied}, src)
+    parts = {"shell_slots_pbr": shell, "textured_slots": textured, "fabric_applied": applied,
+             "upholstered_built": len(uph), "fabric_applied_n": n_applied}
+    if fabric is not None:
+        # fix round after P5: the pieces in a scene, how each got (or could not get) the brief's fabric colour
+        parts.update({"upholstered_in_scene": n_scene, "fabric_recoloured": sorted(fabric["recoloured"]),
+                      "fabric_slot": sorted(fabric["fabric_slot"]),
+                      "not_recolourable": dict(sorted(fabric["not_recolourable"].items())),
+                      "not_recolourable_models": sorted(set(fabric["not_recolourable"].values())),
+                      "no_colour_asked": dict(sorted(fabric["no_colour_asked"].items())),
+                      "from_variant": dict(sorted(fabric["from_variant"].items())), "no_scene": fabric["no_scene"]})
+    return _metric(10, value, text, parts, src)
+
+
+def fabric_status(run: Run, pieces: list[dict]) -> dict:
+    """Fix round after P5 (the library lens of the P5 analysis): how each built upholstered piece got the brief's
+    fabric colour, read from the scene that builds it (the base scene, else an alternative's scene manifest:
+    ``Run.variant_scenes``; the L-1b sofas of real04 exist only in the variant's scene). ``recoloured``: a library
+    model whose scene object's ``recolour`` has a ``fabric`` slot; ``fabric_slot``: a module or parametric piece
+    whose scene object has a ``fabric`` material key (built in the project fabric in the brief's colour);
+    ``not_recolourable``: ``{id: model}`` of the library models the fit could not recolour although a fabric colour
+    was asked (``asset.fabric_colour`` / ``design.fabric_colour``); ``no_colour_asked``: ``{id: model}`` of the library
+    models no fabric colour was asked for (the style names none for their type); both listed apart, not hidden, and
+    both count as not applied; ``no_scene``: pieces no scene builds; ``from_variant``: ``{id:
+    alternative}`` (pure over the run's manifests)."""
+    base = _scene_objects_by_id(run)
+    variants = {vid: _objects_by_id(sc) for vid, sc in sorted(run.variant_scenes.items())}
+    out: dict = {"recoloured": [], "fabric_slot": [], "not_recolourable": {}, "no_colour_asked": {}, "no_scene": [],
+                 "from_variant": {}}
+    for p in pieces:
+        pid = str(p.get("id"))
+        obj = base.get(pid)
+        if obj is None:
+            vid = next((v for v, objs in variants.items() if pid in objs), None)
+            obj = variants[vid][pid] if vid is not None else None
+            if vid is not None:
+                out["from_variant"][pid] = vid
+        if obj is None:
+            out["no_scene"].append(pid)
+            continue
+        rec = obj.get("recolour")
+        keys = obj.get("material_keys") if isinstance(obj.get("material_keys"), dict) else {}
+        if isinstance(rec, dict) and rec.get("fabric"):
+            out["recoloured"].append(pid)
+        elif _method(p) in ("module", "parametric") and keys.get("fabric"):
+            out["fabric_slot"].append(pid)
+        else:
+            model = str((p.get("asset") or {}).get("asset_id") or obj.get("method") or "?")
+            asked = (p.get("asset") or {}).get("fabric_colour") or (p.get("design") or {}).get("fabric_colour")
+            out["not_recolourable" if asked else "no_colour_asked"][pid] = model
+    return out
 
 
 def _vegetation_records(run: Run) -> Optional[list]:

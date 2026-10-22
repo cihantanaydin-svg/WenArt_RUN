@@ -104,6 +104,20 @@ Fix round after P4b (17 Oct 2026; pod P4b, real03, and the review of the P4a fix
   The loop keeps a vision finding the override does not touch (P4b: a ground and a sun edit each counted the vision
   X4 "no path" as removed).
 
+Fix round after P5 (22 Oct 2026; pod P5, real04):
+
+- ``accept_edit`` reads ``edit["added"]`` (``added_pieces``: the pieces the edit put into the scene, new or typed
+  differently, the mirror of ``removed_pieces``): when the piece of a target finding was removed and the dry re-check
+  has the same check on an added piece of the same type in the same room (``recreated_finding``), the finding is still
+  there, under a new id; the reason names both ids. Why: P5's relayout_room (seq 5383) "removed" X2:f_L1_049 by
+  re-creating the same console table at the same centre as f_L1_056, and round 4 measured X2:f_L1_056 at the same
+  0.84 / 0.82 m;
+- the render's ``camera_blocked`` (``critic_code.blocked_items``: a preview whose lens touches a surface or whose
+  frame one element fills) has the cause ``interior_camera`` (``set_camera`` / ``remove_camera`` on the view; an
+  exterior view: ``exterior_camera``, the building session); a replayed (set 1) camera is frozen
+  (``CAMERA_PLACEMENT_CHECKS``: ``replayed_camera``) and a view the camera search already called unavoidable
+  (``metrics.blocked_unavoidable``) is reported only (``blocked_unavoidable``, no tool), as the GPU test allows it.
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -178,6 +192,8 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "replayed_camera": (),
     "lighting_within_step": (),
     "decor_model": (),
+    # fix round after P5: a blocked view the camera search had no free point for (its "blocked unavoidable" warning)
+    "blocked_unavoidable": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -213,13 +229,17 @@ NO_TOOL_REASON: dict[str, str] = {
                             "only",
     "decor_model": "the finding is about a decor piece (a table lamp, a pendant or ceiling light the decor stage "
                    "placed): no agent tool edits decor, so it is reported to the decor stage",
+    "blocked_unavoidable": "the camera search found no free point in the room and said so (blocked unavoidable): the "
+                           "view is allowed and listed; reported to the cameras",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
 # finding event as ``report_to``). Fix round after P4a: a light fixture's look goes to the lighting stage.
 REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor", "light_fixture": "lighting",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
-                             "replayed_camera": "cameras", "decor_model": "decor"}
+                             "replayed_camera": "cameras", "decor_model": "decor",
+                             # fix round after P5: a blocked view the camera search could not avoid
+                             "blocked_unavoidable": "cameras"}
 # Fix round after P4a: the X2 kind of an opening the build clipped under the roof (``exterior_checks._x2``), and the
 # words of its message when an older finding has no kind.
 OPENING_CLIP_KIND = "opening_clip"
@@ -257,11 +277,15 @@ CHECK_CAUSE: dict[str, str] = {
     "L7": "exterior_camera",
     "D1": "decor_look", "D2": "wrong_model",
     LIGHTING_DARK_CHECK: "lighting",
+    # fix round after P5: a blocked preview (critic_code.blocked_items)
+    "camera_blocked": "interior_camera",
 }
 _PIECE_PREFIXES = ("f_", "furn_", "decor_", "dec_")
 # Fix round after P4b (module docstring): the camera-placement checks a replayed camera is frozen for, the metrics flag
 # ``mark_replayed`` sets, the words of a single view's over-exposure (X7), and the set_exterior slots of a cause.
-CAMERA_PLACEMENT_CHECKS: tuple[str, ...] = ("X6", "V1")
+CAMERA_PLACEMENT_CHECKS: tuple[str, ...] = ("X6", "V1", "camera_blocked")      # fix round after P5: + blocked
+CAMERA_BLOCKED_CHECK = "camera_blocked"     # = critic_code.CAMERA_BLOCKED_CHECK (fix round after P5)
+BLOCKED_UNAVOIDABLE_FLAG = "blocked_unavoidable"
 REPLAYED_FLAG = "replayed_camera"
 OVEREXPOSED_WORDS = ("overexpos", "over-expos", "over expos", "washed out", "washed-out", "blown", "too bright",
                      "blinding", "burnt out", "burned out", "clipped white")
@@ -380,7 +404,9 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return "soft_minimum" if metrics.get("tier") else "fixture_clearance"
     if check in CAMERA_PLACEMENT_CHECKS and metrics.get(REPLAYED_FLAG):
         return "replayed_camera"               # fix round after P4b, decision 1: set 1 is frozen (module docstring)
-    if check == "V1":
+    if check == CAMERA_BLOCKED_CHECK and metrics.get(BLOCKED_UNAVOIDABLE_FLAG):
+        return "blocked_unavoidable"           # fix round after P5: the camera search knew (module docstring)
+    if check in ("V1", CAMERA_BLOCKED_CHECK):
         return "exterior_camera" if str(target or "").startswith(EXTERIOR_VIEW_PREFIX) else "interior_camera"
     if check == "X7" and str(target or "").startswith(EXTERIOR_VIEW_PREFIX) \
             and any(w in text for w in OVEREXPOSED_WORDS):
@@ -590,6 +616,42 @@ def removed_pieces(before: Optional[dict], after: Optional[dict]) -> list[dict]:
     return out
 
 
+def added_pieces(before: Optional[dict], after: Optional[dict]) -> list[dict]:
+    """Fix round after P5: ``[{id, type, room_id}]``: the pieces of ``after`` in the scene (``in_scene``) that
+    ``before`` does not have there as the same type (new, built again, or typed differently); the mirror of
+    ``removed_pieces``. Pure."""
+    then = {f.get("id"): f for f in (before or {}).get("furniture") or [] if isinstance(f, dict)}
+    out = []
+    for f in (after or {}).get("furniture") or []:
+        if not in_scene(f):
+            continue
+        g = then.get(f.get("id"))
+        if g is None or not in_scene(g) or g.get("type") != f.get("type"):
+            out.append({"id": f.get("id"), "type": f.get("type"), "room_id": f.get("room_id")})
+    return out
+
+
+def recreated_finding(target: tuple, before_by: dict, after_by: dict, removed: list[dict],
+                      added: list[dict]) -> Optional[tuple[tuple, dict]]:
+    """Fix round after P5: ``(key, piece)`` of a finding of ``after_by`` with the same check as the target finding
+    ``target`` on a piece the edit added (``added``) of the type and room of the target's piece the edit removed
+    (``removed``), else None: the same finding on the same piece under a new id (P5's relayout_room re-created the
+    console table f_L1_049 as f_L1_056 under the same 0.82 m slope)."""
+    finding = before_by.get(target) or {}
+    gone = next((p for p in removed if p.get("id") == finding.get("target")), None)
+    if gone is None:
+        return None
+    for key in sorted(after_by):
+        f = after_by[key]
+        if key[0] != target[0] or f.get("target") == gone.get("id"):
+            continue
+        hit = next((p for p in added if p.get("id") == f.get("target") and p.get("type") == gone.get("type")
+                    and p.get("room_id") == gone.get("room_id")), None)
+        if hit is not None:
+            return key, hit
+    return None
+
+
 def _set_kind(finding: dict) -> Optional[str]:
     missing = _metrics(finding).get("missing")
     return None if missing is None else str(missing)
@@ -663,6 +725,16 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
         f = after_by[kept[0]]
         return False, (f"finding {_fmt(kept[0])} is still there after the edit ({str(f.get('message') or f.get('finding') or '')[:160]})"
                        + (f"; {len(kept) - 1} more kept" if len(kept) > 1 else ""))
+    # fix round after P5 (module docstring): a removed piece re-created under a new id keeps its finding
+    for t in present:
+        again = recreated_finding(t, before_by, after_by, list(edit.get("removed") or []),
+                                  list(edit.get("added") or []))
+        if again is not None:
+            key, p = again
+            f = after_by[key]
+            return False, (f"finding {_fmt(t)} is still there after the edit as {_fmt(key)}: the edit re-created "
+                           f"{p.get('type')} {(before_by.get(t) or {}).get('target')} as {p.get('id')} in "
+                           f"{p.get('room_id')} ({str(f.get('message') or f.get('finding') or '')[:140]})")
     new_critical = sorted(k for k, f in after_by.items() if f.get("severity") == "critical" and k not in before_by)
     if new_critical:
         f = after_by[new_critical[0]]

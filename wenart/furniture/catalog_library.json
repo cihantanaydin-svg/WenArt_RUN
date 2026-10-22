@@ -187533,20 +187533,39 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the SMEG logo is readable on the door, modelled into the mesh (the model has no texture image); seen in P5 real04 cam_r_L-1_mutfak_3; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T10:45:00Z",
+    "decision_sha": "9b4b9706aa6191a0",
     "notes": [
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (2 material(s), 0 image(s))",
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the SMEG logo is readable on the door, modelled into the mesh (the model has no texture image)",
+     "seen_in": {
+      "run": "P5",
+      "project": "real04",
+      "view": "cam_r_L-1_mutfak_3",
+      "piece": "f_L-1_090",
+      "render": "runs/20261017-224848-full/results/renders/real04/cam_r_L-1_mutfak_3_preview.jpg",
+      "sheet": "results/review/m13_p5/sheets13/cam_r_L-1_mutfak_3_before_after.jpg"
+     },
+     "sha256_glb": "93bb91f901e623c295e51f1f6f080d5af1c4b0426f9e4a9641070e77c235f695",
+     "recorded": "fix round after P5 (22 Oct 2026)"
+    }
+   ]
   },
   {
    "id": "hssd_416c68a89eda39033eb729fa72f7058802555a9e",
@@ -188118,20 +188137,41 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the SMEG logo modelled into the door of this mesh; the same mesh as hssd_404146070e071454f055cfe3be7811fcdcb7ddbd (2542 faces, 4990 vertices, box 0.59 x 0.70 x 1.46 m), whose render shows it; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T10:45:00Z",
+    "decision_sha": "58549bbec4eb48cf",
     "notes": [
      "untextured (material colours only)",
      "no base_colour map: flat material colours only (2 material(s), 0 image(s))",
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the SMEG logo modelled into the door of this mesh",
+     "same_mesh_as": {
+      "id": "hssd_404146070e071454f055cfe3be7811fcdcb7ddbd",
+      "polycount": 2542,
+      "vertices": 4990,
+      "bbox_model_m": [
+       0.5936,
+       0.696,
+       1.455
+      ]
+     },
+     "sha256_glb": "c1f02204c6fa41c81f68af170cbaeaa0d531d4bd17415f1236e2053a21fef898",
+     "recorded": "fix round after P5 (22 Oct 2026)"
+    }
+   ]
   },
   {
    "id": "hssd_cae4c60830bba615ff533dc23ffee6e6e5c7d14e",
@@ -217857,18 +217897,41 @@
     "fits_caps": false
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "printed lettering on the model's visible surface: chalk lettering \"GET SOME MILK\", notes and a chessboard printed on the top; seen in P5 real04 cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1; a novelty print fits no project style and no catalogue fix removes it"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T10:45:00Z",
+    "decision_sha": "9a461f749fb82b6c",
     "notes": [
      "4 part(s) stick out of the main body (-z, up to 0.28 m): an open drawer or a separate prop?",
-     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them"
+     "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "text_print",
+     "detail": "chalk lettering \"GET SOME MILK\", notes and a chessboard printed on the top",
+     "seen_in": {
+      "run": "P5",
+      "project": "real04",
+      "view": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1",
+      "piece": "f_L1_015",
+      "render": "runs/20261017-224848-full/results/renders/real04/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1_preview.jpg",
+      "sheet": "results/review/m13_p5/sheets13/cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1_before_after.jpg",
+      "also_seen_in": [
+       "P3 real04 cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3",
+       "P4a real02 cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1"
+      ]
+     },
+     "sha256_glb": "86158cb8c6ec9bc0d45be48bc349f8f1aa7e5d9ef1479a65402d14195925d8e1",
+     "recorded": "fix round after P5 (22 Oct 2026)"
+    }
+   ]
   },
   {
    "id": "hssd_d60340031eacc7eba62900753ddb800d5d022e69",
@@ -238701,18 +238764,37 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the SAMSUNG logo is readable on the control panel; seen in P4b real03 cam_r_L0_banyo_4_2; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T10:45:00Z",
+    "decision_sha": "d1a70b08e6cc719e",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the SAMSUNG logo is readable on the control panel",
+     "seen_in": {
+      "run": "P4b",
+      "project": "real03",
+      "view": "cam_r_L0_banyo_4_2",
+      "piece": "f_L0_061",
+      "render": "runs/20261017-091212-full/results/renders/real03/cam_r_L0_banyo_4_2_preview.jpg",
+      "sheet": "results/review/m13_p4b/sheets13/cam_r_L0_banyo_4_2_before_after.jpg"
+     },
+     "sha256_glb": "c7cbf4add8a2b2b4d183d72d5b160655ac866632888831b418697b37232b7bd5",
+     "recorded": "fix round after P5 (22 Oct 2026)"
+    }
+   ]
   },
   {
    "id": "hssd_16c33cffd5b62d0d5df5ed6dd607f690ce2ee7c7",
@@ -238927,18 +239009,37 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: the LG logo badge on the top left of the control panel, small but readable in the full 1920 px preview; seen in P4b real03 cam_r_L0_giris_holu_1; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "7d150548e9c71b40",
+    "checked_utc": "2026-10-22T10:45:00Z",
+    "decision_sha": "654ec61e645f59fd",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha 7d150548e9c71b40, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "the LG logo badge on the top left of the control panel, small but readable in the full 1920 px preview",
+     "seen_in": {
+      "run": "P4b",
+      "project": "real03",
+      "view": "cam_r_L0_giris_holu_1",
+      "piece": "f_L0_074",
+      "render": "runs/20261017-091212-full/results/renders/real03/cam_r_L0_giris_holu_1_preview.jpg",
+      "sheet": "results/review/m13_p4b/sheets13/cam_r_L0_giris_holu_1_before_after.jpg"
+     },
+     "sha256_glb": "95e8bf830a0e1c4f201168a6ed351dfa0eb87b31748cdbb7b72a053e521b2761",
+     "recorded": "fix round after P5 (22 Oct 2026)"
+    }
+   ]
   },
   {
    "id": "hssd_31609de54bc7b3cceb58cff41b88b69d7f7db9ec",
@@ -239613,21 +239714,38 @@
     "fits_caps": true
    },
    "audit": {
-    "status": "keep",
-    "reasons": [],
+    "status": "removed",
+    "reasons": [
+     "a maker's logo or brand name on the model: a maker's script logo, \"...tpoint\" partly in frame, printed on the front below the control panel; seen in P4b real03 cam_r_L0_banyo_3_1; trademarks are not licensed (docs/milestone13.md §2.6)"
+    ],
     "fixes": {},
     "version": "m12",
-    "checked_utc": "2026-10-16T09:59:17Z",
-    "decision_sha": "fae44a9f06355a50",
+    "checked_utc": "2026-10-22T10:45:00Z",
+    "decision_sha": "e231b02d2f844291",
     "notes": [
      "material tags not judged: the vision answer is of the question without materials (m12.1); the m13.1 question names them",
-     "the vision check sees the front on the right of view 0; the agreed front is kept"
-    ],
-    "vision_doubt": [
-     "vision quality 2 (<= 2)"
+     "the vision check sees the front on the right of view 0; the agreed front is kept",
+     "vision doubt of the audit before: vision quality 2 (<= 2)",
+     "fix round after P5 (22 Oct 2026): removed by the code audit's new check (render_print); the audit before was keep (decision_sha fae44a9f06355a50, checked 2026-10-16T09:59:17Z)"
     ]
    },
-   "real_product": true
+   "real_product": true,
+   "render_findings": [
+    {
+     "finding": "brand_logo",
+     "detail": "a maker's script logo, \"...tpoint\" partly in frame, printed on the front below the control panel",
+     "seen_in": {
+      "run": "P4b",
+      "project": "real03",
+      "view": "cam_r_L0_banyo_3_1",
+      "piece": "f_L0_057",
+      "render": "runs/20261017-091212-full/results/renders/real03/cam_r_L0_banyo_3_1_preview.jpg",
+      "sheet": "results/review/m13_p4b/sheets13/cam_r_L0_banyo_3_1_before_after.jpg"
+     },
+     "sha256_glb": "c649f8411fce54bb2b1636f8d85c6f284169999d065da69e0d938ce83a6c0959",
+     "recorded": "fix round after P5 (22 Oct 2026)"
+    }
+   ]
   },
   {
    "id": "hssd_912447108f21083d877aab6653742fceccc6ce7d",

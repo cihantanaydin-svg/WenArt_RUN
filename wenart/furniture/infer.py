@@ -92,6 +92,7 @@ the documents are silent.
 from __future__ import annotations
 
 import copy
+import dataclasses
 import math
 import re
 from typing import Optional
@@ -119,6 +120,14 @@ NIGHTSTAND_SYMBOL_TYPES = ("floor_lamp", "side_table")
 CONF_NIGHTSTAND = 0.7
 NIGHTSTAND_SIDE_IN_M = 0.05       # the symbol's outer side reaches at least this close to the bed's side line
 RECOGNITION_CROP = "recognition/crops/{key}_ctx.png"     # the reading's plan crop of a question (reading.CROP_DIR)
+
+# Fix round after P5 (module docstring): the group-member rule waits for an untyped L outline (the room's corner sofa
+# to be) and gives a seating partner only at its role's place.
+L_OUTLINE_NOTE = re.compile(r"\bL outline\b")      # symbols.l_shape's note on the piece's vector evidence
+COFFEE_ZONE_GAP_M = (-0.05, 1.60)  # sofa front edge to the coffee table's near side (reading.COFFEE_FRONT_M, drawn)
+COFFEE_IN_BODY = 0.2               # at most this share of a coffee table inside the corner sofa's L (reading's notch)
+TV_MIN_M = 0.90                    # a TV unit stands at least this far in front of the sofa (reading.TV_DISTANCE_M)
+TV_FACING_DEG = 45.0               # ... within this of the sofa's front direction
 
 OUTLINE_TYPE = "rug"              # what an outline holding other pieces is (a decor type, not a furniture type)
 WALL_SIDE_M = 0.10                # a side this close to the room outline stands on a wall
@@ -468,6 +477,126 @@ def _adopted(building: dict, piece: dict, room: dict, ftype: str, before: int) -
     return len(_group_wants(trial, room).get(ftype, [])) < before
 
 
+def _l_outline_waits(building: dict, piece: dict, room: dict) -> Optional[str]:
+    """Fix round after P5 (module docstring): the id of an untyped drawn piece of ``room`` (not ``piece``) whose
+    vector evidence notes the reader's L outline (``symbols.l_shape``: "L outline 4.38 x 1.97 m: main seat ..."): the
+    context rule will make it the room's corner sofa, so the room does not miss its seating anchor. Else None."""
+    for f in building.get("furniture") or []:
+        if f.get("room_id") != room.get("id") or f.get("id") == piece.get("id") or not untyped_drawn(f):
+            continue
+        if any(isinstance(e, dict) and L_OUTLINE_NOTE.search(str(e.get("note") or "")) for e in f.get("evidence") or []):
+            return str(f["id"])
+    return None
+
+
+def _seat_anchors(building: dict, room: dict) -> list[dict]:
+    """The drawn or placed seating anchors (``groups.yaml`` seating anchor types) of ``room`` with a footprint."""
+    types = set((GR.load_groups().get("seating") or {}).get("anchor", {}).get("types") or ("sofa", "sofa_corner"))
+    return [f for f in building.get("furniture") or [] if f.get("room_id") == room.get("id") and f.get("type") in types
+            and f.get("footprint") and not f.get("inferred_as") and not f.get("not_furniture")]
+
+
+def _anchor_frames(anchor: dict) -> list[placer.Piece]:
+    """The anchor as placer pieces in the frame of its front; without a front, both long sides are tried."""
+    p = placer.drawn_piece(anchor)
+    if anchor.get("front_deg") is not None:
+        return [p]
+    base = G.front_direction_deg(p.rotation_deg)
+    turn = 0.0 if p.size[0] >= p.size[1] else 90.0           # the long side faces -Y after the turn
+    out = []
+    for extra in (0.0, 180.0):
+        fp = dict(anchor["footprint"])
+        rot, size = placer.front_frame(fp, G.normalise_angle(base + turn + extra))
+        out.append(dataclasses.replace(p, rotation_deg=rot, size=size))
+    return out
+
+
+def coffee_zone_anchor(building: dict, piece: dict, room: dict) -> Optional[str]:
+    """Fix round after P5 (module docstring): the id of the seating anchor whose coffee-table place ``piece`` stands
+    in, else None. A straight sofa's place: in front of its front edge (the gap from the edge to the piece's near side
+    within ``COFFEE_ZONE_GAP_M``) with the piece's centre inside the sofa's front-width band. A corner sofa's place:
+    that, or its open corner (the centre inside the footprint box, at most ``COFFEE_IN_BODY`` of the piece inside the
+    drawn L)."""
+    from wenart.furniture import group_checks as GC
+
+    try:
+        poly = placer.drawn_piece(piece).polygon()
+    except (KeyError, TypeError, ValueError):
+        return None
+    if poly.area <= 0:
+        return None
+    centre = (poly.centroid.x, poly.centroid.y)
+    for anchor in _seat_anchors(building, room):
+        if anchor.get("id") == piece.get("id"):
+            continue
+        try:
+            frames = _anchor_frames(anchor)
+        except (KeyError, TypeError, ValueError):
+            continue
+        for ap in frames:
+            if anchor.get("type") == "sofa_corner":
+                box = dataclasses.replace(ap, shape=None).polygon()
+                body = ap.polygon()
+                if box.contains(Point(centre)) and poly.intersection(body).area <= COFFEE_IN_BODY * poly.area + 1e-9:
+                    return str(anchor["id"])
+            half_w, half_d = ap.size[0] / 2.0, ap.size[1] / 2.0
+            x, _y = GC.to_local(ap, centre)
+            near = max(GC.to_local(ap, c)[1] for c in poly.exterior.coords)
+            gap = -half_d - near                       # from the anchor's front edge to the piece's near side
+            if abs(x) <= half_w + 1e-9 and COFFEE_ZONE_GAP_M[0] - 1e-9 <= gap <= COFFEE_ZONE_GAP_M[1] + 1e-9:
+                return str(anchor["id"])
+    return None
+
+
+def tv_place_anchor(building: dict, piece: dict, room: dict) -> Optional[str]:
+    """Fix round after P5 (module docstring): the id of the seating anchor that faces ``piece`` as its TV unit, else
+    None: the piece has a side on a wall (``WALL_SIDE_M``), lies outside every seating anchor's box (at most
+    ``COFFEE_IN_BODY`` of it inside), and stands in front of the anchor at least ``TV_MIN_M`` from its front edge,
+    within ``TV_FACING_DEG`` of its front direction."""
+    from wenart.furniture import group_checks as GC
+
+    try:
+        p = placer.drawn_piece(piece)
+        poly = p.polygon()
+    except (KeyError, TypeError, ValueError):
+        return None
+    if poly.area <= 0 or len(room.get("polygon") or []) < 3 or not _wall_sides(p, _room_ring(room)):
+        return None
+    anchors = _seat_anchors(building, room)
+    for anchor in anchors:
+        try:
+            box = dataclasses.replace(placer.drawn_piece(anchor), shape=None).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if poly.intersection(box).area > COFFEE_IN_BODY * poly.area + 1e-9:
+            return None                                # drawn inside a sofa's box: never its TV unit
+    centre = (poly.centroid.x, poly.centroid.y)
+    for anchor in anchors:
+        if anchor.get("id") == piece.get("id"):
+            continue
+        try:
+            frames = _anchor_frames(anchor)
+        except (KeyError, TypeError, ValueError):
+            continue
+        for ap in frames:
+            x, y = GC.to_local(ap, centre)
+            along = -y - ap.size[1] / 2.0
+            if along >= TV_MIN_M - 1e-9 and math.degrees(math.atan2(abs(x), -y)) <= TV_FACING_DEG + 1e-9:
+                return str(anchor["id"])
+    return None
+
+
+ROLE_PLACES = {"table_coffee": coffee_zone_anchor, "tv_unit": tv_place_anchor}
+
+
+def _role_place_ok(building: dict, piece: dict, room: dict, ftype: str) -> bool:
+    """Fix round after P5 (module docstring): a seating partner typed by the group-member rule stands at its role's
+    place (``ROLE_PLACES``: the coffee table in front of a seating anchor or in its open corner, the TV unit at a wall
+    facing it); other types are not checked here (``_adopted`` checks that a group takes the piece in)."""
+    check = ROLE_PLACES.get(ftype)
+    return True if check is None else check(building, piece, room) is not None
+
+
 def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict]:
     from wenart.furniture import program as PR
     from wenart.furniture import sizes as SZ
@@ -479,10 +608,15 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
                and f.get("type") not in (None, "unknown") and f.get("build") is not False}
     required = {g for g, req, _opts in PR._rows(kind, PR._area(room), placer.room_context(building, room).polygon,
                                                  building, room, room.get("room_subtype")) if req}
+    # Fix round after P5 (module docstring): an untyped L outline of the room is its corner sofa to be (the context
+    # rule types it): the room does not miss its seating anchor, and no other footprint stands in for it.
+    l_waits = _l_outline_waits(building, piece, room)
     for name, template in GR.load_groups().items():
         # Only the anchor of a group the room kind requires (a bedroom's bed, a living room's sofa): an optional
         # group's anchor (a dining table in a living room) is no evidence for a lone footprint.
         if name not in required or template["layout"] != "anchored":
+            continue
+        if l_waits is not None and "sofa_corner" in template["anchor"]["types"]:
             continue
         for t in template["anchor"]["types"]:
             if t not in present and not (set(template["anchor"]["types"]) & present):
@@ -492,6 +626,8 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
     size = [float(v) for v in piece["footprint"]["size"]]
     allowed = PL.allowed_in(building, room) | set(schemas.allowed_types(kind, room.get("room_subtype")))
     fits = sorted(t for t in wanted if t in allowed and SZ.fits(t, size, 0.15))
+    # Fix round after P5 (module docstring): a coffee table or TV unit only where its role stands
+    fits = [t for t in fits if _role_place_ok(building, piece, room, t)]
     if not fits:
         return None
     # An AI pass named another type that fits the size and the shape (real02's sofa / kitchen_island): the plan
