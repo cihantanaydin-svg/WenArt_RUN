@@ -1,0 +1,174 @@
+[wenart.run] 2026-10-22T16:05:35Z $ /workspace/venv/bin/python -m pytest -m gpu tests/gpu/test_full_run.py tests/gpu/test_render.py tests/gpu/test_camera_replay.py tests/gpu/test_look_m6.py tests/gpu/test_furnish.py tests/gpu/test_check.py tests/gpu/test_m9.py -v -ra --junitxml=/workspace/jobs/20261022-135644-m13_p6/results/junit-full.xml
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /workspace/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace/repo
+configfile: pyproject.toml
+plugins: anyio-4.15.1, platformdirs-4.12.2
+collecting ... collected 55 items
+
+tests/gpu/test_full_run.py::test_every_public_project_ended_ok_or_needs_review PASSED [  1%]
+tests/gpu/test_full_run.py::test_run_project_is_ok_with_allowed_stage_states[real04] PASSED [  3%]
+tests/gpu/test_full_run.py::test_pending_pipeline_has_its_final_building[real04] PASSED [  5%]
+tests/gpu/test_full_run.py::test_final_report_has_every_rendered_view[real04] PASSED [  7%]
+tests/gpu/test_full_run.py::test_unvalidated_gate_means_cycles_finals[real04] SKIPPED [  9%]
+tests/gpu/test_full_run.py::test_needs_review_project[NOTSET] SKIPPED    [ 10%]
+tests/gpu/test_full_run.py::test_selftest_files_stay_private SKIPPED     [ 12%]
+tests/gpu/test_render.py::test_gpu_device_and_full_resolution[real04] PASSED [ 14%]
+tests/gpu/test_render.py::test_every_room_has_three_views[real04] PASSED [ 16%]
+tests/gpu/test_render.py::test_no_blocked_searched_view[real04] PASSED   [ 18%]
+tests/gpu/test_render.py::test_view_time_under_four_minutes[real04] PASSED [ 20%]
+tests/gpu/test_render.py::test_cameras_render_with_their_own_lens[real04] PASSED [ 21%]
+tests/gpu/test_render.py::test_render_matches_the_scene_build[real04] PASSED [ 23%]
+tests/gpu/test_render.py::test_passes_exist_and_depth_is_plausible[real04] PASSED [ 25%]
+tests/gpu/test_render.py::test_closed_door_views_end_on_the_door[real04] PASSED [ 27%]
+tests/gpu/test_render.py::test_index_pass_contains_every_visible_proxy[real04] FAILED [ 29%]
+tests/gpu/test_render.py::test_entries_are_m5_renders_with_helper_maps[real04] PASSED [ 30%]
+tests/gpu/test_render.py::test_exposure_recorded_and_within_the_clamp[real04] PASSED [ 32%]
+tests/gpu/test_render.py::test_uint16_index_stats_match_the_index_maps[real04] PASSED [ 34%]
+tests/gpu/test_render.py::test_white_plaster_walls_are_neutral[real04] SKIPPED [ 36%]
+tests/gpu/test_render.py::test_views_keep_the_project_white_point_or_mix_it_with_the_rig[real04] PASSED [ 38%]
+tests/gpu/test_render.py::test_rig_lit_rooms_have_no_orange_cast[real04] PASSED [ 40%]
+tests/gpu/test_render.py::test_daylight_walls_are_not_olive[real04] FAILED [ 41%]
+tests/gpu/test_render.py::test_sky_pull_leaves_no_dotted_edges[real04] PASSED [ 43%]
+tests/gpu/test_render.py::test_open_air_views_render_under_the_exterior_sky[real04] PASSED [ 45%]
+tests/gpu/test_render.py::test_sky_and_window_pulls_reach_their_targets[real04] PASSED [ 47%]
+tests/gpu/test_render.py::test_window_pull_takes_an_unclipped_k_when_one_was_tried[real04] PASSED [ 49%]
+tests/gpu/test_render.py::test_window_pull_leaves_panes_that_need_no_pull[real04] PASSED [ 50%]
+tests/gpu/test_render.py::test_interior_glazing_pull_removes_clipping[real04] PASSED [ 52%]
+tests/gpu/test_render.py::test_interior_glazing_keeps_one_white_point[real04] SKIPPED [ 54%]
+tests/gpu/test_render.py::test_exterior_views_cap_the_ground_and_keep_the_lawn_green[real04] PASSED [ 56%]
+tests/gpu/test_render.py::test_rooms_whose_rig_adds_to_the_fill_light_and_the_halls_are_lit[real04] PASSED [ 58%]
+tests/gpu/test_camera_replay.py::test_one_camera_per_name_and_a_plan_per_render[real04] PASSED [ 60%]
+tests/gpu/test_camera_replay.py::test_replayed_cameras_follow_the_camera_file[real04] SKIPPED [ 61%]
+tests/gpu/test_camera_replay.py::test_agent_cameras_record_their_pose[real04] PASSED [ 63%]
+tests/gpu/test_look_m6.py::test_renders_are_milestone_6_renders[real04] PASSED [ 65%]
+tests/gpu/test_look_m6.py::test_unverified_pieces_cast_no_colour[real04] PASSED [ 67%]
+tests/gpu/test_look_m6.py::test_kitchen_counter_fronts_are_lit[real04] SKIPPED [ 69%]
+tests/gpu/test_look_m6.py::test_window_pull_keeps_the_panes_unclipped[real04] PASSED [ 70%]
+tests/gpu/test_look_m6.py::test_dim_rooms_are_metered_below_six_ev[real04] SKIPPED [ 72%]
+tests/gpu/test_look_m6.py::test_assumed_entries_of_the_design_details[real04] PASSED [ 74%]
+tests/gpu/test_furnish.py::test_every_empty_room_was_laid_out[real04] PASSED [ 76%]
+tests/gpu/test_furnish.py::test_rooms_got_what_their_type_calls_for[real04] PASSED [ 78%]
+tests/gpu/test_furnish.py::test_added_pieces_pass_every_check[real04] PASSED [ 80%]
+tests/gpu/test_furnish.py::test_real_model_and_latency_logged[real04] PASSED [ 81%]
+tests/gpu/test_furnish.py::test_refit_library_models_fit_the_style[real04] PASSED [ 83%]
+tests/gpu/test_check.py::test_every_model_answered_its_calls[real04] PASSED [ 85%]
+tests/gpu/test_check.py::test_calibration_present[real04] PASSED         [ 87%]
+tests/gpu/test_check.py::test_advisory_set_exactly_when_a_target_is_missed[real04] PASSED [ 89%]
+tests/gpu/test_check.py::test_style_photo_test[real04] PASSED            [ 90%]
+tests/gpu/test_check.py::test_insertion_measured[real04] PASSED          [ 92%]
+tests/gpu/test_m9.py::test_ai_decor_records_every_room_and_both_passes[real04] PASSED [ 94%]
+tests/gpu/test_m9.py::test_ai_decor_is_built[real04] PASSED              [ 96%]
+tests/gpu/test_m9.py::test_surface_decor_rests_on_its_host[real04] PASSED [ 98%]
+tests/gpu/test_m9.py::test_3d_files_are_packed_and_complete[real04] PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________ test_index_pass_contains_every_visible_proxy[real04] _____________
+
+project = ('real04', {'schema_version': '0.1', 'project': 'real04', 'building': 'outputs/real04/building_final.json', 'style': '...ne.blend', 'scene_sha256': '0e7e4890e057f6274a0d3711e2382ea60316859c3d13a672b58254a2f4a52e20', 'device': 'OPTIX', ...})
+
+    def test_index_pass_contains_every_visible_proxy(project):
+        name, scene, render = project
+        table = scene["pass_index"]
+        plans = {c["name"]: c for c in scene["cameras"]}
+        box3d = {o["wenart_id"]: o.get("box3d") for o in scene.get("objects") or [] if o.get("kind") == "furniture"}
+        missing, hidden, edge = [], [], []
+        building = None
+        for r in render["renders"]:
+            plan = plans.get(r["camera"])
+            if plan is None:                        # fix round after P4a (17 Oct 2026): P4a's KeyError 'ext_6.001'
+                missing.append((r["camera"], ["rendered but not in the scene manifest"]))
+                continue
+            seen = set(r["index_values"])
+            absent = []
+            for f in plan["visible_furniture"]:
+                # Milestone 4 keys furniture by its id (proxies by proxy:<id>): accept both.
+                idx = {table[k] for k in (f, f"proxy:{f}") if k in table}
+                if idx and not idx <= seen:
+                    absent.append(f)
+            if absent and _policy(plan) == "search":
+                # A searched view looks across the room: a piece whose centre is in the frustum can be
+                # hidden behind another one. Allowed only when the ray-cast model sees none of it either.
+                from wenart.blender import camsearch
+    
+                building = building or _building(name, scene)
+                shares = camsearch.model_shares(building, plan)
+                hidden.extend((r["camera"], f) for f in absent if shares.get(f, 0.0) < MODEL_HIDDEN_SHARE)
+                absent = [f for f in absent if shares.get(f, 0.0) >= MODEL_HIDDEN_SHARE]
+                # Milestone 10: a library mesh is smaller than its fitted box; seen only at the box's edge it may be
+                # outside the frame (the box3d guard keeps a misplaced or mis-scaled mesh a failure).
+                edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d)]
+                edge.extend((r["camera"], f, round(shares[f], 4)) for f in edge_only)
+                absent = [f for f in absent if f not in edge_only]
+            if absent:
+                missing.append((r["camera"], sorted(absent)))
+        if hidden:
+            print(f"{name}: pieces in a searched frustum but hidden by the model too (allowed): {hidden}")
+        if edge:
+            print(f"{name}: library box edge only, pieces the model sees only at the edge of their fitted box "
+                  f"(allowed; camera, piece, model share): {edge}")
+>       assert not missing, f"{name}: proxies planned in the frustum but absent from the index pass: {missing}"
+E       AssertionError: real04: proxies planned in the frustum but absent from the index pass: [('cam_r_L0_yatak_odasi_4_3', ['f_L0_041']), ('cam_r_L1_koridor_2_1', ['f_L1_024'])]
+E       assert not [('cam_r_L0_yatak_odasi_4_3', ['f_L0_041']), ('cam_r_L1_koridor_2_1', ['f_L1_024'])]
+
+tests/gpu/test_render.py:583: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real04: pieces in a searched frustum but hidden by the model too (allowed): [('cam_r_L-1_salon_1', 'f_L-1_073'), ('cam_r_L-1_salon_2', 'f_L-1_061'), ('cam_r_L-1_salon_2', 'f_L-1_087'), ('cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1', 'f_L1_046'), ('cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2', 'f_L1_045'), ('cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2', 'f_L1_046'), ('cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2', 'f_L1_047'), ('cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3', 'f_L1_033')]
+real04: library box edge only, pieces the model sees only at the edge of their fitted box (allowed; camera, piece, model share): [('cam_r_L-1_salon_3', 'f_L-1_060', 0.0059)]
+__________________ test_daylight_walls_are_not_olive[real04] ___________________
+
+project = ('real04', {'schema_version': '0.1', 'project': 'real04', 'building': 'outputs/real04/building_final.json', 'style': '...ne.blend', 'scene_sha256': '0e7e4890e057f6274a0d3711e2382ea60316859c3d13a672b58254a2f4a52e20', 'device': 'OPTIX', ...})
+
+    def test_daylight_walls_are_not_olive(project):
+        """Fix round after P5 (22 Oct 2026). What: the painted walls of every view lit mostly by daylight (rig share under
+        ``RIG_CHECK_SHARE``, the orange check's floor; under the interior world, within the cap, not blocked; the rig's
+        warm light only lowers the ratio) have a display G/((R+B)/2) of at most ``DAYLIGHT_WALL_GREEN_MAX``; every value
+        is printed with the view's ``wb_day_green`` and ``wb_view_tint_gain``. Why: P5 real04's six sunlit L0 bedroom views read olive under the project anchor (metered
+        on the terrace): their daylight is mostly sunlight bounced off the green ground outside. The pin reads the
+        pixels, not the white point rule (``test_views_keep_the_project_white_point_or_mix_it_with_the_rig`` checks the
+        rule against the record)."""
+        from wenart import views
+        from wenart.blender import render as R
+    
+        name, scene, render = project
+        if not _project_wb(render):
+            pytest.skip(f"{name}: not rendered with --white-balance project")
+        exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
+        manifest_types = R.room_types_from_manifest(scene)
+        entries = {r["camera"]: r for r in render["renders"]}
+        out = OUTPUTS / name / "renders"
+        daylight = [c for c, r in entries.items() if r.get("room_id") is not None and not _dark(r)
+                    and not (exterior_world and r.get("world") == exterior_world)
+                    and (r["exposure"].get("wb_rig_share") or 0.0) < RIG_CHECK_SHARE
+                    and _wall_kind(r, manifest_types) == "painted"]
+        daylight = [c for c in daylight if not _blocked(entries[c], out, entries[c].get("lens_mm") or 24.0)["blocked"]]
+        if not daylight:
+            pytest.skip(f"{name}: no painted daylight view")
+        table = views.index_table(scene)
+        loaded = views.load_views(out, cameras=daylight)
+        values = {cam: (_wall_green(v, table), entries[cam]["exposure"].get("wb_day_green"),
+                        entries[cam]["exposure"].get("wb_view_tint_gain")) for cam, v in loaded.items()}
+        olive = [(cam, v) for cam, v in values.items() if v[0] is not None and v[0] > DAYLIGHT_WALL_GREEN_MAX]
+        print(f"{name}: daylight wall G/((R+B)/2), daylight green ratio, tint gain {values}")
+>       assert not olive, f"{name}: olive daylight walls (over {DAYLIGHT_WALL_GREEN_MAX}): {olive}"
+E       AssertionError: real04: olive daylight walls (over 1.06): [('cam_r_L-1_salon_2', (1.063, 1.071576, 1.043787)), ('cam_r_L0_e_yatak_odasi_2', (1.063, 1.215422, 1.132843)), ('cam_r_L0_e_yatak_odasi_3', (1.067, 1.218028, 1.134421))]
+E       assert not [('cam_r_L-1_salon_2', (1.063, 1.071576, 1.043787)), ('cam_r_L0_e_yatak_odasi_2', (1.063, 1.215422, 1.132843)), ('cam_r_L0_e_yatak_odasi_3', (1.067, 1.218028, 1.134421))]
+
+tests/gpu/test_render.py:978: AssertionError
+----------------------------- Captured stdout call -----------------------------
+real04: daylight wall G/((R+B)/2), daylight green ratio, tint gain {'cam_r_L-1_salon_1': (1.025, 1.056202, 1.034028), 'cam_r_L-1_salon_2': (1.063, 1.071576, 1.043787), 'cam_r_L-1_salon_3': (1.024, 1.104327, 1.064414), 'cam_r_L0_e_yatak_odasi_1': (1.06, 1.207234, 1.127876), 'cam_r_L0_e_yatak_odasi_2': (1.063, 1.215422, 1.132843), 'cam_r_L0_e_yatak_odasi_3': (1.067, 1.218028, 1.134421), 'cam_r_L0_koridor_1': (0.987, 0.971349, 0.985363), 'cam_r_L0_koridor_2': (0.995, 0.976593, 0.98677), 'cam_r_L0_koridor_3': (0.988, 0.970544, 0.983503), 'cam_r_L0_yatak_odasi_1': (1.038, 1.235891, 1.137055), 'cam_r_L0_yatak_odasi_2': (1.034, 1.228221, 1.132877), 'cam_r_L0_yatak_odasi_3': (1.034, 1.209933, 1.129514), 'cam_r_L0_yatak_odasi_4_1': (1.006, 0.994256, 0.994376), 'cam_r_L0_yatak_odasi_4_2': (1.005, 0.9949, 0.994723), 'cam_r_L0_yatak_odasi_4_3': (1.001, 0.99346, 0.993676), 'cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1': (0.991, 0.979637, 0.984667), 'cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_2': (1.008, 0.983685, 0.98731), 'cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_3': (1.006, 0.98179, 0.986073)}
+- generated xml file: /workspace/jobs/20261022-135644-m13_p6/results/junit-full.xml -
+=========================== short test summary info ============================
+SKIPPED [1] tests/gpu/test_full_run.py:164: real04: no gate validation (polish off)
+SKIPPED [1] tests/gpu/test_full_run.py:185: got empty parameter set for (project)
+SKIPPED [1] tests/gpu/test_full_run.py:196: no private self-test in this run
+SKIPPED [1] tests/gpu/test_render.py:650: the white-wall check is for synthetic-01
+SKIPPED [1] tests/gpu/test_render.py:1318: real04: none of the named interior-glazing views was rendered
+SKIPPED [1] tests/gpu/test_camera_replay.py:86: real04: built without --cameras-from
+SKIPPED [1] tests/gpu/test_look_m6.py:104: real04: no parametric kitchen counter
+SKIPPED [1] tests/gpu/test_look_m6.py:149: real04: no dim room
+FAILED tests/gpu/test_render.py::test_index_pass_contains_every_visible_proxy[real04]
+FAILED tests/gpu/test_render.py::test_daylight_walls_are_not_olive[real04] - ...
+=================== 2 failed, 45 passed, 8 skipped in 39.98s ===================
+[wenart.run] 2026-10-22T16:06:20Z rc 1
