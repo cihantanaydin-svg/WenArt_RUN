@@ -270,7 +270,10 @@ def allowed_in(building: dict, room: dict) -> set:
 # Fix round after P4b (module docstring): drawn fixed types that any room may hold unless it never holds them
 # (``schemas.misplaced_fixed``: a stair room, a shaft). The rows of ``schemas.ALLOWED_TYPES`` (what the AI may add)
 # stay as they are.
-DRAWN_ANYWHERE_TYPES: tuple[str, ...] = ("washing_machine",)
+# Integration of the fix round after P5 (F_reading's ask): a drawn wardrobe too: the reader now types real04's
+# corridor coat closets (a hanging rail with hangers, symbols.hanging_rail) as wardrobes, which F1 called "not a piece
+# of a hall room" in r_L1_koridor / r_L1_koridor_2. Drawn pieces only: the hall rows (what the AI may add) are unchanged.
+DRAWN_ANYWHERE_TYPES: tuple[str, ...] = ("washing_machine", "wardrobe")
 
 
 def drawn_anywhere(f: dict, room_type_list) -> bool:

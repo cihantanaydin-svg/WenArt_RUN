@@ -388,10 +388,12 @@ DESCRIPTIONS = {
                     "fitted and built (library model, module builder or parametric family in the project's licence "
                     "mode) and leaves the review list. The answer to a drawn piece typed from the drawing whose type "
                     "does not fit its room (F1, G14). A piece the code retyped from its size, room and neighbours "
-                    "(adjusted_by_ai by code) keeps that type.",
+                    "(adjusted_by_ai by code) keeps that type. With the piece's own type it confirms an unverified "
+                    "piece (status verified, its model kept): complete_group needs a verified anchor.",
     "mark_not_furniture": "Record a drawn symbol, mark or line that was read as furniture (not built), with the "
-                          "evidence (the piece's own recognition crop for a piece typed from the drawing); never for a "
-                          "type that only does not fit the room (retype_piece).",
+                          "evidence (the piece's own recognition crop for a piece typed from the drawing; for an "
+                          "untyped piece the image path of the plan crop you read, check/<view>_plan.jpg, else it is "
+                          "refused: no_crop); never for a type that only does not fit the room (retype_piece).",
     "fix_fixture": "Misread fixed equipment: a real product size and/or a move of at most 0.5 m (through a wall, in "
                    "a door swing). Leave out center: the code moves it to the nearest valid spot (pod P5: 32 of 35 "
                    "guessed centres were still in a wall or a door swing). When the code answers 'no valid spot', no "

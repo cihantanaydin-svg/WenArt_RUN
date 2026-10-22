@@ -236,6 +236,13 @@ def camera_note(camera: Optional[dict], eye: Optional[dict] = None, role: Option
     if role in CAMERA_ROLES:
         sides = ", ".join(str(x) for x in camera.get("sides") or []) or "its"
         parts.append(f"The camera of this view is {CAMERA_ROLES[role].format(sides=sides)}.")
+    if role in ("corner", "frontal") and isinstance(camera.get("long_low"), dict):
+        # integration of the fix round after P5 (E_exterior's ask; user decision (2) of 22 Oct 2026): the closer
+        # framing of a long, low building (exterior.long_low) is by design, so the critic does not push it back out
+        fill = float(camera["long_low"].get("fill_target") or 0.9)
+        parts.append(f"It is framed close by design: a long, low building fills up to {fill * 100:.0f}% of the frame "
+                     f"width (user decision of 22 Oct 2026); do not report that the camera is too close or the "
+                     f"building too large.")
     if isinstance(eye, dict) and eye.get("eye_m") is not None:
         parts.append(f"Measured by code: the eye is {float(eye['eye_m']):.2f} m above the ground, pitch "
                      f"{float(eye.get('pitch_deg') or 0.0):.1f} deg; do not report its height or angle from the image.")
@@ -390,7 +397,10 @@ PLANNER_SYSTEM_M12 = (
     "its own recognition crop is: plan_crop with its piece_id shows it); for a placement finding (F9, S2, G*) on such "
     "a piece, move, snap or turn it. When such a piece's type does not fit its room (F1, G14), retype_piece gives it "
     "a type that fits its footprint and the room; never mark it or remove it for that. A piece the code already "
-    "retyped from its size, room and neighbours (adjusted_by_ai by code, drawn_type kept) keeps that type.\n"
+    "retyped from its size, room and neighbours (adjusted_by_ai by code, drawn_type kept) keeps that type. "
+    "retype_piece with the piece's own type confirms an unverified piece (complete_group needs a verified anchor). "
+    "mark_not_furniture on an untyped piece needs the image path of the plan crop you read in its evidence "
+    "(check/<view>_plan.jpg, from plan_crop or view); without it the mark is refused (no_crop).\n"
     "4. rotate_piece turns a piece; set_front only gives a front to a piece that has none (front_inferred). front_deg "
     "is the direction the front faces, degrees counter-clockwise from +x; a piece with its back on a "
     "free wall span faces that span's into_room_deg.\n"

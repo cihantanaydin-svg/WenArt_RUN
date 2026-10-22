@@ -90,7 +90,8 @@ REPLAY_OPTIONAL = ("room_id", "level_id", "index", "target", "rotation_euler_deg
                    "lens_rule", "score", "placement", "anchor", "warning", "visible_openings", "visible_furniture",
                    "clip_start", "clip_end",
                    "site_view", "aerial_allowed", "horizon_frac",   # M13 (T6): a replayed site view keeps its flags
-                   "entrance")      # integration after P4b (17 Oct 2026): a replayed entrance view keeps its door id
+                   "entrance",      # integration after P4b (17 Oct 2026): a replayed entrance view keeps its door id
+                   "long_low")      # integration after P5: a replayed long, low view keeps its X6 fill range and note
 CLIP_START_M = 0.05
 CLIP_END_M = 200.0
 
