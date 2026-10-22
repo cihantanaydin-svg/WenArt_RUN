@@ -1897,6 +1897,146 @@ dropped (9 aerial, 7 low-angle corners). Agent suites 234 passed; every new test
 Left as is: the build and X6 still treat a flagged pose that looks 5° or more down as aerial at any height (the agent can
 no longer make one).
 
+### 14.13 Fix round after P5 (22 Oct 2026; no pod)
+
+Pod P5 (real04, §14.12's code) gave 30 of 43 views better than M12 and GPU 40 passed / 4 failed. Its analysis
+(lenses gpu_tests, look, library, agent) went to seven build tracks; each fixed its findings with CPU tests that fail
+on BASE 29e54d0 (or catch a mutation of the fixed line), then one integration step applied the cross-track asks, the
+user's decisions of 22 Oct 2026 and the full CPU suite. Nothing here has run on a GPU yet. Data: P5 real04
+`runs/20261017-224848-full`, P4a real02 `runs/20261017-072801-full`, P4b real03 `runs/20261017-091212-full`.
+
+**User decisions of 22 Oct 2026 (CLAUDE.md) and what they changed.**
+
+| Decision | Change | On the run data |
+|---|---|---|
+| (1) Code may retype a drawn piece the vision models typed when size, room and neighbours clearly say otherwise (`adjusted_by_ai` by code, `drawn_type` and the plan crop kept) | `infer.corner_tables` (a seat of coffee-table size in a corner sofa's open corner is its coffee table); the nightstand rule of the P4a fix round is kept; the report lists every such change (`report.agent.decision_changes`) | real04 f_L-1_061/062 and real02 f_L-1_062 become `table_coffee`; P5's 8 nightstand retypes f_L0_031..038 listed with their crops |
+| (2) Exterior views of long, low buildings may use a wider or tilted framing | `exterior.long_low` (outline long side ≥ 5 × height): corner and frontal views move in on their own view lines to 0.9 of the frame width; X6 takes 0.6-0.9 for them; the critic is told it is by design | real03 (ratio 10.4): corner views 11-12 % → 23-25 % of the frame, frontal 7.6 % → 14.6 %; real02 / real04 (1.5-1.7) unchanged |
+| (3) A drawn bath or shower up to 5 cm too long for its bay is a misread size: shrunk to the NEAREST real product that fits, `drawn_footprint` kept | `reading.bay_fit` at the reading and in `fix_fixture` (without a centre); the refit's locked check accepts it; the size table got the intermediate products (below) | real03: 4 tubs 1.62 x 0.80 → 1.55 x 0.75 m, showers 0.90 x 0.97 → 0.90 x 0.90 (2), 1.07 x 0.80 → 1.00 x 0.80, 0.85 x 1.02 → 0.80 x 0.90; none on real02 / real04 |
+
+**Size table (decision 3).** The reading track's shrink took real03's 1.62 x 0.80 m tubs (clear bay 1.57 m) to
+1.50 x 0.70 m and the 0.85 x 1.02 m shower to 0.80 x 0.80 m, because `size_table.yaml` had no product in between. Added
+in the table's own format, each with its source in the row (`p5`, listings read 22 Oct 2026): tubs 1.50 x 0.75 (Raumspar
+TIGRA), 1.55 x 0.70 (BADLAND Quadro), 1.55 x 0.75 (Ideal Standard Adapto, NBS Source), 1.60 x 0.75 (Kaldewei
+Saniform Plus); tray 0.90 x 0.80 (Kaldewei Superplan). `size_table.json` was rewritten from the YAML. Other readers
+checked: no size snap (`snap_size`, `reading._product`) changes on the three run buildings or the fixtures; the growth
+report's demand bins go from 90 to 91 (the new 0.90 x 0.80 tray is the bin of real03's three 0.80 x 0.85 showers).
+
+**What each track changed.**
+
+- **Ceiling (K).** Decor ceiling lights keep a 2.0 m bottom (`decor.MIN_LIGHT_BOTTOM_M`): a flush light under a low
+  slope is left out with the reason (P5 dec_L1_009 at 1.72 m, dec_L1_011 / 013 at 1.16 m); a rig ceiling fixture is
+  dropped under 1.55 m (camera height + headroom; the bath fixtures of real04 and real02 at 1.21 / 1.30 m) or over a
+  stair void (`build.ceiling_voids`; the two stair cores keep their invisible fill light). The camera fallback avoids
+  floor decor and keeps its headroom (real04 bath camera moves to a 1.55 m ceiling); `camsearch.lens_clearance` warns
+  (only cam_r_L1_banyo_1, 0.015 m). Roof terraces open to the sky get their views back: 3 per terrace at 2.22-2.70 (were
+  one at 0.23 / 0.25; real02 1.20-1.77 → 2.19-2.79). `tests/test_m13_p5_fixround.py` (23 + a wiring test).
+- **Render (L).** The orange check sorts walls by room finish (kitchens painted) and takes references only from
+  unblocked views. Sky-edge shell hits take the near surface's reference: dotted edges per view 11-85 → 0-9 (real02),
+  63 → 4 (real04 ext_1); each pull records `edge_dot_px` / `edge_px`. Each interior view's white point takes the
+  green-magenta tint of its own daylight (`render.view_tint_gain`, at most x1.3): olive bedroom walls G/((R+B)/2)
+  1.076 → 1.021. `RENDER_CODE_VERSION` m13.3 → m13.4. `tests/test_m13_light.py` (+ GPU checks for dots and olive walls).
+- **Agent (A).** Memory is scoped to the building's sha and the agent code's version (P5's 19 stale refusals from M12 /
+  P3 no longer apply). The dry re-check measures the fitted boxes (`loop.fitted_view`, `dry_fit` in the final
+  building's style and licence mode). A box an earlier accepted edit removed is no "new critical". Repeated max-tries
+  refusals end the session. Level dry runs reach their validator. Blocked previews are code findings (`camera_blocked`).
+  F1 / G14 on a code-typed piece offers `retype_piece`, not a removal. A refused exterior camera names the free stretch
+  of its view line. `tests/test_agent_p5_fixround.py` (25).
+- **Reading (F).** Corner sofa first, group members only at their role's place (no phantom sofa or lamp coffee tables
+  on real02 / real04); coat closet (hanging rail with hangers) is one wardrobe; a sofa block is never fronted by the
+  bed-pillow rule; a front on a sofa's short side moves to its long side (real04 f_L-1b_045/046); a desk that holds its
+  chair is split (real02 / real04: 8 chairs, desks cut to 0.60 m); seat cushions inside armchairs are not built (real04
+  f_L-1_075..078); an untyped piece is marked only with its plan crop; recognition answers are tied to the crop pixels;
+  the bath / shower bay shrink. `tests/test_m13_p5_furniture.py` (16), `tests/test_recognition_answers.py`.
+- **Report (P).** The agent section reads only the latest run of an appended log (P5: 4 rounds, 27 accepted / 143
+  rejected, 448 calls; it had added M12 and P3); findings removed 33 measured against 38 predicted for the same rounds,
+  6 new, net 27; metric 10 reads the variant scene and module fabric (4 of 26, was 0); report texts follow the final
+  building (the drawn check says "50 changed by the AI or by code"). `tests/test_report_p5_fixround.py` (9).
+- **Exterior (E).** The long, low framing of decision 2 (table above). `tests/test_m13_exterior_framing.py` (7).
+- **Library data (D).** New audit check `render_print`: a model with a readable brand logo or printed text seen in a run
+  view is removed (6 models: the Smeg FAB28LV fridge and its same-mesh twin, a chalk-board coffee table, 3 washers with
+  a SAMSUNG logo, an LG badge and a partial "...tpoint" script logo; the track's review added 3 washers of the same mesh
+  families, with mesh evidence: 9 in all). The fit now picks other models for those pieces. `tests/test_m13_library.py`.
+
+**Integration (this step).** Applied asks, each with a test in `tests/test_m13_p5_integration.py` (18 tests; all fail
+on the WIP snapshot 320d719; the three tests that read the P4b / P5 runs skip without `runs/`):
+
+| From | Change |
+|---|---|
+| K, L, E, A | Test pins changed on purpose, each with a comment: `test_m13_p4a_integration` ceiling slot over c1 (left out, flush light bottom 1.95 m), `test_m13_contracts` `ceiling_voids`, `test_blender_look` m13.4, `test_m13_p4b_integration` no `share_kept` (frontal 0.146), the P4a fridge tie-break (the doubt-free Smeg fridges were removed by `render_print`; the others fail the caps), the bay-shrink sizes in `test_m13_p5_furniture`, 91 demand bins, the stop-note texts. The crop test in `test_m13_fixround_furniture` was already updated by F |
+| K | `exterior_checks.free_floor_problems`: an agent camera in a room without free floor keeps off the floor decor too |
+| L | `schemas`: `edge_dot_px` / `edge_px` (integers ≥ 0), `wb_day_green` (> 0 or null), `wb_view_tint_gain` (1/1.3-1.3) typed |
+| E | `prompts.camera_note`: a long, low corner or frontal view is "framed close by design"; `cameras.REPLAY_OPTIONAL` keeps `long_low` through a replay |
+| F, A | `PLANNER_SYSTEM_M12` and the tool descriptions: an untyped piece is marked only with the plan crop image it was read from (else `no_crop`); `retype_piece` with the piece's own type confirms an unverified piece |
+| D | `fit.rank_key`: a model without a vision doubt other than the quality text ranks first within its size step (`other_doubt_of`); changes no pick on the three run buildings today |
+| P | `blender/furniture.py`: the scene manifest's `not_built` names the real reason (same order as the report's `not_built_text`) |
+| P | `agent/metrics.py` (`new_per_round`, `new`, `net`, `dry_recheck_same_rounds`, `dry_recheck_unmeasured`), `loop.stop_note` and the scheduler's agent note: on P5 "33 critical/major findings removed in rounds 1-3 (... the dry re-checks of the same rounds predicted 38, the last round predicted 2 more, not measured); 6 new, net 27" |
+| P | `edit_ops._label`: an edit keeps the earlier `adjusted_by_ai` records under `previous` (P5's code nightstand retypes were overwritten by the agent's moves) |
+| A | `edit_ops._change_type`: `retype_piece` with the piece's own type confirms an unverified piece (verified, labelled, its AI candidates and fitted asset kept), so `complete_group`'s "retype_piece first" works (P5 desks f_L0_024 / f_L0_026); a verified piece is still `no_change` |
+| A | `edit_ops._style_family_of`: without a fitted family, the family of the brief's style text (P5: "modern", as style.json; it was None) |
+| F | `plausibility.DRAWN_ANYWHERE_TYPES` + `wardrobe` (a drawn coat closet in a hall is no F1); `locked`: fix_fixture's bay shrink is accepted (overrun ≤ 0.05 m, a real product inside the drawn box); `ingest core.py`: an AI-typed coat closet is reported as "a coat closet: hanging rail with hangers" |
+| A | `levels/edits.py`: `target_finding` is a meta key (guard) |
+
+Skipped, with the reason:
+
+| Ask | Why |
+|---|---|
+| A: frontal candidates in the free strip (real04 X6, `exterior.py`) | Measured on P5's building: the free strip in front of the +y facade is 5.7 m deep with a hedge at 3.5-4.5 m; at 5-6 m the 26 mm eye-level lens frames only 1/2.3-1/2.6 of the 15.4 m facade (fill 2.3-2.6). A usable frontal view there needs a wider lens or another view type, which is the user's lens policy, not a small fix. The agent's refusal hint already names the strip |
+| D: the final vision check asks for logos and lettering | A new vision question and report flow, run on a pod: too large for this step. The `render_print` hook takes such findings when they are recorded |
+
+**The bookcase through the roof (P_report's finding, item 3).** f_L1_048 (HSSD Kangaroo Bookcase, non-commercial,
+pass index 241) still showed through the roof in P5's ext_1 / ext_2 / ext_5 after the accepted round-4 move (overrides
+seq 249, log seq 5696). Not a height mismatch: the move was right, and the final scene has the fitted 1.37 m bookcase
+0.9 m under the roof (X2 finds nothing). The cause is the re-render: round 4's only accepted edit was this move, and
+`loop.changed_views` re-renders only the views of the room a furniture edit touches, so every exterior view (ext_1, 2,
+3, 5, 7) was carried from the build before the move (`carried_from_earlier_build`) and still showed the old position,
+which also flagged those views not commercial-safe. Fixed: a furniture edit whose target is an exterior finding (an
+`X` check) re-renders the exterior views too (on P5's round 4: ext_1/2/3/5/7 now re-render). The agent track's fitted
+dry re-check was not involved (the 1.80 m drawn height it checked is above the fitted 1.37 m).
+
+**CPU suite.** One full run (`-m "not gpu"`, 4 shared CPUs, temp folder in /dev/shm; log `/dev/shm/full.log`):
+5,539 passed, 1 failed, 219 skipped, 174 deselected (GPU), 4 xfailed in 44:23 min. The one failure
+(`tests/test_m13_library.py::test_the_committed_catalogue_keeps_the_p5_look_findings_out_of_the_fit`) came from the
+library track's review fix landing in the catalogue while the suite ran (3 more washers, aaf646e); it passes now. The
+files changed during the run (the agent loop's `changed_views`, the review fixes of the report and library tracks, this
+step's two bookcase tests) were run again: `tests/test_agent_*.py`, `test_m13_agent`, `test_run_agent*`,
+`test_report*`, `test_furniture_fit*`, `test_scene_fit`, `test_m13_pre_p5_integration`, `test_m13_p3_integration*`,
+`test_run_copy`, `test_pack3d`, `test_library_growth*`, `test_audit*`, `test_m13_p5_integration`, `test_m13_library`,
+`test_m13_p4a_integration`, `test_m13_p4b_integration`, `test_m13_report`: 790 passed, 0 failed, 3 skipped (5:13 min).
+Pins changed on purpose are listed in the integration table, each with a comment in its test.
+
+**Decisions left for the user.**
+
+1. Rig ceiling fixtures use 1.55 m (camera height + headroom), decor lights 2.0 m: real04's L1 hall keeps a rig fixture
+   at 1.94 m while a decor light at 1.72 m is left out. Keep two bounds, or one? (K)
+2. The L1 bathrooms of real04 and real02 now have no visible ceiling light (both too low under the slope); a wall
+   light instead? (K)
+3. A replayed cam_r_L1_banyo_1 keeps its old point (0.15 m under the ceiling); only searched cameras get the new
+   fallback. (K)
+4. Interior HDRI 5.2 stops under the sun: an A/B in P6 with the HDRI raised +2 to +5.2 stops (the common cause of the
+   dark sky over a pale ground band in windows and of the green daylight). (L)
+5. Per-view daylight tint (m13.4): confirm on the P6 sheets (`render.WB_TINT_GAIN_MAX = 1.0` turns it off); watch the
+   orange check's tightest hall (P5 koridor_2_1 1.634 against 1.665). (L)
+6. Desk split: 8 drawn office chairs added (real02 4, real04 4) as `from_documents` pieces split out of the desk
+   symbols, desks cut to 0.60 m. OK? (F)
+7. Seat-cushion rule: 75 % inside a larger drawn seat, pieces ≤ 0.50 m (real04's cushions are 85 % inside). OK? (F)
+8. An untyped piece can be marked not furniture only with a plan crop image (would have refused P4a's f_L-1_022,
+   f_L-1b_001, f_L-1_021 and P5's f_L-1b_001); no twin rule, so f_L-1b_002 stays under review. OK? (F)
+9. Seat fronts from the block's back strip and arms are checked on synthetic strokes only (no DWG converter here):
+   confirm on the next pod ingest of real02 / real04 (expected f_L1_009 0, 010 180, 011 270, 012 270), and the coat
+   closet rule there. (F)
+10. Exterior commercial-safe flags: kept for any visible part, however small (no pixel floor). (P)
+11. Metric 10 keeps armchairs and ottomans in the denominator; the style names a fabric colour only for sofas. (P)
+12. Long, low rule values: `LONG_LOW_RATIO` 5.0, `LONG_LOW_FILL` 0.9. Confirm. (E)
+13. real03's frontal view stays a thin strip (14-15 %) at any eye-level distance; a wider aspect (2:1 or 2.39:1) needs
+    per-camera resolution in render.py and every image consumer: not recommended in Milestone 13. (E)
+14. real03's closer corner cameras stand 3-4 m outside the agent's fence (rails cross the lower frame; ext_3's tree
+    reads larger): acceptable? (E)
+15. Two of the six logo removals rest on small evidence (the LG badge of the F1647TD5 washer, the partial "...tpoint"
+    logo of hssd_856317...): keep or revert? And should a maker's name in an appliance title count as a brand flag
+    (about 12 more models)? (D)
+16. The real04 frontal view (X6): only a wider lens or another view type gives one in the 5.7 m free strip (see the
+    skipped ask). (integration)
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang
