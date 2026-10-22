@@ -1710,6 +1710,17 @@ def _front_of(f: dict, room: dict, mates: list[dict]) -> tuple[Optional[float], 
         for bed in by_type("bed_double", "bed_single", "bunk_bed"):
             if bed.get("front_deg") is not None and rect(bed).distance(poly) <= 0.4:
                 return snap_front(f, float(bed["front_deg"])), f"faces the way its bed {bed['id']} faces"
+    if ftype in ("sofa", "armchair"):
+        # Fix round after P5 (module docstring): a seat without a front faces the nearest coffee table close by
+        # (a sofa only along a long side).
+        tables = by_type("table_coffee")
+        if tables:
+            host = min(tables, key=lambda h: (round(rect(h).distance(poly), 6), h["id"]))
+            if rect(host).distance(poly) <= SEAT_TABLE_M + 1e-9:
+                c = rect(host).centroid
+                deg = snap_front(f, math.degrees(math.atan2(c.y - poly.centroid.y, c.x - poly.centroid.x)))
+                if ftype != "sofa" or not _short_side_front(f["footprint"], deg):
+                    return deg, f"faces the coffee table {host['id']}"
     if ftype == "tv_unit":
         for seat in by_type("sofa", "sofa_corner", "armchair"):
             c = rect(seat).centroid

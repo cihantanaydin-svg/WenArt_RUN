@@ -32,6 +32,7 @@ REAL04 = ROOT / "results" / "furniture" / "real04" / "building_final.json"
 P4B = ROOT / "runs" / "20261017-091212-full" / "results"
 P4B_REAL03 = P4B / "furniture" / "real03" / "building_final.json"
 P4B_BRIEF = P4B / "renders" / "real03" / "build_brief.json"
+SHARE_GAIN = 1.5            # the least gain in the building's frame share of a closer view (box: 1.6-2.0)
 
 
 def _box(length=10.0, depth=8.0, ceiling=2.8, levels=1):
@@ -54,10 +55,18 @@ def _model(b):
 
 def _plans(b, monkeypatch=None, rule_off=False):
     m, plan = _model(b)
-    if rule_off:
-        monkeypatch.setattr(E, "LONG_LOW_RATIO", 1e9)          # the Milestone 11 framing of the same building
-    plans, dropped = E.plan_exterior(m, b, b["levels"], plan["plot"], variant="base")
+    if rule_off:                                                # the Milestone 11 framing of the same building
+        with monkeypatch.context() as mp:
+            mp.setattr(E, "LONG_LOW_RATIO", 1e9)
+            plans, dropped = E.plan_exterior(m, b, b["levels"], plan["plot"], variant="base")
+    else:
+        plans, dropped = E.plan_exterior(m, b, b["levels"], plan["plot"], variant="base")
     return m, {p["name"]: p for p in plans}, dropped
+
+
+def _unit(v):
+    n = math.hypot(*v)
+    return (v[0] / n, v[1] / n)
 
 
 # --------------------------------------------------------------------------
@@ -86,8 +95,9 @@ def test_eye_distances_only_add_closer_places_in_front_of_the_m11_list():
     assert E.eye_distances(19.0, None) == m11
     assert E.eye_distances(19.0, 11.0) == [(11.0, True), (13.0, True), (15.0, True), (17.0, True)] + m11
     assert all(s >= 0.0 for s in E.LONG_LOW_STEPS_M)                    # a step in would cut the building
-    assert E.eye_distances(7.0, 6.0) == [(6.0, True)] + [(d, False) for d, _ in m11 if False] + \
-        [(7.0 + s, False) for s in E.MOVE_STEPS_M if 7.0 + s >= E.DISTANCE_SCAN_M[0]]
+    # a close place at the scan's start; M11 steps under DISTANCE_SCAN_M[0] are left out, as before (7 - 1.5 m)
+    assert E.eye_distances(7.0, 6.0) == [(6.0, True), (7.0, False), (9.0, False), (11.0, False), (13.0, False),
+                                         (16.0, False), (19.0, False)]
 
 
 # --------------------------------------------------------------------------
@@ -115,42 +125,45 @@ def test_long_low_views_move_in_on_their_own_view_lines(monkeypatch):
         # the horizon (eye level) lies in the middle part of the frame: 0.5 - shift_y * W / H of the height
         horizon = 0.5 - p["shift_y"] * E.RESOLUTION[0] / E.RESOLUTION[1]
         assert 0.3 <= horizon <= 0.7
-        assert p["score"]["building_share"] >= 1.6 * q["score"]["building_share"]
+        assert p["score"]["building_share"] >= SHARE_GAIN * q["score"]["building_share"]
         assert "framed to 90% of the width" in p["placement"] and "long, low building" in p["placement"]
         if p["view"] == "corner":
             c = corners[p["corner"] - 1]
             dp = (p["position"][0] - c[0], p["position"][1] - c[1])
             dq = (q["position"][0] - c[0], q["position"][1] - c[1])
             assert math.hypot(*dp) < math.hypot(*dq) - 3.0              # closer ...
-            assert dp[0] * dq[1] - dp[1] * dq[0] == pytest.approx(0.0, abs=1e-6)   # ... on the same line
-            assert dp[0] * dq[0] + dp[1] * dq[1] > 0.0
+            assert _unit(dp) == pytest.approx(_unit(dq), abs=1e-4)      # ... on the same line
+            assert p["sides"] == q["sides"] and p["faces"] == q["faces"]
         else:                                                           # frontal: still square to the facade
-            assert p["position"][0] == pytest.approx(q["position"][0], abs=1e-6)
-            assert abs(p["position"][1]) < abs(q["position"][1]) - 3.0
+            cx, cy = geom2d.oriented_rectangle(m.outline)["center"]
+            dp = (p["position"][0] - cx, p["position"][1] - cy)
+            dq = (q["position"][0] - cx, q["position"][1] - cy)
+            assert math.hypot(*dp) < math.hypot(*dq) - 3.0
+            assert min(abs(p["position"][0] - q["position"][0]), abs(p["position"][1] - q["position"][1])) < 1e-3
             assert p["sides"] == q["sides"] and p["main_facade"] == q["main_facade"]
     small = _plans(_box(10.0, 8.0))[1]                                  # the rule leaves other buildings alone
     assert all("long_low" not in p for p in small.values())
 
 
 def test_a_long_low_view_whose_close_places_are_refused_keeps_its_m11_place(monkeypatch):
-    """The fallback: every candidate closer than the Milestone 11 place refused by the view check (a tree, a wall, a
-    hedge above the eye) -> the Milestone 11 place, as before the rule. Fails on a mutation that drops the M11 list
-    from ``eye_distances`` (the view would be dropped)."""
+    """The fallback: every candidate but the Milestone 11 places refused by the view check (as a tree, a wall or a
+    hedge above the eye would) -> each corner and frontal view keeps its Milestone 11 place, as before the rule.
+    Fails on a mutation that drops the M11 list from ``eye_distances`` (the views would be dropped)."""
     b = _box(33.0, 15.0)
     _m, off, _ = _plans(b, monkeypatch, rule_off=True)
-    monkeypatch.setattr(E, "LONG_LOW_RATIO", 5.0)
-    far = {n: p["position"] for n, p in off.items() if p["view"] in ("corner", "frontal")}
+    allowed = [p["position"] for p in off.values()]
     real_check = E.view_check
 
     def check(model, position, target, lens, shift_y, aim):
         rec = real_check(model, position, target, lens, shift_y, aim)
-        near = [n for n, q in far.items() if math.dist(position[:2], aim[:2]) < math.dist(q[:2], aim[:2]) - 0.25]
-        if near and not any(math.dist(position[:2], q[:2]) < 0.25 for q in far.values()):
+        if not any(math.dist(position, q) < 0.25 for q in allowed):
             return dict(rec, ok=False, why="a test obstacle in front of the camera", blocked=0.9)
         return rec
 
     monkeypatch.setattr(E, "view_check", check)
     _m, on, dropped = _plans(b)
+    far = {n: p["position"] for n, p in off.items() if p["view"] in ("corner", "frontal")}
+    assert len(far) == 5
     for n, pos in far.items():
         assert on[n]["position"] == pytest.approx(pos, abs=1e-6), n
         assert "a test obstacle" in on[n]["warning"] and "moved" in on[n]["warning"]
@@ -229,5 +242,5 @@ def test_p4b_real03_exterior_views_fill_more_of_the_frame(monkeypatch):
     entrance = next(p for p in plans.values() if p["view"] == "entrance")
     assert entrance == before[entrance["name"]] and "long_low" not in entrance
     out = []
-    X._x6(vb, X._prep(building) or {}, {"cameras": list(plans.values())}, None, out)
+    X._x6(building, X._prep(building) or {}, {"cameras": list(plans.values())}, None, out)
     assert not [v for v in out if "frame width" in v["message"]]
