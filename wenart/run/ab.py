@@ -31,6 +31,17 @@ What:
   the Milestone 11 look, ``base`` = the production defaults); a variant folder that is missing is a "not rendered"
   row and a grey tile, so an older results folder (P1: no ``m11`` folder, ``base`` = the Milestone 11 look) still
   summarises and sheets.
+- Pod P6a (22 Oct 2026, the user's OK; the interior sky A/B, ``scripts/jobs/m13_p6.sh``): ``M13_SKY_AB_VIEWS`` are
+  6 fixed real04 interior views with windows that showed P5's dark sky over a near-white ground band and the green
+  daylight, ``M13_SKY_AB_VARIANTS`` the levels (``base`` and ``lighting.SKY_VARIANTS``). real04's cameras are
+  searched, so ``resolve_views`` checks the names against the scene manifest the A/B replays (the pod's own run):
+  a name it lacks is replaced by the first other camera of the same room, else dropped, each with the reason.
+  ``prepare_m13(..., run_dir=)`` prepares from a project's run output (``outputs/<p>``: its
+  ``building_final.json`` and ``style.json``, ``scene/scene_manifest.json`` with the run's cameras,
+  ``renders/`` with the final previews), never from the committed baseline. ``view_set`` picks the set
+  (``AB_VIEW_SETS``: ``levers`` = ``M13_AB_VIEWS``, the default, ``sky``) in the CLI (``m13-views``, and the
+  ``--view-set`` / ``--scene`` options of ``m13-prepare``, ``m13-sheets``, ``m13-summary``); every default stays the
+  lever A/B's.
 
 Why: the A/B compares the same camera rendered two ways; a camera that moved
 (or was not rendered) would compare different pictures.
@@ -191,25 +202,124 @@ NO_CAMERA_RECORDS = ("no scene_manifest.json with camera records in the baseline
                      "and room")
 
 
+# Pod P6a (22 Oct 2026, the user's OK): the interior sky A/B of real04. Six interior views with windows (or glazed
+# doors) from P5's run (runs/20261017-224848-full/results/renders/real04/render_manifest.json): the window pull k, the
+# panes before it (clip share, median, p90) and the daylight green ratio G/sqrt(RB) of the bpy 5.2.2 shim of real04
+# at P5's anchor (tests/test_m13_light.py, test_fixround_p5_the_view_takes_the_tint_of_its_own_daylight; the anchor's
+# 1.002). The dark sky over a near-white ground band shows in yatak_odasi_1, yatak_odasi_3, salon_1 / _2 and oyun_1;
+# the green walls in the L0 bedrooms; oyun_1 (L1, over the roof, little lawn) is the control.
+M13_SKY_AB_VIEWS: dict[str, list[dict]] = {
+    "real04": [
+        {"camera": "cam_r_L0_yatak_odasi_1", "room_id": "r_L0_yatak_odasi", "room_type": "bedroom",
+         "p5": "pull k3, panes 28.5 % clipped before it (median 0.876, p90 0.999); daylight green 1.402"},
+        {"camera": "cam_r_L0_yatak_odasi_3", "room_id": "r_L0_yatak_odasi", "room_type": "bedroom",
+         "p5": "pull k2, panes 6.1 % clipped before it (median 0.825, p90 0.998); daylight green 1.348"},
+        {"camera": "cam_r_L0_e_yatak_odasi_1", "room_id": "r_L0_e_yatak_odasi", "room_type": "bedroom",
+         "p5": "pull k1 (median 0.750, p90 0.781), glazed doors at the frame's edge; daylight green 1.321"},
+        {"camera": "cam_r_L-1_salon_1", "room_id": "r_L-1_salon", "room_type": "living",
+         "p5": "pull k3, near-white panes before it (median 0.996, p90 0.997); daylight green 1.178"},
+        {"camera": "cam_r_L-1_salon_2", "room_id": "r_L-1_salon", "room_type": "living",
+         "p5": "pull k3, near-white panes before it (median 0.979, p90 0.994)"},
+        {"camera": "cam_r_L1_oyun_aktivite_ve_dinlenme_odasi_1", "room_id": "r_L1_oyun_aktivite_ve_dinlenme_odasi",
+         "room_type": "other", "p5": "pull k1 (median 0.722, p90 0.959); daylight green 1.022 (the control)"},
+    ],
+}
+# The sky levels of the A/B (lighting.SKY_VARIANTS, pinned equal in tests/test_m13_sky_ab.py): ``base`` = production
+# (the interior world as built), then +2, +3.5 and +5.2 stops.
+M13_SKY_AB_VARIANTS = ("base", "sky2", "sky35", "sky52")
+AB_VIEW_SETS = {"levers": M13_AB_VIEWS, "sky": M13_SKY_AB_VIEWS}
+
+
 def m13_views(project: str) -> list[str]:
     """The camera names of the lever A/B of ``project`` (``M13_AB_VIEWS``; ``[]`` for another project)."""
     return [v["camera"] for v in M13_AB_VIEWS.get(project, [])]
 
 
+def view_set_of(name: Optional[str]) -> dict[str, list[dict]]:
+    """The views table of a view set (``AB_VIEW_SETS``; None or "" = ``levers``); an unknown name raises ValueError."""
+    key = name or "levers"
+    if key not in AB_VIEW_SETS:
+        raise ValueError(f"unknown view set {name!r}; one of {sorted(AB_VIEW_SETS)}")
+    return AB_VIEW_SETS[key]
+
+
+def _scene_dict(scene) -> Optional[dict]:
+    """A scene manifest (a dict, or a path to one; None when absent or unreadable)."""
+    if scene is None or isinstance(scene, dict):
+        return scene
+    path = Path(scene)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def resolve_views(project: str, view_set: Optional[str] = "levers", scene=None) -> dict:
+    """The views of ``project`` in ``view_set`` checked against ``scene`` (a scene manifest dict or path, the one
+    the A/B replays; pure apart from reading it): ``{"views": [names], "replaced": [{"wanted", "used", "reason"}],
+    "dropped": [{"wanted", "reason"}]}``. Without a scene every configured name is kept (the lever A/B's committed
+    baselines). A name the scene lacks is replaced by the first camera record of the same ``room_id`` (manifest
+    order) not already in the list, else dropped."""
+    wanted = view_set_of(view_set).get(project, [])
+    data = _scene_dict(scene)
+    if data is None:
+        return {"views": [v["camera"] for v in wanted], "replaced": [], "dropped": []}
+    records = [c for c in data.get("cameras") or [] if isinstance(c, dict) and c.get("name")]
+    names = {str(c["name"]) for c in records}
+    views, replaced, dropped = [], [], []
+    for v in wanted:
+        cam = v["camera"]
+        if cam in names and cam not in views:
+            views.append(cam)
+            continue
+        room = v.get("room_id")
+        alt = next((str(c["name"]) for c in records if room and c.get("room_id") == room
+                    and str(c["name"]) not in views and str(c["name"]) not in {w["camera"] for w in wanted}), None)
+        if alt is not None:
+            views.append(alt)
+            replaced.append({"wanted": cam, "used": alt, "reason": f"no camera {cam} in the scene manifest: the "
+                                                                   f"first other camera of {room}"})
+        else:
+            dropped.append({"wanted": cam, "reason": f"no camera {cam} and no other camera of "
+                                                     f"{room or 'its room'} in the scene manifest"})
+    return {"views": views, "replaced": replaced, "dropped": dropped}
+
+
+def ab_views(project: str, view_set: Optional[str] = "levers", scene=None) -> list[str]:
+    """The camera names of ``resolve_views`` (the lever A/B without a scene: ``m13_views``)."""
+    return resolve_views(project, view_set, scene)["views"]
+
+
+RUN_SUBDIRS = ("scene", "renders", ".")     # where prepare_m13(run_dir=) looks, in this order
+
+
 def prepare_m13(project: str, project_out: Path, commit: Optional[str] = None, repo_root: Path = REPO_ROOT,
-                show: Optional[Callable[[str, str], bytes]] = None) -> dict:
+                show: Optional[Callable[[str, str], bytes]] = None, *, run_dir: Optional[Path] = None,
+                view_set: Optional[str] = "levers") -> dict:
     """Write ``<project_out>/ab/m13/`` from the baseline run of ``project`` (module docstring): ``commit`` a git
     sha (default ``M13_BASELINE_COMMITS[project]``) read with ``show(commit, path)`` (``git_show``), or a directory
     holding the baseline files (``scene_manifest.json``, ``render_manifest.json``, ``<cam>_preview.jpg``,
     ``building_final.json`` or the repo's ``results/furniture/<p>/building_final.json``). Returns ``{"project",
     "commit", "source", "out", "files", "cameras", "camera_records", "previews", "missing", "reason", "views",
-    "views_missing"}``; a baseline without camera records gives ``cameras 0`` and the ``reason``."""
+    "views_missing"}``; a baseline without camera records gives ``cameras 0`` and the ``reason``.
+
+    Pod P6a: ``run_dir`` (a project's run output, ``outputs/<p>``) instead of ``commit``: the files are looked up in
+    its ``scene/``, ``renders/`` and top folders (``RUN_SUBDIRS``), the building only as its own
+    ``building_final.json`` (never the committed one: the A/B must build what the run built) and ``style.json`` is
+    the run's file when it has one (else the scene manifest's ``style_profile``). ``view_set`` (``AB_VIEW_SETS``)
+    names the views checked against the prepared cameras (``resolve_views``: ``views``, ``views_missing``,
+    ``views_replaced``)."""
     from wenart.blender.cameras import replay_cameras
 
+    view_set_of(view_set)                                   # an unknown set fails before anything is written
+    run_dir = Path(run_dir) if run_dir is not None else None
+    if run_dir is not None and not run_dir.is_dir():
+        raise ValueError(f"{project}: run output {run_dir} is no directory")
     out = Path(project_out) / M13_DIR
     out.mkdir(parents=True, exist_ok=True)
-    source_dir = Path(commit) if commit and Path(commit).is_dir() else None
-    if source_dir is None and commit is None:
+    source_dir = Path(commit) if run_dir is None and commit and Path(commit).is_dir() else None
+    if run_dir is None and source_dir is None and commit is None:
         if project not in M13_BASELINE_COMMITS:
             raise ValueError(f"{project}: no baseline commit in M13_BASELINE_COMMITS and no directory given")
         commit = M13_BASELINE_COMMITS[project]
@@ -217,6 +327,13 @@ def prepare_m13(project: str, project_out: Path, commit: Optional[str] = None, r
 
     def read(rel: str) -> Optional[bytes]:
         """The bytes of a baseline file (``rel`` as under results/), None when absent."""
+        if run_dir is not None:
+            name = Path(rel).name
+            folders = [run_dir] if rel.startswith("results/furniture/") else [run_dir / d for d in RUN_SUBDIRS]
+            for folder in folders:
+                if (folder / name).is_file():
+                    return (folder / name).read_bytes()
+            return None
         if source_dir is not None:
             name = Path(rel).name
             candidates = [source_dir / name]
@@ -242,16 +359,27 @@ def prepare_m13(project: str, project_out: Path, commit: Optional[str] = None, r
     if building is not None:
         (out / "building_final.json").write_bytes(building)
         files.append("building_final.json")
-    info = {"project": project, "commit": None if source_dir is not None else commit,
-            "source": str(source_dir) if source_dir is not None else f"git {str(commit)[:12]}", "out": str(out),
+    configured = [v["camera"] for v in view_set_of(view_set).get(project, [])]
+    if run_dir is not None:
+        source = f"run {run_dir}"
+    else:
+        source = str(source_dir) if source_dir is not None else f"git {str(commit)[:12]}"
+    info = {"project": project, "commit": None if source_dir is not None or run_dir is not None else commit,
+            "source": source, "out": str(out),
             "files": files, "cameras": 0, "camera_records": False, "previews": 0, "missing": [], "reason": None,
-            "views": m13_views(project), "views_missing": list(m13_views(project))}
+            "views": configured, "views_missing": list(configured)}
+    if view_set not in (None, "", "levers"):
+        info["view_set"] = view_set
     if scene_bytes is None:
         info["reason"] = NO_CAMERA_RECORDS
         return info
     scene = json.loads(scene_bytes.decode("utf-8"))
     style = scene.get("style_profile")
-    if isinstance(style, dict):
+    run_style = run_dir / "style.json" if run_dir is not None else None
+    if run_style is not None and run_style.is_file():
+        (out / "style.json").write_bytes(run_style.read_bytes())       # the file the run's build read
+        files.append("style.json")
+    elif isinstance(style, dict):
         (out / "style.json").write_text(json.dumps(style, indent=1, ensure_ascii=False), encoding="utf-8")
         files.append("style.json")
     plans = replay_cameras(scene)["plans"]
@@ -267,7 +395,13 @@ def prepare_m13(project: str, project_out: Path, commit: Optional[str] = None, r
             continue
         (out / f"{cam}_preview.jpg").write_bytes(data)
         info["previews"] += 1
-    info["views_missing"] = [v for v in m13_views(project) if v not in names]
+    if view_set in (None, "", "levers"):
+        info["views_missing"] = [v for v in m13_views(project) if v not in names]
+    else:
+        # the sky A/B: the views resolved against the replayed cameras (a missing name -> its room's next camera)
+        resolved = resolve_views(project, view_set, {"cameras": [p for p in plans]})
+        info.update(views=resolved["views"], views_missing=[d["wanted"] for d in resolved["dropped"]],
+                    views_replaced=resolved["replaced"])
     return info
 
 
@@ -310,30 +444,49 @@ def lever_sheet(view: str, tiles: list, out_path: Path, tile_width: int = 640, l
 
 
 def lever_sheets(results_dir: Path, project: str, variants=M13_AB_VARIANTS, views: Optional[list] = None,
-                 baseline_dir: Optional[Path] = None) -> list[Path]:
+                 baseline_dir: Optional[Path] = None, baseline_label: str = "M11 baseline") -> list[Path]:
     """One sheet per view of the lever A/B: ``results_dir/<variant>/<project>/<cam>_preview.jpg`` of every variant,
-    the baseline preview (``baseline_dir/<cam>_preview.jpg``, the committed Milestone 11 render) first; written to
-    ``results_dir/sheets/<project>_<cam>.jpg``."""
+    the baseline preview (``baseline_dir/<cam>_preview.jpg``, the committed Milestone 11 render; pod P6a: the run's
+    own final render, ``baseline_label``) first; written to ``results_dir/sheets/<project>_<cam>.jpg``."""
     results_dir = Path(results_dir)
     out = []
     for cam in views or m13_views(project):
         tiles = []
         if baseline_dir is not None:
-            tiles.append(("M11 baseline", Path(baseline_dir) / f"{cam}_preview.jpg"))
+            tiles.append((baseline_label, Path(baseline_dir) / f"{cam}_preview.jpg"))
         for v in variants:
             tiles.append((v, results_dir / v / project / f"{cam}_preview.jpg"))
         out.append(lever_sheet(f"{project} {cam}", tiles, results_dir / "sheets" / f"{project}_{cam}.jpg"))
     return out
 
 
-def lever_summary(results_dir: Path, projects=("real02", "real03"), variants=M13_AB_VARIANTS) -> dict:
+def _world_record(folder: Path) -> Optional[dict]:
+    """The interior world record of a variant (``lighting.json`` the job copies from the scene manifest:
+    ``lighting.world``), None when absent."""
+    try:
+        data = json.loads((Path(folder) / "lighting.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    world = ((data or {}).get("lighting") or {}).get("world") if isinstance(data, dict) else None
+    return world if isinstance(world, dict) else None
+
+
+def lever_summary(results_dir: Path, projects=("real02", "real03"), variants=M13_AB_VARIANTS,
+                  views: Optional[dict] = None, view_set: Optional[str] = "levers") -> dict:
     """The numbers of the lever A/B per project, variant and view from ``results_dir/<variant>/<project>/
     render_manifest.json`` (seconds, samples, EV, the metered EV, at_limit, lighting_dark, incident p50, the white
     balance, ``vram_mib`` of the entry) and ``vram.json`` (the job's nvidia-smi peak of the variant); written to
-    ``results_dir/summary.json`` and ``summary.md``."""
+    ``results_dir/summary.json`` and ``summary.md``.
+
+    Pod P6a: ``views`` ({project: [cameras]}, default ``m13_views``) are the views of a run's resolved set
+    (``resolve_views``); every row also carries the window pull (``pull_k``, the panes after it), the view's
+    daylight tint (``wb_day_green``, ``wb_view_tint_gain``), the project white point's kelvin and the interior
+    world's strength of the variant (``world_strength``, ``sky_stops``: ``lighting.json``), so the sky levels
+    compare in numbers; a ``view_set`` other than ``levers`` is named in the summary."""
     results_dir = Path(results_dir)
     rows = []
     for project in projects:
+        project_views = list((views or {}).get(project) or []) or m13_views(project)
         for v in variants:
             folder = results_dir / v / project
             manifest = folder / "render_manifest.json"
@@ -347,8 +500,11 @@ def lever_summary(results_dir: Path, projects=("real02", "real03"), variants=M13
                     peak = json.loads((folder / "vram.json").read_text(encoding="utf-8")).get("peak_mib")
                 except ValueError:
                     peak = None
+            world = _world_record(folder) or {}
+            wb_project = data.get("white_balance_project") if isinstance(data.get("white_balance_project"), dict) \
+                else {}
             entries = {r.get("camera"): r for r in data.get("renders") or []}
-            for cam in m13_views(project):
+            for cam in project_views:
                 r = entries.get(cam)
                 if r is None:
                     rows.append({"project": project, "variant": v, "camera": cam, "status": "not rendered",
@@ -363,16 +519,30 @@ def lever_summary(results_dir: Path, projects=("real02", "real03"), variants=M13
                              "incident_p50": ex.get("incident_p50"), "wb_temperature": ex.get("wb_temperature"),
                              "wb_mode": ex.get("wb_mode"), "vram_mib": r.get("vram_mib"), "vram_peak_mib": peak,
                              "light_variant": (data.get("light_variant") or {}).get("build"),
-                             "exposure_limits": data.get("exposure_limits")})
+                             "exposure_limits": data.get("exposure_limits"),
+                             # pod P6a: the window band, the green daylight and the interior world in numbers
+                             "pull_k": (r.get("window_pull") or {}).get("k"),
+                             "pane_median_after": (r.get("window_pull") or {}).get("pane_median_after"),
+                             "pane_p90_after": (r.get("window_pull") or {}).get("pane_p90_after"),
+                             "wb_day_green": ex.get("wb_day_green"), "wb_view_tint_gain": ex.get("wb_view_tint_gain"),
+                             "wb_project_k": wb_project.get("kelvin"), "world_strength": world.get("strength"),
+                             "sky_stops": world.get("sky_stops", 0.0 if world else None)})
     summary = {"schema_version": "0.1", "kind": "levers_ab_m13", "variants": list(variants),
-               "projects": list(projects), "views": {p: m13_views(p) for p in projects}, "rows": rows}
+               "projects": list(projects),
+               "views": {p: list((views or {}).get(p) or []) or m13_views(p) for p in projects}, "rows": rows}
+    if view_set not in (None, "", "levers"):
+        summary["view_set"] = view_set
     write_json(results_dir / "summary.json", summary)
     (results_dir / "summary.md").write_text(lever_summary_md(summary), encoding="utf-8")
     return summary
 
 
 def lever_summary_md(summary: dict) -> str:
-    """The Markdown table of ``lever_summary`` (one row per view and variant)."""
+    """The Markdown table of ``lever_summary`` (one row per view and variant). Pod P6a: a summary of another view set
+    (``view_set``: the sky A/B) gets its own title and the columns of the window pull, the daylight tint and the
+    interior world; the lever A/B's table is unchanged."""
+    if summary.get("view_set") not in (None, "", "levers"):
+        return _sky_summary_md(summary)
     lines = ["# Milestone 13 lever A/B (scripts/jobs/levers_ab.sh)", "",
              "| Project | Variant | View | Seconds | EV used | EV metered | lighting_dark | Incident p50 | WB K | "
              "VRAM MiB (view / peak) |", "|---|---|---|---|---|---|---|---|---|---|"]
@@ -386,48 +556,119 @@ def lever_summary_md(summary: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _sky_summary_md(summary: dict) -> str:
+    """The sky A/B's table (pod P6a): per view and level, the interior world, the exposure, the window pull and the
+    panes after it, the white point and the daylight tint."""
+    def cell(value) -> str:
+        return "-" if value is None else str(value)
+
+    lines = [f"# Milestone 13 interior sky A/B, view set '{summary.get('view_set')}' (scripts/jobs/m13_p6.sh)", "",
+             "The interior world (the HDRI that lights the interior views) raised by 2^stops; the exterior world, the "
+             "sun, the rig and every other lever as in production. Pull k = the window pull in stops; panes p50 / p90 "
+             "after it (display values, 1.0 = white); day green = the view's daylight G/sqrt(RB); tint = the gain on "
+             "the white point's G.", "",
+             "| Project | Variant | View | World strength | Stops | EV used | EV metered | Pull k | Panes p50 / p90 | "
+             "WB K (view / project) | Day green | Tint | Seconds |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for r in summary["rows"]:
+        if r.get("status") != "rendered":
+            lines.append(f"| {r['project']} | {r['variant']} | {r.get('camera') or '-'} | not rendered "
+                         f"| | | | | | | | | |")
+            continue
+        lines.append(f"| {r['project']} | {r['variant']} | {r['camera']} | {cell(r.get('world_strength'))} | "
+                     f"{cell(r.get('sky_stops'))} | {cell(r.get('ev'))} | {cell(r.get('ev_raw'))} | "
+                     f"{cell(r.get('pull_k'))} | {cell(r.get('pane_median_after'))} / {cell(r.get('pane_p90_after'))} | "
+                     f"{cell(r.get('wb_temperature'))} / {cell(r.get('wb_project_k'))} | {cell(r.get('wb_day_green'))} | "
+                     f"{cell(r.get('wb_view_tint_gain'))} | {cell(r.get('seconds'))} |")
+    return "\n".join(lines) + "\n"
+
+
+def _views_by_project(projects: list, view_set: Optional[str], scene_template: Optional[str]) -> Optional[dict]:
+    """``{project: resolve_views(...)["views"]}`` for a view set other than the levers' or with a scene template
+    (``{name}`` = the project); None (the lever A/B's ``m13_views``) otherwise."""
+    if view_set in (None, "", "levers") and not scene_template:
+        return None
+    return {p: ab_views(p, view_set, scene_template.replace("{name}", p) if scene_template else None)
+            for p in projects}
+
+
 def main(argv: Optional[list] = None) -> int:
-    """``python -m wenart.run.ab m13-prepare --project p --project-out out [--commit sha | --from dir]``,
-    ``m13-sheets --results dir --projects a,b [--variants ...] [--baseline dir-template]``, ``m13-summary --results
-    dir [--projects a,b] [--variants ...]``."""
+    """``python -m wenart.run.ab m13-prepare --project p --project-out out [--commit sha | --from dir | --from-run
+    dir] [--view-set s]``, ``m13-views --project p [--view-set s] [--scene manifest]``, ``m13-sheets --results dir
+    --projects a,b [--variants ...] [--baseline dir-template] [--baseline-label text] [--view-set s] [--scene
+    template]``, ``m13-summary --results dir [--projects a,b] [--variants ...] [--view-set s] [--scene template]``.
+    Pod P6a added ``--from-run``, ``--view-set``, ``--scene``, ``--baseline-label`` and ``m13-views``; without them
+    every command does what it did for P1."""
     parser = argparse.ArgumentParser(prog="wenart.run.ab")
     sub = parser.add_subparsers(dest="command", required=True)
+    view_help = f"view set: {', '.join(sorted(AB_VIEW_SETS))} (default levers)"
+    scene_help = "scene manifest the views are checked against, '{name}' = the project (pod P6a)"
     pp = sub.add_parser("m13-prepare", help="the baseline files of a project into <out>/ab/m13/")
     pp.add_argument("--project", required=True)
     pp.add_argument("--project-out", required=True)
     pp.add_argument("--commit", default=None, help="baseline commit (default M13_BASELINE_COMMITS)")
     pp.add_argument("--from", dest="source", default=None, help="a directory with the baseline files instead of git")
+    pp.add_argument("--from-run", dest="run_dir", default=None,
+                    help="pod P6a: a project's run output (outputs/<p>) instead of the committed baseline")
+    pp.add_argument("--view-set", default="levers", help=view_help)
+    pv = sub.add_parser("m13-views", help="the views of a project (comma separated), checked against a scene")
+    pv.add_argument("--project", required=True)
+    pv.add_argument("--view-set", default="levers", help=view_help)
+    pv.add_argument("--scene", default=None, help=scene_help)
     ps = sub.add_parser("m13-sheets", help="one contact sheet per view, the variants side by side")
     ps.add_argument("--results", required=True)
     ps.add_argument("--projects", default="real02,real03")
     ps.add_argument("--variants", default=",".join(M13_AB_VARIANTS))
     ps.add_argument("--baseline", default=None, help="baseline previews, '{name}' = the project (optional)")
+    ps.add_argument("--baseline-label", default="M11 baseline", help="the baseline tile's label")
+    ps.add_argument("--view-set", default="levers", help=view_help)
+    ps.add_argument("--scene", default=None, help=scene_help)
     pm = sub.add_parser("m13-summary", help="summary.json / summary.md of the lever A/B")
     pm.add_argument("--results", required=True)
     pm.add_argument("--projects", default="real02,real03")
     pm.add_argument("--variants", default=",".join(M13_AB_VARIANTS))
+    pm.add_argument("--view-set", default="levers", help=view_help)
+    pm.add_argument("--scene", default=None, help=scene_help)
     args = parser.parse_args(argv)
+    try:
+        view_set_of(args.view_set)
+    except ValueError as exc:
+        print(f"{args.command}: {exc}", file=sys.stderr)
+        return 2
     if args.command == "m13-prepare":
         try:
-            info = prepare_m13(args.project, Path(args.project_out), args.source or args.commit)
+            if args.run_dir and (args.source or args.commit):
+                raise ValueError("--from-run excludes --from and --commit")
+            info = prepare_m13(args.project, Path(args.project_out), args.source or args.commit,
+                               run_dir=Path(args.run_dir) if args.run_dir else None, view_set=args.view_set)
         except (ValueError, OSError) as exc:
             print(f"m13-prepare: {exc}", file=sys.stderr)
             return 1
         print(f"m13-prepare {info['project']}: {info['cameras']} cameras, {info['previews']} previews from "
               f"{info['source']} into {info['out']}" + (f"; {info['reason']}" if info["reason"] else "")
-              + (f"; views missing: {info['views_missing']}" if info["views_missing"] else ""))
+              + (f"; views missing: {info['views_missing']}" if info["views_missing"] else "")
+              + (f"; views replaced: {info['views_replaced']}" if info.get("views_replaced") else ""))
         write_json(Path(args.project_out) / M13_DIR / "prepare_m13.json", info)
+        return 0
+    if args.command == "m13-views":
+        resolved = resolve_views(args.project, args.view_set, args.scene)
+        for r in resolved["replaced"]:
+            print(f"m13-views: {r['wanted']} -> {r['used']} ({r['reason']})", file=sys.stderr)
+        for d in resolved["dropped"]:
+            print(f"m13-views: {d['wanted']} dropped ({d['reason']})", file=sys.stderr)
+        print(",".join(resolved["views"]))
         return 0
     variants = [v for v in args.variants.split(",") if v]
     projects = [p for p in args.projects.split(",") if p]
+    views = _views_by_project(projects, args.view_set, args.scene)
     if args.command == "m13-sheets":
         n = 0
         for p in projects:
             base = Path(args.baseline.replace("{name}", p)) if args.baseline else None
-            n += len(lever_sheets(Path(args.results), p, variants, baseline_dir=base))
+            n += len(lever_sheets(Path(args.results), p, variants, views=(views or {}).get(p) or None,
+                                  baseline_dir=base, baseline_label=args.baseline_label))
         print(f"m13-sheets: {n} sheets in {Path(args.results) / 'sheets'}")
         return 0
-    summary = lever_summary(Path(args.results), projects, variants)
+    summary = lever_summary(Path(args.results), projects, variants, views=views, view_set=args.view_set)
     rendered = sum(1 for r in summary["rows"] if r.get("status") == "rendered")
     print(f"m13-summary: {rendered} of {len(summary['rows'])} view renders in {Path(args.results) / 'summary.md'}")
     return 0

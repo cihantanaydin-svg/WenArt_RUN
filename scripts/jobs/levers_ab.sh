@@ -28,6 +28,14 @@
 #      AB_VARIANT_EST_S (300), AB_GPU_TESTS (1 = run tests/gpu/test_m13_light.py at the end), AB_BASELINE_DIR
 #      (default results/renders/{name}: the committed baseline files; equal to commit 93aff07, checked 15 Oct 2026),
 #      WENART_LICENCE_MODE (unset = the project brief: relaxed for real02 / real03).
+#
+# Pod P6a (22 Oct 2026, the interior sky A/B; scripts/jobs/m13_p6.sh sets these, every default is P1's):
+#      AB_VIEW_SET (levers = wenart.run.ab.M13_AB_VIEWS; sky = M13_SKY_AB_VIEWS, checked against the prepared scene
+#      manifest by `wenart.run.ab m13-views`: a missing camera -> the next camera of its room), AB_SOURCE (baseline =
+#      the committed baseline of AB_BASELINE_DIR; run = this pod's own run of the project: AB_RUN_DIR, default
+#      outputs/{name}, its building_final.json, style.json, scene/scene_manifest.json cameras and renders/ previews,
+#      the "before" column labelled AB_BASELINE_LABEL, default "run final"), AB_NAME (ab_m13: the folder under
+#      outputs/<p>/ for the variant scenes and under $RESULTS for the results, e.g. ab_m13/sky).
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -50,12 +58,33 @@ EST_S="${AB_VARIANT_EST_S:-300}"
 BASELINE_DIR="${AB_BASELINE_DIR:-$REPO/results/renders/{name}}"
 read -r -a PROJECTS <<< "${AB_PROJECTS:-real02 real03}"
 read -r -a VARIANTS <<< "${AB_VARIANTS:-m11 base sun100 sun300 sun1000 evcap rig shell all}"
-AB_OUT=$RESULTS/ab_m13
+VIEW_SET="${AB_VIEW_SET:-levers}"
+SOURCE="${AB_SOURCE:-baseline}"
+NAME="${AB_NAME:-ab_m13}"
+RUN_DIR_T="${AB_RUN_DIR:-$REPO/outputs/{name}}"
+AB_OUT=$RESULTS/$NAME
 FAILED=()
 SKIPPED=()
 
 ts() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 log() { echo "[$(ts)] levers_ab: $*"; }
+
+case "$SOURCE" in
+  baseline) BASE_COL=baseline_m11; LABEL="${AB_BASELINE_LABEL:-M11 baseline}" ;;
+  run) BASE_COL=run_final; LABEL="${AB_BASELINE_LABEL:-run final}" ;;
+  *) log "unknown AB_SOURCE '$SOURCE' (baseline|run)"; exit 2 ;;
+esac
+case "$NAME" in
+  ''|/*|*..*) log "AB_NAME '$NAME' must be a relative folder name"; exit 2 ;;
+esac
+
+# views_of <p>: the views of the set (comma separated); the sky set is checked against the prepared scene manifest.
+views_of() {
+  local scene=$REPO/outputs/$1/ab/m13/scene_manifest.json
+  local -a sc=()
+  if [ "$VIEW_SET" != "levers" ] && [ -f "$scene" ]; then sc=(--scene "$scene"); fi
+  "$PY" -m wenart.run.ab m13-views --project "$1" --view-set "$VIEW_SET" "${sc[@]}" || true
+}
 
 # seconds_left: until WENART_DEADLINE (a huge number without one)
 seconds_left() {
@@ -72,7 +101,7 @@ copy_results() {
   local p v src dst
   for p in "${PROJECTS[@]}"; do
     for v in "${VARIANTS[@]}"; do
-      src=$REPO/outputs/$p/ab_m13/$v
+      src=$REPO/outputs/$p/$NAME/$v
       [ -d "$src" ] || continue
       dst=$AB_OUT/$v/$p
       mkdir -p "$dst"
@@ -92,14 +121,16 @@ PY
         cp -f "$src/scene/build.log" "$dst/" 2>/dev/null || true
       fi
     done
-    # the baseline previews of the 8 views (the "before" column of the sheets)
+    # the baseline previews of the views (the "before" column of the sheets; AB_SOURCE=run: the run's final renders)
     local base=${BASELINE_DIR//\{name\}/$p}
+    if [ "$SOURCE" = "run" ]; then base=${RUN_DIR_T//\{name\}/$p}/renders; fi
     if [ -d "$base" ]; then
-      mkdir -p "$AB_OUT/baseline_m11/$p"
-      for cam in $("$PY" -c "from wenart.run.ab import m13_views; print(' '.join(m13_views('$p')))"); do
-        cp -f "$base/${cam}_preview.jpg" "$AB_OUT/baseline_m11/$p/" 2>/dev/null || true
+      mkdir -p "$AB_OUT/$BASE_COL/$p"
+      for cam in $(views_of "$p" | tr ',' ' '); do
+        cp -f "$base/${cam}_preview.jpg" "$AB_OUT/$BASE_COL/$p/" 2>/dev/null || true
       done
     fi
+    cp -f "$REPO/outputs/$p/ab/m13/prepare_m13.json" "$AB_OUT/prepare_$p.json" 2>/dev/null || true
   done
   cp -f "$LOG" "$AB_OUT/" 2>/dev/null || true
   log "results copied to $AB_OUT: $(find "$AB_OUT" -type f | wc -l) files"
@@ -156,16 +187,29 @@ PY
 
 cd "$REPO"
 mkdir -p "$RESULTS" "$ASSETS" outputs "$AB_OUT"
-log "job $JOB, projects: ${PROJECTS[*]}, variants: ${VARIANTS[*]}, samples $SAMPLES, res $RES, deadline in $(seconds_left) s, blender $("$WENART_BLENDER" --version 2>/dev/null | head -1)"
+log "job $JOB, projects: ${PROJECTS[*]}, variants: ${VARIANTS[*]}, samples $SAMPLES, res $RES, views $VIEW_SET, source $SOURCE, out $NAME, deadline in $(seconds_left) s, blender $("$WENART_BLENDER" --version 2>/dev/null | head -1)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || log "nvidia-smi failed"
 
-# 1. The baseline files of every project (the committed Milestone 11 run) into outputs/<p>/ab/m13/.
+# 1. The baseline files of every project (the committed Milestone 11 run; AB_SOURCE=run: this pod's run) into
+#    outputs/<p>/ab/m13/.
 for p in "${PROJECTS[@]}"; do
-  base=${BASELINE_DIR//\{name\}/$p}
-  if [ -d "$base" ]; then
-    run_stage "prepare-$p" "$PY" -m wenart.run.ab m13-prepare --project "$p" --project-out "outputs/$p" --from "$base"
+  if [ "$SOURCE" = "run" ]; then
+    rd=${RUN_DIR_T//\{name\}/$p}
+    if [ -f "$rd/building_final.json" ] && [ -f "$rd/scene/scene_manifest.json" ]; then
+      run_stage "prepare-$p" "$PY" -m wenart.run.ab m13-prepare --project "$p" --project-out "outputs/$p" \
+        --from-run "$rd" --view-set "$VIEW_SET"
+    else
+      log "$p: no run output to prepare from ($rd: building_final.json, scene/scene_manifest.json)"
+      FAILED+=("prepare-$p")
+    fi
+    if stage_failed "prepare-$p"; then continue; fi     # never build an earlier prepare's files
   else
-    run_stage "prepare-$p" "$PY" -m wenart.run.ab m13-prepare --project "$p" --project-out "outputs/$p"
+    base=${BASELINE_DIR//\{name\}/$p}
+    if [ -d "$base" ]; then
+      run_stage "prepare-$p" "$PY" -m wenart.run.ab m13-prepare --project "$p" --project-out "outputs/$p" --from "$base"
+    else
+      run_stage "prepare-$p" "$PY" -m wenart.run.ab m13-prepare --project "$p" --project-out "outputs/$p"
+    fi
   fi
   if [ -f "outputs/$p/ab/m13/style.json" ]; then
     run_stage "assets-$p" "$PY" -m wenart.assets fetch --style "outputs/$p/ab/m13/style.json" --assets "$ASSETS" --size 2k
@@ -180,13 +224,21 @@ for v in "${VARIANTS[@]}"; do
       log "$p: no baseline scene manifest or building (prepare failed?), variant $v skipped"
       SKIPPED+=("$v/$p"); continue
     fi
+    if [ "$SOURCE" = "run" ] && stage_failed "prepare-$p"; then
+      log "$p: the run output was not prepared, variant $v skipped"
+      SKIPPED+=("$v/$p"); continue
+    fi
     left=$(seconds_left)
     if [ "$left" -lt "$EST_S" ]; then
       log "$p $v: $left s left before WENART_DEADLINE (< $EST_S s): skipped"
       SKIPPED+=("$v/$p"); continue
     fi
-    views=$("$PY" -c "from wenart.run.ab import m13_views; print(','.join(m13_views('$p')))")
-    out=outputs/$p/ab_m13/$v
+    views=$(views_of "$p")
+    if [ -z "$views" ]; then
+      log "$p $v: no view of the set '$VIEW_SET' in the prepared cameras: skipped"
+      SKIPPED+=("$v/$p"); continue
+    fi
+    out=outputs/$p/$NAME/$v
     mkdir -p "$out"
     export WENART_LIGHT_VARIANT="$v"
     export WENART_CAMERAS_FROM="$m13/scene_manifest.json"
@@ -215,11 +267,14 @@ for v in "${VARIANTS[@]}"; do
 done
 unset WENART_LIGHT_VARIANT WENART_CAMERAS_FROM
 
-# 3. Contact sheets and the summary.
+# 3. Contact sheets and the summary (a view set other than the levers' is resolved against the prepared cameras).
+VIEW_ARGS=(--view-set "$VIEW_SET")
+if [ "$VIEW_SET" != "levers" ]; then VIEW_ARGS+=(--scene "$REPO/outputs/{name}/ab/m13/scene_manifest.json"); fi
 run_stage sheets "$PY" -m wenart.run.ab m13-sheets --results "$AB_OUT" --projects "$(IFS=,; echo "${PROJECTS[*]}")" \
-  --variants "$(IFS=,; echo "${VARIANTS[*]}")" --baseline "$AB_OUT/baseline_m11/{name}"
+  --variants "$(IFS=,; echo "${VARIANTS[*]}")" --baseline "$AB_OUT/$BASE_COL/{name}" --baseline-label "$LABEL" \
+  "${VIEW_ARGS[@]}"
 run_stage summary "$PY" -m wenart.run.ab m13-summary --results "$AB_OUT" --projects "$(IFS=,; echo "${PROJECTS[*]}")" \
-  --variants "$(IFS=,; echo "${VARIANTS[*]}")"
+  --variants "$(IFS=,; echo "${VARIANTS[*]}")" "${VIEW_ARGS[@]}"
 
 # 4. The track's GPU tests (small scenes per variant; skipped when the deadline is near).
 if [ "${AB_GPU_TESTS:-1}" = "1" ] && [ "$(seconds_left)" -gt "$EST_S" ]; then

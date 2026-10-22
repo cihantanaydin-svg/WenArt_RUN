@@ -34,7 +34,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
 
 ## GPU limits (hard rules)
 - Max $5.00 per GPU-hour (raised from $1.00 on 3 Oct 2026), max $30 per day (raised from $10 to $30 on 4 Oct 2026; $40 on 9 Oct 2026 only, user OK, `DAY_LIMITS` in `scripts/gpu_run.py`), max 4 hours per pod run (raised from 2 h on 11 Oct 2026, user OK), one pod at a time. 11 Oct 2026 only: the real04 test may pass the USD limits (user OK; day cap $60 in `DAY_LIMITS`, `--over-5-ok`). Project total: $300 (raised from $100 on 10 Oct 2026 and from $200 on 12 Oct 2026, user OK, Milestone 13; the
-  Milestone 13 pods of `docs/milestone13.md` §8 are approved under that decision, each with `--over-5-ok`).
+  Milestone 13 pods of `docs/milestone13.md` §8 are approved under that decision, each with `--over-5-ok`; so are
+  the three final pods P6 of real04 (with an interior-sky A/B), real03 and real02, user OK of 22 Oct 2026).
   A pod may have 2 GPUs when the price per GPU-hour stays within the limit; its worst case counts as one action
   (user OK of 10 Oct 2026, Milestone 12).
 - Ask the user before: going over any limit, creating or deleting a Network Volume,

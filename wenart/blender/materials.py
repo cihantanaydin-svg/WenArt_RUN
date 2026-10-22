@@ -1050,10 +1050,28 @@ MOOD_STRENGTH = {"warm daylight": 1.0, "cool daylight": 1.2, "golden evening": 0
 # soft 1.4, interior evening 0.5; wenart/style/finishes.py LIGHTING).
 
 
-def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
+def world_strength_record(strength: float, strength_gain: float = 1.0) -> tuple[float, dict]:
+    """``(Background Strength, extra record keys)`` of the interior world (pure; pod P6a, the interior sky A/B):
+    ``strength`` times ``strength_gain`` (``lighting.interior_sky_gain``) with ``{"strength_base", "strength_gain",
+    "sky_stops"}``; a gain of exactly 1.0 (production) returns ``strength`` untouched and no keys, so the world and
+    its manifest record stay as they were. A gain that is not a positive finite number raises ValueError."""
+    gain = float(strength_gain)
+    if not math.isfinite(gain) or gain <= 0.0:
+        raise ValueError(f"interior world strength gain must be a positive number, not {strength_gain!r}")
+    if gain == 1.0:
+        return strength, {}
+    return strength * gain, {"strength_base": strength, "strength_gain": round(gain, 6),
+                             "sky_stops": round(math.log2(gain), 6)}
+
+
+def world_nodes(scene, lighting: dict, hdri_path: str | None, strength_gain: float = 1.0) -> dict:
     """World from the style: HDRI when a file is available, else a physical
     sky (sky texture, multiple scattering) at the style's sun position.
     Returns what was used for the manifest.
+
+    Pod P6a (22 Oct 2026): ``strength_gain`` (``lighting.interior_sky_gain``, the ``sky*`` light variants) multiplies
+    the Background Strength of this world only (``world_strength_record``); the record then carries
+    ``strength_base``, ``strength_gain`` and ``sky_stops``. 1.0 (the default) builds the world as before.
 
     Round 4 check of the interior HDRI against the 1000 W/m² sun lamp (bpy 5.2.2, the measurement of the exterior
     pair): Poly Haven's kloppenheim_06 (1k, the warm-daylight HDRI of real02/03/04) at Strength 1.0 puts 2.54 W/m²
@@ -1077,7 +1095,8 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
     bg = nodes.new("ShaderNodeBackground")
     links.new(bg.outputs["Background"], out.inputs["Surface"])
     mood = str(lighting.get("mood", "")).lower()
-    strength = MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0))
+    strength, gain_record = world_strength_record(MOOD_STRENGTH.get(mood, _MOOD_HDRI_STRENGTH.get(mood, 1.0)),
+                                                  strength_gain)
     bg.inputs["Strength"].default_value = strength
     azimuth = float(lighting.get("sun_azimuth_deg", 210.0))
     elevation = float(lighting.get("sun_elevation_deg", 35.0))
@@ -1092,7 +1111,7 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
         links.new(coord.outputs["Generated"], mapping.inputs["Vector"])
         links.new(mapping.outputs["Vector"], env.inputs["Vector"])
         links.new(env.outputs["Color"], bg.inputs["Color"])
-        return {"kind": "hdri", "file": hdri_path, "strength": strength}
+        return {"kind": "hdri", "file": hdri_path, "strength": strength, **gain_record}
 
     sky = nodes.new("ShaderNodeTexSky")
     sky.sky_type = "MULTIPLE_SCATTERING"
@@ -1103,7 +1122,9 @@ def world_nodes(scene, lighting: dict, hdri_path: str | None) -> dict:
     sky.sun_rotation = sky_sun_rotation_rad(azimuth)
     links.new(sky.outputs["Color"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = strength * 0.5
-    return {"kind": "sky", "file": None, "strength": strength * 0.5}
+    if gain_record:
+        gain_record = dict(gain_record, strength_base=gain_record["strength_base"] * 0.5)
+    return {"kind": "sky", "file": None, "strength": strength * 0.5, **gain_record}
 
 
 EXTERIOR_WORLD = "wenart_world_exterior"

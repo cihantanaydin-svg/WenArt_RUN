@@ -2037,6 +2037,45 @@ Pins changed on purpose are listed in the integration table, each with a comment
 16. The real04 frontal view (X6): only a wider lens or another view type gives one in the 5.7 m free strip (see the
     skipped ask). (integration)
 
+**Review and review fixes.** One read-only reviewer per track checked the change against BASE 29e54d0 on the real pod
+path; 20 findings (2 major), all fixed with a test that fails before the fix, except where noted:
+
+| Track | Finding | Fix |
+|---|---|---|
+| K | `build.main`'s three new calls (`camera_building`, `ceiling_voids`, `lens_clearance`) had no test | source-wiring test in `test_m13_p5_fixround.py` |
+| A (major) | a blocked camera could be "fixed" by `remove_camera` on a room's only view (real04's L1 bathroom has one) | `tools.only_room_view_problem`: a room's last interior view is never removed; `set_camera` moves it |
+| A | the lens-touch critical fired at 0.06 m, the GPU test fails at 0.1 m | `critic_code.RENDER_MIN_DEPTH_M` = 0.1, pinned equal to the GPU test's `MIN_DEPTH_M` |
+| A | the "wider or tilted" hint was offered to every building | only when `exterior.long_low` holds (real03); real02 / real04 keep the 26 mm eye-level lens |
+| A | a re-created piece's finding counted at any severity or cut | only at the target's severity (or critical / major) and the same cut |
+| F | the bed-pillow front still won for AI-typed seats | front candidates of the pillow rule only for bed types |
+| F | the desk split fired on real desk sizes and doubled a drawn chair | split only past 0.90 m deep and only without a drawn seat in front |
+| F | short-side fronts from the wall rules were never corrected | long-side front for the seat types (`_long_front`) |
+| F | a box corner sofa (no L) took its cushions | only an L sofa hosts cushions |
+| F | code labels overwrote earlier code labels | `infer.merge_code_label` |
+| F | an agreed ottoman in a corner sofa's corner was retyped | only an ottoman the code typed is retyped |
+| F | a block-named fixed piece shrunk to its bay had no plan crop | `reading.reading_crop` draws one (`recognition/reading/`, copied to the results) |
+| F | the pod wiring of the new reading steps was unpinned | wiring test |
+| P | code retypes later moved by the agent showed the agent's reason and no crop | the code's own record (kept under `previous`) and its plan crop |
+| P | a bath shrunk across its depth was not counted | per-axis compare |
+| P | a resumed run dropped the edits replayed from the cut run | edits on the same building sha are kept |
+| P | "measured" and "net" could come from two finding-key versions | one source |
+| P | the reading's old reason hid the agent's later not-furniture mark | "<reason>; then marked not furniture ..." (also in the scene manifest; not doubled for a code mark) |
+| P | metric 10 counted a default parametric fabric as "colour applied" | only when a colour was asked |
+| D (major) | real03's logo washers refit to mesh-family twins of the removed models (never rendered, same mesh) | `checks.mesh_family` (the audit's duplicate tolerances) with look evidence (same texture set, or the maker in the title): 3 more washers removed, 9 in all; real03 now gets a Hoover and a Panasonic |
+
+Not changed: an eye-level exterior lens check in `validate_camera_override` (the hint names the 26 mm lens; no agent
+camera so far used another) and renaming a room's views after a middle view is removed (no such edit in P4a, P4b or
+P5); both listed for Milestone 14.
+
+**Final CPU suite** on 0f40067 (`-m "not gpu"`): 5,567 passed, 0 failed, 219 skipped, 174 deselected (GPU), 4 xfailed
+in 45:48 min.
+
+**User answers of 22 Oct 2026.** P6: all three pods (real04 with the GPU tests and an interior-sky A/B, then real03,
+then real02; each over $5 worst case, approved). Interior sky: an A/B at +2, +3.5 and +5.2 stops on fixed real04
+window views (decision 4). Light height: keep 2.0 m for decor lights and 1.55 m for rig fixtures (decision 1). Brands:
+a model is removed only on evidence (a render shows its logo or text, or it is a mesh twin of one); a maker's name in
+a title alone is no flag (decision 15, second part). The other decisions stay open for the P6 sheets.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

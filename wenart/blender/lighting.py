@@ -181,6 +181,17 @@ open stair void"):
   hung in the void and showed as a white disc below the L1 floor in two L1 hall views (M12 and P3 had none). The
   invisible fill light keeps the stairs' own holes. Side effect on real02/real04: the L-1 hall fixtures beside the
   stair openings move 0.25-0.5 m along the hall (their spot is measured from the real ceiling opening now).
+
+Pod P6a (22 Oct 2026, the user's OK; §14.13 decision 4): the interior sky A/B. What: the light variants ``sky2``,
+``sky35`` and ``sky52`` (``SKY_VARIANT_STOPS``) multiply the interior world's Background Strength by 2^stops
+(``interior_sky_gain`` -> ``materials.world_nodes(..., strength_gain=)``); the exterior world, the sun lamp, the rig,
+the EV cap and the shell stay as in production. The variant enters the build fingerprint like every other one
+(``build.fingerprint_args``' ``light_variant``); the lighting block records ``levers.sky_stops`` and the world
+record ``strength_base`` / ``strength_gain`` / ``sky_stops``, only for a sky level, so a production build is unchanged.
+Why: kloppenheim_06 at 1.0 sits about 5.2 stops under the exterior sky pair (``materials.world_nodes``); P5's windows
+showed a dark sky over a near-white ground band and the rooms facing the lawn read green. The A/B
+(``scripts/jobs/m13_p6.sh``, ``wenart.run.ab.M13_SKY_AB_VIEWS``) lets the user pick the level; nothing changes in
+production until then.
 """
 from __future__ import annotations
 
@@ -228,22 +239,37 @@ M11_LEVERS = {"ev_cap": False, "rig": False, "shell": False}
 # material table (ceiling plaster, worktops, fronts, tiles: no harm at 1080p, +35 % render time, 6.4 vs 4.8 s).
 # Three flags, recorded in every scene manifest (lighting.levers).
 LEVER_DEFAULTS = {"ev_cap": True, "rig": True, "shell": True}
+# Pod P6a (22 Oct 2026, the user's OK; docs/milestone13.md §14.13 decision 4): the interior sky A/B. The interior world
+# (``materials.world_nodes``: kloppenheim_06 at Strength 1.0, about 5.2 stops under the exterior sky pair) is the
+# common cause of P5's dark sky over a near-white ground band in the windows and of the green daylight in the rooms
+# facing the lawn. Each name raises that world's Background Strength by 2^stops; the exterior world, the sun lamp,
+# the rig, the EV cap, the shell and every other lever stay as they are. A sky name alone (or with ``base``) starts
+# from production, so ``base`` against ``sky35`` shows the HDRI alone; with ``m11`` or a single lever it starts from
+# that look. Kept apart from LIGHT_VARIANTS (the lever A/B's names, pinned by P1's sheets and defaults).
+SKY_VARIANT_STOPS = {"sky2": 2.0, "sky35": 3.5, "sky52": 5.2}
+SKY_VARIANTS = tuple(SKY_VARIANT_STOPS)
+KNOWN_LIGHT_VARIANTS = LIGHT_VARIANTS + SKY_VARIANTS
 
 
 def parse_light_variant(text) -> list[str]:
     """The variant names of a ``WENART_LIGHT_VARIANT`` value (pure): ``"sun300"`` -> ``["sun300"]``,
     ``"sun1000,rig"`` / ``"sun1000+rig"`` -> both; empty / None -> ``[]`` (production). An unknown name raises
-    ValueError (a typo must never run the base silently); two sun strengths in one value raise too, as do ``m11``
-    and ``base`` together (the Milestone 11 look and the production defaults exclude each other)."""
+    ValueError (a typo must never run the base silently); two sun strengths in one value raise too, as do two sky
+    levels (``SKY_VARIANTS``) and ``m11`` with ``base`` (the Milestone 11 look and the production defaults exclude
+    each other)."""
     if text is None:
         return []
     names = [n.strip().lower() for n in str(text).replace("+", ",").split(",") if n.strip()]
-    unknown = [n for n in names if n not in LIGHT_VARIANTS]
+    unknown = [n for n in names if n not in KNOWN_LIGHT_VARIANTS]
     if unknown:
-        raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: unknown variant {unknown}; one of {list(LIGHT_VARIANTS)}")
+        raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: unknown variant {unknown}; one of "
+                         f"{list(KNOWN_LIGHT_VARIANTS)}")
     suns = [n for n in names if n in SUN_VARIANT_WM2]
     if len(suns) > 1:
         raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one sun strength ({suns})")
+    skies = [n for n in names if n in SKY_VARIANT_STOPS]
+    if len(skies) > 1:
+        raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: more than one interior sky level ({skies})")
     if "m11" in names and "base" in names:
         raise ValueError(f"{LIGHT_VARIANT_ENV}={text!r}: m11 (the Milestone 11 look) and base (production) exclude "
                          f"each other")
@@ -252,11 +278,13 @@ def parse_light_variant(text) -> list[str]:
 
 def light_levers(variant=None, env=None) -> dict:
     """The levers of a build or render (pure): ``{"variant": str | None, "names": [...], "sun_wm2", "ev_cap",
-    "rig", "shell", "source"}``. ``variant`` (a value as the environment variable would hold it) wins over
-    ``env[LIGHT_VARIANT_ENV]`` (``os.environ`` when None). No variant = production: ``SUN_STRENGTH_WM2`` and
-    ``LEVER_DEFAULTS``. ``base`` = production under its name; ``m11`` = the Milestone 11 look (``M11_LEVERS``, sun
-    ``SUN_STRENGTH_M11_WM2``); every other name starts from the Milestone 11 look (from production when ``base``
-    is among the names) and turns the named levers on (never off)."""
+    "rig", "shell", "sky_stops", "source"}``. ``variant`` (a value as the environment variable would hold it) wins
+    over ``env[LIGHT_VARIANT_ENV]`` (``os.environ`` when None). No variant = production: ``SUN_STRENGTH_WM2``,
+    ``LEVER_DEFAULTS`` and the interior sky as built (``sky_stops`` 0). ``base`` = production under its name;
+    ``m11`` = the Milestone 11 look (``M11_LEVERS``, sun ``SUN_STRENGTH_M11_WM2``); every other name starts from
+    the Milestone 11 look (from production when ``base`` is among the names, or when every name is ``base`` or an
+    interior sky level, ``SKY_VARIANTS``) and turns the named levers on (never off); a sky level sets
+    ``sky_stops`` (``SKY_VARIANT_STOPS``, the interior world's gain is ``interior_sky_gain``)."""
     source = "arg"
     if variant is None:
         variant = (os.environ if env is None else env).get(LIGHT_VARIANT_ENV)
@@ -264,17 +292,36 @@ def light_levers(variant=None, env=None) -> dict:
     names = parse_light_variant(variant)
     if not names:
         return {"variant": None, "names": [], "sun_wm2": float(SUN_STRENGTH_WM2), "source": source,
-                **{k: bool(v) for k, v in LEVER_DEFAULTS.items()}}
+                **{k: bool(v) for k, v in LEVER_DEFAULTS.items()}, "sky_stops": 0.0}
     on = set(names)
     if "all" in on:
         on |= {ALL_VARIANT_SUN, "evcap", "rig", "shell"}
-    production = "base" in on
+    production = "base" in on or on <= set(SKY_VARIANTS)
     start = LEVER_DEFAULTS if production else M11_LEVERS
     sun = next((SUN_VARIANT_WM2[n] for n in LIGHT_VARIANTS if n in on and n in SUN_VARIANT_WM2),
                SUN_STRENGTH_WM2 if production else SUN_STRENGTH_M11_WM2)
+    sky = next((SKY_VARIANT_STOPS[n] for n in SKY_VARIANTS if n in on), 0.0)
     return {"variant": ",".join(names), "names": names, "sun_wm2": float(sun),
             "ev_cap": bool(start["ev_cap"]) or "evcap" in on, "rig": bool(start["rig"]) or "rig" in on,
-            "shell": bool(start["shell"]) or "shell" in on, "source": source}
+            "shell": bool(start["shell"]) or "shell" in on, "sky_stops": float(sky), "source": source}
+
+
+def lever_record(levers: dict) -> dict:
+    """The ``levers`` block of the scene manifest's lighting record (pure): sun, EV cap, rig, shell and the source;
+    pod P6a: ``sky_stops`` only for a sky level, so a production manifest keeps exactly its keys."""
+    record = {k: levers[k] for k in ("sun_wm2", "ev_cap", "rig", "shell", "source")}
+    if levers.get("sky_stops"):
+        record["sky_stops"] = float(levers["sky_stops"])
+    return record
+
+
+def interior_sky_gain(levers: dict | None = None) -> float:
+    """The factor on the interior world's Background Strength (pure): ``2 ** levers["sky_stops"]``, exactly 1.0
+    without a sky level (production, every lever variant, a levers dict from before the sky A/B)."""
+    stops = float((levers or {}).get("sky_stops") or 0.0)
+    if not math.isfinite(stops) or stops == 0.0:
+        return 1.0
+    return float(2.0 ** stops)
 
 
 def sun_strength_wm2(lighting: dict, levers: dict | None = None) -> tuple[float, float]:
@@ -1914,7 +1961,9 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     in_building = building_azimuth(azimuth, north_deg or 0.0)
     scene["wenart_light_variant"] = levers["variant"] or ""
 
-    world = world_nodes(scene, world_lighting(lighting, in_building), hdri_path)
+    # Pod P6a: a sky level (``SKY_VARIANTS``) raises the interior world only; 1.0 builds it as before
+    world = world_nodes(scene, world_lighting(lighting, in_building), hdri_path,
+                        strength_gain=interior_sky_gain(levers))
     world_exterior = None
     if exterior:
         from wenart.blender.materials import exterior_world_nodes
@@ -2050,7 +2099,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
     return {"world": world, "world_exterior": world_exterior, "sun": sun_info,
             "area_lights": [o.name for o in area_lights], "portals": [o.name for o in portals],
             # Milestone 13 (docs/milestone13.md §13.3): the variant and every lever, the rig per room
-            "variant": levers["variant"], "levers": {k: levers[k] for k in ("sun_wm2", "ev_cap", "rig", "shell", "source")},
+            "variant": levers["variant"], "levers": lever_record(levers),
             "rig": {"on": bool(levers["rig"]), "gain": RIG_GAIN, "temperature_k": rig_temperature_k(lighting),
                     "temperature_k_by_type": {t: rig_temperature_for(t, lighting) for t in sorted(ROOM_RIGS)},
                     "shade_emission_wm2sr": SHADE_EMISSION_WM2SR, "shade_emission_bound": shade_emission_bound(),
