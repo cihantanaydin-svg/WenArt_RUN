@@ -215,7 +215,8 @@ if [ "$SKY_AB" != "1" ] || ! in_projects "$SKY_PROJECT"; then
 else
   rd=$REPO/outputs/$SKY_PROJECT
   reserve=$RESERVE_S
-  if ! tests_ran; then reserve=$(( RESERVE_S + TESTS_RESERVE_S )); fi
+  # review: a rerun with P6_SKIP_FULL=1 never runs the GPU tests here (the full-run pod ran them): no test reserve
+  if [ "${P6_SKIP_FULL:-0}" != "1" ] && ! tests_ran; then reserve=$(( RESERVE_S + TESTS_RESERVE_S )); fi
   left=$(( $(seconds_left) - reserve ))
   need=$(( EST_S * MIN_VARIANTS ))
   if [ ! -f "$rd/building_final.json" ] || [ ! -f "$rd/scene/scene_manifest.json" ]; then
@@ -228,9 +229,15 @@ else
     log "sky A/B skipped: $left s left after the $reserve s reserve, $need s needed ($MIN_VARIANTS x $EST_S s)"
   else
     d=""
-    if [ -n "$FINAL_DEADLINE" ]; then d=$(( ${FINAL_DEADLINE%.*} - reserve )); fi
+    cap=()
+    if [ -n "$FINAL_DEADLINE" ]; then
+      d=$(( ${FINAL_DEADLINE%.*} - reserve ))
+      # review: a hard bound too (render.py only stops starting new views at the deadline; a hung Blender would run
+      # into the watchdog and leave the full run's results on the volume)
+      cap=(timeout -k 60 "$(( d - $(now_s) ))")
+    fi
     log "sky A/B deadline: ${d:-none} ($left s for the variants)"
-    run_step sky-ab env ${d:+WENART_DEADLINE=$d} AB_PROJECTS="$SKY_PROJECT" AB_VARIANTS="$SKY_VARIANTS" \
+    run_step sky-ab "${cap[@]}" env ${d:+WENART_DEADLINE=$d} AB_PROJECTS="$SKY_PROJECT" AB_VARIANTS="$SKY_VARIANTS" \
       AB_SAMPLES="$SKY_SAMPLES" AB_VIEW_SET=sky AB_SOURCE=run AB_NAME=ab_m13/sky AB_VARIANT_EST_S="$EST_S" \
       AB_GPU_TESTS=0 JOB_ID="$JOB" bash "$AB_JOB"
   fi
@@ -239,6 +246,8 @@ fi
 # 3. One GPU test run: full.sh's, else here.
 if tests_ran; then
   log "GPU tests: full.sh ran them ($RESULTS/junit-full.xml)"
+elif [ "${P6_SKIP_FULL:-0}" = "1" ]; then
+  log "GPU tests: run by the full-run pod (P6_SKIP_FULL=1)"
 elif [ ! -f "$RESULTS/run_manifest.json" ]; then
   log "GPU tests did not run and cannot run here: no run manifest in $RESULTS (the full run stopped early);" \
       "the same command resumes the run and its tests"

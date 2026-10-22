@@ -569,6 +569,8 @@ def test_m13_p6_job_script_contract():
         assert default in text, default
     for setting in ("AB_VIEW_SET=sky", "AB_SOURCE=run", "AB_NAME=ab_m13/sky", "AB_GPU_TESTS=0"):
         assert setting in text, setting
+    # review: the A/B has a hard bound at its deadline (a hung Blender never runs into the watchdog)
+    assert 'cap=(timeout -k 60 "$(( d - $(now_s) ))")' in text and 'run_step sky-ab "${cap[@]}" env' in text
     # the command in the header: the approved P6 settings (polish off, 256 spp, 4 h, over $5 OK)
     assert "scripts/gpu_run.py run --job scripts/jobs/m13_p6.sh" in text
     for flag in ("--max-minutes 240", "--over-5-ok", "--env RUN_POLISH=off", "--env RENDER_SAMPLES=256"):
@@ -632,6 +634,18 @@ def test_m13_p6_runs_the_gpu_tests_once_when_full_sh_did_not(tmp_path):
     assert "RUN_TEST_PROJECTS=real04" in log and "CHECK_MODELS=agent" in log
     assert "CHECK_TEST_PROJECTS=real04" in log
     # without a run manifest (the full run stopped early) nothing runs here: the same command resumes
+    # review (22 Oct 2026): a rerun with P6_SKIP_FULL=1 (to finish a cut A/B) never asks for the GPU tests the
+    # full-run pod ran, and keeps no test reserve
     env = _p6_env(tmp_path / "x", 3 * 3600, P6_SKIP_FULL="1")
     proc = _run_p6(env, tmp_path / "x" / "repo")
-    assert proc.returncode == 1 and "gpu-tests-missing" in proc.stdout and "sky-ab-no-run-output" in proc.stdout
+    assert proc.returncode == 1 and "sky-ab-no-run-output" in proc.stdout
+    assert "gpu-tests-missing" not in proc.stdout and "run by the full-run pod" in proc.stdout
+    env = _p6_env(tmp_path / "y", 3 * 3600, P6_SKIP_FULL="1")
+    out = tmp_path / "y" / "repo" / "outputs" / "real04"
+    (out / "scene").mkdir(parents=True)
+    (out / "building_final.json").write_text("{}")
+    (out / "scene" / "scene_manifest.json").write_text('{"cameras": []}')
+    deadline = int(env["WENART_DEADLINE"])
+    proc = _run_p6(env, tmp_path / "y" / "repo")
+    assert proc.returncode == 0, proc.stdout[-3000:]
+    assert int(_ab_env(tmp_path / "y")["WENART_DEADLINE"]) == deadline - 600

@@ -2076,6 +2076,25 @@ window views (decision 4). Light height: keep 2.0 m for decor lights and 1.55 m 
 a model is removed only on evidence (a render shows its logo or text, or it is a mesh twin of one); a maker's name in
 a title alone is no flag (decision 15, second part). The other decisions stay open for the P6 sheets.
 
+**P6 job and the interior-sky A/B (decision 4).** New light variants `sky2`, `sky35`, `sky52`
+(`lighting.SKY_VARIANT_STOPS`) multiply only the interior world's Background strength by 2^2, 2^3.5 and 2^5.2 (the
+exterior world, sun, rig, EV cap and shell stay; without a variant the world and its record are byte-identical; the
+variant is part of the build fingerprint). `wenart.run.ab.M13_SKY_AB_VIEWS`: six fixed real04 views with windows
+(yatak_odasi_1 and _3, e_yatak_odasi_1, salon_1 and _2, the oyun room as control; a renamed view falls back to the
+next camera of its room). `levers_ab.sh` gained `AB_VIEW_SET`, `AB_SOURCE=run` (build from this pod's own
+`outputs/real04`, never the committed building), `AB_NAME`, `AB_BASELINE_LABEL`; its P1 defaults are unchanged. New
+job `scripts/jobs/m13_p6.sh`: `full.sh` (GPU tests in its phase 11), then the A/B (base, sky2, sky35, sky52 at 128 spp)
+only when this job built real04 and two variants fit before the deadline minus the reserve (600 s, +900 s when the
+GPU tests are still missing), with a hard `timeout` at that deadline; then the GPU tests once if `full.sh` did not run
+them. Results: `ab_m13/sky/<variant>/real04/`, one sheet per view (run final, base, +2, +3.5, +5.2) and
+`summary.{json,md}` (pull k, pane p50 / p90, day green, tint gain, white point, world strength). Each variant meters
+its own white point; adopting a level later needs the project anchor re-metered. `tests/test_m13_sky_ab.py` (16; 12
+of 12 mutations caught); the review's two minor findings (no hard bound on the A/B; a `P6_SKIP_FULL=1` rerun reserved
+and asked for GPU tests it cannot run) are fixed. Commands: P6a `gpu_run.py run --job scripts/jobs/m13_p6.sh ...
+--env RUN_PROJECTS=real04`; P6b / P6c `--job scripts/jobs/full.sh` with `RUN_PROJECTS=real03` / `real02` and the
+M11 cameras replayed (`CAMERAS_FROM=results/renders/{name}/scene_manifest.json`), as P4b / P4a; all with
+`RENDER_SAMPLES=256`, `RUN_POLISH=off`, `--max-minutes 240`, `--over-5-ok`.
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang
