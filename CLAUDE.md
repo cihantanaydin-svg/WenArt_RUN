@@ -53,7 +53,9 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   ware) is treated like walls: same type, position, orientation and footprint as drawn. Style changes only the
   look. The AI may fix only a clear drawing or reading error, logged as `adjusted_by_ai` with the reason and the
   plan crop: a front that faces the wall, a misread size (then the size of a real product of that type), a piece
-  through a wall or in a door swing (a move of at most 0.5 m) (user OK of 10 Oct 2026, Milestone 12).
+  through a wall or in a door swing (a move of at most 0.5 m) (user OK of 10 Oct 2026, Milestone 12). A drawn
+  bathtub or shower a few cm (up to 5 cm) longer than its bay is a misread size: it is shrunk to the nearest real
+  product size that fits, `drawn_footprint` kept (user OK of 22 Oct 2026).
 - Drawn furniture is kept by default. The AI may correct its orientation, snap it to a wall, change its size to a
   real product size, change its type within the room type's types, and fix clear drawing errors (a rug outline
   read as a piece, a cushion read as a sofa, a table footprint that includes its chairs). Every change keeps
@@ -73,7 +75,10 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   typed, recorded as not furniture, or listed for review.
 - An untyped drawn footprint is typed by code first: the same footprint in the twin room or on another level
   (within 1 cm), the block name, or the room's missing group member of that size (`inferred`, with the evidence);
-  the AI types the rest from the plan crop (user OK of 12 Oct 2026).
+  the AI types the rest from the plan crop (user OK of 12 Oct 2026). Code may also retype a drawn piece that the
+  vision models typed when its size, room and neighbours clearly say otherwise (e.g. a nightstand-size "lamp" at a
+  bed head becomes that bed's nightstand), labelled `adjusted_by_ai` (by code) with `drawn_type` and the plan crop
+  kept (user OK of 22 Oct 2026).
 - A drawn furniture size outside its type's product range (a block with its neighbours, a split artefact) is
   snapped to the nearest real product size before the fit (`adjusted_by_ai`, `drawn_footprint` kept, plan crop as
   evidence). A drawn group (a table with its chairs, a sofa with its armchairs and coffee table, a bed with its
@@ -151,7 +156,8 @@ Plan: `docs/plan.md`. Status: `docs/progress.md`. GPU spending: `docs/gpu-log.md
   tools (Blender and its add-ons, LibreDWG, Infinigen's GPL submodule) run as installed programs; no GPL code is
   copied into this repository.
 - Cameras keep the Milestone 11 policy (18 mm / 16 mm lenses, 1.25 m) in Milestone 13 (user decision of 12 Oct
-  2026); AI polish stays off in Milestone 13.
+  2026); exterior views of long, low buildings may use a wider or tilted framing (user OK of 22 Oct 2026); AI
+  polish stays off in Milestone 13.
 - Verify model IDs, versions and flags against official sources; never invent them.
 - Tests: CPU tests run here (`pytest -m "not gpu"`); GPU tests run on RunPod
   (`pytest -m gpu` via the runner). Run GPU tests before calling a milestone done.
