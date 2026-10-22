@@ -320,3 +320,54 @@ def test_a_level_edit_with_a_target_finding_is_no_schema_error():
                                    "round": 1, "target_finding": {"check": "L3", "target": "site"}})
     assert "target_finding" not in args and meta["target_finding"] == {"check": "L3", "target": "site"}
     assert not any("target_finding" in e for e in LE.schema_errors(op, args))
+
+
+# --------------------------------------------------------------------------
+# (3) the bookcase f_L1_048 still through the roof in P5's exterior views
+# --------------------------------------------------------------------------
+
+def test_a_furniture_edit_on_an_exterior_finding_re_renders_the_exterior_views():
+    """Integration of the fix round after P5 (loop.changed_views): a furniture edit only re-rendered its room's
+    views, so a piece moved out of the roof (an X2 target) stayed in the carried exterior views."""
+    cameras = [{"name": "cam_r1_1", "room_id": "r1", "kind": "interior"}, {"name": "cam_r2_1", "room_id": "r2"},
+               {"name": "ext_1", "kind": "exterior"}, {"name": "ext_2", "kind": "exterior"}]
+    roof = {"tool": "move_piece", "args": {"piece_id": "f1"},
+            "result": {"accepted": True, "acceptance": {"target": ["X2:f1"]}}}
+    plain = {"tool": "move_piece", "args": {"piece_id": "f1"},
+             "result": {"accepted": True, "acceptance": {"target": ["F3:f1"]}}}
+    assert LP.changed_views(cameras, [roof], lambda pid: "r1") == ["cam_r1_1", "ext_1", "ext_2"]
+    assert LP.changed_views(cameras, [plain], lambda pid: "r1") == ["cam_r1_1"]
+
+
+P5 = ROOT / "runs" / "20261017-224848-full" / "results"
+
+
+@pytest.mark.skipif(not (P5 / "renders" / "real04" / "render_manifest.json").is_file(),
+                    reason="P5's real04 run (runs/20261017-224848-full) is not on this disk")
+def test_p5s_bookcase_is_under_the_roof_in_the_final_scene_and_its_exterior_views_were_carried():
+    """The P5 finding (P_report): f_L1_048 (HSSD Kangaroo Bookcase, pass index 241) shows through the roof in ext_1,
+    ext_2 and ext_5 after the accepted round-4 move (overrides seq 249, log seq 5696). Cause: the move was right (the
+    final scene has its 1.37 m fitted top 0.9 m under the roof, no X2), but round 4 re-rendered only the room's views
+    and carried every exterior view from the build before the move. Now the exterior views re-render."""
+    from wenart.blender import roof as R
+
+    final = json.loads((P5 / "furniture" / "real04" / "building_final.json").read_text(encoding="utf-8"))
+    scene = json.loads((P5 / "renders" / "real04" / "scene_manifest.json").read_text(encoding="utf-8"))
+    render = json.loads((P5 / "renders" / "real04" / "render_manifest.json").read_text(encoding="utf-8"))
+    prep = X._prep(final)
+    box = next(o for o in scene["objects"] if o.get("wenart_id") == "f_L1_048")["box3d"]
+    top = box["center"][2] + box["size"][2] / 2.0
+    assert R.surface_z(prep["roof"]["equations"], *box["center"][:2]) - top > 0.8
+    out: list = []
+    X._x2(final, prep, scene, out)
+    assert not [v for v in out if v["target"] == "f_L1_048"]
+    assert {"ext_1", "ext_2", "ext_5"} <= set(render["carried_from_earlier_build"])
+    assert all(e["index_stats"].get("241") for e in render["renders"] if e["camera"] in ("ext_1", "ext_2", "ext_5"))
+    overrides = json.loads((P5 / "agent" / "real04" / "overrides.json").read_text(encoding="utf-8"))
+    accepted = [{"tool": e["tool"], "args": e.get("args") or {}, "result": e.get("result") or {}}
+                for e in overrides["edits"] if e.get("round") == 4 and (e.get("result") or {}).get("accepted")
+                and int((e.get("result") or {}).get("log_seq") or 0) >= 4364]       # P5's own round 4
+    assert [(a["tool"], a["args"].get("piece_id")) for a in accepted] == [("move_piece", "f_L1_048")]
+    views = LP.changed_views(scene["cameras"], accepted, lambda pid: next(
+        (f.get("room_id") for f in final["furniture"] if f["id"] == pid), None))
+    assert {"ext_1", "ext_2", "ext_5", "ext_7"} <= set(views)
