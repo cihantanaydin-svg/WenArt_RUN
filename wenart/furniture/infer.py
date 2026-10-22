@@ -88,6 +88,34 @@ rule and lost the drawn L; the fit took a right-chaise model and the chaise cove
 (the agent could not fix it in 3 rounds). The pin: f_L0_190 left, f_L0_196 right (its table already sits in the open
 corner of a right chaise). The drawing's own L (the ingest's ``l_outline``) always wins; this is the fallback when
 the documents are silent.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04; user decisions of 22 Oct 2026). What:
+
+- **The group-member rule waits for an untyped L outline** (``_l_outline_waits``): while an untyped drawn piece of the
+  room carries the reader's L-outline note on its vector evidence (``L_OUTLINE_NOTE``; the reading's context rule
+  will make it the corner sofa), the room does not "miss its seating anchor". The reading now types the drawn L
+  corner sofas before the first code typing (``reading.corner_sofa_pass``), so this guard is for the other callers.
+- **A seating partner only at its role's place** (``ROLE_PLACES``): the group-member rule gives ``table_coffee`` only to
+  a footprint in front of a seating anchor (gap from the front edge to its near side within ``COFFEE_ZONE_GAP_M``,
+  centre in the anchor's front-width band; for a corner sofa also its open corner, at most ``COFFEE_IN_BODY`` of it
+  inside the drawn L; an anchor without a front is tried on both long sides) and ``tv_unit`` only to one on a wall,
+  outside every sofa's box, at least ``TV_MIN_M`` in front of an anchor within ``TV_FACING_DEG``
+  (``coffee_zone_anchor``, ``tv_place_anchor``). A footprint that fits such a role by size but stands elsewhere is
+  left to the plan crop (AI), unless another role it fits stands where it should. Why: P5 typed the 1.30 x 0.63 m outline f_L-1_061 in the open
+  corner of the corner sofa f_L-1_053 as "the living room's missing sofa" (the L was still an untyped box), then the
+  0.59 m lamp symbols f_L-1_063/065 by the window as that phantom's coffee tables; real02 the same. On the run
+  buildings in the reading's first-pass state: f_L-1_061/062 are no sofas and f_L-1_063/065 no coffee tables on
+  real02 and real04, f_L1_033/035 (behind the oyun sofas) are no TV units (the AI passes said bench / sideboard);
+  real03's f_L0_191/197 (the tables of the code-typed corner sofas) and real01's 9 group-member typings are unchanged.
+- **Corner tables** (``corner_tables``, run in ``infer_types``; user decision (1) of 22 Oct 2026, CLAUDE.md "code may
+  retype a drawn piece the vision models typed when its size, room and neighbours clearly say otherwise"): a drawn
+  sofa / armchair / ottoman / chaise typed by the AI passes or the group-member rule (never by a block name or a
+  reading rule) of a coffee table's size, standing in the open corner of a drawn L corner sofa of its room, is that
+  sofa's coffee table: ``type_method: inferred``, ``adjusted_by_ai`` (``by: code``, ``rule: corner_table``, the reason,
+  the changed type) with ``drawn_type`` and the plan crop of its question (``_apply_nightstand``). Run buildings:
+  real04 f_L-1_061/062, real02 f_L-1_062.
+- The nightstand symbols of the fix round after P4a are approved by the same user decision; their label already holds
+  ``by: code``, ``drawn_type`` and the plan crop.
 """
 from __future__ import annotations
 
@@ -490,7 +518,8 @@ def _l_outline_waits(building: dict, piece: dict, room: dict) -> Optional[str]:
     for f in building.get("furniture") or []:
         if f.get("room_id") != room.get("id") or f.get("id") == piece.get("id") or not untyped_drawn(f):
             continue
-        if any(isinstance(e, dict) and L_OUTLINE_NOTE.search(str(e.get("note") or "")) for e in f.get("evidence") or []):
+        if any(isinstance(e, dict) and L_OUTLINE_NOTE.search(str(e.get("note") or ""))
+               for e in f.get("evidence") or []):
             return str(f["id"])
     return None
 
@@ -502,10 +531,17 @@ def _seat_anchors(building: dict, room: dict) -> list[dict]:
             and f.get("footprint") and not f.get("inferred_as") and not f.get("not_furniture")]
 
 
+PILLOW_FRONT_NOTE = "head = side with >= 2 small closed shapes"   # symbols.front_candidates' bed-pillow rule
+
+
 def _anchor_frames(anchor: dict) -> list[placer.Piece]:
-    """The anchor as placer pieces in the frame of its front; without a front, both long sides are tried."""
+    """The anchor as placer pieces in the frame of its front; without a front, both long sides are tried. A seat
+    fronted by the reader's bed-pillow rule (a building read before this round: ``symbols`` keeps that rule to beds
+    now; real04's oyun sofas faced away from their table) counts as without a front."""
     p = placer.drawn_piece(anchor)
-    if anchor.get("front_deg") is not None:
+    pillow = any(isinstance(e, dict) and PILLOW_FRONT_NOTE in str(e.get("note") or "")
+                 for e in anchor.get("evidence") or [])
+    if anchor.get("front_deg") is not None and not pillow:
         return [p]
     base = G.front_direction_deg(p.rotation_deg)
     turn = 0.0 if p.size[0] >= p.size[1] else 90.0           # the long side faces -Y after the turn
@@ -639,10 +675,14 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
     fits = sorted(t for t in wanted if t in allowed and SZ.fits(t, size, 0.15))
     if not fits:
         return None
-    # Fix round after P5 (module docstring): a coffee table or TV unit only where its role stands; a footprint that
-    # fits such a role by size but stands elsewhere is left to the plan crop (AI), never typed as another member
-    if any(not _role_place_ok(building, piece, room, t) for t in fits):
-        return None
+    # Fix round after P5 (module docstring): a coffee table or TV unit only where its role stands. A footprint that
+    # fits such a role by size but stands elsewhere is left to the plan crop (AI), unless another role it fits by
+    # size stands where it should (a table in front of the sofa that is also TV-unit sized); never another member.
+    placed = [t for t in fits if _role_place_ok(building, piece, room, t)]
+    if len(placed) < len(fits):
+        if not any(t in ROLE_PLACES for t in placed):
+            return None
+        fits = placed
     # An AI pass named another type that fits the size and the shape (real02's sofa / kitchen_island): the plan
     # crop decides, not the group rule.
     answers = {c.get("type") for c in piece.get("type_candidates") or [] if c.get("type")}

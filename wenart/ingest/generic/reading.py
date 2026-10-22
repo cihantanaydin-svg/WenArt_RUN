@@ -111,6 +111,38 @@ bench; a bench is not allowed in that room) untyped and listed for review until 
 mirrored twins f_L1_034 (bookshelf / tv_unit) and f_L1_036 (bookshelf / console_table) got bookshelf and
 console_table at the same drawn spot of the two mirrored flats. Now the tie-break types f_L1_033 sideboard and
 f_L1_036 bookshelf (both twins named them); its 12 other decisions on that building are unchanged.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04; user decisions of 22 Oct 2026). What (counts: the P4a / P4b / P5 run
+buildings of real02 / real03 / real04):
+
+- **The drawn L corner sofas first** (``corner_sofa_pass``, the corner-sofa rule of ``context_types`` on its own):
+  before the first code typing, so the code typing sees the room's seating anchor; the outline in its open corner is
+  its coffee table (real02 / real04 f_L-1_061/062; ``infer`` module docstring for the role places).
+- **A seat faces its coffee table** (``_front_of``): a sofa or armchair without a front faces the nearest coffee table
+  within ``SEAT_TABLE_M`` (a sofa only along a long side). With the reader's bed-pillow rule kept to beds
+  (``symbols``), this turns real02's and real04's oyun sofas f_L1_009/010/011/012 to 0 / 180 / 270 / 270 deg (they faced
+  away) and the salon armchairs f_L-1_049/050 to their coffee tables (270 deg).
+- **Long-side fronts** (``long_side_fronts``): an AI or tie-break front on the short side of a type that faces along
+  a long side (``LONG_FRONT_TYPES``) is a reading error; the front goes to the long side the drawing gives
+  (``_front_of``) or facing the most room, ``adjusted_by_ai`` by code with the drawn front kept. real04: the twin
+  sofas f_L-1b_045/046 (0.82 x 1.64 m, built as a 0.82 m wide sofa, a false library gap).
+- **Desk symbols that hold their chair** (``desk_chairs``; CLAUDE.md "a table footprint that includes its chairs"): a
+  drawn desk with its back on a wall deeper than ``DESK_SPLIT_DEPTH_M`` keeps ``DESK_DEPTH_M`` at its wall
+  (``adjusted_by_ai`` by code, ``drawn_footprint`` kept, the plan crop) and its chair becomes a drawn office chair in
+  front of it (``type_method: rule``, the desk's vector evidence). real02 f_L0_027..030, real04 f_L0_023..026 (the
+  crop sym_L0_007 shows a 0.6 m desk and the chair's back).
+- **Seat cushions** (``seat_cushions``; CLAUDE.md "a cushion read as a sofa"): a drawn piece at most ``CUSHION_MAX_M``
+  either way, at least ``CUSHION_INSIDE`` inside a larger drawn seat of its room, is not built (``inferred_as: detail``,
+  ``adjusted_by_ai`` by code with ``not_furniture: seat_cushion`` and the plan crop). real04: the "ottomans"
+  f_L-1_075..078 on the armchairs f_L-1_069..072 (85 % inside).
+- **Baths and showers a few cm longer than their bay** (``bay_overrun`` / ``bay_fit`` / ``shrink_to_bay`` in
+  ``fix_fixed``; user decision (3) of 22 Oct 2026, CLAUDE.md fixed equipment "a misread size"): a drawn bathtub or
+  shower whose part outside its room lies in end strips only and runs ``BAY_OVERRUN_M`` (1-5 cm) past the walls is
+  given the nearest real product (``sizes.products``, log distance) that fits the clear bay, its back kept on its wall,
+  ``drawn_footprint`` kept, ``adjusted_by_ai`` by code (rule ``BAY_RULE``, "misread size", the plan crop).
+  ``edit_ops.fix_fixture`` uses the same ``bay_fit``. real03: the tubs f_L0_184..187 (1.62 x 0.80 m -> 1.50 x 0.70 m),
+  the showers f_L0_179/180 (0.90 x 0.97 -> 0.90 x 0.90), f_L0_054 (1.07 x 0.80 -> 1.00 x 0.80) and f_L0_145 (0.85 x
+  1.02 -> 0.80 x 0.80); none on real02 or real04.
 """
 from __future__ import annotations
 
@@ -1541,7 +1573,7 @@ def bay_overrun(f: dict, room_poly: Polygon) -> Optional[dict]:
     except (KeyError, TypeError, ValueError):
         return None
     w, d = float(p.size[0]), float(p.size[1])
-    local = _local_room(p, room_poly)
+    local = _local_room(p, room_poly).buffer(1e-4, join_style=2)     # no float slivers along a wall face
     piece = sbox(-w / 2.0, -d / 2.0, w / 2.0, d / 2.0)
     out = piece.difference(local)
     if out.is_empty or out.area <= 1e-6:

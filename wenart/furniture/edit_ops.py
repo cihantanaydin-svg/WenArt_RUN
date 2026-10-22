@@ -144,6 +144,28 @@ f_L-1_024: a drawn piece removed as not furniture for a placement finding, which
 to stop. On P3's real04 buildings 72 drawn pieces are under the lock; a room crop or another symbol's crop lifts it
 for none of them now, and 2 have a crop of their own (the round coffee tables f_L1_015 / f_L1_016: sym_L1_001 /
 sym_L1_002). No accepted mark of the P3, P4a or P4b logs changes.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04; the P5 verifier's better fix and the user decisions of 22 Oct
+2026). What:
+
+- **The mark lock holds when the AI passes typed the piece as furniture too** (``ai_furniture_dispute``): a
+  ``type_disagreement`` conflict the drawing won ("<id>: the AI passes typed it bench; ...", ``reading.log_overrides``)
+  whose AI type is a furniture type means the doubt is which piece it is, so ``retype_piece`` fixes it: neither the
+  conflict nor an edit that targets its ``RC`` finding lifts the lock then; the piece's own recognition crop still
+  does, and an ``NR`` target keeps its way out. A conflict that names no AI type keeps the old rule. No twin rule (a
+  coat closet is furniture: marking the twin would remove it too). Why: P5 seq 5021 marked the drawn coffee table
+  f_L1_021 (really a coat closet: ``symbols.hanging_rail``) as "a stair" with a camera plan crop for an F1 finding,
+  because its conflict c_047 lifted the lock; the twin f_L1_024 stayed built.
+- **An untyped piece is marked only with its plan crop**: when the evidence names no image and no recognition crop is
+  recorded for the piece (``recorded_crop``: ``needs_review`` / ``conflicts``), ``mark_not_furniture`` on an untyped
+  piece is refused (``no_crop``); a recorded crop is the symbol's crop when the evidence names none. Why: P5 seq 5388
+  marked the 5.14 x 2.37 m cluster f_L-1b_001 with "plan crop of r_L-1b_salon_2" and no image (symbol crop null);
+  CLAUDE.md removes a drawn piece only with its plan crop as evidence.
+- **fix_fixture shrinks a bath or shower a few cm longer than its bay** (user decision (3) of 22 Oct 2026): without
+  ``center`` (and with no ``size`` or the same one) it takes ``reading.bay_fit``'s nearest real product that fits the
+  clear bay (``adjusted_by_ai.fix_fixture.bay``); the code's search for a spot could never fit such a tub (P4b real03:
+  21 centres in 5 cm steps). The refusal of a centre still in a wall or a door swing now says that without ``center``
+  the code searches every spot within 0.50 m and that no centre will do when that search found none.
 """
 from __future__ import annotations
 
@@ -1419,8 +1441,8 @@ def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None,
         return None                     # pass before P5: the piece's own plan crop is the evidence CLAUDE.md asks for
     w, d = (float(v) for v in size)
     if dispute is not None:
-        return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real size "
-                f"({w:.2f} x {d:.2f} m) that the AI passes typed {dispute}: both read it as furniture, so the doubt is "
+        return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real "
+                f"size ({w:.2f} x {d:.2f} m) that the AI passes typed {dispute}: both read it as furniture, so the doubt is "
                 f"which piece it is: retype_piece fixes that; mark_not_furniture needs evidence that names its own "
                 f"recognition crop, when it has one")
     return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real size "

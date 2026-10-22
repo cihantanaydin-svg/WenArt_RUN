@@ -1860,9 +1860,10 @@ def free_strip_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
     on the plot, ``exterior_checks.validate_camera_override``) gets the free stretches of its view line, from the
     target back through the refused position (and ``FREE_STRIP_BEYOND_M`` beyond it), with the same 0.3 m margin as
     the validator; only the first free stretch is named (a building stands between any later one and the target).
-    The hint says that a close view may be framed wider or tilted (the decision of 22 Oct 2026 for exterior views). ``failed`` unchanged when there is nothing to name. Why: P5's add_camera ext_front_y was
-    refused three times "inside the building b2" (y 28 and y 20) while the 6 m between the house (y 12) and b2
-    (y 18.57) was free; X6 "no frontal view" stayed open in all 4 rounds."""
+    The hint says that a close view may be framed wider or tilted (the decision of 22 Oct 2026 for exterior views).
+    ``failed`` unchanged when there is nothing to name. Why: P5's add_camera ext_front_y was refused three times
+    "inside the building b2" (y 28 and y 20) while the 6 m between the house (y 12) and b2 (y 18.57) was free; X6 "no
+    frontal view" stayed open in all 4 rounds."""
     if not any(INSIDE_WORDS in str(f) for f in failed or []) or not entry.get("position") or not entry.get("target"):
         return failed
     from wenart import geometry as G

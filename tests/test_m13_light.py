@@ -59,6 +59,13 @@ adc3004): ``render.choose_pull``'s second rule applies only to panes that need a
 k 0), and the interior glazing's clipped panes are pulled and their clip recorded (``render.choose_interior_pull``,
 ``RenderRun.interior_pull``, ``interior_glazing.clip`` / ``pull``; P4b real03 giris_holu_1 / 2 / 3_1), with CPU
 replays of the two new GPU pins.
+
+Fix round after P5 (22 Oct 2026, pod P5, real04, render code m13.4; the ``test_fixround_p5_*`` tests, each failing on
+29e54d0 or on the mutation its docstring names): the GPU orange check sorts walls by the room type's finish and takes
+its daylight references from unblocked views only; the sky pull gives a haze-shell hit at a roof's edge the roof's
+reference (``render.shell_edge_pixels``; P5's dotted white edges) and records the dots left (``render.sky_edge_dots``);
+an interior view's white point takes the tint of its own daylight (``render.view_tint_gain``; P5's olive L0
+bedrooms); CPU replays of the new and changed GPU checks (dotted edges, olive walls, the white point with its tint).
 """
 from __future__ import annotations
 
@@ -256,8 +263,10 @@ def test_project_white_balance_helpers(tmp_path):
     assert R.load_project_whitepoint(manifest) is None
     # fix round after P3 (16-17 Oct 2026): the view white point, the open-air world, the sky and window pulls -> m13.2;
     # fix round after P4a (17 Oct 2026): the daylight cast in every view, the sky pull's coverage weights, steps and
-    # mid-tone target, the haze hidden from the interior views' camera rays -> m13.3 (P4a's views are not reused)
-    assert R.RENDER_CODE_VERSION == "m13.3"
+    # mid-tone target, the haze hidden from the interior views' camera rays -> m13.3 (P4a's views are not reused);
+    # fix round after P5 (22 Oct 2026): the sky edge's shell hits and the view's daylight tint -> m13.4 (P5 rendered
+    # m13.3)
+    assert R.RENDER_CODE_VERSION == "m13.4"
     # The sun lamp hides under the exterior world with a sun disc for every ray only (the P1 world); round 3:
     # with the disc for camera rays only the lamp stays, it is the one direct sun outdoors.
     props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_exterior_sun_disc": True}
@@ -1209,10 +1218,14 @@ def _wb_project(anchor, entries, rig_rooms=("r_b",)):
     return "real04", scene, render
 
 
-def _wb_entry(camera, room_id, whitepoint, share=None, anchor=P3_ANCHOR, shift=0.0, world="World"):
+def _wb_entry(camera, room_id, whitepoint, share=None, anchor=P3_ANCHOR, shift=0.0, world="World", day_green=None,
+              gain=1.0):
+    """Fix round after P5 (22 Oct 2026): the entry records the view's daylight tint (``wb_day_green``,
+    ``wb_view_tint_gain``; none and 1.0 by default, as an m13.4 render of a view without a metered daylight)."""
     return {"camera": camera, "room_id": room_id, "world": world,
             "exposure": {"wb_project_whitepoint": list(anchor), "whitepoint": list(whitepoint), "wb_rig_share": share,
-                         "wb_rig_whitepoint": RIG_2700K if share is not None else None, "wb_view_shift_mired": shift}}
+                         "wb_rig_whitepoint": RIG_2700K if share is not None else None, "wb_view_shift_mired": shift,
+                         "wb_day_green": day_green, "wb_view_tint_gain": gain}}
 
 
 def test_fixround_part2_gpu_white_point_pins_do_not_read_the_views_own_share(tmp_path, monkeypatch):
@@ -1852,12 +1865,14 @@ def test_fixround_p4a_views_under_the_interior_world_hide_the_haze_from_their_ca
 
 
 def _wall_views(out: Path, views_rb: dict, wet_rooms=(), room_types: dict | None = None, blocked=(),
-                entry_types: bool = False):
+                entry_types: bool = False, rgb: dict | None = None, exposure: dict | None = None):
     """Hand-made renders of a project (32 x 18): every view all wall (index 0, a hit, a horizontal normal) of display
     R/B ``views_rb[cam][1]``; ``views_rb[cam]`` = (room_id, R/B, rig share). Returns ``(name, scene, render)``.
     Fix round after P5 (18 Oct 2026): the room floors carry a room type (``room_types``, else ``bathroom`` for the
     ``wet_rooms`` and ``bedroom`` for the others) as the scene manifest does, the entries carry it too with
-    ``entry_types``, and the views of ``blocked`` record one element over 56 % of the frame (``index_stats``)."""
+    ``entry_types``, and the views of ``blocked`` record one element over 56 % of the frame (``index_stats``).
+    Fix round after P5 (22 Oct 2026): ``rgb[cam]`` sets a view's wall colour instead (the olive check) and
+    ``exposure[cam]`` adds fields to its exposure record."""
     import numpy as np
 
     from wenart import views
@@ -1869,9 +1884,10 @@ def _wall_views(out: Path, views_rb: dict, wet_rooms=(), room_types: dict | None
     types = dict(room_types or {})
     for room, _rb, _share in views_rb.values():
         types.setdefault(room, "bathroom" if room in wet_rooms else "bedroom")
+    rgb_of = rgb
     for cam, (room, rb, share) in views_rb.items():
         rgb = np.zeros((h, w, 3), np.uint8)
-        rgb[...] = (int(round(100 * rb)), 110, 100)
+        rgb[...] = (rgb_of or {}).get(cam) or (int(round(100 * rb)), 110, 100)
         normal = np.zeros((h, w, 3), np.uint8)
         normal[...] = (255, 128, 128)                                       # +X: a wall
         views.write_png_rgb(renders / f"{cam}.png", rgb)
@@ -1883,7 +1899,7 @@ def _wall_views(out: Path, views_rb: dict, wet_rooms=(), room_types: dict | None
                         "render_key": "0" * 16, "index_stats": stats, "world": "World", "lens_mm": 18.0,
                         "files": {"index": f"{cam}_index.png", "depth_mm": f"{cam}_depth_mm.png",
                                   "normal": f"{cam}_normal.png"},
-                        "exposure": {"wb_rig_share": share, "lighting_dark": None},
+                        "exposure": {"wb_rig_share": share, "lighting_dark": None, **(exposure or {}).get(cam, {})},
                         **({"room_type": types[room]} if entry_types else {})})
     render = {"white_balance_mode": "project", "white_balance_project": {"whitepoint": P4A_ANCHOR, "residual": 0.35},
               "renders": entries}
@@ -2229,7 +2245,13 @@ def test_fixround_p4b_the_white_point_follows_the_camera_rooms_rig(tmp_path, mon
         assert rec["wb_rig_kelvin"] == kelvin and rec["wb_rig_kelvin_source"] == source, room
         assert rec["wb_rig_share"] == pytest.approx(0.9) and rec["wb_rig_share_p50"] == pytest.approx(0.9)
         rig = R.normalise_whitepoint({2700.0: WP_2700K, 4000.0: WP_4000K}[kelvin])
-        assert rec["whitepoint"] == pytest.approx(R.mixed_whitepoint(P4B_ANCHOR, rig, 0.9, 0.35, 0.0), abs=1e-9)
+        # fix round after P5 (22 Oct 2026; pin changed on purpose): the mix then takes the tint of the view's own
+        # daylight (the stand-in's grey daylight against real03's green anchor, by the daylight share 0.1)
+        gain = R.view_tint_gain(P4B_ANCHOR, 1.0, 0.35, 0.9)
+        assert gain == pytest.approx((1.0 / R.green_ratio(P4B_ANCHOR)) ** 0.1, abs=1e-6) and gain < 1.0
+        assert rec["wb_day_green"] == 1.0 and rec["wb_view_tint_gain"] == gain
+        assert rec["whitepoint"] == pytest.approx(
+            R.tinted_whitepoint(R.mixed_whitepoint(P4B_ANCHOR, rig, 0.9, 0.35, 0.0), gain), abs=1e-9)
     # the diagnostic share: the block medians, clamped; never None for a view with light
     assert R.rig_share_p50(0.18159, 0.089643) == pytest.approx(0.506, abs=1e-3)       # P4b banyo_6_1 (sums: 0.439)
     assert R.rig_share_p50(0.1, 0.2) == 0.0 and R.rig_share_p50(0.1, None) == 1.0
@@ -2826,3 +2848,312 @@ def test_fixround_p5_gpu_orange_check_sorts_walls_by_room_type_and_skips_blocked
     assert gpu._wall_kind({"room_type": "kitchen"}, {}) == "painted"
     assert gpu._wall_kind({"room_id": "r_x"}, {"r_x": "bathroom"}) == "tiled"
     assert gpu._wall_kind({"room_type": "dining"}, {}) == "painted"
+
+
+def _dotted_edge_frame():
+    """A pulled view at 8 x 20 with the dotted edge of P5's roofs and pergola (bpy 5.2.2 shim of real04 at P5's k:
+    every second edge pixel a haze-shell hit with a normal): rows 0-2 sky with a pure shell hit at (0, 0); a roof
+    (rows 4-7, columns 0-7, 10 m, |N| 1) whose edge row 3 is half sky (|N| 0.5): sample 0 crossed the haze shell on
+    the even columns (depth 40 m, the haze index) and reached the background on the odd ones; sky over columns 8-10
+    and 12; a post (rows 4-7, column 11, 10 m); far ground behind the haze (rows 4-7, columns 13-19, 300 m, |N| 0.4)
+    with a fully covered shell hit at (4, 16) and a hill line at row 3 (|N| 0.2, a shell hit at column 15); a shell
+    hit at (3, 12) next to both the post and the far ground (|N| 0.3)."""
+    import numpy as np
+
+    h, w = 8, 20
+    depth = np.full((h, w), 1e10)
+    index = np.zeros((h, w))
+    normal = np.zeros((h, w, 3))
+    depth[0, 0], index[0, 0] = 40.0, HAZE_INDEX
+    depth[4:, :8], index[4:, :8], normal[4:, :8] = 10.0, 7.0, (0.0, 0.0, 1.0)
+    normal[3, :8] = (0.0, 0.0, 0.5)
+    depth[3, 0:8:2], index[3, 0:8:2] = 40.0, HAZE_INDEX
+    depth[4:, 11], index[4:, 11], normal[4:, 11] = 10.0, 8.0, (1.0, 0.0, 0.0)
+    depth[4:, 13:], normal[4:, 13:] = 300.0, (0.0, 0.0, 0.4)
+    depth[4, 16], index[4, 16] = 40.0, HAZE_INDEX
+    normal[3, 13:] = (0.0, 0.0, 0.2)
+    depth[3, 15], index[3, 15] = 40.0, HAZE_INDEX
+    depth[3, 12], index[3, 12], normal[3, 12] = 40.0, HAZE_INDEX, (0.0, 0.0, 0.3)
+    return {"ViewLayer.Depth.Z": depth, "ViewLayer.Object Index.X": index, "ViewLayer.Normal.X": normal[..., 0],
+            "ViewLayer.Normal.Y": normal[..., 1], "ViewLayer.Normal.Z": normal[..., 2]}
+
+
+def test_fixround_p5_a_shell_hit_at_a_roof_edge_takes_the_roofs_reference():
+    """P5 real04's sky-pulled ext_1 (k 3) and teras_2_1 (k 4): a dotted white line along every roof, gutter and
+    pergola edge. An edge pixel whose sample 0 crossed the haze shell while its other samples hit the roof is a shell
+    hit with a normal: it took the reference of the other such edge pixels (|N| 0.5, its own), got weight 0 and kept
+    its unpulled sky; every second edge pixel stayed white. It now takes the nearer surface group's reference (the
+    roof, 1) and half the pull; a shell hit nearer the far ground, or as near to it as to a near surface, keeps the
+    shell group (the far ground's own reference). Fails on 29e54d0 (weight 0) and with the mutation that never
+    reassigns (``shell_edge_pixels`` returning nothing)."""
+    import numpy as np
+
+    channels = _dotted_edge_frame()
+    depth, index, normal = _passes(channels)
+    mask = R.sky_mask(depth, index, normal, {HAZE_INDEX})
+    assert mask[0, 0] and mask[3, 1:8:2].all() and not mask[3, 0:8:2].any() and not mask[3, 12] and not mask[3, 15]
+    weights, ring = R.sky_pull_weights(mask, normal, depth=depth, index=index, haze_indices={HAZE_INDEX})
+    assert ring[3, 0:8:2].all() and ring[3, 12] and ring[3, 15] and ring[4, 16]
+    assert weights[3, 0:8:2] == pytest.approx([0.5] * 4)                     # the roof's 1: half the pull
+    assert weights[3, 1:8:2] == pytest.approx([0.5] * 4)                     # the background half: as before
+    assert weights[3, 15] == pytest.approx(0.5) and weights[4, 16] == 0.0    # the far ground's 0.4 (shell group)
+    assert weights[3, 12] == pytest.approx(0.25)                             # a tie: the shell group (0.4)
+    assert (weights[4:, :8] == 0.0).all() and (weights[4:, 11] == 0.0).all() and (weights[4:, 13:] == 0.0).all()
+    near = ~mask & np.isin(np.rint(index), [7.0, 8.0])
+    far = ~mask & (depth > 140.0) & (depth < 1e9)
+    shell = ~mask & (np.rint(index) == HAZE_INDEX)
+    edge = R.shell_edge_pixels(shell & ring, near, far, R.SKY_REF_PX)
+    assert sorted(zip(*np.nonzero(edge))) == [(3, 0), (3, 2), (3, 4), (3, 6)]
+    assert not R.shell_edge_pixels(np.zeros_like(mask), near, far).any()
+    # beyond max_px no surface decides: the candidate stays in the shell group
+    lone = np.zeros_like(mask)
+    lone[0, 19] = True
+    assert not R.shell_edge_pixels(lone, near, far, 2).any()
+
+
+def test_fixround_p5_the_sky_pull_blends_the_dotted_edge_and_records_no_dots(tmp_path, monkeypatch):
+    """``RenderRun.sky_pull`` on the dotted-edge frame (``save_display`` stands in for Blender): the shell hits on the
+    roof's edge take half the k 2 save like the background pixels between them, so no edge pixel stays brighter than
+    the pulled sky, the roof and its neighbours; the record says ``edge_dot_px`` 0 of ``edge_px`` (``sky_edge_dots``,
+    for the GPU check). With 29e54d0's weights (0 on those four pixels) the same blend has four dots. Fails on
+    29e54d0 (no ``edge_dot_px``; the edge pixels unpulled)."""
+    import types
+
+    import numpy as np
+
+    channels = _dotted_edge_frame()
+    depth, index, normal = _passes(channels)
+    mask = R.sky_mask(depth, index, normal, {HAZE_INDEX})
+    h, w = depth.shape
+    main = np.zeros((h, w, 3), dtype=np.uint8)
+    main[...] = (224, 226, 228)                    # the near-white sky at the facade EV
+    main[4:, :8] = (60, 62, 64)                    # the dark roof
+    main[3, :8] = (190, 192, 194)                  # its edge as rendered: half sky, the bright part dominates (AgX)
+    main[4:, 11] = (80, 80, 80)                    # the post
+    main[3:, 13:] = (200, 205, 190)                # the far ground behind the haze, the hill line
+    pure = mask & (np.abs(normal).sum(axis=-1) == 0)
+    pulled = {1: (200, 212, 230), 2: (150, 172, 206), 3: (110, 128, 160)}
+
+    def fake_save(scene, result, path, ev, look=R.LOOK):
+        k = round(-4.0 - float(ev))
+        img = (main.astype(np.float64) * 0.5 ** k).astype(np.uint8)
+        img[pure] = pulled[k]
+        return img
+
+    run = types.SimpleNamespace(ctx=types.SimpleNamespace(scene=None, haze={HAZE_INDEX}), out=tmp_path, warnings=[])
+    monkeypatch.setattr(R, "save_display", fake_save)
+    record, weights, final = R.RenderRun.sky_pull(run, types.SimpleNamespace(name="cam_r_L1_teras_2_1"),
+                                                  {"ev": -4.0}, None, main, channels)
+    assert record["k"] == 2 and R.SKY_EDGE_NEAR_PX == R.SKY_RING_PX + 1 and R.SKY_EDGE_DOT_MARGIN == 0.05
+    k2 = fake_save(None, None, None, -6.0)
+    for col in range(8):                                                     # shell and background halves alike
+        assert np.array_equal(final[3, col], np.rint(main[3, col] * 0.5 + k2[3, col] * 0.5).astype(np.uint8)), col
+    assert record["edge_dot_px"] == 0 and record["edge_px"] > 0
+    assert (record["edge_dot_px"], record["edge_px"]) == R.sky_edge_dots(final, mask, weights,
+                                                                         R.sky_pull_weights(
+                                                                             mask, normal, depth=depth, index=index,
+                                                                             haze_indices={HAZE_INDEX})[1])
+    # 29e54d0's weights: the four shell hits at the edge unpulled -> four dots
+    old = weights.copy()
+    old[3, 0:8:2] = 0.0
+    _w, ring = R.sky_pull_weights(mask, normal, depth=depth, index=index, haze_indices={HAZE_INDEX})
+    dots, edge = R.sky_edge_dots(R.blend_pull(main, k2, old), mask, old, ring)
+    assert dots == 4 and edge == record["edge_px"]
+
+
+def test_fixround_p5_sky_edge_dots_counts_dots_not_lines():
+    """``sky_edge_dots`` counts an edge pixel brighter than the fully pulled sky, the surface the pull left alone and
+    the edge pixels next to it; a connected light line (a sunlit coping, the soft line of an anti-aliased dark edge)
+    is not a dot, nor is an edge pixel without both a sky and a surface within ``SKY_EDGE_NEAR_PX``."""
+    import numpy as np
+
+    h, w = 10, 12
+    mask = np.zeros((h, w), dtype=bool)
+    mask[:4] = True                                                          # sky rows 0-3
+    ring = np.zeros((h, w), dtype=bool)
+    ring[4:6] = True                                                         # the ring rows 4-5
+    weights = np.where(mask, 1.0, 0.0)
+    weights[4] = 0.5                                                         # the edge row, half pulled
+    image = np.zeros((h, w, 3), dtype=np.uint8)
+    image[:4] = (120, 130, 150)                                              # the pulled sky (0.5)
+    image[4:] = (60, 60, 60)                                                 # the roof
+    image[4, :] = (100, 100, 100)                                            # the edge row between them
+    edge = 2 * w                                                             # both ring rows: sky and roof within 3 px
+    assert R.sky_edge_dots(image, mask, weights, ring) == (0, edge)
+    image[4, 3] = image[4, 7] = (230, 230, 230)                              # two dots
+    assert R.sky_edge_dots(image, mask, weights, ring) == (2, edge)
+    image[4, :] = (230, 230, 230)                                            # a connected light line: no dot
+    assert R.sky_edge_dots(image, mask, weights, ring) == (0, edge)
+    # a ring pixel with no surface within SKY_EDGE_NEAR_PX (a 6-row ring) is no edge pixel
+    deep = np.zeros((h, w), dtype=bool)
+    deep[4:] = True
+    assert R.sky_edge_dots(image, mask, weights, deep)[1] == 0
+    assert R.sky_edge_dots(image, np.zeros_like(mask), weights, ring) == (0, 0)
+
+
+def test_fixround_p5_gpu_sky_edge_check_fails_on_dotted_edges(tmp_path, monkeypatch):
+    """CPU replay of ``test_sky_pull_leaves_no_dotted_edges``: P5's pulls without the record fail (rendered before
+    m13.4), the shim's m13.3 shares fail (a view over ``SKY_EDGE_DOT_VIEW_MAX``, the median over
+    ``SKY_EDGE_DOT_MEDIAN_MAX``), the m13.4 shares pass, and a project without a pulled sky skips."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+
+    def project(*pulls):
+        renders = [{"camera": f"cam_{i}", "sky_pull": p} for i, p in enumerate(pulls)]
+        return "real04", {}, {"renders": renders}
+    m134 = [dict(_sky(3), edge_dot_px=4, edge_px=1924), dict(_sky(4), edge_dot_px=1, edge_px=1791)]
+    gpu.test_sky_pull_leaves_no_dotted_edges(project(*m134))
+    m133 = [dict(_sky(3), edge_dot_px=63, edge_px=1924), dict(_sky(4), edge_dot_px=26, edge_px=1791)]
+    with pytest.raises(AssertionError, match="dotted sky edges"):
+        gpu.test_sky_pull_leaves_no_dotted_edges(project(*m133))
+    # one dotted view among clean ones: the view bound
+    with pytest.raises(AssertionError, match="cam_2"):
+        gpu.test_sky_pull_leaves_no_dotted_edges(project(*m134, dict(_sky(2), edge_dot_px=40, edge_px=1000)))
+    with pytest.raises(AssertionError, match="before m13.4"):
+        gpu.test_sky_pull_leaves_no_dotted_edges(project(_sky(3), *m134))
+    with pytest.raises(pytest.skip.Exception):
+        gpu.test_sky_pull_leaves_no_dotted_edges(project(_sky(0), None))
+    assert gpu.SKY_EDGE_DOT_VIEW_MAX == 0.015 and gpu.SKY_EDGE_DOT_MEDIAN_MAX == 0.005
+
+
+P5_ANCHOR = [1.106758, 0.981679, 0.867122]      # real04's project white point (P3's 5,635 K, P5 render_manifest)
+
+
+def test_fixround_p5_the_view_takes_the_tint_of_its_own_daylight():
+    """P5 real04's six sunlit L0 bedroom views read olive (wall display G/((R+B)/2) 1.048-1.066, M12 1.007-1.017):
+    their daylight is mostly sunlight bounced off the green ground, while the project anchor was metered on the
+    terrace. bpy 5.2.2 shim of real04 (the P3 pre-flight scene, P5's anchor): the daylight green ratio
+    G/sqrt(RB) of yatak_odasi_1 1.402, yatak_odasi_3 1.348, e_yatak_odasi_1 1.321, salon_1 1.178, oyun_1 1.022;
+    the anchor's 1.002. The view's white point takes ``(day ^ (1 - r) / anchor) ^ (1 - share)`` on its G (walls
+    1.076 -> 1.021, 1.057 -> 1.019, 1.078 -> 1.040, 1.037 -> 1.019 on the shim) and keeps its R/B (the temperature).
+    Fails on 29e54d0 (no ``view_tint_gain``)."""
+    assert R.green_ratio([1.0, 1.0, 1.0]) == 1.0 and R.green_ratio([1.0, 0.0, 1.0]) is None
+    assert R.green_ratio(None) is None and R.green_ratio([1.0, float("nan"), 1.0]) is None
+    assert R.green_ratio(P5_ANCHOR) == pytest.approx(1.002086, abs=1e-5)
+    for day, gain in ((1.402053, 1.243065), (1.347611, 1.211474), (1.321004, 1.195872), (1.177723, 1.109878),
+                      (1.021969, 1.012119)):
+        assert R.view_tint_gain(P5_ANCHOR, day, 0.35) == pytest.approx(gain, abs=1e-5), day
+    # by the daylight share (the rig part keeps the rig's colour), clamped, and none without a daylight
+    assert R.view_tint_gain(P5_ANCHOR, 1.402053, 0.35, 0.5) == pytest.approx(1.243065 ** 0.5, abs=1e-5)
+    assert R.view_tint_gain(P5_ANCHOR, 1.402053, 0.35, 1.0) == 1.0
+    assert R.view_tint_gain(P5_ANCHOR, 3.0, 0.35) == R.WB_TINT_GAIN_MAX == 1.3
+    assert R.view_tint_gain(P5_ANCHOR, 0.3, 0.35) == pytest.approx(1 / 1.3, abs=1e-6)
+    assert R.view_tint_gain(P5_ANCHOR, None, 0.35) == 1.0 and R.view_tint_gain(P5_ANCHOR, 1.4, 1.0) == 1.0
+    assert R.view_tint_gain([1.0, 0.0, 1.0], 1.4, 0.35) == 1.0
+    # the tinted white point keeps R/B (its temperature) and luminance 1; its own daylight then leaves the anchor's
+    # tint: (day / wp) has the anchor's day^r green ratio
+    wp = R.tinted_whitepoint(P5_ANCHOR, 1.243065)
+    assert wp[0] / wp[2] == pytest.approx(P5_ANCHOR[0] / P5_ANCHOR[2], abs=1e-5)
+    assert R.luminance(wp) == pytest.approx(1.0, abs=1e-5)
+    assert R.green_ratio(wp) == pytest.approx(1.402053 ** 0.65, abs=1e-4)
+    assert R.tinted_whitepoint(P5_ANCHOR, 1.0) == pytest.approx(P5_ANCHOR, abs=2e-6)
+    assert R.WB_TINT_RULE.startswith("the view's own daylight tint")
+
+
+def test_fixround_p5_view_white_tints_the_daylight_views_only(tmp_path, monkeypatch):
+    """``Look._view_white`` with stand-ins: a daylight view (share 0) gets the anchor with its daylight's tint, a
+    mixed view the rig mix with the tint by its daylight share, a view without daylight (the rig alone) and a view
+    under the exterior sky keep their white points, and a scene without a rig tints by the metered light. Every
+    interior view records ``wb_day_green`` and ``wb_view_tint_gain``. Fails on 29e54d0 (the anchor exactly)."""
+    import types
+
+    look = object.__new__(R.Look)
+    look.scene, look.windows, look.haze, look.room_types = {}, set(), set(), {}
+    look.project = {"residual": 0.35}
+    green_day = [1.0, 1.402053, 1.0]                                        # green ratio 1.402053
+    meters = []
+    monkeypatch.setattr(R, "rig_objects", lambda scene: ["rig"])
+    monkeypatch.setattr(R, "rig_lights", lambda scene: [("r_bed", 2700.0, 2.5)])
+    monkeypatch.setattr(R, "hide_objects", lambda objs: [])
+    monkeypatch.setattr(R, "unhide_objects", lambda saved: None)
+    monkeypatch.setattr(R, "meter_camera", lambda *a, **k: dict(meters.pop(0), seconds=0.1))
+    monkeypatch.setattr(R, "kelvin_whitepoint", lambda scene, k: R.normalise_whitepoint(WP_2700K))
+
+    def view(day, all_light=None, kind="interior", room="r_bed"):
+        cam = types.SimpleNamespace(name=f"cam_{room}_1", get={"wenart_room": room, "wenart_camera_kind": kind}.get)
+        rec = {"whitepoint": list(P5_ANCHOR), "meter_seconds": 1.0}
+        meters.append({"illuminant": day, "incident_p50": 0.02})
+        look._view_white(cam, rec, {"illuminant": all_light or day, "incident_p50": 0.02}, tmp_path, (64, 36))
+        meters.clear()
+        return rec
+    rec = view(green_day)                                                    # share 0: the daylight bedroom
+    assert rec["wb_rig_share"] == 0.0 and rec["wb_day_green"] == pytest.approx(1.402053)
+    assert rec["wb_view_tint_gain"] == pytest.approx(1.243065, abs=1e-5)
+    assert rec["whitepoint"] == pytest.approx(R.tinted_whitepoint(P5_ANCHOR, rec["wb_view_tint_gain"]), abs=1e-9)
+    assert "daylight tint" in rec["wb_view_rule"]
+    rec = view(green_day, [4.0, 4.0 * 1.402053 / 2 + 1.0, 3.0])                # share 0.66 (luminance), mixed
+    share = rec["wb_rig_share"]
+    assert share == pytest.approx(0.66, abs=0.01) and rec["wb_view_tint_gain"] == R.view_tint_gain(P5_ANCHOR, rec["wb_day_green"], 0.35,
+                                                                               share)
+    rig = R.normalise_whitepoint(WP_2700K)
+    assert rec["whitepoint"] == pytest.approx(R.tinted_whitepoint(R.mixed_whitepoint(P5_ANCHOR, rig, share, 0.35, 0.0),
+                                                                  rec["wb_view_tint_gain"]), abs=1e-9)
+    assert rec["wb_view_rule"].startswith(R.WB_VIEW_RULE)
+    rec = view(None, [0.1, 0.1, 0.1])                                        # the rig alone: no daylight
+    assert rec["wb_rig_share"] == 1.0 and rec["wb_day_green"] is None and rec["wb_view_tint_gain"] == 1.0
+    assert rec["whitepoint"] == pytest.approx(R.mixed_whitepoint(P5_ANCHOR, rig, 1.0, 0.35, 0.0), abs=1e-9)
+    rec = view(green_day, kind="exterior")                                   # under the exterior sky: the anchor
+    assert rec["whitepoint"] == P5_ANCHOR and "wb_view_tint_gain" not in rec
+    monkeypatch.setattr(R, "rig_objects", lambda scene: [])                  # no rig: the metered light is daylight
+    rec = view(green_day)
+    assert rec["wb_rig_share"] is None and rec["wb_view_tint_gain"] == pytest.approx(1.243065, abs=1e-5)
+    assert rec["whitepoint"] == pytest.approx(R.tinted_whitepoint(P5_ANCHOR, rec["wb_view_tint_gain"]), abs=1e-9)
+    # the project daylight's own tint (the anchor's green ratio to the power 1 / (1 - r)): the anchor
+    rec = view([1.0, R.green_ratio(P5_ANCHOR) ** (1 / 0.65), 1.0])
+    assert rec["wb_view_tint_gain"] == pytest.approx(1.0, abs=2e-6)
+    assert rec["whitepoint"] == pytest.approx(P5_ANCHOR, abs=1e-5)
+
+
+def test_fixround_p5_gpu_white_point_check_reads_the_recorded_tint(tmp_path, monkeypatch):
+    """CPU replay of ``test_views_keep_the_project_white_point_or_mix_it_with_the_rig`` with m13.4 records: a daylight
+    view with its tinted anchor passes; one whose white point is the plain anchor although its daylight is green, one
+    whose recorded gain does not follow its recorded daylight green ratio, and an interior view without the record
+    (an m13.3 render) fail."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    gain = R.view_tint_gain(P5_ANCHOR, 1.402053, 0.35)
+    tinted = R.tinted_whitepoint(P5_ANCHOR, gain)
+    mixed = R.mixed_whitepoint(P5_ANCHOR, RIG_2700K, 0.8, 0.35)
+    mgain = R.view_tint_gain(P5_ANCHOR, 1.05, 0.35, 0.8)
+    base = [_wb_entry("ext_2", None, P5_ANCHOR, anchor=P5_ANCHOR, world="wenart_world_exterior"),
+            _wb_entry("cam_r_b_1", "r_b", R.tinted_whitepoint(mixed, mgain), share=0.8, anchor=P5_ANCHOR, shift=90.0,
+                      day_green=1.05, gain=mgain)]
+    good = base + [_wb_entry("cam_r_s_1", "r_s", tinted, share=0.0, anchor=P5_ANCHOR, day_green=1.402053, gain=gain)]
+    gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P5_ANCHOR, good))
+    plain = base + [_wb_entry("cam_r_s_1", "r_s", P5_ANCHOR, share=0.0, anchor=P5_ANCHOR, day_green=1.402053,
+                              gain=gain)]
+    with pytest.raises(AssertionError, match="cam_r_s_1"):
+        gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P5_ANCHOR, plain))
+    off = base + [_wb_entry("cam_r_s_1", "r_s", tinted, share=0.0, anchor=P5_ANCHOR, day_green=1.2, gain=gain)]
+    with pytest.raises(AssertionError, match="tint gain off the recorded daylight green ratio"):
+        gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P5_ANCHOR, off))
+    old = _wb_entry("cam_r_s_1", "r_s", P5_ANCHOR, share=0.0, anchor=P5_ANCHOR)
+    for key in ("wb_day_green", "wb_view_tint_gain"):
+        old["exposure"].pop(key)
+    with pytest.raises(AssertionError, match="before m13.4"):
+        gpu.test_views_keep_the_project_white_point_or_mix_it_with_the_rig(_wb_project(P5_ANCHOR, base + [old]))
+
+
+def test_fixround_p5_gpu_olive_check_reads_the_daylight_walls(tmp_path, monkeypatch):
+    """CPU replay of ``test_daylight_walls_are_not_olive``: painted daylight walls at the shim's tinted values
+    (G/((R+B)/2) 1.019-1.040) pass; an olive bedroom (1.078, the shim with the project white point) fails; a bath
+    (tiled), a rig-lit hall and a blocked daylight view are not judged."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+
+    def rgb(green):                                                           # R 120, B 100: G = 110 x green
+        return (120, round(110 * green), 100)
+    types_ = {"r_bed": "bedroom", "r_liv": "living", "r_bath": "bathroom", "r_hall": "hall"}
+    views_ = {"cam_r_bed_1": ("r_bed", 1.2, 0.0), "cam_r_liv_1": ("r_liv", 1.2, 0.0),
+              "cam_r_bath_1": ("r_bath", 1.2, 0.0), "cam_r_hall_1": ("r_hall", 1.2, 0.9),
+              "cam_r_bed_2": ("r_bed", 1.2, 0.0)}
+    colours = {"cam_r_bed_1": rgb(1.021), "cam_r_liv_1": rgb(1.019), "cam_r_bath_1": rgb(1.10),
+               "cam_r_hall_1": rgb(1.10), "cam_r_bed_2": rgb(1.10)}
+
+    def check(case, colours, blocked=("cam_r_bed_2",)):
+        monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)
+        gpu.test_daylight_walls_are_not_olive(_wall_views(tmp_path / case, views_, room_types=types_, blocked=blocked,
+                                                          entry_types=True, rgb=colours))
+    check("tinted", colours)
+    with pytest.raises(AssertionError, match=r"cam_r_bed_1', \(1\.08"):              # 119 / 110 in 8 bits
+        check("olive", dict(colours, cam_r_bed_1=rgb(1.078)))
+    with pytest.raises(AssertionError, match="cam_r_bed_2"):                   # the same view unblocked
+        check("unblocked", colours, blocked=())
+    assert gpu.DAYLIGHT_WALL_GREEN_MAX == 1.06

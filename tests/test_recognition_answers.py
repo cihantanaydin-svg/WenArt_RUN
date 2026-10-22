@@ -945,6 +945,93 @@ def test_pipeline_exit_4_then_answers_then_no_ai(tmp_path):
     assert no_ai.returncode in (0, 1) and no_ai.returncode != 4, no_ai.stdout[-2000:]
 
 
+# --------------------------------------------------------------------------
+# Fix round after P5 (22 Oct 2026; pod P5, real04): the pixels an answer was given for
+# --------------------------------------------------------------------------
+
+def _overwrite(rec: Path, item: dict, other: dict) -> None:
+    """P3's key collision: ``other``'s crop files written over ``item``'s."""
+    for mine, theirs in zip(item["images"], other["images"]):
+        shutil.copy2(rec / theirs, rec / mine)
+
+
+def test_render_pair_names_the_pixels_of_its_crops(toy):
+    """Fails on BASE (no ``crop_sha256``): every symbol question carries the hash of the decoded pixels of its two
+    crops, the same as the files on disk; the canonical ``input_sha256`` is unchanged, so the pinned fixture holds."""
+    rec, items = toy
+    for it in items:
+        assert it[A.PIXELS_KEY] == C.image_sha256([rec / p for p in it["images"]])
+    assert len({it[A.PIXELS_KEY] for it in items}) == len(items)
+    _overwrite(rec, items[0], items[1])
+    assert C.image_sha256([rec / p for p in items[0]["images"]]) == items[1][A.PIXELS_KEY]
+    assert C.image_sha256([rec / "crops" / "missing.png"]) is None
+
+
+def test_an_answer_counts_only_for_the_pixels_it_was_given_for(toy):
+    """Fails on BASE: an answer recorded for other crop pixels than the item's (``image_sha256`` vs ``crop_sha256``)
+    is stale; answers and items from before this round (no pixel hash) keep the old rule."""
+    rec, items = toy
+    write_fake_answers(rec, items)
+    store = A.AnswerStore.for_model(rec, "qwen", MODELS)
+    item = items[0]
+    rec0 = store.get(item["key"])
+    assert A.SHOWN_KEY not in rec0 and store.valid(item) is not None            # committed answers still count
+    assert store.current(dict(rec0, **{A.SHOWN_KEY: item[A.PIXELS_KEY]}), item)
+    assert not store.current(dict(rec0, **{A.SHOWN_KEY: "0" * 64}), item)
+    old_item = {k: v for k, v in item.items() if k != A.PIXELS_KEY}
+    assert store.current(dict(rec0, **{A.SHOWN_KEY: "0" * 64}), old_item)
+
+
+def test_a_committed_answer_is_seeded_only_when_its_seed_crops_show_the_items_crops(toy, tmp_path):
+    """Fails on BASE: P3's answer for sym_L0_007 was given for a crop file another candidate had overwritten, and it
+    stayed reusable because the canonical hash did not change. A seed record without a pixel hash is copied only when
+    the crop files of its seed folder show the item's crops (then it gets the pixel hash); a seed folder without crops
+    seeds as before."""
+    rec, items = toy
+    seed_dir = tmp_path / "results"
+    write_fake_answers(seed_dir, items)
+    shutil.copytree(rec / A.CROPS_DIR, seed_dir / A.CROPS_DIR)
+    _overwrite(seed_dir, items[0], items[1])
+    store = A.AnswerStore.for_model(rec, "qwen", MODELS)
+    logs: list[str] = []
+    assert A.seed_answers(store, items, seed_dir, log=logs.append) == len(items) - 1
+    saved = json.loads(store.path.read_text(encoding="utf-8"))["calls"]
+    assert items[0]["key"] not in saved and any("other crop pixels" in m for m in logs)
+    assert all(saved[it["key"]][A.SHOWN_KEY] == it[A.PIXELS_KEY] for it in items[1:])
+    bare = tmp_path / "bare"
+    write_fake_answers(bare, items)
+    other = A.AnswerStore(tmp_path / "x.json", "qwen", MODELS["qwen"]["slug"], MODELS["qwen"]["id"])
+    assert A.seed_answers(other, items, bare, log=logs.append) == len(items)
+
+
+def test_ask_never_sends_crop_files_that_show_another_picture(toy):
+    """Fails on BASE: ``ask`` sent whatever the crop files showed. Files that show other pixels than the item's crops
+    (overwritten) are not sent: a failed record says so; every answer records the pixels it was given for."""
+    rec, items = toy
+    _overwrite(rec, items[0], items[1])
+    data = {"type": "chair", "front": "none", "confidence": 0.5, "reason": "seat"}
+
+    class Client:
+        model = MODELS["qwen"]["id"]
+
+        def __init__(self):
+            self.sent = []
+
+        def run_schema(self, images, *args, **kw):
+            self.sent.append(list(images))
+            return type("R", (), {"data": dict(data), "raw_text": json.dumps(data), "error": None, "attempts": 1,
+                                  "latency_s": 0.0, "max_tokens": 100, "finish_reason": "stop", "guard": []})()
+
+    client = Client()
+    store = A.AnswerStore.for_model(rec, "qwen", MODELS)
+    stats = A.ask(items, store, client, rec, log=lambda _m: None)
+    assert stats["failed"] == 1 and stats["asked"] == len(items) - 1 and stats["left"] == 0
+    assert not any(str(rec / items[0]["images"][0]) in s for s in client.sent)
+    bad = store.get(items[0]["key"])
+    assert bad["data"] is None and "overwritten" in bad["error"] and bad[A.SHOWN_KEY] == items[1][A.PIXELS_KEY]
+    assert all(store.get(it["key"])[A.SHOWN_KEY] == it[A.PIXELS_KEY] for it in items[1:])
+
+
 if __name__ == "__main__":
     if "--write-fixture" in sys.argv:
         write_fixture()

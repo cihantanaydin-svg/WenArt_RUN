@@ -256,6 +256,66 @@ def test_the_acceptance_rechecks_the_fitted_building(tmp_path):
     assert verdict["accepted"] and verdict["fitted"]["overlaid"] == 1 and verdict["changed"] == ["f1"]
 
 
+def test_a_piece_the_refit_has_not_fitted_is_fitted_in_the_final_buildings_style(tmp_path, monkeypatch):
+    """The working building's first fit has no style family (P5: None against the refit's "modern"): the dry fit
+    reads the licence mode and the style family of building_final.json."""
+    from wenart.furniture import fit as F
+    out = project(tmp_path)
+    final = read(out / "building_final.json")
+    final["project"] = {"id": "toy", "licence_mode": "relaxed"}
+    final["furniture"][0]["asset"] = {"method": "library", "asset_id": "m1", "bbox_m": [1.6, 2.0, 1.1],
+                                      "style_family": "modern"}
+    final["furniture"][1]["asset"] = {"method": "parametric", "bbox_m": [0.4, 0.4, 0.55]}
+    final["furniture"][2]["asset"] = {"method": "library", "asset_id": "m3", "bbox_m": [2.0, 0.9, 0.8],
+                                      "style_family": "modern"}
+    write_json(out / "building_final.json", final)
+    seen = []
+
+    def fake_fit(piece, catalog, *a, mode="commercial", style_family=None, **kw):
+        seen.append((piece["id"], mode, style_family))
+        return {"method": "library", "asset_id": "m2", "bbox_m": [2.2, 0.9, 0.8]}
+    monkeypatch.setattr(F, "fit_piece", fake_fit)
+    loop = LP.AgentLoop(out, MM.MockModel(), clock=Clock(), recheck=lambda b, s, m: [], apply_edit=FakeEdits(),
+                        validators=fake_validators(), out=lambda s: None, catalog_loader=lambda: object())
+    ctx = loop.context(1)
+    after = copy.deepcopy(ctx.building)
+    after["furniture"][2]["footprint"]["size"] = [2.2, 0.9]            # f3 resized: the refit has not fitted it
+    measured, note = loop.fitted_after(ctx, after)
+    assert note == {"overlaid": 2, "refit": ["f3"]} and seen == [("f3", "relaxed", "modern")]
+    assert measured["furniture"][2]["asset"]["asset_id"] == "m2"
+    loop.fitted_after(ctx, after)
+    assert len(seen) == 1                                              # cached per piece state
+
+
+@needs_p5
+def test_p5s_relayout_that_recreated_the_console_table_is_rejected(tmp_path):
+    """P5 seq 5383 (round 3): relayout_room re-created the console table f_L1_049 as f_L1_056 at the same centre; the
+    refit had not fitted f_L1_056 yet (the bookshelf of that id was removed in round 1). The dry fit (the real
+    catalogue) gives it the 0.84 m model under the 0.82 m slope, so X2 is still there under the new id."""
+    agent, final = read(P5_FURNITURE / "building_agent.json"), read(P5_FURNITURE / "building_final.json")
+    before_b = copy.deepcopy(agent)
+    table = next(f for f in before_b["furniture"] if f["id"] == "f_L1_056")
+    table["id"] = "f_L1_049"
+    after_b = copy.deepcopy(agent)
+    next(f for f in after_b["furniture"] if f["id"] == "f_L1_056").pop("asset", None)
+    final_r3 = copy.deepcopy(final)
+    final_r3["furniture"] = [f for f in final_r3["furniture"] if f["id"] != "f_L1_056"] + [
+        dict(next(f for f in final["furniture"] if f["id"] == "f_L1_056"), id="f_L1_049")]
+    out = tmp_path / "real04"
+    write_json(out / "building_final.json", final_r3)
+    loop = LP.AgentLoop(out, MM.MockModel(), clock=Clock(), out=lambda s: None)
+    ctx = TL.ToolContext(project_out=out, building=before_b)
+    measured, note = loop.fitted_after(ctx, after_b)
+    assert note["refit"] == ["f_L1_056"] and _x2_pieces(measured) == ["f_L1_056"]
+    room = table["room_id"]
+    before = [_x2("f_L1_049", room=room)]
+    after = [_x2("f_L1_056", room=room)]
+    edit = {"target_finding": [{"check": "X2", "target": "f_L1_049"}],
+            "removed": CS.removed_pieces(before_b, after_b), "added": CS.added_pieces(before_b, after_b)}
+    ok, why = CS.accept_edit(before, after, edit)
+    assert not ok and "as X2:f_L1_056" in why
+
+
 # --------------------------------------------------------------------------
 # 3. A re-created piece keeps its finding
 # --------------------------------------------------------------------------

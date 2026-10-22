@@ -123,6 +123,18 @@ Pass before P5 (17 Oct 2026; the review of the fix round after P4b; CPU replays 
   ``render.PULL_MAX_CLIP`` plus ``PULL_CLIP_FEATHER_ALLOWANCE`` whenever a tried k unclipped them at
   ``render.PULL_WALL_RATIO_MIN`` of the walls, and unclipped ones are not pulled
   (``test_interior_glazing_pull_removes_clipping``; P4b real03 giris_holu_1 / 2 / 3_1: 8-13 % clipped).
+
+Fix round after P5 (22 Oct 2026; pod P5, real04; render code m13.4; CPU replays in tests/test_m13_light.py):
+
+- the orange check sorts the views by the wall finish of their room type (``shell.WET_WALL_ROOM_TYPES``: bathroom and
+  wc tiled, every other room painted, a kitchen too: its walls are paint with a 0.6 m splashback) and takes its
+  daylight references from unblocked views only (P5: the kitchen mutfak_3, tiled by its wet floor, failed at 1.223
+  against the one-view bath reference of the blocked cam_r_L1_banyo_1);
+- every interior view's white point is the anchor (or its rig mix) with the tint of its own daylight
+  (``render.view_tint_gain`` from the recorded ``wb_day_green``), and the walls of the daylight views are not olive
+  (``test_daylight_walls_are_not_olive``: P5's sunlit L0 bedrooms);
+- a pulled sky leaves no dotted edge (``test_sky_pull_leaves_no_dotted_edges``: the recorded ``edge_dot_px`` of
+  ``render.sky_edge_dots``; P5's ext_1 and teras_2_1 had a dotted white line along every roof and pergola edge).
 """
 import hashlib
 import json
@@ -776,8 +788,20 @@ def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
         share = x.get("wb_rig_share")
         # fix round after P4a (17 Oct 2026): the rig part's extra warmth the view was mixed with (wb_rig_residual;
         # absent on m13.2 renders, which this check no longer passes: re-run it on m13.3 renders only)
-        want = anchor if share is None or share < R.WB_RIG_SHARE_MIN else \
-            R.mixed_whitepoint(anchor, x["wb_rig_whitepoint"], share, residual, x.get("wb_rig_residual"))
+        mixed = share is not None and share >= R.WB_RIG_SHARE_MIN
+        want = R.mixed_whitepoint(anchor, x["wb_rig_whitepoint"], share, residual, x.get("wb_rig_residual")) \
+            if mixed else anchor
+        # fix round after P5 (22 Oct 2026): an interior view with a metered daylight takes the tint of its own daylight
+        # (render.view_tint_gain of the recorded wb_day_green; m13.3 renders have no wb_view_tint_gain)
+        if "wb_view_tint_gain" in x:
+            gain = R.view_tint_gain(anchor, x.get("wb_day_green"), residual, share if mixed else 0.0)
+            if abs(gain - float(x["wb_view_tint_gain"])) > 1e-6:
+                bad.append((r["camera"], "tint gain off the recorded daylight green ratio", x.get("wb_day_green"),
+                            x["wb_view_tint_gain"], gain))
+            if gain != 1.0:
+                want = R.tinted_whitepoint(want, gain)
+        elif r.get("room_id") is not None and not (exterior_world and r.get("world") == exterior_world):
+            bad.append((r["camera"], "no wb_view_tint_gain (rendered before m13.4?)"))
         if max(abs(a - b) for a, b in zip(x["whitepoint"], want)) > 1e-5:
             bad.append((r["camera"], share, x["whitepoint"], want))
         if r.get("room_id") is None or (exterior_world and r.get("world") == exterior_world):
@@ -892,6 +916,97 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
           f"blocked daylight views left out {blocked}")
     print(f"{name}: wall R/B of the rig-lit views (value, kind, bound) {per_view}")
     assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
+
+
+# Fix round after P5 (22 Oct 2026): the wall display G/((R+B)/2) a painted daylight view may reach. P5 real04's sunlit
+# L0 bedrooms read olive (1.048-1.066 on the bright near-neutral pixels of the previews; M12 1.007-1.017). bpy 5.2.2
+# shim of real04 (the P3 pre-flight scene, 480 x 270, 64 spp, P5's anchor; walls of views.regions): the four daylight
+# views 1.037-1.078 with the project white point, 1.019-1.040 with the view's own daylight tint
+# (render.view_tint_gain). The warm greige paint itself is 1.047 in linear albedo.
+DAYLIGHT_WALL_GREEN_MAX = 1.06
+# ... and the dots on a pulled sky's edge (render.sky_edge_dots, the record's edge_dot_px / edge_px): bpy 5.2.2 shim
+# renders (480 x 270, 64 spp; P4a's real02 at its k, real04's P3 pre-flight scene at P5's k) 0.9-3.3 % of the edge
+# pixels per view with m13.3's weights (medians 2.0 % and 2.4 %), 0-0.35 % with m13.4's (medians 0 and 0.14 %).
+SKY_EDGE_DOT_VIEW_MAX = 0.015
+SKY_EDGE_DOT_MEDIAN_MAX = 0.005
+
+
+def _wall_green(view, table) -> float | None:
+    """Display G / ((R + B) / 2) of the mean of a view's wall pixels (``views.regions`` walls), None under 1 % of the
+    frame (fix round after P5)."""
+    from wenart import views
+
+    mask = views.regions(view.read_index(), view.read_depth_mm(), view.read_normal(), table).masks.get(
+        views.STRUCT_WALLS)
+    if mask is None or mask.sum() < 0.01 * mask.size:
+        return None
+    mean = view.read_rgb()[mask].astype(np.float64).mean(axis=0)
+    return round(float(mean[1] / max((mean[0] + mean[2]) / 2.0, 1e-6)), 3)
+
+
+def test_daylight_walls_are_not_olive(project):
+    """Fix round after P5 (22 Oct 2026). What: the painted walls of every view lit mostly by daylight (rig share under
+    ``RIG_CHECK_SHARE``, the orange check's floor; under the interior world, within the cap, not blocked; the rig's
+    warm light only lowers the ratio) have a display G/((R+B)/2) of at most ``DAYLIGHT_WALL_GREEN_MAX``; every value
+    is printed with the view's ``wb_day_green`` and ``wb_view_tint_gain``. Why: P5 real04's six sunlit L0 bedroom views read olive under the project anchor (metered
+    on the terrace): their daylight is mostly sunlight bounced off the green ground outside. The pin reads the
+    pixels, not the white point rule (``test_views_keep_the_project_white_point_or_mix_it_with_the_rig`` checks the
+    rule against the record)."""
+    from wenart import views
+    from wenart.blender import render as R
+
+    name, scene, render = project
+    if not _project_wb(render):
+        pytest.skip(f"{name}: not rendered with --white-balance project")
+    exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
+    manifest_types = R.room_types_from_manifest(scene)
+    entries = {r["camera"]: r for r in render["renders"]}
+    out = OUTPUTS / name / "renders"
+    daylight = [c for c, r in entries.items() if r.get("room_id") is not None and not _dark(r)
+                and not (exterior_world and r.get("world") == exterior_world)
+                and (r["exposure"].get("wb_rig_share") or 0.0) < RIG_CHECK_SHARE
+                and _wall_kind(r, manifest_types) == "painted"]
+    daylight = [c for c in daylight if not _blocked(entries[c], out, entries[c].get("lens_mm") or 24.0)["blocked"]]
+    if not daylight:
+        pytest.skip(f"{name}: no painted daylight view")
+    table = views.index_table(scene)
+    loaded = views.load_views(out, cameras=daylight)
+    values = {cam: (_wall_green(v, table), entries[cam]["exposure"].get("wb_day_green"),
+                    entries[cam]["exposure"].get("wb_view_tint_gain")) for cam, v in loaded.items()}
+    olive = [(cam, v) for cam, v in values.items() if v[0] is not None and v[0] > DAYLIGHT_WALL_GREEN_MAX]
+    print(f"{name}: daylight wall G/((R+B)/2), daylight green ratio, tint gain {values}")
+    assert not olive, f"{name}: olive daylight walls (over {DAYLIGHT_WALL_GREEN_MAX}): {olive}"
+
+
+def test_sky_pull_leaves_no_dotted_edges(project):
+    """Fix round after P5 (22 Oct 2026). What: every pulled sky (``sky_pull.k`` at least 1) records the dots on its
+    edge (``edge_dot_px`` of ``edge_px``, ``render.sky_edge_dots``): at most ``SKY_EDGE_DOT_VIEW_MAX`` of the edge
+    pixels in each view and ``SKY_EDGE_DOT_MEDIAN_MAX`` in their median. Why: P5 real04's ext_1 (k 3) and teras_2_1
+    (k 4) had a dotted white line along every roof, gutter and pergola edge: the haze-shell hits at an edge took the
+    shell's reference and kept their unpulled sky (``render.sky_pull_weights``). A pull without the record was
+    rendered before m13.4 and fails."""
+    import statistics
+
+    name, _scene, render = project
+    shares, missing = {}, []
+    for r in render["renders"]:
+        s = r.get("sky_pull") or {}
+        if not s.get("k"):
+            continue
+        if "edge_dot_px" not in s or "edge_px" not in s:
+            missing.append(r["camera"])
+            continue
+        shares[r["camera"]] = (s["edge_dot_px"], s["edge_px"],
+                               round(s["edge_dot_px"] / s["edge_px"], 4) if s["edge_px"] else 0.0)
+    print(f"{name}: dots on the pulled skies' edges (dots, edge pixels, share) {shares}")
+    if not shares and not missing:
+        pytest.skip(f"{name}: no pulled sky")
+    assert not missing, f"{name}: sky pulls without edge_dot_px (rendered before m13.4?): {missing}"
+    over = {c: v for c, v in shares.items() if v[2] > SKY_EDGE_DOT_VIEW_MAX}
+    median = statistics.median(v[2] for v in shares.values())
+    assert not over and median <= SKY_EDGE_DOT_MEDIAN_MAX, \
+        f"{name}: dotted sky edges (view max {SKY_EDGE_DOT_VIEW_MAX}, median {median} max " \
+        f"{SKY_EDGE_DOT_MEDIAN_MAX}): {over or shares}"
 
 
 def _euler_xyz(deg) -> np.ndarray:

@@ -27,6 +27,10 @@ exterior world while the lamp stays the one direct sun.
   balanced for its own room's rig lights (``render.room_rig_kelvin``, ``wb_rig_kelvin_source`` ``room``), the scene's
   first rig light when its room has none (``scene``); the expected value comes from the scene manifest's rig lights
   (``rig_kelvin_from_manifest``), so the build may give halls, stairs and baths a neutral temperature.
+  Fix round after P5 (22 Oct 2026): an interior view's white point then takes the tint of its own daylight
+  (``render.view_tint_gain`` from the recorded ``wb_day_green``, ``render.tinted_whitepoint``: G only, the
+  temperature stays the project's), so the white points are recomputed with the recorded tint and the mired shift
+  of the daylight room (and the floor of the rig-mixed views) allows ``WB_TINT_MIRED_ALLOWANCE``.
 - ``test_exterior_sky_carries_a_visible_sun_disc``: the exterior world of ``materials.exterior_world_nodes`` (the
   round-3 world: the disc for camera rays only) rendered from a camera looking at the sun: the disc's pixels are far
   brighter than the sky beside them. Then a white plane facing the sun measures the Diffuse Direct light of (a) the
@@ -77,6 +81,10 @@ CAMERAS = "cam_r_L0_salon_1,cam_r_L0_banyo_1"          # a sunlit living room an
 # keeps the project white point; the bath (one small sky-lit window, win_L0_006; its rig: a mirror light and a
 # ceiling fixture) is lit mostly by the rig.
 DAYLIGHT_CAMERA, RIG_ONLY_CAMERA = CAMERAS.split(",")
+# Fix round after P5 (22 Oct 2026): Blender's temperature reading of a white point whose G moves by the view's tint
+# gain (render.tinted_whitepoint) moves too, a little: bpy 5.2.2 reads P5's real04 anchor 5,635 K (tint 5.3) as
+# 5,725 K (tint 42.1) at the largest gain measured, 1.243 (-2.8 mired), and 5,610 K at 0.95 (+0.8 mired).
+WB_TINT_MIRED_ALLOWANCE = 4.0
 RIG_ONLY_MIN_SHARE = 0.5                # the bath's rig share (bpy 5.2.2 shim run of part 1: 0.819-0.824)
 # The white point is metered on daylight (rig hidden): up to render.WB_METER_MAX_CAMERAS cameras of rooms with a
 # window portal (rooms whose window faces the sun first) and the one with the most incident light wins. Round-3
@@ -176,14 +184,19 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
     # Fix round after P3 (16-17 Oct 2026): one project white point (the anchor, metered on daylight) for every view;
     # each view's own white point is the anchor mixed with the rig's light colour by the view's rig share
     # (render.mixed_whitepoint; P3 put the 2700 K rig under the 5,635 K daylight point and 24 of 48 views turned
-    # orange). Without the rig, or below WB_RIG_SHARE_MIN, a view keeps the anchor exactly.
+    # orange). Without the rig, or below WB_RIG_SHARE_MIN, a view keeps the anchor (fix round after P5: with the tint of
+    # its own daylight, render.view_tint_gain).
     anchor = [float(v) for v in wbp["whitepoint"]]
     for r in rm["renders"]:
         ex = r["exposure"]
         assert ex["wb_project_whitepoint"] == pytest.approx(anchor, abs=1e-6), r["camera"]
         share = ex.get("wb_rig_share")
         if not levers["rig"]:
-            assert share is None and ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
+            # fix round after P5 (22 Oct 2026): without a rig the metered light is the view's daylight and gives its tint
+            gain = R.view_tint_gain(anchor, ex.get("wb_day_green"), wbp["residual"], 0.0)
+            assert ex.get("wb_view_tint_gain") == pytest.approx(gain, abs=1e-6), (r["camera"], ex, gain)
+            assert share is None and ex["whitepoint"] == pytest.approx(
+                R.tinted_whitepoint(anchor, gain) if gain != 1.0 else anchor, abs=1e-6), (r["camera"], ex)
             continue
         assert share is not None and 0.0 <= share <= 1.0, (r["camera"], ex)
         # fix round after P4b (17 Oct 2026): the view is balanced for its own room's rig lights (render.room_rig_kelvin;
@@ -198,19 +211,29 @@ def test_every_variant_builds_and_renders_within_its_limits(building, variant, m
         # that is wrong; two pins that do not: the daylight living room keeps the project white point (bpy 5.2.2
         # shim run of part 1: share 0.0 in base, rig and all), the bath lit mostly by its rig is corrected toward
         # the rig (0.82 there; a share stuck at 0 would leave it orange, as P3's baths)
+        # fix round after P5 (22 Oct 2026): the tint of the view's own daylight, recomputed from the record
+        mixed = share >= R.WB_RIG_SHARE_MIN
+        gain = R.view_tint_gain(anchor, ex.get("wb_day_green"), wbp["residual"], share if mixed else 0.0)
+        assert ex.get("wb_view_tint_gain") == pytest.approx(gain, abs=1e-6), (r["camera"], ex, gain)
+        tint_mired = WB_TINT_MIRED_ALLOWANCE if gain != 1.0 else 0.0
         if r["camera"] == DAYLIGHT_CAMERA:
-            assert share < R.WB_RIG_SHARE_MIN and ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
-            assert abs(ex["wb_view_shift_mired"]) <= 0.5, (r["camera"], ex)
+            assert not mixed and ex["whitepoint"] == pytest.approx(
+                R.tinted_whitepoint(anchor, gain) if gain != 1.0 else anchor, abs=1e-6), (r["camera"], ex)
+            assert abs(ex["wb_view_shift_mired"]) <= 0.5 + tint_mired, (r["camera"], ex)
         elif r["camera"] == RIG_ONLY_CAMERA:
             assert share >= RIG_ONLY_MIN_SHARE and ex["wb_view_shift_mired"] > 0.0, (r["camera"], ex)
-        if share < R.WB_RIG_SHARE_MIN:
-            assert ex["whitepoint"] == pytest.approx(anchor, abs=1e-6), (r["camera"], ex)
+        if not mixed:
+            want = R.tinted_whitepoint(anchor, gain) if gain != 1.0 else anchor
+            assert ex["whitepoint"] == pytest.approx(want, abs=1e-6), (r["camera"], ex)
         else:
             # fix round after P4a (17 Oct 2026): with the rig part's extra warmth the view was mixed with
             want = R.mixed_whitepoint(anchor, ex["wb_rig_whitepoint"], share, wbp["residual"], ex.get("wb_rig_residual"))
-            assert ex["whitepoint"] == pytest.approx(want, abs=1e-5) and ex["wb_view_rule"] == R.WB_VIEW_RULE
+            if gain != 1.0:
+                want = R.tinted_whitepoint(want, gain)
+            assert ex["whitepoint"] == pytest.approx(want, abs=1e-5) and ex["wb_view_rule"].startswith(R.WB_VIEW_RULE)
             assert ex.get("wb_rig_residual") == R.WB_RIG_RESIDUAL, (r["camera"], ex)       # fix round after P4a
-            assert ex["wb_view_shift_mired"] >= -0.5, (r["camera"], ex)     # toward the warm rig, never cooler
+            # toward the warm rig, never cooler (fix round after P5: but for the daylight tint's small reading)
+            assert ex["wb_view_shift_mired"] >= -0.5 - tint_mired, (r["camera"], ex)
         print(f"M13_WB_VIEW {variant} {r['camera']}: rig share {share} -> {ex['wb_temperature']} K "
               f"(shift {ex.get('wb_view_shift_mired')} mired; {ex['wb_view_rule']})")
     # pre-flight of P3 (16 Oct 2026): the floor moves down with the scene's sun (render.sun_floor_shift); the cap of

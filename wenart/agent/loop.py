@@ -158,8 +158,9 @@ Fix round after P5 (22 Oct 2026; pod P5, real04, the review of its agent log):
 - the dry re-check measures the fitted boxes the round's critic measured (``fitted_view``): ``AgentLoop.acceptance``
   gives every piece of the building after the edit that matches its piece in ``building_final.json`` (same id, type,
   footprint size, ``asset_pin`` and build flag; ``fit_key``) that piece's fitted ``asset`` record, and fits a built
-  piece without a match (added, retyped, resized, re-pinned) with ``fit.fit_piece`` in the project's licence mode and
-  style family (``dry_fit``, cached per piece state; a failed fit keeps the box it had). Only the dry re-check's copy
+  piece without a match (added, retyped, resized, re-pinned) with ``fit.fit_piece`` in the licence mode and style
+  family of ``building_final.json`` (``dry_fit``, cached per piece state; a failed fit keeps the box it had; the
+  working building's first fit has no style family). Only the dry re-check's copy
   changes; the validators, ``ctx.building`` and the overrides replay do not. A refit is a prediction (the refit's
   choice among equal models can differ) and the acceptance says so (``fitted``). Why: the working building
   (``building_agent.json``) carries no fitted asset for the decor stage's 54 pieces and the first, style-free fit for
@@ -1309,9 +1310,13 @@ class AgentLoop:
             self._final = (stamp, TL.read_json(path))
         return self._final[1]
 
-    def dry_fit(self, ctx: TL.ToolContext, piece: dict, building: dict) -> Optional[dict]:
-        """The asset ``fit.fit_piece`` gives ``piece`` in the building's licence mode and style family (as
-        ``edit_ops``' retype refit does), cached per piece state; None when the fit fails or builds nothing."""
+    def dry_fit(self, ctx: TL.ToolContext, piece: dict, building: dict, fitted: Optional[dict] = None
+                ) -> Optional[dict]:
+        """The asset ``fit.fit_piece`` gives ``piece`` in the licence mode and style family of the fitted building
+        ``fitted`` (``building_final.json``: the working building's first fit had no style family, P5: None against
+        the refit's "modern"), else of ``building``, as ``edit_ops``' retype refit reads them
+        (``licence_mode_of``, ``_style_family_of``); cached per piece state; None when the fit fails or builds
+        nothing."""
         key = fit_key(piece) + json.dumps([piece.get("room_id"), piece.get("level_id")], default=str)
         with self._fit_lock:
             if key in self._fit_cache:
@@ -1321,9 +1326,10 @@ class AgentLoop:
         else:
             from wenart.furniture import edit_ops as EO
             from wenart.furniture import fit as F
+            source = fitted if isinstance(fitted, dict) else building
             try:
-                asset = F.fit_piece(dict(piece, build=True), ctx.catalog(), mode=EO.licence_mode_of(building),
-                                    style_family=EO._style_family_of(building))
+                asset = F.fit_piece(dict(piece, build=True), ctx.catalog(), mode=EO.licence_mode_of(source),
+                                    style_family=EO._style_family_of(source))
             except Exception:  # noqa: BLE001 - a prediction only: the piece keeps its box
                 asset = None
         asset = asset if _fitted(asset) else None
@@ -1332,9 +1338,11 @@ class AgentLoop:
         return asset
 
     def fitted_after(self, ctx: TL.ToolContext, building_after: dict) -> tuple[dict, dict]:
-        """``fitted_view`` of ``building_after`` against ``building_final.json`` with ``dry_fit``."""
-        return fitted_view(building_after, self.final_building(),
-                           fit=lambda piece, building: self.dry_fit(ctx, piece, building))
+        """``fitted_view`` of ``building_after`` against ``building_final.json`` with ``dry_fit`` (in the final
+        building's licence mode and style family)."""
+        final = self.final_building()
+        return fitted_view(building_after, final,
+                           fit=lambda piece, building: self.dry_fit(ctx, piece, building, fitted=final))
 
     def rendered_building(self, ctx: TL.ToolContext) -> dict:
         """What the renders show: ``building_final.json`` (after refit), else the working building."""

@@ -69,6 +69,26 @@ their footprints were 0.85 x 0.80 m and 1.00 x 0.85 m instead of 0.50 x 0.80 m a
 out of their size range: it was missing from the question's choices and from the room's missing-member rule, so both
 models answered shower and 6 of 8 bathrooms ended without a washbasin. Pieces without such a line, and named blocks
 (``trim_stray_lines``), are read as before.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04). What:
+
+- **A coat closet is no table with chairs** (``hanging_rail`` in ``split_table_chairs``): a split whose table outline
+  holds a hanging rail (a straight stroke along the long axis, at least ``RAIL_SHARE`` of its length, within
+  ``RAIL_OFFSET_SHARE`` of its depth off the centre line) crossed by at least ``HANGER_MIN`` hangers (strokes or arcs
+  across ``HANGER_ACROSS`` of the depth, never wall to wall like plank lines, at most ``HANGER_ALONG_M`` along the
+  rail) is one ``wardrobe`` rule item (``table_chair_items``, ``_split_named``: the outline's footprint, every stroke of
+  the part as its evidence, note ``CLOSET_NOTE``); its "chairs" are its strokes, no pieces. Geometry only, never size.
+  Why: real04's (and real02's) corridor coat closet (a 1.52 x 0.60 m box with a rail and hangers) was split into the
+  coffee table f_L1_021 and the chairs f_L1_022 (through the wall into the terrace) and f_L1_023; the twin hall the
+  same; the agent then marked one twin "a stair". The real strokes were not available in this session (no DWG
+  converter here): the rule is pinned on a synthetic closet, and the run on the pod must show f_L1_021..026 as two
+  wardrobes (real02: its first closet's hanger blocks were split off by the re-read, so it may stay a split there).
+- **The bed-pillow rule is for beds only** (``HEAD_RULE_TYPES``, ``_drop_rule`` in ``_block_item``): "head = side with
+  >= 2 small closed shapes" found the arm ends or cushions of koltuk sofa blocks and turned real04's and real02's oyun
+  sofas f_L1_009..012 and salon armchairs f_L-1_049/050 to face away from their tables. A block-named sofa or
+  armchair with no other front gets one from its own lines (``seat_back_front``: the back strip and the two arms are
+  lines ``SEAT_LINE_M`` inside three sides; the front is the one open side, a long side for a sofa), else none: the
+  reading then turns it to its coffee table (``reading._front_of``).
 """
 from __future__ import annotations
 
@@ -2322,7 +2342,8 @@ SEAT_LINE_SHARE = 0.4          # ... covering at least this share of the side
 
 
 def _drop_rule(fronts: list[dict], prefix: str) -> list[dict]:
-    """``front_candidates`` without the rule whose text starts with ``prefix`` (a candidate only that rule gave goes)."""
+    """``front_candidates`` without the rule whose text starts with ``prefix`` (a candidate only that rule gave
+    goes)."""
     return [dict(c, rule="; ".join(r for r in c["rule"].split("; ") if not r.startswith(prefix)))
             for c in fronts if any(not r.startswith(prefix) for r in c["rule"].split("; "))]
 

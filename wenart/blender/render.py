@@ -299,6 +299,24 @@ their walls, and the interior glazing's clipped panes left clipped and unmeasure
   ``clip`` as written and the pull (``pull``). The window and interior pulls share their EV - k saves. P4b real03:
   giris_holu_1 / 2 / 3_1 (only interior glazing, 8-13 % clipped) are pulled again; P3's real04 interior glazing
   (win_L0_005 in yatak_odasi_4_1..3, clip 0.0) is not.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04; ``RENDER_CODE_VERSION`` ``m13.4``). What: two changes. Why: P5's
+sky-pulled ext_1 and teras_2_1 had a dotted white line along every roof, gutter and pergola edge, and its six sunlit
+L0 bedroom views read olive. How (both measured on bpy 5.2.2 shim renders of P4a's real02 and of real04's P3
+pre-flight scene at P5's anchor and k; the numbers are in the docstrings):
+
+- Sky pull weights (``sky_pull_weights``, ``shell_edge_pixels``): a haze-shell hit with a normal at a near surface's
+  edge (sample 0 crossed the shell, the other samples hit the roof) takes the near surface's reference instead of the
+  other edge pixels', so it gets its sky share instead of 0 and no edge pixel keeps the unpulled sky. The sky pull
+  records ``edge_dot_px`` / ``edge_px`` (``sky_edge_dots``) for the GPU check. Left as it is: a soft light line along
+  a dark edge (the blend is in display values; blending by the light's share drew dark outlines on the same renders).
+- View tint (``view_tint_gain``, ``tinted_whitepoint``, ``Look._view_tint``): an interior view's white point takes the
+  green-magenta tint of its own daylight (its G only, by its daylight share; the temperature and the mood's residual
+  stay the project's), recorded as ``wb_day_green`` and ``wb_view_tint_gain``. The cause of the green daylight is the
+  interior HDRI 5.2 stops under the sun (``materials.world_nodes``: a lever for an A/B, not changed here): the sunlit
+  ground outside lights the room more than the sky does. The same balance leaves the window panes with a dark sky
+  over a near-white ground band that one pull k cannot hold both of; the pull is unchanged (a decision for the user).
+- Not changed (lead decision 4): views into the sun (ext_5's flat white sky) are only listed (``into_sun``).
 """
 from __future__ import annotations
 
@@ -342,7 +360,10 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # the interior world (the windows), the pane saturation is recorded. Without the bump the render key would reuse P4a's
 # corridor and bath views. The fix round after P4b (17 Oct 2026: interior glazing not pulled, the white point by the
 # camera room's rig, the unclipped pull near the walls, the exterior ground cap) keeps m13.3: no pod has rendered m13.3.
-RENDER_CODE_VERSION = "m13.3"
+# m13.4 (fix round after P5, 22 Oct 2026; P5 rendered m13.3): the sky pull gives the haze-shell hits at a near
+# surface's edge that surface's reference (no dotted white edges), and an interior view's white point takes the tint
+# of its own daylight (view_tint_gain). Without the bump a re-run on an unchanged scene would reuse P5's views.
+RENDER_CODE_VERSION = "m13.4"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
 LOOK = "AgX - Punchy"
@@ -379,11 +400,11 @@ SKY_RING_PX = 2                    # fix round after P4a: the pull also reaches 
 SKY_REF_PX = 4                     # ... where the full-coverage normal is the largest |N| outside the mask this close
 SKY_REF_MIN = 0.05                 # ... and at least this (a ring pixel with only sky round it)
 SKY_FAR_MARGIN_M = 100.0           # surfaces this far beyond the nearest haze-shell hit are seen through the haze
-# Fix round after P5 (22 Oct 2026): the edge check of the blended sky (``sky_edge_bright``, recorded as
-# ``edge_bright_px``): a pixel of the mask or the ring more than this much display luminance over both the fully
-# pulled sky and the surfaces the pull left alone within ``SKY_EDGE_NEAR_PX`` is a bright fringe dot.
-SKY_EDGE_BRIGHT_MARGIN = 0.05
-SKY_EDGE_NEAR_PX = 2
+# Fix round after P5 (22 Oct 2026): the dot check of the blended sky's edge (``sky_edge_dots``, recorded as
+# ``edge_dot_px``): a pixel of the mask or the ring more than this much display luminance over the fully pulled sky
+# and the surfaces the pull left alone within ``SKY_EDGE_NEAR_PX`` and over the edge pixels next to it is a dot.
+SKY_EDGE_DOT_MARGIN = 0.05
+SKY_EDGE_NEAR_PX = 3               # SKY_RING_PX + 1: a dot between two mask pixels has the surface 3 px away
 SKY_INTO_SUN_DEG = 30.0            # a view whose azimuth is this close to the sun's looks into the sun (recorded)
 HAZE_NORMAL_EPS = 1e-6             # fix round part 3: a Normal pass component above this is a surface behind the haze
 PANE_ALBEDO_MAX = 0.05             # pane = window index and Diffuse Color luminance below this (glass, not frame)
@@ -1621,11 +1642,14 @@ def sky_pull_weights(mask, normal=None, ring_px: int = SKY_RING_PX, ref_px: int 
     a normal (not sky, not the roof's group); its reference was the largest ``|N|`` of the other such edge pixels,
     about its own, so it got weight 0 and kept its unpulled sky. Whether sample 0 hits the shell is random, so every
     second edge pixel stayed white. Measured on the bpy 5.2.2 shim renders of P4a's real02 (480 x 270, 64 spp):
-    edge pixels brighter than both the pulled sky and the surface round them (``sky_edge_bright``) teras_1 18 -> 1,
-    teras_2_1 13 -> 0, teras_2_2 20 -> 8, ext_2 66 -> 5, ext_1 344 -> 257 (its trees: the leaf pixels' own coverage,
-    not this group); no pixel turned darker than both. How: the shell pixels keep their own group (the far ground and
-    the backdrop seen where sample 0 hit the shell, about a third of the normal) unless a near surface is strictly
-    nearer than any far one."""
+    dots on the sky's edge (``sky_edge_dots``) teras_1 17 -> 0, teras_2_1 11 -> 0, teras_2_2 11 -> 0, ext_2 52 -> 0,
+    ext_1 85 -> 9 (its trees); real04's P3 pre-flight scene at P5's k: ext_1 63 -> 4, teras_2_1 26 -> 1; no edge
+    pixel turned darker than the sky and the surface round it. Left: a soft light line along a dark edge against a
+    bright sky (the blend is in display values, so an edge pixel weighted by its sky coverage keeps more light than
+    its share: AgX compresses the bright sky part); blending by the light's share instead was tried on the same
+    renders and drew dark outlines and black squares in the trees, so it is not used. How: the shell pixels keep
+    their own group (the far ground and the backdrop seen where sample 0 hit the shell, about a third of the normal)
+    unless a near surface is strictly nearer than any far one."""
     import numpy as np
 
     from wenart import views
@@ -1683,14 +1707,18 @@ def shell_edge_pixels(candidates, near, far, max_px: int = SKY_REF_PX):
     return out
 
 
-def sky_edge_bright(image, mask, weights, ring, margin: float = SKY_EDGE_BRIGHT_MARGIN,
-                    near_px: int = SKY_EDGE_NEAR_PX) -> tuple[int, int]:
-    """``(bright, edge)`` pixel counts of a blended sky (numpy; fix round after P5, 22 Oct 2026). What: ``edge`` = the
-    pixels of the mask or the ring with both a fully pulled sky pixel (mask, weight at least 0.99) and a surface the
-    pull left alone (outside the mask and the ring) within ``near_px``; ``bright`` = those whose display luminance in
-    ``image`` is more than ``margin`` over the brightest of both. Why: the P5 look finding "dotted bright halos on
-    sky edges" (a pixel brighter than the sky and the roof on either side of it is a fringe dot, not an edge); the
-    sky pull records both for the GPU check. Without a mask or a ring both are 0."""
+def sky_edge_dots(image, mask, weights, ring, margin: float = SKY_EDGE_DOT_MARGIN,
+                  near_px: int = SKY_EDGE_NEAR_PX) -> tuple[int, int]:
+    """``(dots, edge)`` pixel counts of a blended sky (numpy; fix round after P5, 22 Oct 2026). What: ``edge`` = the
+    pixels of the mask or the ring that got less than the full pull (weight under 0.99) with both a fully pulled sky
+    pixel (mask, weight at least 0.99) and a surface the pull left alone (outside the mask and the ring) within
+    ``near_px``; ``dots`` = those whose display luminance in ``image`` is more than ``margin`` over the brightest of
+    both and over every other edge pixel of their 3 x 3 neighbourhood. Why: the P5 look finding "dotted bright halos
+    on sky edges": a fringe pixel brighter than the sky and the roof on either side of it and than the edge pixels
+    next to it is a dot (a thin sunlit coping or the soft light line of an anti-aliased dark edge stays connected and
+    is not counted). Measured on the bpy 5.2.2 shim renders (480 x 270, 64 spp; P4a's real02 at its k, real04's P3
+    pre-flight scene at P5's k): 0.9-3.3 % of the edge pixels with the m13.3 weights, 0-0.35 % now. The sky pull
+    records both for the GPU check. Without a mask both are 0."""
     import numpy as np
 
     m = np.asarray(mask, dtype=bool)
@@ -1704,9 +1732,18 @@ def sky_edge_bright(image, mask, weights, ring, margin: float = SKY_EDGE_BRIGHT_
     # +1 so a black pixel still counts as a neighbour (local_max pads with 0)
     sky_max = local_max(np.where(sky, lum + 1.0, 0.0), near_px)
     surface_max = local_max(np.where(surface, lum + 1.0, 0.0), near_px)
-    edge = (m | r) & (w < 0.99) & (sky_max > 0.0) & (surface_max > 0.0)
+    partial = (m | r) & (w < 0.99)
+    edge = partial & (sky_max > 0.0) & (surface_max > 0.0)
     bright = edge & (lum + 1.0 > np.maximum(sky_max, surface_max) + float(margin))
-    return int(np.count_nonzero(bright)), int(np.count_nonzero(edge))
+    h, wd = lum.shape
+    pad = np.pad(np.where(partial, lum, -9.0), 1, constant_values=-9.0)
+    neighbours = np.full(lum.shape, -9.0)
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dy or dx:
+                np.maximum(neighbours, pad[1 + dy:1 + dy + h, 1 + dx:1 + dx + wd], out=neighbours)
+    dots = bright & (lum > neighbours + float(margin))
+    return int(np.count_nonzero(dots)), int(np.count_nonzero(edge))
 
 
 def full_weight_share(mask, weights) -> float | None:
@@ -2771,13 +2808,19 @@ class Look:
         """Fix round after P3 (16-17 Oct 2026): the view's own white point from the project anchor and the view's rig
         share (``mixed_whitepoint``, module docstring). A second metering pass with every rig object hidden gives the
         view's daylight; exterior and open-air views, views without a metering pass and scenes without a rig keep
-        the project white point. Every case records ``wb_project_whitepoint`` and ``wb_view_rule``."""
+        the project white point. Every case records ``wb_project_whitepoint`` and ``wb_view_rule``. Fix round after
+        P5 (22 Oct 2026): an interior view's white point then takes the green-magenta tint of its own daylight
+        (``_view_tint``: ``view_tint_gain`` by its daylight share, ``tinted_whitepoint``; the light metered with the
+        rig hidden, or the metered light of a scene without a rig); every interior view records ``wb_day_green`` and
+        ``wb_view_tint_gain`` (1.0 without a metered daylight), the exterior and open-air views stay at the anchor."""
         anchor = [float(v) for v in rec["whitepoint"]]
         rec.update(wb_project_whitepoint=anchor, wb_rig_share=None, wb_rig_kelvin=None, wb_rig_whitepoint=None)
         if under_exterior_sky({k: self.scene.get(k) for k in WORLD_PROPS}, cam.get("wenart_camera_kind"),
                               self.room_type(cam)) or cam.get("wenart_camera_kind") == "exterior":
             rec["wb_view_rule"] = "under the exterior sky (daylight): the project white point"
             return
+        # fix round after P5: every interior view records its daylight tint (none without a metered daylight)
+        rec.update(wb_day_green=None, wb_view_tint_gain=1.0)
         if meter is None or not meter.get("illuminant"):
             rec["wb_view_rule"] = "no metering pass with light: the project white point"
             return
@@ -3594,8 +3637,8 @@ class RenderRun:
         final = blend_pull(main, images[k], weights)
         record["median_after"] = round(masked_median(final, mask), 4)
         record["saturation_after"] = round(masked_saturation(final, mask), 4)
-        # fix round after P5: the fringe dots of the blended sky's edge (sky_edge_bright), for the GPU check
-        record["edge_bright_px"], record["edge_px"] = sky_edge_bright(final, mask, weights, ring)
+        # fix round after P5: the fringe dots of the blended sky's edge (sky_edge_dots), for the GPU check
+        record["edge_dot_px"], record["edge_px"] = sky_edge_dots(final, mask, weights, ring)
         record["seconds"] = round(time.time() - t0, 3)
         return record, weights, final
 

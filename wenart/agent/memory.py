@@ -27,25 +27,24 @@ its wall and outline cuts as "not yours" (for review). Why: P4b's bathtubs f_L0_
 Why: M11 started a fresh conversation per room and a fresh tool context per round, so every rejection was forgotten
 (§1.4). The ledger is the loop's, not the model's: the room brief shows it to the model, the tools enforce it.
 
-Fix round after P5 (22 Oct 2026; pod P5, real04): the ledger is scoped to the building and the code it was made
-on. The scope (``make_scope``) is ``{"sha", "code"}``: the sha256 of ``building_decor.json``
-(``overrides.source_sha``, the scope the overrides already use; "" without one) and ``code_version()`` (the sha256
-of the files whose rules accept or refuse an edit, ``CODE_FILES``). Every record written carries it (``"scope"``): an accepted or rejected entry, a visit
-(``{"round", "scope"}``), a tried candidate (``{"candidate", "scope"}``), the open checklist (``{"items", "scope"}``
-under the same ``open`` key), a plan, and the refusal counter (``refused``: ``{"scope", "n"}``; the file's
-``refused_repeats`` is the current scope's). Every reading (``room``, ``visits``, ``repeat_of``, ``no_spot``,
-``summary``, ``refused_repeats``) uses only the records whose ``scope`` equals the current one (``==``: an empty sha
-of a test without ``building_decor.json`` matches itself); a record without a scope (M12, P3, P5) is an earlier run
-and is ignored; nothing is deleted from the file (the open checklist is replaced by the next one, as before; a
-version-1 file's refusal count is kept as ``refused_repeats_legacy``). The views keep their old shapes (rounds and
-candidates as ints, the open checklist as strings, records without the ``scope`` key). The loop re-reads the sha
-once per round
-(``refresh``). An acceptance rejection that only says the round's finding list had no target for the edit
-(``BOOKKEEPING_WORDS``: "no target finding", "target finding ... is not among") refuses its repeat in the same round
-only: a later round has other findings. Why: P5's memory.json held three runs (r_L-1_salon visits [1..6, 1, 2, 3,
-1, 2, 3]); 19 of P5's 33 memory refusals cited rejections that do not exist in P5's log (M12's "round 6", P3's
-remove_piece f_L1_048, M12's set_terrain), the planner skipped a relayout "tried" in M12, sessions were ordered by
-the visits of all runs, and piece ids change meaning between runs (P3's floor lamp f_L-1_065 is P5's coffee table).
+Fix round after P5 (22 Oct 2026; pod P5, real04): the ledger is scoped to the building and the code it was made on.
+The scope (``make_scope``) is ``{"sha", "code"}``: the sha256 of ``building_decor.json`` (``overrides.source_sha``,
+the scope the overrides already use; "" without one) and ``code_version()`` (the sha256 of the files whose rules
+accept or refuse an edit, ``CODE_FILES``). Every record written carries it (``"scope"``): an accepted or rejected
+entry, a visit (``{"round", "scope"}``), a tried candidate (``{"candidate", "scope"}``), the open checklist
+(``{"items", "scope"}`` under the same ``open`` key), a plan, and the refusal counter (``refused``: ``{"scope",
+"n"}``; the file's ``refused_repeats`` is the current scope's). Every reading (``room``, ``visits``, ``repeat_of``,
+``no_spot``, ``summary``, ``refused_repeats``) uses only the records whose ``scope`` equals the current one (``==``:
+an empty sha of a test without ``building_decor.json`` matches itself); a record without a scope (M12, P3, P5) is an
+earlier run and is ignored; nothing is deleted from the file (the open checklist is replaced by the next one, as
+before; a version-1 file's refusal count is kept as ``refused_repeats_legacy``). The views keep their old shapes
+(rounds and candidates as ints, the open checklist as strings, records without the ``scope`` key). The loop re-reads
+the sha once per round (``refresh``). An acceptance rejection that only says the round's finding list had no target
+for the edit (``BOOKKEEPING_WORDS``: "no target finding", "target finding ... is not among") refuses its repeat in the
+same round only: a later round has other findings. Why: P5's memory.json held three runs (r_L-1_salon visits [1..6, 1,
+2, 3, 1, 2, 3]); 19 of P5's 33 memory refusals cited rejections that do not exist in P5's log (M12's "round 6", P3's
+remove_piece f_L1_048, M12's set_terrain), the planner skipped a relayout "tried" in M12, sessions were ordered by the
+visits of all runs, and piece ids change meaning between runs (P3's floor lamp f_L-1_065 is P5's coffee table).
 
 How: plain JSON, written atomically after every change (a pod cut by its deadline keeps it); a lock makes it safe for
 the parallel room sessions of one round. Deterministic: the same edits in the same order give the same file.

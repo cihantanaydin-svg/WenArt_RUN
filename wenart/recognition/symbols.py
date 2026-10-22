@@ -302,7 +302,9 @@ def question(candidate: dict, crops: Optional[dict] = None) -> dict:
     """The ``symbol_type`` request item of a candidate (images relative to ``<out>/recognition``).
 
     ``question`` holds the item's facts (the ones hashed into ``input_sha256``: ``crops["question"]``, else computed
-    for the crops' kind); ``answers.call_args`` asks exactly that question."""
+    for the crops' kind); ``answers.call_args`` asks exactly that question. Fix round after P5 (22 Oct 2026): the
+    item carries the pixel hash of its crops (``crop_sha256``, ``crops.render_pair``) when the crops were drawn, so an
+    answer counts only for the picture it was given for (``answers`` module docstring)."""
     crops = crops if crops is not None else candidate.get("crops")
     if not crops or "input_sha256" not in crops:
         raise ValueError(f"candidate {candidate.get('key')!r}: render its crops first (crops.render_pair)")
