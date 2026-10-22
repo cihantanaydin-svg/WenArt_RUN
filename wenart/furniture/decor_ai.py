@@ -71,6 +71,17 @@ the level's flat ceiling height. Under a slope a pendant keeps its bottom (a din
 at least 2.0 m) and gets the drop that is there; where that drop is under ``PENDANT_MIN_DROP_M`` only the flush
 ceiling light is offered. P4a's real02 L1 had a flat 3.433 m ceiling height but 2.05-2.18 m of slope over the
 pendant slots, and the builder lowered the shades through the dining table.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04; the verifier's better fix of the gpu_tests finding "decor ceiling
+light hung under the low slope at eye height"). What: under a sloped ceiling a flush ceiling light whose bottom would
+be lower than ``decor.MIN_LIGHT_BOTTOM_M`` (2.0 m, the Milestone 11 rule the builder already applied to a light
+reaching over the slope) above the floor is not offered (``ceiling_items``; the room's slot notes say why, and a slot
+left with no light is not made); it is left out, not moved (the highest ceiling of a low attic bathroom is still
+under 2.0 m). Why: since the fix round after P4a the light hangs flush under the slope over its own footprint, which
+the builder's guard did not check, and P5 hung ``dec_L1_011`` under the 1.27 m slope of the L1 bathroom at 1.155 m,
+1.5 cm under the lens of ``cam_r_L1_banyo_1`` (56 % of the frame); ``dec_L1_009`` (hall, 1.716 m) and ``dec_L1_013``
+(twin bathroom, 1.155 m) hung as low. Under the flat ceiling nothing changes, and the pendant rules stay (a dining
+pendant keeps its bottom 0.75 m over the table, every other pendant at least ``PENDANT_MIN_BOTTOM_M``).
 """
 from __future__ import annotations
 
@@ -374,7 +385,7 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
                 slots.append(Slot(f"window:{wid}", "window", types, None, None, items={t: made[t] for t in types},
                                   note=f"window {wid}"))
     if allowed & {"pendant_light", "ceiling_light"}:            # Milestone 10: lights hanging from the ceiling
-        for sid, made in ceiling_items(room, pieces, ceiling, building=building):     # fix round after P4a
+        for sid, made in ceiling_items(room, pieces, ceiling, building=building, notes=notes):   # after P4a, P5
             types = tuple(t for t in ("pendant_light", "ceiling_light") if t in made and t in allowed)
             if types:
                 host_id = sid.split("over_", 1)[1] if ":over_" in sid else None
@@ -1150,14 +1161,17 @@ def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Roo
 
 
 def ceiling_items(room: dict, pieces: list[dict], ceiling: float, building: Optional[dict] = None,
-                  planes: Optional[list] = None) -> list[tuple[str, dict]]:
+                  planes: Optional[list] = None, notes: Optional[list] = None) -> list[tuple[str, dict]]:
     """``[(slot id, {type: item})]``: pendants and ceiling lights over a dining table (a pendant
     ``PENDANT_OVER_TABLE_M`` above its top), a coffee table and a bed (a pendant only where its bottom stays at
     ``PENDANT_MIN_BOTTOM_M``), and at the room centre when it is inside the room, off a stair and
     ``CEILING_SLOT_GAP_M`` from the others. Items hang from the level's ceiling (``center[2]`` = their bottom).
     Fix round after P4a: with ``building`` each item hangs from the ceiling over its own footprint
     (``decor.ceiling_over``; ``planes``: the level's sloped ceiling, computed when None), so a pendant under a low
-    slope is left out (the drop rule) and its slot keeps only the flush ceiling light."""
+    slope is left out (the drop rule) and its slot keeps only the flush ceiling light.
+    Fix round after P5 (22 Oct 2026): under the slope a flush ceiling light whose bottom (the ceiling over it minus
+    its height) is lower than ``decor.MIN_LIGHT_BOTTOM_M`` is left out too, with the reason in ``notes`` (when
+    given)."""
     out: list[tuple[str, dict]] = []
     taken: list[tuple[float, float]] = []
     if building is not None and planes is None:
@@ -1182,6 +1196,13 @@ def ceiling_items(room: dict, pieces: list[dict], ceiling: float, building: Opti
             elif t == "ceiling_light":
                 w, d, h = CEILING_LIGHT_SIZE
                 top, note = over(centre, (w, d))
+                if top < ceiling - 1e-6 and top - h < D.MIN_LIGHT_BOTTOM_M - 1e-9:       # under the slope
+                    # fix round after P5: P5's dec_L1_011 hung 1.155 m above the floor, at the camera's lens
+                    if notes is not None:
+                        notes.append(f"ceiling light {why}: the sloped ceiling over it is {top:.2f} m high, its bottom "
+                                     f"would be {top - h:.2f} m above the floor (< {D.MIN_LIGHT_BOTTOM_M:g} m); "
+                                     f"left out")
+                    continue
                 made[t] = {"type": t, "center": [round(centre[0], 3), round(centre[1], 3), round(top - h, 3)],
                            "rotation_deg": 0.0, "size": [w, d, h], "reason": f"ceiling light {why}{note}"}
         return made

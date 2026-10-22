@@ -101,6 +101,16 @@ reading typed by code (``type_method`` in ``infer.CODE_TYPE_METHODS``; it stays 
 hosts decor like a verified one (``trusted_host``: ``program.unsure_anchor`` is False for it), as the completion
 completes it. P4a's r_L0_yatak_odasi kept only a curtain (2 decor slots against 10 in M11) because its code-typed bed
 hosted nothing. A piece the reading could not agree on still hosts nothing.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04): ``MIN_LIGHT_BOTTOM_M`` (2.0 m, Milestone 11 pod G2b) is the one
+rule for every decor light that hangs from a sloped ceiling: the AI decorator offers no flush ceiling light under the
+slope whose bottom would be lower (``decor_ai.ceiling_items``; its pendants already keep their bottom at
+``decor_ai.PENDANT_MIN_BOTTOM_M``, a dining pendant 0.75 m over the table), and the builder does not build one
+(``build.decor_under_roof``, now also for a light already placed flush under the slope). P5 hung ``dec_L1_011`` flush
+under the 1.27 m slope of the L1 bathroom, 1.155 m above the floor and 1.5 cm under the lens of ``cam_r_L1_banyo_1``
+(56 % of the frame). The Blender side (``build.py``) keeps a copy of the constant (this module imports shapely, which
+Blender's Python does not have); tests/test_m13_p5_fixround.py pins them equal. The light rig's own ceiling fixtures
+keep a lower bound, the camera height plus headroom (``lighting.RIG_CEILING_MIN_BOTTOM_M``, 1.55 m; why there).
 """
 from __future__ import annotations
 
@@ -246,6 +256,7 @@ def _corner_candidates(ctx: placer.RoomContext, inset: float = CORNER_INSET_M) -
 
 
 CEILING_CLEAR_M = 0.10           # Milestone 11 (E2): a floor item's top stays this far under the (sloped) ceiling
+MIN_LIGHT_BOTTOM_M = 2.0         # M11, fix round after P5: a decor light's bottom under a slope, at least this
 
 
 def ceiling_planes(building: dict, level_id: str) -> list:

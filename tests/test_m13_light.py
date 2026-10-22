@@ -1851,9 +1851,13 @@ def test_fixround_p4a_views_under_the_interior_world_hide_the_haze_from_their_ca
     assert [(o.visible_camera, o.visible_transmission) for o in objs] == [(True, True), (False, True)]
 
 
-def _wall_views(out: Path, views_rb: dict, wet_rooms=()):
+def _wall_views(out: Path, views_rb: dict, wet_rooms=(), room_types: dict | None = None, blocked=(),
+                entry_types: bool = False):
     """Hand-made renders of a project (32 x 18): every view all wall (index 0, a hit, a horizontal normal) of display
-    R/B ``views_rb[cam][1]``; ``views_rb[cam]`` = (room_id, R/B, rig share). Returns ``(name, scene, render)``."""
+    R/B ``views_rb[cam][1]``; ``views_rb[cam]`` = (room_id, R/B, rig share). Returns ``(name, scene, render)``.
+    Fix round after P5 (18 Oct 2026): the room floors carry a room type (``room_types``, else ``bathroom`` for the
+    ``wet_rooms`` and ``bedroom`` for the others) as the scene manifest does, the entries carry it too with
+    ``entry_types``, and the views of ``blocked`` record one element over 56 % of the frame (``index_stats``)."""
     import numpy as np
 
     from wenart import views
@@ -1862,6 +1866,9 @@ def _wall_views(out: Path, views_rb: dict, wet_rooms=()):
     renders = out / "real02" / "renders"
     renders.mkdir(parents=True)
     entries = []
+    types = dict(room_types or {})
+    for room, _rb, _share in views_rb.values():
+        types.setdefault(room, "bathroom" if room in wet_rooms else "bedroom")
     for cam, (room, rb, share) in views_rb.items():
         rgb = np.zeros((h, w, 3), np.uint8)
         rgb[...] = (int(round(100 * rb)), 110, 100)
@@ -1871,16 +1878,19 @@ def _wall_views(out: Path, views_rb: dict, wet_rooms=()):
         views.write_png_rgb(renders / f"{cam}_normal.png", normal)
         views.write_png16(renders / f"{cam}_depth_mm.png", np.full((h, w), 2000, np.uint16))
         views.write_png16(renders / f"{cam}_index.png", np.zeros((h, w), np.uint16))
+        stats = {"251": {"pixels": int(0.56 * w * h), "box": [0, 0, w - 1, h - 1]}} if cam in blocked else {}
         entries.append({"camera": cam, "room_id": room, "level_id": "L0", "resolution": [w, h], "png": f"{cam}.png",
-                        "render_key": "0" * 16, "index_stats": {}, "world": "World",
+                        "render_key": "0" * 16, "index_stats": stats, "world": "World", "lens_mm": 18.0,
                         "files": {"index": f"{cam}_index.png", "depth_mm": f"{cam}_depth_mm.png",
                                   "normal": f"{cam}_normal.png"},
-                        "exposure": {"wb_rig_share": share, "lighting_dark": None}})
+                        "exposure": {"wb_rig_share": share, "lighting_dark": None},
+                        **({"room_type": types[room]} if entry_types else {})})
     render = {"white_balance_mode": "project", "white_balance_project": {"whitepoint": P4A_ANCHOR, "residual": 0.35},
               "renders": entries}
     (renders / "render_manifest.json").write_text(json.dumps(render), encoding="utf-8")
     scene = {"lighting": {"world_exterior": {"name": "wenart_world_exterior"}},
-             "objects": [{"kind": "floor", "wenart_id": r, "wet": True} for r in wet_rooms]}
+             "objects": [{"kind": "floor", "wenart_id": r, "wet": r in wet_rooms or types[r] in ("kitchen", "bathroom"),
+                          "room_type": types[r]} for r in sorted(types)]}
     return "real02", scene, render
 
 
@@ -2769,3 +2779,50 @@ def test_pass_p5_render_writes_the_interior_pull_and_records_it(tmp_path, monkey
     jsonschema = pytest.importorskip("jsonschema")
     jsonschema.validate(g, schemas.RENDER_ENTRY["properties"]["interior_glazing"])
     jsonschema.validate(entry["window_pull"], schemas.RENDER_ENTRY["properties"]["window_pull"])
+
+
+# --------------------------------------------------------------------------
+# Fix round after P5 (18 Oct 2026; pod P5, real04; the ``test_fixround_p5_*`` tests, each failing on 6e899cd or on the
+# mutation its docstring names)
+# --------------------------------------------------------------------------
+
+def test_fixround_p5_gpu_orange_check_sorts_walls_by_room_type_and_skips_blocked_references(tmp_path, monkeypatch):
+    """P5 real04 failed the orange check on cam_r_L-1_mutfak_3 at 1.223 against 1.208 with no cast in the image: the
+    check called the kitchen ``tiled`` by its wet floor (its walls are the greige paint with a 0.6 m splashback) and
+    took the tiled reference from one daylight view, the blocked cam_r_L1_banyo_1 (1.058). The kind is now the wall
+    finish of the room type (bathroom / wc tiled) and the references come from unblocked views only. The values are
+    P5's (painted daylight walls 1.38-1.70, median 1.515; kitchens 1.139-1.223 at rig share 0.60-0.68; baths
+    1.068-1.103). Fails on 6e899cd (the kitchen, tiled by its wet floor, at 1.22 against 1.21) and with the mutation
+    that keeps the blocked bath among the references (case 'bath_blocked_ref': a rig-lit bath at 1.45 against 1.21
+    instead of the fixed 1.5)."""
+    gpu = _gpu_render_module(monkeypatch, tmp_path)
+    day = {"cam_r_L0_yatak_odasi_1": ("r_L0_yatak_odasi", 1.38, 0.0),
+           "cam_r_L0_yatak_odasi_2": ("r_L0_yatak_odasi", 1.515, 0.0),
+           "cam_r_L-1_salon_1": ("r_L-1_salon", 1.70, 0.0),
+           "cam_r_L1_banyo_1": ("r_L1_banyo", 1.058, 0.0)}                      # the blocked view (P5)
+    types = {"r_L0_yatak_odasi": "bedroom", "r_L-1_salon": "living", "r_L1_banyo": "bathroom",
+             "r_L-1_mutfak": "kitchen", "r_L0_banyo": "bathroom", "r_L-1_banyo": "bathroom"}
+    kitchens = {"cam_r_L-1_mutfak_1": ("r_L-1_mutfak", 1.139, 0.667), "cam_r_L-1_mutfak_2": ("r_L-1_mutfak", 1.158, 0.601),
+                "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.223, 0.682)}
+    baths = {"cam_r_L0_banyo_1": ("r_L0_banyo", 1.103, 1.0), "cam_r_L-1_banyo_1": ("r_L-1_banyo", 1.068, 1.0)}
+
+    def check(case, views, entry_types=True):
+        monkeypatch.setattr(gpu, "OUTPUTS", tmp_path / case)
+        gpu.test_rig_lit_rooms_have_no_orange_cast(_wall_views(tmp_path / case, views, room_types=types,
+                                                               blocked={"cam_r_L1_banyo_1"}, entry_types=entry_types))
+    check("p5", {**day, **kitchens, **baths})
+    # the scene manifest's room floors give the type when the entries carry none (a render before m13.2)
+    check("p5_manifest_types", {**day, **kitchens, **baths}, entry_types=False)
+    # a kitchen really orange still fails, against the painted bound (1.515 + 0.15; 1.52 + 0.15 in 8 bits)
+    with pytest.raises(AssertionError, match=r"cam_r_L-1_mutfak_3', 1.7, 'painted', 1.67"):
+        check("kitchen_orange", {**day, **kitchens, "cam_r_L-1_mutfak_3": ("r_L-1_mutfak", 1.70, 0.682)})
+    # the blocked bath is no reference: a rig-lit bath at 1.45 meets the fixed 1.5 (1.208 with the blocked reference)
+    check("bath_blocked_ref", {**day, **baths, "cam_r_L0_banyo_2": ("r_L0_banyo", 1.45, 1.0)})
+    # an unblocked daylight bath still sets the tiled reference
+    with pytest.raises(AssertionError, match="cam_r_L0_banyo_2.*tiled"):
+        check("bath_day_ref", {**day, **baths, "cam_r_L-1_banyo_2": ("r_L-1_banyo", 1.06, 0.0),
+                               "cam_r_L0_banyo_2": ("r_L0_banyo", 1.45, 1.0)})
+    assert gpu._wall_kind({"room_type": "wc"}, {}) == "tiled"
+    assert gpu._wall_kind({"room_type": "kitchen"}, {}) == "painted"
+    assert gpu._wall_kind({"room_id": "r_x"}, {"r_x": "bathroom"}) == "tiled"
+    assert gpu._wall_kind({"room_type": "dining"}, {}) == "painted"

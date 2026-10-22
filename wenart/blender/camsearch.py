@@ -138,7 +138,35 @@ gets its area-rule views.
 Milestone 10 (docs/milestone10.md §3.2 item 2, §1.6b row 15): a room under the roof has the sloped ceiling of
 its level's ``ceiling_planes`` in the ray model and keeps ``HEADROOM_M`` above its camera points
 (``headroom_ok``); a wall-hung piece (``mount_bottom_m``, wall cabinets at 1.45 m; ``mount_bottom``) is no floor
-obstacle for the camera points and its boxes hang from that height in the model and the frustum lists.
+obstacle for the camera points and its boxes hang from that height in the model and the frustum lists. A roof
+terrace open to the sky (the level's ``open_rooms``: ``build.prepare``'s decided roof openings, where the shell
+builds no ceiling) has no sloped ceiling in the model and no headroom filter (fix round after P5, below).
+
+Fix round after P5 (22 Oct 2026; pod P5, real04):
+- Roof terraces (the verifier's better fix of the look finding "terrace views regressed: 2 left of 6"). What: a room
+  ``build.prepare`` decided open to the sky (``level["open_rooms"]``, ``sloped_level``) has no sloped ceiling in the
+  ray model and no headroom filter; only those rooms, never by room type or by ``roof.openings`` (a terrace the brief
+  keeps closed still has its sloped ceiling, which the shell builds). Scores and labels are unchanged. Why: the
+  level's roof ``ceiling_planes`` were in the model and the headroom filter of every L1 room, the open terraces too;
+  under P5's drawn 32.5 degree roof that fake ceiling stood 1.13 m above the terrace floor, only the inner corner
+  passed ``headroom_ok`` and both terraces got one view framed on the parapet corner (scores 0.23 and 0.25, P3 had
+  2.18-2.67). Simulated on P5's building: 3 views per terrace, 2.22-2.70, each terrace's table in frame. real02's
+  searched terrace (P4a ``r_L1_teras_2``: 1.38-1.77, two views without furniture) gets 2.19-2.72; its replayed
+  ``cam_r_L1_teras_1`` stays (frozen set).
+- The fallback camera (the verifier's better fix of "the camera blocked check never sees the built scene"). What: the
+  free-standing and hanging decor under camera height + 0.2 m (``floor_decor_rects``) is a tall obstacle of the
+  fallback as it already was of the free points, and under a sloped ceiling the fallback point must pass
+  ``headroom_ok``: else the point clear of the walls, the tall pieces and that decor nearest the room's inner point
+  that passes it, else the clear point with the most ceiling over it (``fallback_position``; the warning says so).
+  Rooms with a flat ceiling keep their fallback point. Why: P5's ``cam_r_L1_banyo_1`` stood at the inner point
+  (7.05, 10.87) with 0.15 m of ceiling over the lens, 1.5 cm above the decor ceiling light ``dec_L1_011`` (56 % of the
+  frame, depth 0.05 m), which the fallback did not avoid. With that light no longer placed or built (the 2.0 m rule,
+  ``wenart.furniture.decor.MIN_LIGHT_BOTTOM_M``) the camera moves to (7.02, 10.63), 1.55 m of ceiling, best view
+  1.64; with the light still listed it moves to (7.02, 10.43).
+- ``lens_clearance`` (warning only; the verifier's form of the analyst's check against the built scene): the build
+  lists the searched interior cameras whose lens is nearer than ``SCORE["blocked_min_depth"]`` to a built box
+  (``box3d`` of the scene manifest: furniture, decor, the rig's fixture meshes), naming the object; no camera is
+  moved, replayed cameras are not checked.
 
 CLI (inspection only; the build calls ``plan_level``): ``python -m
 wenart.blender.camsearch outputs/<p>/building_final.json --out cameras.json
@@ -703,6 +731,8 @@ class RoomModel:
         # Milestone 10: a room under the roof has a sloped ceiling, the lowest of these planes (z = a x + b y
         # + c; roof.ceiling_planes, set on the level by the builder).
         self.ceiling_planes = [tuple(float(v) for v in p) for p in self.level.get("ceiling_planes") or []]
+        if room.get("id") in set(self.level.get("open_rooms") or ()):
+            self.ceiling_planes = []          # fix round after P5: a roof terrace open to the sky has no slope
         levels_above = any(float(lv["elevation"]) > float(self.level["elevation"]) for lv in building["levels"])
         self.polygon = room_polygon(room)
         self.pieces = shown_pieces(room, building)
@@ -995,15 +1025,17 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     pieces = [f for f in shown_pieces(room, building) if mount_bottom(f) <= 0.0]
     # Fix round after P3: a wall standing inside the outline (``inner_wall_rects``) keeps the camera points away too.
     walls_in = inner_wall_rects(room, building, polygon)
-    obstacles = [obstacle_rect(f) for f in pieces] + floor_decor_rects(room, building) + walls_in
+    decor = floor_decor_rects(room, building)
+    obstacles = [obstacle_rect(f) for f in pieces] + decor + walls_in
     corners = [p for p in convex_corner_points(polygon)
                if geom2d.point_is_free(p, polygon, obstacles, WALL_CLEARANCE, OBSTACLE_CLEARANCE)]
     grid = geom2d.free_points(polygon, obstacles, step=GRID_STEP, wall_clearance=WALL_CLEARANCE,
                               obstacle_clearance=OBSTACLE_CLEARANCE)
     points = sorted({(round(p[0], 9), round(p[1], 9)) for p in corners + grid})
     level = next((lv for lv in building.get("levels") or [] if lv["id"] == room.get("level_id")), None)
-    if level is not None and level.get("ceiling_planes"):
-        points = [p for p in points if headroom_ok(level, p)]
+    sloped = sloped_level(level, room)
+    if sloped is not None:
+        points = [p for p in points if headroom_ok(sloped, p)]
     # Milestone 11 (docs/milestone11.md §1.3 M6, §4.4 V1): no camera pressed against a door leaf (the corner
     # points beside a door saw the leaf fill a quarter of the frame); a room with no other point keeps them.
     doors = cameras.door_segments(room, building)
@@ -1012,12 +1044,33 @@ def candidate_positions(room: dict, building: dict) -> tuple[list[tuple[float, f
     points = clear or points
     if points:
         return points, None
-    tall = [obstacle_rect(f) for f in pieces if piece_bbox(f)[2] >= CAMERA_HEIGHT] + walls_in
-    p, warning = fallback_position(polygon, obstacles, tall)
+    # fix round after P5: the decor at camera height (P5's ceiling light 1.155 m above the floor) is a tall obstacle
+    # of the fallback too, and under a slope the fallback point keeps its headroom
+    tall = [obstacle_rect(f) for f in pieces if piece_bbox(f)[2] >= CAMERA_HEIGHT] + walls_in + decor
+    p, warning = fallback_position(polygon, obstacles, tall, sloped)
     return [(round(float(p[0]), 9), round(float(p[1]), 9))], warning
 
 
 HEADROOM_M = 0.30                    # Milestone 10: a camera stays this far under a sloped ceiling
+
+
+def sloped_level(level: Optional[dict], room: dict) -> Optional[dict]:
+    """``level`` when ``room`` stands under its sloped ceiling (``level["ceiling_planes"]``), else None (pure). Fix
+    round after P5 (22 Oct 2026): a room ``build.prepare`` decided open to the sky (``level["open_rooms"]``, a roof
+    terrace: the shell builds no ceiling there) is under no slope."""
+    if level is None or not level.get("ceiling_planes"):
+        return None
+    if room.get("id") in set(level.get("open_rooms") or ()):
+        return None
+    return level
+
+
+def ceiling_above_floor(level: dict, p) -> float:
+    """The sloped ceiling's height above the level's floor at ``p`` (pure; ``math.inf`` without ceiling planes)."""
+    planes = level.get("ceiling_planes") or []
+    if not planes:
+        return math.inf
+    return min(float(a) * p[0] + float(b) * p[1] + float(c) for a, b, c in planes) - float(level["elevation"])
 
 
 def headroom_ok(level: dict, p) -> bool:
@@ -1030,7 +1083,7 @@ def headroom_ok(level: dict, p) -> bool:
     return z >= float(level["elevation"]) + CAMERA_HEIGHT + HEADROOM_M
 
 
-def fallback_position(polygon, obstacles, tall) -> tuple[tuple[float, float], str]:
+def fallback_position(polygon, obstacles, tall, level: Optional[dict] = None) -> tuple[tuple[float, float], str]:
     """The M5 fallback (``cameras._Search.fallback``, unchanged) anchored at the room's inner point.
 
     The anchor is ``lighting.polylabel`` (the point farthest from the walls), not the centroid: the
@@ -1038,7 +1091,12 @@ def fallback_position(polygon, obstacles, tall) -> tuple[tuple[float, float], st
     mass or the neighbouring room under this room's name (review C1). The inner point is always inside
     the polygon, so a cramped view stays in the room and the model flags it ``blocked unavoidable``.
     The warning says what happened: the anchor is the room's inner point, and the last resort is said
-    to be inside a proxy only when it is."""
+    to be inside a proxy only when it is.
+
+    Fix round after P5 (22 Oct 2026): ``level`` (``sloped_level``: the room is under the sloped ceiling) makes the
+    point keep its headroom: a fallback point failing ``headroom_ok`` gives way to the point clear of the walls and
+    of ``tall`` nearest the anchor that passes it, else to the clear point with the most ceiling over it (the
+    warning says so). P5's real04 bathroom had 0.15 m of ceiling over the lens at its inner point."""
     from wenart.blender import lighting
 
     x, y, distance = lighting.polylabel(polygon)
@@ -1052,6 +1110,17 @@ def fallback_position(polygon, obstacles, tall) -> tuple[tuple[float, float], st
                    f"camera at the room's inner point {where}")
     else:
         warning = warning.replace("centroid", "room's inner point")
+    if level is not None and level.get("ceiling_planes") and not headroom_ok(level, p):
+        clear = geom2d.free_points(polygon, tall, wall_clearance=WALL_CLEARANCE, obstacle_clearance=OBSTACLE_CLEARANCE)
+        ok = [q for q in clear if headroom_ok(level, q)]
+        if ok:
+            p = min(ok, key=lambda q: (G.distance(q, anchor), q))
+            warning += (f"; moved to the nearest point with {HEADROOM_M:g} m of headroom under the sloped ceiling "
+                        f"({ceiling_above_floor(level, p):.2f} m high there)")
+        elif clear:
+            p = max(clear, key=lambda q: (ceiling_above_floor(level, q), -G.distance(q, anchor)))
+            warning += (f"; no point with {HEADROOM_M:g} m of headroom under the sloped ceiling, moved to the point "
+                        f"with the most ({ceiling_above_floor(level, p):.2f} m high there)")
     return p, warning
 
 
@@ -1217,6 +1286,73 @@ def plan_level(building: dict, level_id: str, lens_mm: Optional[float] = None) -
     for plan in plans:
         plan["search_seconds"] = seconds
     return plans
+
+
+LENS_CLEARANCE_KINDS = ("furniture", "furniture_proxy", "decor")   # the scene manifest entries with ``box3d``
+
+
+def _nearest_on_box(p, box: dict) -> tuple[float, float, float]:
+    """The point of a scene manifest ``box3d`` (``center``, ``size`` in the box frame turned by ``rotation_deg``
+    about +Z, ``geom2d.oriented_box``) nearest to ``p`` (pure; ``p`` itself when inside)."""
+    cx, cy, cz = (float(v) for v in box["center"])
+    sx, sy, sz = (float(v) / 2.0 for v in box["size"])
+    r = math.radians(float(box.get("rotation_deg") or 0.0))
+    c, s = math.cos(r), math.sin(r)
+    dx, dy = float(p[0]) - cx, float(p[1]) - cy
+    lx, ly = dx * c + dy * s, -dx * s + dy * c
+    lx, ly = min(max(lx, -sx), sx), min(max(ly, -sy), sy)
+    z = min(max(float(p[2]), cz - sz), cz + sz)
+    return cx + lx * c - ly * s, cy + lx * s + ly * c, z
+
+
+def lens_clearance(plans: Sequence[dict], objects: Sequence[dict], min_m: Optional[float] = None) -> list[dict]:
+    """The searched interior cameras whose lens is nearer than ``min_m`` (``SCORE["blocked_min_depth"]``, 0.12 m) to
+    a built box (pure; fix round after P5, 22 Oct 2026; warning only, no camera is moved).
+
+    What: for every plan with a ``room_id``, ``kind`` interior (or none), ``source`` searched (or none: a plan of
+    the search) and a ``position``, the nearest ``box3d`` of the scene manifest ``objects`` of kind furniture,
+    furniture_proxy or decor (the rig's fixture meshes are decor entries) that is not behind the lens (its nearest
+    point is in front of, beside, above or under the lens, ``(q - p) . forward >= 0``, or the lens is inside it);
+    ``[{"camera", "room_id", "object", "kind", "distance_m", "warning"}]``, sorted by camera. Why: the ray model of
+    the search sees the walls, the openings and the furniture only (decor is a floor obstacle, ``floor_decor_rects``,
+    and rig meshes are built after the search); P5's ``cam_r_L1_banyo_1`` stood 0.015 m over the decor light
+    ``dec_L1_011`` (56 % of the frame, depth 0.05 m at the clip) with the model's view ``not blocked``, and only the
+    GPU tests saw it. On P5's scene manifest this check lists that camera only (the next nearest lens is 0.22 m from
+    a box). Replayed and exterior cameras are not checked (the replayed set is frozen)."""
+    min_m = float(SCORE["blocked_min_depth"]) if min_m is None else float(min_m)
+    boxes = [o for o in objects or () if o.get("kind") in LENS_CLEARANCE_KINDS and (o.get("box3d") or {}).get("size")]
+    out: list[dict] = []
+    for plan in plans or ():
+        if not plan.get("room_id") or plan.get("kind") not in (None, "interior") \
+                or (plan.get("source") or "searched") != "searched" or not plan.get("position"):
+            continue
+        p = [float(v) for v in plan["position"][:3]]
+        target = plan.get("target")
+        forward = None
+        if target:
+            f = [float(t) - v for t, v in zip(target[:3], p)]
+            n = math.sqrt(sum(v * v for v in f))
+            forward = [v / n for v in f] if n > 1e-9 else None
+        best = None
+        for o in boxes:
+            q = _nearest_on_box(p, o["box3d"])
+            d = math.dist(p, q)
+            if d >= min_m - 1e-12:
+                continue
+            if forward is not None and d > 1e-9 and sum((a - b) * c for a, b, c in zip(q, p, forward)) < -1e-9:
+                continue                                    # behind the lens: not in the frame
+            if best is None or d < best[0]:
+                best = (d, o)
+        if best is None:
+            continue
+        d, o = best
+        what = o.get("wenart_id") or o.get("name")
+        out.append({"camera": plan.get("name"), "room_id": plan.get("room_id"), "object": what, "kind": o.get("kind"),
+                    "distance_m": round(d, 4),
+                    "warning": (f"{plan.get('name')}: the lens is {d:.3f} m from the {o.get('kind')} {what} (nearer "
+                                f"than {min_m:g} m, the blocked distance of the camera search): the view may be "
+                                f"blocked (lens clearance, warning only)")})
+    return sorted(out, key=lambda h: str(h["camera"]))
 
 
 def level_search_seconds(plans: Sequence[dict]) -> dict[str, float]:

@@ -846,7 +846,11 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
     section are warnings), the doors and windows of assumed height clipped under the roof (E8,
     ``roof.clip_openings_to_roof``; the building copy gets them), the site options (``overrides.site_options``:
     the brief's ``site_options.front_court``, D6, and the agent's site keys) for the front courts and the inferred
-    site. ``overrides_applied`` records what the agent's overrides changed (None without them)."""
+    site. ``overrides_applied`` records what the agent's overrides changed (None without them).
+
+    Fix round after P5 (22 Oct 2026): every level of a whole building gets ``open_rooms`` (its rooms in
+    ``open_rooms``, sorted), so the camera search leaves the sloped ceiling out of the roof terraces open to the sky
+    (``camsearch.sloped_level``; P5's real04 terraces got one view each, framed on the parapet corner)."""
     from wenart import views as V
     from wenart.blender import geom2d, shell
     from wenart.blender import overrides as O
@@ -916,6 +920,11 @@ def prepare(building_all: dict, variant: str = "base", brief: dict | None = None
             out["warnings"].append(f"{lv['id']}: {reason}")
             out["assumed"].append({"object": f"level_{lv['id']}", "field": "outline", "value": "convex_hull",
                                    "reason": reason})
+    # fix round after P5 (22 Oct 2026): each level lists its rooms open to the sky (the decided roof openings, as the
+    # shell leaves their ceiling out) for the camera search (camsearch.sloped_level); a list, not a set (JSON)
+    for lv in vb["levels"]:
+        lv["open_rooms"] = sorted(r["id"] for r in vb["rooms"]
+                                  if r["level_id"] == lv["id"] and r["id"] in out["open_rooms"])
     out["ground_outline"] = ground_outline(vb, out["outlines"])
     if out["ground_outline"]:
         mode = site_mode if site_mode in ("full", "ground") else "full"
@@ -1134,6 +1143,7 @@ def main(argv: list[str]) -> int:
                 outside[k] += v
         lap("openings_floors_outside")
         level_furniture = loose_furniture
+        fit_not_built: list[dict] = []
         if whole and level.get("ceiling_planes"):     # decor under the roof stays inside it
             decor, fit_warnings, fit_not_built = decor_under_roof(loose_furniture, level)
             level_furniture = dict(loose_furniture, decor=decor)
@@ -1173,7 +1183,9 @@ def main(argv: list[str]) -> int:
         replayed = [p for p in replay["plans"] if p["kind"] == "interior" and p.get("level_id") == level["id"]
                     and p.get("room_id") in render_rooms and p.get("room_id") in level_room_ids]
         covered = cams.replayed_rooms(replayed)
-        plans = [p for p in cams.plan_cameras(building, level["id"], policy=args.camera_policy, lens_mm=args.lens_mm)
+        # fix round after P5 (22 Oct 2026): the search sees the decor that is built (camera_building)
+        plans = [p for p in cams.plan_cameras(camera_building(building, fit_not_built), level["id"],
+                                              policy=args.camera_policy, lens_mm=args.lens_mm)
                  if p.get("room_id") in render_rooms]
         if covered and not cameras_extra:
             plans = [p for p in plans if p.get("room_id") not in covered]
@@ -1380,13 +1392,17 @@ def main(argv: list[str]) -> int:
 
         light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed,
                                              north_deg=north, north_source=north_source, ceiling_at=ceiling_at,
-                                             exterior=bool(views["exterior"]))
+                                             exterior=bool(views["exterior"]), ceiling_voids=ceiling_voids(slabs))
         if north_source.startswith("assumed"):
             assumed.append({"object": "sun", "field": "north_deg", "value": north, "reason": north_source})
     else:
         light_info = lighting.build_lighting(building, levels, style, hdri, light_col, manifest_objects, assumed)
     bpy.context.view_layer.update()
     add_box3d(manifest_objects, warnings)
+    # fix round after P5 (22 Oct 2026): a searched interior camera whose lens touches a built box (decor, the rig's
+    # meshes, furniture) is named with the object; warning only, no camera moves (camsearch.lens_clearance)
+    from wenart.blender import camsearch
+    warnings.extend(hit["warning"] for hit in camsearch.lens_clearance(camera_plans, manifest_objects))
     mood = (style.get("lighting") or {}).get("mood")
     # render.py reads the mood here to pick the white-balance residual (§2.4).
     scene["wenart_mood"] = str(mood or "")
@@ -1945,7 +1961,35 @@ def pieces_above_ceiling(building: dict, level: dict) -> list[str]:
 # Hostless decor that stands on the floor (a piece taller than the sloped ceiling over it would show through the
 # roof) and decor hung flush under the ceiling.
 FLOOR_DECOR_TYPES = ("plant_large", "plant", "sculpture", "basket")
-MIN_LIGHT_BOTTOM_M = 2.0   # M11: a ceiling light under a slope hangs no lower than this above the floor
+# M11: a ceiling light under a slope hangs no lower than this above the floor. Fix round after P5: the copy of
+# wenart.furniture.decor.MIN_LIGHT_BOTTOM_M (that module imports shapely, which Blender's Python has not; pinned equal
+# in tests/test_m13_p5_fixround.py), checked for every hostless ceiling light under the roof, flush or not.
+MIN_LIGHT_BOTTOM_M = 2.0
+
+
+def camera_building(building: dict, not_built) -> dict:
+    """The building the camera search of a level sees (pure; fix round after P5, 22 Oct 2026): ``building`` without
+    the decor ``decor_under_roof`` left out (``not_built``: [{id, ...}], a ceiling light under a low slope, a floor
+    plant taller than the slope), so a fallback camera does not keep away from a light that is not built
+    (``camsearch.floor_decor_rects``). P5's committed building still lists ``dec_L1_011`` (bottom 1.155 m): searched
+    with it, ``cam_r_L1_banyo_1`` would stand at (7.02, 10.43) instead of (7.02, 10.63). ``building`` itself when
+    nothing was left out."""
+    ids = {n.get("id") for n in not_built or () if n.get("id") is not None}
+    if not ids:
+        return building
+    return dict(building, decor=[d for d in building.get("decor") or [] if d.get("id") not in ids])
+
+
+def ceiling_voids(slabs: dict | None) -> dict:
+    """``{level id: [polygons]}``: the openings of the slab above each level of the slab plan (pure; fix round after
+    P5, 22 Oct 2026), the ceiling openings the shell cuts (``shell.build_floors_ceilings``' ``ceiling_voids``), for
+    the light rig's ceiling fixtures (``lighting.build_lighting``). P5's open stair core r_L0_merdiven had its
+    ceiling fixture in the slab's opening, under no ceiling. ``{}`` without a slab plan."""
+    out: dict = {}
+    for level_id, entry in ((slabs or {}).get("by_level") or {}).items():
+        above = (entry or {}).get("above")
+        out[level_id] = [[list(p[:2]) for p in v] for v in (above or {}).get("voids") or [] if len(v) >= 3]
+    return out
 
 
 def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str], list[dict]]:
@@ -1955,7 +1999,14 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
     above the roof, and 1.6 m floor plants stood where the sloped ceiling is under 0.9 m high. A ceiling light whose given
     height reaches over the ceiling loses ``center[2]`` (the builder then hangs it flush under the slope); a floor
     piece taller than the ceiling over it is not built (``not_built``, with the reason). Pendants already lower
-    themselves (``furniture._create_decor``). The decor placer should respect the slope in the first place."""
+    themselves (``furniture._create_decor``). The decor placer should respect the slope in the first place.
+
+    Fix round after P5 (22 Oct 2026): every hostless ceiling light is held to ``MIN_LIGHT_BOTTOM_M`` before it is
+    kept, not only one that reaches over the ceiling: its bottom is its given height when it fits under the slope,
+    else the flush height (the ceiling over it minus its height). A light with no height counts as flush (the
+    builder hangs it flush), never as 0. Since the fix round after P4a the decor stage hangs its lights flush under
+    the slope, so P5's ``dec_L1_011`` (1.155 m above the floor, 1.5 cm under the lens of ``cam_r_L1_banyo_1``),
+    ``dec_L1_009`` (1.716 m) and ``dec_L1_013`` (1.155 m) passed the old "fits" keep and were built."""
     from wenart.blender import furniture as F
     from wenart.blender import parametric as P
 
@@ -1972,17 +2023,23 @@ def decor_under_roof(building: dict, level: dict) -> tuple[list[dict], list[str]
             continue
         w, d, h = P.decor_size(dtype, item.get("size") or [0.4, 0.4])
         ceiling, _how = F.ceiling_above(level, center, (w, d), float(item.get("rotation_deg") or 0.0))
-        z = float(center[2]) if len(center) > 2 and center[2] is not None else 0.0
-        if z + h <= ceiling + 1e-3:
+        has_z = len(center) > 2 and center[2] is not None
+        z = float(center[2]) if has_z else 0.0
+        fits = z + h <= ceiling + 1e-3
+        if dtype == "ceiling_light":
+            # M11 pod G2b (real02 attic bathroom, ceiling 1.45 m) and P5 (real04 L1 bathroom, 1.27 m): a light hung
+            # under such a low slope hangs at eye height, in front of the camera (depth 0.05 m); it is not built.
+            # Fix round after P5: checked before the "fits" keep; a light with no height hangs flush.
+            bottom = z if (has_z and fits) else ceiling - h
+            if bottom < MIN_LIGHT_BOTTOM_M - 1e-9:
+                reason = (f"ceiling light: the sloped ceiling over it is {ceiling:.2f} m high, its bottom "
+                          f"{'is' if has_z and fits else 'would be'} {bottom:.2f} m above the floor "
+                          f"(< {MIN_LIGHT_BOTTOM_M} m)")
+                warnings.append(f"{item.get('id')}: {reason}; not built")
+                not_built.append({"id": item.get("id"), "type": dtype, "reason": reason})
+                continue
+        if fits:
             out.append(item)
-            continue
-        if dtype == "ceiling_light" and ceiling - h < MIN_LIGHT_BOTTOM_M:
-            # M11 pod G2b (real02 attic bathroom, ceiling 1.45 m): a light hung flush under such a low slope hangs
-            # at eye height, in front of the camera (depth 0.05 m); it is not built.
-            reason = (f"ceiling light: the sloped ceiling over it is {ceiling:.2f} m high, its bottom would be "
-                      f"{ceiling - h:.2f} m above the floor (< {MIN_LIGHT_BOTTOM_M} m)")
-            warnings.append(f"{item.get('id')}: {reason}; not built")
-            not_built.append({"id": item.get("id"), "type": dtype, "reason": reason})
             continue
         if dtype == "ceiling_light":
             out.append(dict(item, center=center[:2]))

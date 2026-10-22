@@ -815,17 +815,39 @@ def _wall_rb(view, table) -> float | None:
     return round(float(mean[0] / max(mean[2], 1e-6)), 3)
 
 
+def _wall_kind(entry: dict, manifest_types: dict) -> str:
+    """``tiled`` or ``painted``: the finish of a view's walls by its room type (fix round after P5, 18 Oct 2026). What:
+    ``tiled`` when the room's slot type (``shell.slot_room_type``) is one of ``shell.WET_WALL_ROOM_TYPES`` (bathroom,
+    wc), else ``painted``; the type is the render entry's ``room_type``, else the scene manifest's room floors
+    (``render.camera_room_type`` / ``room_types_from_manifest``). Why: the wet floor said ``tiled`` before, but a
+    kitchen floor is wet while its walls are the style's paint with a 0.6 m splashback (Milestone 11 §1.3 M2,
+    ``shell.SPLASHBACK``): P5's real04 kitchen mutfak_3 (about 64 % greige paint at R/B 1.28-1.32, tiles 1.12) read
+    1.223 against a tile-only bound of 1.208 and failed with no cast in the image."""
+    from wenart.blender import render as R
+    from wenart.blender import shell
+
+    room_type = R.camera_room_type(entry.get("room_type"), entry.get("room_id"), manifest_types)
+    return "tiled" if shell.slot_room_type(room_type) in shell.WET_WALL_ROOM_TYPES else "painted"
+
+
 def test_rig_lit_rooms_have_no_orange_cast(project):
     """The walls of a view lit mostly by the rig (``wb_rig_share`` >= 0.8) and metered within the cap have a display
     R/B of at most 1.5 (``views.regions`` walls, as ``test_white_plaster_walls_are_neutral``; P3: 1.86-4.2). Fix round
     after P4a (17 Oct 2026): the fixed 1.5 ignored the wall paint (real02's warm greige, linear R/B 1.34): the walls
     of a rig-lit view are compared with the walls of the same project's daylight views (rig share under
-    ``render.WB_RIG_SHARE_MIN``, under the interior world, within the cap) of the same kind, painted or tiled (the
-    rooms with a wet floor have tiled walls): at most ``RIG_ROOM_REL_MAX`` times their median; the fixed
-    ``RIG_ROOM_MAX_RB`` only where the project has no daylight view of that kind. Every view's value is printed.
+    ``render.WB_RIG_SHARE_MIN``, under the interior world, within the cap) of the same kind, painted or tiled: at most
+    ``RIG_ROOM_REL_MAX`` times their median; the fixed ``RIG_ROOM_MAX_RB`` only where the project has no daylight view
+    of that kind. Every view's value is printed.
     Fix round after P4b (17 Oct 2026; the verifier's better fix of the P4b orange finding): the views from a rig share
     of ``RIG_CHECK_SHARE`` (0.4) are checked, at most ``RIG_ROOM_ABOVE_DAY`` over the daylight median of their kind
-    (P4b's mixed views at 0.44-0.65 were left out at 0.8)."""
+    (P4b's mixed views at 0.44-0.65 were left out at 0.8).
+    Fix round after P5 (18 Oct 2026). What: the kind is the wall finish of the room type (``_wall_kind``: bathroom and
+    wc tiled, every other room painted, a kitchen too), and the daylight references come only from views that are not
+    blocked (``_blocked``); a kind with no unblocked daylight view takes the fixed ``RIG_ROOM_MAX_RB``. Why: P5 real04
+    called the kitchen tiled by its wet floor (its walls are paint with a splashback) and its tiled reference was the
+    median of one daylight view, the blocked cam_r_L1_banyo_1 (one ceiling light over 55.7 % of the frame), so
+    mutfak_3 failed at 1.223 against 1.208 with no orange in the image; as painted its bound is the painted daylight
+    median 1.515 + 0.15. The kitchens keep the 2700 K rig (lead decision)."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -833,7 +855,7 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     if not _project_wb(render):
         pytest.skip(f"{name}: not rendered with --white-balance project")
     exterior_world = (((scene.get("lighting") or {}).get("world_exterior") or {}).get("name"))
-    wet = {o["wenart_id"] for o in scene.get("objects") or [] if o.get("kind") == "floor" and o.get("wet")}
+    manifest_types = R.room_types_from_manifest(scene)
     entries = {r["camera"]: r for r in render["renders"]}
     indoor = {c: r for c, r in entries.items() if r.get("room_id") is not None and not _dark(r)
               and not (exterior_world and r.get("world") == exterior_world)}
@@ -841,12 +863,17 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     daylight = [c for c, r in indoor.items() if (r["exposure"].get("wb_rig_share") or 0.0) < R.WB_RIG_SHARE_MIN]
     if not rig_lit:
         pytest.skip(f"{name}: no view with a rig share of {RIG_CHECK_SHARE} or more within the cap")
+    out = OUTPUTS / name / "renders"
+    # fix round after P5: a blocked daylight view (one element over the frame, or the lens on a surface) shows no wall
+    # colour to compare with; it is printed and left out of the references
+    blocked = [c for c in daylight if _blocked(entries[c], out, entries[c].get("lens_mm") or 24.0)["blocked"]]
+    daylight = [c for c in daylight if c not in blocked]
     table = views.index_table(scene)
-    loaded = views.load_views(OUTPUTS / name / "renders", cameras=rig_lit + daylight)
+    loaded = views.load_views(out, cameras=rig_lit + daylight)
     measured = {cam: _wall_rb(v, table) for cam, v in loaded.items()}
 
     def kind(cam):
-        return "tiled" if entries[cam].get("room_id") in wet else "painted"
+        return _wall_kind(entries[cam], manifest_types)
     reference = {}
     for k in ("painted", "tiled"):
         values = sorted(measured[c] for c in daylight if kind(c) == k and measured.get(c) is not None)
@@ -861,7 +888,8 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
         per_view[cam] = (value, kind(cam), bound)
         if value > bound:
             warm.append((cam, value, kind(cam), bound, entries[cam]["exposure"].get("wb_rig_share")))
-    print(f"{name}: daylight wall R/B {[(c, measured.get(c), kind(c)) for c in daylight]}; references {reference}")
+    print(f"{name}: daylight wall R/B {[(c, measured.get(c), kind(c)) for c in daylight]}; references {reference}; "
+          f"blocked daylight views left out {blocked}")
     print(f"{name}: wall R/B of the rig-lit views (value, kind, bound) {per_view}")
     assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
 

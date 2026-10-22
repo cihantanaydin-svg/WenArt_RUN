@@ -159,6 +159,28 @@ Fix round after P4b (17 Oct 2026; the review of the P4a fix round and the P4b lo
   min(style K, 2700). Why: a 2700 K hall seen through interior glazing from a daylight room read amber (R/B 1.8-2.15
   on real03), and no per-view white balance removes two white points in one frame. The manifest's ``lighting.rig``
   block adds ``temperature_k_by_type``.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04; the verifiers' better fixes of the gpu_tests findings "rig ceiling
+fixture would take the light's place at the camera point" and the look finding "stair ceiling fixture floats in the
+open stair void"):
+- What: a ceiling fixture with its own mesh whose bottom would be lower than ``RIG_CEILING_MIN_BOTTOM_M`` above the
+  floor (1.55 m: the camera height 1.25 m plus the 0.30 m headroom the camera search keeps under a slope,
+  ``camsearch.CAMERA_HEIGHT + camsearch.HEADROOM_M``, pinned in tests/test_m13_p5_fixround.py) is not built: it goes
+  to ``dropped`` with the ceiling and bottom heights in the reason (``rig_plan``), and the room keeps the Milestone 6
+  fill light (``rig_replaces_fill`` needs a ceiling fixture; that light already follows the slope). Why: P5's
+  ``rig_r_L1_banyo_ceiling`` was dropped only because the decor light ``dec_L1_011`` stood there; without it the
+  fixture hangs 1.21-1.29 m above the floor around the lens of ``cam_r_L1_banyo_1`` (both use the room's pole of
+  inaccessibility); P4a built real02's at 1.30 m. Not 2.0 m (the decor rule, ``wenart.furniture.decor``): that would
+  also drop real04's L1 hall fixtures (bottom 1.94 m, 0.69 m above any lens), the only rig fixtures between 1.55 and
+  2.0 m in P4a, P4b and P5. The pendant over a dining table keeps its 1.5 m bottom (it hangs over the table, never
+  at a camera point; the branch is unchanged).
+- What: a ceiling fixture needs a ceiling over it. ``rig_ceiling_holes`` adds the openings of the slab above the level
+  (``build.ceiling_voids``: the shell cuts the ceilings with these, not with the stairs' own openings) to the holes of
+  the rig's ceiling spots, and ``rig_plan`` drops a ceiling fixture whose best spot is less than its half-size from
+  the room's edge or an opening. Why: P5's stair core r_L0_merdiven is open to L1 over its whole floor; its fixture
+  hung in the void and showed as a white disc below the L1 floor in two L1 hall views (M12 and P3 had none). The
+  invisible fill light keeps the stairs' own holes. Side effect on real02/real04: the L-1 hall fixtures beside the
+  stair openings move 0.25-0.5 m along the hall (their spot is measured from the real ceiling opening now).
 """
 from __future__ import annotations
 
@@ -556,6 +578,17 @@ def stair_openings(building: dict, level: dict) -> list[list[tuple[float, float]
     return [loop for s in plan_stairs(building, level) if s["plan"] is not None for loop in s["plan"]["void"]]
 
 
+def rig_ceiling_holes(stair_holes, level: dict, ceiling_voids: dict | None) -> list[list[tuple[float, float]]]:
+    """The holes the light rig's ceiling fixtures keep off (pure; fix round after P5, 22 Oct 2026): the stairs' own
+    openings of the level (``stair_openings``) and the openings of the slab above it (``ceiling_voids``: {level id:
+    [polygons]}, ``build.ceiling_voids``, the openings the shell cuts the ceiling with). P5's stair core r_L0_merdiven
+    lies under the slab's opening over its whole floor, while its stair's own opening covered only the flights."""
+    out = [list(loop) for loop in stair_holes or []]
+    out += [[(float(p[0]), float(p[1])) for p in v] for v in (ceiling_voids or {}).get(level["id"]) or []
+            if len(v) >= 3]
+    return out
+
+
 def sun_direction(elevation_deg: float, azimuth_deg: float) -> tuple[float, float, float]:
     """Unit vector from the scene towards the sun."""
     el, az = math.radians(elevation_deg), math.radians(azimuth_deg)
@@ -628,6 +661,9 @@ RIG_WARM_K = 2700.0                   # a warm LED bulb; the style's colour_temp
 RIG_NEUTRAL_K = 4000.0
 RIG_NEUTRAL_TYPES = ("hall", "stair", "bathroom", "wc")
 RIG_MOUNT_GAP_M = 0.03                # a ceiling fixture hangs this far under the ceiling
+# fix round after P5: a ceiling fixture's bottom at least this above the floor (= camsearch.CAMERA_HEIGHT +
+# camsearch.HEADROOM_M, pinned in tests/test_m13_p5_fixround.py; the module docstring says why not 2.0 m)
+RIG_CEILING_MIN_BOTTOM_M = 1.55
 RIG_PENDANT_OVER_TABLE_M = 0.75       # the pendant shade's bottom above the table top
 RIG_TABLE_TOP_M = 0.75
 RIG_WALL_CABINET_BOTTOM_M = 1.45      # the kitchen wall cabinets' bottom (parametric wall_cabinet mount, M10)
@@ -1212,7 +1248,13 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
     its host and steps it down to that height at most). A table lamp on a nightstand takes a free spot of the top
     when built decor stands at its centre, else the side falls through to the wall sconce (the reason names the
     item); a decor lamp's own id hosts the light and the nightstand it stands on is used. Pendants and ceiling
-    fixtures record ``mount_z`` (the ceiling over them), where their cord and canopy end (``_fixture_hardware``)."""
+    fixtures record ``mount_z`` (the ceiling over them), where their cord and canopy end (``_fixture_hardware``).
+
+    Fix round after P5 (22 Oct 2026): a ceiling fixture is dropped (``dropped``, with the reason) when its spot is
+    less than its half-size from the room's edge or a hole (no ceiling over it: ``holes`` also carries the openings of
+    the slab above, ``rig_ceiling_holes``), or when its own mesh's bottom would be lower than
+    ``RIG_CEILING_MIN_BOTTOM_M`` above the floor (a low slope); a light hosted by a built decor light and the pendant
+    over the dining table keep their height."""
     from wenart.blender.parametric import piece_bbox
 
     polygon = [tuple(p[:2]) for p in room.get("polygon") or []]
@@ -1301,6 +1343,13 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                            f"over {G.polygon_area(polygon):.1f} m2 and {len(plans)} fixture(s)")
             for plan in plans:
                 cx, cy = plan["center"]
+                if float(plan["boundary_distance"]) < r - 1e-9:
+                    # fix round after P5: P5's r_L0_merdiven is open to L1 over its whole floor (the slab's opening)
+                    out["dropped"].append({"kind": kind, "reason": (
+                        f"no ceiling over a fixture in {room['id']}: its best spot ({cx:.2f}, {cy:.2f}) is "
+                        f"{float(plan['boundary_distance']):.2f} m from the room's edge or a ceiling opening (stair, "
+                        f"slab opening to the level above), the fixture needs {r:.2f} m: no ceiling fixture")})
+                    continue
                 host = _decor_light_host(decor, cx, cy, r)
                 if host is not None and hosted_z(host) >= floor_z + RIG_HOSTED_MIN_Z_M:
                     hx, hy, lz = float(host["center"][0]), float(host["center"][1]), hosted_z(host)
@@ -1308,7 +1357,16 @@ def rig_plan(room: dict, pieces: list[dict], floor_z: float, ceil_z: float, hole
                         radius=0.08, mount="host", mesh=False, host=host["id"], light_where="under_host",
                         reason=f"{reason}; its light under the decor {host['type'].replace('_', ' ')} {host['id']}")
                     continue
-                z = _ceiling_at(ceiling_fn, ceil_z, cx, cy, r) - RIG_MOUNT_GAP_M - h / 2.0
+                ceil_here = _ceiling_at(ceiling_fn, ceil_z, cx, cy, r)
+                z = ceil_here - RIG_MOUNT_GAP_M - h / 2.0
+                if z - h / 2.0 < floor_z + RIG_CEILING_MIN_BOTTOM_M - 1e-9:
+                    # fix round after P5: under P5's 1.32 m bathroom slope the fixture hung around the camera's lens
+                    out["dropped"].append({"kind": kind, "reason": (
+                        f"ceiling fixture at ({cx:.2f}, {cy:.2f}) of {room['id']}: the ceiling over it is "
+                        f"{ceil_here - floor_z:.2f} m high, its bottom would be {z - h / 2.0 - floor_z:.2f} m above "
+                        f"the floor (< {RIG_CEILING_MIN_BOTTOM_M:g} m, camera height + headroom): no ceiling "
+                        f"fixture, the fill light stays")})
+                    continue
                 add(fspec, (cx, cy, z), (cx, cy, z - h / 2.0 - 0.02), "POINT", fspec["watts_applied"], spec["size_m"],
                     radius=0.08, reason=reason, mount="ceiling",
                     mount_z=_ceiling_at(ceiling_fn, ceil_z, cx, cy, RIG_CANOPY_R_M))
@@ -1824,7 +1882,8 @@ def build_room_rig(bpy, common, collection, manifest_objects: list, assumed: lis
 
 def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: str | None, collection,
                    manifest_objects: list, assumed: list, north_deg: float | None = None,
-                   north_source: str | None = None, ceiling_at=None, exterior: bool = False) -> dict:
+                   north_source: str | None = None, ceiling_at=None, exterior: bool = False,
+                   ceiling_voids: dict | None = None) -> dict:
     """World + sun + area lights for the windowless rooms of ``levels``.
 
     Milestone 10: ``north_deg`` (the compass bearing of the building's +Y axis, ``site.north_deg``) turns
@@ -1833,7 +1892,11 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
 
     Milestone 11 (docs/milestone11.md §1.1 E13): ``exterior`` (a build with exterior views) also makes the
     exterior world (``materials.exterior_world_nodes``: a physical sky whose sun is the lamp's), which render.py
-    uses for the exterior cameras; the record is ``world_exterior``."""
+    uses for the exterior cameras; the record is ``world_exterior``.
+
+    Fix round after P5 (22 Oct 2026): ``ceiling_voids`` ({level id: [polygons]}, the openings of the slab above each
+    level, ``build.ceiling_voids`` of the slab plan) are holes for the rig's ceiling fixtures too
+    (``rig_ceiling_holes``, the module docstring)."""
     import bpy
     from mathutils import Vector
 
@@ -1913,6 +1976,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
         ceil_z = floor_z + float(level["ceiling_height"])
         levels_above = any(float(lv["elevation"]) > floor_z for lv in building["levels"])
         voids = stair_openings(building, level)
+        rig_holes = rig_ceiling_holes(voids, level, ceiling_voids)     # fix round after P5: an open stair core
         for room in building["rooms"]:
             if room["level_id"] != level["id"]:
                 continue
@@ -1938,7 +2002,7 @@ def build_lighting(building: dict, levels: list[dict], style: dict, hdri_path: s
                 # windows (no sconce on them) and the sloped ceiling at each fixture
                 ceiling_fn = None if ceiling_at is None else (lambda x, y, _lv=level: float(ceiling_at(_lv, x, y)))
                 # fix round after P4b: the built method of each piece (a library lamp keeps the light in its shade)
-                plan = rig_plan(room, pieces, room_floor, room_ceil, holes=voids, lighting=lighting,
+                plan = rig_plan(room, pieces, room_floor, room_ceil, holes=rig_holes, lighting=lighting,
                                 agent_factor=factor, decor=built_decor_boxes(manifest_objects, room["id"]),
                                 openings=openings, ceiling_fn=ceiling_fn,
                                 piece_methods=built_piece_methods(manifest_objects))
