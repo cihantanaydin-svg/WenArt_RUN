@@ -317,6 +317,31 @@ pre-flight scene at P5's anchor and k; the numbers are in the docstrings):
   ground outside lights the room more than the sky does. The same balance leaves the window panes with a dark sky
   over a near-white ground band that one pull k cannot hold both of; the pull is unchanged (a decision for the user).
 - Not changed (lead decision 4): views into the sun (ext_5's flat white sky) are only listed (``into_sun``).
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04; ``RENDER_CODE_VERSION`` ``m13.5``). What: three changes and one
+record. Why: P6a's ext_5 got a near-black sky band, three sunlit views still read olive, and the interior-sky A/B found
+Cycles' indirect clamp never set. How:
+
+- Sky pull floor (``SKY_PULL_MEDIAN_MIN`` 0.4, ``sky_pull_candidate_ok``): a pulled save qualifies only with its median
+  at least the floor, under both rules; the search stops at the first save under it. P6a's ext_5 (5.4 degrees off the
+  sun) qualified at k 6 with the median at 0.109. Its saturation crossed 0.10 there not because of m13.4's edge weights
+  (they only blend; the tried saves are the whole EV - k image over an unchanged mask) but because its EV rounded 1/6
+  stop darker than P5's (``EXPOSURE_STEP``: ev_raw -5.915 -> -5.8333 on P5, -5.9173 -> -6.0 on P6a), so the m13.4
+  note above held only by chance. Replayed on every recorded pull of P4a real02, P4b real03, P5 and P6a real04 (85
+  records, variants and agent previews included): only P6a's ext_5 changes (k 6 -> 0) and, under the current rules,
+  P4a's m13.2 agent preview of teras_2_1 (k 2 at median 0.373 -> no pull, its sky as rendered at 0.66).
+- View tint (``daylight_green``, ``WB_TINT_METER``, ``WB_TINT_KEEP_GREEN_RESIDUAL``): the daylight-only pass also
+  meters the light on the walls (``meter_stats`` ``wall_illuminant``) and the view's tint follows the walls' green,
+  greener than the room's where the lawn bounce lights the upper walls (P6a's olive bedrooms); the gain keeps m13.4's
+  rule (the mood's residual of the view's green). The verifier's rule without the residual over-corrected on the bpy
+  5.2.2 shim of P6a's own scene and of real02 (pink lower walls and whites); every rule's numbers are at
+  ``WB_TINT_METER``, each one constant away, and every view records which it took.
+- Clamps (``CLAMP_DIRECT``, ``CLAMP_INDIRECT``, ``clamp_record``): set explicitly at Cycles' defaults and recorded in
+  the manifest (``clamp``); another value (``--clamp-indirect``, a clamp A/B) enters the render key. No render changes.
+- Not changed: P6a's shaded teras_2 views (11.7-21.7 % black). Their EV is metered on the sunlit facade that fills
+  most of the frame (incident p50 167-179, EV -7.5 / -7.67); the black is the window pane seen from the sunlit
+  terrace (no sky reflection on the camera ray, ``materials.window_glass_material``) and the terrace floor in the
+  shade of the parapet (the sun : sky balance of ``lighting``), not the exposure rule.
 """
 from __future__ import annotations
 
@@ -363,7 +388,11 @@ DEPTH_BACKGROUND = 1e9  # Blender writes a huge value where no surface was hit
 # m13.4 (fix round after P5, 22 Oct 2026; P5 rendered m13.3): the sky pull gives the haze-shell hits at a near
 # surface's edge that surface's reference (no dotted white edges), and an interior view's white point takes the tint
 # of its own daylight (view_tint_gain). Without the bump a re-run on an unchanged scene would reuse P5's views.
-RENDER_CODE_VERSION = "m13.4"
+# m13.5 (fix round after P6a, 22 Oct 2026; P6a rendered m13.4): a pulled sky never goes under SKY_PULL_MEDIAN_MIN
+# (P6a's ext_5 went to k 6, median 0.109: a near-black band) and an interior view's tint follows the green of the
+# daylight on its walls (daylight_green). Without the bump a re-run on an unchanged scene would reuse P6a's ext_5 and
+# its olive bedrooms.
+RENDER_CODE_VERSION = "m13.5"
 PASSES = ("combined", "z", "normal", "object_index", "diffuse_color")
 VIEW_TRANSFORM = "AgX"
 LOOK = "AgX - Punchy"
@@ -390,11 +419,18 @@ PULL_WALL_RATIO_MIN = 0.8
 # hazy, pale sky reaches the 0.12 floor only far down (P4a's teras_1: k 4, median 0.43, saturation 0.17, a flat dark
 # slate sky), so it stops at mid-tone instead (teras_1 k 3: median 0.58, saturation 0.118). A white sky beside the
 # sun (ext_5: saturation 0.04 at k 4) still never qualifies and stays as rendered.
+# Fix round after P6a (22 Oct 2026): a pulled save qualifies only with its median at least SKY_PULL_MEDIAN_MIN, under
+# both rules (``sky_pull_candidate_ok``; the sky as rendered keeps ``sky_pull_qualifies``). P6a's ext_5, 5.4 degrees
+# off the sun, reached saturation 0.1034 only at k 6 with the median at 0.109 (a near-black band over the aerial view;
+# P4a's teras_1 at k 4, median 0.43, was already a flat dark slate sky); P5's k 6 had stopped at 0.0968 because its
+# EV rounded 1/6 stop brighter (ev_raw -5.915 -> -5.8333, P6a -5.9173 -> -6.0). Every other pull of P4a real02, P4b
+# real03, P5 and P6a real04 and their variants chosen by these rules has a median of 0.444 or more.
 SKY_PULL_STEPS = (1, 2, 3, 4, 5, 6)
 SKY_PULL_MEDIAN_MAX = 0.8
 SKY_PULL_SAT_MIN = 0.12
 SKY_PULL_MEDIAN_TARGET = 0.6       # ... or the median at mid-tone ...
 SKY_PULL_SAT_NEAR = 0.10           # ... with at least this saturation (the GPU check's allowance under the floor)
+SKY_PULL_MEDIAN_MIN = 0.4          # fix round after P6a: no pulled sky darker than this median (both rules)
 SKY_PULL_MIN_SHARE = 0.005         # a sky smaller than this share of the frame is not pulled
 SKY_RING_PX = 2                    # fix round after P4a: the pull also reaches this many pixels outside the sky mask
 SKY_REF_PX = 4                     # ... where the full-coverage normal is the largest |N| outside the mask this close
@@ -415,6 +451,18 @@ EXIT_INCOMPLETE = 3
 # --max-bounces N (docs/milestone6.md §6.2 ctl_direct): transmission and the total never go below this, so
 # a camera ray passes both faces of the window glass (review L1).
 MIN_GLASS_BOUNCES = 2
+# Fix round after P6a (22 Oct 2026; the interior-sky A/B review): Cycles' per-sample clamps, set explicitly and recorded
+# (``clamp_record``) instead of left at the add-on defaults, which are these values (Cycles ``addon/properties.py``:
+# ``sample_clamp_direct`` 0 = off, ``sample_clamp_indirect`` 10; read back as 0.0 / 10.0 from P6a's real04.blend), so
+# no render changes. How Cycles applies them (``scene/integrator.cpp``, ``film_clamp_light``): the RGB sum of one
+# sample's contribution against 3 x the value; background and emission are clamped at bounce - 1 and a light sample at
+# its shadow path's bounce, and the singular glass refraction counts as a bounce. So the outside seen through the
+# two-face window pane (``materials.window_glass_material``: the sky and the sunlit lawn are reached at bounce 2) is
+# clamped with the indirect value, as is the sun bounced inside the rooms and the metering pass's Diffuse Indirect. A
+# value other than CLAMP_INDIRECT (``--clamp-indirect``, for the clamp A/B) enters the render key; the default does not,
+# so no render key changes.
+CLAMP_DIRECT = 0.0
+CLAMP_INDIRECT = 10.0
 
 # Metering and exposure (docs/milestone5.md §2.4; calibrated in pod runs 0/1).
 METER_RES_DIV = 8
@@ -488,8 +536,31 @@ WB_VIEW_RULE = ("the project's daylight colour and the rig's light colour mixed 
 # (the interior HDRI sits 5.2 stops under the sun, materials.world_nodes), green ratio G/sqrt(RB) 1.32-1.40 in the
 # bpy 5.2.2 shim of real04 against 1.00 on the terrace the anchor is metered on; the largest gain measured is 1.243.
 WB_TINT_GAIN_MAX = 1.3
-WB_TINT_RULE = ("the view's own daylight tint (its daylight green ratio to the power 1 - residual over the anchor's), "
-                "by its daylight share; the temperature stays the project's")
+# Fix round after P6a (22 Oct 2026; the P6a verifier's fix, checked first on a bpy 5.2.2 shim as it asked): the
+# daylight-only pass also meters the light on the walls (``meter_stats`` ``wall_illuminant``) and the view's tint follows
+# the walls' green (WB_TINT_METER ``walls``, ``daylight_green``: the walls' light when they cover at least
+# WB_TINT_WALL_MIN_SHARE of the metering frame, else every interior surface as in m13.4). P6a real04's olive views got
+# their green from the lawn bounce on the upper walls, which the all-surface meter (the sunlit floor and bed dominate it)
+# under-read: the walls' green ratio 1.17-1.44 against the room's 1.06-1.27 in the sunlit rooms. The verifier also asked
+# to leave no green on white (WB_TINT_KEEP_GREEN_RESIDUAL False: the view's green over the anchor's, no mood residual on
+# the green-magenta axis); with the walls' green that over-corrects. Shim of P6a's real04.blend (its 18 painted daylight
+# views, 480 x 270, meter 240 x 135 as on the pod, P6a's anchor; m13.4's wall means within 0.01 of the pod's GPU
+# values) and of real02's pre-flight scene (8 views, P4a's anchor); display G/((R+B)/2) of the wall mean, the lower half
+# of the walls and the near-white objects:
+#   m13.4: every surface, residual kept      real04 walls <= 1.064 (2 over 1.06), lower >= 0.979; real02 <= 1.091 (2 over)
+#   every surface, no residual               real04 walls <= 1.052, lower >= 0.965, whites >= 0.974; real02 <= 1.074 (2 over)
+#   walls, residual kept (m13.5)             real04 walls <= 1.029, lower >= 0.962, whites >= 0.962; real02 <= 1.051,
+#                                            lower >= 0.981, whites >= 0.986
+#   walls, no residual (the verifier's)      real04 walls <= 1.014, lower >= 0.947 (7 views under 0.97), whites >= 0.947;
+#                                            real02 lower >= 0.952 (2 under 0.97)
+# So the walls' green with the mood's residual kept (the m13.4 gain); each of the other rules is one constant away and
+# every view records which one it took (``wb_day_green_source``, ``wb_tint_green_residual``).
+WB_TINT_METER = "walls"
+WB_TINT_METERS = ("surfaces", "walls")
+WB_TINT_WALL_MIN_SHARE = 0.05
+WB_TINT_KEEP_GREEN_RESIDUAL = True
+WB_TINT_RULE = ("the view's own daylight tint (the green ratio of its daylight, on its walls, to the power 1 - residual "
+                "over the anchor's), by its daylight share; the temperature stays the project's")
 # Fix round part 2 (17 Oct 2026): the clip rule of an open-air view under the exterior world (view_clip_end).
 OPEN_AIR_CLIP_RULE = ("open-air room under the exterior world: the exterior views' clip end (exterior.CLIP_END), so "
                       "the far ground and the backdrop close the horizon")
@@ -532,6 +603,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
                              "still transmits (transmission and total bounces >= 2)")
     parser.add_argument("--ev-offset", type=float, default=0.0, help="stops added to the auto/fixed/look-from EV")
     parser.add_argument("--preview-quality", type=int, help="fixed JPEG quality of the previews (no step-down)")
+    # fix round after P6a (22 Oct 2026): the indirect clamp of a clamp A/B (CLAMP_INDIRECT when absent; 0 = off)
+    parser.add_argument("--clamp-indirect", type=float,
+                        help=f"Cycles' indirect sample clamp (default {CLAMP_INDIRECT:g}, 0 = off); another value "
+                             f"enters the render key")
     return parser.parse_args(argv)
 
 
@@ -545,6 +620,9 @@ def check_control_flags(args: argparse.Namespace) -> None:
         raise UsageError(f"--preview-quality must be 1..100, not {args.preview_quality}")
     if args.alt_look is not None and not str(args.alt_look).strip():
         raise UsageError("--alt-look needs a look name such as 'None' or 'AgX - Punchy'")
+    clamp = getattr(args, "clamp_indirect", None)
+    if clamp is not None and not (math.isfinite(float(clamp)) and float(clamp) >= 0.0):
+        raise UsageError(f"--clamp-indirect must be 0 (off) or more, not {clamp}")
 
 
 def deadline_from_env(env=None) -> tuple[float | None, str | None]:
@@ -813,7 +891,7 @@ FACADE_MIN_SHARE = 0.02           # ... when that leaves at least this share of 
 
 def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int = METER_BLOCKS_ACROSS,
                 min_coverage: float = METER_BLOCK_COVERAGE, min_albedo: float = METER_MIN_ALBEDO,
-                normal_z=None, haze_indices=()) -> dict:
+                normal_z=None, haze_indices=(), wall_normal_z=None) -> dict:
     """Incident-light statistics of a metering render.
 
     ``light`` = Diffuse Direct + Indirect (H x W x 3, colour-free), ``albedo``
@@ -838,7 +916,15 @@ def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int 
     first hit on the haze shell, the objects of ``haze_indices``; every
     ground pixel without haze) and ``ground_blocks_used``, for the ground cap
     of ``exterior_exposure``. ``incident_p50``, the mask and ``metered`` do
-    not change."""
+    not change.
+
+    Fix round after P6a (22 Oct 2026): with ``wall_normal_z`` (the world
+    normal's Z of an interior view's metering pass) the stats also give
+    ``wall_illuminant`` (the light summed over the wall pixels: the interior
+    mask, pass index 0 and ``|z| < views.WALL_NZ_ABS_MAX``, the walls of
+    ``views.regions`` and of the GPU wall checks; None without light there) and
+    ``wall_frac`` (their share of the frame), for the view's tint
+    (``daylight_green``). Nothing else changes."""
     import numpy as np
 
     light = np.nan_to_num(np.asarray(light, dtype=np.float64), nan=0.0, posinf=0.0, neginf=0.0)
@@ -884,6 +970,18 @@ def meter_stats(light, albedo, index, depth, window_indices, blocks_across: int 
         total = light[mask].sum(axis=0)
         if float(total.sum()) > 0:
             stats["illuminant"] = [float(v) for v in total]
+    if wall_normal_z is not None:
+        # fix round after P6a: the light on the walls the GPU olive check judges (views.regions' struct:walls)
+        from wenart.views import WALL_NZ_ABS_MAX
+
+        wnz = np.nan_to_num(np.asarray(wall_normal_z, dtype=np.float64), nan=1.0)
+        walls = surfaces & (idx == 0) & (np.abs(wnz) < WALL_NZ_ABS_MAX)
+        stats["wall_frac"] = round(float(walls.mean()), 4) if walls.size else 0.0
+        stats["wall_illuminant"] = None
+        if walls.any():
+            wall_total = light[walls].sum(axis=0)
+            if float(wall_total.sum()) > 0:
+                stats["wall_illuminant"] = [float(v) for v in wall_total]
     return stats
 
 
@@ -1054,7 +1152,35 @@ def green_ratio(rgb) -> float | None:
     return g / math.sqrt(r * b)
 
 
-def view_tint_gain(anchor, day_green, residual, share=0.0, gain_max: float = WB_TINT_GAIN_MAX) -> float:
+def daylight_green(stats: dict | None, meter: str | None = None,
+                   min_share: float = WB_TINT_WALL_MIN_SHARE) -> tuple[float | None, str | None]:
+    """``(green ratio, source)`` of a view's daylight from its metering stats (pure; fix round after P6a, 22 Oct 2026).
+    What: with ``meter`` (``WB_TINT_METER`` when None) ``surfaces`` ``green_ratio`` of the light on every interior
+    surface (``illuminant``, source ``surfaces``, as m13.4 metered it); with ``walls`` that of the light on the walls
+    (``wall_illuminant``, source ``walls``) when they cover at least ``min_share`` of the metering frame
+    (``wall_frac``), else the surfaces' green; ``(None, None)`` without light. Why: the walls are what the GPU olive
+    check judges and their light is greener than the room's (the lawn bounce on the upper walls; P6a's olive bedrooms
+    1.38-1.44 on the walls against 1.22-1.24 over every surface, ``WB_TINT_METER``). Stats without the wall keys (a
+    meter without ``walls``) give the surfaces' green."""
+    meter = WB_TINT_METER if meter is None else meter
+    if meter not in WB_TINT_METERS:
+        raise ValueError(f"daylight_green: meter {meter!r} is not one of {WB_TINT_METERS}")
+    if not stats:
+        return None, None
+    if meter == "walls":
+        try:
+            wall_share = float(stats.get("wall_frac") or 0.0)
+        except (TypeError, ValueError):
+            wall_share = 0.0
+        wall = green_ratio(stats.get("wall_illuminant")) if stats.get("wall_illuminant") else None
+        if wall is not None and wall_share >= min_share:
+            return wall, "walls"
+    every = green_ratio(stats.get("illuminant")) if stats.get("illuminant") else None
+    return (every, "surfaces") if every is not None else (None, None)
+
+
+def view_tint_gain(anchor, day_green, residual, share=0.0, gain_max: float = WB_TINT_GAIN_MAX,
+                   keep_green_residual: bool | None = None) -> float:
     """The factor on a view's white point's G that gives it the green-magenta tint of its own daylight (pure; fix
     round after P5, 22 Oct 2026). What: ``(day_green ^ (1 - residual) / green_ratio(anchor)) ^ (1 - share)``, clamped
     to ``1 / gain_max .. gain_max``; 1.0 without the view's daylight (``day_green`` None: a windowless room) or with
@@ -1066,7 +1192,15 @@ def view_tint_gain(anchor, day_green, residual, share=0.0, gain_max: float = WB_
     ``1 - residual``; the view's daylight to the same power over it is the tint the anchor leaves in the view; the
     view keeps the mood's residual of its own tint, as of the project's cast. The temperature (R/B of the white
     point) does not change (``tinted_whitepoint``): Blender reads 5,635 K -> 5,725 K and tint 5.3 -> 42.1 at the
-    largest gain measured (1.243)."""
+    largest gain measured (1.243).
+
+    Fix round after P6a (22 Oct 2026): ``day_green`` is ``daylight_green`` of the daylight-only pass (the walls' light,
+    ``WB_TINT_METER``), and ``keep_green_residual`` (``WB_TINT_KEEP_GREEN_RESIDUAL`` when None) chooses the rule:
+    True keeps the mood's residual of the view's green (the formula above, m13.4's); False leaves no green on white,
+    ``(day_green / green_ratio(anchor)) ^ (1 - share)`` (the P6a verifier's rule: P6a's e_yatak_odasi_2 kept 1.2154 ^
+    0.35 = 1.070 on white; it also puts no anchor green on another view, as real03's green anchor would under the
+    analyst's division by the anchor's daylight). The shim numbers of both are at ``WB_TINT_METER``. A residual of 1
+    (no correction) gives 1.0 under both."""
     g_anchor = green_ratio(anchor)
     try:
         day = float(day_green)
@@ -1081,7 +1215,8 @@ def view_tint_gain(anchor, day_green, residual, share=0.0, gain_max: float = WB_
         s = 0.0
     if k <= 1e-6 or not math.isfinite(s):
         return 1.0
-    gain = (day ** k / g_anchor) ** (1.0 - s)
+    keep = WB_TINT_KEEP_GREEN_RESIDUAL if keep_green_residual is None else bool(keep_green_residual)
+    gain = ((day ** k if keep else day) / g_anchor) ** (1.0 - s)
     hi = max(1.0, float(gain_max))
     return round(min(hi, max(1.0 / hi, gain)), 6)
 
@@ -1137,6 +1272,14 @@ def bounce_settings(max_bounces: int) -> dict:
             "transmission_bounces": keep}
 
 
+def clamp_record(clamp_indirect: float | None = None) -> dict:
+    """The per-sample clamps a render sets (pure; fix round after P6a, 22 Oct 2026): ``{"direct", "indirect"}``,
+    ``CLAMP_DIRECT`` and ``clamp_indirect`` (``CLAMP_INDIRECT`` when None), for ``configure_render`` and the render
+    manifest's ``clamp``. 0 means no clamp."""
+    return {"direct": float(CLAMP_DIRECT),
+            "indirect": float(CLAMP_INDIRECT if clamp_indirect is None else clamp_indirect)}
+
+
 def camera_lens(cam) -> dict:
     """``{"lens_mm", "sensor_mm"}`` of a Blender camera object as rendered (Milestone 8: every entry of the
     render manifest records the lens its pixels were taken with; the scene manifest's plan has the same)."""
@@ -1152,7 +1295,8 @@ def render_key(settings: dict) -> str:
 def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposure_value, target: float,
                  wb_mode: str, wb_fixed, hidden, plugged, look_from_values: dict | None = None,
                  alt_look: str | None = None, max_bounces: int | None = None, ev_offset: float = 0.0,
-                 preview_quality: int | None = None, limits=None, project_whitepoint=None) -> dict:
+                 preview_quality: int | None = None, limits=None, project_whitepoint=None,
+                 clamp_indirect: float | None = None) -> dict:
     """What the render key covers (docs/milestone5.md §2.5, docs/milestone6.md
     §5 rows 10-11, docs/milestone7.md §6.1). With ``look_from_values``
     (``{"ev", "whitepoint"}`` of the source entry) the exposure and white
@@ -1161,7 +1305,9 @@ def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposur
     ``view_transform`` and ``look`` are the display transform of the PNG and
     the preview (Milestone 7: a change of the default look re-renders).
     Milestone 13: ``limits`` (the EV limits of the run, ``EXPOSURE_LIMITS`` when None) and the project whitepoint
-    (``project_whitepoint`` for mode ``project``; the kelvin value for mode ``kelvin``) are part of the key."""
+    (``project_whitepoint`` for mode ``project``; the kelvin value for mode ``kelvin``) are part of the key. Fix round
+    after P6a (22 Oct 2026): an indirect clamp other than ``CLAMP_INDIRECT`` is part of the key (``clamp_indirect``);
+    the default is not, so the keys of the renders before it do not change."""
     if look_from_values is not None:
         exposure = {"mode": "from", "ev": look_from_values.get("ev"), "whitepoint": look_from_values.get("whitepoint")}
         wb = "from"
@@ -1191,6 +1337,10 @@ def key_settings(samples: int, resolution, denoiser, exposure_mode: str, exposur
         # The applied limits (review L1): a --max-bounces render of the old rule (max_bounces only, black
         # panes) gets another key. Absent for a normal render, so its key is unchanged.
         settings["bounces"] = bounce_settings(max_bounces)
+    clamp = clamp_record(clamp_indirect)["indirect"]
+    if clamp != CLAMP_INDIRECT:
+        # fix round after P6a: a clamp A/B render gets another key; absent at the default, so the key is unchanged
+        settings["clamp_indirect"] = clamp
     return settings
 
 
@@ -1782,21 +1932,33 @@ def sky_pull_floor(candidate: dict) -> float:
     return SKY_PULL_SAT_MIN if sky_pull_saturated(candidate) else SKY_PULL_SAT_NEAR
 
 
+def sky_pull_candidate_ok(candidate: dict, median_min: float = SKY_PULL_MEDIAN_MIN) -> bool:
+    """A pulled save (k >= 1) the sky pull may take (pure; fix round after P6a, 22 Oct 2026). What: its median is at
+    least ``median_min`` and it reads as sky (``sky_pull_qualifies``, either rule). Why: a hazy sky beside the sun
+    gains saturation only when crushed: P6a's ext_5 qualified at k 6 with the median at 0.109 (a near-black band
+    over the aerial view). How: only the EV - k saves are held to the floor; the sky as rendered keeps
+    ``sky_pull_qualifies`` (a dark but blue sky as rendered, blue hour or night, needs no pull)."""
+    return candidate["median"] >= median_min and sky_pull_qualifies(candidate)
+
+
 def choose_sky_pull(before: dict, candidates: list[dict]) -> tuple[int, str]:
     """``(k, rule)`` of the sky pull (pure; fix round after P3): ``before`` = ``{"median", "saturation"}`` of the
     sky as rendered, ``candidates`` = ``[{"k", "median", "saturation"}]`` of the EV - k saves. 0 when the sky already
     qualifies (``sky_pull_qualifies``); else the smallest qualifying k; else 0 (no k gives a blue sky under the
-    shoulder: a near-white sky beside the sun stays as rendered rather than turning grey)."""
+    shoulder: a near-white sky beside the sun stays as rendered rather than turning grey). Fix round after P6a (22 Oct
+    2026): a candidate qualifies only with its median at least ``SKY_PULL_MEDIAN_MIN`` (``sky_pull_candidate_ok``):
+    P6a's ext_5 (k 6, median 0.109) stays as rendered."""
     if sky_pull_qualifies(before):
         return 0, "the sky is under the shoulder and saturated as rendered: no pull"
     for c in sorted(candidates, key=lambda c: c["k"]):
-        if sky_pull_qualifies(c):
+        if sky_pull_candidate_ok(c):
             if sky_pull_saturated(c):
                 return int(c["k"]), (f"smallest k with the sky median <= {SKY_PULL_MEDIAN_MAX:g} and saturation >= "
                                      f"{SKY_PULL_SAT_MIN:g}")
             return int(c["k"]), (f"smallest k with the sky median <= {SKY_PULL_MEDIAN_TARGET:g} (mid-tone) and "
                                  f"saturation >= {SKY_PULL_SAT_NEAR:g}")
-    return 0, "no k brings the sky under the shoulder with saturation: no pull"
+    return 0, (f"no k brings the sky under the shoulder with saturation above the median floor "
+               f"{SKY_PULL_MEDIAN_MIN:g}: no pull")
 
 
 def blend_pull(main, pulled, weights):
@@ -2382,12 +2544,17 @@ def configure_device(scene, requested: str = "auto") -> str:
 
 
 def configure_render(scene, samples: int, res: tuple[int, int], device: str, denoise: bool,
-                     max_bounces: int | None = None) -> str | None:
+                     max_bounces: int | None = None, clamp_indirect: float | None = None) -> str | None:
     """Samples, resolution, denoiser, the pass toggles (``PASSES``: combined,
     depth, normal, object index and, since Milestone 6, Diffuse Color for the
     window pull) and, for a control render, the bounce limits of
-    ``max_bounces`` (``bounce_settings``). Returns the denoiser name."""
+    ``max_bounces`` (``bounce_settings``). Returns the denoiser name. Fix round after P6a (22 Oct 2026): the
+    per-sample clamps of ``clamp_record`` (``CLAMP_DIRECT``, and ``clamp_indirect`` or ``CLAMP_INDIRECT``), set
+    explicitly; the defaults are Cycles' own, so a production render does not change."""
     scene.cycles.samples = samples
+    clamp = clamp_record(clamp_indirect)
+    scene.cycles.sample_clamp_direct = clamp["direct"]
+    scene.cycles.sample_clamp_indirect = clamp["indirect"]
     if max_bounces is not None:
         for name, value in bounce_settings(max_bounces).items():
             setattr(scene.cycles, name, value)
@@ -2721,13 +2888,14 @@ class Look:
         return view_limits(self.limits, self.floor_shift)
 
     def key_settings(self, cam_name: str, samples: int, res, denoiser, hidden, plugged, alt_look=None,
-                     max_bounces=None, preview_quality=None) -> dict:
+                     max_bounces=None, preview_quality=None, clamp_indirect=None) -> dict:
         values = self.look_from[cam_name] if self.look_from is not None else None
         return key_settings(samples, res, denoiser, self.exposure_mode, self.exposure_value, self.target,
                             self.wb_mode, self.wb_fixed, hidden, plugged, values, alt_look=alt_look,
                             max_bounces=max_bounces, ev_offset=self.ev_offset, preview_quality=preview_quality,
                             limits=self.view_limits(),
-                            project_whitepoint=(self.project or {}).get("whitepoint") if self.wb_mode == "project" else None)
+                            project_whitepoint=(self.project or {}).get("whitepoint") if self.wb_mode == "project" else None,
+                            clamp_indirect=clamp_indirect)
 
     def decide(self, cam, out_dir: Path, res: tuple[int, int]) -> dict:
         """The exposure record of a camera before its final render
@@ -2752,7 +2920,11 @@ class Look:
             return rec
         meter = None
         if self.exposure_mode == "auto" or self.wb_mode == "auto":
-            meter = meter_camera(self.scene, cam, out_dir, res, self.windows, self.haze)
+            # fix round after P6a: a project-balanced interior view meters the light on its walls too (the tint of a
+            # scene without a rig, daylight_green); the exposure and the stats it records do not change
+            walls = self.wb_mode == "project" and cam.get("wenart_camera_kind") != "exterior"
+            meter = meter_camera(self.scene, cam, out_dir, res, self.windows, self.haze, **({"walls": True} if walls
+                                                                                            else {}))
             rec["meter_seconds"] = meter.pop("seconds")
             rec["meter"] = {k: meter[k] for k in ("resolution", "samples", "blocks", "blocks_used", "block_px",
                                                    "interior_frac")}
@@ -2831,14 +3003,15 @@ class Look:
         kelvin, kelvin_source = room_rig_kelvin(rig_lights(self.scene), cam.get("wenart_room"))
         if not rigs or kelvin is None:
             # fix round after P5: without a rig the metered light is the view's daylight
-            if not self._view_tint(rec, anchor, meter.get("illuminant"), residual, 0.0):
+            if not self._view_tint(rec, anchor, meter, residual, 0.0):
                 rec["wb_view_rule"] = "no rig light in the scene: the project white point"
             else:
                 rec["wb_view_rule"] = f"no rig light in the scene: the project white point with {WB_TINT_RULE}"
             return
         hidden = hide_objects(rigs)
         try:
-            day = meter_camera(self.scene, cam, out_dir, res, self.windows, self.haze)
+            # fix round after P6a: the daylight on the walls too (daylight_green)
+            day = meter_camera(self.scene, cam, out_dir, res, self.windows, self.haze, walls=True)
         finally:
             unhide_objects(hidden)
         rec["meter_seconds"] = round(float(rec["meter_seconds"] or 0.0) + float(day.pop("seconds", 0.0)), 3)
@@ -2850,26 +3023,37 @@ class Look:
                    # fix round after P4b: the block-median share, for diagnosis only (rig_share_p50)
                    wb_rig_share_p50=rig_share_p50(meter.get("incident_p50"), day.get("incident_p50")))
         if share is None or share < WB_RIG_SHARE_MIN:
-            tinted = self._view_tint(rec, anchor, day.get("illuminant"), residual, 0.0)
+            tinted = self._view_tint(rec, anchor, day, residual, 0.0)
             rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point" + \
                 (f" with {WB_TINT_RULE}" if tinted else "")
             return
         rec["whitepoint"] = mixed_whitepoint(anchor, rig_rgb, share, residual, WB_RIG_RESIDUAL)
         rec["wb_view_rule"] = WB_VIEW_RULE
         rec["wb_rig_residual"] = WB_RIG_RESIDUAL     # fix round after P4a: the rig part's extra warmth (0: none)
-        if self._view_tint(rec, anchor, day.get("illuminant"), residual, share):
+        if self._view_tint(rec, anchor, day, residual, share):
             rec["wb_view_rule"] = f"{WB_VIEW_RULE}; {WB_TINT_RULE}"
 
     @staticmethod
-    def _view_tint(rec: dict, anchor, day_illuminant, residual, share) -> bool:
+    def _view_tint(rec: dict, anchor, day_stats: dict | None, residual, share) -> bool:
         """Fix round after P5 (22 Oct 2026): the view's white point (``rec["whitepoint"]``) takes the tint of its own
-        daylight (``view_tint_gain``, ``tinted_whitepoint``). Records ``wb_day_green`` (``green_ratio`` of the
-        view's daylight illuminant, None without daylight) and ``wb_view_tint_gain``; True when the white point
-        changed (a gain of 1 keeps it exactly)."""
-        day_green = green_ratio(day_illuminant) if day_illuminant else None
+        daylight (``view_tint_gain``, ``tinted_whitepoint``). Records ``wb_day_green`` (the green ratio of the
+        view's daylight, None without daylight) and ``wb_view_tint_gain``; True when the white point changed (a gain
+        of 1 keeps it exactly). Fix round after P6a (22 Oct 2026): ``day_stats`` is the daylight metering pass's stats
+        and the green is ``daylight_green`` of them (``WB_TINT_METER``: the walls' light); the record also says
+        ``wb_day_green_source`` (``walls`` | ``surfaces``), ``wb_day_green_all`` (the green of every interior surface,
+        m13.4's meter, for diagnosis), ``wb_day_wall_share`` (the walls' share of the metering frame) and
+        ``wb_tint_green_residual`` (``WB_TINT_KEEP_GREEN_RESIDUAL``: the rule the gain took)."""
+        stats = day_stats or {}
+        day_green, source = daylight_green(stats)
         day_green = None if day_green is None else round(day_green, 6)     # the record reproduces the gain exactly
-        gain = view_tint_gain(anchor, day_green, residual, share)
+        every = green_ratio(stats.get("illuminant")) if stats.get("illuminant") else None
+        keep = bool(WB_TINT_KEEP_GREEN_RESIDUAL)
+        gain = view_tint_gain(anchor, day_green, residual, share, keep_green_residual=keep)
         rec["wb_day_green"] = day_green
+        rec["wb_day_green_source"] = source
+        rec["wb_day_green_all"] = None if every is None else round(every, 6)
+        rec["wb_day_wall_share"] = stats.get("wall_frac")
+        rec["wb_tint_green_residual"] = keep
         rec["wb_view_tint_gain"] = gain
         if gain == 1.0:
             return False
@@ -2973,12 +3157,15 @@ class Look:
         return record
 
 
-def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[int], haze=()) -> dict:
+def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[int], haze=(),
+                 walls: bool = False) -> dict:
     """Metering pre-render of ``cam`` (1/8 resolution, 16 samples, no denoiser,
     no adaptive sampling, diffuse light passes on), read back and measured
     with ``meter_stats``. Every changed setting is restored. Fix round after
     P4b: ``haze`` (the haze's reserved pass index) bounds the ground of an
-    exterior view (``meter_stats`` ``ground_p50``)."""
+    exterior view (``meter_stats`` ``ground_p50``). Fix round after P6a: with
+    ``walls`` the stats also give the light on the wall pixels
+    (``wall_illuminant``, ``wall_frac``) from the same pass's Normal."""
     import bpy
 
     r, c = scene.render, scene.cycles
@@ -3009,11 +3196,15 @@ def meter_camera(scene, cam, out_dir: Path, res: tuple[int, int], windows: set[i
     depth = find_channel(channels, "Depth.Z")
     if any(a is None for a in (direct, indirect, albedo, index, depth)):
         raise RuntimeError(f"metering EXR of {cam.name} lacks a pass: {sorted(channels)}")
-    normal_z = None
-    if cam.get("wenart_camera_kind") == "exterior":        # Milestone 10: meter the facades
+    normal_z = wall_z = None
+    if cam.get("wenart_camera_kind") == "exterior" or walls:
         normal = find_rgb(channels, "Normal")
-        normal_z = None if normal is None else normal[..., 2]
-    stats = meter_stats(direct + indirect, albedo, index, depth, windows, normal_z=normal_z, haze_indices=haze)
+        if cam.get("wenart_camera_kind") == "exterior":    # Milestone 10: meter the facades
+            normal_z = None if normal is None else normal[..., 2]
+        if walls:                                          # fix round after P6a: the light on the walls
+            wall_z = None if normal is None else normal[..., 2]
+    stats = meter_stats(direct + indirect, albedo, index, depth, windows, normal_z=normal_z, haze_indices=haze,
+                        wall_normal_z=wall_z)
     stats.update(resolution=[w, h], samples=METER_SAMPLES, seconds=round(time.time() - t0, 3))
     return stats
 
@@ -3231,6 +3422,8 @@ class RenderRun:
             "alt_look": args.alt_look or None,
             "max_bounces": args.max_bounces,
             "bounces": None if args.max_bounces is None else bounce_settings(args.max_bounces),
+            # fix round after P6a: the per-sample clamps the render set (clamp_record; the defaults are Cycles' own)
+            "clamp": clamp_record(getattr(args, "clamp_indirect", None)),
             "ev_offset": float(args.ev_offset or 0.0),
             "preview_quality": args.preview_quality,
             "pass_index": ctx.pass_index,
@@ -3260,7 +3453,8 @@ class RenderRun:
         return render_key(ctx.look.key_settings(cam.name, ctx.args.samples, ctx.res, ctx.denoiser,
                                                 self.hidden, self.plugged, alt_look=ctx.args.alt_look,
                                                 max_bounces=ctx.args.max_bounces,
-                                                preview_quality=ctx.args.preview_quality))
+                                                preview_quality=ctx.args.preview_quality,
+                                                clamp_indirect=getattr(ctx.args, "clamp_indirect", None)))
 
     def check(self, cam) -> tuple[str | None, str]:
         """``(reason to render or None, render_key)``."""
@@ -3583,7 +3777,10 @@ class RenderRun:
         and a ring of ``SKY_RING_PX`` outside it (``sky_pull_weights``: no white rims round the silhouettes; only the
         mask and the ring change), ``ring_px`` counts the ring pixels that got part of the pull, ``full_weight_share``
         stays the feather's (the coherence of the mask, as the GPU check reads it) and ``sun_offset_deg`` /
-        ``into_sun`` say whether the view looks into the sun (``sun_offset_deg``, ``SKY_INTO_SUN_DEG``)."""
+        ``into_sun`` say whether the view looks into the sun (``sun_offset_deg``, ``SKY_INTO_SUN_DEG``). Fix round
+        after P6a (22 Oct 2026): a save qualifies only with its median at least ``SKY_PULL_MEDIAN_MIN``
+        (``sky_pull_candidate_ok``), the search ends at the first save under it, and ``targets`` carries
+        ``median_min``."""
         import numpy as np
 
         depth = find_channel(channels, "Depth.Z")
@@ -3608,8 +3805,10 @@ class RenderRun:
                 cand = {"k": k, "median": masked_median(img, mask), "saturation": masked_saturation(img, mask)}
                 candidates.append(cand)
                 images[k] = img
-                if sky_pull_qualifies(cand):
-                    break                # the smallest qualifying k
+                # the smallest qualifying k; fix round after P6a: a save under the median floor ends the search (a
+                # deeper k is only darker)
+                if sky_pull_candidate_ok(cand) or cand["median"] < SKY_PULL_MEDIAN_MIN:
+                    break
         k, rule = choose_sky_pull(before, candidates)
         weights, ring = sky_pull_weights(mask, normal, SKY_RING_PX, SKY_REF_PX, depth, index, self.ctx.haze)
         # lead decision (4) of 17 Oct 2026: real02's assumed north stays; the views into the sun are only listed (the
@@ -3628,7 +3827,8 @@ class RenderRun:
                   "median_after": round(before["median"], 4), "saturation_after": round(before["saturation"], 4),
                   "rule": rule, "targets": {"median_max": SKY_PULL_MEDIAN_MAX, "saturation_min": SKY_PULL_SAT_MIN,
                                             "median_target": SKY_PULL_MEDIAN_TARGET,
-                                            "saturation_near": SKY_PULL_SAT_NEAR, "ring_px": SKY_RING_PX},
+                                            "saturation_near": SKY_PULL_SAT_NEAR, "ring_px": SKY_RING_PX,
+                                            "median_min": SKY_PULL_MEDIAN_MIN},     # fix round after P6a
                   "tried": [{"k": c["k"], "median": round(c["median"], 4), "saturation": round(c["saturation"], 4)}
                             for c in candidates]}
         if k == 0:
@@ -3802,7 +4002,8 @@ def main(argv: list[str]) -> int:
             return 2
 
     device = configure_device(scene, args.device)
-    denoiser = configure_render(scene, args.samples, (width, height), device, not args.no_denoise, args.max_bounces)
+    denoiser = configure_render(scene, args.samples, (width, height), device, not args.no_denoise, args.max_bounces,
+                                args.clamp_indirect)
     scene.view_settings.view_transform = VIEW_TRANSFORM
     scene.view_settings.look = LOOK
     mood = scene.get("wenart_mood") or None

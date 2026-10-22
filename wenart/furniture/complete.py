@@ -625,8 +625,13 @@ def copy_added(room: dict, partner_id: str, partner_added: list[dict], t: Transf
                out: dict, ctx: placer.RoomContext, ids: Optional[dict] = None) -> tuple[list[dict], list[dict]]:
     """The partner's added pieces mapped into ``room``; each must pass the placer's checks here with the drawn pieces
     as obstacles (no repairs: a failing copy is dropped and listed). ``ids`` maps the partner's drawn pieces onto this
-    room's (group anchors). Returns ``(added dicts, dropped)``."""
+    room's (group anchors). Returns ``(added dicts, dropped)``.
+    Fix round after P6a (22 Oct 2026): under a sloped ceiling a copy also needs the solver's headroom
+    (``solver.headroom_short``: its type's height + 0.05 m under the ceiling over its footprint); a copy without it
+    is dropped like any failing copy, so the room is completed itself. Why: the twin of a room under the roof takes
+    its pieces through the placer's checks, not the solver's (P6a real04: the mirrored bookshelf f_L1_056)."""
     from wenart.furniture import layout as L
+    from wenart.furniture import solver as SV
 
     fixed = placer.obstacles_for(obstacles, ctx)
     room_ctx = placer.drawn_context(ctx, fixed) if fixed else ctx
@@ -641,6 +646,17 @@ def copy_added(room: dict, partner_id: str, partner_added: list[dict], t: Transf
             piece.seat_depth, piece.chaise_width = f.get("seat_depth"), f.get("chaise_width")
         copies.append((f, fp, piece))
     dropped = []
+    planes = SV.headroom_planes(out, room["level_id"])         # fix round after P6a: [] under a flat ceiling
+    if planes:
+        fitting = []
+        for f, fp, piece in copies:
+            why = SV.headroom_short(out, room["level_id"], f["type"], piece.polygon(), planes)
+            if why is None:
+                fitting.append((f, fp, piece))
+            else:
+                dropped.append({"type": f["type"], "mirrored_from": f["id"], "center": f["footprint"]["center"],
+                                "reason": f"the copy lacks headroom here: {why}"})
+        copies = fitting
     checks: list[dict] = []
     while True:
         pieces = fixed + [p for _f, _fp, p in copies]

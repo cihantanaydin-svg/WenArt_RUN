@@ -89,6 +89,33 @@ Fix round after P5 (22 Oct 2026; pod P5, real04). What:
   armchair with no other front gets one from its own lines (``seat_back_front``: the back strip and the two arms are
   lines ``SEAT_LINE_M`` inside three sides; the front is the one open side, a long side for a sofa), else none: the
   reading then turns it to its coffee table (``reading._front_of``).
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04; strokes read from the DWG with LibreDWG 0.14 in this session). What:
+
+- **A hanger is the group of pieces that touch** (``hanging_rail``, ``HANGER_JOIN_M``): the inside pieces are grouped
+  by touching (5 mm) and each group is judged as a whole (across the rail, ``HANGER_ACROSS`` of the depth, at most
+  ``HANGER_ALONG_M`` along it); the rail's lines and the outline's sides never join two hangers. Why: real04 draws
+  each hanger as a hook loop around the double rail (0.07 m across) and two bulged arms that end on the loop, short
+  of the rail, so the P5 rule (one stroke at a time) found no hanger and f_L1_021 / f_L1_024 stayed a coffee table
+  with two "chairs" (the closet's side lines, one through the wall into the terrace). Now 14 hangers each: two
+  1.52 x 0.60 m wardrobes, no chairs.
+- **A table with its chairs on a rug outline** (``rug_outline``, ``split_table_chairs``, ``rug_mark_item``;
+  CLAUDE.md "a rug outline read as a piece", "a table footprint that includes its chairs"): the largest ring of a part
+  (a contour, or one stroke whose ends lie within ``RUG_GAP_M``) that covers ``RUG_MIN_M2``, fills less than
+  ``RUG_FILL_MAX`` of its minimum rectangle (never a bed, table, sofa or wardrobe outline) and holds everything else
+  of the part ``RUG_CLEAR_M`` inside it is taken off before the table + chairs split. When the rest is a table with
+  chairs, the table (``shape: round`` when a circle fits its outline), the chairs facing it and a rug mark (an
+  ``unknown`` item with ``not_furniture: {"as": "rug"}``: not built, ``inferred_as: rug``, explained) are made, also
+  for a single-part piece whose box fits a type (the gate of ``furniture`` split only composites and pieces fitting
+  no type). Why: real04's play-room sets f_L1_017/018 (one 1.63 x 1.52 m block each: an open rug curve around a
+  0.80 m round table and two chairs) fit a double bed, were asked with the choices bed / stair / unknown /
+  not_furniture, stayed unknown and were marked not furniture by the agent (P5 and P6a). They are no longer asked:
+  the later candidates of the page renumber, and their answers follow their crops (``recognition.answers``: by input
+  hash).
+- **A chair diagonal to a round table** (``chair_footprint``): a chair whose centre lies within the table's box on
+  both axes stands on the side its offset from the table's centre points to (it always faced 180 deg and grew west),
+  so the chairs of mirrored twin blocks are mirror images and the twin rooms still pair (else the U16 twin copy
+  left real04's second play-room bench untyped).
 """
 from __future__ import annotations
 
@@ -1460,9 +1487,13 @@ def circle_fit(segs: list[Seg]) -> Optional[dict]:
     """``{"share", "radius"}`` of a least-squares circle through the piece's outline: the convex hull of its stroke
     points, sampled every ~1 cm (sampling the outline, not the vertices: a rectangle's 4 corners lie on a circle
     too). ``share`` = the fraction of the outline within max(10 mm, 3 % r) of the circle."""
+    return _circle_fit_pts([p for s in segs for p in s.pts])
+
+
+def _circle_fit_pts(pts) -> Optional[dict]:
+    """``circle_fit`` of a point set (fix round after P6a: also the outline polygon of a split's table)."""
     from shapely.geometry import MultiPoint
 
-    pts = [p for s in segs for p in s.pts]
     if len(set(pts)) < 3:
         return None
     hull = MultiPoint(pts).convex_hull
@@ -1489,6 +1520,14 @@ def round_shape(segs: list[Seg]) -> dict:
     """``{"shape": "round", "circle_fit": {...}}`` when a circle fits >= 90 % of the piece's outline
     (docs/milestone7.md §6.4: a round side table), else ``{}``."""
     fit = circle_fit(segs)
+    if fit is None or fit["share"] < ROUND_SHARE:
+        return {}
+    return {"shape": "round", "circle_fit": fit}
+
+
+def poly_round_shape(poly) -> dict:
+    """``round_shape`` of an outline polygon (fix round after P6a: the round table a rug split finds)."""
+    fit = _circle_fit_pts([tuple(c) for c in poly.exterior.coords])
     if fit is None or fit["share"] < ROUND_SHARE:
         return {}
     return {"shape": "round", "circle_fit": fit}
@@ -1930,6 +1969,9 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
     infos = named_instances(infos, table, ctx.theta, notes)
     for info in infos:
         part, n, fp, lsh = info["part"], info["n"], info["fp"], info.get("l")
+        if info.get("rug_mark"):
+            pieces.append(rug_mark_item(info["rug_mark"], ctx, raster_page))      # fix round after P6a
+            continue
         if info.get("rule_type"):
             # Milestone 11: a chair split off a named table block (``_split_named``).
             pieces.append(_rule_item(part.segs, fp, info["rule_type"], info.get("front"), ctx, raster_page, table,
@@ -1960,16 +2002,25 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             info.update(fp=fp, size=(fp[1], fp[2]), poly=Polygon(fp[4]),
                         note="; ".join(x for x in (info.get("note"), axis_trim[1]) if x))
         types = fitting_types(table, (fp[1], fp[2]), "L" if lsh else None)
-        if (n > 1 or not types) and not lsh:
+        rug_split = None
+        if n == 1 and types and not lsh and rug_outline(part) is not None:
+            # Fix round after P6a (module docstring): a table with its chairs drawn on a rug outline is one part
+            # whose box fits a bed (real04's play-room sets f_L1_017/018, 1.63 x 1.52 m), so the gate below never
+            # split it and it was asked; it is read as the table, its chairs and a rug mark instead.
+            rug_split = split_table_chairs(part, table, ctx.theta)
+            if rug_split is not None and not rug_split.get("rug"):
+                rug_split = None
+        if rug_split is not None or ((n > 1 or not types) and not lsh):
             # Milestone 11 (U10, U8): a composite that is a table with its chairs, or a kitchen counter run with its
             # appliances, is split into its pieces (never asked: the candidates and their keys do not change).
-            split = split_table_chairs(part, table, ctx.theta)
+            split = rug_split if rug_split is not None else split_table_chairs(part, table, ctx.theta)
             if split is not None:
                 made = table_chair_items(split, ctx, raster_page, table)
                 pieces.extend(made)
                 notes.append(f"{split['wardrobe']['note']} at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): one wardrobe, not "
                              f"a table with chairs (fix round after P5)" if split.get("wardrobe") else
-                             f"table + {len(made) - 1} chairs at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) split (M11)")
+                             f"table + {len(split['chairs'])} chairs at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) split (M11)"
+                             + ("; their rug outline is a rug mark (fix round after P6a)" if split.get("rug") else ""))
                 continue
             ks = kitchen_split(part, walls, openings, ctx.theta)
             if ks is not None:
@@ -2639,6 +2690,12 @@ def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dic
                 out.append({"part": chair, "n": 1, "fp": cfp, "size": (cfp[1], cfp[2]), "poly": Polygon(cfp[4]),
                             "rule_type": "chair", "front": front,
                             "note": f"chair of block {chain}, facing the table (M11 split)"})
+            if split.get("rug"):
+                # Fix round after P6a: the block's rug outline is a rug mark (``rug_mark_item``), not a piece.
+                rug = Cluster(list(split["rug"]["segs"]))
+                rfp = footprint([q for s in rug.segs for q in s.pts], theta)
+                out.append({"part": rug, "n": 1, "fp": rfp, "size": (rfp[1], rfp[2]), "poly": Polygon(rfp[4]),
+                            "rug_mark": split["rug"]})
             return out
     subs = [sub for sub, n in _split_geometric(info["part"], table) if n == 1]
     if len(subs) < 2:
@@ -2691,6 +2748,7 @@ HANGER_MIN = 4                 # ... crossed by at least this many hangers at di
 HANGER_ACROSS = (0.3, 0.9)     # ... each across this share of the depth (never wall to wall: no plank line) ...
 HANGER_ALONG_M = 0.15          # ... and at most this long along the rail
 HANGER_SEP_M = 0.03            # crossers this close along the rail are one hanger
+HANGER_JOIN_M = 0.005          # fix round after P6a: the pieces of one hanger touch (hook loop and its two arms)
 CLOSET_NOTE = "hanging rail with hangers: coat closet"
 
 
@@ -2700,7 +2758,14 @@ def hanging_rail(segs: list[Seg], tpoly, theta: float) -> Optional[dict]:
     long axis (``SNAP_DEG``) at least ``RAIL_SHARE`` of its length, within ``RAIL_OFFSET_SHARE`` of its depth off the
     centre line, crossed by at least ``HANGER_MIN`` hangers (strokes or arcs that cross the rail, span
     ``HANGER_ACROSS`` of the depth and at most ``HANGER_ALONG_M`` along it; crossers within ``HANGER_SEP_M`` are one).
-    Returns ``{"rail": stroke id, "hangers": n, "note"}`` or None."""
+    Returns ``{"rail": stroke id, "hangers": n, "note"}`` or None.
+
+    Fix round after P6a (22 Oct 2026; module docstring): a hanger is the group of inside pieces that touch
+    (``clusters_of`` at ``HANGER_JOIN_M``), judged as a whole: real04 draws each hanger as a hook loop around the
+    rail (0.07 m across) and two arms that end on the loop, short of the rail, so no single piece crossed it. The
+    straight strokes along the long axis of at least ``RAIL_SHARE`` of its length (the rail, its twin line, the
+    outline's long sides) and the straight strokes across more than ``HANGER_ACROSS[1]`` of the depth (the outline's
+    ends, plank lines) are no hanger pieces and never join two hangers."""
     to_f, _ = _frame(theta)
     ring = [to_f(p) for p in tpoly.exterior.coords]
     x0, y0 = min(p[0] for p in ring), min(p[1] for p in ring)
@@ -2718,14 +2783,25 @@ def hanging_rail(segs: list[Seg], tpoly, theta: float) -> Optional[dict]:
 
     inner = tpoly.buffer(0.01)
     inside = [s for s in segs if not s.dot and inner.contains(s.geom)]
-    rail = None
-    for s in sorted(inside, key=lambda s: (-s.length, s.id)):
+
+    def long_along(s: Seg) -> bool:
+        """A straight stroke along the long axis over at least ``RAIL_SHARE`` of the length."""
         pts = frame(s)
         if s.curve or len(pts) != 2:
-            continue
+            return False
         (a0, c0), (a1, c1) = pts
-        if abs(c1 - c0) > abs(a1 - a0) * tan or abs(a1 - a0) < RAIL_SHARE * length - 1e-9:
+        return abs(c1 - c0) <= abs(a1 - a0) * tan and abs(a1 - a0) >= RAIL_SHARE * length - 1e-9
+
+    def wall_to_wall(s: Seg) -> bool:
+        """A straight stroke across more than ``HANGER_ACROSS[1]`` of the depth (an outline end, a plank line)."""
+        pts = frame(s)
+        return not s.curve and len(pts) == 2 and abs(pts[1][1] - pts[0][1]) > HANGER_ACROSS[1] * depth + 1e-9
+
+    rail = None
+    for s in sorted(inside, key=lambda s: (-s.length, s.id)):
+        if not long_along(s):
             continue
+        (a0, c0), (a1, c1) = frame(s)
         if abs((c0 + c1) / 2.0 - mid) > RAIL_OFFSET_SHARE * depth + 1e-9:
             continue
         rail = (s, min(a0, a1), max(a0, a1), (c0 + c1) / 2.0)
@@ -2733,11 +2809,10 @@ def hanging_rail(segs: list[Seg], tpoly, theta: float) -> Optional[dict]:
     if rail is None:
         return None
     rs, lo, hi, line = rail
+    pieces = [s for s in inside if s is not rs and not long_along(s) and not wall_to_wall(s)]
     places: list[float] = []
-    for s in inside:
-        if s is rs:
-            continue
-        pts = frame(s)
+    for group in clusters_of(pieces, HANGER_JOIN_M):
+        pts = [p for s in group.segs for p in frame(s)]
         al = [p[0] for p in pts]
         ac = [p[1] for p in pts]
         if max(al) - min(al) > HANGER_ALONG_M + 1e-9:
@@ -2756,7 +2831,64 @@ def hanging_rail(segs: list[Seg], tpoly, theta: float) -> Optional[dict]:
             "note": f"{CLOSET_NOTE} ({rs.stroke.id}, {len(places)} hangers)"}
 
 
-def split_table_chairs(part: Cluster, table: dict, theta: float) -> Optional[dict]:
+RUG_GAP_M = 0.05               # fix round after P6a: an outline stroke whose ends are this close is closed (real04: 15 mm)
+RUG_MIN_M2 = 1.0               # a rug outline is at least this large (= infer.OUTLINE_MIN_M2) ...
+RUG_FILL_MAX = 0.9             # ... fills less than this share of its minimum rectangle (a bed, a table, a sofa or a
+                               # wardrobe outline is a rectangle; real04's rug 0.78, a round rug 0.79) ...
+RUG_CLEAR_M = 0.03             # ... and everything else of the part stands at least this far inside it (a sofa's
+                               # cushions and back touch its outline)
+RUG_NOTE = "rug outline drawn around a table and its chairs: a rug mark, not a piece"
+
+
+def _filled_ring(pts) -> Optional[Polygon]:
+    """The largest filled face of the ring through ``pts`` (closed back to its start), or None."""
+    ring = list(pts) + [pts[0]]
+    if len(set(ring)) < 3:
+        return None
+    faces = [p for p in polygonize(unary_union(LineString(ring))) if p.area > 1e-6]
+    if not faces:
+        return None
+    filled = unary_union([Polygon(f.exterior) for f in faces])
+    return max(getattr(filled, "geoms", [filled]), key=lambda p: p.area)
+
+
+def rug_outline(part: Cluster) -> Optional[dict]:
+    """Fix round after P6a (module docstring): the rug outline drawn around the rest of ``part``, or None.
+
+    The largest ring of the part (a closed contour, or one stroke whose ends lie within ``RUG_GAP_M``: real04's rug
+    is an open curve with a 15 mm gap) when it covers at least ``RUG_MIN_M2``, fills less than ``RUG_FILL_MAX`` of
+    its minimum rectangle (never a bed, table, sofa or wardrobe outline) and every other stroke of the part lies at
+    least ``RUG_CLEAR_M`` inside it. Returns ``{"poly", "segs": the ring's segments, "fill"}``. Geometry only: what
+    stands on the rug is ``split_table_chairs``'s business."""
+    rings = [(poly, [part.segs[i] for i in members]) for poly, members in contours(part.segs)]
+    by_stroke: dict[str, list[Seg]] = {}
+    for s in part.segs:
+        by_stroke.setdefault(s.stroke.id, []).append(s)
+    for segs in by_stroke.values():
+        st = segs[0].stroke
+        if st.closed or len(st.pts) < 4 or math.dist(st.pts[0], st.pts[-1]) > RUG_GAP_M:
+            continue                                    # a closed one is a contour already
+        poly = _filled_ring(st.pts)
+        if poly is not None:
+            rings.append((poly, segs))
+    if not rings:
+        return None
+    poly, segs = max(rings, key=lambda r: r[0].area)
+    if poly.area < RUG_MIN_M2:
+        return None
+    rect = poly.minimum_rotated_rectangle
+    fill = poly.area / rect.area if rect.area > 0 else 1.0
+    if fill >= RUG_FILL_MAX:
+        return None
+    own = {id(s) for s in segs}
+    rest = [s for s in part.segs if id(s) not in own]
+    hold = poly.buffer(-RUG_CLEAR_M)
+    if not rest or hold.is_empty or not all(hold.contains(s.geom) for s in rest):
+        return None
+    return {"poly": poly, "segs": segs, "fill": round(fill, 3)}
+
+
+def split_table_chairs(part: Cluster, table: dict, theta: float, rug: bool = True) -> Optional[dict]:
     """``{"table": Cluster, "table_poly", "chairs": [Cluster]}`` when ``part`` is a table outline (its largest
     top-level closed contour fits a table type) with at least two chair-sized parts within ``CHAIR_REACH_M`` around
     it and nothing else; else None.
@@ -2764,7 +2896,19 @@ def split_table_chairs(part: Cluster, table: dict, theta: float) -> Optional[dic
     Fix round after P5 (module docstring): a split whose outline holds a hanging rail with hangers (``hanging_rail``)
     is a wardrobe (a coat closet), never a table with chairs: ``{"wardrobe": rail, "table": Cluster(all of the
     part), "table_poly", "chairs": []}`` (``table_chair_items`` makes one wardrobe of it; the "chairs" stay its
-    strokes)."""
+    strokes).
+
+    Fix round after P6a (module docstring): with ``rug`` (default) a rug outline drawn around the table and its chairs
+    (``rug_outline``) is taken off first; when what it holds is a table with chairs, the split carries ``"rug"``
+    (``rug_outline``'s dict) and ``"table_shape"`` (``round_shape`` of the table outline). Otherwise the part is split
+    as before."""
+    if rug:
+        mark = rug_outline(part)
+        if mark is not None:
+            own = {id(s) for s in mark["segs"]}
+            split = split_table_chairs(Cluster([s for s in part.segs if id(s) not in own]), table, theta, rug=False)
+            if split is not None and not split.get("wardrobe"):
+                return dict(split, rug=mark, table_shape=poly_round_shape(split["table_poly"]))
     tops = top_contours(part)
     if not tops:
         return None
@@ -2803,7 +2947,12 @@ def _table_chairs(part: Cluster, tpoly, tidx, theta: float) -> Optional[dict]:
 def chair_footprint(chair: Cluster, tpoly, theta: float) -> tuple[tuple, float]:
     """(footprint as ``footprint`` returns it, front_deg) of a chair beside a table: its visible box in the plan's
     aligned frame, grown towards the table to ``CHAIR_DEPTH_M`` when shallower (the seat under the table edge),
-    facing the table."""
+    facing the table.
+
+    Fix round after P6a (22 Oct 2026): a chair whose centre lies within the table's box on both axes (diagonal at a
+    round table: real04's play-room sets) stands on the side its offset from the table's centre points to. Before,
+    it always faced 180 deg and grew west, so the chairs of mirrored twin blocks were no mirror images (3-5 cm off)
+    and the twin rooms no longer paired."""
     to_f, from_f = _frame(theta)
     x0, y0, x1, y1 = chair.bounds(theta)
     tb = [to_f(p) for p in tpoly.exterior.coords]
@@ -2813,8 +2962,13 @@ def chair_footprint(chair: Cluster, tpoly, theta: float) -> tuple[tuple, float]:
     # The side of the table the chair stands on: the axis on which it lies outside the table's extent.
     out_x = max(tx0 - cx, cx - tx1, 0.0)
     out_y = max(ty0 - cy, cy - ty1, 0.0)
-    if out_x >= out_y:
-        d = (1.0, 0.0) if cx < tx0 else (-1.0, 0.0)
+    if out_x == 0.0 and out_y == 0.0:
+        tcx, tcy = (tx0 + tx1) / 2.0, (ty0 + ty1) / 2.0
+        on_x, west, south = abs(cx - tcx) + 1e-6 >= abs(cy - tcy), cx < tcx, cy < tcy    # a tie: x, for both twins
+    else:
+        on_x, west, south = out_x >= out_y, cx < tx0, cy < ty0
+    if on_x:
+        d = (1.0, 0.0) if west else (-1.0, 0.0)
         depth = x1 - x0
         if depth < CHAIR_DEPTH_M:
             if d[0] > 0:
@@ -2822,7 +2976,7 @@ def chair_footprint(chair: Cluster, tpoly, theta: float) -> tuple[tuple, float]:
             else:
                 x0 = x1 - CHAIR_DEPTH_M
     else:
-        d = (0.0, 1.0) if cy < ty0 else (0.0, -1.0)
+        d = (0.0, 1.0) if south else (0.0, -1.0)
         depth = y1 - y0
         if depth < CHAIR_DEPTH_M:
             if d[1] > 0:
@@ -2863,17 +3017,36 @@ def table_chair_items(split: dict, ctx: _Ctx, raster: bool, table: dict, named: 
                            details={"hanging_rail": dict(split["wardrobe"])})]
     out = []
     note = f"table + {len(split['chairs'])} chairs drawn as one group: split (M11)"
+    if split.get("rug"):
+        note = (f"table + {len(split['chairs'])} chairs drawn on a rug outline as one group: split, the outline a rug "
+                f"mark (fix round after P6a)")
     if named is None:
         fp = footprint(list(tpoly.exterior.coords)[:-1], ctx.theta)
         ttype = next((t for t in TABLE_TYPES if fits(table, t, (fp[1], fp[2]))), "table_dining")
-        out.append(_rule_item(split["table"].segs, fp, ttype, None, ctx, raster, table, note))
+        out.append(_rule_item(split["table"].segs, fp, ttype, None, ctx, raster, table, note,
+                              details=split.get("table_shape") or None))
     else:
         out.append(named)
     for chair in split["chairs"]:
         fp, front = chair_footprint(chair, tpoly, ctx.theta)
         out.append(_rule_item(chair.segs, fp, "chair", front, ctx, raster, table,
                               "chair of the drawn table + chairs group, facing the table (M11 split)"))
+    if split.get("rug"):
+        out.append(rug_mark_item(split["rug"], ctx, raster))
     return out
+
+
+def rug_mark_item(mark: dict, ctx: _Ctx, raster: bool) -> FurnitureItem:
+    """Fix round after P6a: the rug outline of a split (``rug_outline``) as a drawn mark, not a piece: an ``unknown``
+    item with ``details["not_furniture"] = {"as": "rug", ...}`` (``reading.move_symbols`` keeps it not built,
+    ``inferred_as: "rug"``; the decor stage lays the rugs), its strokes as the vector evidence."""
+    cl = Cluster(list(mark["segs"]))
+    fp = footprint([p for s in cl.segs for p in s.pts], ctx.theta)
+    reason = (f"{RUG_NOTE}: {fp[1]:.2f} x {fp[2]:.2f} m, {mark['fill']:.0%} of its box, the table and chairs inside "
+              f"it (fix round after P6a)")
+    return _unknown(cl, fp, ctx, raster, reason, {"not_furniture": {"as": "rug", "reason": reason, "by": "outline"},
+                                                  "rug_outline": {"fill": mark["fill"],
+                                                                  "area_m2": round(mark["poly"].area, 3)}})
 
 
 def _appliance_type(s: Seg, extended: bool = False) -> Optional[str]:

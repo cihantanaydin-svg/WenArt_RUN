@@ -45,6 +45,12 @@ core's candidates, so the keys and hashes of earlier rounds do not move); a cand
 answers is re-read (``_reread_unknowns``) and replaced by its parts; a block name only the M12 words read types its
 candidate after the answers (``_m12_named``); the symbols found are passed in ``ex.report["symbols"]`` to
 ``reading.read_furniture``.
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04, and real02's P4a answers replayed in this session). What: a
+candidate still ``unknown`` after its answers whose whole part is a coat closet (``symbols.hanging_rail``) or a table
+with chairs on a rug outline (``symbols.rug_outline``) is read as such (``symbols.split_table_chairs`` /
+``table_chair_items``) before the re-read, which cuts the part by block instance and so took real02's hanger inserts
+out of the closet. ``split_override_text`` counts the chairs from the split and names a rug split.
 """
 from __future__ import annotations
 
@@ -457,13 +463,20 @@ def _m12_named(part, ctx, raster: bool, table: dict, wall_polys: list):
 def split_override_text(split: dict, key: str, ai_type: str, n_made: int) -> tuple[str, str]:
     """``(ai_overridden reason, extraction note)`` of a ``symbols.split_table_chairs`` split that outranks the AI
     passes' type. Integration of the fix round after P5: a coat closet (``split["wardrobe"]``: a hanging rail with
-    hangers) is one wardrobe, not "a table with chairs drawn around it" (real04 f_L1_021..026)."""
+    hangers) is one wardrobe, not "a table with chairs drawn around it" (real04 f_L1_021..026). Fix round after P6a
+    (22 Oct 2026): the chairs are counted from the split (a rug split also makes the rug mark,
+    ``symbols.rug_mark_item``) and a rug split says so."""
     if split.get("wardrobe"):
         return ("a coat closet: hanging rail with hangers (vector geometry outranks the AI passes)",
                 f"{key}: typed {ai_type} by the AI passes, but drawn as a coat closet (hanging rail with hangers): one "
                 f"wardrobe (fix round after P5)")
+    chairs = len(split["chairs"]) if split.get("chairs") is not None else n_made - 1
+    if split.get("rug"):
+        return ("a table with chairs drawn on a rug outline (vector geometry outranks the AI passes)",
+                f"{key}: typed {ai_type} by the AI passes, but drawn as a table with {chairs} chairs on a rug outline: "
+                f"split, the outline a rug mark (fix round after P6a)")
     return ("a table with chairs drawn around it (vector geometry outranks the AI passes)",
-            f"{key}: typed {ai_type} by the AI passes, but drawn as a table with {n_made - 1} chairs: split (M12)")
+            f"{key}: typed {ai_type} by the AI passes, but drawn as a table with {chairs} chairs: split (M12)")
 
 
 def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict], symbols: list[dict], walls: list,
@@ -521,6 +534,22 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
         if not item.type_candidates:
             # Not answered (``--no-ai``, or a question whose answers no longer apply): its question stays open and the
             # piece stays as asked (unknown), so twins drawn differently stay alike (real02's L1 corridors).
+            continue
+        whole = SY.split_table_chairs(part, table, ctx.theta)
+        if whole is not None and (whole.get("wardrobe") or whole.get("rug")):
+            # Fix round after P6a (22 Oct 2026): a group the drawing alone decides on the whole part (a coat closet:
+            # its rail with hangers; a table with chairs on a rug outline) is read before the re-read, which cuts the
+            # part by block instance: real02's first corridor closet (passes unknown / bench) lost its hanger inserts
+            # to two not-built "details" and stayed a coffee table with two chairs, unlike its twin. The question
+            # stays as it was (same key and hash).
+            made = SY.table_chair_items(whole, ctx, raster, table)
+            for it in made:
+                it.details["reread_of"] = cand["key"]
+            replaced[cand["key"]] = made
+            ex.notes.append(f"{cand['key']}: still unknown after its answers, but drawn as "
+                            + (f"a coat closet ({whole['wardrobe']['note']}): one wardrobe" if whole.get("wardrobe")
+                               else f"a table with {len(whole['chairs'])} chairs on a rug outline: split, the outline "
+                                    f"a rug mark") + " (fix round after P6a)")
             continue
         if containers is None:
             containers = SY.containers_of(strokes_m or [])

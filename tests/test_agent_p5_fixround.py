@@ -499,11 +499,13 @@ def test_a_max_tries_refusal_closes_the_targets_steps_and_repeats_end_the_sessio
                         code_critic=critic, recheck=FixesWhatItTouched(critic), vision=False, apply_edit=FakeEdits(),
                         validators=fake_validators(), out=lambda s: None, workers=1, max_rounds=1, max_tries=1)
     loop.run()
-    # 1 validated + 1 max_tries (new refused target) + 2 repeats on it -> the session ends
-    assert len(model.chat_requests()) == 2 + LP.REFUSALS_END_SESSION
+    # 1 validated + REFUSALS_END_SESSION max_tries refusals -> the session ends. Fix round after P6a: a max_tries
+    # refusal is a repeat by itself (the target used its tries; ``loop.repeat_refusal``), so the first one counts too
+    # (before: 1 validated + 1 max_tries + 2 repeats)
+    assert len(model.chat_requests()) == 1 + LP.REFUSALS_END_SESSION
     events = log_of(out)["events"]
     rej = [e["validation"]["failed_checks"][0].split(":")[0] for e in events if e["kind"] == "rejected_edit"]
-    assert rej == ["score_drop", "max_tries", "max_tries", "max_tries"]
+    assert rej == ["score_drop", "max_tries", "max_tries"]
     end = [e for e in events if e["kind"] == "check" and e.get("tool") == LP.REFUSALS_CHECK]
     assert len(end) == 1 and end[0]["status"] == "session_end" and "f1" in end[0]["note"]
     opened = MEM.Memory(out).room("r1")["open"]

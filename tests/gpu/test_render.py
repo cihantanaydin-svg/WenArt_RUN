@@ -135,6 +135,22 @@ Fix round after P5 (22 Oct 2026; pod P5, real04; render code m13.4; CPU replays 
   (``test_daylight_walls_are_not_olive``: P5's sunlit L0 bedrooms);
 - a pulled sky leaves no dotted edge (``test_sky_pull_leaves_no_dotted_edges``: the recorded ``edge_dot_px`` of
   ``render.sky_edge_dots``; P5's ext_1 and teras_2_1 had a dotted white line along every roof and pergola edge).
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04; render code m13.5; CPU replays in tests/test_m13_p6a_render.py):
+
+- a pulled sky's chosen save keeps ``render.SKY_PULL_MEDIAN_MIN`` (``render.sky_pull_candidate_ok``) and the blended
+  sky stays within ``SKY_PULL_MEDIAN_ALLOWANCE`` of it (P6a's ext_5: k 6, median 0.109, passed every check);
+- the white-point check recomputes each view's tint gain with the rule its record took (``wb_tint_green_residual``;
+  m13.4 records, P6a real04 and P6b real03, kept the residual), and a later record says where its green was metered
+  (``wb_day_green_source``: the walls since m13.5) and which rule it took;
+- the olive check also holds the lower half of the walls to ``DAYLIGHT_LOWER_WALL_GREEN_MIN`` (no pink lower walls
+  from a tint that shifts the whole view);
+- the index check's ray model gives a library piece seen only as a sliver of its fitted box (at most
+  ``LIBRARY_SLIVER_MAX`` of the frame) a slack of ``LIBRARY_BOX_SLACK_SHARE`` per side, fixed equipment excepted (P6a's
+  office chair f_L0_041 and oval coffee table f_L1_024: built as fitted, absent from corners of the frame where the
+  render shows the desk and the floor);
+- the orange and olive checks keep their per-view values in ``CHECK_VALUES_FILE`` (``$WENART_RESULTS`` or the
+  project's renders folder), passing or not.
 """
 import hashlib
 import json
@@ -159,6 +175,17 @@ MODEL_HIDDEN_SHARE = 0.005   # a piece the ray-cast model sees on less than this
 # Milestone 10 (pod F1): a library mesh lies inside its fitted box (asset.bbox_m) and fills it only at some heights
 # (cornice, plinth, feet, rounded corners); the model draws the whole box.
 LIBRARY_BOX_SLACK_M = 0.02   # per side: the box the model must still see a library piece in when it is absent
+# Fix round after P6a (22 Oct 2026): a library piece the model sees on at most LIBRARY_SLIVER_MAX of the frame with its
+# whole fitted box (a sliver of the box in a corner of the frame) gets LIBRARY_BOX_SLACK_SHARE of each side as slack
+# (at least LIBRARY_BOX_SLACK_M). P6a real04: the office chair f_L0_041 (its back narrower than its star base; share
+# 0.0192, 0.0131 at 2 cm, 0.00125 at 15 %) and the oval glass-top coffee table f_L1_024 (its tips leave the box corners
+# empty; 0.0104, 0.0080 at 2 cm, 0.0 at 15 %) were built where the model puts them (box3d within 3 mm) and the renders
+# show the desk, the wall and the floor in those corners. A box seen on more of the frame keeps the 2 cm slack (the
+# CPU pin's 5 cm wider wardrobe: 0.068), fixed equipment (furniture.schemas.FIXED_TYPES: drawn like walls, its mesh
+# fills its footprint) keeps it too (P5's toilet f_L1_013 in cam_r_L1_banyo_1, behind a ceiling light over 55.7 % of
+# the frame: share 0.0178, 0.0029 at 15 %, still a failure), and the box3d guard still fails a moved or mis-sized mesh.
+LIBRARY_SLIVER_MAX = 0.03
+LIBRARY_BOX_SLACK_SHARE = 0.15
 BOX3D_TOLERANCE_M = 0.01     # the built mesh's box3d against the footprint centre and the fitted width and depth
 MIN_DEPTH_M = 0.1            # every view: nearest surface (interior clip start 0.05 m, exterior 0.1 m)
 MAX_INDOOR_DEPTH_M = 60.0    # interior views: farthest surface
@@ -513,13 +540,17 @@ def test_closed_door_views_end_on_the_door(project):
         assert depth.get("coverage", 0.0) >= CLOSED_DOOR_MIN_COVERAGE, (cam, depth)
 
 
-def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dict) -> bool:
+def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dict, share: float | None = None) -> bool:
     """True when the model sees a library piece only at the outer edge of its fitted box (Milestone 10, pod F1):
     with ``asset.bbox_m`` shrunk by ``LIBRARY_BOX_SLACK_M`` per side (height kept) its model share falls under
     ``MODEL_HIDDEN_SHARE``, and the scene manifest's ``box3d`` of the piece (the built mesh, measured in the piece
     frame) has the footprint centre and the fitted width and depth (± ``BOX3D_TOLERANCE_M``). The mesh then
     stands where the model puts it and reaches its box, so the absence comes from the mesh's shape (a cornice
-    wider than the doors), not from where it was placed."""
+    wider than the doors), not from where it was placed. Fix round after P6a (22 Oct 2026): when the whole box's model
+    ``share`` is at most ``LIBRARY_SLIVER_MAX`` (a sliver of it in the frame) the slack per side is
+    ``LIBRARY_BOX_SLACK_SHARE`` of the side (at least ``LIBRARY_BOX_SLACK_M``): a chair back narrower than its base and
+    an oval top leave the box's corners empty. Fixed equipment (``furniture.schemas.FIXED_TYPES``) keeps the 2 cm."""
+    from wenart.furniture.schemas import FIXED_TYPES
     from wenart.blender import camsearch
 
     pieces = building.get("furniture") or []
@@ -534,7 +565,12 @@ def _library_box_edge_only(building: dict, plan: dict, piece_id: str, box3d: dic
         return False
     if abs(float(box["size"][0]) - width) > BOX3D_TOLERANCE_M or abs(float(box["size"][1]) - depth) > BOX3D_TOLERANCE_M:
         return False
-    shrunk = [max(width - 2.0 * LIBRARY_BOX_SLACK_M, 0.0), max(depth - 2.0 * LIBRARY_BOX_SLACK_M, 0.0)]
+    slack_w = slack_d = LIBRARY_BOX_SLACK_M
+    if share is not None and share <= LIBRARY_SLIVER_MAX and piece.get("type") not in FIXED_TYPES:
+        # fix round after P6a: a sliver of the box of a piece whose shape may leave its corners empty
+        slack_w = max(LIBRARY_BOX_SLACK_M, LIBRARY_BOX_SLACK_SHARE * width)
+        slack_d = max(LIBRARY_BOX_SLACK_M, LIBRARY_BOX_SLACK_SHARE * depth)
+    shrunk = [max(width - 2.0 * slack_w, 0.0), max(depth - 2.0 * slack_d, 0.0)]
     smaller = dict(piece, asset=dict(asset, bbox_m=shrunk + list(asset["bbox_m"][2:])))
     model = dict(building, furniture=[smaller if f is piece else f for f in pieces])
     return camsearch.model_shares(model, plan).get(piece_id, 0.0) < MODEL_HIDDEN_SHARE
@@ -570,7 +606,7 @@ def test_index_pass_contains_every_visible_proxy(project):
             absent = [f for f in absent if shares.get(f, 0.0) >= MODEL_HIDDEN_SHARE]
             # Milestone 10: a library mesh is smaller than its fitted box; seen only at the box's edge it may be
             # outside the frame (the box3d guard keeps a misplaced or mis-scaled mesh a failure).
-            edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d)]
+            edge_only = [f for f in absent if _library_box_edge_only(building, plan, f, box3d, shares.get(f))]
             edge.extend((r["camera"], f, round(shares[f], 4)) for f in edge_only)
             absent = [f for f in absent if f not in edge_only]
         if absent:
@@ -736,6 +772,11 @@ SKY_PULLED_VIEWS = {"real04": ("ext_2", "ext_4"), "real02": ("ext_2",)}
 # real02 at 480 x 270, 128 spp: terrace chosen save 0.1481 -> blended 0.1463, ext_2 0.1285 -> 0.1279; eb80db2 blended
 # them at a third of the pull on a speckled mask: 0.057 and 0.079) ...
 SKY_PULL_SAT_ALLOWANCE = 0.02
+# Fix round after P6a (22 Oct 2026): a pulled sky's chosen save keeps render.SKY_PULL_MEDIAN_MIN
+# (render.sky_pull_candidate_ok) and the blended sky stays within this of it: P6a's ext_5 (k 6, median 0.109, a
+# near-black band) passed every check before. The 3 px feather and the ring keep the blend a little brighter than the
+# save, never darker (P4a's terrace: save 0.4258, blended 0.4261).
+SKY_PULL_MEDIAN_ALLOWANCE = 0.05
 # ... and its sky mask is coherent: at least this share of the mask at full feather weight (render.full_weight_share;
 # the same shim run: 0.961 / 0.957; eb80db2's mask with the haze shell left out at random: 0.000 / 0.000)
 SKY_MASK_FULL_WEIGHT_MIN = 0.8
@@ -792,9 +833,18 @@ def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
         want = R.mixed_whitepoint(anchor, x["wb_rig_whitepoint"], share, residual, x.get("wb_rig_residual")) \
             if mixed else anchor
         # fix round after P5 (22 Oct 2026): an interior view with a metered daylight takes the tint of its own daylight
-        # (render.view_tint_gain of the recorded wb_day_green; m13.3 renders have no wb_view_tint_gain)
+        # (render.view_tint_gain of the recorded wb_day_green; m13.3 renders have no wb_view_tint_gain). Fix round
+        # after P6a (22 Oct 2026): the gain is recomputed with the rule the record says it took (wb_tint_green_residual;
+        # m13.4 records, P6a real04 and P6b real03, have none: they kept the residual), and a record of a later render
+        # code says where its green was metered (wb_day_green_source) and which rule it took
+        later = render.get("render_code_version") not in (None, "m13.4")
+        if "wb_view_tint_gain" in x and later and x.get("wb_day_green") is not None \
+                and (x.get("wb_day_green_source") not in R.WB_TINT_METERS or "wb_tint_green_residual" not in x):
+            bad.append((r["camera"], "no wb_day_green_source / wb_tint_green_residual (an m13.4 render in a later "
+                                     "manifest?)"))
         if "wb_view_tint_gain" in x:
-            gain = R.view_tint_gain(anchor, x.get("wb_day_green"), residual, share if mixed else 0.0)
+            gain = R.view_tint_gain(anchor, x.get("wb_day_green"), residual, share if mixed else 0.0,
+                                    keep_green_residual=bool(x.get("wb_tint_green_residual", True)))
             if abs(gain - float(x["wb_view_tint_gain"])) > 1e-6:
                 bad.append((r["camera"], "tint gain off the recorded daylight green ratio", x.get("wb_day_green"),
                             x["wb_view_tint_gain"], gain))
@@ -825,6 +875,28 @@ def test_views_keep_the_project_white_point_or_mix_it_with_the_rig(project):
             f"real04: the project white point moved from P3's {P3_REAL04_WB_K} K to {kelvin} K"
     print(f"{name}: rig shares " + ", ".join(f"{r['camera']}={r['exposure'].get('wb_rig_share')}"
                                              for r in render["renders"]))
+
+
+# Fix round after P6a (22 Oct 2026): pytest keeps no output of a passing test, and P6a's orange check passed with its
+# per-view values lost (junit-full.xml has no system-out). The colour checks also write their values to
+# CHECK_VALUES_FILE: in $WENART_RESULTS (the job's results folder, next to its junit XML) when the job sets it, else in
+# the project's renders folder; one key per check, then per project. Written before the assertion, so a failing run
+# keeps them too.
+CHECK_VALUES_FILE = "gpu_check_values.json"
+
+
+def _keep_values(check: str, name: str, values) -> Path:
+    """Merge ``values`` (JSON-able) under ``[check][name]`` of ``CHECK_VALUES_FILE`` and return its path."""
+    base = Path(os.environ["WENART_RESULTS"]) if os.environ.get("WENART_RESULTS") else OUTPUTS / name / "renders"
+    path = base / CHECK_VALUES_FILE
+    try:
+        data = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    except ValueError:
+        data = {}
+    data.setdefault(check, {})[name] = values
+    base.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=1, sort_keys=True, default=str), encoding="utf-8")
+    return path
 
 
 def _wall_rb(view, table) -> float | None:
@@ -915,6 +987,13 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
     print(f"{name}: daylight wall R/B {[(c, measured.get(c), kind(c)) for c in daylight]}; references {reference}; "
           f"blocked daylight views left out {blocked}")
     print(f"{name}: wall R/B of the rig-lit views (value, kind, bound) {per_view}")
+    # fix round after P6a: the values of a passing run are kept (CHECK_VALUES_FILE)
+    _keep_values("rig_lit_rooms_have_no_orange_cast", name, {
+        "daylight": {c: {"wall_rb": measured.get(c), "kind": kind(c)} for c in daylight},
+        "references": reference, "blocked_daylight": blocked, "above_day": RIG_ROOM_ABOVE_DAY,
+        "rig_lit": {c: {"wall_rb": v, "kind": k, "bound": b, "rig_share": entries[c]["exposure"].get("wb_rig_share")}
+                    for c, (v, k, b) in per_view.items()},
+        "warm": [c for c, *_rest in warm]})
     assert not warm, f"{name}: rig-lit views still orange (wall R/B over the bound): {warm}"
 
 
@@ -924,6 +1003,15 @@ def test_rig_lit_rooms_have_no_orange_cast(project):
 # views 1.037-1.078 with the project white point, 1.019-1.040 with the view's own daylight tint
 # (render.view_tint_gain). The warm greige paint itself is 1.047 in linear albedo.
 DAYLIGHT_WALL_GREEN_MAX = 1.06
+# Fix round after P6a (22 Oct 2026; the P6a verifier's lower bound): a tint that shifts the whole view to pass the wall
+# mean must not turn the lower walls pink. The lower half of the wall pixels (by image row) keeps at least this display
+# G/((R+B)/2). bpy 5.2.2 shims (480 x 270, meter 240 x 135 as on the pod) of P6a's own real04.blend (18 painted
+# daylight views, P6a's anchor; m13.4's wall means within 0.01 of the pod's) and of real02's pre-flight scene (8 views,
+# P4a's anchor): lower walls 0.979-1.021 with m13.4's tint, 0.962-1.009 with m13.5's (the walls' green, the residual
+# kept), 0.947-1.008 with the verifier's rule without the residual (real04 yatak_odasi_3 0.947; render.WB_TINT_METER has
+# every rule's numbers). The verifier's "about 0.97" would fail m13.5 on real04's e_yatak_odasi_2 / _3 (0.962, 0.966)
+# on the shim, whose walls read up to 0.01 under the pod's.
+DAYLIGHT_LOWER_WALL_GREEN_MIN = 0.95
 # ... and the dots on a pulled sky's edge (render.sky_edge_dots, the record's edge_dot_px / edge_px): bpy 5.2.2 shim
 # renders (480 x 270, 64 spp; P4a's real02 at its k, real04's P3 pre-flight scene at P5's k) 0.9-3.3 % of the edge
 # pixels per view with m13.3's weights (medians 2.0 % and 2.4 %), 0-0.35 % with m13.4's (medians 0 and 0.14 %).
@@ -944,6 +1032,21 @@ def _wall_green(view, table) -> float | None:
     return round(float(mean[1] / max((mean[0] + mean[2]) / 2.0, 1e-6)), 3)
 
 
+def _lower_wall_green(view, table) -> float | None:
+    """Display G / ((R + B) / 2) of the mean of the lower half (by image row, from the median row down) of a view's
+    wall pixels (``views.regions`` walls), None under 1 % of the frame (fix round after P6a)."""
+    from wenart import views
+
+    mask = views.regions(view.read_index(), view.read_depth_mm(), view.read_normal(), table).masks.get(
+        views.STRUCT_WALLS)
+    if mask is None or mask.sum() < 0.01 * mask.size:
+        return None
+    rows = np.nonzero(mask)[0]
+    lower = mask & (np.arange(mask.shape[0])[:, None] >= float(np.median(rows)))
+    mean = view.read_rgb()[lower].astype(np.float64).mean(axis=0)
+    return round(float(mean[1] / max((mean[0] + mean[2]) / 2.0, 1e-6)), 3)
+
+
 def test_daylight_walls_are_not_olive(project):
     """Fix round after P5 (22 Oct 2026). What: the painted walls of every view lit mostly by daylight (rig share under
     ``RIG_CHECK_SHARE``, the orange check's floor; under the interior world, within the cap, not blocked; the rig's
@@ -951,7 +1054,9 @@ def test_daylight_walls_are_not_olive(project):
     is printed with the view's ``wb_day_green`` and ``wb_view_tint_gain``. Why: P5 real04's six sunlit L0 bedroom views read olive under the project anchor (metered
     on the terrace): their daylight is mostly sunlight bounced off the green ground outside. The pin reads the
     pixels, not the white point rule (``test_views_keep_the_project_white_point_or_mix_it_with_the_rig`` checks the
-    rule against the record)."""
+    rule against the record). Fix round after P6a (22 Oct 2026): the lower half of the walls keeps at least
+    ``DAYLIGHT_LOWER_WALL_GREEN_MIN`` (``_lower_wall_green``), so a tint that shifts the whole view cannot pass the
+    olive pin by turning the lower walls pink; the values are kept (``CHECK_VALUES_FILE``)."""
     from wenart import views
     from wenart.blender import render as R
 
@@ -973,9 +1078,22 @@ def test_daylight_walls_are_not_olive(project):
     loaded = views.load_views(out, cameras=daylight)
     values = {cam: (_wall_green(v, table), entries[cam]["exposure"].get("wb_day_green"),
                     entries[cam]["exposure"].get("wb_view_tint_gain")) for cam, v in loaded.items()}
+    lower = {cam: _lower_wall_green(v, table) for cam, v in loaded.items()}           # fix round after P6a
     olive = [(cam, v) for cam, v in values.items() if v[0] is not None and v[0] > DAYLIGHT_WALL_GREEN_MAX]
-    print(f"{name}: daylight wall G/((R+B)/2), daylight green ratio, tint gain {values}")
+    pink = [(cam, v) for cam, v in lower.items() if v is not None and v < DAYLIGHT_LOWER_WALL_GREEN_MIN]
+    print(f"{name}: daylight wall G/((R+B)/2), daylight green ratio, tint gain {values}; lower walls {lower}")
+    # fix round after P6a: the values of a passing run are kept (CHECK_VALUES_FILE)
+    _keep_values("daylight_walls_are_not_olive", name, {
+        "bound": DAYLIGHT_WALL_GREEN_MAX, "lower_bound": DAYLIGHT_LOWER_WALL_GREEN_MIN,
+        "views": {c: {"wall_green": v[0], "lower_wall_green": lower.get(c), "wb_day_green": v[1],
+                      "wb_view_tint_gain": v[2],
+                      "wb_day_green_source": entries[c]["exposure"].get("wb_day_green_source"),
+                      "wb_day_green_all": entries[c]["exposure"].get("wb_day_green_all"),
+                      "wb_tint_green_residual": entries[c]["exposure"].get("wb_tint_green_residual")}
+                  for c, v in values.items()},
+        "olive": [c for c, _v in olive], "pink": [c for c, _v in pink]})
     assert not olive, f"{name}: olive daylight walls (over {DAYLIGHT_WALL_GREEN_MAX}): {olive}"
+    assert not pink, f"{name}: pink lower daylight walls (under {DAYLIGHT_LOWER_WALL_GREEN_MIN}): {pink}"
 
 
 def test_sky_pull_leaves_no_dotted_edges(project):
@@ -1133,11 +1251,13 @@ def test_sky_and_window_pulls_reach_their_targets(project):
             chosen = next((c for c in (s or {}).get("tried") or [] if c["k"] == (s or {}).get("k")), None)
             floor = R.sky_pull_floor(chosen) if chosen else R.SKY_PULL_SAT_MIN    # fix round after P4a: its rule's
             if not s or not s.get("k") or s["median_after"] > R.SKY_PULL_MEDIAN_MAX \
+                    or s["median_after"] < R.SKY_PULL_MEDIAN_MIN - SKY_PULL_MEDIAN_ALLOWANCE \
                     or not s["saturation_after"] > s["saturation_before"] \
                     or s["saturation_after"] < floor - SKY_PULL_SAT_ALLOWANCE:
                 bad.append((cam, "a shaded-facade view whose sky was not pulled to its target", s))
+        # fix round after P6a: a tried k under the median floor is no qualifying k (render.sky_pull_candidate_ok)
         over = [r["camera"] for r in render["renders"] if (r.get("sky_pull") or {}).get("median_before", 0.0)
-                > R.SKY_PULL_MEDIAN_MAX and any(R.sky_pull_qualifies(c) for c in r["sky_pull"].get("tried") or [])]
+                > R.SKY_PULL_MEDIAN_MAX and any(R.sky_pull_candidate_ok(c) for c in r["sky_pull"].get("tried") or [])]
         if over and not any((r.get("sky_pull") or {}).get("k") for r in render["renders"]):
             bad.append(("sky pull", "skies over the shoulder with a qualifying k, and no view pulled", over))
     for r in render["renders"]:
@@ -1152,9 +1272,13 @@ def test_sky_and_window_pulls_reach_their_targets(project):
                 s = r["sky_pull"]
                 chosen = next((c for c in s.get("tried") or [] if c["k"] == s["k"]), None)
                 skies[r["camera"]] = (s["k"], s["median_after"], s["saturation_after"], s.get("full_weight_share"))
-                if chosen is None or not R.sky_pull_qualifies(chosen) or s["median_after"] > s["median_before"] \
+                # fix round after P6a: the chosen save keeps the median floor (render.sky_pull_candidate_ok)
+                if chosen is None or not R.sky_pull_candidate_ok(chosen) or s["median_after"] > s["median_before"] \
                         or s["saturation_after"] < s["saturation_before"]:
                     bad.append((r["camera"], "sky pull off its targets", s))
+                if s["median_after"] < R.SKY_PULL_MEDIAN_MIN - SKY_PULL_MEDIAN_ALLOWANCE:
+                    bad.append((r["camera"], f"crushed sky: blended median {s['median_after']} under the floor "
+                                             f"{R.SKY_PULL_MEDIAN_MIN:g} - {SKY_PULL_MEDIAN_ALLOWANCE:g}", s))
                 # fix round after P4a (17 Oct 2026): the floor of the rule the k was chosen by (the mid-tone rule's
                 # SKY_PULL_SAT_NEAR, else SKY_PULL_SAT_MIN)
                 floor = R.sky_pull_floor(chosen) if chosen else R.SKY_PULL_SAT_MIN

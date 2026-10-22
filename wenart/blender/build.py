@@ -1348,11 +1348,14 @@ def main(argv: list[str]) -> int:
             ext_plans, applied = merge_agent_cameras(ext_replayed, ext_plans, entries, replay=replay)
             if entries:
                 north, src = S.north_deg(building)
+                ext_points = E.building_points(model)        # fix round after P6a: the agent plans' frame
                 lines = finish_agent_exterior_plans(
                     ext_plans, prep["variant"], geom_centre(model.outline), north, not src.startswith("assumed"),
                     visible=lambda p: E.visible_openings(model, building, levels, p["position"], p["target"],
                                                          p["lens_mm"], 0.0),
-                    entrances=(building.get("site") or {}).get("entrances"))
+                    entrances=(building.get("site") or {}).get("entrances"),
+                    frame=lambda p: E.frame_check(model, p["position"], p["target"], float(p["lens_mm"]), ext_points,
+                                                  float(p.get("shift_y") or 0.0)))
                 for line in lines:
                     print(f"agent camera: {line}")
                     warnings.append(line)
@@ -1794,12 +1797,21 @@ def plan_horizon_fraction(plan: dict) -> float | None:
 
 
 def finish_agent_exterior_plans(plans: list[dict], variant, centre, north: float = 0.0, north_known: bool = False,
-                                visible=None, entrances=None) -> list[str]:
+                                visible=None, entrances=None, frame=None) -> list[str]:
     """The build's fields of this build's agent exterior plans (``policy: agent``, not replayed; pure but for
     ``visible``, ``plan -> visible opening ids``): ``index`` from the name's number (else the plan's own, at least
     1: ``ext_6_s`` gave 0 before, under the schema's minimum), ``variant``, ``visible_openings`` and the view check
     of ``agent_exterior_view`` (``entrances``: the ``site.entrances`` records, integration after P4b). Returns the
-    log lines of the views it changed (fix round after P4a)."""
+    log lines of the views it changed (fix round after P4a).
+
+    Fix round after P6a (22 Oct 2026; pod P6a, real04): ``frame`` (``plan -> {"fill", "fits", "frame_target",
+    "sky_share"}``, the build passes ``exterior.frame_check`` on its exterior model) records the plan's frame
+    (``FRAME_KEYS`` of ``exterior_checks`` and the re-centred ``frame_target``): code X6, the vision critic's camera
+    role and the report read what the agent's camera frames instead of its pose alone (P6a's ext_front_entrance: fill
+    2.34, fits False, sky_share 0.0, counted as the frontal view). A frame that cannot be measured (``frame`` returns
+    None or raises a ValueError, ZeroDivisionError, FloatingPointError or IndexError) is not recorded."""
+    from wenart.blender import exterior_checks as X
+
     lines = []
     for p in plans:
         if p.get("policy") != "agent" or p.get("source") == "replayed":
@@ -1809,6 +1821,16 @@ def finish_agent_exterior_plans(plans: list[dict], variant, centre, north: float
         p["variant"] = variant
         if visible is not None:
             p["visible_openings"] = visible(p)
+        if frame is not None and p.get("position") and p.get("target"):
+            try:
+                rec = frame(p)
+            except (ValueError, ZeroDivisionError, FloatingPointError, IndexError):
+                rec = None                      # a measure only: the camera is built without it
+            if isinstance(rec, dict) and all(k in rec for k in X.FRAME_KEYS):
+                p.update(fill=round(float(rec["fill"]), 4), fits=bool(rec["fits"]),
+                         sky_share=round(float(rec["sky_share"]), 4))
+                if rec.get("frame_target") is not None:
+                    p["frame_target"] = [round(float(v), 4) for v in rec["frame_target"]]
         change = agent_exterior_view(p, centre, north, north_known, entrances)
         if change is not None:
             lines.append(f"{p['name']}: the agent's pose is no longer the {change['view_was']} view of "

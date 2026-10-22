@@ -103,6 +103,19 @@ nothing is reserved (the side is unclear). The drawn piece is not changed (fixed
 side is the strip, and the completion put a 0.9 m console there, 0.11-0.26 m in front of the door of the machine
 (the agent later turned the washers to face the strip, onto the console). A front clearance in the clearance table
 would not have stopped it: the drawn front looks at the wall.
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04). What: under the roof the solver keeps headroom. ``Space`` reads
+the level's sloped ceiling (``decor.ceiling_planes``: the layout and fit buildings carry no
+``level["ceiling_planes"]``, only the scene builder's prepared building does) and computes the ceiling height over
+every raster cell. A piece the solver places needs ``group_checks.effective_height`` of its type plus
+``HEADROOM_MARGIN_M`` (0.05 m) under the ceiling over its whole footprint: the raster layer of its type blocks the
+lower cells (``layer_for``) and the exact test reads the ceiling at the footprint's corners (``exact_ok``; the
+planes are linear, so the lowest point of a footprint is a corner). A re-solved drawn piece is never asked for more
+than its drawn place gives (less ``DRAWN_HEADROOM_TOL_M``): it may stay where it is drawn and is not moved lower.
+Under a flat ceiling (no roof over the level) nothing changes. The same need is checked for the added pieces a twin
+room copies (``complete.copy_added``: ``headroom_short``). Why: the completion put two 1.8 m bookshelves
+(f_L1_048, f_L1_056) and a 0.8 m console table (f_L1_049) where the slope is 0.82 m high; the built models went
+through the roof (critical X2 in every agent round, also in P5) and the agent could fix only one of the twins.
 """
 from __future__ import annotations
 
@@ -138,6 +151,8 @@ FIXED_ZONE_INFLATE_M = -0.03   # a drawn piece's zone is tested 3 cm smaller: it
 ACCESS_ZONE_TYPES: tuple[str, ...] = ("washing_machine",)
 ACCESS_INSIDE_SHARE = 0.5      # a use zone with less than this share inside the room opens out of it
 CLOSE_M = 0.05                 # pieces closer than this get an exact shapely overlap test
+HEADROOM_MARGIN_M = 0.05       # fix round after P6a: a placed piece's height stays this far under a sloped ceiling
+DRAWN_HEADROOM_TOL_M = 0.05    # ... a re-solved drawn piece: at most this lower than its drawn place (box shifts)
 GAP = placer.SNAP_GAP_M        # back edge to wall face
 EVIDENCE_FILE = "building.json"
 SINK_WINDOW_M = 0.4
@@ -328,6 +343,44 @@ def _close(a, b, m: float = CLOSE_M) -> bool:
     return not (a[2] + m < b[0] or b[2] + m < a[0] or a[3] + m < b[1] or b[3] + m < a[1])
 
 
+# --------------------------------------------------------------------------
+# Headroom under a sloped ceiling (fix round after P6a, module docstring)
+# --------------------------------------------------------------------------
+
+def headroom_planes(building: dict, level_id: str) -> list:
+    """The level's sloped ceiling planes ``[a, b, c]`` (z = a x + b y + c, world), as the scene builder makes them
+    (``decor.ceiling_planes``), or [] under a flat ceiling."""
+    from wenart.furniture import decor as D           # lazy: decor is not needed for a flat level
+
+    return D.ceiling_planes(building, level_id)
+
+
+def ceiling_over_polygon(planes: list, floor_z: float, poly) -> float:
+    """The lowest ceiling height above the floor over a footprint polygon: the planes are linear, so their lowest
+    point over the footprint is one of its corners."""
+    pts = [(float(x), float(y)) for part in placer.polygon_parts(poly) for x, y in part.exterior.coords]
+    return round(min(min(float(p[0]) * x + float(p[1]) * y + float(p[2]) for p in planes) for x, y in pts)
+                 - float(floor_z), 4)
+
+
+def headroom_short(building: dict, level_id: str, ftype: str, poly, planes: Optional[list] = None
+                   ) -> Optional[str]:
+    """Why a piece of ``ftype`` on ``poly`` lacks headroom under the level's sloped ceiling (its type's effective
+    height plus ``HEADROOM_MARGIN_M`` over the ceiling at its lowest corner), or None (it fits, or the ceiling is
+    flat). The check of ``Space`` for pieces placed outside the solver (``complete.copy_added``)."""
+    planes = headroom_planes(building, level_id) if planes is None else planes
+    if not planes:
+        return None
+    floor_z = float(next((lv.get("elevation") for lv in building.get("levels") or [] if lv.get("id") == level_id),
+                         0.0) or 0.0)
+    here = ceiling_over_polygon(planes, floor_z, poly)
+    need = GC.effective_height({"type": ftype}) + HEADROOM_MARGIN_M
+    if here < need - 1e-9:
+        return (f"the sloped ceiling over it is {here:.2f} m high, a {ftype} needs {need:.2f} m "
+                f"({GC.effective_height({'type': ftype}):.2f} m + {HEADROOM_MARGIN_M:g} m)")
+    return None
+
+
 class Space:
     """The room's free space for the solver (see the module docstring, step 1)."""
 
@@ -374,6 +427,43 @@ class Space:
         self._zones = [(Polygon(z["polygon"]).buffer(0.05), GC.allowed_types_at(building, dict(room, zones=[z]), None))
                        for z in room.get("zones") or [] if len(z.get("polygon") or []) >= 3]
         self.margin = GR.rule("window_band")["sill_margin"]
+        # Fix round after P6a (module docstring): the sloped ceiling under the roof, as the scene builder makes it
+        # (``decor.ceiling_planes``; [] under a flat ceiling), and its height above the floor over every raster cell.
+        self.planes, self.headroom = headroom_planes(building, room["level_id"]), None
+        self.floor_z = float(next((lv.get("elevation") for lv in building.get("levels") or []
+                                   if lv.get("id") == room["level_id"]), 0.0) or 0.0)
+        if self.planes:
+            c, s = R._c, -R._s                     # RoomRaster.world, on the arrays of cell centres
+            X = R.cx * c - R.cy * s + R.origin[0]
+            Y = R.cx * s + R.cy * c + R.origin[1]
+            self.headroom = np.min([float(p[0]) * X + float(p[1]) * Y + float(p[2]) for p in self.planes],
+                                   axis=0) - self.floor_z
+        self._drawn_here: dict = {}
+
+    # ----- headroom under a sloped ceiling (fix round after P6a) ----------------------------------------------------
+
+    def ceiling_over(self, poly) -> float:
+        """The ceiling height above the floor over ``poly`` (its lowest corner; inf under a flat ceiling)."""
+        if not self.planes:
+            return math.inf
+        return ceiling_over_polygon(self.planes, self.floor_z, poly)
+
+    def need_height(self, spot: Spot) -> Optional[float]:
+        """The ceiling height a spot needs over its footprint (None under a flat ceiling): its type's effective
+        height plus ``HEADROOM_MARGIN_M``; a re-solved drawn piece at most what its drawn place gives (less
+        ``DRAWN_HEADROOM_TOL_M``), so it may stay where it is drawn."""
+        if self.headroom is None:
+            return None
+        need = GC.effective_height({"type": spot.type}) + HEADROOM_MARGIN_M
+        if spot.drawn is not None:
+            pid = spot.drawn.get("id")
+            if pid not in self._drawn_here:
+                try:
+                    self._drawn_here[pid] = self.ceiling_over(placer.planned_piece(spot.drawn).polygon())
+                except (KeyError, TypeError, ValueError):
+                    self._drawn_here[pid] = math.inf
+            need = min(need, self._drawn_here[pid] - DRAWN_HEADROOM_TOL_M)
+        return round(need, 3)
 
     # ----- what may stand where -------------------------------------------------------------------------------------
 
@@ -387,15 +477,21 @@ class Space:
                 return True
         return False
 
-    def layer_for(self, ftype: str) -> Layer:
-        """Blocked cells for a piece of ``ftype``: outside, fixed, doors, and the window bands its height reaches."""
+    def layer_for(self, ftype: str, need: Optional[float] = None) -> Layer:
+        """Blocked cells for a piece of ``ftype``: outside, fixed, doors, and the window bands its height reaches;
+        fix round after P6a: under a sloped ceiling also the cells lower than ``need`` (default: the type's
+        effective height plus ``HEADROOM_MARGIN_M``; ``need_height``)."""
         h = GC.effective_height({"type": ftype})
-        key = (round(h, 3), ftype == "stove")
+        if self.headroom is not None and need is None:
+            need = round(h + HEADROOM_MARGIN_M, 3)
+        key = (round(h, 3), ftype == "stove", None if self.headroom is None else round(float(need), 3))
         if key not in self._layers:
             mask = self.base.copy()
             for win, band in self.windows:
                 if ftype == "stove" or h > win.sill + self.margin + 1e-9:
                     mask |= band
+            if key[2] is not None:
+                mask |= self.headroom < key[2] - 1e-9
             self._layers[key] = Layer(mask)
         return self._layers[key]
 
@@ -417,6 +513,9 @@ class Space:
             if (spot.type == "stove" or h > win.sill + self.margin + 1e-9) and \
                     poly.intersection(win.band).area > placer.AREA_EPS:
                 return False
+        need = self.need_height(spot)               # fix round after P6a: headroom under a sloped ceiling
+        if need is not None and self.ceiling_over(poly) < need - 1e-9:
+            return False
         return True
 
     # ----- raster footprints ---------------------------------------------------------------------------------------
@@ -479,8 +578,8 @@ class Space:
         return bool(np.intersect1d(ia, ib).size)
 
     def spot_free(self, spot: Spot, fps=None) -> bool:
-        """The spot's cells are free for its type (raster only)."""
-        layer = self.layer_for(spot.type)
+        """The spot's cells are free for its type (raster only; under a sloped ceiling with its ``need_height``)."""
+        layer = self.layer_for(spot.type, self.need_height(spot))
         return not any(layer.hit(fp) for fp in (fps or self.spot_fps(spot)))
 
     def zones_free(self, zones) -> bool:

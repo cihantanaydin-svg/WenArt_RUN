@@ -120,6 +120,33 @@ Fix round after P5 (22 Oct 2026; pod P5, real04):
   (``CAMERA_PLACEMENT_CHECKS``: ``replayed_camera``) and a view the camera search already called unavoidable
   (``metrics.blocked_unavoidable``) is reported only (``blocked_unavoidable``, no tool), as the GPU test allows it.
 
+Fix round after P6a (22 Oct 2026; pod P6a, real04):
+
+- ``accept_edit`` refuses a same-piece swap (``same_target_swap``): the dry re-check shows a new critical or major
+  finding on a target of the edit (the target of one of its target findings; an S2 counts on the partner of its cut
+  too) and the critical / major findings gone there are not more (compared critical first, then major: a critical
+  traded for a major is a downgrade and passes; two majors traded for one pass). The reason starts with "swap:". Why:
+  6 of P6a's 34 accepted edits traded one major for another on the same piece (F9 -> F4 / G6 on four chairs, G12 -> F3
+  on two wardrobes: the wardrobe left its wall and still stood across the window); they were all of the run's "new"
+  findings and all stayed to the end. P5's seq 4643 / 4651 (a chair's F9 and its S2 wall cut traded for one F8) still
+  pass. An accepted reason names the new critical / major findings and the net (``findings_new``);
+- a vision F1 / G14 (the type does not fit the room) on a drawn piece whose type the room's types hold
+  (``drawn_type_held``: ``plausibility.allowed_in``, the room's aliases included) has the cause ``drawn_type``: no
+  tool, reported for review (``REPORT_TO``). Why: P6a's vision critic called the drawn desk f_L0_026 "not standard
+  for a bedroom" in all 4 rounds and the agent tried to retype it to a dresser (refused only by the score); CLAUDE.md
+  keeps drawn furniture and trusts vector geometry over AI vision;
+- an F3 / F8 on a drawn piece that no move within the drawn lock can clear (``drawn_layout_blocked``: no free wall
+  place within 1.2 m of its drawn centre, and for an F8 no wall and no partner within a free 0.3 m move; or a room
+  that keeps its drawn pieces) carries ``metrics.drawn_layout`` (``mark_drawn_layout``, called by the loop on the
+  round's code findings) and has the cause ``drawn_layout``: no tool, reported. Why: P6a's drawn salon sofas
+  f_L-1b_041 / 042 stand 2 m off every wall; their 8 moves were refused by the drawn lock, the wall snap or the memory
+  in every round (60 of P6a's 150 refusals were moves of drawn pieces for F3 / F8 / G12). On P6a's round-1 findings
+  the rule marks only those two sofas; the sofas f_L-1b_045 / 046 (a free wall place within 1.2 m), the plants
+  f_L-1b_047 / 049 (a sofa within a free move) and the stoves and sinks a few cm off the wall inside their kitchen
+  runs (the run pieces they already cut do not count: that cut is another finding) keep their tools. On the P4a / P4b
+  / P5 round-1 findings it marks the free-standing drawn sofas 1.1-2.5 m off every wall and real03's washbasin
+  f_L0_188 (through a wall and in a door, fix_fixture's).
+
 Why: real04 (M12, §1.5) accepted 183 edits of which 20 removed their finding; the tools were mapped by check id
 (``brief.CHECK_TOOLS``), so every room session got every tool for every check whatever the cause.
 
@@ -196,6 +223,10 @@ CAUSE_TOOLS: dict[str, tuple[str, ...]] = {
     "decor_model": (),
     # fix round after P5: a blocked view the camera search had no free point for (its "blocked unavoidable" warning)
     "blocked_unavoidable": (),
+    # fix round after P6a (module docstring): an F3 / F8 on a drawn piece no move within the drawn lock clears; a
+    # vision opinion on the type of a drawn piece whose type the room's types hold
+    "drawn_layout": (),
+    "drawn_type": (),
     "unknown": (),
 }
 CAUSES: tuple[str, ...] = tuple(CAUSE_TOOLS)
@@ -233,6 +264,13 @@ NO_TOOL_REASON: dict[str, str] = {
                    "placed): no agent tool edits decor, so it is reported to the decor stage",
     "blocked_unavoidable": "the camera search found no free point in the room and said so (blocked unavoidable): the "
                            "view is allowed and listed; reported to the cameras",
+    "drawn_layout": "the piece is drawn and stands as the documents place it: a drawn piece moves at most 0.3 m, or "
+                    "1.2 m when its back snaps onto a wall, and no free wall place (doors, windows, the other pieces) "
+                    "or partner lies within that reach, so no move clears the finding; the drawn layout is reported "
+                    "(CLAUDE.md: drawn furniture is kept)",
+    "drawn_type": "the piece is drawn and its type is one the room's types hold (the code's room rules, aliases "
+                  "included): drawn furniture is kept (CLAUDE.md), and a vision opinion on its type is no reading "
+                  "error, so it is reported for review, not retyped",
     "unknown": "no agent tool fixes this check",
 }
 # Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
@@ -241,7 +279,9 @@ REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor",
                              # fix round after P4b: a frozen replayed camera, a decor light's model
                              "replayed_camera": "cameras", "decor_model": "decor",
                              # fix round after P5: a blocked view the camera search could not avoid
-                             "blocked_unavoidable": "cameras"}
+                             "blocked_unavoidable": "cameras",
+                             # fix round after P6a: a vision opinion on a drawn piece's type (kept, for review)
+                             "drawn_type": "review"}
 # Fix round after P4a: the X2 kind of an opening the build clipped under the roof (``exterior_checks._x2``), and the
 # words of its message when an older finding has no kind.
 OPENING_CLIP_KIND = "opening_clip"
@@ -294,6 +334,11 @@ OVEREXPOSED_WORDS = ("overexpos", "over-expos", "over expos", "washed out", "was
 EXTERIOR_SLOTS_OF_CAUSE: dict[str, tuple[str, ...]] = {"site": ("site", "ground"), "roof": ("roof",),
                                                        "sun": ("sun",)}
 _MISSING_WORDS = ("missing", " no ", "without", "lacks", "needs a", "has no", " only")
+# Fix round after P6a (module docstring): the checks a drawn layout may hold for good (``drawn_layout``), the metrics
+# flag ``mark_drawn_layout`` sets, and the type checks a vision opinion on a drawn piece's type comes with.
+DRAWN_LAYOUT_CHECKS: tuple[str, ...] = ("F3", "F8")
+DRAWN_LAYOUT_FLAG = "drawn_layout"
+DRAWN_TYPE_CHECKS: tuple[str, ...] = ("F1", "G14")
 
 
 def _text(finding: dict) -> str:
@@ -347,6 +392,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
     metrics = _metrics(finding)
     target = finding.get("target")
     base = CHECK_CAUSE.get(check, "unknown")
+    if check in DRAWN_TYPE_CHECKS and finding.get("source") == "vision" and drawn_type_held(building, target):
+        return "drawn_type"                    # fix round after P6a: a vision opinion, the drawing's type stays
     if check == "F8":
         if metrics.get("cause") == "anchor_not_built" or metrics.get("missing_anchor") or "not built" in text:
             # round 2: an unknown anchor is typed and built by retype_piece; a typed one the fit left unbuilt is
@@ -358,6 +405,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
                 if piece is not None:
                     atype = piece.get("type")
             return "anchor_untyped" if atype == "unknown" and anchor else "missing_anchor"
+        if metrics.get(DRAWN_LAYOUT_FLAG):
+            return "drawn_layout"              # fix round after P6a: no move within the drawn lock clears it
         return "floating"
     if check == "S2":
         depth = metrics.get("depth_m", metrics.get("overlap_m"))
@@ -402,6 +451,8 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return base
     if check == "G5":
         return "off_wall" if (metrics.get("part") == "headboard" or "headboard" in text) else "clearance"
+    if check == "F3" and metrics.get(DRAWN_LAYOUT_FLAG):
+        return "drawn_layout"                  # fix round after P6a: no wall place within the drawn lock
     if check == "G8":
         return "soft_minimum" if metrics.get("tier") else "fixture_clearance"
     if check in CAMERA_PLACEMENT_CHECKS and metrics.get(REPLAYED_FLAG):
@@ -503,6 +554,107 @@ def mark_replayed(findings: list[dict], cameras) -> list[dict]:
         f["evidence"] = evidence
         if f.get("cause") not in (None, "replayed_camera"):
             f.pop("cause", None)
+    return findings
+
+
+def _room_of_piece(building: dict, piece: dict) -> Optional[dict]:
+    return next((r for r in building.get("rooms") or [] if isinstance(r, dict) and r.get("id") == piece.get("room_id")),
+                None)
+
+
+def drawn_type_held(building: Optional[dict], target: Optional[str]) -> bool:
+    """Fix round after P6a (module docstring): ``target`` is a drawn piece (``from_documents``) of ``building`` whose
+    type the types of its room hold (``plausibility.allowed_in``: the room's type, its other labels and its alias
+    kind, as F1 reads them); False without a building, for an AI piece, an untyped piece or a type the room never
+    holds (the code's F1 names that one)."""
+    if not isinstance(building, dict) or not target:
+        return False
+    piece = next((f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id") == target), None)
+    if piece is None or piece.get("source") != "from_documents" or piece.get("type") in (None, "unknown"):
+        return False
+    room = _room_of_piece(building, piece)
+    if room is None:
+        return False
+    try:
+        from wenart.furniture import plausibility as PL
+        return piece["type"] in PL.allowed_in(building, room)
+    except Exception:  # noqa: BLE001 - without the room rules the finding keeps its tools
+        return False
+
+
+def drawn_layout_blocked(building: dict, piece: dict, check: str) -> bool:
+    """Fix round after P6a (module docstring): no edit within the drawn lock clears the ``check`` (F3 / F8) of the
+    drawn piece ``piece``: the room keeps its drawn pieces (``edit_ops.kept_room``), or no wall place of the room lies
+    within ``schemas.WALL_SNAP_MAX_M`` (1.2 m) of the piece's drawn centre (``placer.snap_to_wall``: inside the room,
+    off the doors' swings and the windows, off the room's other floor pieces but those it already cuts, which are
+    another finding's), and for an F8 also no wall and no
+    partner of its type (``schemas.orientation_rule``) within a free move (``edit_ops.SNAP_MAX_M``, 0.3 m, measured
+    from where the piece stands now plus how far it already moved: never less reach than the lock gives). False for a
+    piece that is not drawn, not built or untyped, and whenever the geometry cannot be read (the finding keeps its
+    tools)."""
+    if not isinstance(piece, dict) or piece.get("source") != "from_documents" or not in_scene(piece) \
+            or piece.get("type") in (None, "unknown"):
+        return False
+    room = _room_of_piece(building, piece)
+    if room is None:
+        return False
+    try:
+        from wenart import geometry as G
+        from wenart.furniture import edit_ops as EO
+        from wenart.furniture import placer, schemas
+        from wenart.furniture import plausibility as PL
+        if EO.kept_room(building, room):
+            return True
+        ctx = placer.room_context(building, room)
+        p = placer.drawn_piece(piece)
+        drawn = (piece.get("drawn_footprint") or piece["footprint"])["center"]
+        drift = G.distance(p.center, drawn)
+        floor = [f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id") != piece.get("id")
+                 and f.get("room_id") == room.get("id") and in_scene(f) and f.get("type") not in (None, "unknown")
+                 and f.get("type") not in schemas.MOUNTED_TYPES and f.get("mount_bottom_m") is None]
+        here = p.polygon()
+        # a piece it already cuts (a sink in its counter run) is another finding's (S2 / F9), not a missing wall place
+        pairs = [(f, placer.drawn_piece(f)) for f in floor]
+        pairs = [(f, o) for f, o in pairs if o.polygon().intersection(here).area < placer.AREA_EPS]
+        floor, others = [f for f, _ in pairs], [o for _, o in pairs]
+        found = placer.snap_to_wall(p, ctx, max_shift=schemas.WALL_SNAP_MAX_M + drift, others=others)
+        if found is not None and G.distance(found[0], drawn) <= schemas.WALL_SNAP_MAX_M + 1e-6:
+            return False
+        if check == "F8":
+            reach = float(EO.SNAP_MAX_M) + drift
+            poly = here
+            if poly.exterior.distance(ctx.ring) <= PL.SIDE_WALL_M + reach + 1e-9:
+                return False
+            rule = schemas.orientation_rule(piece["type"])
+            partners = set(rule.get("partners") or ())
+            limit = float(rule.get("partner_m") or 0.0) + reach + 1e-9
+            if any(f.get("type") in partners and o.polygon().distance(poly) <= limit for f, o in zip(floor, others)):
+                return False
+        return True
+    except Exception:  # noqa: BLE001 - a geometry that cannot be read keeps the finding's tools
+        return False
+
+
+def mark_drawn_layout(findings: list[dict], building: Optional[dict]) -> list[dict]:
+    """Fix round after P6a (module docstring): every code finding of ``DRAWN_LAYOUT_CHECKS`` on a drawn piece that
+    ``drawn_layout_blocked`` holds gets ``metrics.drawn_layout`` (in its ``evidence.metrics``, where ``cause_of``
+    reads it) and a ``cause`` it carried before is dropped, so the cause is taken again. An F8 around an unbuilt
+    anchor (``metrics.missing_anchor``) is left alone: building the anchor is its fix. Changes the findings in place
+    and returns them."""
+    if not isinstance(building, dict):
+        return findings
+    pieces = {f.get("id"): f for f in building.get("furniture") or [] if isinstance(f, dict) and f.get("id")}
+    for f in findings or []:
+        check = str(f.get("check") or f.get("checklist") or "")
+        if check not in DRAWN_LAYOUT_CHECKS or f.get("source") == "vision" or _metrics(f).get("missing_anchor"):
+            continue
+        piece = pieces.get(f.get("target"))
+        if piece is None or not drawn_layout_blocked(building, piece, check):
+            continue
+        evidence = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
+        evidence["metrics"] = dict(_metrics(f), **{DRAWN_LAYOUT_FLAG: True})
+        f["evidence"] = evidence
+        f.pop("cause", None)
     return findings
 
 
@@ -750,6 +902,47 @@ def findings_removed(before: list[dict], after: list[dict], severities=("critica
     return len(gone)
 
 
+def findings_new(before: list[dict], after: list[dict], severities=("critical", "major")) -> int:
+    """Fix round after P6a: how many finding keys of ``after`` with a severity in ``severities`` are not in
+    ``before`` (the dry re-check's new findings; ``findings_removed`` minus this is the predicted net)."""
+    before_keys = {finding_key(f) for f in before or []}
+    return len({finding_key(f) for f in after or [] if f.get("severity") in severities} - before_keys)
+
+
+SEVERE = ("critical", "major")
+
+
+def _on_targets(finding: dict, targets: set) -> bool:
+    """Fix round after P6a: ``finding`` is on one of ``targets``: its target, or for an S2 the partner of its cut
+    (``metrics.other``)."""
+    if str(finding.get("target")) in targets:
+        return True
+    check = str(finding.get("check") or finding.get("checklist") or "")
+    return check == "S2" and _metrics(finding).get("other") is not None and str(_metrics(finding)["other"]) in targets
+
+
+def _severe_counts(findings: list[dict]) -> tuple[int, int]:
+    return (sum(1 for f in findings if f.get("severity") == "critical"),
+            sum(1 for f in findings if f.get("severity") == "major"))
+
+
+def same_target_swap(before_by: dict, after_by: dict, present: list) -> Optional[tuple[list[dict], list[dict]]]:
+    """Fix round after P6a (module docstring): ``(new, gone)`` when the dry re-check shows a new critical or major
+    finding on a target of the edit (the target of a finding in ``present``; an S2 counts on its partner too) and the
+    critical / major findings gone there are not more (critical first, then major: ``(1, 0)`` gone and ``(0, 1)`` new
+    is a downgrade, accepted); else None. ``before_by`` / ``after_by``: ``{finding_key: finding}``."""
+    targets = {str((before_by.get(t) or {}).get("target")) for t in present} - {"None"}
+    if not targets:
+        return None
+    new = [after_by[k] for k in sorted(after_by) if k not in before_by
+           and after_by[k].get("severity") in SEVERE and _on_targets(after_by[k], targets)]
+    if not new:
+        return None
+    gone = [before_by[k] for k in sorted(before_by) if k not in after_by
+            and before_by[k].get("severity") in SEVERE and _on_targets(before_by[k], targets)]
+    return (new, gone) if _severe_counts(new) >= _severe_counts(gone) else None
+
+
 def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool, str]:
     """``(accepted, reason)`` of one edit from the findings before it and the dry re-check after it (module
     docstring). Pure: nothing is changed."""
@@ -801,14 +994,27 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
                        f"({str(f.get('message') or f.get('finding') or '')[:120]}): the edit removed {p.get('type')} "
                        f"{p.get('id')}, the fixture the room needs; fixed equipment is treated like walls (CLAUDE.md "
                        f"furniture rules)" + (f"; {len(lost) - 1} more" if len(lost) > 1 else ""))
+    # Fix round after P6a (module docstring): a finding traded for another as severe on the same piece is no removal
+    swap = same_target_swap(before_by, after_by, present)
+    if swap is not None:
+        new, gone = swap
+        f = new[0]
+        return False, (f"swap: {_fmt(finding_key(f))} replaces "
+                       f"{', '.join(_fmt(finding_key(g)) for g in gone) or 'nothing'} on {f.get('target')} "
+                       f"({str(f.get('message') or f.get('finding') or '')[:120]}): the piece keeps as many critical / "
+                       f"major findings, so nothing is removed" + (f"; {len(new) - 1} more new" if len(new) > 1 else ""))
     pb, pa = _penalties(edit)
     if pb is not None and pa is not None and pa > pb + 1e-9:
         return False, (f"plausibility penalty rose {pb:g} -> {pa:g} (the old score rule, kept as the second "
                        f"condition)")
     removed = findings_removed(before, after)
-    # fix round after P3: the dry re-check's count is a prediction; the next round's critics measure it
+    new_count = findings_new(before, after)
+    # fix round after P3: the dry re-check's count is a prediction; the next round's critics measure it; fix round
+    # after P6a: the new critical / major findings and the net are named too
     return True, (f"finding {', '.join(_fmt(t) for t in present)} gone in the dry re-check; no new critical "
-                  f"finding; {removed} critical/major finding(s) removed (predicted; the next round measures)")
+                  f"finding; {removed} critical/major finding(s) removed"
+                  + (f", {new_count} new (net {removed - new_count})" if new_count else "")
+                  + " (predicted; the next round measures)")
 
 
 def key_list(findings: list[dict], severities=("critical", "major"), limit: int = 60) -> list[str]:

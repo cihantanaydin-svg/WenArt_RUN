@@ -62,6 +62,30 @@ frame width and records ``long_low`` in the plan (``exterior.long_low``). X6 tak
 (60-90 %) for those views (``fill_range``); every other view keeps ``FILL_RANGE``. Without it, each of real03's five
 closer views would get a minor X6 ("fills 89 % of the frame width (wanted 60%-80%)") and the agent would move them
 back out.
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04; docs/milestone13.md §14.13 decision 16):
+
+- **X6's frontal view frames the building with the sky.** An ``elevation`` or ``agent`` view square to the main
+  facade (``_faces``) counted as the frontal view by its pose alone, and nothing measured what its frame holds: P6a's
+  agent camera ext_front_entrance, 5 m from real04's 15.4 m entrance facade at 26 mm, was counted (metrics 12 and 13)
+  while it shows a blank wall, both doors cut, no sky (0 of 576 rays; the building spans 2.34 frame widths). Now such a
+  view is the frontal view only when it frames the building (``frame_fixed``'s ``fits`` at its lens from its place,
+  and that re-centred frame still square to the facade) and shows the sky (``exterior.sky_share`` >=
+  ``exterior.SKY_MIN_SHARE``) (``x6_frontal``, the one rule of ``_x6`` and ``wenart.agent.critic_vision.x6_frontal``);
+  otherwise "no frontal view" stays and the camera gets its own major X6 (``frame_problem``: "frames only part of the
+  building", "no sky in the frame"). Every eye-level agent view gets the sky part of that finding. The measures are
+  the camera record's ``fill`` / ``fits`` / ``sky_share`` / ``frame_target`` (the build records them on the agent's
+  plans, ``build.finish_agent_exterior_plans``), else measured on the build's exterior model (``exterior_model``,
+  ``camera_frame``); without either (a test's toy plan) the pose rule stays. An agent view's ``fill`` gets no
+  fill-range finding (real03's agent frontal view ext_6 fills 0.94 of the frame and frames the building: a minor
+  there would only move it).
+- **The agent's eye-level exterior camera** (``validate_camera_override``, below the high-view line) is refused when
+  its ray grid has no sky (``exterior.sky_share`` under ``exterior.SKY_MIN_SHARE``; only when the cheap checks
+  passed: a camera inside a building sees no sky either) and when its lens lies outside ``exterior.EYE_LENS_RANGE_MM``
+  (24-28 mm, Milestone 11 E14) on a building that is not long and low (``exterior.long_low``; CLAUDE.md, user OK of
+  22 Oct 2026: "exterior views of long, low buildings may use a wider or tilted framing"). Measured: P6a's
+  ext_front_entrance 0 % sky (refused); every accepted agent pose of P4a real02, P4b real03 and P6a real04 and every
+  planner view 17-44 % (all pass).
 """
 from __future__ import annotations
 
@@ -95,6 +119,9 @@ COURTS = ("auto", "yes", "no")
 ENTRANCE_VIEW = "entrance"
 ENTRANCE_VIEW_MAX_M = 14.0              # the planner's farthest entrance view (exterior.ENTRANCE_VIEW_M, 12 m) + 2 m
 ENTRANCE_VIEW_MAX_DEG = 30.0            # the planner looks 20 degrees off the door's axis
+HIGH_VIEW_ABOVE_RIDGE_M = 1.0           # a camera this far over the ridge is a high view (X6, the validator)
+FRONTAL_POSE_VIEWS = ("elevation", "agent")         # X6: the frontal view when square to the main facade and framed
+FRAME_KEYS = ("fill", "fits", "sky_share")          # fix round after P6a: an agent plan's frame (the build records it)
 _NUM = {"type": "number"}
 _VEC3 = {"type": "array", "items": _NUM, "minItems": 3, "maxItems": 3}
 
@@ -529,12 +556,20 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
     ridge = float(roof.get("ridge_z") or 0.0)
     main = prep.get("main_facade") or {}
     frontal = False
+    built: list = []
+
+    def model():
+        """The build's exterior model of ``prep``, made once and only when a camera record lacks its frame."""
+        if not built:
+            built.append(exterior_model(prep))
+        return built[0]
+
     for c in cams:
         x, y, z = (float(v) for v in c["position"])
         name = c.get("name")
         if any(G.point_in_polygon((x, y), o) or geom2d.distance_to_polygon_edges((x, y), o) < 0.3 for o in outlines):
             out.append(_v("X6", "critical", name, f"{name} stands inside the building", position=[x, y, z]))
-        high = c.get("view") == "aerial" or z >= ridge + 1.0
+        high = c.get("view") == "aerial" or z >= ridge + HIGH_VIEW_ABOVE_RIDGE_M
         if not high:
             h = z - _ground_z(prep, x, y)
             if not EYE_LEVEL_RANGE_M[0] - 1e-3 <= h <= EYE_LEVEL_RANGE_M[1] + 1e-3:
@@ -554,13 +589,22 @@ def _x6(building: dict, prep: dict, scene_manifest, render_manifest, out: list) 
             continue
         fill = c.get("fill")
         lo, hi = fill_range(c)
-        if isinstance(fill, (int, float)) and not lo - 0.05 <= fill <= hi + 0.05:
+        # fix round after P6a (module docstring): an agent plan's recorded fill is judged by frame_problem only
+        if isinstance(fill, (int, float)) and not isinstance(fill, bool) and not _agent_camera(c) \
+                and not lo - 0.05 <= fill <= hi + 0.05:
             out.append(_v("X6", "minor", name, f"{name}: the building fills {fill:.0%} of the frame width (wanted "
                                                f"{lo:.0%}-{hi:.0%})", fill=float(fill)))
         if "does not fit" in str(c.get("warning") or ""):
             out.append(_v("X6", "major", name, f"{name}: the whole building is not in the frame"))
-        if c.get("view") == "frontal" or (c.get("view") in ("elevation", "agent") and main.get("direction")
-                                          and _faces(c, main["direction"])):
+        # fix round after P6a (module docstring): the frontal view frames the building with the sky; an eye-level
+        # agent view shows the sky
+        candidate = not high and _frontal_pose(c, main)
+        frame = camera_frame(c, model) if not high and (candidate or _agent_camera(c)) else None
+        why = frame_problem(c, frame, candidate)
+        if why is not None:
+            out.append(_v("X6", "major", name, f"{name}: {why}", fill=frame["fill"], fits=frame["fits"],
+                          sky_share=frame["sky_share"]))
+        if x6_frontal(c, main, frame=frame, ridge=ridge):
             frontal = True
     if main and not frontal:
         out.append(_v("X6", "major", "exterior", f"no frontal view of the entrance ({main.get('axis')}) facade",
@@ -594,6 +638,146 @@ def _faces(cam: dict, direction) -> bool:
     dx, dy = float(t[0]) - float(p[0]), float(t[1]) - float(p[1])
     n = math.hypot(dx, dy)
     return n > 1e-9 and -(dx * direction[0] + dy * direction[1]) / n > math.cos(math.radians(30.0))
+
+
+def _agent_camera(cam: dict) -> bool:
+    """A camera the agent placed: its plan's ``policy`` is ``agent`` or the build labelled its pose ``agent``."""
+    return cam.get("policy") == "agent" or cam.get("view") == "agent"
+
+
+def _frontal_pose(cam: dict, main: Optional[dict]) -> bool:
+    """An ``elevation`` / ``agent`` view whose pose looks square (``_faces``) at the main facade ``main``."""
+    try:
+        return cam.get("view") in FRONTAL_POSE_VIEWS and bool(cam.get("position")) \
+            and bool((main or {}).get("direction")) and _faces(cam, main["direction"])
+    except (KeyError, TypeError, ValueError, IndexError):
+        return False
+
+
+def exterior_model(prep: Optional[dict]):
+    """Fix round after P6a (module docstring): the build's ``exterior.ExteriorModel`` of ``prep`` (``build.prepare``:
+    ``exterior.build_model`` on its building, levels, roof and site, as the build makes it); None when it cannot be
+    made."""
+    if not isinstance(prep, dict) or not isinstance(prep.get("building"), dict):
+        return None
+    from wenart.blender import exterior as E
+
+    try:
+        b = prep["building"]
+        return E.build_model(b, list(b.get("levels") or []), prep.get("roof"), prep.get("site"))
+    except (KeyError, ValueError, TypeError, IndexError, AttributeError):
+        return None
+
+
+def camera_frame(camera: dict, model=None) -> Optional[dict]:
+    """Fix round after P6a (module docstring): ``{"fill", "fits", "sky_share"}`` (and ``frame_target`` when known) of
+    an exterior camera: the record's own (``FRAME_KEYS`` and ``frame_target``, recorded by
+    ``build.finish_agent_exterior_plans``), else ``exterior.frame_check`` of its pose, lens and lens shift on ``model``
+    (an ``ExteriorModel``, or a function returning one or None); None without either."""
+    if all(isinstance(camera.get(k), (int, float)) for k in FRAME_KEYS):
+        out = {"fill": float(camera["fill"]), "fits": bool(camera["fits"]), "sky_share": float(camera["sky_share"])}
+        if isinstance(camera.get("frame_target"), (list, tuple)) and len(camera["frame_target"]) >= 2:
+            out["frame_target"] = [float(v) for v in camera["frame_target"]]
+        return out
+    if not camera.get("position") or not camera.get("target"):
+        return None
+    m = model() if callable(model) else model
+    if m is None:
+        return None
+    from wenart.blender import exterior as E
+
+    try:
+        return E.frame_check(m, [float(v) for v in camera["position"]], [float(v) for v in camera["target"]],
+                             float(camera.get("lens_mm") or E.EYE_LENS_MM), shift_y=float(camera.get("shift_y") or 0.0))
+    except (TypeError, ValueError, IndexError, ZeroDivisionError, FloatingPointError):
+        return None
+
+
+def frames_building(frame: Optional[dict]) -> bool:
+    """Fix round after P6a: the frame ``frame`` (``camera_frame``) holds the whole building and the sky."""
+    from wenart.blender import exterior as E
+
+    return bool(frame) and bool(frame["fits"]) and float(frame["sky_share"]) >= E.SKY_MIN_SHARE - 1e-9
+
+
+def frame_problem(camera: dict, frame: Optional[dict], frontal_pose: bool) -> Optional[str]:
+    """Fix round after P6a (module docstring): why an eye-level camera's frame breaks the rules, None when it does
+    not (or without a frame): a pose square to the main facade (``frontal_pose``) that does not frame the whole
+    building, and any such camera without sky in its frame (CLAUDE.md: the sky, the sun and the horizon are always in
+    the image)."""
+    if not frame:
+        return None
+    from wenart.blender import exterior as E
+
+    parts = []
+    if frontal_pose and not frame["fits"]:
+        parts.append(f"frames only part of the building (it spans {float(frame['fill']):.2f} of the frame width at "
+                     f"{float(camera.get('lens_mm') or E.EYE_LENS_MM):g} mm from this view line), so it is no "
+                     f"frontal view")
+    if float(frame["sky_share"]) < E.SKY_MIN_SHARE - 1e-9:
+        parts.append(f"no sky in the frame ({float(frame['sky_share']):.0%} of its rays look up into the sky, at "
+                     f"least {E.SKY_MIN_SHARE:.0%}: the sky, the sun and the horizon are always in the image)")
+    return "; ".join(parts) or None
+
+
+def x6_frontal(camera: Optional[dict], main: Optional[dict], frame: Optional[dict] = None, model=None,
+               ridge: Optional[float] = None) -> bool:
+    """X6's frontal view (one rule for ``_x6`` and ``wenart.agent.critic_vision.x6_frontal``): a ``frontal`` view, or
+    an ``elevation`` / ``agent`` view whose pose looks square at the main facade ``main`` (``_faces``, within 30
+    degrees) and, fix round after P6a (module docstring), frames the whole building with the sky (``frames_building``
+    of ``frame``, else of ``camera_frame(camera, model)``), the frame that holds the building (its ``frame_target``,
+    the yaw re-centred) still looking square at that facade: from real04's strip a pose 29.8 degrees off square at
+    (22, 18.2) fits the building only when turned 43.8 degrees off square, a corner view. A high view (``aerial``, or
+    at least ``HIGH_VIEW_ABOVE_RIDGE_M`` over ``ridge``) and a pose whose frame cannot be measured keep the pose
+    rule."""
+    if not isinstance(camera, dict):
+        return False
+    if camera.get("view") == "frontal":
+        return True
+    if not _frontal_pose(camera, main):
+        return False
+    try:
+        z = float(camera["position"][2])
+    except (KeyError, TypeError, ValueError, IndexError):
+        return True
+    if camera.get("view") == "aerial" or (ridge is not None and z >= float(ridge) + HIGH_VIEW_ABOVE_RIDGE_M):
+        return True
+    got = frame if frame is not None else camera_frame(camera, model)
+    if got is None:
+        return True
+    if got.get("frame_target") is not None and not _faces(dict(camera, target=got["frame_target"]), main["direction"]):
+        return False                    # the frame that holds the building looks at it from a corner, not square
+    return frames_building(got)
+
+
+def eye_level_problems(prep: Optional[dict], position, target, lens_mm: Optional[float], sky: bool = True,
+                       model=None) -> list[str]:
+    """Fix round after P6a (module docstring): why an eye-level exterior pose of the agent is refused: its lens
+    (``lens_mm``; None = the build's default, not judged) outside ``exterior.EYE_LENS_RANGE_MM`` on a building that is
+    not long and low (``exterior.long_low``), and (``sky``) no sky in its ray grid (``exterior.sky_share`` under
+    ``exterior.SKY_MIN_SHARE``, at ``lens_mm`` or ``exterior.EYE_LENS_MM``). The model (``model``, else
+    ``exterior_model(prep)``) is made only when a rule needs it; nothing is refused without it."""
+    from wenart.blender import exterior as E
+
+    lens = None if lens_mm is None else float(lens_mm)
+    off = lens is not None and not E.EYE_LENS_RANGE_MM[0] - 1e-6 <= lens <= E.EYE_LENS_RANGE_MM[1] + 1e-6
+    if not off and not sky:
+        return []
+    m = model if model is not None else exterior_model(prep)
+    if m is None:
+        return []
+    out = []
+    if off and E.long_low(m) is None:
+        out.append(f"lens {lens:g} mm outside the eye-level range {E.EYE_LENS_RANGE_MM[0]:g}-"
+                   f"{E.EYE_LENS_RANGE_MM[1]:g} mm (Milestone 11 E14; a wider framing is for a long, low building "
+                   f"only, decision of 22 Oct 2026)")
+    if sky:
+        share = E.sky_share(m, position, target, lens if lens is not None else E.EYE_LENS_MM)
+        if share < E.SKY_MIN_SHARE - 1e-9:
+            out.append(f"no sky in the frame: {share:.0%} of its rays look up into the sky (at least "
+                       f"{E.SKY_MIN_SHARE:.0%}; CLAUDE.md: the sky, the sun and the horizon are always in the image); "
+                       f"stand where the facade's roof line and the sky above it are in the frame")
+    return out
 
 
 def _x7(prep: dict, scene_manifest: Optional[dict], out: list) -> None:
@@ -793,7 +977,9 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
     room, not inside a piece, on the free floor (``free_floor_problems``), at least ``DOOR_CLEARANCE_M`` from a door,
     ``EYE_RANGE_M`` above its floor; an
     exterior one outside the building (and its roof) at ``EYE_LEVEL_RANGE_M`` above the ground, or a high view
-    above the ridge; the target differs from the position."""
+    above the ridge; the target differs from the position. Fix round after P6a (module docstring): an eye-level
+    exterior one keeps the eye-level lens range unless the building is long and low, and has sky in its frame
+    (``eye_level_problems``)."""
     failed = _schema_errors(CAMERA_OVERRIDE_SCHEMA, camera)
     if failed:
         return {"ok": False, "failed": failed}
@@ -835,11 +1021,13 @@ def validate_camera_override(building: dict, camera: dict) -> dict:
     ridge = float(roof.get("ridge_z") or 0.0)
     if roof.get("outline") and G.point_in_polygon((x, y), roof["outline"]) and z <= ridge + 1.0:
         failed.append("the camera stands under the roof")
-    if z < ridge + 1.0:
+    if z < ridge + HIGH_VIEW_ABOVE_RIDGE_M:
         h = z - _ground_z(prep, x, y)
         if not EYE_LEVEL_RANGE_M[0] - 1e-3 <= h <= EYE_LEVEL_RANGE_M[1] + 1e-3:
             failed.append(f"eye height {h:.2f} m above the ground (an exterior view: {EYE_LEVEL_RANGE_M[0]:g}-"
                           f"{EYE_LEVEL_RANGE_M[1]:g} m, or a high view above the ridge {ridge:.2f} m)")
+        # fix round after P6a (module docstring): the eye-level lens and the sky (rays only for an otherwise valid pose)
+        failed += eye_level_problems(prep, pos, tgt, camera.get("lens_mm"), sky=not failed)
     return {"ok": not failed, "failed": failed}
 
 

@@ -98,6 +98,12 @@ on a flagged record there is kept. Why: real04's ext_5 set 1.60 m over the groun
 Fix round after P5 (22 Oct 2026): V1 and the code critic's ``camera_blocked`` (``critic_code.blocked_items``: the
 lens touches a surface or one element fills the frame) are one family in ``RELATED``: a vision V1 on a view the code
 measured blocked is a duplicate of that code finding (the code's names the element, the depth and the share).
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04): ``x6_frontal`` is ``exterior_checks.x6_frontal``, X6's one rule:
+an ``elevation`` / ``agent`` view square to the main facade is the frontal view only when it frames the whole building
+with the sky (its recorded or measured ``fill`` / ``fits`` / ``sky_share``). ``critique_exterior`` passes its building
+and plan, so an agent view that shows only part of the facade (P6a's ext_front_entrance: a blank wall, no sky) is told
+as a view the agent placed, not as the frontal view.
 """
 from __future__ import annotations
 
@@ -548,33 +554,50 @@ def main_facade_of(scene: Optional[dict], building: Optional[dict] = None,
     return main if isinstance(main, dict) and main.get("direction") else None
 
 
-X6_FRONTAL_POSE_VIEWS = ("elevation", "agent")      # = exterior_checks._x6: these count when square to the main facade
+X6_FRONTAL_POSE_VIEWS = ("elevation", "agent")      # = exterior_checks.FRONTAL_POSE_VIEWS (asserted in the tests)
 
 
-def x6_frontal(camera: Optional[dict], main: Optional[dict]) -> bool:
+def x6_frontal(camera: Optional[dict], main: Optional[dict], *, building: Optional[dict] = None,
+               prep: Optional[dict] = None) -> bool:
     """Pass before P5 (module docstring): ``camera`` is the frontal view X6 asks for, by X6's own rule
-    (``exterior_checks._x6``): its view is ``frontal``, or ``elevation`` / ``agent`` with a pose that looks square
-    (``exterior_checks._faces``, within 30 degrees) at the main facade ``main`` (``main_facade_of``)."""
+    (``exterior_checks.x6_frontal``): its view is ``frontal``, or ``elevation`` / ``agent`` with a pose that looks
+    square (``exterior_checks._faces``, within 30 degrees) at the main facade ``main`` (``main_facade_of``).
+
+    Fix round after P6a (22 Oct 2026; pod P6a, real04): and that frames the whole building with the sky
+    (``exterior_checks.frames_building``): the frame the camera record carries (``fill`` / ``fits`` / ``sky_share``,
+    recorded by the build on the agent's plans), else measured on the build's exterior model of ``building``
+    (``prep``: ``build.prepare``'s plan when the caller has it); a pose whose frame cannot be measured keeps the pose
+    rule. Why: P6a's agent camera ext_front_entrance (a blank wall 5 m away, both doors cut, no sky) was told to the
+    critic as "the frontal view", so its vision X3 / X6 claims were judged as about a frontal view and the camera
+    tools' role guards protected it."""
     if not isinstance(camera, dict):
         return False
-    view = camera.get("view")
-    if view == "frontal":
-        return True
-    if view not in X6_FRONTAL_POSE_VIEWS or not camera.get("position") or not (main or {}).get("direction"):
-        return False
     from wenart.blender import exterior_checks as X
+    model = None
+    ridge = None
+    if isinstance(prep, dict) or isinstance(building, dict):
+        plan = prep if isinstance(prep, dict) else (X._prep(building) or {})
+        ridge = (high_view_line(prep=plan) or (None, None))[0]
+        made: list = []
+
+        def model():
+            if not made:
+                made.append(X.exterior_model(plan))
+            return made[0]
     try:
-        return bool(X._faces(camera, main["direction"]))
+        return bool(X.x6_frontal(camera, main, model=model, ridge=ridge))
     except (KeyError, TypeError, ValueError, IndexError):
         return False
 
 
-def camera_role(camera: Optional[dict], main: Optional[dict]) -> Optional[str]:
+def camera_role(camera: Optional[dict], main: Optional[dict], *, building: Optional[dict] = None,
+                prep: Optional[dict] = None) -> Optional[str]:
     """Pass before P5 (module docstring): the role the critic is told and the claims are judged by: ``frontal`` for
-    an ``agent`` view that is X6's frontal view (``x6_frontal``), else the camera's own ``view``."""
+    an ``agent`` view that is X6's frontal view (``x6_frontal``; fix round after P6a: with ``building`` / ``prep`` its
+    frame is measured when the record does not carry it), else the camera's own ``view``."""
     if not isinstance(camera, dict):
         return None
-    if camera.get("view") == "agent" and x6_frontal(camera, main):
+    if camera.get("view") == "agent" and x6_frontal(camera, main, building=building, prep=prep):
         return "frontal"
     return camera.get("view")
 
@@ -730,7 +753,8 @@ def critique_exterior(model, building: dict, view: str, *, preview: Path, plan_c
         from wenart.blender import exterior_checks as X
         prep = X._prep(building)                 # one plan for the ground and the main facade of this view
     eye = camera_eye(camera, scene, building, prep)
-    role = camera_role(camera, main_facade_of(scene, building, prep)) if isinstance(camera, dict) else None
+    role = camera_role(camera, main_facade_of(scene, building, prep), building=building, prep=prep) \
+        if isinstance(camera, dict) else None                    # fix round after P6a: the frame is measured too
     images, labels = [preview], [f"render of exterior view {view}"]
     if plan_crop is not None:
         images.append(plan_crop)

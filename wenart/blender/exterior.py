@@ -61,6 +61,18 @@ at 20-35 %. Not done: a downward pitch or lens shift (it only moves the horizon 
 point 3; the level frame keeps the horizon and the sky in every view, CLAUDE.md), a wider lens (stronger perspective
 at 7 m from a 33 m facade) and a wider aspect (every view renders at one resolution in render.py; at 2:1 the share
 would gain about 12 %).
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04, docs/milestone13.md §14.13 decision 16). What: ``sky_share`` is the
+share of a pose's ``RAY_GRID`` rays that look above the horizon (direction z > 0) and reach nothing (the sky; the
+coarse ground ends, so a miss below the horizon is no sky), ``frame_check`` adds it to ``frame_fixed``'s ``fill`` and
+``fits`` of the pose's view line at its lens; ``SKY_MIN_SHARE`` (3 % of the rays) is the floor the agent's eye-level
+exterior camera must reach (``exterior_checks.validate_camera_override``) and X6's frontal view must reach
+(``exterior_checks.frame_problem``); ``EYE_LENS_RANGE_MM`` (24-28 mm, Milestone 11 E14) is the eye-level lens range
+outside a long, low building (``long_low``; CLAUDE.md, user OK of 22 Oct 2026). Why: P6a's agent camera
+ext_front_entrance ((8.5, 17.5, 1.6) -> (8.5, 12.5, 2.0), 26 mm, 5 m from the 15.4 m entrance facade) was accepted and
+rendered: 0 of 576 rays reach the sky, the facade spans 2.34 frame widths (both doors cut), 37 % of the pixels are
+near black; every other exterior view of real02 / real03 / real04 has 17-44 % sky rays and fits its frame
+(``frame_fixed``: fill 0.31-0.94).
 """
 from __future__ import annotations
 
@@ -104,6 +116,8 @@ CLEARANCE = 0.3
 CLIP_END = 3000.0                                       # beyond the flat ground (site.HORIZON_M)
 # Milestone 11 (docs/milestone11.md §1.1 E14, §4.1 X6, §7): the eye-level views of the main (entrance) facade.
 EYE_LENS_MM = 26.0                                      # 24-28 mm
+EYE_LENS_RANGE_MM = (24.0, 28.0)                        # fix round after P6a: E14's range (outside a long, low one)
+SKY_MIN_SHARE = 0.03                                    # fix round after P6a: rays that look up into the sky
 CORNER_ANGLE_DEG = 30.0                                 # off the facade a corner view faces (30/60 instead of 45)
 FILL_RANGE = (0.6, 0.8)                                 # the building's share of the frame width
 FILL_TARGET = 0.7
@@ -670,6 +684,33 @@ def long_low(model: "ExteriorModel") -> Optional[dict]:
         return None
     return {"length_m": round(length, 3), "height_m": round(height, 3), "ratio": round(length / height, 3),
             "fill_target": LONG_LOW_FILL}
+
+
+def sky_share(model: "ExteriorModel", position, target, lens: float, shift_y: float = 0.0) -> float:
+    """Fix round after P6a (module docstring; pure): the share of the pose's ``RAY_GRID`` rays (``camsearch.ray_grid``
+    at ``lens`` with ``shift_y``) that look above the horizon (direction z > 0) and hit nothing in ``model``: the
+    sky in the frame. A ray below the horizon that misses the coarse ground is not counted (an aerial looking down
+    past the ground's edge has misses but no sky)."""
+    from wenart.blender import camsearch
+
+    a, b = camsearch.ray_grid(RAY_GRID, lens_mm=lens, sensor_mm=SENSOR_MM, resolution=RESOLUTION, shift_y=shift_y)
+    dirs = camsearch.camera_directions(position, target, a, b)
+    labels, _t = model.cast(position, dirs)
+    up = dirs[:, 2] > 1e-9
+    return round(float(np.count_nonzero(up & (labels == LABELS["nothing"]))) / max(1, len(labels)), 4)
+
+
+def frame_check(model: "ExteriorModel", position, target, lens: float, points: Optional[np.ndarray] = None,
+                shift_y: float = 0.0) -> dict:
+    """Fix round after P6a (module docstring; pure): ``{"fill", "fits", "frame_target", "sky_share"}`` of an exterior
+    pose: ``frame_fixed``'s fill and fit of the building (``points``, default ``building_points(model)``) from the
+    pose's place at ``lens`` (level, the yaw re-centred on the building: can this place frame the building?), the
+    target of that re-centred frame (``frame_target``: X6 checks that it still looks square at the main facade), and
+    ``sky_share`` of the pose itself."""
+    pts = building_points(model) if points is None else points
+    rec = frame_fixed(position, target, pts, lens)
+    return {"fill": rec["fill"], "fits": bool(rec["fits"]), "frame_target": [float(c) for c in rec["target"]],
+            "sky_share": sky_share(model, position, target, lens, shift_y)}
 
 
 def eye_distances(d_policy: float, d_close: Optional[float] = None) -> list[tuple[float, bool]]:

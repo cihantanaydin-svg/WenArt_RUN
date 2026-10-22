@@ -185,6 +185,30 @@ Fix round after P5 (22 Oct 2026; pod P5, real04, the review of its agent log):
   ``max_tries`` refusal closes every checklist step on its target (``tools._too_many``). Why: P5's r2-s13 sent
   move_piece f_L1_024 six times after its max_tries refusal (about 17-20k prompt tokens each).
 
+Fix round after P6a (22 Oct 2026; pod P6a, real04, the review of its agent log):
+
+- a ``swap_model`` whose pin the dry fit refuses (``refused_pin``: the piece's fitted asset in ``fitted_view`` carries
+  ``pin_refused`` naming the new pin; ``fit.fit_piece`` refuses a generated model while a real product fits, and a
+  pin that fails the caps or the licence mode) is refused ("pin_refused: ...") and its piece is no changed target, so
+  its vision findings stay in the dry re-check. Why: P6a's seq 6069 / 6075 / 6076 pinned three generated models
+  (fridge, washbasin, toilet), were accepted with "1 ... removed (predicted)", and the refit refused all three pins;
+  the scene kept its models, and the next round's vision critic did not repeat the findings, so three phantom edits
+  were counted as measured removals (P5's seq 5135 / 5139 did the same). ``edit_ops._swap_model`` is the place for
+  the same refusal at validation time (the reading track's file; this is the backstop);
+- the acceptance names the dry re-check's new critical / major findings and the net (``new``, ``net``; the reason
+  too), and refuses a same-piece swap (``causes.accept_edit``);
+- a memory or max-tries refusal is a repeat whatever its target (``repeat_refusal``); a first refusal of a new
+  target neither counts nor resets the session's count, only a validated result does. Why: P6a's r2 session of
+  r_L-1b_salon_2 took 7 memory refusals in a row on f_L-1b_041 / 045 / 047 / 048 and was never ended: the count
+  went back to 0 whenever the model turned to another target;
+- the round's F3 / F8 findings on a drawn piece that no move within the drawn lock clears get the cause
+  ``drawn_layout`` (``causes.mark_drawn_layout``; no tool, reported), and the dry re-check keeps that cause for an
+  unchanged target (``carry_drawn_layout``). Why: 60 of P6a's 150 rejections were moves of drawn sofas, plants and
+  lamps in the four salons; the two sofas 2 m off every wall (f_L-1b_041 / 042) were tried in every round;
+- ``final_round`` returns the agent stage's note on the numbers after the final round (``stage_note``): the stage
+  record written when the agent stage ended named round 3's numbers (net 32, "max rounds reached") while the report
+  and metrics.json said net 34 after round 4 (the scheduler writes the note; its ask).
+
 Why: §8 of M11; §1.4 of M12 (real03 run 3: 12 of 35 rooms reached, 5 of 78 edits accepted, 53 rejections aimed at
 locked or unbuilt pieces, no plan, no memory, 120 calls per round, half of them reads).
 
@@ -263,6 +287,35 @@ CAMERA_EFFECT_CHECK = "camera_effect"   # the ``check`` event of an accepted cam
 # a session, and the ``check`` event that says so.
 REFUSALS_END_SESSION = 2
 REFUSALS_CHECK = "session_refusals"
+
+
+REPEAT_FLAGS = ("refused_by_memory", "max_tries_target")
+
+
+def repeat_refusal(result: Optional[dict], target, refused_targets: set) -> bool:
+    """Fix round after P6a (module docstring): an edit refused without validation (``tools.refused_unvalidated``)
+    that repeats a refusal: its target was refused before in the session, or the refusal is one by definition (the
+    memory refused this exact edit before, ``refused_by_memory``; the target used its tries, ``max_tries_target``)."""
+    if not TL.refused_unvalidated(result):
+        return False
+    return target in refused_targets or any(result.get(k) for k in REPEAT_FLAGS)
+
+
+# Fix round after P6a: the stop texts of the final round for critical findings (``final_round``).
+FINAL_DONE = "final round for critical findings done"
+FINAL_NOT_STARTED = "final round for critical findings not started (time budget)"
+
+
+def stage_note(summary: dict, stop: Optional[str] = None) -> str:
+    """Fix round after P6a (module docstring): the agent stage's note from the loop's ``summary`` (``AgentLoop.summary``:
+    rounds, measured / predicted / new / net findings, accepted and rejected edits) and the stop (``stop``, a text,
+    else the summary's stop reason through ``STOPS``); the scheduler's wording of the integration after P5."""
+    predicted = summary.get("findings_removed_predicted_same_rounds", summary.get("findings_removed_predicted", 0))
+    reason = stop or STOPS.get(str((summary.get("stop") or {}).get("reason")), (summary.get("stop") or {}).get("reason"))
+    return (f"{len(summary.get('rounds') or [])} round(s), {summary.get('findings_removed', 0)} finding(s) removed by "
+            f"{summary.get('accepted', 0)} accepted edit(s) (measured; {predicted} predicted by the dry re-checks), "
+            f"{summary.get('findings_new', 0)} new, net {summary.get('findings_net', 0)}, "
+            f"{summary.get('rejected', 0)} rejected; stop: {reason}")
 
 
 def route(accepted: list[dict]) -> Optional[str]:
@@ -635,6 +688,20 @@ def fitted_view(building_after: Optional[dict], final: Optional[dict],
     return dict(building_after, furniture=out), note
 
 
+def refused_pin(building: Optional[dict], piece_id: Optional[str]) -> Optional[str]:
+    """Fix round after P6a (module docstring): the fit's ``pin_refused`` reason when the piece ``piece_id`` of
+    ``building`` (``fitted_view``'s building: the dry fit of a new pin) carries a pin (``asset_pin``) that its fitted
+    asset refuses (``asset.pin_refused`` names that pin: ``fit.fit_piece`` writes "<pin>: ..."); else None (no pin, no
+    fitted asset, a pinned model, or a refusal of an older pin)."""
+    piece = _piece_of(building, piece_id)
+    pin = (piece or {}).get("asset_pin")
+    asset = (piece or {}).get("asset")
+    if not pin or not isinstance(asset, dict) or not asset.get("pin_refused"):
+        return None
+    why = str(asset["pin_refused"])
+    return why if why.startswith(f"{pin}:") else None
+
+
 def _piece_of(building: Optional[dict], pid) -> Optional[dict]:
     if not isinstance(building, dict) or not pid:
         return None
@@ -915,6 +982,8 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
     before_keys = {CS.finding_key(f) for f in before}
     stale = set(changed) | set(round_changed or ())
     same_roof = roof_kept(override, building_before, building_after)
+    # fix round after P6a: the round's drawn-layout findings (``causes.mark_drawn_layout``) stay drawn layout
+    drawn_layout = {CS.finding_key(f) for f in before if CS._metrics(f).get(CS.DRAWN_LAYOUT_FLAG)}
     out = []
     for f in code_after:
         if f.get("check") in NOT_REMEASURED:
@@ -922,6 +991,8 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
         if manifest_measured(f) and (f.get("target") in stale
                                      or (same_roof and CS.finding_key(f) not in before_keys)):
             continue
+        if CS.finding_key(f) in drawn_layout and f.get("target") not in changed:
+            f = carry_drawn_layout(f)
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
     for f in before:
         if f.get("source") == "vision":
@@ -944,6 +1015,18 @@ def after_findings(code_after: list[dict], before: list[dict], changed: set, bui
                 out.append(dict(kept, cause=kept.get("cause") or CS.cause_of(kept, building_after)))
             continue
         out.append(dict(f, cause=f.get("cause") or CS.cause_of(f, building_after)))
+    return out
+
+
+def carry_drawn_layout(finding: dict) -> dict:
+    """Fix round after P6a (module docstring): a copy of the dry re-check's ``finding`` with the drawn-layout flag
+    (``causes.DRAWN_LAYOUT_FLAG``) of the round's finding of the same key, its cause taken again."""
+    if CS._metrics(finding).get(CS.DRAWN_LAYOUT_FLAG):
+        return finding
+    evidence = dict(finding.get("evidence")) if isinstance(finding.get("evidence"), dict) else {}
+    evidence["metrics"] = dict(CS._metrics(finding), **{CS.DRAWN_LAYOUT_FLAG: True})
+    out = dict(finding, evidence=evidence)
+    out.pop("cause", None)
     return out
 
 
@@ -1277,6 +1360,11 @@ class AgentLoop:
         changed = TL.changed_targets(tool, args, result, targets, findings=before)
         # fix round after P5: the fitted boxes the round's critic measured (fitted_view)
         measured, fitted = self.fitted_after(ctx, building_after)
+        # fix round after P6a (module docstring): a model swap the refit refuses changes nothing in the scene: its
+        # piece is no changed target (its vision findings stay) and the edit is refused with the fit's reason
+        refused = refused_pin(measured, args.get("piece_id")) if tool == "swap_model" else None
+        if refused is not None:
+            changed = set(changed) - {args.get("piece_id")}
         # fix round after P4b: the critic reads the sun a set_exterior sets (scene_after)
         code_after = self.code_findings(measured, ctx, self.render_manifest(ctx.preview_dir),
                                         scene=scene_after(ctx.scene, tool, args, ctx.building))
@@ -1298,6 +1386,10 @@ class AgentLoop:
                 "added": CS.added_pieces(ctx.building, building_after),
                 "types": CS.piece_types(ctx.building, building_after)}
         ok, reason = accept_edit(before, after, edit)
+        if refused is not None:
+            ok, reason = False, (f"pin_refused: {args.get('piece_id')}: {refused}: the refit keeps the model it had, "
+                                 f"so the swap changes nothing in the scene; swap to a real model of the type, or use "
+                                 f"another tool")
         room = TL.edit_room(ctx, args)
         scope = set(changed) | {f.get("target") for f in targets}
 
@@ -1320,6 +1412,9 @@ class AgentLoop:
         return {"accepted": ok, "reason": reason, "target": [CS._fmt(CS.finding_key(f)) for f in targets],
                 "target_findings": targets, "before": CS.key_list([f for f in before if mine(f)]),
                 "after": CS.key_list([f for f in after if mine(f)]), "removed": findings_removed(before, after),
+                # fix round after P6a: the dry re-check's new critical / major findings and the net (gone - new)
+                "new": CS.findings_new(before, after),
+                "net": findings_removed(before, after) - CS.findings_new(before, after),
                 "after_findings": after, "note": note, "carried": carried, "changed": sorted(map(str, changed)),
                 "fitted": fitted}
 
@@ -1647,7 +1742,9 @@ class AgentLoop:
         P4a: a step whose edit the memory refused twice (``step_closed`` in the tool result) is closed; the session
         ends when every step is done or closed. Fix round after P5: a ``max_tries`` refusal closes every step on its
         target, and ``REFUSALS_END_SESSION`` edits in a row refused without validation (``tools.refused_unvalidated``)
-        on targets refused before in the session end it (a ``check`` event ``REFUSALS_CHECK``)."""
+        on targets refused before in the session end it (a ``check`` event ``REFUSALS_CHECK``). Fix round after P6a:
+        a memory or max-tries refusal counts as a repeat whatever its target (``repeat_refusal``), and only a
+        validated result resets the count."""
         brief = item["brief"]
         room_id = item["room_id"]
         state = ctx.begin_session(room_id)
@@ -1739,7 +1836,10 @@ class AgentLoop:
                                                         or "the memory refused its edit twice")
                             # fix round after P5 (module docstring): refusals in a row on refused targets end it
                             if TL.refused_unvalidated(result):
-                                stale_refusals = stale_refusals + 1 if target in refused_targets else 0
+                                # fix round after P6a (module docstring): a memory or max-tries refusal is a repeat
+                                # whatever the target; a first refusal of a new target neither counts nor resets
+                                if repeat_refusal(result, target, refused_targets):
+                                    stale_refusals += 1
                                 refused_targets.add(target)
                             else:
                                 stale_refusals = 0
@@ -1764,9 +1864,9 @@ class AgentLoop:
             self.log.event("check", round_no, source="code", tool=REFUSALS_CHECK, target=room_id,
                            call_id=f"{tag}-p{replies}", status="session_end", model=self.log.model,
                            revision=self.log.revision,
-                           note=(f"{REFUSALS_END_SESSION} edits in a row were refused without validation on targets "
-                                 f"refused before in this session "
-                                 f"({', '.join(sorted(map(str, refused_targets)))[:200]}): the session ends"),
+                           note=(f"{REFUSALS_END_SESSION} edits in a row were refused without validation as "
+                                 f"repeats (the memory, a target's tries, or a target refused before in this session: "
+                                 f"{', '.join(sorted(map(str, refused_targets)))[:200]}): the session ends"),
                            counts={"refused_targets": len(refused_targets), "calls": calls})
         if context_full or window.cuts:
             # fix round after P3: what the context budget cut, and a session ended by a full context (logged)
@@ -1805,6 +1905,8 @@ class AgentLoop:
         rendered = self.rendered_building(ctx)
         # fix round after P4b, decision 1: a placement finding on a replayed (set 1) camera is report-only
         CS.mark_replayed(code.get("findings") or [], ctx.cameras())
+        # fix round after P6a: an F3 / F8 no move within the drawn lock clears is the drawn layout (report-only)
+        CS.mark_drawn_layout(code.get("findings") or [], rendered)
         for f in code.get("findings") or []:
             f["cause"] = CS.cause_of(f, rendered)
         ctx.violations = list(code.get("findings") or [])
@@ -2003,16 +2105,19 @@ class AgentLoop:
                     "predicted_unmeasured": 0}
 
     def final_round(self, round_no: int) -> dict:
-        """The extra round after the final check: critical findings only, on the final renders (§8 "final")."""
+        """The extra round after the final check: critical findings only, on the final renders (§8 "final"). Fix
+        round after P6a: the result carries ``stage_note``, the agent stage's note on the numbers after this round
+        (``stage_note``; the stage record written when the agent stage ended names the rounds before it)."""
         if not self.time_ok():
             self.log.event("stop", round_no, reason=STOPS["deadline"], status="deadline",
                            note="final round for critical findings not started")
             self.save(final=True)
-            return {"round": round_no, "stop": "deadline", "accepted": 0}
+            return {"round": round_no, "stop": "deadline", "accepted": 0,
+                    "stage_note": stage_note(self.summary(), FINAL_NOT_STARTED)}
         res = self.round(round_no, critical_only=True, final=True)
-        self.log.event("stop", round_no, reason="final round for critical findings done", status=res["stop"] or "done")
+        self.log.event("stop", round_no, reason=FINAL_DONE, status=res["stop"] or "done")
         self.save(final=True)
-        return res
+        return dict(res, stage_note=stage_note(self.summary(), FINAL_DONE))
 
     def summary(self) -> dict:
         """The loop's summary. Fix round after P3: ``findings_removed`` is the measured number (``measured_removed``;

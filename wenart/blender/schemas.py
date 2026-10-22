@@ -75,6 +75,12 @@ and the white point's ``wb_rig_kelvin_source`` (``room`` | ``scene``, ``render.r
 Pass before P5 (17 Oct 2026): ``interior_glazing`` requires the panes' ``clip`` as written and may carry ``pull``
 (``INTERIOR_PULL``: the pull of clipped interior panes, ``render.RenderRun.interior_pull``); no pod has written an
 ``interior_glazing`` record yet, so no manifest loses its validity.
+
+Fix round after P6a (22 Oct 2026; render code m13.5), all optional so the m13.4 manifests (P6a real04, P6b real03)
+stay valid: the render manifest's ``clamp`` (Cycles' per-sample clamps the render set, ``render.clamp_record``), the
+exposure's ``wb_day_green_source``, ``wb_day_green_all``, ``wb_day_wall_share`` and ``wb_tint_green_residual`` (where the
+view's daylight green was metered, the all-surface green and the tint rule, ``render.daylight_green``), and the sky pull's ``targets.median_min`` (a free
+object already: ``render.SKY_PULL_MEDIAN_MIN``).
 """
 from __future__ import annotations
 
@@ -203,6 +209,14 @@ EXPOSURE = {
         # 1 / WB_TINT_GAIN_MAX .. WB_TINT_GAIN_MAX = 1.3 and rounded to 6 places).
         "wb_day_green": {"type": ["number", "null"], "exclusiveMinimum": 0},
         "wb_view_tint_gain": {"type": "number", "minimum": 0.769231, "maximum": 1.3},
+        # Fix round after P6a (22 Oct 2026, optional): the light wb_day_green was metered on (render.WB_TINT_METER: the
+        # walls, or every interior surface), the green ratio of every interior surface (m13.4's meter; null without
+        # light), the walls' share of the metering frame (render.meter_stats wall_frac; null without a wall metering)
+        # and whether the gain kept the mood's residual of the view's green (render.WB_TINT_KEEP_GREEN_RESIDUAL).
+        "wb_day_green_source": {"enum": ["surfaces", "walls", None]},
+        "wb_day_green_all": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "wb_day_wall_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "wb_tint_green_residual": {"type": "boolean"},
         "ground_rule": {"type": "string"},
     },
 }
@@ -682,6 +696,11 @@ RENDER_MANIFEST = {
         "white_balance_project": {"oneOf": [{"type": "null"}, WHITE_BALANCE_PROJECT]},
         "light_variant": {"type": ["object", "null"], "properties": {"render": {"type": ["string", "null"]},
                                                                      "build": {"type": ["string", "null"]}}},
+        # Fix round after P6a (22 Oct 2026; optional, older manifests have none): Cycles' per-sample clamps the render
+        # set (render.clamp_record: direct 0 = off, indirect render.CLAMP_INDIRECT = 10 unless --clamp-indirect).
+        "clamp": {"type": ["object", "null"], "required": ["direct", "indirect"],
+                  "properties": {"direct": {"type": "number", "minimum": 0},
+                                 "indirect": {"type": "number", "minimum": 0}}},
     },
 }
 

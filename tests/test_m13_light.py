@@ -66,6 +66,10 @@ its daylight references from unblocked views only; the sky pull gives a haze-she
 reference (``render.shell_edge_pixels``; P5's dotted white edges) and records the dots left (``render.sky_edge_dots``);
 an interior view's white point takes the tint of its own daylight (``render.view_tint_gain``; P5's olive L0
 bedrooms); CPU replays of the new and changed GPU checks (dotted edges, olive walls, the white point with its tint).
+
+Fix round after P6a (22 Oct 2026, render code m13.5): the new tests are in tests/test_m13_p6a_render.py. Pins changed
+here on purpose: the code version and the sky pull's "no k" rule text (it names the median floor). The view tint's
+pins below hold unchanged: m13.5 keeps the gain rule and meters its green on the walls.
 """
 from __future__ import annotations
 
@@ -265,8 +269,9 @@ def test_project_white_balance_helpers(tmp_path):
     # fix round after P4a (17 Oct 2026): the daylight cast in every view, the sky pull's coverage weights, steps and
     # mid-tone target, the haze hidden from the interior views' camera rays -> m13.3 (P4a's views are not reused);
     # fix round after P5 (22 Oct 2026): the sky edge's shell hits and the view's daylight tint -> m13.4 (P5 rendered
-    # m13.3)
-    assert R.RENDER_CODE_VERSION == "m13.4"
+    # m13.3); fix round after P6a (22 Oct 2026): the sky pull's median floor and the wall-metered tint -> m13.5 (P6a
+    # rendered m13.4)
+    assert R.RENDER_CODE_VERSION == "m13.5"
     # The sun lamp hides under the exterior world with a sun disc for every ray only (the P1 world); round 3:
     # with the disc for camera rays only the lamp stays, it is the one direct sun outdoors.
     props = {"wenart_world_exterior": "wenart_world_exterior", "wenart_world_exterior_sun_disc": True}
@@ -2040,7 +2045,8 @@ def test_fixround_p4b_the_sky_pull_records_whether_the_view_looks_into_the_sun(t
         assert record["sun_offset_deg"] == pytest.approx(offset, abs=0.01) and record["into_sun"] is into, deg
         note = f" (the view looks into the sun: {record['sun_offset_deg']:g} degrees off its azimuth)"
         assert record["rule"].endswith(note) is into, (deg, record["rule"])
-    assert record["rule"] == "no k brings the sky under the shoulder with saturation: no pull"
+    # fix round after P6a (22 Oct 2026; pin changed on purpose): the rule names the median floor of the pulled saves
+    assert record["rule"] == "no k brings the sky under the shoulder with saturation above the median floor 0.4: no pull"
 
 
 def test_fixround_p4b_gpu_pane_floor_holds_under_the_clear_sky_moods(tmp_path, monkeypatch):

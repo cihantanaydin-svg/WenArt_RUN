@@ -111,6 +111,17 @@ under the 1.27 m slope of the L1 bathroom, 1.155 m above the floor and 1.5 cm un
 (56 % of the frame). The Blender side (``build.py``) keeps a copy of the constant (this module imports shapely, which
 Blender's Python does not have); tests/test_m13_p5_fixround.py pins them equal. The light rig's own ceiling fixtures
 keep a lower bound, the camera height plus headroom (``lighting.RIG_CEILING_MIN_BOTTOM_M``, 1.55 m; why there).
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04): window decor under the roof. ``roof_clips`` gives the windows and
+doors of the level under the roof as the build makes them (``roof.clip_openings_to_roof`` on ``roof.roof_model``, as
+``build.prepare``: a window whose height is not drawn stops ``roof.OPENING_ROOF_GAP`` under the roof underside at its
+wall); the AI decorator hangs curtains and blinds at that window and under the sloped ceiling over their own
+footprint (``decor_ai.window_items``). A partner room's copy of a curtain or blind is not copied where the ceiling
+over the copy is lower than its top plus ``WINDOW_DECOR_CEILING_CLEAR_M`` (``copy_partner_decor``, a note; a
+mirrored roof gives the twin the same heights). Why: P6a hung the curtains dec_L1_005 / dec_L1_014 of the L1 oyun
+rooms 2.25 m high at windows drawn 1.2 m tall; the build clipped those windows to 0.81 m (top 1.71 m) and the slope
+over the curtains is 1.83 m, so both poked 0.4 m through the mansard roof in four exterior views (critical X2 in
+every agent round; no agent tool edits decor).
 """
 from __future__ import annotations
 
@@ -257,6 +268,9 @@ def _corner_candidates(ctx: placer.RoomContext, inset: float = CORNER_INSET_M) -
 
 CEILING_CLEAR_M = 0.10           # Milestone 11 (E2): a floor item's top stays this far under the (sloped) ceiling
 MIN_LIGHT_BOTTOM_M = 2.0         # M11, fix round after P5: a decor light's bottom under a slope, at least this
+WINDOW_DECOR_TYPES = ("curtain", "blind")
+WINDOW_DECOR_CEILING_CLEAR_M = 0.02   # fix round after P6a: a curtain rod / blind roller this far under a slope
+COPY_HEIGHT_TOL_M = 0.005        # ... a twin's copy may reach this much higher (rounding of the mirrored centre)
 
 
 def ceiling_planes(building: dict, level_id: str) -> list:
@@ -278,6 +292,28 @@ def ceiling_planes(building: dict, level_id: str) -> list:
     if level is None or level.get("ceiling_height") is None:
         return []
     return [list(p) for p in R.ceiling_planes(model, level)]
+
+
+def roof_clips(building: dict, level_id: str) -> dict[str, dict]:
+    """Fix round after P6a (module docstring): ``{opening id: clip}`` of the doors and windows of ``level_id`` that
+    the build clips under the roof (``roof.clip_openings_to_roof`` on ``roof.roof_model``, as ``build.prepare``;
+    ``clip`` = ``{"height", "sill_height", "was", "underside_z", "reason", "fits"}``), {} for another level or no
+    roof."""
+    roof = building.get("roof")
+    if not isinstance(roof, dict):
+        return {}
+    from wenart.blender import roof as R
+
+    try:
+        model = R.roof_model(roof, building)
+        if not model or model.get("over_level_id") != level_id:
+            return {}
+        level = next((lv for lv in building.get("levels") or [] if lv.get("id") == level_id), None)
+        if level is None:
+            return {}
+        return {c["opening_id"]: c for c in R.clip_openings_to_roof(building, level, model)}
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return {}
 
 
 def ceiling_over(building: dict, level_id: str, center, size, rotation_deg: float = 0.0,
@@ -952,9 +988,13 @@ def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id)
     """The decor of every target room (``copy_targets``) copied from its partner's ``items`` (``mirrored_from`` =
     the partner item's id; centre, wall point and rotation through the map; host, anchors and window mapped,
     ``wall_id`` the room's nearest wall) and the notes of the items that could not be copied. The rooms copy in
-    ``_copy_order``: a room whose partner is a target itself copies the partner's copy."""
+    ``_copy_order``: a room whose partner is a target itself copies the partner's copy.
+    Fix round after P6a (22 Oct 2026): a curtain or blind whose top would reach closer than
+    ``WINDOW_DECOR_CEILING_CLEAR_M`` to the sloped ceiling over the copy (``ceiling_over``; ``COPY_HEIGHT_TOL_M``
+    for the rounding) is not copied (a note), so a roof that is not mirrored never takes window decor through it."""
     rooms = {r["id"]: r for r in building.get("rooms") or []}
     out, notes = [], []
+    planes_of: dict[str, list] = {}
     for rid in _copy_order(targets):
         pid, kind, t = targets[rid]
         room = rooms[rid]
@@ -1005,6 +1045,18 @@ def copy_partner_decor(building: dict, items: list[dict], targets: dict, new_id)
                 wp = t.point(item["wall_point"])
                 new["wall_point"] = [round(wp[0], 3), round(wp[1], 3)]
                 new["wall_id"] = _nearest_wall_id(building, room["level_id"], wp)
+            if item.get("type") in WINDOW_DECOR_TYPES and len(new["center"]) > 2 and len(new.get("size") or []) > 2:
+                lid = room["level_id"]           # fix round after P6a: window decor stays under a sloped ceiling
+                if lid not in planes_of:
+                    planes_of[lid] = ceiling_planes(building, lid)
+                if planes_of[lid]:
+                    top = float(new["center"][2]) + float(new["size"][2])
+                    here = ceiling_over(building, lid, new["center"][:2], new["size"][:2], new["rotation_deg"],
+                                        planes=planes_of[lid])
+                    if top > here - WINDOW_DECOR_CEILING_CLEAR_M + COPY_HEIGHT_TOL_M:
+                        notes.append(f"{rid}: {item['type']} {item['id']} of {pid} not copied (its top {top:.2f} m "
+                                     f"reaches the sloped ceiling here, {here:.2f} m over it)")
+                        continue
             new.update(id=new_id(room["level_id"]), level_id=room["level_id"], room_id=rid, mirrored_from=item["id"],
                        reason=f"copied from {item['id']} of {pid} ({'mirrored twin' if kind == 'twin' else 'same as'})")
             new.pop("host_frame", None)              # Milestone 12: re-attached in the room's own host's frame

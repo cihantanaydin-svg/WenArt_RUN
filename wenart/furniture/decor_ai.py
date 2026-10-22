@@ -82,6 +82,21 @@ the builder's guard did not check, and P5 hung ``dec_L1_011`` under the 1.27 m s
 1.5 cm under the lens of ``cam_r_L1_banyo_1`` (56 % of the frame); ``dec_L1_009`` (hall, 1.716 m) and ``dec_L1_013``
 (twin bathroom, 1.155 m) hung as low. Under the flat ceiling nothing changes, and the pendant rules stay (a dining
 pendant keeps its bottom 0.75 m over the table, every other pendant at least ``PENDANT_MIN_BOTTOM_M``).
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04; the verifier's better fix of the look finding "curtains poke
+through the mansard roof"). What: ``window_items`` reads each window as the build makes it (``decor.roof_clips``: a
+window under the roof whose height is not drawn is clipped ``roof.OPENING_ROOF_GAP`` under the roof underside, as in
+``build.prepare``) and takes the sill, the top and the blind's drop from that window. Under the slope the curtain rod
+and the blind roller also stay ``decor.WINDOW_DECOR_CEILING_CLEAR_M`` (0.02 m, under the 0.05 m clip gap, so the rod
+stays above the clipped glass) under the sloped ceiling over their own footprint (``decor.ceiling_over``); the item's
+reason says so ("kept under the sloped ceiling, h m over it") and the room's notes list it. Under the slope a curtain
+whose rod would come below the window top, or that would be 0.3 m tall or less, and a blind whose roller would come
+below the window top are left out with a note. Under a flat ceiling nothing changes (the rod at most
+``CEILING_CLEAR_M`` under the ceiling, as before). Why: P6a hung curtains 2.25 m high (rod 0.15 m above a window read
+as drawn, 1.2 m tall) where the build clipped the window to 0.81 m (top 1.71 m) and the slope over the curtain is
+1.83 m: dec_L1_005 / dec_L1_014 poked 0.4 m through the roof in ext_2, ext_3, ext_5 and ext_7, the two critical
+findings left after the agent. The slots and the question are unchanged where the items still fit (the prompt names
+the slot and its types, not the sizes), so stored answers stay valid.
 """
 from __future__ import annotations
 
@@ -377,7 +392,7 @@ def room_slots(room: dict, pieces: list[dict], building: dict) -> tuple[list[Slo
         if not corners:
             notes.append("no free corner for a floor plant")
     if allowed & {"curtain", "blind"}:                          # Milestone 10: window dressings
-        made_windows, why = window_items(room, pieces, building, ctx, ceiling)
+        made_windows, why = window_items(room, pieces, building, ctx, ceiling, planes=planes)   # after P6a: slope
         notes += why
         for wid, made in made_windows:
             types = tuple(t for t in ("curtain", "blind") if t in made and t in allowed)
@@ -820,8 +835,11 @@ def build_items(rq: RoomQuestion, agreed: list[dict], model: str, building: dict
         elif slot.kind in ("window", "ceiling"):                   # Milestone 10
             it = slot.items[dtype]
             extra = {"anchor_ids": [slot.host_id]} if slot.kind == "ceiling" and slot.host_id else {}
-            items.append(dict(base(dtype, choice, slot), id=new_id(room["level_id"]), host_id=None, **extra,
-                              **{k: v for k, v in it.items() if k not in ("type", "reason")}))
+            item = dict(base(dtype, choice, slot), id=new_id(room["level_id"]), host_id=None, **extra,
+                        **{k: v for k, v in it.items() if k not in ("type", "reason", "note")})
+            if it.get("note"):                     # fix round after P6a: the code's change stays on the item
+                item["reason"] = f"{item['reason']} ({it['note']})"
+            items.append(item)
     return items, refused
 
 
@@ -1063,8 +1081,12 @@ BRIEF_COLOUR_KEYS: dict[str, str] = {"cushion": "cushion_colours", "throw": "thr
                                      "curtain": "curtain_colour", "blind": "curtain_colour"}
 
 
-def _window_heights(op: dict) -> tuple[float, float]:
-    """``(sill, top)`` of a window above its floor (the building's values, else the 0.90 / 1.20 m defaults)."""
+def _window_heights(op: dict, clip: Optional[dict] = None) -> tuple[float, float]:
+    """``(sill, top)`` of a window above its floor (the building's values, else the 0.90 / 1.20 m defaults); fix
+    round after P6a: ``clip`` (``decor.roof_clips``) gives the window as the build clips it under the roof."""
+    if clip is not None:
+        sill = float(clip["sill_height"])
+        return sill, sill + float(clip["height"])
     sill = float(op.get("sill_height") if op.get("sill_height") is not None else 0.9)
     return sill, sill + float(op.get("height") or 1.2)
 
@@ -1073,19 +1095,32 @@ def _span_ok(s0: float, s1: float, blocked: list[tuple[float, float]]) -> bool:
     return all(s1 <= b0 + 1e-9 or s0 >= b1 - 1e-9 for b0, b1 in blocked)
 
 
-def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.RoomContext, ceiling: float
-                 ) -> tuple[list[tuple[str, dict]], list[str]]:
+def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.RoomContext, ceiling: float,
+                 planes: Optional[list] = None) -> tuple[list[tuple[str, dict]], list[str]]:
     """``([(window id, {type: item})], notes)``: the curtain (windows at least ``CURTAIN_MIN_WINDOW_W`` wide: a
     rod ``CURTAIN_OVERLAP_M`` past each side, narrowed to stay ``OPENING_MARGIN_M`` off every door and other window
     of its wall face and inside it; to the floor, or to the sill when furniture stands under the window) and the
     roller blind (``BLIND_DOWN_SHARE`` of the window drawn down) of every window of the room. Never over a door:
-    only windows get slots, and the spans keep off the doors of the same wall."""
+    only windows get slots, and the spans keep off the doors of the same wall.
+    Fix round after P6a (module docstring): the window as the build clips it under the roof (``decor.roof_clips``),
+    and under the slope the rod and the roller ``decor.WINDOW_DECOR_CEILING_CLEAR_M`` under the ceiling over their
+    own footprint (``decor.ceiling_over``; ``planes``: the level's sloped ceiling, computed when None)."""
     from shapely.geometry import Polygon as ShPolygon
 
     doors, windows = placer.room_openings(building, room)
     furniture = [placer.piece_from_furniture(p).polygon() for p in pieces if p.get("build", True) is not False
                  and not p.get("mount_bottom_m")]
     out, notes = [], []
+    clips = D.roof_clips(building, room["level_id"])
+    if planes is None:
+        planes = D.ceiling_planes(building, room["level_id"])
+
+    def over(centre, size, rotation) -> float:
+        """The ceiling over an item's footprint: the level's flat ceiling, or the slope where it is lower."""
+        if not planes:
+            return ceiling
+        return min(ceiling, D.ceiling_over(building, room["level_id"], centre, size, rotation, planes=planes))
+
     for op in windows:
         c = (float(op["center"][0]), float(op["center"][1]))
         i = ctx.nearest_segment(c)
@@ -1105,7 +1140,10 @@ def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Roo
             s_o = (oc[0] - a[0]) * u[0] + (oc[1] - a[1]) * u[1]
             blocked.append((s_o - float(other["width"]) / 2.0 - D.OPENING_MARGIN_M,
                             s_o + float(other["width"]) / 2.0 + D.OPENING_MARGIN_M))
-        sill, top = _window_heights(op)
+        clip = clips.get(op["id"])
+        sill, top = _window_heights(op, clip)             # fix round after P6a: as the build clips it
+        clipped = (f"; window {op['id']} clipped by the roof to {top - sill:.2f} m, top {top:.2f} m"
+                   if clip is not None else "")
         rotation = round(G.normalise_angle(math.degrees(math.atan2(n[0], -n[1]))), 3)
         made: dict[str, dict] = {}
         if float(op["width"]) >= CURTAIN_MIN_WINDOW_W - 1e-9:
@@ -1124,24 +1162,37 @@ def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Roo
                     break
             if left >= CURTAIN_MIN_OVERLAP_M - 1e-9 and right >= CURTAIN_MIN_OVERLAP_M - 1e-9:
                 s0, s1 = s_c - half_w - left, s_c + half_w + right
-                rod = min(top + CURTAIN_ROD_ABOVE_M, ceiling - CEILING_CLEAR_M)
                 mid = (s0 + s1) / 2.0
+                wp = (a[0] + u[0] * mid, a[1] + u[1] * mid)
+                centre = (wp[0] + n[0] * CURTAIN_WALL_GAP_M, wp[1] + n[1] * CURTAIN_WALL_GAP_M)
+                here = over(centre, (s1 - s0, CURTAIN_DEPTH_M), rotation)
+                sloped = here < ceiling - 1e-6
+                rod = min(top + CURTAIN_ROD_ABOVE_M, ceiling - CEILING_CLEAR_M)
+                lowered = sloped and here - D.WINDOW_DECOR_CEILING_CLEAR_M < rod - 1e-9
+                if lowered:                                # fix round after P6a: under the sloped ceiling
+                    rod = here - D.WINDOW_DECOR_CEILING_CLEAR_M
                 p0 = (a[0] + u[0] * s0, a[1] + u[1] * s0)
                 p1 = (a[0] + u[0] * s1, a[1] + u[1] * s1)
                 strip = ShPolygon([p0, p1, (p1[0] + n[0] * 0.2, p1[1] + n[1] * 0.2),
                                    (p0[0] + n[0] * 0.2, p0[1] + n[1] * 0.2)])
                 under = any(strip.intersection(f).area > placer.AREA_EPS for f in furniture)
                 bottom = max(CURTAIN_FLOOR_GAP_M, sill - CURTAIN_SILL_DROP_M) if under else CURTAIN_FLOOR_GAP_M
-                if rod - bottom > 0.3:
-                    wp = (a[0] + u[0] * mid, a[1] + u[1] * mid)
-                    centre = (wp[0] + n[0] * CURTAIN_WALL_GAP_M, wp[1] + n[1] * CURTAIN_WALL_GAP_M)
+                if sloped and (rod < top - 1e-9 or rod - bottom <= 0.3):
+                    notes.append(f"window {op['id']}: no curtain under the sloped ceiling ({here:.2f} m over it; "
+                                 f"window top {top:.2f} m{clipped})")
+                elif rod - bottom > 0.3:
+                    note = f"kept under the sloped ceiling, {here:.2f} m over it{clipped}" if lowered else ""
+                    slope = f" ({note})" if note else ""
                     made["curtain"] = {"type": "curtain", "center": [round(centre[0], 3), round(centre[1], 3),
                                                                      round(bottom, 3)],
                                        "rotation_deg": rotation,
                                        "size": [round(s1 - s0, 3), CURTAIN_DEPTH_M, round(rod - bottom, 3)],
                                        "window_id": op["id"], "wall_point": [round(wp[0], 3), round(wp[1], 3)],
                                        "reason": f"curtains at window {op['id']}" + (
-                                           " (sill length: furniture under the window)" if under else "")}
+                                           " (sill length: furniture under the window)" if under else "") + slope}
+                    if note:
+                        made["curtain"]["note"] = note
+                        notes.append(f"window {op['id']}: curtain{slope}")
             else:
                 notes.append(f"window {op['id']}: no room for a curtain rod (doors, windows or wall ends)")
         blind_top = min(top + BLIND_ROLLER_ABOVE_M, ceiling - LIGHT_CEILING_CLEAR_M)
@@ -1150,11 +1201,24 @@ def window_items(room: dict, pieces: list[dict], building: dict, ctx: placer.Roo
         if _span_ok(s_c - bw / 2.0, s_c + bw / 2.0, blocked):
             wp = (a[0] + u[0] * s_c, a[1] + u[1] * s_c)
             centre = (wp[0] + n[0] * (BLIND_DEPTH_M / 2.0 + 0.005), wp[1] + n[1] * (BLIND_DEPTH_M / 2.0 + 0.005))
-            made["blind"] = {"type": "blind", "center": [round(centre[0], 3), round(centre[1], 3),
-                                                         round(blind_top - drop, 3)],
-                             "rotation_deg": rotation, "size": [round(bw, 3), BLIND_DEPTH_M, round(drop, 3)],
-                             "window_id": op["id"], "wall_point": [round(wp[0], 3), round(wp[1], 3)],
-                             "reason": f"roller blind at window {op['id']}"}
+            here = over(centre, (bw, BLIND_DEPTH_M), rotation)
+            lowered = here < ceiling - 1e-6 and here - D.WINDOW_DECOR_CEILING_CLEAR_M < blind_top - 1e-9
+            if lowered:                                    # fix round after P6a: under the sloped ceiling
+                blind_top = here - D.WINDOW_DECOR_CEILING_CLEAR_M
+            if lowered and blind_top < top - 1e-9:
+                notes.append(f"window {op['id']}: no blind under the sloped ceiling ({here:.2f} m over it; "
+                             f"window top {top:.2f} m{clipped})")
+            else:
+                note = f"kept under the sloped ceiling, {here:.2f} m over it{clipped}" if lowered else ""
+                slope = f" ({note})" if note else ""
+                made["blind"] = {"type": "blind", "center": [round(centre[0], 3), round(centre[1], 3),
+                                                             round(blind_top - drop, 3)],
+                                 "rotation_deg": rotation, "size": [round(bw, 3), BLIND_DEPTH_M, round(drop, 3)],
+                                 "window_id": op["id"], "wall_point": [round(wp[0], 3), round(wp[1], 3)],
+                                 "reason": f"roller blind at window {op['id']}" + slope}
+                if note:
+                    made["blind"]["note"] = note
+                    notes.append(f"window {op['id']}: blind{slope}")
         if made:
             out.append((op["id"], made))
     return out, notes

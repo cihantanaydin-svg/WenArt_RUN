@@ -212,6 +212,13 @@ of its room (``only_room_view_problem``, ``room_views``: the scene's cameras wit
 removes), so a critical ``camera_blocked`` is fixed by ``set_camera``, never by dropping the room's render (P5's
 cam_r_L1_banyo_1 is the bathroom's only view); ``free_strip_hint`` names the wider or tilted framing only for a long,
 low building (``long_low_of``: ``exterior.long_low`` of the build's exterior model), else the eye-level lens.
+
+Fix round after P6a (22 Oct 2026; pod P6a, real04): ``ToolContext.plan_crop_path`` gives a debug image only when its
+file name names the room's level (``level_named``), never the first sheet of any level; ``plan_crop`` says
+``NO_PLAN_CROP_NOTE`` then. Why: the basement rooms of real04 have no camera, so the tool fell back to the whole
+sheet ``final/debug/deneme1_dwg_s1.jpg``; the agent cited it as the plan crop of the untyped 5.14 x 2.37 m piece
+f_L-1b_002 (a rug outline under the salon seating) and marked it as not furniture (seq 5968), while its twin
+f_L-1b_001 stayed under review.
 """
 from __future__ import annotations
 
@@ -219,6 +226,7 @@ import copy
 import itertools
 import json
 import math
+import re
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -249,6 +257,18 @@ RECOGNITION_CROP_DIR = "recognition/crops"
 PIECE_CROP_NOTE = ("piece_crop is the piece's own recognition crop (what the reading asked about it): the plan crop "
                    "mark_not_furniture accepts as evidence for a drawn piece typed from the drawing; the room's plan "
                    "crop (image) is no such evidence")
+NO_PLAN_CROP_NOTE = ("no plan crop on disk for this room (a whole-sheet debug image is no plan crop: it never "
+                     "counts as the crop of a piece)")
+
+
+def level_named(file_name: str, level_id: str) -> bool:
+    """Fix round after P6a: ``file_name`` names the level ``level_id`` as a word of its own (``plan_L0.jpg``,
+    ``deneme1_L-1b_p1.jpg``; case-insensitive): not inside another level id (``L-1`` is not ``L-1b``) or word."""
+    if not level_id:
+        return False
+    return re.search(rf"(?<![a-z0-9-]){re.escape(level_id.lower())}(?![a-z0-9])", file_name.lower()) is not None
+
+
 FROZEN_CAMERA = ("frozen: {view} is a camera replayed from the baseline run (set 1): its pose is fixed for the "
                  "before/after comparison (docs/milestone13.md §7, decision of 17 Oct 2026); add_camera with a new "
                  "view id adds another view")
@@ -691,7 +711,10 @@ class ToolContext:
 
     def plan_crop_path(self, room_id: str) -> Optional[Path]:
         """An existing plan crop of the room (M11 step 3: take what exists): ``check/<cam>_plan.jpg``, then
-        ``final/<cam>_plan.jpg`` of the room's cameras, then a debug image of the room's level."""
+        ``final/<cam>_plan.jpg`` of the room's cameras, then a debug image named for the room's level. Fix round
+        after P6a: never a debug image of no level (a whole sheet): P6a's room r_L-1b_salon has no camera, the tool
+        gave ``final/debug/deneme1_dwg_s1.jpg`` and the agent cited the whole sheet as the plan crop of the untyped
+        piece f_L-1b_002 it marked as not furniture; None then (the tool says no plan crop is on disk)."""
         cams = [c.get("name") for c in self.cameras() if c.get("room_id") == room_id]
         for folder in ("check", "final"):
             for cam in cams:
@@ -699,10 +722,12 @@ class ToolContext:
                 if p.is_file():
                     return p
         room = self.room(room_id) or {}
+        level = str(room.get("level_id") or "")
+        if not level:
+            return None
         for folder in ("debug", "final/debug"):
             found = sorted((self.project_out / folder).glob("*.jpg")) if (self.project_out / folder).is_dir() else []
-            level = str(room.get("level_id") or "")
-            pick = [p for p in found if level and level.lower() in p.name.lower()] or found
+            pick = [p for p in found if level_named(p.name, level)]
             if pick:
                 return pick[0]
         return None
@@ -1022,7 +1047,7 @@ def t_plan_crop(ctx: ToolContext, args: dict) -> dict:
         return {"error": "give a room_id or a piece_id of this building"}
     path = ctx.plan_crop_path(room_id)
     if path is None:
-        out = {"room_id": room_id, "image": None, "note": "no plan crop on disk for this room"}
+        out = {"room_id": room_id, "image": None, "note": NO_PLAN_CROP_NOTE}
     else:
         ctx.pending_images.append(path)
         out = {"room_id": room_id, "image": str(path.relative_to(ctx.project_out)), "shown": True}
