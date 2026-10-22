@@ -276,13 +276,23 @@ def route(accepted: list[dict]) -> Optional[str]:
 
 def changed_views(cameras: list[dict], accepted: list[dict], room_of: Callable[[str], Optional[str]]) -> list[str]:
     """The views whose scene the accepted edits change: the views of every room a furniture edit touched, every
-    camera edit's view, every exterior view after an exterior edit, every view after a material or level edit."""
+    camera edit's view, every exterior view after an exterior edit, every view after a material or level edit.
+    Integration of the fix round after P5: every exterior view too after a furniture edit that targeted an exterior
+    finding (an ``X`` check: a piece through the roof is seen from outside). P5's round-4 move of the bookcase
+    f_L1_048 (seq 5696, X2 "pokes through the roof") re-rendered only the room's three views; ext_1/2/3/5/7 were
+    carried from the earlier build and still showed it through the roof (and flagged those views not
+    commercial-safe), although the final scene has it 0.9 m under the roof."""
     rooms: set = set()
     views: set = set()
     exterior = everything = False
     for a in accepted:
         tool, args, res = a["tool"], a.get("args") or {}, a.get("result") or {}
         if tool in OV.FURNITURE_TOOLS:
+            acc = res.get("acceptance") if isinstance(res.get("acceptance"), dict) else {}
+            checks = [str(t).split(":")[0] for t in acc.get("target") or []]
+            checks += [str(f.get("check") or "") for f in acc.get("target_findings") or [] if isinstance(f, dict)]
+            if any(c.startswith("X") for c in checks):
+                exterior = True
             if args.get("room_id"):
                 rooms.add(args["room_id"])
             for pid in [args.get("piece_id")] + list(res.get("changed_ids") or []):
