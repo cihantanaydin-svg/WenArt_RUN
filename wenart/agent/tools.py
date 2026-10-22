@@ -357,9 +357,9 @@ DESCRIPTIONS = {
                   "is frozen and refused; a frontal view stays square to its facade, an entrance view stays "
                   "close in front of its door and the allowed aerial or site view stays an aerial view (never "
                   "brought to eye level). A camera_blocked interior view moves to a free point with headroom.",
-    "add_camera": "Add a camera view under a new view id. An exterior view of a long, low building may take a wider "
-                  "lens (16-18 mm) or a tilted framing; a refusal for standing inside a building names the free "
-                  "stretch of the view line.",
+    "add_camera": "Add a camera view under a new view id. An exterior view of a long, low building may be framed "
+                  "wider or tilted; a refusal for standing inside a building names the free stretch of the view "
+                  "line.",
     "remove_camera": "Remove a camera view (e.g. a view of a bare wall); never a replayed (set 1) camera, nor the "
                      "only frontal or entrance view.",
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
@@ -1859,9 +1859,8 @@ def free_strip_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
     """Fix round after P5: an exterior camera refused because it stands inside a building (the main one or another
     on the plot, ``exterior_checks.validate_camera_override``) gets the free stretches of its view line, from the
     target back through the refused position (and ``FREE_STRIP_BEYOND_M`` beyond it), with the same 0.3 m margin as
-    the validator, and the framing the camera policy allows there (decision of 22 Oct 2026: a long, low building may be
-    framed wider or tilted); only the first free stretch is named (a building stands between any later one and the
-    target). ``failed`` unchanged when there is nothing to name. Why: P5's add_camera ext_front_y was
+    the validator; only the first free stretch is named (a building stands between any later one and the target).
+    The hint says that a close view may be framed wider or tilted (the decision of 22 Oct 2026 for exterior views). ``failed`` unchanged when there is nothing to name. Why: P5's add_camera ext_front_y was
     refused three times "inside the building b2" (y 28 and y 20) while the 6 m between the house (y 12) and b2
     (y 18.57) was free; X6 "no frontal view" stayed open in all 4 rounds."""
     if not any(INSIDE_WORDS in str(f) for f in failed or []) or not entry.get("position") or not entry.get("target"):
@@ -1909,8 +1908,8 @@ def free_strip_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
     a, b = spans[0]
     return list(failed) + [f"free on the view line from the target: ({tx + ux * a:.2f}, {ty + uy * a:.2f}) to "
                            f"({tx + ux * b:.2f}, {ty + uy * b:.2f}), {a:.1f}-{b:.1f} m from the target (a building "
-                           f"stands beyond it); a close view there may take the 16-18 mm lens or a tilted framing (a "
-                           f"long, low building, decision of 22 Oct 2026), at eye height over the ground there"]
+                           f"stands beyond it); a camera there stands at eye height over the ground there, and a close "
+                           f"view may be framed wider or tilted when the whole facade does not fit"]
 
 
 def _look_2d(position, target) -> Optional[tuple[float, float]]:

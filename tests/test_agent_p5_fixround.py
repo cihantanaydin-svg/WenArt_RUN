@@ -613,7 +613,7 @@ def test_a_camera_refused_inside_the_other_building_gets_the_free_stretch():
         assert any("inside the building b2" in f for f in failed)
         hint = TL.free_strip_hint(ctx, entry, failed)[-1]
         assert hint.startswith("free on the view line from the target: (8.50, 12.50) to (8.50, 18.20)"), hint
-        assert "16-18 mm lens or a tilted framing" in hint
+        assert "a close view may be framed wider or tilted" in hint
     entry = {"action": "add", "view_id": "ext_9", "kind": "exterior", "position": [8.5, 16.0, 1.6],
              "target": [8.5, 12.5, 1.5]}
     assert TL.free_strip_hint(ctx, entry, ["eye height 2.96 m"]) == ["eye height 2.96 m"]
@@ -630,7 +630,7 @@ def test_the_prompts_and_tools_name_the_decisions_of_22_oct():
     assert "bathtub or shower up to 5 cm longer than its bay is a misread size" in rule2
     assert "(F1, G14), retype_piece gives it a type that fits" in rule3 and "never mark it or remove it" in rule3
     assert "retyped from its size, room and neighbours (adjusted_by_ai by code, drawn_type kept)" in rule3
-    assert "long, low building may take a wider lens (16-18 mm) or a tilted framing" in rule7
+    assert "An exterior view of a long, low building may be framed wider or tilted" in rule7
     assert "camera_blocked view" in rule7
     # the older rules stay
     assert "The room's plan crop or a view is no evidence" in rule3 and "move, snap or turn it" in rule3

@@ -36,7 +36,7 @@ size that ``fix_fixture`` shrinks to the nearest real product size that fits (dr
 placement finding that a drawn piece typed from the drawing does not fit its room (F1, G14) is answered with
 ``retype_piece``, never a removal (P5 marked the code-typed coffee table f_L1_021 "a stair" with a camera crop), and
 the code's own retype of a vision-typed piece (``adjusted_by_ai`` by code, ``drawn_type`` kept) is the reading's,
-not the agent's to undo. Rule 7: a long, low building's exterior view may take a wider lens or a tilted framing, a
+not the agent's to undo. Rule 7: a long, low building's exterior view may be framed wider or tilted, a
 refused exterior camera names the free stretch of its view line, and a ``camera_blocked`` view (the lens touches a
 surface, one element fills the frame) is moved to a free point with headroom.
 """
@@ -406,8 +406,8 @@ PLANNER_SYSTEM_M12 = (
     "may be used. The roof, site, sun, materials, levels and exterior cameras belong to the building session only. "
     "Cameras replayed from the baseline run (set 1) are fixed: never set or remove them (add_camera with a new view "
     "id adds a view); a frontal view stays square to its facade, an entrance view stays close in front of its door. "
-    "An exterior view of a long, low building may take a wider lens (16-18 mm) or a tilted framing; a refused "
-    "exterior camera names the free stretch of its view line. A camera_blocked view (the lens touches a surface or "
+    "An exterior view of a long, low building may be framed wider or tilted; a refused exterior camera names the "
+    "free stretch of its view line. A camera_blocked view (the lens touches a surface or "
     "one element fills the frame) is moved to a free point of its room with headroom (set_camera).\n"
     "8. A fixable finding may name an edit_target: the piece the tool must act on instead of the finding's target "
     "(a chair or nightstand stands around an anchor the fit left unbuilt: retype_piece types and builds an unknown "
