@@ -206,6 +206,12 @@ Fix round after P5 (22 Oct 2026; pod P5, real04, and the user's decisions of the
   type does not fit its room is retyped, never removed, and a piece the code retyped from its size, room and
   neighbours keeps that type (the code's retype, not the agent's); a drawn bathtub or shower up to 5 cm longer than
   its bay is a misread size (``fix_fixture``); an exterior view of a long, low building may be framed wider or tilted.
+
+Fix round after P5 (22 Oct 2026), review: ``remove_camera`` of an interior view is refused while it is the only view
+of its room (``only_room_view_problem``, ``room_views``: the scene's cameras with this session's accepted adds and
+removes), so a critical ``camera_blocked`` is fixed by ``set_camera``, never by dropping the room's render (P5's
+cam_r_L1_banyo_1 is the bathroom's only view); ``free_strip_hint`` names the wider or tilted framing only for a long,
+low building (``long_low_of``: ``exterior.long_low`` of the build's exterior model), else the eye-level lens.
 """
 from __future__ import annotations
 
@@ -361,7 +367,7 @@ DESCRIPTIONS = {
                   "wider or tilted; a refusal for standing inside a building names the free stretch of the view "
                   "line.",
     "remove_camera": "Remove a camera view (e.g. a view of a bare wall); never a replayed (set 1) camera, nor the "
-                     "only frontal or entrance view.",
+                     "only frontal or entrance view, nor the only view of a room (set_camera moves it).",
     "set_material": "Set the look of a material slot (walls, floor, wet walls, kitchen walls, facade, roof, ground, "
                     "frames ...).",
     "set_exterior": "Change the roof (type, pitch, overhang), ground, site items or the sun (the building session "
@@ -1757,6 +1763,41 @@ def added_camera(ctx: ToolContext, view_id: str) -> Optional[dict]:
     return {"name": str(view_id), "kind": "exterior", "room_id": None}
 
 
+def room_views(ctx: ToolContext, room_id: str) -> list[str]:
+    """Fix round after P5 (22 Oct 2026), review: the names of the interior views of ``room_id`` the next build
+    makes: the scene's interior cameras and this session's accepted interior ``add`` entries, each in the room of its
+    last accepted ``set`` / ``add`` entry (else its scene camera's), less those whose last accepted entry is a
+    ``remove`` (the same sources as ``exterior_poses``)."""
+    if ctx.overrides is not None:
+        source = ctx.overrides.agent_overrides()
+    else:
+        source = ctx.building.get("agent_overrides") if isinstance(ctx.building.get("agent_overrides"), dict) else {}
+    last: dict = {}
+    for e in source.get("cameras") or []:
+        if isinstance(e, dict) and e.get("view_id") is not None:
+            last[str(e["view_id"])] = e
+    rooms = {str(c.get("name")): c.get("room_id") for c in ctx.cameras()
+             if (c.get("kind") or ("exterior" if not c.get("room_id") else "interior")) == "interior"}
+    for name, e in last.items():
+        if e.get("action") in ("set", "add") and e.get("kind", "interior") == "interior" and e.get("room_id"):
+            rooms[name] = e["room_id"]
+    return sorted(n for n, r in rooms.items()
+                  if str(r) == str(room_id) and (last.get(n) or {}).get("action") != "remove")
+
+
+def only_room_view_problem(ctx: ToolContext, view_id: str, cam: dict) -> Optional[str]:
+    """Fix round after P5 (22 Oct 2026), review: why removing the interior view ``view_id`` would leave its room
+    without a view (no other view of it in ``room_views``), else None. Why: the critical ``camera_blocked`` goes to
+    ``set_camera`` and ``remove_camera``; on P5 real04 cam_r_L1_banyo_1 is the bathroom's only view, so once its
+    moves were refused the dry re-check accepted ``remove_camera`` ("finding gone") and the room lost its render,
+    which the render test (every room with something to show has a view) fails."""
+    room = cam.get("room_id")
+    if not room or [n for n in room_views(ctx, room) if n != str(view_id)]:
+        return None
+    return (f"role: {view_id} is the only view of {room} (every room with something to show keeps a view: the camera "
+            f"policy and the render test): it is not removed; set_camera moves it to a free point of the room")
+
+
 def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Optional[str]:
     """Fix round after P4b (module docstring, decision 2): why a camera edit would lose the view's role: a ``set`` /
     ``add`` that turns a frontal view into another pose or moves an entrance view away from its door, a ``remove`` of
@@ -1771,12 +1812,18 @@ def role_problem(ctx: ToolContext, action: str, view_id: str, entry: dict) -> Op
     down to eye level (``aerial_problem``); it may move to another aerial pose or be removed. Review of round 2: an
     exterior camera added in this session (``added_camera``) is guarded like a scene camera, so the frontal view the
     agent added is not added again at another pose, and the "another camera stays X6's frontal view" exception never
-    rests on an unguarded camera."""
+    rests on an unguarded camera.
+
+    Fix round after P5 (22 Oct 2026), review: a ``remove`` of an interior view is refused while it is the only view
+    of its room (``only_room_view_problem``)."""
     from wenart.agent import critic_vision as CV
 
     cam = ctx.camera(view_id)
     if cam is None:
         cam = added_camera(ctx, view_id)
+    if isinstance(cam, dict) and action == "remove" and \
+            (cam.get("kind") or ("exterior" if not cam.get("room_id") else "interior")) != "exterior":
+        return only_room_view_problem(ctx, view_id, cam)
     if not isinstance(cam, dict) or (cam.get("kind") or ("exterior" if not cam.get("room_id") else "interior")) \
             != "exterior":
         return None
@@ -1862,8 +1909,9 @@ def free_strip_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
     on the plot, ``exterior_checks.validate_camera_override``) gets the free stretches of its view line, from the
     target back through the refused position (and ``FREE_STRIP_BEYOND_M`` beyond it), with the same 0.3 m margin as
     the validator; only the first free stretch is named (a building stands between any later one and the target).
-    The hint says that a close view may be framed wider or tilted (the decision of 22 Oct 2026 for exterior views).
-    ``failed`` unchanged when there is nothing to name. Why: P5's add_camera ext_front_y was refused three times
+    The hint says that a close view may be framed wider or tilted (the decision of 22 Oct 2026 for exterior views of
+    long, low buildings; review: only for such a building, ``long_low_of``, else that the view keeps the eye-level
+    lens). ``failed`` unchanged when there is nothing to name. Why: P5's add_camera ext_front_y was refused three times
     "inside the building b2" (y 28 and y 20) while the 6 m between the house (y 12) and b2 (y 18.57) was free; X6 "no
     frontal view" stayed open in all 4 rounds."""
     if not any(INSIDE_WORDS in str(f) for f in failed or []) or not entry.get("position") or not entry.get("target"):
@@ -1909,10 +1957,33 @@ def free_strip_hint(ctx: ToolContext, entry: dict, failed: list) -> list:
         return failed
     # only the first free stretch sees the target: a building lies between it and any later one
     a, b = spans[0]
+    # fix round after P5 (22 Oct 2026), review: the wider or tilted framing is the long, low building's only
+    from wenart.blender import exterior as E
+    framing = ("a close view may be framed wider or tilted when the whole facade does not fit (a long, low building)"
+               if long_low_of(prep) else
+               f"the view keeps the {E.EYE_LENS_MM:g} mm eye-level lens, level (the wider or tilted framing is for a "
+               f"long, low building only)")
     return list(failed) + [f"free on the view line from the target: ({tx + ux * a:.2f}, {ty + uy * a:.2f}) to "
                            f"({tx + ux * b:.2f}, {ty + uy * b:.2f}), {a:.1f}-{b:.1f} m from the target (a building "
-                           f"stands beyond it); a camera there stands at eye height over the ground there, and a close "
-                           f"view may be framed wider or tilted when the whole facade does not fit"]
+                           f"stands beyond it); a camera there stands at eye height over the ground there, and "
+                           f"{framing}"]
+
+
+def long_low_of(prep: Optional[dict]) -> Optional[dict]:
+    """Fix round after P5 (22 Oct 2026), review: ``exterior.long_low`` of the build's exterior model of the base
+    variant (``exterior.build_model`` on ``build.prepare``'s building, roof and site, as the build makes it), None for
+    any other building or when it cannot be made. Why: ``free_strip_hint`` offered the wider or tilted framing of the
+    user's decision of 22 Oct 2026 to every building; it holds for long, low buildings only (real03, ratio 10.4; not
+    real02 or real04, 1.5-1.7)."""
+    if not isinstance(prep, dict) or not isinstance(prep.get("building"), dict):
+        return None
+    from wenart.blender import exterior as E
+
+    try:
+        b = prep["building"]
+        return E.long_low(E.build_model(b, b.get("levels") or [], prep.get("roof"), prep.get("site")))
+    except Exception:  # noqa: BLE001 - a hint only: no framing clause without the model
+        return None
 
 
 def _look_2d(position, target) -> Optional[tuple[float, float]]:
@@ -1997,7 +2068,8 @@ def camera_handler(tool: str) -> Callable[[ToolContext, dict], dict]:
             out = _result(False, [refusal], tool=tool, frozen=frozen,
                           message="refused: a replayed (set 1) camera is frozen" if frozen else
                           "refused: a near copy of another exterior view" if refusal.startswith("duplicate") else
-                          "refused: the view keeps its role (frontal, entrance or the allowed aerial)")
+                          "refused: the view keeps its role (frontal, entrance, the allowed aerial or the room's "
+                          "only view)")
             ctx.rejected.append({"tool": tool, "args": args, "result": out})
             return out
         if action in ("set", "add"):

@@ -50,6 +50,15 @@ larger piece within 0.3 m and how many of the similar ones stand around it). Ras
 neighbours: their room names and clusters can change with the label answers of the same round, and a symbol question
 must ask the same in both rounds. The facts are deterministic (rounded to 1 mm / 1 cm), rendered by
 ``prompts.symbol_type_prompt`` and hashed by ``crops.question_digest``.
+
+Fix round after P5 (22 Oct 2026), review: **the bed-pillow front is for beds only, also on the AI path**
+(``_without_head_rule``). The core's front rule "head = side with >= 2 small closed shapes" (``HEAD_RULE``) finds a
+bed's pillows; on a seat the small closed shapes are its arm ends or cushions. When the passes name types and none of
+them is a bed (``HEAD_RULE_TYPES``, the same tuple as ``wenart.ingest.generic.symbols.HEAD_RULE_TYPES``, which the
+block reader applies), that rule is dropped from the candidate's fronts before the front rule (a rule it agreed with
+stays), with a warning. Why: an unnamed (exploded) sofa with two cushion squares near one long side kept the pillow
+front as its drawn front over both passes ('bottom') and faced away from its group; only block-named seats were fixed
+(P5 real04 f_L1_009..012). A piece no pass types (both unknown, or no answers) and a piece a pass calls a bed keep it.
 """
 from __future__ import annotations
 
@@ -85,6 +94,9 @@ LABEL_MAX_CHARS = 60
 # Types a footprint size alone never offers or accepts: they need the drawn shape the core found (docs/milestone10.md
 # §1.1: the corner sofa is an L; ``candidate["shape"]``). Their size range is the bounding box of the shape.
 SHAPED_TYPES: dict[str, str] = {"sofa_corner": "L"}
+# Fix round after P5 (module docstring): the core's bed-pillow front rule and the types it is for.
+HEAD_RULE = "head = side with >= 2 small closed shapes"
+HEAD_RULE_TYPES: tuple[str, ...] = ("bed_double", "bed_single", "bunk_bed")
 
 
 # --------------------------------------------------------------------------
@@ -400,6 +412,33 @@ def _deterministic_front(candidate: dict) -> Optional[float]:
     return values[0][0] if len(values) == 1 else None
 
 
+def _without_head_rule(candidate: dict, passes: list[dict], warnings: list[str]) -> dict:
+    """Fix round after P5 (module docstring), review: the candidate without the bed-pillow front rule (``HEAD_RULE``)
+    when the passes name furniture types and none is a bed; a front another rule gave too keeps that rule (rules that
+    agree are joined with "; "). Else the candidate itself."""
+    named = {p["answer"]["type"] for p in passes} - {"unknown", schemas.NOT_FURNITURE}
+    if not named or named & set(HEAD_RULE_TYPES):
+        return candidate
+    fronts, dropped, changed = [], [], False
+    for c in candidate.get("front_candidates") or []:
+        rules = str(c.get("rule") or "").split("; ") if isinstance(c, dict) else []
+        if not any(r.startswith(HEAD_RULE) for r in rules):
+            fronts.append(c)
+            continue
+        changed = True
+        rest = [r for r in rules if not r.startswith(HEAD_RULE)]
+        if rest:
+            fronts.append(dict(c, rule="; ".join(rest)))
+        else:
+            dropped.append(float(c["front_deg"]) if c.get("front_deg") is not None else None)
+    if not changed:
+        return candidate
+    gone = ", ".join(f"{v:g}" for v in dropped if v is not None)
+    warnings.append(f"{candidate.get('key')}: the passes name {', '.join(sorted(named))}, no bed: the bed-pillow "
+                    f"front rule ({HEAD_RULE}) is not used" + (f" (front {gone} deg dropped)" if gone else ""))
+    return dict(candidate, front_candidates=fronts)
+
+
 def _front(candidate: dict, passes: list[dict], warnings: list[str]) -> tuple[Optional[float], Optional[str]]:
     """``(front, disagreement)``: see the module docstring (**Front**). ``disagreement`` describes AI fronts that
     contradict the kept drawn front (the caller lists it as a conflict)."""
@@ -483,6 +522,8 @@ def decide(candidate: dict, answers: Optional[dict], size_table: dict, room_type
         result.update(build=False, note=NOT_BUILT_NOTE)
         warnings.append(f"{key}: both passes say not_furniture: kept as an obstacle, not built")
         return result
+    # Fix round after P5 (module docstring), review: no bed-pillow front for a piece the passes call a seat
+    candidate = _without_head_rule(candidate, passes, warnings)
     result["front"], disagreement = _front(candidate, passes, warnings)
     if disagreement is not None:
         result["front_rule"] = _front_rules(candidate)[0][1]

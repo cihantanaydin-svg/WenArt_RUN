@@ -111,7 +111,9 @@ Fix round after P5 (22 Oct 2026; pod P5, real04):
   has the same check on an added piece of the same type in the same room (``recreated_finding``), the finding is still
   there, under a new id; the reason names both ids. Why: P5's relayout_room (seq 5383) "removed" X2:f_L1_049 by
   re-creating the same console table at the same centre as f_L1_056, and round 4 measured X2:f_L1_056 at the same
-  0.84 / 0.82 m;
+  0.84 / 0.82 m. Fix round after P5 (22 Oct 2026), review: that finding is critical or major (or as severe as the
+  target), and an S2 is the same cut (the same wall, or a partner of the same id or type, ``edit["types"]``:
+  ``piece_types``), so a minor touch of two re-created chairs no longer stands in for a cleared wall cut;
 - the render's ``camera_blocked`` (``critic_code.blocked_items``: a preview whose lens touches a surface or whose
   frame one element fills) has the cause ``interior_camera`` (``set_camera`` / ``remove_camera`` on the view; an
   exterior view: ``exterior_camera``, the building session); a replayed (set 1) camera is frozen
@@ -631,22 +633,70 @@ def added_pieces(before: Optional[dict], after: Optional[dict]) -> list[dict]:
     return out
 
 
+def piece_types(*buildings: Optional[dict]) -> dict[str, str]:
+    """Fix round after P5 (22 Oct 2026), review: ``{piece id: type}`` of every piece of ``buildings`` (a later
+    building's type wins), for the S2 partner rule of ``recreated_finding`` (``edit["types"]``). Pure."""
+    out: dict[str, str] = {}
+    for b in buildings:
+        for f in (b or {}).get("furniture") or []:
+            if isinstance(f, dict) and f.get("id") is not None:
+                out[str(f["id"])] = str(f.get("type"))
+    return out
+
+
+def _as_severe(finding: dict, target: dict) -> bool:
+    """Fix round after P5, review: ``finding`` is critical or major, or at least as severe as ``target``."""
+    rank = SEVERITY_ORDER.get(str(finding.get("severity")), 3)
+    return rank <= max(SEVERITY_ORDER["major"], SEVERITY_ORDER.get(str(target.get("severity")), 3))
+
+
 def recreated_finding(target: tuple, before_by: dict, after_by: dict, removed: list[dict],
-                      added: list[dict]) -> Optional[tuple[tuple, dict]]:
+                      added: list[dict], types: Optional[dict] = None) -> Optional[tuple[tuple, dict]]:
     """Fix round after P5: ``(key, piece)`` of a finding of ``after_by`` with the same check as the target finding
     ``target`` on a piece the edit added (``added``) of the type and room of the target's piece the edit removed
     (``removed``), else None: the same finding on the same piece under a new id (P5's relayout_room re-created the
-    console table f_L1_049 as f_L1_056 under the same 0.82 m slope)."""
+    console table f_L1_049 as f_L1_056 under the same 0.82 m slope).
+
+    Fix round after P5 (22 Oct 2026), review: the finding after the edit counts only when it is critical or major
+    (or at least as severe as the target), and an S2 only when it is the same cut: a wall cut of the same wall
+    (``metrics.wall_id``), a piece cut (``metrics.other``) with the same partner or a partner of the same type
+    (``types``: ``{id: type}``, ``piece_types``; the removed and added records count too), whichever of the two
+    pieces the check names (the re-created piece may be its ``other``). Why: a dining-room relayout that cleared the
+    major wall cut S2:f_9/w_3 re-created the chairs as f_20 / f_21, which touch each other within tolerance (a minor
+    S2:f_20/f_21); the edit was refused as "still there", although the same-id rule (``kept``) compares the cut
+    too."""
     finding = before_by.get(target) or {}
     gone = next((p for p in removed if p.get("id") == finding.get("target")), None)
     if gone is None:
         return None
+    kinds = {str(p.get("id")): str(p.get("type")) for p in list(removed) + list(added) if p.get("id") is not None}
+    kinds.update({str(k): str(v) for k, v in (types or {}).items()})
+
+    def recreated(pid) -> Optional[dict]:
+        return next((p for p in added if p.get("id") == pid and p.get("type") == gone.get("type")
+                     and p.get("room_id") == gone.get("room_id")), None)
+
+    def same_partner(pid, partner) -> bool:
+        if pid is None or partner is None:
+            return False
+        if str(pid) == str(partner):
+            return True
+        return kinds.get(str(pid)) is not None and kinds.get(str(pid)) == kinds.get(str(partner))
+
+    was = _metrics(finding)
     for key in sorted(after_by):
         f = after_by[key]
-        if key[0] != target[0] or f.get("target") == gone.get("id"):
+        if key[0] != target[0] or f.get("target") == gone.get("id") or not _as_severe(f, finding):
             continue
-        hit = next((p for p in added if p.get("id") == f.get("target") and p.get("type") == gone.get("type")
-                    and p.get("room_id") == gone.get("room_id")), None)
+        now = _metrics(f)
+        if target[0] != "S2" or not (was.get("wall_id") or was.get("other")):
+            hit = recreated(f.get("target"))
+        elif was.get("wall_id"):
+            hit = recreated(f.get("target")) if now.get("wall_id") == was.get("wall_id") else None
+        else:
+            hit = recreated(f.get("target")) if same_partner(now.get("other"), was.get("other")) else None
+            if hit is None and same_partner(f.get("target"), was.get("other")):
+                hit = recreated(now.get("other"))          # the check names the partner, the re-created piece is other
         if hit is not None:
             return key, hit
     return None
@@ -728,7 +778,7 @@ def accept_edit(before: list[dict], after: list[dict], edit: dict) -> tuple[bool
     # fix round after P5 (module docstring): a removed piece re-created under a new id keeps its finding
     for t in present:
         again = recreated_finding(t, before_by, after_by, list(edit.get("removed") or []),
-                                  list(edit.get("added") or []))
+                                  list(edit.get("added") or []), edit.get("types"))
         if again is not None:
             key, p = again
             f = after_by[key]

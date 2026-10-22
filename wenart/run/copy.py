@@ -19,6 +19,7 @@ What: ``python -m wenart.run copy --projects ... [--private ...] [--ab ...]
 | ``debug/*.png``, ``rectified/*.png`` (each <= 3 MB) | ``furniture/<p>/debug/``, ``furniture/<p>/rectified/`` |
 | ``recognition/requests.json``, ``recognition/answers_*.json`` | ``recognition/<p>/`` |
 | ``recognition/crops/*.png`` (the first 200 by name) | ``recognition/<p>/crops/`` |
+| ``recognition/reading/*.png`` (the reading's plan crops, the first 200 by name; fix round after P5) | ``recognition/<p>/reading/`` |
 | ``detect/*.json`` | ``check/<p>/detect/`` |
 | ``decor_debug/*.png`` (<= 3 MB), ``decor_debug/*.json`` (Milestone 9) | ``furniture/<p>/decor_debug/`` |
 | ``export/<p>.blend``, ``export/<p>.glb``, ``export/export_manifest.json`` (Milestone 9) | ``final/<p>/3d/`` |
@@ -337,6 +338,9 @@ PUBLIC_RULES = (
     Rule("rectified", "furniture", "rectified", "png"),
     Rule("recognition", "recognition", "", "recognition"),
     Rule("recognition/crops", "recognition", "crops", "crops"),
+    # fix round after P5 (22 Oct 2026), review: the plan crops the reading draws for a fixed piece it shrinks or
+    # corrects without a question crop (reading.READING_CROP_DIR); kept apart from the question crops' MAX_CROPS
+    Rule("recognition/reading", "recognition", "reading", "crops"),
     Rule("detect", "check", "detect", "json"),
     # Milestone 9: the AI decor's debug images and records; the 3D files of the final scene (user request of
     # 4 Oct 2026: a packed .blend and a .glb that open in Blender) with their manifest.

@@ -18,6 +18,11 @@ Every test here fails on BASE (commit 29e54d0) or names the mutation it guards:
   ``fix_fixture`` (user decision of 22 Oct 2026; P4b real03: four tubs and four showers);
 - the mark lock: when the AI passes typed the piece as furniture too, a type_disagreement conflict or an RC finding
   no longer lifts it (P5 seq 5021); an untyped piece is marked only with its plan crop (P5 seq 5388).
+
+Fix round after P5 (22 Oct 2026), review (``test_review_*``, each fails before its fix): no bed-pillow front for an
+AI-typed seat; no desk split for a real desk depth or a drawn chair; no short-side front for a long-front type from the
+wall rules; no seat cushion in a box corner sofa's open corner; a second code correction keeps the first record; an
+agreed ottoman stays; a bath shrunk without a question crop gets a plan crop drawn at the reading.
 """
 from __future__ import annotations
 
@@ -444,3 +449,168 @@ def test_an_untyped_piece_is_marked_only_with_its_plan_crop():
     res = E.apply_edit(b, edit("mark_not_furniture", piece_id="f_L-1b_001", kind="other", evidence=text))
     assert res["accepted"], res["failed_checks"]
     assert res["building"]["symbols"][0]["crop"] == "recognition/crops/sym_L-1b_001_ctx.png"
+
+
+# --------------------------------------------------------------------------
+# Fix round after P5 (22 Oct 2026), review: the reading track's review findings
+# --------------------------------------------------------------------------
+
+def _ai(ftype: str, front: str) -> dict:
+    from wenart.recognition import answers as A
+    ans = {"type": ftype, "front": front, "confidence": 0.8, "reason": "seen from above"}
+    return {k: dict(ans) for k in A.MODEL_KEYS}
+
+
+def _pillow_candidate(size=(2.0, 0.9), rule: str = INF.PILLOW_FRONT_NOTE) -> dict:
+    w, d = size
+    return {"key": "sym_L0_1", "file": "plan.dxf", "page": 1, "element_id": "f_L0_001",
+            "footprint": {"center": [2.0, 2.0], "size": [w, d], "rotation_deg": 0.0}, "strokes": [],
+            "bbox": [2.0 - w / 2, 2.0 - d / 2, 2.0 + w / 2, 2.0 + d / 2],
+            "front_candidates": [{"front_deg": 90.0, "rule": rule}]}
+
+
+def test_review_an_ai_typed_seat_is_never_fronted_by_the_bed_pillow_rule():
+    """Fails before the review fix: an unnamed sofa with two cushions near one long side got the pillow front 90
+    ('head = side ...') as its drawn front, kept over both AI passes ('bottom'): it faced away from its group. Only
+    block-named seats were fixed. Now ``decide`` drops the pillow rule when the passes name types and none is a bed."""
+    from wenart.recognition import symbols as RS
+
+    table = RS.load_size_table()
+    res = RS.decide(_pillow_candidate(), _ai("sofa", "bottom"), table, "living")
+    assert res["type"] == "sofa" and res["front"] == 270.0 and res["front_conflict"] is None
+    res = RS.decide(_pillow_candidate(), _ai("sofa", "none"), table, "living")
+    assert res["front"] is None and res["front_rule"] is None                    # no assumed pillow front either
+    assert any("bed-pillow" in w for w in res["warnings"])
+    # a rule the pillow rule agreed with stays (only the pillow part goes)
+    wall = "only side within 0.25 m of a wall is the back"
+    res = RS.decide(_pillow_candidate(rule=f"{wall}; {INF.PILLOW_FRONT_NOTE}"), _ai("sofa", "none"), table, "living")
+    assert res["front"] == 90.0 and res["front_rule"] == wall
+    # mutation guard: a bed keeps its pillows' head (the drawn front over the AI), as before
+    res = RS.decide(_pillow_candidate(size=(1.6, 2.0)), _ai("bed_double", "bottom"), table, "bedroom")
+    assert res["front"] == 90.0 and res["front_conflict"] is not None
+    assert RS.HEAD_RULE_TYPES == SY.HEAD_RULE_TYPES
+
+
+def test_review_a_desk_of_a_real_depth_or_with_its_chair_drawn_is_not_split():
+    """Fails before the review fix: a block-named 1.60 x 0.85 m desk (a real desk size) was cut to 0.60 m and a
+    second 'from_documents' office chair was added in front of the drawn one. The split is for a desk symbol deeper
+    than any real desk (> 0.90 m) with no seat drawn in front; real04's 1.45 x 0.91 m desks still split."""
+    desk = M.fp("d2", "desk", (2.5, 3.575), (1.6, 0.85), front=270.0, type_method="block_name")
+    build = ProjectBuild(M.building(room_type="bedroom", window=None, furniture=[desk]))
+    assert RD.desk_chairs(build, {}) == [] and RD.DESK_SPLIT_DEPTH_M == pytest.approx(0.90)
+    desk = M.fp("d", "desk", (2.5, 3.545), (1.45, 0.91), front=270.0, type_method="inferred")
+    chair = M.fp("c", "office_chair", (2.5, 2.85), (0.55, 0.55), rotation=180.0, front=90.0,
+                 type_method="block_name")
+    build = ProjectBuild(M.building(room_type="bedroom", window=None, furniture=[desk, chair]))
+    assert RD.desk_chairs(build, {}) == []
+    b = build.building
+    assert len(b["furniture"]) == 2 and _piece(b, "d")["footprint"]["size"] == [1.45, 0.91]
+    assert "adjusted_by_ai" not in _piece(b, "d")
+    # mutation guard: the same desk without the drawn chair still splits (real04 f_L0_023..026)
+    alone = ProjectBuild(M.building(room_type="bedroom", window=None,
+                                    furniture=[M.fp("d", "desk", (2.5, 3.545), (1.45, 0.91), front=270.0)]))
+    assert len(RD.desk_chairs(alone, {})) == 1
+
+
+def test_review_a_sofa_with_one_arm_on_a_wall_faces_along_its_long_side():
+    """Fails before the review fix: ``_front_of``'s one-wall rule put the back on the only side on a wall, so a sofa
+    standing as a room divider with one arm on the wall faced along its length (front 0, a short side) and nothing
+    corrected it later (``long_side_fronts`` skips block-named pieces and runs before the last ``infer_fronts``). A
+    type that faces along a long side never gets a short-side front from these rules: the long side facing the most
+    room."""
+    sofa = M.fp("s", "sofa", (1.0, 1.5), (2.0, 0.9), front=None, type_method="block_name")
+    b = M.building(w=5.0, h=4.0, room_type="living", window=None, door_x=4.0, furniture=[sofa])
+    front, why = RD._front_of(sofa, b["rooms"][0], [])
+    assert front == 90.0 and not RD._short_side_front(sofa["footprint"], front)
+    build = ProjectBuild(b)
+    assert RD.infer_fronts(build) == 1
+    f = _piece(build.building, "s")
+    assert f["front_deg"] == 90.0 and not RD._short_side_front(f["footprint"], 90.0)
+    # mutation guard: a bed still puts its head (a short side) on the wall
+    bed = M.fp("bd", "bed_double", (1.0, 1.5), (2.0, 1.6), front=None)
+    bb = M.building(w=5.0, h=4.0, room_type="bedroom", window=None, door_x=4.0, furniture=[bed])
+    assert RD._front_of(bed, bb["rooms"][0], [])[0] == 0.0
+
+
+def _box_corner_sofa_room(l_shape: bool = False) -> dict:
+    """A corner sofa typed without its L (real03's f_L0_190/196: a 2.1 x 1.5 m box; ``l_shape`` adds the drawn L:
+    the main seat along the north, the chaise on the left seen from the front, the open corner to the south-east)
+    with a 0.45 m pouf in the box's open corner."""
+    sofa = M.fp("cs", "sofa_corner", (3.0, 3.25), (2.1, 1.5), front=270.0, type_method="group_member")
+    if l_shape:
+        sofa.update(shape="L", chaise_side="left", chaise_depth=1.5, seat_depth=0.8, chaise_width=0.8)
+    pouf = M.fp("pf", "ottoman", (3.7, 2.9), (0.45, 0.45), front=None, type_method="ai_two_pass")
+    return M.building(w=5.0, h=4.0, room_type="living", window=None, door_x=4.0, furniture=[sofa, pouf])
+
+
+def test_review_a_pouf_in_the_open_corner_of_a_corner_sofa_is_no_seat_cushion():
+    """Fails before the review fix: a corner sofa without its L counted its whole box as the seat, so a drawn pouf
+    in the open corner lay 100 % inside and was removed as a 'seat cushion'. A corner sofa hosts a cushion only on
+    its drawn L body."""
+    build = ProjectBuild(_box_corner_sofa_room())
+    assert RD.seat_cushions(build, {}) == []
+    assert _piece(build.building, "pf").get("build") is not False
+    build = ProjectBuild(_box_corner_sofa_room(l_shape=True))
+    assert RD.seat_cushions(build, {}) == []
+    # mutation guard: a cushion on the L's main seat is still its cushion
+    b = _box_corner_sofa_room(l_shape=True)
+    b["furniture"].append(M.fp("cu", "ottoman", (3.5, 3.6), (0.45, 0.45), front=None, type_method="ai_two_pass"))
+    assert RD.seat_cushions(ProjectBuild(b), {}) == ["cu"]
+
+
+def test_review_a_second_code_correction_keeps_the_first_ones_record():
+    """Fails before the review fix: ``_code_label`` replaced the label, so a desk whose short-side AI front
+    ``long_side_fronts`` turned lost that record when ``desk_chairs`` split it (changed held no front_deg, the reason
+    named only the split); ``_apply_nightstand`` did the same. The records merge: reasons joined, the earliest values
+    in ``changed``, every rule listed."""
+    desk = M.fp("d", "desk", (2.5, 3.545), (0.91, 1.45), rotation=90.0, front=0.0, type_method="ai_two_pass")
+    drawn = copy.deepcopy(desk["footprint"])
+    build = ProjectBuild(M.building(room_type="bedroom", window=None, furniture=[desk]))
+    assert RD.long_side_fronts(build, {}) == ["d"]
+    assert len(RD.desk_chairs(build, {})) == 1
+    adj = _piece(build.building, "d")["adjusted_by_ai"]
+    assert adj["by"] == "code" and adj["changed"]["front_deg"] == 0.0 and adj["changed"]["footprint"] == drawn
+    assert adj["rules"] == [RD.LONG_FRONT_RULE, RD.DESK_RULE] and adj["rule"] == RD.DESK_RULE
+    assert "faces along a long side" in adj["reason"] and "holds the chair" in adj["reason"]
+    item = M.fp("x", "floor_lamp", (1.0, 1.0), (0.5, 0.5), front=270.0)
+    item["adjusted_by_ai"] = {"by": "code", "stage": "reading", "rule": RD.LONG_FRONT_RULE, "reason": "first",
+                              "changed": {"front_deg": 90.0}, "crop": "recognition/crops/sym_L0_001_ctx.png"}
+    INF._apply_nightstand(item, {"type": "nightstand", "type_method": INF.NIGHTSTAND_METHOD, "reason": "second",
+                                 "evidence": {"file": "plan.dxf", "method": "inferred", "confidence": 0.7},
+                                 "front_deg": 180.0, "crop": None})
+    adj = item["adjusted_by_ai"]
+    assert adj["changed"] == {"front_deg": 90.0, "type": "floor_lamp"} and adj["reason"] == "first; second"
+    assert adj["rules"] == [RD.LONG_FRONT_RULE, INF.NIGHTSTAND_METHOD]
+    assert adj["crop"] == "recognition/crops/sym_L0_001_ctx.png"
+
+
+def test_review_an_ottoman_both_passes_agreed_on_stays_in_the_corner_sofas_open_corner():
+    """Fails before the review fix: ``corner_tables`` retyped an agreed 0.8 m ottoman in a corner sofa's open corner
+    as a coffee table (an ottoman there is a normal design: ``plausibility.EXTRA_EXEMPT``); every P5 case was a
+    'sofa'. An ottoman is retyped only when the AI passes did not agree on it (the group rule or the tie-break)."""
+    b = _salon(l_typed=True)
+    p1 = _piece(b, "p1")
+    p1.update(type="ottoman", type_method="ai_two_pass", footprint=dict(p1["footprint"], size=[0.8, 0.8]))
+    assert INF.corner_tables(b) == []
+    p1["type_method"] = "group_member"
+    assert [p["piece_id"] for p in INF.corner_tables(b)] == ["p1"]
+    _piece(b, "p1").update(type="sofa", type_method="ai_two_pass")           # P5: an agreed 'sofa' still is
+    assert [p["piece_id"] for p in INF.corner_tables(b)] == ["p1"]
+
+
+def test_review_a_bath_shrunk_to_its_bay_without_a_question_gets_a_plan_crop(tmp_path):
+    """Fails before the review fix: a block-named shower or tub (no recognition question: real03 f_L0_054) shrunk to
+    its bay was labelled with crop None. The reading now draws the plan crop from the vector walls and the drawn
+    footprint (``recognition/reading/<piece>_ctx.png``) and records it; a question's own crop still wins."""
+    build = ProjectBuild(_bay(1.62))
+    build.out_dir = tmp_path
+    assert RD.fix_fixed(build, {}) == ["tub"]
+    tub = _piece(build.building, "tub")
+    crop = tub["adjusted_by_ai"]["crop"]
+    assert crop == f"{RD.READING_CROP_DIR}/tub_ctx.png" and (tmp_path / crop).is_file()
+    assert any(crop in str(e.get("text") or "") for e in tub["evidence"])
+    asked = ProjectBuild(_bay(1.62))
+    asked.out_dir = tmp_path
+    items = {"tub": SimpleNamespace(element_id="tub", details={"candidate_key": "sym_L0_009"})}
+    assert RD.fix_fixed(asked, items) == ["tub"]
+    assert _piece(asked.building, "tub")["adjusted_by_ai"]["crop"] == "recognition/crops/sym_L0_009_ctx.png"

@@ -267,6 +267,21 @@ def test_recognition_crops_are_capped_at_200(tmp_path):
     assert len(list((results / "recognition" / "p" / "crops").iterdir())) == 200
 
 
+
+def test_the_readings_plan_crops_are_copied_apart_from_the_question_crops(tmp_path):
+    """Fix round after P5 (22 Oct 2026), review: the plan crops the reading draws for a fixed piece it shrinks or
+    corrects without a question crop (``reading.READING_CROP_DIR``) reach the results next to the question crops,
+    with their own cap (real03 has exactly 200 question crops)."""
+    from wenart.ingest.generic import reading as RD
+
+    results, pub, _priv = refs(tmp_path)
+    for i in range(200):
+        put(pub.out_dir / "recognition" / "crops" / f"sym_L0_{i:03d}_ctx.png", size=10)
+    put(pub.out_dir / RD.READING_CROP_DIR / "f_L0_054_ctx.png", size=10)
+    CP.copy_project(pub)
+    assert (results / "recognition" / "p" / "reading" / "f_L0_054_ctx.png").is_file()
+    assert len(list((results / "recognition" / "p" / "crops").iterdir())) == 200
+
 def test_attribution_goes_into_every_image_folder(tmp_path):
     results, pub, priv = refs(tmp_path)
     fill(pub.out_dir)

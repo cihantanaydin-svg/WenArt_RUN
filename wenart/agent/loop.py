@@ -1289,13 +1289,14 @@ class AgentLoop:
                                round_changed=set(getattr(ctx, "round_changed", None) or ()))
         # round 4: the pieces the edit took out of the scene, for the acceptance's room-set rule (a fixture removed);
         # fix round after P4a: the metrics name an S2's cut (``causes.finding_key``); fix round after P5: the pieces it
-        # added (a re-created piece keeps its finding)
+        # added (a re-created piece keeps its finding); review: the piece types (an S2's partner type)
         edit = {"target_finding": [{"check": f.get("check"), "target": f.get("target"), "metrics": CS._metrics(f)}
                                    for f in targets],
                 "penalty_before": result.get("penalty_before"), "penalty_after": result.get("penalty_after"),
                 "score_before": result.get("score_before"), "score_after": result.get("score_after"),
                 "removed": CS.removed_pieces(ctx.building, building_after),
-                "added": CS.added_pieces(ctx.building, building_after)}
+                "added": CS.added_pieces(ctx.building, building_after),
+                "types": CS.piece_types(ctx.building, building_after)}
         ok, reason = accept_edit(before, after, edit)
         room = TL.edit_room(ctx, args)
         scope = set(changed) | {f.get("target") for f in targets}

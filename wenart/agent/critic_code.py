@@ -68,7 +68,9 @@ camera's warning holds ``camsearch.BLOCKED_WARNING``, which the GPU test allows)
 ``metrics.blocked_unavoidable`` and reported only. Exterior views are left out (a facade fills them by design, as in
 the GPU test). Why: P5's cam_r_L1_banyo_1 preview had depth min 0.0502 m (clip start 0.05) and the ceiling light
 dec_L1_011 filling 55.7 % of the frame in every round; nothing in the agent read depth or index, the vision critic
-kept 0 findings for the room, and three GPU tests failed on it.
+kept 0 findings for the room, and three GPU tests failed on it. Fix round after P5 (22 Oct 2026), review: a nearest
+depth of ``RENDER_MIN_DEPTH_M`` (0.1 m, the GPU render test's bound) or less is critical as well, so no view the
+render test fails on depth passes the agent's rounds.
 """
 from __future__ import annotations
 
@@ -299,13 +301,21 @@ def lighting_items(render_manifest: Optional[dict], building: Optional[dict] = N
 
 CAMERA_BLOCKED_CHECK = "camera_blocked"     # = causes.CAMERA_BLOCKED_CHECK (fix round after P5)
 LENS_TOUCH_M = 0.01                         # a nearest depth this close to the clip start: the lens touches a surface
+# fix round after P5 (22 Oct 2026), review: the render test's bound (tests/gpu/test_render.py ``MIN_DEPTH_M``: every
+# view needs its nearest surface farther than 0.1 m); a nearer surface is critical too
+RENDER_MIN_DEPTH_M = 0.1
 
 
 def blocked_items(render_manifest: Optional[dict], scene_manifest: Optional[dict] = None) -> list[dict]:
     """Fix round after P5 (module docstring): one ``camera_blocked`` violation per interior preview whose lens touches
     a surface (``depth.min`` <= ``clip.start_m`` + ``LENS_TOUCH_M``: critical) or whose frame one element fills over
     ``camsearch.SCORE["blocked_single"]`` (index pass, index 0 left out: major). FileNotFoundError without a render
-    manifest (the family is then ``unavailable``)."""
+    manifest (the family is then ``unavailable``).
+
+    Fix round after P5 (22 Oct 2026), review: a nearest depth of ``RENDER_MIN_DEPTH_M`` (0.1 m, the GPU render test's
+    bound) or less is critical too ("a surface is ... from the lens"); before, a view at 0.06-0.10 m had no finding
+    and failed the render test after the last round (none of P4a, P4b, P5's previews lies there: P5's bathroom is at
+    0.0502 m, real03's nearest at 0.112 m)."""
     if not isinstance(render_manifest, dict):
         raise FileNotFoundError("no render manifest: the depth and index of the views are not known")
     from wenart.blender import camsearch as CAM
@@ -349,13 +359,16 @@ def blocked_items(render_manifest: Optional[dict], scene_manifest: Optional[dict
         element = names.get(top, f"index {top}") if top is not None else None
         if top is not None and cam in carried:
             element += " (an earlier build's index: the name may differ)"
-        touch = near is not None and near <= start + LENS_TOUCH_M
+        touch = near is not None and near <= max(start + LENS_TOUCH_M, RENDER_MIN_DEPTH_M) + 1e-12
         fills = share > single_max
         if not touch and not fills:
             continue
         parts = []
-        if touch:
+        if touch and near <= start + LENS_TOUCH_M:
             parts.append(f"the lens touches a surface (nearest depth {near:.3f} m, clip start {start:g} m)")
+        elif touch:
+            parts.append(f"a surface is {near:.3f} m from the lens (the render test needs more than "
+                         f"{RENDER_MIN_DEPTH_M:g} m)")
         if fills:
             parts.append(f"{element} fills {share * 100:.1f} % of the frame (over {single_max * 100:.0f} %)")
         metrics = {"depth_min_m": None if near is None else round(near, 4), "clip_start_m": start,

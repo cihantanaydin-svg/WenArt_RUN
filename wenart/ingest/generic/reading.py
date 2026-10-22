@@ -143,6 +143,29 @@ buildings of real02 / real03 / real04):
   ``edit_ops.fix_fixture`` uses the same ``bay_fit``. real03: the tubs f_L0_184..187 (1.62 x 0.80 m -> 1.50 x 0.70 m),
   the showers f_L0_179/180 (0.90 x 0.97 -> 0.90 x 0.90), f_L0_054 (1.07 x 0.80 -> 1.00 x 0.80) and f_L0_145 (0.85 x
   1.02 -> 0.80 x 0.80); none on real02 or real04.
+
+Fix round after P5 (22 Oct 2026), review of the steps above:
+
+- **No short-side front from the wall rules** (``_front_of`` / ``_long_front``): a type that faces along a long side
+  (``LONG_FRONT_TYPES``) never gets a front on its short side from the one-wall, corner or free-side rules (a sofa as a
+  room divider with one arm on the wall faced along its length); the front is the free long side facing the most
+  room. This covers the pieces ``long_side_fronts`` does not see (block-named pieces, fronts of the last
+  ``infer_fronts``).
+- **A desk is split only when its symbol holds the chair** (``desk_chairs``): deeper than ``DESK_SPLIT_DEPTH_M``
+  (0.90 m, the top of the desk depth range: a real desk size is never cut; real02 / real04's 0.907 m desks still
+  split) and no drawn seat (``DESK_SEATS``) between its cut line and ``DESK_SEAT_REACH_M`` in front of it (a drawn
+  chair is never doubled by a second 'from_documents' one).
+- **A corner sofa hosts a cushion only on its drawn L** (``seat_cushions``): a ``sofa_corner`` without ``shape: L``
+  (typed by the group rule or the AI: its box holds the open corner) hosts none, so a pouf or side table drawn in its
+  open corner stays.
+- **A second code correction keeps the first one's record** (``_code_label`` -> ``infer.merge_code_label``).
+- **A bath or shower shrunk without a question crop gets a plan crop** (``reading_crop``): a block-named piece (real03
+  f_L0_054) has no recognition crop; the reading draws one in the layout of the question crops
+  (``recognition.crops.draw_vector_ctx``) from the level's vector walls (grey), the other drawn pieces (light grey) and
+  the piece's drawn footprint (black, dashed box) into ``<out>/READING_CROP_DIR/<piece id>_ctx.png`` and records it
+  (``adjusted_by_ai["crop"]`` and the rule's evidence). The block's own strokes are not kept past the extraction, so
+  the object is its drawn footprint. A misread fixed piece (``fix_fixed``) gets the same. A question's own crop still
+  wins (a code-typed piece keeps the crop of its withdrawn question: real03 f_L0_145, sym_L0_053).
 """
 from __future__ import annotations
 
@@ -204,7 +227,10 @@ LONG_FRONT_TYPES = ("sofa", "desk", "wardrobe", "tv_unit", "bench", "sideboard",
 LONG_FRONT_RATIO = 1.25            # a front on a side this much shorter than the other is on a short side
 LONG_FRONT_RULE = "reading.long_side_front"
 SEAT_TABLE_M = 1.2                 # a sofa or armchair without a front faces the nearest coffee table this close
-DESK_SPLIT_DEPTH_M = 0.80          # a desk symbol deeper than this holds its chair (CLAUDE.md: a table footprint ...)
+DESK_SPLIT_DEPTH_M = 0.90          # a desk symbol deeper than this holds its chair (CLAUDE.md: a table footprint ...;
+#                                    review: the top of the desk depth range, so a real desk size is never cut)
+DESK_SEATS = ("chair", "office_chair", "bar_stool", "armchair")   # review: a seat drawn in front ...
+DESK_SEAT_REACH_M = 0.80           # ... between the cut line and this far in front of the desk: nothing to split
 DESK_DEPTH_M = 0.60                # ... the desk keeps this depth at its wall ...
 DESK_CHAIR_M = (0.50, 0.50)        # ... and its chair (width, depth) stands in front, tucked in
 DESK_RULE = "reading.desk_chair"
@@ -212,6 +238,7 @@ CUSHION_MAX_M = 0.50               # a drawn piece this small ...
 CUSHION_INSIDE = 0.75              # ... at least this much inside a larger drawn seat is its seat cushion
 CUSHION_SEATS = ("sofa", "sofa_corner", "armchair", "chaise")
 CUSHION_RULE = "reading.seat_cushion"
+READING_CROP_DIR = "recognition/reading"   # review: plan crops the reading draws for pieces without a question crop
 # Fix round after P3 (16-17 Oct 2026): the extraction report key of a page whose recognition questions are never asked
 # (``pipeline._assemble_level`` sets it on a secondary page of a level; its value says why), and the reason a piece
 # whose question waits is not built (``never_a_box``).
@@ -1442,9 +1469,11 @@ def fix_fixed(build, items: Optional[dict] = None) -> list[str]:
         share = misread_share(f["type"], f["footprint"]["size"])
         found = problems(rect(f), room_poly, swings, others)
         if share <= MISREAD_SHARE and not found:
-            # Fix round after P5 (user decision of 22 Oct 2026): a bath or shower a few cm longer than its bay
+            # Fix round after P5 (user decision of 22 Oct 2026): a bath or shower a few cm longer than its bay. Review:
+            # a piece without a question crop gets one drawn at the reading (``reading_crop``), only when it changes.
             item = (items or {}).get(f["id"])
-            if shrink_to_bay(build, f, room_poly, _crop(item.details if item is not None else None)):
+            crop = _crop(item.details if item is not None else None)
+            if bay_fit(f, room_poly) is not None and shrink_to_bay(build, f, room_poly, crop or reading_crop(build, f)):
                 done.append(f["id"])
             continue
         reasons = []
@@ -1481,12 +1510,15 @@ def fix_fixed(build, items: Optional[dict] = None) -> list[str]:
         changed = {"footprint": before}
         if new.get("front_deg") != drawn_front:
             changed["front_deg"] = drawn_front
+        item = (items or {}).get(f["id"])
+        # fix round after P5, review: a piece without a question crop gets one drawn at the reading (its drawn place)
+        crop = _crop(item.details if item is not None else None) or reading_crop(build, f)
         f["footprint"] = new["footprint"]
         f["front_deg"] = new.get("front_deg")
-        item = (items or {}).get(f["id"])
         f["adjusted_by_ai"] = {"reason": f"misread fixed equipment (CLAUDE.md, user OK of 10 Oct 2026): {reason}",
-                               "changed": changed, "rule": FIXED_RULE,
-                               "crop": _crop(item.details if item is not None else None)}
+                               "changed": changed, "rule": FIXED_RULE, "crop": crop}
+        if crop and crop not in reason:
+            reason = f"{reason}; plan crop {crop}"
         f.setdefault("evidence", []).append(_ev(f, FIXED_RULE, reason, 0.8))
         build.warn(f"{f['id']}: {f['type']} adjusted at ingest: {reason}")
         done.append(f["id"])
@@ -1688,6 +1720,44 @@ def shrink_to_bay(build, f: dict, room_poly: Polygon, crop: Optional[str] = None
     return True
 
 
+def reading_crop(build, f: dict) -> Optional[str]:
+    """Fix round after P5 (22 Oct 2026), review (module docstring): the plan crop of a drawn piece that has no
+    question crop, drawn now in the layout of the question crops: the level's vector walls (grey), the other drawn
+    pieces (light grey) and the piece's drawn footprint (black, dashed box), written to
+    ``<out>/READING_CROP_DIR/<piece id>_ctx.png``. Returns that path relative to the output folder, or None without an
+    output folder (a hand-made build) or when it cannot be drawn (a warning says why)."""
+    from pathlib import Path
+
+    out_dir = getattr(build, "out_dir", None)
+    if out_dir is None or not f.get("footprint"):
+        return None
+    from wenart.recognition import crops as CR
+
+    b = build.building
+    level = f.get("level_id")
+    poly = rect(f)
+    walls = []
+    for w in b.get("walls") or []:
+        if w.get("level_id") != level or not w.get("start") or not w.get("end"):
+            continue
+        line = LineString([tuple(map(float, w["start"])), tuple(map(float, w["end"]))])
+        if line.length > 1e-6:
+            walls.append(line.buffer(max(float(w.get("thickness") or 0.1), 0.01) / 2.0, cap_style=2))
+    others = [[list(pt) for pt in rect(o).exterior.coords] for o in b.get("furniture") or []
+              if o is not f and o.get("level_id") == level and o.get("footprint")]
+    x0, y0, x1, y1 = poly.bounds
+    cand = {"key": str(f["id"]), "footprint": f["footprint"], "strokes": [[list(pt) for pt in poly.exterior.coords]],
+            "bbox": [x0, y0, x1, y1]}
+    rel = f"{READING_CROP_DIR}/{f['id']}_ctx.png"
+    try:
+        CR.save_png(CR.draw_vector_ctx(CR.vector_description(cand, {"walls": walls, "others": others})),
+                    Path(out_dir) / rel)
+    except (ValueError, OSError, ImportError) as exc:
+        build.warn(f"{f['id']}: plan crop not drawn at the reading ({exc})")
+        return None
+    return rel
+
+
 # --------------------------------------------------------------------------
 # 5. Fronts
 # --------------------------------------------------------------------------
@@ -1721,6 +1791,32 @@ def infer_fronts(build, pending=()) -> int:
 
 
 def _front_of(f: dict, room: dict, mates: list[dict]) -> tuple[Optional[float], Optional[str]]:
+    """The front the drawing gives a piece (``_front_rules``: its group, its wall, its corner, its free side). Fix round
+    after P5 (22 Oct 2026), review: a type that faces along a long side (``LONG_FRONT_TYPES``) never gets a short-side
+    front from these rules; the free long side facing the most room instead (``_long_front``)."""
+    front, why = _front_rules(f, room, mates)
+    if front is None or f.get("type") not in LONG_FRONT_TYPES or not _short_side_front(f["footprint"], front):
+        return front, why
+    return _long_front(f, room, front, why)
+
+
+def _long_front(f: dict, room: dict, short: float, why: str) -> tuple[Optional[float], Optional[str]]:
+    """Fix round after P5, review: the long side of ``f`` facing the most room (``_free_ray``) among the long sides
+    not on a wall, instead of the short-side front ``short`` a rule gave (``why``); (None, None) without one."""
+    ring = room_ring(room)
+    ss = sides(rect(f))
+    near = wall_sides(f, ring)
+    longest = max(math.dist(*s) for s in ss)
+    ranked = sorted(((_free_ray(f, s, ring), k) for k, s in enumerate(ss)
+                     if k not in near and math.dist(*s) >= 0.999 * longest), key=lambda t: (-round(t[0], 3), t[1]))
+    if not ranked:
+        return None, None
+    return (snap_front(f, outward_deg(f, ss[ranked[0][1]])),
+            f"a {f['type']} faces along a long side ({why} gives the short side, {short:g} deg): the long side facing "
+            f"the most room ({ranked[0][0]:.2f} m free)")
+
+
+def _front_rules(f: dict, room: dict, mates: list[dict]) -> tuple[Optional[float], Optional[str]]:
     from wenart.furniture import schemas
 
     ring = room_ring(room)
@@ -1820,8 +1916,11 @@ def _code_label(f: dict, rule: str, reason: str, changed: dict, crop: Optional[s
     f.setdefault("drawn_footprint", copy.deepcopy(f.get("footprint")))
     f.setdefault("drawn_front_deg", f.get("front_deg"))
     f.setdefault("drawn_height", f.get("height"))
-    f["adjusted_by_ai"] = {"by": "code", "stage": "reading", "rule": rule, "reason": reason, "changed": changed,
-                           "crop": crop}
+    from wenart.furniture import infer as INF
+
+    # fix round after P5, review: an earlier code record of the piece (a turned front, then the desk split) is kept
+    INF.merge_code_label(f, {"by": "code", "stage": "reading", "rule": rule, "reason": reason, "changed": changed,
+                             "crop": crop})
 
 
 def long_side_fronts(build, items: dict) -> list[str]:
@@ -1885,7 +1984,9 @@ def desk_chairs(build, items: dict) -> list[str]:
     front of it (P5 real04: four 1.45 x 0.91 m desks, crop sym_L0_007: a 0.6 m desk at the wall and a chair back in
     front). The desk keeps ``DESK_DEPTH_M`` at its wall (``adjusted_by_ai`` by code, ``drawn_footprint`` kept) and the
     chair becomes a drawn ``office_chair`` (``DESK_CHAIR_M``) in front of it, facing it, tucked in, with the desk's
-    vector evidence. Returns the ids of the new chairs."""
+    vector evidence. Fix round after P5, review: only deeper than any real desk (``DESK_SPLIT_DEPTH_M``) and with no
+    drawn seat (``DESK_SEATS``) between the cut line and ``DESK_SEAT_REACH_M`` in front of the desk
+    (``_seat_in_front``). Returns the ids of the new chairs."""
     from wenart.furniture import group_checks as GC
     from wenart.furniture import placer
 
@@ -1906,6 +2007,11 @@ def desk_chairs(build, items: dict) -> list[str]:
         if 2 not in wall_sides(dict(f, footprint={"center": list(p.center), "size": [w, d],
                                                   "rotation_deg": p.rotation_deg}), room_ring(room)):
             continue                                    # its back is not on a wall: not the drawn desk + chair
+        seat = _seat_in_front(b, f, p)
+        if seat is not None:
+            build.warn(f"{f['id']}: a {w:.2f} x {d:.2f} m desk with the drawn {seat['type']} {seat['id']} in front of "
+                       "it: its symbol does not hold the chair, kept as drawn")
+            continue
         det = items[f["id"]].details if f["id"] in items else {}
         crop = _crop(det)
         before = copy.deepcopy(f["footprint"])
@@ -1937,6 +2043,22 @@ def desk_chairs(build, items: dict) -> list[str]:
     return made
 
 
+def _seat_in_front(b: dict, f: dict, p) -> Optional[dict]:
+    """Fix round after P5, review: a drawn seat (``DESK_SEATS``) of the desk's room whose outline meets the zone from
+    the cut line (``DESK_DEPTH_M`` from the desk's back) to ``DESK_SEAT_REACH_M`` in front of its front edge, across
+    its width; ``p`` is the desk in the frame of its front (``placer.drawn_piece``). None without one."""
+    from wenart.furniture import group_checks as GC
+
+    w, d = float(p.size[0]), float(p.size[1])
+    front, cut = -d / 2.0 - DESK_SEAT_REACH_M, d / 2.0 - DESK_DEPTH_M
+    zone = Polygon([GC.to_world(p, (x, y)) for x, y in ((-w / 2.0, front), (w / 2.0, front), (w / 2.0, cut),
+                                                        (-w / 2.0, cut))])
+    seats = [o for o in b.get("furniture") or [] if o is not f and o.get("type") in DESK_SEATS
+             and o.get("room_id") == f.get("room_id") and o.get("source") == "from_documents"
+             and o.get("build") is not False and o.get("footprint") and rect(o).intersection(zone).area > 1e-6]
+    return min(seats, key=lambda o: (round(rect(o).distance(rect(f)), 6), str(o["id"]))) if seats else None
+
+
 def seat_cushions(build, items: dict) -> list[str]:
     """Fix round after P5 (module docstring; CLAUDE.md "a cushion read as a sofa"): a drawn piece no larger than
     ``CUSHION_MAX_M`` either way that lies at least ``CUSHION_INSIDE`` inside a larger built drawn seat of its room
@@ -1960,6 +2082,8 @@ def seat_cushions(build, items: dict) -> list[str]:
         for s in seats:
             if s is f or s.get("room_id") != f.get("room_id"):
                 continue
+            if s.get("type") == "sofa_corner" and s.get("shape") != "L":
+                continue            # review: without its L the box holds the open corner, which is no seat
             try:
                 sp = placer.drawn_piece(s).polygon()
             except (KeyError, TypeError, ValueError):

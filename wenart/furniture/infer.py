@@ -116,6 +116,19 @@ Fix round after P5 (22 Oct 2026; pod P5, real04; user decisions of 22 Oct 2026).
   real04 f_L-1_061/062, real02 f_L-1_062.
 - The nightstand symbols of the fix round after P4a are approved by the same user decision; their label already holds
   ``by: code``, ``drawn_type`` and the plan crop.
+
+Fix round after P5 (22 Oct 2026), review:
+
+- **An agreed ottoman stays an ottoman** (``CORNER_OTTOMAN_FROM``): ``corner_tables`` retypes a drawn ottoman only when
+  the AI passes did not agree on it (the group-member rule or the tie-break / size inference typed it). An ottoman in
+  a corner sofa's open corner is a normal design (``plausibility.EXTRA_EXEMPT`` allows it in front of a
+  ``sofa_corner``), so the size, room and neighbours do not clearly say otherwise; every P5 case was a 'sofa'.
+- **A second code correction keeps the first one's record** (``merge_code_label``, used by ``_apply_nightstand`` and
+  ``generic.reading._code_label``): an earlier code record is merged, not replaced: the reasons joined, the earliest
+  value of every changed field kept, ``rules`` listing every rule (``rule`` = the latest, as ``fit`` labels do), the
+  first plan crop kept. An agent's (or the solver's) record stays under ``previous`` as ``edit_ops._label`` keeps it.
+  Why: a desk whose short-side AI front ``long_side_fronts`` turned lost that record when ``desk_chairs`` split it, and
+  a nightstand retype after a front correction recorded the corrected front as the drawn one.
 """
 from __future__ import annotations
 
@@ -160,6 +173,7 @@ TV_FACING_DEG = 45.0               # ... within this of the sofa's front directi
 CORNER_TABLE_METHOD = "corner_table"    # the proposal's method; the piece's type_method becomes "inferred"
 CORNER_TABLE_RULE = "furniture.infer.corner_tables"
 CORNER_TABLE_FROM = ("sofa", "armchair", "ottoman", "chaise")
+CORNER_OTTOMAN_FROM = ("group_member", "inferred")   # review: an ottoman only when the passes did not agree on it
 CORNER_IN_BOX = 0.4                # at least this share of the piece inside the corner sofa's box (reading's notch)
 CONF_CORNER_TABLE = 0.7
 
@@ -1029,7 +1043,53 @@ def _apply_nightstand(item: dict, prop: dict) -> None:
              "changed": changed}
     if prop.get("crop"):
         label["crop"] = prop["crop"]
-    item["adjusted_by_ai"] = label
+    merge_code_label(item, label)           # fix round after P5, review: an earlier code record is kept
+
+
+LABEL_MERGED_KEYS = ("reason", "changed", "rule", "rules", "crop", "by")
+
+
+def merge_code_label(item: dict, label: dict) -> dict:
+    """Fix round after P5 (22 Oct 2026), review (module docstring): ``label`` (a code record: ``by: code``, ``rule``,
+    ``reason``, ``changed``, optional ``crop``) as the piece's ``adjusted_by_ai``, merged into an earlier code record
+    instead of replacing it: the reasons joined ("<earlier>; <this>"), ``changed`` keeps the earliest value of every
+    field, ``rules`` lists every rule in order, ``rule`` is this one, the earlier record's crop and other keys stay. An
+    earlier record of an agent (``model``) or of another author (``by`` not code) is kept under ``previous`` (oldest
+    first, as ``edit_ops._label`` keeps them). Returns the record set."""
+    old = item.get("adjusted_by_ai") if isinstance(item.get("adjusted_by_ai"), dict) else None
+    if not old:
+        item["adjusted_by_ai"] = label
+        return label
+    if old.get("model") or old.get("by") not in (None, "code"):
+        new = dict(label)
+        previous = [copy.deepcopy(r) for r in old.get("previous") or [] if isinstance(r, dict)]
+        previous.append({k: copy.deepcopy(v) for k, v in old.items() if k != "previous"})
+        new["previous"] = previous
+        item["adjusted_by_ai"] = new
+        return new
+    new = copy.deepcopy(old)
+    new["by"] = "code"
+    for k, v in label.items():
+        if k not in LABEL_MERGED_KEYS:
+            new.setdefault(k, copy.deepcopy(v))
+    reasons = [r for r in (old.get("reason"), label.get("reason")) if r]
+    if len(reasons) == 2 and reasons[0] == reasons[1]:
+        reasons = reasons[:1]
+    new["reason"] = "; ".join(str(r) for r in reasons)
+    changed = dict(old.get("changed") or {})
+    for k, v in (label.get("changed") or {}).items():
+        changed.setdefault(k, copy.deepcopy(v))
+    new["changed"] = changed
+    rules = list(old.get("rules") or ([old["rule"]] if old.get("rule") else []))
+    if label.get("rule") and label["rule"] not in rules:
+        rules.append(label["rule"])
+    if rules:
+        new["rules"] = rules
+    new["rule"] = label.get("rule") or old.get("rule")
+    if not new.get("crop") and label.get("crop"):
+        new["crop"] = label["crop"]
+    item["adjusted_by_ai"] = new
+    return new
 
 
 def corner_tables(building: dict) -> list[dict]:
@@ -1039,7 +1099,8 @@ def corner_tables(building: dict) -> list[dict]:
     a reading rule of the drawing) of a coffee table's size (``sizes.fits``, +15 %) that stand in the open corner of a
     built drawn L corner sofa of their room: the centre inside the sofa's box, at least ``CORNER_IN_BOX`` of the piece
     inside the box and at most ``COFFEE_IN_BODY`` inside the drawn L (the reading's notch rule). A seat cannot stand in
-    another sofa's open corner. Pure; the building is unchanged."""
+    another sofa's open corner. Fix round after P5, review: an ottoman only when the passes did not agree on it
+    (``CORNER_OTTOMAN_FROM``). Pure; the building is unchanged."""
     from wenart.furniture import sizes as SZ
 
     furniture = building.get("furniture") or []
@@ -1048,6 +1109,8 @@ def corner_tables(building: dict) -> list[dict]:
         if f.get("type") not in CORNER_TABLE_FROM or f.get("source") != "from_documents" or f.get("build") is False \
                 or not f.get("footprint") or f.get("type_method") in ("block_name", "rule"):
             continue
+        if f.get("type") == "ottoman" and f.get("type_method") not in CORNER_OTTOMAN_FROM:
+            continue                    # fix round after P5, review: an agreed ottoman there is a normal design
         if not SZ.fits("table_coffee", [float(v) for v in f["footprint"]["size"]], 0.15):
             continue
         try:

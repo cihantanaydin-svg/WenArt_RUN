@@ -2449,7 +2449,10 @@ def not_built_text(f: dict) -> str:
     f_L1_017/018 read only "untyped", the agent's round-3 mark as a rug outline was hidden)."""
     adj = f.get("adjusted_by_ai") if isinstance(f.get("adjusted_by_ai"), dict) else {}
     base = f.get("not_built_reason") or f.get("inferred_reason")
-    if base and adj.get("not_furniture"):
+    if base and adj.get("not_furniture") and not (adj.get("by") == "code"
+                                                 and str(adj.get("reason") or "") in str(base)):
+        # the review of the reading fixes: a mark the code made with the reason it wrote as not_built_reason (a seat
+        # cushion of reading.seat_cushions) is the base itself, not a later decision
         who = f" by {adj['model']}, round {adj.get('round')}" if adj.get("model") else ""
         return (f"{base}; then marked not furniture ({adj['not_furniture']}){who}: "
                 f"{adj.get('reason') or 'no reason recorded'}")

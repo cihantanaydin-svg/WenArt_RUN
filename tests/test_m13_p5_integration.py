@@ -196,12 +196,29 @@ def test_the_scene_manifest_names_the_real_reason_a_piece_is_not_built():
               {"id": "c", "build": False, "adjusted_by_ai": {"not_furniture": "other", "reason": "a stair line",
                                                              "model": "qwen", "round": 3}},
               {"id": "d", "build": False, "type_candidates": [{"type": "not_furniture"}, {"type": "not_furniture"}]},
-              {"id": "e", "build": False}]
+              {"id": "e", "build": False},
+              # fix round after P5 (22 Oct 2026), review (P5 f_L1_017/018): the reading's reason, then the agent's mark
+              {"id": "f", "build": False, "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
+               "adjusted_by_ai": {"not_furniture": "rug", "reason": "a rug outline", "model": "qwen", "round": 3}},
+              {"id": "g", "build": False, "inferred_reason": "a column of the A-BA grid (no furniture)",
+               "adjusted_by_ai": {"not_furniture": "column", "reason": "the grid column", "by": "code"}},
+              {"id": "h", "build": False, "not_built_reason": "untyped (CLAUDE.md: no untyped piece is built)",
+               "adjusted_by_ai": {"reason": "moved 0.2 m", "model": "qwen", "round": 1}},
+              # the review of the reading fixes: a seat cushion the code marks with the reason it also writes as
+              # not_built_reason reads once, not "<reason>; then marked ...: <same reason>"
+              {"id": "i", "build": False, "not_built_reason": "a seat cushion inside the drawn sofa f_1",
+               "adjusted_by_ai": {"not_furniture": "seat_cushion", "reason": "a seat cushion inside the drawn sofa f_1",
+                                  "by": "code"}}]
     got = [BF.not_built_reason(p) for p in pieces]
     assert got[0].startswith("untyped") and got[1].startswith("a column")
     assert got[4] == "build false, no reason recorded"
     assert got[2] == "marked not furniture (other) by qwen, round 3: a stair line"
     assert got[3] == BF.NOT_BUILT_REASON
+    assert got[5] == ("untyped (CLAUDE.md: no untyped piece is built); then marked not furniture (rug) by qwen, "
+                      "round 3: a rug outline")
+    assert got[6] == "a column of the A-BA grid (no furniture); then marked not furniture (column): the grid column"
+    assert got[7] == "untyped (CLAUDE.md: no untyped piece is built)"        # an agent record that is not a mark
+    assert got[8] == "a seat cushion inside the drawn sofa f_1"
     assert got[:3] + got[4:] == [FN.not_built_text(p) for p in pieces[:3] + pieces[4:]]
 
 

@@ -298,12 +298,23 @@ def not_built_reason(piece: dict) -> str:
     ``not_built_reason``, the reading's ``inferred_reason`` (a column, an outline, a detail), the agent's or the
     code's ``adjusted_by_ai`` record (a mark with its model and round), both recognition passes calling it
     ``not_furniture`` (``NOT_BUILT_REASON``), else "build false, no reason recorded". Before, every piece carried
-    ``NOT_BUILT_REASON`` (P5: A-BA columns typed ottoman, never-asked unknowns and the agent's mark of f_L1_021)."""
-    if piece.get("not_built_reason"):
-        return str(piece["not_built_reason"])
-    if piece.get("inferred_reason"):
-        return str(piece["inferred_reason"])
+    ``NOT_BUILT_REASON`` (P5: A-BA columns typed ottoman, never-asked unknowns and the agent's mark of f_L1_021).
+
+    Fix round after P5 (22 Oct 2026), review: the order of ``not_built_text`` after the report review fix: a later
+    mark (``adjusted_by_ai.not_furniture``) follows the reading's reason: "<not_built_reason or inferred_reason>; then
+    marked not furniture (<kind>) by <model>, round n: <reason>" (the by/round part only when a model is recorded); a
+    record that is no mark never replaces the reason (P5 f_L1_017/018 read only "untyped")."""
     adj = piece.get("adjusted_by_ai") if isinstance(piece.get("adjusted_by_ai"), dict) else {}
+    base = piece.get("not_built_reason") or piece.get("inferred_reason")
+    if base and adj.get("not_furniture") and not (adj.get("by") == "code"
+                                                 and str(adj.get("reason") or "") in str(base)):
+        # the review of the reading fixes: a mark the code made with the reason it wrote as not_built_reason (a seat
+        # cushion of reading.seat_cushions) is the base itself, not a later decision
+        who = f" by {adj['model']}, round {adj.get('round')}" if adj.get("model") else ""
+        return (f"{base}; then marked not furniture ({adj['not_furniture']}){who}: "
+                f"{adj.get('reason') or 'no reason recorded'}")
+    if base:
+        return str(base)
     if adj.get("not_furniture") or adj.get("reason"):
         who = f" by {adj['model']}, round {adj.get('round')}" if adj.get("model") else ""
         what = (f"marked not furniture ({adj['not_furniture']}){who}" if adj.get("not_furniture")

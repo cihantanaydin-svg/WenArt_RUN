@@ -19,6 +19,10 @@ Checked, each against BASE 29e54d0 (the tests fail there) or a mutation:
 - an exterior camera refused inside a building gets the free stretch of its view line (P5's ext_front_y);
 - the prompts and tool descriptions name the user's decisions of 22 Oct 2026.
 
+Fix round after P5 (22 Oct 2026), review (section 11): a room's only view is not removed (set_camera moves it); a
+preview nearer than the render test's 0.1 m is critical; the wider or tilted framing is named for a long, low building
+only; a re-created piece keeps only its own finding (critical or major, the same S2 cut).
+
 The P5 run folder (``runs/20261017-224848-full``) is not in git; the tests that read it skip without it.
 """
 from __future__ import annotations
@@ -673,7 +677,8 @@ def test_a_camera_refused_inside_the_other_building_gets_the_free_stretch():
         assert any("inside the building b2" in f for f in failed)
         hint = TL.free_strip_hint(ctx, entry, failed)[-1]
         assert hint.startswith("free on the view line from the target: (8.50, 12.50) to (8.50, 18.20)"), hint
-        assert "a close view may be framed wider or tilted" in hint
+        # fix round after P5, review: real04 (ratio 1.5-1.7) is no long, low building: no wider or tilted framing
+        assert "wider or tilted when" not in hint and "keeps the 26 mm eye-level lens" in hint
     entry = {"action": "add", "view_id": "ext_9", "kind": "exterior", "position": [8.5, 16.0, 1.6],
              "target": [8.5, 12.5, 1.5]}
     assert TL.free_strip_hint(ctx, entry, ["eye height 2.96 m"]) == ["eye height 2.96 m"]
@@ -701,3 +706,167 @@ def test_the_prompts_and_tools_name_the_decisions_of_22_oct():
     assert "long, low building" in d["add_camera"] and "camera_blocked" in d["set_camera"]
     specs = {s["function"]["name"]: s["function"]["description"] for s in TL.build_registry().specs()}
     assert specs["fix_fixture"] == d["fix_fixture"]
+
+
+# --------------------------------------------------------------------------
+# 11. Review of the fix round (22 Oct 2026)
+# --------------------------------------------------------------------------
+
+def _blocked(view="cam_r2_1", room="r2"):
+    return CC.finding({"check": CC.CAMERA_BLOCKED_CHECK, "severity": "critical", "target": view, "room_id": room,
+                       "message": f"{view}: the view is blocked: the lens touches a surface", "metrics": {}})
+
+
+def test_the_only_view_of_a_room_is_not_removed_for_a_blocked_view(tmp_path):
+    """Fails before the review fix: role_problem judged exterior cameras only, so the dry re-check accepted
+    remove_camera on cam_r2_1, the only view of r2, as 'finding camera_blocked:cam_r2_1 gone' (P5: cam_r_L1_banyo_1
+    is the bathroom's only view; the render test fails a room without a view)."""
+    from test_agent_loop_p4b import cam, camera_project
+
+    ctx = camera_project(tmp_path)
+    loop = LP.AgentLoop(ctx.project_out, MM.MockModel(), clock=Clock(), recheck=lambda b, s, m: [],
+                        apply_edit=FakeEdits(), validators=fake_validators(), out=lambda s: None,
+                        fit_fn=lambda p, b: None)
+    ctx.acceptance = loop.acceptance
+    ctx.findings = [_blocked()]
+    reg = TL.build_registry()
+    res = reg.call(ctx, "remove_camera", {"view_id": "cam_r2_1", "reason": "the view is blocked"})
+    assert not res["accepted"] and res["failed_checks"][0].startswith("role: cam_r2_1 is the only view of r2"), res
+    assert "set_camera moves it" in res["failed_checks"][0] and "room's only view" in res["message"]
+    assert ctx.accepted == [] and TL.room_views(ctx, "r2") == ["cam_r2_1"]
+    assert "nor the only view of a room" in TL.DESCRIPTIONS["remove_camera"]
+    # another view of the room (added in this session) lets the blocked one go; an exterior corner goes as before
+    free = camera_project(tmp_path / "b")
+    added = reg.call(free, "add_camera", cam("cam_r2_2", [6.0, 1.0, 1.3], [5.0, 3.0, 1.2], kind="interior",
+                                             room_id="r2"))
+    assert added["accepted"], added
+    assert TL.room_views(free, "r2") == ["cam_r2_1", "cam_r2_2"]
+    gone = reg.call(free, "remove_camera", {"view_id": "cam_r2_1", "reason": "cam_r2_2 shows the room"})
+    assert gone["accepted"], gone
+    assert TL.room_views(free, "r2") == ["cam_r2_2"]
+    assert reg.call(free, "remove_camera", {"view_id": "ext_2", "reason": "drop it"})["accepted"]
+
+
+@needs_p5
+def test_p5s_bathroom_view_is_the_rooms_only_view():
+    final = read(P5_FURNITURE / "building_final.json")
+    scene = read(P5_RENDERS / "scene_manifest.json")
+    ctx = TL.ToolContext(project_out=P5_FURNITURE, building=final, scene=scene)
+    view = ctx.camera("cam_r_L1_banyo_1")
+    assert TL.room_views(ctx, "r_L1_banyo") == ["cam_r_L1_banyo_1"]
+    why = TL.role_problem(ctx, "remove", "cam_r_L1_banyo_1", {"view_id": "cam_r_L1_banyo_1"})
+    assert why.startswith("role: cam_r_L1_banyo_1 is the only view of r_L1_banyo"), why
+    assert TL.role_problem(ctx, "set", "cam_r_L1_banyo_1", dict(view, view_id=view["name"])) is None
+
+
+def test_a_view_nearer_than_the_render_tests_bound_is_critical():
+    """Fails before the review fix: only a nearest depth within 0.01 m of the clip start (0.06 m) was critical; the
+    GPU render test fails every view at 0.1 m or less (tests/gpu/test_render.py MIN_DEPTH_M)."""
+    import re
+
+    text = (ROOT / "tests" / "gpu" / "test_render.py").read_text(encoding="utf-8")
+    assert float(re.search(r"^MIN_DEPTH_M = ([0-9.]+)", text, re.MULTILINE).group(1)) == CC.RENDER_MIN_DEPTH_M
+    manifest = {"pass_index": {}, "renders": [_render("cam_a_1", "ra", 0.08, {12: 0.1}),
+                                              _render("cam_b_1", "rb", 0.1, {12: 0.1}),
+                                              _render("cam_c_1", "rc", 0.112, {12: 0.1}),
+                                              _render("cam_d_1", "rd", 0.0502, {12: 0.1})]}
+    got = {v["target"]: v for v in CC.blocked_items(manifest, {})}
+    assert sorted(got) == ["cam_a_1", "cam_b_1", "cam_d_1"]       # real03's nearest preview is at 0.112 m: no finding
+    a = got["cam_a_1"]
+    assert a["severity"] == "critical" and "a surface is 0.080 m from the lens" in a["message"]
+    assert "the render test needs more than 0.1 m" in a["message"] and CS.cause_of(a) == "interior_camera"
+    assert "the lens touches a surface" in got["cam_d_1"]["message"]
+
+
+def _box_building(length: float, depth: float) -> dict:
+    """A one-storey ``length`` x ``depth`` m box under a flat roof (a whole building for ``build.prepare``)."""
+    from wenart.blender import roof as R
+
+    pts = [(0.0, 0.0), (length, 0.0), (length, depth), (0.0, depth)]
+    b = {"levels": [{"id": "L0", "elevation": 0.0, "ceiling_height": 2.8}],
+         "walls": [{"id": f"w{i}", "level_id": "L0", "start": list(pts[i]), "end": list(pts[(i + 1) % 4]),
+                    "thickness": 0.25, "exterior": True} for i in range(4)],
+         "openings": [], "rooms": [], "furniture": [], "slabs": [], "facade": {},
+         "site": {"ground": {"levels": [{"side": "all", "z": {"value": 0.0, "method": "vector"}}]}, "decor": [],
+                  "boundary_walls": []}}
+    b["roof"] = R.flat_roof(b)
+    return b
+
+
+def test_the_wider_or_tilted_framing_is_named_for_a_long_low_building_only(tmp_path):
+    """Fails before the review fix: free_strip_hint offered 'framed wider or tilted' to every building; the decision
+    of 22 Oct 2026 covers long, low buildings only (exterior.long_low: a 33 x 15 m bungalow, not a 10 x 8 m box)."""
+    for length, depth, low in ((33.0, 15.0, True), (10.0, 8.0, False)):
+        b = _box_building(length, depth)
+        ctx = TL.ToolContext(project_out=tmp_path, building=b)
+        entry = {"action": "add", "view_id": "ext_9", "kind": "exterior", "position": [length / 2, depth - 1.0, 1.6],
+                 "target": [length / 2, depth / 2, 1.5]}
+        hint = TL.free_strip_hint(ctx, entry, ["the camera stands inside the building"])
+        assert len(hint) == 2 and hint[1].startswith("free on the view line from the target"), hint
+        assert ("framed wider or tilted when the whole facade does not fit" in hint[1]) is low, hint
+        assert ("keeps the 26 mm eye-level lens" in hint[1]) is not low, hint
+        assert bool(TL.long_low_of(X._prep(b))) is low
+    assert TL.long_low_of(None) is None and TL.long_low_of({}) is None
+
+
+def _s2(target, severity, room="r", **metrics):
+    return CC.finding({"check": "S2", "severity": severity, "target": target, "room_id": room,
+                       "message": f"{target} cuts {metrics.get('other') or metrics.get('wall_id')}",
+                       "metrics": dict(metrics, depth_m=0.06)})
+
+
+def test_a_recreated_piece_keeps_only_its_own_cut_at_its_severity():
+    """Fails before the review fix: recreated_finding compared the check id only, so a dining-room relayout that
+    cleared the major wall cut S2:f_9/w_3 was refused for a minor touch of the re-created chairs (S2:f_20/f_21)."""
+    chairs = [{"id": "f_20", "type": "chair", "room_id": "r"}, {"id": "f_21", "type": "chair", "room_id": "r"}]
+    wall_cut = {"target_finding": [{"check": "S2", "target": "f_9", "metrics": {"wall_id": "w_3"}}],
+                "removed": [{"id": "f_9", "type": "chair", "room_id": "r"}], "added": chairs}
+    before = [_s2("f_9", "major", wall_id="w_3")]
+    # the reviewer's case, and other cuts of the new chairs (another wall, each other): the wall cut is gone
+    for after in ([_s2("f_20", "minor", other="f_21")], [_s2("f_20", "major", other="f_21")],
+                  [_s2("f_20", "major", wall_id="w_5")]):
+        ok, why = CS.accept_edit(before, after, wall_cut)
+        assert ok, (after, why)
+    ok, why = CS.accept_edit(before, [_s2("f_20", "major", wall_id="w_3")], wall_cut)
+    assert not ok and "as S2:f_20/w_3" in why
+    # a piece cut: the same partner (named either way round) or a partner of its type is the same cut
+    types = {"f_9": "chair", "f_10": "table_dining", "f_11": "table_dining", "f_12": "sideboard", "f_20": "chair",
+             "f_21": "chair"}
+    table_cut = dict(wall_cut, target_finding=[{"check": "S2", "target": "f_9", "metrics": {"other": "f_10"}}],
+                     types=types)
+    before = [_s2("f_9", "major", other="f_10")]
+    for after in ([_s2("f_20", "major", other="f_10")], [_s2("f_10", "major", other="f_20")],
+                  [_s2("f_21", "critical", other="f_11")]):
+        ok, why = CS.accept_edit(before, after, table_cut)
+        assert not ok and "is still there after the edit as" in why, (after, why)
+    for after in ([_s2("f_20", "major", other="f_12")], [_s2("f_20", "minor", other="f_10")]):
+        assert CS.accept_edit(before, after, table_cut)[0], after
+    # without the types only the same partner id (or a removed / added partner's type) counts
+    assert CS.accept_edit(before, [_s2("f_21", "major", other="f_11")], dict(table_cut, types=None))[0]
+    # a minor target keeps a minor re-created finding (as severe as the target); a major one does not
+    x2 = {"target_finding": [{"check": "X2", "target": "f_9"}], "removed": wall_cut["removed"], "added": chairs}
+    ok, why = CS.accept_edit([_x2("f_9", "minor", room="r")], [_x2("f_20", "minor", room="r")], x2)
+    assert not ok and "as X2:f_20" in why
+    assert CS.accept_edit([_x2("f_9", "major", room="r")], [_x2("f_20", "minor", room="r")], x2)[0]
+    assert CS.piece_types({"furniture": [{"id": "a", "type": "chair"}]},
+                          {"furniture": [{"id": "a", "type": "armchair"}, {"id": "b", "type": "sofa"}]}) == \
+        {"a": "armchair", "b": "sofa"}
+
+
+def test_the_acceptance_gives_accept_edit_the_piece_types(tmp_path, monkeypatch):
+    out = project(tmp_path)
+    seen = []
+    real = LP.accept_edit
+
+    def spy(before, after, edit):
+        seen.append(edit)
+        return real(before, after, edit)
+    monkeypatch.setattr(LP, "accept_edit", spy)
+    loop = LP.AgentLoop(out, MM.MockModel(), clock=Clock(), recheck=lambda b, s, m: [], apply_edit=FakeEdits(),
+                        validators=fake_validators(), out=lambda s: None, fit_fn=lambda p, b: None)
+    ctx = loop.context(1)
+    ctx.findings = [CC.finding(violation("F4", "major", "f1", "r1"))]
+    after = copy.deepcopy(ctx.building)
+    after["furniture"][0]["front_deg"] = 90.0
+    loop.acceptance(ctx, "rotate_piece", {"piece_id": "f1", "front_deg": 90.0}, {"changed_ids": ["f1"]}, after)
+    assert seen and seen[0]["types"] == {f["id"]: f["type"] for f in ctx.building["furniture"]}
