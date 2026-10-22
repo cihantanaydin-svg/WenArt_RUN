@@ -208,6 +208,17 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   models); (2) P4a's agent pinned ``gen_fridge_mediterranean_3`` on f_L-1_090 ("a real compact fridge model") and it
   rendered as a faceted column, while the fit had a real fridge for the same footprint. Still no gate: a model alone
   within the caps is taken whatever its doubt (decision 1a of 11 Oct).
+- Fix round after P6a (22-23 Oct 2026; pod P6a, real04; the agent verifier's better fix, part 2). What: under a
+  sloped ceiling a library model stays ``CEILING_MARGIN_M`` (0.05 m, ``solver.HEADROOM_MARGIN_M``) under the ceiling
+  over its footprint. ``fit_piece(..., ceiling=)`` / ``_fit_family`` refuse a model whose fitted height is above
+  ``ceiling - CEILING_MARGIN_M`` like a model outside the real height range (the next one is tried; with none left
+  the ladder builds the module or parametric piece at the piece's height); ``piece_ceiling(building, piece)`` is that
+  ceiling: ``decor.ceiling_over`` with the level's ``decor.ceiling_planes`` (the roof as the scene builder makes it;
+  the layout and fit buildings carry no ``level["ceiling_planes"]``) less a wall cabinet's mount height, None on a
+  flat level. ``fit_building`` passes it per piece; the agent's refits (``edit_ops._build_retyped``, the swap check
+  and ``agent.loop.dry_fit``) pass the same. Why: the completion put the twin bookshelf f_L1_056 under a 1.44 m
+  slope and the fit gave it a 2.02 m HSSD model (critical X2, through the roof, in every P6a round); real02's committed
+  f_L1_035 has a 2.02 m model under a 2.07 m slope. On a flat level (no roof over it) nothing changes.
 """
 from __future__ import annotations
 
@@ -664,7 +675,7 @@ class _OneModel:
 def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
               uniform_range: tuple[float, float] = UNIFORM_RANGE, style_family: Optional[str] = None,
               design: Optional[dict] = None, *, mode: str = "commercial", used: Optional[dict] = None,
-              style: Optional[dict] = None) -> dict:
+              style: Optional[dict] = None, ceiling: Optional[float] = None) -> dict:
     """The ``asset`` dict for one piece (pure: the piece is not modified).
 
     A candidate is accepted when its uniform scale to the drawn width leaves its depth within ``cap`` of the drawn
@@ -719,7 +730,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         if entry is not None and C.usable(entry, mode) and entry.get("source") == GENERATED:
             # fix round after P4a (module docstring): no pin to a generated model while a real product fits
             ranked = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design,
-                               mode=mode, used=used, style=style)
+                               mode=mode, used=used, style=style, ceiling=ceiling)
             chosen = next((e for e in catalog.candidates(ftype) if e.get("id") == ranked.get("asset_id")), None)
             if ranked.get("method") == "library" and chosen is not None and chosen.get("source") != GENERATED:
                 ranked["pin_refused"] = (f"{pin}: a generated model (units guessed) while a real product of the "
@@ -727,17 +738,19 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
                 return ranked
         if entry is not None and C.usable(entry, mode):
             pinned = fit_piece(dict(piece, asset_pin=None), _OneModel(catalog, entry), cap, uniform_range, None,
-                               design, mode=mode, used=used, style=style)
+                               design, mode=mode, used=used, style=style, ceiling=ceiling)
             if pinned.get("method") == "library":
                 pinned["pinned"] = pin
                 pinned["style_family"] = style_family
                 pinned["pin_skips_style"] = True
                 return pinned
         asset = fit_piece(dict(piece, asset_pin=None), catalog, cap, uniform_range, style_family, design, mode=mode,
-                          used=used, style=style)
+                          used=used, style=style, ceiling=ceiling)
         asset["pin_refused"] = (f"{pin}: not a {ftype} model of the catalogue" if entry is None
                                 else f"{pin}: {C.unusable_reason(entry, mode)}" if not C.usable(entry, mode)
-                                else f"{pin}: fails the fit rules (caps, height)")
+                                else f"{pin}: fails the fit rules (caps, height"
+                                     + (f", {ceiling - CEILING_MARGIN_M:.2f} m under the sloped ceiling)"
+                                        if ceiling is not None else ")"))
         return asset
     candidates = catalog.candidates(ftype)
     if not candidates:
@@ -750,11 +763,11 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
         else:
             reason = f"no catalogue entry for type {ftype}"
         return _no_model(piece, catalog, reason, [], [], cap, uniform_range, style_family, mode=mode, used=used,
-                         style=style)
+                         style=style, ceiling=ceiling)
     usable, refused = split_usable(candidates, mode)
     if not usable:
         return _no_model(piece, catalog, f"no usable {ftype} model (audit or licence, {mode} mode)", [], refused, cap,
-                         uniform_range, style_family, mode=mode, used=used, style=style)
+                         uniform_range, style_family, mode=mode, used=used, style=style, ceiling=ceiling)
     chain = style_chain(style_family)
     tried, excluded, reasons = [], list(refused), []
     used = dict(used, type=ftype) if used else used            # the diversity penalty knows the piece's type (sets)
@@ -764,7 +777,8 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
             break               # the caller's caps hold (tightened, or already as loose); or no candidate was tried
         caps = relaxed_caps if relaxed else (cap, uniform_range)
         for fam in chain:
-            got = _fit_family(piece, usable, fam, caps[0], caps[1], design, used=used, within_table=relaxed)
+            got = _fit_family(piece, usable, fam, caps[0], caps[1], design, used=used, within_table=relaxed,
+                              ceiling=ceiling)
             if got.get("method") == "library":
                 got["excluded"] = excluded + got.get("excluded", [])
                 if fam != style_family:
@@ -787,7 +801,7 @@ def fit_piece(piece: dict, catalog: C.Catalog, cap: float = NON_UNIFORM_CAP,
             known = {x["id"] for x in excluded}
             excluded += [x for x in got.get("excluded") or [] if x["id"] not in known]
     return _no_model(piece, catalog, "; ".join(reasons) or f"no {ftype} model fits", tried, excluded, cap,
-                     uniform_range, style_family, mode=mode, used=used, style=style)
+                     uniform_range, style_family, mode=mode, used=used, style=style, ceiling=ceiling)
 
 
 def _relaxed_caps(cap: float, uniform_range: tuple[float, float]) -> Optional[tuple[float, tuple[float, float]]]:
@@ -1192,6 +1206,39 @@ def real_height_range(ftype: str) -> Optional[tuple[float, float]]:
     rng = SZ.real_range(ftype)
     h = (rng or {}).get("height")
     return (float(h[0]), float(h[1])) if h else None
+
+
+CEILING_MARGIN_M = 0.05          # fix round after P6a: a model stays this far under a sloped ceiling (= the solver's)
+
+
+def under_ceiling(height: float, ceiling: Optional[float], margin: float = CEILING_MARGIN_M) -> bool:
+    """Fix round after P6a (module docstring): the fitted ``height`` stays ``margin`` under ``ceiling`` (the room the
+    piece has under a sloped ceiling, ``piece_ceiling``); always true without a ceiling (a flat level)."""
+    return ceiling is None or float(height) <= float(ceiling) - margin + 1e-9
+
+
+def piece_ceiling(building: Optional[dict], piece: dict, planes: Optional[list] = None) -> Optional[float]:
+    """Fix round after P6a (module docstring): the height a model of ``piece`` may reach under a sloped ceiling: the
+    ceiling over its footprint (``decor.ceiling_over`` with the level's ``decor.ceiling_planes``, ``planes`` when the
+    caller has them) less its mount height (``proxies.mount_bottom``: a wall cabinet hangs at 1.45 m); None on a flat
+    level (no planes), without a building, a level or a footprint."""
+    level_id = piece.get("level_id")
+    fp = piece.get("footprint") if isinstance(piece.get("footprint"), dict) else None
+    if not isinstance(building, dict) or not level_id or not fp or not fp.get("center") or not fp.get("size"):
+        return None
+    from wenart.furniture import decor as D       # lazy: the slope needs the roof model (blender.roof, pure Python)
+
+    try:
+        planes = D.ceiling_planes(building, level_id) if planes is None else planes
+        if not planes:
+            return None
+        over = D.ceiling_over(building, level_id, fp["center"], fp["size"], float(fp.get("rotation_deg") or 0.0),
+                              planes=planes)
+    except (KeyError, TypeError, ValueError, IndexError, ZeroDivisionError):
+        return None
+    from wenart.blender import proxies as PX
+
+    return round(float(over) - PX.mount_bottom(piece)[0], 4)
 
 
 def height_fits(height: float, heights: Optional[tuple[float, float]], tol: float = HEIGHT_TOLERANCE) -> bool:
