@@ -554,9 +554,14 @@ def test_crop_of_never_records_a_top_down_render_as_the_plan_crop():
     b = M.building(furniture=[blob])
     text = "top-down image r1_044_topdown_r_L-1_salon_2.png: a 5.54 x 0.60 m band along the top wall"
     res = E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="other", evidence=text))
+    # Fix round after P5 (changed on purpose, tests/test_m13_p5_furniture.py): an untyped piece is marked only with
+    # a plan crop; a top-down render is none, so the mark is refused instead of recording ``crop: null``
+    assert not res["accepted"] and res["failed_checks"][0].startswith("no_crop: u1")
+    res = E.apply_edit(b, edit("mark_not_furniture", piece_id="u1", kind="other",
+                               evidence=text + "; plan crop check/cam_r_L-1_salon_2_1_plan.jpg"))
     assert res["accepted"], res["failed_checks"]
     sym = res["building"]["symbols"][0]
-    assert sym["crop"] is None and sym["evidence"][0]["file"] == E.EVIDENCE_FILE
+    assert sym["crop"] == "check/cam_r_L-1_salon_2_1_plan.jpg"
     assert "r1_044_topdown_r_L-1_salon_2.png" in sym["evidence"][0]["text"]
 
 

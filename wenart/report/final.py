@@ -3753,7 +3753,7 @@ def report_markdown(manifest: dict) -> str:
     lines += AG.agent_lines(manifest)
     if not manifest.get("agent") and manifest.get("inferred_items"):
         # fix round after P5: without the orchestrator section the report lists the inferred and AI-changed items
-        # itself (the decisions of 22 Oct 2026 included), so no change is listed nowhere
+        # itself (the decisions of 22 Oct 2026 included), so every change is listed somewhere
         lines += AG.inferred_lines(manifest["inferred_items"], heading="## Inferred and AI-changed items")
     lines += ["", "## Warnings", ""]
     lines += C.bullets(manifest["warnings"])

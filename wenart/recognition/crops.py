@@ -27,6 +27,16 @@ hash covers the sha256 of the decoded grey source crops and their shapes instead
 ``candidate`` = ``{"key", "footprint": {"center", "size", "rotation_deg"}, "strokes": [point lists, page metres],
 "bbox": [x0, y0, x1, y1]}`` (page metres; ``file``, ``page``, ``level`` and ``room_type`` are optional and unused
 here).
+
+Fix round after P5 (22 Oct 2026; pod P5, real04): ``render_pair`` also returns ``crop_sha256`` (``PIXELS_KEY``), the
+hash of the decoded pixels of the two crops it drew (``pixels_sha256``: shape and bytes of each grey array, so the
+same for any zlib build). The request item carries it (``symbols.question``) and ``answers`` records the pixel hash
+of the files the model was shown (``image_sha256``) with each answer: an answer counts only while that hash is the
+item's ``crop_sha256``, and a committed answer from before (no pixel hash) is seeded only when the crop files of its
+seed folder show the item's crops. Why: ``input_sha256`` hashes the canonical description (what should be drawn), not
+the file on disk; P3's crop file of sym_L0_007 showed another symbol (an old key collision overwrote it), yet P5 found
+all 72 hashes unchanged, so such an answer stayed reusable. The canonical ``input_sha256`` is unchanged, so the
+committed answers of unchanged crops are still reused.
 """
 from __future__ import annotations
 
@@ -468,4 +478,35 @@ def render_pair(candidate: dict, context: dict, out_dir: Path, key: str) -> dict
     crop = {k: desc[k] for k in ("object_box", "ctx_box", "iso_box")}
     crop.update({"units": "mm", "px": CROP_PX, "kind": desc["kind"], "crop_version": CROP_VERSION})
     return {"ctx_png": str(ctx_png), "iso_png": str(iso_png), "input_sha256": canonical_sha256(desc), "crop": crop,
-            "question": desc["question"]["facts"]}
+            "question": desc["question"]["facts"], PIXELS_KEY: pixels_sha256([ctx, iso])}
+
+
+# Fix round after P5 (module docstring): the pixels the model is shown, next to the canonical description's hash.
+PIXELS_KEY = "crop_sha256"
+
+
+def pixels_sha256(arrays: list) -> str:
+    """sha256 of the decoded grey pixels of the crops shown to the model (each array's shape and bytes, in order):
+    the same for a PNG written by any zlib build (decoding is lossless), different when a crop file shows another
+    drawing (P3 real04: sym_L0_007's crop file was overwritten by another candidate of the same key)."""
+    h = hashlib.sha256()
+    for arr in arrays:
+        a = np.ascontiguousarray(np.asarray(arr, dtype=np.uint8))
+        h.update(json.dumps(list(a.shape)).encode("ascii"))
+        h.update(a.tobytes())
+    return h.hexdigest()
+
+
+def image_sha256(paths: list) -> Optional[str]:
+    """``pixels_sha256`` of the PNG files at ``paths`` (decoded as 8-bit grey), or None when one is missing or
+    unreadable."""
+    from PIL import Image
+
+    arrays = []
+    for p in paths:
+        try:
+            with Image.open(Path(p)) as im:
+                arrays.append(np.asarray(im.convert("L"), dtype=np.uint8))
+        except (OSError, ValueError):
+            return None
+    return pixels_sha256(arrays) if arrays else None

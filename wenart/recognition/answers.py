@@ -56,6 +56,17 @@ Fix round after P4a (17 Oct 2026; real02: six answers seeded by input hash from 
 paths, which in the run's ``crops`` folder show other symbols): a seeded record's ``images`` are the request item's
 own crops (the input hash covers the crop description, so they show what was answered); ``seeded_key`` and
 ``seeded_images`` keep the key and the crop paths it had in the seed file, for the trail.
+
+Fix round after P5 (22 Oct 2026; pod P5, real04). What: a request item may carry ``crop_sha256`` (``PIXELS_KEY``:
+``crops.pixels_sha256`` of the crops ``crops.render_pair`` drew for it) and an answer record ``image_sha256``
+(``SHOWN_KEY``: the pixel hash of the crop files the model was shown, read from disk when it was asked or, for a
+seeded answer from before this round, from the seed folder's crop files). An answer is current only while both
+hashes, when known, are equal (``shown_matches``); ``seed_answers`` skips an old answer whose seed crop files show
+other pixels than the item's crops, and ``ask`` never sends crop files that show other pixels than the item's
+crops (a failed record "overwritten: not asked"). Records and items from before this round have no pixel hash, and
+the canonical ``input_sha256`` is unchanged, so the committed answers of unchanged crops are reused as before. Why:
+``input_sha256`` hashes what should be drawn, not the file; P3's crop file of sym_L0_007 showed another symbol (a key
+collision of the secondary page overwrote it), and its answers stayed reusable because the hash did not change.
 """
 from __future__ import annotations
 
@@ -80,6 +91,10 @@ MODEL_KEYS: tuple[str, ...] = ("qwen", "glm")       # pass 1, pass 2 (§3.3)
 DEFAULT_SERVER = "http://127.0.0.1:8001/v1"
 EXIT_OK, EXIT_INCOMPLETE, EXIT_SERVER, EXIT_DEADLINE = 0, 1, 2, 3
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+# Fix round after P5 (module docstring): the pixels a request item's crops show (``crops.pixels_sha256``, set by
+# ``crops.render_pair`` and carried by the item) and the pixels of the files an answer was given for.
+PIXELS_KEY = "crop_sha256"
+SHOWN_KEY = "image_sha256"
 
 
 class UsageError(ValueError):
@@ -176,6 +191,8 @@ def check_item(item: dict) -> None:
         raise ValueError(f"request {item['key']!r}: images must be a non-empty list of paths")
     if not _SHA256.match(str(item["input_sha256"])):
         raise ValueError(f"request {item['key']!r}: input_sha256 is not a sha256 hex digest")
+    if PIXELS_KEY in item and not _SHA256.match(str(item[PIXELS_KEY])):
+        raise ValueError(f"request {item['key']!r}: {PIXELS_KEY} is not a sha256 hex digest")
     if "question" in item:
         facts = item["question"]
         ok = isinstance(facts, dict) and item["task"] == "symbol_type"
@@ -251,6 +268,21 @@ def find_by_input(calls: dict, item: dict, current: Callable) -> Optional[dict]:
     return None if key is None else calls[key]
 
 
+def shown_matches(rec: dict, item: dict) -> bool:
+    """Fix round after P5 (module docstring): False when the record names the pixels it was given for
+    (``SHOWN_KEY``) and the item names its crops' pixels (``PIXELS_KEY``) and they differ; True otherwise (a record
+    or an item from before this round)."""
+    shown, crop = rec.get(SHOWN_KEY), item.get(PIXELS_KEY)
+    return not (shown and crop and shown != crop)
+
+
+def shown_sha256(rec_dir: Path, images: list) -> Optional[str]:
+    """Fix round after P5: ``crops.image_sha256`` of the files ``images`` (relative to ``rec_dir``), None when one is
+    missing or unreadable."""
+    from wenart.recognition.crops import image_sha256
+    return image_sha256([Path(rec_dir) / p for p in images or []]) if images else None
+
+
 class AnswerStore:
     """``<out>/recognition/answers_<slug>.json``: every answer of one model, rewritten after each answer."""
 
@@ -275,9 +307,12 @@ class AnswerStore:
 
     def current(self, rec: Optional[dict], item: dict) -> bool:
         """Same input hash and, when both are known, the same model id (a model changed in check.yaml makes the
-        stored answers stale even under the same slug)."""
+        stored answers stale even under the same slug). Fix round after P5: and, when both are known, the pixels the
+        answer was given for (``SHOWN_KEY``) are the item's crops (``PIXELS_KEY``)."""
         if not rec or rec.get("input_sha256") != item["input_sha256"]:
             return False
+        if not shown_matches(rec, item):
+            return False                # fix round after P5: the answer was given for another picture
         model = self.data.get("model") or ""
         return not (model and rec.get("model") and rec.get("model") != model)
 
@@ -396,6 +431,16 @@ def seed_answers(store: AnswerStore, items: list[dict], seed_dir: Path, log: Cal
                 continue
             rec = calls[seed_key]
         new = dict(rec)
+        if not rec.get(SHOWN_KEY):
+            # Fix round after P5 (module docstring): an answer from before this round names no pixels; the crop
+            # files of its seed folder show what it was given for. Another picture than the item's crops: not seeded.
+            shown = shown_sha256(seed_dir, rec.get("images") or [])
+            if shown is not None and item.get(PIXELS_KEY) and shown != item[PIXELS_KEY]:
+                log(f"recognition answers: {item['key']}: the seed answer {seed_key} was given for other crop pixels "
+                    f"(its crop files in {seed_dir} show another picture): not seeded")
+                continue
+            if shown is not None:
+                new[SHOWN_KEY] = shown
         new.update(images=list(item["images"]), seeded_from=str(seed_path), seeded_key=seed_key,
                    seeded_images=list(rec.get("images") or []))
         store.put(item["key"], new, save=False)
@@ -494,14 +539,28 @@ def ask(items: list[dict], store: AnswerStore, client, rec_dir: Path, *, workers
             stats["reused"] += 1
     results: "queue.Queue" = queue.Queue()
     running: dict[int, dict] = {}
+    item_shown: dict[int, Optional[str]] = {}
     started, abandoned = 0, 0
     while True:
         while started < len(pending) and len(running) < max(1, int(workers)):
             if deadline is not None and clock() >= deadline:
                 break
             item = pending[started]
+            shown = shown_sha256(rec_dir, item["images"])
+            if shown is not None and item.get(PIXELS_KEY) and shown != item[PIXELS_KEY]:
+                # Fix round after P5 (module docstring): the files on disk are not the item's crops (overwritten by
+                # another candidate of the same key): never ask the model about another picture
+                rec = _error_record(item, f"the crop files of {item['key']} show other pixels than its crops "
+                                          f"(overwritten): not asked", model, seed)
+                rec[SHOWN_KEY] = shown
+                store.put(item["key"], rec)
+                stats["failed"] += 1
+                log(f"recognition answers: {item['key']}: {rec['error']}")
+                pending.pop(started)
+                continue
             args = call_args(item, rec_dir)
             running[started] = item
+            item_shown[started] = shown
 
             def call(args=args):
                 return client.run_schema([str(p) for p in args["images"]], args["prompt"], args["schema"],
@@ -524,6 +583,8 @@ def ask(items: list[dict], store: AnswerStore, client, rec_dir: Path, *, workers
             rec = _error_record(item, f"{type(exc).__name__}: {exc}", model, seed)
         else:
             rec = record_of(item, result, model, seed)
+        if item_shown.get(tag):
+            rec[SHOWN_KEY] = item_shown[tag]     # fix round after P5: the pixels this answer was given for
         store.put(item["key"], rec)
         stats["asked"] += 1
         if rec.get("guard"):

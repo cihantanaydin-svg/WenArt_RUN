@@ -1769,6 +1769,190 @@ def _free_ray(f: dict, side, ring) -> float:
 
 
 # --------------------------------------------------------------------------
+# Fix round after P5: clear reading errors code corrects (CLAUDE.md, user decisions of 22 Oct 2026)
+# --------------------------------------------------------------------------
+
+def _short_side_front(footprint: dict, front_deg: float) -> bool:
+    """True when ``front_deg`` puts the front on a short side of the footprint (the width across that front at
+    least ``LONG_FRONT_RATIO`` times shorter than the depth)."""
+    from wenart.furniture import placer
+
+    _rot, (w, d) = placer.front_frame(footprint, front_deg)
+    return w * LONG_FRONT_RATIO <= d + 1e-9
+
+
+def _code_label(f: dict, rule: str, reason: str, changed: dict, crop: Optional[str]) -> None:
+    """``drawn_*`` kept and ``adjusted_by_ai`` (``by: code``) for a correction the reading's code makes (CLAUDE.md:
+    every change keeps the drawn values and is labelled with the reason; the plan crop as evidence)."""
+    f.setdefault("drawn_type", f.get("type"))
+    f.setdefault("drawn_footprint", copy.deepcopy(f.get("footprint")))
+    f.setdefault("drawn_front_deg", f.get("front_deg"))
+    f.setdefault("drawn_height", f.get("height"))
+    f["adjusted_by_ai"] = {"by": "code", "stage": "reading", "rule": rule, "reason": reason, "changed": changed,
+                           "crop": crop}
+
+
+def long_side_fronts(build, items: dict) -> list[str]:
+    """Fix round after P5 (module docstring): a drawn piece of a type that faces along a long side
+    (``LONG_FRONT_TYPES``: a sofa, a desk, a wardrobe ...) whose front stands on a short side (an AI front applied by
+    turning the footprint: P5's twin sofa f_L-1b_045, 0.82 x 1.64 m, built as a 0.82 m wide sofa) gets the long side
+    the drawing gives (``_front_of``: its wall, its coffee table), else the long side facing the most room
+    (``_free_ray``). Block-named pieces are left to the reader's own rule. Returns the ids changed."""
+    from wenart.furniture import infer as INF
+
+    b = build.building
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
+    done = []
+    for f in b["furniture"]:
+        if f.get("type") not in LONG_FRONT_TYPES or f.get("front_deg") is None or f.get("build") is False \
+                or f.get("source") != "from_documents" or f.get("type_method") == "block_name":
+            continue
+        room = rooms.get(f.get("room_id"))
+        if room is None or not _short_side_front(f["footprint"], float(f["front_deg"])):
+            continue
+        mates = [o for o in b["furniture"] if o is not f and o.get("room_id") == room["id"]
+                 and o.get("build") is not False]
+        bare = dict(f, front_deg=None)
+        front, why = _front_of(bare, room, mates)
+        if front is None or _short_side_front(f["footprint"], front):
+            ring = room_ring(room)
+            ss = sides(rect(f))
+            longest = max(math.dist(*s) for s in ss)
+            ranked = sorted(((_free_ray(f, s, ring), k) for k, s in enumerate(ss)
+                             if math.dist(*s) >= 0.999 * longest), key=lambda t: (-round(t[0], 3), t[1]))
+            if not ranked:
+                continue
+            front = snap_front(f, outward_deg(f, ss[ranked[0][1]]))
+            why = f"the long side facing the most room ({ranked[0][0]:.2f} m free)"
+        old = float(f["front_deg"])
+        det = items[f["id"]].details if f["id"] in items else {}
+        crop = _crop(det)
+        reason = (f"a {f['type']} faces along a long side: the front {old:g} deg on its short side (an AI front) is a "
+                  f"reading error; front {front:g} deg: {why}" + (f"; plan crop {crop}" if crop else ""))
+        _code_label(f, LONG_FRONT_RULE, reason, {"front_deg": old, "footprint": copy.deepcopy(f["footprint"])}, crop)
+        INF.set_front(f, front)
+        f["inferred"] = True
+        f["front_inferred"] = reason
+        f.setdefault("evidence", []).append(_ev(f, LONG_FRONT_RULE, reason, 0.6))
+        build.warn(f"{f['id']}: {reason}")
+        done.append(f["id"])
+    return done
+
+
+def _next_piece_id(b: dict, level_id: str) -> str:
+    """The next free ``f_<level>_NNN`` furniture id of a level."""
+    prefix = f"f_{level_id}_"
+    used = [int(str(f["id"])[len(prefix):]) for f in b.get("furniture") or []
+            if str(f.get("id", "")).startswith(prefix) and str(f["id"])[len(prefix):].isdigit()]
+    return f"{prefix}{max(used, default=0) + 1:03d}"
+
+
+def desk_chairs(build, items: dict) -> list[str]:
+    """Fix round after P5 (module docstring; CLAUDE.md "a table footprint that includes its chairs"): a drawn desk
+    with a front whose back stands on a wall and that is deeper than ``DESK_SPLIT_DEPTH_M`` holds the chair drawn in
+    front of it (P5 real04: four 1.45 x 0.91 m desks, crop sym_L0_007: a 0.6 m desk at the wall and a chair back in
+    front). The desk keeps ``DESK_DEPTH_M`` at its wall (``adjusted_by_ai`` by code, ``drawn_footprint`` kept) and the
+    chair becomes a drawn ``office_chair`` (``DESK_CHAIR_M``) in front of it, facing it, tucked in, with the desk's
+    vector evidence. Returns the ids of the new chairs."""
+    from wenart.furniture import group_checks as GC
+    from wenart.furniture import placer
+
+    b = build.building
+    rooms = {r["id"]: r for r in b.get("rooms") or [] if len(r.get("polygon") or []) >= 3}
+    made = []
+    for f in list(b["furniture"]):
+        if f.get("type") != "desk" or f.get("front_deg") is None or f.get("build") is False \
+                or f.get("source") != "from_documents":
+            continue
+        room = rooms.get(f.get("room_id"))
+        if room is None:
+            continue
+        p = placer.drawn_piece(f)
+        w, d = float(p.size[0]), float(p.size[1])
+        if d <= DESK_SPLIT_DEPTH_M + 1e-9 or w < DESK_CHAIR_M[0]:
+            continue
+        if 2 not in wall_sides(dict(f, footprint={"center": list(p.center), "size": [w, d],
+                                                  "rotation_deg": p.rotation_deg}), room_ring(room)):
+            continue                                    # its back is not on a wall: not the drawn desk + chair
+        det = items[f["id"]].details if f["id"] in items else {}
+        crop = _crop(det)
+        before = copy.deepcopy(f["footprint"])
+        dc = GC.to_world(p, (0.0, d / 2.0 - DESK_DEPTH_M / 2.0))
+        cw, cd = DESK_CHAIR_M
+        cc = GC.to_world(p, (0.0, -d / 2.0 + cd / 2.0))
+        cid = _next_piece_id(b, f["level_id"])
+        reason = (f"a {w:.2f} x {d:.2f} m desk symbol holds the chair drawn in front of it (CLAUDE.md: a table "
+                  f"footprint that includes its chairs): the desk keeps {DESK_DEPTH_M:.2f} m at its wall, the chair "
+                  f"{cid} stands in front" + (f"; plan crop {crop}" if crop else ""))
+        _code_label(f, DESK_RULE, reason, {"footprint": before}, crop)
+        f["footprint"] = {"center": [round(dc[0], 4), round(dc[1], 4)], "size": [round(w, 4), DESK_DEPTH_M],
+                          "rotation_deg": round(float(p.rotation_deg), 3)}
+        f.setdefault("evidence", []).append(_ev(f, DESK_RULE, reason, 0.7))
+        src = next((e for e in f.get("evidence") or [] if isinstance(e, dict) and e.get("method") == "vector"), None)
+        ev = dict(src or _ev(f, DESK_RULE, reason, 0.7))
+        ev["note"] = f"chair drawn in front of the desk {f['id']} (its symbol held both; {DESK_RULE})"
+        chair = {"id": cid, "level_id": f["level_id"], "room_id": f.get("room_id"), "type": "office_chair",
+                 "type_raw": None, "source": "from_documents",
+                 "footprint": {"center": [round(cc[0], 4), round(cc[1], 4)], "size": [cw, cd],
+                               "rotation_deg": round(G.normalise_angle(float(p.rotation_deg) + 180.0), 3)},
+                 "front_deg": round(G.normalise_angle(float(f["front_deg"]) + 180.0), 3), "height": None,
+                 "asset": None, "status": "unverified", "evidence": [ev, _ev(f, DESK_RULE, reason, 0.7)],
+                 "type_method": CONTEXT_METHOD, "type_candidates": [], "build": True, "inferred": True,
+                 "inferred_reason": f"the chair of the desk {f['id']}, drawn in front of it in the desk symbol"}
+        b["furniture"].append(chair)
+        build.warn(f"{f['id']}: {reason}")
+        made.append(cid)
+    return made
+
+
+def seat_cushions(build, items: dict) -> list[str]:
+    """Fix round after P5 (module docstring; CLAUDE.md "a cushion read as a sofa"): a drawn piece no larger than
+    ``CUSHION_MAX_M`` either way that lies at least ``CUSHION_INSIDE`` inside a larger built drawn seat of its room
+    (P5 real04: the 0.47 x 0.48 m "ottomans" f_L-1_075..078 on the seats of the armchairs f_L-1_069..072) is that
+    seat's cushion: not built (``inferred_as: detail``), ``adjusted_by_ai`` by code with the plan crop. Returns the
+    ids."""
+    from wenart.furniture import placer, schemas
+
+    b = build.building
+    seats = [f for f in b["furniture"] if f.get("type") in CUSHION_SEATS and f.get("build") is not False
+             and f.get("source") == "from_documents" and f.get("footprint")]
+    done = []
+    for f in b["furniture"]:
+        if f.get("build") is False or f.get("source") != "from_documents" or not f.get("footprint") \
+                or f.get("type") in schemas.FIXED_TYPES or f.get("type") in CUSHION_SEATS[:2]:
+            continue
+        if max(float(v) for v in f["footprint"]["size"]) > CUSHION_MAX_M + 1e-9:
+            continue
+        poly = rect(f)
+        host = None
+        for s in seats:
+            if s is f or s.get("room_id") != f.get("room_id"):
+                continue
+            try:
+                sp = placer.drawn_piece(s).polygon()
+            except (KeyError, TypeError, ValueError):
+                continue
+            if sp.area > poly.area * 1.2 and poly.intersection(sp).area >= CUSHION_INSIDE * poly.area - 1e-9:
+                host = s
+                break
+        if host is None:
+            continue
+        det = items[f["id"]].details if f["id"] in items else {}
+        crop = _crop(det)
+        share = poly.intersection(placer.drawn_piece(host).polygon()).area / poly.area
+        reason = (f"a {f['footprint']['size'][0]:.2f} x {f['footprint']['size'][1]:.2f} m {f['type']} drawn "
+                  f"{share:.0%} inside the {host['type']} {host['id']}: its seat cushion, not a piece of its own "
+                  f"(not built)" + (f"; plan crop {crop}" if crop else ""))
+        _code_label(f, CUSHION_RULE, reason, {"build": True}, crop)
+        f["adjusted_by_ai"]["not_furniture"] = "seat_cushion"
+        f.update(build=False, inferred=True, inferred_as="detail", inferred_reason=reason, not_built_reason=reason)
+        f.setdefault("evidence", []).append(_ev(f, CUSHION_RULE, reason, 0.75))
+        build.warn(f"{f['id']}: {reason}")
+        done.append(f["id"])
+    return done
+
+
+# --------------------------------------------------------------------------
 # 6. Kitchen zones of open plans
 # --------------------------------------------------------------------------
 
@@ -1962,6 +2146,10 @@ def read_furniture(build, works: dict) -> None:
             typed_by.update(methods3)
             withdrawn.update(withdraw_questions(build, works, items, coded3, methods3))
             pending = pending - set(coded3)
+    # Fix round after P5 (module docstring): clear reading errors of typed pieces, before the fronts and the fit
+    flipped = long_side_fronts(build, items)
+    desks = desk_chairs(build, items)
+    cushions = seat_cushions(build, items)
     fixed = fix_fixed(build, items)
     fronts += infer_fronts(build, pending)
     # Partners of the anchors the inference typed (real01 --no-ai: the chaise by its size): the Milestone 12 rules on
@@ -1977,6 +2165,7 @@ def read_furniture(build, works: dict) -> None:
     b.setdefault("needs_review", [])
     build.reading = {"symbols": symbols, "context": context, "inferred": inferred, "fixed": fixed,
                      "fronts": fronts, "zones": zones, "needs_review": review, "tie_break": sorted(tied),
-                     "answer_typed": sorted(from_answers),
+                     "answer_typed": sorted(from_answers), "long_side_fronts": flipped, "desk_chairs": desks,
+                     "seat_cushions": cushions,
                      "code_typed": sorted(typed_by), "questions_withdrawn": sorted(withdrawn),
                      "typed_by": dict(sorted(typed_by.items()))}

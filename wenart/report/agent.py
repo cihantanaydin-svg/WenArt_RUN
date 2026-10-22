@@ -61,6 +61,7 @@ inferred items in its own section (``inferred_lines``) when there is no orchestr
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Optional
@@ -145,7 +146,12 @@ def change_text(f: dict) -> str:
     return "; ".join(parts) or "-"
 
 
+_CROP_IN_TEXT = re.compile(r"plan crop ([\w./-]+\.(?:png|jpg))")   # "... (plan crop recognition/crops/x.png)"
+
+
 def _plan_crop(f: dict, adj: dict) -> Optional[str]:
+    """The plan crop of a change: the adjusted_by_ai record's ``plan_crop`` / ``crop`` / evidence, else the piece's
+    evidence, else the path a reason or evidence text names ("plan crop <path>", as the reading rules write it)."""
     for key in ("plan_crop", "crop"):
         if adj.get(key):
             return str(adj[key])
@@ -153,6 +159,17 @@ def _plan_crop(f: dict, adj: dict) -> Optional[str]:
     for e in (ev if isinstance(ev, list) else [ev]):
         if isinstance(e, dict) and (e.get("plan_crop") or e.get("crop")):
             return str(e.get("plan_crop") or e.get("crop"))
+    texts = [adj.get("reason"), f.get("inferred_reason")]
+    piece_ev = f.get("evidence")
+    for e in (piece_ev if isinstance(piece_ev, list) else [piece_ev]):
+        if isinstance(e, dict):
+            if e.get("plan_crop"):
+                return str(e["plan_crop"])
+            texts += [e.get("text"), e.get("reason"), e.get("note")]
+    for text in texts:
+        hit = _CROP_IN_TEXT.search(str(text or ""))
+        if hit:
+            return hit.group(1)
     return None
 
 

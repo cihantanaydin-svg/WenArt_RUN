@@ -12,8 +12,8 @@ edit; ``scope``: fix round after P5, below; version 1 files hold plain rounds, c
 
 - ``edit_key(tool, args)``: the canonical text of an edit (the tool and its arguments without ``reason``, numbers
   rounded to 3 decimals, keys sorted): two edits with the same key are the same edit;
-- ``repeat_of(room, tool, args, round_no)``: the earlier rejection of the same edit (any round) or None; the tools refuse such
-  an edit before any validator or model call (real02 G2d: 108 of 177 rejections were exact repeats);
+- ``repeat_of(room, tool, args, round_no)``: the earlier rejection of the same edit (any round) or None; the tools
+  refuse such an edit before any validator or model call (real02 G2d: 108 of 177 rejections were exact repeats);
 - ``record(room, round, tool, args, result)``: one validated edit (accepted or rejected; dry runs are not recorded);
 - ``visit``, ``set_open``, ``add_plan``, ``tried``: the coverage, the open checklist of the next round, the plans
   (fix round after P4a: each plan with its status and the planner's skip list).
@@ -28,16 +28,18 @@ Why: M11 started a fresh conversation per room and a fresh tool context per roun
 (§1.4). The ledger is the loop's, not the model's: the room brief shows it to the model, the tools enforce it.
 
 Fix round after P5 (22 Oct 2026; pod P5, real04): the ledger is scoped to the building and the code it was made
-on. ``scope()`` is ``{"sha", "code"}``: the sha256 of ``building_decor.json`` (``overrides.source_sha``, the scope the
-overrides already use; "" without one) and ``code_version()`` (the sha256 of the files whose rules accept or refuse
-an edit, ``CODE_FILES``). Every record written carries it (``"scope"``): an accepted or rejected entry, a visit
+on. The scope (``make_scope``) is ``{"sha", "code"}``: the sha256 of ``building_decor.json``
+(``overrides.source_sha``, the scope the overrides already use; "" without one) and ``code_version()`` (the sha256
+of the files whose rules accept or refuse an edit, ``CODE_FILES``). Every record written carries it (``"scope"``): an accepted or rejected entry, a visit
 (``{"round", "scope"}``), a tried candidate (``{"candidate", "scope"}``), the open checklist (``{"items", "scope"}``
 under the same ``open`` key), a plan, and the refusal counter (``refused``: ``{"scope", "n"}``; the file's
 ``refused_repeats`` is the current scope's). Every reading (``room``, ``visits``, ``repeat_of``, ``no_spot``,
 ``summary``, ``refused_repeats``) uses only the records whose ``scope`` equals the current one (``==``: an empty sha
 of a test without ``building_decor.json`` matches itself); a record without a scope (M12, P3, P5) is an earlier run
-and is ignored; nothing is deleted from the file. The views keep their old shapes (rounds and candidates as ints, the
-open checklist as strings, records without the ``scope`` key). The loop re-reads the sha once per round
+and is ignored; nothing is deleted from the file (the open checklist is replaced by the next one, as before; a
+version-1 file's refusal count is kept as ``refused_repeats_legacy``). The views keep their old shapes (rounds and
+candidates as ints, the open checklist as strings, records without the ``scope`` key). The loop re-reads the sha
+once per round
 (``refresh``). An acceptance rejection that only says the round's finding list had no target for the edit
 (``BOOKKEEPING_WORDS``: "no target finding", "target finding ... is not among") refuses its repeat in the same round
 only: a later round has other findings. Why: P5's memory.json held three runs (r_L-1_salon visits [1..6, 1, 2, 3,
@@ -68,8 +70,9 @@ NO_SPOT_WORDS = "no valid spot"  # fix round after P4b: edit_ops._fix_fixture's 
 # an earlier rejection made by other rules is not repeated, it is validated again.
 CODE_FILES = ("wenart/agent", "wenart/furniture/edit_ops.py", "wenart/levels/edits.py",
               "wenart/blender/exterior_checks.py")
-# Fix round after P5: an acceptance rejection about the round's finding list, not about the edit (``causes.accept_edit``:
-# "no target finding: ...", "target finding X is not among the findings before the edit"); refused in its round only.
+# Fix round after P5: an acceptance rejection about the round's finding list, not about the edit
+# (``causes.accept_edit``: "no target finding: ...", "target finding X is not among the findings before the edit");
+# refused in its round only.
 BOOKKEEPING_WORDS = ("acceptance: no target finding", "is not among the findings before the edit")
 
 
@@ -147,6 +150,11 @@ class Memory:
                                  "refused_repeats": int(old.get("refused_repeats") or 0)}
                     if isinstance(old.get("refused"), dict):
                         self.data["refused"] = old["refused"]
+                    legacy = old.get("refused_repeats_legacy")
+                    if legacy is None and not isinstance(old.get("refused"), dict) and old.get("refused_repeats"):
+                        legacy = old["refused_repeats"]       # fix round after P5: a version-1 file's count, kept
+                    if legacy is not None:
+                        self.data["refused_repeats_legacy"] = int(legacy)
             except (OSError, ValueError):
                 pass
         self.scope: dict = make_scope(self.project_out)

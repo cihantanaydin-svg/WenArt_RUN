@@ -1947,7 +1947,9 @@ def furniture(strokes_m: list[Stroke], owned: set, walls: list[WallItem], openin
             if split is not None:
                 made = table_chair_items(split, ctx, raster_page, table)
                 pieces.extend(made)
-                notes.append(f"table + {len(made) - 1} chairs at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) split (M11)")
+                notes.append(f"{split['wardrobe']['note']} at ({fp[0][0]:.2f}, {fp[0][1]:.2f}): one wardrobe, not "
+                             f"a table with chairs (fix round after P5)" if split.get("wardrobe") else
+                             f"table + {len(made) - 1} chairs at ({fp[0][0]:.2f}, {fp[0][1]:.2f}) split (M11)")
                 continue
             ks = kitchen_split(part, walls, openings, ctx.theta)
             if ks is not None:
@@ -2312,6 +2314,69 @@ def trim_axis_lines(part: Cluster, theta: float) -> Optional[tuple[tuple, str, t
     return fp, note, (round(full[1], 4), round(full[2], 4)), axis
 
 
+HEAD_RULE_TYPES: tuple[str, ...] = ("bed_double", "bed_single", "bunk_bed")   # fix round after P5: the pillow rule
+SEAT_BACK_TYPES: tuple[str, ...] = ("sofa", "armchair")
+SEAT_BACK_RULE = "seat: the only side with no inner line along it is the front (back strip and arms drawn)"
+SEAT_LINE_M = (0.10, 0.30)     # a back strip or an arm: a line this far inside a side, along it ...
+SEAT_LINE_SHARE = 0.4          # ... covering at least this share of the side
+
+
+def _drop_rule(fronts: list[dict], prefix: str) -> list[dict]:
+    """``front_candidates`` without the rule whose text starts with ``prefix`` (a candidate only that rule gave goes)."""
+    return [dict(c, rule="; ".join(r for r in c["rule"].split("; ") if not r.startswith(prefix)))
+            for c in fronts if any(not r.startswith(prefix) for r in c["rule"].split("; "))]
+
+
+def seat_back_front(segs: list[Seg], centre, corners, theta: float, long_side: bool = True) -> Optional[float]:
+    """Fix round after P5 (module docstring): the front of a sofa or armchair block from its own lines. Its back strip
+    and its arms are drawn as straight lines along the back and the two ends, ``SEAT_LINE_M`` inside the outline and
+    covering at least ``SEAT_LINE_SHARE`` of the side; the seat opens to the front, the one side with no such line.
+    The front is that side when exactly one side has none and the side opposite it has one (and, ``long_side``, it is
+    a long side); else None."""
+    sides = _sides(corners)
+    lengths = [math.dist(*s) for s in sides]
+    tan = math.tan(math.radians(SNAP_DEG))
+    lined = []
+    for k, ((ax, ay), (bx, by)) in enumerate(sides):
+        length = lengths[k]
+        if length < 1e-6:
+            return None
+        ux, uy = (bx - ax) / length, (by - ay) / length
+        nx, ny = -uy, ux
+        if nx * (centre[0] - ax) + ny * (centre[1] - ay) < 0:
+            nx, ny = -nx, -ny                                  # the inward normal
+        cover: list[tuple[float, float]] = []
+        for s in segs:
+            if s.curve or s.dot or len(s.pts) != 2:
+                continue
+            (px, py), (qx, qy) = s.pts
+            along = ((px - ax) * ux + (py - ay) * uy, (qx - ax) * ux + (qy - ay) * uy)
+            inward = ((px - ax) * nx + (py - ay) * ny, (qx - ax) * nx + (qy - ay) * ny)
+            if abs(inward[1] - inward[0]) > abs(along[1] - along[0]) * tan + 1e-9:
+                continue                                       # not along the side
+            depth = (inward[0] + inward[1]) / 2.0
+            if not (SEAT_LINE_M[0] - 1e-9 <= depth <= SEAT_LINE_M[1] + 1e-9):
+                continue
+            lo, hi = max(0.0, min(along)), min(length, max(along))
+            if hi > lo:
+                cover.append((lo, hi))
+        cover.sort()
+        total, end = 0.0, 0.0
+        for lo, hi in cover:
+            lo = max(lo, end)
+            if hi > lo:
+                total += hi - lo
+                end = hi
+        lined.append(total >= SEAT_LINE_SHARE * length - 1e-9)
+    open_sides = [k for k in range(4) if not lined[k]]
+    if len(open_sides) != 1 or not lined[(open_sides[0] + 2) % 4]:
+        return None
+    k = open_sides[0]
+    if long_side and lengths[k] < lengths[(k + 1) % 4] - 1e-6:
+        return None
+    return _snap_deg(_outward_deg(sides[k], centre), theta)
+
+
 def _unique_front(fronts: list[dict]) -> Optional[dict]:
     """The one deterministic front of ``front_candidates`` (rules that agree are merged there), else None."""
     return fronts[0] if len(fronts) == 1 else None
@@ -2344,8 +2409,15 @@ def _block_item(part: Cluster, fp, ctx: _Ctx, raster: bool, table: dict,
         if ftype not in CHAIR_RULE_TYPES:
             # Milestone 12: "a chair faces the nearest table" is for seats; a toilet or washing machine named by its
             # block next to a table-sized piece is no chair (real03: toilets and washing machines faced sideways).
-            fronts = [dict(c, rule="; ".join(r for r in c["rule"].split("; ") if not r.startswith("chair faces")))
-                      for c in fronts if any(not r.startswith("chair faces") for r in c["rule"].split("; "))]
+            fronts = _drop_rule(fronts, "chair faces")
+        if ftype not in HEAD_RULE_TYPES:
+            # Fix round after P5 (module docstring): the pillow rule finds a bed's head; on a sofa or armchair block
+            # the small closed shapes are its arm ends or cushions (P5 real04: the oyun sofas faced away).
+            fronts = _drop_rule(fronts, "head = side")
+        if ftype in SEAT_BACK_TYPES:
+            strip = seat_back_front(part.segs, fp[0], fp[4], ctx.theta, long_side=ftype != "armchair")
+            if strip is not None and not fronts:
+                fronts = [{"front_deg": strip, "rule": SEAT_BACK_RULE}]
         found = _unique_front(fronts)
         if found is not None:
             front, rule = found["front_deg"], found["rule"]
@@ -2527,6 +2599,13 @@ def _split_named(info: dict, table: dict, theta: float, notes: list) -> list[dic
         # Milestone 11 (U10): a table block drawn with its chairs (real02's "masa": a 3.35 m table and 10 chairs read
         # as one 3.35 x 1.57 m table) -> the named table and one chair per chair part, each facing the table.
         split = split_table_chairs(info["part"], table, theta)
+        if split is not None and split.get("wardrobe"):
+            # Fix round after P5: a table-named block that draws a hanging rail with hangers is a coat closet
+            tfp = footprint(list(split["table_poly"].exterior.coords)[:-1], theta)
+            note = f"block {chain}: {split['wardrobe']['note']}"
+            notes.append(note)
+            return [{"part": split["table"], "n": 1, "fp": tfp, "size": (tfp[1], tfp[2]), "poly": Polygon(tfp[4]),
+                     "rule_type": "wardrobe", "front": None, "note": note}]
         if split is not None:
             tfp = footprint(list(split["table_poly"].exterior.coords)[:-1], theta)
             note = (f"block {chain} ({info['size'][0]:.2f} x {info['size'][1]:.2f} m) holds a table and "
@@ -2585,10 +2664,86 @@ COUNTER_COVER = 0.9            # the legs and islands cover >= 90 % of the outli
 ISLAND_MIN_M2 = 0.25
 
 
+RAIL_SHARE = 0.5               # fix round after P5: a hanging rail runs at least half the outline's length ...
+RAIL_OFFSET_SHARE = 0.25       # ... within this share of its depth off the long centre line ...
+HANGER_MIN = 4                 # ... crossed by at least this many hangers at distinct places along it ...
+HANGER_ACROSS = (0.3, 0.9)     # ... each across this share of the depth (never wall to wall: no plank line) ...
+HANGER_ALONG_M = 0.15          # ... and at most this long along the rail
+HANGER_SEP_M = 0.03            # crossers this close along the rail are one hanger
+CLOSET_NOTE = "hanging rail with hangers: coat closet"
+
+
+def hanging_rail(segs: list[Seg], tpoly, theta: float) -> Optional[dict]:
+    """Fix round after P5 (module docstring): the hanging rail of a wardrobe or coat closet drawn inside the outline
+    ``tpoly``, by geometry only (never by size): in the plan's aligned frame, a straight stroke along the outline's
+    long axis (``SNAP_DEG``) at least ``RAIL_SHARE`` of its length, within ``RAIL_OFFSET_SHARE`` of its depth off the
+    centre line, crossed by at least ``HANGER_MIN`` hangers (strokes or arcs that cross the rail, span
+    ``HANGER_ACROSS`` of the depth and at most ``HANGER_ALONG_M`` along it; crossers within ``HANGER_SEP_M`` are one).
+    Returns ``{"rail": stroke id, "hangers": n, "note"}`` or None."""
+    to_f, _ = _frame(theta)
+    ring = [to_f(p) for p in tpoly.exterior.coords]
+    x0, y0 = min(p[0] for p in ring), min(p[1] for p in ring)
+    x1, y1 = max(p[0] for p in ring), max(p[1] for p in ring)
+    along_x = (x1 - x0) >= (y1 - y0)
+    length, depth = (x1 - x0, y1 - y0) if along_x else (y1 - y0, x1 - x0)
+    mid = (y0 + y1) / 2.0 if along_x else (x0 + x1) / 2.0
+    if depth <= 0 or length <= 0:
+        return None
+    tan = math.tan(math.radians(SNAP_DEG))
+
+    def frame(s: Seg) -> list[tuple[float, float]]:
+        """(along, across) points of a segment."""
+        return [(q[0], q[1]) if along_x else (q[1], q[0]) for q in (to_f(p) for p in s.pts)]
+
+    inner = tpoly.buffer(0.01)
+    inside = [s for s in segs if not s.dot and inner.contains(s.geom)]
+    rail = None
+    for s in sorted(inside, key=lambda s: (-s.length, s.id)):
+        pts = frame(s)
+        if s.curve or len(pts) != 2:
+            continue
+        (a0, c0), (a1, c1) = pts
+        if abs(c1 - c0) > abs(a1 - a0) * tan or abs(a1 - a0) < RAIL_SHARE * length - 1e-9:
+            continue
+        if abs((c0 + c1) / 2.0 - mid) > RAIL_OFFSET_SHARE * depth + 1e-9:
+            continue
+        rail = (s, min(a0, a1), max(a0, a1), (c0 + c1) / 2.0)
+        break
+    if rail is None:
+        return None
+    rs, lo, hi, line = rail
+    places: list[float] = []
+    for s in inside:
+        if s is rs:
+            continue
+        pts = frame(s)
+        al = [p[0] for p in pts]
+        ac = [p[1] for p in pts]
+        if max(al) - min(al) > HANGER_ALONG_M + 1e-9:
+            continue
+        span = max(ac) - min(ac)
+        if not (HANGER_ACROSS[0] * depth - 1e-9 <= span <= HANGER_ACROSS[1] * depth + 1e-9):
+            continue
+        centre = (min(al) + max(al)) / 2.0
+        if not (min(ac) - 1e-9 <= line <= max(ac) + 1e-9) or not (lo - 1e-9 <= centre <= hi + 1e-9):
+            continue
+        if all(abs(centre - q) > HANGER_SEP_M for q in places):
+            places.append(centre)
+    if len(places) < HANGER_MIN:
+        return None
+    return {"rail": rs.stroke.id, "hangers": len(places),
+            "note": f"{CLOSET_NOTE} ({rs.stroke.id}, {len(places)} hangers)"}
+
+
 def split_table_chairs(part: Cluster, table: dict, theta: float) -> Optional[dict]:
     """``{"table": Cluster, "table_poly", "chairs": [Cluster]}`` when ``part`` is a table outline (its largest
     top-level closed contour fits a table type) with at least two chair-sized parts within ``CHAIR_REACH_M`` around
-    it and nothing else; else None."""
+    it and nothing else; else None.
+
+    Fix round after P5 (module docstring): a split whose outline holds a hanging rail with hangers (``hanging_rail``)
+    is a wardrobe (a coat closet), never a table with chairs: ``{"wardrobe": rail, "table": Cluster(all of the
+    part), "table_poly", "chairs": []}`` (``table_chair_items`` makes one wardrobe of it; the "chairs" stay its
+    strokes)."""
     tops = top_contours(part)
     if not tops:
         return None
@@ -2596,6 +2751,17 @@ def split_table_chairs(part: Cluster, table: dict, theta: float) -> Optional[dic
     sides = _rect_sides(tpoly)
     if not any(fits(table, t, sides) for t in TABLE_TYPES):
         return None
+    split = _table_chairs(part, tpoly, tidx, theta)
+    if split is None:
+        return None
+    rail = hanging_rail(part.segs, tpoly, theta)
+    if rail is not None:
+        return {"wardrobe": rail, "table": Cluster(list(part.segs)), "table_poly": tpoly, "chairs": []}
+    return split
+
+
+def _table_chairs(part: Cluster, tpoly, tidx, theta: float) -> Optional[dict]:
+    """``split_table_chairs`` once the table outline ``tpoly`` (its contour members ``tidx``) is found."""
     own = set(tidx)
     inner = tpoly.buffer(-0.02)
     inside, rest = [], []
@@ -2666,8 +2832,14 @@ def _rule_item(segs: list, fp, ftype: str, front: Optional[float], ctx: _Ctx, ra
 
 def table_chair_items(split: dict, ctx: _Ctx, raster: bool, table: dict, named: Optional[FurnitureItem] = None
                       ) -> list[FurnitureItem]:
-    """The table (``named``: the block-named table, else a rule table) and one chair per part, facing the table."""
+    """The table (``named``: the block-named table, else a rule table) and one chair per part, facing the table.
+    Fix round after P5: a coat closet split (``split["wardrobe"]``) is one ``wardrobe`` rule item, the outline's
+    footprint, all the part's strokes as its evidence; the wall rules give its front at the reading."""
     tpoly = split["table_poly"]
+    if split.get("wardrobe"):
+        fp = footprint(list(tpoly.exterior.coords)[:-1], ctx.theta)
+        return [_rule_item(split["table"].segs, fp, "wardrobe", None, ctx, raster, table, split["wardrobe"]["note"],
+                           details={"hanging_rail": dict(split["wardrobe"])})]
     out = []
     note = f"table + {len(split['chairs'])} chairs drawn as one group: split (M11)"
     if named is None:

@@ -320,7 +320,7 @@ def question(candidate: dict, crops: Optional[dict] = None) -> dict:
         "bbox": _jsonable(candidate.get("bbox")),
         "crop": crops.get("crop"),
     }
-    return {
+    item = {
         "key": key,
         "task": TASK,
         "page": candidate.get("page"),
@@ -329,6 +329,9 @@ def question(candidate: dict, crops: Optional[dict] = None) -> dict:
         "question": _jsonable(facts),
         "input_sha256": crops["input_sha256"],
     }
+    if crops.get(A.PIXELS_KEY):
+        item[A.PIXELS_KEY] = crops[A.PIXELS_KEY]       # fix round after P5: the pixels the model is shown
+    return item
 
 
 # --------------------------------------------------------------------------

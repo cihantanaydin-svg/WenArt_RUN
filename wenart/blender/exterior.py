@@ -46,20 +46,21 @@ least ``LONG_LOW_RATIO`` times its height, ``z_range``) gets its eye-level corne
 closer: the camera stays on the same view line (the same corner, ``CORNER_ANGLE_DEG`` off the same facade, or square
 to the entrance facade), level, at eye height, with ``EYE_LENS_MM`` and the lens shift, and moves in until the
 building fills ``LONG_LOW_FILL`` of the frame width (``fill_distance``; ``FILL_TARGET`` otherwise). The rule only
-adds candidates (``eye_distances``): the close place and its outward steps (``LONG_LOW_STEPS_M``: a step in would cut
-the building at the frame edges) short of the Milestone 11 distance come first, then the Milestone 11 list as before,
-so a view whose close places are all blocked (a tree, a wall, a hedge above the eye) keeps its old place. The plans of
-a long, low building record ``long_low`` (the length, the height, the ratio and the fill target), the placement of a
-close place says so, and ``exterior_checks`` X6 takes the fill range ``LONG_LOW_FILL_RANGE`` for them. Why: P4b's real03 (33.3 m long, 3.2 m high: ratio 10.4) filled 11-12 % of each
-corner view (ray share, ``view_check``) and 7.6 % of the frontal view at the Milestone 11 fill of 0.7: at a fixed
-width fill, the share of a level view depends mainly on the building's length over height and the frame's aspect
-(only on them for a frontal view), so the thin strip came from the proportions, not from a wrong distance. Moving in to 0.9 of the width (10.5-11 m from the
-corners, 27 m from the entrance facade) raises the corner views to 23-25 % and the frontal view to 15 %, where real02
-and real04 (ratio 1.5-1.7: the rule does not fire, their plans are unchanged) frame theirs at 20-35 %.
-Not done: a downward pitch or lens shift (it only moves the horizon up and adds lawn, the P4b verifier's point 3; the
-level frame keeps the horizon and the sky in every view, CLAUDE.md), a wider lens (stronger perspective at 7 m from a
-33 m facade) and a wider aspect (every view renders at one resolution in render.py; the gain at 2:1 would be about
-12 % of the share).
+adds candidates (``eye_distances``): the close place and its outward steps (``LONG_LOW_STEPS_M``: a step in would
+cut the building at the frame edges) short of the Milestone 11 distance come first, then the Milestone 11 list as
+before, so a view whose close places are all refused (a tree, a wall, a hedge above the eye) keeps its old place.
+The plans of a long, low building record ``long_low`` (the length, the height, the ratio and the fill target), the
+placement of a close place says so, and ``exterior_checks`` X6 takes the fill range ``LONG_LOW_FILL_RANGE`` for
+them. Why: P4b's real03 (33.3 m long, 3.2 m high: ratio 10.4) filled 11-12 % of each corner view (ray share,
+``view_check``) and 7.6 % of the frontal view at the Milestone 11 fill of 0.7: at a fixed width fill, the share of a
+level view depends mainly on the building's length over height and the frame's aspect (only on them for a frontal
+view), so the thin strip came from the proportions, not from a wrong distance. Moving in to 0.9 of the width
+(10.5-11 m from the corners, 27 m from the entrance facade) raises the corner views to 23-25 % and the frontal view
+to 14-15 %, where real02 and real04 (ratio 1.5-1.7: the rule does not fire, their plans are unchanged) frame theirs
+at 20-35 %. Not done: a downward pitch or lens shift (it only moves the horizon up and adds lawn, the P4b verifier's
+point 3; the level frame keeps the horizon and the sky in every view, CLAUDE.md), a wider lens (stronger perspective
+at 7 m from a 33 m facade) and a wider aspect (every view renders at one resolution in render.py; at 2:1 the share
+would gain about 12 %).
 """
 from __future__ import annotations
 
@@ -113,7 +114,7 @@ LONG_LOW_RATIO = 5.0                                    # the outline rectangle'
 LONG_LOW_FILL = 0.9                                     # the share of the frame width those views aim at
 LONG_LOW_FILL_RANGE = (FILL_RANGE[0], LONG_LOW_FILL)    # X6's fill range for them (exterior_checks)
 LONG_LOW_STEPS_M = tuple(s for s in MOVE_STEPS_M if s >= 0.0)   # a blocked close view only moves out
-LONG_LOW_NOTE = " (long, low building, {length:.1f} m long and {height:.1f} m high: framed to {fill:.0%} of the width)"
+LONG_LOW_NOTE = " (long, low building, {length:.1f} m long and {height:.1f} m high: framed closer)"
 KIND = "exterior"
 LABELS = {"nothing": 0, "building": 1, "plot_wall": 2, "tree": 3, "ground": 4, "copy": 5,    # copy: 11 Oct 2026
           "hedge": 6}                                                                           # hedge: Milestone 13
@@ -677,11 +678,13 @@ def eye_distances(d_policy: float, d_close: Optional[float] = None) -> list[tupl
     ``d_policy + MOVE_STEPS_M``, as before. ``d_close`` (a long, low building: the distance at ``LONG_LOW_FILL``)
     puts the closer places ``d_close + LONG_LOW_STEPS_M`` short of ``d_policy`` in front of that list (``close``
     True); the rule only adds candidates, so a view whose close places are all blocked keeps its Milestone 11 place.
-    Distances under ``DISTANCE_SCAN_M[0]`` are left out."""
+    A Milestone 11 distance already in the close list is not tried twice; distances under ``DISTANCE_SCAN_M[0]`` are
+    left out."""
     out = []
     if d_close is not None:
         out += [(d_close + s, True) for s in LONG_LOW_STEPS_M if d_close + s < d_policy - 1e-6]
-    out += [(d_policy + s, False) for s in MOVE_STEPS_M]
+    out += [(d_policy + s, False) for s in MOVE_STEPS_M
+            if not any(abs(d_policy + s - dist) < 1e-6 for dist, _close in out)]
     return [(dist, close) for dist, close in out if dist >= DISTANCE_SCAN_M[0]]
 
 
@@ -943,8 +946,7 @@ def plan_exterior(model: ExteriorModel, building: dict, levels: Sequence[dict], 
     # fix round after P5 (module docstring): a long, low building's corner and frontal views are framed closer, on
     # the same view lines; their blocked fallbacks only move out
     low = long_low(model)
-    eye_note = LONG_LOW_NOTE.format(length=low["length_m"], height=low["height_m"], fill=low["fill_target"]) \
-        if low else ""
+    eye_note = LONG_LOW_NOTE.format(length=low["length_m"], height=low["height_m"]) if low else ""
     eye_extra = {"long_low": dict(low)} if low else {}
     for k, corner in enumerate(corners):
         # Milestone 11 E14: the camera stands CORNER_ANGLE_DEG off the facade it faces (the main facade at the two

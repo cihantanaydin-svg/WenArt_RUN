@@ -396,7 +396,8 @@ DESCRIPTIONS = {
                    "a door swing). Leave out center: the code moves it to the nearest valid spot (pod P5: 32 of 35 "
                    "guessed centres were still in a wall or a door swing). When the code answers 'no valid spot', no "
                    "centre will do: the finding stays for review. A drawn bathtub or shower up to 5 cm longer than its "
-                   "bay is a misread size: shrunk to the nearest real product size that fits (drawn footprint kept).",
+                   "bay is a misread size: without center and size it is shrunk to the nearest real product size that "
+                   "fits the bay (drawn footprint kept).",
     "set_front": "Give a drawn piece without a front (front_inferred) the direction its front faces (degrees "
                  "counter-clockwise from +x, along a side of its footprint); to turn a piece use rotate_piece.",
     "set_mark_kind": "Correct the kind of a level mark (with the reason).",

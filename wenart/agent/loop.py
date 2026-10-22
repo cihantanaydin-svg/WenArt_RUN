@@ -1730,8 +1730,8 @@ class AgentLoop:
                            call_id=f"{tag}-p{replies}", status="session_end", model=self.log.model,
                            revision=self.log.revision,
                            note=(f"{REFUSALS_END_SESSION} edits in a row were refused without validation on targets "
-                                 f"refused before in this session ({', '.join(sorted(map(str, refused_targets)))[:200]})"
-                                 f": the session ends"),
+                                 f"refused before in this session "
+                                 f"({', '.join(sorted(map(str, refused_targets)))[:200]}): the session ends"),
                            counts={"refused_targets": len(refused_targets), "calls": calls})
         if context_full or window.cuts:
             # fix round after P3: what the context budget cut, and a session ended by a full context (logged)

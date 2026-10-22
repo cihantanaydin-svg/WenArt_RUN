@@ -1227,6 +1227,7 @@ def fixed_mark_refusal(building: dict, item: dict) -> Optional[str]:
 # Fix round after P4a (module docstring): mark_not_furniture is a reading-error tool.
 MARK_LOCK_METHODS: tuple[str, ...] = ("block_name", "block", "rule", "twin", "level", "group_member")
 READING_CHECKS: tuple[str, ...] = ("NR", "RC")       # the critic's reading findings (wenart.agent.critic_code)
+NEEDS_REVIEW_CHECK_ID = "NR"                         # fix round after P5: NR keeps its way out of the lock
 DUPLICATE_SHARE = 0.5            # a drawn piece this much inside a built drawn piece of its type is a duplicate outline
 # Fix round after P4b (module docstring): a drawn piece this much inside a larger built drawn piece of the same family
 # is a duplicate outline too (real02: the 1.30 m "sofa" f_L-1_061, 84 % inside the corner sofa f_L-1_053). The tucked
@@ -1287,6 +1288,20 @@ def own_crop_named(building: dict, item: dict, evidence: Optional[str]) -> Optio
         crop = RECOGNITION_CROP.search(m.group(0))
         if crop and crop.group(1) in names:
             return m.group(0)
+    return None
+
+
+def recorded_crop(building: dict, item: dict) -> Optional[str]:
+    """Fix round after P5: the recognition crop path recorded for ``item`` in ``needs_review`` or ``conflicts``
+    (``RECOGNITION_CROP``), else None."""
+    pid = item.get("id")
+    records = [n for n in building.get("needs_review") or [] if isinstance(n, dict) and n.get("id") == pid]
+    records += [c for c in building.get("conflicts") or [] if isinstance(c, dict)
+                and pid in (c.get("element_ids") or [])]
+    for rec in records:
+        crop = str(rec.get("crop") or "")
+        if RECOGNITION_CROP.search(crop):
+            return crop
     return None
 
 
@@ -1385,22 +1400,51 @@ def mark_lock_refusal(building: dict, item: dict, target: Optional[dict] = None,
     if not size or not drawn or not (PL._fits(item["type"], drawn) or _in_range(item["type"], size)):
         return None
     targets = target if isinstance(target, list) else [target] if isinstance(target, dict) else []
-    if any(isinstance(t, dict) and t.get("check") in READING_CHECKS for t in targets):
+    checks = {t.get("check") for t in targets if isinstance(t, dict)}
+    if NEEDS_REVIEW_CHECK_ID in checks:
+        return None
+    # Fix round after P5 (module docstring): when the AI passes typed it as furniture too, the doubt is which
+    # furniture: an RC finding or the type_disagreement conflict no longer lifts the lock (retype_piece fixes it)
+    dispute = ai_furniture_dispute(building, item)
+    if dispute is None and checks & set(READING_CHECKS):
         return None
     if any(n.get("id") == item["id"] for n in building.get("needs_review") or [] if isinstance(n, dict)):
         return None
-    if any(c.get("kind") == "type_disagreement" and item["id"] in (c.get("element_ids") or [])
-           for c in building.get("conflicts") or [] if isinstance(c, dict)):
+    if dispute is None and any(c.get("kind") == "type_disagreement" and item["id"] in (c.get("element_ids") or [])
+                               for c in building.get("conflicts") or [] if isinstance(c, dict)):
         return None
     if _duplicate_of(building, item) is not None:
         return None
     if own_crop_named(building, item, evidence) is not None:
         return None                     # pass before P5: the piece's own plan crop is the evidence CLAUDE.md asks for
     w, d = (float(v) for v in size)
+    if dispute is not None:
+        return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real size "
+                f"({w:.2f} x {d:.2f} m) that the AI passes typed {dispute}: both read it as furniture, so the doubt is "
+                f"which piece it is: retype_piece fixes that; mark_not_furniture needs evidence that names its own "
+                f"recognition crop, when it has one")
     return (f"{item['id']}: a drawn {item['type']} typed from the drawing ({method}, vector evidence) at a real size "
             f"({w:.2f} x {d:.2f} m) is furniture: mark_not_furniture is for reading errors (an NR or RC finding, a "
             f"duplicate outline, evidence that names its own recognition crop, when it has one); a wall cut is "
             f"fixed by move_piece / the wall snap, a wrong room type by retype_piece")
+
+
+AI_TYPED_IT = re.compile(r"the AI passes typed it ([a-z_]+)")
+
+
+def ai_furniture_dispute(building: dict, item: dict) -> Optional[str]:
+    """Fix round after P5 (module docstring): the furniture type the AI passes named for ``item`` in a
+    ``type_disagreement`` conflict the drawing won (``reading.log_overrides``: "<id>: the AI passes typed it bench;
+    ..."), when it is a furniture type (``schemas.SIZE_OPTIONS``); else None (no conflict, or the passes said
+    unknown or not furniture, or a conflict that names no AI type)."""
+    for c in building.get("conflicts") or []:
+        if not isinstance(c, dict) or c.get("kind") != "type_disagreement" or \
+                item.get("id") not in (c.get("element_ids") or []):
+            continue
+        m = AI_TYPED_IT.search(str(c.get("description") or ""))
+        if m and m.group(1) in schemas.SIZE_OPTIONS:
+            return m.group(1)
+    return None
 
 
 def _mark_not_furniture(b: dict, args: dict) -> list[str]:
@@ -1418,14 +1462,20 @@ def _mark_not_furniture(b: dict, args: dict) -> list[str]:
         raise EditRejected("drawn_lock", refusal)
     if any(s.get("former_piece_id") == item["id"] for s in b.get("symbols") or []):
         raise EditRejected("no_change", f"{item['id']} is marked as not furniture already")
+    evidence = str(args["evidence"])
+    # fix rounds after P4a / P4b: a plan crop anywhere, never a top-down render; pass before P5: the piece's own crop
+    # first, when the evidence names it; fix round after P5: else the crop recorded for the piece
+    crop = own_crop_named(b, item, evidence) or crop_of(evidence) or recorded_crop(b, item)
+    if crop is None and item.get("type") in (None, "unknown"):
+        # Fix round after P5 (module docstring; P5 seq 5388: the 5.14 x 2.37 m cluster f_L-1b_001 marked with "plan
+        # crop of r_L-1b_salon_2" and no image): CLAUDE.md removes a drawn piece only with the plan crop as evidence
+        raise EditRejected("no_crop", f"{item['id']} is an untyped drawn piece with no crop of its own: the evidence "
+                                      f"must name the plan crop image you read (the image path the plan_crop or "
+                                      f"view tool gave); CLAUDE.md removes a drawn piece only with its plan crop")
     before = copy.deepcopy(item)
     item["build"] = False
     _label(item, before, args, ["build"])
     item["adjusted_by_ai"]["not_furniture"] = args["kind"]
-    evidence = str(args["evidence"])
-    # fix rounds after P4a / P4b: a plan crop anywhere, never a top-down render; pass before P5: the piece's own crop
-    # first, when the evidence names it
-    crop = own_crop_named(b, item, evidence) or crop_of(evidence)
     pattern = re.compile(rf"^sym_{re.escape(item['level_id'])}_(\d+)$")
     number = max((int(m.group(1)) for s in b.get("symbols") or [] for m in [pattern.match(str(s.get("id")))] if m),
                  default=0) + 1
@@ -1494,6 +1544,20 @@ def _fix_fixture(b: dict, args: dict) -> list[str]:
     p = placer.drawn_piece(item)
     size = p.size
     resized = False
+    # Fix round after P5 (module docstring; user decision of 22 Oct 2026): a bath or shower a few cm longer than its
+    # bay is a misread size: the nearest real product that fits the clear bay (reading.bay_fit)
+    bay = _bay_fix(b, room, item) if probs["size"] is None else None
+    if bay is not None and (args.get("size") is None or all(
+            abs(float(u) - float(v)) <= 0.005 for u, v in zip(args["size"], bay["size"]))) \
+            and args.get("center") is None:
+        _set_footprint(item, bay["footprint"]["center"], float(bay["footprint"]["rotation_deg"]), bay["size"],
+                       item.get("front_deg"))
+        _label(item, before, args, ["footprint"])
+        item["adjusted_by_ai"]["fix_fixture"] = {"resized": True, "moved_m": round(G.distance(
+            tuple(bay["footprint"]["center"]), p.center), 3), "size": None, "place": probs["place"],
+            "bay": {"overrun_m": bay["overrun"]["overrun_m"], "clear": list(bay["overrun"]["clear"]),
+                    "reason": bay["reason"]}}
+        return [item["id"]]
     if args.get("size") is not None or probs["size"]:
         if probs["size"] is None:
             rng = PL.size_range(item["type"])
@@ -1524,9 +1588,11 @@ def _fix_fixture(b: dict, args: dict) -> list[str]:
                                                f"{FIXTURE_MOVE_M:.2f} m")
         center = target
         if _place_problem(b, room, placer.Piece(p.type, center, p.rotation_deg, size, False)) is not None:
+            # Fix round after P5 (the P4b finding's text): never send the model back to a search that found nothing
             raise EditRejected("fixture_place", f"{item['id']} at [{center[0]:.2f}, {center[1]:.2f}] is still through "
-                                                f"a wall or in a door swing; leave out center and the code finds the "
-                                                f"nearest valid spot")
+                                                f"a wall or in a door swing; without center the code searches every "
+                                                f"spot within {FIXTURE_MOVE_M:.2f} m: when that search found no valid "
+                                                f"spot, none exists, do not try centres; the finding stays for review")
     elif place is not None:
         spot = _nearest_valid(b, room, item, placer.Piece(p.type, center, p.rotation_deg, size, False))
         if spot is None:
@@ -1543,6 +1609,18 @@ def _fix_fixture(b: dict, args: dict) -> list[str]:
     item["adjusted_by_ai"]["fix_fixture"] = {"resized": resized, "moved_m": round(moved, 3),
                                              "size": probs["size"], "place": probs["place"] or place}
     return [item["id"]]
+
+
+def _bay_fix(b: dict, room: dict, item: dict) -> Optional[dict]:
+    """Fix round after P5: ``reading.bay_fit`` of a drawn bathtub or shower in its room's outline, else None."""
+    from shapely.geometry import Polygon
+
+    from wenart.ingest.generic import reading as RD
+
+    if item.get("type") not in RD.BAY_TYPES or len(room.get("polygon") or []) < 3:
+        return None
+    poly = Polygon(room["polygon"])
+    return RD.bay_fit(item, poly if poly.is_valid else poly.buffer(0))
 
 
 def _fmt_range(rng) -> str:

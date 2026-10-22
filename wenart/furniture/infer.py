@@ -128,6 +128,12 @@ COFFEE_ZONE_GAP_M = (-0.05, 1.60)  # sofa front edge to the coffee table's near 
 COFFEE_IN_BODY = 0.2               # at most this share of a coffee table inside the corner sofa's L (reading's notch)
 TV_MIN_M = 0.90                    # a TV unit stands at least this far in front of the sofa (reading.TV_DISTANCE_M)
 TV_FACING_DEG = 45.0               # ... within this of the sofa's front direction
+# Fix round after P5 (user decision of 22 Oct 2026): a seat drawn in a corner sofa's open corner is its coffee table.
+CORNER_TABLE_METHOD = "corner_table"    # the proposal's method; the piece's type_method becomes "inferred"
+CORNER_TABLE_RULE = "furniture.infer.corner_tables"
+CORNER_TABLE_FROM = ("sofa", "armchair", "ottoman", "chaise")
+CORNER_IN_BOX = 0.4                # at least this share of the piece inside the corner sofa's box (reading's notch)
+CONF_CORNER_TABLE = 0.7
 
 OUTLINE_TYPE = "rug"              # what an outline holding other pieces is (a decor type, not a furniture type)
 WALL_SIDE_M = 0.10                # a side this close to the room outline stands on a wall
@@ -534,16 +540,21 @@ def coffee_zone_anchor(building: dict, piece: dict, room: dict) -> Optional[str]
         except (KeyError, TypeError, ValueError):
             continue
         for ap in frames:
-            if anchor.get("type") == "sofa_corner":
-                box = dataclasses.replace(ap, shape=None).polygon()
-                body = ap.polygon()
-                if box.contains(Point(centre)) and poly.intersection(body).area <= COFFEE_IN_BODY * poly.area + 1e-9:
-                    return str(anchor["id"])
             half_w, half_d = ap.size[0] / 2.0, ap.size[1] / 2.0
-            x, _y = GC.to_local(ap, centre)
+            x, y = GC.to_local(ap, centre)
+            if abs(x) > half_w + 1e-9:
+                continue                               # outside the anchor's front-width band
+            if anchor.get("type") == "sofa_corner":
+                # the open corner (inside the box, off the drawn L) or the strip in front of the box; a corner sofa
+                # without its L (typed by code) holds its table in the box's open corner too (real03 f_L0_191)
+                body = ap.polygon() if ap.shape == "L" else None
+                if -half_d - COFFEE_ZONE_GAP_M[1] - 1e-9 <= y <= half_d + 1e-9 and (
+                        body is None or poly.intersection(body).area <= COFFEE_IN_BODY * poly.area + 1e-9):
+                    return str(anchor["id"])
+                continue
             near = max(GC.to_local(ap, c)[1] for c in poly.exterior.coords)
             gap = -half_d - near                       # from the anchor's front edge to the piece's near side
-            if abs(x) <= half_w + 1e-9 and COFFEE_ZONE_GAP_M[0] - 1e-9 <= gap <= COFFEE_ZONE_GAP_M[1] + 1e-9:
+            if COFFEE_ZONE_GAP_M[0] - 1e-9 <= gap <= COFFEE_ZONE_GAP_M[1] + 1e-9:
                 return str(anchor["id"])
     return None
 
@@ -626,9 +637,11 @@ def _group_member_type(building: dict, piece: dict, room: dict) -> Optional[dict
     size = [float(v) for v in piece["footprint"]["size"]]
     allowed = PL.allowed_in(building, room) | set(schemas.allowed_types(kind, room.get("room_subtype")))
     fits = sorted(t for t in wanted if t in allowed and SZ.fits(t, size, 0.15))
-    # Fix round after P5 (module docstring): a coffee table or TV unit only where its role stands
-    fits = [t for t in fits if _role_place_ok(building, piece, room, t)]
     if not fits:
+        return None
+    # Fix round after P5 (module docstring): a coffee table or TV unit only where its role stands; a footprint that
+    # fits such a role by size but stands elsewhere is left to the plan crop (AI), never typed as another member
+    if any(not _role_place_ok(building, piece, room, t) for t in fits):
         return None
     # An AI pass named another type that fits the size and the shape (real02's sofa / kitchen_island): the plan
     # crop decides, not the group rule.
@@ -853,6 +866,8 @@ def infer_types(building: dict) -> list[dict]:
         out.append(prop)
     # fix round after P4a: the drawn nightstand-with-lamp symbols at a bed's head (module docstring)
     out += nightstand_symbols(building)
+    # fix round after P5 (user decision of 22 Oct 2026): a seat drawn in a corner sofa's open corner is its table
+    out += corner_tables(building)
     return out
 
 
@@ -977,6 +992,59 @@ def _apply_nightstand(item: dict, prop: dict) -> None:
     item["adjusted_by_ai"] = label
 
 
+def corner_tables(building: dict) -> list[dict]:
+    """Fix round after P5 (module docstring; user decision of 22 Oct 2026): proposals ``{"piece_id", "type":
+    "table_coffee", "type_method": CORNER_TABLE_METHOD, "reason", "confidence", "evidence", "drawn_type", "crop"}`` for
+    the drawn seats (``CORNER_TABLE_FROM``, typed by the AI passes or by the group-member rule, never by a block name or
+    a reading rule of the drawing) of a coffee table's size (``sizes.fits``, +15 %) that stand in the open corner of a
+    built drawn L corner sofa of their room: the centre inside the sofa's box, at least ``CORNER_IN_BOX`` of the piece
+    inside the box and at most ``COFFEE_IN_BODY`` inside the drawn L (the reading's notch rule). A seat cannot stand in
+    another sofa's open corner. Pure; the building is unchanged."""
+    from wenart.furniture import sizes as SZ
+
+    furniture = building.get("furniture") or []
+    out: list[dict] = []
+    for f in furniture:
+        if f.get("type") not in CORNER_TABLE_FROM or f.get("source") != "from_documents" or f.get("build") is False \
+                or not f.get("footprint") or f.get("type_method") in ("block_name", "rule"):
+            continue
+        if not SZ.fits("table_coffee", [float(v) for v in f["footprint"]["size"]], 0.15):
+            continue
+        try:
+            poly = placer.drawn_piece(f).polygon()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if poly.area <= 0:
+            continue
+        for s in furniture:
+            if s.get("type") != "sofa_corner" or s.get("shape") != "L" or s.get("room_id") != f.get("room_id") \
+                    or s.get("source") != "from_documents" or s.get("build") is False or not s.get("footprint"):
+                continue
+            try:
+                sp = placer.drawn_piece(s)
+            except (KeyError, TypeError, ValueError):
+                continue
+            box, body = dataclasses.replace(sp, shape=None).polygon(), sp.polygon()
+            if not box.contains(poly.centroid) or poly.intersection(box).area < CORNER_IN_BOX * poly.area - 1e-9 \
+                    or poly.intersection(body).area > COFFEE_IN_BODY * poly.area + 1e-9:
+                continue
+            crop = _crop_of(f)
+            w, d = (float(v) for v in f["footprint"]["size"])
+            text = (f"table_coffee: a drawn {f['type']} ({f.get('type_method')}) of a coffee table's size ({w:.2f} x "
+                    f"{d:.2f} m) in the open corner of the drawn corner sofa {s['id']} "
+                    f"({poly.intersection(body).area / poly.area:.0%} of it inside the L): the sofa's coffee table, "
+                    f"not a seat" + (f" (plan crop {crop})" if crop else ""))
+            ev = _evidence_code(f, CORNER_TABLE_METHOD, text, CONF_CORNER_TABLE, sofa=s["id"], drawn_type=f["type"])
+            ev["rule"] = CORNER_TABLE_RULE
+            if crop:
+                ev["crop"] = crop
+            out.append({"piece_id": f["id"], "type": "table_coffee", "type_method": CORNER_TABLE_METHOD,
+                        "reason": text, "confidence": CONF_CORNER_TABLE, "evidence": ev, "drawn_type": f["type"],
+                        "crop": crop})
+            break
+    return out
+
+
 CHAISE_RULE = "furniture.infer.chaise_sides"
 CONF_CHAISE = 0.6
 
@@ -1082,6 +1150,10 @@ def apply_inferences(building: dict, proposals: list[dict]) -> dict:
             continue
         if prop.get("type_method") == NIGHTSTAND_METHOD:          # fix round after P4a: a nightstand symbol
             _apply_nightstand(item, prop)
+            continue
+        if prop.get("type_method") == CORNER_TABLE_METHOD:        # fix round after P5: a corner sofa's table
+            _apply_nightstand(item, prop)
+            item["type_method"] = "inferred"                      # a schema value; the label names the rule
             continue
         ev = dict(prop.get("evidence") or _evidence(item, prop["reason"], float(prop.get("confidence", 0.5))))
         item.setdefault("evidence", []).append(ev)

@@ -379,6 +379,11 @@ SKY_RING_PX = 2                    # fix round after P4a: the pull also reaches 
 SKY_REF_PX = 4                     # ... where the full-coverage normal is the largest |N| outside the mask this close
 SKY_REF_MIN = 0.05                 # ... and at least this (a ring pixel with only sky round it)
 SKY_FAR_MARGIN_M = 100.0           # surfaces this far beyond the nearest haze-shell hit are seen through the haze
+# Fix round after P5 (22 Oct 2026): the edge check of the blended sky (``sky_edge_bright``, recorded as
+# ``edge_bright_px``): a pixel of the mask or the ring more than this much display luminance over both the fully
+# pulled sky and the surfaces the pull left alone within ``SKY_EDGE_NEAR_PX`` is a bright fringe dot.
+SKY_EDGE_BRIGHT_MARGIN = 0.05
+SKY_EDGE_NEAR_PX = 2
 SKY_INTO_SUN_DEG = 30.0            # a view whose azimuth is this close to the sun's looks into the sun (recorded)
 HAZE_NORMAL_EPS = 1e-6             # fix round part 3: a Normal pass component above this is a surface behind the haze
 PANE_ALBEDO_MAX = 0.05             # pane = window index and Diffuse Color luminance below this (glass, not frame)
@@ -455,6 +460,15 @@ WB_RIG_SHARE_MIN = 0.02
 WB_RIG_RESIDUAL = 0.0
 WB_VIEW_RULE = ("the project's daylight colour and the rig's light colour mixed by the view's rig share (1 - "
                 "daylight / all metered light), with the residual cast of the project's daylight kept for every view")
+# Fix round after P5 (22 Oct 2026): an interior view's white point takes the green-magenta tint of its own daylight
+# (``view_tint_gain``: the white point's G times this gain, the temperature stays the project's), clamped to
+# 1 / WB_TINT_GAIN_MAX .. WB_TINT_GAIN_MAX. P5 real04's sunlit L0 bedrooms read olive (wall display G/((R+B)/2)
+# 1.048-1.066 against M12's 1.007-1.017): their daylight is mostly sunlight bounced off the green ground outside
+# (the interior HDRI sits 5.2 stops under the sun, materials.world_nodes), green ratio G/sqrt(RB) 1.32-1.40 in the
+# bpy 5.2.2 shim of real04 against 1.00 on the terrace the anchor is metered on; the largest gain measured is 1.243.
+WB_TINT_GAIN_MAX = 1.3
+WB_TINT_RULE = ("the view's own daylight tint (its daylight green ratio to the power 1 - residual over the anchor's), "
+                "by its daylight share; the temperature stays the project's")
 # Fix round part 2 (17 Oct 2026): the clip rule of an open-air view under the exterior world (view_clip_end).
 OPEN_AIR_CLIP_RULE = ("open-air room under the exterior world: the exterior views' clip end (exterior.CLIP_END), so "
                       "the far ground and the backdrop close the horizon")
@@ -1006,6 +1020,58 @@ def mixed_whitepoint(project_wp, rig_rgb, share, residual, rig_residual: float |
     return normalise_whitepoint([v / c for v, c in zip(light, cast)])
 
 
+def green_ratio(rgb) -> float | None:
+    """``G / sqrt(R x B)`` of a light colour or a white point (pure; fix round after P5, 22 Oct 2026): 1 for a grey,
+    over 1 for a green light, under 1 for a magenta one; the axis a white point's tint moves along with its R/B (the
+    temperature) kept. None without a positive, finite value in every channel."""
+    try:
+        r, g, b = (float(v) for v in rgb)
+    except (TypeError, ValueError):
+        return None
+    if not all(math.isfinite(v) and v > 0.0 for v in (r, g, b)):
+        return None
+    return g / math.sqrt(r * b)
+
+
+def view_tint_gain(anchor, day_green, residual, share=0.0, gain_max: float = WB_TINT_GAIN_MAX) -> float:
+    """The factor on a view's white point's G that gives it the green-magenta tint of its own daylight (pure; fix
+    round after P5, 22 Oct 2026). What: ``(day_green ^ (1 - residual) / green_ratio(anchor)) ^ (1 - share)``, clamped
+    to ``1 / gain_max .. gain_max``; 1.0 without the view's daylight (``day_green`` None: a windowless room) or with
+    an anchor that has no green ratio. ``day_green`` is ``green_ratio`` of the view's daylight illuminant (metered with
+    the rig hidden), ``share`` the view's rig share (the rig part keeps the rig's own colour, ``mixed_whitepoint``).
+    Why: P5 real04's sunlit L0 bedrooms read olive under the project anchor (metered on the terrace, green ratio 1.00):
+    their daylight is mostly sunlight bounced off the green ground (green ratio 1.32-1.40 in the bpy 5.2.2 shim).
+    How: the anchor is ``whitepoint_from(day, residual)``, so its green ratio is the project daylight's to the power
+    ``1 - residual``; the view's daylight to the same power over it is the tint the anchor leaves in the view; the
+    view keeps the mood's residual of its own tint, as of the project's cast. The temperature (R/B of the white
+    point) does not change (``tinted_whitepoint``): Blender reads 5,635 K -> 5,725 K and tint 5.3 -> 42.1 at the
+    largest gain measured (1.243)."""
+    g_anchor = green_ratio(anchor)
+    try:
+        day = float(day_green)
+    except (TypeError, ValueError):
+        return 1.0
+    if g_anchor is None or not math.isfinite(day) or day <= 0.0:
+        return 1.0
+    k = 1.0 - float(residual or 0.0)
+    try:
+        s = min(1.0, max(0.0, float(share or 0.0)))
+    except (TypeError, ValueError):
+        s = 0.0
+    if k <= 1e-6 or not math.isfinite(s):
+        return 1.0
+    gain = (day ** k / g_anchor) ** (1.0 - s)
+    hi = max(1.0, float(gain_max))
+    return round(min(hi, max(1.0 / hi, gain)), 6)
+
+
+def tinted_whitepoint(wp, gain: float) -> list[float]:
+    """``wp`` with its G times ``gain``, normalised to luminance 1 (pure; fix round after P5): the white point's R/B
+    (its temperature) is unchanged, its tint moves (``view_tint_gain``). A gain of 1 gives ``normalise_whitepoint``."""
+    w = [float(v) for v in wp]
+    return normalise_whitepoint([w[0], w[1] * float(gain), w[2]])
+
+
 def wb_residual(mood: str | None) -> tuple[float, str | None]:
     """``(residual, note)`` for a light mood: ``WB_RESIDUAL`` (the Milestone 5 moods), else the mood's
     ``wb_residual`` in the vocabulary's ``LIGHTING`` table (Milestone 10's moods of ``wenart/style/finishes.py``:
@@ -1545,7 +1611,21 @@ def sky_pull_weights(mask, normal=None, ring_px: int = SKY_RING_PX, ref_px: int 
     ``haze_indices`` the reference is taken within three groups so a roof does not set the far ground's: the hits on
     the haze shell, the surfaces more than ``SKY_FAR_MARGIN_M`` beyond the nearest shell hit (seen through the haze),
     the rest. So a pure sky pixel gets the full pull, an edge pixel its sky share and a covered pixel none; 0
-    everywhere else. Without a Normal pass the mask gets weight 1 and the ring is empty."""
+    everywhere else. Without a Normal pass the mask gets weight 1 and the ring is empty.
+
+    Fix round after P5 (22 Oct 2026). What: a shell hit outside the mask whose nearer surface group (chessboard
+    distance up to ``ref_px``) is the near surfaces and not the far ones takes the near surfaces' reference
+    (``shell_edge_pixels``). Why: P5 real04's sky-pulled ext_1 (k 3) and teras_2_1 (k 4) had a dotted white line
+    along every roof, gutter and pergola edge (isolated bright pixels 1.74 and 1.48 per 1000 against 0.35 / 0.12 in
+    M12). An edge pixel whose sample 0 crossed the haze shell while its other samples hit the roof is a shell hit with
+    a normal (not sky, not the roof's group); its reference was the largest ``|N|`` of the other such edge pixels,
+    about its own, so it got weight 0 and kept its unpulled sky. Whether sample 0 hits the shell is random, so every
+    second edge pixel stayed white. Measured on the bpy 5.2.2 shim renders of P4a's real02 (480 x 270, 64 spp):
+    edge pixels brighter than both the pulled sky and the surface round them (``sky_edge_bright``) teras_1 18 -> 1,
+    teras_2_1 13 -> 0, teras_2_2 20 -> 8, ext_2 66 -> 5, ext_1 344 -> 257 (its trees: the leaf pixels' own coverage,
+    not this group); no pixel turned darker than both. How: the shell pixels keep their own group (the far ground and
+    the backdrop seen where sample 0 hit the shell, about a third of the normal) unless a near surface is strictly
+    nearer than any far one."""
     import numpy as np
 
     from wenart import views
@@ -1566,7 +1646,10 @@ def sky_pull_weights(mask, normal=None, ring_px: int = SKY_RING_PX, ref_px: int 
         far = np.zeros(m.shape, dtype=bool)
         if shell.any():
             far = hit & ~shell & (d >= float(d[shell].min()) + SKY_FAR_MARGIN_M)
-        groups = [~m & shell, ~m & far, ~m & ~shell & ~far]
+        near = ~m & ~shell & ~far
+        # fix round after P5: the shell hits at a near surface's edge take that surface's reference
+        edge = shell_edge_pixels(~m & shell & ring, near, far, ref_px)
+        groups = [~m & shell & ~edge, ~m & far, near | edge]
     ref = np.full(m.shape, SKY_REF_MIN)
     for g in groups:
         sel = ring & g
@@ -1574,6 +1657,56 @@ def sky_pull_weights(mask, normal=None, ring_px: int = SKY_RING_PX, ref_px: int 
             ref[sel] = np.maximum(local_max(np.where(g, mag, 0.0), ref_px)[sel], SKY_REF_MIN)
     weights = np.where(m, np.clip(1.0 - mag, 0.0, 1.0), np.where(ring, np.clip(1.0 - mag / ref, 0.0, 1.0), 0.0))
     return weights, ring
+
+
+def shell_edge_pixels(candidates, near, far, max_px: int = SKY_REF_PX):
+    """bool H x W: the ``candidates`` (shell hits with a normal in the sky ring) whose nearest surface pixel, by
+    chessboard distance up to ``max_px``, is a ``near`` one and no ``far`` one is as near (numpy; fix round after P5,
+    22 Oct 2026; ``sky_pull_weights``). A candidate with a near and a far surface at the same distance, or none within
+    ``max_px``, stays in the shell group."""
+    import numpy as np
+
+    c = np.asarray(candidates, dtype=bool)
+    out = np.zeros(c.shape, dtype=bool)
+    if not c.any():
+        return out
+    near_f = np.asarray(near, dtype=bool).astype(np.float64)
+    far_f = np.asarray(far, dtype=bool).astype(np.float64)
+    open_ = c.copy()
+    for dist in range(1, max(1, int(max_px)) + 1):
+        at_near = local_max(near_f, dist) > 0.0
+        at_far = local_max(far_f, dist) > 0.0
+        out |= open_ & at_near & ~at_far
+        open_ &= ~(at_near | at_far)
+        if not open_.any():
+            break
+    return out
+
+
+def sky_edge_bright(image, mask, weights, ring, margin: float = SKY_EDGE_BRIGHT_MARGIN,
+                    near_px: int = SKY_EDGE_NEAR_PX) -> tuple[int, int]:
+    """``(bright, edge)`` pixel counts of a blended sky (numpy; fix round after P5, 22 Oct 2026). What: ``edge`` = the
+    pixels of the mask or the ring with both a fully pulled sky pixel (mask, weight at least 0.99) and a surface the
+    pull left alone (outside the mask and the ring) within ``near_px``; ``bright`` = those whose display luminance in
+    ``image`` is more than ``margin`` over the brightest of both. Why: the P5 look finding "dotted bright halos on
+    sky edges" (a pixel brighter than the sky and the roof on either side of it is a fringe dot, not an edge); the
+    sky pull records both for the GPU check. Without a mask or a ring both are 0."""
+    import numpy as np
+
+    m = np.asarray(mask, dtype=bool)
+    r = np.asarray(ring, dtype=bool)
+    if not m.any():
+        return 0, 0
+    lum = display_luminance(image)
+    w = np.asarray(weights, dtype=np.float64)
+    sky = m & (w >= 0.99)
+    surface = ~m & ~r
+    # +1 so a black pixel still counts as a neighbour (local_max pads with 0)
+    sky_max = local_max(np.where(sky, lum + 1.0, 0.0), near_px)
+    surface_max = local_max(np.where(surface, lum + 1.0, 0.0), near_px)
+    edge = (m | r) & (w < 0.99) & (sky_max > 0.0) & (surface_max > 0.0)
+    bright = edge & (lum + 1.0 > np.maximum(sky_max, surface_max) + float(margin))
+    return int(np.count_nonzero(bright)), int(np.count_nonzero(edge))
 
 
 def full_weight_share(mask, weights) -> float | None:
@@ -2648,12 +2781,17 @@ class Look:
         if meter is None or not meter.get("illuminant"):
             rec["wb_view_rule"] = "no metering pass with light: the project white point"
             return
+        residual = (self.project or {}).get("residual") or 0.0
         rigs = rig_objects(self.scene)
         # fix round after P4b (17 Oct 2026): the temperature of the camera room's rig lights (room_rig_kelvin), so a
         # neutral hall rig is not balanced as if lit by the 2700 K bedside lamp that comes first in the scene
         kelvin, kelvin_source = room_rig_kelvin(rig_lights(self.scene), cam.get("wenart_room"))
         if not rigs or kelvin is None:
-            rec["wb_view_rule"] = "no rig light in the scene: the project white point"
+            # fix round after P5: without a rig the metered light is the view's daylight
+            if not self._view_tint(rec, anchor, meter.get("illuminant"), residual, 0.0):
+                rec["wb_view_rule"] = "no rig light in the scene: the project white point"
+            else:
+                rec["wb_view_rule"] = f"no rig light in the scene: the project white point with {WB_TINT_RULE}"
             return
         hidden = hide_objects(rigs)
         try:
@@ -2669,12 +2807,31 @@ class Look:
                    # fix round after P4b: the block-median share, for diagnosis only (rig_share_p50)
                    wb_rig_share_p50=rig_share_p50(meter.get("incident_p50"), day.get("incident_p50")))
         if share is None or share < WB_RIG_SHARE_MIN:
-            rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point"
+            tinted = self._view_tint(rec, anchor, day.get("illuminant"), residual, 0.0)
+            rec["wb_view_rule"] = f"rig share below {WB_RIG_SHARE_MIN:g}: the project white point" + \
+                (f" with {WB_TINT_RULE}" if tinted else "")
             return
-        rec["whitepoint"] = mixed_whitepoint(anchor, rig_rgb, share, (self.project or {}).get("residual") or 0.0,
-                                             WB_RIG_RESIDUAL)
+        rec["whitepoint"] = mixed_whitepoint(anchor, rig_rgb, share, residual, WB_RIG_RESIDUAL)
         rec["wb_view_rule"] = WB_VIEW_RULE
         rec["wb_rig_residual"] = WB_RIG_RESIDUAL     # fix round after P4a: the rig part's extra warmth (0: none)
+        if self._view_tint(rec, anchor, day.get("illuminant"), residual, share):
+            rec["wb_view_rule"] = f"{WB_VIEW_RULE}; {WB_TINT_RULE}"
+
+    @staticmethod
+    def _view_tint(rec: dict, anchor, day_illuminant, residual, share) -> bool:
+        """Fix round after P5 (22 Oct 2026): the view's white point (``rec["whitepoint"]``) takes the tint of its own
+        daylight (``view_tint_gain``, ``tinted_whitepoint``). Records ``wb_day_green`` (``green_ratio`` of the
+        view's daylight illuminant, None without daylight) and ``wb_view_tint_gain``; True when the white point
+        changed (a gain of 1 keeps it exactly)."""
+        day_green = green_ratio(day_illuminant) if day_illuminant else None
+        day_green = None if day_green is None else round(day_green, 6)     # the record reproduces the gain exactly
+        gain = view_tint_gain(anchor, day_green, residual, share)
+        rec["wb_day_green"] = day_green
+        rec["wb_view_tint_gain"] = gain
+        if gain == 1.0:
+            return False
+        rec["whitepoint"] = tinted_whitepoint(rec["whitepoint"], gain)
+        return True
 
     def apply(self, rec: dict) -> None:
         """Set view transform, look, exposure and white balance; read back temperature and tint. Fix round after P3:
@@ -3437,6 +3594,8 @@ class RenderRun:
         final = blend_pull(main, images[k], weights)
         record["median_after"] = round(masked_median(final, mask), 4)
         record["saturation_after"] = round(masked_saturation(final, mask), 4)
+        # fix round after P5: the fringe dots of the blended sky's edge (sky_edge_bright), for the GPU check
+        record["edge_bright_px"], record["edge_px"] = sky_edge_bright(final, mask, weights, ring)
         record["seconds"] = round(time.time() - t0, 3)
         return record, weights, final
 

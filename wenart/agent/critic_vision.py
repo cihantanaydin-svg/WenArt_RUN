@@ -94,6 +94,10 @@ camera validator and code X6 (``high_view_line``: the roof's ``ridge_z`` + ``HIG
 real04); below it the validator and X6 judge the camera as an eye-level view, so a claim "at eye level looking down"
 on a flagged record there is kept. Why: real04's ext_5 set 1.60 m over the ground and aimed 6 degrees down passed the
 5-degree rule, the build kept it ``aerial`` with ``aerial_allowed``, and such a claim was dropped.
+
+Fix round after P5 (22 Oct 2026): V1 and the code critic's ``camera_blocked`` (``critic_code.blocked_items``: the
+lens touches a surface or one element fills the frame) are one family in ``RELATED``: a vision V1 on a view the code
+measured blocked is a duplicate of that code finding (the code's names the element, the depth and the share).
 """
 from __future__ import annotations
 
@@ -127,7 +131,9 @@ _PLACEMENT = ("F3", "F4", "F5", "F6", "F7", "F8", "R3", "S2", "S3", *(f"G{i}" fo
 _TYPE = ("F1", "F9", "G14", "S6", "D2", "LG")
 _SIZE = ("F2", "S4")
 _DECOR = ("D1", "S5")
-RELATED = {c: fam for fam in (_PLACEMENT, _TYPE, _SIZE, _DECOR) for c in fam}
+# fix round after P5: a view the code critic measured blocked (critic_code.blocked_items) is that view's V1
+_CAMERA = ("V1", "camera_blocked")
+RELATED = {c: fam for fam in (_PLACEMENT, _TYPE, _SIZE, _DECOR, _CAMERA) for c in fam}
 
 
 def room_ids(building: dict, room_id: str, views: list[str]) -> set:

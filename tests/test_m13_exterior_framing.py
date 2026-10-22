@@ -21,6 +21,7 @@ from pathlib import Path
 import pytest
 
 from wenart.blender import build as B
+from wenart.blender import camsearch
 from wenart.blender import exterior as E
 from wenart.blender import exterior_checks as X
 from wenart.blender import geom2d
@@ -32,14 +33,15 @@ REAL04 = ROOT / "results" / "furniture" / "real04" / "building_final.json"
 P4B = ROOT / "runs" / "20261017-091212-full" / "results"
 P4B_REAL03 = P4B / "furniture" / "real03" / "building_final.json"
 P4B_BRIEF = P4B / "renders" / "real03" / "build_brief.json"
-SHARE_GAIN = 1.5            # the least gain in the building's frame share of a closer view (box: 1.6-2.0)
+SHARE_GAIN = 1.5            # the least gain in the building's frame share of a closer view (box: 1.64-2.05)
 
 
 def _box(length=10.0, depth=8.0, ceiling=2.8, levels=1):
     """A ``length`` x ``depth`` m box of ``levels`` storeys (``ceiling`` + 0.3 m each) on flat ground, as
     tests/test_blender_exterior.py ``_box_building``."""
     pts = [(0, 0), (length, 0), (length, depth), (0, depth)]
-    lvs = [{"id": f"L{k}", "elevation": round(k * (ceiling + 0.3), 3), "ceiling_height": ceiling} for k in range(levels)]
+    lvs = [{"id": f"L{k}", "elevation": round(k * (ceiling + 0.3), 3), "ceiling_height": ceiling}
+           for k in range(levels)]
     walls = [{"id": f"w{k}_{i}", "level_id": lv["id"], "start": list(pts[i]), "end": list(pts[(i + 1) % 4]),
               "thickness": 0.25, "exterior": True} for k, lv in enumerate(lvs) for i in range(4)]
     site = {"ground": {"levels": [{"side": "all", "z": {"value": 0.0, "method": "vector"}}]}, "decor": [],
@@ -69,6 +71,19 @@ def _unit(v):
     return (v[0] / n, v[1] / n)
 
 
+def _share(model, plan, grid=(96, 54)):
+    """The building's share of the frame on a finer ray grid than ``view_check``'s 32 x 18 (a 3 m strip is two or
+    three of its 18 rows, so its share moves in steps)."""
+    a, b = camsearch.ray_grid(grid, lens_mm=plan["lens_mm"], sensor_mm=E.SENSOR_MM, resolution=E.RESOLUTION,
+                              shift_y=plan["shift_y"])
+    dirs = camsearch.camera_directions(plan["position"], plan["target"], a, b)
+    hits = 0
+    for k in range(0, len(dirs), 1500):
+        labels, _t = model.cast(plan["position"], dirs[k:k + 1500])
+        hits += int((labels == E.LABELS["building"]).sum())
+    return hits / len(dirs)
+
+
 # --------------------------------------------------------------------------
 # The rule: measured on the building's proportions
 # --------------------------------------------------------------------------
@@ -94,6 +109,9 @@ def test_eye_distances_only_add_closer_places_in_front_of_the_m11_list():
     assert E.eye_distances(19.0) == m11
     assert E.eye_distances(19.0, None) == m11
     assert E.eye_distances(19.0, 11.0) == [(11.0, True), (13.0, True), (15.0, True), (17.0, True)] + m11
+    # a close place on an M11 distance (here 34.5 - 1.5 = 33) is tried once, as a close place
+    assert E.eye_distances(34.5, 27.0) == [(27.0, True), (29.0, True), (31.0, True), (33.0, True)] + \
+        [(34.5 + s, False) for s in E.MOVE_STEPS_M if s != -1.5]
     assert all(s >= 0.0 for s in E.LONG_LOW_STEPS_M)                    # a step in would cut the building
     # a close place at the scan's start; M11 steps under DISTANCE_SCAN_M[0] are left out, as before (7 - 1.5 m)
     assert E.eye_distances(7.0, 6.0) == [(6.0, True), (7.0, False), (9.0, False), (11.0, False), (13.0, False),
@@ -125,8 +143,9 @@ def test_long_low_views_move_in_on_their_own_view_lines(monkeypatch):
         # the horizon (eye level) lies in the middle part of the frame: 0.5 - shift_y * W / H of the height
         horizon = 0.5 - p["shift_y"] * E.RESOLUTION[0] / E.RESOLUTION[1]
         assert 0.3 <= horizon <= 0.7
-        assert p["score"]["building_share"] >= SHARE_GAIN * q["score"]["building_share"]
-        assert "framed to 90% of the width" in p["placement"] and "long, low building" in p["placement"]
+        assert _share(m, p) >= SHARE_GAIN * _share(m, q)             # box: corners 0.111 -> 0.228, front 0.081 -> 0.133
+        assert p["placement"].endswith(E.LONG_LOW_NOTE.format(length=33.25, height=3.1))
+        assert "long, low building, 33.2 m long and 3.1 m high: framed closer" in p["placement"]
         if p["view"] == "corner":
             c = corners[p["corner"] - 1]
             dp = (p["position"][0] - c[0], p["position"][1] - c[1])
@@ -167,7 +186,9 @@ def test_a_long_low_view_whose_close_places_are_refused_keeps_its_m11_place(monk
     for n, pos in far.items():
         assert on[n]["position"] == pytest.approx(pos, abs=1e-6), n
         assert "a test obstacle" in on[n]["warning"] and "moved" in on[n]["warning"]
-        assert "framed to" not in on[n]["placement"]                   # the M11 place says nothing of the rule
+        assert on[n]["placement"].startswith(off[n]["placement"])       # the M11 place and its distance
+        if on[n]["view"] == "corner":                                   # (the frontal's M11 place, 1.5 m in, is
+            assert on[n]["placement"] == off[n]["placement"]            # also a close place: it says so)
         assert on[n]["long_low"]["fill_target"] == E.LONG_LOW_FILL      # the building is still long and low
 
 

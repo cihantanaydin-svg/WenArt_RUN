@@ -315,8 +315,8 @@ def blocked_items(render_manifest: Optional[dict], scene_manifest: Optional[dict
              if isinstance(v, (int, float)) and not isinstance(v, bool)}
     cams = {str(c.get("name")): c for c in (scene_manifest or {}).get("cameras") or []
             if isinstance(c, dict) and c.get("name")}
-    # a view carried from an earlier build was rendered from that build's scene: its index values are not this
-    # manifest's pass_index (P5: index 254 of cam_r_L1_banyo_1 is dec_L1_011 of the earlier scene)
+    # a view carried from an earlier build was rendered from that build's scene: its index values may not be this
+    # manifest's pass_index (P5's preview of cam_r_L1_banyo_1 has index 254, which this pass_index does not hold)
     carried = {str(c) for c in render_manifest.get("carried_from_earlier_build") or []}
     out = []
     for e in render_manifest.get("renders") or []:
@@ -338,16 +338,17 @@ def blocked_items(render_manifest: Optional[dict], scene_manifest: Optional[dict
         start = float(clip.get("start_m") or 0.0)
         res = e.get("resolution") or []
         total = float(res[0]) * float(res[1]) if len(res) >= 2 else 0.0
-        share, element = 0.0, None
+        share, top = 0.0, None
         for k, v in (e.get("index_stats") or {}).items():
             try:
                 idx, px = int(k), float((v or {}).get("pixels") or 0.0)
             except (TypeError, ValueError, AttributeError):
                 continue
             if idx != 0 and total > 0 and px / total > share:
-                share = px / total
-                element = (f"index {idx} (an earlier build's pass index)" if cam in carried
-                           else names.get(idx, f"index {idx}"))
+                share, top = px / total, idx
+        element = names.get(top, f"index {top}") if top is not None else None
+        if top is not None and cam in carried:
+            element += " (an earlier build's index: the name may differ)"
         touch = near is not None and near <= start + LENS_TOUCH_M
         fills = share > single_max
         if not touch and not fills:

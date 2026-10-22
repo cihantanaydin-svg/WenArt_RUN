@@ -44,8 +44,9 @@ def test_the_ledger_is_kept_across_loops(tmp_path):
     assert again.repeat_of("r1", "set_front", {"piece_id": "f1", "front_deg": 90}) is None      # accepted, not refused
     assert again.repeat_of("r2", "set_front", {"piece_id": "f1", "front_deg": 355}) is None
     data = json.loads(MEM.memory_path(tmp_path).read_text())
-    assert data["version"] == MEM.VERSION == 2 and set(data["rooms"]["r1"]) == {"visits", "accepted", "rejected", "candidates_tried",
-                                                                 "open", "plans"}
+    # fix round after P5: version 2 (scoped records), the same room keys
+    assert data["version"] == MEM.VERSION == 2
+    assert set(data["rooms"]["r1"]) == {"visits", "accepted", "rejected", "candidates_tried", "open", "plans"}
 
 
 def test_a_repeated_rejected_edit_is_refused_without_validation(tmp_path):
