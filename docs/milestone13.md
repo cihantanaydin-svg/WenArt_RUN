@@ -2342,6 +2342,301 @@ Open for later (not user decisions): the reading's warning line calls every not-
 fit reuses its old (taller) model under a lower slope (conservative); the camera search does not penalise a close
 foreground (oyun_1).
 
+### 14.15 P6b results and the fix round after P6b (pod 22 Oct 2026; fix round 23 Oct 2026, no pod)
+
+**Pod P6b** (22 Oct 2026, pod 7iq0rr0yyzssuc, RTX PRO 6000, about 150 min, $6.24 by the billing API; code 8e8cc97):
+real03 full run with the M11 cameras replayed (polish off, 256 spp, GPU tests). The session's container restarted during
+the run, so no runner was attached when the job ended: the job stopped the pod itself (watchdog and job-end stop worked)
+and the results stayed on the volume. A second pod, ucrygk6b71pno1 (6 min, $0.27), fetched them with the new
+`scripts/jobs/fetch_results.sh` (copies an earlier job's results from the volume so the runner collects them). Run
+folder `runs/20261022-235127-fetch_results` (pod job `20261022-165510-full`); sheets, metrics, report and the GPU log in
+`results/review/m13_p6b/`.
+
+**Views.** 89 views (83 interior, 6 exterior; the aerial ext_5 is dropped on a flat_cut roof), as in P4b. Compared on
+the sheets (59 interior cameras opened, all 6 exteriors; M11 has no real03 exterior):
+
+| Against | Interior views compared | Better | Same | Worse | Worse views |
+|---|---|---|---|---|---|
+| M11 | 59 | 41 | 10 | 8 | yasama_3_2 / 5_2 / 6_1 (black: the replayed camera stands inside a fridge), yasama_2_2 (a fridge fills 54 %), banyo_7_1 (only the rim of the shrunk tub), giris_holu_2_1 (washer drum cut by the half wall), oda_01_1 (bare bed), yangin_merdiveni_1 (still orange) |
+| P4b | 59 | 21 | 26 | 12 | the four fridge views, yasama_2_1 (fridge side 18 %), giris_holu_1 / 2_1 / 3_1 (logo washers cut by the half wall), banyo_1, banyo_7_1, ruzgarlik_1 (sun streak through a door jamb gap), ebeveyn_odasi_m_k_a_3 |
+
+Better than both: the windows show a cloudy blue sky (P4b flat grey, yasama_8_3's window box clips 0 % against 88 %),
+bathrooms are neutral, all 8 kitchens get their fridge, all 8 bathrooms a washbasin (P4b 2 of 8), pendants hang on
+cords, tub and shower wall cuts go from 6 to 0 (the shrink of the user OK of 22 Oct), the halls are less orange.
+
+**Exterior, long, low framing (user OK of 22 Oct).** Building share of the frame (code, `score.building_share`):
+
+| View | P4b | P6b |
+|---|---|---|
+| ext_1 / ext_2 / ext_3 / ext_4 (corners) | 11.6 % / about 10 % / 12.0 % / 11.8 % | 23.8 % / 24.7 % / 21.7 % (+6.7 % behind the inferred olive tree) / 23.3 % (+2.9 %) |
+| ext_6 (frontal) | agent pose, right end cut | 13.9 %, whole entrance facade, fill 0.89 |
+| ext_7 (entrance) | door visible | broken: no sky, doors cut, 46 % hedge close-up |
+
+Five of six exteriors beat P4b. ext_7 broke in agent round 3: the roof edit (overhang 0.5 → 0.6 m) flipped the
+whole-building lens shift of the entrance view (+0.07 → -0.72, clamped -0.35). The drawn wardrobe f_L0_098, pushed
+0.28 m through the outer wall by an accepted agent move (seq 2588), shows on the facade and makes 4 exterior views
+non-commercial-safe. Commercial-safe views: 35 of 89 (P4b 43). §14.13 decision 14 (boundary hedge 11-20 % of each
+corner frame, inferred olive trees in ext_3 / ext_4) stays open.
+
+**GPU tests: 42 passed, 6 failed, 7 skipped** (P4b 36 / 2; `results/review/m13_p6b/pytest-full.txt`).
+
+| Test | Why it failed | Fix (this round) |
+|---|---|---|
+| `test_every_room_has_three_views` | The test rule, as in P4b: r_L0_oda_7 / oda_10 (empty 1.86 / 1.89 m² halls) get no view by the area rule, but the camera file replays one view each | G_render: a room whose views are all replayed and named in the camera file is kept |
+| `test_no_blocked_searched_view` | Real: replayed cameras yasama_3_2 / 5_2 / 6_1 stand inside the 2.02 m fridges f_L0_202 / 200 / 204, yasama_2_2 0.23 m in front of f_L0_206 (54 %). In P4b these drawn boxes were 0.9 m chairs under the 1.25 m eye | C_cam: the build moves a blocked replayed camera |
+| `test_exposure_recorded_and_within_the_clamp` | The same three cameras: no interior block to meter, EV 0 (a correct record of a black image) | the same move |
+| `test_rig_lit_rooms_have_no_orange_cast` | Mostly the rule: 10 rig-lit halls at 1.486-1.599 against 1.455 (painted daylight median 1.305 + 0.15), while the daylight walls of the same paint span 1.183-1.582. P4b's 2700 K orange is gone (same views -0.20 to -0.31) | G_render: a bound for mixed views (below); the light on the walls is recorded |
+| `test_daylight_walls_are_not_olive` | One view, ebeveyn_odasi_m_k_a_2_3, 1.068 against 1.06 (the P6a class) | none new: m13.5's wall-metered tint (fix round after P6a) has not rendered yet |
+| `test_interior_glazing_keeps_one_white_point` | Real, smaller than P4b: yasama_8_3 0.692, ebeveyn_odasi_2_1 0.321, yangin_merdiveni_1 -0.398 (P4b 0.86 / 0.56 / -1.03) | values recorded; rule unchanged (a rig temperature decision, below) |
+
+Cause of the fridges (corrected by C_cam): the fix round after P4a (11949a9, `infer._adopted`) added a reach check to
+group-member typing, so `type_by_code` no longer types the boxes f_L0_200 / 202 / 204 / 206 as chairs and
+`reading.context` types them as fridges ("a box drawn with its door swing beside the kitchen run"). It is not the
+reading order change of the fix round after P5.
+
+**The 17 metrics, M11 → P4b → P6b** (real03; `results/review/m13_p6b/metrics13.md`, P4b recomputed with the same CLI in
+`metrics13_p4b_same_cli.md`):
+
+| # | Metric | M11 | P4b | P6b | Target |
+|---|---|---|---|---|---|
+| 1 | drawn anchors built | 15/15 (100 %) | 26/26 (100 %) | 27/27 (100 %) | 100 %, met |
+| 2 | drawn pieces built (raw; without explained non-furniture) | 79 %; 94 % (130/139) | 81 %; 95 % (138/146) | 85 %; 99 % (145/146) | ≥ 90 %, met |
+| 3 | pieces with `asset.method` none | 0 | 2 | 2 (the duplicate stoves f_L0_181 / 182) | 0, not met |
+| 4 | parametric share of built pieces; grey boxes | 44 %; 42 | 9 % (14/151), module 22; 0 | 8 % (12/154), module 24; 0 | ≤ 25 %; 0, met |
+| 5 | rooms with a complete group set (bath, bed, living) | 0/8, 2/9, 0/8 | 2/8, 3/9, 4/8 | 8/8, 3/9, 4/8 | bed and living not met (5 bedrooms lack a wardrobe, 4 living rooms a rug) |
+| 6 | last-round F8 / S2 > 3 cm / G10 / LG | 0 / 0 / 0 / 0 | 0 / 14 / 11 / 6 | 0 / 8 / 11 / 4 | S2 not met |
+| 7 | accepted edits whose finding is gone | 69 % (11/16) | 76 % (34/45) | 88 % (21/24) | ≥ 60 %, met |
+| 8 | library: top share; distinct; units unknown; stretch; quality ≤ 3 | 11 %; 33; 40 %; 38 %; 32 % | 7 %; 72; 4 %; 0 %; 15 % | 7 % (the fridge); 66; 2 %; 0 %; 19 % (8/43) | met |
+| 9 | interior views at EV ≥ +5; EV gap lit vs daylight | 27/83; 5.17 | 0/83; 1.33 | 0/83; 0.75 | met |
+| 10 | shell slots with PBR maps; fabric colour applied | no data; 0/11 | 18/18; 3/8 | 19/19; 3/8 (38 %) | fabric not met |
+| 11 | trees; hedges; black pixels in the site view | none drawn; 0; no data | none; 0; no data | 2 inferred trees, real geometry; 5 inferred hedges (no drawn rows); no data (no aerial on flat_cut) | - |
+| 12 | exterior views rendered of planned | 0/0 | 6/7 (ext_6 re-added by the agent) | 6/7 (ext_5 dropped) | aerial impossible on flat_cut |
+| 13 | views in halls or ≥ 50 % bare wall | 29/83 | 29/89 | 29/89 (halls 21, bare wall 14) | ≤ 4, not met |
+| 14 | `in_json_not_rendered` mismatches | 2 in 2 views | 10 in 10 views | 0 | met |
+| 15 | reviewer rubric | mean 1.83 | no data | no data | - |
+| 16 | commercial-safe line; flagged assets missing in ATTRIBUTION | 0/83 | 89/89; 31 flagged, 0 missing | 89/89; 32 flagged, 0 missing | met |
+| 17 | minutes and USD per full run (stages, $2.49/h) | 56 min, $2.32 | 132 min, $5.49 | 146 min, $6.06 | ≤ 150 min, ≤ $6.50, met |
+
+Agent (real03): findings critical / major / minor 9 / 130 / 35 in round 1, 4 / 112 / 34 at the end (P4b 2 / 179 / 44 →
+1 / 149 / 41); 24 edits accepted, 195 rejected (P4b 48 / 186); 29 findings removed against 28 predicted (P4b 44 against
+56: the prediction is now honest), 8 new, net 21. About 8 of the 29 were not real: 5 same-type retype "confirms", 2
+vision findings that came and went, 1 room-type dodge (r_L0_oda_19 bedroom → balcony). Rejections: memory 33, drawn lock
+31, no overlap 30, acceptance 28, fixture place 15, max tries 14, score 12; 188 of 195 on drawn pieces. Recognition: 0
+re-asks (64 questions from stored answers). 83 replayed views, 0 camera edits. 4 criticals stayed: 5 edits that removed
+a critical were refused because a co-targeted major stayed.
+
+**Review fixes of the fix round after P6a** (10 findings of the read-only review; 2 fixer agents, then integration part
+2). Tests: `tests/test_m13_p6a_review.py` (new) and `tests/test_m13_p6a_exterior.py` (extended); each fails before its
+fix or catches a named mutation.
+
+| # | Finding (severity, track) | Fix |
+|---|---|---|
+| 1 | Curtain bound under the slope had a 1e-6 tolerance against the decor stage's millimetre rounding: every attic curtain got a false "made 0.00 m shorter" (minor, I2) | `build.WINDOW_DECOR_ROUND_TOL_M` 1 mm; real04 dec_L1_005 / 014 and real02 dec_L1_005 / 018 keep their size, no warning |
+| 2 | render.py's note on the black teras_2 panes named the wrong cause (minor, R) | Docstring: the dark room behind the glass at the sunlit facade's EV; single glass reflects 6.6-13.5 %; points to §14.14 decision 11 (part 2); test_blender_look comment fixed |
+| 3 | A high agent pose counted as X6's frontal view by its pose alone (major, X) | The high-view short-circuit is gone: a high view is judged by its frame; the dead `ridge` parameter removed from `x6_frontal` and its callers |
+| 4 | An agent "set" on a searched view labelled frontal skipped the frame and sky rule (major, X) | The label counts only for the planner's view; `tools.x6_record` judges the next-build plan; the role guard refuses the close P6b set of ext_6; the critic role is "agent" |
+| 5 | No test pinned the sky part of X6's frontal rule (minor, X) | Case added (fits, 0 % sky); the mutation now fails |
+| 6 | `drawn_layout` called a sofa F3 unfixable when a missing coffee table would clear it (minor, A) | `causes.front_missing` → `metrics.drawn_layout` "missing_front" → cause `missing_member` (complete_group, place_group, relayout_room); integration part 1 then unlocked complete_group |
+| 7 | The acceptance's new and net never reached log.json (minor, A) | Already fixed by the P6b A_agent track (`loop.ACCEPTANCE_LOG_KEYS`); mutation-checked |
+| 8 | The pod-path wiring of `mark_drawn_layout` in `loop.round` was untested (minor, A) | Round-level tests; dropping or moving the call fails them |
+| 9 | The whole-part re-read branch dropped the AI-override record for a candidate the AI typed as a table (minor, F) | Part 2: `split_override_text`, `details['ai_overridden']` and a type_disagreement conflict when the drawing gives another type |
+| 10 | `duplicate_symbols` removed real potted plants in a cluster (minor, F) | `DUPLICATE_SYMBOL_TYPES = ('floor_lamp',)`; never without the piece's plan crop; real04 keeps its 4 lamp proposals, real02 its 2 |
+
+**Fix round after P6b.** Six build tracks fixed the P6b analysis (lenses gpu_tests, look, agent, library and their
+verifiers), each with CPU tests that fail on BASE 620997b (or catch a mutation); then two integration parts applied the
+cross-track asks. Nothing here has run on a GPU yet. Data: P6b `runs/20261022-235127-fetch_results`, P6a
+`runs/20261022-135644-m13_p6`, P4a real02 `runs/20261017-072801-full`, P4b real03 `runs/20261017-091212-full`.
+
+- **Cameras (C_cam)**, `tests/test_m13_p6b_camera.py` (17, one in Blender; 16 fail on BASE; 11 mutations caught):
+  - §7's rule is built: `camsearch.move_blocked_replayed`, run in every build by `build.replayed_moves` (also agent
+    previews), before the planner and the agent cameras. A replayed interior camera moves when one piece covers more
+    than 0.5 of its own frame (`SCORE['blocked_single']`) or the lens stands inside a built piece's box at eye height
+    (stairs excluded; a lens that looks out of a box whose side ahead is within `REPLAY_LOOKS_OUT_M` 0.10 m stays).
+  - It goes to the nearest candidate point of the same room within `REPLAY_MOVE_MAX_M` 1.5 m whose view, with the same
+    yaw, pitch, height, lens and shift, passes the blocked check. The name stays, the camera stays replayed and frozen,
+    the record says `replay.status: moved` with the old pose, the trigger, the piece and the reason (§7); it is listed
+    in `cameras_from.moved` and named on the sheet. With no point the pose stays with a warning.
+  - P6b: yasama_2_2 0.88 m, 3_2 0.72 m, 5_2 0.68 m, 6_1 0.66 m (one-piece share after 0.11-0.15); 4_3, 4_2, 6_2 stay.
+    No move on P4b real03 (83 cameras), P4a real02 (35), P6a real04, or the P4a building with the closets read as
+    wardrobes (the P6c risk).
+  - The GPU camera test accepts "moved" only in plan, ≤ 1.5 m, with the same view vector, height and lens and a reason.
+- **Entrance view (E_entrance)**, `tests/test_m13_p6b_entrance.py` (13; all fail on BASE):
+  - The entrance view (flat_cut buildings: real03) is framed on its door: level, aimed at the door, the lens shift taken
+    from the facade points inside the field of view (`exterior.entrance_frame`, `facade_points` with edge samples every
+    0.5 m). A place is accepted only with the door in view and ≥ 3 % sky; else level with no shift; else the next
+    distance; else the first free place with a warning (X6 still names the door).
+  - P6b ext_7: shift -0.35, 0 % sky, door hidden → shift +0.004, 18-19 % sky, door visible, no hedge, at overhang
+    0.5-0.8 m. P4b ext_7 now aims at its door (sky 36 → 19 %). real02 and real04 plans are byte-identical.
+  - No loop or `set_exterior` change: the cause was the frame, not the hedge.
+- **Agent (A_agent)**, `tests/test_m13_p6b_agent.py` (32; 23 fail on BASE, the others are guards):
+  - Outline rule in `edit_ops.apply_edit`: an edit that newly cuts the real room outline past 0.05 m², or grows a cut by
+    more than 0.05 m² or 0.05 m, fails "inside_room" whatever the score says. Refuses P6b seq 2588 (f_L0_098 through
+    the wall) and P4a's coffee-table move f_L1_024; the washer turns stay accepted.
+  - Acceptance exception `critical_cleared`: when every critical target of a step is gone (at least one measured by
+    code), a major target may stay if it got no worse; all-major steps keep "every target gone". P6b seq 1844, 1849,
+    1850, 1886 and 2834 become accepted; no other M13 log changes.
+  - A same-type retype or change_type no longer counts as removing a vision finding (`loop.render_unchanged`); vision F9
+    claims about the model's look get `wrong_model` (swap_model), wall-cut words `collision`.
+  - A vision "empty room" F1 gets `empty_room` (place_group, relayout_room); `set_room_type` no longer clears its room's
+    vision findings (P6b seq 1905 and 2277 refused).
+  - `fixture_layout_blocked`: F7 / G12 / G8 of drawn fixed equipment with no valid spot within 0.5 m are report-only
+    (drawn_layout "fixture"; P6b G12:f_L0_213, G8:f_L0_010).
+  - The final critical-only round drops non-critical ids; an RC on a symbol is `resolved_by_code`; building-session room
+    tools need a room; an empty plan drops only futile default steps; edit events log new, net, changed, fitted, kept.
+- **Library data (D_data)**, `tests/test_m13_library.py`, `tests/test_run_copy.py` (4 new or changed; all fail on BASE):
+  - Two more logo washers removed by `render_print` on P6b evidence: LG F1403FD (hssd_eccf8ba3, giris_holu_1) and
+    Panasonic NA-14VA1WGB (hssd_3c69f2f4, banyo_4_2); 11 removed in all; no mesh-family twins; the GLBs stay.
+  - real03 refit: Indesit IWME126 on 5 washers, Hoover SE147 on 2, "Dryer" on 1; no render showed a logo on them, but no
+    render showed their full front square-on either.
+  - ATTRIBUTION.md credits and removal reasons decode complete HTML entities (`copy.plain_text`); new growth entries
+    take decoded titles; the 15 committed catalogue entries keep "&amp;".
+- **Render tests (G_render)**, `tests/test_m13_p6b_render.py` (9; all fail on BASE; 6 mutations caught; render code
+  stays m13.5, no pixel change):
+  - The three-views test keeps a room whose views are all replayed and named in the camera file (P6b and P4b: oda_7,
+    oda_10; P4a and P6a keep none).
+  - `Look._view_white` records `wb_walls` (`render.wall_rig_record`): the walls' share and rig share, the walls' light
+    with and without the rig, the rig light on the walls with its Kelvin, the lamp's R/B. No white point reads it. Shim
+    on P6b's real03.blend: the rig reaches the hall walls at 3,266-3,614 K (R/B 3.35-4.28 against the 4000 K lamp's
+    2.65), and daylight on the same walls is warmed as much (oak floors and treads, greige paint).
+  - Orange bound: a view with rig share ≥ 0.95 keeps daylight median + 0.15; a mixed view gets max(median + 0.15,
+    min(warmest daylight view of its kind + 0.05, median + 0.35)). No bound is lower than before. P6b passes; all 7 P4b
+    2700 K views and P4a's m13.2 halls still fail.
+  - The glazing check keeps its values whatever the verdict; its 0.3 bound is unchanged.
+- **Reading (F_reading)**, `tests/test_m13_p6b_reading.py` (18; 14 fail on BASE, 4 guards; 6 mutations caught):
+  - A gap window, or a window across a continuous wall, needs glass lines of its own between the faces. real03: 64 → 22
+    windows (all 16 named ghosts gone, one real 1.6 m window found); real02 identical; real04 loses two wardrobe-back
+    "windows" in r5 (P6a's G12 majors).
+  - Lined gap: a thin wall flush along one face through a gap splits the doubled 0.30 m run; 6 real03 shear walls carry
+    `corrected_by_ai` (rule lined_gap). The hall washer niche measures 0.65 x 0.69 m = 0.45 m², its label; the halls are
+    within 1.7 % of their labels (were 8.6-8.9 % short); the washers' wall overlap goes from 0.11 m² to 0.
+  - Wall-layer lines across a gap close it (both 1.55 m stair-core gaps); a gap inside wall material closes, but a door
+    symbol keeps its door; every gap rule and every corrected wall writes a page note.
+  - Left open: real03's two lift doors and a shaft door become unverified 2.1 m openings (were ghost windows), and the
+    lift-shaft face r_L0_oda_19 is typed "hall".
+- **Integration part 1** (agent, fit, scene-check, cause and report asks), `tests/test_m13_p6b_integration.py` (16; all
+  fail on cd7f34b; 11 mutations caught):
+  - `complete_group` takes a drawn anchor that code typed from the drawing (`edit_ops.unsure_group_anchor`, reusing
+    `program.unsure_anchor`); "retype_piece first" stays only for an unverified piece the reading could not agree on.
+    The brief offers complete_group under the same rule, and a refusal names its cause.
+  - Validator: `seat_front_free` lets a coffee table or ottoman stand in a sofa's 0.6 m front zone (the score's F6
+    exemption); `finding_identity` ignores the id list of an F4 "does not face its group"; a new F4 on another group's
+    anchor caused only by this edit's added pieces is noted, not refused (`other_group_front`).
+  - P6a: complete_group on both salon sofas (f_L-1b_041, f_L-1b_042) is accepted (1.2 x 0.7 m coffee table at 0.36 m);
+    relayout_room seq 6308 / 6600 / 6645 / 6649 would be accepted. P4a real02: the code-typed beds f_L0_019-022 get
+    their nightstands. On P4a's salons the solver still refuses (below), so P6c reports their F3 as not_yours, naming
+    the solver.
+  - `fit.credit_text` decodes HTML entities in the fit reports (P6b: no "&amp;" left).
+  - `scene_checks.through_wall` (Blender, on the pod): when a piece's mesh edge crosses a wall's mid-plane inside its
+    length and height, S2 says "passes through wall" with depth equal to the wall thickness. P6b f_L0_098 is flagged,
+    and the rotated washbasin f_L0_188 (P4b and P6b).
+  - Causes: an F7 of drawn fixed equipment at a doorless opening that leaves ≥ 0.80 m clear is report-only
+    ("passage_clear"; real03's fridges f_L0_200 / 202 / 206, 0.93 m of 1.05 m; P6b spent 30 refused fix_fixture calls on
+    them); an S2 wall cut or F9 outline cut of drawn fixed equipment that `fixture_layout_blocked` holds is report-only.
+  - Final report: views blocked by the camera ("blocked (replayed camera, frozen)") are marked in the summary, the views
+    table and an advisory; a section lists the replayed cameras the build moved or re-pitched with their reasons.
+- **Integration part 2** (reading, ingest report, schema, docstrings), `tests/test_m13_p6b_followups.py` (18; 12 fail
+  on cd7f34b, 6 guards):
+  - Review findings 2 and 9 (above).
+  - `pipeline._wall_dict` writes `corrected_by_ai` into building.json; the ingest report lists the corrected walls and
+    its Gaps table gets a "Rule and note" column (real03: 6 walls, 77 rows with a rule).
+  - `symbols.reread`: a structure-layer stroke group thinner than 0.05 m is dropped, not kept as a "column" (real03's
+    six zero-width shear-wall end lines; real02 and real04 building.json identical).
+  - `schemas.EXPOSURE` types `wb_walls`; exterior_checks and tools docstrings say the entrance view now aims at its
+    door.
+
+**Asks applied and skipped.**
+
+| From → to | Ask | Done |
+|---|---|---|
+| C_cam → final report | list moved / re-pitched replayed cameras with reasons | applied (part 1) |
+| C_cam → this file | the entry and the fridge cause correction | applied (above) |
+| E_entrance → exterior_checks, tools, test_m13_p4b_integration | "42 degrees off the axis" notes are history | applied (parts 1, 2) |
+| E_entrance → exterior_checks._x6 | a major X6 for an entrance view without sky or door | skipped: a code change in a docstring-only part; open |
+| A_agent → program | no program for the doorless lift lobby r_L0_oda_19 | skipped: not small; F_reading now types the face "hall" |
+| A_agent → scene_checks | S2 for a piece right through a wall | applied (part 1, runs in Blender) |
+| D_data → fit | decode HTML entities in the fit reports | applied (part 1) |
+| G_render → report | mark blocked views | applied (part 1) |
+| G_render → schemas | type `wb_walls` | applied (part 2) |
+| F_reading → pipeline | `corrected_by_ai` on walls; the Gaps rule column | applied (part 2) |
+| F_reading → report/agent | corrected walls in the agent report's inferred section | skipped (not that part's file); the ingest report lists them |
+| F_reading → causes | F7 at a passage with ≥ 0.80 m clear; S2 / F9 of a fixed piece with no spot | applied (part 1) |
+| F_reading → symbols | wall-hint-layer strokes never furniture | narrowed (part 2): only structure-layer lines under 0.05 m; real02 / real04 draw columns on those layers |
+| P6a review fixer → brief | offer complete_group for a code-typed anchor | applied (part 1) |
+| Part 1 → prompts | `PLANNER_SYSTEM_M12`: "or a drawn one typed by code from the drawing" | open (lead) |
+| Part 1 → solver | try smaller coffee tables and the 0.30 m gap when the final check fails | open (solver owner; decision 11 below) |
+| Part 2 → render | guard `rig[2] > 0` in `wall_rig_record` | open (side note) |
+
+**CPU suite.** One full run on the integrated tree (HEAD 442a511 plus part 1's uncommitted edits in `causes.py`,
+`edit_ops.py` and two test files; no file changed during the run; `-m "not gpu"`, 4 shared CPUs, temp folder in
+/dev/shm; log `/dev/shm/full_p6b.log`): **5,836 passed, 0 failed, 222 skipped, 174 deselected (GPU), 4 xfailed in
+66:13 min** (P6a round: 5,697 passed). No test needed a fix. The tracks and parts ran targeted tests only (each listed
+in its report: about 2,000 test runs). Pins changed on purpose, each with a comment naming its round: `test_m13_agent`
+(the critical_cleared acceptance), `test_m13_light` (the orange kitchen case: the old bound now needs rig share 0.96),
+`test_m13_p3_integration2` (a re-pitch record relabelled "moved" is still refused), `test_m13_p6a_agent` (3 tests: a TV
+unit behind the sofa keeps the drawn-layout cases; the P6a salon sofas are the missing member), `test_m13_p6a_review`
+(the P6a sofa F3 is now fixable with complete_group), `test_m13_p6b_agent` (round 1 also marks the fridges' F7
+passage_clear; their G12 / G8 keep fix_fixture); comments and docstrings only in `test_blender_look` and
+`test_m13_p4b_integration`. Not run here: the GPU tests (the S2 through-wall measure and the camera move need P6c).
+
+**Decisions left for the user.**
+
+Cameras and views:
+1. Blocked replayed cameras (C_cam) move up to `REPLAY_MOVE_MAX_M` 1.5 m with the same frame; `REPLAY_LOOKS_OUT_M`
+   0.10 m keeps yasama_4_3. This builds §7's rule and narrows §14.11 decision 1 (replayed cameras frozen) and §14.13
+   decision 3 (only searched cameras get the fallback) for blocked replayed cameras. Confirm both values.
+2. Schema gaps found by C_cam (older than this round): `CAMERA_VIEWS` lacks "entrance" and `objects[].asset` may be a
+   string, so `validate_scene_manifest` fails on every real P4a, P4b, P6a and P6b manifest. Fix in a later round?
+3. Entrance view (E_entrance): keep the distance order 8, 10, 12, 6 m (the 8-12 m points stand outside real03's inferred
+   plot, the hedge stays below the frame), or put 6 m first (moves every entrance view)?
+4. Exterior validator (P6a review fixer): a high non-frontal agent pose with 0 % sky is still accepted (aerials may look
+   down). Refuse it at the validator ("the sky is always in the image")?
+
+Agent rules:
+5. Acceptance (A_agent): every critical target gone, measured by code; a major target may stay if no worse. CLAUDE.md
+   says "accepted only when the finding it targets is gone". P6b's 4 remaining criticals become accepted fixes.
+6. `set_room_type` never clears its own room's vision findings; an "empty room" claim gets place_group / relayout_room
+   only.
+7. Outline rule: a new outline cut past 0.05 m², or growth over 0.05 m² or 0.05 m, is refused whatever the score (it
+   also refuses P4a's f_L1_024 move).
+8. Validator (part 1): a new F4 on another group's anchor caused only by this edit's added pieces is noted, not refused.
+   Without it P6a's f_L-1b_041 cannot be completed (f_L-1b_045 faces away).
+9. Fixed equipment (part 1): real03's fridges at the doorless passages (0.93 m of 1.05 m clear) keep their drawn place,
+   their F7 report-only; their G12 / G8 still offer a 0.15 m fix_fixture. Also offered: G10 of drawn bathtubs with no
+   valid spot as report-only (P6b: 18 rejections on f_L0_184-187).
+10. S2 "passes through wall" (part 1) will add findings on the pod; wall boxes ignore openings, so a piece standing
+    across a door is also flagged. Confirm on P6c's scene checks.
+
+Furniture and library:
+11. Solver (part 1, for P6c real02): the solver takes the first coffee table that fits locally (1.2 x 0.7 m at 0.40 m),
+    which fails G11 at f_L-1b_041; a 0.8 x 0.5 m table at 0.30 m clears F3 and G2. And the unbuilt drawn cluster
+    f_L-1b_002 (5.14 x 2.37 m) blocks f_L-1b_042's table; P6a cleared it with a whole-sheet crop that the own-crop rule
+    now refuses. Should an unbuilt cluster block the solver? If yes, real02's salon sofa stays without a coffee table on
+    P6c and the report says why.
+12. "Dryer" hssd_6cd2dc26 (untextured, vision quality 1) is filed as a washer and fitted on f_L0_057: remove a model
+    whose title names another appliance?
+13. Logos: render a square-on audit view of the remaining HSSD washer and fridge fronts on a pod before real03 is
+    re-run, or let the final vision check ask about logos?
+14. Decode the 15 committed catalogue entries' "&amp;" once (no audit decision depends on it)?
+
+Look:
+15. Orange (G_render): real03's halls and stairs read tan (wall R/B 1.49-1.60), as warm as the daylight-only oda_01
+    bedrooms (1.53-1.58); the new test calls this no orange cast. Keep, or shim a white point from the rig light
+    measured on the walls (cools only rig-lit rooms)?
+16. Interior glazing: (a) shim A/B the circulation rig at 4000 / 5000 / 5500 K (a look change for real02 / real04 too),
+    (b) turn the pin into an advisory, or (c) keep it failing as a known item?
+
+Reading (only if real03 is re-run):
+17. real03's lift doors (1.09 m) and shaft door (0.65 m) are now unverified 2.1 m openings, the shaft face "hall".
+    Accept, or close those walls until a lift-door rule exists?
+18. Cost: the corrected walls change crops; a real03 re-run asks about 23 more recognition questions.
+19. Part 2 drops six zero-width "columns", which renumbers later real03 L0 furniture ids by up to 6 (f_L0_194 / 200 /
+    202 / 206 / 098 of this section then name other pieces). Keep, or revert `symbols.py` to keep ids comparable?
+20. Re-read rug sets: a table re-read as table + chairs + rug of the same type records no type_disagreement conflict;
+    drop the guard in `core._reread_unknowns` to list every extent change?
+
+Next pod: P6c, real02 with the M11 cameras replayed on this code (blocked replayed cameras now move), then the
+windows-only sky A/B (base, skywin35, sky35; §14.14 I2).
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang

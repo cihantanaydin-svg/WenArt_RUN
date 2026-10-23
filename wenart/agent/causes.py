@@ -195,8 +195,8 @@ Fix round after P6b (23 Oct 2026), the reading track's asks (verify:library:2 be
   their critical F7 drew 30 refused fix_fixture calls (one accepted on f_L0_204). A door with a leaf keeps its F7;
 - an S2 wall cut or an F9 outline cut (``fixture_cut``) of drawn fixed equipment that ``fixture_layout_blocked`` holds
   (no valid spot within 0.5 m) is the drawn layout too (``"fixture"``, no tool), as its F7 / G12 / G8 were; a cut
-  with another piece keeps its tools. On P6b's final building: the counter f_L0_010, the washers f_L0_074-077, the
-  washbasin f_L0_188 and f_L0_001 (F9).
+  with another piece keeps its tools. On P6b's final building (F9): the counters f_L0_001 / 010, the washers
+  f_L0_074-077 and the washbasin f_L0_188.
 
 Fix round after P6a (23 Oct 2026), review: the F3 of a drawn piece that may stand free in its group (orientation rule
 ``wall_or_group``: a sofa facing its coffee table or TV unit), that the drawn lock holds off every wall and that has no
@@ -946,16 +946,15 @@ def passage_clear(building: dict, piece: dict, door_id: Optional[str]) -> Option
         if door is None or door.along is None:
             return None
         hit = placer.drawn_piece(piece).polygon().intersection(door.zone)
+        parts = placer.polygon_parts(hit)
+        if not parts:
+            return None                      # the F7 was not measured on this building: its tools stay
         width = float(door.width)
         half = width / 2.0
-        if hit.is_empty:
-            clear = width
-        else:
-            (x0, y0), (ux, uy) = door.inner_point, door.along
-            ts = [(x - x0) * ux + (y - y0) * uy for part in placer.polygon_parts(hit)
-                  for x, y in part.exterior.coords]
-            lo, hi = max(-half, min(ts)), min(half, max(ts))
-            clear = max(0.0, lo + half, half - hi)
+        (x0, y0), (ux, uy) = door.inner_point, door.along
+        ts = [(x - x0) * ux + (y - y0) * uy for part in parts for x, y in part.exterior.coords]
+        lo, hi = max(-half, min(ts)), min(half, max(ts))
+        clear = max(0.0, lo + half, half - hi)
         need = float(GR.rule("walkway_main")["min"])
         if clear < need - 1e-9:
             return None

@@ -237,6 +237,7 @@ def test_an_f4_of_another_group_s_anchor_is_reported_not_held_against_the_edit()
     assert E.other_group_front(b, M.ROOM_ID, v, []) is None
     assert E.other_group_front(b, M.ROOM_ID, dict(v, metrics={"targets": ["t1", "s1"]}), changed) is None
     assert E.other_group_front(b, M.ROOM_ID, dict(v, check="F6"), changed) is None
+    assert E.other_group_front(b, M.ROOM_ID, dict(v, severity="critical"), changed) is None
     chair = dict(v, target="t9", message="chair does not face its group (t1)")
     assert E.other_group_front(b, M.ROOM_ID, chair, changed) is None       # t9 anchors nothing
 

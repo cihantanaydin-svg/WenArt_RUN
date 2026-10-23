@@ -483,9 +483,16 @@ def test_p6b_round1_marks_the_fridge_in_its_door_and_the_counter_through_its_wal
         f.pop("cause", None)
     CS.mark_drawn_layout(fs, b)
     marked = sorted((f["check"], f["target"]) for f in fs if CS._metrics(f).get(CS.DRAWN_LAYOUT_FLAG))
-    assert marked == [("G12", "f_L0_213"), ("G8", "f_L0_010")]
-    # the fridges in the kitchen-living rooms have a spot 0.15 m away: fix_fixture stays theirs
-    assert all(CS.cause_of(f, b) != "drawn_layout" for f in fs if f["target"] in ("f_L0_200", "f_L0_202", "f_L0_206"))
+    # fix round after P6b, part J1 (the reading track's ask; ``test_m13_p6b_integration``): the fridges' F7 at the
+    # edge of the doorless 1.05 m passages (0.93 m clear) is the drawn layout too (``causes.PASSAGE_CLEAR``)
+    assert marked == [("F7", "f_L0_200"), ("F7", "f_L0_202"), ("F7", "f_L0_206"), ("G12", "f_L0_213"),
+                      ("G8", "f_L0_010")]
+    assert {CS._metrics(f)[CS.DRAWN_LAYOUT_FLAG] for f in fs if f["check"] == "F7" and f["target"] != "f_L0_204"} \
+        == {CS.PASSAGE_CLEAR}
+    # the fridges in the kitchen-living rooms have a spot 0.15 m away: fix_fixture stays theirs for the window band
+    # and the aisle
+    assert all(CS.cause_of(f, b) != "drawn_layout" for f in fs if f["target"] in ("f_L0_200", "f_L0_202", "f_L0_206")
+               and f["check"] in ("G12", "G8"))
 
 
 # --------------------------------------------------------------------------

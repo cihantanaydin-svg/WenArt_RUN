@@ -2087,10 +2087,10 @@ def other_group_front(b: dict, room_id: str, v: dict, changed: list[str]) -> Opt
     but not held against it, else None. Only when its piece anchors a group of its own in the room
     (``groups.group_members``) and every piece it names (``metrics.targets``) is one this edit added
     (``added_by_ai``, in ``changed``) to a group with another anchor: the new piece is not in the piece's group, so
-    the piece's front still faces its own group (CLAUDE.md: "fronts facing their group"). P6a: the coffee table
-    f_L-1b_087 completing the drawn sofa f_L-1b_041's seating group stands 1.7 m from the second drawn sofa
-    f_L-1b_045 (inferred, its own group r_L-1b_salon_2.seating.2), within the score's 4.5 m sofa reach."""
-    if v.get("check") != "F4" or F4_GROUP_TEXT not in str(v.get("message") or ""):
+    the piece's front still faces its own group (CLAUDE.md: "fronts facing their group"); a critical one is held.
+    P6a: the coffee table f_L-1b_087 completing the drawn sofa f_L-1b_041's seating group stands 1.7 m from the second
+    drawn sofa f_L-1b_045 (inferred, its own group r_L-1b_salon_2.seating.2), within the score's 4.5 m sofa reach."""
+    if v.get("check") != "F4" or F4_GROUP_TEXT not in str(v.get("message") or "") or v.get("severity") == "critical":
         return None
     metrics = v.get("metrics") if isinstance(v.get("metrics"), dict) else {}
     targets = [str(t) for t in metrics.get("targets") or []]
@@ -2111,7 +2111,7 @@ def other_group_front(b: dict, room_id: str, v: dict, changed: list[str]) -> Opt
         homes.append(str(tag["group_id"]))
     if {g.get("group_id") for g in own} & set(homes):
         return None
-    return (f"F4 {pid} (major, kept for the next round): it anchors {own[0]['group_id']}; "
+    return (f"F4 {pid} ({v.get('severity') or 'major'}, kept for the next round): it anchors {own[0]['group_id']}; "
             f"{', '.join(targets)} belong{'s' if len(targets) == 1 else ''} to {', '.join(sorted(set(homes)))}")
 
 
