@@ -122,7 +122,7 @@ def _partition(lining=True, glass=False):
                                                                            entity="shear_n"),
              R.wall((3.25, 3.15), (3.9, 3.15), 0.1, entity="niche")]
     if lining:
-        walls += [R.wall((3.2, 1.3), (3.2, 3.95), 0.1, entity="duvar_a"), R.wall((3.2, 5.0), (3.2, 5.7), 0.1,
+        walls += [R.wall((3.2, 1.0), (3.2, 3.95), 0.1, entity="duvar_a"), R.wall((3.2, 5.0), (3.2, 7.2), 0.1,
                                                                                   entity="duvar_b")]
     strokes = [R.stroke(R.rect(3.15, 1.3, 3.45, 5.7), closed=True), R.stroke([(3.15, -1.0), (3.15, 9.0)]),
                R.stroke([(3.25, 1.3), (3.25, 3.1)])]
@@ -152,7 +152,7 @@ def test_without_the_thin_wall_or_with_glass_beside_it_there_is_no_lining():
     # part of the band beside the thin wall (a sill strip drawn on the wall layer in front of a real window): then
     # the window stays and the run stays one wall.
     walls = [R.wall((3.3, 0.0), (3.3, 1.3), 0.3), R.wall((3.3, 3.1), (3.3, 4.4), 0.3),
-             R.wall((3.2, 1.3), (3.2, 3.1), 0.1, entity="strip")]
+             R.wall((3.2, 1.0), (3.2, 3.4), 0.1, entity="strip")]
     beam = R.stroke(R.rect(3.15, 1.3, 3.45, 3.1), closed=True)
     glass = [R.stroke([(3.33, 1.3), (3.33, 3.1)]), R.stroke([(3.37, 1.3), (3.37, 3.1)])]
     out_walls, openings, log, _ = _run(walls, [beam] + glass)
@@ -163,6 +163,18 @@ def test_without_the_thin_wall_or_with_glass_beside_it_there_is_no_lining():
     assert [e["class"] for e in log if e.get("lining")] == ["open"]
     assert [span for span, _ in _vertical(out_walls, 3.3, 0.3)] == [(0.0, 1.3), (3.1, 4.4)]
     assert openings == []
+
+
+def test_a_thin_piece_only_as_long_as_the_gap_is_no_lining():
+    """real02 L1: a 0.05 m piece inside the party-wall junction, exactly as long as the 0.40 m gap of the 0.15 m wall
+    there; the wall stays one wall (its gap stays as before)."""
+    walls = [R.wall((1.8, 7.517), (7.386, 7.517), 0.15), R.wall((7.786, 7.517), (13.372, 7.517), 0.15),
+             R.wall((7.386, 7.566), (7.786, 7.566), 0.05), R.wall((7.586, 0.2), (7.586, 7.442), 0.4),
+             R.wall((7.586, 7.59), (7.586, 9.734), 0.4)]
+    out_walls, openings, log, _ = _run(walls, [])
+    assert not [e for e in log if e.get("lining")]
+    assert not [w for w in out_walls if getattr(w, "corrected_by_ai", None)]
+    assert [(round(w.start[0], 3), round(w.end[0], 3)) for w in out_walls if w.thickness == 0.15] == [(1.8, 13.372)]
 
 
 def test_a_door_in_the_gap_is_never_lined():

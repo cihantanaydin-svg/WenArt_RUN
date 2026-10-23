@@ -69,8 +69,8 @@ What: a window needs glass, and three kinds of gap are no openings of their run 
   stair-core wall, whose DUVAR outline is no wall primitive).
 
 - A **lined gap** (``_lining``): a thinner wall (>= ``LINING_THINNER_M`` thinner, its own run) lies along one face of
-  the run (flush within ``RUN_OFFSET_M``, inside its band) and its pieces fill >= ``LINING_SHARE`` of the gap. The
-  gap is ``open``: the thick pieces are columns or shear walls standing on that wall, not one wall with windows
+  the run (flush within ``RUN_OFFSET_M``, inside its band), its pieces fill >= ``LINING_SHARE`` of the gap and it runs
+  on past both gap ends (> ``LINING_REACH_M``). The gap is ``open``: the thick pieces are columns or shear walls standing on that wall, not one wall with windows
   between them. real03: the 30 cm shear walls of the hall-living partition (``D BLOK_STA_NK`` B-H/BA, y 0-1.3,
   5.7-7.7, 12.1-13.4 m) were one 0.30 m wall from end to end, its gaps windows read from the beam projections
   (IZ-1), the axis line and the net-area outlines lying on its faces; it swallowed the 0.20 m of hall and bedroom
@@ -128,7 +128,8 @@ END_POINT_TOL_M = 0.02
 AXIS_TOL_DEG = 3.0
 # Fix round after P6b (23 Oct 2026): a thinner wall along one face through a run gap (a lined gap) ...
 LINING_THINNER_M = 0.05         # ... is at least this much thinner than the run (MIN_WALL_M of walls.py) ...
-LINING_SHARE = 0.5              # ... and its pieces fill at least this share of the gap
+LINING_SHARE = 0.5              # ... its pieces fill at least this share of the gap ...
+LINING_REACH_M = 0.10           # ... and it runs on past both gap ends by more than this (a wall, not a junction piece)
 GLASS_INSET_M = 0.01            # glass lies at least this far inside the wall faces ...
 GLASS_MIN_LINES = 2             # ... and a window needs this many distinct glass offsets (see _is_glass)
 
@@ -1200,7 +1201,9 @@ def _glazing(g: Gap, lo: float, hi: float) -> list:
 def _lining(run: list[Piece], p: Piece, q: Piece, runs: list[list[Piece]], found: list[Gap]) -> Optional[dict]:
     """Fix round after P6b: the thinner wall lining the run gap between ``p`` and ``q`` (see the module docstring),
     or None: another run on the axis, >= ``LINING_THINNER_M`` thinner, inside the run's band (+- ``RUN_OFFSET_M``),
-    one face flush with the run's (<= ``RUN_OFFSET_M``), whose pieces fill >= ``LINING_SHARE`` of the gap. Never when
+    one face flush with the run's (<= ``RUN_OFFSET_M``), whose pieces fill >= ``LINING_SHARE`` of the gap and run on
+    past both its ends by > ``LINING_REACH_M`` (real02's 0.05 m piece inside a party-wall junction, exactly as long
+    as the 0.40 m gap there, is no lining wall). Never when
     a part of the gap holds a door, or a window whose glass (``_glazing``) lies in the open part of the band beside
     the lining wall (a sill strip drawn on the wall layer in front of a real window), or when every part is closed.
     Returns ``{"thickness", "lining_thickness", "share", "entity", "note"}``."""
@@ -1219,7 +1222,8 @@ def _lining(run: list[Piece], p: Piece, q: Piece, runs: list[list[Piece]], found
                 min(abs(lo2 - lo), abs(hi2 - hi)) > RUN_OFFSET_M:
             continue
         share = sum(max(0.0, min(w.b, b) - max(w.a, a)) for w in other) / (b - a)
-        if share >= LINING_SHARE - 1e-9 and (best is None or share > best[0]):
+        reach = min(a - min(w.a for w in other), max(w.b for w in other) - b)
+        if share >= LINING_SHARE - 1e-9 and reach > LINING_REACH_M and (best is None or share > best[0]):
             best = (share, other, lo2, hi2, t2)
     if best is None:
         return None
