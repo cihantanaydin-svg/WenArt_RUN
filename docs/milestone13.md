@@ -2095,6 +2095,253 @@ and asked for GPU tests it cannot run) are fixed. Commands: P6a `gpu_run.py run 
 M11 cameras replayed (`CAMERAS_FROM=results/renders/{name}/scene_manifest.json`), as P4b / P4a; all with
 `RENDER_SAMPLES=256`, `RUN_POLISH=off`, `--max-minutes 240`, `--over-5-ok`.
 
+### 14.14 P6a results and the fix round after P6a (pod 22 Oct 2026; fix round 22-23 Oct 2026, no pod)
+
+**Pod P6a** (22 Oct 2026, pod ss8f5dhc9ern1n, RTX PRO 6000, 177 min, $7.34; code 8e8cc97, results 52d4bb8): real04
+full run (polish off, 256 spp, GPU tests) and the interior-sky A/B of §14.13 decision 4. Run folder
+`runs/20261022-135644-m13_p6`; sheets, metrics, report and A/B in `results/review/m13_p6a/`.
+
+**Views.** 49 views (43 interior, 6 exterior); P5 had 44, M12 48. Compared on the sheets (P6a large, M12 and P5
+small):
+
+| Against | Views in both runs | Better | Same | Worse | Worse views |
+|---|---|---|---|---|---|
+| P5 | 44 | 19 | 21 | 4 | ext_3, ext_5, ext_7 (curtains through the mansard roof; ext_5's sky pulled to near black), oyun_1 (the searched camera looks over a sofa back) |
+| M12 | 47 | 31 | 11 | 5 | L0 yatak_odasi_3 (mostly blank wall), oyun_1, teras_2_1 / 2_2 / 2_3 (shaded terrace, 12-22 % black) |
+
+5 views are new: teras_2, teras_3, teras_2_2, teras_2_3 and the agent's ext_front_entrance (a blank wall at about 5 m,
+both doors cut, no sky, 37 % black). Commercial-safe views: 12 of 49 (P5 14 of 44); ext_1 / 2 / 3 are safe again
+because the bookcase no longer pokes through the roof. All four P5 GPU failures are fixed (bath camera headroom, the
+index pass of banyo_1, the kitchens checked as painted).
+
+**GPU tests: 45 passed, 2 failed** (`results/review/m13_p6a/pytest-full.txt`).
+
+| Test | Why it failed | Fix (this round) |
+|---|---|---|
+| `test_index_pass_contains_every_visible_proxy` | The test's box model, not the build: it sees only an empty top corner of the fitted box of the office chair f_L0_041 (share 0.0192) and of the oval coffee table f_L1_024 (0.0104) at a frame edge; both are built and placed right | A library piece seen on at most 3 % of the frame gets 15 % box slack per side (fixed equipment keeps 2 cm): 0.00125 and 0.0 |
+| `test_daylight_walls_are_not_olive` | Real olive walls: salon_2 1.063, e_yatak_odasi_2 1.063, _3 1.067 over the 1.06 bound. The tint gain keeps 35 % of each view's own green and meters all surfaces | The tint is metered on the walls (m13.5), see R below |
+
+**The 17 metrics, M12 → P5 → P6a** (real04; P5 recomputed with today's CLI, which changes only metric 10 from 0 to 4
+of 26):
+
+| # | Metric | M12 | P5 | P6a | Target |
+|---|---|---|---|---|---|
+| 1 | drawn anchors built | 12/34 (35 %) | 38/38 (100 %) | 36/36 (100 %) | 100 %, met |
+| 2 | drawn pieces built (raw; without explained non-furniture) | 53 %; 63 % | 82 %; 96 % (191/198) | 81 %; 97 % (192/198) | ≥ 90 %, met |
+| 3 | pieces with `asset.method` none | 43 | 19 | 22 (+4 seat cushions, -1 f_L1_021 built) | 0, not met |
+| 4 | parametric share of built pieces; grey boxes | 33 %; no data | 12 % (29/245), module 22; 0 | 10 % (24/245), module 22; 0 | ≤ 25 %; 0, met |
+| 5 | rooms with a complete group set (bath, bed, kitchen, living) | 8/10, 4/8, 0/2, 0/4 | 10/10, 8/8, 2/2, 0/4 | 10/10, 8/8, 2/2, 0/4 | living not met |
+| 6 | last-round F8 / S2 > 3 cm / G10 / LG | 38 / 1 / 18 / 66 | 4 / 7 / 18 / 11 | 4 / 1 / 18 / 6 | only LG not met |
+| 7 | accepted edits whose finding is gone | 13 % | 88 % (22/25) | 91 % (30/33) | ≥ 60 %, met |
+| 8 | library: top share; distinct; units unknown; stretch; quality ≤ 3 | 34 %; 26; 50 %; 49 %; 12 % | 5 %; 94; 6 %; 0 %; 61 % | 5 %; 101; 6 %; 0 %; 50 % (30/60) | only quality not met |
+| 9 | interior views at EV ≥ +5; EV gap lit vs daylight | 9/44; no data | 0/39; 0.34 | 0/43; 0.67 | met |
+| 10 | shell slots with PBR maps; fabric colour applied | no data | 19/19; 4/26 (15 %) | 18/18; 3/20 (15 %) | fabric not met |
+| 11 | trees; hedges; black pixels in the site view | -; -; 29.8 % | 20/20; 4/4; 3.7 % | 20/20; 4/4; 3.6 % (ext_7) | black not met |
+| 12 | exterior views rendered of planned | 4 of ? | 5/7 | 6/8 (ext_4, ext_6 dropped) | not met |
+| 13 | views in halls or ≥ 50 % bare wall | 12/48 | 19/44 | 21/49 (12 halls, 13 bare wall) | ≤ 4, not met |
+| 14 | `in_json_not_rendered` mismatches | 18 in 10 views | 0 | 0 | met |
+| 15 | reviewer rubric | mean 1.88 | no data | no data | - |
+| 16 | commercial-safe line; flagged assets missing in ATTRIBUTION | 0/48 | 44/44; 24 flagged, 0 missing | 49/49; 26 flagged, 0 missing | met |
+| 17 | minutes and USD per full run (stages, $2.49/h) | 122 min, $5.07 | 127 min, $5.27 | 109 min, $4.53 | met |
+
+Agent (real04): 40 critical/major findings removed against 42 predicted (P5 33 / 38), 6 new, net 34 (P5 27); 34 edits
+accepted, 150 rejected; 323 chat calls (P5 368); 36.8 agent minutes (P5 51.5). Three of the measured removals were
+swaps to generated models that the refit refused (nothing changed), all 6 new findings came from edits that traded a
+major for another on the same piece, the stage note said "net 32 ... max rounds" while the metrics said net 34, and the
+2 critical findings left are the curtains through the roof, which no agent tool edits: all fixed below.
+
+**Interior-sky A/B (decision 4).** Six fixed real04 window views, 128 spp, the interior world's Background strength
+raised; everything else as in production. Ranges over the six views (`results/review/m13_p6a/sky_ab/summary.md`) and
+the analysis lens's measurements on the sheets:
+
+| Variant | World strength | EV used | Panes p90 after the pull | Ground band / sky (p50) | White fabric b* | Day green | Project white point |
+|---|---|---|---|---|---|---|---|
+| base | 1.0 | 0.83-2.50 | 0.67-0.94 | 1.62-3.99 | +4.7..+4.9 | 0.980-1.232 | 5592 K |
+| sky2 (+2) | 4.0 | 0.83-2.33 | 0.67-0.84 | 1.17-1.78 | +2.5..+2.8 | 0.979-1.189 | 5648 K |
+| sky35 (+3.5) | 11.31 | 0.83-2.00 | 0.67-0.84 | 0.96-1.13 | -0.1..+0.4 | 0.977-1.126 | 5780 K |
+| sky52 (+5.2) | 36.76 | 0.50-1.50 | 0.66-0.83 | 0.95-0.97 | -1.5..-2.8 | 0.971-1.052 | 6187 K (fails the P3 pin 5635 ± 250) |
+
+At sky35 the dark sky over a pale ground band is gone (the ratio reaches about 1), whites are neutral, no pane clips
+and the rooms are not flatter; sky52 turns whites blue and shows a flat grey-white sky (Cycles' indirect clamp, 10, caps
+the view through the glass). The wall olive metric does not move with the sky (the tint gain compensates). **User
+decision after P6a: windows only, +3.5 stops**: the brighter sky shows through the glass, the room light stays at
+base. Built in this round as the light variant `skywin35` (below), to be A/B-tested on real02 in P6c (base, skywin35,
+sky35) before it becomes the default.
+
+**Fix round after P6a.** Five build tracks fixed the P6a analysis (lenses look, gpu_tests, sky_ab, agent, library and
+their verifiers), each with CPU tests that fail on BASE 52d4bb8 (or catch a mutation); then two integration parts
+applied the cross-track asks. Nothing here has run on a GPU yet. Data: P6a `runs/20261022-135644-m13_p6`, P5
+`runs/20261017-224848-full`, P4a real02 `runs/20261017-072801-full`, P4b real03 `runs/20261017-091212-full`.
+
+- **Render (R)**, `tests/test_m13_p6a_render.py` (17):
+  - Sky pull: a pulled save needs a median ≥ 0.4 (`SKY_PULL_MEDIAN_MIN`); ext_5 goes from k 6 (median 0.11) to no pull.
+    Of 85 recorded pulls only ext_5 changes (and P4a's m13.2 agent preview of teras_2_1). The GPU check fails a crushed
+    sky.
+  - Clamps set explicitly (direct 0, indirect 10 = Cycles defaults) and recorded in the render manifest; a
+    `--clamp-indirect` flag for a later clamp A/B (a value other than 10 enters the render key).
+  - Daylight tint metered on the walls (`WB_TINT_METER = 'walls'`, m13.4's green residual kept), render code m13.5
+    (every view re-renders). Shim prediction for P6a: walls 0.987-1.033 (pod had up to 1.067), real02 1.007-1.051
+    (was up to 1.091). The olive GPU check also bounds the lower walls at ≥ 0.95 (pink).
+  - Index pass: 15 % box slack for library pieces under 3 % of the frame (fixed equipment keeps 2 cm).
+  - The orange and olive checks write their per-view values to `gpu_check_values.json`, also for passing runs.
+  - Not changed: the black panes and shaded floor of the teras_2 views (a glass / lighting decision, see I2).
+- **Exterior (X)**, `tests/test_m13_p6a_exterior.py` (16):
+  - `exterior.frame_check` records fill, fits, the re-centred target and `sky_share` (rays above the horizon that hit
+    nothing); `SKY_MIN_SHARE` 3 %, eye-level lens range 24-28 mm.
+  - X6 counts an agent or elevation view as frontal only when the building fits the frame at its lens, the re-centred
+    frame still looks square at the facade, and the frame shows ≥ 3 % sky; an eye-level agent view without sky gets its
+    own major. The vision critic uses the same rule. On P6a ext_front_entrance (fill 2.34, 0 % sky) loses the frontal
+    role and "no frontal view" is reopened for real04; P4a, P4b and P5 are unchanged.
+  - The camera validator refuses an eye-level exterior pose without sky and a lens outside 24-28 mm (unless the
+    building is long and low). Every accepted exterior edit of P4a, P4b and P5 still passes.
+  - The build records the frame on the agent's exterior plans.
+- **Agent (A)**, `tests/test_m13_p6a_agent.py` (23):
+  - A swap whose pin the dry fit refuses is refused at acceptance (`loop.refused_pin`): P6a's three swaps to
+    generated models (fridge, washbasin, toilet).
+  - An edit that trades a major for another major on the same piece is refused (`causes.same_target_swap`); a
+    critical for a major and two majors for one still pass. Replay: P6a 6 refused (4 chair moves, 2 wardrobe moves),
+    P5 4, P4a / P4b 0. The acceptance record names the new findings and the net.
+  - Two memory or max-tries refusals in a row end the session whatever the target (P6a's r2 salon session ends at
+    call 4 of 8).
+  - The plan crop tool no longer offers a whole sheet of another level.
+  - Report-only causes: `drawn_type` (a vision F1 on a drawn piece of a type its room holds) and `drawn_layout`
+    (F3 / F8 on a drawn piece with no wall place or partner inside the drawn lock; P6a: the sofas f_L-1b_041 / 042).
+  - `final_round` returns the stage note of the numbers after it.
+- **Decor and headroom (D)**, `tests/test_m13_p6a_decor.py` (12):
+  - Curtains and blinds are sized from the window the build clips under the roof and stay 0.02 m under the slope, or
+    are left out with a note: real04 dec_L1_005 / 014 1.45 → 1.008 m (top 2.25 → 1.81 m), real02 tops 2.06 m.
+  - The solver keeps headroom: a spot under a slope needs the type's height + 0.05 m; a re-solved drawn piece is never
+    moved lower than its drawn place. P6a / P5 real04: 4 of 290 pieces move (two bookshelves, the console, the shoe
+    cabinet, each from a 0.82 m slope to 1.86-2.27 m); P4a real02: 4 of 287; P4b real03: none. A twin copy without
+    headroom is dropped and the room is completed on its own.
+- **Reading (F)**, `tests/test_m13_p6a_reading.py` (11):
+  - Coat closet: a hanger is the group of touching strokes (real04 draws each in 3 pieces): 14 hangers per closet;
+    f_L1_021 / 024 become 1.52 x 0.60 m wardrobes and their 4 "chairs" go (f_L1_022 stood through the wall into the
+    terrace). real02's first closet, left unknown by its answers, is read whole before the re-read.
+  - A table with chairs on a rug outline is read as a round dining table, its chairs and a not-built rug mark (in P6a
+    the agent had marked real04's f_L1_017 / 018 not furniture; real02 has the same sets).
+  - Chairs diagonal to a round table stand on their own side, so the mirrored play rooms pair as twins again.
+  - Recognition answers follow their crops when keys renumber (all 74 kept by input hash, none on another crop).
+  - Two more L1 room pairs become twins on real04 / real02 (koridor_2 with koridor, teras_2 with teras): with
+    `render.twin_rooms: one` they lose their own views.
+- **Integration I1** (agent, fit, exterior and decor asks), `tests/test_m13_p6a_integration.py` (18; all fail on BASE;
+  7 mutations caught):
+  - `swap_model` to a generated model runs the refit with the pin and refuses it with `pin_refused` when the fit
+    does (P6a seq 6069 / 6075 / 6076).
+  - `mark_not_furniture` on an untyped piece takes only its own recognition crop (P6a seq 5968 with the whole sheet is
+    refused).
+  - `retype_piece` allows the types of every room-type alias (real04's play rooms, "other" aliased to living, may
+    hold a console table, sideboard or TV unit).
+  - Fit ceiling cap: a library model stays `CEILING_MARGIN_M` 0.05 m under the sloped ceiling over its footprint
+    (`fit.piece_ceiling`); the refits of `edit_ops` and the agent's dry fit pass it. On the P6a / P5 decor buildings
+    (before the solver's headroom moves) real04 changes 7 pieces (bookshelves 1.37 / 2.02 m → 0.71 m, console 0.84 →
+    0.73 m, armchairs 0.92 → 0.86 / 0.81 m), real02 5, real03 0.
+  - `infer.duplicate_symbols`: of two overlapping drawn floor lamps or plants in one room the larger is built, the
+    other is not built (code label, plan crop). real04 drops f_L-1_057 / 059 / 064 / 066.
+  - Free-strip hint: the free stretch is named only when a level 26 mm eye-level view there frames the building with
+    sky; otherwise it says no eye-level view fits and the frontal view is a user decision (§14.13, decision 16).
+  - The tools' role guards measure the frame on the building, and the dry re-check re-measures X6 after an exterior
+    `set_camera` / `add_camera` (about 1-3 s): a strip pose that passes the validator but frames only part of the
+    facade is refused.
+  - A vision X3 / X6 claim on an agent-placed exterior view is routed to `exterior_camera`, not `facade` (P6a seq
+    6856).
+  - The scheduler rewrites the agent stage note after the final round (its stop reason kept); metric 12 lists agent
+    exterior views rendered without sky or cut.
+- **Integration I2** (sky variant and render asks), `tests/test_m13_p6a_sky.py` (16; 14 CPU, 2 need Blender):
+  - Light variant `skywin35`: the interior world's Background strength is 2^3.5 only for camera and singular
+    (glass) rays (Light Path: max(Is Camera Ray, Is Singular Ray)), 1.0 for every other ray, on the HDRI and the
+    physical-sky branch. Shim (bpy 5.2.2): room light equal to base (sky35 +6.7 %), the sky through the pane 9.17
+    (sky35 9.29, base 2.79; the indirect clamp caps both). Library mirrors (roughness 0.03) keep the base sky. Without
+    the variant the world graph and its record are byte-identical.
+  - A/B view set `skywin`: on real02 five window views replayed from M11 (L-1 salon_1, mutfak_1, L0 yatak_odasi_1,
+    e_yatak_odasi_3, L1 oyun_1) plus the rig-lit hall koridor_2_1 that sees a glazed door; on real04 P6a's six sky views
+    plus that hall. Variants base, skywin35, sky35; `m13_p6.sh` takes `P6_SKY_VIEW_SET` and `P6_SKY_NAME`.
+  - `cli.render --clamp-indirect` passes the flag on; `SCENE_CAMERA` types fill, fits, `sky_share`, `frame_target`.
+  - `build.decor_under_roof` bounds any hostless curtain or blind under the slope (also after an agent roof
+    override).
+  - S2: two floor lamps whose shades overlap are reported (committed real04 has 2-4 such pairs, real02 2).
+  - P6c command (one pod at a time): `gpu_run.py run --job scripts/jobs/m13_p6.sh --gpu 'RTX PRO 6000' --disk 150
+    --max-minutes 240 --grace 600 --over-5-ok`, with `RUN_PROJECTS=real02`, the M11 cameras replayed, polish off,
+    256 spp, `P6_SKY_PROJECT=real02`, `P6_SKY_VIEW_SET=skywin`, `P6_SKY_VARIANTS='base skywin35 sky35'`,
+    `P6_SKY_NAME=ab_m13/skywin`. Estimate: P4a's 103 min ($4.29) plus about 13 min for the A/B.
+
+**Asks applied and skipped.**
+
+| From → to | Ask | Done |
+|---|---|---|
+| A → edit_ops | refuse a refused generated pin at validation | applied (I1), generated pins only |
+| A → edit_ops | untyped piece: own crop only | applied (I1) |
+| A → edit_ops | retype with room-type aliases | applied (I1) |
+| A → scheduler | rewrite the stage note after the final round | applied (I1) |
+| D → fit, edit_ops, loop | ceiling cap and the refits pass it | applied (I1) |
+| D → infer | overlapping drawn lamp symbols | applied (I1), floor lamps and plants only |
+| D → build | bound hostless curtains under the slope | applied (I2) |
+| D → scene_checks | lamp shades in S2 | applied (I2) |
+| X → tools | free-strip hint and frame-measured role guards | applied (I1) |
+| X → loop, causes | re-measure X6 on exterior camera edits; route agent-view claims | applied (I1) |
+| X → schemas, metrics13 | frame keys typed; metric 12 lists poor frames | applied (I2, I1) |
+| X → test_agent_pass_before_p5 | 4 strip-pose tests: frame measure off with a comment | applied (I1); real04's strip has no pose with sky |
+| R → cli | forward `--clamp-indirect` | applied (I2) |
+| R → materials | Fresnel sky reflection on terrace panes | skipped: the camera-ray glass already reflects 6.6-13.5 % by Fresnel; a brighter look needs double glazing or a coating (a look decision) |
+| R → lighting | shaded terrace floor near black | skipped: a sun / sky balance decision |
+| A → edit_ops | refuse every refused pin, "chosen asset differs" | skipped: breaks the mock-catalogue tests; the loop backstop catches them |
+| D → infer | duplicate rule for every type | skipped: corner chairs overlap by design (real03 8 %, real04 18 %) |
+
+**CPU suite.** One full run on the integrated tree (`-m "not gpu"`, 4 shared CPUs, temp folder in /dev/shm; log
+`/dev/shm/full_p6a.log`): **5,697 passed, 0 failed, 221 skipped, 174 deselected (GPU), 4 xfailed in 61:51 min**. The
+one red test before the run, `tests/test_run_stages.py::test_code_lists_cover_the_import_closure` (stage `sheets`:
+D's `solver.headroom_planes` imported `decor.py`, which the sheets and pipeline code lists do not hold, so their
+fingerprints would miss a decor change), was fixed at the start of the run: `headroom_planes` now reads
+`fit.ceiling_planes_of` (the same planes, asserted equal; `fit.py` is in `GROUPS_CODE`). The solver files were run
+again after the fix (`test_run_stages`, `test_m13_p6a_decor`, `test_m13_p6a_integration`, `test_complete`,
+`test_solver_rooms`, `test_m13_placement`): 137 passed. Pins changed on purpose in this round, each with a comment
+naming the fix round after P6a: `test_m13_light` and `test_blender_look` (m13.5, the sky-pull rule text),
+`test_agent_p5_fixround` (a max-tries refusal counts by itself; the free-stretch wording; the 0.73 m console under the
+0.82 m slope gives no X2), `test_agent_pass_before_p5` (4 strip-pose tests with the frame measure off: real04's strip
+has no pose with sky), `test_m13_p6a_agent` (the final-round note), `test_groups_edits` and
+`test_m13_fixround_furniture` (2 each: an untyped piece needs its own recognition crop), `test_m13_sky_ab` (variants,
+view sets, job text).
+
+**Decisions left for the user.**
+
+1. Daylight tint (R): meter on the walls and keep the m13.4 green residual (shim: P6a walls 0.987-1.033, lower walls
+   ≥ 0.962). The verifier's full rule (no residual) makes lower walls pink (0.947); "surfaces, no residual" leaves real02
+   at 1.07. Each is one constant. Confirm or flip.
+2. Values (R, X): sky floor 0.4 (0.35 would keep P4a's m13.2 teras_2_1 preview pull), pink lower-wall bound 0.95,
+   `SKY_MIN_SHARE` 3 %, eye-level lens 24-28 mm outside long, low buildings. Confirm.
+3. real04's frontal view (X, decision 16 stays open): in the 5.7 m strip no eye-level pose square to the +y facade
+   frames it with sky at 24-28 mm (26 mm: fill 2.34, 0 % sky; 14 mm: 18 % sky but fill 1.26). A wider lens, another
+   view type, or no frontal view? The agent may no longer add one there.
+4. real03's agent frontal ext_6 counts as frontal by its re-centred frame, but the rendered pose keeps the agent's
+   target and cuts the building's right end. Should the build re-centre an agent frontal view as the planner does? (X)
+5. Agent rules (A): a major traded for a major on the same piece is refused; two memory / max-tries refusals in a row
+   end a session; vision opinions on drawn types and F3 / F8 on drawn pieces that cannot move within the drawn lock
+   (free-standing drawn sofas 1.1-2.5 m off the walls) are only reported. Confirm.
+6. Exterior camera edits (I1) are refused when the re-measured X6 keeps "no frontal view" or adds a major: real02's
+   three P4a moves of the frontal ext_6 to a corner pose would now be refused.
+7. Overlapping drawn lamps (I1): the larger stays, the smaller is not built (4 of real04's 8 basement-salon lamps); the
+   alternative is to keep both and move them apart by up to 0.5 m. And the new S2 shade check (I2): keep or drop?
+8. Untyped pieces (I1): marked not furniture only with their own recognition crop, so real04's f_L-1b_001 / 002
+   (5.14 x 2.37 m clusters with no question) stay under review for good (§14.13 decision 8).
+9. Headroom (D, I1): re-solved drawn pieces never move lower than drawn; the fit keeps models 0.05 m under the slope
+   (real04's drawn L1 armchairs get 0.86 / 0.81 m ABO models; with no model under the cap the module or parametric
+   builder is used and the slope is named as the library gap). The next real04 / real02 pods re-ask the decor model for
+   the L1 play rooms and halls.
+10. Windows-only sky (I2): library mirrors keep the base sky (glossy, not singular, in Cycles); a sharp mirror glass
+    in `skywin35` would match (+19 %), but no real02 mirror sees a window. The window look equals sky35's because the
+    indirect clamp caps both; a brighter, unclamped window sky needs the separate clamp A/B. Before `skywin35` becomes
+    the default, P6c must show the room numbers at base (EV, white point, day green, the hall's orange margin) and the
+    pane saturation after the pull.
+11. Terrace windows seen from outside read black (R, I2): single glass reflects 6.6-13.5 % of the sky. Accept, or a
+    glazing A/B?
+12. Twins (F): with the closets read right, real04 / real02 pair two more L1 rooms as twins and lose their own views
+    under `render.twin_rooms: one`; set `all` in the brief if those views are wanted.
+
+Open for later (not user decisions): the reading's warning line calls every not-built proposal "rug or group outline"
+(a duplicate lamp reads wrongly; F_reading); `edit_ops._add` checks the room type without aliases; a moved piece's dry
+fit reuses its old (taller) model under a lower slope (conservative); the camera search does not penalise a close
+foreground (oyun_1).
+
 ### 14.4 Open items and risks by track
 
 - **T1**: uniform scaling leaves a depth mismatch of up to 10-15 % that `furniture.py` centres (a sofa may overhang
