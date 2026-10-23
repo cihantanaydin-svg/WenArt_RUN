@@ -1037,3 +1037,17 @@ P6b (real03, $6.24 + $0.27 fetch) and P6c (real02, $5.38), each followed by a CP
   decisions of §14.13-14.15.
 
 GPU cost of Milestone 13: $51.24 over 14 pods (estimate $46-54). Project total: **$181.78 of $300**. No pod is running.
+
+### real04 rerun on the latest code (23 Oct 2026)
+
+Your request of 23 Oct 2026: real04 again on a pod with the latest changes. Pod `udqp9w9972b08f` (RTX PRO 6000, 106
+min, $4.40), code 2799c88 (windows-only sky default, final-pass fixes), polish off, 256 spp, 3 agent rounds, GPU tests.
+Results: [`results/review/real04_rerun_20261023/`](../results/review/real04_rerun_20261023/).
+
+- 42 views (37 interior, 5 exterior; P6a 49: the L1 koridor_2 / teras_2 twins and the blank `ext_front_entrance` are
+  gone, as expected). Drawn anchors 40/40, accepted edits whose finding is gone 91 % (10/11), 0 interior views at EV ≥
+  +5, EV gap 0.17 (P6a 0.67), last-round LG 4 (P6a 6), stage time 87 min (P6a 109).
+- GPU tests: 45 passed, 2 failed, 9 skipped. Failures: white-balance tint 42.97 / 42.6 over the ±40 bound in L0
+  e_yatak_odasi_2 / _3; f_L0_043 (abo_B07GFLG5MM) tagged "modern minimal", not the project style. Not fixed.
+
+GPU cost: project total **$186.18 of $300**. No pod is running.
