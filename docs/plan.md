@@ -453,6 +453,10 @@ set `relaxed` in their `brief.yaml` (env `WENART_LICENCE_MODE` overrides), which
   for the account behind the pod's token on 16 Oct 2026; 768 audited models are usable.
 - **TRELLIS.2 models** generated in Milestones 8-9, flag **`tool_nc`**: their textures were baked with nvdiffrast
   (NVIDIA Source Code License, non-commercial); usable until that export is replaced.
+- **3D Warehouse models** (the user's Google Drive zip "3D Warehouse Furniture.zip", SketchUp GLB exports; source
+  `3dwh`, licence text `3DWH-UNREVIEWED`, flag `non_commercial`, `licence_declared_by: uploader`): the user decided
+  on 23 Oct 2026 not to review their licences; relaxed mode only, `commercial_safe: no`
+  (`wenart/assets/warehouse.py`, `ATTRIBUTION.md` section 4 names them PoC-only).
 - Never used: no-derivatives assets, and 3D-FUTURE / 3D-FRONT (research-only, no redistribution). Maxtree and
   BlenderKit are on hold.
 

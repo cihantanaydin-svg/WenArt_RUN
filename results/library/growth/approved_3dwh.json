@@ -1,0 +1,14 @@
+{
+ "source": "3dwh",
+ "approved_by": "the user, request of 23 Oct 2026: add the 3D Warehouse models (GLB) of the Google Drive file '3D Warehouse Furniture.zip' as a new library source and audit them; 'Pick whole zip'; 'ignore licence questions: use the source only in relaxed mode, commercial_safe: no'.",
+ "approved_utc": "2026-10-23T16:11:30Z",
+ "rule": "whole_zip",
+ "drive_file_id": "1nSHF5dvjLLcpruowus8zZUx8kSiDxkjD",
+ "file": "3D Warehouse Furniture.zip",
+ "bytes": 6261344770,
+ "licence": "3DWH-UNREVIEWED",
+ "licence_flag": "non_commercial",
+ "licence_mode": "relaxed only",
+ "ids": null,
+ "note": "every GLB of the zip is taken; a model whose folder and file names give no type of ours is listed for review (3dwh_review.json), never guessed; trees, doors and windows are fixed and listed (3dwh_extras.json) for the later hooks"
+}

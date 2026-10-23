@@ -97,8 +97,12 @@ _AUDIT_ONLY_FLAGS = ("research_only", "regional")
 def _entry_flag(entry: dict) -> str:
     """The flag an entry carries: ``none`` for None / missing (files written before Milestone 13)."""
     return entry.get("licence_flag") or NO_FLAG
+# A source's own licence text -> its flag (= wenart.furniture.catalog.SOURCE_TEXT_FLAGS): the 3D Warehouse models of
+# the user's zip, licences not reviewed (user decision of 23 Oct 2026), relaxed licence mode only.
+_SOURCE_FLAGS = {"3DWH-UNREVIEWED": "non_commercial"}
 MODEL_SOURCE_LICENCES = {"objaverse": tuple(_FLAGS), "abo": (CC_BY,), "gso": (CC_BY,),
-                         "hssd": ("CC-BY-NC-4.0",)}   # gso: M12 pod P4; hssd: M13 (relaxed licence mode only)
+                         "hssd": ("CC-BY-NC-4.0",),   # gso: M12 pod P4; hssd: M13 (relaxed licence mode only)
+                         "3dwh": tuple(_SOURCE_FLAGS)}
 GENERATED = "generated"                     # model source; its licence starts with this word
 # Manifest sections; the licence rule depends on the kind.
 KINDS = ("textures", "hdris", "models")
@@ -153,10 +157,11 @@ def check_licence(source: str, licence: Optional[str] = None, kind: str = "textu
     text = {a.upper(): a for a in allowed}.get(text.upper(), text)
     if text not in allowed:
         raise LicenceError(f"{source}: licence '{licence}' is not one of {', '.join(allowed)}; refused")
-    if entry is not None and "licence_flag" in entry and _entry_flag(entry) != _FLAGS[text] \
-            and not (_FLAGS[text] == NO_FLAG and _entry_flag(entry) in _AUDIT_ONLY_FLAGS):
+    flag = _FLAGS.get(text, _SOURCE_FLAGS.get(text))
+    if entry is not None and "licence_flag" in entry and _entry_flag(entry) != flag \
+            and not (flag == NO_FLAG and _entry_flag(entry) in _AUDIT_ONLY_FLAGS):
         raise LicenceError(f"{source}: model {entry.get('id', '?')!r} with licence {text} has licence_flag "
-                           f"{entry.get('licence_flag')!r}, not {_FLAGS[text]!r}; refused")
+                           f"{entry.get('licence_flag')!r}, not {flag!r}; refused")
     if text != LICENCE and entry is not None:
         missing = [k for k in CC_BY_FIELDS if not str(entry.get(k) or "").strip()]
         if missing:

@@ -519,7 +519,7 @@ def test_abo_generated_and_flagged_objaverse_models_come_from_the_cache_only(tmp
         return web.sha256_file(path)
 
     # hssd: Milestone 13 pod P2 (build round 2); = catalog.LIBRARY_SOURCES, the cache layout of every library source
-    assert models.LIBRARY_SOURCES == ("objaverse", "abo", "generated", "gso", "hssd") == models.CACHE_SOURCES
+    assert models.LIBRARY_SOURCES == ("objaverse", "abo", "generated", "gso", "hssd", "3dwh") == models.CACHE_SOURCES
     from wenart.furniture import catalog as C
     assert set(models.LIBRARY_SOURCES) == set(C.LIBRARY_SOURCES)
     assert models.library_relpath("abo", "abo_B07B4SCB6T") == "models/abo/abo_B07B4SCB6T.glb"

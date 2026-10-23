@@ -66,6 +66,8 @@ ask:
   # Milestone 13: the question with the materials field (gates.material_tags_required) for models without material
   # tags; models that carry tags keep the m12.1 question, so their answers stay valid (no re-ask of the library).
   version_materials: m13.1
+  # 23 Oct 2026: the 3D Warehouse models (ask.LOGO_SOURCES) get the logo and print fields as well (ask.py)
+  version_logo: m13.2
   workers: 4
   second_pass: true       # a type question where code cannot confirm (no title evidence) and pass 1 says no
 

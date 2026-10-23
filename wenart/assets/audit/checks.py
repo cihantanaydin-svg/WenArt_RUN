@@ -86,7 +86,8 @@ from wenart.assets.audit.items import has_front
 from wenart.furniture import sizes as SZ
 
 NOT_ALLOWED = (("-NC", "non-commercial"), ("-SA", "share-alike"), ("-ND", "no-derivatives"))
-SOURCE_RANK = {"abo": 0, "polyhaven": 1, "gso": 2, "hssd": 3, "objaverse": 4, "generated": 5}   # hssd: M13
+# hssd: M13; 3dwh (23 Oct 2026, the 3D Warehouse uploads): after the curated sources, before Objaverse
+SOURCE_RANK = {"abo": 0, "polyhaven": 1, "gso": 2, "hssd": 3, "3dwh": 4, "objaverse": 5, "generated": 6}
 HARD_FLAGS = ("outdoor", "crude", "wrong", "part", "branded", "other_use")    # branded, other_use: fix round after P3
 FLAG_TEXT = {"outdoor": "an outdoor piece", "crude": "not photoreal", "wrong": "not the object",
              "part": "a part of a piece", "scene": "several objects (a set or a scene)",

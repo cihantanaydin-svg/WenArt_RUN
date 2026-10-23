@@ -212,7 +212,7 @@ LIBRARY_CATALOG = "catalog_library.json"      # the prep pod's library catalogue
 OBJAVERSE_CATALOG = "catalog_objaverse.json"  # its M7 name (read when the library file is missing)
 # = wenart.furniture.catalog.LIBRARY_SOURCES (hssd since build round 2 of Milestone 13: the HSSD layer of track T7,
 # CC BY-NC 4.0, relaxed mode only; tests/test_library_growth_p4.py keeps the lists equal)
-LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd")
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd", "3dwh")     # 3dwh: 23 Oct 2026
 # Milestone 13: the sources whose models are credited in section 2 / 3: the library sources (the HSSD layer among
 # them) and the CC0 Poly Haven models (no credit required, listed as CC0 assets).
 CREDIT_SOURCES = ("polyhaven",) + LIBRARY_SOURCES
@@ -844,8 +844,8 @@ def _notice() -> str:
 
 SOURCE_NAMES = {"abo": "Amazon Berkeley Objects", "objaverse": "Objaverse 1.0", "generated": "generated models",
                 "gso": "Google Scanned Objects", "polyhaven": "Poly Haven", "hssd": "HSSD (Habitat Synthetic Scenes "
-                "Dataset)", "ambientcg": "ambientCG"}
-SOURCE_ORDER = ("abo", "gso", "objaverse", "generated", "hssd", "polyhaven", "ambientcg")
+                "Dataset)", "ambientcg": "ambientCG", "3dwh": "3D Warehouse (the user's zip)"}
+SOURCE_ORDER = ("abo", "gso", "objaverse", "generated", "hssd", "3dwh", "polyhaven", "ambientcg")
 
 
 def run_model_rows(out_dir: Path) -> list[dict]:
@@ -1032,6 +1032,9 @@ def attribution_text(title: str, credits: list[dict], *, mode: str = "commercial
     notices = _notices(sources)
     if "hssd" in sources:
         notices.append(hssd_notice())
+    if "3dwh" in sources:                             # 23 Oct 2026: the 3D Warehouse models (licences not reviewed)
+        from wenart.assets import warehouse as WH
+        notices.append(WH.notice())
     if "polyhaven" in sources or any(c.get("source") == "polyhaven" for c in textures):
         notices.append(POLYHAVEN_NOTICE)
     if any(c.get("source") == "ambientcg" for c in textures):

@@ -356,6 +356,74 @@ def hssd_entry(cand: dict, m: dict, sha: str, checked_utc: str, rules: Optional[
     return e
 
 
+WAREHOUSE_PENDING = ("new 3D Warehouse model (the user's zip, request of 23 Oct 2026): waiting for its audit")
+WAREHOUSE_NOTE = ("3D Warehouse models (23 Oct 2026, the user's request): the GLBs of the user's zip \"3D Warehouse "
+                  "Furniture.zip\", typed from their folder and file names, fixed for SketchUp exports (units, up "
+                  "axis, origin, double-sided faces, roughness; wenart/assets/warehouse.py) and audited like the rest "
+                  "of the library; licences not reviewed (the user's decision): relaxed licence mode only, "
+                  "commercial_safe: no.")
+
+
+def warehouse_entry(rec: dict, m: dict, checked_utc: str, rules: Optional[dict] = None,
+                    footprint: Optional[dict] = None) -> dict:
+    """A ``catalog_library.json`` entry of a fixed 3D Warehouse model (``rec`` = its record of
+    ``wenart.assets.warehouse.process``; ``m`` = ``glbmesh.measure`` of the fixed file): ``source: 3dwh``, the licence
+    fields of ``warehouse.entry_fields`` (``licence_flag: non_commercial``, ``commercial_safe: false``), units known
+    only when the fix-up found a unit that puts the box inside the type's real range (else the audit's size check
+    rescales it, and an anchor of unknown units is removed by the gate), the front from the type's geometric rule
+    (else SketchUp's Front-view convention, -Y, with low confidence: the audit's vision answer names it), the
+    ``3dwh`` record (zip member, name evidence, unit, up turn, material fixes) and ``audit: pending``."""
+    from wenart.assets import objaverse as OV
+    from wenart.assets import warehouse as WH
+    ftype, kind = rec["type"], rec["kind"]
+    uid = rec["id"]
+    front, conf, note = front_of(ftype, m.get("stats"), rules=rules)
+    if conf == "low" and "-Y assumed" in note:
+        note += " (SketchUp's Front view looks at the -Y side; its glTF export keeps it)"
+    title = source_text(rec.get("title")) or f"3D Warehouse model {uid[len(WH.UID_PREFIX):][:8]}"
+    styles, style_note = _styles(styles_hint(title), "the file name")
+    author = WH.author_of(rec)
+    e = {"id": uid, **_kind_type(kind, ftype), "source": WH.SOURCE, **WH.entry_fields(), "name": title}
+    e.update(frame_fields(m, front, conf, note))
+    choice = rec.get("choice") or {}
+    w, d, h = e["bbox_m"]
+    raw = " x ".join(f"{float(v):.3g}" for v in rec.get("raw_box_m") or [])
+    if choice.get("units_known"):
+        unit_note = (f"units known: the GLB box {raw} read in {choice.get('unit')} fits a real {ftype} (size table, "
+                     f"+15 %); written in metres by the 3dwh fix-up: {w:.3g} x {d:.3g} x {h:.3g} m")
+    else:
+        unit_note = (f"units unknown: no unit (metres, inches, cm, mm, feet) puts the GLB box {raw} inside the real "
+                     f"{ftype} range; kept in {choice.get('unit') or 'metres'} ({w:.3g} x {d:.3g} x {h:.3g} m): the "
+                     "audit's size check decides")
+    e.update({"unit_scale": 1.0, "unit_note": unit_note, "units_known": bool(choice.get("units_known")),
+              "styles": styles, "style_note": style_note, "glb": rec["glb"], "sha256_glb": rec["sha256"], "uid": uid,
+              "title": title, "author": author, "source_url": WH.source_url(rec["rel"]),
+              "via": f"{WH.DATASET_NAME}; SketchUp fixes of wenart/assets/warehouse.py ({WH.FIX_VERSION})",
+              "attribution": WH.attribution(title, rec["rel"], author)})
+    e.update(_mesh_fields(m))
+    if m.get("pbr"):
+        e["pbr_maps"] = dict(m["pbr"])
+    if kind == "furniture" and ftype in OV.FOOTPRINT_TYPES:
+        e["chaise_side"], e["chaise_note"] = OV.chaise_side(footprint, front, OV.load_config())
+    e.update(_bed_fields(ftype, kind))
+    names = rec.get("names") or {}
+    fix = rec.get("fix") or {}
+    mats = (fix.get("materials") or {}).get("materials") or []
+    rules_used: dict = {}
+    for row in mats:
+        rules_used[str(row.get("rule"))] = rules_used.get(str(row.get("rule")), 0) + 1
+    e["3dwh"] = {"rel": rec["rel"], "group": names.get("group"), "where": names.get("where"), "word": names.get("word"),
+                 "candidates": list(names.get("candidates") or []), "type_from": choice.get("type_from"),
+                 "unit": choice.get("unit"), "factor": choice.get("factor"), "up_fix": choice.get("up_fix"),
+                 "fits": choice.get("fits"), "range_error": choice.get("error"), "raw_box_m": rec.get("raw_box_m"),
+                 "root": fix.get("root"), "double_sided": (fix.get("materials") or {}).get("double_sided"),
+                 "material_rules": rules_used, "generator": rec.get("generator") or None,
+                 "fix_version": rec.get("fix_version"), "src_sha256": rec.get("src_sha256")}
+    e["growth"] = {"pod": "3dwh", "list": "ingest_3dwh.json", "decision": WH.USER_DECISION}
+    e["audit"] = dict(pending_audit(checked_utc), reasons=[WAREHOUSE_PENDING])
+    return e
+
+
 # --------------------------------------------------------------------------
 # Catalogue copies
 # --------------------------------------------------------------------------
@@ -416,6 +484,14 @@ def build_copies(library: dict, polyhaven: dict, entries: list[dict]) -> tuple[d
         if "hssd" not in srcs:
             lib["sources"] = srcs + ["hssd"]
         lib.setdefault("datasets", {})["hssd"] = dict(H.DATASET)
+    if any(e["source"] == "3dwh" for e in entries):
+        from wenart.assets import warehouse as WH
+        srcs = list(lib.get("sources") or [])
+        if WH.SOURCE not in srcs:
+            lib["sources"] = srcs + [WH.SOURCE]
+        lib.setdefault("datasets", {})[WH.SOURCE] = dict(WH.DATASET)
+        if WAREHOUSE_NOTE not in lib.setdefault("notes", []):
+            lib["notes"].append(WAREHOUSE_NOTE)
     m13 = any((e.get("growth") or {}).get("milestone") == "m13" for e in entries)
     for doc in (lib, ph):
         notes = doc.setdefault("notes", [])

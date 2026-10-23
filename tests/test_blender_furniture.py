@@ -865,10 +865,14 @@ def test_model_licence_gate_matches_the_asset_rule():
     # test_model_licence_gate_takes_abo_generated_and_flagged_models for their rules.
     # gso: M12 pod P4; hssd: M13 pod P2 (build round 2: the HSSD layer, CC BY-NC 4.0 per the dataset card, flagged
     # non_commercial; = fetch.MODEL_SOURCE_LICENCES and catalog.SOURCE_LICENCES for the library sources)
+    # 3dwh (23 Oct 2026): the 3D Warehouse models of the user's zip, licences not reviewed (relaxed mode only)
     assert F.MODEL_LICENCES == {"polyhaven": ("CC0",), "abo": ("CC-BY-4.0",), "objaverse": ("CC0", "CC-BY-4.0"),
-                                "generated": (), "gso": ("CC-BY-4.0",), "hssd": ("CC-BY-NC-4.0",)}
+                                "generated": (), "gso": ("CC-BY-4.0",), "hssd": ("CC-BY-NC-4.0",),
+                                "3dwh": ("3DWH-UNREVIEWED",)}
     assert F.MODEL_LICENCES["hssd"] == fetch.MODEL_SOURCE_LICENCES["hssd"] and "hssd" in F.LIBRARIES
-    assert F.FLAGGED_SOURCES == ("objaverse", "hssd") and F.SOURCE_FLAGS == {"hssd": "non_commercial"}
+    assert F.MODEL_LICENCES["3dwh"] == fetch.MODEL_SOURCE_LICENCES["3dwh"] and "3dwh" in F.LIBRARIES
+    assert F.FLAGGED_SOURCES == ("objaverse", "hssd", "3dwh")
+    assert F.SOURCE_FLAGS == {"hssd": "non_commercial", "3dwh": "non_commercial"}
     assert F.CC_BY_FIELDS == fetch.CC_BY_FIELDS and F.CC_BY == fetch.CC_BY
     assert F.licence_refusal(_library_asset([1, 1, 1])) is None
     assert F.licence_refusal(_objaverse_asset([1, 1, 1])) is None

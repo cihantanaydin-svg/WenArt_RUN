@@ -19,6 +19,21 @@ pixels (``input_sha256``); the answers live in the recognition answer store form
 ``wenart/vision_check/check.yaml`` (``audit.yaml ask.model_key``, the bake-off's pick; ``--model-key``); the worker
 pool, the deadline and the exit codes are ``wenart.assets.objaverse.judge_ask``'s. ``--serve`` starts and stops the
 vLLM server itself (``wenart.run.servers.server``).
+
+3D Warehouse layer (23 Oct 2026, the user's request: "runs the existing audit (render, vision quality, logo check)"):
+
+- What: the question version ``ask.version_logo`` (m13.2) for the models of ``LOGO_SOURCES`` (``3dwh``) adds
+  ``brand_logo`` (a maker's logo or brand name readable on the model) and ``text_print`` (decorative lettering);
+  ``decide.py`` removes a model with either (the reasons of ``checks.RENDER_FINDINGS``). The server's guided schema of
+  an m13.2 request is the m13.2 schema (``server_schema``: ``context.version``).
+- Why: the existing logo check reads titles (``branded``) and the logos a run's render showed (``render_findings``);
+  a 3D Warehouse upload of a branded product shows its logo before any run.
+- How: ``context.version`` is no part of a request's ``input_sha256``: every stored answer stays valid and is reused;
+  ``valid`` reads the version from the answer's fields (``answer_version``). Found on the way (not changed): the
+  m12.1 and m13.1 requests keep the m12.1 guided schema, so the m13.1 ``materials`` never come back (no stored answer
+  of pods P2-P2c carries them). Giving them their own schema is not enough: the write step would then store the
+  tags, ``version_for`` would switch those models to the m12.1 question and the next run would ask them again. An
+  m13.2 model keeps its version whatever its tags (``LOGO_SOURCES`` first).
 """
 from __future__ import annotations
 
@@ -73,21 +88,46 @@ def materials_version(cfg_ask: dict) -> str:
     return str(cfg_ask.get("version_materials") or "m13.1")
 
 
+# 23 Oct 2026 (the 3D Warehouse layer, the user's request "runs the existing audit (render, vision quality, logo
+# check)"): the question version ``ask.version_logo`` (m13.2) adds the logo and print fields (``LOGO_FIELDS``) for the
+# models of these sources; every other model keeps its question, so its stored answer stays valid.
+LOGO_SOURCES: tuple[str, ...] = ("3dwh",)
+LOGO_FIELDS: tuple[str, ...] = ("brand_logo", "text_print")
+
+
+def logo_version(cfg_ask: dict) -> str:
+    return str(cfg_ask.get("version_logo") or "m13.2")
+
+
 def version_for(item: dict, cfg_ask: dict) -> str:
-    """The question version of one model: ``version_materials`` for a model without material tags (the question
-    asks for them), else ``version``."""
+    """The question version of one model: ``version_logo`` for a model of ``LOGO_SOURCES``, ``version_materials`` for
+    a model without material tags (the question asks for them), else ``version``."""
+    if item.get("source") in LOGO_SOURCES:
+        return logo_version(cfg_ask)
     tags = item.get("material_tags")
     if isinstance(tags, list) and tags:
         return str(cfg_ask.get("version", "m12.1"))
     return materials_version(cfg_ask)
 
 
+def _version_number(version: Optional[str]) -> tuple[int, int]:
+    """``m13.2`` -> ``(13, 2)``; ``(0, 0)`` for a word that is no question version."""
+    word = str(version or "").strip().lower()
+    if not word.startswith("m"):
+        return (0, 0)
+    major, _, minor = word[1:].partition(".")
+    return (int(major) if major.isdigit() else 0, int(minor) if minor.isdigit() else 0)
+
+
 def with_materials(version: Optional[str]) -> bool:
     """True when a question version asks for the materials (m13 and later: the milestone number after the ``m``)."""
     # by number, not by string order ("m2" > "m13" as text; review fix of 15 Oct 2026)
-    word = str(version or "").strip().lower()
-    digits = word[1:].split(".", 1)[0] if word.startswith("m") else ""
-    return digits.isdigit() and int(digits) >= 13
+    return _version_number(version)[0] >= 13
+
+
+def with_logo(version: Optional[str]) -> bool:
+    """True when a question version asks for the logo and print fields (m13.2 and later)."""
+    return _version_number(version) >= (13, 2)
 
 
 def schema(kind: str, version: Optional[str] = None) -> dict:
@@ -114,6 +154,8 @@ def schema(kind: str, version: Optional[str] = None) -> dict:
     }
     if with_materials(version):
         props["materials"] = {"type": "array", "items": {"enum": list(MATERIAL_WORDS)}, "maxItems": 4}
+    if with_logo(version):
+        props.update({f: {"type": "boolean"} for f in LOGO_FIELDS})
     return {"$schema": "https://json-schema.org/draft/2020-12/schema", "title": "LibraryAudit", "type": "object",
             "additionalProperties": False, "required": list(props), "properties": props}
 
@@ -166,6 +208,11 @@ def prompt(item: dict, box, version: Optional[str] = None) -> str:
     if with_materials(version):
         fields.append("- materials: the visible materials of the model, up to four, from: " + ", ".join(MATERIAL_WORDS)
                       + " (the main one first; 'other' when none of the words fits).")
+    if with_logo(version):
+        fields += ["- brand_logo: true when a maker's logo or brand name can be read on the model (in its shape or "
+                   "its texture); the header text above the renders does not count.",
+                   "- text_print: true when decorative lettering or text is printed on its visible surface (the "
+                   "functional labels of an appliance's control panel do not count)."]
     return "\n\n".join([
         "The image shows one 3D model from our furniture library at its real scale: a header with its id, type, "
         "source, licence, size and title, then four renders: 0 front 3/4, 1 side (from its right), 2 top, 3 back. "
@@ -198,7 +245,8 @@ def request_item(item: dict, sheet_rel: str, sheet_px: str, box, version: str, s
     task = TASK2 if second else TASK
     desc = {"version": version, "task": task, "system": SYSTEM, "prompt": p, "schema": sch, "sheet": sheet_px}
     return {"key": f"audit_{item['id']}", "task": task, "images": [sheet_rel], "prompt": p,
-            "context": {"id": item["id"], "type": item["type"], "kind": item["kind"], "pass": 2 if second else 1},
+            "context": {"id": item["id"], "type": item["type"], "kind": item["kind"], "pass": 2 if second else 1,
+                        "version": version},
             "input_sha256": _sha(desc)}
 
 
@@ -226,13 +274,23 @@ def build_requests(items: list[dict], measure_doc: dict, audit: Path, version: s
     return doc
 
 
+def answer_version(data) -> Optional[str]:
+    """The question version an answer's fields show: m13.2 (the logo fields), m13.1 (the materials), else None
+    (the m12.1 question)."""
+    if not isinstance(data, dict):
+        return None
+    if any(f in data for f in LOGO_FIELDS):
+        return logo_version({})
+    return materials_version({}) if "materials" in data else None
+
+
 def valid(data, kind: str, second: bool = False) -> bool:
-    """An answer of either question: the m12.1 one, or the m13.1 one with its ``materials``."""
+    """An answer of any question: the m12.1 one, the m13.1 one with its ``materials``, the m13.2 one with the logo
+    fields too."""
     import jsonschema
     if data is None:
         return False
-    sch = schema2(kind) if second else schema(kind, materials_version({}) if isinstance(data, dict)
-                                              and "materials" in data else None)
+    sch = schema2(kind) if second else schema(kind, answer_version(data))
     v = jsonschema.Draft202012Validator(sch)
     return not any(True for _ in v.iter_errors(data))
 
@@ -259,12 +317,18 @@ def model_of(key: str, model_id: Optional[str] = None, slug: Optional[str] = Non
     return Model(key, str(node["id"]), str(node.get("slug") or str(node["id"]).split("/")[-1].lower()))
 
 
+def server_schema(item: dict) -> dict:
+    """The guided-decoding schema of a pass 1 request: its own version's schema for an m13.2 request (the logo
+    fields; module docstring), else the m12.1 schema (unchanged: see the module docstring for the m13.1 gap)."""
+    version = item["context"].get("version")
+    return schema(item["context"]["kind"], version if with_logo(version) else None)
+
+
 def spec_for(second: bool):
     from wenart.assets import objaverse as OV
     return OV.JudgeSpec(dir_name=ASK_DIR, task=TASK2 if second else TASK, system=SYSTEM, label="library audit",
                         answers_kind="library_audit_answers", requests_kind="library_audit_requests",
-                        schema_of=lambda item: schema2(item["context"]["kind"]) if second
-                        else schema(item["context"]["kind"]),
+                        schema_of=lambda item: schema2(item["context"]["kind"]) if second else server_schema(item),
                         valid_of=lambda item, data: valid(data, item["context"]["kind"], second))
 
 

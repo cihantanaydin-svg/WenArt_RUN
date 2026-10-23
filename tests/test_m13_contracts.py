@@ -457,7 +457,7 @@ def test_round2_hssd_source_and_licence_constants():
     assert "hssd" in C.SOURCES and "hssd" in C.LIBRARY_SOURCES
     assert C.SOURCE_LICENCES["hssd"] == ("CC-BY-NC-4.0",)
     assert C.LICENCE_DECLARED_BY["hssd"] == "publisher"
-    assert F.SOURCE_ORDER == ("abo", "polyhaven", "hssd", "gso", "objaverse", "generated")
+    assert F.SOURCE_ORDER == ("abo", "polyhaven", "hssd", "gso", "3dwh", "objaverse", "generated")
     assert models.LIBRARY_SOURCES == CP.LIBRARY_SOURCES == C.LIBRARY_SOURCES
     assert furniture.MODEL_LICENCES["hssd"] == ("CC-BY-NC-4.0",)
     assert furniture.SOURCE_FLAGS["hssd"] == "non_commercial"

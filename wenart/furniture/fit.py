@@ -290,7 +290,9 @@ UPHOLSTERED_TYPES: tuple[str, ...] = ("sofa", "sofa_corner", "armchair", "chaise
 # Fit v2 ranking (docs/milestone8.md §1); Milestone 13 (K2): the design preference, the audit's vision quality, the
 # texture maps, the face count and the diversity penalty join it; the wood re-sort is gone.
 # gso: M12 pod P4 scans; hssd: M13 pod P2 (docs/milestone13.md §12 D2; CC BY-NC 4.0, candidates in relaxed mode only)
-SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "objaverse", "generated")
+# 3dwh (23 Oct 2026): the 3D Warehouse models of the user's zip (uploads of mixed quality, fixed by
+# wenart/assets/warehouse.py) rank after the curated sources and before Objaverse.
+SOURCE_ORDER: tuple[str, ...] = ("abo", "polyhaven", "hssd", "gso", "3dwh", "objaverse", "generated")
 GENERATED = "generated"
 DEFAULT_QUALITY = 3.0
 SIZE_BUCKET = 0.05           # real-size error steps: models within the same 5 % step are ranked by quality

@@ -39,6 +39,21 @@
 #   The ask needs the 52 GB agent/judge server (docs/milestone13.md §8: P2 on the RTX PRO 6000). Without --gpu the
 #   runner's GPU_PRIORITY falls back to the RTX 5090 (32 GB, CLAUDE.md: cannot host it) when the 6000 is out of
 #   stock; add --gpu 'RTX PRO 6000' to the command above if that must not happen (the lead's call).
+#   GROWTH_ONLY=3dwh     the 3D Warehouse layer (the user's request of 23 Oct 2026; wenart/assets/warehouse.py): ONE pod
+#                        downloads the user's Google Drive zip "3D Warehouse Furniture.zip" (6.26 GB; the file must be
+#                        shared as "anyone with the link": drive.usercontent.google.com with confirm=t; resumed with
+#                        curl -C -, the size checked against the Drive file) into $WH_ROOT/zip/, then ingest-3dwh
+#                        (the GLBs extracted safely to $WH_ROOT/raw/, typed from their folder and file names,
+#                        measured, unit / up axis / origin / double-sided faces / roughness fixed into
+#                        $ASSETS/models/3dwh/), catalogue --only 3dwh (furniture and decor entries; trees, doors and
+#                        windows as previews), render, code, ask (the m13.2 question: the logo and print fields),
+#                        decide, write, vision-fields, sheets, gaps, coverage, preview, report and the GPU tests.
+#                        Nothing on the volume is deleted; a second run resumes (zip by size, GLBs by size, fixes by
+#                        source sha256, renders by job_sha, answers by input hash). About 400 models per hour of audit
+#                        on the RTX PRO 6000 (HSSD's rate):
+#     python3 scripts/gpu_run.py run --job scripts/jobs/library_growth.sh --gpu 'RTX PRO 6000' --disk 150 \
+#       --max-minutes 180 --over-5-ok --env GROWTH_ONLY=3dwh --env AUDIT_MODEL_KEY=agent \
+#       --purpose "3D Warehouse layer: download, fix-ups, audit"
 #
 # Milestone 12 pod P4: the library growth (docs/milestone12.md §6.4 D24, §14.3; docs/m12_tracks/P4.md). The four lists
 # the user approved on 11 Oct 2026 (results/library/growth/approved_*.json, read through growth.approved, the
@@ -88,7 +103,8 @@
 # GROWTH_ROOT (/workspace/library-growth), WENART_ASSETS (/workspace/assets), AUDIT_WORKERS (3), INFINIGEN_CAP_MIN
 # (40), INFINIGEN_TEX_RES (1024), GROWTH_PH_SIZE (2k since Milestone 13; 1k in M12), GROWTH_PROBE_MIN (15),
 # GROWTH_MIN_FREE_GB (30: the M13 downloads are about 18 GB), HF_TOKEN (the HSSD gate; from the pod secret),
-# GROWTH_ONLY (empty or all: every step; hssd: the HSSD layer alone, see above).
+# GROWTH_ONLY (empty or all: every step; hssd: the HSSD layer alone; 3dwh: the 3D Warehouse layer alone, see above),
+# WH_ROOT (/workspace/library/3dwh), WH_WORKERS (16: fix-up processes), WH_FILE_ID / WH_BYTES (the Drive file).
 set -Eeuo pipefail
 
 WS="${WENART_WS:-/workspace}"
@@ -114,6 +130,12 @@ INFINIGEN_TEX_RES="${INFINIGEN_TEX_RES:-1024}"
 GROWTH_PH_SIZE="${GROWTH_PH_SIZE:-2k}"
 GROWTH_PROBE_MIN="${GROWTH_PROBE_MIN:-15}"
 GROWTH_ONLY="${GROWTH_ONLY:-all}"
+# the 3D Warehouse layer (GROWTH_ONLY=3dwh; = wenart.assets.warehouse DRIVE_FILE_ID, ZIP_BYTES, ZIP_NAME, LIBRARY_ROOT)
+WH_ROOT="${WH_ROOT:-$WS/library/3dwh}"
+WH_FILE_ID="${WH_FILE_ID:-1nSHF5dvjLLcpruowus8zZUx8kSiDxkjD}"
+WH_BYTES="${WH_BYTES:-6261344770}"
+WH_ZIP="3D Warehouse Furniture.zip"
+WH_WORKERS="${WH_WORKERS:-16}"
 # Infinigen, pinned (wenart/assets/audit/growth_infinigen.py: tag v1.19.0, read with git ls-remote on 11 Oct 2026)
 IG_URL=https://github.com/princeton-vl/infinigen
 IG_COMMIT=01c39c7f7adcf7363ccbcc57c64410c69f4a4e7c
@@ -452,10 +474,51 @@ ask_step() {
   fi
 }
 
+# download_3dwh: the user's zip from Google Drive (GROWTH_ONLY=3dwh). A present zip of the Drive file's size is kept;
+# a partial one is resumed (curl -C -; a server without ranges: the next try starts over). A download that is not the
+# zip (an HTML page: the file is not shared as "anyone with the link") is moved aside, never deleted, and the step
+# fails with the reason.
+download_3dwh() {
+  local dir="$WH_ROOT/zip" zip part url size t0 attempt rc
+  zip="$dir/$WH_ZIP"
+  part="$zip.part"
+  url="https://drive.usercontent.google.com/download?id=${WH_FILE_ID}&export=download&confirm=t"
+  mkdir -p "$dir"
+  if [ -f "$zip" ] && [ "$(stat -c %s "$zip")" = "$WH_BYTES" ]; then
+    echo "3dwh download: $zip present ($WH_BYTES bytes): kept"
+    return 0
+  fi
+  t0=$(date +%s)
+  for attempt in 1 2 3 4; do
+    rc=0
+    curl -L --fail --silent --show-error --retry 3 --retry-delay 5 --connect-timeout 30 -C - -o "$part" "$url" \
+      || rc=$?
+    [ "$rc" -eq 0 ] && break
+    echo "3dwh download: attempt $attempt failed (curl exit $rc)"
+    if [ "$rc" -eq 33 ] && [ -f "$part" ]; then         # no byte ranges: start over (our own partial file)
+      mv -f "$part" "$part.norange-$(date -u +%Y%m%dT%H%M%SZ)"
+    fi
+    sleep $(( attempt * 10 ))
+  done
+  size=$(stat -c %s "$part" 2>/dev/null || echo 0)
+  if [ "$size" != "$WH_BYTES" ]; then
+    if [ -f "$part" ] && head -c 2048 "$part" | grep -qi '<html'; then
+      mv -f "$part" "$part.html-$(date -u +%Y%m%dT%H%M%SZ)"
+      echo "3dwh download: FAILED: Google Drive sent an HTML page, not the zip (is the file shared as 'anyone with" \
+           "the link'?)"
+    else
+      echo "3dwh download: FAILED: $size of $WH_BYTES bytes after 4 attempts"
+    fi
+    return 1
+  fi
+  mv -f "$part" "$zip"
+  echo "3dwh download: $WH_BYTES bytes in $(( $(date +%s) - t0 )) s -> $zip"
+}
+
 case "$GROWTH_ONLY" in
-  all|hssd) log "mode: GROWTH_ONLY=$GROWTH_ONLY" ;;
-  *) log "GROWTH_ONLY='$GROWTH_ONLY' is not a mode of this job (all | hssd): nothing done"
-     record "mode (GROWTH_ONLY=$GROWTH_ONLY unknown)" 1 0 "GROWTH_ONLY must be all or hssd"
+  all|hssd|3dwh) log "mode: GROWTH_ONLY=$GROWTH_ONLY" ;;
+  *) log "GROWTH_ONLY='$GROWTH_ONLY' is not a mode of this job (all | hssd | 3dwh): nothing done"
+     record "mode (GROWTH_ONLY=$GROWTH_ONLY unknown)" 1 0 "GROWTH_ONLY must be all, hssd or 3dwh"
      exit 1 ;;
 esac
 
@@ -490,6 +553,31 @@ if [ "$GROWTH_ONLY" = hssd ]; then
   run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
   run_step gaps gr gaps
   run_step coverage gr size-grid
+elif [ "$GROWTH_ONLY" = 3dwh ]; then
+  # --- GROWTH_ONLY=3dwh (23 Oct 2026): the 3D Warehouse layer alone; every other entry stays as it is ------------
+  log "GROWTH_ONLY=3dwh: download-3dwh, ingest-3dwh, catalogue --only 3dwh, render, code, ask, decide, write," \
+      "vision-fields, sheets, gaps, coverage, preview, report, GPU tests; every other catalogue entry stays as it is"
+  start_setup_check
+  run_step download-3dwh download_3dwh
+  run_step ingest-3dwh gr ingest --source 3dwh --library "$WH_ROOT" --workers "$WH_WORKERS"
+  if ! compgen -G "$ASSETS/models/3dwh/3dwh_*.glb" > /dev/null; then
+    log "GROWTH_ONLY=3dwh: no fixed 3D Warehouse model on the volume (the reason is in the download-3dwh and" \
+        "ingest-3dwh lines above): nothing to audit"
+    stop_bg setup-check
+    run_step report gr report --steps "$STEPS_TSV"
+    exit 1
+  fi
+  run_step catalogue gr catalogue --only 3dwh
+  if need 300 render; then run_step render au render "${RENDER_ARGS[@]}"; fi
+  run_step code au code --work "$P4/work" --ids-file "$P4A/new_ids.json"
+  ask_step
+  run_step decide au decide --model-key "$MODEL_KEY" --ids-file "$P4A/new_ids.json"
+  run_step write au write
+  run_step vision-fields gr vision-fields --model-key "$MODEL_KEY"
+  run_step sheets au sheets
+  run_step gaps gr gaps
+  run_step coverage gr size-grid
+  if need 300 preview; then run_step preview gr preview --blender "$WENART_BLENDER" --workers "$AUDIT_WORKERS"; fi
 else
   # --- Milestone 13: the demands and the coverage before the growth, then the speed probe (foreground, CPU) ----
   run_step demands gr demands

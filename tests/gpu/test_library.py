@@ -700,3 +700,41 @@ def test_growth_m13_catalogue_copies_carry_the_gates_and_the_hssd_flags():
 def load_config():
     from wenart.assets.audit import load_config as _lc
     return _lc()
+
+
+# --------------------------------------------------------------------------
+# The 3D Warehouse layer (23 Oct 2026; scripts/jobs/library_growth.sh GROWTH_ONLY=3dwh, wenart/assets/warehouse.py)
+# --------------------------------------------------------------------------
+
+def test_growth_3dwh_every_model_is_accounted_for_and_fixed_onto_the_floor_centre():
+    """Every GLB of the zip is fixed, unmapped (review list), dropped with a reason or failed (at most 2 %); a sample
+    of the fixed files stands on the floor centre (bottom at 0, box centred within 1 cm) and has the sha256 of its
+    record; the catalogue copy's 3dwh entries carry the relaxed-only licence fields and an audit decision."""
+    from wenart.assets import warehouse as WH
+    from wenart.assets.audit import glbmesh as GM
+    rec = _m13_report("ingest_3dwh.json")
+    if rec.get("refused") or rec.get("error"):
+        pytest.skip(f"3dwh ingest did not run: {rec.get('refused') or rec.get('error')}")
+    assert rec["listed"] == rec["ok"] + rec["unmapped"] + rec["dropped"] + rec["failed"] and rec["listed"] > 0
+    assert rec["failed"] <= 0.02 * rec["listed"], rec["failed"]
+    ok = [r for r in rec["records"] if r.get("ok")]
+    for r in ok[:: max(1, len(ok) // 200)]:
+        path = ASSETS / r["glb"]
+        assert path.is_file() and WH.sha256_file(path) == r["sha256"], r["id"]
+        m = GM.measure(path)
+        assert abs(m["bbox_min_m"][2]) <= 0.01, (r["id"], m["bbox_min_m"])
+        assert all(abs(a + b) <= 0.02 for a, b in zip(m["bbox_min_m"][:2], m["bbox_max_m"][:2])), r["id"]
+    for r in rec["records"]:
+        if not r.get("ok"):
+            assert r.get("dropped") or r.get("error"), r["id"]
+    p4 = Path(os.environ.get("WENART_AUDIT_P4", "/workspace/library-audit/p4/audit"))
+    lib = OV.read_json(p4 / "catalogue" / "catalog_library.json")
+    if lib is None:
+        pytest.skip("no catalogue copy of the growth job")
+    wh = [e for e in lib.get("entries", []) + lib.get("decor", []) if e.get("source") == "3dwh"]
+    assert wh, "no 3dwh entry in the catalogue copy"
+    for e in wh:
+        assert e["licence"] == WH.LICENCE and e["licence_flag"] == "non_commercial" and e["commercial_safe"] is False
+        assert not C.usable(e, "commercial") and e["glb"] == f"models/3dwh/{e['id']}.glb"
+    pending = [e["id"] for e in wh if (e.get("audit") or {}).get("status") == "pending"]
+    assert len(pending) <= 0.05 * len(wh), pending[:20]

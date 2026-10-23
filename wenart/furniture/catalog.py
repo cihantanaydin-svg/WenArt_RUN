@@ -149,13 +149,15 @@ OBJAVERSE_SUFFIX = "_objaverse"        # catalog.json -> catalog_objaverse.json 
 LIBRARY_SUFFIX = "_library"            # catalog.json -> catalog_library.json (same folder; M8, preferred)
 LICENCE = "CC0"
 CC_BY = "CC-BY-4.0"
-SOURCES = ("polyhaven", "objaverse", "abo", "generated", "gso", "hssd")
+SOURCES = ("polyhaven", "objaverse", "abo", "generated", "gso", "hssd", "3dwh")
 # written by the prep pod (wenart/assets/objaverse.py); Milestone 12 pod P4 (docs/milestone12.md §6.4): ``gso`` =
 # Google Scanned Objects (CC BY 4.0, confirmed per object, ``licence_evidence``; wenart/assets/audit/growth_gso.py);
 # Milestone 13 pod P2 (docs/milestone13.md §12 D2): ``hssd`` = the HSSD object models (CC BY-NC 4.0, relaxed mode only;
 # wenart/assets/hssd.py, wenart/assets/audit/growth_entries.hssd_entry). = wenart.assets.models.LIBRARY_SOURCES and
 # wenart.run.copy.LIBRARY_SOURCES (tests/test_library_growth_p4.py keeps the three equal).
-LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd")
+# 3dwh (23 Oct 2026, the user's request): the 3D Warehouse models of the user's zip (wenart/assets/warehouse.py;
+# licence not reviewed by the user's decision, relaxed licence mode only, commercial_safe: no).
+LIBRARY_SOURCES = ("objaverse", "abo", "generated", "gso", "hssd", "3dwh")
 # Milestone 13 (docs/milestone13.md §13.2): the licence modes of the fit and the licence flags of the entries.
 LICENCE_MODES: tuple[str, ...] = ("commercial", "relaxed")
 LICENCE_MODE_DEFAULT = "commercial"
@@ -184,6 +186,9 @@ LICENCE_TEXT_FLAGS: dict[str, str] = {
     "Sketchfab-Editorial": "non_commercial", "Sketchfab-Standard": UNKNOWN_FLAG, "Sketchfab-Free-Standard": UNKNOWN_FLAG,
     "unknown": UNKNOWN_FLAG,
 }
+# A source's own licence text (not a licence name of the Objaverse table above) -> its flag: the 3D Warehouse models,
+# whose licences the user chose not to review (23 Oct 2026; = wenart.assets.warehouse.LICENCE): relaxed mode only.
+SOURCE_TEXT_FLAGS: dict[str, str] = {"3DWH-UNREVIEWED": "non_commercial"}
 FLAGS = ("non_commercial", "share_alike", "no_derivatives", "unknown")   # the Milestone 8 name (wenart.assets)
 GENERATED_LICENCE_PREFIX = "generated"   # e.g. "generated (TRELLIS.2-4B, MIT)" (docs/milestone8.md §3)
 # The non-commercial tool in the export chain of the generated TRELLIS.2 models (docs/milestone13.md §2.3, §6, D3):
@@ -209,13 +214,16 @@ LICENCE_URLS: dict[str, str] = {
     # MIT for the TRELLIS.2 code and weights (README: "This model and code are released under the MIT License";
     # the LICENSE file of microsoft/TRELLIS.2, verified 12 Oct 2026); the export tool is TOOL_NC
     "generated (TRELLIS.2-4B, MIT)": "https://github.com/microsoft/TRELLIS.2/blob/main/LICENSE",
+    # the 3D Warehouse models (licences not reviewed, the user's decision of 23 Oct 2026): the site that hosts them
+    "3DWH-UNREVIEWED": "https://3dwarehouse.sketchup.com/",
 }
 POLYHAVEN_LICENCE_URL = "https://polyhaven.com/license"
 # Who declared the licence (docs/milestone13.md §6): the dataset publisher (Amazon for ABO, Poly Haven, Google for GSO,
 # the HSSD authors for HSSD, ourselves for generated models) or the uploader of an object (Objaverse: Sketchfab
 # uploads, not verified by anyone).
 LICENCE_DECLARED_BY: dict[str, str] = {"polyhaven": "publisher", "abo": "publisher", "generated": "publisher",
-                                       "gso": "publisher", "hssd": "publisher", "objaverse": "uploader"}
+                                       "gso": "publisher", "hssd": "publisher", "objaverse": "uploader",
+                                       "3dwh": "uploader"}
 DECLARED_BY_VALUES: tuple[str, ...] = ("publisher", "uploader")
 # Source -> licences its models may carry (docs/milestone7.md §6.3, docs/milestone8.md §2): Poly Haven is CC0 only;
 # Objaverse objects carry the uploader's licence (any, flagged unless CC0 / CC BY 4.0); ABO is CC BY 4.0; a generated
@@ -223,7 +231,8 @@ DECLARED_BY_VALUES: tuple[str, ...] = ("publisher", "uploader")
 # this dataset under the CC BY-NC 4.0 license terms", https://huggingface.co/datasets/hssd/hssd-models, read on
 # 15 Oct 2026; = wenart.assets.hssd.LICENCE).
 SOURCE_LICENCES: dict[str, tuple[str, ...]] = {"polyhaven": (LICENCE,), "objaverse": tuple(LICENCE_TEXT_FLAGS),
-                                               "abo": (CC_BY,), "gso": (CC_BY,), "hssd": ("CC-BY-NC-4.0",)}
+                                               "abo": (CC_BY,), "gso": (CC_BY,), "hssd": ("CC-BY-NC-4.0",),
+                                               "3dwh": tuple(SOURCE_TEXT_FLAGS)}
 # Fields a CC BY entry needs for its credit line (CC BY 4.0 §3(a)(1)); every library model but a generated one has
 # them (any non-CC0 licence asks for the credit).
 CC_BY_FIELDS = ("title", "author", "source_url", "licence_url", "via", "attribution")
@@ -318,9 +327,9 @@ def extra_path(path: Path) -> Optional[Path]:
 
 
 def licence_text_flag(licence: Optional[str]) -> str:
-    """The flag a licence text alone gives (``LICENCE_TEXT_FLAGS``, else its ``-ND`` / ``-NC`` / ``-SA`` markers):
-    ``none`` for CC0, CC BY 4.0 and a generated model's own licence (the export tool is ``is_tool_nc``); ``unknown``
-    for a name nobody could read."""
+    """The flag a licence text alone gives (``LICENCE_TEXT_FLAGS``, a source's own text of ``SOURCE_TEXT_FLAGS``,
+    else its ``-ND`` / ``-NC`` / ``-SA`` markers): ``none`` for CC0, CC BY 4.0 and a generated model's own licence (the
+    export tool is ``is_tool_nc``); ``unknown`` for a name nobody could read."""
     text = str(licence or "").strip()
     if not text:
         return UNKNOWN_FLAG
@@ -328,6 +337,8 @@ def licence_text_flag(licence: Optional[str]) -> str:
         return NO_FLAG
     if text in LICENCE_TEXT_FLAGS:
         return LICENCE_TEXT_FLAGS[text]
+    if text in SOURCE_TEXT_FLAGS:
+        return SOURCE_TEXT_FLAGS[text]
     upper = text.upper()
     if "-ND" in upper:
         return "no_derivatives"

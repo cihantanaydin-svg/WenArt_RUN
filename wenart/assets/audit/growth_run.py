@@ -63,6 +63,20 @@ Milestone 13 round 3 (docs/milestone13.md §14.6, after pod P2):
     any step                            an unexpected error prints ``growth run <step>: FAILED: <type>: <reason>``
                                         as its last line (and the traceback), rc 1
 
+3D Warehouse layer (23 Oct 2026, the user's request; ``scripts/jobs/library_growth.sh`` ``GROWTH_ONLY=3dwh``):
+
+    ingest --source 3dwh                the user's zip (``approved_3dwh.json``: the whole zip, the ingest gate) from
+                                        ``--library`` (``zip/``, downloaded by the job): its GLBs extracted safely to
+                                        ``raw/``, every model typed from its names, measured, its unit and up axis
+                                        chosen and fixed (``wenart.assets.warehouse.process``, ``--workers``
+                                        processes) into ``<assets>/models/3dwh/<uid>.glb``; ``ingest_3dwh.json``
+                                        (every record), ``3dwh_review.json`` (unmapped, dropped, failed, not fitting
+                                        any real size), ``3dwh_extras.json`` (trees, doors, windows)
+    catalogue [--only 3dwh]             the furniture and decor entries (``growth_entries.warehouse_entry``); the
+                                        trees, doors and windows as previews (no catalogue type yet)
+    preview                             also the 3D Warehouse previews (up to 3 Blender workers)
+    report                              also the 3D Warehouse counts
+
 Exit codes: 0 done, 1 something failed or nothing to do (the record says which), 2 server error, 3 deadline.
 """
 from __future__ import annotations
@@ -303,6 +317,96 @@ def ingest_hssd(args, ids: list, cands: dict) -> tuple[list, dict]:
     return records, rec
 
 
+def _process_all(fn: Callable, jobs: list, workers: int) -> list:
+    """``fn(job)`` for every job, in ``workers`` processes (1: in this process); results in job order."""
+    if workers <= 1 or len(jobs) <= 1:
+        return [fn(j) for j in jobs]
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(fn, jobs, chunksize=4))
+
+
+WH_KEEP = ("id", "rel", "title", "ok", "group", "kind", "type", "dropped", "error")
+
+
+def ingest_3dwh(args) -> int:
+    """The 3D Warehouse layer (module docstring): extract, list, type, fix; ``ingest_3dwh.json``,
+    ``3dwh_review.json``, ``3dwh_extras.json``. Unmapped and dropped models are data (rc 0); rc 1 when the approval
+    or the files are missing or a model failed unexpectedly."""
+    from collections import Counter
+
+    from wenart.assets import warehouse as WH
+    t0 = time.time()
+    rep = report_dir(args)
+    try:
+        ok_doc = WH.approval(args.lists)
+    except PermissionError as exc:
+        print(f"growth ingest 3dwh refused: {exc}")
+        write_json(rep / "ingest_3dwh.json", {"source": WH.SOURCE, "refused": str(exc)})
+        return EXIT_NOTHING
+    root = Path(args.library)
+    zpath, raw = root / "zip" / WH.ZIP_NAME, root / "raw"
+    extract = None
+    zip_rec = {"path": str(zpath), "present": zpath.is_file(), "expected_bytes": WH.ZIP_BYTES,
+               "bytes": zpath.stat().st_size if zpath.is_file() else None}
+    if zpath.is_file():
+        if zip_rec["bytes"] != WH.ZIP_BYTES:
+            print(f"growth ingest 3dwh: {zpath} has {zip_rec['bytes']} bytes, the Drive file {WH.ZIP_BYTES}: an "
+                  "incomplete download is not extracted")
+            write_json(rep / "ingest_3dwh.json", {"source": WH.SOURCE, "zip": zip_rec, "error": "zip size"})
+            return EXIT_NOTHING
+        extract = WH.extract(zpath, raw)
+        print(f"growth ingest 3dwh: extracted {extract['extracted']}, kept {extract['kept']} of {extract['glb']} GLBs "
+              f"({extract['bytes'] / 1e9:.2f} GB); other files {extract['other'] or 'none'}", flush=True)
+    elif not raw.is_dir():
+        print(f"growth ingest 3dwh: neither {zpath} nor {raw}: run the download first")
+        write_json(rep / "ingest_3dwh.json", {"source": WH.SOURCE, "zip": zip_rec, "error": "no zip"})
+        return EXIT_NOTHING
+    listing = WH.list_glbs(raw)
+    cache = Path(args.growth) / WH.SOURCE / "fix"
+    jobs = [{"id": r["id"], "rel": r["rel"], "raw": str(raw), "assets": str(args.assets), "cache": str(cache)}
+            for r in listing]
+    records = _process_all(WH.process, jobs, max(1, int(args.workers)))
+    ok = [r for r in records if r.get("ok")]
+    unmapped = [r for r in records if not r.get("ok") and not r.get("mapped", True)]
+    dropped = [r for r in records if not r.get("ok") and r.get("dropped") and r.get("mapped", True)]
+    failed = [r for r in records if not r.get("ok") and r.get("error")]
+    not_fitting = [r for r in ok if not (r.get("choice") or {}).get("fits")]
+    by_group = Counter(r.get("group") or "?" for r in ok)
+    by_type = Counter(f"{r.get('kind')}:{r.get('type')}" for r in ok)
+    extras = [r for r in ok if r.get("kind") in ("vegetation", "opening")]
+    write_json(rep / "ingest_3dwh.json",
+               {"source": WH.SOURCE, "approved_by": ok_doc.get("approved_by"),
+                "approved_utc": ok_doc.get("approved_utc"), "rule": ok_doc.get("rule"), "zip": zip_rec,
+                "extract": extract, "listed": len(listing), "ok": len(ok),
+                "unmapped": len(unmapped), "dropped": len(dropped), "failed": len(failed),
+                "not_fitting": len(not_fitting), "units": dict(Counter((r.get("choice") or {}).get("unit")
+                                                                          for r in ok)),
+                "up_fixed": sum(1 for r in ok if (r.get("choice") or {}).get("up_fix")),
+                "by_group": dict(sorted(by_group.items())), "by_type": dict(sorted(by_type.items())),
+                "fix_version": WH.FIX_VERSION, "seconds": round(time.time() - t0, 1), "records": records})
+    write_json(rep / "3dwh_review.json",
+               {"kind": "library_3dwh_review", "written_utc": now_utc(),
+                "unmapped": [{"id": r["id"], "rel": r["rel"], "title": r.get("title")} for r in unmapped],
+                "dropped": [{k: r.get(k) for k in WH_KEEP} for r in dropped],
+                "failed": [{k: r.get(k) for k in WH_KEEP} for r in failed],
+                "not_fitting": [{"id": r["id"], "rel": r["rel"], "type": r.get("type"), "raw_box_m": r.get("raw_box_m"),
+                                 "error": (r.get("choice") or {}).get("error")} for r in not_fitting]})
+    write_json(rep / "3dwh_extras.json",
+               {"kind": "library_3dwh_extras", "written_utc": now_utc(),
+                "note": "trees, doors and windows: fixed GLBs and records for the later hooks (openings scaled to the "
+                        "drawn openings, trees picked by crown size); not catalogued yet",
+                "models": [{k: r.get(k) for k in ("id", "rel", "title", "kind", "type", "glb", "box_m", "crown_m",
+                                                  "height_m")} | {"fits": (r.get("choice") or {}).get("fits")}
+                           for r in extras]})
+    print(f"growth ingest 3dwh: {len(listing)} GLB(s): {len(ok)} fixed ({dict(by_group)}), {len(unmapped)} unmapped "
+          f"(review list), {len(dropped)} dropped, {len(failed)} FAILED; {len(not_fitting)} fit no real size "
+          f"({round(time.time() - t0)} s)")
+    for r in failed[:20]:
+        print(f"growth ingest 3dwh: {r['rel']} failed: {r.get('error')}")
+    return EXIT_OK if not failed and listing else EXIT_NOTHING
+
+
 def ingest_ambientcg(args, ids: list, cands: dict) -> list:
     """The ambientCG shell sets (``fetch.fetch_texture``: the 2K-JPG zip unpacked into ``<assets>/textures/<id>/``,
     recorded in the assets manifest; present sets are kept)."""
@@ -324,6 +428,8 @@ def ingest_ambientcg(args, ids: list, cands: dict) -> list:
 
 def cmd_ingest(args) -> int:
     from wenart.assets.audit import growth as G
+    if args.source == "3dwh":
+        return ingest_3dwh(args)
     t0 = time.time()
     _name, key = list_names(args.source, bool(getattr(args, "m13", False)))
     try:
@@ -887,6 +993,33 @@ def new_entries(args, stamp: str, only: Optional[set] = None) -> tuple[list, lis
         if e:
             entries.append(e)
             hints[e["id"]] = [s for s in e["styles"] if s != "neutral"]
+    # 3D Warehouse (23 Oct 2026: the user's zip, relaxed licence mode only); trees, doors and windows are previews
+    wh_records = ((read_json(report_dir(args) / "ingest_3dwh.json") or {}).get("records") or []) \
+        if wanted("3dwh") else []
+    for r in wh_records:
+        if not r.get("ok"):
+            drop("3dwh", r["id"], f"{r.get('rel')}: " + str(r.get("dropped") or r.get("error") or "not fixed"))
+            continue
+        if r.get("kind") in ("vegetation", "opening"):
+            previews.append({"id": r["id"], "source": "3dwh", "kind": r["kind"], "type": r.get("type"),
+                             "glb": r["glb"], "title": r.get("title"),
+                             "note": "3D Warehouse tree / door / window: no catalogue type yet (later hooks)"})
+            continue
+        if r.get("type") not in known:
+            drop("3dwh", r["id"], f"no catalogue type for {r.get('type')}")
+            continue
+
+        def wh(r=r):
+            path = assets / r["glb"]
+            m = measured(path, r["sha256"], cache, rules)
+            fp = None
+            if r["type"] in OV.FOOTPRINT_TYPES:
+                fp = OV.footprint_occupancy(GM.triangles_of(path), m["bbox_min_m"], m["bbox_max_m"])
+            return GE.warehouse_entry(r, m, stamp, rules, footprint=fp)
+        e = guard("3dwh", r["id"], wh)
+        if e:
+            entries.append(e)
+            hints[e["id"]] = [x for x in e["styles"] if x != "neutral"]
     # GSO
     gso_lic = (read_json(Path(args.growth) / "gso" / "licences.json") or {}).get("records") or [] \
         if wanted("gso") else []
@@ -1076,8 +1209,12 @@ def cmd_catalogue(args) -> int:
         prev = new_ids(args)
         before = (set(prev.get("ids") or []) | set(prev.get("kept_ids") or [])) - set(ids)
         prev_rep = read_json(report_dir(args) / "catalogue.json") or {}
-        doc.update(only=sorted(only), kept_ids=sorted(before), previews=prev.get("previews") or [])
-        report.update(only=sorted(only), previews=prev_rep.get("previews") or prev.get("previews") or [],
+        # 23 Oct 2026: the earlier previews of the other sources stay and this run's previews join them (before,
+        # --only replaced this run's previews with the earlier ones: the 3D Warehouse trees, doors and windows)
+        earlier = [x for x in prev.get("previews") or [] if x.get("source") not in only]
+        earlier_rep = [x for x in prev_rep.get("previews") or prev.get("previews") or [] if x.get("source") not in only]
+        doc.update(only=sorted(only), kept_ids=sorted(before), previews=earlier + previews)
+        report.update(only=sorted(only), previews=earlier_rep + previews,
                       dropped=[d for d in prev_rep.get("dropped") or [] if d.get("source") not in only] + dropped)
     write_json(audit_dir(args) / "new_ids.json", doc)
     by_type = Counter(f"{e['source']}:{e['type']}" for e in entries)
@@ -1273,7 +1410,11 @@ def preview_item(p: dict, assets: Path) -> dict:
     if not rel:
         raise KeyError(f"no glb / gltf path in the preview record (keys {sorted(p)})")
     m = GM.measure(Path(assets) / rel)
-    if p.get("kind") == "vegetation":
+    if p.get("source") == "3dwh":
+        from wenart.assets import warehouse as WH
+        title, source, licence = (f"3D Warehouse {p.get('type') or p.get('kind')} ({p.get('kind')}, no catalogue "
+                                  f"entry yet): {p.get('title') or p['id']}"), WH.SOURCE, WH.LICENCE
+    elif p.get("kind") == "vegetation":
         title, source, licence = f"Poly Haven {p.get('type') or 'vegetation'} (vegetation, no furniture entry)", \
             "polyhaven", "CC0"
     else:
@@ -1314,7 +1455,9 @@ def cmd_preview(args) -> int:
         for miss in doc.get("missing") or []:
             failed.append({"id": miss["id"], "reason": f"file missing: {miss['file']}"})
             print(f"growth preview: {miss['id']} file missing: {miss['file']}")
-        rc = R.run_render(doc, args.blender, work, 1)
+        # 23 Oct 2026: up to 3 Blender workers (the audit render's AUDIT_WORKERS): the 3D Warehouse trees, doors and
+        # windows are hundreds of previews
+        rc = R.run_render(doc, args.blender, work, max(1, min(3, int(getattr(args, "workers", 1) or 1))))
         if rc != EXIT_OK:
             print(f"growth preview: the Blender render ended with exit {rc} (logs in {work / 'jobs'})")
         R.compose_all(items, work, out, s)
@@ -1396,7 +1539,7 @@ def cmd_report(args) -> int:
     from collections import Counter
     rep = report_dir(args)
     ing = {s: read_json(rep / f"ingest_{s}.json") or {} for s in ("polyhaven", "abo", "gso", "hssd", "ambientcg",
-                                                                   "polyhaven_m13", "abo_m13")}
+                                                                   "polyhaven_m13", "abo_m13", "3dwh")}
     lic = read_json(rep / "gso_licences.json") or {}
     conv = {s: read_json(rep / f"convert_{s}.json") or {} for s in ("gso", "infinigen")}
     cat = read_json(rep / "catalogue.json") or {}
@@ -1411,14 +1554,18 @@ def cmd_report(args) -> int:
         src_of[e_id] = "infinigen" if e_id.startswith("infinigen_") else ("gso" if e_id.startswith("gso_") else
                                                                           "abo" if e_id.startswith("abo_") else
                                                                           "hssd" if e_id.startswith("hssd_") else
+                                                                          "3dwh" if e_id.startswith("3dwh_") else
                                                                           "polyhaven")
     status = Counter((src_of.get(r["id"], r.get("source")), r["status"]) for r in audit.get("items") or [])
-    dropped = Counter(d["source"] if d["source"] in ("polyhaven", "abo", "gso", "infinigen", "hssd") else "?"
+    dropped = Counter(d["source"] if d["source"] in ("polyhaven", "abo", "gso", "infinigen", "hssd", "3dwh") else "?"
                       for d in cat.get("dropped") or [])                  # hssd: M13 (its drops were counted as "?")
     ig_states = Counter(j.get("state") for j in plan.get("jobs") or [])
     rows = []
-    for s in ("polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg", "polyhaven_m13", "abo_m13"):
-        approved = ing[s].get("approved") if s != "infinigen" else len(plan.get("jobs") or [])
+    for s in ("polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg", "polyhaven_m13", "abo_m13", "3dwh"):
+        if s == "3dwh" and not ing[s]:
+            continue
+        approved = ing[s].get("approved") if s not in ("infinigen", "3dwh") else (
+            len(plan.get("jobs") or []) if s == "infinigen" else ing[s].get("listed"))
         got = ing[s].get("ok") if s != "infinigen" else ig_states.get("done", 0)
         rows.append({"source": s, "approved": approved, "downloaded_or_generated": got,
                      "licence_kept": lic.get("kept") if s == "gso" else None,
@@ -1457,6 +1604,20 @@ def cmd_report(args) -> int:
         lines.append("")
     if ing["hssd"].get("gate"):
         lines += [f"HSSD gate: {ing['hssd']['gate'].get('reason')}", ""]
+    wh = ing["3dwh"]
+    if wh.get("listed") is not None:
+        doc["3dwh"] = {k: wh.get(k) for k in ("listed", "ok", "unmapped", "dropped", "failed", "not_fitting", "units",
+                                              "up_fixed", "by_group", "by_type", "extract", "zip", "seconds")}
+        lines += ["## 3D Warehouse (the user's zip, 23 Oct 2026)", "",
+                  f"{wh.get('listed')} GLB(s) listed: {wh.get('ok')} fixed, {wh.get('unmapped')} unmapped (review "
+                  f"list), {wh.get('dropped')} dropped, {wh.get('failed')} failed; {wh.get('not_fitting')} fit no real "
+                  f"size; units {json.dumps(wh.get('units'))}; up axis turned {wh.get('up_fixed')}.", "",
+                  "| group | models |", "|---|---|"]
+        lines += [f"| {g} | {n} |" for g, n in (wh.get("by_group") or {}).items()]
+        lines += ["", "| kind:type | models |", "|---|---|"]
+        lines += [f"| {t} | {n} |" for t, n in (wh.get("by_type") or {}).items()]
+        lines.append("")
+        write_json(rep / "growth.json", doc)
     if doc["speed"]:
         sp = doc["speed"]
         lines += [f"Speed probe: {sp.get('files')} file(s), {sp.get('mb_s')} MB/s, picks {json.dumps(sp.get('picks'))}",
@@ -1498,7 +1659,7 @@ STEPS = {"ingest": cmd_ingest, "gso-licence": cmd_gso_licence, "infinigen-list":
          # Milestone 13 round 3: the current file of an entry waiting for a re-audit
          "refetch": cmd_refetch}
 M13_STEPS = ("demands", "size-grid", "speed-probe")
-ONLY_SOURCES = ("hssd", "abo", "polyhaven", "gso", "infinigen")      # catalogue --only (GROWTH_ONLY=hssd)
+ONLY_SOURCES = ("hssd", "abo", "polyhaven", "gso", "infinigen", "3dwh")      # catalogue --only (GROWTH_ONLY=hssd)
 
 
 def parser() -> argparse.ArgumentParser:
@@ -1510,7 +1671,10 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--p3", default="/workspace/library-audit")
     p.add_argument("--lists", default=str(DEFAULT_OUT), help="results/library (approvals and candidate lists)")
     p.add_argument("--report", default=None, help="small result files (default <growth>/report)")
-    p.add_argument("--source", default=None, choices=["polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg"])
+    p.add_argument("--source", default=None, choices=["polyhaven", "abo", "gso", "infinigen", "hssd", "ambientcg",
+                                                      "3dwh"])
+    p.add_argument("--library", default=os.environ.get("WENART_3DWH_ROOT") or "/workspace/library/3dwh",
+                   help="ingest 3dwh: the folder with zip/ (the download) and raw/ (the extracted GLBs)")
     p.add_argument("--m13", action="store_true", help="ingest: the Milestone 13 list of abo / polyhaven")
     p.add_argument("--token-env", default="HF_TOKEN", help="ingest hssd: the environment variable with the token "
                                                             "(never printed)")

@@ -411,11 +411,13 @@ def _resolve(cands: list[tuple[int, int, int, str, str]]) -> list[tuple[int, int
     return sorted(out, key=lambda c: (c[0], c[3]))
 
 
-def named_families(title: str) -> list[dict]:
-    """The families a title names: ``[{"family", "word"}]`` in title order (overlaps resolved)."""
+def named_families(title: str, extra: Optional[dict] = None) -> list[dict]:
+    """The families a title names: ``[{"family", "word"}]`` in title order (overlaps resolved). ``extra``: more
+    families (``{family: keywords}``, e.g. the vegetation and opening words of ``wenart.assets.warehouse``) resolved
+    together with ``KEYWORDS`` (the longest keyword still wins: "palm tree" over "palm")."""
     toks, folded = tokens(title), fold(title)
     cands = []
-    for fam, words in KEYWORDS.items():
+    for fam, words in (dict(KEYWORDS, **extra) if extra else KEYWORDS).items():
         for w in words:
             for s, e, n in _matches(toks, folded, w):
                 cands.append((s, e, n, fam, w))

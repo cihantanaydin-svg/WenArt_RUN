@@ -36,6 +36,10 @@ warn); a ``material_tags`` review waits for the vision answer's ``materials`` (t
 writes them as the flag ``material_tags`` (the design enum of ``wenart.assets.recolour.TAG_ORDER``); an answer of
 the older question (no ``materials``) leaves a note, never a removal and never a second pass (one vision pass).
 
+3D Warehouse layer (23 Oct 2026): an answer of the m13.2 question (``ask.LOGO_FIELDS``) with ``brand_logo`` or
+``text_print`` true removes the model (a specific vision finding, like an open drawer: trademarks are not licensed
+and no catalogue fix takes a print away; the reasons of ``checks.RENDER_FINDINGS``).
+
 How: pure; reasons in plain words; the same input gives the same decision.
 """
 from __future__ import annotations
@@ -43,6 +47,7 @@ from __future__ import annotations
 from typing import Optional
 
 from wenart.assets.audit import keywords as K
+from wenart.assets.audit.checks import RENDER_FINDING_WHY, RENDER_FINDINGS
 from wenart.assets.audit.items import has_front
 
 BED_TYPES = ("bed_single", "bed_double", "bunk_bed", "crib")
@@ -222,6 +227,11 @@ def decide(item: dict, checks: list[dict], answer: Optional[dict] = None, answer
             reasons.append("the vision check sees it lying on its side or upside down")
         if answer.get("parts_open") is True:
             reasons.append("a drawer, door or lid is open, or a part floats apart")
+        # 23 Oct 2026 (the 3D Warehouse layer, ask.LOGO_FIELDS): a logo or a print the vision check reads removes, as
+        # a run's render finding does (checks.render_print_check): no catalogue fix takes it away
+        for field in ("brand_logo", "text_print"):
+            if answer.get(field) is True:
+                reasons.append(f"the vision check reads {RENDER_FINDINGS[field]}: {RENDER_FINDING_WHY[field]}")
         if isinstance(q, int) and q <= remove_max:
             doubts.append(f"vision quality {q} (<= {remove_max})")
         elif answer.get("real_product") is False and item.get("source") not in ("abo", "gso") and isinstance(q, int) \
