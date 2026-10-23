@@ -57,33 +57,39 @@ Everything is in page metres (y up). Walls at other angles than the plan's domin
 Fix round after P6b (23 Oct 2026; pod P6b, real03, checked on the LibreDWG strokes of real02, real03 and real04).
 What: a window needs glass, and three kinds of gap are no openings of their run any more.
 
-- **Glass** (``_is_glass``): a window, in a gap or across a continuous wall, needs >= ``GLASS_MIN_LINES`` distinct
-  lines parallel to the wall, strictly between its faces (>= ``GLASS_INSET_M`` inside), within the window +-
-  ``OWN_MARGIN_M`` along it and spanning >= ``WINDOW_COVER`` of it: glass, frame and sill lines end at the jambs. Lines
-  on the faces, or running on past the gap (a beam projection, a room or area outline, an axis, wardrobe backs along
-  a partition) are no window. real03 had 43 such 'windows' among 64 (every real one carries its CAM/CAM-PER frame
-  lines: two or three glass offsets), real04 two (wardrobe backs between two bedrooms); real02's 12 windows have two
-  glass lines each. A gap that loses its window this way is an unverified opening ("unclassified gap content", the
-  reason in its note), except an end gap whose two faces are drawn on across it (both lines running past it) with no
-  swing reaching in: there the wall continues (extended, evidence ``derived``, the reason in its note; real03's
-  stair-core wall, whose DUVAR outline is no wall primitive).
-
+- **Glass** (``_confined``): a window, in a gap or across a continuous wall, needs lines of its own: parallel to the
+  wall, ending within the window +- ``OWN_MARGIN_M`` (glass, frame and sill lines end at the jambs) and spanning >=
+  ``WINDOW_COVER`` of it, at >= ``WINDOW_LINES_MIN`` distinct offsets, >= ``GLASS_MIN_LINES`` of them glass strictly
+  between the faces (>= ``GLASS_INSET_M`` inside), two glass lines or one between two lines of the window
+  (``_framed_glass``), none of a shape standing out of the wall band (a fixture or a wardrobe drawn against the
+  wall). The synthetic convention (both faces and one glass line, ending at the jambs)
+  passes; lines running on past the gap (a beam projection, a room or area outline, an axis, wardrobe
+  backs along a partition) are no window; their strokes stay owned (out of the furniture) as before. real03 had 43
+  such 'windows' among 64 (each of its 21 real windows carries its CAM/CAM-PER frame lines, two or three glass
+  offsets; one more real window, hidden behind a ghost before, is found), real04 two (wardrobe backs between two
+  bedrooms, P6a's G12 majors); real02's 12 windows (two glass lines each) do not change. A raster page's traced lines
+  keep the old rule (their ends and offsets carry the tracing's error; synthetic-02's scan). A gap that loses its
+  window this way is an unverified opening ("unclassified gap content", the reason in its note), except an end gap
+  whose two faces are drawn on across it (both lines running past it) with no swing reaching in: there the wall
+  continues (extended, evidence ``derived``, the reason in its note; real03's stair-core wall, whose DUVAR outline is
+  no wall primitive).
 - A **lined gap** (``_lining``): a thinner wall (>= ``LINING_THINNER_M`` thinner, its own run) lies along one face of
-  the run (flush within ``RUN_OFFSET_M``, inside its band), its pieces fill >= ``LINING_SHARE`` of the gap and it runs
-  on past both gap ends (> ``LINING_REACH_M``). The gap is ``open``: the thick pieces are columns or shear walls standing on that wall, not one wall with windows
-  between them. real03: the 30 cm shear walls of the hall-living partition (``D BLOK_STA_NK`` B-H/BA, y 0-1.3,
-  5.7-7.7, 12.1-13.4 m) were one 0.30 m wall from end to end, its gaps windows read from the beam projections
-  (IZ-1), the axis line and the net-area outlines lying on its faces; it swallowed the 0.20 m of hall and bedroom
-  beside the drawn 0.10 m partition (``DUVAR``), so the drawn 0.60 m washers stood 0.14-0.19 m in the wall of a
-  0.45 m niche (the plan's 'İŞLİK 0.45 m2' is 0.65 x 0.69 m). The thick pieces stay walls of their own; each wall
-  that a lined gap split is marked ``corrected_by_ai`` (reason, evidence: the lining wall's and the pieces'
-  entities, before: the wall as one run) and the gap's log entry says why. The thin wall keeps its own gaps (the
-  1.05 m hall-living passages). No end gap is cast across a lined gap.
+  the run (flush within ``RUN_OFFSET_M``, inside its band), its pieces fill >= ``LINING_SHARE`` of the gap and it
+  runs on past both gap ends (> ``LINING_REACH_M``). The gap is ``open``: the thick pieces are columns or shear walls
+  standing on that wall, not one wall with windows between them. real03: the 30 cm shear walls of the hall-living
+  partition (``D BLOK_STA_NK`` B-H/BA, y 0-1.3, 5.7-7.7, 12.1-13.4 m) were one 0.30 m wall from end to end, its gaps
+  windows read from the beam projections (IZ-1), the axis line and the net-area outlines lying on its faces; it
+  swallowed the 0.20 m of hall and bedroom beside the drawn 0.10 m partition (``DUVAR``), so the drawn 0.60 m washers
+  stood 0.14-0.19 m in the wall of a 0.45 m niche (the plan's 'İŞLİK 0.45 m2' is 0.65 x 0.69 m). The thick pieces
+  stay walls of their own; each wall that a lined gap split is marked ``corrected_by_ai`` (reason, evidence: the
+  lining wall's and the pieces' entities, before: the wall as one run) and the gap's log entry says why. The thin
+  wall keeps its own gaps (the 1.05 m hall-living passages). No end gap is cast across a lined gap.
 - A gap **inside wall material** (``_inside_wall``): other pieces on the run's axis (another run, a thicker
   cross-section) cover its whole band along its whole width. It is ``closed`` (the run merges across it, as a gap <
   0.25 m does) with a note, never a door, window or opening: real03's shear-wall core (y 5.7-7.7 m), where the
   0.62 m pieces of the core covered the gaps the mask decomposition left in the 0.10, 0.30, 0.41 and 0.54 m runs
-  through it (two 'openings' and six 'windows' inside concrete).
+  through it, and its columns and shear walls in the outer walls: 13 'openings' inside concrete (the core's 12
+  'windows' had no glass either).
 """
 from __future__ import annotations
 
@@ -131,7 +137,8 @@ LINING_THINNER_M = 0.05         # ... is at least this much thinner than the run
 LINING_SHARE = 0.5              # ... its pieces fill at least this share of the gap ...
 LINING_REACH_M = 0.10           # ... and it runs on past both gap ends by more than this (a wall, not a junction piece)
 GLASS_INSET_M = 0.01            # glass lies at least this far inside the wall faces ...
-GLASS_MIN_LINES = 2             # ... and a window needs this many distinct glass offsets (see _is_glass)
+WINDOW_LINES_MIN = 2            # ... a window needs this many distinct offsets of its own lines (``_confined``) ...
+GLASS_MIN_LINES = 1             # ... this many of them glass (the synthetic convention: two faces and one glass)
 
 DOOR_HEIGHT_M = 2.10
 WINDOW_SILL_M = 0.90
@@ -632,14 +639,19 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.found = {"arcs": [], "arc": [], "hinges": [], "leaves": leaves, "leaf": True, "swing": 0.0,
                    "radius": None, "double": False, "sliding": True, "by_name": op}
         return
-    # Window: >= 2 strokes parallel to the wall in the band, each spanning >= 80 % of the gap, and glass among them
-    # (fix round after P6b: strictly between the faces and within the gap +- OWN_MARGIN_M, ``GLASS_MIN_LINES``).
+    # Window: >= 2 strokes parallel to the wall in the band, each spanning >= 80 % of the gap; fix round after P6b:
+    # of them >= WINDOW_LINES_MIN offsets of the window's own lines (``_confined`` to the gap), >= GLASS_MIN_LINES of
+    # them glass (strictly between the faces).
     band = g.rect(grow_face=BAND_SLACK_M)
     band_items = [it for it in zone if _inside_rect_part(it, band)]
     parallel = []
+    framed: set = set()
     glass: set = set()
     faces: dict[int, list] = {}
     for it in band_items:
+        # A shape standing out of the wall band (a fixture, a wardrobe, a counter drawn against the wall) has no line
+        # of a window (fix round after P6b).
+        in_band = all(abs(g.across(q)) <= g.t / 2.0 + BAND_SLACK_M for q in it.pts)
         for p, q in zip(it.pts, it.pts[1:] + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])):
             if not _parallel(p, q, g.axis):
                 continue
@@ -650,19 +662,23 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
             cover = min(hi, g.b) - max(lo, g.a)
             if cover >= WINDOW_COVER * width:
                 parallel.append((it, round(off, 3)))
-                if _is_glass(off, g.t, lo, hi, g.a, g.b):
-                    glass.add(round(off, 3))
-                elif abs(off) >= g.t / 2.0 - GLASS_INSET_M and (lo < g.a - OWN_MARGIN_M or hi > g.b + OWN_MARGIN_M):
+                if in_band and _confined(lo, hi, g.a, g.b):
+                    framed.add(round(off, 3))
+                    if abs(off) < g.t / 2.0 - GLASS_INSET_M:
+                        glass.add(round(off, 3))
+                elif abs(off) >= g.t / 2.0 - GLASS_INSET_M:
                     faces.setdefault(1 if off > 0 else -1, []).append(it)
     no_glass = None
     if len({off for _, off in parallel}) >= 2:
-        if len(glass) >= GLASS_MIN_LINES:
+        # Raster lines (a scan's or photo's double-line walls) are traced, not drawn: their ends and offsets carry
+        # the tracing's error, so the old rule holds for them (synthetic-02's scan).
+        if _framed_glass(framed, glass) or any(it.st.source == "raster" for it, _ in parallel):
             g.cls = "window"
             g.found = {"lines": list({id(it): it for it, _ in parallel}.values()), "glass": sorted(glass)}
             return
-        no_glass = (f"{len({off for _, off in parallel})} lines along the gap, {len(glass)} of them glass (>= "
-                    f"{GLASS_MIN_LINES} needed): the others lie on the wall faces or run on past the gap (outlines, an "
-                    f"axis, a beam above), so no window")
+        no_glass = (f"{len({off for _, off in parallel})} lines along the gap, {len(framed)} of them ending at its "
+                    f"jambs and {len(glass)} glass between the faces (>= {WINDOW_LINES_MIN} and >= {GLASS_MIN_LINES} "
+                    f"needed): the others run on past the gap (outlines, an axis, a beam above), so no window")
         if g.kind == "end" and len(faces) == 2 and not any(min(g.b, max(g.along(q) for q in it.pts)) -
                                                           max(g.a, min(g.along(q) for q in it.pts)) > OWN_MARGIN_M
                                                           for it, _ in arcs):
@@ -701,12 +717,22 @@ def classify_gap(g: Gap, index: StrokeIndex, owned_global: set) -> None:
         g.found["no_glass"] = no_glass
 
 
-def _is_glass(off: float, t: float, lo: float, hi: float, a: float, b: float) -> bool:
-    """Fix round after P6b: a line parallel to the wall at ``off`` from its centre line, running from ``lo`` to ``hi``
-    along it, is glass of an opening from ``a`` to ``b`` in a wall ``t`` thick: strictly between the faces (>=
-    ``GLASS_INSET_M`` inside) and within the opening +- ``OWN_MARGIN_M`` (glass, frame and sill lines end at the jambs;
-    a face line, a room or area outline, an axis or a beam projection runs on past them)."""
-    return abs(off) < t / 2.0 - GLASS_INSET_M and lo >= a - OWN_MARGIN_M and hi <= b + OWN_MARGIN_M
+def _framed_glass(framed: set, glass: set) -> bool:
+    """Fix round after P6b: the window's own lines (offsets ``framed``, ``glass`` among them) make a window: >=
+    ``WINDOW_LINES_MIN`` offsets, >= ``GLASS_MIN_LINES`` glass, and two glass lines or one between two lines of the
+    window (the synthetic convention: a face line, the glass, a face line). A fixture's edge in a thick band with only
+    the face beside it (real03's cistern in a 0.45 m duct wall) is none."""
+    if len(framed) < WINDOW_LINES_MIN or len(glass) < GLASS_MIN_LINES:
+        return False
+    return len(glass) >= 2 or any(min(framed) < o < max(framed) for o in glass)
+
+
+def _confined(lo: float, hi: float, a: float, b: float) -> bool:
+    """Fix round after P6b: a line running from ``lo`` to ``hi`` along the wall is a line of the opening from ``a`` to
+    ``b`` itself: it ends within the opening +- ``OWN_MARGIN_M`` (glass, frame and sill lines end at the jambs; a face
+    line, a room or area outline, an axis or a beam projection runs on past them). Glass also lies strictly between
+    the faces (>= ``GLASS_INSET_M`` inside)."""
+    return lo >= a - OWN_MARGIN_M and hi <= b + OWN_MARGIN_M
 
 
 def _sliding_leaves(g: Gap, zone: list) -> list:
@@ -890,6 +916,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                                "note": f"a {g.width:.3f} m gap inside wall material ({len(cover)} other piece(s) on "
                                        f"this axis cover its {g.t:.2f} m band along its whole width): closed, no "
                                        f"opening"}
+                    _own(g, index, trial)
                 elif g.width < GAP_MIN_M:
                     g.cls = "closed"
                 else:
@@ -901,9 +928,10 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 # Fix round after P6b: a thinner wall runs along one face through the gap (real03's shear walls on
                 # the hall-living partition): the pieces are not one wall with openings between them.
                 for g in found:
-                    g.found = {"lining": lining, "split_reason": lining["note"]}
+                    g.found = {"lining": lining, "split_reason": lining["note"], "owned": g.found.get("owned", [])}
                     g.cls = "open"
                 lined_after[ri][i] = lining
+                owned.update(trial)                  # the band's structure lines stay out of the furniture
                 gaps.extend(found)
                 continue
             two_walls = q.a - p.b > GAP_MAX_M or _crossed(p, q, ends)
@@ -948,7 +976,7 @@ def gaps_and_openings(walls: list[WallItem], strokes_m: list[Stroke], file_rel: 
                 g.cls = "closed"
             else:
                 classify_gap(g, index, owned)
-                if g.cls in ("door", "window"):
+                if g.cls in ("door", "window") or g.found.get("faces"):
                     _own(g, index, owned)
             gaps.append(g)
             end_log.append({"piece": p, "which": which, "gap": g})
@@ -1318,8 +1346,12 @@ def _cast(p: Piece, which: str, pieces: list[Piece]) -> Optional[tuple[Piece, fl
 def _own(g: Gap, index: StrokeIndex, owned: set) -> None:
     """Arc, leaf, hinge pin and the strokes entirely within the gap +- 0.10 m (which include the window's own band
     lines). Band lines running past the gap (a wall face line, a bed edge 9 mm off the face) count for the
-    classification but are not owned: §2.8 decides about them."""
-    if g.cls not in ("door", "window", "empty"):
+    classification but are not owned: §2.8 decides about them.
+
+    Fix round after P6b: also a gap that lost its window for want of glass (``no_glass``), lies inside wall material
+    (``inside``) or is a wall whose faces are drawn across it (``faces``): its band lines are the structure's (shear
+    wall outlines, beam projections, axis pieces), owned as when the gap was read as a window, never furniture."""
+    if g.cls not in ("door", "window", "empty") and not any(g.found.get(k) for k in ("no_glass", "inside", "faces")):
         return
     ids = set()
     for key in ("arcs", "leaves"):
@@ -1655,6 +1687,8 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
             if it.st.id in owned:
                 continue
             pts = it.pts + ([it.pts[0]] if it.st.closed and len(it.pts) > 2 else [])
+            # Fix round after P6b: a shape standing out of the wall band has no line of a window (see classify_gap).
+            in_band = all(abs((q[1] if p.axis == "h" else q[0]) - p.c) <= p.t / 2 + BAND_SLACK_M for q in it.pts)
             for a, b in zip(pts, pts[1:]):
                 if not _parallel(a, b, p.axis):
                     continue
@@ -1664,7 +1698,7 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
                 raw = sorted((a[0], b[0])) if p.axis == "h" else sorted((a[1], b[1]))
                 lo, hi = max(raw[0], p.a), min(raw[1], p.b)
                 if hi - lo > 0.01:
-                    segs.append((lo, hi, round(off, 3), it, raw[0], raw[1]))
+                    segs.append((lo, hi, round(off, 3), it, raw[0], raw[1], in_band))
         if len(segs) < 2:
             continue
         cuts = sorted({s[0] for s in segs} | {s[1] for s in segs})
@@ -1687,14 +1721,16 @@ def _continuous_windows(pieces: list[Piece], index: StrokeIndex, owned: set, the
             centre_f = (mid, p.c) if p.axis == "h" else (p.c, mid)
             if any(math.dist(centre_f, c) < max(w / 2, 0.2) for c, w in taken):
                 continue
-            # Fix round after P6b: glass among the lines (``_is_glass``), not only outlines inside a thick wall.
-            glass = {s[2] for s in segs if _is_glass(s[2], p.t, s[4], s[5], u, v)
-                     and min(s[1], v) - max(s[0], u) >= WINDOW_COVER * (v - u)}
-            if len(glass) < GLASS_MIN_LINES:
-                continue
+            # Fix round after P6b: the window's own lines (``_confined``) with glass among them, not only outlines
+            # inside a thick wall.
+            framed = {s[2] for s in segs if s[6] and _confined(s[4], s[5], u, v)
+                      and min(s[1], v) - max(s[0], u) >= WINDOW_COVER * (v - u)}
+            glass = {o for o in framed if abs(o) < p.t / 2 - GLASS_INSET_M}
             used = [s[3] for s in segs if s[0] < v and s[1] > u and abs(s[2]) < p.t / 2 - BAND_SLACK_M]
             ids = sorted({it.st.id for it in used})
-            owned.update(ids)
+            owned.update(ids)                        # no window without glass, but the lines stay out of furniture
+            if not _framed_glass(framed, glass) and not ctx.raster:
+                continue
             corners_f = [(u, p.c - p.t / 2), (v, p.c + p.t / 2)] if p.axis == "h" else \
                 [(p.c - p.t / 2, u), (p.c + p.t / 2, v)]
             bx = ctx.box([_rot(q, theta) for q in corners_f])

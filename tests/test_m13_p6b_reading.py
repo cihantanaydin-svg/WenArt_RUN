@@ -9,8 +9,9 @@ outlines (ALAN-NET) lying on its faces. The rules checked here (``wenart.ingest.
 - a lined gap (a thinner wall along one face through the gap) is open and the thick pieces stay walls of their own,
   each marked ``corrected_by_ai`` (``_lining``, ``_mark_lined``);
 - a gap inside other wall material is closed, never an opening (``_inside_wall``);
-- a window needs glass: >= ``GLASS_MIN_LINES`` distinct lines strictly between the faces and within the gap +-
-  ``OWN_MARGIN_M`` (``_is_glass``; gap windows and continuous-wall windows);
+- a window needs lines of its own (``_confined``: ending within the gap +- ``OWN_MARGIN_M``) at >= ``WINDOW_LINES_MIN``
+  offsets, >= ``GLASS_MIN_LINES`` of them glass strictly between the faces (gap windows and continuous-wall windows;
+  traced raster lines keep the old rule);
 - an end gap whose two faces are drawn on across it, with no glass or swing, extends the wall (no opening).
 
 ``tests/fixtures/m13_p6b_real03_hall.json`` holds the real input walls and strokes around the partition (the P6b
@@ -20,7 +21,6 @@ building frame); every real window of real02, real03 and real04 carries two or t
 from __future__ import annotations
 
 import json
-import math
 from pathlib import Path
 
 import pytest
@@ -40,9 +40,11 @@ def _run(walls, strokes):
 
 
 def _vertical(out_walls, x, t):
-    return sorted(((w.start[1], w.end[1]) if w.start[1] < w.end[1] else (w.end[1], w.start[1]), w)
-                  for w in out_walls if abs(w.start[0] - x) < 0.01 and abs(w.end[0] - x) < 0.01
-                  and abs(w.thickness - t) < 0.006)
+    """[((y0, y1), wall)] of the walls along x of thickness t, by y0."""
+    rows = [(((w.start[1], w.end[1]) if w.start[1] < w.end[1] else (w.end[1], w.start[1])), w)
+            for w in out_walls if abs(w.start[0] - x) < 0.01 and abs(w.end[0] - x) < 0.01
+            and abs(w.thickness - t) < 0.006]
+    return sorted(rows, key=lambda row: row[0])
 
 
 # --------------------------------------------------------------------------
@@ -215,16 +217,42 @@ def test_lines_on_the_faces_running_past_the_gap_are_no_window():
     axis = R.stroke([(-2.0, 0.15), (8.0, 0.15)])
     _, openings, log, _ = _run(walls, [beam, axis])
     assert [(o.kind, o.type_raw) for o in openings] == [("opening", "unclassified gap content")]
-    assert "0 of them glass" in openings[0].evidence["note"]
+    assert "0 of them ending at its jambs and 0 glass" in openings[0].evidence["note"]
     # The real03 window symbol (CAM-PER frame on the faces, two frame lines and the panes inside): a window.
     frame = [R.stroke(R.rect(2.0, -0.15, 3.5, 0.15), closed=True), R.stroke([(2.06, -0.03), (3.44, -0.03)]),
              R.stroke([(2.06, 0.03), (3.44, 0.03)]), R.stroke(R.rect(2.06, -0.01, 3.44, 0.01), closed=True)]
     _, openings, log, _ = _run(walls, [beam, axis] + frame)
     assert [o.kind for o in openings] == ["window"]
     assert [e["class"] for e in log if e["kind"] == "run"] == ["window"]
-    # One glass line alone is not enough (an area outline along a thin wall's face inside a thick band).
+    # One line of its own alone is not enough (an area outline along a thin wall's face inside a thick band) ...
     _, openings, _, _ = _run(walls, [beam, axis, R.stroke([(2.0, 0.05), (3.5, 0.05)])])
     assert [o.kind for o in openings] == ["opening"]
+    # ... nor two on the faces without glass between them (a door leaf drawn closed in the wall plane, real03's
+    # flat entrance); the synthetic convention (both faces and the glass, ending at the jambs) is a window.
+    leaf = [R.stroke([(2.0, -0.15), (3.5, -0.15)]), R.stroke([(2.0, 0.15), (3.5, 0.15)])]
+    _, openings, _, _ = _run(walls, [beam, axis] + leaf)
+    assert [o.kind for o in openings] == ["opening"]
+    _, openings, _, _ = _run(walls, [beam, axis] + leaf + [R.stroke([(2.0, 0.0), (3.5, 0.0)])])
+    assert [o.kind for o in openings] == ["window"]
+
+
+def test_traced_raster_lines_keep_the_old_window_rule():
+    """A scan's or photo's double-line walls: the traced window lines carry the tracing's error at their ends and
+    offsets, so lines on the faces still make a window there (synthetic-02's scan keeps its windows)."""
+    walls = [R.wall((0, 0), (2, 0), 0.3), R.wall((3.5, 0), (5, 0), 0.3)]
+    lines = [R.stroke([(1.9, -0.15), (3.6, -0.15)]), R.stroke([(1.9, 0.15), (3.6, 0.15)])]
+    for st in lines:
+        st.source = "raster"
+    _, openings, _, _ = _run(walls, lines)
+    assert [o.kind for o in openings] == ["window"]
+    wall = R.wall((0, 0), (6, 0), 0.6)
+    outline = R.stroke(R.rect(-0.3, -0.3, 6.3, 0.0), closed=True)
+    outline.source = "raster"
+    faces = R.wall_faces(wall)
+    for st in faces:
+        st.source = "raster"
+    _, openings, _, _ = O.gaps_and_openings([wall], [outline] + faces, "scan.png", 1, units_to_m=0.001)
+    assert [o.kind for o in openings] == ["window"]
 
 
 def test_outlines_inside_a_thick_continuous_wall_are_no_window():
@@ -234,11 +262,29 @@ def test_outlines_inside_a_thick_continuous_wall_are_no_window():
     outline = R.stroke(R.rect(-0.3, -0.3, 1.7, 0.0), closed=True)     # runs past both ends of the piece
     _, openings, _, _ = _run([core_wall], [outline] + R.wall_faces(core_wall))
     assert openings == []
+    # real04: the 2.09 m wardrobe backs on both faces run 0.11 m past the 1.87 m line between them.
     part = R.wall((0, 0), (4, 0), 0.12)
-    wardrobes = [R.stroke(R.rect(0.3, 0.06, 2.4, 0.66), closed=True), R.stroke(R.rect(0.3, -0.645, 2.4, -0.06),
-                                                                              closed=True),
-                 R.stroke([(0.3, 0.021), (2.4, 0.021)])]
+    wardrobes = [R.stroke(R.rect(0.3, 0.06, 2.39, 0.66), closed=True), R.stroke(R.rect(0.3, -0.645, 2.39, -0.06),
+                                                                               closed=True),
+                 R.stroke([(0.41, -0.039), (2.28, -0.039)])]
     _, openings, _, _ = _run([part], wardrobes)
+    assert openings == []
+    # The synthetic convention (both faces and one glass line, all ending at the jambs) is a window.
+    synthetic = [R.stroke([(0.41, 0.06), (2.28, 0.06)]), R.stroke([(0.41, -0.06), (2.28, -0.06)]),
+                 R.stroke([(0.41, 0.0), (2.28, 0.0)])]
+    _, openings, _, _ = _run([part], synthetic)
+    assert [(o.kind, o.width) for o in openings] == [("window", pytest.approx(1.87))]
+    # Fixtures drawn into a thick wall's band (real03's sanitary ware in a 0.45 m duct wall): their edges end with
+    # the piece, but the shapes stand out of the band, so they are no window lines.
+    duct = R.wall((0, 0), (4, 0), 0.45)
+    fixtures = [R.stroke(R.rect(1.0, -0.104, 1.5, 0.6), closed=True), R.stroke(R.rect(1.0, 0.05, 1.5, 0.7),
+                                                                            closed=True)]
+    _, openings, _, _ = _run([duct], fixtures + R.wall_faces(duct))
+    assert openings == []
+    # A cistern inside the band beside the face: its two long edges end with it, but only the face lies beside the
+    # inner one: no glass between two lines of a window.
+    cistern = [R.stroke(R.rect(1.0, 0.104, 1.5, 0.224), closed=True)]
+    _, openings, _, _ = _run([duct], cistern + R.wall_faces(duct))
     assert openings == []
     # A real continuous-wall window (two frame lines inside, confined to the window) is kept.
     wall = R.wall((0, 0), (6, 0), 0.15)
