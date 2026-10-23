@@ -1,0 +1,355 @@
+{
+ "kind": "library_audit",
+ "version": "m12",
+ "mode": "full",
+ "generated_utc": "2026-10-11T09:02:25Z",
+ "counts": {
+  "keep": 4
+ },
+ "counts_by_source": {
+  "generated": {
+   "keep": 4
+  }
+ },
+ "items": [
+  {
+   "id": "gen_floor_lamp_japandi_1_4be1c62d",
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "title": "Generated japandi floor lamp (1)",
+   "dims_m": [
+    0.4549,
+    0.4548,
+    1.2
+   ],
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "status": "keep",
+   "expected": "keep",
+   "reasons": [],
+   "fixes": {},
+   "pending": [],
+   "flags": {
+    "real_product": false
+   },
+   "notes": [
+    "generated (TRELLIS.2): no real product",
+    "units unknown: scaled to a typical footprint of the type (normalised)",
+    "10% non-manifold edges",
+    "the vision answer says not a floor_lamp but names floor_lamp as what it is: taken as a floor_lamp",
+    "the vision check finds the size odd next to the scale reference (code: size ok)"
+   ],
+   "vision_doubt": [
+    "vision quality 2 (<= 2)"
+   ],
+   "checks": [
+    {
+     "check": "title",
+     "status": "review",
+     "reason": "generated: our own title, the type rests on the vision check (two passes)",
+     "metrics": {
+      "verdict": "generated",
+      "families": [],
+      "words": []
+     }
+    },
+    {
+     "check": "source",
+     "status": "warn",
+     "reason": "generated (TRELLIS.2): no real product"
+    },
+    {
+     "check": "units",
+     "status": "warn",
+     "reason": "units unknown: scaled to a typical footprint of the type (normalised)"
+    },
+    {
+     "check": "mesh",
+     "status": "warn",
+     "reason": "10% non-manifold edges"
+    }
+   ],
+   "vision": {
+    "is_type": false,
+    "type_guess": "floor_lamp",
+    "single_object": true,
+    "real_product": false,
+    "indoor": "indoor",
+    "upright": true,
+    "size_plausible": false,
+    "parts_open": false,
+    "styles": [
+     "japandi"
+    ],
+    "quality": 2,
+    "front_shown": "none",
+    "has_bedding": null,
+    "has_pillows": null,
+    "has_cushions": null,
+    "contact": null
+   },
+   "vision2": {
+    "type_guess": "floor_lamp"
+   }
+  },
+  {
+   "id": "gen_floor_lamp_japandi_2_ef5fd39d",
+   "type": "floor_lamp",
+   "kind": "furniture",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "title": "Generated japandi floor lamp (2)",
+   "dims_m": [
+    0.5682,
+    0.5651,
+    1.2
+   ],
+   "styles": [
+    "scandinavian",
+    "modern minimal",
+    "minimal",
+    "modern"
+   ],
+   "status": "keep",
+   "expected": "keep",
+   "reasons": [],
+   "fixes": {},
+   "pending": [],
+   "flags": {
+    "real_product": false
+   },
+   "notes": [
+    "generated (TRELLIS.2): no real product",
+    "units unknown: scaled to a typical footprint of the type (normalised)",
+    "1 part(s) stick out of the main body (-z, up to 0.81 m): an open drawer or a separate prop?",
+    "the vision answer says not a floor_lamp but names floor_lamp as what it is: taken as a floor_lamp",
+    "the vision check finds the size odd next to the scale reference (code: size ok)"
+   ],
+   "vision_doubt": [
+    "vision quality 2 (<= 2)"
+   ],
+   "checks": [
+    {
+     "check": "title",
+     "status": "review",
+     "reason": "generated: our own title, the type rests on the vision check (two passes)",
+     "metrics": {
+      "verdict": "generated",
+      "families": [],
+      "words": []
+     }
+    },
+    {
+     "check": "source",
+     "status": "warn",
+     "reason": "generated (TRELLIS.2): no real product"
+    },
+    {
+     "check": "units",
+     "status": "warn",
+     "reason": "units unknown: scaled to a typical footprint of the type (normalised)"
+    },
+    {
+     "check": "outside_parts",
+     "status": "warn",
+     "reason": "1 part(s) stick out of the main body (-z, up to 0.81 m): an open drawer or a separate prop?",
+     "metrics": {
+      "parts": [
+       {
+        "share": 0.1164,
+        "sticks_out_m": 0.806,
+        "sides": [
+         "-z"
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "vision": {
+    "is_type": false,
+    "type_guess": "floor_lamp",
+    "single_object": true,
+    "real_product": false,
+    "indoor": "indoor",
+    "upright": true,
+    "size_plausible": false,
+    "parts_open": false,
+    "styles": [
+     "japandi",
+     "minimal"
+    ],
+    "quality": 2,
+    "front_shown": "none",
+    "has_bedding": null,
+    "has_pillows": null,
+    "has_cushions": null,
+    "contact": null
+   },
+   "vision2": {
+    "type_guess": "floor_lamp"
+   }
+  },
+  {
+   "id": "gen_bowl_industrial_6_b8eef47e",
+   "type": "bowl",
+   "kind": "decor",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "title": "Generated industrial bowl (6)",
+   "dims_m": [
+    0.3503,
+    0.3497,
+    0.1254
+   ],
+   "styles": [
+    "modern minimal",
+    "minimal",
+    "industrial"
+   ],
+   "status": "keep",
+   "expected": "keep",
+   "reasons": [],
+   "fixes": {},
+   "pending": [],
+   "flags": {
+    "real_product": false,
+    "contact": "flat_bottom"
+   },
+   "notes": [
+    "generated (TRELLIS.2): no real product",
+    "units unknown: scaled to a typical footprint of the type (normalised)",
+    "the vision answer says not a bowl but names bowl as what it is: taken as a bowl",
+    "the vision check finds the size odd next to the scale reference (code: size ok)"
+   ],
+   "vision_doubt": [],
+   "checks": [
+    {
+     "check": "title",
+     "status": "review",
+     "reason": "generated: our own title, the type rests on the vision check (two passes)",
+     "metrics": {
+      "verdict": "generated",
+      "families": [],
+      "words": []
+     }
+    },
+    {
+     "check": "source",
+     "status": "warn",
+     "reason": "generated (TRELLIS.2): no real product"
+    },
+    {
+     "check": "units",
+     "status": "warn",
+     "reason": "units unknown: scaled to a typical footprint of the type (normalised)"
+    }
+   ],
+   "vision": {
+    "is_type": false,
+    "type_guess": "bowl",
+    "single_object": true,
+    "real_product": true,
+    "indoor": "both",
+    "upright": true,
+    "size_plausible": false,
+    "parts_open": false,
+    "styles": [
+     "industrial"
+    ],
+    "quality": 3,
+    "front_shown": "none",
+    "has_bedding": null,
+    "has_pillows": null,
+    "has_cushions": null,
+    "contact": "flat_bottom"
+   },
+   "vision2": {
+    "type_guess": "bowl"
+   }
+  },
+  {
+   "id": "gen_bowl_rustic_4_c6b3f320",
+   "type": "bowl",
+   "kind": "decor",
+   "source": "generated",
+   "licence": "generated (TRELLIS.2-4B, MIT)",
+   "title": "Generated rustic bowl (4)",
+   "dims_m": [
+    0.35,
+    0.35,
+    0.1313
+   ],
+   "styles": [
+    "rustic",
+    "neutral"
+   ],
+   "status": "keep",
+   "expected": "keep",
+   "reasons": [],
+   "fixes": {},
+   "pending": [],
+   "flags": {
+    "real_product": false,
+    "contact": "flat_bottom"
+   },
+   "notes": [
+    "generated (TRELLIS.2): no real product",
+    "units unknown: scaled to a typical footprint of the type (normalised)",
+    "the vision answer says not a bowl but names bowl as what it is: taken as a bowl"
+   ],
+   "vision_doubt": [],
+   "checks": [
+    {
+     "check": "title",
+     "status": "review",
+     "reason": "generated: our own title, the type rests on the vision check (two passes)",
+     "metrics": {
+      "verdict": "generated",
+      "families": [],
+      "words": []
+     }
+    },
+    {
+     "check": "source",
+     "status": "warn",
+     "reason": "generated (TRELLIS.2): no real product"
+    },
+    {
+     "check": "units",
+     "status": "warn",
+     "reason": "units unknown: scaled to a typical footprint of the type (normalised)"
+    }
+   ],
+   "vision": {
+    "is_type": false,
+    "type_guess": "bowl",
+    "single_object": true,
+    "real_product": true,
+    "indoor": "indoor",
+    "upright": true,
+    "size_plausible": true,
+    "parts_open": false,
+    "styles": [
+     "rustic",
+     "modern"
+    ],
+    "quality": 4,
+    "front_shown": "none",
+    "has_bedding": null,
+    "has_pillows": null,
+    "has_cushions": null,
+    "contact": "flat_bottom"
+   },
+   "vision2": {
+    "type_guess": "bowl"
+   }
+  }
+ ]
+}

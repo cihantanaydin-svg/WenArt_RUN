@@ -189,10 +189,11 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
                 alternative_title: str = PLANS["alternative"][1], walls: dict | None = None, titles: dict | None = None,
                 stray: bool = True, section: bool = True, frame: bool = True, exterior: bool = False,
                 step: bool = False, detail: bool = False, roof: str = "gable",
-                break_line: bool | None = None, elevation_mark: str = "±0.00", earth: bool = False) -> Path:
+                break_line: bool | None = None, elevation_mark: str = "±0.00", earth: bool = False,
+                bulge: str | None = None) -> Path:
     """Write the sheet (DXF R2013) and return its path. ``roof``: the section's roof, ``gable`` (one slope per side)
     or ``mansard`` (two per side); ``break_line``: the attic plan draws a closed line inside the roof outline (default:
-    with a mansard)."""
+    with a mansard); ``bulge``: the plan (a ``PLANS`` key) that bulges out by a 1.5 m deep room along its east wall."""
     doc = ezdxf.new("R2013")
     doc.header["$INSUNITS"] = insunits
     for name in ("DUVAR", "KAPI", "MERDIVEN", "VAZIYET", "AGAC", "CEPHE", "TARAMA"):
@@ -213,6 +214,9 @@ def write_sheet(path: Path, insunits: int = 4, mark40_at_bottom: bool = True,
     for key, (origin, title) in PLANS.items():
         t = alternative_title if key == "alternative" else (titles or {}).get(key, title)
         _plan(msp, origin, t, labels[key], walls=walls.get(key, True))
+        if key == bulge:
+            ox, oy = origin
+            _rect(msp, ox + W, oy + 100.0, ox + W + 150.0, oy + D - 100.0, "DUVAR")
     if detail:
         # An untitled drawing that no geometry rule classifies (five circles): the only region the AI is asked about.
         for k in range(5):

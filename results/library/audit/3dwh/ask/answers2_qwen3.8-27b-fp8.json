@@ -1,0 +1,6074 @@
+{
+ "schema_version": "0.1",
+ "kind": "library_audit_answers",
+ "model_key": "agent",
+ "model": "Qwen/Qwen3.8-27B-FP8",
+ "slug": "qwen3.8-27b-fp8",
+ "incomplete": false,
+ "calls": {
+  "audit_3dwh_0108ad3b5de281e067ee1616": {
+   "task": "library_audit_type",
+   "input_sha256": "3bc788ca0075094a91f6df9a8b2402c03b4a31e10b36b285efb2dc3c0e743766",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_0108ad3b5de281e067ee1616.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.757
+  },
+  "audit_3dwh_026a2944988e9fa70ad6b3d9": {
+   "task": "library_audit_type",
+   "input_sha256": "b528192cae64653743f132e3f41eb402c0b7f1834896ff2be397b7a3e497ae5d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_026a2944988e9fa70ad6b3d9.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.808
+  },
+  "audit_3dwh_0277b5fabfa99b399883c4aa": {
+   "task": "library_audit_type",
+   "input_sha256": "07e4534682e1cec6559d096361a79ccd206d8463d19924fbc8de75e60098b6f7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_0277b5fabfa99b399883c4aa.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.695
+  },
+  "audit_3dwh_05c3f5afcd7c97704ee16d27": {
+   "task": "library_audit_type",
+   "input_sha256": "e0bfd9d0ecd8509f125425aaf25fbd8d42a9dd4ea9327a9f630b7ae4e1bac67c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_05c3f5afcd7c97704ee16d27.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_3dwh_06ef07d926010b0c43774bc9": {
+   "task": "library_audit_type",
+   "input_sha256": "28ca4be5255f2671fcf5f86a34e330b5848b183102b2a16c0ffd8aacdbf32ac4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_06ef07d926010b0c43774bc9.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.777
+  },
+  "audit_3dwh_08202553151e0910eeabf3ac": {
+   "task": "library_audit_type",
+   "input_sha256": "f799762afb42f2a3469cbb5fd391aef25c91711a16ffaa54ac0d426e48343dbd",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_08202553151e0910eeabf3ac.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.757
+  },
+  "audit_3dwh_0cdfddde960398a6f592bb11": {
+   "task": "library_audit_type",
+   "input_sha256": "902e7faf3b10aa27c7a0fb790d38ce89087075dee19292f6309da4fd53f31484",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/3dwh_0cdfddde960398a6f592bb11.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_3dwh_0dbf3f7ef363c89cb1a13ce1": {
+   "task": "library_audit_type",
+   "input_sha256": "6aeaa97976ed76623ed3c9fcf024a563f590f475d892777e6c37cd455a688e09",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_0dbf3f7ef363c89cb1a13ce1.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.829
+  },
+  "audit_3dwh_0ec08c4511c5e3facdb4b35d": {
+   "task": "library_audit_type",
+   "input_sha256": "bd51b3b7121ef98487371c30ed0aefad23c6248f01d7ec9d43b6c2da5a16de5c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_0ec08c4511c5e3facdb4b35d.jpg"
+   ],
+   "data": {
+    "type_guess": "monitor_arm"
+   },
+   "raw_text": "{\"type_guess\": \"monitor_arm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_3dwh_0eff936a5eba846b0b16cfe0": {
+   "task": "library_audit_type",
+   "input_sha256": "58ba98809d7c11831f2896ea80b2ae79a16d99c2f73a57ffd56e0ae30357293b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_0eff936a5eba846b0b16cfe0.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.766
+  },
+  "audit_3dwh_121dbd809b25584857243f3d": {
+   "task": "library_audit_type",
+   "input_sha256": "2544925045b5c9435381a4f137b894d81b020bc6935f387099d657ac684fd5b0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_121dbd809b25584857243f3d.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.812
+  },
+  "audit_3dwh_1553a505421aa7cb63736891": {
+   "task": "library_audit_type",
+   "input_sha256": "2b191994914a2ec116ea673da52a6079d83ff701fee0095f488c7e3ec8fa4b3b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_1553a505421aa7cb63736891.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.689
+  },
+  "audit_3dwh_18116d113bfcc31ceba67233": {
+   "task": "library_audit_type",
+   "input_sha256": "de2c07317f0eac5309b153537f28f75fc6a22182ec90366aca291d63bd329fba",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_18116d113bfcc31ceba67233.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.846
+  },
+  "audit_3dwh_19791212569fd2b09a7cf293": {
+   "task": "library_audit_type",
+   "input_sha256": "9720b10911c98973e19ee4d716ed5d788d5fed7b67196bcf8b4db431fb9e7cd3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/3dwh_19791212569fd2b09a7cf293.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.815
+  },
+  "audit_3dwh_19d23e43b723f38d7f234eb3": {
+   "task": "library_audit_type",
+   "input_sha256": "38037647f1b27698fc607542039151379d252967e42965a06d27a4474531cca2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_19d23e43b723f38d7f234eb3.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.703
+  },
+  "audit_3dwh_1a386ee53b9c8257ee4c679d": {
+   "task": "library_audit_type",
+   "input_sha256": "ab21c78cde3830a074bb1cd9fbb45bcdde5cac057876723304ecaf17cd6eee7a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_1a386ee53b9c8257ee4c679d.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.819
+  },
+  "audit_3dwh_1b626102da01d98d0583d0e0": {
+   "task": "library_audit_type",
+   "input_sha256": "74f8441db62c64e748b7b68e9525a0b4cce3afe49be0e93c2297b8f64f0c004c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_1b626102da01d98d0583d0e0.jpg"
+   ],
+   "data": {
+    "type_guess": "rock"
+   },
+   "raw_text": "{\"type_guess\": \"rock\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.767
+  },
+  "audit_3dwh_1bd48f561648c24ed611d743": {
+   "task": "library_audit_type",
+   "input_sha256": "4428e5dbcaff83cddb0f9bf2f8197720577e440d58dbbc0970a77e1a0df880d4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_1bd48f561648c24ed611d743.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_3dwh_1df5c642553eb0399f10fd77": {
+   "task": "library_audit_type",
+   "input_sha256": "2d09b0f9857c01b7e8b48236ffa8e3ee99c97948a29dc359cc48207bfe0c1a9f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_1df5c642553eb0399f10fd77.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.739
+  },
+  "audit_3dwh_1e0254bd22904ccc65f41852": {
+   "task": "library_audit_type",
+   "input_sha256": "5810128bc0a87d6af69fc7eedfbd780a528533cc3c57e62a11e0933410628b55",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_1e0254bd22904ccc65f41852.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.784
+  },
+  "audit_3dwh_1fcb3b045b2a1062b67c909a": {
+   "task": "library_audit_type",
+   "input_sha256": "3b231f7a0573f0f789f322cee0d3f656ccb1fd1e2b6a6519e3b8ac3801b66b34",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_1fcb3b045b2a1062b67c909a.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.68
+  },
+  "audit_3dwh_21c718c09a065d3661798f6f": {
+   "task": "library_audit_type",
+   "input_sha256": "fa50f69f71db69b03a7f020ef6024003731b7b3843e9329ae770d1c587e2bfc5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_21c718c09a065d3661798f6f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.814
+  },
+  "audit_3dwh_2307c5f7b53b9a7edbe2c439": {
+   "task": "library_audit_type",
+   "input_sha256": "c3e2259ed18a5e101c73b604e96826d8566b9c3bed91dc11782740df05da09ca",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_2307c5f7b53b9a7edbe2c439.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.829
+  },
+  "audit_3dwh_2416f8d35965eae798da48d0": {
+   "task": "library_audit_type",
+   "input_sha256": "c35124814d99b26a880fa587f7d830b006dbe378890c462c1dd2cc57605769f2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_2416f8d35965eae798da48d0.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.816
+  },
+  "audit_3dwh_241e856acfb594bf0cae16e4": {
+   "task": "library_audit_type",
+   "input_sha256": "6cbe3b24098f9ab99d5b30e49dbadaef83de4722e397508b449dcea0cb481dc8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_241e856acfb594bf0cae16e4.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.777
+  },
+  "audit_3dwh_243f68c1e87ccb23856fb15f": {
+   "task": "library_audit_type",
+   "input_sha256": "2d9d80be6399a0a00ce01a17fdb5faba7bef973db2f267c694587eec0fbeccf2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_243f68c1e87ccb23856fb15f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.78
+  },
+  "audit_3dwh_245ccf4f37a669c019926450": {
+   "task": "library_audit_type",
+   "input_sha256": "5bdffcd957f7eb8a6001b7e25db62fe80263a6cd3a4e64d8202e1e969aad92bc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_245ccf4f37a669c019926450.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.824
+  },
+  "audit_3dwh_24730938ddeed5397b29270d": {
+   "task": "library_audit_type",
+   "input_sha256": "27b290580a80ccb7ff4abf4844678f695ca590098422ee205d6eb82dc61312ed",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_24730938ddeed5397b29270d.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.795
+  },
+  "audit_3dwh_26e0dfa4eb8cb009931c3b3e": {
+   "task": "library_audit_type",
+   "input_sha256": "3e87c7cef6484c039faaff607f421081dcd7faee9febdf1a33c6d2e6f2710a4c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_26e0dfa4eb8cb009931c3b3e.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.785
+  },
+  "audit_3dwh_2825b38ef868eeec750876ef": {
+   "task": "library_audit_type",
+   "input_sha256": "d9151e8c78d1392c1b0e193d664ce21f6d8e3e7be84e7e08ce08a2723939776e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_2825b38ef868eeec750876ef.jpg"
+   ],
+   "data": {
+    "type_guess": "radiator"
+   },
+   "raw_text": "{\"type_guess\": \"radiator\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.78
+  },
+  "audit_3dwh_2a6bbdb02a8e0032c103b955": {
+   "task": "library_audit_type",
+   "input_sha256": "b67b43c9834b2d1fb34ce95a8501bd9bfba46542bebf1c67780fa06312b6ddb0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_2a6bbdb02a8e0032c103b955.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_3dwh_2b07d278d3a113582913c9a5": {
+   "task": "library_audit_type",
+   "input_sha256": "91dccbfc4504cec77a0c5c2e51d366e9991953a5a888506e1824f6c59e1351d0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/3dwh_2b07d278d3a113582913c9a5.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.783
+  },
+  "audit_3dwh_2b696c9ecc635f390989a4fd": {
+   "task": "library_audit_type",
+   "input_sha256": "7acfeb93d9113a67c91a567b02990c3c5788286438cc5e8b6dc54e61072a641c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_2b696c9ecc635f390989a4fd.jpg"
+   ],
+   "data": {
+    "type_guess": "rock"
+   },
+   "raw_text": "{\"type_guess\": \"rock\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_3dwh_2b84c1bf1cdb7135903f58c9": {
+   "task": "library_audit_type",
+   "input_sha256": "6ebf48d0404367e3128fde47e1d1336a664b88591933d2c8e913b7210fc9b5bd",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_2b84c1bf1cdb7135903f58c9.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.76
+  },
+  "audit_3dwh_2bbad2fefcb5a13cf550b1a0": {
+   "task": "library_audit_type",
+   "input_sha256": "742fa1bf0cdc9495ebe2624b27495a9b4c5dce387298b28ef3493fc9ed2cdcd0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_2bbad2fefcb5a13cf550b1a0.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.732
+  },
+  "audit_3dwh_2bf152899c5cc59174184090": {
+   "task": "library_audit_type",
+   "input_sha256": "d16795885dcbf0600583354c54790c7561aade6d2e15c110c1021f833c996912",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_2bf152899c5cc59174184090.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.802
+  },
+  "audit_3dwh_33be6e483f19dc97c75509e1": {
+   "task": "library_audit_type",
+   "input_sha256": "a34578152866fd23e433a2c4b5ecf61913c0cd7d1e7cda37b798e5681bea6fae",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_33be6e483f19dc97c75509e1.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.834
+  },
+  "audit_3dwh_33f927049ab9765c3bf5e815": {
+   "task": "library_audit_type",
+   "input_sha256": "6248ab508e0f6eac75ac5ce27463cd6e95884fee6f3f79114b1c8a0f1a5a6a06",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_33f927049ab9765c3bf5e815.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.846
+  },
+  "audit_3dwh_34431d68938841d38222d21b": {
+   "task": "library_audit_type",
+   "input_sha256": "d1d02e4df603816386c9576745c249480ac89bbec04a8c0623cc00c6bb2cda47",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_34431d68938841d38222d21b.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.82
+  },
+  "audit_3dwh_34de93817348a9c7f99ca262": {
+   "task": "library_audit_type",
+   "input_sha256": "f1dfcb05e5f1162541a88160323a734e152e51496d6b464de083214f344a4c4d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_34de93817348a9c7f99ca262.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.803
+  },
+  "audit_3dwh_350130e20116e2bd6c520541": {
+   "task": "library_audit_type",
+   "input_sha256": "affa4bc251e4258bfbfed3af3e404dffbab274d904fcdb1c05b942e9573ca171",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_350130e20116e2bd6c520541.jpg"
+   ],
+   "data": {
+    "type_guess": "parasol"
+   },
+   "raw_text": "{\"type_guess\": \"parasol\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.824
+  },
+  "audit_3dwh_350d9aa956fdf256b3bd5675": {
+   "task": "library_audit_type",
+   "input_sha256": "f3f2544bc5ad487423b52c4ddb8f2e8cac26559baa8bb723b8854de469b23689",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_350d9aa956fdf256b3bd5675.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.767
+  },
+  "audit_3dwh_3511cd576f9e1b7db251584d": {
+   "task": "library_audit_type",
+   "input_sha256": "73826cd05207f72b04db90e8eadca1ba816fa919c0604cb1bbefb292a44e300c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_3511cd576f9e1b7db251584d.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.798
+  },
+  "audit_3dwh_36c20970a6f54db8a24c0b45": {
+   "task": "library_audit_type",
+   "input_sha256": "2b71b8629f3ebbf9340fb63864b561c24cd0ed2f97c290ba23237766055d5830",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_36c20970a6f54db8a24c0b45.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.78
+  },
+  "audit_3dwh_37cf004b0b91f2ebf8e7503c": {
+   "task": "library_audit_type",
+   "input_sha256": "f2c9bdb130bb0ce18fd7202a6504896d11ea6d9674fdd47710eb2fdbdd6c68f2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_37cf004b0b91f2ebf8e7503c.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_island_model"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_island_model\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.886
+  },
+  "audit_3dwh_3880bc002045b821129cdd41": {
+   "task": "library_audit_type",
+   "input_sha256": "84043c28a9c6e795d02bc95057102fb326a35691a525355c1d8347db768a6be1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_3880bc002045b821129cdd41.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.801
+  },
+  "audit_3dwh_39d505ab35b2acca382d0680": {
+   "task": "library_audit_type",
+   "input_sha256": "d8f4dbea7352583837a1b05fedb538c428d46614c86a74392f30922e4b9be335",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_39d505ab35b2acca382d0680.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.753
+  },
+  "audit_3dwh_3a5e87d16c1387fb0cbdcb0a": {
+   "task": "library_audit_type",
+   "input_sha256": "f239424b8ba9a710b4ad8d91227d480c784ad1c061a39b152f75b9b87fcb2ffd",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_3a5e87d16c1387fb0cbdcb0a.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.683
+  },
+  "audit_3dwh_3b88d92532ae6a68a73783fe": {
+   "task": "library_audit_type",
+   "input_sha256": "49c434e57803e5523a6c2f1144718932ab1fafa9549c61d102478378a4b5c901",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/3dwh_3b88d92532ae6a68a73783fe.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.713
+  },
+  "audit_3dwh_3c7684e66cf267ccf4380d86": {
+   "task": "library_audit_type",
+   "input_sha256": "5faefc4ef2d65c571573c0b8d23b7b92c0bb6043031f147882cc6b8f72eeff27",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/3dwh_3c7684e66cf267ccf4380d86.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_3dwh_3e785b05dded80a9b3bc80b6": {
+   "task": "library_audit_type",
+   "input_sha256": "aa0b977e36a7261be6a3dffa63d1a71a5847f8d2027d54003e8be0caabed1976",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_3e785b05dded80a9b3bc80b6.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.71
+  },
+  "audit_3dwh_428785da9ee1b1a19c7ceace": {
+   "task": "library_audit_type",
+   "input_sha256": "3a3437f5e66676a13a832b92256fa4e430b481ffe3fa4f2ac1a7f607e1bcdae7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_428785da9ee1b1a19c7ceace.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_set"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.842
+  },
+  "audit_3dwh_42b2fbc738bdbaf8734227d7": {
+   "task": "library_audit_type",
+   "input_sha256": "5f925bca7d488e16186eeef49ee16222dd00cb946b7e027b1be248753db6ea27",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_42b2fbc738bdbaf8734227d7.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.814
+  },
+  "audit_3dwh_43fab5ab9906ca09463afe4a": {
+   "task": "library_audit_type",
+   "input_sha256": "7af6ab0a93b609d669d0fb3c7c26b517c0726851fa9d4beeaf4721f22799b55c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_43fab5ab9906ca09463afe4a.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.805
+  },
+  "audit_3dwh_449ed7d9edfcec6d8331658b": {
+   "task": "library_audit_type",
+   "input_sha256": "2daeef148cbe97206fe9304966e19ab54dc8c1b199a863a6c6f78e410d4f7d00",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_449ed7d9edfcec6d8331658b.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_3dwh_46a83625c366b4e3a15cfebc": {
+   "task": "library_audit_type",
+   "input_sha256": "4e37a34a4b3ac10623f24daa3fa52e88d41d51366c8c7b2e9039f65a30147727",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_46a83625c366b4e3a15cfebc.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.768
+  },
+  "audit_3dwh_484f8e61bf8a2e5f9214adf4": {
+   "task": "library_audit_type",
+   "input_sha256": "828eeb664885e9ba649877f508b2e6de514922a2bad9c00cc4a01d87652882f1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_484f8e61bf8a2e5f9214adf4.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.792
+  },
+  "audit_3dwh_4851a8856ac53ca399f31683": {
+   "task": "library_audit_type",
+   "input_sha256": "273ca4f4657d154de8adc463b11ddbfb67288862a33fa9b8be112db5c57beec3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/3dwh_4851a8856ac53ca399f31683.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.765
+  },
+  "audit_3dwh_4a99ec137b11e06a636fba76": {
+   "task": "library_audit_type",
+   "input_sha256": "ef9c7dfffb23a5cb5298accf22c47b8c1a5fbf96470f57a0bf01a89598ae67e2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_4a99ec137b11e06a636fba76.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_3dwh_4ca517ae679e165972f35296": {
+   "task": "library_audit_type",
+   "input_sha256": "1a4c24217ec8d3acef0afb66704c13719657aed7ed69a1cacbe08f65c0d4f8d1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_4ca517ae679e165972f35296.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.752
+  },
+  "audit_3dwh_5024ab3a0c25b32de54fd63f": {
+   "task": "library_audit_type",
+   "input_sha256": "6aa38b832614fa514c0b204750987d7b954250203fec4fb28696b95233890a0b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_5024ab3a0c25b32de54fd63f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.795
+  },
+  "audit_3dwh_50e924ba84fff71e99d37bbb": {
+   "task": "library_audit_type",
+   "input_sha256": "ecf73be8790e8c15de1dc22eb6173102562d1d1c9787902bd8b90a9c37bddc85",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_50e924ba84fff71e99d37bbb.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.747
+  },
+  "audit_3dwh_541faa8d4fcdb0e370310187": {
+   "task": "library_audit_type",
+   "input_sha256": "ac03b5ddf82dbb0c895ebe9acb3fdde600135a1585c60c86a4c94e1fd1a5a90d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_541faa8d4fcdb0e370310187.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_3dwh_545ed56a66a19cbea131b413": {
+   "task": "library_audit_type",
+   "input_sha256": "46ec3023ba25f98deee9c06dcc884d0c72156a210397cf592324129a746d304c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_545ed56a66a19cbea131b413.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.725
+  },
+  "audit_3dwh_55a806365ac3e92e661bc74f": {
+   "task": "library_audit_type",
+   "input_sha256": "7cd33c47fdc68d8e4de3ba7df8d416d73d2e26679f4e4e1a5452d1565ae6420b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_55a806365ac3e92e661bc74f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.866
+  },
+  "audit_3dwh_55c4ce32c43ccd15b3019184": {
+   "task": "library_audit_type",
+   "input_sha256": "8e273dd4e50aaab0788c3eb9b726a8991c850ed755cbfe099382b414c51d6ee2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_55c4ce32c43ccd15b3019184.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_set"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.803
+  },
+  "audit_3dwh_565d32680b7eca3b9b3cf9cf": {
+   "task": "library_audit_type",
+   "input_sha256": "890b8ed24d04d14f42a9162c7ebab050e14e96ff27536f90a079a4dac41d7967",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_565d32680b7eca3b9b3cf9cf.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.8
+  },
+  "audit_3dwh_574495f18d98a4fb0ae49422": {
+   "task": "library_audit_type",
+   "input_sha256": "8cfdf5b1defaf705e3c4f76d068b5ed70296cceb93233a44bc2743fa51ece64e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_574495f18d98a4fb0ae49422.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.79
+  },
+  "audit_3dwh_58270497153ae09925e6280e": {
+   "task": "library_audit_type",
+   "input_sha256": "668c93f51298ce857163dfd8e3cb15e3e3970b4ee836054de02731343ff3a6ad",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_58270497153ae09925e6280e.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.789
+  },
+  "audit_3dwh_59015c314a02c0b8129e7c3e": {
+   "task": "library_audit_type",
+   "input_sha256": "5ce2e3ddcbf6ea4134de2bc34c0458f4b7b02c8ce21d1d72afa3fb1de02816b9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_59015c314a02c0b8129e7c3e.jpg"
+   ],
+   "data": {
+    "type_guess": "fence"
+   },
+   "raw_text": "{\"type_guess\": \"fence\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.821
+  },
+  "audit_3dwh_5a1902da2ade08b40d65d697": {
+   "task": "library_audit_type",
+   "input_sha256": "d4297809ba2dc30f5c14e5cf4a985771356f52cdbe4c1288e889d364de45e395",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_5a1902da2ade08b40d65d697.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.803
+  },
+  "audit_3dwh_5de0abf58974589c172ce564": {
+   "task": "library_audit_type",
+   "input_sha256": "39c959c7f093fc624caffcef644d9b0598f5e2a537faac2b931e06a11dba8939",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_5de0abf58974589c172ce564.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.707
+  },
+  "audit_3dwh_5ef33c1060fe9964340ebcb2": {
+   "task": "library_audit_type",
+   "input_sha256": "4431241f582a346f1372988e81c2f55549704a99ef31a024aeacec35eeb76e2f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_5ef33c1060fe9964340ebcb2.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.742
+  },
+  "audit_3dwh_5f01e10730f8afa06ccc414b": {
+   "task": "library_audit_type",
+   "input_sha256": "89fc18758fe95f6db7212bcf397ace4e3524cc4dc190aaec8d440e0799605f23",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_5f01e10730f8afa06ccc414b.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.85
+  },
+  "audit_3dwh_603f57d68282c175b2d6c9f6": {
+   "task": "library_audit_type",
+   "input_sha256": "a414b4b6f8f94eb4e44a99e588a27605eb052b14cb430f55c7635dc7ae515cad",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_603f57d68282c175b2d6c9f6.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.854
+  },
+  "audit_3dwh_610657ad0daf067082e44038": {
+   "task": "library_audit_type",
+   "input_sha256": "0c377e4cc791ed9c14733c1714579a3b3563aab8236bf8d30fef4a5384786360",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_610657ad0daf067082e44038.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.862
+  },
+  "audit_3dwh_635b1e64facdadf710951619": {
+   "task": "library_audit_type",
+   "input_sha256": "09c1a629d4e049ca1bedf427e22652664f2b807a92f216b436a5da26e424a0a8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_635b1e64facdadf710951619.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.876
+  },
+  "audit_3dwh_6380261c77465a53c47904d2": {
+   "task": "library_audit_type",
+   "input_sha256": "cd597bea249c17e5d4f8a35a13571979af0387ff9c10a79de29fc04d650dcc53",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6380261c77465a53c47904d2.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.878
+  },
+  "audit_3dwh_64224193d7680ccabdd2f7b7": {
+   "task": "library_audit_type",
+   "input_sha256": "f4c7b3932a0464e6aa21d2d0ff7b18df1cb71e4172c51b377dd96cf628bd668c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_64224193d7680ccabdd2f7b7.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.748
+  },
+  "audit_3dwh_6427934c3665b87dde93bbde": {
+   "task": "library_audit_type",
+   "input_sha256": "27b9369da288cde535a6d060144b0e0a7b1e4dbb2f365792134ab71cf8eebf41",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6427934c3665b87dde93bbde.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.834
+  },
+  "audit_3dwh_64669e9bc9c18a0b9304986c": {
+   "task": "library_audit_type",
+   "input_sha256": "19e644ce5996ff393080b65031a4026a5cdb35c863ae8fc85c1a1206a86000a0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_64669e9bc9c18a0b9304986c.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.67
+  },
+  "audit_3dwh_64b5c7818bc7c9174b8bada6": {
+   "task": "library_audit_type",
+   "input_sha256": "15022e340415d17016bf1cd1c0cc25a1df85bb8b9aeb79b8ac2a7f4880bc263e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_64b5c7818bc7c9174b8bada6.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.861
+  },
+  "audit_3dwh_65af4f3d6d4492d956b1097a": {
+   "task": "library_audit_type",
+   "input_sha256": "e0ba11db6f1cb4dac87b893d40398e8490454f8f131bf07f67b3706112116ff8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_65af4f3d6d4492d956b1097a.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_3dwh_6619f79c455b92d28842621f": {
+   "task": "library_audit_type",
+   "input_sha256": "4ce574831c067c5caa8996e5275521075b10e9b1af67ac9ddbfa3dd7b8d8aacb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6619f79c455b92d28842621f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.831
+  },
+  "audit_3dwh_66b4545ce09b9685e81fd38d": {
+   "task": "library_audit_type",
+   "input_sha256": "6b721ab4a8c2922a97fd6e68f298551f6744d888951a12682ab89df28f7e0fab",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_66b4545ce09b9685e81fd38d.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.785
+  },
+  "audit_3dwh_67180de6c147d031aaacdf42": {
+   "task": "library_audit_type",
+   "input_sha256": "df7017f0ff8009f2182bdab1ceb7b2bcb139a65f3f13a759c9ebd44f6d971ce0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_67180de6c147d031aaacdf42.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.736
+  },
+  "audit_3dwh_6805ac74bf233d3ad0cd2706": {
+   "task": "library_audit_type",
+   "input_sha256": "b040f8c4479cb97f0fab8868e1340930d9818c522d44275187cf477303a7d176",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_6805ac74bf233d3ad0cd2706.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.753
+  },
+  "audit_3dwh_6847605310d590d67d2f37d9": {
+   "task": "library_audit_type",
+   "input_sha256": "329408e2fe2d8e6add6791adeac6a4f638a4caa01a9566f2bbca065aed3c16cb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6847605310d590d67d2f37d9.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.836
+  },
+  "audit_3dwh_6858a641c65ad000a3158bc2": {
+   "task": "library_audit_type",
+   "input_sha256": "ff444010c69f5907216381aca7b3d05c8ab94e9bf16ea331ed9a91f79f1afc05",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_6858a641c65ad000a3158bc2.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.779
+  },
+  "audit_3dwh_68dcd8b848493e4bac38a7ee": {
+   "task": "library_audit_type",
+   "input_sha256": "fe5eee7d148d6b0e4243fa04e4ba18ccf6fb3c289702597621972172d018184f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_68dcd8b848493e4bac38a7ee.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_3dwh_6900b158330f599ee38b587f": {
+   "task": "library_audit_type",
+   "input_sha256": "938bdd34fd80f8e0a30967b5e290964bd1597092405fc68c422a0c215ba9da9b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6900b158330f599ee38b587f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.738
+  },
+  "audit_3dwh_6979bd4a4634dd7a484f3007": {
+   "task": "library_audit_type",
+   "input_sha256": "d358b24c5359e9a3e1b95f65db9af883657086133ac5809579014cfacca258b7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6979bd4a4634dd7a484f3007.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.819
+  },
+  "audit_3dwh_6b268de88dad78bdd59a8e56": {
+   "task": "library_audit_type",
+   "input_sha256": "0b14b26212b37db9cacf50ff07f4207baca0742f29e9927c05822f2febffb0c5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6b268de88dad78bdd59a8e56.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.828
+  },
+  "audit_3dwh_6bd0b95dc6e6682551d07ac5": {
+   "task": "library_audit_type",
+   "input_sha256": "1c86b56aa225c26c3294534a2499e8811a8bfd45e62447b98ec1197eef135a9c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/3dwh_6bd0b95dc6e6682551d07ac5.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.69
+  },
+  "audit_3dwh_6cf82095d40e39962eca8df5": {
+   "task": "library_audit_type",
+   "input_sha256": "c5e5d8d7a54fc2b1ef35c991951a99db2123f4d9530bd06c26bcd7a8f83b33cb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_6cf82095d40e39962eca8df5.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.837
+  },
+  "audit_3dwh_703d2adae4a9dcf803955b71": {
+   "task": "library_audit_type",
+   "input_sha256": "f646694853eff14fd42ff2bf6f6cbbea45f96d47ab0125957915886cc7e1852c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_703d2adae4a9dcf803955b71.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.748
+  },
+  "audit_3dwh_71462da002a9def2fb002e39": {
+   "task": "library_audit_type",
+   "input_sha256": "3c7eef3ea839f688bae57c4d91dc1b75d004bfae64ac392409bab044406b83f4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_71462da002a9def2fb002e39.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.818
+  },
+  "audit_3dwh_724fe763d14671df220b4a66": {
+   "task": "library_audit_type",
+   "input_sha256": "922b040d2fa666a1f85bb4ed29e639e7dea807c46a7fceeec6649d667c831afb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_724fe763d14671df220b4a66.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.822
+  },
+  "audit_3dwh_73592d1f716922fe09948645": {
+   "task": "library_audit_type",
+   "input_sha256": "bd929da8dc4fc9ea5d4b8058f7790542c71d0271fed5de469a8536b61f71ee51",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/3dwh_73592d1f716922fe09948645.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.812
+  },
+  "audit_3dwh_77ff3da9eb34fdb48a9bb8b9": {
+   "task": "library_audit_type",
+   "input_sha256": "2fcc9eb97f93c7374884c22bca172696485347a6732fdcce299e5433c3c2c71b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/window/3dwh_77ff3da9eb34fdb48a9bb8b9.jpg"
+   ],
+   "data": {
+    "type_guess": "window"
+   },
+   "raw_text": "{\"type_guess\": \"window\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.633
+  },
+  "audit_3dwh_78cfe0ce69045b755bab9b1f": {
+   "task": "library_audit_type",
+   "input_sha256": "59fb1cff274065a6c0a7115fedfd89201a005fb7e80b954a28ebe1f0077c29e6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_78cfe0ce69045b755bab9b1f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_3dwh_78e0046400625cb2bd46b865": {
+   "task": "library_audit_type",
+   "input_sha256": "8872f4cd5e37460e7405f029797b48866e46b83e2c9287f8f8cb4621c551431f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_78e0046400625cb2bd46b865.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.77
+  },
+  "audit_3dwh_7a24b5e78412e10bb80a7e65": {
+   "task": "library_audit_type",
+   "input_sha256": "0099cf3f420d49ac9c686748063d8db4d132bd546292c1154eb9e530408a9ec1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_7a24b5e78412e10bb80a7e65.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.651
+  },
+  "audit_3dwh_7aa89a072f57628b43cac345": {
+   "task": "library_audit_type",
+   "input_sha256": "c63932cbc89259e0d418e515e858d31bfbdd1f063616e3fa65054a2686f08f68",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_7aa89a072f57628b43cac345.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.79
+  },
+  "audit_3dwh_7b402ff58a9d209334cc7acd": {
+   "task": "library_audit_type",
+   "input_sha256": "090771af0fdde7095f1d19b0a4c498912aa433e3f2cdb6d6301cd7379e119092",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_7b402ff58a9d209334cc7acd.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  },
+  "audit_3dwh_7c0a80fd1dd86c363a7e76df": {
+   "task": "library_audit_type",
+   "input_sha256": "fb7120e2b83900d9e62fbe2561fe4def42892496c3f60879ed903f018e7ab0a0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_7c0a80fd1dd86c363a7e76df.jpg"
+   ],
+   "data": {
+    "type_guess": "radiator"
+   },
+   "raw_text": "{\"type_guess\": \"radiator\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.756
+  },
+  "audit_3dwh_7d182a401f33d3944deda655": {
+   "task": "library_audit_type",
+   "input_sha256": "7df751c384d4a0ad64c8d50f037132f4b213ec0a409e3b59bf742a2e7990eb95",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_7d182a401f33d3944deda655.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.677
+  },
+  "audit_3dwh_7e4fd911e383f12b5e7c5315": {
+   "task": "library_audit_type",
+   "input_sha256": "c03dceed9d6fdee76485d7a535287be77b8bae74f52cf61c0d082ac1ddadfa2d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_7e4fd911e383f12b5e7c5315.jpg"
+   ],
+   "data": {
+    "type_guess": "rock"
+   },
+   "raw_text": "{\"type_guess\": \"rock\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.835
+  },
+  "audit_3dwh_7eb0f54f70595cb8109d1348": {
+   "task": "library_audit_type",
+   "input_sha256": "84d4c59b6e363ee0cf20504a1374c2d55896b802b933c965d36aab27d9552fef",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_7eb0f54f70595cb8109d1348.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.695
+  },
+  "audit_3dwh_7f216348f3c2d58a2e46c110": {
+   "task": "library_audit_type",
+   "input_sha256": "925c4f736daa50633089e3e6b7c7bfdef9ffbfa7d8b2c4115949d0ed4f88a1df",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_7f216348f3c2d58a2e46c110.jpg"
+   ],
+   "data": {
+    "type_guess": "parasol"
+   },
+   "raw_text": "{\"type_guess\": \"parasol\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.779
+  },
+  "audit_3dwh_809a9496daa2a87eeb0f949b": {
+   "task": "library_audit_type",
+   "input_sha256": "5a8b801661325bd845471f6a8fec88824a41d8c84258708950f39183265b576d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_809a9496daa2a87eeb0f949b.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_3dwh_80c73aab5f16fab841ba3d51": {
+   "task": "library_audit_type",
+   "input_sha256": "2c8ccc9a05a711089b7f522de5a88491d0636450931dadc023e772bf29979f0e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_80c73aab5f16fab841ba3d51.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_3dwh_81d19fd5bee8bc89bfd00e94": {
+   "task": "library_audit_type",
+   "input_sha256": "86588a66c0e75f7b9e3f9838f3c59094a875913ed95e4eb3315074671beb060b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_81d19fd5bee8bc89bfd00e94.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.884
+  },
+  "audit_3dwh_822fffb1b56da285e03a2834": {
+   "task": "library_audit_type",
+   "input_sha256": "b09c3adb7a995504b52f3942c365187129c03f4b80d068a35d4c52bd91b6f124",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_822fffb1b56da285e03a2834.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_3dwh_84e3db6b1196da5e80bf5cbc": {
+   "task": "library_audit_type",
+   "input_sha256": "6585d342e03b62102a6e2f26ccb0a1312a7c8532add3b623587f17f47ddf287e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_84e3db6b1196da5e80bf5cbc.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.827
+  },
+  "audit_3dwh_8503053e138283bc9fa212e4": {
+   "task": "library_audit_type",
+   "input_sha256": "6fd1d7956a7022302c5206fdd714187f3b9597751f7594c143802ea5245283cd",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_8503053e138283bc9fa212e4.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.82
+  },
+  "audit_3dwh_8595c3ed4c5be007837ddf54": {
+   "task": "library_audit_type",
+   "input_sha256": "f52962b2f633ff498e3f90cb5df62bb4e1b6068882d47fb0a65fbb4be9cddb4a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_8595c3ed4c5be007837ddf54.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.783
+  },
+  "audit_3dwh_878fd608f1ef7ec4c280c056": {
+   "task": "library_audit_type",
+   "input_sha256": "a670016cf8c99e8634d996c9b322dc778cf05f25714376b66f851a84af030316",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_878fd608f1ef7ec4c280c056.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.787
+  },
+  "audit_3dwh_8cc0056cc5dc1a954c5b2a78": {
+   "task": "library_audit_type",
+   "input_sha256": "115c489aa670873842d1b8fc9ea0711cc6e06ad0487967af9612001dae164b6d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_8cc0056cc5dc1a954c5b2a78.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.797
+  },
+  "audit_3dwh_8d367dcf10a0791a63168457": {
+   "task": "library_audit_type",
+   "input_sha256": "0dea7b3988c6971ba773129ab134e71f8a1e3595dc9837d8c616687e7bb723c4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_8d367dcf10a0791a63168457.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.818
+  },
+  "audit_3dwh_8def6a0fd1a29f36b5670c66": {
+   "task": "library_audit_type",
+   "input_sha256": "c6563341cd9ad868bca5265a024d7d71abf3e1c07eadd12f607d2d92829dbea9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_8def6a0fd1a29f36b5670c66.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.903
+  },
+  "audit_3dwh_8f7db18dde4dde48899b5327": {
+   "task": "library_audit_type",
+   "input_sha256": "9f181de7e55627318cfeb1fe4c742deb547801c3ea7f5af56f67ca3df00b54ba",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_8f7db18dde4dde48899b5327.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.874
+  },
+  "audit_3dwh_8f9a95ea5e647f3dbac0eb33": {
+   "task": "library_audit_type",
+   "input_sha256": "c301672af0e0553771ce68de9c230540bbb585f1dd695e1825412ac5f30e0490",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_8f9a95ea5e647f3dbac0eb33.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_set"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.781
+  },
+  "audit_3dwh_9346204e62f0c8669d48f3e3": {
+   "task": "library_audit_type",
+   "input_sha256": "cbe40241f23d115293df6bf10791a2e24ee977ff35a4bb0417590b9e5a312fe3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9346204e62f0c8669d48f3e3.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_set"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.817
+  },
+  "audit_3dwh_94aea5db61ce8cf6f9ceed1a": {
+   "task": "library_audit_type",
+   "input_sha256": "fee9b5dd727f57b7840f40f6a3e6ec62aeff20db7ed10c18aa7b5250d9817b14",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_94aea5db61ce8cf6f9ceed1a.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.803
+  },
+  "audit_3dwh_9709e4b921bc2bfc30972226": {
+   "task": "library_audit_type",
+   "input_sha256": "557ae2d4727560e14f8aa77715a1f56b218e0845b3515a67c54ef29ac7cab775",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_9709e4b921bc2bfc30972226.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.782
+  },
+  "audit_3dwh_98e6b19fc87dd0bfc246313d": {
+   "task": "library_audit_type",
+   "input_sha256": "9a17f55301830404cf224b30b1ee565588834b84f0223afbb3ef9538dc54a722",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_98e6b19fc87dd0bfc246313d.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.865
+  },
+  "audit_3dwh_9965d05780ffc58767873163": {
+   "task": "library_audit_type",
+   "input_sha256": "e08e008e2aae58fa3367c51024a5cfda42d14c0bef2e7e8a28ee9ae96874fdc4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9965d05780ffc58767873163.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.781
+  },
+  "audit_3dwh_9bbbd53f7313124440b78497": {
+   "task": "library_audit_type",
+   "input_sha256": "430ef74820c21dba5fcc43d29edc157e64a5a2f132262338e48e01bbd7384ca3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9bbbd53f7313124440b78497.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.789
+  },
+  "audit_3dwh_9c4aa501e05508d5219507d6": {
+   "task": "library_audit_type",
+   "input_sha256": "4233329d5700ff9d119c34dfed1d2840d78717eb24c3b07b088c34193445490c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9c4aa501e05508d5219507d6.jpg"
+   ],
+   "data": {
+    "type_guess": "small_appliance"
+   },
+   "raw_text": "{\"type_guess\": \"small_appliance\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.802
+  },
+  "audit_3dwh_9c565734dabe038c8934d5f2": {
+   "task": "library_audit_type",
+   "input_sha256": "40bdd0b6bc78c6746564028b88cdc9368485b5ce4ace8d84f3886a0e0aa71351",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9c565734dabe038c8934d5f2.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.874
+  },
+  "audit_3dwh_9e269f9c587db8716fb04c42": {
+   "task": "library_audit_type",
+   "input_sha256": "93baa65d145702af2d1e9747cc0e6522787ddd8ea843c55db741c47fb9ebc155",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9e269f9c587db8716fb04c42.jpg"
+   ],
+   "data": {
+    "type_guess": "bathroom_set"
+   },
+   "raw_text": "{\"type_guess\": \"bathroom_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.802
+  },
+  "audit_3dwh_9eb84f48c93aa373584f2486": {
+   "task": "library_audit_type",
+   "input_sha256": "f65234c4c709380e4bc5da58ed68bb3abe3795f9fd22b01a9f4829fca69eec87",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9eb84f48c93aa373584f2486.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.698
+  },
+  "audit_3dwh_9f0d47052dfd16e33947054b": {
+   "task": "library_audit_type",
+   "input_sha256": "063d797010b2c41d64db409780c08cab19ebb4f0d671d77c651474cfd6047cfa",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_9f0d47052dfd16e33947054b.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_set"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.822
+  },
+  "audit_3dwh_a45bd2d24c465ad083e79a93": {
+   "task": "library_audit_type",
+   "input_sha256": "b4b9652cf2cfaa97bc230b36690f76e523ccd948ac3353e799bb639b86e0b506",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_a45bd2d24c465ad083e79a93.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.824
+  },
+  "audit_3dwh_a4c1999267ffaeaf58079c95": {
+   "task": "library_audit_type",
+   "input_sha256": "a7297572435a3fac86a344b92be91f4806f110cab9a29b0cec2e1acaa3f626e5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_a4c1999267ffaeaf58079c95.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.817
+  },
+  "audit_3dwh_a604495c0277ddf98d6e9f0a": {
+   "task": "library_audit_type",
+   "input_sha256": "d12bff3493a8c25a30c322af2e2b97bde3e8db114b0d0a6f631466d53d4a6962",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/door/3dwh_a604495c0277ddf98d6e9f0a.jpg"
+   ],
+   "data": {
+    "type_guess": "door"
+   },
+   "raw_text": "{\"type_guess\": \"door\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.672
+  },
+  "audit_3dwh_a653c10392987058df065885": {
+   "task": "library_audit_type",
+   "input_sha256": "8962952b6ce3e713f418f8dd4fc57e2d0214647fe3a8c10ecdeea90fd8ef3cb0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_a653c10392987058df065885.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.841
+  },
+  "audit_3dwh_a6860e082b9df19b5c333d30": {
+   "task": "library_audit_type",
+   "input_sha256": "5b05736d31d5b0eade9f10060b36dd2e3f1c39c7677653856e02443ae7af5986",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_a6860e082b9df19b5c333d30.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.891
+  },
+  "audit_3dwh_a70e4132ca297724b1034236": {
+   "task": "library_audit_type",
+   "input_sha256": "f8b35061422ec7d90e60a7b312c222af4f86cd59a3ecda5dc639ff881d3cc6df",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_a70e4132ca297724b1034236.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.815
+  },
+  "audit_3dwh_a7a9e10abc8beeb677cf97a5": {
+   "task": "library_audit_type",
+   "input_sha256": "0f9d744b5a15af1f72de455031a2de61e6525610a9faf22ad1d81ad34f602422",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_a7a9e10abc8beeb677cf97a5.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.853
+  },
+  "audit_3dwh_a8ea230b7ab32d60cae9e65e": {
+   "task": "library_audit_type",
+   "input_sha256": "2a389e4c6617904e0eb8c0ecfed55433d00b782255d707a0e95202ca35f161af",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_a8ea230b7ab32d60cae9e65e.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.651
+  },
+  "audit_3dwh_aaaea246f92a6b58d34873f0": {
+   "task": "library_audit_type",
+   "input_sha256": "f9e8390489f2ddcfbc74156ba8961ca5846b9e5361631601a030610f00db1269",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_aaaea246f92a6b58d34873f0.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.858
+  },
+  "audit_3dwh_abffb30fc304922536fe9504": {
+   "task": "library_audit_type",
+   "input_sha256": "4e9f3468e98eae61239af4cfdbbd79cf01576dbfa4d0237eeb4d028ae6d561ea",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_abffb30fc304922536fe9504.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_3dwh_ac3b31f83fde064fac64d451": {
+   "task": "library_audit_type",
+   "input_sha256": "516e98a89f45e037da73faad06187259dc79b92849d45ee3ec059ee157812bee",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_ac3b31f83fde064fac64d451.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.753
+  },
+  "audit_3dwh_adaa4a46d9fc5c9a2d5ae29b": {
+   "task": "library_audit_type",
+   "input_sha256": "0908f4784da5751945f2b9c33d363ff79059df3859088642cbefd109727a7fe9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_adaa4a46d9fc5c9a2d5ae29b.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_set"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.803
+  },
+  "audit_3dwh_aea0cf6c921827ef594682f2": {
+   "task": "library_audit_type",
+   "input_sha256": "c8cac9ed93a7e7990129cf713be04373e4a13d3a5ba95ffc0b69a7e00c2f8f90",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_aea0cf6c921827ef594682f2.jpg"
+   ],
+   "data": {
+    "type_guess": "rock"
+   },
+   "raw_text": "{\"type_guess\": \"rock\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.791
+  },
+  "audit_3dwh_aed5bebcb64c0c2115ffe6c8": {
+   "task": "library_audit_type",
+   "input_sha256": "ca8d8afdfec1ffc9d902b2ecd34097c606061587fc27390e38df019e353c85fa",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_dining/3dwh_aed5bebcb64c0c2115ffe6c8.jpg"
+   ],
+   "data": {
+    "type_guess": "table_dining"
+   },
+   "raw_text": "{\"type_guess\": \"table_dining\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.832
+  },
+  "audit_3dwh_b050c43290ca9bbaf20c5470": {
+   "task": "library_audit_type",
+   "input_sha256": "45afde062a1579d4db9f580a39125d782ea4e3b870127b6378519a78cef079c4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b050c43290ca9bbaf20c5470.jpg"
+   ],
+   "data": {
+    "type_guess": "other"
+   },
+   "raw_text": "{\"type_guess\": \"other\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.769
+  },
+  "audit_3dwh_b27b3b2125b8a48f81b2581c": {
+   "task": "library_audit_type",
+   "input_sha256": "e881be65dedef032ee1315569c73f60230613ea0e773c1950ff70832eb9b14e2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b27b3b2125b8a48f81b2581c.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.794
+  },
+  "audit_3dwh_b326a2902ebc93da75df6085": {
+   "task": "library_audit_type",
+   "input_sha256": "88f1692f382e8fa5f96e76277011cbd5fb8fa9b27bb35406f800d928f87a22da",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_b326a2902ebc93da75df6085.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.778
+  },
+  "audit_3dwh_b3fdd585638ba91805cb3e16": {
+   "task": "library_audit_type",
+   "input_sha256": "984174c58b3d665b5801661ea32d33c89261454a6f8141d563aa57a05aa04e35",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b3fdd585638ba91805cb3e16.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_3dwh_b40524699f4c96f275ff3925": {
+   "task": "library_audit_type",
+   "input_sha256": "e563553c0133d1d50693e175824e739c99dd8abb1a618a7310bf9b46dc0d1937",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b40524699f4c96f275ff3925.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.811
+  },
+  "audit_3dwh_b44d93ee7e568212b1dd784c": {
+   "task": "library_audit_type",
+   "input_sha256": "3857de5f3cff38f6132d9e7dff80da1b9785439f687501186362406099a87c79",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b44d93ee7e568212b1dd784c.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.875
+  },
+  "audit_3dwh_b49f27e5d1c9def3d82dd0f7": {
+   "task": "library_audit_type",
+   "input_sha256": "a07e261f0579c8e562982a0394e7a4a517e6c35884d594ba750f41114cc05391",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b49f27e5d1c9def3d82dd0f7.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_3dwh_b68cecad9ba510f0c36b4265": {
+   "task": "library_audit_type",
+   "input_sha256": "4707dd7c3e1d99f0ea56c76030d645cfc5bbd50c865baa7e4db6c813a73d0520",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b68cecad9ba510f0c36b4265.jpg"
+   ],
+   "data": {
+    "type_guess": "parasol"
+   },
+   "raw_text": "{\"type_guess\": \"parasol\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.872
+  },
+  "audit_3dwh_b9cb64f541d5f72df066d90a": {
+   "task": "library_audit_type",
+   "input_sha256": "81183f871f345961ebabd24a309aae7fcb4b089377f2f715e595b01dc7cd9d7e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_b9cb64f541d5f72df066d90a.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.804
+  },
+  "audit_3dwh_b9f100cabb40feae1b678104": {
+   "task": "library_audit_type",
+   "input_sha256": "b12dcb7c70f73d68a5f5c5b8b27c383d1faa34ea71156b9830cbd0ba7b79fe3c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/side_table/3dwh_b9f100cabb40feae1b678104.jpg"
+   ],
+   "data": {
+    "type_guess": "side_table"
+   },
+   "raw_text": "{\"type_guess\": \"side_table\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.838
+  },
+  "audit_3dwh_bb03693a84786009d206ffae": {
+   "task": "library_audit_type",
+   "input_sha256": "64c73659e29013562e5791f34f14bfc4d4612e8a9519df11c404fede513c492a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_bb03693a84786009d206ffae.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.785
+  },
+  "audit_3dwh_bb64f6884d6b5751344dfe2f": {
+   "task": "library_audit_type",
+   "input_sha256": "2ba1ec9eb17f817f6110466506690cc05ce4b4aad753fa2dd1a1c6b267a8d468",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_bb64f6884d6b5751344dfe2f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.697
+  },
+  "audit_3dwh_bba9850412f888c2b1e515db": {
+   "task": "library_audit_type",
+   "input_sha256": "9f98737da0870a1ba60b45ce0c1ad8f67010e4e666203702bcc3584723a432a4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_bba9850412f888c2b1e515db.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_3dwh_bc2599f983f667962aac814a": {
+   "task": "library_audit_type",
+   "input_sha256": "02a820d71ce5aaaac527c9837b56b0b5adddd0212502cef4a787e0d4431f9e38",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_bc2599f983f667962aac814a.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.816
+  },
+  "audit_3dwh_bc47d64e78487b90f15aee37": {
+   "task": "library_audit_type",
+   "input_sha256": "b4336c98fb59f1ec136ec2364a434b96dfd455eb00a796980560d1a51249bec5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_bc47d64e78487b90f15aee37.jpg"
+   ],
+   "data": {
+    "type_guess": "pergola"
+   },
+   "raw_text": "{\"type_guess\": \"pergola\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.736
+  },
+  "audit_3dwh_bdab00a4f2ed5d5c112ba33f": {
+   "task": "library_audit_type",
+   "input_sha256": "f6b65025ec9eb6817f0c3c1d1176c738a7c6c6ea297d0aafee5528c85d9ccd25",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_bdab00a4f2ed5d5c112ba33f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.825
+  },
+  "audit_3dwh_bf409a845adeb5f1ac0156d1": {
+   "task": "library_audit_type",
+   "input_sha256": "9cb1feaa99f97ebc1fdf6287d74ba628e3fc904dcad7cf61f3ba4aa9f0dc583b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_bf409a845adeb5f1ac0156d1.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.791
+  },
+  "audit_3dwh_c0fb5e4c31b9e8846c4fdaba": {
+   "task": "library_audit_type",
+   "input_sha256": "d75e0d53c8b10e338661fc66db4a73fac92556c699f06941f11b0df15e7d0861",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_c0fb5e4c31b9e8846c4fdaba.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_3dwh_c30c8cfee2197391036ab50e": {
+   "task": "library_audit_type",
+   "input_sha256": "b0d084ee1fa577adb84e3967a545c13ccced16b3a17bacaf6583a72d194bd52b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_c30c8cfee2197391036ab50e.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.743
+  },
+  "audit_3dwh_c39c66f7049c9c1a796d6329": {
+   "task": "library_audit_type",
+   "input_sha256": "33017c46a8ec760fbf4b6e21bccc2bc31c628d96195fd5941aaf5c2e3a82b731",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_c39c66f7049c9c1a796d6329.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.851
+  },
+  "audit_3dwh_c47374fb738c0b327c94dc23": {
+   "task": "library_audit_type",
+   "input_sha256": "b3c3d4fa5d7fdf983dd3712ab0bc83590a0fbb8ea1043d33849738df4496cdc4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/3dwh_c47374fb738c0b327c94dc23.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_3dwh_c4d732a3d2429ad87ad89c3c": {
+   "task": "library_audit_type",
+   "input_sha256": "2d4567c8f8a4af40e6967fc2f38bb9e0d5cdb8c85909062655addb9e5592981b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_c4d732a3d2429ad87ad89c3c.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.744
+  },
+  "audit_3dwh_c5993968ff0238a40f4ac5d6": {
+   "task": "library_audit_type",
+   "input_sha256": "e9444166ba564299a9a7eacdfd28749682f0cff94116cf8366a70683ed8d804e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_c5993968ff0238a40f4ac5d6.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.832
+  },
+  "audit_3dwh_c62a2a3a9040b960e831f803": {
+   "task": "library_audit_type",
+   "input_sha256": "ddb665a9128cc963541633b2bb1a4747ec805f456f43f80d3f61faf08584f1bb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_c62a2a3a9040b960e831f803.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.782
+  },
+  "audit_3dwh_c7d6a397dbf9ccdb3729ef6c": {
+   "task": "library_audit_type",
+   "input_sha256": "b4e6c41887309a56b64065ce0fde1c4726d63bfd8dbf32993ab6eb8da48791db",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/3dwh_c7d6a397dbf9ccdb3729ef6c.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.784
+  },
+  "audit_3dwh_c8addfd071be8dee921b9d7a": {
+   "task": "library_audit_type",
+   "input_sha256": "15961b6f5db3f99b0cd48a6d950080935b14f40214a1ddb5cb597b7aee6164fc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_c8addfd071be8dee921b9d7a.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_island_model"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_island_model\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.907
+  },
+  "audit_3dwh_caa16de44eca369c516a4118": {
+   "task": "library_audit_type",
+   "input_sha256": "6703db171e804daaaf8cdee9690a0320637a728f3d9ac35e3f762646a152e21d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_caa16de44eca369c516a4118.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.731
+  },
+  "audit_3dwh_cb118a55bf1f85b0a8f59f74": {
+   "task": "library_audit_type",
+   "input_sha256": "5dc655f4a82f4b5a21e2d73ed49ebc714f93f8cadea90d0775c68c9fbb164e07",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_cb118a55bf1f85b0a8f59f74.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_set"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_set\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.766
+  },
+  "audit_3dwh_cb139116ea0235acf4ae9ed5": {
+   "task": "library_audit_type",
+   "input_sha256": "1c85e08c868c07fd6668387d4c254051c4e0a88e9e2ab77e1960016b326c7cca",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_cb139116ea0235acf4ae9ed5.jpg"
+   ],
+   "data": {
+    "type_guess": "faucet"
+   },
+   "raw_text": "{\"type_guess\": \"faucet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.875
+  },
+  "audit_3dwh_cba25cf9ee68de031ab6695c": {
+   "task": "library_audit_type",
+   "input_sha256": "ff4149e2f64db859e4ff00ffad1489bb9e52d24cbf1a5fb8de7cf7372bf93cc9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_cba25cf9ee68de031ab6695c.jpg"
+   ],
+   "data": {
+    "type_guess": "tree"
+   },
+   "raw_text": "{\"type_guess\": \"tree\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.695
+  },
+  "audit_3dwh_cbc9d5f6224ac5ab3e281b79": {
+   "task": "library_audit_type",
+   "input_sha256": "71195d9066acaef162c0d4d205d4e3d028485d8af5a79a0c2ad372be71a84672",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_cbc9d5f6224ac5ab3e281b79.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.899
+  },
+  "audit_3dwh_cce8894dd01cce3f63c4e1ed": {
+   "task": "library_audit_type",
+   "input_sha256": "beaceac6bcd43b740d0c64ef167477ec1ddc19c5d205c40b6d738b963ca4ed16",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_cce8894dd01cce3f63c4e1ed.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_3dwh_cdab687953fe09c3e3a73633": {
+   "task": "library_audit_type",
+   "input_sha256": "83d60de200f6db46b6d8089eea01015d2b6d5b4f01ffac318e83c9541565ad66",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_cdab687953fe09c3e3a73633.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.797
+  },
+  "audit_3dwh_cee5124e1f5079f5f3b84f39": {
+   "task": "library_audit_type",
+   "input_sha256": "082ab9c5b402b6b957cc657336b65dd00dd0f3c5d0ca5ac814528d84200fe4ce",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/3dwh_cee5124e1f5079f5f3b84f39.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.835
+  },
+  "audit_3dwh_cf135b00482b01fd2f87a590": {
+   "task": "library_audit_type",
+   "input_sha256": "9e901ba42357d70d0749a1e15ac15b1cab98c1fa48b98fb289ebdc59d66623c6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_cf135b00482b01fd2f87a590.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.807
+  },
+  "audit_3dwh_d06b2f496a654b40d5335069": {
+   "task": "library_audit_type",
+   "input_sha256": "30c536c8fe0a6f4717c5678034d8260fc10a672160462e1f0328308e63637f25",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_d06b2f496a654b40d5335069.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.884
+  },
+  "audit_3dwh_d217ee52fbbabece38be085a": {
+   "task": "library_audit_type",
+   "input_sha256": "f254d4744fb25383987dbb4c0c9ca94cd6eaa350196fdbd70340446895b64a7f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_d217ee52fbbabece38be085a.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.768
+  },
+  "audit_3dwh_d22c7b524b839b0610677a07": {
+   "task": "library_audit_type",
+   "input_sha256": "e725e02d553f31078f9b4f7aea212b20ceac168a0c9d98874f539ccc77793d8a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_d22c7b524b839b0610677a07.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.833
+  },
+  "audit_3dwh_d2df9eee56cc710165748b1b": {
+   "task": "library_audit_type",
+   "input_sha256": "93cd2873d3f8cda8d2e24196df4fa7626167e9787371f71626610d92f50502cf",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_d2df9eee56cc710165748b1b.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.757
+  },
+  "audit_3dwh_d3e2b603109adf95b6e5bb17": {
+   "task": "library_audit_type",
+   "input_sha256": "1555bf51731a5aa12d7ef99f010061f6213bfa061438f197ec3f75451cbde80c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_d3e2b603109adf95b6e5bb17.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.862
+  },
+  "audit_3dwh_d5a5a4b27bba0fa8b17f9fbe": {
+   "task": "library_audit_type",
+   "input_sha256": "925093073a308d7eea27f93ee3a222d260b3ebfeb594a0ac7dd6ef37c4ae9ede",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_d5a5a4b27bba0fa8b17f9fbe.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.852
+  },
+  "audit_3dwh_d71cbc9cfb6e4415726713d7": {
+   "task": "library_audit_type",
+   "input_sha256": "f0e949fec6b81095cc09776a223e3224a7b04ebbbfc62ed2734cd15c6cd31346",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_d71cbc9cfb6e4415726713d7.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.83
+  },
+  "audit_3dwh_da5a477698c55c91d517bb91": {
+   "task": "library_audit_type",
+   "input_sha256": "8aa2a77107bdfbcb50165ff71b82e3e3dd94b294690d7893e0de75a1179b839b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_da5a477698c55c91d517bb91.jpg"
+   ],
+   "data": {
+    "type_guess": "small_appliance"
+   },
+   "raw_text": "{\"type_guess\": \"small_appliance\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.831
+  },
+  "audit_3dwh_dc1caf2ced329015cb2bc425": {
+   "task": "library_audit_type",
+   "input_sha256": "88699c11d43aa44762005217df4f3a3659bb8500b4e85e1d0d244d5b4237f008",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/3dwh_dc1caf2ced329015cb2bc425.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.783
+  },
+  "audit_3dwh_dc4eef5ef90c8de62d33c790": {
+   "task": "library_audit_type",
+   "input_sha256": "8b7534d3d5b4753171e8d4dc9be2edf758ea7da86fd53647d16b9311364aefe5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_dc4eef5ef90c8de62d33c790.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_3dwh_e02deaf5b51dd8aad7e2fabf": {
+   "task": "library_audit_type",
+   "input_sha256": "f9f5d7b45c5da50470c6a71b1497cb8bbb16e42096f24c5687c3b76b84537593",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e02deaf5b51dd8aad7e2fabf.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.806
+  },
+  "audit_3dwh_e27a96032c50773386840f44": {
+   "task": "library_audit_type",
+   "input_sha256": "bd414fbef5720f33d7e1a2a1f75e395865b24e344345b783df3fb387183748a8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e27a96032c50773386840f44.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.825
+  },
+  "audit_3dwh_e2ad6bf707c545f5b5f38291": {
+   "task": "library_audit_type",
+   "input_sha256": "c8304efd5e6db5b7bb8cf06e01cd998d9006f948949eb6b74671ba2eea3c1621",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e2ad6bf707c545f5b5f38291.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  },
+  "audit_3dwh_e3d8f82df5a20a2186090b57": {
+   "task": "library_audit_type",
+   "input_sha256": "4defbb94b483a241d349c07766a5ee96889c7846f60dce9de70b67af66b03eca",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e3d8f82df5a20a2186090b57.jpg"
+   ],
+   "data": {
+    "type_guess": "play"
+   },
+   "raw_text": "{\"type_guess\": \"play\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.699
+  },
+  "audit_3dwh_e3f6959db1547075d7dd85f7": {
+   "task": "library_audit_type",
+   "input_sha256": "f03ee1c448cf2d21e644819c947dbe9d3148436fe9a33fe73afc82d654fb9c90",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e3f6959db1547075d7dd85f7.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.831
+  },
+  "audit_3dwh_e40cbb95f4edeed30b9b287e": {
+   "task": "library_audit_type",
+   "input_sha256": "09fe57b38b18241c1c0775f729fba634449f4936f98febca376ea11c31a51b23",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e40cbb95f4edeed30b9b287e.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.655
+  },
+  "audit_3dwh_e53144b87aed18c89a717a4b": {
+   "task": "library_audit_type",
+   "input_sha256": "81c335a3a62c12a441d0f86966a95bd2ea96948f0890cca4a5ae22b2c55bf7b9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e53144b87aed18c89a717a4b.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.801
+  },
+  "audit_3dwh_e554cce3458103c063336848": {
+   "task": "library_audit_type",
+   "input_sha256": "c226fc20e782eb41e784bf52f7cce4034eb2ee4b9b0e0545113e8b4dcff3283d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e554cce3458103c063336848.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.829
+  },
+  "audit_3dwh_e71adce63236d335f99e098f": {
+   "task": "library_audit_type",
+   "input_sha256": "42dfefb9866ddfc9167fc8b11446e933d26e92a01b9b861b7fe13477ddca33bc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e71adce63236d335f99e098f.jpg"
+   ],
+   "data": {
+    "type_guess": "kitchen_island_model"
+   },
+   "raw_text": "{\"type_guess\": \"kitchen_island_model\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.887
+  },
+  "audit_3dwh_e7e4995344fa196ab74e173c": {
+   "task": "library_audit_type",
+   "input_sha256": "82d60bd3250062a5b6eee2d22545069f7fe9a43362ac2583f152af90eabf3617",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e7e4995344fa196ab74e173c.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.794
+  },
+  "audit_3dwh_e922a19af2f38aa198c62fe2": {
+   "task": "library_audit_type",
+   "input_sha256": "5ade0ceb18f5dea370692b5bef823e07468eb4b9bfe9b96525e29929e2d8771e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e922a19af2f38aa198c62fe2.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.688
+  },
+  "audit_3dwh_e95f0347a415aa58c93c8b6e": {
+   "task": "library_audit_type",
+   "input_sha256": "0109cfac508cfb2030c2a8e22dddd94da01ca86dfbaa26021743f4f7ca749433",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_e95f0347a415aa58c93c8b6e.jpg"
+   ],
+   "data": {
+    "type_guess": "planter_box"
+   },
+   "raw_text": "{\"type_guess\": \"planter_box\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.815
+  },
+  "audit_3dwh_eaf2ca52a8e0e3ab1519d754": {
+   "task": "library_audit_type",
+   "input_sha256": "e7d73ddace39df5373c7a8fb56f484eb8984241e855fe1efe14b92b020409e2b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_eaf2ca52a8e0e3ab1519d754.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.814
+  },
+  "audit_3dwh_ec0f54f48b7bb6a2a4f96588": {
+   "task": "library_audit_type",
+   "input_sha256": "e4effdf327502cc032fb49af7696ad2040274552a4b383cdc4aea433d520d91b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tree/3dwh_ec0f54f48b7bb6a2a4f96588.jpg"
+   ],
+   "data": {
+    "type_guess": "palm"
+   },
+   "raw_text": "{\"type_guess\": \"palm\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.772
+  },
+  "audit_3dwh_ec2ab78a29f8b69bb2551cfc": {
+   "task": "library_audit_type",
+   "input_sha256": "5454fdcd7bff9b9262f418c1c68f5e94f26c2e10f3b4aac27eae9703bf8f280f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_ec2ab78a29f8b69bb2551cfc.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.843
+  },
+  "audit_3dwh_ecc552e39efaaf763717db79": {
+   "task": "library_audit_type",
+   "input_sha256": "0de6c86aa209c268d6eee8b5dad73f97f2da9feae157914fba3c7b4bb4b2bb77",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_ecc552e39efaaf763717db79.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.751
+  },
+  "audit_3dwh_edf33dde5d51309775dcbfdf": {
+   "task": "library_audit_type",
+   "input_sha256": "b04693b2386cb7e4aaa0706ddda5a14d6ba17f38d84f15910fbbb3f49067b4a6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_edf33dde5d51309775dcbfdf.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.776
+  },
+  "audit_3dwh_ee0f97f95280177dfe7f2e8f": {
+   "task": "library_audit_type",
+   "input_sha256": "032b0ba3b9629041f3f2576803d5aa4901d8bffb2744d4d480f6902e38d460cc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_ee0f97f95280177dfe7f2e8f.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.804
+  },
+  "audit_3dwh_f06c8d702e6a7f6c5763deb3": {
+   "task": "library_audit_type",
+   "input_sha256": "1fc7711005acdad8a3588f78e265dcfa32557aa08d07a69378e1bbecdaaad648",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_f06c8d702e6a7f6c5763deb3.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.767
+  },
+  "audit_3dwh_f262a8b1fa88cdc739bf45a8": {
+   "task": "library_audit_type",
+   "input_sha256": "821aec00ac33c07630de65d62a48db581d9bb4869b6d9feac6b537c38b8d2465",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/3dwh_f262a8b1fa88cdc739bf45a8.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_3dwh_f9d50459020305be225c98fb": {
+   "task": "library_audit_type",
+   "input_sha256": "6fc7c6f927fcfe87415826922b037dd5cd0a91c1c0e726ef34ce9a7ec400337b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_f9d50459020305be225c98fb.jpg"
+   ],
+   "data": {
+    "type_guess": "play"
+   },
+   "raw_text": "{\"type_guess\": \"play\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.768
+  },
+  "audit_3dwh_fac10a4826d3e192dbb4ecf8": {
+   "task": "library_audit_type",
+   "input_sha256": "a596fb966b8b193222c936afae454bc8e1ea876db047fda144aa3267eb642c76",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_fac10a4826d3e192dbb4ecf8.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.759
+  },
+  "audit_3dwh_fc932686f1c724452c4b9a80": {
+   "task": "library_audit_type",
+   "input_sha256": "6d2953ded0743b1476ce40fe0051cd83cac0b958c7e8dc16786fc9e2fee8a0b5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_fc932686f1c724452c4b9a80.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.834
+  },
+  "audit_3dwh_fe5a1c491a077265fd56412c": {
+   "task": "library_audit_type",
+   "input_sha256": "6c17f8a009dfe5448fc573cce70f513fa1f0a20f4e9a0e1e21aac8affb3eab84",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_fe5a1c491a077265fd56412c.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.791
+  },
+  "audit_3dwh_fe9708b9b81e9325368e821c": {
+   "task": "library_audit_type",
+   "input_sha256": "b1e767fdbdda997f8b50ca302882fb338725a2be7daebc0de410dac39c1b8415",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_fe9708b9b81e9325368e821c.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.837
+  },
+  "audit_3dwh_ffb93ea05f56452ad03c7356": {
+   "task": "library_audit_type",
+   "input_sha256": "521798872871f1874e6013ad6db0dc21a51363466bcf9ba6ffd2c7fbd7a83521",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/untyped_object/3dwh_ffb93ea05f56452ad03c7356.jpg"
+   ],
+   "data": {
+    "type_guess": "untyped_object"
+   },
+   "raw_text": "{\"type_guess\": \"untyped_object\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_abo_B072M1WJHP": {
+   "task": "library_audit_type",
+   "input_sha256": "2fbdacf88b0fe882c762f4ba7f363107abd044ddc08cd5e4b139d92232700a61",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/ottoman/abo_B072M1WJHP.jpg"
+   ],
+   "data": {
+    "type_guess": "ottoman"
+   },
+   "raw_text": "{\"type_guess\": \"ottoman\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_abo_B0735GRJXY": {
+   "task": "library_audit_type",
+   "input_sha256": "4bac527d11c92745ea4bbc5214b27b2386592683b0e89f7872888f8a94dfd13e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/abo_B0735GRJXY.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_abo_B073NZQQC2": {
+   "task": "library_audit_type",
+   "input_sha256": "63c28e23461f62328d8dc2fb96262d3b6e68502d788a7c6ad7c0b8085aa5cff2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073NZQQC2.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.811
+  },
+  "audit_abo_B073P5PNZ8": {
+   "task": "library_audit_type",
+   "input_sha256": "380d902a23c84ad28c46e16dd34453016c12137e4c34333e7ef4ee94f63c1f84",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P5PNZ8.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.789
+  },
+  "audit_abo_B073P5Y9J1": {
+   "task": "library_audit_type",
+   "input_sha256": "6ff1e7eb12dad96c40ffccaf65003802dabb3b8e9e825995d2e131f4c6f9b8f5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P5Y9J1.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.799
+  },
+  "audit_abo_B073P66TV3": {
+   "task": "library_audit_type",
+   "input_sha256": "7d395697a3dd982a47d31c5a3d31806db757efe338d827b12b5836cb7efde3e4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P66TV3.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.775
+  },
+  "audit_abo_B073P6HGJS": {
+   "task": "library_audit_type",
+   "input_sha256": "025b46ad9ac5f31600c54c0463ed3a1372b02ef0a05500a38c756b04320ab312",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/abo_B073P6HGJS.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.777
+  },
+  "audit_abo_B075NRDS91": {
+   "task": "library_audit_type",
+   "input_sha256": "4861d8b93945f7273126d27b6fb8a23795764425eceecce346d9050c33206f85",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/abo_B075NRDS91.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_abo_B075X12HW9": {
+   "task": "library_audit_type",
+   "input_sha256": "1ef7cda8b5b40f0f3b8342a581f140604ea2505bc44ba53b3776695df447782e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/abo_B075X12HW9.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.844
+  },
+  "audit_abo_B077NZFT6C": {
+   "task": "library_audit_type",
+   "input_sha256": "6b27176f3dcbb9bfd7c4cb1e0cd467fd6af44378c17b4844fef575f92d21879c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/dresser/abo_B077NZFT6C.jpg"
+   ],
+   "data": {
+    "type_guess": "dresser"
+   },
+   "raw_text": "{\"type_guess\": \"dresser\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_abo_B07B51FDV8": {
+   "task": "library_audit_type",
+   "input_sha256": "468e76441448a8f52c6d52cd8eca060a00118a159877a9e9a5c780c7a2aa2d1d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/abo_B07B51FDV8.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.843
+  },
+  "audit_abo_B07CZ6P7QP": {
+   "task": "library_audit_type",
+   "input_sha256": "ca90ad2e940940e6dbd410b30e871d69260359b12d6d4b6547d09a312d693d87",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bar_stool/abo_B07CZ6P7QP.jpg"
+   ],
+   "data": {
+    "type_guess": "bar_stool"
+   },
+   "raw_text": "{\"type_guess\": \"bar_stool\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.883
+  },
+  "audit_abo_B07FM83Z21": {
+   "task": "library_audit_type",
+   "input_sha256": "573831a5397a820221af0e12f5b59394d317a5e3ef7062b3b7804560d7e849bb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/dresser/abo_B07FM83Z21.jpg"
+   ],
+   "data": {
+    "type_guess": "dresser"
+   },
+   "raw_text": "{\"type_guess\": \"dresser\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.846
+  },
+  "audit_abo_B07GFFKRSD": {
+   "task": "library_audit_type",
+   "input_sha256": "6a53b4aecd07b20882c87b07149265d0ef178dd7ecfda18ab105119a98edc802",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/desk/abo_B07GFFKRSD.jpg"
+   ],
+   "data": {
+    "type_guess": "desk"
+   },
+   "raw_text": "{\"type_guess\": \"desk\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.77
+  },
+  "audit_abo_B07GFRKNBK": {
+   "task": "library_audit_type",
+   "input_sha256": "f43a7f63fea28d167bef4dd04f70fbeb7ba3b91d901458dc1201d7c824a36f82",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/abo_B07GFRKNBK.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.815
+  },
+  "audit_abo_B07GFS1W12": {
+   "task": "library_audit_type",
+   "input_sha256": "06f06741b46494781fa47807ff11c1e0f98ac2e2a4f4f4efd458cb739f44ccaa",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/abo_B07GFS1W12.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.809
+  },
+  "audit_abo_B07GZXLYNL": {
+   "task": "library_audit_type",
+   "input_sha256": "82a44e5753b6f81826dac77406cca15affe85cfd72788627d85880c48039b451",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/abo_B07GZXLYNL.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.801
+  },
+  "audit_abo_B07H2MHYDQ": {
+   "task": "library_audit_type",
+   "input_sha256": "b5213944a360774e5ba7f1ba981858a5a8463b970b62f9bdcb01e26352680f09",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/abo_B07H2MHYDQ.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.842
+  },
+  "audit_abo_B07H4MM3TC": {
+   "task": "library_audit_type",
+   "input_sha256": "1b11237e4d506b6d7e539631071c807c6a2b6c5ce869bf2c9b55dbb5485937f1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/desk/abo_B07H4MM3TC.jpg"
+   ],
+   "data": {
+    "type_guess": "desk"
+   },
+   "raw_text": "{\"type_guess\": \"desk\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.768
+  },
+  "audit_abo_B07H8VHYHN": {
+   "task": "library_audit_type",
+   "input_sha256": "040eecf8a28341a3b13ac14d07cf2e3984455ccd0caa0e1949d3dfa814675fa6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/dresser/abo_B07H8VHYHN.jpg"
+   ],
+   "data": {
+    "type_guess": "dresser"
+   },
+   "raw_text": "{\"type_guess\": \"dresser\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.84
+  },
+  "audit_abo_B07H93GTMN": {
+   "task": "library_audit_type",
+   "input_sha256": "9e42d211d3f950395bdfec33fb52e461b8fa583ee46d1a6cf5e73c988baadfcd",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/abo_B07H93GTMN.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.788
+  },
+  "audit_abo_B07J59DFXX": {
+   "task": "library_audit_type",
+   "input_sha256": "487179a27e5fa88023c905aacbf93db12b6458db9f8d6b6f42f65b323ab27acc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/abo_B07J59DFXX.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.855
+  },
+  "audit_abo_B07JKQBXKP": {
+   "task": "library_audit_type",
+   "input_sha256": "cb9da92a71c94b30cfd7fa1005a36e624c3b442cc254b981707f1cb4eb0611e8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/abo_B07JKQBXKP.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.783
+  },
+  "audit_abo_B07K54LSM8": {
+   "task": "library_audit_type",
+   "input_sha256": "6a2b8e7bc345f241c8086c50ec78f3af687f6237f431a8108b0a7e1dd24bdc7a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/abo_B07K54LSM8.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_abo_B07K7K25ZL": {
+   "task": "library_audit_type",
+   "input_sha256": "9c3ac6513a3c7588770e2a53f37b5463af156c89e28cda18e03345c4d93ade37",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/abo_B07K7K25ZL.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.793
+  },
+  "audit_abo_B07K7LVRNS": {
+   "task": "library_audit_type",
+   "input_sha256": "2618cdbd018219e66d4a5d5f639eff054bfe40f474694f928c36fa85d5e91ac8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/abo_B07K7LVRNS.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.787
+  },
+  "audit_abo_B07MBFDX77": {
+   "task": "library_audit_type",
+   "input_sha256": "2de9d16c2f594b45f67d75b1e8f33278d6ee824782f7e5ab188b53a0bd2e74db",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/abo_B07MBFDX77.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.821
+  },
+  "audit_abo_B07ML7P93X": {
+   "task": "library_audit_type",
+   "input_sha256": "4b1a396068425039ea418593336de0dcce851b903f995d3d113b57daca33e83c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/abo_B07ML7P93X.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.837
+  },
+  "audit_abo_B07PNG6XLV": {
+   "task": "library_audit_type",
+   "input_sha256": "5ce922c2bb85bce8d5f4da8dff8672159b361bfb48358d5d07e74987a1c698d8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/abo_B07PNG6XLV.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.835
+  },
+  "audit_abo_B07PZN8M57": {
+   "task": "library_audit_type",
+   "input_sha256": "717667230560d511a975b2a00238ef8b25bdebe125d2976c8721c1c9fd9a19bc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/abo_B07PZN8M57.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.816
+  },
+  "audit_abo_B07R3TWDTT": {
+   "task": "library_audit_type",
+   "input_sha256": "bb3efc3679b1e58390cab4b594335694b9374b62844b74b4ca2a1d6a223a4e46",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/abo_B07R3TWDTT.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.781
+  },
+  "audit_abo_B07XL85YDN": {
+   "task": "library_audit_type",
+   "input_sha256": "340d3043dc168ff8492bca0d24652e77e7debd8aae6e30ff4e1f0effc217444e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/desk/abo_B07XL85YDN.jpg"
+   ],
+   "data": {
+    "type_guess": "desk"
+   },
+   "raw_text": "{\"type_guess\": \"desk\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.759
+  },
+  "audit_bull_head": {
+   "task": "library_audit_type",
+   "input_sha256": "65f80f04aba4da2c0268b4c592e8a0c384ddcc4ea8b464b9d0bd9908593fae66",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/bull_head.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.82
+  },
+  "audit_carved_wooden_elephant": {
+   "task": "library_audit_type",
+   "input_sha256": "01f7b5451ebc7e2c0f63d90197e4a16378dd491a342ac90f5b3989fa16762c40",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/carved_wooden_elephant.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.829
+  },
+  "audit_hssd_01eb64cfe0595d98521831a9066e146589d90567": {
+   "task": "library_audit_type",
+   "input_sha256": "5d85cd26de688f5f6d0bb77df6d9cab7fddd4431b5eb9c032ee82cf5195114b8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sideboard/hssd_01eb64cfe0595d98521831a9066e146589d90567.jpg"
+   ],
+   "data": {
+    "type_guess": "sideboard"
+   },
+   "raw_text": "{\"type_guess\": \"sideboard\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.716
+  },
+  "audit_hssd_033ec086c23a6d39fb37df87e6748c413bf80e29": {
+   "task": "library_audit_type",
+   "input_sha256": "da626426043ae2c21dfcb756f997ebe38360a6a049a85be95416d244d50012d3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/hssd_033ec086c23a6d39fb37df87e6748c413bf80e29.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.8
+  },
+  "audit_hssd_037c2aea5184e56ef6d240fabe3aee458ead4e52": {
+   "task": "library_audit_type",
+   "input_sha256": "e8a60df8ef86453afa8c126b18e261faca6921597e2837c63fae5319cd5a7cc2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_lamp/hssd_037c2aea5184e56ef6d240fabe3aee458ead4e52.jpg"
+   ],
+   "data": {
+    "type_guess": "table_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"table_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.762
+  },
+  "audit_hssd_042102dff37f1a43e06e8ed2eb307738cc1cf882": {
+   "task": "library_audit_type",
+   "input_sha256": "219253c8f05037274adc145fabf217a20a99c9d932a1a73b77b2bd50d528046a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa_corner/hssd_042102dff37f1a43e06e8ed2eb307738cc1cf882.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa_corner"
+   },
+   "raw_text": "{\"type_guess\": \"sofa_corner\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.844
+  },
+  "audit_hssd_08c7c4c8c580d00b822df4ff2bc9e885c136f99d": {
+   "task": "library_audit_type",
+   "input_sha256": "95e6abaddc8099ffc32739e08f40b57cca0f78d7f4643e7d50ed6d2d6622adec",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_08c7c4c8c580d00b822df4ff2bc9e885c136f99d.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.729
+  },
+  "audit_hssd_0a9e33bd8772e0b3030d0a443b990328141c7028": {
+   "task": "library_audit_type",
+   "input_sha256": "f4e3ad09b05bb9f859d3655c7e273c771a4691e2e65da11aba42ac64a4950406",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/dresser/hssd_0a9e33bd8772e0b3030d0a443b990328141c7028.jpg"
+   ],
+   "data": {
+    "type_guess": "dresser"
+   },
+   "raw_text": "{\"type_guess\": \"dresser\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.852
+  },
+  "audit_hssd_0adf429add0b1ddd95ec48d9f3e644b558e5f355": {
+   "task": "library_audit_type",
+   "input_sha256": "511a5ea3aa47671384a69d0b427404f1b017ac9096cc1b6e84346006c3805311",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/hssd_0adf429add0b1ddd95ec48d9f3e644b558e5f355.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.813
+  },
+  "audit_hssd_11ba83c933f89bd7234a8f7fcc5b1c7f573dcded": {
+   "task": "library_audit_type",
+   "input_sha256": "9209f1d014f02ed47db564957d1c05c1574121ad5772b61c5447110928912bbd",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/hssd_11ba83c933f89bd7234a8f7fcc5b1c7f573dcded.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.693
+  },
+  "audit_hssd_12834df5dab70af1770765b09332c455e5050dc4": {
+   "task": "library_audit_type",
+   "input_sha256": "171687644f642c3ec89da9ef8a60893dac7cfae25e06c11b9d0d2a9a0ef838d9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_12834df5dab70af1770765b09332c455e5050dc4.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.737
+  },
+  "audit_hssd_18d33c5c5df8b177bab1b8d8673ff67e58de0bb8": {
+   "task": "library_audit_type",
+   "input_sha256": "75d48677baece3147835982ab7a467a7761f6d1cc85efacb88a1f4d91fe855fb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/hssd_18d33c5c5df8b177bab1b8d8673ff67e58de0bb8.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.684
+  },
+  "audit_hssd_1aebe7d2500bfbcb0c6ec787a98a2b3701099ed7": {
+   "task": "library_audit_type",
+   "input_sha256": "471267992ccfa1903b63e2ca78fe29bb25d46c83c46269a4257d39da2f347655",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/hssd_1aebe7d2500bfbcb0c6ec787a98a2b3701099ed7.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.815
+  },
+  "audit_hssd_1d0eace356e1cdddd761a9aca1d6cfcc9685de42": {
+   "task": "library_audit_type",
+   "input_sha256": "cdf88770775497fd375826d3da57f93f56db0524759322d7b7f124b43c2add4b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_1d0eace356e1cdddd761a9aca1d6cfcc9685de42.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.898
+  },
+  "audit_hssd_1f5ab750519f7b292ead923edb57421f9652249b": {
+   "task": "library_audit_type",
+   "input_sha256": "c7614d67e65847750dfc0ec477a529bcec9035cbd61fc90b7925c37b877ecc34",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/hssd_1f5ab750519f7b292ead923edb57421f9652249b.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.741
+  },
+  "audit_hssd_2002e03201c29be3470fa8393e0a32cd1b31f67e": {
+   "task": "library_audit_type",
+   "input_sha256": "66667be42c28a7b4f96756b30aef3cebeae218c39cb423c8b333651202738c59",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/console_table/hssd_2002e03201c29be3470fa8393e0a32cd1b31f67e.jpg"
+   ],
+   "data": {
+    "type_guess": "console_table"
+   },
+   "raw_text": "{\"type_guess\": \"console_table\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.736
+  },
+  "audit_hssd_2373e13c60de2cadf4f4d9c62760b9a169e25ef9": {
+   "task": "library_audit_type",
+   "input_sha256": "0d0bb298b7909170b90e801b3f35077dade04c9f12c9ff825c9df0882577f577",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/hssd_2373e13c60de2cadf4f4d9c62760b9a169e25ef9.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.707
+  },
+  "audit_hssd_24a960df1ac651a2b4899d4a24c6b9e0443c3958": {
+   "task": "library_audit_type",
+   "input_sha256": "c2c8422c5027374cd4728dd103e2e5fdb26c82fca2936960cb2b9a098b22d49b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_24a960df1ac651a2b4899d4a24c6b9e0443c3958.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.737
+  },
+  "audit_hssd_2637afb6217c97735ea0e7216b7ce3d68a575fab": {
+   "task": "library_audit_type",
+   "input_sha256": "f011daa2a4de206b6007b3568eb95854dd678ffac6a1862909b65ef996616100",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/ottoman/hssd_2637afb6217c97735ea0e7216b7ce3d68a575fab.jpg"
+   ],
+   "data": {
+    "type_guess": "ottoman"
+   },
+   "raw_text": "{\"type_guess\": \"ottoman\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.798
+  },
+  "audit_hssd_277a090638f90cdcd36bb8289cbb5aa153032fad": {
+   "task": "library_audit_type",
+   "input_sha256": "7a9be51314ef953bb04ce680297694d7980e386447f16451d058be5d778241d5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/hssd_277a090638f90cdcd36bb8289cbb5aa153032fad.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.744
+  },
+  "audit_hssd_298f83e6c0df3341a2ed0916031e44bae196cc04": {
+   "task": "library_audit_type",
+   "input_sha256": "81d28af80207564ec5cee1d0cf092b0b7e5d6c325f3925a6b9c852e230fb460c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/hssd_298f83e6c0df3341a2ed0916031e44bae196cc04.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.909
+  },
+  "audit_hssd_2991e695ef8215a75b43d63417caed6a7c5c0fed": {
+   "task": "library_audit_type",
+   "input_sha256": "1ffd5dc8a1c21e91daf4bda191bc6a4a57b3e41bf9fd8bb2df01f7858fd5396b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_2991e695ef8215a75b43d63417caed6a7c5c0fed.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.757
+  },
+  "audit_hssd_2a9cb0b671a281159864a83d00e0a89439b15ef6": {
+   "task": "library_audit_type",
+   "input_sha256": "a014167a4b418f942cc08f763c68eff2d0b18e371dfa6abfa4a983c23c0b8523",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/hssd_2a9cb0b671a281159864a83d00e0a89439b15ef6.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.841
+  },
+  "audit_hssd_2b54e37d81302fa2c8ad80cc7c8e77ebb3136e71": {
+   "task": "library_audit_type",
+   "input_sha256": "17e64d7f3de77a1d70c06ddc8a8c17a333c79c9db7c9a43da5221c0f524bd6e0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_2b54e37d81302fa2c8ad80cc7c8e77ebb3136e71.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.725
+  },
+  "audit_hssd_307dc8c04f24bfe2d6c0aa6e596dd3377d8c2891": {
+   "task": "library_audit_type",
+   "input_sha256": "a2044942bfd8c72724f9a25927e6be275540b56b8f7db368cf6eb56fa8b31166",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_307dc8c04f24bfe2d6c0aa6e596dd3377d8c2891.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.695
+  },
+  "audit_hssd_31e02a4cdcb114cdee0b3a6f1454d2551ee2d942": {
+   "task": "library_audit_type",
+   "input_sha256": "b1655ccfeec0009691237fbd7db5a2b737d7f525defb6ead1715174ab888527c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_31e02a4cdcb114cdee0b3a6f1454d2551ee2d942.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.955
+  },
+  "audit_hssd_333fbf609c0f0877768188c43a0a812cc46e26ae": {
+   "task": "library_audit_type",
+   "input_sha256": "328ca7adb6f52f585627c453ea30aa3be458c569727f98ff09c98d32a69b9d4c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/hssd_333fbf609c0f0877768188c43a0a812cc46e26ae.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.664
+  },
+  "audit_hssd_341094b867eb9d6b86f227a6cc65022a840099e5": {
+   "task": "library_audit_type",
+   "input_sha256": "87acd0f9b4e14996d52d97ab303e41dd8d13dee26264cc2564540b011e99f396",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_341094b867eb9d6b86f227a6cc65022a840099e5.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.934
+  },
+  "audit_hssd_37aff886ee82795550e2916010cfff38d0d80243": {
+   "task": "library_audit_type",
+   "input_sha256": "c1d4830c08768bdbbe22b4fcb091fe3a1b3d6c62830e843235437da55f632803",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/hssd_37aff886ee82795550e2916010cfff38d0d80243.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.754
+  },
+  "audit_hssd_3a756e187a839c9346be2b1b267a036a0857044e": {
+   "task": "library_audit_type",
+   "input_sha256": "f26bcc7fc5928af8e1e240cb782f0346f73d894424a5e9318bc4e9f08ec78fe2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/hssd_3a756e187a839c9346be2b1b267a036a0857044e.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.457
+  },
+  "audit_hssd_3b558ce715c88cca63b307f8e0e9b665ca57ef43": {
+   "task": "library_audit_type",
+   "input_sha256": "4e7e4b6009455d0e0412dc240c7e6eabab9515d412b2012b6071115e30d37dc5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/hssd_3b558ce715c88cca63b307f8e0e9b665ca57ef43.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.767
+  },
+  "audit_hssd_42d6ceaadfba84ab46dc33a39a997398eb0ae95b": {
+   "task": "library_audit_type",
+   "input_sha256": "f56a7b84172ef9768336b77e3e7013dd44d8a1252fcf2c351699606d6be14112",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/hssd_42d6ceaadfba84ab46dc33a39a997398eb0ae95b.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.748
+  },
+  "audit_hssd_4850297ad1adc65d23c944e90edd076db12afbce": {
+   "task": "library_audit_type",
+   "input_sha256": "8eb5ebabe193c96ebadfe7c9707757824495f5df254704593e06c19336edc2d8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/hssd_4850297ad1adc65d23c944e90edd076db12afbce.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.745
+  },
+  "audit_hssd_498ad9602ffa2854cc2e31a54988dbecc0e9d2a9": {
+   "task": "library_audit_type",
+   "input_sha256": "4d505e1e3707fa50d6bf0f54f7094c67d61537ba497ca98386904087facc6428",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/hssd_498ad9602ffa2854cc2e31a54988dbecc0e9d2a9.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.348
+  },
+  "audit_hssd_4f89b3cd70cb8d85fa7e9f050ea71aed1c3d80cb": {
+   "task": "library_audit_type",
+   "input_sha256": "5acaa4e4cb752651051aa891448a164f2e339d3ccc070dacd5e1764c695ea276",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/hssd_4f89b3cd70cb8d85fa7e9f050ea71aed1c3d80cb.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.762
+  },
+  "audit_hssd_535dee6b14fd6d65925a82570e4f4db294f73f4c": {
+   "task": "library_audit_type",
+   "input_sha256": "b9621950955d6b5d2ff1d60579a8b7e3134e964003a604313c01042e7ea43f49",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/nightstand/hssd_535dee6b14fd6d65925a82570e4f4db294f73f4c.jpg"
+   ],
+   "data": {
+    "type_guess": "nightstand"
+   },
+   "raw_text": "{\"type_guess\": \"nightstand\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.764
+  },
+  "audit_hssd_5663ed3483432046d301e771bbd6b4394b871433": {
+   "task": "library_audit_type",
+   "input_sha256": "f16b572878492c51157be0bc3bb619abf71e6cd0251c6b18444760616163dc99",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/desk/hssd_5663ed3483432046d301e771bbd6b4394b871433.jpg"
+   ],
+   "data": {
+    "type_guess": "desk"
+   },
+   "raw_text": "{\"type_guess\": \"desk\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.775
+  },
+  "audit_hssd_5999d188452e209cacb712029af3f3b5b0e30313": {
+   "task": "library_audit_type",
+   "input_sha256": "6397035d2a9d9e89c5057be97baf6fd63a6a62dd0c04589763f151d82fa9cff5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sideboard/hssd_5999d188452e209cacb712029af3f3b5b0e30313.jpg"
+   ],
+   "data": {
+    "type_guess": "sideboard"
+   },
+   "raw_text": "{\"type_guess\": \"sideboard\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.711
+  },
+  "audit_hssd_5ae72d0e8fdadc834a6de0b722be6f259c587c96": {
+   "task": "library_audit_type",
+   "input_sha256": "f4e6a7e0b6bc4e9df58b04a0637e1073331dd55e7260c6155c858d5b2a9b685f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shoe_cabinet/hssd_5ae72d0e8fdadc834a6de0b722be6f259c587c96.jpg"
+   ],
+   "data": {
+    "type_guess": "shoe_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"shoe_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.885
+  },
+  "audit_hssd_5e0c57c89718bf9f8859b6181978d150aed749ca": {
+   "task": "library_audit_type",
+   "input_sha256": "4c56292095f3e764207f56897710d936d1bfbfe4c08b4856759d0f87a21e82ca",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/hssd_5e0c57c89718bf9f8859b6181978d150aed749ca.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.833
+  },
+  "audit_hssd_602e95402b712af5ac6273ce4d2d2e6f57229516": {
+   "task": "library_audit_type",
+   "input_sha256": "6e0fc81161a7dab806641010a51f92dceb1fa9d155f12390c7e54b8a9ce35dbb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wardrobe/hssd_602e95402b712af5ac6273ce4d2d2e6f57229516.jpg"
+   ],
+   "data": {
+    "type_guess": "wardrobe"
+   },
+   "raw_text": "{\"type_guess\": \"wardrobe\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.755
+  },
+  "audit_hssd_6418a44fe0592c5036ad81baca4ab1f5b8300a3a": {
+   "task": "library_audit_type",
+   "input_sha256": "e8d69b83b061985cf7b8ac63d68a28ce7fd92322c1796de126d5616b7c3b3768",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_dining/hssd_6418a44fe0592c5036ad81baca4ab1f5b8300a3a.jpg"
+   ],
+   "data": {
+    "type_guess": "table_dining"
+   },
+   "raw_text": "{\"type_guess\": \"table_dining\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.849
+  },
+  "audit_hssd_6449c323d8a23151b0a1d79924494d143b398326": {
+   "task": "library_audit_type",
+   "input_sha256": "9bc36fde9aac3464afee0d01146ef129645c07c26a1165ed605a2ee3a670bd4c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_6449c323d8a23151b0a1d79924494d143b398326.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.978
+  },
+  "audit_hssd_652536faa9c5028ed8be69780c120af78c141968": {
+   "task": "library_audit_type",
+   "input_sha256": "fb1f2e715d9ef45b74d114375e91212f057e02e418f3ebc8c383ff404099f88c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_652536faa9c5028ed8be69780c120af78c141968.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.757
+  },
+  "audit_hssd_66f2e648f0277efd26d72ae77cc83bfe4085942f": {
+   "task": "library_audit_type",
+   "input_sha256": "4fe8c7c8f34b7c3db474593a3adccf66fef751bd6057b883a074485aa26113c7",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa_corner/hssd_66f2e648f0277efd26d72ae77cc83bfe4085942f.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa_corner"
+   },
+   "raw_text": "{\"type_guess\": \"sofa_corner\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.862
+  },
+  "audit_hssd_68dc308c935ee15d168f71a1d97a59004346bc79": {
+   "task": "library_audit_type",
+   "input_sha256": "d3a33ef9e74eff0bc563240eb74cd72ac103a73d5324fa3b979684beaad6de84",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/hssd_68dc308c935ee15d168f71a1d97a59004346bc79.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.893
+  },
+  "audit_hssd_6d40e74eb0c4a0ee6aa532e66ee080b9506f24e6": {
+   "task": "library_audit_type",
+   "input_sha256": "bd27d59755848a506ac562d48e6adcd1ec1e27df0e7fa400d9ea4b9eeef389bf",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sideboard/hssd_6d40e74eb0c4a0ee6aa532e66ee080b9506f24e6.jpg"
+   ],
+   "data": {
+    "type_guess": "sideboard"
+   },
+   "raw_text": "{\"type_guess\": \"sideboard\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.71
+  },
+  "audit_hssd_72b25f0b1834fd8d6adc08a3dd2041f1d1ab4390": {
+   "task": "library_audit_type",
+   "input_sha256": "3cd910562b27b18e5ab7ddd4dd550132aeb5ba0b45660dcce3a0d8c88292476d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/hssd_72b25f0b1834fd8d6adc08a3dd2041f1d1ab4390.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.778
+  },
+  "audit_hssd_74e1831f3d2100296a4663e63defbe344b15f421": {
+   "task": "library_audit_type",
+   "input_sha256": "2f42bb7644401d4ae94bf42eda639193c8827f3f63641e4862d3922705143bf6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/hssd_74e1831f3d2100296a4663e63defbe344b15f421.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.724
+  },
+  "audit_hssd_7835135c9a3abefa43deca495710555800d8aeca": {
+   "task": "library_audit_type",
+   "input_sha256": "723c0abd2e116b7f681806f4281f1cff84a9d463f64c8046297b1ea219e26a80",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/hssd_7835135c9a3abefa43deca495710555800d8aeca.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.839
+  },
+  "audit_hssd_7b2ed578ddbdebd16402325998289f48bc91ed06": {
+   "task": "library_audit_type",
+   "input_sha256": "1648cc93a0d839f4aa5b7bb0037e760451dea8fd03bd7f16653ed645fd886fe3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/hssd_7b2ed578ddbdebd16402325998289f48bc91ed06.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.892
+  },
+  "audit_hssd_7bbbcfde14554260550907def3e8eb0707e4af71": {
+   "task": "library_audit_type",
+   "input_sha256": "782ce828b3eb688b8c9be627d7761a70b1a0b3ec3052461a603a3aac5ae19a72",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_7bbbcfde14554260550907def3e8eb0707e4af71.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.751
+  },
+  "audit_hssd_7c85d0a371c5be2f5de0883e0c2125bd77de73f5": {
+   "task": "library_audit_type",
+   "input_sha256": "589e1e66b16dfe7e3ca7dea81b050a88e6fd64a3d9a3b736d7d487a3e2b468d9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_7c85d0a371c5be2f5de0883e0c2125bd77de73f5.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.962
+  },
+  "audit_hssd_7ecec7264a07a6c8759f7f23f1b875079b473b89": {
+   "task": "library_audit_type",
+   "input_sha256": "ba31fb113c9dd3ccfc1f9818357c04da191812573144f68277aef90c2d30135d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/hssd_7ecec7264a07a6c8759f7f23f1b875079b473b89.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.84
+  },
+  "audit_hssd_84815c44d0b7569cd2c023b75d6f11d21bdb7505": {
+   "task": "library_audit_type",
+   "input_sha256": "7af972f3f25efd2d2b92264937d53a3aa6d24c74a9c34c3306ba16de5a3d6f34",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/nightstand/hssd_84815c44d0b7569cd2c023b75d6f11d21bdb7505.jpg"
+   ],
+   "data": {
+    "type_guess": "nightstand"
+   },
+   "raw_text": "{\"type_guess\": \"nightstand\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.742
+  },
+  "audit_hssd_859fce00e8f962182f2703ab30a4ca8357537cbb": {
+   "task": "library_audit_type",
+   "input_sha256": "a8632370458e5daedf25ff5b319cdc0c428d97cd6941824a98074439854d3ef5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_coffee/hssd_859fce00e8f962182f2703ab30a4ca8357537cbb.jpg"
+   ],
+   "data": {
+    "type_guess": "table_coffee"
+   },
+   "raw_text": "{\"type_guess\": \"table_coffee\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.834
+  },
+  "audit_hssd_8718b96e8acda5e530bc0eb72a0d3660778ff59a": {
+   "task": "library_audit_type",
+   "input_sha256": "3fde22d86122b7be5d7dd473bb199f3f67806bb9fa385a871219467fd08739ba",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/pendant_light/hssd_8718b96e8acda5e530bc0eb72a0d3660778ff59a.jpg"
+   ],
+   "data": {
+    "type_guess": "pendant_light"
+   },
+   "raw_text": "{\"type_guess\": \"pendant_light\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.804
+  },
+  "audit_hssd_8b66076f69caaf4573c1a4b94f99ba8c9008fa7c": {
+   "task": "library_audit_type",
+   "input_sha256": "8156422ec8f144a208bb3107d187b0ccc6497118d68b8a40ee2e71c358b17832",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_dining/hssd_8b66076f69caaf4573c1a4b94f99ba8c9008fa7c.jpg"
+   ],
+   "data": {
+    "type_guess": "table_dining"
+   },
+   "raw_text": "{\"type_guess\": \"table_dining\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.81
+  },
+  "audit_hssd_90fb5508ae70a0a4525e80c382ec79637a02494a": {
+   "task": "library_audit_type",
+   "input_sha256": "afda3f7e1f353487b3dfa13d13f6b91d3aadc37405b88f5148e344d7de784b05",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_90fb5508ae70a0a4525e80c382ec79637a02494a.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.751
+  },
+  "audit_hssd_9217adecf2924d759f38708b72d3bc1eb711406b": {
+   "task": "library_audit_type",
+   "input_sha256": "11dacdb4336ab64ee1754b2f4b480dd4dc7c731772288c16462461794af9802e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_9217adecf2924d759f38708b72d3bc1eb711406b.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.721
+  },
+  "audit_hssd_94927768e27e3edbde222e2fd59f2664ffcfa866": {
+   "task": "library_audit_type",
+   "input_sha256": "f7f1310f598f2e36aeb2b9a84451c461113f4a146c932d6674221b6cc503223b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/hssd_94927768e27e3edbde222e2fd59f2664ffcfa866.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.808
+  },
+  "audit_hssd_94f82d1154b9db0d56038b183832b0dfceff8819": {
+   "task": "library_audit_type",
+   "input_sha256": "e545b9fca2527f9448ceb719aafaee1a66e809465d1e4dba6592309ae45f9f58",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_94f82d1154b9db0d56038b183832b0dfceff8819.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.744
+  },
+  "audit_hssd_98dbf856f3251188b0317bdb86c223aaf626bb49": {
+   "task": "library_audit_type",
+   "input_sha256": "c53abbe8fb42092e7db323cc1907e7532a42a96594367cd11da18e938eb99a1e",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_98dbf856f3251188b0317bdb86c223aaf626bb49.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.912
+  },
+  "audit_hssd_99e7fe1527c0c9bcba3a56542adfc3164947c368": {
+   "task": "library_audit_type",
+   "input_sha256": "952313e5a57447eae7b18e35e0f5839a3b539213a62a3454caa19632e180bf0a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/hssd_99e7fe1527c0c9bcba3a56542adfc3164947c368.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.727
+  },
+  "audit_hssd_9a95f67666e918a7398535ae4082ce1a574a6cf5": {
+   "task": "library_audit_type",
+   "input_sha256": "b2227fb0dba5add3eadd2b7336e58ea168950d5ea77e917fe7767d3620b7a9a5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/hssd_9a95f67666e918a7398535ae4082ce1a574a6cf5.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.808
+  },
+  "audit_hssd_9fee5e7b92edf3026fc491b252701dfb06ed46cf": {
+   "task": "library_audit_type",
+   "input_sha256": "bac5084340af9a4227cc40286a8c1d219979cdbdafaa8bc380c2656e77b2602b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_9fee5e7b92edf3026fc491b252701dfb06ed46cf.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.864
+  },
+  "audit_hssd_a67db9c143b91ab12fa3ac0851470e4ef177ecc3": {
+   "task": "library_audit_type",
+   "input_sha256": "15e6200624c6f9895a17ecdf8ce457eea3307c85e14897fe273b1bc6966a7484",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/hssd_a67db9c143b91ab12fa3ac0851470e4ef177ecc3.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.826
+  },
+  "audit_hssd_a9f241205d5f66e51cc7e86b70a0f803c5478593": {
+   "task": "library_audit_type",
+   "input_sha256": "c740a5dbf0a12f4067e5d35e528df930383a2cb97e90007d14f628770fa7b614",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/floor_lamp/hssd_a9f241205d5f66e51cc7e86b70a0f803c5478593.jpg"
+   ],
+   "data": {
+    "type_guess": "floor_lamp"
+   },
+   "raw_text": "{\"type_guess\": \"floor_lamp\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.769
+  },
+  "audit_hssd_ae3918fcf73f5a401a283bed2ee90cc8b9192b42": {
+   "task": "library_audit_type",
+   "input_sha256": "561135f7b5baccaf3649a0cb04ab8cd761ff099e5fe02dff3db033871a408534",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_ae3918fcf73f5a401a283bed2ee90cc8b9192b42.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.734
+  },
+  "audit_hssd_ba333ed289c61c26505c64ecb49a00f130892956": {
+   "task": "library_audit_type",
+   "input_sha256": "afb953d6e093998e9ccd95b05b702b0d82ef96b7888ba9ff1b3f4aaecdc9d328",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/hssd_ba333ed289c61c26505c64ecb49a00f130892956.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.67
+  },
+  "audit_hssd_ba9b22943a7967908955980f309420e15b3d10e2": {
+   "task": "library_audit_type",
+   "input_sha256": "93093b9e0df44068d061649c5ed8bc25a6e043302e1d1672ae3dd96125442c5f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/dresser/hssd_ba9b22943a7967908955980f309420e15b3d10e2.jpg"
+   ],
+   "data": {
+    "type_guess": "dresser"
+   },
+   "raw_text": "{\"type_guess\": \"dresser\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.785
+  },
+  "audit_hssd_bb734fd1974058b9fb50ea62662b4fc8655e9778": {
+   "task": "library_audit_type",
+   "input_sha256": "e16077fcf354556b95af098394b35b3e644835bcb7ef9df40a27037f3bf46570",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/ottoman/hssd_bb734fd1974058b9fb50ea62662b4fc8655e9778.jpg"
+   ],
+   "data": {
+    "type_guess": "ottoman"
+   },
+   "raw_text": "{\"type_guess\": \"ottoman\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.738
+  },
+  "audit_hssd_bc59d29d1dd89583b138da32dd3a25916c4dd684": {
+   "task": "library_audit_type",
+   "input_sha256": "331ab058c606fe61a45848a5355fd5af0a41ee1a47043d67550e3237f41a25e0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/wall_art/hssd_bc59d29d1dd89583b138da32dd3a25916c4dd684.jpg"
+   ],
+   "data": {
+    "type_guess": "wall_art"
+   },
+   "raw_text": "{\"type_guess\": \"wall_art\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 2.331
+  },
+  "audit_hssd_c67c6e75945f75cbc530feb9568548802a1648a6": {
+   "task": "library_audit_type",
+   "input_sha256": "87e6201961db44d200d4483c6648a193a01cd9751de06dea81ae6e46bc558f79",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/desk/hssd_c67c6e75945f75cbc530feb9568548802a1648a6.jpg"
+   ],
+   "data": {
+    "type_guess": "table_coffee"
+   },
+   "raw_text": "{\"type_guess\": \"table_coffee\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 4.252
+  },
+  "audit_hssd_c73f8b5dd9353b05bdc81872432e0851cc2d6ab5": {
+   "task": "library_audit_type",
+   "input_sha256": "66f9c654353d55ffccf7d822b84bb2012227b04c8551a709afc693102021ef36",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/hssd_c73f8b5dd9353b05bdc81872432e0851cc2d6ab5.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.764
+  },
+  "audit_hssd_c77e8ffcb85d5d91694bfe37516ef9880890716c": {
+   "task": "library_audit_type",
+   "input_sha256": "88d6caab2c0f2280c175bad073631d1006ef811928c731528a9347baa5b5ced9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/desk/hssd_c77e8ffcb85d5d91694bfe37516ef9880890716c.jpg"
+   ],
+   "data": {
+    "type_guess": "desk"
+   },
+   "raw_text": "{\"type_guess\": \"desk\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.644
+  },
+  "audit_hssd_c883ba2ee1868f4f0e0ab2cc4eeb15e9c8bc08b5": {
+   "task": "library_audit_type",
+   "input_sha256": "78fcd0e921ba59dcf0ca4575732810e3f0681100baffac05845505bf341880d2",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_c883ba2ee1868f4f0e0ab2cc4eeb15e9c8bc08b5.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.739
+  },
+  "audit_hssd_c8bbb9cc378c3034f8a31bd0e19e51bb8290bda6": {
+   "task": "library_audit_type",
+   "input_sha256": "af26e2d8a54e9e8f6faa6659ee66cb30cff9e9d4d648d2c8950f4fdc3154a57b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/armchair/hssd_c8bbb9cc378c3034f8a31bd0e19e51bb8290bda6.jpg"
+   ],
+   "data": {
+    "type_guess": "armchair"
+   },
+   "raw_text": "{\"type_guess\": \"armchair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.804
+  },
+  "audit_hssd_c96d9c01eeaef13563d832710c5717cd77d78648": {
+   "task": "library_audit_type",
+   "input_sha256": "2d605de1772a75dc77fb11e82cf9d38cf9b0b06ac4870c45dbdf66a9ed44187c",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tall_cabinet/hssd_c96d9c01eeaef13563d832710c5717cd77d78648.jpg"
+   ],
+   "data": {
+    "type_guess": "tall_cabinet"
+   },
+   "raw_text": "{\"type_guess\": \"tall_cabinet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.923
+  },
+  "audit_hssd_cd98be236fae4658bc279ff1796e05ba5a6c24ca": {
+   "task": "library_audit_type",
+   "input_sha256": "01369fc56eda1f33b42136367d8478a65b00a425825663841337c00ad6d01a52",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_dining/hssd_cd98be236fae4658bc279ff1796e05ba5a6c24ca.jpg"
+   ],
+   "data": {
+    "type_guess": "table_dining"
+   },
+   "raw_text": "{\"type_guess\": \"table_dining\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.873
+  },
+  "audit_hssd_d31ee1dad266ed4ef07fc074e8ddd28663a91767": {
+   "task": "library_audit_type",
+   "input_sha256": "52abc51fb2bbe3d0ed56ab2f98b7c013d0164ede892e0bad77e865cd9562afa1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/hssd_d31ee1dad266ed4ef07fc074e8ddd28663a91767.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.839
+  },
+  "audit_hssd_d3aaaa4c5f6f4c0f8ac9acffa625b527bf1ddc89": {
+   "task": "library_audit_type",
+   "input_sha256": "36fb9ffbd6e937178574bb651a2952c735326a38bfc42c1cf1ed9f40532c9418",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sofa/hssd_d3aaaa4c5f6f4c0f8ac9acffa625b527bf1ddc89.jpg"
+   ],
+   "data": {
+    "type_guess": "sofa"
+   },
+   "raw_text": "{\"type_guess\": \"sofa\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.818
+  },
+  "audit_hssd_d46d68c38dd2d64388be98b66b665b7db512f1ab": {
+   "task": "library_audit_type",
+   "input_sha256": "662e7ebc58d5a3a66da49462a7b443a18b10679fc393d817844294f904b95b56",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_d46d68c38dd2d64388be98b66b665b7db512f1ab.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.769
+  },
+  "audit_hssd_d7c839146e84643d034b5eff9b1142e5445af7af": {
+   "task": "library_audit_type",
+   "input_sha256": "d512bdefc250f830a1209808ebaaa78fadb30356fdef28b4ae1a47b7e88e92c9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_d7c839146e84643d034b5eff9b1142e5445af7af.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.724
+  },
+  "audit_hssd_de04619c0521fca50c810b76358f6429d632d279": {
+   "task": "library_audit_type",
+   "input_sha256": "6781f321023dd98012a548ad21f00db9cd49fe98c0eb04a78f3b1304d77a9fa3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/hssd_de04619c0521fca50c810b76358f6429d632d279.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.713
+  },
+  "audit_hssd_df0294d1d608ecb3d5caa16d901a41acf0215969": {
+   "task": "library_audit_type",
+   "input_sha256": "d55b7f5bc66d67a4b1d83bfdb137fc3267aa50be75b3c453d725245795f4842d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/tv_unit/hssd_df0294d1d608ecb3d5caa16d901a41acf0215969.jpg"
+   ],
+   "data": {
+    "type_guess": "tv_unit"
+   },
+   "raw_text": "{\"type_guess\": \"tv_unit\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.753
+  },
+  "audit_hssd_df442f882b2418f21617712b6fd5989cbd8e54a5": {
+   "task": "library_audit_type",
+   "input_sha256": "0371c7d310b2ec63a2b810dcb243e33037aa5a52f9b208fbc57c728014a35be5",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/hssd_df442f882b2418f21617712b6fd5989cbd8e54a5.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.835
+  },
+  "audit_hssd_df4c4aab0fce2f22206379976df8cc3a758a44c7": {
+   "task": "library_audit_type",
+   "input_sha256": "57f42178d87cd5d1e6494ae455a7baef57e29b2d0462ed672196f6a7b546b5a6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/chair/hssd_df4c4aab0fce2f22206379976df8cc3a758a44c7.jpg"
+   ],
+   "data": {
+    "type_guess": "chair"
+   },
+   "raw_text": "{\"type_guess\": \"chair\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.668
+  },
+  "audit_hssd_e00975f6de5015107944634171269d8700c136a7": {
+   "task": "library_audit_type",
+   "input_sha256": "e1f2b38dbfd59fa8ad839f50a7858a169a4dc280839d4b5f62df6b438494c601",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_e00975f6de5015107944634171269d8700c136a7.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.835
+  },
+  "audit_hssd_e0403fbd528f79fd0ac6c9dbc42ace8284553c91": {
+   "task": "library_audit_type",
+   "input_sha256": "947f0307d670d9973a473768bda1247b61a91f6e64d779771d1950b0bc7874f1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/hssd_e0403fbd528f79fd0ac6c9dbc42ace8284553c91.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.758
+  },
+  "audit_hssd_e285909f3131c0e700c1482c269b814f9bf67972": {
+   "task": "library_audit_type",
+   "input_sha256": "1b3b7453cc257003a158970181ea25927672864a6ef333441163b9dd71640fa3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/blind/hssd_e285909f3131c0e700c1482c269b814f9bf67972.jpg"
+   ],
+   "data": {
+    "type_guess": "blind"
+   },
+   "raw_text": "{\"type_guess\": \"blind\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.671
+  },
+  "audit_hssd_e6ccfb8aa1fa974d429195f8edc169aa7ea21306": {
+   "task": "library_audit_type",
+   "input_sha256": "d73af4de7141cecaf538075638da699769b84d7587999f6bb7e07767860127ce",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_double/hssd_e6ccfb8aa1fa974d429195f8edc169aa7ea21306.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_double"
+   },
+   "raw_text": "{\"type_guess\": \"bed_double\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.816
+  },
+  "audit_hssd_ea233d6e83ef6d189dc92600b820430307b58cea": {
+   "task": "library_audit_type",
+   "input_sha256": "64a49fccc4e3b3161051986ef7a9c255c29e4b5104319e1fc2c411c38271e0fc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/hssd_ea233d6e83ef6d189dc92600b820430307b58cea.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.757
+  },
+  "audit_hssd_ead365ee0f62fd7ab510ffb80417061b626087b7": {
+   "task": "library_audit_type",
+   "input_sha256": "7a70fe09af8f6b43544e9f98bef2224041a125d0d8c7dc9f84237abeffe80aaa",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_ead365ee0f62fd7ab510ffb80417061b626087b7.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.751
+  },
+  "audit_hssd_eec33a95190f033d18766ef0363b443892609f33": {
+   "task": "library_audit_type",
+   "input_sha256": "4b5d1fab5e21718ff0ac3d0ff97fb1b4b951206bf202b422a3c459746b5e2037",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/hssd_eec33a95190f033d18766ef0363b443892609f33.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.845
+  },
+  "audit_hssd_f1c2e2ef2fb09f55103b2710da72acf7d16042d1": {
+   "task": "library_audit_type",
+   "input_sha256": "bdc9102fd695f68e4f4507d7da01acb237e452ff906b331177a10f74c72fc36a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/hssd_f1c2e2ef2fb09f55103b2710da72acf7d16042d1.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.753
+  },
+  "audit_hssd_f3983f4b922f83e3f9cf633cb382fe01b7abf837": {
+   "task": "library_audit_type",
+   "input_sha256": "ae8eecb61d63b94222456322d96bd6ab88a1f2e4ad6dc988196c8c53ae11e7be",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bed_single/hssd_f3983f4b922f83e3f9cf633cb382fe01b7abf837.jpg"
+   ],
+   "data": {
+    "type_guess": "bed_single"
+   },
+   "raw_text": "{\"type_guess\": \"bed_single\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.767
+  },
+  "audit_hssd_fcbaaa911318bd2d90773e9c8890a73ffcd1b604": {
+   "task": "library_audit_type",
+   "input_sha256": "9a37205450521e36cff00b45e392f58ee74e045077ed66732d92587f83b81a10",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/shower/hssd_fcbaaa911318bd2d90773e9c8890a73ffcd1b604.jpg"
+   ],
+   "data": {
+    "type_guess": "shower"
+   },
+   "raw_text": "{\"type_guess\": \"shower\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.859
+  },
+  "audit_hssd_fcc046afe57d8d3616e206364b7b7f20d04d9fdb": {
+   "task": "library_audit_type",
+   "input_sha256": "c04dcd07db7789921ee6249c5780a1eac1a8cdf8b893c9954a49f1259cc7a3a4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/table_dining/hssd_fcc046afe57d8d3616e206364b7b7f20d04d9fdb.jpg"
+   ],
+   "data": {
+    "type_guess": "table_dining"
+   },
+   "raw_text": "{\"type_guess\": \"table_dining\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.852
+  },
+  "audit_hssd_xxxxd4daff2ex60f1x4dc8xa1c7xdcf64fff318e": {
+   "task": "library_audit_type",
+   "input_sha256": "71c312ebc59e339cb85cf93fb19eaeaf4fd962e7436a18206f6d6d2347b3c496",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/hssd_xxxxd4daff2ex60f1x4dc8xa1c7xdcf64fff318e.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 3.741
+  },
+  "audit_infinigen_bathroom_sink_0": {
+   "task": "library_audit_type",
+   "input_sha256": "9e50b37f1ced3efe6fe128ed0844f234874d7effba762aac3d6c729c61253142",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_0.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.868
+  },
+  "audit_infinigen_bathroom_sink_1": {
+   "task": "library_audit_type",
+   "input_sha256": "6795a37f8b7591f693cfc956b38dad7168810f95832de367476dea9dd2eecea8",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_1.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.856
+  },
+  "audit_infinigen_bathroom_sink_2": {
+   "task": "library_audit_type",
+   "input_sha256": "53abd74594ff6ef40b7819e40b6e10ccb2f6b94506928115bd3b5bc08ec0e975",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/washbasin/infinigen_bathroom_sink_2.jpg"
+   ],
+   "data": {
+    "type_guess": "washbasin"
+   },
+   "raw_text": "{\"type_guess\": \"washbasin\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.815
+  },
+  "audit_infinigen_bathtub_0": {
+   "task": "library_audit_type",
+   "input_sha256": "74d99f0015603799c47d2acbd6f16af977a17cf8e84b155c8c55f4b1451d314d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_0.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.845
+  },
+  "audit_infinigen_bathtub_1": {
+   "task": "library_audit_type",
+   "input_sha256": "899382c08b28a0561e9e8c04b8a4c56238fc9caee04c0e5628c84a850c07f8e6",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_1.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.818
+  },
+  "audit_infinigen_bathtub_2": {
+   "task": "library_audit_type",
+   "input_sha256": "fb9f057866c86f7580cadb832d664fb8879ad32c3373af1cf6c36ddf5725565f",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bathtub/infinigen_bathtub_2.jpg"
+   ],
+   "data": {
+    "type_guess": "bathtub"
+   },
+   "raw_text": "{\"type_guess\": \"bathtub\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.811
+  },
+  "audit_infinigen_beverage_fridge_0": {
+   "task": "library_audit_type",
+   "input_sha256": "9fb62c2c81c61bbb2d733fe4ead29d8947c13c430c1909494e2c6578ec2782bc",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/infinigen_beverage_fridge_0.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.802
+  },
+  "audit_infinigen_beverage_fridge_1": {
+   "task": "library_audit_type",
+   "input_sha256": "015bb4f796c473fc4e4464d25abf04cf8a3c4b1ae47524f125b62f8fd24775d4",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/infinigen_beverage_fridge_1.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.804
+  },
+  "audit_infinigen_beverage_fridge_2": {
+   "task": "library_audit_type",
+   "input_sha256": "569ab328945c0fb6bd94f06c6e32a041e278552d82797309d5421a342ab2208d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/fridge/infinigen_beverage_fridge_2.jpg"
+   ],
+   "data": {
+    "type_guess": "fridge"
+   },
+   "raw_text": "{\"type_guess\": \"fridge\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.847
+  },
+  "audit_infinigen_books_0": {
+   "task": "library_audit_type",
+   "input_sha256": "3c8491f0da57feb0423803700417138b2ed3ae9565d5c300a3f8dbe04f62ac27",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/infinigen_books_0.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.749
+  },
+  "audit_infinigen_books_1": {
+   "task": "library_audit_type",
+   "input_sha256": "09968ef321ede86ecbf4f2611514c3fc9fa829b4f2acf3d6b0e4858242249f22",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/infinigen_books_1.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.776
+  },
+  "audit_infinigen_books_2": {
+   "task": "library_audit_type",
+   "input_sha256": "916ef174359c4e16e93db4bcb675b2552e5184abf932172073e8f51d68a3e726",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/books/infinigen_books_2.jpg"
+   ],
+   "data": {
+    "type_guess": "books"
+   },
+   "raw_text": "{\"type_guess\": \"books\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.751
+  },
+  "audit_infinigen_bowl_0": {
+   "task": "library_audit_type",
+   "input_sha256": "709842ec08d8066988f5df5f1ffe21c67dafe30dd90967321ed6f7fd4630ed06",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/infinigen_bowl_0.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.766
+  },
+  "audit_infinigen_bowl_1": {
+   "task": "library_audit_type",
+   "input_sha256": "f1352a3a52cb6bac6be015802c50aef13edb64604da5d15f2200d9517bdfe158",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/infinigen_bowl_1.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.783
+  },
+  "audit_infinigen_bowl_2": {
+   "task": "library_audit_type",
+   "input_sha256": "8d8fb6f11bb7520512ed05e95e22a63a28af5f2d25806d28090599be9b7eebe9",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bowl/infinigen_bowl_2.jpg"
+   ],
+   "data": {
+    "type_guess": "bowl"
+   },
+   "raw_text": "{\"type_guess\": \"bowl\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.786
+  },
+  "audit_infinigen_kitchen_sink_0": {
+   "task": "library_audit_type",
+   "input_sha256": "24cac1c43ee3028842e37089aa0d0ad257ad6b502a216d81d47c5107a5ea42ec",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/infinigen_kitchen_sink_0.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.839
+  },
+  "audit_infinigen_kitchen_sink_2": {
+   "task": "library_audit_type",
+   "input_sha256": "8cf735d5b71d9d14d98e50adfb7396bea8215a78b773bf2252cc3c8a20cfec3b",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sink_kitchen/infinigen_kitchen_sink_2.jpg"
+   ],
+   "data": {
+    "type_guess": "sink_kitchen"
+   },
+   "raw_text": "{\"type_guess\": \"sink_kitchen\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.825
+  },
+  "audit_infinigen_oven_0": {
+   "task": "library_audit_type",
+   "input_sha256": "e0744c680773beca74d74ed767ab830d4de75669cf89486589d5227133ae8636",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/infinigen_oven_0.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.805
+  },
+  "audit_infinigen_oven_1": {
+   "task": "library_audit_type",
+   "input_sha256": "a83c7efb218bb7f614f45d2abe2118e7cf4c9e034f4c5177e3cb8c6eee995aa3",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/infinigen_oven_1.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.807
+  },
+  "audit_infinigen_oven_2": {
+   "task": "library_audit_type",
+   "input_sha256": "c7d6576bd826983261626c8f8ae7b9f15f81fff3daad8954eb151581a6c7c30d",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/stove/infinigen_oven_2.jpg"
+   ],
+   "data": {
+    "type_guess": "stove"
+   },
+   "raw_text": "{\"type_guess\": \"stove\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.804
+  },
+  "audit_infinigen_pot_0": {
+   "task": "library_audit_type",
+   "input_sha256": "fece3fa919410912475e4ecc24fa64c7f90513dc0a508eb788cec30eccde07cb",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/infinigen_pot_0.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.745
+  },
+  "audit_infinigen_pot_1": {
+   "task": "library_audit_type",
+   "input_sha256": "038fa85e928bc531e5f6b43a7541535be2819af5fe9a991ddba2677f4306d124",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/infinigen_pot_1.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.779
+  },
+  "audit_infinigen_pot_2": {
+   "task": "library_audit_type",
+   "input_sha256": "160d97ed5062df24f819a289915abe810dff467a536f3d5226f696939fefd85a",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/plant_small/infinigen_pot_2.jpg"
+   ],
+   "data": {
+    "type_guess": "plant_small"
+   },
+   "raw_text": "{\"type_guess\": \"plant_small\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.79
+  },
+  "audit_infinigen_toilet_0": {
+   "task": "library_audit_type",
+   "input_sha256": "c80ab6f8955c8f9df4d2ad8c33bd10a6f001af283ec3930765d92264bf601526",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/infinigen_toilet_0.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.826
+  },
+  "audit_infinigen_toilet_1": {
+   "task": "library_audit_type",
+   "input_sha256": "7c9d993ee4a34f2b2ed67ec2705ad73add1d559e17b3c9c34ad0dc2f457db5ce",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/infinigen_toilet_1.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.785
+  },
+  "audit_infinigen_toilet_2": {
+   "task": "library_audit_type",
+   "input_sha256": "5b689e3debe8b1af9a370022dcd2f828118272abd0fd878f7f8e65304dc5a294",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/toilet/infinigen_toilet_2.jpg"
+   ],
+   "data": {
+    "type_guess": "toilet"
+   },
+   "raw_text": "{\"type_guess\": \"toilet\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.8
+  },
+  "audit_lion_head": {
+   "task": "library_audit_type",
+   "input_sha256": "d4414068f7114dd2715ae7d76c12f604a158d86222047a9074a154035c5196c1",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/sculpture/lion_head.jpg"
+   ],
+   "data": {
+    "type_guess": "sculpture"
+   },
+   "raw_text": "{\"type_guess\": \"sculpture\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.792
+  },
+  "audit_worn_metal_rack": {
+   "task": "library_audit_type",
+   "input_sha256": "15463de54e64b5bba5639c3959ababffa17091037d7a815d84e760999b9524c0",
+   "model": "Qwen/Qwen3.8-27B-FP8",
+   "seed": 0,
+   "images": [
+    "../sheets/bookshelf/worn_metal_rack.jpg"
+   ],
+   "data": {
+    "type_guess": "bookshelf"
+   },
+   "raw_text": "{\"type_guess\": \"bookshelf\"}",
+   "error": null,
+   "attempts": 1,
+   "latency_s": 0.796
+  }
+ }
+}

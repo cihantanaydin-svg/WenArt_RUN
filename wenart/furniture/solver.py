@@ -150,7 +150,11 @@ BEAM_WIDTH = 32
 PER_LEVEL = 40                 # group candidates of one level kept after the free-space checks
 PER_PARENT = 4                 # children per beam node in the first pass
 ANCHOR_TRIES = 900             # anchor positions tried per group (best pre-score first)
+OPTION_GENERATE_MIN = 300      # 23 Oct 2026: the least anchor positions an option is generated at (group options 10x)
 NODE_BUDGET = 60000            # anchor positions generated / candidate expansions per room
+# 23 Oct 2026 (group options 10x): the anchor positions generated per room (2.5 x NODE_BUDGET: ten times the
+# options; each group and option gets its share, ``anchored_candidates``); the expansions stay at NODE_BUDGET.
+GENERATE_BUDGET = 150000
 GRID_M = 0.10
 REQUIRED_BONUS = 10.0
 OPTIONAL_BONUS = 3.0
@@ -861,13 +865,14 @@ def _wall_positions(space: Space, size):
             yield k, t, (round(c[0], 4), round(c[1], 4)), rot, t_min, t_max
 
 
-def _free_positions(space: Space, size, turns: tuple = (0.0, 90.0)):
-    """``(centre, rotation)`` on a 0.10 m grid of the room's axis frame (only where the centre cell is free)."""
+def _free_positions(space: Space, size, turns: tuple = (0.0, 90.0), step: float = GRID_M):
+    """``(centre, rotation)`` on a 0.10 m grid (``step``) of the room's axis frame (only where the centre cell is
+    free)."""
     R = space.R
     w, d = size
     reach = max(w, d) / 2.0
-    xs = np.arange(R.x0 + reach, R.x0 + R.nx * R.res - reach + 1e-9, GRID_M)
-    ys = np.arange(R.y0 + reach, R.y0 + R.ny * R.res - reach + 1e-9, GRID_M)
+    xs = np.arange(R.x0 + reach, R.x0 + R.nx * R.res - reach + 1e-9, step)
+    ys = np.arange(R.y0 + reach, R.y0 + R.ny * R.res - reach + 1e-9, step)
     for turn in turns:
         for y in ys:
             for x in xs:
@@ -1110,7 +1115,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
 
     for spec in template["partners"]:
         role, ftype = spec["role"], spec["type"]
-        want = counts.get(ftype, spec.get("max", 1))
+        want = counts.get(ftype, spec.get("default", spec.get("max", 1)))
         if resolve is not None:
             want = max(want, _resolve_count(resolve, role))   # every drawn member of the role needs a place
         want = max(0, want - int(filled.get(role, 0)))
@@ -1136,7 +1141,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
             else:
                 continue                       # the room cannot hold it: the group goes without it
         found: list[Spot] = []
-        sizes = [tuple(s) for s in spec["sizes"]]
+        sizes = [tuple(s) for s in (option.get("partner_sizes") or {}).get(role, spec["sizes"])]
         if resolve is not None:
             # fix round after P4a: the drawn members of a re-solved group are placed at their own box (the box
             # _match_members gives them), so their places are searched at that size first (the template's after)
@@ -1225,7 +1230,7 @@ def _partners(space: Space, template: dict, option: dict, anchor: Spot, filled: 
         elif place == "around":
             if filled.get(role):
                 continue                       # drawn chairs: none added
-            count = None
+            count = counts.get(ftype)            # an option's seat count (else by the table length)
             if resolve is not None:            # Milestone 13: a place for every drawn chair (and the table's seats)
                 count = max(_resolve_count(resolve, role),
                             schemas.count_by_length(max(w, d), schemas.CHAIRS_BY_TABLE_LENGTH))
@@ -1436,9 +1441,22 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
     tries: list[tuple] = []
     if resolve is not None:
         tries = _resolve_tries(space, entry, template, options, info, align)
+    # 23 Oct 2026 (group options 10x): each group takes at most its share of the room's generation budget, its core
+    # options half of it and its extra options the other half (each option an equal part of its half); an option whose
+    # sizes have more positions than that is tried on a coarser grid (free anchors) or every n-th wall step (wall
+    # anchors), so the 26 dining options never use up the budget of the living storage that comes after them.
+    group_share = (budget["generate"] - budget["used"]) // max(1, info.get("groups_left", 1))
+    core = [o for o in options if GR.is_core(template["options"][o])]
+    halves = 2 if core and len(core) < len(options) else 1
+
+    def share_of(oname: str) -> int:
+        same = [o for o in options if (o in core) == (oname in core)] if halves == 2 else options
+        return max(OPTION_GENERATE_MIN, group_share // halves // max(1, len(same)))
+
     for oname in (options if resolve is None else []):
         opt = template["options"][oname]
         atype = opt["anchor"]
+        share = share_of(oname)
         if drawn is not None:
             # fix round after P4a: a code-typed (unverified) drawn anchor is used as drawn (program.unsure_anchor)
             if PR.unsure_anchor(drawn) or drawn.get("build") is False or drawn["type"] != atype:
@@ -1449,10 +1467,13 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
             continue
         sizes = [tuple(s) for s in (opt.get("sizes") or {}).get(atype, [])] or \
             GR.sizes_for(template, atype, float(entry.get("area") or space.area))
+        per_size = max(1, share // max(1, len(sizes)))
         for si, size in enumerate(sizes):
             if anchor_spec["place"] == "wall":
                 sides = ("right", "left") if atype == "sofa_corner" else (None,)
-                for k, t, c, rot, lo, hi in _wall_positions(space, size):
+                walls = list(_wall_positions(space, size))
+                stride = max(1, math.ceil(len(walls) * len(sides) / per_size))
+                for k, t, c, rot, lo, hi in walls[::stride]:
                     for side in sides:
                         if budget["used"] >= budget["generate"]:
                             break
@@ -1466,7 +1487,10 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
                         tries.append((pre, (oname, k, int(round(t / MERGE_M)), side or ""), (round(t, 3), si),
                                       (oname, s, (k, t, lo, hi))))
             else:
-                for c, rot in _free_positions(space, size):
+                # two turns per free 0.10 m cell (the raster's free cells, an upper bound)
+                cells = 2.0 * float((space.base == 0).sum()) * (space.R.res / GRID_M) ** 2
+                step = GRID_M * max(1, math.ceil(math.sqrt(cells / per_size)))
+                for c, rot in _free_positions(space, size, step=step):
                     if budget["used"] >= budget["generate"]:
                         break
                     budget["used"] += 1
@@ -1531,7 +1555,10 @@ def anchored_candidates(space: Space, entry: dict, level: int, info: dict) -> li
             (int(round(spot.center[0] / MERGE_M)), int(round(spot.center[1] / MERGE_M)))
         cand.sig = (oname, round(spot.rotation) % 360, key, spot.chaise_side or "", len(new))
         out.append(cand)
-    return _keep(out, PER_LEVEL)
+    # kinds: the anchor type and core / extra option (the extras' candidates never crowd out the core ones); a group
+    # offered extra options keeps twice as many candidates
+    keep = PER_LEVEL * (2 if len(core) < len(options) else 1)
+    return _keep(out, keep, kind=lambda c: (c.anchor.type, GR.is_core(template["options"][c.option])))
 
 
 def _one_side(space: Space, spot: Spot, zones: list, inflate: float = ZONE_INFLATE_M) -> Optional[list]:
@@ -1565,18 +1592,34 @@ def _previous_term(terms: dict, spots: list[Spot], info: dict) -> None:
         terms["drawn_distance"] = round(max(0.0, 1.0 - (sum(ds) / len(ds)) / 3.0), 4)
 
 
-def _keep(cands: list[Cand], n: int) -> list[Cand]:
-    """The best ``n`` candidates, one per signature (score, then position, deterministic)."""
+def _keep(cands: list[Cand], n: int, kind=None) -> list[Cand]:
+    """The best ``n`` candidates, one per signature (score, then position, deterministic). ``kind`` (23 Oct 2026,
+    group options 10x): a candidate's kind (a run's shape, an anchor's type with core or extra option, a member's
+    type); each kind first keeps
+    its best ``max(2, n // (2 x kinds))``, then the best of the rest fill up, so twelve L and U variants never crowd
+    the I runs out of the level (an L that fails the final aisle check would leave the kitchen without a run)."""
     cands = sorted(cands, key=lambda c: (-c.local, c.sig, _pos_key(c)))
     out, seen = [], set()
+    if kind is not None:
+        kinds = list(dict.fromkeys(kind(c) for c in cands))
+        share, taken = max(2, n // (2 * max(1, len(kinds)))), {}
+        for c in cands:
+            k = kind(c)
+            if c.sig in seen or taken.get(k, 0) >= share:
+                continue
+            seen.add(c.sig)
+            taken[k] = taken.get(k, 0) + 1
+            out.append(c)
+            if len(out) >= n:
+                break
     for c in cands:
+        if len(out) >= n:
+            break
         if c.sig in seen:
             continue
         seen.add(c.sig)
         out.append(c)
-        if len(out) >= n:
-            break
-    return out
+    return sorted(out, key=lambda c: (-c.local, c.sig, _pos_key(c)))
 
 
 def _pos_key(c: Cand) -> tuple:
@@ -1622,7 +1665,7 @@ def member_candidates(space: Space, entry: dict, members: list[dict], level: int
                 cand.local = _score(terms)
                 cand.sig = (member["role"], ftype, k, int(round(t / MERGE_M)))
                 out.append(cand)
-    return _keep(out, PER_LEVEL)
+    return _keep(out, PER_LEVEL, kind=lambda c: c.anchor.type)
 
 
 # --------------------------------------------------------------------------
@@ -1943,6 +1986,17 @@ def _galley_layouts(legs: dict, parts: tuple, forward: bool, run: dict) -> list[
     return out
 
 
+def _option_run(template: dict, oname: str) -> dict:
+    """The run of a kitchen-run option: the template's ``run`` with the option's module sizes (``modules``: a 0.70 m
+    fridge, a 1.00 m double sink ...)."""
+    run = template["run"]
+    over = template["options"][oname].get("modules") or {}
+    if not over:
+        return run
+    modules = {k: (dict(m, sizes=over[k]["sizes"]) if k in over else m) for k, m in run["modules"].items()}
+    return dict(run, modules=modules)
+
+
 def run_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Cand]:
     template = GR.load_groups()[entry["group"]]
     run = template["run"]
@@ -1958,6 +2012,7 @@ def run_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Ca
     budget = info["budget"]
     for oname in options:
         shape = template["options"][oname]["shape"]
+        run = _option_run(template, oname)
         if shape == "galley":
             jobs = [(parts, fw) for parts in _galley_paths(legs, depth, aisle) for fw in (True, False)]
         else:
@@ -1983,7 +2038,7 @@ def run_candidates(space: Space, entry: dict, level: int, info: dict) -> list[Ca
                 cand.sig = (oname, tuple((p[0], int(round(p[1] / MERGE_M)), int(round(p[2] / MERGE_M)))
                                          for p in parts), forward, key)
                 out.append(cand)
-    return _keep(out, PER_LEVEL)
+    return _keep(out, PER_LEVEL, kind=lambda c: template["options"][c.option]["shape"])
 
 
 # --------------------------------------------------------------------------
@@ -2079,8 +2134,9 @@ def _expand(node: Node, cand: Cand, layers: tuple) -> bool:
 def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand], bool]]:
     """One search level per anchored group or run, one per set member; with their candidates."""
     levels = []
-    for entry in prog["groups"]:
+    for k, entry in enumerate(prog["groups"]):
         template = GR.load_groups()[entry["group"]]
+        info["groups_left"] = len(prog["groups"]) - k     # 23 Oct 2026: each group's fair share of the budget
         if entry.get("note", "").startswith(("unverified", "no completion")):
             continue
         if template["layout"] == "anchored":
@@ -2100,6 +2156,12 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
                 levels.append((entry, run_candidates(space, entry, len(levels), info), entry["required"]))
         else:
             options = [entry["chosen"]] if entry.get("chosen") else list(entry["options"])
+            # 23 Oct 2026 (group options 10x): unless chosen, a set's extra options add only their sizes (below), not
+            # their members or member types (a hall keeps its shoe cabinet; no bench, plant or second washbasin
+            # unasked, as every optional member that fits would be placed).
+            sized = options
+            if not entry.get("chosen"):
+                options = [o for o in options if GR.is_core(template["options"][o])] or options
             have = {info["by_id"][m]["type"] for m in entry.get("members") or [] if m in info["by_id"]}
             if entry.get("drawn") and entry.get("anchor_id") in info["by_id"]:
                 have.add(info["by_id"][entry["anchor_id"]]["type"])
@@ -2108,11 +2170,21 @@ def _levels(space: Space, prog: dict, info: dict) -> list[tuple[dict, list[Cand]
                 for role in template["options"][oname].get("members", []):
                     if role not in roles:
                         roles.append(role)
+            extra = {}                                 # 23 Oct 2026: the options' member sizes (by type)
+            for oname in sized:
+                for ftype, sizes in (template["options"][oname].get("partner_sizes") or {}).items():
+                    extra.setdefault(ftype, []).extend(tuple(s) for s in sizes)
             for role in roles:
                 types = [m for m in template["members"] if m["role"] == role and (
                     not m.get("option") or any(template["options"][o].get(role) == m["type"] for o in options))]
                 if not types:
                     continue
+                if entry.get("chosen"):                # the chosen option's sizes first
+                    types = [dict(m, sizes=list(dict.fromkeys(extra.get(m["type"], []) +
+                                                              [tuple(s) for s in m["sizes"]]))) for m in types]
+                elif extra:
+                    types = [dict(m, sizes=list(dict.fromkeys([tuple(s) for s in m["sizes"]] +
+                                                              extra.get(m["type"], [])))) for m in types]
                 if any(m["type"] in have for m in types) or (role == "bath" and have & {"shower", "bathtub"}):
                     continue                           # drawn already: only what is missing is added
                 if entry.get("drawn") and not any(m.get("required") for m in types):
@@ -2694,8 +2766,8 @@ def _with_drawn_group(building: dict, room: dict, prog: dict, drawn_group) -> di
     if entry is None:
         template = GR.load_groups()[g["template"]]
         same = next((r for r in rows if r["group"] == g["template"] and not r["drawn"]), None)
-        options = PR._option_of_anchor(g["template"], anchor["type"], list((same or {}).get("options")
-                                                                             or template["options"]))
+        options = PR._option_of_anchor(g["template"], anchor["type"], PR.drawn_options(
+            g["template"], list((same or {}).get("options") or template["options"])))
         entry = PR._entry(room["id"], g["template"], True, options, zone_id=(same or {}).get("zone_id"),
                           area=(same or {}).get("area", PR._area(room)), anchor_id=anchor["id"], drawn=True,
                           members=list(g.get("members") or []))
@@ -2771,7 +2843,7 @@ def _solve_try(space: Space, building: dict, room: dict, prog: dict, k: int, bas
     """One search and verification of ``solve_room`` on ``space`` (fix round after P6b, review: ``space.front_from``
     says from which option the front partners are tried; ``space.front_chosen`` gets the options they took)."""
     room_id = room["id"]
-    budget = {"used": 0, "generate": NODE_BUDGET, "nodes": 0, "expand": NODE_BUDGET, "walks": 0}
+    budget = {"used": 0, "generate": GENERATE_BUDGET, "nodes": 0, "expand": NODE_BUDGET, "walks": 0}
     info = _info(space, building, room_id, prog, budget)
     levels = _levels(space, prog, info)
     if not levels:
@@ -2827,24 +2899,44 @@ def _solve_try(space: Space, building: dict, room: dict, prog: dict, k: int, bas
         if cand is None or not cand["hard_failures"]:
             continue
         drop = _failing_levels(cand, node, start)
-        if not drop or len(drop) >= sum(c is not None for c in node.cands):
+        placed = sum(c is not None for c in node.cands)
+        optional = [i for i, c in enumerate(node.cands) if c is not None and not levels[i][2]]
+        if len(drop) >= placed or not (drop or optional):
             continue
-        reduced = _without(space, node, drop, levels, skip_fps)
-        if reduced.sig in verified:
-            continue
-        rterms = _final_terms(space, reduced, walk)
-        rscore = round(sum(REQUIRED_BONUS if req else OPTIONAL_BONUS for (_e, _c, req), c in zip(levels, reduced.cands)
-                           if c is not None) + sum(c.local for c in reduced.cands if c is not None)
-                       + sum(weights.get(t, 0.0) * rterms[t] for t in ("balance", "circulation", "seating_crossed")
-                             if t in rterms), 4)
-        pieces, groups = _piece_dicts(room, reduced, start, levels, info)
-        hard, violations = verify(base, room_id, pieces, _unchanged_ids(pieces, info))
-        verified[reduced.sig] = _candidate(rscore, rterms, pieces, groups, hard, violations, levels, reduced, kept,
-                                           budget, _rug_dicts(room, reduced, groups))
-        if hard or any(_similar(_coarse_sig(reduced), s) for s in picked):
-            continue
-        picked.append(_coarse_sig(reduced))
-        out.append(verified[reduced.sig])
+        # 23 Oct 2026 (group options 10x): when a failure names a required group's piece (a bed whose foot an
+        # optional armchair narrows) or only kept pieces (a drawn bed's side no walkway reaches once a desk and a
+        # chest stand there), the optional groups go first: the failing optional ones, each optional one (the last
+        # placed first), then all of them; the failing levels as named only after that (a required group is never
+        # dropped for an optional one).
+        tries = []
+        required_drop = {i for i in drop if levels[i][2]}
+        if required_drop or not drop:
+            tries += [d for d in [drop - required_drop] + [{i} for i in reversed(optional)] + [set(optional)]
+                      if d and len(d) < placed]
+        if drop:
+            tries.append(drop)
+        for d in list(dict.fromkeys(frozenset(t) for t in tries)):
+            reduced = _without(space, node, set(d), levels, skip_fps)
+            if reduced.sig in verified:
+                if not verified[reduced.sig]["hard_failures"]:
+                    break
+                continue
+            rterms = _final_terms(space, reduced, walk)
+            rscore = round(sum(REQUIRED_BONUS if req else OPTIONAL_BONUS
+                               for (_e, _c, req), c in zip(levels, reduced.cands) if c is not None)
+                           + sum(c.local for c in reduced.cands if c is not None)
+                           + sum(weights.get(t, 0.0) * rterms[t] for t in ("balance", "circulation", "seating_crossed")
+                                 if t in rterms), 4)
+            pieces, groups = _piece_dicts(room, reduced, start, levels, info)
+            hard, violations = verify(base, room_id, pieces, _unchanged_ids(pieces, info))
+            verified[reduced.sig] = _candidate(rscore, rterms, pieces, groups, hard, violations, levels, reduced, kept,
+                                               budget, _rug_dicts(room, reduced, groups))
+            if hard:
+                continue
+            if not any(_similar(_coarse_sig(reduced), s) for s in picked):
+                picked.append(_coarse_sig(reduced))
+                out.append(verified[reduced.sig])
+            break
     if len(out) < k:
         out += failed[:k - len(out)]
     for i, c in enumerate(out):

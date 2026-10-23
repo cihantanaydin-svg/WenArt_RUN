@@ -423,3 +423,33 @@ def test_a_lone_circle_is_no_tree_unless_its_layer_or_block_says_so(tmp_path):
     assert [t["points"][0] for t in trees] == [pytest.approx([-4.0, 11.0])]
     assert trees[0]["evidence"][0]["layer"] == "AGAC"
     assert sum("is not read as a tree" in w for w in res.doc["warnings"]) == 2
+
+
+def test_two_drawings_of_a_level_take_the_one_that_matches_the_level_below(tmp_path):
+    # User decision of 23 Oct 2026 (real04): the first ground plan bulges out (1.5 m room on its east side), a second
+    # ground plan in the same document has the basement's size: the second is the base, the first is not used.
+    res = _run(tmp_path, alternative_title="ZEMİN KAT PLANI", bulge="ground")
+    doc = res.doc
+    assert SH.validation_errors(doc) == []
+    ground = next(lv for lv in doc["levels"] if lv["id"] == "L0")
+    basement = next(lv for lv in doc["levels"] if lv["id"] == "L-1")
+    bulging = next(r for r in doc["regions"] if r["title"] and r["title"]["text"] == "ZEMİN KAT PLANI"
+                   and r["use"] == "ignored")
+    assert ground["base_region"] != bulging["id"] and ground["secondary_regions"] == []
+    assert "does not match the adjacent levels" in bulging["ignored_reason"]
+    assert ground["base_region"] in bulging["ignored_reason"]
+    assert basement["alternatives"] == []
+    kept = _region(doc, ground["base_region"])
+    assert kept["use"] == "read" and kept["registration"]["method"] == "reference"
+    mismatch = [c for c in doc["conflicts"] if c["kind"] == "outline_mismatch"]
+    assert len(mismatch) == 1 and mismatch[0]["regions"] == [ground["base_region"], bulging["id"]]
+    assert [v["regions"] for v in doc["variants"]] == [[basement["base_region"], ground["base_region"],
+                                                        next(lv for lv in doc["levels"] if lv["id"] == "L1")[
+                                                            "base_region"]]]
+
+
+def test_two_drawings_of_a_level_of_one_size_stay_base_and_copy(tmp_path):
+    res = _run(tmp_path, alternative_title="ZEMİN KAT PLANI")
+    ground = next(lv for lv in res.doc["levels"] if lv["id"] == "L0")
+    assert ground["base_region"] == "r2" and ground["secondary_regions"] == ["r4"]
+    assert "outline_mismatch" not in [c["kind"] for c in res.doc["conflicts"]]

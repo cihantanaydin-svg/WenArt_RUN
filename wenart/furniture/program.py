@@ -38,6 +38,11 @@ How:
 | balcony | balcony (table + 2 chairs) from 2.5 m² |
 
    Stair rooms, shafts, prayer rooms and rooms the brief switches off get no group (``reason`` says why).
+   23 Oct 2026 (user: "increase the group furniture options 10x"): each row also gets the group's *extra* options
+   whose area window (``min_area`` / ``max_area``, ``min_wall``, ``min_width``, ``subtype`` in ``groups.yaml``) the
+   room or zone allows (``groups.extra_options``: 263 options in all, 26 before), and the groups that have only
+   extras (``reading_corner``, ``bedroom_chest``) come as optional rows; a drawn group keeps the core options
+   (``drawn_options``) and an ``auto: false`` option (a bunk bed, a crib) comes only as a choice.
 3. ``choices`` pick one option of a group (a VLM pick or the agent's ``relayout_room``); a group whose drawn anchor
    fixes the option (a drawn corner sofa) has that option only.
 
@@ -290,7 +295,38 @@ def _entry(room_id: str, group: str, required: bool, options: list[str], *, zone
 
 
 def _rows(kind: str, area: float, polygon: Polygon, building: dict, room: dict, subtype: Optional[str]) -> list[tuple]:
-    """``(group, required, options)`` rows of the rule table for a room or zone of ``kind`` (a room type)."""
+    """``(group, required, options)`` rows for a room or zone of ``kind`` (a room type): the rule table's rows
+    (``_core_rows``) with the extra options of each group the room's size allows (``groups.extra_options``; none
+    where the small-room rule narrows the options), then one optional row per group without core options whose
+    ``room_types`` name the kind and whose extras the room allows (the reading corner, the bedroom chest; 23 Oct
+    2026, user: "increase the group furniture options 10x")."""
+    rows = _core_rows(kind, area, polygon, building, room, subtype)
+    narrowed = {"seating"} if kind == "living" and (GR.small_room("living", area) or {}).get("options") else set()
+    longest, width = longest_wall(polygon), min_width(polygon)
+    out = []
+    for group, required, options in rows:
+        extra = [] if group in narrowed else GR.extra_options(group, area, longest, width, subtype)
+        out.append((group, required, list(dict.fromkeys(list(options) + extra))))
+    have = {r[0] for r in out}
+    for group, template in GR.load_groups().items():
+        if group in have or kind not in template["room_types"] or GR.core_options(group):
+            continue
+        extra = GR.extra_options(group, area, longest, width, subtype)
+        if extra:
+            out.append((group, False, extra))
+    return out
+
+
+def drawn_options(group: str, options: list[str]) -> list[str]:
+    """The options a drawn group is completed with: the core ones of ``options`` (else all core options of the
+    group); the extras (side tables, lamps, dressers ...) are never added to a drawn group."""
+    opts = GR.load_groups()[group]["options"]
+    return [o for o in options if o in opts and GR.is_core(opts[o])] or GR.core_options(group) or list(options)
+
+
+def _core_rows(kind: str, area: float, polygon: Polygon, building: dict, room: dict,
+               subtype: Optional[str]) -> list[tuple]:
+    """``(group, required, core options)`` rows of the rule table for a room or zone of ``kind``."""
     rows: list[tuple] = []
     if kind == "living":
         seat = ["sofa_2_armchairs", "sofa_armchair", "sofa"] if area >= 14.0 else ["sofa", "sofa_armchair"]
@@ -490,7 +526,7 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         # the row of the other sleeping group (a drawn double bed in a room under 9 m², whose row is sleeping_single)
         # has that group's options: the drawn group takes its own (P8 test: KeyError 'bed_nightstand')
         own = (same or {}).get("options") if (same or {}).get("group") == name else None
-        options = own or list(template["options"])
+        options = drawn_options(name, own or list(template["options"]))
         if template["layout"] == "anchored":
             options = _option_of_anchor(name, anchor["type"], options)
         host = duplicate_anchor(building, anchor) if template["layout"] == "anchored" else None   # after P4b
@@ -541,8 +577,8 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
         entry = next((r for r in rows if r["drawn"] and r["anchor_id"] == anchor["id"]), None)
         if entry is None:
             same = next((r for r in rows if r["group"] == g["template"] and not r["drawn"]), None)
-            options = _option_of_anchor(g["template"], anchor["type"], list((same or {}).get("options")
-                                                                             or template["options"]))
+            options = _option_of_anchor(g["template"], anchor["type"], drawn_options(
+                g["template"], list((same or {}).get("options") or template["options"])))
             entry = _entry(room_id, g["template"], True, options, zone_id=(same or {}).get("zone_id"),
                            area=(same or {}).get("area", area), anchor_id=anchor["id"], drawn=True,
                            members=list(g["members"]))
@@ -558,6 +594,13 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
                                                                        if m in drawn], room, building)
         entry["note"] = f"re-solved as one unit around the drawn anchor: {reason}"
         notes.append(f"{g['template']} re-solved around drawn {anchor['type']} {anchor['id']}: {reason}")
+    # 23 Oct 2026 (group options 10x): a room with drawn furniture is completed with what its type misses; the
+    # groups that only have extra options (a reading corner, a bedroom chest) are additions, never a completion.
+    if any(r["drawn"] for r in rows):
+        for r in list(rows):
+            if not r["drawn"] and not GR.core_options(r["group"]):
+                rows.remove(r)
+                notes.append(f"{r['group']} left out: the room has drawn furniture (completed, not added to)")
     resolving = {r["anchor_id"] for r in rows if r.get("resolve")}
     # A room whose drawn pieces already hold its anchor type never gets a second anchor (a drawn anchor that is
     # re-solved is rebuilt at its place, so it counts too).
@@ -586,6 +629,9 @@ def room_program(building: dict, room_id: str, brief: Optional[dict] = None, cho
     # 3. Choices (the VLM's or the agent's picks).
     for r in rows:
         pick = (choices or {}).get(r["group_id"])
+        opts = GR.load_groups()[r["group"]]["options"]
+        if pick not in r["options"] and not r["drawn"] and (opts.get(pick) or {}).get("auto") is False:
+            r["options"].append(pick)              # an option offered only on request (a bunk bed, a crib)
         if pick in r["options"]:
             r["chosen"] = pick
     rows.sort(key=lambda r: (-r["priority"], r["group_id"]))

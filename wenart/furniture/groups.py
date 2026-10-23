@@ -462,7 +462,29 @@ _PARTNER = {"type": "object", "additionalProperties": False, "required": ["role"
                            "place": {"enum": list(PARTNER_PLACES) + ["wall"]}, "of": {"type": "string"},
                            "gap": {"anyOf": [_NUM, {"type": "string"}]}, "facing": {"enum": ["anchor", "same", "of"]},
                            "align": {"enum": list(ALIGNS)}, "option": {"type": "string"},
-                           "option_any": {"type": "array", "items": {"type": "string"}}, "sizes": _SIZES}}
+                           "option_any": {"type": "array", "items": {"type": "string"}}, "sizes": _SIZES,
+                           "default": {"type": "integer", "minimum": 0}}}
+# 23 Oct 2026 (user: "increase the group furniture options 10x"): the keys an option may carry. ``anchor`` /
+# ``counts`` (partner type -> count; a partner without a count takes its ``default``, else its ``max``) / ``sizes``
+# (anchor type -> sizes) / ``partner_sizes`` (partner role -> sizes; in a set: member type -> sizes, added to the
+# member's own) / ``modules`` (run module -> {sizes}) / ``shape``
+# / ``members`` and the set's role -> type keys say what is built. ``min_area`` makes an option an *extra*: the
+# program offers it beside the core options of a room or zone of ``min_area`` <= area < ``max_area`` whose longest wall
+# is >= ``min_wall`` and whose narrowest width is >= ``min_width`` (``subtype``: only in such rooms, e.g. ``child``).
+# ``auto: false``: never offered by the program, only when chosen (the brief, the agent). ``what``: a short text.
+OPTION_KEYS = ("anchor", "counts", "sizes", "partner_sizes", "modules", "shape", "members", "min_area", "max_area",
+               "min_wall", "min_width", "subtype", "auto", "what")
+_OPTION = {"type": "object", "properties": {
+    "anchor": {"type": "string"}, "shape": {"type": "string"}, "what": {"type": "string"},
+    "counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "sizes": {"type": "object", "additionalProperties": _SIZES},
+    "partner_sizes": {"type": "object", "additionalProperties": _SIZES},
+    "modules": {"type": "object", "additionalProperties": {"type": "object", "additionalProperties": False,
+                                                           "required": ["sizes"], "properties": {"sizes": _SIZES}}},
+    "members": {"type": "array", "items": {"type": "string"}},
+    "min_area": {"type": "number", "minimum": 0}, "max_area": {"type": "number", "exclusiveMinimum": 0},
+    "min_wall": {"type": "number", "minimum": 0}, "min_width": {"type": "number", "minimum": 0},
+    "subtype": {"type": "string"}, "auto": {"type": "boolean"}}}
 _GROUP = {
     "type": "object", "additionalProperties": False,
     "required": ["what", "layout", "zone", "room_types", "priority", "options", "partners"],
@@ -474,7 +496,7 @@ _GROUP = {
                    "properties": {"types": {"type": "array", "items": {"type": "string"}, "minItems": 1},
                                   "place": {"enum": list(ANCHOR_PLACES)}, "align": {"enum": list(ALIGNS)},
                                   "sizes": {"type": "array", "items": _SIZE_ROW, "minItems": 1}}},
-        "options": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object"}},
+        "options": {"type": "object", "minProperties": 1, "additionalProperties": _OPTION},
         "partners": {"type": "array", "items": _PARTNER},
         "members": {"type": "array", "items": _PARTNER},
         "run": {"type": "object", "required": ["depth", "max_leg", "step", "order", "modules"]},
@@ -607,6 +629,25 @@ def validate_config(data: dict) -> list[str]:
                 problems.append(f"{where}/run: order must name every module")
         roles = {p["role"] for p in pieces}
         for oname, opt in g["options"].items():
+            for key in opt:
+                if key not in OPTION_KEYS and not (g["layout"] == "set" and key in roles):
+                    problems.append(f"{where}/options/{oname}: unknown key {key!r}")
+            for key in opt.get("partner_sizes", {}):
+                if g["layout"] == "set" and key not in {m["type"] for m in g.get("members") or []}:
+                    problems.append(f"{where}/options/{oname}/partner_sizes: {key!r} is no member type")
+                elif g["layout"] != "set" and key not in {p["role"] for p in g.get("partners") or []}:
+                    problems.append(f"{where}/options/{oname}/partner_sizes: {key!r} is no partner role")
+            for t in opt.get("sizes", {}):
+                if t not in anchor_types:
+                    problems.append(f"{where}/options/{oname}/sizes: {t!r} is not an anchor type")
+            for key in opt.get("modules", {}):
+                if key not in ((g.get("run") or {}).get("modules") or {}):
+                    problems.append(f"{where}/options/{oname}/modules: {key!r} is no run module")
+            if opt.get("max_area") is not None and float(opt.get("min_area", 0.0)) >= float(opt["max_area"]):
+                problems.append(f"{where}/options/{oname}: min_area must be below max_area")
+            if opt.get("auto") is not False and opt.get("min_area") is None and any(
+                    k in opt for k in ("max_area", "min_wall", "min_width", "subtype")):
+                problems.append(f"{where}/options/{oname}: an offer window needs min_area")
             if g["layout"] == "anchored" and opt.get("anchor") not in anchor_types:
                 problems.append(f"{where}/options/{oname}: anchor {opt.get('anchor')!r} is not an anchor type")
             for t in opt.get("counts", {}):
@@ -761,6 +802,46 @@ def tier_overrides(room_type: Optional[str] = None, area: Optional[float] = None
                 entry = {"min": min(floor, r["min"]), "rec": r["min"]}
             out[name] = entry
     return out
+
+
+def is_core(option: dict) -> bool:
+    """A core option: offered by the program's own rule table (no ``min_area`` window, not ``auto: false``)."""
+    return option.get("min_area") is None and option.get("auto") is not False
+
+
+def core_options(group: str) -> list[str]:
+    """The core options of a group (drawn groups are completed with these only)."""
+    return [name for name, opt in load_groups()[group]["options"].items() if is_core(opt)]
+
+
+def extra_options(group: str, area: float, longest: Optional[float] = None, width: Optional[float] = None,
+                  subtype: Optional[str] = None) -> list[str]:
+    """The extra options (``min_area`` windows, see ``OPTION_KEYS``) a room or zone of ``area`` m² is offered, in
+    file order: ``min_area`` <= area < ``max_area``, the longest wall >= ``min_wall``, the narrowest width >=
+    ``min_width`` and the room subtype equal to ``subtype`` where the option names them."""
+    out = []
+    for name, opt in load_groups()[group]["options"].items():
+        if opt.get("min_area") is None or opt.get("auto") is False:
+            continue
+        if area < float(opt["min_area"]) - 1e-9:
+            continue
+        if opt.get("max_area") is not None and area >= float(opt["max_area"]) - 1e-9:
+            continue
+        if opt.get("min_wall") is not None and (longest is None or longest < float(opt["min_wall"]) - 1e-9):
+            continue
+        if opt.get("min_width") is not None and (width is None or width < float(opt["min_width"]) - 1e-9):
+            continue
+        if opt.get("subtype") is not None and opt["subtype"] != subtype:
+            continue
+        out.append(name)
+    return out
+
+
+def option_count() -> dict:
+    """``{group: number of options}`` and ``"total"`` (the report and the tests)."""
+    counts = {name: len(g["options"]) for name, g in load_groups().items()}
+    counts["total"] = sum(counts.values())
+    return counts
 
 
 def sizes_for(template: dict, ftype: str, area: float) -> list[tuple[float, float]]:

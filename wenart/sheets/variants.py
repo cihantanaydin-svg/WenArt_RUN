@@ -19,6 +19,12 @@ the base (``base_unclear``, a ``variant_base_unclear`` conflict). Variant ids an
 ``wenart.building.variant_id`` / ``variant_slug``. The brief's ``variants``: ``all``; ``base`` (the alternatives are
 read but not listed as variants); or a list of names (kept when the name, slug, gloss or variant id matches after
 ``fold_ascii``; unknown names are a warning).
+
+Two drawings of one level in one document that differ in size (real04: ground floor r5 17.17 x 12.00 m, bulging out,
+and r16 15.17 x 12.00 m, the size of the basement r11) are not the same plan drawn twice: the one whose outline matches
+the levels above and below (``SAME_SIZE_M``) is the base, and a drawing of another size is not used
+(``ignored``, an ``outline_mismatch`` conflict; user decision of 23 Oct 2026). Nothing changes when no drawing matches
+an adjacent level, or when the drawings come from different documents (a DXF and its PDF).
 """
 from __future__ import annotations
 
@@ -29,6 +35,7 @@ from wenart import building as B
 from wenart.sheets import titles as T
 
 LETTERS = "bcdefghijklmnopqrstuvwxyz"
+SAME_SIZE_M = 0.30          # two drawings of a level within this (each side) are the same plan
 
 
 def _rank(r) -> tuple:
@@ -42,6 +49,74 @@ def _ev(r) -> list[dict]:
     return [dict(e) for e in r.evidence[:1]]
 
 
+def footprint(r):
+    """(x, y) size in metres of the plan's outline (dimension lines and the roof outline left out; the entities'
+    box when no outline is found); None without a drawing unit."""
+    mpu = getattr(r, "metres_per_unit", None)
+    if not mpu or getattr(r, "kind", "drawing") == "raster":
+        return None
+    if not hasattr(r, "_footprint"):
+        from wenart.sheets import register as RG
+        poly = RG.outline(r, mpu, set(RG.enclosing_outlines(r, mpu)) | RG.cut_line_entities(r)) if r.ents else None
+        b = poly.bounds if poly is not None else r.geometry_box
+        r._footprint = ((b[2] - b[0]) * mpu, (b[3] - b[1]) * mpu)
+    return r._footprint
+
+
+def _size_gap(a, b) -> float:
+    return max(abs(a[0] - b[0]), abs(a[1] - b[1]))
+
+
+def _size_text(size) -> str:
+    return f"{size[0]:.2f} x {size[1]:.2f} m"
+
+
+def _matching(order: int, plain: list, plain_of: dict, conflict: Callable, warnings: list) -> list:
+    """``plain`` (the level's plans without an alternative word, in trust order) with the drawing that matches the
+    adjacent levels first and the base document's drawings of another size left out (see the module text)."""
+    base = plain[0]
+    same_doc = [r for r in plain if r.file == base.file]
+    sizes = {id(r): footprint(r) for r in same_doc}
+    if len(same_doc) < 2 or any(v is None for v in sizes.values()) or \
+            max(_size_gap(sizes[id(a)], sizes[id(b)]) for a in same_doc for b in same_doc) <= SAME_SIZE_M:
+        return plain
+    others = sorted((o for o in plain_of if o != order), key=lambda o: (abs(o - order), o))
+    near = [o for o in others if abs(o - order) == abs(others[0] - order)] if others else []
+    refs = [(r, footprint(r)) for o in near for r in plain_of[o] if r.use == "read"]
+    refs = [(r, size) for r, size in refs if size is not None]
+    if not refs:
+        return plain
+
+    def score(r):
+        return min((_size_gap(sizes[id(r)], size), ref.id) for ref, size in refs)
+
+    chosen = min(same_doc, key=lambda r: score(r)[0])
+    gap, ref_id = score(chosen)
+    if gap > SAME_SIZE_M:
+        warnings.append(f"level {base.level['id']}: {len(same_doc)} drawings of different sizes in {base.file} "
+                        f"({', '.join(f'{r.id} {_size_text(sizes[id(r)])}' for r in same_doc)}); none matches an "
+                        f"adjacent level: {base.id} (first in trust order) is the base")
+        return plain
+    dropped = [r for r in same_doc if _size_gap(sizes[id(r)], sizes[id(chosen)]) > SAME_SIZE_M]
+    ref = next(r for r, _ in refs if r.id == ref_id)
+    text = (f"level {base.level['id']}: {len(same_doc)} drawings in {base.file}; {chosen.id} "
+            f"({_size_text(sizes[id(chosen)])}) matches {ref_id} of level {ref.level['id']} "
+            f"({_size_text(footprint(ref))}) and is read; "
+            f"{', '.join(f'{r.id} ({_size_text(sizes[id(r)])})' for r in dropped)} not used")
+    cid = conflict("outline_mismatch", [chosen.id] + [r.id for r in dropped], text,
+                   f"{chosen.id} read (its outline matches the adjacent level); "
+                   f"{', '.join(r.id for r in dropped)} ignored")
+    warnings.append(text)
+    for r in dropped:
+        r.use = "ignored"
+        r.ignored_reason = (f"another drawing of level {base.level['id']} whose outline "
+                            f"({_size_text(sizes[id(r)])}) does not match the adjacent levels; {chosen.id} "
+                            f"({_size_text(sizes[id(chosen)])}, as {ref_id}) is read")
+        r.conflicts.append(cid)
+    chosen.conflicts.append(cid)
+    return [chosen] + [r for r in plain if r is not chosen and r not in dropped]
+
+
 def group(plans: list, brief_variants, conflict: Callable, warnings: list) -> tuple[list[dict], list[dict]]:
     by_order: dict[int, list] = {}
     for r in plans:
@@ -49,6 +124,7 @@ def group(plans: list, brief_variants, conflict: Callable, warnings: list) -> tu
             by_order.setdefault(r.level["order"], []).append(r)
     levels = []
     alternatives = []                     # (base level dict, alternative entry, region)
+    split = {}
     for order in sorted(by_order):
         regions = sorted(by_order[order], key=_rank)
         floors = [r for r in regions if r.cls != "furniture_plan"]
@@ -56,7 +132,13 @@ def group(plans: list, brief_variants, conflict: Callable, warnings: list) -> tu
         if not floors:
             floors, furniture = furniture[:1], furniture[1:]
         named = {id(r): T.alternative_of(r.title["text"]) if r.title else None for r in floors}
-        plain = [r for r in floors if named[id(r)] is None]
+        split[order] = (floors, furniture, named, [r for r in floors if named[id(r)] is None])
+    plain_of = {order: v[3] for order, v in split.items() if v[3]}
+    for order in sorted(by_order):
+        floors, furniture, named, plain = split[order]
+        if len(plain) > 1:
+            plain = _matching(order, plain, plain_of, conflict, warnings)
+            floors = [r for r in floors if r.use == "read"]
         unclear = not plain
         base = plain[0] if plain else floors[0]
         copies = [r for r in plain if r is not base]

@@ -214,10 +214,59 @@ groups:
       sofa_armchair: {anchor: sofa, counts: {armchair: 1}}
       sofa: {anchor: sofa, counts: {armchair: 0}}
       corner_sofa: {anchor: sofa_corner, counts: {armchair: 0}}
+      # 23 Oct 2026 (user: "increase the group furniture options 10x (sofa set etc)"): extra options, offered by the
+      # room's area (min_area / max_area, groups.extra_options); the code score picks among their candidates.
+      sofa2_round_coffee: {anchor: sofa, min_area: 9, sizes: {sofa: [[1.6, 0.9]]}, counts: {armchair: 0}, partner_sizes: {coffee: [[0.8, 0.8], [0.7, 0.7]]}, what: "2-seat sofa, round coffee table"}
+      sofa2_side_table: {anchor: sofa, min_area: 9, sizes: {sofa: [[1.6, 0.9]]}, counts: {armchair: 0, side_table: 1}, what: "2-seat sofa with an end table"}
+      sofa2_pouf: {anchor: sofa, min_area: 9, sizes: {sofa: [[1.6, 0.9]]}, counts: {armchair: 0, table_coffee: 0, ottoman: 1}, what: "2-seat sofa, a pouf as the coffee table"}
+      sofa2_armchair_lamp: {anchor: sofa, min_area: 12, sizes: {sofa: [[1.6, 0.9]]}, counts: {armchair: 1, floor_lamp: 1}, what: "2-seat sofa, one armchair, a floor lamp"}
+      sofa2_2_armchairs_round: {anchor: sofa, min_area: 14, sizes: {sofa: [[1.6, 0.9]]}, counts: {armchair: 2}, partner_sizes: {coffee: [[0.9, 0.9], [0.8, 0.8]]}, what: "2-seat sofa, two armchairs, round coffee table"}
+      sofa_compact_tv: {anchor: sofa, min_area: 9, max_area: 14, counts: {armchair: 0}, partner_sizes: {tv: [[1.2, 0.4], [1.0, 0.35]], coffee: [[0.8, 0.5], [0.7, 0.45]]}, what: "a sofa with a slim TV unit and a small coffee table"}
+      sofa_armchair_compact: {anchor: sofa, min_area: 10, max_area: 16, sizes: {sofa: [[1.6, 0.9]]}, counts: {armchair: 1}, partner_sizes: {coffee: [[0.8, 0.5], [0.7, 0.5]]}, what: "a compact sofa set with one armchair"}
+      sofa3_side_tables: {anchor: sofa, min_area: 14, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 0, side_table: 2}, what: "3-seat sofa with two end tables"}
+      sofa3_armchair_side_table: {anchor: sofa, min_area: 14, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 1, side_table: 1}, what: "3-seat sofa, one armchair, an end table"}
+      sofa3_2_armchairs_side_tables: {anchor: sofa, min_area: 18, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 2, side_table: 2}, what: "3-seat sofa set: two armchairs, two end tables"}
+      sofa3_2_armchairs_lamp: {anchor: sofa, min_area: 16, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 2, floor_lamp: 1}, what: "3-seat sofa, two armchairs, a floor lamp"}
+      sofa3_pouf_lamp: {anchor: sofa, min_area: 13, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 0, table_coffee: 0, ottoman: 1, floor_lamp: 1}, what: "3-seat sofa, a pouf, a floor lamp"}
+      sofa3_round_coffee_plant: {anchor: sofa, min_area: 15, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 1, potted_plant: 1}, partner_sizes: {coffee: [[0.9, 0.9], [0.8, 0.8]]}, what: "3-seat sofa, one armchair, round coffee table, a plant"}
+      sofa3_long_coffee: {anchor: sofa, min_area: 16, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 2}, partner_sizes: {coffee: [[1.4, 0.7], [1.3, 0.6]]}, what: "3-seat sofa, two armchairs, a long coffee table"}
+      sofa3_wide_tv: {anchor: sofa, min_area: 16, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 1}, partner_sizes: {tv: [[2.0, 0.45], [1.8, 0.45]]}, what: "3-seat sofa, one armchair, a wide TV unit"}
+      sofa3_lamp_plant: {anchor: sofa, min_area: 13, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 0, floor_lamp: 1, potted_plant: 1}, what: "3-seat sofa between a floor lamp and a plant"}
+      sofa3_2_armchairs_pouf: {anchor: sofa, min_area: 17, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 2, table_coffee: 0, ottoman: 1}, what: "3-seat sofa, two armchairs around a large pouf"}
+      sofa4_2_armchairs: {anchor: sofa, min_area: 20, sizes: {sofa: [[2.6, 0.95], [2.8, 0.95]]}, counts: {armchair: 2}, what: "4-seat sofa, two armchairs"}
+      sofa4_side_table_lamp: {anchor: sofa, min_area: 18, sizes: {sofa: [[2.6, 0.95]]}, counts: {armchair: 0, side_table: 1, floor_lamp: 1}, what: "4-seat sofa, an end table, a floor lamp"}
+      sofa4_2_armchairs_side_tables: {anchor: sofa, min_area: 22, sizes: {sofa: [[2.6, 0.95]]}, counts: {armchair: 2, side_table: 2}, what: "4-seat sofa set: two armchairs, two end tables"}
+      sofa4_armchair_plant: {anchor: sofa, min_area: 18, sizes: {sofa: [[2.6, 0.95]]}, counts: {armchair: 1, potted_plant: 1}, what: "4-seat sofa, one armchair, a plant"}
+      sofa4_pouf_2_armchairs: {anchor: sofa, min_area: 22, sizes: {sofa: [[2.6, 0.95]]}, counts: {armchair: 2, table_coffee: 0, ottoman: 1}, what: "4-seat sofa, two armchairs, a pouf"}
+      sofa4_long_coffee_wide_tv: {anchor: sofa, min_area: 24, sizes: {sofa: [[2.6, 0.95], [2.8, 1.0]]}, counts: {armchair: 2}, partner_sizes: {coffee: [[1.4, 0.7]], tv: [[2.2, 0.45], [2.0, 0.45]]}, what: "a large sofa set: 4-seat sofa, two armchairs, long coffee table, wide TV unit"}
+      sofa_2_armchairs_side_tables: {anchor: sofa, min_area: 18, counts: {armchair: 2, side_table: 2}, what: "sofa, two armchairs, two end tables"}
+      sofa_armchair_lamp: {anchor: sofa, min_area: 14, counts: {armchair: 1, floor_lamp: 1}, what: "sofa, one armchair, a floor lamp"}
+      sofa_side_table_plant: {anchor: sofa, min_area: 13, counts: {armchair: 0, side_table: 1, potted_plant: 1}, what: "sofa with an end table and a plant"}
+      sofa_2_armchairs_pouf: {anchor: sofa, min_area: 16, counts: {armchair: 2, table_coffee: 0, ottoman: 1}, what: "sofa, two armchairs, a pouf"}
+      sofa_2_armchairs_round_coffee: {anchor: sofa, min_area: 16, counts: {armchair: 2}, partner_sizes: {coffee: [[1.0, 1.0], [0.9, 0.9]]}, what: "sofa, two armchairs, round coffee table"}
+      sofa_armchair_side_table_lamp: {anchor: sofa, min_area: 16, counts: {armchair: 1, side_table: 1, floor_lamp: 1}, what: "sofa, one armchair, an end table, a floor lamp"}
+      corner_sofa_small: {anchor: sofa_corner, min_area: 12, sizes: {sofa_corner: [[2.2, 1.5], [2.0, 1.5]]}, counts: {armchair: 0}, what: "small corner sofa"}
+      corner_sofa_side_table: {anchor: sofa_corner, min_area: 15, sizes: {sofa_corner: [[2.6, 1.6]]}, counts: {armchair: 0, side_table: 1}, what: "corner sofa with an end table"}
+      corner_sofa_armchair: {anchor: sofa_corner, min_area: 16, sizes: {sofa_corner: [[2.6, 1.6], [2.2, 1.5]]}, counts: {armchair: 1}, what: "corner sofa and one armchair"}
+      corner_sofa_lamp_plant: {anchor: sofa_corner, min_area: 16, sizes: {sofa_corner: [[2.6, 1.6]]}, counts: {armchair: 0, floor_lamp: 1, potted_plant: 1}, what: "corner sofa, a floor lamp, a plant"}
+      corner_sofa_pouf: {anchor: sofa_corner, min_area: 14, sizes: {sofa_corner: [[2.6, 1.6]]}, counts: {armchair: 0, table_coffee: 0, ottoman: 1}, what: "corner sofa with a pouf"}
+      corner_sofa_round_coffee: {anchor: sofa_corner, min_area: 14, sizes: {sofa_corner: [[2.6, 1.6]]}, counts: {armchair: 0}, partner_sizes: {coffee: [[0.9, 0.9], [0.8, 0.8]]}, what: "corner sofa, round coffee table"}
+      corner_sofa_large: {anchor: sofa_corner, min_area: 20, sizes: {sofa_corner: [[3.0, 1.7], [3.2, 2.0]]}, counts: {armchair: 0}, what: "large corner sofa"}
+      corner_sofa_large_armchair: {anchor: sofa_corner, min_area: 22, sizes: {sofa_corner: [[3.0, 1.7]]}, counts: {armchair: 1, side_table: 1}, what: "large corner sofa, one armchair, an end table"}
+      corner_sofa_xl_2_armchairs: {anchor: sofa_corner, min_area: 28, sizes: {sofa_corner: [[3.2, 2.0], [3.0, 1.7]]}, counts: {armchair: 2}, partner_sizes: {tv: [[2.2, 0.45], [2.0, 0.45]]}, what: "XL corner sofa, two armchairs, wide TV unit"}
+      corner_sofa_side_tables_long_coffee: {anchor: sofa_corner, min_area: 20, sizes: {sofa_corner: [[3.0, 1.7], [2.6, 1.6]]}, counts: {armchair: 0, side_table: 1}, partner_sizes: {coffee: [[1.4, 0.7], [1.2, 0.7]]}, what: "corner sofa, a long coffee table, an end table"}
+      sofa3_armchair_pouf_coffee: {anchor: sofa, min_area: 15, sizes: {sofa: [[2.2, 0.9]]}, counts: {armchair: 1, table_coffee: 0, ottoman: 1}, partner_sizes: {coffee: [[0.8, 0.8], [0.7, 0.7]]}, what: "3-seat sofa, one armchair, a large pouf"}
     partners:
       - {role: tv, type: tv_unit, required: true, place: facing_wall, facing: anchor, sizes: [[1.6, 0.45], [1.2, 0.4], [2.0, 0.45]]}
       - {role: coffee, type: table_coffee, required: false, place: front, gap: coffee_gap, facing: anchor, sizes: [[1.2, 0.7], [1.0, 0.6], [0.8, 0.5]]}
       - {role: armchair, type: armchair, required: false, max: 2, place: flank, of: coffee, gap: 0.35, facing: of, sizes: [[0.8, 0.8]]}
+      # 23 Oct 2026: partners of the extra options only (default 0: the core options are unchanged). A pouf takes the
+      # coffee table's place (role coffee: the armchairs flank it, the rug lies under it); end tables, a floor lamp
+      # and a plant stand at the sofa's ends with their backs on its back line (beside_head).
+      - {role: coffee, type: ottoman, required: false, max: 1, default: 0, place: front, gap: coffee_gap, facing: anchor, sizes: [[0.8, 0.8], [0.6, 0.6]]}
+      - {role: side_table, type: side_table, required: false, max: 2, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[0.5, 0.5], [0.45, 0.45], [0.4, 0.4]]}
+      - {role: lamp, type: floor_lamp, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.45, 0.45], [0.35, 0.35]]}
       # Milestone 13 (T3, R6): the rug is a member of the group, under the coffee table, sized from the group (the
       # sizes row is the smallest rug; rule rug_seating). A decor type: laid on the floor, never an obstacle.
       - {role: rug, type: rug, required: false, place: under, of: coffee, gap: rug_seating, facing: same, sizes: [[1.6, 2.3]]}
@@ -239,6 +288,31 @@ groups:
       seats_4: {anchor: table_dining, sizes: {table_dining: [[1.2, 0.8]]}}
       seats_6: {anchor: table_dining, sizes: {table_dining: [[1.6, 0.9]]}}
       seats_8: {anchor: table_dining, sizes: {table_dining: [[2.0, 1.0]]}}
+      # 23 Oct 2026: extra options (table shapes and seat counts; chairs: counts.chair, else by the table length).
+      seats_2_square: {anchor: table_dining, min_area: 5, sizes: {table_dining: [[0.8, 0.8]]}, counts: {chair: 2}, what: "small square table, two chairs"}
+      seats_2_long: {anchor: table_dining, min_area: 6, sizes: {table_dining: [[1.0, 0.7], [0.9, 0.7]]}, counts: {chair: 2}, what: "a small long table for two"}
+      seats_2_bistro: {anchor: table_dining, min_area: 5, sizes: {table_dining: [[0.8, 0.7]]}, counts: {chair: 2}, what: "bistro table, two chairs"}
+      seats_4_square: {anchor: table_dining, min_area: 8, sizes: {table_dining: [[0.9, 0.9], [1.0, 1.0]]}, counts: {chair: 4}, what: "square table, four chairs"}
+      seats_4_round: {anchor: table_dining, min_area: 9, sizes: {table_dining: [[1.1, 1.1], [1.0, 1.0]]}, counts: {chair: 4}, what: "round table, four chairs"}
+      seats_4_long: {anchor: table_dining, min_area: 9, sizes: {table_dining: [[1.4, 0.8]]}, counts: {chair: 4}, what: "long table, four chairs"}
+      seats_4_narrow: {anchor: table_dining, min_area: 8, sizes: {table_dining: [[1.2, 0.7]]}, counts: {chair: 4}, what: "narrow table, four chairs"}
+      seats_4_oval: {anchor: table_dining, min_area: 10, sizes: {table_dining: [[1.5, 0.9]]}, counts: {chair: 4}, what: "oval table, four chairs"}
+      seats_4_no_ends: {anchor: table_dining, min_area: 11, sizes: {table_dining: [[1.6, 0.9]]}, counts: {chair: 4}, what: "four chairs on the long sides, the ends free"}
+      seats_6_round: {anchor: table_dining, min_area: 13, sizes: {table_dining: [[1.2, 1.2]]}, counts: {chair: 6}, what: "large round table, six chairs"}
+      seats_6_long: {anchor: table_dining, min_area: 13, sizes: {table_dining: [[1.8, 0.9]]}, counts: {chair: 6}, what: "long table, six chairs"}
+      seats_6_wide: {anchor: table_dining, min_area: 13, sizes: {table_dining: [[1.6, 1.0]]}, counts: {chair: 6}, what: "wide table, six chairs"}
+      seats_6_no_ends: {anchor: table_dining, min_area: 15, sizes: {table_dining: [[2.0, 0.9]]}, counts: {chair: 6}, what: "six chairs on the long sides, the ends free"}
+      seats_8_long: {anchor: table_dining, min_area: 18, sizes: {table_dining: [[2.2, 1.0]]}, counts: {chair: 8}, what: "long table, eight chairs"}
+      seats_8_wide: {anchor: table_dining, min_area: 18, sizes: {table_dining: [[2.0, 1.1]]}, counts: {chair: 8}, what: "wide table, eight chairs"}
+      seats_8_no_ends: {anchor: table_dining, min_area: 20, sizes: {table_dining: [[2.4, 1.0]]}, counts: {chair: 8}, what: "eight chairs on the long sides"}
+      seats_10: {anchor: table_dining, min_area: 24, sizes: {table_dining: [[2.6, 1.0], [2.4, 1.0]]}, counts: {chair: 10}, what: "ten seats"}
+      seats_10_wide: {anchor: table_dining, min_area: 26, sizes: {table_dining: [[2.6, 1.1]]}, counts: {chair: 10}, what: "ten seats, wide table"}
+      seats_12: {anchor: table_dining, min_area: 30, sizes: {table_dining: [[3.0, 1.1], [3.2, 1.2]]}, counts: {chair: 12}, what: "twelve seats"}
+      seats_6_short_ends: {anchor: table_dining, min_area: 14, sizes: {table_dining: [[1.6, 0.9]]}, counts: {chair: 6}, what: "four chairs on the sides, one at each end"}
+      seats_4_wide_square: {anchor: table_dining, min_area: 10, sizes: {table_dining: [[1.2, 1.2]]}, counts: {chair: 4}, what: "large square table, four chairs"}
+      seats_8_round_ends: {anchor: table_dining, min_area: 19, sizes: {table_dining: [[2.0, 1.0]]}, counts: {chair: 8}, what: "three chairs per side, one at each end"}
+      seats_6_oval: {anchor: table_dining, min_area: 14, sizes: {table_dining: [[1.8, 1.0]]}, counts: {chair: 6}, what: "oval table, six chairs"}
+      seats_10_no_ends: {anchor: table_dining, min_area: 26, sizes: {table_dining: [[2.8, 1.0]]}, counts: {chair: 10}, what: "ten chairs on the long sides"}
     partners:
       - {role: chair, type: chair, required: true, place: around, facing: anchor, sizes: [[0.45, 0.45]]}
 
@@ -259,9 +333,39 @@ groups:
     options:
       bed_nightstands: {anchor: bed_double, counts: {bench: 0}}
       bed_nightstands_bench: {anchor: bed_double, counts: {bench: 1}}
+      # 23 Oct 2026: extra options (bed widths, nightstand sizes and counts, a bench or a pouf at the foot, a dresser
+      # or a TV unit on the wall the bed faces, a floor lamp or a plant at the head).
+      bed140_nightstands: {anchor: bed_double, min_area: 9, sizes: {bed_double: [[1.4, 2.0]]}, counts: {bench: 0}, what: "1.40 m bed, two nightstands"}
+      bed160_nightstands: {anchor: bed_double, min_area: 10, sizes: {bed_double: [[1.6, 2.0]]}, counts: {bench: 0}, what: "1.60 m bed, two nightstands"}
+      bed180_nightstands: {anchor: bed_double, min_area: 12, sizes: {bed_double: [[1.8, 2.0]]}, counts: {bench: 0}, what: "1.80 m bed, two nightstands"}
+      bed200_nightstands: {anchor: bed_double, min_area: 15, sizes: {bed_double: [[2.0, 2.1], [1.8, 2.1]]}, counts: {bench: 0}, what: "2.00 m king bed, two nightstands"}
+      bed_nightstands_large: {anchor: bed_double, min_area: 11, counts: {bench: 0}, partner_sizes: {nightstand: [[0.6, 0.45], [0.55, 0.45]]}, what: "bed with wide nightstands"}
+      bed_nightstands_small: {anchor: bed_double, min_area: 9, counts: {bench: 0}, partner_sizes: {nightstand: [[0.4, 0.35], [0.35, 0.35]]}, what: "bed with slim nightstands"}
+      bed_one_nightstand: {anchor: bed_double, min_area: 9, counts: {bench: 0, nightstand: 1}, what: "bed with one nightstand"}
+      bed_no_nightstands: {anchor: bed_double, min_area: 9, counts: {bench: 0, nightstand: 0}, what: "bed alone"}
+      bed_nightstand_lamp: {anchor: bed_double, min_area: 10, counts: {bench: 0, nightstand: 1, floor_lamp: 1}, what: "bed, one nightstand, a floor lamp"}
+      bed_nightstand_plant: {anchor: bed_double, min_area: 10, counts: {bench: 0, nightstand: 1, potted_plant: 1}, what: "bed, one nightstand, a plant"}
+      bed_nightstands_ottoman: {anchor: bed_double, min_area: 13, counts: {bench: 0, ottoman: 1}, what: "bed, two nightstands, a pouf at the foot"}
+      bed_nightstands_dresser: {anchor: bed_double, min_area: 14, counts: {bench: 0, dresser: 1}, what: "bed, two nightstands, a dresser on the facing wall"}
+      bed_nightstands_tv: {anchor: bed_double, min_area: 14, counts: {bench: 0, tv_unit: 1}, what: "bed, two nightstands, a TV unit on the facing wall"}
+      bed_nightstands_bench_dresser: {anchor: bed_double, min_area: 16, counts: {bench: 1, dresser: 1}, what: "bed, two nightstands, a bench, a dresser"}
+      bed160_nightstands_bench: {anchor: bed_double, min_area: 13, sizes: {bed_double: [[1.6, 2.0]]}, counts: {bench: 1}, what: "1.60 m bed, two nightstands, a bench"}
+      bed180_nightstands_bench: {anchor: bed_double, min_area: 15, sizes: {bed_double: [[1.8, 2.0]]}, counts: {bench: 1}, what: "1.80 m bed, two nightstands, a bench"}
+      bed180_nightstands_dresser: {anchor: bed_double, min_area: 16, sizes: {bed_double: [[1.8, 2.0]]}, counts: {bench: 0, dresser: 1}, what: "1.80 m bed, two nightstands, a dresser"}
+      bed180_nightstands_tv: {anchor: bed_double, min_area: 16, sizes: {bed_double: [[1.8, 2.0]]}, counts: {bench: 0, tv_unit: 1}, what: "1.80 m bed, two nightstands, a TV unit"}
+      bed160_nightstands_ottoman: {anchor: bed_double, min_area: 12, sizes: {bed_double: [[1.6, 2.0]]}, counts: {bench: 0, ottoman: 1}, what: "1.60 m bed, two nightstands, a pouf"}
+      bed140_one_nightstand: {anchor: bed_double, min_area: 9, max_area: 11, sizes: {bed_double: [[1.4, 2.0]]}, counts: {bench: 0, nightstand: 1}, what: "1.40 m bed, one nightstand (small room)"}
+      bed_nightstands_no_rug: {anchor: bed_double, min_area: 9, counts: {bench: 0, rug: 0}, what: "bed, two nightstands, no runners"}
+      bed180_large_bench: {anchor: bed_double, min_area: 18, sizes: {bed_double: [[1.8, 2.0], [2.0, 2.1]]}, counts: {bench: 1}, partner_sizes: {nightstand: [[0.6, 0.45]], bench: [[1.6, 0.45], [1.4, 0.45]]}, what: "large bed, wide nightstands, a long bench"}
     partners:
       - {role: nightstand, type: nightstand, required: false, max: 2, place: beside_head, gap: 0.02, facing: same, sizes: [[0.5, 0.4], [0.4, 0.4]]}
       - {role: bench, type: bench, required: false, max: 1, place: foot, gap: 0.05, facing: same, sizes: [[1.2, 0.4], [1.0, 0.4]]}
+      # 23 Oct 2026: partners of the extra options only (default 0).
+      - {role: footrest, type: ottoman, required: false, max: 1, default: 0, place: foot, gap: 0.05, facing: same, sizes: [[0.8, 0.5], [0.6, 0.6]]}
+      - {role: dresser, type: dresser, required: false, max: 1, default: 0, place: facing_wall, facing: anchor, sizes: [[1.2, 0.5], [1.0, 0.45]]}
+      - {role: tv, type: tv_unit, required: false, max: 1, default: 0, place: facing_wall, facing: anchor, sizes: [[1.2, 0.4], [1.6, 0.45]]}
+      - {role: lamp, type: floor_lamp, required: false, max: 1, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, max: 1, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[0.45, 0.45], [0.35, 0.35]]}
       # Milestone 13 (T3, R6): a runner beside each free long side of the bed (rule rug_bed), a decor member.
       - {role: rug, type: rug, required: false, max: 2, place: beside, gap: rug_bed, facing: same, sizes: [[2.0, 0.8]]}
 
@@ -272,7 +376,7 @@ groups:
     room_types: [bedroom]
     priority: 30
     anchor:
-      types: [bed_single]
+      types: [bed_single, bunk_bed, crib]
       place: wall
       align: corner
       sizes:
@@ -280,8 +384,27 @@ groups:
         - {bed_single: [[1.2, 2.0], [0.9, 2.0]]}
     options:
       bed_nightstand: {anchor: bed_single}
+      # 23 Oct 2026: extra options; a bunk bed and a crib only on request (auto: false; child rooms only, schemas).
+      bed90_nightstand: {anchor: bed_single, min_area: 6, sizes: {bed_single: [[0.9, 2.0]]}, what: "0.90 m bed, a nightstand"}
+      bed100_nightstand: {anchor: bed_single, min_area: 7, sizes: {bed_single: [[1.0, 2.0]]}, what: "1.00 m bed, a nightstand"}
+      bed120_nightstand: {anchor: bed_single, min_area: 8, sizes: {bed_single: [[1.2, 2.0]]}, what: "1.20 m bed, a nightstand"}
+      bed90_short: {anchor: bed_single, min_area: 5, max_area: 8, sizes: {bed_single: [[0.9, 1.9]]}, what: "0.90 x 1.90 m bed (small room)"}
+      bed_no_nightstand: {anchor: bed_single, min_area: 5, counts: {nightstand: 0}, what: "bed alone"}
+      bed_nightstand_lamp: {anchor: bed_single, min_area: 7, counts: {floor_lamp: 1}, what: "bed, a nightstand, a floor lamp"}
+      bed_lamp: {anchor: bed_single, min_area: 6, counts: {nightstand: 0, floor_lamp: 1}, what: "bed with a floor lamp"}
+      bed_nightstand_plant: {anchor: bed_single, min_area: 8, counts: {potted_plant: 1}, what: "bed, a nightstand, a plant"}
+      bed_nightstand_dresser: {anchor: bed_single, min_area: 11, counts: {dresser: 1}, what: "bed, a nightstand, a dresser on the facing wall"}
+      bed120_nightstand_lamp: {anchor: bed_single, min_area: 10, sizes: {bed_single: [[1.2, 2.0]]}, counts: {floor_lamp: 1}, what: "1.20 m bed, a nightstand, a floor lamp"}
+      bed90_nightstand_dresser: {anchor: bed_single, min_area: 9, sizes: {bed_single: [[0.9, 2.0]]}, counts: {dresser: 1}, what: "0.90 m bed, a nightstand, a dresser"}
+      bed100_nightstand_plant: {anchor: bed_single, min_area: 8, sizes: {bed_single: [[1.0, 2.0]]}, counts: {potted_plant: 1}, what: "1.00 m bed, a nightstand, a plant"}
+      bunk_bed: {anchor: bunk_bed, auto: false, sizes: {bunk_bed: [[1.0, 2.05], [0.95, 1.95]]}, what: "bunk bed (on request, child's room)"}
+      bunk_bed_nightstand: {anchor: bunk_bed, auto: false, sizes: {bunk_bed: [[1.0, 2.05]]}, counts: {nightstand: 1}, what: "bunk bed and a nightstand (on request)"}
+      crib: {anchor: crib, auto: false, sizes: {crib: [[1.26, 0.66], [1.36, 0.7]]}, counts: {nightstand: 0}, what: "a crib (on request, child's room)"}
     partners:
       - {role: nightstand, type: nightstand, required: false, max: 1, place: beside_head, gap: 0.02, facing: same, sizes: [[0.5, 0.4], [0.4, 0.4]]}
+      - {role: lamp, type: floor_lamp, required: false, max: 1, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, max: 1, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: dresser, type: dresser, required: false, max: 1, default: 0, place: facing_wall, facing: anchor, sizes: [[1.0, 0.45], [0.8, 0.4]]}
       - {role: rug, type: rug, required: false, max: 1, place: beside, gap: rug_bed, facing: same, sizes: [[2.0, 0.8]]}
 
   storage:
@@ -300,6 +423,25 @@ groups:
         - {wardrobe: [[2.4, 0.6], [1.8, 0.6], [1.2, 0.6]]}
     options:
       wardrobe: {anchor: wardrobe}
+      # 23 Oct 2026: extra options (wardrobe widths from 0.80 to 3.00 m, sliding doors; a chest of drawers is the
+      # vanity group's, never the room's wardrobe).
+      wardrobe_80: {anchor: wardrobe, min_area: 6, max_area: 10, sizes: {wardrobe: [[0.8, 0.6]]}, what: "0.80 m wardrobe"}
+      wardrobe_100: {anchor: wardrobe, min_area: 7, sizes: {wardrobe: [[1.0, 0.6]]}, what: "1.00 m wardrobe"}
+      wardrobe_120: {anchor: wardrobe, min_area: 7, sizes: {wardrobe: [[1.2, 0.6]]}, what: "1.20 m wardrobe"}
+      wardrobe_150: {anchor: wardrobe, min_area: 9, sizes: {wardrobe: [[1.5, 0.6]]}, what: "1.50 m wardrobe"}
+      wardrobe_180: {anchor: wardrobe, min_area: 10, sizes: {wardrobe: [[1.8, 0.6]]}, what: "1.80 m wardrobe"}
+      wardrobe_200: {anchor: wardrobe, min_area: 11, sizes: {wardrobe: [[2.0, 0.6]]}, what: "2.00 m wardrobe"}
+      wardrobe_240: {anchor: wardrobe, min_area: 13, sizes: {wardrobe: [[2.4, 0.6]]}, what: "2.40 m wardrobe"}
+      wardrobe_270: {anchor: wardrobe, min_area: 15, sizes: {wardrobe: [[2.7, 0.6]]}, what: "2.70 m wardrobe run"}
+      wardrobe_300: {anchor: wardrobe, min_area: 17, sizes: {wardrobe: [[3.0, 0.6]]}, what: "3.00 m wardrobe run"}
+      wardrobe_sliding_180: {anchor: wardrobe, min_area: 10, sizes: {wardrobe: [[1.8, 0.65]]}, what: "1.80 m sliding-door wardrobe"}
+      wardrobe_sliding_240: {anchor: wardrobe, min_area: 13, sizes: {wardrobe: [[2.4, 0.65]]}, what: "2.40 m sliding-door wardrobe"}
+      wardrobe_shallow_120: {anchor: wardrobe, min_area: 6, sizes: {wardrobe: [[1.2, 0.5]]}, what: "shallow 1.20 m wardrobe"}
+      wardrobe_160: {anchor: wardrobe, min_area: 10, sizes: {wardrobe: [[1.6, 0.6]]}, what: "1.60 m wardrobe"}
+      wardrobe_220: {anchor: wardrobe, min_area: 12, sizes: {wardrobe: [[2.2, 0.6]]}, what: "2.20 m wardrobe"}
+      wardrobe_sliding_300: {anchor: wardrobe, min_area: 18, sizes: {wardrobe: [[3.0, 0.65]]}, what: "3.00 m sliding-door wardrobe run"}
+      wardrobe_corner_200: {anchor: wardrobe, min_area: 12, sizes: {wardrobe: [[2.0, 0.6], [1.8, 0.6]]}, what: "2.00 m wardrobe in a corner"}
+      wardrobe_sliding_200: {anchor: wardrobe, min_area: 11, sizes: {wardrobe: [[2.0, 0.65]]}, what: "2.00 m sliding-door wardrobe"}
     partners: []
 
   work:
@@ -317,8 +459,30 @@ groups:
         - {desk: [[1.4, 0.7], [1.2, 0.6]]}
     options:
       desk: {anchor: desk}
+      # 23 Oct 2026: extra options (desk widths, a bookshelf, a floor lamp or a plant beside the desk on its wall).
+      desk_100: {anchor: desk, min_area: 6, sizes: {desk: [[1.0, 0.5]]}, what: "1.00 m desk"}
+      desk_120: {anchor: desk, min_area: 6, sizes: {desk: [[1.2, 0.6]]}, what: "1.20 m desk"}
+      desk_140: {anchor: desk, min_area: 8, sizes: {desk: [[1.4, 0.7]]}, what: "1.40 m desk"}
+      desk_160: {anchor: desk, min_area: 10, sizes: {desk: [[1.6, 0.8]]}, what: "1.60 m desk"}
+      desk_180: {anchor: desk, min_area: 12, sizes: {desk: [[1.8, 0.8]]}, what: "1.80 m desk"}
+      desk_compact: {anchor: desk, min_area: 5, max_area: 9, sizes: {desk: [[0.9, 0.5]]}, what: "compact desk"}
+      desk_bookshelf: {anchor: desk, min_area: 8, counts: {bookshelf: 1}, what: "desk and a bookshelf"}
+      desk_2_bookshelves: {anchor: desk, min_area: 10, counts: {bookshelf: 2}, what: "desk between two bookshelves"}
+      desk_lamp: {anchor: desk, min_area: 7, counts: {floor_lamp: 1}, what: "desk and a floor lamp"}
+      desk_bookshelf_lamp: {anchor: desk, min_area: 9, counts: {bookshelf: 1, floor_lamp: 1}, what: "desk, a bookshelf, a floor lamp"}
+      desk_plant: {anchor: desk, min_area: 7, counts: {potted_plant: 1}, what: "desk and a plant"}
+      desk_160_bookshelf: {anchor: desk, min_area: 11, sizes: {desk: [[1.6, 0.8]]}, counts: {bookshelf: 1}, what: "1.60 m desk and a bookshelf"}
+      desk_140_lamp_plant: {anchor: desk, min_area: 10, sizes: {desk: [[1.4, 0.7]]}, counts: {floor_lamp: 1, potted_plant: 1}, what: "1.40 m desk, a floor lamp, a plant"}
+      desk_180_2_bookshelves: {anchor: desk, min_area: 14, sizes: {desk: [[1.8, 0.8]]}, counts: {bookshelf: 2}, what: "1.80 m desk between two bookshelves"}
+      desk_120_bookshelf_lamp: {anchor: desk, min_area: 9, sizes: {desk: [[1.2, 0.6]]}, counts: {bookshelf: 1, floor_lamp: 1}, what: "1.20 m desk, a bookshelf, a floor lamp"}
+      desk_100_lamp: {anchor: desk, min_area: 6, sizes: {desk: [[1.0, 0.5]]}, counts: {floor_lamp: 1}, what: "1.00 m desk and a floor lamp"}
+      desk_140_2_bookshelves: {anchor: desk, min_area: 12, sizes: {desk: [[1.4, 0.7]]}, counts: {bookshelf: 2}, partner_sizes: {shelf: [[0.8, 0.35], [0.6, 0.3]]}, what: "1.40 m desk between two narrow bookshelves"}
     partners:
       - {role: chair, type: office_chair, alt_type: chair, required: false, place: chair, gap: 0.05, facing: anchor, sizes: [[0.6, 0.6], [0.55, 0.55]]}
+      # 23 Oct 2026: partners of the extra options only (default 0): on the desk's wall, beside it.
+      - {role: shelf, type: bookshelf, required: false, max: 2, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[1.0, 0.35], [0.8, 0.3]]}
+      - {role: lamp, type: floor_lamp, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.45, 0.45], [0.35, 0.35]]}
 
   living_storage:
     what: "a sideboard or a bookshelf on a free wall of a living or dining room"
@@ -327,15 +491,35 @@ groups:
     room_types: [living, dining]
     priority: 5
     anchor:
-      types: [sideboard, bookshelf]
+      types: [sideboard, bookshelf, display_cabinet]
       place: wall
       align: any
       sizes:
-        - {sideboard: [[1.6, 0.45], [1.4, 0.42]], bookshelf: [[1.0, 0.35], [0.8, 0.3]]}
+        - {sideboard: [[1.6, 0.45], [1.4, 0.42]], bookshelf: [[1.0, 0.35], [0.8, 0.3]], display_cabinet: [[1.0, 0.4], [0.8, 0.38]]}
     options:
       sideboard: {anchor: sideboard}
       bookshelf: {anchor: bookshelf}
-    partners: []
+      # 23 Oct 2026: extra options (sizes, a display cabinet, a floor lamp or a plant beside the piece).
+      sideboard_120: {anchor: sideboard, min_area: 10, sizes: {sideboard: [[1.2, 0.42]]}, what: "1.20 m sideboard"}
+      sideboard_180: {anchor: sideboard, min_area: 14, sizes: {sideboard: [[1.8, 0.45]]}, what: "1.80 m sideboard"}
+      sideboard_200: {anchor: sideboard, min_area: 16, sizes: {sideboard: [[2.0, 0.45]]}, what: "2.00 m sideboard"}
+      sideboard_plant: {anchor: sideboard, min_area: 12, counts: {potted_plant: 1}, what: "sideboard and a plant"}
+      sideboard_lamp: {anchor: sideboard, min_area: 12, counts: {floor_lamp: 1}, what: "sideboard and a floor lamp"}
+      sideboard_lamp_plant: {anchor: sideboard, min_area: 14, counts: {floor_lamp: 1, potted_plant: 1}, what: "sideboard between a floor lamp and a plant"}
+      sideboard_160_lamp: {anchor: sideboard, min_area: 13, sizes: {sideboard: [[1.6, 0.45]]}, counts: {floor_lamp: 1}, what: "1.60 m sideboard and a floor lamp"}
+      bookshelf_60: {anchor: bookshelf, min_area: 9, sizes: {bookshelf: [[0.6, 0.3]]}, what: "narrow bookshelf"}
+      bookshelf_120: {anchor: bookshelf, min_area: 12, sizes: {bookshelf: [[1.2, 0.35]]}, what: "1.20 m bookshelf"}
+      bookshelf_160: {anchor: bookshelf, min_area: 14, sizes: {bookshelf: [[1.6, 0.35]]}, what: "1.60 m bookshelf"}
+      bookshelf_200: {anchor: bookshelf, min_area: 16, sizes: {bookshelf: [[2.0, 0.4]]}, what: "2.00 m bookshelf wall"}
+      bookshelf_lamp: {anchor: bookshelf, min_area: 12, counts: {floor_lamp: 1}, what: "bookshelf and a floor lamp"}
+      bookshelf_plant: {anchor: bookshelf, min_area: 12, counts: {potted_plant: 1}, what: "bookshelf and a plant"}
+      bookshelf_100_plant: {anchor: bookshelf, min_area: 11, sizes: {bookshelf: [[1.0, 0.35]]}, counts: {potted_plant: 1}, what: "1.00 m bookshelf and a plant"}
+      display_cabinet: {anchor: display_cabinet, min_area: 12, sizes: {display_cabinet: [[1.0, 0.4], [0.8, 0.38]]}, what: "a display cabinet"}
+      display_cabinet_wide: {anchor: display_cabinet, min_area: 16, sizes: {display_cabinet: [[1.6, 0.45], [1.2, 0.42]]}, what: "a wide display cabinet"}
+    partners:
+      # 23 Oct 2026: partners of the extra options only (default 0): beside the piece on its wall.
+      - {role: lamp, type: floor_lamp, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.45, 0.45], [0.35, 0.35]]}
 
   kitchen_run:
     what: "a counter run with the sink between the fridge and the hob (I, L, U or galley), landings beside each, a 0.90 m aisle"
@@ -353,6 +537,21 @@ groups:
       L: {shape: L}
       galley: {shape: galley}
       U: {shape: U}
+      # 23 Oct 2026: extra options (module sizes: a 0.70 m or 0.90 m fridge, a double sink, a wide hob).
+      I_fridge70: {shape: I, min_area: 0, modules: {fridge: {sizes: [[0.7, 0.7]]}}, what: "I run, 0.70 m fridge"}
+      I_double_sink: {shape: I, min_area: 6, modules: {sink: {sizes: [[1.0, 0.6], [0.8, 0.6]]}}, what: "I run, double sink"}
+      I_wide_hob: {shape: I, min_area: 7, modules: {hob: {sizes: [[0.9, 0.6], [0.75, 0.6]]}}, what: "I run, wide hob"}
+      I_compact: {shape: I, min_area: 0, max_area: 6, modules: {fridge: {sizes: [[0.55, 0.6]]}, sink: {sizes: [[0.6, 0.5]]}, hob: {sizes: [[0.5, 0.6]]}}, what: "compact I run"}
+      L_fridge70: {shape: L, min_area: 6, modules: {fridge: {sizes: [[0.7, 0.7]]}}, what: "L run, 0.70 m fridge"}
+      L_double_sink: {shape: L, min_area: 7, modules: {sink: {sizes: [[1.0, 0.6], [0.8, 0.6]]}}, what: "L run, double sink"}
+      L_wide_hob: {shape: L, min_area: 8, modules: {hob: {sizes: [[0.9, 0.6], [0.75, 0.6]]}}, what: "L run, wide hob"}
+      L_large_fridge: {shape: L, min_area: 10, modules: {fridge: {sizes: [[0.9, 0.75]]}}, what: "L run, side-by-side fridge"}
+      L_compact: {shape: L, min_area: 0, max_area: 8, modules: {fridge: {sizes: [[0.55, 0.6]]}, sink: {sizes: [[0.6, 0.5]]}}, what: "compact L run"}
+      galley_fridge70: {shape: galley, min_area: 0, min_width: 2.1, modules: {fridge: {sizes: [[0.7, 0.7]]}}, what: "galley, 0.70 m fridge"}
+      galley_double_sink: {shape: galley, min_area: 6, min_width: 2.1, modules: {sink: {sizes: [[1.0, 0.6], [0.8, 0.6]]}}, what: "galley, double sink"}
+      U_double_sink: {shape: U, min_area: 9, modules: {sink: {sizes: [[1.0, 0.6], [0.8, 0.6]]}}, what: "U run, double sink"}
+      U_large_fridge_wide_hob: {shape: U, min_area: 12, modules: {fridge: {sizes: [[0.9, 0.75]]}, hob: {sizes: [[0.9, 0.6]]}}, what: "U run, side-by-side fridge, wide hob"}
+      U_fridge70: {shape: U, min_area: 9, modules: {fridge: {sizes: [[0.7, 0.7]]}}, what: "U run, 0.70 m fridge"}
     run:
       depth: 0.60
       max_leg: 4.80
@@ -377,6 +576,18 @@ groups:
         - {kitchen_island: [[1.6, 0.9], [1.2, 0.8]]}
     options:
       island: {anchor: kitchen_island}
+      # 23 Oct 2026: extra options (island sizes, stool counts).
+      island_small: {anchor: kitchen_island, min_area: 14, sizes: {kitchen_island: [[1.2, 0.8]]}, counts: {bar_stool: 2}, what: "small island, two stools"}
+      island_narrow: {anchor: kitchen_island, min_area: 15, sizes: {kitchen_island: [[1.4, 0.7]]}, counts: {bar_stool: 2}, what: "narrow island, two stools"}
+      island_medium: {anchor: kitchen_island, min_area: 16, sizes: {kitchen_island: [[1.6, 0.9]]}, counts: {bar_stool: 3}, what: "1.60 m island, three stools"}
+      island_2_stools: {anchor: kitchen_island, min_area: 16, counts: {bar_stool: 2}, what: "island, two stools"}
+      island_no_stools: {anchor: kitchen_island, min_area: 16, counts: {bar_stool: 0}, what: "island without stools"}
+      island_square: {anchor: kitchen_island, min_area: 18, sizes: {kitchen_island: [[1.2, 1.2]]}, counts: {bar_stool: 2}, what: "square island, two stools"}
+      island_large: {anchor: kitchen_island, min_area: 20, sizes: {kitchen_island: [[2.0, 1.0]]}, counts: {bar_stool: 3}, what: "2.00 m island, three stools"}
+      island_wide: {anchor: kitchen_island, min_area: 20, sizes: {kitchen_island: [[1.8, 1.1]]}, counts: {bar_stool: 3}, what: "wide island, three stools"}
+      island_xl: {anchor: kitchen_island, min_area: 24, sizes: {kitchen_island: [[2.4, 1.0]]}, counts: {bar_stool: 4}, what: "2.40 m island, four stools"}
+      island_xl_no_stools: {anchor: kitchen_island, min_area: 24, sizes: {kitchen_island: [[2.4, 1.0]]}, counts: {bar_stool: 0}, what: "2.40 m island without stools"}
+      island_large_2_stools: {anchor: kitchen_island, min_area: 20, sizes: {kitchen_island: [[2.0, 1.0]]}, counts: {bar_stool: 2}, what: "2.00 m island, two stools"}
     partners:
       - {role: stool, type: bar_stool, required: false, max: 3, place: stools, gap: 0.05, facing: anchor, sizes: [[0.42, 0.42]]}
 
@@ -392,10 +603,32 @@ groups:
       - {role: toilet, type: toilet, required: true, place: wall, align: any, sizes: [[0.4, 0.7], [0.36, 0.65]]}
       - {role: washbasin, type: washbasin, required: true, place: wall, align: any, sizes: [[0.6, 0.45], [0.5, 0.4]]}
       - {role: washer, type: washing_machine, required: false, place: wall, align: corner, option_any: [washer], sizes: [[0.6, 0.6]]}
+      # 23 Oct 2026: members of the extra options only: a second washbasin (double vanity) and a shower beside a tub.
+      - {role: washbasin2, type: washbasin, required: false, place: wall, align: any, sizes: [[0.6, 0.45], [0.5, 0.4]]}
+      - {role: shower2, type: shower, required: false, place: wall, align: corner, sizes: [[0.9, 0.9], [0.8, 0.8]]}
     options:
       shower: {members: [bath, toilet, washbasin], bath: shower}
       bathtub: {members: [bath, toilet, washbasin], bath: bathtub}
       shower_washer: {members: [bath, toilet, washbasin, washer], bath: shower}
+      # 23 Oct 2026: extra options. A set's options add their members and sizes (partner_sizes by member type) to
+      # the room's candidates; the code score picks.
+      walk_in_shower: {members: [bath, toilet, washbasin], bath: shower, min_area: 4.5, partner_sizes: {shower: [[1.2, 0.9], [1.4, 0.9]]}, what: "walk-in shower"}
+      corner_shower_small: {members: [bath, toilet, washbasin], bath: shower, min_area: 2.5, max_area: 4.5, partner_sizes: {shower: [[0.8, 0.8]]}, what: "small corner shower"}
+      compact_shower: {members: [bath, toilet, washbasin], bath: shower, min_area: 2.0, max_area: 3.5, partner_sizes: {shower: [[0.8, 0.8]], washbasin: [[0.45, 0.35]], toilet: [[0.36, 0.65]]}, what: "compact shower room"}
+      bathtub_long: {members: [bath, toilet, washbasin], bath: bathtub, min_area: 5, min_wall: 1.85, partner_sizes: {bathtub: [[1.8, 0.8]]}, what: "1.80 m bathtub"}
+      bathtub_short: {members: [bath, toilet, washbasin], bath: bathtub, min_area: 3.8, min_wall: 1.55, partner_sizes: {bathtub: [[1.5, 0.7]]}, what: "1.50 m bathtub"}
+      large_basin_shower: {members: [bath, toilet, washbasin], bath: shower, min_area: 5, partner_sizes: {washbasin: [[0.8, 0.5]]}, what: "shower and a wide washbasin"}
+      bathtub_washer: {members: [bath, toilet, washbasin, washer], bath: bathtub, min_area: 6, min_wall: 1.75, what: "bathtub and a washing machine"}
+      shower_double_basin: {members: [bath, toilet, washbasin, washbasin2], bath: shower, min_area: 7, what: "shower, two washbasins"}
+      bathtub_double_basin: {members: [bath, toilet, washbasin, washbasin2], bath: bathtub, min_area: 8, min_wall: 1.75, what: "bathtub, two washbasins"}
+      walk_in_double_basin: {members: [bath, toilet, washbasin, washbasin2], bath: shower, min_area: 7.5, partner_sizes: {shower: [[1.2, 0.9]]}, what: "walk-in shower, two washbasins"}
+      shower_washer_wide_basin: {members: [bath, toilet, washbasin, washer], bath: shower, min_area: 6, partner_sizes: {washbasin: [[0.8, 0.5]]}, what: "shower, washing machine, wide washbasin"}
+      bathtub_and_shower: {members: [bath, toilet, washbasin, shower2], bath: bathtub, min_area: 9, min_wall: 1.75, what: "bathtub and a separate shower"}
+      bathtub_walk_in_shower: {members: [bath, toilet, washbasin, shower2], bath: bathtub, min_area: 10, min_wall: 1.75, partner_sizes: {shower: [[1.2, 0.9]]}, what: "bathtub and a walk-in shower"}
+      family_bath: {members: [bath, toilet, washbasin, washbasin2, shower2], bath: bathtub, min_area: 11, min_wall: 1.75, what: "family bathroom: bathtub, shower, two washbasins"}
+      spa_bath: {members: [bath, toilet, washbasin, washbasin2], bath: bathtub, min_area: 10, min_wall: 1.85, partner_sizes: {bathtub: [[1.8, 0.8]], washbasin: [[0.8, 0.5]]}, what: "large bathtub, two wide washbasins"}
+      shower_large_tray: {members: [bath, toilet, washbasin], bath: shower, min_area: 4.0, partner_sizes: {shower: [[1.2, 0.8], [1.0, 0.8]]}, what: "rectangular shower tray"}
+      bathtub_family_washer: {members: [bath, toilet, washbasin, washbasin2, washer], bath: bathtub, min_area: 10, min_wall: 1.75, what: "bathtub, two washbasins, washing machine"}
     partners: []
 
   wc_set:
@@ -409,6 +642,12 @@ groups:
       - {role: washbasin, type: washbasin, required: false, place: wall, align: any, sizes: [[0.5, 0.4]]}
     options:
       wc: {members: [toilet, washbasin]}
+      # 23 Oct 2026: extra options (sizes by member type).
+      wc_compact: {members: [toilet, washbasin], min_area: 0.8, max_area: 2.0, partner_sizes: {toilet: [[0.36, 0.65]], washbasin: [[0.45, 0.35]]}, what: "compact toilet room"}
+      wc_large_basin: {members: [toilet, washbasin], min_area: 2.0, partner_sizes: {washbasin: [[0.6, 0.45]]}, what: "toilet and a 0.60 m washbasin"}
+      wc_wide_toilet: {members: [toilet, washbasin], min_area: 2.2, partner_sizes: {toilet: [[0.45, 0.75]]}, what: "toilet room with a larger toilet"}
+      wc_vanity: {members: [toilet, washbasin], min_area: 2.8, partner_sizes: {washbasin: [[0.8, 0.5]]}, what: "toilet and a vanity washbasin"}
+      wc_slim_basin: {members: [toilet, washbasin], min_area: 1.5, partner_sizes: {washbasin: [[0.5, 0.35]]}, what: "toilet and a slim washbasin"}
     partners: []
 
   entrance:
@@ -420,9 +659,27 @@ groups:
     members:
       - {role: storage, type: shoe_cabinet, required: true, place: wall, align: any, option: shoe_cabinet, sizes: [[0.8, 0.32], [0.6, 0.3]]}
       - {role: storage, type: console_table, required: true, place: wall, align: any, option: console, sizes: [[1.2, 0.35], [0.9, 0.3]]}
+      # 23 Oct 2026: members of the extra options only (a chest of drawers or a bookshelf as the storage, a bench,
+      # a plant in a corner).
+      - {role: storage, type: dresser, required: true, place: wall, align: any, option: chest, sizes: [[1.0, 0.45], [0.8, 0.4]]}
+      - {role: storage, type: bookshelf, required: true, place: wall, align: any, option: shelf, sizes: [[0.8, 0.3], [1.0, 0.35]]}
+      - {role: seat, type: bench, required: false, place: wall, align: any, sizes: [[1.0, 0.4], [0.8, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, place: wall, align: corner, sizes: [[0.4, 0.4], [0.35, 0.35]]}
     options:
       shoe_cabinet: {members: [storage], storage: shoe_cabinet}
       console: {members: [storage], storage: console_table}
+      # 23 Oct 2026: extra options.
+      shoe_cabinet_wide: {members: [storage], storage: shoe_cabinet, min_area: 3, partner_sizes: {shoe_cabinet: [[1.0, 0.35], [1.2, 0.35]]}, what: "wide shoe cabinet"}
+      shoe_cabinet_slim: {members: [storage], storage: shoe_cabinet, min_area: 2.0, partner_sizes: {shoe_cabinet: [[0.6, 0.25], [0.8, 0.25]]}, what: "slim shoe cabinet"}
+      console_wide: {members: [storage], storage: console_table, min_area: 4, partner_sizes: {console_table: [[1.4, 0.4]]}, what: "wide console"}
+      shoe_cabinet_bench: {members: [storage, seat], storage: shoe_cabinet, min_area: 4, what: "shoe cabinet and a bench"}
+      console_bench: {members: [storage, seat], storage: console_table, min_area: 5, what: "console and a bench"}
+      chest_hall: {members: [storage], storage: dresser, min_area: 4, what: "a chest of drawers in the hall"}
+      shoe_cabinet_plant: {members: [storage, plant], storage: shoe_cabinet, min_area: 3.5, what: "shoe cabinet and a plant"}
+      console_plant: {members: [storage, plant], storage: console_table, min_area: 4, what: "console and a plant"}
+      bookshelf_hall: {members: [storage], storage: bookshelf, min_area: 5, what: "a bookshelf in the hall"}
+      shoe_cabinet_bench_plant: {members: [storage, seat, plant], storage: shoe_cabinet, min_area: 6, what: "shoe cabinet, bench, plant"}
+      chest_plant: {members: [storage, plant], storage: dresser, min_area: 5, what: "chest of drawers and a plant"}
     partners: []
 
   balcony:
@@ -438,5 +695,75 @@ groups:
         - {table_dining: [[0.7, 0.7]]}
     options:
       table_2_chairs: {anchor: table_dining}
+      # 23 Oct 2026: extra options (table sizes, plants; the table always has its two chairs, check G6).
+      table_2_chairs_round: {anchor: table_dining, min_area: 2.5, sizes: {table_dining: [[0.8, 0.8]]}, what: "round table, two chairs"}
+      table_2_chairs_rect: {anchor: table_dining, min_area: 3, sizes: {table_dining: [[0.9, 0.7], [0.8, 0.7]]}, what: "rectangular table, two chairs"}
+      large_table_2_chairs: {anchor: table_dining, min_area: 4, sizes: {table_dining: [[1.0, 0.7]]}, what: "larger table, two chairs"}
+      table_2_chairs_plant: {anchor: table_dining, min_area: 3, counts: {potted_plant: 1}, what: "table, two chairs, a plant"}
+      table_2_chairs_2_plants: {anchor: table_dining, min_area: 4, counts: {potted_plant: 2}, what: "table, two chairs, two plants"}
+      table_80_plant: {anchor: table_dining, min_area: 3, sizes: {table_dining: [[0.8, 0.7]]}, counts: {potted_plant: 1}, what: "bistro table, two chairs, a plant"}
+      table_90_2_plants: {anchor: table_dining, min_area: 4, sizes: {table_dining: [[0.9, 0.7]]}, counts: {potted_plant: 2}, what: "table, two chairs, two plants"}
+      round_table_plant: {anchor: table_dining, min_area: 3.5, sizes: {table_dining: [[0.8, 0.8]]}, counts: {potted_plant: 1}, what: "round table, two chairs, a plant"}
+      table_100_plant: {anchor: table_dining, min_area: 5, sizes: {table_dining: [[1.0, 0.7]]}, counts: {potted_plant: 1}, what: "larger table, two chairs, a plant"}
+      table_2_chairs_large_plants: {anchor: table_dining, min_area: 6, sizes: {table_dining: [[1.0, 0.7]]}, counts: {potted_plant: 2}, partner_sizes: {plant: [[0.6, 0.6], [0.5, 0.5]]}, what: "larger table, two chairs, two large plants"}
+      round_table_2_plants: {anchor: table_dining, min_area: 5, sizes: {table_dining: [[0.8, 0.8]]}, counts: {potted_plant: 2}, what: "round table, two chairs, two plants"}
     partners:
       - {role: chair, type: chair, required: true, place: pair, facing: anchor, sizes: [[0.45, 0.45]]}
+      # 23 Oct 2026: a partner of the extra options only (default 0).
+      - {role: plant, type: potted_plant, required: false, max: 2, default: 0, place: beside_head, gap: 0.10, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+
+  # 23 Oct 2026 (user: "increase the group furniture options 10x ... think bigger"): two groups that only have extra
+  # options; the program offers them, optional, in rooms of their room types when an option's window allows.
+  reading_corner:
+    what: "an armchair in a corner with a floor lamp, an end table, a footrest, a bookshelf or a plant beside it"
+    layout: anchored
+    zone: living
+    room_types: [living, bedroom, other]
+    priority: 4
+    anchor:
+      types: [armchair]
+      place: wall
+      align: corner
+      sizes:
+        - {armchair: [[0.8, 0.8], [0.9, 0.9]]}
+    options:
+      armchair_lamp: {anchor: armchair, min_area: 14, counts: {floor_lamp: 1}, what: "armchair and a floor lamp"}
+      armchair_side_table: {anchor: armchair, min_area: 14, counts: {side_table: 1}, what: "armchair and an end table"}
+      armchair_lamp_side_table: {anchor: armchair, min_area: 15, counts: {floor_lamp: 1, side_table: 1}, what: "armchair, floor lamp, end table"}
+      armchair_ottoman: {anchor: armchair, min_area: 15, counts: {ottoman: 1}, what: "armchair and a footrest"}
+      armchair_ottoman_lamp: {anchor: armchair, min_area: 16, counts: {ottoman: 1, floor_lamp: 1}, what: "armchair, footrest, floor lamp"}
+      armchair_bookshelf: {anchor: armchair, min_area: 15, counts: {bookshelf: 1}, what: "armchair beside a bookshelf"}
+      armchair_bookshelf_lamp: {anchor: armchair, min_area: 16, counts: {bookshelf: 1, floor_lamp: 1}, what: "armchair, bookshelf, floor lamp"}
+      armchair_plant: {anchor: armchair, min_area: 14, counts: {potted_plant: 1}, what: "armchair and a plant"}
+      big_armchair_lamp: {anchor: armchair, min_area: 18, sizes: {armchair: [[0.9, 0.9], [1.0, 1.0]]}, counts: {floor_lamp: 1}, what: "large armchair and a floor lamp"}
+      armchair_lamp_plant: {anchor: armchair, min_area: 15, counts: {floor_lamp: 1, potted_plant: 1}, what: "armchair between a floor lamp and a plant"}
+    partners:
+      - {role: lamp, type: floor_lamp, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: side_table, type: side_table, required: false, max: 1, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[0.45, 0.45], [0.4, 0.4]]}
+      - {role: shelf, type: bookshelf, required: false, max: 1, default: 0, place: beside_head, gap: 0.05, facing: same, sizes: [[0.8, 0.3], [0.6, 0.3]]}
+      - {role: plant, type: potted_plant, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.45, 0.45], [0.35, 0.35]]}
+      - {role: footrest, type: ottoman, required: false, max: 1, default: 0, place: front, gap: coffee_gap, facing: anchor, sizes: [[0.5, 0.5], [0.45, 0.45]]}
+
+  bedroom_chest:
+    what: "a chest of drawers on a free wall of a large bedroom, a floor lamp or a plant beside it (its 0.80 m front stays free, so no stool)"
+    layout: anchored
+    zone: sleeping
+    room_types: [bedroom]
+    priority: 3
+    anchor:
+      types: [dresser]
+      place: wall
+      align: any
+      sizes:
+        - {dresser: [[1.2, 0.5], [1.0, 0.45]]}
+    options:
+      chest_120: {anchor: dresser, min_area: 14, sizes: {dresser: [[1.2, 0.5]]}, what: "1.20 m chest of drawers"}
+      chest_100: {anchor: dresser, min_area: 14, sizes: {dresser: [[1.0, 0.45]]}, what: "1.00 m chest of drawers"}
+      chest_wide: {anchor: dresser, min_area: 18, sizes: {dresser: [[1.4, 0.5], [1.6, 0.5]]}, what: "wide chest of drawers"}
+      chest_lamp: {anchor: dresser, min_area: 15, counts: {floor_lamp: 1}, what: "chest of drawers and a floor lamp"}
+      chest_plant: {anchor: dresser, min_area: 15, counts: {potted_plant: 1}, what: "chest of drawers and a plant"}
+      chest_lamp_plant: {anchor: dresser, min_area: 16, counts: {floor_lamp: 1, potted_plant: 1}, what: "chest of drawers between a floor lamp and a plant"}
+      chest_wide_plant: {anchor: dresser, min_area: 18, sizes: {dresser: [[1.4, 0.5]]}, counts: {potted_plant: 1}, what: "wide chest of drawers and a plant"}
+    partners:
+      - {role: lamp, type: floor_lamp, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.4, 0.4], [0.35, 0.35]]}
+      - {role: plant, type: potted_plant, required: false, max: 1, default: 0, place: beside_head, gap: 0.08, facing: same, sizes: [[0.45, 0.45], [0.35, 0.35]]}

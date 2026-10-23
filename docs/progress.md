@@ -1051,3 +1051,48 @@ Results: [`results/review/real04_rerun_20261023/`](../results/review/real04_reru
   e_yatak_odasi_2 / _3; f_L0_043 (abo_B07GFLG5MM) tagged "modern minimal", not the project style. Not fixed.
 
 GPU cost: project total **$186.18 of $300**. No pod is running.
+
+### 3D Warehouse layer, group options 10x, real04 ground floor (23 Oct 2026)
+
+Your requests of 23 Oct 2026: add the 3D Warehouse GLBs of your Drive zip as a library source (relaxed mode only,
+`commercial_safe: no`, licence not reviewed), keep every model ("cars, laptops, TVs, fences, whole kitchens ... think
+bigger"), then grow the group furniture options 10x and use the ground-floor plan of real04 that matches the basement.
+
+**3D Warehouse** (`wenart/assets/warehouse.py`, source `3dwh`, `GROWTH_ONLY=3dwh` in `scripts/jobs/library_growth.sh`):
+3 pods, $12.40 in all (`9skbxiezc2eoac` $0.20: zip names broke the extraction; `e7pe2c4zku7hg2` $6.82: first audit;
+`wf4crmtpkhro3a` $5.38: every model kept and audited, 0 vision answers left). 3,462 GLBs, 3,456 typed and fixed
+(units: metres 2,569, feet 751, inches 110, cm 18, mm 8; up axis turned on 145), 6 dropped (broken GLB JSON).
+
+| | models | keep | fix | removed |
+|---|---|---|---|---|
+| furniture (`entries`) | 1,977 | 929 | 214 | 834 |
+| decor | 523 | 404 | 39 | 80 |
+| extras: trees, doors, windows, objects (`extras`, new) | 956 | 737 | 117 | 102 |
+| **all** | **3,456** | **2,070** | **370** | **1,016** |
+
+- Most removals are sets and scenes (a sofa with its table and rug in one file), multi-object files and logos;
+  the reasons per model are in [`results/library/audit/3dwh/audit.md`](../results/library/audit/3dwh/audit.md), the
+  contact sheets per type in `results/library/audit/3dwh/contact/`.
+- Top furniture types: armchair 238, corner sofa 159, sofa 123, double bed 120, chair 105, desk 97. Extras: 190
+  untyped objects, 174 trees, 120 doors, 110 whole kitchens, 61 windows, 35 gates, 35 palms. The furniture fit does
+  not read `extras` yet (the hooks for doors, windows and trees come later, as you said).
+- Catalogue: `wenart/furniture/catalog_library.json` now has 3,932 furniture entries, 1,249 decor and 956 extras;
+  every non-3dwh entry is unchanged. Every render that uses a 3dwh model says `commercial-safe: no`.
+- GPU tests on the pod: 8 passed, 1 failed (a 5.09 m sectional over the flat 5 m size bound; the bound is now the
+  type's largest product + 15 %, as the ingest allows).
+- Please switch the Drive link sharing of the zip back off.
+
+**Group options 10x** (`wenart/furniture/groups.yaml`): 263 options (26 before), two new groups (reading corner,
+bedroom chest). New options carry an area window (`min_area` / `max_area`, `min_wall`, `min_width`) and are offered
+beside the old ones; new partners (end tables, floor lamp, plant, pouf, dresser or TV on the facing wall, bookshelves
+beside a desk) default to 0, so the old options build what they built. Drawn groups keep the old options; rooms with
+drawn furniture get no reading corner or chest (completed, not added to); set extras (bath, hall) add only sizes
+unless chosen; a bunk bed and a crib only on request. Solver fixes found on the way: required groups are never
+dropped for optional ones, each group and option gets its share of the position budget, L/U kitchen corners are no
+aisle obstacle (G8). real04's rooms (CPU dry run on its last building): no room fails the checks or loses a required
+group; 9 s for all rooms.
+
+**real04 ground floor**: the DWG draws the ground floor twice (r5 17.17 x 12.00 m, bulging out; r16 15.17 x 12.00 m,
+the basement's size). The sheets stage now takes the drawing whose outline matches the adjacent levels as the base
+and leaves the other out (`outline_mismatch` conflict, listed in the report); same-size copies and copies in other
+documents stay as before.

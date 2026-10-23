@@ -108,6 +108,10 @@ def test_relayout_room_takes_candidate_k_and_program_choices():
 def test_move_group_moves_an_added_group_to_another_span():
     b = E.apply_edit(M.building(room_type="bedroom", w=6.0, h=5.0),
                      edit("relayout_room", room_id=ROOM))["building"]
+    # 23 Oct 2026 (group options 10x): a 30 m² bedroom also gets a reading corner and a chest of drawers; they are
+    # taken out so a free wall is left to move the bed to
+    b["furniture"] = [f for f in b["furniture"] if (f.get("group") or {}).get("group") not in ("reading_corner",
+                                                                                               "bedroom_chest")]
     gid = next(f["group"]["group_id"] for f in added(b) if f["type"] == "bed_double")
     bed_now = P.drawn_piece(next(f for f in added(b) if f["type"] == "bed_double"))
     spans = E.free_spans(b, ROOM)

@@ -861,6 +861,21 @@ def _soft(rule: dict) -> str:
     return "major" if rule.get("hard", True) else "minor"
 
 
+def _corner_neighbours(r: RoomView, pid: str, ids: list) -> set:
+    """The run pieces that touch ``pid`` (within 0.05 m) with their fronts turned 60-120 degrees from its front: the
+    other leg at an L or U corner."""
+    out = set()
+    me = r.pieces[pid].polygon()
+    front = float(r.by_id[pid].get("front_deg") or 0.0)
+    for q in ids:
+        if q == pid:
+            continue
+        turn = abs((float(r.by_id[q].get("front_deg") or 0.0) - front + 180.0) % 360.0 - 180.0)
+        if 60.0 <= turn <= 120.0 and me.distance(r.pieces[q].polygon()) <= 0.05:
+            out.add(q)
+    return out
+
+
 def _g8_g9(r: RoomView) -> list[dict]:
     out = []
     run_ids = r.typed(GR.KITCHEN_RUN_TYPES)
@@ -931,7 +946,9 @@ def _g8_g9(r: RoomView) -> list[dict]:
         for pid in ids + islands:
             if pid in islands:
                 continue
-            free = side_clear(r.pieces[pid], "front", r.obstacles(exclude={pid}))
+            # 23 Oct 2026: the run piece at an L or U corner faces the other leg's end (a corner cabinet): that
+            # perpendicular neighbour is part of the same run, not an obstacle in the aisle.
+            free = side_clear(r.pieces[pid], "front", r.obstacles(exclude={pid} | _corner_neighbours(r, pid, ids)))
             if worst is None or free < worst[0]:
                 worst = (free, pid)
         if worst is not None and worst[0] < aisle - 1e-9:

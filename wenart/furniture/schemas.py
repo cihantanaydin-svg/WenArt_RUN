@@ -153,20 +153,23 @@ LAYOUT_TYPES: tuple[str, ...] = tuple(t for t in SIZE_OPTIONS if t not in DOCUME
 # ``completion_plan`` (rooms with drawn furniture) narrow a row per use; the recognition veto reads the whole row.
 ALLOWED_TYPES: dict[str, tuple[str, ...]] = {
     "living": ("sofa", "armchair", "table_coffee", "tv_unit", "bookshelf", "table_dining", "chair",
-               "console_table", "sideboard", "display_cabinet", "ottoman", "chaise", "sofa_corner"),
+               "console_table", "sideboard", "display_cabinet", "ottoman", "chaise", "sofa_corner",
+               "side_table", "floor_lamp", "potted_plant"),     # 23 Oct 2026: the extra group options' partners
     "bedroom": ("bed_double", "bed_single", "nightstand", "wardrobe", "dresser", "desk", "chair", "bookshelf",
-                "armchair", "bench", "ottoman", "office_chair", "bunk_bed", "crib"),
+                "armchair", "bench", "ottoman", "office_chair", "bunk_bed", "crib",
+                "side_table", "floor_lamp", "potted_plant", "tv_unit"),
     "kitchen": ("kitchen_counter", "kitchen_island", "fridge", "stove", "sink_kitchen", "table_dining", "chair",
                 "washing_machine", "bar_stool", "tall_cabinet", "wall_cabinet"),
     "bathroom": ("washbasin", "toilet", "shower", "bathtub", "washing_machine"),
     "wc": ("toilet", "washbasin"),
-    "hall": ("dresser", "chair", "bookshelf", "console_table", "shoe_cabinet", "bench"),
+    "hall": ("dresser", "chair", "bookshelf", "console_table", "shoe_cabinet", "bench", "potted_plant"),
     "dining": ("table_dining", "chair", "dresser", "bookshelf",      # Milestone 7 (§6.5)
-               "display_cabinet", "sideboard", "bench"),
+               "display_cabinet", "sideboard", "bench", "potted_plant"),
     "other": ("armchair", "chair", "table_dining", "bookshelf", "desk",
-              "office_chair"),                  # Milestone 12: the work group's chair at its desk (§4.2 "work")
+              "office_chair",                   # Milestone 12: the work group's chair at its desk (§4.2 "work")
+              "side_table", "floor_lamp", "ottoman", "potted_plant"),
     # Milestone 12 (docs/milestone12.md §4.2 "balcony": a small table and two chairs; real02's terraces).
-    "balcony": ("table_dining", "chair", "bench"),
+    "balcony": ("table_dining", "chair", "bench", "potted_plant"),
 }
 FURNISHABLE_ROOM_TYPES: tuple[str, ...] = tuple(ALLOWED_TYPES)
 # Room types the AI never furnishes even when the documents leave them empty (docs/milestone7.md §0:

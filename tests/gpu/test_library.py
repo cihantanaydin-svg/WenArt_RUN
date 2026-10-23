@@ -34,7 +34,9 @@ import pytest
 from wenart.assets import abo as ABO
 from wenart.assets import generate as G
 from wenart.assets import objaverse as OV
+from wenart.assets import warehouse as WH
 from wenart.furniture import catalog as C
+from wenart.furniture import sizes as SZ
 from wenart.run import copy as CP
 
 pytestmark = pytest.mark.gpu
@@ -544,8 +546,12 @@ def test_growth_new_glbs_load_in_blender_at_plausible_size():
         # has now
         scale = float(e.get("unit_scale", 1.0)) / float(before.get("unit_scale", e.get("unit_scale", 1.0)) or 1.0)
         extra = e.get("kind") in ("vegetation", "opening", "object")     # a tree, a car, a fence: no 5 m bound
+        # 23 Oct 2026 (3D Warehouse pod wf4crmtpkhro3a): a 5.09 m sectional is a real sofa_corner (its range ends at
+        # 4.50 m; the ingest allows +15 %): the bound is 5 m or the type's largest product size + 15 %
+        rng = SZ.real_range(e.get("type") or "")
+        cap = 5.0 if rng is None else max(5.0, max(rng["width"][1], rng["depth"][1]) * (1.0 + WH.FIT_TOL))
         if (e.get("audit") or {}).get("status") != "removed" and not extra:   # pod P4: a 10x Poly Haven glTF is removed
-            assert 0.01 <= max(m["size"]) * scale <= 5.0, (e["id"], m["size"], scale)    # a real piece, metres
+            assert 0.01 <= max(m["size"]) * scale <= cap, (e["id"], m["size"], scale, cap)    # a real piece, metres
         assert m["faces"] > 0 and e["id"] in mdoc["sheets"], e["id"]
         got = list(m["model_box_min"]) + list(m["model_box_max"])
         boxes = [list(e["bbox_min_m"]) + list(e["bbox_max_m"]),          # the entry now, or before an audit fix

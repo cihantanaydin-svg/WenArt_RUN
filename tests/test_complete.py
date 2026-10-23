@@ -116,7 +116,8 @@ def test_change_types_and_fixed_equipment():
     assert schemas.FIXED_TYPES == ("stair", "kitchen_counter", "kitchen_island", "sink_kitchen", "stove", "fridge",
                                    "washing_machine", "toilet", "washbasin", "shower", "bathtub")
     assert "prayer" not in schemas.ALLOWED_TYPES                                 # prayer rooms: never furnished
-    assert schemas.ALLOWED_TYPES["balcony"] == ("table_dining", "chair", "bench")   # Milestone 12: balcony group
+    # Milestone 12: the balcony group; 23 Oct 2026 (group options 10x): its plants
+    assert schemas.ALLOWED_TYPES["balcony"] == ("table_dining", "chair", "bench", "potted_plant")
 
 
 # --------------------------------------------------------------------------

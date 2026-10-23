@@ -140,7 +140,8 @@ def test_the_committed_catalogue_files_carry_the_licence_fields_written_by_the_s
                 assert e["commercial_safe"] == (e["licence_flag"] == "none") == C.commercial_safe(e), e["id"]
                 assert e["licence_url"].startswith("https://"), e["id"]
                 assert isinstance(e["attribution"], str), e["id"]
-                declared = "uploader" if e["source"] == "objaverse" else "publisher"
+                # 3D Warehouse (23 Oct 2026): a model's uploader declares its terms, as on Objaverse
+                declared = "uploader" if e["source"] in ("objaverse", "3dwh") else "publisher"
                 assert e["licence_declared_by"] == declared, e["id"]
                 if str(e["licence"]).startswith("generated (TRELLIS.2"):            # D3: nvdiffrast in the export
                     assert e["licence_flag"] == "tool_nc" and not e["commercial_safe"], e["id"]

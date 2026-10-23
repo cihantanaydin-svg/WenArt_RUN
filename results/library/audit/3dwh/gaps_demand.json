@@ -1,0 +1,1283 @@
+{
+ "kind": "library_demand_coverage",
+ "written_utc": "2026-10-23T22:00:17Z",
+ "scope": "catalogue copies after the audit",
+ "min_models_per_bin": 2,
+ "bins_demanded": 91,
+ "bins_covered": {
+  "commercial": 57,
+  "relaxed": 84
+ },
+ "gap_rows": 34,
+ "by_mode": {
+  "commercial": {
+   "armchair": {
+    "0.85x0.85": 37,
+    "0.80x0.80": 35,
+    "0.90x0.90": 39,
+    "1.00x1.00": 24,
+    "0.70x0.85": 27,
+    "0.65x0.80": 22
+   },
+   "bar_stool": {
+    "0.45x0.50": 12,
+    "0.42x0.42": 18,
+    "0.38x0.38": 14,
+    "0.45x0.45": 18
+   },
+   "bathtub": {
+    "1.70x0.75": 0,
+    "1.50x0.70": 0,
+    "1.60x0.70": 0,
+    "1.70x0.70": 0,
+    "1.80x0.80": 0,
+    "1.50x0.75": 0,
+    "1.55x0.70": 0,
+    "1.55x0.75": 0,
+    "1.60x0.75": 0
+   },
+   "bed_double": {
+    "1.40x2.00": 23,
+    "1.60x2.00": 29,
+    "1.80x2.00": 6
+   },
+   "bed_single": {
+    "0.90x2.00": 7,
+    "1.00x2.00": 13,
+    "1.20x2.00": 0
+   },
+   "bench": {
+    "1.20x0.40": 10,
+    "1.00x0.40": 8,
+    "1.40x0.45": 10
+   },
+   "bookshelf": {
+    "0.90x0.35": 7,
+    "0.80x0.30": 4,
+    "1.00x0.35": 3,
+    "1.20x0.40": 2,
+    "0.60x0.35": 4,
+    "1.00x0.45": 8,
+    "1.00x0.40": 8
+   },
+   "chair": {
+    "0.45x0.45": 13,
+    "0.40x0.40": 2,
+    "0.50x0.50": 18,
+    "0.45x0.55": 29,
+    "0.50x0.55": 26
+   },
+   "console_table": {
+    "1.20x0.35": 5,
+    "0.90x0.30": 1,
+    "1.40x0.40": 4
+   },
+   "desk": {
+    "1.20x0.60": 17,
+    "1.40x0.70": 17,
+    "1.60x0.80": 7,
+    "1.10x0.56": 14,
+    "1.00x0.50": 9,
+    "1.40x0.55": 5,
+    "1.60x0.75": 9
+   },
+   "dresser": {
+    "1.00x0.45": 8,
+    "1.20x0.50": 6,
+    "1.40x0.50": 4,
+    "0.80x0.40": 4
+   },
+   "floor_lamp": {
+    "0.40x0.40": 17,
+    "0.30x0.30": 3,
+    "0.50x0.50": 13,
+    "0.60x0.60": 7
+   },
+   "fridge": {
+    "0.60x0.65": 0,
+    "0.70x0.70": 0,
+    "0.90x0.75": 0,
+    "0.60x0.60": 0
+   },
+   "kitchen_island": {
+    "1.60x0.90": 0,
+    "1.20x0.80": 0,
+    "2.00x1.00": 0
+   },
+   "nightstand": {
+    "0.45x0.40": 24,
+    "0.40x0.40": 7,
+    "0.50x0.40": 27,
+    "0.60x0.45": 18,
+    "0.40x0.35": 21,
+    "0.55x0.45": 21
+   },
+   "office_chair": {
+    "0.65x0.65": 23,
+    "0.55x0.55": 15,
+    "0.60x0.60": 20
+   },
+   "ottoman": {
+    "0.60x0.60": 14,
+    "0.50x0.50": 13,
+    "0.80x0.80": 3,
+    "0.80x0.60": 15
+   },
+   "shoe_cabinet": {
+    "0.80x0.30": 0,
+    "0.60x0.30": 2,
+    "1.00x0.35": 0
+   },
+   "shower": {
+    "0.90x0.90": 0,
+    "0.80x0.80": 0,
+    "1.00x0.80": 0,
+    "1.20x0.80": 0,
+    "1.20x0.90": 0,
+    "0.90x0.80": 0
+   },
+   "side_table": {
+    "0.45x0.45": 21,
+    "0.40x0.40": 19,
+    "0.60x0.60": 6
+   },
+   "sideboard": {
+    "1.60x0.45": 5,
+    "1.40x0.42": 4,
+    "1.80x0.48": 2
+   },
+   "sink_kitchen": {
+    "0.80x0.60": 0,
+    "0.60x0.50": 0,
+    "0.80x0.50": 0,
+    "1.00x0.60": 0
+   },
+   "sofa": {
+    "2.00x0.90": 20,
+    "1.60x0.90": 19,
+    "2.20x0.90": 26,
+    "2.60x0.95": 7,
+    "1.30x0.85": 11,
+    "3.00x1.00": 2
+   },
+   "sofa_corner": {
+    "2.60x1.60": 7,
+    "2.20x1.50": 12,
+    "3.00x1.70": 3,
+    "3.20x2.00": 11,
+    "2.40x2.40": 3
+   },
+   "stove": {
+    "0.60x0.60": 1,
+    "0.50x0.60": 1,
+    "0.90x0.60": 0
+   },
+   "table_coffee": {
+    "1.10x0.60": 23,
+    "0.80x0.50": 0,
+    "1.00x0.60": 18,
+    "1.20x0.70": 25,
+    "0.80x0.80": 5,
+    "0.90x0.90": 5,
+    "1.00x0.50": 9,
+    "1.30x0.80": 10,
+    "1.20x1.20": 5
+   },
+   "table_dining": {
+    "1.60x0.90": 11,
+    "1.20x0.80": 2,
+    "1.80x0.90": 14,
+    "2.00x1.00": 14,
+    "0.80x0.80": 7,
+    "1.00x1.00": 4,
+    "2.40x1.00": 3,
+    "3.00x1.00": 0
+   },
+   "tall_cabinet": {
+    "0.60x0.60": 0,
+    "0.40x0.58": 1,
+    "0.80x0.60": 0,
+    "0.30x0.30": 0
+   },
+   "toilet": {
+    "0.38x0.65": 0,
+    "0.36x0.55": 0,
+    "0.40x0.70": 2,
+    "0.45x0.75": 1
+   },
+   "tv_unit": {
+    "1.50x0.42": 16,
+    "1.20x0.40": 12,
+    "1.60x0.45": 16,
+    "2.00x0.45": 3
+   },
+   "wardrobe": {
+    "1.20x0.60": 1,
+    "1.80x0.60": 6,
+    "2.40x0.60": 1,
+    "1.00x0.60": 4,
+    "2.00x0.60": 4,
+    "1.30x0.50": 2,
+    "1.50x0.55": 5
+   },
+   "washbasin": {
+    "0.60x0.45": 1,
+    "0.50x0.40": 0,
+    "0.80x0.50": 0,
+    "0.45x0.35": 0
+   },
+   "washing_machine": {
+    "0.60x0.60": 0,
+    "0.60x0.55": 0,
+    "0.70x0.70": 0
+   },
+   "basket": {
+    "0.40x0.40": 0
+   },
+   "blind": {
+    "1.20x0.05": 0
+   },
+   "ceiling_light": {
+    "0.35x0.35": 9
+   },
+   "curtain": {
+    "1.40x0.10": 0
+   },
+   "cushion": {
+    "0.45x0.15": 39
+   },
+   "mirror": {
+    "0.60x0.04": 2
+   },
+   "pendant_light": {
+    "0.40x0.35": 0
+   },
+   "plant": {
+    "0.40x0.40": 0
+   },
+   "plant_large": {
+    "0.60x0.60": 0
+   },
+   "plant_small": {
+    "0.20x0.20": 4
+   },
+   "rug": {
+    "2.40x1.60": 24
+   },
+   "table_lamp": {
+    "0.25x0.25": 8
+   },
+   "throw": {
+    "0.50x0.35": 0
+   },
+   "vase": {
+    "0.15x0.15": 9
+   },
+   "wall_art": {
+    "0.50x0.04": 9
+   }
+  },
+  "relaxed": {
+   "armchair": {
+    "0.85x0.85": 106,
+    "0.80x0.80": 99,
+    "0.90x0.90": 99,
+    "1.00x1.00": 59,
+    "0.70x0.85": 54,
+    "0.65x0.80": 50
+   },
+   "bar_stool": {
+    "0.45x0.50": 24,
+    "0.42x0.42": 47,
+    "0.38x0.38": 40,
+    "0.45x0.45": 50
+   },
+   "bathtub": {
+    "1.70x0.75": 22,
+    "1.50x0.70": 17,
+    "1.60x0.70": 20,
+    "1.70x0.70": 15,
+    "1.80x0.80": 22,
+    "1.50x0.75": 8,
+    "1.55x0.70": 19,
+    "1.55x0.75": 15,
+    "1.60x0.75": 21
+   },
+   "bed_double": {
+    "1.40x2.00": 46,
+    "1.60x2.00": 63,
+    "1.80x2.00": 35
+   },
+   "bed_single": {
+    "0.90x2.00": 15,
+    "1.00x2.00": 27,
+    "1.20x2.00": 7
+   },
+   "bench": {
+    "1.20x0.40": 28,
+    "1.00x0.40": 8,
+    "1.40x0.45": 33
+   },
+   "bookshelf": {
+    "0.90x0.35": 19,
+    "0.80x0.30": 12,
+    "1.00x0.35": 19,
+    "1.20x0.40": 18,
+    "0.60x0.35": 5,
+    "1.00x0.45": 12,
+    "1.00x0.40": 18
+   },
+   "chair": {
+    "0.45x0.45": 53,
+    "0.40x0.40": 11,
+    "0.50x0.50": 67,
+    "0.45x0.55": 56,
+    "0.50x0.55": 81
+   },
+   "console_table": {
+    "1.20x0.35": 19,
+    "0.90x0.30": 2,
+    "1.40x0.40": 15
+   },
+   "desk": {
+    "1.20x0.60": 40,
+    "1.40x0.70": 54,
+    "1.60x0.80": 34,
+    "1.10x0.56": 30,
+    "1.00x0.50": 13,
+    "1.40x0.55": 6,
+    "1.60x0.75": 32
+   },
+   "dresser": {
+    "1.00x0.45": 17,
+    "1.20x0.50": 19,
+    "1.40x0.50": 18,
+    "0.80x0.40": 6
+   },
+   "floor_lamp": {
+    "0.40x0.40": 32,
+    "0.30x0.30": 4,
+    "0.50x0.50": 39,
+    "0.60x0.60": 33
+   },
+   "fridge": {
+    "0.60x0.65": 12,
+    "0.70x0.70": 12,
+    "0.90x0.75": 6,
+    "0.60x0.60": 8
+   },
+   "kitchen_island": {
+    "1.60x0.90": 0,
+    "1.20x0.80": 0,
+    "2.00x1.00": 0
+   },
+   "nightstand": {
+    "0.45x0.40": 32,
+    "0.40x0.40": 17,
+    "0.50x0.40": 51,
+    "0.60x0.45": 40,
+    "0.40x0.35": 24,
+    "0.55x0.45": 45
+   },
+   "office_chair": {
+    "0.65x0.65": 86,
+    "0.55x0.55": 46,
+    "0.60x0.60": 74
+   },
+   "ottoman": {
+    "0.60x0.60": 39,
+    "0.50x0.50": 28,
+    "0.80x0.80": 6,
+    "0.80x0.60": 16
+   },
+   "shoe_cabinet": {
+    "0.80x0.30": 1,
+    "0.60x0.30": 5,
+    "1.00x0.35": 1
+   },
+   "shower": {
+    "0.90x0.90": 21,
+    "0.80x0.80": 18,
+    "1.00x0.80": 11,
+    "1.20x0.80": 6,
+    "1.20x0.90": 12,
+    "0.90x0.80": 2
+   },
+   "side_table": {
+    "0.45x0.45": 39,
+    "0.40x0.40": 35,
+    "0.60x0.60": 9
+   },
+   "sideboard": {
+    "1.60x0.45": 21,
+    "1.40x0.42": 22,
+    "1.80x0.48": 12
+   },
+   "sink_kitchen": {
+    "0.80x0.60": 13,
+    "0.60x0.50": 3,
+    "0.80x0.50": 1,
+    "1.00x0.60": 5
+   },
+   "sofa": {
+    "2.00x0.90": 55,
+    "1.60x0.90": 41,
+    "2.20x0.90": 63,
+    "2.60x0.95": 25,
+    "1.30x0.85": 29,
+    "3.00x1.00": 10
+   },
+   "sofa_corner": {
+    "2.60x1.60": 20,
+    "2.20x1.50": 22,
+    "3.00x1.70": 13,
+    "3.20x2.00": 23,
+    "2.40x2.40": 9
+   },
+   "stove": {
+    "0.60x0.60": 7,
+    "0.50x0.60": 3,
+    "0.90x0.60": 19
+   },
+   "table_coffee": {
+    "1.10x0.60": 42,
+    "0.80x0.50": 2,
+    "1.00x0.60": 27,
+    "1.20x0.70": 43,
+    "0.80x0.80": 9,
+    "0.90x0.90": 9,
+    "1.00x0.50": 13,
+    "1.30x0.80": 21,
+    "1.20x1.20": 8
+   },
+   "table_dining": {
+    "1.60x0.90": 23,
+    "1.20x0.80": 5,
+    "1.80x0.90": 24,
+    "2.00x1.00": 22,
+    "0.80x0.80": 14,
+    "1.00x1.00": 13,
+    "2.40x1.00": 16,
+    "3.00x1.00": 3
+   },
+   "tall_cabinet": {
+    "0.60x0.60": 5,
+    "0.40x0.58": 2,
+    "0.80x0.60": 4,
+    "0.30x0.30": 0
+   },
+   "toilet": {
+    "0.38x0.65": 21,
+    "0.36x0.55": 5,
+    "0.40x0.70": 23,
+    "0.45x0.75": 24
+   },
+   "tv_unit": {
+    "1.50x0.42": 27,
+    "1.20x0.40": 17,
+    "1.60x0.45": 28,
+    "2.00x0.45": 3
+   },
+   "wardrobe": {
+    "1.20x0.60": 17,
+    "1.80x0.60": 17,
+    "2.40x0.60": 18,
+    "1.00x0.60": 6,
+    "2.00x0.60": 10,
+    "1.30x0.50": 5,
+    "1.50x0.55": 15
+   },
+   "washbasin": {
+    "0.60x0.45": 11,
+    "0.50x0.40": 5,
+    "0.80x0.50": 5,
+    "0.45x0.35": 3
+   },
+   "washing_machine": {
+    "0.60x0.60": 17,
+    "0.60x0.55": 9,
+    "0.70x0.70": 17
+   },
+   "basket": {
+    "0.40x0.40": 5
+   },
+   "blind": {
+    "1.20x0.05": 0
+   },
+   "ceiling_light": {
+    "0.35x0.35": 14
+   },
+   "curtain": {
+    "1.40x0.10": 3
+   },
+   "cushion": {
+    "0.45x0.15": 41
+   },
+   "mirror": {
+    "0.60x0.04": 3
+   },
+   "pendant_light": {
+    "0.40x0.35": 6
+   },
+   "plant": {
+    "0.40x0.40": 0
+   },
+   "plant_large": {
+    "0.60x0.60": 12
+   },
+   "plant_small": {
+    "0.20x0.20": 10
+   },
+   "rug": {
+    "2.40x1.60": 33
+   },
+   "table_lamp": {
+    "0.25x0.25": 16
+   },
+   "throw": {
+    "0.50x0.35": 1
+   },
+   "vase": {
+    "0.15x0.15": 18
+   },
+   "wall_art": {
+    "0.50x0.04": 9
+   }
+  }
+ },
+ "gaps": [
+  {
+   "type": "bathtub",
+   "bin": "1.70x0.75",
+   "w": 1.7,
+   "d": 0.75,
+   "h": 0.58,
+   "label": "default product",
+   "demand": 3,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 22,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "bathtub",
+   "bin": "1.80x0.80",
+   "w": 1.8,
+   "d": 0.8,
+   "h": 0.58,
+   "label": "product",
+   "demand": 14,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 22,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "console_table",
+   "bin": "0.90x0.30",
+   "w": 0.9,
+   "d": 0.3,
+   "h": 0.76,
+   "label": "product",
+   "demand": 11,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "commercial": 1,
+   "gap_commercial": 1,
+   "relaxed": 2,
+   "gap_relaxed": 0,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "fridge",
+   "bin": "0.60x0.65",
+   "w": 0.6,
+   "d": 0.65,
+   "h": 1.85,
+   "label": "default product",
+   "demand": 4,
+   "projects": [
+    "real02"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 12,
+   "gap_relaxed": 0,
+   "sources": [
+    "parametric (track S)",
+    "infinigen (beverage fridge)",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "kitchen_island",
+   "bin": "1.20x0.80",
+   "w": 1.2,
+   "d": 0.8,
+   "h": 0.9,
+   "label": "product",
+   "demand": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 0,
+   "gap_relaxed": 2,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "kitchen_island",
+   "bin": "2.00x1.00",
+   "w": 2.0,
+   "d": 1.0,
+   "h": 0.9,
+   "label": "product",
+   "demand": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 0,
+   "gap_relaxed": 2,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "shoe_cabinet",
+   "bin": "0.80x0.30",
+   "w": 0.8,
+   "d": 0.3,
+   "h": 1.0,
+   "label": "default product",
+   "demand": 5,
+   "projects": [
+    "real02",
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 1,
+   "gap_relaxed": 1,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "shower",
+   "bin": "0.90x0.90",
+   "w": 0.9,
+   "d": 0.9,
+   "h": 2.0,
+   "label": "default product",
+   "demand": 2,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 21,
+   "gap_relaxed": 0,
+   "sources": [
+    "parametric (track S)",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "shower",
+   "bin": "0.80x0.80",
+   "w": 0.8,
+   "d": 0.8,
+   "h": 2.0,
+   "label": "product",
+   "demand": 1,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 18,
+   "gap_relaxed": 0,
+   "sources": [
+    "parametric (track S)",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "shower",
+   "bin": "1.00x0.80",
+   "w": 1.0,
+   "d": 0.8,
+   "h": 2.0,
+   "label": "product",
+   "demand": 4,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 11,
+   "gap_relaxed": 0,
+   "sources": [
+    "parametric (track S)",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "shower",
+   "bin": "1.20x0.80",
+   "w": 1.2,
+   "d": 0.8,
+   "h": 2.0,
+   "label": "product",
+   "demand": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 6,
+   "gap_relaxed": 0,
+   "sources": [
+    "parametric (track S)",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "shower",
+   "bin": "0.90x0.80",
+   "w": 0.9,
+   "d": 0.8,
+   "h": 2.0,
+   "label": "product",
+   "demand": 3,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 2,
+   "gap_relaxed": 0,
+   "sources": [
+    "parametric (track S)",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "sink_kitchen",
+   "bin": "0.60x0.50",
+   "w": 0.6,
+   "d": 0.5,
+   "h": 0.9,
+   "label": "product",
+   "demand": 12,
+   "projects": [
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 3,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "sink_kitchen",
+   "bin": "0.80x0.50",
+   "w": 0.8,
+   "d": 0.5,
+   "h": 0.9,
+   "label": "product",
+   "demand": 4,
+   "projects": [
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 1,
+   "gap_relaxed": 1,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "stove",
+   "bin": "0.60x0.60",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 0.9,
+   "label": "default product",
+   "demand": 6,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 1,
+   "gap_commercial": 1,
+   "relaxed": 7,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "stove",
+   "bin": "0.50x0.60",
+   "w": 0.5,
+   "d": 0.6,
+   "h": 0.9,
+   "label": "product",
+   "demand": 4,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 1,
+   "gap_commercial": 1,
+   "relaxed": 3,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "stove",
+   "bin": "0.90x0.60",
+   "w": 0.9,
+   "d": 0.6,
+   "h": 0.9,
+   "label": "product",
+   "demand": 8,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 19,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "table_coffee",
+   "bin": "0.80x0.50",
+   "w": 0.8,
+   "d": 0.5,
+   "h": 0.42,
+   "label": "small 80 x 50: std; syn 0.8 x 0.5",
+   "demand": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 2,
+   "gap_relaxed": 0,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "table_dining",
+   "bin": "3.00x1.00",
+   "w": 3.0,
+   "d": 1.0,
+   "h": 0.76,
+   "label": "10-12-seat 300 x 100: std (to 12 seats); m11 real02 masa 3.35 x 1.00 (in range since M13, not snapped)",
+   "demand": 4,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 3,
+   "gap_relaxed": 0,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "tall_cabinet",
+   "bin": "0.60x0.60",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 2.1,
+   "label": "default product",
+   "demand": 1,
+   "projects": [
+    "real02"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 5,
+   "gap_relaxed": 0,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "tall_cabinet",
+   "bin": "0.40x0.58",
+   "w": 0.4,
+   "d": 0.58,
+   "h": 2.1,
+   "label": "product",
+   "demand": 2,
+   "projects": [
+    "real02"
+   ],
+   "commercial": 1,
+   "gap_commercial": 1,
+   "relaxed": 2,
+   "gap_relaxed": 0,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "toilet",
+   "bin": "0.45x0.75",
+   "w": 0.45,
+   "d": 0.75,
+   "h": 0.78,
+   "label": "product",
+   "demand": 28,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "commercial": 1,
+   "gap_commercial": 1,
+   "relaxed": 24,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "wardrobe",
+   "bin": "1.20x0.60",
+   "w": 1.2,
+   "d": 0.6,
+   "h": 2.0,
+   "label": "2-door 120 x 60: std; syn 1.2 x 0.6",
+   "demand": 2,
+   "projects": [
+    "real04"
+   ],
+   "commercial": 1,
+   "gap_commercial": 1,
+   "relaxed": 17,
+   "gap_relaxed": 0,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "wardrobe",
+   "bin": "2.40x0.60",
+   "w": 2.4,
+   "d": 0.6,
+   "h": 2.0,
+   "label": "4-door 240 x 60: std; syn 2.4 x 0.6",
+   "demand": 8,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 1,
+   "gap_commercial": 1,
+   "relaxed": 18,
+   "gap_relaxed": 0,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "washbasin",
+   "bin": "0.50x0.40",
+   "w": 0.5,
+   "d": 0.4,
+   "h": 0.85,
+   "label": "product",
+   "demand": 1,
+   "projects": [
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 5,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "washbasin",
+   "bin": "0.80x0.50",
+   "w": 0.8,
+   "d": 0.5,
+   "h": 0.85,
+   "label": "product",
+   "demand": 20,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 5,
+   "gap_relaxed": 0,
+   "sources": [
+    "infinigen",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "washing_machine",
+   "bin": "0.60x0.60",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 0.85,
+   "label": "default product",
+   "demand": 8,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 17,
+   "gap_relaxed": 0,
+   "sources": [
+    "parametric (track S)",
+    "hssd (relaxed mode)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "basket",
+   "bin": "0.40x0.40",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 0.35,
+   "label": "default product",
+   "demand": 2,
+   "projects": [
+    "real02"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 5,
+   "gap_relaxed": 0,
+   "sources": [
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "blind",
+   "bin": "1.20x0.05",
+   "w": 1.2,
+   "d": 0.05,
+   "h": 1.5,
+   "label": "default product",
+   "demand": 11,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 0,
+   "gap_relaxed": 2,
+   "sources": [
+    "procedural textiles (track S)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "curtain",
+   "bin": "1.40x0.10",
+   "w": 1.4,
+   "d": 0.1,
+   "h": 2.5,
+   "label": "default product",
+   "demand": 32,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 3,
+   "gap_relaxed": 0,
+   "sources": [
+    "procedural textiles (track S)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "pendant_light",
+   "bin": "0.40x0.35",
+   "w": 0.4,
+   "d": 0.35,
+   "h": 0.95,
+   "label": "default product",
+   "demand": 25,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 6,
+   "gap_relaxed": 0,
+   "sources": [
+    "polyhaven (chandeliers, pendants)",
+    "abo",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "plant",
+   "bin": "0.40x0.40",
+   "w": 0.4,
+   "d": 0.4,
+   "h": 0.8,
+   "label": "default product",
+   "demand": 1,
+   "projects": [
+    "real03"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 0,
+   "gap_relaxed": 2,
+   "sources": [
+    "abo (style pass)",
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "plant_large",
+   "bin": "0.60x0.60",
+   "w": 0.6,
+   "d": 0.6,
+   "h": 1.5,
+   "label": "default product",
+   "demand": 6,
+   "projects": [
+    "real02",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 12,
+   "gap_relaxed": 0,
+   "sources": [
+    "polyhaven",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  },
+  {
+   "type": "throw",
+   "bin": "0.50x0.35",
+   "w": 0.5,
+   "d": 0.35,
+   "h": 0.08,
+   "label": "default product",
+   "demand": 22,
+   "projects": [
+    "real02",
+    "real03",
+    "real04"
+   ],
+   "commercial": 0,
+   "gap_commercial": 2,
+   "relaxed": 1,
+   "gap_relaxed": 1,
+   "sources": [
+    "procedural textiles (track S)",
+    "hssd (relaxed mode only, CC BY-NC 4.0)"
+   ]
+  }
+ ]
+}

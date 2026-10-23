@@ -1,0 +1,292 @@
+{
+ "version": "m12.1",
+ "measures": {
+  "infinigen_dishwasher_0": {
+   "id": "infinigen_dishwasher_0",
+   "job_sha": "74198930a09d3c79039c3a104052575a8903a0c2729e801606fb31623300f691",
+   "ok": true,
+   "device": "OPTIX",
+   "attempts": 1,
+   "vertices": 65175,
+   "faces": 46906,
+   "box_min": [
+    -0.6691,
+    -0.52,
+    -0.0
+   ],
+   "box_max": [
+    0.6691,
+    0.52,
+    1.1816
+   ],
+   "size": [
+    1.3381,
+    1.04,
+    1.1816
+   ],
+   "pivot_offset": [
+    0.0,
+    -0.0,
+    -0.0
+   ],
+   "area_m2": 17.4625,
+   "zero_area_faces": 0,
+   "zero_area_share": 0.0,
+   "merged_vertices": 16469,
+   "edges": 51798,
+   "boundary_edges": 860,
+   "boundary_share": 0.0166,
+   "nonmanifold_edges": 18123,
+   "nonmanifold_share": 0.3499,
+   "inconsistent_edges": 0,
+   "flipped_share": 0.0,
+   "parts": 141,
+   "main_part_share": 0.7966,
+   "outside_parts": [
+    {
+     "share": 0.0086,
+     "sticks_out_m": 0.078,
+     "sides": [
+      "+x"
+     ]
+    }
+   ],
+   "outside_share": 0.0086,
+   "front_outside": false,
+   "model_box_min": [
+    -0.6691,
+    -0.52,
+    -0.0
+   ],
+   "model_box_max": [
+    0.6691,
+    0.52,
+    1.1816
+   ],
+   "textures": {
+    "images": 3,
+    "max_px": 1024,
+    "missing": [],
+    "hash": "b789779520b55c64be164a5e0e22d1385566681d559606fb5f13096854b2f5ab"
+   },
+   "colour_attributes": 0,
+   "mesh_objects": 1,
+   "seconds": 3.85,
+   "sheet_sha256": "d1a015b3bd32530978f8fdaaff613386b5db6d369e21d56a96ac2eeed60c3e1f"
+  },
+  "infinigen_kitchen_cabinet_0": {
+   "id": "infinigen_kitchen_cabinet_0",
+   "job_sha": "e00db578c7373859818168aeb3e7b700648b74caebb0d7c854bc12b53e632576",
+   "ok": true,
+   "device": "OPTIX",
+   "attempts": 1,
+   "vertices": 40851,
+   "faces": 47680,
+   "box_min": [
+    -0.1744,
+    -1.694,
+    -0.0
+   ],
+   "box_max": [
+    0.1744,
+    1.694,
+    1.0642
+   ],
+   "size": [
+    0.3489,
+    3.3881,
+    1.0642
+   ],
+   "pivot_offset": [
+    0.0,
+    -0.0,
+    -0.0
+   ],
+   "area_m2": 29.1406,
+   "zero_area_faces": 0,
+   "zero_area_share": 0.0,
+   "merged_vertices": 23912,
+   "edges": 71264,
+   "boundary_edges": 0,
+   "boundary_share": 0.0,
+   "nonmanifold_edges": 384,
+   "nonmanifold_share": 0.0054,
+   "inconsistent_edges": 0,
+   "flipped_share": 0.0,
+   "parts": 162,
+   "main_part_share": 0.0914,
+   "outside_parts": [
+    {
+     "share": 0.0486,
+     "sticks_out_m": 0.672,
+     "sides": [
+      "+y",
+      "-z"
+     ]
+    },
+    {
+     "share": 0.0472,
+     "sticks_out_m": 0.06,
+     "sides": [
+      "-z"
+     ]
+    },
+    {
+     "share": 0.0421,
+     "sticks_out_m": 1.088,
+     "sides": [
+      "-y",
+      "-z"
+     ]
+    },
+    {
+     "share": 0.04,
+     "sticks_out_m": 2.124,
+     "sides": [
+      "-y",
+      "-z"
+     ]
+    },
+    {
+     "share": 0.0392,
+     "sticks_out_m": 1.088,
+     "sides": [
+      "-y"
+     ]
+    },
+    {
+     "share": 0.0378,
+     "sticks_out_m": 0.525,
+     "sides": [
+      "-y",
+      "-z"
+     ]
+    },
+    {
+     "share": 0.0375,
+     "sticks_out_m": 1.589,
+     "sides": [
+      "-y",
+      "-z"
+     ]
+    },
+    {
+     "share": 0.0237,
+     "sticks_out_m": 2.124,
+     "sides": [
+      "-y",
+      "-z"
+     ]
+    },
+    {
+     "share": 0.0237,
+     "sticks_out_m": 1.61,
+     "sides": [
+      "-y",
+      "-z"
+     ]
+    },
+    {
+     "share": 0.0237,
+     "sticks_out_m": 1.589,
+     "sides": [
+      "-y",
+      "-z"
+     ]
+    }
+   ],
+   "outside_share": 0.8168,
+   "front_outside": true,
+   "model_box_min": [
+    -0.1744,
+    -1.694,
+    -0.0
+   ],
+   "model_box_max": [
+    0.1744,
+    1.694,
+    1.0642
+   ],
+   "textures": {
+    "images": 3,
+    "max_px": 1024,
+    "missing": [],
+    "hash": "09280b3f1e913df756e061d23e039dffb068e1715acb02af2ed368ad68bed391"
+   },
+   "colour_attributes": 0,
+   "mesh_objects": 1,
+   "seconds": 2.47,
+   "sheet_sha256": "b61ab84cd93c98c64217c93dbf6472e522d30c9b0f4c96dbba33ec0a817ae469"
+  },
+  "infinigen_microwave_0": {
+   "id": "infinigen_microwave_0",
+   "job_sha": "520cf0b84c0283f353652d0ca4cc282debbd48910ca7777958dfb73e33dae76b",
+   "ok": true,
+   "device": "OPTIX",
+   "attempts": 1,
+   "vertices": 22443,
+   "faces": 15557,
+   "box_min": [
+    -0.3238,
+    -0.443,
+    -0.0
+   ],
+   "box_max": [
+    0.3238,
+    0.443,
+    0.4103
+   ],
+   "size": [
+    0.6477,
+    0.8861,
+    0.4103
+   ],
+   "pivot_offset": [
+    0.0,
+    -0.0,
+    -0.0
+   ],
+   "area_m2": 4.4519,
+   "zero_area_faces": 273,
+   "zero_area_share": 0.0175,
+   "merged_vertices": 6413,
+   "edges": 20103,
+   "boundary_edges": 1281,
+   "boundary_share": 0.0637,
+   "nonmanifold_edges": 2623,
+   "nonmanifold_share": 0.1305,
+   "inconsistent_edges": 3,
+   "flipped_share": 0.0002,
+   "parts": 19,
+   "main_part_share": 0.9649,
+   "outside_parts": [],
+   "outside_share": 0,
+   "front_outside": false,
+   "model_box_min": [
+    -0.3238,
+    -0.443,
+    -0.0
+   ],
+   "model_box_max": [
+    0.3238,
+    0.443,
+    0.4103
+   ],
+   "textures": {
+    "images": 3,
+    "max_px": 1024,
+    "missing": [],
+    "hash": "4dd9ae05e97961fae9f3738c1763dc118b239e96e0b37f16013b371ada7e8c01"
+   },
+   "colour_attributes": 0,
+   "mesh_objects": 1,
+   "seconds": 2.39,
+   "sheet_sha256": "b17d570f921b76dc3f4fa9be89aa514da48b01a41957c616ffc45627c803b58e"
+  }
+ },
+ "sheets": {
+  "infinigen_dishwasher_0": "sheets/unknown/infinigen_dishwasher_0.jpg",
+  "infinigen_microwave_0": "sheets/unknown/infinigen_microwave_0.jpg",
+  "infinigen_kitchen_cabinet_0": "sheets/unknown/infinigen_kitchen_cabinet_0.jpg"
+ }
+}
