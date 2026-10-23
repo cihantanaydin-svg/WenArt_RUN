@@ -479,14 +479,38 @@ def _floor_items(b: dict, room_id: str) -> list[dict]:
 
 def room_checks(b: dict, room_id: str) -> dict[str, set]:
     """piece id -> the placer checks it fails among the room's floor pieces (fronts as drawn). Milestone 12: the
-    walkways are the group check G11's (in the score), not the placer's 0.9 m erosion."""
+    walkways are the group check G11's (in the score), not the placer's 0.9 m erosion. Fix round after P6b (module
+    docstring): a seat's ``clearance_ok`` counts what may stand in front of it as the score's F6 does
+    (``seat_front_free``: a coffee table or ottoman before a sofa)."""
     room = _room(b, room_id)
     items = _floor_items(b, room_id)
     if not items:
         return {}
     ctx = placer.room_context(b, room)
     pieces = [placer.drawn_piece(f, i) for i, f in enumerate(items)]
-    return {f["id"]: set(placer.failed_checks(c)) for f, c in zip(items, placer.check_all(pieces, ctx, walkways=False))}
+    out: dict[str, set] = {}
+    for f, p, c in zip(items, pieces, placer.check_all(pieces, ctx, walkways=False)):
+        failed = set(placer.failed_checks(c))
+        if "clearance_ok" in failed and seat_front_free(p, [o for o in pieces if o is not p], ctx):
+            failed.discard("clearance_ok")
+        out[f["id"]] = failed
+    return out
+
+
+def seat_front_free(p: placer.Piece, others: list[placer.Piece], ctx: placer.RoomContext) -> bool:
+    """Fix round after P6b (module docstring): True for a seat with extra front partners (``plausibility.EXTRA_EXEMPT``:
+    a sofa or corner sofa) whose front clearance (``placer.Piece.front_zone``, 0.6 m) lies in the room and holds no
+    piece but those partners and the placer's own exemptions (``schemas.CLEARANCE_EXEMPT``): the placer's
+    ``clearance_ok`` without the score's F6 exemption refused every coffee table the solver places at the designer gap
+    (groups.yaml ``coffee_gap`` 0.30-0.45 m). False for any other type (the placer's verdict stands)."""
+    extra = PL.EXTRA_EXEMPT.get(p.type)
+    if not extra:
+        return False
+    exempt = set(schemas.CLEARANCE_EXEMPT.get(p.type, ())) | set(extra)
+    zone = p.front_zone()
+    if zone.difference(ctx.polygon.buffer(0.01, join_style="mitre")).area >= placer.AREA_EPS:
+        return False
+    return all(zone.intersection(o.polygon()).area < placer.AREA_EPS for o in others if o.type not in exempt)
 
 
 def _new_failures(before: dict[str, set], after: dict[str, set]) -> list[str]:
@@ -1163,6 +1187,16 @@ def program_refusal(building: dict, room: dict, g: dict) -> Optional[str]:
     return f"{g['group_id']}: the room's program completes nothing here ({note})"
 
 
+def unsure_group_anchor(anchor: Optional[dict]) -> bool:
+    """Fix round after P6b (module docstring): True when ``complete_group`` refuses the group of ``anchor`` until
+    ``retype_piece`` confirms it: an ``unverified`` anchor the reading could not agree on (``program.unsure_anchor``);
+    False for a verified anchor and for a vector-drawn one the reading typed by code (``infer.CODE_TYPE_METHODS``),
+    which the program, the solver and the decor (``decor.trusted_host``) already complete like a verified one."""
+    from wenart.furniture import program as PR
+
+    return anchor is not None and PR.unsure_anchor(anchor)
+
+
 def _complete_group(b: dict, args: dict) -> list[str]:
     room, g = _find_group(b, args["group_id"])
     if g.get("missing"):
@@ -1170,9 +1204,11 @@ def _complete_group(b: dict, args: dict) -> list[str]:
         if refusal is not None:
             raise EditRejected("no_completion", refusal)
     anchor = next((f for f in b["furniture"] if f["id"] == g.get("anchor_id")), None)
-    if anchor is not None and anchor.get("status") == "unverified":
-        raise EditRejected("unverified", f"{g['group_id']}: the anchor {anchor['id']} is unverified (retype_piece "
-                                         f"first)")
+    if unsure_group_anchor(anchor):
+        # fix round after P6b (module docstring): a drawn anchor typed by code from the drawing is completed like a
+        # verified one; only a piece the reading could not agree on waits for retype_piece
+        raise EditRejected("unverified", f"{g['group_id']}: the anchor {anchor['id']} is unverified and not typed by "
+                                         f"code from the drawing (retype_piece first)")
     if not g.get("missing"):
         raise EditRejected("no_change", f"{g['group_id']}: nothing missing (members: "
                                         f"{', '.join(g.get('member_ids') or []) or 'none'})")
@@ -1981,14 +2017,19 @@ def apply_edit(building: dict, edit: dict, *, catalog=None) -> dict:
         # fix round after P6b (module docstring): a cut through the room outline that is new or grows is refused,
         # whatever the score nets (P6b seq 2588: the drawn wardrobe 0.28 m through the front outer wall)
         failed += outline_growth(outline_cuts(before_score), outline_cuts(after_score))
-    known = {(w["check"], w["target"], w["message"]) for w in before_score["violations"]}
-    new = [v for v in after_score["violations"] if (v["check"], v["target"], v["message"]) not in known]
+    known = {finding_identity(w) for w in before_score["violations"]}
+    new = [v for v in after_score["violations"] if finding_identity(v) not in known]
     notes = ""
     if op in GROUP_OPS:
-        # A group placed by the solver: no new critical or major finding (the solver's own hard rule).
-        bad = [v for v in new if v["severity"] in ("critical", "major")]
+        # A group placed by the solver: no new critical or major finding (the solver's own hard rule). Fix round
+        # after P6b (module docstring): an F4 of another group's anchor that names only this edit's new members of
+        # other groups is reported, not held against the edit.
+        noted = {id(v): why for v in new if (why := other_group_front(b, room_id, v, changed)) is not None}
+        bad = [v for v in new if v["severity"] in ("critical", "major") and id(v) not in noted]
         if bad:
             failed.append("group checks: " + "; ".join(f"{v['check']} {v['target']}: {v['message']}" for v in bad[:4]))
+        if noted:
+            notes = "; noted: " + "; ".join(list(noted.values())[:4])
     elif op in CORRECTION_OPS:
         notes = ("; new findings: " + "; ".join(f"{v['check']} {v['target']}: {v['message']}" for v in new[:4])
                  if new else "")
@@ -2002,6 +2043,55 @@ def apply_edit(building: dict, edit: dict, *, catalog=None) -> dict:
                   f"{op} accepted: score {100 - before_score['penalty']} -> {100 - after_score['penalty']}" + notes)
     out["penalty_before"], out["penalty_after"] = before_score["penalty"], after_score["penalty"]
     return out
+
+
+# Fix round after P6b (module docstring): the F4 message whose trailing list names the pieces in reach
+# (``plausibility._f3_f4``: "<type> does not face its group (<ids>)").
+F4_GROUP_TEXT = " does not face its group ("
+
+
+def finding_identity(v: dict) -> tuple[str, str, str]:
+    """Fix round after P6b (module docstring): ``(check, target, message)`` of a score violation, the trailing list of
+    an F4 "does not face its group (...)" left out: a piece that faced none of its group before and still faces none
+    keeps the same finding when the edit adds a piece in its reach (P6a's chair f_L-1b_053 with the new coffee table
+    f_L-1b_087 at the end of its list); every other message is compared whole, as before."""
+    message = str(v.get("message") or "")
+    if v.get("check") == "F4" and F4_GROUP_TEXT in message:
+        message = message.split(F4_GROUP_TEXT, 1)[0] + F4_GROUP_TEXT.rstrip(" (")
+    return (str(v.get("check")), str(v.get("target")), message)
+
+
+def other_group_front(b: dict, room_id: str, v: dict, changed: list[str]) -> Optional[str]:
+    """Fix round after P6b (module docstring): why a new F4 "does not face its group" after a group edit is reported
+    but not held against it, else None. Only when its piece anchors a group of its own in the room
+    (``groups.group_members``) and every piece it names (``metrics.targets``) is one this edit added
+    (``added_by_ai``, in ``changed``) to a group with another anchor: the new piece is not in the piece's group, so
+    the piece's front still faces its own group (CLAUDE.md: "fronts facing their group"). P6a: the coffee table
+    f_L-1b_087 completing the drawn sofa f_L-1b_041's seating group stands 1.7 m from the second drawn sofa
+    f_L-1b_045 (inferred, its own group r_L-1b_salon_2.seating.2), within the score's 4.5 m sofa reach."""
+    if v.get("check") != "F4" or F4_GROUP_TEXT not in str(v.get("message") or ""):
+        return None
+    metrics = v.get("metrics") if isinstance(v.get("metrics"), dict) else {}
+    targets = [str(t) for t in metrics.get("targets") or []]
+    pid = str(v.get("target"))
+    if not targets:
+        return None
+    own = [g for g in GR.group_members(b, room_id) if g.get("anchor_id") == pid]
+    if not own:
+        return None
+    by_id = {f.get("id"): f for f in b.get("furniture") or []}
+    homes: list[str] = []
+    for t in targets:
+        f = by_id.get(t) or {}
+        tag = f.get("group") if isinstance(f.get("group"), dict) else {}
+        if t not in set(changed) or f.get("source") != "added_by_ai" or not tag.get("group_id") \
+                or tag.get("anchor_id") in (None, pid):
+            return None
+        homes.append(str(tag["group_id"]))
+    if {g.get("group_id") for g in own} & set(homes):
+        return None
+    return (f"F4 {pid} (major, kept for the next round): it anchors {own[0]['group_id']}; "
+            f"{', '.join(targets)} belong{'s' if len(targets) == 1 else ''} to {', '.join(sorted(set(homes)))}")
 
 
 # Milestone 12 contract (docs/milestone12.md §5.2, §5.3, §13.2; owner: track G).

@@ -264,6 +264,18 @@ Fix round after P5 (22 Oct 2026; the user's decisions of 22 Oct 2026): the manif
 ``inferred_items`` (every inferred / AI-changed item of the final building); a run without the orchestrator section
 lists the inferred items in its own section "Inferred and AI-changed items" (the orchestrator's section lists them
 otherwise), and such a change without an ``adjusted_by_ai`` label is an advisory flag.
+
+Fix round after P6b (23 Oct 2026; pod P6b, real03; the camera and render tracks' asks):
+
+- What: a view is marked blocked (``blocked_views``: the view's ``blocked`` record; "blocked (replayed camera,
+  frozen)" for a camera of the replayed set) when its render's exposure notes say "no interior block to meter" (the
+  meter saw no room surface: the lens is in or against a piece) or the orchestrator's last critic round still has a
+  code ``camera_blocked`` finding on it (``agent.last_round_blocked``); the summary counts them, the views table marks
+  them, an advisory flag names them. The replayed cameras the build moved off a piece or re-pitched (the scene
+  manifest's ``cameras_from.moved`` / ``repitched``) are listed with the camera record's ``replay.reason``
+  (``camera_replay``, section "Replayed cameras the build changed").
+- Why: P6b's report presented real03's black yasama_3_2 / 5_2 / 6_1 and the 54 % blocked yasama_2_2 as normal views;
+  the build's camera moves of this fix round showed only on the camera record, the build warnings and the sheet note.
 """
 from __future__ import annotations
 
@@ -1274,6 +1286,78 @@ def lighting_lines(manifest: dict) -> list[str]:
     return lines
 
 
+# Fix round after P6b (module docstring): the exposure note of a view whose meter found no room surface.
+NO_METER_NOTE = "no interior block to meter"
+
+
+def blocked_views(inp: "Inputs", views: list[dict], agent: Optional[dict]) -> list[dict]:
+    """Fix round after P6b (module docstring): sets every view's ``blocked`` (None, or ``{"text", "replayed",
+    "reasons"}``) and returns the blocked ones (``{"camera", "text", "replayed", "reasons"}``): its exposure notes say
+    ``NO_METER_NOTE`` or the agent block's ``blocked_views`` (the last round's code ``camera_blocked``) names it."""
+    last = (agent or {}).get("blocked_views") or {}
+    out = []
+    for v in views:
+        reasons = []
+        notes = (v.get("exposure") or {}).get("notes") if isinstance(v.get("exposure"), dict) else None
+        if any(NO_METER_NOTE in str(n) for n in notes or []):
+            reasons.append("its meter found no room surface (no interior block to meter: EV 0 used): the frame is "
+                           "inside or against a piece")
+        if v.get("camera") in last:
+            reasons.append(f"the orchestrator's last round: {str(last[v['camera']])[:200]}")
+        if not reasons:
+            v["blocked"] = None
+            continue
+        cam = inp.cameras.get(v.get("camera")) or {}
+        replayed = cam.get("source") == "replayed"
+        v["blocked"] = {"text": "blocked (replayed camera, frozen)" if replayed else "blocked",
+                        "replayed": replayed, "reasons": reasons}
+        out.append(dict(v["blocked"], camera=v["camera"]))
+    return out
+
+
+def camera_replay(scene: Optional[dict]) -> dict:
+    """Fix round after P6b (module docstring): ``{"moved": [row], "repitched": [row]}`` of the scene manifest's
+    ``cameras_from`` with each camera record's ``replay`` (``{"camera", "status", "moved_m", "blocked_by",
+    "pitch_deg_old", "pitch_deg", "reason"}``); empty lists without them."""
+    cf = (scene or {}).get("cameras_from") if isinstance((scene or {}).get("cameras_from"), dict) else {}
+    by_name = {c.get("name"): c for c in (scene or {}).get("cameras") or [] if isinstance(c, dict)}
+    out: dict = {"moved": [], "repitched": []}
+    for status in ("moved", "repitched"):
+        for name in cf.get(status) or []:
+            rp = (by_name.get(name) or {}).get("replay")
+            rp = rp if isinstance(rp, dict) else {}
+            out[status].append({"camera": name, "status": rp.get("status") or status, "moved_m": rp.get("moved_m"),
+                                "blocked_by": rp.get("blocked_by"), "pitch_deg_old": rp.get("pitch_deg_old"),
+                                "pitch_deg": rp.get("pitch_deg"),
+                                "reason": rp.get("reason") or "no reason on the camera record"})
+    return out
+
+
+def camera_replay_lines(manifest: dict) -> list[str]:
+    """Fix round after P6b (module docstring): the section of the replayed cameras the build changed and the views
+    marked blocked; nothing when there is neither."""
+    rp = manifest.get("camera_replay") or {}
+    blocked = [v for v in manifest.get("views") or [] if v.get("blocked")]
+    if not rp.get("moved") and not rp.get("repitched") and not blocked:
+        return []
+    lines = ["", "## Replayed cameras the build changed, blocked views", ""]
+    rows = []
+    for r in rp.get("moved") or []:
+        what = f"moved {float(r['moved_m']):.2f} m" if isinstance(r.get("moved_m"), (int, float)) else "moved"
+        rows.append([r["camera"], what + (f" off {r['blocked_by']}" if r.get("blocked_by") else ""), r["reason"]])
+    for r in rp.get("repitched") or []:
+        what = "re-pitched" + (f" {float(r['pitch_deg_old']):.1f} -> {float(r['pitch_deg']):.1f} deg"
+                               if isinstance(r.get("pitch_deg_old"), (int, float))
+                               and isinstance(r.get("pitch_deg"), (int, float)) else "")
+        rows.append([r["camera"], what, r["reason"]])
+    if rows:
+        lines += C.table(["camera", "change", "reason"], rows)
+    if blocked:
+        lines += ["", "Blocked views (the final image shows a piece filling the frame, or black):", ""]
+        lines += [f"- {v['camera']}: {v['blocked']['text']}: {'; '.join(v['blocked']['reasons'])}" for v in blocked]
+    return lines
+
+
 def m13_lines(manifest: dict) -> list[str]:
     """The report sections of Milestone 13: the commercial-safe line per view and the project line, then the table
     of the pieces built below the library level, then (round 4) the views too dark for the EV cap."""
@@ -1301,6 +1385,7 @@ def m13_lines(manifest: dict) -> list[str]:
                                   b.get("room_type"), b.get("source"), "yes" if b.get("gap") else "no (by design)",
                                   b.get("used")] for b in below])
     lines += lighting_lines(manifest)
+    lines += camera_replay_lines(manifest)             # fix round after P6b
     return lines
 
 
@@ -2792,6 +2877,14 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         flags.append(f"commercial licence mode but {licence['views_flagged']} view(s) show flagged assets "
                      f"({', '.join(licence['flagged_assets'])}): re-run the fit in commercial mode "
                      f"(docs/milestone13.md §6)")
+    # fix round after P6b (module docstring): the orchestrator block first, the views it still finds blocked marked
+    agent = AG.agent_block(inp.project_out, inp.out_dir, inp.private, inp.building)
+    blocked = blocked_views(inp, views, agent)
+    if blocked:
+        flags.append(f"{len(blocked)} view(s) blocked: a piece fills the frame or the image is black (listed under "
+                     f"Replayed cameras the build changed, blocked views): "
+                     + ", ".join(f"{b['camera']} ({b['text']})" for b in blocked[:8])
+                     + (f" and {len(blocked) - 8} more" if len(blocked) > 8 else ""))
     lighting = lighting_block(inp, views)
     if lighting["views"]:
         flags.append(f"{len(lighting['views'])} view(s) too dark for the EV cap (lighting_dark: "
@@ -2863,6 +2956,8 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
             # round 4: the views the EV cap held too dark (``lighting`` block)
             "lighting_dark": {"views": len(lighting["views"]), "critical": lighting["critical"],
                               "major": lighting["major"]},
+            # fix round after P6b: the views marked blocked (``blocked_views``)
+            "blocked_views": [b["camera"] for b in blocked],
         },
         "views": views,
         "rooms": rooms,
@@ -2895,7 +2990,9 @@ def build_manifest(inp: Inputs, views: list[dict], sheets: dict) -> dict:
         # Milestone 10
         **blocks,
         # Milestone 11: the AI orchestrator (None without orchestrator/log.json: the M10 report is unchanged)
-        "agent": AG.agent_block(inp.project_out, inp.out_dir, inp.private, inp.building),
+        "agent": agent,
+        # fix round after P6b: the replayed cameras the build moved or re-pitched, with the camera record's reason
+        "camera_replay": camera_replay(inp.scene),
         # Milestone 13 (docs/milestone13.md §6, D4): the licence mode with the flagged assets, the pieces built
         # below the library level
         "licence": licence,
@@ -3596,6 +3693,9 @@ def report_markdown(manifest: dict) -> str:
         ["advisory flags", len(manifest["advisory_flags"])],
         ["exposure", ev_range + (f", modes {', '.join(exp['modes'])}" if exp["modes"] else "")],
         ["views too dark for the EV cap (lighting_dark)", _dark_text(s.get("lighting_dark"))],
+        # fix round after P6b: the views a piece fills (black or mostly one piece), named
+        ["blocked views", (f"{len(s['blocked_views'])}: " + ", ".join(s["blocked_views"])) if s.get("blocked_views")
+         else "0"],
         ["window pull", "-" if not exp.get("window_pull", {}).get("views") else
          f"{exp['window_pull']['views']} view(s), {exp['window_pull']['min']:g} .. {exp['window_pull']['max']:g} EV"],
         ["interior glazing pull", _interior_pull_row(exp.get("interior_pull"))],
@@ -3633,7 +3733,9 @@ def report_markdown(manifest: dict) -> str:
             files.append(f"[preview]({v['preview']})")
         if v["plan"]:
             files.append(f"[plan]({v['plan']})")
-        rows.append([v["camera"], v["room_id"], v["level_id"], v["final"], v["reason"], _attempt_text(v["attempt"]),
+        rows.append([v["camera"], v["room_id"], v["level_id"],
+                     v["final"] + (f", {v['blocked']['text']}" if v.get("blocked") else ""),     # fix round after P6b
+                     v["reason"], _attempt_text(v["attempt"]),
                      _short_gate(v["gate"]), _verdict(v["vision_check"], "cycles"),
                      _verdict(v["vision_check"], "polished"), _pref_text(v["preference"]), _ev_text(v["exposure"]),
                      _pull_text(v.get("window_pull"), v.get("interior_glazing")), _camera_text(v.get("camera_plan")),

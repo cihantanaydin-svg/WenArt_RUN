@@ -417,11 +417,14 @@ UNBUILT_FIXABLE = frozenset({"NR"})
 
 def classify(findings: list[dict], building: dict, room_id: Optional[str], allowed: dict, group_of: dict,
              room_tools_ok: dict, locked_groups: frozenset = frozenset(),
-             completable: Optional[frozenset] = None) -> tuple[list[dict], list[dict]]:
+             completable: Optional[frozenset] = None,
+             complete_why: Optional[dict] = None) -> tuple[list[dict], list[dict]]:
     """``(fixable, not_yours)`` (module docstring). ``allowed``: piece id -> allowed per tool; ``group_of``: piece id
     -> group id; ``room_tools_ok``: room tool -> bool (relayout possible, a group to place / complete);
     ``locked_groups``: groups with a drawn member (never moved: ``move_group`` is not offered for them);
-    ``completable``: groups with missing members and a verified anchor (None: unknown, the validator decides).
+    ``completable``: groups with missing members and a verified anchor or one typed by code, whose dry run passes
+    (None: unknown, the validator decides); ``complete_why`` (fix round after P6b): group id -> why it is not
+    completable (``completion_lock`` or the dry run's refusal), named in the finding's reason.
     Milestone 13: the tools come from the finding's cause (``causes.tools_for_finding``); every fixable and
     not-yours entry carries ``cause``."""
     pieces = {p.get("id"): p for p in building.get("furniture") or []}
@@ -486,7 +489,9 @@ def classify(findings: list[dict], building: dict, room_id: Optional[str], allow
                         whys.append(f"move_group: {gid} has drawn members (they stay as drawn)")
                     elif t == "complete_group" and completable is not None and gid not in completable \
                             and not (gid is None and room_tools_ok.get("complete_group")):
-                        whys.append(f"complete_group: {gid or 'its group'} misses nothing, or its anchor is unverified")
+                        whys.append(f"complete_group: {(complete_why or {}).get(gid) or (gid or 'its group')}"
+                                    + ("" if (complete_why or {}).get(gid) else
+                                       " misses nothing, or its anchor is unverified"))
                     elif gid or (t == "complete_group" and room_tools_ok.get("complete_group")):
                         ok.append(t)
                 elif t == "relayout_room":
@@ -543,11 +548,32 @@ def fixable_weight(fixable: list[dict], area: float) -> float:
 def complete_dry_run(building: dict, group_id: str) -> bool:
     """True when ``complete_group`` on ``group_id`` would pass its checks now (``edit_ops.dry_run``: nothing is
     applied, no try is counted)."""
+    return bool(complete_dry_run_result(building, group_id).get("accepted"))
+
+
+def complete_dry_run_result(building: dict, group_id: str) -> dict:
+    """Fix round after P6b (module docstring): the ``edit_ops.dry_run`` result of ``complete_group`` on ``group_id``
+    (``accepted``, ``message``, ``failed_checks``; nothing is applied, no try is counted); the brief names its
+    refusal with the group's findings."""
     from wenart.furniture import edit_ops
 
-    res = edit_ops.dry_run(building, {"op": "complete_group", "group_id": group_id, "round": 0, "log_seq": 0,
-                                      "model": "room brief", "reason": "room brief: can the group be completed?"})
-    return bool(res.get("accepted"))
+    return edit_ops.dry_run(building, {"op": "complete_group", "group_id": group_id, "round": 0, "log_seq": 0,
+                                       "model": "room brief", "reason": "room brief: can the group be completed?"})
+
+
+def completion_lock(group: dict, anchor: Optional[dict]) -> Optional[str]:
+    """Fix round after P6b (module docstring): why ``complete_group`` is not offered for ``group`` (a
+    ``groups.group_members`` entry) before any dry run, else None: it misses nothing, or its anchor waits for
+    ``retype_piece`` (``edit_ops.unsure_group_anchor``: unverified and not typed by code from the drawing)."""
+    from wenart.furniture import edit_ops
+
+    gid = group.get("group_id")
+    if not group.get("missing"):
+        return f"{gid} misses nothing"
+    if edit_ops.unsure_group_anchor(anchor):
+        return (f"{gid}: its anchor {anchor.get('id')} is unverified and not typed by code from the drawing "
+                f"(retype_piece first)")
+    return None
 
 
 def _call(notes: list, what: str, fn: Callable, default):
@@ -684,7 +710,7 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
         return {"error": f"no room {room_id}"}
     notes: list = []
     if complete_fn is None and members_fn is None:
-        complete_fn = complete_dry_run
+        complete_fn = complete_dry_run_result          # fix round after P6b: the result, so its refusal is named
     if program_fn is None or members_fn is None or group_checks_fn is None or solver_fn is None:
         from wenart.furniture import group_checks, groups, program, solver
         program_fn = program_fn or program.room_program
@@ -737,14 +763,26 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
                               if any((by_id.get(m) or {}).get("source") == "from_documents"
                                      for m in [g.get("anchor_id"), *(g.get("member_ids") or [])] if m))
     # pod P6: complete_group was offered for complete groups (no_change) and for groups whose anchor is unverified
-    # (refused: retype_piece first): only a group with missing members and a verified anchor can be completed
-    completable = frozenset(g.get("group_id") for g in members if g.get("missing")
-                            and (by_id.get(g.get("anchor_id")) or {}).get("status") != "unverified")
+    # (refused: retype_piece first): only a group with missing members can be completed, and (fix round after P6b,
+    # module docstring) only when its anchor is verified or a drawn anchor typed by code (``edit_ops``'s own rule,
+    # ``unsure_group_anchor``); ``complete_why`` keeps each other group's reason for its findings
+    complete_why = {g.get("group_id"): why for g in members
+                    if (why := completion_lock(g, by_id.get(g.get("anchor_id")))) is not None}
+    completable = frozenset(g.get("group_id") for g in members if g.get("group_id") not in complete_why)
     # pod P8: 0 of 13 complete_group accepted, most "no place passes the checks" (a washbasin in a full 1.6 x 2.5 m
-    # bathroom): a group is offered only when a dry run of the completion passes
+    # bathroom): a group is offered only when a dry run of the completion passes (fix round after P6b: its refusal
+    # is the reason)
     if complete_fn is not None:
-        completable = frozenset(gid for gid in completable
-                                if _call(notes, f"complete {gid}", lambda gid=gid: complete_fn(building, gid), True))
+        passed = set()
+        for gid in sorted(completable):
+            res = _call(notes, f"complete {gid}", lambda gid=gid: complete_fn(building, gid), True)
+            ok = bool(res.get("accepted")) if isinstance(res, dict) else bool(res)
+            if ok:
+                passed.add(gid)
+            else:
+                message = str(res.get("message") or "") if isinstance(res, dict) else ""
+                complete_why[gid] = f"{gid}: its dry run is refused" + (f" ({message[:240]})" if message else "")
+        completable = frozenset(passed)
     room_tools_ok["complete_group"] = bool(completable) if members else room_tools_ok["complete_group"]
     # Round 4: a room whose lights are at set_lighting's maximum factor already cannot be lit more by the agent; its
     # dark views (lighting_dark) are then "not yours" with the reason instead of a set_lighting that changes nothing
@@ -754,7 +792,8 @@ def room_brief(building: dict, room_id: str, *, findings: Optional[list] = None,
     room_tools_ok["set_lighting"] = light_factor is None or light_factor < float(LIGHTING_FACTOR[1]) - 1e-9
     fixable, not_yours = classify(list(findings or []), building, room_id,
                                   {pid: a for pid, a in allowed.items()}, group_of, room_tools_ok,
-                                  locked_groups=locked_groups, completable=completable if members else None)
+                                  locked_groups=locked_groups, completable=completable if members else None,
+                                  complete_why=complete_why)
     fixable, not_yours = no_spot_findings(fixable, not_yours, memory, room_id)     # fix round after P4b
     candidates = []
     for c in cands[:k]:

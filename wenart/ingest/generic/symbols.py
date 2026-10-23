@@ -116,6 +116,18 @@ Fix round after P6a (22 Oct 2026; pod P6a, real04; strokes read from the DWG wit
   both axes stands on the side its offset from the table's centre points to (it always faced 180 deg and grew west),
   so the chairs of mirrored twin blocks are mirror images and the twin rooms still pair (else the U16 twin copy
   left real04's second play-room bench untyped).
+
+Fix round after P6b (23 Oct 2026; F_reading's ask, narrowed). What: in a re-read cluster (``reread``), a group of
+strokes on a structure layer (``layer_kind`` "structure": ``... - BA``, ``KOLON``, ``PERDE``, ...) thinner than
+``LINE_DETAIL_M`` (``short_side``: a line, not an outline) is no column: it is dropped like every other drawn line of
+the re-read, and the page notes name its strokes. Every structure group with an outline stays a column (a not-built
+obstacle) as before. Why: the end lines of real03's shear-wall outlines ('MYD - BA', INSERT:7C9C9/22/21..35) lie on
+a wall's end face once the lined gaps split the thick run; the re-read kept each as a "column" of 0.85 x 0.00 m or
+0.30 x 0.00 m (six on the replay of this round, four in P4b and P6b), listed under Inferred as columns. F_reading
+asked for every wall-hint-layer stroke (``dxf_generic.is_wall_hint_layer``) to be dropped from the furniture; that is
+not safe: real02 / real04 draw their 0.40 m columns on 'A-BA' (kept as obstacles) and a stair on 'A-merdiven
+betonarme', and the layer words read DUVAR / WALL strokes as symbols already. Checked on the replays of real02 (P4a
+answers), real03 (P6b) and real04 (P6a): only real03's six lines change.
 """
 from __future__ import annotations
 
@@ -3846,12 +3858,16 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
        outline kept); loose strokes drawn as a table with chairs around it (``split_table_chairs``); what is left is an
        ``unknown`` piece (``details["reread"]``, ``l_outline``/``l_front``, ``drain``, ``door``: the reading step's
        context rules and the core's extra question use them).
+
+    Fix round after P6b (module docstring): a structure group thinner than ``LINE_DETAIL_M`` (a line: a wall's end
+    or face drawn on a concrete layer) is dropped, not kept as a column; ``notes`` names its strokes.
     """
     keep, removed = split_symbol_strokes(cl.segs)
     jambs = opening_jambs(openings)
     symbols: list[dict] = []
     columns: list[FurnitureItem] = []
     dropped = 0
+    struct_lines: list[str] = []
     for kind in sorted(removed):
         for g in sorted(clusters_of(removed[kind], CLUSTER_M), key=lambda c: c.stroke_ids()[0]):
             if max(g.size(ctx.theta)) < DETAIL_M:
@@ -3861,6 +3877,11 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
             layers = sorted({re.split(r"[$|]", s.stroke.layer or "")[-1] for s in g.segs})
             why_k = (f"drawn on the {', '.join(repr(x) for x in layers[:3])} layer(s) inside a furniture cluster: "
                      f"{kind}, not furniture")
+            if kind == "structure" and short_side(g.segs) < LINE_DETAIL_M:
+                # Fix round after P6b (module docstring): a line on a structure layer is no column (real03's
+                # shear-wall end lines, 0.85 x 0.00 m "columns").
+                struct_lines.extend(g.stroke_ids())
+                continue
             if kind == "structure":
                 # A column stands in the room: a not-built piece (an obstacle for the layout), not a symbol.
                 gfp = footprint([p for s in g.segs for p in s.pts], ctx.theta)
@@ -3953,6 +3974,10 @@ def reread(cl: Cluster, ctx: "_Ctx", table: dict, walls: list, openings: list, w
         items.append(_unknown(part, fp, ctx, raster, reason, details))
     if dropped:
         notes.append(f"re-read of {cl.stroke_ids()[0]}: {dropped} details, lines or symbol strokes dropped")
+    if struct_lines:
+        notes.append(f"re-read of {cl.stroke_ids()[0]}: {len(struct_lines)} line(s) on a structure layer thinner than "
+                     f"{LINE_DETAIL_M} m dropped, no column (a wall's end or face drawn on a concrete layer; fix round "
+                     f"after P6b): {_short_ids(struct_lines)}")
     index: dict[str, list[Seg]] = {}
     for s in cl.segs:
         index.setdefault(s.stroke.id, []).append(s)

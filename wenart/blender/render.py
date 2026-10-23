@@ -339,9 +339,14 @@ Cycles' indirect clamp never set. How:
 - Clamps (``CLAMP_DIRECT``, ``CLAMP_INDIRECT``, ``clamp_record``): set explicitly at Cycles' defaults and recorded in
   the manifest (``clamp``); another value (``--clamp-indirect``, a clamp A/B) enters the render key. No render changes.
 - Not changed: P6a's shaded teras_2 views (11.7-21.7 % black). Their EV is metered on the sunlit facade that fills
-  most of the frame (incident p50 167-179, EV -7.5 / -7.67); the black is the window pane seen from the sunlit
-  terrace (no sky reflection on the camera ray, ``materials.window_glass_material``) and the terrace floor in the
-  shade of the parapet (the sun : sky balance of ``lighting``), not the exposure rule.
+  most of the frame (incident p50 167-179, EV -7.5 / -7.67); the black is the dark room behind the glass seen at that
+  sunlit facade's EV and the terrace floor in the shade of the parapet (the sun : sky balance of ``lighting``), not
+  the exposure rule. Fix round after P6b (23 Oct 2026; review finding of the fix round after P6a): this note named a
+  missing sky reflection on the camera ray (``materials.window_glass_material``) as the panes' cause, which the same
+  round measured to be wrong: on bpy 5.2.2 the camera-ray Glass BSDF already reflects the sky by Fresnel, 6.6 % head
+  on and 13.5 % at 60 degrees (I2's shim), which is what single glass gives. A brighter pane is a look decision
+  (double glazing or a coating, or accept the black), open as docs/milestone13.md §14.14 decision 11; the glass
+  material is not the place to change.
 
 Fix round after P6b (23 Oct 2026; pod P6b, real03 on 8e8cc97; ``RENDER_CODE_VERSION`` stays ``m13.5``: no pixel
 changes). What: one record. Why: P6b's halls and stairs failed the GPU orange check at 1.486-1.599 (bound 1.455) and

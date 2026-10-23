@@ -82,6 +82,7 @@ for rarer chains; the committed real02 / real03 / real04 buildings have no such 
 from __future__ import annotations
 
 import argparse
+import copy
 import math
 import subprocess
 from dataclasses import dataclass, field
@@ -245,12 +246,21 @@ def _to_building(ex: LevelExtraction, p) -> tuple[float, float]:
 
 
 def _wall_dict(level_id: str, wall: WallItem, wall_id: str, ceiling: float) -> dict:
+    """The building's wall record of ``wall``. Fix round after P6b (23 Oct 2026; F_reading's ask): a wall the generic
+    core's openings rules corrected (``openings._mark_lined``: real03's 0.30 / 0.315 m shear walls on the hall-living
+    partition, read as walls of their own where a thinner wall lines the gaps, not one thick wall from end to end)
+    keeps its ``corrected_by_ai`` label (by, stage, rule, reason, evidence and ``before``: the one wall the run made
+    before, shifted into the building frame by ``core._shift_wall``) in building.json, as ``inferred`` is kept.
+    Before, the label stayed on the WallItem and only the evidence note and the page notes said so (CLAUDE.md: every
+    item the AI or code corrects is marked ``corrected_by_ai``)."""
     wall.element_id = wall_id
     out = {"id": wall_id, "level_id": level_id, "start": list(wall.start), "end": list(wall.end),
            "thickness": wall.thickness, "height": ceiling, "exterior": wall.exterior, "status": wall.status,
            "evidence": [wall.evidence]}
     if getattr(wall, "inferred", False):
         out["inferred"] = True            # Milestone 11: not drawn, inferred by code (listed in the report)
+    if getattr(wall, "corrected_by_ai", None):
+        out["corrected_by_ai"] = copy.deepcopy(wall.corrected_by_ai)
     return out
 
 
@@ -1561,13 +1571,17 @@ def _generic_sections(b: dict, build: ProjectBuild) -> list[str]:
     gaps = [(work, e) for work in build.generic for e in work.extraction.report.get("gaps") or []
             if e.get("kind") not in ("free_end", "wall_piece")]      # wall_piece entries are page notes
     if gaps:
-        lines += ["| Page | Kind | Class | Width | Owned strokes |", "|---|---|---|---|---|"]
+        # Fix round after P6b (23 Oct 2026; F_reading's ask): the rule that decided the gap (``openings.GAP_RULES``:
+        # lined_gap, inside_wall, wall_faces, no_glass) and its note, or the closing warning, next to its class; the
+        # windows dropped for want of glass (kind continuous, class none) are rows of their own.
+        lines += ["| Page | Kind | Class | Width | Owned strokes | Rule and note |", "|---|---|---|---|---|---|"]
         for work, e in gaps:
             owned = e.get("owned") or []
             owned_text = ", ".join(owned[:6]) + (f" (+{len(owned) - 6})" if len(owned) > 6 else "") if owned else "-"
             cls = e.get("class", "-")
+            why = "; ".join(x for x in (e.get("rule"), e.get("note") or e.get("warning")) if x) or "-"
             lines.append(f"| {work.where} | {e.get('kind')} | {cls} | {_length(e.get('width'), system)} | "
-                         f"{_cell(owned_text)} |")
+                         f"{_cell(owned_text)} | {_cell(why)} |")
     else:
         lines.append("None.")
 
@@ -2439,12 +2453,28 @@ def _drop_typed_reviews(build: ProjectBuild, piece_ids: set) -> int:
 
 
 def _inferred_section(b: dict) -> list[str]:
-    """Milestone 11: every inferred item (walls; furniture type, front or outline) with its reason."""
+    """Milestone 11: every inferred item (walls; furniture type, front or outline) with its reason. Fix round after
+    P6b (23 Oct 2026): also every wall the reading corrected (``corrected_by_ai``, ``_wall_dict``) by its building
+    id, with the wall it was before and the rule's reason (the page notes name them by coordinates only)."""
     walls = [w for w in b.get("walls") or [] if w.get("inferred")]
+    fixed = [w for w in b.get("walls") or [] if w.get("corrected_by_ai")]
     rows = [f for f in b["furniture"] if f.get("inferred")]
-    if not rows and not walls:
+    if not rows and not walls and not fixed:
         return []
     lines = ["", "## Inferred (Milestone 11)"]
+    if fixed:
+        lines += ["", f"Walls corrected by the reading: {len(fixed)} (`corrected_by_ai`; the drawing's lines are "
+                      "the evidence).", "",
+                  "| Wall | Level | Start | End | Thickness | Before | Rule | Reason |",
+                  "|---|---|---|---|---|---|---|---|"]
+        for w in fixed:
+            label = w["corrected_by_ai"] if isinstance(w["corrected_by_ai"], dict) else {}
+            before = label.get("before") or {}
+            was = (f"{_pt(before['start'])}-{_pt(before['end'])} {before.get('thickness', 0.0):.3f}"
+                   if before.get("start") and before.get("end") else "-")
+            lines.append(f"| {w['id']} | {w['level_id']} | {_pt(w['start'])} | {_pt(w['end'])} | "
+                         f"{w['thickness']:.3f} | {was} | {_cell(label.get('rule') or '-')} | "
+                         f"{_cell(label.get('reason') or '')} |")
     if walls:
         lines += ["", f"Walls inferred from room outlines: {len(walls)} (the documents do not draw them; evidence "
                       "method inferred, status unverified).", "",

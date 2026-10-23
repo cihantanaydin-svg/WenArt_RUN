@@ -219,12 +219,19 @@ Milestone 13 (docs/milestone13.md §3.0 K1, K2, K7, §12 D1, D3, D4, D5, §13.2,
   and ``agent.loop.dry_fit``) pass the same. Why: the completion put the twin bookshelf f_L1_056 under a 1.44 m
   slope and the fit gave it a 2.02 m HSSD model (critical X2, through the roof, in every P6a round); real02's committed
   f_L1_035 has a 2.02 m model under a 2.07 m slope. On a flat level (no roof over it) nothing changes.
+- Fix round after P6b (23 Oct 2026; pod P6b, real03; the library-data track's ask). What: ``fit_report``'s
+  "Attribution (CC BY 4.0)" lines decode complete HTML entities (``credit_text``: ``&amp;`` -> ``&``, the rule of
+  ``wenart.run.copy.plain_text``); the fitted asset and the catalogue keep their text. Why: P6b's real03
+  building_fitted_report.md and building_final_report.md listed "... Knobs &amp; Faucet", "Hudson Reed Sublime Vanity
+  Unit &amp; Basin" and "Cooke &amp; Lewis Deluvio ..." (HSSD titles stored HTML-escaped), while ATTRIBUTION.md
+  already names the products as they are called.
 """
 from __future__ import annotations
 
 import argparse
 import copy
 import hashlib
+import html
 import json
 import math
 import re
@@ -2078,6 +2085,18 @@ def _fmt_scale(scales) -> str:
     return " / ".join(f"{s:.3f}" for s in scales)
 
 
+# Fix round after P6b (module docstring): a complete HTML entity (the rule of ``wenart.run.copy.HTML_ENTITY``).
+HTML_ENTITY = re.compile(r"&(?:#[0-9]+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);")
+
+
+def credit_text(asset: dict) -> str:
+    """Fix round after P6b (module docstring): the report's credit line of a fitted asset: its ``attribution`` with
+    complete HTML entities decoded (``&amp;`` -> ``&``), else "(no attribution recorded)"; a text without an entity
+    is unchanged."""
+    text = asset.get("attribution") or "(no attribution recorded)"
+    return HTML_ENTITY.sub(lambda m: html.unescape(m.group(0)), str(text))
+
+
 def fit_report(building: dict, title: Optional[str] = None, style_note: Optional[str] = None) -> str:
     """Markdown: one row per piece (asset, licence, scale, aspect error, method), fallbacks, licences,
     the style filter (``style_note``: the family and where it came from), the fit v2 ranking of every library
@@ -2117,7 +2136,7 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         else:
             licences[(asset["library"], asset["asset_id"], asset["licence"])] += 1
             if str(asset["licence"]).upper().startswith("CC-BY"):
-                credits[asset["asset_id"]] = asset.get("attribution") or "(no attribution recorded)"
+                credits[asset["asset_id"]] = credit_text(asset)
             if asset.get("licence_flag"):
                 flags[asset["asset_id"]] = f"{asset['licence']} ({asset['licence_flag']})"
             rank = asset.get("ranking")
@@ -2227,7 +2246,7 @@ def fit_report(building: dict, title: Optional[str] = None, style_note: Optional
         if asset.get("method") != "library":
             continue
         if str(asset.get("licence") or "").upper().startswith("CC-BY"):
-            credits[asset["asset_id"]] = asset.get("attribution") or "(no attribution recorded)"
+            credits[asset["asset_id"]] = credit_text(asset)
         if asset.get("licence_flag"):
             flags[asset["asset_id"]] = f"{asset['licence']} ({asset['licence_flag']})"
     if flags:

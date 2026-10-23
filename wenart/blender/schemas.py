@@ -92,6 +92,10 @@ Fix round after P6b (23 Oct 2026; docs/milestone13.md §7): a scene camera's ``r
 record of a replayed interior camera the build moved off a piece of this build (``status: moved``, with
 ``position_old``, ``target_old``, ``moved_m``, ``trigger``, ``blocked_by`` and the reason; ``camsearch.
 move_blocked_replayed``), and ``cameras_from.moved`` names those cameras. Optional: the recorded manifests stay valid.
+The same round's render record (G_render's ask): the exposure's ``wb_walls`` is typed (``WB_WALLS``): null, or the
+light on the view's walls in its two metering passes as ``render.wall_rig_record`` writes it (``share``,
+``rig_share``, ``light_rgb``, ``day_rgb``, ``rig_rgb``, ``rig_rb``, ``lamp_rb``, ``rig_kelvin``: each a number, an RGB
+triple or null; ``rule``: a string). Optional: no pod has written it yet (render code m13.5 is unrendered).
 """
 from __future__ import annotations
 
@@ -162,6 +166,27 @@ CAMERAS_FROM = {
 }
 
 _RGB = {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 3, "maxItems": 3}
+# Fix round after P6b (23 Oct 2026): the light on a view's walls (``render.wall_rig_record``, written by
+# ``Look._view_white`` for every interior view metered with the rig hidden; no white point reads it). Every key is
+# always written; a colour is luminance 1 (``render.normalise_whitepoint``, 6 places: a channel may round to 0) or
+# null (no light, metering noise, a rig share under ``render.WB_RIG_SHARE_MIN``).
+_WALL_RGB = {"oneOf": [{"type": "null"}, {"type": "array", "items": {"type": "number", "minimum": 0},
+                                          "minItems": 3, "maxItems": 3}]}
+_RATIO = {"type": ["number", "null"], "minimum": 0}
+WB_WALLS = {
+    "oneOf": [
+        {"type": "null"},
+        {"type": "object",
+         "required": ["share", "rig_share", "light_rgb", "day_rgb", "rig_rgb", "rig_rb", "lamp_rb", "rig_kelvin",
+                      "rule"],
+         "properties": {"share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+                        "rig_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+                        "light_rgb": _WALL_RGB, "day_rgb": _WALL_RGB, "rig_rgb": _WALL_RGB,
+                        "rig_rb": _RATIO, "lamp_rb": _RATIO,
+                        "rig_kelvin": {"type": ["number", "null"]},
+                        "rule": {"type": "string"}}},
+    ],
+}
 EXPOSURE = {
     "type": "object",
     "required": ["mode", "ev", "ev_raw", "at_limit", "target", "incident_p50", "whitepoint", "wb_temperature",
@@ -231,6 +256,8 @@ EXPOSURE = {
         "wb_day_wall_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
         "wb_tint_green_residual": {"type": "boolean"},
         "ground_rule": {"type": "string"},
+        # Fix round after P6b (23 Oct 2026, optional): the light on the view's walls (WB_WALLS, recorded only).
+        "wb_walls": WB_WALLS,
     },
 }
 _SHARE = {"type": ["number", "null"], "minimum": 0, "maximum": 1}

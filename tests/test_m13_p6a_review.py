@@ -117,8 +117,10 @@ def test_the_dry_re_check_keeps_the_missing_member_of_an_unchanged_sofa():
 @needs_p6a
 def test_p6a_salon_sofas_without_a_coffee_table_are_the_missing_member():
     """P6a's f_L-1b_041 / 042 (2 m off every wall, no coffee table or TV unit in their rooms): a coffee table 1 m in
-    front of f_L-1b_041 clears its F3 on the code's own check, so the cause is the missing member; the brief reports it
-    with complete_group's lock (the sofas are unverified: retype_piece first), not as the drawing's."""
+    front of f_L-1b_041 clears its F3 on the code's own check, so the cause is the missing member. Fix round after P6b
+    (``test_m13_p6b_integration``): the sofas are typed by code from the drawing (group_member / twin), so the brief
+    offers complete_group for the F3 (it reported complete_group's lock "unverified: retype_piece first" before, a
+    deadlock with the acceptance's refusal of a same-type confirm)."""
     b = read(P6A)
     sofa = next(f for f in b["furniture"] if f["id"] == "f_L-1b_041")
     assert CS.drawn_layout_state(b, sofa, "F3") == CS.MISSING_FRONT
@@ -135,9 +137,9 @@ def test_p6a_salon_sofas_without_a_coffee_table_are_the_missing_member():
     twin = next(f for f in b["furniture"] if f["id"] == "f_L-1b_042")
     f3 = CS.mark_drawn_layout([finding("F3", "f_L-1b_042", room=twin["room_id"])], b)[0]
     brief = BR.room_brief(b, twin["room_id"], findings=[dict(f3, id="c1", cause=CS.cause_of(f3, b))])
-    not_yours = brief["findings"]["not_yours"]
-    assert brief["findings"]["fixable"] == [] and not_yours[0]["cause"] == "missing_member"
-    assert "complete_group" in not_yours[0]["why"] and "unverified" in not_yours[0]["why"]
+    fixable = brief["findings"]["fixable"]
+    assert brief["findings"]["not_yours"] == [] and fixable[0]["cause"] == "missing_member"
+    assert fixable[0]["tools"] == ["complete_group"]
 
 
 # --------------------------------------------------------------------------

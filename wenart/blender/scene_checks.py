@@ -73,6 +73,8 @@ import math
 from pathlib import Path
 from typing import Callable, Optional
 
+import numpy as np
+
 from wenart.blender.rest import REST_TOLERANCES
 
 CHECKS: tuple[str, ...] = ("S1", "S2", "S3", "S4", "S5", "S6")
@@ -305,6 +307,47 @@ def depth_in_wall(point, wall: dict) -> float:
     return min(half - abs(n), s, length - s)
 
 
+def wall_bbox(wall: dict) -> tuple[list[float], list[float]]:
+    """Fix round after P6b: the axis-aligned box of a wall box (``wall_boxes``), its half thickness around the line."""
+    half = wall["thickness"] / 2.0
+    (ax, ay), (bx, by) = wall["a"], wall["b"]
+    return ([min(ax, bx) - half, min(ay, by) - half, wall["z0"]], [max(ax, bx) + half, max(ay, by) + half, wall["z1"]])
+
+
+def through_wall(verts, faces, wall: dict) -> float:
+    """Fix round after P6b (module docstring): the wall's thickness when an edge of the mesh runs through the whole
+    wall box (one end at or beyond each long face, its crossing of the wall's middle plane inside the wall's length
+    and height), else 0.0. ``depth_in_wall`` measures vertices, so a piece through the wall with every vertex on
+    either side of it measured 0 (P6b's wardrobe f_L0_098, 0.28 m through the front outer wall)."""
+    ax, ay = wall["a"]
+    bx, by = wall["b"]
+    length = math.hypot(bx - ax, by - ay)
+    if length < 1e-9 or not faces:
+        return 0.0
+    ux, uy = (bx - ax) / length, (by - ay) / length
+    half = wall["thickness"] / 2.0
+    arr = np.asarray(verts, dtype=np.float64).reshape(-1, 3)
+    s = (arr[:, 0] - ax) * ux + (arr[:, 1] - ay) * uy
+    n = -(arr[:, 0] - ax) * uy + (arr[:, 1] - ay) * ux
+    if n.min() > -half or n.max() < half:
+        return 0.0                                   # the mesh does not reach both faces of the wall
+    pairs = {(min(int(a), int(b)), max(int(a), int(b))) for f in faces for a, b in zip(f, list(f[1:]) + [f[0]])
+             if int(a) != int(b)}
+    if not pairs:
+        return 0.0
+    e = np.asarray(sorted(pairs), dtype=np.int64)
+    n0, n1 = n[e[:, 0]], n[e[:, 1]]
+    cross = ((n0 <= -half) & (n1 >= half)) | ((n1 <= -half) & (n0 >= half))
+    if not cross.any():
+        return 0.0
+    e, n0, n1 = e[cross], n0[cross], n1[cross]
+    t = -n0 / (n1 - n0)
+    sm = s[e[:, 0]] + t * (s[e[:, 1]] - s[e[:, 0]])
+    zm = arr[e[:, 0], 2] + t * (arr[e[:, 1], 2] - arr[e[:, 0], 2])
+    inside = (sm > 0.0) & (sm < length) & (zm >= wall["z0"] - 1e-9) & (zm <= wall["z1"] + 1e-9)
+    return float(wall["thickness"]) if inside.any() else 0.0
+
+
 def usable_asset(asset: Optional[dict]) -> bool:
     from wenart.furniture import catalog as C
 
@@ -362,19 +405,30 @@ def measure(meshes: dict, building: dict, caster_factory: Callable) -> dict:
             walls = walls_by_level.setdefault(piece.get("level_id"), wall_boxes(building, piece.get("level_id")))
             pts = R.sample_points(mesh["verts"], MAX_PAIR_SAMPLES)
             worst = (0.0, None)
+            through: Optional[str] = None
+            wall_tol = overlap_tolerance(piece["type"])
             for w in walls:
                 d = max((depth_in_wall(p, w) for p in pts), default=0.0)
-                if d > worst[0]:
-                    worst = (float(d), w["id"])
+                full = 0.0
+                if d <= wall_tol + 1e-9 and _boxes_overlap(boxes[pid], wall_bbox(w), 0.0):
+                    # fix round after P6b (module docstring): a piece through the whole wall has no vertex inside it
+                    full = through_wall(mesh["verts"], mesh["faces"], w)
+                if max(d, full) > worst[0]:
+                    worst = (float(max(d, full)), w["id"])
+                    through = w["id"] if full > d else None
             counts["S2"]["checked"] += 1
             m["wall_depth_m"] = round(worst[0], 4)
-            wall_tol = overlap_tolerance(piece["type"])
             m["s2_tolerance_m"] = wall_tol
             if worst[0] > wall_tol + 1e-9:
-                fail("S2", pid, room, f"{piece['type']} {pid} cuts wall {worst[1]} by {worst[0]:.3f} m (allowed "
-                                      f"{wall_tol:.3f} m for a {s2_class(piece['type'])} piece)",
-                     {"depth_m": round(worst[0], 4), "wall_id": worst[1], "tolerance_m": wall_tol,
-                      "class": s2_class(piece["type"])})
+                passes = through is not None
+                if passes:
+                    m["wall_through"] = through
+                what = (f"passes through wall {worst[1]} ({worst[0]:.3f} m thick: no vertex inside it)" if passes
+                        else f"cuts wall {worst[1]} by {worst[0]:.3f} m")
+                fail("S2", pid, room, f"{piece['type']} {pid} {what} (allowed {wall_tol:.3f} m for a "
+                                      f"{s2_class(piece['type'])} piece)",
+                     dict({"depth_m": round(worst[0], 4), "wall_id": worst[1], "tolerance_m": wall_tol,
+                           "class": s2_class(piece["type"])}, **({"through": True} if passes else {})))
         # S3 front
         if piece.get("front_deg") is not None:
             counts["S3"]["checked"] += 1

@@ -58,6 +58,11 @@ record), and ``decision``: ``code_retype`` (code retyped a piece the vision mode
 ``adjusted_by_ai`` label is listed anyway (label ``unlabelled``), so no change is silent; the final report lists the
 inferred items in its own section (``inferred_lines``) when there is no orchestrator section.
 
+Fix round after P6b (23 Oct 2026; the render track's ask): ``blocked_views`` (``last_round_blocked``): the cameras
+with a code ``camera_blocked`` finding in the run's last critic round; the final report marks those views blocked
+(``final.blocked_views``). Why: P6b's report showed real03's black yasama_3_2 / 5_2 / 6_1 (and the 54 % blocked
+yasama_2_2) as normal views.
+
 Fix round after P5 (22 Oct 2026), review:
 
 - What: a row of a code change the agent edited later reads "<the code's reason>; then: <the agent's reason>" with
@@ -534,7 +539,9 @@ def agent_block(project_out, out_dir, private: bool = False, building: Optional[
             "library_gaps": gaps, "reported": reported_findings(events), "context": context_checks(events),
             # fix round after P5: this run only (run_scope), the net findings removed and the last round's edits
             "first_seq": scope["first_seq"], "earlier": scope["earlier"], "removed_net": net,
-            "last_round_accepted": _last_round_accepted(events), "replayed": replayed}
+            "last_round_accepted": _last_round_accepted(events), "replayed": replayed,
+            # fix round after P6b: the views the last round still found blocked (the final report marks them)
+            "blocked_views": last_round_blocked(events)}
 
 
 def _last_round_accepted(events: list[dict]) -> dict:
@@ -546,6 +553,23 @@ def _last_round_accepted(events: list[dict]) -> dict:
     last = ids[-1] if ids else None
     return {"round": last, "accepted": sum(1 for e in events if e.get("kind") == "edit" and last is not None
                                            and _int(e.get("round")) == last)}
+
+
+# Fix round after P6b: the code check of a view blocked by a piece (``critic_code.CAMERA_BLOCKED_CHECK``).
+CAMERA_BLOCKED_CHECK = "camera_blocked"
+
+
+def last_round_blocked(events: list[dict]) -> dict[str, str]:
+    """Fix round after P6b (the render track's ask): ``{camera: finding text}`` of the code ``camera_blocked``
+    findings (not dropped) of the last critic round of the run (pure): the views the final build still renders
+    blocked. P6b real03: yasama_2_2 (54 %), yasama_3_2 / 5_2 / 6_1 (100 %, black) in round 4."""
+    rounds = sorted({_int(e.get("round")) for e in events if e.get("kind") == "finding" and not e.get("dropped")})
+    if not rounds:
+        return {}
+    last = rounds[-1]
+    return {str(e.get("target")): str(e.get("finding") or e.get("message") or "")
+            for e in events if e.get("kind") == "finding" and not e.get("dropped") and _int(e.get("round")) == last
+            and e.get("source") == "code" and e.get("checklist") == CAMERA_BLOCKED_CHECK and e.get("target")}
 
 
 def reported_findings(events: list[dict]) -> list[dict]:

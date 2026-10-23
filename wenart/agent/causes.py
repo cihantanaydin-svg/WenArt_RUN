@@ -333,6 +333,12 @@ NO_TOOL_REASON: dict[str, str] = {
 FIXTURE_LAYOUT_REASON = ("the piece is drawn fixed equipment (treated like walls): only fix_fixture may move it, at "
                          "most 0.5 m, and the code's search found no valid spot within that reach (inside the room, "
                          "off the doors and the other pieces), so no edit clears the finding; it is reported for review")
+# Fix round after P6b, the reading track's ask: why an F7 of drawn fixed equipment at a doorless opening's edge is
+# "not yours" (``PASSAGE_CLEAR``); ``{clear}`` / ``{width}`` / ``{need}``: metres.
+PASSAGE_CLEAR_REASON = ("the piece is drawn fixed equipment (treated like walls) at the edge of a doorless opening: it "
+                        "leaves {clear:.2f} m of the {width:.2f} m passage clear (at least the {need:.2f} m main "
+                        "walkway), so the drawing is no clear error and the piece stays as drawn; the opening is "
+                        "real and is never moved; reported for review")
 # Fix round after P3: cause -> the stage a finding no agent tool fixes is reported to (the loop logs it on the
 # finding event as ``report_to``). Fix round after P4a: a light fixture's look goes to the lighting stage.
 REPORT_TO: dict[str, str] = {"decor_under_roof": "decor", "decor_rest": "decor", "light_fixture": "lighting",
@@ -406,6 +412,11 @@ MISSING_FRONT = "missing_front"
 # good when its 0.5 m search finds no valid spot (``fixture_layout_blocked``), and the flag's value then.
 FIXTURE_LAYOUT_CHECKS: tuple[str, ...] = ("F7", "G12", "G8")
 FIXTURE_LAYOUT = "fixture"
+# Fix round after P6b, the reading track's asks (module docstring): the cuts of drawn fixed equipment through a wall
+# (S2 with a ``wall_id``) or the room outline (F9 with ``outside_m2``) that fix_fixture's search cannot clear either,
+# and the flag's value of an F7 at a doorless opening's edge that leaves the passage clear (``passage_clear``).
+FIXTURE_CUT_CHECKS: tuple[str, ...] = ("S2", "F9")
+PASSAGE_CLEAR = "passage_clear"
 # Fix round after P6b (module docstring): the words of a vision F1 on a room that says it is empty (cause
 # ``empty_room``), and of a vision F9 on a built piece: a cut through a wall (``collision``), a placement opinion (the
 # old route), a claim about the rendered model (``wrong_model``).
@@ -486,6 +497,11 @@ def cause_of(finding: dict, building: Optional[dict] = None) -> str:
         return "empty_room"                    # fix round after P6b: furnish the room, never retype it away
     if check == "RC" and target and not _is_piece(target, building):
         return "resolved_by_code"              # fix round after P6b: a symbol the reading moved out of the furniture
+    if check in FIXTURE_LAYOUT_CHECKS + FIXTURE_CUT_CHECKS and metrics.get(DRAWN_LAYOUT_FLAG) in (FIXTURE_LAYOUT,
+                                                                                               PASSAGE_CLEAR):
+        # fix round after P6b: fix_fixture's search found no valid spot; (asks) an S2 / F9 wall or outline cut of such
+        # a piece, an F7 at a doorless opening's edge that leaves the passage clear
+        return "drawn_layout"
     if check in FIXTURE_LAYOUT_CHECKS and metrics.get(DRAWN_LAYOUT_FLAG):
         return "drawn_layout"                  # fix round after P6b: fix_fixture's search found no valid spot
     if check in AGENT_VIEW_CHECKS and finding.get("source") == "vision" and metrics.get(AGENT_VIEW_FLAG):
@@ -621,6 +637,16 @@ def no_tool_reason(finding: dict) -> str:
     cause = cause_of(finding)
     if cause == "drawn_layout" and _metrics(finding).get(DRAWN_LAYOUT_FLAG) == FIXTURE_LAYOUT:
         return FIXTURE_LAYOUT_REASON           # fix round after P6b
+    if cause == "drawn_layout" and _metrics(finding).get(DRAWN_LAYOUT_FLAG) == PASSAGE_CLEAR:
+        m = _metrics(finding)                  # fix round after P6b, the reading track's ask
+        try:
+            return PASSAGE_CLEAR_REASON.format(clear=float(m["passage_clear_m"]), width=float(m["passage_width_m"]),
+                                               need=float(m["passage_need_m"]))
+        except (KeyError, TypeError, ValueError):
+            # a dry re-check's copy carries the flag only (``loop.carry_drawn_layout``)
+            return PASSAGE_CLEAR_REASON.split(": it leaves", 1)[0] + (": it leaves at least the main walkway of the "
+                                                                     "passage clear, so the piece stays as drawn; "
+                                                                     "reported for review")
     return NO_TOOL_REASON.get(cause, f"no agent tool fixes {finding.get('check') or finding.get('checklist')} "
                                      f"(cause {cause})")
 
@@ -844,9 +870,16 @@ def mark_drawn_layout(findings: list[dict], building: Optional[dict]) -> list[di
         if piece is None:
             continue
         state = drawn_layout_state(building, piece, check) if check in DRAWN_LAYOUT_CHECKS else False
+        extra: dict = {}
+        passage = passage_clear(building, piece, _metrics(f).get("door")) if check == "F7" else None
         if state:
             flag = state
-        elif check in FIXTURE_LAYOUT_CHECKS:
+        elif passage is not None:
+            # fix round after P6b, the reading track's ask (module docstring): the doorless passage stays usable
+            flag, extra = PASSAGE_CLEAR, passage
+        elif check in FIXTURE_CUT_CHECKS and not fixture_cut(f):
+            continue
+        elif check in FIXTURE_LAYOUT_CHECKS + FIXTURE_CUT_CHECKS:
             # fix round after P6b (module docstring): drawn fixed equipment fix_fixture finds no valid spot for
             if piece.get("id") not in fixtures:
                 fixtures[piece.get("id")] = fixture_layout_blocked(building, piece)
@@ -856,10 +889,67 @@ def mark_drawn_layout(findings: list[dict], building: Optional[dict]) -> list[di
         else:
             continue
         evidence = f.get("evidence") if isinstance(f.get("evidence"), dict) else {}
-        evidence["metrics"] = dict(_metrics(f), **{DRAWN_LAYOUT_FLAG: flag})
+        evidence["metrics"] = dict(_metrics(f), **extra, **{DRAWN_LAYOUT_FLAG: flag})
         f["evidence"] = evidence
         f.pop("cause", None)
     return findings
+
+
+def fixture_cut(finding: dict) -> bool:
+    """Fix round after P6b, the reading track's ask (module docstring): an S2 that cuts a wall (``metrics.wall_id``, no
+    ``metrics.other``) or an F9 through the room outline (``metrics.outside_m2``): the cuts fix_fixture answers by
+    moving the piece. A cut with another piece is not one (the other piece may move)."""
+    check = str(finding.get("check") or finding.get("checklist") or "")
+    m = _metrics(finding)
+    if check == "S2":
+        return bool(m.get("wall_id")) and not m.get("other")
+    if check == "F9":
+        return m.get("outside_m2") is not None
+    return False
+
+
+def passage_clear(building: dict, piece: dict, door_id: Optional[str]) -> Optional[dict]:
+    """Fix round after P6b, the reading track's ask (verify:library:2 better_fix (c)): for the F7 of drawn fixed
+    equipment (``edit_ops._fixed``, ``from_documents``) at a doorless opening (``type: opening``: no leaf, no swing)
+    whose approach strip it reaches into while the opening keeps at least the main walkway clear (groups.yaml
+    ``walkway_main``: 0.80 m; ``passage_clear_m``: the longer free stretch of the opening's width beside the piece),
+    ``{"passage_clear_m", "passage_width_m", "passage_need_m"}``; None otherwise (a door with a leaf keeps its F7: a
+    piece in a door is a clear error) and whenever the geometry cannot be read. Why: P6b's real03 kitchen-run fridges
+    f_L0_200 / 202 / 206 reach 0.12 m past the jamb of the 1.05 m passages (DUVAR end caps at both jambs, a real
+    opening) and leave 0.93 m clear; the critical F7 sent fix_fixture after them."""
+    if not door_id or not isinstance(piece, dict) or piece.get("source") != "from_documents" or not in_scene(piece):
+        return None
+    opening = next((o for o in building.get("openings") or [] if isinstance(o, dict) and o.get("id") == door_id), None)
+    if opening is None or opening.get("type") != "opening":
+        return None
+    try:
+        from wenart.furniture import edit_ops as EO
+        from wenart.furniture import groups as GR
+        from wenart.furniture import placer
+        room = _room_of_piece(building, piece)
+        if room is None or not EO._fixed(piece):
+            return None
+        ctx = placer.room_context(building, room)
+        door = next((d for d in ctx.doors if d.id == door_id), None)
+        if door is None or door.along is None:
+            return None
+        hit = placer.drawn_piece(piece).polygon().intersection(door.zone)
+        width = float(door.width)
+        half = width / 2.0
+        if hit.is_empty:
+            clear = width
+        else:
+            (x0, y0), (ux, uy) = door.inner_point, door.along
+            ts = [(x - x0) * ux + (y - y0) * uy for part in placer.polygon_parts(hit)
+                  for x, y in part.exterior.coords]
+            lo, hi = max(-half, min(ts)), min(half, max(ts))
+            clear = max(0.0, lo + half, half - hi)
+        need = float(GR.rule("walkway_main")["min"])
+        if clear < need - 1e-9:
+            return None
+        return {"passage_clear_m": round(clear, 3), "passage_width_m": round(width, 3), "passage_need_m": need}
+    except Exception:  # noqa: BLE001 - a geometry that cannot be read keeps the finding's tools
+        return None
 
 
 def fixture_layout_blocked(building: dict, piece: dict) -> bool:

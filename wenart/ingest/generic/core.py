@@ -58,7 +58,11 @@ it was before (an attribute of the ``WallItem``, for the wall's dict in the buil
 evidence note too); ``_shift_wall`` moves that ``before`` into the building frame with the wall. ``gap_rule_notes``
 lists in the page notes (the ingest report's Notes) every gap the fix round's openings rules decided (lined gaps, gaps
 inside wall material, walls drawn across a gap on a wall layer, gaps without glass), in building metres, and every
-wall marked ``corrected_by_ai`` with its reason.
+wall marked ``corrected_by_ai`` with its reason. Review finding of the fix round after P6a (same round): the P6a
+whole-part read is also reached by a candidate the passes typed as a table; it now keeps the passes' type as
+``ai_overridden`` (a type_disagreement conflict in the report) when the drawing types the piece otherwise (a coat
+closet both passes called a coffee table) and notes ``split_override_text``'s line, not "still unknown after its
+answers" (said only of an ``unknown`` piece).
 """
 from __future__ import annotations
 
@@ -585,14 +589,29 @@ def _reread_unknowns(ex: LevelExtraction, cands: list[dict], extras: list[dict],
             # part by block instance: real02's first corridor closet (passes unknown / bench) lost its hanger inserts
             # to two not-built "details" and stayed a coffee table with two chairs, unlike its twin. The question
             # stays as it was (same key and hash).
+            # Fix round after P6b (23 Oct 2026; review finding of the fix round after P6a): this branch is also reached
+            # by a candidate the passes typed as a table (``SY.TABLE_TYPES``). Such a candidate is not "still
+            # unknown": the drawing outranks a typed answer here as in the branch above (``split_override_text``'s
+            # note), and the AI's type is kept as ``ai_overridden`` (``reading.log_overrides``: a type_disagreement
+            # conflict in the report) whenever the drawing gives the piece another type (a coat closet the passes
+            # called a coffee table). A rug-set table that keeps the passes' table type is no type disagreement (as
+            # the M12 re-read of a table answer with its chairs never was), so it records none.
             made = SY.table_chair_items(whole, ctx, raster, table)
             for it in made:
                 it.details["reread_of"] = cand["key"]
             replaced[cand["key"]] = made
-            ex.notes.append(f"{cand['key']}: still unknown after its answers, but drawn as "
-                            + (f"a coat closet ({whole['wardrobe']['note']}): one wardrobe" if whole.get("wardrobe")
-                               else f"a table with {len(whole['chairs'])} chairs on a rug outline: split, the outline "
-                                    f"a rug mark") + " (fix round after P6a)")
+            if item.type == "unknown":
+                ex.notes.append(f"{cand['key']}: still unknown after its answers, but drawn as "
+                                + (f"a coat closet ({whole['wardrobe']['note']}): one wardrobe"
+                                   if whole.get("wardrobe")
+                                   else f"a table with {len(whole['chairs'])} chairs on a rug outline: split, the "
+                                        f"outline a rug mark") + " (fix round after P6a)")
+                continue
+            reason, note = split_override_text(whole, cand["key"], item.type, len(made))
+            if made[0].type != item.type:
+                made[0].details["ai_overridden"] = {"type": item.type, "type_candidates": list(item.type_candidates),
+                                                    "reason": reason}
+            ex.notes.append(note)
             continue
         if containers is None:
             containers = SY.containers_of(strokes_m or [])

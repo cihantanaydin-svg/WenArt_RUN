@@ -49,8 +49,11 @@ Fix round after P4b (17 Oct 2026; pod P4b, real03; integration of the agent trac
   is in ``visible_openings`` and in the horizontal field of view, and the camera stands at most
   ``ENTRANCE_VIEW_MAX_M`` from the door face and within ``ENTRANCE_VIEW_MAX_DEG`` of the door's axis (the agent's
   ``tools.entrance_problem`` and the build's ``agent_exterior_view`` use the same function). The bearing is taken
-  from the door: the planner's own entrance view looks 42 degrees off the axis, because ``frame_fixed`` turns it to
-  the building's middle.
+  from the door: the planner's own entrance view then looked 42 degrees off the axis, because ``frame_fixed`` turned
+  it to the building's middle. Fix round after P6b (23 Oct 2026; docstring only): the planner's entrance view now
+  looks straight at its door from 20 degrees off the door's axis (``exterior.entrance_frame``, ``_try_entrance``: a
+  level frame, no yaw re-centring; a place is kept only with its door and the sky in the frame), and the
+  bearing-from-door rule stays as it is (an agent's entrance view may still look along another line).
 - **The sun override follows the X7 rule.** ``validate_exterior_override`` takes the sun elevation only within
   ``SUN_ELEVATION_RANGE`` (25-50 degrees, was 5-89), and an ``azimuth_deg`` only when, turned to the building frame
   with ``site.north_deg``, it lights the main facade (P4b's sun at 55 degrees was accepted, then X7 reported it).
@@ -289,8 +292,10 @@ def entrance_view_problem(rec: Optional[dict], position, target, lens_mm: Option
     ``ENTRANCE_VIEW_MAX_DEG`` off the door's outward axis (seen from the door), or the door lies outside the
     horizontal field of view of ``lens_mm`` (default ``exterior.EYE_LENS_MM``); None when it is one, or without a
     record. The bearing is measured from the door, not along the look: the planner's entrance view stands 20 degrees
-    off the axis and ``exterior.frame_fixed`` turns its yaw to the building's middle (real03's ext_7 looks 42 degrees
-    off the axis with the door in the frame)."""
+    off the axis. Until the fix round after P6b ``exterior.frame_fixed`` turned its yaw to the building's middle (P4b
+    real03's ext_7 looked 42 degrees off the axis with the door in the frame); since then (23 Oct 2026) it looks
+    straight at its door (``exterior.entrance_frame``, ``_try_entrance``). An agent's entrance view may still look
+    along another line, so the bearing stays measured from the door."""
     from wenart.blender import exterior as E
 
     if not rec or target is None:
